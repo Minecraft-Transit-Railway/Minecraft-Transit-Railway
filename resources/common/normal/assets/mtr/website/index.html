@@ -11,16 +11,20 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+JP">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-	<link rel="icon" type="image/png" href="../../../../../../../forge/src/main/resources/icon.png"/>
-	<script src="https://pixijs.download/release/pixi.js"></script>
+	<script src="fabric.min.js"></script>
+	<script src="fontfaceobserver.standalone.js"></script>
 	<script type="module" src="index.js"></script>
 	<script type="module" src="drawing.js"></script>
-	<script type="module" src="directions.js"></script>
+	<script type="module" src="data.js"></script>
+	<script type="module" src="document.js"></script>
+	<script type="module" src="actions.js"></script>
+	<script type="module" src="settings.js"></script>
 	<script type="module" src="utilities.js"></script>
 	<script type="module" src="fetch.js"></script>
 	<script type="module" src="version.js"></script>
 </head>
 <body>
+<canvas id="canvas"></canvas>
 <div id="loading" class="material-icons large">refresh</div>
 <div id="search" class="box">
 	<div class="search_top">
@@ -99,6 +103,9 @@
 				<span id="settings_route_type_boat_light_rail" class="material-icons clickable">directions_boat</span>
 				<span id="settings_route_type_boat_high_speed" class="material-icons clickable">snowmobile</span>
 				<span id="settings_route_type_cable_car_normal" class="material-icons clickable">airline_seat_recline_extra</span>
+				<span id="settings_route_type_bus_normal" class="material-icons clickable">directions_bus</span>
+				<span id="settings_route_type_bus_light_rail" class="material-icons clickable">local_taxi</span>
+				<span id="settings_route_type_bus_high_speed" class="material-icons clickable">airport_shuttle</span>
 			</div>
 		</div>
 		<div id="settings_dimensions">
@@ -110,10 +117,13 @@
 			<div>
 				<span id="zoom_in_icon" class="material-icons clickable ">zoom_in</span>
 				<span id="zoom_out_icon" class="material-icons clickable ">zoom_out</span>
-				<span id="directions_icon" class="material-icons clickable ">directions</span>
+				<span id="text_zoom_in_icon" class="material-icons clickable ">text_increase</span>
+				<span id="text_zoom_out_icon" class="material-icons clickable ">text_decrease</span>
 				<span id="toggle_text_icon" class="material-icons clickable ">font_download_off</span>
+				<span id="directions_icon" class="material-icons clickable ">directions</span>
+				<span id="density_view_icon" class="material-icons clickable ">person</span>
+				<span id="toggle_legend_icon" class="material-icons clickable ">playlist_remove</span>
 				<span id="toggle_theme_icon" class="material-icons clickable "></span>
-				<span id="download_icon" class="material-icons clickable ">download</span>
 			</div>
 		</div>
 		<div>
@@ -123,6 +133,8 @@
 			<div id="version" class="version"></div>
 		</div>
 	</div>
+</div>
+<div id="legend" class="box" style="display: none">
 </div>
 </body>
 </html>

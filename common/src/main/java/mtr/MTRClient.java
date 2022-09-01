@@ -12,10 +12,14 @@ import mtr.item.ItemBlockClickingBase;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.*;
+import mtr.servlet.Webserver;
 import mtr.sound.LoopingSoundInstance;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.item.Item;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class MTRClient implements IPacket {
 
@@ -174,8 +178,11 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_LARGE_TILE_ENTITY.get(), dispatcher -> new RenderPIDS<>(dispatcher, 16, -15, 15, 16, 46, 46, false, false, true, 0xFF9900, 0xFF9900));
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.BOAT_NODE_TILE_ENTITY.get(), RenderBoatNode::new);
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.CLOCK_TILE_ENTITY.get(), RenderClock::new);
+		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.PSD_DOOR_1_TILE_ENTITY.get(), dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 0));
+		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.PSD_DOOR_2_TILE_ENTITY.get(), dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 1));
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.PSD_TOP_TILE_ENTITY.get(), RenderPSDTop::new);
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.APG_GLASS_TILE_ENTITY.get(), RenderAPGGlass::new);
+		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.APG_DOOR_TILE_ENTITY.get(), dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 2));
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.PIDS_1_TILE_ENTITY.get(), dispatcher -> new RenderPIDS<>(dispatcher, BlockPIDS1.TileEntityBlockPIDS1.MAX_ARRIVALS, 1, 3.25F, 6, 2.5F, 30, true, false, false, 0xFF9900, 0xFF9900));
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.PIDS_2_TILE_ENTITY.get(), dispatcher -> new RenderPIDS<>(dispatcher, BlockPIDS2.TileEntityBlockPIDS2.MAX_ARRIVALS, 1.5F, 7.5F, 6, 6.5F, 29, true, true, false, 0xFF9900, 0xFF9900));
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.PIDS_3_TILE_ENTITY.get(), dispatcher -> new RenderPIDS<>(dispatcher, BlockPIDS3.TileEntityBlockPIDS3.MAX_ARRIVALS, 2.5F, 7.5F, 6, 6.5F, 27, true, false, false, 0xFF9900, 0x33CC00, 1.25F, true));
@@ -318,6 +325,10 @@ public class MTRClient implements IPacket {
 
 		MTRClientLifts.init();
 
+		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_ACCELERATE);
+		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_BRAKE);
+		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_TOGGLE_DOORS);
+
 		BlockTactileMap.TileEntityTactileMap.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
 		BlockTactileMap.TileEntityTactileMap.onUse = pos -> {
 			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
@@ -326,8 +337,11 @@ public class MTRClient implements IPacket {
 			}
 		};
 
+		Webserver.init();
+
 		RegistryClient.registerPlayerJoinEvent(player -> {
 			Config.refreshProperties();
+
 			isReplayMod = player.getClass().toGenericString().toLowerCase().contains("replaymod");
 			try {
 				Class.forName("org.vivecraft.main.VivecraftMain");
@@ -335,9 +349,20 @@ public class MTRClient implements IPacket {
 			} catch (Exception ignored) {
 				isVivecraft = false;
 			}
+
 			System.out.println(isReplayMod ? "Running in Replay Mod mode" : "Not running in Replay Mod mode");
 			System.out.println(isVivecraft ? "Vivecraft detected" : "Vivecraft not detected");
+
+			final Minecraft minecraft = Minecraft.getInstance();
+			if (!minecraft.hasSingleplayerServer()) {
+				Webserver.callback = minecraft::execute;
+				Webserver.getWorlds = () -> minecraft.level == null ? new ArrayList<>() : Collections.singletonList(minecraft.level);
+				Webserver.getRoutes = railwayData -> ClientData.ROUTES;
+				Webserver.getDataCache = railwayData -> ClientData.DATA_CACHE;
+				Webserver.start(Minecraft.getInstance().gameDirectory.toPath().resolve("config").resolve("mtr_webserver_port.txt"));
+			}
 		});
+		Registry.registerPlayerQuitEvent(player -> Webserver.stop());
 	}
 
 	public static boolean isReplayMod() {

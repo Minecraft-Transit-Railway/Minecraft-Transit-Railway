@@ -177,7 +177,6 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 		});
 	}
 
-	@Override
 	protected int[] getBogiePositions() {
 		return new int[]{}; // TODO
 	}

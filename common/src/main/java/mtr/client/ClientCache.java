@@ -1,5 +1,6 @@
 package mtr.client;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import mtr.MTR;
 import mtr.data.*;
 import mtr.mappings.Utilities;
@@ -23,7 +24,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class ClientCache extends DataCache {
+public class ClientCache extends DataCache implements IGui {
 
 	private Font font;
 	private Font fontCjk;
@@ -41,9 +42,10 @@ public class ClientCache extends DataCache {
 	private final List<Long> clearPlatformIdToRoutes = new ArrayList<>();
 
 	private final Map<String, DynamicResource> dynamicResources = new HashMap<>();
+	private final Set<String> removedResources = new HashSet<>();
 	private boolean canGenerateResource = true;
 
-	private static final float LINE_HEIGHT_MULTIPLIER = 1.25F;
+	public static final float LINE_HEIGHT_MULTIPLIER = 1.25F;
 	private static final ResourceLocation DEFAULT_BLACK_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/black.png");
 	private static final ResourceLocation DEFAULT_WHITE_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/white.png");
 	private static final ResourceLocation DEFAULT_TRANSPARENT_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/transparent.png");
@@ -93,8 +95,7 @@ public class ClientCache extends DataCache {
 				clearPlatformIdToRoutes.add(id);
 			}
 		});
-		dynamicResources.forEach((key, dynamicResource) -> dynamicResource.remove());
-		dynamicResources.clear();
+		removedResources.addAll(dynamicResources.keySet());
 	}
 
 	public Map<Long, Platform> requestStationIdToPlatforms(long stationId) {
@@ -163,27 +164,49 @@ public class ClientCache extends DataCache {
 		}
 	}
 
-	public ResourceLocation getColorStrip(long platformId) {
+	public DynamicResource getColorStrip(long platformId) {
 		return getResource(String.format("color_%s", platformId), () -> RouteMapGenerator.generateColorStrip(platformId), DefaultRenderingColor.TRANSPARENT);
 	}
 
-	public ResourceLocation getStationName(long platformId, float aspectRatio) {
-		return getResource(String.format("name_%s_%s", platformId, aspectRatio), () -> RouteMapGenerator.generateStationName(platformId, aspectRatio), DefaultRenderingColor.WHITE);
+	public DynamicResource getStationName(String stationName, float aspectRatio) {
+		return getResource(String.format("name_%s_%s", stationName, aspectRatio), () -> RouteMapGenerator.generateStationName(stationName, aspectRatio), DefaultRenderingColor.TRANSPARENT);
 	}
 
-	public ResourceLocation getDirectionArrow(long platformId, boolean invert, boolean hasLeft, boolean hasRight, IGui.HorizontalAlignment horizontalAlignment, boolean showToString, float paddingScale, float aspectRatio, boolean transparentWhite) {
-		return getResource(String.format("map_%s_%s_%s_%s_%s_%s_%s_%s_%s", platformId, invert, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio, transparentWhite), () -> RouteMapGenerator.generateDirectionArrow(platformId, invert, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio, transparentWhite), invert ? DefaultRenderingColor.BLACK : transparentWhite ? DefaultRenderingColor.TRANSPARENT : DefaultRenderingColor.WHITE);
+	public DynamicResource getTallStationName(int textColor, String stationName, int stationColor, float aspectRatio) {
+		return getResource(String.format("name_%s_%s_%s_%s", textColor, stationName, stationColor, aspectRatio), () -> RouteMapGenerator.generateTallStationName(textColor, stationName, stationColor, aspectRatio), DefaultRenderingColor.TRANSPARENT);
 	}
 
-	public ResourceLocation getRouteMap(long platformId, boolean vertical, boolean flip, float aspectRatio, boolean transparentWhite) {
+	public DynamicResource getSingleRowStationName(long platformId, float aspectRatio) {
+		return getResource(String.format("name_%s_%s", platformId, aspectRatio), () -> RouteMapGenerator.generateSingleRowStationName(platformId, aspectRatio), DefaultRenderingColor.WHITE);
+	}
+
+	public DynamicResource getSignText(String text, HorizontalAlignment horizontalAlignment, float paddingScale, int backgroundColor, int textColor) {
+		return getResource(String.format("route_%s_%s_%s_%s_%s", text, horizontalAlignment, paddingScale, backgroundColor, textColor), () -> RouteMapGenerator.generateSignText(text, horizontalAlignment, paddingScale, backgroundColor, textColor), DefaultRenderingColor.TRANSPARENT);
+	}
+
+	public DynamicResource getRouteSquare(int color, String routeName, IGui.HorizontalAlignment horizontalAlignment) {
+		return getResource(String.format("route_%s_%s_%s", color, routeName, horizontalAlignment), () -> RouteMapGenerator.generateRouteSquare(color, routeName, horizontalAlignment), DefaultRenderingColor.TRANSPARENT);
+	}
+
+	public DynamicResource getDirectionArrow(long platformId, boolean hasLeft, boolean hasRight, IGui.HorizontalAlignment horizontalAlignment, boolean showToString, float paddingScale, float aspectRatio, int backgroundColor, int textColor, int transparentColor) {
+		return getResource(String.format("map_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s", platformId, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio, backgroundColor, textColor, transparentColor), () -> RouteMapGenerator.generateDirectionArrow(platformId, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio, backgroundColor, textColor, transparentColor), transparentColor == 0 && backgroundColor == ARGB_WHITE ? DefaultRenderingColor.WHITE : DefaultRenderingColor.TRANSPARENT);
+	}
+
+	public DynamicResource getRouteMap(long platformId, boolean vertical, boolean flip, float aspectRatio, boolean transparentWhite) {
 		return getResource(String.format("map_%s_%s_%s_%s_%s", platformId, vertical, flip, aspectRatio, transparentWhite), () -> RouteMapGenerator.generateRouteMap(platformId, vertical, flip, aspectRatio, transparentWhite), transparentWhite ? DefaultRenderingColor.TRANSPARENT : DefaultRenderingColor.WHITE);
 	}
 
 	public byte[] getTextPixels(String text, int[] dimensions, int fontSizeCjk, int fontSize) {
-		return getTextPixels(text, dimensions, Integer.MAX_VALUE, fontSizeCjk, fontSize, 0, null);
+		return getTextPixels(text, dimensions, Integer.MAX_VALUE, (int) (Math.max(fontSizeCjk, fontSize) * LINE_HEIGHT_MULTIPLIER), fontSizeCjk, fontSize, 0, null);
 	}
 
-	public byte[] getTextPixels(String text, int[] dimensions, int maxWidth, int fontSizeCjk, int fontSize, int padding, IGui.HorizontalAlignment horizontalAlignment) {
+	public byte[] getTextPixels(String text, int[] dimensions, int maxWidth, int maxHeight, int fontSizeCjk, int fontSize, int padding, IGui.HorizontalAlignment horizontalAlignment) {
+		if (maxWidth <= 0) {
+			dimensions[0] = 0;
+			dimensions[1] = 0;
+			return new byte[0];
+		}
+
 		final boolean oneRow = horizontalAlignment == null;
 		final String[] textSplit = IGui.textOrUntitled(text).split("\\|");
 		final AttributedString[] attributedStrings = new AttributedString[textSplit.length];
@@ -194,9 +217,10 @@ public class ClientCache extends DataCache {
 		int height = 0;
 
 		for (int index = 0; index < textSplit.length; index++) {
-			final boolean isCjk = textSplit[index].codePoints().anyMatch(Character::isIdeographic);
+			final boolean useCjkFont = textSplit[index].codePoints().anyMatch(character -> !font.canDisplay(character));
+			final boolean isCjk = IGui.isCjk(textSplit[index]);
 			final Font mainFont = font.deriveFont(Font.PLAIN, isCjk ? fontSizeCjk : fontSize);
-			final Font fallbackFont = isCjk ? fontCjk.deriveFont(Font.PLAIN, fontSizeCjk) : mainFont;
+			final Font fallbackFont = useCjkFont ? fontCjk.deriveFont(Font.PLAIN, isCjk ? fontSizeCjk : fontSize) : mainFont;
 
 			attributedStrings[index] = new AttributedString(textSplit[index]);
 			if (textSplit[index].length() > 0) {
@@ -223,7 +247,8 @@ public class ClientCache extends DataCache {
 		}
 
 		int textOffset = 0;
-		final BufferedImage image = new BufferedImage(width + (oneRow ? 0 : padding * 2), height + (oneRow ? 0 : padding * 2), BufferedImage.TYPE_BYTE_GRAY);
+		final int imageHeight = Math.min(height, maxHeight);
+		final BufferedImage image = new BufferedImage(width + (oneRow ? 0 : padding * 2), imageHeight + (oneRow ? 0 : padding * 2), BufferedImage.TYPE_BYTE_GRAY);
 		final Graphics2D graphics2D = image.createGraphics();
 		graphics2D.setColor(Color.WHITE);
 		graphics2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -232,18 +257,19 @@ public class ClientCache extends DataCache {
 				graphics2D.drawString(attributedStrings[index].getIterator(), textOffset, height / LINE_HEIGHT_MULTIPLIER);
 				textOffset += textWidths[index] + padding;
 			} else {
-				final int textWidth = Math.min(maxWidth, textWidths[index]);
+				final float scaleY = (float) imageHeight / height;
+				final float textWidth = Math.min(maxWidth, textWidths[index] * scaleY);
+				final float scaleX = textWidth / textWidths[index];
 				final AffineTransform stretch = new AffineTransform();
-				final float scale = (float) textWidth / textWidths[index];
-				stretch.concatenate(AffineTransform.getScaleInstance(scale, 1));
+				stretch.concatenate(AffineTransform.getScaleInstance(scaleX, scaleY));
 				graphics2D.setTransform(stretch);
-				graphics2D.drawString(attributedStrings[index].getIterator(), horizontalAlignment.getOffset(0, textWidth - width) + padding / scale, textOffset + fontSizes[index] + padding);
+				graphics2D.drawString(attributedStrings[index].getIterator(), horizontalAlignment.getOffset(0, textWidth - width) / scaleY + padding / scaleX, textOffset + fontSizes[index] + padding / scaleY);
 				textOffset += fontSizes[index] * LINE_HEIGHT_MULTIPLIER;
 			}
 		}
 
 		dimensions[0] = width + (oneRow ? 0 : padding * 2);
-		dimensions[1] = height + (oneRow ? 0 : padding * 2);
+		dimensions[1] = imageHeight + (oneRow ? 0 : padding * 2);
 		final byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
 		graphics2D.dispose();
 		image.flush();
@@ -270,7 +296,7 @@ public class ClientCache extends DataCache {
 		return posToSidings.get(transportMode);
 	}
 
-	private ResourceLocation getResource(String key, Supplier<DynamicTexture> supplier, DefaultRenderingColor defaultRenderingColor) {
+	private DynamicResource getResource(String key, Supplier<DynamicTexture> supplier, DefaultRenderingColor defaultRenderingColor) {
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		if (font == null || fontCjk == null) {
 			final ResourceManager resourceManager = minecraftClient.getResourceManager();
@@ -292,9 +318,10 @@ public class ClientCache extends DataCache {
 			keysToRemove.forEach(dynamicResources::remove);
 		}
 
-		final boolean hasKey = dynamicResources.containsKey(key);
-		if (hasKey) {
-			return dynamicResources.get(key).getResourceLocation();
+		if (dynamicResources.containsKey(key) && !removedResources.contains(key)) {
+			final DynamicResource dynamicResource = dynamicResources.get(key);
+			dynamicResource.age = 0;
+			return dynamicResource;
 		} else {
 			final ResourceLocation defaultLocation = defaultRenderingColor.resourceLocation;
 
@@ -305,13 +332,23 @@ public class ClientCache extends DataCache {
 				new Thread(() -> {
 					final DynamicTexture dynamicTexture = supplier.get();
 					minecraftClient.execute(() -> {
-						dynamicResources.put(key, new DynamicResource(dynamicTexture == null ? defaultLocation : minecraftClient.getTextureManager().register(MTR.MOD_ID, dynamicTexture)));
+						if (removedResources.contains(key) && dynamicResources.containsKey(key)) {
+							dynamicResources.get(key).remove();
+						}
+						dynamicResources.put(key, new DynamicResource(dynamicTexture == null ? defaultLocation : minecraftClient.getTextureManager().register(MTR.MOD_ID, dynamicTexture), dynamicTexture));
+						removedResources.remove(key);
 						canGenerateResource = true;
 					});
 				}).start();
 			}
 
-			return defaultLocation;
+			if (dynamicResources.containsKey(key)) {
+				final DynamicResource dynamicResource = dynamicResources.get(key);
+				dynamicResource.age = 0;
+				return dynamicResource;
+			} else {
+				return new DynamicResource(defaultLocation, null);
+			}
 		}
 	}
 
@@ -378,20 +415,30 @@ public class ClientCache extends DataCache {
 		}
 	}
 
-	private static class DynamicResource {
+	public static class DynamicResource {
 
 		private int age;
-		private final ResourceLocation resourceLocation;
+		public final int width;
+		public final int height;
+		public final ResourceLocation resourceLocation;
 		private static final int MAX_AGE = 10000;
 
-		private DynamicResource(ResourceLocation resourceLocation) {
+		private DynamicResource(ResourceLocation resourceLocation, DynamicTexture dynamicTexture) {
 			age = 0;
 			this.resourceLocation = resourceLocation;
-		}
-
-		private ResourceLocation getResourceLocation() {
-			age = 0;
-			return resourceLocation;
+			if (dynamicTexture != null) {
+				final NativeImage nativeImage = dynamicTexture.getPixels();
+				if (nativeImage != null) {
+					width = nativeImage.getWidth();
+					height = nativeImage.getHeight();
+				} else {
+					width = 16;
+					height = 16;
+				}
+			} else {
+				width = 16;
+				height = 16;
+			}
 		}
 
 		private void remove() {
@@ -401,6 +448,7 @@ public class ClientCache extends DataCache {
 				final AbstractTexture abstractTexture = textureManager.getTexture(resourceLocation);
 				if (abstractTexture != null) {
 					abstractTexture.releaseId();
+					abstractTexture.close();
 				}
 			}
 		}

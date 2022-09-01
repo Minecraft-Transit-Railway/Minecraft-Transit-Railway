@@ -1014,11 +1014,6 @@ public class ModelCMStock extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected int[] getBogiePositions() {
-		return new int[]{-136, 136};
-	}
-
-	@Override
 	protected float getDoorAnimationX(float value, boolean opening) {
 		return 0;
 	}

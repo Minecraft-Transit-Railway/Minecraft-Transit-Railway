@@ -1,6 +1,7 @@
 package mtr.item;
 
 import mtr.ItemGroups;
+import mtr.data.RailwayData;
 import mtr.data.TransportMode;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,7 +24,10 @@ public class ItemDashboard extends Item {
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand interactionHand) {
 		if (!world.isClientSide()) {
-			PacketTrainDataGuiServer.openDashboardScreenS2C((ServerPlayer) player, transportMode);
+			final RailwayData railwayData = RailwayData.getInstance(world);
+			if (railwayData != null) {
+				PacketTrainDataGuiServer.openDashboardScreenS2C((ServerPlayer) player, transportMode, railwayData.getUseTimeAndWindSync());
+			}
 		}
 		return super.use(world, player, interactionHand);
 	}

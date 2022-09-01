@@ -1,10 +1,12 @@
 package mtr.client;
 
 import mtr.KeyMappings;
+import mtr.MTRClient;
 import mtr.data.*;
 import mtr.entity.EntityLift;
 import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
+import mtr.packet.PacketTrainDataGuiClient;
 import mtr.screen.LiftSelectionScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -26,6 +28,11 @@ public final class ClientData {
 	public static String TRAINS_SEARCH = "";
 	public static String EXIT_PARENTS_SEARCH = "";
 	public static String EXIT_DESTINATIONS_SEARCH = "";
+
+	private static boolean pressingAccelerate = false;
+	private static boolean pressingBrake = false;
+	private static boolean pressingDoors = false;
+	private static float shiftHoldingTicks = 0;
 
 	public static final Set<Station> STATIONS = new HashSet<>();
 	public static final Set<Platform> PLATFORMS = new HashSet<>();
@@ -52,6 +59,19 @@ public final class ClientData {
 		});
 		playersToRemove.forEach(PLAYER_RIDING_COOL_DOWN::remove);
 
+
+		final boolean tempPressingAccelerate = KeyMappings.TRAIN_ACCELERATE.isDown();
+		final boolean tempPressingBrake = KeyMappings.TRAIN_BRAKE.isDown();
+		final boolean tempPressingDoors = KeyMappings.TRAIN_TOGGLE_DOORS.isDown();
+		PacketTrainDataGuiClient.sendDriveTrainC2S(
+				tempPressingAccelerate && !pressingAccelerate,
+				tempPressingBrake && !pressingBrake,
+				tempPressingDoors && !pressingDoors
+		);
+		pressingAccelerate = tempPressingAccelerate;
+		pressingBrake = tempPressingBrake;
+		pressingDoors = tempPressingDoors;
+
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		final Player player = minecraftClient.player;
 		if (player != null) {
@@ -61,6 +81,12 @@ public final class ClientData {
 					UtilitiesClient.setScreen(minecraftClient, new LiftSelectionScreen((EntityLift) vehicle));
 				}
 				player.displayClientMessage(Text.translatable("gui.mtr.press_to_select_floor", KeyMappings.LIFT_MENU.getTranslatedKeyMessage()), true);
+			}
+
+			if (player.isShiftKeyDown()) {
+				shiftHoldingTicks += MTRClient.getLastFrameDuration();
+			} else {
+				shiftHoldingTicks = 0;
 			}
 		}
 	}
@@ -107,7 +133,14 @@ public final class ClientData {
 			trainIdsToKeep.add(packet.readLong());
 		}
 
-		client.execute(() -> TRAINS.removeIf(train -> !trainIdsToKeep.contains(train.id)));
+		client.execute(() -> {
+			TRAINS.forEach(trainClient -> {
+				if (!trainIdsToKeep.contains(trainClient.id)) {
+					trainClient.isRemoved = true;
+				}
+			});
+			TRAINS.removeIf(trainClient -> trainClient.isRemoved);
+		});
 	}
 
 	public static void updateTrainPassengers(Minecraft client, FriendlyByteBuf packet) {
@@ -220,6 +253,10 @@ public final class ClientData {
 			return false;
 		}
 		return RailwayData.hasPermission(playerInfo.getGameMode());
+	}
+
+	public static float getShiftHoldingTicks() {
+		return shiftHoldingTicks;
 	}
 
 	private static <T extends SerializedDataBase> Set<T> deserializeData(FriendlyByteBuf packet, Function<FriendlyByteBuf, T> supplier) {

@@ -84,6 +84,7 @@ public class LiftSelectionScreen extends ScreenMapper implements IGui {
 		if (entityLift != null) {
 			PacketTrainDataGuiClient.sendPressLiftButtonC2S(entityLift.getUUID(), floorLevels.get(index));
 		}
+		onClose();
 	}
 
 	private boolean hasStoppingFloor(int floor) {

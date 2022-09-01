@@ -1,608 +1,496 @@
-import FetchData from "./fetch.js";
-import SETTINGS from "./index.js";
-import CANVAS from "./utilities.js";
-import DIRECTIONS from "./directions.js";
-import tappable from "./gestures/src/gestures/tap.js";
-import panable from "./gestures/src/gestures/pan.js";
+import UTILITIES from "./utilities.js";
+import DOCUMENT from "./document.js";
+import SETTINGS from "./settings.js";
+import ACTIONS from "./actions.js";
+import DATA from "./data.js";
 
-const REFRESH_INTERVAL = 5000;
-const BIG_DELAY_THRESHOLD = 15 * 20;
-const HUGE_DELAY_THRESHOLD = 30 * 20;
-const MAX_DELAY_THRESHOLD = 600 * 20;
-const MAX_ARRIVALS = 5;
-const FILTER = new PIXI.filters.BlurFilter();
-const SEARCH_BOX_ELEMENT = document.getElementById("search_box");
-const DIRECTIONS_BOX_1_ELEMENT = document.getElementById("directions_box_1");
-const DIRECTIONS_BOX_2_ELEMENT = document.getElementById("directions_box_2");
-const FETCH_ARRIVAL_DATA = new FetchData(() => SETTINGS.arrivalsUrl + "?worldIndex=" + SETTINGS.dimension + "&stationId=" + SETTINGS.selectedStation, REFRESH_INTERVAL, true, () => SETTINGS.selectedStation !== 0, (result, data) => {
-	const arrivalsHtml = {};
-	for (const {arrival, name, destination, circular, platform, route, color} of result) {
-		const currentMillis = Date.now();
-		const arrivalDifference = Math.floor((arrival - currentMillis) / 1000);
-		const destinationSplit = circular === "" ? destination.split("|") : CANVAS.getClosestInterchangeOnRoute(data, data["routes"].find(checkRoute => checkRoute["name"] === name && checkRoute["color"] === color && checkRoute["circular"] === circular), SETTINGS.selectedStation).split("|");
-		const routeNumberSplit = route.split("|");
-		if (typeof arrivalsHtml[color] === "undefined") {
-			arrivalsHtml[color] = {html: "", count: 0};
-		}
-		if (arrivalsHtml[color]["count"] < MAX_ARRIVALS) {
-			arrivalsHtml[color]["html"] +=
-				`<div class="arrival">` +
-				`<span class="arrival_text left_align material-icons tight" style="width: ${circular === "" ? 0 : 5}%">${circular === "" ? "" : circular === "cw" ? "rotate_right" : "rotate_left"}</span>` +
-				`<span class="arrival_text left_align" style="width: ${circular === "" ? 70 : 65}%">` +
-				(route.length === 0 ? "" : routeNumberSplit[Math.floor(currentMillis / 3000) % routeNumberSplit.length] + " ") + destinationSplit[Math.floor(currentMillis / 3000) % destinationSplit.length] +
-				`</span>` +
-				`<span class="arrival_text" style="width: 10%">${platform}</span>` +
-				`<span class="arrival_text right_align" style="width: 20%; text-align: right">${arrivalDifference < 0 ? "" : CANVAS.formatTime(arrivalDifference)}</span>` +
-				`</div>`;
-			arrivalsHtml[color]["count"]++;
-		}
-	}
-	for (const color in arrivalsHtml) {
-		const arrivalElement = document.getElementById("station_arrivals_" + color);
-		if (arrivalElement != null) {
-			arrivalElement.innerHTML = arrivalsHtml[color]["html"];
-		}
-	}
-});
-const FETCH_DELAYS_DATA = new FetchData(() => SETTINGS.delaysUrl, REFRESH_INTERVAL, true, () => SETTINGS.selectedColor >= 0, result => {
-	const delaysElement = document.getElementById("delays");
-	delaysElement.innerText = "";
-	const data = result[SETTINGS.dimension].filter(data => data["color"] === SETTINGS.selectedColor).sort((a, b) => b["time"] - a["time"]);
-	const millis = Date.now();
-	const routeNameElementMap = {};
-
-	let hasDelay = false;
-	let hasBigDelay = false;
-	let hasHugeDelay = false;
-
-	for (const {name, number, destination, circular, delay, time, x, y, z} of data) {
-		const isRealtime = millis - time < REFRESH_INTERVAL * 2;
-		const copyButtonText = x + "_" + y + "_" + z;
-
-		const bigDelay = delay >= BIG_DELAY_THRESHOLD;
-		const hugeDelay = delay >= HUGE_DELAY_THRESHOLD;
-
-		const element = document.createElement("div");
-		element.className = "arrival clickable";
-		element.innerHTML =
-			`<span class="arrival_text material-icons small" style="width: 5%; ${hugeDelay ? "color: " + CANVAS.convertColor(SETTINGS.selectedColor) : ""}">${bigDelay ? "warning" : "warning_amber"}</span>` +
-			`<span class="arrival_text" style="width: 15%">${delay > MAX_DELAY_THRESHOLD ? "10:00+" : CANVAS.formatTime(delay / 20)}</span>` +
-			`<span class="arrival_text material-icons tight delay_copy_${copyButtonText}" style="width: 5%">${delayCopyButton === copyButtonText ? "check" : "content_copy"}</span>` +
-			`<span class="arrival_text" style="width: 55%">(${x}, ${y}, ${z})</span>` +
-			`<span class="arrival_text right_align" style="width: 15%; text-align: right">${isRealtime ? "" : "-" + CANVAS.formatTime((millis - time) / 1000)}</span>` +
-			`<span class="arrival_text right_align material-icons small" style="width: 5%; text-align: right">${isRealtime ? "" : "history"}</span>`;
-		element.onclick = () => {
-			navigator.clipboard.writeText(`/tp ${x} ${y} ${z}`);
-			Array.from(document.getElementsByClassName(`delay_copy_${copyButtonText}`)).forEach(copyButtonElement => copyButtonElement.innerText = "check");
-			delayCopyButton = copyButtonText;
-			setTimeout(() => {
-				Array.from(document.getElementsByClassName(`delay_copy_${copyButtonText}`)).forEach(copyButtonElement => copyButtonElement.innerText = "content_copy");
-				delayCopyButton = "";
-			}, 1000);
-		};
-
-		hasDelay = true;
-		if (bigDelay) {
-			hasBigDelay = true;
-		}
-		if (hugeDelay) {
-			hasHugeDelay = true;
-		}
-
-		if (!(name in routeNameElementMap)) {
-			routeNameElementMap[name] = document.createElement("div");
-			routeNameElementMap[name].className = "station_list";
-
-			addRouteHeader(delaysElement, number, destination, circular, name);
-
-			delaysElement.append(routeNameElementMap[name]);
-			const spacerElement = document.createElement("div");
-			spacerElement.className = "spacer padded";
-			delaysElement.append(spacerElement);
-		}
-		routeNameElementMap[name].appendChild(element);
-	}
-
-	if (delaysElement.lastChild != null) {
-		delaysElement.removeChild(delaysElement.lastChild);
-	}
-
-	const routeStationsTabElement = document.getElementById("route_stations_tab");
-	const routeDelaysTabElement = document.getElementById("route_delays_tab");
-	if (hasDelay) {
-		routeStationsTabElement.style.display = "";
-		routeDelaysTabElement.innerText = hasBigDelay ? "warning" : "warning_amber";
-		routeDelaysTabElement.style.color = hasHugeDelay ? CANVAS.convertColor(SETTINGS.selectedColor) : "";
-		routeDelaysTabElement.style.display = "";
-	}
-	onSelectDelaysTab(selectedDelaysTab);
-	document.getElementById("route_info").style.maxHeight = window.innerHeight - 80 + "px";
-});
-
-let graphicsRoutesLayer1 = [];
-let graphicsRoutesLayer2 = [];
-let graphicsStationsLayer1 = [];
-let graphicsStationsLayer2 = [];
-let graphicsStationsTextLayer1 = [];
-let graphicsStationsTextLayer2 = [];
-let textStations = [];
-let selectedDelaysTab = false;
-let delayCopyButton = "";
-
-const clearAndDestroy = array => {
-	for (const index in array) {
-		array[index].clear();
-		array[index].destroy();
-	}
-};
-
-const createClickable = (container, initialize, onClick) => {
-	const graphics = new PIXI.Graphics();
-	graphics.buttonMode = true;
-	panable(graphics);
-	tappable(graphics);
-	graphics.on("panmove", event => CANVAS.onCanvasMouseMove(event, container));
-	graphics.on("simpletap", onClick);
-	graphics.on("pointerover", () => graphics.filters = [FILTER]);
-	graphics.on("pointerout", () => graphics.filters = []);
-	initialize(graphics);
-	initialize(new PIXI.Graphics());
-};
-
-const addRouteHeader = (element, number, destination, circular, routeName) => {
-	const headerElement = document.createElement("h3");
-	headerElement.innerHTML = number.replace(/\|/g, " ") + `<span class="material-icons tight">${circular === "" ? "chevron_right" : circular === "cw" ? "rotate_right" : "rotate_left"}</span>` + destination.replace(/\|/g, " ");
-	element.appendChild(headerElement);
-
-	const routeNameSplit = routeName.split("||");
-	if (routeNameSplit.length > 1) {
-		const smallHeaderElement = document.createElement("h4");
-		smallHeaderElement.innerText = routeNameSplit[1].replace(/\|/g, " ");
-		element.appendChild(smallHeaderElement);
-	}
-}
-
-function drawMap(container, data) {
-	const getStationElement = (color, name, id) => {
-		const element = document.createElement("div");
-		element.setAttribute("id", id);
-		element.setAttribute("class", "clickable");
-		element.onclick = () => onClickStation(id);
-		element.innerHTML =
-			(color == null ? "" : `<span class="station" style="background: ${CANVAS.convertColor(color)}"></span>`) +
-			`<span class="text">${name.replace(/\|/g, " ")}</span>`;
-		return element;
-	};
-
-	const getRouteElement = (color, name, type, visible, id, showColor) => {
-		const element = document.createElement("div");
-		element.setAttribute("id", id);
-		element.setAttribute("class", "clickable");
-		if (!visible) {
-			element.setAttribute("style", "display: none");
-		}
-		element.onclick = () => onClickLine(color, true);
-		element.innerHTML =
-			`<span class="line" style="background: ${CANVAS.convertColor(showColor ? color : SETTINGS.getColorStyle("--textColorDisabled"))}"></span>` +
-			`<span class="${showColor ? "text" : "text_disabled"} material-icons tight">${SETTINGS.routeTypes[type]}</span>` +
-			`<span class="${showColor ? "text" : "text_disabled"}">${name.replace(/\|/g, " ")}</span>`;
-		return element;
-	};
-
-	const onClickStation = id => {
-		SETTINGS.onClearSearch(data, false);
-		SETTINGS.clearPanes();
-		const {name, color, zone, x, z} = stations[id];
-		const stationInfoElement = document.getElementById("station_info");
-		stationInfoElement.removeAttribute("style");
-
-		const {xMin, yMin, xMax, yMax} = data["blobs"][id];
-		CANVAS.slideTo(container, -(xMin + xMax) / 2 + window.innerWidth / 2, -(yMin + yMax) / 2 + window.innerHeight / 2);
-
-		let stationNameHtml = "";
-		const nameSplit = name.split("|");
-		for (const nameSplitIndex in nameSplit) {
-			const namePart = nameSplit[nameSplitIndex];
-			if (SETTINGS.isCJK(namePart)) {
-				stationNameHtml += "<h1>" + namePart + "</h1>";
-			} else {
-				stationNameHtml += "<h2>" + namePart + "</h2>";
+const OBJECT_CACHE = {};
+const DRAWING = {
+	drawMap: (lineQueue, stationQueue) => {
+		for (const key in OBJECT_CACHE) {
+			if (!(key in lineQueue) && !(key in stationQueue)) {
+				CANVAS.remove(OBJECT_CACHE[key]);
+				delete OBJECT_CACHE[key];
 			}
 		}
-
-		document.getElementById("station_name").innerHTML = stationNameHtml;
-		document.getElementById("station_coordinates").innerText = `(${x}, ${z})`;
-		document.getElementById("station_zone").innerText = zone;
-		document.getElementById("station_line").style.backgroundColor = CANVAS.convertColor(color);
-		document.getElementById("station_copy").onclick = event => {
-			navigator.clipboard.writeText(`/tp ${x} ~ ${z}`);
-			event.target.innerText = "check";
-			setTimeout(() => event.target.innerText = "content_copy", 1000);
-		};
-		document.getElementById("station_directions_1").onclick = () => {
-			SETTINGS.clearPanes();
-			document.getElementById("directions").style.display = "block";
-			DIRECTIONS.onSelectStation(1, id, data);
-			document.getElementById("directions_box_2").focus();
-		};
-		document.getElementById("station_directions_2").onclick = () => {
-			SETTINGS.clearPanes();
-			document.getElementById("directions").style.display = "block";
-			DIRECTIONS.onSelectStation(2, id, data);
-			document.getElementById("directions_box_1").focus();
-		};
-
-		const stationRoutesElement = document.getElementById("station_routes");
-		stationRoutesElement.innerHTML = "";
-		const addedRouteColors = [];
-		for (const routeIndex in routes) {
-			const route = routes[routeIndex];
-			if (!addedRouteColors.includes(route["color"])) {
-				for (const stationIndex in route["stations"]) {
-					if (route["stations"][stationIndex].split("_")[0] === id) {
-						stationRoutesElement.append(getRouteElement(route["color"], route["name"].split("||")[0].replace(/\|/g, " "), route["type"], true, "", true, () => onClickLine(container, data, color, true)));
-						addedRouteColors.push(route["color"]);
-
-						const arrivalElement = document.createElement("div");
-						arrivalElement.id = "station_arrivals_" + route["color"];
-						stationRoutesElement.append(arrivalElement);
-
-						const spacerElement = document.createElement("div");
-						spacerElement.className = "spacer";
-						stationRoutesElement.append(spacerElement);
-
-						break;
-					}
-				}
+		const cacheObjects = Object.values(OBJECT_CACHE);
+		CANVAS.getObjects().forEach(object => {
+			if (!cacheObjects.includes(object)) {
+				CANVAS.remove(object);
 			}
-		}
+		});
 
-		if (stationRoutesElement.lastChild != null) {
-			stationRoutesElement.removeChild(stationRoutesElement.lastChild);
-		}
+		const addLineFromQueue = key => {
+			addLine(key, lineQueue[key]);
+			delete lineQueue[key];
+		};
+		const addStationFromQueue = key => {
+			addStation(key, stationQueue[key]);
+			delete stationQueue[key];
+		};
 
-		stationInfoElement.style.maxHeight = window.innerHeight - 80 + "px";
-		SETTINGS.selectedStation = id;
-		FETCH_ARRIVAL_DATA.fetchData(data);
-	};
-
-	const onClickLine = (color, forceClick) => {
-		const shouldSelect = forceClick || SETTINGS.selectedColor !== color;
-		SETTINGS.onClearSearch(data, false);
-		SETTINGS.clearPanes();
-		document.getElementById("route_stations_tab").style.display = "none";
-		document.getElementById("route_delays_tab").style.display = "none";
-		onSelectDelaysTab(false);
-
-		if (shouldSelect) {
-			const selectedRoutes = routes.filter(route => route["color"] === color);
-			const routeInfoElement = document.getElementById("route_info");
-			routeInfoElement.removeAttribute("style");
-
-			let routeNameHtml = "";
-			const nameSplit = selectedRoutes[0]["name"].split("||")[0].split("|");
-			for (const nameSplitIndex in nameSplit) {
-				const namePart = nameSplit[nameSplitIndex];
-				if (SETTINGS.isCJK(namePart)) {
-					routeNameHtml += "<h1>" + namePart + "</h1>";
-				} else {
-					routeNameHtml += "<h2>" + namePart + "</h2>";
-				}
-			}
-
-			document.getElementById("route_name").innerHTML = routeNameHtml;
-			document.getElementById("route_line").style.backgroundColor = CANVAS.convertColor(color);
-
-			const routeDetailsElement = document.getElementById("route_details");
-			routeDetailsElement.innerHTML = "";
-
-			selectedRoutes.forEach(route => {
-				const {stations, durations, name, number, circular} = route;
-				addRouteHeader(routeDetailsElement, number, stations.length > 0 ? data["stations"][stations[stations.length - 1].split("_")[0]]["name"] : "", circular, name);
-
-				const routeStationsElement = document.createElement("div");
-				routeStationsElement.className = "station_list"
-
-				for (let i = 0; i < stations.length; i++) {
-					const stationId = stations[i].split("_")[0];
-					routeStationsElement.appendChild(CANVAS.getDrawStationElement(getStationElement(null, data["stations"][stationId]["name"], stationId), i === 0 ? null : color, i === stations.length - 1 ? null : color));
-
-					if (i < durations.length && durations[i] > 0) {
-						const element = document.createElement("span");
-						element.innerHTML = CANVAS.formatTime(durations[i] / 20);
-						routeStationsElement.appendChild(CANVAS.getDrawLineElement("schedule", element, color));
-					}
-				}
-
-				routeDetailsElement.appendChild(routeStationsElement);
-
-				const spacerElement = document.createElement("div");
-				spacerElement.className = "spacer padded";
-				routeDetailsElement.append(spacerElement);
+		setTimeout(() => UTILITIES.runForTime(stationQueue, addStationFromQueue, setTimeout(() => UTILITIES.runForTime(lineQueue, addLineFromQueue, null))));
+		document.getElementById("loading").style.display = "none";
+		CANVAS.backgroundColor = UTILITIES.convertColor(UTILITIES.getColorStyle("--backgroundColor"));
+	},
+	drawTest: (routes, middleAngle, outerAngles) => {
+		CANVAS.clear();
+		addStation("Middle", {
+			"width": SETTINGS.size * 6 * (routes + 1),
+			"height": SETTINGS.size * 12,
+			"left": 0,
+			"top": 0,
+			"angle": middleAngle,
+		});
+		for (let i = 0; i < 8; i++) {
+			const stationX = 400 * Math.cos(2 * Math.PI * (i + 0.5) / 8);
+			const stationY = 400 * Math.sin(2 * Math.PI * (i + 0.5) / 8);
+			addStation(`Outer ${i}`, {
+				"width": SETTINGS.size * 6 * (routes + 1),
+				"height": SETTINGS.size * 12,
+				"left": stationX,
+				"top": stationY,
+				"angle": outerAngles,
 			});
-
-			if (routeDetailsElement.lastChild != null) {
-				routeDetailsElement.removeChild(routeDetailsElement.lastChild);
-			}
-
-			routeInfoElement.style.maxHeight = window.innerHeight - 80 + "px";
-			SETTINGS.selectedColor = color;
-		} else {
-			SETTINGS.selectedColor = -1;
-		}
-
-		SETTINGS.drawDirectionsRoute([], []);
-		FETCH_DELAYS_DATA.fetchData(data);
-	};
-
-	SEARCH_BOX_ELEMENT.onchange = () => onSearch(data);
-	SEARCH_BOX_ELEMENT.onpaste = () => onSearch(data);
-	SEARCH_BOX_ELEMENT.oninput = () => onSearch(data);
-	DIRECTIONS_BOX_1_ELEMENT.onchange = () => DIRECTIONS.onSearch(1, data);
-	DIRECTIONS_BOX_1_ELEMENT.onpaste = () => DIRECTIONS.onSearch(1, data);
-	DIRECTIONS_BOX_1_ELEMENT.oninput = () => DIRECTIONS.onSearch(1, data);
-	DIRECTIONS_BOX_2_ELEMENT.onchange = () => DIRECTIONS.onSearch(2, data);
-	DIRECTIONS_BOX_2_ELEMENT.onpaste = () => DIRECTIONS.onSearch(2, data);
-	DIRECTIONS_BOX_2_ELEMENT.oninput = () => DIRECTIONS.onSearch(2, data);
-
-	clearAndDestroy(graphicsRoutesLayer1);
-	clearAndDestroy(graphicsRoutesLayer2);
-	clearAndDestroy(graphicsStationsLayer1);
-	clearAndDestroy(graphicsStationsLayer2);
-	clearAndDestroy(graphicsStationsTextLayer1);
-	clearAndDestroy(graphicsStationsTextLayer2);
-	graphicsRoutesLayer1 = [];
-	graphicsRoutesLayer2 = [];
-	graphicsStationsLayer1 = [];
-	graphicsStationsLayer2 = [];
-	graphicsStationsTextLayer1 = [];
-	graphicsStationsTextLayer2 = [];
-	textStations = [];
-	container.children = [];
-
-	data["blobs"] = {};
-	const {blobs, positions, stations, routes, types} = data;
-
-	for (const stationId in stations) {
-		const station = stations[stationId];
-		const horizontal = station["horizontal"].filter(element => element["types"].some(type => SETTINGS.selectedRouteTypes.includes(type)));
-		const vertical = station["vertical"].filter(element => element["types"].some(type => SETTINGS.selectedRouteTypes.includes(type)));
-
-		if (horizontal.length === 0 && vertical.length === 0) {
-			blobs[stationId] = {
-				xMin: CANVAS.convertX(stations[stationId]["x"]),
-				yMin: CANVAS.convertY(stations[stationId]["z"]),
-				xMax: CANVAS.convertX(stations[stationId]["x"]),
-				yMax: CANVAS.convertY(stations[stationId]["z"]),
-				name: stations[stationId]["name"],
-				colors: [],
-			};
-		} else {
-			const sort = (a, b, key) => a[key] === b[key] ? a["color"] - b["color"] : a[key] - b[key];
-			horizontal.sort((a, b) => sort(a, b, "y"));
-			vertical.sort((a, b) => sort(a, b, "x"));
-
-			let xCount;
-			let x = 0;
-			if (vertical.length === 0) {
-				horizontal.forEach(element => x += element["x"]);
-				xCount = 1;
-				x /= horizontal.length;
-			} else {
-				vertical.forEach(element => x += element["x"]);
-				xCount = vertical.length;
-				x /= xCount;
-			}
-
-			let yCount;
-			let y = 0;
-			if (horizontal.length === 0) {
-				vertical.forEach(element => y += element["y"]);
-				yCount = 1;
-				y /= vertical.length;
-			} else {
-				horizontal.forEach(element => y += element["y"]);
-				yCount = horizontal.length;
-				y /= yCount;
-			}
-
-			x = CANVAS.convertX(x);
-			y = CANVAS.convertY(y);
-
-			const colors = [];
-			for (let i = 0; i < horizontal.length; i++) {
-				const color = horizontal[i]["color"];
-				colors.push(color);
-				const position = positions[stationId + "_" + color];
-				position["x2"] = x;
-				position["y2"] = y + (i - (horizontal.length - 1) / 2) * SETTINGS.lineSize;
-			}
-			for (let i = 0; i < vertical.length; i++) {
-				const color = vertical[i]["color"];
-				colors.push(color);
-				const position = positions[stationId + "_" + color];
-				position["x2"] = x + (i - (vertical.length - 1) / 2) * SETTINGS.lineSize;
-				position["y2"] = y;
-			}
-
-			const xOffset = SETTINGS.lineSize * (xCount - 1) / 2;
-			const yOffset = SETTINGS.lineSize * (yCount - 1) / 2;
-			blobs[stationId] = {
-				xMin: x - xOffset,
-				yMin: y - yOffset,
-				xMax: x + xOffset,
-				yMax: y + yOffset,
-				name: stations[stationId]["name"],
-				colors: colors,
-			};
-		}
-	}
-
-	const routeNames = {};
-	const routeTypes = {};
-	const sortedColors = [];
-	for (const routeIndex in routes) {
-		const route = routes[routeIndex];
-		const color = route["color"];
-		const shouldDraw = SETTINGS.selectedDirectionsStations.length === 0 && (SETTINGS.selectedColor < 0 || SETTINGS.selectedColor === color);
-		const routeType = route["type"];
-
-		for (const stationIndex in route["stations"]) {
-			const blob = blobs[route["stations"][stationIndex].split("_")[0]];
-			if (typeof blob !== "undefined") {
-				blob[routeType] = true;
-			}
-		}
-
-		if (SETTINGS.selectedRouteTypes.includes(routeType)) {
-			createClickable(container, graphicsRoute => {
-				(shouldDraw ? graphicsRoutesLayer2 : graphicsRoutesLayer1).push(graphicsRoute);
-				graphicsRoute.beginFill(shouldDraw ? color : SETTINGS.getColorStyle("--textColorDisabled"));
-
-				let prevX = undefined;
-				let prevY = undefined;
-				let prevVertical = undefined;
-				for (const stationIndex in route["stations"]) {
-					const id = route["stations"][stationIndex];
-					const {x2, y2, vertical} = positions[id];
-
-					if (typeof prevX !== "undefined" && typeof prevY !== "undefined") {
-						CANVAS.drawLine(graphicsRoute, prevX, prevY, prevVertical, x2, y2, vertical);
-					}
-
-					prevX = x2;
-					prevY = y2;
-					prevVertical = vertical;
-				}
-
-				graphicsRoute.endFill();
-			}, () => onClickLine(color, false));
-
-			if (color in SETTINGS.selectedDirectionsSegments) {
-				const graphics = new PIXI.Graphics();
-				graphicsStationsLayer2.push(graphics);
-				graphics.beginFill(color);
-
-				SETTINGS.selectedDirectionsSegments[color].forEach(segment => {
-					const position1 = positions[segment.split("_")[0] + "_" + color];
-					const position2 = positions[segment.split("_")[1] + "_" + color];
-					CANVAS.drawLine(graphics, position1["x2"], position1["y2"], position1["vertical"], position2["x2"], position2["y2"], position2["vertical"]);
+			for (let j = 0; j < routes; j++) {
+				addLine(`test_line_${i}_${j}`, {
+					"color": Math.round(Math.random() * 0xFFFFFF),
+					"segments": [
+						{
+							"x": 0,
+							"y": 0,
+							"direction": middleAngle,
+							"offsetIndex": j,
+							"routeCount": routes,
+						},
+						{
+							"x": stationX,
+							"y": stationY,
+							"direction": outerAngles,
+							"offsetIndex": j,
+							"routeCount": routes,
+						},
+					],
+					"selected": true,
 				});
-
-				graphics.endFill();
 			}
 		}
-
-		routeNames[color] = route["name"].split("||")[0];
-		routeTypes[color] = routeType;
-		if (!sortedColors.includes(color)) {
-			sortedColors.push(color);
-		}
-	}
-	sortedColors.sort();
-
-	for (const stationId in blobs) {
-		const blob = blobs[stationId];
-		const {xMin, yMin, xMax, yMax, colors, name} = blob;
-		if (SETTINGS.selectedRouteTypes.some(routeType => blob[routeType])) {
-			const shouldDraw = SETTINGS.selectedDirectionsStations.length > 0 ? SETTINGS.selectedDirectionsStations.includes(stationId) : SETTINGS.selectedColor < 0 || colors.includes(SETTINGS.selectedColor);
-
-			createClickable(container, graphicsStation => {
-				(shouldDraw ? graphicsStationsLayer2 : graphicsStationsLayer1).push(graphicsStation);
-				graphicsStation.beginFill(SETTINGS.getColorStyle("--backgroundColor"));
-				graphicsStation.lineStyle(2, SETTINGS.getColorStyle(shouldDraw ? "--textColor" : "--textColorDisabled"), 1);
-
-				if (xMin === xMax && yMin === yMax) {
-					graphicsStation.drawCircle(xMin, yMin, SETTINGS.lineSize);
+		document.getElementById("loading").style.display = "none";
+	},
+	zoomToPoint: (x, y) => {
+		targetX = x * zoom - window.innerWidth / 2;
+		targetY = y * zoom - window.innerHeight / 2;
+		startX = -getCanvasOffsetX();
+		startY = -getCanvasOffsetY();
+	},
+	zoom: (amount, x, y) => {
+		const zoomFactor = 0.999 ** amount;
+		zoom *= zoomFactor;
+		Object.values(OBJECT_CACHE).forEach(object => {
+			if ("updateShape" in object) {
+				object.updateShape();
+			} else {
+				object.left *= zoomFactor;
+				if ("topOffset" in object) {
+					object.top = (object.top - object.topOffset) * zoomFactor + object.topOffset;
 				} else {
-					graphicsStation.drawRoundedRect(xMin - SETTINGS.lineSize, yMin - SETTINGS.lineSize, xMax - xMin + SETTINGS.lineSize * 2, yMax - yMin + SETTINGS.lineSize * 2, SETTINGS.lineSize);
+					object.top *= zoomFactor;
 				}
-				graphicsStation.endFill();
-			}, () => onClickStation(stationId));
+			}
+		});
+		const offsetX = x - getCanvasOffsetX();
+		const offsetY = y - getCanvasOffsetY();
+		CANVAS.relativePan(new fabric.Point(offsetX - offsetX * zoomFactor, offsetY - offsetY * zoomFactor));
+	},
+	getCenterLatLon: () => [(getCanvasOffsetY() - window.innerHeight / 2) / zoom, -(getCanvasOffsetX() - window.innerWidth / 2) / zoom, window.innerHeight / zoom, window.innerWidth / zoom],
+};
 
-			if (SETTINGS.showText && shouldDraw) {
-				let icons = "";
-				types.forEach(key => {
-					if (typeof blob[key] !== "undefined" && !SETTINGS.selectedRouteTypes.includes(key)) {
-						icons += SETTINGS.routeTypes[key];
+let mouseDown = 0;
+let shouldClearPanes = false;
+let touchX = 0;
+let touchY = 0;
+let fingerCount = 0;
+let twoFingerDistance = 0;
+let zoom = 1;
+let startX = 0;
+let startY = 0;
+let targetX = undefined;
+let targetY = undefined;
+let legendVisibleLines = [];
+let previousLegendString = "";
+let hoveredLines = [];
+
+const CANVAS = new fabric.Canvas("canvas", {
+	renderOnAddRemove: false,
+	selection: false,
+	backgroundColor: UTILITIES.convertColor(UTILITIES.getColorStyle("--backgroundColor")),
+});
+CANVAS.absolutePan(new fabric.Point(-window.innerWidth / 2, -window.innerHeight / 2));
+const getCanvasOffsetX = () => CANVAS.viewportTransform[4];
+const getCanvasOffsetY = () => CANVAS.viewportTransform[5];
+const resize = () => {
+	CANVAS.setWidth(window.innerWidth);
+	CANVAS.setHeight(window.innerHeight);
+	document.getElementById("search").style.maxWidth = window.innerWidth - 32 + "px";
+	document.getElementById("station_info").style.maxHeight = window.innerHeight - 80 + "px";
+	const legendElement = document.getElementById("legend");
+	legendElement.style.maxWidth = window.innerWidth - 432 + "px";
+	legendElement.style.maxHeight = window.innerHeight - 32 + "px";
+};
+window.onresize = resize;
+resize();
+
+CANVAS.on("mouse:down", options => {
+	mouseDown = Date.now();
+	shouldClearPanes = true;
+	twoFingerDistance = 0;
+	const event = options.e;
+	if ("touches" in event) {
+		const newFingerCount = event.touches.length;
+		let newTouchX = 0;
+		let newTouchY = 0;
+		for (let i = 0; i < newFingerCount; i++) {
+			newTouchX += event.touches[i].pageX;
+			newTouchY += event.touches[i].pageY;
+		}
+		touchX = newTouchX / newFingerCount;
+		touchY = newTouchY / newFingerCount;
+	}
+});
+CANVAS.on("mouse:up", options => {
+	const event = options.e;
+	if (!("touches" in event) || event.touches.length === 0) {
+		mouseDown = 0;
+	}
+	if (shouldClearPanes) {
+		DOCUMENT.clearPanes(true);
+		DATA.redraw();
+	}
+});
+CANVAS.on("mouse:move", options => {
+	const event = options.e;
+	if (mouseDown > 0) {
+		if ("movementX" in event && "movementY" in event) {
+			CANVAS.relativePan(new fabric.Point(event.movementX, event.movementY));
+			shouldClearPanes = false;
+		} else if ("touches" in event) {
+			const newFingerCount = event.touches.length;
+
+			if (newFingerCount > 0) {
+				let newTouchX = 0;
+				let newTouchY = 0;
+				for (let i = 0; i < newFingerCount; i++) {
+					newTouchX += event.touches[i].pageX;
+					newTouchY += event.touches[i].pageY;
+				}
+				newTouchX /= newFingerCount;
+				newTouchY /= newFingerCount;
+				const newTwoFingerDistance = newFingerCount > 1 ? distanceSquared(event.touches[0].pageX, event.touches[0].pageY, event.touches[1].pageX, event.touches[1].pageY) : 0;
+
+				if (newFingerCount === fingerCount) {
+					if (twoFingerDistance > 0) {
+						DRAWING.zoom((twoFingerDistance - newTwoFingerDistance) / 50, newTouchX, newTouchY);
 					}
-				});
-				CANVAS.drawText(textStations, stationId, name, icons, (xMin + xMax) / 2, yMax + SETTINGS.lineSize);
+					CANVAS.relativePan(new fabric.Point(newTouchX - touchX, newTouchY - touchY));
+				}
+
+				touchX = newTouchX;
+				touchY = newTouchY;
+				twoFingerDistance = newTwoFingerDistance;
+			}
+
+			fingerCount = newFingerCount;
+			if (Date.now() - mouseDown > 100) {
+				shouldClearPanes = false;
 			}
 		}
 	}
+	// getSegment(event.offsetX, event.offsetY); // TODO mouse detection
+	event.stopPropagation();
+});
+CANVAS.on("mouse:wheel", options => {
+	const event = options.e;
+	DRAWING.zoom(event.deltaY, event.offsetX, event.offsetY);
+	event.preventDefault();
+	event.stopPropagation();
+});
 
-	for (const index in graphicsRoutesLayer1) {
-		container.addChild(graphicsRoutesLayer1[index]);
+const distanceSquared = (x1, y1, x2, y2) => (Math.abs(x2 - x1) ** 2) + (Math.abs(y2 - y1) ** 2);
+const inBounds = (x, y) => UTILITIES.isBetween(x, -getCanvasOffsetX(), window.innerWidth - getCanvasOffsetX()) && UTILITIES.isBetween(y, -getCanvasOffsetY(), window.innerHeight - getCanvasOffsetY());
+const inWindow = (x1, y1, x2, y2) => {
+	const minX = Math.min(x1, x2);
+	const minY = Math.min(y1, y2);
+	const maxX = Math.max(x1, x2);
+	const maxY = Math.max(y1, y2);
+	return minX < window.innerWidth - getCanvasOffsetX() && maxX > -getCanvasOffsetX() && minY < window.innerHeight - getCanvasOffsetY() && maxY > -getCanvasOffsetY();
+};
+const addStation = (key, station) => {
+	const {id, width, height, left, top, angle, selected, types} = station;
+	const blobHeightOffset = (angle === 0 ? height : (width + height - 1) / Math.SQRT2) / 2;
+	const blob = new fabric.Rect({
+		"originX": "center",
+		"originY": "center",
+		"width": width,
+		"height": height,
+		"rx": SETTINGS.size * 6,
+		"ry": SETTINGS.size * 6,
+		"angle": angle,
+		"fill": UTILITIES.convertColor(UTILITIES.getColorStyle("--backgroundColor")),
+		"stroke": UTILITIES.convertColor(UTILITIES.getColorStyle(selected ? "--textColor" : "--textColorDisabled")),
+		"strokeWidth": SETTINGS.size * 2,
+		"hoverCursor": "pointer",
+		"selectable": false,
+	});
+	const elements = [blob];
+	if (selected && SETTINGS.showText) {
+		const nameSplit = key.split("|");
+		let textYOffset = 0;
+		for (let i = 0; i < nameSplit.length; i++) {
+			const text = nameSplit[i];
+			const fontSize = SETTINGS.size * (UTILITIES.isCJK(text) ? 18 : 9);
+			elements.push(new fabric.Text(text, {
+				"top": blobHeightOffset + SETTINGS.size * 2 + textYOffset,
+				"fontFamily": UTILITIES.fonts.join(","),
+				"fontSize": fontSize,
+				"fill": UTILITIES.convertColor(UTILITIES.getColorStyle("--textColor")),
+				"stroke": UTILITIES.convertColor(UTILITIES.getColorStyle("--backgroundColor")),
+				"strokeWidth": 4,
+				"paintFirst": "stroke",
+				"originX": "center",
+				"originY": "top",
+				"hoverCursor": "pointer",
+				"selectable": false,
+			}));
+			textYOffset += fontSize;
+		}
+		let routeTypeText = "";
+		let routeTypeCount = 0;
+		Object.keys(UTILITIES.routeTypes).forEach(routeType => {
+			if (!SETTINGS.selectedRouteTypes.includes(routeType) && types.includes(routeType)) {
+				routeTypeText += UTILITIES.routeTypes[routeType];
+				routeTypeCount++;
+			}
+		});
+		if (routeTypeText) {
+			const element = new fabric.Text(routeTypeText, {
+				"top": blobHeightOffset + SETTINGS.size * 2 + textYOffset + 4,
+				"fontFamily": "Material Icons",
+				"fontSize": SETTINGS.size * 18,
+				"fill": UTILITIES.convertColor(UTILITIES.getColorStyle("--textColor")),
+				"stroke": UTILITIES.convertColor(UTILITIES.getColorStyle("--backgroundColor")),
+				"strokeWidth": 4,
+				"paintFirst": "stroke",
+				"originX": "center",
+				"originY": "top",
+				"hoverCursor": "pointer",
+				"selectable": false,
+			});
+			elements.push(element);
+			const context = document.createElement("canvas").getContext("2d");
+			context.font = `${SETTINGS.size * 18}px Material Icons`;
+			element.set({"width": context.measureText(routeTypeText).width});
+		}
 	}
-	for (const index in graphicsStationsLayer1) {
-		container.addChild(graphicsStationsLayer1[index]);
-	}
-	for (const index in graphicsRoutesLayer2) {
-		container.addChild(graphicsRoutesLayer2[index]);
-	}
-	for (const index in graphicsStationsLayer2) {
-		container.addChild(graphicsStationsLayer2[index]);
-	}
-	for (const index in textStations) {
-		container.addChild(textStations[index]);
-	}
-
-	const elementRoutes = document.getElementById("search_results_routes");
-	elementRoutes.innerHTML = "";
-	for (const colorIndex in sortedColors) {
-		const color = sortedColors[colorIndex];
-		elementRoutes.append(getRouteElement(color, routeNames[color], routeTypes[color], false, color, SETTINGS.selectedColor < 0 || SETTINGS.selectedColor === color));
-	}
-	const elementStations = document.getElementById("search_results_stations");
-	elementStations.innerHTML = "";
-	for (const stationId in stations) {
-		const element = getStationElement(stations[stationId]["color"], stations[stationId]["name"], stationId);
-		element.setAttribute("style", "display: none");
-		elementStations.append(element);
-	}
-	DIRECTIONS.writeStationsInResult(1, data);
-	DIRECTIONS.writeStationsInResult(2, data);
-
-	document.getElementById("loading").style.display = "none";
-	onSearch(data);
+	const group = new fabric.Group(elements, {
+		"left": left * zoom,
+		"top": top * zoom - blobHeightOffset - SETTINGS.size,
+		"topOffset": -blobHeightOffset - SETTINGS.size,
+		"originX": "center",
+		"originY": "top",
+		"subTargetCheck": true,
+		"hoverCursor": "default",
+		"selectable": false,
+		"checkVisibility": () => {
+			const shouldShow = inBounds(left * zoom, top * zoom);
+			if (CANVAS.getObjects().includes(group)) {
+				if (!shouldShow) {
+					CANVAS.remove(group);
+				}
+			} else {
+				if (shouldShow) {
+					CANVAS.add(group);
+				}
+			}
+		},
+		"z": selected ? 4 : 2,
+	});
+	elements.forEach(element => {
+		element.on("mouseover", () => group.set("shadow", `${UTILITIES.convertColor(UTILITIES.getColorStyle("--textColor"))} 0 0 8px`));
+		element.on("mouseout", () => group.set("shadow", ""));
+		element.on("mouseup", () => {
+			if (!mouseDown && shouldClearPanes) {
+				ACTIONS.onClickStation(id);
+				shouldClearPanes = false;
+			}
+		});
+	});
+	CANVAS.remove(OBJECT_CACHE[key]);
+	OBJECT_CACHE[key] = group;
+	group.checkVisibility();
 }
+const addLine = (key, line) => {
+	const {color, segments, selected, density, id} = line;
 
-function onSearch(data) {
-	const searchBox = document.getElementById("search_box");
-	const search = searchBox.value.toLowerCase().replace(/\|/g, " ");
-	document.getElementById("clear_search_icon").style.display = search === "" ? "none" : "";
-
-	const {stations, routes} = data;
-
-	const resultsStations = search === "" ? [] : Object.keys(stations).filter(station => stations[station]["name"].replace(/\|/g, " ").toLowerCase().includes(search));
-	for (const stationId in stations) {
-		document.getElementById(stationId).style.display = resultsStations.includes(stationId) ? "block" : "none";
+	const grayColor = UTILITIES.getColorStyle("--textColorDisabled");
+	let newColor;
+	if (SETTINGS.densityView === 1) {
+		const grayByte = (grayColor & 0xFF) * (1 - density);
+		const r = Math.floor(((color >> 16) & 0xFF) * density + grayByte);
+		const g = Math.floor(((color >> 8) & 0xFF) * density + grayByte);
+		const b = Math.floor((color & 0xFF) * density + grayByte);
+		newColor = (r << 16) + (g << 8) + b;
+	} else if (SETTINGS.densityView === 2) {
+		if (density > 0) {
+			newColor = (Math.floor(0x66 * (1 - density)) << 16) + (Math.floor(0xCC * density) << 8) + 0x3300;
+		} else {
+			newColor = grayColor;
+		}
+	} else {
+		newColor = color;
 	}
 
-	const resultsRoutes = search === "" ? [] : Object.keys(routes).filter(route => routes[route]["name"].toLowerCase().includes(search));
-	for (const routeIndex in routes) {
-		document.getElementById(routes[routeIndex]["color"]).style.display = resultsRoutes.includes(routeIndex) ? "block" : "none";
+	const polyline = new fabric.Polyline([], {
+		"fill": null,
+		"stroke": `${UTILITIES.convertColor(selected ? newColor : grayColor)}${UTILITIES.testMode ? "50" : ""}`,
+		"strokeWidth": SETTINGS.size * 6,
+		"strokeLineCap": "round",
+		"strokeLineJoin": "round",
+		"objectCaching": false,
+		"hoverCursor": "pointer",
+		"selectable": false,
+		"routeId": id,
+		"updateShape": () => {
+			const point1 = segments[0];
+			const point2 = segments[1];
+			const point1X = point1["x"] * zoom;
+			const point1Y = point1["y"] * zoom;
+			const point2X = point2["x"] * zoom;
+			const point2Y = point2["y"] * zoom;
+			const newSegments = [];
+			UTILITIES.connectLine(point1X, point1Y, point1["direction"], point1["offsetIndex"], point1["routeCount"], point2X, point2Y, point2["direction"], point2["offsetIndex"], point2["routeCount"], SETTINGS.size * 6, newSegments);
+			polyline.points = newSegments;
+			return inBounds(point1X, point1Y) || inBounds(point2X, point2Y) || inWindow(point1X, point1Y, point2X, point2Y);
+		},
+		"checkVisibility": () => {
+			const shouldShow = polyline.updateShape();
+			if (CANVAS.getObjects().includes(polyline)) {
+				if (!shouldShow) {
+					CANVAS.remove(polyline);
+				}
+			} else {
+				if (shouldShow) {
+					CANVAS.sendToBack(polyline);
+				}
+			}
+			if (shouldShow && !legendVisibleLines.includes(id)) {
+				legendVisibleLines.push(id);
+			}
+			// polyline["stroke"] = UTILITIES.convertColor(hoveredLines.includes(id) ? UTILITIES.getColorStyle("--textColorDisabled") : selected ? newColor : grayColor);
+		},
+		"z": selected ? 3 : 1,
+	});
+	CANVAS.remove(OBJECT_CACHE[key]);
+	OBJECT_CACHE[key] = polyline;
+	polyline.checkVisibility();
+};
+const getSegment = (x, y) => {
+	hoveredLines = [];
+	CANVAS.getObjects().forEach(object => {
+		if ("points" in object) {
+			const segments = object["points"];
+			for (let i = 1; i < segments.length; i++) {
+				const point1 = segments[i - 1];
+				const point2 = segments[i];
+				let x1 = point1["x"] + getCanvasOffsetX();
+				let y1 = point1["y"] + getCanvasOffsetY();
+				let x2 = point2["x"] + getCanvasOffsetX();
+				let y2 = point2["y"] + getCanvasOffsetY();
+				let mouseX = x;
+				let mouseY = y;
+				let minX = Math.min(x1, x2);
+				let minY = Math.min(y1, y2);
+				let maxX = Math.max(x1, x2);
+				let maxY = Math.max(y1, y2);
+
+				const checkBounds = () => UTILITIES.isBetween(mouseX, minX - SETTINGS.size * 3, maxX + SETTINGS.size * 3) && UTILITIES.isBetween(mouseY, minY - SETTINGS.size * 3, maxY + SETTINGS.size * 3);
+				if (checkBounds()) {
+					if (x1 !== x2 && y1 !== y2) {
+						const rotatedPoint1 = UTILITIES.rotatePoint(x1, y1, 45);
+						x1 = rotatedPoint1["x"];
+						y1 = rotatedPoint1["y"];
+						const rotatedPoint2 = UTILITIES.rotatePoint(x2, y2, 45);
+						x2 = rotatedPoint2["x"];
+						y2 = rotatedPoint2["y"];
+						const rotatedPoint3 = UTILITIES.rotatePoint(mouseX, mouseY, 45);
+						mouseX = rotatedPoint3["x"];
+						mouseY = rotatedPoint3["y"];
+
+						minX = Math.min(x1, x2);
+						minY = Math.min(y1, y2);
+						maxX = Math.max(x1, x2);
+						maxY = Math.max(y1, y2);
+
+						if (checkBounds()) {
+							hoveredLines.push(object["routeId"]);
+						}
+					} else {
+						hoveredLines.push(object["routeId"]);
+					}
+				}
+			}
+		}
+	});
+};
+
+const checkAllVisibility = () => {
+	const tempObjectCache = {...OBJECT_CACHE};
+	UTILITIES.runForTime(tempObjectCache, key => {
+		if (tempObjectCache[key] && key in OBJECT_CACHE) {
+			OBJECT_CACHE[key].checkVisibility();
+		}
+		tempObjectCache[key] = undefined;
+	}, () => setTimeout(checkAllVisibility));
+
+	legendVisibleLines.sort();
+	const legendString = legendVisibleLines.join(",") + SETTINGS.selectedRoutes.join(",") + Object.keys(SETTINGS.selectedDirectionsSegments).join(",");
+	const legendElement = document.getElementById("legend");
+	if (legendString !== previousLegendString) {
+		legendElement.innerText = "";
+		legendVisibleLines.forEach(routeId => {
+			const route = DATA.json[SETTINGS.dimension]["routes"].find(route => route["id"] === routeId);
+			if (route) {
+				legendElement.appendChild(ACTIONS.getRouteElement(routeId, route["color"], route["name"], route["number"], route["type"], true, DATA.routeSelected(routeId), "", false));
+			}
+		});
 	}
+	previousLegendString = legendString;
+	legendElement.style.display = !SETTINGS.showLegend || legendVisibleLines.length === 0 || window.innerWidth < 480 ? "none" : "";
+	legendVisibleLines = [];
+};
+checkAllVisibility();
 
-	const maxHeight = (window.innerHeight - 80) / 2;
-	document.getElementById("search_results_stations").style.maxHeight = maxHeight + "px";
-	document.getElementById("search_results_routes").style.maxHeight = maxHeight + "px";
-
-	if (search !== "") {
-		SETTINGS.clearPanes();
+const STEPS = 50;
+const MIN_SPEED = 0.0001;
+const SPEED_MULTIPLIER = 3;
+const delta = 1;
+const update = () => {
+	requestAnimationFrame(update);
+	if (typeof targetX !== "undefined" && typeof targetY !== "undefined") {
+		const distanceSquared = (targetX - startX) ** 2 + (targetY - startY) ** 2;
+		const percentage = distanceSquared === 0 ? 1 : Math.sqrt(((getCanvasOffsetX() + startX) ** 2 + (getCanvasOffsetY() + startY) ** 2) / distanceSquared);
+		const speed = delta * SPEED_MULTIPLIER * Math.sqrt(percentage < 0.5 ? Math.max(percentage, MIN_SPEED) : 1 - percentage);
+		CANVAS.relativePan(new fabric.Point(-speed * (targetX - startX) / STEPS, -speed * (targetY - startY) / STEPS));
+		if (percentage >= 1 || (-getCanvasOffsetX() - startX) / (targetX - startX) >= 1 || (-getCanvasOffsetY() - startY) / (targetY - startY) >= 1) {
+			CANVAS.absolutePan(new fabric.Point(targetX, targetY));
+			targetX = undefined;
+			targetY = undefined;
+		}
 	}
-}
+	if (SETTINGS.selectedRoutes.length > 0 || SETTINGS.selectedDirectionsStations.length > 0) {
+		CANVAS._objects.sort((a, b) => Math.sign(a["z"] - b["z"]));
+	}
+	CANVAS.renderAll();
+};
+update();
 
-function onSelectDelaysTab(selectDelaysTab) {
-	selectedDelaysTab = selectDelaysTab;
-	document.getElementById("route_stations_tab").className = "material-icons clickable" + (selectedDelaysTab ? "" : " selected");
-	document.getElementById("route_delays_tab").className = "material-icons clickable" + (selectedDelaysTab ? " selected" : "");
-	document.getElementById("route_details").style.display = selectedDelaysTab ? "none" : "";
-	document.getElementById("delays").style.display = selectedDelaysTab ? "" : "none";
-}
-
-document.getElementById("route_stations_tab").onclick = () => onSelectDelaysTab(false);
-document.getElementById("route_delays_tab").onclick = () => onSelectDelaysTab(true);
-
-export default drawMap;
+export default DRAWING;

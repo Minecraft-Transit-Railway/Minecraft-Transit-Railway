@@ -1,0 +1,14 @@
+{
+	"parent": "item/handheld",
+	"textures": {
+		"layer0": "mtr:item/driver_key"
+	},
+	"display": {
+		"firstperson_righthand": {
+			"scale": [ 0, 0, 0 ]
+		},
+		"firstperson_lefthand": {
+			"scale": [ 0, 0, 0 ]
+		}
+	}
+}

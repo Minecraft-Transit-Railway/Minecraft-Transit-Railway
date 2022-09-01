@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import mtr.data.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.MinecraftServer;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServlet;
@@ -16,16 +15,14 @@ import java.util.Set;
 
 public class DataServletHandler extends HttpServlet {
 
-	public static MinecraftServer SERVER;
-
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) {
 		final AsyncContext asyncContext = request.startAsync();
 
-		SERVER.execute(() -> {
+		Webserver.callback.accept(() -> {
 			final JsonArray dataArray = new JsonArray();
 
-			SERVER.getAllLevels().forEach(world -> {
+			Webserver.getWorlds.get().forEach(world -> {
 				final RailwayData railwayData = RailwayData.getInstance(world);
 				final JsonArray routesArray = new JsonArray();
 				final JsonObject stationPositionsObject = new JsonObject();
@@ -33,10 +30,10 @@ public class DataServletHandler extends HttpServlet {
 				final JsonArray typesObject = new JsonArray();
 				final Set<String> types = new HashSet<>();
 
-				if (railwayData != null) {
-					final DataCache dataCache = railwayData.dataCache;
+				final DataCache dataCache = Webserver.getDataCache.apply(railwayData);
 
-					railwayData.routes.forEach(route -> {
+				if (dataCache != null) {
+					Webserver.getRoutes.apply(railwayData).forEach(route -> {
 						if (route.isHidden) {
 							return;
 						}
@@ -52,10 +49,13 @@ public class DataServletHandler extends HttpServlet {
 						routeObject.add("stations", routeStationsArray);
 						final JsonArray routeDurationsArray = new JsonArray();
 						routeObject.add("durations", routeDurationsArray);
+						final JsonArray routeDensityArray = new JsonArray();
+						routeObject.add("densities", routeDensityArray);
 						routeObject.addProperty("circular", route.circularState == Route.CircularState.NONE ? "" : route.circularState == Route.CircularState.CLOCKWISE ? "cw" : "ccw");
 
 						final Depot depot = dataCache.routeIdToOneDepot.get(route.id);
 						float accumulatedTime = 0;
+						BlockPos prevPlatformPos = null;
 						for (int i = 0; i < route.platformIds.size(); i++) {
 							final long platformId = route.platformIds.get(i);
 
@@ -71,6 +71,7 @@ public class DataServletHandler extends HttpServlet {
 
 							final Station station = dataCache.platformIdToStation.get(platformId);
 							boolean addedStation = false;
+							BlockPos thisPlatformPos = null;
 							if (station != null) {
 								final Platform platform = dataCache.platformIdMap.get(platformId);
 								if (platform != null) {
@@ -78,17 +79,17 @@ public class DataServletHandler extends HttpServlet {
 										final String newId = station.id + "_" + route.color;
 										routeStationsArray.add(newId);
 
-										final BlockPos pos = platform.getMidPos();
+										thisPlatformPos = platform.getMidPos();
 										if (stationPositionsObject.has(newId)) {
 											final JsonObject stationPositionObject = stationPositionsObject.getAsJsonObject(newId);
 											final int existingX = stationPositionObject.get("x").getAsInt();
 											final int existingZ = stationPositionObject.get("y").getAsInt();
-											stationPositionObject.addProperty("x", (existingX + pos.getX()) / 2);
-											stationPositionObject.addProperty("y", (existingZ + pos.getZ()) / 2);
+											stationPositionObject.addProperty("x", (existingX + thisPlatformPos.getX()) / 2);
+											stationPositionObject.addProperty("y", (existingZ + thisPlatformPos.getZ()) / 2);
 										} else {
 											final JsonObject stationPositionObject = new JsonObject();
-											stationPositionObject.addProperty("x", pos.getX());
-											stationPositionObject.addProperty("y", pos.getZ());
+											stationPositionObject.addProperty("x", thisPlatformPos.getX());
+											stationPositionObject.addProperty("y", thisPlatformPos.getZ());
 											stationPositionObject.addProperty("vertical", platform.getAxis() == Direction.Axis.Z);
 											stationPositionsObject.add(newId, stationPositionObject);
 										}
@@ -107,6 +108,13 @@ public class DataServletHandler extends HttpServlet {
 									}
 								}
 							}
+
+							if (prevPlatformPos != null && thisPlatformPos != null && railwayData != null) {
+								routeDensityArray.add(railwayData.railwayDataRouteFinderModule.getConnectionDensity(prevPlatformPos, thisPlatformPos));
+							} else {
+								routeDensityArray.add(0);
+							}
+							prevPlatformPos = thisPlatformPos;
 
 							accumulatedTime += time;
 							if (i > 0 && addedStation) {

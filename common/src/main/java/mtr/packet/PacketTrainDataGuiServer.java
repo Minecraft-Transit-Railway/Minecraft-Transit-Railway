@@ -38,9 +38,10 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		Registry.sendToPlayer(player, PACKET_VERSION_CHECK, packet);
 	}
 
-	public static void openDashboardScreenS2C(ServerPlayer player, TransportMode transportMode) {
+	public static void openDashboardScreenS2C(ServerPlayer player, TransportMode transportMode, boolean useTimeAndWindSync) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeUtf(transportMode.toString());
+		packet.writeBoolean(useTimeAndWindSync);
 		Registry.sendToPlayer(player, PACKET_OPEN_DASHBOARD_SCREEN, packet);
 	}
 
@@ -311,6 +312,16 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		});
 	}
 
+	public static void receiveDriveTrainC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
+		final RailwayData railwayData = RailwayData.getInstance(player.level);
+		if (railwayData != null) {
+			final boolean pressingAccelerate = packet.readBoolean();
+			final boolean pressingBrake = packet.readBoolean();
+			final boolean pressingDoors = packet.readBoolean();
+			minecraftServer.execute(() -> railwayData.railwayDataDriveTrainModule.drive(player, pressingAccelerate, pressingBrake, pressingDoors));
+		}
+	}
+
 	public static void receivePressLiftButtonC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
 		final UUID uuid = packet.readUUID();
 		final int floor = packet.readInt();
@@ -374,6 +385,19 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 				((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).setData(platformIds);
 			}
 		});
+	}
+
+	public static void receiveUseTimeAndWindSyncC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
+		if (RailwayData.hasNoPermission(player) || !player.hasPermissions(1)) {
+			return;
+		}
+
+		final Level world = player.level;
+		final RailwayData railwayData = RailwayData.getInstance(world);
+		if (railwayData != null) {
+			final boolean useTimeAndWindSync = packet.readBoolean();
+			minecraftServer.execute(() -> railwayData.setUseTimeAndWindSync(useTimeAndWindSync));
+		}
 	}
 
 	public static void receiveRemoveRailAction(MinecraftServer minecraftServer, Player player, FriendlyByteBuf packet) {

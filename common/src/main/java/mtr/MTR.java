@@ -7,31 +7,19 @@ import mtr.data.Station;
 import mtr.mappings.BlockEntityMapper;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
-import mtr.servlet.ArrivalsServletHandler;
-import mtr.servlet.DataServletHandler;
-import mtr.servlet.DelaysServletHandler;
-import mtr.servlet.InfoServletHandler;
+import mtr.servlet.Webserver;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.servlet.DefaultServlet;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 public class MTR implements IPacket {
@@ -57,6 +45,7 @@ public class MTR implements IPacket {
 		registerItem.accept("dashboard", Items.RAILWAY_DASHBOARD);
 		registerItem.accept("dashboard_2", Items.BOAT_DASHBOARD);
 		registerItem.accept("dashboard_3", Items.CABLE_CAR_DASHBOARD);
+		registerItem.accept("driver_key", Items.DRIVER_KEY);
 		registerItem.accept("psd_door", Items.PSD_DOOR_1);
 		registerItem.accept("psd_glass", Items.PSD_GLASS_1);
 		registerItem.accept("psd_glass_end", Items.PSD_GLASS_END_1);
@@ -317,8 +306,11 @@ public class MTR implements IPacket {
 		registerBlockEntityType.accept("arrival_projector_1_large", BlockEntityTypes.ARRIVAL_PROJECTOR_1_LARGE_TILE_ENTITY);
 		registerBlockEntityType.accept("boat_node", BlockEntityTypes.BOAT_NODE_TILE_ENTITY);
 		registerBlockEntityType.accept("clock", BlockEntityTypes.CLOCK_TILE_ENTITY);
+		registerBlockEntityType.accept("psd_door_1", BlockEntityTypes.PSD_DOOR_1_TILE_ENTITY);
+		registerBlockEntityType.accept("psd_door_2", BlockEntityTypes.PSD_DOOR_2_TILE_ENTITY);
 		registerBlockEntityType.accept("psd_top", BlockEntityTypes.PSD_TOP_TILE_ENTITY);
 		registerBlockEntityType.accept("apg_glass", BlockEntityTypes.APG_GLASS_TILE_ENTITY);
+		registerBlockEntityType.accept("apg_door", BlockEntityTypes.APG_DOOR_TILE_ENTITY);
 		registerBlockEntityType.accept("pids_1", BlockEntityTypes.PIDS_1_TILE_ENTITY);
 		registerBlockEntityType.accept("pids_2", BlockEntityTypes.PIDS_2_TILE_ENTITY);
 		registerBlockEntityType.accept("pids_3", BlockEntityTypes.PIDS_3_TILE_ENTITY);
@@ -374,6 +366,7 @@ public class MTR implements IPacket {
 		Registry.registerNetworkReceiver(PACKET_ADD_BALANCE, PacketTrainDataGuiServer::receiveAddBalanceC2S);
 		Registry.registerNetworkReceiver(PACKET_PIDS_UPDATE, PacketTrainDataGuiServer::receivePIDSMessageC2S);
 		Registry.registerNetworkReceiver(PACKET_ARRIVAL_PROJECTOR_UPDATE, PacketTrainDataGuiServer::receiveArrivalProjectorMessageC2S);
+		Registry.registerNetworkReceiver(PACKET_USE_TIME_AND_WIND_SYNC, PacketTrainDataGuiServer::receiveUseTimeAndWindSyncC2S);
 		Registry.registerNetworkReceiver(PACKET_UPDATE_STATION, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_STATION, railwayData -> railwayData.stations, railwayData -> railwayData.dataCache.stationIdMap, (id, transportMode) -> new Station(id), false));
 		Registry.registerNetworkReceiver(PACKET_UPDATE_PLATFORM, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_PLATFORM, railwayData -> railwayData.platforms, railwayData -> railwayData.dataCache.platformIdMap, null, false));
 		Registry.registerNetworkReceiver(PACKET_UPDATE_SIDING, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_SIDING, railwayData -> railwayData.sidings, railwayData -> railwayData.dataCache.sidingIdMap, null, false));
@@ -388,28 +381,9 @@ public class MTR implements IPacket {
 		Registry.registerNetworkReceiver(PACKET_REMOVE_RAIL_ACTION, PacketTrainDataGuiServer::receiveRemoveRailAction);
 		Registry.registerNetworkReceiver(PACKET_UPDATE_TRAIN_PASSENGER_POSITION, PacketTrainDataGuiServer::receiveUpdateTrainPassengerPosition);
 		Registry.registerNetworkReceiver(PACKET_UPDATE_ENTITY_SEAT_POSITION, PacketTrainDataGuiServer::receiveUpdateEntitySeatPassengerPosition);
+		Registry.registerNetworkReceiver(PACKET_DRIVE_TRAIN, PacketTrainDataGuiServer::receiveDriveTrainC2S);
 
-		final Server webServer = new Server(new QueuedThreadPool(100, 10, 120));
-		final ServerConnector serverConnector = new ServerConnector(webServer);
-		webServer.setConnectors(new Connector[]{serverConnector});
-		final ServletContextHandler context = new ServletContextHandler();
-		webServer.setHandler(context);
-		final URL url = MTR.class.getResource("/assets/mtr/website/");
-		if (url != null) {
-			try {
-				context.setBaseResource(Resource.newResource(url.toURI()));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		final ServletHolder servletHolder = new ServletHolder("default", DefaultServlet.class);
-		servletHolder.setInitParameter("dirAllowed", "true");
-		servletHolder.setInitParameter("cacheControl", "max-age=0,public");
-		context.addServlet(servletHolder, "/");
-		context.addServlet(DataServletHandler.class, "/data");
-		context.addServlet(InfoServletHandler.class, "/info");
-		context.addServlet(ArrivalsServletHandler.class, "/arrivals");
-		context.addServlet(DelaysServletHandler.class, "/delays");
+		Webserver.init();
 
 		Registry.registerTickEvent(minecraftServer -> {
 			minecraftServer.getAllLevels().forEach(serverWorld -> {
@@ -434,35 +408,17 @@ public class MTR implements IPacket {
 			}
 		});
 		Registry.registerServerStartingEvent(minecraftServer -> {
-			int port = 8888;
-			final Path path = minecraftServer.getServerDirectory().toPath().resolve("config").resolve("mtr_webserver_port.txt");
-			try {
-				port = Mth.clamp(Integer.parseInt(String.join("", Files.readAllLines(path)).replaceAll("\\D", "")), 1025, 65535);
-			} catch (Exception ignored) {
-				try {
-					Files.write(path, Collections.singleton(String.valueOf(port)));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-			serverConnector.setPort(port);
-			DataServletHandler.SERVER = minecraftServer;
-			InfoServletHandler.SERVER = minecraftServer;
-			ArrivalsServletHandler.SERVER = minecraftServer;
-			DelaysServletHandler.SERVER = minecraftServer;
-			try {
-				webServer.start();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			Webserver.callback = minecraftServer::execute;
+			Webserver.getWorlds = () -> {
+				final List<Level> worlds = new ArrayList<>();
+				minecraftServer.getAllLevels().forEach(worlds::add);
+				return worlds;
+			};
+			Webserver.getRoutes = railwayData -> railwayData == null ? new HashSet<>() : railwayData.routes;
+			Webserver.getDataCache = railwayData -> railwayData == null ? null : railwayData.dataCache;
+			Webserver.start(minecraftServer.getServerDirectory().toPath().resolve("config").resolve("mtr_webserver_port.txt"));
 		});
-		Registry.registerServerStoppingEvent(minecraftServer -> {
-			try {
-				webServer.stop();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
+		Registry.registerServerStoppingEvent(minecraftServer -> Webserver.stop());
 	}
 
 	public static boolean isGameTickInterval(int interval) {

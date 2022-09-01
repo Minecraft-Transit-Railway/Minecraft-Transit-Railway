@@ -17,6 +17,7 @@ public interface IPacket {
 	ResourceLocation PACKET_OPEN_RESOURCE_PACK_CREATOR_SCREEN = new ResourceLocation(MTR.MOD_ID, "packet_open_resource_pack_creator_screen");
 
 	ResourceLocation PACKET_ANNOUNCE = new ResourceLocation(MTR.MOD_ID, "packet_announce");
+	ResourceLocation PACKET_USE_TIME_AND_WIND_SYNC = new ResourceLocation(MTR.MOD_ID, "packet_use_time_and_wind_sync");
 
 	ResourceLocation PACKET_CREATE_RAIL = new ResourceLocation(MTR.MOD_ID, "packet_create_rail");
 	ResourceLocation PACKET_CREATE_SIGNAL = new ResourceLocation(MTR.MOD_ID, "packet_create_signal");
@@ -28,6 +29,7 @@ public interface IPacket {
 	ResourceLocation PACKET_GENERATE_PATH = new ResourceLocation(MTR.MOD_ID, "packet_generate_path");
 	ResourceLocation PACKET_CLEAR_TRAINS = new ResourceLocation(MTR.MOD_ID, "packet_clear_trains");
 	ResourceLocation PACKET_SIGN_TYPES = new ResourceLocation(MTR.MOD_ID, "packet_sign_types");
+	ResourceLocation PACKET_DRIVE_TRAIN = new ResourceLocation(MTR.MOD_ID, "packet_drive_train");
 	ResourceLocation PACKET_PRESS_LIFT_BUTTON = new ResourceLocation(MTR.MOD_ID, "packet_press_lift_button");
 	ResourceLocation PACKET_ADD_BALANCE = new ResourceLocation(MTR.MOD_ID, "packet_add_balance");
 	ResourceLocation PACKET_PIDS_UPDATE = new ResourceLocation(MTR.MOD_ID, "packet_pids_update");

@@ -5,7 +5,7 @@ jobs:
   build:
     strategy:
       matrix:
-        minecraft: [ 1.16.5, 1.17.1, 1.18, 1.18.2, 1.19 ]
+        minecraft: [ 1.16.5, 1.17.1, 1.18, 1.18.2, 1.19.2 ]
         loader: [ fabric, forge, common ]
         variation: [ normal, server, lifts ]
         exclude:

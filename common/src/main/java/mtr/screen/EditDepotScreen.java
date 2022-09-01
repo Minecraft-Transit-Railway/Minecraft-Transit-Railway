@@ -12,10 +12,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
@@ -25,10 +23,17 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private final boolean showScheduleControls;
 	private final Map<Long, Siding> sidingsInDepot;
 
+	private final Button buttonUseRealTime;
+	private final Button buttonReset;
 	private final WidgetShorterSlider[] sliders = new WidgetShorterSlider[Depot.HOURS_IN_DAY];
+	private final WidgetBetterTextField textFieldDeparture;
+	private final Button buttonAddDeparture;
+
 	private final Button buttonEditInstructions;
 	private final Button buttonGenerateRoute;
 	private final Button buttonClearTrains;
+	private final WidgetBetterCheckbox checkboxRepeatIndefinitely;
+	private final DashboardList departuresList;
 
 	private static final int PANELS_START = SQUARE_SIZE * 2 + TEXT_FIELD_PADDING;
 	private static final int SLIDER_WIDTH = 64;
@@ -46,6 +51,20 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		rightPanelsX = sliderX + SLIDER_WIDTH + TEXT_PADDING * 2 + font.width(getSliderString(1));
 		showScheduleControls = !transportMode.continuousMovement;
 
+		buttonUseRealTime = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.schedule_mode_real_time_off"), button -> {
+			depot.useRealTime = !depot.useRealTime;
+			toggleRealTime();
+			saveData();
+		});
+		buttonReset = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.reset_sign"), button -> {
+			for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
+				sliders[i].setValue(0);
+			}
+			data.departures.clear();
+			updateList();
+			saveData();
+		});
+
 		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
 			final int currentIndex = i;
 			sliders[currentIndex] = new WidgetShorterSlider(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, EditDepotScreen::getSliderString, value -> {
@@ -56,6 +75,14 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 				}
 			});
 		}
+		departuresList = new DashboardList(null, null, null, null, null, this::onDeleteDeparture, null, () -> "", text -> {
+		});
+
+		textFieldDeparture = new WidgetBetterTextField("[^\\d:+* ]", "07:10:00 + 10 * 00:03:00", 25);
+		buttonAddDeparture = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("+"), button -> {
+			checkDeparture(textFieldDeparture.getValue(), true, false);
+			saveData();
+		});
 
 		buttonEditInstructions = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.edit_instructions"), button -> {
 			if (minecraft != null) {
@@ -74,6 +101,11 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			sidingsInDepot.values().forEach(Siding::clearTrains);
 			PacketTrainDataGuiClient.clearTrainsC2S(depot.id, sidingsInDepot.values());
 		});
+		checkboxRepeatIndefinitely = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.repeat_indefinitely"), button -> {
+			saveData();
+			depot.clientPathGenerationSuccessfulSegments = -1;
+			PacketTrainDataGuiClient.generatePathC2S(depot.id);
+		});
 	}
 
 	@Override
@@ -84,6 +116,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		IDrawing.setPositionAndWidth(buttonEditInstructions, rightPanelsX, PANELS_START, buttonWidth * 2);
 		IDrawing.setPositionAndWidth(buttonGenerateRoute, rightPanelsX, PANELS_START + SQUARE_SIZE, buttonWidth * (showScheduleControls ? 1 : 2));
 		IDrawing.setPositionAndWidth(buttonClearTrains, rightPanelsX + buttonWidth, PANELS_START + SQUARE_SIZE, buttonWidth);
+		IDrawing.setPositionAndWidth(checkboxRepeatIndefinitely, rightPanelsX, PANELS_START + SQUARE_SIZE * 2, buttonWidth * 2);
+		checkboxRepeatIndefinitely.setChecked(data.repeatInfinitely);
 
 		if (showScheduleControls) {
 			for (WidgetShorterSlider slider : sliders) {
@@ -94,17 +128,48 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			sliders[i].setValue(data.getFrequency(i));
 		}
 
+		final int leftWidth = rightPanelsX - 1;
+		IDrawing.setPositionAndWidth(buttonUseRealTime, 0, 0, leftWidth - SQUARE_SIZE * 3);
+		IDrawing.setPositionAndWidth(buttonReset, leftWidth - SQUARE_SIZE * 3, 0, SQUARE_SIZE * 3);
+
+		departuresList.y = SQUARE_SIZE;
+		departuresList.height = height - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING;
+		departuresList.width = leftWidth;
+		departuresList.init(this::addDrawableChild);
+
+		IDrawing.setPositionAndWidth(textFieldDeparture, TEXT_FIELD_PADDING / 2, height - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, leftWidth - TEXT_FIELD_PADDING - SQUARE_SIZE);
+		addDrawableChild(textFieldDeparture);
+		textFieldDeparture.setResponder(text -> buttonAddDeparture.active = checkDeparture(text, false, false));
+		IDrawing.setPositionAndWidth(buttonAddDeparture, leftWidth - SQUARE_SIZE, height - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
+		addDrawableChild(buttonAddDeparture);
+		buttonAddDeparture.active = false;
+
 		addDrawableChild(buttonEditInstructions);
 		addDrawableChild(buttonGenerateRoute);
 		if (showScheduleControls) {
+			addDrawableChild(buttonUseRealTime);
+			addDrawableChild(buttonReset);
 			addDrawableChild(buttonClearTrains);
+			addDrawableChild(checkboxRepeatIndefinitely);
 		}
+
+		toggleRealTime();
 	}
 
 	@Override
 	public void tick() {
 		super.tick();
 		buttonGenerateRoute.active = data.clientPathGenerationSuccessfulSegments >= 0;
+		departuresList.tick();
+		textFieldDeparture.tick();
+
+		if (data.routeIds.isEmpty()) {
+			checkboxRepeatIndefinitely.visible = false;
+		} else {
+			final Route firstRoute = ClientData.DATA_CACHE.routeIdMap.get(data.routeIds.get(0));
+			final Route lastRoute = ClientData.DATA_CACHE.routeIdMap.get(data.routeIds.get(data.routeIds.size() - 1));
+			checkboxRepeatIndefinitely.visible = firstRoute != null && lastRoute != null && !firstRoute.platformIds.isEmpty() && !lastRoute.platformIds.isEmpty() && Objects.equals(firstRoute.platformIds.get(0), lastRoute.platformIds.get(lastRoute.platformIds.size() - 1));
+		}
 	}
 
 	@Override
@@ -114,30 +179,59 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			vLine(matrices, rightPanelsX - 1, -1, height, ARGB_WHITE_TRANSLUCENT);
 			renderTextFields(matrices);
 
-			final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / Depot.HOURS_IN_DAY);
+			if (showScheduleControls && data.useRealTime) {
+				departuresList.render(matrices, font);
+			}
+
+			final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE * 2) / Depot.HOURS_IN_DAY);
 			for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
-				if (showScheduleControls) {
-					drawString(matrices, font, getTimeString(i), TEXT_PADDING, SQUARE_SIZE + lineHeight * i + (int) ((lineHeight - TEXT_HEIGHT) / 2F), ARGB_WHITE);
+				if (showScheduleControls && !data.useRealTime) {
+					drawString(matrices, font, getTimeString(i), TEXT_PADDING, SQUARE_SIZE * 2 + lineHeight * i + (int) ((lineHeight - TEXT_HEIGHT) / 2F), ARGB_WHITE);
 				}
-				sliders[i].y = SQUARE_SIZE + lineHeight * i;
+				sliders[i].y = SQUARE_SIZE * 2 + lineHeight * i;
 				sliders[i].setHeight(lineHeight);
 			}
+
 			super.render(matrices, mouseX, mouseY, delta);
 
-			font.draw(matrices, Text.translatable("gui.mtr.sidings_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
+			final int yStartRightPane = PANELS_START + SQUARE_SIZE * (checkboxRepeatIndefinitely.visible ? 3 : 2) + TEXT_PADDING;
+			font.draw(matrices, Text.translatable("gui.mtr.sidings_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, yStartRightPane, ARGB_WHITE);
+
+			final Component text;
+			final int nextDepartureMillis = data.getMillisUntilDeploy(minecraft == null || minecraft.level == null ? 0 : Depot.getHour(minecraft.level), 1);
+			if (nextDepartureMillis >= 0) {
+				final long hour = TimeUnit.MILLISECONDS.toHours(nextDepartureMillis);
+				final long minute = TimeUnit.MILLISECONDS.toMinutes(nextDepartureMillis) % 60;
+				final long second = TimeUnit.MILLISECONDS.toSeconds(nextDepartureMillis) % 60;
+				text = Text.translatable("gui.mtr.next_departure", String.format("%2s:%2s:%2s", hour, minute, second).replace(' ', '0'));
+			} else {
+				text = Text.translatable("gui.mtr.next_departure_none");
+			}
+			font.draw(matrices, text, rightPanelsX + TEXT_PADDING, yStartRightPane + SQUARE_SIZE, ARGB_WHITE);
 
 			final String[] stringSplit = getSuccessfulSegmentsText().getString().split("\\|");
 			for (int i = 0; i < stringSplit.length; i++) {
-				font.draw(matrices, stringSplit[i], rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 3 + TEXT_PADDING + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE);
+				font.draw(matrices, stringSplit[i], rightPanelsX + TEXT_PADDING, yStartRightPane + SQUARE_SIZE * 2 + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE);
 			}
 
-			if (showScheduleControls) {
-				drawCenteredString(matrices, font, Text.translatable("gui.mtr.game_time"), sliderX / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
-				drawCenteredString(matrices, font, Text.translatable("gui.mtr.vehicles_per_hour"), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
+			if (showScheduleControls && !data.useRealTime) {
+				drawCenteredString(matrices, font, Text.translatable("gui.mtr.game_time"), sliderX / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
+				drawCenteredString(matrices, font, Text.translatable("gui.mtr.vehicles_per_hour"), sliderX + sliderWidthWithText / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void mouseMoved(double mouseX, double mouseY) {
+		departuresList.mouseMoved(mouseX, mouseY);
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+		departuresList.mouseScrolled(mouseX, mouseY, amount);
+		return super.mouseScrolled(mouseX, mouseY, amount);
 	}
 
 	@Override
@@ -146,7 +240,89 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
 			data.setFrequency(sliders[i].getIntValue(), i);
 		}
+		data.repeatInfinitely = checkboxRepeatIndefinitely.visible && checkboxRepeatIndefinitely.selected();
 		data.setData(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
+	}
+
+	private void toggleRealTime() {
+		for (final WidgetShorterSlider slider : sliders) {
+			slider.visible = !data.useRealTime;
+		}
+		departuresList.x = data.useRealTime ? 0 : width;
+		textFieldDeparture.x = data.useRealTime ? TEXT_FIELD_PADDING / 2 : width;
+		buttonAddDeparture.visible = data.useRealTime;
+		buttonUseRealTime.setMessage(Text.translatable(data.useRealTime ? "gui.mtr.schedule_mode_real_time_on" : "gui.mtr.schedule_mode_real_time_off"));
+		updateList();
+	}
+
+	private void onDeleteDeparture(NameColorDataBase data, int index) {
+		checkDeparture(data.name, false, true);
+		saveData();
+	}
+
+	private void updateList() {
+		final List<NameColorDataBase> departureData = new ArrayList<>();
+		final long offset = System.currentTimeMillis() / Depot.MILLISECONDS_PER_DAY * Depot.MILLISECONDS_PER_DAY;
+		data.departures.stream().map(departure -> {
+			final Calendar calendar = Calendar.getInstance();
+			calendar.setTimeInMillis(departure + offset);
+			return calendar;
+		}).sorted(Comparator.comparingInt(calendar -> {
+			final int hour = calendar.get(Calendar.HOUR_OF_DAY);
+			final int minute = calendar.get(Calendar.MINUTE);
+			final int second = calendar.get(Calendar.SECOND);
+			return hour * 3600 + minute * 60 + second;
+		})).forEach(calendar -> {
+			final int hour = calendar.get(Calendar.HOUR_OF_DAY);
+			final int minute = calendar.get(Calendar.MINUTE);
+			final int second = calendar.get(Calendar.SECOND);
+			departureData.add(new DataConverter(String.format("%2s:%2s:%2s", hour, minute, second).replace(' ', '0'), 0));
+		});
+		departuresList.setData(departureData, false, false, false, false, false, true);
+	}
+
+	private boolean checkDeparture(String text, boolean addToList, boolean removeFromList) {
+		try {
+			final String[] departureSplit = text.replace(" ", "").split("\\+");
+			final String[] timeSplit1 = departureSplit[0].split(":");
+			final Calendar calendar = Calendar.getInstance();
+			calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeSplit1[0]) % 24);
+			calendar.set(Calendar.MINUTE, Integer.parseInt(timeSplit1[1]) % 60);
+			calendar.set(Calendar.SECOND, Integer.parseInt(timeSplit1[2]) % 60);
+			calendar.set(Calendar.MILLISECOND, 0);
+			final int departure = (int) (calendar.getTimeInMillis() % Depot.MILLISECONDS_PER_DAY);
+			final int multiple;
+			final int interval;
+
+			if (departureSplit.length > 1) {
+				final String[] intervalSplit = departureSplit[1].split("\\*");
+				multiple = Integer.parseInt(intervalSplit[0]) + 1;
+				final String[] timeSplit2 = intervalSplit[1].split(":");
+				interval = (Integer.parseInt(timeSplit2[0]) * 3600 + Integer.parseInt(timeSplit2[1]) * 60 + Integer.parseInt(timeSplit2[2])) * 1000;
+			} else {
+				multiple = 1;
+				interval = 0;
+			}
+
+			if (addToList || removeFromList) {
+				for (int i = 0; i < multiple; i++) {
+					final int rawDeparture = (departure + i * interval) % Depot.MILLISECONDS_PER_DAY;
+					if (addToList) {
+						if (!data.departures.contains(rawDeparture)) {
+							data.departures.add(rawDeparture);
+						}
+					} else {
+						data.departures.remove((Integer) rawDeparture);
+					}
+				}
+				updateList();
+			}
+
+			return true;
+		} catch (Exception ignored) {
+		}
+
+		return false;
 	}
 
 	private Component getSuccessfulSegmentsText() {

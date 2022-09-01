@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -92,8 +93,19 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IB
 		}
 
 		@Override
-		public boolean shouldRender() {
-			return level != null && !(level.getBlockState(worldPosition.relative(IBlock.getStatePropertySafe(level, worldPosition, FACING).getCounterClockWise())).getBlock() instanceof BlockStationNameEntrance);
+		public int getColor(BlockState state) {
+			switch (IBlock.getStatePropertySafe(state, BlockStationNameBase.COLOR)) {
+				case 1:
+					return ARGB_LIGHT_GRAY;
+				case 2:
+					return ARGB_BLACK;
+				default:
+					return ARGB_WHITE;
+			}
+		}
+
+		public AABB getRenderBoundingBox() {
+			return new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
 		}
 	}
 }

@@ -1059,11 +1059,6 @@ public class ModelKTrain extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected int[] getBogiePositions() {
-		return new int[]{-136, 136};
-	}
-
-	@Override
 	protected float getDoorAnimationX(float value, boolean opening) {
 		return smoothEnds(-0.01F, -1.01F, 0, 0.1F, value);
 	}

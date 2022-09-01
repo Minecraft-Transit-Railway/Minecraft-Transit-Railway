@@ -35,6 +35,7 @@ public class TrainServer extends Train {
 	private Map<Long, Map<BlockPos, TrainDelay>> trainDelays = new HashMap<>();
 	private long routeId;
 	private int updateRailProgressCounter;
+	private int manualCoolDown;
 
 	private final List<Siding.TimeSegment> timeSegments;
 
@@ -43,24 +44,35 @@ public class TrainServer extends Train {
 	private static final int BOX_PADDING = 3;
 	private static final int TICKS_TO_SEND_RAIL_PROGRESS = 40;
 
-	public TrainServer(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, float accelerationConstant, List<Siding.TimeSegment> timeSegments) {
-		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances, accelerationConstant);
+	public TrainServer(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2, float accelerationConstant, List<Siding.TimeSegment> timeSegments, boolean isManual, int maxManualSpeed, int manualToAutomaticTime) {
+		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, isManual, maxManualSpeed, manualToAutomaticTime);
 		this.timeSegments = timeSegments;
 	}
 
-	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Double> distances, List<Siding.TimeSegment> timeSegments, Map<String, Value> map) {
-		super(sidingId, railLength, path, distances, map);
+	public TrainServer(
+			long sidingId, float railLength, List<Siding.TimeSegment> timeSegments,
+			List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2,
+			float accelerationConstant, boolean isManual, int maxManualSpeed, int manualToAutomaticTime,
+			Map<String, Value> map
+	) {
+		super(sidingId, railLength, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, isManual, maxManualSpeed, manualToAutomaticTime, map);
 		this.timeSegments = timeSegments;
 	}
 
 	@Deprecated
-	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Double> distances, List<Siding.TimeSegment> timeSegments, CompoundTag compoundTag) {
-		super(sidingId, railLength, path, distances, compoundTag);
+	public TrainServer(
+			long sidingId, float railLength, List<Siding.TimeSegment> timeSegments,
+			List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2,
+			float accelerationConstant, boolean isManual, int maxManualSpeed, int manualToAutomaticTime,
+			CompoundTag compoundTag
+	) {
+		super(sidingId, railLength, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, isManual, maxManualSpeed, manualToAutomaticTime, compoundTag);
 		this.timeSegments = timeSegments;
 	}
 
 	@Override
 	protected void startUp(Level world, int trainCars, int trainSpacing, boolean isOppositeRail) {
+		super.startUp(world, trainCars, trainSpacing, isOppositeRail);
 		canDeploy = false;
 		isOnRoute = true;
 		stopCounter = 0;
@@ -77,8 +89,7 @@ public class TrainServer extends Train {
 			Level world, int ridingCar, float ticksElapsed,
 			double carX, double carY, double carZ, float carYaw, float carPitch,
 			double prevCarX, double prevCarY, double prevCarZ, float prevCarYaw, float prevCarPitch,
-			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing,
-			float doorValueRaw, float oldSpeed, float oldDoorValue, double oldRailProgress
+			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing
 	) {
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData == null) {
@@ -88,11 +99,11 @@ public class TrainServer extends Train {
 		final float halfSpacing = spacing / 2F;
 		final float halfWidth = width / 2F;
 
-		if (doorLeftOpen || doorRightOpen) {
+		if (isManual || doorLeftOpen || doorRightOpen) {
 			final float margin = halfSpacing + BOX_PADDING;
-			world.getEntitiesOfClass(Player.class, new AABB(carX + margin, carY + margin, carZ + margin, carX - margin, carY - margin, carZ - margin), player -> !player.isSpectator() && !ridingEntities.contains(player.getUUID()) && railwayData.railwayDataCoolDownModule.canRide(player)).forEach(player -> {
+			world.getEntitiesOfClass(Player.class, new AABB(carX + margin, carY + margin, carZ + margin, carX - margin, carY - margin, carZ - margin), player -> !player.isSpectator() && !ridingEntities.contains(player.getUUID()) && railwayData.railwayDataCoolDownModule.canRide(player) && (!isManual || doorLeftOpen || doorRightOpen || Train.isHoldingKey(player))).forEach(player -> {
 				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
-				if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 2.5 && Math.abs(positionRotated.z) <= halfSpacing) {
+				if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 2.5 && Math.abs(positionRotated.z) <= halfSpacing && !railwayData.railwayDataCoolDownModule.shouldDismount(player)) {
 					ridingEntities.add(player.getUUID());
 					final float percentageX = (float) (positionRotated.x / width + 0.5);
 					final float percentageZ = (float) (realSpacing == 0 ? 0 : positionRotated.z / realSpacing + 0.5) + ridingCar;
@@ -109,9 +120,11 @@ public class TrainServer extends Train {
 		final Set<UUID> ridersToRemove = new HashSet<>();
 		ridingEntities.forEach(uuid -> {
 			final Player player = world.getPlayerByUUID(uuid);
+
 			if (player != null) {
 				final boolean remove;
-				if (player.isSpectator() || player.isShiftKeyDown()) {
+
+				if (player.isSpectator() || railwayData.railwayDataCoolDownModule.shouldDismount(player)) {
 					remove = true;
 				} else if (doorLeftOpen || doorRightOpen) {
 					final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
@@ -119,19 +132,25 @@ public class TrainServer extends Train {
 				} else {
 					remove = false;
 				}
+
 				if (remove) {
 					ridersToRemove.add(uuid);
 				}
+
 				railwayData.railwayDataCoolDownModule.updatePlayerRiding(player, routeId);
+				if (isHoldingKey(player)) {
+					manualCoolDown = 0;
+				}
 			}
 		});
+
 		if (!ridersToRemove.isEmpty()) {
 			ridersToRemove.forEach(ridingEntities::remove);
 		}
 	}
 
 	@Override
-	protected boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, double oldRailProgress) {
+	protected boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed) {
 		final AABB trainAABB = new AABB(positions[0], positions[positions.length - 1]).inflate(TRAIN_UPDATE_DISTANCE);
 		final boolean[] playerNearby = {false};
 		world.players().forEach(player -> {
@@ -145,7 +164,7 @@ public class TrainServer extends Train {
 		});
 
 		final BlockPos frontPos = new BlockPos(positions[reversed ? positions.length - 1 : 0]);
-		if (world.hasChunk(frontPos.getX() / 16, frontPos.getZ() / 16)) {
+		if (world.getChunkSource().getChunkNow(frontPos.getX() / 16, frontPos.getZ() / 16) != null && world.hasChunk(frontPos.getX() / 16, frontPos.getZ() / 16)) {
 			checkBlock(frontPos, checkPos -> {
 				final BlockState state = world.getBlockState(checkPos);
 				final Block block = state.getBlock();
@@ -220,18 +239,20 @@ public class TrainServer extends Train {
 	}
 
 	@Override
-	protected boolean openDoors(Level world, Block block, BlockPos checkPos, float doorValue, int dwellTicks) {
+	protected boolean openDoors(Level world, Block block, BlockPos checkPos, int dwellTicks) {
 		if (block instanceof BlockPSDAPGDoorBase) {
 			for (int i = -1; i <= 1; i++) {
 				final BlockPos doorPos = checkPos.above(i);
 				final BlockState state = world.getBlockState(doorPos);
 				final Block doorBlock = state.getBlock();
+				final BlockEntity entity = world.getBlockEntity(doorPos);
 
-				if (doorBlock instanceof BlockPSDAPGDoorBase) {
+				if (doorBlock instanceof BlockPSDAPGDoorBase && entity instanceof BlockPSDAPGDoorBase.TileEntityPSDAPGDoorBase && IBlock.getStatePropertySafe(state, BlockPSDAPGDoorBase.UNLOCKED)) {
 					final int doorStateValue = (int) Mth.clamp(doorValue * DOOR_MOVE_TIME, 0, BlockPSDAPGDoorBase.MAX_OPEN_VALUE);
-					world.setBlockAndUpdate(doorPos, state.setValue(BlockPSDAPGDoorBase.OPEN, doorStateValue));
+					((BlockPSDAPGDoorBase.TileEntityPSDAPGDoorBase) entity).setOpen(doorStateValue);
 
 					if (doorStateValue > 0 && !world.getBlockTicks().hasScheduledTick(doorPos, doorBlock)) {
+						/* This schedules the block tick to the door (Ensures the door will be closed when the train passes by) */
 						Utilities.scheduleBlockTick(world, doorPos, doorBlock, dwellTicks);
 					}
 				}
@@ -246,16 +267,19 @@ public class TrainServer extends Train {
 		return TrigCache.asin(value);
 	}
 
-	public boolean simulateTrain(Level world, float ticksElapsed, Depot depot, DataCache dataCache, List<Map<UUID, Long>> trainPositions, Map<Player, Set<TrainServer>> trainsInPlayerRange, Map<Long, List<ScheduleEntry>> schedulesForPlatform, Map<Long, Map<BlockPos, TrainDelay>> trainDelays, boolean isUnlimited) {
+	public boolean simulateTrain(Level world, float ticksElapsed, Depot depot, DataCache dataCache, List<Map<UUID, Long>> trainPositions, Map<Player, Set<TrainServer>> trainsInPlayerRange, Map<Long, List<ScheduleEntry>> schedulesForPlatform, Map<Long, Map<BlockPos, TrainDelay>> trainDelays) {
 		this.trainPositions = trainPositions;
 		this.trainsInPlayerRange = trainsInPlayerRange;
 		this.trainDelays = trainDelays;
 		final int oldStoppingIndex = nextStoppingIndex;
 		final int oldPassengerCount = ridingEntities.size();
+		final boolean oldIsCurrentlyManual = isCurrentlyManual;
+		final boolean oldStopped = speed == 0;
 
 		simulateTrain(world, ticksElapsed, depot);
 
-		final long currentMillis = System.currentTimeMillis() - (long) (stopCounter * Depot.MILLIS_PER_TICK) + (isOnRoute ? 0 : (long) Math.max(0, depot.getNextDepartureTicks(Depot.getHour(world))) * Depot.MILLIS_PER_TICK);
+		final int nextDepartureTicks = isOnRoute ? 0 : depot.getNextDepartureTicks(Depot.getHour(world)) * Depot.MILLIS_PER_TICK;
+		final long currentMillis = System.currentTimeMillis() - (long) (stopCounter * Depot.MILLIS_PER_TICK) + (long) Math.max(0, nextDepartureTicks);
 
 		double currentTime = -1;
 		int startingIndex = 0;
@@ -269,8 +293,11 @@ public class TrainServer extends Train {
 
 		if (currentTime >= 0) {
 			float offsetTime = 0;
+			float offsetTimeTemp = 0;
+			boolean secondRound = false;
+			Runnable addSchedule = null;
 			routeId = 0;
-			for (int i = startingIndex; i < timeSegments.size() + (isUnlimited ? 0 : startingIndex); i++) {
+			for (int i = startingIndex; i < timeSegments.size() + (isRepeat() ? timeSegments.size() : 0); i++) {
 				final Siding.TimeSegment timeSegment = timeSegments.get(i % timeSegments.size());
 
 				if (timeSegment.savedRailBaseId != 0) {
@@ -286,8 +313,23 @@ public class TrainServer extends Train {
 						schedulesForPlatform.put(platformId, new ArrayList<>());
 					}
 
-					final long arrivalMillis = currentMillis + (long) ((timeSegment.endTime + offsetTime - currentTime) * Depot.MILLIS_PER_TICK);
-					schedulesForPlatform.get(platformId).add(new ScheduleEntry(arrivalMillis, trainCars, timeSegment.routeId, timeSegment.currentStationIndex));
+					if (secondRound) {
+						offsetTime = offsetTimeTemp - timeSegment.endTime;
+						secondRound = false;
+					} else if (addSchedule != null) {
+						addSchedule.run();
+					}
+
+					if (isOnRoute || nextDepartureTicks >= 0) {
+						final long arrivalMillis = currentMillis + (long) ((timeSegment.endTime + offsetTime - currentTime) * Depot.MILLIS_PER_TICK);
+						addSchedule = () -> schedulesForPlatform.get(platformId).add(new ScheduleEntry(arrivalMillis, trainCars, timeSegment.routeId, timeSegment.currentStationIndex));
+						if (!isRepeat()) {
+							addSchedule.run();
+							addSchedule = null;
+						}
+					}
+
+					offsetTimeTemp = timeSegment.endTime;
 				}
 
 				if (routeId == 0) {
@@ -295,7 +337,7 @@ public class TrainServer extends Train {
 				}
 
 				if (i == timeSegments.size() - 1) {
-					offsetTime = timeSegment.endTime;
+					secondRound = true;
 				}
 			}
 		}
@@ -305,7 +347,27 @@ public class TrainServer extends Train {
 			updateRailProgressCounter = 0;
 		}
 
-		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
+		if (isManual) {
+			if (isOnRoute) {
+				if (manualCoolDown >= manualToAutomaticTime * 10) {
+					if (isCurrentlyManual) {
+						final int dwellTicks = nextStoppingIndex >= path.size() ? 0 : path.get(nextStoppingIndex).dwellTime * 10;
+						stopCounter = doorOpen ? dwellTicks / 2F : dwellTicks;
+					}
+					isCurrentlyManual = false;
+				} else {
+					manualCoolDown++;
+					isCurrentlyManual = true;
+				}
+			} else {
+				manualCoolDown = 0;
+				isCurrentlyManual = true;
+			}
+		} else {
+			isCurrentlyManual = false;
+		}
+
+		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex || oldIsCurrentlyManual != isCurrentlyManual || oldStopped && speed != 0;
 	}
 
 	public void writeTrainPositions(List<Map<UUID, Long>> trainPositions, SignalBlocks signalBlocks) {
@@ -349,6 +411,8 @@ public class TrainServer extends Train {
 		for (int i = 0; i < inventoryFrom.getContainerSize(); i++) {
 			if (!inventoryFrom.getItem(i).isEmpty()) {
 				final ItemStack insertItem = new ItemStack(inventoryFrom.getItem(i).getItem(), 1);
+				insertItem.setTag(inventoryFrom.getItem(i).getOrCreateTag());
+
 				final ItemStack remainingStack = HopperBlockEntity.addItem(null, inventoryTo, insertItem, null);
 				if (remainingStack.isEmpty()) {
 					inventoryFrom.removeItem(i, 1);

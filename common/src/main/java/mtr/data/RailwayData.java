@@ -5,8 +5,10 @@ import mtr.MTR;
 import mtr.Registry;
 import mtr.block.BlockNode;
 import mtr.mappings.PersistentStateMapper;
+import mtr.mappings.Utilities;
 import mtr.packet.*;
 import mtr.path.PathData;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -42,9 +44,12 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	public final RailwayDataCoolDownModule railwayDataCoolDownModule;
 	public final RailwayDataPathGenerationModule railwayDataPathGenerationModule;
 	public final RailwayDataRailActionsModule railwayDataRailActionsModule;
+	public final RailwayDataDriveTrainModule railwayDataDriveTrainModule;
+	public final RailwayDataRouteFinderModule railwayDataRouteFinderModule;
 
 	private int prevPlatformCount;
 	private int prevSidingCount;
+	private boolean useTimeAndWindSync;
 
 	private final Level world;
 	private final Map<BlockPos, Map<BlockPos, Rail>> rails = new HashMap<>();
@@ -75,6 +80,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private static final String KEY_DEPOTS = "depots";
 	private static final String KEY_RAILS = "rails";
 	private static final String KEY_SIGNAL_BLOCKS = "signal_blocks";
+	private static final String KEY_USE_TIME_AND_WIND_SYNC = "use_time_and_wind_sync";
 
 	public RailwayData(Level world) {
 		super(NAME);
@@ -87,6 +93,8 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		railwayDataPathGenerationModule = new RailwayDataPathGenerationModule(this, world, rails);
 		railwayDataRailActionsModule = new RailwayDataRailActionsModule(this, world, rails);
 		railwayDataCoolDownModule = new RailwayDataCoolDownModule(this, world, rails);
+		railwayDataDriveTrainModule = new RailwayDataDriveTrainModule(this, world, rails);
+		railwayDataRouteFinderModule = new RailwayDataRouteFinderModule(this, world, rails);
 	}
 
 	@Override
@@ -196,6 +204,9 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		dataCache.sync();
 		signalBlocks.writeCache();
 
+		useTimeAndWindSync = compoundTag.getBoolean(KEY_USE_TIME_AND_WIND_SYNC);
+		runRealTimeSync();
+
 		try {
 			UpdateDynmap.updateDynmap(world, this);
 		} catch (NoClassDefFoundError | IllegalStateException ignored) {
@@ -230,6 +241,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	@Override
 	public CompoundTag save(CompoundTag compoundTag) {
+		compoundTag.putBoolean(KEY_USE_TIME_AND_WIND_SYNC, useTimeAndWindSync);
 		return compoundTag;
 	}
 
@@ -276,13 +288,15 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		signalBlocks.resetOccupied();
 		sidings.forEach(siding -> {
 			siding.setSidingData(world, dataCache.sidingIdToDepot.get(siding.id), rails);
-			siding.simulateTrain(dataCache, trainPositions, signalBlocks, newTrainsInPlayerRange, trainsToSync, schedulesForPlatform, trainDelays);
+			siding.simulateTrain(dataCache, railwayDataDriveTrainModule, trainPositions, signalBlocks, newTrainsInPlayerRange, trainsToSync, schedulesForPlatform, trainDelays);
 		});
 		final int hour = Depot.getHour(world);
 		depots.forEach(depot -> depot.deployTrain(this, hour));
 
 		railwayDataCoolDownModule.tick();
+		railwayDataDriveTrainModule.tick();
 		railwayDataRailActionsModule.tick();
+		railwayDataRouteFinderModule.tick();
 
 		trainsInPlayerRange.forEach((player, trains) -> {
 			for (final TrainServer train : trains) {
@@ -479,6 +493,15 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		depot.routeIds.forEach(trainDelays::remove);
 	}
 
+	public boolean getUseTimeAndWindSync() {
+		return useTimeAndWindSync;
+	}
+
+	public void setUseTimeAndWindSync(boolean useTimeAndWindSync) {
+		this.useTimeAndWindSync = useTimeAndWindSync;
+		runRealTimeSync();
+	}
+
 	private void validateData() {
 		removeSavedRailS2C(world, platforms, rails, PACKET_DELETE_PLATFORM);
 		removeSavedRailS2C(world, sidings, rails, PACKET_DELETE_SIDING);
@@ -492,6 +515,21 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		}));
 		for (int i = 0; i < railsToRemove.size() - 1; i += 2) {
 			removeRailConnection(null, rails, railsToRemove.get(i), railsToRemove.get(i + 1));
+		}
+	}
+
+	private void runRealTimeSync() {
+		if (useTimeAndWindSync) {
+			final MinecraftServer server = world.getServer();
+			if (server != null) {
+				final CommandSourceStack commandSourceStack = server.createCommandSourceStack();
+				runCommand(server, commandSourceStack, "/gamerule doDaylightCycle true");
+				runCommand(server, commandSourceStack, "/taw set-cycle-length " + world.dimension().location() + " 864000 864000");
+				runCommand(server, commandSourceStack, "/taw reload");
+				final Calendar calendar = Calendar.getInstance();
+				final long ticks = Math.round((calendar.get(Calendar.HOUR_OF_DAY) + Depot.HOURS_IN_DAY - 6) * 1000 + calendar.get(Calendar.MINUTE) / 0.06 + calendar.get(Calendar.SECOND) / 3.6) % 24000;
+				runCommand(server, commandSourceStack, "/time set " + ticks);
+			}
 		}
 	}
 
@@ -693,7 +731,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		final Set<BlockPos> railsToRemove = new HashSet<>();
 		final Set<BlockPos> railsNodesToRemove = new HashSet<>();
 		rails.forEach((startPos, railMap) -> {
-			final boolean loadedChunk = world.hasChunk(startPos.getX() / 16, startPos.getZ() / 16);
+			final boolean loadedChunk = world.getChunkSource().getChunkNow(startPos.getX() / 16, startPos.getZ() / 16) != null && world.hasChunk(startPos.getX() / 16, startPos.getZ() / 16);
 			if (loadedChunk && !(world.getBlockState(startPos).getBlock() instanceof BlockNode)) {
 				railsNodesToRemove.add(startPos);
 			}
@@ -716,6 +754,11 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			}
 			return delete;
 		});
+	}
+
+	private static void runCommand(MinecraftServer server, CommandSourceStack commandSourceStack, String command) {
+		System.out.println("Running command " + command);
+		Utilities.sendCommand(server, commandSourceStack, command);
 	}
 
 	// TODO temporary code start

@@ -52,7 +52,7 @@ public interface IDrawing {
 		final List<FormattedCharSequence> orderedTexts = new ArrayList<>();
 		int totalHeight = 0, totalWidth = 0;
 		for (final String stringSplitPart : stringSplit) {
-			final boolean isCJK = stringSplitPart.codePoints().anyMatch(Character::isIdeographic);
+			final boolean isCJK = IGui.isCjk(stringSplitPart);
 			isCJKList.add(isCJK);
 
 			final FormattedCharSequence orderedText = Text.literal(stringSplitPart).setStyle(style).getVisualOrderText();

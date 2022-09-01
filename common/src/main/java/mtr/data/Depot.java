@@ -22,11 +22,14 @@ public class Depot extends AreaBase implements IReducedSaveData {
 
 	public int clientPathGenerationSuccessfulSegments;
 	public long lastDeployedMillis;
+	public boolean useRealTime;
+	public boolean repeatInfinitely;
 	private int deployIndex;
 	private int departureOffset;
 
 	public final List<Long> routeIds = new ArrayList<>();
 	public final Map<Long, Map<Long, Float>> platformTimes = new HashMap<>();
+	public final List<Integer> departures = new ArrayList<>();
 
 	private final int[] frequencies = new int[HOURS_IN_DAY];
 	private final Map<Long, TrainServer> deployableSidings = new HashMap<>();
@@ -35,14 +38,18 @@ public class Depot extends AreaBase implements IReducedSaveData {
 	public static final int TRAIN_FREQUENCY_MULTIPLIER = 4;
 	public static final int TICKS_PER_HOUR = 1000;
 	public static final int MILLIS_PER_TICK = 50;
+	public static final int MILLISECONDS_PER_DAY = HOURS_IN_DAY * 60 * 60 * 1000;
 	private static final int TICKS_PER_DAY = HOURS_IN_DAY * TICKS_PER_HOUR;
 	private static final int MAX_DEPLOYED_MILLIS = 3600000;
 	private static final int CONTINUOUS_MOVEMENT_FREQUENCY = 8000;
 
 	private static final String KEY_ROUTE_IDS = "route_ids";
+	private static final String KEY_USE_REAL_TIME = "use_real_time";
 	private static final String KEY_FREQUENCIES = "frequencies";
+	private static final String KEY_DEPARTURES = "departures";
 	private static final String KEY_LAST_DEPLOYED = "last_deployed";
 	private static final String KEY_DEPLOY_INDEX = "deploy_index";
+	private static final String KEY_REPEAT_INFINITELY = "repeat_infinitely";
 
 	public Depot(TransportMode transportMode) {
 		super(transportMode);
@@ -56,6 +63,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		super(map);
 		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
 		messagePackHelper.iterateArrayValue(KEY_ROUTE_IDS, routeId -> routeIds.add(routeId.asIntegerValue().asLong()));
+		useRealTime = messagePackHelper.getBoolean(KEY_USE_REAL_TIME);
 
 		try {
 			final ArrayValue frequenciesArray = map.get(KEY_FREQUENCIES).asArrayValue();
@@ -66,7 +74,10 @@ public class Depot extends AreaBase implements IReducedSaveData {
 			e.printStackTrace();
 		}
 
+		messagePackHelper.iterateArrayValue(KEY_DEPARTURES, departure -> departures.add(departure.asIntegerValue().asInt()));
+
 		deployIndex = messagePackHelper.getInt(KEY_DEPLOY_INDEX);
+		repeatInfinitely = messagePackHelper.getBoolean(KEY_REPEAT_INFINITELY);
 		lastDeployedMillis = System.currentTimeMillis() - messagePackHelper.getLong(KEY_LAST_DEPLOYED);
 	}
 
@@ -85,6 +96,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 
 		lastDeployedMillis = System.currentTimeMillis() - compoundTag.getLong(KEY_LAST_DEPLOYED);
 		deployIndex = compoundTag.getInt(KEY_DEPLOY_INDEX);
+		repeatInfinitely = compoundTag.getBoolean(KEY_REPEAT_INFINITELY);
 	}
 
 	public Depot(FriendlyByteBuf packet) {
@@ -95,12 +107,20 @@ public class Depot extends AreaBase implements IReducedSaveData {
 			routeIds.add(packet.readLong());
 		}
 
+		useRealTime = packet.readBoolean();
+
 		for (int i = 0; i < HOURS_IN_DAY; i++) {
 			frequencies[i] = packet.readInt();
 		}
 
+		final int departuresCount = packet.readInt();
+		for (int i = 0; i < departuresCount; i++) {
+			departures.add(packet.readInt());
+		}
+
 		lastDeployedMillis = packet.readLong();
 		deployIndex = packet.readInt();
+		repeatInfinitely = packet.readBoolean();
 	}
 
 	@Override
@@ -115,24 +135,32 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		super.toMessagePack(messagePacker);
 
 		messagePacker.packString(KEY_ROUTE_IDS).packArrayHeader(routeIds.size());
-		for (Long routeId : routeIds) {
+		for (final long routeId : routeIds) {
 			messagePacker.packLong(routeId);
 		}
+
+		messagePacker.packString(KEY_USE_REAL_TIME).packBoolean(useRealTime);
+		messagePacker.packString(KEY_REPEAT_INFINITELY).packBoolean(repeatInfinitely);
 
 		messagePacker.packString(KEY_FREQUENCIES).packArrayHeader(HOURS_IN_DAY);
 		for (int i = 0; i < HOURS_IN_DAY; i++) {
 			messagePacker.packInt(frequencies[i]);
 		}
+
+		messagePacker.packString(KEY_DEPARTURES).packArrayHeader(departures.size());
+		for (final int departure : departures) {
+			messagePacker.packInt(departure);
+		}
 	}
 
 	@Override
 	public int messagePackLength() {
-		return super.messagePackLength() + 4;
+		return super.messagePackLength() + 7;
 	}
 
 	@Override
 	public int reducedMessagePackLength() {
-		return messagePackLength() - 1;
+		return messagePackLength() - 2;
 	}
 
 	@Override
@@ -142,12 +170,18 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		packet.writeInt(routeIds.size());
 		routeIds.forEach(packet::writeLong);
 
+		packet.writeBoolean(useRealTime);
+
 		for (final int frequency : frequencies) {
 			packet.writeInt(frequency);
 		}
 
+		packet.writeInt(departures.size());
+		departures.forEach(packet::writeInt);
+
 		packet.writeLong(lastDeployedMillis);
 		packet.writeInt(deployIndex);
+		packet.writeBoolean(repeatInfinitely);
 	}
 
 	@Override
@@ -160,14 +194,21 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		if (KEY_FREQUENCIES.equals(key)) {
 			name = packet.readUtf(PACKET_STRING_READ_LENGTH);
 			color = packet.readInt();
+			useRealTime = packet.readBoolean();
 			for (int i = 0; i < HOURS_IN_DAY; i++) {
 				frequencies[i] = packet.readInt();
+			}
+			departures.clear();
+			final int departuresCount = packet.readInt();
+			for (int i = 0; i < departuresCount; i++) {
+				departures.add(packet.readInt());
 			}
 			routeIds.clear();
 			final int routeIdCount = packet.readInt();
 			for (int i = 0; i < routeIdCount; i++) {
 				routeIds.add(packet.readLong());
 			}
+			repeatInfinitely = packet.readBoolean();
 		} else {
 			super.update(key, packet);
 		}
@@ -194,11 +235,18 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		packet.writeUtf(KEY_FREQUENCIES);
 		packet.writeUtf(name);
 		packet.writeInt(color);
+		packet.writeBoolean(useRealTime);
 		for (final int frequency : frequencies) {
 			packet.writeInt(frequency);
 		}
+		departures.replaceAll(departure -> departure % MILLISECONDS_PER_DAY);
+		departures.removeIf(departure -> departure % 1000 != 0);
+		departures.sort(Integer::compareTo);
+		packet.writeInt(departures.size());
+		departures.forEach(packet::writeInt);
 		packet.writeInt(routeIds.size());
 		routeIds.forEach(packet::writeLong);
+		packet.writeBoolean(repeatInfinitely);
 		sendPacket.accept(packet);
 	}
 
@@ -228,7 +276,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 					if (siding.isTransportMode(transportMode) && inArea(sidingMidPos.getX(), sidingMidPos.getZ())) {
 						final SavedRailBase firstPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(0);
 						final SavedRailBase lastPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(platformsInRoute.size() - 1);
-						final int result = siding.generateRoute(minecraftServer, tempPath, successfulSegmentsMain, rails, firstPlatform, lastPlatform);
+						final int result = siding.generateRoute(minecraftServer, tempPath, successfulSegmentsMain, rails, firstPlatform, lastPlatform, repeatInfinitely);
 						if (result < successfulSegments[0]) {
 							successfulSegments[0] = result;
 						}
@@ -283,11 +331,29 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		return millisUntilDeploy >= 0 ? millisUntilDeploy / MILLIS_PER_TICK : -1;
 	}
 
-	private int getMillisUntilDeploy(int hour, int offset) {
-		for (int i = hour; i < hour + HOURS_IN_DAY; i++) {
-			final int frequency = transportMode.continuousMovement ? CONTINUOUS_MOVEMENT_FREQUENCY : frequencies[i % HOURS_IN_DAY] > 0 ? TICKS_PER_HOUR * MILLIS_PER_TICK * TRAIN_FREQUENCY_MULTIPLIER / frequencies[i % HOURS_IN_DAY] : 0;
-			if (frequency > 0) {
-				return Math.max(frequency * offset - (int) Math.min(System.currentTimeMillis() - lastDeployedMillis, MAX_DEPLOYED_MILLIS), 0) + (i - hour) * TICKS_PER_HOUR * MILLIS_PER_TICK;
+	public int getMillisUntilDeploy(int hour, int offset) {
+		if (useRealTime && !transportMode.continuousMovement) {
+			final long millis = System.currentTimeMillis() % MILLISECONDS_PER_DAY;
+			for (int i = 0; i < departures.size(); i++) {
+				final long thisDeparture = departures.get(i);
+				final long nextDeparture = wrapTime(departures.get((i + 1) % departures.size()), thisDeparture);
+				final long newMillis = wrapTime(millis, thisDeparture);
+				if (newMillis > thisDeparture && newMillis <= nextDeparture) {
+					if (offset > 1) {
+						if (offset <= departures.size()) {
+							return (int) (wrapTime(departures.get((i + offset) % departures.size()), millis) - millis);
+						}
+					} else {
+						return wrapTime(lastDeployedMillis, newMillis) - MILLISECONDS_PER_DAY >= thisDeparture ? (int) (nextDeparture - newMillis) : 0;
+					}
+				}
+			}
+		} else {
+			for (int i = hour; i < hour + HOURS_IN_DAY; i++) {
+				final int frequency = transportMode.continuousMovement ? CONTINUOUS_MOVEMENT_FREQUENCY : frequencies[i % HOURS_IN_DAY] > 0 ? TICKS_PER_HOUR * MILLIS_PER_TICK * TRAIN_FREQUENCY_MULTIPLIER / frequencies[i % HOURS_IN_DAY] : 0;
+				if (frequency > 0) {
+					return Math.max(frequency * offset - (int) Math.min(System.currentTimeMillis() - lastDeployedMillis, MAX_DEPLOYED_MILLIS), 0) + (i - hour) * TICKS_PER_HOUR * MILLIS_PER_TICK;
+				}
 			}
 		}
 		return -1;
@@ -299,5 +365,13 @@ public class Depot extends AreaBase implements IReducedSaveData {
 
 	private static float wrapTime(float time) {
 		return (time + 6000 + TICKS_PER_DAY) % TICKS_PER_DAY;
+	}
+
+	private static long wrapTime(long time, long mustBeGreaterThan) {
+		long newTime = time % MILLISECONDS_PER_DAY;
+		while (newTime <= mustBeGreaterThan) {
+			newTime += MILLISECONDS_PER_DAY;
+		}
+		return newTime;
 	}
 }

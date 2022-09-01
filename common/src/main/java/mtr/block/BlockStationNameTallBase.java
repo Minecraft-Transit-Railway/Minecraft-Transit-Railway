@@ -118,15 +118,19 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 	public static class TileEntityStationNameTallBase extends TileEntityStationNameBase {
 
 		public TileEntityStationNameTallBase(BlockEntityType<?> type, BlockPos pos, BlockState state, float zOffset, boolean isDoubleSided) {
-			super(type, pos, state, 0.25F, zOffset, isDoubleSided);
+			super(type, pos, state, 0.21875F, zOffset, isDoubleSided);
 		}
 
 		@Override
-		public boolean shouldRender() {
-			if (level == null) {
-				return false;
+		public int getColor(BlockState state) {
+			switch (IBlock.getStatePropertySafe(state, BlockStationNameBase.COLOR)) {
+				case 1:
+					return ARGB_LIGHT_GRAY;
+				case 2:
+					return ARGB_BLACK;
+				default:
+					return ARGB_WHITE;
 			}
-			return IBlock.getStatePropertySafe(level, worldPosition, THIRD) == EnumThird.MIDDLE;
 		}
 	}
 }
