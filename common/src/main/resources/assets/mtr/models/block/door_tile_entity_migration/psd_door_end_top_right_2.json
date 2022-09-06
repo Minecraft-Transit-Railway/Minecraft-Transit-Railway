@@ -1,0 +1,9 @@
+{
+	"parent": "mtr:block/door_tile_entity_migration/psd_door_end_right_base",
+	"textures": {
+		"bottom": "mtr:block/black",
+		"top": "mtr:block/transparent",
+		"particle": "mtr:block/door_tile_entity_migration/psd_door_end_top_2",
+		"back": "mtr:block/door_tile_entity_migration/psd_door_end_top_back_2"
+	}
+}

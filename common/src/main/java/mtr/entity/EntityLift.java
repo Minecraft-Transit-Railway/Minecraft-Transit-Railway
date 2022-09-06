@@ -3,6 +3,7 @@ package mtr.entity;
 import mtr.EntityTypes;
 import mtr.block.BlockLiftTrackFloor;
 import mtr.block.BlockPSDAPGDoorBase;
+import mtr.block.IBlock;
 import mtr.data.LiftInstructions;
 import mtr.data.RailwayData;
 import mtr.data.Train;
@@ -318,7 +319,7 @@ public abstract class EntityLift extends EntityBase {
 			final BlockPos checkPos = new BlockPos(position().add(-direction.getStepX() * sign * (liftType.depth / 2F + 0.5) + directionClockwise.getStepX() * i, 0, -direction.getStepZ() * sign * (liftType.depth / 2F + 0.5) + directionClockwise.getStepZ() * i));
 			final BlockEntity entity1 = level.getBlockEntity(checkPos);
 			final BlockEntity entity2 = level.getBlockEntity(checkPos.above());
-			if (entity1 instanceof BlockPSDAPGDoorBase.TileEntityPSDAPGDoorBase && entity2 instanceof BlockPSDAPGDoorBase.TileEntityPSDAPGDoorBase) {
+			if (entity1 instanceof BlockPSDAPGDoorBase.TileEntityPSDAPGDoorBase && entity2 instanceof BlockPSDAPGDoorBase.TileEntityPSDAPGDoorBase && IBlock.getStatePropertySafe(level, blockPosition(), BlockPSDAPGDoorBase.UNLOCKED)) {
 				((BlockPSDAPGDoorBase.TileEntityPSDAPGDoorBase) entity1).setOpen(Math.min(doorValue, DOOR_MAX));
 				((BlockPSDAPGDoorBase.TileEntityPSDAPGDoorBase) entity2).setOpen(Math.min(doorValue, DOOR_MAX));
 				hasDoor = true;
