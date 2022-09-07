@@ -293,7 +293,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 				tempRepeatIndex1 = 0;
 				tempRepeatIndex2 = 0;
 			} else {
-				tempRepeatIndex1 = repeatInfinitely ? tempPath.size() - 1 : 0;
+				tempRepeatIndex1 = repeatInfinitely ? tempPath.size() - (tempPath.get(tempPath.size() - 1).isOppositeRail(mainPath.get(0)) ? 0 : 1) : 0;
 				PathFinder.appendPath(tempPath, mainPath);
 
 				final List<SavedRailBase> lastPlatformAndDepot = new ArrayList<>();
@@ -519,7 +519,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 				final TimeSegment timeSegment = timeSegments.get(timeSegments.size() - 1);
 				timeSegment.endRailProgress = railProgress;
 				timeSegment.endTime = time;
-				timeSegment.savedRailBaseId = nextStoppingDistance != distanceSum1 && railProgress == distanceSum2 ? pathData.savedRailBaseId : 0;
+				timeSegment.savedRailBaseId = nextStoppingDistance != distanceSum1 && railProgress == distanceSum2 && pathData.dwellTime > 0 ? pathData.savedRailBaseId : 0;
 			}
 
 			time += pathData.dwellTime * 5;

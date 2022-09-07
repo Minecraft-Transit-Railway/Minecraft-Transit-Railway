@@ -409,7 +409,12 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 							tempDoorValue2 = 0;
 						} else {
 							if (stopCounter == 0 && isRepeat() && getIndex(railProgress, false) >= repeatIndex2 && distances.size() > repeatIndex1) {
-								railProgress = distances.get(repeatIndex1);
+								if (path.get(repeatIndex2).isOppositeRail(path.get(repeatIndex1))) {
+									railProgress = distances.get(repeatIndex1 - 1) + trainCars * spacing;
+									reversed = !reversed;
+								} else {
+									railProgress = distances.get(repeatIndex1);
+								}
 							}
 
 							stopCounter += ticksElapsed;
