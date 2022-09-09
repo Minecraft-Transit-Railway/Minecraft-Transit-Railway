@@ -1,7 +1,7 @@
 package mtr.render;
 
+import mtr.MTRClient;
 import mtr.block.BlockLiftPanel1;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import mtr.block.BlockLiftButtons;
@@ -34,12 +34,10 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
 
     private static final ResourceLocation ARROW_TEXTURE = new ResourceLocation("mtr:textures/block/lift_arrow.png");
     private float uvShift = 0;
-    private float tickElapsed;
-    private float nextTarget = 0;
-    private float currentTarget;
-    private int currentLang;
-    private final float INCREMENT = 0.17F;
-    private final float SPEED = 0.01F;
+    private float nextUV = 0;
+    private float currentUV = 0;
+    private float tickElapsed = 0;
+    private final float SPEED = 0.03F;
     private EntityLift.LiftDirection direction = EntityLift.LiftDirection.UP;
 
     public RenderLiftPanel(BlockEntityRenderDispatcher dispatcher) {
@@ -47,7 +45,7 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
     }
 
     @Override
-    public void render(BlockLiftPanel1.TileEntityLiftPanel entity, float delta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int combinedOverlay) {
+    public void render(BlockLiftPanel1.TileEntityLiftPanel entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int combinedOverlay) {
         final Level world = entity.getLevel();
         if (world == null) {
             return;
@@ -61,17 +59,6 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
         final BlockPos pos = entity.getBlockPos();
         if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, null)) {
             return;
-        }
-
-        tickElapsed += delta;
-
-        if(tickElapsed >= 100) {
-            if(direction == EntityLift.LiftDirection.UP) {
-                nextTarget -= INCREMENT;
-            } else {
-                nextTarget += INCREMENT;
-            }
-            currentLang++;
         }
 
         final BlockState state = world.getBlockState(pos);
@@ -115,61 +102,44 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
                     direction = liftDisplay.getB();
                 }
 
-                renderLiftDisplay(matrices, vertexConsumers, delta, facing, pos, liftDisplay.getA()[1], liftDisplay.getB(), maxWidth, 0.3125F);
+                renderLiftDisplay(matrices, vertexConsumers, tickDelta, facing, pos, liftDisplay.getA()[1], liftDisplay.getB(), maxWidth, 0.3125F);
             }
             matrices.translate(maxWidth, 0, 0);
         });
 
-        if(tickElapsed >= 100) {
-            tickElapsed = 0;
-        }
-
         matrices.popPose();
     }
 
-    public void renderLiftDisplay(PoseStack matrices, MultiBufferSource vertexConsumers, float delta, Direction facing, BlockPos pos, String floorNumber, EntityLift.LiftDirection liftDirection, float maxWidth, float height) {
+    public void renderLiftDisplay(PoseStack matrices, MultiBufferSource vertexConsumers, float tickDelta, Direction facing, BlockPos pos, String floorNumber, EntityLift.LiftDirection liftDirection, float maxWidth, float height) {
         if (!RenderTrains.shouldNotRender(pos, Math.min(16, RenderTrains.maxTrainRenderDistance), null)) {
             Font textRenderer = Minecraft.getInstance().font;
             if(textRenderer == null) return;
-            int textPadding = textRenderer.lineHeight + 2;
+            double incrementation = 1.0 / floorNumber.split("\\|").length;
+
+            //TODO: Tick Delta not reliable enough
+            tickElapsed += Minecraft.getInstance().getDeltaFrameTime();
+            boolean goingUp = direction == EntityLift.LiftDirection.UP;
+
+            if(tickElapsed >= 100) {
+                nextUV += incrementation;
+                tickElapsed = 0;
+            }
+
+            if(nextUV > currentUV) {
+                currentUV += SPEED * tickDelta;
+            }
 
             if (liftDirection != EntityLift.LiftDirection.NONE) {
-                boolean goingUp = direction == EntityLift.LiftDirection.UP;
-                uvShift += (0.02 * delta) % 2;
+                uvShift += (0.02 * tickDelta) % 2;
                 IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ARROW_TEXTURE, true)), -0.06F, 0.65F, maxWidth / 8.0F, maxWidth / 8.0F, 0.0F, (goingUp ? 0.0F : 1.0F) + uvShift, 1.0F, (goingUp ? 1.0F : 0.0F) + uvShift, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
                 IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ARROW_TEXTURE, true)), maxWidth / 1.3F, 0.65F, maxWidth / 8.0F, maxWidth / 8.0F, 0.0F, (goingUp ? 0.0F : 1.0F) + uvShift, 1.0F, (goingUp ? 1.0F : 0.0F) + uvShift, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
             }
 
             matrices.pushPose();
-            matrices.translate(0.5F, 0.6F, 0);
+            matrices.translate(0F, 0.6F, 0);
             matrices.scale(0.017F, 0.017F,0.017F);
-            IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getLiftPanelDisplay(floorNumber, 16755200, 0.4F).resourceLocation)), 0, 0, 100, (textPadding * floorNumber.split("\\|").length) * 10, 0, 0, 1, 1, facing, ARGB_WHITE, MAX_LIGHT_GLOWING);
+            IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ClientData.DATA_CACHE.getLiftPanelDisplay(floorNumber.toUpperCase(), 16755200).resourceLocation, true)), 0, 0, 60, textRenderer.lineHeight * floorNumber.split("\\|").length, 0,  goingUp ? (0 + currentUV) : (0 - currentUV), 1, goingUp ? (1 + currentUV) : (1 - currentUV), facing, ARGB_WHITE, MAX_LIGHT_GLOWING);
             matrices.popPose();
-
-//            for(String language : loopedFloorNumber) {
-//                language = language.toUpperCase();
-//                matrices.pushPose();
-//                matrices.translate(0.5F, 0.65F, 0);
-//
-//                if(direction == EntityLift.LiftDirection.UP && nextTarget < currentTarget) {
-//                    currentTarget -= SPEED * delta;
-//                } else if (direction == EntityLift.LiftDirection.DOWN && nextTarget > currentTarget) {
-//                    currentTarget += SPEED * delta;
-//                } else {
-//                    if(currentLang != 0 && currentLang >= loopedFloorNumber.length - 1) {
-//                        nextTarget = 0;
-//                        currentTarget = 0;
-//                        currentLang = 0;
-//                    }
-//                }
-//
-//                matrices.translate(0, currentTarget, 0);
-//                matrices.scale(0.017F, 0.017F,0.017F);
-//                textRenderer.draw(matrices, language, maxWidth - textRenderer.width(language) / 2F, textPadding * j, 16755200);
-//                matrices.popPose();
-//                j++;
-//            }
-            RenderSystem.disableScissor();
         }
     }
 }
