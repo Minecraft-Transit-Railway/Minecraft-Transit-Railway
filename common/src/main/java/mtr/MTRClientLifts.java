@@ -6,6 +6,7 @@ import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.RenderLift;
 import mtr.render.RenderLiftButtons;
+import mtr.render.RenderLiftPanel;
 import mtr.render.RenderPSDAPGDoor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
@@ -20,6 +21,8 @@ public class MTRClientLifts implements IPacket {
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.LIFT_BUTTONS_LINK_REMOVER.get(), ItemBlockClickingBase.TAG_POS);
 
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.LIFT_BUTTONS_1_TILE_ENTITY.get(), RenderLiftButtons::new);
+		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.LIFT_PANEL_1_TILE_ENTITY.get(), RenderLiftPanel::new);
+
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.LIFT_DOOR_1_TILE_ENTITY.get(), dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 3));
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.LIFT_DOOR_ODD_1_TILE_ENTITY.get(), dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 4));
 

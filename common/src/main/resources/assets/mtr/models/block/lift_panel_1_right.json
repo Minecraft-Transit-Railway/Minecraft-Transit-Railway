@@ -1,0 +1,21 @@
+{
+	"credit": "DoJ 2022",
+	"textures": {
+		"0": "mtr:block/lift_panel_1",
+		"particle": "mtr:block/lift_panel_1"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 15.8],
+			"to": [16, 10, 16],
+			"faces": {
+				"north": {"uv": [8, 5.6875, 16, 15.9375], "texture": "#0"},
+				"east": {"uv": [0, 6, 0.2, 16], "texture": "#0"},
+				"south": {"uv": [0, 5.75, 16, 16], "texture": "#0"},
+				"west": {"uv": [0, 6, 0.2, 16], "texture": "#0"},
+				"up": {"uv": [0, 5.9375, 16, 6.1375], "texture": "#0"},
+				"down": {"uv": [0, 0, 16, 0.2], "texture": "#0"}
+			}
+		}
+	]
+}

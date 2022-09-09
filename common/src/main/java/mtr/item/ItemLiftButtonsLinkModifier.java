@@ -2,6 +2,7 @@ package mtr.item;
 
 import mtr.ItemGroups;
 import mtr.block.BlockLiftButtons;
+import mtr.block.BlockLiftPanel1;
 import mtr.block.BlockLiftTrackFloor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -45,6 +46,10 @@ public class ItemLiftButtonsLinkModifier extends ItemBlockClickingBase {
 			final BlockEntity blockEntity = world.getBlockEntity(posButtons);
 			if (blockEntity instanceof BlockLiftButtons.TileEntityLiftButtons) {
 				((BlockLiftButtons.TileEntityLiftButtons) blockEntity).registerFloor(posFloor, isConnector);
+			}
+
+			if (blockEntity instanceof BlockLiftPanel1.TileEntityLiftPanel) {
+				((BlockLiftPanel1.TileEntityLiftPanel) blockEntity).registerFloor(posFloor, isConnector);
 			}
 		}
 	}

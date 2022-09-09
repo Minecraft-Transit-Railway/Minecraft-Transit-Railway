@@ -40,12 +40,14 @@ public class MTRLifts implements IPacket {
 		registerBlock.accept("escalator_side", Blocks.ESCALATOR_SIDE);
 		registerBlock.accept("escalator_step", Blocks.ESCALATOR_STEP);
 		registerBlockItem.accept("lift_buttons_1", Blocks.LIFT_BUTTONS_1, ItemGroups.ESCALATORS_LIFTS);
+		registerBlockItem.accept("lift_panel_1", Blocks.LIFT_PANEL_1, ItemGroups.ESCALATORS_LIFTS);
 		registerBlock.accept("lift_door_1", Blocks.LIFT_DOOR_1);
 		registerBlock.accept("lift_door_odd_1", Blocks.LIFT_DOOR_ODD_1);
 		registerBlockItem.accept("lift_track_1", Blocks.LIFT_TRACK_1, ItemGroups.ESCALATORS_LIFTS);
 		registerBlockItem.accept("lift_track_floor_1", Blocks.LIFT_TRACK_FLOOR_1, ItemGroups.ESCALATORS_LIFTS);
 
 		registerBlockEntityType.accept("lift_buttons_1", BlockEntityTypes.LIFT_BUTTONS_1_TILE_ENTITY);
+		registerBlockEntityType.accept("lift_panel_1", BlockEntityTypes.LIFT_PANEL_1_TILE_ENTITY);
 		registerBlockEntityType.accept("lift_track_floor_1", BlockEntityTypes.LIFT_TRACK_FLOOR_1_TILE_ENTITY);
 		registerBlockEntityType.accept("lift_door_1", BlockEntityTypes.LIFT_DOOR_1_TILE_ENTITY);
 		registerBlockEntityType.accept("lift_door_odd_1", BlockEntityTypes.LIFT_DOOR_ODD_1_TILE_ENTITY);

@@ -150,6 +150,39 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
+	public static DynamicTexture generateLiftPanel(String originalText, HorizontalAlignment horizontalAlignment, float aspectRatio, int textColor) {
+		if (aspectRatio <= 0) {
+			return null;
+		}
+
+		try {
+			final int width = Math.round(scale * 1.6F);
+			final int height = Math.round(width / aspectRatio);
+			final int[] dimensions = new int[2];
+			ArrayList<byte[]> textPixels = new ArrayList<>();
+			for(String text : originalText.split("\\|")) {
+				System.out.println(text);
+				final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(text, dimensions, width, height, fontSizeBig * 2, fontSizeSmall * 2, 0, HorizontalAlignment.CENTER);
+				textPixels.add(pixels);
+			}
+
+			final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
+			nativeImage.fillRect(0, 0, width, height, 0);
+
+			for(int i = 0; i < textPixels.size(); i++) {
+				byte[] pixels = textPixels.get(i);
+				drawString(nativeImage, pixels, width / 2, 0/*(ClientCache.LINE_HEIGHT * i)*/, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, ARGB_BLACK, textColor, false);
+			}
+			clearColor(nativeImage, invertColor(ARGB_BLACK));
+
+			return new DynamicTexture(nativeImage);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
 	public static DynamicTexture generateRouteSquare(int color, String routeName, HorizontalAlignment horizontalAlignment) {
 		try {
 			final int padding = scale / 32;
