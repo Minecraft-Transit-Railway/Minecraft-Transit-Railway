@@ -37,7 +37,7 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
     private float nextUV = 0;
     private float currentUV = 0;
     private float tickElapsed = 0;
-    private final float SPEED = 0.03F;
+    private final float SPEED = 0.04F;
     private EntityLift.LiftDirection direction = EntityLift.LiftDirection.UP;
 
     public RenderLiftPanel(BlockEntityRenderDispatcher dispatcher) {
@@ -114,15 +114,20 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
         if (!RenderTrains.shouldNotRender(pos, Math.min(16, RenderTrains.maxTrainRenderDistance), null)) {
             Font textRenderer = Minecraft.getInstance().font;
             if(textRenderer == null) return;
-            double incrementation = 1.0 / floorNumber.split("\\|").length;
+            float lineHeight = (float) (1.0 / floorNumber.split("\\|").length);
 
             //TODO: Tick Delta not reliable enough
             tickElapsed += Minecraft.getInstance().getDeltaFrameTime();
             boolean goingUp = direction == EntityLift.LiftDirection.UP;
 
-            if(tickElapsed >= 100) {
-                nextUV += incrementation;
+            if(tickElapsed >= 70) {
+                nextUV += lineHeight;
                 tickElapsed = 0;
+            }
+
+            if(nextUV % lineHeight != 0) {
+                nextUV = 0;
+                currentUV = 0;
             }
 
             if(nextUV > currentUV) {
@@ -136,9 +141,9 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
             }
 
             matrices.pushPose();
-            matrices.translate(0F, 0.6F, 0);
+            matrices.translate(0.07F, 0.63F, 0);
             matrices.scale(0.017F, 0.017F,0.017F);
-            IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ClientData.DATA_CACHE.getLiftPanelDisplay(floorNumber.toUpperCase(), 16755200).resourceLocation, true)), 0, 0, 60, textRenderer.lineHeight * floorNumber.split("\\|").length, 0,  goingUp ? (0 + currentUV) : (0 - currentUV), 1, goingUp ? (1 + currentUV) : (1 - currentUV), facing, ARGB_WHITE, MAX_LIGHT_GLOWING);
+            IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ClientData.DATA_CACHE.getLiftPanelDisplay(floorNumber.toUpperCase(), 16755200).resourceLocation, true)), 0, 0.5F, 50, 10, 0,  goingUp ? (0 - currentUV) : (0 + currentUV), 1, goingUp ? (lineHeight - currentUV) : (lineHeight + currentUV), facing, ARGB_WHITE, MAX_LIGHT_GLOWING);
             matrices.popPose();
         }
     }
