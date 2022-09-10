@@ -1,5 +1,6 @@
 package mtr.render;
 
+import mtr.MTRClient;
 import mtr.block.BlockLiftPanel1;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
@@ -36,9 +37,9 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
     private float nextFloorUV = 0;
     private float currentFloorUV = 0;
     private float tickElapsed = 0;
-    private final float ARROW_SPEED = 0.02F;
-    private final float FLOOR_SLIDE_SPEED = 0.04F;
-    private final float SLIDE_INTERVAL = 70;
+    private final float ARROW_SPEED = 0.04F;
+    private final float FLOOR_SLIDE_SPEED = 0.1F;
+    private final float SLIDE_INTERVAL = 50;
     private EntityLift.LiftDirection direction = EntityLift.LiftDirection.UP;
 
     public RenderLiftPanel(BlockEntityRenderDispatcher dispatcher) {
@@ -103,7 +104,7 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
                     direction = liftDisplay.getB();
                 }
 
-                renderLiftDisplay(matrices, vertexConsumers, tickDelta, facing, pos, liftDisplay.getA()[1], liftDisplay.getB(), maxWidth);
+                renderLiftDisplay(matrices, vertexConsumers, facing, pos, liftDisplay.getA()[1], liftDisplay.getB(), maxWidth);
             }
             matrices.translate(maxWidth, 0, 0);
         });
@@ -111,14 +112,13 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
         matrices.popPose();
     }
 
-    public void renderLiftDisplay(PoseStack matrices, MultiBufferSource vertexConsumers, float tickDelta, Direction facing, BlockPos pos, String floorDetail, EntityLift.LiftDirection liftDirection, float maxWidth) {
+    public void renderLiftDisplay(PoseStack matrices, MultiBufferSource vertexConsumers, Direction facing, BlockPos pos, String floorDetail, EntityLift.LiftDirection liftDirection, float maxWidth) {
         if (!RenderTrains.shouldNotRender(pos, Math.min(16, RenderTrains.maxTrainRenderDistance), null)) {
-            Font textRenderer = Minecraft.getInstance().font;
-            if(textRenderer == null) return;
+            //TODO: In the future render the floor number on top with a circle as well?
             float lineHeight = (float) (1.0 / floorDetail.split("\\|").length);
+            float delta = MTRClient.getLastFrameDuration();
 
-            //TODO: Tick Delta not reliable?
-            tickElapsed += Minecraft.getInstance().getDeltaFrameTime();
+            tickElapsed += delta;
             boolean goingUp = direction == EntityLift.LiftDirection.UP;
 
             if(tickElapsed >= SLIDE_INTERVAL) {
@@ -127,15 +127,15 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
             }
 
             if(nextFloorUV > currentFloorUV) {
-                currentFloorUV += Math.min(FLOOR_SLIDE_SPEED * tickDelta, nextFloorUV);
+                currentFloorUV += Math.min((FLOOR_SLIDE_SPEED * lineHeight) * delta, nextFloorUV);
             } else if(nextFloorUV % lineHeight != 0) {
                 nextFloorUV = 0;
                 currentFloorUV = 0;
             }
 
-            // Draw arrow
+            // Arrow
             if (liftDirection != EntityLift.LiftDirection.NONE) {
-                uvShiftArrow += (ARROW_SPEED * tickDelta) % 2;
+                uvShiftArrow += (ARROW_SPEED * delta) % 2;
                 IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ARROW_TEXTURE, true)), -0.06F, 0.65F, maxWidth / 8.0F, maxWidth / 8.0F, 0.0F, (goingUp ? 0.0F : 1.0F) + uvShiftArrow, 1.0F, (goingUp ? 1.0F : 0.0F) + uvShiftArrow, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
                 IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ARROW_TEXTURE, true)), maxWidth / 1.3F, 0.65F, maxWidth / 8.0F, maxWidth / 8.0F, 0.0F, (goingUp ? 0.0F : 1.0F) + uvShiftArrow, 1.0F, (goingUp ? 1.0F : 0.0F) + uvShiftArrow, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
             }
