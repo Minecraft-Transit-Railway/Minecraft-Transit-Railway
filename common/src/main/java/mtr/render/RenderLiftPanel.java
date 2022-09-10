@@ -126,7 +126,7 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
             }
 
             if(nextUV > currentUV) {
-                currentUV += SPEED * tickDelta;
+                currentUV += Math.min(SPEED * tickDelta, nextUV);
             } else if(nextUV % lineHeight != 0) {
                 nextUV = 0;
                 currentUV = 0;
