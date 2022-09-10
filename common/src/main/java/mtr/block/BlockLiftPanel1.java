@@ -21,13 +21,11 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -52,12 +50,8 @@ public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlo
 
     @Override
     public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
-        /* This gets the direction of the block is facing, then rotate 90 degree *Counter* Clockwise if this is the left part. Otherwise, rotate 90 degree Clockwise if this is the right part */
-        /* The result is that if it's the left part, it will check for right. If it's right part, check for the left. */
         final Direction facing = IBlock.getStatePropertySafe(state, LEFT) ? IBlock.getStatePropertySafe(state, FACING).getCounterClockWise() : IBlock.getStatePropertySafe(state, FACING).getClockWise();
 
-        /* If the direction of the block update is issued in the same direction as the "facing", and the block is not ours: Destroy the block */
-        /* (facing == direction should only be true if another part of this block is placed) */
         if (facing == direction && !newState.is(this)) {
             return Blocks.AIR.defaultBlockState();
         } else {
@@ -71,14 +65,11 @@ public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlo
         return IBlock.isReplaceable(ctx, direction.getCounterClockWise(), 2) ? defaultBlockState().setValue(FACING, direction).setValue(LEFT, true) : null;
     }
 
-
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        return mtr.block.IBlock.getVoxelShapeByDirection(0, 0, 15.8, 16, 10, 16, state.getValue(FACING));
+        return mtr.block.IBlock.getVoxelShapeByDirection(0, 0, 15, 16, 10, 16, state.getValue(FACING));
     }
 
-
-    /* On block place */
     @Override
     public void setPlacedBy(Level world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         if (!world.isClientSide) {
@@ -89,19 +80,12 @@ public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlo
         }
     }
 
-    /* On block break */
     @Override
     public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
         if (!IBlock.getStatePropertySafe(state, LEFT)) {
             IBlock.onBreakCreative(world, player, pos.relative(IBlock.getStatePropertySafe(state, FACING).getClockWise()));
         }
         super.playerWillDestroy(world, pos, state, player);
-    }
-
-
-    @Override
-    public PushReaction getPistonPushReaction(BlockState state) {
-        return PushReaction.BLOCK;
     }
 
     @Override
@@ -132,6 +116,7 @@ public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlo
     public static class TileEntityLiftPanel extends BlockEntityClientSerializableMapper implements TickableMapper {
         private final Set<BlockPos> trackPositions = new HashSet<>();
         private static final String KEY_TRACK_FLOOR_POS = "track_floor_pos";
+        private static final int UPDATE_INTERVAL = 60;
 
         public TileEntityLiftPanel(BlockPos pos, BlockState state) {
             super(BlockEntityTypes.LIFT_PANEL_1_TILE_ENTITY.get(), pos, state);
@@ -184,7 +169,7 @@ public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlo
         }
 
         public static <T extends BlockEntityMapper> void tick(Level world, BlockPos pos, T blockEntity) {
-            if (world != null && EntityLift.playerVerticallyNearby(world, pos.getX(), pos.getZ()) && blockEntity instanceof TileEntityLiftPanel && !world.isClientSide && MTR.isGameTickInterval(60, (int) pos.asLong())) {
+            if (world != null && EntityLift.playerVerticallyNearby(world, pos.getX(), pos.getZ()) && blockEntity instanceof TileEntityLiftPanel && !world.isClientSide && MTR.isGameTickInterval(UPDATE_INTERVAL, (int) pos.asLong())) {
                 ((TileEntityLiftPanel) blockEntity).forEachTrackPosition(world, null);
                 blockEntity.setChanged();
                 ((TileEntityLiftPanel) blockEntity).syncData();

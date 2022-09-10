@@ -1,6 +1,5 @@
 package mtr.render;
 
-import mtr.MTRClient;
 import mtr.block.BlockLiftPanel1;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
@@ -33,11 +32,13 @@ import static mtr.data.IGui.*;
 public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.TileEntityLiftPanel> {
 
     private static final ResourceLocation ARROW_TEXTURE = new ResourceLocation("mtr:textures/block/lift_arrow.png");
-    private float uvShift = 0;
-    private float nextUV = 0;
-    private float currentUV = 0;
+    private float uvShiftArrow = 0;
+    private float nextFloorUV = 0;
+    private float currentFloorUV = 0;
     private float tickElapsed = 0;
-    private final float SPEED = 0.04F;
+    private final float ARROW_SPEED = 0.02F;
+    private final float FLOOR_SLIDE_SPEED = 0.04F;
+    private final float SLIDE_INTERVAL = 70;
     private EntityLift.LiftDirection direction = EntityLift.LiftDirection.UP;
 
     public RenderLiftPanel(BlockEntityRenderDispatcher dispatcher) {
@@ -102,7 +103,7 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
                     direction = liftDisplay.getB();
                 }
 
-                renderLiftDisplay(matrices, vertexConsumers, tickDelta, facing, pos, liftDisplay.getA()[1], liftDisplay.getB(), maxWidth, 0.3125F);
+                renderLiftDisplay(matrices, vertexConsumers, tickDelta, facing, pos, liftDisplay.getA()[1], liftDisplay.getB(), maxWidth);
             }
             matrices.translate(maxWidth, 0, 0);
         });
@@ -110,38 +111,40 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
         matrices.popPose();
     }
 
-    public void renderLiftDisplay(PoseStack matrices, MultiBufferSource vertexConsumers, float tickDelta, Direction facing, BlockPos pos, String floorNumber, EntityLift.LiftDirection liftDirection, float maxWidth, float height) {
+    public void renderLiftDisplay(PoseStack matrices, MultiBufferSource vertexConsumers, float tickDelta, Direction facing, BlockPos pos, String floorDetail, EntityLift.LiftDirection liftDirection, float maxWidth) {
         if (!RenderTrains.shouldNotRender(pos, Math.min(16, RenderTrains.maxTrainRenderDistance), null)) {
             Font textRenderer = Minecraft.getInstance().font;
             if(textRenderer == null) return;
-            float lineHeight = (float) (1.0 / floorNumber.split("\\|").length);
+            float lineHeight = (float) (1.0 / floorDetail.split("\\|").length);
 
-            //TODO: Tick Delta not reliable enough
+            //TODO: Tick Delta not reliable?
             tickElapsed += Minecraft.getInstance().getDeltaFrameTime();
             boolean goingUp = direction == EntityLift.LiftDirection.UP;
 
-            if(tickElapsed >= 70) {
-                nextUV += lineHeight;
+            if(tickElapsed >= SLIDE_INTERVAL) {
+                nextFloorUV += lineHeight;
                 tickElapsed = 0;
             }
 
-            if(nextUV > currentUV) {
-                currentUV += Math.min(SPEED * tickDelta, nextUV);
-            } else if(nextUV % lineHeight != 0) {
-                nextUV = 0;
-                currentUV = 0;
+            if(nextFloorUV > currentFloorUV) {
+                currentFloorUV += Math.min(FLOOR_SLIDE_SPEED * tickDelta, nextFloorUV);
+            } else if(nextFloorUV % lineHeight != 0) {
+                nextFloorUV = 0;
+                currentFloorUV = 0;
             }
 
+            // Draw arrow
             if (liftDirection != EntityLift.LiftDirection.NONE) {
-                uvShift += (0.02 * tickDelta) % 2;
-                IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ARROW_TEXTURE, true)), -0.06F, 0.65F, maxWidth / 8.0F, maxWidth / 8.0F, 0.0F, (goingUp ? 0.0F : 1.0F) + uvShift, 1.0F, (goingUp ? 1.0F : 0.0F) + uvShift, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
-                IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ARROW_TEXTURE, true)), maxWidth / 1.3F, 0.65F, maxWidth / 8.0F, maxWidth / 8.0F, 0.0F, (goingUp ? 0.0F : 1.0F) + uvShift, 1.0F, (goingUp ? 1.0F : 0.0F) + uvShift, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
+                uvShiftArrow += (ARROW_SPEED * tickDelta) % 2;
+                IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ARROW_TEXTURE, true)), -0.06F, 0.65F, maxWidth / 8.0F, maxWidth / 8.0F, 0.0F, (goingUp ? 0.0F : 1.0F) + uvShiftArrow, 1.0F, (goingUp ? 1.0F : 0.0F) + uvShiftArrow, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
+                IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ARROW_TEXTURE, true)), maxWidth / 1.3F, 0.65F, maxWidth / 8.0F, maxWidth / 8.0F, 0.0F, (goingUp ? 0.0F : 1.0F) + uvShiftArrow, 1.0F, (goingUp ? 1.0F : 0.0F) + uvShiftArrow, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
             }
 
+            // Floor text
             matrices.pushPose();
             matrices.translate(0.07F, 0.63F, 0);
             matrices.scale(0.017F, 0.017F,0.017F);
-            IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ClientData.DATA_CACHE.getLiftPanelDisplay(floorNumber.toUpperCase(), 16755200).resourceLocation, true)), 0, 0.5F, 50, 10, 0,  goingUp ? (0 - currentUV) : (0 + currentUV), 1, goingUp ? (lineHeight - currentUV) : (lineHeight + currentUV), facing, ARGB_WHITE, MAX_LIGHT_GLOWING);
+            IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ClientData.DATA_CACHE.getLiftPanelDisplay(floorDetail.toUpperCase(), 16755200).resourceLocation, true)), 0, 0.5F, 50, 10, 0,  goingUp ? (0 - currentFloorUV) : (0 + currentFloorUV), 1, goingUp ? (lineHeight - currentFloorUV) : (lineHeight + currentFloorUV), facing, ARGB_WHITE, MAX_LIGHT_GLOWING);
             matrices.popPose();
         }
     }
