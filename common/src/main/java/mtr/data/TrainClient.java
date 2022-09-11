@@ -4,6 +4,7 @@ import io.netty.buffer.Unpooled;
 import mtr.MTRClient;
 import mtr.RegistryClient;
 import mtr.client.ClientData;
+import mtr.client.Config;
 import mtr.client.TrainClientRegistry;
 import mtr.entity.EntitySeat;
 import mtr.mappings.Utilities;
@@ -17,6 +18,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
@@ -39,6 +41,8 @@ public class TrainClient extends Train {
 	private double lastSentY;
 	private double lastSentZ;
 	private float lastSentTicks;
+	private boolean isSitting;
+	private boolean previousShifting;
 
 	private SpeedCallback speedCallback;
 	private AnnouncementCallback announcementCallback;
@@ -227,6 +231,14 @@ public class TrainClient extends Train {
 							}
 						}
 
+						final boolean isShifting = clientPlayer.isShiftKeyDown();
+						if (Config.shiftToToggleSitting()) {
+							if (isShifting && !previousShifting) {
+								isSitting = !isSitting;
+							}
+							clientPlayer.setPose(isSitting ? Pose.CROUCHING : Pose.STANDING);
+						}
+
 						if (speed > 0) {
 							if (doorValue == 0) {
 								float angleDifference = (float) Math.toDegrees(clientPrevYaw - yaw);
@@ -244,7 +256,9 @@ public class TrainClient extends Train {
 							offset.add(playerOffset.y + (MTRClient.isVivecraft() ? 0 : clientPlayer.getEyeHeight()));
 							offset.add(playerOffset.z);
 						}
+
 						clientPrevYaw = yaw;
+						previousShifting = isShifting;
 					}
 				};
 
@@ -388,6 +402,7 @@ public class TrainClient extends Train {
 		final LocalPlayer player = Minecraft.getInstance().player;
 		if (player != null && player.getUUID().equals(uuid)) {
 			justMounted = true;
+			isSitting = false;
 		}
 		ridingEntities.add(uuid);
 		percentagesX.put(uuid, percentageX);
