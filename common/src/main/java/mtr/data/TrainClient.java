@@ -144,7 +144,8 @@ public class TrainClient extends Train {
 
 	@Override
 	protected boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed) {
-		final LocalPlayer clientPlayer = Minecraft.getInstance().player;
+		final Minecraft client = Minecraft.getInstance();
+		final LocalPlayer clientPlayer = client.player;
 		if (clientPlayer == null) {
 			return false;
 		}
@@ -232,11 +233,11 @@ public class TrainClient extends Train {
 						}
 
 						final boolean isShifting = clientPlayer.isShiftKeyDown();
-						if (Config.shiftToToggleSitting()) {
+						if (Config.shiftToToggleSitting() && !MTRClient.isVivecraft()) {
 							if (isShifting && !previousShifting) {
 								isSitting = !isSitting;
 							}
-							clientPlayer.setPose(isSitting ? Pose.CROUCHING : Pose.STANDING);
+							clientPlayer.setPose(isSitting && client.gameRenderer.getMainCamera().isDetached() ? Pose.CROUCHING : Pose.STANDING);
 						}
 
 						if (speed > 0) {
@@ -315,7 +316,7 @@ public class TrainClient extends Train {
 		previousInterval = interval;
 		justMounted = false;
 
-		final Entity camera = Minecraft.getInstance().cameraEntity;
+		final Entity camera = client.cameraEntity;
 		final Vec3 cameraPos = camera == null ? Vec3.ZERO : camera.position();
 		double nearestDistance = Double.POSITIVE_INFINITY;
 		int nearestCar = 0;
