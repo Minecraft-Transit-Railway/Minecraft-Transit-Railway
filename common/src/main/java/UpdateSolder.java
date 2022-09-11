@@ -159,6 +159,12 @@ public class UpdateSolder {
 		sftpClient.close();
 		sshClient.disconnect();
 
+		try {
+			Thread.sleep(10000);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		final String buildVersion = mtrVersion + "-" + new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
 		for (final String minecraftVersion : MINECRAFT_VERSIONS) {
 			for (final Loader loader : Loader.values()) {
