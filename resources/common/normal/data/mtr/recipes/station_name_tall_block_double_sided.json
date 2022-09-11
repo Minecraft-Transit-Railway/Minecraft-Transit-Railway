@@ -1,0 +1,20 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "mtr:station_name_wall"
+		},
+		{
+			"item": "mtr:station_name_wall"
+		},
+		{
+			"item": "minecraft:stone"
+		},
+		{
+			"item": "mtr:station_pole"
+		}
+	],
+	"result": {
+		"item": "mtr:station_name_tall_block_double_sided"
+	}
+}
