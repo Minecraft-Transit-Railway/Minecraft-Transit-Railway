@@ -42,6 +42,7 @@ public class UpdateSolder {
 
 	static {
 		MOD_ID_MAP.put("mtr", "1");
+		MOD_ID_MAP.put("mtr-london-underground-addon", "4");
 		MOD_ID_MAP.put("fabric-loader", "2");
 		MOD_ID_MAP.put("fabric-api", "3");
 		MOD_ID_MAP.put("forge-loader", "5");
@@ -76,6 +77,14 @@ public class UpdateSolder {
 		DUMMY_MOD_MAP.put("mtr-forge-1.17.1", "forge-1.17.1-3.0.1");
 		DUMMY_MOD_MAP.put("mtr-forge-1.18.2", "forge-1.18.2-3.0.1");
 		DUMMY_MOD_MAP.put("mtr-forge-1.19.2", "forge-1.19-3.0.1");
+		DUMMY_MOD_MAP.put("mtr-london-underground-addon-fabric-1.16.5", "fabric-1.16.5-3.0.1-1.2");
+		DUMMY_MOD_MAP.put("mtr-london-underground-addon-fabric-1.17.1", "fabric-1.17.1-3.0.1-1.2");
+		DUMMY_MOD_MAP.put("mtr-london-underground-addon-fabric-1.18.2", "fabric-1.18.2-3.0.1-1.2");
+		DUMMY_MOD_MAP.put("mtr-london-underground-addon-fabric-1.19.2", "fabric-1.19.2-3.0.1-1.2");
+		DUMMY_MOD_MAP.put("mtr-london-underground-addon-forge-1.16.5", "forge-1.16.5-3.0.1-1.2");
+		DUMMY_MOD_MAP.put("mtr-london-underground-addon-forge-1.17.1", "forge-1.17.1-3.0.1-1.2");
+		DUMMY_MOD_MAP.put("mtr-london-underground-addon-forge-1.18.2", "forge-1.18.2-3.0.1-1.2");
+		DUMMY_MOD_MAP.put("mtr-london-underground-addon-forge-1.19.2", "forge-1.19.2-3.0.1-1.2");
 		DUMMY_MOD_MAP.put("fabric-loader-1.16.5", "1.16.5-0.14.8");
 		DUMMY_MOD_MAP.put("fabric-loader-1.17.1", "1.17.1-0.14.8");
 		DUMMY_MOD_MAP.put("fabric-loader-1.18.2", "1.18.2-0.14.8");
@@ -117,10 +126,13 @@ public class UpdateSolder {
 		FileUtils.deleteQuietly(OUTPUT_PATH.toFile());
 
 		final String mtrVersion = readUrl("https://www.minecrafttransitrailway.com/libs/latest/latest.json", new JsonObject()).getAsJsonObject().get("version").getAsString();
+		final String luVersion = readUrl("https://www.minecrafttransitrailway.com/libs/latest/latest-lu-addon.json", new JsonObject()).getAsJsonObject().get("version").getAsString();
 		for (final String minecraftVersion : MINECRAFT_VERSIONS) {
 			for (final Loader loader : Loader.values()) {
-				final String modVersion = loader.loader + "-" + minecraftVersion + "-" + mtrVersion;
-				uploadZip("https://www.minecrafttransitrailway.com/libs/latest/MTR-" + loader.loader + "-" + minecraftVersion + "-latest.jar", minecraftVersion, "mtr", "mods/MTR-" + modVersion + ".jar", modVersion);
+				final String modVersionMtr = loader.loader + "-" + minecraftVersion + "-" + mtrVersion;
+				final String modVersionLu = loader.loader + "-" + minecraftVersion + "-" + luVersion;
+				uploadZip("https://www.minecrafttransitrailway.com/libs/latest/MTR-" + loader.loader + "-" + minecraftVersion + "-latest.jar", minecraftVersion, "mtr", "mods/MTR-" + modVersionMtr + ".jar", modVersionMtr);
+				uploadZip("https://www.minecrafttransitrailway.com/libs/latest/MTR-LU-Addon-" + loader.loader + "-" + minecraftVersion + "-latest.jar", minecraftVersion, "mtr-london-underground-addon", "mods/MTR-LU-Addon-" + modVersionLu + ".jar", modVersionLu);
 			}
 
 			try {
@@ -147,12 +159,19 @@ public class UpdateSolder {
 		sftpClient.close();
 		sshClient.disconnect();
 
+		try {
+			Thread.sleep(10000);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		final String buildVersion = mtrVersion + "-" + new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
 		for (final String minecraftVersion : MINECRAFT_VERSIONS) {
 			for (final Loader loader : Loader.values()) {
 				final String combinedVersion = loader.loader + "-" + minecraftVersion;
 				final String buildId = sendRequest("create-build?modpack_id=%s&version=%s&minecraft=%s&clone=%s&memory-enabled=on&memory=2048", MODPACK_ID_MAP.get(combinedVersion), buildVersion, minecraftVersion, DUMMY_BUILD_ID_MAP.get(combinedVersion)).get("build_id").getAsString();
 				updateModInBuild(buildId, DUMMY_MOD_MAP.get("mtr-" + combinedVersion), combinedVersion + "-" + mtrVersion, loader.loader, minecraftVersion);
+				updateModInBuild(buildId, DUMMY_MOD_MAP.get("mtr-london-underground-addon-" + combinedVersion), combinedVersion + "-" + luVersion, loader.loader, minecraftVersion);
 
 				if (loader == Loader.FABRIC) {
 					updateModInBuild(buildId, DUMMY_MOD_MAP.get("fabric-loader-" + minecraftVersion), NEW_MOD_MAP.get("fabric-loader-" + minecraftVersion), loader.loader, minecraftVersion);
@@ -308,7 +327,7 @@ public class UpdateSolder {
 	}
 
 	private static void printStatus(String message, String modId, String modVersion, String md5) {
-		System.out.printf("%-30s %-50s%s\n", message, String.format("%s-%s", modId, modVersion), md5);
+		System.out.printf("%-30s %-60s%s\n", message, String.format("%s-%s", modId, modVersion), md5);
 	}
 
 	private enum Loader {
