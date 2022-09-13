@@ -235,6 +235,11 @@ public class UpdateSolder {
 	}
 
 	private void updateModInBuild(String buildId, String oldModVersion, String newModVersion, String loaderVersion, String minecraftVersion) {
+		try {
+			Thread.sleep(2000);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		final JsonObject response = sendRequest("update-build?build_id=%s&modversion_id=%s&version=%s", buildId, oldModVersion, newModVersion);
 		if (response.has("status")) {
 			printStatus(String.format("Updated mod %s:", response.get("status").getAsString()), loaderVersion, minecraftVersion, newModVersion);

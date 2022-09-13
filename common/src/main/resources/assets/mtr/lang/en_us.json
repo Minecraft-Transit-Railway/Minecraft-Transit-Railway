@@ -478,6 +478,7 @@
 	"options.mtr.hide_translucent_parts": "Hide translucent parts on vehicles",
 	"options.mtr.off": "Off",
 	"options.mtr.on": "On",
+	"options.mtr.shift_to_toggle_sitting": "Use %s to toggle sitting inside vehicles",
 	"options.mtr.show_announcement_messages": "Show \"next station\" messages in chat",
 	"options.mtr.support_patreon": "Support the mod on Patreon!",
 	"options.mtr.track_texture_offset": "Track Texture Offset",
