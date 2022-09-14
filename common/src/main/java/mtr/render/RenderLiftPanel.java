@@ -75,10 +75,10 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
 
         final Direction facing = IBlock.getStatePropertySafe(state, HorizontalDirectionalBlock.FACING).getOpposite();
         final boolean holdingLinker = Utilities.isHolding(player, item -> item instanceof ItemLiftButtonsLinkModifier || Block.byItem(item) instanceof BlockLiftButtons);
-
-        Tuple<String[], EntityLift.LiftDirection> liftDisplay = null;
         final String currentFloorNumber = entity.getFloorNumber(world);
-        final BlockPos trackPosition = entity.getTrackPosition(world, null);
+        final BlockPos trackPosition = entity.getTrackPosition(world);
+        Tuple<String[], EntityLift.LiftDirection> liftDisplay = null;
+
         if(trackPosition == null) {
             return;
         }
@@ -106,14 +106,13 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
         final float maxWidth = 1.2F;
         matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
         matrices.translate(maxWidth * (0.5 - 1 / 2F), 0, 0);
-        IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation("mtr:textures/block/black.png"))), -0.10F, -0.27F, maxWidth, 0.23F, Direction.UP, light);
         matrices.translate(0, -0.875, -SMALL_OFFSET);
 
-        // Floor Number Text
+        // Floor Number
         matrices.pushPose();
         matrices.translate(0.5F, 0.5F, 0);
         final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        IDrawing.drawStringWithFont(matrices, textRenderer, immediate, currentFloorNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, 0, 0.2F, 0.2F, 1F, ARGB_BLACK, false, MAX_LIGHT_GLOWING, null);
+        IDrawing.drawStringWithFont(matrices, textRenderer, immediate, currentFloorNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, -SMALL_OFFSET, 0, 0.16F, 0.16F, 1F, ARGB_BLACK, false, MAX_LIGHT_GLOWING, null);
         immediate.endBatch();
         matrices.popPose();
 
@@ -136,7 +135,6 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
 
             tickElapsed += delta;
 
-
             if(tickElapsed >= SLIDE_INTERVAL) {
                 nextFloorUV += lineHeight;
                 tickElapsed = 0;
@@ -156,7 +154,7 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
                 IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ARROW_TEXTURE, true)), maxWidth / 1.3F, 0.65F, maxWidth / 8.0F, maxWidth / 8.0F, 0.0F, (goingUp ? 0.0F : 1.0F) + uvShiftArrow, 1.0F, (goingUp ? 1.0F : 0.0F) + uvShiftArrow, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
             }
 
-            // Floor text
+            // Floor Display
             matrices.pushPose();
             matrices.translate(0.07F, 0.63F, 0);
             matrices.scale(0.017F, 0.017F,0.017F);

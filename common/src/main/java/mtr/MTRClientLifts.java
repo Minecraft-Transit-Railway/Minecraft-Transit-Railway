@@ -16,6 +16,7 @@ public class MTRClientLifts implements IPacket {
 	public static void init() {
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_DOOR_1.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_DOOR_ODD_1.get());
+		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_PANEL_1.get());
 
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.LIFT_BUTTONS_LINK_CONNECTOR.get(), ItemBlockClickingBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.LIFT_BUTTONS_LINK_REMOVER.get(), ItemBlockClickingBase.TAG_POS);

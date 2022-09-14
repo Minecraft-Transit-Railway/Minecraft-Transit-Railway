@@ -135,16 +135,39 @@ public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlo
         }
 
         public void registerFloor(BlockPos pos, boolean isAdd) {
+            if(level == null) return;
+            Direction facing = IBlock.getStatePropertySafe(level, this.getBlockPos(), FACING);
+            BlockEntity entityLeft = level.getBlockEntity(this.getBlockPos().relative(facing.getCounterClockWise()));
+            BlockEntity entityRight = level.getBlockEntity(this.getBlockPos().relative(facing.getClockWise()));
+
             if (isAdd) {
-                trackPosition = pos.asLong();
+                if(entityLeft instanceof TileEntityLiftPanel) {
+                    ((TileEntityLiftPanel)(entityLeft)).setFloor(pos.asLong());
+                }
+
+                if(entityRight instanceof TileEntityLiftPanel) {
+                    ((TileEntityLiftPanel)(entityRight)).setFloor(pos.asLong());
+                }
+                setFloor(pos.asLong());
             } else {
-                trackPosition = 0L;
+                if(entityLeft instanceof TileEntityLiftPanel) {
+                    ((TileEntityLiftPanel)(entityLeft)).setFloor(0);
+                }
+
+                if(entityRight instanceof TileEntityLiftPanel) {
+                    ((TileEntityLiftPanel)(entityRight)).setFloor(0);
+                }
+                setFloor(0);
             }
+        }
+
+        public void setFloor(long pos) {
+            trackPosition = pos;
             setChanged();
             syncData();
         }
 
-        public BlockPos getTrackPosition(Level world, BiConsumer<BlockPos, BlockLiftTrackFloor.TileEntityLiftTrackFloor> callback) {
+        public BlockPos getTrackPosition(Level world) {
             final BlockEntity blockEntity = world.getBlockEntity(BlockPos.of(trackPosition));
             if(blockEntity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor) {
                 return BlockPos.of(trackPosition);
@@ -167,7 +190,7 @@ public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlo
 
         public static <T extends BlockEntityMapper> void tick(Level world, BlockPos pos, T blockEntity) {
             if (world != null && EntityLift.playerVerticallyNearby(world, pos.getX(), pos.getZ()) && blockEntity instanceof TileEntityLiftPanel && !world.isClientSide && MTR.isGameTickInterval(UPDATE_INTERVAL, (int) pos.asLong())) {
-                ((TileEntityLiftPanel) blockEntity).getTrackPosition(world, null);
+                ((TileEntityLiftPanel) blockEntity).getTrackPosition(world);
                 blockEntity.setChanged();
                 ((TileEntityLiftPanel) blockEntity).syncData();
             }
