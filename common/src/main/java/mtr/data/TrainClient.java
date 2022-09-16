@@ -237,7 +237,7 @@ public class TrainClient extends Train {
 							if (isShifting && !previousShifting) {
 								isSitting = !isSitting;
 							}
-							clientPlayer.setPose(isSitting && client.gameRenderer.getMainCamera().isDetached() ? Pose.CROUCHING : Pose.STANDING);
+							clientPlayer.setPose(isSitting && !client.gameRenderer.getMainCamera().isDetached() ? Pose.CROUCHING : Pose.STANDING);
 						}
 
 						if (speed > 0) {
