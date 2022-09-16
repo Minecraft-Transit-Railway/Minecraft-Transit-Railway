@@ -30,13 +30,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import java.util.function.BiConsumer;
-
-/**
- * Lift Panel Block
- * @author LX86
- * @since 1.1.6
- */
 public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlockMapper {
     public static final BooleanProperty LEFT = BooleanProperty.create("left");
 

@@ -1,34 +1,8 @@
 {
-	"credit": "DoJ 2022",
 	"parent": "block/slab_top",
 	"textures": {
 		"bottom": "mtr:block/metal",
-		"top": "block/iron_block"
-	},
-	"elements": [
-		{
-			"from": [-0.5, 0, 0],
-			"to": [16.5, 15.9, 16],
-			"faces": {
-				"north": {"uv": [0, 0, 16, 15.9], "texture": "#bottom"},
-				"east": {"uv": [0, 0, 16, 15.9], "texture": "#bottom"},
-				"south": {"uv": [0, 0, 16, 15.9], "texture": "#bottom"},
-				"west": {"uv": [0, 0, 16, 15.9], "texture": "#bottom"},
-				"up": {"uv": [0, 0, 16, 16], "texture": "#bottom"},
-				"down": {"uv": [0, 0, 16, 16], "texture": "#bottom"}
-			}
-		},
-		{
-			"from": [-0.5, 15.9, 0],
-			"to": [16.5, 16, 16],
-			"faces": {
-				"north": {"uv": [0, 0, 16, 0.1], "texture": "#top"},
-				"east": {"uv": [0, 0, 16, 0.1], "texture": "#top"},
-				"south": {"uv": [0, 0, 16, 0.1], "texture": "#top"},
-				"west": {"uv": [0, 0, 16, 0.1], "texture": "#top"},
-				"up": {"uv": [0, 0, 16, 16], "texture": "#top"},
-				"down": {"uv": [0, 0, 16, 16], "texture": "#top"}
-			}
-		}
-	]
+		"top": "block/iron_block",
+		"side": "mtr:block/metal"
+	}
 }
