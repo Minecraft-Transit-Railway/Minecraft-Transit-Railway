@@ -69,10 +69,11 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	}
 
 	public static void openDashboardScreenS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
-		TransportMode transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packet.readUtf());
+		final TransportMode transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packet.readUtf());
+		final boolean useTimeAndWindSync = packet.readBoolean();
 		minecraftClient.execute(() -> {
 			if (!(minecraftClient.screen instanceof DashboardScreen)) {
-				UtilitiesClient.setScreen(minecraftClient, new DashboardScreen(transportMode));
+				UtilitiesClient.setScreen(minecraftClient, new DashboardScreen(transportMode, useTimeAndWindSync));
 			}
 		});
 	}
@@ -373,5 +374,11 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		packet.writeInt(filterPlatformIds.size());
 		filterPlatformIds.forEach(packet::writeLong);
 		RegistryClient.sendToServer(PACKET_ARRIVAL_PROJECTOR_UPDATE, packet);
+	}
+
+	public static void sendUseTimeAndWindSyncC2S(boolean useTimeAndWindSync) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeBoolean(useTimeAndWindSync);
+		RegistryClient.sendToServer(PACKET_USE_TIME_AND_WIND_SYNC, packet);
 	}
 }

@@ -1,0 +1,9 @@
+{
+	"parent": "mtr:block/door_tile_entity_migration/lift_door_left_base",
+	"textures": {
+		"bottom": "mtr:block/transparent",
+		"top": "mtr:block/black",
+		"particle": "mtr:block/door_tile_entity_migration/lift_door_top_1",
+		"back": "mtr:block/door_tile_entity_migration/lift_door_top_back_1"
+	}
+}

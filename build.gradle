@@ -12,7 +12,6 @@ def default_minecraft_version = "1.16.5"
 def minecraft_version = rootProject.properties.containsKey("buildVersion") ? rootProject.getProperties().get("buildVersion") : default_minecraft_version
 def minecraft_main_version = minecraft_version.split("\\.")[1] as int
 def patreon_api_key = rootProject.properties.containsKey("patreonApiKey") ? rootProject.getProperties().get("patreonApiKey") : ""
-def blue_map_url = new JsonSlurper().parse(("https://api.github.com/repos/BlueMap-Minecraft/BlueMapAPI/releases/latest").toURL())["assets"][0]["browser_download_url"]
 
 rootProject.ext.fabric_loader_version = new JsonSlurper().parse(("https://meta.fabricmc.net/v2/versions/loader/" + minecraft_version).toURL())[0]["loader"]["version"]
 rootProject.ext.forge_version = minecraft_version + "-" + new JsonSlurper().parse(("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json").toURL())["promos"][minecraft_version + "-latest"]
@@ -43,7 +42,7 @@ subprojects {
 		minecraft "com.mojang:minecraft:${minecraft_version}"
 		mappings loom.officialMojangMappings()
 		implementation "us.dynmap:dynmap-api:${rootProject.dynmap_version}"
-		implementation name: "BlueMapAPI"
+		implementation name: "BlueMapAPI-2.1.1"
 		implementation "xyz.jpenilla:squaremap-api:${rootProject.squaremap_version}"
 		implementation "org.eclipse.jetty:jetty-http:${rootProject.jetty_version}"
 		implementation "org.eclipse.jetty:jetty-io:${rootProject.jetty_version}"
@@ -158,13 +157,6 @@ task setupFiles() {
 		outputs.upToDateWhen { false }
 		from(zipTree("common/src/main/java/mtr/mappings/lang.zip"))
 		into "common/src/main/resources/assets/mtr/lang"
-	}
-
-	download {
-		src blue_map_url
-		dest "libs/BlueMapAPI.jar"
-		overwrite true
-		retries - 1
 	}
 
 	copy {

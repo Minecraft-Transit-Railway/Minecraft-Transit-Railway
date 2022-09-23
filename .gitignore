@@ -3,7 +3,6 @@
 .gradle/
 build/
 out/
-libs/
 classes/
 
 # eclipse

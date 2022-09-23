@@ -3,6 +3,7 @@ package mtr.entity;
 import mtr.EntityTypes;
 import mtr.block.BlockLiftTrackFloor;
 import mtr.block.BlockPSDAPGDoorBase;
+import mtr.block.IBlock;
 import mtr.data.LiftInstructions;
 import mtr.data.RailwayData;
 import mtr.data.Train;
@@ -21,7 +22,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Comparator;
@@ -317,11 +317,11 @@ public abstract class EntityLift extends EntityBase {
 		boolean hasDoor = false;
 		for (int i = -1; i <= 1; i++) {
 			final BlockPos checkPos = new BlockPos(position().add(-direction.getStepX() * sign * (liftType.depth / 2F + 0.5) + directionClockwise.getStepX() * i, 0, -direction.getStepZ() * sign * (liftType.depth / 2F + 0.5) + directionClockwise.getStepZ() * i));
-			final BlockState checkState1 = level.getBlockState(checkPos);
-			final BlockState checkState2 = level.getBlockState(checkPos.above());
-			if (checkState1.getBlock() instanceof BlockPSDAPGDoorBase && checkState2.getBlock() instanceof BlockPSDAPGDoorBase) {
-				level.setBlockAndUpdate(checkPos, checkState1.setValue(BlockPSDAPGDoorBase.OPEN, Math.min(doorValue, DOOR_MAX)));
-				level.setBlockAndUpdate(checkPos.above(), checkState2.setValue(BlockPSDAPGDoorBase.OPEN, Math.min(doorValue, DOOR_MAX)));
+			final BlockEntity entity1 = level.getBlockEntity(checkPos);
+			final BlockEntity entity2 = level.getBlockEntity(checkPos.above());
+			if (entity1 instanceof BlockPSDAPGDoorBase.TileEntityPSDAPGDoorBase && entity2 instanceof BlockPSDAPGDoorBase.TileEntityPSDAPGDoorBase && IBlock.getStatePropertySafe(level, blockPosition(), BlockPSDAPGDoorBase.UNLOCKED)) {
+				((BlockPSDAPGDoorBase.TileEntityPSDAPGDoorBase) entity1).setOpen(Math.min(doorValue, DOOR_MAX));
+				((BlockPSDAPGDoorBase.TileEntityPSDAPGDoorBase) entity2).setOpen(Math.min(doorValue, DOOR_MAX));
 				hasDoor = true;
 			}
 		}
