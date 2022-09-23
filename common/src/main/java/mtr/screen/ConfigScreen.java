@@ -17,7 +17,7 @@ import net.minecraft.network.chat.Component;
 public class ConfigScreen extends ScreenMapper implements IGui {
 
 	private boolean useMTRFont;
-	private boolean genAnnouncementMessages;
+	private boolean showAnnouncementMessages;
 	private boolean useTTSAnnouncements;
 	private boolean hideSpecialRailColors;
 	private boolean hideTranslucentParts;
@@ -29,7 +29,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 
 	private final WidgetBetterCheckbox checkboxUseTimeAndWindSync;
 	private final Button buttonUseMTRFont;
-	private final Button buttonGenAnnouncementMessages;
+	private final Button buttonShowAnnouncementMessages;
 	private final Button buttonUseTTSAnnouncements;
 	private final Button buttonHideSpecialRailColors;
 	private final Button buttonHideTranslucentParts;
@@ -63,9 +63,9 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 			useMTRFont = Config.setUseMTRFont(!useMTRFont);
 			setButtonText(button, useMTRFont);
 		});
-		buttonGenAnnouncementMessages = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
-			genAnnouncementMessages = Config.setGenAnnouncementMessages(!genAnnouncementMessages);
-			setButtonText(button, genAnnouncementMessages);
+		buttonShowAnnouncementMessages = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
+			showAnnouncementMessages = Config.setShowAnnouncementMessages(!showAnnouncementMessages);
+			setButtonText(button, showAnnouncementMessages);
 		});
 		buttonUseTTSAnnouncements = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
 			useTTSAnnouncements = Config.setUseTTSAnnouncements(!useTTSAnnouncements);
@@ -98,7 +98,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		super.init();
 		Config.refreshProperties();
 		useMTRFont = Config.useMTRFont();
-		genAnnouncementMessages = Config.genAnnouncementMessages();
+		showAnnouncementMessages = Config.showAnnouncementMessages();
 		useTTSAnnouncements = Config.useTTSAnnouncements();
 		hideSpecialRailColors = Config.hideSpecialRailColors();
 		hideTranslucentParts = Config.hideTranslucentParts();
@@ -117,18 +117,19 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		int i = 1;
 		IDrawing.setPositionAndWidth(buttonUseMTRFont, width - SQUARE_SIZE - BUTTON_WIDTH, SQUARE_SIZE + offsetY, BUTTON_WIDTH);
 		if (!Keys.LIFTS_ONLY) {
-			IDrawing.setPositionAndWidth(buttonGenAnnouncementMessages, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-			IDrawing.setPositionAndWidth(buttonUseTTSAnnouncements, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-			IDrawing.setPositionAndWidth(buttonHideSpecialRailColors, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-			IDrawing.setPositionAndWidth(buttonHideTranslucentParts, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-			IDrawing.setPositionAndWidth(buttonUseDynamicFPS, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-			IDrawing.setPositionAndWidth(sliderTrackTextureOffset, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
-			IDrawing.setPositionAndWidth(sliderDynamicTextureResolution, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
-			IDrawing.setPositionAndWidth(sliderTrainRenderDistanceRatio, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
+			IDrawing.setPositionAndWidth(buttonShowAnnouncementMessages, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
+			IDrawing.setPositionAndWidth(buttonUseTTSAnnouncements, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
+			IDrawing.setPositionAndWidth(buttonHideSpecialRailColors, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
+			IDrawing.setPositionAndWidth(buttonHideTranslucentParts, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
+			IDrawing.setPositionAndWidth(buttonShiftToToggleSitting, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
+			IDrawing.setPositionAndWidth(buttonUseDynamicFPS, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
+			IDrawing.setPositionAndWidth(sliderTrackTextureOffset, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
+			IDrawing.setPositionAndWidth(sliderDynamicTextureResolution, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
+			IDrawing.setPositionAndWidth(sliderTrainRenderDistanceRatio, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
 		}
 		IDrawing.setPositionAndWidth(buttonSupportPatreon, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * i + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
 		setButtonText(buttonUseMTRFont, useMTRFont);
-		setButtonText(buttonGenAnnouncementMessages, genAnnouncementMessages);
+		setButtonText(buttonShowAnnouncementMessages, showAnnouncementMessages);
 		setButtonText(buttonUseTTSAnnouncements, useTTSAnnouncements);
 		setButtonText(buttonHideSpecialRailColors, hideSpecialRailColors);
 		setButtonText(buttonHideTranslucentParts, hideTranslucentParts);
@@ -147,7 +148,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		}
 		addDrawableChild(buttonUseMTRFont);
 		if (!Keys.LIFTS_ONLY) {
-			addDrawableChild(buttonGenAnnouncementMessages);
+			addDrawableChild(buttonShowAnnouncementMessages);
 			addDrawableChild(buttonUseTTSAnnouncements);
 			addDrawableChild(buttonHideSpecialRailColors);
 			addDrawableChild(buttonHideTranslucentParts);

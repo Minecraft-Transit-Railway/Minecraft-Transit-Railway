@@ -186,9 +186,11 @@ public interface IDrawing {
 			if (Config.useTTSAnnouncements()) {
 				Narrator.getNarrator().say(newMessage, true);
 			}
-			final Player player = Minecraft.getInstance().player;
-			if (player != null) {
-				player.displayClientMessage(Text.literal(newMessage), false);
+			if (Config.showAnnouncementMessages()) {
+				final Player player = Minecraft.getInstance().player;
+				if (player != null) {
+					player.displayClientMessage(Text.literal(newMessage), false);
+				}
 			}
 		}
 	}
