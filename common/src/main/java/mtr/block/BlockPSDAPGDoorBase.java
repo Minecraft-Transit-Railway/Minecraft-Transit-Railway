@@ -124,6 +124,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 		private boolean temp = true;
 
 		private static final String KEY_OPEN = "open";
+		private static final String KEY_TEMP = "temp";
 
 		public TileEntityPSDAPGDoorBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
@@ -132,11 +133,13 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 		@Override
 		public void readCompoundTag(CompoundTag compoundTag) {
 			open = compoundTag.getInt(KEY_OPEN);
+			temp = compoundTag.getBoolean(KEY_TEMP);
 		}
 
 		@Override
 		public void writeCompoundTag(CompoundTag compoundTag) {
 			compoundTag.putInt(KEY_OPEN, open);
+			compoundTag.putBoolean(KEY_TEMP, temp);
 			if (temp && level != null) {
 				level.setBlockAndUpdate(worldPosition, level.getBlockState(worldPosition).setValue(TEMP, false));
 				temp = false;
