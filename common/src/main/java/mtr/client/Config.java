@@ -16,7 +16,7 @@ import java.util.List;
 public class Config {
 
 	private static boolean useMTRFont;
-	private static boolean showAnnouncementMessages;
+	private static boolean genAnnouncementMessages;
 	private static boolean useTTSAnnouncements;
 	private static boolean hideSpecialRailColors;
 	private static boolean hideTranslucentParts;
@@ -32,7 +32,7 @@ public class Config {
 	public static final int TRAIN_RENDER_DISTANCE_RATIO_COUNT = 16;
 	private static final Path CONFIG_FILE_PATH = Minecraft.getInstance().gameDirectory.toPath().resolve("config").resolve("mtr.json");
 	private static final String USE_MTR_FONT_KEY = "use_mtr_font";
-	private static final String SHOW_ANNOUNCEMENT_MESSAGES = "show_announcement_messages";
+	private static final String GEN_ANNOUNCEMENT_MESSAGES = "gen_announcement_messages";
 	private static final String HIDE_SPECIAL_RAIL_COLORS = "hide_special_rail_colors";
 	private static final String HIDE_TRANSLUCENT_PARTS = "hide_translucent_parts";
 	private static final String SHIFT_TO_TOGGLE_SITTING = "shift_to_toggle_sitting";
@@ -45,8 +45,8 @@ public class Config {
 		return useMTRFont;
 	}
 
-	public static boolean showAnnouncementMessages() {
-		return showAnnouncementMessages;
+	public static boolean genAnnouncementMessages() {
+		return genAnnouncementMessages;
 	}
 
 	public static boolean useTTSAnnouncements() {
@@ -87,10 +87,10 @@ public class Config {
 		return useMTRFont;
 	}
 
-	public static boolean setShowAnnouncementMessages(boolean value) {
-		showAnnouncementMessages = value;
+	public static boolean setGenAnnouncementMessages(boolean value) {
+		genAnnouncementMessages = value;
 		writeToFile();
-		return showAnnouncementMessages;
+		return genAnnouncementMessages;
 	}
 
 	public static boolean setUseTTSAnnouncements(boolean value) {
@@ -147,7 +147,7 @@ public class Config {
 			} catch (Exception ignored) {
 			}
 			try {
-				showAnnouncementMessages = jsonConfig.get(SHOW_ANNOUNCEMENT_MESSAGES).getAsBoolean();
+				genAnnouncementMessages = jsonConfig.get(GEN_ANNOUNCEMENT_MESSAGES).getAsBoolean();
 			} catch (Exception ignored) {
 			}
 			try {
@@ -193,7 +193,7 @@ public class Config {
 		System.out.println("Wrote MTR mod config to file");
 		final JsonObject jsonConfig = new JsonObject();
 		jsonConfig.addProperty(USE_MTR_FONT_KEY, useMTRFont);
-		jsonConfig.addProperty(SHOW_ANNOUNCEMENT_MESSAGES, showAnnouncementMessages);
+		jsonConfig.addProperty(GEN_ANNOUNCEMENT_MESSAGES, genAnnouncementMessages);
 		jsonConfig.addProperty(USE_TTS_ANNOUNCEMENTS, useTTSAnnouncements);
 		jsonConfig.addProperty(HIDE_SPECIAL_RAIL_COLORS, hideSpecialRailColors);
 		jsonConfig.addProperty(HIDE_TRANSLUCENT_PARTS, hideTranslucentParts);
