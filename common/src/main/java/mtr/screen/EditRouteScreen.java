@@ -78,6 +78,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 
 		setIsLightRailRoute(data.isLightRailRoute);
 		setIsRouteHidden(data.isHidden);
+		setDisableNextStationAnnouncements(data.disableNextStationAnnouncements);
 		setIsClockwise(data.circularState == Route.CircularState.CLOCKWISE);
 		setIsAntiClockwise(data.circularState == Route.CircularState.ANTICLOCKWISE);
 	}
@@ -132,7 +133,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 	}
 
 	private void setDisableNextStationAnnouncements(boolean hasNextStationAnnouncements) {
-		buttonIsRouteHidden.setChecked(hasNextStationAnnouncements);
+		buttonDisableNextStationAnnouncements.setChecked(hasNextStationAnnouncements);
 	}
 
 	private void setIsClockwise(boolean isClockwise) {
