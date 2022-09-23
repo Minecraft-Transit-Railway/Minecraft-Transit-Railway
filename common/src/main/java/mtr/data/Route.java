@@ -42,7 +42,7 @@ public final class Route extends NameColorDataBase implements IGui {
 		circularState = CircularState.NONE;
 		lightRailRouteNumber = "";
 		isHidden = false;
-		disableNextStationAnnouncements = true;
+		disableNextStationAnnouncements = false;
 	}
 
 	public Route(Map<String, Value> map) {
