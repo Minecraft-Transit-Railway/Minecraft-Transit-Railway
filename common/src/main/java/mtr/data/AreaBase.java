@@ -100,9 +100,12 @@ public abstract class AreaBase extends NameColorDataBase {
 		sendPacket.accept(packet);
 	}
 
-
 	public boolean inArea(int x, int z) {
 		return nonNullCorners(this) && RailwayData.isBetween(x, corner1.getA(), corner2.getA()) && RailwayData.isBetween(z, corner1.getB(), corner2.getB());
+	}
+
+	public boolean intersecting(AreaBase areaBase) {
+		return nonNullCorners(this) && nonNullCorners(areaBase) && (inThis(areaBase) || areaBase.inThis(this));
 	}
 
 	public BlockPos getCenter() {
@@ -112,6 +115,10 @@ public abstract class AreaBase extends NameColorDataBase {
 	private void setCorners(int corner1a, int corner1b, int corner2a, int corner2b) {
 		corner1 = corner1a == 0 && corner1b == 0 ? null : new Tuple<>(corner1a, corner1b);
 		corner2 = corner2a == 0 && corner2b == 0 ? null : new Tuple<>(corner2a, corner2b);
+	}
+
+	private boolean inThis(AreaBase areaBase) {
+		return inArea(areaBase.corner1.getA(), areaBase.corner1.getB()) || inArea(areaBase.corner1.getA(), areaBase.corner2.getB()) || inArea(areaBase.corner2.getA(), areaBase.corner1.getB()) || inArea(areaBase.corner2.getA(), areaBase.corner2.getB());
 	}
 
 	public static boolean nonNullCorners(AreaBase station) {

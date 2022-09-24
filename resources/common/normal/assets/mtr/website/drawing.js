@@ -8,7 +8,7 @@ const OBJECT_CACHE = {};
 const DRAWING = {
 	drawMap: (lineQueue, stationQueue) => {
 		for (const key in OBJECT_CACHE) {
-			if (!(key in lineQueue) && !(key in stationQueue)) {
+			if (!(key in lineQueue) && !(key in stationQueue) && !(key.substring(0, key.indexOf("_connection_")) in stationQueue)) {
 				CANVAS.remove(OBJECT_CACHE[key]);
 				delete OBJECT_CACHE[key];
 			}
@@ -225,9 +225,9 @@ const inWindow = (x1, y1, x2, y2) => {
 	return minX < window.innerWidth - getCanvasOffsetX() && maxX > -getCanvasOffsetX() && minY < window.innerHeight - getCanvasOffsetY() && maxY > -getCanvasOffsetY();
 };
 const addStation = (key, station) => {
-	const {id, width, height, left, top, angle, selected, types} = station;
+	const {id, width, height, left, top, angle, selected, types, connections} = station;
 	const blobHeightOffset = (angle === 0 ? height : (width + height - 1) / Math.SQRT2) / 2;
-	const blob = new fabric.Rect({
+	const elements = [new fabric.Rect({
 		"originX": "center",
 		"originY": "center",
 		"width": width,
@@ -240,8 +240,7 @@ const addStation = (key, station) => {
 		"strokeWidth": SETTINGS.size * 2,
 		"hoverCursor": "pointer",
 		"selectable": false,
-	});
-	const elements = [blob];
+	})];
 	if (selected && SETTINGS.showText) {
 		const nameSplit = key.split("|");
 		let textYOffset = 0;
@@ -327,6 +326,45 @@ const addStation = (key, station) => {
 	CANVAS.remove(OBJECT_CACHE[key]);
 	OBJECT_CACHE[key] = group;
 	group.checkVisibility();
+
+	connections.forEach(connection => {
+		const {x, y} = connection;
+		const connectionLine = new fabric.Line([], {
+			"fill": null,
+			"stroke": UTILITIES.convertColor(UTILITIES.getColorStyle(selected ? "--textColor" : "--textColorDisabled")),
+			"strokeWidth": SETTINGS.size * 4,
+			"strokeDashArray": [SETTINGS.size * 8, SETTINGS.size * 4],
+			"objectCaching": false,
+			"hoverCursor": "pointer",
+			"selectable": false,
+			"updateShape": () => {
+				const point1X = left * zoom;
+				const point1Y = top * zoom - SETTINGS.size * 2;
+				const point2X = x * zoom;
+				const point2Y = y * zoom - SETTINGS.size * 2;
+				const reverse = point1X === point2X ? point1Y > point2Y : point1X > point2X;
+				connectionLine.set({"x1": reverse ? point1X : point2X, "y1": reverse ? point1Y : point2Y, "x2": reverse ? point2X : point1X, "y2": reverse ? point2Y : point1Y});
+				return inBounds(point1X, point1Y) || inBounds(point2X, point2Y) || inWindow(point1X, point1Y, point2X, point2Y);
+			},
+			"checkVisibility": () => {
+				const shouldShow = connectionLine.updateShape();
+				if (CANVAS.getObjects().includes(connectionLine)) {
+					if (!shouldShow) {
+						CANVAS.remove(connectionLine);
+					}
+				} else {
+					if (shouldShow) {
+						CANVAS.sendToBack(connectionLine);
+					}
+				}
+			},
+			"z": selected ? 1 : 0,
+		});
+		const newKey = `${key}_connection_${x}_${y}`;
+		CANVAS.remove(OBJECT_CACHE[newKey]);
+		OBJECT_CACHE[newKey] = connectionLine;
+		connectionLine.checkVisibility();
+	});
 }
 const addLine = (key, line) => {
 	const {color, segments, selected, density, id} = line;

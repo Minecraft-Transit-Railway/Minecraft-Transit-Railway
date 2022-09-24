@@ -101,6 +101,9 @@ public class DataServletHandler extends HttpServlet {
 										final BlockPos stationCenter = station.getCenter();
 										stationObject.addProperty("x", stationCenter == null ? 0 : stationCenter.getX());
 										stationObject.addProperty("z", stationCenter == null ? 0 : stationCenter.getZ());
+										final JsonArray stationConnectionsArray = new JsonArray();
+										dataCache.stationIdToConnectingStations.get(station).forEach(connectingStation -> stationConnectionsArray.add(String.valueOf(connectingStation.id)));
+										stationObject.add("connections", stationConnectionsArray);
 										stationsObject.add(String.valueOf(station.id), stationObject);
 
 										addedStation = true;

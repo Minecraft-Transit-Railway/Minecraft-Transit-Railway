@@ -213,6 +213,7 @@ const DATA = {
 				"angle": routeCounts[1] + routeCounts[3] > routeCounts[0] + routeCounts[2] ? 45 : 0,
 				"selected": SETTINGS.selectedDirectionsStations.length > 0 ? SETTINGS.selectedDirectionsStations.includes(stationId) : SETTINGS.selectedRoutes.length === 0 || tempStations[stationId]["routeIds"].some(routeId => SETTINGS.selectedRoutes.includes(routeId)),
 				"types": tempStations[stationId]["types"],
+				"connections": stations[stationId]["connections"].filter(connectionId => connectionId in tempStations).map(connectionId => tempStations[connectionId]),
 			};
 			UTILITIES.angles.forEach(angle => stationQueue[stations[stationId]["name"]][`routes${angle}`] = tempStations[stationId][`routes${angle}`]);
 		}

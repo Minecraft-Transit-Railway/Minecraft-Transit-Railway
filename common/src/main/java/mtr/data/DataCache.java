@@ -3,6 +3,7 @@ package mtr.data;
 import net.minecraft.core.BlockPos;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -18,6 +19,7 @@ public class DataCache {
 	public final Map<Long, Station> platformIdToStation = new HashMap<>();
 	public final Map<Long, Depot> sidingIdToDepot = new HashMap<>();
 	public final Map<Long, Depot> routeIdToOneDepot = new HashMap<>();
+	public final Map<Station, Set<Station>> stationIdToConnectingStations = new HashMap<>();
 	public final Map<BlockPos, Station> blockPosToStation = new HashMap<>();
 	public final Map<BlockPos, Long> blockPosToPlatformId = new HashMap<>();
 	public final Map<BlockPos, Map<BlockPos, Integer>> platformConnections = new HashMap<>();
@@ -75,6 +77,16 @@ public class DataCache {
 						}
 					}
 				}
+			});
+
+			stationIdToConnectingStations.clear();
+			stations.forEach(station1 -> {
+				stationIdToConnectingStations.put(station1, new HashSet<>());
+				stations.forEach(station2 -> {
+					if (station1 != station2 && station1.intersecting(station2)) {
+						stationIdToConnectingStations.get(station1).add(station2);
+					}
+				});
 			});
 
 			mapSavedRailIdToStation(platformIdToStation, platforms, stations);
