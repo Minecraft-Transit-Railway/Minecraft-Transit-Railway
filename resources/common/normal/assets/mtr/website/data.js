@@ -204,8 +204,9 @@ const DATA = {
 		const stationQueue = {};
 		for (const stationId in tempStations) {
 			const routeCounts = UTILITIES.angles.map(angle => tempStations[stationId][`routes${angle}`].length);
-			stationQueue[stations[stationId]["name"]] = {
+			stationQueue[stationId] = {
 				"id": stationId,
+				"name": stations[stationId]["name"],
 				"width": (Math.max(1, Math.max(routeCounts[0], routeCounts[1])) + 1) * SETTINGS.size * 6,
 				"height": (Math.max(1, Math.max(routeCounts[2], routeCounts[3])) + 1) * SETTINGS.size * 6,
 				"left": tempStations[stationId]["x"],
@@ -215,7 +216,7 @@ const DATA = {
 				"types": tempStations[stationId]["types"],
 				"connections": stations[stationId]["connections"].filter(connectionId => connectionId in tempStations).map(connectionId => tempStations[connectionId]),
 			};
-			UTILITIES.angles.forEach(angle => stationQueue[stations[stationId]["name"]][`routes${angle}`] = tempStations[stationId][`routes${angle}`]);
+			UTILITIES.angles.forEach(angle => stationQueue[stationId][`routes${angle}`] = tempStations[stationId][`routes${angle}`]);
 		}
 
 		Object.keys(stations).forEach(stationId => {

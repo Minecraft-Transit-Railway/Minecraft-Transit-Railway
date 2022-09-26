@@ -41,6 +41,7 @@ const DRAWING = {
 			"left": 0,
 			"top": 0,
 			"angle": middleAngle,
+			"connections": [],
 		});
 		for (let i = 0; i < 8; i++) {
 			const stationX = 400 * Math.cos(2 * Math.PI * (i + 0.5) / 8);
@@ -51,6 +52,7 @@ const DRAWING = {
 				"left": stationX,
 				"top": stationY,
 				"angle": outerAngles,
+				"connections": [],
 			});
 			for (let j = 0; j < routes; j++) {
 				addLine(`test_line_${i}_${j}`, {
@@ -225,7 +227,7 @@ const inWindow = (x1, y1, x2, y2) => {
 	return minX < window.innerWidth - getCanvasOffsetX() && maxX > -getCanvasOffsetX() && minY < window.innerHeight - getCanvasOffsetY() && maxY > -getCanvasOffsetY();
 };
 const addStation = (key, station) => {
-	const {id, width, height, left, top, angle, selected, types, connections} = station;
+	const {id, name, width, height, left, top, angle, selected, types, connections} = station;
 	const blobHeightOffset = (angle === 0 ? height : (width + height - 1) / Math.SQRT2) / 2;
 	const elements = [new fabric.Rect({
 		"originX": "center",
@@ -242,7 +244,7 @@ const addStation = (key, station) => {
 		"selectable": false,
 	})];
 	if (selected && SETTINGS.showText) {
-		const nameSplit = key.split("|");
+		const nameSplit = name.split("|");
 		let textYOffset = 0;
 		for (let i = 0; i < nameSplit.length; i++) {
 			const text = nameSplit[i];

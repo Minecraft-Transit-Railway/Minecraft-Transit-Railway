@@ -15,13 +15,6 @@ const UTILITIES = {
 		}
 	},
 	connectLine: (x1, y1, direction1, offsetIndex1, routeCount1, x2, y2, direction2, offsetIndex2, routeCount2, lineWidth, segments) => {
-		if (x2 > x1) {
-			UTILITIES.connectLine1(x1, y1, direction1, offsetIndex1, routeCount1, x2, y2, direction2, offsetIndex2, routeCount2, lineWidth, segments);
-		} else {
-			UTILITIES.connectLine1(x2, y2, direction2, offsetIndex2, routeCount2, x1, y1, direction1, offsetIndex1, routeCount1, lineWidth, segments);
-		}
-	},
-	connectLine1: (x1, y1, direction1, offsetIndex1, routeCount1, x2, y2, direction2, offsetIndex2, routeCount2, lineWidth, segments) => {
 		const offset1 = (offsetIndex1 - (routeCount1 - 1) / 2) * lineWidth;
 		const offset2 = (offsetIndex2 - (routeCount2 - 1) / 2) * lineWidth;
 		const offset1Rotated = UTILITIES.rotatePoint(offset1, 0, direction1);
@@ -31,6 +24,13 @@ const UTILITIES = {
 		x2 += offset2Rotated["x"];
 		y2 += offset2Rotated["y"];
 
+		if (x2 > x1) {
+			UTILITIES.connectLine1(x1, y1, direction1, offset1, routeCount1, x2, y2, direction2, offset2, routeCount2, lineWidth, segments);
+		} else {
+			UTILITIES.connectLine1(x2, y2, direction2, offset2, routeCount2, x1, y1, direction1, offset1, routeCount1, lineWidth, segments);
+		}
+	},
+	connectLine1: (x1, y1, direction1, offset1, routeCount1, x2, y2, direction2, offset2, routeCount2, lineWidth, segments) => {
 		const {x, y} = UTILITIES.rotatePoint(x2 - x1, y2 - y1, -direction1);
 		const signX = Math.sign(x);
 		const signY = Math.sign(y);
