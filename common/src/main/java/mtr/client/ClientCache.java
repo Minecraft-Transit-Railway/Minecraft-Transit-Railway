@@ -139,6 +139,25 @@ public class ClientCache extends DataCache implements IGui {
 		return platformIdToRoutes.get(platformId);
 	}
 
+	public Set<Station> getConnectingStationsIncludingThisOne(Station station) {
+		final Set<Station> stationsToCheck = new HashSet<>();
+		stationsToCheck.add(station);
+		if (stationIdToConnectingStations.containsKey(station)) {
+			stationsToCheck.addAll(stationIdToConnectingStations.get(station));
+		}
+		return stationsToCheck;
+	}
+
+	public Map<Integer, ColorNameTuple> getAllRoutesIncludingConnectingStations(Station station) {
+		final Map<Integer, ColorNameTuple> routeMap = new HashMap<>();
+		getConnectingStationsIncludingThisOne(station).forEach(checkStation -> {
+			if (stationIdToRoutes.containsKey(checkStation.id)) {
+				routeMap.putAll(stationIdToRoutes.get(checkStation.id));
+			}
+		});
+		return routeMap;
+	}
+
 	public String getFormattedRouteDestination(Route route, int currentStationIndex, String circularMarker) {
 		try {
 			if (route.circularState == Route.CircularState.NONE) {

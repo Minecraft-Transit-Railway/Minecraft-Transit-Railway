@@ -117,6 +117,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		final boolean isExit = signId.equals(BlockRailwaySign.SignType.EXIT_LETTER.toString()) || signId.equals(BlockRailwaySign.SignType.EXIT_LETTER_FLIPPED.toString());
 		final boolean isLine = signId.equals(BlockRailwaySign.SignType.LINE.toString()) || signId.equals(BlockRailwaySign.SignType.LINE_FLIPPED.toString());
 		final boolean isPlatform = signId.equals(BlockRailwaySign.SignType.PLATFORM.toString()) || signId.equals(BlockRailwaySign.SignType.PLATFORM_FLIPPED.toString());
+		final boolean isStation = signId.equals(BlockRailwaySign.SignType.STATION.toString()) || signId.equals(BlockRailwaySign.SignType.STATION_FLIPPED.toString());
 
 		final MultiBufferSource.BufferSource immediate = RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 2, null) ? null : MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
 
@@ -164,39 +165,37 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				return;
 			}
 
-			final Map<Integer, ClientCache.ColorNameTuple> routesInStation = ClientData.DATA_CACHE.stationIdToRoutes.get(station.id);
-			if (routesInStation != null) {
-				final List<ClientCache.ColorNameTuple> selectedIdsSorted = selectedIds.stream().filter(selectedId -> RailwayData.isBetween(selectedId, Integer.MIN_VALUE, Integer.MAX_VALUE)).map(Math::toIntExact).filter(routesInStation::containsKey).map(routesInStation::get).sorted(Comparator.comparingInt(route -> route.color)).collect(Collectors.toList());
+			final Map<Integer, ClientCache.ColorNameTuple> routesInStation = ClientData.DATA_CACHE.getAllRoutesIncludingConnectingStations(station);
+			final List<ClientCache.ColorNameTuple> selectedIdsSorted = selectedIds.stream().filter(selectedId -> RailwayData.isBetween(selectedId, Integer.MIN_VALUE, Integer.MAX_VALUE)).map(Math::toIntExact).filter(routesInStation::containsKey).map(routesInStation::get).sorted(Comparator.comparingInt(route -> route.color)).collect(Collectors.toList());
 
-				final float maxWidth = Math.max(0, ((flipCustomText ? maxWidthLeft : maxWidthRight) + 1) * size - margin * 2);
-				final float height = size - margin * 2;
-				final List<ClientCache.DynamicResource> resourceLocationDataList = new ArrayList<>();
-				float totalTextWidth = 0;
-				for (final ClientCache.ColorNameTuple route : selectedIdsSorted) {
-					final ClientCache.DynamicResource resourceLocationData = ClientData.DATA_CACHE.getRouteSquare(route.color, route.name, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT);
-					resourceLocationDataList.add(resourceLocationData);
-					totalTextWidth += height * resourceLocationData.width / resourceLocationData.height + margin / 2F;
-				}
-
-				matrices.pushPose();
-				matrices.translate(flipCustomText ? x + size - margin : x + margin, 0, 0);
-
-				if (totalTextWidth > margin / 2F) {
-					totalTextWidth -= margin / 2F;
-				}
-				if (totalTextWidth > maxWidth) {
-					matrices.scale(maxWidth / totalTextWidth, 1, 1);
-				}
-
-				float xOffset = 0;
-				for (final ClientCache.DynamicResource resourceLocationData : resourceLocationDataList) {
-					final float width = height * resourceLocationData.width / resourceLocationData.height;
-					IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(resourceLocationData.resourceLocation, false)), flipCustomText ? -xOffset - width : xOffset, margin, width, height, Direction.UP, MAX_LIGHT_GLOWING);
-					xOffset += width + margin / 2F;
-				}
-
-				matrices.popPose();
+			final float maxWidth = Math.max(0, ((flipCustomText ? maxWidthLeft : maxWidthRight) + 1) * size - margin * 2);
+			final float height = size - margin * 2;
+			final List<ClientCache.DynamicResource> resourceLocationDataList = new ArrayList<>();
+			float totalTextWidth = 0;
+			for (final ClientCache.ColorNameTuple route : selectedIdsSorted) {
+				final ClientCache.DynamicResource resourceLocationData = ClientData.DATA_CACHE.getRouteSquare(route.color, route.name, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT);
+				resourceLocationDataList.add(resourceLocationData);
+				totalTextWidth += height * resourceLocationData.width / resourceLocationData.height + margin / 2F;
 			}
+
+			matrices.pushPose();
+			matrices.translate(flipCustomText ? x + size - margin : x + margin, 0, 0);
+
+			if (totalTextWidth > margin / 2F) {
+				totalTextWidth -= margin / 2F;
+			}
+			if (totalTextWidth > maxWidth) {
+				matrices.scale(maxWidth / totalTextWidth, 1, 1);
+			}
+
+			float xOffset = 0;
+			for (final ClientCache.DynamicResource resourceLocationData : resourceLocationDataList) {
+				final float width = height * resourceLocationData.width / resourceLocationData.height;
+				IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(resourceLocationData.resourceLocation, false)), flipCustomText ? -xOffset - width : xOffset, margin, width, height, Direction.UP, MAX_LIGHT_GLOWING);
+				xOffset += width + margin / 2F;
+			}
+
+			matrices.popPose();
 		} else if (vertexConsumers != null && isPlatform) {
 			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 			if (station == null) {
@@ -230,7 +229,13 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				if (vertexConsumers == null) {
 					IDrawing.drawStringWithFont(matrices, textRenderer, immediate, isExit || isLine ? "..." : sign.customText, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, start, y + fixedMargin, maxWidth, size - fixedMargin * 2, 0.01F, ARGB_WHITE, false, MAX_LIGHT_GLOWING, null);
 				} else {
-					final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getSignText(sign.customText, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, fixedMargin / size, backgroundColor, ARGB_WHITE);
+					final String signText;
+					if (isStation) {
+						signText = IGui.mergeStations(selectedIds.stream().filter(ClientData.DATA_CACHE.stationIdMap::containsKey).sorted(Long::compareTo).map(stationId -> IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, ClientData.DATA_CACHE.stationIdMap.get(stationId).name)).collect(Collectors.toList()));
+					} else {
+						signText = sign.customText;
+					}
+					final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getSignText(signText, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, fixedMargin / size, backgroundColor, ARGB_WHITE);
 					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource.resourceLocation, true));
 					final float width = Math.min(size * dynamicResource.width / dynamicResource.height, maxWidth);
 					IDrawing.drawTexture(matrices, vertexConsumer, start - (flipCustomText ? width : 0), 0, 0, start + (flipCustomText ? 0 : width), size, 0, 0, 0, 1, 1, facing, -1, MAX_LIGHT_GLOWING);
