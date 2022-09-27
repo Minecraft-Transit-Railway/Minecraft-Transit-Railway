@@ -167,7 +167,7 @@
 	"gui.mtr.comma_cjk": "、",
 	"gui.mtr.comma_last": " and ",
 	"gui.mtr.comma_last_cjk": "或",
-	"gui.mtr.connecting_station_interchange_announcement_part": "the %1$s line at %2$s station",
+	"gui.mtr.connecting_station_interchange_announcement_part": "the %1$s at %2$s station",
 	"gui.mtr.connecting_station_interchange_announcement_part_cjk": "往%2$s站轉乘%1$s",
 	"gui.mtr.connecting_station_part": "Passengers may change to %s.",
 	"gui.mtr.connecting_station_part_cjk": "乘客可在該站%s。",
