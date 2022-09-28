@@ -202,6 +202,8 @@ const DATA = {
 		});
 
 		const stationQueue = {};
+		const connectionQueue = {};
+		const isSelected = stationId => SETTINGS.selectedDirectionsStations.length > 0 ? SETTINGS.selectedDirectionsStations.includes(stationId) : SETTINGS.selectedRoutes.length === 0 || tempStations[stationId]["routeIds"].some(routeId => SETTINGS.selectedRoutes.includes(routeId));
 		for (const stationId in tempStations) {
 			const routeCounts = UTILITIES.angles.map(angle => tempStations[stationId][`routes${angle}`].length);
 			stationQueue[stationId] = {
@@ -212,11 +214,20 @@ const DATA = {
 				"left": tempStations[stationId]["x"],
 				"top": tempStations[stationId]["y"],
 				"angle": routeCounts[1] + routeCounts[3] > routeCounts[0] + routeCounts[2] ? 45 : 0,
-				"selected": SETTINGS.selectedDirectionsStations.length > 0 ? SETTINGS.selectedDirectionsStations.includes(stationId) : SETTINGS.selectedRoutes.length === 0 || tempStations[stationId]["routeIds"].some(routeId => SETTINGS.selectedRoutes.includes(routeId)),
+				"selected": isSelected(stationId),
 				"types": tempStations[stationId]["types"],
-				"connections": stations[stationId]["connections"].filter(connectionId => connectionId in tempStations).map(connectionId => tempStations[connectionId]),
 			};
 			UTILITIES.angles.forEach(angle => stationQueue[stationId][`routes${angle}`] = tempStations[stationId][`routes${angle}`]);
+
+			stations[stationId]["connections"].filter(connectionId => connectionId in tempStations).forEach(connectionId => {
+				connectionQueue[`${stationId}_${connectionId}_connection`] = {
+					"x1": tempStations[stationId]["x"],
+					"y1": tempStations[stationId]["y"],
+					"x2": tempStations[connectionId]["x"],
+					"y2": tempStations[connectionId]["y"],
+					"selected": isSelected(stationId) && isSelected(connectionId),
+				};
+			});
 		}
 
 		Object.keys(stations).forEach(stationId => {
@@ -233,7 +244,7 @@ const DATA = {
 		DIRECTIONS.writeStationsInResult(1);
 		DIRECTIONS.writeStationsInResult(2);
 		DOCUMENT.onSearch();
-		DRAWING.drawMap(lineQueue, stationQueue);
+		DRAWING.drawMap(lineQueue, stationQueue, connectionQueue);
 	},
 	routeSelected: (routeId, stopId1, stopId2) => {
 		if (SETTINGS.selectedDirectionsStations.length > 0) {
