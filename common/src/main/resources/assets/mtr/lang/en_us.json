@@ -605,6 +605,7 @@
 	"train.mtr.c_train": "C-Train",
 	"train.mtr.c_train_mini": "C-Train (Mini)",
 	"train.mtr.c_train_small": "C-Train (Small)",
+	"train.mtr.class_377_southern": "British Rail Class 377 (Southern)",
 	"train.mtr.class_802_gwr": "British Rail Class 802 (GWR)",
 	"train.mtr.class_802_gwr_mini": "British Rail Class 802 (GWR, Mini)",
 	"train.mtr.class_802_tpe": "British Rail Class 802 (TPE)",

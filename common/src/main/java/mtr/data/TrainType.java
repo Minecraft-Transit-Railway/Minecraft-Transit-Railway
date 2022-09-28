@@ -83,6 +83,7 @@ public enum TrainType {
 	R211_MINI("train_9_2"),
 	R211T("train_19_2"),
 	R211T_MINI("train_9_2"),
+	CLASS_377_SOUTHERN("train_16_2"),
 	CLASS_802_GWR("train_24_2"),
 	CLASS_802_GWR_MINI("train_18_2"),
 	CLASS_802_TPE("train_24_2"),
