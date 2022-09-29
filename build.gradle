@@ -11,6 +11,7 @@ plugins {
 def default_minecraft_version = "1.16.5"
 def minecraft_version = rootProject.properties.containsKey("buildVersion") ? rootProject.getProperties().get("buildVersion") : default_minecraft_version
 def minecraft_main_version = minecraft_version.split("\\.")[1] as int
+def minecraft_mod_api_tools_version = new JsonSlurper().parse(("https://api.github.com/repos/jonafanho/Minecraft-Mod-API-Tools/git/refs/heads/master").toURL())["object"]["sha"]
 def patreon_api_key = rootProject.properties.containsKey("patreonApiKey") ? rootProject.getProperties().get("patreonApiKey") : ""
 
 rootProject.ext.fabric_loader_version = new JsonSlurper().parse(("https://meta.fabricmc.net/v2/versions/loader/" + minecraft_version).toURL())[0]["loader"]["version"]
@@ -54,6 +55,7 @@ subprojects {
 		implementation "javax.servlet:javax.servlet-api:${rootProject.servlet_api_version}"
 		implementation "org.msgpack:msgpack-core:${rootProject.messagepack_version}"
 		implementation "com.hierynomus:sshj:${rootProject.sshj_version}"
+		implementation "com.github.jonafanho:Minecraft-Mod-API-Tools:${minecraft_mod_api_tools_version}"
 		shadowCommon "org.eclipse.jetty:jetty-http:${rootProject.jetty_version}"
 		shadowCommon "org.eclipse.jetty:jetty-io:${rootProject.jetty_version}"
 		shadowCommon "org.eclipse.jetty:jetty-security:${rootProject.jetty_version}"
