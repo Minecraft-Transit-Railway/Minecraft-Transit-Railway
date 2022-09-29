@@ -155,6 +155,9 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 				this.open = open;
 				setChanged();
 				syncData();
+				if (open == 1 && level != null) {
+					level.setBlockAndUpdate(worldPosition, level.getBlockState(worldPosition).setValue(TEMP, false));
+				}
 			}
 		}
 
