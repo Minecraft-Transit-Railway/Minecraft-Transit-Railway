@@ -236,21 +236,32 @@ public class ClientCache extends DataCache implements IGui {
 		int height = 0;
 
 		for (int index = 0; index < textSplit.length; index++) {
-			final boolean useCjkFont = textSplit[index].codePoints().anyMatch(character -> !font.canDisplay(character));
-			final boolean isCjk = IGui.isCjk(textSplit[index]);
-			final Font mainFont = font.deriveFont(Font.PLAIN, isCjk ? fontSizeCjk : fontSize);
-			final Font fallbackFont = useCjkFont ? fontCjk.deriveFont(Font.PLAIN, isCjk ? fontSizeCjk : fontSize) : mainFont;
-
+			final int newFontSize = IGui.isCjk(textSplit[index]) || font.canDisplayUpTo(textSplit[index]) >= 0 ? fontSizeCjk : fontSize;
 			attributedStrings[index] = new AttributedString(textSplit[index]);
-			if (textSplit[index].length() > 0) {
-				attributedStrings[index].addAttribute(TextAttribute.FONT, mainFont, 0, textSplit[index].length());
-			}
-			fontSizes[index] = isCjk ? fontSizeCjk : fontSize;
+			fontSizes[index] = newFontSize;
+
+			final Font fontSized = font.deriveFont(Font.PLAIN, newFontSize);
+			final Font fontCjkSized = fontCjk.deriveFont(Font.PLAIN, newFontSize);
 
 			for (int characterIndex = 0; characterIndex < textSplit[index].length(); characterIndex++) {
-				final boolean useFallback = !mainFont.canDisplay(textSplit[index].charAt(characterIndex));
-				textWidths[index] += (useFallback ? fallbackFont : mainFont).getStringBounds(textSplit[index].substring(characterIndex, characterIndex + 1), context).getBounds().width;
-				attributedStrings[index].addAttribute(TextAttribute.FONT, (useFallback ? fallbackFont : mainFont), characterIndex, characterIndex + 1);
+				final char character = textSplit[index].charAt(characterIndex);
+				final Font newFont;
+				if (fontSized.canDisplay(character)) {
+					newFont = fontSized;
+				} else if (fontCjkSized.canDisplay(character)) {
+					newFont = fontCjkSized;
+				} else {
+					Font defaultFont = null;
+					for (final Font testFont : GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts()) {
+						if (testFont.canDisplay(character)) {
+							defaultFont = testFont;
+							break;
+						}
+					}
+					newFont = (defaultFont == null ? new Font(null) : defaultFont).deriveFont(Font.PLAIN, newFontSize);
+				}
+				textWidths[index] += newFont.getStringBounds(textSplit[index].substring(characterIndex, characterIndex + 1), context).getBounds().width;
+				attributedStrings[index].addAttribute(TextAttribute.FONT, newFont, characterIndex, characterIndex + 1);
 			}
 
 			if (oneRow) {
