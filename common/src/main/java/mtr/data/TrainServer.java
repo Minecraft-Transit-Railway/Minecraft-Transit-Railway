@@ -164,23 +164,25 @@ public class TrainServer extends Train {
 		});
 
 		final BlockPos frontPos = new BlockPos(positions[reversed ? positions.length - 1 : 0]);
-		if (world.getChunkSource().getChunkNow(frontPos.getX() / 16, frontPos.getZ() / 16) != null && world.hasChunk(frontPos.getX() / 16, frontPos.getZ() / 16)) {
+		if (RailwayData.chunkLoaded(world, frontPos)) {
 			checkBlock(frontPos, checkPos -> {
-				final BlockState state = world.getBlockState(checkPos);
-				final Block block = state.getBlock();
+				if (RailwayData.chunkLoaded(world, checkPos)) {
+					final BlockState state = world.getBlockState(checkPos);
+					final Block block = state.getBlock();
 
-				if (block instanceof BlockTrainRedstoneSensor && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId, speed)) {
-					((BlockTrainRedstoneSensor) block).power(world, state, checkPos);
-				}
+					if (block instanceof BlockTrainRedstoneSensor && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId, speed)) {
+						((BlockTrainRedstoneSensor) block).power(world, state, checkPos);
+					}
 
-				if ((block instanceof BlockTrainCargoLoader || block instanceof BlockTrainCargoUnloader) && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId, speed)) {
-					for (final Direction direction : Direction.values()) {
-						final Container nearbyInventory = HopperBlockEntity.getContainerAt(world, checkPos.relative(direction));
-						if (nearbyInventory != null) {
-							if (block instanceof BlockTrainCargoLoader) {
-								transferItems(nearbyInventory, inventory);
-							} else {
-								transferItems(inventory, nearbyInventory);
+					if ((block instanceof BlockTrainCargoLoader || block instanceof BlockTrainCargoUnloader) && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId, speed)) {
+						for (final Direction direction : Direction.values()) {
+							final Container nearbyInventory = HopperBlockEntity.getContainerAt(world, checkPos.relative(direction));
+							if (nearbyInventory != null) {
+								if (block instanceof BlockTrainCargoLoader) {
+									transferItems(nearbyInventory, inventory);
+								} else {
+									transferItems(inventory, nearbyInventory);
+								}
 							}
 						}
 					}
@@ -188,9 +190,9 @@ public class TrainServer extends Train {
 			});
 		}
 
-		if (!ridingEntities.isEmpty()) {
+		if (!ridingEntities.isEmpty() && RailwayData.chunkLoaded(world, frontPos)) {
 			checkBlock(frontPos, checkPos -> {
-				if (world.getBlockState(checkPos).getBlock() instanceof BlockTrainAnnouncer) {
+				if (RailwayData.chunkLoaded(world, checkPos) && world.getBlockState(checkPos).getBlock() instanceof BlockTrainAnnouncer) {
 					final BlockEntity entity = world.getBlockEntity(checkPos);
 					if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer && ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).matchesFilter(routeId, speed)) {
 						ridingEntities.forEach(uuid -> ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).announce(world.getPlayerByUUID(uuid)));

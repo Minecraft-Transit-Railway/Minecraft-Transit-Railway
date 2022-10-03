@@ -714,6 +714,10 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		return gameType == GameType.CREATIVE || gameType == GameType.SURVIVAL;
 	}
 
+	public static boolean chunkLoaded(Level world, BlockPos pos) {
+		return world.getChunkSource().getChunkNow(pos.getX() / 16, pos.getZ() / 16) != null && world.hasChunk(pos.getX() / 16, pos.getZ() / 16);
+	}
+
 	public static RailwayData getInstance(Level world) {
 		return getInstance(world, () -> new RailwayData(world), NAME);
 	}
@@ -731,8 +735,8 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		final Set<BlockPos> railsToRemove = new HashSet<>();
 		final Set<BlockPos> railsNodesToRemove = new HashSet<>();
 		rails.forEach((startPos, railMap) -> {
-			final boolean loadedChunk = world.getChunkSource().getChunkNow(startPos.getX() / 16, startPos.getZ() / 16) != null && world.hasChunk(startPos.getX() / 16, startPos.getZ() / 16);
-			if (loadedChunk && !(world.getBlockState(startPos).getBlock() instanceof BlockNode)) {
+			final boolean chunkLoaded = chunkLoaded(world, startPos);
+			if (chunkLoaded && !(world.getBlockState(startPos).getBlock() instanceof BlockNode)) {
 				railsNodesToRemove.add(startPos);
 			}
 
