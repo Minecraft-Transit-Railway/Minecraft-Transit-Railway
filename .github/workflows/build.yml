@@ -29,6 +29,7 @@ jobs:
           name: Fabric and Forge
           path: build/merged/
       - name: Capture lib artifacts
+        if: ${{ matrix.variation == 'normal' || matrix.variation == 'server' }}
         uses: actions/upload-artifact@v2
         with:
           name: Libraries
