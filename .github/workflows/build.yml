@@ -24,7 +24,7 @@ jobs:
       - name: Build ${{ matrix.minecraft }}
         run: ./gradlew build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}" -Pvariation="${{ matrix.variation }}" --continue
       - name: Merge ${{ matrix.minecraft }} jars
-        run: ./gradlew mergeJars
+        run: ./gradlew mergeJars -PbuildVersion="${{ matrix.minecraft }}" -Pvariation="${{ matrix.variation }}" --continue
       - name: Capture release artifacts
         uses: actions/upload-artifact@v2
         with:
