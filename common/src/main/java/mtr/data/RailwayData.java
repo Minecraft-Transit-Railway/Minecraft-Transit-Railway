@@ -39,7 +39,8 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	public final Set<Siding> sidings = new HashSet<>();
 	public final Set<Route> routes = new HashSet<>();
 	public final Set<Depot> depots = new HashSet<>();
-	public final DataCache dataCache = new DataCache(stations, platforms, sidings, routes, depots);
+	public final Set<Lift> lifts = new HashSet<>();
+	public final DataCache dataCache = new DataCache(stations, platforms, sidings, routes, depots, lifts);
 
 	public final RailwayDataCoolDownModule railwayDataCoolDownModule;
 	public final RailwayDataPathGenerationModule railwayDataPathGenerationModule;
@@ -60,7 +61,8 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private final List<Map<UUID, Long>> trainPositions = new ArrayList<>(2);
 	private final Map<Player, BlockPos> playerLastUpdatedPositions = new HashMap<>();
 	private final List<Player> playersToSyncSchedules = new ArrayList<>();
-	private final Map<Player, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
+	private final UpdateNearbyMovingObjects<TrainServer> updateNearbyTrains;
+	private final UpdateNearbyMovingObjects<Lift> updateNearbyLifts;
 	private final Map<Long, List<ScheduleEntry>> schedulesForPlatform = new HashMap<>();
 	private final Map<Long, Map<BlockPos, TrainDelay>> trainDelays = new HashMap<>();
 
@@ -78,6 +80,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private static final String KEY_SIDINGS = "sidings";
 	private static final String KEY_ROUTES = "routes";
 	private static final String KEY_DEPOTS = "depots";
+	private static final String KEY_LIFTS = "lifts";
 	private static final String KEY_RAILS = "rails";
 	private static final String KEY_SIGNAL_BLOCKS = "signal_blocks";
 	private static final String KEY_USE_TIME_AND_WIND_SYNC = "use_time_and_wind_sync";
@@ -95,6 +98,9 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		railwayDataCoolDownModule = new RailwayDataCoolDownModule(this, world, rails);
 		railwayDataDriveTrainModule = new RailwayDataDriveTrainModule(this, world, rails);
 		railwayDataRouteFinderModule = new RailwayDataRouteFinderModule(this, world, rails);
+
+		updateNearbyTrains = new UpdateNearbyMovingObjects<>(PACKET_DELETE_TRAINS, PACKET_UPDATE_TRAINS);
+		updateNearbyLifts = new UpdateNearbyMovingObjects<>(PACKET_DELETE_LIFTS, PACKET_UPDATE_LIFTS);
 	}
 
 	@Override
@@ -139,6 +145,11 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 						case KEY_DEPOTS:
 							for (int j = 0; j < arraySize; ++j) {
 								depots.add(new Depot(readMessagePackSKMap(messageUnpacker)));
+							}
+							break;
+						case KEY_LIFTS:
+							for (int j = 0; j < arraySize; ++j) {
+								lifts.add(new Lift(readMessagePackSKMap(messageUnpacker)));
 							}
 							break;
 						case KEY_RAILS:
@@ -280,76 +291,27 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			}
 		});
 
+		updateNearbyTrains.startTick();
 		trainPositions.remove(0);
 		trainPositions.add(new HashMap<>());
-		final Map<Player, Set<TrainServer>> newTrainsInPlayerRange = new HashMap<>();
-		final Set<TrainServer> trainsToSync = new HashSet<>();
 		schedulesForPlatform.clear();
 		signalBlocks.resetOccupied();
 		sidings.forEach(siding -> {
 			siding.setSidingData(world, dataCache.sidingIdToDepot.get(siding.id), rails);
-			siding.simulateTrain(dataCache, railwayDataDriveTrainModule, trainPositions, signalBlocks, newTrainsInPlayerRange, trainsToSync, schedulesForPlatform, trainDelays);
+			siding.simulateTrain(dataCache, railwayDataDriveTrainModule, trainPositions, signalBlocks, updateNearbyTrains.newDataSetInPlayerRange, updateNearbyTrains.dataSetToSync, schedulesForPlatform, trainDelays);
 		});
 		final int hour = Depot.getHour(world);
 		depots.forEach(depot -> depot.deployTrain(this, hour));
+
+		updateNearbyLifts.startTick();
+		lifts.forEach(lift -> lift.tickServer(world, updateNearbyLifts.newDataSetInPlayerRange, updateNearbyLifts.dataSetToSync));
 
 		railwayDataCoolDownModule.tick();
 		railwayDataDriveTrainModule.tick();
 		railwayDataRailActionsModule.tick();
 		railwayDataRouteFinderModule.tick();
-
-		trainsInPlayerRange.forEach((player, trains) -> {
-			for (final TrainServer train : trains) {
-				if (!newTrainsInPlayerRange.containsKey(player) || !newTrainsInPlayerRange.get(player).contains(train)) {
-					final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
-
-					if (newTrainsInPlayerRange.containsKey(player)) {
-						packet.writeInt(newTrainsInPlayerRange.get(player).size());
-						newTrainsInPlayerRange.get(player).forEach(trainToKeep -> packet.writeLong(trainToKeep.id));
-					} else {
-						packet.writeInt(0);
-					}
-
-					if (packet.readableBytes() <= MAX_PACKET_BYTES) {
-						Registry.sendToPlayer((ServerPlayer) player, PACKET_DELETE_TRAINS, packet);
-					}
-
-					break;
-				}
-			}
-		});
-
-		newTrainsInPlayerRange.forEach((player, trains) -> {
-			final List<FriendlyByteBuf> trainsPacketsToUpdate = new ArrayList<>();
-			trains.forEach(train -> {
-				if (trainsToSync.contains(train) || !trainsInPlayerRange.containsKey(player) || !trainsInPlayerRange.get(player).contains(train)) {
-					final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
-					train.writePacket(packet);
-					if (packet.readableBytes() < MAX_PACKET_BYTES) {
-						trainsPacketsToUpdate.add(packet);
-					}
-				}
-			});
-
-			while (!trainsPacketsToUpdate.isEmpty()) {
-				FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
-
-				while (!trainsPacketsToUpdate.isEmpty()) {
-					final FriendlyByteBuf trainPacket = trainsPacketsToUpdate.get(0);
-					if (packet.readableBytes() + trainPacket.readableBytes() < MAX_PACKET_BYTES) {
-						packet.writeBytes(trainPacket);
-						trainsPacketsToUpdate.remove(0);
-					} else {
-						break;
-					}
-				}
-
-				Registry.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAINS, packet);
-			}
-		});
-
-		trainsInPlayerRange.clear();
-		trainsInPlayerRange.putAll(newTrainsInPlayerRange);
+		updateNearbyTrains.tick();
+		updateNearbyLifts.tick();
 
 		if (MTR.isGameTickInterval(SCHEDULE_UPDATE_TICKS)) {
 			players.forEach(player -> {
@@ -416,7 +378,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public void onPlayerJoin(ServerPlayer serverPlayer) {
-		PacketTrainDataGuiServer.sendAllInChunks(serverPlayer, stations, platforms, sidings, routes, depots, signalBlocks);
+		PacketTrainDataGuiServer.sendAllInChunks(serverPlayer, stations, platforms, sidings, routes, depots, lifts, signalBlocks);
 		railwayDataCoolDownModule.onPlayerJoin(serverPlayer);
 	}
 
@@ -453,6 +415,11 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		if (packet != null) {
 			world.players().forEach(player -> Registry.sendToPlayer((ServerPlayer) player, PACKET_REMOVE_SIGNALS, packet));
 		}
+	}
+
+	public void removeLiftFloorTrack(BlockPos pos) {
+		removeLiftFloorTrack(world, lifts, pos);
+		dataCache.sync();
 	}
 
 	public boolean hasSavedRail(BlockPos pos) {
@@ -579,6 +546,13 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	public static void removeLiftFloorTrack(Level world, Set<Lift> lifts, BlockPos pos) {
+		lifts.removeIf(lift -> lift.hasFloor(pos));
+		if (world != null) {
+			validateLifts(world, lifts);
 		}
 	}
 
@@ -746,6 +720,10 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		});
 		railsToRemove.forEach(rails::remove);
 		railsNodesToRemove.forEach(pos -> removeNode(null, rails, pos));
+	}
+
+	private static void validateLifts(Level world, Set<Lift> lifts) {
+		lifts.removeIf(lift -> lift.isInvalidLift(world));
 	}
 
 	private static void removeSavedRailS2C(Level world, Set<? extends SavedRailBase> savedRailBases, Map<BlockPos, Map<BlockPos, Rail>> rails, ResourceLocation packetId) {

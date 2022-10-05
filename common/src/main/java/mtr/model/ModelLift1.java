@@ -2,7 +2,6 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import mtr.EntityTypes;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -31,10 +30,10 @@ public class ModelLift1 extends ModelTrainBase {
 	private final int depth;
 	private final boolean isDoubleSided;
 
-	public ModelLift1(EntityTypes.LiftType liftType) {
-		width = liftType.width;
-		depth = liftType.depth;
-		isDoubleSided = liftType.isDoubleSided;
+	public ModelLift1(int width, int depth, boolean isDoubleSided) {
+		this.width = width;
+		this.depth = depth;
+		this.isDoubleSided = isDoubleSided;
 
 		final int textureWidth = 128;
 		final int textureHeight = 128;

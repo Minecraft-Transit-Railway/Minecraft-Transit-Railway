@@ -8,7 +8,7 @@ import mtr.entity.EntityLift;
 import mtr.mappings.ScreenMapper;
 import mtr.mappings.Text;
 import mtr.packet.PacketTrainDataGuiClient;
-import mtr.render.RenderLift;
+import mtr.render.RenderTrains;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +48,7 @@ public class LiftSelectionScreen extends ScreenMapper implements IGui {
 		selectionList.tick();
 		final List<NameColorDataBase> list = new ArrayList<>();
 		for (int i = 0; i < floorLevels.size(); i++) {
-			list.add(new DataConverter(floorDescriptions.get(i), hasStoppingFloor(floorLevels.get(i)) ? RenderLift.LIGHT_COLOR : ARGB_BLACK));
+			list.add(new DataConverter(floorDescriptions.get(i), hasStoppingFloor(floorLevels.get(i)) ? RenderTrains.LIFT_LIGHT_COLOR : ARGB_BLACK));
 		}
 		selectionList.setData(list, true, false, false, false, false, false);
 	}

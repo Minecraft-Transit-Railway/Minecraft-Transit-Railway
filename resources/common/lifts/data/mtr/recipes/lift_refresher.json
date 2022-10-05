@@ -1,0 +1,18 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"III",
+		" P "
+	],
+	"key": {
+		"I": {
+			"tag": "c:iron_ingots"
+		},
+		"P": {
+			"item": "minecraft:piston"
+		}
+	},
+	"result": {
+		"item": "mtr:lift_refresher"
+	}
+}

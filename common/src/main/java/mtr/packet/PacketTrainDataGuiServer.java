@@ -121,10 +121,11 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.players().forEach(worldPlayer -> Registry.sendToPlayer((ServerPlayer) worldPlayer, PACKET_UPDATE_RAIL_ACTIONS, packet));
 	}
 
-	public static void removeNodeS2C(Level world, BlockPos pos) {
+	public static void removeNodeOrLiftFloorTrackS2C(Level world, BlockPos pos, boolean isNode) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(pos);
-		world.players().forEach(worldPlayer -> Registry.sendToPlayer((ServerPlayer) worldPlayer, PACKET_REMOVE_NODE, packet));
+		packet.writeBoolean(isNode);
+		world.players().forEach(worldPlayer -> Registry.sendToPlayer((ServerPlayer) worldPlayer, PACKET_REMOVE_NODE_OR_LIFT_FLOOR_TRACK, packet));
 	}
 
 	public static void removeRailConnectionS2C(Level world, BlockPos pos1, BlockPos pos2) {
@@ -143,7 +144,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.players().forEach(worldPlayer -> Registry.sendToPlayer((ServerPlayer) worldPlayer, PACKET_REMOVE_SIGNALS, packet));
 	}
 
-	public static void sendAllInChunks(ServerPlayer player, Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, SignalBlocks signalBlocks) {
+	public static void sendAllInChunks(ServerPlayer player, Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, Set<Lift> lifts, SignalBlocks signalBlocks) {
 		final long tempPacketId = new Random().nextLong();
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 
@@ -152,6 +153,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		serializeData(packet, sidings);
 		serializeData(packet, routes);
 		serializeData(packet, depots);
+		serializeData(packet, lifts);
 		serializeData(packet, signalBlocks.signalBlocks);
 
 		int i = 0;

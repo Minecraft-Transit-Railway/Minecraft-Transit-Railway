@@ -24,7 +24,7 @@ import org.msgpack.value.Value;
 import java.io.*;
 import java.util.*;
 
-public abstract class Train extends NameColorDataBase implements IPacket, IGui {
+public abstract class Train extends NameColorDataBase implements IPacket {
 
 	protected float speed;
 	protected double railProgress;

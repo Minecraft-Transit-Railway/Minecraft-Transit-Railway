@@ -2,6 +2,7 @@ package mtr.client;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import mtr.MTR;
+import mtr.block.BlockLiftTrackFloor;
 import mtr.data.*;
 import mtr.mappings.Utilities;
 import net.minecraft.client.Minecraft;
@@ -11,6 +12,8 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;
@@ -50,8 +53,8 @@ public class ClientCache extends DataCache implements IGui {
 	private static final ResourceLocation DEFAULT_WHITE_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/white.png");
 	private static final ResourceLocation DEFAULT_TRANSPARENT_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/transparent.png");
 
-	public ClientCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots) {
-		super(stations, platforms, sidings, routes, depots);
+	public ClientCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, Set<Lift> lifts) {
+		super(stations, platforms, sidings, routes, depots, lifts);
 		for (final TransportMode transportMode : TransportMode.values()) {
 			posToPlatforms.put(transportMode, new HashMap<>());
 			posToSidings.put(transportMode, new HashMap<>());
@@ -137,6 +140,20 @@ public class ClientCache extends DataCache implements IGui {
 			}).collect(Collectors.toList()));
 		}
 		return platformIdToRoutes.get(platformId);
+	}
+
+	public String[] requestLiftFloorText(BlockPos pos) {
+		// TODO cache this
+		final Level world = Minecraft.getInstance().level;
+		final String[] text = {"", ""};
+		if (world != null && pos != null) {
+			final BlockEntity blockEntity = world.getBlockEntity(pos);
+			if (blockEntity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor) {
+				text[0] = ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).getFloorNumber();
+				text[1] = ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).getFloorDescription();
+			}
+		}
+		return text;
 	}
 
 	public Set<Station> getConnectingStationsIncludingThisOne(Station station) {

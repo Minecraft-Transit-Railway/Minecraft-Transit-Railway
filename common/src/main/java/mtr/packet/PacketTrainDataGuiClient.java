@@ -183,9 +183,16 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		minecraftClient.execute(() -> ClientData.SIGNAL_BLOCKS.add(id, dyeColor, rail));
 	}
 
-	public static void removeNodeS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
+	public static void removeNodeOrLiftFloorTrackS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
 		final BlockPos pos = packet.readBlockPos();
-		minecraftClient.execute(() -> RailwayData.removeNode(null, ClientData.RAILS, pos));
+		final boolean isNode = packet.readBoolean();
+		minecraftClient.execute(() -> {
+			if (isNode) {
+				RailwayData.removeNode(null, ClientData.RAILS, pos);
+			} else {
+				RailwayData.removeLiftFloorTrack(null, ClientData.LIFTS, pos);
+			}
+		});
 	}
 
 	public static void removeRailConnectionS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {

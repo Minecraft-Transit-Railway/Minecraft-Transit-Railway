@@ -25,7 +25,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
-public class TrainClient extends Train {
+public class TrainClient extends Train implements IGui {
 
 	public boolean isRemoved = false;
 

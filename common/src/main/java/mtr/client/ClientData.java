@@ -39,13 +39,14 @@ public final class ClientData {
 	public static final Set<Siding> SIDINGS = new HashSet<>();
 	public static final Set<Route> ROUTES = new HashSet<>();
 	public static final Set<Depot> DEPOTS = new HashSet<>();
+	public static final Set<Lift> LIFTS = new HashSet<>();
 	public static final SignalBlocks SIGNAL_BLOCKS = new SignalBlocks();
 	public static final Map<BlockPos, Map<BlockPos, Rail>> RAILS = new HashMap<>();
 	public static final Set<TrainClient> TRAINS = new HashSet<>();
 	public static final List<DataConverter> RAIL_ACTIONS = new ArrayList<>();
 	public static final Map<Long, Set<ScheduleEntry>> SCHEDULES_FOR_PLATFORM = new HashMap<>();
 
-	public static final ClientCache DATA_CACHE = new ClientCache(STATIONS, PLATFORMS, SIDINGS, ROUTES, DEPOTS);
+	public static final ClientCache DATA_CACHE = new ClientCache(STATIONS, PLATFORMS, SIDINGS, ROUTES, DEPOTS, LIFTS);
 
 	private static final Map<UUID, Integer> PLAYER_RIDING_COOL_DOWN = new HashMap<>();
 
@@ -116,7 +117,7 @@ public final class ClientData {
 		}
 
 		client.execute(() -> trainsToUpdate.forEach(newTrain -> {
-			final TrainClient existingTrain = getTrainById(newTrain.id);
+			final TrainClient existingTrain = getDataById(TRAINS, newTrain.id);
 			if (existingTrain == null) {
 				TRAINS.add(newTrain);
 			} else {
@@ -143,8 +144,44 @@ public final class ClientData {
 		});
 	}
 
+	public static void updateLifts(Minecraft client, FriendlyByteBuf packet) {
+		final Set<Lift> liftsToUpdate = new HashSet<>();
+
+		while (packet.isReadable()) {
+			liftsToUpdate.add(new Lift(packet));
+		}
+
+		client.execute(() -> liftsToUpdate.forEach(newLift -> {
+			final Lift existingLift = getDataById(LIFTS, newLift.id);
+			if (existingLift == null) {
+				LIFTS.add(newLift);
+			} else {
+				existingLift.copyFromLift(newLift);
+			}
+		}));
+	}
+
+	public static void deleteLifts(Minecraft client, FriendlyByteBuf packet) {
+		final Set<Long> liftIdsToKeep = new HashSet<>();
+
+		final int liftsCount = packet.readInt();
+		for (int i = 0; i < liftsCount; i++) {
+			liftIdsToKeep.add(packet.readLong());
+		}
+
+		client.execute(() -> {
+			final Set<Lift> liftsToRemove = new HashSet<>();
+			LIFTS.forEach(lift -> {
+				if (!liftIdsToKeep.contains(lift.id)) {
+					liftsToRemove.add(lift);
+				}
+			});
+			liftsToRemove.forEach(LIFTS::remove);
+		});
+	}
+
 	public static void updateTrainPassengers(Minecraft client, FriendlyByteBuf packet) {
-		final TrainClient train = getTrainById(packet.readLong());
+		final TrainClient train = getDataById(TRAINS, packet.readLong());
 		final float percentageX = packet.readFloat();
 		final float percentageZ = packet.readFloat();
 		final UUID uuid = packet.readUUID();
@@ -154,7 +191,7 @@ public final class ClientData {
 	}
 
 	public static void updateTrainPassengerPosition(Minecraft client, FriendlyByteBuf packet) {
-		final TrainClient train = getTrainById(packet.readLong());
+		final TrainClient train = getDataById(TRAINS, packet.readLong());
 		final float percentageX = packet.readFloat();
 		final float percentageZ = packet.readFloat();
 		final UUID uuid = packet.readUUID();
@@ -214,6 +251,7 @@ public final class ClientData {
 		clearAndAddAll(SIDINGS, deserializeData(packetCopy, Siding::new));
 		clearAndAddAll(ROUTES, deserializeData(packetCopy, Route::new));
 		clearAndAddAll(DEPOTS, deserializeData(packetCopy, Depot::new));
+		clearAndAddAll(LIFTS, deserializeData(packetCopy, Lift::new));
 		clearAndAddAll(SIGNAL_BLOCKS.signalBlocks, deserializeData(packetCopy, SignalBlocks.SignalBlock::new));
 
 		TRAINS.clear();
@@ -278,9 +316,9 @@ public final class ClientData {
 		target.putAll(source);
 	}
 
-	private static TrainClient getTrainById(long id) {
+	private static <T extends NameColorDataBase> T getDataById(Set<T> data, long id) {
 		try {
-			return TRAINS.stream().filter(item -> item.id == id).findFirst().orElse(null);
+			return data.stream().filter(item -> item.id == id).findFirst().orElse(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
