@@ -4,10 +4,12 @@ on: [ pull_request, push ]
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         minecraft: [ 1.16.5, 1.17.1, 1.18.2, 1.19.2 ]
         variation: [ normal, server, lifts ]
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
