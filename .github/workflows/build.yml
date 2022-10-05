@@ -22,13 +22,11 @@ jobs:
         run: chmod +x ./gradlew
       - name: Build ${{ matrix.minecraft }}
         run: ./gradlew build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}" -Pvariation="${{ matrix.variation }}" --continue
-      - name: Merge ${{ matrix.minecraft }} jars
-        run: ./gradlew mergeJars -PbuildVersion="${{ matrix.minecraft }}" -Pvariation="${{ matrix.variation }}" --continue
       - name: Capture release artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Fabric and Forge
-          path: build/merged/
+          name: Fabric and Forge ${{ matrix.variation }}
+          path: build/release/
       - name: Capture lib artifacts
         if: ${{ matrix.variation == 'normal' || matrix.variation == 'server' }}
         uses: actions/upload-artifact@v2
