@@ -81,6 +81,11 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	public static void render(EntitySeat entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers) {
 		final Minecraft client = Minecraft.getInstance();
 		final boolean backupRendering = entity == null;
+
+		if (!backupRendering && MTRClient.isPehkui()) {
+			return;
+		}
+
 		final boolean alreadyRendered = renderedUuid != null && (backupRendering || entity.getUUID() != renderedUuid);
 
 		if (backupRendering) {
