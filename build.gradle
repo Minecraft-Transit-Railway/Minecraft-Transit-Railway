@@ -22,6 +22,7 @@ rootProject.ext.architectury_version = getModrinthVersion("forge", minecraft_ver
 
 rootProject.ext.architectury_id = minecraft_main_version == 16 ? "me.shedaniel" : "dev.architectury"
 rootProject.ext.variation = rootProject.properties.containsKey("variation") ? rootProject.getProperties().get("variation") : "normal"
+rootProject.ext.variation_header = variation == "normal" ? "MTR" : variation == "server" ? "MTR-server" : "Modern-Elevators-Escalators"
 
 architectury {
 	minecraft = minecraft_version
@@ -107,14 +108,14 @@ task setupFiles() {
 		from "resources/common/lifts"
 		into "common/src/main/resources"
 	}
-	if (variation == "normal") {
+	if (rootProject.variation == "normal") {
 		copy {
 			outputs.upToDateWhen { false }
 			from "resources/common/normal"
 			into "common/src/main/resources"
 		}
 	}
-	if (variation == "normal" || variation == "server") {
+	if (rootProject.variation == "normal" || rootProject.variation == "server") {
 		download {
 			src "https://unpkg.com/fabric/dist/fabric.min.js"
 			dest "common/src/main/resources/assets/mtr/website/fabric.min.js"
@@ -140,12 +141,12 @@ task setupFiles() {
 	}
 	copy {
 		outputs.upToDateWhen { false }
-		from "resources/fabric/" + (variation == "lifts" ? "lifts" : "normal")
+		from "resources/fabric/" + (rootProject.variation == "lifts" ? "lifts" : "normal")
 		into "fabric/src/main/resources"
 	}
 	copy {
 		outputs.upToDateWhen { false }
-		from "resources/forge/" + (variation == "lifts" ? "lifts" : "normal")
+		from "resources/forge/" + (rootProject.variation == "lifts" ? "lifts" : "normal")
 		into "forge/src/main/resources"
 	}
 
@@ -165,7 +166,7 @@ task setupFiles() {
 		outputs.upToDateWhen { false }
 		from "common/src/main/KeysTemplate.java"
 		into "common/src/main/java/mtr"
-		filter(ReplaceTokens, tokens: ["key": patreon_api_key, "version": minecraft_version + "-" + rootProject.mod_version, "lifts": variation])
+		filter(ReplaceTokens, tokens: ["key": patreon_api_key, "version": minecraft_version + "-" + rootProject.mod_version, "lifts": rootProject.variation])
 		rename "(.+)Template.java", "\$1.java"
 	}
 	copy {
