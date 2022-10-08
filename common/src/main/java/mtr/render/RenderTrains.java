@@ -213,20 +213,23 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			ClientData.TRAINS.forEach(TrainClient::renderTranslucent);
 		}
 
-		ClientData.LIFTS.forEach(lift -> lift.tickClient(world, (currentPositionX, currentPositionY, currentPositionZ, frontDoorValue, backDoorValue) -> {
-			matrices.pushPose();
-			matrices.translate(lift.getPositionX(), lift.getPositionY(), lift.getPositionZ());
+		ClientData.LIFTS.forEach(lift -> lift.tickClient(world, (x, y, z, frontDoorValue, backDoorValue) -> {
+			final BlockPos posAverage = TrainRendererBase.getPosAverage(lift.getViewOffset(), x, y, z);
+			if (posAverage == null) {
+				return;
+			}
+
+			matrices.translate(x, y, z);
 			matrices.mulPose(Vector3f.XP.rotationDegrees(180));
 			matrices.mulPose(Vector3f.YP.rotationDegrees(180 + lift.facing.toYRot()));
-			final BlockPos pos = new BlockPos(currentPositionX, currentPositionY, currentPositionZ);
-			final int light = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, pos), world.getBrightness(LightLayer.SKY, pos));
+			final int light = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage));
 			new ModelLift1(lift.liftWidth, lift.liftDepth, lift.isDoubleSided).render(matrices, vertexConsumers, LIFT_TEXTURE, light, frontDoorValue, backDoorValue, false, 0, 1, false, true, false, false);
 
 			for (int i = 0; i < (lift.isDoubleSided ? 2 : 1); i++) {
 				matrices.mulPose(Vector3f.YP.rotationDegrees(180));
 				matrices.pushPose();
 				matrices.translate(0.875F, -1.5, lift.liftDepth / 2F - 0.25 - SMALL_OFFSET);
-				renderLiftDisplay(matrices, vertexConsumers, pos, ClientData.DATA_CACHE.requestLiftFloorText(lift.getCurrentFloorBlockPos())[0], lift.getLiftDirection(), 0.1875F, 0.3125F);
+				renderLiftDisplay(matrices, vertexConsumers, posAverage, ClientData.DATA_CACHE.requestLiftFloorText(lift.getCurrentFloorBlockPos())[0], lift.getLiftDirection(), 0.1875F, 0.3125F);
 				matrices.popPose();
 			}
 

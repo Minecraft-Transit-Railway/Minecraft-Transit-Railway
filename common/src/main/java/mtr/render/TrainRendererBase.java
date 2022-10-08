@@ -77,7 +77,7 @@ public abstract class TrainRendererBase {
 		playerEyePosition = player == null ? Vec3.ZERO : player.getEyePosition(client.getFrameTime());
 	}
 
-	protected static BlockPos getPosAverage(Vec3 viewOffset, double x, double y, double z) {
+	public static BlockPos getPosAverage(Vec3 viewOffset, double x, double y, double z) {
 		final boolean noOffset = viewOffset == null;
 		final Vec3 cameraPos = cameraEntity == null ? null : cameraEntity.position();
 		final BlockPos posAverage = new BlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.x), y + (noOffset || cameraPos == null ? 0 : cameraPos.y), z + (noOffset || cameraPos == null ? 0 : cameraPos.z));

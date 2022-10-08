@@ -47,7 +47,7 @@ public class LiftSelectionScreen extends ScreenMapper implements IGui {
 	public void tick() {
 		selectionList.tick();
 		final List<NameColorDataBase> list = new ArrayList<>();
-		for (int i = 0; i < floorLevels.size(); i++) {
+		for (int i = floorLevels.size() - 1; i >= 0; i--) {
 			list.add(new DataConverter(floorDescriptions.get(i), lift.liftInstructions.containsInstruction(floorLevels.get(i).getY()) ? RenderTrains.LIFT_LIGHT_COLOR : ARGB_BLACK));
 		}
 		selectionList.setData(list, true, false, false, false, false, false);
@@ -82,7 +82,7 @@ public class LiftSelectionScreen extends ScreenMapper implements IGui {
 
 	private void onPress(NameColorDataBase data, int index) {
 		if (lift != null) {
-			PacketTrainDataGuiClient.sendPressLiftButtonC2S(lift.id, floorLevels.get(index).getY());
+			PacketTrainDataGuiClient.sendPressLiftButtonC2S(lift.id, floorLevels.get(floorLevels.size() - index - 1).getY());
 		}
 		onClose();
 	}

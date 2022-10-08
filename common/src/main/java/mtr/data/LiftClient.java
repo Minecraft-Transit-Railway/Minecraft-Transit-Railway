@@ -25,18 +25,22 @@ public class LiftClient extends Lift {
 
 	public void tickClient(Level world, RenderLift renderLift, float ticksElapsed) {
 		tick(world, ticksElapsed);
-		renderLift.renderLift(currentPositionX, currentPositionY, currentPositionZ, frontCanOpen ? Math.min(doorValue, DOOR_MAX) : 0, backCanOpen ? Math.min(doorValue, DOOR_MAX) : 0);
 
-		final Vec3 offset = vehicleRidingClient.renderPlayerAndGetOffset();
 		vehicleRidingClient.begin();
 		if (ticksElapsed > 0) {
 			vehicleRidingClient.movePlayer(uuid -> {
-				vehicleRidingClient.setOffsets(uuid, currentPositionX, currentPositionY, currentPositionZ, facing.toYRot(), 0, liftWidth, liftDepth, frontCanOpen, backCanOpen, transportMode.hasPitch, 0, speed > 0, doorValue == 0, () -> {
+				vehicleRidingClient.setOffsets(uuid, currentPositionX, currentPositionY, currentPositionZ, getYaw(), 0, liftWidth - 1, liftDepth - 1, frontCanOpen, backCanOpen, transportMode.hasPitch, 0, speed > 0, doorValue == 0, () -> {
 				});
-				vehicleRidingClient.moveSelf(id, uuid, liftWidth, liftDepth, facing.toYRot(), 0, 1, frontCanOpen, backCanOpen, true, ticksElapsed);
+				vehicleRidingClient.moveSelf(id, uuid, liftWidth - 1, liftDepth - 1, getYaw(), 0, 1, frontCanOpen, backCanOpen, true, ticksElapsed);
 			});
 		}
 		vehicleRidingClient.end();
+
+		final Vec3 offset = vehicleRidingClient.renderPlayerAndGetOffset();
+		final double newX = currentPositionX - offset.x;
+		final double newY = currentPositionY - offset.y;
+		final double newZ = currentPositionZ - offset.z;
+		renderLift.renderLift(newX, newY, newZ, frontCanOpen ? Math.min(doorValue, DOOR_MAX) : 0, backCanOpen ? Math.min(doorValue, DOOR_MAX) : 0);
 
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		final LocalPlayer player = minecraftClient.player;
@@ -107,8 +111,12 @@ public class LiftClient extends Lift {
 		floors.forEach(consumer);
 	}
 
+	public Vec3 getViewOffset() {
+		return vehicleRidingClient.getViewOffset();
+	}
+
 	@FunctionalInterface
 	public interface RenderLift {
-		void renderLift(double currentPositionX, double currentPositionY, double currentPositionZ, float frontDoorValue, float backDoorValue);
+		void renderLift(double x, double y, double z, float frontDoorValue, float backDoorValue);
 	}
 }

@@ -328,8 +328,14 @@ public abstract class Lift extends NameColorDataBase implements IPacket {
 			}
 
 			frontCanOpen = checkDoor(world, true);
-			backCanOpen = checkDoor(world, false);
+			if (isDoubleSided) {
+				backCanOpen = checkDoor(world, false);
+			}
 		}
+	}
+
+	protected float getYaw() {
+		return (float) Math.toRadians(-facing.getClockWise().toYRot());
 	}
 
 	private BlockPos getBlockPos() {
