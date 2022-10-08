@@ -29,7 +29,7 @@ public class LiftClient extends Lift {
 		vehicleRidingClient.begin();
 		if (ticksElapsed > 0) {
 			vehicleRidingClient.movePlayer(uuid -> {
-				vehicleRidingClient.setOffsets(uuid, currentPositionX, currentPositionY, currentPositionZ, getYaw(), 0, liftWidth - 1, liftDepth - 1, frontCanOpen, backCanOpen, transportMode.hasPitch, 0, speed > 0, doorValue == 0, () -> {
+				vehicleRidingClient.setOffsets(uuid, currentPositionX + liftOffsetX, currentPositionY + liftOffsetY, currentPositionZ + liftOffsetZ, getYaw(), 0, liftWidth - 1, liftDepth - 1, frontCanOpen, backCanOpen, transportMode.hasPitch, 0, speed > 0, doorValue == 0, () -> {
 				});
 				vehicleRidingClient.moveSelf(id, uuid, liftWidth - 1, liftDepth - 1, getYaw(), 0, 1, frontCanOpen, backCanOpen, true, ticksElapsed);
 			});
@@ -37,9 +37,9 @@ public class LiftClient extends Lift {
 		vehicleRidingClient.end();
 
 		final Vec3 offset = vehicleRidingClient.renderPlayerAndGetOffset();
-		final double newX = currentPositionX - offset.x;
-		final double newY = currentPositionY - offset.y;
-		final double newZ = currentPositionZ - offset.z;
+		final double newX = currentPositionX + liftOffsetX - offset.x;
+		final double newY = currentPositionY + liftOffsetY - offset.y;
+		final double newZ = currentPositionZ + liftOffsetZ - offset.z;
 		renderLift.renderLift(newX, newY, newZ, frontCanOpen ? Math.min(doorValue, DOOR_MAX) : 0, backCanOpen ? Math.min(doorValue, DOOR_MAX) : 0);
 
 		final Minecraft minecraftClient = Minecraft.getInstance();
@@ -95,7 +95,6 @@ public class LiftClient extends Lift {
 		packet.writeBoolean(isDoubleSided);
 		packet.writeUtf(liftStyle.toString());
 		packet.writeInt(Math.round(facing.toYRot()));
-		liftInstructions.writePacket(packet);
 		sendPacket.accept(packet);
 	}
 

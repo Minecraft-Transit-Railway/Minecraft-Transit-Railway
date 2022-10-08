@@ -26,11 +26,13 @@ public class ModelLift1 extends ModelTrainBase {
 	private final ModelMapper handrail_bottom_r2;
 	private final ModelMapper handrail_bottom_r3;
 
+	private final float height; // TODO
 	private final int width;
 	private final int depth;
 	private final boolean isDoubleSided;
 
-	public ModelLift1(int width, int depth, boolean isDoubleSided) {
+	public ModelLift1(int height, int width, int depth, boolean isDoubleSided) {
+		this.height = height / 2F;
 		this.width = width;
 		this.depth = depth;
 		this.isDoubleSided = isDoubleSided;

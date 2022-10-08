@@ -42,7 +42,7 @@ public final class ClientData {
 	public static final List<DataConverter> RAIL_ACTIONS = new ArrayList<>();
 	public static final Map<Long, Set<ScheduleEntry>> SCHEDULES_FOR_PLATFORM = new HashMap<>();
 
-	public static final ClientCache DATA_CACHE = new ClientCache(STATIONS, PLATFORMS, SIDINGS, ROUTES, DEPOTS);
+	public static final ClientCache DATA_CACHE = new ClientCache(STATIONS, PLATFORMS, SIDINGS, ROUTES, DEPOTS, LIFTS);
 
 	private static final Map<UUID, Integer> PLAYER_RIDING_COOL_DOWN = new HashMap<>();
 
@@ -105,7 +105,7 @@ public final class ClientData {
 		}
 
 		client.execute(() -> trainsToUpdate.forEach(newTrain -> {
-			final TrainClient existingTrain = getDataById(TRAINS, newTrain.id);
+			final TrainClient existingTrain = getTrainById(newTrain.id);
 			if (existingTrain == null) {
 				TRAINS.add(newTrain);
 			} else {
@@ -140,12 +140,13 @@ public final class ClientData {
 		}
 
 		client.execute(() -> liftsToUpdate.forEach(newLift -> {
-			final LiftClient existingLift = getDataById(LIFTS, newLift.id);
+			final LiftClient existingLift = DATA_CACHE.liftsClientIdMap.get(newLift.id);
 			if (existingLift == null) {
 				LIFTS.add(newLift);
 			} else {
 				existingLift.copyFromLift(newLift);
 			}
+			ClientData.DATA_CACHE.sync();
 		}));
 	}
 
@@ -165,11 +166,12 @@ public final class ClientData {
 				}
 			});
 			liftsToRemove.forEach(LIFTS::remove);
+			ClientData.DATA_CACHE.sync();
 		});
 	}
 
 	public static void updateTrainPassengers(Minecraft client, FriendlyByteBuf packet) {
-		final TrainClient train = getDataById(TRAINS, packet.readLong());
+		final TrainClient train = getTrainById(packet.readLong());
 		final float percentageX = packet.readFloat();
 		final float percentageZ = packet.readFloat();
 		final UUID uuid = packet.readUUID();
@@ -179,7 +181,7 @@ public final class ClientData {
 	}
 
 	public static void updateTrainPassengerPosition(Minecraft client, FriendlyByteBuf packet) {
-		final TrainClient train = getDataById(TRAINS, packet.readLong());
+		final TrainClient train = getTrainById(packet.readLong());
 		final float percentageX = packet.readFloat();
 		final float percentageZ = packet.readFloat();
 		final UUID uuid = packet.readUUID();
@@ -189,7 +191,7 @@ public final class ClientData {
 	}
 
 	public static void updateLiftPassengers(Minecraft client, FriendlyByteBuf packet) {
-		final LiftClient lift = getDataById(LIFTS, packet.readLong());
+		final LiftClient lift = DATA_CACHE.liftsClientIdMap.get(packet.readLong());
 		final float percentageX = packet.readFloat();
 		final float percentageZ = packet.readFloat();
 		final UUID uuid = packet.readUUID();
@@ -199,7 +201,7 @@ public final class ClientData {
 	}
 
 	public static void updateLiftPassengerPosition(Minecraft client, FriendlyByteBuf packet) {
-		final LiftClient lift = getDataById(LIFTS, packet.readLong());
+		final LiftClient lift = DATA_CACHE.liftsClientIdMap.get(packet.readLong());
 		final float percentageX = packet.readFloat();
 		final float percentageZ = packet.readFloat();
 		final UUID uuid = packet.readUUID();
@@ -324,9 +326,9 @@ public final class ClientData {
 		target.putAll(source);
 	}
 
-	private static <T extends NameColorDataBase> T getDataById(Set<T> data, long id) {
+	private static TrainClient getTrainById(long id) {
 		try {
-			return data.stream().filter(item -> item.id == id).findFirst().orElse(null);
+			return TRAINS.stream().filter(item -> item.id == id).findFirst().orElse(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

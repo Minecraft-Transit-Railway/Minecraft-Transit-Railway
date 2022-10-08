@@ -66,6 +66,12 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		Registry.sendToPlayer(player, PACKET_OPEN_LIFT_TRACK_FLOOR_SCREEN, packet);
 	}
 
+	public static void openLiftCustomizationScreenS2C(ServerPlayer player, long id) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeLong(id);
+		Registry.sendToPlayer(player, PACKET_OPEN_LIFT_CUSTOMIZATION_SCREEN, packet);
+	}
+
 	public static void openPIDSConfigScreenS2C(ServerPlayer player, BlockPos pos1, BlockPos pos2, int maxArrivals) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(pos1);

@@ -34,6 +34,8 @@ public class ClientCache extends DataCache implements IGui {
 
 	public final Map<Long, Map<Integer, ColorNameTuple>> stationIdToRoutes = new HashMap<>();
 
+	private final Set<LiftClient> liftsClient;
+	public final Map<Long, LiftClient> liftsClientIdMap = new HashMap<>();
 	private final Map<TransportMode, Map<BlockPos, List<Platform>>> posToPlatforms = new HashMap<>();
 	private final Map<TransportMode, Map<BlockPos, List<Siding>>> posToSidings = new HashMap<>();
 	private final Map<Long, Map<Long, Platform>> stationIdToPlatforms = new HashMap<>();
@@ -53,16 +55,19 @@ public class ClientCache extends DataCache implements IGui {
 	private static final ResourceLocation DEFAULT_WHITE_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/white.png");
 	private static final ResourceLocation DEFAULT_TRANSPARENT_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/transparent.png");
 
-	public ClientCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots) {
+	public ClientCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, Set<LiftClient> lifts) {
 		super(stations, platforms, sidings, routes, depots, new HashSet<>());
 		for (final TransportMode transportMode : TransportMode.values()) {
 			posToPlatforms.put(transportMode, new HashMap<>());
 			posToSidings.put(transportMode, new HashMap<>());
 		}
+		liftsClient = lifts;
 	}
 
 	@Override
 	protected void syncAdditional() {
+		mapIds(liftsClientIdMap, liftsClient);
+
 		for (final TransportMode transportMode : TransportMode.values()) {
 			mapPosToSavedRails(posToPlatforms.get(transportMode), platforms, transportMode);
 			mapPosToSavedRails(posToSidings.get(transportMode), sidings, transportMode);

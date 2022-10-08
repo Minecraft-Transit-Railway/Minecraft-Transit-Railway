@@ -133,6 +133,11 @@ public class DataCache {
 		newInnerMap.put(key2, putValue.apply(newInnerMap.get(key2)));
 	}
 
+	protected static <U extends NameColorDataBase> void mapIds(Map<Long, U> map, Set<U> source) {
+		map.clear();
+		source.forEach(data -> map.put(data.id, data));
+	}
+
 	private static <U extends SavedRailBase, V extends AreaBase> void mapSavedRailIdToStation(Map<Long, V> map, Set<U> savedRails, Set<V> areas) {
 		map.clear();
 		savedRails.forEach(savedRail -> {
@@ -144,10 +149,5 @@ public class DataCache {
 				}
 			}
 		});
-	}
-
-	private static <U extends NameColorDataBase> void mapIds(Map<Long, U> map, Set<U> source) {
-		map.clear();
-		source.forEach(data -> map.put(data.id, data));
 	}
 }

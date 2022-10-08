@@ -14,6 +14,7 @@ public interface IPacket {
 	ResourceLocation PACKET_OPEN_TICKET_MACHINE_SCREEN = new ResourceLocation(MTR.MOD_ID, "packet_open_ticket_machine_screen");
 	ResourceLocation PACKET_OPEN_TRAIN_SENSOR_SCREEN = new ResourceLocation(MTR.MOD_ID, "packet_open_train_sensor_screen");
 	ResourceLocation PACKET_OPEN_LIFT_TRACK_FLOOR_SCREEN = new ResourceLocation(MTR.MOD_ID, "packet_open_lift_track_floor_screen");
+	ResourceLocation PACKET_OPEN_LIFT_CUSTOMIZATION_SCREEN = new ResourceLocation(MTR.MOD_ID, "packet_open_lift_customization_screen");
 	ResourceLocation PACKET_OPEN_RESOURCE_PACK_CREATOR_SCREEN = new ResourceLocation(MTR.MOD_ID, "packet_open_resource_pack_creator_screen");
 
 	ResourceLocation PACKET_ANNOUNCE = new ResourceLocation(MTR.MOD_ID, "packet_announce");
@@ -42,6 +43,7 @@ public interface IPacket {
 	ResourceLocation PACKET_UPDATE_SIDING = new ResourceLocation(MTR.MOD_ID, "packet_update_siding");
 	ResourceLocation PACKET_UPDATE_ROUTE = new ResourceLocation(MTR.MOD_ID, "packet_update_route");
 	ResourceLocation PACKET_UPDATE_DEPOT = new ResourceLocation(MTR.MOD_ID, "packet_update_depot");
+	ResourceLocation PACKET_UPDATE_LIFT = new ResourceLocation(MTR.MOD_ID, "packet_update_lift");
 
 	ResourceLocation PACKET_DELETE_STATION = new ResourceLocation(MTR.MOD_ID, "packet_delete_station");
 	ResourceLocation PACKET_DELETE_PLATFORM = new ResourceLocation(MTR.MOD_ID, "packet_delete_platform");

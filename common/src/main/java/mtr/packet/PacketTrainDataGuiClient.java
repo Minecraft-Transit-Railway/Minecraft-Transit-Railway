@@ -112,6 +112,16 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		});
 	}
 
+	public static void openLiftCustomizationS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
+		final long id = packet.readLong();
+		minecraftClient.execute(() -> {
+			final LiftClient lift = ClientData.DATA_CACHE.liftsClientIdMap.get(id);
+			if (!(minecraftClient.screen instanceof LiftCustomizationScreen) && lift != null) {
+				UtilitiesClient.setScreen(minecraftClient, new LiftCustomizationScreen(lift));
+			}
+		});
+	}
+
 	public static void openTicketMachineScreenS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
 		final int balance = packet.readInt();
 		minecraftClient.execute(() -> {

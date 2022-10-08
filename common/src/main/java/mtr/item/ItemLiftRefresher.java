@@ -7,8 +7,10 @@ import mtr.block.IBlock;
 import mtr.data.LiftServer;
 import mtr.data.RailwayData;
 import mtr.mappings.Text;
+import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -87,11 +89,13 @@ public class ItemLiftRefresher extends Item {
 					result = InteractionResult.FAIL;
 				} else {
 					boolean hasSetFloors = false;
+					long liftId = 0;
 					for (final LiftServer lift : liftsToModify) {
 						if (hasSetFloors) {
 							railwayData.lifts.remove(lift);
 						} else {
 							lift.setFloors(floors);
+							liftId = lift.id;
 							hasSetFloors = true;
 						}
 					}
@@ -99,9 +103,11 @@ public class ItemLiftRefresher extends Item {
 					if (!hasSetFloors) {
 						final LiftServer newLift = new LiftServer(firstFloor, facing);
 						newLift.setFloors(floors);
+						liftId = newLift.id;
 						railwayData.lifts.add(newLift);
 					}
 
+					PacketTrainDataGuiServer.openLiftCustomizationScreenS2C((ServerPlayer) player, liftId);
 					result = InteractionResult.SUCCESS;
 				}
 
