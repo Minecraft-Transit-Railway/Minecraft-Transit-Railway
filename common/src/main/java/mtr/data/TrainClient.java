@@ -24,7 +24,6 @@ public class TrainClient extends Train implements IGui {
 
 	public boolean isRemoved = false;
 	private boolean justMounted;
-	private int previousInterval;
 	private float oldSpeed;
 	private double oldRailProgress;
 	private float oldDoorValue;
@@ -41,12 +40,11 @@ public class TrainClient extends Train implements IGui {
 	private final TrainSoundBase trainSound;
 
 	private final Set<Runnable> trainTranslucentRenders = new HashSet<>();
-	private final VehicleRidingClient vehicleRidingClient = new VehicleRidingClient();
+	private final VehicleRidingClient vehicleRidingClient = new VehicleRidingClient(ridingEntities, PACKET_UPDATE_TRAIN_PASSENGER_POSITION);
 
 	private static final float CONNECTION_HEIGHT = 2.25F;
 	private static final float CONNECTION_Z_OFFSET = 0.5F;
 	private static final float CONNECTION_X_OFFSET = 0.25F;
-	private static final int TRAIN_PERCENTAGE_UPDATE_INTERVAL = 20;
 
 	public TrainClient(FriendlyByteBuf packet) {
 		super(packet);
@@ -124,7 +122,8 @@ public class TrainClient extends Train implements IGui {
 			return false;
 		}
 
-		final int interval = (int) Math.floor(MTRClient.getGameTick() / TRAIN_PERCENTAGE_UPDATE_INTERVAL);
+		vehicleRidingClient.begin();
+
 		if (ticksElapsed > 0) {
 			if (ridingEntities.contains(clientPlayer.getUUID())) {
 				final int trainSpacing = spacing;
@@ -162,7 +161,7 @@ public class TrainClient extends Train implements IGui {
 
 				final int currentRidingCar = Mth.clamp((int) Math.floor(vehicleRidingClient.getPercentageZ(uuid)), 0, positions.length - 2);
 				calculateCar(world, positions, currentRidingCar, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-					vehicleRidingClient.moveSelf(id, uuid, realSpacingRender, width, yaw, currentRidingCar, trainCars, doorLeftOpenRender, doorRightOpenRender, !trainProperties.hasGangwayConnection, interval != previousInterval, ticksElapsed);
+					vehicleRidingClient.moveSelf(id, uuid, realSpacingRender, width, yaw, currentRidingCar, trainCars, doorLeftOpenRender, doorRightOpenRender, !trainProperties.hasGangwayConnection, ticksElapsed);
 
 					final int newRidingCar = Mth.clamp((int) Math.floor(vehicleRidingClient.getPercentageZ(uuid)), 0, positions.length - 2);
 					if (currentRidingCar == newRidingCar) {
@@ -174,7 +173,7 @@ public class TrainClient extends Train implements IGui {
 			});
 		}
 
-		previousInterval = interval;
+		vehicleRidingClient.end();
 		justMounted = false;
 
 		final Entity camera = client.cameraEntity;

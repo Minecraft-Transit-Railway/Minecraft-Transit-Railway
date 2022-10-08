@@ -1,33 +1,19 @@
 package mtr.entity;
 
 import mtr.EntityTypes;
-import mtr.data.Lift;
-import mtr.data.LiftInstructions;
-import mtr.data.RailwayData;
-import mtr.mappings.Utilities;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public abstract class EntityLift extends EntityBase {
 
-	private Lift.LiftDirection liftDirection = Lift.LiftDirection.NONE;
 	private int trackCoolDown = TRACK_COOL_DOWN_DEFAULT;
-	private int mountCoolDown;
 
-	public final LiftInstructions liftInstructions = new LiftInstructions();
-	public final Map<Integer, String> floors = new HashMap<>();
 	public final EntityTypes.LiftType liftType;
 
-	private static final int DOOR_MAX = 24;
 	private static final int TRACK_COOL_DOWN_DEFAULT = 10;
-	private static final float LIFT_WALKING_SPEED_MULTIPLIER = 0.25F;
 
 	public EntityLift(EntityTypes.LiftType liftType, EntityType<?> type, Level world) {
 		super(type, world);
@@ -60,120 +46,12 @@ public abstract class EntityLift extends EntityBase {
 	}
 
 	@Override
-	public void playerTouch(Player player) {
-		if (!level.isClientSide) {
-			final boolean hasPassenger = hasPassenger(player);
-			if (playerInBounds(player)) {
-				if (!hasPassenger) {
-					player.startRiding(this);
-					mountCoolDown = TRACK_COOL_DOWN_DEFAULT;
-				}
-			} else {
-				if (mountCoolDown == 0 && hasPassenger) {
-					player.stopRiding();
-				}
-			}
-			if (mountCoolDown > 0) {
-				mountCoolDown--;
-			}
-		}
-	}
-
-	@Override
-	public void positionRider(Entity entity) {
-		if (entity instanceof Player && hasPassenger(entity)) {
-			final Vec3 movement = new Vec3(Math.signum(((Player) entity).xxa) * LIFT_WALKING_SPEED_MULTIPLIER, 0, Math.signum(((Player) entity).zza) * LIFT_WALKING_SPEED_MULTIPLIER).yRot((float) -Math.toRadians(Utilities.getYaw(entity)));
-			final double movementX = Mth.clamp(entity.getX() - getX() + movement.x, getNegativeXBound(true) + 0.5, getPositiveXBound(true) - 0.5);
-			final double movementZ = Mth.clamp(entity.getZ() - getZ() + movement.z, getNegativeZBound(true) + 0.5, getPositiveZBound(true) - 0.5);
-			entity.setPos(getX() + movementX, getY(), getZ() + movementZ);
-		} else {
-			entity.setPos(getX(), getY(), getZ());
-		}
-	}
-
-	@Override
 	protected boolean canAddPassenger(Entity entity) {
 		return !hasPassenger(entity);
 	}
 
 	@Override
 	protected void defineSynchedData() {
-	}
-
-	public void pressLiftButton(int floor) {
-		liftInstructions.addInstruction((int) Math.round(getY()), liftDirection == Lift.LiftDirection.UP, floor);
-	}
-
-	public int getFrontDoorValueClient() {
-		return 0;
-	}
-
-	public int getBackDoorValueClient() {
-		return 0;
-	}
-
-	public boolean hasStoppingFloorsClient(int floor, boolean movingUp) {
-		return false;
-	}
-
-	private double getNegativeXBound(boolean includeDoorCheck) {
-		switch ((Math.round(Utilities.getYaw(this)) + 360) % 360) {
-			case 0:
-			case 180:
-				return -liftType.width / 2D;
-			case 90:
-				return (getFrontDoorValueClient() > 0 && includeDoorCheck ? -5 : 0) - liftType.depth / 2D;
-			case 270:
-				return (getBackDoorValueClient() > 0 && includeDoorCheck ? -5 : 0) - liftType.depth / 2D;
-			default:
-				return 0;
-		}
-	}
-
-	private double getNegativeZBound(boolean includeDoorCheck) {
-		switch ((Math.round(Utilities.getYaw(this)) + 360) % 360) {
-			case 0:
-				return (getFrontDoorValueClient() > 0 && includeDoorCheck ? -5 : 0) - liftType.depth / 2D;
-			case 180:
-				return (getBackDoorValueClient() > 0 && includeDoorCheck ? -5 : 0) - liftType.depth / 2D;
-			case 90:
-			case 270:
-				return -liftType.width / 2D;
-			default:
-				return 0;
-		}
-	}
-
-	private double getPositiveXBound(boolean includeDoorCheck) {
-		switch ((Math.round(Utilities.getYaw(this)) + 360) % 360) {
-			case 0:
-			case 180:
-				return liftType.width / 2D;
-			case 90:
-				return (getBackDoorValueClient() > 0 && includeDoorCheck ? 5 : 0) + liftType.depth / 2D;
-			case 270:
-				return (getFrontDoorValueClient() > 0 && includeDoorCheck ? 5 : 0) + liftType.depth / 2D;
-			default:
-				return 0;
-		}
-	}
-
-	private double getPositiveZBound(boolean includeDoorCheck) {
-		switch ((Math.round(Utilities.getYaw(this)) + 360) % 360) {
-			case 0:
-				return (getBackDoorValueClient() > 0 && includeDoorCheck ? 5 : 0) + liftType.depth / 2D;
-			case 180:
-				return (getFrontDoorValueClient() > 0 && includeDoorCheck ? 5 : 0) + liftType.depth / 2D;
-			case 90:
-			case 270:
-				return liftType.width / 2D;
-			default:
-				return 0;
-		}
-	}
-
-	private boolean playerInBounds(Entity entity) {
-		return RailwayData.isBetween(entity.getX() - getX(), getNegativeXBound(false), getPositiveXBound(false)) && RailwayData.isBetween(entity.getZ() - getZ(), getNegativeZBound(false), getPositiveZBound(false));
 	}
 
 	public static boolean playerVerticallyNearby(Level world, int x, int z) {

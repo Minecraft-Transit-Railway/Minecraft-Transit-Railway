@@ -349,9 +349,9 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		}
 	}
 
-	public static void sendPressLiftButtonC2S(UUID uuid, int floor) {
+	public static void sendPressLiftButtonC2S(long id, int floor) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
-		packet.writeUUID(uuid);
+		packet.writeLong(id);
 		packet.writeInt(floor);
 		RegistryClient.sendToServer(PACKET_PRESS_LIFT_BUTTON, packet);
 	}

@@ -89,7 +89,7 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 		readMessagePackFromFile(sidingsPath, Siding::new, railwayData.sidings::add, true);
 		readMessagePackFromFile(routesPath, Route::new, railwayData.routes::add, false);
 		readMessagePackFromFile(depotsPath, Depot::new, railwayData.depots::add, false);
-		readMessagePackFromFile(liftsPath, Lift::new, railwayData.lifts::add, true);
+		readMessagePackFromFile(liftsPath, LiftServer::new, railwayData.lifts::add, true);
 		readMessagePackFromFile(railsPath, RailEntry::new, railEntry -> rails.put(railEntry.pos, railEntry.connections), true);
 		readMessagePackFromFile(signalBlocksPath, SignalBlocks.SignalBlock::new, signalBlocks.signalBlocks::add, true);
 
@@ -133,7 +133,7 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 			dirtySidingIds.addAll(railwayData.dataCache.sidingIdMap.keySet());
 			dirtyRouteIds.addAll(railwayData.dataCache.routeIdMap.keySet());
 			dirtyDepotIds.addAll(railwayData.dataCache.depotIdMap.keySet());
-			dirtyLiftIds.addAll(railwayData.dataCache.liftsIdMap.keySet());
+			dirtyLiftIds.addAll(railwayData.dataCache.liftsServerIdMap.keySet());
 			dirtyRailPositions.addAll(rails.keySet());
 			dirtySignalBlocks.addAll(signalBlocks.signalBlocks);
 			checkFilesToDelete.addAll(existingFiles.keySet());
@@ -158,7 +158,7 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 				hasSpareTime = writeDirtyDataToFile(dirtyDepotIds, railwayData.dataCache.depotIdMap::get, id -> id, depotsPath);
 			}
 			if (hasSpareTime) {
-				hasSpareTime = writeDirtyDataToFile(dirtyLiftIds, railwayData.dataCache.liftsIdMap::get, id -> id, liftsPath);
+				hasSpareTime = writeDirtyDataToFile(dirtyLiftIds, railwayData.dataCache.liftsServerIdMap::get, id -> id, liftsPath);
 			}
 			if (hasSpareTime) {
 				hasSpareTime = writeDirtyDataToFile(dirtyRailPositions, pos -> rails.containsKey(pos) ? new RailEntry(pos, rails.get(pos)) : null, BlockPos::asLong, railsPath);

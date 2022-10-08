@@ -104,6 +104,10 @@ public class LiftInstructions {
 		return instructions.contains(new LiftInstruction(floor, movingUp));
 	}
 
+	public boolean containsInstruction(int floor) {
+		return containsInstruction(floor, true) || containsInstruction(floor, false);
+	}
+
 	public static void addInstruction(Level world, BlockPos pos, boolean topHalfClicked) {
 		final BlockEntity blockEntity = world.getBlockEntity(pos);
 		if (!(blockEntity instanceof BlockLiftButtons.TileEntityLiftButtons)) {

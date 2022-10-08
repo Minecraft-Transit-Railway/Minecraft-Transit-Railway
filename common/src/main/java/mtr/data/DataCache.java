@@ -15,7 +15,7 @@ public class DataCache {
 	public final Map<Long, Siding> sidingIdMap = new HashMap<>();
 	public final Map<Long, Route> routeIdMap = new HashMap<>();
 	public final Map<Long, Depot> depotIdMap = new HashMap<>();
-	public final Map<Long, Lift> liftsIdMap = new HashMap<>();
+	public final Map<Long, LiftServer> liftsServerIdMap = new HashMap<>();
 
 	public final Map<Long, Station> platformIdToStation = new HashMap<>();
 	public final Map<Long, Depot> sidingIdToDepot = new HashMap<>();
@@ -30,15 +30,15 @@ public class DataCache {
 	protected final Set<Siding> sidings;
 	protected final Set<Route> routes;
 	protected final Set<Depot> depots;
-	protected final Set<Lift> lifts;
+	private final Set<LiftServer> liftsServer;
 
-	public DataCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, Set<Lift> lifts) {
+	public DataCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, Set<LiftServer> lifts) {
 		this.stations = stations;
 		this.platforms = platforms;
 		this.sidings = sidings;
 		this.routes = routes;
 		this.depots = depots;
-		this.lifts = lifts;
+		liftsServer = lifts;
 	}
 
 	public final void sync() {
@@ -48,7 +48,7 @@ public class DataCache {
 			mapIds(sidingIdMap, sidings);
 			mapIds(routeIdMap, routes);
 			mapIds(depotIdMap, depots);
-			mapIds(liftsIdMap, lifts);
+			mapIds(liftsServerIdMap, liftsServer);
 
 			routeIdToOneDepot.clear();
 			routes.forEach(route -> route.platformIds.removeIf(platformId -> platformIdMap.get(platformId) == null));

@@ -39,7 +39,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	public final Set<Siding> sidings = new HashSet<>();
 	public final Set<Route> routes = new HashSet<>();
 	public final Set<Depot> depots = new HashSet<>();
-	public final Set<Lift> lifts = new HashSet<>();
+	public final Set<LiftServer> lifts = new HashSet<>();
 	public final DataCache dataCache = new DataCache(stations, platforms, sidings, routes, depots, lifts);
 
 	public final RailwayDataCoolDownModule railwayDataCoolDownModule;
@@ -62,7 +62,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private final Map<Player, BlockPos> playerLastUpdatedPositions = new HashMap<>();
 	private final List<Player> playersToSyncSchedules = new ArrayList<>();
 	private final UpdateNearbyMovingObjects<TrainServer> updateNearbyTrains;
-	private final UpdateNearbyMovingObjects<Lift> updateNearbyLifts;
+	private final UpdateNearbyMovingObjects<LiftServer> updateNearbyLifts;
 	private final Map<Long, List<ScheduleEntry>> schedulesForPlatform = new HashMap<>();
 	private final Map<Long, Map<BlockPos, TrainDelay>> trainDelays = new HashMap<>();
 
@@ -149,7 +149,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 							break;
 						case KEY_LIFTS:
 							for (int j = 0; j < arraySize; ++j) {
-								lifts.add(new Lift(readMessagePackSKMap(messageUnpacker)));
+								lifts.add(new LiftServer(readMessagePackSKMap(messageUnpacker)));
 							}
 							break;
 						case KEY_RAILS:
@@ -549,7 +549,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		}
 	}
 
-	public static void removeLiftFloorTrack(Level world, Set<Lift> lifts, BlockPos pos) {
+	public static <T extends Lift> void removeLiftFloorTrack(Level world, Set<T> lifts, BlockPos pos) {
 		lifts.removeIf(lift -> lift.hasFloor(pos));
 		if (world != null) {
 			validateLifts(world, lifts);
@@ -722,7 +722,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		railsNodesToRemove.forEach(pos -> removeNode(null, rails, pos));
 	}
 
-	private static void validateLifts(Level world, Set<Lift> lifts) {
+	private static <T extends Lift> void validateLifts(Level world, Set<T> lifts) {
 		lifts.removeIf(lift -> lift.isInvalidLift(world));
 	}
 

@@ -1,16 +1,14 @@
 package mtr.data;
 
-import io.netty.buffer.Unpooled;
 import mtr.block.BlockLiftTrackFloor;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.IBlock;
+import mtr.packet.IPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.msgpack.core.MessagePacker;
@@ -18,9 +16,8 @@ import org.msgpack.value.Value;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Consumer;
 
-public class Lift extends NameColorDataBase {
+public abstract class Lift extends NameColorDataBase implements IPacket {
 
 	public int liftHeight;
 	public int liftWidth;
@@ -32,23 +29,23 @@ public class Lift extends NameColorDataBase {
 	public LiftStyle liftStyle;
 	public Direction facing;
 
-	private double currentPositionX;
-	private double currentPositionY;
-	private double currentPositionZ;
-	private LiftDirection liftDirection = LiftDirection.NONE;
-	private double speed;
-	private boolean doorOpen = true;
-	private float doorValue;
-	private boolean frontCanOpen;
-	private boolean backCanOpen;
+	protected double currentPositionX;
+	protected double currentPositionY;
+	protected double currentPositionZ;
+	protected LiftDirection liftDirection = LiftDirection.NONE;
+	protected double speed;
+	protected boolean doorOpen = true;
+	protected float doorValue;
+	protected boolean frontCanOpen;
+	protected boolean backCanOpen;
 
-	private final List<BlockPos> floors = new ArrayList<>();
 	public final LiftInstructions liftInstructions;
+	protected final List<BlockPos> floors = new ArrayList<>();
+	protected final Set<UUID> ridingEntities = new HashSet<>();
 
-	private static final int DOOR_MAX = 24;
+	protected static final int DOOR_MAX = 24;
 
-	private static final int LIFT_UPDATE_DISTANCE = 64;
-
+	protected static final String KEY_LIFT_UPDATE = "lift_update";
 	private static final String KEY_LIFT_HEIGHT = "lift_height";
 	private static final String KEY_LIFT_WIDTH = "lift_width";
 	private static final String KEY_LIFT_DEPTH = "lift_depth";
@@ -61,6 +58,7 @@ public class Lift extends NameColorDataBase {
 	private static final String KEY_CURRENT_POSITION_X = "current_position_x";
 	private static final String KEY_CURRENT_POSITION_Y = "current_position_y";
 	private static final String KEY_CURRENT_POSITION_Z = "current_position_z";
+	private static final String KEY_RIDING_ENTITIES = "riding_entities";
 	private static final String KEY_FLOORS = "floors";
 
 	public Lift(BlockPos pos, Direction facing) {
@@ -95,6 +93,7 @@ public class Lift extends NameColorDataBase {
 		currentPositionX = messagePackHelper.getDouble(KEY_CURRENT_POSITION_X);
 		currentPositionY = messagePackHelper.getDouble(KEY_CURRENT_POSITION_Y);
 		currentPositionZ = messagePackHelper.getDouble(KEY_CURRENT_POSITION_Z);
+		messagePackHelper.iterateArrayValue(KEY_RIDING_ENTITIES, value -> ridingEntities.add(UUID.fromString(value.asStringValue().asString())));
 		messagePackHelper.iterateArrayValue(KEY_FLOORS, entry -> floors.add(BlockPos.of(entry.asIntegerValue().toLong())));
 
 		liftInstructions = new LiftInstructions();
@@ -121,10 +120,17 @@ public class Lift extends NameColorDataBase {
 		speed = packet.readDouble();
 		doorOpen = packet.readBoolean();
 		doorValue = packet.readFloat();
+
+		final int ridingEntitiesCount = packet.readInt();
+		for (int i = 0; i < ridingEntitiesCount; i++) {
+			ridingEntities.add(packet.readUUID());
+		}
+
 		final int floorCount = packet.readInt();
 		for (int i = 0; i < floorCount; i++) {
 			floors.add(packet.readBlockPos());
 		}
+
 		liftInstructions = new LiftInstructions(packet);
 	}
 
@@ -145,8 +151,11 @@ public class Lift extends NameColorDataBase {
 		messagePacker.packString(KEY_CURRENT_POSITION_X).packDouble(closestFloor.getX());
 		messagePacker.packString(KEY_CURRENT_POSITION_Y).packDouble(closestFloor.getY());
 		messagePacker.packString(KEY_CURRENT_POSITION_Z).packDouble(closestFloor.getZ());
-		messagePacker.packString(KEY_FLOORS);
-		messagePacker.packArrayHeader(floors.size());
+		messagePacker.packString(KEY_RIDING_ENTITIES).packArrayHeader(ridingEntities.size());
+		for (final UUID uuid : ridingEntities) {
+			messagePacker.packString(uuid.toString());
+		}
+		messagePacker.packString(KEY_FLOORS).packArrayHeader(floors.size());
 		for (final BlockPos floor : floors) {
 			messagePacker.packLong(floor.asLong());
 		}
@@ -154,7 +163,7 @@ public class Lift extends NameColorDataBase {
 
 	@Override
 	public int messagePackLength() {
-		return super.messagePackLength() + 13;
+		return super.messagePackLength() + 14;
 	}
 
 	@Override
@@ -176,6 +185,8 @@ public class Lift extends NameColorDataBase {
 		packet.writeDouble(speed);
 		packet.writeBoolean(doorOpen);
 		packet.writeFloat(doorValue);
+		packet.writeInt(ridingEntities.size());
+		ridingEntities.forEach(packet::writeUUID);
 		packet.writeInt(floors.size());
 		floors.forEach(packet::writeBlockPos);
 		liftInstructions.writePacket(packet);
@@ -183,7 +194,7 @@ public class Lift extends NameColorDataBase {
 
 	@Override
 	public void update(String key, FriendlyByteBuf packet) {
-		if (KEY_LIFT_STYLE.equals(key)) {
+		if (KEY_LIFT_UPDATE.equals(key)) {
 			liftHeight = packet.readInt();
 			liftWidth = packet.readInt();
 			liftDepth = packet.readInt();
@@ -204,63 +215,9 @@ public class Lift extends NameColorDataBase {
 		return false;
 	}
 
-	public void tickServer(Level world, Map<Player, Set<Lift>> liftsInPlayerRange, Set<Lift> liftsToSync) {
-		tick(world, liftsInPlayerRange, liftsToSync, 1);
-	}
-
-	public void tickClient(Level world, RenderLift renderLift, float ticksElapsed) {
-		tick(world, null, null, ticksElapsed);
-		renderLift.renderLift(currentPositionX, currentPositionY, currentPositionZ, frontCanOpen ? Math.min(doorValue, DOOR_MAX) : 0, backCanOpen ? Math.min(doorValue, DOOR_MAX) : 0);
-	}
-
-	public void copyFromLift(Lift lift) {
-		liftHeight = lift.liftHeight;
-		liftWidth = lift.liftWidth;
-		liftDepth = lift.liftDepth;
-		liftOffsetX = lift.liftOffsetX;
-		liftOffsetY = lift.liftOffsetY;
-		liftOffsetZ = lift.liftOffsetZ;
-		isDoubleSided = lift.isDoubleSided;
-		liftStyle = lift.liftStyle;
-		facing = lift.facing;
-
-		currentPositionX = lift.currentPositionX;
-		currentPositionY = lift.currentPositionY;
-		currentPositionZ = lift.currentPositionZ;
-		liftDirection = lift.liftDirection;
-		speed = lift.speed;
-		doorOpen = lift.doorOpen;
-		doorValue = lift.doorValue;
-		frontCanOpen = lift.frontCanOpen;
-		backCanOpen = lift.backCanOpen;
-
-		floors.clear();
-		floors.addAll(lift.floors);
-
-		liftInstructions.copyFrom(lift.liftInstructions);
-	}
-
 	public void setFloors(List<BlockPos> floors) {
 		this.floors.clear();
 		this.floors.addAll(floors);
-	}
-
-	public void setExtraData(Consumer<FriendlyByteBuf> sendPacket) {
-		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
-		packet.writeLong(id);
-		packet.writeUtf(transportMode.toString());
-		packet.writeUtf(KEY_LIFT_STYLE);
-		packet.writeInt(liftHeight);
-		packet.writeInt(liftWidth);
-		packet.writeInt(liftDepth);
-		packet.writeInt(liftOffsetX);
-		packet.writeInt(liftOffsetY);
-		packet.writeInt(liftOffsetZ);
-		packet.writeBoolean(isDoubleSided);
-		packet.writeUtf(liftStyle.toString());
-		packet.writeInt(Math.round(facing.toYRot()));
-		liftInstructions.writePacket(packet);
-		sendPacket.accept(packet);
 	}
 
 	public boolean hasFloor(BlockPos pos) {
@@ -294,6 +251,11 @@ public class Lift extends NameColorDataBase {
 		});
 	}
 
+	public void pressButton(int floor) {
+		final boolean movingUp = liftDirection == LiftDirection.UP;
+		liftInstructions.addInstruction((int) (movingUp ? Math.floor(currentPositionY) : Math.ceil(currentPositionY)), movingUp, floor);
+	}
+
 	public BlockPos getCurrentFloorBlockPos() {
 		double distance = Double.MAX_VALUE;
 		BlockPos closestFloor = null;
@@ -321,20 +283,7 @@ public class Lift extends NameColorDataBase {
 		return false;
 	}
 
-	private void tick(Level world, Map<Player, Set<Lift>> liftsInPlayerRange, Set<Lift> liftsToSync, float ticksElapsed) {
-		final boolean isServer = liftsInPlayerRange != null && liftsToSync != null;
-
-		if (isServer) {
-			world.players().forEach(player -> {
-				if (player.blockPosition().distManhattan(new Vec3i(currentPositionX, currentPositionY, currentPositionZ)) < LIFT_UPDATE_DISTANCE) {
-					if (!liftsInPlayerRange.containsKey(player)) {
-						liftsInPlayerRange.put(player, new HashSet<>());
-					}
-					liftsInPlayerRange.get(player).add(this);
-				}
-			});
-		}
-
+	protected void tick(Level world, float ticksElapsed) {
 		if (liftInstructions.hasInstructions() && doorValue == DOOR_MAX * 2) {
 			doorOpen = false;
 			liftInstructions.getTargetFloor(targetFloor -> liftDirection = targetFloor > currentPositionY ? LiftDirection.UP : LiftDirection.DOWN);
@@ -353,7 +302,7 @@ public class Lift extends NameColorDataBase {
 					currentPositionY = targetFloor;
 					liftInstructions.arrived();
 
-					if (isServer) {
+					if (!world.isClientSide) {
 						final BlockEntity blockEntity = world.getBlockEntity(getBlockPos());
 						if (blockEntity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor && ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).getShouldDing()) {
 							world.playSound(null, getBlockPos(), SoundEvents.NOTE_BLOCK_PLING, SoundSource.BLOCKS, 16, 2);
@@ -380,10 +329,6 @@ public class Lift extends NameColorDataBase {
 
 			frontCanOpen = checkDoor(world, true);
 			backCanOpen = checkDoor(world, false);
-		}
-
-		if (isServer && liftInstructions.isDirty()) {
-			liftsToSync.add(this);
 		}
 	}
 
@@ -413,11 +358,6 @@ public class Lift extends NameColorDataBase {
 		return hasDoor;
 	}
 
-	@FunctionalInterface
-	public interface RenderLift {
-		void renderLift(double currentPositionX, double currentPositionY, double currentPositionZ, float frontDoorValue, float backDoorValue);
-	}
-
 	public enum LiftDirection {
 		NONE(0), UP(1), DOWN(-1);
 
@@ -428,5 +368,5 @@ public class Lift extends NameColorDataBase {
 		}
 	}
 
-	private enum LiftStyle {TRANSPARENT, OPAQUE}
+	protected enum LiftStyle {TRANSPARENT, OPAQUE}
 }

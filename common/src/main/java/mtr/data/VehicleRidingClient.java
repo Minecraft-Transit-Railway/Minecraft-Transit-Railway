@@ -6,12 +6,12 @@ import mtr.RegistryClient;
 import mtr.client.ClientData;
 import mtr.entity.EntitySeat;
 import mtr.mappings.Utilities;
-import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.TrainRendererBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -19,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class VehicleRidingClient implements IPacket {
+public class VehicleRidingClient {
 
 	private float clientPrevYaw;
 	private float oldPercentageX;
@@ -28,6 +28,8 @@ public class VehicleRidingClient implements IPacket {
 	private double lastSentY;
 	private double lastSentZ;
 	private float lastSentTicks;
+	private int interval;
+	private int previousInterval;
 
 	private final List<Double> offset = new ArrayList<>();
 	private final Map<UUID, Float> percentagesX = new HashMap<>();
@@ -35,9 +37,16 @@ public class VehicleRidingClient implements IPacket {
 	private final Map<UUID, Float> newPercentagesX = new HashMap<>();
 	private final Map<UUID, Float> newPercentagesZ = new HashMap<>();
 	private final Map<UUID, Vec3> riderPositions = new HashMap<>();
-	private final Set<UUID> ridingEntities = new HashSet<>();
+	private final Set<UUID> ridingEntities;
+	private final ResourceLocation packetId;
 
-	private static final float TRAIN_WALKING_SPEED_MULTIPLIER = 0.25F;
+	private static final float VEHICLE_WALKING_SPEED_MULTIPLIER = 0.25F;
+	private static final int VEHICLE_PERCENTAGE_UPDATE_INTERVAL = 20;
+
+	public VehicleRidingClient(Set<UUID> ridingEntities, ResourceLocation packetId) {
+		this.ridingEntities = ridingEntities;
+		this.packetId = packetId;
+	}
 
 	public Vec3 renderPlayerAndGetOffset() {
 		final boolean noOffset = offset.isEmpty();
@@ -153,8 +162,8 @@ public class VehicleRidingClient implements IPacket {
 		}
 	}
 
-	public void moveSelf(long id, UUID uuid, double length, int width, float yaw, int percentageOffset, int maxPercentage, boolean doorLeftOpen, boolean doorRightOpen, boolean noGangwayConnection, boolean sendUpdatePacket, float ticksElapsed) {
-		final float speedMultiplier = ticksElapsed * TRAIN_WALKING_SPEED_MULTIPLIER;
+	public void moveSelf(long id, UUID uuid, double length, int width, float yaw, int percentageOffset, int maxPercentage, boolean doorLeftOpen, boolean doorRightOpen, boolean noGangwayConnection, float ticksElapsed) {
+		final float speedMultiplier = ticksElapsed * VEHICLE_WALKING_SPEED_MULTIPLIER;
 		final float newPercentageX;
 		final float newPercentageZ;
 		final LocalPlayer clientPlayer = Minecraft.getInstance().player;
@@ -170,13 +179,13 @@ public class VehicleRidingClient implements IPacket {
 			newPercentageX = Mth.clamp(tempPercentageX, doorLeftOpen ? -3 : 0, doorRightOpen ? 4 : 1);
 			newPercentageZ = Mth.clamp(tempPercentageZ, (noGangwayConnection ? percentageOffset + 0.05F : 0) + 0.01F, (noGangwayConnection ? percentageOffset + 0.95F : maxPercentage) - 0.01F);
 
-			if (sendUpdatePacket && (newPercentageX != oldPercentageX || newPercentageZ != oldPercentageZ)) {
+			if (previousInterval != interval && (newPercentageX != oldPercentageX || newPercentageZ != oldPercentageZ)) {
 				final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 				packet.writeLong(id);
 				packet.writeFloat(newPercentageX);
 				packet.writeFloat(newPercentageZ);
 				packet.writeUUID(uuid);
-				RegistryClient.sendToServer(PACKET_UPDATE_TRAIN_PASSENGER_POSITION, packet);
+				RegistryClient.sendToServer(packetId, packet);
 				oldPercentageX = newPercentageX;
 				oldPercentageZ = newPercentageZ;
 			}
@@ -195,6 +204,14 @@ public class VehicleRidingClient implements IPacket {
 
 		percentagesX.put(uuid, newPercentageX);
 		percentagesZ.put(uuid, newPercentageZ);
+	}
+
+	public void begin() {
+		interval = (int) Math.floor(MTRClient.getGameTick() / VEHICLE_PERCENTAGE_UPDATE_INTERVAL);
+	}
+
+	public void end() {
+		previousInterval = interval;
 	}
 
 	public void startRiding(UUID uuid, float percentageX, float percentageZ) {

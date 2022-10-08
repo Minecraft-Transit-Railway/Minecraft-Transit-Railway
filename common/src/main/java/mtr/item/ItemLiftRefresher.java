@@ -4,7 +4,7 @@ import mtr.ItemGroups;
 import mtr.block.BlockLiftTrack;
 import mtr.block.BlockLiftTrackFloor;
 import mtr.block.IBlock;
-import mtr.data.Lift;
+import mtr.data.LiftServer;
 import mtr.data.RailwayData;
 import mtr.mappings.Text;
 import net.minecraft.core.BlockPos;
@@ -40,7 +40,7 @@ public class ItemLiftRefresher extends Item {
 
 			if (world.getBlockState(clickedPos).getBlock() instanceof BlockLiftTrack && railwayData != null) {
 				final List<BlockPos> floors = new ArrayList<>();
-				final Set<Lift> liftsToModify = new HashSet<>();
+				final Set<LiftServer> liftsToModify = new HashSet<>();
 				int i = 0;
 				boolean scanForFloors = false;
 				BlockPos firstFloor = null;
@@ -87,7 +87,7 @@ public class ItemLiftRefresher extends Item {
 					result = InteractionResult.FAIL;
 				} else {
 					boolean hasSetFloors = false;
-					for (final Lift lift : liftsToModify) {
+					for (final LiftServer lift : liftsToModify) {
 						if (hasSetFloors) {
 							railwayData.lifts.remove(lift);
 						} else {
@@ -97,7 +97,7 @@ public class ItemLiftRefresher extends Item {
 					}
 
 					if (!hasSetFloors) {
-						final Lift newLift = new Lift(firstFloor, facing);
+						final LiftServer newLift = new LiftServer(firstFloor, facing);
 						newLift.setFloors(floors);
 						railwayData.lifts.add(newLift);
 					}

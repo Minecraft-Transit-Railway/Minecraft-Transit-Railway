@@ -55,6 +55,8 @@ public interface IPacket {
 	ResourceLocation PACKET_DELETE_LIFTS = new ResourceLocation(MTR.MOD_ID, "delete_lifts");
 	ResourceLocation PACKET_UPDATE_TRAIN_PASSENGERS = new ResourceLocation(MTR.MOD_ID, "update_train_passengers");
 	ResourceLocation PACKET_UPDATE_TRAIN_PASSENGER_POSITION = new ResourceLocation(MTR.MOD_ID, "update_train_passenger_position");
+	ResourceLocation PACKET_UPDATE_LIFT_PASSENGERS = new ResourceLocation(MTR.MOD_ID, "update_lift_passengers");
+	ResourceLocation PACKET_UPDATE_LIFT_PASSENGER_POSITION = new ResourceLocation(MTR.MOD_ID, "update_lift_passenger_position");
 	ResourceLocation PACKET_UPDATE_ENTITY_SEAT_POSITION = new ResourceLocation(MTR.MOD_ID, "update_entity_seat_position");
 	ResourceLocation PACKET_UPDATE_RAIL_ACTIONS = new ResourceLocation(MTR.MOD_ID, "update_rail_actions");
 	ResourceLocation PACKET_UPDATE_SCHEDULE = new ResourceLocation(MTR.MOD_ID, "update_schedule");
