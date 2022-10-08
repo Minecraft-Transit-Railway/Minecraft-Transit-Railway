@@ -21,7 +21,8 @@ public interface IPacket {
 
 	ResourceLocation PACKET_CREATE_RAIL = new ResourceLocation(MTR.MOD_ID, "packet_create_rail");
 	ResourceLocation PACKET_CREATE_SIGNAL = new ResourceLocation(MTR.MOD_ID, "packet_create_signal");
-	ResourceLocation PACKET_REMOVE_NODE_OR_LIFT_FLOOR_TRACK = new ResourceLocation(MTR.MOD_ID, "packet_remove_node");
+	ResourceLocation PACKET_REMOVE_NODE = new ResourceLocation(MTR.MOD_ID, "packet_remove_node");
+	ResourceLocation PACKET_REMOVE_LIFT_FLOOR_TRACK = new ResourceLocation(MTR.MOD_ID, "packet_remove_node");
 	ResourceLocation PACKET_REMOVE_RAIL = new ResourceLocation(MTR.MOD_ID, "packet_remove_rail");
 	ResourceLocation PACKET_REMOVE_SIGNALS = new ResourceLocation(MTR.MOD_ID, "packet_remove_signals");
 	ResourceLocation PACKET_REMOVE_RAIL_ACTION = new ResourceLocation(MTR.MOD_ID, "packet_remove_rail_action");

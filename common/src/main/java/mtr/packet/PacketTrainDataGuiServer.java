@@ -118,11 +118,16 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.players().forEach(worldPlayer -> Registry.sendToPlayer((ServerPlayer) worldPlayer, PACKET_UPDATE_RAIL_ACTIONS, packet));
 	}
 
-	public static void removeNodeOrLiftFloorTrackS2C(Level world, BlockPos pos, boolean isNode) {
+	public static void removeNodeS2C(Level world, BlockPos pos) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(pos);
-		packet.writeBoolean(isNode);
-		world.players().forEach(worldPlayer -> Registry.sendToPlayer((ServerPlayer) worldPlayer, PACKET_REMOVE_NODE_OR_LIFT_FLOOR_TRACK, packet));
+		world.players().forEach(worldPlayer -> Registry.sendToPlayer((ServerPlayer) worldPlayer, PACKET_REMOVE_NODE, packet));
+	}
+
+	public static void removeLiftFloorTrackS2C(Level world, BlockPos pos) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeBlockPos(pos);
+		world.players().forEach(worldPlayer -> Registry.sendToPlayer((ServerPlayer) worldPlayer, PACKET_REMOVE_LIFT_FLOOR_TRACK, packet));
 	}
 
 	public static void removeRailConnectionS2C(Level world, BlockPos pos1, BlockPos pos2) {

@@ -45,7 +45,7 @@ public class BlockLiftTrackFloor extends BlockLiftTrack implements EntityBlockMa
 			final RailwayData railwayData = RailwayData.getInstance(world);
 			if (railwayData != null) {
 				railwayData.removeLiftFloorTrack(pos);
-				PacketTrainDataGuiServer.removeNodeOrLiftFloorTrackS2C(world, pos, false);
+				PacketTrainDataGuiServer.removeLiftFloorTrackS2C(world, pos);
 			}
 		}
 	}

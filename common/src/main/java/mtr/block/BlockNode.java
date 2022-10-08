@@ -65,7 +65,7 @@ public class BlockNode extends BlockDirectionalMapper {
 			final RailwayData railwayData = RailwayData.getInstance(world);
 			if (railwayData != null) {
 				railwayData.removeNode(pos);
-				PacketTrainDataGuiServer.removeNodeOrLiftFloorTrackS2C(world, pos, true);
+				PacketTrainDataGuiServer.removeNodeS2C(world, pos);
 			}
 		}
 	}
