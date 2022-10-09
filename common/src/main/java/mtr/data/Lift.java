@@ -346,7 +346,7 @@ public abstract class Lift extends NameColorDataBase implements IPacket {
 		final int sign = front ? 1 : -1;
 		boolean hasDoor = false;
 		for (int i = -1; i <= 1; i++) {
-			final BlockPos checkPos = new BlockPos(currentPositionX + liftOffsetX - facing.getStepX() * sign * (liftDepth / 2F + 0.5) + directionClockwise.getStepX() * i, currentPositionY + liftOffsetY, currentPositionZ + liftOffsetZ - facing.getStepZ() * sign * (liftDepth / 2F + 0.5) + directionClockwise.getStepZ() * i);
+			final BlockPos checkPos = new BlockPos(currentPositionX + liftOffsetX / 2F - facing.getStepX() * sign * (liftDepth / 2F + 0.5) + directionClockwise.getStepX() * i, currentPositionY + liftOffsetY, currentPositionZ + liftOffsetZ / 2F - facing.getStepZ() * sign * (liftDepth / 2F + 0.5) + directionClockwise.getStepZ() * i);
 			if (world.getNearestPlayer(currentPositionX, currentPositionY, currentPositionZ, Train.MAX_CHECK_DISTANCE, entity -> true) != null && RailwayData.chunkLoaded(world, checkPos) && RailwayData.chunkLoaded(world, checkPos.above())) {
 				final BlockEntity entity1 = world.getBlockEntity(checkPos);
 				final BlockEntity entity2 = world.getBlockEntity(checkPos.above());

@@ -35,93 +35,106 @@ public class ItemLiftRefresher extends Item {
 	@Override
 	public InteractionResult useOn(UseOnContext context) {
 		if (!context.getLevel().isClientSide) {
-			final Level world = context.getLevel();
-			final BlockPos clickedPos = context.getClickedPos();
-			final RailwayData railwayData = RailwayData.getInstance(world);
-			final Player player = context.getPlayer();
-
-			if (world.getBlockState(clickedPos).getBlock() instanceof BlockLiftTrack && railwayData != null) {
-				final List<BlockPos> floors = new ArrayList<>();
-				final Set<LiftServer> liftsToModify = new HashSet<>();
-				int i = 0;
-				boolean scanForFloors = false;
-				BlockPos firstFloor = null;
-				Direction facing = null;
-
-				railwayData.lifts.removeIf(lift -> lift.isInvalidLift(world));
-
-				while (true) {
-					final BlockPos checkPos = clickedPos.below(i);
-					final Block checkBlock = world.getBlockState(checkPos).getBlock();
-
-					if (!(checkBlock instanceof BlockLiftTrack)) {
-						if (scanForFloors) {
-							break;
-						} else {
-							scanForFloors = true;
-						}
-					}
-
-					if (scanForFloors && checkBlock instanceof BlockLiftTrackFloor) {
-						final BlockEntity blockEntity = world.getBlockEntity(checkPos);
-						if (blockEntity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor) {
-							floors.add(checkPos);
-							if (firstFloor == null || facing == null) {
-								firstFloor = checkPos;
-								facing = IBlock.getStatePropertySafe(world, checkPos, HorizontalDirectionalBlock.FACING);
-							}
-						}
-						railwayData.lifts.forEach(lift -> {
-							if (lift.hasFloor(checkPos)) {
-								liftsToModify.add(lift);
-							}
-						});
-					}
-
-					i += (scanForFloors ? -1 : 1);
-				}
-
-				final InteractionResult result;
-				if (floors.isEmpty() || firstFloor == null || facing == null) {
-					if (player != null) {
-						player.displayClientMessage(Text.translatable("gui.mtr.no_lift_tracks_floor_found"), true);
-					}
-					result = InteractionResult.FAIL;
-				} else {
-					boolean hasSetFloors = false;
-					long liftId = 0;
-					for (final LiftServer lift : liftsToModify) {
-						if (hasSetFloors) {
-							railwayData.lifts.remove(lift);
-						} else {
-							lift.setFloors(floors);
-							liftId = lift.id;
-							hasSetFloors = true;
-						}
-					}
-
-					if (!hasSetFloors) {
-						final LiftServer newLift = new LiftServer(firstFloor, facing);
-						newLift.setFloors(floors);
-						liftId = newLift.id;
-						railwayData.lifts.add(newLift);
-					}
-
-					PacketTrainDataGuiServer.openLiftCustomizationScreenS2C((ServerPlayer) player, liftId);
-					result = InteractionResult.SUCCESS;
-				}
-
-				railwayData.dataCache.sync();
-				return result;
-			} else {
-				if (player != null) {
-					player.displayClientMessage(Text.translatable("gui.mtr.lift_track_required"), true);
-				}
-				return InteractionResult.FAIL;
-			}
-
+			return refreshLift(context.getLevel(), context.getClickedPos(), context.getPlayer(), 0, 0, 2, 2, null);
 		} else {
 			return super.useOn(context);
 		}
+	}
+
+	public static void refreshLift(Level world, BlockPos clickedPos, int offsetX, int offsetZ, int width, int depth, Direction forceFacing) {
+		refreshLift(world, clickedPos, null, offsetX, offsetZ, width, depth, forceFacing);
+	}
+
+	private static InteractionResult refreshLift(Level world, BlockPos clickedPos, Player player, int offsetX, int offsetZ, int width, int depth, Direction forceFacing) {
+		final RailwayData railwayData = RailwayData.getInstance(world);
+
+		if (world.getBlockState(clickedPos).getBlock() instanceof BlockLiftTrack && railwayData != null) {
+			final List<BlockPos> floors = new ArrayList<>();
+			final Set<LiftServer> liftsToModify = new HashSet<>();
+			int i = 0;
+			boolean scanForFloors = false;
+			BlockPos firstFloor = null;
+			Direction facing = null;
+
+			railwayData.lifts.removeIf(lift -> lift.isInvalidLift(world));
+
+			while (true) {
+				final BlockPos checkPos = clickedPos.below(i);
+				final Block checkBlock = world.getBlockState(checkPos).getBlock();
+
+				if (!(checkBlock instanceof BlockLiftTrack)) {
+					if (scanForFloors) {
+						break;
+					} else {
+						scanForFloors = true;
+					}
+				}
+
+				if (scanForFloors && checkBlock instanceof BlockLiftTrackFloor) {
+					final BlockEntity blockEntity = world.getBlockEntity(checkPos);
+					if (blockEntity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor) {
+						floors.add(checkPos);
+						if (firstFloor == null || facing == null) {
+							firstFloor = checkPos;
+							facing = IBlock.getStatePropertySafe(world, checkPos, HorizontalDirectionalBlock.FACING);
+						}
+					}
+					railwayData.lifts.forEach(lift -> {
+						if (lift.hasFloor(checkPos)) {
+							liftsToModify.add(lift);
+						}
+					});
+				}
+
+				i += (scanForFloors ? -1 : 1);
+			}
+
+			final InteractionResult result;
+			if (floors.isEmpty() || firstFloor == null || facing == null) {
+				if (player != null) {
+					player.displayClientMessage(Text.translatable("gui.mtr.no_lift_tracks_floor_found"), true);
+				}
+				result = InteractionResult.FAIL;
+			} else {
+				boolean hasSetFloors = false;
+				long liftId = 0;
+				for (final LiftServer lift : liftsToModify) {
+					if (hasSetFloors) {
+						railwayData.lifts.remove(lift);
+					} else {
+						liftId = setLiftData(lift, floors, offsetX, offsetZ, width, depth);
+						hasSetFloors = true;
+					}
+				}
+
+				if (!hasSetFloors) {
+					final LiftServer newLift = new LiftServer(firstFloor, forceFacing == null ? facing : forceFacing);
+					liftId = setLiftData(newLift, floors, offsetX, offsetZ, width, depth);
+					railwayData.lifts.add(newLift);
+				}
+
+				if (player != null) {
+					PacketTrainDataGuiServer.openLiftCustomizationScreenS2C((ServerPlayer) player, liftId);
+				}
+				result = InteractionResult.SUCCESS;
+			}
+
+			railwayData.dataCache.sync();
+			return result;
+		} else {
+			if (player != null) {
+				player.displayClientMessage(Text.translatable("gui.mtr.lift_track_required"), true);
+			}
+			return InteractionResult.FAIL;
+		}
+	}
+
+	private static long setLiftData(LiftServer lift, List<BlockPos> floors, int offsetX, int offsetZ, int width, int depth) {
+		lift.setFloors(floors);
+		lift.liftOffsetX = offsetX;
+		lift.liftOffsetZ = offsetZ;
+		lift.liftWidth = width;
+		lift.liftDepth = depth;
+		return lift.id;
 	}
 }

@@ -1,19 +1,20 @@
 package mtr.entity;
 
 import mtr.EntityTypes;
+import mtr.block.BlockLiftTrack;
+import mtr.item.ItemLiftRefresher;
+import mtr.mappings.Utilities;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+@Deprecated
 public abstract class EntityLift extends EntityBase {
 
-	private int trackCoolDown = TRACK_COOL_DOWN_DEFAULT;
-
 	public final EntityTypes.LiftType liftType;
-
-	private static final int TRACK_COOL_DOWN_DEFAULT = 10;
 
 	public EntityLift(EntityTypes.LiftType liftType, EntityType<?> type, Level world) {
 		super(type, world);
@@ -35,11 +36,8 @@ public abstract class EntityLift extends EntityBase {
 		if (level.isClientSide) {
 			setClientPosition();
 		} else {
-			if (trackCoolDown == 0) {
-				kill();
-			} else {
-				trackCoolDown--;
-			}
+			scanTrack();
+			kill();
 		}
 
 		checkInsideBlocks();
@@ -54,15 +52,16 @@ public abstract class EntityLift extends EntityBase {
 	protected void defineSynchedData() {
 	}
 
-	public static boolean playerVerticallyNearby(Level world, int x, int z) {
-		for (final Player player : world.players()) {
-			final int differenceX = Math.abs(player.blockPosition().getX() - x);
-			final int differenceZ = Math.abs(player.blockPosition().getZ() - z);
-			if (differenceX + differenceZ <= 16) {
-				return true;
+	private void scanTrack() {
+		for (int x = -2; x <= 2; x++) {
+			for (int z = -2; z <= 2; z++) {
+				final BlockPos trackPos = blockPosition().offset(x, 0, z);
+				if (level.getBlockState(trackPos).getBlock() instanceof BlockLiftTrack) {
+					ItemLiftRefresher.refreshLift(level, trackPos, (int) Math.round(getX() * 2) - trackPos.getX() * 2, (int) Math.round(getZ() * 2) - trackPos.getZ() * 2, liftType.width, liftType.depth, Direction.fromYRot(-Utilities.getYaw(this)));
+					return;
+				}
 			}
 		}
-		return false;
 	}
 
 	public static class EntityLift22 extends EntityLift {

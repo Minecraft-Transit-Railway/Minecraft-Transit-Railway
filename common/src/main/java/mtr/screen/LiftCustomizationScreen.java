@@ -37,8 +37,8 @@ public class LiftCustomizationScreen extends ScreenMapper implements IGui, IPack
 	private final int width2;
 
 	private static final int MIN_DIMENSION = 2;
-	private static final int MAX_DIMENSION = 8;
-	private static final int MAX_OFFSET = 8;
+	private static final int MAX_DIMENSION = 16;
+	private static final int MAX_OFFSET = 16;
 
 	public LiftCustomizationScreen(LiftClient lift) {
 		super(Text.literal(""));
@@ -69,11 +69,11 @@ public class LiftCustomizationScreen extends ScreenMapper implements IGui, IPack
 			updateControls();
 		});
 		buttonOffsetXMinus = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("-"), button -> {
-			lift.liftOffsetX = Math.max(-MAX_OFFSET, lift.liftOffsetX - 1);
+			lift.liftOffsetX = Math.max(-MAX_OFFSET * 2, lift.liftOffsetX - 1);
 			updateControls();
 		});
 		buttonOffsetXAdd = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("+"), button -> {
-			lift.liftOffsetX = Math.min(MAX_OFFSET, lift.liftOffsetX + 1);
+			lift.liftOffsetX = Math.min(MAX_OFFSET * 2, lift.liftOffsetX + 1);
 			updateControls();
 		});
 		buttonOffsetYMinus = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("-"), button -> {
@@ -85,11 +85,11 @@ public class LiftCustomizationScreen extends ScreenMapper implements IGui, IPack
 			updateControls();
 		});
 		buttonOffsetZMinus = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("-"), button -> {
-			lift.liftOffsetZ = Math.max(-MAX_OFFSET, lift.liftOffsetZ - 1);
+			lift.liftOffsetZ = Math.max(-MAX_OFFSET * 2, lift.liftOffsetZ - 1);
 			updateControls();
 		});
 		buttonOffsetZAdd = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("+"), button -> {
-			lift.liftOffsetZ = Math.min(MAX_OFFSET, lift.liftOffsetZ + 1);
+			lift.liftOffsetZ = Math.min(MAX_OFFSET * 2, lift.liftOffsetZ + 1);
 			updateControls();
 		});
 		final Component doubleSidedText = Text.translatable("gui.mtr.lift_is_double_sided");
@@ -156,9 +156,9 @@ public class LiftCustomizationScreen extends ScreenMapper implements IGui, IPack
 			drawCenteredString(matrices, font, Text.translatable("tooltip.mtr.rail_action_height", lift.liftHeight / 2F), width2 / 2, TEXT_PADDING, ARGB_WHITE);
 			drawCenteredString(matrices, font, Text.translatable("tooltip.mtr.rail_action_width", lift.liftWidth), width2 / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 			drawCenteredString(matrices, font, Text.translatable("tooltip.mtr.rail_action_depth", lift.liftDepth), width2 / 2, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
-			drawCenteredString(matrices, font, Text.translatable("gui.mtr.offset_x", lift.liftOffsetX), width2 / 2, SQUARE_SIZE * 3 + TEXT_PADDING, ARGB_WHITE);
+			drawCenteredString(matrices, font, Text.translatable("gui.mtr.offset_x", lift.liftOffsetX / 2F), width2 / 2, SQUARE_SIZE * 3 + TEXT_PADDING, ARGB_WHITE);
 			drawCenteredString(matrices, font, Text.translatable("gui.mtr.offset_y", lift.liftOffsetY), width2 / 2, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE);
-			drawCenteredString(matrices, font, Text.translatable("gui.mtr.offset_z", lift.liftOffsetZ), width2 / 2, SQUARE_SIZE * 5 + TEXT_PADDING, ARGB_WHITE);
+			drawCenteredString(matrices, font, Text.translatable("gui.mtr.offset_z", lift.liftOffsetZ / 2F), width2 / 2, SQUARE_SIZE * 5 + TEXT_PADDING, ARGB_WHITE);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -182,12 +182,12 @@ public class LiftCustomizationScreen extends ScreenMapper implements IGui, IPack
 		buttonWidthAdd.active = lift.liftWidth < MAX_DIMENSION;
 		buttonDepthMinus.active = lift.liftDepth > MIN_DIMENSION;
 		buttonDepthAdd.active = lift.liftDepth < MAX_DIMENSION;
-		buttonOffsetXMinus.active = lift.liftOffsetX > -MAX_OFFSET;
-		buttonOffsetXAdd.active = lift.liftOffsetX < MAX_OFFSET;
+		buttonOffsetXMinus.active = lift.liftOffsetX > -MAX_OFFSET * 2;
+		buttonOffsetXAdd.active = lift.liftOffsetX < MAX_OFFSET * 2;
 		buttonOffsetYMinus.active = lift.liftOffsetY > -MAX_OFFSET;
 		buttonOffsetYAdd.active = lift.liftOffsetY < MAX_OFFSET;
-		buttonOffsetZMinus.active = lift.liftOffsetZ > -MAX_OFFSET;
-		buttonOffsetZAdd.active = lift.liftOffsetZ < MAX_OFFSET;
+		buttonOffsetZMinus.active = lift.liftOffsetZ > -MAX_OFFSET * 2;
+		buttonOffsetZAdd.active = lift.liftOffsetZ < MAX_OFFSET * 2;
 		buttonIsDoubleSided.setChecked(lift.isDoubleSided);
 		buttonLiftStyle.setMessage(Text.translatable("gui.mtr.lift_style", Text.translatable("gui.mtr.lift_style_" + lift.liftStyle.toString().toLowerCase())));
 	}

@@ -4,7 +4,6 @@ import mtr.BlockEntityTypes;
 import mtr.Items;
 import mtr.MTR;
 import mtr.data.LiftInstructions;
-import mtr.entity.EntityLift;
 import mtr.mappings.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -135,7 +134,7 @@ public class BlockLiftButtons extends BlockDirectionalMapper implements EntityBl
 		}
 
 		public static <T extends BlockEntityMapper> void tick(Level world, BlockPos pos, T blockEntity) {
-			if (world != null && EntityLift.playerVerticallyNearby(world, pos.getX(), pos.getZ()) && blockEntity instanceof TileEntityLiftButtons && !world.isClientSide && MTR.isGameTickInterval(UPDATE_INTERVAL, (int) pos.asLong())) {
+			if (world != null && world.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16, entity -> true) != null && blockEntity instanceof TileEntityLiftButtons && !world.isClientSide && MTR.isGameTickInterval(UPDATE_INTERVAL, (int) pos.asLong())) {
 				((TileEntityLiftButtons) blockEntity).forEachTrackPosition(world, null);
 				blockEntity.setChanged();
 				((TileEntityLiftButtons) blockEntity).syncData();
