@@ -24,7 +24,6 @@ public class MTRClientLifts implements IPacket {
 
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.LIFT_BUTTONS_1_TILE_ENTITY.get(), RenderLiftButtons::new);
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.LIFT_PANEL_1_TILE_ENTITY.get(), RenderLiftPanel::new);
-
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.LIFT_DOOR_1_TILE_ENTITY.get(), dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 3));
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.LIFT_DOOR_ODD_1_TILE_ENTITY.get(), dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 4));
 
