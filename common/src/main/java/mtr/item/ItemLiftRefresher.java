@@ -35,17 +35,17 @@ public class ItemLiftRefresher extends Item {
 	@Override
 	public InteractionResult useOn(UseOnContext context) {
 		if (!context.getLevel().isClientSide) {
-			return refreshLift(context.getLevel(), context.getClickedPos(), context.getPlayer(), 0, 0, 2, 2, null);
+			return refreshLift(context.getLevel(), context.getClickedPos(), context.getPlayer(), 0, 0, 2, 2, false, null);
 		} else {
 			return super.useOn(context);
 		}
 	}
 
-	public static void refreshLift(Level world, BlockPos clickedPos, int offsetX, int offsetZ, int width, int depth, Direction forceFacing) {
-		refreshLift(world, clickedPos, null, offsetX, offsetZ, width, depth, forceFacing);
+	public static void refreshLift(Level world, BlockPos clickedPos, int offsetX, int offsetZ, int width, int depth, boolean isDoubleSided, Direction forceFacing) {
+		refreshLift(world, clickedPos, null, offsetX, offsetZ, width, depth, isDoubleSided, forceFacing);
 	}
 
-	private static InteractionResult refreshLift(Level world, BlockPos clickedPos, Player player, int offsetX, int offsetZ, int width, int depth, Direction forceFacing) {
+	private static InteractionResult refreshLift(Level world, BlockPos clickedPos, Player player, int offsetX, int offsetZ, int width, int depth, boolean isDoubleSided, Direction forceFacing) {
 		final RailwayData railwayData = RailwayData.getInstance(world);
 
 		if (world.getBlockState(clickedPos).getBlock() instanceof BlockLiftTrack && railwayData != null) {
@@ -102,14 +102,14 @@ public class ItemLiftRefresher extends Item {
 					if (hasSetFloors) {
 						railwayData.lifts.remove(lift);
 					} else {
-						liftId = setLiftData(lift, floors, offsetX, offsetZ, width, depth);
+						liftId = setLiftData(lift, floors, offsetX, offsetZ, width, depth, isDoubleSided);
 						hasSetFloors = true;
 					}
 				}
 
 				if (!hasSetFloors) {
 					final LiftServer newLift = new LiftServer(firstFloor, forceFacing == null ? facing : forceFacing);
-					liftId = setLiftData(newLift, floors, offsetX, offsetZ, width, depth);
+					liftId = setLiftData(newLift, floors, offsetX, offsetZ, width, depth, isDoubleSided);
 					railwayData.lifts.add(newLift);
 				}
 
@@ -129,12 +129,13 @@ public class ItemLiftRefresher extends Item {
 		}
 	}
 
-	private static long setLiftData(LiftServer lift, List<BlockPos> floors, int offsetX, int offsetZ, int width, int depth) {
+	private static long setLiftData(LiftServer lift, List<BlockPos> floors, int offsetX, int offsetZ, int width, int depth, boolean isDoubleSided) {
 		lift.setFloors(floors);
 		lift.liftOffsetX = offsetX;
 		lift.liftOffsetZ = offsetZ;
 		lift.liftWidth = width;
 		lift.liftDepth = depth;
+		lift.isDoubleSided = isDoubleSided;
 		return lift.id;
 	}
 }

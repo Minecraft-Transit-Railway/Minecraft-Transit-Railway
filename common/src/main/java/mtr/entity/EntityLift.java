@@ -14,6 +14,8 @@ import net.minecraft.world.phys.Vec3;
 @Deprecated
 public abstract class EntityLift extends EntityBase {
 
+	private int removeCoolDown = 0;
+
 	public final EntityTypes.LiftType liftType;
 
 	public EntityLift(EntityTypes.LiftType liftType, EntityType<?> type, Level world) {
@@ -37,7 +39,12 @@ public abstract class EntityLift extends EntityBase {
 			setClientPosition();
 		} else {
 			scanTrack();
-			kill();
+			if (removeCoolDown > 200) {
+				System.out.println(liftType + " lift at " + blockPosition() + " not converted");
+				kill();
+			} else {
+				removeCoolDown++;
+			}
 		}
 
 		checkInsideBlocks();
@@ -57,7 +64,9 @@ public abstract class EntityLift extends EntityBase {
 			for (int z = -2; z <= 2; z++) {
 				final BlockPos trackPos = blockPosition().offset(x, 0, z);
 				if (level.getBlockState(trackPos).getBlock() instanceof BlockLiftTrack) {
-					ItemLiftRefresher.refreshLift(level, trackPos, (int) Math.round(getX() * 2) - trackPos.getX() * 2, (int) Math.round(getZ() * 2) - trackPos.getZ() * 2, liftType.width, liftType.depth, Direction.fromYRot(-Utilities.getYaw(this)));
+					ItemLiftRefresher.refreshLift(level, trackPos, (int) Math.round(getX() * 2) - trackPos.getX() * 2, (int) Math.round(getZ() * 2) - trackPos.getZ() * 2, liftType.width, liftType.depth, liftType.isDoubleSided, Direction.fromYRot(-Utilities.getYaw(this)));
+					System.out.println(liftType + " lift at " + blockPosition() + " converted");
+					kill();
 					return;
 				}
 			}
