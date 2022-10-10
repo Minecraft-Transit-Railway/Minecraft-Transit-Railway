@@ -66,10 +66,7 @@ public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButton
 		final Map<BlockPos, Tuple<String, Lift.LiftDirection>> liftDisplays = new HashMap<>();
 		final List<BlockPos> liftPositions = new ArrayList<>();
 		entity.forEachTrackPosition(world, (trackPosition, trackFloorTileEntity) -> {
-			if (holdingLinker) {
-				final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, HorizontalDirectionalBlock.FACING);
-				IDrawing.drawLine(matrices, vertexConsumers, trackPosition.getX() - pos.getX() + trackFacing.getStepX() / 2F, trackPosition.getY() - pos.getY() + 0.5F, trackPosition.getZ() - pos.getZ() + trackFacing.getStepZ() / 2F, facing.getStepX() / 2F, 0.25F, facing.getStepZ() / 2F, 0xFF, 0xFF, 0xFF);
-			}
+			renderLiftObjectLink(matrices, vertexConsumers, world, pos, trackPosition, facing, holdingLinker);
 
 			ClientData.LIFTS.forEach(lift -> {
 				if (lift.hasFloor(trackPosition)) {
@@ -132,5 +129,12 @@ public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButton
 		});
 
 		matrices.popPose();
+	}
+
+	public static void renderLiftObjectLink(PoseStack matrices, MultiBufferSource vertexConsumers, Level world, BlockPos pos, BlockPos trackPosition, Direction facing, boolean holdingLinker) {
+		if (holdingLinker) {
+			final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, HorizontalDirectionalBlock.FACING);
+			IDrawing.drawLine(matrices, vertexConsumers, trackPosition.getX() - pos.getX() + trackFacing.getStepX() / 2F, trackPosition.getY() - pos.getY() + 0.5F, trackPosition.getZ() - pos.getZ() + trackFacing.getStepZ() / 2F, facing.getStepX() / 2F, 0.25F, facing.getStepZ() / 2F, 0xFF, 0xFF, 0xFF);
+		}
 	}
 }

@@ -3,8 +3,6 @@ package mtr.block;
 import mtr.BlockEntityTypes;
 import mtr.Items;
 import mtr.MTR;
-import mtr.data.LiftInstructions;
-import mtr.entity.EntityLift;
 import mtr.mappings.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -40,9 +38,7 @@ public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlo
 
 	@Override
 	public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
-		final Direction facing = IBlock.getStatePropertySafe(state, LEFT) ? IBlock.getStatePropertySafe(state, FACING).getCounterClockWise() : IBlock.getStatePropertySafe(state, FACING).getClockWise();
-
-		if (facing == direction && !newState.is(this)) {
+		if (getOtherDirection(state) == direction && !newState.is(this)) {
 			return Blocks.AIR.defaultBlockState();
 		} else {
 			return state;
@@ -57,7 +53,7 @@ public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlo
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-		return mtr.block.IBlock.getVoxelShapeByDirection(0, 0, 15, 16, 10, 16, state.getValue(FACING));
+		return IBlock.getVoxelShapeByDirection(0, 0, 15, 16, 10, 16, state.getValue(FACING));
 	}
 
 	@Override
@@ -83,14 +79,13 @@ public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlo
 		if (world.isClientSide) {
 			return InteractionResult.SUCCESS;
 		} else {
-			if (player.isHolding(Items.LIFT_BUTTONS_LINK_CONNECTOR.get()) || player.isHolding(Items.LIFT_BUTTONS_LINK_REMOVER.get())) {
-				return InteractionResult.PASS;
-			} else {
-				final double y = hit.getLocation().y;
-				LiftInstructions.addInstruction(world, pos, y - Math.floor(y) > 0.25);
-				return InteractionResult.SUCCESS;
-			}
+			return player.isHolding(Items.LIFT_BUTTONS_LINK_CONNECTOR.get()) || player.isHolding(Items.LIFT_BUTTONS_LINK_REMOVER.get()) ? InteractionResult.PASS : InteractionResult.FAIL;
 		}
+	}
+
+	@Override
+	public <T extends BlockEntityMapper> void tick(Level world, BlockPos pos, T blockEntity) {
+		TileEntityLiftPanel.tick(world, pos, blockEntity);
 	}
 
 	@Override
@@ -103,8 +98,14 @@ public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlo
 		return new TileEntityLiftPanel(pos, state);
 	}
 
+	private static Direction getOtherDirection(BlockState state) {
+		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+		return IBlock.getStatePropertySafe(state, LEFT) ? facing.getCounterClockWise() : facing.getClockWise();
+	}
+
 	public static class TileEntityLiftPanel extends BlockEntityClientSerializableMapper implements TickableMapper {
-		private long trackPosition = 0L;
+
+		private BlockPos trackPosition = null;
 		private static final String KEY_TRACK_FLOOR_POS = "track_floor_pos";
 		private static final int UPDATE_INTERVAL = 60;
 
@@ -114,13 +115,14 @@ public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlo
 
 		@Override
 		public void readCompoundTag(CompoundTag compoundTag) {
-			trackPosition = compoundTag.getLong(KEY_TRACK_FLOOR_POS);
+			final long data = compoundTag.getLong(KEY_TRACK_FLOOR_POS);
+			trackPosition = data == 0 ? null : BlockPos.of(data);
 			super.readCompoundTag(compoundTag);
 		}
 
 		@Override
 		public void writeCompoundTag(CompoundTag compoundTag) {
-			compoundTag.putLong(KEY_TRACK_FLOOR_POS, trackPosition);
+			compoundTag.putLong(KEY_TRACK_FLOOR_POS, trackPosition == null ? 0 : trackPosition.asLong());
 		}
 
 		@Override
@@ -132,60 +134,29 @@ public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlo
 			if (level == null) {
 				return;
 			}
-			Direction facing = IBlock.getStatePropertySafe(level, getBlockPos(), FACING);
-			BlockEntity entityLeft = level.getBlockEntity(getBlockPos().relative(facing.getCounterClockWise()));
-			BlockEntity entityRight = level.getBlockEntity(getBlockPos().relative(facing.getClockWise()));
 
-			if (isAdd) {
-				if (entityLeft instanceof TileEntityLiftPanel) {
-					((TileEntityLiftPanel) (entityLeft)).setFloor(pos.asLong());
-				}
-
-				if (entityRight instanceof TileEntityLiftPanel) {
-					((TileEntityLiftPanel) (entityRight)).setFloor(pos.asLong());
-				}
-				setFloor(pos.asLong());
-			} else {
-				if (entityLeft instanceof TileEntityLiftPanel) {
-					((TileEntityLiftPanel) (entityLeft)).setFloor(0);
-				}
-
-				if (entityRight instanceof TileEntityLiftPanel) {
-					((TileEntityLiftPanel) (entityRight)).setFloor(0);
-				}
-				setFloor(0);
+			setFloor(isAdd ? pos : null);
+			final BlockEntity blockEntity = level.getBlockEntity(getBlockPos().relative(getOtherDirection(level.getBlockState(getBlockPos()))));
+			if (blockEntity instanceof TileEntityLiftPanel) {
+				((TileEntityLiftPanel) blockEntity).setFloor(isAdd ? pos : null);
 			}
 		}
 
-		public void setFloor(long pos) {
+		public BlockPos getTrackPosition(Level world) {
+			if (trackPosition != null && !(world.getBlockEntity(trackPosition) instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor)) {
+				trackPosition = null;
+			}
+			return trackPosition;
+		}
+
+		private void setFloor(BlockPos pos) {
 			trackPosition = pos;
 			setChanged();
 			syncData();
 		}
 
-		public BlockPos getTrackPosition(Level world) {
-			final BlockEntity blockEntity = world.getBlockEntity(BlockPos.of(trackPosition));
-			if (blockEntity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor) {
-				return BlockPos.of(trackPosition);
-			} else {
-				trackPosition = 0L;
-				return null;
-			}
-		}
-
-		public String getFloorNumber(Level world) {
-			if (trackPosition != 0L) {
-				BlockEntity blockEntity = world.getBlockEntity(BlockPos.of(trackPosition));
-				if (blockEntity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor) {
-					return ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).getFloorNumber();
-				}
-			}
-
-			return null;
-		}
-
 		public static <T extends BlockEntityMapper> void tick(Level world, BlockPos pos, T blockEntity) {
-			if (world != null && EntityLift.playerVerticallyNearby(world, pos.getX(), pos.getZ()) && blockEntity instanceof TileEntityLiftPanel && !world.isClientSide && MTR.isGameTickInterval(UPDATE_INTERVAL, (int) pos.asLong())) {
+			if (world != null && world.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16, entity -> true) != null && blockEntity instanceof TileEntityLiftPanel && !world.isClientSide && MTR.isGameTickInterval(UPDATE_INTERVAL, (int) pos.asLong())) {
 				((TileEntityLiftPanel) blockEntity).getTrackPosition(world);
 				blockEntity.setChanged();
 				((TileEntityLiftPanel) blockEntity).syncData();
