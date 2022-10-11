@@ -4,14 +4,18 @@ import mtr.BlockEntityTypes;
 import mtr.Items;
 import mtr.MTR;
 import mtr.mappings.*;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -27,6 +31,8 @@ import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import java.util.List;
 
 public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlockMapper {
 
@@ -89,6 +95,12 @@ public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlo
 	}
 
 	@Override
+	public void appendHoverText(ItemStack itemStack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
+		// TODO odd lift panel
+		tooltip.add(Text.translatable("tooltip.mtr.railway_sign_even").setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+	}
+
+	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(FACING, LEFT);
 	}
@@ -110,7 +122,7 @@ public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlo
 		private static final int UPDATE_INTERVAL = 60;
 
 		public TileEntityLiftPanel(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_PANEL_1_TILE_ENTITY.get(), pos, state);
+			super(BlockEntityTypes.LIFT_PANEL_EVEN_1_TILE_ENTITY.get(), pos, state);
 		}
 
 		@Override

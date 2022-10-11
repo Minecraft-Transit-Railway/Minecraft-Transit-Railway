@@ -107,7 +107,7 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 						return Blocks.APG_GLASS_END.get().defaultBlockState();
 				}
 			case LIFT_DOOR_1:
-				return Blocks.LIFT_DOOR_1.get().defaultBlockState();
+				return Blocks.LIFT_DOOR_EVEN_1.get().defaultBlockState();
 			case LIFT_DOOR_ODD_1:
 				return Blocks.LIFT_DOOR_ODD_1.get().defaultBlockState();
 			default:

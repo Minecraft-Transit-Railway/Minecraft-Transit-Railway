@@ -22,7 +22,7 @@ public class BlockLiftDoor extends BlockPSDAPGDoorBase {
 	public static class TileEntityLiftDoor extends TileEntityPSDAPGDoorBase {
 
 		public TileEntityLiftDoor(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_DOOR_1_TILE_ENTITY.get(), pos, state);
+			super(BlockEntityTypes.LIFT_DOOR_EVEN_1_TILE_ENTITY.get(), pos, state);
 		}
 	}
 }

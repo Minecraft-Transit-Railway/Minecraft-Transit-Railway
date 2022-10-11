@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "facing=north,left=true": { "model": "mtr:block/lift_panel_even_1_left" },
+    "facing=east,left=true": { "model": "mtr:block/lift_panel_even_1_left", "y": 90 },
+    "facing=west,left=true": { "model": "mtr:block/lift_panel_even_1_left", "y": 270 },
+    "facing=south,left=true": { "model": "mtr:block/lift_panel_even_1_left", "y": 180 },
+    "facing=north,left=false": { "model": "mtr:block/lift_panel_even_1_right" },
+    "facing=east,left=false": { "model": "mtr:block/lift_panel_even_1_right", "y": 90 },
+    "facing=west,left=false": { "model": "mtr:block/lift_panel_even_1_right", "y": 270 },
+    "facing=south,left=false": { "model": "mtr:block/lift_panel_even_1_right", "y": 180 }
+  }
+}
