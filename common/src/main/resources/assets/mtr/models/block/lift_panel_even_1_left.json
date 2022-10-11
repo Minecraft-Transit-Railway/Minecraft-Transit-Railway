@@ -1,0 +1,40 @@
+{
+	"textures": {
+		"circle": "mtr:sign/circle",
+		"black": "mtr:block/black",
+		"particle": "mtr:block/metal"
+	},
+	"elements": [
+		{
+			"from": [ 0, 0, 12 ],
+			"to": [ 16, 16, 16 ],
+			"faces": {
+				"north": { "texture": "#particle" },
+				"east": { "texture": "#particle", "cullface": "east" },
+				"south": { "texture": "#particle", "cullface": "south" },
+				"west": { "texture": "#particle", "cullface": "west" },
+				"up": { "texture": "#particle", "cullface": "up" },
+				"down": { "texture": "#particle", "cullface": "down" }
+			}
+		},
+		{
+			"from": [ -2, 6, 11.95 ],
+			"to": [ 2, 10, 11.95 ],
+			"faces": {
+				"north": { "uv": [ 0, 0, 16, 16 ], "texture": "#circle" }
+			}
+		},
+		{
+			"from": [ 0, 1.5, 11.95 ],
+			"to": [ 12.5, 5.5, 11.95 ],
+			"faces": {
+				"north": { "texture": "#black" },
+				"east": { "texture": "#black" },
+				"south": { "texture": "#black" },
+				"west": { "texture": "#black" },
+				"up": { "texture": "#black" },
+				"down": { "texture": "#black" }
+			}
+		}
+	]
+}

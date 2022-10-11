@@ -25,6 +25,7 @@ public class MTRClient implements IPacket {
 
 	private static boolean isReplayMod;
 	private static boolean isVivecraft;
+	private static boolean isPehkui;
 	private static float gameTick = 0;
 	private static float lastPlayedTrainSoundsTick = 0;
 
@@ -349,9 +350,16 @@ public class MTRClient implements IPacket {
 			} catch (Exception ignored) {
 				isVivecraft = false;
 			}
+			try {
+				Class.forName("virtuoel.pehkui.Pehkui");
+				isPehkui = true;
+			} catch (Exception ignored) {
+				isPehkui = false;
+			}
 
 			System.out.println(isReplayMod ? "Running in Replay Mod mode" : "Not running in Replay Mod mode");
 			System.out.println(isVivecraft ? "Vivecraft detected" : "Vivecraft not detected");
+			System.out.println(isPehkui ? "Pehkui detected" : "Pehkui not detected");
 
 			final Minecraft minecraft = Minecraft.getInstance();
 			if (!minecraft.hasSingleplayerServer()) {
@@ -371,6 +379,10 @@ public class MTRClient implements IPacket {
 
 	public static boolean isVivecraft() {
 		return isVivecraft;
+	}
+
+	public static boolean isPehkui() {
+		return isPehkui;
 	}
 
 	public static float getGameTick() {

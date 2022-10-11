@@ -77,12 +77,20 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		bone.render(matrices, vertices, positionX, positionZ, 0, light, OverlayTexture.NO_OVERLAY);
 	}
 
+	protected static void renderOnce(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float positionX, float positionY, float positionZ) {
+		bone.render(matrices, vertices, positionX, positionY, positionZ, 0, light, OverlayTexture.NO_OVERLAY);
+	}
+
 	protected static void renderOnceFlipped(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float position) {
 		bone.render(matrices, vertices, 0, position, (float) Math.PI, light, OverlayTexture.NO_OVERLAY);
 	}
 
 	protected static void renderOnceFlipped(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
 		bone.render(matrices, vertices, -positionX, positionZ, (float) Math.PI, light, OverlayTexture.NO_OVERLAY);
+	}
+
+	protected static void renderOnceFlipped(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float positionX, float positionY, float positionZ) {
+		bone.render(matrices, vertices, -positionX, positionY, positionZ, (float) Math.PI, light, OverlayTexture.NO_OVERLAY);
 	}
 
 	protected static boolean isIndex(int index, int value, int[] array) {

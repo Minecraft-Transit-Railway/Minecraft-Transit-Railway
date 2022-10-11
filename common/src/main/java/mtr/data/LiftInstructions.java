@@ -1,8 +1,8 @@
 package mtr.data;
 
 import mtr.block.BlockLiftButtons;
-import mtr.entity.EntityLift;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -12,11 +12,28 @@ import java.util.function.Consumer;
 
 public class LiftInstructions {
 
+	private boolean isDirty = false;
 	private final List<LiftInstruction> instructions = new ArrayList<>();
-	private final Consumer<String> callback;
 
-	public LiftInstructions(Consumer<String> callback) {
-		this.callback = callback;
+	public LiftInstructions() {
+	}
+
+	public LiftInstructions(FriendlyByteBuf packet) {
+		final int instructionsCount = packet.readInt();
+		for (int i = 0; i < instructionsCount; i++) {
+			instructions.add(new LiftInstruction(packet));
+		}
+	}
+
+	public void writePacket(FriendlyByteBuf packet) {
+		packet.writeInt(instructions.size());
+		instructions.forEach(liftInstruction -> liftInstruction.writePacket(packet));
+	}
+
+	public void copyFrom(LiftInstructions liftInstructions) {
+		isDirty = false;
+		instructions.clear();
+		instructions.addAll(liftInstructions.instructions);
 	}
 
 	public void getTargetFloor(Consumer<Integer> callback) {
@@ -28,7 +45,7 @@ public class LiftInstructions {
 	public void arrived() {
 		if (hasInstructions()) {
 			instructions.remove(0);
-			callback.accept(toString());
+			isDirty = true;
 		}
 	}
 
@@ -38,6 +55,12 @@ public class LiftInstructions {
 
 	public void addInstruction(int currentFloor, boolean currentMovingUp, int floor) {
 		addInstruction(currentFloor, currentMovingUp, floor, false, true, true);
+	}
+
+	public boolean isDirty() {
+		final boolean isDirtyTemp = isDirty;
+		isDirty = false;
+		return isDirtyTemp;
 	}
 
 	private int addInstruction(int currentFloor, boolean currentMovingUp, int newFloor, boolean newMovingUp, boolean noDirection, boolean shouldAdd) {
@@ -61,7 +84,7 @@ public class LiftInstructions {
 			if (nextInstruction.canInsert(previousInstruction, newFloor, newMovingUpTemp)) {
 				if (shouldAdd) {
 					instructions.add(i, new LiftInstruction(newFloor, newMovingUpTemp));
-					callback.accept(toString());
+					isDirty = true;
 				}
 				return distance + Math.abs(newFloor - previousInstruction.floor);
 			}
@@ -72,21 +95,27 @@ public class LiftInstructions {
 		final int lastInstruction = hasInstructions() ? instructions.get(instructions.size() - 1).floor : currentFloor;
 		if (shouldAdd) {
 			instructions.add(new LiftInstruction(newFloor, noDirection ? newFloor > lastInstruction : newMovingUp));
-			callback.accept(toString());
+			isDirty = true;
 		}
 		return distance + Math.abs(newFloor - lastInstruction);
 	}
 
-	@Override
-	public String toString() {
-		final StringBuilder stringBuilder = new StringBuilder();
-		instructions.forEach(liftInstruction -> stringBuilder.append("floor_").append(liftInstruction.floor).append("_").append(liftInstruction.movingUp).append(","));
-		return stringBuilder.toString();
+	public boolean containsInstruction(int floor, boolean movingUp) {
+		return instructions.contains(new LiftInstruction(floor, movingUp));
+	}
+
+	public boolean containsInstruction(int floor) {
+		return containsInstruction(floor, true) || containsInstruction(floor, false);
 	}
 
 	public static void addInstruction(Level world, BlockPos pos, boolean topHalfClicked) {
 		final BlockEntity blockEntity = world.getBlockEntity(pos);
 		if (!(blockEntity instanceof BlockLiftButtons.TileEntityLiftButtons)) {
+			return;
+		}
+
+		final RailwayData railwayData = RailwayData.getInstance(world);
+		if (railwayData == null) {
 			return;
 		}
 
@@ -97,41 +126,37 @@ public class LiftInstructions {
 		final int[] newLiftFloorToUse = {0};
 		final boolean[] hasButtonOverall = {false, false};
 
-		((BlockLiftButtons.TileEntityLiftButtons) blockEntity).forEachTrackPosition(world, (trackPosition, trackFloorTileEntity) -> {
-			final EntityLift entityLift = trackFloorTileEntity.getEntityLift();
+		((BlockLiftButtons.TileEntityLiftButtons) blockEntity).forEachTrackPosition(world, (trackPosition, trackFloorTileEntity) -> railwayData.lifts.stream().filter(lift -> lift.hasFloor(trackPosition)).findFirst().ifPresent(lift -> {
+			final int liftFloor = (int) Math.round(lift.getPositionY());
 
-			if (entityLift != null) {
-				final int liftFloor = (int) Math.round(entityLift.getY());
-
-				final int newLiftFloor = trackPosition.getY();
-				final boolean[] hasButton = {false, false};
-				entityLift.hasButton(newLiftFloor, hasButton);
-				final boolean newMovingUp;
-				if (topHalfClicked) {
-					newMovingUp = hasButton[0];
-				} else {
-					newMovingUp = !hasButton[1];
-				}
-
-				final boolean liftMovingUp = entityLift.getLiftDirection() == EntityLift.LiftDirection.UP;
-				final int weight = entityLift.liftInstructions.addInstruction(liftFloor, liftMovingUp, newLiftFloor, newMovingUp, false, false);
-
-				if (weight >= 0 && (topHalfClicked == newMovingUp && weight < currentWeight[0] || newMovingUp && !hasButtonOverall[0] || !newMovingUp && !hasButtonOverall[1])) {
-					currentWeight[0] = weight;
-					liftInstructionsToUse[0] = entityLift.liftInstructions;
-					liftFloorToUse[0] = liftFloor;
-					liftMovingUpToUse[0] = liftMovingUp;
-					newLiftFloorToUse[0] = newLiftFloor;
-				}
-
-				if (hasButton[0]) {
-					hasButtonOverall[0] = true;
-				}
-				if (hasButton[1]) {
-					hasButtonOverall[1] = true;
-				}
+			final int newLiftFloor = trackPosition.getY();
+			final boolean[] hasButton = {false, false};
+			lift.hasUpDownButtonForFloor(newLiftFloor, hasButton);
+			final boolean newMovingUp;
+			if (topHalfClicked) {
+				newMovingUp = hasButton[0];
+			} else {
+				newMovingUp = !hasButton[1];
 			}
-		});
+
+			final boolean liftMovingUp = lift.getLiftDirection() == Lift.LiftDirection.UP;
+			final int weight = lift.liftInstructions.addInstruction(liftFloor, liftMovingUp, newLiftFloor, newMovingUp, false, false);
+
+			if (weight >= 0 && (topHalfClicked == newMovingUp && weight < currentWeight[0] || newMovingUp && !hasButtonOverall[0] || !newMovingUp && !hasButtonOverall[1])) {
+				currentWeight[0] = weight;
+				liftInstructionsToUse[0] = lift.liftInstructions;
+				liftFloorToUse[0] = liftFloor;
+				liftMovingUpToUse[0] = liftMovingUp;
+				newLiftFloorToUse[0] = newLiftFloor;
+			}
+
+			if (hasButton[0]) {
+				hasButtonOverall[0] = true;
+			}
+			if (hasButton[1]) {
+				hasButtonOverall[1] = true;
+			}
+		}));
 
 		if (liftInstructionsToUse[0] != null) {
 			final boolean newMovingUp;
@@ -144,10 +169,6 @@ public class LiftInstructions {
 		}
 	}
 
-	public static String getStringPart(int floor, boolean movingUp) {
-		return "floor_" + floor + "_" + movingUp;
-	}
-
 	private static class LiftInstruction {
 
 		private final int floor;
@@ -158,12 +179,22 @@ public class LiftInstructions {
 			this.movingUp = movingUp;
 		}
 
+		private LiftInstruction(FriendlyByteBuf packet) {
+			floor = packet.readInt();
+			movingUp = packet.readBoolean();
+		}
+
 		private boolean canInsert(LiftInstruction previousInstruction, int newFloor, boolean newMovingUp) {
 			if (RailwayData.isBetween(newFloor, previousInstruction.floor, floor) && newMovingUp == movingUp) {
 				return true;
 			} else {
 				return previousInstruction.movingUp != movingUp && previousInstruction.movingUp == (newFloor > previousInstruction.floor);
 			}
+		}
+
+		private void writePacket(FriendlyByteBuf packet) {
+			packet.writeInt(floor);
+			packet.writeBoolean(movingUp);
 		}
 
 		@Override
