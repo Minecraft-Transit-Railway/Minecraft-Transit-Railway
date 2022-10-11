@@ -226,7 +226,7 @@ public class ClientCache extends DataCache implements IGui {
 	}
 
 	public DynamicResource getLiftPanelDisplay(String originalText, int textColor) {
-		return getResource(String.format("lift_%s", originalText), () -> RouteMapGenerator.generateLiftPanel(originalText, textColor), DefaultRenderingColor.TRANSPARENT);
+		return getResource(String.format("lift_%s", originalText), () -> RouteMapGenerator.generateLiftPanel(originalText, textColor), DefaultRenderingColor.BLACK);
 	}
 
 	public DynamicResource getRouteSquare(int color, String routeName, IGui.HorizontalAlignment horizontalAlignment) {

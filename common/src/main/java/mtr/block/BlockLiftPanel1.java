@@ -53,7 +53,7 @@ public class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlo
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-		return IBlock.getVoxelShapeByDirection(0, 0, 15, 16, 10, 16, state.getValue(FACING));
+		return IBlock.getVoxelShapeByDirection(0, 0, 12, 16, 16, 16, state.getValue(FACING));
 	}
 
 	@Override

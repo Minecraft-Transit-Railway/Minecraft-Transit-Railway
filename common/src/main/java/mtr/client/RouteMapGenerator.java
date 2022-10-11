@@ -152,8 +152,8 @@ public class RouteMapGenerator implements IGui {
 
 	public static DynamicTexture generateLiftPanel(String text, int textColor) {
 		try {
-			final int width = Math.round(scale * 1.3F);
-			final int height = (fontSizeSmall * 2) * text.split("\\|").length;
+			final int width = Math.round(scale * 1.5F);
+			final int height = fontSizeSmall * 2 * text.split("\\|").length;
 			final int[] dimensions = new int[2];
 			final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(text.toUpperCase(), dimensions, width, height, fontSizeSmall * 2, fontSizeSmall * 2, 0, HorizontalAlignment.CENTER);
 			final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);

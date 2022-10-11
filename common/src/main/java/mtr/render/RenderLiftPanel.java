@@ -30,16 +30,11 @@ import static mtr.data.IGui.*;
 
 public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.TileEntityLiftPanel> {
 
-	private float uvShiftArrow = 0;
-	private float nextFloorUV = 0;
-	private float currentFloorUV = 0;
-	private float tickElapsed = 0;
-
 	private static final ResourceLocation ARROW_TEXTURE = new ResourceLocation("mtr:textures/block/lift_arrow.png");
 	private static final float ARROW_SPEED = 0.04F;
-	private static final float FLOOR_SLIDE_SPEED = 0.1F;
+	private static final int SLIDE_TIME = 5;
 	private static final int SLIDE_INTERVAL = 50;
-	private static final float MAX_WIDTH = 1.2F;
+	private static final float PANEL_WIDTH = 1.125F;
 
 	public RenderLiftPanel(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
@@ -82,6 +77,13 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
 			return;
 		}
 
+		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalDirectionalBlock.FACING).getOpposite();
+		final boolean holdingLinker = Utilities.isHolding(player, item -> item instanceof ItemLiftButtonsLinkModifier || Block.byItem(item) instanceof BlockLiftPanel1);
+
+		matrices.pushPose();
+		matrices.translate(0.5, 0, 0.5);
+		RenderLiftButtons.renderLiftObjectLink(matrices, vertexConsumers, world, pos, trackPosition, facing, holdingLinker);
+
 		Lift lift = null;
 		for (final Lift checkLift : ClientData.LIFTS) {
 			if (checkLift.hasFloor(trackPosition)) {
@@ -89,74 +91,61 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
 				break;
 			}
 		}
-		if (lift == null) {
-			return;
+
+		if (lift != null) {
+			final String[] text = ClientData.DATA_CACHE.requestLiftFloorText(lift.getCurrentFloorBlockPos());
+			matrices.mulPose(Vector3f.YN.rotationDegrees(facing.toYRot()));
+			matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
+			matrices.translate(0.5, 0, 0);
+
+			// Floor Number
+			matrices.pushPose();
+			matrices.translate(0, 0, 0.25F - SMALL_OFFSET * 2);
+			final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+			IDrawing.drawStringWithFont(matrices, textRenderer, immediate, ClientData.DATA_CACHE.requestLiftFloorText(trackPosition)[0], HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, -0.47F, 0.1875F, 0.1875F, 1, ARGB_BLACK, false, MAX_LIGHT_GLOWING, null);
+			immediate.endBatch();
+			matrices.popPose();
+
+			renderLiftDisplay(matrices, vertexConsumers, 0.25F, text[0], text[1], lift.getLiftDirection());
 		}
-
-		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalDirectionalBlock.FACING).getOpposite();
-		final boolean holdingLinker = Utilities.isHolding(player, item -> item instanceof ItemLiftButtonsLinkModifier || Block.byItem(item) instanceof BlockLiftPanel1);
-		final String[] text = ClientData.DATA_CACHE.requestLiftFloorText(lift.getCurrentFloorBlockPos());
-
-		matrices.pushPose();
-		matrices.translate(0.5, 0, 0.5);
-		RenderLiftButtons.renderLiftObjectLink(matrices, vertexConsumers, world, pos, trackPosition, facing, holdingLinker);
-		matrices.mulPose(Vector3f.YN.rotationDegrees(facing.toYRot()));
-		matrices.translate(0, 0, 0.4375 - SMALL_OFFSET);
-
-		matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
-		matrices.translate(MAX_WIDTH * (0.5 - 1 / 2F), 0, 0);
-		matrices.translate(0, -0.875, -SMALL_OFFSET);
-
-		// Floor Number
-		matrices.pushPose();
-		matrices.translate(0.5F, 0.5F, 0);
-		final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-		IDrawing.drawStringWithFont(matrices, textRenderer, immediate, ClientData.DATA_CACHE.requestLiftFloorText(trackPosition)[0], HorizontalAlignment.CENTER, VerticalAlignment.CENTER, -SMALL_OFFSET, 0, 0.16F, 0.16F, 1F, ARGB_BLACK, false, MAX_LIGHT_GLOWING, null);
-		immediate.endBatch();
-		matrices.popPose();
-
-		renderLiftDisplay(matrices, vertexConsumers, facing, pos, text[0], text[1], lift.getLiftDirection());
-
-		matrices.translate(MAX_WIDTH, 0, 0);
 		matrices.popPose();
 	}
 
-	private void renderLiftDisplay(PoseStack matrices, MultiBufferSource vertexConsumers, Direction facing, BlockPos pos, String floorNumber, String floorDisplay, Lift.LiftDirection liftDirection) {
+	private void renderLiftDisplay(PoseStack matrices, MultiBufferSource vertexConsumers, float zOffset, String floorNumber, String floorDisplay, Lift.LiftDirection liftDirection) {
+		matrices.pushPose();
+		matrices.translate(0, 0, zOffset - SMALL_OFFSET * 2);
+
 		final boolean noFloorNumber = floorNumber.isEmpty();
 		final boolean noFloorDisplay = floorDisplay.isEmpty();
-		final float lineHeight = 1F / ((noFloorNumber ? 0 : floorNumber.split("\\|").length) + (noFloorDisplay ? 0 : floorDisplay.split("\\|").length));
-		final float delta = MTRClient.getLastFrameDuration();
+		final int lineCount = (noFloorNumber ? 0 : floorNumber.split("\\|").length) + (noFloorDisplay ? 0 : floorDisplay.split("\\|").length);
+		final float lineHeight = 1F / lineCount;
+		final float gameTick = MTRClient.getGameTick();
 		final boolean goingUp = liftDirection == Lift.LiftDirection.UP;
-
-		tickElapsed += delta;
-
-		if (tickElapsed >= SLIDE_INTERVAL) {
-			nextFloorUV += lineHeight;
-			tickElapsed = 0;
-		}
-
-		if (nextFloorUV > currentFloorUV) {
-			currentFloorUV += Math.min(FLOOR_SLIDE_SPEED * lineHeight * delta, nextFloorUV - currentFloorUV);
-		} else if (nextFloorUV % lineHeight != 0) {
-			nextFloorUV = 0;
-			currentFloorUV = 0;
-		}
+		final float arrowSize = PANEL_WIDTH / 6;
+		final float y = -arrowSize - 0.125F;
 
 		// Arrow
 		if (liftDirection != Lift.LiftDirection.NONE) {
-			uvShiftArrow += (ARROW_SPEED * delta) % 2;
-			IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ARROW_TEXTURE, true)), -0.06F, 0.65F, MAX_WIDTH / 8F, MAX_WIDTH / 8F, 0, (goingUp ? 0 : 1) + uvShiftArrow, 1, (goingUp ? 1 : 0) + uvShiftArrow, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
-			IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ARROW_TEXTURE, true)), MAX_WIDTH / 1.3F, 0.65F, MAX_WIDTH / 8F, MAX_WIDTH / 8F, 0, (goingUp ? 0 : 1) + uvShiftArrow, 1, (goingUp ? 1 : 0) + uvShiftArrow, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
+			final float uv = (gameTick * ARROW_SPEED) % 1;
+			final int color = goingUp ? 0xFF00FF00 : 0xFFFF0000;
+			IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ARROW_TEXTURE, false)), -PANEL_WIDTH / 2 - arrowSize, y, arrowSize, arrowSize, 0, (goingUp ? 0 : 1) + uv, 1, (goingUp ? 1 : 0) + uv, Direction.UP, color, MAX_LIGHT_GLOWING);
+			IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ARROW_TEXTURE, false)), PANEL_WIDTH / 2, y, arrowSize, arrowSize, 0, (goingUp ? 0 : 1) + uv, 1, (goingUp ? 1 : 0) + uv, Direction.UP, color, MAX_LIGHT_GLOWING);
 		}
 
+		// Floor Display
 		if (!noFloorNumber || !noFloorDisplay) {
-			// Floor Display
-			matrices.pushPose();
-			matrices.translate(0.07F, 0.63F, 0);
-			matrices.scale(0.017F, 0.017F, 0.017F);
+			float uvOffset = 0;
+			if (lineCount > 1) {
+				uvOffset = (float) Math.floor((gameTick % (SLIDE_INTERVAL * lineCount)) / SLIDE_INTERVAL) * lineHeight;
+				if ((gameTick % SLIDE_INTERVAL) > SLIDE_INTERVAL - SLIDE_TIME) {
+					uvOffset += lineHeight * ((gameTick % SLIDE_INTERVAL) - SLIDE_INTERVAL + SLIDE_TIME) / SLIDE_TIME;
+				}
+			}
+			final float uv = (goingUp ? -1 : 1) * uvOffset;
 			final String text = String.format("%s%s%s", floorNumber, noFloorNumber || noFloorDisplay ? "" : "|", floorDisplay);
-			IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ClientData.DATA_CACHE.getLiftPanelDisplay(text, 16755200).resourceLocation, true)), 0, 0.5F, 50, 10, 0, goingUp ? (0 - currentFloorUV) : (0 + currentFloorUV), 1, goingUp ? (lineHeight - currentFloorUV) : (lineHeight + currentFloorUV), facing, ARGB_WHITE, MAX_LIGHT_GLOWING);
-			matrices.popPose();
+			IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ClientData.DATA_CACHE.getLiftPanelDisplay(text, 0xFFAA00).resourceLocation, false)), -PANEL_WIDTH / 2, y, PANEL_WIDTH, arrowSize, 0, uv, 1, lineHeight + uv, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
 		}
+
+		matrices.popPose();
 	}
 }
