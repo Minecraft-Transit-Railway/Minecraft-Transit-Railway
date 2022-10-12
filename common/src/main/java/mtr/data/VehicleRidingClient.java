@@ -95,7 +95,7 @@ public class VehicleRidingClient {
 		}
 
 		final boolean isClientPlayer = uuid.equals(clientPlayer.getUUID());
-		final Vec3 playerOffset = new Vec3(Train.getValueFromPercentage(percentagesX.get(uuid), width), doorLeftOpen || doorRightOpen ? 0 : riderOffset, Train.getValueFromPercentage(Mth.frac(percentagesZ.get(uuid)), length)).xRot(hasPitch ? pitch : 0).yRot(yaw);
+		final Vec3 playerOffset = new Vec3(getValueFromPercentage(percentagesX.get(uuid), width), doorLeftOpen || doorRightOpen ? 0 : riderOffset, getValueFromPercentage(Mth.frac(percentagesZ.get(uuid)), length)).xRot(hasPitch ? pitch : 0).yRot(yaw);
 		ClientData.updatePlayerRidingOffset(uuid);
 		riderPositions.put(uuid, playerOffset.add(x, y, z));
 
@@ -190,8 +190,8 @@ public class VehicleRidingClient {
 				oldPercentageZ = newPercentageZ;
 			}
 		} else {
-			final double distanceX = Train.getValueFromPercentage(newPercentagesX.get(uuid), width) - Train.getValueFromPercentage(percentagesX.get(uuid), width);
-			final double distanceZ = Train.getValueFromPercentage(newPercentagesZ.get(uuid), length) - Train.getValueFromPercentage(percentagesZ.get(uuid), length);
+			final double distanceX = getValueFromPercentage(newPercentagesX.get(uuid), width) - getValueFromPercentage(percentagesX.get(uuid), width);
+			final double distanceZ = getValueFromPercentage(newPercentagesZ.get(uuid), length) - getValueFromPercentage(percentagesZ.get(uuid), length);
 			final double manhattanDistance = Math.abs(distanceX + distanceZ);
 			if (manhattanDistance == 0 || distanceX * distanceX + distanceZ * distanceZ < speedMultiplier * speedMultiplier) {
 				newPercentageX = newPercentagesX.get(uuid);
@@ -233,5 +233,9 @@ public class VehicleRidingClient {
 
 	public Vec3 getViewOffset() {
 		return offset.isEmpty() ? null : new Vec3(offset.get(3), offset.get(4), offset.get(5));
+	}
+
+	private static double getValueFromPercentage(double percentage, double total) {
+		return (percentage - 0.5) * total;
 	}
 }

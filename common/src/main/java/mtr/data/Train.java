@@ -688,10 +688,6 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		return (a + b) / 2;
 	}
 
-	public static double getValueFromPercentage(double percentage, double total) {
-		return (percentage - 0.5) * total;
-	}
-
 	public static RailType convertMaxManualSpeed(int maxManualSpeed) {
 		if (maxManualSpeed >= 0 && maxManualSpeed <= RailType.DIAMOND.ordinal()) {
 			return RailType.values()[maxManualSpeed];
