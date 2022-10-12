@@ -142,7 +142,7 @@ public class LiftCustomizationScreen extends ScreenMapper implements IGui, IPack
 		addDrawableChild(buttonOffsetZMinus);
 		addDrawableChild(buttonOffsetZAdd);
 		addDrawableChild(buttonIsDoubleSided);
-		addDrawableChild(buttonLiftStyle);
+//		addDrawableChild(buttonLiftStyle);
 		addDrawableChild(buttonRotateAnticlockwise);
 		addDrawableChild(buttonRotateClockwise);
 		updateControls();

@@ -2,7 +2,6 @@ package mtr.data;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.msgpack.value.Value;
@@ -24,14 +23,14 @@ public class LiftServer extends Lift {
 	}
 
 	public void tickServer(Level world, Map<Player, Set<LiftServer>> liftsInPlayerRange, Set<LiftServer> liftsToSync) {
-		world.players().forEach(player -> {
-			if (player.blockPosition().distManhattan(new Vec3i(currentPositionX + liftOffsetX / 2F, currentPositionY + liftOffsetY, currentPositionZ + liftOffsetZ / 2F)) < LIFT_UPDATE_DISTANCE) {
+		floors.forEach(floor -> world.players().forEach(player -> {
+			if (player.blockPosition().distManhattan(floor) < LIFT_UPDATE_DISTANCE) {
 				if (!liftsInPlayerRange.containsKey(player)) {
 					liftsInPlayerRange.put(player, new HashSet<>());
 				}
 				liftsInPlayerRange.get(player).add(this);
 			}
-		});
+		}));
 
 		tick(world, 1);
 
