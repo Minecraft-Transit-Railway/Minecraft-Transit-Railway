@@ -4,7 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
 import java.util.*;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 
@@ -39,7 +39,7 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 		}
 
 		final long startTime = System.currentTimeMillis();
-		while (currentRouteFinderRequest != null || System.currentTimeMillis() - startTime < 2) {
+		while (System.currentTimeMillis() - startTime < (currentRouteFinderRequest == null ? 2 : 20)) {
 			switch (tickStage) {
 				case GET_POS:
 					if (routeFinderQueue.isEmpty()) {
@@ -61,6 +61,7 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 							}
 
 							globalBlacklist.clear();
+							startMillis = System.currentTimeMillis();
 							totalTime = Integer.MAX_VALUE;
 							tickStage = TickStage.START_FIND_ROUTE;
 						}
@@ -69,6 +70,7 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 						startPos = currentRouteFinderRequest.startPos;
 						endPos = currentRouteFinderRequest.endPos;
 						globalBlacklist.clear();
+						startMillis = System.currentTimeMillis();
 						totalTime = Integer.MAX_VALUE;
 						tickStage = TickStage.START_FIND_ROUTE;
 					}
@@ -79,7 +81,6 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 					platformPositions.addAll(railwayData.dataCache.platformConnections.keySet());
 					platformPositions.add(endPos);
 					localBlacklist.clear();
-					startMillis = System.currentTimeMillis();
 					tickStage = TickStage.FIND_ROUTE;
 					break;
 				case FIND_ROUTE:
@@ -107,7 +108,7 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 							for (final RouteFinderData routeFinderData : data) {
 								RouteFinderData.append(newDataList, routeFinderData);
 							}
-							currentRouteFinderRequest.callback.accept(newDataList);
+							currentRouteFinderRequest.callback.accept(newDataList, (int) (System.currentTimeMillis() - startMillis));
 						}
 
 						tickStage = TickStage.GET_POS;
@@ -126,7 +127,7 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 		}
 	}
 
-	public void findRoute(BlockPos posStart, BlockPos posEnd, Consumer<List<RouteFinderData>> callback) {
+	public void findRoute(BlockPos posStart, BlockPos posEnd, BiConsumer<List<RouteFinderData>, Integer> callback) {
 		routeFinderQueue.add(new RouteFinderRequest(posStart, posEnd, callback));
 		tickStage = TickStage.GET_POS;
 	}
@@ -175,10 +176,10 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 							if (depot != null) {
 								final int delay = depot.getMillisUntilDeploy(1, -lastDeparture * Depot.MILLIS_PER_TICK - 100) / Depot.MILLIS_PER_TICK;
 								final int newDuration = durationInfoEntry.getValue() + delay;
-								if (delay > 0 && newDuration < duration) {
+								if (delay >= 0 && newDuration < duration) {
 									duration = newDuration;
 									routeId = durationInfoEntry.getKey();
-									waitingTime = delay;
+									waitingTime = Math.max(0, delay - 100);
 								}
 							}
 						}
@@ -266,9 +267,9 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 
 		private final BlockPos startPos;
 		private final BlockPos endPos;
-		private final Consumer<List<RouteFinderData>> callback;
+		private final BiConsumer<List<RouteFinderData>, Integer> callback;
 
-		private RouteFinderRequest(BlockPos startPos, BlockPos endPos, Consumer<List<RouteFinderData>> callback) {
+		private RouteFinderRequest(BlockPos startPos, BlockPos endPos, BiConsumer<List<RouteFinderData>, Integer> callback) {
 			this.startPos = startPos;
 			this.endPos = endPos;
 			this.callback = callback;

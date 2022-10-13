@@ -1,5 +1,8 @@
 package mtr.servlet;
 
+import mtr.data.RouteType;
+import mtr.data.TransportMode;
+
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
@@ -14,6 +17,7 @@ public interface IServletHandler {
 		final ByteBuffer contentBytes = ByteBuffer.wrap(content.getBytes(StandardCharsets.UTF_8));
 		try {
 			response.addHeader("Access-Control-Allow-Origin", "*");
+			response.addHeader("Content-Type", "application/json");
 			final ServletOutputStream servletOutputStream = response.getOutputStream();
 			servletOutputStream.setWriteListener(new WriteListener() {
 				@Override
@@ -36,5 +40,9 @@ public interface IServletHandler {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	static String createRouteKey(TransportMode transportMode, RouteType routeType) {
+		return (transportMode.toString() + "_" + routeType.toString()).toLowerCase();
 	}
 }

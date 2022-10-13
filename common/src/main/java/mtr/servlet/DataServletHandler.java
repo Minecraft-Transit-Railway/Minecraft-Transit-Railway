@@ -42,7 +42,7 @@ public class DataServletHandler extends HttpServlet {
 						routeObject.addProperty("color", route.color);
 						routeObject.addProperty("name", route.name);
 						routeObject.addProperty("number", route.isLightRailRoute ? route.lightRailRouteNumber : "");
-						final String type = createKey(route.transportMode, route.routeType);
+						final String type = IServletHandler.createRouteKey(route.transportMode, route.routeType);
 						routeObject.addProperty("type", type);
 						types.add(type);
 						final JsonArray routeStationsArray = new JsonArray();
@@ -132,7 +132,7 @@ public class DataServletHandler extends HttpServlet {
 
 				for (final TransportMode transportMode : TransportMode.values()) {
 					for (final RouteType routeType : RouteType.values()) {
-						final String type = createKey(transportMode, routeType);
+						final String type = IServletHandler.createRouteKey(transportMode, routeType);
 						if (types.contains(type)) {
 							typesObject.add(type);
 						}
@@ -149,9 +149,5 @@ public class DataServletHandler extends HttpServlet {
 
 			IServletHandler.sendResponse(response, asyncContext, dataArray.toString());
 		});
-	}
-
-	private static String createKey(TransportMode transportMode, RouteType routeType) {
-		return (transportMode.toString() + "_" + routeType.toString()).toLowerCase();
 	}
 }
