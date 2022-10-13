@@ -300,8 +300,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			siding.setSidingData(world, dataCache.sidingIdToDepot.get(siding.id), rails);
 			siding.simulateTrain(dataCache, railwayDataDriveTrainModule, trainPositions, signalBlocks, updateNearbyTrains.newDataSetInPlayerRange, updateNearbyTrains.dataSetToSync, schedulesForPlatform, trainDelays);
 		});
-		final int hour = Depot.getHour(world);
-		depots.forEach(depot -> depot.deployTrain(this, hour));
+		depots.forEach(depot -> depot.deployTrain(this, world));
 
 		updateNearbyLifts.startTick();
 		lifts.forEach(lift -> lift.tickServer(world, updateNearbyLifts.newDataSetInPlayerRange, updateNearbyLifts.dataSetToSync));

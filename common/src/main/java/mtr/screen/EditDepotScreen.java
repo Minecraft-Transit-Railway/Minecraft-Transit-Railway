@@ -163,6 +163,10 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		departuresList.tick();
 		textFieldDeparture.tick();
 
+		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
+			data.setFrequency(sliders[i].getIntValue(), i);
+		}
+
 		if (data.routeIds.isEmpty()) {
 			checkboxRepeatIndefinitely.visible = false;
 		} else {
@@ -198,7 +202,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			font.draw(matrices, Text.translatable("gui.mtr.sidings_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, yStartRightPane, ARGB_WHITE);
 
 			final Component text;
-			final int nextDepartureMillis = data.getMillisUntilDeploy(minecraft == null || minecraft.level == null ? 0 : Depot.getHour(minecraft.level), 1);
+			data.generateTempDepartures(Minecraft.getInstance().level);
+			final int nextDepartureMillis = data.getMillisUntilDeploy(1);
 			if (nextDepartureMillis >= 0) {
 				final long hour = TimeUnit.MILLISECONDS.toHours(nextDepartureMillis);
 				final long minute = TimeUnit.MILLISECONDS.toMinutes(nextDepartureMillis) % 60;
@@ -237,9 +242,6 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	@Override
 	protected void saveData() {
 		super.saveData();
-		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
-			data.setFrequency(sliders[i].getIntValue(), i);
-		}
 		data.repeatInfinitely = checkboxRepeatIndefinitely.visible && checkboxRepeatIndefinitely.selected();
 		data.setData(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
 	}
@@ -279,6 +281,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			departureData.add(new DataConverter(String.format("%2s:%2s:%2s", hour, minute, second).replace(' ', '0'), 0));
 		});
 		departuresList.setData(departureData, false, false, false, false, false, true);
+		data.generateTempDepartures(Minecraft.getInstance().level);
 	}
 
 	private boolean checkDeparture(String text, boolean addToList, boolean removeFromList) {

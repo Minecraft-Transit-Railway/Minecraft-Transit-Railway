@@ -23,7 +23,7 @@ public class DataCache {
 	public final Map<Station, Set<Station>> stationIdToConnectingStations = new HashMap<>();
 	public final Map<BlockPos, Station> blockPosToStation = new HashMap<>();
 	public final Map<BlockPos, Long> blockPosToPlatformId = new HashMap<>();
-	public final Map<BlockPos, Map<BlockPos, Integer>> platformConnections = new HashMap<>();
+	public final Map<BlockPos, Map<BlockPos, RailwayDataRouteFinderModule.ConnectionDetails>> platformConnections = new HashMap<>();
 
 	protected final Set<Station> stations;
 	protected final Set<Platform> platforms;
@@ -72,9 +72,12 @@ public class DataCache {
 								put(platformConnections, prevPlatform.getMidPos(), thisPlatform.getMidPos(), oldValue -> {
 									final int newValue = Math.round(duration);
 									if (oldValue == null) {
-										return newValue;
+										final RailwayDataRouteFinderModule.ConnectionDetails connectionDetails = new RailwayDataRouteFinderModule.ConnectionDetails(prevPlatform);
+										connectionDetails.addDurationInfo(route.id, newValue);
+										return connectionDetails;
 									} else {
-										return Math.min(oldValue, newValue);
+										oldValue.addDurationInfo(route.id, newValue);
+										return oldValue;
 									}
 								});
 							}

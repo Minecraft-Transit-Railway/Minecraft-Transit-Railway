@@ -223,7 +223,7 @@ public class TrainServer extends Train {
 
 		simulateTrain(world, ticksElapsed, depot);
 
-		final int nextDepartureTicks = isOnRoute ? 0 : depot.getNextDepartureTicks(Depot.getHour(world)) * Depot.MILLIS_PER_TICK;
+		final int nextDepartureTicks = isOnRoute ? 0 : depot.getNextDepartureMillis();
 		final long currentMillis = System.currentTimeMillis() - (long) (stopCounter * Depot.MILLIS_PER_TICK) + (long) Math.max(0, nextDepartureTicks);
 
 		double currentTime = -1;
