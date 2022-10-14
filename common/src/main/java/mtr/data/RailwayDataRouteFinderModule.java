@@ -1,5 +1,8 @@
 package mtr.data;
 
+import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
@@ -8,8 +11,8 @@ import java.util.function.BiConsumer;
 
 public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 
-	private Map<BlockPos, Map<BlockPos, Integer>> connectionDensityOld = new HashMap<>();
-	private Map<BlockPos, Map<BlockPos, Integer>> connectionDensity = new HashMap<>();
+	private Long2ObjectOpenHashMap<Long2IntOpenHashMap> connectionDensityOld = new Long2ObjectOpenHashMap<>();
+	private Long2ObjectOpenHashMap<Long2IntOpenHashMap> connectionDensity = new Long2ObjectOpenHashMap<>();
 	private BlockPos startPos;
 	private BlockPos endPos;
 	private RouteFinderRequest currentRouteFinderRequest;
@@ -19,10 +22,10 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 	private TickStage tickStage = TickStage.GET_POS;
 
 	private final RailwayData railwayData;
-	private final Map<BlockPos, Integer> globalBlacklist = new HashMap<>();
-	private final Map<BlockPos, Integer> localBlacklist = new HashMap<>();
+	private final Long2IntOpenHashMap globalBlacklist = new Long2IntOpenHashMap();
+	private final Long2IntOpenHashMap localBlacklist = new Long2IntOpenHashMap();
 	private final List<RouteFinderData> tempData = new ArrayList<>();
-	private final Set<BlockPos> platformPositions = new HashSet<>();
+	private final LongAVLTreeSet platformPositions = new LongAVLTreeSet();
 	private final List<RouteFinderData> data = new ArrayList<>();
 	private final List<RouteFinderRequest> routeFinderQueue = new ArrayList<>();
 
@@ -39,7 +42,7 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 		}
 
 		final long startTime = System.currentTimeMillis();
-		while (System.currentTimeMillis() - startTime < (currentRouteFinderRequest == null ? 2 : 20)) {
+		while (System.currentTimeMillis() - startTime < (currentRouteFinderRequest == null ? 2 : currentRouteFinderRequest.maxTickTime)) {
 			switch (tickStage) {
 				case GET_POS:
 					if (routeFinderQueue.isEmpty()) {
@@ -50,12 +53,12 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 
 						if (startIndex != endIndex) {
 							int i = 0;
-							for (final BlockPos pos : railwayData.dataCache.platformConnections.keySet()) {
+							for (final long pos : railwayData.dataCache.platformConnections.keySet()) {
 								if (i == startIndex) {
-									startPos = pos;
+									startPos = BlockPos.of(pos);
 								}
 								if (i == endIndex) {
-									endPos = pos;
+									endPos = BlockPos.of(pos);
 								}
 								i++;
 							}
@@ -79,7 +82,7 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 					tempData.clear();
 					platformPositions.clear();
 					platformPositions.addAll(railwayData.dataCache.platformConnections.keySet());
-					platformPositions.add(endPos);
+					platformPositions.add(endPos.asLong());
 					localBlacklist.clear();
 					tickStage = TickStage.FIND_ROUTE;
 					break;
@@ -93,13 +96,13 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 				case END_FIND_ROUTE:
 					if (tempData.isEmpty()) {
 						for (int i = 0; i < data.size() - 1; i++) {
-							DataCache.put(connectionDensity, data.get(i).pos, data.get(i + 1).pos, oldValue -> oldValue == null ? 1 : oldValue + 1);
+							DataCache.put2(connectionDensity, data.get(i).pos.asLong(), data.get(i + 1).pos.asLong(), oldValue -> oldValue == null ? 1 : oldValue + 1);
 						}
 
 						count++;
 						if (count >= getMaxCount()) {
 							connectionDensityOld = connectionDensity;
-							connectionDensity = new HashMap<>();
+							connectionDensity = new Long2ObjectOpenHashMap<>();
 							count = 0;
 						}
 
@@ -127,13 +130,13 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 		}
 	}
 
-	public void findRoute(BlockPos posStart, BlockPos posEnd, BiConsumer<List<RouteFinderData>, Integer> callback) {
-		routeFinderQueue.add(new RouteFinderRequest(posStart, posEnd, callback));
+	public void findRoute(BlockPos posStart, BlockPos posEnd, int maxTickTime, BiConsumer<List<RouteFinderData>, Integer> callback) {
+		routeFinderQueue.add(new RouteFinderRequest(posStart, posEnd, maxTickTime, callback));
 		tickStage = TickStage.GET_POS;
 	}
 
 	public int getConnectionDensity(BlockPos posStart, BlockPos posEnd) {
-		return DataCache.tryGet(connectionDensityOld, posStart, posEnd, count == 0 ? 0 : DataCache.tryGet(connectionDensity, posStart, posEnd, 0) * getMaxCount() / count);
+		return DataCache.tryGet2(connectionDensityOld, posStart.asLong(), posEnd.asLong(), count == 0 ? 0 : DataCache.tryGet2(connectionDensity, posStart.asLong(), posEnd.asLong(), 0) * getMaxCount() / count);
 	}
 
 	private boolean findRoutePart() {
@@ -146,13 +149,14 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 		long bestRouteId = 0;
 		int bestWaitingTime = 0;
 
-		for (final BlockPos thisPos : platformPositions) {
-			final ConnectionDetails connectionDetails = DataCache.tryGet(railwayData.dataCache.platformConnections, prevPos, thisPos);
+		for (final long thisPosLong : platformPositions) {
+			final ConnectionDetails connectionDetails = DataCache.tryGet(railwayData.dataCache.platformConnections, prevPos.asLong(), thisPosLong);
+			final BlockPos thisPos = BlockPos.of(thisPosLong);
 			int duration = prevPos.distManhattan(thisPos) * WALKING_SPEED_TICKS_PER_METER;
 			long routeId = 0;
 			int waitingTime = 0;
 
-			if (connectionDetails != null) {
+			if (connectionDetails != null && verifyTime(thisPosLong, elapsedTime + connectionDetails.shortestDuration)) {
 				final List<ScheduleEntry> scheduleEntries = railwayData.getSchedulesAtPlatform(connectionDetails.platformStart.id);
 				if (scheduleEntries != null) {
 					int lastDeparture = Integer.MIN_VALUE;
@@ -187,9 +191,9 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 				}
 			}
 
-			if (elapsedTime + duration < totalTime && (!localBlacklist.containsKey(thisPos) || elapsedTime + duration < localBlacklist.get(thisPos)) && (!globalBlacklist.containsKey(thisPos) || elapsedTime + duration <= globalBlacklist.get(thisPos))) {
+			if (verifyTime(thisPosLong, elapsedTime + duration)) {
 				final float increase = (float) (prevPos.distManhattan(endPos) - thisPos.distManhattan(endPos)) / duration;
-				globalBlacklist.put(thisPos, elapsedTime + duration);
+				globalBlacklist.put(thisPosLong, elapsedTime + duration);
 				if (increase > bestIncrease) {
 					bestPosition = thisPos;
 					bestIncrease = increase;
@@ -207,18 +211,28 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 				return true;
 			}
 		} else {
-			localBlacklist.put(bestPosition, elapsedTime + bestDuration);
+			localBlacklist.put(bestPosition.asLong(), elapsedTime + bestDuration);
 			tempData.add(new RouteFinderData(bestPosition, bestDuration, bestRouteId, bestWaitingTime, 1));
 		}
 
 		return !tempData.isEmpty() && tempData.get(tempData.size() - 1).pos.equals(endPos);
 	}
 
+	private boolean verifyTime(long posLong, int time) {
+		return time < totalTime && compareBlacklist(localBlacklist, posLong, time, false) && compareBlacklist(globalBlacklist, posLong, time, true);
+	}
+
 	private int getMaxCount() {
 		return railwayData.dataCache.platformConnections.size() * 100;
 	}
 
+	private static boolean compareBlacklist(Long2IntOpenHashMap blacklist, long posLong, int time, boolean lessThanOrEqualTo) {
+		return !blacklist.containsKey(posLong) || (lessThanOrEqualTo ? time <= blacklist.get(posLong) : time < blacklist.get(posLong));
+	}
+
 	public static class ConnectionDetails {
+
+		private int shortestDuration = Integer.MAX_VALUE;
 		private final Platform platformStart;
 		private final Map<Long, Integer> durationInfo = new HashMap<>();
 
@@ -228,6 +242,7 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 
 		public void addDurationInfo(long routeId, int duration) {
 			durationInfo.put(routeId, duration);
+			shortestDuration = Math.min(duration, shortestDuration);
 		}
 	}
 
@@ -267,11 +282,13 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 
 		private final BlockPos startPos;
 		private final BlockPos endPos;
+		private final int maxTickTime;
 		private final BiConsumer<List<RouteFinderData>, Integer> callback;
 
-		private RouteFinderRequest(BlockPos startPos, BlockPos endPos, BiConsumer<List<RouteFinderData>, Integer> callback) {
+		private RouteFinderRequest(BlockPos startPos, BlockPos endPos, int maxTickTime, BiConsumer<List<RouteFinderData>, Integer> callback) {
 			this.startPos = startPos;
 			this.endPos = endPos;
+			this.maxTickTime = Math.max(2, maxTickTime);
 			this.callback = callback;
 		}
 	}

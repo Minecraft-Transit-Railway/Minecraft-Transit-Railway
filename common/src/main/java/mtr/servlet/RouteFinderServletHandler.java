@@ -2,10 +2,7 @@ package mtr.servlet;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import mtr.data.Platform;
-import mtr.data.RailwayData;
-import mtr.data.Route;
-import mtr.data.Station;
+import mtr.data.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -34,6 +31,11 @@ public class RouteFinderServletHandler extends HttpServlet {
 			final String parameterEndStation = request.getParameter("endStation");
 			final String parameterStartPos = request.getParameter("startPos");
 			final String parameterEndPos = request.getParameter("endPos");
+			int maxTickTime = 40;
+			try {
+				maxTickTime = Integer.parseInt(request.getParameter("maxTickTime"));
+			} catch (Exception ignored) {
+			}
 			final Level world = getWorldFromParameter(request.getParameter("dimension"), errors);
 
 			if (world != null) {
@@ -42,15 +44,16 @@ public class RouteFinderServletHandler extends HttpServlet {
 					final PositionInfo startPositionInfo = getPosition(world, railwayData, parameterStartPlayer, parameterStartStation, parameterStartPos, true, errors);
 					final PositionInfo endPositionInfo = getPosition(world, railwayData, parameterEndPlayer, parameterEndStation, parameterEndPos, false, errors);
 					if (startPositionInfo != null && endPositionInfo != null && errors.isEmpty()) {
-						railwayData.railwayDataRouteFinderModule.findRoute(startPositionInfo.pos, endPositionInfo.pos, (dataList, duration) -> {
+						railwayData.railwayDataRouteFinderModule.findRoute(startPositionInfo.pos, endPositionInfo.pos, maxTickTime, (dataList, duration) -> {
 							final JsonObject jsonObject = new JsonObject();
 							jsonObject.add("start", startPositionInfo.toJsonObject());
 							jsonObject.add("end", endPositionInfo.toJsonObject());
 							jsonObject.addProperty("response", duration);
 
 							final JsonArray jsonArrayData = new JsonArray();
-							dataList.forEach(data -> {
-								final JsonObject jsonObjectData = new PositionInfo(data.pos, railwayData, null, null).toJsonObject();
+							for (final RailwayDataRouteFinderModule.RouteFinderData data : dataList) {
+								final PositionInfo positionInfo = new PositionInfo(data.pos, railwayData, null, null, false);
+								final JsonObject jsonObjectData = positionInfo.toJsonObject();
 								jsonObjectData.addProperty("duration", data.duration);
 
 								final Route route = railwayData.dataCache.routeIdMap.get(data.routeId);
@@ -67,7 +70,11 @@ public class RouteFinderServletHandler extends HttpServlet {
 								}
 
 								jsonArrayData.add(jsonObjectData);
-							});
+
+								if (endPositionInfo.isStationParameter && positionInfo.station == endPositionInfo.station) {
+									break;
+								}
+							}
 
 							jsonObject.add("directions", jsonArrayData);
 							IServletHandler.sendResponse(response, asyncContext, jsonObject.toString());
@@ -114,21 +121,21 @@ public class RouteFinderServletHandler extends HttpServlet {
 			for (final Player player : world.players()) {
 				final String playerName = player.getName().getString();
 				if (playerName.equalsIgnoreCase(parameterPlayer)) {
-					return new PositionInfo(player.blockPosition(), railwayData, null, playerName);
+					return new PositionInfo(player.blockPosition(), railwayData, null, playerName, false);
 				}
 			}
 			errors.add(String.format("The player '%s' is not online or in the specified dimension.", parameterPlayer));
 		} else if (parameterStation != null) {
 			try {
 				final Station station = railwayData.dataCache.stationIdMap.get(Long.parseLong(parameterStation));
-				return new PositionInfo(station.getCenter(), railwayData, station, null);
+				return new PositionInfo(station.getCenter(), railwayData, station, null, true);
 			} catch (Exception ignored) {
 			}
 			try {
 				for (final Station station : railwayData.stations) {
 					final List<String> stationNameSplit = Arrays.asList(station.name.toLowerCase().split("\\|"));
 					if (Arrays.stream(parameterStation.toLowerCase().split("\\|")).allMatch(stationNameSplit::contains)) {
-						return new PositionInfo(station.getCenter(), railwayData, station, null);
+						return new PositionInfo(station.getCenter(), railwayData, station, null, true);
 					}
 				}
 			} catch (Exception ignored) {
@@ -137,7 +144,7 @@ public class RouteFinderServletHandler extends HttpServlet {
 		} else if (parameterPos != null) {
 			try {
 				final String[] coordinates = parameterPos.split(",");
-				return new PositionInfo(new BlockPos(Double.parseDouble(coordinates[0]), Double.parseDouble(coordinates[1]), Double.parseDouble(coordinates[2])), railwayData, null, null);
+				return new PositionInfo(new BlockPos(Double.parseDouble(coordinates[0]), Double.parseDouble(coordinates[1]), Double.parseDouble(coordinates[2])), railwayData, null, null, false);
 			} catch (Exception ignored) {
 			}
 			errors.add(String.format("The block position '%s' is not formatted correctly.", parameterPos));
@@ -155,12 +162,14 @@ public class RouteFinderServletHandler extends HttpServlet {
 		private final Station station;
 		private final String playerName;
 		private final Platform platform;
+		private final boolean isStationParameter;
 
-		private PositionInfo(BlockPos pos, RailwayData railwayData, Station station, String playerName) {
+		private PositionInfo(BlockPos pos, RailwayData railwayData, Station station, String playerName, boolean isStationParameter) {
 			this.pos = pos;
 			this.station = station == null ? RailwayData.getStation(railwayData.stations, railwayData.dataCache, pos) : station;
 			this.playerName = playerName;
 			platform = railwayData.dataCache.platformIdMap.get(RailwayData.getClosePlatformId(railwayData.platforms, railwayData.dataCache, pos));
+			this.isStationParameter = isStationParameter;
 		}
 
 		private JsonObject toJsonObject() {

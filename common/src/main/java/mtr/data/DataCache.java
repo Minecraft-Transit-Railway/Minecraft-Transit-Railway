@@ -1,5 +1,7 @@
 package mtr.data;
 
+import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
 
 import java.util.HashMap;
@@ -23,7 +25,7 @@ public class DataCache {
 	public final Map<Station, Set<Station>> stationIdToConnectingStations = new HashMap<>();
 	public final Map<BlockPos, Station> blockPosToStation = new HashMap<>();
 	public final Map<BlockPos, Long> blockPosToPlatformId = new HashMap<>();
-	public final Map<BlockPos, Map<BlockPos, RailwayDataRouteFinderModule.ConnectionDetails>> platformConnections = new HashMap<>();
+	public final Long2ObjectOpenHashMap<Long2ObjectOpenHashMap<RailwayDataRouteFinderModule.ConnectionDetails>> platformConnections = new Long2ObjectOpenHashMap<>();
 
 	protected final Set<Station> stations;
 	protected final Set<Platform> platforms;
@@ -69,7 +71,8 @@ public class DataCache {
 						if (prevPlatform != null && thisPlatform != null) {
 							final float duration = tryGet(depot.platformTimes, prevPlatformId, thisPlatformId, 0F);
 							if (duration > 0) {
-								put(platformConnections, prevPlatform.getMidPos(), thisPlatform.getMidPos(), oldValue -> {
+								final long thisPlatformPosLong = thisPlatform.getMidPos().asLong();
+								put(platformConnections, prevPlatform.getMidPos().asLong(), thisPlatformPosLong, oldValue -> {
 									final int newValue = Math.round(duration);
 									if (oldValue == null) {
 										final RailwayDataRouteFinderModule.ConnectionDetails connectionDetails = new RailwayDataRouteFinderModule.ConnectionDetails(prevPlatform);
@@ -80,6 +83,9 @@ public class DataCache {
 										return oldValue;
 									}
 								});
+								if (i == route.platformIds.size() - 1 && !platformConnections.containsKey(thisPlatformPosLong)) {
+									platformConnections.put(thisPlatformPosLong, new Long2ObjectOpenHashMap<>());
+								}
 							}
 						}
 					}
@@ -124,16 +130,46 @@ public class DataCache {
 		}
 	}
 
-	public static <T, U> void put(Map<T, Map<T, U>> map, T key1, T key2, Function<U, U> putValue) {
-		final Map<T, U> innerMap = map.get(key1);
-		final Map<T, U> newInnerMap;
+	public static <U> U tryGet(Long2ObjectOpenHashMap<Long2ObjectOpenHashMap<U>> map, long key1, long key2) {
+		final Long2ObjectOpenHashMap<U> innerMap = map.get(key1);
 		if (innerMap == null) {
-			newInnerMap = new HashMap<>();
+			return null;
+		} else {
+			return innerMap.get(key2);
+		}
+	}
+
+	public static int tryGet2(Long2ObjectOpenHashMap<Long2IntOpenHashMap> map, long key1, long key2, int defaultValue) {
+		final Long2IntOpenHashMap innerMap = map.get(key1);
+		if (innerMap == null) {
+			return defaultValue;
+		} else {
+			return innerMap.getOrDefault(key2, defaultValue);
+		}
+	}
+
+	public static <U> void put(Long2ObjectOpenHashMap<Long2ObjectOpenHashMap<U>> map, long key1, long key2, Function<U, U> putValue) {
+		final Long2ObjectOpenHashMap<U> innerMap = map.get(key1);
+		final Long2ObjectOpenHashMap<U> newInnerMap;
+		if (innerMap == null) {
+			newInnerMap = new Long2ObjectOpenHashMap<>();
 			map.put(key1, newInnerMap);
 		} else {
 			newInnerMap = innerMap;
 		}
 		newInnerMap.put(key2, putValue.apply(newInnerMap.get(key2)));
+	}
+
+	public static void put2(Long2ObjectOpenHashMap<Long2IntOpenHashMap> map, long key1, long key2, Function<Integer, Integer> putValue) {
+		final Long2IntOpenHashMap innerMap = map.get(key1);
+		final Long2IntOpenHashMap newInnerMap;
+		if (innerMap == null) {
+			newInnerMap = new Long2IntOpenHashMap();
+			map.put(key1, newInnerMap);
+		} else {
+			newInnerMap = innerMap;
+		}
+		newInnerMap.put(key2, putValue.apply(newInnerMap.get(key2)).intValue());
 	}
 
 	protected static <U extends NameColorDataBase> void mapIds(Map<Long, U> map, Set<U> source) {
