@@ -98,7 +98,7 @@ const UTILITIES = {
 	},
 	getDrawStationElement: (stationElement, color1, color2) => {
 		const element = document.createElement("div");
-		element.className = "route_station_name";
+		element.className = "route_station_name text";
 		if (color1 != null) {
 			element.innerHTML = `<span class="route_segment bottom" style="background-color: ${UTILITIES.convertColor(color1)}">&nbsp</span>`;
 		}
@@ -109,11 +109,12 @@ const UTILITIES = {
 		element.appendChild(stationElement);
 		return element;
 	},
-	getDrawLineElement: (icon, innerElement, color) => {
+	getDrawLineElement: (icon, innerElement, color, htmlBefore) => {
 		const element = document.createElement("div");
 		element.className = "route_duration";
 		element.innerHTML =
 			`<span class="route_segment ${color == null ? "walk" : ""}" style="background-color: ${color == null ? 0 : UTILITIES.convertColor(color)}">&nbsp</span>` +
+			(htmlBefore ? htmlBefore : "") +
 			`<span class="material-icons small">${icon}</span>`;
 		element.appendChild(innerElement);
 		return element;

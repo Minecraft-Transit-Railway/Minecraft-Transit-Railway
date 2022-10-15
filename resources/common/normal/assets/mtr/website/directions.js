@@ -3,24 +3,24 @@ import DOCUMENT from "./document.js";
 import ACTIONS from "./actions.js";
 import DATA from "./data.js";
 import SETTINGS from "./settings.js";
+import FetchData from "./fetch.js";
 
-// TODO get directions serverside
-
+const DATA_REFRESH_INTERVAL = 5000;
+let shouldFetch = false;
 let stationStart = 0;
 let stationEnd = 0;
-let pathStations = [];
+let pathStations = {};
 let pathRoutes = [];
 
 const DIRECTIONS = {
 	onSearch: index => {
-		const data = DATA.json[SETTINGS.dimension];
+		shouldFetch = false;
+		const stations = DATA.json[SETTINGS.dimension]["stations"];
 		const searchBox = document.getElementById("directions_box_" + index);
 		const search = searchBox.value.toLowerCase().replace(/\|/g, " ");
 		document.getElementById("clear_directions_" + index + "_icon").innerText = search === "" ? "" : "clear";
 		document.getElementById("directions_result").style.display = "none";
 		index === 1 ? stationStart = 0 : stationEnd = 0;
-
-		const stations = data["stations"];
 
 		const resultsStations = search === "" ? [] : Object.keys(stations).filter(station => stations[station]["name"].replace(/\|/g, " ").toLowerCase().includes(search));
 		for (const stationId in stations) {
@@ -44,8 +44,9 @@ const DIRECTIONS = {
 		}
 		if (stationStart !== 0 && stationEnd !== 0) {
 			document.getElementById("directions_result").style.display = "";
-			document.getElementById("directions_result_route").innerHTML = `<div class="info_center"><span class="material-icons large">refresh</span></div>`;
-			setTimeout(findRoute, 500);
+			document.getElementById("directions_result_route").innerHTML = `<div class="info_center"><span class="material-icons large">${stationStart === stationEnd ? "horizontal_rule" : "refresh"}</span></div>`;
+			shouldFetch = true;
+			FETCH_DATA.fetchData();
 		}
 	},
 	writeStationsInResult: index => {
@@ -62,294 +63,209 @@ const DIRECTIONS = {
 			elementDirectionsStations.append(element);
 		}
 	},
-	calculateDistance: (stations, stationId1, stationId2) => {
-		const station1 = stations[stationId1];
-		const station2 = stations[stationId2];
-		return Math.abs(station2["x"] - station1["x"]) + Math.abs(station2["z"] - station1["z"]);
-	},
+	calculateDistance: (x1, z1, x2, y2) => Math.abs(x2 - x1) + Math.abs(y2 - z1),
 	drawDirectionsRoute: (pathStations, pathRoutes) => {
-		if (pathStations.length > 0 || pathRoutes.length > 0) {
+		if (pathStations.length > 0 || Object.keys(pathRoutes).length > 0) {
 			SETTINGS.selectedRoutes = [];
 		}
 		SETTINGS.selectedDirectionsStations = pathStations;
-		SETTINGS.selectedDirectionsSegments = {};
-		for (let i = 0; i < pathRoutes.length; i++) {
-			if (pathRoutes[i] != null) {
-				for (let j = 0; j < pathRoutes[i].length; j++) {
-					const routeId = pathRoutes[i][j]["id"];
-					if (!(routeId in SETTINGS.selectedDirectionsSegments)) {
-						SETTINGS.selectedDirectionsSegments[routeId] = [];
-					}
-					SETTINGS.selectedDirectionsSegments[routeId].push(pathStations[i] + "_" + pathStations[i + 1]);
-				}
-			}
-		}
+		SETTINGS.selectedDirectionsSegments = pathRoutes;
 		DATA.redraw();
 	},
+	stopRefresh: () => shouldFetch = false,
 };
 
-const findRoutePart = (globalBlacklist, maxTime) => {
-	const {stations, connections} = DATA.json[SETTINGS.dimension];
-	if (!(stationStart in stations) || !(stationEnd in stations)) {
-		return [[], [], []];
-	}
-
-	const getCloserStationWithRoute = elapsedTime => {
-		const currentStation = tempPathStations[tempPathStations.length - 1];
-		const stationToRoutes = {};
-		let bestStation = 0;
-		let bestIncrease = Number.MIN_SAFE_INTEGER;
-		let bestDuration = 0;
-
-		for (const connection of connections[currentStation]) {
-			const checkStation = connection["station"];
-			const route = connection["route"];
-			const duration = connection["duration"];
-
-			if (!(checkStation in stationToRoutes)) {
-				stationToRoutes[checkStation] = [];
-			}
-			if (route != null) {
-				stationToRoutes[checkStation].push(route);
-			}
-
-			if (
-				duration > 0 && elapsedTime + duration < maxTime &&
-				(!(checkStation in localBlacklist) || elapsedTime + duration < localBlacklist[checkStation]) &&
-				(!(checkStation in globalBlacklist) || elapsedTime + duration <= globalBlacklist[checkStation])
-			) {
-				const increase = (DIRECTIONS.calculateDistance(stations, stationEnd, currentStation) - DIRECTIONS.calculateDistance(stations, stationEnd, checkStation)) / duration;
-				globalBlacklist[checkStation] = elapsedTime + duration;
-
-				if (increase > bestIncrease) {
-					bestStation = checkStation;
-					bestIncrease = increase;
-					bestDuration = duration;
-				}
-			}
-		}
-
-		localBlacklist[bestStation] = elapsedTime + bestDuration;
-		return [bestStation, stationToRoutes[bestStation], bestDuration];
-	}
-
-	const tempPathRoutes = [];
-	const tempPathStations = [stationStart];
-	const times = [];
-	const localBlacklist = {};
-
-	while (!tempPathStations.includes(stationEnd)) {
-		const elapsedTime = times.reduce((sum, time) => sum + time, 0);
-		const newStationWithRoute = getCloserStationWithRoute(elapsedTime);
-
-		if (newStationWithRoute[0] === 0) {
-			tempPathStations.pop();
-			if (tempPathStations.length === 0) {
-				break;
-			}
-			tempPathRoutes.pop();
-			times.pop();
-		} else {
-			tempPathStations.push(newStationWithRoute[0]);
-			tempPathRoutes.push(newStationWithRoute[1]);
-			times.push(newStationWithRoute[2]);
-		}
-	}
-
-	return [tempPathStations, tempPathRoutes, times];
-};
-
-const findRoute = () => {
+const FETCH_DATA = new FetchData(() => `${SETTINGS.url}route?dimension=${SETTINGS.dimension}&startStation=${stationStart}&endStation=${stationEnd}`, DATA_REFRESH_INTERVAL, false, () => shouldFetch && stationStart !== 0 && stationEnd !== 0 && stationStart !== stationEnd, data => {
+	const {start, directions} = data;
+	const resultElement = document.getElementById("directions_result_route");
+	resultElement.innerHTML = "";
 	pathStations = [];
 	pathRoutes = [];
 
-	const millis = Date.now();
-	const globalBlacklist = {};
-	globalBlacklist[stationStart] = 0;
-	let tries = 0;
-	let totalTime = Number.MAX_SAFE_INTEGER;
-	let times = [];
-
-	while (tries < 500) {
-		const path = findRoutePart(globalBlacklist, totalTime);
-		tries++;
-
-		if (path[0].length === 0) {
-			break;
+	const getData = (index, key1, key2) => {
+		if (index < directions.length) {
+			const direction = directions[index];
+			if (key1 in direction) {
+				return direction[key1][key2];
+			}
+		}
+		return null;
+	};
+	const getStationData = (stationId, key) => {
+		const stations = DATA.json[SETTINGS.dimension]["stations"];
+		if (stationId in stations) {
+			return stations[stationId][key];
 		} else {
-			const time = path[2].reduce((sum, time) => sum + time, 0);
-			if (time < totalTime) {
-				totalTime = time;
-				pathStations = path[0];
-				pathRoutes = path[1];
-				times = path[2];
-			}
+			return null;
 		}
-	}
-
-	if (times.length > 0) {
-		console.log(`Found the best path on attempt ${tries} in ${Date.now() - millis} ms`);
-	}
-
-	const hasRoute = pathStations.length > 0 && pathStations.length > pathRoutes.length && times.length === pathRoutes.length;
-	const resultElement = document.getElementById("directions_result_route");
-	const stations = DATA.json[SETTINGS.dimension]["stations"];
-	resultElement.innerHTML = "";
-
-	if (hasRoute) {
-		const purgeRoutes = (currentIndex, oldIndex) => {
-			const currentRoutes = pathRoutes[currentIndex];
-			const oldRoutes = pathRoutes[oldIndex];
-			if (oldRoutes.some(route => currentRoutes.includes(route))) {
-				pathRoutes[oldIndex] = oldRoutes.filter(route => currentRoutes.includes(route));
-				return false;
+	};
+	const getTimeString = time => new Date(Date.now() + time * 50).toLocaleTimeString();
+	const getRouteDestination = (routeId, stationId1, stationId2) => {
+		const routes = DATA.json[SETTINGS.dimension]["routes"];
+		const route = routes.find(route => {
+			const routeStations = route["stations"];
+			let passed = -1;
+			for (let i = 0; i < routeStations.length; i++) {
+				if (routeStations[i] === `${stationId1}_${routeId}`) {
+					passed = i + 1;
+				} else if (passed === i && routeStations[i] === `${stationId2}_${routeId}`) {
+					return true;
+				}
+			}
+			return false;
+		});
+		if (route) {
+			if (route["circular"] === "") {
+				const routeStations = route["stations"];
+				return getStationData(routeStations[routeStations.length - 1].split("_")[0], "name").replace(/\|/g, " ");
 			} else {
-				return true;
+				return ACTIONS.getClosestInterchangeOnRoute(route, stationId1).replace(/\|/g, " ");
 			}
+		} else {
+			return null;
 		}
-		for (let i = 1; i < pathRoutes.length; i++) {
-			for (let j = i - 1; j >= 0; j--) {
-				if (purgeRoutes(i, j)) {
-					break;
-				}
-			}
-		}
-		for (let i = pathRoutes.length - 2; i >= 0; i--) {
-			for (let j = i + 1; j < pathRoutes.length; j++) {
-				if (purgeRoutes(i, j)) {
-					break;
-				}
-			}
-		}
+	};
 
-		let routes = pathRoutes.length === 0 ? [] : pathRoutes[0];
-		let station = pathStations[0];
-		let totalStationCount = 0;
-		let totalInterchangeCount = 0;
-		let startZone = stations[station]["zone"];
-		let fare = 0;
-		let time = 0;
-		let stationCount = 0;
+	let totalStationCount = 0;
+	let totalInterchangeCount = 0;
+	let fare = 0;
+	let zone = null;
+	let totalDuration = 0;
+	let posX = start["pos"][0];
+	let posZ = start["pos"][2];
+	let stationId = start["station"]["id"];
+	const firstColor = getData(0, "route", "color");
+	const initialWait = getData(firstColor == null ? 1 : 0, "route", "wait");
 
-		resultElement.append(UTILITIES.getDrawStationElement(createStationElement(stations[station]["name"].replace(/\|/g, " ")), null, routes.length === 0 ? null : routes[0]["color"]));
+	const drawStartStation = getData(0, "station", "id") !== stationId;
+	if (drawStartStation) {
+		pathStations.push(stationId);
+		const stationElement = document.createElement("div");
+		stationElement.className = "route_station_name_inner";
+		stationElement.innerHTML =
+			`<div class="route_segment_name">${start["station"]["name"].replace(/\|/g, " ")}</div>` +
+			`<div class="route_segment_time">${getTimeString(totalDuration + initialWait)}</div>`;
+		resultElement.append(UTILITIES.getDrawStationElement(stationElement, null, firstColor));
+	}
 
-		for (let i = 1; i <= pathRoutes.length; i++) {
-			const nextRoutes = i === pathRoutes.length ? [] : pathRoutes[i];
-			time += times[i - 1];
-			stationCount++;
+	for (let i = 0; i < directions.length; i++) {
+		const direction = directions[i];
+		const duration = direction["duration"];
+		const newX = direction["pos"][0];
+		const newZ = direction["pos"][2];
+		const hasRoute = "route" in direction;
+		const thisStationId = direction["station"]["id"];
+		const isInterchange = thisStationId === stationId;
+		let routeColor = null;
+		pathStations.push(thisStationId);
 
-			if (i === pathRoutes.length || !compareArrays(routes, nextRoutes)) {
-				const nextStation = pathStations[i];
-				const isWalking = routes.length === 0;
-				const isNextWalking = nextRoutes.length === 0;
-				const color = isWalking ? null : routes[0]["color"];
+		if (i > 0 || drawStartStation) {
+			let waitTime = 0;
 
-				if (isWalking) {
-					const walkingElement = document.createElement("span");
-					walkingElement.innerHTML = Math.round(DIRECTIONS.calculateDistance(stations, station, nextStation) / 100) / 10 + " km";
-					resultElement.append(UTILITIES.getDrawLineElement("directions_walk", walkingElement, null));
-					startZone = stations[nextStation]["zone"];
-				} else {
-					const routeIconsAndDestinations = {};
-					const routeTypes = {};
-					routes.forEach(route => {
-						const routeName = route["name"].split("||")[0].replace(/\|/g, " ");
-						if (!(routeName in routeIconsAndDestinations)) {
-							routeIconsAndDestinations[routeName] = [];
-						}
-						const routeStations = route["stations"];
-						const routeNumber = route["number"] + (route["number"] === "" ? "" : " ");
-						if (routeStations.length > 0) {
-							const iconAndDestination = route["circular"] === "" ? ["chevron_right", routeNumber + stations[routeStations[routeStations.length - 1].split("_")[0]]["name"]] : [route["circular"] === "cw" ? "rotate_right" : "rotate_left", routeNumber + ACTIONS.getClosestInterchangeOnRoute(route, station)];
-							if (!routeIconsAndDestinations[routeName].some(iconAndDestinationCheck => iconAndDestinationCheck[0] === iconAndDestination[0] && iconAndDestinationCheck[1] === iconAndDestination[1])) {
-								routeIconsAndDestinations[routeName].push(iconAndDestination);
-							}
-						}
-						routeTypes[routeName] = route["type"];
-						if (!(route["type"] in SETTINGS.selectedRouteTypes)) {
-							SETTINGS.selectedRouteTypes.push(route["type"]);
-						}
-					});
+			if (hasRoute) {
+				const route = direction["route"];
+				const routeStations = route["stations"];
+				const routeType = route["type"];
+				const stationCount = routeStations.length;
+				totalStationCount += stationCount;
+				totalInterchangeCount++;
+				routeColor = route["color"];
+				waitTime = route["wait"];
 
-					Object.keys(routeIconsAndDestinations).forEach(routeName => {
-						const routeNameElement = document.createElement("span");
-						routeNameElement.innerHTML = routeName;
-						resultElement.append(UTILITIES.getDrawLineElement(UTILITIES.routeTypes[routeTypes[routeName]], routeNameElement, color));
-
-						routeIconsAndDestinations[routeName].forEach(iconAndDestination => {
-							const routeDestinationElement = document.createElement("span");
-							routeDestinationElement.innerHTML = iconAndDestination[1].replace(/\|/g, " ");
-							resultElement.append(UTILITIES.getDrawLineElement("&nbsp;&nbsp;&nbsp;&nbsp;" + iconAndDestination[0], routeDestinationElement, color));
-						})
-					})
-
-					const stationCountElement = document.createElement("span");
-					stationCountElement.innerHTML = stationCount.toString();
-					resultElement.append(UTILITIES.getDrawLineElement("commit", stationCountElement, color));
-
-					if (isNextWalking) {
-						fare += Math.abs(startZone - stations[nextStation]["zone"]) + 2;
+				for (let j = 0; j < routeStations.length; j++) {
+					const passingStationId = routeStations[j];
+					pathStations.push(passingStationId);
+					if (!(routeColor in pathRoutes)) {
+						pathRoutes[routeColor] = [];
+					}
+					if (j === 0) {
+						pathRoutes[routeColor].push(`${stationId}_${routeStations[j]}`);
+					} else {
+						pathRoutes[routeColor].push(`${routeStations[j - 1]}_${routeStations[j]}`);
 					}
 				}
 
-				const durationElement = document.createElement("span");
-				durationElement.innerHTML = UTILITIES.formatTime(time / 20);
-				resultElement.append(UTILITIES.getDrawLineElement("schedule", durationElement, color));
-				resultElement.append(UTILITIES.getDrawStationElement(createStationElement(stations[nextStation]["name"].replace(/\|/g, " ")), color, nextRoutes.length === 0 ? null : nextRoutes[0]["color"]));
+				if (!SETTINGS.selectedRouteTypes.includes(routeType)) {
+					SETTINGS.selectedRouteTypes.push(routeType);
+				}
 
-				routes = nextRoutes;
-				station = nextStation;
-				totalStationCount += stationCount;
-				time = 0;
-				stationCount = 0;
-				totalInterchangeCount++;
+				resultElement.append(UTILITIES.getDrawLineElement("commit", createTextElement(stationCount.toString()), routeColor));
+			} else {
+				resultElement.append(UTILITIES.getDrawLineElement(isInterchange ? "transfer_within_a_station" : "directions_walk", createTextElement(isInterchange ? "" : `${Math.round(DIRECTIONS.calculateDistance(posX, posZ, newX, newZ) / 100) / 10} km`), null));
+				totalStationCount++;
+			}
+
+			if (!isInterchange) {
+				resultElement.append(UTILITIES.getDrawLineElement("schedule", createTextElement(UTILITIES.formatTime((duration - waitTime) / 20)), routeColor));
 			}
 		}
 
-		const infoElement = document.createElement("div");
-		infoElement.className = "info_center";
-		infoElement.innerHTML +=
-			`<div class="info_middle">` +
-			`<span class="material-icons small">schedule</span>` +
-			`<span class="text">${UTILITIES.formatTime(totalTime / 20)}</span>` +
-			"&nbsp;&nbsp;&nbsp;" +
-			`<span class="material-icons small">confirmation_number</span>` +
-			`<span class="text">$${fare}</span>` +
-			"&nbsp;&nbsp;&nbsp;" +
-			`<span class="material-icons small">commit</span>` +
-			`<span class="text">${totalStationCount}</span>` +
-			"&nbsp;&nbsp;&nbsp;" +
-			`<span class="material-icons small">transfer_within_a_station</span>` +
-			`<span class="text">${Math.max(0, totalInterchangeCount - 1)}</span>` +
-			`</div>`;
-		resultElement.append(infoElement);
-	} else {
-		resultElement.innerHTML = `<div class="info_center"><span class="material-icons large">warning_amber</span></div>`;
+		totalDuration += duration;
+
+		const nextColor = getData(i + 1, "route", "color");
+		const stationElement = document.createElement("div");
+		stationElement.className = "route_station_name_inner";
+		stationElement.innerHTML =
+			`<div class="route_segment_name">${direction["station"]["name"].replace(/\|/g, " ")}</div>` +
+			`<div class="route_segment_time">${getTimeString(totalDuration + (nextColor == null ? 0 : getData(i + 1, "route", "wait")))}</div>`;
+		resultElement.append(UTILITIES.getDrawStationElement(stationElement, routeColor, nextColor));
+
+		const platform = direction["platform"];
+		const nextStationId = getData(i + 1, "station", "id");
+		if (!hasRoute && nextColor != null && platform) {
+			resultElement.append(UTILITIES.getDrawLineElement(UTILITIES.routeTypes[getData(i + 1, "route", "type")], createTextElement(getData(i + 1, "route", "name").split("||")[0].replace(/\|/g, " ")), nextColor));
+			const circular = getData(i + 1, "route", "circular");
+			const routeNumber = getData(i + 1, "route", "number").replace(/\|/g, " ");
+			resultElement.append(UTILITIES.getDrawLineElement(circular === "" ? "" : circular === "cw" ? "rotate_right" : "rotate_left", createTextElement((routeNumber ? routeNumber + " " : "") + getRouteDestination(nextColor, thisStationId, getData(i + 1, "route", "stations")[0])), nextColor, `<span class="platform_circle" style="background: ${UTILITIES.convertColor(nextColor)}">${platform}</span>`));
+		}
+
+		const thisZone = getStationData(thisStationId, "zone");
+		if (nextColor != null && zone == null) {
+			zone = thisZone;
+		} else if (nextColor == null && zone != null && nextStationId !== thisStationId) {
+			fare += Math.abs(zone - thisZone) + 2;
+			zone = null;
+		}
+
+		posX = newX;
+		posZ = newZ;
+		stationId = thisStationId;
 	}
+
+	const infoElement = document.createElement("div");
+	infoElement.className = "info_center";
+	infoElement.innerHTML +=
+		`<div class="info_middle">` +
+		`<span class="material-icons small">schedule</span>` +
+		`<span class="text">${UTILITIES.formatTime((totalDuration - initialWait) / 20)}</span>` +
+		"&nbsp;&nbsp;&nbsp;" +
+		`<span class="material-icons small">confirmation_number</span>` +
+		`<span class="text">$${fare}</span>` +
+		"&nbsp;&nbsp;&nbsp;" +
+		`<span class="material-icons small">commit</span>` +
+		`<span class="text">${totalStationCount}</span>` +
+		"&nbsp;&nbsp;&nbsp;" +
+		`<span class="material-icons small">transfer_within_a_station</span>` +
+		`<span class="text">${Math.max(0, totalInterchangeCount - 1)}</span>` +
+		`</div>`;
+	resultElement.append(infoElement);
 
 	document.getElementById("directions").style.maxHeight = window.innerHeight - 80 + "px";
-	DIRECTIONS.drawDirectionsRoute(pathStations, pathRoutes, true);
-};
+	DIRECTIONS.drawDirectionsRoute(pathStations, pathRoutes);
+});
 
-const createStationElement = stationName => {
-	const stationElement = document.createElement("div");
-	stationElement.innerText = stationName;
-	stationElement.className = "text";
-	return stationElement;
-};
-
-const compareArrays = (array1, array2) => {
-	if (array1.length !== array2.length) {
-		return false;
-	} else {
-		return array1.every(element => array2.includes(element));
-	}
+const createTextElement = text => {
+	const element = document.createElement("div");
+	element.innerText = text;
+	return element;
 };
 
 document.getElementById("directions_icon").onclick = () => {
 	DOCUMENT.clearPanes(true);
 	DIRECTIONS.drawDirectionsRoute(pathStations, pathRoutes);
 	document.getElementById("directions").style.display = "block";
+	shouldFetch = true;
+	FETCH_DATA.fetchData();
 };
 
 export default DIRECTIONS;

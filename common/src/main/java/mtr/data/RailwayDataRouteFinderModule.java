@@ -29,6 +29,7 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 	private final List<RouteFinderData> data = new ArrayList<>();
 	private final List<RouteFinderRequest> routeFinderQueue = new ArrayList<>();
 
+	private static final int MAX_REQUESTS = 10;
 	private static final int WALKING_SPEED_TICKS_PER_METER = 5;
 
 	public RailwayDataRouteFinderModule(RailwayData railwayData, Level world, Map<BlockPos, Map<BlockPos, Rail>> rails) {
@@ -109,7 +110,7 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 						if (currentRouteFinderRequest != null) {
 							final List<RouteFinderData> newDataList = new ArrayList<>();
 							for (final RouteFinderData routeFinderData : data) {
-								RouteFinderData.append(newDataList, routeFinderData);
+								RouteFinderData.append(newDataList, routeFinderData, railwayData);
 							}
 							currentRouteFinderRequest.callback.accept(newDataList, (int) (System.currentTimeMillis() - startMillis));
 						}
@@ -130,9 +131,14 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 		}
 	}
 
-	public void findRoute(BlockPos posStart, BlockPos posEnd, int maxTickTime, BiConsumer<List<RouteFinderData>, Integer> callback) {
-		routeFinderQueue.add(new RouteFinderRequest(posStart, posEnd, maxTickTime, callback));
-		tickStage = TickStage.GET_POS;
+	public boolean findRoute(BlockPos posStart, BlockPos posEnd, int maxTickTime, BiConsumer<List<RouteFinderData>, Integer> callback) {
+		if (routeFinderQueue.size() < MAX_REQUESTS) {
+			routeFinderQueue.add(new RouteFinderRequest(posStart, posEnd, maxTickTime, callback));
+			tickStage = TickStage.GET_POS;
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public int getConnectionDensity(BlockPos posStart, BlockPos posEnd) {
@@ -212,7 +218,7 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 			}
 		} else {
 			localBlacklist.put(bestPosition.asLong(), elapsedTime + bestDuration);
-			tempData.add(new RouteFinderData(bestPosition, bestDuration, bestRouteId, bestWaitingTime, 1));
+			tempData.add(new RouteFinderData(bestPosition, bestDuration, bestRouteId, bestWaitingTime));
 		}
 
 		return !tempData.isEmpty() && tempData.get(tempData.size() - 1).pos.equals(endPos);
@@ -252,26 +258,32 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 		public final int duration;
 		public final long routeId;
 		public final int waitingTime;
-		public final int stops;
+		public final List<Long> stationIds = new ArrayList<>();
 
-		private RouteFinderData(BlockPos pos, int duration, long routeId, int waitingTime, int stops) {
+		private RouteFinderData(BlockPos pos, int duration, long routeId, int waitingTime) {
 			this.pos = pos;
 			this.duration = duration;
 			this.routeId = routeId;
 			this.waitingTime = waitingTime;
-			this.stops = stops;
 		}
 
-		private static void append(List<RouteFinderData> routeFinderDataList, RouteFinderData newRouteFinderData) {
+		private static void append(List<RouteFinderData> routeFinderDataList, RouteFinderData newRouteFinderData, RailwayData railwayData) {
+			final Station station = RailwayData.getStation(railwayData.stations, railwayData.dataCache, newRouteFinderData.pos);
+			final long stationId = station == null ? 0 : station.id;
 			if (routeFinderDataList.isEmpty()) {
+				newRouteFinderData.stationIds.add(stationId);
 				routeFinderDataList.add(newRouteFinderData);
 			} else {
 				final int lastIndex = routeFinderDataList.size() - 1;
 				final RouteFinderData lastRouteFinderData = routeFinderDataList.get(lastIndex);
 				if (lastRouteFinderData.routeId == newRouteFinderData.routeId) {
 					routeFinderDataList.remove(lastIndex);
-					routeFinderDataList.add(new RouteFinderData(newRouteFinderData.pos, lastRouteFinderData.duration + newRouteFinderData.duration, lastRouteFinderData.routeId, lastRouteFinderData.waitingTime, lastRouteFinderData.routeId == 0 ? 1 : lastRouteFinderData.stops + newRouteFinderData.stops));
+					final RouteFinderData routeFinderDataToAdd = new RouteFinderData(newRouteFinderData.pos, lastRouteFinderData.duration + newRouteFinderData.duration, lastRouteFinderData.routeId, lastRouteFinderData.waitingTime);
+					routeFinderDataToAdd.stationIds.addAll(lastRouteFinderData.stationIds);
+					routeFinderDataToAdd.stationIds.add(stationId);
+					routeFinderDataList.add(routeFinderDataToAdd);
 				} else {
+					newRouteFinderData.stationIds.add(stationId);
 					routeFinderDataList.add(newRouteFinderData);
 				}
 			}

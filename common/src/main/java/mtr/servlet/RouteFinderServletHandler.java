@@ -44,7 +44,7 @@ public class RouteFinderServletHandler extends HttpServlet {
 					final PositionInfo startPositionInfo = getPosition(world, railwayData, parameterStartPlayer, parameterStartStation, parameterStartPos, true, errors);
 					final PositionInfo endPositionInfo = getPosition(world, railwayData, parameterEndPlayer, parameterEndStation, parameterEndPos, false, errors);
 					if (startPositionInfo != null && endPositionInfo != null && errors.isEmpty()) {
-						railwayData.railwayDataRouteFinderModule.findRoute(startPositionInfo.pos, endPositionInfo.pos, maxTickTime, (dataList, duration) -> {
+						if (!railwayData.railwayDataRouteFinderModule.findRoute(startPositionInfo.pos, endPositionInfo.pos, maxTickTime, (dataList, duration) -> {
 							final JsonObject jsonObject = new JsonObject();
 							jsonObject.add("start", startPositionInfo.toJsonObject());
 							jsonObject.add("end", endPositionInfo.toJsonObject());
@@ -60,12 +60,14 @@ public class RouteFinderServletHandler extends HttpServlet {
 								if (route != null) {
 									final JsonObject jsonObjectRoute = new JsonObject();
 									jsonObjectRoute.addProperty("wait", data.waitingTime);
-									jsonObjectRoute.addProperty("stops", data.stops);
 									jsonObjectRoute.addProperty("color", route.color);
 									jsonObjectRoute.addProperty("name", route.name);
 									jsonObjectRoute.addProperty("number", route.isLightRailRoute ? route.lightRailRouteNumber : "");
 									jsonObjectRoute.addProperty("type", IServletHandler.createRouteKey(route.transportMode, route.routeType));
 									jsonObjectRoute.addProperty("circular", route.circularState == Route.CircularState.NONE ? "" : route.circularState == Route.CircularState.CLOCKWISE ? "cw" : "ccw");
+									final JsonArray jsonArrayRouteStations = new JsonArray();
+									data.stationIds.forEach(stationId -> jsonArrayRouteStations.add(String.valueOf(stationId)));
+									jsonObjectRoute.add("stations", jsonArrayRouteStations);
 									jsonObjectData.add("route", jsonObjectRoute);
 								}
 
@@ -78,7 +80,9 @@ public class RouteFinderServletHandler extends HttpServlet {
 
 							jsonObject.add("directions", jsonArrayData);
 							IServletHandler.sendResponse(response, asyncContext, jsonObject.toString());
-						});
+						})) {
+							errors.add("Too many requests! Please try again.");
+						}
 					}
 				}
 			}
@@ -183,7 +187,7 @@ public class RouteFinderServletHandler extends HttpServlet {
 			if (station != null) {
 				final JsonObject jsonObjectStation = new JsonObject();
 				jsonObjectStation.addProperty("name", station.name);
-				jsonObjectStation.addProperty("id", station.id);
+				jsonObjectStation.addProperty("id", String.valueOf(station.id));
 				jsonObject.add("station", jsonObjectStation);
 			}
 
