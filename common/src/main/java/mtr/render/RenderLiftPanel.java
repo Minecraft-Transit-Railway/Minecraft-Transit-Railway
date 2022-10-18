@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Vector3f;
 import mtr.MTRClient;
-import mtr.block.BlockLiftPanel1;
+import mtr.block.BlockLiftPanelBase;
 import mtr.block.BlockLiftTrackFloor;
 import mtr.block.IBlock;
 import mtr.block.ITripleBlock;
@@ -29,7 +29,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import static mtr.data.IGui.*;
 
-public class RenderLiftPanel<T extends BlockLiftPanel1.TileEntityLiftPanel1Base> extends BlockEntityRendererMapper<T> {
+public class RenderLiftPanel<T extends BlockLiftPanelBase.TileEntityLiftPanel1Base> extends BlockEntityRendererMapper<T> {
 
 	private final boolean isOdd;
 	private final boolean isFlat;
@@ -84,7 +84,7 @@ public class RenderLiftPanel<T extends BlockLiftPanel1.TileEntityLiftPanel1Base>
 		}
 
 		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalDirectionalBlock.FACING);
-		final boolean holdingLinker = Utilities.isHolding(player, item -> item instanceof ItemLiftButtonsLinkModifier || Block.byItem(item) instanceof BlockLiftPanel1);
+		final boolean holdingLinker = Utilities.isHolding(player, item -> item instanceof ItemLiftButtonsLinkModifier || Block.byItem(item) instanceof BlockLiftPanelBase);
 
 		matrices.pushPose();
 		matrices.translate(0.5, 0, 0.5);

@@ -7,10 +7,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 
-public class BlockLiftPanelOdd1 extends BlockLiftPanelBase {
+public class BlockLiftPanelOdd2 extends BlockLiftPanelBase {
 
-	public BlockLiftPanelOdd1() {
-		super(true, false);
+	public BlockLiftPanelOdd2() {
+		super(true, true);
 	}
 
 	@Override
@@ -20,13 +20,13 @@ public class BlockLiftPanelOdd1 extends BlockLiftPanelBase {
 
 	@Override
 	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
-		return new TileEntityLiftPanelOdd1(pos, state);
+		return new TileEntityLiftPanelOdd2(pos, state);
 	}
 
-	public static class TileEntityLiftPanelOdd1 extends TileEntityLiftPanel1Base {
+	public static class TileEntityLiftPanelOdd2 extends TileEntityLiftPanel1Base {
 
-		public TileEntityLiftPanelOdd1(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_PANEL_ODD_1_TILE_ENTITY.get(), pos, state, true);
+		public TileEntityLiftPanelOdd2(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.LIFT_PANEL_ODD_2_TILE_ENTITY.get(), pos, state, true);
 		}
 	}
 }

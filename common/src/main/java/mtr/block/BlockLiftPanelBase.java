@@ -35,7 +35,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.List;
 
-public abstract class BlockLiftPanel1 extends BlockDirectionalMapper implements EntityBlockMapper, ITripleBlock {
+public abstract class BlockLiftPanelBase extends BlockDirectionalMapper implements EntityBlockMapper, ITripleBlock {
 
 	private final boolean isOdd;
 	private final boolean isFlat;
@@ -45,7 +45,7 @@ public abstract class BlockLiftPanel1 extends BlockDirectionalMapper implements 
 	@Deprecated
 	public static final BooleanProperty TEMP = BooleanProperty.create("temp");
 
-	public BlockLiftPanel1(boolean isOdd, boolean isFlat) {
+	public BlockLiftPanelBase(boolean isOdd, boolean isFlat) {
 		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 5));
 		this.isOdd = isOdd;
 		this.isFlat = isFlat;
@@ -75,7 +75,11 @@ public abstract class BlockLiftPanel1 extends BlockDirectionalMapper implements 
 		if (isOdd) {
 			return IBlock.isReplaceable(ctx, direction.getClockWise(), 3) ? defaultBlockState().setValue(FACING, direction).setValue(SIDE, EnumSide.LEFT).setValue(ODD, false) : null;
 		} else {
-			return IBlock.isReplaceable(ctx, direction.getClockWise(), 2) ? defaultBlockState().setValue(FACING, direction).setValue(SIDE, EnumSide.LEFT).setValue(TEMP, false) : null;
+			if (isFlat) {
+				return IBlock.isReplaceable(ctx, direction.getClockWise(), 2) ? defaultBlockState().setValue(FACING, direction).setValue(SIDE, EnumSide.LEFT) : null;
+			} else {
+				return IBlock.isReplaceable(ctx, direction.getClockWise(), 2) ? defaultBlockState().setValue(FACING, direction).setValue(SIDE, EnumSide.LEFT).setValue(TEMP, false) : null;
+			}
 		}
 	}
 
@@ -95,7 +99,11 @@ public abstract class BlockLiftPanel1 extends BlockDirectionalMapper implements 
 				world.updateNeighborsAt(pos.relative(direction.getClockWise()), Blocks.AIR);
 				state.updateNeighbourShapes(world, pos.relative(direction.getClockWise()), 3);
 			} else {
-				world.setBlock(pos.relative(direction.getClockWise()), defaultBlockState().setValue(FACING, direction).setValue(SIDE, EnumSide.RIGHT).setValue(TEMP, false), 3);
+				if (isFlat) {
+					world.setBlock(pos.relative(direction.getClockWise()), defaultBlockState().setValue(FACING, direction).setValue(SIDE, EnumSide.RIGHT), 3);
+				} else {
+					world.setBlock(pos.relative(direction.getClockWise()), defaultBlockState().setValue(FACING, direction).setValue(SIDE, EnumSide.RIGHT).setValue(TEMP, false), 3);
+				}
 			}
 
 			world.updateNeighborsAt(pos, Blocks.AIR);
@@ -201,7 +209,13 @@ public abstract class BlockLiftPanel1 extends BlockDirectionalMapper implements 
 		}
 
 		// TODO temp code start
-		protected abstract void convert();
+		protected void convert() {
+			if (!converted) {
+				converted = true;
+				setChanged();
+				syncData();
+			}
+		}
 		// TODO temp code end
 
 		public static <T extends BlockEntityMapper> void tick(Level world, BlockPos pos, T blockEntity) {

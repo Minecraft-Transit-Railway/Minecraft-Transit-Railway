@@ -19,6 +19,8 @@ public class MTRClientLifts implements IPacket {
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_DOOR_ODD_1.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_PANEL_EVEN_1.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_PANEL_ODD_1.get());
+		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_PANEL_EVEN_2.get());
+		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_PANEL_ODD_2.get());
 
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.LIFT_BUTTONS_LINK_CONNECTOR.get(), ItemBlockClickingBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.LIFT_BUTTONS_LINK_REMOVER.get(), ItemBlockClickingBase.TAG_POS);
@@ -26,6 +28,8 @@ public class MTRClientLifts implements IPacket {
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.LIFT_BUTTONS_1_TILE_ENTITY.get(), RenderLiftButtons::new);
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.LIFT_PANEL_EVEN_1_TILE_ENTITY.get(), dispatcher -> new RenderLiftPanel<>(dispatcher, false, false));
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.LIFT_PANEL_ODD_1_TILE_ENTITY.get(), dispatcher -> new RenderLiftPanel<>(dispatcher, true, false));
+		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.LIFT_PANEL_EVEN_2_TILE_ENTITY.get(), dispatcher -> new RenderLiftPanel<>(dispatcher, false, true));
+		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.LIFT_PANEL_ODD_2_TILE_ENTITY.get(), dispatcher -> new RenderLiftPanel<>(dispatcher, true, true));
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.LIFT_DOOR_EVEN_1_TILE_ENTITY.get(), dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 3));
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.LIFT_DOOR_ODD_1_TILE_ENTITY.get(), dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 4));
 

@@ -8,10 +8,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 
-public class BlockLiftPanelEven1 extends BlockLiftPanel1 {
+public class BlockLiftPanelEven1 extends BlockLiftPanelBase {
 
-	public BlockLiftPanelEven1(boolean isFlat) {
-		super(false, isFlat);
+	public BlockLiftPanelEven1() {
+		super(false, false);
 	}
 
 	@Override

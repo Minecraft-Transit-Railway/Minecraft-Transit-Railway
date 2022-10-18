@@ -33,6 +33,8 @@ public class MTRLifts implements IPacket {
 		registerBlockItem.accept("lift_buttons_1", Blocks.LIFT_BUTTONS_1, ItemGroups.ESCALATORS_LIFTS);
 		registerBlockItem.accept("lift_panel_even_1", Blocks.LIFT_PANEL_EVEN_1, ItemGroups.ESCALATORS_LIFTS);
 		registerBlockItem.accept("lift_panel_odd_1", Blocks.LIFT_PANEL_ODD_1, ItemGroups.ESCALATORS_LIFTS);
+		registerBlockItem.accept("lift_panel_even_2", Blocks.LIFT_PANEL_EVEN_2, ItemGroups.ESCALATORS_LIFTS);
+		registerBlockItem.accept("lift_panel_odd_2", Blocks.LIFT_PANEL_ODD_2, ItemGroups.ESCALATORS_LIFTS);
 		registerBlock.accept("lift_door_1", Blocks.LIFT_DOOR_EVEN_1);
 		registerBlock.accept("lift_door_odd_1", Blocks.LIFT_DOOR_ODD_1);
 		registerBlockItem.accept("lift_track_1", Blocks.LIFT_TRACK_1, ItemGroups.ESCALATORS_LIFTS);
@@ -41,6 +43,8 @@ public class MTRLifts implements IPacket {
 		registerBlockEntityType.accept("lift_buttons_1", BlockEntityTypes.LIFT_BUTTONS_1_TILE_ENTITY);
 		registerBlockEntityType.accept("lift_panel_even_1", BlockEntityTypes.LIFT_PANEL_EVEN_1_TILE_ENTITY);
 		registerBlockEntityType.accept("lift_panel_odd_1", BlockEntityTypes.LIFT_PANEL_ODD_1_TILE_ENTITY);
+		registerBlockEntityType.accept("lift_panel_even_2", BlockEntityTypes.LIFT_PANEL_EVEN_2_TILE_ENTITY);
+		registerBlockEntityType.accept("lift_panel_odd_2", BlockEntityTypes.LIFT_PANEL_ODD_2_TILE_ENTITY);
 		registerBlockEntityType.accept("lift_track_floor_1", BlockEntityTypes.LIFT_TRACK_FLOOR_1_TILE_ENTITY);
 		registerBlockEntityType.accept("lift_door_1", BlockEntityTypes.LIFT_DOOR_EVEN_1_TILE_ENTITY);
 		registerBlockEntityType.accept("lift_door_odd_1", BlockEntityTypes.LIFT_DOOR_ODD_1_TILE_ENTITY);

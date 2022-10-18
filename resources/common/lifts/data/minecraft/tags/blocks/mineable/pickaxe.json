@@ -6,6 +6,8 @@
 		"mtr:lift_door_odd_1",
 		"mtr:lift_panel_even_1",
 		"mtr:lift_panel_odd_1",
+		"mtr:lift_panel_even_2",
+		"mtr:lift_panel_odd_2",
 		"mtr:lift_track_1",
 		"mtr:lift_track_floor_1"
 	]
