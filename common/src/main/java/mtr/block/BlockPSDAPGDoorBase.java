@@ -32,7 +32,6 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 	public static final int MAX_OPEN_VALUE = 32;
 
 	public static final BooleanProperty END = BooleanProperty.create("end");
-	public static final BooleanProperty ODD = BooleanProperty.create("odd");
 	public static final BooleanProperty UNLOCKED = BooleanProperty.create("unlocked");
 	public static final BooleanProperty TEMP = BooleanProperty.create("temp");
 

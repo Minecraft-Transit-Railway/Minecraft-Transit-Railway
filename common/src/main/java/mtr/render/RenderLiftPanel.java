@@ -7,6 +7,7 @@ import mtr.MTRClient;
 import mtr.block.BlockLiftPanel1;
 import mtr.block.BlockLiftTrackFloor;
 import mtr.block.IBlock;
+import mtr.block.ITripleBlock;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.Lift;
@@ -28,7 +29,10 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import static mtr.data.IGui.*;
 
-public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.TileEntityLiftPanel> {
+public class RenderLiftPanel<T extends BlockLiftPanel1.TileEntityLiftPanel1Base> extends BlockEntityRendererMapper<T> {
+
+	private final boolean isOdd;
+	private final boolean isFlat;
 
 	private static final ResourceLocation ARROW_TEXTURE = new ResourceLocation("mtr:textures/block/lift_arrow.png");
 	private static final float ARROW_SPEED = 0.04F;
@@ -36,12 +40,14 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
 	private static final int SLIDE_INTERVAL = 50;
 	private static final float PANEL_WIDTH = 1.125F;
 
-	public RenderLiftPanel(BlockEntityRenderDispatcher dispatcher) {
+	public RenderLiftPanel(BlockEntityRenderDispatcher dispatcher, boolean isOdd, boolean isFlat) {
 		super(dispatcher);
+		this.isOdd = isOdd;
+		this.isFlat = isFlat;
 	}
 
 	@Override
-	public void render(BlockLiftPanel1.TileEntityLiftPanel entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int combinedOverlay) {
+	public void render(T entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int combinedOverlay) {
 		final Level world = entity.getLevel();
 		if (world == null) {
 			return;
@@ -58,7 +64,7 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
 		}
 
 		final BlockState state = world.getBlockState(pos);
-		if (!IBlock.getStatePropertySafe(state, BlockLiftPanel1.LEFT)) {
+		if (!isOdd && IBlock.getStatePropertySafe(state, IBlock.SIDE) == IBlock.EnumSide.RIGHT || isOdd && !IBlock.getStatePropertySafe(state, ITripleBlock.ODD)) {
 			return;
 		}
 
@@ -77,7 +83,7 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
 			return;
 		}
 
-		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalDirectionalBlock.FACING).getOpposite();
+		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalDirectionalBlock.FACING);
 		final boolean holdingLinker = Utilities.isHolding(player, item -> item instanceof ItemLiftButtonsLinkModifier || Block.byItem(item) instanceof BlockLiftPanel1);
 
 		matrices.pushPose();
@@ -96,17 +102,17 @@ public class RenderLiftPanel extends BlockEntityRendererMapper<BlockLiftPanel1.T
 			final String[] text = ClientData.DATA_CACHE.requestLiftFloorText(lift.getCurrentFloorBlockPos());
 			matrices.mulPose(Vector3f.YN.rotationDegrees(facing.toYRot()));
 			matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
-			matrices.translate(0.5, 0, 0);
+			matrices.translate(isOdd ? 0 : 0.5, 0, 0);
 
 			// Floor Number
 			matrices.pushPose();
-			matrices.translate(0, 0, 0.25F - SMALL_OFFSET * 2);
+			matrices.translate(0, 0, (isFlat ? 0.4375F : 0.25F) - SMALL_OFFSET * 2);
 			final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
 			IDrawing.drawStringWithFont(matrices, textRenderer, immediate, ClientData.DATA_CACHE.requestLiftFloorText(trackPosition)[0], HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, -0.47F, 0.1875F, 0.1875F, 1, ARGB_BLACK, false, MAX_LIGHT_GLOWING, null);
 			immediate.endBatch();
 			matrices.popPose();
 
-			renderLiftDisplay(matrices, vertexConsumers, 0.25F, text[0], text[1], lift.getLiftDirection());
+			renderLiftDisplay(matrices, vertexConsumers, isFlat ? 0.4375F : 0.25F, text[0], text[1], lift.getLiftDirection());
 		}
 		matrices.popPose();
 	}

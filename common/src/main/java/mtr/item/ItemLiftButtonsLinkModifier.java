@@ -48,8 +48,8 @@ public class ItemLiftButtonsLinkModifier extends ItemBlockClickingBase {
 				((BlockLiftButtons.TileEntityLiftButtons) blockEntity).registerFloor(posFloor, isConnector);
 			}
 
-			if (blockEntity instanceof BlockLiftPanel1.TileEntityLiftPanel) {
-				((BlockLiftPanel1.TileEntityLiftPanel) blockEntity).registerFloor(posFloor, isConnector);
+			if (blockEntity instanceof BlockLiftPanel1.TileEntityLiftPanel1Base) {
+				((BlockLiftPanel1.TileEntityLiftPanel1Base) blockEntity).registerFloor(posFloor, isConnector);
 			}
 		}
 	}

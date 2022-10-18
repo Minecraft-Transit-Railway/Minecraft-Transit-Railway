@@ -9,13 +9,13 @@
 					"conditions": [
 						{
 							"condition": "minecraft:block_state_property",
-							"block": "mtr:lift_panel_even_1",
+							"block": "mtr:lift_panel_odd_1",
 							"properties": {
 								"side": "left"
 							}
 						}
 					],
-					"name": "mtr:lift_panel_even_1"
+					"name": "mtr:lift_panel_odd_1"
 				}
 			],
 			"conditions": [
