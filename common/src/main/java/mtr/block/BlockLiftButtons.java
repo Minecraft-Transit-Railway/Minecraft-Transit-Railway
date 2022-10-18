@@ -16,6 +16,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -83,6 +84,11 @@ public class BlockLiftButtons extends BlockDirectionalMapper implements EntityBl
 	@Override
 	public <T extends BlockEntityMapper> void tick(Level world, BlockPos pos, T blockEntity) {
 		TileEntityLiftButtons.tick(world, pos, blockEntity);
+	}
+
+	@Override
+	public BlockEntityType<? extends BlockEntityMapper> getType() {
+		return BlockEntityTypes.LIFT_BUTTONS_1_TILE_ENTITY.get();
 	}
 
 	@Override

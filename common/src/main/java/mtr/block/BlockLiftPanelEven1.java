@@ -5,6 +5,7 @@ import mtr.mappings.BlockEntityMapper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 
@@ -24,6 +25,11 @@ public class BlockLiftPanelEven1 extends BlockLiftPanelBase {
 		return new TileEntityLiftPanelEven1(pos, state);
 	}
 
+	@Override
+	public BlockEntityType<? extends BlockEntityMapper> getType() {
+		return BlockEntityTypes.LIFT_PANEL_EVEN_1_TILE_ENTITY.get();
+	}
+
 	public static class TileEntityLiftPanelEven1 extends TileEntityLiftPanel1Base {
 
 		public TileEntityLiftPanelEven1(BlockPos pos, BlockState state) {
@@ -37,11 +43,12 @@ public class BlockLiftPanelEven1 extends BlockLiftPanelBase {
 				if (IBlock.getStatePropertySafe(state, TEMP)) {
 					final Direction newFacing = IBlock.getStatePropertySafe(state, FACING).getOpposite();
 					final IBlock.EnumSide newSide = IBlock.getStatePropertySafe(state, LEFT) ? EnumSide.LEFT : EnumSide.RIGHT;
-					level.setBlockAndUpdate(getBlockPos(), state.setValue(FACING, newFacing).setValue(SIDE, newSide));
+					level.setBlockAndUpdate(getBlockPos(), state.setValue(FACING, newFacing).setValue(SIDE, newSide).setValue(TEMP, false));
+				} else {
+					converted = true;
+					setChanged();
+					syncData();
 				}
-				converted = true;
-				setChanged();
-				syncData();
 			}
 		}
 	}
