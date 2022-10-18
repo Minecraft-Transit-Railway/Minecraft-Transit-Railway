@@ -89,7 +89,7 @@ public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButton
 		final HitResult hitResult = Minecraft.getInstance().hitResult;
 		final boolean lookingAtTopHalf;
 		final boolean lookingAtBottomHalf;
-		if (hitResult == null) {
+		if (hitResult == null || !IBlock.getStatePropertySafe(state, BlockLiftButtons.UNLOCKED)) {
 			lookingAtTopHalf = false;
 			lookingAtBottomHalf = false;
 		} else {

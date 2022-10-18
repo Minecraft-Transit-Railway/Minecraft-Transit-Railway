@@ -215,6 +215,8 @@
 	"gui.mtr.last_cable_car_station_cjk": "本纜車往%s",
 	"gui.mtr.last_train_station": "This train is going to %s",
 	"gui.mtr.last_train_station_cjk": "本列車往%s",
+	"gui.mtr.lift_buttons_locked": "Buttons Locked",
+	"gui.mtr.lift_buttons_unlocked": "Buttons Unlocked",
 	"gui.mtr.lift_floor_description": "Description",
 	"gui.mtr.lift_floor_number": "Floor Number",
 	"gui.mtr.lift_is_double_sided": "Double-sided",
