@@ -42,7 +42,6 @@ public class Depot extends AreaBase implements IReducedSaveData {
 	public static final int MILLIS_PER_TICK = 50;
 	public static final int MILLISECONDS_PER_DAY = HOURS_IN_DAY * 60 * 60 * 1000;
 	private static final int TICKS_PER_DAY = HOURS_IN_DAY * TICKS_PER_HOUR;
-	private static final int MAX_DEPLOYED_MILLIS = 3600000;
 	private static final int CONTINUOUS_MOVEMENT_FREQUENCY = 8000;
 
 	private static final String KEY_ROUTE_IDS = "route_ids";
@@ -370,11 +369,11 @@ public class Depot extends AreaBase implements IReducedSaveData {
 			int millisOffset = 0;
 			while (millisOffset < MILLISECONDS_PER_DAY) {
 				final int tempFrequency = getFrequency(getHour(world, millisOffset));
-				if (tempFrequency == 0) {
+				if (tempFrequency == 0 && !transportMode.continuousMovement) {
 					millisOffset = (int) (Math.floor((float) millisOffset / MILLIS_PER_TICK / TICKS_PER_HOUR) + 1) * TICKS_PER_HOUR * MILLIS_PER_TICK;
 				} else {
 					tempDepartures.add((int) ((lastDeployedMillis + millisOffset) % MILLISECONDS_PER_DAY));
-					millisOffset += TICKS_PER_HOUR * MILLIS_PER_TICK * TRAIN_FREQUENCY_MULTIPLIER / tempFrequency;
+					millisOffset += transportMode.continuousMovement ? CONTINUOUS_MOVEMENT_FREQUENCY : TICKS_PER_HOUR * MILLIS_PER_TICK * TRAIN_FREQUENCY_MULTIPLIER / tempFrequency;
 				}
 			}
 			tempDepartures.sort(Integer::compareTo);
