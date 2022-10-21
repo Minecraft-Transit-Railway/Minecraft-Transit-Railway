@@ -94,7 +94,7 @@ public abstract class ModelSimpleTrainBase extends ModelTrainBase {
 		}
 	}
 
-	protected String getDestinationString(Station station, String customDestination, TextSpacingType textSpacingType, boolean toUpperCase) {
+	protected String getDestinationString(Station station, String customDestination, TextSpacingType textSpacingType, boolean toUpperCase, boolean padOneLine) {
 		final String text = customDestination == null ? station == null ? defaultDestinationString() : station.name : customDestination;
 		final String finalResult;
 
@@ -136,7 +136,8 @@ public abstract class ModelSimpleTrainBase extends ModelTrainBase {
 			finalResult = String.join("|", result);
 		}
 
-		return toUpperCase ? finalResult.toUpperCase() : finalResult;
+		final boolean shouldPad = !finalResult.contains("|") && padOneLine;
+		return (shouldPad ? "|" : "") + (toUpperCase ? finalResult.toUpperCase() : finalResult) + (shouldPad ? "|" : "");
 	}
 
 	protected String defaultDestinationString() {

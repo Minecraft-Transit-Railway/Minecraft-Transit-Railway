@@ -1467,7 +1467,7 @@ public class ModelMLR extends ModelSimpleTrainBase {
 				matrices, font, immediate,
 				0, 0, getEndPositions()[0] / 16F - 2.92F, 0, -1.81F, -0.01F,
 				-10, 0, 0.5F, 0.26F,
-				0xFFFF0000, 0xFFFF9900, 2, getDestinationString(lastStation, customDestination, TextSpacingType.MLR_SPACING, true), car, totalCars
+				0xFFFF0000, 0xFFFF9900, 2, getDestinationString(lastStation, customDestination, TextSpacingType.MLR_SPACING, true, false), car, totalCars
 		);
 	}
 

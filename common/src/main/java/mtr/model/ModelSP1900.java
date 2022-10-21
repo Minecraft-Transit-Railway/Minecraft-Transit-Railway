@@ -1743,7 +1743,7 @@ public class ModelSP1900 extends ModelSimpleTrainBase {
 				matrices, font, immediate,
 				0, 0, getEndPositions()[0] / 16F - 3.34F, 0, -2.36F, -0.01F,
 				-20, 0, 0.76F, 0.42F,
-				isC1141A ? 0xFFFFFF00 : 0xFFFF9900, isC1141A ? 0xFFFF0000 : 0xFFFF9900, 3, getDestinationString(lastStation, customDestination, isC1141A ? TextSpacingType.NORMAL : TextSpacingType.SPACE_CJK, true), car, totalCars
+				isC1141A ? 0xFFFFFF00 : 0xFFFF9900, isC1141A ? 0xFFFF0000 : 0xFFFF9900, 3, getDestinationString(lastStation, customDestination, isC1141A ? TextSpacingType.NORMAL : TextSpacingType.SPACE_CJK, true, true), car, totalCars
 		);
 	}
 
