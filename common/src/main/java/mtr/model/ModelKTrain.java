@@ -1089,7 +1089,7 @@ public class ModelKTrain extends ModelSimpleTrainBase {
 					matrices, font, immediate,
 					-0.8F, 0, getEndPositions()[0] / 16F - 2.21F, 0, -1.92F, -0.01F,
 					-15, 0, 0.37F, 0.21F,
-					0xFFFF9900, 0xFFFF0000, 2, getDestinationString(lastStation, customDestination, TextSpacingType.SPACE_CJK, true, true), car, totalCars
+					0xFFFF9900, 0xFFFF0000, 2, getDestinationString(lastStation, customDestination, TextSpacingType.SPACE_CJK, true), true, car, totalCars
 			);
 		}
 	}

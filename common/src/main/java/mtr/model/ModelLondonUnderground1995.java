@@ -2,8 +2,12 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.data.Route;
+import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
 
 public class ModelLondonUnderground1995 extends ModelSimpleTrainBase {
 
@@ -1256,5 +1260,21 @@ public class ModelLondonUnderground1995 extends ModelSimpleTrainBase {
 	@Override
 	protected float getDoorAnimationZ(float value, boolean opening) {
 		return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
+	}
+
+	@Override
+	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars) {
+		final String destinationString = getAlternatingString(getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false));
+		renderFrontDestination(
+				matrices, font, immediate,
+				0, -2.08F, getEndPositions()[0] / 16F - 3.56F, 0, 0, -0.01F,
+				0, 0, 0.66F, 0.08F,
+				0xFFFF9900, 0xFFFF9900, 1, destinationString, false, car, totalCars
+		);
+	}
+
+	@Override
+	protected String defaultDestinationString() {
+		return "Not in Service";
 	}
 }

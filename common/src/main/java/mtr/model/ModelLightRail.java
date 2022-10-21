@@ -1036,7 +1036,7 @@ public class ModelLightRail extends ModelSimpleTrainBase {
 				matrices, font, immediate,
 				0, 0, getEndPositions()[0] / 16F - frontOffset, routeNumber.isEmpty() ? 0 : -0.2F, phase == 4 || phase == 6 ? -2.14F : -2.18F, -0.01F,
 				phase == 4 || phase == 6 ? -7.5F : 0, 0, 0.56F, 0.26F,
-				color, color, 3, getDestinationString(lastStation, customDestination, TextSpacingType.SPACE_CJK_FLIPPED, true, true), 0, 2
+				color, color, 3, getDestinationString(lastStation, customDestination, TextSpacingType.SPACE_CJK_FLIPPED, true), true, 0, 2
 		);
 
 		if (!routeNumber.isEmpty()) {
@@ -1044,13 +1044,13 @@ public class ModelLightRail extends ModelSimpleTrainBase {
 					matrices, font, immediate,
 					0, 0, getEndPositions()[0] / 16F - frontOffset, 0.31F, phase == 4 || phase == 6 ? -2.14F : -2.15F, -0.01F,
 					phase == 4 || phase == 6 ? -7.5F : 0, 0, 0.4F, 0.26F,
-					color, color, 3, routeNumber, 0, 2
+					color, color, 3, routeNumber, false, 0, 2
 			);
 			renderFrontDestination(
 					matrices, font, immediate,
 					0, 0, getEndPositions()[0] / 16F - 2.92F, 0, phase == 1 || phase == 6 ? -2.13F : -2.24F, -0.01F,
 					-5, 0, 0.38F, 0.2F,
-					color, color, 3, routeNumber, 1, 2
+					color, color, 3, routeNumber, false, 1, 2
 			);
 		}
 
@@ -1059,19 +1059,19 @@ public class ModelLightRail extends ModelSimpleTrainBase {
 				matrices, font, immediate,
 				isRHT ? -1.26F : 1.26F, -1.76F, sideOffset - 0.3F, 0, 0, 0,
 				0, isRHT ? 90 : -90, 0.56F, 0.26F,
-				color, color, 3, getDestinationString(lastStation, customDestination, TextSpacingType.SPACE_CJK_FLIPPED, true, true), 0, 2
+				color, color, 3, getDestinationString(lastStation, customDestination, TextSpacingType.SPACE_CJK_FLIPPED, true), true, 0, 2
 		);
 		renderFrontDestination(
 				matrices, font, immediate,
 				isRHT ? -1.26F : 1.26F, -1.73F, sideOffset + 0.42F, 0, 0, 0,
 				0, isRHT ? 90 : -90, 0.4F, 0.26F,
-				color, color, 3, routeNumber, 0, 2
+				color, color, 3, routeNumber, false, 0, 2
 		);
 		renderFrontDestination(
 				matrices, font, immediate,
 				isRHT ? -1.05F : 1.05F, -1.89F, sideOffset, 0, 0, 0,
 				0, isRHT ? -90 : 90, 1.2F, 0.08F,
-				color, color, 1, ((routeNumber.isEmpty() ? "" : routeNumber + "|") + getDestinationString(lastStation, customDestination, TextSpacingType.SPACE_CJK, true, false)).replace("|", "  "), 0, 2
+				color, color, 1, ((routeNumber.isEmpty() ? "" : routeNumber + "|") + getDestinationString(lastStation, customDestination, TextSpacingType.SPACE_CJK, true)).replace("|", "  "), false, 0, 2
 		);
 	}
 

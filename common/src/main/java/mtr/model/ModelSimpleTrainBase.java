@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
+import mtr.MTRClient;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
@@ -70,7 +71,7 @@ public abstract class ModelSimpleTrainBase extends ModelTrainBase {
 	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars) {
 	}
 
-	protected void renderFrontDestination(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, float x1, float y1, float z1, float x2, float y2, float z2, float rotationX, float rotationY, float maxWidth, float maxHeight, int colorCjk, int color, float fontSizeRatio, String text, int car, int totalCars) {
+	protected void renderFrontDestination(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, float x1, float y1, float z1, float x2, float y2, float z2, float rotationX, float rotationY, float maxWidth, float maxHeight, int colorCjk, int color, float fontSizeRatio, String text, boolean padOneLine, int car, int totalCars) {
 		final boolean isEnd1Head = car == 0;
 		final boolean isEnd2Head = car == totalCars - 1;
 
@@ -88,13 +89,13 @@ public abstract class ModelSimpleTrainBase extends ModelTrainBase {
 					matrices.mulPose(Vector3f.XP.rotationDegrees(rotationX));
 				}
 				matrices.translate(x2, y2, z2);
-				IDrawing.drawStringWithFont(matrices, font, immediate, text, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, 0, 0, maxWidth, maxHeight, 1, colorCjk, color, fontSizeRatio, false, MAX_LIGHT_GLOWING, null);
+				IDrawing.drawStringWithFont(matrices, font, immediate, text, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, 0, 0, maxWidth, (padOneLine && !text.contains("|") ? IGui.isCjk(text) ? fontSizeRatio / (fontSizeRatio + 1) : 0.5F : 1) * maxHeight, 1, colorCjk, color, fontSizeRatio, false, MAX_LIGHT_GLOWING, null);
 				matrices.popPose();
 			}
 		}
 	}
 
-	protected String getDestinationString(Station station, String customDestination, TextSpacingType textSpacingType, boolean toUpperCase, boolean padOneLine) {
+	protected String getDestinationString(Station station, String customDestination, TextSpacingType textSpacingType, boolean toUpperCase) {
 		final String text = customDestination == null ? station == null ? defaultDestinationString() : station.name : customDestination;
 		final String finalResult;
 
@@ -136,8 +137,12 @@ public abstract class ModelSimpleTrainBase extends ModelTrainBase {
 			finalResult = String.join("|", result);
 		}
 
-		final boolean shouldPad = !finalResult.contains("|") && padOneLine;
-		return (shouldPad ? "|" : "") + (toUpperCase ? finalResult.toUpperCase() : finalResult) + (shouldPad ? "|" : "");
+		return toUpperCase ? finalResult.toUpperCase() : finalResult;
+	}
+
+	protected String getAlternatingString(String text) {
+		final String[] textSplit = text.split("\\|");
+		return textSplit[((int) Math.floor(MTRClient.getGameTick() / 30)) % textSplit.length];
 	}
 
 	protected String defaultDestinationString() {
