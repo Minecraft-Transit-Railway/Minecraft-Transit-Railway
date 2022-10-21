@@ -57,12 +57,12 @@ public class DataServletHandler extends HttpServlet {
 						float accumulatedTime = 0;
 						BlockPos prevPlatformPos = null;
 						for (int i = 0; i < route.platformIds.size(); i++) {
-							final long platformId = route.platformIds.get(i);
+							final long platformId = route.platformIds.get(i).platformId;
 
 							float time = 0;
 							if (i > 0) {
 								if (depot != null) {
-									final long prevPlatformId = route.platformIds.get(i - 1);
+									final long prevPlatformId = route.platformIds.get(i - 1).platformId;
 									if (depot.platformTimes.containsKey(prevPlatformId) && depot.platformTimes.get(prevPlatformId).containsKey(platformId)) {
 										time = depot.platformTimes.get(prevPlatformId).get(platformId);
 									}

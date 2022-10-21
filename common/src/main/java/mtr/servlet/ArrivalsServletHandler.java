@@ -52,11 +52,15 @@ public class ArrivalsServletHandler extends HttpServlet {
 								final JsonObject scheduleObject = new JsonObject();
 								scheduleObject.addProperty("arrival", scheduleEntry.arrivalMillis);
 								scheduleObject.addProperty("name", route.name);
-								final Station station = railwayData.dataCache.platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1));
-								scheduleObject.addProperty("destination", station == null ? "" : station.name);
+								String destination = route.getDestination(scheduleEntry.currentStationIndex);
+								if (destination == null) {
+									final Station station = railwayData.dataCache.platformIdToStation.get(route.getLastPlatformId());
+									destination = station == null ? "" : station.name;
+								}
+								scheduleObject.addProperty("destination", destination);
 								scheduleObject.addProperty("circular", route.circularState == Route.CircularState.NONE ? "" : route.circularState == Route.CircularState.CLOCKWISE ? "cw" : "ccw");
 								scheduleObject.addProperty("route", route.isLightRailRoute ? route.lightRailRouteNumber : "");
-								final Platform platform = railwayData.dataCache.platformIdMap.get(route.platformIds.get(scheduleEntry.currentStationIndex));
+								final Platform platform = railwayData.dataCache.platformIdMap.get(route.platformIds.get(scheduleEntry.currentStationIndex).platformId);
 								scheduleObject.addProperty("platform", platform == null ? "" : platform.name);
 								scheduleObject.addProperty("color", route.color);
 								dataArray.add(scheduleObject);

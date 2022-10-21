@@ -184,7 +184,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 							}
 
 							if (lastStation != null && nextStation.id == lastStation.id && nextRoute != null && !nextRoute.platformIds.isEmpty() && !nextRouteSplit.equals(thisRouteSplit)) {
-								final Station nextFinalStation = ClientData.DATA_CACHE.platformIdToStation.get(nextRoute.platformIds.get(nextRoute.platformIds.size() - 1));
+								final Station nextFinalStation = ClientData.DATA_CACHE.platformIdToStation.get(nextRoute.getLastPlatformId());
 								if (nextFinalStation != null) {
 									final String modeString = thisRoute.transportMode.toString().toLowerCase();
 									if (nextRoute.isLightRailRoute) {

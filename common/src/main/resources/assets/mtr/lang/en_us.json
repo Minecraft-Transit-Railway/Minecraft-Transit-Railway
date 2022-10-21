@@ -166,6 +166,7 @@
 	"gui.mtr.connecting_station_part": "Passengers may change to %s.",
 	"gui.mtr.connecting_station_part_cjk": "乘客可在該站%s。",
 	"gui.mtr.custom_destination": "Headsign Override",
+	"gui.mtr.custom_destination_suggestion": "Destination (\\r to Reset)",
 	"gui.mtr.custom_resources_export_resource_pack": "Export Resource Pack",
 	"gui.mtr.custom_resources_gangway_connection_id": "Gangway Connection ID",
 	"gui.mtr.custom_resources_id": "ID",

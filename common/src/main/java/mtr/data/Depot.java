@@ -260,7 +260,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 			final Route route = dataCache.routeIdMap.get(routeId);
 			if (route != null) {
 				route.platformIds.forEach(platformId -> {
-					final Platform platform = dataCache.platformIdMap.get(platformId);
+					final Platform platform = dataCache.platformIdMap.get(platformId.platformId);
 					if (platform != null && (platformsInRoute.isEmpty() || platform.id != platformsInRoute.get(platformsInRoute.size() - 1).id)) {
 						platformsInRoute.add(platform);
 					}

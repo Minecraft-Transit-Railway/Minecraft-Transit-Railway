@@ -1051,12 +1051,12 @@ public class ModelMTrain extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, int car, int totalCars) {
+	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars) {
 		renderFrontDestination(
 				matrices, font, immediate,
 				-0.8F, 0, getEndPositions()[0] / 16F - 1.75F, 0, -2, -0.01F, 0, -1.9F, -0.01F,
 				-10, 0, 0.37F, 0.14F, 0.07F,
-				0xFFFF9900, 0xFFFF0000, lastStation, car, totalCars
+				0xFFFF9900, 0xFFFF0000, true, lastStation, customDestination, car, totalCars
 		);
 	}
 

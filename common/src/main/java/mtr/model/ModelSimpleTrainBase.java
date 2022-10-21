@@ -60,27 +60,31 @@ public abstract class ModelSimpleTrainBase extends ModelTrainBase {
 
 		if (routeIds != null) {
 			final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-			if (!RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> renderTextDisplays(matrices, Minecraft.getInstance().font, immediate, thisRoute, nextRoute, thisStation, nextStation, lastStation, car, totalCars))) {
-				renderTextDisplays(matrices, Minecraft.getInstance().font, immediate, null, null, null, null, null, car, totalCars);
+			if (!RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> renderTextDisplays(matrices, Minecraft.getInstance().font, immediate, thisRoute, nextRoute, thisStation, nextStation, lastStation, thisRoute == null ? null : thisRoute.getDestination(currentStationIndex), car, totalCars))) {
+				renderTextDisplays(matrices, Minecraft.getInstance().font, immediate, null, null, null, null, null, null, car, totalCars);
 			}
 			immediate.endBatch();
 		}
 	}
 
-	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, int car, int totalCars) {
+	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars) {
 	}
 
-	protected void renderFrontDestination(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, float x, float y, float z, float x1, float y1, float z1, float x2, float y2, float z2, float rotationX, float rotationY, float maxWidth, float maxHeight1, float maxHeight2, int color1, int color2, Station station, int car, int totalCars) {
-		renderFrontDestination(matrices, font, immediate, x, y, z, x1, y1, z1, x2, y2, z2, rotationX, rotationY, HorizontalAlignment.CENTER, HorizontalAlignment.CENTER, maxWidth, maxHeight1, maxHeight2, color1, color2, station, car, totalCars);
+	protected void renderFrontDestination(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, float x, float y, float z, float x1, float y1, float z1, float x2, float y2, float z2, float rotationX, float rotationY, float maxWidth, float maxHeight1, float maxHeight2, int color1, int color2, boolean spaceCjk, Station station, String customDestination, int car, int totalCars) {
+		renderFrontDestination(matrices, font, immediate, x, y, z, x1, y1, z1, x2, y2, z2, rotationX, rotationY, HorizontalAlignment.CENTER, HorizontalAlignment.CENTER, maxWidth, maxHeight1, maxHeight2, color1, color2, spaceCjk, station, customDestination, car, totalCars);
 	}
 
-	protected void renderFrontDestination(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, float x, float y, float z, float x1, float y1, float z1, float x2, float y2, float z2, float rotationX, float rotationY, HorizontalAlignment horizontalAlignment1, HorizontalAlignment horizontalAlignment2, float maxWidth, float maxHeight1, float maxHeight2, int color1, int color2, Station station, int car, int totalCars) {
-		final String[] stationSplit = (station == null ? defaultDestinationString() : station.name).split("\\|");
+	protected void renderFrontDestination(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, float x, float y, float z, float x1, float y1, float z1, float x2, float y2, float z2, float rotationX, float rotationY, HorizontalAlignment horizontalAlignment1, HorizontalAlignment horizontalAlignment2, float maxWidth, float maxHeight1, float maxHeight2, int color1, int color2, boolean spaceCjk, Station station, String customDestination, int car, int totalCars) {
+		final String[] stationSplit = (customDestination == null ? station == null ? defaultDestinationString() : station.name : customDestination).split("\\|");
 		final List<String> stationNameCjk = new ArrayList<>();
 		final List<String> stationName = new ArrayList<>();
 		for (final String stationNamePart : stationSplit) {
 			if (IGui.isCjk(stationNamePart)) {
-				stationNameCjk.add(stationNamePart);
+				if (spaceCjk && stationNamePart.length() == 2) {
+					stationNameCjk.add(stationNamePart.charAt(0) + " " + stationNamePart.charAt(1));
+				} else {
+					stationNameCjk.add(stationNamePart);
+				}
 			} else {
 				stationName.add(stationNamePart);
 			}

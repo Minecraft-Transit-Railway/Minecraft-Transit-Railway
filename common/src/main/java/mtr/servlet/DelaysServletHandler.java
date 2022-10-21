@@ -44,7 +44,7 @@ public class DelaysServletHandler extends HttpServlet {
 						} else {
 							routeName = route.name;
 							routeNumber = route.isLightRailRoute ? route.lightRailRouteNumber : "";
-							final Station station = dataCache.platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1));
+							final Station station = dataCache.platformIdToStation.get(route.getLastPlatformId());
 							destination = station == null ? "" : station.name;
 							circular = route.circularState == Route.CircularState.NONE ? "" : route.circularState == Route.CircularState.CLOCKWISE ? "cw" : "ccw";
 							color = route.color;
