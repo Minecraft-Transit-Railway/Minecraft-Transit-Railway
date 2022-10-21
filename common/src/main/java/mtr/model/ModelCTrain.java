@@ -1213,9 +1213,9 @@ public class ModelCTrain extends ModelSimpleTrainBase {
 	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars) {
 		renderFrontDestination(
 				matrices, font, immediate,
-				-0.8F, 0, getEndPositions()[0] / 16F - 2.22F, 0, -1.93F, -0.01F, 0, -1.85F, -0.01F,
-				-15, 7.5F, 0.4F, 0.12F, 0.06F,
-				0xFFFFFF00, 0xFFFF0000, false, lastStation, customDestination, car, totalCars
+				-0.8F, 0, getEndPositions()[0] / 16F - 2.22F, 0, -1.9F, -0.01F,
+				-15, 7.5F, 0.4F, 0.14F,
+				0xFFFFFF00, 0xFFFF0000, 2, getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, true), car, totalCars
 		);
 	}
 
