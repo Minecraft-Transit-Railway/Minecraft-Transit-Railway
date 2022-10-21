@@ -235,7 +235,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					final float newDestinationMaxWidth = destinationMaxWidth - carLengthMaxWidth;
 
 					if (showAllPlatforms) {
-						final String platformName = platformIdToName.get(route.platformIds.get(currentSchedule.currentStationIndex));
+						final String platformName = platformIdToName.get(route.platformIds.get(currentSchedule.currentStationIndex).platformId);
 						if (platformName != null) {
 							textRenderer.draw(matrices, platformName, destinationStart + newDestinationMaxWidth, 0, seconds > 0 ? textColor : firstTrainColor);
 						}

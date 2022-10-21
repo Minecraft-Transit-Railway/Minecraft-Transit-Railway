@@ -172,7 +172,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		} else {
 			final Route firstRoute = ClientData.DATA_CACHE.routeIdMap.get(data.routeIds.get(0));
 			final Route lastRoute = ClientData.DATA_CACHE.routeIdMap.get(data.routeIds.get(data.routeIds.size() - 1));
-			checkboxRepeatIndefinitely.visible = firstRoute != null && lastRoute != null && !firstRoute.platformIds.isEmpty() && !lastRoute.platformIds.isEmpty() && Objects.equals(firstRoute.platformIds.get(0), lastRoute.platformIds.get(lastRoute.platformIds.size() - 1));
+			checkboxRepeatIndefinitely.visible = firstRoute != null && lastRoute != null && !firstRoute.platformIds.isEmpty() && !lastRoute.platformIds.isEmpty() && firstRoute.getFirstPlatformId() == lastRoute.getLastPlatformId();
 		}
 	}
 
@@ -356,7 +356,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 					final Route nextRoute = i < data.routeIds.size() - 1 ? ClientData.DATA_CACHE.routeIdMap.get(data.routeIds.get(i + 1)) : null;
 					if (thisRoute != null) {
 						sum += thisRoute.platformIds.size();
-						if (!thisRoute.platformIds.isEmpty() && nextRoute != null && !nextRoute.platformIds.isEmpty() && thisRoute.platformIds.get(thisRoute.platformIds.size() - 1).equals(nextRoute.platformIds.get(0))) {
+						if (!thisRoute.platformIds.isEmpty() && nextRoute != null && !nextRoute.platformIds.isEmpty() && thisRoute.getLastPlatformId() == nextRoute.getFirstPlatformId()) {
 							sum--;
 						}
 					}

@@ -2,8 +2,12 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.data.Route;
+import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
 
 public class ModelClass377 extends ModelSimpleTrainBase {
 
@@ -1526,22 +1530,22 @@ public class ModelClass377 extends ModelSimpleTrainBase {
 				for (final float i : windowPositions) {
 					renderMirror(window, matrices, vertices, light, i);
 				}
-				renderOnce(window_1, matrices, vertices, light, windowPositions[0]);
-				renderOnce(window_2, matrices, vertices, light, windowPositions[1]);
-				renderOnce(window_3, matrices, vertices, light, windowPositions[2]);
-				renderOnce(window_4, matrices, vertices, light, windowPositions[3]);
-				renderOnce(window_5, matrices, vertices, light, windowPositions[4]);
-				renderOnce(window_6, matrices, vertices, light, windowPositions[5]);
-				renderOnce(window_7, matrices, vertices, light, windowPositions[6]);
-				renderOnce(window_8, matrices, vertices, light, windowPositions[7]);
-				renderOnceFlipped(window_8, matrices, vertices, light, windowPositions[0]);
-				renderOnceFlipped(window_7, matrices, vertices, light, windowPositions[1]);
-				renderOnceFlipped(window_6, matrices, vertices, light, windowPositions[2]);
-				renderOnceFlipped(window_5, matrices, vertices, light, windowPositions[3]);
-				renderOnceFlipped(window_4, matrices, vertices, light, windowPositions[4]);
-				renderOnceFlipped(window_3, matrices, vertices, light, windowPositions[5]);
-				renderOnceFlipped(window_2, matrices, vertices, light, windowPositions[6]);
-				renderOnceFlipped(window_1, matrices, vertices, light, windowPositions[7]);
+				renderOnceFlipped(window_1, matrices, vertices, light, windowPositions[0]);
+				renderOnceFlipped(window_2, matrices, vertices, light, windowPositions[1]);
+				renderOnceFlipped(window_3, matrices, vertices, light, windowPositions[2]);
+				renderOnceFlipped(window_4, matrices, vertices, light, windowPositions[3]);
+				renderOnceFlipped(window_5, matrices, vertices, light, windowPositions[4]);
+				renderOnceFlipped(window_6, matrices, vertices, light, windowPositions[5]);
+				renderOnceFlipped(window_7, matrices, vertices, light, windowPositions[6]);
+				renderOnceFlipped(window_8, matrices, vertices, light, windowPositions[7]);
+				renderOnce(window_8, matrices, vertices, light, windowPositions[0]);
+				renderOnce(window_7, matrices, vertices, light, windowPositions[1]);
+				renderOnce(window_6, matrices, vertices, light, windowPositions[2]);
+				renderOnce(window_5, matrices, vertices, light, windowPositions[3]);
+				renderOnce(window_4, matrices, vertices, light, windowPositions[4]);
+				renderOnce(window_3, matrices, vertices, light, windowPositions[5]);
+				renderOnce(window_2, matrices, vertices, light, windowPositions[6]);
+				renderOnce(window_1, matrices, vertices, light, windowPositions[7]);
 				if (renderDetails) {
 					for (final float i : windowPositions) {
 						renderOnceFlipped(seat, matrices, vertices, light, -16, i - 7);
@@ -1729,6 +1733,37 @@ public class ModelClass377 extends ModelSimpleTrainBase {
 	@Override
 	protected float getDoorAnimationZ(float value, boolean opening) {
 		return smoothEnds(-DOOR_MAX, DOOR_MAX, -0.5F, 0.5F, value);
+	}
+
+	@Override
+	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars) {
+		final boolean isEnd2Head = car == totalCars - 1;
+		final String destinationString = getAlternatingString(getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false));
+		final float offset = 0.23F;
+		final float[] positions1 = {-4 + 26.5F / 16 - offset, 4 + 26.5F / 16 - (isEnd2Head ? -1 : 1) * offset};
+		final float[] positions2 = {-4 - 26.5F / 16 - offset, 4 - 26.5F / 16 - (isEnd2Head ? -1 : 1) * offset};
+
+		for (final float position : positions1) {
+			renderFrontDestination(
+					matrices, font, immediate,
+					-21F / 16, -13F / 16, position, 0, -0.75F, -0.01F,
+					-8, 90, 0.5F, 0.1F,
+					0xFFFF9900, 0xFFFF9900, 1, destinationString, false, 0, 2
+			);
+		}
+		for (final float position : positions2) {
+			renderFrontDestination(
+					matrices, font, immediate,
+					21F / 16, -13F / 16, position, 0, -0.75F, -0.01F,
+					-8, -90, 0.5F, 0.1F,
+					0xFFFF9900, 0xFFFF9900, 1, destinationString, false, 0, 2
+			);
+		}
+	}
+
+	@Override
+	protected String defaultDestinationString() {
+		return "Not in Service";
 	}
 
 	private float[] getNewWindowPositions() {

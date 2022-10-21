@@ -40,8 +40,8 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 		buttonIsAntiClockwiseRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.is_anticlockwise_route"), this::setIsAntiClockwise);
 
 		if (route.platformIds.size() > 0) {
-			final Station firstStation = ClientData.DATA_CACHE.platformIdToStation.get(route.platformIds.get(0));
-			final Station lastStation = ClientData.DATA_CACHE.platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1));
+			final Station firstStation = ClientData.DATA_CACHE.platformIdToStation.get(route.getFirstPlatformId());
+			final Station lastStation = ClientData.DATA_CACHE.platformIdToStation.get(route.getLastPlatformId());
 			isCircular = firstStation != null && lastStation != null && firstStation.id == lastStation.id;
 		} else {
 			isCircular = false;

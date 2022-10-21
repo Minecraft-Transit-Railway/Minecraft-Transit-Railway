@@ -184,7 +184,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 							}
 
 							if (lastStation != null && nextStation.id == lastStation.id && nextRoute != null && !nextRoute.platformIds.isEmpty() && !nextRouteSplit.equals(thisRouteSplit)) {
-								final Station nextFinalStation = ClientData.DATA_CACHE.platformIdToStation.get(nextRoute.platformIds.get(nextRoute.platformIds.size() - 1));
+								final Station nextFinalStation = ClientData.DATA_CACHE.platformIdToStation.get(nextRoute.getLastPlatformId());
 								if (nextFinalStation != null) {
 									final String modeString = thisRoute.transportMode.toString().toLowerCase();
 									if (nextRoute.isLightRailRoute) {
@@ -223,7 +223,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			matrices.mulPose(Vector3f.XP.rotationDegrees(180));
 			matrices.mulPose(Vector3f.YP.rotationDegrees(180 + lift.facing.toYRot()));
 			final int light = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage));
-			new ModelLift1(lift.liftHeight, lift.liftWidth, lift.liftDepth, lift.isDoubleSided).render(matrices, vertexConsumers, LIFT_TEXTURE, light, frontDoorValue, backDoorValue, false, 0, 1, false, true, false, false);
+			new ModelLift1(lift.liftHeight, lift.liftWidth, lift.liftDepth, lift.isDoubleSided).render(matrices, vertexConsumers, LIFT_TEXTURE, light, frontDoorValue, backDoorValue, false, 0, 1, false, true, false, false, 0, null);
 
 			for (int i = 0; i < (lift.isDoubleSided ? 2 : 1); i++) {
 				matrices.mulPose(Vector3f.YP.rotationDegrees(180));

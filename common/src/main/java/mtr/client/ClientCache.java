@@ -77,7 +77,7 @@ public class ClientCache extends DataCache implements IGui {
 		routes.forEach(route -> {
 			if (!route.isHidden) {
 				route.platformIds.forEach(platformId -> {
-					final Station station = platformIdToStation.get(platformId);
+					final Station station = platformIdToStation.get(platformId.platformId);
 					if (station != null) {
 						if (!stationIdToRoutes.containsKey(station.id)) {
 							stationIdToRoutes.put(station.id, new HashMap<>());
@@ -132,17 +132,22 @@ public class ClientCache extends DataCache implements IGui {
 
 	public List<PlatformRouteDetails> requestPlatformIdToRoutes(long platformId) {
 		if (!platformIdToRoutes.containsKey(platformId)) {
-			platformIdToRoutes.put(platformId, routes.stream().filter(route -> route.platformIds.contains(platformId)).map(route -> {
-				final List<PlatformRouteDetails.StationDetails> stationDetails = route.platformIds.stream().map(platformId2 -> {
-					final Station station = platformIdToStation.get(platformId2);
-					if (station == null || !stationIdToRoutes.containsKey(station.id)) {
-						return new PlatformRouteDetails.StationDetails("", new ArrayList<>());
-					} else {
-						return new PlatformRouteDetails.StationDetails(station.name, stationIdToRoutes.get(station.id).values().stream().filter(colorNameTuple -> colorNameTuple.color != route.color).collect(Collectors.toList()));
-					}
-				}).collect(Collectors.toList());
-				return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.circularState, route.platformIds.indexOf(platformId), stationDetails);
-			}).collect(Collectors.toList()));
+			platformIdToRoutes.put(platformId, routes.stream().map(route -> {
+				final int index = route.getPlatformIdIndex(platformId);
+				if (index < 0) {
+					return null;
+				} else {
+					final List<PlatformRouteDetails.StationDetails> stationDetails = route.platformIds.stream().map(platformId2 -> {
+						final Station station = platformIdToStation.get(platformId2.platformId);
+						if (station == null || !stationIdToRoutes.containsKey(station.id)) {
+							return new PlatformRouteDetails.StationDetails("", new ArrayList<>());
+						} else {
+							return new PlatformRouteDetails.StationDetails(station.name, stationIdToRoutes.get(station.id).values().stream().filter(colorNameTuple -> colorNameTuple.color != route.color).collect(Collectors.toList()));
+						}
+					}).collect(Collectors.toList());
+					return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.circularState, index, stationDetails);
+				}
+			}).filter(Objects::nonNull).collect(Collectors.toList()));
 		}
 		return platformIdToRoutes.get(platformId);
 	}
@@ -182,21 +187,29 @@ public class ClientCache extends DataCache implements IGui {
 
 	public String getFormattedRouteDestination(Route route, int currentStationIndex, String circularMarker) {
 		try {
+			final String customDestination = route.getDestination(currentStationIndex);
+			if (customDestination != null) {
+				return customDestination;
+			}
+
 			if (route.circularState == Route.CircularState.NONE) {
-				return platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1)).name;
+				return platformIdToStation.get(route.getLastPlatformId()).name;
 			} else {
 				boolean isVia = false;
 				String text = "";
+
 				for (int i = currentStationIndex + 1; i < route.platformIds.size() - 1; i++) {
-					if (stationIdToRoutes.get(platformIdToStation.get(route.platformIds.get(i)).id).size() > 1) {
-						text = platformIdToStation.get(route.platformIds.get(i)).name;
+					if (stationIdToRoutes.get(platformIdToStation.get(route.platformIds.get(i).platformId).id).size() > 1) {
+						text = platformIdToStation.get(route.platformIds.get(i).platformId).name;
 						isVia = true;
 						break;
 					}
 				}
+
 				if (!isVia) {
-					text = platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1)).name;
+					text = platformIdToStation.get(route.getLastPlatformId()).name;
 				}
+
 				final String translationString = String.format("%s_%s", route.circularState == Route.CircularState.CLOCKWISE ? "clockwise" : "anticlockwise", isVia ? "via" : "to");
 				return circularMarker + IGui.insertTranslation("gui.mtr." + translationString + "_cjk", "gui.mtr." + translationString, 1, text);
 			}

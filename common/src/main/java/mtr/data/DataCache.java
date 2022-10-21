@@ -53,7 +53,7 @@ public class DataCache {
 			mapIds(liftsServerIdMap, liftsServer);
 
 			routeIdToOneDepot.clear();
-			routes.forEach(route -> route.platformIds.removeIf(platformId -> platformIdMap.get(platformId) == null));
+			routes.forEach(route -> route.platformIds.removeIf(platformId -> !platformIdMap.containsKey(platformId.platformId)));
 			depots.forEach(depot -> {
 				depot.routeIds.removeIf(routeId -> routeIdMap.get(routeId) == null);
 				depot.routeIds.forEach(routeId -> routeIdToOneDepot.put(routeId, depot));
@@ -64,8 +64,8 @@ public class DataCache {
 				final Depot depot = routeIdToOneDepot.get(route.id);
 				if (depot != null) {
 					for (int i = 1; i < route.platformIds.size(); i++) {
-						final long prevPlatformId = route.platformIds.get(i - 1);
-						final long thisPlatformId = route.platformIds.get(i);
+						final long prevPlatformId = route.platformIds.get(i - 1).platformId;
+						final long thisPlatformId = route.platformIds.get(i).platformId;
 						final Platform prevPlatform = platformIdMap.get(prevPlatformId);
 						final Platform thisPlatform = platformIdMap.get(thisPlatformId);
 						if (prevPlatform != null && thisPlatform != null) {

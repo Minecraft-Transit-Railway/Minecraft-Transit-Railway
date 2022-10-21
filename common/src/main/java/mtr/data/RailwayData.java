@@ -632,13 +632,13 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			if (thisRoute != null) {
 				final int difference = stopIndex - sum;
 				sum += thisRoute.platformIds.size();
-				if (!thisRoute.platformIds.isEmpty() && nextRoute != null && !nextRoute.platformIds.isEmpty() && thisRoute.platformIds.get(thisRoute.platformIds.size() - 1).equals(nextRoute.platformIds.get(0))) {
+				if (!thisRoute.platformIds.isEmpty() && nextRoute != null && !nextRoute.platformIds.isEmpty() && thisRoute.getLastPlatformId() == nextRoute.getFirstPlatformId()) {
 					sum--;
 				}
 				if (stopIndex < sum) {
-					final Station thisStation = dataCache.platformIdToStation.get(thisRoute.platformIds.get(difference));
-					final Station nextStation = difference < thisRoute.platformIds.size() - 1 ? dataCache.platformIdToStation.get(thisRoute.platformIds.get(difference + 1)) : null;
-					final Station lastStation = thisRoute.platformIds.isEmpty() ? null : dataCache.platformIdToStation.get(thisRoute.platformIds.get(thisRoute.platformIds.size() - 1));
+					final Station thisStation = dataCache.platformIdToStation.get(thisRoute.platformIds.get(difference).platformId);
+					final Station nextStation = difference < thisRoute.platformIds.size() - 1 ? dataCache.platformIdToStation.get(thisRoute.platformIds.get(difference + 1).platformId) : null;
+					final Station lastStation = thisRoute.platformIds.isEmpty() ? null : dataCache.platformIdToStation.get(thisRoute.getLastPlatformId());
 					routeAndStationsCallback.routeAndStationsCallback(difference, thisRoute, nextRoute, thisStation, nextStation, lastStation);
 					return true;
 				}

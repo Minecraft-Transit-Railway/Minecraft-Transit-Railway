@@ -2,8 +2,12 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.data.Route;
+import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
 
 public class ModelR179 extends ModelSimpleTrainBase {
 
@@ -1788,5 +1792,33 @@ public class ModelR179 extends ModelSimpleTrainBase {
 				return smoothEnds(-1.5F, 1.5F, -0.4F, 0.4F, value);
 			}
 		}
+	}
+
+	@Override
+	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars) {
+		final String routeNumber = thisRoute == null ? "" : thisRoute.lightRailRouteNumber;
+		renderFrontDestination(
+				matrices, font, immediate,
+				-21.5F / 16, -13F / 16, -getWindowPositions()[0] / 16F, 0.12F, -0.98F, -0.01F,
+				-6, 90, 1.16F, 0.24F,
+				0xFFFF9900, 0xFFFF9900, 2, getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, true), true, 0, 1
+		);
+		renderFrontDestination(
+				matrices, font, immediate,
+				-21.5F / 16, -13F / 16, -getWindowPositions()[0] / 16F, -0.6F, -0.95F, -0.01F,
+				-6, 90, 0.22F, 0.24F,
+				0xFFFF9900, 0xFFFF9900, 2, routeNumber, false, 0, 1
+		);
+		renderFrontDestination(
+				matrices, font, immediate,
+				0, -2.28F, getEndPositions()[0] / 16F - 1.62F, 0, 0, -0.01F,
+				0, 0, 0.5F, 0.36F,
+				0xFFFF0000, 0xFFFF0000, 2, routeNumber, false, car, totalCars
+		);
+	}
+
+	@Override
+	protected String defaultDestinationString() {
+		return "Not in Service";
 	}
 }

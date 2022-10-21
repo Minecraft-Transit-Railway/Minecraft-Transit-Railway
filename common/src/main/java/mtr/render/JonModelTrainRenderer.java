@@ -28,6 +28,7 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -64,7 +65,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 	}
 
 	@Override
-	public void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean isTranslucentBatch, float doorLeftValue, float doorRightValue, boolean opening, boolean head1IsFront) {
+	public void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean isTranslucentBatch, float doorLeftValue, float doorRightValue, boolean opening, boolean head1IsFront, int stopIndex, List<Long> routeIds) {
 		final String trainId = train.trainId;
 		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 
@@ -105,7 +106,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 			model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 		} else {
 			final boolean renderDetails = MTRClient.isReplayMod() || posAverage.distSqr(camera.getBlockPosition()) <= RenderTrains.DETAIL_RADIUS_SQUARED;
-			model.render(matrices, vertexConsumers, resolveTexture(textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, carIndex, train.trainCars, head1IsFront, train.getIsOnRoute(), isTranslucentBatch, renderDetails);
+			model.render(matrices, vertexConsumers, resolveTexture(textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, carIndex, train.trainCars, head1IsFront, train.getIsOnRoute(), isTranslucentBatch, renderDetails, stopIndex, routeIds);
 
 			if (trainProperties.bogiePosition != 0 && !isTranslucentBatch) {
 				if (trainProperties.isJacobsBogie) {
