@@ -2,8 +2,12 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.data.Route;
+import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
 
 public class ModelKTrain extends ModelSimpleTrainBase {
 
@@ -1076,5 +1080,22 @@ public class ModelKTrain extends ModelSimpleTrainBase {
 				return 2;
 			}
 		}
+	}
+
+	@Override
+	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, int car, int totalCars) {
+		if (!isTcl) {
+			renderFrontDestination(
+					matrices, font, immediate,
+					-0.8F, 0, getEndPositions()[0] / 16F - 2.21F, 0, -1.96F, -0.01F, 0, -1.86F, -0.01F,
+					-15, 0, 0.37F, 0.14F, 0.07F,
+					0xFFFF9900, 0xFFFF0000, lastStation, car, totalCars
+			);
+		}
+	}
+
+	@Override
+	protected String defaultDestinationString() {
+		return "回廠|Depot";
 	}
 }

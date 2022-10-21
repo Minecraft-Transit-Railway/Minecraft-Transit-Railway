@@ -329,6 +329,14 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_ACCELERATE);
 		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_BRAKE);
 		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_TOGGLE_DOORS);
+		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_1_NEGATIVE);
+		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_2_NEGATIVE);
+		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_3_NEGATIVE);
+		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_1_POSITIVE);
+		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_2_POSITIVE);
+		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_3_POSITIVE);
+		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_ROTATE_CATEGORY_NEGATIVE);
+		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_ROTATE_CATEGORY_POSITIVE);
 
 		BlockTactileMap.TileEntityTactileMap.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
 		BlockTactileMap.TileEntityTactileMap.onUse = pos -> {

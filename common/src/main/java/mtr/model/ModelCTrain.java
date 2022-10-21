@@ -2,8 +2,12 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.data.Route;
+import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
 
 public class ModelCTrain extends ModelSimpleTrainBase {
 	private final ModelMapper window;
@@ -1203,5 +1207,20 @@ public class ModelCTrain extends ModelSimpleTrainBase {
 	@Override
 	protected float getDoorAnimationZ(float value, boolean opening) {
 		return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
+	}
+
+	@Override
+	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, int car, int totalCars) {
+		renderFrontDestination(
+				matrices, font, immediate,
+				-0.8F, 0, getEndPositions()[0] / 16F - 2.22F, 0, -1.93F, -0.01F, 0, -1.85F, -0.01F,
+				-15, 7.5F, 0.4F, 0.12F, 0.06F,
+				0xFFFFFF00, 0xFFFF0000, lastStation, car, totalCars
+		);
+	}
+
+	@Override
+	protected String defaultDestinationString() {
+		return "回廠|Depot";
 	}
 }

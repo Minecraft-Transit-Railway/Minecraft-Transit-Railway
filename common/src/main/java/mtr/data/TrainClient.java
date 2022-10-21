@@ -77,8 +77,9 @@ public class TrainClient extends Train implements IGui {
 		final double newZ = carZ - offset.z;
 
 		final boolean opening = doorValue > oldDoorValue;
-		trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, false, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed);
-		trainTranslucentRenders.add(() -> trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, true, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed));
+		final int stopIndex = path.get(getIndex(0, spacing, false)).stopIndex - 1;
+		trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, false, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed, stopIndex, routeIds);
+		trainTranslucentRenders.add(() -> trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, true, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed, stopIndex, routeIds));
 
 		if (ridingCar > 0) {
 			final double newPrevCarX = prevCarX - offset.x;

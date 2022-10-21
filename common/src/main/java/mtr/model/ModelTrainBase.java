@@ -12,6 +12,8 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
+import java.util.List;
+
 public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui {
 
 	@Override
@@ -22,7 +24,7 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 	public final void renderToBuffer(PoseStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
 	}
 
-	public final void render(PoseStack matrices, MultiBufferSource vertexConsumers, ResourceLocation texture, int light, float doorLeftValue, float doorRightValue, boolean opening, int currentCar, int trainCars, boolean head1IsFront, boolean lightsOn, boolean isTranslucent, boolean renderDetails) {
+	public final void render(PoseStack matrices, MultiBufferSource vertexConsumers, ResourceLocation texture, int light, float doorLeftValue, float doorRightValue, boolean opening, int currentCar, int trainCars, boolean head1IsFront, boolean lightsOn, boolean isTranslucent, boolean renderDetails, int stopIndex, List<Long> routeIds) {
 		final float doorLeftX = getDoorAnimationX(doorLeftValue, opening);
 		final float doorRightX = getDoorAnimationX(doorRightValue, opening);
 		final float doorLeftZ = getDoorAnimationZ(doorLeftValue, opening);
@@ -43,7 +45,7 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 			render(matrices, vertexConsumers.getBuffer(renderLayerInterior), RenderStage.INTERIOR, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
 
 			if (renderDetails) {
-				renderExtraDetails(matrices, vertexConsumers, light, lightOnInteriorLevel, lightsOn, doorLeftX, doorRightX, doorLeftZ, doorRightZ);
+				renderExtraDetails(matrices, vertexConsumers, light, lightOnInteriorLevel, lightsOn, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, stopIndex, routeIds);
 			}
 
 			render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(texture)), RenderStage.EXTERIOR, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
@@ -51,7 +53,7 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		}
 	}
 
-	protected void renderExtraDetails(PoseStack matrices, MultiBufferSource vertexConsumers, int light, int lightOnInteriorLevel, boolean lightsOn, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
+	protected void renderExtraDetails(PoseStack matrices, MultiBufferSource vertexConsumers, int light, int lightOnInteriorLevel, boolean lightsOn, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int car, int totalCars, int stopIndex, List<Long> routeIds) {
 	}
 
 	protected abstract void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails);
