@@ -13,6 +13,7 @@ import mtr.model.ModelDoorOverlayTopBase;
 import mtr.model.ModelSimpleTrainBase;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -176,7 +177,7 @@ public class DynamicTrainModelLegacy extends ModelSimpleTrainBase implements IRe
 			final JsonObject partObject = partElement.getAsJsonObject();
 			final boolean shouldRender = renderDetails || !partObject.has("skip_rendering_if_too_far") || !partObject.get("skip_rendering_if_too_far").getAsBoolean();
 
-			if (shouldRender && renderStage.toString().equals(partObject.get("stage").getAsString().toUpperCase())) {
+			if (shouldRender && renderStage.toString().equals(partObject.get("stage").getAsString().toUpperCase(Locale.ENGLISH))) {
 				final ModelMapper part = parts.get(partObject.get("part_name").getAsString());
 
 				if (part != null) {
@@ -281,7 +282,7 @@ public class DynamicTrainModelLegacy extends ModelSimpleTrainBase implements IRe
 				newPartObject.addProperty(KEY_PROPERTIES_NAME, partObject.get("part_name").getAsString());
 				newPartObject.add(KEY_PROPERTIES_POSITIONS, partObject.getAsJsonArray(checkKey));
 				newPartObject.addProperty(KEY_PROPERTIES_MIRROR, i == 1);
-				newPartObject.addProperty(KEY_PROPERTIES_STAGE, getOrDefault(partObject, "stage", "", JsonElement::getAsString).toUpperCase());
+				newPartObject.addProperty(KEY_PROPERTIES_STAGE, getOrDefault(partObject, "stage", "", JsonElement::getAsString).toUpperCase(Locale.ENGLISH));
 				newPartObject.addProperty(KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR, getOrDefault(partObject, "skip_rendering_if_too_far", false, JsonElement::getAsBoolean));
 				final String newDoorOffsetString;
 				switch (getOrDefault(partObject, "door_offset_z", "", JsonElement::getAsString)) {

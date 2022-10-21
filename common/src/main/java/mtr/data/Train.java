@@ -127,9 +127,9 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		nextStoppingIndex = messagePackHelper.getInt(KEY_NEXT_STOPPING_INDEX);
 		reversed = messagePackHelper.getBoolean(KEY_REVERSED);
 
-		final String tempTrainId = messagePackHelper.getString(KEY_TRAIN_CUSTOM_ID).toLowerCase();
+		final String tempTrainId = messagePackHelper.getString(KEY_TRAIN_CUSTOM_ID).toLowerCase(Locale.ENGLISH);
 		// TODO temporary code for backwards compatibility
-		String tempBaseTrainType = messagePackHelper.getString(KEY_TRAIN_TYPE).toLowerCase();
+		String tempBaseTrainType = messagePackHelper.getString(KEY_TRAIN_TYPE).toLowerCase(Locale.ENGLISH);
 		baseTrainType = tempBaseTrainType.startsWith("base_") ? tempBaseTrainType.replace("base_", "train_") : tempBaseTrainType;
 		// TODO temporary code end
 		trainId = tempTrainId.isEmpty() ? baseTrainType : tempTrainId;

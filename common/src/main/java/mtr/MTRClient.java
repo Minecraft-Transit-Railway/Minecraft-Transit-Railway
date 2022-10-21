@@ -20,6 +20,7 @@ import net.minecraft.world.item.Item;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Locale;
 
 public class MTRClient implements IPacket {
 
@@ -351,7 +352,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerPlayerJoinEvent(player -> {
 			Config.refreshProperties();
 
-			isReplayMod = player.getClass().toGenericString().toLowerCase().contains("replaymod");
+			isReplayMod = player.getClass().toGenericString().toLowerCase(Locale.ENGLISH).contains("replaymod");
 			try {
 				Class.forName("org.vivecraft.main.VivecraftMain");
 				isVivecraft = true;

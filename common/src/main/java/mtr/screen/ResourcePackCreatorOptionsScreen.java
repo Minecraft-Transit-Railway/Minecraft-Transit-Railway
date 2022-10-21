@@ -15,6 +15,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IResourcePackCreatorProperties, ICustomResources, IGui {
@@ -213,7 +214,7 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 	}
 
 	private static String formatText(WidgetBetterTextField textField, String text, boolean isFileName) {
-		String cutText = text.toLowerCase().replaceAll(isFileName ? "[^\\w:/]" : "\\W", "");
+		String cutText = text.toLowerCase(Locale.ENGLISH).replaceAll(isFileName ? "[^\\w:/]" : "\\W", "");
 		while (!cutText.isEmpty() && cutText.substring(0, 1).replaceAll("[^a-z]", "").isEmpty()) {
 			cutText = cutText.substring(1);
 		}

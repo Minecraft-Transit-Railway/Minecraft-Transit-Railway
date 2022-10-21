@@ -10,6 +10,8 @@ import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 public class EditRouteScreen extends EditNameColorScreenBase<Route> implements IGui, IPacket {
 
 	private RouteType routeType;
@@ -120,7 +122,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 
 	private void setRouteTypeText(TransportMode transportMode, RouteType newRouteType) {
 		routeType = newRouteType;
-		buttonRouteType.setMessage(Text.translatable(String.format("gui.mtr.route_type_%s_%s", transportMode, routeType).toLowerCase()));
+		buttonRouteType.setMessage(Text.translatable(String.format("gui.mtr.route_type_%s_%s", transportMode, routeType).toLowerCase(Locale.ENGLISH)));
 	}
 
 	private void setIsLightRailRoute(boolean isLightRailRoute) {

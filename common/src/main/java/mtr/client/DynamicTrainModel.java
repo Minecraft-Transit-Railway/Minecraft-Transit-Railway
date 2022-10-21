@@ -11,6 +11,7 @@ import mtr.mappings.ModelMapper;
 import mtr.model.ModelTrainBase;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -86,7 +87,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 	protected void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails) {
 		properties.getAsJsonArray(KEY_PROPERTIES_PARTS).forEach(partElement -> {
 			final JsonObject partObject = partElement.getAsJsonObject();
-			if (!renderDetails && partObject.get(KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR).getAsBoolean() || !renderStage.toString().equals(partObject.get(KEY_PROPERTIES_STAGE).getAsString().toUpperCase())) {
+			if (!renderDetails && partObject.get(KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR).getAsBoolean() || !renderStage.toString().equals(partObject.get(KEY_PROPERTIES_STAGE).getAsString().toUpperCase(Locale.ENGLISH))) {
 				return;
 			}
 

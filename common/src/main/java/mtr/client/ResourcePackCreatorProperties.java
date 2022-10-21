@@ -23,6 +23,7 @@ import java.nio.file.StandardOpenOption;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -94,7 +95,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 	}
 
 	public void editCustomResourcesColor(int color) {
-		getCustomTrainObject().addProperty(CUSTOM_TRAINS_COLOR, Integer.toHexString(color & RGB_WHITE).toUpperCase());
+		getCustomTrainObject().addProperty(CUSTOM_TRAINS_COLOR, Integer.toHexString(color & RGB_WHITE).toUpperCase(Locale.ENGLISH));
 	}
 
 	public void editCustomResourcesGangwayConnectionId(String gangwayConnectionId) {

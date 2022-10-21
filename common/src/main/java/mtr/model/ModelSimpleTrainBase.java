@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public abstract class ModelSimpleTrainBase extends ModelTrainBase {
 
@@ -137,7 +138,7 @@ public abstract class ModelSimpleTrainBase extends ModelTrainBase {
 			finalResult = String.join("|", result);
 		}
 
-		return toUpperCase ? finalResult.toUpperCase() : finalResult;
+		return toUpperCase ? finalResult.toUpperCase(Locale.ENGLISH) : finalResult;
 	}
 
 	protected String getAlternatingString(String text) {

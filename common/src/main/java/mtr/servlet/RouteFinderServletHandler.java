@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 public class RouteFinderServletHandler extends HttpServlet {
 
@@ -137,8 +138,8 @@ public class RouteFinderServletHandler extends HttpServlet {
 			}
 			try {
 				for (final Station station : railwayData.stations) {
-					final List<String> stationNameSplit = Arrays.asList(station.name.toLowerCase().split("\\|"));
-					if (Arrays.stream(parameterStation.toLowerCase().split("\\|")).allMatch(stationNameSplit::contains)) {
+					final List<String> stationNameSplit = Arrays.asList(station.name.toLowerCase(Locale.ENGLISH).split("\\|"));
+					if (Arrays.stream(parameterStation.toLowerCase(Locale.ENGLISH).split("\\|")).allMatch(stationNameSplit::contains)) {
 						return new PositionInfo(station.getCenter(), railwayData, station, null, true);
 					}
 				}

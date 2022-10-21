@@ -122,7 +122,7 @@ public class DashboardList implements IGui {
 		final String text = textFieldSearch.getValue();
 		dataFiltered.clear();
 		for (int i = 0; i < dataSorted.size(); i++) {
-			if (dataSorted.get(i).name.toLowerCase().contains(text.toLowerCase())) {
+			if (dataSorted.get(i).name.toLowerCase(Locale.ENGLISH).contains(text.toLowerCase(Locale.ENGLISH))) {
 				dataFiltered.put(i, dataSorted.get(i));
 			}
 		}

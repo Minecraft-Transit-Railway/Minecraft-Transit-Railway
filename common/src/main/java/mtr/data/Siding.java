@@ -432,8 +432,8 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		// TODO temporary code for backwards compatibility
 		final String baseTrainType2 = baseTrainType.startsWith("base_") ? baseTrainType.replace("base_", "train_") : baseTrainType;
 		// TODO temporary code end
-		this.baseTrainType = baseTrainType2.toLowerCase();
-		this.trainId = trainId.isEmpty() ? this.baseTrainType : trainId.toLowerCase();
+		this.baseTrainType = baseTrainType2.toLowerCase(Locale.ENGLISH);
+		this.trainId = trainId.isEmpty() ? this.baseTrainType : trainId.toLowerCase(Locale.ENGLISH);
 		trainCars = Math.min(transportMode.maxLength, (int) Math.floor(railLength / TrainType.getSpacing(baseTrainType) + 0.01F));
 	}
 

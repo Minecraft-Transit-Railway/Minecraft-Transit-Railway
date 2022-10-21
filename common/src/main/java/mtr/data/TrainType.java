@@ -1,5 +1,7 @@
 package mtr.data;
 
+import java.util.Locale;
+
 public enum TrainType {
 
 	SP1900("train_24_2"),
@@ -130,9 +132,9 @@ public enum TrainType {
 
 	private static void splitTrainType(String trainType, TrainTypeCallback trainTypeCallback) {
 		for (final TransportMode transportMode : TransportMode.values()) {
-			final String checkString = transportMode.toString().toLowerCase() + "_";
+			final String checkString = transportMode.toString().toLowerCase(Locale.ENGLISH) + "_";
 
-			if (trainType.toLowerCase().startsWith(checkString)) {
+			if (trainType.toLowerCase(Locale.ENGLISH).startsWith(checkString)) {
 				final String[] remainingSplit = trainType.substring(checkString.length()).split("_");
 				int length = 1;
 				int width = 1;

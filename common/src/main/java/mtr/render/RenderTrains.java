@@ -148,7 +148,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 						}
 						break;
 					case 2:
-						text = getStationText(lastStation, "last_" + thisRoute.transportMode.toString().toLowerCase());
+						text = getStationText(lastStation, "last_" + thisRoute.transportMode.toString().toLowerCase(Locale.ENGLISH));
 						break;
 				}
 				player.displayClientMessage(text, true);
@@ -186,7 +186,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 							if (lastStation != null && nextStation.id == lastStation.id && nextRoute != null && !nextRoute.platformIds.isEmpty() && !nextRouteSplit.equals(thisRouteSplit)) {
 								final Station nextFinalStation = ClientData.DATA_CACHE.platformIdToStation.get(nextRoute.getLastPlatformId());
 								if (nextFinalStation != null) {
-									final String modeString = thisRoute.transportMode.toString().toLowerCase();
+									final String modeString = thisRoute.transportMode.toString().toLowerCase(Locale.ENGLISH);
 									if (nextRoute.isLightRailRoute) {
 										messages.add(IGui.insertTranslation("gui.mtr.next_route_" + modeString + "_light_rail_announcement_cjk", "gui.mtr.next_route_" + modeString + "_light_rail_announcement", nextRoute.lightRailRouteNumber, 1, nextFinalStation.name.split("\\|\\|")[0]));
 									} else {

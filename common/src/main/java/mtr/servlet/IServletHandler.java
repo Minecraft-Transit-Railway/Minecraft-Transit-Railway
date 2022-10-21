@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 public interface IServletHandler {
 
@@ -43,6 +44,6 @@ public interface IServletHandler {
 	}
 
 	static String createRouteKey(TransportMode transportMode, RouteType routeType) {
-		return (transportMode.toString() + "_" + routeType.toString()).toLowerCase();
+		return (transportMode.toString() + "_" + routeType.toString()).toLowerCase(Locale.ENGLISH);
 	}
 }

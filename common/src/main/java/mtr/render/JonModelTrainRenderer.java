@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -230,7 +231,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 	}
 
 	private static String resolvePath(String path) {
-		return path == null ? null : path.toLowerCase().split("\\.png")[0];
+		return path == null ? null : path.toLowerCase(Locale.ENGLISH).split("\\.png")[0];
 	}
 
 	private static class FakeBoat extends Boat {

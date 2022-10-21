@@ -14,10 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 public class TrainClientRegistry {
@@ -26,7 +23,7 @@ public class TrainClientRegistry {
 	private static final Map<TransportMode, List<String>> KEY_ORDERS = new HashMap<>();
 
 	public static void register(String key, String baseTrainType, String name, int color, float riderOffset, float bogiePosition, boolean isJacobsBogie, boolean hasGangwayConnection, TrainRendererBase renderer, TrainSoundBase sound) {
-		final String keyLower = key.toLowerCase();
+		final String keyLower = key.toLowerCase(Locale.ENGLISH);
 		final TransportMode transportMode = TrainType.getTransportMode(baseTrainType);
 		if (!KEY_ORDERS.containsKey(transportMode)) {
 			KEY_ORDERS.put(transportMode, new ArrayList<>());
@@ -159,7 +156,7 @@ public class TrainClientRegistry {
 	}
 
 	public static TrainProperties getTrainProperties(String key) {
-		final String keyLower = key.toLowerCase();
+		final String keyLower = key.toLowerCase(Locale.ENGLISH);
 		return REGISTRY.getOrDefault(keyLower, getBlankProperties());
 	}
 

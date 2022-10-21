@@ -4,6 +4,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Locale;
+
 public class ConfigFile {
 
 	public final SoundEvent[] run = new SoundEvent[1];
@@ -86,8 +88,8 @@ public class ConfigFile {
 					continue;
 				}
 
-				final String key = tokens[0].trim().toLowerCase().replaceAll("\\s", "");
-				final String value = tokens[1].trim().toLowerCase().replace("\\", "/").replaceAll("\\.wav|\\s|.+/", "");
+				final String key = tokens[0].trim().toLowerCase(Locale.ENGLISH).replaceAll("\\s", "");
+				final String value = tokens[1].trim().toLowerCase(Locale.ENGLISH).replace("\\", "/").replaceAll("\\.wav|\\s|.+/", "");
 				if (StringUtils.isEmpty(value)) {
 					continue;
 				}
@@ -204,7 +206,7 @@ public class ConfigFile {
 						}
 				}
 			} else if (trimLine.startsWith("[") && trimLine.endsWith("]")) {
-				section = trimLine.substring(1, trimLine.length() - 1).trim().replace(" ", "").toLowerCase();
+				section = trimLine.substring(1, trimLine.length() - 1).trim().replace(" ", "").toLowerCase(Locale.ENGLISH);
 			}
 		}
 

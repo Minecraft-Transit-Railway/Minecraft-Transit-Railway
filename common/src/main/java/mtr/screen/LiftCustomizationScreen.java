@@ -14,6 +14,8 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 public class LiftCustomizationScreen extends ScreenMapper implements IGui, IPacket {
 
 	private final LiftClient lift;
@@ -189,6 +191,6 @@ public class LiftCustomizationScreen extends ScreenMapper implements IGui, IPack
 		buttonOffsetZMinus.active = lift.liftOffsetZ > -MAX_OFFSET * 2;
 		buttonOffsetZAdd.active = lift.liftOffsetZ < MAX_OFFSET * 2;
 		buttonIsDoubleSided.setChecked(lift.isDoubleSided);
-		buttonLiftStyle.setMessage(Text.translatable("gui.mtr.lift_style", Text.translatable("gui.mtr.lift_style_" + lift.liftStyle.toString().toLowerCase())));
+		buttonLiftStyle.setMessage(Text.translatable("gui.mtr.lift_style", Text.translatable("gui.mtr.lift_style_" + lift.liftStyle.toString().toLowerCase(Locale.ENGLISH))));
 	}
 }
