@@ -64,12 +64,9 @@ public class ModelQTrain extends ModelSimpleTrainBase {
     private final ModelMapper end;
     private final ModelMapper upper_wall_2_r1;
     private final ModelMapper upper_wall_1_r1;
-    private final ModelMapper end_exterior_1;
+    private final ModelMapper end_exterior;
     private final ModelMapper upper_wall_2_r2;
     private final ModelMapper upper_wall_1_r2;
-    private final ModelMapper end_exterior_2;
-    private final ModelMapper upper_wall_3_r1;
-    private final ModelMapper upper_wall_2_r3;
     private final ModelMapper roof_end_exterior;
     private final ModelMapper vent_2_r1;
     private final ModelMapper vent_1_r1;
@@ -101,10 +98,10 @@ public class ModelQTrain extends ModelSimpleTrainBase {
     private final ModelMapper outer_roof_3_r5;
     private final ModelMapper outer_roof_2_r5;
     private final ModelMapper head;
-    private final ModelMapper upper_wall_2_r4;
+    private final ModelMapper upper_wall_2_r3;
     private final ModelMapper upper_wall_1_r3;
     private final ModelMapper head_exterior;
-    private final ModelMapper upper_wall_2_r5;
+    private final ModelMapper upper_wall_2_r4;
     private final ModelMapper upper_wall_1_r4;
     private final ModelMapper front;
     private final ModelMapper side_1;
@@ -192,7 +189,7 @@ public class ModelQTrain extends ModelSimpleTrainBase {
         side_panel = new ModelMapper(modelDataWrapper);
         side_panel.setPos(0, 24, 0);
         side_panel.texOffs(316, 19).addBox(-11, -13, 0, 0, 8, 0, 0.2F, false);
-        side_panel.texOffs(16, 8).addBox(-18.7F, -11.5F, -0.5F, 8, 3, 1, 0, false);
+        side_panel.texOffs(174, 1).addBox(-18.7F, -11.5F, -0.5F, 8, 3, 1, 0, false);
 
         seat_back_2_r1 = new ModelMapper(modelDataWrapper);
         seat_back_2_r1.setPos(-14.3117F, -11.0463F, 0);
@@ -430,24 +427,24 @@ public class ModelQTrain extends ModelSimpleTrainBase {
         door_left_exterior_1 = new ModelMapper(modelDataWrapper);
         door_left_exterior_1.setPos(0, 0, 0);
         door_exterior_1.addChild(door_left_exterior_1);
-        door_left_exterior_1.texOffs(50, 261).addBox(-21, -14, 0, 1, 16, 14, 0, false);
+        door_left_exterior_1.texOffs(48, 261).addBox(-21, -14, 0, 1, 16, 15, 0, false);
 
         door_left_top_1_r1 = new ModelMapper(modelDataWrapper);
         door_left_top_1_r1.setPos(-21, -14, 0);
         door_left_exterior_1.addChild(door_left_top_1_r1);
         setRotationAngle(door_left_top_1_r1, 0, 0, 0.1107F);
-        door_left_top_1_r1.texOffs(246, 144).addBox(0, -19, 0, 1, 19, 14, 0, false);
+        door_left_top_1_r1.texOffs(246, 144).addBox(0, -19, 0, 1, 19, 15, 0, false);
 
         door_right_exterior_1 = new ModelMapper(modelDataWrapper);
         door_right_exterior_1.setPos(0, 0, 0);
         door_exterior_1.addChild(door_right_exterior_1);
-        door_right_exterior_1.texOffs(196, 195).addBox(-21, -14, -14, 1, 16, 14, 0, false);
+        door_right_exterior_1.texOffs(196, 195).addBox(-21, -14, -15, 1, 16, 15, 0, false);
 
         door_right_top_1_r1 = new ModelMapper(modelDataWrapper);
         door_right_top_1_r1.setPos(-21, -14, 0);
         door_right_exterior_1.addChild(door_right_top_1_r1);
         setRotationAngle(door_right_top_1_r1, 0, 0, 0.1107F);
-        door_right_top_1_r1.texOffs(0, 0).addBox(0, -19, -14, 1, 19, 14, 0, false);
+        door_right_top_1_r1.texOffs(0, 0).addBox(0, -19, -15, 1, 19, 15, 0, false);
 
         door_exterior_2 = new ModelMapper(modelDataWrapper);
         door_exterior_2.setPos(0, 24, 0);
@@ -456,24 +453,24 @@ public class ModelQTrain extends ModelSimpleTrainBase {
         door_left_exterior_2 = new ModelMapper(modelDataWrapper);
         door_left_exterior_2.setPos(0, 0, 0);
         door_exterior_2.addChild(door_left_exterior_2);
-        door_left_exterior_2.texOffs(50, 261).addBox(20, -14, 0, 1, 16, 14, 0, true);
+        door_left_exterior_2.texOffs(48, 261).addBox(20, -14, 0, 1, 16, 15, 0, true);
 
         door_left_top_2_r1 = new ModelMapper(modelDataWrapper);
         door_left_top_2_r1.setPos(20.0061F, -13.8896F, 0);
         door_left_exterior_2.addChild(door_left_top_2_r1);
         setRotationAngle(door_left_top_2_r1, 0, 0, -0.1107F);
-        door_left_top_2_r1.texOffs(246, 144).addBox(0, -19, 0, 1, 19, 14, 0, true);
+        door_left_top_2_r1.texOffs(246, 144).addBox(0, -19, 0, 1, 19, 15, 0, true);
 
         door_right_exterior_2 = new ModelMapper(modelDataWrapper);
         door_right_exterior_2.setPos(0, 0, 0);
         door_exterior_2.addChild(door_right_exterior_2);
-        door_right_exterior_2.texOffs(196, 195).addBox(20, -14, -14, 1, 16, 14, 0, true);
+        door_right_exterior_2.texOffs(196, 195).addBox(20, -14, -15, 1, 16, 15, 0, true);
 
         door_right_top_2_r1 = new ModelMapper(modelDataWrapper);
         door_right_top_2_r1.setPos(20.0061F, -13.8896F, 0);
         door_right_exterior_2.addChild(door_right_top_2_r1);
         setRotationAngle(door_right_top_2_r1, 0, 0, -0.1107F);
-        door_right_top_2_r1.texOffs(0, 0).addBox(0, -19, -14, 1, 19, 14, 0, true);
+        door_right_top_2_r1.texOffs(0, 0).addBox(0, -19, -15, 1, 19, 15, 0, true);
 
         end = new ModelMapper(modelDataWrapper);
         end.setPos(0, 24, 0);
@@ -496,49 +493,27 @@ public class ModelQTrain extends ModelSimpleTrainBase {
         setRotationAngle(upper_wall_1_r1, 0, 0, 0.1107F);
         upper_wall_1_r1.texOffs(246, 261).addBox(1, -19, 47, 2, 19, 5, 0, true);
 
-        end_exterior_1 = new ModelMapper(modelDataWrapper);
-        end_exterior_1.setPos(0, 24, 0);
-        end_exterior_1.texOffs(244, 120).addBox(19, 0, -12, 1, 4, 20, 0, true);
-        end_exterior_1.texOffs(0, 190).addBox(-20, 0, -12, 1, 4, 20, 0, false);
-        end_exterior_1.texOffs(146, 0).addBox(18, -14, -12, 2, 14, 23, 0, true);
-        end_exterior_1.texOffs(146, 0).addBox(-20, -14, -12, 2, 14, 23, 0, false);
-        end_exterior_1.texOffs(144, 95).addBox(9.5F, -34, -12, 9, 34, 0, 0, false);
-        end_exterior_1.texOffs(144, 95).addBox(-18.5F, -34, -12, 9, 34, 0, 0, true);
-        end_exterior_1.texOffs(198, 45).addBox(-18, -41, -12, 36, 7, 0, 0, false);
+        end_exterior = new ModelMapper(modelDataWrapper);
+        end_exterior.setPos(0, 24, 0);
+        end_exterior.texOffs(244, 120).addBox(19, 0, -12, 1, 4, 20, 0, true);
+        end_exterior.texOffs(0, 190).addBox(-20, 0, -12, 1, 4, 20, 0, false);
+        end_exterior.texOffs(146, 0).addBox(18, -14, -12, 2, 14, 23, 0, true);
+        end_exterior.texOffs(146, 0).addBox(-20, -14, -12, 2, 14, 23, 0, false);
+        end_exterior.texOffs(144, 95).addBox(9.5F, -34, -12, 9, 34, 0, 0, false);
+        end_exterior.texOffs(144, 95).addBox(-18.5F, -34, -12, 9, 34, 0, 0, true);
+        end_exterior.texOffs(198, 45).addBox(-18, -41, -12, 36, 7, 0, 0, false);
 
         upper_wall_2_r2 = new ModelMapper(modelDataWrapper);
         upper_wall_2_r2.setPos(-20, -14, 0);
-        end_exterior_1.addChild(upper_wall_2_r2);
+        end_exterior.addChild(upper_wall_2_r2);
         setRotationAngle(upper_wall_2_r2, 0, 0, 0.1107F);
         upper_wall_2_r2.texOffs(0, 119).addBox(0, -19, -12, 2, 19, 23, 0, false);
 
         upper_wall_1_r2 = new ModelMapper(modelDataWrapper);
         upper_wall_1_r2.setPos(20, -14, 0);
-        end_exterior_1.addChild(upper_wall_1_r2);
+        end_exterior.addChild(upper_wall_1_r2);
         setRotationAngle(upper_wall_1_r2, 0, 0, -0.1107F);
         upper_wall_1_r2.texOffs(0, 119).addBox(-2, -19, -12, 2, 19, 23, 0, true);
-
-        end_exterior_2 = new ModelMapper(modelDataWrapper);
-        end_exterior_2.setPos(0, 24, 0);
-        end_exterior_2.texOffs(244, 120).addBox(19, 0, -12, 1, 4, 20, 0, true);
-        end_exterior_2.texOffs(0, 190).addBox(-20, 0, -12, 1, 4, 20, 0, false);
-        end_exterior_2.texOffs(180, 239).addBox(18, -14, -12, 2, 14, 23, 0, true);
-        end_exterior_2.texOffs(180, 239).addBox(-20, -14, -12, 2, 14, 23, 0, false);
-        end_exterior_2.texOffs(144, 95).addBox(9.5F, -34, -12, 9, 34, 0, 0, false);
-        end_exterior_2.texOffs(144, 95).addBox(-18.5F, -34, -12, 9, 34, 0, 0, true);
-        end_exterior_2.texOffs(198, 45).addBox(-18, -41, -12, 36, 7, 0, 0, false);
-
-        upper_wall_3_r1 = new ModelMapper(modelDataWrapper);
-        upper_wall_3_r1.setPos(-20, -14, 0);
-        end_exterior_2.addChild(upper_wall_3_r1);
-        setRotationAngle(upper_wall_3_r1, 0, 0, 0.1107F);
-        upper_wall_3_r1.texOffs(0, 239).addBox(0, -19, -12, 2, 19, 23, 0, false);
-
-        upper_wall_2_r3 = new ModelMapper(modelDataWrapper);
-        upper_wall_2_r3.setPos(20, -14, 0);
-        end_exterior_2.addChild(upper_wall_2_r3);
-        setRotationAngle(upper_wall_2_r3, 0, 0, -0.1107F);
-        upper_wall_2_r3.texOffs(0, 239).addBox(-2, -19, -12, 2, 19, 23, 0, true);
 
         roof_end_exterior = new ModelMapper(modelDataWrapper);
         roof_end_exterior.setPos(0, 24, 0);
@@ -654,7 +629,7 @@ public class ModelQTrain extends ModelSimpleTrainBase {
         outer_roof_6_r1.setPos(20, -14, 0);
         outer_roof_4.addChild(outer_roof_6_r1);
         setRotationAngle(outer_roof_6_r1, 0, 0, -0.1107F);
-        outer_roof_6_r1.texOffs(24, 28).addBox(0, -22, -18, 1, 1, 6, 0, true);
+        outer_roof_6_r1.texOffs(0, 44).addBox(0, -22, -18, 1, 1, 6, 0, true);
         outer_roof_6_r1.texOffs(47, 215).addBox(0, -22, -12, 1, 4, 14, 0, true);
 
         outer_roof_4_r4 = new ModelMapper(modelDataWrapper);
@@ -690,7 +665,7 @@ public class ModelQTrain extends ModelSimpleTrainBase {
         outer_roof_6_r2.setPos(-20, -14, 0);
         outer_roof_3.addChild(outer_roof_6_r2);
         setRotationAngle(outer_roof_6_r2, 0, 0, 0.1107F);
-        outer_roof_6_r2.texOffs(24, 28).addBox(-1, -22, -18, 1, 1, 6, 0, false);
+        outer_roof_6_r2.texOffs(0, 44).addBox(-1, -22, -18, 1, 1, 6, 0, false);
         outer_roof_6_r2.texOffs(47, 215).addBox(-1, -22, -12, 1, 4, 14, 0, false);
 
         outer_roof_4_r5 = new ModelMapper(modelDataWrapper);
@@ -718,11 +693,11 @@ public class ModelQTrain extends ModelSimpleTrainBase {
         head.texOffs(90, 119).addBox(-20, -14, 6, 2, 14, 5, 0, true);
         head.texOffs(230, 195).addBox(-18.5F, -35, 6, 37, 35, 0, 0, false);
 
-        upper_wall_2_r4 = new ModelMapper(modelDataWrapper);
-        upper_wall_2_r4.setPos(-20, -14, 0);
-        head.addChild(upper_wall_2_r4);
-        setRotationAngle(upper_wall_2_r4, 0, 0, 0.1107F);
-        upper_wall_2_r4.texOffs(246, 261).addBox(0, -19, 6, 2, 19, 5, 0, true);
+        upper_wall_2_r3 = new ModelMapper(modelDataWrapper);
+        upper_wall_2_r3.setPos(-20, -14, 0);
+        head.addChild(upper_wall_2_r3);
+        setRotationAngle(upper_wall_2_r3, 0, 0, 0.1107F);
+        upper_wall_2_r3.texOffs(246, 261).addBox(0, -19, 6, 2, 19, 5, 0, true);
 
         upper_wall_1_r3 = new ModelMapper(modelDataWrapper);
         upper_wall_1_r3.setPos(20, -14, 0);
@@ -734,7 +709,7 @@ public class ModelQTrain extends ModelSimpleTrainBase {
         head_exterior.setPos(0, 24, 0);
         head_exterior.texOffs(60, 215).addBox(19, -14, -21, 1, 14, 32, 0, false);
         head_exterior.texOffs(60, 215).addBox(-20, -14, -21, 1, 14, 32, 0, true);
-        head_exterior.texOffs(0, 0).addBox(-20, 0, -33, 40, 4, 38, 0, false);
+        head_exterior.texOffs(0, 2).addBox(-20, 0, -33, 40, 4, 38, 0, false);
         head_exterior.texOffs(11, 225).addBox(19, 0, 5, 1, 4, 4, 0, false);
         head_exterior.texOffs(11, 225).addBox(-20, 0, 5, 1, 4, 4, 0, true);
         head_exterior.texOffs(198, 41).addBox(-20, 0, 3, 40, 1, 3, 0, false);
@@ -742,11 +717,11 @@ public class ModelQTrain extends ModelSimpleTrainBase {
         head_exterior.texOffs(40, 310).addBox(-15.4897F, 2.3061F, -32.1965F, 4, 4, 5, 0, false);
         head_exterior.texOffs(40, 310).addBox(11.5103F, 2.3061F, -32.1965F, 4, 4, 5, 0, false);
 
-        upper_wall_2_r5 = new ModelMapper(modelDataWrapper);
-        upper_wall_2_r5.setPos(-20, -14, -15);
-        head_exterior.addChild(upper_wall_2_r5);
-        setRotationAngle(upper_wall_2_r5, 0, 0, 0.1107F);
-        upper_wall_2_r5.texOffs(196, 87).addBox(0, -21, -6, 1, 21, 32, 0, true);
+        upper_wall_2_r4 = new ModelMapper(modelDataWrapper);
+        upper_wall_2_r4.setPos(-20, -14, -15);
+        head_exterior.addChild(upper_wall_2_r4);
+        setRotationAngle(upper_wall_2_r4, 0, 0, 0.1107F);
+        upper_wall_2_r4.texOffs(196, 87).addBox(0, -21, -6, 1, 21, 32, 0, true);
 
         upper_wall_1_r4 = new ModelMapper(modelDataWrapper);
         upper_wall_1_r4.setPos(20, -14, 0);
@@ -798,7 +773,7 @@ public class ModelQTrain extends ModelSimpleTrainBase {
         front_side_bottom_1_r1.setPos(21.153F, 0.1678F, -20.0075F);
         side_1.addChild(front_side_bottom_1_r1);
         setRotationAngle(front_side_bottom_1_r1, 0, 0.1222F, 0.2618F);
-        front_side_bottom_1_r1.texOffs(0, 23).addBox(0, 4, -11, 0, 5, 10, 0, true);
+        front_side_bottom_1_r1.texOffs(0, 25).addBox(0, 4, -11, 0, 5, 10, 0, true);
 
         front_side_upper_1_r1 = new ModelMapper(modelDataWrapper);
         front_side_upper_1_r1.setPos(20, -14, -21);
@@ -851,7 +826,7 @@ public class ModelQTrain extends ModelSimpleTrainBase {
         front_side_bottom_3_r1.setPos(-19.8589F, 4.9974F, -20.0073F);
         side_2.addChild(front_side_bottom_3_r1);
         setRotationAngle(front_side_bottom_3_r1, 0, -0.1222F, -0.2618F);
-        front_side_bottom_3_r1.texOffs(0, 23).addBox(0, -1, -11, 0, 5, 10, 0, false);
+        front_side_bottom_3_r1.texOffs(0, 25).addBox(0, -1, -11, 0, 5, 10, 0, false);
 
         front_side_upper_2_r1 = new ModelMapper(modelDataWrapper);
         front_side_upper_2_r1.setPos(-20, -14, -21);
@@ -944,7 +919,7 @@ public class ModelQTrain extends ModelSimpleTrainBase {
 
         roof_middle_light = new ModelMapper(modelDataWrapper);
         roof_middle_light.setPos(0, 24, 0);
-        roof_middle_light.texOffs(8, 0).addBox(-4, -33.891F, -4, 4, 0, 8, 0, false);
+        roof_middle_light.texOffs(9, 0).addBox(-4, -33.891F, -4, 4, 0, 8, 0, false);
 
         door_light_on = new ModelMapper(modelDataWrapper);
         door_light_on.setPos(0, 24, 0);
@@ -1018,6 +993,7 @@ public class ModelQTrain extends ModelSimpleTrainBase {
         door_left_exterior_2.setModelPart(door_exterior_2.name);
         door_right_exterior_2.setModelPart(door_exterior_2.name);
         end.setModelPart();
+        end_exterior.setModelPart();
         roof_end_exterior.setModelPart();
         roof_light.setModelPart();
         roof_middle_light.setModelPart();
@@ -1166,7 +1142,7 @@ public class ModelQTrain extends ModelSimpleTrainBase {
                 renderOnce(end, matrices, vertices, light, position);
                 break;
             case EXTERIOR:
-                renderOnce(end_exterior_2, matrices, vertices, light, position);
+                renderOnce(end_exterior, matrices, vertices, light, position);
                 renderOnce(roof_end_exterior, matrices, vertices, light, position);
                 break;
         }
@@ -1182,7 +1158,7 @@ public class ModelQTrain extends ModelSimpleTrainBase {
                 renderOnceFlipped(end, matrices, vertices, light, position);
                 break;
             case EXTERIOR:
-                renderOnceFlipped(end_exterior_2, matrices, vertices, light, position);
+                renderOnceFlipped(end_exterior, matrices, vertices, light, position);
                 renderOnceFlipped(roof_end_exterior, matrices, vertices, light, position);
                 break;
         }
