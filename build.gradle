@@ -43,7 +43,7 @@ subprojects {
 	dependencies {
 		minecraft "com.mojang:minecraft:${minecraft_version}"
 		mappings loom.officialMojangMappings()
-		implementation "us.dynmap:dynmap-api:${rootProject.dynmap_version}"
+		implementation name: "Dynmap-3.2.1"
 		implementation name: "BlueMapAPI-2.1.1"
 		implementation "xyz.jpenilla:squaremap-api:${rootProject.squaremap_version}"
 		implementation "org.eclipse.jetty:jetty-http:${rootProject.jetty_version}"
@@ -216,7 +216,6 @@ allprojects {
 	repositories {
 		maven { url = "https://jitpack.io/" }
 		maven { url = "https://maven.terraformersmc.com/" }
-		maven { url = "https://repo.mikeprimm.com/" }
 		flatDir {
 			dirs "../libs"
 		}
