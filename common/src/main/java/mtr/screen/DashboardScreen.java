@@ -40,7 +40,6 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	private final Button buttonDoneEditingStation;
 	private final Button buttonDoneEditingRoute;
 	private final Button buttonDoneEditingRouteDestination;
-	private final Button buttonDoneEditingDepot;
 	private final Button buttonZoomIn;
 	private final Button buttonZoomOut;
 	private final Button buttonRailActions;
@@ -71,10 +70,9 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		buttonAddStation = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.add_station"), button -> startEditingArea(new Station(), true));
 		buttonAddRoute = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.add_route"), button -> startEditingRoute(new Route(transportMode), true));
 		buttonAddDepot = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.add_depot"), button -> startEditingArea(new Depot(transportMode), true));
-		buttonDoneEditingStation = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.done"), button -> onDoneEditingArea(true));
+		buttonDoneEditingStation = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.done"), button -> onDoneEditingArea());
 		buttonDoneEditingRoute = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.done"), button -> onDoneEditingRoute());
 		buttonDoneEditingRouteDestination = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.done"), button -> onDoneEditingRouteDestination());
-		buttonDoneEditingDepot = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.done"), button -> onDoneEditingArea(false));
 		buttonZoomIn = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("+"), button -> widgetMap.scale(1));
 		buttonZoomOut = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("-"), button -> widgetMap.scale(-1));
 		buttonRailActions = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.rail_actions_button"), button -> {
@@ -111,7 +109,6 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		IDrawing.setPositionAndWidth(buttonDoneEditingStation, 0, bottomRowY, PANEL_WIDTH);
 		IDrawing.setPositionAndWidth(buttonDoneEditingRoute, 0, bottomRowY, PANEL_WIDTH);
 		IDrawing.setPositionAndWidth(buttonDoneEditingRouteDestination, 0, bottomRowY, PANEL_WIDTH);
-		IDrawing.setPositionAndWidth(buttonDoneEditingDepot, 0, bottomRowY, PANEL_WIDTH);
 		IDrawing.setPositionAndWidth(buttonZoomIn, width - SQUARE_SIZE * 2, bottomRowY, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(buttonZoomOut, width - SQUARE_SIZE, bottomRowY, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(buttonRailActions, width - SQUARE_SIZE * 10, bottomRowY, SQUARE_SIZE * 5);
@@ -129,7 +126,6 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		buttonDoneEditingStation.visible = false;
 		buttonDoneEditingRoute.visible = false;
 		buttonDoneEditingRouteDestination.visible = false;
-		buttonDoneEditingDepot.visible = false;
 
 		textFieldName.setVisible(false);
 		textFieldCustomDestination.setVisible(false);
@@ -148,7 +144,6 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		addDrawableChild(buttonDoneEditingStation);
 		addDrawableChild(buttonDoneEditingRoute);
 		addDrawableChild(buttonDoneEditingRouteDestination);
-		addDrawableChild(buttonDoneEditingDepot);
 		addDrawableChild(buttonZoomIn);
 		addDrawableChild(buttonZoomOut);
 		addDrawableChild(buttonRailActions);
@@ -253,7 +248,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 
 	private void onFind(NameColorDataBase data, int index) {
 		if (selectedTab == SelectedTab.STATIONS || selectedTab == SelectedTab.DEPOTS) {
-			if (editingArea == null) {
+			if (editingArea == null && data instanceof AreaBase) {
 				final AreaBase area = (AreaBase) data;
 				if (AreaBase.nonNullCorners(area)) {
 					widgetMap.find(area.corner1.getA(), area.corner1.getB(), area.corner2.getA(), area.corner2.getB());
@@ -269,12 +264,14 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		switch (selectedTab) {
 			case STATIONS:
 			case DEPOTS:
-				if (editingArea == null) {
+				if (editingArea == null && data instanceof AreaBase) {
 					startEditingArea((AreaBase) data, false);
 				}
 				break;
 			case ROUTES:
-				startEditingRoute((Route) data, false);
+				if (data instanceof Route) {
+					startEditingRoute((Route) data, false);
+				}
 				break;
 		}
 		dashboardList.clearSearch();
@@ -295,7 +292,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 					}
 					break;
 				case ROUTES:
-					if (editingRoute == null) {
+					if (editingRoute == null && data instanceof Route) {
 						UtilitiesClient.setScreen(minecraft, new EditRouteScreen((Route) data, this));
 					} else {
 						startEditingRouteDestination(index);
@@ -336,7 +333,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 					break;
 				case ROUTES:
 					if (editingRoute == null) {
-						if (minecraft != null) {
+						if (minecraft != null && data instanceof Route) {
 							final Route route = (Route) data;
 							UtilitiesClient.setScreen(minecraft, new DeleteConfirmationScreen(() -> {
 								PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_ROUTE, route.id);
@@ -349,7 +346,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 					}
 					break;
 				case DEPOTS:
-					if (minecraft != null) {
+					if (minecraft != null && data instanceof Depot) {
 						final Depot depot = (Depot) data;
 						UtilitiesClient.setScreen(minecraft, new DeleteConfirmationScreen(() -> {
 							PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_DEPOT, depot.id);
@@ -423,21 +420,20 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		}
 	}
 
-	private void onDoneEditingArea(boolean isStation) {
-		if (isNew) {
-			try {
+	private void onDoneEditingArea() {
+		if (editingArea instanceof Station || editingArea instanceof Depot) {
+			final boolean isStation = editingArea instanceof Station;
+			if (isNew) {
 				if (isStation) {
 					ClientData.STATIONS.add((Station) editingArea);
 				} else {
 					ClientData.DEPOTS.add((Depot) editingArea);
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
+			editingArea.name = IGui.textOrUntitled(textFieldName.getValue());
+			editingArea.color = colorSelector.getColor();
+			editingArea.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(isStation ? PACKET_UPDATE_STATION : PACKET_UPDATE_DEPOT, packet));
 		}
-		editingArea.name = IGui.textOrUntitled(textFieldName.getValue());
-		editingArea.color = colorSelector.getColor();
-		editingArea.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(isStation ? PACKET_UPDATE_STATION : PACKET_UPDATE_DEPOT, packet));
 		stopEditing();
 	}
 
@@ -481,12 +477,10 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		buttonAddStation.visible = selectedTab == SelectedTab.STATIONS && editingArea == null && hasPermission;
 		buttonAddRoute.visible = selectedTab == SelectedTab.ROUTES && editingRoute == null && hasPermission;
 		buttonAddDepot.visible = selectedTab == SelectedTab.DEPOTS && editingArea == null && hasPermission;
-		buttonDoneEditingStation.visible = selectedTab == SelectedTab.STATIONS && editingArea != null;
+		buttonDoneEditingStation.visible = (selectedTab == SelectedTab.STATIONS || selectedTab == SelectedTab.DEPOTS) && editingArea != null;
 		buttonDoneEditingStation.active = AreaBase.nonNullCorners(editingArea);
 		buttonDoneEditingRoute.visible = selectedTab == SelectedTab.ROUTES && editingRoute != null && !showRouteDestinationFields;
 		buttonDoneEditingRouteDestination.visible = selectedTab == SelectedTab.ROUTES && editingRoute != null && showRouteDestinationFields;
-		buttonDoneEditingDepot.visible = selectedTab == SelectedTab.DEPOTS && editingArea != null;
-		buttonDoneEditingDepot.active = AreaBase.nonNullCorners(editingArea);
 
 		final boolean showTextFields = ((selectedTab == SelectedTab.STATIONS || selectedTab == SelectedTab.DEPOTS) && editingArea != null) || (selectedTab == SelectedTab.ROUTES && editingRoute != null && !showRouteDestinationFields);
 		textFieldName.visible = showTextFields;
