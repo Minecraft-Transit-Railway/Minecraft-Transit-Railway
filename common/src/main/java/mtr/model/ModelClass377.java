@@ -2,6 +2,7 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.DoorAnimationType;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
@@ -9,7 +10,7 @@ import mtr.mappings.ModelMapper;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 
-public class ModelClass377 extends ModelSimpleTrainBase {
+public class ModelClass377 extends ModelSimpleTrainBase<ModelClass377> {
 
 	private final ModelMapper window;
 	private final ModelMapper light_edge_r1;
@@ -232,6 +233,11 @@ public class ModelClass377 extends ModelSimpleTrainBase {
 	private final ModelMapper tail_light_2_r1;
 
 	public ModelClass377() {
+		this(DoorAnimationType.PLUG_FAST, true);
+	}
+
+	private ModelClass377(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(doorAnimationType, renderDoorOverlay);
 		final int textureWidth = 368;
 		final int textureHeight = 368;
 
@@ -1517,6 +1523,11 @@ public class ModelClass377 extends ModelSimpleTrainBase {
 	private static final int DOOR_MAX = 11;
 
 	@Override
+	public ModelClass377 createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		return new ModelClass377(doorAnimationType, renderDoorOverlay);
+	}
+
+	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		final float[] windowPositions = getNewWindowPositions();
 
@@ -1726,13 +1737,8 @@ public class ModelClass377 extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return value < 0.05 ? -value * 20 - 0.01F : -1.01F;
-	}
-
-	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		return smoothEnds(-DOOR_MAX, DOOR_MAX, -0.5F, 0.5F, value);
+	protected int getDoorMax() {
+		return DOOR_MAX;
 	}
 
 	@Override

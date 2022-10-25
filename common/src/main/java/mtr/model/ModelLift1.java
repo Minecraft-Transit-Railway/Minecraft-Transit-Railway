@@ -2,6 +2,8 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.DoorAnimationType;
+import mtr.data.Lift;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -50,6 +52,7 @@ public class ModelLift1 extends ModelTrainBase {
 	private final boolean isDoubleSided;
 
 	public ModelLift1(int height, int width, int depth, boolean isDoubleSided) {
+		super(DoorAnimationType.CONSTANT, false);
 		heightCount = height - 4;
 		heightOffset = -heightCount * 8;
 		this.width = width;
@@ -425,13 +428,8 @@ public class ModelLift1 extends ModelTrainBase {
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return 0;
-	}
-
-	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		return value / 2;
+	protected int getDoorMax() {
+		return Lift.DOOR_MAX / 4;
 	}
 
 	private void renderWall(ModelMapper model, PoseStack matrices, VertexConsumer vertices, float x, float z, float rotateY, int light) {

@@ -43,7 +43,7 @@ public abstract class Lift extends NameColorDataBase implements IPacket {
 	protected final List<BlockPos> floors = new ArrayList<>();
 	protected final Set<UUID> ridingEntities = new HashSet<>();
 
-	protected static final int DOOR_MAX = 24;
+	public static final int DOOR_MAX = 24;
 
 	protected static final String KEY_LIFT_UPDATE = "lift_update";
 	private static final String KEY_LIFT_HEIGHT = "lift_height";

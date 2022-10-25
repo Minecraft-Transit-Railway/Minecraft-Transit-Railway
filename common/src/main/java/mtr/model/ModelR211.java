@@ -2,6 +2,7 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.DoorAnimationType;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
@@ -9,7 +10,7 @@ import mtr.mappings.ModelMapper;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 
-public class ModelR211 extends ModelSimpleTrainBase {
+public class ModelR211 extends ModelSimpleTrainBase<ModelR211> {
 
 	private final ModelMapper window_exterior;
 	private final ModelMapper upper_wall_r1;
@@ -191,9 +192,14 @@ public class ModelR211 extends ModelSimpleTrainBase {
 	private final ModelMapper door_light_interior_on;
 	private final ModelMapper light_3_r1;
 
-	private final boolean openGangway;
+	protected final boolean openGangway;
 
 	public ModelR211(boolean openGangway) {
+		this(openGangway, DoorAnimationType.R211, true);
+	}
+
+	protected ModelR211(boolean openGangway, DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(doorAnimationType, renderDoorOverlay);
 		this.openGangway = openGangway;
 
 		final int textureWidth = 360;
@@ -1309,6 +1315,11 @@ public class ModelR211 extends ModelSimpleTrainBase {
 	private static final int DOOR_MAX = 13;
 
 	@Override
+	public ModelR211 createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		return new ModelR211(openGangway, doorAnimationType, renderDoorOverlay);
+	}
+
+	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
 			case LIGHTS:
@@ -1530,19 +1541,8 @@ public class ModelR211 extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return 0;
-	}
-
-	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		if (value < 0.2) {
-			return 0;
-		} else if (value > 0.7) {
-			return DOOR_MAX;
-		} else {
-			return (value - 0.2F) * 2 * DOOR_MAX;
-		}
+	protected int getDoorMax() {
+		return DOOR_MAX;
 	}
 
 	@Override

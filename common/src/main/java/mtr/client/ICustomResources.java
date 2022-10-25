@@ -19,6 +19,8 @@ public interface ICustomResources {
 	String CUSTOM_TRAINS_TEXTURE_ID = "texture_id";
 	String CUSTOM_TRAINS_GANGWAY_CONNECTION_ID = "gangway_connection_id";
 	String CUSTOM_TRAINS_TRAIN_BARRIER_ID = "train_barrier_id";
+	String CUSTOM_TRAINS_DOOR_ANIMATION_TYPE = "door_animation_type";
+	String CUSTOM_TRAINS_RENDER_DOOR_OVERLAY = "render_door_overlay";
 	String CUSTOM_TRAINS_RIDER_OFFSET = "rider_offset";
 	String CUSTOM_TRAINS_BVE_SOUND_BASE_ID = "bve_sound_base_id";
 	String CUSTOM_TRAINS_SPEED_SOUND_COUNT = "speed_sound_count";
@@ -35,7 +37,7 @@ public interface ICustomResources {
 	String CUSTOM_SIGNS_SMALL = "small";
 	String CUSTOM_SIGNS_BACKGROUND_COLOR = "background_color";
 
-	static void createCustomTrainSchema(JsonObject jsonObject, String id, String name, String color, String gangwayConnectionId, String trainBarrierId, float riderOffset) {
+	static void createCustomTrainSchema(JsonObject jsonObject, String id, String name, String color, String gangwayConnectionId, String trainBarrierId, String doorAnimationType, boolean renderDoorOverlay, float riderOffset) {
 		final JsonObject customTrainsObject = new JsonObject();
 		jsonObject.add(CUSTOM_TRAINS_KEY, customTrainsObject);
 		final JsonObject customTrainObject = new JsonObject();
@@ -44,6 +46,8 @@ public interface ICustomResources {
 		customTrainObject.addProperty(CUSTOM_TRAINS_COLOR, color);
 		customTrainObject.addProperty(CUSTOM_TRAINS_GANGWAY_CONNECTION_ID, gangwayConnectionId);
 		customTrainObject.addProperty(CUSTOM_TRAINS_TRAIN_BARRIER_ID, trainBarrierId);
+		customTrainObject.addProperty(CUSTOM_TRAINS_DOOR_ANIMATION_TYPE, doorAnimationType);
+		customTrainObject.addProperty(CUSTOM_TRAINS_RENDER_DOOR_OVERLAY, renderDoorOverlay);
 		customTrainObject.addProperty(CUSTOM_TRAINS_RIDER_OFFSET, riderOffset);
 		final String resource = String.format("mtr:%s/%s", id, id);
 		customTrainObject.addProperty(CUSTOM_TRAINS_TEXTURE_ID, resource);

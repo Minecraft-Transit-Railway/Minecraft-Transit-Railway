@@ -2,6 +2,7 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.DoorAnimationType;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
@@ -9,7 +10,7 @@ import mtr.mappings.ModelMapper;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 
-public class ModelRTrain extends ModelSimpleTrainBase {
+public class ModelRTrain extends ModelSimpleTrainBase<ModelRTrain> {
 
 	private final ModelMapper window;
 	private final ModelMapper upper_wall_r1;
@@ -181,6 +182,11 @@ public class ModelRTrain extends ModelSimpleTrainBase {
 	private final ModelMapper pole_bottom_diagonal_2_r2;
 
 	public ModelRTrain() {
+		this(DoorAnimationType.STANDARD, true);
+	}
+
+	protected ModelRTrain(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(doorAnimationType, renderDoorOverlay);
 		final int textureWidth = 336;
 		final int textureHeight = 336;
 
@@ -1224,6 +1230,11 @@ public class ModelRTrain extends ModelSimpleTrainBase {
 	private static final ModelDoorOverlayTopSP1900 MODEL_DOOR_OVERLAY_TOP = new ModelDoorOverlayTopSP1900();
 
 	@Override
+	public ModelRTrain createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		return new ModelRTrain(doorAnimationType, renderDoorOverlay);
+	}
+
+	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		final boolean isEvenWindow = isEvenWindow(position);
 		switch (renderStage) {
@@ -1436,13 +1447,8 @@ public class ModelRTrain extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return 0;
-	}
-
-	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
+	protected int getDoorMax() {
+		return DOOR_MAX;
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.DoorAnimationType;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
@@ -9,7 +10,7 @@ import mtr.mappings.ModelMapper;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 
-public class ModelR179 extends ModelSimpleTrainBase {
+public class ModelR179 extends ModelSimpleTrainBase<ModelR179> {
 
 	private final ModelMapper window;
 	private final ModelMapper wall_1_r1;
@@ -229,6 +230,11 @@ public class ModelR179 extends ModelSimpleTrainBase {
 	private final ModelMapper light_r2;
 
 	public ModelR179() {
+		this(DoorAnimationType.R179, true);
+	}
+
+	protected ModelR179(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(doorAnimationType, renderDoorOverlay);
 		final int textureWidth = 368;
 		final int textureHeight = 368;
 
@@ -1593,6 +1599,11 @@ public class ModelR179 extends ModelSimpleTrainBase {
 	private static final int DOOR_MAX = 12;
 
 	@Override
+	public ModelR179 createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		return new ModelR179(doorAnimationType, renderDoorOverlay);
+	}
+
+	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		final boolean frontWindow = isIndex(0, position, getWindowPositions());
 		final boolean endWindow = isIndex(-1, position, getWindowPositions());
@@ -1773,25 +1784,8 @@ public class ModelR179 extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return 0;
-	}
-
-	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		if (opening) {
-			if (value > 0.4) {
-				return smoothEnds(DOOR_MAX - 1, DOOR_MAX - 0.5F, 0.4F, 0.6F, value);
-			} else {
-				return smoothEnds(-DOOR_MAX + 1, DOOR_MAX - 1, -0.4F, 0.4F, value);
-			}
-		} else {
-			if (value > 0.2) {
-				return smoothEnds(1, DOOR_MAX - 0.5F, 0.2F, 0.6F, value);
-			} else {
-				return smoothEnds(-1.5F, 1.5F, -0.4F, 0.4F, value);
-			}
-		}
+	protected int getDoorMax() {
+		return DOOR_MAX;
 	}
 
 	@Override

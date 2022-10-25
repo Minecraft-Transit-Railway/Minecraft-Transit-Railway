@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import mtr.MTRClient;
 import mtr.client.ClientData;
+import mtr.client.DoorAnimationType;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.data.RailwayData;
@@ -19,7 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public abstract class ModelSimpleTrainBase extends ModelTrainBase {
+public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
+
+	public ModelSimpleTrainBase(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(doorAnimationType, renderDoorOverlay);
+	}
 
 	@Override
 	protected final void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int car, int totalCars, boolean head1IsFront, boolean renderDetails) {
@@ -49,12 +54,12 @@ public abstract class ModelSimpleTrainBase extends ModelTrainBase {
 	@Override
 	protected void renderExtraDetails(PoseStack matrices, MultiBufferSource vertexConsumers, int light, int lightOnInteriorLevel, boolean lightsOn, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int car, int totalCars, int stopIndex, List<Long> routeIds) {
 		for (final int position : getDoorPositions()) {
-			final ModelDoorOverlay modelDoorOverlay = getModelDoorOverlay();
+			final ModelDoorOverlay modelDoorOverlay = renderDoorOverlay ? getModelDoorOverlay() : null;
 			if (modelDoorOverlay != null) {
 				modelDoorOverlay.render(matrices, vertexConsumers, RenderStage.INTERIOR, lightOnInteriorLevel, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ, lightsOn);
 				modelDoorOverlay.render(matrices, vertexConsumers, RenderStage.EXTERIOR, light, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ, lightsOn);
 			}
-			final ModelDoorOverlayTopBase modelDoorOverlayTop = getModelDoorOverlayTop();
+			final ModelDoorOverlayTopBase modelDoorOverlayTop = renderDoorOverlay ? getModelDoorOverlayTop() : null;
 			if (modelDoorOverlayTop != null) {
 				modelDoorOverlayTop.render(matrices, vertexConsumers, light, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ);
 			}
@@ -149,6 +154,8 @@ public abstract class ModelSimpleTrainBase extends ModelTrainBase {
 	protected String defaultDestinationString() {
 		return "";
 	}
+
+	public abstract T createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay);
 
 	protected abstract void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head);
 

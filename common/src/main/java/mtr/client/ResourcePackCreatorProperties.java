@@ -46,7 +46,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 	public ResourcePackCreatorProperties() {
 		IResourcePackCreatorProperties.checkSchema(propertiesObject);
-		ICustomResources.createCustomTrainSchema(customResourcesObject, customTrainId, "My Custom Train Name", "000000", "", "", 0);
+		ICustomResources.createCustomTrainSchema(customResourcesObject, customTrainId, "My Custom Train Name", "000000", "", "", DoorAnimationType.STANDARD.toString(), false, 0);
 	}
 
 	public void loadModelFile(Path path) {
@@ -84,10 +84,11 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 		final String name = getCustomTrainObject().get(CUSTOM_TRAINS_NAME).getAsString();
 		final String color = getCustomTrainObject().get(CUSTOM_TRAINS_COLOR).getAsString();
 		final String gangwayConnectionId = getCustomTrainObject().get(CUSTOM_TRAINS_GANGWAY_CONNECTION_ID).getAsString();
-		final String trainBarrierId = getCustomTrainObject().get(CUSTOM_TRAINS_GANGWAY_CONNECTION_ID).getAsString();
+		final String trainBarrierId = getCustomTrainObject().get(CUSTOM_TRAINS_TRAIN_BARRIER_ID).getAsString();
+		final String doorAnimationType = getCustomTrainObject().get(CUSTOM_TRAINS_DOOR_ANIMATION_TYPE).getAsString();
 		final float riderOffset = getCustomTrainObject().get(CUSTOM_TRAINS_RIDER_OFFSET).getAsFloat();
 		customTrainId = id;
-		ICustomResources.createCustomTrainSchema(customResourcesObject, id, name, color, gangwayConnectionId, trainBarrierId, riderOffset);
+		ICustomResources.createCustomTrainSchema(customResourcesObject, id, name, color, gangwayConnectionId, trainBarrierId, doorAnimationType, false, riderOffset);
 	}
 
 	public void editCustomResourcesName(String name) {
@@ -104,6 +105,11 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 	public void editCustomResourcesTrainBarrierId(String trainBarrierId) {
 		getCustomTrainObject().addProperty(CUSTOM_TRAINS_TRAIN_BARRIER_ID, trainBarrierId);
+	}
+
+	public void editDoorAnimationType() {
+		cycleEnumProperty(getCustomTrainObject(), CUSTOM_TRAINS_DOOR_ANIMATION_TYPE, DoorAnimationType.STANDARD, DoorAnimationType.values());
+		updateModel();
 	}
 
 	public void editCustomResourcesRiderOffset(float riderOffset) {
@@ -242,6 +248,10 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 		return propertiesObject.get(KEY_PROPERTIES_DOOR_MAX).getAsInt();
 	}
 
+	public String getDoorAnimationType() {
+		return getCustomTrainObject().get(CUSTOM_TRAINS_DOOR_ANIMATION_TYPE).getAsString();
+	}
+
 	public JsonArray getPropertiesPartsArray() {
 		return propertiesObject.getAsJsonArray(KEY_PROPERTIES_PARTS);
 	}
@@ -300,7 +310,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 	private void updateModel() {
 		try {
-			model = new DynamicTrainModel(modelObject, propertiesObject);
+			model = new DynamicTrainModel(modelObject, propertiesObject, EnumHelper.valueOf(DoorAnimationType.STANDARD, getCustomTrainObject().get(CUSTOM_TRAINS_DOOR_ANIMATION_TYPE).getAsString()));
 		} catch (Exception ignored) {
 			model = null;
 		}

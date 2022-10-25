@@ -40,7 +40,7 @@ public class LiftClient extends Lift {
 		final double newX = currentPositionX + liftOffsetX / 2F - offset.x;
 		final double newY = currentPositionY + liftOffsetY - offset.y;
 		final double newZ = currentPositionZ + liftOffsetZ / 2F - offset.z;
-		renderLift.renderLift(newX, newY, newZ, frontCanOpen ? Math.min(doorValue, DOOR_MAX) : 0, backCanOpen ? Math.min(doorValue, DOOR_MAX) : 0);
+		renderLift.renderLift(newX, newY, newZ, frontCanOpen ? Math.min(doorValue / DOOR_MAX, 1) : 0, backCanOpen ? Math.min(doorValue / DOOR_MAX, 1) : 0);
 
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		final LocalPlayer player = minecraftClient.player;

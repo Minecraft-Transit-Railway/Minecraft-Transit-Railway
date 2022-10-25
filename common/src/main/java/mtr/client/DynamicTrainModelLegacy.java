@@ -17,13 +17,15 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
-public class DynamicTrainModelLegacy extends ModelSimpleTrainBase implements IResourcePackCreatorProperties {
+public class DynamicTrainModelLegacy extends ModelSimpleTrainBase<DynamicTrainModelLegacy> implements IResourcePackCreatorProperties {
 
 	private final Map<String, ModelMapper> parts = new HashMap<>();
 	private final JsonObject properties;
 	private final int doorMax;
 
-	public DynamicTrainModelLegacy(JsonObject model, JsonObject properties) {
+	public DynamicTrainModelLegacy(JsonObject model, JsonObject properties, DoorAnimationType doorAnimationType) {
+		super(doorAnimationType, false);
+
 		try {
 			final JsonObject resolution = model.getAsJsonObject("resolution");
 			final int textureWidth = resolution.get("width").getAsInt();
@@ -80,7 +82,12 @@ public class DynamicTrainModelLegacy extends ModelSimpleTrainBase implements IRe
 		}
 
 		this.properties = properties;
-		doorMax = getOrDefault(properties, "door_max", 14, JsonElement::getAsInt);
+		doorMax = getOrDefault(properties, KEY_PROPERTIES_DOOR_MAX, 14, JsonElement::getAsInt);
+	}
+
+	@Override
+	public DynamicTrainModelLegacy createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		return this;
 	}
 
 	@Override
@@ -153,13 +160,8 @@ public class DynamicTrainModelLegacy extends ModelSimpleTrainBase implements IRe
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return 0;
-	}
-
-	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		return smoothEnds(0, doorMax, 0, 0.5F, value);
+	public int getDoorMax() {
+		return doorMax;
 	}
 
 	private ModelMapper addChildren(JsonObject jsonObject, Map<String, ModelMapper> children, ModelDataWrapper modelDataWrapper) {

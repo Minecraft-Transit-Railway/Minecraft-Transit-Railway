@@ -2,10 +2,11 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.DoorAnimationType;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
 
-public class ModelE44 extends ModelSimpleTrainBase {
+public class ModelE44 extends ModelSimpleTrainBase<ModelE44> {
 
 	private final ModelMapper window;
 	private final ModelMapper upper_wall_r1;
@@ -175,6 +176,11 @@ public class ModelE44 extends ModelSimpleTrainBase {
 	private final ModelMapper light_r2;
 
 	public ModelE44() {
+		this(DoorAnimationType.BOUNCY_1, true);
+	}
+
+	protected ModelE44(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(doorAnimationType, renderDoorOverlay);
 		final int textureWidth = 336;
 		final int textureHeight = 336;
 
@@ -1199,6 +1205,11 @@ public class ModelE44 extends ModelSimpleTrainBase {
 	private static final ModelDoorOverlayTopMLR MODEL_DOOR_OVERLAY_TOP = new ModelDoorOverlayTopMLR("mtr:textures/sign/door_overlay_e44_top.png");
 
 	@Override
+	public ModelE44 createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		return new ModelE44(doorAnimationType, renderDoorOverlay);
+	}
+
+	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
 			case LIGHTS:
@@ -1388,26 +1399,7 @@ public class ModelE44 extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return 0;
-	}
-
-	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		if (opening) {
-			if (value > 0.4) {
-				return smoothEnds(DOOR_MAX - 1, DOOR_MAX - 0.5F, 0.4F, 0.5F, value);
-			} else {
-				return smoothEnds(-DOOR_MAX + 1, DOOR_MAX - 1, -0.4F, 0.4F, value);
-			}
-		} else {
-			if (value > 0.2) {
-				return smoothEnds(1, DOOR_MAX - 0.5F, 0.2F, 0.5F, value);
-			} else if (value > 0.1) {
-				return smoothEnds(1.5F, 1, 0.1F, 0.2F, value);
-			} else {
-				return smoothEnds(-1.5F, 1.5F, -0.1F, 0.1F, value);
-			}
-		}
+	protected int getDoorMax() {
+		return DOOR_MAX;
 	}
 }

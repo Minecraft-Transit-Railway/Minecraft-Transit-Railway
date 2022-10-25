@@ -22,7 +22,9 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 	private final int doorMax;
 	private final Map<String, Boolean> whitelistBlacklistCache = new HashMap<>();
 
-	public DynamicTrainModel(JsonObject model, JsonObject properties) {
+	public DynamicTrainModel(JsonObject model, JsonObject properties, DoorAnimationType doorAnimationType) {
+		super(doorAnimationType, false);
+
 		try {
 			final JsonObject resolution = model.getAsJsonObject("resolution");
 			final int textureWidth = resolution.get("width").getAsInt();
@@ -146,20 +148,26 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 
 			if (part != null) {
 				final float zOffset;
+				final float xOffset;
 				switch (EnumHelper.valueOf(ResourcePackCreatorProperties.DoorOffset.NONE, partObject.get(KEY_PROPERTIES_DOOR_OFFSET).getAsString())) {
 					case LEFT_POSITIVE:
+						xOffset = doorLeftX;
 						zOffset = doorLeftZ;
 						break;
 					case RIGHT_POSITIVE:
+						xOffset = doorRightX;
 						zOffset = doorRightZ;
 						break;
 					case LEFT_NEGATIVE:
+						xOffset = doorLeftX;
 						zOffset = -doorLeftZ;
 						break;
 					case RIGHT_NEGATIVE:
+						xOffset = doorRightX;
 						zOffset = -doorRightZ;
 						break;
 					default:
+						xOffset = 0;
 						zOffset = 0;
 						break;
 				}
@@ -169,27 +177,18 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 					final float x = positionElement.getAsJsonArray().get(0).getAsFloat();
 					final float z = positionElement.getAsJsonArray().get(1).getAsFloat();
 					if (mirror) {
-						renderOnceFlipped(part, matrices, vertices, light, x, z - zOffset);
+						renderOnceFlipped(part, matrices, vertices, light, x + xOffset, z - zOffset);
 					} else {
-						renderOnce(part, matrices, vertices, light, x, z + zOffset);
+						renderOnce(part, matrices, vertices, light, x + xOffset, z + zOffset);
 					}
 				});
 			}
 		});
 	}
 
-	protected int[] getBogiePositions() {
-		return new int[]{}; // TODO
-	}
-
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return 0;
-	}
-
-	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		return smoothEnds(0, doorMax, 0, 0.5F, value);
+	public int getDoorMax() {
+		return doorMax;
 	}
 
 	private ModelMapper addChildren(JsonObject jsonObject, Map<String, ModelMapper> children, ModelDataWrapper modelDataWrapper) {

@@ -2,6 +2,7 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.DoorAnimationType;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
@@ -9,7 +10,7 @@ import mtr.mappings.ModelMapper;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 
-public class ModelKTrain extends ModelSimpleTrainBase {
+public class ModelKTrain extends ModelSimpleTrainBase<ModelKTrain> {
 
 	private final ModelMapper window;
 	private final ModelMapper upper_wall_r1;
@@ -129,9 +130,14 @@ public class ModelKTrain extends ModelSimpleTrainBase {
 	private final ModelMapper door_light_off;
 	private final ModelMapper light_r2;
 
-	private final boolean isTcl;
+	protected final boolean isTcl;
 
 	public ModelKTrain(boolean isTcl) {
+		this(isTcl, DoorAnimationType.PLUG_SLOW, true);
+	}
+
+	protected ModelKTrain(boolean isTcl, DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(doorAnimationType, renderDoorOverlay);
 		this.isTcl = isTcl;
 
 		final int textureWidth = 320;
@@ -859,6 +865,11 @@ public class ModelKTrain extends ModelSimpleTrainBase {
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 6.34F, "door_overlay_k_train_left.png", "door_overlay_k_train_right.png");
 
 	@Override
+	public ModelKTrain createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		return new ModelKTrain(isTcl, doorAnimationType, renderDoorOverlay);
+	}
+
+	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
 			case LIGHTS:
@@ -1063,23 +1074,8 @@ public class ModelKTrain extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return smoothEnds(-0.01F, -1.01F, 0, 0.1F, value);
-	}
-
-	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		if (opening) {
-			return smoothEnds(0, DOOR_MAX, 0.05F, 0.5F, value);
-		} else {
-			if (value > 0.5) {
-				return smoothEnds(2, DOOR_MAX, 0.5F, 1, value);
-			} else if (value < 0.3) {
-				return smoothEnds(0, 2, 0.05F, 0.3F, value);
-			} else {
-				return 2;
-			}
-		}
+	protected int getDoorMax() {
+		return DOOR_MAX;
 	}
 
 	@Override

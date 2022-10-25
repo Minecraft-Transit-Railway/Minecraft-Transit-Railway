@@ -2,6 +2,7 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.DoorAnimationType;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
@@ -9,7 +10,7 @@ import mtr.mappings.ModelMapper;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 
-public class ModelLightRail extends ModelSimpleTrainBase {
+public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 
 	private final ModelMapper window;
 	private final ModelMapper window_exterior;
@@ -106,6 +107,11 @@ public class ModelLightRail extends ModelSimpleTrainBase {
 	private final boolean isRHT;
 
 	public ModelLightRail(int phase, boolean isRHT) {
+		this(phase, isRHT, getDoorAnimationType(phase), true);
+	}
+
+	private ModelLightRail(int phase, boolean isRHT, DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(doorAnimationType, renderDoorOverlay);
 		this.phase = phase;
 		this.isRHT = isRHT;
 
@@ -767,6 +773,11 @@ public class ModelLightRail extends ModelSimpleTrainBase {
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_5_RHT = new ModelDoorOverlay(DOOR_MAX, 0, 14, "door_overlay_light_rail_5_left.png", "door_overlay_light_rail_5_right.png", false, true);
 
 	@Override
+	public ModelLightRail createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		return new ModelLightRail(phase, isRHT, doorAnimationType, renderDoorOverlay);
+	}
+
+	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
 			case INTERIOR:
@@ -981,49 +992,8 @@ public class ModelLightRail extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return 0;
-	}
-
-	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		switch (phase) {
-			case 1:
-			case 6:
-				if (opening) {
-					if (value > 0.4) {
-						return smoothEnds(DOOR_MAX - 0.5F, DOOR_MAX, 0.4F, 0.5F, value);
-					} else {
-						return smoothEnds(-DOOR_MAX + 0.5F, DOOR_MAX - 0.5F, -0.4F, 0.4F, value);
-					}
-				} else {
-					if (value > 0.3) {
-						return smoothEnds(1, DOOR_MAX, 0.3F, 0.5F, value);
-					} else if (value > 0.1) {
-						return smoothEnds(3, 1, 0.1F, 0.3F, value);
-					} else {
-						return smoothEnds(-3, 3, -0.1F, 0.1F, value);
-					}
-				}
-			case 2:
-			case 3:
-			case 5:
-				return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
-			case 4:
-				if (opening) {
-					return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
-				} else {
-					if (value > 0.2) {
-						return smoothEnds(1, DOOR_MAX, 0.2F, 0.5F, value);
-					} else if (value > 0.1) {
-						return 1;
-					} else {
-						return smoothEnds(0, 1, 0, 0.1F, value);
-					}
-				}
-			default:
-				return 0;
-		}
+	protected int getDoorMax() {
+		return DOOR_MAX;
 	}
 
 	@Override
@@ -1078,5 +1048,17 @@ public class ModelLightRail extends ModelSimpleTrainBase {
 	@Override
 	protected String defaultDestinationString() {
 		return "不載客|Not in Service";
+	}
+
+	private static DoorAnimationType getDoorAnimationType(int phase) {
+		switch (phase) {
+			case 1:
+			case 6:
+				return DoorAnimationType.BOUNCY_2;
+			case 4:
+				return DoorAnimationType.STANDARD_SLOW;
+			default:
+				return DoorAnimationType.STANDARD;
+		}
 	}
 }

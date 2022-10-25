@@ -2,6 +2,7 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.DoorAnimationType;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
@@ -9,7 +10,7 @@ import mtr.mappings.ModelMapper;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 
-public class ModelSP1900 extends ModelSimpleTrainBase {
+public class ModelSP1900 extends ModelSimpleTrainBase<ModelSP1900> {
 
 	private final ModelMapper window;
 	private final ModelMapper upper_wall_r1;
@@ -211,9 +212,14 @@ public class ModelSP1900 extends ModelSimpleTrainBase {
 	private final ModelMapper light_r2;
 	private final ModelMapper bb_main;
 
-	private final boolean isC1141A;
+	protected final boolean isC1141A;
 
 	public ModelSP1900(boolean isC1141A) {
+		this(isC1141A, DoorAnimationType.STANDARD, true);
+	}
+
+	protected ModelSP1900(boolean isC1141A, DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(doorAnimationType, renderDoorOverlay);
 		this.isC1141A = isC1141A;
 
 		final int textureWidth = 416;
@@ -1466,6 +1472,11 @@ public class ModelSP1900 extends ModelSimpleTrainBase {
 	private static final ModelDoorOverlayTopSP1900 MODEL_DOOR_OVERLAY_TOP = new ModelDoorOverlayTopSP1900();
 
 	@Override
+	public ModelSP1900 createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		return new ModelSP1900(isC1141A, doorAnimationType, renderDoorOverlay);
+	}
+
+	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
 			case LIGHTS:
@@ -1728,13 +1739,8 @@ public class ModelSP1900 extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return 0;
-	}
-
-	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
+	protected int getDoorMax() {
+		return DOOR_MAX;
 	}
 
 	@Override

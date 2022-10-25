@@ -2,10 +2,11 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.DoorAnimationType;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
 
-public class ModelClass802 extends ModelSimpleTrainBase {
+public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 
 	private final ModelMapper window;
 	private final ModelMapper roof_3_r1;
@@ -247,6 +248,11 @@ public class ModelClass802 extends ModelSimpleTrainBase {
 	private final ModelMapper door_light_on_r1;
 
 	public ModelClass802() {
+		this(DoorAnimationType.STANDARD, true);
+	}
+
+	protected ModelClass802(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(doorAnimationType, renderDoorOverlay);
 		final int textureWidth = 432;
 		final int textureHeight = 432;
 
@@ -1700,6 +1706,11 @@ public class ModelClass802 extends ModelSimpleTrainBase {
 	private static final int DOOR_MAX = 13;
 
 	@Override
+	public ModelClass802 createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		return new ModelClass802(doorAnimationType, renderDoorOverlay);
+	}
+
+	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		final ModelMapper[] windowParts = isEnd1Head || isEnd2Head ? windowEndParts() : windowParts();
 		final int loopStart = getBogiePositions()[0] + (isEnd1Head ? 94 : 4);
@@ -1931,13 +1942,8 @@ public class ModelClass802 extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return 0;
-	}
-
-	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
+	protected int getDoorMax() {
+		return DOOR_MAX;
 	}
 
 	protected ModelMapper[] windowParts() {
