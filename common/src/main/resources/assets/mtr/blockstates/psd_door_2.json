@@ -1,7 +1,412 @@
 {
-	"variants": {
-		"": {
-			"model": "block/stone"
+	"multipart": [
+		{
+			"when": {
+				"facing": "west",
+				"side": "left",
+				"half": "lower",
+				"end": "false",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_bottom_left_2"
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"side": "left",
+				"half": "lower",
+				"end": "false",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_bottom_left_2",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"side": "left",
+				"half": "lower",
+				"end": "false",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_bottom_left_2",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"side": "left",
+				"half": "lower",
+				"end": "false",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_bottom_left_2",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"side": "left",
+				"half": "upper",
+				"end": "false",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_top_left_2"
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"side": "left",
+				"half": "upper",
+				"end": "false",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_top_left_2",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"side": "left",
+				"half": "upper",
+				"end": "false",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_top_left_2",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"side": "left",
+				"half": "upper",
+				"end": "false",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_top_left_2",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"side": "right",
+				"half": "lower",
+				"end": "false",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_bottom_right_2"
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"side": "right",
+				"half": "lower",
+				"end": "false",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_bottom_right_2",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"side": "right",
+				"half": "lower",
+				"end": "false",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_bottom_right_2",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"side": "right",
+				"half": "lower",
+				"end": "false",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_bottom_right_2",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"side": "right",
+				"half": "upper",
+				"end": "false",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_top_right_2"
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"side": "right",
+				"half": "upper",
+				"end": "false",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_top_right_2",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"side": "right",
+				"half": "upper",
+				"end": "false",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_top_right_2",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"side": "right",
+				"half": "upper",
+				"end": "false",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_top_right_2",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"side": "left",
+				"half": "lower",
+				"end": "true",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_end_bottom_left_2"
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"side": "left",
+				"half": "lower",
+				"end": "true",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_end_bottom_left_2",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"side": "left",
+				"half": "lower",
+				"end": "true",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_end_bottom_left_2",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"side": "left",
+				"half": "lower",
+				"end": "true",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_end_bottom_left_2",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"side": "left",
+				"half": "upper",
+				"end": "true",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_end_top_left_2"
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"side": "left",
+				"half": "upper",
+				"end": "true",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_end_top_left_2",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"side": "left",
+				"half": "upper",
+				"end": "true",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_end_top_left_2",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"side": "left",
+				"half": "upper",
+				"end": "true",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_end_top_left_2",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"side": "right",
+				"half": "lower",
+				"end": "true",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_end_bottom_right_2"
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"side": "right",
+				"half": "lower",
+				"end": "true",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_end_bottom_right_2",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"side": "right",
+				"half": "lower",
+				"end": "true",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_end_bottom_right_2",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"side": "right",
+				"half": "lower",
+				"end": "true",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_end_bottom_right_2",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"side": "right",
+				"half": "upper",
+				"end": "true",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_end_top_right_2"
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"side": "right",
+				"half": "upper",
+				"end": "true",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_end_top_right_2",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"side": "right",
+				"half": "upper",
+				"end": "true",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_end_top_right_2",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"side": "right",
+				"half": "upper",
+				"end": "true",
+				"temp": "true"
+			},
+			"apply": {
+				"model": "mtr:block/door_tile_entity_migration/psd_door_end_top_right_2",
+				"y": 270
+			}
 		}
-	}
+	]
 }

@@ -112,6 +112,16 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		});
 	}
 
+	public static void openLiftCustomizationS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
+		final long id = packet.readLong();
+		minecraftClient.execute(() -> {
+			final LiftClient lift = ClientData.DATA_CACHE.liftsClientIdMap.get(id);
+			if (!(minecraftClient.screen instanceof LiftCustomizationScreen) && lift != null) {
+				UtilitiesClient.setScreen(minecraftClient, new LiftCustomizationScreen(lift));
+			}
+		});
+	}
+
 	public static void openTicketMachineScreenS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
 		final int balance = packet.readInt();
 		minecraftClient.execute(() -> {
@@ -186,6 +196,11 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	public static void removeNodeS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
 		final BlockPos pos = packet.readBlockPos();
 		minecraftClient.execute(() -> RailwayData.removeNode(null, ClientData.RAILS, pos));
+	}
+
+	public static void removeLiftFloorTrackS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+		minecraftClient.execute(() -> RailwayData.removeLiftFloorTrack(null, ClientData.LIFTS, pos));
 	}
 
 	public static void removeRailConnectionS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
@@ -342,9 +357,9 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		}
 	}
 
-	public static void sendPressLiftButtonC2S(UUID uuid, int floor) {
+	public static void sendPressLiftButtonC2S(long id, int floor) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
-		packet.writeUUID(uuid);
+		packet.writeLong(id);
 		packet.writeInt(floor);
 		RegistryClient.sendToServer(PACKET_PRESS_LIFT_BUTTON, packet);
 	}

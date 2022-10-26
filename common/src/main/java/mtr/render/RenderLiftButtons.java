@@ -5,9 +5,10 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import mtr.block.BlockLiftButtons;
 import mtr.block.IBlock;
+import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
-import mtr.entity.EntityLift;
+import mtr.data.Lift;
 import mtr.item.ItemLiftButtonsLinkModifier;
 import mtr.mappings.BlockEntityRendererMapper;
 import mtr.mappings.Utilities;
@@ -62,35 +63,33 @@ public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButton
 		matrices.translate(0.5, 0, 0.5);
 
 		final boolean[] buttonStates = {false, false, false, false};
-		final Map<BlockPos, Tuple<String[], EntityLift.LiftDirection>> liftDisplays = new HashMap<>();
+		final Map<BlockPos, Tuple<String, Lift.LiftDirection>> liftDisplays = new HashMap<>();
 		final List<BlockPos> liftPositions = new ArrayList<>();
 		entity.forEachTrackPosition(world, (trackPosition, trackFloorTileEntity) -> {
-			if (holdingLinker) {
-				final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, HorizontalDirectionalBlock.FACING);
-				IDrawing.drawLine(matrices, vertexConsumers, trackPosition.getX() - pos.getX() + trackFacing.getStepX() / 2F, trackPosition.getY() - pos.getY() + 0.5F, trackPosition.getZ() - pos.getZ() + trackFacing.getStepZ() / 2F, facing.getStepX() / 2F, 0.25F, facing.getStepZ() / 2F, 0xFF, 0xFF, 0xFF);
-			}
+			renderLiftObjectLink(matrices, vertexConsumers, world, pos, trackPosition, facing, holdingLinker);
 
-			final EntityLift entityLift = trackFloorTileEntity.getEntityLift();
-			if (entityLift != null) {
-				entityLift.hasButton(trackPosition.getY(), buttonStates);
-				if (entityLift.hasStoppingFloorsClient(trackPosition.getY(), true)) {
-					buttonStates[2] = true;
-				}
-				if (entityLift.hasStoppingFloorsClient(trackPosition.getY(), false)) {
-					buttonStates[3] = true;
-				}
+			ClientData.LIFTS.forEach(lift -> {
+				if (lift.hasFloor(trackPosition)) {
+					lift.hasUpDownButtonForFloor(trackPosition.getY(), buttonStates);
+					if (lift.liftInstructions.containsInstruction(trackPosition.getY(), true)) {
+						buttonStates[2] = true;
+					}
+					if (lift.liftInstructions.containsInstruction(trackPosition.getY(), false)) {
+						buttonStates[3] = true;
+					}
 
-				final BlockPos liftPos = new BlockPos(entityLift.getX(), 0, entityLift.getZ());
-				liftPositions.add(liftPos);
-				liftDisplays.put(liftPos, new Tuple<>(entityLift.getCurrentFloorDisplay(), entityLift.getLiftDirectionClient()));
-			}
+					final BlockPos liftPos = new BlockPos(lift.getPositionX(), 0, lift.getPositionZ());
+					liftPositions.add(liftPos);
+					liftDisplays.put(liftPos, new Tuple<>(ClientData.DATA_CACHE.requestLiftFloorText(lift.getCurrentFloorBlockPos())[0], lift.getLiftDirection()));
+				}
+			});
 		});
 		liftPositions.sort(Comparator.comparingInt(checkPos -> facing.getStepX() * (checkPos.getZ() - pos.getZ()) - facing.getStepZ() * (checkPos.getX() - pos.getX())));
 
 		final HitResult hitResult = Minecraft.getInstance().hitResult;
 		final boolean lookingAtTopHalf;
 		final boolean lookingAtBottomHalf;
-		if (hitResult == null) {
+		if (hitResult == null || !IBlock.getStatePropertySafe(state, BlockLiftButtons.UNLOCKED)) {
 			lookingAtTopHalf = false;
 			lookingAtBottomHalf = false;
 		} else {
@@ -108,11 +107,11 @@ public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButton
 
 		if (buttonStates[0]) {
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(buttonStates[2] || lookingAtTopHalf ? MoreRenderLayers.getLight(BUTTON_TEXTURE, true) : MoreRenderLayers.getExterior(BUTTON_TEXTURE));
-			IDrawing.drawTexture(matrices, vertexConsumer, -1.5F / 16, (buttonStates[1] ? 4.5F : 2.5F) / 16, 3F / 16, 3F / 16, 0, 1, 1, 0, facing, buttonStates[2] ? RenderLift.LIGHT_COLOR : lookingAtTopHalf ? HOVER_COLOR : ARGB_GRAY, light);
+			IDrawing.drawTexture(matrices, vertexConsumer, -1.5F / 16, (buttonStates[1] ? 4.5F : 2.5F) / 16, 3F / 16, 3F / 16, 0, 1, 1, 0, facing, buttonStates[2] ? RenderTrains.LIFT_LIGHT_COLOR : lookingAtTopHalf ? HOVER_COLOR : ARGB_GRAY, light);
 		}
 		if (buttonStates[1]) {
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(buttonStates[3] || lookingAtBottomHalf ? MoreRenderLayers.getLight(BUTTON_TEXTURE, true) : MoreRenderLayers.getExterior(BUTTON_TEXTURE));
-			IDrawing.drawTexture(matrices, vertexConsumer, -1.5F / 16, (buttonStates[0] ? 0.5F : 2.5F) / 16, 3F / 16, 3F / 16, 0, 0, 1, 1, facing, buttonStates[3] ? RenderLift.LIGHT_COLOR : lookingAtBottomHalf ? HOVER_COLOR : ARGB_GRAY, light);
+			IDrawing.drawTexture(matrices, vertexConsumer, -1.5F / 16, (buttonStates[0] ? 0.5F : 2.5F) / 16, 3F / 16, 3F / 16, 0, 0, 1, 1, facing, buttonStates[3] ? RenderTrains.LIFT_LIGHT_COLOR : lookingAtBottomHalf ? HOVER_COLOR : ARGB_GRAY, light);
 		}
 
 		final float maxWidth = Math.min(0.25F, 0.375F / liftPositions.size());
@@ -122,13 +121,20 @@ public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButton
 		matrices.translate(0, -0.875, -SMALL_OFFSET);
 
 		liftPositions.forEach(liftPosition -> {
-			final Tuple<String[], EntityLift.LiftDirection> liftDisplay = liftDisplays.get(liftPosition);
+			final Tuple<String, Lift.LiftDirection> liftDisplay = liftDisplays.get(liftPosition);
 			if (liftDisplay != null) {
-				RenderLift.renderLiftDisplay(matrices, vertexConsumers, pos, liftDisplay.getA()[0], liftDisplay.getB(), maxWidth, 0.3125F);
+				RenderTrains.renderLiftDisplay(matrices, vertexConsumers, pos, liftDisplay.getA(), liftDisplay.getB(), maxWidth, 0.3125F);
 			}
 			matrices.translate(maxWidth, 0, 0);
 		});
 
 		matrices.popPose();
+	}
+
+	public static void renderLiftObjectLink(PoseStack matrices, MultiBufferSource vertexConsumers, Level world, BlockPos pos, BlockPos trackPosition, Direction facing, boolean holdingLinker) {
+		if (holdingLinker) {
+			final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, HorizontalDirectionalBlock.FACING);
+			IDrawing.drawLine(matrices, vertexConsumers, trackPosition.getX() - pos.getX() + trackFacing.getStepX() / 2F, trackPosition.getY() - pos.getY() + 0.5F, trackPosition.getZ() - pos.getZ() + trackFacing.getStepZ() / 2F, facing.getStepX() / 2F, 0.25F, facing.getStepZ() / 2F, 0xFF, 0xFF, 0xFF);
+		}
 	}
 }

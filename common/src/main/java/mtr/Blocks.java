@@ -36,9 +36,13 @@ public interface Blocks {
 	RegistryObject<Block> GLASS_FENCE_WKS = new RegistryObject<>(BlockGlassFence::new);
 	RegistryObject<Block> LOGO = new RegistryObject<>(() -> new Block(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 10)));
 	RegistryObject<Block> LIFT_BUTTONS_1 = new RegistryObject<>(BlockLiftButtons::new);
+	RegistryObject<Block> LIFT_PANEL_EVEN_1 = new RegistryObject<>(BlockLiftPanelEven1::new);
+	RegistryObject<Block> LIFT_PANEL_ODD_1 = new RegistryObject<>(BlockLiftPanelOdd1::new);
+	RegistryObject<Block> LIFT_PANEL_EVEN_2 = new RegistryObject<>(BlockLiftPanelEven2::new);
+	RegistryObject<Block> LIFT_PANEL_ODD_2 = new RegistryObject<>(BlockLiftPanelOdd2::new);
 	RegistryObject<Block> LIFT_TRACK_1 = new RegistryObject<>(BlockLiftTrack::new);
 	RegistryObject<Block> LIFT_TRACK_FLOOR_1 = new RegistryObject<>(BlockLiftTrackFloor::new);
-	RegistryObject<Block> LIFT_DOOR_1 = new RegistryObject<>(BlockLiftDoor::new);
+	RegistryObject<Block> LIFT_DOOR_EVEN_1 = new RegistryObject<>(BlockLiftDoor::new);
 	RegistryObject<Block> LIFT_DOOR_ODD_1 = new RegistryObject<>(BlockLiftDoorOdd::new);
 	RegistryObject<Block> MARBLE_BLUE = new RegistryObject<>(() -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_LIGHT_BLUE).requiresCorrectToolForDrops().strength(1)));
 	RegistryObject<Block> MARBLE_BLUE_SLAB = new RegistryObject<>(() -> new SlabBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_LIGHT_BLUE).requiresCorrectToolForDrops().strength(1)));

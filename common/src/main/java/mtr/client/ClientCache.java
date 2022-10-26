@@ -2,6 +2,7 @@ package mtr.client;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import mtr.MTR;
+import mtr.block.BlockLiftTrackFloor;
 import mtr.data.*;
 import mtr.mappings.Utilities;
 import net.minecraft.client.Minecraft;
@@ -11,6 +12,8 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;
@@ -31,6 +34,8 @@ public class ClientCache extends DataCache implements IGui {
 
 	public final Map<Long, Map<Integer, ColorNameTuple>> stationIdToRoutes = new HashMap<>();
 
+	private final Set<LiftClient> liftsClient;
+	public final Map<Long, LiftClient> liftsClientIdMap = new HashMap<>();
 	private final Map<TransportMode, Map<BlockPos, List<Platform>>> posToPlatforms = new HashMap<>();
 	private final Map<TransportMode, Map<BlockPos, List<Siding>>> posToSidings = new HashMap<>();
 	private final Map<Long, Map<Long, Platform>> stationIdToPlatforms = new HashMap<>();
@@ -50,16 +55,19 @@ public class ClientCache extends DataCache implements IGui {
 	private static final ResourceLocation DEFAULT_WHITE_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/white.png");
 	private static final ResourceLocation DEFAULT_TRANSPARENT_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/transparent.png");
 
-	public ClientCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots) {
-		super(stations, platforms, sidings, routes, depots);
+	public ClientCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, Set<LiftClient> lifts) {
+		super(stations, platforms, sidings, routes, depots, new HashSet<>());
 		for (final TransportMode transportMode : TransportMode.values()) {
 			posToPlatforms.put(transportMode, new HashMap<>());
 			posToSidings.put(transportMode, new HashMap<>());
 		}
+		liftsClient = lifts;
 	}
 
 	@Override
 	protected void syncAdditional() {
+		mapIds(liftsClientIdMap, liftsClient);
+
 		for (final TransportMode transportMode : TransportMode.values()) {
 			mapPosToSavedRails(posToPlatforms.get(transportMode), platforms, transportMode);
 			mapPosToSavedRails(posToSidings.get(transportMode), sidings, transportMode);
@@ -69,7 +77,7 @@ public class ClientCache extends DataCache implements IGui {
 		routes.forEach(route -> {
 			if (!route.isHidden) {
 				route.platformIds.forEach(platformId -> {
-					final Station station = platformIdToStation.get(platformId);
+					final Station station = platformIdToStation.get(platformId.platformId);
 					if (station != null) {
 						if (!stationIdToRoutes.containsKey(station.id)) {
 							stationIdToRoutes.put(station.id, new HashMap<>());
@@ -124,38 +132,84 @@ public class ClientCache extends DataCache implements IGui {
 
 	public List<PlatformRouteDetails> requestPlatformIdToRoutes(long platformId) {
 		if (!platformIdToRoutes.containsKey(platformId)) {
-			platformIdToRoutes.put(platformId, routes.stream().filter(route -> route.platformIds.contains(platformId)).map(route -> {
-				final List<PlatformRouteDetails.StationDetails> stationDetails = route.platformIds.stream().map(platformId2 -> {
-					final Station station = platformIdToStation.get(platformId2);
-					if (station == null || !stationIdToRoutes.containsKey(station.id)) {
-						return new PlatformRouteDetails.StationDetails("", new ArrayList<>());
-					} else {
-						return new PlatformRouteDetails.StationDetails(station.name, stationIdToRoutes.get(station.id).values().stream().filter(colorNameTuple -> colorNameTuple.color != route.color).collect(Collectors.toList()));
-					}
-				}).collect(Collectors.toList());
-				return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.circularState, route.platformIds.indexOf(platformId), stationDetails);
-			}).collect(Collectors.toList()));
+			platformIdToRoutes.put(platformId, routes.stream().map(route -> {
+				final int index = route.getPlatformIdIndex(platformId);
+				if (index < 0) {
+					return null;
+				} else {
+					final List<PlatformRouteDetails.StationDetails> stationDetails = route.platformIds.stream().map(platformId2 -> {
+						final Station station = platformIdToStation.get(platformId2.platformId);
+						if (station == null || !stationIdToRoutes.containsKey(station.id)) {
+							return new PlatformRouteDetails.StationDetails("", new ArrayList<>());
+						} else {
+							return new PlatformRouteDetails.StationDetails(station.name, stationIdToRoutes.get(station.id).values().stream().filter(colorNameTuple -> colorNameTuple.color != route.color).collect(Collectors.toList()));
+						}
+					}).collect(Collectors.toList());
+					return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.circularState, index, stationDetails);
+				}
+			}).filter(Objects::nonNull).collect(Collectors.toList()));
 		}
 		return platformIdToRoutes.get(platformId);
 	}
 
+	public String[] requestLiftFloorText(BlockPos pos) {
+		// TODO cache this
+		final Level world = Minecraft.getInstance().level;
+		final String[] text = {"", ""};
+		if (world != null && pos != null) {
+			final BlockEntity blockEntity = world.getBlockEntity(pos);
+			if (blockEntity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor) {
+				text[0] = ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).getFloorNumber();
+				text[1] = ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).getFloorDescription();
+			}
+		}
+		return text;
+	}
+
+	public Set<Station> getConnectingStationsIncludingThisOne(Station station) {
+		final Set<Station> stationsToCheck = new HashSet<>();
+		stationsToCheck.add(station);
+		if (stationIdToConnectingStations.containsKey(station)) {
+			stationsToCheck.addAll(stationIdToConnectingStations.get(station));
+		}
+		return stationsToCheck;
+	}
+
+	public Map<Integer, ColorNameTuple> getAllRoutesIncludingConnectingStations(Station station) {
+		final Map<Integer, ColorNameTuple> routeMap = new HashMap<>();
+		getConnectingStationsIncludingThisOne(station).forEach(checkStation -> {
+			if (stationIdToRoutes.containsKey(checkStation.id)) {
+				routeMap.putAll(stationIdToRoutes.get(checkStation.id));
+			}
+		});
+		return routeMap;
+	}
+
 	public String getFormattedRouteDestination(Route route, int currentStationIndex, String circularMarker) {
 		try {
+			final String customDestination = route.getDestination(currentStationIndex);
+			if (customDestination != null) {
+				return customDestination;
+			}
+
 			if (route.circularState == Route.CircularState.NONE) {
-				return platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1)).name;
+				return platformIdToStation.get(route.getLastPlatformId()).name;
 			} else {
 				boolean isVia = false;
 				String text = "";
+
 				for (int i = currentStationIndex + 1; i < route.platformIds.size() - 1; i++) {
-					if (stationIdToRoutes.get(platformIdToStation.get(route.platformIds.get(i)).id).size() > 1) {
-						text = platformIdToStation.get(route.platformIds.get(i)).name;
+					if (stationIdToRoutes.get(platformIdToStation.get(route.platformIds.get(i).platformId).id).size() > 1) {
+						text = platformIdToStation.get(route.platformIds.get(i).platformId).name;
 						isVia = true;
 						break;
 					}
 				}
+
 				if (!isVia) {
-					text = platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1)).name;
+					text = platformIdToStation.get(route.getLastPlatformId()).name;
 				}
+
 				final String translationString = String.format("%s_%s", route.circularState == Route.CircularState.CLOCKWISE ? "clockwise" : "anticlockwise", isVia ? "via" : "to");
 				return circularMarker + IGui.insertTranslation("gui.mtr." + translationString + "_cjk", "gui.mtr." + translationString, 1, text);
 			}
@@ -182,6 +236,10 @@ public class ClientCache extends DataCache implements IGui {
 
 	public DynamicResource getSignText(String text, HorizontalAlignment horizontalAlignment, float paddingScale, int backgroundColor, int textColor) {
 		return getResource(String.format("route_%s_%s_%s_%s_%s", text, horizontalAlignment, paddingScale, backgroundColor, textColor), () -> RouteMapGenerator.generateSignText(text, horizontalAlignment, paddingScale, backgroundColor, textColor), DefaultRenderingColor.TRANSPARENT);
+	}
+
+	public DynamicResource getLiftPanelDisplay(String originalText, int textColor) {
+		return getResource(String.format("lift_%s", originalText), () -> RouteMapGenerator.generateLiftPanel(originalText, textColor), DefaultRenderingColor.BLACK);
 	}
 
 	public DynamicResource getRouteSquare(int color, String routeName, IGui.HorizontalAlignment horizontalAlignment) {
@@ -217,21 +275,32 @@ public class ClientCache extends DataCache implements IGui {
 		int height = 0;
 
 		for (int index = 0; index < textSplit.length; index++) {
-			final boolean useCjkFont = textSplit[index].codePoints().anyMatch(character -> !font.canDisplay(character));
-			final boolean isCjk = IGui.isCjk(textSplit[index]);
-			final Font mainFont = font.deriveFont(Font.PLAIN, isCjk ? fontSizeCjk : fontSize);
-			final Font fallbackFont = useCjkFont ? fontCjk.deriveFont(Font.PLAIN, isCjk ? fontSizeCjk : fontSize) : mainFont;
-
+			final int newFontSize = IGui.isCjk(textSplit[index]) || font.canDisplayUpTo(textSplit[index]) >= 0 ? fontSizeCjk : fontSize;
 			attributedStrings[index] = new AttributedString(textSplit[index]);
-			if (textSplit[index].length() > 0) {
-				attributedStrings[index].addAttribute(TextAttribute.FONT, mainFont, 0, textSplit[index].length());
-			}
-			fontSizes[index] = isCjk ? fontSizeCjk : fontSize;
+			fontSizes[index] = newFontSize;
+
+			final Font fontSized = font.deriveFont(Font.PLAIN, newFontSize);
+			final Font fontCjkSized = fontCjk.deriveFont(Font.PLAIN, newFontSize);
 
 			for (int characterIndex = 0; characterIndex < textSplit[index].length(); characterIndex++) {
-				final boolean useFallback = !mainFont.canDisplay(textSplit[index].charAt(characterIndex));
-				textWidths[index] += (useFallback ? fallbackFont : mainFont).getStringBounds(textSplit[index].substring(characterIndex, characterIndex + 1), context).getBounds().width;
-				attributedStrings[index].addAttribute(TextAttribute.FONT, (useFallback ? fallbackFont : mainFont), characterIndex, characterIndex + 1);
+				final char character = textSplit[index].charAt(characterIndex);
+				final Font newFont;
+				if (fontSized.canDisplay(character)) {
+					newFont = fontSized;
+				} else if (fontCjkSized.canDisplay(character)) {
+					newFont = fontCjkSized;
+				} else {
+					Font defaultFont = null;
+					for (final Font testFont : GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts()) {
+						if (testFont.canDisplay(character)) {
+							defaultFont = testFont;
+							break;
+						}
+					}
+					newFont = (defaultFont == null ? new Font(null) : defaultFont).deriveFont(Font.PLAIN, newFontSize);
+				}
+				textWidths[index] += newFont.getStringBounds(textSplit[index].substring(characterIndex, characterIndex + 1), context).getBounds().width;
+				attributedStrings[index].addAttribute(TextAttribute.FONT, newFont, characterIndex, characterIndex + 1);
 			}
 
 			if (oneRow) {

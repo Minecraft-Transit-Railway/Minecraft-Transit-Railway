@@ -15,7 +15,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -33,8 +32,8 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 	public static final int MAX_OPEN_VALUE = 32;
 
 	public static final BooleanProperty END = BooleanProperty.create("end");
-	public static final BooleanProperty ODD = BooleanProperty.create("odd");
 	public static final BooleanProperty UNLOCKED = BooleanProperty.create("unlocked");
+	public static final BooleanProperty TEMP = BooleanProperty.create("temp");
 
 	@Override
 	public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
@@ -93,13 +92,8 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 	}
 
 	@Override
-	public RenderShape getRenderShape(BlockState state) {
-		return RenderShape.ENTITYBLOCK_ANIMATED;
-	}
-
-	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(END, FACING, HALF, SIDE, UNLOCKED);
+		builder.add(END, FACING, HALF, SIDE, TEMP, UNLOCKED);
 	}
 
 	private static void lockDoor(Level world, BlockPos pos, BlockState state, boolean unlocked) {
@@ -126,8 +120,10 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 
 		private int open;
 		private float openClient;
+		private boolean temp = true;
 
 		private static final String KEY_OPEN = "open";
+		private static final String KEY_TEMP = "temp";
 
 		public TileEntityPSDAPGDoorBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
@@ -136,11 +132,17 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 		@Override
 		public void readCompoundTag(CompoundTag compoundTag) {
 			open = compoundTag.getInt(KEY_OPEN);
+			temp = compoundTag.getBoolean(KEY_TEMP);
 		}
 
 		@Override
 		public void writeCompoundTag(CompoundTag compoundTag) {
 			compoundTag.putInt(KEY_OPEN, open);
+			compoundTag.putBoolean(KEY_TEMP, temp);
+			if (temp && level != null) {
+				level.setBlockAndUpdate(worldPosition, level.getBlockState(worldPosition).setValue(TEMP, false));
+				temp = false;
+			}
 		}
 
 		public AABB getRenderBoundingBox() {
@@ -148,9 +150,14 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 		}
 
 		public void setOpen(int open) {
-			this.open = open;
-			setChanged();
-			syncData();
+			if (open != this.open) {
+				this.open = open;
+				setChanged();
+				syncData();
+				if (open == 1 && level != null) {
+					level.setBlockAndUpdate(worldPosition, level.getBlockState(worldPosition).setValue(TEMP, false));
+				}
+			}
 		}
 
 		public float getOpen(float lastFrameDuration) {

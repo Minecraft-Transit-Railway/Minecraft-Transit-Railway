@@ -16,17 +16,17 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.List;
 import java.util.UUID;
 
 public abstract class TrainRendererBase {
 
 	protected static Camera camera;
-	protected static EntityRenderDispatcher entityRenderDispatcher;
 	protected static Level world;
-	protected static LocalPlayer player;
 	protected static float lastFrameDuration;
 	protected static PoseStack matrices;
 	protected static MultiBufferSource vertexConsumers;
@@ -36,10 +36,49 @@ public abstract class TrainRendererBase {
 	private static double entityX;
 	private static double entityY;
 	private static double entityZ;
+	private static EntityRenderDispatcher entityRenderDispatcher;
+	private static LocalPlayer player;
 	private static Vec3 playerEyePosition;
 
-	protected BlockPos getPosAverage(TrainClient train, double x, double y, double z) {
-		final Vec3 viewOffset = train.getViewOffset();
+	public abstract TrainRendererBase createTrainInstance(TrainClient train);
+
+	public abstract void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean isTranslucentBatch, float doorLeftValue, float doorRightValue, boolean opening, boolean head1IsFront, int stopIndex, List<Long> routeIds);
+
+	public abstract void renderConnection(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, float pitch);
+
+	public abstract void renderBarrier(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, float pitch);
+
+	public static void renderRidingPlayer(Vec3 viewOffset, UUID playerId, Vec3 playerPositionOffset) {
+		final BlockPos posAverage = getPosAverage(viewOffset, playerPositionOffset.x, playerPositionOffset.y, playerPositionOffset.z);
+		if (posAverage == null) {
+			return;
+		}
+		matrices.translate(0, RenderTrains.PLAYER_RENDER_OFFSET, 0);
+		final Player renderPlayer = world.getPlayerByUUID(playerId);
+		if (renderPlayer != null && (!playerId.equals(player.getUUID()) || camera.isDetached())) {
+			entityRenderDispatcher.render(renderPlayer, playerPositionOffset.x, playerPositionOffset.y, playerPositionOffset.z, 0, 1, matrices, vertexConsumers, 0xF000F0);
+		}
+		matrices.popPose();
+	}
+
+	public static void setupStaticInfo(PoseStack matrices, MultiBufferSource vertexConsumers, EntitySeat entity, float tickDelta) {
+		final Minecraft client = Minecraft.getInstance();
+		camera = client.gameRenderer.getMainCamera();
+		entityRenderDispatcher = client.getEntityRenderDispatcher();
+		world = client.level;
+		player = client.player;
+		lastFrameDuration = MTRClient.getLastFrameDuration();
+		TrainRendererBase.matrices = matrices;
+		TrainRendererBase.vertexConsumers = vertexConsumers;
+		cameraEntity = client.cameraEntity;
+		hasEntity = entity != null;
+		entityX = hasEntity ? Mth.lerp(tickDelta, entity.xOld, entity.getX()) : 0;
+		entityY = hasEntity ? Mth.lerp(tickDelta, entity.yOld, entity.getY()) : 0;
+		entityZ = hasEntity ? Mth.lerp(tickDelta, entity.zOld, entity.getZ()) : 0;
+		playerEyePosition = player == null ? Vec3.ZERO : player.getEyePosition(client.getFrameTime());
+	}
+
+	public static BlockPos getPosAverage(Vec3 viewOffset, double x, double y, double z) {
 		final boolean noOffset = viewOffset == null;
 		final Vec3 cameraPos = cameraEntity == null ? null : cameraEntity.position();
 		final BlockPos posAverage = new BlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.x), y + (noOffset || cameraPos == null ? 0 : cameraPos.y), z + (noOffset || cameraPos == null ? 0 : cameraPos.z));
@@ -70,32 +109,5 @@ public abstract class TrainRendererBase {
 		}
 
 		return posAverage;
-	}
-
-	public abstract TrainRendererBase createTrainInstance(TrainClient train);
-
-	public abstract void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean isTranslucentBatch, float doorLeftValue, float doorRightValue, boolean opening, boolean head1IsFront);
-
-	public abstract void renderConnection(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, float pitch);
-
-	public abstract void renderBarrier(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, float pitch);
-
-	public abstract void renderRidingPlayer(UUID playerId, Vec3 playerPositionOffset);
-
-	public static void setupStaticInfo(PoseStack matrices, MultiBufferSource vertexConsumers, EntitySeat entity, float tickDelta) {
-		final Minecraft client = Minecraft.getInstance();
-		camera = client.gameRenderer.getMainCamera();
-		entityRenderDispatcher = client.getEntityRenderDispatcher();
-		world = client.level;
-		player = client.player;
-		lastFrameDuration = MTRClient.getLastFrameDuration();
-		TrainRendererBase.matrices = matrices;
-		TrainRendererBase.vertexConsumers = vertexConsumers;
-		cameraEntity = client.cameraEntity;
-		hasEntity = entity != null;
-		entityX = hasEntity ? Mth.lerp(tickDelta, entity.xOld, entity.getX()) : 0;
-		entityY = hasEntity ? Mth.lerp(tickDelta, entity.yOld, entity.getY()) : 0;
-		entityZ = hasEntity ? Mth.lerp(tickDelta, entity.zOld, entity.getZ()) : 0;
-		playerEyePosition = player == null ? Vec3.ZERO : player.getEyePosition(client.getFrameTime());
 	}
 }

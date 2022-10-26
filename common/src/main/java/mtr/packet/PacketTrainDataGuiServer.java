@@ -5,18 +5,15 @@ import mtr.Keys;
 import mtr.Registry;
 import mtr.block.*;
 import mtr.data.*;
-import mtr.entity.EntityLift;
 import mtr.mappings.Utilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
@@ -67,6 +64,12 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(blockPos);
 		Registry.sendToPlayer(player, PACKET_OPEN_LIFT_TRACK_FLOOR_SCREEN, packet);
+	}
+
+	public static void openLiftCustomizationScreenS2C(ServerPlayer player, long id) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeLong(id);
+		Registry.sendToPlayer(player, PACKET_OPEN_LIFT_CUSTOMIZATION_SCREEN, packet);
 	}
 
 	public static void openPIDSConfigScreenS2C(ServerPlayer player, BlockPos pos1, BlockPos pos2, int maxArrivals) {
@@ -127,6 +130,12 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.players().forEach(worldPlayer -> Registry.sendToPlayer((ServerPlayer) worldPlayer, PACKET_REMOVE_NODE, packet));
 	}
 
+	public static void removeLiftFloorTrackS2C(Level world, BlockPos pos) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeBlockPos(pos);
+		world.players().forEach(worldPlayer -> Registry.sendToPlayer((ServerPlayer) worldPlayer, PACKET_REMOVE_LIFT_FLOOR_TRACK, packet));
+	}
+
 	public static void removeRailConnectionS2C(Level world, BlockPos pos1, BlockPos pos2) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(pos1);
@@ -143,7 +152,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.players().forEach(worldPlayer -> Registry.sendToPlayer((ServerPlayer) worldPlayer, PACKET_REMOVE_SIGNALS, packet));
 	}
 
-	public static void sendAllInChunks(ServerPlayer player, Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, SignalBlocks signalBlocks) {
+	public static void sendAllInChunks(ServerPlayer player, Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, Set<LiftServer> lifts, SignalBlocks signalBlocks) {
 		final long tempPacketId = new Random().nextLong();
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 
@@ -152,6 +161,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		serializeData(packet, sidings);
 		serializeData(packet, routes);
 		serializeData(packet, depots);
+		serializeData(packet, lifts);
 		serializeData(packet, signalBlocks.signalBlocks);
 
 		int i = 0;
@@ -323,15 +333,18 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 	}
 
 	public static void receivePressLiftButtonC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
-		final UUID uuid = packet.readUUID();
-		final int floor = packet.readInt();
+		final RailwayData railwayData = RailwayData.getInstance(player.level);
+		if (railwayData != null) {
+			final long id = packet.readLong();
+			final int floor = packet.readInt();
 
-		minecraftServer.execute(() -> {
-			final Entity entity = ((ServerLevel) player.level).getEntity(uuid);
-			if (entity instanceof EntityLift) {
-				((EntityLift) entity).pressLiftButton(floor);
-			}
-		});
+			minecraftServer.execute(() -> {
+				final Lift lift = railwayData.dataCache.liftsServerIdMap.get(id);
+				if (lift != null) {
+					lift.pressButton(floor);
+				}
+			});
+		}
 	}
 
 	public static void receiveAddBalanceC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
@@ -419,6 +432,15 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		minecraftServer.execute(() -> player.level.players().forEach(sendPlayer -> {
 			if (sendPlayer != player) {
 				Registry.sendToPlayer((ServerPlayer) sendPlayer, PACKET_UPDATE_TRAIN_PASSENGER_POSITION, packetFullCopy);
+			}
+		}));
+	}
+
+	public static void receiveUpdateLiftPassengerPosition(MinecraftServer minecraftServer, Player player, FriendlyByteBuf packet) {
+		final FriendlyByteBuf packetFullCopy = new FriendlyByteBuf(packet.copy());
+		minecraftServer.execute(() -> player.level.players().forEach(sendPlayer -> {
+			if (sendPlayer != player) {
+				Registry.sendToPlayer((ServerPlayer) sendPlayer, PACKET_UPDATE_LIFT_PASSENGER_POSITION, packetFullCopy);
 			}
 		}));
 	}

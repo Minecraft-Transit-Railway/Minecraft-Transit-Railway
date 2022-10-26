@@ -3,7 +3,6 @@
 .gradle/
 build/
 out/
-libs/
 classes/
 
 # eclipse
@@ -47,7 +46,7 @@ common/src/main/resources/assets/mtr/website/
 common/src/main/resources/assets/mtr/sounds.json
 common/src/main/resources/data/minecraft/
 common/src/main/resources/data/mtr/
-fabric/src/main/
-forge/src/main/
+fabric/src/main/resources
+forge/src/main/resources
 
 .architectury-transformer/

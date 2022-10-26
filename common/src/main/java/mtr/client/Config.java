@@ -20,6 +20,7 @@ public class Config {
 	private static boolean useTTSAnnouncements;
 	private static boolean hideSpecialRailColors;
 	private static boolean hideTranslucentParts;
+	private static boolean shiftToToggleSitting;
 	private static boolean useDynamicFPS = true;
 	private static int trackTextureOffset;
 	private static int dynamicTextureResolution = 2;
@@ -34,6 +35,7 @@ public class Config {
 	private static final String SHOW_ANNOUNCEMENT_MESSAGES = "show_announcement_messages";
 	private static final String HIDE_SPECIAL_RAIL_COLORS = "hide_special_rail_colors";
 	private static final String HIDE_TRANSLUCENT_PARTS = "hide_translucent_parts";
+	private static final String SHIFT_TO_TOGGLE_SITTING = "shift_to_toggle_sitting";
 	private static final String USE_TTS_ANNOUNCEMENTS = "use_tts_announcements";
 	private static final String TRACK_TEXTURE_OFFSET = "track_texture_offset";
 	private static final String DYNAMIC_TEXTURE_RESOLUTION = "dynamic texture resolution";
@@ -53,6 +55,10 @@ public class Config {
 
 	public static boolean hideTranslucentParts() {
 		return hideTranslucentParts;
+	}
+
+	public static boolean shiftToToggleSitting() {
+		return shiftToToggleSitting;
 	}
 
 	public static boolean hideSpecialRailColors() {
@@ -105,6 +111,12 @@ public class Config {
 		return hideTranslucentParts;
 	}
 
+	public static boolean setShiftToToggleSitting(boolean value) {
+		shiftToToggleSitting = value;
+		writeToFile();
+		return shiftToToggleSitting;
+	}
+
 	public static boolean setUseDynamicFPS(boolean value) {
 		useDynamicFPS = value;
 		writeToFile();
@@ -151,6 +163,10 @@ public class Config {
 			} catch (Exception ignored) {
 			}
 			try {
+				shiftToToggleSitting = jsonConfig.get(SHIFT_TO_TOGGLE_SITTING).getAsBoolean();
+			} catch (Exception ignored) {
+			}
+			try {
 				trackTextureOffset = Mth.clamp(jsonConfig.get(TRACK_TEXTURE_OFFSET).getAsInt(), 0, TRACK_OFFSET_COUNT - 1);
 			} catch (Exception ignored) {
 			}
@@ -181,6 +197,7 @@ public class Config {
 		jsonConfig.addProperty(USE_TTS_ANNOUNCEMENTS, useTTSAnnouncements);
 		jsonConfig.addProperty(HIDE_SPECIAL_RAIL_COLORS, hideSpecialRailColors);
 		jsonConfig.addProperty(HIDE_TRANSLUCENT_PARTS, hideTranslucentParts);
+		jsonConfig.addProperty(SHIFT_TO_TOGGLE_SITTING, shiftToToggleSitting);
 		jsonConfig.addProperty(TRACK_TEXTURE_OFFSET, trackTextureOffset);
 		jsonConfig.addProperty(DYNAMIC_TEXTURE_RESOLUTION, dynamicTextureResolution);
 		jsonConfig.addProperty(TRAIN_RENDER_DISTANCE_RATIO, trainRenderDistanceRatio);

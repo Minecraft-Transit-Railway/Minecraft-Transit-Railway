@@ -15,6 +15,7 @@ import net.minecraft.util.Mth;
 import org.apache.commons.lang3.StringUtils;
 
 import java.awt.*;
+import java.util.Locale;
 import java.util.Random;
 import java.util.function.Consumer;
 
@@ -81,7 +82,7 @@ public class WidgetColorSelector extends Button implements IGui {
 			super(Text.literal(""));
 			this.oldColor = oldColor;
 			this.colorCallback = colorCallback;
-			textFieldColor = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.HEX, Text.literal(Integer.toHexString(oldColor).toUpperCase()).getString(), 6);
+			textFieldColor = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.HEX, Text.literal(Integer.toHexString(oldColor).toUpperCase(Locale.ENGLISH)).getString(), 6);
 			textFieldRed = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, Text.literal(String.valueOf((oldColor >> 16) & 0xFF)).getString(), 3);
 			textFieldGreen = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, Text.literal(String.valueOf((oldColor >> 8) & 0xFF)).getString(), 3);
 			textFieldBlue = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, Text.literal(String.valueOf(oldColor & 0xFF)).getString(), 3);
@@ -224,7 +225,7 @@ public class WidgetColorSelector extends Button implements IGui {
 		}
 
 		private void setColorText(int color, boolean padZero) {
-			final String colorString = Integer.toHexString(color & RGB_WHITE).toUpperCase();
+			final String colorString = Integer.toHexString(color & RGB_WHITE).toUpperCase(Locale.ENGLISH);
 			textFieldColor.setValue(padZero ? StringUtils.leftPad(colorString, 6, "0") : colorString);
 			textFieldRed.setValue(String.valueOf((color >> 16) & 0xFF));
 			textFieldGreen.setValue(String.valueOf((color >> 8) & 0xFF));

@@ -21,7 +21,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.level.LightLayer;
@@ -29,8 +28,9 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Function;
 
 public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
@@ -66,7 +66,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 	}
 
 	@Override
-	public void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean isTranslucentBatch, float doorLeftValue, float doorRightValue, boolean opening, boolean head1IsFront) {
+	public void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean isTranslucentBatch, float doorLeftValue, float doorRightValue, boolean opening, boolean head1IsFront, int stopIndex, List<Long> routeIds) {
 		final String trainId = train.trainId;
 		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 
@@ -74,7 +74,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 			return;
 		}
 
-		final BlockPos posAverage = getPosAverage(train, x, y, z);
+		final BlockPos posAverage = getPosAverage(train.getViewOffset(), x, y, z);
 		if (posAverage == null) {
 			return;
 		}
@@ -107,7 +107,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 			model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 		} else {
 			final boolean renderDetails = MTRClient.isReplayMod() || posAverage.distSqr(camera.getBlockPosition()) <= RenderTrains.DETAIL_RADIUS_SQUARED;
-			model.render(matrices, vertexConsumers, resolveTexture(textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, carIndex, train.trainCars, head1IsFront, train.getIsOnRoute(), isTranslucentBatch, renderDetails);
+			model.render(matrices, vertexConsumers, resolveTexture(textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, carIndex, train.trainCars, head1IsFront, train.getIsOnRoute(), isTranslucentBatch, renderDetails, stopIndex, routeIds);
 
 			if (trainProperties.bogiePosition != 0 && !isTranslucentBatch) {
 				if (trainProperties.isJacobsBogie) {
@@ -140,7 +140,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 
 	@Override
 	public void renderConnection(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, float pitch) {
-		final BlockPos posAverage = getPosAverage(train, x, y, z);
+		final BlockPos posAverage = getPosAverage(train.getViewOffset(), x, y, z);
 		if (posAverage == null) {
 			return;
 		}
@@ -183,7 +183,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 			return;
 		}
 
-		final BlockPos posAverage = getPosAverage(train, x, y, z);
+		final BlockPos posAverage = getPosAverage(train.getViewOffset(), x, y, z);
 		if (posAverage == null) {
 			return;
 		}
@@ -196,20 +196,6 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 		drawTexture(matrices, vertexConsumerExterior, thisPos3, prevPos2, prevPos1, thisPos4, light);
 		drawTexture(matrices, vertexConsumerExterior, prevPos3, thisPos2, thisPos1, prevPos4, light);
 
-		matrices.popPose();
-	}
-
-	@Override
-	public void renderRidingPlayer(UUID playerId, Vec3 playerPositionOffset) {
-		final BlockPos posAverage = getPosAverage(train, playerPositionOffset.x, playerPositionOffset.y, playerPositionOffset.z);
-		if (posAverage == null) {
-			return;
-		}
-		matrices.translate(0, RenderTrains.PLAYER_RENDER_OFFSET, 0);
-		final Player renderPlayer = world.getPlayerByUUID(playerId);
-		if (renderPlayer != null && (!playerId.equals(player.getUUID()) || camera.isDetached())) {
-			entityRenderDispatcher.render(renderPlayer, playerPositionOffset.x, playerPositionOffset.y, playerPositionOffset.z, 0, 1, matrices, vertexConsumers, 0xF000F0);
-		}
 		matrices.popPose();
 	}
 
@@ -245,7 +231,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 	}
 
 	private static String resolvePath(String path) {
-		return path == null ? null : path.toLowerCase().split("\\.png")[0];
+		return path == null ? null : path.toLowerCase(Locale.ENGLISH).split("\\.png")[0];
 	}
 
 	private static class FakeBoat extends Boat {

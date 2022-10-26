@@ -12,6 +12,7 @@ public interface EntityTypes {
 
 	RegistryObject<EntityType<EntitySeat>> SEAT = new RegistryObject<>(() -> EntityType.Builder.<EntitySeat>of(EntitySeat::new, MobCategory.MISC).sized(EntitySeat.SIZE, EntitySeat.SIZE).clientTrackingRange(8).build("seat"));
 
+	@Deprecated
 	enum LiftType {
 		SIZE_2_2(2, 2, false, EntityLift.EntityLift22::new, EntityLift.EntityLift22::new),
 		SIZE_2_2_DOUBLE_SIDED(2, 2, true, EntityLift.EntityLift22DoubleSided::new, EntityLift.EntityLift22DoubleSided::new),

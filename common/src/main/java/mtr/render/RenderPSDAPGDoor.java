@@ -4,10 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import mtr.MTRClient;
-import mtr.block.BlockAPGGlass;
-import mtr.block.BlockAPGGlassEnd;
-import mtr.block.BlockPSDAPGDoorBase;
-import mtr.block.IBlock;
+import mtr.block.*;
 import mtr.data.IGui;
 import mtr.mappings.BlockEntityRendererMapper;
 import mtr.mappings.ModelDataWrapper;
@@ -54,6 +51,10 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 		}
 
 		final BlockPos pos = entity.getBlockPos();
+		if (IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.TEMP)) {
+			return;
+		}
+
 		final Direction facing = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.FACING);
 		final boolean side = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.SIDE) == EnumSide.RIGHT;
 		final boolean half = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.HALF) == DoubleBlockHalf.UPPER;
@@ -127,7 +128,7 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 				}
 				break;
 			case 4:
-				if (IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.ODD)) {
+				if (IBlock.getStatePropertySafe(world, pos, ITripleBlock.ODD)) {
 					break;
 				}
 				matrices.translate(side ? 0.5 : -0.5, 0, 0);

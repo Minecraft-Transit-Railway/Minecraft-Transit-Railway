@@ -14,10 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 public class TrainClientRegistry {
@@ -26,7 +23,7 @@ public class TrainClientRegistry {
 	private static final Map<TransportMode, List<String>> KEY_ORDERS = new HashMap<>();
 
 	public static void register(String key, String baseTrainType, String name, int color, float riderOffset, float bogiePosition, boolean isJacobsBogie, boolean hasGangwayConnection, TrainRendererBase renderer, TrainSoundBase sound) {
-		final String keyLower = key.toLowerCase();
+		final String keyLower = key.toLowerCase(Locale.ENGLISH);
 		final TransportMode transportMode = TrainType.getTransportMode(baseTrainType);
 		if (!KEY_ORDERS.containsKey(transportMode)) {
 			KEY_ORDERS.put(transportMode, new ArrayList<>());
@@ -98,8 +95,8 @@ public class TrainClientRegistry {
 		register(TrainType.A_TRAIN_AEL_MINI, new ModelATrainMini(true), "mtr:textures/entity/a_train_ael", 0x008D8D, "mtr:textures/entity/a_train", "", 5F, true, "a_train", new JonTrainSound.JonTrainSoundConfig("a_train", 78, 0.5F, false));
 		register(TrainType.LIGHT_RAIL_1, new ModelLightRail(1, false), "mtr:textures/entity/light_rail_1", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
 		register(TrainType.LIGHT_RAIL_1_RHT, new ModelLightRail(1, true), "mtr:textures/entity/light_rail_1", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
-		register(TrainType.LIGHT_RAIL_1R, new ModelLightRail(4, false), "mtr:textures/entity/light_rail_1r", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
-		register(TrainType.LIGHT_RAIL_1R_RHT, new ModelLightRail(4, true), "mtr:textures/entity/light_rail_1r", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
+		register(TrainType.LIGHT_RAIL_1R, new ModelLightRail(6, false), "mtr:textures/entity/light_rail_1r", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
+		register(TrainType.LIGHT_RAIL_1R_RHT, new ModelLightRail(6, true), "mtr:textures/entity/light_rail_1r", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
 		register(TrainType.LIGHT_RAIL_2, new ModelLightRail(2, false), "mtr:textures/entity/light_rail_2", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_3", 48, 1, false));
 		register(TrainType.LIGHT_RAIL_2_RHT, new ModelLightRail(2, true), "mtr:textures/entity/light_rail_2", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_3", 48, 1, false));
 		register(TrainType.LIGHT_RAIL_3, new ModelLightRail(3, false), "mtr:textures/entity/light_rail_3", 0xD2A825, "", "", 6.25F, false, "light_rail_mitsubishi", new JonTrainSound.JonTrainSoundConfig("light_rail_3", 45, 1, false));
@@ -108,16 +105,16 @@ public class TrainClientRegistry {
 		register(TrainType.LIGHT_RAIL_4_RHT, new ModelLightRail(4, true), "mtr:textures/entity/light_rail_4", 0xD2A825, "", "", 6.25F, false, "light_rail_mitsubishi", new JonTrainSound.JonTrainSoundConfig("light_rail_4", 45, 1, false));
 		register(TrainType.LIGHT_RAIL_5, new ModelLightRail(5, false), "mtr:textures/entity/light_rail_5", 0xD2A825, "", "", 6.25F, false, "light_rail_mitsubishi", new JonTrainSound.JonTrainSoundConfig("light_rail_4", 45, 1, false));
 		register(TrainType.LIGHT_RAIL_5_RHT, new ModelLightRail(5, true), "mtr:textures/entity/light_rail_5", 0xD2A825, "", "", 6.25F, false, "light_rail_mitsubishi", new JonTrainSound.JonTrainSoundConfig("light_rail_4", 45, 1, false));
-		register(TrainType.LIGHT_RAIL_1R_OLD, new ModelLightRail(4, false), "mtr:textures/entity/light_rail_1r_old", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
-		register(TrainType.LIGHT_RAIL_1R_OLD_RHT, new ModelLightRail(4, true), "mtr:textures/entity/light_rail_1r_old", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
+		register(TrainType.LIGHT_RAIL_1R_OLD, new ModelLightRail(6, false), "mtr:textures/entity/light_rail_1r_old", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
+		register(TrainType.LIGHT_RAIL_1R_OLD_RHT, new ModelLightRail(6, true), "mtr:textures/entity/light_rail_1r_old", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
 		register(TrainType.LIGHT_RAIL_4_OLD, new ModelLightRail(4, false), "mtr:textures/entity/light_rail_4_old", 0xD2A825, "", "", 6.25F, false, "light_rail_mitsubishi", new JonTrainSound.JonTrainSoundConfig("light_rail_4", 45, 1, false));
 		register(TrainType.LIGHT_RAIL_4_OLD_RHT, new ModelLightRail(4, true), "mtr:textures/entity/light_rail_4_old", 0xD2A825, "", "", 6.25F, false, "light_rail_mitsubishi", new JonTrainSound.JonTrainSoundConfig("light_rail_4", 45, 1, false));
 		register(TrainType.LIGHT_RAIL_5_OLD, new ModelLightRail(5, false), "mtr:textures/entity/light_rail_5_old", 0xD2A825, "", "", 6.25F, false, "light_rail_mitsubishi", new JonTrainSound.JonTrainSoundConfig("light_rail_4", 45, 1, false));
 		register(TrainType.LIGHT_RAIL_5_OLD_RHT, new ModelLightRail(5, true), "mtr:textures/entity/light_rail_5_old", 0xD2A825, "", "", 6.25F, false, "light_rail_mitsubishi", new JonTrainSound.JonTrainSoundConfig("light_rail_4", 45, 1, false));
 		register(TrainType.LIGHT_RAIL_1_ORANGE, new ModelLightRail(1, false), "mtr:textures/entity/light_rail_1_orange", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
 		register(TrainType.LIGHT_RAIL_1_ORANGE_RHT, new ModelLightRail(1, true), "mtr:textures/entity/light_rail_1_orange", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
-		register(TrainType.LIGHT_RAIL_1R_ORANGE, new ModelLightRail(4, false), "mtr:textures/entity/light_rail_1r_orange", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
-		register(TrainType.LIGHT_RAIL_1R_ORANGE_RHT, new ModelLightRail(4, true), "mtr:textures/entity/light_rail_1r_orange", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
+		register(TrainType.LIGHT_RAIL_1R_ORANGE, new ModelLightRail(6, false), "mtr:textures/entity/light_rail_1r_orange", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
+		register(TrainType.LIGHT_RAIL_1R_ORANGE_RHT, new ModelLightRail(6, true), "mtr:textures/entity/light_rail_1r_orange", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
 		register(TrainType.LIGHT_RAIL_2_ORANGE, new ModelLightRail(2, false), "mtr:textures/entity/light_rail_2_orange", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_3", 48, 1, false));
 		register(TrainType.LIGHT_RAIL_2_ORANGE_RHT, new ModelLightRail(2, true), "mtr:textures/entity/light_rail_2_orange", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_3", 48, 1, false));
 		register(TrainType.LIGHT_RAIL_3_ORANGE, new ModelLightRail(3, false), "mtr:textures/entity/light_rail_3_orange", 0xD2A825, "", "", 6.25F, false, "light_rail_mitsubishi", new JonTrainSound.JonTrainSoundConfig("light_rail_3", 45, 1, false));
@@ -136,6 +133,7 @@ public class TrainClientRegistry {
 		register(TrainType.R211_MINI, new ModelR211Mini(false), "mtr:textures/entity/r211", 0xD5D5D5, "", "mtr:textures/entity/r179", 2.5F, true, "s_train", new JonTrainSound.JonTrainSoundConfig("r179", 42, 1, false));
 		register(TrainType.R211T, new ModelR211(true), "mtr:textures/entity/r211", 0xD5D5D5, "mtr:textures/entity/r211", "mtr:textures/entity/r179", 7.5F, false, "s_train", new JonTrainSound.JonTrainSoundConfig("r179", 42, 1, false));
 		register(TrainType.R211T_MINI, new ModelR211Mini(true), "mtr:textures/entity/r211", 0xD5D5D5, "mtr:textures/entity/r211", "mtr:textures/entity/r179", 2.5F, true, "s_train", new JonTrainSound.JonTrainSoundConfig("r179", 42, 1, false));
+		register(TrainType.CLASS_377_SOUTHERN, new ModelClass377(), "mtr:textures/entity/class_377_southern", 0x5AB565, "mtr:textures/entity/sp1900", "", 6, false, "class_802", new JonTrainSound.JonTrainSoundConfig("class_802", 120, 1, false));
 		register(TrainType.CLASS_802_GWR, new ModelClass802(), "mtr:textures/entity/class_802_gwr", 0x021E15, "mtr:textures/entity/sp1900", "", 7.75F, false, "class_802", new JonTrainSound.JonTrainSoundConfig("class_802", 120, 1, false));
 		register(TrainType.CLASS_802_GWR_MINI, new ModelClass802Mini(), "mtr:textures/entity/class_802_gwr", 0x021E15, "mtr:textures/entity/sp1900", "", 4.94F, false, "class_802", new JonTrainSound.JonTrainSoundConfig("class_802", 120, 1, false));
 		register(TrainType.CLASS_802_TPE, new ModelClass802(), "mtr:textures/entity/class_802_tpe", 0x00A6E6, "mtr:textures/entity/sp1900", "", 7.75F, false, "class_802", new JonTrainSound.JonTrainSoundConfig("class_802", 120, 1, false));
@@ -158,7 +156,7 @@ public class TrainClientRegistry {
 	}
 
 	public static TrainProperties getTrainProperties(String key) {
-		final String keyLower = key.toLowerCase();
+		final String keyLower = key.toLowerCase(Locale.ENGLISH);
 		return REGISTRY.getOrDefault(keyLower, getBlankProperties());
 	}
 

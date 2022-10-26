@@ -1,7 +1,6 @@
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.jonafanho.apitools.*;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
@@ -12,7 +11,6 @@ import org.spongepowered.include.com.google.common.io.ByteStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -42,6 +40,7 @@ public class UpdateSolder {
 
 	static {
 		MOD_ID_MAP.put("mtr", "1");
+		MOD_ID_MAP.put("mtr-london-underground-addon", "4");
 		MOD_ID_MAP.put("fabric-loader", "2");
 		MOD_ID_MAP.put("fabric-api", "3");
 		MOD_ID_MAP.put("forge-loader", "5");
@@ -76,6 +75,14 @@ public class UpdateSolder {
 		DUMMY_MOD_MAP.put("mtr-forge-1.17.1", "forge-1.17.1-3.0.1");
 		DUMMY_MOD_MAP.put("mtr-forge-1.18.2", "forge-1.18.2-3.0.1");
 		DUMMY_MOD_MAP.put("mtr-forge-1.19.2", "forge-1.19-3.0.1");
+		DUMMY_MOD_MAP.put("mtr-london-underground-addon-fabric-1.16.5", "fabric-1.16.5-3.0.1-1.2");
+		DUMMY_MOD_MAP.put("mtr-london-underground-addon-fabric-1.17.1", "fabric-1.17.1-3.0.1-1.2");
+		DUMMY_MOD_MAP.put("mtr-london-underground-addon-fabric-1.18.2", "fabric-1.18.2-3.0.1-1.2");
+		DUMMY_MOD_MAP.put("mtr-london-underground-addon-fabric-1.19.2", "fabric-1.19.2-3.0.1-1.2");
+		DUMMY_MOD_MAP.put("mtr-london-underground-addon-forge-1.16.5", "forge-1.16.5-3.0.1-1.2");
+		DUMMY_MOD_MAP.put("mtr-london-underground-addon-forge-1.17.1", "forge-1.17.1-3.0.1-1.2");
+		DUMMY_MOD_MAP.put("mtr-london-underground-addon-forge-1.18.2", "forge-1.18.2-3.0.1-1.2");
+		DUMMY_MOD_MAP.put("mtr-london-underground-addon-forge-1.19.2", "forge-1.19.2-3.0.1-1.2");
 		DUMMY_MOD_MAP.put("fabric-loader-1.16.5", "1.16.5-0.14.8");
 		DUMMY_MOD_MAP.put("fabric-loader-1.17.1", "1.17.1-0.14.8");
 		DUMMY_MOD_MAP.put("fabric-loader-1.18.2", "1.18.2-0.14.8");
@@ -99,12 +106,12 @@ public class UpdateSolder {
 	}
 
 	public static void main(String[] args) throws IOException {
-		if (args.length == 5) {
-			new UpdateSolder(args[0], args[1], args[2], args[3], args[4]);
+		if (args.length == 7) {
+			new UpdateSolder(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
 		}
 	}
 
-	private UpdateSolder(String sftpHost, String sftpUsername, String sftpPassword, String sftpPath, String apiToken) throws IOException {
+	private UpdateSolder(String sftpHost, String sftpUsername, String sftpPassword, String sftpPath, String apiToken, String curseForgeApiKey, String modrinthApiKey) throws IOException {
 		this.sftpPath = sftpPath;
 		this.apiToken = apiToken;
 
@@ -116,51 +123,79 @@ public class UpdateSolder {
 
 		FileUtils.deleteQuietly(OUTPUT_PATH.toFile());
 
-		final String mtrVersion = readUrl("https://www.minecrafttransitrailway.com/libs/latest/latest.json", new JsonObject()).getAsJsonObject().get("version").getAsString();
+		final String[] mtrLuVersions = {"", ""};
+		NetworkUtils.openConnectionSafeJson("https://www.minecrafttransitrailway.com/libs/latest/latest.json", jsonElement -> {
+			mtrLuVersions[0] = jsonElement.getAsJsonObject().get("version").getAsString();
+		});
+		NetworkUtils.openConnectionSafeJson("https://www.minecrafttransitrailway.com/libs/latest/latest-lu-addon.json", jsonElement -> {
+			mtrLuVersions[1] = jsonElement.getAsJsonObject().get("version").getAsString();
+		});
 		for (final String minecraftVersion : MINECRAFT_VERSIONS) {
-			for (final Loader loader : Loader.values()) {
-				final String modVersion = loader.loader + "-" + minecraftVersion + "-" + mtrVersion;
-				uploadZip("https://www.minecrafttransitrailway.com/libs/latest/MTR-" + loader.loader + "-" + minecraftVersion + "-latest.jar", minecraftVersion, "mtr", "mods/MTR-" + modVersion + ".jar", modVersion);
+			for (final ModLoader modLoader : ModLoader.values()) {
+				final String modVersionMtr = modLoader.name + "-" + minecraftVersion + "-" + mtrLuVersions[0];
+				final String modVersionLu = modLoader.name + "-" + minecraftVersion + "-" + mtrLuVersions[1];
+				final String urlMtr = "https://www.minecrafttransitrailway.com/libs/latest/MTR-" + modLoader.name + "-" + minecraftVersion + "-latest.jar";
+				final String fileNameMtr = "MTR-" + modVersionMtr + ".jar";
+
+				uploadZip(urlMtr, minecraftVersion, "mtr", "mods/" + fileNameMtr, modVersionMtr);
+				uploadZip("https://www.minecrafttransitrailway.com/libs/latest/MTR-LU-Addon-" + modLoader.name + "-" + minecraftVersion + "-latest.jar", minecraftVersion, "mtr-london-underground-addon", "mods/MTR-LU-Addon-" + modVersionLu + ".jar", modVersionLu);
+
+				final Map<String, DependencyType> dependenciesCurseForge = new HashMap<>();
+				dependenciesCurseForge.put(modLoader == ModLoader.FABRIC ? "fabric-api" : "architectury-api", DependencyType.REQUIRED);
+				dependenciesCurseForge.put("london-underground", DependencyType.OPTIONAL);
+				while (true) {
+					final boolean[] success = {false};
+					NetworkUtils.openConnectionSafe(urlMtr, inputStream -> success[0] = new ModId("266707", ModProvider.CURSE_FORGE).uploadFile("", modVersionMtr.toUpperCase(Locale.ENGLISH), "See Discord", dependenciesCurseForge, modLoader == ModLoader.FABRIC ? ReleaseStatus.BETA : ReleaseStatus.ALPHA, Collections.singleton(minecraftVersion), Collections.singleton(modLoader), false, inputStream, fileNameMtr, curseForgeApiKey));
+					if (success[0]) {
+						break;
+					}
+				}
+
+				final Map<String, DependencyType> dependenciesModrinth = new HashMap<>();
+				dependenciesModrinth.put(modLoader == ModLoader.FABRIC ? "P7dR8mSH" : "lhGA9TYQ", DependencyType.REQUIRED);
+				while (true) {
+					final boolean[] success = {false};
+					NetworkUtils.openConnectionSafe(urlMtr, inputStream -> success[0] = new ModId("XKPAmI6u", ModProvider.MODRINTH).uploadFile("Minecraft Transit Railway", modVersionMtr.toUpperCase(Locale.ENGLISH), "See Discord", dependenciesModrinth, ReleaseStatus.BETA, Collections.singleton(minecraftVersion), Collections.singleton(modLoader), false, inputStream, fileNameMtr, modrinthApiKey));
+					if (success[0]) {
+						break;
+					}
+				}
 			}
 
-			try {
-				final String fabricLoaderVersion = readUrl("https://meta.fabricmc.net/v2/versions/loader/" + minecraftVersion, new JsonArray()).getAsJsonArray().get(0).getAsJsonObject().getAsJsonObject("loader").get("version").getAsString();
+			NetworkUtils.openConnectionSafeJson("https://meta.fabricmc.net/v2/versions/loader/" + minecraftVersion, jsonElement -> {
+				final String fabricLoaderVersion = jsonElement.getAsJsonArray().get(0).getAsJsonObject().getAsJsonObject("loader").get("version").getAsString();
 				uploadZip("https://meta.fabricmc.net/v2/versions/loader/" + minecraftVersion + "/" + fabricLoaderVersion + "/profile/json", minecraftVersion, "fabric-loader", "bin/version.json", minecraftVersion + "-" + fabricLoaderVersion);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-			try {
-				final JsonObject forgeVersionsObject = readUrl("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json", new JsonObject()).getAsJsonObject().getAsJsonObject("promos");
+			});
+			NetworkUtils.openConnectionSafeJson("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json", jsonElement -> {
+				final JsonObject forgeVersionsObject = jsonElement.getAsJsonObject().getAsJsonObject("promos");
 				final String forgeVersion = minecraftVersion + "-" + forgeVersionsObject.get(minecraftVersion + "-latest").getAsString();
 				uploadZip("https://maven.minecraftforge.net/net/minecraftforge/forge/" + forgeVersion + "/forge-" + forgeVersion + "-installer.jar", minecraftVersion, "forge-loader", "bin/modpack.jar", forgeVersion);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			});
 		}
 
-		uploadModrinthMod(Loader.FABRIC, "P7dR8mSH", "fabric-api");
-		uploadModrinthMod(Loader.FABRIC, "mOgUt4GM", "modmenu");
-		uploadModrinthMod(Loader.FORGE, "lhGA9TYQ", "forge-architectury");
+		uploadModrinthMod(ModLoader.FABRIC, "P7dR8mSH", "fabric-api");
+		uploadModrinthMod(ModLoader.FABRIC, "mOgUt4GM", "modmenu");
+		uploadModrinthMod(ModLoader.FORGE, "lhGA9TYQ", "forge-architectury");
 
 		FileUtils.deleteQuietly(OUTPUT_PATH.toFile());
 		sftpClient.close();
 		sshClient.disconnect();
 
-		final String buildVersion = mtrVersion + "-" + new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
+		final String buildVersion = mtrLuVersions[0] + "-" + new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
 		for (final String minecraftVersion : MINECRAFT_VERSIONS) {
-			for (final Loader loader : Loader.values()) {
-				final String combinedVersion = loader.loader + "-" + minecraftVersion;
+			for (final ModLoader modLoader : ModLoader.values()) {
+				final String combinedVersion = modLoader.name + "-" + minecraftVersion;
 				final String buildId = sendRequest("create-build?modpack_id=%s&version=%s&minecraft=%s&clone=%s&memory-enabled=on&memory=2048", MODPACK_ID_MAP.get(combinedVersion), buildVersion, minecraftVersion, DUMMY_BUILD_ID_MAP.get(combinedVersion)).get("build_id").getAsString();
-				updateModInBuild(buildId, DUMMY_MOD_MAP.get("mtr-" + combinedVersion), combinedVersion + "-" + mtrVersion, loader.loader, minecraftVersion);
+				updateModInBuild(buildId, DUMMY_MOD_MAP.get("mtr-" + combinedVersion), combinedVersion + "-" + mtrLuVersions[0], modLoader.name, minecraftVersion);
+				updateModInBuild(buildId, DUMMY_MOD_MAP.get("mtr-london-underground-addon-" + combinedVersion), combinedVersion + "-" + mtrLuVersions[1], modLoader.name, minecraftVersion);
 
-				if (loader == Loader.FABRIC) {
-					updateModInBuild(buildId, DUMMY_MOD_MAP.get("fabric-loader-" + minecraftVersion), NEW_MOD_MAP.get("fabric-loader-" + minecraftVersion), loader.loader, minecraftVersion);
-					updateModInBuild(buildId, DUMMY_MOD_MAP.get("fabric-api-" + minecraftVersion), NEW_MOD_MAP.get("fabric-api-" + minecraftVersion), loader.loader, minecraftVersion);
-					updateModInBuild(buildId, DUMMY_MOD_MAP.get("modmenu-" + minecraftVersion), NEW_MOD_MAP.get("modmenu-" + minecraftVersion), loader.loader, minecraftVersion);
+				if (modLoader == ModLoader.FABRIC) {
+					updateModInBuild(buildId, DUMMY_MOD_MAP.get("fabric-loader-" + minecraftVersion), NEW_MOD_MAP.get("fabric-loader-" + minecraftVersion), modLoader.name, minecraftVersion);
+					updateModInBuild(buildId, DUMMY_MOD_MAP.get("fabric-api-" + minecraftVersion), NEW_MOD_MAP.get("fabric-api-" + minecraftVersion), modLoader.name, minecraftVersion);
+					updateModInBuild(buildId, DUMMY_MOD_MAP.get("modmenu-" + minecraftVersion), NEW_MOD_MAP.get("modmenu-" + minecraftVersion), modLoader.name, minecraftVersion);
 				} else {
-					updateModInBuild(buildId, DUMMY_MOD_MAP.get("forge-loader-" + minecraftVersion), NEW_MOD_MAP.get("forge-loader-" + minecraftVersion), loader.loader, minecraftVersion);
-					updateModInBuild(buildId, DUMMY_MOD_MAP.get("forge-architectury-" + minecraftVersion), NEW_MOD_MAP.get("forge-architectury-" + minecraftVersion), loader.loader, minecraftVersion);
+					updateModInBuild(buildId, DUMMY_MOD_MAP.get("forge-loader-" + minecraftVersion), NEW_MOD_MAP.get("forge-loader-" + minecraftVersion), modLoader.name, minecraftVersion);
+					updateModInBuild(buildId, DUMMY_MOD_MAP.get("forge-architectury-" + minecraftVersion), NEW_MOD_MAP.get("forge-architectury-" + minecraftVersion), modLoader.name, minecraftVersion);
 				}
 			}
 		}
@@ -222,9 +257,14 @@ public class UpdateSolder {
 	}
 
 	private void updateModInBuild(String buildId, String oldModVersion, String newModVersion, String loaderVersion, String minecraftVersion) {
+		try {
+			Thread.sleep(2000);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		final JsonObject response = sendRequest("update-build?build_id=%s&modversion_id=%s&version=%s", buildId, oldModVersion, newModVersion);
-		if (response.has("status") && response.get("status").getAsString().equals("success")) {
-			printStatus("Updated mod in build:", loaderVersion, minecraftVersion, newModVersion);
+		if (response.has("status")) {
+			printStatus(String.format("Updated mod %s:", response.get("status").getAsString()), loaderVersion, minecraftVersion, newModVersion);
 		}
 	}
 
@@ -238,56 +278,29 @@ public class UpdateSolder {
 			http.setRequestMethod("POST");
 			http.setDoOutput(true);
 			http.setRequestProperty("Authorization", "Bearer " + apiToken);
-			return new JsonParser().parse(IOUtils.toString(http.getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
+			try (final InputStream inputStream = http.getInputStream()) {
+				return new JsonParser().parse(IOUtils.toString(inputStream, StandardCharsets.UTF_8)).getAsJsonObject();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return new JsonObject();
 	}
 
-	private void uploadModrinthMod(Loader loader, String projectId, String modId) {
+	private void uploadModrinthMod(ModLoader modLoader, String projectId, String modId) {
 		try {
-			final Set<String> minecraftVersions = new HashSet<>();
-			Collections.addAll(minecraftVersions, MINECRAFT_VERSIONS);
-			final JsonArray versionsArray = readUrl("https://api.modrinth.com/v2/project/" + projectId + "/version", new JsonArray()).getAsJsonArray();
-			for (final JsonElement jsonElement : versionsArray) {
-				final JsonObject versionObject = jsonElement.getAsJsonObject();
-				if (stringJsonArrayContains(versionObject.getAsJsonArray("loaders"), loader.loader)) {
-					final Set<String> minecraftVersionsToRemove = new HashSet<>();
-					for (final String minecraftVersion : minecraftVersions) {
-						if (stringJsonArrayContains(versionObject.getAsJsonArray("game_versions"), minecraftVersion)) {
-							final JsonObject fileObject = versionObject.getAsJsonArray("files").get(0).getAsJsonObject();
-							uploadZip(fileObject.get("url").getAsString(), minecraftVersion, modId, "mods/" + fileObject.get("filename").getAsString(), appendMinecraftVersion(versionObject.get("version_number").getAsString(), minecraftVersion));
-							minecraftVersionsToRemove.add(minecraftVersion);
-						}
-					}
-					minecraftVersionsToRemove.forEach(minecraftVersions::remove);
-					if (minecraftVersions.isEmpty()) {
-						return;
-					}
+			for (final String minecraftVersion : MINECRAFT_VERSIONS) {
+				final List<ModFile> modFiles = new ModId(projectId, ModProvider.MODRINTH).getModFiles(minecraftVersion, modLoader, "");
+				if (!modFiles.isEmpty()) {
+					final ModFile modFile = modFiles.get(0);
+					uploadZip(modFile.url, minecraftVersion, modId, "mods/" + modFile.fileName, appendMinecraftVersion(modFile.fileName, minecraftVersion));
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	private static <T extends JsonElement> JsonElement readUrl(String url, T defaultValue) {
-		try (InputStream inputStream = new URL(url).openStream()) {
-			return new JsonParser().parse(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return defaultValue;
-	}
-
-	private static boolean stringJsonArrayContains(JsonArray jsonArray, String text) {
-		for (final JsonElement jsonElement : jsonArray) {
-			if (jsonElement.getAsString().equals(text)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private static String appendMinecraftVersion(String text, String minecraftVersion) {
@@ -300,24 +313,15 @@ public class UpdateSolder {
 				stringBuilder.append(".");
 			}
 		}
-		if (text.contains(stringBuilder)) {
-			return text;
+		final String newText = text.replace(".jar", "");
+		if (newText.contains(stringBuilder)) {
+			return newText;
 		} else {
-			return text + "-" + minecraftVersion;
+			return newText + "-" + minecraftVersion;
 		}
 	}
 
 	private static void printStatus(String message, String modId, String modVersion, String md5) {
-		System.out.printf("%-30s %-50s%s\n", message, String.format("%s-%s", modId, modVersion), md5);
-	}
-
-	private enum Loader {
-		FABRIC("fabric"), FORGE("forge");
-
-		private final String loader;
-
-		Loader(String loader) {
-			this.loader = loader;
-		}
+		System.out.printf("%-30s %-60s%s\n", message, String.format("%s-%s", modId, modVersion), md5);
 	}
 }

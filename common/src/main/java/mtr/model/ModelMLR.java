@@ -2,10 +2,15 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.DoorAnimationType;
+import mtr.data.Route;
+import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
 
-public class ModelMLR extends ModelSimpleTrainBase {
+public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 
 	private final ModelMapper window_1;
 	private final ModelMapper upper_wall_r1;
@@ -178,6 +183,11 @@ public class ModelMLR extends ModelSimpleTrainBase {
 	private final ModelMapper light_r3;
 
 	public ModelMLR() {
+		this(DoorAnimationType.MLR, true);
+	}
+
+	protected ModelMLR(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(doorAnimationType, renderDoorOverlay);
 		final int textureWidth = 400;
 		final int textureHeight = 400;
 
@@ -1214,6 +1224,11 @@ public class ModelMLR extends ModelSimpleTrainBase {
 	private static final ModelDoorOverlayTopMLR MODEL_DOOR_OVERLAY_TOP = new ModelDoorOverlayTopMLR("mtr:textures/sign/door_overlay_mlr_top.png");
 
 	@Override
+	public ModelMLR createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		return new ModelMLR(doorAnimationType, renderDoorOverlay);
+	}
+
+	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		final boolean isEvenWindow = isEvenWindow(position);
 		switch (renderStage) {
@@ -1425,35 +1440,26 @@ public class ModelMLR extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return 0;
-	}
-
-	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		if (opening) {
-			if (value < 0.2) {
-				return 0;
-			} else if (value > 0.7) {
-				return DOOR_MAX;
-			} else {
-				return (value - 0.2F) * 2 * DOOR_MAX;
-			}
-		} else {
-			final float stoppingPoint = 1.5F;
-			if (value > 0.25) {
-				return Math.min((value - 0.25F) * 2 * DOOR_MAX + stoppingPoint + 1, DOOR_MAX);
-			} else if (value > 0.2) {
-				return smoothEnds(stoppingPoint, stoppingPoint + 2, 0.2F, 0.3F, value);
-			} else if (value < 0.1) {
-				return value / 0.1F * stoppingPoint;
-			} else {
-				return stoppingPoint;
-			}
-		}
+	protected int getDoorMax() {
+		return DOOR_MAX;
 	}
 
 	private boolean isEvenWindow(int position) {
 		return isIndex(1, position, getWindowPositions()) || isIndex(3, position, getWindowPositions());
+	}
+
+	@Override
+	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars) {
+		renderFrontDestination(
+				matrices, font, immediate,
+				0, 0, getEndPositions()[0] / 16F - 2.92F, 0, -1.81F, -0.01F,
+				-10, 0, 0.5F, 0.26F,
+				0xFFFF0000, 0xFFFF9900, 2, getDestinationString(lastStation, customDestination, TextSpacingType.MLR_SPACING, true), false, car, totalCars
+		);
+	}
+
+	@Override
+	protected String defaultDestinationString() {
+		return "East Rail";
 	}
 }

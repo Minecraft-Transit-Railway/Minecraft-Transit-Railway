@@ -5,7 +5,6 @@ import mtr.Items;
 import mtr.mappings.BlockEntityMapper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class BlockLiftDoor extends BlockPSDAPGDoorBase {
@@ -20,15 +19,10 @@ public class BlockLiftDoor extends BlockPSDAPGDoorBase {
 		return Items.LIFT_DOOR_1.get();
 	}
 
-	@Override
-	public RenderShape getRenderShape(BlockState state) {
-		return RenderShape.MODEL;
-	}
-
 	public static class TileEntityLiftDoor extends TileEntityPSDAPGDoorBase {
 
 		public TileEntityLiftDoor(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_DOOR_1_TILE_ENTITY.get(), pos, state);
+			super(BlockEntityTypes.LIFT_DOOR_EVEN_1_TILE_ENTITY.get(), pos, state);
 		}
 	}
 }

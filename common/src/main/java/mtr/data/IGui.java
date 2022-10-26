@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public interface IGui {
 
@@ -138,10 +137,14 @@ public interface IGui {
 	}
 
 	static String mergeStations(List<String> stations) {
-		return mergeStations(stations, null);
+		return mergeStations(stations, Text.translatable("gui.mtr.separator_cjk").getString(), Text.translatable("gui.mtr.separator").getString());
 	}
 
-	static String mergeStations(List<String> stations, String separator) {
+	static String mergeStationsWithCommas(List<String> stations) {
+		return mergeStations(stations, null, null);
+	}
+
+	static String mergeStations(List<String> stations, String separatorCjk, String separator) {
 		final List<List<String>> combinedCJK = new ArrayList<>();
 		final List<List<String>> combined = new ArrayList<>();
 
@@ -185,9 +188,55 @@ public interface IGui {
 			}
 		}
 
-		final List<String> flattened = combinedCJK.stream().map(subList -> subList.stream().reduce((a, b) -> a + (separator == null ? Text.translatable("gui.mtr.separator_cjk").getString() : separator) + b).orElse("")).collect(Collectors.toList());
-		flattened.addAll(combined.stream().map(subList -> subList.stream().reduce((a, b) -> a + (separator == null ? Text.translatable("gui.mtr.separator").getString() : separator) + b).orElse("")).collect(Collectors.toList()));
-		return flattened.stream().reduce((a, b) -> a + "|" + b).orElse("");
+		final List<String> flattened = new ArrayList<>();
+		combinedCJK.forEach(subList -> {
+			final int listSize = subList.size();
+			final StringBuilder stringBuilder = new StringBuilder();
+			for (int i = 0; i < listSize; i++) {
+				stringBuilder.append(subList.get(i));
+				if (i <= listSize - 2) {
+					if (separatorCjk == null) {
+						if (listSize > 2) {
+							stringBuilder.append(Text.translatable("gui.mtr.comma_cjk").getString());
+						}
+						if (i == listSize - 2) {
+							stringBuilder.append(Text.translatable("gui.mtr.comma_last_cjk").getString());
+						}
+					} else {
+						stringBuilder.append(separatorCjk);
+					}
+				}
+			}
+			final String result = stringBuilder.toString().replace("  ", " ");
+			if (!result.isEmpty()) {
+				flattened.add(stringBuilder.toString().replace("  ", " "));
+			}
+		});
+		combined.forEach(subList -> {
+			final int listSize = subList.size();
+			final StringBuilder stringBuilder = new StringBuilder();
+			for (int i = 0; i < listSize; i++) {
+				stringBuilder.append(subList.get(i));
+				if (i <= listSize - 2) {
+					if (separator == null) {
+						if (listSize > 2) {
+							stringBuilder.append(Text.translatable("gui.mtr.comma").getString());
+						}
+						if (i == listSize - 2) {
+							stringBuilder.append(Text.translatable("gui.mtr.comma_last").getString());
+						}
+					} else {
+						stringBuilder.append(separator);
+					}
+				}
+			}
+			final String result = stringBuilder.toString().replace("  ", " ");
+			if (!result.isEmpty()) {
+				flattened.add(result);
+			}
+		});
+
+		return String.join("|", flattened);
 	}
 
 	static boolean isCjk(String text) {

@@ -2,10 +2,15 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.DoorAnimationType;
+import mtr.data.Route;
+import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
 
-public class ModelR211 extends ModelSimpleTrainBase {
+public class ModelR211 extends ModelSimpleTrainBase<ModelR211> {
 
 	private final ModelMapper window_exterior;
 	private final ModelMapper upper_wall_r1;
@@ -187,9 +192,14 @@ public class ModelR211 extends ModelSimpleTrainBase {
 	private final ModelMapper door_light_interior_on;
 	private final ModelMapper light_3_r1;
 
-	private final boolean openGangway;
+	protected final boolean openGangway;
 
 	public ModelR211(boolean openGangway) {
+		this(openGangway, DoorAnimationType.R211, true);
+	}
+
+	protected ModelR211(boolean openGangway, DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(doorAnimationType, renderDoorOverlay);
 		this.openGangway = openGangway;
 
 		final int textureWidth = 360;
@@ -1305,6 +1315,11 @@ public class ModelR211 extends ModelSimpleTrainBase {
 	private static final int DOOR_MAX = 13;
 
 	@Override
+	public ModelR211 createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		return new ModelR211(openGangway, doorAnimationType, renderDoorOverlay);
+	}
+
+	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
 			case LIGHTS:
@@ -1526,18 +1541,29 @@ public class ModelR211 extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return 0;
+	protected int getDoorMax() {
+		return DOOR_MAX;
 	}
 
 	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		if (value < 0.2) {
-			return 0;
-		} else if (value > 0.7) {
-			return DOOR_MAX;
-		} else {
-			return (value - 0.2F) * 2 * DOOR_MAX;
-		}
+	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars) {
+		final String routeNumber = thisRoute == null ? "" : thisRoute.lightRailRouteNumber;
+		renderFrontDestination(
+				matrices, font, immediate,
+				0, -2.26F, getEndPositions()[0] / 16F - 1.37F, 0, 0, -0.01F,
+				0, 0, 0.44F, 0.12F,
+				ARGB_WHITE, ARGB_WHITE, 1, getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, true), true, car, totalCars
+		);
+		renderFrontDestination(
+				matrices, font, immediate,
+				0.5F, 0, getEndPositions()[0] / 16F - 1.37F, 0.35F, -1.57F, -0.01F,
+				0, -20, 0.4F, 0.36F,
+				ARGB_WHITE, ARGB_WHITE, 1, routeNumber, false, car, totalCars
+		);
+	}
+
+	@Override
+	protected String defaultDestinationString() {
+		return "Not in Service";
 	}
 }

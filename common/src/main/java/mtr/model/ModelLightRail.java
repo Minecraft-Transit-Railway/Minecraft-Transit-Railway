@@ -2,10 +2,15 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.DoorAnimationType;
+import mtr.data.Route;
+import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
 
-public class ModelLightRail extends ModelSimpleTrainBase {
+public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 
 	private final ModelMapper window;
 	private final ModelMapper window_exterior;
@@ -95,11 +100,18 @@ public class ModelLightRail extends ModelSimpleTrainBase {
 	private final ModelMapper vents_top;
 	private final ModelMapper headlights;
 	private final ModelMapper tail_lights;
+	private final ModelMapper side_display;
+	private final ModelMapper bottom_r1;
 
 	private final int phase;
 	private final boolean isRHT;
 
 	public ModelLightRail(int phase, boolean isRHT) {
+		this(phase, isRHT, getDoorAnimationType(phase), true);
+	}
+
+	private ModelLightRail(int phase, boolean isRHT, DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(doorAnimationType, renderDoorOverlay);
 		this.phase = phase;
 		this.isRHT = isRHT;
 
@@ -696,6 +708,16 @@ public class ModelLightRail extends ModelSimpleTrainBase {
 		tail_lights.texOffs(20, 12).addBox(-8, -7, 46.1F, 5, 4, 0, 0, false);
 		tail_lights.texOffs(20, 12).addBox(3, -7, 46.1F, 5, 4, 0, 0, true);
 
+		side_display = new ModelMapper(modelDataWrapper);
+		side_display.setPos(0, 24, 0);
+		side_display.texOffs(72, 315).addBox(-19.95F, -32, -14, 3, 6, 28, 0, false);
+
+		bottom_r1 = new ModelMapper(modelDataWrapper);
+		bottom_r1.setPos(-16.95F, -29, 0);
+		side_display.addChild(bottom_r1);
+		setRotationAngle(bottom_r1, 0, 0, 0.1745F);
+		bottom_r1.texOffs(106, 311).addBox(-1, 0, -14, 1, 4, 28, 0, false);
+
 		modelDataWrapper.setModelPart(textureWidth, textureHeight);
 		window.setModelPart();
 		window_exterior.setModelPart();
@@ -737,6 +759,7 @@ public class ModelLightRail extends ModelSimpleTrainBase {
 		vents_top.setModelPart();
 		headlights.setModelPart();
 		tail_lights.setModelPart();
+		side_display.setModelPart();
 	}
 
 	private static final int DOOR_MAX = 14;
@@ -748,6 +771,11 @@ public class ModelLightRail extends ModelSimpleTrainBase {
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_4_RHT = new ModelDoorOverlay(DOOR_MAX, 0, 14, "door_overlay_light_rail_4_left.png", "door_overlay_light_rail_4_right.png", false, true);
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_5 = new ModelDoorOverlay(DOOR_MAX, 0, 14, "door_overlay_light_rail_5_left.png", "door_overlay_light_rail_5_right.png", true, false);
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_5_RHT = new ModelDoorOverlay(DOOR_MAX, 0, 14, "door_overlay_light_rail_5_left.png", "door_overlay_light_rail_5_right.png", false, true);
+
+	@Override
+	public ModelLightRail createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		return new ModelLightRail(phase, isRHT, doorAnimationType, renderDoorOverlay);
+	}
 
 	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
@@ -800,8 +828,8 @@ public class ModelLightRail extends ModelSimpleTrainBase {
 					renderOnce(phase == 5 ? door_5 : door, matrices, vertices, light, position);
 					renderOnce(door_window, matrices, vertices, light, position);
 					if (renderDetails) {
-						renderOnce(phase >= 4 ? phase == 4 ? door_handrails_4 : door_handrails_5 : door_handrails, matrices, vertices, light, position);
-						renderOnce(phase >= 4 ? phase == 4 ? door_window_handrails_4 : door_window_handrails_5 : door_window_handrails, matrices, vertices, light, position);
+						renderOnce(phase >= 4 ? phase == 4 || phase == 6 ? door_handrails_4 : door_handrails_5 : door_handrails, matrices, vertices, light, position);
+						renderOnce(phase >= 4 ? phase == 4 || phase == 6 ? door_window_handrails_4 : door_window_handrails_5 : door_window_handrails, matrices, vertices, light, position);
 					}
 				} else {
 					(phase == 5 ? door_left_5 : door_left).setOffset(0, 0, doorLeftZ);
@@ -809,8 +837,8 @@ public class ModelLightRail extends ModelSimpleTrainBase {
 					renderOnceFlipped(phase == 5 ? door_5 : door, matrices, vertices, light, position);
 					renderOnceFlipped(door_window, matrices, vertices, light, position);
 					if (renderDetails) {
-						renderOnceFlipped(phase >= 4 ? phase == 4 ? door_handrails_4 : door_handrails_5 : door_handrails, matrices, vertices, light, position);
-						renderOnceFlipped(phase >= 4 ? phase == 4 ? door_window_handrails_4 : door_window_handrails_5 : door_window_handrails, matrices, vertices, light, position);
+						renderOnceFlipped(phase >= 4 ? phase == 4 || phase == 6 ? door_handrails_4 : door_handrails_5 : door_handrails, matrices, vertices, light, position);
+						renderOnceFlipped(phase >= 4 ? phase == 4 || phase == 6 ? door_window_handrails_4 : door_window_handrails_5 : door_window_handrails, matrices, vertices, light, position);
 					}
 				}
 				if (renderDetails) {
@@ -870,6 +898,7 @@ public class ModelLightRail extends ModelSimpleTrainBase {
 						renderOnce(head_exterior_3_5, matrices, vertices, light, position);
 						break;
 					case 4:
+					case 6:
 						renderOnce(head_exterior_4, matrices, vertices, light, position);
 						break;
 				}
@@ -900,6 +929,11 @@ public class ModelLightRail extends ModelSimpleTrainBase {
 						flipSeat = !flipSeat;
 					}
 					renderMirror(roof, matrices, vertices, light, position);
+					if (isRHT) {
+						renderOnce(side_display, matrices, vertices, light, position - (phase <= 3 ? 64 : phase == 5 ? 0 : 1));
+					} else {
+						renderOnceFlipped(side_display, matrices, vertices, light, position - (phase <= 3 ? 64 : phase == 5 ? 0 : 1));
+					}
 				}
 				break;
 			case EXTERIOR:
@@ -929,6 +963,7 @@ public class ModelLightRail extends ModelSimpleTrainBase {
 			case 3:
 				return isRHT ? MODEL_DOOR_OVERLAY_3_RHT : MODEL_DOOR_OVERLAY_3;
 			case 4:
+			case 6:
 				return isRHT ? MODEL_DOOR_OVERLAY_4_RHT : MODEL_DOOR_OVERLAY_4;
 			case 5:
 				return isRHT ? MODEL_DOOR_OVERLAY_5_RHT : MODEL_DOOR_OVERLAY_5;
@@ -957,47 +992,73 @@ public class ModelLightRail extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return 0;
+	protected int getDoorMax() {
+		return DOOR_MAX;
 	}
 
 	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
+	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars) {
+		final String routeNumber = thisRoute == null ? "" : thisRoute.lightRailRouteNumber;
+		final float frontOffset = phase == 3 || phase == 5 ? 2.75F : phase == 4 || phase == 6 ? 3.02F : 2.87F;
+		final int color = phase == 3 ? 0xFF00FF00 : 0xFFFF9900;
+
+		renderFrontDestination(
+				matrices, font, immediate,
+				0, 0, getEndPositions()[0] / 16F - frontOffset, routeNumber.isEmpty() ? 0 : -0.2F, phase == 4 || phase == 6 ? -2.14F : -2.18F, -0.01F,
+				phase == 4 || phase == 6 ? -7.5F : 0, 0, 0.56F, 0.26F,
+				color, color, 3, getDestinationString(lastStation, customDestination, TextSpacingType.SPACE_CJK_FLIPPED, true), true, 0, 2
+		);
+
+		if (!routeNumber.isEmpty()) {
+			renderFrontDestination(
+					matrices, font, immediate,
+					0, 0, getEndPositions()[0] / 16F - frontOffset, 0.31F, phase == 4 || phase == 6 ? -2.14F : -2.15F, -0.01F,
+					phase == 4 || phase == 6 ? -7.5F : 0, 0, 0.4F, 0.26F,
+					color, color, 3, routeNumber, false, 0, 2
+			);
+			renderFrontDestination(
+					matrices, font, immediate,
+					0, 0, getEndPositions()[0] / 16F - 2.92F, 0, phase == 1 || phase == 6 ? -2.13F : -2.24F, -0.01F,
+					-5, 0, 0.38F, 0.2F,
+					color, color, 3, routeNumber, false, 1, 2
+			);
+		}
+
+		final float sideOffset = (128 - (phase <= 3 ? 64 : phase == 5 ? 0 : 1)) / 16F;
+		renderFrontDestination(
+				matrices, font, immediate,
+				isRHT ? -1.26F : 1.26F, -1.76F, sideOffset - 0.3F, 0, 0, 0,
+				0, isRHT ? 90 : -90, 0.56F, 0.26F,
+				color, color, 3, getDestinationString(lastStation, customDestination, TextSpacingType.SPACE_CJK_FLIPPED, true), true, 0, 2
+		);
+		renderFrontDestination(
+				matrices, font, immediate,
+				isRHT ? -1.26F : 1.26F, -1.73F, sideOffset + 0.42F, 0, 0, 0,
+				0, isRHT ? 90 : -90, 0.4F, 0.26F,
+				color, color, 3, routeNumber, false, 0, 2
+		);
+		renderFrontDestination(
+				matrices, font, immediate,
+				isRHT ? -1.05F : 1.05F, -1.89F, sideOffset, 0, 0, 0,
+				0, isRHT ? -90 : 90, 1.2F, 0.08F,
+				color, color, 1, ((routeNumber.isEmpty() ? "" : routeNumber + "|") + getDestinationString(lastStation, customDestination, TextSpacingType.SPACE_CJK, true)).replace("|", "  "), false, 0, 2
+		);
+	}
+
+	@Override
+	protected String defaultDestinationString() {
+		return "不載客|Not in Service";
+	}
+
+	private static DoorAnimationType getDoorAnimationType(int phase) {
 		switch (phase) {
 			case 1:
-				if (opening) {
-					if (value > 0.4) {
-						return smoothEnds(DOOR_MAX - 0.5F, DOOR_MAX, 0.4F, 0.5F, value);
-					} else {
-						return smoothEnds(-DOOR_MAX + 0.5F, DOOR_MAX - 0.5F, -0.4F, 0.4F, value);
-					}
-				} else {
-					if (value > 0.3) {
-						return smoothEnds(1, DOOR_MAX, 0.3F, 0.5F, value);
-					} else if (value > 0.1) {
-						return smoothEnds(3, 1, 0.1F, 0.3F, value);
-					} else {
-						return smoothEnds(-3, 3, -0.1F, 0.1F, value);
-					}
-				}
-			case 2:
-			case 3:
-			case 5:
-				return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
+			case 6:
+				return DoorAnimationType.BOUNCY_2;
 			case 4:
-				if (opening) {
-					return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
-				} else {
-					if (value > 0.2) {
-						return smoothEnds(1, DOOR_MAX, 0.2F, 0.5F, value);
-					} else if (value > 0.1) {
-						return 1;
-					} else {
-						return smoothEnds(0, 1, 0, 0.1F, value);
-					}
-				}
+				return DoorAnimationType.STANDARD_SLOW;
 			default:
-				return 0;
+				return DoorAnimationType.STANDARD;
 		}
 	}
 }

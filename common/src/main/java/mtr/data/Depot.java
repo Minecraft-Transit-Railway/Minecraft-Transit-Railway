@@ -23,12 +23,15 @@ public class Depot extends AreaBase implements IReducedSaveData {
 	public int clientPathGenerationSuccessfulSegments;
 	public long lastDeployedMillis;
 	public boolean useRealTime;
+	public boolean repeatInfinitely;
 	private int deployIndex;
 	private int departureOffset;
+	private boolean isDirty = true;
 
 	public final List<Long> routeIds = new ArrayList<>();
 	public final Map<Long, Map<Long, Float>> platformTimes = new HashMap<>();
 	public final List<Integer> departures = new ArrayList<>();
+	public final List<Integer> tempDepartures = new ArrayList<>();
 
 	private final int[] frequencies = new int[HOURS_IN_DAY];
 	private final Map<Long, TrainServer> deployableSidings = new HashMap<>();
@@ -39,7 +42,6 @@ public class Depot extends AreaBase implements IReducedSaveData {
 	public static final int MILLIS_PER_TICK = 50;
 	public static final int MILLISECONDS_PER_DAY = HOURS_IN_DAY * 60 * 60 * 1000;
 	private static final int TICKS_PER_DAY = HOURS_IN_DAY * TICKS_PER_HOUR;
-	private static final int MAX_DEPLOYED_MILLIS = 3600000;
 	private static final int CONTINUOUS_MOVEMENT_FREQUENCY = 8000;
 
 	private static final String KEY_ROUTE_IDS = "route_ids";
@@ -48,6 +50,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 	private static final String KEY_DEPARTURES = "departures";
 	private static final String KEY_LAST_DEPLOYED = "last_deployed";
 	private static final String KEY_DEPLOY_INDEX = "deploy_index";
+	private static final String KEY_REPEAT_INFINITELY = "repeat_infinitely";
 
 	public Depot(TransportMode transportMode) {
 		super(transportMode);
@@ -75,6 +78,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		messagePackHelper.iterateArrayValue(KEY_DEPARTURES, departure -> departures.add(departure.asIntegerValue().asInt()));
 
 		deployIndex = messagePackHelper.getInt(KEY_DEPLOY_INDEX);
+		repeatInfinitely = messagePackHelper.getBoolean(KEY_REPEAT_INFINITELY);
 		lastDeployedMillis = System.currentTimeMillis() - messagePackHelper.getLong(KEY_LAST_DEPLOYED);
 	}
 
@@ -93,6 +97,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 
 		lastDeployedMillis = System.currentTimeMillis() - compoundTag.getLong(KEY_LAST_DEPLOYED);
 		deployIndex = compoundTag.getInt(KEY_DEPLOY_INDEX);
+		repeatInfinitely = compoundTag.getBoolean(KEY_REPEAT_INFINITELY);
 	}
 
 	public Depot(FriendlyByteBuf packet) {
@@ -116,6 +121,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 
 		lastDeployedMillis = packet.readLong();
 		deployIndex = packet.readInt();
+		repeatInfinitely = packet.readBoolean();
 	}
 
 	@Override
@@ -135,6 +141,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		}
 
 		messagePacker.packString(KEY_USE_REAL_TIME).packBoolean(useRealTime);
+		messagePacker.packString(KEY_REPEAT_INFINITELY).packBoolean(repeatInfinitely);
 
 		messagePacker.packString(KEY_FREQUENCIES).packArrayHeader(HOURS_IN_DAY);
 		for (int i = 0; i < HOURS_IN_DAY; i++) {
@@ -149,7 +156,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 
 	@Override
 	public int messagePackLength() {
-		return super.messagePackLength() + 6;
+		return super.messagePackLength() + 7;
 	}
 
 	@Override
@@ -175,6 +182,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 
 		packet.writeLong(lastDeployedMillis);
 		packet.writeInt(deployIndex);
+		packet.writeBoolean(repeatInfinitely);
 	}
 
 	@Override
@@ -201,9 +209,11 @@ public class Depot extends AreaBase implements IReducedSaveData {
 			for (int i = 0; i < routeIdCount; i++) {
 				routeIds.add(packet.readLong());
 			}
+			repeatInfinitely = packet.readBoolean();
 		} else {
 			super.update(key, packet);
 		}
+		isDirty = true;
 	}
 
 	public int getFrequency(int index) {
@@ -218,6 +228,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		if (index >= 0 && index < frequencies.length) {
 			frequencies[index] = newFrequency;
 		}
+		isDirty = true;
 	}
 
 	public void setData(Consumer<FriendlyByteBuf> sendPacket) {
@@ -238,6 +249,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		departures.forEach(packet::writeInt);
 		packet.writeInt(routeIds.size());
 		routeIds.forEach(packet::writeLong);
+		packet.writeBoolean(repeatInfinitely);
 		sendPacket.accept(packet);
 	}
 
@@ -248,7 +260,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 			final Route route = dataCache.routeIdMap.get(routeId);
 			if (route != null) {
 				route.platformIds.forEach(platformId -> {
-					final Platform platform = dataCache.platformIdMap.get(platformId);
+					final Platform platform = dataCache.platformIdMap.get(platformId.platformId);
 					if (platform != null && (platformsInRoute.isEmpty() || platform.id != platformsInRoute.get(platformsInRoute.size() - 1).id)) {
 						platformsInRoute.add(platform);
 					}
@@ -267,7 +279,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 					if (siding.isTransportMode(transportMode) && inArea(sidingMidPos.getX(), sidingMidPos.getZ())) {
 						final SavedRailBase firstPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(0);
 						final SavedRailBase lastPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(platformsInRoute.size() - 1);
-						final int result = siding.generateRoute(minecraftServer, tempPath, successfulSegmentsMain, rails, firstPlatform, lastPlatform);
+						final int result = siding.generateRoute(minecraftServer, tempPath, successfulSegmentsMain, rails, firstPlatform, lastPlatform, repeatInfinitely);
 						if (result < successfulSegments[0]) {
 							successfulSegments[0] = result;
 						}
@@ -290,8 +302,12 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		deployableSidings.put(sidingId, train);
 	}
 
-	public void deployTrain(RailwayData railwayData, int hour) {
-		if (!deployableSidings.isEmpty() && getMillisUntilDeploy(hour, 1) == 0) {
+	public void deployTrain(RailwayData railwayData, Level world) {
+		if (isDirty) {
+			generateTempDepartures(world);
+		}
+
+		if (!deployableSidings.isEmpty() && getMillisUntilDeploy(1) == 0) {
 			final List<Siding> sidingsInDepot = railwayData.sidings.stream().filter(siding -> {
 				final BlockPos sidingPos = siding.getMidPos();
 				return siding.isTransportMode(transportMode) && inArea(sidingPos.getX(), sidingPos.getZ());
@@ -316,42 +332,57 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		deployableSidings.clear();
 	}
 
-	public int getNextDepartureTicks(int hour) {
+	public int getNextDepartureMillis() {
 		departureOffset++;
-		final int millisUntilDeploy = getMillisUntilDeploy(hour, departureOffset);
-		return millisUntilDeploy >= 0 ? millisUntilDeploy / MILLIS_PER_TICK : -1;
+		final int millisUntilDeploy = getMillisUntilDeploy(departureOffset);
+		return millisUntilDeploy >= 0 ? millisUntilDeploy : -1;
 	}
 
-	public int getMillisUntilDeploy(int hour, int offset) {
-		if (useRealTime && !transportMode.continuousMovement) {
-			final long millis = System.currentTimeMillis() % MILLISECONDS_PER_DAY;
-			for (int i = 0; i < departures.size(); i++) {
-				final long thisDeparture = departures.get(i);
-				final long nextDeparture = wrapTime(departures.get((i + 1) % departures.size()), thisDeparture);
-				final long newMillis = wrapTime(millis, thisDeparture);
-				if (newMillis > thisDeparture && newMillis <= nextDeparture) {
-					if (offset > 1) {
-						if (offset <= departures.size()) {
-							return (int) (wrapTime(departures.get((i + offset) % departures.size()), millis) - millis);
-						}
-					} else {
-						return wrapTime(lastDeployedMillis, newMillis) - MILLISECONDS_PER_DAY >= thisDeparture ? (int) (nextDeparture - newMillis) : 0;
+	public int getMillisUntilDeploy(int offset) {
+		return getMillisUntilDeploy(offset, 0);
+	}
+
+	public int getMillisUntilDeploy(int offset, int currentTimeOffset) {
+		final long millis = (System.currentTimeMillis() + currentTimeOffset) % MILLISECONDS_PER_DAY;
+		for (int i = 0; i < tempDepartures.size(); i++) {
+			final long thisDeparture = tempDepartures.get(i);
+			final long nextDeparture = wrapTime(tempDepartures.get((i + 1) % tempDepartures.size()), thisDeparture);
+			final long newMillis = wrapTime(millis, thisDeparture);
+			if (newMillis > thisDeparture && newMillis <= nextDeparture) {
+				if (offset > 1) {
+					if (offset <= tempDepartures.size()) {
+						return (int) (wrapTime(tempDepartures.get((i + offset) % tempDepartures.size()), millis) - millis);
 					}
-				}
-			}
-		} else {
-			for (int i = hour; i < hour + HOURS_IN_DAY; i++) {
-				final int frequency = transportMode.continuousMovement ? CONTINUOUS_MOVEMENT_FREQUENCY : frequencies[i % HOURS_IN_DAY] > 0 ? TICKS_PER_HOUR * MILLIS_PER_TICK * TRAIN_FREQUENCY_MULTIPLIER / frequencies[i % HOURS_IN_DAY] : 0;
-				if (frequency > 0) {
-					return Math.max(frequency * offset - (int) Math.min(System.currentTimeMillis() - lastDeployedMillis, MAX_DEPLOYED_MILLIS), 0) + (i - hour) * TICKS_PER_HOUR * MILLIS_PER_TICK;
+				} else {
+					return wrapTime(lastDeployedMillis + currentTimeOffset, newMillis) - MILLISECONDS_PER_DAY >= thisDeparture ? (int) (nextDeparture - newMillis) : 0;
 				}
 			}
 		}
 		return -1;
 	}
 
-	public static int getHour(Level world) {
-		return (int) wrapTime(world.getDayTime()) / TICKS_PER_HOUR;
+	public void generateTempDepartures(Level world) {
+		tempDepartures.clear();
+		if (useRealTime && !transportMode.continuousMovement) {
+			tempDepartures.addAll(departures);
+		} else if (world != null) {
+			int millisOffset = 0;
+			while (millisOffset < MILLISECONDS_PER_DAY) {
+				final int tempFrequency = getFrequency(getHour(world, millisOffset));
+				if (tempFrequency == 0 && !transportMode.continuousMovement) {
+					millisOffset = (int) (Math.floor((float) millisOffset / MILLIS_PER_TICK / TICKS_PER_HOUR) + 1) * TICKS_PER_HOUR * MILLIS_PER_TICK;
+				} else {
+					tempDepartures.add((int) ((lastDeployedMillis + millisOffset) % MILLISECONDS_PER_DAY));
+					millisOffset += transportMode.continuousMovement ? CONTINUOUS_MOVEMENT_FREQUENCY : TICKS_PER_HOUR * MILLIS_PER_TICK * TRAIN_FREQUENCY_MULTIPLIER / tempFrequency;
+				}
+			}
+			tempDepartures.sort(Integer::compareTo);
+		}
+		isDirty = false;
+	}
+
+	private static int getHour(Level world, int offsetMillis) {
+		return (int) wrapTime(world.getDayTime() + (float) offsetMillis / MILLIS_PER_TICK) / TICKS_PER_HOUR;
 	}
 
 	private static float wrapTime(float time) {

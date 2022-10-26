@@ -49,6 +49,10 @@ public abstract class UnknownPacketMixin implements IPacket {
 				ClientData.updateTrains(minecraft, packetByteBuf);
 			} else if (PACKET_DELETE_TRAINS.equals(channel)) {
 				ClientData.deleteTrains(minecraft, packetByteBuf);
+			} else if (PACKET_UPDATE_LIFTS.equals(channel)) {
+				ClientData.updateLifts(minecraft, packetByteBuf);
+			} else if (PACKET_DELETE_LIFTS.equals(channel)) {
+				ClientData.deleteLifts(minecraft, packetByteBuf);
 			} else {
 				System.out.println("Unknown custom packed identifier: " + channel);
 			}

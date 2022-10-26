@@ -17,6 +17,7 @@ const DOCUMENT = {
 		document.getElementById("route_info").style.display = "none";
 		document.getElementById("directions").style.display = "none";
 		document.getElementById("settings").style.display = "none";
+		DIRECTIONS.stopRefresh();
 	},
 	onClearSearch: focus => {
 		const searchBox = document.getElementById("search_box");

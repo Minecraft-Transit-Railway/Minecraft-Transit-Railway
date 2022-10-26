@@ -150,6 +150,25 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
+	public static DynamicTexture generateLiftPanel(String text, int textColor) {
+		try {
+			final int width = Math.round(scale * 1.5F);
+			final int height = fontSizeSmall * 2 * text.split("\\|").length;
+			final int[] dimensions = new int[2];
+			final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(text.toUpperCase(Locale.ENGLISH), dimensions, width, height, fontSizeSmall * 2, fontSizeSmall * 2, 0, HorizontalAlignment.CENTER);
+			final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
+			nativeImage.fillRect(0, 0, width, height, 0);
+			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, ARGB_BLACK, textColor, false);
+			clearColor(nativeImage, invertColor(ARGB_BLACK));
+
+			return new DynamicTexture(nativeImage);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
 	public static DynamicTexture generateRouteSquare(int color, String routeName, HorizontalAlignment horizontalAlignment) {
 		try {
 			final int padding = scale / 32;
@@ -272,11 +291,11 @@ public class RouteMapGenerator implements IGui {
 					stationPositions.add(new HashMap<>());
 
 					final Tuple<Route, Integer> routeDetail = routeDetails.get(routeIndex);
-					final List<Long> platformIds = routeDetail.getA().platformIds;
+					final List<Route.RoutePlatform> platformIds = routeDetail.getA().platformIds;
 					final int currentIndex = routeDetail.getB();
 					for (int stationIndex = 0; stationIndex < platformIds.size(); stationIndex++) {
 						if (stationIndex != currentIndex) {
-							final long stationId = getStationId(platformIds.get(stationIndex));
+							final long stationId = getStationId(platformIds.get(stationIndex).platformId);
 							if (stationIndex < currentIndex) {
 								stationsIdsBefore.get(stationsIdsBefore.size() - 1).add(0, stationId);
 							} else {
@@ -354,7 +373,7 @@ public class RouteMapGenerator implements IGui {
 							drawLine(nativeImage, stationPosition, routeStationPositions.get(stationIndex + 1 - currentIndex), widthScale, heightScale, xOffset, yOffset, stationIndex < currentIndex ? ARGB_LIGHT_GRAY : ARGB_BLACK | route.color);
 						}
 
-						final long stationId = getStationId(route.platformIds.get(stationIndex));
+						final long stationId = getStationId(route.platformIds.get(stationIndex).platformId);
 						if (!stationPositionsGrouped.containsKey(stationId)) {
 							stationPositionsGrouped.put(stationId, new HashSet<>());
 						}
@@ -496,8 +515,8 @@ public class RouteMapGenerator implements IGui {
 	private static List<Integer> getRouteStream(long platformId, BiConsumer<Route, Integer> nonTerminatingCallback) {
 		final List<Integer> colors = new ArrayList<>();
 		final List<Integer> terminatingColors = new ArrayList<>();
-		ClientData.ROUTES.stream().filter(route -> route.platformIds.contains(platformId) && !route.isHidden).sorted((a, b) -> a.color == b.color ? a.compareTo(b) : a.color - b.color).forEach(route -> {
-			final int currentStationIndex = route.platformIds.indexOf(platformId);
+		ClientData.ROUTES.stream().filter(route -> route.containsPlatformId(platformId) && !route.isHidden).sorted((a, b) -> a.color == b.color ? a.compareTo(b) : a.color - b.color).forEach(route -> {
+			final int currentStationIndex = route.getPlatformIdIndex(platformId);
 			if (currentStationIndex < route.platformIds.size() - 1) {
 				nonTerminatingCallback.accept(route, currentStationIndex);
 				if (!colors.contains(route.color)) {

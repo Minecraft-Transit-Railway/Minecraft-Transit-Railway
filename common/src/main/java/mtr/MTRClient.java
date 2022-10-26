@@ -7,10 +7,11 @@ import mtr.block.BlockTactileMap;
 import mtr.client.ClientData;
 import mtr.client.Config;
 import mtr.client.IDrawing;
-import mtr.data.*;
+import mtr.data.IGui;
+import mtr.data.RailwayData;
+import mtr.data.Station;
 import mtr.item.ItemBlockClickingBase;
 import mtr.packet.IPacket;
-import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.*;
 import mtr.servlet.Webserver;
 import mtr.sound.LoopingSoundInstance;
@@ -20,11 +21,13 @@ import net.minecraft.world.item.Item;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Locale;
 
 public class MTRClient implements IPacket {
 
 	private static boolean isReplayMod;
 	private static boolean isVivecraft;
+	private static boolean isPehkui;
 	private static float gameTick = 0;
 	private static float lastPlayedTrainSoundsTick = 0;
 
@@ -288,45 +291,19 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockColors(Blocks.STATION_NAME_TALL_WALL.get());
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_POLE.get());
 
-		RegistryClient.registerNetworkReceiver(PACKET_VERSION_CHECK, packet -> PacketTrainDataGuiClient.openVersionCheckS2C(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_CHUNK_S2C, packet -> PacketTrainDataGuiClient.receiveChunk(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_OPEN_DASHBOARD_SCREEN, packet -> PacketTrainDataGuiClient.openDashboardScreenS2C(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_OPEN_PIDS_CONFIG_SCREEN, packet -> PacketTrainDataGuiClient.openPIDSConfigScreenS2C(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_OPEN_ARRIVAL_PROJECTOR_CONFIG_SCREEN, packet -> PacketTrainDataGuiClient.openArrivalProjectorConfigScreenS2C(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_OPEN_RAILWAY_SIGN_SCREEN, packet -> PacketTrainDataGuiClient.openRailwaySignScreenS2C(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_OPEN_TICKET_MACHINE_SCREEN, packet -> PacketTrainDataGuiClient.openTicketMachineScreenS2C(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_OPEN_TRAIN_SENSOR_SCREEN, packet -> PacketTrainDataGuiClient.openTrainSensorScreenS2C(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_OPEN_RESOURCE_PACK_CREATOR_SCREEN, packet -> PacketTrainDataGuiClient.openResourcePackCreatorScreen(Minecraft.getInstance()));
-		RegistryClient.registerNetworkReceiver(PACKET_ANNOUNCE, packet -> PacketTrainDataGuiClient.announceS2C(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_GENERATE_PATH, packet -> PacketTrainDataGuiClient.generatePathS2C(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_CREATE_RAIL, packet -> PacketTrainDataGuiClient.createRailS2C(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_CREATE_SIGNAL, packet -> PacketTrainDataGuiClient.createSignalS2C(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_REMOVE_NODE, packet -> PacketTrainDataGuiClient.removeNodeS2C(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_REMOVE_RAIL, packet -> PacketTrainDataGuiClient.removeRailConnectionS2C(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_REMOVE_SIGNALS, packet -> PacketTrainDataGuiClient.removeSignalsS2C(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_STATION, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.STATIONS, ClientData.DATA_CACHE.stationIdMap, (id, transportMode) -> new Station(id), false));
-		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_PLATFORM, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.PLATFORMS, ClientData.DATA_CACHE.platformIdMap, null, false));
-		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_SIDING, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.SIDINGS, ClientData.DATA_CACHE.sidingIdMap, null, false));
-		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_ROUTE, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.ROUTES, ClientData.DATA_CACHE.routeIdMap, Route::new, false));
-		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_DEPOT, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.DEPOTS, ClientData.DATA_CACHE.depotIdMap, Depot::new, false));
-		RegistryClient.registerNetworkReceiver(PACKET_DELETE_STATION, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.STATIONS, ClientData.DATA_CACHE.stationIdMap, (id, transportMode) -> new Station(id), true));
-		RegistryClient.registerNetworkReceiver(PACKET_DELETE_PLATFORM, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.PLATFORMS, ClientData.DATA_CACHE.platformIdMap, null, true));
-		RegistryClient.registerNetworkReceiver(PACKET_DELETE_SIDING, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.SIDINGS, ClientData.DATA_CACHE.sidingIdMap, null, true));
-		RegistryClient.registerNetworkReceiver(PACKET_DELETE_ROUTE, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.ROUTES, ClientData.DATA_CACHE.routeIdMap, Route::new, true));
-		RegistryClient.registerNetworkReceiver(PACKET_DELETE_DEPOT, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.DEPOTS, ClientData.DATA_CACHE.depotIdMap, Depot::new, true));
-		RegistryClient.registerNetworkReceiver(PACKET_WRITE_RAILS, packet -> ClientData.writeRails(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_TRAINS, packet -> ClientData.updateTrains(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_DELETE_TRAINS, packet -> ClientData.deleteTrains(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_TRAIN_PASSENGERS, packet -> ClientData.updateTrainPassengers(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_TRAIN_PASSENGER_POSITION, packet -> ClientData.updateTrainPassengerPosition(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_RAIL_ACTIONS, packet -> ClientData.updateRailActions(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_SCHEDULE, packet -> ClientData.updateSchedule(Minecraft.getInstance(), packet));
-
 		MTRClientLifts.init();
 
 		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_ACCELERATE);
 		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_BRAKE);
 		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_TOGGLE_DOORS);
+		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_1_NEGATIVE);
+		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_2_NEGATIVE);
+		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_3_NEGATIVE);
+		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_1_POSITIVE);
+		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_2_POSITIVE);
+		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_3_POSITIVE);
+		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_ROTATE_CATEGORY_NEGATIVE);
+		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_ROTATE_CATEGORY_POSITIVE);
 
 		BlockTactileMap.TileEntityTactileMap.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
 		BlockTactileMap.TileEntityTactileMap.onUse = pos -> {
@@ -341,16 +318,23 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerPlayerJoinEvent(player -> {
 			Config.refreshProperties();
 
-			isReplayMod = player.getClass().toGenericString().toLowerCase().contains("replaymod");
+			isReplayMod = player.getClass().toGenericString().toLowerCase(Locale.ENGLISH).contains("replaymod");
 			try {
 				Class.forName("org.vivecraft.main.VivecraftMain");
 				isVivecraft = true;
 			} catch (Exception ignored) {
 				isVivecraft = false;
 			}
+			try {
+				Class.forName("virtuoel.pehkui.Pehkui");
+				isPehkui = true;
+			} catch (Exception ignored) {
+				isPehkui = false;
+			}
 
 			System.out.println(isReplayMod ? "Running in Replay Mod mode" : "Not running in Replay Mod mode");
 			System.out.println(isVivecraft ? "Vivecraft detected" : "Vivecraft not detected");
+			System.out.println(isPehkui ? "Pehkui detected" : "Pehkui not detected");
 
 			final Minecraft minecraft = Minecraft.getInstance();
 			if (!minecraft.hasSingleplayerServer()) {
@@ -370,6 +354,10 @@ public class MTRClient implements IPacket {
 
 	public static boolean isVivecraft() {
 		return isVivecraft;
+	}
+
+	public static boolean isPehkui() {
+		return isPehkui;
 	}
 
 	public static float getGameTick() {
