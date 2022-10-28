@@ -354,7 +354,7 @@ const addStation = (key, station) => {
 				}
 			}
 		},
-		"z": selected ? 4 : 2,
+		"z": selected ? 8 : 4,
 	});
 	elements.forEach(element => {
 		element.on("mouseover", () => group.set("shadow", `${UTILITIES.convertColor(UTILITIES.getColorStyle("--textColor"))} 0 0 8px`));
@@ -372,10 +372,13 @@ const addStation = (key, station) => {
 }
 const addLine = (key, line) => {
 	const {color, segments, selected, density, id} = line;
+	const isArrows = key.endsWith("_arrows1") || key.endsWith("_arrows2");
 
 	const grayColor = UTILITIES.getColorStyle("--textColorDisabled");
 	let newColor;
-	if (SETTINGS.densityView === 1) {
+	if (isArrows) {
+		newColor = UTILITIES.getColorStyle("--backgroundColor");
+	} else if (SETTINGS.densityView === 1) {
 		const grayByte = (grayColor & 0xFF) * (1 - density);
 		const r = Math.floor(((color >> 16) & 0xFF) * density + grayByte);
 		const g = Math.floor(((color >> 8) & 0xFF) * density + grayByte);
@@ -393,8 +396,8 @@ const addLine = (key, line) => {
 
 	const polyline = new fabric.Polyline([], {
 		"fill": null,
-		"stroke": `${UTILITIES.convertColor(selected ? newColor : grayColor)}${UTILITIES.testMode ? "50" : ""}`,
-		"strokeWidth": SETTINGS.size * 6,
+		"stroke": `${UTILITIES.convertColor(selected || isArrows ? newColor : grayColor)}${UTILITIES.testMode ? "50" : ""}`,
+		"strokeWidth": SETTINGS.size * (isArrows ? 2 : 6),
 		"strokeLineCap": "round",
 		"strokeLineJoin": "round",
 		"objectCaching": false,
@@ -409,8 +412,56 @@ const addLine = (key, line) => {
 			const point2X = point2["x"] * zoom;
 			const point2Y = point2["y"] * zoom;
 			const newSegments = [];
-			UTILITIES.connectLine(point1X, point1Y, point1["direction"], point1["offsetIndex"], point1["routeCount"], point2X, point2Y, point2["direction"], point2["offsetIndex"], point2["routeCount"], SETTINGS.size * 6, newSegments);
-			polyline.points = newSegments;
+			const reversed = UTILITIES.connectLine(point1X, point1Y, point1["direction"], point1["offsetIndex"], point1["routeCount"], point2X, point2Y, point2["direction"], point2["offsetIndex"], point2["routeCount"], SETTINGS.size * 6, newSegments);
+			if (isArrows) {
+				let maxLength1 = 0;
+				let maxLength2 = 0;
+				let index1 = 0;
+				let index2 = 0;
+				for (let i = 0; i < newSegments.length - 1; i++) {
+					const x1 = newSegments[i]["x"];
+					const y1 = newSegments[i]["y"];
+					const x2 = newSegments[i + 1]["x"];
+					const y2 = newSegments[i + 1]["y"];
+					const length = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+					if (length > maxLength1) {
+						maxLength2 = maxLength1;
+						maxLength1 = length;
+						index2 = index1;
+						index1 = i;
+					} else if (length > maxLength2) {
+						maxLength2 = length;
+						index2 = i;
+					}
+				}
+				const index = key.endsWith("_arrows1") ? index1 : index2;
+				const x1 = newSegments[index]["x"];
+				const y1 = newSegments[index]["y"];
+				const x2 = newSegments[index + 1]["x"];
+				const y2 = newSegments[index + 1]["y"];
+				const signX = Math.sign(x2 - x1);
+				const signY = Math.sign(y2 - y1);
+				const midX = (x1 + x2) / 2;
+				const midY = (y1 + y2) / 2;
+				const halfWidth = SETTINGS.size * 2;
+				const directionSign = reversed ? -1 : 1;
+				polyline.points = [];
+				if (Math.abs(x2 - x1) === 0) {
+					polyline.points.push({"x": midX - halfWidth, "y": midY - signY * halfWidth * directionSign});
+					polyline.points.push({"x": midX, "y": midY});
+					polyline.points.push({"x": midX + halfWidth, "y": midY - signY * halfWidth * directionSign});
+				} else if (Math.abs(y2 - y1) === 0) {
+					polyline.points.push({"x": midX - signX * halfWidth * directionSign, "y": midY - halfWidth});
+					polyline.points.push({"x": midX, "y": midY});
+					polyline.points.push({"x": midX - signX * halfWidth * directionSign, "y": midY + halfWidth});
+				} else {
+					polyline.points.push({"x": midX - signX * halfWidth * directionSign * Math.SQRT2, "y": midY});
+					polyline.points.push({"x": midX, "y": midY});
+					polyline.points.push({"x": midX, "y": midY - signY * halfWidth * directionSign * Math.SQRT2});
+				}
+			} else {
+				polyline.points = newSegments;
+			}
 			return inBounds(point1X, point1Y) || inBounds(point2X, point2Y) || inWindow(point1X, point1Y, point2X, point2Y);
 		},
 		"checkVisibility": () => {
@@ -429,8 +480,9 @@ const addLine = (key, line) => {
 			}
 			// polyline["stroke"] = UTILITIES.convertColor(hoveredLines.includes(id) ? UTILITIES.getColorStyle("--textColorDisabled") : selected ? newColor : grayColor);
 		},
-		"z": selected ? 3 : 1,
+		"z": (selected ? 6 : 2) + (isArrows ? 1 : 0),
 	});
+
 	CANVAS.remove(OBJECT_CACHE[key]);
 	OBJECT_CACHE[key] = polyline;
 	polyline.checkVisibility();
@@ -528,9 +580,7 @@ const update = () => {
 			targetY = undefined;
 		}
 	}
-	if (SETTINGS.selectedRoutes.length > 0 || SETTINGS.selectedDirectionsStations.length > 0) {
-		CANVAS._objects.sort((a, b) => Math.sign(a["z"] - b["z"]));
-	}
+	CANVAS._objects.sort((a, b) => Math.sign(a["z"] - b["z"]));
 	CANVAS.renderAll();
 };
 update();

@@ -155,6 +155,7 @@ const DATA = {
 		}
 
 		const lineQueue = {};
+		const lineDirections = {};
 		let maxDensity = 1;
 		routes.forEach(route => {
 			const routeStations = route["stations"];
@@ -166,7 +167,9 @@ const DATA = {
 					const stopId1 = routeStations[i - 1].split("_")[0];
 
 					if (stopId1 !== stopId2 && routesToShow.includes(routeId)) {
-						const key = routeId + [stopId1, stopId2].sort().join(" ");
+						const sortedKeyPart = [stopId1, stopId2].sort();
+						const isForwards = sortedKeyPart[0] === stopId1;
+						const key = routeId + sortedKeyPart.join(" ");
 						const density = route["densities"][i - 1];
 
 						if (key in lineQueue) {
@@ -181,6 +184,12 @@ const DATA = {
 								"density": density,
 							};
 							maxDensity = Math.max(maxDensity, density);
+						}
+
+						if (key in lineDirections) {
+							lineDirections[key][isForwards ? 0 : 1] = true;
+						} else {
+							lineDirections[key] = [isForwards, !isForwards];
 						}
 					}
 
@@ -198,6 +207,13 @@ const DATA = {
 					tempStations[stopId2]["routeIds"].push(routeId);
 					tempStations[stopId2]["types"].push(route["type"]);
 				}
+			}
+		});
+
+		Object.keys(lineDirections).forEach(key => {
+			if (lineDirections[key][0] !== lineDirections[key][1] && key in lineQueue) {
+				lineQueue[key + "_arrows1"] = lineQueue[key];
+				lineQueue[key + "_arrows2"] = lineQueue[key];
 			}
 		});
 
