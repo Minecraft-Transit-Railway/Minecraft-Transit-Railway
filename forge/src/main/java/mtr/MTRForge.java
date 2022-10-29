@@ -38,11 +38,7 @@ public class MTRForge {
 	private static final DeferredRegisterHolder<SoundEvent> SOUND_EVENTS = new DeferredRegisterHolder<>(MTR.MOD_ID, Registry.SOUND_EVENT_REGISTRY);
 
 	static {
-		if (Keys.LIFTS_ONLY) {
-			MTRLifts.init(MTRForge::registerItem, MTRForge::registerBlock, MTRForge::registerBlock, MTRForge::registerBlockEntityType, MTRForge::registerEntityType);
-		} else {
-			MTR.init(MTRForge::registerItem, MTRForge::registerBlock, MTRForge::registerBlock, MTRForge::registerEnchantedBlock, MTRForge::registerBlockEntityType, MTRForge::registerEntityType, MTRForge::registerSoundEvent);
-		}
+		MTR.init(MTRForge::registerItem, MTRForge::registerBlock, MTRForge::registerBlock, MTRForge::registerEnchantedBlock, MTRForge::registerBlockEntityType, MTRForge::registerEntityType, MTRForge::registerSoundEvent);
 	}
 
 	public MTRForge() {
@@ -58,9 +54,7 @@ public class MTRForge {
 		eventBus.register(MTRModEventBus.class);
 		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
 			ForgeUtilities.renderTickAction(MTRClient::incrementGameTick);
-			if (!Keys.LIFTS_ONLY) {
-				ForgeUtilities.registerEntityRenderer(EntityTypes.SEAT::get, RenderTrains::new);
-			}
+			ForgeUtilities.registerEntityRenderer(EntityTypes.SEAT::get, RenderTrains::new);
 			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_2_2.registryObject::get, RenderLift::new);
 			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_2_2_DOUBLE_SIDED.registryObject::get, RenderLift::new);
 			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_3_2.registryObject::get, RenderLift::new);
@@ -111,11 +105,7 @@ public class MTRForge {
 
 		@SubscribeEvent
 		public static void onClientSetupEvent(FMLClientSetupEvent event) {
-			if (Keys.LIFTS_ONLY) {
-				MTRClientLifts.init();
-			} else {
-				MTRClient.init();
-			}
+			MTRClient.init();
 			RegistryUtilitiesClient.registerTextureStitchEvent(textureAtlas -> {
 				if (textureAtlas.location().getPath().equals("textures/atlas/blocks.png")) {
 					CustomResources.reload(Minecraft.getInstance().getResourceManager());

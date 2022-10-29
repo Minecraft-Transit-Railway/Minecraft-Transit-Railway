@@ -18,11 +18,7 @@ public class MTRFabric implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		if (Keys.LIFTS_ONLY) {
-			MTRLifts.init(MTRFabric::registerItem, MTRFabric::registerBlock, MTRFabric::registerBlock, MTRFabric::registerBlockEntityType, MTRFabric::registerEntityType);
-		} else {
-			MTR.init(MTRFabric::registerItem, MTRFabric::registerBlock, MTRFabric::registerBlock, MTRFabric::registerEnchantedBlock, MTRFabric::registerBlockEntityType, MTRFabric::registerEntityType, MTRFabric::registerSoundEvent);
-		}
+		MTR.init(MTRFabric::registerItem, MTRFabric::registerBlock, MTRFabric::registerBlock, MTRFabric::registerEnchantedBlock, MTRFabric::registerBlockEntityType, MTRFabric::registerEntityType, MTRFabric::registerSoundEvent);
 	}
 
 	private static void registerItem(String path, RegistryObject<Item> item) {
