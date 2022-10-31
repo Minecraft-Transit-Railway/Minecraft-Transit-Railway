@@ -41,6 +41,7 @@ public abstract class EntityLift extends EntityBase {
 			scanTrack();
 			if (removeCoolDown > 200) {
 				System.out.println(liftType + " lift at " + blockPosition() + " not converted");
+
 				kill();
 			} else {
 				removeCoolDown++;
