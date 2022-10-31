@@ -7,11 +7,10 @@ import mtr.block.BlockTactileMap;
 import mtr.client.ClientData;
 import mtr.client.Config;
 import mtr.client.IDrawing;
-import mtr.data.IGui;
-import mtr.data.RailwayData;
-import mtr.data.Station;
+import mtr.data.*;
 import mtr.item.ItemBlockClickingBase;
 import mtr.packet.IPacket;
+import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.*;
 import mtr.servlet.Webserver;
 import mtr.sound.LoopingSoundInstance;
@@ -219,101 +218,77 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_BLACK_TILE_ENTITY.get(), dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
 
 		RegistryClient.registerEntityRenderer(EntityTypes.SEAT.get(), RenderTrains::new);
+		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_2_2.registryObject.get(), RenderLift::new);
+		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_2_2_DOUBLE_SIDED.registryObject.get(), RenderLift::new);
+		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_3_2.registryObject.get(), RenderLift::new);
+		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_3_2_DOUBLE_SIDED.registryObject.get(), RenderLift::new);
+		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_3_3.registryObject.get(), RenderLift::new);
+		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_3_3_DOUBLE_SIDED.registryObject.get(), RenderLift::new);
+		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_4_3.registryObject.get(), RenderLift::new);
+		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_4_3_DOUBLE_SIDED.registryObject.get(), RenderLift::new);
+		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_4_4.registryObject.get(), RenderLift::new);
+		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_4_4_DOUBLE_SIDED.registryObject.get(), RenderLift::new);
 
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_ANDESITE.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_BEDROCK.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_BIRCH_WOOD.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_BONE_BLOCK.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CHISELED_QUARTZ_BLOCK.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CHISELED_STONE_BRICKS.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CLAY.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_COAL_ORE.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_COBBLESTONE.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CONCRETE.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CONCRETE_POWDER.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CRACKED_STONE_BRICKS.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_DARK_PRISMARINE.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_DIORITE.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_GRAVEL.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_IRON_BLOCK.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_METAL.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_PLANKS.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_POLISHED_ANDESITE.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_POLISHED_DIORITE.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_PURPUR_BLOCK.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_PURPUR_PILLAR.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_QUARTZ_BLOCK.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_QUARTZ_BRICKS.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_QUARTZ_PILLAR.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_SMOOTH_QUARTZ.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_SMOOTH_STONE.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_SNOW_BLOCK.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_STAINED_GLASS.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_STONE.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_STONE_BRICKS.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_WOOL.get());
+		RegistryClient.registerNetworkReceiver(PACKET_VERSION_CHECK, packet -> PacketTrainDataGuiClient.openVersionCheckS2C(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_CHUNK_S2C, packet -> PacketTrainDataGuiClient.receiveChunk(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_OPEN_DASHBOARD_SCREEN, packet -> PacketTrainDataGuiClient.openDashboardScreenS2C(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_OPEN_PIDS_CONFIG_SCREEN, packet -> PacketTrainDataGuiClient.openPIDSConfigScreenS2C(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_OPEN_ARRIVAL_PROJECTOR_CONFIG_SCREEN, packet -> PacketTrainDataGuiClient.openArrivalProjectorConfigScreenS2C(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_OPEN_RAILWAY_SIGN_SCREEN, packet -> PacketTrainDataGuiClient.openRailwaySignScreenS2C(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_OPEN_TICKET_MACHINE_SCREEN, packet -> PacketTrainDataGuiClient.openTicketMachineScreenS2C(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_OPEN_TRAIN_SENSOR_SCREEN, packet -> PacketTrainDataGuiClient.openTrainSensorScreenS2C(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_OPEN_RESOURCE_PACK_CREATOR_SCREEN, packet -> PacketTrainDataGuiClient.openResourcePackCreatorScreen(Minecraft.getInstance()));
+		RegistryClient.registerNetworkReceiver(PACKET_ANNOUNCE, packet -> PacketTrainDataGuiClient.announceS2C(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_GENERATE_PATH, packet -> PacketTrainDataGuiClient.generatePathS2C(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_CREATE_RAIL, packet -> PacketTrainDataGuiClient.createRailS2C(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_CREATE_SIGNAL, packet -> PacketTrainDataGuiClient.createSignalS2C(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_REMOVE_NODE, packet -> PacketTrainDataGuiClient.removeNodeS2C(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_REMOVE_RAIL, packet -> PacketTrainDataGuiClient.removeRailConnectionS2C(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_REMOVE_SIGNALS, packet -> PacketTrainDataGuiClient.removeSignalsS2C(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_REMOVE_LIFT_FLOOR_TRACK, packet -> PacketTrainDataGuiClient.removeLiftFloorTrackS2C(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_STATION, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.STATIONS, ClientData.DATA_CACHE.stationIdMap, (id, transportMode) -> new Station(id), false));
+		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_PLATFORM, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.PLATFORMS, ClientData.DATA_CACHE.platformIdMap, null, false));
+		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_SIDING, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.SIDINGS, ClientData.DATA_CACHE.sidingIdMap, null, false));
+		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_ROUTE, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.ROUTES, ClientData.DATA_CACHE.routeIdMap, Route::new, false));
+		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_DEPOT, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.DEPOTS, ClientData.DATA_CACHE.depotIdMap, Depot::new, false));
+		RegistryClient.registerNetworkReceiver(PACKET_DELETE_STATION, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.STATIONS, ClientData.DATA_CACHE.stationIdMap, (id, transportMode) -> new Station(id), true));
+		RegistryClient.registerNetworkReceiver(PACKET_DELETE_PLATFORM, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.PLATFORMS, ClientData.DATA_CACHE.platformIdMap, null, true));
+		RegistryClient.registerNetworkReceiver(PACKET_DELETE_SIDING, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.SIDINGS, ClientData.DATA_CACHE.sidingIdMap, null, true));
+		RegistryClient.registerNetworkReceiver(PACKET_DELETE_ROUTE, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.ROUTES, ClientData.DATA_CACHE.routeIdMap, Route::new, true));
+		RegistryClient.registerNetworkReceiver(PACKET_DELETE_DEPOT, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.DEPOTS, ClientData.DATA_CACHE.depotIdMap, Depot::new, true));
+		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_LIFT, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.LIFTS, ClientData.DATA_CACHE.liftsClientIdMap, null, false));
+		RegistryClient.registerNetworkReceiver(PACKET_WRITE_RAILS, packet -> ClientData.writeRails(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_TRAINS, packet -> ClientData.updateTrains(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_LIFTS, packet -> ClientData.updateLifts(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_DELETE_TRAINS, packet -> ClientData.deleteTrains(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_DELETE_LIFTS, packet -> ClientData.deleteLifts(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_TRAIN_PASSENGERS, packet -> ClientData.updateTrainPassengers(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_LIFT_PASSENGERS, packet -> ClientData.updateLiftPassengers(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_TRAIN_PASSENGER_POSITION, packet -> ClientData.updateTrainPassengerPosition(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_LIFT_PASSENGER_POSITION, packet -> ClientData.updateLiftPassengerPosition(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_RAIL_ACTIONS, packet -> ClientData.updateRailActions(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_SCHEDULE, packet -> ClientData.updateSchedule(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_OPEN_LIFT_TRACK_FLOOR_SCREEN, packet -> PacketTrainDataGuiClient.openLiftTrackFloorS2C(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_OPEN_LIFT_CUSTOMIZATION_SCREEN, packet -> PacketTrainDataGuiClient.openLiftCustomizationS2C(Minecraft.getInstance(), packet));
 
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_ANDESITE_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_BEDROCK_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_BIRCH_WOOD_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_BONE_BLOCK_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CHISELED_QUARTZ_BLOCK_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CHISELED_STONE_BRICKS_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CLAY_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_COAL_ORE_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_COBBLESTONE_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CONCRETE_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CONCRETE_POWDER_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CRACKED_STONE_BRICKS_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_DARK_PRISMARINE_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_DIORITE_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_GRAVEL_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_IRON_BLOCK_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_METAL_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_PLANKS_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_POLISHED_ANDESITE_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_POLISHED_DIORITE_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_PURPUR_BLOCK_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_PURPUR_PILLAR_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_QUARTZ_BLOCK_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_QUARTZ_BRICKS_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_QUARTZ_PILLAR_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_SMOOTH_QUARTZ_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_SMOOTH_STONE_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_SNOW_BLOCK_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_STAINED_GLASS_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_STONE_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_STONE_BRICKS_SLAB.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_WOOL_SLAB.get());
+		RegistryClient.registerKeyBinding(KeyMappings.LIFT_MENU);
 
-		RegistryClient.registerBlockColors(Blocks.STATION_NAME_TALL_BLOCK.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_NAME_TALL_WALL.get());
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_POLE.get());
+		if (!Keys.LIFTS_ONLY) {
+			RegistryClient.registerKeyBinding(KeyMappings.TRAIN_ACCELERATE);
+			RegistryClient.registerKeyBinding(KeyMappings.TRAIN_BRAKE);
+			RegistryClient.registerKeyBinding(KeyMappings.TRAIN_TOGGLE_DOORS);
+			RegistryClient.registerKeyBinding(KeyMappings.DEBUG_1_NEGATIVE);
+			RegistryClient.registerKeyBinding(KeyMappings.DEBUG_2_NEGATIVE);
+			RegistryClient.registerKeyBinding(KeyMappings.DEBUG_3_NEGATIVE);
+			RegistryClient.registerKeyBinding(KeyMappings.DEBUG_1_POSITIVE);
+			RegistryClient.registerKeyBinding(KeyMappings.DEBUG_2_POSITIVE);
+			RegistryClient.registerKeyBinding(KeyMappings.DEBUG_3_POSITIVE);
+			RegistryClient.registerKeyBinding(KeyMappings.DEBUG_ROTATE_CATEGORY_NEGATIVE);
+			RegistryClient.registerKeyBinding(KeyMappings.DEBUG_ROTATE_CATEGORY_POSITIVE);
+		}
 
-		MTRClientLifts.init();
-
-		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_ACCELERATE);
-		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_BRAKE);
-		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_TOGGLE_DOORS);
-		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_1_NEGATIVE);
-		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_2_NEGATIVE);
-		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_3_NEGATIVE);
-		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_1_POSITIVE);
-		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_2_POSITIVE);
-		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_3_POSITIVE);
-		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_ROTATE_CATEGORY_NEGATIVE);
-		RegistryClient.registerKeyBinding(KeyMappings.DEBUG_ROTATE_CATEGORY_POSITIVE);
-
-		BlockTactileMap.TileEntityTactileMap.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
-		BlockTactileMap.TileEntityTactileMap.onUse = pos -> {
-			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
-			if (station != null) {
-				IDrawing.narrateOrAnnounce(IGui.insertTranslation("gui.mtr.welcome_station_cjk", "gui.mtr.welcome_station", 1, IGui.textOrUntitled(station.name)));
-			}
-		};
-
-		Webserver.init();
+		Config.getPatreonList();
+		Config.refreshProperties();
 
 		RegistryClient.registerPlayerJoinEvent(player -> {
 			Config.refreshProperties();
@@ -336,16 +311,30 @@ public class MTRClient implements IPacket {
 			System.out.println(isVivecraft ? "Vivecraft detected" : "Vivecraft not detected");
 			System.out.println(isPehkui ? "Pehkui detected" : "Pehkui not detected");
 
-			final Minecraft minecraft = Minecraft.getInstance();
-			if (!minecraft.hasSingleplayerServer()) {
-				Webserver.callback = minecraft::execute;
-				Webserver.getWorlds = () -> minecraft.level == null ? new ArrayList<>() : Collections.singletonList(minecraft.level);
-				Webserver.getRoutes = railwayData -> ClientData.ROUTES;
-				Webserver.getDataCache = railwayData -> ClientData.DATA_CACHE;
-				Webserver.start(Minecraft.getInstance().gameDirectory.toPath().resolve("config").resolve("mtr_webserver_port.txt"));
+			if (!Keys.LIFTS_ONLY) {
+				final Minecraft minecraft = Minecraft.getInstance();
+				if (!minecraft.hasSingleplayerServer()) {
+					Webserver.callback = minecraft::execute;
+					Webserver.getWorlds = () -> minecraft.level == null ? new ArrayList<>() : Collections.singletonList(minecraft.level);
+					Webserver.getRoutes = railwayData -> ClientData.ROUTES;
+					Webserver.getDataCache = railwayData -> ClientData.DATA_CACHE;
+					Webserver.start(Minecraft.getInstance().gameDirectory.toPath().resolve("config").resolve("mtr_webserver_port.txt"));
+				}
 			}
 		});
-		Registry.registerPlayerQuitEvent(player -> Webserver.stop());
+
+		if (!Keys.LIFTS_ONLY) {
+			Webserver.init();
+			Registry.registerPlayerQuitEvent(player -> Webserver.stop());
+
+			BlockTactileMap.TileEntityTactileMap.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
+			BlockTactileMap.TileEntityTactileMap.onUse = pos -> {
+				final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
+				if (station != null) {
+					IDrawing.narrateOrAnnounce(IGui.insertTranslation("gui.mtr.welcome_station_cjk", "gui.mtr.welcome_station", 1, IGui.textOrUntitled(station.name)));
+				}
+			};
+		}
 	}
 
 	public static boolean isReplayMod() {
@@ -389,7 +378,7 @@ public class MTRClient implements IPacket {
 	}
 
 	public static float getLastFrameDuration() {
-		return MTRClient.isReplayMod ? 20F / 60 : Minecraft.getInstance().getDeltaFrameTime();
+		return isReplayMod ? 20F / 60 : Minecraft.getInstance().getDeltaFrameTime();
 	}
 
 	public static boolean canPlaySound() {

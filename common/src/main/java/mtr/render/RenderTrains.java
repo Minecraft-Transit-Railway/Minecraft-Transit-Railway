@@ -129,12 +129,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		TrainRendererBase.setupStaticInfo(matrices, vertexConsumers, entity, tickDelta);
 
 		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, newLastFrameDuration, (speed, stopIndex, routeIds) -> {
-			final float shiftHoldingTicks = ClientData.getShiftHoldingTicks();
-			if (shiftHoldingTicks > 0) {
-				final int progressFilled = Mth.clamp((int) (shiftHoldingTicks * DISMOUNT_PROGRESS_BAR_LENGTH / RailwayDataCoolDownModule.SHIFT_ACTIVATE_TICKS), 0, DISMOUNT_PROGRESS_BAR_LENGTH);
-				final String progressBar = String.format("§6%s§7%s", StringUtils.repeat('|', progressFilled), StringUtils.repeat('|', DISMOUNT_PROGRESS_BAR_LENGTH - progressFilled));
-				player.displayClientMessage(Text.translatable("gui.mtr.dismount_hold", client.options.keyShift.getTranslatedKeyMessage(), progressBar), true);
-			} else if ((!train.isCurrentlyManual() || !Train.isHoldingKey(player)) && !(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+			if (showShiftProgressBar() && (!train.isCurrentlyManual() || !Train.isHoldingKey(player)) && !(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 				final Component text;
 				switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {
 					default:
@@ -330,6 +325,21 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 						Block.byItem(item) instanceof BlockSignalSemaphoreBase ||
 						Block.byItem(item) instanceof BlockPlatform
 		);
+	}
+
+	public static boolean showShiftProgressBar() {
+		final Minecraft client = Minecraft.getInstance();
+		final LocalPlayer player = client.player;
+		final float shiftHoldingTicks = ClientData.getShiftHoldingTicks();
+
+		if (shiftHoldingTicks > 0 && player != null) {
+			final int progressFilled = Mth.clamp((int) (shiftHoldingTicks * DISMOUNT_PROGRESS_BAR_LENGTH / RailwayDataCoolDownModule.SHIFT_ACTIVATE_TICKS), 0, DISMOUNT_PROGRESS_BAR_LENGTH);
+			final String progressBar = String.format("§6%s§7%s", StringUtils.repeat('|', progressFilled), StringUtils.repeat('|', DISMOUNT_PROGRESS_BAR_LENGTH - progressFilled));
+			player.displayClientMessage(Text.translatable("gui.mtr.dismount_hold", client.options.keyShift.getTranslatedKeyMessage(), progressBar), true);
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	private static double maxDistanceXZ(Vec3 pos1, BlockPos pos2) {

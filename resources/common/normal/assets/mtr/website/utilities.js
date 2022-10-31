@@ -26,8 +26,10 @@ const UTILITIES = {
 
 		if (x2 > x1) {
 			UTILITIES.connectLine1(x1, y1, direction1, offset1, routeCount1, x2, y2, direction2, offset2, routeCount2, lineWidth, segments);
+			return false;
 		} else {
 			UTILITIES.connectLine1(x2, y2, direction2, offset2, routeCount2, x1, y1, direction1, offset1, routeCount1, lineWidth, segments);
+			return true;
 		}
 	},
 	connectLine1: (x1, y1, direction1, offset1, routeCount1, x2, y2, direction2, offset2, routeCount2, lineWidth, segments) => {

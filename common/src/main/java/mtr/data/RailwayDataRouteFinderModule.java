@@ -38,7 +38,8 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 	}
 
 	public void tick() {
-		if (railwayData.dataCache.platformConnections.size() < 4) {
+		final int platformCount = railwayData.dataCache.platformConnections.size();
+		if (platformCount < 4) {
 			return;
 		}
 
@@ -48,36 +49,43 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 				case GET_POS:
 					if (routeFinderQueue.isEmpty()) {
 						final Random random = new Random();
-						final int startIndex = random.nextInt(railwayData.dataCache.platformConnections.size());
-						final int endIndex = random.nextInt(railwayData.dataCache.platformConnections.size());
+						int shortestDistance = Integer.MAX_VALUE;
+						BlockPos tempStartPos = null;
+						BlockPos tempEndPos = null;
 						currentRouteFinderRequest = null;
+						final List<Long> platformConnectionKeys = new ArrayList<>(railwayData.dataCache.platformConnections.keySet());
 
-						if (startIndex != endIndex) {
-							int i = 0;
-							for (final long pos : railwayData.dataCache.platformConnections.keySet()) {
-								if (i == startIndex) {
-									startPos = BlockPos.of(pos);
+						for (int i = 0; i <= Math.min(200, platformCount * platformCount / 10000); i++) {
+							while (true) {
+								final int startIndex = random.nextInt(platformCount);
+								final int endIndex = random.nextInt(platformCount);
+
+								if (startIndex != endIndex) {
+									final BlockPos tempStartPos2 = BlockPos.of(platformConnectionKeys.get(startIndex));
+									final BlockPos tempEndPos2 = BlockPos.of(platformConnectionKeys.get(endIndex));
+									final int tempDistance = tempStartPos2.distManhattan(tempEndPos2);
+									if (tempDistance < shortestDistance) {
+										shortestDistance = tempDistance;
+										tempStartPos = tempStartPos2;
+										tempEndPos = tempEndPos2;
+									}
+									break;
 								}
-								if (i == endIndex) {
-									endPos = BlockPos.of(pos);
-								}
-								i++;
 							}
-
-							globalBlacklist.clear();
-							startMillis = System.currentTimeMillis();
-							totalTime = Integer.MAX_VALUE;
-							tickStage = TickStage.START_FIND_ROUTE;
 						}
+
+						startPos = tempStartPos;
+						endPos = tempEndPos;
 					} else {
 						currentRouteFinderRequest = routeFinderQueue.remove(0);
 						startPos = currentRouteFinderRequest.startPos;
 						endPos = currentRouteFinderRequest.endPos;
-						globalBlacklist.clear();
-						startMillis = System.currentTimeMillis();
-						totalTime = Integer.MAX_VALUE;
-						tickStage = TickStage.START_FIND_ROUTE;
 					}
+
+					globalBlacklist.clear();
+					startMillis = System.currentTimeMillis();
+					totalTime = Integer.MAX_VALUE;
+					tickStage = TickStage.START_FIND_ROUTE;
 					break;
 				case START_FIND_ROUTE:
 					tempData.clear();
