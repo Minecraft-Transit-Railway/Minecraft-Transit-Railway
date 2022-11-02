@@ -38,7 +38,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 	private final float startZ;
 	private final boolean rotate90;
 	private final boolean renderArrivalNumber;
-	private final boolean showAllPlatforms;
+	private final PIDSType renderType;
 	private final int textColor;
 	private final int firstTrainColor;
 	private final boolean appendDotAfterMin;
@@ -47,13 +47,13 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 	private static final int SWITCH_LANGUAGE_TICKS = 60;
 	private static final int CAR_TEXT_COLOR = 0xFF0000;
 
-	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int textColor, int firstTrainColor, float textPadding, boolean appendDotAfterMin) {
+	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, PIDSType renderType, int textColor, int firstTrainColor, float textPadding, boolean appendDotAfterMin) {
 		super(dispatcher);
 		scale = 160 * maxArrivals / maxHeight * textPadding;
 		totalScaledWidth = scale * maxWidth / 16;
 		destinationStart = renderArrivalNumber ? scale * 2 / 16 : 0;
 		destinationMaxWidth = totalScaledWidth * 0.7F;
-		platformMaxWidth = showAllPlatforms ? scale * 2 / 16 : 0;
+		platformMaxWidth = renderType.showPlatformNumber ? scale * 2 / 16 : 0;
 		arrivalMaxWidth = totalScaledWidth - destinationStart - destinationMaxWidth - platformMaxWidth;
 		this.maxArrivals = maxArrivals;
 		this.maxHeight = maxHeight;
@@ -62,14 +62,14 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 		this.startZ = startZ;
 		this.rotate90 = rotate90;
 		this.renderArrivalNumber = renderArrivalNumber;
-		this.showAllPlatforms = showAllPlatforms;
+		this.renderType = renderType;
 		this.textColor = textColor;
 		this.firstTrainColor = firstTrainColor;
 		this.appendDotAfterMin = appendDotAfterMin;
 	}
 
-	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int textColor, int firstTrainColor) {
-		this(dispatcher, maxArrivals, startX, startY, startZ, maxHeight, maxWidth, rotate90, renderArrivalNumber, showAllPlatforms, textColor, firstTrainColor, 1, false);
+	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, PIDSType renderType, int textColor, int firstTrainColor) {
+		this(dispatcher, maxArrivals, startX, startY, startZ, maxHeight, maxWidth, rotate90, renderArrivalNumber, renderType, textColor, firstTrainColor, 1, false);
 	}
 
 	@Override
@@ -100,7 +100,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 			final Set<ScheduleEntry> schedules;
 			final Map<Long, String> platformIdToName = new HashMap<>();
 
-			if (showAllPlatforms) {
+			if (renderType.showAllPlatforms) {
 				final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 				if (station == null) {
 					return;
@@ -112,10 +112,25 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 				}
 
 				final Set<Long> platformIds;
-				if (entity instanceof BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) {
-					platformIds = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getPlatformIds();
-				} else {
-					platformIds = new HashSet<>();
+				switch (renderType) {
+					case ARRIVAL_PROJECTOR:
+						if (entity instanceof BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) {
+							platformIds = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getPlatformIds();
+						} else {
+							platformIds = new HashSet<>();
+						}
+						break;
+					case PIDS:
+						final Set<Long> tempPlatformIds;
+						if (entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
+							tempPlatformIds = ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getPlatformIds();
+						} else {
+							tempPlatformIds = new HashSet<>();
+						}
+						platformIds = tempPlatformIds.isEmpty() ? Collections.singleton(RailwayData.getClosePlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE, pos)) : tempPlatformIds;
+						break;
+					default:
+						platformIds = new HashSet<>();
 				}
 
 				schedules = new HashSet<>();
@@ -148,7 +163,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 
 			final boolean showCarLength;
 			final float carLengthMaxWidth;
-			if (!showAllPlatforms) {
+			if (renderType.showCarNumber) {
 				int maxCars = 0;
 				int minCars = Integer.MAX_VALUE;
 				for (final ScheduleEntry scheduleEntry : scheduleList) {
@@ -234,7 +249,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 
 					final float newDestinationMaxWidth = destinationMaxWidth - carLengthMaxWidth;
 
-					if (showAllPlatforms) {
+					if (renderType.showPlatformNumber) {
 						final String platformName = platformIdToName.get(route.platformIds.get(currentSchedule.currentStationIndex).platformId);
 						if (platformName != null) {
 							textRenderer.draw(matrices, platformName, destinationStart + newDestinationMaxWidth, 0, seconds > 0 ? textColor : firstTrainColor);

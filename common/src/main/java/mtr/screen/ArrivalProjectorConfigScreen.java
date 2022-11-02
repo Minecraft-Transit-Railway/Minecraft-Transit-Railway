@@ -2,12 +2,10 @@ package mtr.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.block.BlockArrivalProjectorBase;
-import mtr.client.ClientData;
 import mtr.client.IDrawing;
-import mtr.data.*;
+import mtr.data.IGui;
 import mtr.mappings.ScreenMapper;
 import mtr.mappings.Text;
-import mtr.mappings.UtilitiesClient;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.Minecraft;
@@ -16,8 +14,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, IPacket {
 
@@ -45,24 +43,7 @@ public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, 
 		selectAllCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.select_all_platforms"), checked -> {
 		});
 
-		filterButton = new Button(0, 0, 0, SQUARE_SIZE, Text.literal(""), button -> {
-			if (minecraft != null) {
-				final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
-				if (station != null) {
-					final List<NameColorDataBase> platformsForList = new ArrayList<>();
-					final List<Platform> platforms = new ArrayList<>(ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id).values());
-					Collections.sort(platforms);
-					platforms.stream().map(platform -> new DataConverter(platform.id, platform.name + " " + IGui.mergeStations(ClientData.DATA_CACHE.requestPlatformIdToRoutes(platform.id).stream().map(route -> route.stationDetails.get(route.stationDetails.size() - 1).stationName).collect(Collectors.toList())), 0)).forEach(platformsForList::add);
-					if (selectAllCheckbox.selected()) {
-						filterPlatformIds.clear();
-					}
-					UtilitiesClient.setScreen(minecraft, new DashboardListSelectorScreen(() -> {
-						UtilitiesClient.setScreen(minecraft, this);
-						selectAllCheckbox.setChecked(filterPlatformIds.isEmpty());
-					}, platformsForList, filterPlatformIds, false, false));
-				}
-			}
-		});
+		filterButton = PIDSConfigScreen.getPlatformFilterButton(pos, selectAllCheckbox, filterPlatformIds, this);
 	}
 
 	@Override
