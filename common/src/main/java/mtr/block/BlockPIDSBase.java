@@ -107,9 +107,9 @@ public abstract class BlockPIDSBase extends BlockDirectionalMapper implements En
 		private final String[] messages = new String[getMaxArrivals()];
 		private final boolean[] hideArrival = new boolean[getMaxArrivals()];
 		private final Set<Long> platformIds = new HashSet<>();
-		private static final String KEY_PLATFORM_IDS = "platform_ids";
 		private static final String KEY_MESSAGE = "message";
 		private static final String KEY_HIDE_ARRIVAL = "hide_arrival";
+		private static final String KEY_PLATFORM_IDS = "platform_ids";
 
 		public TileEntityBlockPIDSBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
@@ -117,23 +117,24 @@ public abstract class BlockPIDSBase extends BlockDirectionalMapper implements En
 
 		@Override
 		public void readCompoundTag(CompoundTag compoundTag) {
-			final long[] platformIdsArray = compoundTag.getLongArray(KEY_PLATFORM_IDS);
-			for (final long platformId : platformIdsArray) {
-				platformIds.add(platformId);
-			}
 			for (int i = 0; i < getMaxArrivals(); i++) {
 				messages[i] = compoundTag.getString(KEY_MESSAGE + i);
 				hideArrival[i] = compoundTag.getBoolean(KEY_HIDE_ARRIVAL + i);
+			}
+			platformIds.clear();
+			final long[] platformIdsArray = compoundTag.getLongArray(KEY_PLATFORM_IDS);
+			for (final long platformId : platformIdsArray) {
+				platformIds.add(platformId);
 			}
 		}
 
 		@Override
 		public void writeCompoundTag(CompoundTag compoundTag) {
-			compoundTag.putLongArray(KEY_PLATFORM_IDS, new ArrayList<>(platformIds));
 			for (int i = 0; i < getMaxArrivals(); i++) {
 				compoundTag.putString(KEY_MESSAGE + i, messages[i] == null ? "" : messages[i]);
 				compoundTag.putBoolean(KEY_HIDE_ARRIVAL + i, hideArrival[i]);
 			}
+			compoundTag.putLongArray(KEY_PLATFORM_IDS, new ArrayList<>(platformIds));
 		}
 
 		public AABB getRenderBoundingBox() {
