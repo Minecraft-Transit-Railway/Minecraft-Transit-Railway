@@ -259,7 +259,10 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	}
 
 	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteS2C(Minecraft minecraftClient, FriendlyByteBuf packet, Set<T> dataSet, Map<Long, T> cacheMap, BiFunction<Long, TransportMode, T> createDataWithId, boolean isDelete) {
-		final PacketCallback packetCallback = (updatePacket, fullPacket) -> ClientData.DATA_CACHE.sync();
+		final PacketCallback packetCallback = (updatePacket, fullPacket) -> {
+			ClientData.DATA_CACHE.sync();
+			ClientData.DATA_CACHE.refreshDynamicResources();
+		};
 		if (isDelete) {
 			deleteData(dataSet, minecraftClient, packet, packetCallback);
 		} else {
@@ -270,6 +273,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	public static void sendUpdate(ResourceLocation packetId, FriendlyByteBuf packet) {
 		RegistryClient.sendToServer(packetId, packet);
 		ClientData.DATA_CACHE.sync();
+		ClientData.DATA_CACHE.refreshDynamicResources();
 	}
 
 	public static void sendDeleteData(ResourceLocation packetId, long id) {

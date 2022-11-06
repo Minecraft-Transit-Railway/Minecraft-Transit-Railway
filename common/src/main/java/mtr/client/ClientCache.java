@@ -1,6 +1,8 @@
 package mtr.client;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import mtr.MTR;
 import mtr.block.BlockLiftTrackFloor;
 import mtr.data.*;
@@ -24,6 +26,7 @@ import java.awt.image.DataBufferByte;
 import java.text.AttributedString;
 import java.util.List;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -46,9 +49,9 @@ public class ClientCache extends DataCache implements IGui {
 	private final List<Long> clearDepotIdToSidings = new ArrayList<>();
 	private final List<Long> clearPlatformIdToRoutes = new ArrayList<>();
 
-	private final Map<String, DynamicResource> dynamicResources = new HashMap<>();
-	private final Set<String> removedResources = new HashSet<>();
-	private boolean canGenerateResource = true;
+	private final Object2ObjectLinkedOpenHashMap<String, DynamicResource> dynamicResources = new Object2ObjectLinkedOpenHashMap<>();
+	private final ObjectLinkedOpenHashSet<String> resourcesToRefresh = new ObjectLinkedOpenHashSet<>();
+	private final List<Runnable> resourceRegistryQueue = new ArrayList<>();
 
 	public static final float LINE_HEIGHT_MULTIPLIER = 1.25F;
 	private static final ResourceLocation DEFAULT_BLACK_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/black.png");
@@ -103,7 +106,11 @@ public class ClientCache extends DataCache implements IGui {
 				clearPlatformIdToRoutes.add(id);
 			}
 		});
-		removedResources.addAll(dynamicResources.keySet());
+	}
+
+	public void refreshDynamicResources() {
+		System.out.println("Refreshing dynamic resources");
+		resourcesToRefresh.addAll(dynamicResources.keySet());
 	}
 
 	public Map<Long, Platform> requestStationIdToPlatforms(long stationId) {
@@ -242,6 +249,10 @@ public class ClientCache extends DataCache implements IGui {
 		return getResource(String.format("lift_%s", originalText), () -> RouteMapGenerator.generateLiftPanel(originalText, textColor), DefaultRenderingColor.BLACK);
 	}
 
+	public DynamicResource getExitSignLetter(String exitLetter, String exitNumber, int backgroundColor) {
+		return getResource(String.format("route_%s_%s", exitLetter, exitNumber), () -> RouteMapGenerator.generateExitSignLetter(exitLetter, exitNumber, backgroundColor), DefaultRenderingColor.TRANSPARENT);
+	}
+
 	public DynamicResource getRouteSquare(int color, String routeName, IGui.HorizontalAlignment horizontalAlignment) {
 		return getResource(String.format("route_%s_%s_%s", color, routeName, horizontalAlignment), () -> RouteMapGenerator.generateRouteSquare(color, routeName, horizontalAlignment), DefaultRenderingColor.TRANSPARENT);
 	}
@@ -365,7 +376,7 @@ public class ClientCache extends DataCache implements IGui {
 		return posToSidings.get(transportMode);
 	}
 
-	private DynamicResource getResource(String key, Supplier<DynamicTexture> supplier, DefaultRenderingColor defaultRenderingColor) {
+	private DynamicResource getResource(String key, Supplier<NativeImage> supplier, DefaultRenderingColor defaultRenderingColor) {
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		if (font == null || fontCjk == null) {
 			final ResourceManager resourceManager = minecraftClient.getResourceManager();
@@ -377,47 +388,46 @@ public class ClientCache extends DataCache implements IGui {
 			}
 		}
 
-		final Set<String> keysToRemove = new HashSet<>();
-		dynamicResources.forEach((checkKey, dynamicResource) -> {
-			if (dynamicResource.removeIfOld()) {
-				keysToRemove.add(checkKey);
-			}
-		});
-		if (!keysToRemove.isEmpty()) {
-			keysToRemove.forEach(dynamicResources::remove);
+		if (!resourceRegistryQueue.isEmpty()) {
+			resourceRegistryQueue.remove(0).run();
 		}
 
-		if (dynamicResources.containsKey(key) && !removedResources.contains(key)) {
-			final DynamicResource dynamicResource = dynamicResources.get(key);
-			dynamicResource.age = 0;
+		final boolean needsRefresh = resourcesToRefresh.contains(key);
+		final DynamicResource dynamicResource = dynamicResources.get(key);
+
+		if (dynamicResource != null && !needsRefresh) {
 			return dynamicResource;
-		} else {
-			final ResourceLocation defaultLocation = defaultRenderingColor.resourceLocation;
+		}
 
-			if (canGenerateResource) {
-				canGenerateResource = false;
-				RouteMapGenerator.setConstants();
-
-				new Thread(() -> {
-					final DynamicTexture dynamicTexture = supplier.get();
-					minecraftClient.execute(() -> {
-						if (removedResources.contains(key) && dynamicResources.containsKey(key)) {
-							dynamicResources.get(key).remove();
-						}
-						dynamicResources.put(key, new DynamicResource(dynamicTexture == null ? defaultLocation : minecraftClient.getTextureManager().register(MTR.MOD_ID, dynamicTexture), dynamicTexture));
-						removedResources.remove(key);
-						canGenerateResource = true;
-					});
-				}).start();
+		RouteMapGenerator.setConstants();
+		CompletableFuture.supplyAsync(supplier).thenAccept(nativeImage -> resourceRegistryQueue.add(() -> {
+			final DynamicResource staticTextureProviderOld = dynamicResources.get(key);
+			if (staticTextureProviderOld != null) {
+				staticTextureProviderOld.remove();
 			}
 
-			if (dynamicResources.containsKey(key)) {
-				final DynamicResource dynamicResource = dynamicResources.get(key);
-				dynamicResource.age = 0;
-				return dynamicResource;
+			final DynamicResource dynamicResourceNew;
+			if (nativeImage == null) {
+				dynamicResourceNew = defaultRenderingColor.dynamicResource;
 			} else {
-				return new DynamicResource(defaultLocation, null);
+				final DynamicTexture dynamicTexture = new DynamicTexture(nativeImage);
+				final ResourceLocation resourceLocation = new ResourceLocation(MTR.MOD_ID, "dynamic_texture_" + key.toLowerCase(Locale.ENGLISH).replaceAll("[^0-9a-z_]", ""));
+				minecraftClient.getTextureManager().register(resourceLocation, dynamicTexture);
+				dynamicResourceNew = new DynamicResource(resourceLocation, dynamicTexture);
 			}
+
+			dynamicResources.put(key, dynamicResourceNew);
+		}));
+
+		if (needsRefresh) {
+			resourcesToRefresh.remove(key);
+		}
+
+		if (dynamicResource == null) {
+			dynamicResources.put(key, defaultRenderingColor.dynamicResource);
+			return defaultRenderingColor.dynamicResource;
+		} else {
+			return dynamicResource;
 		}
 	}
 
@@ -486,14 +496,11 @@ public class ClientCache extends DataCache implements IGui {
 
 	public static class DynamicResource {
 
-		private int age;
 		public final int width;
 		public final int height;
 		public final ResourceLocation resourceLocation;
-		private static final int MAX_AGE = 10000;
 
 		private DynamicResource(ResourceLocation resourceLocation, DynamicTexture dynamicTexture) {
-			age = 0;
 			this.resourceLocation = resourceLocation;
 			if (dynamicTexture != null) {
 				final NativeImage nativeImage = dynamicTexture.getPixels();
@@ -521,16 +528,6 @@ public class ClientCache extends DataCache implements IGui {
 				}
 			}
 		}
-
-		private boolean removeIfOld() {
-			age++;
-			if (age >= MAX_AGE) {
-				remove();
-				return true;
-			} else {
-				return false;
-			}
-		}
 	}
 
 	private enum DefaultRenderingColor {
@@ -538,10 +535,10 @@ public class ClientCache extends DataCache implements IGui {
 		WHITE(DEFAULT_WHITE_RESOURCE),
 		TRANSPARENT(DEFAULT_TRANSPARENT_RESOURCE);
 
-		private final ResourceLocation resourceLocation;
+		private final DynamicResource dynamicResource;
 
 		DefaultRenderingColor(ResourceLocation resourceLocation) {
-			this.resourceLocation = resourceLocation;
+			dynamicResource = new DynamicResource(resourceLocation, null);
 		}
 	}
 }

@@ -266,6 +266,7 @@ public final class ClientData {
 
 		TRAINS.clear();
 		ClientData.DATA_CACHE.sync();
+		ClientData.DATA_CACHE.refreshDynamicResources();
 		SIGNAL_BLOCKS.writeCache();
 	}
 
