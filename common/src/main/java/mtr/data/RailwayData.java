@@ -600,8 +600,9 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	public static long getClosePlatformId(Set<Platform> platforms, DataCache dataCache, BlockPos pos, int radius, int lower, int upper) {
 		try {
-			if (dataCache.blockPosToPlatformId.containsKey(pos)) {
-				return dataCache.blockPosToPlatformId.get(pos);
+			final long posLong = pos.asLong();
+			if (dataCache.blockPosToPlatformId.containsKey(posLong)) {
+				return dataCache.blockPosToPlatformId.get(posLong);
 			} else {
 				long platformId = 0;
 				for (int i = 1; i <= radius; i++) {
@@ -611,12 +612,12 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 						break;
 					}
 				}
-				dataCache.blockPosToPlatformId.put(pos, platformId);
+				dataCache.blockPosToPlatformId.put(posLong, platformId);
 				return platformId;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return -1;
+			return 0;
 		}
 	}
 

@@ -69,7 +69,7 @@ public class ClientCache extends DataCache implements IGui {
 
 	@Override
 	protected void syncAdditional() {
-		mapIds(liftsClientIdMap, liftsClient);
+		syncLiftIds();
 
 		for (final TransportMode transportMode : TransportMode.values()) {
 			mapPosToSavedRails(posToPlatforms.get(transportMode), platforms, transportMode);
@@ -111,6 +111,10 @@ public class ClientCache extends DataCache implements IGui {
 	public void refreshDynamicResources() {
 		System.out.println("Refreshing dynamic resources");
 		resourcesToRefresh.addAll(dynamicResources.keySet());
+	}
+
+	public void syncLiftIds() {
+		mapIds(liftsClientIdMap, liftsClient);
 	}
 
 	public Map<Long, Platform> requestStationIdToPlatforms(long stationId) {

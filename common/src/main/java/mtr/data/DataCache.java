@@ -1,6 +1,7 @@
 package mtr.data;
 
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
 
@@ -11,6 +12,8 @@ import java.util.Set;
 import java.util.function.Function;
 
 public class DataCache {
+
+	private long lastRefreshedTime;
 
 	public final Map<Long, Station> stationIdMap = new HashMap<>();
 	public final Map<Long, Platform> platformIdMap = new HashMap<>();
@@ -24,7 +27,7 @@ public class DataCache {
 	public final Map<Long, Depot> routeIdToOneDepot = new HashMap<>();
 	public final Map<Station, Set<Station>> stationIdToConnectingStations = new HashMap<>();
 	public final Map<BlockPos, Station> blockPosToStation = new HashMap<>();
-	public final Map<BlockPos, Long> blockPosToPlatformId = new HashMap<>();
+	public final Long2LongOpenHashMap blockPosToPlatformId = new Long2LongOpenHashMap();
 	public final Long2ObjectOpenHashMap<Long2ObjectOpenHashMap<RailwayDataRouteFinderModule.ConnectionDetails>> platformConnections = new Long2ObjectOpenHashMap<>();
 
 	protected final Set<Station> stations;
@@ -111,6 +114,12 @@ public class DataCache {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		lastRefreshedTime = System.currentTimeMillis();
+	}
+
+	public boolean needsRefresh(long cachedRefreshTime) {
+		return lastRefreshedTime > cachedRefreshTime;
 	}
 
 	protected void syncAdditional() {

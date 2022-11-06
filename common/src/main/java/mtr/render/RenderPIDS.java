@@ -137,7 +137,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 						} else {
 							tempPlatformIds = new HashSet<>();
 						}
-						platformIds = tempPlatformIds.isEmpty() ? Collections.singleton(RailwayData.getClosePlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE, pos)) : tempPlatformIds;
+						platformIds = tempPlatformIds.isEmpty() ? Collections.singleton(entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase ? ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getPlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE) : 0) : tempPlatformIds;
 						break;
 					default:
 						platformIds = new HashSet<>();
@@ -159,7 +159,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					}
 				});
 			} else {
-				final long platformId = RailwayData.getClosePlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE, pos);
+				final long platformId = entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase ? ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getPlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE) : 0;
 				if (platformId == 0) {
 					schedules = new HashSet<>();
 				} else {

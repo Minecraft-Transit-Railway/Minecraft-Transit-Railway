@@ -2,12 +2,11 @@ package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
+import mtr.block.BlockPSDTop;
 import mtr.block.IBlock;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
-import mtr.data.RailwayData;
-import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.BlockEntityRendererMapper;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
@@ -21,7 +20,7 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 
-public abstract class RenderRouteBase<T extends BlockEntityMapper> extends BlockEntityRendererMapper<T> implements IGui, IBlock {
+public abstract class RenderRouteBase<T extends BlockPSDTop.TileEntityRouteBase> extends BlockEntityRendererMapper<T> implements IGui, IBlock {
 
 	protected float bottomPadding;
 	protected float topPadding;
@@ -59,7 +58,7 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 		renderAdditionalUnmodified(storedMatrixTransformations.copy(), state, facing, light);
 
 		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, null)) {
-			final long platformId = RailwayData.getClosePlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE, pos);
+			final long platformId = entity.getPlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE);
 
 			if (platformId != 0) {
 				storedMatrixTransformations.add(matricesNew -> {

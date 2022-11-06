@@ -1,5 +1,8 @@
 package mtr.block;
 
+import mtr.data.DataCache;
+import mtr.data.Platform;
+import mtr.data.RailwayData;
 import mtr.mappings.BlockDirectionalMapper;
 import mtr.mappings.BlockEntityClientSerializableMapper;
 import mtr.mappings.EntityBlockMapper;
@@ -104,6 +107,9 @@ public abstract class BlockPIDSBase extends BlockDirectionalMapper implements En
 
 	public abstract static class TileEntityBlockPIDSBase extends BlockEntityClientSerializableMapper {
 
+
+		private long cachedRefreshTime;
+		private long cachedPlatformId;
 		private final String[] messages = new String[getMaxArrivals()];
 		private final boolean[] hideArrival = new boolean[getMaxArrivals()];
 		private final Set<Long> platformIds = new HashSet<>();
@@ -148,6 +154,14 @@ public abstract class BlockPIDSBase extends BlockDirectionalMapper implements En
 			this.platformIds.addAll(platformIds);
 			setChanged();
 			syncData();
+		}
+
+		public long getPlatformId(Set<Platform> platforms, DataCache dataCache) {
+			if (dataCache.needsRefresh(cachedRefreshTime)) {
+				cachedPlatformId = RailwayData.getClosePlatformId(platforms, dataCache, getBlockPos());
+				cachedRefreshTime = System.currentTimeMillis();
+			}
+			return cachedPlatformId;
 		}
 
 		public Set<Long> getPlatformIds() {
