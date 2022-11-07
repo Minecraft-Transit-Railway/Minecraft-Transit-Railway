@@ -1,0 +1,22 @@
+{
+	"variants": {
+		"type=bottom,waterlogged=false": {
+			"model": "mtr:block/metal_slab_bottom"
+		},
+		"type=double,waterlogged=false": {
+			"model": "mtr:block/metal"
+		},
+		"type=top,waterlogged=false": {
+			"model": "mtr:block/metal_slab_top"
+		},
+		"type=bottom,waterlogged=true": {
+			"model": "mtr:block/metal_slab_bottom"
+		},
+		"type=double,waterlogged=true": {
+			"model": "mtr:block/metal"
+		},
+		"type=top,waterlogged=true": {
+			"model": "mtr:block/metal_slab_top"
+		}
+	}
+}
