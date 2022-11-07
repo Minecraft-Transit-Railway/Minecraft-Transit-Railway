@@ -156,6 +156,11 @@ public abstract class BlockPIDSBase extends BlockDirectionalMapper implements En
 			syncData();
 		}
 
+		@Deprecated
+		public void setData(String[] messages, boolean[] hideArrival) {
+			setData(messages, hideArrival, new HashSet<>());
+		}
+
 		public long getPlatformId(Set<Platform> platforms, DataCache dataCache) {
 			if (dataCache.needsRefresh(cachedRefreshTime)) {
 				cachedPlatformId = RailwayData.getClosePlatformId(platforms, dataCache, getBlockPos());
