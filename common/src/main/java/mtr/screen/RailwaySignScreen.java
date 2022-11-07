@@ -184,7 +184,7 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 
 			for (int i = 0; i < signIds.length; i++) {
 				if (signIds[i] != null) {
-					RenderRailwaySign.drawSign(matrices, null, font, signPos, signIds[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, RenderRailwaySign.getMaxWidth(signIds, i, false), RenderRailwaySign.getMaxWidth(signIds, i, true), selectedIds, Direction.UP, 0, (textureId, x, y, size, flipTexture) -> {
+					RenderRailwaySign.drawSign(matrices, null, null, font, signPos, signIds[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, RenderRailwaySign.getMaxWidth(signIds, i, false), RenderRailwaySign.getMaxWidth(signIds, i, true), selectedIds, Direction.UP, 0, (textureId, x, y, size, flipTexture) -> {
 						UtilitiesClient.beginDrawingTexture(textureId);
 						blit(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size);
 					});
@@ -201,7 +201,7 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 					if (sign != null) {
 						final boolean moveRight = sign.hasCustomText() && sign.flipCustomText;
 						UtilitiesClient.beginDrawingTexture(sign.textureId);
-						RenderRailwaySign.drawSign(matrices, null, font, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), BUTTON_Y_START + y, SIGN_BUTTON_SIZE, 2, 2, selectedIds, Direction.UP, 0, (textureId, x1, y1, size, flipTexture) -> blit(matrices, (int) x1, (int) y1, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
+						RenderRailwaySign.drawSign(matrices, null, null, font, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), BUTTON_Y_START + y, SIGN_BUTTON_SIZE, 2, 2, selectedIds, Direction.UP, 0, (textureId, x1, y1, size, flipTexture) -> blit(matrices, (int) x1, (int) y1, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
 					}
 				}, false);
 

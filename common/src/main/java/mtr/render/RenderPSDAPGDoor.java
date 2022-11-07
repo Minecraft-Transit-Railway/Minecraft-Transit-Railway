@@ -62,88 +62,113 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 		final boolean unlocked = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.UNLOCKED);
 		final float open = Math.min(entity.getOpen(MTRClient.getLastFrameDuration()), type >= 3 ? 0.75F : 1);
 
-		matrices.pushPose();
-		matrices.translate(0.5, 0, 0.5);
-		matrices.mulPose(Vector3f.YN.rotationDegrees(facing.toYRot()));
-		matrices.mulPose(Vector3f.XP.rotationDegrees(180));
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
+		storedMatrixTransformations.add(matricesNew -> {
+			matricesNew.translate(0.5 + entity.getBlockPos().getX(), entity.getBlockPos().getY(), 0.5 + entity.getBlockPos().getZ());
+			matricesNew.mulPose(Vector3f.YN.rotationDegrees(facing.toYRot()));
+			matricesNew.mulPose(Vector3f.XP.rotationDegrees(180));
+		});
+		final StoredMatrixTransformations storedMatrixTransformationsLight = storedMatrixTransformations.copy();
 
 		switch (type) {
 			case 0:
 			case 1:
 				if (half) {
-					final ResourceLocation lightLocation = new ResourceLocation(String.format("mtr:textures/block/light_%s.png", open > 0 ? "on" : "off"));
-					final VertexConsumer vertexConsumerLight = vertexConsumers.getBuffer(open > 0 ? MoreRenderLayers.getLight(lightLocation, false) : MoreRenderLayers.getExterior(lightLocation));
-					(side ? MODEL_PSD_LIGHT_RIGHT : MODEL_PSD_LIGHT_LEFT).renderToBuffer(matrices, vertexConsumerLight, light, overlay, 1, 1, 1, 1);
+					RenderTrains.scheduleRender(new ResourceLocation(String.format("mtr:textures/block/light_%s.png", open > 0 ? "on" : "off")), false, resourceLocation -> open > 0 ? MoreRenderLayers.getLight(resourceLocation, false) : MoreRenderLayers.getExterior(resourceLocation), (matricesNew, vertexConsumer) -> {
+						storedMatrixTransformationsLight.transform(matricesNew);
+						(side ? MODEL_PSD_LIGHT_RIGHT : MODEL_PSD_LIGHT_LEFT).renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1, 1, 1, 1);
+						matricesNew.popPose();
+					});
 				}
 				if (end) {
-					matrices.pushPose();
-					matrices.translate(open / 2 * (side ? -1 : 1), 0, 0);
-					final VertexConsumer vertexConsumerPSDDoor = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation(String.format("mtr:textures/block/psd_door_end_%s_%s_2_%s.png", half ? "top" : "bottom", side ? "right" : "left", type == 1 ? "2" : "1"))));
-					(side ? MODEL_PSD_END_RIGHT_2 : MODEL_PSD_END_LEFT_2).renderToBuffer(matrices, vertexConsumerPSDDoor, light, overlay, 1, 1, 1, 1);
-					matrices.popPose();
+					RenderTrains.scheduleRender(new ResourceLocation(String.format("mtr:textures/block/psd_door_end_%s_%s_2_%s.png", half ? "top" : "bottom", side ? "right" : "left", type == 1 ? "2" : "1")), false, MoreRenderLayers::getExterior, (matricesNew, vertexConsumer) -> {
+						storedMatrixTransformationsLight.transform(matricesNew);
+						matricesNew.translate(open / 2 * (side ? -1 : 1), 0, 0);
+						(side ? MODEL_PSD_END_RIGHT_2 : MODEL_PSD_END_LEFT_2).renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1, 1, 1, 1);
+						matricesNew.popPose();
+					});
 				}
 				break;
 			case 2:
 				if (half) {
 					final Block block = world.getBlockState(pos.relative(side ? facing.getClockWise() : facing.getCounterClockWise())).getBlock();
 					if (block instanceof BlockAPGGlass || block instanceof BlockAPGGlassEnd) {
-						matrices.pushPose();
-						matrices.translate(side ? -0.515625 : 0.515625, 0, 0);
-						matrices.scale(0.5F, 1, 1);
-						final ResourceLocation lightLocation = new ResourceLocation(String.format("mtr:textures/block/apg_door_light_%s.png", open > 0 ? "on" : "off"));
-						final VertexConsumer vertexConsumerLight = vertexConsumers.getBuffer(open > 0 ? MoreRenderLayers.getLight(lightLocation, true) : MoreRenderLayers.getExterior(lightLocation));
-						MODEL_APG_LIGHT.renderToBuffer(matrices, vertexConsumerLight, light, overlay, 1, 1, 1, 1);
-						matrices.popPose();
+						RenderTrains.scheduleRender(new ResourceLocation(String.format("mtr:textures/block/apg_door_light_%s.png", open > 0 ? "on" : "off")), false, resourceLocation -> open > 0 ? MoreRenderLayers.getLight(resourceLocation, true) : MoreRenderLayers.getExterior(resourceLocation), (matricesNew, vertexConsumer) -> {
+							storedMatrixTransformationsLight.transform(matricesNew);
+							matricesNew.translate(side ? -0.515625 : 0.515625, 0, 0);
+							matricesNew.scale(0.5F, 1, 1);
+							MODEL_APG_LIGHT.renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1, 1, 1, 1);
+							matricesNew.popPose();
+						});
 					}
 				}
 				break;
 		}
 
-		matrices.translate(open * (side ? -1 : 1), 0, 0);
+		storedMatrixTransformations.add(matricesNew -> matricesNew.translate(open * (side ? -1 : 1), 0, 0));
 
 		switch (type) {
 			case 0:
 			case 1:
 				if (end) {
-					final VertexConsumer vertexConsumerPSDDoor = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation(String.format("mtr:textures/block/psd_door_end_%s_%s_1_%s.png", half ? "top" : "bottom", side ? "right" : "left", type == 1 ? "2" : "1"))));
-					(side ? MODEL_PSD_END_RIGHT_1 : MODEL_PSD_END_LEFT_1).renderToBuffer(matrices, vertexConsumerPSDDoor, light, overlay, 1, 1, 1, 1);
+					RenderTrains.scheduleRender(new ResourceLocation(String.format("mtr:textures/block/psd_door_end_%s_%s_1_%s.png", half ? "top" : "bottom", side ? "right" : "left", type == 1 ? "2" : "1")), false, MoreRenderLayers::getExterior, (matricesNew, vertexConsumer) -> {
+						storedMatrixTransformations.transform(matricesNew);
+						(side ? MODEL_PSD_END_RIGHT_1 : MODEL_PSD_END_LEFT_1).renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1, 1, 1, 1);
+						matricesNew.popPose();
+					});
 					if (half && !unlocked) {
-						matrices.translate(side ? 0.25 : -0.25, 0, 0);
+						storedMatrixTransformations.add(matricesNew -> matricesNew.translate(side ? 0.25 : -0.25, 0, 0));
 					}
 				} else {
-					final VertexConsumer vertexConsumerPSDDoor = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation(String.format("mtr:textures/block/psd_door_%s_%s_%s.png", half ? "top" : "bottom", side ? "right" : "left", type == 1 ? "2" : "1"))));
-					MODEL_PSD.renderToBuffer(matrices, vertexConsumerPSDDoor, light, overlay, 1, 1, 1, 1);
+					RenderTrains.scheduleRender(new ResourceLocation(String.format("mtr:textures/block/psd_door_%s_%s_%s.png", half ? "top" : "bottom", side ? "right" : "left", type == 1 ? "2" : "1")), false, MoreRenderLayers::getExterior, (matricesNew, vertexConsumer) -> {
+						storedMatrixTransformations.transform(matricesNew);
+						MODEL_PSD.renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1, 1, 1, 1);
+						matricesNew.popPose();
+					});
 				}
 				if (half && !unlocked) {
-					final VertexConsumer vertexConsumerDoorLocked = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation("mtr:textures/sign/door_not_in_use.png")));
-					MODEL_PSD_DOOR_LOCKED.renderToBuffer(matrices, vertexConsumerDoorLocked, light, overlay, 1, 1, 1, 1);
+					RenderTrains.scheduleRender(new ResourceLocation("mtr:textures/sign/door_not_in_use.png"), false, MoreRenderLayers::getExterior, (matricesNew, vertexConsumer) -> {
+						storedMatrixTransformations.transform(matricesNew);
+						MODEL_PSD_DOOR_LOCKED.renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1, 1, 1, 1);
+						matricesNew.popPose();
+					});
 				}
 				break;
 			case 2:
-				final VertexConsumer vertexConsumerAPGDoor = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation(String.format("mtr:textures/block/apg_door_%s_%s.png", half ? "top" : "bottom", side ? "right" : "left"))));
-				(half ? MODEL_APG_TOP : MODEL_APG_BOTTOM).renderToBuffer(matrices, vertexConsumerAPGDoor, light, overlay, 1, 1, 1, 1);
+				RenderTrains.scheduleRender(new ResourceLocation(String.format("mtr:textures/block/apg_door_%s_%s.png", half ? "top" : "bottom", side ? "right" : "left")), false, MoreRenderLayers::getExterior, (matricesNew, vertexConsumer) -> {
+					storedMatrixTransformations.transform(matricesNew);
+					(half ? MODEL_APG_TOP : MODEL_APG_BOTTOM).renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1, 1, 1, 1);
+					matricesNew.popPose();
+				});
 				if (half && !unlocked) {
-					final VertexConsumer vertexConsumerDoorLocked = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation("mtr:textures/sign/door_not_in_use.png")));
-					MODEL_APG_DOOR_LOCKED.renderToBuffer(matrices, vertexConsumerDoorLocked, light, overlay, 1, 1, 1, 1);
+					RenderTrains.scheduleRender(new ResourceLocation("mtr:textures/sign/door_not_in_use.png"), false, MoreRenderLayers::getExterior, (matricesNew, vertexConsumer) -> {
+						storedMatrixTransformations.transform(matricesNew);
+						MODEL_APG_DOOR_LOCKED.renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1, 1, 1, 1);
+						matricesNew.popPose();
+					});
 				}
 				break;
 			case 4:
 				if (IBlock.getStatePropertySafe(world, pos, ITripleBlock.ODD)) {
 					break;
 				}
-				matrices.translate(side ? 0.5 : -0.5, 0, 0);
+				storedMatrixTransformations.add(matricesNew -> matricesNew.translate(side ? 0.5 : -0.5, 0, 0));
 			case 3:
-				final VertexConsumer vertexConsumerLiftDoor = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation(String.format("mtr:textures/block/lift_door_%s_%s_1.png", half ? "top" : "bottom", side ? "right" : "left"))));
-				(side ? MODEL_LIFT_RIGHT : MODEL_LIFT_LEFT).renderToBuffer(matrices, vertexConsumerLiftDoor, light, overlay, 1, 1, 1, 1);
+				RenderTrains.scheduleRender(new ResourceLocation(String.format("mtr:textures/block/lift_door_%s_%s_1.png", half ? "top" : "bottom", side ? "right" : "left")), false, MoreRenderLayers::getExterior, (matricesNew, vertexConsumer) -> {
+					storedMatrixTransformations.transform(matricesNew);
+					(side ? MODEL_LIFT_RIGHT : MODEL_LIFT_LEFT).renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1, 1, 1, 1);
+					matricesNew.popPose();
+				});
 				if (half && !unlocked) {
-					matrices.translate(side ? 0.125 : -0.125, 0, 0);
-					final VertexConsumer vertexConsumerDoorLocked = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation("mtr:textures/sign/door_not_in_use.png")));
-					MODEL_PSD_DOOR_LOCKED.renderToBuffer(matrices, vertexConsumerDoorLocked, light, overlay, 1, 1, 1, 1);
+					RenderTrains.scheduleRender(new ResourceLocation("mtr:textures/sign/door_not_in_use.png"), false, MoreRenderLayers::getExterior, (matricesNew, vertexConsumer) -> {
+						storedMatrixTransformations.transform(matricesNew);
+						matricesNew.translate(side ? 0.125 : -0.125, 0, 0);
+						MODEL_PSD_DOOR_LOCKED.renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1, 1, 1, 1);
+						matricesNew.popPose();
+					});
 				}
 				break;
 		}
-
-		matrices.popPose();
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package mtr.client;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import mtr.MTR;
 import mtr.block.BlockLiftTrackFloor;
 import mtr.data.*;
@@ -24,6 +26,7 @@ import java.awt.image.DataBufferByte;
 import java.text.AttributedString;
 import java.util.List;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -46,9 +49,9 @@ public class ClientCache extends DataCache implements IGui {
 	private final List<Long> clearDepotIdToSidings = new ArrayList<>();
 	private final List<Long> clearPlatformIdToRoutes = new ArrayList<>();
 
-	private final Map<String, DynamicResource> dynamicResources = new HashMap<>();
-	private final Set<String> removedResources = new HashSet<>();
-	private boolean canGenerateResource = true;
+	private final Object2ObjectLinkedOpenHashMap<String, DynamicResource> dynamicResources = new Object2ObjectLinkedOpenHashMap<>();
+	private final ObjectLinkedOpenHashSet<String> resourcesToRefresh = new ObjectLinkedOpenHashSet<>();
+	private final List<Runnable> resourceRegistryQueue = new ArrayList<>();
 
 	public static final float LINE_HEIGHT_MULTIPLIER = 1.25F;
 	private static final ResourceLocation DEFAULT_BLACK_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/black.png");
@@ -66,7 +69,7 @@ public class ClientCache extends DataCache implements IGui {
 
 	@Override
 	protected void syncAdditional() {
-		mapIds(liftsClientIdMap, liftsClient);
+		syncLiftIds();
 
 		for (final TransportMode transportMode : TransportMode.values()) {
 			mapPosToSavedRails(posToPlatforms.get(transportMode), platforms, transportMode);
@@ -103,7 +106,15 @@ public class ClientCache extends DataCache implements IGui {
 				clearPlatformIdToRoutes.add(id);
 			}
 		});
-		removedResources.addAll(dynamicResources.keySet());
+	}
+
+	public void refreshDynamicResources() {
+		System.out.println("Refreshing dynamic resources");
+		resourcesToRefresh.addAll(dynamicResources.keySet());
+	}
+
+	public void syncLiftIds() {
+		mapIds(liftsClientIdMap, liftsClient);
 	}
 
 	public Map<Long, Platform> requestStationIdToPlatforms(long stationId) {
@@ -223,35 +234,43 @@ public class ClientCache extends DataCache implements IGui {
 	}
 
 	public DynamicResource getStationName(String stationName, float aspectRatio) {
-		return getResource(String.format("name_%s_%s", stationName, aspectRatio), () -> RouteMapGenerator.generateStationName(stationName, aspectRatio), DefaultRenderingColor.TRANSPARENT);
+		return getResource(String.format("station_name_%s_%s", stationName, aspectRatio), () -> RouteMapGenerator.generateStationName(stationName, aspectRatio), DefaultRenderingColor.TRANSPARENT);
 	}
 
 	public DynamicResource getTallStationName(int textColor, String stationName, int stationColor, float aspectRatio) {
-		return getResource(String.format("name_%s_%s_%s_%s", textColor, stationName, stationColor, aspectRatio), () -> RouteMapGenerator.generateTallStationName(textColor, stationName, stationColor, aspectRatio), DefaultRenderingColor.TRANSPARENT);
+		return getResource(String.format("tall_station_name_%s_%s_%s_%s", textColor, stationName, stationColor, aspectRatio), () -> RouteMapGenerator.generateTallStationName(textColor, stationName, stationColor, aspectRatio), DefaultRenderingColor.TRANSPARENT);
+	}
+
+	public DynamicResource getStationNameEntrance(int textColor, String stationName, float aspectRatio) {
+		return getResource(String.format("station_name_entrance_%s_%s_%s", textColor, stationName, aspectRatio), () -> RouteMapGenerator.generateStationNameEntrance(textColor, stationName, aspectRatio), DefaultRenderingColor.TRANSPARENT);
 	}
 
 	public DynamicResource getSingleRowStationName(long platformId, float aspectRatio) {
-		return getResource(String.format("name_%s_%s", platformId, aspectRatio), () -> RouteMapGenerator.generateSingleRowStationName(platformId, aspectRatio), DefaultRenderingColor.WHITE);
+		return getResource(String.format("single_row_station_name_%s_%s", platformId, aspectRatio), () -> RouteMapGenerator.generateSingleRowStationName(platformId, aspectRatio), DefaultRenderingColor.WHITE);
 	}
 
 	public DynamicResource getSignText(String text, HorizontalAlignment horizontalAlignment, float paddingScale, int backgroundColor, int textColor) {
-		return getResource(String.format("route_%s_%s_%s_%s_%s", text, horizontalAlignment, paddingScale, backgroundColor, textColor), () -> RouteMapGenerator.generateSignText(text, horizontalAlignment, paddingScale, backgroundColor, textColor), DefaultRenderingColor.TRANSPARENT);
+		return getResource(String.format("sign_text_%s_%s_%s_%s_%s", text, horizontalAlignment, paddingScale, backgroundColor, textColor), () -> RouteMapGenerator.generateSignText(text, horizontalAlignment, paddingScale, backgroundColor, textColor), DefaultRenderingColor.TRANSPARENT);
 	}
 
 	public DynamicResource getLiftPanelDisplay(String originalText, int textColor) {
-		return getResource(String.format("lift_%s", originalText), () -> RouteMapGenerator.generateLiftPanel(originalText, textColor), DefaultRenderingColor.BLACK);
+		return getResource(String.format("lift_panel_display_%s", originalText), () -> RouteMapGenerator.generateLiftPanel(originalText, textColor), DefaultRenderingColor.BLACK);
+	}
+
+	public DynamicResource getExitSignLetter(String exitLetter, String exitNumber, int backgroundColor) {
+		return getResource(String.format("exit_sign_letter_%s_%s", exitLetter, exitNumber), () -> RouteMapGenerator.generateExitSignLetter(exitLetter, exitNumber, backgroundColor), DefaultRenderingColor.TRANSPARENT);
 	}
 
 	public DynamicResource getRouteSquare(int color, String routeName, IGui.HorizontalAlignment horizontalAlignment) {
-		return getResource(String.format("route_%s_%s_%s", color, routeName, horizontalAlignment), () -> RouteMapGenerator.generateRouteSquare(color, routeName, horizontalAlignment), DefaultRenderingColor.TRANSPARENT);
+		return getResource(String.format("route_square_%s_%s_%s", color, routeName, horizontalAlignment), () -> RouteMapGenerator.generateRouteSquare(color, routeName, horizontalAlignment), DefaultRenderingColor.TRANSPARENT);
 	}
 
 	public DynamicResource getDirectionArrow(long platformId, boolean hasLeft, boolean hasRight, IGui.HorizontalAlignment horizontalAlignment, boolean showToString, float paddingScale, float aspectRatio, int backgroundColor, int textColor, int transparentColor) {
-		return getResource(String.format("map_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s", platformId, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio, backgroundColor, textColor, transparentColor), () -> RouteMapGenerator.generateDirectionArrow(platformId, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio, backgroundColor, textColor, transparentColor), transparentColor == 0 && backgroundColor == ARGB_WHITE ? DefaultRenderingColor.WHITE : DefaultRenderingColor.TRANSPARENT);
+		return getResource(String.format("direction_arrow_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s", platformId, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio, backgroundColor, textColor, transparentColor), () -> RouteMapGenerator.generateDirectionArrow(platformId, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio, backgroundColor, textColor, transparentColor), transparentColor == 0 && backgroundColor == ARGB_WHITE ? DefaultRenderingColor.WHITE : DefaultRenderingColor.TRANSPARENT);
 	}
 
 	public DynamicResource getRouteMap(long platformId, boolean vertical, boolean flip, float aspectRatio, boolean transparentWhite) {
-		return getResource(String.format("map_%s_%s_%s_%s_%s", platformId, vertical, flip, aspectRatio, transparentWhite), () -> RouteMapGenerator.generateRouteMap(platformId, vertical, flip, aspectRatio, transparentWhite), transparentWhite ? DefaultRenderingColor.TRANSPARENT : DefaultRenderingColor.WHITE);
+		return getResource(String.format("route_map_%s_%s_%s_%s_%s", platformId, vertical, flip, aspectRatio, transparentWhite), () -> RouteMapGenerator.generateRouteMap(platformId, vertical, flip, aspectRatio, transparentWhite), transparentWhite ? DefaultRenderingColor.TRANSPARENT : DefaultRenderingColor.WHITE);
 	}
 
 	public byte[] getTextPixels(String text, int[] dimensions, int fontSizeCjk, int fontSize) {
@@ -365,7 +384,7 @@ public class ClientCache extends DataCache implements IGui {
 		return posToSidings.get(transportMode);
 	}
 
-	private DynamicResource getResource(String key, Supplier<DynamicTexture> supplier, DefaultRenderingColor defaultRenderingColor) {
+	private DynamicResource getResource(String key, Supplier<NativeImage> supplier, DefaultRenderingColor defaultRenderingColor) {
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		if (font == null || fontCjk == null) {
 			final ResourceManager resourceManager = minecraftClient.getResourceManager();
@@ -377,47 +396,46 @@ public class ClientCache extends DataCache implements IGui {
 			}
 		}
 
-		final Set<String> keysToRemove = new HashSet<>();
-		dynamicResources.forEach((checkKey, dynamicResource) -> {
-			if (dynamicResource.removeIfOld()) {
-				keysToRemove.add(checkKey);
-			}
-		});
-		if (!keysToRemove.isEmpty()) {
-			keysToRemove.forEach(dynamicResources::remove);
+		if (!resourceRegistryQueue.isEmpty()) {
+			resourceRegistryQueue.remove(0).run();
 		}
 
-		if (dynamicResources.containsKey(key) && !removedResources.contains(key)) {
-			final DynamicResource dynamicResource = dynamicResources.get(key);
-			dynamicResource.age = 0;
+		final boolean needsRefresh = resourcesToRefresh.contains(key);
+		final DynamicResource dynamicResource = dynamicResources.get(key);
+
+		if (dynamicResource != null && !needsRefresh) {
 			return dynamicResource;
-		} else {
-			final ResourceLocation defaultLocation = defaultRenderingColor.resourceLocation;
+		}
 
-			if (canGenerateResource) {
-				canGenerateResource = false;
-				RouteMapGenerator.setConstants();
-
-				new Thread(() -> {
-					final DynamicTexture dynamicTexture = supplier.get();
-					minecraftClient.execute(() -> {
-						if (removedResources.contains(key) && dynamicResources.containsKey(key)) {
-							dynamicResources.get(key).remove();
-						}
-						dynamicResources.put(key, new DynamicResource(dynamicTexture == null ? defaultLocation : minecraftClient.getTextureManager().register(MTR.MOD_ID, dynamicTexture), dynamicTexture));
-						removedResources.remove(key);
-						canGenerateResource = true;
-					});
-				}).start();
+		RouteMapGenerator.setConstants();
+		CompletableFuture.supplyAsync(supplier).thenAccept(nativeImage -> resourceRegistryQueue.add(() -> {
+			final DynamicResource staticTextureProviderOld = dynamicResources.get(key);
+			if (staticTextureProviderOld != null) {
+				staticTextureProviderOld.remove();
 			}
 
-			if (dynamicResources.containsKey(key)) {
-				final DynamicResource dynamicResource = dynamicResources.get(key);
-				dynamicResource.age = 0;
-				return dynamicResource;
+			final DynamicResource dynamicResourceNew;
+			if (nativeImage == null) {
+				dynamicResourceNew = defaultRenderingColor.dynamicResource;
 			} else {
-				return new DynamicResource(defaultLocation, null);
+				final DynamicTexture dynamicTexture = new DynamicTexture(nativeImage);
+				final ResourceLocation resourceLocation = new ResourceLocation(MTR.MOD_ID, "dynamic_texture_" + key.toLowerCase(Locale.ENGLISH).replaceAll("[^0-9a-z_]", ""));
+				minecraftClient.getTextureManager().register(resourceLocation, dynamicTexture);
+				dynamicResourceNew = new DynamicResource(resourceLocation, dynamicTexture);
 			}
+
+			dynamicResources.put(key, dynamicResourceNew);
+		}));
+
+		if (needsRefresh) {
+			resourcesToRefresh.remove(key);
+		}
+
+		if (dynamicResource == null) {
+			dynamicResources.put(key, defaultRenderingColor.dynamicResource);
+			return defaultRenderingColor.dynamicResource;
+		} else {
+			return dynamicResource;
 		}
 	}
 
@@ -486,14 +504,11 @@ public class ClientCache extends DataCache implements IGui {
 
 	public static class DynamicResource {
 
-		private int age;
 		public final int width;
 		public final int height;
 		public final ResourceLocation resourceLocation;
-		private static final int MAX_AGE = 10000;
 
 		private DynamicResource(ResourceLocation resourceLocation, DynamicTexture dynamicTexture) {
-			age = 0;
 			this.resourceLocation = resourceLocation;
 			if (dynamicTexture != null) {
 				final NativeImage nativeImage = dynamicTexture.getPixels();
@@ -521,16 +536,6 @@ public class ClientCache extends DataCache implements IGui {
 				}
 			}
 		}
-
-		private boolean removeIfOld() {
-			age++;
-			if (age >= MAX_AGE) {
-				remove();
-				return true;
-			} else {
-				return false;
-			}
-		}
 	}
 
 	private enum DefaultRenderingColor {
@@ -538,10 +543,10 @@ public class ClientCache extends DataCache implements IGui {
 		WHITE(DEFAULT_WHITE_RESOURCE),
 		TRANSPARENT(DEFAULT_TRANSPARENT_RESOURCE);
 
-		private final ResourceLocation resourceLocation;
+		private final DynamicResource dynamicResource;
 
 		DefaultRenderingColor(ResourceLocation resourceLocation) {
-			this.resourceLocation = resourceLocation;
+			dynamicResource = new DynamicResource(resourceLocation, null);
 		}
 	}
 }

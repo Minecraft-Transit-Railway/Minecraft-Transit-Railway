@@ -2,6 +2,9 @@ package mtr.block;
 
 import mtr.BlockEntityTypes;
 import mtr.Items;
+import mtr.data.DataCache;
+import mtr.data.Platform;
+import mtr.data.RailwayData;
 import mtr.mappings.BlockDirectionalMapper;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.EntityBlockMapper;
@@ -19,6 +22,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -30,6 +34,8 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import java.util.Set;
 
 public class BlockPSDTop extends BlockDirectionalMapper implements EntityBlockMapper, IBlock {
 
@@ -170,10 +176,28 @@ public class BlockPSDTop extends BlockDirectionalMapper implements EntityBlockMa
 		return newState;
 	}
 
-	public static class TileEntityPSDTop extends BlockEntityMapper {
+	public static class TileEntityPSDTop extends TileEntityRouteBase {
 
 		public TileEntityPSDTop(BlockPos pos, BlockState state) {
 			super(BlockEntityTypes.PSD_TOP_TILE_ENTITY.get(), pos, state);
+		}
+	}
+
+	public static class TileEntityRouteBase extends BlockEntityMapper {
+
+		private long cachedRefreshTime;
+		private long cachedPlatformId;
+
+		public TileEntityRouteBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+			super(type, pos, state);
+		}
+
+		public long getPlatformId(Set<Platform> platforms, DataCache dataCache) {
+			if (dataCache.needsRefresh(cachedRefreshTime)) {
+				cachedPlatformId = RailwayData.getClosePlatformId(platforms, dataCache, getBlockPos());
+				cachedRefreshTime = System.currentTimeMillis();
+			}
+			return cachedPlatformId;
 		}
 	}
 

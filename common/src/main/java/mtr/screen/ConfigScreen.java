@@ -221,6 +221,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		Config.setDynamicTextureResolution(sliderDynamicTextureResolution.getIntValue());
 		Config.setTrainRenderDistanceRatio(sliderTrainRenderDistanceRatio.getIntValue());
 		ClientData.DATA_CACHE.sync();
+		ClientData.DATA_CACHE.refreshDynamicResources();
 		ClientData.SIGNAL_BLOCKS.writeCache();
 	}
 

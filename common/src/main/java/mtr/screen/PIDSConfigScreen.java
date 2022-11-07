@@ -46,7 +46,7 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 		}
 		hideArrival = new boolean[maxArrivals];
 
-		selectAllCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.select_local_platform"), checked -> {
+		selectAllCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.automatically_detect_nearby_platform"), checked -> {
 		});
 
 		textFieldMessages = new WidgetBetterTextField[maxArrivals];
@@ -76,24 +76,7 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 			}
 		}
 
-		filterButton = new Button(0, 0, 0, SQUARE_SIZE, Text.literal(""), button -> {
-			if (minecraft != null) {
-				final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos1);
-				if (station != null) {
-					final List<NameColorDataBase> platformsForList = new ArrayList<>();
-					final List<Platform> platforms = new ArrayList<>(ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id).values());
-					Collections.sort(platforms);
-					platforms.stream().map(platform -> new DataConverter(platform.id, platform.name + " " + IGui.mergeStations(ClientData.DATA_CACHE.requestPlatformIdToRoutes(platform.id).stream().map(route -> route.stationDetails.get(route.stationDetails.size() - 1).stationName).collect(Collectors.toList())), 0)).forEach(platformsForList::add);
-					if (selectAllCheckbox.selected()) {
-						filterPlatformIds.clear();
-					}
-					UtilitiesClient.setScreen(minecraft, new DashboardListSelectorScreen(() -> {
-						UtilitiesClient.setScreen(minecraft, this);
-						selectAllCheckbox.setChecked(filterPlatformIds.isEmpty());
-					}, platformsForList, filterPlatformIds, false, false));
-				}
-			}
-		});
+		filterButton = getPlatformFilterButton(pos1, selectAllCheckbox, filterPlatformIds, this);
 	}
 
 	@Override
@@ -146,7 +129,8 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
-			font.draw(matrices, messageText, SQUARE_SIZE + TEXT_PADDING, (SQUARE_SIZE * 5) + TEXT_PADDING, ARGB_WHITE);
+			font.draw(matrices, Text.translatable("gui.mtr.filtered_platforms", selectAllCheckbox.selected() ? 0 : filterPlatformIds.size()), SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
+			font.draw(matrices, messageText, SQUARE_SIZE + TEXT_PADDING, SQUARE_SIZE * 5 + TEXT_PADDING, ARGB_WHITE);
 			super.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -156,5 +140,25 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 	@Override
 	public boolean isPauseScreen() {
 		return false;
+	}
+
+	public static Button getPlatformFilterButton(BlockPos pos, WidgetBetterCheckbox selectAllCheckbox, Set<Long> filterPlatformIds, ScreenMapper thisScreen) {
+		return new Button(0, 0, 0, SQUARE_SIZE, Text.literal(""), button -> {
+			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
+			if (station != null) {
+				final List<NameColorDataBase> platformsForList = new ArrayList<>();
+				final List<Platform> platforms = new ArrayList<>(ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id).values());
+				Collections.sort(platforms);
+				platforms.stream().map(platform -> new DataConverter(platform.id, platform.name + " " + IGui.mergeStations(ClientData.DATA_CACHE.requestPlatformIdToRoutes(platform.id).stream().map(route -> route.stationDetails.get(route.stationDetails.size() - 1).stationName).collect(Collectors.toList())), 0)).forEach(platformsForList::add);
+				if (selectAllCheckbox.selected()) {
+					filterPlatformIds.clear();
+				}
+				final Minecraft minecraft = Minecraft.getInstance();
+				UtilitiesClient.setScreen(minecraft, new DashboardListSelectorScreen(() -> {
+					UtilitiesClient.setScreen(minecraft, thisScreen);
+					selectAllCheckbox.setChecked(filterPlatformIds.isEmpty());
+				}, platformsForList, filterPlatformIds, false, false));
+			}
+		});
 	}
 }

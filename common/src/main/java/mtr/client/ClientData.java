@@ -143,10 +143,10 @@ public final class ClientData {
 			final LiftClient existingLift = DATA_CACHE.liftsClientIdMap.get(newLift.id);
 			if (existingLift == null) {
 				LIFTS.add(newLift);
+				ClientData.DATA_CACHE.syncLiftIds();
 			} else {
 				existingLift.copyFromLift(newLift);
 			}
-			ClientData.DATA_CACHE.sync();
 		}));
 	}
 
@@ -166,7 +166,7 @@ public final class ClientData {
 				}
 			});
 			liftsToRemove.forEach(LIFTS::remove);
-			ClientData.DATA_CACHE.sync();
+			ClientData.DATA_CACHE.syncLiftIds();
 		});
 	}
 
@@ -266,6 +266,7 @@ public final class ClientData {
 
 		TRAINS.clear();
 		ClientData.DATA_CACHE.sync();
+		ClientData.DATA_CACHE.refreshDynamicResources();
 		SIGNAL_BLOCKS.writeCache();
 	}
 
