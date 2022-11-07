@@ -67,6 +67,8 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	public static final int LIFT_LIGHT_COLOR = 0xFFFF0000;
 	private static final Map<ResourceLocation, Tuple<Function<ResourceLocation, RenderType>, Set<BiConsumer<PoseStack, VertexConsumer>>>> RENDERS_1 = new HashMap<>();
 	private static final Map<ResourceLocation, Tuple<Function<ResourceLocation, RenderType>, Set<BiConsumer<PoseStack, VertexConsumer>>>> RENDERS_2 = new HashMap<>();
+	private static final Map<ResourceLocation, Tuple<Function<ResourceLocation, RenderType>, Set<BiConsumer<PoseStack, VertexConsumer>>>> CURRENT_RENDERS_1 = new HashMap<>();
+	private static final Map<ResourceLocation, Tuple<Function<ResourceLocation, RenderType>, Set<BiConsumer<PoseStack, VertexConsumer>>>> CURRENT_RENDERS_2 = new HashMap<>();
 	private static final ResourceLocation LIFT_TEXTURE = new ResourceLocation("mtr:textures/entity/lift_1.png");
 	private static final ResourceLocation ARROW_TEXTURE = new ResourceLocation("mtr:textures/sign/lift_arrow.png");
 
@@ -289,18 +291,24 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		}));
 
 		matrices.popPose();
-		lastRenderedTick = MTRClient.getGameTick();
 
-		RENDERS_1.forEach((key, value) -> {
+		if (lastRenderedTick != MTRClient.getGameTick()) {
+			CURRENT_RENDERS_1.clear();
+			CURRENT_RENDERS_1.putAll(RENDERS_1);
+			RENDERS_1.clear();
+			CURRENT_RENDERS_2.clear();
+			CURRENT_RENDERS_2.putAll(RENDERS_2);
+			RENDERS_2.clear();
+		}
+
+		CURRENT_RENDERS_1.forEach((key, value) -> {
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(value.getA().apply(key));
 			value.getB().forEach(renderer -> renderer.accept(matrices, vertexConsumer));
 		});
-		RENDERS_1.clear();
-		RENDERS_2.forEach((key, value) -> {
+		CURRENT_RENDERS_2.forEach((key, value) -> {
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(value.getA().apply(key));
 			value.getB().forEach(renderer -> renderer.accept(matrices, vertexConsumer));
 		});
-		RENDERS_2.clear();
 
 		if (prevPlatformCount != ClientData.PLATFORMS.size() || prevSidingCount != ClientData.SIDINGS.size()) {
 			ClientData.DATA_CACHE.sync();
@@ -308,6 +316,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		prevPlatformCount = ClientData.PLATFORMS.size();
 		prevSidingCount = ClientData.SIDINGS.size();
 		ClientData.DATA_CACHE.clearDataIfNeeded();
+		lastRenderedTick = MTRClient.getGameTick();
 	}
 
 	public static boolean shouldNotRender(BlockPos pos, int maxDistance, Direction facing) {
