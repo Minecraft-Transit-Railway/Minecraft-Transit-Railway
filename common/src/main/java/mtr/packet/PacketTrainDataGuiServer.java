@@ -397,10 +397,11 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		for (int i = 0; i < platformIdCount; i++) {
 			platformIds.add(packet.readLong());
 		}
+		final int displayPage = packet.readInt();
 		minecraftServer.execute(() -> {
 			final BlockEntity entity = player.level.getBlockEntity(pos);
 			if (entity instanceof BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) {
-				((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).setData(platformIds);
+				((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).setData(platformIds, displayPage);
 			}
 		});
 	}
