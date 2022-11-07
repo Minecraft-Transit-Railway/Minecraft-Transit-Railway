@@ -22,6 +22,7 @@ public class RouteMapGenerator implements IGui {
 	private static int fontSizeSmall;
 
 	private static final int MIN_VERTICAL_SIZE = 5;
+	private static final String LOGO_RESOURCE = "textures/sign/logo.png";
 	private static final String EXIT_RESOURCE = "textures/sign/exit_letter_blank.png";
 	private static final String ARROW_RESOURCE = "textures/sign/arrow.png";
 	private static final String CIRCLE_RESOURCE = "textures/sign/circle.png";
@@ -100,6 +101,34 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
+	public static NativeImage generateStationNameEntrance(int textColor, String stationName, float aspectRatio) {
+		if (aspectRatio <= 0) {
+			return null;
+		}
+
+		try {
+			final int size = scale * 2;
+			final int width = Math.round(size * aspectRatio);
+			final int padding = scale / 16;
+			final int[] dimensions = new int[2];
+			final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(stationName, dimensions, width - size - padding, size - padding * 2, fontSizeBig * 3, fontSizeSmall * 3, padding, HorizontalAlignment.LEFT);
+			final int xOffset = (width - dimensions[0] - size) / 2;
+			final int fakeBackgroundColor = textColor == ARGB_BLACK ? textColor + 0x010101 : 0;
+
+			final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, size, false);
+			nativeImage.fillRect(0, 0, width, size, fakeBackgroundColor);
+			drawResource(nativeImage, LOGO_RESOURCE, xOffset, 0, size, size, false, 0, 1, 0, true);
+			drawString(nativeImage, pixels, size + xOffset, size / 2, dimensions, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, fakeBackgroundColor, textColor, false);
+			clearColor(nativeImage, invertColor(fakeBackgroundColor));
+
+			return nativeImage;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
 	public static NativeImage generateSingleRowStationName(long platformId, float aspectRatio) {
 		if (aspectRatio <= 0) {
 			return null;
@@ -139,6 +168,7 @@ public class RouteMapGenerator implements IGui {
 			}
 
 			final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
+			nativeImage.fillRect(0, 0, width, height, 0);
 			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, backgroundColor, textColor, false);
 			clearColor(nativeImage, invertColor(backgroundColor));
 
@@ -688,29 +718,17 @@ public class RouteMapGenerator implements IGui {
 				final int pixel2 = nativeImageResource.getPixelRGBA(Mth.clamp(ceilX, 0, resourceWidth - 1), Mth.clamp(floorY, 0, resourceHeight - 1));
 				final int pixel3 = nativeImageResource.getPixelRGBA(Mth.clamp(floorX, 0, resourceWidth - 1), Mth.clamp(ceilY, 0, resourceHeight - 1));
 				final int pixel4 = nativeImageResource.getPixelRGBA(Mth.clamp(ceilX, 0, resourceWidth - 1), Mth.clamp(ceilY, 0, resourceHeight - 1));
-				final float luminance1 = ((pixel1 >> 24) & 0xFF) * percentX1 * percentY1;
-				final float luminance2 = ((pixel2 >> 24) & 0xFF) * percentX2 * percentY1;
-				final float luminance3 = ((pixel3 >> 24) & 0xFF) * percentX1 * percentY2;
-				final float luminance4 = ((pixel4 >> 24) & 0xFF) * percentX2 * percentY2;
 				final int newColor;
 				if (useActualColor) {
-					final float r1 = ((pixel1 >> 16) & 0xFF) * percentX1 * percentY1;
-					final float r2 = ((pixel2 >> 16) & 0xFF) * percentX2 * percentY1;
-					final float r3 = ((pixel3 >> 16) & 0xFF) * percentX1 * percentY2;
-					final float r4 = ((pixel4 >> 16) & 0xFF) * percentX2 * percentY2;
-					final float g1 = ((pixel1 >> 8) & 0xFF) * percentX1 * percentY1;
-					final float g2 = ((pixel2 >> 8) & 0xFF) * percentX2 * percentY1;
-					final float g3 = ((pixel3 >> 8) & 0xFF) * percentX1 * percentY2;
-					final float g4 = ((pixel4 >> 8) & 0xFF) * percentX2 * percentY2;
-					final float b1 = (pixel1 & 0xFF) * percentX1 * percentY1;
-					final float b2 = (pixel2 & 0xFF) * percentX2 * percentY1;
-					final float b3 = (pixel3 & 0xFF) * percentX1 * percentY2;
-					final float b4 = (pixel4 & 0xFF) * percentX2 * percentY2;
-					newColor = ((int) (r1 + r2 + r3 + r4)) + ((int) (g1 + g2 + g3 + g4) << 8) + ((int) (b1 + b2 + b3 + b4) << 16);
+					newColor = invertColor(pixel1);
 				} else {
-					newColor = color;
+					final float luminance1 = ((pixel1 >> 24) & 0xFF) * percentX1 * percentY1;
+					final float luminance2 = ((pixel2 >> 24) & 0xFF) * percentX2 * percentY1;
+					final float luminance3 = ((pixel3 >> 24) & 0xFF) * percentX1 * percentY2;
+					final float luminance4 = ((pixel4 >> 24) & 0xFF) * percentX2 * percentY2;
+					newColor = (color & RGB_WHITE) + ((int) (luminance1 + luminance2 + luminance3 + luminance4) << 24);
 				}
-				blendPixel(nativeImage, (flipX ? width - drawX - 1 : drawX) + x, drawY + y, (newColor & RGB_WHITE) + ((int) (luminance1 + luminance2 + luminance3 + luminance4) << 24));
+				blendPixel(nativeImage, (flipX ? width - drawX - 1 : drawX) + x, drawY + y, newColor);
 			}
 		}
 	}
