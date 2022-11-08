@@ -116,9 +116,6 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 						(side ? MODEL_PSD_END_RIGHT_1 : MODEL_PSD_END_LEFT_1).renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1, 1, 1, 1);
 						matricesNew.popPose();
 					});
-					if (half && !unlocked) {
-						storedMatrixTransformations.add(matricesNew -> matricesNew.translate(side ? 0.25 : -0.25, 0, 0));
-					}
 				} else {
 					RenderTrains.scheduleRender(new ResourceLocation(String.format("mtr:textures/block/psd_door_%s_%s_%s.png", half ? "top" : "bottom", side ? "right" : "left", type == 1 ? "2" : "1")), false, MoreRenderLayers::getExterior, (matricesNew, vertexConsumer) -> {
 						storedMatrixTransformations.transform(matricesNew);
@@ -129,6 +126,7 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 				if (half && !unlocked) {
 					RenderTrains.scheduleRender(new ResourceLocation("mtr:textures/sign/door_not_in_use.png"), false, MoreRenderLayers::getExterior, (matricesNew, vertexConsumer) -> {
 						storedMatrixTransformations.transform(matricesNew);
+						matricesNew.translate(side ? 0.25 : -0.25, 0, 0);
 						MODEL_PSD_DOOR_LOCKED.renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1, 1, 1, 1);
 						matricesNew.popPose();
 					});

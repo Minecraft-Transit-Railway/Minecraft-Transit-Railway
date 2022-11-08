@@ -1,6 +1,5 @@
 package mtr.render;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.block.BlockStationNameBase;
 import mtr.block.BlockStationNameEntrance;
 import mtr.block.IBlock;
@@ -25,19 +24,25 @@ public class RenderStationNameTiled<T extends BlockStationNameBase.TileEntitySta
 	}
 
 	@Override
-	protected void drawStationName(BlockGetter world, BlockPos pos, BlockState state, Direction facing, PoseStack matrices, MultiBufferSource vertexConsumers, MultiBufferSource.BufferSource immediate, String stationName, int stationColor, int color, int light) {
+	protected void drawStationName(BlockGetter world, BlockPos pos, BlockState state, Direction facing, StoredMatrixTransformations storedMatrixTransformations, MultiBufferSource vertexConsumers, String stationName, int stationColor, int color, int light) {
 		final int lengthLeft = getLength(world, pos, false);
 		final int lengthRight = getLength(world, pos, true);
 
+		final int totalLength = lengthLeft + lengthRight - 1;
 		if (showLogo) {
-			if (lengthLeft == 1) {
-				final int propagateProperty = IBlock.getStatePropertySafe(world, pos, BlockStationNameEntrance.STYLE);
-				final float logoSize = propagateProperty % 2 == 0 ? 0.5F : 1;
-				IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(ClientData.DATA_CACHE.getStationNameEntrance(propagateProperty < 2 || propagateProperty >= 4 ? ARGB_WHITE : ARGB_BLACK, IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, stationName), lengthRight / logoSize).resourceLocation)), -0.5F, -logoSize / 2, lengthRight, logoSize, 0, 0, 1, 1, facing, color, light);
-			}
+			final int propagateProperty = IBlock.getStatePropertySafe(world, pos, BlockStationNameEntrance.STYLE);
+			final float logoSize = propagateProperty % 2 == 0 ? 0.5F : 1;
+			RenderTrains.scheduleRender(ClientData.DATA_CACHE.getStationNameEntrance(propagateProperty < 2 || propagateProperty >= 4 ? ARGB_WHITE : ARGB_BLACK, IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, stationName), totalLength / logoSize).resourceLocation, false, MoreRenderLayers::getInterior, (matrices, vertexConsumer) -> {
+				storedMatrixTransformations.transform(matrices);
+				IDrawing.drawTexture(matrices, vertexConsumer, -0.5F, -logoSize / 2, 1, logoSize, (float) (lengthLeft - 1) / totalLength, 0, (float) lengthLeft / totalLength, 1, facing, color, light);
+				matrices.popPose();
+			});
 		} else {
-			final int totalLength = lengthLeft + lengthRight - 1;
-			IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getStationName(stationName, totalLength).resourceLocation)), -0.5F, -0.5F, 1, 1, (float) (lengthLeft - 1) / totalLength, 0, (float) lengthLeft / totalLength, 1, facing, color, light);
+			RenderTrains.scheduleRender(ClientData.DATA_CACHE.getStationName(stationName, totalLength).resourceLocation, false, MoreRenderLayers::getExterior, (matrices, vertexConsumer) -> {
+				storedMatrixTransformations.transform(matrices);
+				IDrawing.drawTexture(matrices, vertexConsumer, -0.5F, -0.5F, 1, 1, (float) (lengthLeft - 1) / totalLength, 0, (float) lengthLeft / totalLength, 1, facing, color, light);
+				matrices.popPose();
+			});
 		}
 	}
 

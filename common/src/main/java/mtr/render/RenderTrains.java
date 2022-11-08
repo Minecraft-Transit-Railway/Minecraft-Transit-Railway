@@ -473,9 +473,4 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			return Text.literal("");
 		}
 	}
-
-	@Deprecated // TODO remove
-	public static float getGameTicks() {
-		return MTRClient.getGameTick();
-	}
 }
