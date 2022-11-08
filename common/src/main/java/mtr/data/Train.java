@@ -62,7 +62,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 	public static final float MIN_ACCELERATION = 0.001F; // m/tick^2
 	public static final int DOOR_MOVE_TIME = 64;
 	protected static final int MAX_CHECK_DISTANCE = 32;
-	private static final int DOOR_DELAY = 20;
+	protected static final int DOOR_DELAY = 20;
 
 	private static final String KEY_SPEED = "speed";
 	private static final String KEY_RAIL_PROGRESS = "rail_progress";
@@ -376,7 +376,9 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		}
 
 		try {
-			final float tempDoorValue1;
+			final boolean tempDoorOpen;
+			final float tempDoorValue;
+
 			if (nextStoppingIndex >= path.size()) {
 				return;
 			}
@@ -385,7 +387,8 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 			if (!isOnRoute) {
 				railProgress = (railLength + trainCars * spacing) / 2;
 				reversed = false;
-				tempDoorValue1 = 0;
+				tempDoorOpen = false;
+				tempDoorValue = 0;
 				speed = 0;
 				nextStoppingIndex = 0;
 
@@ -399,15 +402,17 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 					isOnRoute = false;
 					manualAccelerationSign = -2;
 					ridingEntities.clear();
-					tempDoorValue1 = 0;
+					tempDoorOpen = false;
+					tempDoorValue = 0;
 				} else {
-					final float tempDoorValue2;
-
 					if (speed <= 0) {
 						speed = 0;
 
+						final boolean isOppositeRail = isOppositeRail();
+						final boolean railBlocked = isRailBlocked(getIndex(0, spacing, true) + (isOppositeRail ? 2 : 1));
+
 						if (dwellTicks == 0) {
-							tempDoorValue2 = 0;
+							tempDoorOpen = false;
 						} else {
 							if (stopCounter == 0 && isRepeat() && getIndex(railProgress, false) >= repeatIndex2 && distances.size() > repeatIndex1) {
 								if (path.get(repeatIndex2).isOppositeRail(path.get(repeatIndex1))) {
@@ -418,19 +423,15 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 								}
 							}
 
-							stopCounter += ticksElapsed;
-							if (isCurrentlyManual) {
-								doorValue = Mth.clamp(doorValue + ticksElapsed * (doorOpen ? 1 : -1) / DOOR_MOVE_TIME, 0, 1);
+							if (stopCounter < dwellTicks - DOOR_MOVE_TIME - DOOR_DELAY || !railBlocked) {
+								stopCounter += ticksElapsed;
 							}
 
-							tempDoorValue2 = getDoorValue();
+							tempDoorOpen = openDoors();
 						}
 
-						if (!world.isClientSide() && (isCurrentlyManual || stopCounter >= dwellTicks)) {
-							final boolean isOppositeRail = isOppositeRail();
-							if (!isRailBlocked(getIndex(0, spacing, true) + (isOppositeRail ? 2 : 1)) && (!isCurrentlyManual || manualAccelerationSign > 0)) {
-								startUp(world, trainCars, spacing, isOppositeRail);
-							}
+						if (!world.isClientSide() && (isCurrentlyManual || stopCounter >= dwellTicks) && !railBlocked && (!isCurrentlyManual || manualAccelerationSign > 0)) {
+							startUp(world, trainCars, spacing, isOppositeRail);
 						}
 					} else {
 						if (!world.isClientSide()) {
@@ -464,9 +465,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 							}
 						}
 
-						tempDoorValue2 = 0;
-						doorOpen = false;
-						doorValue = 0;
+						tempDoorOpen = transportMode.continuousMovement && openDoors();
 					}
 
 					railProgress += speed * ticksElapsed;
@@ -476,11 +475,15 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 						manualAccelerationSign = -2;
 					}
 
-					tempDoorValue1 = tempDoorValue2 + (transportMode.continuousMovement ? getDoorValueContinuous() : 0);
+					tempDoorValue = Mth.clamp(doorValue + ticksElapsed * (doorOpen ? 1 : -1) / DOOR_MOVE_TIME, 0, 1);
 				}
 			}
 
-			doorValue = tempDoorValue1;
+			doorOpen = tempDoorOpen;
+			doorValue = tempDoorValue;
+			if (doorOpen || doorValue != 0) {
+				manualAccelerationSign = -2;
+			}
 
 			if (!path.isEmpty()) {
 				final Vec3[] positions = new Vec3[trainCars + 1];
@@ -570,6 +573,10 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		doorValue = 0;
 	}
 
+	protected boolean openDoors() {
+		return doorOpen;
+	}
+
 	protected float getModelZOffset() {
 		return 0;
 	}
@@ -609,48 +616,6 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		final double tempRailProgress = Math.max(getRailProgress(car, trainSpacing) - getModelZOffset(), 0);
 		final int index = getIndex(tempRailProgress, false);
 		return path.get(index).rail.getPosition(tempRailProgress - (index == 0 ? 0 : distances.get(index - 1))).add(0, transportMode.railOffset, 0);
-	}
-
-	private float getDoorValue() {
-		if (!isCurrentlyManual) {
-			final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
-			final float maxDoorMoveTime = Math.min(DOOR_MOVE_TIME, dwellTicks / 2 - DOOR_DELAY);
-			final float stage1 = DOOR_DELAY;
-			final float stage2 = DOOR_DELAY + maxDoorMoveTime;
-			final float stage3 = dwellTicks - DOOR_DELAY - maxDoorMoveTime;
-			final float stage4 = dwellTicks - DOOR_DELAY;
-			if (stopCounter < stage1 || stopCounter >= stage4) {
-				doorOpen = false;
-				doorValue = 0;
-			} else if (stopCounter >= stage2 && stopCounter < stage3) {
-				doorOpen = true;
-				doorValue = 1;
-			} else if (stopCounter < stage2) {
-				doorOpen = true;
-				doorValue = (stopCounter - stage1) / DOOR_MOVE_TIME;
-			} else if (stopCounter >= stage3) {
-				doorOpen = false;
-				doorValue = (stage4 - stopCounter) / DOOR_MOVE_TIME;
-			} else {
-				doorOpen = false;
-				doorValue = 0;
-			}
-		}
-		if (doorOpen || doorValue != 0) {
-			manualAccelerationSign = -2;
-		}
-		return doorValue;
-	}
-
-	private float getDoorValueContinuous() {
-		final int index = getIndex(railProgress, false);
-		if (path.get(index).dwellTime > 0 && index > 0) {
-			final double distance1 = distances.get(index - 1);
-			final double distance2 = distances.get(index);
-			return (float) Mth.clamp(Math.min(railProgress - distance1, distance2 - railProgress) * 0.5, 0, 1);
-		} else {
-			return 0;
-		}
 	}
 
 	private boolean scanDoors(Level world, double trainX, double trainY, double trainZ, float checkYaw, float pitch, double halfSpacing, int dwellTicks) {
