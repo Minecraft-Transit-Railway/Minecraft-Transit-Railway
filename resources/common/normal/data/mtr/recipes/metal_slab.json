@@ -1,20 +1,15 @@
 {
 	"type": "minecraft:crafting_shaped",
 	"pattern": [
-		"BBB",
-		"BDB",
 		"BBB"
 	],
 	"key": {
 		"B": {
 			"item": "mtr:metal"
-		},
-		"D": {
-			"tag": "c:dyes"
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_metal",
-		"count": 8
+		"item": "mtr:metal_slab",
+		"count": 6
 	}
 }
