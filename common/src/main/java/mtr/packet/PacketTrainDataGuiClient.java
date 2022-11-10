@@ -380,12 +380,12 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		packet.writeBlockPos(pos1);
 		packet.writeBlockPos(pos2);
 		packet.writeInt(messages.length);
-		packet.writeInt(filterPlatformIds.size());
-		filterPlatformIds.forEach(packet::writeLong);
 		for (int i = 0; i < messages.length; i++) {
 			packet.writeUtf(messages[i]);
 			packet.writeBoolean(hideArrival[i]);
 		}
+		packet.writeInt(filterPlatformIds.size());
+		filterPlatformIds.forEach(packet::writeLong);
 		RegistryClient.sendToServer(PACKET_PIDS_UPDATE, packet);
 	}
 

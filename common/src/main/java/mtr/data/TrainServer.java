@@ -79,6 +79,28 @@ public class TrainServer extends Train {
 	}
 
 	@Override
+	protected boolean openDoors() {
+		if (isCurrentlyManual) {
+			return doorOpen;
+		} else {
+			if (transportMode.continuousMovement) {
+				final int index = getIndex(railProgress, false);
+				if (path.get(index).dwellTime > 0 && index > 0) {
+					final double doorValue1 = (railProgress - distances.get(index - 1)) * 0.5;
+					final double doorValue2 = (distances.get(index) - railProgress) * 0.5;
+					return doorValue1 > 0 && (doorValue2 > doorValue1 || doorValue2 > 1);
+				} else {
+					return false;
+				}
+			} else {
+				final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
+				final float maxDoorMoveTime = Math.min(DOOR_MOVE_TIME, dwellTicks / 2 - DOOR_DELAY);
+				return stopCounter >= DOOR_DELAY && stopCounter < dwellTicks - DOOR_DELAY - maxDoorMoveTime;
+			}
+		}
+	}
+
+	@Override
 	protected void simulateCar(
 			Level world, int ridingCar, float ticksElapsed,
 			double carX, double carY, double carZ, float carYaw, float carPitch,
@@ -220,6 +242,7 @@ public class TrainServer extends Train {
 		final int oldPassengerCount = ridingEntities.size();
 		final boolean oldIsCurrentlyManual = isCurrentlyManual;
 		final boolean oldStopped = speed == 0;
+		final boolean oldDoorOpen = doorOpen;
 
 		simulateTrain(world, ticksElapsed, depot);
 
@@ -312,7 +335,7 @@ public class TrainServer extends Train {
 			isCurrentlyManual = false;
 		}
 
-		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex || oldIsCurrentlyManual != isCurrentlyManual || oldStopped && speed != 0;
+		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex || oldIsCurrentlyManual != isCurrentlyManual || oldStopped && speed != 0 || oldDoorOpen != doorOpen;
 	}
 
 	public void writeTrainPositions(List<Map<UUID, Long>> trainPositions, SignalBlocks signalBlocks) {

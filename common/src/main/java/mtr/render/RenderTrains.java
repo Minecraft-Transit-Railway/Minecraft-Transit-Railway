@@ -29,7 +29,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
@@ -61,14 +60,31 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 	public static final int DETAIL_RADIUS = 32;
 	public static final int DETAIL_RADIUS_SQUARED = DETAIL_RADIUS * DETAIL_RADIUS;
+	public static final int LIFT_LIGHT_COLOR = 0xFFFF0000;
 	private static final int MAX_RADIUS_REPLAY_MOD = 64 * 16;
 	private static final int TICKS_PER_SECOND = 20;
 	private static final int DISMOUNT_PROGRESS_BAR_LENGTH = 30;
-	public static final int LIFT_LIGHT_COLOR = 0xFFFF0000;
-	private static final Map<ResourceLocation, Tuple<Function<ResourceLocation, RenderType>, Set<BiConsumer<PoseStack, VertexConsumer>>>> RENDERS_1 = new HashMap<>();
-	private static final Map<ResourceLocation, Tuple<Function<ResourceLocation, RenderType>, Set<BiConsumer<PoseStack, VertexConsumer>>>> RENDERS_2 = new HashMap<>();
+	private static final int TOTAL_RENDER_STAGES = 2;
+	private static final List<List<Map<ResourceLocation, Set<BiConsumer<PoseStack, VertexConsumer>>>>> RENDERS = new ArrayList<>(TOTAL_RENDER_STAGES);
+	private static final List<List<Map<ResourceLocation, Set<BiConsumer<PoseStack, VertexConsumer>>>>> CURRENT_RENDERS = new ArrayList<>(TOTAL_RENDER_STAGES);
 	private static final ResourceLocation LIFT_TEXTURE = new ResourceLocation("mtr:textures/entity/lift_1.png");
 	private static final ResourceLocation ARROW_TEXTURE = new ResourceLocation("mtr:textures/sign/lift_arrow.png");
+
+	static {
+		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
+			final int renderStageCount = QueuedRenderLayer.values().length;
+			final List<Map<ResourceLocation, Set<BiConsumer<PoseStack, VertexConsumer>>>> rendersList = new ArrayList<>(renderStageCount);
+			final List<Map<ResourceLocation, Set<BiConsumer<PoseStack, VertexConsumer>>>> currentRendersList = new ArrayList<>(renderStageCount);
+
+			for (int j = 0; j < renderStageCount; j++) {
+				rendersList.add(j, new HashMap<>());
+				currentRendersList.add(j, new HashMap<>());
+			}
+
+			RENDERS.add(i, rendersList);
+			CURRENT_RENDERS.add(i, currentRendersList);
+		}
+	}
 
 	public RenderTrains(Object parameter) {
 		super(parameter);
@@ -289,18 +305,41 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		}));
 
 		matrices.popPose();
-		lastRenderedTick = MTRClient.getGameTick();
 
-		RENDERS_1.forEach((key, value) -> {
-			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(value.getA().apply(key));
-			value.getB().forEach(renderer -> renderer.accept(matrices, vertexConsumer));
-		});
-		RENDERS_1.clear();
-		RENDERS_2.forEach((key, value) -> {
-			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(value.getA().apply(key));
-			value.getB().forEach(renderer -> renderer.accept(matrices, vertexConsumer));
-		});
-		RENDERS_2.clear();
+		if (lastRenderedTick != MTRClient.getGameTick()) {
+			for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
+				for (int j = 0; j < QueuedRenderLayer.values().length; j++) {
+					CURRENT_RENDERS.get(i).get(j).clear();
+					CURRENT_RENDERS.get(i).get(j).putAll(RENDERS.get(i).get(j));
+					RENDERS.get(i).get(j).clear();
+				}
+			}
+		}
+
+		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
+			for (int j = 0; j < QueuedRenderLayer.values().length; j++) {
+				final QueuedRenderLayer queuedRenderLayer = QueuedRenderLayer.values()[j];
+				CURRENT_RENDERS.get(i).get(j).forEach((key, value) -> {
+					final RenderType renderType;
+					switch (queuedRenderLayer) {
+						case LIGHT:
+							renderType = MoreRenderLayers.getLight(key, false);
+							break;
+						case LIGHT_TRANSLUCENT:
+							renderType = MoreRenderLayers.getLight(key, true);
+							break;
+						case INTERIOR:
+							renderType = MoreRenderLayers.getInterior(key);
+							break;
+						default:
+							renderType = MoreRenderLayers.getExterior(key);
+							break;
+					}
+					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(renderType);
+					value.forEach(renderer -> renderer.accept(matrices, vertexConsumer));
+				});
+			}
+		}
 
 		if (prevPlatformCount != ClientData.PLATFORMS.size() || prevSidingCount != ClientData.SIDINGS.size()) {
 			ClientData.DATA_CACHE.sync();
@@ -308,6 +347,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		prevPlatformCount = ClientData.PLATFORMS.size();
 		prevSidingCount = ClientData.SIDINGS.size();
 		ClientData.DATA_CACHE.clearDataIfNeeded();
+		lastRenderedTick = MTRClient.getGameTick();
 	}
 
 	public static boolean shouldNotRender(BlockPos pos, int maxDistance, Direction facing) {
@@ -359,11 +399,17 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		}
 	}
 
+	@Deprecated // TODO remove later
 	public static void scheduleRender(ResourceLocation resourceLocation, boolean priority, Function<ResourceLocation, RenderType> getVertexConsumer, BiConsumer<PoseStack, VertexConsumer> callback) {
-		if (!(priority ? RENDERS_2 : RENDERS_1).containsKey(resourceLocation)) {
-			(priority ? RENDERS_2 : RENDERS_1).put(resourceLocation, new Tuple<>(getVertexConsumer, new HashSet<>()));
+		scheduleRender(resourceLocation, priority, QueuedRenderLayer.EXTERIOR, callback);
+	}
+
+	public static void scheduleRender(ResourceLocation resourceLocation, boolean priority, QueuedRenderLayer queuedRenderLayer, BiConsumer<PoseStack, VertexConsumer> callback) {
+		final Map<ResourceLocation, Set<BiConsumer<PoseStack, VertexConsumer>>> map = RENDERS.get(priority ? 1 : 0).get(queuedRenderLayer.ordinal());
+		if (!map.containsKey(resourceLocation)) {
+			map.put(resourceLocation, new HashSet<>());
 		}
-		(priority ? RENDERS_2 : RENDERS_1).get(resourceLocation).getB().add(callback);
+		map.get(resourceLocation).add(callback);
 	}
 
 	private static double maxDistanceXZ(Vec3 pos1, BlockPos pos2) {
@@ -402,7 +448,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 			if (rail.railType == RailType.NONE) {
 				if (rail.transportMode != TransportMode.CABLE_CAR && renderColors) {
-					scheduleRender(new ResourceLocation("mtr:textures/block/one_way_rail_arrow.png"), false, MoreRenderLayers::getExterior, (matrices, vertexConsumer) -> {
+					scheduleRender(new ResourceLocation("mtr:textures/block/one_way_rail_arrow.png"), false, QueuedRenderLayer.EXTERIOR, (matrices, vertexConsumer) -> {
 						IDrawing.drawTexture(matrices, vertexConsumer, (float) x1, (float) y1 + yOffset, (float) z1, (float) x2, (float) y1 + yOffset + SMALL_OFFSET, (float) z2, (float) x3, (float) y2 + yOffset, (float) z3, (float) x4, (float) y2 + yOffset + SMALL_OFFSET, (float) z4, 0, 0.25F, 1, 0.75F, Direction.UP, -1, light2);
 						IDrawing.drawTexture(matrices, vertexConsumer, (float) x2, (float) y1 + yOffset + SMALL_OFFSET, (float) z2, (float) x1, (float) y1 + yOffset, (float) z1, (float) x4, (float) y2 + yOffset + SMALL_OFFSET, (float) z4, (float) x3, (float) y2 + yOffset, (float) z3, 0, 0.25F, 1, 0.75F, Direction.UP, -1, light2);
 					});
@@ -410,7 +456,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			} else {
 				final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F + (float) Config.trackTextureOffset() / Config.TRACK_OFFSET_COUNT;
 				final int color = renderColors || !Config.hideSpecialRailColors() && rail.railType.hasSavedRail ? rail.railType.color : -1;
-				scheduleRender(new ResourceLocation(texture), false, MoreRenderLayers::getExterior, (matrices, vertexConsumer) -> {
+				scheduleRender(new ResourceLocation(texture), false, QueuedRenderLayer.EXTERIOR, (matrices, vertexConsumer) -> {
 					IDrawing.drawTexture(matrices, vertexConsumer, (float) x1, (float) y1 + yOffset, (float) z1, (float) x2, (float) y1 + yOffset + SMALL_OFFSET, (float) z2, (float) x3, (float) y2 + yOffset, (float) z3, (float) x4, (float) y2 + yOffset + SMALL_OFFSET, (float) z4, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light2);
 					IDrawing.drawTexture(matrices, vertexConsumer, (float) x2, (float) y1 + yOffset + SMALL_OFFSET, (float) z2, (float) x1, (float) y1 + yOffset, (float) z1, (float) x4, (float) y2 + yOffset + SMALL_OFFSET, (float) z4, (float) x3, (float) y2 + yOffset, (float) z3, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light2);
 				});
@@ -465,8 +511,5 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		}
 	}
 
-	@Deprecated // TODO remove
-	public static float getGameTicks() {
-		return MTRClient.getGameTick();
-	}
+	public enum QueuedRenderLayer {LIGHT, LIGHT_TRANSLUCENT, INTERIOR, EXTERIOR}
 }

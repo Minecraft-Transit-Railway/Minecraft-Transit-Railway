@@ -107,7 +107,6 @@ public abstract class BlockPIDSBase extends BlockDirectionalMapper implements En
 
 	public abstract static class TileEntityBlockPIDSBase extends BlockEntityClientSerializableMapper {
 
-
 		private long cachedRefreshTime;
 		private long cachedPlatformId;
 		private final String[] messages = new String[getMaxArrivals()];
@@ -154,11 +153,6 @@ public abstract class BlockPIDSBase extends BlockDirectionalMapper implements En
 			this.platformIds.addAll(platformIds);
 			setChanged();
 			syncData();
-		}
-
-		@Deprecated
-		public void setData(String[] messages, boolean[] hideArrival) {
-			setData(messages, hideArrival, new HashSet<>());
 		}
 
 		public long getPlatformId(Set<Platform> platforms, DataCache dataCache) {

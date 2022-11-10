@@ -1,7 +1,6 @@
 package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Vector3f;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
@@ -37,22 +36,26 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileE
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
 		final int color = RenderRouteBase.getShadingColor(facing, entity.getColor(state));
 
-		matrices.pushPose();
-		matrices.translate(0.5, 0.5 + entity.yOffset, 0.5);
-		matrices.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
-		matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
+		storedMatrixTransformations.add(matricesNew -> {
+			matricesNew.translate(0.5 + entity.getBlockPos().getX(), 0.5 + entity.yOffset + entity.getBlockPos().getY(), 0.5 + entity.getBlockPos().getZ());
+			matricesNew.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
+			matricesNew.mulPose(Vector3f.ZP.rotationDegrees(180));
+		});
+
 		final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
-		final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
 		for (int i = 0; i < (entity.isDoubleSided ? 2 : 1); i++) {
-			matrices.pushPose();
-			matrices.translate(0, 0, 0.5 - entity.zOffset - SMALL_OFFSET);
-			drawStationName(world, pos, state, facing, matrices, vertexConsumers, immediate, station == null ? Text.translatable("gui.mtr.untitled").getString() : station.name, station == null ? 0 : station.color, color, light);
-			matrices.popPose();
-			matrices.mulPose(Vector3f.YP.rotationDegrees(180));
+			final StoredMatrixTransformations storedMatrixTransformations2 = storedMatrixTransformations.copy();
+			final boolean shouldFlip = i == 1;
+			storedMatrixTransformations2.add(matricesNew -> {
+				if (shouldFlip) {
+					matricesNew.mulPose(Vector3f.YP.rotationDegrees(180));
+				}
+				matricesNew.translate(0, 0, 0.5 - entity.zOffset - SMALL_OFFSET);
+			});
+			drawStationName(world, pos, state, facing, storedMatrixTransformations2, vertexConsumers, station == null ? Text.translatable("gui.mtr.untitled").getString() : station.name, station == null ? 0 : station.color, color, light);
 		}
-		immediate.endBatch();
-		matrices.popPose();
 	}
 
-	protected abstract void drawStationName(BlockGetter world, BlockPos pos, BlockState state, Direction facing, PoseStack matrices, MultiBufferSource vertexConsumers, MultiBufferSource.BufferSource immediate, String stationName, int stationColor, int color, int light);
+	protected abstract void drawStationName(BlockGetter world, BlockPos pos, BlockState state, Direction facing, StoredMatrixTransformations storedMatrixTransformations, MultiBufferSource vertexConsumers, String stationName, int stationColor, int color, int light);
 }

@@ -397,7 +397,10 @@ public class ClientCache extends DataCache implements IGui {
 		}
 
 		if (!resourceRegistryQueue.isEmpty()) {
-			resourceRegistryQueue.remove(0).run();
+			final Runnable runnable = resourceRegistryQueue.remove(0);
+			if (runnable != null) {
+				runnable.run();
+			}
 		}
 
 		final boolean needsRefresh = resourcesToRefresh.contains(key);

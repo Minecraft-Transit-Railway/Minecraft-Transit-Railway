@@ -72,16 +72,6 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 		this(dispatcher, maxArrivals, startX, startY, startZ, maxHeight, maxWidth, rotate90, renderArrivalNumber, renderType, textColor, firstTrainColor, 1, false);
 	}
 
-	@Deprecated
-	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int textColor, int firstTrainColor, float textPadding, boolean appendDotAfterMin) {
-		this(dispatcher, maxArrivals, startX, startY, startZ, maxHeight, maxWidth, rotate90, renderArrivalNumber, showAllPlatforms ? PIDSType.ARRIVAL_PROJECTOR : PIDSType.PIDS, textColor, firstTrainColor, textPadding, appendDotAfterMin);
-	}
-
-	@Deprecated
-	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int textColor, int firstTrainColor) {
-		this(dispatcher, maxArrivals, startX, startY, startZ, maxHeight, maxWidth, rotate90, renderArrivalNumber, showAllPlatforms, textColor, firstTrainColor, 1, false);
-	}
-
 	@Override
 	public void render(T entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
 		final BlockGetter world = entity.getLevel();
@@ -111,75 +101,60 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 			final int displayPage;
 			final Map<Long, String> platformIdToName = new HashMap<>();
 
-			if (renderType.showAllPlatforms) {
-				final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
-				if (station == null) {
-					return;
-				}
-
-				final Map<Long, Platform> platforms = ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id);
-				if (platforms.isEmpty()) {
-					return;
-				}
-
-				final Set<Long> platformIds;
-				switch (renderType) {
-					case ARRIVAL_PROJECTOR:
-						if (entity instanceof BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) {
-							platformIds = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getPlatformIds();
-							displayPage = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getDisplayPage();
-						} else {
-							platformIds = new HashSet<>();
-							displayPage = 1;
-						}
-						break;
-					case PIDS:
-						final Set<Long> tempPlatformIds;
-						if (entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
-							tempPlatformIds = ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getPlatformIds();
-						} else {
-							tempPlatformIds = new HashSet<>();
-						}
-						platformIds = tempPlatformIds.isEmpty() ? Collections.singleton(entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase ? ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getPlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE) : 0) : tempPlatformIds;
-						displayPage = 1;
-						break;
-					default:
-						platformIds = new HashSet<>();
-						displayPage = 1;
-				}
-
-				schedules = new HashSet<>();
-				platforms.values().forEach(platform -> {
-					if (platformIds.isEmpty() || platformIds.contains(platform.id)) {
-						final Set<ScheduleEntry> scheduleForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
-						if (scheduleForPlatform != null) {
-							scheduleForPlatform.forEach(scheduleEntry -> {
-								final Route route = ClientData.DATA_CACHE.routeIdMap.get(scheduleEntry.routeId);
-								if (route != null && scheduleEntry.currentStationIndex < route.platformIds.size() - 1) {
-									schedules.add(scheduleEntry);
-									platformIdToName.put(platform.id, platform.name);
-								}
-							});
-						}
-					}
-				});
-			} else {
-				final long platformId = entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase ? ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getPlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE) : 0;
-				displayPage = 1;
-				if (platformId == 0) {
-					schedules = new HashSet<>();
-				} else {
-					final Set<ScheduleEntry> schedulesForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platformId);
-					schedules = schedulesForPlatform == null ? new HashSet<>() : schedulesForPlatform;
-				}
+			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
+			if (station == null) {
+				return;
 			}
+
+			final Map<Long, Platform> platforms = ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id);
+			if (platforms.isEmpty()) {
+				return;
+			}
+
+			final Set<Long> platformIds;
+			switch (renderType) {
+				case ARRIVAL_PROJECTOR:
+					if (entity instanceof BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) {
+						platformIds = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getPlatformIds();
+					} else {
+						platformIds = new HashSet<>();
+					}
+					break;
+				case PIDS:
+					final Set<Long> tempPlatformIds;
+					if (entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
+						tempPlatformIds = ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getPlatformIds();
+					} else {
+						tempPlatformIds = new HashSet<>();
+					}
+					platformIds = tempPlatformIds.isEmpty() ? Collections.singleton(entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase ? ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getPlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE) : 0) : tempPlatformIds;
+					break;
+				default:
+					platformIds = new HashSet<>();
+			}
+
+			schedules = new HashSet<>();
+			platforms.values().forEach(platform -> {
+				if (platformIds.isEmpty() || platformIds.contains(platform.id)) {
+					final Set<ScheduleEntry> scheduleForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
+					if (scheduleForPlatform != null) {
+						scheduleForPlatform.forEach(scheduleEntry -> {
+							final Route route = ClientData.DATA_CACHE.routeIdMap.get(scheduleEntry.routeId);
+							if (route != null && (renderType.showTerminatingPlatforms || scheduleEntry.currentStationIndex < route.platformIds.size() - 1)) {
+								schedules.add(scheduleEntry);
+								platformIdToName.put(platform.id, platform.name);
+							}
+						});
+					}
+				}
+			});
 
 			final List<ScheduleEntry> scheduleList = new ArrayList<>(schedules);
 			Collections.sort(scheduleList);
 
 			final boolean showCarLength;
 			final float carLengthMaxWidth;
-			if (renderType.showCarNumber) {
+			if (renderType.showCarCount) {
 				int maxCars = 0;
 				int minCars = Integer.MAX_VALUE;
 				for (final ScheduleEntry scheduleEntry : scheduleList) {

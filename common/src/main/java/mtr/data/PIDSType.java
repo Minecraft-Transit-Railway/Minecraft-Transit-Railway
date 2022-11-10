@@ -1,18 +1,16 @@
 package mtr.data;
 
 public enum PIDSType {
-	ARRIVAL_PROJECTOR(true, true, false, true),
-	PIDS(true, false, true, false);
+	ARRIVAL_PROJECTOR(false, true, false),
+	PIDS(true, false, true);
 
-	public final boolean showAllPlatforms;
+	public final boolean showTerminatingPlatforms;
 	public final boolean showPlatformNumber;
-	public final boolean showCarNumber;
-	public final boolean hasPageNumber;
+	public final boolean showCarCount;
 
-	PIDSType(boolean showAllPlatforms, boolean showPlatformNumber, boolean showCarNumber, boolean hasPageNumber) {
-		this.showAllPlatforms = showAllPlatforms;
+	PIDSType(boolean showTerminatingPlatforms, boolean showPlatformNumber, boolean showCarCount) {
+		this.showTerminatingPlatforms = showTerminatingPlatforms;
 		this.showPlatformNumber = showPlatformNumber;
-		this.showCarNumber = showCarNumber;
-		this.hasPageNumber = hasPageNumber;
+		this.showCarCount = showCarCount;
 	}
 }

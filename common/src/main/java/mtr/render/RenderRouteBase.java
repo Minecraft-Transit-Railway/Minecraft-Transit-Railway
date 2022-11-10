@@ -22,17 +22,18 @@ import net.minecraft.world.level.block.state.properties.Property;
 
 public abstract class RenderRouteBase<T extends BlockPSDTop.TileEntityRouteBase> extends BlockEntityRendererMapper<T> implements IGui, IBlock {
 
-	protected float bottomPadding;
-	protected float topPadding;
-
+	protected final float topPadding;
+	protected final float bottomPadding;
 	protected final float sidePadding;
 	private final float z;
 	private final boolean transparentWhite;
 	private final Property<Integer> arrowDirectionProperty;
 
-	public RenderRouteBase(BlockEntityRenderDispatcher dispatcher, float z, float sidePadding, boolean transparentWhite, Property<Integer> arrowDirectionProperty) {
+	public RenderRouteBase(BlockEntityRenderDispatcher dispatcher, float z, float topPadding, float bottomPadding, float sidePadding, boolean transparentWhite, Property<Integer> arrowDirectionProperty) {
 		super(dispatcher);
 		this.z = z / 16;
+		this.topPadding = topPadding / 16;
+		this.bottomPadding = bottomPadding / 16;
 		this.sidePadding = sidePadding / 16;
 		this.transparentWhite = transparentWhite;
 		this.arrowDirectionProperty = arrowDirectionProperty;
@@ -64,7 +65,7 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.TileEntityRouteBase>
 				storedMatrixTransformations.add(matricesNew -> {
 					matricesNew.translate(0, 1, 0);
 					matricesNew.mulPose(Vector3f.ZP.rotationDegrees(180));
-					matricesNew.translate(-0.5, 0, z);
+					matricesNew.translate(-0.5, -getAdditionalOffset(state), z);
 				});
 
 				final int leftBlocks = getTextureNumber(world, pos, facing, true);
@@ -84,7 +85,7 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.TileEntityRouteBase>
 						resourceLocation = ClientData.DATA_CACHE.getRouteMap(platformId, false, arrowDirection == 2, width / height, transparentWhite).resourceLocation;
 					}
 
-					RenderTrains.scheduleRender(resourceLocation, false, MoreRenderLayers::getExterior, (matricesNew, vertexConsumer) -> {
+					RenderTrains.scheduleRender(resourceLocation, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
 						storedMatrixTransformations.transform(matricesNew);
 						IDrawing.drawTexture(matricesNew, vertexConsumer, leftBlocks == 0 ? sidePadding : 0, topPadding, 0, 1 - (rightBlocks == 0 ? sidePadding : 0), 1 - bottomPadding, 0, (leftBlocks - (leftBlocks == 0 ? 0 : sidePadding)) / width, 0, (width - rightBlocks + (rightBlocks == 0 ? 0 : sidePadding)) / width, 1, facing.getOpposite(), color, light);
 						matricesNew.popPose();
@@ -102,6 +103,10 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.TileEntityRouteBase>
 	}
 
 	protected void renderAdditionalUnmodified(StoredMatrixTransformations storedMatrixTransformations, BlockState state, Direction facing, int light) {
+	}
+
+	protected float getAdditionalOffset(BlockState state) {
+		return 0;
 	}
 
 	protected boolean isLeft(BlockState state) {
