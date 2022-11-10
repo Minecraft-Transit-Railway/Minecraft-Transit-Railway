@@ -98,7 +98,6 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 
 		try {
 			final Set<ScheduleEntry> schedules;
-			final int displayPage;
 			final Map<Long, String> platformIdToName = new HashMap<>();
 
 			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
@@ -112,12 +111,15 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 			}
 
 			final Set<Long> platformIds;
+			final int displayPage;
 			switch (renderType) {
 				case ARRIVAL_PROJECTOR:
 					if (entity instanceof BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) {
 						platformIds = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getPlatformIds();
+						displayPage = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getDisplayPage();
 					} else {
 						platformIds = new HashSet<>();
+						displayPage = 0;
 					}
 					break;
 				case PIDS:
@@ -127,10 +129,12 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					} else {
 						tempPlatformIds = new HashSet<>();
 					}
+					displayPage = 0;
 					platformIds = tempPlatformIds.isEmpty() ? Collections.singleton(entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase ? ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getPlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE) : 0) : tempPlatformIds;
 					break;
 				default:
 					platformIds = new HashSet<>();
+					displayPage = 0;
 			}
 
 			schedules = new HashSet<>();
