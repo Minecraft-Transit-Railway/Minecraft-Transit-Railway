@@ -3,8 +3,12 @@ package mtr.model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mtr.client.DoorAnimationType;
+import mtr.data.Route;
+import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
 
 public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 
@@ -1944,6 +1948,34 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 	@Override
 	protected int getDoorMax() {
 		return DOOR_MAX;
+	}
+
+	@Override
+	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars) {
+		final boolean isEnd1Head = car == 0;
+		final boolean isEnd2Head = car == totalCars - 1;
+		final String destinationString = getAlternatingString(getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false));
+		final float[] positions = {getEndPositions()[0] / 16F + 1.28F + (isEnd1Head ? 5.63F : 0), getEndPositions()[1] / 16F - 1.28F - (isEnd2Head ? 5.63F : 0)};
+
+		for (final float position : positions) {
+			renderFrontDestination(
+					matrices, font, immediate,
+					-21F / 16, -13F / 16, position, 0, -1.28F, -0.01F,
+					-8, 90, 0.47F, 0.07F,
+					0xFFFF9900, 0xFFFF9900, 1, destinationString, false, 0, 2
+			);
+			renderFrontDestination(
+					matrices, font, immediate,
+					21F / 16, -13F / 16, position, 0, -1.28F, -0.01F,
+					-8, -90, 0.47F, 0.07F,
+					0xFFFF9900, 0xFFFF9900, 1, destinationString, false, 0, 2
+			);
+		}
+	}
+
+	@Override
+	protected String defaultDestinationString() {
+		return "Not in Service";
 	}
 
 	protected ModelMapper[] windowParts() {
