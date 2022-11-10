@@ -21,21 +21,17 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 	private static final float BOTTOM_DIAGONAL_OFFSET = ((float) Math.sqrt(3) - 1) / 32;
 	private static final float ROOT_TWO_SCALED = Mth.SQRT_OF_TWO / 16;
 	private static final float BOTTOM_END_DIAGONAL_OFFSET = END_FRONT_OFFSET - BOTTOM_DIAGONAL_OFFSET / Mth.SQRT_OF_TWO;
-	private static final float TOP_PADDING = 7.5F / 16;
-	private static final float BOTTOM_PADDING = 1.5F / 16;
 	private static final float COLOR_STRIP_START = 14.5F / 16;
 	private static final float COLOR_STRIP_END = 15 / 16F;
 
 	public RenderPSDTop(BlockEntityRenderDispatcher dispatcher) {
-		super(dispatcher, 2 - SMALL_OFFSET_16, 0.125F, true, BlockPSDTop.ARROW_DIRECTION);
+		super(dispatcher, 2 - SMALL_OFFSET_16, 7.5F, 1.5F, 0.125F, true, BlockPSDTop.ARROW_DIRECTION);
 	}
 
 	@Override
 	protected RenderType getRenderType(BlockGetter world, BlockPos pos, BlockState state) {
 		final BlockPSDTop.EnumPersistent persistent = IBlock.getStatePropertySafe(state, BlockPSDTop.PERSISTENT);
 		if (persistent == BlockPSDTop.EnumPersistent.NONE) {
-			topPadding = TOP_PADDING;
-			bottomPadding = BOTTOM_PADDING;
 			final Block blockBelow = world.getBlockState(pos.below()).getBlock();
 			if (blockBelow instanceof BlockPSDAPGDoorBase) {
 				return RenderType.ARROW;
@@ -45,8 +41,6 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 				return RenderType.NONE;
 			}
 		} else {
-			topPadding = TOP_PADDING - BlockPSDTop.PERSISTENT_OFFSET_SMALL;
-			bottomPadding = BOTTOM_PADDING + BlockPSDTop.PERSISTENT_OFFSET_SMALL;
 			return persistent == BlockPSDTop.EnumPersistent.ARROW ? RenderType.ARROW : persistent == BlockPSDTop.EnumPersistent.ROUTE ? RenderType.ROUTE : RenderType.NONE;
 		}
 	}
@@ -59,7 +53,7 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 		if (!airLeft && !airRight || persistent) {
 			return;
 		}
-		RenderTrains.scheduleRender(new ResourceLocation("mtr:textures/block/psd_top.png"), false, MoreRenderLayers::getExterior, (matrices, vertexConsumer) -> {
+		RenderTrains.scheduleRender(new ResourceLocation("mtr:textures/block/psd_top.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matrices, vertexConsumer) -> {
 			storedMatrixTransformations.transform(matrices);
 			if (airLeft) {
 				// back
@@ -110,17 +104,21 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 		final boolean isNotPersistent = IBlock.getStatePropertySafe(state, BlockPSDTop.PERSISTENT) == BlockPSDTop.EnumPersistent.NONE;
 		final boolean airLeft = isNotPersistent && IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_LEFT);
 		final boolean airRight = isNotPersistent && IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_RIGHT);
-		final float persistentOffset = isNotPersistent ? 0 : BlockPSDTop.PERSISTENT_OFFSET_SMALL;
-		RenderTrains.scheduleRender(ClientData.DATA_CACHE.getColorStrip(platformId).resourceLocation, false, MoreRenderLayers::getExterior, (matrices, vertexConsumer) -> {
+		RenderTrains.scheduleRender(ClientData.DATA_CACHE.getColorStrip(platformId).resourceLocation, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matrices, vertexConsumer) -> {
 			storedMatrixTransformations.transform(matrices);
-			IDrawing.drawTexture(matrices, vertexConsumer, airLeft ? 0.625F : 0, COLOR_STRIP_START - persistentOffset, 0, airRight ? 0.375F : 1, COLOR_STRIP_END - persistentOffset, 0, facing, color, light);
+			IDrawing.drawTexture(matrices, vertexConsumer, airLeft ? 0.625F : 0, COLOR_STRIP_START, 0, airRight ? 0.375F : 1, COLOR_STRIP_END, 0, facing, color, light);
 			if (airLeft) {
-				IDrawing.drawTexture(matrices, vertexConsumer, END_FRONT_OFFSET, COLOR_STRIP_START - persistentOffset, -0.625F - END_FRONT_OFFSET, 0.75F + END_FRONT_OFFSET, COLOR_STRIP_END - persistentOffset, 0.125F - END_FRONT_OFFSET, facing, -1, light);
+				IDrawing.drawTexture(matrices, vertexConsumer, END_FRONT_OFFSET, COLOR_STRIP_START, -0.625F - END_FRONT_OFFSET, 0.75F + END_FRONT_OFFSET, COLOR_STRIP_END, 0.125F - END_FRONT_OFFSET, facing, -1, light);
 			}
 			if (airRight) {
-				IDrawing.drawTexture(matrices, vertexConsumer, 0.25F - END_FRONT_OFFSET, COLOR_STRIP_START - persistentOffset, 0.125F - END_FRONT_OFFSET, 1 - END_FRONT_OFFSET, COLOR_STRIP_END - persistentOffset, -0.625F - END_FRONT_OFFSET, facing, -1, light);
+				IDrawing.drawTexture(matrices, vertexConsumer, 0.25F - END_FRONT_OFFSET, COLOR_STRIP_START, 0.125F - END_FRONT_OFFSET, 1 - END_FRONT_OFFSET, COLOR_STRIP_END, -0.625F - END_FRONT_OFFSET, facing, -1, light);
 			}
 			matrices.popPose();
 		});
+	}
+
+	@Override
+	protected float getAdditionalOffset(BlockState state) {
+		return IBlock.getStatePropertySafe(state, BlockPSDTop.PERSISTENT) == BlockPSDTop.EnumPersistent.NONE ? 0 : BlockPSDTop.PERSISTENT_OFFSET_SMALL;
 	}
 }
