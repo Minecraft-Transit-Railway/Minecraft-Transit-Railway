@@ -46,7 +46,7 @@ public class RouteMapGenerator implements IGui {
 			final int scale = fullPixel ? 1 : PIXEL_SCALE;
 			final int newMaxWidth = maxWidth / scale;
 			final int[] dimensions = new int[2];
-			final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(text, dimensions, newMaxWidth, Integer.MAX_VALUE, PIXEL_RESOLUTION, PIXEL_RESOLUTION, 0, HorizontalAlignment.LEFT);
+			final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(text, dimensions, newMaxWidth, Integer.MAX_VALUE, PIXEL_RESOLUTION, PIXEL_RESOLUTION, 0, HorizontalAlignment.CENTER);
 			final int width = Math.min(newMaxWidth, dimensions[0]) * scale;
 			final int height = dimensions[1] * scale;
 
@@ -530,12 +530,24 @@ public class RouteMapGenerator implements IGui {
 	public static void scrollText(PoseStack matrices, VertexConsumer vertexConsumer, float availableWidth, float availableHeight, int imageWidth, int imageHeight, int scrollSpeed, boolean isFullPixel) {
 		final int pixelScale = isFullPixel ? 1 : PIXEL_SCALE;
 		final float scale = availableHeight / imageHeight;
-		final float scaledWidth = availableWidth / scale;
-		final int widthSteps = (int) Math.floor(scaledWidth / pixelScale);
+		final int widthSteps = (int) Math.floor(availableWidth / scale / pixelScale);
 		final int imageSteps = imageWidth / pixelScale;
 		final int step = (int) ((System.currentTimeMillis() / 20 * scrollSpeed) % (widthSteps + imageSteps));
 		final float width = Math.min(Math.min(availableWidth, imageWidth * scale), Math.min(step * pixelScale * scale, (imageSteps + widthSteps - step) * pixelScale * scale));
 		IDrawing.drawTexture(matrices, vertexConsumer, Math.max(widthSteps - step, 0) * scale * pixelScale, 0, width, availableHeight, Math.max((float) (step - widthSteps) / imageSteps, 0), 0, Math.min((float) step / imageSteps, 1), 1, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
+	}
+
+	public static void scrollTextLightRail(PoseStack matrices, VertexConsumer vertexConsumer, int rows, float availableWidth, float availableHeight, int imageWidth, int imageHeight) {
+		final float scale = availableHeight / imageHeight * rows;
+		final int delayTime = 3000;
+		final int slideTime = 8;
+		final int totalTime = delayTime + (int) Math.floor(availableWidth / scale) * slideTime;
+		final int totalStep = (int) (System.currentTimeMillis() % (totalTime * rows));
+		final int step = totalStep % totalTime;
+		final int row = totalStep / totalTime;
+		final float xOffset = (availableWidth - imageWidth * scale) / 2;
+		final float x = xOffset - Math.max(0, step - delayTime) * scale / slideTime;
+		IDrawing.drawTexture(matrices, vertexConsumer, Math.max(x, 0), 0, imageWidth * scale + Math.min(x, 0), availableHeight, Math.max(-x, 0) / imageWidth / scale, (float) row / rows, 1, (float) (row + 1) / rows, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
 	}
 
 	private static void setup(List<Map<Integer, StationPosition>> stationPositions, List<List<Long>> stationsIdLists, int[] colorIndices, float[] bounds, boolean passed, boolean reverse) {

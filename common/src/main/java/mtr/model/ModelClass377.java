@@ -3,7 +3,10 @@ package mtr.model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
-import mtr.client.*;
+import mtr.client.ClientCache;
+import mtr.client.ClientData;
+import mtr.client.DoorAnimationType;
+import mtr.client.RouteMapGenerator;
 import mtr.data.IGui;
 import mtr.data.Route;
 import mtr.data.Station;
@@ -1744,8 +1747,6 @@ public class ModelClass377 extends ModelSimpleTrainBase<ModelClass377> {
 		return DOOR_MAX;
 	}
 
-	final DebugKeys debugKeys = new DebugKeys(2, 0.01F);
-
 	@Override
 	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform) {
 		final boolean isEnd1Head = car == 0;
@@ -1757,7 +1758,6 @@ public class ModelClass377 extends ModelSimpleTrainBase<ModelClass377> {
 		final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getPixelatedText(getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false).replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, true);
 		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource.resourceLocation, true));
 
-		debugKeys.tick();
 		for (final float position : positions1) {
 			matrices.pushPose();
 			matrices.translate(-21F / 16, -13F / 16, position);

@@ -24,7 +24,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.text.AttributedString;
 import java.util.List;
 import java.util.*;
@@ -428,7 +427,13 @@ public class ClientCache extends DataCache implements IGui {
 				dynamicResourceNew = defaultRenderingColor.dynamicResource;
 			} else {
 				final DynamicTexture dynamicTexture = new DynamicTexture(nativeImage);
-				final ResourceLocation resourceLocation = new ResourceLocation(MTR.MOD_ID, "dynamic_texture_" + URLEncoder.encode(key, Charset.defaultCharset()).toLowerCase(Locale.ENGLISH).replaceAll("[^0-9a-z_]", "_"));
+				String newKey = key;
+				try {
+					newKey = URLEncoder.encode(key, "UTF-8");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				final ResourceLocation resourceLocation = new ResourceLocation(MTR.MOD_ID, "dynamic_texture_" + newKey.toLowerCase(Locale.ENGLISH).replaceAll("[^0-9a-z_]", "_"));
 				minecraftClient.getTextureManager().register(resourceLocation, dynamicTexture);
 				dynamicResourceNew = new DynamicResource(resourceLocation, dynamicTexture);
 			}

@@ -2,11 +2,16 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
+import mtr.client.ClientCache;
+import mtr.client.ClientData;
 import mtr.client.DoorAnimationType;
+import mtr.client.RouteMapGenerator;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
+import mtr.render.MoreRenderLayers;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 
@@ -1043,6 +1048,17 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 				0, isRHT ? -90 : 90, 1.2F, 0.08F,
 				color, color, 1, ((routeNumber.isEmpty() ? "" : routeNumber + "|") + getDestinationString(lastStation, customDestination, TextSpacingType.SPACE_CJK, true)).replace("|", "  "), false, 0, 2
 		);
+
+		final Station station = atPlatform ? thisStation : nextStation;
+		if (station != null) {
+			final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getPixelatedText(station.name, 0xFFFF9900, 300, true);
+			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource.resourceLocation, true));
+			matrices.pushPose();
+			matrices.mulPose(Vector3f.YP.rotationDegrees(180));
+			matrices.translate(-0.35F, -2.2F, 8.99F);
+			RouteMapGenerator.scrollTextLightRail(matrices, vertexConsumer, station.name.split("\\|").length, 0.7F, 0.07F, dynamicResource.width, dynamicResource.height);
+			matrices.popPose();
+		}
 	}
 
 	@Override
