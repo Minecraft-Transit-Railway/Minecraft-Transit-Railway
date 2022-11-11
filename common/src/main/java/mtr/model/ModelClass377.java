@@ -2,11 +2,14 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import mtr.client.DoorAnimationType;
+import com.mojang.math.Vector3f;
+import mtr.client.*;
+import mtr.data.IGui;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
+import mtr.render.MoreRenderLayers;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 
@@ -1741,29 +1744,54 @@ public class ModelClass377 extends ModelSimpleTrainBase<ModelClass377> {
 		return DOOR_MAX;
 	}
 
+	final DebugKeys debugKeys = new DebugKeys(2, 0.01F);
+
 	@Override
-	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars) {
+	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform) {
+		final boolean isEnd1Head = car == 0;
 		final boolean isEnd2Head = car == totalCars - 1;
-		final String destinationString = getAlternatingString(getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false));
 		final float offset = 0.23F;
 		final float[] positions1 = {-4 + 26.5F / 16 - offset, 4 + 26.5F / 16 - (isEnd2Head ? -1 : 1) * offset};
 		final float[] positions2 = {-4 - 26.5F / 16 - offset, 4 - 26.5F / 16 - (isEnd2Head ? -1 : 1) * offset};
 
+		final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getPixelatedText(getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false).replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, true);
+		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource.resourceLocation, true));
+
+		debugKeys.tick();
 		for (final float position : positions1) {
-			renderFrontDestination(
-					matrices, font, immediate,
-					-21F / 16, -13F / 16, position, 0, -0.75F, -0.01F,
-					-8, 90, 0.5F, 0.1F,
-					0xFFFF9900, 0xFFFF9900, 1, destinationString, false, 0, 2
-			);
+			matrices.pushPose();
+			matrices.translate(-21F / 16, -13F / 16, position);
+			matrices.mulPose(Vector3f.YP.rotationDegrees(90));
+			matrices.mulPose(Vector3f.XP.rotationDegrees(-8));
+			matrices.translate(-0.25F, -0.82F, -0.01F);
+			RouteMapGenerator.scrollText(matrices, vertexConsumer, 0.5F, 0.1F, dynamicResource.width, dynamicResource.height, 1, true);
+			matrices.popPose();
 		}
 		for (final float position : positions2) {
-			renderFrontDestination(
-					matrices, font, immediate,
-					21F / 16, -13F / 16, position, 0, -0.75F, -0.01F,
-					-8, -90, 0.5F, 0.1F,
-					0xFFFF9900, 0xFFFF9900, 1, destinationString, false, 0, 2
-			);
+			matrices.pushPose();
+			matrices.translate(21F / 16, -13F / 16, position);
+			matrices.mulPose(Vector3f.YP.rotationDegrees(-90));
+			matrices.mulPose(Vector3f.XP.rotationDegrees(-8));
+			matrices.translate(-0.25F, -0.82F, -0.01F);
+			RouteMapGenerator.scrollText(matrices, vertexConsumer, 0.5F, 0.1F, dynamicResource.width, dynamicResource.height, 1, true);
+			matrices.popPose();
+		}
+
+		final Station station = atPlatform ? thisStation : nextStation;
+		if (station != null) {
+			final String stationName = IGui.textOrUntitled(station.name);
+			final String nextStationString = IGui.formatStationName(atPlatform ? stationName : IGui.insertTranslation("gui.mtr.next_station_announcement_cjk", "gui.mtr.next_station_announcement", 1, stationName));
+			final ClientCache.DynamicResource dynamicResource2 = ClientData.DATA_CACHE.getPixelatedText(getDestinationString(nextStation, nextStationString, TextSpacingType.NORMAL, false).replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, true);
+			final VertexConsumer vertexConsumer2 = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource2.resourceLocation, true));
+			for (int i = 0; i < 2; i++) {
+				matrices.pushPose();
+				if (i == 1) {
+					matrices.mulPose(Vector3f.YP.rotationDegrees(180));
+				}
+				matrices.translate(-0.54F, -2.14F, (getEndPositions()[1] - (i == 1 && isEnd1Head || i == 0 && isEnd2Head ? 13 : 0)) / 16F - 0.01);
+				RouteMapGenerator.scrollText(matrices, vertexConsumer2, 1.08F, 0.06F, dynamicResource2.width, dynamicResource2.height, 3, true);
+				matrices.popPose();
+			}
 		}
 	}
 

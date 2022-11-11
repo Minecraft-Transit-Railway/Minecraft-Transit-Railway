@@ -219,7 +219,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 		if (model != null) {
 			final Minecraft minecraft = Minecraft.getInstance();
 			final MultiBufferSource.BufferSource immediate = minecraft.renderBuffers().bufferSource();
-			model.render(matrices, immediate, texture == null ? new ResourceLocation("mtr:textures/block/white.png") : texture, light, leftDoorValue, rightDoorValue, opening, currentCar, trainCars, head1IsFront, true, false, true, 0, null);
+			model.render(matrices, immediate, texture == null ? new ResourceLocation("mtr:textures/block/white.png") : texture, light, leftDoorValue, rightDoorValue, opening, currentCar, trainCars, head1IsFront, true, false, true, 0, false, null);
 			immediate.endBatch();
 		}
 	}

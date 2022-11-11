@@ -1079,7 +1079,7 @@ public class ModelKTrain extends ModelSimpleTrainBase<ModelKTrain> {
 	}
 
 	@Override
-	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars) {
+	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform) {
 		if (!isTcl) {
 			renderFrontDestination(
 					matrices, font, immediate,

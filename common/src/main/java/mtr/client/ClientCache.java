@@ -23,6 +23,8 @@ import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.text.AttributedString;
 import java.util.List;
 import java.util.*;
@@ -229,6 +231,10 @@ public class ClientCache extends DataCache implements IGui {
 		}
 	}
 
+	public DynamicResource getPixelatedText(String text, int textColor, int maxWidth, boolean fullPixel) {
+		return getResource(String.format("pixelated_text_%s_%s_%s_%s", text, textColor, maxWidth, fullPixel), () -> RouteMapGenerator.generatePixelatedText(text, textColor, maxWidth, fullPixel), DefaultRenderingColor.TRANSPARENT);
+	}
+
 	public DynamicResource getColorStrip(long platformId) {
 		return getResource(String.format("color_%s", platformId), () -> RouteMapGenerator.generateColorStrip(platformId), DefaultRenderingColor.TRANSPARENT);
 	}
@@ -422,7 +428,7 @@ public class ClientCache extends DataCache implements IGui {
 				dynamicResourceNew = defaultRenderingColor.dynamicResource;
 			} else {
 				final DynamicTexture dynamicTexture = new DynamicTexture(nativeImage);
-				final ResourceLocation resourceLocation = new ResourceLocation(MTR.MOD_ID, "dynamic_texture_" + key.toLowerCase(Locale.ENGLISH).replaceAll("[^0-9a-z_]", ""));
+				final ResourceLocation resourceLocation = new ResourceLocation(MTR.MOD_ID, "dynamic_texture_" + URLEncoder.encode(key, Charset.defaultCharset()).toLowerCase(Locale.ENGLISH).replaceAll("[^0-9a-z_]", "_"));
 				minecraftClient.getTextureManager().register(resourceLocation, dynamicTexture);
 				dynamicResourceNew = new DynamicResource(resourceLocation, dynamicTexture);
 			}

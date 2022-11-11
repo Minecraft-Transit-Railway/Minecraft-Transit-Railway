@@ -34,6 +34,16 @@ public class ModelClass802Mini extends ModelClass802 {
 	}
 
 	@Override
+	protected boolean renderFirstDestination(boolean isEnd1Head, boolean isEnd2Head) {
+		return !isEnd2Head;
+	}
+
+	@Override
+	protected boolean renderSecondDestination(boolean isEnd1Head, boolean isEnd2Head) {
+		return !isEnd1Head;
+	}
+
+	@Override
 	protected ModelMapper[] windowParts() {
 		return windowPartsMini();
 	}

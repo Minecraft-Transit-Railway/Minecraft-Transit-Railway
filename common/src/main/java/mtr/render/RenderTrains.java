@@ -240,7 +240,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			matrices.mulPose(Vector3f.XP.rotationDegrees(180));
 			matrices.mulPose(Vector3f.YP.rotationDegrees(180 + lift.facing.toYRot()));
 			final int light = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage));
-			new ModelLift1(lift.liftHeight, lift.liftWidth, lift.liftDepth, lift.isDoubleSided).render(matrices, vertexConsumers, LIFT_TEXTURE, light, frontDoorValue, backDoorValue, false, 0, 1, false, true, false, false, 0, null);
+			new ModelLift1(lift.liftHeight, lift.liftWidth, lift.liftDepth, lift.isDoubleSided).render(matrices, vertexConsumers, LIFT_TEXTURE, light, frontDoorValue, backDoorValue, false, 0, 1, false, true, false, false, 0, false, null);
 
 			for (int i = 0; i < (lift.isDoubleSided ? 2 : 1); i++) {
 				matrices.mulPose(Vector3f.YP.rotationDegrees(180));

@@ -4,6 +4,7 @@ import mtr.MTRClient;
 import mtr.client.ClientData;
 import mtr.client.Config;
 import mtr.client.TrainClientRegistry;
+import mtr.path.PathData;
 import mtr.render.RenderDrivingOverlay;
 import mtr.render.TrainRendererBase;
 import mtr.sound.TrainSoundBase;
@@ -77,9 +78,10 @@ public class TrainClient extends Train implements IGui {
 		final double newZ = carZ - offset.z;
 
 		final boolean opening = doorValue > oldDoorValue;
-		final int stopIndex = path.get(getIndex(0, spacing, false)).stopIndex - 1;
-		trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, false, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed, stopIndex, routeIds);
-		trainTranslucentRenders.add(() -> trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, true, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed, stopIndex, routeIds));
+		final PathData pathData = path.get(getIndex(0, spacing, true));
+		final int stopIndex = pathData.stopIndex - 1;
+		trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, false, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed, stopIndex, pathData.dwellTime > 0, routeIds);
+		trainTranslucentRenders.add(() -> trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, true, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed, stopIndex, pathData.dwellTime > 0, routeIds));
 
 		if (ridingCar > 0) {
 			final double newPrevCarX = prevCarX - offset.x;

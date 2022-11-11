@@ -2,11 +2,17 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
+import mtr.client.ClientCache;
+import mtr.client.ClientData;
 import mtr.client.DoorAnimationType;
+import mtr.client.RouteMapGenerator;
+import mtr.data.IGui;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
+import mtr.render.MoreRenderLayers;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 
@@ -1951,31 +1957,61 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 	}
 
 	@Override
-	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars) {
+	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform) {
 		final boolean isEnd1Head = car == 0;
 		final boolean isEnd2Head = car == totalCars - 1;
-		final String destinationString = getAlternatingString(getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false));
-		final float[] positions = {getEndPositions()[0] / 16F + 1.28F + (isEnd1Head ? 5.63F : 0), getEndPositions()[1] / 16F - 1.28F - (isEnd2Head ? 5.63F : 0)};
+		final boolean renderFirstDestination = renderFirstDestination(isEnd1Head, isEnd2Head);
+		final boolean renderSecondDestination = renderSecondDestination(isEnd1Head, isEnd2Head);
 
-		for (final float position : positions) {
-			renderFrontDestination(
-					matrices, font, immediate,
-					-21F / 16, -13F / 16, position, 0, -1.28F, -0.01F,
-					-8, 90, 0.47F, 0.07F,
-					0xFFFF9900, 0xFFFF9900, 1, destinationString, false, 0, 2
-			);
-			renderFrontDestination(
-					matrices, font, immediate,
-					21F / 16, -13F / 16, position, 0, -1.28F, -0.01F,
-					-8, -90, 0.47F, 0.07F,
-					0xFFFF9900, 0xFFFF9900, 1, destinationString, false, 0, 2
-			);
+		if (renderFirstDestination || renderSecondDestination) {
+			final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getPixelatedText(getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false).replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, false);
+			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource.resourceLocation, true));
+
+			for (int i = 0; i < 2; i++) {
+				if (i == 0 && renderFirstDestination || i == 1 && renderSecondDestination) {
+					for (int j = 0; j < 2; j++) {
+						final int flip = j == 1 ? -1 : 1;
+						matrices.pushPose();
+						matrices.translate(-21F / 16 * flip, -13F / 16, getEndPositions()[i] / 16F + (i == 0 ? 1 : -1) * (1.28F + (i == 0 && isEnd1Head || i == 1 && isEnd2Head ? 5.63F : 0)));
+						matrices.mulPose(Vector3f.YP.rotationDegrees(90 * flip));
+						matrices.mulPose(Vector3f.XP.rotationDegrees(-8));
+						matrices.translate(-0.23F, -1.38F, -0.01F);
+						RouteMapGenerator.scrollText(matrices, vertexConsumer, 0.46F, 0.16F, dynamicResource.width, dynamicResource.height, 1, false);
+						matrices.popPose();
+					}
+				}
+			}
+		}
+
+		final Station station = atPlatform ? thisStation : nextStation;
+		if (station != null) {
+			final String stationName = IGui.textOrUntitled(station.name);
+			final String nextStationString = IGui.formatStationName(atPlatform ? stationName : IGui.insertTranslation("gui.mtr.next_station_announcement_cjk", "gui.mtr.next_station_announcement", 1, stationName));
+			final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getPixelatedText(getDestinationString(nextStation, nextStationString, TextSpacingType.NORMAL, false).replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, true);
+			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource.resourceLocation, true));
+			for (int i = 0; i < 2; i++) {
+				matrices.pushPose();
+				if (i == 1) {
+					matrices.mulPose(Vector3f.YP.rotationDegrees(180));
+				}
+				matrices.translate(-0.35F, -2.19F, (getEndPositions()[1] - (i == 1 && isEnd1Head || i == 0 && isEnd2Head ? 90 : 0)) / 16F - 0.51F);
+				RouteMapGenerator.scrollText(matrices, vertexConsumer, 0.7F, 0.06F, dynamicResource.width, dynamicResource.height, 3, true);
+				matrices.popPose();
+			}
 		}
 	}
 
 	@Override
 	protected String defaultDestinationString() {
 		return "Not in Service";
+	}
+
+	protected boolean renderFirstDestination(boolean isEnd1Head, boolean isEnd2Head) {
+		return true;
+	}
+
+	protected boolean renderSecondDestination(boolean isEnd1Head, boolean isEnd2Head) {
+		return !isEnd1Head || !isEnd2Head;
 	}
 
 	protected ModelMapper[] windowParts() {

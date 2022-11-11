@@ -997,7 +997,7 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 	}
 
 	@Override
-	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars) {
+	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform) {
 		final String routeNumber = thisRoute == null ? "" : thisRoute.lightRailRouteNumber;
 		final float frontOffset = phase == 3 || phase == 5 ? 2.75F : phase == 4 || phase == 6 ? 3.02F : 2.87F;
 		final int color = phase == 3 ? 0xFF00FF00 : 0xFFFF9900;

@@ -52,7 +52,7 @@ public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderExtraDetails(PoseStack matrices, MultiBufferSource vertexConsumers, int light, int lightOnInteriorLevel, boolean lightsOn, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int car, int totalCars, int stopIndex, List<Long> routeIds) {
+	protected void renderExtraDetails1(PoseStack matrices, MultiBufferSource vertexConsumers, int light, int lightOnInteriorLevel, boolean lightsOn, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		for (final int position : getDoorPositions()) {
 			final ModelDoorOverlay modelDoorOverlay = renderDoorOverlay ? getModelDoorOverlay() : null;
 			if (modelDoorOverlay != null) {
@@ -64,17 +64,20 @@ public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 				modelDoorOverlayTop.render(matrices, vertexConsumers, light, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ);
 			}
 		}
+	}
 
+	@Override
+	protected void renderExtraDetails2(PoseStack matrices, MultiBufferSource vertexConsumers, int car, int totalCars, int stopIndex, boolean atPlatform, List<Long> routeIds) {
 		if (routeIds != null) {
 			final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-			if (!RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> renderTextDisplays(matrices, Minecraft.getInstance().font, immediate, thisRoute, nextRoute, thisStation, nextStation, lastStation, thisRoute == null ? null : thisRoute.getDestination(currentStationIndex), car, totalCars))) {
-				renderTextDisplays(matrices, Minecraft.getInstance().font, immediate, null, null, null, null, null, null, car, totalCars);
+			if (!RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> renderTextDisplays(matrices, vertexConsumers, Minecraft.getInstance().font, immediate, thisRoute, nextRoute, thisStation, nextStation, lastStation, thisRoute == null ? null : thisRoute.getDestination(currentStationIndex), car, totalCars, atPlatform))) {
+				renderTextDisplays(matrices, vertexConsumers, Minecraft.getInstance().font, immediate, null, null, null, null, null, null, car, totalCars, atPlatform);
 			}
 			immediate.endBatch();
 		}
 	}
 
-	protected void renderTextDisplays(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars) {
+	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform) {
 	}
 
 	protected void renderFrontDestination(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, float x1, float y1, float z1, float x2, float y2, float z2, float rotationX, float rotationY, float maxWidth, float maxHeight, int colorCjk, int color, float fontSizeRatio, String text, boolean padOneLine, int car, int totalCars) {

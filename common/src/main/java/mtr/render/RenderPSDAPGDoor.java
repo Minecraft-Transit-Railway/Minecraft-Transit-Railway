@@ -126,7 +126,9 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 				if (half && !unlocked) {
 					RenderTrains.scheduleRender(new ResourceLocation("mtr:textures/sign/door_not_in_use.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
 						storedMatrixTransformations.transform(matricesNew);
-						matricesNew.translate(side ? 0.25 : -0.25, 0, 0);
+						if (end) {
+							matricesNew.translate(side ? 0.25 : -0.25, 0, 0);
+						}
 						MODEL_PSD_DOOR_LOCKED.renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1, 1, 1, 1);
 						matricesNew.popPose();
 					});

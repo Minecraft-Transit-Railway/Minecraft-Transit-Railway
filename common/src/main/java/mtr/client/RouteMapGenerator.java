@@ -1,10 +1,13 @@
 package mtr.client;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import mtr.MTR;
 import mtr.data.*;
 import mtr.mappings.Utilities;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
@@ -27,6 +30,8 @@ public class RouteMapGenerator implements IGui {
 	private static final String ARROW_RESOURCE = "textures/sign/arrow.png";
 	private static final String CIRCLE_RESOURCE = "textures/sign/circle.png";
 	private static final String TEMP_CIRCULAR_MARKER = "temp_circular_marker";
+	private static final int PIXEL_SCALE = 4;
+	private static final int PIXEL_RESOLUTION = 24;
 
 	public static void setConstants() {
 		scale = (int) Math.pow(2, Config.dynamicTextureResolution() + 5);
@@ -34,6 +39,26 @@ public class RouteMapGenerator implements IGui {
 		lineSpacing = lineSize * 3 / 2;
 		fontSizeBig = lineSize * 2;
 		fontSizeSmall = fontSizeBig / 2;
+	}
+
+	public static NativeImage generatePixelatedText(String text, int textColor, int maxWidth, boolean fullPixel) {
+		try {
+			final int scale = fullPixel ? 1 : PIXEL_SCALE;
+			final int newMaxWidth = maxWidth / scale;
+			final int[] dimensions = new int[2];
+			final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(text, dimensions, newMaxWidth, Integer.MAX_VALUE, PIXEL_RESOLUTION, PIXEL_RESOLUTION, 0, HorizontalAlignment.LEFT);
+			final int width = Math.min(newMaxWidth, dimensions[0]) * scale;
+			final int height = dimensions[1] * scale;
+
+			final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
+			nativeImage.fillRect(0, 0, width, height, 0);
+			drawStringPixelated(nativeImage, pixels, dimensions, textColor, fullPixel);
+			return nativeImage;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
 	public static NativeImage generateColorStrip(long platformId) {
@@ -502,6 +527,17 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
+	public static void scrollText(PoseStack matrices, VertexConsumer vertexConsumer, float availableWidth, float availableHeight, int imageWidth, int imageHeight, int scrollSpeed, boolean isFullPixel) {
+		final int pixelScale = isFullPixel ? 1 : PIXEL_SCALE;
+		final float scale = availableHeight / imageHeight;
+		final float scaledWidth = availableWidth / scale;
+		final int widthSteps = (int) Math.floor(scaledWidth / pixelScale);
+		final int imageSteps = imageWidth / pixelScale;
+		final int step = (int) ((System.currentTimeMillis() / 20 * scrollSpeed) % (widthSteps + imageSteps));
+		final float width = Math.min(Math.min(availableWidth, imageWidth * scale), Math.min(step * pixelScale * scale, (imageSteps + widthSteps - step) * pixelScale * scale));
+		IDrawing.drawTexture(matrices, vertexConsumer, Math.max(widthSteps - step, 0) * scale * pixelScale, 0, width, availableHeight, Math.max((float) (step - widthSteps) / imageSteps, 0), 0, Math.min((float) step / imageSteps, 1), 1, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
+	}
+
 	private static void setup(List<Map<Integer, StationPosition>> stationPositions, List<List<Long>> stationsIdLists, int[] colorIndices, float[] bounds, boolean passed, boolean reverse) {
 		final int passedMultiplier = passed ? -1 : 1;
 		final int reverseMultiplier = reverse ? -1 : 1;
@@ -694,6 +730,30 @@ public class RouteMapGenerator implements IGui {
 					drawX = 0;
 					drawY++;
 				}
+			}
+		}
+	}
+
+	private static void drawStringPixelated(NativeImage nativeImage, byte[] pixels, int[] textDimensions, int textColor, boolean fullPixel) {
+		final int yOffset = (textDimensions[1] * (fullPixel ? 1 : PIXEL_SCALE) - nativeImage.getHeight()) / 2;
+		int drawX = 0;
+		int drawY = 0;
+		for (int i = 0; i < textDimensions[0] * textDimensions[1]; i++) {
+			if ((pixels[i] & 0xFF) > 0x7F) {
+				if (fullPixel) {
+					drawPixelSafe(nativeImage, drawX, drawY - yOffset, textColor);
+				} else {
+					for (int j = 0; j < 3; j++) {
+						for (int k = 0; k < 3; k++) {
+							drawPixelSafe(nativeImage, drawX * PIXEL_SCALE + j, drawY * PIXEL_SCALE + k - yOffset, textColor);
+						}
+					}
+				}
+			}
+			drawX++;
+			if (drawX == textDimensions[0]) {
+				drawX = 0;
+				drawY++;
 			}
 		}
 	}
