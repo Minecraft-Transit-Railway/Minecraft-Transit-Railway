@@ -97,59 +97,8 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 		}
 
 		try {
-			final Set<ScheduleEntry> schedules;
 			final Map<Long, String> platformIdToName = new HashMap<>();
-
-			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
-			if (station == null) {
-				return;
-			}
-
-			final Map<Long, Platform> platforms = ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id);
-			if (platforms.isEmpty()) {
-				return;
-			}
-
-			final Set<Long> platformIds;
-			switch (renderType) {
-				case ARRIVAL_PROJECTOR:
-					if (entity instanceof BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) {
-						platformIds = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getPlatformIds();
-					} else {
-						platformIds = new HashSet<>();
-					}
-					break;
-				case PIDS:
-					final Set<Long> tempPlatformIds;
-					if (entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
-						tempPlatformIds = ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getPlatformIds();
-					} else {
-						tempPlatformIds = new HashSet<>();
-					}
-					platformIds = tempPlatformIds.isEmpty() ? Collections.singleton(entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase ? ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getPlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE) : 0) : tempPlatformIds;
-					break;
-				default:
-					platformIds = new HashSet<>();
-			}
-
-			schedules = new HashSet<>();
-			platforms.values().forEach(platform -> {
-				if (platformIds.isEmpty() || platformIds.contains(platform.id)) {
-					final Set<ScheduleEntry> scheduleForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
-					if (scheduleForPlatform != null) {
-						scheduleForPlatform.forEach(scheduleEntry -> {
-							final Route route = ClientData.DATA_CACHE.routeIdMap.get(scheduleEntry.routeId);
-							if (route != null && (renderType.showTerminatingPlatforms || scheduleEntry.currentStationIndex < route.platformIds.size() - 1)) {
-								schedules.add(scheduleEntry);
-								platformIdToName.put(platform.id, platform.name);
-							}
-						});
-					}
-				}
-			});
-
-			final List<ScheduleEntry> scheduleList = new ArrayList<>(schedules);
-			Collections.sort(scheduleList);
+			final List<ScheduleEntry> scheduleList = getSchedules(entity, pos, platformIdToName);
 
 			final boolean showCarLength;
 			final float carLengthMaxWidth;
@@ -172,11 +121,13 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 				carLengthMaxWidth = 0;
 			}
 
+			final int displayPageOffset = entity instanceof BlockArrivalProjectorBase.TileEntityArrivalProjectorBase ? ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getDisplayPage() * maxArrivals : 0;
+
 			for (int i = 0; i < maxArrivals; i++) {
 				final int languageTicks = (int) Math.floor(MTRClient.getGameTick()) / SWITCH_LANGUAGE_TICKS;
 				final String destinationString;
 				final boolean useCustomMessage;
-				final ScheduleEntry currentSchedule = i < scheduleList.size() ? scheduleList.get(i) : null;
+				final ScheduleEntry currentSchedule = i + displayPageOffset < scheduleList.size() ? scheduleList.get(i + displayPageOffset) : null;
 				final Route route = currentSchedule == null ? null : ClientData.DATA_CACHE.routeIdMap.get(currentSchedule.routeId);
 
 				if (i < scheduleList.size() && !hideArrival[i] && route != null) {
@@ -285,5 +236,61 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public List<ScheduleEntry> getSchedules(T entity, BlockPos pos, final Map<Long, String> platformIdToName) {
+		final Set<ScheduleEntry> schedules;
+
+		final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
+		if (station == null) {
+			return new ArrayList<>();
+		}
+
+		final Map<Long, Platform> platforms = ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id);
+		if (platforms.isEmpty()) {
+			return new ArrayList<>();
+		}
+
+		final Set<Long> platformIds;
+		switch (renderType) {
+			case ARRIVAL_PROJECTOR:
+				if (entity instanceof BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) {
+					platformIds = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getPlatformIds();
+				} else {
+					platformIds = new HashSet<>();
+				}
+				break;
+			case PIDS:
+				final Set<Long> tempPlatformIds;
+				if (entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
+					tempPlatformIds = ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getPlatformIds();
+				} else {
+					tempPlatformIds = new HashSet<>();
+				}
+				platformIds = tempPlatformIds.isEmpty() ? Collections.singleton(entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase ? ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getPlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE) : 0) : tempPlatformIds;
+				break;
+			default:
+				platformIds = new HashSet<>();
+		}
+
+		schedules = new HashSet<>();
+		platforms.values().forEach(platform -> {
+			if (platformIds.isEmpty() || platformIds.contains(platform.id)) {
+				final Set<ScheduleEntry> scheduleForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
+				if (scheduleForPlatform != null) {
+					scheduleForPlatform.forEach(scheduleEntry -> {
+						final Route route = ClientData.DATA_CACHE.routeIdMap.get(scheduleEntry.routeId);
+						if (route != null && (renderType.showTerminatingPlatforms || scheduleEntry.currentStationIndex < route.platformIds.size() - 1)) {
+							schedules.add(scheduleEntry);
+							platformIdToName.put(platform.id, platform.name);
+						}
+					});
+				}
+			}
+		});
+
+		final List<ScheduleEntry> scheduleList = new ArrayList<>(schedules);
+		Collections.sort(scheduleList);
+		return scheduleList;
 	}
 }
