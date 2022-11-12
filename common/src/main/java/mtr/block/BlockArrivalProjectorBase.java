@@ -71,7 +71,8 @@ public abstract class BlockArrivalProjectorBase extends BlockDirectionalMapper i
 	public static class TileEntityArrivalProjectorBase extends BlockEntityClientSerializableMapper {
 
 		private final Set<Long> platformIds = new HashSet<>();
-		private int displayPage = 1;
+		private int displayPage;
+
 		private static final String KEY_PLATFORM_IDS = "platform_ids";
 		private static final String KEY_DISPLAY_PAGE = "display_page";
 
@@ -86,7 +87,7 @@ public abstract class BlockArrivalProjectorBase extends BlockDirectionalMapper i
 			for (final long platformId : platformIdsArray) {
 				platformIds.add(platformId);
 			}
-			this.displayPage = compoundTag.getInt(KEY_DISPLAY_PAGE);
+			displayPage = compoundTag.getInt(KEY_DISPLAY_PAGE);
 		}
 
 		@Override
@@ -98,7 +99,10 @@ public abstract class BlockArrivalProjectorBase extends BlockDirectionalMapper i
 		public Set<Long> getPlatformIds() {
 			return platformIds;
 		}
-		public int getDisplayPage() { return displayPage; }
+
+		public int getDisplayPage() {
+			return displayPage;
+		}
 
 		public void setData(Set<Long> platformIds, int displayPage) {
 			this.platformIds.clear();

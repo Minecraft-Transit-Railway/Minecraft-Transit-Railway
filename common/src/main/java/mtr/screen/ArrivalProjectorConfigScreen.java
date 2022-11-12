@@ -13,7 +13,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.lwjgl.system.CallbackI;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,8 +21,8 @@ public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, 
 
 	private final BlockPos pos;
 	private final Set<Long> filterPlatformIds;
-	private final WidgetBetterCheckbox selectAllCheckbox;
 	private final int displayPage;
+	private final WidgetBetterCheckbox selectAllCheckbox;
 	private final WidgetBetterTextField displayPageInput;
 	private final Button filterButton;
 
@@ -34,7 +33,7 @@ public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, 
 		final Level world = Minecraft.getInstance().level;
 		if (world == null) {
 			filterPlatformIds = new HashSet<>();
-			displayPage = 1;
+			displayPage = 0;
 		} else {
 			final BlockEntity entity = world.getBlockEntity(pos);
 			if (entity instanceof BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) {
@@ -42,7 +41,7 @@ public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, 
 				displayPage = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getDisplayPage();
 			} else {
 				filterPlatformIds = new HashSet<>();
-				displayPage = 1;
+				displayPage = 0;
 			}
 		}
 
@@ -66,8 +65,8 @@ public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, 
 		filterButton.setMessage(Text.translatable("selectWorld.edit"));
 		addDrawableChild(filterButton);
 
-		IDrawing.setPositionAndWidth(displayPageInput, SQUARE_SIZE, SQUARE_SIZE * 5, SQUARE_SIZE * 2);
-		displayPageInput.setValue(String.valueOf(displayPage));
+		IDrawing.setPositionAndWidth(displayPageInput, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 5 + TEXT_FIELD_PADDING / 2, PANEL_WIDTH / 2 - TEXT_FIELD_PADDING);
+		displayPageInput.setValue(String.valueOf(displayPage + 1));
 		addDrawableChild(displayPageInput);
 	}
 
@@ -88,7 +87,12 @@ public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, 
 		if (selectAllCheckbox.selected()) {
 			filterPlatformIds.clear();
 		}
-		int displayPage = Integer.parseInt(displayPageInput.getValue());
+		int displayPage = 0;
+		try {
+			displayPage = Math.max(0, Integer.parseInt(displayPageInput.getValue()) - 1);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		PacketTrainDataGuiClient.sendArrivalProjectorConfigC2S(pos, filterPlatformIds, displayPage);
 		super.onClose();
 	}
