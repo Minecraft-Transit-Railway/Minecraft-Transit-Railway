@@ -182,6 +182,7 @@
 	"gui.mtr.depots": "Depots",
 	"gui.mtr.disable_next_station_announcements": "Disable Next Station Announcements",
 	"gui.mtr.dismount_hold": "Hold %s to force dismount: %s",
+	"gui.mtr.display_page": "Page Number",
 	"gui.mtr.door_animation_type_bouncy_1": "Doors: Bouncy (1)",
 	"gui.mtr.door_animation_type_bouncy_2": "Doors: Bouncy (2)",
 	"gui.mtr.door_animation_type_constant": "Doors: Constant",

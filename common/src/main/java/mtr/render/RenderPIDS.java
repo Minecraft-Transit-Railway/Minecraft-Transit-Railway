@@ -111,12 +111,15 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 			}
 
 			final Set<Long> platformIds;
+			final int displayPage;
 			switch (renderType) {
 				case ARRIVAL_PROJECTOR:
 					if (entity instanceof BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) {
 						platformIds = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getPlatformIds();
+						displayPage = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getDisplayPage();
 					} else {
 						platformIds = new HashSet<>();
+						displayPage = 0;
 					}
 					break;
 				case PIDS:
@@ -126,10 +129,12 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					} else {
 						tempPlatformIds = new HashSet<>();
 					}
+					displayPage = 0;
 					platformIds = tempPlatformIds.isEmpty() ? Collections.singleton(entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase ? ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getPlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE) : 0) : tempPlatformIds;
 					break;
 				default:
 					platformIds = new HashSet<>();
+					displayPage = 0;
 			}
 
 			schedules = new HashSet<>();
@@ -170,6 +175,10 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 			} else {
 				showCarLength = false;
 				carLengthMaxWidth = 0;
+			}
+
+			if (maxArrivals * (displayPage - 1) > 0) {
+				scheduleList.subList(0, Math.min(maxArrivals * (displayPage - 1), scheduleList.size())).clear();
 			}
 
 			for (int i = 0; i < maxArrivals; i++) {

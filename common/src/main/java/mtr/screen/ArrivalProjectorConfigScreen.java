@@ -13,6 +13,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.lwjgl.system.CallbackI;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,6 +23,8 @@ public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, 
 	private final BlockPos pos;
 	private final Set<Long> filterPlatformIds;
 	private final WidgetBetterCheckbox selectAllCheckbox;
+	private final int displayPage;
+	private final WidgetBetterTextField displayPageInput;
 	private final Button filterButton;
 
 	public ArrivalProjectorConfigScreen(BlockPos pos) {
@@ -31,17 +34,22 @@ public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, 
 		final Level world = Minecraft.getInstance().level;
 		if (world == null) {
 			filterPlatformIds = new HashSet<>();
+			displayPage = 1;
 		} else {
 			final BlockEntity entity = world.getBlockEntity(pos);
 			if (entity instanceof BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) {
 				filterPlatformIds = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getPlatformIds();
+				displayPage = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getDisplayPage();
 			} else {
 				filterPlatformIds = new HashSet<>();
+				displayPage = 1;
 			}
 		}
 
 		selectAllCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.select_all_platforms"), checked -> {
 		});
+
+		displayPageInput = new WidgetBetterTextField("\\D", "1", 3);
 
 		filterButton = PIDSConfigScreen.getPlatformFilterButton(pos, selectAllCheckbox, filterPlatformIds, this);
 	}
@@ -57,6 +65,10 @@ public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, 
 		IDrawing.setPositionAndWidth(filterButton, SQUARE_SIZE, SQUARE_SIZE * 3, PANEL_WIDTH / 2);
 		filterButton.setMessage(Text.translatable("selectWorld.edit"));
 		addDrawableChild(filterButton);
+
+		IDrawing.setPositionAndWidth(displayPageInput, SQUARE_SIZE, SQUARE_SIZE * 5, SQUARE_SIZE * 2);
+		displayPageInput.setValue(String.valueOf(displayPage));
+		addDrawableChild(displayPageInput);
 	}
 
 	@Override
@@ -64,6 +76,7 @@ public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, 
 		try {
 			renderBackground(matrices);
 			font.draw(matrices, Text.translatable("gui.mtr.filtered_platforms", selectAllCheckbox.selected() ? 0 : filterPlatformIds.size()), SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
+			font.draw(matrices, Text.translatable("gui.mtr.display_page"), SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE);
 			super.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -75,7 +88,8 @@ public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, 
 		if (selectAllCheckbox.selected()) {
 			filterPlatformIds.clear();
 		}
-		PacketTrainDataGuiClient.sendArrivalProjectorConfigC2S(pos, filterPlatformIds);
+		int displayPage = Integer.parseInt(displayPageInput.getValue());
+		PacketTrainDataGuiClient.sendArrivalProjectorConfigC2S(pos, filterPlatformIds, displayPage);
 		super.onClose();
 	}
 
