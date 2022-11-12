@@ -119,6 +119,19 @@ public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 				final boolean isCjk = IGui.isCjk(textPart);
 				if (textSpacingType == TextSpacingType.SPACE_CJK || textSpacingType == TextSpacingType.SPACE_CJK_FLIPPED) {
 					result.add(textSpacingType == TextSpacingType.SPACE_CJK ? result.size() : 0, isCjk && textPart.length() == 2 ? textPart.charAt(0) + " " + textPart.charAt(1) : textPart);
+				} else if (textSpacingType == TextSpacingType.SPACE_CJK_LARGE) {
+					if (isCjk) {
+						final StringBuilder cjkResult = new StringBuilder();
+						for (int i = 0; i < textPart.length(); i++) {
+							cjkResult.append(textPart.charAt(i));
+							for (int j = 0; j < (textPart.length() == 2 ? 3 : 1); j++) {
+								cjkResult.append("   ");
+							}
+						}
+						result.add(cjkResult.toString().trim());
+					} else {
+						result.add(textPart);
+					}
 				} else if (textSpacingType == TextSpacingType.MLR_SPACING) {
 					final StringBuilder stringBuilder;
 					if (isCjk) {
@@ -182,5 +195,5 @@ public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 
 	protected abstract int[] getEndPositions();
 
-	protected enum TextSpacingType {NORMAL, SPACE_CJK, SPACE_CJK_FLIPPED, MLR_SPACING}
+	protected enum TextSpacingType {NORMAL, SPACE_CJK, SPACE_CJK_FLIPPED, SPACE_CJK_LARGE, MLR_SPACING}
 }

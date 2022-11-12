@@ -1051,12 +1051,13 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 
 		final Station station = atPlatform ? thisStation : nextStation;
 		if (station != null) {
-			final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getPixelatedText(station.name, 0xFFFF9900, 300, true);
+			final String stationString = getDestinationString(station, null, TextSpacingType.SPACE_CJK_LARGE, true);
+			final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getPixelatedText(stationString, 0xFFFF9900, 300, true);
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource.resourceLocation, true));
 			matrices.pushPose();
 			matrices.mulPose(Vector3f.YP.rotationDegrees(180));
 			matrices.translate(-0.35F, -2.2F, 8.99F);
-			RouteMapGenerator.scrollTextLightRail(matrices, vertexConsumer, station.name.split("\\|").length, 0.7F, 0.07F, dynamicResource.width, dynamicResource.height);
+			RouteMapGenerator.scrollTextLightRail(matrices, vertexConsumer, stationString.split("\\|").length, 0.7F, 0.07F, dynamicResource.width, dynamicResource.height);
 			matrices.popPose();
 		}
 	}
