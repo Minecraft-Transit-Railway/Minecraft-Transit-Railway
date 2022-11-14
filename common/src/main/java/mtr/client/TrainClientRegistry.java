@@ -138,6 +138,7 @@ public class TrainClientRegistry {
 		register(TrainType.CLASS_802_GWR_MINI, new ModelClass802Mini(), "mtr:textures/entity/class_802_gwr", 0x021E15, "mtr:textures/entity/sp1900", "", 4.94F, false, "class_802", new JonTrainSound.JonTrainSoundConfig("class_802", 120, 1, false));
 		register(TrainType.CLASS_802_TPE, new ModelClass802(), "mtr:textures/entity/class_802_tpe", 0x00A6E6, "mtr:textures/entity/sp1900", "", 7.75F, false, "class_802", new JonTrainSound.JonTrainSoundConfig("class_802", 120, 1, false));
 		register(TrainType.CLASS_802_TPE_MINI, new ModelClass802Mini(), "mtr:textures/entity/class_802_tpe", 0x00A6E6, "mtr:textures/entity/sp1900", "", 4.94F, false, "class_802", new JonTrainSound.JonTrainSoundConfig("class_802", 120, 1, false));
+		register(TrainType.MPL_85, new ModelMPL85(), "mtr:textures/entity/mpl_85", 0xEF7011, "", "", 6.75F, false, "m_train", new JonTrainSound.JonTrainSoundConfig("a_train", 90, 0.5F, false));
 		register(TrainType.MINECART, null, "textures/entity/minecart", 0x666666, -0.5F);
 		register(TrainType.OAK_BOAT, null, "textures/entity/boat/oak", 0x8F7748, -0.5F);
 		register(TrainType.SPRUCE_BOAT, null, "textures/entity/boat/spruce", 0x8F7748, -0.5F);
