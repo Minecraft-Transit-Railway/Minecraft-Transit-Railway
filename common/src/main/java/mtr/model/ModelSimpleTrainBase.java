@@ -162,11 +162,6 @@ public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 		return toUpperCase ? finalResult.toUpperCase(Locale.ENGLISH) : finalResult;
 	}
 
-	protected String getAlternatingString(String text) {
-		final String[] textSplit = text.split("\\|");
-		return textSplit[((int) Math.floor(MTRClient.getGameTick() / 30)) % textSplit.length];
-	}
-
 	protected String defaultDestinationString() {
 		return "";
 	}
@@ -194,6 +189,21 @@ public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 	protected abstract int[] getDoorPositions();
 
 	protected abstract int[] getEndPositions();
+
+	protected static String getAlternatingString(String text) {
+		final String[] textSplit = text.split("\\|");
+		return textSplit[((int) Math.floor(MTRClient.getGameTick() / 30)) % textSplit.length];
+	}
+
+	protected static String getNextStationString(Station thisStation, Station nextStation, boolean atPlatform) {
+		final Station station = atPlatform ? thisStation : nextStation;
+		if (station == null) {
+			return "";
+		} else {
+			final String stationName = IGui.textOrUntitled(station.name);
+			return IGui.formatStationName(atPlatform ? stationName : IGui.insertTranslation("gui.mtr.next_station_announcement_cjk", "gui.mtr.next_station_announcement", 1, stationName)).replace("|", " ");
+		}
+	}
 
 	protected enum TextSpacingType {NORMAL, SPACE_CJK, SPACE_CJK_FLIPPED, SPACE_CJK_LARGE, MLR_SPACING}
 }

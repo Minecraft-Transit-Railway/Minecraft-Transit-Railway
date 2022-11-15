@@ -7,7 +7,6 @@ import mtr.client.ClientCache;
 import mtr.client.ClientData;
 import mtr.client.DoorAnimationType;
 import mtr.client.RouteMapGenerator;
-import mtr.data.IGui;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
@@ -1777,11 +1776,9 @@ public class ModelClass377 extends ModelSimpleTrainBase<ModelClass377> {
 			matrices.popPose();
 		}
 
-		final Station station = atPlatform ? thisStation : nextStation;
-		if (station != null) {
-			final String stationName = IGui.textOrUntitled(station.name);
-			final String nextStationString = IGui.formatStationName(atPlatform ? stationName : IGui.insertTranslation("gui.mtr.next_station_announcement_cjk", "gui.mtr.next_station_announcement", 1, stationName));
-			final ClientCache.DynamicResource dynamicResource2 = ClientData.DATA_CACHE.getPixelatedText(getDestinationString(nextStation, nextStationString, TextSpacingType.NORMAL, false).replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, true);
+		final String nextStationString = getNextStationString(thisStation, nextStation, atPlatform);
+		if (!nextStationString.isEmpty()) {
+			final ClientCache.DynamicResource dynamicResource2 = ClientData.DATA_CACHE.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, true);
 			final VertexConsumer vertexConsumer2 = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource2.resourceLocation, true));
 			for (int i = 0; i < 2; i++) {
 				matrices.pushPose();

@@ -2,11 +2,16 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
+import mtr.client.ClientCache;
+import mtr.client.ClientData;
 import mtr.client.DoorAnimationType;
+import mtr.client.RouteMapGenerator;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
+import mtr.render.MoreRenderLayers;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 
@@ -1279,6 +1284,23 @@ public class ModelLondonUndergroundD78 extends ModelSimpleTrainBase<ModelLondonU
 				0, 0, 0.8F, 0.14F,
 				0xFFFF9900, 0xFFFF9900, 1, destinationString, false, car, totalCars
 		);
+
+		final boolean isEnd1Head = car == 0;
+		final boolean isEnd2Head = car == totalCars - 1;
+		final String nextStationString = getNextStationString(thisStation, nextStation, atPlatform);
+		if (!nextStationString.isEmpty()) {
+			final ClientCache.DynamicResource dynamicResource2 = ClientData.DATA_CACHE.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, true);
+			final VertexConsumer vertexConsumer2 = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource2.resourceLocation, true));
+			for (int i = 0; i < 2; i++) {
+				matrices.pushPose();
+				if (i == 1) {
+					matrices.mulPose(Vector3f.YP.rotationDegrees(180));
+				}
+				matrices.translate(-0.36F, -2.32F, (getEndPositions()[1] + 11 - (i == 1 && isEnd1Head || i == 0 && isEnd2Head ? 16 : 0)) / 16F - 0.01);
+				RouteMapGenerator.scrollText(matrices, vertexConsumer2, 0.72F, 0.08F, dynamicResource2.width, dynamicResource2.height, 3, true);
+				matrices.popPose();
+			}
+		}
 	}
 
 	@Override

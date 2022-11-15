@@ -2,11 +2,16 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
+import mtr.client.ClientCache;
+import mtr.client.ClientData;
 import mtr.client.DoorAnimationType;
+import mtr.client.RouteMapGenerator;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
+import mtr.render.MoreRenderLayers;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 
@@ -1277,6 +1282,23 @@ public class ModelLondonUnderground1995 extends ModelSimpleTrainBase<ModelLondon
 				0, 0, 0.66F, 0.08F,
 				0xFFFF9900, 0xFFFF9900, 1, destinationString, false, car, totalCars
 		);
+
+		final String nextStationString = getNextStationString(thisStation, nextStation, atPlatform);
+		if (!nextStationString.isEmpty()) {
+			final ClientCache.DynamicResource dynamicResource2 = ClientData.DATA_CACHE.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, true);
+			final VertexConsumer vertexConsumer2 = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource2.resourceLocation, true));
+			final int[] positions = {-6, 0, 6};
+			for (final int position : positions) {
+				for (int i = 0; i < 2; i++) {
+					matrices.pushPose();
+					matrices.mulPose(Vector3f.YP.rotationDegrees(i == 1 ? -90 : 90));
+					matrices.mulPose(Vector3f.XP.rotationDegrees(48));
+					matrices.translate(position - 0.23F, -0.53F, 1.96F);
+					RouteMapGenerator.scrollText(matrices, vertexConsumer2, 0.46F, 0.05F, dynamicResource2.width, dynamicResource2.height, 3, true);
+					matrices.popPose();
+				}
+			}
+		}
 	}
 
 	@Override
