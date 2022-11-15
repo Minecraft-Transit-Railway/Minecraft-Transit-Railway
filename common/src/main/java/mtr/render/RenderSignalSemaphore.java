@@ -20,7 +20,7 @@ public class RenderSignalSemaphore<T extends BlockSignalSemaphoreBase.TileEntity
 	private static final int SPEED = 4;
 
 	public RenderSignalSemaphore(BlockEntityRenderDispatcher dispatcher, boolean isSingleSided) {
-		super(dispatcher, isSingleSided);
+		super(dispatcher, isSingleSided, 2);
 	}
 
 	@Override

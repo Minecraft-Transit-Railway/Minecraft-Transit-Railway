@@ -27,10 +27,12 @@ import java.util.Map;
 public abstract class RenderSignalBase<T extends BlockEntityMapper> extends BlockEntityRendererMapper<T> implements IBlock, IGui {
 
 	protected final boolean isSingleSided;
+	protected final int aspects;
 
-	public RenderSignalBase(BlockEntityRenderDispatcher dispatcher, boolean isSingleSided) {
+	public RenderSignalBase(BlockEntityRenderDispatcher dispatcher, boolean isSingleSided, int aspects) {
 		super(dispatcher);
 		this.isSingleSided = isSingleSided;
+		this.aspects = aspects;
 	}
 
 	@Override
