@@ -5,8 +5,10 @@ import mtr.Keys;
 import mtr.Registry;
 import mtr.block.*;
 import mtr.data.*;
+import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.Utilities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -23,6 +25,7 @@ import net.minecraft.world.scores.Score;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class PacketTrainDataGuiServer extends PacketTrainDataBase {
@@ -206,9 +209,9 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		};
 
 		if (isDelete) {
-			deleteData(dataSet.apply(railwayData), minecraftServer, packet, packetCallback);
+			deleteData(dataSet.apply(railwayData), cacheMap.apply(railwayData), minecraftServer, packet, packetCallback, data -> railwayData.railwayDataLoggingModule.addEvent(player, data.getClass(), data.id, data.name, RailwayDataLoggingModule.getData(data), new ArrayList<>()));
 		} else {
-			updateData(dataSet.apply(railwayData), cacheMap.apply(railwayData), minecraftServer, packet, packetCallback, createDataWithId);
+			updateData(dataSet.apply(railwayData), cacheMap.apply(railwayData), minecraftServer, packet, packetCallback, createDataWithId, (data, oldData) -> railwayData.railwayDataLoggingModule.addEvent(player, data.getClass(), data.id, data.name, oldData, RailwayDataLoggingModule.getData(data)));
 		}
 	}
 
@@ -275,7 +278,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		minecraftServer.execute(() -> {
 			final BlockEntity entity = player.level.getBlockEntity(pos);
 			if (entity instanceof BlockTrainSensorBase.TileEntityTrainSensorBase) {
-				((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).setData(filterIds, stoppedOnly, movingOnly, number, strings);
+				setTileEntityDataAndWriteUpdate(player, entity2 -> entity2.setData(filterIds, stoppedOnly, movingOnly, number, strings), (BlockTrainSensorBase.TileEntityTrainSensorBase) entity);
 			}
 		});
 	}
@@ -288,7 +291,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		minecraftServer.execute(() -> {
 			final BlockEntity entity = player.level.getBlockEntity(pos);
 			if (entity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor) {
-				((BlockLiftTrackFloor.TileEntityLiftTrackFloor) entity).setData(floorNumber, floorDescription, shouldDing);
+				setTileEntityDataAndWriteUpdate(player, entity2 -> entity2.setData(floorNumber, floorDescription, shouldDing), (BlockLiftTrackFloor.TileEntityLiftTrackFloor) entity);
 			}
 		});
 	}
@@ -310,13 +313,14 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		minecraftServer.execute(() -> {
 			final BlockEntity entity = player.level.getBlockEntity(signPos);
 			if (entity instanceof BlockRailwaySign.TileEntityRailwaySign) {
-				((BlockRailwaySign.TileEntityRailwaySign) entity).setData(selectedIds, signIds);
+				setTileEntityDataAndWriteUpdate(player, entity2 -> entity2.setData(selectedIds, signIds), (BlockRailwaySign.TileEntityRailwaySign) entity);
 			} else if (entity instanceof BlockRouteSignBase.TileEntityRouteSignBase) {
 				final long platformId = selectedIds.isEmpty() ? 0 : (long) selectedIds.toArray()[0];
-				((BlockRouteSignBase.TileEntityRouteSignBase) entity).setPlatformId(platformId);
 				final BlockEntity entityAbove = player.level.getBlockEntity(signPos.above());
 				if (entityAbove instanceof BlockRouteSignBase.TileEntityRouteSignBase) {
-					((BlockRouteSignBase.TileEntityRouteSignBase) entityAbove).setPlatformId(platformId);
+					setTileEntityDataAndWriteUpdate(player, entity2 -> entity2.setPlatformId(platformId), ((BlockRouteSignBase.TileEntityRouteSignBase) entityAbove), (BlockRouteSignBase.TileEntityRouteSignBase) entity);
+				} else {
+					setTileEntityDataAndWriteUpdate(player, entity2 -> entity2.setPlatformId(platformId), (BlockRouteSignBase.TileEntityRouteSignBase) entity);
 				}
 			}
 		});
@@ -379,14 +383,19 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			platformIds.add(packet.readLong());
 		}
 		minecraftServer.execute(() -> {
+			final List<BlockPIDSBase.TileEntityBlockPIDSBase> entities = new ArrayList<>();
+
 			final BlockEntity entity1 = player.level.getBlockEntity(pos1);
 			if (entity1 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
-				((BlockPIDSBase.TileEntityBlockPIDSBase) entity1).setData(messages, hideArrivals, platformIds);
+				entities.add((BlockPIDSBase.TileEntityBlockPIDSBase) entity1);
 			}
+
 			final BlockEntity entity2 = player.level.getBlockEntity(pos2);
 			if (entity2 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
-				((BlockPIDSBase.TileEntityBlockPIDSBase) entity2).setData(messages, hideArrivals, platformIds);
+				entities.add((BlockPIDSBase.TileEntityBlockPIDSBase) entity2);
 			}
+
+			setTileEntityDataAndWriteUpdate(player, entity -> entity.setData(messages, hideArrivals, platformIds), entities.toArray(new BlockPIDSBase.TileEntityBlockPIDSBase[0]));
 		});
 	}
 
@@ -401,7 +410,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		minecraftServer.execute(() -> {
 			final BlockEntity entity = player.level.getBlockEntity(pos);
 			if (entity instanceof BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) {
-				((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).setData(platformIds, displayPage);
+				setTileEntityDataAndWriteUpdate(player, entity2 -> entity2.setData(platformIds, displayPage), ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity));
 			}
 		});
 	}
@@ -415,7 +424,12 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData != null) {
 			final boolean useTimeAndWindSync = packet.readBoolean();
-			minecraftServer.execute(() -> railwayData.setUseTimeAndWindSync(useTimeAndWindSync));
+			minecraftServer.execute(() -> {
+				final boolean useTimeAndWindSyncOld = railwayData.getUseTimeAndWindSync();
+				railwayData.setUseTimeAndWindSync(useTimeAndWindSync);
+				final String key = "\"use_time_and_wind_sync\":";
+				railwayData.railwayDataLoggingModule.addEvent(player, RailwayData.class, Collections.singletonList(key + useTimeAndWindSyncOld), Collections.singletonList(key + useTimeAndWindSync));
+			});
 		}
 	}
 
@@ -479,5 +493,31 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 
 		return success;
+	}
+
+	@SafeVarargs
+	private static <T extends BlockEntityMapper> void setTileEntityDataAndWriteUpdate(ServerPlayer player, Consumer<T> setData, T... entities) {
+		final RailwayData railwayData = RailwayData.getInstance(player.level);
+
+		if (railwayData != null && entities.length > 0) {
+			final CompoundTag compoundTagOld = new CompoundTag();
+			entities[0].writeCompoundTag(compoundTagOld);
+
+			BlockPos blockPos = null;
+			long posLong = 0;
+			for (final T entity : entities) {
+				setData.accept(entity);
+				final BlockPos entityPos = entity.getBlockPos();
+				if (blockPos == null || entityPos.asLong() > posLong) {
+					blockPos = entityPos;
+					posLong = entityPos.asLong();
+				}
+			}
+
+			final CompoundTag compoundTagNew = new CompoundTag();
+			entities[0].writeCompoundTag(compoundTagNew);
+
+			railwayData.railwayDataLoggingModule.addEvent(player, entities[0].getClass(), RailwayDataLoggingModule.getData(compoundTagOld), RailwayDataLoggingModule.getData(compoundTagNew), blockPos);
+		}
 	}
 }

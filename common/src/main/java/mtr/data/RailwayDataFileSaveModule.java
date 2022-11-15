@@ -2,10 +2,7 @@ package mtr.data;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.LevelResource;
 import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
@@ -53,12 +50,10 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 	private final Path railsPath;
 	private final Path signalBlocksPath;
 
-	public RailwayDataFileSaveModule(RailwayData railwayData, Level world, Map<BlockPos, Map<BlockPos, Rail>> rails, SignalBlocks signalBlocks) {
+	public RailwayDataFileSaveModule(RailwayData railwayData, Level world, Map<BlockPos, Map<BlockPos, Rail>> rails, Path savePath, SignalBlocks signalBlocks) {
 		super(railwayData, world, rails);
 		this.signalBlocks = signalBlocks;
 
-		final ResourceLocation dimensionLocation = world.dimension().location();
-		final Path savePath = ((ServerLevel) world).getServer().getWorldPath(LevelResource.ROOT).resolve("mtr").resolve(dimensionLocation.getNamespace()).resolve(dimensionLocation.getPath());
 		stationsPath = savePath.resolve("stations");
 		platformsPath = savePath.resolve("platforms");
 		sidingsPath = savePath.resolve("sidings");

@@ -1,9 +1,9 @@
 package mtr.client;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mtr.Patreon;
+import mtr.data.RailwayData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 
@@ -203,7 +203,7 @@ public class Config {
 		jsonConfig.addProperty(TRAIN_RENDER_DISTANCE_RATIO, trainRenderDistanceRatio);
 
 		try {
-			Files.write(CONFIG_FILE_PATH, Collections.singleton(new GsonBuilder().setPrettyPrinting().create().toJson(jsonConfig)));
+			Files.write(CONFIG_FILE_PATH, Collections.singleton(RailwayData.prettyPrint(jsonConfig)));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

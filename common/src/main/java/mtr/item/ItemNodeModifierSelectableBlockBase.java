@@ -92,7 +92,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	}
 
 	@Override
-	protected final void onRemove(Level world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData) {
+	protected final void onRemove(Level world, BlockPos posStart, BlockPos posEnd, Player player, RailwayData railwayData) {
 	}
 
 	protected BlockState getSavedState(ItemStack stack) {

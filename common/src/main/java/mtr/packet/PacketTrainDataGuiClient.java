@@ -264,9 +264,9 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 			ClientData.DATA_CACHE.refreshDynamicResources();
 		};
 		if (isDelete) {
-			deleteData(dataSet, minecraftClient, packet, packetCallback);
+			deleteData(dataSet, cacheMap, minecraftClient, packet, packetCallback, null);
 		} else {
-			updateData(dataSet, cacheMap, minecraftClient, packet, packetCallback, createDataWithId);
+			updateData(dataSet, cacheMap, minecraftClient, packet, packetCallback, createDataWithId, null);
 		}
 	}
 
