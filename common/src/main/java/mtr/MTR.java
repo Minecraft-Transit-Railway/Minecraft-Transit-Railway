@@ -249,6 +249,8 @@ public class MTR implements IPacket {
 			registerBlockItem.accept("rubbish_bin_1", Blocks.RUBBISH_BIN_1, ItemGroups.RAILWAY_FACILITIES);
 			registerBlockItem.accept("signal_light_1", Blocks.SIGNAL_LIGHT_1, ItemGroups.RAILWAY_FACILITIES);
 			registerBlockItem.accept("signal_light_2", Blocks.SIGNAL_LIGHT_2, ItemGroups.RAILWAY_FACILITIES);
+			registerBlockItem.accept("signal_light_3_aspect_1", Blocks.SIGNAL_LIGHT_3_ASPECT_1, ItemGroups.RAILWAY_FACILITIES);
+			registerBlockItem.accept("signal_light_3_aspect_2", Blocks.SIGNAL_LIGHT_3_ASPECT_2, ItemGroups.RAILWAY_FACILITIES);
 			registerBlockItem.accept("signal_light_3", Blocks.SIGNAL_LIGHT_3, ItemGroups.RAILWAY_FACILITIES);
 			registerBlockItem.accept("signal_light_4", Blocks.SIGNAL_LIGHT_4, ItemGroups.RAILWAY_FACILITIES);
 			registerBlockItem.accept("signal_semaphore_1", Blocks.SIGNAL_SEMAPHORE_1, ItemGroups.RAILWAY_FACILITIES);
