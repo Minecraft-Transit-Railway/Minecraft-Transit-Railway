@@ -343,8 +343,9 @@ public class TrainServer extends Train {
 			final int headIndex = getIndex(0, spacing, true);
 			final int tailIndex = getIndex(trainCars, spacing, false);
 			for (int i = tailIndex; i <= headIndex; i++) {
-				if (i > 0 && path.get(i).savedRailBaseId != sidingId) {
-					signalBlocks.occupy(path.get(i).getRailProduct(), trainPositions, id);
+				final PathData pathData = path.get(i);
+				if (i > 0 && pathData.savedRailBaseId != sidingId && pathData.rail.railType != RailType.AIRPLANE_DUMMY) {
+					signalBlocks.occupy(pathData.getRailProduct(), trainPositions, id);
 				}
 			}
 		}

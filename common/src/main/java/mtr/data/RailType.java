@@ -17,6 +17,7 @@ public enum RailType implements IGui {
 	CABLE_CAR(30, MaterialColor.SNOW, false, true, RailSlopeStyle.CABLE),
 	CABLE_CAR_STATION(2, MaterialColor.SNOW, false, true, RailSlopeStyle.CURVE),
 	RUNWAY(300, MaterialColor.ICE, false, true, RailSlopeStyle.CURVE),
+	AIRPLANE_DUMMY(900, MaterialColor.COLOR_BLACK, false, true, RailSlopeStyle.CURVE),
 	NONE(20, MaterialColor.COLOR_BLACK, false, false, RailSlopeStyle.CURVE);
 
 	public final int speedLimit;
