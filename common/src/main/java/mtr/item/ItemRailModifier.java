@@ -23,13 +23,13 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 	private final RailType railType;
 
 	public ItemRailModifier() {
-		super(true, true, false);
+		super(true, true, true, false);
 		isOneWay = false;
 		railType = null;
 	}
 
-	public ItemRailModifier(boolean forNonContinuousMovementNode, boolean forContinuousMovementNode, boolean isOneWay, RailType railType) {
-		super(forNonContinuousMovementNode, forContinuousMovementNode, true);
+	public ItemRailModifier(boolean forNonContinuousMovementNode, boolean forContinuousMovementNode, boolean forAirplaneNode, boolean isOneWay, RailType railType) {
+		super(forNonContinuousMovementNode, forContinuousMovementNode, forAirplaneNode, true);
 		this.isOneWay = isOneWay;
 		this.railType = railType;
 	}

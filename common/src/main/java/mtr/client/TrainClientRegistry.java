@@ -22,7 +22,7 @@ public class TrainClientRegistry {
 	private static final Map<String, TrainProperties> REGISTRY = new HashMap<>();
 	private static final Map<TransportMode, List<String>> KEY_ORDERS = new HashMap<>();
 
-	public static void register(String key, String baseTrainType, String name, int color, float riderOffset, float bogiePosition, boolean isJacobsBogie, boolean hasGangwayConnection, TrainRendererBase renderer, TrainSoundBase sound) {
+	public static void register(String key, String baseTrainType, String name, int color, float riderOffset, float riderOffsetDismounting, float bogiePosition, boolean isJacobsBogie, boolean hasGangwayConnection, TrainRendererBase renderer, TrainSoundBase sound) {
 		final String keyLower = key.toLowerCase(Locale.ENGLISH);
 		final TransportMode transportMode = TrainType.getTransportMode(baseTrainType);
 		if (!KEY_ORDERS.containsKey(transportMode)) {
@@ -31,21 +31,21 @@ public class TrainClientRegistry {
 		if (!KEY_ORDERS.get(transportMode).contains(keyLower)) {
 			KEY_ORDERS.get(transportMode).add(keyLower);
 		}
-		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, Text.translatable(name == null ? "train.mtr." + keyLower : name), color, riderOffset, bogiePosition, isJacobsBogie, hasGangwayConnection, renderer, sound));
+		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, Text.translatable(name == null ? "train.mtr." + keyLower : name), color, riderOffset, riderOffsetDismounting, bogiePosition, isJacobsBogie, hasGangwayConnection, renderer, sound));
 	}
 
-	public static void register(String key, String baseTrainType, ModelTrainBase model, String textureId, String name, int color, String gangwayConnectionId, String trainBarrierId, float riderOffset, float bogiePosition, boolean isJacobsBogie, String soundId, JonTrainSound.JonTrainSoundConfig legacySoundConfig) {
+	public static void register(String key, String baseTrainType, ModelTrainBase model, String textureId, String name, int color, String gangwayConnectionId, String trainBarrierId, float riderOffset, float riderOffsetDismounting, float bogiePosition, boolean isJacobsBogie, String soundId, JonTrainSound.JonTrainSoundConfig legacySoundConfig) {
 		final TrainRendererBase renderer = new JonModelTrainRenderer(model, textureId, gangwayConnectionId, trainBarrierId);
 		final TrainSoundBase sound = legacySoundConfig == null ? new BveTrainSound(new BveTrainSoundConfig(Minecraft.getInstance().getResourceManager(), soundId == null ? "" : soundId)) : new JonTrainSound(soundId, legacySoundConfig);
-		register(key, baseTrainType, name, color, riderOffset, bogiePosition, isJacobsBogie, !StringUtils.isEmpty(gangwayConnectionId), renderer, sound);
+		register(key, baseTrainType, name, color, riderOffset, riderOffsetDismounting, bogiePosition, isJacobsBogie, !StringUtils.isEmpty(gangwayConnectionId), renderer, sound);
 	}
 
 	private static void register(TrainType defaultTrainType, ModelTrainBase model, String textureId, int color, String gangwayConnectionId, String trainBarrierId, float bogiePosition, boolean isJacobsBogie, String soundId, JonTrainSound.JonTrainSoundConfig legacySoundConfig) {
-		register(defaultTrainType.toString(), defaultTrainType.baseTrainType, model, textureId, null, color, gangwayConnectionId, trainBarrierId, 0, bogiePosition, isJacobsBogie, soundId, legacySoundConfig);
+		register(defaultTrainType.toString(), defaultTrainType.baseTrainType, model, textureId, null, color, gangwayConnectionId, trainBarrierId, 0, 0, bogiePosition, isJacobsBogie, soundId, legacySoundConfig);
 	}
 
-	private static void register(TrainType defaultTrainType, ModelTrainBase model, String textureId, int color, float riderOffset) {
-		register(defaultTrainType.toString(), defaultTrainType.baseTrainType, model, textureId, null, color, "", "", riderOffset, 0, false, null, new JonTrainSound.JonTrainSoundConfig(null, 0, 0.5F, false));
+	private static void register(TrainType defaultTrainType, ModelTrainBase model, String textureId, int color, float riderOffset, float riderOffsetDismounting) {
+		register(defaultTrainType.toString(), defaultTrainType.baseTrainType, model, textureId, null, color, "", "", riderOffset, riderOffsetDismounting, 0, false, null, new JonTrainSound.JonTrainSoundConfig(null, 0, 0.5F, false));
 	}
 
 	public static void reset() {
@@ -139,21 +139,22 @@ public class TrainClientRegistry {
 		register(TrainType.CLASS_802_TPE, new ModelClass802(), "mtr:textures/entity/class_802_tpe", 0x00A6E6, "mtr:textures/entity/sp1900", "", 7.75F, false, "class_802", new JonTrainSound.JonTrainSoundConfig("class_802", 120, 1, false));
 		register(TrainType.CLASS_802_TPE_MINI, new ModelClass802Mini(), "mtr:textures/entity/class_802_tpe", 0x00A6E6, "mtr:textures/entity/sp1900", "", 4.94F, false, "class_802", new JonTrainSound.JonTrainSoundConfig("class_802", 120, 1, false));
 		register(TrainType.MPL_85, new ModelMPL85(), "mtr:textures/entity/mpl_85", 0xEF7011, "", "", 6.75F, false, "m_train", new JonTrainSound.JonTrainSoundConfig("a_train", 90, 0.5F, false));
-		register(TrainType.MINECART, null, "textures/entity/minecart", 0x666666, -0.5F);
-		register(TrainType.OAK_BOAT, null, "textures/entity/boat/oak", 0x8F7748, -0.5F);
-		register(TrainType.SPRUCE_BOAT, null, "textures/entity/boat/spruce", 0x8F7748, -0.5F);
-		register(TrainType.BIRCH_BOAT, null, "textures/entity/boat/birch", 0x8F7748, -0.5F);
-		register(TrainType.JUNGLE_BOAT, null, "textures/entity/boat/jungle", 0x8F7748, -0.5F);
-		register(TrainType.ACACIA_BOAT, null, "textures/entity/boat/acacia", 0x8F7748, -0.5F);
-		register(TrainType.DARK_OAK_BOAT, null, "textures/entity/boat/dark_oak", 0x8F7748, -0.5F);
-		register(TrainType.NGONG_PING_360_CRYSTAL, new ModelNgongPing360(false), "mtr:textures/entity/ngong_ping_360_crystal", 0x062540, 0);
-		register(TrainType.NGONG_PING_360_CRYSTAL_RHT, new ModelNgongPing360(true), "mtr:textures/entity/ngong_ping_360_crystal", 0x062540, 0);
-		register(TrainType.NGONG_PING_360_NORMAL_RED, new ModelNgongPing360(false), "mtr:textures/entity/ngong_ping_360_normal_red", 0x062540, 0);
-		register(TrainType.NGONG_PING_360_NORMAL_RED_RHT, new ModelNgongPing360(true), "mtr:textures/entity/ngong_ping_360_normal_red", 0x062540, 0);
-		register(TrainType.NGONG_PING_360_NORMAL_ORANGE, new ModelNgongPing360(false), "mtr:textures/entity/ngong_ping_360_normal_orange", 0x062540, 0);
-		register(TrainType.NGONG_PING_360_NORMAL_ORANGE_RHT, new ModelNgongPing360(true), "mtr:textures/entity/ngong_ping_360_normal_orange", 0x062540, 0);
-		register(TrainType.NGONG_PING_360_NORMAL_LIGHT_BLUE, new ModelNgongPing360(false), "mtr:textures/entity/ngong_ping_360_normal_light_blue", 0x062540, 0);
-		register(TrainType.NGONG_PING_360_NORMAL_LIGHT_BLUE_RHT, new ModelNgongPing360(true), "mtr:textures/entity/ngong_ping_360_normal_light_blue", 0x062540, 0);
+		register(TrainType.MINECART, null, "textures/entity/minecart", 0x666666, -0.5F, 0);
+		register(TrainType.OAK_BOAT, null, "textures/entity/boat/oak", 0x8F7748, -1.5F, 0);
+		register(TrainType.SPRUCE_BOAT, null, "textures/entity/boat/spruce", 0x8F7748, -1.5F, 0);
+		register(TrainType.BIRCH_BOAT, null, "textures/entity/boat/birch", 0x8F7748, -1.5F, 0);
+		register(TrainType.JUNGLE_BOAT, null, "textures/entity/boat/jungle", 0x8F7748, -1.5F, 0);
+		register(TrainType.ACACIA_BOAT, null, "textures/entity/boat/acacia", 0x8F7748, -1.5F, 0);
+		register(TrainType.DARK_OAK_BOAT, null, "textures/entity/boat/dark_oak", 0x8F7748, -1.5F, 0);
+		register(TrainType.NGONG_PING_360_CRYSTAL, new ModelNgongPing360(false), "mtr:textures/entity/ngong_ping_360_crystal", 0x062540, 0, 0);
+		register(TrainType.NGONG_PING_360_CRYSTAL_RHT, new ModelNgongPing360(true), "mtr:textures/entity/ngong_ping_360_crystal", 0x062540, 0, 0);
+		register(TrainType.NGONG_PING_360_NORMAL_RED, new ModelNgongPing360(false), "mtr:textures/entity/ngong_ping_360_normal_red", 0x062540, 0, 0);
+		register(TrainType.NGONG_PING_360_NORMAL_RED_RHT, new ModelNgongPing360(true), "mtr:textures/entity/ngong_ping_360_normal_red", 0x062540, 0, 0);
+		register(TrainType.NGONG_PING_360_NORMAL_ORANGE, new ModelNgongPing360(false), "mtr:textures/entity/ngong_ping_360_normal_orange", 0x062540, 0, 0);
+		register(TrainType.NGONG_PING_360_NORMAL_ORANGE_RHT, new ModelNgongPing360(true), "mtr:textures/entity/ngong_ping_360_normal_orange", 0x062540, 0, 0);
+		register(TrainType.NGONG_PING_360_NORMAL_LIGHT_BLUE, new ModelNgongPing360(false), "mtr:textures/entity/ngong_ping_360_normal_light_blue", 0x062540, 0, 0);
+		register(TrainType.NGONG_PING_360_NORMAL_LIGHT_BLUE_RHT, new ModelNgongPing360(true), "mtr:textures/entity/ngong_ping_360_normal_light_blue", 0x062540, 0, 0);
+		register(TrainType.FLYING_MINECART, null, "textures/entity/minecart", 0x666666, -0.5F, 0);
 	}
 
 	public static TrainProperties getTrainProperties(String key) {
@@ -175,7 +176,7 @@ public class TrainClientRegistry {
 
 	private static TrainProperties getBlankProperties() {
 		return new TrainProperties(
-				"", Text.translatable(""), 0, 0, 0, false, false,
+				"", Text.translatable(""), 0, 0, 0, 0, false, false,
 				new JonModelTrainRenderer(null, "", "", ""),
 				new JonTrainSound("", new JonTrainSound.JonTrainSoundConfig(null, 0, 0.5F, false))
 		);
@@ -187,17 +188,19 @@ public class TrainClientRegistry {
 		public final Component name;
 		public final int color;
 		public final float riderOffset;
+		public final float riderOffsetDismounting;
 		public final float bogiePosition;
 		public final boolean isJacobsBogie;
 		public final boolean hasGangwayConnection;
 		public final TrainRendererBase renderer;
 		public final TrainSoundBase sound;
 
-		private TrainProperties(String baseTrainType, Component name, int color, float riderOffset, float bogiePosition, boolean isJacobsBogie, boolean hasGangwayConnection, TrainRendererBase renderer, TrainSoundBase sound) {
+		private TrainProperties(String baseTrainType, Component name, int color, float riderOffset, float riderOffsetDismounting, float bogiePosition, boolean isJacobsBogie, boolean hasGangwayConnection, TrainRendererBase renderer, TrainSoundBase sound) {
 			this.baseTrainType = baseTrainType;
 			this.name = name;
 			this.color = color;
 			this.riderOffset = riderOffset;
+			this.riderOffsetDismounting = riderOffsetDismounting;
 			this.bogiePosition = bogiePosition;
 			this.isJacobsBogie = isJacobsBogie;
 			this.hasGangwayConnection = hasGangwayConnection;

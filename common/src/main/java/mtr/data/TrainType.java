@@ -105,7 +105,8 @@ public enum TrainType {
 	NGONG_PING_360_NORMAL_ORANGE("cable_car_1_1"),
 	NGONG_PING_360_NORMAL_ORANGE_RHT("cable_car_1_1"),
 	NGONG_PING_360_NORMAL_LIGHT_BLUE("cable_car_1_1"),
-	NGONG_PING_360_NORMAL_LIGHT_BLUE_RHT("cable_car_1_1");
+	NGONG_PING_360_NORMAL_LIGHT_BLUE_RHT("cable_car_1_1"),
+	FLYING_MINECART("airplane_1_1");
 
 	public final String baseTrainType;
 

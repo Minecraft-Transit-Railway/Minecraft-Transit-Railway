@@ -26,15 +26,17 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 
 	public final boolean forNonContinuousMovementNode;
 	public final boolean forContinuousMovementNode;
+	public final boolean forAirplaneNode;
 	protected final boolean isConnector;
 
 	public static final String TAG_POS = "pos";
 	private static final String TAG_TRANSPORT_MODE = "transport_mode";
 
-	public ItemNodeModifierBase(boolean forNonContinuousMovementNode, boolean forContinuousMovementNode, boolean isConnector) {
+	public ItemNodeModifierBase(boolean forNonContinuousMovementNode, boolean forContinuousMovementNode, boolean forAirplaneNode, boolean isConnector) {
 		super(new Item.Properties().tab(ItemGroups.CORE).stacksTo(1));
 		this.forNonContinuousMovementNode = forNonContinuousMovementNode;
 		this.forContinuousMovementNode = forContinuousMovementNode;
+		this.forAirplaneNode = forAirplaneNode;
 		this.isConnector = isConnector;
 	}
 
@@ -87,7 +89,16 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 	protected boolean clickCondition(UseOnContext context) {
 		final Level world = context.getLevel();
 		final Block blockStart = world.getBlockState(context.getClickedPos()).getBlock();
-		return blockStart instanceof BlockNode && (((BlockNode) blockStart).transportMode.continuousMovement && forContinuousMovementNode || !((BlockNode) blockStart).transportMode.continuousMovement && forNonContinuousMovementNode);
+		if (blockStart instanceof BlockNode) {
+			final BlockNode blockNode = (BlockNode) blockStart;
+			if (blockNode.transportMode == TransportMode.AIRPLANE) {
+				return forAirplaneNode;
+			} else {
+				return blockNode.transportMode.continuousMovement ? forContinuousMovementNode : forNonContinuousMovementNode;
+			}
+		} else {
+			return false;
+		}
 	}
 
 	protected abstract void onConnect(Level world, ItemStack stack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData);

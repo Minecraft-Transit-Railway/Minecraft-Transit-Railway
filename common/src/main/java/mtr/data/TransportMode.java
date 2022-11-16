@@ -3,7 +3,8 @@ package mtr.data;
 public enum TransportMode {
 	TRAIN(Integer.MAX_VALUE, false, true, 0),
 	BOAT(1, false, true, 0),
-	CABLE_CAR(1, true, false, -6);
+	CABLE_CAR(1, true, false, -6),
+	AIRPLANE(1, false, false, 0);
 
 	public final int maxLength;
 	public final boolean continuousMovement;
