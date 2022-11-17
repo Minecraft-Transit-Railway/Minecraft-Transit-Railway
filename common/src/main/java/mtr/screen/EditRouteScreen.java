@@ -66,7 +66,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 		IDrawing.setPositionAndWidth(buttonIsClockwiseRoute, SQUARE_SIZE, SQUARE_SIZE * 9 + TEXT_FIELD_PADDING, CHECKBOX_WIDTH);
 		IDrawing.setPositionAndWidth(buttonIsAntiClockwiseRoute, SQUARE_SIZE, SQUARE_SIZE * 10 + TEXT_FIELD_PADDING, CHECKBOX_WIDTH);
 
-		if (!data.transportMode.continuousMovement) {
+		if (data.transportMode.hasRouteTypeVariation) {
 			addDrawableChild(buttonRouteType);
 		}
 		addDrawableChild(textFieldLightRailRouteNumber);
