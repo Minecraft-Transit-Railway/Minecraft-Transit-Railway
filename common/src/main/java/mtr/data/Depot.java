@@ -24,6 +24,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 	public long lastDeployedMillis;
 	public boolean useRealTime;
 	public boolean repeatInfinitely;
+	public int cruisingAltitude = DEFAULT_CRUISING_ALTITUDE;
 	private int deployIndex;
 	private int departureOffset;
 	private boolean isDirty = true;
@@ -41,8 +42,10 @@ public class Depot extends AreaBase implements IReducedSaveData {
 	public static final int TICKS_PER_HOUR = 1000;
 	public static final int MILLIS_PER_TICK = 50;
 	public static final int MILLISECONDS_PER_DAY = HOURS_IN_DAY * 60 * 60 * 1000;
+	public static final int DEFAULT_CRUISING_ALTITUDE = 256;
 	private static final int TICKS_PER_DAY = HOURS_IN_DAY * TICKS_PER_HOUR;
 	private static final int CONTINUOUS_MOVEMENT_FREQUENCY = 8000;
+	private static final int THRESHOLD_ABOVE_MAX_BUILD_HEIGHT = 64;
 
 	private static final String KEY_ROUTE_IDS = "route_ids";
 	private static final String KEY_USE_REAL_TIME = "use_real_time";
@@ -51,6 +54,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 	private static final String KEY_LAST_DEPLOYED = "last_deployed";
 	private static final String KEY_DEPLOY_INDEX = "deploy_index";
 	private static final String KEY_REPEAT_INFINITELY = "repeat_infinitely";
+	private static final String KEY_CRUISING_ALTITUDE = "cruising_altitude";
 
 	public Depot(TransportMode transportMode) {
 		super(transportMode);
@@ -79,6 +83,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 
 		deployIndex = messagePackHelper.getInt(KEY_DEPLOY_INDEX);
 		repeatInfinitely = messagePackHelper.getBoolean(KEY_REPEAT_INFINITELY);
+		cruisingAltitude = messagePackHelper.getInt(KEY_CRUISING_ALTITUDE);
 		lastDeployedMillis = System.currentTimeMillis() - messagePackHelper.getLong(KEY_LAST_DEPLOYED);
 	}
 
@@ -98,6 +103,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		lastDeployedMillis = System.currentTimeMillis() - compoundTag.getLong(KEY_LAST_DEPLOYED);
 		deployIndex = compoundTag.getInt(KEY_DEPLOY_INDEX);
 		repeatInfinitely = compoundTag.getBoolean(KEY_REPEAT_INFINITELY);
+		cruisingAltitude = compoundTag.getInt(KEY_CRUISING_ALTITUDE);
 	}
 
 	public Depot(FriendlyByteBuf packet) {
@@ -122,6 +128,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		lastDeployedMillis = packet.readLong();
 		deployIndex = packet.readInt();
 		repeatInfinitely = packet.readBoolean();
+		cruisingAltitude = packet.readInt();
 	}
 
 	@Override
@@ -142,6 +149,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 
 		messagePacker.packString(KEY_USE_REAL_TIME).packBoolean(useRealTime);
 		messagePacker.packString(KEY_REPEAT_INFINITELY).packBoolean(repeatInfinitely);
+		messagePacker.packString(KEY_CRUISING_ALTITUDE).packInt(cruisingAltitude);
 
 		messagePacker.packString(KEY_FREQUENCIES).packArrayHeader(HOURS_IN_DAY);
 		for (int i = 0; i < HOURS_IN_DAY; i++) {
@@ -183,6 +191,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		packet.writeLong(lastDeployedMillis);
 		packet.writeInt(deployIndex);
 		packet.writeBoolean(repeatInfinitely);
+		packet.writeInt(cruisingAltitude);
 	}
 
 	@Override
@@ -210,6 +219,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 				routeIds.add(packet.readLong());
 			}
 			repeatInfinitely = packet.readBoolean();
+			cruisingAltitude = packet.readInt();
 		} else {
 			super.update(key, packet);
 		}
@@ -250,6 +260,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		packet.writeInt(routeIds.size());
 		routeIds.forEach(packet::writeLong);
 		packet.writeBoolean(repeatInfinitely);
+		packet.writeInt(cruisingAltitude);
 		sendPacket.accept(packet);
 	}
 
@@ -268,10 +279,12 @@ public class Depot extends AreaBase implements IReducedSaveData {
 			}
 		});
 
+		final boolean useFastSpeed = cruisingAltitude >= world.getMaxBuildHeight() + THRESHOLD_ABOVE_MAX_BUILD_HEIGHT;
+
 		final Thread thread = new Thread(() -> {
 			try {
 				final List<PathData> tempPath = new ArrayList<>();
-				final int successfulSegmentsMain = PathFinder.findPath(tempPath, rails, platformsInRoute, 1);
+				final int successfulSegmentsMain = PathFinder.findPath(tempPath, rails, platformsInRoute, 1, cruisingAltitude, useFastSpeed);
 				final int[] successfulSegments = new int[]{Integer.MAX_VALUE};
 
 				sidings.forEach(siding -> {
@@ -279,7 +292,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 					if (siding.isTransportMode(transportMode) && inArea(sidingMidPos.getX(), sidingMidPos.getZ())) {
 						final SavedRailBase firstPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(0);
 						final SavedRailBase lastPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(platformsInRoute.size() - 1);
-						final int result = siding.generateRoute(minecraftServer, tempPath, successfulSegmentsMain, rails, firstPlatform, lastPlatform, repeatInfinitely);
+						final int result = siding.generateRoute(minecraftServer, tempPath, successfulSegmentsMain, rails, firstPlatform, lastPlatform, repeatInfinitely, cruisingAltitude, useFastSpeed);
 						if (result < successfulSegments[0]) {
 							successfulSegments[0] = result;
 						}

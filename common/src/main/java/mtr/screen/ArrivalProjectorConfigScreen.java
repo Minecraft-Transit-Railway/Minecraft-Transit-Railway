@@ -48,7 +48,7 @@ public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, 
 		selectAllCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.select_all_platforms"), checked -> {
 		});
 
-		displayPageInput = new WidgetBetterTextField("\\D", "1", 3);
+		displayPageInput = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "1", 3);
 
 		filterButton = PIDSConfigScreen.getPlatformFilterButton(pos, selectAllCheckbox, filterPlatformIds, this);
 	}
