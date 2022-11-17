@@ -356,7 +356,7 @@ const onClickLine = (routeId, color, forceClick) => {
 		UTILITIES.removeFromArray(SETTINGS.selectedRoutes, routeId);
 	}
 
-	DIRECTIONS.drawDirectionsRoute([], []);
+	DIRECTIONS.drawDirectionsRoute([], {});
 	DATA.redraw();
 	FETCH_DELAYS_DATA.fetchData();
 };

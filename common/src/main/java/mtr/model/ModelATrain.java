@@ -2,10 +2,11 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.DoorAnimationType;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
 
-public class ModelATrain extends ModelSimpleTrainBase {
+public class ModelATrain extends ModelSimpleTrainBase<ModelATrain> {
 
 	private final ModelMapper window_tcl;
 	private final ModelMapper upper_wall_r1;
@@ -228,6 +229,11 @@ public class ModelATrain extends ModelSimpleTrainBase {
 	protected final boolean isAel;
 
 	public ModelATrain(boolean isAel) {
+		this(isAel, DoorAnimationType.PLUG_FAST, true);
+	}
+
+	protected ModelATrain(boolean isAel, DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(doorAnimationType, renderDoorOverlay);
 		this.isAel = isAel;
 
 		final int textureWidth = 336;
@@ -1556,6 +1562,11 @@ public class ModelATrain extends ModelSimpleTrainBase {
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX_TCL, 8, "door_overlay_a_train_tcl_left.png", "door_overlay_a_train_tcl_right.png");
 
 	@Override
+	public ModelATrain createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		return new ModelATrain(isAel, doorAnimationType, renderDoorOverlay);
+	}
+
+	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
 			case LIGHTS:
@@ -1876,14 +1887,12 @@ public class ModelATrain extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return value < 0.05 ? -value * 20 - 0.01F : -1.01F;
+	protected int getDoorMax() {
+		return isAel ? DOOR_MAX_AEL : DOOR_MAX_TCL;
 	}
 
 	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		final int doorMax = isAel ? DOOR_MAX_AEL : DOOR_MAX_TCL;
-		final float time = 0.5F * (isAel ? (float) DOOR_MAX_AEL / DOOR_MAX_TCL : 1);
-		return smoothEnds(-doorMax, doorMax, -time, time, value);
+	protected float getDoorDuration() {
+		return 0.5F * (isAel ? (float) DOOR_MAX_AEL / DOOR_MAX_TCL : 1);
 	}
 }

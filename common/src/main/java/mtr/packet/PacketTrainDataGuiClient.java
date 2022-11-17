@@ -69,10 +69,11 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	}
 
 	public static void openDashboardScreenS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
-		TransportMode transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packet.readUtf());
+		final TransportMode transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packet.readUtf());
+		final boolean useTimeAndWindSync = packet.readBoolean();
 		minecraftClient.execute(() -> {
 			if (!(minecraftClient.screen instanceof DashboardScreen)) {
-				UtilitiesClient.setScreen(minecraftClient, new DashboardScreen(transportMode));
+				UtilitiesClient.setScreen(minecraftClient, new DashboardScreen(transportMode, useTimeAndWindSync));
 			}
 		});
 	}
@@ -107,6 +108,16 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		minecraftClient.execute(() -> {
 			if (!(minecraftClient.screen instanceof LiftTrackFloorScreen)) {
 				UtilitiesClient.setScreen(minecraftClient, new LiftTrackFloorScreen(pos));
+			}
+		});
+	}
+
+	public static void openLiftCustomizationS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
+		final long id = packet.readLong();
+		minecraftClient.execute(() -> {
+			final LiftClient lift = ClientData.DATA_CACHE.liftsClientIdMap.get(id);
+			if (!(minecraftClient.screen instanceof LiftCustomizationScreen) && lift != null) {
+				UtilitiesClient.setScreen(minecraftClient, new LiftCustomizationScreen(lift));
 			}
 		});
 	}
@@ -187,6 +198,11 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		minecraftClient.execute(() -> RailwayData.removeNode(null, ClientData.RAILS, pos));
 	}
 
+	public static void removeLiftFloorTrackS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+		minecraftClient.execute(() -> RailwayData.removeLiftFloorTrack(null, ClientData.LIFTS, pos));
+	}
+
 	public static void removeRailConnectionS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
 		final BlockPos pos1 = packet.readBlockPos();
 		final BlockPos pos2 = packet.readBlockPos();
@@ -243,17 +259,21 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	}
 
 	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteS2C(Minecraft minecraftClient, FriendlyByteBuf packet, Set<T> dataSet, Map<Long, T> cacheMap, BiFunction<Long, TransportMode, T> createDataWithId, boolean isDelete) {
-		final PacketCallback packetCallback = (updatePacket, fullPacket) -> ClientData.DATA_CACHE.sync();
+		final PacketCallback packetCallback = (updatePacket, fullPacket) -> {
+			ClientData.DATA_CACHE.sync();
+			ClientData.DATA_CACHE.refreshDynamicResources();
+		};
 		if (isDelete) {
-			deleteData(dataSet, minecraftClient, packet, packetCallback);
+			deleteData(dataSet, cacheMap, minecraftClient, packet, packetCallback, null);
 		} else {
-			updateData(dataSet, cacheMap, minecraftClient, packet, packetCallback, createDataWithId);
+			updateData(dataSet, cacheMap, minecraftClient, packet, packetCallback, createDataWithId, null);
 		}
 	}
 
 	public static void sendUpdate(ResourceLocation packetId, FriendlyByteBuf packet) {
 		RegistryClient.sendToServer(packetId, packet);
 		ClientData.DATA_CACHE.sync();
+		ClientData.DATA_CACHE.refreshDynamicResources();
 	}
 
 	public static void sendDeleteData(ResourceLocation packetId, long id) {
@@ -341,9 +361,9 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		}
 	}
 
-	public static void sendPressLiftButtonC2S(UUID uuid, int floor) {
+	public static void sendPressLiftButtonC2S(long id, int floor) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
-		packet.writeUUID(uuid);
+		packet.writeLong(id);
 		packet.writeInt(floor);
 		RegistryClient.sendToServer(PACKET_PRESS_LIFT_BUTTON, packet);
 	}
@@ -355,7 +375,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		RegistryClient.sendToServer(PACKET_ADD_BALANCE, packet);
 	}
 
-	public static void sendPIDSConfigC2S(BlockPos pos1, BlockPos pos2, String[] messages, boolean[] hideArrival) {
+	public static void sendPIDSConfigC2S(BlockPos pos1, BlockPos pos2, String[] messages, boolean[] hideArrival, Set<Long> filterPlatformIds) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(pos1);
 		packet.writeBlockPos(pos2);
@@ -364,8 +384,11 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 			packet.writeUtf(messages[i]);
 			packet.writeBoolean(hideArrival[i]);
 		}
+		packet.writeInt(filterPlatformIds.size());
+		filterPlatformIds.forEach(packet::writeLong);
 		RegistryClient.sendToServer(PACKET_PIDS_UPDATE, packet);
 	}
+
 
 	public static void sendRailCustomC2S(int speed, boolean isOneWay) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
@@ -375,10 +398,20 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	}
 
 	public static void sendArrivalProjectorConfigC2S(BlockPos pos, Set<Long> filterPlatformIds) {
+
+	public static void sendArrivalProjectorConfigC2S(BlockPos pos, Set<Long> filterPlatformIds, int displayPage) {
+
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(pos);
 		packet.writeInt(filterPlatformIds.size());
 		filterPlatformIds.forEach(packet::writeLong);
+		packet.writeInt(displayPage);
 		RegistryClient.sendToServer(PACKET_ARRIVAL_PROJECTOR_UPDATE, packet);
+	}
+
+	public static void sendUseTimeAndWindSyncC2S(boolean useTimeAndWindSync) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeBoolean(useTimeAndWindSync);
+		RegistryClient.sendToServer(PACKET_USE_TIME_AND_WIND_SYNC, packet);
 	}
 }

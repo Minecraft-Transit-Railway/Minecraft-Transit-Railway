@@ -76,7 +76,7 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 					onConnect(world, context.getItemInHand(), ((BlockNode) blockStart).transportMode, stateStart, stateEnd, posStart, posEnd, railAngleStart, railAngleEnd, player, railwayData);
 				}
 			} else {
-				onRemove(world, posStart, posEnd, railwayData);
+				onRemove(world, posStart, posEnd, player, railwayData);
 			}
 		}
 
@@ -92,5 +92,5 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 
 	protected abstract void onConnect(Level world, ItemStack stack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData);
 
-	protected abstract void onRemove(Level world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData);
+	protected abstract void onRemove(Level world, BlockPos posStart, BlockPos posEnd, Player player, RailwayData railwayData);
 }

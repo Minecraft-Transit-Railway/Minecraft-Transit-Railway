@@ -2,10 +2,11 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.DoorAnimationType;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
 
-public class ModelDRL extends ModelSimpleTrainBase {
+public class ModelDRL extends ModelSimpleTrainBase<ModelDRL> {
 	private final ModelMapper window;
 	private final ModelMapper upper_wall_r1;
 	private final ModelMapper window_handrails_1;
@@ -229,6 +230,11 @@ public class ModelDRL extends ModelSimpleTrainBase {
 	private final ModelMapper statue_box_translucent_1_r1;
 
 	public ModelDRL() {
+		this(DoorAnimationType.STANDARD_SLOW, true);
+	}
+
+	private ModelDRL(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(doorAnimationType, renderDoorOverlay);
 		final int textureWidth = 360;
 		final int textureHeight = 360;
 
@@ -1595,6 +1601,10 @@ public class ModelDRL extends ModelSimpleTrainBase {
 	private static final int DOOR_MAX = 14;
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 6.34F, "door_overlay_drl_left.png", "door_overlay_drl_right.png");
 
+	@Override
+	public ModelDRL createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		return new ModelDRL(doorAnimationType, renderDoorOverlay);
+	}
 
 	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
@@ -1805,23 +1815,8 @@ public class ModelDRL extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return 0;
-	}
-
-	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		if (opening) {
-			return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
-		} else {
-			if (value > 0.2) {
-				return smoothEnds(1, DOOR_MAX, 0.2F, 0.5F, value);
-			} else if (value > 0.1) {
-				return 1;
-			} else {
-				return smoothEnds(0, 1, 0, 0.1F, value);
-			}
-		}
+	protected int getDoorMax() {
+		return DOOR_MAX;
 	}
 
 	private boolean isEvenWindow(int position) {

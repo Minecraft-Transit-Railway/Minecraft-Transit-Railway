@@ -2,10 +2,11 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.DoorAnimationType;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
 
-public class ModelSTrain extends ModelSimpleTrainBase {
+public class ModelSTrain extends ModelSimpleTrainBase<ModelSTrain> {
 
 	private final ModelMapper window;
 	private final ModelMapper upper_wall_2_r1;
@@ -190,6 +191,11 @@ public class ModelSTrain extends ModelSimpleTrainBase {
 	private final ModelMapper light_r2;
 
 	public ModelSTrain() {
+		this(DoorAnimationType.STANDARD, true);
+	}
+
+	protected ModelSTrain(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(doorAnimationType, renderDoorOverlay);
 		final int textureWidth = 320;
 		final int textureHeight = 320;
 
@@ -1294,6 +1300,11 @@ public class ModelSTrain extends ModelSimpleTrainBase {
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 6.34F, "door_overlay_c_train_left.png", "door_overlay_c_train_right.png");
 
 	@Override
+	public ModelSTrain createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		return new ModelSTrain(doorAnimationType, renderDoorOverlay);
+	}
+
+	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
 			case LIGHTS:
@@ -1472,12 +1483,7 @@ public class ModelSTrain extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return 0;
-	}
-
-	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
+	protected int getDoorMax() {
+		return DOOR_MAX;
 	}
 }

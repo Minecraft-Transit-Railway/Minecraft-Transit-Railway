@@ -27,7 +27,7 @@ public class Patreon implements Keys, IGui, Comparable<Patreon> {
 
 		int color = ARGB_WHITE;
 		try {
-			color = RailType.valueOf(tierTitle.toUpperCase()).color | ARGB_BLACK;
+			color = RailType.valueOf(tierTitle.toUpperCase(Locale.ENGLISH)).color | ARGB_BLACK;
 		} catch (Exception ignored) {
 		}
 		tierColor = color;

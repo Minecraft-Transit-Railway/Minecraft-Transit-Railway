@@ -4,6 +4,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Locale;
+
 public class ConfigFile {
 
 	public final SoundEvent[] run = new SoundEvent[1];
@@ -30,6 +32,8 @@ public class ConfigFile {
 	public final SoundEvent shoe;
 
 	public final int motorNoiseDataType;
+
+	public final float motorVolumeMultiply;
 
 	public final float breakerDelay;
 	public final float regenerationLimit;
@@ -66,6 +70,7 @@ public class ConfigFile {
 		SoundEvent shoe = null;
 
 		int motorNoiseDataType = 5; // 4 or 5
+		float motorVolumeMultiply = 1.0F;
 		float breakerDelay = 0.5F;
 		float regenerationLimit = 8F / 3.6F; // m/s
 		float motorOutputAtCoast = 0.4F;
@@ -83,8 +88,8 @@ public class ConfigFile {
 					continue;
 				}
 
-				final String key = tokens[0].trim().toLowerCase().replaceAll("\\s", "");
-				final String value = tokens[1].trim().toLowerCase().replace("\\", "/").replaceAll("\\.wav|\\s|.+/", "");
+				final String key = tokens[0].trim().toLowerCase(Locale.ENGLISH).replaceAll("\\s", "");
+				final String value = tokens[1].trim().toLowerCase(Locale.ENGLISH).replace("\\", "/").replaceAll("\\.wav|\\s|.+/", "");
 				if (StringUtils.isEmpty(value)) {
 					continue;
 				}
@@ -95,6 +100,9 @@ public class ConfigFile {
 						switch (key) {
 							case "motornoisedatatype":
 								motorNoiseDataType = Integer.parseInt(value);
+								break;
+							case "motorvolumemultiply":
+								motorVolumeMultiply = Float.parseFloat(value);
 								break;
 							case "doorclosesoundlength":
 								doorCloseSoundLength = Float.parseFloat(value);
@@ -198,7 +206,7 @@ public class ConfigFile {
 						}
 				}
 			} else if (trimLine.startsWith("[") && trimLine.endsWith("]")) {
-				section = trimLine.substring(1, trimLine.length() - 1).trim().replace(" ", "").toLowerCase();
+				section = trimLine.substring(1, trimLine.length() - 1).trim().replace(" ", "").toLowerCase(Locale.ENGLISH);
 			}
 		}
 
@@ -224,6 +232,7 @@ public class ConfigFile {
 		this.noise = noise;
 		this.shoe = shoe;
 		this.motorNoiseDataType = motorNoiseDataType;
+		this.motorVolumeMultiply = motorVolumeMultiply;
 		this.breakerDelay = breakerDelay;
 		this.regenerationLimit = regenerationLimit;
 		this.motorOutputAtCoast = motorOutputAtCoast;

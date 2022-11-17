@@ -50,7 +50,7 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements EntityBlockMa
 		builder.add(FACING, HALF, SIDE_EXTENDED, ARROW_DIRECTION);
 	}
 
-	public static class TileEntityAPGGlass extends BlockEntityMapper {
+	public static class TileEntityAPGGlass extends BlockPSDTop.TileEntityRouteBase {
 
 		public TileEntityAPGGlass(BlockPos pos, BlockState state) {
 			super(BlockEntityTypes.APG_GLASS_TILE_ENTITY.get(), pos, state);

@@ -1,7 +1,7 @@
 package mtr.block;
 
 import mtr.BlockEntityTypes;
-import mtr.entity.EntityLift;
+import mtr.data.RailwayData;
 import mtr.mappings.BlockEntityClientSerializableMapper;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.EntityBlockMapper;
@@ -16,9 +16,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-
-import java.util.Map;
-import java.util.function.Function;
 
 public class BlockLiftTrackFloor extends BlockLiftTrack implements EntityBlockMapper {
 
@@ -42,9 +39,19 @@ public class BlockLiftTrackFloor extends BlockLiftTrack implements EntityBlockMa
 		return new TileEntityLiftTrackFloor(pos, state);
 	}
 
+	@Override
+	public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+		if (!world.isClientSide) {
+			final RailwayData railwayData = RailwayData.getInstance(world);
+			if (railwayData != null) {
+				railwayData.removeLiftFloorTrack(pos);
+				PacketTrainDataGuiServer.removeLiftFloorTrackS2C(world, pos);
+			}
+		}
+	}
+
 	public static class TileEntityLiftTrackFloor extends BlockEntityClientSerializableMapper {
 
-		private EntityLift cachedEntityLift;
 		private String floorNumber = "1";
 		private String floorDescription = "";
 		private boolean shouldDing;
@@ -89,66 +96,6 @@ public class BlockLiftTrackFloor extends BlockLiftTrack implements EntityBlockMa
 
 		public boolean getShouldDing() {
 			return shouldDing;
-		}
-
-		public void scanFloors(Map<Integer, String> floors) {
-			floors.clear();
-			scanFloors(level, worldPosition, false, tileEntityLiftTrackFloor -> {
-				floors.put(tileEntityLiftTrackFloor.worldPosition.getY(), tileEntityLiftTrackFloor.floorNumber + "||" + tileEntityLiftTrackFloor.floorDescription);
-				return false;
-			});
-			scanFloors(level, worldPosition, true, tileEntityLiftTrackFloor -> {
-				floors.put(tileEntityLiftTrackFloor.worldPosition.getY(), tileEntityLiftTrackFloor.floorNumber + "||" + tileEntityLiftTrackFloor.floorDescription);
-				return false;
-			});
-		}
-
-		public void setEntityLift(EntityLift entityLift) {
-			if (cachedEntityLift != null && cachedEntityLift != entityLift) {
-				cachedEntityLift.kill();
-			}
-			cachedEntityLift = entityLift;
-		}
-
-		public EntityLift getEntityLift() {
-			if (cachedEntityLift != null) {
-				return cachedEntityLift;
-			} else if (level != null) {
-				if (!scanFloors(level, worldPosition, false, tileEntityLiftTrackFloor -> {
-					final EntityLift entityLift = tileEntityLiftTrackFloor.cachedEntityLift;
-					if (entityLift != null) {
-						cachedEntityLift = entityLift;
-						return true;
-					} else {
-						return false;
-					}
-				})) {
-					scanFloors(level, worldPosition, true, tileEntityLiftTrackFloor -> {
-						final EntityLift entityLift = tileEntityLiftTrackFloor.cachedEntityLift;
-						if (entityLift != null) {
-							cachedEntityLift = entityLift;
-							return true;
-						} else {
-							return false;
-						}
-					});
-				}
-				return cachedEntityLift;
-			} else {
-				return null;
-			}
-		}
-
-		private static boolean scanFloors(Level world, BlockPos pos, boolean upwards, Function<TileEntityLiftTrackFloor, Boolean> callback) {
-			BlockPos checkPos = pos;
-			while (world != null && world.getBlockState(checkPos).getBlock() instanceof BlockLiftTrack) {
-				final BlockEntity blockEntity = world.getBlockEntity(checkPos);
-				if (blockEntity instanceof TileEntityLiftTrackFloor && callback.apply((TileEntityLiftTrackFloor) blockEntity)) {
-					return true;
-				}
-				checkPos = checkPos.above(upwards ? 1 : -1);
-			}
-			return false;
 		}
 	}
 }

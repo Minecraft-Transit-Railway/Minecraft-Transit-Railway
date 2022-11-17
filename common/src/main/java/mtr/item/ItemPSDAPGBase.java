@@ -3,9 +3,9 @@ package mtr.item;
 import mtr.Blocks;
 import mtr.ItemGroups;
 import mtr.block.BlockPSDAPGBase;
-import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockPSDTop;
 import mtr.block.IBlock;
+import mtr.block.ITripleBlock;
 import mtr.mappings.Text;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -55,7 +55,7 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 				if (item.isDoor) {
 					BlockState newState = state.setValue(SIDE, x == 0 ? EnumSide.LEFT : EnumSide.RIGHT);
 					if (type.isOdd) {
-						newState = newState.setValue(BlockPSDAPGDoorBase.ODD, x > 0 && x < horizontalBlocks - 1);
+						newState = newState.setValue(ITripleBlock.ODD, x > 0 && x < horizontalBlocks - 1);
 					}
 					world.setBlockAndUpdate(newPos.above(y), newState);
 				} else {
@@ -107,7 +107,7 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 						return Blocks.APG_GLASS_END.get().defaultBlockState();
 				}
 			case LIFT_DOOR_1:
-				return Blocks.LIFT_DOOR_1.get().defaultBlockState();
+				return Blocks.LIFT_DOOR_EVEN_1.get().defaultBlockState();
 			case LIFT_DOOR_ODD_1:
 				return Blocks.LIFT_DOOR_ODD_1.get().defaultBlockState();
 			default:

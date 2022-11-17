@@ -4,15 +4,10 @@ on: [ pull_request, push ]
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
-        minecraft: [ 1.16.5, 1.17.1, 1.18, 1.18.2, 1.19.2 ]
-        loader: [ fabric, forge, common ]
+        minecraft: [ 1.16.5, 1.17.1, 1.18.2, 1.19.2 ]
         variation: [ normal, server, lifts ]
-        exclude:
-          - loader: common
-            variation: normal
-          - loader: common
-            variation: lifts
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -25,23 +20,23 @@ jobs:
           java-version: 17
       - name: Make gradle wrapper executable
         run: chmod +x ./gradlew
-      - name: Build ${{ matrix.minecraft }} ${{ matrix.loader }}
-        run: ./gradlew ${{ matrix.loader }}:build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}" -Pvariation="${{ matrix.variation }}"
+      - name: Build ${{ matrix.minecraft }}
+        run: ./gradlew build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}" -Pvariation="${{ matrix.variation }}" --continue
       - name: Capture release artifacts
-        if: matrix.loader != 'common'
         uses: actions/upload-artifact@v2
         with:
           name: Fabric and Forge ${{ matrix.variation }}
           path: build/release/
       - name: Capture lib artifacts
+        if: ${{ matrix.variation == 'normal' || matrix.variation == 'server' }}
         uses: actions/upload-artifact@v2
         with:
-          name: Libraries ${{ matrix.variation }}
+          name: Libraries
           path: build/libs/
       - name: Upload files to SFTP
         env:
           MY_KEY: ${{ secrets.FTP_HOST }}
-        if: ${{ env.MY_KEY != '' && (matrix.variation == 'normal' || matrix.loader == 'common') }}
+        if: ${{ env.MY_KEY != '' }}
         uses: sand4rt/ftp-deployer@v1.4
         with:
           sftp: true
@@ -55,7 +50,7 @@ jobs:
       - name: Upload version file to SFTP
         env:
           MY_KEY: ${{ secrets.FTP_HOST }}
-        if: ${{ env.MY_KEY != '' && matrix.loader == 'common' && matrix.minecraft == '1.16.5' }}
+        if: ${{ env.MY_KEY != '' && matrix.minecraft == '1.16.5' }}
         uses: sand4rt/ftp-deployer@v1.4
         with:
           sftp: true

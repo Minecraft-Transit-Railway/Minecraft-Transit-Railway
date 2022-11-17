@@ -24,6 +24,15 @@ const UTILITIES = {
 		x2 += offset2Rotated["x"];
 		y2 += offset2Rotated["y"];
 
+		if (x2 > x1) {
+			UTILITIES.connectLine1(x1, y1, direction1, offset1, routeCount1, x2, y2, direction2, offset2, routeCount2, lineWidth, segments);
+			return false;
+		} else {
+			UTILITIES.connectLine1(x2, y2, direction2, offset2, routeCount2, x1, y1, direction1, offset1, routeCount1, lineWidth, segments);
+			return true;
+		}
+	},
+	connectLine1: (x1, y1, direction1, offset1, routeCount1, x2, y2, direction2, offset2, routeCount2, lineWidth, segments) => {
 		const {x, y} = UTILITIES.rotatePoint(x2 - x1, y2 - y1, -direction1);
 		const signX = Math.sign(x);
 		const signY = Math.sign(y);
@@ -34,53 +43,54 @@ const UTILITIES = {
 		const points = [];
 
 		points.push(UTILITIES.rotatePoint(0, 0, direction1));
-		const getEndOffset = (maxHeight, isTop) => clamp(signX * offset1 * TAN_22_5 + routeCount1 * lineWidth / (isTop ? 2 : -2), maxHeight);
+		const halfRouteCount1 = routeCount1 * lineWidth / 2;
+		const halfRouteCount2 = routeCount2 * lineWidth / 2;
 
 		if (rotatedDirection === 0) {
 			if (absX > absY) {
 				const difference = absY / 2;
-				const lineOffset = clamp(offset1, absY / routeCount1);
-				const endOffset1 = getEndOffset((difference - Math.abs(lineOffset)) / 2, false);
-				const endOffset2 = getEndOffset((difference - Math.abs(lineOffset)) / 2, true);
-				points.push(UTILITIES.rotatePoint(0, -signY * endOffset1, direction1));
-				points.push(UTILITIES.rotatePoint(signX * difference + signX * endOffset1 - lineOffset, signY * difference + (isTopRight ? -1 : 1) * lineOffset, direction1));
-				points.push(UTILITIES.rotatePoint(x - signX * difference + signX * endOffset2 - lineOffset, signY * difference + (isTopRight ? -1 : 1) * lineOffset, direction1));
+				const lineOffset = -clamp(offset1, absY / routeCount1) * signX * signY;
+				const endOffset1 = clamp(-signX * offset1 * TAN_22_5 + halfRouteCount1, (difference - Math.abs(lineOffset)) / 2);
+				const endOffset2 = clamp(signX * offset2 * TAN_22_5 + halfRouteCount2, (difference - Math.abs(lineOffset)) / 2);
+				points.push(UTILITIES.rotatePoint(0, signY * endOffset1, direction1));
+				points.push(UTILITIES.rotatePoint(signX * difference - signX * endOffset1 + signX * signY * lineOffset, signY * difference + lineOffset, direction1));
+				points.push(UTILITIES.rotatePoint(x - signX * difference + signX * endOffset2 + signX * signY * lineOffset, signY * difference + lineOffset, direction1));
 				points.push(UTILITIES.rotatePoint(x, y - signY * endOffset2, direction1));
 			} else {
-				const difference = (absY - absX) / 2;
-				const lineOffset = clamp((isTopRight ? -1 : 1) * offset1 * TAN_22_5, difference);
+				const offsetDifference = offset2 - offset1;
+				const difference = (absY - absX + offsetDifference) / 2;
+				const lineOffset = clamp((isTopRight ? -(direction1 === 0 ? offset1 : offset2) : offset1) * TAN_22_5, difference);
 				points.push(UTILITIES.rotatePoint(0, signY * difference + lineOffset, direction1));
-				points.push(UTILITIES.rotatePoint(x, y - signY * difference + lineOffset, direction1));
+				points.push(UTILITIES.rotatePoint(x, y - signY * difference + lineOffset + (direction1 === 0 ? signX * signY : -1) * offsetDifference, direction1));
 			}
 		} else {
-			const var2 = direction1 === 45 && direction2 === 0 || direction1 === 90 && direction2 === 45 || direction1 === 135 && direction2 === 0 || direction1 === 135 && direction2 === 90;
-			const getFinalPoint = () => UTILITIES.rotatePoint(0, ((rotatedDirection === 45) !== var2 ? -1 : 1) * getEndOffset(Math.sqrt(absX * absX / 4 + absY * absY / 4), (rotatedDirection === 45) !== var2), rotatedDirection);
+			const getFinalPoint = () => UTILITIES.rotatePoint(0, clamp((direction1 === 0 || direction1 === 45 ? 1 : -1) * offset2 * TAN_22_5 + halfRouteCount2, absX / 2), rotatedDirection);
 			if (absX > absY) {
-				const endOffset1 = getEndOffset(absY / 2, false);
-				points.push(UTILITIES.rotatePoint(0, -signY * endOffset1, direction1));
+				const endOffset1 = clamp(-signX * offset1 * TAN_22_5 + halfRouteCount1, absY / 2);
+				points.push(UTILITIES.rotatePoint(0, signY * endOffset1, direction1));
 				if (rotatedDirection === 90) {
-					points.push(UTILITIES.rotatePoint(signX * absY + signX * endOffset1, y, direction1));
+					points.push(UTILITIES.rotatePoint(signX * absY - signX * endOffset1, y, direction1));
 				} else {
+					const offsetDifference = offset2 - offset1;
 					const finalPoint = getFinalPoint();
-					points.push(UTILITIES.rotatePoint(signX * absY + signX * endOffset1 + (rotatedDirection === 45 === isTopRight ? 1 : -1) * signX * finalPoint["x"], y - signX * finalPoint["y"], direction1));
-					points.push(UTILITIES.rotatePoint(x - signX * finalPoint["x"], y - signX * finalPoint["y"], direction1));
+					points.push(UTILITIES.rotatePoint(signX * absY - signX * endOffset1 + (direction2 === 45 ? -1 : 1) * signY * finalPoint["x"], y + finalPoint["y"], direction1));
+					points.push(UTILITIES.rotatePoint(x + finalPoint["x"], y + finalPoint["y"], direction1));
 				}
 			} else {
 				if (rotatedDirection === 90) {
-					const var1 = direction1 - direction2 !== 90;
-					const endOffset2 = getEndOffset(absX / 2, isTopRight === var1);
-					points.push(UTILITIES.rotatePoint(0, y - signY * absX + (var1 ? 1 : -1) * signX * endOffset2, direction1));
-					points.push(UTILITIES.rotatePoint(x - (var1 ? 1 : -1) * signY * endOffset2, y, direction1));
+					const endOffset2 = clamp((direction1 === 0 || direction1 === 45 ? 1 : -1) * signY * offset2 * TAN_22_5 + halfRouteCount2, absX / 2);
+					points.push(UTILITIES.rotatePoint(0, y - signY * absX + (isTopRight ? 1 : -1) * signX * endOffset2, direction1));
+					points.push(UTILITIES.rotatePoint(x - signX * endOffset2, y, direction1));
 				} else {
-					if (rotatedDirection === 45 && isTopRight || rotatedDirection === 135 && !isTopRight) {
-						const endOffset1 = getEndOffset(absY / 2, false);
-						points.push(UTILITIES.rotatePoint(0, -signY * endOffset1, direction1));
-						const finalPoint = getFinalPoint();
-						points.push(UTILITIES.rotatePoint(x + signX * finalPoint["x"], signY * absX - signY * endOffset1 - signX * finalPoint["y"], direction1));
-						points.push(UTILITIES.rotatePoint(x + signX * finalPoint["x"], y + signX * finalPoint["y"], direction1));
-					} else {
-						points.push(UTILITIES.rotatePoint(0, y - signY * absX + signX, direction1));
-					}
+					// if (rotatedDirection === 45 && isTopRight || rotatedDirection === 135 && !isTopRight) {
+					// 	const endOffset1 = getEndOffset(absY / 2, false);
+					// 	points.push(UTILITIES.rotatePoint(0, -signY * endOffset1, direction1));
+					// 	const finalPoint = getFinalPoint();
+					// 	points.push(UTILITIES.rotatePoint(x + signX * finalPoint["x"], signY * absX - signY * endOffset1 - signX * finalPoint["y"], direction1));
+					// 	points.push(UTILITIES.rotatePoint(x + signX * finalPoint["x"], y + signX * finalPoint["y"], direction1));
+					// } else {
+					// 	points.push(UTILITIES.rotatePoint(0, y - signY * absX + signX, direction1));
+					// }
 				}
 			}
 		}
@@ -90,7 +100,7 @@ const UTILITIES = {
 	},
 	getDrawStationElement: (stationElement, color1, color2) => {
 		const element = document.createElement("div");
-		element.className = "route_station_name";
+		element.className = "route_station_name text";
 		if (color1 != null) {
 			element.innerHTML = `<span class="route_segment bottom" style="background-color: ${UTILITIES.convertColor(color1)}">&nbsp</span>`;
 		}
@@ -101,11 +111,12 @@ const UTILITIES = {
 		element.appendChild(stationElement);
 		return element;
 	},
-	getDrawLineElement: (icon, innerElement, color) => {
+	getDrawLineElement: (icon, innerElement, color, htmlBefore) => {
 		const element = document.createElement("div");
 		element.className = "route_duration";
 		element.innerHTML =
 			`<span class="route_segment ${color == null ? "walk" : ""}" style="background-color: ${color == null ? 0 : UTILITIES.convertColor(color)}">&nbsp</span>` +
+			(htmlBefore ? htmlBefore : "") +
 			`<span class="material-icons small">${icon}</span>`;
 		element.appendChild(innerElement);
 		return element;
