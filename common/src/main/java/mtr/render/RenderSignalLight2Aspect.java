@@ -20,8 +20,8 @@ public class RenderSignalLight2Aspect<T extends BlockEntityMapper> extends Rende
 	}
 
 	@Override
-	protected void render(PoseStack matrices, MultiBufferSource vertexConsumers, VertexConsumer vertexConsumer, T entity, float tickDelta, Direction facing, boolean isOccupied, boolean isBackSide) {
-		final float y = isOccupied == redOnTop ? 0.4375F : 0.0625F;
-		IDrawing.drawTexture(matrices, vertexConsumer, -0.125F, y, -0.19375F, 0.125F, y + 0.25F, -0.19375F, facing.getOpposite(), isOccupied ? 0xFFFF0000 : proceedColor, MAX_LIGHT_GLOWING);
+	protected void render(PoseStack matrices, MultiBufferSource vertexConsumers, VertexConsumer vertexConsumer, T entity, float tickDelta, Direction facing, int aspect, boolean isBackSide) {
+		final float y = (aspect == 0) == redOnTop ? 0.4375F : 0.0625F;
+		IDrawing.drawTexture(matrices, vertexConsumer, -0.125F, y, -0.19375F, 0.125F, y + 0.25F, -0.19375F, facing.getOpposite(), (aspect == 0) ? 0xFFFF0000 : proceedColor, MAX_LIGHT_GLOWING);
 	}
 }

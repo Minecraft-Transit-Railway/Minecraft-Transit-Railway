@@ -23,7 +23,7 @@ public enum RailAngle {
 	public final double cos;
 	public final double tan;
 	public final double halfTan;
-	private final float angleDegrees;
+	public final float angleDegrees;
 
 	private static final int DEGREES_IN_CIRCLE = 360;
 	private static final int QUADRANTS = values().length;

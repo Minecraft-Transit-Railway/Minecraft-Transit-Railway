@@ -24,7 +24,7 @@ public class RenderSignalSemaphore<T extends BlockSignalSemaphoreBase.TileEntity
 	}
 
 	@Override
-	protected void render(PoseStack matrices, MultiBufferSource vertexConsumers, VertexConsumer vertexConsumer, T entity, float tickDelta, Direction facing, boolean isOccupied, boolean isBackSide) {
+	protected void render(PoseStack matrices, MultiBufferSource vertexConsumers, VertexConsumer vertexConsumer, T entity, float tickDelta, Direction facing, int aspect, boolean isBackSide) {
 		final float angle = isBackSide ? entity.angle2 : entity.angle1;
 		IDrawing.drawTexture(matrices, vertexConsumer, -0.0625F, 0.296875F, -0.190625F, 0.0625F, 0.453125F, -0.190625F, facing.getOpposite(), angle < ANGLE / 2F ? 0xFFFF0000 : 0xFF00FF00, MAX_LIGHT_GLOWING);
 		matrices.translate(0.1875, 0.375, 0);
@@ -40,7 +40,7 @@ public class RenderSignalSemaphore<T extends BlockSignalSemaphoreBase.TileEntity
 		}
 
 		final float newAngle;
-		if (isOccupied) {
+		if (aspect == 0) {
 			newAngle = Math.max(0, angle - SPEED * tickDelta);
 		} else {
 			newAngle = Math.min(ANGLE, angle + SPEED * tickDelta);
