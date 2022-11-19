@@ -73,7 +73,7 @@ public abstract class RenderSignalBase<T extends BlockEntityMapper> extends Bloc
 			Map<BlockPos, Float> nodeMap = new HashMap<>();
 			nodeMap.put(startPos, newFacing.toYRot() + 90);
 
-			for (int a = 0; a < aspects; a++) {
+			for (int a = 0; a < aspects - 1; a++) {
 				Map<BlockPos, Float> newMap = new HashMap<>();
 				boolean occupied = false;
 				for (BlockPos nodePos : nodeMap.keySet()) {
@@ -93,7 +93,7 @@ public abstract class RenderSignalBase<T extends BlockEntityMapper> extends Bloc
 						occupied = true;
 					}
 				}
-				if (occupied || a == aspects - 1) {
+				if (occupied || (a == aspects - 1 && !occupied) {
 					aspect = a;
 					break;
 				}
