@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 public class Rail extends SerializedDataBase {
 
 	public final RailType railType;
+	public final int railSpeed;
 	public final TransportMode transportMode;
 	public final RailAngle facingStart;
 	public final RailAngle facingEnd;
@@ -54,6 +55,7 @@ public class Rail extends SerializedDataBase {
 	private static final String KEY_REVERSE_T_2 = "reverse_t_2";
 	private static final String KEY_IS_STRAIGHT_2 = "is_straight_2";
 	private static final String KEY_RAIL_TYPE = "rail_type";
+	private static final String KEY_RAIL_SPEED = "rail_speed";
 	private static final String KEY_TRANSPORT_MODE = "transport_mode";
 
 	// for curves:
@@ -66,10 +68,11 @@ public class Rail extends SerializedDataBase {
 	// x = h*T + k*r
 	// z = k*T + h*r
 
-	public Rail(BlockPos posStart, RailAngle facingStart, BlockPos posEnd, RailAngle facingEnd, RailType railType, TransportMode transportMode) {
+	public Rail(BlockPos posStart, RailAngle facingStart, BlockPos posEnd, RailAngle facingEnd, RailType railType, int railSpeed, TransportMode transportMode) {
 		this.facingStart = facingStart;
 		this.facingEnd = facingEnd;
 		this.railType = railType;
+		this.railSpeed = railSpeed;
 		this.transportMode = transportMode;
 		yStart = posStart.getY();
 		yEnd = posEnd.getY();
@@ -242,6 +245,7 @@ public class Rail extends SerializedDataBase {
 		reverseT2 = messagePackHelper.getBoolean(KEY_REVERSE_T_2);
 		isStraight2 = messagePackHelper.getBoolean(KEY_IS_STRAIGHT_2);
 		railType = EnumHelper.valueOf(RailType.IRON, messagePackHelper.getString(KEY_RAIL_TYPE));
+		railSpeed = messagePackHelper.getInt(KEY_RAIL_SPEED);
 		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, messagePackHelper.getString(KEY_TRANSPORT_MODE));
 
 		facingStart = getRailAngle(false);
@@ -267,6 +271,7 @@ public class Rail extends SerializedDataBase {
 		reverseT2 = compoundTag.getBoolean(KEY_REVERSE_T_2);
 		isStraight2 = compoundTag.getBoolean(KEY_IS_STRAIGHT_2);
 		railType = EnumHelper.valueOf(RailType.IRON, compoundTag.getString(KEY_RAIL_TYPE));
+		railSpeed = compoundTag.getInt(KEY_RAIL_SPEED);
 		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, compoundTag.getString(KEY_TRANSPORT_MODE));
 
 		facingStart = getRailAngle(false);
@@ -291,6 +296,7 @@ public class Rail extends SerializedDataBase {
 		reverseT2 = packet.readBoolean();
 		isStraight2 = packet.readBoolean();
 		railType = EnumHelper.valueOf(RailType.IRON, packet.readUtf(PACKET_STRING_READ_LENGTH));
+		railSpeed = packet.readInt();
 		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packet.readUtf(PACKET_STRING_READ_LENGTH));
 
 		facingStart = getRailAngle(false);
@@ -316,12 +322,13 @@ public class Rail extends SerializedDataBase {
 		messagePacker.packString(KEY_REVERSE_T_2).packBoolean(reverseT2);
 		messagePacker.packString(KEY_IS_STRAIGHT_2).packBoolean(isStraight2);
 		messagePacker.packString(KEY_RAIL_TYPE).packString(railType.toString());
+		messagePacker.packString(KEY_RAIL_SPEED).packInt(railSpeed);
 		messagePacker.packString(KEY_TRANSPORT_MODE).packString(transportMode.toString());
 	}
 
 	@Override
 	public int messagePackLength() {
-		return 18;
+		return 19;
 	}
 
 	@Override
@@ -343,6 +350,7 @@ public class Rail extends SerializedDataBase {
 		packet.writeBoolean(reverseT2);
 		packet.writeBoolean(isStraight2);
 		packet.writeUtf(railType.toString());
+		packet.writeInt(railSpeed);
 		packet.writeUtf(transportMode.toString());
 	}
 
@@ -466,6 +474,10 @@ public class Rail extends SerializedDataBase {
 		} else {
 			return t;
 		}
+	}
+
+	public float getMaxBlocksPerTick() {
+		return this.railSpeed / 3.6f / 20;
 	}
 
 	public static class RailActions {

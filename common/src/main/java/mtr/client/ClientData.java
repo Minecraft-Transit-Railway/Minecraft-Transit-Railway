@@ -1,10 +1,14 @@
 package mtr.client;
 
+import mtr.Items;
 import mtr.KeyMappings;
 import mtr.MTRClient;
 import mtr.data.*;
+import mtr.item.ItemRailModifier;
 import mtr.mappings.Text;
+import mtr.mappings.UtilitiesClient;
 import mtr.packet.PacketTrainDataGuiClient;
+import mtr.screen.CustomRailScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
@@ -12,6 +16,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
 import java.util.function.Function;
@@ -76,6 +82,11 @@ public final class ClientData {
 				shiftHoldingTicks += MTRClient.getLastFrameDuration();
 			} else {
 				shiftHoldingTicks = 0;
+			}
+			if (KeyMappings.CUSTOM_RAIL_MENU.isDown() && player.isHolding(Items.RAIL_CONNECTOR_CUSTOM.get()) && !(minecraftClient.screen instanceof CustomRailScreen)) {
+				final ItemStack itemStack = player.getMainHandItem();
+				final ItemRailModifier rail = (ItemRailModifier) itemStack.getItem();
+				UtilitiesClient.setScreen(minecraftClient, new CustomRailScreen(rail.getSpeedLimit(itemStack), rail.getIsOneWay(itemStack)));
 			}
 		}
 	}

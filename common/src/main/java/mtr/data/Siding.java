@@ -494,7 +494,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 			}
 
 			final PathData pathData = path.get(i);
-			final float railSpeed = pathData.rail.railType.canAccelerate ? pathData.rail.railType.maxBlocksPerTick : Math.max(speed, RailType.getDefaultMaxBlocksPerTick(transportMode));
+			final float railSpeed = pathData.rail.railType.canAccelerate ? pathData.rail.getMaxBlocksPerTick() : Math.max(speed, RailType.getDefaultMaxBlocksPerTick(transportMode));
 			distanceSum2 += pathData.rail.getLength();
 
 			while (railProgress < distanceSum2) {

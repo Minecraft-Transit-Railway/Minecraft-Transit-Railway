@@ -38,6 +38,7 @@ public interface IPacket {
 	ResourceLocation PACKET_ARRIVAL_PROJECTOR_UPDATE = new ResourceLocation(MTR.MOD_ID, "packet_arrival_projector_update");
 	ResourceLocation PACKET_CHUNK_S2C = new ResourceLocation(MTR.MOD_ID, "packet_chunk_s2c");
 
+	ResourceLocation PACKET_RAIL_CUSTOM_UPDATE = new ResourceLocation(MTR.MOD_ID, "packet_rail_custom_update");
 	ResourceLocation PACKET_UPDATE_STATION = new ResourceLocation(MTR.MOD_ID, "packet_update_station");
 	ResourceLocation PACKET_UPDATE_PLATFORM = new ResourceLocation(MTR.MOD_ID, "packet_update_platform");
 	ResourceLocation PACKET_UPDATE_SIDING = new ResourceLocation(MTR.MOD_ID, "packet_update_siding");

@@ -46,10 +46,10 @@ public class PathFinder {
 	private static List<PathData> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase savedRailBaseStart, SavedRailBase savedRailBaseEnd, int stopIndex) {
 		final BlockPos savedRailBaseEndMidPos = savedRailBaseEnd.getMidPos();
 		final Function<Map<BlockPos, Rail>, Comparator<BlockPos>> comparator = newConnections -> (pos1, pos2) -> {
-			if (newConnections.get(pos1).railType.speedLimit == newConnections.get(pos2).railType.speedLimit) {
+			if (newConnections.get(pos1).railSpeed == newConnections.get(pos2).railSpeed) {
 				return pos1.distSqr(savedRailBaseEndMidPos) > pos2.distSqr(savedRailBaseEndMidPos) ? 1 : -1;
 			} else {
-				return newConnections.get(pos2).railType.speedLimit - newConnections.get(pos1).railType.speedLimit;
+				return newConnections.get(pos2).railSpeed - newConnections.get(pos1).railSpeed;
 			}
 		};
 

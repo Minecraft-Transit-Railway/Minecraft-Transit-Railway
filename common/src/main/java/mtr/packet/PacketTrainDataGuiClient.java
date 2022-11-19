@@ -173,6 +173,13 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		});
 	}
 
+	public static void sendRailCustomUpdateC2S(int speed, boolean isOneWay) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeInt(speed);
+		packet.writeBoolean(isOneWay);
+		RegistryClient.sendToServer(PACKET_RAIL_CUSTOM_UPDATE, packet);
+	}
+
 	public static void createRailS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
 		final TransportMode transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packet.readUtf());
 		final BlockPos pos1 = packet.readBlockPos();

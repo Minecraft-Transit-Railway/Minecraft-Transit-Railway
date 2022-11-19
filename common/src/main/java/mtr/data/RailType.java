@@ -11,6 +11,7 @@ public enum RailType implements IGui {
 	BLAZE(160, MaterialColor.COLOR_ORANGE, false, true, false, RailSlopeStyle.CURVE),
 	QUARTZ(200, MaterialColor.QUARTZ, false, true, false, RailSlopeStyle.CURVE),
 	DIAMOND(300, MaterialColor.DIAMOND, false, true, false, RailSlopeStyle.CURVE),
+	CUSTOM(20, MaterialColor.COLOR_GRAY, false, true, false, RailSlopeStyle.CURVE),
 	PLATFORM(80, MaterialColor.COLOR_RED, true, false, true, RailSlopeStyle.CURVE),
 	SIDING(40, MaterialColor.COLOR_YELLOW, true, false, true, RailSlopeStyle.CURVE),
 	TURN_BACK(80, MaterialColor.COLOR_BLUE, false, false, false, RailSlopeStyle.CURVE),

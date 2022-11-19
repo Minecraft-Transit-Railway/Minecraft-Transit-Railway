@@ -18,6 +18,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -99,6 +100,19 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		packet.writeUtf(message);
 		packet.writeUtf(soundId == null ? "" : soundId.toString());
 		Registry.sendToPlayer(player, PACKET_ANNOUNCE, packet);
+	}
+
+	public static void receiveRailCustomUpdateC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
+		final int speed = packet.readInt();
+		final boolean isOneWay = packet.readBoolean();
+
+		minecraftServer.execute(() -> {
+			final ItemStack railItem = player.getMainHandItem();
+			final CompoundTag compoundTag = railItem.getOrCreateTag();
+
+			compoundTag.putInt("railSpeed", speed);
+			compoundTag.putBoolean("isOneWay", isOneWay);
+		});
 	}
 
 	public static void createRailS2C(Level world, TransportMode transportMode, BlockPos pos1, BlockPos pos2, Rail rail1, Rail rail2, long savedRailId) {

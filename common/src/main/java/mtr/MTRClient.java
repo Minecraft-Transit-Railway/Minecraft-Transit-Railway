@@ -110,6 +110,7 @@ public class MTRClient implements IPacket {
 			RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_200_ONE_WAY.get(), ItemBlockClickingBase.TAG_POS);
 			RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_300.get(), ItemBlockClickingBase.TAG_POS);
 			RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_300_ONE_WAY.get(), ItemBlockClickingBase.TAG_POS);
+			RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_CUSTOM.get(), ItemBlockClickingBase.TAG_POS);
 			RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_PLATFORM.get(), ItemBlockClickingBase.TAG_POS);
 			RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_SIDING.get(), ItemBlockClickingBase.TAG_POS);
 			RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_TURN_BACK.get(), ItemBlockClickingBase.TAG_POS);
@@ -366,6 +367,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerKeyBinding(KeyMappings.LIFT_MENU);
 
 		if (!Keys.LIFTS_ONLY) {
+			RegistryClient.registerKeyBinding(KeyMappings.CUSTOM_RAIL_MENU);
 			RegistryClient.registerKeyBinding(KeyMappings.TRAIN_ACCELERATE);
 			RegistryClient.registerKeyBinding(KeyMappings.TRAIN_BRAKE);
 			RegistryClient.registerKeyBinding(KeyMappings.TRAIN_TOGGLE_DOORS);
