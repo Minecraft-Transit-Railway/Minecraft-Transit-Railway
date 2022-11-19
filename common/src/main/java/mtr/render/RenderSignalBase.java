@@ -93,8 +93,12 @@ public abstract class RenderSignalBase<T extends BlockEntityMapper> extends Bloc
 						occupied = true;
 					}
 				}
-				if (occupied || (a == aspects - 1 && !occupied) {
+				if (occupied) {
 					aspect = a;
+					break;
+				}
+                                if (a == aspects - 2 && !occupied) {
+					aspect = a + 1;
 					break;
 				}
 				nodeMap = new HashMap<>(newMap);
