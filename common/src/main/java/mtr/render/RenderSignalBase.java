@@ -97,7 +97,7 @@ public abstract class RenderSignalBase<T extends BlockEntityMapper> extends Bloc
 					aspect = a;
 					break;
 				}
-                                if (a == aspects - 2 && !occupied) {
+                if (a == aspects - 2 && !occupied) {
 					aspect = a + 1;
 					break;
 				}
