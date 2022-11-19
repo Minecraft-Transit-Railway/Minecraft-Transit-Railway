@@ -103,11 +103,19 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 	}
 
 	public boolean getIsOneWay(ItemStack itemStack) {
-		return railType != RailType.CUSTOM ? isOneWay : itemStack.getTag() != null ? itemStack.getTag().getBoolean("isOneWay") : isOneWay;
+		if (railType == RailType.CUSTOM && itemStack.getTag() != null) {
+			return itemStack.getTag().getBoolean("isOneWay");
+		}
+		return isOneWay;
 	}
 
 	public int getSpeedLimit(ItemStack itemStack) {
-		return itemStack.getTag() != null && itemStack.getTag().getInt("railSpeed") > 0 ? itemStack.getTag().getInt("railSpeed") : railType.speedLimit;
+		if (railType == RailType.CUSTOM && itemStack.getTag() != null) {
+			if (itemStack.getTag().getInt("railSpeed") > 0) {
+				return itemStack.getTag().getInt("railSpeed");
+			}
+		}
+		return railType.speedLimit;
 	}
 
 	public float getMaxBlocksPerTick(int speedLimit) {
@@ -115,6 +123,9 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 	}
 
 	public float getMaxBlocksPerTick(ItemStack itemStack) {
-		return itemStack.getTag() != null ? getMaxBlocksPerTick(itemStack.getTag().getInt("railSpeed")) : getMaxBlocksPerTick(railType.speedLimit);
+		if (railType == RailType.CUSTOM && itemStack.getTag() != null) {
+			return getMaxBlocksPerTick(itemStack.getTag().getInt("railSpeed"));
+		}
+		return getMaxBlocksPerTick(railType.speedLimit);
 	}
 }

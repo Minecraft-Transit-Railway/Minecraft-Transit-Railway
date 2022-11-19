@@ -55,7 +55,15 @@ public class CustomRailScreen extends ScreenMapper implements IGui {
     @Override
     public void onClose() {
         final String textFieldValue = textFieldSpeed.getValue();
-        PacketTrainDataGuiClient.sendRailCustomUpdateC2S(textFieldValue.length() >= 1  ? Integer.parseInt(textFieldValue) > 0 && Integer.parseInt(textFieldValue) <= 300 ? Integer.parseInt(textFieldValue) : speed : speed, buttonIsOneWay.selected());
+        int finalSpeed = speed;
+        if (textFieldValue.length() >= 1) {
+            int intTextFieldValue = Integer.parseInt(textFieldValue);
+            if (intTextFieldValue > 0 && intTextFieldValue <= 300) {
+                finalSpeed = intTextFieldValue;
+            }
+        }
+
+        PacketTrainDataGuiClient.sendRailCustomUpdateC2S(finalSpeed, buttonIsOneWay.selected());
         super.onClose();
     }
 
