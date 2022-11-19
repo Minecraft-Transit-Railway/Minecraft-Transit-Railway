@@ -13,7 +13,6 @@ import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class EditStationScreen extends EditNameColorScreenBase<Station> {
@@ -173,7 +172,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		this.editingDestinationIndex = parentExists() ? editingDestinationIndex : -1;
 
 		if (editingExit != null) {
-			textFieldExitParentLetter.setValue(editingExit.toUpperCase(Locale.ENGLISH).replaceAll("[^A-Z]", ""));
+			textFieldExitParentLetter.setValue(editingExit.toUpperCase().replaceAll("[^A-Z]", ""));
 			textFieldExitParentNumber.setValue(editingExit.replaceAll("\\D", ""));
 		}
 		if (editingDestinationIndex >= 0 && editingDestinationIndex < data.exits.get(editingExit).size()) {

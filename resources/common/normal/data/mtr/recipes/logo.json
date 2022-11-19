@@ -2,7 +2,7 @@
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
 		{
-			"item": "mtr:metal"
+			"tag": "c:iron_blocks"
 		},
 		{
 			"tag": "c:red_dyes"

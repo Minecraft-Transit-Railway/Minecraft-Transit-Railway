@@ -13,19 +13,16 @@ import mtr.model.ModelDoorOverlayTopBase;
 import mtr.model.ModelSimpleTrainBase;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
-public class DynamicTrainModelLegacy extends ModelSimpleTrainBase<DynamicTrainModelLegacy> implements IResourcePackCreatorProperties {
+public class DynamicTrainModelLegacy extends ModelSimpleTrainBase implements IResourcePackCreatorProperties {
 
 	private final Map<String, ModelMapper> parts = new HashMap<>();
 	private final JsonObject properties;
 	private final int doorMax;
 
-	public DynamicTrainModelLegacy(JsonObject model, JsonObject properties, DoorAnimationType doorAnimationType) {
-		super(doorAnimationType, false);
-
+	public DynamicTrainModelLegacy(JsonObject model, JsonObject properties) {
 		try {
 			final JsonObject resolution = model.getAsJsonObject("resolution");
 			final int textureWidth = resolution.get("width").getAsInt();
@@ -82,12 +79,7 @@ public class DynamicTrainModelLegacy extends ModelSimpleTrainBase<DynamicTrainMo
 		}
 
 		this.properties = properties;
-		doorMax = getOrDefault(properties, KEY_PROPERTIES_DOOR_MAX, 14, JsonElement::getAsInt);
-	}
-
-	@Override
-	public DynamicTrainModelLegacy createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
-		return this;
+		doorMax = getOrDefault(properties, "door_max", 14, JsonElement::getAsInt);
 	}
 
 	@Override
@@ -160,8 +152,13 @@ public class DynamicTrainModelLegacy extends ModelSimpleTrainBase<DynamicTrainMo
 	}
 
 	@Override
-	public int getDoorMax() {
-		return doorMax;
+	protected float getDoorAnimationX(float value, boolean opening) {
+		return 0;
+	}
+
+	@Override
+	protected float getDoorAnimationZ(float value, boolean opening) {
+		return smoothEnds(0, doorMax, 0, 0.5F, value);
 	}
 
 	private ModelMapper addChildren(JsonObject jsonObject, Map<String, ModelMapper> children, ModelDataWrapper modelDataWrapper) {
@@ -179,7 +176,7 @@ public class DynamicTrainModelLegacy extends ModelSimpleTrainBase<DynamicTrainMo
 			final JsonObject partObject = partElement.getAsJsonObject();
 			final boolean shouldRender = renderDetails || !partObject.has("skip_rendering_if_too_far") || !partObject.get("skip_rendering_if_too_far").getAsBoolean();
 
-			if (shouldRender && renderStage.toString().equals(partObject.get("stage").getAsString().toUpperCase(Locale.ENGLISH))) {
+			if (shouldRender && renderStage.toString().equals(partObject.get("stage").getAsString().toUpperCase())) {
 				final ModelMapper part = parts.get(partObject.get("part_name").getAsString());
 
 				if (part != null) {
@@ -284,7 +281,7 @@ public class DynamicTrainModelLegacy extends ModelSimpleTrainBase<DynamicTrainMo
 				newPartObject.addProperty(KEY_PROPERTIES_NAME, partObject.get("part_name").getAsString());
 				newPartObject.add(KEY_PROPERTIES_POSITIONS, partObject.getAsJsonArray(checkKey));
 				newPartObject.addProperty(KEY_PROPERTIES_MIRROR, i == 1);
-				newPartObject.addProperty(KEY_PROPERTIES_STAGE, getOrDefault(partObject, "stage", "", JsonElement::getAsString).toUpperCase(Locale.ENGLISH));
+				newPartObject.addProperty(KEY_PROPERTIES_STAGE, getOrDefault(partObject, "stage", "", JsonElement::getAsString).toUpperCase());
 				newPartObject.addProperty(KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR, getOrDefault(partObject, "skip_rendering_if_too_far", false, JsonElement::getAsBoolean));
 				final String newDoorOffsetString;
 				switch (getOrDefault(partObject, "door_offset_z", "", JsonElement::getAsString)) {

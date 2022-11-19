@@ -2,7 +2,10 @@ package mtr.data;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.LevelResource;
 import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
@@ -16,7 +19,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 
@@ -34,7 +36,6 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 	private final List<Long> dirtySidingIds = new ArrayList<>();
 	private final List<Long> dirtyRouteIds = new ArrayList<>();
 	private final List<Long> dirtyDepotIds = new ArrayList<>();
-	private final List<Long> dirtyLiftIds = new ArrayList<>();
 	private final List<BlockPos> dirtyRailPositions = new ArrayList<>();
 	private final List<SignalBlocks.SignalBlock> dirtySignalBlocks = new ArrayList<>();
 
@@ -46,20 +47,20 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 	private final Path sidingsPath;
 	private final Path routesPath;
 	private final Path depotsPath;
-	private final Path liftsPath;
 	private final Path railsPath;
 	private final Path signalBlocksPath;
 
-	public RailwayDataFileSaveModule(RailwayData railwayData, Level world, Map<BlockPos, Map<BlockPos, Rail>> rails, Path savePath, SignalBlocks signalBlocks) {
+	public RailwayDataFileSaveModule(RailwayData railwayData, Level world, Map<BlockPos, Map<BlockPos, Rail>> rails, SignalBlocks signalBlocks) {
 		super(railwayData, world, rails);
 		this.signalBlocks = signalBlocks;
 
+		final ResourceLocation dimensionLocation = world.dimension().location();
+		final Path savePath = ((ServerLevel) world).getServer().getWorldPath(LevelResource.ROOT).resolve("mtr").resolve(dimensionLocation.getNamespace()).resolve(dimensionLocation.getPath());
 		stationsPath = savePath.resolve("stations");
 		platformsPath = savePath.resolve("platforms");
 		sidingsPath = savePath.resolve("sidings");
 		routesPath = savePath.resolve("routes");
 		depotsPath = savePath.resolve("depots");
-		liftsPath = savePath.resolve("lifts");
 		railsPath = savePath.resolve("rails");
 		signalBlocksPath = savePath.resolve("signal-blocks");
 
@@ -69,7 +70,6 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 			Files.createDirectories(sidingsPath);
 			Files.createDirectories(routesPath);
 			Files.createDirectories(depotsPath);
-			Files.createDirectories(liftsPath);
 			Files.createDirectories(railsPath);
 			Files.createDirectories(signalBlocksPath);
 		} catch (IOException e) {
@@ -84,7 +84,6 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 		readMessagePackFromFile(sidingsPath, Siding::new, railwayData.sidings::add, true);
 		readMessagePackFromFile(routesPath, Route::new, railwayData.routes::add, false);
 		readMessagePackFromFile(depotsPath, Depot::new, railwayData.depots::add, false);
-		readMessagePackFromFile(liftsPath, LiftServer::new, railwayData.lifts::add, true);
 		readMessagePackFromFile(railsPath, RailEntry::new, railEntry -> rails.put(railEntry.pos, railEntry.connections), true);
 		readMessagePackFromFile(signalBlocksPath, SignalBlocks.SignalBlock::new, signalBlocks.signalBlocks::add, true);
 
@@ -100,7 +99,6 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 		dirtySidingIds.clear();
 		dirtyRouteIds.clear();
 		dirtyDepotIds.clear();
-		dirtyLiftIds.clear();
 		dirtyRailPositions.clear();
 		dirtySignalBlocks.clear();
 		checkFilesToDelete.clear();
@@ -128,7 +126,6 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 			dirtySidingIds.addAll(railwayData.dataCache.sidingIdMap.keySet());
 			dirtyRouteIds.addAll(railwayData.dataCache.routeIdMap.keySet());
 			dirtyDepotIds.addAll(railwayData.dataCache.depotIdMap.keySet());
-			dirtyLiftIds.addAll(railwayData.dataCache.liftsServerIdMap.keySet());
 			dirtyRailPositions.addAll(rails.keySet());
 			dirtySignalBlocks.addAll(signalBlocks.signalBlocks);
 			checkFilesToDelete.addAll(existingFiles.keySet());
@@ -153,16 +150,13 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 				hasSpareTime = writeDirtyDataToFile(dirtyDepotIds, railwayData.dataCache.depotIdMap::get, id -> id, depotsPath);
 			}
 			if (hasSpareTime) {
-				hasSpareTime = writeDirtyDataToFile(dirtyLiftIds, railwayData.dataCache.liftsServerIdMap::get, id -> id, liftsPath);
-			}
-			if (hasSpareTime) {
 				hasSpareTime = writeDirtyDataToFile(dirtyRailPositions, pos -> rails.containsKey(pos) ? new RailEntry(pos, rails.get(pos)) : null, BlockPos::asLong, railsPath);
 			}
 			if (hasSpareTime) {
 				hasSpareTime = writeDirtyDataToFile(dirtySignalBlocks, signalBlock -> signalBlock, signalBlock -> signalBlock.id, signalBlocksPath);
 			}
 
-			final boolean doneWriting = dirtyStationIds.isEmpty() && dirtyPlatformIds.isEmpty() && dirtySidingIds.isEmpty() && dirtyRouteIds.isEmpty() && dirtyDepotIds.isEmpty() && dirtyLiftIds.isEmpty() && dirtyRailPositions.isEmpty() && dirtySignalBlocks.isEmpty();
+			final boolean doneWriting = dirtyStationIds.isEmpty() && dirtyPlatformIds.isEmpty() && dirtySidingIds.isEmpty() && dirtyRouteIds.isEmpty() && dirtyDepotIds.isEmpty() && dirtyRailPositions.isEmpty() && dirtySignalBlocks.isEmpty();
 			if (hasSpareTime && !checkFilesToDelete.isEmpty() && doneWriting) {
 				final Path path = checkFilesToDelete.remove(0);
 				try {
@@ -214,10 +208,10 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 	}
 
 	private <T extends SerializedDataBase> void readMessagePackFromFile(Path path, Function<Map<String, Value>, T> getData, Consumer<T> callback, boolean skipVerify) {
-		try (final Stream<Path> pathStream = Files.list(path)) {
-			pathStream.forEach(idFolder -> {
-				try (final Stream<Path> folderStream = Files.list(idFolder)) {
-					folderStream.forEach(idFile -> {
+		try {
+			Files.list(path).forEach(idFolder -> {
+				try {
+					Files.list(idFolder).forEach(idFile -> {
 						try {
 							final MessageUnpacker messageUnpacker = MessagePack.newDefaultUnpacker(Files.newInputStream(idFile));
 							final int size = messageUnpacker.unpackMapHeader();

@@ -54,7 +54,7 @@ public class MotorData5 extends MotorDataBase { // 5 for BVE5 and BVE6
 			String[] lines = textContent.split("[\\r\\n]+");
 
 			for (final String line : lines) {
-				final String lineTrim = line.trim().toLowerCase(Locale.ENGLISH);
+				final String lineTrim = line.trim().toLowerCase();
 				if (StringUtils.isEmpty(lineTrim)) {
 					continue;
 				}

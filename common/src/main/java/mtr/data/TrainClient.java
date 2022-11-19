@@ -1,10 +1,13 @@
 package mtr.data;
 
+import io.netty.buffer.Unpooled;
 import mtr.MTRClient;
+import mtr.RegistryClient;
 import mtr.client.ClientData;
-import mtr.client.Config;
 import mtr.client.TrainClientRegistry;
-import mtr.path.PathData;
+import mtr.entity.EntitySeat;
+import mtr.mappings.Utilities;
+import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.RenderDrivingOverlay;
 import mtr.render.TrainRendererBase;
 import mtr.sound.TrainSoundBase;
@@ -14,22 +17,28 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
-public class TrainClient extends Train implements IGui {
+public class TrainClient extends Train {
 
 	public boolean isRemoved = false;
+
+	private float clientPrevYaw;
 	private boolean justMounted;
+	private int previousInterval;
 	private float oldSpeed;
 	private double oldRailProgress;
 	private float oldDoorValue;
-	private boolean isSitting;
-	private boolean previousShifting;
+	private float oldPercentageX;
+	private float oldPercentageZ;
+	private double lastSentX;
+	private double lastSentY;
+	private double lastSentZ;
+	private float lastSentTicks;
 
 	private SpeedCallback speedCallback;
 	private AnnouncementCallback announcementCallback;
@@ -41,11 +50,18 @@ public class TrainClient extends Train implements IGui {
 	private final TrainSoundBase trainSound;
 
 	private final Set<Runnable> trainTranslucentRenders = new HashSet<>();
-	private final VehicleRidingClient vehicleRidingClient = new VehicleRidingClient(ridingEntities, PACKET_UPDATE_TRAIN_PASSENGER_POSITION);
+	private final List<Double> offset = new ArrayList<>();
+	private final Map<UUID, Float> percentagesX = new HashMap<>();
+	private final Map<UUID, Float> percentagesZ = new HashMap<>();
+	private final Map<UUID, Float> newPercentagesX = new HashMap<>();
+	private final Map<UUID, Float> newPercentagesZ = new HashMap<>();
+	private final Map<UUID, Vec3> riderPositions = new HashMap<>();
 
 	private static final float CONNECTION_HEIGHT = 2.25F;
 	private static final float CONNECTION_Z_OFFSET = 0.5F;
 	private static final float CONNECTION_X_OFFSET = 0.25F;
+	private static final float TRAIN_WALKING_SPEED_MULTIPLIER = 0.25F;
+	private static final int TRAIN_PERCENTAGE_UPDATE_INTERVAL = 20;
 
 	public TrainClient(FriendlyByteBuf packet) {
 		super(packet);
@@ -72,21 +88,26 @@ public class TrainClient extends Train implements IGui {
 			trainSound.playAllCarsDoorOpening(world, soundPos, ridingCar);
 		}
 
-		final Vec3 offset = vehicleRidingClient.renderPlayerAndGetOffset();
-		final double newX = carX - offset.x;
-		final double newY = carY - offset.y;
-		final double newZ = carZ - offset.z;
+		final boolean noOffset = offset.isEmpty();
+		final double newX = carX - (noOffset ? 0 : offset.get(0));
+		final double newY = carY - (noOffset ? 0 : offset.get(1));
+		final double newZ = carZ - (noOffset ? 0 : offset.get(2));
+		riderPositions.forEach((uuid, position) -> {
+			if (noOffset) {
+				trainRenderer.renderRidingPlayer(uuid, position);
+			} else {
+				trainRenderer.renderRidingPlayer(uuid, position.subtract(offset.get(0), offset.get(1), offset.get(2)));
+			}
+		});
 
 		final boolean opening = doorValue > oldDoorValue;
-		final PathData pathData = path.get(getIndex(0, spacing, true));
-		final int stopIndex = pathData.stopIndex - 1;
-		trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, false, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed, stopIndex, pathData.dwellTime > 0, routeIds);
-		trainTranslucentRenders.add(() -> trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, true, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed, stopIndex, pathData.dwellTime > 0, routeIds));
+		trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, false, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed);
+		trainTranslucentRenders.add(() -> trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, true, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed));
 
 		if (ridingCar > 0) {
-			final double newPrevCarX = prevCarX - offset.x;
-			final double newPrevCarY = prevCarY - offset.y;
-			final double newPrevCarZ = prevCarZ - offset.z;
+			final double newPrevCarX = prevCarX - (noOffset ? 0 : offset.get(0));
+			final double newPrevCarY = prevCarY - (noOffset ? 0 : offset.get(1));
+			final double newPrevCarZ = prevCarZ - (noOffset ? 0 : offset.get(2));
 
 			final Vec3 prevPos0 = new Vec3(0, 0, spacing / 2D - 1).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
 			final Vec3 thisPos0 = new Vec3(0, 0, -(spacing / 2D - 1)).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
@@ -119,15 +140,16 @@ public class TrainClient extends Train implements IGui {
 
 	@Override
 	protected boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed) {
-		final Minecraft client = Minecraft.getInstance();
-		final LocalPlayer clientPlayer = client.player;
+		final LocalPlayer clientPlayer = Minecraft.getInstance().player;
 		if (clientPlayer == null) {
 			return false;
 		}
 
-		vehicleRidingClient.begin();
-
+		final int interval = (int) Math.floor(MTRClient.getGameTick() / TRAIN_PERCENTAGE_UPDATE_INTERVAL);
 		if (ticksElapsed > 0) {
+			offset.clear();
+			riderPositions.clear();
+
 			if (ridingEntities.contains(clientPlayer.getUUID())) {
 				final int trainSpacing = spacing;
 				final int headIndex = getIndex(0, trainSpacing, false);
@@ -150,23 +172,123 @@ public class TrainClient extends Train implements IGui {
 			}
 
 			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
-			vehicleRidingClient.movePlayer(uuid -> {
-				final CalculateCarCallback calculateCarCallback = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> vehicleRidingClient.setOffsets(uuid, x, y, z, yaw, pitch, realSpacingRender, width, doorLeftOpenRender, doorRightOpenRender, transportMode.hasPitch, trainProperties.riderOffset, speed > 0, doorValue == 0, () -> {
-					final boolean isShifting = clientPlayer.isShiftKeyDown();
-					if (Config.shiftToToggleSitting() && !MTRClient.isVivecraft()) {
-						if (isShifting && !previousShifting) {
-							isSitting = !isSitting;
+			ridingEntities.forEach(uuid -> {
+				final boolean isClientPlayer = uuid.equals(clientPlayer.getUUID());
+				if (!percentagesX.containsKey(uuid) || !newPercentagesX.containsKey(uuid)) {
+					percentagesX.put(uuid, 0.5F);
+					newPercentagesX.put(uuid, 0.5F);
+				}
+				if (!percentagesZ.containsKey(uuid) || !newPercentagesZ.containsKey(uuid)) {
+					percentagesZ.put(uuid, 0.5F);
+					newPercentagesZ.put(uuid, 0.5F);
+				}
+
+				final CalculateCarCallback calculateCarCallback = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
+					final Vec3 playerOffset = new Vec3(getValueFromPercentage(percentagesX.get(uuid), width), doorLeftOpenRender || doorRightOpenRender ? 0 : trainProperties.riderOffset, getValueFromPercentage(Mth.frac(percentagesZ.get(uuid)), realSpacingRender)).xRot(transportMode.hasPitch ? pitch : 0).yRot(yaw);
+					ClientData.updatePlayerRidingOffset(uuid);
+					riderPositions.put(uuid, playerOffset.add(x, y, z));
+
+					if (isClientPlayer) {
+						final double moveX = x + playerOffset.x;
+						final double moveY = y + playerOffset.y;
+						final double moveZ = z + playerOffset.z;
+						final boolean movePlayer;
+
+						if (MTRClient.isVivecraft()) {
+							final Entity vehicle = clientPlayer.getVehicle();
+							if (vehicle instanceof EntitySeat) {
+								((EntitySeat) vehicle).setPosByTrain(moveX, moveY, moveZ);
+								movePlayer = false;
+							} else {
+								movePlayer = true;
+							}
+
+							final float tempPercentageX = percentagesX.get(uuid);
+							final boolean doorOpen = doorLeftOpenRender && tempPercentageX < 0 || doorRightOpenRender && tempPercentageX > 1;
+							final boolean movedFar = Math.abs(lastSentX - moveX) > 2 || Math.abs(lastSentY - moveY) > 2 || Math.abs(lastSentZ - moveZ) > 2;
+
+							if (doorOpen || MTRClient.getGameTick() - lastSentTicks > 60 && movedFar) {
+								PacketTrainDataGuiClient.sendUpdateEntitySeatPassengerPosition(moveX, moveY, moveZ);
+								lastSentX = moveX;
+								lastSentY = moveY;
+								lastSentZ = moveZ;
+								lastSentTicks = MTRClient.getGameTick();
+							}
+						} else {
+							movePlayer = true;
 						}
-						clientPlayer.setPose(isSitting && !client.gameRenderer.getMainCamera().isDetached() ? Pose.CROUCHING : Pose.STANDING);
+
+						if (movePlayer) {
+							clientPlayer.fallDistance = 0;
+							clientPlayer.setDeltaMovement(0, 0, 0);
+							clientPlayer.setSpeed(0);
+							if (MTRClient.getGameTick() > 40) {
+								clientPlayer.absMoveTo(moveX, moveY, moveZ);
+							}
+						}
+
+						if (speed > 0) {
+							if (doorValue == 0) {
+								float angleDifference = (float) Math.toDegrees(clientPrevYaw - yaw);
+								if (angleDifference > 180) {
+									angleDifference -= 360;
+								} else if (angleDifference < -180) {
+									angleDifference += 360;
+								}
+								Utilities.incrementYaw(clientPlayer, angleDifference);
+							}
+							offset.add(x);
+							offset.add(y);
+							offset.add(z);
+							offset.add(playerOffset.x);
+							offset.add(playerOffset.y + (MTRClient.isVivecraft() ? 0 : clientPlayer.getEyeHeight()));
+							offset.add(playerOffset.z);
+						}
+						clientPrevYaw = yaw;
 					}
-					previousShifting = isShifting;
-				});
+				};
 
-				final int currentRidingCar = Mth.clamp((int) Math.floor(vehicleRidingClient.getPercentageZ(uuid)), 0, positions.length - 2);
+				final int currentRidingCar = Mth.clamp((int) Math.floor(percentagesZ.get(uuid)), 0, positions.length - 2);
 				calculateCar(world, positions, currentRidingCar, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-					vehicleRidingClient.moveSelf(id, uuid, realSpacingRender, width, yaw, currentRidingCar, trainCars, doorLeftOpenRender, doorRightOpenRender, !trainProperties.hasGangwayConnection, ticksElapsed);
+					final boolean noGangwayConnection = !trainProperties.hasGangwayConnection;
+					final float speedMultiplier = ticksElapsed * TRAIN_WALKING_SPEED_MULTIPLIER;
+					final float newPercentageX;
+					final float newPercentageZ;
 
-					final int newRidingCar = Mth.clamp((int) Math.floor(vehicleRidingClient.getPercentageZ(uuid)), 0, positions.length - 2);
+					if (isClientPlayer) {
+						final Vec3 movement = new Vec3(Math.abs(clientPlayer.xxa) > 0.5 ? Math.copySign(speedMultiplier, clientPlayer.xxa) : 0, 0, Math.abs(clientPlayer.zza) > 0.5 ? Math.copySign(speedMultiplier, clientPlayer.zza) : 0).yRot((float) -Math.toRadians(Utilities.getYaw(clientPlayer)) - yaw);
+						final float tempPercentageX = percentagesX.get(uuid) + (float) movement.x / width;
+						final float tempPercentageZ = percentagesZ.get(uuid) + (float) (realSpacingRender == 0 ? 0 : movement.z / realSpacingRender);
+						newPercentageX = Mth.clamp(tempPercentageX, doorLeftOpenRender ? -3 : 0, doorRightOpenRender ? 4 : 1);
+						newPercentageZ = Mth.clamp(tempPercentageZ, (noGangwayConnection ? currentRidingCar + 0.05F : 0) + 0.01F, (noGangwayConnection ? currentRidingCar + 0.95F : trainCars) - 0.01F);
+
+						if (interval != previousInterval && (newPercentageX != oldPercentageX || newPercentageZ != oldPercentageZ)) {
+							final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+							packet.writeLong(id);
+							packet.writeFloat(newPercentageX);
+							packet.writeFloat(newPercentageZ);
+							packet.writeUUID(uuid);
+							RegistryClient.sendToServer(PACKET_UPDATE_TRAIN_PASSENGER_POSITION, packet);
+							oldPercentageX = newPercentageX;
+							oldPercentageZ = newPercentageZ;
+						}
+					} else {
+						final double distanceX = getValueFromPercentage(newPercentagesX.get(uuid), width) - getValueFromPercentage(percentagesX.get(uuid), width);
+						final double distanceZ = getValueFromPercentage(newPercentagesZ.get(uuid), realSpacingRender) - getValueFromPercentage(percentagesZ.get(uuid), realSpacingRender);
+						final double manhattanDistance = Math.abs(distanceX + distanceZ);
+						if (manhattanDistance == 0 || distanceX * distanceX + distanceZ * distanceZ < speedMultiplier * speedMultiplier) {
+							newPercentageX = newPercentagesX.get(uuid);
+							newPercentageZ = newPercentagesZ.get(uuid);
+						} else {
+							newPercentageX = percentagesX.get(uuid) + (float) (distanceX / manhattanDistance * speedMultiplier / width);
+							newPercentageZ = percentagesZ.get(uuid) + (float) (realSpacingRender == 0 ? 0 : distanceZ / manhattanDistance * speedMultiplier / realSpacingRender);
+						}
+					}
+
+					percentagesX.put(uuid, newPercentageX);
+					percentagesZ.put(uuid, newPercentageZ);
+
+					final int newRidingCar = Mth.clamp((int) Math.floor(newPercentageZ), 0, positions.length - 2);
 					if (currentRidingCar == newRidingCar) {
 						calculateCarCallback.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
 					} else {
@@ -176,10 +298,10 @@ public class TrainClient extends Train implements IGui {
 			});
 		}
 
-		vehicleRidingClient.end();
+		previousInterval = interval;
 		justMounted = false;
 
-		final Entity camera = client.cameraEntity;
+		final Entity camera = Minecraft.getInstance().cameraEntity;
 		final Vec3 cameraPos = camera == null ? Vec3.ZERO : camera.position();
 		double nearestDistance = Double.POSITIVE_INFINITY;
 		int nearestCar = 0;
@@ -218,7 +340,7 @@ public class TrainClient extends Train implements IGui {
 
 	@Override
 	protected float getModelZOffset() {
-		return baseTrainType.startsWith("london_underground_199") || trainId.startsWith("london_underground_199") || baseTrainType.equals("mpl_85") || trainId.equals("mpl_85") ? reversed ? -0.5F : 0.5F : 0; // TODO integrate this into TrainClientRegistry
+		return baseTrainType.startsWith("london_underground_199") || trainId.startsWith("london_underground_199") ? 0.5F : 0; // TODO integrate this into TrainClientRegistry
 	}
 
 	@Override
@@ -259,20 +381,24 @@ public class TrainClient extends Train implements IGui {
 	}
 
 	public Vec3 getViewOffset() {
-		return vehicleRidingClient.getViewOffset();
+		return offset.isEmpty() ? null : new Vec3(offset.get(3), offset.get(4), offset.get(5));
 	}
 
 	public void startRidingClient(UUID uuid, float percentageX, float percentageZ) {
 		final LocalPlayer player = Minecraft.getInstance().player;
 		if (player != null && player.getUUID().equals(uuid)) {
 			justMounted = true;
-			isSitting = false;
 		}
-		vehicleRidingClient.startRiding(uuid, percentageX, percentageZ);
+		ridingEntities.add(uuid);
+		percentagesX.put(uuid, percentageX);
+		percentagesZ.put(uuid, percentageZ);
+		newPercentagesX.put(uuid, percentageX);
+		newPercentagesZ.put(uuid, percentageZ);
 	}
 
 	public void updateRiderPercentages(UUID uuid, float percentageX, float percentageZ) {
-		vehicleRidingClient.updateRiderPercentages(uuid, percentageX, percentageZ);
+		newPercentagesX.put(uuid, percentageX);
+		newPercentagesZ.put(uuid, percentageZ);
 	}
 
 	public void copyFromTrain(Train train) {

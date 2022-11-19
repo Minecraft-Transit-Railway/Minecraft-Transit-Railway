@@ -1,18 +1,19 @@
 package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
-import mtr.block.BlockPSDTop;
 import mtr.block.IBlock;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
+import mtr.data.RailwayData;
+import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.BlockEntityRendererMapper;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -20,20 +21,19 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 
-public abstract class RenderRouteBase<T extends BlockPSDTop.TileEntityRouteBase> extends BlockEntityRendererMapper<T> implements IGui, IBlock {
+public abstract class RenderRouteBase<T extends BlockEntityMapper> extends BlockEntityRendererMapper<T> implements IGui, IBlock {
 
-	protected final float topPadding;
-	protected final float bottomPadding;
+	protected float bottomPadding;
+	protected float topPadding;
+
 	protected final float sidePadding;
 	private final float z;
 	private final boolean transparentWhite;
 	private final Property<Integer> arrowDirectionProperty;
 
-	public RenderRouteBase(BlockEntityRenderDispatcher dispatcher, float z, float topPadding, float bottomPadding, float sidePadding, boolean transparentWhite, Property<Integer> arrowDirectionProperty) {
+	public RenderRouteBase(BlockEntityRenderDispatcher dispatcher, float z, float sidePadding, boolean transparentWhite, Property<Integer> arrowDirectionProperty) {
 		super(dispatcher);
 		this.z = z / 16;
-		this.topPadding = topPadding / 16;
-		this.bottomPadding = bottomPadding / 16;
 		this.sidePadding = sidePadding / 16;
 		this.transparentWhite = transparentWhite;
 		this.arrowDirectionProperty = arrowDirectionProperty;
@@ -50,23 +50,18 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.TileEntityRouteBase>
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalDirectionalBlock.FACING);
 
-		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
-		storedMatrixTransformations.add(matricesNew -> {
-			matricesNew.translate(0.5 + entity.getBlockPos().getX(), entity.getBlockPos().getY(), 0.5 + entity.getBlockPos().getZ());
-			matricesNew.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
-		});
-
-		renderAdditionalUnmodified(storedMatrixTransformations.copy(), state, facing, light);
+		matrices.pushPose();
+		matrices.translate(0.5, 0, 0.5);
+		matrices.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
+		renderAdditionalUnmodified(matrices, vertexConsumers, state, facing, light);
 
 		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, null)) {
-			final long platformId = entity.getPlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE);
+			final long platformId = RailwayData.getClosePlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE, pos);
 
 			if (platformId != 0) {
-				storedMatrixTransformations.add(matricesNew -> {
-					matricesNew.translate(0, 1, 0);
-					matricesNew.mulPose(Vector3f.ZP.rotationDegrees(180));
-					matricesNew.translate(-0.5, -getAdditionalOffset(state), z);
-				});
+				matrices.translate(0, 1, 0);
+				matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
+				matrices.translate(-0.5, 0, z);
 
 				final int leftBlocks = getTextureNumber(world, pos, facing, true);
 				final int rightBlocks = getTextureNumber(world, pos, facing, false);
@@ -78,23 +73,21 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.TileEntityRouteBase>
 					final float height = 1 - topPadding - bottomPadding;
 					final int arrowDirection = IBlock.getStatePropertySafe(state, arrowDirectionProperty);
 
-					final ResourceLocation resourceLocation;
+					final VertexConsumer vertexConsumer;
 					if (renderType == RenderType.ARROW) {
-						resourceLocation = ClientData.DATA_CACHE.getDirectionArrow(platformId, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.25F, width / height, ARGB_WHITE, ARGB_BLACK, transparentWhite ? ARGB_WHITE : 0).resourceLocation;
+						vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platformId, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.25F, width / height, ARGB_WHITE, ARGB_BLACK, transparentWhite ? ARGB_WHITE : 0).resourceLocation));
 					} else {
-						resourceLocation = ClientData.DATA_CACHE.getRouteMap(platformId, false, arrowDirection == 2, width / height, transparentWhite).resourceLocation;
+						vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getRouteMap(platformId, false, arrowDirection == 2, width / height, transparentWhite).resourceLocation));
 					}
 
-					RenderTrains.scheduleRender(resourceLocation, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
-						storedMatrixTransformations.transform(matricesNew);
-						IDrawing.drawTexture(matricesNew, vertexConsumer, leftBlocks == 0 ? sidePadding : 0, topPadding, 0, 1 - (rightBlocks == 0 ? sidePadding : 0), 1 - bottomPadding, 0, (leftBlocks - (leftBlocks == 0 ? 0 : sidePadding)) / width, 0, (width - rightBlocks + (rightBlocks == 0 ? 0 : sidePadding)) / width, 1, facing.getOpposite(), color, light);
-						matricesNew.popPose();
-					});
+					IDrawing.drawTexture(matrices, vertexConsumer, leftBlocks == 0 ? sidePadding : 0, topPadding, 0, 1 - (rightBlocks == 0 ? sidePadding : 0), 1 - bottomPadding, 0, (leftBlocks - (leftBlocks == 0 ? 0 : sidePadding)) / width, 0, (width - rightBlocks + (rightBlocks == 0 ? 0 : sidePadding)) / width, 1, facing.getOpposite(), color, light);
 				}
 
-				renderAdditional(storedMatrixTransformations, platformId, state, leftBlocks, rightBlocks, facing.getOpposite(), color, light);
+				renderAdditional(matrices, vertexConsumers, platformId, state, leftBlocks, rightBlocks, facing.getOpposite(), color, light);
 			}
 		}
+
+		matrices.popPose();
 	}
 
 	@Override
@@ -102,11 +95,7 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.TileEntityRouteBase>
 		return true;
 	}
 
-	protected void renderAdditionalUnmodified(StoredMatrixTransformations storedMatrixTransformations, BlockState state, Direction facing, int light) {
-	}
-
-	protected float getAdditionalOffset(BlockState state) {
-		return 0;
+	protected void renderAdditionalUnmodified(PoseStack matrices, MultiBufferSource vertexConsumers, BlockState state, Direction facing, int light) {
 	}
 
 	protected boolean isLeft(BlockState state) {
@@ -119,7 +108,7 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.TileEntityRouteBase>
 
 	protected abstract RenderType getRenderType(BlockGetter world, BlockPos pos, BlockState state);
 
-	protected abstract void renderAdditional(StoredMatrixTransformations storedMatrixTransformations, long platformId, BlockState state, int leftBlocks, int rightBlocks, Direction facing, int color, int light);
+	protected abstract void renderAdditional(PoseStack matrices, MultiBufferSource vertexConsumers, long platformId, BlockState state, int leftBlocks, int rightBlocks, Direction facing, int color, int light);
 
 	private int getTextureNumber(BlockGetter world, BlockPos pos, Direction facing, boolean searchLeft) {
 		int number = 0;

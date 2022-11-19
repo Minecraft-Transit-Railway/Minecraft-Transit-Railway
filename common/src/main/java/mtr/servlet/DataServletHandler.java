@@ -42,7 +42,7 @@ public class DataServletHandler extends HttpServlet {
 						routeObject.addProperty("color", route.color);
 						routeObject.addProperty("name", route.name);
 						routeObject.addProperty("number", route.isLightRailRoute ? route.lightRailRouteNumber : "");
-						final String type = IServletHandler.createRouteKey(route.transportMode, route.routeType);
+						final String type = createKey(route.transportMode, route.routeType);
 						routeObject.addProperty("type", type);
 						types.add(type);
 						final JsonArray routeStationsArray = new JsonArray();
@@ -57,12 +57,12 @@ public class DataServletHandler extends HttpServlet {
 						float accumulatedTime = 0;
 						BlockPos prevPlatformPos = null;
 						for (int i = 0; i < route.platformIds.size(); i++) {
-							final long platformId = route.platformIds.get(i).platformId;
+							final long platformId = route.platformIds.get(i);
 
 							float time = 0;
 							if (i > 0) {
 								if (depot != null) {
-									final long prevPlatformId = route.platformIds.get(i - 1).platformId;
+									final long prevPlatformId = route.platformIds.get(i - 1);
 									if (depot.platformTimes.containsKey(prevPlatformId) && depot.platformTimes.get(prevPlatformId).containsKey(platformId)) {
 										time = depot.platformTimes.get(prevPlatformId).get(platformId);
 									}
@@ -101,9 +101,6 @@ public class DataServletHandler extends HttpServlet {
 										final BlockPos stationCenter = station.getCenter();
 										stationObject.addProperty("x", stationCenter == null ? 0 : stationCenter.getX());
 										stationObject.addProperty("z", stationCenter == null ? 0 : stationCenter.getZ());
-										final JsonArray stationConnectionsArray = new JsonArray();
-										dataCache.stationIdToConnectingStations.get(station).forEach(connectingStation -> stationConnectionsArray.add(String.valueOf(connectingStation.id)));
-										stationObject.add("connections", stationConnectionsArray);
 										stationsObject.add(String.valueOf(station.id), stationObject);
 
 										addedStation = true;
@@ -132,7 +129,7 @@ public class DataServletHandler extends HttpServlet {
 
 				for (final TransportMode transportMode : TransportMode.values()) {
 					for (final RouteType routeType : RouteType.values()) {
-						final String type = IServletHandler.createRouteKey(transportMode, routeType);
+						final String type = createKey(transportMode, routeType);
 						if (types.contains(type)) {
 							typesObject.add(type);
 						}
@@ -149,5 +146,9 @@ public class DataServletHandler extends HttpServlet {
 
 			IServletHandler.sendResponse(response, asyncContext, dataArray.toString());
 		});
+	}
+
+	private static String createKey(TransportMode transportMode, RouteType routeType) {
+		return (transportMode.toString() + "_" + routeType.toString()).toLowerCase();
 	}
 }

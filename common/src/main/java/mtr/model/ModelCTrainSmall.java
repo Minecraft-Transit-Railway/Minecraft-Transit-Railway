@@ -1,21 +1,6 @@
 package mtr.model;
 
-import mtr.client.DoorAnimationType;
-
 public class ModelCTrainSmall extends ModelCTrain {
-
-	public ModelCTrainSmall() {
-		super();
-	}
-
-	private ModelCTrainSmall(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
-		super(doorAnimationType, renderDoorOverlay);
-	}
-
-	@Override
-	public ModelCTrainSmall createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
-		return new ModelCTrainSmall(doorAnimationType, renderDoorOverlay);
-	}
 
 	@Override
 	protected int[] getWindowPositions() {
@@ -31,4 +16,5 @@ public class ModelCTrainSmall extends ModelCTrain {
 	protected int[] getEndPositions() {
 		return new int[]{-144, 144};
 	}
+
 }

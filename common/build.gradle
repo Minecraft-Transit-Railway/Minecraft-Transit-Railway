@@ -15,19 +15,17 @@ task moveCommonBuilds() {
 		delete fileTree("../build/latest").matching {
 			include "**/MTR-common*"
 		}
-		if (rootProject.variation == "server") {
-			copy {
-				from "build/devlibs"
-				include "*dev.jar"
-				into "../build/libs"
-				rename "(.+)", "MTR-\$1"
-			}
-			copy {
-				from "build/devlibs"
-				include "*dev.jar"
-				into "../build/latest"
-				rename { fileName -> "MTR-${fileName.replace(rootProject.mod_version, "latest")}" }
-			}
+		copy {
+			from "build/devlibs"
+			include "*dev.jar"
+			into "../build/libs"
+			rename "(.+)", "MTR-\$1"
+		}
+		copy {
+			from "../build/libs"
+			include "*dev.jar"
+			into "../build/latest"
+			rename { fileName -> fileName.replace(rootProject.mod_version, "latest") }
 		}
 	}
 }

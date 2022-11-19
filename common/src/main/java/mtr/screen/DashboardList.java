@@ -13,7 +13,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
@@ -122,7 +121,7 @@ public class DashboardList implements IGui {
 		final String text = textFieldSearch.getValue();
 		dataFiltered.clear();
 		for (int i = 0; i < dataSorted.size(); i++) {
-			if (dataSorted.get(i).name.toLowerCase(Locale.ENGLISH).contains(text.toLowerCase(Locale.ENGLISH))) {
+			if (dataSorted.get(i).name.toLowerCase().contains(text.toLowerCase())) {
 				dataFiltered.put(i, dataSorted.get(i));
 			}
 		}
@@ -252,14 +251,10 @@ public class DashboardList implements IGui {
 		if (textFieldSearch.getValue().isEmpty()) {
 			final int index = hoverIndex + itemsToShow() * page;
 			final List<T> list = getList.get();
-			if (Screen.hasShiftDown()) {
-				list.add(0, list.remove(index));
-			} else {
-				final T aboveItem = list.get(index - 1);
-				final T thisItem = list.get(index);
-				list.set(index - 1, thisItem);
-				list.set(index, aboveItem);
-			}
+			final T aboveItem = list.get(index - 1);
+			final T thisItem = list.get(index);
+			list.set(index - 1, thisItem);
+			list.set(index, aboveItem);
 		}
 	}
 
@@ -267,14 +262,10 @@ public class DashboardList implements IGui {
 		if (textFieldSearch.getValue().isEmpty()) {
 			final int index = hoverIndex + itemsToShow() * page;
 			final List<T> list = getList.get();
-			if (Screen.hasShiftDown()) {
-				list.add(list.remove(index));
-			} else {
-				final T thisItem = list.get(index);
-				final T belowItem = list.get(index + 1);
-				list.set(index, belowItem);
-				list.set(index + 1, thisItem);
-			}
+			final T thisItem = list.get(index);
+			final T belowItem = list.get(index + 1);
+			list.set(index, belowItem);
+			list.set(index + 1, thisItem);
 		}
 	}
 

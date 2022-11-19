@@ -1,0 +1,6 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "mtr:item/lift_3_2_double_sided"
+	}
+}

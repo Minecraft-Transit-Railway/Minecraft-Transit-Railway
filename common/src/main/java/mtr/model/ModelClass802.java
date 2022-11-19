@@ -2,20 +2,10 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
-import mtr.client.ClientCache;
-import mtr.client.ClientData;
-import mtr.client.DoorAnimationType;
-import mtr.client.RouteMapGenerator;
-import mtr.data.Route;
-import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
-import mtr.render.MoreRenderLayers;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.MultiBufferSource;
 
-public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
+public class ModelClass802 extends ModelSimpleTrainBase {
 
 	private final ModelMapper window;
 	private final ModelMapper roof_3_r1;
@@ -257,11 +247,6 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 	private final ModelMapper door_light_on_r1;
 
 	public ModelClass802() {
-		this(DoorAnimationType.STANDARD, true);
-	}
-
-	protected ModelClass802(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
-		super(doorAnimationType, renderDoorOverlay);
 		final int textureWidth = 432;
 		final int textureHeight = 432;
 
@@ -1715,11 +1700,6 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 	private static final int DOOR_MAX = 13;
 
 	@Override
-	public ModelClass802 createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
-		return new ModelClass802(doorAnimationType, renderDoorOverlay);
-	}
-
-	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		final ModelMapper[] windowParts = isEnd1Head || isEnd2Head ? windowEndParts() : windowParts();
 		final int loopStart = getBogiePositions()[0] + (isEnd1Head ? 94 : 4);
@@ -1951,64 +1931,13 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 	}
 
 	@Override
-	protected int getDoorMax() {
-		return DOOR_MAX;
+	protected float getDoorAnimationX(float value, boolean opening) {
+		return 0;
 	}
 
 	@Override
-	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform) {
-		final boolean isEnd1Head = car == 0;
-		final boolean isEnd2Head = car == totalCars - 1;
-		final boolean renderFirstDestination = renderFirstDestination(isEnd1Head, isEnd2Head);
-		final boolean renderSecondDestination = renderSecondDestination(isEnd1Head, isEnd2Head);
-
-		if (renderFirstDestination || renderSecondDestination) {
-			final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getPixelatedText(getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false).replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, false);
-			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource.resourceLocation, true));
-
-			for (int i = 0; i < 2; i++) {
-				if (i == 0 && renderFirstDestination || i == 1 && renderSecondDestination) {
-					for (int j = 0; j < 2; j++) {
-						final int flip = j == 1 ? -1 : 1;
-						matrices.pushPose();
-						matrices.translate(-21F / 16 * flip, -13F / 16, getEndPositions()[i] / 16F + (i == 0 ? 1 : -1) * (1.28F + (i == 0 && isEnd1Head || i == 1 && isEnd2Head ? 5.63F : 0)));
-						matrices.mulPose(Vector3f.YP.rotationDegrees(90 * flip));
-						matrices.mulPose(Vector3f.XP.rotationDegrees(-8));
-						matrices.translate(-0.23F, -1.38F, -0.01F);
-						RouteMapGenerator.scrollText(matrices, vertexConsumer, 0.46F, 0.16F, dynamicResource.width, dynamicResource.height, 1, false);
-						matrices.popPose();
-					}
-				}
-			}
-		}
-
-		final String nextStationString = getNextStationString(thisStation, nextStation, atPlatform);
-		if (!nextStationString.isEmpty()) {
-			final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, true);
-			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource.resourceLocation, true));
-			for (int i = 0; i < 2; i++) {
-				matrices.pushPose();
-				if (i == 1) {
-					matrices.mulPose(Vector3f.YP.rotationDegrees(180));
-				}
-				matrices.translate(-0.35F, -2.19F, (getEndPositions()[1] - (i == 1 && isEnd1Head || i == 0 && isEnd2Head ? 90 : 0)) / 16F - 0.51F);
-				RouteMapGenerator.scrollText(matrices, vertexConsumer, 0.7F, 0.06F, dynamicResource.width, dynamicResource.height, 3, true);
-				matrices.popPose();
-			}
-		}
-	}
-
-	@Override
-	protected String defaultDestinationString() {
-		return "Not in Service";
-	}
-
-	protected boolean renderFirstDestination(boolean isEnd1Head, boolean isEnd2Head) {
-		return true;
-	}
-
-	protected boolean renderSecondDestination(boolean isEnd1Head, boolean isEnd2Head) {
-		return !isEnd1Head || !isEnd2Head;
+	protected float getDoorAnimationZ(float value, boolean opening) {
+		return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
 	}
 
 	protected ModelMapper[] windowParts() {

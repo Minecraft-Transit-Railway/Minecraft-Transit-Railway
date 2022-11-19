@@ -55,7 +55,6 @@ public abstract class Webserver {
 		context.addServlet(InfoServletHandler.class, "/info");
 		context.addServlet(ArrivalsServletHandler.class, "/arrivals");
 		context.addServlet(DelaysServletHandler.class, "/delays");
-		context.addServlet(RouteFinderServletHandler.class, "/route");
 	}
 
 	public static void start(Path path) {

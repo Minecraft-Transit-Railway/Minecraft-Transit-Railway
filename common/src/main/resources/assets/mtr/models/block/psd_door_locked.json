@@ -1,0 +1,15 @@
+{
+	"textures": {
+		"sign": "mtr:sign/door_not_in_use"
+	},
+	"elements": [
+		{
+			"from": [ 2, 4, 5 ],
+			"to": [ 2, 10, 11 ],
+			"faces": {
+				"east": { "uv": [ 0, 0, 16, 16 ], "texture": "#sign" },
+				"west": { "uv": [ 0, 0, 16, 16 ], "texture": "#sign" }
+			}
+		}
+	]
+}

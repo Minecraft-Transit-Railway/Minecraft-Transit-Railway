@@ -6,7 +6,6 @@ import mtr.mappings.Text;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 
-import java.util.Locale;
 import java.util.function.Consumer;
 
 public class WidgetBetterTextField extends EditBox implements IGui {
@@ -46,7 +45,7 @@ public class WidgetBetterTextField extends EditBox implements IGui {
 			if (filter.isEmpty()) {
 				newText = trySetLength(text);
 			} else {
-				newText = trySetLength(text.toUpperCase(Locale.ENGLISH).replaceAll(filter, ""));
+				newText = trySetLength(text.toUpperCase().replaceAll(filter, ""));
 				if (!newText.equals(text)) {
 					setValue(newText);
 				}

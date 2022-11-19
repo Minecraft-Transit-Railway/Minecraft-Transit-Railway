@@ -7,7 +7,6 @@ import org.msgpack.core.MessagePacker;
 import org.msgpack.value.Value;
 
 import java.io.IOException;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Consumer;
@@ -113,6 +112,6 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 
 	@Override
 	public int compareTo(NameColorDataBase compare) {
-		return (name.toLowerCase(Locale.ENGLISH) + color).compareTo((compare.name + compare.color).toLowerCase(Locale.ENGLISH));
+		return (name.toLowerCase() + color).compareTo((compare.name + compare.color).toLowerCase());
 	}
 }

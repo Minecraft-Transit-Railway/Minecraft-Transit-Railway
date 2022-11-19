@@ -2,11 +2,10 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import mtr.client.DoorAnimationType;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
 
-public class ModelNgongPing360 extends ModelSimpleTrainBase<ModelNgongPing360> {
+public class ModelNgongPing360 extends ModelSimpleTrainBase {
 
 	private final ModelMapper body;
 	private final ModelMapper pole_2_r1;
@@ -34,11 +33,6 @@ public class ModelNgongPing360 extends ModelSimpleTrainBase<ModelNgongPing360> {
 	private final boolean isRHT;
 
 	public ModelNgongPing360(boolean isRHT) {
-		this(isRHT, DoorAnimationType.STANDARD, true);
-	}
-
-	private ModelNgongPing360(boolean isRHT, DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
-		super(doorAnimationType, renderDoorOverlay);
 		this.isRHT = isRHT;
 
 		final int textureWidth = 192;
@@ -186,11 +180,6 @@ public class ModelNgongPing360 extends ModelSimpleTrainBase<ModelNgongPing360> {
 	private static final int DOOR_MAX = 9;
 
 	@Override
-	public ModelNgongPing360 createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
-		return new ModelNgongPing360(isRHT, doorAnimationType, renderDoorOverlay);
-	}
-
-	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		if (renderStage == RenderStage.EXTERIOR) {
 			renderMirror(wall_1, matrices, vertices, light, position);
@@ -261,8 +250,14 @@ public class ModelNgongPing360 extends ModelSimpleTrainBase<ModelNgongPing360> {
 		return new int[]{0, 0};
 	}
 
+
 	@Override
-	protected int getDoorMax() {
-		return DOOR_MAX;
+	protected float getDoorAnimationX(float value, boolean opening) {
+		return 0;
+	}
+
+	@Override
+	protected float getDoorAnimationZ(float value, boolean opening) {
+		return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
 	}
 }

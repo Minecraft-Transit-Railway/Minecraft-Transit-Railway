@@ -49,33 +49,33 @@ components.java {
 
 task moveFabricBuilds() {
 	doLast {
+		def variation = rootProject.variation == "normal" ? "MTR" : rootProject.variation == "server" ? "MTR-server" : "Modern-Elevators-Escalators"
 		delete fileTree("../build/release").matching {
-			include "**/${rootProject.variation_header}-fabric*"
+			include "**/${variation}-fabric*"
 		}
 		delete fileTree("../build/libs").matching {
-			include "**/${rootProject.variation_header}-fabric*"
+			include "**/${variation}-fabric*"
 		}
 		delete fileTree("../build/latest").matching {
-			include "**/${rootProject.variation_header}-fabric*"
+			include "**/${variation}-fabric*"
 		}
 		copy {
 			from "build/libs"
-			include "*${rootProject.mod_version}.jar"
 			into "../build/release"
-			rename "(.+)", "${rootProject.variation_header}-\$1"
+			rename "(.+)", "${variation}-\$1"
 		}
-		if (rootProject.variation == "normal") {
-			copy {
-				from "build/libs"
-				into "../build/latest"
-				rename { fileName -> "MTR-${fileName.replace(rootProject.mod_version, "latest")}" }
-			}
-			copy {
-				from "build/libs"
-				include "*${rootProject.mod_version}-dev-shadow.jar"
-				into "../build/libs"
-				rename "(.+)", "MTR-\$1"
-			}
+		copy {
+			from "../build/release"
+			into "../build/latest"
+			rename { fileName -> fileName.replace(rootProject.mod_version, "latest") }
+		}
+		copy {
+			from "../build/release"
+			include "*dev-shadow.jar"
+			into "../build/libs"
+		}
+		delete fileTree("../build/release").matching {
+			include "*dev-shadow.jar"
 		}
 	}
 }

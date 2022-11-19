@@ -17,18 +17,15 @@ public final class Route extends NameColorDataBase implements IGui {
 	public RouteType routeType;
 	public boolean isLightRailRoute;
 	public boolean isHidden;
-	public boolean disableNextStationAnnouncements;
 	public CircularState circularState;
 	public String lightRailRouteNumber;
-	public final List<RoutePlatform> platformIds;
+	public final List<Long> platformIds;
 
 	private static final String KEY_PLATFORM_IDS = "platform_ids";
-	private static final String KEY_CUSTOM_DESTINATIONS = "custom_destinations";
 	private static final String KEY_ROUTE_TYPE = "route_type";
 	private static final String KEY_IS_LIGHT_RAIL_ROUTE = "is_light_rail_route";
 	private static final String KEY_LIGHT_RAIL_ROUTE_NUMBER = "light_rail_route_number";
 	private static final String KEY_IS_ROUTE_HIDDEN = "is_route_hidden";
-	private static final String KEY_DISABLE_NEXT_STATION_ANNOUNCEMENTS = "disable_next_station_announcements";
 	private static final String KEY_CIRCULAR_STATE = "circular_state";
 
 	public Route(TransportMode transportMode) {
@@ -43,7 +40,6 @@ public final class Route extends NameColorDataBase implements IGui {
 		circularState = CircularState.NONE;
 		lightRailRouteNumber = "";
 		isHidden = false;
-		disableNextStationAnnouncements = false;
 	}
 
 	public Route(Map<String, Value> map) {
@@ -51,19 +47,11 @@ public final class Route extends NameColorDataBase implements IGui {
 		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
 
 		platformIds = new ArrayList<>();
-		messagePackHelper.iterateArrayValue(KEY_PLATFORM_IDS, platformId -> platformIds.add(new RoutePlatform(platformId.asIntegerValue().asLong())));
-
-		final List<String> customDestinations = new ArrayList<>();
-		messagePackHelper.iterateArrayValue(KEY_CUSTOM_DESTINATIONS, customDestination -> customDestinations.add(customDestination.asStringValue().asString()));
-
-		for (int i = 0; i < Math.min(platformIds.size(), customDestinations.size()); i++) {
-			platformIds.get(i).customDestination = customDestinations.get(i);
-		}
+		messagePackHelper.iterateArrayValue(KEY_PLATFORM_IDS, platformId -> platformIds.add(platformId.asIntegerValue().asLong()));
 
 		routeType = EnumHelper.valueOf(RouteType.NORMAL, messagePackHelper.getString(KEY_ROUTE_TYPE));
 		isLightRailRoute = messagePackHelper.getBoolean(KEY_IS_LIGHT_RAIL_ROUTE);
 		isHidden = messagePackHelper.getBoolean(KEY_IS_ROUTE_HIDDEN);
-		disableNextStationAnnouncements = messagePackHelper.getBoolean(KEY_DISABLE_NEXT_STATION_ANNOUNCEMENTS);
 		lightRailRouteNumber = messagePackHelper.getString(KEY_LIGHT_RAIL_ROUTE_NUMBER);
 		circularState = EnumHelper.valueOf(CircularState.NONE, messagePackHelper.getString(KEY_CIRCULAR_STATE));
 	}
@@ -75,13 +63,12 @@ public final class Route extends NameColorDataBase implements IGui {
 		platformIds = new ArrayList<>();
 		final long[] platformIdsArray = compoundTag.getLongArray(KEY_PLATFORM_IDS);
 		for (final long platformId : platformIdsArray) {
-			platformIds.add(new RoutePlatform(platformId));
+			platformIds.add(platformId);
 		}
 
 		routeType = EnumHelper.valueOf(RouteType.NORMAL, compoundTag.getString(KEY_ROUTE_TYPE));
 		isLightRailRoute = compoundTag.getBoolean(KEY_IS_LIGHT_RAIL_ROUTE);
 		isHidden = compoundTag.getBoolean(KEY_IS_ROUTE_HIDDEN);
-		disableNextStationAnnouncements = compoundTag.getBoolean(KEY_DISABLE_NEXT_STATION_ANNOUNCEMENTS);
 		lightRailRouteNumber = compoundTag.getString(KEY_LIGHT_RAIL_ROUTE_NUMBER);
 		circularState = EnumHelper.valueOf(CircularState.NONE, compoundTag.getString(KEY_CIRCULAR_STATE));
 	}
@@ -92,15 +79,12 @@ public final class Route extends NameColorDataBase implements IGui {
 		platformIds = new ArrayList<>();
 		final int platformCount = packet.readInt();
 		for (int i = 0; i < platformCount; i++) {
-			final RoutePlatform routePlatform = new RoutePlatform(packet.readLong());
-			routePlatform.customDestination = packet.readUtf(PACKET_STRING_READ_LENGTH);
-			platformIds.add(routePlatform);
+			platformIds.add(packet.readLong());
 		}
 
 		routeType = EnumHelper.valueOf(RouteType.NORMAL, packet.readUtf(PACKET_STRING_READ_LENGTH));
 		isLightRailRoute = packet.readBoolean();
 		isHidden = packet.readBoolean();
-		disableNextStationAnnouncements = packet.readBoolean();
 		lightRailRouteNumber = packet.readUtf(PACKET_STRING_READ_LENGTH);
 		circularState = EnumHelper.valueOf(CircularState.NONE, packet.readUtf(PACKET_STRING_READ_LENGTH));
 	}
@@ -110,41 +94,31 @@ public final class Route extends NameColorDataBase implements IGui {
 		super.toMessagePack(messagePacker);
 
 		messagePacker.packString(KEY_PLATFORM_IDS).packArrayHeader(platformIds.size());
-		for (final RoutePlatform routePlatform : platformIds) {
-			messagePacker.packLong(routePlatform.platformId);
-		}
-
-		messagePacker.packString(KEY_CUSTOM_DESTINATIONS).packArrayHeader(platformIds.size());
-		for (final RoutePlatform routePlatform : platformIds) {
-			messagePacker.packString(routePlatform.customDestination);
+		for (Long platformId : platformIds) {
+			messagePacker.packLong(platformId);
 		}
 
 		messagePacker.packString(KEY_ROUTE_TYPE).packString(routeType.toString());
 		messagePacker.packString(KEY_IS_LIGHT_RAIL_ROUTE).packBoolean(isLightRailRoute);
 		messagePacker.packString(KEY_IS_ROUTE_HIDDEN).packBoolean(isHidden);
-		messagePacker.packString(KEY_DISABLE_NEXT_STATION_ANNOUNCEMENTS).packBoolean(disableNextStationAnnouncements);
 		messagePacker.packString(KEY_LIGHT_RAIL_ROUTE_NUMBER).packString(lightRailRouteNumber);
 		messagePacker.packString(KEY_CIRCULAR_STATE).packString(circularState.toString());
 	}
 
 	@Override
 	public int messagePackLength() {
-		return super.messagePackLength() + 8;
+		return super.messagePackLength() + 6;
 	}
 
 	@Override
 	public void writePacket(FriendlyByteBuf packet) {
 		super.writePacket(packet);
 		packet.writeInt(platformIds.size());
-		platformIds.forEach(routePlatform -> {
-			packet.writeLong(routePlatform.platformId);
-			packet.writeUtf(routePlatform.customDestination);
-		});
+		platformIds.forEach(packet::writeLong);
 
 		packet.writeUtf(routeType.toString());
 		packet.writeBoolean(isLightRailRoute);
 		packet.writeBoolean(isHidden);
-		packet.writeBoolean(disableNextStationAnnouncements);
 		packet.writeUtf(lightRailRouteNumber);
 		packet.writeUtf(circularState.toString());
 	}
@@ -156,9 +130,7 @@ public final class Route extends NameColorDataBase implements IGui {
 				platformIds.clear();
 				final int platformCount = packet.readInt();
 				for (int i = 0; i < platformCount; i++) {
-					final RoutePlatform routePlatform = new RoutePlatform(packet.readLong());
-					routePlatform.customDestination = packet.readUtf(PACKET_STRING_READ_LENGTH);
-					platformIds.add(routePlatform);
+					platformIds.add(packet.readLong());
 				}
 				break;
 			case KEY_IS_LIGHT_RAIL_ROUTE:
@@ -168,7 +140,6 @@ public final class Route extends NameColorDataBase implements IGui {
 				isLightRailRoute = packet.readBoolean();
 				lightRailRouteNumber = packet.readUtf(PACKET_STRING_READ_LENGTH);
 				isHidden = packet.readBoolean();
-				disableNextStationAnnouncements = packet.readBoolean();
 				circularState = EnumHelper.valueOf(CircularState.NONE, packet.readUtf(PACKET_STRING_READ_LENGTH));
 				break;
 			default:
@@ -188,10 +159,7 @@ public final class Route extends NameColorDataBase implements IGui {
 		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_PLATFORM_IDS);
 		packet.writeInt(platformIds.size());
-		platformIds.forEach(routePlatform -> {
-			packet.writeLong(routePlatform.platformId);
-			packet.writeUtf(routePlatform.customDestination);
-		});
+		platformIds.forEach(packet::writeLong);
 		sendPacket.accept(packet);
 	}
 
@@ -206,57 +174,8 @@ public final class Route extends NameColorDataBase implements IGui {
 		packet.writeBoolean(isLightRailRoute);
 		packet.writeUtf(lightRailRouteNumber);
 		packet.writeBoolean(isHidden);
-		packet.writeBoolean(disableNextStationAnnouncements);
 		packet.writeUtf(circularState.toString());
 		sendPacket.accept(packet);
-	}
-
-	public int getPlatformIdIndex(long platformId) {
-		for (int i = 0; i < platformIds.size(); i++) {
-			if (platformIds.get(i).platformId == platformId) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	public boolean containsPlatformId(long platformId) {
-		return getPlatformIdIndex(platformId) >= 0;
-	}
-
-	public long getFirstPlatformId() {
-		return platformIds.isEmpty() ? 0 : platformIds.get(0).platformId;
-	}
-
-	public long getLastPlatformId() {
-		return platformIds.isEmpty() ? 0 : platformIds.get(platformIds.size() - 1).platformId;
-	}
-
-	public String getDestination(int index) {
-		for (int i = Math.min(platformIds.size() - 1, index); i >= 0; i--) {
-			final String customDestination = platformIds.get(i).customDestination;
-			if (Route.destinationIsReset(customDestination)) {
-				return null;
-			} else if (!customDestination.isEmpty()) {
-				return customDestination;
-			}
-		}
-		return null;
-	}
-
-	public static boolean destinationIsReset(String destination) {
-		return destination.equals("\\r") || destination.equals("\\reset");
-	}
-
-	public static class RoutePlatform {
-
-		public String customDestination;
-		public final long platformId;
-
-		public RoutePlatform(long platformId) {
-			this.platformId = platformId;
-			customDestination = "";
-		}
 	}
 
 	public enum CircularState {NONE, CLOCKWISE, ANTICLOCKWISE}
