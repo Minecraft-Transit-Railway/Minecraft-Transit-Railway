@@ -17713,14 +17713,6 @@
 			}
 		]
 	},
-	"a_train_bve_rub": {
-		"sounds": [
-			{
-				"name": "mtr:a_train_bve/rub",
-				"attenuation_distance": 32
-			}
-		]
-	},
 	"a_train_bve_loop": {
 		"sounds": [
 			{
