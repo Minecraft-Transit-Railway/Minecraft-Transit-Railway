@@ -56,7 +56,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 	public boolean isCurrentlyManual;
 	public int manualNotch;
 
-	public float totalDwellTicks;
+	public int totalDwellTicks;
 	public float elapsedDwellTicks;
 
 	protected final Set<UUID> ridingEntities = new HashSet<>();
@@ -388,7 +388,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 			if (nextStoppingIndex >= path.size()) {
 				return;
 			}
-			final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
+			totalDwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
 
 			if (!isOnRoute) {
 				railProgress = (railLength + trainCars * spacing) / 2;
@@ -417,7 +417,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 						final boolean isOppositeRail = isOppositeRail();
 						final boolean railBlocked = isRailBlocked(getIndex(0, spacing, true) + (isOppositeRail ? 2 : 1));
 
-						if (dwellTicks == 0) {
+						if (totalDwellTicks == 0) {
 							tempDoorOpen = false;
 						} else {
 							if (elapsedDwellTicks == 0 && isRepeat() && getIndex(railProgress, false) >= repeatIndex2 && distances.size() > repeatIndex1) {
@@ -429,14 +429,14 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 								}
 							}
 
-							if (elapsedDwellTicks < dwellTicks - DOOR_MOVE_TIME - DOOR_DELAY || !railBlocked) {
+							if (elapsedDwellTicks < totalDwellTicks - DOOR_MOVE_TIME - DOOR_DELAY || !railBlocked) {
 								elapsedDwellTicks += ticksElapsed;
 							}
 
 							tempDoorOpen = openDoors();
 						}
 
-						if (!world.isClientSide() && (isCurrentlyManual || elapsedDwellTicks >= dwellTicks) && !railBlocked && (!isCurrentlyManual || manualNotch > 0)) {
+						if (!world.isClientSide() && (isCurrentlyManual || elapsedDwellTicks >= totalDwellTicks) && !railBlocked && (!isCurrentlyManual || manualNotch > 0)) {
 							startUp(world, trainCars, spacing, isOppositeRail);
 						}
 					} else {
@@ -506,7 +506,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 
 					for (int i = 0; i < trainCars; i++) {
 						final int ridingCar = i;
-						calculateCar(world, positions, i, dwellTicks, (x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen) -> {
+						calculateCar(world, positions, i, totalDwellTicks, (x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen) -> {
 							simulateCar(
 									world, ridingCar, ticksElapsed,
 									x, y, z,
