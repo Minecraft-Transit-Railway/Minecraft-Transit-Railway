@@ -130,7 +130,7 @@ public class TrainClient extends Train implements IGui {
 		vehicleRidingClient.begin();
 
 		if (ticksElapsed > 0) {
-			if (ridingEntities.contains(clientPlayer.getUUID())) {
+			if (isPlayerRiding(clientPlayer)) {
 				final int trainSpacing = spacing;
 				final int headIndex = getIndex(0, trainSpacing, false);
 				final int stopIndex = path.get(headIndex).stopIndex - 1;
@@ -249,7 +249,7 @@ public class TrainClient extends Train implements IGui {
 		}
 
 		final LocalPlayer player = Minecraft.getInstance().player;
-		if (isManualAllowed && Train.isHoldingKey(player) && ridingEntities.contains(player.getUUID())) {
+		if (isManualAllowed && Train.isHoldingKey(player) && isPlayerRiding(player)) {
 			final int stopIndex = path.get(getIndex(0, spacing, false)).stopIndex - 1;
 			RenderDrivingOverlay.setData(manualNotch, doorValue, speed * 20, stopIndex, routeIds);
 		}

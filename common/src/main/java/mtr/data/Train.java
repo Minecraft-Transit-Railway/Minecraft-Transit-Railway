@@ -656,6 +656,10 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		return player != null && !Keys.LIFTS_ONLY && player.isHolding(Items.DRIVER_KEY.get());
 	}
 
+	public boolean isPlayerRiding(Player player) {
+		return ridingEntities.contains(player.getUUID());
+	}
+
 	public static double getAverage(double a, double b) {
 		return (a + b) / 2;
 	}

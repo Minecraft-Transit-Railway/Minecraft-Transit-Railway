@@ -119,7 +119,7 @@ public class TrainServer extends Train {
 		final AABB trainAABB = new AABB(positions[0], positions[positions.length - 1]).inflate(TRAIN_UPDATE_DISTANCE);
 		final boolean[] playerNearby = {false};
 		world.players().forEach(player -> {
-			if (ridingEntities.contains(player.getUUID()) || trainAABB.contains(player.position())) {
+			if (isPlayerRiding(player) || trainAABB.contains(player.position())) {
 				if (!trainsInPlayerRange.containsKey(player)) {
 					trainsInPlayerRange.put(player, new HashSet<>());
 				}
