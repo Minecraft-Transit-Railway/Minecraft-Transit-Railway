@@ -2,6 +2,7 @@ package mtr.sound.bve;
 
 import mtr.MTRClient;
 import mtr.client.TrainClientRegistry;
+import mtr.client.TrainProperties;
 import mtr.data.TrainClient;
 import mtr.sound.TrainLoopingSoundInstance;
 import mtr.sound.TrainSoundBase;
@@ -204,7 +205,7 @@ public class BveTrainSound extends TrainSoundBase {
 			return;
 		}
 
-		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(train.trainId);
+		final TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(train.trainId);
 
 		if (config.soundCfg.joint[0] == null || trainProperties.bogiePosition == 0) {
 			return;

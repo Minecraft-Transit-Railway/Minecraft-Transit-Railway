@@ -4,6 +4,7 @@ import mtr.MTRClient;
 import mtr.client.ClientData;
 import mtr.client.Config;
 import mtr.client.TrainClientRegistry;
+import mtr.client.TrainProperties;
 import mtr.path.PathData;
 import mtr.render.RenderDrivingOverlay;
 import mtr.render.TrainRendererBase;
@@ -28,17 +29,18 @@ public class TrainClient extends Train implements IGui {
 	private float oldSpeed;
 	private double oldRailProgress;
 	private float oldDoorValue;
-	private boolean isSitting;
+	public boolean doorOpening;
+	public boolean isSitting;
 	private boolean previousShifting;
 
 	private SpeedCallback speedCallback;
 	private AnnouncementCallback announcementCallback;
 	private AnnouncementCallback lightRailAnnouncementCallback;
-	private Depot depot;
-	private List<Long> routeIds = new ArrayList<>();
+	public Depot depot;
+	public List<Long> routeIds = new ArrayList<>();
 
 	public final TrainRendererBase trainRenderer;
-	private final TrainSoundBase trainSound;
+	public final TrainSoundBase trainSound;
 
 	private final Set<Runnable> trainTranslucentRenders = new HashSet<>();
 	private final VehicleRidingClient vehicleRidingClient = new VehicleRidingClient(ridingEntities, PACKET_UPDATE_TRAIN_PASSENGER_POSITION);
@@ -49,7 +51,7 @@ public class TrainClient extends Train implements IGui {
 
 	public TrainClient(FriendlyByteBuf packet) {
 		super(packet);
-		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
+		final TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 		trainRenderer = trainProperties.renderer.createTrainInstance(this);
 		trainSound = trainProperties.sound.createTrainInstance(this);
 	}
@@ -77,11 +79,11 @@ public class TrainClient extends Train implements IGui {
 		final double newY = carY - offset.y;
 		final double newZ = carZ - offset.z;
 
-		final boolean opening = doorValue > oldDoorValue;
+		doorOpening = doorValue > oldDoorValue;
 		final PathData pathData = path.get(getIndex(0, spacing, true));
 		final int stopIndex = pathData.stopIndex - 1;
-		trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, false, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed, stopIndex, pathData.dwellTime > 0, routeIds);
-		trainTranslucentRenders.add(() -> trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, true, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed, stopIndex, pathData.dwellTime > 0, routeIds));
+		trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, doorLeftOpen, doorRightOpen);
+		trainTranslucentRenders.add(() -> trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, doorLeftOpen, doorRightOpen));
 
 		if (ridingCar > 0) {
 			final double newPrevCarX = prevCarX - offset.x;
@@ -149,7 +151,7 @@ public class TrainClient extends Train implements IGui {
 				}
 			}
 
-			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
+			final TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 			vehicleRidingClient.movePlayer(uuid -> {
 				final CalculateCarCallback calculateCarCallback = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> vehicleRidingClient.setOffsets(uuid, x, y, z, yaw, pitch, realSpacingRender, width, doorLeftOpenRender, doorRightOpenRender, transportMode.hasPitch, trainProperties.riderOffset, speed > 0, doorValue == 0, () -> {
 					final boolean isShifting = clientPlayer.isShiftKeyDown();
@@ -247,9 +249,9 @@ public class TrainClient extends Train implements IGui {
 		}
 
 		final LocalPlayer player = Minecraft.getInstance().player;
-		if (isManual && Train.isHoldingKey(player) && ridingEntities.contains(player.getUUID())) {
+		if (isManualAllowed && Train.isHoldingKey(player) && ridingEntities.contains(player.getUUID())) {
 			final int stopIndex = path.get(getIndex(0, spacing, false)).stopIndex - 1;
-			RenderDrivingOverlay.setData(manualAccelerationSign, doorValue, speed * 20, stopIndex, routeIds);
+			RenderDrivingOverlay.setData(manualNotch, doorValue, speed * 20, stopIndex, routeIds);
 		}
 	}
 
@@ -287,13 +289,13 @@ public class TrainClient extends Train implements IGui {
 		speed = train.speed;
 		railProgress = train.railProgress;
 
-		stopCounter = train.stopCounter;
+		elapsedDwellTicks = train.elapsedDwellTicks;
 		nextStoppingIndex = train.nextStoppingIndex;
 		reversed = train.reversed;
 		isCurrentlyManual = train.isCurrentlyManual;
 		isOnRoute = train.isOnRoute;
-		manualAccelerationSign = train.manualAccelerationSign;
-		doorOpen = train.doorOpen;
+		manualNotch = train.manualNotch;
+		doorTarget = train.doorTarget;
 	}
 
 	public float getSpeed() {
