@@ -501,7 +501,7 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 			matrices.mulPose(Vector3f.XP.rotationDegrees(180));
 			matrices.mulPose(Vector3f.YP.rotation(yaw));
 			matrices.mulPose(Vector3f.ZP.rotation(roll));
-			final int light = LightTexture.pack((int) Math.round(brightness / 100D * 0xB), 0xF000);
+			final int light = LightTexture.pack(0, (int) Math.round(brightness / 100D * 0xF));
 			for (int i = 0; i < cars; i++) {
 				matrices.pushPose();
 				matrices.translate(0, 0, (i - (cars - 1) / 2F) * (RenderTrains.creatorProperties.getLength() + 1) + translation);
