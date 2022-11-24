@@ -10,7 +10,6 @@ import mtr.mappings.Utilities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -544,8 +543,8 @@ public class ClientCache extends DataCache implements IGui {
 			if (!resourceLocation.equals(DEFAULT_BLACK_RESOURCE) && !resourceLocation.equals(DEFAULT_WHITE_RESOURCE) && !resourceLocation.equals(DEFAULT_TRANSPARENT_RESOURCE)) {
 				final TextureManager textureManager = Minecraft.getInstance().getTextureManager();
 				textureManager.release(resourceLocation);
-				final AbstractTexture abstractTexture = textureManager.getTexture(resourceLocation, MissingTextureAtlasSprite.getTexture());
-				if (abstractTexture != null && abstractTexture != MissingTextureAtlasSprite.getTexture()) {
+				final AbstractTexture abstractTexture = textureManager.getTexture(resourceLocation);
+				if (abstractTexture != null) {
 					abstractTexture.releaseId();
 					abstractTexture.close();
 				}
