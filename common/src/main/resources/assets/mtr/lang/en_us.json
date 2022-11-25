@@ -632,6 +632,7 @@
 	"tooltip.mtr.shift_right_click_to_select_material": "Hold %s and use on|a block to select material",
 	"tooltip.mtr.station_color": "Colour depends on the station",
 	"tooltip.mtr.station_color_name": "Colour and text depend on the station",
+	"train.mtr.a320": "Airbus A320",
 	"train.mtr.a_train_ael": "CAF Airport Express",
 	"train.mtr.a_train_ael_mini": "CAF Airport Express (Mini)",
 	"train.mtr.a_train_tcl": "CAF Tung Chung Line",

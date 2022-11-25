@@ -59,7 +59,7 @@ public class VehicleRidingServer {
 					remove = true;
 				} else if (doorOpen) {
 					final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
-					remove = Math.abs(positionRotated.z) <= halfLength && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 2);
+					remove = Math.abs(positionRotated.z) <= halfLength && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 10);
 				} else {
 					remove = false;
 				}
