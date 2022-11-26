@@ -486,7 +486,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		textFieldName.visible = showTextFields;
 		textFieldCustomDestination.visible = showRouteDestinationFields;
 		colorSelector.visible = showTextFields;
-		dashboardList.height = height - SQUARE_SIZE * 2 - (showTextFields ? SQUARE_SIZE + TEXT_FIELD_PADDING : 0);
+		dashboardList.height = height - SQUARE_SIZE * 2 - (showTextFields || showRouteDestinationFields ? SQUARE_SIZE + TEXT_FIELD_PADDING : 0);
 	}
 
 	private enum SelectedTab {STATIONS, ROUTES, DEPOTS}
