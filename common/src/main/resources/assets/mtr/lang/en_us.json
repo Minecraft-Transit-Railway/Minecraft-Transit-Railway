@@ -263,7 +263,7 @@
 	"gui.mtr.next_route_train_announcement": "This train will be changed to the %s to %s.",
 	"gui.mtr.next_route_train_announcement_cjk": "本班車會改為%s前往%s。",
 	"gui.mtr.next_route_train_light_rail_announcement": "This route will be changed to route %s. Passengers to %s, please take this train.",
-	"gui.mtr.next_route_train_light_rail_announcement_cjk": "本班車會改為%s路綫。前往%s沿途各站之乘客，可乘本渡輪。",
+	"gui.mtr.next_route_train_light_rail_announcement_cjk": "本班車會改為%s路綫。前往%s沿途各站之乘客，可乘本列車。",
 	"gui.mtr.next_station": "The next station is %s",
 	"gui.mtr.next_station_announcement": "Next station: %s.",
 	"gui.mtr.next_station_announcement_cjk": "下一站：%s。",
