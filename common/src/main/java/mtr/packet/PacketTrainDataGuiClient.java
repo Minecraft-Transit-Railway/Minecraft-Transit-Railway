@@ -78,6 +78,15 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		});
 	}
 
+	public static void openCompanyDashboardScreenS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
+		final boolean useTimeAndWindSync = packet.readBoolean();
+		minecraftClient.execute(() -> {
+			if (!(minecraftClient.screen instanceof DashboardScreen)) {
+				UtilitiesClient.setScreen(minecraftClient, new CompanyDashboardScreen(useTimeAndWindSync));
+			}
+		});
+	}
+
 	public static void openRailwaySignScreenS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
 		final BlockPos pos = packet.readBlockPos();
 		minecraftClient.execute(() -> {

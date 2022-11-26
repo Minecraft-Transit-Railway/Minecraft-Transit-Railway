@@ -16,6 +16,7 @@ public interface Items {
 	RegistryObject<Item> RAILWAY_DASHBOARD = new RegistryObject<>(() -> new ItemDashboard(TransportMode.TRAIN));
 	RegistryObject<Item> BOAT_DASHBOARD = new RegistryObject<>(() -> new ItemDashboard(TransportMode.BOAT));
 	RegistryObject<Item> CABLE_CAR_DASHBOARD = new RegistryObject<>(() -> new ItemDashboard(TransportMode.CABLE_CAR));
+	RegistryObject<Item> COMPANY_DASHBOARD = new RegistryObject<>(CompanyDashboard::new);
 	RegistryObject<Item> DRIVER_KEY = new RegistryObject<>(() -> new Item(new Item.Properties().tab(ItemGroups.CORE).stacksTo(1)));
 	RegistryObject<Item> BOAT_NODE = new RegistryObject<>(() -> new PlaceOnWaterBlockItem(Blocks.BOAT_NODE.get(), new Item.Properties().tab(ItemGroups.CORE)));
 	RegistryObject<Item> ESCALATOR = new RegistryObject<>(() -> new ItemEscalator(new Item.Properties().tab(ItemGroups.ESCALATORS_LIFTS)));

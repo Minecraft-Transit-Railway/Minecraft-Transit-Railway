@@ -45,6 +45,13 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		Registry.sendToPlayer(player, PACKET_OPEN_DASHBOARD_SCREEN, packet);
 	}
 
+	public static void openCompanyDashboardScreenS2C(ServerPlayer player, boolean useTimeAndWindSync) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeBoolean(useTimeAndWindSync);
+		Registry.sendToPlayer(player, PACKET_OPEN_COMPANY_DASHBOARD_SCREEN, packet);
+	}
+
+
 	public static void openRailwaySignScreenS2C(ServerPlayer player, BlockPos signPos) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(signPos);
