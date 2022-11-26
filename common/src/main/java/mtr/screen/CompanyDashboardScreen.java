@@ -8,8 +8,12 @@ import mtr.mappings.ScreenMapper;
 import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import mtr.packet.IPacket;
+import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.Button;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacket {
 
@@ -26,18 +30,26 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 	private final Button buttonSubTabRoutesUnclaimed;
 	private final Button buttonSubTabDepots;
 	private final Button buttonSubTabDepotsUnclaimed;
+
+	private final Button buttonAddCompany;
+	private final Button buttonEditCompany;
+	private final Button buttonDoneEditingCompany;
 	private final Button buttonRailActions;
 	private final Button buttonOptions;
 
 	private final CompanyDashboardList dashboardList;
 	private final WidgetBetterTextField textFieldName;
+	private final WidgetColorSelector colorSelector;
 
 	private static final int COLOR_WIDTH = 48;
+	private Company editingCompany;
+	private boolean isNew;
 
 	public CompanyDashboardScreen(boolean useTimeAndWindSync) {
 		super(Text.literal(""));
 
 		textFieldName = new WidgetBetterTextField(Text.translatable("gui.mtr.name").getString());
+		colorSelector = new WidgetColorSelector(this, this::changeColours);
 
 		buttonTabStations = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.stations"), button -> onSelectTab(SelectedTab.STATIONS));
 		buttonTabRoutes = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.routes"), button -> onSelectTab(SelectedTab.ROUTES));
@@ -50,6 +62,9 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 		buttonSubTabDepots = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.claimed"), button -> onSelectSubTab(SelectedSubTab.DEPOTS_CLAIMED));
 		buttonSubTabDepotsUnclaimed = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.unclaimed"), button -> onSelectSubTab(SelectedSubTab.DEPOTS_UNCLAIMED));
 
+		buttonAddCompany = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.add_company"), button -> startEditingCompany(new Company(), true));
+		buttonEditCompany = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.edit_company"), button -> startEditingCompany(new Company(), false));
+		buttonDoneEditingCompany = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.done"), button -> onDoneEditingCompany());
 
 		buttonRailActions = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.rail_actions_button"), button -> {
 			if (minecraft != null) {
@@ -65,6 +80,10 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 		dashboardList = new CompanyDashboardList();
 
 		onSelectTab(SelectedTab.STATIONS);
+	}
+
+	private void changeColours() {
+		this.editingCompany.color = colorSelector.getColor();
 	}
 
 	@Override
@@ -90,14 +109,23 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 		IDrawing.setPositionAndWidth(buttonRailActions, rightX, bottomRowY, PANEL_WIDTH / 2);
 		IDrawing.setPositionAndWidth(buttonOptions, rightX + (PANEL_WIDTH / 2), bottomRowY, PANEL_WIDTH / 2);
 
-		IDrawing.setPositionAndWidth(textFieldName, TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(buttonAddCompany, rightX, 0, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(buttonEditCompany, rightX, 0, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(buttonDoneEditingCompany, rightX, SQUARE_SIZE, PANEL_WIDTH);
+
+		IDrawing.setPositionAndWidth(textFieldName, rightX+(TEXT_FIELD_PADDING / 2), 0, PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(colorSelector, rightX+(TEXT_FIELD_PADDING / 2)+(PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING), 0, COLOR_WIDTH - TEXT_FIELD_PADDING);
 
 		dashboardList.x = 0;
 		dashboardList.y = SQUARE_SIZE * 2;
 		dashboardList.width = PANEL_WIDTH;
 		dashboardList.height = height - SQUARE_SIZE * 2;
 
+		buttonDoneEditingCompany.visible = false;
+		buttonEditCompany.visible = false;
+
 		textFieldName.setVisible(false);
+		colorSelector.visible = false;
 
 		dashboardList.init(this::addDrawableChild);
 
@@ -114,7 +142,18 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 		addDrawableChild(buttonSubTabDepots);
 		addDrawableChild(buttonSubTabDepotsUnclaimed);
 
+		addDrawableChild(buttonAddCompany);
+		addDrawableChild(buttonEditCompany);
+		addDrawableChild(buttonDoneEditingCompany);
+
 		addDrawableChild(textFieldName);
+		addDrawableChild(colorSelector);
+
+		if (editingCompany != null) {
+			buttonDoneEditingCompany.visible = true;
+			textFieldName.visible = true;
+			colorSelector.visible = true;
+		}
 	}
 
 	@Override
@@ -231,4 +270,50 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 
 	private enum SelectedTab {STATIONS, ROUTES, DEPOTS}
 	public enum SelectedSubTab {STATIONS_CLAIMED, STATIONS_UNCLAIMED, ROUTES_CLAIMED, ROUTES_UNCLAIMED, DEPOTS_CLAIMED, DEPOTS_UNCLAIMED}
+
+	private void startEditingCompany(Company editingCompany, boolean isNew) {
+		this.editingCompany = editingCompany;
+		this.isNew = isNew;
+		List<String> owners = new ArrayList<>();
+		if (minecraft != null && minecraft.player != null) {
+			owners.add(minecraft.player.getUUID().toString());
+		}
+		editingCompany.employees.put("owners", owners);
+		buttonAddCompany.visible = false;
+		buttonDoneEditingCompany.visible = true;
+		textFieldName.visible = true;
+		colorSelector.visible = true;
+
+		textFieldName.setValue(editingCompany.name);
+		colorSelector.setColor(editingCompany.color);
+	}
+
+	private void onDoneEditingCompany() {
+		if (isNew) {
+			try {
+				ClientData.COMPANIES.add(editingCompany);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			for (Company company: ClientData.COMPANIES) {
+				if (minecraft != null && minecraft.player != null) {
+					if (company.employees.get("owner").contains(minecraft.player.getUUID().toString())) {
+						editingCompany = company;
+						break;
+					}
+				}
+			}
+		}
+		editingCompany.name = IGui.textOrUntitled(textFieldName.getValue());
+		editingCompany.color = colorSelector.getColor();
+		editingCompany.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_COMPANY, packet));
+		editingCompany = null;
+
+		buttonAddCompany.visible = false;
+		buttonEditCompany.visible = true;
+		buttonDoneEditingCompany.visible = false;
+		textFieldName.visible = false;
+		colorSelector.visible = false;
+	}
 }
