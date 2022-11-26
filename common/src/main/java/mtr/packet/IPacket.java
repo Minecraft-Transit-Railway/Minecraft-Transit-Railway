@@ -42,12 +42,14 @@ public interface IPacket {
 	ResourceLocation PACKET_UPDATE_SIDING = new ResourceLocation(MTR.MOD_ID, "packet_update_siding");
 	ResourceLocation PACKET_UPDATE_ROUTE = new ResourceLocation(MTR.MOD_ID, "packet_update_route");
 	ResourceLocation PACKET_UPDATE_DEPOT = new ResourceLocation(MTR.MOD_ID, "packet_update_depot");
+	ResourceLocation PACKET_UPDATE_COMPANY = new ResourceLocation(MTR.MOD_ID, "packet_update_company");
 
 	ResourceLocation PACKET_DELETE_STATION = new ResourceLocation(MTR.MOD_ID, "packet_delete_station");
 	ResourceLocation PACKET_DELETE_PLATFORM = new ResourceLocation(MTR.MOD_ID, "packet_delete_platform");
 	ResourceLocation PACKET_DELETE_SIDING = new ResourceLocation(MTR.MOD_ID, "packet_delete_siding");
 	ResourceLocation PACKET_DELETE_ROUTE = new ResourceLocation(MTR.MOD_ID, "packet_delete_route");
 	ResourceLocation PACKET_DELETE_DEPOT = new ResourceLocation(MTR.MOD_ID, "packet_delete_depot");
+	ResourceLocation PACKET_DELETE_COMPANY = new ResourceLocation(MTR.MOD_ID, "packet_delete_company");
 
 	ResourceLocation PACKET_WRITE_RAILS = new ResourceLocation(MTR.MOD_ID, "write_rails");
 	ResourceLocation PACKET_UPDATE_TRAINS = new ResourceLocation(MTR.MOD_ID, "update_trains");

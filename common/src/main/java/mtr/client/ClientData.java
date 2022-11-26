@@ -39,13 +39,14 @@ public final class ClientData {
 	public static final Set<Siding> SIDINGS = new HashSet<>();
 	public static final Set<Route> ROUTES = new HashSet<>();
 	public static final Set<Depot> DEPOTS = new HashSet<>();
+	public static final Set<Company> COMPANIES = new HashSet<>();
 	public static final SignalBlocks SIGNAL_BLOCKS = new SignalBlocks();
 	public static final Map<BlockPos, Map<BlockPos, Rail>> RAILS = new HashMap<>();
 	public static final Set<TrainClient> TRAINS = new HashSet<>();
 	public static final List<DataConverter> RAIL_ACTIONS = new ArrayList<>();
 	public static final Map<Long, Set<ScheduleEntry>> SCHEDULES_FOR_PLATFORM = new HashMap<>();
 
-	public static final ClientCache DATA_CACHE = new ClientCache(STATIONS, PLATFORMS, SIDINGS, ROUTES, DEPOTS);
+	public static final ClientCache DATA_CACHE = new ClientCache(STATIONS, PLATFORMS, SIDINGS, ROUTES, DEPOTS, COMPANIES);
 
 	private static final Map<UUID, Integer> PLAYER_RIDING_COOL_DOWN = new HashMap<>();
 
@@ -214,6 +215,7 @@ public final class ClientData {
 		clearAndAddAll(SIDINGS, deserializeData(packetCopy, Siding::new));
 		clearAndAddAll(ROUTES, deserializeData(packetCopy, Route::new));
 		clearAndAddAll(DEPOTS, deserializeData(packetCopy, Depot::new));
+		clearAndAddAll(COMPANIES, deserializeData(packetCopy, Company::new));
 		clearAndAddAll(SIGNAL_BLOCKS.signalBlocks, deserializeData(packetCopy, SignalBlocks.SignalBlock::new));
 
 		TRAINS.clear();

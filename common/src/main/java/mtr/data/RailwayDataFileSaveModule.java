@@ -36,6 +36,7 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 	private final List<Long> dirtySidingIds = new ArrayList<>();
 	private final List<Long> dirtyRouteIds = new ArrayList<>();
 	private final List<Long> dirtyDepotIds = new ArrayList<>();
+	private final List<Long> dirtyCompaniesIds = new ArrayList<>();
 	private final List<BlockPos> dirtyRailPositions = new ArrayList<>();
 	private final List<SignalBlocks.SignalBlock> dirtySignalBlocks = new ArrayList<>();
 
@@ -47,6 +48,7 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 	private final Path sidingsPath;
 	private final Path routesPath;
 	private final Path depotsPath;
+	private final Path companiesPath;
 	private final Path railsPath;
 	private final Path signalBlocksPath;
 
@@ -61,6 +63,7 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 		sidingsPath = savePath.resolve("sidings");
 		routesPath = savePath.resolve("routes");
 		depotsPath = savePath.resolve("depots");
+		companiesPath = savePath.resolve("companies");
 		railsPath = savePath.resolve("rails");
 		signalBlocksPath = savePath.resolve("signal-blocks");
 
@@ -70,6 +73,7 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 			Files.createDirectories(sidingsPath);
 			Files.createDirectories(routesPath);
 			Files.createDirectories(depotsPath);
+			Files.createDirectories(companiesPath);
 			Files.createDirectories(railsPath);
 			Files.createDirectories(signalBlocksPath);
 		} catch (IOException e) {
@@ -84,6 +88,7 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 		readMessagePackFromFile(sidingsPath, Siding::new, railwayData.sidings::add, true);
 		readMessagePackFromFile(routesPath, Route::new, railwayData.routes::add, false);
 		readMessagePackFromFile(depotsPath, Depot::new, railwayData.depots::add, false);
+		readMessagePackFromFile(companiesPath, Company::new, railwayData.companies::add, false);
 		readMessagePackFromFile(railsPath, RailEntry::new, railEntry -> rails.put(railEntry.pos, railEntry.connections), true);
 		readMessagePackFromFile(signalBlocksPath, SignalBlocks.SignalBlock::new, signalBlocks.signalBlocks::add, true);
 
@@ -99,6 +104,7 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 		dirtySidingIds.clear();
 		dirtyRouteIds.clear();
 		dirtyDepotIds.clear();
+		dirtyCompaniesIds.clear();
 		dirtyRailPositions.clear();
 		dirtySignalBlocks.clear();
 		checkFilesToDelete.clear();
@@ -126,6 +132,7 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 			dirtySidingIds.addAll(railwayData.dataCache.sidingIdMap.keySet());
 			dirtyRouteIds.addAll(railwayData.dataCache.routeIdMap.keySet());
 			dirtyDepotIds.addAll(railwayData.dataCache.depotIdMap.keySet());
+			dirtyCompaniesIds.addAll(railwayData.dataCache.companyIdMap.keySet());
 			dirtyRailPositions.addAll(rails.keySet());
 			dirtySignalBlocks.addAll(signalBlocks.signalBlocks);
 			checkFilesToDelete.addAll(existingFiles.keySet());
@@ -148,6 +155,9 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 			}
 			if (hasSpareTime) {
 				hasSpareTime = writeDirtyDataToFile(dirtyDepotIds, railwayData.dataCache.depotIdMap::get, id -> id, depotsPath);
+			}
+			if (hasSpareTime) {
+				hasSpareTime = writeDirtyDataToFile(dirtyCompaniesIds, railwayData.dataCache.companyIdMap::get, id -> id, companiesPath);
 			}
 			if (hasSpareTime) {
 				hasSpareTime = writeDirtyDataToFile(dirtyRailPositions, pos -> rails.containsKey(pos) ? new RailEntry(pos, rails.get(pos)) : null, BlockPos::asLong, railsPath);

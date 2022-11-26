@@ -50,8 +50,8 @@ public class ClientCache extends DataCache implements IGui {
 	private static final ResourceLocation DEFAULT_WHITE_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/white.png");
 	private static final ResourceLocation DEFAULT_TRANSPARENT_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/transparent.png");
 
-	public ClientCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots) {
-		super(stations, platforms, sidings, routes, depots);
+	public ClientCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, Set<Company> companies) {
+		super(stations, platforms, sidings, routes, depots, companies);
 		for (final TransportMode transportMode : TransportMode.values()) {
 			posToPlatforms.put(transportMode, new HashMap<>());
 			posToSidings.put(transportMode, new HashMap<>());

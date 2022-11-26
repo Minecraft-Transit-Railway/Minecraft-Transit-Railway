@@ -39,7 +39,8 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	public final Set<Siding> sidings = new HashSet<>();
 	public final Set<Route> routes = new HashSet<>();
 	public final Set<Depot> depots = new HashSet<>();
-	public final DataCache dataCache = new DataCache(stations, platforms, sidings, routes, depots);
+	public final Set<Company> companies = new HashSet<>();
+	public final DataCache dataCache = new DataCache(stations, platforms, sidings, routes, depots, companies);
 
 	public final RailwayDataCoolDownModule railwayDataCoolDownModule;
 	public final RailwayDataPathGenerationModule railwayDataPathGenerationModule;
@@ -78,6 +79,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private static final String KEY_SIDINGS = "sidings";
 	private static final String KEY_ROUTES = "routes";
 	private static final String KEY_DEPOTS = "depots";
+	private static final String KEY_COMPANIES = "companies";
 	private static final String KEY_RAILS = "rails";
 	private static final String KEY_SIGNAL_BLOCKS = "signal_blocks";
 	private static final String KEY_USE_TIME_AND_WIND_SYNC = "use_time_and_wind_sync";
@@ -141,6 +143,11 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 								depots.add(new Depot(readMessagePackSKMap(messageUnpacker)));
 							}
 							break;
+						case KEY_COMPANIES:
+							for (int j = 0; j < arraySize; ++j) {
+								companies.add(new Company(readMessagePackSKMap(messageUnpacker)));
+							}
+							break;
 						case KEY_RAILS:
 							for (int j = 0; j < arraySize; ++j) {
 								final RailEntry railEntry = new RailEntry(readMessagePackSKMap(messageUnpacker));
@@ -182,6 +189,11 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 				final CompoundTag tagNewDepots = compoundTag.getCompound(KEY_DEPOTS);
 				for (final String key : tagNewDepots.getAllKeys()) {
 					depots.add(new Depot(tagNewDepots.getCompound(key)));
+				}
+
+				final CompoundTag tagNewCompanies = compoundTag.getCompound(KEY_COMPANIES);
+				for (final String key : tagNewCompanies.getAllKeys()) {
+					companies.add(new Company(tagNewCompanies.getCompound(key)));
 				}
 
 				final CompoundTag tagNewRails = compoundTag.getCompound(KEY_RAILS);
