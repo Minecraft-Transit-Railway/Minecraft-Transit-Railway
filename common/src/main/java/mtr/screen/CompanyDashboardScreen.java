@@ -73,6 +73,7 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 
 		final int tabCount = 3;
 		final int subTabCount = 2;
+		final int rightX = ((width - PANEL_WIDTH) + (width - PANEL_WIDTH)) / 2;
 		final int bottomRowY = height - SQUARE_SIZE;
 
 		IDrawing.setPositionAndWidth(buttonTabStations, 0, 0, PANEL_WIDTH / tabCount);
@@ -86,15 +87,15 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 		IDrawing.setPositionAndWidth(buttonSubTabDepots, 0, SQUARE_SIZE, PANEL_WIDTH / subTabCount);
 		IDrawing.setPositionAndWidth(buttonSubTabDepotsUnclaimed, PANEL_WIDTH / subTabCount, SQUARE_SIZE, PANEL_WIDTH / subTabCount);
 
-		IDrawing.setPositionAndWidth(buttonRailActions, width - SQUARE_SIZE * 10, bottomRowY, SQUARE_SIZE * 5);
-		IDrawing.setPositionAndWidth(buttonOptions, width - SQUARE_SIZE * 5, bottomRowY, SQUARE_SIZE * 3);
+		IDrawing.setPositionAndWidth(buttonRailActions, rightX, bottomRowY, PANEL_WIDTH / 2);
+		IDrawing.setPositionAndWidth(buttonOptions, rightX + (PANEL_WIDTH / 2), bottomRowY, PANEL_WIDTH / 2);
 
 		IDrawing.setPositionAndWidth(textFieldName, TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING);
 
 		dashboardList.x = 0;
 		dashboardList.y = SQUARE_SIZE * 2;
 		dashboardList.width = PANEL_WIDTH;
-		dashboardList.height = (height - SQUARE_SIZE * 2)-SQUARE_SIZE*2;
+		dashboardList.height = height - SQUARE_SIZE * 2;
 
 		textFieldName.setVisible(false);
 
@@ -123,6 +124,7 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 			matrices.pushPose();
 			matrices.translate(0, 0, 500);
 			Gui.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
+			Gui.fill(matrices, width-PANEL_WIDTH, 0, width, height, ARGB_BACKGROUND);
 			dashboardList.render(matrices, font);
 			super.render(matrices, mouseX, mouseY, delta);
 			matrices.popPose();
@@ -214,6 +216,17 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 		buttonSubTabStationsUnclaimed.active = tab != SelectedSubTab.STATIONS_UNCLAIMED;
 		buttonSubTabRoutesUnclaimed.active = tab != SelectedSubTab.ROUTES_UNCLAIMED;
 		buttonSubTabDepotsUnclaimed.active = tab != SelectedSubTab.DEPOTS_UNCLAIMED;
+	}
+
+	@Override
+	public void mouseMoved(double mouseX, double mouseY) {
+		dashboardList.mouseMoved(mouseX, mouseY);
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+		dashboardList.mouseScrolled(mouseX, mouseY, amount);
+		return super.mouseScrolled(mouseX, mouseY, amount);
 	}
 
 	private enum SelectedTab {STATIONS, ROUTES, DEPOTS}
