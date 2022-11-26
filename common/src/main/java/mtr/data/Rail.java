@@ -27,7 +27,6 @@ public class Rail extends SerializedDataBase {
 	public final TransportMode transportMode;
 	public final RailAngle facingStart;
 	public final RailAngle facingEnd;
-	public final BlockPos posStart, posEnd;
 	private final double h1, k1, r1, tStart1, tEnd1;
 	private final double h2, k2, r2, tStart2, tEnd2;
 	private final int yStart, yEnd;
@@ -72,8 +71,6 @@ public class Rail extends SerializedDataBase {
 		this.facingEnd = facingEnd;
 		this.railType = railType;
 		this.transportMode = transportMode;
-		this.posStart = posStart;
-		this.posEnd = posEnd;
 		yStart = posStart.getY();
 		yEnd = posEnd.getY();
 
@@ -247,10 +244,6 @@ public class Rail extends SerializedDataBase {
 		railType = EnumHelper.valueOf(RailType.IRON, messagePackHelper.getString(KEY_RAIL_TYPE));
 		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, messagePackHelper.getString(KEY_TRANSPORT_MODE));
 
-		// TODO: Is this OK
-		posStart = new BlockPos(getPosition(0));
-		posEnd = new BlockPos(getPosition(getLength()));
-
 		facingStart = getRailAngle(false);
 		facingEnd = getRailAngle(true);
 	}
@@ -276,10 +269,6 @@ public class Rail extends SerializedDataBase {
 		railType = EnumHelper.valueOf(RailType.IRON, compoundTag.getString(KEY_RAIL_TYPE));
 		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, compoundTag.getString(KEY_TRANSPORT_MODE));
 
-		// TODO: Is this OK
-		posStart = new BlockPos(getPosition(0));
-		posEnd = new BlockPos(getPosition(getLength()));
-
 		facingStart = getRailAngle(false);
 		facingEnd = getRailAngle(true);
 	}
@@ -303,10 +292,6 @@ public class Rail extends SerializedDataBase {
 		isStraight2 = packet.readBoolean();
 		railType = EnumHelper.valueOf(RailType.IRON, packet.readUtf(PACKET_STRING_READ_LENGTH));
 		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packet.readUtf(PACKET_STRING_READ_LENGTH));
-
-		// TODO: Is this OK
-		posStart = new BlockPos(getPosition(0));
-		posEnd = new BlockPos(getPosition(getLength()));
 
 		facingStart = getRailAngle(false);
 		facingEnd = getRailAngle(true);

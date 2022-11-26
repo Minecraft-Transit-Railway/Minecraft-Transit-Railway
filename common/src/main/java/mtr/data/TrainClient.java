@@ -29,15 +29,15 @@ public class TrainClient extends Train implements IGui {
 	private float oldSpeed;
 	private double oldRailProgress;
 	private float oldDoorValue;
-	public boolean doorOpening;
-	public boolean isSitting;
+	private boolean doorOpening;
+	private boolean isSitting;
 	private boolean previousShifting;
 
 	private SpeedCallback speedCallback;
 	private AnnouncementCallback announcementCallback;
 	private AnnouncementCallback lightRailAnnouncementCallback;
-	public Depot depot;
-	public List<Long> routeIds = new ArrayList<>();
+	private Depot depot;
+	private List<Long> routeIds = new ArrayList<>();
 
 	public final TrainRendererBase trainRenderer;
 	public final TrainSoundBase trainSound;
@@ -298,10 +298,6 @@ public class TrainClient extends Train implements IGui {
 		doorTarget = train.doorTarget;
 	}
 
-	public float getSpeed() {
-		return speed;
-	}
-
 	public final float speedChange() {
 		return speed - oldSpeed;
 	}
@@ -321,6 +317,14 @@ public class TrainClient extends Train implements IGui {
 			}
 		}
 		return 0;
+	}
+
+	public boolean isDoorOpening() {
+		return doorOpening;
+	}
+
+	public List<Long> getRouteIds() {
+		return routeIds;
 	}
 
 	@FunctionalInterface

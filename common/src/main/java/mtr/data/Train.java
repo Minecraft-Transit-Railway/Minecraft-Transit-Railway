@@ -37,30 +37,30 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 	public final int trainCars;
 	public final float accelerationConstant;
 
-	public float speed;
-	public float doorValue;
-	public boolean doorTarget;
-	public boolean reversed;
-	public boolean isOnRoute = false;
+	protected float speed;
+	protected float doorValue;
+	protected boolean doorTarget;
+	protected boolean reversed;
+	protected boolean isOnRoute = false;
 
-	public final List<PathData> path;
-	public final List<Double> distances;
-	public final int repeatIndex1;
-	public final int repeatIndex2;
-	public int nextStoppingIndex;
-	public double railProgress;
+	protected final List<PathData> path;
+	protected final List<Double> distances;
+	protected final int repeatIndex1;
+	protected final int repeatIndex2;
+	protected int nextStoppingIndex;
+	protected double railProgress;
 
 	public final boolean isManualAllowed;
 	public final int maxManualSpeed;
 	public final int manualToAutomaticTime;
-	public boolean isCurrentlyManual;
-	public int manualNotch;
+	protected boolean isCurrentlyManual;
+	protected int manualNotch;
 
-	public int totalDwellTicks;
-	public float elapsedDwellTicks;
+	protected int totalDwellTicks;
+	protected float elapsedDwellTicks;
 
 	protected final Set<UUID> ridingEntities = new HashSet<>();
-	public final SimpleContainer inventory;
+	protected final SimpleContainer inventory;
 	private final float railLength;
 
 	public static final float ACCELERATION_DEFAULT = 0.01F; // m/tick^2
@@ -670,6 +670,34 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		} else {
 			return null;
 		}
+	}
+
+	public float getSpeed() {
+		return speed;
+	}
+
+	public float getDoorValue() {
+		return doorValue;
+	}
+
+	public boolean isReversed() {
+		return reversed;
+	}
+
+	public boolean isOnRoute() {
+		return isOnRoute;
+	}
+
+	public int getTotalDwellTicks() {
+		return totalDwellTicks;
+	}
+
+	public float getElapsedDwellTicks() {
+		return elapsedDwellTicks;
+	}
+
+	public List<PathData> getPath() {
+		return path;
 	}
 
 	@FunctionalInterface

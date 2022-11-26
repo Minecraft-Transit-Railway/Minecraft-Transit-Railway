@@ -69,9 +69,9 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 
 	@Override
 	public void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean doorLeftOpen, boolean doorRightOpen) {
-		final float doorLeftValue = doorLeftOpen ? train.doorValue : 0;
-		final float doorRightValue = doorRightOpen ? train.doorValue : 0;
-		final PathData pathData = train.path.get(train.getIndex(0, train.spacing, true));
+		final float doorLeftValue = doorLeftOpen ? train.getDoorValue() : 0;
+		final float doorRightValue = doorRightOpen ? train.getDoorValue() : 0;
+		final PathData pathData = train.getPath().get(train.getIndex(0, train.spacing, true));
 		final int stopIndex = pathData.stopIndex - 1;
 		final boolean atPlatform = pathData.dwellTime > 0;
 
@@ -115,7 +115,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 			model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 		} else {
 			final boolean renderDetails = MTRClient.isReplayMod() || posAverage.distSqr(camera.getBlockPosition()) <= RenderTrains.DETAIL_RADIUS_SQUARED;
-			model.render(matrices, vertexConsumers, resolveTexture(textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, train.doorOpening, carIndex, train.trainCars, !train.reversed, train.getIsOnRoute(), isTranslucentBatch, renderDetails, stopIndex, atPlatform, train.routeIds);
+			model.render(matrices, vertexConsumers, resolveTexture(textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, train.isDoorOpening(), carIndex, train.trainCars, !train.isReversed(), train.getIsOnRoute(), isTranslucentBatch, renderDetails, stopIndex, atPlatform, train.getRouteIds());
 
 			if (trainProperties.bogiePosition != 0 && !isTranslucentBatch) {
 				if (trainProperties.isJacobsBogie) {
