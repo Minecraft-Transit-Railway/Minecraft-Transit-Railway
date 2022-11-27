@@ -150,7 +150,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.players().forEach(worldPlayer -> Registry.sendToPlayer((ServerPlayer) worldPlayer, PACKET_REMOVE_SIGNALS, packet));
 	}
 
-	public static void sendAllInChunks(ServerPlayer player, Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, SignalBlocks signalBlocks) {
+	public static void sendAllInChunks(ServerPlayer player, Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, Set<Company> companies, SignalBlocks signalBlocks) {
 		final long tempPacketId = new Random().nextLong();
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 
@@ -159,6 +159,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		serializeData(packet, sidings);
 		serializeData(packet, routes);
 		serializeData(packet, depots);
+		serializeData(packet, companies);
 		serializeData(packet, signalBlocks.signalBlocks);
 
 		int i = 0;

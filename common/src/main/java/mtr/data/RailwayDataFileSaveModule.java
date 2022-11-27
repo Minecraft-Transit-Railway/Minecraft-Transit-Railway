@@ -88,9 +88,9 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 		readMessagePackFromFile(sidingsPath, Siding::new, railwayData.sidings::add, true);
 		readMessagePackFromFile(routesPath, Route::new, railwayData.routes::add, false);
 		readMessagePackFromFile(depotsPath, Depot::new, railwayData.depots::add, false);
-		readMessagePackFromFile(companiesPath, Company::new, railwayData.companies::add, false);
 		readMessagePackFromFile(railsPath, RailEntry::new, railEntry -> rails.put(railEntry.pos, railEntry.connections), true);
 		readMessagePackFromFile(signalBlocksPath, SignalBlocks.SignalBlock::new, signalBlocks.signalBlocks::add, true);
+		readMessagePackFromFile(companiesPath, Company::new, railwayData.companies::add, false);
 
 		System.out.println("Minecraft Transit Railway data successfully loaded for " + world.dimension().location());
 		canAutoSave = true;
@@ -104,10 +104,10 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 		dirtySidingIds.clear();
 		dirtyRouteIds.clear();
 		dirtyDepotIds.clear();
-		dirtyCompaniesIds.clear();
 		dirtyRailPositions.clear();
 		dirtySignalBlocks.clear();
 		checkFilesToDelete.clear();
+		dirtyCompaniesIds.clear();
 		autoSave();
 		while (true) {
 			if (autoSaveTick()) {
@@ -132,10 +132,10 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 			dirtySidingIds.addAll(railwayData.dataCache.sidingIdMap.keySet());
 			dirtyRouteIds.addAll(railwayData.dataCache.routeIdMap.keySet());
 			dirtyDepotIds.addAll(railwayData.dataCache.depotIdMap.keySet());
-			dirtyCompaniesIds.addAll(railwayData.dataCache.companyIdMap.keySet());
 			dirtyRailPositions.addAll(rails.keySet());
 			dirtySignalBlocks.addAll(signalBlocks.signalBlocks);
 			checkFilesToDelete.addAll(existingFiles.keySet());
+			dirtyCompaniesIds.addAll(railwayData.dataCache.companyIdMap.keySet());
 		}
 	}
 
@@ -157,16 +157,16 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 				hasSpareTime = writeDirtyDataToFile(dirtyDepotIds, railwayData.dataCache.depotIdMap::get, id -> id, depotsPath);
 			}
 			if (hasSpareTime) {
-				hasSpareTime = writeDirtyDataToFile(dirtyCompaniesIds, railwayData.dataCache.companyIdMap::get, id -> id, companiesPath);
-			}
-			if (hasSpareTime) {
 				hasSpareTime = writeDirtyDataToFile(dirtyRailPositions, pos -> rails.containsKey(pos) ? new RailEntry(pos, rails.get(pos)) : null, BlockPos::asLong, railsPath);
 			}
 			if (hasSpareTime) {
 				hasSpareTime = writeDirtyDataToFile(dirtySignalBlocks, signalBlock -> signalBlock, signalBlock -> signalBlock.id, signalBlocksPath);
 			}
+			if (hasSpareTime) {
+				hasSpareTime = writeDirtyDataToFile(dirtyCompaniesIds, railwayData.dataCache.companyIdMap::get, id -> id, companiesPath);
+			}
 
-			final boolean doneWriting = dirtyStationIds.isEmpty() && dirtyPlatformIds.isEmpty() && dirtySidingIds.isEmpty() && dirtyRouteIds.isEmpty() && dirtyDepotIds.isEmpty() && dirtyRailPositions.isEmpty() && dirtySignalBlocks.isEmpty();
+			final boolean doneWriting = dirtyStationIds.isEmpty() && dirtyPlatformIds.isEmpty() && dirtySidingIds.isEmpty() && dirtyRouteIds.isEmpty() && dirtyDepotIds.isEmpty() && dirtyRailPositions.isEmpty() && dirtySignalBlocks.isEmpty() && dirtyCompaniesIds.isEmpty();
 			if (hasSpareTime && !checkFilesToDelete.isEmpty() && doneWriting) {
 				final Path path = checkFilesToDelete.remove(0);
 				try {

@@ -23,6 +23,8 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 	private final Button buttonTabStations;
 	private final Button buttonTabRoutes;
 	private final Button buttonTabDepots;
+	private final Button buttonTabRightYourCompanies;
+	private final Button buttonTabRightCompanies;
 
 	private final Button buttonSubTabStations;
 	private final Button buttonSubTabStationsUnclaimed;
@@ -38,6 +40,7 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 	private final Button buttonOptions;
 
 	private final CompanyDashboardList dashboardList;
+	private final CompanyDashboardList dashboardListRight;
 	private final WidgetBetterTextField textFieldName;
 	private final WidgetColorSelector colorSelector;
 
@@ -54,6 +57,10 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 		buttonTabStations = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.stations"), button -> onSelectTab(SelectedTab.STATIONS));
 		buttonTabRoutes = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.routes"), button -> onSelectTab(SelectedTab.ROUTES));
 		buttonTabDepots = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.depots"), button -> onSelectTab(SelectedTab.DEPOTS));
+
+		buttonTabRightCompanies = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.companies"), button -> onSelectTab(SelectedTab.STATIONS));
+		buttonTabRightYourCompanies = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.your_companies"), button -> onSelectTab(SelectedTab.ROUTES));
+
 
 		buttonSubTabStations = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.claimed"), button -> onSelectSubTab(SelectedSubTab.STATIONS_CLAIMED));
 		buttonSubTabStationsUnclaimed = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.unclaimed"), button -> onSelectSubTab(SelectedSubTab.STATIONS_UNCLAIMED));
@@ -78,6 +85,7 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 		});
 
 		dashboardList = new CompanyDashboardList();
+		dashboardListRight = new CompanyDashboardList();
 
 		onSelectTab(SelectedTab.STATIONS);
 	}
@@ -111,15 +119,20 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 
 		IDrawing.setPositionAndWidth(buttonAddCompany, rightX, 0, PANEL_WIDTH);
 		IDrawing.setPositionAndWidth(buttonEditCompany, rightX, 0, PANEL_WIDTH);
-		IDrawing.setPositionAndWidth(buttonDoneEditingCompany, rightX, SQUARE_SIZE, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(buttonDoneEditingCompany, rightX, bottomRowY, PANEL_WIDTH);
 
-		IDrawing.setPositionAndWidth(textFieldName, rightX+(TEXT_FIELD_PADDING / 2), 0, PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING);
-		IDrawing.setPositionAndWidth(colorSelector, rightX+(TEXT_FIELD_PADDING / 2)+(PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING), 0, COLOR_WIDTH - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldName, rightX+(TEXT_FIELD_PADDING / 2), bottomRowY - SQUARE_SIZE, PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(colorSelector, rightX+(TEXT_FIELD_PADDING / 2)+(PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING), bottomRowY - SQUARE_SIZE, COLOR_WIDTH);
 
 		dashboardList.x = 0;
 		dashboardList.y = SQUARE_SIZE * 2;
 		dashboardList.width = PANEL_WIDTH;
 		dashboardList.height = height - SQUARE_SIZE * 2;
+
+		dashboardListRight.x = rightX;
+		dashboardListRight.y = SQUARE_SIZE;
+		dashboardListRight.width = PANEL_WIDTH;
+		dashboardListRight.height = height - SQUARE_SIZE * 2;
 
 		buttonDoneEditingCompany.visible = false;
 		buttonEditCompany.visible = false;
@@ -128,6 +141,7 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 		colorSelector.visible = false;
 
 		dashboardList.init(this::addDrawableChild);
+		dashboardListRight.init(this::addDrawableChild);
 
 		addDrawableChild(buttonTabStations);
 		addDrawableChild(buttonTabRoutes);
@@ -165,6 +179,7 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 			Gui.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
 			Gui.fill(matrices, width-PANEL_WIDTH, 0, width, height, ARGB_BACKGROUND);
 			dashboardList.render(matrices, font);
+			dashboardListRight.render(matrices, font);
 			super.render(matrices, mouseX, mouseY, delta);
 			matrices.popPose();
 		} catch (Exception e) {
@@ -176,6 +191,7 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 	public void tick() {
 		textFieldName.tick();
 		dashboardList.tick();
+		dashboardListRight.tick();
 
 		try {
 			switch (selectedTab) {
@@ -281,6 +297,8 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 		editingCompany.employees.put("owners", owners);
 		buttonAddCompany.visible = false;
 		buttonDoneEditingCompany.visible = true;
+		buttonOptions.visible = false;
+		buttonRailActions.visible = false;
 		textFieldName.visible = true;
 		colorSelector.visible = true;
 
@@ -315,5 +333,7 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 		buttonDoneEditingCompany.visible = false;
 		textFieldName.visible = false;
 		colorSelector.visible = false;
+		buttonOptions.visible = true;
+		buttonRailActions.visible = true;
 	}
 }
