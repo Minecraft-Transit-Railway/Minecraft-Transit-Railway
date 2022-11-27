@@ -71,10 +71,10 @@ public class ConfigFile {
 
 		int motorNoiseDataType = 5; // 4 or 5
 		float motorVolumeMultiply = 1.0F;
-		float breakerDelay = 0.5F;
-		float regenerationLimit = 8F / 3.6F; // m/s
+		float breakerDelay = 0F;
+		float regenerationLimit = 0F; // m/s
 		float motorOutputAtCoast = 0.4F;
-		float doorCloseSoundLength = 2;
+		float doorCloseSoundLength = 1;
 
 		for (final String line : lines) {
 			final String trimLine = line.trim().replaceAll("\\s*(;|#|//).+", "");

@@ -235,16 +235,21 @@ public class DashboardList implements IGui {
 		buttonNextPage.visible = page < totalPages - 1;
 	}
 
-	private void onClick(BiConsumer<NameColorDataBase, Integer> onClick) {
+	public int getHoverItemIndex() {
 		final List<Integer> sortedKeys = new ArrayList<>(dataFiltered.keySet());
 		Collections.sort(sortedKeys);
-
 		final int sortedIndex = hoverIndex + itemsToShow() * page;
 		if (sortedIndex >= 0 && sortedIndex < sortedKeys.size()) {
-			final int index = sortedKeys.get(sortedIndex);
-			if (index >= 0 && index < dataSorted.size()) {
-				onClick.accept(dataSorted.get(index), index);
-			}
+			return sortedKeys.get(sortedIndex);
+		} else {
+			return -1;
+		}
+	}
+
+	private void onClick(BiConsumer<NameColorDataBase, Integer> onClick) {
+		final int index = getHoverItemIndex();
+		if (index >= 0) {
+			onClick.accept(dataSorted.get(index), index);
 		}
 	}
 

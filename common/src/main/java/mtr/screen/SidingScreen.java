@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.client.TrainClientRegistry;
+import mtr.client.TrainProperties;
 import mtr.data.*;
 import mtr.mappings.Text;
 import mtr.packet.IPacket;
@@ -11,9 +12,11 @@ import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class SidingScreen extends SavedRailScreenBase<Siding> {
@@ -148,6 +151,20 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 					font.draw(matrices, MANUAL_TO_AUTOMATIC_TIME, startX, SQUARE_SIZE * 8 + TEXT_FIELD_PADDING * 2 + TEXT_PADDING, ARGB_WHITE);
 				}
 			}
+		} else {
+			int index = availableTrainsList.getHoverItemIndex();
+			if (index >= 0) {
+				TrainProperties properties = TrainClientRegistry.getTrainProperties(transportMode, index);
+				String fullDescription = properties.name.getString() + "\n"
+					+ Text.translatable("gui.mtr.vehicle_length", TrainType.getSpacing(properties.baseTrainType) - 1).getString() + "\n"
+					+ "\n"
+					+ properties.description.getString()
+				;
+				float y = SQUARE_SIZE * 2;
+				for(Iterator<FormattedCharSequence> it = font.split(Text.literal(fullDescription), SLIDER_WIDTH / 2 - SQUARE_SIZE).iterator(); it.hasNext(); y += 9) {
+					font.draw(matrices, it.next(), width / 2f + SLIDER_WIDTH / 4f + SQUARE_SIZE, y, ARGB_WHITE);
+				}
+			}
 		}
 	}
 
@@ -223,7 +240,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		sliderDwellTimeMin.visible = !isSelectingTrain && buttonIsManual.selected();
 		sliderDwellTimeSec.visible = !isSelectingTrain && buttonIsManual.selected();
 		buttonSelectTrain.setMessage(TrainClientRegistry.getTrainProperties(savedRailBase.getTrainId()).name);
-		availableTrainsList.x = isSelectingTrain ? width / 2 - SLIDER_WIDTH / 2 : width;
+		availableTrainsList.x = isSelectingTrain ? width / 2 - (SLIDER_WIDTH * 3 / 4) : width;
 	}
 
 	private void onAdd(NameColorDataBase data, int index) {
