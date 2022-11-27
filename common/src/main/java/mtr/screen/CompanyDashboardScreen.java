@@ -192,6 +192,7 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 		textFieldName.tick();
 		dashboardList.tick();
 		dashboardListRight.tick();
+		dashboardListRight.setData(ClientData.COMPANIES, false, false, false, false, false, false);
 
 		try {
 			switch (selectedTab) {
@@ -312,15 +313,6 @@ public class CompanyDashboardScreen extends ScreenMapper implements IGui, IPacke
 				ClientData.COMPANIES.add(editingCompany);
 			} catch (Exception e) {
 				e.printStackTrace();
-			}
-		} else {
-			for (Company company: ClientData.COMPANIES) {
-				if (minecraft != null && minecraft.player != null) {
-					if (company.employees.get("owner").contains(minecraft.player.getUUID().toString())) {
-						editingCompany = company;
-						break;
-					}
-				}
 			}
 		}
 		editingCompany.name = IGui.textOrUntitled(textFieldName.getValue());

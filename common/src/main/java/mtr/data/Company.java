@@ -89,7 +89,7 @@ public final class Company extends NameColorDataBase {
 
 	@Override
 	public int messagePackLength() {
-		return super.messagePackLength() + 2;
+		return super.messagePackLength() + 1;
 	}
 
 	@Override
