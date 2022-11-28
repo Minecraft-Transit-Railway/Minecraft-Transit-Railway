@@ -82,7 +82,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 	public Train(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2, float accelerationConstant, boolean isManualAllowed, int maxManualSpeed, int manualToAutomaticTime) {
 		super(id);
 		this.sidingId = sidingId;
-		this.railLength = railLength;
+		this.railLength = RailwayData.round(railLength, 3);
 		this.trainId = trainId;
 		// TODO temporary code for backwards compatibility
 		baseTrainType = baseTrainType.startsWith("base_") ? baseTrainType.replace("base_", "train_") : baseTrainType;
@@ -115,7 +115,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
 
 		this.sidingId = sidingId;
-		this.railLength = railLength;
+		this.railLength = RailwayData.round(railLength, 3);
 		this.path = path;
 		this.distances = distances;
 		this.repeatIndex1 = repeatIndex1;
@@ -140,7 +140,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		transportMode = TrainType.getTransportMode(baseTrainType);
 		spacing = TrainType.getSpacing(baseTrainType);
 		width = TrainType.getWidth(baseTrainType);
-		trainCars = Math.min(transportMode.maxLength, (int) Math.floor(railLength / spacing + 0.01F));
+		trainCars = Math.min(transportMode.maxLength, (int) Math.floor(railLength / spacing));
 		isCurrentlyManual = messagePackHelper.getBoolean(KEY_IS_CURRENTLY_MANUAL);
 
 		isOnRoute = messagePackHelper.getBoolean(KEY_IS_ON_ROUTE);
@@ -172,7 +172,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		super(compoundTag);
 
 		this.sidingId = sidingId;
-		this.railLength = railLength;
+		this.railLength = RailwayData.round(railLength, 3);
 		this.path = path;
 		this.distances = distances;
 		this.repeatIndex1 = repeatIndex1;
@@ -193,7 +193,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		transportMode = TrainType.getTransportMode(baseTrainType);
 		spacing = TrainType.getSpacing(baseTrainType);
 		width = TrainType.getWidth(baseTrainType);
-		trainCars = Math.min(transportMode.maxLength, (int) Math.floor(railLength / spacing + 0.01F));
+		trainCars = Math.min(transportMode.maxLength, (int) Math.floor(railLength / spacing));
 		isCurrentlyManual = compoundTag.getBoolean(KEY_IS_CURRENTLY_MANUAL);
 
 		isOnRoute = compoundTag.getBoolean(KEY_IS_ON_ROUTE);
@@ -219,7 +219,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		repeatIndex2 = packet.readInt();
 
 		sidingId = packet.readLong();
-		railLength = packet.readFloat();
+		railLength = RailwayData.round(packet.readFloat(), 3);
 		speed = packet.readFloat();
 		final float tempAccelerationConstant = RailwayData.round(packet.readFloat(), 3);
 		accelerationConstant = tempAccelerationConstant <= 0 ? ACCELERATION_DEFAULT : tempAccelerationConstant;
@@ -232,7 +232,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		transportMode = TrainType.getTransportMode(baseTrainType);
 		spacing = TrainType.getSpacing(baseTrainType);
 		width = TrainType.getWidth(baseTrainType);
-		trainCars = Math.min(transportMode.maxLength, (int) Math.floor(railLength / spacing + 0.01F));
+		trainCars = Math.min(transportMode.maxLength, (int) Math.floor(railLength / spacing));
 		isManualAllowed = packet.readBoolean();
 		isCurrentlyManual = packet.readBoolean();
 		maxManualSpeed = packet.readInt();
