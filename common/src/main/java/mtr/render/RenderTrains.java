@@ -149,7 +149,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		matrices.pushPose();
 
 		TrainRendererBase.setupStaticInfo(matrices, vertexConsumers, entity, tickDelta);
-
+		TrainRendererBase.setBatch(false);
 		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, newLastFrameDuration, (speed, stopIndex, routeIds) -> {
 			if (showShiftProgressBar() && (!train.isCurrentlyManual() || !Train.isHoldingKey(player)) && !(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 				final Component text;
@@ -227,11 +227,12 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			}
 		}));
 		if (!Config.hideTranslucentParts()) {
+			TrainRendererBase.setBatch(true);
 			ClientData.TRAINS.forEach(TrainClient::renderTranslucent);
 		}
 
 		ClientData.LIFTS.forEach(lift -> lift.tickClient(world, (x, y, z, frontDoorValue, backDoorValue) -> {
-			final BlockPos posAverage = TrainRendererBase.getPosAverage(lift.getViewOffset(), x, y, z);
+			final BlockPos posAverage = TrainRendererBase.applyAverageTransform(lift.getViewOffset(), x, y, z);
 			if (posAverage == null) {
 				return;
 			}

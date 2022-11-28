@@ -22,22 +22,28 @@ public class TrainClientRegistry {
 	private static final Map<String, TrainProperties> REGISTRY = new HashMap<>();
 	private static final Map<TransportMode, List<String>> KEY_ORDERS = new HashMap<>();
 
-	public static void register(String key, String baseTrainType, String name, int color, float riderOffset, float bogiePosition, boolean isJacobsBogie, boolean hasGangwayConnection, TrainRendererBase renderer, TrainSoundBase sound) {
+	public static void register(String key, TrainProperties properties) {
 		final String keyLower = key.toLowerCase(Locale.ENGLISH);
-		final TransportMode transportMode = TrainType.getTransportMode(baseTrainType);
+		final TransportMode transportMode = TrainType.getTransportMode(properties.baseTrainType);
 		if (!KEY_ORDERS.containsKey(transportMode)) {
 			KEY_ORDERS.put(transportMode, new ArrayList<>());
 		}
 		if (!KEY_ORDERS.get(transportMode).contains(keyLower)) {
 			KEY_ORDERS.get(transportMode).add(keyLower);
 		}
-		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, Text.translatable(name == null ? "train.mtr." + keyLower : name), color, riderOffset, bogiePosition, isJacobsBogie, hasGangwayConnection, renderer, sound));
+		REGISTRY.put(keyLower, properties);
 	}
 
 	public static void register(String key, String baseTrainType, ModelTrainBase model, String textureId, String name, int color, String gangwayConnectionId, String trainBarrierId, float riderOffset, float bogiePosition, boolean isJacobsBogie, String soundId, JonTrainSound.JonTrainSoundConfig legacySoundConfig) {
 		final TrainRendererBase renderer = new JonModelTrainRenderer(model, textureId, gangwayConnectionId, trainBarrierId);
 		final TrainSoundBase sound = legacySoundConfig == null ? new BveTrainSound(new BveTrainSoundConfig(Minecraft.getInstance().getResourceManager(), soundId == null ? "" : soundId)) : new JonTrainSound(soundId, legacySoundConfig);
-		register(key, baseTrainType, name, color, riderOffset, bogiePosition, isJacobsBogie, !StringUtils.isEmpty(gangwayConnectionId), renderer, sound);
+		final String keyLower = key.toLowerCase(Locale.ENGLISH);
+		final String textDescriptionKey = "train.mtr." + keyLower + ".description";
+		Component textDescription = Text.translatable(textDescriptionKey);
+		if (textDescription.getString().equals(textDescriptionKey)) {
+			textDescription = Text.literal("");
+		}
+		register(key, new TrainProperties(baseTrainType, Text.translatable(name == null ? "train.mtr." + keyLower : name), textDescription, color, riderOffset, bogiePosition, isJacobsBogie, !StringUtils.isEmpty(gangwayConnectionId), renderer, sound));
 	}
 
 	private static void register(TrainType defaultTrainType, ModelTrainBase model, String textureId, int color, String gangwayConnectionId, String trainBarrierId, float bogiePosition, boolean isJacobsBogie, String soundId, JonTrainSound.JonTrainSoundConfig legacySoundConfig) {
@@ -158,11 +164,11 @@ public class TrainClientRegistry {
 
 	public static TrainProperties getTrainProperties(String key) {
 		final String keyLower = key.toLowerCase(Locale.ENGLISH);
-		return REGISTRY.getOrDefault(keyLower, getBlankProperties());
+		return REGISTRY.getOrDefault(keyLower, TrainProperties.getBlankProperties());
 	}
 
 	public static TrainProperties getTrainProperties(TransportMode transportMode, int index) {
-		return index >= 0 && index < KEY_ORDERS.get(transportMode).size() ? REGISTRY.get(KEY_ORDERS.get(transportMode).get(index)) : getBlankProperties();
+		return index >= 0 && index < KEY_ORDERS.get(transportMode).size() ? REGISTRY.get(KEY_ORDERS.get(transportMode).get(index)) : TrainProperties.getBlankProperties();
 	}
 
 	public static String getTrainId(TransportMode transportMode, int index) {
@@ -173,36 +179,4 @@ public class TrainClientRegistry {
 		KEY_ORDERS.get(transportMode).forEach(key -> biConsumer.accept(key, REGISTRY.get(key)));
 	}
 
-	private static TrainProperties getBlankProperties() {
-		return new TrainProperties(
-				"", Text.translatable(""), 0, 0, 0, false, false,
-				new JonModelTrainRenderer(null, "", "", ""),
-				new JonTrainSound("", new JonTrainSound.JonTrainSoundConfig(null, 0, 0.5F, false))
-		);
-	}
-
-	public static class TrainProperties {
-
-		public final String baseTrainType;
-		public final Component name;
-		public final int color;
-		public final float riderOffset;
-		public final float bogiePosition;
-		public final boolean isJacobsBogie;
-		public final boolean hasGangwayConnection;
-		public final TrainRendererBase renderer;
-		public final TrainSoundBase sound;
-
-		private TrainProperties(String baseTrainType, Component name, int color, float riderOffset, float bogiePosition, boolean isJacobsBogie, boolean hasGangwayConnection, TrainRendererBase renderer, TrainSoundBase sound) {
-			this.baseTrainType = baseTrainType;
-			this.name = name;
-			this.color = color;
-			this.riderOffset = riderOffset;
-			this.bogiePosition = bogiePosition;
-			this.isJacobsBogie = isJacobsBogie;
-			this.hasGangwayConnection = hasGangwayConnection;
-			this.renderer = renderer;
-			this.sound = sound;
-		}
-	}
 }

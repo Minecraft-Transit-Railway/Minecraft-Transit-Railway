@@ -20,7 +20,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.List;
 import java.util.UUID;
 
 public abstract class TrainRendererBase {
@@ -30,6 +29,8 @@ public abstract class TrainRendererBase {
 	protected static float lastFrameDuration;
 	protected static PoseStack matrices;
 	protected static MultiBufferSource vertexConsumers;
+
+	protected static boolean isTranslucentBatch;
 
 	private static Entity cameraEntity;
 	private static boolean hasEntity;
@@ -42,14 +43,14 @@ public abstract class TrainRendererBase {
 
 	public abstract TrainRendererBase createTrainInstance(TrainClient train);
 
-	public abstract void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean isTranslucentBatch, float doorLeftValue, float doorRightValue, boolean opening, boolean head1IsFront, int stopIndex, boolean atPlatform, List<Long> routeIds);
+	public abstract void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean doorLeftOpen, boolean doorRightOpen);
 
 	public abstract void renderConnection(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, float pitch);
 
 	public abstract void renderBarrier(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, float pitch);
 
 	public static void renderRidingPlayer(Vec3 viewOffset, UUID playerId, Vec3 playerPositionOffset) {
-		final BlockPos posAverage = getPosAverage(viewOffset, playerPositionOffset.x, playerPositionOffset.y, playerPositionOffset.z);
+		final BlockPos posAverage = applyAverageTransform(viewOffset, playerPositionOffset.x, playerPositionOffset.y, playerPositionOffset.z);
 		if (posAverage == null) {
 			return;
 		}
@@ -78,7 +79,11 @@ public abstract class TrainRendererBase {
 		playerEyePosition = player == null ? Vec3.ZERO : player.getEyePosition(client.getFrameTime());
 	}
 
-	public static BlockPos getPosAverage(Vec3 viewOffset, double x, double y, double z) {
+	public static void setBatch(boolean isTranslucentBatch) {
+		TrainRendererBase.isTranslucentBatch = isTranslucentBatch;
+	}
+
+	public static BlockPos applyAverageTransform(Vec3 viewOffset, double x, double y, double z) {
 		final boolean noOffset = viewOffset == null;
 		final Vec3 cameraPos = cameraEntity == null ? null : cameraEntity.position();
 		final BlockPos posAverage = new BlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.x), y + (noOffset || cameraPos == null ? 0 : cameraPos.y), z + (noOffset || cameraPos == null ? 0 : cameraPos.z));

@@ -384,6 +384,7 @@
 	"gui.mtr.welcome_station_cjk": "歡迎光臨%s站。",
 	"gui.mtr.zone": "Fare Zone",
 	"gui.mtr.zone_number": "Zone %s",
+	"icon.mtr.warning": "⚠ %s",
 	"item.mtr.apg_door": "Automatic Platform Gates",
 	"item.mtr.apg_glass": "Automatic Platform Gates",
 	"item.mtr.apg_glass_end": "Automatic Platform Gates",

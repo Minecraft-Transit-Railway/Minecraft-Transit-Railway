@@ -28,7 +28,7 @@ import java.util.function.Function;
 public class CustomResources implements IResourcePackCreatorProperties, ICustomResources {
 
 	public static final Map<String, CustomSign> CUSTOM_SIGNS = new HashMap<>();
-
+	private static final List<Runnable> RELOAD_LISTENERS = new ArrayList<>();
 
 	public static void reload(ResourceManager manager) {
 		TrainClientRegistry.reset();
@@ -46,7 +46,7 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 						final String trainId = CUSTOM_TRAIN_ID_PREFIX + entry.getKey();
 
 						final String baseTrainType = getOrDefault(jsonObject, CUSTOM_TRAINS_BASE_TRAIN_TYPE, "", JsonElement::getAsString);
-						final TrainClientRegistry.TrainProperties baseTrainProperties = TrainClientRegistry.getTrainProperties(baseTrainType);
+						final TrainProperties baseTrainProperties = TrainClientRegistry.getTrainProperties(baseTrainType);
 
 						// TODO Better ways around this?
 						final JonModelTrainRenderer jonRendererOrDefault = baseTrainProperties.renderer instanceof JonModelTrainRenderer ? (JonModelTrainRenderer) baseTrainProperties.renderer : new JonModelTrainRenderer(null, "", "", "");
@@ -134,6 +134,8 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 			}
 		});
 
+		RELOAD_LISTENERS.forEach(Runnable::run);
+
 		System.out.println("Loaded " + customTrains.size() + " custom train(s)");
 		customTrains.forEach(System.out::println);
 		System.out.println("Loaded " + CUSTOM_SIGNS.size() + " custom sign(s)");
@@ -172,6 +174,10 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 		} else {
 			return defaultValue;
 		}
+	}
+
+	public static void registerReloadListener(Runnable listener) {
+		RELOAD_LISTENERS.add(listener);
 	}
 
 	public static class CustomSign {
