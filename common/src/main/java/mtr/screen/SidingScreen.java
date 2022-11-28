@@ -16,7 +16,6 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class SidingScreen extends SavedRailScreenBase<Siding> {
@@ -152,17 +151,17 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 				}
 			}
 		} else {
-			int index = availableTrainsList.getHoverItemIndex();
+			final int index = availableTrainsList.getHoverItemIndex();
 			if (index >= 0) {
-				TrainProperties properties = TrainClientRegistry.getTrainProperties(transportMode, index);
-				String fullDescription = properties.name.getString() + "\n"
-					+ Text.translatable("gui.mtr.vehicle_length", TrainType.getSpacing(properties.baseTrainType) - 1).getString() + "\n"
-					+ "\n"
-					+ properties.description.getString()
-				;
-				float y = SQUARE_SIZE * 2;
-				for(Iterator<FormattedCharSequence> it = font.split(Text.literal(fullDescription), SLIDER_WIDTH / 2 - SQUARE_SIZE).iterator(); it.hasNext(); y += 9) {
-					font.draw(matrices, it.next(), width / 2f + SLIDER_WIDTH / 4f + SQUARE_SIZE, y, ARGB_WHITE);
+				final TrainProperties properties = TrainClientRegistry.getTrainProperties(transportMode, index);
+				final String fullDescription = String.format("%s\n%s\n\n%s",
+						properties.name.getString(),
+						Text.translatable("gui.mtr.vehicle_length", TrainType.getSpacing(properties.baseTrainType) - 1).getString(),
+						properties.description.getString()
+				);
+				final List<FormattedCharSequence> splitText = font.split(Text.literal(fullDescription), SLIDER_WIDTH / 2 - SQUARE_SIZE);
+				for (int i = 0; i < splitText.size(); i++) {
+					font.draw(matrices, splitText.get(i), width / 2F + SLIDER_WIDTH / 4F + SQUARE_SIZE, SQUARE_SIZE * 2 + i * 9, ARGB_WHITE);
 				}
 			}
 		}

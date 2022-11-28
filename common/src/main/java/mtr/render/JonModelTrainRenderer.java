@@ -30,7 +30,6 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
@@ -71,7 +70,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 	public void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean doorLeftOpen, boolean doorRightOpen) {
 		final float doorLeftValue = doorLeftOpen ? train.getDoorValue() : 0;
 		final float doorRightValue = doorRightOpen ? train.getDoorValue() : 0;
-		final PathData pathData = train.getPath().get(train.getIndex(0, train.spacing, true));
+		final PathData pathData = train.path.get(train.getIndex(0, train.spacing, true));
 		final int stopIndex = pathData.stopIndex - 1;
 		final boolean atPlatform = pathData.dwellTime > 0;
 

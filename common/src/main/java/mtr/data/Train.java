@@ -27,8 +27,19 @@ import java.util.*;
 
 public abstract class Train extends NameColorDataBase implements IPacket {
 
-	public final long sidingId;
+	protected float speed;
+	protected double railProgress;
+	protected boolean doorTarget;
+	protected float doorValue;
+	protected int totalDwellTicks;
+	protected float elapsedDwellTicks;
+	protected int nextStoppingIndex;
+	protected boolean reversed;
+	protected boolean isOnRoute = false;
+	protected boolean isCurrentlyManual;
+	protected int manualNotch;
 
+	public final long sidingId;
 	public final String trainId;
 	public final String baseTrainType;
 	public final TransportMode transportMode;
@@ -36,31 +47,17 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 	public final int width;
 	public final int trainCars;
 	public final float accelerationConstant;
-
-	protected float speed;
-	protected float doorValue;
-	protected boolean doorTarget;
-	protected boolean reversed;
-	protected boolean isOnRoute = false;
-
-	protected final List<PathData> path;
-	protected final List<Double> distances;
-	protected final int repeatIndex1;
-	protected final int repeatIndex2;
-	protected int nextStoppingIndex;
-	protected double railProgress;
-
 	public final boolean isManualAllowed;
 	public final int maxManualSpeed;
 	public final int manualToAutomaticTime;
-	protected boolean isCurrentlyManual;
-	protected int manualNotch;
+	public final List<PathData> path;
 
-	protected int totalDwellTicks;
-	protected float elapsedDwellTicks;
-
+	protected final List<Double> distances;
+	protected final int repeatIndex1;
+	protected final int repeatIndex2;
 	protected final Set<UUID> ridingEntities = new HashSet<>();
 	protected final SimpleContainer inventory;
+
 	private final float railLength;
 
 	public static final float ACCELERATION_DEFAULT = 0.01F; // m/tick^2
@@ -72,7 +69,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 
 	private static final String KEY_SPEED = "speed";
 	private static final String KEY_RAIL_PROGRESS = "rail_progress";
-	private static final String KEY_STOP_COUNTER = "stop_counter";
+	private static final String KEY_ELAPSED_DWELL_TICKS = "stop_counter";
 	private static final String KEY_NEXT_STOPPING_INDEX = "next_stopping_index";
 	private static final String KEY_REVERSED = "reversed";
 	private static final String KEY_IS_CURRENTLY_MANUAL = "is_currently_manual";
@@ -130,7 +127,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 
 		speed = messagePackHelper.getFloat(KEY_SPEED);
 		railProgress = messagePackHelper.getDouble(KEY_RAIL_PROGRESS);
-		elapsedDwellTicks = messagePackHelper.getFloat(KEY_STOP_COUNTER);
+		elapsedDwellTicks = messagePackHelper.getFloat(KEY_ELAPSED_DWELL_TICKS);
 		nextStoppingIndex = messagePackHelper.getInt(KEY_NEXT_STOPPING_INDEX);
 		reversed = messagePackHelper.getBoolean(KEY_REVERSED);
 
@@ -187,7 +184,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 
 		speed = compoundTag.getFloat(KEY_SPEED);
 		railProgress = compoundTag.getDouble(KEY_RAIL_PROGRESS);
-		elapsedDwellTicks = compoundTag.getFloat(KEY_STOP_COUNTER);
+		elapsedDwellTicks = compoundTag.getFloat(KEY_ELAPSED_DWELL_TICKS);
 		nextStoppingIndex = compoundTag.getInt(KEY_NEXT_STOPPING_INDEX);
 		reversed = compoundTag.getBoolean(KEY_REVERSED);
 
@@ -258,7 +255,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 
 		messagePacker.packString(KEY_SPEED).packFloat(speed);
 		messagePacker.packString(KEY_RAIL_PROGRESS).packDouble(railProgress);
-		messagePacker.packString(KEY_STOP_COUNTER).packFloat(elapsedDwellTicks);
+		messagePacker.packString(KEY_ELAPSED_DWELL_TICKS).packFloat(elapsedDwellTicks);
 		messagePacker.packString(KEY_NEXT_STOPPING_INDEX).packLong(nextStoppingIndex);
 		messagePacker.packString(KEY_REVERSED).packBoolean(reversed);
 		messagePacker.packString(KEY_TRAIN_CUSTOM_ID).packString(trainId);
@@ -374,6 +371,60 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 			doorTarget = false;
 			return false;
 		}
+	}
+
+	public final int getIndex(int car, int trainSpacing, boolean roundDown) {
+		return getIndex(getRailProgress(car, trainSpacing), roundDown);
+	}
+
+	public final int getIndex(double tempRailProgress, boolean roundDown) {
+		for (int i = 0; i < path.size(); i++) {
+			final double tempDistance = distances.get(i);
+			if (tempRailProgress < tempDistance || roundDown && tempRailProgress == tempDistance) {
+				return i;
+			}
+		}
+		return path.size() - 1;
+	}
+
+	public final float getRailSpeed(int railIndex) {
+		final RailType thisRail = path.get(railIndex).rail.railType;
+		final float railSpeed;
+		if (thisRail.canAccelerate) {
+			railSpeed = thisRail.maxBlocksPerTick;
+		} else {
+			final RailType lastRail = railIndex > 0 ? path.get(railIndex - 1).rail.railType : thisRail;
+			railSpeed = Math.max(lastRail.canAccelerate ? lastRail.maxBlocksPerTick : RailType.getDefaultMaxBlocksPerTick(transportMode), speed);
+		}
+		return railSpeed;
+	}
+
+	public final boolean isPlayerRiding(Player player) {
+		return ridingEntities.contains(player.getUUID());
+	}
+
+	public final float getSpeed() {
+		return speed;
+	}
+
+	public final float getDoorValue() {
+		return doorValue;
+	}
+
+	public final int getTotalDwellTicks() {
+		return totalDwellTicks;
+	}
+
+	public final float getElapsedDwellTicks() {
+		return elapsedDwellTicks;
+	}
+
+	public final boolean isReversed() {
+		return reversed;
+	}
+
+	public final boolean isOnRoute() {
+		return isOnRoute;
 	}
 
 	protected final void simulateTrain(Level world, float ticksElapsed, Depot depot) {
@@ -548,32 +599,6 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		}
 	}
 
-	public final int getIndex(int car, int trainSpacing, boolean roundDown) {
-		return getIndex(getRailProgress(car, trainSpacing), roundDown);
-	}
-
-	public final int getIndex(double tempRailProgress, boolean roundDown) {
-		for (int i = 0; i < path.size(); i++) {
-			final double tempDistance = distances.get(i);
-			if (tempRailProgress < tempDistance || roundDown && tempRailProgress == tempDistance) {
-				return i;
-			}
-		}
-		return path.size() - 1;
-	}
-
-	public final float getRailSpeed(int railIndex) {
-		final RailType thisRail = path.get(railIndex).rail.railType;
-		final float railSpeed;
-		if (thisRail.canAccelerate) {
-			railSpeed = thisRail.maxBlocksPerTick;
-		} else {
-			final RailType lastRail = railIndex > 0 ? path.get(railIndex - 1).rail.railType : thisRail;
-			railSpeed = Math.max(lastRail.canAccelerate ? lastRail.maxBlocksPerTick : RailType.getDefaultMaxBlocksPerTick(transportMode), speed);
-		}
-		return railSpeed;
-	}
-
 	protected void startUp(Level world, int trainCars, int trainSpacing, boolean isOppositeRail) {
 		doorTarget = false;
 		doorValue = 0;
@@ -656,10 +681,6 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		return player != null && !Keys.LIFTS_ONLY && player.isHolding(Items.DRIVER_KEY.get());
 	}
 
-	public boolean isPlayerRiding(Player player) {
-		return ridingEntities.contains(player.getUUID());
-	}
-
 	public static double getAverage(double a, double b) {
 		return (a + b) / 2;
 	}
@@ -670,34 +691,6 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		} else {
 			return null;
 		}
-	}
-
-	public float getSpeed() {
-		return speed;
-	}
-
-	public float getDoorValue() {
-		return doorValue;
-	}
-
-	public boolean isReversed() {
-		return reversed;
-	}
-
-	public boolean isOnRoute() {
-		return isOnRoute;
-	}
-
-	public int getTotalDwellTicks() {
-		return totalDwellTicks;
-	}
-
-	public float getElapsedDwellTicks() {
-		return elapsedDwellTicks;
-	}
-
-	public List<PathData> getPath() {
-		return path;
 	}
 
 	@FunctionalInterface

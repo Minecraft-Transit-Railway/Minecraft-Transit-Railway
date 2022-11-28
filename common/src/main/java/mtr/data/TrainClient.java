@@ -5,7 +5,6 @@ import mtr.client.ClientData;
 import mtr.client.Config;
 import mtr.client.TrainClientRegistry;
 import mtr.client.TrainProperties;
-import mtr.path.PathData;
 import mtr.render.RenderDrivingOverlay;
 import mtr.render.TrainRendererBase;
 import mtr.sound.TrainSoundBase;
@@ -80,8 +79,6 @@ public class TrainClient extends Train implements IGui {
 		final double newZ = carZ - offset.z;
 
 		doorOpening = doorValue > oldDoorValue;
-		final PathData pathData = path.get(getIndex(0, spacing, true));
-		final int stopIndex = pathData.stopIndex - 1;
 		trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, doorLeftOpen, doorRightOpen);
 		trainTranslucentRenders.add(() -> trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, doorLeftOpen, doorRightOpen));
 
@@ -310,6 +307,14 @@ public class TrainClient extends Train implements IGui {
 		return oldDoorValue >= doorCloseTime && doorValue < doorCloseTime;
 	}
 
+	public final boolean isDoorOpening() {
+		return doorOpening;
+	}
+
+	public final List<Long> getRouteIds() {
+		return routeIds;
+	}
+
 	private int getPreviousStoppingIndex(int headIndex) {
 		for (int i = headIndex; i >= 0; i--) {
 			if (path.get(i).dwellTime > 0 && path.get(i).rail.railType == RailType.PLATFORM) {
@@ -317,14 +322,6 @@ public class TrainClient extends Train implements IGui {
 			}
 		}
 		return 0;
-	}
-
-	public boolean isDoorOpening() {
-		return doorOpening;
-	}
-
-	public List<Long> getRouteIds() {
-		return routeIds;
 	}
 
 	@FunctionalInterface

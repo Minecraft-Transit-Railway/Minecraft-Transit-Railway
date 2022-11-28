@@ -28,9 +28,7 @@ import java.util.function.Function;
 public class CustomResources implements IResourcePackCreatorProperties, ICustomResources {
 
 	public static final Map<String, CustomSign> CUSTOM_SIGNS = new HashMap<>();
-
-	public static final List<Runnable> RELOAD_LISTENERS = new ArrayList<>();
-
+	private static final List<Runnable> RELOAD_LISTENERS = new ArrayList<>();
 
 	public static void reload(ResourceManager manager) {
 		TrainClientRegistry.reset();

@@ -70,9 +70,9 @@ public class ConfigFile {
 		SoundEvent shoe = null;
 
 		int motorNoiseDataType = 5; // 4 or 5
-		float motorVolumeMultiply = 1.0F;
-		float breakerDelay = 0F;
-		float regenerationLimit = 0F; // m/s
+		float motorVolumeMultiply = 1;
+		float breakerDelay = 0;
+		float regenerationLimit = 0; // m/s
 		float motorOutputAtCoast = 0.4F;
 		float doorCloseSoundLength = 1;
 

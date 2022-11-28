@@ -229,12 +229,6 @@ public class DashboardList implements IGui {
 		textFieldSearch.setValue("");
 	}
 
-	private void setPage(int newPage) {
-		page = Mth.clamp(newPage, 0, totalPages - 1);
-		buttonPrevPage.visible = page > 0;
-		buttonNextPage.visible = page < totalPages - 1;
-	}
-
 	public int getHoverItemIndex() {
 		final List<Integer> sortedKeys = new ArrayList<>(dataFiltered.keySet());
 		Collections.sort(sortedKeys);
@@ -244,6 +238,12 @@ public class DashboardList implements IGui {
 		} else {
 			return -1;
 		}
+	}
+
+	private void setPage(int newPage) {
+		page = Mth.clamp(newPage, 0, totalPages - 1);
+		buttonPrevPage.visible = page > 0;
+		buttonNextPage.visible = page < totalPages - 1;
 	}
 
 	private void onClick(BiConsumer<NameColorDataBase, Integer> onClick) {
