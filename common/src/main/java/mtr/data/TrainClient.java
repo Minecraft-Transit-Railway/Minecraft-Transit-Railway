@@ -40,9 +40,9 @@ public class TrainClient extends Train implements IGui {
 
 	public final TrainRendererBase trainRenderer;
 	public final TrainSoundBase trainSound;
+	public final VehicleRidingClient vehicleRidingClient = new VehicleRidingClient(ridingEntities, PACKET_UPDATE_TRAIN_PASSENGER_POSITION);
 
 	private final Set<Runnable> trainTranslucentRenders = new HashSet<>();
-	private final VehicleRidingClient vehicleRidingClient = new VehicleRidingClient(ridingEntities, PACKET_UPDATE_TRAIN_PASSENGER_POSITION);
 
 	private static final float CONNECTION_HEIGHT = 2.25F;
 	private static final float CONNECTION_Z_OFFSET = 0.5F;

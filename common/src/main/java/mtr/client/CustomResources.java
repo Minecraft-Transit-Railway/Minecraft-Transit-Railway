@@ -28,7 +28,7 @@ import java.util.function.Function;
 public class CustomResources implements IResourcePackCreatorProperties, ICustomResources {
 
 	public static final Map<String, CustomSign> CUSTOM_SIGNS = new HashMap<>();
-	private static final List<Runnable> RELOAD_LISTENERS = new ArrayList<>();
+	private static final List<Consumer<ResourceManager>> RELOAD_LISTENERS = new ArrayList<>();
 
 	public static void reload(ResourceManager manager) {
 		TrainClientRegistry.reset();
@@ -134,7 +134,7 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 			}
 		});
 
-		RELOAD_LISTENERS.forEach(Runnable::run);
+		RELOAD_LISTENERS.forEach(resourceManagerConsumer -> resourceManagerConsumer.accept(manager));
 
 		System.out.println("Loaded " + customTrains.size() + " custom train(s)");
 		customTrains.forEach(System.out::println);
@@ -176,7 +176,7 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 		}
 	}
 
-	public static void registerReloadListener(Runnable listener) {
+	public static void registerReloadListener(Consumer<ResourceManager> listener) {
 		RELOAD_LISTENERS.add(listener);
 	}
 
