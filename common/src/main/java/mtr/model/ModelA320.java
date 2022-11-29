@@ -238,7 +238,29 @@ public class ModelA320 extends ModelSimpleTrainBase<ModelA320> {
 	private final ModelMapper right_top_wall_r3;
 	private final ModelMapper right_upper_wall_r2;
 	private final ModelMapper right_lower_wall_r2;
+	private final ModelMapper door_left_exterior;
+	private final ModelMapper right_wall_front_r2;
+	private final ModelMapper right_top_wall_front_r1;
+	private final ModelMapper right_top_wall_r4;
+	private final ModelMapper top_back_r2;
+	private final ModelMapper door_left_interior;
+	private final ModelMapper right_wall_front_r3;
+	private final ModelMapper right_top_wall_front_r2;
+	private final ModelMapper right_top_wall_r5;
+	private final ModelMapper top_back_r3;
+	private final ModelMapper door_right_exterior;
+	private final ModelMapper right_wall_front_r4;
+	private final ModelMapper right_top_wall_front_r3;
+	private final ModelMapper right_top_wall_r6;
+	private final ModelMapper top_back_r4;
+	private final ModelMapper door_right_interior;
+	private final ModelMapper right_wall_front_r5;
+	private final ModelMapper right_top_wall_front_r4;
+	private final ModelMapper right_top_wall_r7;
+	private final ModelMapper top_back_r5;
 	private final ModelMapper head_interior;
+	private final ModelMapper right_door_top_r1;
+	private final ModelMapper left_door_top_r1;
 	private final ModelMapper roof_front_r1;
 	private final ModelMapper right_roof_side_r1;
 	private final ModelMapper left_roof_side_r1;
@@ -257,7 +279,7 @@ public class ModelA320 extends ModelSimpleTrainBase<ModelA320> {
 	private final ModelMapper left_luggage_rack_bottom_front_r1;
 	private final ModelMapper right_light_r1;
 	private final ModelMapper left_light_r1;
-	private final ModelMapper right_top_wall_r4;
+	private final ModelMapper right_top_wall_r8;
 	private final ModelMapper left_top_wall_r2;
 	private final ModelMapper right_roof_side_r2;
 	private final ModelMapper left_roof_side_r2;
@@ -277,7 +299,7 @@ public class ModelA320 extends ModelSimpleTrainBase<ModelA320> {
 	private final ModelMapper right_lower_wall_r5;
 
 	public ModelA320() {
-		this(DoorAnimationType.PLUG_FAST, true);
+		this(DoorAnimationType.PLUG_SLOW, true);
 	}
 
 	protected ModelA320(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
@@ -1680,6 +1702,118 @@ public class ModelA320 extends ModelSimpleTrainBase<ModelA320> {
 		setRotationAngle(right_lower_wall_r2, 0, 0, -0.2967F);
 		right_lower_wall_r2.texOffs(350, 153).addBox(0, 0, -4, 0, 7, 8, 0, false);
 
+		door_left_exterior = new ModelMapper(modelDataWrapper);
+		door_left_exterior.setPos(0, 24, 0);
+		door_left_exterior.texOffs(41, 796).addBox(32, -10, -225, 0, 18, 12, 0, false);
+
+		right_wall_front_r2 = new ModelMapper(modelDataWrapper);
+		right_wall_front_r2.setPos(32, 0, -225);
+		door_left_exterior.addChild(right_wall_front_r2);
+		setRotationAngle(right_wall_front_r2, 0, 0.1745F, 0);
+		right_wall_front_r2.texOffs(0, 859).addBox(0, -10, -4, 0, 18, 4, 0, false);
+
+		right_top_wall_front_r1 = new ModelMapper(modelDataWrapper);
+		right_top_wall_front_r1.setPos(32, -10, -225);
+		door_left_exterior.addChild(right_top_wall_front_r1);
+		setRotationAngle(right_top_wall_front_r1, 0, 0.1745F, -0.5236F);
+		right_top_wall_front_r1.texOffs(0, 836).addBox(0, -13, -4, 0, 13, 4, 0, false);
+
+		right_top_wall_r4 = new ModelMapper(modelDataWrapper);
+		right_top_wall_r4.setPos(32, -10, 0);
+		door_left_exterior.addChild(right_top_wall_r4);
+		setRotationAngle(right_top_wall_r4, 0, 0, -0.5236F);
+		right_top_wall_r4.texOffs(0, 812).addBox(0, -13, -225, 0, 13, 12, 0, false);
+
+		top_back_r2 = new ModelMapper(modelDataWrapper);
+		top_back_r2.setPos(9, -33, -191);
+		door_left_exterior.addChild(top_back_r2);
+		setRotationAngle(top_back_r2, 0.0873F, 0, 0.5236F);
+		top_back_r2.texOffs(-16, 808).addBox(13, 0, -38, 9, 0, 16, 0, false);
+
+		door_left_interior = new ModelMapper(modelDataWrapper);
+		door_left_interior.setPos(0, 24, 0);
+		door_left_interior.texOffs(94, 907).addBox(29, -10, -225, 3, 18, 12, 0, false);
+
+		right_wall_front_r3 = new ModelMapper(modelDataWrapper);
+		right_wall_front_r3.setPos(32, 0, -225);
+		door_left_interior.addChild(right_wall_front_r3);
+		setRotationAngle(right_wall_front_r3, 0, 0.1745F, 0);
+		right_wall_front_r3.texOffs(0, 910).addBox(-3, -10, -4, 3, 18, 4, 0, false);
+
+		right_top_wall_front_r2 = new ModelMapper(modelDataWrapper);
+		right_top_wall_front_r2.setPos(32, -10, -225);
+		door_left_interior.addChild(right_top_wall_front_r2);
+		setRotationAngle(right_top_wall_front_r2, 0, 0.1745F, -0.5236F);
+		right_top_wall_front_r2.texOffs(14, 915).addBox(-3, -13, -4, 3, 13, 4, 0, false);
+
+		right_top_wall_r5 = new ModelMapper(modelDataWrapper);
+		right_top_wall_r5.setPos(32, -10, 0);
+		door_left_interior.addChild(right_top_wall_r5);
+		setRotationAngle(right_top_wall_r5, 0, 0, -0.5236F);
+		right_top_wall_r5.texOffs(16, 923).addBox(-3, -13, -225, 3, 13, 12, 0, false);
+
+		top_back_r3 = new ModelMapper(modelDataWrapper);
+		top_back_r3.setPos(9, -33, -191);
+		door_left_interior.addChild(top_back_r3);
+		setRotationAngle(top_back_r3, 0.0873F, 0, 0.5236F);
+		top_back_r3.texOffs(42, 907).addBox(13, 0, -38, 9, 3, 16, 0, false);
+
+		door_right_exterior = new ModelMapper(modelDataWrapper);
+		door_right_exterior.setPos(0, 24, 0);
+		door_right_exterior.texOffs(136, 794).addBox(-32, -10, -225, 0, 18, 12, 0, false);
+
+		right_wall_front_r4 = new ModelMapper(modelDataWrapper);
+		right_wall_front_r4.setPos(-32, 0, -225);
+		door_right_exterior.addChild(right_wall_front_r4);
+		setRotationAngle(right_wall_front_r4, 0, -0.1745F, 0);
+		right_wall_front_r4.texOffs(8, 859).addBox(0, -10, -4, 0, 18, 4, 0, false);
+
+		right_top_wall_front_r3 = new ModelMapper(modelDataWrapper);
+		right_top_wall_front_r3.setPos(-32, -10, -225);
+		door_right_exterior.addChild(right_top_wall_front_r3);
+		setRotationAngle(right_top_wall_front_r3, 0, -0.1745F, 0.5236F);
+		right_top_wall_front_r3.texOffs(8, 836).addBox(0, -13, -4, 0, 13, 4, 0, false);
+
+		right_top_wall_r6 = new ModelMapper(modelDataWrapper);
+		right_top_wall_r6.setPos(-32, -10, 0);
+		door_right_exterior.addChild(right_top_wall_r6);
+		setRotationAngle(right_top_wall_r6, 0, 0, 0.5236F);
+		right_top_wall_r6.texOffs(26, 857).addBox(0, -13, -225, 0, 13, 12, 0, false);
+
+		top_back_r4 = new ModelMapper(modelDataWrapper);
+		top_back_r4.setPos(-9, -33, -191);
+		door_right_exterior.addChild(top_back_r4);
+		setRotationAngle(top_back_r4, 0.0873F, 0, -0.5236F);
+		top_back_r4.texOffs(82, 808).addBox(-22, 0, -38, 9, 0, 16, 0, false);
+
+		door_right_interior = new ModelMapper(modelDataWrapper);
+		door_right_interior.setPos(0, 24, 0);
+		door_right_interior.texOffs(28, 893).addBox(-32, -10, -225, 3, 18, 12, 0, false);
+
+		right_wall_front_r5 = new ModelMapper(modelDataWrapper);
+		right_wall_front_r5.setPos(-32, 0, -225);
+		door_right_interior.addChild(right_wall_front_r5);
+		setRotationAngle(right_wall_front_r5, 0, -0.1745F, 0);
+		right_wall_front_r5.texOffs(14, 893).addBox(0, -10, -4, 3, 18, 4, 0, false);
+
+		right_top_wall_front_r4 = new ModelMapper(modelDataWrapper);
+		right_top_wall_front_r4.setPos(-32, -10, -225);
+		door_right_interior.addChild(right_top_wall_front_r4);
+		setRotationAngle(right_top_wall_front_r4, 0, -0.1745F, 0.5236F);
+		right_top_wall_front_r4.texOffs(0, 893).addBox(0, -13, -4, 3, 13, 4, 0, false);
+
+		right_top_wall_r7 = new ModelMapper(modelDataWrapper);
+		right_top_wall_r7.setPos(-32, -10, 0);
+		door_right_interior.addChild(right_top_wall_r7);
+		setRotationAngle(right_top_wall_r7, 0, 0, 0.5236F);
+		right_top_wall_r7.texOffs(76, 894).addBox(0, -13, -225, 3, 13, 12, 0, false);
+
+		top_back_r5 = new ModelMapper(modelDataWrapper);
+		top_back_r5.setPos(-9, -33, -191);
+		door_right_interior.addChild(top_back_r5);
+		setRotationAngle(top_back_r5, 0.0873F, 0, -0.5236F);
+		top_back_r5.texOffs(46, 875).addBox(-22, 0, -38, 9, 3, 16, 0, false);
+
 		head_interior = new ModelMapper(modelDataWrapper);
 		head_interior.setPos(0, 24, 0);
 		head_interior.texOffs(673, 192).addBox(-32, 8, -230, 64, 1, 32, 0, false);
@@ -1687,6 +1821,22 @@ public class ModelA320 extends ModelSimpleTrainBase<ModelA320> {
 		head_interior.texOffs(424, 777).addBox(8, -26, -206, 22, 34, 8, 0, false);
 		head_interior.texOffs(313, 556).addBox(-30, -26, -206, 22, 34, 8, 0, false);
 		head_interior.texOffs(92, 139).addBox(-8, -26, -206, 16, 0, 8, 0, false);
+		head_interior.texOffs(124, 897).addBox(17, -24, -229, 15, 32, 0, 0, false);
+		head_interior.texOffs(124, 897).addBox(-32, -24, -229, 15, 32, 0, 0, true);
+		head_interior.texOffs(154, 900).addBox(18, -25, -213, 14, 33, 0, 0, false);
+		head_interior.texOffs(154, 900).addBox(-32, -25, -213, 14, 33, 0, 0, true);
+
+		right_door_top_r1 = new ModelMapper(modelDataWrapper);
+		right_door_top_r1.setPos(-9, -33, -191);
+		head_interior.addChild(right_door_top_r1);
+		setRotationAngle(right_door_top_r1, 0.0873F, 0, -0.5236F);
+		right_door_top_r1.texOffs(46, 879).addBox(-13, 0, -39, 0, 2, 17, 0, true);
+
+		left_door_top_r1 = new ModelMapper(modelDataWrapper);
+		left_door_top_r1.setPos(9, -33, -191);
+		head_interior.addChild(left_door_top_r1);
+		setRotationAngle(left_door_top_r1, 0.0873F, 0, 0.5236F);
+		left_door_top_r1.texOffs(46, 877).addBox(13, 0, -39, 0, 2, 17, 0, false);
 
 		roof_front_r1 = new ModelMapper(modelDataWrapper);
 		roof_front_r1.setPos(0, -26, -206);
@@ -1800,11 +1950,11 @@ public class ModelA320 extends ModelSimpleTrainBase<ModelA320> {
 		setRotationAngle(left_light_r1, 0, 0, -0.5236F);
 		left_light_r1.texOffs(20, 0).addBox(0, 0, 106, 2, 0, 40, 0, false);
 
-		right_top_wall_r4 = new ModelMapper(modelDataWrapper);
-		right_top_wall_r4.setPos(-22, -18, 0);
-		end_interior.addChild(right_top_wall_r4);
-		setRotationAngle(right_top_wall_r4, 0, 0, -0.384F);
-		right_top_wall_r4.texOffs(105, 58).addBox(-5, 0, 106, 5, 0, 28, 0, false);
+		right_top_wall_r8 = new ModelMapper(modelDataWrapper);
+		right_top_wall_r8.setPos(-22, -18, 0);
+		end_interior.addChild(right_top_wall_r8);
+		setRotationAngle(right_top_wall_r8, 0, 0, -0.384F);
+		right_top_wall_r8.texOffs(105, 58).addBox(-5, 0, 106, 5, 0, 28, 0, false);
 
 		left_top_wall_r2 = new ModelMapper(modelDataWrapper);
 		left_top_wall_r2.setPos(22, -18, 0);
@@ -1917,7 +2067,7 @@ public class ModelA320 extends ModelSimpleTrainBase<ModelA320> {
 		right_lower_wall_r5.texOffs(80, 283).addBox(0, 0, -12, 0, 7, 24, 0, false);
 	}
 
-	private static final int DOOR_MAX = 14;
+	private static final int DOOR_MAX = 16;
 
 	@Override
 	public ModelA320 createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
@@ -1937,6 +2087,7 @@ public class ModelA320 extends ModelSimpleTrainBase<ModelA320> {
 			case INTERIOR:
 				renderOnce(head_interior, matrices, vertices, light, position);
 				renderOnce(end_interior, matrices, vertices, light, position);
+
 				renderMirror(window_interior_blank, matrices, vertices, light, position - 194);
 				for (int i = 0; i < 7; i++) {
 					renderMirror(window_interior, matrices, vertices, light, position + i * 16 - 182);
@@ -1945,9 +2096,14 @@ public class ModelA320 extends ModelSimpleTrainBase<ModelA320> {
 				for (int i = 0; i < 10; i++) {
 					renderMirror(window_interior, matrices, vertices, light, position + i * 16 - 46);
 				}
+
+				renderOnce(door_left_interior, matrices, vertices, light, -doorLeftX * 6, position + doorLeftZ);
+				renderOnce(door_right_interior, matrices, vertices, light, doorRightX * 6, position + doorRightZ);
 				break;
 			case EXTERIOR:
 				renderOnce(exterior, matrices, vertices, light, position);
+				renderOnce(door_left_exterior, matrices, vertices, light, -doorLeftX * 6, position + doorLeftZ);
+				renderOnce(door_right_exterior, matrices, vertices, light, doorRightX * 6, position + doorRightZ);
 				break;
 		}
 	}
