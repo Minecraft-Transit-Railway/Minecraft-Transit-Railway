@@ -22,22 +22,28 @@ public class TrainClientRegistry {
 	private static final Map<String, TrainProperties> REGISTRY = new HashMap<>();
 	private static final Map<TransportMode, List<String>> KEY_ORDERS = new HashMap<>();
 
-	public static void register(String key, String baseTrainType, String name, int color, float riderOffset, float riderOffsetDismounting, float bogiePosition, boolean isJacobsBogie, boolean hasGangwayConnection, TrainRendererBase renderer, TrainSoundBase sound) {
+	public static void register(String key, TrainProperties properties) {
 		final String keyLower = key.toLowerCase(Locale.ENGLISH);
-		final TransportMode transportMode = TrainType.getTransportMode(baseTrainType);
+		final TransportMode transportMode = TrainType.getTransportMode(properties.baseTrainType);
 		if (!KEY_ORDERS.containsKey(transportMode)) {
 			KEY_ORDERS.put(transportMode, new ArrayList<>());
 		}
 		if (!KEY_ORDERS.get(transportMode).contains(keyLower)) {
 			KEY_ORDERS.get(transportMode).add(keyLower);
 		}
-		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, Text.translatable(name == null ? "train.mtr." + keyLower : name), color, riderOffset, riderOffsetDismounting, bogiePosition, isJacobsBogie, hasGangwayConnection, renderer, sound));
+		REGISTRY.put(keyLower, properties);
 	}
 
 	public static void register(String key, String baseTrainType, ModelTrainBase model, String textureId, String name, int color, String gangwayConnectionId, String trainBarrierId, float riderOffset, float riderOffsetDismounting, float bogiePosition, boolean isJacobsBogie, String soundId, JonTrainSound.JonTrainSoundConfig legacySoundConfig) {
 		final TrainRendererBase renderer = new JonModelTrainRenderer(model, textureId, gangwayConnectionId, trainBarrierId);
 		final TrainSoundBase sound = legacySoundConfig == null ? new BveTrainSound(new BveTrainSoundConfig(Minecraft.getInstance().getResourceManager(), soundId == null ? "" : soundId)) : new JonTrainSound(soundId, legacySoundConfig);
-		register(key, baseTrainType, name, color, riderOffset, riderOffsetDismounting, bogiePosition, isJacobsBogie, !StringUtils.isEmpty(gangwayConnectionId), renderer, sound);
+		final String keyLower = key.toLowerCase(Locale.ENGLISH);
+		final String textDescriptionKey = "train.mtr." + keyLower + ".description";
+		Component textDescription = Text.translatable(textDescriptionKey);
+		if (textDescription.getString().equals(textDescriptionKey)) {
+			textDescription = Text.literal("");
+		}
+		register(key, new TrainProperties(baseTrainType, Text.translatable(name == null ? "train.mtr." + keyLower : name), textDescription, color, riderOffset, riderOffsetDismounting, bogiePosition, isJacobsBogie, !StringUtils.isEmpty(gangwayConnectionId), renderer, sound));
 	}
 
 	private static void register(TrainType defaultTrainType, ModelTrainBase model, String textureId, int color, String gangwayConnectionId, String trainBarrierId, float bogiePosition, boolean isJacobsBogie, String soundId, JonTrainSound.JonTrainSoundConfig legacySoundConfig) {
@@ -88,11 +94,11 @@ public class TrainClientRegistry {
 		register(TrainType.S_TRAIN, new ModelSTrain(), "mtr:textures/entity/s_train", 0xC1CD23, "mtr:textures/entity/s_train", "", 8.5F, false, "s_train", new JonTrainSound.JonTrainSoundConfig("sp1900", 42, 0.5F, false));
 		register(TrainType.S_TRAIN_SMALL, new ModelSTrainSmall(), "mtr:textures/entity/s_train", 0xC1CD23, "mtr:textures/entity/s_train", "", 6F, false, "s_train", new JonTrainSound.JonTrainSoundConfig("sp1900", 42, 0.5F, false));
 		register(TrainType.S_TRAIN_MINI, new ModelSTrainMini(), "mtr:textures/entity/s_train", 0xC1CD23, "mtr:textures/entity/s_train", "", 2.5F, true, "s_train", new JonTrainSound.JonTrainSoundConfig("sp1900", 42, 0.5F, false));
-		register(TrainType.A_TRAIN_TCL, new ModelATrain(false), "mtr:textures/entity/a_train_tcl", 0xF69447, "mtr:textures/entity/a_train", "", 8.5F, false, "a_train", new JonTrainSound.JonTrainSoundConfig("a_train", 78, 0.5F, false));
-		register(TrainType.A_TRAIN_TCL_SMALL, new ModelATrainSmall(false), "mtr:textures/entity/a_train_tcl", 0xF69447, "mtr:textures/entity/a_train", "", 6F, false, "a_train", new JonTrainSound.JonTrainSoundConfig("a_train", 78, 0.5F, false));
-		register(TrainType.A_TRAIN_TCL_MINI, new ModelATrainMini(false), "mtr:textures/entity/a_train_tcl", 0xF69447, "mtr:textures/entity/a_train", "", 2.5F, true, "a_train", new JonTrainSound.JonTrainSoundConfig("a_train", 78, 0.5F, false));
-		register(TrainType.A_TRAIN_AEL, new ModelATrain(true), "mtr:textures/entity/a_train_ael", 0x008D8D, "mtr:textures/entity/a_train", "", 8.5F, false, "a_train", new JonTrainSound.JonTrainSoundConfig("a_train", 78, 0.5F, false));
-		register(TrainType.A_TRAIN_AEL_MINI, new ModelATrainMini(true), "mtr:textures/entity/a_train_ael", 0x008D8D, "mtr:textures/entity/a_train", "", 5F, true, "a_train", new JonTrainSound.JonTrainSoundConfig("a_train", 78, 0.5F, false));
+		register(TrainType.A_TRAIN_TCL, new ModelATrain(false), "mtr:textures/entity/a_train_tcl", 0xF69447, "mtr:textures/entity/a_train", "", 8.5F, false, "a_train", null);
+		register(TrainType.A_TRAIN_TCL_SMALL, new ModelATrainSmall(false), "mtr:textures/entity/a_train_tcl", 0xF69447, "mtr:textures/entity/a_train", "", 6F, false, "a_train", null);
+		register(TrainType.A_TRAIN_TCL_MINI, new ModelATrainMini(false), "mtr:textures/entity/a_train_tcl", 0xF69447, "mtr:textures/entity/a_train", "", 2.5F, true, "a_train", null);
+		register(TrainType.A_TRAIN_AEL, new ModelATrain(true), "mtr:textures/entity/a_train_ael", 0x008D8D, "mtr:textures/entity/a_train", "", 8.5F, false, "a_train", null);
+		register(TrainType.A_TRAIN_AEL_MINI, new ModelATrainMini(true), "mtr:textures/entity/a_train_ael", 0x008D8D, "mtr:textures/entity/a_train", "", 5F, true, "a_train", null);
 		register(TrainType.LIGHT_RAIL_1, new ModelLightRail(1, false), "mtr:textures/entity/light_rail_1", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
 		register(TrainType.LIGHT_RAIL_1_RHT, new ModelLightRail(1, true), "mtr:textures/entity/light_rail_1", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
 		register(TrainType.LIGHT_RAIL_1R, new ModelLightRail(6, false), "mtr:textures/entity/light_rail_1r", 0xD2A825, "", "", 6.25F, false, "light_rail_aeg", new JonTrainSound.JonTrainSoundConfig("light_rail_1", 48, 1, false));
@@ -133,12 +139,12 @@ public class TrainClientRegistry {
 		register(TrainType.R211_MINI, new ModelR211Mini(false), "mtr:textures/entity/r211", 0xD5D5D5, "", "mtr:textures/entity/r179", 2.5F, true, "s_train", new JonTrainSound.JonTrainSoundConfig("r179", 42, 1, false));
 		register(TrainType.R211T, new ModelR211(true), "mtr:textures/entity/r211", 0xD5D5D5, "mtr:textures/entity/r211", "mtr:textures/entity/r179", 7.5F, false, "s_train", new JonTrainSound.JonTrainSoundConfig("r179", 42, 1, false));
 		register(TrainType.R211T_MINI, new ModelR211Mini(true), "mtr:textures/entity/r211", 0xD5D5D5, "mtr:textures/entity/r211", "mtr:textures/entity/r179", 2.5F, true, "s_train", new JonTrainSound.JonTrainSoundConfig("r179", 42, 1, false));
-		register(TrainType.CLASS_377_SOUTHERN, new ModelClass377(), "mtr:textures/entity/class_377_southern", 0x5AB565, "mtr:textures/entity/sp1900", "", 6, false, "class_802", new JonTrainSound.JonTrainSoundConfig("class_802", 120, 1, false));
+		register(TrainType.CLASS_377_SOUTHERN, new ModelClass377(), "mtr:textures/entity/class_377_southern", 0x5AB565, "mtr:textures/entity/sp1900", "", 6, false, "class_377", new JonTrainSound.JonTrainSoundConfig("class_377", 51, 1, false));
 		register(TrainType.CLASS_802_GWR, new ModelClass802(), "mtr:textures/entity/class_802_gwr", 0x021E15, "mtr:textures/entity/sp1900", "", 7.75F, false, "class_802", new JonTrainSound.JonTrainSoundConfig("class_802", 120, 1, false));
 		register(TrainType.CLASS_802_GWR_MINI, new ModelClass802Mini(), "mtr:textures/entity/class_802_gwr", 0x021E15, "mtr:textures/entity/sp1900", "", 4.94F, false, "class_802", new JonTrainSound.JonTrainSoundConfig("class_802", 120, 1, false));
 		register(TrainType.CLASS_802_TPE, new ModelClass802(), "mtr:textures/entity/class_802_tpe", 0x00A6E6, "mtr:textures/entity/sp1900", "", 7.75F, false, "class_802", new JonTrainSound.JonTrainSoundConfig("class_802", 120, 1, false));
 		register(TrainType.CLASS_802_TPE_MINI, new ModelClass802Mini(), "mtr:textures/entity/class_802_tpe", 0x00A6E6, "mtr:textures/entity/sp1900", "", 4.94F, false, "class_802", new JonTrainSound.JonTrainSoundConfig("class_802", 120, 1, false));
-		register(TrainType.MPL_85, new ModelMPL85(), "mtr:textures/entity/mpl_85", 0xEF7011, "", "", 6.75F, false, "m_train", new JonTrainSound.JonTrainSoundConfig("a_train", 90, 0.5F, false));
+		register(TrainType.MPL_85, new ModelMPL85(), "mtr:textures/entity/mpl_85", 0xEF7011, "", "", 6.75F, false, "mpl_85", new JonTrainSound.JonTrainSoundConfig("mpl_85", 48, 1, false));
 		register(TrainType.MINECART, null, "textures/entity/minecart", 0x666666, -0.5F, 0);
 		register(TrainType.OAK_BOAT, null, "textures/entity/boat/oak", 0x8F7748, -1.5F, 0);
 		register(TrainType.SPRUCE_BOAT, null, "textures/entity/boat/spruce", 0x8F7748, -1.5F, 0);
@@ -160,11 +166,11 @@ public class TrainClientRegistry {
 
 	public static TrainProperties getTrainProperties(String key) {
 		final String keyLower = key.toLowerCase(Locale.ENGLISH);
-		return REGISTRY.getOrDefault(keyLower, getBlankProperties());
+		return REGISTRY.getOrDefault(keyLower, TrainProperties.getBlankProperties());
 	}
 
 	public static TrainProperties getTrainProperties(TransportMode transportMode, int index) {
-		return index >= 0 && index < KEY_ORDERS.get(transportMode).size() ? REGISTRY.get(KEY_ORDERS.get(transportMode).get(index)) : getBlankProperties();
+		return index >= 0 && index < KEY_ORDERS.get(transportMode).size() ? REGISTRY.get(KEY_ORDERS.get(transportMode).get(index)) : TrainProperties.getBlankProperties();
 	}
 
 	public static String getTrainId(TransportMode transportMode, int index) {
@@ -173,40 +179,5 @@ public class TrainClientRegistry {
 
 	public static void forEach(TransportMode transportMode, BiConsumer<String, TrainProperties> biConsumer) {
 		KEY_ORDERS.get(transportMode).forEach(key -> biConsumer.accept(key, REGISTRY.get(key)));
-	}
-
-	private static TrainProperties getBlankProperties() {
-		return new TrainProperties(
-				"", Text.translatable(""), 0, 0, 0, 0, false, false,
-				new JonModelTrainRenderer(null, "", "", ""),
-				new JonTrainSound("", new JonTrainSound.JonTrainSoundConfig(null, 0, 0.5F, false))
-		);
-	}
-
-	public static class TrainProperties {
-
-		public final String baseTrainType;
-		public final Component name;
-		public final int color;
-		public final float riderOffset;
-		public final float riderOffsetDismounting;
-		public final float bogiePosition;
-		public final boolean isJacobsBogie;
-		public final boolean hasGangwayConnection;
-		public final TrainRendererBase renderer;
-		public final TrainSoundBase sound;
-
-		private TrainProperties(String baseTrainType, Component name, int color, float riderOffset, float riderOffsetDismounting, float bogiePosition, boolean isJacobsBogie, boolean hasGangwayConnection, TrainRendererBase renderer, TrainSoundBase sound) {
-			this.baseTrainType = baseTrainType;
-			this.name = name;
-			this.color = color;
-			this.riderOffset = riderOffset;
-			this.riderOffsetDismounting = riderOffsetDismounting;
-			this.bogiePosition = bogiePosition;
-			this.isJacobsBogie = isJacobsBogie;
-			this.hasGangwayConnection = hasGangwayConnection;
-			this.renderer = renderer;
-			this.sound = sound;
-		}
 	}
 }

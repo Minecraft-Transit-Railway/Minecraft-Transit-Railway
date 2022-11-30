@@ -8,6 +8,7 @@ import com.mojang.text2speech.Narrator;
 import mtr.MTR;
 import mtr.data.IGui;
 import mtr.mappings.Text;
+import mtr.screen.WidgetBetterTextField;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -177,7 +178,7 @@ public interface IDrawing {
 	static void setPositionAndWidth(AbstractWidget widget, int x, int y, int widgetWidth) {
 		widget.x = x;
 		widget.y = y;
-		widget.setWidth(Mth.clamp(widgetWidth, 0, 380));
+		widget.setWidth(Mth.clamp(widgetWidth, 0, 380 - (widget instanceof WidgetBetterTextField ? IGui.TEXT_FIELD_PADDING : 0)));
 	}
 
 	static void narrateOrAnnounce(String message) {

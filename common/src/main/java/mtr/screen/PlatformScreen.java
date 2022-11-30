@@ -27,7 +27,7 @@ public class PlatformScreen extends SavedRailScreenBase<Platform> {
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		super.render(matrices, mouseX, mouseY, delta);
 		if (showScheduleControls) {
-			font.draw(matrices, DWELL_TIME_TEXT, startX, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING + TEXT_PADDING, ARGB_WHITE);
+			font.draw(matrices, DWELL_TIME_TEXT, SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING + TEXT_PADDING, ARGB_WHITE);
 		}
 	}
 

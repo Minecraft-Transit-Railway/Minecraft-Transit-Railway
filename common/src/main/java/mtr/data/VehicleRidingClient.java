@@ -233,6 +233,10 @@ public class VehicleRidingClient {
 		return percentagesZ.get(uuid);
 	}
 
+	public Vec3 getVehicleOffset() {
+		return offset.isEmpty() ? null : new Vec3(offset.get(0), offset.get(1), offset.get(2));
+	}
+
 	public Vec3 getViewOffset() {
 		return offset.isEmpty() ? null : new Vec3(offset.get(3), offset.get(4), offset.get(5));
 	}

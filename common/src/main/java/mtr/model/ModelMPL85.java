@@ -1353,49 +1353,22 @@ public class ModelMPL85 extends ModelSimpleTrainBase<ModelMPL85> {
 
 	@Override
 	protected void renderHeadPosition1(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
-		switch (renderStage) {
-			case ALWAYS_ON_LIGHTS:
-				if (doorLeftX > -1 && doorRightX > -1 && doorLeftZ > -1 && doorRightZ > -1) {
-					renderOnce(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
-				}
-				break;
-			case INTERIOR:
-				renderOnce(head, matrices, vertices, light, position);
-				if (renderDetails) {
-					renderMirror(seat_3, matrices, vertices, light, position + 12);
-				}
-				break;
-			case EXTERIOR:
-				renderOnce(head_exterior, matrices, vertices, light, position);
-				break;
-		}
+		renderEndPosition1(matrices, vertices, renderStage, light, position, renderDetails, useHeadlights, true);
 	}
 
 	@Override
 	protected void renderHeadPosition2(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
-		switch (renderStage) {
-			case ALWAYS_ON_LIGHTS:
-				if (doorLeftX > -1 && doorRightX > -1 && doorLeftZ > -1 && doorRightZ > -1) {
-					renderOnceFlipped(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
-				}
-				break;
-			case INTERIOR:
-				renderOnceFlipped(head, matrices, vertices, light, position);
-				break;
-			case EXTERIOR:
-				renderOnceFlipped(head_exterior, matrices, vertices, light, position);
-				break;
-		}
+		renderEndPosition2(matrices, vertices, renderStage, light, position, useHeadlights, true);
 	}
 
 	@Override
 	protected void renderEndPosition1(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
-		renderHeadPosition1(matrices, vertices, renderStage, light, position, renderDetails, -1, -1, -1, -1, true);
+		renderEndPosition1(matrices, vertices, renderStage, light, position, renderDetails, true, false);
 	}
 
 	@Override
 	protected void renderEndPosition2(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
-		renderHeadPosition2(matrices, vertices, renderStage, light, position, renderDetails, -1, -1, -1, -1, true);
+		renderEndPosition2(matrices, vertices, renderStage, light, position, true, false);
 	}
 
 	@Override
@@ -1426,5 +1399,40 @@ public class ModelMPL85 extends ModelSimpleTrainBase<ModelMPL85> {
 	@Override
 	protected int getDoorMax() {
 		return DOOR_MAX;
+	}
+
+	private void renderEndPosition1(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights, boolean isHead) {
+		switch (renderStage) {
+			case ALWAYS_ON_LIGHTS:
+				if (isHead) {
+					renderOnce(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
+				}
+				break;
+			case INTERIOR:
+				renderOnce(head, matrices, vertices, light, position);
+				if (renderDetails) {
+					renderMirror(seat_3, matrices, vertices, light, position + 12);
+				}
+				break;
+			case EXTERIOR:
+				renderOnce(head_exterior, matrices, vertices, light, position);
+				break;
+		}
+	}
+
+	private void renderEndPosition2(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights, boolean isHead) {
+		switch (renderStage) {
+			case ALWAYS_ON_LIGHTS:
+				if (isHead) {
+					renderOnceFlipped(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
+				}
+				break;
+			case INTERIOR:
+				renderOnceFlipped(head, matrices, vertices, light, position);
+				break;
+			case EXTERIOR:
+				renderOnceFlipped(head_exterior, matrices, vertices, light, position);
+				break;
+		}
 	}
 }

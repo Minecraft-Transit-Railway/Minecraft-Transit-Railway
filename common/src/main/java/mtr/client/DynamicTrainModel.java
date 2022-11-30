@@ -17,9 +17,9 @@ import java.util.function.Function;
 
 public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCreatorProperties {
 
-	private final Map<String, ModelMapper> parts = new HashMap<>();
-	private final JsonObject properties;
-	private final int doorMax;
+	public final Map<String, ModelMapper> parts = new HashMap<>();
+	public final JsonObject properties;
+	public final int doorMax;
 	private final Map<String, Boolean> whitelistBlacklistCache = new HashMap<>();
 
 	public DynamicTrainModel(JsonObject model, JsonObject properties, DoorAnimationType doorAnimationType) {

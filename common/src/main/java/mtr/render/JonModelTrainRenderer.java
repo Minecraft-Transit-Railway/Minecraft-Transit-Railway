@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import mtr.MTRClient;
 import mtr.client.TrainClientRegistry;
+import mtr.client.TrainProperties;
 import mtr.data.IGui;
 import mtr.data.Train;
 import mtr.data.TrainClient;
@@ -13,6 +14,7 @@ import mtr.mappings.UtilitiesClient;
 import mtr.model.ModelBogie;
 import mtr.model.ModelCableCarGrip;
 import mtr.model.ModelTrainBase;
+import mtr.path.PathData;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -28,7 +30,6 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
@@ -66,15 +67,21 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 	}
 
 	@Override
-	public void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean isTranslucentBatch, float doorLeftValue, float doorRightValue, boolean opening, boolean head1IsFront, int stopIndex, boolean atPlatform, List<Long> routeIds) {
+	public void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean doorLeftOpen, boolean doorRightOpen) {
+		final float doorLeftValue = doorLeftOpen ? train.getDoorValue() : 0;
+		final float doorRightValue = doorRightOpen ? train.getDoorValue() : 0;
+		final PathData pathData = train.path.get(train.getIndex(0, train.spacing, true));
+		final int stopIndex = pathData.stopIndex - 1;
+		final boolean atPlatform = pathData.dwellTime > 0;
+
 		final String trainId = train.trainId;
-		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
+		final TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 
 		if (model == null && isTranslucentBatch) {
 			return;
 		}
 
-		final BlockPos posAverage = getPosAverage(train.getViewOffset(), x, y, z);
+		final BlockPos posAverage = applyAverageTransform(train.getViewOffset(), x, y, z);
 		if (posAverage == null) {
 			return;
 		}
@@ -107,7 +114,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 			model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 		} else {
 			final boolean renderDetails = MTRClient.isReplayMod() || posAverage.distSqr(camera.getBlockPosition()) <= RenderTrains.DETAIL_RADIUS_SQUARED;
-			model.render(matrices, vertexConsumers, resolveTexture(textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, carIndex, train.trainCars, head1IsFront, train.getIsOnRoute(), isTranslucentBatch, renderDetails, stopIndex, atPlatform, routeIds);
+			model.render(matrices, vertexConsumers, resolveTexture(textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, train.isDoorOpening(), carIndex, train.trainCars, !train.isReversed(), train.getIsOnRoute(), isTranslucentBatch, renderDetails, stopIndex, atPlatform, train.getRouteIds());
 
 			if (trainProperties.bogiePosition != 0 && !isTranslucentBatch) {
 				if (trainProperties.isJacobsBogie) {
@@ -140,13 +147,13 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 
 	@Override
 	public void renderConnection(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, float pitch) {
-		final BlockPos posAverage = getPosAverage(train.getViewOffset(), x, y, z);
+		final BlockPos posAverage = applyAverageTransform(train.getViewOffset(), x, y, z);
 		if (posAverage == null) {
 			return;
 		}
 
 		final String trainId = train.trainId;
-		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
+		final TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 
 		final int light = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage));
 
@@ -183,7 +190,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 			return;
 		}
 
-		final BlockPos posAverage = getPosAverage(train.getViewOffset(), x, y, z);
+		final BlockPos posAverage = applyAverageTransform(train.getViewOffset(), x, y, z);
 		if (posAverage == null) {
 			return;
 		}

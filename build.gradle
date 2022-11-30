@@ -36,6 +36,10 @@ subprojects {
 
 	loom {
 		silentMojangMappingsLicense()
+
+		mixin {
+			defaultRefmapName.set("mtr-refmap.json")
+		}
 	}
 
 	configurations {
