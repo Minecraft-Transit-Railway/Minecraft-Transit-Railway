@@ -150,7 +150,7 @@ public class TrainClient extends Train implements IGui {
 
 			final TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 			vehicleRidingClient.movePlayer(uuid -> {
-				final CalculateCarCallback calculateCarCallback = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> vehicleRidingClient.setOffsets(uuid, x, y, z, yaw, pitch, realSpacingRender, width, doorLeftOpenRender, doorRightOpenRender, transportMode.hasPitch, trainProperties.riderOffset, speed > 0, doorValue == 0, () -> {
+				final CalculateCarCallback calculateCarCallback = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> vehicleRidingClient.setOffsets(uuid, x, y, z, yaw, pitch, realSpacingRender, width, doorLeftOpenRender, doorRightOpenRender, transportMode.hasPitch, trainProperties.riderOffset, trainProperties.riderOffsetDismounting, speed > 0, doorValue == 0, () -> {
 					final boolean isShifting = clientPlayer.isShiftKeyDown();
 					if (Config.shiftToToggleSitting() && !MTRClient.isVivecraft()) {
 						if (isShifting && !previousShifting) {

@@ -208,6 +208,7 @@ const UTILITIES = {
 		"bus_normal": "directions_bus",
 		"bus_light_rail": "local_taxi",
 		"bus_high_speed": "airport_shuttle",
+		"airplane_normal": "flight",
 	},
 	angles: [0, 45, 90, 135],
 	fonts: ["Noto Sans", "Noto Serif TC", "Noto Serif SC", "Noto Serif JP", "Noto Serif KR", "Material Icons"],

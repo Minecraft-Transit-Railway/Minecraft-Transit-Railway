@@ -21,6 +21,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private final int sliderWidthWithText;
 	private final int rightPanelsX;
 	private final boolean showScheduleControls;
+	private final boolean showCruisingAltitude;
 	private final Map<Long, Siding> sidingsInDepot;
 
 	private final Button buttonUseRealTime;
@@ -33,7 +34,10 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private final Button buttonGenerateRoute;
 	private final Button buttonClearTrains;
 	private final WidgetBetterCheckbox checkboxRepeatIndefinitely;
+	private final WidgetBetterTextField textFieldCruisingAltitude;
 	private final DashboardList departuresList;
+
+	private final Component cruisingAltitudeText = Text.translatable("gui.mtr.cruising_altitude");
 
 	private static final int PANELS_START = SQUARE_SIZE * 2 + TEXT_FIELD_PADDING;
 	private static final int SLIDER_WIDTH = 64;
@@ -50,6 +54,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		sliderWidthWithText = SLIDER_WIDTH + TEXT_PADDING + font.width(getSliderString(0));
 		rightPanelsX = sliderX + SLIDER_WIDTH + TEXT_PADDING * 2 + font.width(getSliderString(1));
 		showScheduleControls = !transportMode.continuousMovement;
+		showCruisingAltitude = transportMode == TransportMode.AIRPLANE;
 
 		buttonUseRealTime = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.schedule_mode_real_time_off"), button -> {
 			depot.useRealTime = !depot.useRealTime;
@@ -106,6 +111,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			depot.clientPathGenerationSuccessfulSegments = -1;
 			PacketTrainDataGuiClient.generatePathC2S(depot.id);
 		});
+		textFieldCruisingAltitude = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, String.valueOf(Depot.DEFAULT_CRUISING_ALTITUDE), 5);
 	}
 
 	@Override
@@ -116,8 +122,12 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		IDrawing.setPositionAndWidth(buttonEditInstructions, rightPanelsX, PANELS_START, buttonWidth * 2);
 		IDrawing.setPositionAndWidth(buttonGenerateRoute, rightPanelsX, PANELS_START + SQUARE_SIZE, buttonWidth * (showScheduleControls ? 1 : 2));
 		IDrawing.setPositionAndWidth(buttonClearTrains, rightPanelsX + buttonWidth, PANELS_START + SQUARE_SIZE, buttonWidth);
-		IDrawing.setPositionAndWidth(checkboxRepeatIndefinitely, rightPanelsX, PANELS_START + SQUARE_SIZE * 2, buttonWidth * 2);
+		IDrawing.setPositionAndWidth(checkboxRepeatIndefinitely, rightPanelsX, PANELS_START + SQUARE_SIZE * 2 + (showCruisingAltitude ? SQUARE_SIZE + TEXT_FIELD_PADDING : 0), buttonWidth * 2);
 		checkboxRepeatIndefinitely.setChecked(data.repeatInfinitely);
+
+		final int cruisingAltitudeTextWidth = font.width(cruisingAltitudeText) + TEXT_PADDING * 2;
+		IDrawing.setPositionAndWidth(textFieldCruisingAltitude, rightPanelsX + Math.min(cruisingAltitudeTextWidth, buttonWidth * 2 - SQUARE_SIZE * 3) + TEXT_FIELD_PADDING / 2, PANELS_START + SQUARE_SIZE * 2 + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 3 - TEXT_FIELD_PADDING);
+		textFieldCruisingAltitude.setValue(String.valueOf(data.cruisingAltitude));
 
 		if (showScheduleControls) {
 			for (WidgetShorterSlider slider : sliders) {
@@ -152,6 +162,9 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			addDrawableChild(buttonClearTrains);
 			addDrawableChild(checkboxRepeatIndefinitely);
 		}
+		if (showCruisingAltitude) {
+			addDrawableChild(textFieldCruisingAltitude);
+		}
 
 		toggleRealTime();
 	}
@@ -162,6 +175,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		buttonGenerateRoute.active = data.clientPathGenerationSuccessfulSegments >= 0;
 		departuresList.tick();
 		textFieldDeparture.tick();
+		textFieldCruisingAltitude.tick();
 
 		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
 			data.setFrequency(sliders[i].getIntValue(), i);
@@ -198,7 +212,10 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 			super.render(matrices, mouseX, mouseY, delta);
 
-			final int yStartRightPane = PANELS_START + SQUARE_SIZE * (checkboxRepeatIndefinitely.visible ? 3 : 2) + TEXT_PADDING;
+			final int yStartRightPane = PANELS_START + SQUARE_SIZE * (checkboxRepeatIndefinitely.visible ? 3 : 2) + (showCruisingAltitude ? SQUARE_SIZE + TEXT_FIELD_PADDING : 0) + TEXT_PADDING;
+			if (showCruisingAltitude) {
+				font.draw(matrices, cruisingAltitudeText, rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 2 + TEXT_PADDING + TEXT_FIELD_PADDING / 2F, ARGB_WHITE);
+			}
 			font.draw(matrices, Text.translatable("gui.mtr.sidings_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, yStartRightPane, ARGB_WHITE);
 
 			final Component text;
@@ -243,6 +260,12 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	protected void saveData() {
 		super.saveData();
 		data.repeatInfinitely = checkboxRepeatIndefinitely.visible && checkboxRepeatIndefinitely.selected();
+		try {
+			data.cruisingAltitude = Integer.parseInt(textFieldCruisingAltitude.getValue());
+		} catch (Exception e) {
+			e.printStackTrace();
+			data.cruisingAltitude = Depot.DEFAULT_CRUISING_ALTITUDE;
+		}
 		data.setData(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
 	}
 

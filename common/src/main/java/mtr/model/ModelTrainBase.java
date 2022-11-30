@@ -42,6 +42,9 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		final int lightOnInteriorLevel = lightsOn ? MAX_LIGHT_INTERIOR : light;
 		final int lightOnGlowingLevel = lightsOn ? MAX_LIGHT_GLOWING : light;
 
+		matrices.pushPose();
+		baseTransform(matrices);
+
 		if (isTranslucent) {
 			if (renderDetails) {
 				final RenderType renderLayerInteriorTranslucent = lightsOn ? MoreRenderLayers.getInteriorTranslucent(texture) : MoreRenderLayers.getExteriorTranslucent(texture);
@@ -64,6 +67,8 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 				renderExtraDetails2(matrices, vertexConsumers, currentCar, trainCars, stopIndex, atPlatform, routeIds);
 			}
 		}
+
+		matrices.popPose();
 	}
 
 	protected void renderExtraDetails1(PoseStack matrices, MultiBufferSource vertexConsumers, int light, int lightOnInteriorLevel, boolean lightsOn, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
@@ -74,6 +79,9 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 
 	protected float getDoorDuration() {
 		return 0.5F;
+	}
+
+	protected void baseTransform(PoseStack matrices) {
 	}
 
 	protected abstract void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails);

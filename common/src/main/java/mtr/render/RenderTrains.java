@@ -302,6 +302,14 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 					}
 
 					break;
+				case AIRPLANE:
+					if (renderColors) {
+						renderRailStandard(world, rail, 0.0625F + SMALL_OFFSET, true, 1);
+						renderSignalsStandard(world, matrices, vertexConsumers, rail, startPos, endPos);
+					} else {
+						renderRailStandard(world, rail, 0.0625F + SMALL_OFFSET, false, 0.25F, "textures/block/iron_block.png", 0.25F, 0, 0.75F, 1);
+					}
+					break;
 			}
 		}));
 

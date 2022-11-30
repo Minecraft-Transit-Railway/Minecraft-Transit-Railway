@@ -88,14 +88,16 @@ public class VehicleRidingClient {
 		});
 	}
 
-	public void setOffsets(UUID uuid, double x, double y, double z, float yaw, float pitch, double length, int width, boolean doorLeftOpen, boolean doorRightOpen, boolean hasPitch, float riderOffset, boolean shouldSetOffset, boolean shouldSetYaw, Runnable clientPlayerCallback) {
+	public void setOffsets(UUID uuid, double x, double y, double z, float yaw, float pitch, double length, int width, boolean doorLeftOpen, boolean doorRightOpen, boolean hasPitch, float riderOffset, float riderOffsetDismounting, boolean shouldSetOffset, boolean shouldSetYaw, Runnable clientPlayerCallback) {
 		final LocalPlayer clientPlayer = Minecraft.getInstance().player;
 		if (clientPlayer == null) {
 			return;
 		}
 
 		final boolean isClientPlayer = uuid.equals(clientPlayer.getUUID());
-		final Vec3 playerOffset = new Vec3(getValueFromPercentage(percentagesX.get(uuid), width), doorLeftOpen || doorRightOpen ? 0 : riderOffset, getValueFromPercentage(Mth.frac(percentagesZ.get(uuid)), length)).xRot(hasPitch ? pitch : 0).yRot(yaw);
+		final double percentageX = getValueFromPercentage(percentagesX.get(uuid), width);
+		final float riderOffsetNew = doorLeftOpen && percentageX < 0 || doorRightOpen && percentageX > 1 ? riderOffsetDismounting : riderOffset;
+		final Vec3 playerOffset = new Vec3(percentageX, riderOffsetNew, getValueFromPercentage(Mth.frac(percentagesZ.get(uuid)), length)).xRot(hasPitch ? pitch : 0).yRot(yaw);
 		ClientData.updatePlayerRidingOffset(uuid);
 		riderPositions.put(uuid, playerOffset.add(x, y, z));
 

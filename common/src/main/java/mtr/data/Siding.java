@@ -266,7 +266,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		}
 	}
 
-	public int generateRoute(MinecraftServer minecraftServer, List<PathData> mainPath, int successfulSegmentsMain, Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase firstPlatform, SavedRailBase lastPlatform, boolean repeatInfinitely) {
+	public int generateRoute(MinecraftServer minecraftServer, List<PathData> mainPath, int successfulSegmentsMain, Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase firstPlatform, SavedRailBase lastPlatform, boolean repeatInfinitely, int cruisingAltitude, boolean useFastSpeed) {
 		final List<PathData> tempPath = new ArrayList<>();
 		final int successfulSegments;
 		final int tempRepeatIndex1;
@@ -280,7 +280,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 			final List<SavedRailBase> depotAndFirstPlatform = new ArrayList<>();
 			depotAndFirstPlatform.add(this);
 			depotAndFirstPlatform.add(firstPlatform);
-			PathFinder.findPath(tempPath, rails, depotAndFirstPlatform, 0);
+			PathFinder.findPath(tempPath, rails, depotAndFirstPlatform, 0, cruisingAltitude, useFastSpeed);
 
 			if (tempPath.isEmpty()) {
 				successfulSegments = 1;
@@ -299,7 +299,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 				lastPlatformAndDepot.add(lastPlatform);
 				lastPlatformAndDepot.add(this);
 				final List<PathData> pathLastPlatformToDepot = new ArrayList<>();
-				PathFinder.findPath(pathLastPlatformToDepot, rails, lastPlatformAndDepot, successfulSegmentsMain);
+				PathFinder.findPath(pathLastPlatformToDepot, rails, lastPlatformAndDepot, successfulSegmentsMain, cruisingAltitude, useFastSpeed);
 
 				if (pathLastPlatformToDepot.isEmpty()) {
 					successfulSegments = successfulSegmentsMain + 1;
