@@ -12,6 +12,8 @@ import mtr.data.IGui;
 import mtr.data.RailwayData;
 import mtr.data.Route;
 import mtr.data.Station;
+import mtr.mappings.Text;
+import mtr.render.RenderTrains;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -195,13 +197,35 @@ public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 		return textSplit[((int) Math.floor(MTRClient.getGameTick() / 30)) % textSplit.length];
 	}
 
-	protected static String getNextStationString(Station thisStation, Station nextStation, boolean atPlatform) {
+	protected static String getLondonNextStationString(Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String destinationString, boolean atPlatform) {
 		final Station station = atPlatform ? thisStation : nextStation;
-		if (station == null) {
+		if (station == null || thisRoute == null) {
 			return "";
 		} else {
-			final String stationName = IGui.textOrUntitled(station.name);
-			return IGui.formatStationName(atPlatform ? stationName : IGui.insertTranslation("gui.mtr.next_station_announcement_cjk", "gui.mtr.next_station_announcement", 1, stationName)).replace("|", " ");
+			final List<String> messages = new ArrayList<>();
+			final boolean isTerminating = lastStation != null && station.id == lastStation.id;
+
+			if (!isTerminating) {
+				messages.add(IGui.insertTranslation("gui.mtr.london_train_route_announcement_cjk", "gui.mtr.london_train_route_announcement", 2, IGui.textOrUntitled(thisRoute.name), IGui.textOrUntitled(destinationString)));
+			}
+
+			if (atPlatform) {
+				messages.add(IGui.insertTranslation("gui.mtr.london_train_this_station_announcement_cjk", "gui.mtr.london_train_this_station_announcement", 1, IGui.textOrUntitled(station.name)));
+			} else {
+				messages.add(IGui.insertTranslation("gui.mtr.london_train_next_station_announcement_cjk", "gui.mtr.london_train_next_station_announcement", 1, IGui.textOrUntitled(station.name)));
+			}
+
+			final String mergedInterchangeRoutes = RenderTrains.getInterchangeRouteNames(station, thisRoute, nextRoute);
+			if (!mergedInterchangeRoutes.isEmpty()) {
+				messages.add(IGui.insertTranslation("gui.mtr.london_train_interchange_announcement_cjk", "gui.mtr.london_train_interchange_announcement", 1, mergedInterchangeRoutes));
+			}
+
+			if (isTerminating) {
+				messages.add(Text.translatable("gui.mtr.london_train_terminating_announcement_cjk").getString());
+				messages.add(Text.translatable("gui.mtr.london_train_terminating_announcement").getString());
+			}
+
+			return IGui.formatStationName(IGui.mergeStations(messages, "", " "));
 		}
 	}
 

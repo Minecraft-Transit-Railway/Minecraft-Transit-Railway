@@ -1754,7 +1754,8 @@ public class ModelClass377 extends ModelSimpleTrainBase<ModelClass377> {
 		final float[] positions1 = {-4 + 26.5F / 16 - offset, 4 + 26.5F / 16 - (isEnd2Head ? -1 : 1) * offset};
 		final float[] positions2 = {-4 - 26.5F / 16 - offset, 4 - 26.5F / 16 - (isEnd2Head ? -1 : 1) * offset};
 
-		final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getPixelatedText(getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false).replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, true);
+		final String destinationString = getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false);
+		final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getPixelatedText(destinationString.replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, true);
 		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource.resourceLocation, true));
 
 		for (final float position : positions1) {
@@ -1776,7 +1777,7 @@ public class ModelClass377 extends ModelSimpleTrainBase<ModelClass377> {
 			matrices.popPose();
 		}
 
-		final String nextStationString = getNextStationString(thisStation, nextStation, atPlatform);
+		final String nextStationString = getLondonNextStationString(thisRoute, nextRoute, thisStation, nextStation, lastStation, destinationString, atPlatform);
 		if (!nextStationString.isEmpty()) {
 			final ClientCache.DynamicResource dynamicResource2 = ClientData.DATA_CACHE.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, true);
 			final VertexConsumer vertexConsumer2 = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource2.resourceLocation, true));

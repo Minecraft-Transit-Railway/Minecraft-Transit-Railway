@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
+import mtr.Icons;
 import mtr.client.DoorAnimationType;
 import mtr.client.IDrawing;
 import mtr.client.IResourcePackCreatorProperties;
@@ -29,7 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
 
-public class ResourcePackCreatorScreen extends ScreenMapper implements IResourcePackCreatorProperties, IGui {
+public class ResourcePackCreatorScreen extends ScreenMapper implements IResourcePackCreatorProperties, IGui, Icons {
 
 	private int editingPartIndex = -1;
 
@@ -392,8 +393,8 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 		}
 
 		buttonToggleTrainDirection.setMessage(Text.translatable("gui.mtr.vehicle_direction_" + (head1IsFront ? "forwards" : "backwards")));
-		buttonDoorLeft.setMessage(Text.translatable("gui.mtr.vehicle_door_left_" + (openingLeft ? "close" : "open")));
-		buttonDoorRight.setMessage(Text.translatable("gui.mtr.vehicle_door_right_" + (openingRight ? "close" : "open")));
+		buttonDoorLeft.setMessage(Text.literal(openingLeft ? DOOR_CLOSE : DOOR_OPEN).append(" ").append(Text.translatable("gui.mtr.left")));
+		buttonDoorRight.setMessage(Text.literal(openingRight ? DOOR_CLOSE : DOOR_OPEN).append(" ").append(Text.translatable("gui.mtr.right")));
 
 		final int sliderLengthValue = RenderTrains.creatorProperties.getLength() - 1;
 		if (sliderLengthValue != sliderLength.getIntValue()) {

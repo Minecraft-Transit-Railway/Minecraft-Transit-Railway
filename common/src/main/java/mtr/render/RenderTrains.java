@@ -177,21 +177,19 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					if (!thisRoute.disableNextStationAnnouncements) {
 						final List<String> messages = new ArrayList<>();
-						final String thisRouteSplit = thisRoute.name.split("\\|\\|")[0];
-						final String nextRouteSplit = nextRoute == null ? null : nextRoute.name.split("\\|\\|")[0];
 
 						if (nextStation != null) {
 							final boolean isLightRailRoute = thisRoute.isLightRailRoute;
 							messages.add(IGui.insertTranslation(isLightRailRoute ? "gui.mtr.next_station_light_rail_announcement_cjk" : "gui.mtr.next_station_announcement_cjk", isLightRailRoute ? "gui.mtr.next_station_light_rail_announcement" : "gui.mtr.next_station_announcement", 1, nextStation.name));
 
-							final String mergedInterchangeRoutes = getInterchangeRouteNames(nextStation, thisRouteSplit, nextRouteSplit);
+							final String mergedInterchangeRoutes = getInterchangeRouteNames(nextStation, thisRoute, nextRoute);
 							if (!mergedInterchangeRoutes.isEmpty()) {
 								messages.add(IGui.insertTranslation("gui.mtr.interchange_announcement_cjk", "gui.mtr.interchange_announcement", 1, mergedInterchangeRoutes));
 							}
 
 							final List<String> connectingStationList = new ArrayList<>();
 							ClientData.DATA_CACHE.stationIdToConnectingStations.get(nextStation).forEach(connectingStation -> {
-								final String connectingStationMergedInterchangeRoutes = getInterchangeRouteNames(connectingStation, thisRouteSplit, nextRouteSplit);
+								final String connectingStationMergedInterchangeRoutes = getInterchangeRouteNames(connectingStation, thisRoute, nextRoute);
 								if (!connectingStationMergedInterchangeRoutes.isEmpty()) {
 									connectingStationList.add(IGui.insertTranslation("gui.mtr.connecting_station_interchange_announcement_part_cjk", "gui.mtr.connecting_station_interchange_announcement_part", 2, connectingStationMergedInterchangeRoutes, connectingStation.name));
 								}
@@ -200,6 +198,8 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 								messages.add(IGui.insertTranslation("gui.mtr.connecting_station_part_cjk", "gui.mtr.connecting_station_part", 1, IGui.mergeStationsWithCommas(connectingStationList)));
 							}
 
+							final String thisRouteSplit = thisRoute.name.split("\\|\\|")[0];
+							final String nextRouteSplit = nextRoute == null ? null : nextRoute.name.split("\\|\\|")[0];
 							if (lastStation != null && nextStation.id == lastStation.id && nextRoute != null && !nextRoute.platformIds.isEmpty() && !nextRouteSplit.equals(thisRouteSplit)) {
 								final Station nextFinalStation = ClientData.DATA_CACHE.platformIdToStation.get(nextRoute.getLastPlatformId());
 								if (nextFinalStation != null) {
@@ -421,6 +421,21 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		map.get(resourceLocation).add(callback);
 	}
 
+	public static String getInterchangeRouteNames(Station station, Route thisRoute, Route nextRoute) {
+		final String thisRouteSplit = thisRoute.name.split("\\|\\|")[0];
+		final String nextRouteSplit = nextRoute == null ? null : nextRoute.name.split("\\|\\|")[0];
+		final Map<Integer, ClientCache.ColorNameTuple> routesInStation = ClientData.DATA_CACHE.stationIdToRoutes.get(station.id);
+		if (routesInStation != null) {
+			final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> {
+				final String routeName = interchangeRoute.name.split("\\|\\|")[0];
+				return !routeName.equals(thisRouteSplit) && !routeName.equals(nextRouteSplit);
+			}).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
+			return IGui.mergeStationsWithCommas(interchangeRoutes);
+		} else {
+			return "";
+		}
+	}
+
 	private static double maxDistanceXZ(Vec3 pos1, BlockPos pos2) {
 		return Math.max(Math.abs(pos1.x - pos2.getX()), Math.abs(pos1.z - pos2.getZ()));
 	}
@@ -496,19 +511,6 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				IDrawing.drawTexture(matrices, vertexConsumer, (float) x1, (float) y1, (float) z1, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x3, (float) y2, (float) z3, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, u1, 0, u2, 1, Direction.UP, color, light2);
 				IDrawing.drawTexture(matrices, vertexConsumer, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, (float) x3, (float) y2, (float) z3, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x1, (float) y1, (float) z1, u1, 0, u2, 1, Direction.UP, color, light2);
 			}, u1 - 1, u2 - 1);
-		}
-	}
-
-	private static String getInterchangeRouteNames(Station station, String thisRouteSplit, String nextRouteSplit) {
-		final Map<Integer, ClientCache.ColorNameTuple> routesInStation = ClientData.DATA_CACHE.stationIdToRoutes.get(station.id);
-		if (routesInStation != null) {
-			final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> {
-				final String routeName = interchangeRoute.name.split("\\|\\|")[0];
-				return !routeName.equals(thisRouteSplit) && !routeName.equals(nextRouteSplit);
-			}).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
-			return IGui.mergeStationsWithCommas(interchangeRoutes);
-		} else {
-			return "";
 		}
 	}
 

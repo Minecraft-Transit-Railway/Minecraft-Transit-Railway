@@ -1277,17 +1277,17 @@ public class ModelLondonUndergroundD78 extends ModelSimpleTrainBase<ModelLondonU
 
 	@Override
 	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform) {
-		final String destinationString = getAlternatingString(getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false));
+		final String destinationString = getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false);
 		renderFrontDestination(
 				matrices, font, immediate,
 				0, -2.18F, getEndPositions()[0] / 16F - 1.25F, 0, 0, -0.01F,
 				0, 0, 0.8F, 0.14F,
-				0xFFFF9900, 0xFFFF9900, 1, destinationString, false, car, totalCars
+				0xFFFF9900, 0xFFFF9900, 1, getAlternatingString(destinationString), false, car, totalCars
 		);
 
 		final boolean isEnd1Head = car == 0;
 		final boolean isEnd2Head = car == totalCars - 1;
-		final String nextStationString = getNextStationString(thisStation, nextStation, atPlatform);
+		final String nextStationString = getLondonNextStationString(thisRoute, nextRoute, thisStation, nextStation, lastStation, destinationString, atPlatform);
 		if (!nextStationString.isEmpty()) {
 			final ClientCache.DynamicResource dynamicResource2 = ClientData.DATA_CACHE.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, true);
 			final VertexConsumer vertexConsumer2 = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource2.resourceLocation, true));

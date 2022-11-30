@@ -1961,9 +1961,10 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 		final boolean isEnd2Head = car == totalCars - 1;
 		final boolean renderFirstDestination = renderFirstDestination(isEnd1Head, isEnd2Head);
 		final boolean renderSecondDestination = renderSecondDestination(isEnd1Head, isEnd2Head);
+		final String destinationString = getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false);
 
 		if (renderFirstDestination || renderSecondDestination) {
-			final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getPixelatedText(getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false).replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, false);
+			final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getPixelatedText(destinationString.replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, false);
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource.resourceLocation, true));
 
 			for (int i = 0; i < 2; i++) {
@@ -1982,7 +1983,7 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 			}
 		}
 
-		final String nextStationString = getNextStationString(thisStation, nextStation, atPlatform);
+		final String nextStationString = getLondonNextStationString(thisRoute, nextRoute, thisStation, nextStation, lastStation, destinationString, atPlatform);
 		if (!nextStationString.isEmpty()) {
 			final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, true);
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource.resourceLocation, true));

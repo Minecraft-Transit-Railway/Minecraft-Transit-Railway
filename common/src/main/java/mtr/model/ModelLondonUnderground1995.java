@@ -165,12 +165,15 @@ public class ModelLondonUnderground1995 extends ModelSimpleTrainBase<ModelLondon
 	private final ModelMapper light_3_r2;
 	private final ModelMapper light_2_r5;
 
-	public ModelLondonUnderground1995() {
-		this(DoorAnimationType.STANDARD, true);
+	private final boolean is1995;
+
+	public ModelLondonUnderground1995(boolean is1995) {
+		this(is1995, DoorAnimationType.STANDARD, true);
 	}
 
-	private ModelLondonUnderground1995(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+	private ModelLondonUnderground1995(boolean is1995, DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
 		super(doorAnimationType, renderDoorOverlay);
+		this.is1995 = is1995;
 		final int textureWidth = 288;
 		final int textureHeight = 288;
 
@@ -1075,7 +1078,7 @@ public class ModelLondonUnderground1995 extends ModelSimpleTrainBase<ModelLondon
 
 	@Override
 	public ModelLondonUnderground1995 createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
-		return new ModelLondonUnderground1995(doorAnimationType, renderDoorOverlay);
+		return new ModelLondonUnderground1995(is1995, doorAnimationType, renderDoorOverlay);
 	}
 
 	@Override
@@ -1275,17 +1278,17 @@ public class ModelLondonUnderground1995 extends ModelSimpleTrainBase<ModelLondon
 
 	@Override
 	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform) {
-		final String destinationString = getAlternatingString(getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false));
+		final String destinationString = getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false);
 		renderFrontDestination(
 				matrices, font, immediate,
 				0, -2.08F, getEndPositions()[0] / 16F - 3.56F, 0, 0, -0.01F,
 				0, 0, 0.66F, 0.08F,
-				0xFFFF9900, 0xFFFF9900, 1, destinationString, false, car, totalCars
+				0xFFFF9900, 0xFFFF9900, 1, getAlternatingString(destinationString), false, car, totalCars
 		);
 
-		final String nextStationString = getNextStationString(thisStation, nextStation, atPlatform);
+		final String nextStationString = getLondonNextStationString(thisRoute, nextRoute, thisStation, nextStation, lastStation, destinationString, atPlatform);
 		if (!nextStationString.isEmpty()) {
-			final ClientCache.DynamicResource dynamicResource2 = ClientData.DATA_CACHE.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, true);
+			final ClientCache.DynamicResource dynamicResource2 = ClientData.DATA_CACHE.getPixelatedText(nextStationString, is1995 ? 0xFFFF9900 : 0xFFFF0000, Integer.MAX_VALUE, false);
 			final VertexConsumer vertexConsumer2 = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource2.resourceLocation, true));
 			final int[] positions = {-6, 0, 6};
 			for (final int position : positions) {
@@ -1293,8 +1296,8 @@ public class ModelLondonUnderground1995 extends ModelSimpleTrainBase<ModelLondon
 					matrices.pushPose();
 					matrices.mulPose(Vector3f.YP.rotationDegrees(i == 1 ? -90 : 90));
 					matrices.mulPose(Vector3f.XP.rotationDegrees(48));
-					matrices.translate(position - 0.23F, -0.53F, 1.96F);
-					RouteMapGenerator.scrollText(matrices, vertexConsumer2, 0.46F, 0.05F, dynamicResource2.width, dynamicResource2.height, 3, true);
+					matrices.translate(position - 0.23F, -0.55F, 1.96F);
+					RouteMapGenerator.scrollText(matrices, vertexConsumer2, 0.46F, 0.09F, dynamicResource2.width, dynamicResource2.height, 3, false);
 					matrices.popPose();
 				}
 			}

@@ -1,6 +1,7 @@
 package mtr.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import mtr.Icons;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.client.TrainClientRegistry;
@@ -18,7 +19,7 @@ import net.minecraft.util.Mth;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SidingScreen extends SavedRailScreenBase<Siding> {
+public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 
 	private boolean isSelectingTrain;
 	private final float oldAcceleration;
@@ -160,7 +161,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 				int y = SQUARE_SIZE;
 				y = drawWrappedText(matrices, properties.name, y, ARGB_WHITE);
 				y = drawWrappedText(matrices, Text.translatable("gui.mtr.vehicle_length", spacing - 1), y, ARGB_WHITE);
-				y = drawWrappedText(matrices, Text.translatable("gui.mtr.vehicle_cars", (cars == 0 ? Text.translatable("icon.mtr.warning", cars) : cars)), y, ARGB_WHITE);
+				y = drawWrappedText(matrices, Text.translatable("gui.mtr.vehicle_cars", (cars == 0 ? WARNING + " " : "") + cars), y, ARGB_WHITE);
 				drawWrappedText(matrices, properties.description, y, ARGB_LIGHT_GRAY);
 			}
 		}
@@ -224,7 +225,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		final List<DataConverter> trainList = new ArrayList<>();
 		TrainClientRegistry.forEach(transportMode, (id, trainProperties) -> {
 			final boolean isAvailable = savedRailBase.isValidVehicle(TrainType.getSpacing(trainProperties.baseTrainType));
-			trainList.add(new DataConverter((isAvailable ? trainProperties.name : Text.translatable("icon.mtr.warning", trainProperties.name)).getString(), isAvailable ? trainProperties.color : 0));
+			trainList.add(new DataConverter((isAvailable ? trainProperties.name.getString() : WARNING + " " + trainProperties.name.getString()), isAvailable ? trainProperties.color : 0));
 		});
 		availableTrainsList.setData(trainList, false, false, false, false, true, false);
 		setIsSelectingTrain(true);
