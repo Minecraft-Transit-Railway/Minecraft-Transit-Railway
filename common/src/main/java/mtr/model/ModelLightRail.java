@@ -3,10 +3,7 @@ package mtr.model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
-import mtr.client.ClientCache;
-import mtr.client.ClientData;
-import mtr.client.DoorAnimationType;
-import mtr.client.RouteMapGenerator;
+import mtr.client.*;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
@@ -14,6 +11,8 @@ import mtr.mappings.ModelMapper;
 import mtr.render.MoreRenderLayers;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
+
+import java.util.List;
 
 public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 
@@ -1002,7 +1001,7 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 	}
 
 	@Override
-	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform) {
+	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform, List<ScrollingText> scrollingTexts) {
 		final String routeNumber = thisRoute == null ? "" : thisRoute.lightRailRouteNumber;
 		final float frontOffset = phase == 3 || phase == 5 ? 2.75F : phase == 4 || phase == 6 ? 3.02F : 2.87F;
 		final int color = phase == 3 ? 0xFF00FF00 : 0xFFFF9900;

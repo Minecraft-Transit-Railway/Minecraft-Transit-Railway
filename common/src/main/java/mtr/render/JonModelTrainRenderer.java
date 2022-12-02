@@ -14,7 +14,6 @@ import mtr.mappings.UtilitiesClient;
 import mtr.model.ModelBogie;
 import mtr.model.ModelCableCarGrip;
 import mtr.model.ModelTrainBase;
-import mtr.path.PathData;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -70,9 +69,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 	public void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean doorLeftOpen, boolean doorRightOpen) {
 		final float doorLeftValue = doorLeftOpen ? train.getDoorValue() : 0;
 		final float doorRightValue = doorRightOpen ? train.getDoorValue() : 0;
-		final PathData pathData = train.path.get(train.getIndex(0, train.spacing, true));
-		final int stopIndex = pathData.stopIndex - 1;
-		final boolean atPlatform = pathData.dwellTime > 0;
+		final boolean atPlatform = train.path.get(train.getIndex(0, train.spacing, true)).dwellTime > 0;
 
 		final String trainId = train.trainId;
 		final TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
@@ -114,7 +111,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 			model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 		} else {
 			final boolean renderDetails = MTRClient.isReplayMod() || posAverage.distSqr(camera.getBlockPosition()) <= RenderTrains.DETAIL_RADIUS_SQUARED;
-			model.render(matrices, vertexConsumers, resolveTexture(textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, train.isDoorOpening(), carIndex, train.trainCars, !train.isReversed(), train.getIsOnRoute(), isTranslucentBatch, renderDetails, stopIndex, atPlatform, train.getRouteIds());
+			model.render(matrices, vertexConsumers, train, resolveTexture(textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, train.isDoorOpening(), carIndex, train.trainCars, !train.isReversed(), train.getIsOnRoute(), isTranslucentBatch, renderDetails, atPlatform);
 
 			if (trainProperties.bogiePosition != 0 && !isTranslucentBatch) {
 				if (trainProperties.isJacobsBogie) {

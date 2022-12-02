@@ -1,10 +1,7 @@
 package mtr.data;
 
 import mtr.MTRClient;
-import mtr.client.ClientData;
-import mtr.client.Config;
-import mtr.client.TrainClientRegistry;
-import mtr.client.TrainProperties;
+import mtr.client.*;
 import mtr.render.RenderDrivingOverlay;
 import mtr.render.TrainRendererBase;
 import mtr.sound.TrainSoundBase;
@@ -32,6 +29,13 @@ public class TrainClient extends Train implements IGui {
 	private boolean isSitting;
 	private boolean previousShifting;
 
+	private int currentStationIndex;
+	private Route thisRoute;
+	private Route nextRoute;
+	private Station thisStation;
+	private Station nextStation;
+	private Station lastStation;
+
 	private SpeedCallback speedCallback;
 	private AnnouncementCallback announcementCallback;
 	private AnnouncementCallback lightRailAnnouncementCallback;
@@ -41,6 +45,7 @@ public class TrainClient extends Train implements IGui {
 	public final TrainRendererBase trainRenderer;
 	public final TrainSoundBase trainSound;
 	public final VehicleRidingClient vehicleRidingClient = new VehicleRidingClient(ridingEntities, PACKET_UPDATE_TRAIN_PASSENGER_POSITION);
+	public final List<ScrollingText> scrollingTexts = new ArrayList<>();
 
 	private final Set<Runnable> trainTranslucentRenders = new HashSet<>();
 
@@ -234,6 +239,25 @@ public class TrainClient extends Train implements IGui {
 		oldRailProgress = railProgress;
 		oldDoorValue = doorValue;
 
+		if (ticksElapsed != 0) {
+			final int stopIndex = path.get(getIndex(0, spacing, false)).stopIndex - 1;
+			if (!RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute1, nextRoute1, thisStation1, nextStation1, lastStation1) -> {
+				this.currentStationIndex = currentStationIndex;
+				thisRoute = thisRoute1;
+				nextRoute = nextRoute1;
+				thisStation = thisStation1;
+				nextStation = nextStation1;
+				lastStation = lastStation1;
+			})) {
+				currentStationIndex = 0;
+				thisRoute = null;
+				nextRoute = null;
+				thisStation = null;
+				nextStation = null;
+				lastStation = null;
+			}
+		}
+
 		simulateTrain(world, ticksElapsed, null);
 
 		if (depot == null || routeIds.isEmpty()) {
@@ -247,8 +271,7 @@ public class TrainClient extends Train implements IGui {
 
 		final LocalPlayer player = Minecraft.getInstance().player;
 		if (isManualAllowed && Train.isHoldingKey(player) && isPlayerRiding(player)) {
-			final int stopIndex = path.get(getIndex(0, spacing, false)).stopIndex - 1;
-			RenderDrivingOverlay.setData(manualNotch, doorValue, speed * 20, stopIndex, routeIds);
+			RenderDrivingOverlay.setData(manualNotch, this);
 		}
 	}
 
@@ -259,6 +282,30 @@ public class TrainClient extends Train implements IGui {
 
 	public Vec3 getViewOffset() {
 		return vehicleRidingClient.getViewOffset();
+	}
+
+	public int getCurrentStationIndex() {
+		return currentStationIndex;
+	}
+
+	public Route getThisRoute() {
+		return thisRoute;
+	}
+
+	public Route getNextRoute() {
+		return nextRoute;
+	}
+
+	public Station getThisStation() {
+		return thisStation;
+	}
+
+	public Station getNextStation() {
+		return nextStation;
+	}
+
+	public Station getLastStation() {
+		return lastStation;
 	}
 
 	public void startRidingClient(UUID uuid, float percentageX, float percentageZ) {

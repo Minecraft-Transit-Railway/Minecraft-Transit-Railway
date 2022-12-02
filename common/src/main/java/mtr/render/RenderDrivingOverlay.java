@@ -3,16 +3,12 @@ package mtr.render;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.client.ClientData;
-import mtr.data.IGui;
-import mtr.data.RailwayData;
+import mtr.data.*;
 import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.List;
 
 public class RenderDrivingOverlay implements IGui {
 
@@ -89,16 +85,19 @@ public class RenderDrivingOverlay implements IGui {
 		matrices.popPose();
 	}
 
-	public static void setData(int accelerationSign, float doorValue, float speed, int stopIndex, List<Long> routeIds) {
+	public static void setData(int accelerationSign, TrainClient trainClient) {
 		RenderDrivingOverlay.accelerationSign = accelerationSign;
-		RenderDrivingOverlay.doorValue = doorValue;
+		RenderDrivingOverlay.doorValue = trainClient.getDoorValue();
 		coolDown = 2;
-		RenderDrivingOverlay.speed = speed;
-		RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
-			RenderDrivingOverlay.thisStation = thisStation == null ? null : IGui.formatStationName(thisStation.name);
-			RenderDrivingOverlay.nextStation = nextStation == null ? nextRoute == null ? null : IGui.formatStationName(nextRoute.name) : IGui.formatStationName(nextStation.name);
-			RenderDrivingOverlay.thisRoute = thisRoute == null ? null : IGui.formatStationName(thisRoute.name);
-			RenderDrivingOverlay.lastStation = lastStation == null ? null : IGui.formatStationName(lastStation.name);
-		});
+		RenderDrivingOverlay.speed = trainClient.getSpeed() * 20;
+		final Route thisRoute = trainClient.getThisRoute();
+		final Route nextRoute = trainClient.getNextRoute();
+		final Station thisStation = trainClient.getThisStation();
+		final Station nextStation = trainClient.getNextStation();
+		final Station lastStation = trainClient.getLastStation();
+		RenderDrivingOverlay.thisStation = thisStation == null ? null : IGui.formatStationName(thisStation.name);
+		RenderDrivingOverlay.nextStation = nextStation == null ? nextRoute == null ? null : IGui.formatStationName(nextRoute.name) : IGui.formatStationName(nextStation.name);
+		RenderDrivingOverlay.thisRoute = thisRoute == null ? null : IGui.formatStationName(thisRoute.name);
+		RenderDrivingOverlay.lastStation = lastStation == null ? null : IGui.formatStationName(lastStation.name);
 	}
 }

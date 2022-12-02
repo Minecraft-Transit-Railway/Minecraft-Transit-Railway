@@ -5,14 +5,13 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import mtr.MTRClient;
-import mtr.client.ClientData;
 import mtr.client.DoorAnimationType;
 import mtr.client.IDrawing;
+import mtr.client.ScrollingText;
 import mtr.data.IGui;
-import mtr.data.RailwayData;
 import mtr.data.Route;
 import mtr.data.Station;
-import mtr.mappings.Text;
+import mtr.data.TrainClient;
 import mtr.render.RenderTrains;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -69,17 +68,18 @@ public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderExtraDetails2(PoseStack matrices, MultiBufferSource vertexConsumers, int car, int totalCars, int stopIndex, boolean atPlatform, List<Long> routeIds) {
-		if (routeIds != null) {
-			final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-			if (!RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> renderTextDisplays(matrices, vertexConsumers, Minecraft.getInstance().font, immediate, thisRoute, nextRoute, thisStation, nextStation, lastStation, thisRoute == null ? null : thisRoute.getDestination(currentStationIndex), car, totalCars, atPlatform))) {
-				renderTextDisplays(matrices, vertexConsumers, Minecraft.getInstance().font, immediate, null, null, null, null, null, null, car, totalCars, atPlatform);
-			}
-			immediate.endBatch();
-		}
+	protected void renderExtraDetails2(PoseStack matrices, MultiBufferSource vertexConsumers, TrainClient train, int car, int totalCars, boolean atPlatform) {
+		final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+		final Route thisRoute = train.getThisRoute();
+		final Route nextRoute = train.getNextRoute();
+		final Station thisStation = train.getThisStation();
+		final Station nextStation = train.getNextStation();
+		final Station lastStation = train.getLastStation();
+		renderTextDisplays(matrices, vertexConsumers, Minecraft.getInstance().font, immediate, thisRoute, nextRoute, thisStation, nextStation, lastStation, thisRoute == null ? null : thisRoute.getDestination(train.getCurrentStationIndex()), car, totalCars, atPlatform, train.scrollingTexts);
+		immediate.endBatch();
 	}
 
-	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform) {
+	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform, List<ScrollingText> scrollingTexts) {
 	}
 
 	protected void renderFrontDestination(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, float x1, float y1, float z1, float x2, float y2, float z2, float rotationX, float rotationY, float maxWidth, float maxHeight, int colorCjk, int color, float fontSizeRatio, String text, boolean padOneLine, int car, int totalCars) {
@@ -203,7 +203,7 @@ public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 			return "";
 		} else {
 			final List<String> messages = new ArrayList<>();
-			final boolean isTerminating = lastStation != null && station.id == lastStation.id;
+			final boolean isTerminating = lastStation != null && station.id == lastStation.id && nextRoute == null;
 
 			if (!isTerminating) {
 				messages.add(IGui.insertTranslation("gui.mtr.london_train_route_announcement_cjk", "gui.mtr.london_train_route_announcement", 2, IGui.textOrUntitled(thisRoute.name), IGui.textOrUntitled(destinationString)));
@@ -221,8 +221,7 @@ public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 			}
 
 			if (isTerminating) {
-				messages.add(Text.translatable("gui.mtr.london_train_terminating_announcement_cjk").getString());
-				messages.add(Text.translatable("gui.mtr.london_train_terminating_announcement").getString());
+				messages.add(IGui.insertTranslation("gui.mtr.london_train_terminating_announcement_cjk", "gui.mtr.london_train_terminating_announcement", 1, IGui.textOrUntitled(station.name)));
 			}
 
 			return IGui.formatStationName(IGui.mergeStations(messages, "", " "));

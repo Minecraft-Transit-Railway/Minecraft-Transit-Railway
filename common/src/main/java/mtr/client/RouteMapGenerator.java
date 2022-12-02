@@ -24,13 +24,13 @@ public class RouteMapGenerator implements IGui {
 	private static int fontSizeBig;
 	private static int fontSizeSmall;
 
+	public static final int PIXEL_SCALE = 4;
 	private static final int MIN_VERTICAL_SIZE = 5;
 	private static final String LOGO_RESOURCE = "textures/sign/logo.png";
 	private static final String EXIT_RESOURCE = "textures/sign/exit_letter_blank.png";
 	private static final String ARROW_RESOURCE = "textures/sign/arrow.png";
 	private static final String CIRCLE_RESOURCE = "textures/sign/circle.png";
 	private static final String TEMP_CIRCULAR_MARKER = "temp_circular_marker";
-	private static final int PIXEL_SCALE = 4;
 	private static final int PIXEL_RESOLUTION = 24;
 
 	public static void setConstants() {
@@ -525,16 +525,6 @@ public class RouteMapGenerator implements IGui {
 		}
 
 		return null;
-	}
-
-	public static void scrollText(PoseStack matrices, VertexConsumer vertexConsumer, float availableWidth, float availableHeight, int imageWidth, int imageHeight, int scrollSpeed, boolean isFullPixel) {
-		final int pixelScale = isFullPixel ? 1 : PIXEL_SCALE;
-		final float scale = availableHeight / imageHeight;
-		final int widthSteps = (int) Math.floor(availableWidth / scale / pixelScale);
-		final int imageSteps = imageWidth / pixelScale;
-		final int step = (int) ((System.currentTimeMillis() / 20 * scrollSpeed) % (widthSteps + imageSteps));
-		final float width = Math.min(Math.min(availableWidth, imageWidth * scale), Math.min(step * pixelScale * scale, (imageSteps + widthSteps - step) * pixelScale * scale));
-		IDrawing.drawTexture(matrices, vertexConsumer, Math.max(widthSteps - step, 0) * scale * pixelScale, 0, width, availableHeight, Math.max((float) (step - widthSteps) / imageSteps, 0), 0, Math.min((float) step / imageSteps, 1), 1, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
 	}
 
 	public static void scrollTextLightRail(PoseStack matrices, VertexConsumer vertexConsumer, int rows, float availableWidth, float availableHeight, int imageWidth, int imageHeight) {

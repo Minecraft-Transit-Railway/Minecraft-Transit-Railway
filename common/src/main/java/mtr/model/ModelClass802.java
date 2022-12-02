@@ -3,17 +3,17 @@ package mtr.model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
-import mtr.client.ClientCache;
 import mtr.client.ClientData;
 import mtr.client.DoorAnimationType;
-import mtr.client.RouteMapGenerator;
+import mtr.client.ScrollingText;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
-import mtr.render.MoreRenderLayers;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
+
+import java.util.List;
 
 public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 
@@ -1956,7 +1956,11 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 	}
 
 	@Override
-	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform) {
+	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform, List<ScrollingText> scrollingTexts) {
+		if (scrollingTexts.isEmpty()) {
+			scrollingTexts.add(new ScrollingText(0.46F, 0.16F, 4, false));
+			scrollingTexts.add(new ScrollingText(0.7F, 0.06F, 8, true));
+		}
 		final boolean isEnd1Head = car == 0;
 		final boolean isEnd2Head = car == totalCars - 1;
 		final boolean renderFirstDestination = renderFirstDestination(isEnd1Head, isEnd2Head);
@@ -1964,8 +1968,8 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 		final String destinationString = getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false);
 
 		if (renderFirstDestination || renderSecondDestination) {
-			final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getPixelatedText(destinationString.replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, false);
-			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource.resourceLocation, true));
+			scrollingTexts.get(0).changeImage(destinationString.isEmpty() ? null : ClientData.DATA_CACHE.getPixelatedText(destinationString.replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, false));
+			scrollingTexts.get(0).setVertexConsumer(vertexConsumers);
 
 			for (int i = 0; i < 2; i++) {
 				if (i == 0 && renderFirstDestination || i == 1 && renderSecondDestination) {
@@ -1976,7 +1980,7 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 						matrices.mulPose(Vector3f.YP.rotationDegrees(90 * flip));
 						matrices.mulPose(Vector3f.XP.rotationDegrees(-8));
 						matrices.translate(-0.23F, -1.38F, -0.01F);
-						RouteMapGenerator.scrollText(matrices, vertexConsumer, 0.46F, 0.16F, dynamicResource.width, dynamicResource.height, 1, false);
+						scrollingTexts.get(0).scrollText(matrices);
 						matrices.popPose();
 					}
 				}
@@ -1984,18 +1988,17 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 		}
 
 		final String nextStationString = getLondonNextStationString(thisRoute, nextRoute, thisStation, nextStation, lastStation, destinationString, atPlatform);
-		if (!nextStationString.isEmpty()) {
-			final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, true);
-			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource.resourceLocation, true));
-			for (int i = 0; i < 2; i++) {
-				matrices.pushPose();
-				if (i == 1) {
-					matrices.mulPose(Vector3f.YP.rotationDegrees(180));
-				}
-				matrices.translate(-0.35F, -2.19F, (getEndPositions()[1] - (i == 1 && isEnd1Head || i == 0 && isEnd2Head ? 90 : 0)) / 16F - 0.51F);
-				RouteMapGenerator.scrollText(matrices, vertexConsumer, 0.7F, 0.06F, dynamicResource.width, dynamicResource.height, 3, true);
-				matrices.popPose();
+		scrollingTexts.get(1).changeImage(nextStationString.isEmpty() ? null : ClientData.DATA_CACHE.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, true));
+		scrollingTexts.get(1).setVertexConsumer(vertexConsumers);
+
+		for (int i = 0; i < 2; i++) {
+			matrices.pushPose();
+			if (i == 1) {
+				matrices.mulPose(Vector3f.YP.rotationDegrees(180));
 			}
+			matrices.translate(-0.35F, -2.19F, (getEndPositions()[1] - (i == 1 && isEnd1Head || i == 0 && isEnd2Head ? 90 : 0)) / 16F - 0.51F);
+			scrollingTexts.get(1).scrollText(matrices);
+			matrices.popPose();
 		}
 	}
 

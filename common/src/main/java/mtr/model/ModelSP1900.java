@@ -3,12 +3,15 @@ package mtr.model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mtr.client.DoorAnimationType;
+import mtr.client.ScrollingText;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
+
+import java.util.List;
 
 public class ModelSP1900 extends ModelSimpleTrainBase<ModelSP1900> {
 
@@ -1744,7 +1747,7 @@ public class ModelSP1900 extends ModelSimpleTrainBase<ModelSP1900> {
 	}
 
 	@Override
-	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform) {
+	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform, List<ScrollingText> scrollingTexts) {
 		renderFrontDestination(
 				matrices, font, immediate,
 				0, 0, getEndPositions()[0] / 16F - 3.34F, 0, -2.36F, -0.01F,

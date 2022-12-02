@@ -3,17 +3,17 @@ package mtr.model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
-import mtr.client.ClientCache;
 import mtr.client.ClientData;
 import mtr.client.DoorAnimationType;
-import mtr.client.RouteMapGenerator;
+import mtr.client.ScrollingText;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
-import mtr.render.MoreRenderLayers;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
+
+import java.util.List;
 
 public class ModelClass377 extends ModelSimpleTrainBase<ModelClass377> {
 
@@ -1747,7 +1747,11 @@ public class ModelClass377 extends ModelSimpleTrainBase<ModelClass377> {
 	}
 
 	@Override
-	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform) {
+	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform, List<ScrollingText> scrollingTexts) {
+		if (scrollingTexts.isEmpty()) {
+			scrollingTexts.add(new ScrollingText(0.5F, 0.1F, 4, true));
+			scrollingTexts.add(new ScrollingText(1.08F, 0.06F, 8, true));
+		}
 		final boolean isEnd1Head = car == 0;
 		final boolean isEnd2Head = car == totalCars - 1;
 		final float offset = 0.23F;
@@ -1755,8 +1759,8 @@ public class ModelClass377 extends ModelSimpleTrainBase<ModelClass377> {
 		final float[] positions2 = {-4 - 26.5F / 16 - offset, 4 - 26.5F / 16 - (isEnd2Head ? -1 : 1) * offset};
 
 		final String destinationString = getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false);
-		final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getPixelatedText(destinationString.replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, true);
-		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource.resourceLocation, true));
+		scrollingTexts.get(0).changeImage(destinationString.isEmpty() ? null : ClientData.DATA_CACHE.getPixelatedText(destinationString.replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, true));
+		scrollingTexts.get(0).setVertexConsumer(vertexConsumers);
 
 		for (final float position : positions1) {
 			matrices.pushPose();
@@ -1764,7 +1768,7 @@ public class ModelClass377 extends ModelSimpleTrainBase<ModelClass377> {
 			matrices.mulPose(Vector3f.YP.rotationDegrees(90));
 			matrices.mulPose(Vector3f.XP.rotationDegrees(-8));
 			matrices.translate(-0.25F, -0.82F, -0.01F);
-			RouteMapGenerator.scrollText(matrices, vertexConsumer, 0.5F, 0.1F, dynamicResource.width, dynamicResource.height, 1, true);
+			scrollingTexts.get(0).scrollText(matrices);
 			matrices.popPose();
 		}
 		for (final float position : positions2) {
@@ -1773,23 +1777,22 @@ public class ModelClass377 extends ModelSimpleTrainBase<ModelClass377> {
 			matrices.mulPose(Vector3f.YP.rotationDegrees(-90));
 			matrices.mulPose(Vector3f.XP.rotationDegrees(-8));
 			matrices.translate(-0.25F, -0.82F, -0.01F);
-			RouteMapGenerator.scrollText(matrices, vertexConsumer, 0.5F, 0.1F, dynamicResource.width, dynamicResource.height, 1, true);
+			scrollingTexts.get(0).scrollText(matrices);
 			matrices.popPose();
 		}
 
 		final String nextStationString = getLondonNextStationString(thisRoute, nextRoute, thisStation, nextStation, lastStation, destinationString, atPlatform);
-		if (!nextStationString.isEmpty()) {
-			final ClientCache.DynamicResource dynamicResource2 = ClientData.DATA_CACHE.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, true);
-			final VertexConsumer vertexConsumer2 = vertexConsumers.getBuffer(MoreRenderLayers.getLight(dynamicResource2.resourceLocation, true));
-			for (int i = 0; i < 2; i++) {
-				matrices.pushPose();
-				if (i == 1) {
-					matrices.mulPose(Vector3f.YP.rotationDegrees(180));
-				}
-				matrices.translate(-0.54F, -2.14F, (getEndPositions()[1] - (i == 1 && isEnd1Head || i == 0 && isEnd2Head ? 13 : 0)) / 16F - 0.01);
-				RouteMapGenerator.scrollText(matrices, vertexConsumer2, 1.08F, 0.06F, dynamicResource2.width, dynamicResource2.height, 3, true);
-				matrices.popPose();
+		scrollingTexts.get(1).changeImage(nextStationString.isEmpty() ? null : ClientData.DATA_CACHE.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, true));
+		scrollingTexts.get(1).setVertexConsumer(vertexConsumers);
+
+		for (int i = 0; i < 2; i++) {
+			matrices.pushPose();
+			if (i == 1) {
+				matrices.mulPose(Vector3f.YP.rotationDegrees(180));
 			}
+			matrices.translate(-0.54F, -2.14F, (getEndPositions()[1] - (i == 1 && isEnd1Head || i == 0 && isEnd2Head ? 13 : 0)) / 16F - 0.01);
+			scrollingTexts.get(1).scrollText(matrices);
+			matrices.popPose();
 		}
 	}
 
