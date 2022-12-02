@@ -249,10 +249,12 @@ public class MTR implements IPacket {
 			registerBlockItem.accept("rubbish_bin_1", Blocks.RUBBISH_BIN_1, ItemGroups.RAILWAY_FACILITIES);
 			registerBlockItem.accept("signal_light_1", Blocks.SIGNAL_LIGHT_1, ItemGroups.RAILWAY_FACILITIES);
 			registerBlockItem.accept("signal_light_2", Blocks.SIGNAL_LIGHT_2, ItemGroups.RAILWAY_FACILITIES);
-			registerBlockItem.accept("signal_light_3_aspect_1", Blocks.SIGNAL_LIGHT_3_ASPECT_1, ItemGroups.RAILWAY_FACILITIES);
-			registerBlockItem.accept("signal_light_3_aspect_2", Blocks.SIGNAL_LIGHT_3_ASPECT_2, ItemGroups.RAILWAY_FACILITIES);
 			registerBlockItem.accept("signal_light_3", Blocks.SIGNAL_LIGHT_3, ItemGroups.RAILWAY_FACILITIES);
 			registerBlockItem.accept("signal_light_4", Blocks.SIGNAL_LIGHT_4, ItemGroups.RAILWAY_FACILITIES);
+			registerBlockItem.accept("signal_light_3_aspect_1", Blocks.SIGNAL_LIGHT_3_ASPECT_1, ItemGroups.RAILWAY_FACILITIES);
+			registerBlockItem.accept("signal_light_3_aspect_2", Blocks.SIGNAL_LIGHT_3_ASPECT_2, ItemGroups.RAILWAY_FACILITIES);
+			registerBlockItem.accept("signal_light_4_aspect_1", Blocks.SIGNAL_LIGHT_4_ASPECT_1, ItemGroups.RAILWAY_FACILITIES);
+			registerBlockItem.accept("signal_light_4_aspect_2", Blocks.SIGNAL_LIGHT_4_ASPECT_2, ItemGroups.RAILWAY_FACILITIES);
 			registerBlockItem.accept("signal_semaphore_1", Blocks.SIGNAL_SEMAPHORE_1, ItemGroups.RAILWAY_FACILITIES);
 			registerBlockItem.accept("signal_semaphore_2", Blocks.SIGNAL_SEMAPHORE_2, ItemGroups.RAILWAY_FACILITIES);
 			registerBlockItem.accept("signal_pole", Blocks.SIGNAL_POLE, ItemGroups.RAILWAY_FACILITIES);
@@ -380,6 +382,8 @@ public class MTR implements IPacket {
 			registerBlockEntityType.accept("signal_light_4", BlockEntityTypes.SIGNAL_LIGHT_4);
 			registerBlockEntityType.accept("signal_light_3_aspect_1", BlockEntityTypes.SIGNAL_LIGHT_3_ASPECT_1);
 			registerBlockEntityType.accept("signal_light_3_aspect_2", BlockEntityTypes.SIGNAL_LIGHT_3_ASPECT_2);
+			registerBlockEntityType.accept("signal_light_4_aspect_1", BlockEntityTypes.SIGNAL_LIGHT_4_ASPECT_1);
+			registerBlockEntityType.accept("signal_light_4_aspect_2", BlockEntityTypes.SIGNAL_LIGHT_4_ASPECT_2);
 			registerBlockEntityType.accept("signal_semaphore_1", BlockEntityTypes.SIGNAL_SEMAPHORE_1);
 			registerBlockEntityType.accept("signal_semaphore_2", BlockEntityTypes.SIGNAL_SEMAPHORE_2);
 			registerBlockEntityType.accept("station_name_entrance", BlockEntityTypes.STATION_NAME_ENTRANCE_TILE_ENTITY);
