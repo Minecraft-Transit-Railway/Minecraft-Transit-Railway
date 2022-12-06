@@ -25,6 +25,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 
 import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -162,14 +163,14 @@ public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IG
 				if (canDrawAreaText(station)) {
 					final BlockPos pos = station.getCenter();
 					final String stationString = String.format("%s|(%s)", station.name, Text.translatable("gui.mtr.zone_number", station.zone).getString());
-					drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, stationString, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
+					drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, stationString, x + x1.floatValue(), y + y1.floatValue(), MAX_LIGHT_GLOWING));
 				}
 			}
 		} else {
 			for (final Depot depot : ClientData.DEPOTS) {
 				if (canDrawAreaText(depot)) {
 					final BlockPos pos = depot.getCenter();
-					drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, depot.name, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
+					drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, depot.name, x + x1.floatValue(), y + y1.floatValue(), MAX_LIGHT_GLOWING));
 				}
 			}
 		}
@@ -319,10 +320,12 @@ public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IG
 		return new Tuple<>(left, right);
 	}
 
-	private void drawFromWorldCoords(double worldX, double worldZ, DrawFromWorldCoords callback) {
+	private void drawFromWorldCoords(double worldX, double worldZ, BiConsumer<Double, Double> callback) {
 		final double coordsX = (worldX - centerX) * scale + width / 2D;
 		final double coordsY = (worldZ - centerY) * scale + height / 2D;
-		callback.drawFromWorldCoords(coordsX, coordsY);
+		if (RailwayData.isBetween(coordsX, 0, width) && RailwayData.isBetween(coordsY, 0, height)) {
+			callback.accept(coordsX, coordsY);
+		}
 	}
 
 	private void drawRectangleFromWorldCoords(BufferBuilder buffer, Tuple<Integer, Integer> corner1, Tuple<Integer, Integer> corner2, int color) {
@@ -355,7 +358,7 @@ public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IG
 		final int savedRailCount = savedRails.size();
 		for (int i = 0; i < savedRailCount; i++) {
 			final int index = i;
-			drawFromWorldCoords(savedRailPos.getX() + 0.5, savedRailPos.getZ() + (i + 0.5) / savedRailCount, (x1, y1) -> Gui.drawCenteredString(matrices, textRenderer, savedRails.get(index).name, x + (int) x1, y + (int) y1 - TEXT_HEIGHT / 2, ARGB_WHITE));
+			drawFromWorldCoords(savedRailPos.getX() + 0.5, savedRailPos.getZ() + (i + 0.5) / savedRailCount, (x1, y1) -> Gui.drawCenteredString(matrices, textRenderer, savedRails.get(index).name, x + x1.intValue(), y + y1.intValue() - TEXT_HEIGHT / 2, ARGB_WHITE));
 		}
 	}
 
@@ -369,11 +372,6 @@ public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IG
 	@FunctionalInterface
 	public interface OnDrawCorners {
 		void onDrawCorners(Tuple<Integer, Integer> corner1, Tuple<Integer, Integer> corner2);
-	}
-
-	@FunctionalInterface
-	private interface DrawFromWorldCoords {
-		void drawFromWorldCoords(double x1, double y1);
 	}
 
 	@FunctionalInterface
