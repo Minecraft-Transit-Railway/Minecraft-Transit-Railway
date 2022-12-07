@@ -1,0 +1,44 @@
+{
+	"multipart": [
+		{
+			"apply": {
+				"model": "mtr:block/signal_light_base_4_aspect"
+			}
+		},
+		{
+			"when": {
+				"facing": "north"
+			},
+			"apply": {
+				"model": "mtr:block/signal_light_covers_4_aspect"
+			}
+		},
+		{
+			"when": {
+				"facing": "east"
+			},
+			"apply": {
+				"model": "mtr:block/signal_light_covers_4_aspect",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "south"
+			},
+			"apply": {
+				"model": "mtr:block/signal_light_covers_4_aspect",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "west"
+			},
+			"apply": {
+				"model": "mtr:block/signal_light_covers_4_aspect",
+				"y": 270
+			}
+		}
+	]
+}
