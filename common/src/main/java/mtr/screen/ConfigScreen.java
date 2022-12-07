@@ -205,7 +205,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 				final Component text = patreon.tierAmount < 1000 ? Text.translatable("options.mtr.anonymous") : Text.literal(patreon.name);
 				maxWidth = Math.max(maxWidth, font.width(text));
 				drawString(matrices, font, text, SQUARE_SIZE - TEXT_PADDING + x, yStart2 + y + TEXT_HEIGHT + TEXT_PADDING, ARGB_LIGHT_GRAY);
-				y += TEXT_HEIGHT;
+				y += TEXT_HEIGHT + 2;
 			}
 
 			super.render(matrices, mouseX, mouseY, delta);
