@@ -94,10 +94,10 @@ public interface Blocks {
 	RegistryObject<Block> ROUTE_SIGN_WALL_LIGHT = new RegistryObject<>(BlockRouteSignWallLight::new);
 	RegistryObject<Block> ROUTE_SIGN_WALL_METAL = new RegistryObject<>(BlockRouteSignWallMetal::new);
 	RegistryObject<Block> RUBBISH_BIN_1 = new RegistryObject<>(() -> new BlockRubbishBin(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).strength(4)));
-	RegistryObject<Block> SIGNAL_LIGHT_1 = new RegistryObject<>(() -> new BlockSignalLight1(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BLACK).strength(4)));
-	RegistryObject<Block> SIGNAL_LIGHT_2 = new RegistryObject<>(() -> new BlockSignalLight2(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BLACK).strength(4)));
-	RegistryObject<Block> SIGNAL_LIGHT_3 = new RegistryObject<>(() -> new BlockSignalLight3(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BLACK).strength(4)));
-	RegistryObject<Block> SIGNAL_LIGHT_4 = new RegistryObject<>(() -> new BlockSignalLight4(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BLACK).strength(4)));
+	RegistryObject<Block> SIGNAL_LIGHT_2_ASPECT_1 = new RegistryObject<>(() -> new BlockSignalLight2Aspect1(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BLACK).strength(4)));
+	RegistryObject<Block> SIGNAL_LIGHT_2_ASPECT_2 = new RegistryObject<>(() -> new BlockSignalLight2Aspect2(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BLACK).strength(4)));
+	RegistryObject<Block> SIGNAL_LIGHT_2_ASPECT_3 = new RegistryObject<>(() -> new BlockSignalLight2Aspect3(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BLACK).strength(4)));
+	RegistryObject<Block> SIGNAL_LIGHT_2_ASPECT_4 = new RegistryObject<>(() -> new BlockSignalLight2Aspect4(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BLACK).strength(4)));
 	RegistryObject<Block> SIGNAL_LIGHT_3_ASPECT_1 = new RegistryObject<>(() -> new BlockSignalLight3Aspect1(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BLACK).strength(4)));
 	RegistryObject<Block> SIGNAL_LIGHT_3_ASPECT_2 = new RegistryObject<>(() -> new BlockSignalLight3Aspect2(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BLACK).strength(4)));
 	RegistryObject<Block> SIGNAL_LIGHT_4_ASPECT_1 = new RegistryObject<>(() -> new BlockSignalLight4Aspect1(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BLACK).strength(4)));
