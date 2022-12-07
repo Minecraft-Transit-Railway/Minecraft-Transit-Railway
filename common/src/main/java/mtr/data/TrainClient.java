@@ -133,8 +133,7 @@ public class TrainClient extends Train implements IGui {
 
 		if (ticksElapsed > 0) {
 			if (isPlayerRiding(clientPlayer)) {
-				final int trainSpacing = spacing;
-				final int headIndex = getIndex(0, trainSpacing, false);
+				final int headIndex = getIndex(0, spacing, false);
 				final int stopIndex = path.get(headIndex).stopIndex - 1;
 
 				if (speedCallback != null) {
@@ -142,7 +141,7 @@ public class TrainClient extends Train implements IGui {
 				}
 
 				if (announcementCallback != null) {
-					final double targetProgress = distances.get(getPreviousStoppingIndex(headIndex)) + (trainCars + 1) * trainSpacing;
+					final double targetProgress = distances.get(getPreviousStoppingIndex(headIndex)) + (trainCars + 1) * spacing;
 					if (oldRailProgress < targetProgress && railProgress >= targetProgress) {
 						announcementCallback.announcementCallback(stopIndex, routeIds);
 					}
@@ -155,7 +154,7 @@ public class TrainClient extends Train implements IGui {
 
 			final TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 			vehicleRidingClient.movePlayer(uuid -> {
-				final CalculateCarCallback calculateCarCallback = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> vehicleRidingClient.setOffsets(uuid, x, y, z, yaw, pitch, realSpacingRender, width, doorLeftOpenRender, doorRightOpenRender, transportMode.hasPitch, trainProperties.riderOffset, trainProperties.riderOffsetDismounting, speed > 0, doorValue == 0, () -> {
+				final CalculateCarCallback calculateCarCallback = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> vehicleRidingClient.setOffsets(uuid, x, y, z, yaw, pitch, transportMode.maxLength == 1 ? spacing : realSpacingRender, width, doorLeftOpenRender, doorRightOpenRender, transportMode.hasPitchAscending, transportMode.hasPitchDescending, trainProperties.riderOffset, trainProperties.riderOffsetDismounting, speed > 0, doorValue == 0, () -> {
 					final boolean isShifting = clientPlayer.isShiftKeyDown();
 					if (Config.shiftToToggleSitting() && !MTRClient.isVivecraft()) {
 						if (isShifting && !previousShifting) {
@@ -332,14 +331,14 @@ public class TrainClient extends Train implements IGui {
 
 		speed = train.speed;
 		railProgress = train.railProgress;
-
+		doorTarget = train.doorTarget;
 		elapsedDwellTicks = train.elapsedDwellTicks;
 		nextStoppingIndex = train.nextStoppingIndex;
+		nextPlatformIndex = train.nextPlatformIndex;
 		reversed = train.reversed;
-		isCurrentlyManual = train.isCurrentlyManual;
 		isOnRoute = train.isOnRoute;
+		isCurrentlyManual = train.isCurrentlyManual;
 		manualNotch = train.manualNotch;
-		doorTarget = train.doorTarget;
 	}
 
 	public final float speedChange() {

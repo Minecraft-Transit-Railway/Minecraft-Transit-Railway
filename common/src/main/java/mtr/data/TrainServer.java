@@ -66,7 +66,6 @@ public class TrainServer extends Train {
 
 	@Override
 	protected void startUp(Level world, int trainCars, int trainSpacing, boolean isOppositeRail) {
-		super.startUp(world, trainCars, trainSpacing, isOppositeRail);
 		canDeploy = false;
 		isOnRoute = true;
 		elapsedDwellTicks = 0;
@@ -76,6 +75,7 @@ public class TrainServer extends Train {
 			reversed = !reversed;
 		}
 		nextStoppingIndex = getNextStoppingIndex();
+		super.startUp(world, trainCars, trainSpacing, isOppositeRail);
 	}
 
 	@Override

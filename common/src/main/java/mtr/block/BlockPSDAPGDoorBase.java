@@ -1,5 +1,6 @@
 package mtr.block;
 
+import mtr.data.IGui;
 import mtr.mappings.BlockEntityClientSerializableMapper;
 import mtr.mappings.EntityBlockMapper;
 import mtr.mappings.Text;
@@ -116,7 +117,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 		world.setBlockAndUpdate(pos, state.setValue(UNLOCKED, unlocked));
 	}
 
-	public static abstract class TileEntityPSDAPGDoorBase extends BlockEntityClientSerializableMapper {
+	public static abstract class TileEntityPSDAPGDoorBase extends BlockEntityClientSerializableMapper implements IGui {
 
 		private int open;
 		private float openClient;
@@ -162,8 +163,8 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 
 		public float getOpen(float lastFrameDuration) {
 			final float change = lastFrameDuration * 0.95F;
-			if (Math.abs(open - openClient) < change) {
-				openClient = open;
+			if (Math.abs(open - SMALL_OFFSET_16 * 2 - openClient) < change) {
+				openClient = open - SMALL_OFFSET_16 * 2;
 			} else if (openClient < open) {
 				openClient += change;
 			} else {

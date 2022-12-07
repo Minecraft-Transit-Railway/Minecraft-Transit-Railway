@@ -2130,7 +2130,7 @@ public class ModelA320 extends ModelSimpleTrainBase<ModelA320> {
 
 	@Override
 	protected void baseTransform(PoseStack matrices) {
-		matrices.translate(0, -3.5, 1.375);
+		matrices.translate(0, -3.5, 2.375);
 	}
 
 	@Override

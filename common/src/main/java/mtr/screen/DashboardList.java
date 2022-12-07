@@ -248,7 +248,7 @@ public class DashboardList implements IGui {
 
 	private void onClick(BiConsumer<NameColorDataBase, Integer> onClick) {
 		final int index = getHoverItemIndex();
-		if (index >= 0) {
+		if (index >= 0 && index < dataSorted.size()) {
 			onClick.accept(dataSorted.get(index), index);
 		}
 	}

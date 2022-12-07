@@ -161,7 +161,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 				int y = SQUARE_SIZE;
 				y = drawWrappedText(matrices, properties.name, y, ARGB_WHITE);
 				y = drawWrappedText(matrices, Text.translatable("gui.mtr.vehicle_length", spacing - 1), y, ARGB_WHITE);
-				y = drawWrappedText(matrices, Text.translatable("gui.mtr.vehicle_cars", (cars == 0 ? WARNING + " " : "") + cars), y, ARGB_WHITE);
+				y = drawWrappedText(matrices, Text.translatable("gui.mtr.cars_to_spawn", (cars == 0 ? WARNING + " " : "") + Math.min(cars, savedRailBase.transportMode.maxLength)), y, ARGB_WHITE);
 				drawWrappedText(matrices, properties.description, y, ARGB_LIGHT_GRAY);
 			}
 		}

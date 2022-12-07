@@ -160,7 +160,7 @@ public class TrainClientRegistry {
 		register(TrainType.NGONG_PING_360_NORMAL_ORANGE_RHT, new ModelNgongPing360(true), "mtr:textures/entity/ngong_ping_360_normal_orange", 0x062540, 0, 0);
 		register(TrainType.NGONG_PING_360_NORMAL_LIGHT_BLUE, new ModelNgongPing360(false), "mtr:textures/entity/ngong_ping_360_normal_light_blue", 0x062540, 0, 0);
 		register(TrainType.NGONG_PING_360_NORMAL_LIGHT_BLUE_RHT, new ModelNgongPing360(true), "mtr:textures/entity/ngong_ping_360_normal_light_blue", 0x062540, 0, 0);
-		register(TrainType.A320, new ModelA320(), "mtr:textures/entity/a320", 0xCCCCCC, 2.5F, 3);
+		register(TrainType.A320, new ModelA320(), "mtr:textures/entity/a320", 0xCCCCCC, 2.6F, 3);
 		register(TrainType.FLYING_MINECART, null, "textures/entity/minecart", 0x666666, -0.5F, 0);
 	}
 
