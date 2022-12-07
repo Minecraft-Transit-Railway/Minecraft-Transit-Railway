@@ -105,6 +105,7 @@ public interface Blocks {
 	RegistryObject<Block> SIGNAL_SEMAPHORE_1 = new RegistryObject<>(() -> new BlockSignalSemaphore1(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BLACK).strength(4)));
 	RegistryObject<Block> SIGNAL_SEMAPHORE_2 = new RegistryObject<>(() -> new BlockSignalSemaphore2(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BLACK).strength(4)));
 	RegistryObject<Block> SIGNAL_POLE = new RegistryObject<>(() -> new BlockStationColorPole(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion(), false));
+
 	RegistryObject<Block> STATION_COLOR_ANDESITE = new RegistryObject<>(() -> new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.ANDESITE)));
 	RegistryObject<Block> STATION_COLOR_BEDROCK = new RegistryObject<>(() -> new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.STONE)));
 	RegistryObject<Block> STATION_COLOR_BIRCH_WOOD = new RegistryObject<>(() -> new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.BIRCH_WOOD)));

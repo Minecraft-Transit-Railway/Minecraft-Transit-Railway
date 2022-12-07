@@ -10,27 +10,30 @@ import net.minecraft.core.Direction;
 
 public class RenderSignalLight3Aspect<T extends BlockEntityMapper> extends RenderSignalBase<T> {
 
-	final int proceedColor;
-	final int cautionColor;
+	private final int proceedColor;
 
-	public RenderSignalLight3Aspect(BlockEntityRenderDispatcher dispatcher, boolean isSingleSided, int proceedColor, int cautionColor) {
+	public RenderSignalLight3Aspect(BlockEntityRenderDispatcher dispatcher, boolean isSingleSided, int proceedColor) {
 		super(dispatcher, isSingleSided, 3);
 		this.proceedColor = proceedColor;
-		this.cautionColor = cautionColor;
 	}
 
 	@Override
-	protected void render(PoseStack matrices, MultiBufferSource vertexConsumers, VertexConsumer vertexConsumer, T entity, float tickDelta, Direction facing, int aspect, boolean isBackSide) {
-		float y = 0.125F;
-		int color = 0xFFFF0000;
-		switch (aspect) {
+	protected void render(PoseStack matrices, MultiBufferSource vertexConsumers, VertexConsumer vertexConsumer, T entity, float tickDelta, Direction facing, int occupiedAspect, boolean isBackSide) {
+		final float y;
+		final int color;
+		switch (occupiedAspect) {
 			case 1:
 				y = 0.40625F;
-				color = cautionColor;
+				color = 0xFFFFFF00;
 				break;
 			case 2:
 				y = 0.6875F;
 				color = proceedColor;
+				break;
+			default:
+				y = 0.125F;
+				color = 0xFFFF0000;
+				break;
 		}
 		IDrawing.drawTexture(matrices, vertexConsumer, -0.09375F, y, -0.19375F, 0.09375F, y + 0.1875F, -0.19375F, facing.getOpposite(), color, MAX_LIGHT_GLOWING);
 	}

@@ -10,8 +10,6 @@ import mtr.block.IBlock;
 import mtr.client.ClientData;
 import mtr.data.IGui;
 import mtr.data.Rail;
-import mtr.data.RailAngle;
-import mtr.data.SignalBlocks;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.BlockEntityRendererMapper;
 import mtr.path.PathData;
@@ -24,7 +22,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,49 +63,13 @@ public abstract class RenderSignalBase<T extends BlockEntityMapper> extends Bloc
 
 		for (int i = 0; i < 2; i++) {
 			final Direction newFacing = (i == 1 ? facing.getOpposite() : facing);
+			final int occupiedAspect = getOccupiedAspect(startPos, newFacing.toYRot() + 90);
 
-			int aspect = 0;
-			boolean render = false;
-
-			Map<BlockPos, Float> nodeMap = new HashMap<>();
-			nodeMap.put(startPos, newFacing.toYRot() + 90);
-
-			for (int a = 0; a < aspects - 1; a++) {
-				Map<BlockPos, Float> newMap = new HashMap<>();
-				boolean occupied = false;
-				for (BlockPos nodePos : nodeMap.keySet()) {
-					final Map<BlockPos, Rail> railMap = ClientData.RAILS.get(nodePos);
-					if (railMap != null) {
-						for (final BlockPos endPos : railMap.keySet()) {
-							if (railMap.get(endPos).facingStart.similarFacing(nodeMap.get(nodePos))) {
-								newMap.put(endPos, railMap.get(endPos).facingStart.angleDegrees);
-								render = true;
-								if (ClientData.SIGNAL_BLOCKS.isOccupied(PathData.getRailProduct(nodePos, endPos))) {
-									occupied = true;
-									break;
-								}
-							}
-						}
-					} else {
-						occupied = true;
-					}
-				}
-				if (occupied) {
-					aspect = a;
-					break;
-				}
-                if (a == aspects - 2 && !occupied) {
-					aspect = a + 1;
-					break;
-				}
-				nodeMap = new HashMap<>(newMap);
-			}
-
-			if (render) {
+			if (occupiedAspect >= 0) {
 				matrices.pushPose();
 				matrices.mulPose(Vector3f.YN.rotationDegrees(newFacing.toYRot()));
 				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new ResourceLocation("mtr:textures/block/white.png"), false));
-				render(matrices, vertexConsumers, vertexConsumer, entity, tickDelta, newFacing, aspect, i == 1);
+				render(matrices, vertexConsumers, vertexConsumer, entity, tickDelta, newFacing, occupiedAspect, i == 1);
 				matrices.popPose();
 			}
 
@@ -120,7 +81,39 @@ public abstract class RenderSignalBase<T extends BlockEntityMapper> extends Bloc
 		matrices.popPose();
 	}
 
-	protected abstract void render(PoseStack matrices, MultiBufferSource vertexConsumers, VertexConsumer vertexConsumer, T entity, float tickDelta, Direction facing, int aspect, boolean isBackSide);
+	protected abstract void render(PoseStack matrices, MultiBufferSource vertexConsumers, VertexConsumer vertexConsumer, T entity, float tickDelta, Direction facing, int occupiedAspect, boolean isBackSide);
+
+	private int getOccupiedAspect(BlockPos startPos, float facing) {
+		Map<BlockPos, Float> nodesToScan = new HashMap<>();
+		nodesToScan.put(startPos, facing);
+		int occupiedAspect = -1;
+
+		for (int j = 1; j < aspects; j++) {
+			final Map<BlockPos, Float> newNodesToScan = new HashMap<>();
+
+			for (final Map.Entry<BlockPos, Float> checkNode : nodesToScan.entrySet()) {
+				final Map<BlockPos, Rail> railMap = ClientData.RAILS.get(checkNode.getKey());
+
+				if (railMap != null) {
+					for (final BlockPos endPos : railMap.keySet()) {
+						final Rail rail = railMap.get(endPos);
+						if (rail.facingStart.similarFacing(checkNode.getValue())) {
+							if (ClientData.SIGNAL_BLOCKS.isOccupied(PathData.getRailProduct(checkNode.getKey(), endPos))) {
+								return j;
+							}
+
+							newNodesToScan.put(checkNode.getKey(), rail.facingEnd.getOpposite().angleDegrees);
+							occupiedAspect = 0;
+						}
+					}
+				}
+			}
+
+			nodesToScan = newNodesToScan;
+		}
+
+		return occupiedAspect;
+	}
 
 	private static BlockPos getNodePos(BlockGetter world, BlockPos pos, Direction facing) {
 		final int[] checkDistance = {0, 1, -1, 2, -2, 3, -3, 4, -4};
