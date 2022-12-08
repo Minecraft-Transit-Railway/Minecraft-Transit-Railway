@@ -100,9 +100,14 @@ public abstract class RenderSignalBase<T extends BlockEntityMapper> extends Bloc
 						if (rail.facingStart.similarFacing(checkNode.getValue())) {
 							if (ClientData.SIGNAL_BLOCKS.isOccupied(PathData.getRailProduct(checkNode.getKey(), endPos))) {
 								return j;
+							} else {
+								final Boolean isOccupied = ClientData.OCCUPIED_RAILS.get(PathData.getRailProduct(checkNode.getKey(), endPos));
+								if (isOccupied != null && isOccupied) {
+									return j;
+								}
 							}
 
-							newNodesToScan.put(checkNode.getKey(), rail.facingEnd.getOpposite().angleDegrees);
+							newNodesToScan.put(endPos, rail.facingEnd.getOpposite().angleDegrees);
 							occupiedAspect = 0;
 						}
 					}

@@ -23,16 +23,16 @@ public class RenderSignalLight3Aspect<T extends BlockEntityMapper> extends Rende
 		final int color;
 		switch (occupiedAspect) {
 			case 1:
+				y = 0.125F;
+				color = 0xFFFF0000;
+				break;
+			case 2:
 				y = 0.40625F;
 				color = 0xFFFFFF00;
 				break;
-			case 2:
+			default:
 				y = 0.6875F;
 				color = proceedColor;
-				break;
-			default:
-				y = 0.125F;
-				color = 0xFFFF0000;
 				break;
 		}
 		IDrawing.drawTexture(matrices, vertexConsumer, -0.09375F, y, -0.19375F, 0.09375F, y + 0.1875F, -0.19375F, facing.getOpposite(), color, MAX_LIGHT_GLOWING);

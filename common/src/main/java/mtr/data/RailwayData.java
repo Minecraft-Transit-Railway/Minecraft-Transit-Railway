@@ -349,9 +349,13 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 				}
 			}));
 			final Map<Long, Boolean> signalBlockStatus = new HashMap<>();
-			railsToAdd.forEach(rail -> signalBlocks.getSignalBlockStatus(signalBlockStatus, rail));
+			final Map<UUID, Boolean> occupiedRails = new HashMap<>();
+			railsToAdd.forEach(rail -> {
+				signalBlocks.getSignalBlockStatus(signalBlockStatus, rail);
+				occupiedRails.put(rail, trainPositions.get(1).containsKey(rail));
+			});
 
-			if (!platformIds.isEmpty() || !signalBlockStatus.isEmpty()) {
+			if (!platformIds.isEmpty() || !signalBlockStatus.isEmpty() || !occupiedRails.isEmpty()) {
 				final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 				packet.writeInt(platformIds.size());
 				platformIds.forEach(platformId -> {
@@ -368,6 +372,12 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 				packet.writeInt(signalBlockStatus.size());
 				signalBlockStatus.forEach((id, occupied) -> {
 					packet.writeLong(id);
+					packet.writeBoolean(occupied);
+				});
+
+				packet.writeInt(occupiedRails.size());
+				occupiedRails.forEach((rail, occupied) -> {
+					packet.writeUUID(rail);
 					packet.writeBoolean(occupied);
 				});
 

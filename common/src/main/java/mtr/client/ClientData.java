@@ -37,6 +37,7 @@ public final class ClientData {
 	public static final Set<Depot> DEPOTS = new HashSet<>();
 	public static final Set<LiftClient> LIFTS = new HashSet<>();
 	public static final SignalBlocks SIGNAL_BLOCKS = new SignalBlocks();
+	public static final Map<UUID, Boolean> OCCUPIED_RAILS = new HashMap<>();
 	public static final Map<BlockPos, Map<BlockPos, Rail>> RAILS = new HashMap<>();
 	public static final Set<TrainClient> TRAINS = new HashSet<>();
 	public static final List<DataConverter> RAIL_ACTIONS = new ArrayList<>();
@@ -248,9 +249,17 @@ public final class ClientData {
 			signalBlockStatus.put(packet.readLong(), packet.readBoolean());
 		}
 
+		final Map<UUID, Boolean> occupiedRails = new HashMap<>();
+		final int occupiedRailsCount = packet.readInt();
+		for (int i = 0; i < occupiedRailsCount; i++) {
+			occupiedRails.put(packet.readUUID(), packet.readBoolean());
+		}
+
 		client.execute(() -> {
 			clearAndAddAll(SCHEDULES_FOR_PLATFORM, tempSchedulesForPlatform);
 			SIGNAL_BLOCKS.writeSignalBlockStatus(signalBlockStatus);
+			OCCUPIED_RAILS.clear();
+			OCCUPIED_RAILS.putAll(occupiedRails);
 		});
 	}
 
