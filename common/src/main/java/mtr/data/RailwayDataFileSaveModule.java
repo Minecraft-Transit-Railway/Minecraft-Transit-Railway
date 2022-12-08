@@ -10,6 +10,7 @@ import org.msgpack.core.MessageUnpacker;
 import org.msgpack.value.Value;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -218,22 +219,24 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 			pathStream.forEach(idFolder -> {
 				try (final Stream<Path> folderStream = Files.list(idFolder)) {
 					folderStream.forEach(idFile -> {
-						try {
-							final MessageUnpacker messageUnpacker = MessagePack.newDefaultUnpacker(Files.newInputStream(idFile));
-							final int size = messageUnpacker.unpackMapHeader();
-							final HashMap<String, Value> result = new HashMap<>(size);
+						try (final InputStream inputStream = Files.newInputStream(idFile)) {
+							try (final MessageUnpacker messageUnpacker = MessagePack.newDefaultUnpacker(inputStream)) {
+								final int size = messageUnpacker.unpackMapHeader();
+								final HashMap<String, Value> result = new HashMap<>(size);
 
-							for (int i = 0; i < size; i++) {
-								result.put(messageUnpacker.unpackString(), messageUnpacker.unpackValue());
+								for (int i = 0; i < size; i++) {
+									result.put(messageUnpacker.unpackString(), messageUnpacker.unpackValue());
+								}
+
+								final T data = getData.apply(result);
+								if (skipVerify || !(data instanceof NameColorDataBase) || !((NameColorDataBase) data).name.isEmpty()) {
+									callback.accept(data);
+								}
+
+								existingFiles.put(idFile, getHash(data, true));
+							} catch (IOException e) {
+								e.printStackTrace();
 							}
-
-							final T data = getData.apply(result);
-							if (skipVerify || !(data instanceof NameColorDataBase) || !((NameColorDataBase) data).name.isEmpty()) {
-								callback.accept(data);
-							}
-
-							existingFiles.put(idFile, getHash(data, true));
-							messageUnpacker.close();
 						} catch (IOException e) {
 							e.printStackTrace();
 						}

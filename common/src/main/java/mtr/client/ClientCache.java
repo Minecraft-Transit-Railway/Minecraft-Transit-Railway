@@ -290,7 +290,14 @@ public class ClientCache extends DataCache implements IGui {
 		}
 
 		final boolean oneRow = horizontalAlignment == null;
-		final String[] textSplit = IGui.textOrUntitled(text).split("\\|");
+		final String[] defaultTextSplit = IGui.textOrUntitled(text).split("\\|");
+		final String[] textSplit;
+		if (Config.languageOptions() == 0) {
+			textSplit = defaultTextSplit;
+		} else {
+			final String[] tempTextSplit = Arrays.stream(IGui.textOrUntitled(text).split("\\|")).filter(textPart -> IGui.isCjk(textPart) == (Config.languageOptions() == 1)).toArray(String[]::new);
+			textSplit = tempTextSplit.length == 0 ? defaultTextSplit : tempTextSplit;
+		}
 		final AttributedString[] attributedStrings = new AttributedString[textSplit.length];
 		final int[] textWidths = new int[textSplit.length];
 		final int[] fontSizes = new int[textSplit.length];

@@ -75,7 +75,6 @@ public class MTRClient implements IPacket {
 			RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PSD_GLASS_2.get());
 			RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PSD_GLASS_END_2.get());
 			RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.RUBBISH_BIN_1.get());
-			RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.SIGNAL_LIGHT_1.get());
 			RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.STATION_COLOR_STAINED_GLASS.get());
 			RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.STATION_COLOR_STAINED_GLASS_SLAB.get());
 			RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.STATION_NAME_TALL_BLOCK.get());
@@ -206,10 +205,14 @@ public class MTRClient implements IPacket {
 			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.ROUTE_SIGN_STANDING_METAL_TILE_ENTITY.get(), RenderRouteSign::new);
 			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.ROUTE_SIGN_WALL_LIGHT_TILE_ENTITY.get(), RenderRouteSign::new);
 			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.ROUTE_SIGN_WALL_METAL_TILE_ENTITY.get(), RenderRouteSign::new);
-			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_1.get(), dispatcher -> new RenderSignalLight<>(dispatcher, true, false, 0xFF0000FF));
-			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_2.get(), dispatcher -> new RenderSignalLight<>(dispatcher, false, false, 0xFF0000FF));
-			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_3.get(), dispatcher -> new RenderSignalLight<>(dispatcher, true, true, 0xFF00FF00));
-			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_4.get(), dispatcher -> new RenderSignalLight<>(dispatcher, false, true, 0xFF00FF00));
+			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_2_ASPECT_1.get(), dispatcher -> new RenderSignalLight2Aspect<>(dispatcher, true, false, 0xFF0000FF));
+			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_2_ASPECT_2.get(), dispatcher -> new RenderSignalLight2Aspect<>(dispatcher, false, false, 0xFF0000FF));
+			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_2_ASPECT_3.get(), dispatcher -> new RenderSignalLight2Aspect<>(dispatcher, true, true, 0xFF00FF00));
+			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_2_ASPECT_4.get(), dispatcher -> new RenderSignalLight2Aspect<>(dispatcher, false, true, 0xFF00FF00));
+			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_3_ASPECT_1.get(), dispatcher -> new RenderSignalLight3Aspect<>(dispatcher, true));
+			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_3_ASPECT_2.get(), dispatcher -> new RenderSignalLight3Aspect<>(dispatcher, false));
+			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_4_ASPECT_1.get(), dispatcher -> new RenderSignalLight4Aspect<>(dispatcher, true));
+			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_4_ASPECT_2.get(), dispatcher -> new RenderSignalLight4Aspect<>(dispatcher, false));
 			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_SEMAPHORE_1.get(), dispatcher -> new RenderSignalSemaphore<>(dispatcher, true));
 			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_SEMAPHORE_2.get(), dispatcher -> new RenderSignalSemaphore<>(dispatcher, false));
 			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_ENTRANCE_TILE_ENTITY.get(), dispatcher -> new RenderStationNameTiled<>(dispatcher, true));

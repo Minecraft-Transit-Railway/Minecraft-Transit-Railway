@@ -121,18 +121,9 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		dashboardList.x = 0;
 		dashboardList.y = SQUARE_SIZE;
 		dashboardList.width = PANEL_WIDTH;
-		dashboardList.height = height - SQUARE_SIZE * 2;
 
-		buttonDoneEditingStation.visible = false;
-		buttonDoneEditingRoute.visible = false;
-		buttonDoneEditingRouteDestination.visible = false;
-
-		textFieldName.setVisible(false);
-		textFieldCustomDestination.setVisible(false);
-		colorSelector.visible = false;
-
+		toggleButtons();
 		dashboardList.init(this::addDrawableChild);
-
 		addWidget(widgetMap);
 
 		addDrawableChild(buttonTabStations);

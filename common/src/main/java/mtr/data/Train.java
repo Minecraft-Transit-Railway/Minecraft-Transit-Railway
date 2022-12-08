@@ -35,9 +35,9 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 	protected double railProgress;
 	protected boolean doorTarget;
 	protected float doorValue;
-	protected int totalDwellTicks;
 	protected float elapsedDwellTicks;
 	protected int nextStoppingIndex;
+	protected int nextPlatformIndex;
 	protected boolean reversed;
 	protected boolean isOnRoute = false;
 	protected boolean isCurrentlyManual;
@@ -75,6 +75,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 	private static final String KEY_RAIL_PROGRESS = "rail_progress";
 	private static final String KEY_ELAPSED_DWELL_TICKS = "stop_counter";
 	private static final String KEY_NEXT_STOPPING_INDEX = "next_stopping_index";
+	private static final String KEY_NEXT_PLATFORM_INDEX = "next_platform_index";
 	private static final String KEY_REVERSED = "reversed";
 	private static final String KEY_IS_CURRENTLY_MANUAL = "is_currently_manual";
 	private static final String KEY_IS_ON_ROUTE = "is_on_route";
@@ -133,6 +134,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		railProgress = messagePackHelper.getDouble(KEY_RAIL_PROGRESS);
 		elapsedDwellTicks = messagePackHelper.getFloat(KEY_ELAPSED_DWELL_TICKS);
 		nextStoppingIndex = messagePackHelper.getInt(KEY_NEXT_STOPPING_INDEX);
+		nextPlatformIndex = messagePackHelper.getInt(KEY_NEXT_PLATFORM_INDEX);
 		reversed = messagePackHelper.getBoolean(KEY_REVERSED);
 
 		final String tempTrainId = messagePackHelper.getString(KEY_TRAIN_CUSTOM_ID).toLowerCase(Locale.ENGLISH);
@@ -190,6 +192,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		railProgress = compoundTag.getDouble(KEY_RAIL_PROGRESS);
 		elapsedDwellTicks = compoundTag.getFloat(KEY_ELAPSED_DWELL_TICKS);
 		nextStoppingIndex = compoundTag.getInt(KEY_NEXT_STOPPING_INDEX);
+		nextPlatformIndex = compoundTag.getInt(KEY_NEXT_PLATFORM_INDEX);
 		reversed = compoundTag.getBoolean(KEY_REVERSED);
 
 		trainId = compoundTag.getString(KEY_TRAIN_CUSTOM_ID);
@@ -230,6 +233,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		railProgress = packet.readDouble();
 		elapsedDwellTicks = packet.readFloat();
 		nextStoppingIndex = packet.readInt();
+		nextPlatformIndex = packet.readInt();
 		reversed = packet.readBoolean();
 		trainId = packet.readUtf(PACKET_STRING_READ_LENGTH);
 		baseTrainType = packet.readUtf(PACKET_STRING_READ_LENGTH);
@@ -261,6 +265,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		messagePacker.packString(KEY_RAIL_PROGRESS).packDouble(railProgress);
 		messagePacker.packString(KEY_ELAPSED_DWELL_TICKS).packFloat(elapsedDwellTicks);
 		messagePacker.packString(KEY_NEXT_STOPPING_INDEX).packLong(nextStoppingIndex);
+		messagePacker.packString(KEY_NEXT_PLATFORM_INDEX).packLong(nextPlatformIndex);
 		messagePacker.packString(KEY_REVERSED).packBoolean(reversed);
 		messagePacker.packString(KEY_TRAIN_CUSTOM_ID).packString(trainId);
 		messagePacker.packString(KEY_TRAIN_TYPE).packString(baseTrainType);
@@ -296,7 +301,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 
 	@Override
 	public int messagePackLength() {
-		return super.messagePackLength() + 11;
+		return super.messagePackLength() + 12;
 	}
 
 	@Override
@@ -319,6 +324,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		packet.writeDouble(railProgress);
 		packet.writeFloat(elapsedDwellTicks);
 		packet.writeInt(nextStoppingIndex);
+		packet.writeInt(nextPlatformIndex);
 		packet.writeBoolean(reversed);
 		packet.writeUtf(trainId);
 		packet.writeUtf(baseTrainType);
@@ -415,10 +421,6 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		return doorValue;
 	}
 
-	public final int getTotalDwellTicks() {
-		return totalDwellTicks;
-	}
-
 	public final float getElapsedDwellTicks() {
 		return elapsedDwellTicks;
 	}
@@ -431,19 +433,23 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		return isOnRoute;
 	}
 
+	public int getTotalDwellTicks() {
+		return path.get(nextStoppingIndex).dwellTime * 10;
+	}
+
 	protected final void simulateTrain(Level world, float ticksElapsed, Depot depot) {
 		if (world == null) {
 			return;
 		}
 
 		try {
-			final boolean tempDoorOpen;
-			final float tempDoorValue;
-
 			if (nextStoppingIndex >= path.size()) {
 				return;
 			}
-			totalDwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
+
+			final boolean tempDoorOpen;
+			final float tempDoorValue;
+			final int totalDwellTicks = getTotalDwellTicks();
 
 			if (!isOnRoute) {
 				railProgress = (railLength + trainCars * spacing) / 2;
@@ -484,7 +490,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 								}
 							}
 
-							if (elapsedDwellTicks < totalDwellTicks - DOOR_MOVE_TIME - DOOR_DELAY || !railBlocked) {
+							if (elapsedDwellTicks < totalDwellTicks - DOOR_MOVE_TIME - DOOR_DELAY - ticksElapsed || !railBlocked) {
 								elapsedDwellTicks += ticksElapsed;
 							}
 
@@ -499,6 +505,8 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 							final int checkIndex = getIndex(0, spacing, true) + 1;
 							if (isRailBlocked(checkIndex)) {
 								nextStoppingIndex = checkIndex - 1;
+							} else if (nextPlatformIndex > 0 && nextPlatformIndex < path.size()) {
+								nextStoppingIndex = nextPlatformIndex;
 							}
 						}
 
@@ -705,6 +713,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 	protected void startUp(Level world, int trainCars, int trainSpacing, boolean isOppositeRail) {
 		doorTarget = false;
 		doorValue = 0;
+		nextPlatformIndex = nextStoppingIndex;
 	}
 
 	protected boolean openDoors() {
@@ -781,7 +790,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		final Vec3 traverseVec = new Vec3(0, 0, 1).yRot(checkYaw).xRot(pitch);
 
 		for (int checkX = 1; checkX <= 3; checkX++) {
-			for (int checkY = -2; checkY <= 0; checkY++) {
+			for (int checkY = -2; checkY <= 3; checkY++) {
 				for (double checkZ = -halfSpacing; checkZ <= halfSpacing; checkZ++) {
 					final BlockPos checkPos = new BlockPos(trainX + offsetVec.x * checkX + traverseVec.x * checkZ, trainY + checkY, trainZ + offsetVec.z * checkX + traverseVec.z * checkZ);
 					final Block block = world.getBlockState(checkPos).getBlock();

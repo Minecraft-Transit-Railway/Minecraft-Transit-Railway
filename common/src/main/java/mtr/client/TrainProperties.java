@@ -11,7 +11,8 @@ public class TrainProperties {
 
 	public final String baseTrainType;
 	public final Component name;
-	public final Component description;
+	public final String description;
+	public final String wikipediaArticle;
 	public final int color;
 	public final float riderOffset;
 	public final float riderOffsetDismounting;
@@ -21,10 +22,11 @@ public class TrainProperties {
 	public final TrainRendererBase renderer;
 	public final TrainSoundBase sound;
 
-	public TrainProperties(String baseTrainType, Component name, Component description, int color, float riderOffset, float riderOffsetDismounting, float bogiePosition, boolean isJacobsBogie, boolean hasGangwayConnection, TrainRendererBase renderer, TrainSoundBase sound) {
+	public TrainProperties(String baseTrainType, Component name, String description, String wikipediaArticle, int color, float riderOffset, float riderOffsetDismounting, float bogiePosition, boolean isJacobsBogie, boolean hasGangwayConnection, TrainRendererBase renderer, TrainSoundBase sound) {
 		this.baseTrainType = baseTrainType;
 		this.name = name;
 		this.description = description;
+		this.wikipediaArticle = wikipediaArticle;
 		this.color = color;
 		this.riderOffset = riderOffset;
 		this.riderOffsetDismounting = riderOffsetDismounting;
@@ -37,7 +39,7 @@ public class TrainProperties {
 
 	public static TrainProperties getBlankProperties() {
 		return new TrainProperties(
-				"", Text.translatable(""), null, 0, 0, 0, 0, false, false,
+				"", Text.translatable(""), null, null, 0, 0, 0, 0, false, false,
 				new JonModelTrainRenderer(null, "", "", ""),
 				new JonTrainSound("", new JonTrainSound.JonTrainSoundConfig(null, 0, 0.5F, false))
 		);

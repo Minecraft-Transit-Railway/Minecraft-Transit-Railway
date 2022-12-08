@@ -30,7 +30,7 @@ public class LiftClient extends Lift {
 		vehicleRidingClient.begin();
 		if (ticksElapsed > 0) {
 			vehicleRidingClient.movePlayer(uuid -> {
-				vehicleRidingClient.setOffsets(uuid, currentPositionX + liftOffsetX / 2F, currentPositionY + liftOffsetY, currentPositionZ + liftOffsetZ / 2F, getYaw(), 0, liftWidth - 1, liftDepth - 1, frontCanOpen, backCanOpen, transportMode.hasPitch, 0, 0, speed > 0, doorValue == 0, () -> {
+				vehicleRidingClient.setOffsets(uuid, currentPositionX + liftOffsetX / 2F, currentPositionY + liftOffsetY, currentPositionZ + liftOffsetZ / 2F, getYaw(), 0, liftWidth - 1, liftDepth - 1, frontCanOpen, backCanOpen, false, false, 0, 0, speed > 0, doorValue == 0, () -> {
 				});
 				vehicleRidingClient.moveSelf(id, uuid, liftWidth - 1, liftDepth - 1, getYaw(), 0, 1, frontCanOpen, backCanOpen, true, ticksElapsed);
 			});

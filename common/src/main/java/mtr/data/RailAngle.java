@@ -18,12 +18,12 @@ public enum RailAngle {
 	NE(315),
 	NEE(337.5F);
 
+	public final float angleDegrees;
 	public final double angleRadians;
 	public final double sin;
 	public final double cos;
 	public final double tan;
 	public final double halfTan;
-	private final float angleDegrees;
 
 	private static final int DEGREES_IN_CIRCLE = 360;
 	private static final int QUADRANTS = values().length;
