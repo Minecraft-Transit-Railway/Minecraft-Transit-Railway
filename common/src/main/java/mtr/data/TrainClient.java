@@ -64,6 +64,69 @@ public class TrainClient extends Train implements IGui {
 	protected void simulateCar(
 			Level world, int ridingCar, float ticksElapsed,
 			double carX, double carY, double carZ, float carYaw, float carPitch,
+			double xBF, double yBF, double zBF, float yawBF, float pitchBF,
+			double xBR, double yBR, double zBR, float yawBR, float pitchBR,
+			double prevCarX, double prevCarY, double prevCarZ, float prevCarYaw, float prevCarPitch,
+			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing
+	) {
+		final LocalPlayer clientPlayer = Minecraft.getInstance().player;
+		if (clientPlayer == null) {
+			return;
+		}
+
+		final BlockPos soundPos = new BlockPos(carX, carY, carZ);
+		trainSound.playAllCars(world, soundPos, ridingCar);
+		if (doorLeftOpen || doorRightOpen) {
+			trainSound.playAllCarsDoorOpening(world, soundPos, ridingCar);
+		}
+
+		final Vec3 offset = vehicleRidingClient.renderPlayerAndGetOffset();
+		final double newX = carX - offset.x;
+		final double newY = carY - offset.y;
+		final double newZ = carZ - offset.z;
+
+		doorOpening = doorValue > oldDoorValue;
+		trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, xBF, yBF, zBF, yawBF, pitchBF, xBR, yBR, zBR, yawBR, pitchBR, doorLeftOpen, doorRightOpen);
+		trainTranslucentRenders.add(() -> trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, doorLeftOpen, doorRightOpen));
+
+		if (ridingCar > 0) {
+			final double newPrevCarX = prevCarX - offset.x;
+			final double newPrevCarY = prevCarY - offset.y;
+			final double newPrevCarZ = prevCarZ - offset.z;
+
+			final Vec3 prevPos0 = new Vec3(0, 0, spacing / 2D - 1).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+			final Vec3 thisPos0 = new Vec3(0, 0, -(spacing / 2D - 1)).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
+			final Vec3 connectPos = prevPos0.add(thisPos0).scale(0.5);
+			final float connectYaw = (float) Mth.atan2(thisPos0.x - prevPos0.x, thisPos0.z - prevPos0.z);
+			final float connectPitch = realSpacing == 0 ? 0 : (float) asin((thisPos0.y - prevPos0.y) / realSpacing);
+
+			for (int i = 0; i < 2; i++) {
+				final double xStart = width / 2D + (i == 0 ? -1 : 0.5) * CONNECTION_X_OFFSET;
+				final double zStart = spacing / 2D - (i == 0 ? 1 : 2) * CONNECTION_Z_OFFSET;
+
+				final Vec3 prevPos1 = new Vec3(xStart, SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+				final Vec3 prevPos2 = new Vec3(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+				final Vec3 prevPos3 = new Vec3(-xStart, CONNECTION_HEIGHT + SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+				final Vec3 prevPos4 = new Vec3(-xStart, SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+
+				final Vec3 thisPos1 = new Vec3(-xStart, SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
+				final Vec3 thisPos2 = new Vec3(-xStart, CONNECTION_HEIGHT + SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
+				final Vec3 thisPos3 = new Vec3(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
+				final Vec3 thisPos4 = new Vec3(xStart, SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
+
+				if (i == 0) {
+					trainRenderer.renderConnection(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, connectPos.x, connectPos.y, connectPos.z, connectYaw, connectPitch);
+				} else {
+					trainRenderer.renderBarrier(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, connectPos.x, connectPos.y, connectPos.z, connectYaw, connectPitch);
+				}
+			}
+		}
+	}
+
+	@Override
+	protected void simulateCar(
+			Level world, int ridingCar, float ticksElapsed,
+			double carX, double carY, double carZ, float carYaw, float carPitch,
 			double prevCarX, double prevCarY, double prevCarZ, float prevCarYaw, float prevCarPitch,
 			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing
 	) {

@@ -104,6 +104,22 @@ public class TrainServer extends Train {
 	protected void simulateCar(
 			Level world, int ridingCar, float ticksElapsed,
 			double carX, double carY, double carZ, float carYaw, float carPitch,
+			double xBF, double yBF, double zBF, float yawBF, float pitchBF,
+			double xBR, double yBR, double zBR, float yawBR, float pitchBR,
+			double prevCarX, double prevCarY, double prevCarZ, float prevCarYaw, float prevCarPitch,
+			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing
+	) {
+		VehicleRidingServer.mountRider(world, ridingEntities, id, routeId, carX, carY, carZ, realSpacing, width, carYaw, carPitch, doorLeftOpen || doorRightOpen, isManualAllowed || doorLeftOpen || doorRightOpen, ridingCar, PACKET_UPDATE_TRAIN_PASSENGERS, player -> !isManualAllowed || doorLeftOpen || doorRightOpen || Train.isHoldingKey(player), player -> {
+			if (isHoldingKey(player)) {
+				manualCoolDown = 0;
+			}
+		});
+	}
+
+	@Override
+	protected void simulateCar(
+			Level world, int ridingCar, float ticksElapsed,
+			double carX, double carY, double carZ, float carYaw, float carPitch,
 			double prevCarX, double prevCarY, double prevCarZ, float prevCarYaw, float prevCarPitch,
 			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing
 	) {

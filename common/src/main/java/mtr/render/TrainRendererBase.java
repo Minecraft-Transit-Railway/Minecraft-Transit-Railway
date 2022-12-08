@@ -43,6 +43,8 @@ public abstract class TrainRendererBase {
 
 	public abstract TrainRendererBase createTrainInstance(TrainClient train);
 
+	public abstract void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, double xBR, double yBR, double zBR, float yawBR, float pitchBR, double xBF, double yBF, double zBF, float yawBF, float pitchBF, boolean doorLeftOpen, boolean doorRightOpen);
+
 	public abstract void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean doorLeftOpen, boolean doorRightOpen);
 
 	public abstract void renderConnection(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, float pitch);

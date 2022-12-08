@@ -66,6 +66,99 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 	}
 
 	@Override
+	public void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, double xBF, double yBF, double zBF, float yawBF, float pitchBF, double xBR, double yBR, double zBR, float yawBR, float pitchBR, boolean doorLeftOpen, boolean doorRightOpen) {
+		final float doorLeftValue = doorLeftOpen ? train.getDoorValue() : 0;
+		final float doorRightValue = doorRightOpen ? train.getDoorValue() : 0;
+		final boolean atPlatform = train.path.get(train.getIndex(0, train.spacing, true)).dwellTime > 0;
+
+		final String trainId = train.trainId;
+		final TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
+
+		if (model == null && isTranslucentBatch) {
+			return;
+		}
+
+		final BlockPos posAverage = applyAverageTransform(train.getViewOffset(), x, y, z);
+		if (posAverage == null) {
+			return;
+		}
+
+		matrices.pushPose();
+		matrices.translate(x, y, z);
+		matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yaw));
+		matrices.mulPose(Vector3f.XP.rotation((float) Math.PI + (train.transportMode.hasPitch ? pitch : 0)));
+
+		final int light = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage));
+
+		if (model == null || textureId == null) {
+			final boolean isBoat = train.transportMode == TransportMode.BOAT;
+
+			matrices.translate(0, isBoat ? 0.875 : 0.5, 0);
+			matrices.mulPose(Vector3f.YP.rotationDegrees(90));
+
+			final EntityModel<? extends Entity> model = isBoat ? MODEL_BOAT : MODEL_MINECART;
+			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(model.renderType(resolveTexture(textureId, textureId -> textureId + ".png")));
+
+			if (isBoat) {
+				if (!BOATS.containsKey(train.id)) {
+					BOATS.put(train.id, new FakeBoat());
+				}
+				MODEL_BOAT.setupAnim(BOATS.get(train.id), (train.getSpeed() + Train.ACCELERATION_DEFAULT) * (doorLeftValue == 0 && doorRightValue == 0 ? lastFrameDuration : 0), 0, -0.1F, 0, 0);
+			} else {
+				model.setupAnim(null, 0, 0, -0.1F, 0, 0);
+			}
+
+			model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+		} else {
+			final boolean renderDetails = MTRClient.isReplayMod() || posAverage.distSqr(camera.getBlockPosition()) <= RenderTrains.DETAIL_RADIUS_SQUARED;
+			model.render(matrices, vertexConsumers, train, resolveTexture(textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, train.isDoorOpening(), carIndex, train.trainCars, !train.isReversed(), train.getIsOnRoute(), isTranslucentBatch, renderDetails, atPlatform);
+
+			if (trainProperties.bogiePosition != 0 && !isTranslucentBatch) {
+				if (trainProperties.isJacobsBogie) {
+					if (carIndex == 0) {
+						MODEL_BOGIE.render(matrices, vertexConsumers, light, -(int) (trainProperties.bogiePosition * 16));
+					} else if (carIndex == train.trainCars - 1) {
+						MODEL_BOGIE.render(matrices, vertexConsumers, light, (int) (trainProperties.bogiePosition * 16));
+					}
+				} else {
+
+					matrices.popPose();
+					matrices.pushPose();
+
+					matrices.translate(xBF, yBF, zBF);
+					matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yawBF));
+					matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + (train.transportMode.hasPitch ? pitchBF : 0)));
+
+					MODEL_BOGIE.render(matrices, vertexConsumers, light, 0);
+
+					matrices.popPose();
+					matrices.pushPose();
+
+					matrices.translate(xBR, yBR, zBR);
+					matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yawBR));
+					matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + (train.transportMode.hasPitch ? pitchBR : 0)));
+
+					MODEL_BOGIE.render(matrices, vertexConsumers, light, 0);
+				}
+			}
+		}
+
+		if (train.transportMode == TransportMode.CABLE_CAR && !isTranslucentBatch) {
+			matrices.translate(0, TransportMode.CABLE_CAR.railOffset + 0.5, 0);
+			if (!train.transportMode.hasPitch) {
+				matrices.mulPose(Vector3f.XP.rotation(pitch));
+			}
+			if (trainId.endsWith("_rht")) {
+				matrices.mulPose(Vector3f.YP.rotationDegrees(180));
+			}
+			MODEL_CABLE_CAR_GRIP.render(matrices, vertexConsumers, light);
+		}
+
+		matrices.popPose();
+		matrices.popPose();
+	}
+
+	@Override
 	public void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean doorLeftOpen, boolean doorRightOpen) {
 		final float doorLeftValue = doorLeftOpen ? train.getDoorValue() : 0;
 		final float doorRightValue = doorRightOpen ? train.getDoorValue() : 0;
