@@ -1,7 +1,9 @@
 package mtr.screen;
 
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.Icons;
+import mtr.Patreon;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.client.TrainClientRegistry;
@@ -17,7 +19,10 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 
@@ -47,6 +52,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 	private static final int SLIDER_SCALE = 1000;
 	private static final float ACCELERATION_UNIT_CONVERSION_1 = 20 * 20; // m/tick^2 to m/s^2
 	private static final float ACCELERATION_UNIT_CONVERSION_2 = ACCELERATION_UNIT_CONVERSION_1 * 3.6F; // m/tick^2 to km/h/s
+	private static final Map<String, String> WIKIPEDIA_ARTICLES = new HashMap<>();
 
 	public SidingScreen(Siding siding, TransportMode transportMode, DashboardScreen dashboardScreen) {
 		super(siding, transportMode, dashboardScreen, SELECTED_TRAIN_TEXT, MAX_TRAINS_TEXT, ACCELERATION_CONSTANT_TEXT, MANUAL_TO_AUTOMATIC_TIME, MAX_MANUAL_SPEED);
@@ -162,7 +168,17 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 				y = drawWrappedText(matrices, properties.name, y, ARGB_WHITE);
 				y = drawWrappedText(matrices, Text.translatable("gui.mtr.vehicle_length", spacing - 1), y, ARGB_WHITE);
 				y = drawWrappedText(matrices, Text.translatable("gui.mtr.cars_to_spawn", (cars == 0 ? WARNING + " " : "") + Math.min(cars, savedRailBase.transportMode.maxLength)), y, ARGB_WHITE);
-				drawWrappedText(matrices, properties.description, y, ARGB_LIGHT_GRAY);
+				if (properties.description != null) {
+					for (final String text : properties.description.split("[|\n]")) {
+						y = drawWrappedText(matrices, Text.literal(text), y, ARGB_LIGHT_GRAY);
+					}
+				}
+				if (properties.wikipediaArticle != null) {
+					final String fullText = fetchWikipediaArticle(properties.wikipediaArticle);
+					for (final String text : fullText.split("\n")) {
+						y = drawWrappedText(matrices, Text.literal(text), y, ARGB_LIGHT_GRAY);
+					}
+				}
 			}
 		}
 	}
@@ -267,9 +283,29 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 		final List<FormattedCharSequence> splitText = font.split(component, DESCRIPTION_WIDTH);
 		int newY = y;
 		for (final FormattedCharSequence formattedCharSequence : splitText) {
-			font.draw(matrices, formattedCharSequence, width - DESCRIPTION_WIDTH - SQUARE_SIZE, newY, color);
-			newY += TEXT_HEIGHT + 2;
+			final int nextY = newY + TEXT_HEIGHT + 2;
+			if (nextY > height - SQUARE_SIZE - TEXT_HEIGHT) {
+				font.draw(matrices, "...", width - DESCRIPTION_WIDTH - SQUARE_SIZE, newY, color);
+				return height;
+			} else {
+				font.draw(matrices, formattedCharSequence, width - DESCRIPTION_WIDTH - SQUARE_SIZE, newY, color);
+			}
+			newY = nextY;
 		}
 		return newY + TEXT_PADDING;
+	}
+
+	private static String fetchWikipediaArticle(String wikipediaArticle) {
+		final String result = WIKIPEDIA_ARTICLES.get(wikipediaArticle);
+		if (result == null) {
+			CompletableFuture.runAsync(() -> Patreon.openConnectionSafeJson("https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext&exintro&titles=" + wikipediaArticle, jsonElement -> {
+				final JsonObject pagesObject = jsonElement.getAsJsonObject().getAsJsonObject("query").getAsJsonObject("pages");
+				pagesObject.entrySet().stream().findFirst().ifPresent(entry -> WIKIPEDIA_ARTICLES.put(wikipediaArticle, pagesObject.getAsJsonObject(entry.getKey()).get("extract").getAsString()));
+			}));
+			WIKIPEDIA_ARTICLES.put(wikipediaArticle, "");
+			return "";
+		} else {
+			return result;
+		}
 	}
 }

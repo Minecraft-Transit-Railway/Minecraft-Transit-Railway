@@ -16,6 +16,8 @@ public interface ICustomResources {
 	String CUSTOM_TRAINS_COLOR = "color";
 	String CUSTOM_TRAINS_MODEL = "model";
 	String CUSTOM_TRAINS_MODEL_PROPERTIES = "model_properties";
+	String CUSTOM_TRAINS_DESCRIPTION = "description";
+	String CUSTOM_TRAINS_WIKIPEDIA_ARTICLE = "wikipedia_article";
 	String CUSTOM_TRAINS_TEXTURE_ID = "texture_id";
 	String CUSTOM_TRAINS_GANGWAY_CONNECTION_ID = "gangway_connection_id";
 	String CUSTOM_TRAINS_TRAIN_BARRIER_ID = "train_barrier_id";
@@ -37,12 +39,14 @@ public interface ICustomResources {
 	String CUSTOM_SIGNS_SMALL = "small";
 	String CUSTOM_SIGNS_BACKGROUND_COLOR = "background_color";
 
-	static void createCustomTrainSchema(JsonObject jsonObject, String id, String name, String color, String gangwayConnectionId, String trainBarrierId, String doorAnimationType, boolean renderDoorOverlay, float riderOffset) {
+	static void createCustomTrainSchema(JsonObject jsonObject, String id, String name, String description, String wikipediaArticle, String color, String gangwayConnectionId, String trainBarrierId, String doorAnimationType, boolean renderDoorOverlay, float riderOffset) {
 		final JsonObject customTrainsObject = new JsonObject();
 		jsonObject.add(CUSTOM_TRAINS_KEY, customTrainsObject);
 		final JsonObject customTrainObject = new JsonObject();
 		customTrainsObject.add(id, customTrainObject);
 		customTrainObject.addProperty(CUSTOM_TRAINS_NAME, name);
+		customTrainObject.addProperty(CUSTOM_TRAINS_DESCRIPTION, description);
+		customTrainObject.addProperty(CUSTOM_TRAINS_WIKIPEDIA_ARTICLE, wikipediaArticle);
 		customTrainObject.addProperty(CUSTOM_TRAINS_COLOR, color);
 		customTrainObject.addProperty(CUSTOM_TRAINS_GANGWAY_CONNECTION_ID, gangwayConnectionId);
 		customTrainObject.addProperty(CUSTOM_TRAINS_TRAIN_BARRIER_ID, trainBarrierId);
