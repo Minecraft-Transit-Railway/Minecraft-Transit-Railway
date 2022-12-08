@@ -23,6 +23,12 @@ public abstract class BlockSignalLightBase extends BlockDirectionalMapper implem
 		this.shapeHeight = shapeHeight;
 	}
 
+	// TODO backwards compatibility
+	@Deprecated
+	public BlockSignalLightBase(Properties settings) {
+		this(settings, 2, 14);
+	}
+
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
 		return defaultBlockState().setValue(FACING, ctx.getHorizontalDirection());

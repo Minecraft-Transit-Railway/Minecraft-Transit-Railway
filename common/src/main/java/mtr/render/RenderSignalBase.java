@@ -36,6 +36,12 @@ public abstract class RenderSignalBase<T extends BlockEntityMapper> extends Bloc
 		this.aspects = aspects;
 	}
 
+	// TODO backwards compatibility
+	@Deprecated
+	public RenderSignalBase(BlockEntityRenderDispatcher dispatcher, boolean isSingleSided) {
+		this(dispatcher, isSingleSided, 2);
+	}
+
 	@Override
 	public final void render(T entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
 		final BlockGetter world = entity.getLevel();
@@ -70,6 +76,9 @@ public abstract class RenderSignalBase<T extends BlockEntityMapper> extends Bloc
 				matrices.mulPose(Vector3f.YN.rotationDegrees(newFacing.toYRot()));
 				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new ResourceLocation("mtr:textures/block/white.png"), false));
 				render(matrices, vertexConsumers, vertexConsumer, entity, tickDelta, newFacing, occupiedAspect, i == 1);
+				// TODO temporary code
+				render(matrices, vertexConsumers, vertexConsumer, entity, tickDelta, newFacing, occupiedAspect == 1, i == 1);
+				// TODO temporary code end
 				matrices.popPose();
 			}
 
@@ -81,7 +90,14 @@ public abstract class RenderSignalBase<T extends BlockEntityMapper> extends Bloc
 		matrices.popPose();
 	}
 
-	protected abstract void render(PoseStack matrices, MultiBufferSource vertexConsumers, VertexConsumer vertexConsumer, T entity, float tickDelta, Direction facing, int occupiedAspect, boolean isBackSide);
+	// TODO make abstract later
+	protected void render(PoseStack matrices, MultiBufferSource vertexConsumers, VertexConsumer vertexConsumer, T entity, float tickDelta, Direction facing, int occupiedAspect, boolean isBackSide) {
+	}
+
+	// TODO temporary code
+	protected void render(PoseStack matrices, MultiBufferSource vertexConsumers, VertexConsumer vertexConsumer, T entity, float tickDelta, Direction facing, boolean isOccupied, boolean isBackSide) {
+	}
+	// TODO temporary code end
 
 	private int getOccupiedAspect(BlockPos startPos, float facing) {
 		Map<BlockPos, Float> nodesToScan = new HashMap<>();
