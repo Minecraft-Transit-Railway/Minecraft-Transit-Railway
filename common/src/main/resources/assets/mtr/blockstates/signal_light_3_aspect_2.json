@@ -2,7 +2,7 @@
 	"multipart": [
 		{
 			"apply": {
-				"model": "mtr:block/signal_light_base_tall"
+				"model": "mtr:block/signal_light_base_3_aspect"
 			}
 		},
 		{
@@ -19,7 +19,8 @@
 			},
 			"apply": {
 				"model": "mtr:block/signal_light_3_covers",
-				"y": 90
+				"y": 90,
+				"uvlock": true
 			}
 		},
 		{
@@ -28,7 +29,8 @@
 			},
 			"apply": {
 				"model": "mtr:block/signal_light_3_covers",
-				"y": 180
+				"y": 180,
+				"uvlock": true
 			}
 		},
 		{
@@ -37,7 +39,8 @@
 			},
 			"apply": {
 				"model": "mtr:block/signal_light_3_covers",
-				"y": 270
+				"y": 270,
+				"uvlock": true
 			}
 		},
 		{
@@ -46,7 +49,8 @@
 			},
 			"apply": {
 				"model": "mtr:block/signal_light_3_covers",
-				"y": 180
+				"y": 180,
+				"uvlock": true
 			}
 		},
 		{
@@ -55,7 +59,8 @@
 			},
 			"apply": {
 				"model": "mtr:block/signal_light_3_covers",
-				"y": 270
+				"y": 270,
+				"uvlock": true
 			}
 		},
 		{
@@ -72,7 +77,8 @@
 			},
 			"apply": {
 				"model": "mtr:block/signal_light_3_covers",
-				"y": 90
+				"y": 90,
+				"uvlock": true
 			}
 		}
 	]

@@ -23,15 +23,15 @@ public class RenderSignalLight3Aspect<T extends BlockEntityMapper> extends Rende
 		final int color;
 		switch (occupiedAspect) {
 			case 1:
-				y = 0.125F;
+				y = 0.09375F;
 				color = 0xFFFF0000;
 				break;
 			case 2:
 				y = 0.40625F;
-				color = 0xFFFFFF00;
+				color = 0xFFFFAA00;
 				break;
 			default:
-				y = 0.6875F;
+				y = 0.71875F;
 				color = proceedColor;
 				break;
 		}

@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public class BlockSignalLight2Aspect1 extends BlockSignalLightBase {
 
 	public BlockSignalLight2Aspect1(Properties settings) {
-		super(settings);
+		super(settings, 2, 14);
 	}
 
 	@Override
