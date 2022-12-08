@@ -22,15 +22,18 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public abstract class RenderSignalBase<T extends BlockEntityMapper> extends BlockEntityRendererMapper<T> implements IBlock, IGui {
 
 	protected final boolean isSingleSided;
+	protected final int aspects;
 
-	public RenderSignalBase(BlockEntityRenderDispatcher dispatcher, boolean isSingleSided) {
+	public RenderSignalBase(BlockEntityRenderDispatcher dispatcher, boolean isSingleSided, int aspects) {
 		super(dispatcher);
 		this.isSingleSided = isSingleSided;
+		this.aspects = aspects;
 	}
 
 	@Override
@@ -60,27 +63,13 @@ public abstract class RenderSignalBase<T extends BlockEntityMapper> extends Bloc
 
 		for (int i = 0; i < 2; i++) {
 			final Direction newFacing = (i == 1 ? facing.getOpposite() : facing);
+			final int occupiedAspect = getOccupiedAspect(startPos, newFacing.toYRot() + 90);
 
-			boolean isOccupied = false;
-			boolean render = false;
-			final Map<BlockPos, Rail> railMap = ClientData.RAILS.get(startPos);
-			if (railMap != null) {
-				for (final BlockPos endPos : railMap.keySet()) {
-					if (railMap.get(endPos).facingStart.similarFacing(newFacing.toYRot() + 90)) {
-						render = true;
-						if (ClientData.SIGNAL_BLOCKS.isOccupied(PathData.getRailProduct(startPos, endPos))) {
-							isOccupied = true;
-							break;
-						}
-					}
-				}
-			}
-
-			if (render) {
+			if (occupiedAspect >= 0) {
 				matrices.pushPose();
 				matrices.mulPose(Vector3f.YN.rotationDegrees(newFacing.toYRot()));
 				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new ResourceLocation("mtr:textures/block/white.png"), false));
-				render(matrices, vertexConsumers, vertexConsumer, entity, tickDelta, newFacing, isOccupied, i == 1);
+				render(matrices, vertexConsumers, vertexConsumer, entity, tickDelta, newFacing, occupiedAspect, i == 1);
 				matrices.popPose();
 			}
 
@@ -92,7 +81,44 @@ public abstract class RenderSignalBase<T extends BlockEntityMapper> extends Bloc
 		matrices.popPose();
 	}
 
-	protected abstract void render(PoseStack matrices, MultiBufferSource vertexConsumers, VertexConsumer vertexConsumer, T entity, float tickDelta, Direction facing, boolean isOccupied, boolean isBackSide);
+	protected abstract void render(PoseStack matrices, MultiBufferSource vertexConsumers, VertexConsumer vertexConsumer, T entity, float tickDelta, Direction facing, int occupiedAspect, boolean isBackSide);
+
+	private int getOccupiedAspect(BlockPos startPos, float facing) {
+		Map<BlockPos, Float> nodesToScan = new HashMap<>();
+		nodesToScan.put(startPos, facing);
+		int occupiedAspect = -1;
+
+		for (int j = 1; j < aspects; j++) {
+			final Map<BlockPos, Float> newNodesToScan = new HashMap<>();
+
+			for (final Map.Entry<BlockPos, Float> checkNode : nodesToScan.entrySet()) {
+				final Map<BlockPos, Rail> railMap = ClientData.RAILS.get(checkNode.getKey());
+
+				if (railMap != null) {
+					for (final BlockPos endPos : railMap.keySet()) {
+						final Rail rail = railMap.get(endPos);
+						if (rail.facingStart.similarFacing(checkNode.getValue())) {
+							if (ClientData.SIGNAL_BLOCKS.isOccupied(PathData.getRailProduct(checkNode.getKey(), endPos))) {
+								return j;
+							} else {
+								final Boolean isOccupied = ClientData.OCCUPIED_RAILS.get(PathData.getRailProduct(checkNode.getKey(), endPos));
+								if (isOccupied != null && isOccupied) {
+									return j;
+								}
+							}
+
+							newNodesToScan.put(endPos, rail.facingEnd.getOpposite().angleDegrees);
+							occupiedAspect = 0;
+						}
+					}
+				}
+			}
+
+			nodesToScan = newNodesToScan;
+		}
+
+		return occupiedAspect;
+	}
 
 	private static BlockPos getNodePos(BlockGetter world, BlockPos pos, Direction facing) {
 		final int[] checkDistance = {0, 1, -1, 2, -2, 3, -3, 4, -4};
