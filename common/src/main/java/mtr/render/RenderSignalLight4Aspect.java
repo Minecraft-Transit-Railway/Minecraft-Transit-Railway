@@ -10,11 +10,8 @@ import net.minecraft.core.Direction;
 
 public class RenderSignalLight4Aspect<T extends BlockEntityMapper> extends RenderSignalBase<T> {
 
-	private final int proceedColor;
-
-	public RenderSignalLight4Aspect(BlockEntityRenderDispatcher dispatcher, boolean isSingleSided, int proceedColor) {
+	public RenderSignalLight4Aspect(BlockEntityRenderDispatcher dispatcher, boolean isSingleSided) {
 		super(dispatcher, isSingleSided, 4);
-		this.proceedColor = proceedColor;
 	}
 
 	@Override
@@ -33,7 +30,7 @@ public class RenderSignalLight4Aspect<T extends BlockEntityMapper> extends Rende
 				break;
 			default:
 				y = 0.53125F;
-				color = proceedColor;
+				color = 0xFF00FF00;
 				break;
 		}
 		IDrawing.drawTexture(matrices, vertexConsumer, -0.09375F, y, -0.19375F, 0.09375F, y + 0.1875F, -0.19375F, facing.getOpposite(), color, MAX_LIGHT_GLOWING);

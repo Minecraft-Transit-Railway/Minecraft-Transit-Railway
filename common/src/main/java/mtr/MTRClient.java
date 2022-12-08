@@ -209,10 +209,10 @@ public class MTRClient implements IPacket {
 			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_2_ASPECT_2.get(), dispatcher -> new RenderSignalLight2Aspect<>(dispatcher, false, false, 0xFF0000FF));
 			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_2_ASPECT_3.get(), dispatcher -> new RenderSignalLight2Aspect<>(dispatcher, true, true, 0xFF00FF00));
 			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_2_ASPECT_4.get(), dispatcher -> new RenderSignalLight2Aspect<>(dispatcher, false, true, 0xFF00FF00));
-			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_3_ASPECT_1.get(), dispatcher -> new RenderSignalLight3Aspect<>(dispatcher, true, 0xFF00FF00));
-			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_3_ASPECT_2.get(), dispatcher -> new RenderSignalLight3Aspect<>(dispatcher, false, 0xFF00FF00));
-			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_4_ASPECT_1.get(), dispatcher -> new RenderSignalLight4Aspect<>(dispatcher, true, 0xFF00FF00));
-			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_4_ASPECT_2.get(), dispatcher -> new RenderSignalLight4Aspect<>(dispatcher, false, 0xFF00FF00));
+			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_3_ASPECT_1.get(), dispatcher -> new RenderSignalLight3Aspect<>(dispatcher, true));
+			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_3_ASPECT_2.get(), dispatcher -> new RenderSignalLight3Aspect<>(dispatcher, false));
+			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_4_ASPECT_1.get(), dispatcher -> new RenderSignalLight4Aspect<>(dispatcher, true));
+			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_LIGHT_4_ASPECT_2.get(), dispatcher -> new RenderSignalLight4Aspect<>(dispatcher, false));
 			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_SEMAPHORE_1.get(), dispatcher -> new RenderSignalSemaphore<>(dispatcher, true));
 			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_SEMAPHORE_2.get(), dispatcher -> new RenderSignalSemaphore<>(dispatcher, false));
 			RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_ENTRANCE_TILE_ENTITY.get(), dispatcher -> new RenderStationNameTiled<>(dispatcher, true));
