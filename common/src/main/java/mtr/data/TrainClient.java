@@ -87,7 +87,7 @@ public class TrainClient extends Train implements IGui {
 
 		doorOpening = doorValue > oldDoorValue;
 		trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, xBF, yBF, zBF, yawBF, pitchBF, xBR, yBR, zBR, yawBR, pitchBR, doorLeftOpen, doorRightOpen);
-		trainTranslucentRenders.add(() -> trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, doorLeftOpen, doorRightOpen));
+		trainTranslucentRenders.add(() -> trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, xBF, yBF, zBF, yawBF, pitchBF, xBR, yBR, zBR, yawBR, pitchBR, doorLeftOpen, doorRightOpen));
 
 		if (ridingCar > 0) {
 			final double newPrevCarX = prevCarX - offset.x;

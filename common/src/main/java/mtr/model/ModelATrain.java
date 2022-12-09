@@ -1895,4 +1895,9 @@ public class ModelATrain extends ModelSimpleTrainBase<ModelATrain> {
 	protected float getDoorDuration() {
 		return 0.5F * (isAel ? (float) DOOR_MAX_AEL / DOOR_MAX_TCL : 1);
 	}
+
+	@Override
+	protected void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails, boolean boogieAllow, int boogieIndex) {
+		render(matrices, vertices, renderStage, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
+	}
 }

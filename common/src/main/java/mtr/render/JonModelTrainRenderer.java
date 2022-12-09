@@ -70,6 +70,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 		final float doorLeftValue = doorLeftOpen ? train.getDoorValue() : 0;
 		final float doorRightValue = doorRightOpen ? train.getDoorValue() : 0;
 		final boolean atPlatform = train.path.get(train.getIndex(0, train.spacing, true)).dwellTime > 0;
+		final boolean hasPitch = pitch < 0 ? train.transportMode.hasPitchAscending : train.transportMode.hasPitchDescending;
 
 		final String trainId = train.trainId;
 		final TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
@@ -86,7 +87,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 		matrices.pushPose();
 		matrices.translate(x, y, z);
 		matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yaw));
-		matrices.mulPose(Vector3f.XP.rotation((float) Math.PI + (train.transportMode.hasPitch ? pitch : 0)));
+		matrices.mulPose(Vector3f.XP.rotation((float) Math.PI + (hasPitch ? pitch : 0)));
 
 		final int light = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage));
 
@@ -127,7 +128,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 
 					matrices.translate(xBF, yBF, zBF);
 					matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yawBF));
-					matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + (train.transportMode.hasPitch ? pitchBF : 0)));
+					matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + (hasPitch ? pitchBF : 0)));
 
 					MODEL_BOGIE.render(matrices, vertexConsumers, light, 0);
 
@@ -136,16 +137,35 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 
 					matrices.translate(xBR, yBR, zBR);
 					matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yawBR));
-					matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + (train.transportMode.hasPitch ? pitchBR : 0)));
+					matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + (hasPitch ? pitchBR : 0)));
 
 					MODEL_BOGIE.render(matrices, vertexConsumers, light, 0);
 				}
+			} else {
+
+				matrices.popPose();
+				matrices.pushPose();
+
+				matrices.translate(xBF, yBF, zBF);
+				matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yawBF));
+				matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + (hasPitch ? pitchBF : 0)));
+
+				model.render(matrices, vertexConsumers, train, resolveTexture(textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, train.isDoorOpening(), carIndex, train.trainCars, !train.isReversed(), train.getIsOnRoute(), isTranslucentBatch, renderDetails, atPlatform, true, 0);
+
+				matrices.popPose();
+				matrices.pushPose();
+
+				matrices.translate(xBR, yBR, zBR);
+				matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yawBR));
+				matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + (hasPitch ? pitchBR : 0)));
+
+				model.render(matrices, vertexConsumers, train, resolveTexture(textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, train.isDoorOpening(), carIndex, train.trainCars, !train.isReversed(), train.getIsOnRoute(), isTranslucentBatch, renderDetails, atPlatform, true, 1);
 			}
 		}
 
 		if (train.transportMode == TransportMode.CABLE_CAR && !isTranslucentBatch) {
 			matrices.translate(0, TransportMode.CABLE_CAR.railOffset + 0.5, 0);
-			if (!train.transportMode.hasPitch) {
+			if (!hasPitch) {
 				matrices.mulPose(Vector3f.XP.rotation(pitch));
 			}
 			if (trainId.endsWith("_rht")) {

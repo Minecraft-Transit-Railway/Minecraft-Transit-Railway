@@ -851,6 +851,11 @@ public class ModelMTrain extends ModelSimpleTrainBase<ModelMTrain> {
 		door_light_off.setModelPart();
 	}
 
+	@Override
+	protected void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails, boolean boogieAllow, int boogieIndex) {
+		render(matrices, vertices, renderStage, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
+	}
+
 	private static final int DOOR_MAX = 14;
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 6.34F, "door_overlay_m_train_left.png", "door_overlay_m_train_right.png");
 

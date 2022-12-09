@@ -9,11 +9,15 @@ import mtr.data.EnumHelper;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
 import mtr.model.ModelTrainBase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
+
+import static mtr.MTR.MOD_ID;
 
 public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCreatorProperties {
 
@@ -86,102 +90,214 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 	}
 
 	@Override
-	protected void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails) {
+	protected void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails){
+		this.render(matrices, vertices, renderStage, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails, false, 0);
+	}
+
+	@Override
+	protected void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails, boolean boogieAllow, int boogieIndex) {
 		properties.getAsJsonArray(KEY_PROPERTIES_PARTS).forEach(partElement -> {
 			final JsonObject partObject = partElement.getAsJsonObject();
-			if (!renderDetails && partObject.get(KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR).getAsBoolean() || !renderStage.toString().equals(partObject.get(KEY_PROPERTIES_STAGE).getAsString().toUpperCase(Locale.ENGLISH))) {
-				return;
-			}
+			if(boogieAllow){
 
-			final String whitelistedCars = partObject.get(KEY_PROPERTIES_WHITELISTED_CARS).getAsString();
-			final String blacklistedCars = partObject.get(KEY_PROPERTIES_BLACKLISTED_CARS).getAsString();
-			final String key = String.format("%s|%s|%s|%s", trainCars, currentCar, whitelistedCars, blacklistedCars);
-			final boolean skip;
-			if (whitelistBlacklistCache.containsKey(key)) {
-				skip = whitelistBlacklistCache.get(key);
-			} else {
-				final String[] whitelistedCarsFilters = whitelistedCars.split(",");
-				final String[] blacklistedCarsFilters = blacklistedCars.split(",");
-				skip = matchesFilter(blacklistedCarsFilters, currentCar, trainCars) > matchesFilter(whitelistedCarsFilters, currentCar, trainCars);
-				whitelistBlacklistCache.put(key, skip);
-			}
+				//Logger LOGGER = LogManager.getLogger(MOD_ID);
 
-			if (skip) {
-				return;
-			}
+				if((partObject.get(KEY_PROPERTIES_NAME).getAsString().contains("boogie_front") && boogieIndex == 0) || (partObject.get(KEY_PROPERTIES_NAME).getAsString().contains("boogie_rear") && boogieIndex == 1)){
 
-			final boolean skipRender;
-			switch (EnumHelper.valueOf(ResourcePackCreatorProperties.RenderCondition.ALL, partObject.get(KEY_PROPERTIES_RENDER_CONDITION).getAsString())) {
-				case DOORS_OPEN:
-					skipRender = doorLeftZ == 0 && doorRightZ == 0;
-					break;
-				case DOORS_CLOSED:
-					skipRender = doorLeftZ > 0 || doorRightZ > 0;
-					break;
-				case DOOR_LEFT_OPEN:
-					skipRender = doorLeftZ == 0;
-					break;
-				case DOOR_RIGHT_OPEN:
-					skipRender = doorRightZ == 0;
-					break;
-				case DOOR_LEFT_CLOSED:
-					skipRender = doorLeftZ > 0;
-					break;
-				case DOOR_RIGHT_CLOSED:
-					skipRender = doorRightZ > 0;
-					break;
-				case MOVING_FORWARDS:
-					skipRender = !head1IsFront;
-					break;
-				case MOVING_BACKWARDS:
-					skipRender = head1IsFront;
-					break;
-				default:
-					skipRender = false;
-					break;
-			}
-			if (skipRender) {
-				return;
-			}
+					//LOGGER.error("DynamincTrainModelPart: " + partObject.get(KEY_PROPERTIES_NAME).getAsString() + " / " + "Position: " + matrices.last().pose().toString());
 
-			final ModelMapper part = parts.get(partObject.get(KEY_PROPERTIES_NAME).getAsString());
-
-			if (part != null) {
-				final float zOffset;
-				final float xOffset;
-				switch (EnumHelper.valueOf(ResourcePackCreatorProperties.DoorOffset.NONE, partObject.get(KEY_PROPERTIES_DOOR_OFFSET).getAsString())) {
-					case LEFT_POSITIVE:
-						xOffset = doorLeftX;
-						zOffset = doorLeftZ;
-						break;
-					case RIGHT_POSITIVE:
-						xOffset = doorRightX;
-						zOffset = doorRightZ;
-						break;
-					case LEFT_NEGATIVE:
-						xOffset = doorLeftX;
-						zOffset = -doorLeftZ;
-						break;
-					case RIGHT_NEGATIVE:
-						xOffset = doorRightX;
-						zOffset = -doorRightZ;
-						break;
-					default:
-						xOffset = 0;
-						zOffset = 0;
-						break;
-				}
-
-				final boolean mirror = partObject.get(KEY_PROPERTIES_MIRROR).getAsBoolean();
-				partObject.getAsJsonArray(KEY_PROPERTIES_POSITIONS).forEach(positionElement -> {
-					final float x = positionElement.getAsJsonArray().get(0).getAsFloat();
-					final float z = positionElement.getAsJsonArray().get(1).getAsFloat();
-					if (mirror) {
-						renderOnceFlipped(part, matrices, vertices, light, x + xOffset, z - zOffset);
-					} else {
-						renderOnce(part, matrices, vertices, light, x + xOffset, z + zOffset);
+					if (!renderDetails && partObject.get(KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR).getAsBoolean() || !renderStage.toString().equals(partObject.get(KEY_PROPERTIES_STAGE).getAsString().toUpperCase(Locale.ENGLISH))) {
+						return;
 					}
-				});
+
+					final String whitelistedCars = partObject.get(KEY_PROPERTIES_WHITELISTED_CARS).getAsString();
+					final String blacklistedCars = partObject.get(KEY_PROPERTIES_BLACKLISTED_CARS).getAsString();
+					final String key = String.format("%s|%s|%s|%s", trainCars, currentCar, whitelistedCars, blacklistedCars);
+					final boolean skip;
+					if (whitelistBlacklistCache.containsKey(key)) {
+						skip = whitelistBlacklistCache.get(key);
+					} else {
+						final String[] whitelistedCarsFilters = whitelistedCars.split(",");
+						final String[] blacklistedCarsFilters = blacklistedCars.split(",");
+						skip = matchesFilter(blacklistedCarsFilters, currentCar, trainCars) > matchesFilter(whitelistedCarsFilters, currentCar, trainCars);
+						whitelistBlacklistCache.put(key, skip);
+					}
+
+					if (skip) {
+						return;
+					}
+
+					final boolean skipRender;
+					switch (EnumHelper.valueOf(ResourcePackCreatorProperties.RenderCondition.ALL, partObject.get(KEY_PROPERTIES_RENDER_CONDITION).getAsString())) {
+						case DOORS_OPEN:
+							skipRender = doorLeftZ == 0 && doorRightZ == 0;
+							break;
+						case DOORS_CLOSED:
+							skipRender = doorLeftZ > 0 || doorRightZ > 0;
+							break;
+						case DOOR_LEFT_OPEN:
+							skipRender = doorLeftZ == 0;
+							break;
+						case DOOR_RIGHT_OPEN:
+							skipRender = doorRightZ == 0;
+							break;
+						case DOOR_LEFT_CLOSED:
+							skipRender = doorLeftZ > 0;
+							break;
+						case DOOR_RIGHT_CLOSED:
+							skipRender = doorRightZ > 0;
+							break;
+						case MOVING_FORWARDS:
+							skipRender = !head1IsFront;
+							break;
+						case MOVING_BACKWARDS:
+							skipRender = head1IsFront;
+							break;
+						default:
+							skipRender = false;
+							break;
+					}
+					if (skipRender) {
+						return;
+					}
+
+					final ModelMapper part = parts.get(partObject.get(KEY_PROPERTIES_NAME).getAsString());
+
+					if (part != null) {
+						final float zOffset;
+						final float xOffset;
+						switch (EnumHelper.valueOf(ResourcePackCreatorProperties.DoorOffset.NONE, partObject.get(KEY_PROPERTIES_DOOR_OFFSET).getAsString())) {
+							case LEFT_POSITIVE:
+								xOffset = doorLeftX;
+								zOffset = doorLeftZ;
+								break;
+							case RIGHT_POSITIVE:
+								xOffset = doorRightX;
+								zOffset = doorRightZ;
+								break;
+							case LEFT_NEGATIVE:
+								xOffset = doorLeftX;
+								zOffset = -doorLeftZ;
+								break;
+							case RIGHT_NEGATIVE:
+								xOffset = doorRightX;
+								zOffset = -doorRightZ;
+								break;
+							default:
+								xOffset = 0;
+								zOffset = 0;
+								break;
+						}
+
+						final boolean mirror = partObject.get(KEY_PROPERTIES_MIRROR).getAsBoolean();
+						partObject.getAsJsonArray(KEY_PROPERTIES_POSITIONS).forEach(positionElement -> {
+							final float x = positionElement.getAsJsonArray().get(0).getAsFloat();
+							final float z = positionElement.getAsJsonArray().get(1).getAsFloat();
+							if (mirror) {
+								renderOnceFlipped(part, matrices, vertices, light, x + xOffset, z - zOffset);
+							} else {
+								renderOnce(part, matrices, vertices, light, x + xOffset, z + zOffset);
+							}
+						});
+					}
+				}
+			} else {
+				if(!partObject.get(KEY_PROPERTIES_NAME).getAsString().contains("boogie_front") && !partObject.get(KEY_PROPERTIES_NAME).getAsString().contains("boogie_rear")){
+					if (!renderDetails && partObject.get(KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR).getAsBoolean() || !renderStage.toString().equals(partObject.get(KEY_PROPERTIES_STAGE).getAsString().toUpperCase(Locale.ENGLISH))) {
+						return;
+					}
+
+					final String whitelistedCars = partObject.get(KEY_PROPERTIES_WHITELISTED_CARS).getAsString();
+					final String blacklistedCars = partObject.get(KEY_PROPERTIES_BLACKLISTED_CARS).getAsString();
+					final String key = String.format("%s|%s|%s|%s", trainCars, currentCar, whitelistedCars, blacklistedCars);
+					final boolean skip;
+					if (whitelistBlacklistCache.containsKey(key)) {
+						skip = whitelistBlacklistCache.get(key);
+					} else {
+						final String[] whitelistedCarsFilters = whitelistedCars.split(",");
+						final String[] blacklistedCarsFilters = blacklistedCars.split(",");
+						skip = matchesFilter(blacklistedCarsFilters, currentCar, trainCars) > matchesFilter(whitelistedCarsFilters, currentCar, trainCars);
+						whitelistBlacklistCache.put(key, skip);
+					}
+
+					if (skip) {
+						return;
+					}
+
+					final boolean skipRender;
+					switch (EnumHelper.valueOf(ResourcePackCreatorProperties.RenderCondition.ALL, partObject.get(KEY_PROPERTIES_RENDER_CONDITION).getAsString())) {
+						case DOORS_OPEN:
+							skipRender = doorLeftZ == 0 && doorRightZ == 0;
+							break;
+						case DOORS_CLOSED:
+							skipRender = doorLeftZ > 0 || doorRightZ > 0;
+							break;
+						case DOOR_LEFT_OPEN:
+							skipRender = doorLeftZ == 0;
+							break;
+						case DOOR_RIGHT_OPEN:
+							skipRender = doorRightZ == 0;
+							break;
+						case DOOR_LEFT_CLOSED:
+							skipRender = doorLeftZ > 0;
+							break;
+						case DOOR_RIGHT_CLOSED:
+							skipRender = doorRightZ > 0;
+							break;
+						case MOVING_FORWARDS:
+							skipRender = !head1IsFront;
+							break;
+						case MOVING_BACKWARDS:
+							skipRender = head1IsFront;
+							break;
+						default:
+							skipRender = false;
+							break;
+					}
+					if (skipRender) {
+						return;
+					}
+
+					final ModelMapper part = parts.get(partObject.get(KEY_PROPERTIES_NAME).getAsString());
+
+					if (part != null) {
+						final float zOffset;
+						final float xOffset;
+						switch (EnumHelper.valueOf(ResourcePackCreatorProperties.DoorOffset.NONE, partObject.get(KEY_PROPERTIES_DOOR_OFFSET).getAsString())) {
+							case LEFT_POSITIVE:
+								xOffset = doorLeftX;
+								zOffset = doorLeftZ;
+								break;
+							case RIGHT_POSITIVE:
+								xOffset = doorRightX;
+								zOffset = doorRightZ;
+								break;
+							case LEFT_NEGATIVE:
+								xOffset = doorLeftX;
+								zOffset = -doorLeftZ;
+								break;
+							case RIGHT_NEGATIVE:
+								xOffset = doorRightX;
+								zOffset = -doorRightZ;
+								break;
+							default:
+								xOffset = 0;
+								zOffset = 0;
+								break;
+						}
+
+						final boolean mirror = partObject.get(KEY_PROPERTIES_MIRROR).getAsBoolean();
+						partObject.getAsJsonArray(KEY_PROPERTIES_POSITIONS).forEach(positionElement -> {
+							final float x = positionElement.getAsJsonArray().get(0).getAsFloat();
+							final float z = positionElement.getAsJsonArray().get(1).getAsFloat();
+							if (mirror) {
+								renderOnceFlipped(part, matrices, vertices, light, x + xOffset, z - zOffset);
+							} else {
+								renderOnce(part, matrices, vertices, light, x + xOffset, z + zOffset);
+							}
+						});
+					}
+				}
 			}
 		});
 	}

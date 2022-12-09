@@ -32,6 +32,8 @@ public interface ICustomResources {
 	String CUSTOM_TRAINS_ACCEL_SOUND_AT_COAST = "accel_sound_at_coast";
 	String CUSTOM_TRAINS_CONST_PLAYBACK_SPEED = "const_playback_speed";
 
+	String CUSTOM_TRAINS_BOGIE_POSITIONS = "bogie_positions";
+
 	String CUSTOM_SIGNS_TEXTURE_ID = "texture_id";
 	String CUSTOM_SIGNS_FLIP_TEXTURE = "flip_texture";
 	String CUSTOM_SIGNS_CUSTOM_TEXT = "custom_text";

@@ -262,6 +262,11 @@ public class ModelNgongPing360 extends ModelSimpleTrainBase<ModelNgongPing360> {
 	}
 
 	@Override
+	protected void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails, boolean boogieAllow, int boogieIndex) {
+		render(matrices, vertices, renderStage, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
+	}
+
+	@Override
 	protected int getDoorMax() {
 		return DOOR_MAX;
 	}

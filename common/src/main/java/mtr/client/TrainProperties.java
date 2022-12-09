@@ -21,6 +21,7 @@ public class TrainProperties {
 	public final boolean hasGangwayConnection;
 	public final TrainRendererBase renderer;
 	public final TrainSoundBase sound;
+	public final String bogiePositions;
 
 	public TrainProperties(String baseTrainType, Component name, String description, String wikipediaArticle, int color, float riderOffset, float riderOffsetDismounting, float bogiePosition, boolean isJacobsBogie, boolean hasGangwayConnection, TrainRendererBase renderer, TrainSoundBase sound) {
 		this.baseTrainType = baseTrainType;
@@ -35,6 +36,23 @@ public class TrainProperties {
 		this.hasGangwayConnection = hasGangwayConnection;
 		this.renderer = renderer;
 		this.sound = sound;
+		this.bogiePositions = "";
+	}
+
+	public TrainProperties(String baseTrainType, Component name, String description, String wikipediaArticle, int color, float riderOffset, float riderOffsetDismounting, float bogiePosition, boolean isJacobsBogie, boolean hasGangwayConnection, TrainRendererBase renderer, TrainSoundBase sound, String bogiePositions) {
+		this.baseTrainType = baseTrainType;
+		this.name = name;
+		this.description = description;
+		this.wikipediaArticle = wikipediaArticle;
+		this.color = color;
+		this.riderOffset = riderOffset;
+		this.riderOffsetDismounting = riderOffsetDismounting;
+		this.bogiePosition = bogiePosition;
+		this.isJacobsBogie = isJacobsBogie;
+		this.hasGangwayConnection = hasGangwayConnection;
+		this.renderer = renderer;
+		this.sound = sound;
+		this.bogiePositions = bogiePositions;
 	}
 
 	public static TrainProperties getBlankProperties() {

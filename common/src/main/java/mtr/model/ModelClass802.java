@@ -1712,6 +1712,11 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 		door_light_on.setModelPart();
 	}
 
+	@Override
+	protected void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails, boolean boogieAllow, int boogieIndex) {
+		render(matrices, vertices, renderStage, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
+	}
+
 	private static final int DOOR_MAX = 13;
 
 	@Override

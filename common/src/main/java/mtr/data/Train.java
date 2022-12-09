@@ -7,6 +7,8 @@ import mtr.Items;
 import mtr.Keys;
 import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPlatform;
+import mtr.client.TrainClientRegistry;
+import mtr.client.TrainProperties;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
 import net.minecraft.core.BlockPos;
@@ -22,12 +24,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dynmap.web.Json;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.value.Value;
 
 import java.io.*;
 import java.util.*;
+
+import static mtr.MTR.MOD_ID;
 
 public abstract class Train extends NameColorDataBase implements IPacket {
 
@@ -555,27 +561,79 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 			}
 
 			if (!path.isEmpty()) {
-				final Vec3[] positions = new Vec3[trainCars + 1];
+				final Vec3[] positions = new Vec3[trainCars];
 				/*for (int i = 0; i <= trainCars; i++) {
 					positions[i] = getRoutePosition(reversed ? trainCars - i : i, spacing);
 				}*/
 
-				final Vec3[] accurateBFPositions = new Vec3[trainCars + 1];
-				final Vec3[] accurateBRPositions = new Vec3[trainCars + 1];
+				final Vec3[] accurateBFPositions = new Vec3[trainCars];
+				final Vec3[] accurateBRPositions = new Vec3[trainCars];
 
-				JsonArray BRArray = new JsonArray();
-				JsonObject BRObject = new JsonObject();
+				final float[] BRYaw = new float[trainCars + 1];
+				final float[] BRPitch = new float[trainCars + 1];
 
-				JsonArray BFArray = new JsonArray();
-				JsonObject BFObject = new JsonObject();
+				final float[] BFYaw = new float[trainCars + 1];
+				final float[] BFPitch = new float[trainCars + 1];
 
 				int realCarI = 0;
 
 				final double realAccurateSpacing = spacing / 256F;
+				double bogie_spacing = 0.1625;
 
-				for (int i = 0; i <= trainCars; i++) {
+				TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 
-					realCarI += Math.floor(0.15 * 256);
+				String[] bogies_p = trainProperties.bogiePositions.split("\\|");
+
+				for (int i = 0; i < trainCars; i++) {
+
+					double lastBogieSpacing = 0.1625;
+
+					if(!trainProperties.bogiePositions.equalsIgnoreCase("")) {
+						for (String cars : bogies_p) {
+							//Logger LOGGER = LogManager.getLogger(MOD_ID);
+							//LOGGER.error("cars: " + cars);
+							String whitelisted_cars = cars.split(";")[1];
+							String blacklisted_cars = cars.split(";")[2];
+
+							if (whitelisted_cars.contains("%")) {
+								int carIndex = Integer.parseInt(whitelisted_cars.replace("%", ""));
+								if (i % carIndex == 0) {
+									lastBogieSpacing = Double.parseDouble(cars.split(";")[0]);
+									bogie_spacing = lastBogieSpacing;
+								}
+							} else if (Integer.parseInt(whitelisted_cars) == i || (Integer.parseInt(whitelisted_cars) == -1 && i == trainCars - 1)) {
+								lastBogieSpacing = Double.parseDouble(cars.split(";")[0]);
+								bogie_spacing = lastBogieSpacing;
+							}
+
+							if (whitelisted_cars.contains("%") || (!whitelisted_cars.contains("%") && (Integer.parseInt(whitelisted_cars) != i || (Integer.parseInt(whitelisted_cars) == -1 && i != trainCars - 1)))) {
+								if(blacklisted_cars.contains(",")){
+									String[] bcars = blacklisted_cars.split(",");
+									for(String blacklistCar: bcars){
+										if (blacklistCar.contains("%")) {
+											int carIndex = Integer.parseInt(blacklistCar.replace("%", ""));
+											if (i % carIndex == 0) {
+												bogie_spacing = lastBogieSpacing;
+											}
+										} else if (Integer.parseInt(blacklistCar) == i || (Integer.parseInt(blacklistCar) == -1 && i == trainCars - 1)) {
+											bogie_spacing = lastBogieSpacing;
+										}
+									}
+								} else {
+									if (blacklisted_cars.contains("%")) {
+										int carIndex = Integer.parseInt(blacklisted_cars.replace("%", ""));
+										if (i % carIndex == 0) {
+											bogie_spacing = lastBogieSpacing;
+										}
+									} else if (Integer.parseInt(blacklisted_cars) == i || (Integer.parseInt(blacklisted_cars) == -1 && i == trainCars - 1)) {
+										bogie_spacing = lastBogieSpacing;
+									}
+								}
+							}
+						}
+					}
+
+					realCarI += Math.floor(bogie_spacing * 256);
 
 					final Vec3 BFPos1 = getRoutePosition(realCarI, realAccurateSpacing);
 					final Vec3 BFPos2 = getRoutePosition(realCarI+1, realAccurateSpacing);
@@ -588,11 +646,14 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 					final float yawBF = (float) Mth.atan2(BFPos2.x - BFPos1.x, BFPos2.z - BFPos1.z);
 					final float pitchBF = realSpacingBF == 0 ? 0 : (float) asin((BFPos2.y - BFPos1.y) / realSpacingBF);
 
+					BFYaw[i] = yawBF;
+					BFPitch[i] = pitchBF;
+
 					accurateBFPositions[i] = new Vec3(xBF, yBF, zBF);
 
-					realCarI -= Math.max(0, Math.floor(0.15 * 256));
+					realCarI -= Math.max(0, Math.floor(bogie_spacing * 256));
 					realCarI += 256;
-					realCarI -= Math.floor(0.15 * 256);
+					realCarI -= Math.floor(bogie_spacing * 256);
 
 					final Vec3 BRPos1 = getRoutePosition(realCarI, realAccurateSpacing);
 					final Vec3 BRPos2 = getRoutePosition(realCarI+1, realAccurateSpacing);
@@ -605,6 +666,9 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 					final float yawBR = (float) Mth.atan2(BRPos2.x - BRPos1.x, BRPos2.z - BRPos1.z);
 					final float pitchBR = realSpacingBR == 0 ? 0 : (float) asin((BRPos2.y - BRPos1.y) / realSpacingBR);
 
+					BRYaw[i] = yawBR;
+					BRPitch[i] = pitchBR;
+
 					accurateBRPositions[i] = new Vec3(xBR, yBR, zBR);
 
 					if(i%2 == 0){
@@ -613,23 +677,8 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 						positions[i] = new Vec3(xBR, yBR, zBR);
 					}
 
-					BFObject.addProperty("x", xBF);
-					BFObject.addProperty("y", yBF);
-					BFObject.addProperty("z", zBF);
-					BFObject.addProperty("yaw", yawBF);
-					BFObject.addProperty("pitch", pitchBF);
+					realCarI += Math.floor(bogie_spacing * 256);
 
-					BFArray.add(BFObject);
-
-					BRObject.addProperty("x", xBR);
-					BRObject.addProperty("y", yBR);
-					BRObject.addProperty("z", zBR);
-					BRObject.addProperty("yaw", yawBR);
-					BRObject.addProperty("pitch", pitchBR);
-
-					BRArray.add(BRObject);
-
-					realCarI += Math.floor(0.15 * 256);
 				}
 
 				/*final Vec3[] positions = new Vec3[trainCars + 1]; */
@@ -644,16 +693,15 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 
 					for (int i = 0; i < trainCars; i++) {
 						final int ridingCar = i;
-						int finalI = i;
 						calculateCar(world, accurateBFPositions, accurateBRPositions, i, totalDwellTicks, (x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen) -> {
 							simulateCar(
 									world, ridingCar, ticksElapsed,
 									x, y, z,
 									yaw, pitch,
-									BFArray.get(finalI).getAsJsonObject().get("x").getAsDouble(), BFArray.get(finalI).getAsJsonObject().get("y").getAsDouble(), BFArray.get(finalI).getAsJsonObject().get("z").getAsDouble(),
-									BFArray.get(finalI).getAsJsonObject().get("yaw").getAsFloat(), BFArray.get(finalI).getAsJsonObject().get("pitch").getAsFloat(),
-									BRArray.get(finalI).getAsJsonObject().get("x").getAsDouble(), BRArray.get(finalI).getAsJsonObject().get("y").getAsDouble(), BRArray.get(finalI).getAsJsonObject().get("z").getAsDouble(),
-									BRArray.get(finalI).getAsJsonObject().get("yaw").getAsFloat(), BRArray.get(finalI).getAsJsonObject().get("pitch").getAsFloat(),
+									accurateBFPositions[ridingCar].x, accurateBFPositions[ridingCar].y, accurateBFPositions[ridingCar].z,
+									BFYaw[ridingCar], BFPitch[ridingCar],
+									accurateBRPositions[ridingCar].x, accurateBRPositions[ridingCar].y, accurateBRPositions[ridingCar].z,
+									BRYaw[ridingCar], BRPitch[ridingCar],
 									prevX[0], prevY[0], prevZ[0],
 									prevYaw[0], prevPitch[0],
 									doorLeftOpen, doorRightOpen, realSpacing
