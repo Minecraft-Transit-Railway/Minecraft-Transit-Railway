@@ -34,6 +34,8 @@ public interface ICustomResources {
 
 	String CUSTOM_TRAINS_BOGIE_POSITIONS = "bogie_positions";
 
+	String CUSTOM_TRAINS_TRAIN_LENGTHS = "train_lengths";
+
 	String CUSTOM_SIGNS_TEXTURE_ID = "texture_id";
 	String CUSTOM_SIGNS_FLIP_TEXTURE = "flip_texture";
 	String CUSTOM_SIGNS_CUSTOM_TEXT = "custom_text";

@@ -561,13 +561,13 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 			}
 
 			if (!path.isEmpty()) {
-				final Vec3[] positions = new Vec3[trainCars];
+				final Vec3[] positions = new Vec3[trainCars + 1];
 				/*for (int i = 0; i <= trainCars; i++) {
 					positions[i] = getRoutePosition(reversed ? trainCars - i : i, spacing);
 				}*/
 
-				final Vec3[] accurateBFPositions = new Vec3[trainCars];
-				final Vec3[] accurateBRPositions = new Vec3[trainCars];
+				final Vec3[] accurateBFPositions = new Vec3[trainCars + 1];
+				final Vec3[] accurateBRPositions = new Vec3[trainCars + 1];
 
 				final float[] BRYaw = new float[trainCars + 1];
 				final float[] BRPitch = new float[trainCars + 1];
@@ -577,16 +577,19 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 
 				int realCarI = 0;
 
-				final double realAccurateSpacing = spacing / 256F;
+				double trainLength = spacing;
 				double bogie_spacing = 0.1625;
 
 				TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 
 				String[] bogies_p = trainProperties.bogiePositions.split("\\|");
 
+				String[] train_lengths = trainProperties.trainLengths.split("\\|");
+
 				for (int i = 0; i < trainCars; i++) {
 
 					double lastBogieSpacing = 0.1625;
+					double lastTrainLength = spacing;
 
 					if(!trainProperties.bogiePositions.equalsIgnoreCase("")) {
 						for (String cars : bogies_p) {
@@ -633,6 +636,51 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 						}
 					}
 
+					if(!trainProperties.trainLengths.equalsIgnoreCase("")) {
+						for (String tLengths : train_lengths) {
+							String whitelisted_cars = tLengths.split(";")[1];
+							String blacklisted_cars = tLengths.split(";")[2];
+
+							if (whitelisted_cars.contains("%")) {
+								int carIndex = Integer.parseInt(whitelisted_cars.replace("%", ""));
+								if (i % carIndex == 0) {
+									lastTrainLength = Double.parseDouble(tLengths.split(";")[0]);
+									trainLength = lastTrainLength;
+								}
+							} else if (Integer.parseInt(whitelisted_cars) == i || (Integer.parseInt(whitelisted_cars) == -1 && i == trainCars - 1)) {
+								lastTrainLength = Double.parseDouble(tLengths.split(";")[0]);
+								trainLength = lastTrainLength;
+							}
+
+							if (whitelisted_cars.contains("%") || (!whitelisted_cars.contains("%") && (Integer.parseInt(whitelisted_cars) != i || (Integer.parseInt(whitelisted_cars) == -1 && i != trainCars - 1)))) {
+								if (blacklisted_cars.contains(",")) {
+									String[] bcars = blacklisted_cars.split(",");
+									for (String blacklistCar : bcars) {
+										if (blacklistCar.contains("%")) {
+											int carIndex = Integer.parseInt(blacklistCar.replace("%", ""));
+											if (i % carIndex == 0) {
+												trainLength = lastTrainLength;
+											}
+										} else if (Integer.parseInt(blacklistCar) == i || (Integer.parseInt(blacklistCar) == -1 && i == trainCars - 1)) {
+											trainLength = lastTrainLength;
+										}
+									}
+								} else {
+									if (blacklisted_cars.contains("%")) {
+										int carIndex = Integer.parseInt(blacklisted_cars.replace("%", ""));
+										if (i % carIndex == 0) {
+											trainLength = lastTrainLength;
+										}
+									} else if (Integer.parseInt(blacklisted_cars) == i || (Integer.parseInt(blacklisted_cars) == -1 && i == trainCars - 1)) {
+										trainLength = lastTrainLength;
+									}
+								}
+							}
+						}
+					}
+
+					double realAccurateSpacing = trainLength / 256F;
+
 					realCarI += Math.floor(bogie_spacing * 256);
 
 					final Vec3 BFPos1 = getRoutePosition(realCarI, realAccurateSpacing);
@@ -649,7 +697,9 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 					BFYaw[i] = yawBF;
 					BFPitch[i] = pitchBF;
 
-					accurateBFPositions[i] = new Vec3(xBF, yBF, zBF);
+					final Vec3 currentFrontBogiePos = new Vec3(xBF, yBF, zBF);
+
+					accurateBFPositions[i] = currentFrontBogiePos;
 
 					realCarI -= Math.max(0, Math.floor(bogie_spacing * 256));
 					realCarI += 256;
@@ -669,12 +719,29 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 					BRYaw[i] = yawBR;
 					BRPitch[i] = pitchBR;
 
-					accurateBRPositions[i] = new Vec3(xBR, yBR, zBR);
+					final Vec3 currentRearBogiePos = new Vec3(xBR, yBR, zBR);
 
-					if(i%2 == 0){
-						positions[i] = new Vec3(xBF, yBF, zBF);
-					} else {
-						positions[i] = new Vec3(xBR, yBR, zBR);
+					accurateBRPositions[i] = currentRearBogiePos;
+
+					{
+						//fix for bad collisions
+
+						final double carX = getAverage(currentFrontBogiePos.x, currentRearBogiePos.x);
+						final double carY = getAverage(currentFrontBogiePos.y, currentRearBogiePos.y);
+						final double carZ = getAverage(currentFrontBogiePos.z, currentRearBogiePos.z);
+
+						final double realSpacing = currentRearBogiePos.distanceTo(currentFrontBogiePos);
+						final float carYaw = (float) Mth.atan2(currentRearBogiePos.x - currentFrontBogiePos.x, currentRearBogiePos.z - currentFrontBogiePos.z);
+						final float carPitch = realSpacing == 0 ? 0 : (float) asin((currentRearBogiePos.y - currentFrontBogiePos.y) / realSpacing);
+
+						if(i != trainCars - 1){
+							positions[i] = new Vec3(0, 0, -(lastTrainLength / 2D - 1)).xRot(carPitch).yRot(carYaw).add(carX, carY, carZ);
+						} else {
+							positions[i] = new Vec3(0, 0, -(lastTrainLength / 2D - 1)).xRot(carPitch).yRot(carYaw).add(carX, carY, carZ);
+							positions[positions.length - 1] = new Vec3(0, 0, (lastTrainLength / 2D - 1)).xRot(carPitch).yRot(carYaw).add(carX, carY, carZ);
+						}
+
+						//end collisions fix
 					}
 
 					realCarI += Math.floor(bogie_spacing * 256);
