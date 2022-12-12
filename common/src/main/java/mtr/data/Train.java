@@ -735,10 +735,10 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 						final float carPitch = realSpacing == 0 ? 0 : (float) asin((currentRearBogiePos.y - currentFrontBogiePos.y) / realSpacing);
 
 						if(i != trainCars - 1){
-							positions[i] = new Vec3(0, 0, -(lastTrainLength / 2D - 1)).xRot(carPitch).yRot(carYaw).add(carX, carY, carZ);
+							positions[i] = new Vec3(0, 0, -(lastTrainLength / 2D)).xRot(carPitch).yRot(carYaw).add(carX, carY, carZ);
 						} else {
-							positions[i] = new Vec3(0, 0, -(lastTrainLength / 2D - 1)).xRot(carPitch).yRot(carYaw).add(carX, carY, carZ);
-							positions[positions.length - 1] = new Vec3(0, 0, (lastTrainLength / 2D - 1)).xRot(carPitch).yRot(carYaw).add(carX, carY, carZ);
+							positions[i] = new Vec3(0, 0, -(lastTrainLength / 2D)).xRot(carPitch).yRot(carYaw).add(carX, carY, carZ);
+							positions[positions.length - 1] = new Vec3(0, 0, (lastTrainLength / 2D)).xRot(carPitch).yRot(carYaw).add(carX, carY, carZ);
 						}
 
 						//end collisions fix
