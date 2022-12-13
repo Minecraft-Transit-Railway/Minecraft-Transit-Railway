@@ -6,7 +6,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        minecraft: [ 1.16.5, 1.17.1, 1.18.2, 1.19.2 ]
+        minecraft: [ 1.16.5, 1.17.1, 1.18.2, 1.19.2, 1.19.3 ]
         variation: [ normal, server, lifts ]
     runs-on: ubuntu-latest
     steps:
@@ -21,7 +21,7 @@ jobs:
       - name: Make gradle wrapper executable
         run: chmod +x ./gradlew
       - name: Build ${{ matrix.minecraft }}
-        run: ./gradlew build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}" -Pvariation="${{ matrix.variation }}" --continue
+        run: ./gradlew fabric:build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}" -Pvariation="${{ matrix.variation }}" --continue
       - name: Capture release artifacts
         uses: actions/upload-artifact@v2
         with:
