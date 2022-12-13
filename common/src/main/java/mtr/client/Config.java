@@ -200,11 +200,6 @@ public class Config {
 		}
 	}
 
-	public static void getPatreonList() {
-		PATREON_LIST.clear();
-		PATREON_LIST.addAll(Patreon.getPatreonList());
-	}
-
 	private static void writeToFile() {
 		System.out.println("Wrote MTR mod config to file");
 		final JsonObject jsonConfig = new JsonObject();

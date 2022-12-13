@@ -503,6 +503,9 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 								nextStoppingIndex = checkIndex - 1;
 							} else if (nextPlatformIndex > 0 && nextPlatformIndex < path.size()) {
 								nextStoppingIndex = nextPlatformIndex;
+								if (manualNotch < -2) {
+									manualNotch = 0;
+								}
 							}
 						}
 
