@@ -1,6 +1,6 @@
 package mtr.item;
 
-import mtr.ItemGroups;
+import mtr.CreativeModeTabs;
 import mtr.block.BlockNode;
 import mtr.data.RailAngle;
 import mtr.data.RailwayData;
@@ -12,7 +12,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
@@ -33,7 +32,7 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 	private static final String TAG_TRANSPORT_MODE = "transport_mode";
 
 	public ItemNodeModifierBase(boolean forNonContinuousMovementNode, boolean forContinuousMovementNode, boolean forAirplaneNode, boolean isConnector) {
-		super(new Item.Properties().tab(ItemGroups.CORE).stacksTo(1));
+		super(CreativeModeTabs.CORE, properties -> properties.stacksTo(1));
 		this.forNonContinuousMovementNode = forNonContinuousMovementNode;
 		this.forContinuousMovementNode = forContinuousMovementNode;
 		this.forAirplaneNode = forAirplaneNode;

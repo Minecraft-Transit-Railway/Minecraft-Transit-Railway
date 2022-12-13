@@ -56,12 +56,12 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		showScheduleControls = !transportMode.continuousMovement;
 		showCruisingAltitude = transportMode == TransportMode.AIRPLANE;
 
-		buttonUseRealTime = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.schedule_mode_real_time_off"), button -> {
+		buttonUseRealTime = UtilitiesClient.newButton(Text.translatable("gui.mtr.schedule_mode_real_time_off"), button -> {
 			depot.useRealTime = !depot.useRealTime;
 			toggleRealTime();
 			saveData();
 		});
-		buttonReset = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.reset_sign"), button -> {
+		buttonReset = UtilitiesClient.newButton(Text.translatable("gui.mtr.reset_sign"), button -> {
 			for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
 				sliders[i].setValue(0);
 			}
@@ -84,12 +84,12 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		});
 
 		textFieldDeparture = new WidgetBetterTextField("[^\\d:+* ]", "07:10:00 + 10 * 00:03:00", 25);
-		buttonAddDeparture = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("+"), button -> {
+		buttonAddDeparture = UtilitiesClient.newButton(Text.literal("+"), button -> {
 			checkDeparture(textFieldDeparture.getValue(), true, false);
 			saveData();
 		});
 
-		buttonEditInstructions = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.edit_instructions"), button -> {
+		buttonEditInstructions = UtilitiesClient.newButton(Text.translatable("gui.mtr.edit_instructions"), button -> {
 			if (minecraft != null) {
 				saveData();
 				final List<NameColorDataBase> routes = new ArrayList<>(ClientData.getFilteredDataSet(transportMode, ClientData.ROUTES));
@@ -97,12 +97,12 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 				UtilitiesClient.setScreen(minecraft, new DashboardListSelectorScreen(this, routes, data.routeIds, false, true));
 			}
 		});
-		buttonGenerateRoute = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.refresh_path"), button -> {
+		buttonGenerateRoute = UtilitiesClient.newButton(Text.translatable("gui.mtr.refresh_path"), button -> {
 			saveData();
 			depot.clientPathGenerationSuccessfulSegments = -1;
 			PacketTrainDataGuiClient.generatePathC2S(depot.id);
 		});
-		buttonClearTrains = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.clear_vehicles"), button -> {
+		buttonClearTrains = UtilitiesClient.newButton(Text.translatable("gui.mtr.clear_vehicles"), button -> {
 			sidingsInDepot.values().forEach(Siding::clearTrains);
 			PacketTrainDataGuiClient.clearTrainsC2S(depot.id, sidingsInDepot.values());
 		});
@@ -206,7 +206,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 				if (showScheduleControls && !data.useRealTime) {
 					drawString(matrices, font, getTimeString(i), TEXT_PADDING, SQUARE_SIZE * 2 + lineHeight * i + (int) ((lineHeight - TEXT_HEIGHT) / 2F), ARGB_WHITE);
 				}
-				sliders[i].y = SQUARE_SIZE * 2 + lineHeight * i;
+				UtilitiesClient.setWidgetY(sliders[i], SQUARE_SIZE * 2 + lineHeight * i);
 				sliders[i].setHeight(lineHeight);
 			}
 
@@ -274,7 +274,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			slider.visible = !data.useRealTime;
 		}
 		departuresList.x = data.useRealTime ? 0 : width;
-		textFieldDeparture.x = data.useRealTime ? TEXT_FIELD_PADDING / 2 : width;
+		UtilitiesClient.setWidgetX(textFieldDeparture, data.useRealTime ? TEXT_FIELD_PADDING / 2 : width);
 		buttonAddDeparture.visible = data.useRealTime;
 		buttonUseRealTime.setMessage(Text.translatable(data.useRealTime ? "gui.mtr.schedule_mode_real_time_on" : "gui.mtr.schedule_mode_real_time_off"));
 		updateList();

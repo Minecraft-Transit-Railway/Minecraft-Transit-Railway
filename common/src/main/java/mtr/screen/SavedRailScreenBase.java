@@ -59,12 +59,12 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 		textFieldSavedRailNumber.setResponder(text -> savedRailBase.name = textFieldSavedRailNumber.getValue());
 
 		final int sliderTextWidth = Math.max(font.width(Text.translatable("gui.mtr.arrival_min", "88")), font.width(Text.translatable("gui.mtr.arrival_sec", "88.8"))) + TEXT_PADDING;
-		sliderDwellTimeMin.x = SQUARE_SIZE + textWidth;
+		UtilitiesClient.setWidgetX(sliderDwellTimeMin, SQUARE_SIZE + textWidth);
 		sliderDwellTimeMin.setHeight(SQUARE_SIZE / 2);
 		sliderDwellTimeMin.setWidth(width - textWidth - SQUARE_SIZE * 2 - sliderTextWidth);
 		sliderDwellTimeMin.setValue((int) Math.floor(savedRailBase.getDwellTime() / 2F / SECONDS_PER_MINUTE));
 
-		sliderDwellTimeSec.x = SQUARE_SIZE + textWidth;
+		UtilitiesClient.setWidgetX(sliderDwellTimeSec, SQUARE_SIZE + textWidth);
 		sliderDwellTimeSec.setHeight(SQUARE_SIZE / 2);
 		sliderDwellTimeSec.setWidth(width - textWidth - SQUARE_SIZE * 2 - sliderTextWidth);
 		sliderDwellTimeSec.setValue(savedRailBase.getDwellTime() % (SECONDS_PER_MINUTE * 2));
@@ -79,7 +79,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	@Override
 	public void tick() {
 		textFieldSavedRailNumber.tick();
-		textFieldSavedRailNumber.x = shouldRenderExtra() ? width * 2 : SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2;
+		UtilitiesClient.setWidgetX(textFieldSavedRailNumber, shouldRenderExtra() ? width * 2 : SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2);
 
 		final int maxMin = (int) Math.floor(Platform.MAX_DWELL_TIME / 2F / SECONDS_PER_MINUTE);
 		if (sliderDwellTimeMin.getIntValue() == 0 && sliderDwellTimeSec.getIntValue() == 0) {

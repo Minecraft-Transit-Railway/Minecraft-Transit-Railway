@@ -2,7 +2,6 @@ package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.math.Vector3f;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
@@ -15,6 +14,7 @@ import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Station;
 import mtr.mappings.BlockEntityRendererMapper;
+import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -71,15 +71,15 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
 		storedMatrixTransformations.add(matricesNew -> {
 			matricesNew.translate(0.5 + entity.getBlockPos().getX(), 0.53125 + entity.getBlockPos().getY(), 0.5 + entity.getBlockPos().getZ());
-			matricesNew.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
-			matricesNew.mulPose(Vector3f.ZP.rotationDegrees(180));
+			UtilitiesClient.rotateYDegrees(matrices, -facing.toYRot());
+			UtilitiesClient.rotateZDegrees(matrices, 180);
 			matricesNew.translate(block.getXStart() / 16F - 0.5, 0, -0.0625 - SMALL_OFFSET * 2);
 		});
 
 		matrices.pushPose();
 		matrices.translate(0.5, 0.53125, 0.5);
-		matrices.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
-		matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
+		UtilitiesClient.rotateYDegrees(matrices, -facing.toYRot());
+		UtilitiesClient.rotateZDegrees(matrices, 180);
 		matrices.translate(block.getXStart() / 16F - 0.5, 0, -0.0625 - SMALL_OFFSET * 2);
 
 		if (renderBackground) {

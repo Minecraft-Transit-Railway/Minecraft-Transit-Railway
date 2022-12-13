@@ -1,6 +1,6 @@
 package mtr.item;
 
-import mtr.ItemGroups;
+import mtr.CreativeModeTabs;
 import mtr.block.BlockLiftTrack;
 import mtr.block.BlockLiftTrackFloor;
 import mtr.block.IBlock;
@@ -13,7 +13,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -25,11 +24,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class ItemLiftRefresher extends Item {
-
+public class ItemLiftRefresher extends ItemWithCreativeTabBase {
 
 	public ItemLiftRefresher() {
-		super(new Properties().tab(ItemGroups.ESCALATORS_LIFTS).stacksTo(1));
+		super(CreativeModeTabs.ESCALATORS_LIFTS, properties -> properties.stacksTo(1));
 	}
 
 	@Override

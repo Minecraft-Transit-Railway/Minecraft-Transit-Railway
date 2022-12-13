@@ -4,10 +4,10 @@ import mtr.MTR;
 import mtr.MTRClient;
 import mtr.data.Train;
 import mtr.data.TrainClient;
+import mtr.mappings.RegistryUtilities;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
 
@@ -58,13 +58,13 @@ public class JonTrainSound extends TrainSoundBase {
 				final Random random = new Random();
 
 				if (floorSpeed >= 30 && random.nextInt(RANDOM_SOUND_CHANCE) == 0) {
-					((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, soundId + SOUND_RANDOM)), SoundSource.BLOCKS, 10, 1, true);
+					((ClientLevel) world).playLocalSound(pos, RegistryUtilities.createSoundEvent(new ResourceLocation(MTR.MOD_ID, soundId + SOUND_RANDOM)), SoundSource.BLOCKS, 10, 1, true);
 				}
 
 				final int index = Math.min(floorSpeed, config.speedSoundCount) - 1;
 				final boolean isAccelerating = train.speedChange() == 0 ? config.useAccelerationSoundsWhenCoasting || random.nextBoolean() : train.speedChange() > 0;
 				final String speedSoundId = soundId + (isAccelerating ? SOUND_ACCELERATION : SOUND_DECELERATION) + index / SOUND_GROUP_SIZE + SOUND_GROUP_LETTERS[index % SOUND_GROUP_SIZE];
-				((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, speedSoundId)), SoundSource.BLOCKS, 1, 1, true);
+				((ClientLevel) world).playLocalSound(pos, RegistryUtilities.createSoundEvent(new ResourceLocation(MTR.MOD_ID, speedSoundId)), SoundSource.BLOCKS, 1, 1, true);
 			}
 		}
 	}
@@ -85,7 +85,7 @@ public class JonTrainSound extends TrainSoundBase {
 				soundId = null;
 			}
 			if (soundId != null) {
-				((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, soundId)), SoundSource.BLOCKS, 1, 1, true);
+				((ClientLevel) world).playLocalSound(pos, RegistryUtilities.createSoundEvent(new ResourceLocation(MTR.MOD_ID, soundId)), SoundSource.BLOCKS, 1, 1, true);
 			}
 		}
 	}

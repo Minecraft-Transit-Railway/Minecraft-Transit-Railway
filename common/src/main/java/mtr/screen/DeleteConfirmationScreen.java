@@ -26,8 +26,8 @@ public class DeleteConfirmationScreen extends ScreenMapper implements IGui {
 		this.name = name;
 		this.dashboardScreen = dashboardScreen;
 
-		buttonYes = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.yes"), button -> onYes());
-		buttonNo = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.no"), button -> onNo());
+		buttonYes = UtilitiesClient.newButton(Text.translatable("gui.yes"), button -> onYes());
+		buttonNo = UtilitiesClient.newButton(Text.translatable("gui.no"), button -> onNo());
 	}
 
 	@Override

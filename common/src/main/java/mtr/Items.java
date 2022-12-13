@@ -3,7 +3,6 @@ package mtr;
 import mtr.data.RailType;
 import mtr.data.TransportMode;
 import mtr.item.*;
-import mtr.mappings.PlaceOnWaterBlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 
@@ -12,14 +11,14 @@ public interface Items {
 	RegistryObject<Item> APG_DOOR = new RegistryObject<>(() -> new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.APG));
 	RegistryObject<Item> APG_GLASS = new RegistryObject<>(() -> new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS, ItemPSDAPGBase.EnumPSDAPGType.APG));
 	RegistryObject<Item> APG_GLASS_END = new RegistryObject<>(() -> new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS_END, ItemPSDAPGBase.EnumPSDAPGType.APG));
-	RegistryObject<Item> BRUSH = new RegistryObject<>(() -> new Item(new Item.Properties().tab(Keys.LIFTS_ONLY ? ItemGroups.ESCALATORS_LIFTS : ItemGroups.CORE).stacksTo(1)));
+	RegistryObject<Item> BRUSH = new RegistryObject<>(() -> new ItemWithCreativeTabBase(Keys.LIFTS_ONLY ? CreativeModeTabs.ESCALATORS_LIFTS : CreativeModeTabs.CORE, properties -> properties.stacksTo(1)));
 	RegistryObject<Item> RAILWAY_DASHBOARD = new RegistryObject<>(() -> new ItemDashboard(TransportMode.TRAIN));
 	RegistryObject<Item> BOAT_DASHBOARD = new RegistryObject<>(() -> new ItemDashboard(TransportMode.BOAT));
 	RegistryObject<Item> CABLE_CAR_DASHBOARD = new RegistryObject<>(() -> new ItemDashboard(TransportMode.CABLE_CAR));
 	RegistryObject<Item> AIRPLANE_DASHBOARD = new RegistryObject<>(() -> new ItemDashboard(TransportMode.AIRPLANE));
-	RegistryObject<Item> DRIVER_KEY = new RegistryObject<>(() -> new Item(new Item.Properties().tab(ItemGroups.CORE).stacksTo(1)));
-	RegistryObject<Item> BOAT_NODE = new RegistryObject<>(() -> new PlaceOnWaterBlockItem(Blocks.BOAT_NODE.get(), new Item.Properties().tab(ItemGroups.CORE)));
-	RegistryObject<Item> ESCALATOR = new RegistryObject<>(() -> new ItemEscalator(new Item.Properties().tab(ItemGroups.ESCALATORS_LIFTS)));
+	RegistryObject<Item> DRIVER_KEY = new RegistryObject<>(() -> new ItemWithCreativeTabBase(CreativeModeTabs.CORE, properties -> properties.stacksTo(1)));
+	RegistryObject<Item> BOAT_NODE = new RegistryObject<>(() -> new ItemWithCreativeTabBase.ItemPlaceOnWater(CreativeModeTabs.CORE, Blocks.BOAT_NODE.get()));
+	RegistryObject<Item> ESCALATOR = new RegistryObject<>(ItemEscalator::new);
 	RegistryObject<Item> LIFT_BUTTONS_LINK_CONNECTOR = new RegistryObject<>(() -> new ItemLiftButtonsLinkModifier(true));
 	RegistryObject<Item> LIFT_BUTTONS_LINK_REMOVER = new RegistryObject<>(() -> new ItemLiftButtonsLinkModifier(false));
 	RegistryObject<Item> LIFT_DOOR_1 = new RegistryObject<>(() -> new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.LIFT_DOOR_1));
@@ -53,7 +52,7 @@ public interface Items {
 	RegistryObject<Item> RAIL_CONNECTOR_CABLE_CAR = new RegistryObject<>(() -> new ItemRailModifier(false, true, false, true, RailType.CABLE_CAR));
 	RegistryObject<Item> RAIL_CONNECTOR_RUNWAY = new RegistryObject<>(() -> new ItemRailModifier(false, false, true, true, RailType.RUNWAY));
 	RegistryObject<Item> RAIL_REMOVER = new RegistryObject<>(ItemRailModifier::new);
-	RegistryObject<Item> RESOURCE_PACK_CREATOR = new RegistryObject<>(() -> new ItemResourcePackCreator(new Item.Properties().tab(ItemGroups.CORE)));
+	RegistryObject<Item> RESOURCE_PACK_CREATOR = new RegistryObject<>(ItemResourcePackCreator::new);
 	RegistryObject<Item> SIGNAL_CONNECTOR_WHITE = new RegistryObject<>(() -> new ItemSignalModifier(true, DyeColor.WHITE));
 	RegistryObject<Item> SIGNAL_CONNECTOR_ORANGE = new RegistryObject<>(() -> new ItemSignalModifier(true, DyeColor.ORANGE));
 	RegistryObject<Item> SIGNAL_CONNECTOR_MAGENTA = new RegistryObject<>(() -> new ItemSignalModifier(true, DyeColor.MAGENTA));

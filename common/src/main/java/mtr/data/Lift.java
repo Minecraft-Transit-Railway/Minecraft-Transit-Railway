@@ -3,6 +3,7 @@ package mtr.data;
 import mtr.block.BlockLiftTrackFloor;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.IBlock;
+import mtr.mappings.Utilities;
 import mtr.packet.IPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -304,7 +305,7 @@ public abstract class Lift extends NameColorDataBase implements IPacket {
 					if (!world.isClientSide) {
 						final BlockEntity blockEntity = world.getBlockEntity(getBlockPos());
 						if (blockEntity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor && ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).getShouldDing()) {
-							world.playSound(null, getBlockPos(), SoundEvents.NOTE_BLOCK_PLING, SoundSource.BLOCKS, 16, 2);
+							world.playSound(null, getBlockPos(), Utilities.unwrapSoundEvent(SoundEvents.NOTE_BLOCK_PLING), SoundSource.BLOCKS, 16, 2);
 						}
 					}
 				} else {

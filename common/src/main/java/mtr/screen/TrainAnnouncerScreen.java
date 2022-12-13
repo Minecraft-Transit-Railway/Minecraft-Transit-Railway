@@ -4,13 +4,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.block.BlockTrainAnnouncer;
 import mtr.data.DataConverter;
 import mtr.data.RailwayData;
+import mtr.mappings.RegistryUtilities;
 import mtr.mappings.Text;
+import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -50,7 +51,7 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 		availableSoundsList = new DashboardList((data, color) -> {
 			final String soundIdString = data.name;
 			if (!soundIdString.isEmpty() && world != null && minecraft.player != null) {
-				world.playLocalSound(pos, new SoundEvent(new ResourceLocation(soundIdString)), SoundSource.BLOCKS, 1000000, 1, true);
+				world.playLocalSound(pos, RegistryUtilities.createSoundEvent(new ResourceLocation(soundIdString)), SoundSource.BLOCKS, 1000000, 1, true);
 			}
 		}, null, null, null, (data, color) -> {
 			textFields[1].setValue(data.name);
@@ -82,7 +83,7 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (button == 0) {
-			if (RailwayData.isBetween(mouseX, textFields[1].x, textFields[1].x + textFields[1].getWidth()) && RailwayData.isBetween(mouseY, textFields[1].y, textFields[1].y + textFields[1].getHeight())) {
+			if (RailwayData.isBetween(mouseX, UtilitiesClient.getWidgetX(textFields[1]), UtilitiesClient.getWidgetX(textFields[1]) + textFields[1].getWidth()) && RailwayData.isBetween(mouseY, UtilitiesClient.getWidgetY(textFields[1]), UtilitiesClient.getWidgetY(textFields[1]) + textFields[1].getHeight())) {
 				setListVisibility(true);
 			} else if (!RailwayData.isBetween(mouseX, availableSoundsList.x, availableSoundsList.x + availableSoundsList.width) || !RailwayData.isBetween(mouseY, availableSoundsList.y, availableSoundsList.y + availableSoundsList.height)) {
 				setListVisibility(false);

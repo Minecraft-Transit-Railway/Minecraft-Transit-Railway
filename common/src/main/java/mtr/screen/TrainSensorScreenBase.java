@@ -70,7 +70,7 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 		stoppedOnlyCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.stopped_only"), checked -> setChecked(checked, movingOnly));
 		movingOnlyCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.moving_only"), checked -> setChecked(stoppedOnly, checked));
 
-		filterButton = new Button(0, 0, 0, SQUARE_SIZE, Text.literal(""), button -> {
+		filterButton = UtilitiesClient.newButton(button -> {
 			if (minecraft != null) {
 				final List<NameColorDataBase> routes = new ArrayList<>(ClientData.ROUTES);
 				Collections.sort(routes);

@@ -119,16 +119,16 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 		buttonsEdit = new Button[length];
 		for (int i = 0; i < buttonsEdit.length; i++) {
 			final int index = i;
-			buttonsEdit[i] = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("selectWorld.edit"), button -> edit(index));
+			buttonsEdit[i] = UtilitiesClient.newButton(Text.translatable("selectWorld.edit"), button -> edit(index));
 		}
 
 		buttonsSelection = new Button[allSignIds.size()];
 		for (int i = 0; i < allSignIds.size(); i++) {
 			final int index = i;
-			buttonsSelection[i] = new Button(0, 0, 0, SIGN_BUTTON_SIZE, Text.literal(""), button -> setNewSignId(allSignIds.get(index)));
+			buttonsSelection[i] = UtilitiesClient.newButton(SIGN_BUTTON_SIZE, Text.literal(""), button -> setNewSignId(allSignIds.get(index)));
 		}
 
-		buttonClear = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.reset_sign"), button -> setNewSignId(null));
+		buttonClear = UtilitiesClient.newButton(Text.translatable("gui.mtr.reset_sign"), button -> setNewSignId(null));
 		buttonPrevPage = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
 		buttonNextPage = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
 	}

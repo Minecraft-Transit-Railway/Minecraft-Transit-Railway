@@ -3,7 +3,6 @@ package mtr.model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
 import mtr.MTRClient;
 import mtr.client.DoorAnimationType;
 import mtr.client.IDrawing;
@@ -12,6 +11,7 @@ import mtr.data.IGui;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.data.TrainClient;
+import mtr.mappings.UtilitiesClient;
 import mtr.render.RenderTrains;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -90,14 +90,14 @@ public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 			if (i == 0 && isEnd1Head || i == 1 && isEnd2Head) {
 				matrices.pushPose();
 				if (i == 1) {
-					matrices.mulPose(Vector3f.YP.rotationDegrees(180));
+					UtilitiesClient.rotateYDegrees(matrices, 180);
 				}
 				matrices.translate(x1, y1, z1);
 				if (rotationY != 0) {
-					matrices.mulPose(Vector3f.YP.rotationDegrees(rotationY));
+					UtilitiesClient.rotateYDegrees(matrices, rotationY);
 				}
 				if (rotationX != 0) {
-					matrices.mulPose(Vector3f.XP.rotationDegrees(rotationX));
+					UtilitiesClient.rotateXDegrees(matrices, rotationX);
 				}
 				matrices.translate(x2, y2, z2);
 				IDrawing.drawStringWithFont(matrices, font, immediate, text, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, 0, 0, maxWidth, (padOneLine && !text.contains("|") ? IGui.isCjk(text) ? fontSizeRatio / (fontSizeRatio + 1) : 0.5F : 1) * maxHeight, 1, colorCjk, color, fontSizeRatio, false, MAX_LIGHT_GLOWING, null);

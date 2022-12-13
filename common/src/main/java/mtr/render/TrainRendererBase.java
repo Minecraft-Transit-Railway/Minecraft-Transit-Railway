@@ -1,7 +1,6 @@
 package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
 import mtr.MTRClient;
 import mtr.client.Config;
 import mtr.data.TrainClient;
@@ -109,7 +108,7 @@ public abstract class TrainRendererBase {
 			}
 			final float cameraYaw = camera.getYRot();
 			matrices.translate(offsetX, offsetY, offsetZ);
-			matrices.mulPose(Vector3f.YP.rotationDegrees(Utilities.getYaw(player) - cameraYaw + (Math.abs(Utilities.getYaw(player) - cameraYaw) > 90 ? 180 : 0)));
+			UtilitiesClient.rotateYDegrees(matrices, Utilities.getYaw(player) - cameraYaw + (Math.abs(Utilities.getYaw(player) - cameraYaw) > 90 ? 180 : 0));
 			matrices.translate(-viewOffset.x, -viewOffset.y, -viewOffset.z);
 		}
 

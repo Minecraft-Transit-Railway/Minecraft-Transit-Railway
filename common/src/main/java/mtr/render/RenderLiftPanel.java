@@ -2,7 +2,6 @@ package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.math.Vector3f;
 import mtr.MTRClient;
 import mtr.block.BlockLiftPanelBase;
 import mtr.block.BlockLiftTrackFloor;
@@ -14,6 +13,7 @@ import mtr.data.Lift;
 import mtr.item.ItemLiftButtonsLinkModifier;
 import mtr.mappings.BlockEntityRendererMapper;
 import mtr.mappings.Utilities;
+import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -100,8 +100,8 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.TileEntityLiftPanel1Ba
 
 		if (lift != null) {
 			final String[] text = ClientData.DATA_CACHE.requestLiftFloorText(lift.getCurrentFloorBlockPos());
-			matrices.mulPose(Vector3f.YN.rotationDegrees(facing.toYRot()));
-			matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
+			UtilitiesClient.rotateYDegrees(matrices, -facing.toYRot());
+			UtilitiesClient.rotateZDegrees(matrices, 180);
 			matrices.translate(isOdd ? 0 : 0.5, 0, 0);
 
 			// Floor Number

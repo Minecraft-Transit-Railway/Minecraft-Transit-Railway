@@ -23,7 +23,7 @@ public class RegistryImpl {
 		return false;
 	}
 
-	public static CreativeModeTab getItemGroup(ResourceLocation id, Supplier<ItemStack> supplier) {
+	public static CreativeModeTab getCreativeModeTab(ResourceLocation id, Supplier<ItemStack> supplier) {
 		return RegistryUtilities.createCreativeTab(id, supplier);
 	}
 

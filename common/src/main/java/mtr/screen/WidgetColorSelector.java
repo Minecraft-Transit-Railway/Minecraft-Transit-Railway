@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
+import mtr.mappings.ButtonMapper;
 import mtr.mappings.ScreenMapper;
 import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
@@ -19,7 +20,7 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class WidgetColorSelector extends Button implements IGui {
+public class WidgetColorSelector extends ButtonMapper implements IGui {
 
 	private int color;
 	private final ScreenMapper screen;
@@ -35,7 +36,7 @@ public class WidgetColorSelector extends Button implements IGui {
 	@Override
 	public void renderButton(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		super.renderButton(matrices, mouseX, mouseY, delta);
-		Gui.fill(matrices, x - 1, y - 1, x + width + 1, y + height + 1, ARGB_BLACK | color);
+		Gui.fill(matrices, UtilitiesClient.getWidgetX(this) - 1, UtilitiesClient.getWidgetY(this) - 1, UtilitiesClient.getWidgetX(this) + width + 1, UtilitiesClient.getWidgetY(this) + height + 1, ARGB_BLACK | color);
 	}
 
 	@Override
@@ -86,7 +87,7 @@ public class WidgetColorSelector extends Button implements IGui {
 			textFieldRed = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, Text.literal(String.valueOf((oldColor >> 16) & 0xFF)).getString(), 3);
 			textFieldGreen = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, Text.literal(String.valueOf((oldColor >> 8) & 0xFF)).getString(), 3);
 			textFieldBlue = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, Text.literal(String.valueOf(oldColor & 0xFF)).getString(), 3);
-			buttonReset = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.reset_sign"), button -> {
+			buttonReset = UtilitiesClient.newButton(Text.translatable("gui.mtr.reset_sign"), button -> {
 				setHsb(oldColor, true);
 				button.active = false;
 			});

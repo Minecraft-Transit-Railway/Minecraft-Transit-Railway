@@ -1,13 +1,13 @@
 package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
 import mtr.block.BlockPSDTop;
 import mtr.block.IBlock;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.mappings.BlockEntityRendererMapper;
+import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
@@ -53,7 +53,7 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.TileEntityRouteBase>
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
 		storedMatrixTransformations.add(matricesNew -> {
 			matricesNew.translate(0.5 + entity.getBlockPos().getX(), entity.getBlockPos().getY(), 0.5 + entity.getBlockPos().getZ());
-			matricesNew.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
+			UtilitiesClient.rotateYDegrees(matrices, -facing.toYRot());
 		});
 
 		renderAdditionalUnmodified(storedMatrixTransformations.copy(), state, facing, light);
@@ -64,7 +64,7 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.TileEntityRouteBase>
 			if (platformId != 0) {
 				storedMatrixTransformations.add(matricesNew -> {
 					matricesNew.translate(0, 1, 0);
-					matricesNew.mulPose(Vector3f.ZP.rotationDegrees(180));
+					UtilitiesClient.rotateZDegrees(matricesNew, 180);
 					matricesNew.translate(-0.5, -getAdditionalOffset(state), z);
 				});
 

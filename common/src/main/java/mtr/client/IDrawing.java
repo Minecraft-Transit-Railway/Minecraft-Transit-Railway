@@ -2,12 +2,11 @@ package mtr.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
 import com.mojang.text2speech.Narrator;
 import mtr.MTR;
 import mtr.data.IGui;
 import mtr.mappings.Text;
+import mtr.mappings.UtilitiesClient;
 import mtr.screen.WidgetBetterTextField;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -122,10 +121,9 @@ public interface IDrawing {
 
 	static void drawLine(PoseStack matrices, MultiBufferSource vertexConsumers, float x1, float y1, float z1, float x2, float y2, float z2, int r, int g, int b) {
 		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderType.lines());
-		final Matrix4f matrix4f = matrices.last().pose();
-		final Matrix3f matrix3f = matrices.last().normal();
-		vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, 0xFF).normal(matrix3f, 0, 1, 0).endVertex();
-		vertexConsumer.vertex(matrix4f, x2, y2, z2).color(r, g, b, 0xFF).normal(matrix3f, 0, 1, 0).endVertex();
+		final PoseStack.Pose pose = matrices.last();
+		vertexConsumer.vertex(pose.pose(), x1, y1, z1).color(r, g, b, 0xFF).normal(pose.normal(), 0, 1, 0).endVertex();
+		vertexConsumer.vertex(pose.pose(), x2, y2, z2).color(r, g, b, 0xFF).normal(pose.normal(), 0, 1, 0).endVertex();
 	}
 
 	static void drawRectangle(VertexConsumer vertexConsumer, double x1, double y1, double x2, double y2, int color) {
@@ -160,8 +158,7 @@ public interface IDrawing {
 
 	static void drawTexture(PoseStack matrices, VertexConsumer vertexConsumer, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
 		final Vec3i vec3i = facing.getNormal();
-		final Matrix4f matrix4f = matrices.last().pose();
-		final Matrix3f matrix3f = matrices.last().normal();
+		final PoseStack.Pose pose = matrices.last();
 		final int a = (color >> 24) & 0xFF;
 		final int r = (color >> 16) & 0xFF;
 		final int g = (color >> 8) & 0xFF;
@@ -169,15 +166,15 @@ public interface IDrawing {
 		if (a == 0) {
 			return;
 		}
-		vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, a).uv(u1, v2).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).endVertex();
-		vertexConsumer.vertex(matrix4f, x2, y2, z2).color(r, g, b, a).uv(u2, v2).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).endVertex();
-		vertexConsumer.vertex(matrix4f, x3, y3, z3).color(r, g, b, a).uv(u2, v1).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).endVertex();
-		vertexConsumer.vertex(matrix4f, x4, y4, z4).color(r, g, b, a).uv(u1, v1).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).endVertex();
+		vertexConsumer.vertex(pose.pose(), x1, y1, z1).color(r, g, b, a).uv(u1, v2).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(pose.normal(), vec3i.getX(), vec3i.getY(), vec3i.getZ()).endVertex();
+		vertexConsumer.vertex(pose.pose(), x2, y2, z2).color(r, g, b, a).uv(u2, v2).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(pose.normal(), vec3i.getX(), vec3i.getY(), vec3i.getZ()).endVertex();
+		vertexConsumer.vertex(pose.pose(), x3, y3, z3).color(r, g, b, a).uv(u2, v1).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(pose.normal(), vec3i.getX(), vec3i.getY(), vec3i.getZ()).endVertex();
+		vertexConsumer.vertex(pose.pose(), x4, y4, z4).color(r, g, b, a).uv(u1, v1).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(pose.normal(), vec3i.getX(), vec3i.getY(), vec3i.getZ()).endVertex();
 	}
 
 	static void setPositionAndWidth(AbstractWidget widget, int x, int y, int widgetWidth) {
-		widget.x = x;
-		widget.y = y;
+		UtilitiesClient.setWidgetX(widget, x);
+		UtilitiesClient.setWidgetY(widget, y);
 		widget.setWidth(Mth.clamp(widgetWidth, 0, 380 - (widget instanceof WidgetBetterTextField ? IGui.TEXT_FIELD_PADDING : 0)));
 	}
 

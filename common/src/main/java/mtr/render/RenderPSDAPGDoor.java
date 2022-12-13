@@ -2,13 +2,13 @@ package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
 import mtr.MTRClient;
 import mtr.block.*;
 import mtr.data.IGui;
 import mtr.mappings.BlockEntityRendererMapper;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
+import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
@@ -65,8 +65,8 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
 		storedMatrixTransformations.add(matricesNew -> {
 			matricesNew.translate(0.5 + entity.getBlockPos().getX(), entity.getBlockPos().getY(), 0.5 + entity.getBlockPos().getZ());
-			matricesNew.mulPose(Vector3f.YN.rotationDegrees(facing.toYRot()));
-			matricesNew.mulPose(Vector3f.XP.rotationDegrees(180));
+			UtilitiesClient.rotateYDegrees(matrices, -facing.toYRot());
+			UtilitiesClient.rotateXDegrees(matrices, 180);
 		});
 		final StoredMatrixTransformations storedMatrixTransformationsLight = storedMatrixTransformations.copy();
 

@@ -2,7 +2,6 @@ package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
 import mtr.block.BlockLiftButtons;
 import mtr.block.IBlock;
 import mtr.client.ClientData;
@@ -12,6 +11,7 @@ import mtr.data.Lift;
 import mtr.item.ItemLiftButtonsLinkModifier;
 import mtr.mappings.BlockEntityRendererMapper;
 import mtr.mappings.Utilities;
+import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
@@ -102,7 +102,7 @@ public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButton
 			lookingAtBottomHalf = inBlock && (!buttonStates[0] || hitY < 0.25);
 		}
 
-		matrices.mulPose(Vector3f.YN.rotationDegrees(facing.toYRot()));
+		UtilitiesClient.rotateYDegrees(matrices, -facing.toYRot());
 		matrices.translate(0, 0, 0.4375 - SMALL_OFFSET);
 
 		if (buttonStates[0]) {
@@ -115,7 +115,7 @@ public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButton
 		}
 
 		final float maxWidth = Math.min(0.25F, 0.375F / liftPositions.size());
-		matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
+		UtilitiesClient.rotateZDegrees(matrices, 180);
 		matrices.translate(maxWidth * (0.5 - liftPositions.size() / 2F), 0, 0);
 		IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation("mtr:textures/block/black.png"))), -maxWidth / 2, -0.9375F, maxWidth * liftPositions.size(), 0.40625F, Direction.UP, light);
 		matrices.translate(0, -0.875, -SMALL_OFFSET);

@@ -9,6 +9,7 @@ import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.mappings.ScreenMapper;
 import mtr.mappings.Text;
+import mtr.mappings.UtilitiesClient;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.Button;
@@ -61,42 +62,42 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 
 		checkboxUseTimeAndWindSync = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.use_time_and_wind_sync"), PacketTrainDataGuiClient::sendUseTimeAndWindSyncC2S);
 
-		buttonUseMTRFont = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
+		buttonUseMTRFont = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> {
 			useMTRFont = Config.setUseMTRFont(!useMTRFont);
 			setButtonText(button, useMTRFont);
 		});
-		buttonShowAnnouncementMessages = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
+		buttonShowAnnouncementMessages = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> {
 			showAnnouncementMessages = Config.setShowAnnouncementMessages(!showAnnouncementMessages);
 			setButtonText(button, showAnnouncementMessages);
 		});
-		buttonUseTTSAnnouncements = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
+		buttonUseTTSAnnouncements = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> {
 			useTTSAnnouncements = Config.setUseTTSAnnouncements(!useTTSAnnouncements);
 			setButtonText(button, useTTSAnnouncements);
 		});
-		buttonHideSpecialRailColors = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
+		buttonHideSpecialRailColors = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> {
 			hideSpecialRailColors = Config.setHideSpecialRailColors(!hideSpecialRailColors);
 			setButtonText(button, hideSpecialRailColors);
 		});
-		buttonHideTranslucentParts = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
+		buttonHideTranslucentParts = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> {
 			hideTranslucentParts = Config.setHideTranslucentParts(!hideTranslucentParts);
 			setButtonText(button, hideTranslucentParts);
 		});
-		buttonShiftToToggleSitting = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
+		buttonShiftToToggleSitting = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> {
 			shiftToToggleSitting = Config.setShiftToToggleSitting(!shiftToToggleSitting);
 			setButtonText(button, shiftToToggleSitting);
 		});
-		buttonLanguageOptions = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
+		buttonLanguageOptions = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> {
 			languageOptions = Config.setLanguageOptions(languageOptions + 1);
 			button.setMessage(Text.translatable("options.mtr.language_options_" + languageOptions));
 		});
-		buttonUseDynamicFPS = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
+		buttonUseDynamicFPS = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> {
 			useDynamicFPS = Config.setUseDynamicFPS(!useDynamicFPS);
 			setButtonText(button, useDynamicFPS);
 		});
 		sliderTrackTextureOffset = new WidgetShorterSlider(0, 0, Config.TRACK_OFFSET_COUNT - 1, Object::toString, null);
 		sliderDynamicTextureResolution = new WidgetShorterSlider(0, 0, Config.DYNAMIC_RESOLUTION_COUNT - 1, Object::toString, null);
 		sliderTrainRenderDistanceRatio = new WidgetShorterSlider(0, 0, Config.TRAIN_RENDER_DISTANCE_RATIO_COUNT - 1, num -> String.format("%d%%", (num + 1) * 100 / Config.TRAIN_RENDER_DISTANCE_RATIO_COUNT), null);
-		buttonSupportPatreon = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> Util.getPlatform().openUri("https://www.patreon.com/minecraft_transit_railway"));
+		buttonSupportPatreon = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> Util.getPlatform().openUri("https://www.patreon.com/minecraft_transit_railway"));
 	}
 
 	@Override

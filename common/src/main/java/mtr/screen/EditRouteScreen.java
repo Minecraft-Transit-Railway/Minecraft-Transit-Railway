@@ -5,6 +5,7 @@ import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.*;
 import mtr.mappings.Text;
+import mtr.mappings.UtilitiesClient;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.gui.components.Button;
@@ -34,7 +35,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 		super(route, dashboardScreen, "gui.mtr.route_name", "gui.mtr.route_color");
 
 		textFieldLightRailRouteNumber = new WidgetBetterTextField("");
-		buttonRouteType = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.add_value"), button -> setRouteTypeText(data.transportMode, routeType.next()));
+		buttonRouteType = UtilitiesClient.newButton(Text.translatable("gui.mtr.add_value"), button -> setRouteTypeText(data.transportMode, routeType.next()));
 		buttonIsLightRailRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.is_light_rail_route"), this::setIsLightRailRoute);
 		buttonIsRouteHidden = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.is_route_hidden"), this::setIsRouteHidden);
 		buttonDisableNextStationAnnouncements = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.disable_next_station_announcements"), this::setDisableNextStationAnnouncements);

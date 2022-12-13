@@ -23,7 +23,7 @@ public class Registry {
 	}
 
 	@ExpectPlatform
-	public static CreativeModeTab getItemGroup(ResourceLocation id, Supplier<ItemStack> supplier) {
+	public static CreativeModeTab getCreativeModeTab(ResourceLocation id, Supplier<ItemStack> supplier) {
 		throw new AssertionError();
 	}
 

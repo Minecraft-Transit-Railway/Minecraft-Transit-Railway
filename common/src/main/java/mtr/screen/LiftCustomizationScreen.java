@@ -7,6 +7,7 @@ import mtr.data.Lift;
 import mtr.data.LiftClient;
 import mtr.mappings.ScreenMapper;
 import mtr.mappings.Text;
+import mtr.mappings.UtilitiesClient;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.Minecraft;
@@ -46,51 +47,51 @@ public class LiftCustomizationScreen extends ScreenMapper implements IGui, IPack
 		super(Text.literal(""));
 		this.lift = lift;
 
-		buttonHeightMinus = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("-"), button -> {
+		buttonHeightMinus = UtilitiesClient.newButton(Text.literal("-"), button -> {
 			lift.liftHeight = Math.max(MIN_DIMENSION * 2, lift.liftHeight - 1);
 			updateControls();
 		});
-		buttonHeightAdd = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("+"), button -> {
+		buttonHeightAdd = UtilitiesClient.newButton(Text.literal("+"), button -> {
 			lift.liftHeight = Math.min(MAX_DIMENSION * 2, lift.liftHeight + 1);
 			updateControls();
 		});
-		buttonWidthMinus = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("-"), button -> {
+		buttonWidthMinus = UtilitiesClient.newButton(Text.literal("-"), button -> {
 			lift.liftWidth = Math.max(MIN_DIMENSION, lift.liftWidth - 1);
 			updateControls();
 		});
-		buttonWidthAdd = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("+"), button -> {
+		buttonWidthAdd = UtilitiesClient.newButton(Text.literal("+"), button -> {
 			lift.liftWidth = Math.min(MAX_DIMENSION, lift.liftWidth + 1);
 			updateControls();
 		});
-		buttonDepthMinus = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("-"), button -> {
+		buttonDepthMinus = UtilitiesClient.newButton(Text.literal("-"), button -> {
 			lift.liftDepth = Math.max(MIN_DIMENSION, lift.liftDepth - 1);
 			updateControls();
 		});
-		buttonDepthAdd = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("+"), button -> {
+		buttonDepthAdd = UtilitiesClient.newButton(Text.literal("+"), button -> {
 			lift.liftDepth = Math.min(MAX_DIMENSION, lift.liftDepth + 1);
 			updateControls();
 		});
-		buttonOffsetXMinus = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("-"), button -> {
+		buttonOffsetXMinus = UtilitiesClient.newButton(Text.literal("-"), button -> {
 			lift.liftOffsetX = Math.max(-MAX_OFFSET * 2, lift.liftOffsetX - 1);
 			updateControls();
 		});
-		buttonOffsetXAdd = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("+"), button -> {
+		buttonOffsetXAdd = UtilitiesClient.newButton(Text.literal("+"), button -> {
 			lift.liftOffsetX = Math.min(MAX_OFFSET * 2, lift.liftOffsetX + 1);
 			updateControls();
 		});
-		buttonOffsetYMinus = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("-"), button -> {
+		buttonOffsetYMinus = UtilitiesClient.newButton(Text.literal("-"), button -> {
 			lift.liftOffsetY = Math.max(-MAX_OFFSET, lift.liftOffsetY - 1);
 			updateControls();
 		});
-		buttonOffsetYAdd = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("+"), button -> {
+		buttonOffsetYAdd = UtilitiesClient.newButton(Text.literal("+"), button -> {
 			lift.liftOffsetY = Math.min(MAX_OFFSET, lift.liftOffsetY + 1);
 			updateControls();
 		});
-		buttonOffsetZMinus = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("-"), button -> {
+		buttonOffsetZMinus = UtilitiesClient.newButton(Text.literal("-"), button -> {
 			lift.liftOffsetZ = Math.max(-MAX_OFFSET * 2, lift.liftOffsetZ - 1);
 			updateControls();
 		});
-		buttonOffsetZAdd = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("+"), button -> {
+		buttonOffsetZAdd = UtilitiesClient.newButton(Text.literal("+"), button -> {
 			lift.liftOffsetZ = Math.min(MAX_OFFSET * 2, lift.liftOffsetZ + 1);
 			updateControls();
 		});
@@ -98,12 +99,12 @@ public class LiftCustomizationScreen extends ScreenMapper implements IGui, IPack
 		final Component rotateAnticlockwiseText = Text.translatable("gui.mtr.rotate_anticlockwise");
 		final Component rotateClockwiseText = Text.translatable("gui.mtr.rotate_clockwise");
 		buttonIsDoubleSided = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, doubleSidedText, checked -> lift.isDoubleSided = checked);
-		buttonLiftStyle = new Button(0, 0, 0, SQUARE_SIZE, Text.literal(""), button -> {
+		buttonLiftStyle = UtilitiesClient.newButton(button -> {
 			lift.liftStyle = Lift.LiftStyle.values()[(lift.liftStyle.ordinal() + 1) % Lift.LiftStyle.values().length];
 			updateControls();
 		});
-		buttonRotateAnticlockwise = new Button(0, 0, 0, SQUARE_SIZE, rotateAnticlockwiseText, button -> lift.facing = lift.facing.getCounterClockWise());
-		buttonRotateClockwise = new Button(0, 0, 0, SQUARE_SIZE, rotateClockwiseText, button -> lift.facing = lift.facing.getClockWise());
+		buttonRotateAnticlockwise = UtilitiesClient.newButton(rotateAnticlockwiseText, button -> lift.facing = lift.facing.getCounterClockWise());
+		buttonRotateClockwise = UtilitiesClient.newButton(rotateClockwiseText, button -> lift.facing = lift.facing.getClockWise());
 
 		font = Minecraft.getInstance().font;
 		width1 = Math.max(Math.max(SQUARE_SIZE * 3, font.width(doubleSidedText)), Math.max(font.width(rotateAnticlockwiseText), font.width(rotateClockwiseText))) + TEXT_PADDING * 2;

@@ -1,7 +1,6 @@
 package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
 import mtr.MTRClient;
 import mtr.block.BlockArrivalProjectorBase;
 import mtr.block.BlockPIDSBase;
@@ -11,6 +10,7 @@ import mtr.data.*;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.BlockEntityRendererMapper;
 import mtr.mappings.Text;
+import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -159,8 +159,8 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 
 				matrices.pushPose();
 				matrices.translate(0.5, 0, 0.5);
-				matrices.mulPose(Vector3f.YP.rotationDegrees((rotate90 ? 90 : 0) - facing.toYRot()));
-				matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
+				UtilitiesClient.rotateYDegrees(matrices, (rotate90 ? 90 : 0) - facing.toYRot());
+				UtilitiesClient.rotateZDegrees(matrices, 180);
 				matrices.translate((startX - 8) / 16, -startY / 16 + i * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
 				matrices.scale(1F / scale, 1F / scale, 1F / scale);
 

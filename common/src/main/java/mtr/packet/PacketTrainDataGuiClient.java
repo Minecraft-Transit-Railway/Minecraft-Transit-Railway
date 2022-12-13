@@ -10,6 +10,7 @@ import mtr.block.BlockTrainSensorBase;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.*;
+import mtr.mappings.RegistryUtilities;
 import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import mtr.screen.*;
@@ -20,7 +21,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -168,7 +168,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 			final ClientLevel world = minecraftClient.level;
 			final LocalPlayer player = minecraftClient.player;
 			if (!soundIdString.isEmpty() && world != null && player != null) {
-				world.playLocalSound(player.blockPosition(), new SoundEvent(new ResourceLocation(soundIdString)), SoundSource.BLOCKS, 1000000, 1, true);
+				world.playLocalSound(player.blockPosition(), RegistryUtilities.createSoundEvent(new ResourceLocation(soundIdString)), SoundSource.BLOCKS, 1000000, 1, true);
 			}
 		});
 	}

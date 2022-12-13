@@ -3,7 +3,6 @@ package mtr.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
 import mtr.MTRClient;
 import mtr.block.BlockNode;
 import mtr.block.BlockPlatform;
@@ -243,13 +242,13 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			}
 
 			matrices.translate(x, y, z);
-			matrices.mulPose(Vector3f.XP.rotationDegrees(180));
-			matrices.mulPose(Vector3f.YP.rotationDegrees(180 + lift.facing.toYRot()));
+			UtilitiesClient.rotateXDegrees(matrices, 180);
+			UtilitiesClient.rotateYDegrees(matrices, 180 + lift.facing.toYRot());
 			final int light = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage));
 			new ModelLift1(lift.liftHeight, lift.liftWidth, lift.liftDepth, lift.isDoubleSided).render(matrices, vertexConsumers, lift, LIFT_TEXTURE, light, frontDoorValue, backDoorValue, false, 0, 1, false, true, false, false, false);
 
 			for (int i = 0; i < (lift.isDoubleSided ? 2 : 1); i++) {
-				matrices.mulPose(Vector3f.YP.rotationDegrees(180));
+				UtilitiesClient.rotateYDegrees(matrices, 180);
 				matrices.pushPose();
 				matrices.translate(0.875F, -1.5, lift.liftDepth / 2F - 0.25 - SMALL_OFFSET);
 				renderLiftDisplay(matrices, vertexConsumers, posAverage, ClientData.DATA_CACHE.requestLiftFloorText(lift.getCurrentFloorBlockPos())[0], lift.getLiftDirection(), 0.1875F, 0.3125F);

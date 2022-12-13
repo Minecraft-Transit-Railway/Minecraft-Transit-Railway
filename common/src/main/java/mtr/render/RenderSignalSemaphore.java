@@ -2,9 +2,9 @@ package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
 import mtr.block.BlockSignalSemaphoreBase;
 import mtr.client.IDrawing;
+import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
@@ -28,7 +28,7 @@ public class RenderSignalSemaphore<T extends BlockSignalSemaphoreBase.TileEntity
 		final float angle = isBackSide ? entity.angle2 : entity.angle1;
 		IDrawing.drawTexture(matrices, vertexConsumer, -0.0625F, 0.296875F, -0.190625F, 0.0625F, 0.453125F, -0.190625F, facing.getOpposite(), angle < ANGLE / 2F ? 0xFFFF0000 : 0xFF00FF00, MAX_LIGHT_GLOWING);
 		matrices.translate(0.1875, 0.375, 0);
-		matrices.mulPose(Vector3f.ZN.rotationDegrees(180 + angle));
+		UtilitiesClient.rotateZDegrees(matrices, -180 - angle);
 
 		final Level world = entity.getLevel();
 		if (world != null) {

@@ -2,7 +2,6 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
 import mtr.client.ClientData;
 import mtr.client.DoorAnimationType;
 import mtr.client.ScrollingText;
@@ -10,6 +9,7 @@ import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
+import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 
@@ -1298,8 +1298,8 @@ public class ModelLondonUnderground1995 extends ModelSimpleTrainBase<ModelLondon
 		for (final int position : positions) {
 			for (int i = 0; i < 2; i++) {
 				matrices.pushPose();
-				matrices.mulPose(Vector3f.YP.rotationDegrees(i == 1 ? -90 : 90));
-				matrices.mulPose(Vector3f.XP.rotationDegrees(48));
+				UtilitiesClient.rotateYDegrees(matrices, i == 1 ? -90 : 90);
+				UtilitiesClient.rotateXDegrees(matrices, 48);
 				matrices.translate(position - 0.23F, -0.55F, 1.96F);
 				scrollingTexts.get(0).scrollText(matrices);
 				matrices.popPose();

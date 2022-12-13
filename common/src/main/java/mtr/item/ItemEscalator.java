@@ -1,6 +1,7 @@
 package mtr.item;
 
 import mtr.Blocks;
+import mtr.CreativeModeTabs;
 import mtr.block.BlockEscalatorBase;
 import mtr.block.BlockEscalatorSide;
 import mtr.block.BlockEscalatorStep;
@@ -8,15 +9,14 @@ import mtr.block.IBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class ItemEscalator extends Item implements IBlock {
+public class ItemEscalator extends ItemWithCreativeTabBase implements IBlock {
 
-	public ItemEscalator(Item.Properties settings) {
-		super(settings);
+	public ItemEscalator() {
+		super(CreativeModeTabs.ESCALATORS_LIFTS);
 	}
 
 	@Override

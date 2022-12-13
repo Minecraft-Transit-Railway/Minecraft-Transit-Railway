@@ -143,7 +143,7 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 	}
 
 	public static Button getPlatformFilterButton(BlockPos pos, WidgetBetterCheckbox selectAllCheckbox, Set<Long> filterPlatformIds, ScreenMapper thisScreen) {
-		return new Button(0, 0, 0, SQUARE_SIZE, Text.literal(""), button -> {
+		return UtilitiesClient.newButton(button -> {
 			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 			if (station != null) {
 				final List<NameColorDataBase> platformsForList = new ArrayList<>();

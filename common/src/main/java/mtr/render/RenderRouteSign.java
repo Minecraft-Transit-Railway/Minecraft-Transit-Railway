@@ -2,7 +2,6 @@ package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
 import mtr.block.BlockRouteSignBase;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
@@ -13,6 +12,7 @@ import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Station;
 import mtr.mappings.BlockEntityRendererMapper;
+import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
@@ -72,7 +72,7 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 
 		matrices.pushPose();
 		matrices.translate(0.5, 0, 0.5);
-		matrices.mulPose(Vector3f.YN.rotationDegrees(facing.toYRot()));
+		UtilitiesClient.rotateYDegrees(matrices, -facing.toYRot());
 		matrices.translate(-0.5, 0, 0.4375 - SMALL_OFFSET * 2);
 
 		final VertexConsumer vertexConsumer1 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platform.id, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.2F, WIDTH / HEIGHT_TOP, ARGB_BLACK, ARGB_WHITE, 0).resourceLocation));
