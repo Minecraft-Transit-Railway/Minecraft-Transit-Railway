@@ -90,7 +90,7 @@ public class MTRForge {
 	private static void registerBlock(String path, RegistryObject<Block> block, CreativeModeTabs.Wrapper creativeModeTabWrapper) {
 		registerBlock(path, block);
 		ITEMS.register(path, () -> {
-			final BlockItem blockItem = new BlockItem(block.get(), RegistryUtilities.createItemProperties(creativeModeTabWrapper.creativeModeTabSupplier));
+			final BlockItem blockItem = new BlockItem(block.get(), RegistryUtilities.createItemProperties(creativeModeTabWrapper::get));
 			ForgeUtilities.registerCreativeModeTab(creativeModeTabWrapper.resourceLocation, blockItem);
 			return blockItem;
 		});
@@ -99,7 +99,7 @@ public class MTRForge {
 	private static void registerEnchantedBlock(String path, RegistryObject<Block> block, CreativeModeTabs.Wrapper creativeModeTab) {
 		registerBlock(path, block);
 		ITEMS.register(path, () -> {
-			final ItemBlockEnchanted itemBlockEnchanted = new ItemBlockEnchanted(block.get(), RegistryUtilities.createItemProperties(creativeModeTab.creativeModeTabSupplier));
+			final ItemBlockEnchanted itemBlockEnchanted = new ItemBlockEnchanted(block.get(), RegistryUtilities.createItemProperties(creativeModeTab::get));
 			ForgeUtilities.registerCreativeModeTab(creativeModeTab.resourceLocation, itemBlockEnchanted);
 			return itemBlockEnchanted;
 		});

@@ -17,11 +17,19 @@ public interface CreativeModeTabs {
 	class Wrapper {
 
 		public final ResourceLocation resourceLocation;
-		public final Supplier<CreativeModeTab> creativeModeTabSupplier;
+		private final Supplier<CreativeModeTab> creativeModeTabSupplier;
+		private CreativeModeTab creativeModeTab;
 
 		public Wrapper(ResourceLocation resourceLocation, Supplier<ItemStack> itemSupplier) {
 			this.resourceLocation = resourceLocation;
 			creativeModeTabSupplier = Registry.getCreativeModeTab(resourceLocation, itemSupplier);
+		}
+
+		public CreativeModeTab get() {
+			if (creativeModeTab == null) {
+				creativeModeTab = creativeModeTabSupplier.get();
+			}
+			return creativeModeTab;
 		}
 
 		public Wrapper() {
