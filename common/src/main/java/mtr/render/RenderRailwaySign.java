@@ -71,8 +71,8 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
 		storedMatrixTransformations.add(matricesNew -> {
 			matricesNew.translate(0.5 + entity.getBlockPos().getX(), 0.53125 + entity.getBlockPos().getY(), 0.5 + entity.getBlockPos().getZ());
-			UtilitiesClient.rotateYDegrees(matrices, -facing.toYRot());
-			UtilitiesClient.rotateZDegrees(matrices, 180);
+			UtilitiesClient.rotateYDegrees(matricesNew, -facing.toYRot());
+			UtilitiesClient.rotateZDegrees(matricesNew, 180);
 			matricesNew.translate(block.getXStart() / 16F - 0.5, 0, -0.0625 - SMALL_OFFSET * 2);
 		});
 
