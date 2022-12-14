@@ -37,6 +37,7 @@ mappings
 BlockEntityExtension.java
 RandomSource.java
 UnknownPacketMixin.java
+LevelRendererMixin.java
 **/lang/*.json
 !en_us.json
 

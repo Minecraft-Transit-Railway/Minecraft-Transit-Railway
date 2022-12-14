@@ -2,15 +2,15 @@ package mtr;
 
 import mtr.client.CustomResources;
 import mtr.item.ItemBlockEnchanted;
+import mtr.item.ItemWithCreativeTabBase;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.DeferredRegisterHolder;
 import mtr.mappings.ForgeUtilities;
-import mtr.mappings.RegistryUtilitiesClient;
+import mtr.mappings.RegistryUtilities;
 import mtr.render.RenderDrivingOverlay;
 import mtr.render.RenderLift;
 import mtr.render.RenderTrains;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.Registry;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -31,11 +31,11 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @Mod(MTR.MOD_ID)
 public class MTRForge {
 
-	private static final DeferredRegisterHolder<Item> ITEMS = new DeferredRegisterHolder<>(MTR.MOD_ID, Registry.ITEM_REGISTRY);
-	private static final DeferredRegisterHolder<Block> BLOCKS = new DeferredRegisterHolder<>(MTR.MOD_ID, Registry.BLOCK_REGISTRY);
-	private static final DeferredRegisterHolder<BlockEntityType<?>> BLOCK_ENTITY_TYPES = new DeferredRegisterHolder<>(MTR.MOD_ID, Registry.BLOCK_ENTITY_TYPE_REGISTRY);
-	private static final DeferredRegisterHolder<EntityType<?>> ENTITY_TYPES = new DeferredRegisterHolder<>(MTR.MOD_ID, Registry.ENTITY_TYPE_REGISTRY);
-	private static final DeferredRegisterHolder<SoundEvent> SOUND_EVENTS = new DeferredRegisterHolder<>(MTR.MOD_ID, Registry.SOUND_EVENT_REGISTRY);
+	private static final DeferredRegisterHolder<Item> ITEMS = new DeferredRegisterHolder<>(MTR.MOD_ID, ForgeUtilities.registryGetItem());
+	private static final DeferredRegisterHolder<Block> BLOCKS = new DeferredRegisterHolder<>(MTR.MOD_ID, ForgeUtilities.registryGetBlock());
+	private static final DeferredRegisterHolder<BlockEntityType<?>> BLOCK_ENTITY_TYPES = new DeferredRegisterHolder<>(MTR.MOD_ID, ForgeUtilities.registryGetBlockEntityType());
+	private static final DeferredRegisterHolder<EntityType<?>> ENTITY_TYPES = new DeferredRegisterHolder<>(MTR.MOD_ID, ForgeUtilities.registryGetEntityType());
+	private static final DeferredRegisterHolder<SoundEvent> SOUND_EVENTS = new DeferredRegisterHolder<>(MTR.MOD_ID, ForgeUtilities.registryGetSoundEvent());
 
 	static {
 		MTR.init(MTRForge::registerItem, MTRForge::registerBlock, MTRForge::registerBlock, MTRForge::registerEnchantedBlock, MTRForge::registerBlockEntityType, MTRForge::registerEntityType, MTRForge::registerSoundEvent);
@@ -52,6 +52,7 @@ public class MTRForge {
 		SOUND_EVENTS.register();
 
 		eventBus.register(MTRModEventBus.class);
+		eventBus.register(ForgeUtilities.RegisterCreativeTabs.class);
 		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
 			ForgeUtilities.renderTickAction(MTRClient::incrementGameTick);
 			ForgeUtilities.registerEntityRenderer(EntityTypes.SEAT::get, RenderTrains::new);
@@ -67,26 +68,42 @@ public class MTRForge {
 			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_4_4_DOUBLE_SIDED.registryObject::get, RenderLift::new);
 			ForgeUtilities.renderGameOverlayAction(RenderDrivingOverlay::render);
 			MinecraftForge.EVENT_BUS.register(ForgeUtilities.Events.class);
-			eventBus.register(ForgeUtilities.RegisterEntityRenderer.class);
+			eventBus.register(ForgeUtilities.ClientsideEvents.class);
 		});
 	}
 
 	private static void registerItem(String path, RegistryObject<Item> item) {
-		ITEMS.register(path, item::get);
+		ITEMS.register(path, () -> {
+			final Item itemObject = item.get();
+			if (itemObject instanceof ItemWithCreativeTabBase) {
+				ForgeUtilities.registerCreativeModeTab(((ItemWithCreativeTabBase) itemObject).creativeModeTab::get, itemObject);
+			} else if (itemObject instanceof ItemWithCreativeTabBase.ItemPlaceOnWater) {
+				ForgeUtilities.registerCreativeModeTab(((ItemWithCreativeTabBase.ItemPlaceOnWater) itemObject).creativeModeTab::get, itemObject);
+			}
+			return itemObject;
+		});
 	}
 
 	private static void registerBlock(String path, RegistryObject<Block> block) {
 		BLOCKS.register(path, block::get);
 	}
 
-	private static void registerBlock(String path, RegistryObject<Block> block, CreativeModeTab itemGroup) {
+	private static void registerBlock(String path, RegistryObject<Block> block, RegistryObject<CreativeModeTab> creativeModeTab) {
 		registerBlock(path, block);
-		ITEMS.register(path, () -> new BlockItem(block.get(), new Item.Properties().tab(itemGroup)));
+		ITEMS.register(path, () -> {
+			final BlockItem blockItem = new BlockItem(block.get(), RegistryUtilities.createItemProperties(creativeModeTab::get));
+			ForgeUtilities.registerCreativeModeTab(creativeModeTab::get, blockItem);
+			return blockItem;
+		});
 	}
 
-	private static void registerEnchantedBlock(String path, RegistryObject<Block> block, CreativeModeTab itemGroup) {
+	private static void registerEnchantedBlock(String path, RegistryObject<Block> block, RegistryObject<CreativeModeTab> creativeModeTab) {
 		registerBlock(path, block);
-		ITEMS.register(path, () -> new ItemBlockEnchanted(block.get(), new Item.Properties().tab(itemGroup)));
+		ITEMS.register(path, () -> {
+			final ItemBlockEnchanted itemBlockEnchanted = new ItemBlockEnchanted(block.get(), RegistryUtilities.createItemProperties(creativeModeTab::get));
+			ForgeUtilities.registerCreativeModeTab(creativeModeTab::get, itemBlockEnchanted);
+			return itemBlockEnchanted;
+		});
 	}
 
 	private static void registerBlockEntityType(String path, RegistryObject<? extends BlockEntityType<? extends BlockEntityMapper>> blockEntityType) {
@@ -106,7 +123,7 @@ public class MTRForge {
 		@SubscribeEvent
 		public static void onClientSetupEvent(FMLClientSetupEvent event) {
 			MTRClient.init();
-			RegistryUtilitiesClient.registerTextureStitchEvent(textureAtlas -> {
+			ForgeUtilities.registerTextureStitchEvent(textureAtlas -> {
 				if (textureAtlas.location().getPath().equals("textures/atlas/blocks.png")) {
 					CustomResources.reload(Minecraft.getInstance().getResourceManager());
 				}

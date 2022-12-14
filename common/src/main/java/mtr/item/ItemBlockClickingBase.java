@@ -1,5 +1,6 @@
 package mtr.item;
 
+import mtr.RegistryObject;
 import mtr.mappings.Text;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -20,7 +21,7 @@ public abstract class ItemBlockClickingBase extends ItemWithCreativeTabBase {
 
 	public static final String TAG_POS = "pos";
 
-	public ItemBlockClickingBase(CreativeModeTab creativeModeTab, Function<Properties, Properties> propertiesConsumer) {
+	public ItemBlockClickingBase(RegistryObject<CreativeModeTab> creativeModeTab, Function<Properties, Properties> propertiesConsumer) {
 		super(creativeModeTab, propertiesConsumer);
 	}
 

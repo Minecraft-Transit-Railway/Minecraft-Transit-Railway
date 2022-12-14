@@ -28,9 +28,9 @@ public class MTRFabric implements ModInitializer {
 		final Item itemObject = item.get();
 		Registry.register(RegistryUtilities.registryGetItem(), new ResourceLocation(MTR.MOD_ID, path), itemObject);
 		if (itemObject instanceof ItemWithCreativeTabBase) {
-			FabricRegistryUtilities.registerCreativeModeTab(((ItemWithCreativeTabBase) itemObject).creativeModeTab, itemObject);
+			FabricRegistryUtilities.registerCreativeModeTab(((ItemWithCreativeTabBase) itemObject).creativeModeTab.get(), itemObject);
 		} else if (itemObject instanceof ItemWithCreativeTabBase.ItemPlaceOnWater) {
-			FabricRegistryUtilities.registerCreativeModeTab(((ItemWithCreativeTabBase.ItemPlaceOnWater) itemObject).creativeModeTab, itemObject);
+			FabricRegistryUtilities.registerCreativeModeTab(((ItemWithCreativeTabBase.ItemPlaceOnWater) itemObject).creativeModeTab.get(), itemObject);
 		}
 	}
 
@@ -38,18 +38,18 @@ public class MTRFabric implements ModInitializer {
 		Registry.register(RegistryUtilities.registryGetBlock(), new ResourceLocation(MTR.MOD_ID, path), block.get());
 	}
 
-	private static void registerBlock(String path, RegistryObject<Block> block, CreativeModeTab creativeModeTab) {
+	private static void registerBlock(String path, RegistryObject<Block> block, RegistryObject<CreativeModeTab> creativeModeTab) {
 		registerBlock(path, block);
-		final BlockItem blockItem = new BlockItem(block.get(), RegistryUtilities.createItemProperties(creativeModeTab));
+		final BlockItem blockItem = new BlockItem(block.get(), RegistryUtilities.createItemProperties(creativeModeTab::get));
 		Registry.register(RegistryUtilities.registryGetItem(), new ResourceLocation(MTR.MOD_ID, path), blockItem);
-		FabricRegistryUtilities.registerCreativeModeTab(creativeModeTab, blockItem);
+		FabricRegistryUtilities.registerCreativeModeTab(creativeModeTab.get(), blockItem);
 	}
 
-	private static void registerEnchantedBlock(String path, RegistryObject<Block> block, CreativeModeTab creativeModeTab) {
+	private static void registerEnchantedBlock(String path, RegistryObject<Block> block, RegistryObject<CreativeModeTab> creativeModeTab) {
 		registerBlock(path, block);
-		final ItemBlockEnchanted itemBlockEnchanted = new ItemBlockEnchanted(block.get(), RegistryUtilities.createItemProperties(creativeModeTab));
+		final ItemBlockEnchanted itemBlockEnchanted = new ItemBlockEnchanted(block.get(), RegistryUtilities.createItemProperties(creativeModeTab::get));
 		Registry.register(RegistryUtilities.registryGetItem(), new ResourceLocation(MTR.MOD_ID, path), itemBlockEnchanted);
-		FabricRegistryUtilities.registerCreativeModeTab(creativeModeTab, itemBlockEnchanted);
+		FabricRegistryUtilities.registerCreativeModeTab(creativeModeTab.get(), itemBlockEnchanted);
 	}
 
 	private static void registerBlockEntityType(String path, RegistryObject<? extends BlockEntityType<? extends BlockEntityMapper>> blockEntityType) {

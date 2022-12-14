@@ -1,5 +1,6 @@
 package mtr.item;
 
+import mtr.RegistryObject;
 import mtr.mappings.PlaceOnWaterBlockItem;
 import mtr.mappings.RegistryUtilities;
 import net.minecraft.world.item.CreativeModeTab;
@@ -10,24 +11,24 @@ import java.util.function.Function;
 
 public class ItemWithCreativeTabBase extends Item {
 
-	public final CreativeModeTab creativeModeTab;
+	public final RegistryObject<CreativeModeTab> creativeModeTab;
 
-	public ItemWithCreativeTabBase(CreativeModeTab creativeModeTab) {
-		super(RegistryUtilities.createItemProperties(creativeModeTab));
+	public ItemWithCreativeTabBase(RegistryObject<CreativeModeTab> creativeModeTab) {
+		super(RegistryUtilities.createItemProperties(creativeModeTab::get));
 		this.creativeModeTab = creativeModeTab;
 	}
 
-	public ItemWithCreativeTabBase(CreativeModeTab creativeModeTab, Function<Properties, Properties> propertiesConsumer) {
-		super(propertiesConsumer.apply(RegistryUtilities.createItemProperties(creativeModeTab)));
+	public ItemWithCreativeTabBase(RegistryObject<CreativeModeTab> creativeModeTab, Function<Properties, Properties> propertiesConsumer) {
+		super(propertiesConsumer.apply(RegistryUtilities.createItemProperties(creativeModeTab::get)));
 		this.creativeModeTab = creativeModeTab;
 	}
 
 	public static class ItemPlaceOnWater extends PlaceOnWaterBlockItem {
 
-		public final CreativeModeTab creativeModeTab;
+		public final RegistryObject<CreativeModeTab> creativeModeTab;
 
-		public ItemPlaceOnWater(CreativeModeTab creativeModeTab, Block block) {
-			super(block, RegistryUtilities.createItemProperties(creativeModeTab));
+		public ItemPlaceOnWater(RegistryObject<CreativeModeTab> creativeModeTab, Block block) {
+			super(block, RegistryUtilities.createItemProperties(creativeModeTab::get));
 			this.creativeModeTab = creativeModeTab;
 		}
 	}

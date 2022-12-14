@@ -200,6 +200,13 @@ task setupFiles() {
 		filter(ReplaceTokens, tokens: ["path1": minecraft_main_version <= 17 || minecraft_version == "1.18" ? "apache/logging/log4j" : "slf4j", "path2": minecraft_main_version <= 17 || minecraft_version == "1.18" ? "apache.logging.log4j" : "slf4j"])
 		rename "(.+)Template.java", "\$1.java"
 	}
+	copy {
+		outputs.upToDateWhen { false }
+		from "forge/src/main/LevelRendererMixinTemplate.java"
+		into "forge/src/main/java/mtr/mixin"
+		filter(ReplaceTokens, tokens: ["path": is_1_19_3 ? "org.joml" : "com.mojang.math"])
+		rename "(.+)Template.java", "\$1.java"
+	}
 
 	if (minecraft_main_version <= 17) {
 		copy {

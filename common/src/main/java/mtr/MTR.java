@@ -489,6 +489,6 @@ public class MTR implements IPacket {
 
 	@FunctionalInterface
 	public interface RegisterBlockItem {
-		void accept(String string, RegistryObject<Block> block, CreativeModeTab tab);
+		void accept(String string, RegistryObject<Block> block, RegistryObject<CreativeModeTab> tab);
 	}
 }

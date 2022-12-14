@@ -1,7 +1,6 @@
 package mtr.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
 import mtr.render.RenderTrains;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.GameRenderer;
@@ -24,7 +23,7 @@ public abstract class LevelRendererMixin {
 	private RenderBuffers renderBuffers;
 
 	@Inject(method = "renderLevel", at = @At(value = "CONSTANT", args = "stringValue=blockentities", ordinal = 0))
-	private void afterEntities(PoseStack matrices, float f, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, CallbackInfo ci) {
+	private void afterEntities(PoseStack matrices, float f, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, @path@.Matrix4f matrix4f, CallbackInfo ci) {
 		matrices.pushPose();
 		final Vec3 cameraPos = camera.getPosition();
 		matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
