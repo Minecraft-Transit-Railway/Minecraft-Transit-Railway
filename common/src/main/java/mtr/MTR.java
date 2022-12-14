@@ -11,7 +11,6 @@ import mtr.servlet.Webserver;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -489,6 +488,6 @@ public class MTR implements IPacket {
 
 	@FunctionalInterface
 	public interface RegisterBlockItem {
-		void accept(String string, RegistryObject<Block> block, RegistryObject<CreativeModeTab> tab);
+		void accept(String string, RegistryObject<Block> block, CreativeModeTabs.Wrapper tab);
 	}
 }

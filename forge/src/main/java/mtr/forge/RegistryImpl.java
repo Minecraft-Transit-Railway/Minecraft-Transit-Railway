@@ -23,8 +23,8 @@ public class RegistryImpl {
 		return false;
 	}
 
-	public static CreativeModeTab getCreativeModeTab(ResourceLocation id, Supplier<ItemStack> supplier) {
-		return ForgeUtilities.createCreativeModeTab(id, supplier);
+	public static Supplier<CreativeModeTab> getCreativeModeTab(ResourceLocation id, Supplier<ItemStack> supplier) {
+		return ForgeUtilities.createCreativeModeTab(id, supplier, "itemGroup.mtr." + id.getPath());
 	}
 
 	public static Packet<?> createAddEntityPacket(Entity entity) {

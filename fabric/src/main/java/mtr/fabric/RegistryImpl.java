@@ -28,8 +28,8 @@ public class RegistryImpl {
 		return true;
 	}
 
-	public static CreativeModeTab getCreativeModeTab(ResourceLocation id, Supplier<ItemStack> supplier) {
-		return FabricRegistryUtilities.createCreativeModeTab(id, supplier);
+	public static Supplier<CreativeModeTab> getCreativeModeTab(ResourceLocation id, Supplier<ItemStack> supplier) {
+		return () -> FabricRegistryUtilities.createCreativeModeTab(id, supplier);
 	}
 
 	public static Packet<?> createAddEntityPacket(Entity entity) {

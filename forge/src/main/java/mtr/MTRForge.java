@@ -15,7 +15,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -76,9 +75,9 @@ public class MTRForge {
 		ITEMS.register(path, () -> {
 			final Item itemObject = item.get();
 			if (itemObject instanceof ItemWithCreativeTabBase) {
-				ForgeUtilities.registerCreativeModeTab(((ItemWithCreativeTabBase) itemObject).creativeModeTab::get, itemObject);
+				ForgeUtilities.registerCreativeModeTab(((ItemWithCreativeTabBase) itemObject).creativeModeTab.resourceLocation, itemObject);
 			} else if (itemObject instanceof ItemWithCreativeTabBase.ItemPlaceOnWater) {
-				ForgeUtilities.registerCreativeModeTab(((ItemWithCreativeTabBase.ItemPlaceOnWater) itemObject).creativeModeTab::get, itemObject);
+				ForgeUtilities.registerCreativeModeTab(((ItemWithCreativeTabBase.ItemPlaceOnWater) itemObject).creativeModeTab.resourceLocation, itemObject);
 			}
 			return itemObject;
 		});
@@ -88,20 +87,20 @@ public class MTRForge {
 		BLOCKS.register(path, block::get);
 	}
 
-	private static void registerBlock(String path, RegistryObject<Block> block, RegistryObject<CreativeModeTab> creativeModeTab) {
+	private static void registerBlock(String path, RegistryObject<Block> block, CreativeModeTabs.Wrapper creativeModeTabWrapper) {
 		registerBlock(path, block);
 		ITEMS.register(path, () -> {
-			final BlockItem blockItem = new BlockItem(block.get(), RegistryUtilities.createItemProperties(creativeModeTab::get));
-			ForgeUtilities.registerCreativeModeTab(creativeModeTab::get, blockItem);
+			final BlockItem blockItem = new BlockItem(block.get(), RegistryUtilities.createItemProperties(creativeModeTabWrapper.creativeModeTabSupplier));
+			ForgeUtilities.registerCreativeModeTab(creativeModeTabWrapper.resourceLocation, blockItem);
 			return blockItem;
 		});
 	}
 
-	private static void registerEnchantedBlock(String path, RegistryObject<Block> block, RegistryObject<CreativeModeTab> creativeModeTab) {
+	private static void registerEnchantedBlock(String path, RegistryObject<Block> block, CreativeModeTabs.Wrapper creativeModeTab) {
 		registerBlock(path, block);
 		ITEMS.register(path, () -> {
-			final ItemBlockEnchanted itemBlockEnchanted = new ItemBlockEnchanted(block.get(), RegistryUtilities.createItemProperties(creativeModeTab::get));
-			ForgeUtilities.registerCreativeModeTab(creativeModeTab::get, itemBlockEnchanted);
+			final ItemBlockEnchanted itemBlockEnchanted = new ItemBlockEnchanted(block.get(), RegistryUtilities.createItemProperties(creativeModeTab.creativeModeTabSupplier));
+			ForgeUtilities.registerCreativeModeTab(creativeModeTab.resourceLocation, itemBlockEnchanted);
 			return itemBlockEnchanted;
 		});
 	}
