@@ -75,9 +75,9 @@ public class MTRForge {
 		ITEMS.register(path, () -> {
 			final Item itemObject = item.get();
 			if (itemObject instanceof ItemWithCreativeTabBase) {
-				ForgeUtilities.registerCreativeModeTab(((ItemWithCreativeTabBase) itemObject).creativeModeTab.resourceLocation, itemObject);
+				Registry.registerCreativeModeTab(((ItemWithCreativeTabBase) itemObject).creativeModeTab.resourceLocation, itemObject);
 			} else if (itemObject instanceof ItemWithCreativeTabBase.ItemPlaceOnWater) {
-				ForgeUtilities.registerCreativeModeTab(((ItemWithCreativeTabBase.ItemPlaceOnWater) itemObject).creativeModeTab.resourceLocation, itemObject);
+				Registry.registerCreativeModeTab(((ItemWithCreativeTabBase.ItemPlaceOnWater) itemObject).creativeModeTab.resourceLocation, itemObject);
 			}
 			return itemObject;
 		});
@@ -91,7 +91,7 @@ public class MTRForge {
 		registerBlock(path, block);
 		ITEMS.register(path, () -> {
 			final BlockItem blockItem = new BlockItem(block.get(), RegistryUtilities.createItemProperties(creativeModeTabWrapper::get));
-			ForgeUtilities.registerCreativeModeTab(creativeModeTabWrapper.resourceLocation, blockItem);
+			Registry.registerCreativeModeTab(creativeModeTabWrapper.resourceLocation, blockItem);
 			return blockItem;
 		});
 	}
@@ -100,7 +100,7 @@ public class MTRForge {
 		registerBlock(path, block);
 		ITEMS.register(path, () -> {
 			final ItemBlockEnchanted itemBlockEnchanted = new ItemBlockEnchanted(block.get(), RegistryUtilities.createItemProperties(creativeModeTab::get));
-			ForgeUtilities.registerCreativeModeTab(creativeModeTab.resourceLocation, itemBlockEnchanted);
+			Registry.registerCreativeModeTab(creativeModeTab.resourceLocation, itemBlockEnchanted);
 			return itemBlockEnchanted;
 		});
 	}

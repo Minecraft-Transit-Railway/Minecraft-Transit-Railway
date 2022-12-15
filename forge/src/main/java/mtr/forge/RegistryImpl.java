@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Consumer;
@@ -24,7 +25,11 @@ public class RegistryImpl {
 	}
 
 	public static Supplier<CreativeModeTab> getCreativeModeTab(ResourceLocation id, Supplier<ItemStack> supplier) {
-		return ForgeUtilities.createCreativeModeTab(id, supplier, "itemGroup.mtr." + id.getPath());
+		return ForgeUtilities.createCreativeModeTab(id, supplier, String.format("itemGroup.%s.%s", id.getNamespace(), id.getPath()));
+	}
+
+	public static void registerCreativeModeTab(ResourceLocation resourceLocation, Item item) {
+		ForgeUtilities.registerCreativeModeTab(resourceLocation, item);
 	}
 
 	public static Packet<?> createAddEntityPacket(Entity entity) {
