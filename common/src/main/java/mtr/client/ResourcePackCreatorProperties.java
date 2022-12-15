@@ -9,6 +9,7 @@ import mtr.MTR;
 import mtr.data.EnumHelper;
 import mtr.data.IGui;
 import mtr.data.TransportMode;
+import mtr.mappings.UtilitiesClient;
 import mtr.model.ModelTrainBase;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -23,6 +24,7 @@ import java.nio.file.StandardOpenOption;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -45,7 +47,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 	public ResourcePackCreatorProperties() {
 		IResourcePackCreatorProperties.checkSchema(propertiesObject);
-		ICustomResources.createCustomTrainSchema(customResourcesObject, customTrainId, "My Custom Train Name", "000000", "", "", 0);
+		ICustomResources.createCustomTrainSchema(customResourcesObject, customTrainId, "My Custom Train Name", "My Custom Train Description", "", "000000", "", "", DoorAnimationType.STANDARD.toString(), false, 0);
 	}
 
 	public void loadModelFile(Path path) {
@@ -81,12 +83,15 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 	public void editCustomResourcesId(String id) {
 		final String name = getCustomTrainObject().get(CUSTOM_TRAINS_NAME).getAsString();
+		final String description = getCustomTrainObject().get(CUSTOM_TRAINS_DESCRIPTION).getAsString();
+		final String wikipediaArticle = getCustomTrainObject().get(CUSTOM_TRAINS_WIKIPEDIA_ARTICLE).getAsString();
 		final String color = getCustomTrainObject().get(CUSTOM_TRAINS_COLOR).getAsString();
 		final String gangwayConnectionId = getCustomTrainObject().get(CUSTOM_TRAINS_GANGWAY_CONNECTION_ID).getAsString();
-		final String trainBarrierId = getCustomTrainObject().get(CUSTOM_TRAINS_GANGWAY_CONNECTION_ID).getAsString();
+		final String trainBarrierId = getCustomTrainObject().get(CUSTOM_TRAINS_TRAIN_BARRIER_ID).getAsString();
+		final String doorAnimationType = getCustomTrainObject().get(CUSTOM_TRAINS_DOOR_ANIMATION_TYPE).getAsString();
 		final float riderOffset = getCustomTrainObject().get(CUSTOM_TRAINS_RIDER_OFFSET).getAsFloat();
 		customTrainId = id;
-		ICustomResources.createCustomTrainSchema(customResourcesObject, id, name, color, gangwayConnectionId, trainBarrierId, riderOffset);
+		ICustomResources.createCustomTrainSchema(customResourcesObject, id, name, description, wikipediaArticle, color, gangwayConnectionId, trainBarrierId, doorAnimationType, false, riderOffset);
 	}
 
 	public void editCustomResourcesName(String name) {
@@ -94,7 +99,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 	}
 
 	public void editCustomResourcesColor(int color) {
-		getCustomTrainObject().addProperty(CUSTOM_TRAINS_COLOR, Integer.toHexString(color & RGB_WHITE).toUpperCase());
+		getCustomTrainObject().addProperty(CUSTOM_TRAINS_COLOR, Integer.toHexString(color & RGB_WHITE).toUpperCase(Locale.ENGLISH));
 	}
 
 	public void editCustomResourcesGangwayConnectionId(String gangwayConnectionId) {
@@ -103,6 +108,11 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 	public void editCustomResourcesTrainBarrierId(String trainBarrierId) {
 		getCustomTrainObject().addProperty(CUSTOM_TRAINS_TRAIN_BARRIER_ID, trainBarrierId);
+	}
+
+	public void editDoorAnimationType() {
+		cycleEnumProperty(getCustomTrainObject(), CUSTOM_TRAINS_DOOR_ANIMATION_TYPE, DoorAnimationType.STANDARD, DoorAnimationType.values());
+		updateModel();
 	}
 
 	public void editCustomResourcesRiderOffset(float riderOffset) {
@@ -212,7 +222,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 		if (model != null) {
 			final Minecraft minecraft = Minecraft.getInstance();
 			final MultiBufferSource.BufferSource immediate = minecraft.renderBuffers().bufferSource();
-			model.render(matrices, immediate, texture == null ? new ResourceLocation("mtr:textures/block/white.png") : texture, light, leftDoorValue, rightDoorValue, opening, currentCar, trainCars, head1IsFront, true, false, true);
+			model.render(matrices, immediate, null, texture == null ? new ResourceLocation("mtr:textures/block/white.png") : texture, light, leftDoorValue, rightDoorValue, opening, currentCar, trainCars, head1IsFront, true, false, true, false);
 			immediate.endBatch();
 		}
 	}
@@ -241,6 +251,10 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 		return propertiesObject.get(KEY_PROPERTIES_DOOR_MAX).getAsInt();
 	}
 
+	public String getDoorAnimationType() {
+		return getCustomTrainObject().get(CUSTOM_TRAINS_DOOR_ANIMATION_TYPE).getAsString();
+	}
+
 	public JsonArray getPropertiesPartsArray() {
 		return propertiesObject.getAsJsonArray(KEY_PROPERTIES_PARTS);
 	}
@@ -264,7 +278,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 	public void export() {
 		try {
 			final Minecraft minecraft = Minecraft.getInstance();
-			final File resourcePackDirectory = minecraft.getResourcePackDirectory();
+			final File resourcePackDirectory = UtilitiesClient.getResourcePackDirectory(minecraft);
 			final FileOutputStream fileOutputStream = new FileOutputStream(String.format("%s/%s_%s.zip", resourcePackDirectory.toString(), customTrainId, ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("uuuu_MM_dd_HH_mm_ss"))));
 			final ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
 
@@ -299,7 +313,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 	private void updateModel() {
 		try {
-			model = new DynamicTrainModel(modelObject, propertiesObject);
+			model = new DynamicTrainModel(modelObject, propertiesObject, EnumHelper.valueOf(DoorAnimationType.STANDARD, getCustomTrainObject().get(CUSTOM_TRAINS_DOOR_ANIMATION_TYPE).getAsString()));
 		} catch (Exception ignored) {
 			model = null;
 		}

@@ -1,9 +1,9 @@
 package mtr.client;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mtr.Patreon;
+import mtr.data.RailwayData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 
@@ -21,6 +21,7 @@ public class Config {
 	private static boolean hideSpecialRailColors;
 	private static boolean hideTranslucentParts;
 	private static boolean shiftToToggleSitting;
+	private static int languageOptions;
 	private static boolean useDynamicFPS = true;
 	private static int trackTextureOffset;
 	private static int dynamicTextureResolution = 2;
@@ -36,6 +37,7 @@ public class Config {
 	private static final String HIDE_SPECIAL_RAIL_COLORS = "hide_special_rail_colors";
 	private static final String HIDE_TRANSLUCENT_PARTS = "hide_translucent_parts";
 	private static final String SHIFT_TO_TOGGLE_SITTING = "shift_to_toggle_sitting";
+	private static final String LANGUAGE_OPTIONS = "language_options";
 	private static final String USE_TTS_ANNOUNCEMENTS = "use_tts_announcements";
 	private static final String TRACK_TEXTURE_OFFSET = "track_texture_offset";
 	private static final String DYNAMIC_TEXTURE_RESOLUTION = "dynamic texture resolution";
@@ -59,6 +61,10 @@ public class Config {
 
 	public static boolean shiftToToggleSitting() {
 		return shiftToToggleSitting;
+	}
+
+	public static int languageOptions() {
+		return languageOptions;
 	}
 
 	public static boolean hideSpecialRailColors() {
@@ -117,6 +123,12 @@ public class Config {
 		return shiftToToggleSitting;
 	}
 
+	public static int setLanguageOptions(int value) {
+		languageOptions = value % 3;
+		writeToFile();
+		return languageOptions;
+	}
+
 	public static boolean setUseDynamicFPS(boolean value) {
 		useDynamicFPS = value;
 		writeToFile();
@@ -167,6 +179,10 @@ public class Config {
 			} catch (Exception ignored) {
 			}
 			try {
+				languageOptions = jsonConfig.get(LANGUAGE_OPTIONS).getAsInt() % 3;
+			} catch (Exception ignored) {
+			}
+			try {
 				trackTextureOffset = Mth.clamp(jsonConfig.get(TRACK_TEXTURE_OFFSET).getAsInt(), 0, TRACK_OFFSET_COUNT - 1);
 			} catch (Exception ignored) {
 			}
@@ -184,11 +200,6 @@ public class Config {
 		}
 	}
 
-	public static void getPatreonList() {
-		PATREON_LIST.clear();
-		PATREON_LIST.addAll(Patreon.getPatreonList());
-	}
-
 	private static void writeToFile() {
 		System.out.println("Wrote MTR mod config to file");
 		final JsonObject jsonConfig = new JsonObject();
@@ -198,12 +209,13 @@ public class Config {
 		jsonConfig.addProperty(HIDE_SPECIAL_RAIL_COLORS, hideSpecialRailColors);
 		jsonConfig.addProperty(HIDE_TRANSLUCENT_PARTS, hideTranslucentParts);
 		jsonConfig.addProperty(SHIFT_TO_TOGGLE_SITTING, shiftToToggleSitting);
+		jsonConfig.addProperty(LANGUAGE_OPTIONS, languageOptions);
 		jsonConfig.addProperty(TRACK_TEXTURE_OFFSET, trackTextureOffset);
 		jsonConfig.addProperty(DYNAMIC_TEXTURE_RESOLUTION, dynamicTextureResolution);
 		jsonConfig.addProperty(TRAIN_RENDER_DISTANCE_RATIO, trainRenderDistanceRatio);
 
 		try {
-			Files.write(CONFIG_FILE_PATH, Collections.singleton(new GsonBuilder().setPrettyPrinting().create().toJson(jsonConfig)));
+			Files.write(CONFIG_FILE_PATH, Collections.singleton(RailwayData.prettyPrint(jsonConfig)));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

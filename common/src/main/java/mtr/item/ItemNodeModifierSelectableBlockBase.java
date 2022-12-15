@@ -33,7 +33,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	private static final String TAG_BLOCK_ID = "block_id";
 
 	public ItemNodeModifierSelectableBlockBase(boolean canSaveBlock, int height, int width) {
-		super(true, false, true);
+		super(true, false, false, true);
 		this.canSaveBlock = canSaveBlock;
 		this.height = height;
 		this.width = width;
@@ -92,7 +92,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	}
 
 	@Override
-	protected final void onRemove(Level world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData) {
+	protected final void onRemove(Level world, BlockPos posStart, BlockPos posEnd, Player player, RailwayData railwayData) {
 	}
 
 	protected BlockState getSavedState(ItemStack stack) {

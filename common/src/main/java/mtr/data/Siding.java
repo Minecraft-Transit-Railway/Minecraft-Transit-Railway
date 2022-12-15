@@ -30,10 +30,9 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	private int maxManualSpeed;
 	private int repeatIndex1;
 	private int repeatIndex2;
-
 	private float accelerationConstant;
 
-	private final float railLength;
+	public final float railLength;
 	private final List<PathData> path = new ArrayList<>();
 	private final List<Double> distances = new ArrayList<>();
 	private final List<TimeSegment> timeSegments = new ArrayList<>();
@@ -55,7 +54,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 
 	public Siding(long id, TransportMode transportMode, BlockPos pos1, BlockPos pos2, float railLength) {
 		super(id, transportMode, pos1, pos2);
-		this.railLength = railLength;
+		this.railLength = RailwayData.round(railLength, 3);
 		setTrainDetails();
 		unlimitedTrains = transportMode.continuousMovement;
 		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : Train.ACCELERATION_DEFAULT;
@@ -63,7 +62,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 
 	public Siding(TransportMode transportMode, BlockPos pos1, BlockPos pos2, float railLength) {
 		super(transportMode, pos1, pos2);
-		this.railLength = railLength;
+		this.railLength = RailwayData.round(railLength, 3);
 		setTrainDetails();
 		unlimitedTrains = transportMode.continuousMovement;
 		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : Train.ACCELERATION_DEFAULT;
@@ -72,8 +71,8 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	public Siding(Map<String, Value> map) {
 		super(map);
 		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
-		railLength = messagePackHelper.getFloat(KEY_RAIL_LENGTH);
-		setTrainDetails(messagePackHelper.getString(KEY_TRAIN_ID), messagePackHelper.getString(KEY_BASE_TRAIN_TYPE));
+		railLength = RailwayData.round(messagePackHelper.getFloat(KEY_RAIL_LENGTH), 3);
+		setTrainDetails(messagePackHelper.getString(KEY_TRAIN_ID), messagePackHelper.getString(KEY_BASE_TRAIN_TYPE), false);
 		unlimitedTrains = transportMode.continuousMovement || messagePackHelper.getBoolean(KEY_UNLIMITED_TRAINS);
 		maxTrains = messagePackHelper.getInt(KEY_MAX_TRAINS);
 		isManual = messagePackHelper.getBoolean(KEY_IS_MANUAL);
@@ -95,8 +94,8 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	public Siding(CompoundTag compoundTag) {
 		super(compoundTag);
 
-		railLength = compoundTag.getFloat(KEY_RAIL_LENGTH);
-		setTrainDetails(compoundTag.getString(KEY_TRAIN_ID), compoundTag.getString(KEY_BASE_TRAIN_TYPE));
+		railLength = RailwayData.round(compoundTag.getFloat(KEY_RAIL_LENGTH), 3);
+		setTrainDetails(compoundTag.getString(KEY_TRAIN_ID), compoundTag.getString(KEY_BASE_TRAIN_TYPE), false);
 		unlimitedTrains = transportMode.continuousMovement || compoundTag.getBoolean(KEY_UNLIMITED_TRAINS);
 		maxTrains = compoundTag.getInt(KEY_MAX_TRAINS);
 		isManual = compoundTag.getBoolean(KEY_IS_MANUAL);
@@ -120,8 +119,8 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 
 	public Siding(FriendlyByteBuf packet) {
 		super(packet);
-		railLength = packet.readFloat();
-		setTrainDetails(packet.readUtf(PACKET_STRING_READ_LENGTH), packet.readUtf(PACKET_STRING_READ_LENGTH));
+		railLength = RailwayData.round(packet.readFloat(), 3);
+		setTrainDetails(packet.readUtf(PACKET_STRING_READ_LENGTH), packet.readUtf(PACKET_STRING_READ_LENGTH), false);
 		unlimitedTrains = packet.readBoolean() || transportMode.continuousMovement;
 		maxTrains = packet.readInt();
 		isManual = packet.readBoolean();
@@ -180,7 +179,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	public void update(String key, FriendlyByteBuf packet) {
 		switch (key) {
 			case KEY_BASE_TRAIN_TYPE:
-				setTrainDetails(packet.readUtf(PACKET_STRING_READ_LENGTH), packet.readUtf(PACKET_STRING_READ_LENGTH));
+				setTrainDetails(packet.readUtf(PACKET_STRING_READ_LENGTH), packet.readUtf(PACKET_STRING_READ_LENGTH), false);
 				trains.clear();
 				break;
 			case KEY_UNLIMITED_TRAINS:
@@ -212,7 +211,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		packet.writeUtf(customId);
 		packet.writeUtf(trainType);
 		sendPacket.accept(packet);
-		setTrainDetails(customId, trainType);
+		setTrainDetails(customId, trainType, false);
 	}
 
 	public void setUnlimitedTrains(boolean unlimitedTrains, int maxTrains, boolean isManual, int maxManualSpeed, float accelerationConstant, int newDwellTime, boolean clearTrains, Consumer<FriendlyByteBuf> sendPacket) {
@@ -267,7 +266,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		}
 	}
 
-	public int generateRoute(MinecraftServer minecraftServer, List<PathData> mainPath, int successfulSegmentsMain, Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase firstPlatform, SavedRailBase lastPlatform, boolean repeatInfinitely) {
+	public int generateRoute(MinecraftServer minecraftServer, List<PathData> mainPath, int successfulSegmentsMain, Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase firstPlatform, SavedRailBase lastPlatform, boolean repeatInfinitely, int cruisingAltitude, boolean useFastSpeed) {
 		final List<PathData> tempPath = new ArrayList<>();
 		final int successfulSegments;
 		final int tempRepeatIndex1;
@@ -281,7 +280,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 			final List<SavedRailBase> depotAndFirstPlatform = new ArrayList<>();
 			depotAndFirstPlatform.add(this);
 			depotAndFirstPlatform.add(firstPlatform);
-			PathFinder.findPath(tempPath, rails, depotAndFirstPlatform, 0);
+			PathFinder.findPath(tempPath, rails, depotAndFirstPlatform, 0, cruisingAltitude, useFastSpeed);
 
 			if (tempPath.isEmpty()) {
 				successfulSegments = 1;
@@ -300,7 +299,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 				lastPlatformAndDepot.add(lastPlatform);
 				lastPlatformAndDepot.add(this);
 				final List<PathData> pathLastPlatformToDepot = new ArrayList<>();
-				PathFinder.findPath(pathLastPlatformToDepot, rails, lastPlatformAndDepot, successfulSegmentsMain);
+				PathFinder.findPath(pathLastPlatformToDepot, rails, lastPlatformAndDepot, successfulSegmentsMain, cruisingAltitude, useFastSpeed);
 
 				if (pathLastPlatformToDepot.isEmpty()) {
 					successfulSegments = successfulSegmentsMain + 1;
@@ -398,6 +397,10 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		}
 	}
 
+	public boolean isValidVehicle(int spacing) {
+		return Math.max(2, railLength) >= spacing;
+	}
+
 	public int getMaxTrains() {
 		return maxTrains;
 	}
@@ -420,21 +423,26 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 
 	private void setTrainDetails() {
 		for (final TrainType trainType : TrainType.values()) {
-			if (TrainType.getTransportMode(trainType.baseTrainType) == transportMode) {
-				setTrainDetails(trainType.toString(), trainType.baseTrainType);
+			if (TrainType.getTransportMode(trainType.baseTrainType) == transportMode && isValidVehicle(TrainType.getSpacing(trainType.baseTrainType))) {
+				setTrainDetails(trainType.toString(), trainType.baseTrainType, true);
 				return;
 			}
 		}
-		setTrainDetails(TrainType.values()[0].toString(), TrainType.values()[0].baseTrainType);
+		setTrainDetails(TrainType.values()[0].toString(), TrainType.values()[0].baseTrainType, true);
 	}
 
-	private void setTrainDetails(String trainId, String baseTrainType) {
+	private void setTrainDetails(String trainId, String baseTrainType, boolean force) {
 		// TODO temporary code for backwards compatibility
 		final String baseTrainType2 = baseTrainType.startsWith("base_") ? baseTrainType.replace("base_", "train_") : baseTrainType;
 		// TODO temporary code end
-		this.baseTrainType = baseTrainType2.toLowerCase();
-		this.trainId = trainId.isEmpty() ? this.baseTrainType : trainId.toLowerCase();
-		trainCars = Math.min(transportMode.maxLength, (int) Math.floor(railLength / TrainType.getSpacing(baseTrainType) + 0.01F));
+		final int trainSpacing = TrainType.getSpacing(baseTrainType2);
+		if (force || isValidVehicle(trainSpacing)) {
+			this.baseTrainType = baseTrainType2.toLowerCase(Locale.ENGLISH);
+			this.trainId = trainId.isEmpty() ? this.baseTrainType : trainId.toLowerCase(Locale.ENGLISH);
+			trainCars = Math.min(transportMode.maxLength, (int) Math.floor(railLength / trainSpacing));
+		} else {
+			setTrainDetails();
+		}
 	}
 
 	private void generateDefaultPath(Map<BlockPos, Map<BlockPos, Rail>> rails) {

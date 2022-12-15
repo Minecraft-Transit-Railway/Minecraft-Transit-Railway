@@ -1,11 +1,11 @@
 package mtr.item;
 
-import mtr.ItemGroups;
+import mtr.CreativeModeTabs;
 import mtr.block.BlockLiftButtons;
+import mtr.block.BlockLiftPanelBase;
 import mtr.block.BlockLiftTrackFloor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -16,7 +16,7 @@ public class ItemLiftButtonsLinkModifier extends ItemBlockClickingBase {
 	private final boolean isConnector;
 
 	public ItemLiftButtonsLinkModifier(boolean isConnector) {
-		super(new Item.Properties().tab(ItemGroups.ESCALATORS_LIFTS).stacksTo(1));
+		super(CreativeModeTabs.ESCALATORS_LIFTS, properties -> properties.stacksTo(1));
 		this.isConnector = isConnector;
 	}
 
@@ -31,7 +31,7 @@ public class ItemLiftButtonsLinkModifier extends ItemBlockClickingBase {
 		final Block blockStart = world.getBlockState(posStart).getBlock();
 		final Block blockEnd = world.getBlockState(posEnd).getBlock();
 
-		if (blockStart instanceof BlockLiftTrackFloor && blockEnd instanceof BlockLiftButtons || blockStart instanceof BlockLiftButtons && blockEnd instanceof BlockLiftTrackFloor) {
+		if (blockStart instanceof BlockLiftTrackFloor && blockEnd instanceof BlockLiftButtons || blockStart instanceof BlockLiftButtons && blockEnd instanceof BlockLiftTrackFloor || blockStart instanceof BlockLiftTrackFloor && blockEnd instanceof BlockLiftPanelBase || blockStart instanceof BlockLiftPanelBase && blockEnd instanceof BlockLiftTrackFloor) {
 			final BlockPos posFloor;
 			final BlockPos posButtons;
 			if (blockStart instanceof BlockLiftTrackFloor) {
@@ -46,12 +46,16 @@ public class ItemLiftButtonsLinkModifier extends ItemBlockClickingBase {
 			if (blockEntity instanceof BlockLiftButtons.TileEntityLiftButtons) {
 				((BlockLiftButtons.TileEntityLiftButtons) blockEntity).registerFloor(posFloor, isConnector);
 			}
+
+			if (blockEntity instanceof BlockLiftPanelBase.TileEntityLiftPanel1Base) {
+				((BlockLiftPanelBase.TileEntityLiftPanel1Base) blockEntity).registerFloor(posFloor, isConnector);
+			}
 		}
 	}
 
 	@Override
 	protected boolean clickCondition(UseOnContext context) {
 		final Block block = context.getLevel().getBlockState(context.getClickedPos()).getBlock();
-		return block instanceof BlockLiftTrackFloor || block instanceof BlockLiftButtons;
+		return block instanceof BlockLiftTrackFloor || block instanceof BlockLiftButtons || block instanceof BlockLiftPanelBase;
 	}
 }

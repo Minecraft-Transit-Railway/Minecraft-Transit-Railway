@@ -9,6 +9,7 @@ import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.mappings.ScreenMapper;
 import mtr.mappings.Text;
+import mtr.mappings.UtilitiesClient;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.Button;
@@ -22,6 +23,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 	private boolean hideSpecialRailColors;
 	private boolean hideTranslucentParts;
 	private boolean shiftToToggleSitting;
+	private int languageOptions;
 	private boolean useDynamicFPS;
 
 	private final boolean hasTimeAndWindControls;
@@ -34,6 +36,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 	private final Button buttonHideSpecialRailColors;
 	private final Button buttonHideTranslucentParts;
 	private final Button buttonShiftToToggleSitting;
+	private final Button buttonLanguageOptions;
 	private final Button buttonUseDynamicFPS;
 	private final WidgetShorterSlider sliderTrackTextureOffset;
 	private final WidgetShorterSlider sliderDynamicTextureResolution;
@@ -59,38 +62,42 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 
 		checkboxUseTimeAndWindSync = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.use_time_and_wind_sync"), PacketTrainDataGuiClient::sendUseTimeAndWindSyncC2S);
 
-		buttonUseMTRFont = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
+		buttonUseMTRFont = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> {
 			useMTRFont = Config.setUseMTRFont(!useMTRFont);
 			setButtonText(button, useMTRFont);
 		});
-		buttonShowAnnouncementMessages = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
+		buttonShowAnnouncementMessages = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> {
 			showAnnouncementMessages = Config.setShowAnnouncementMessages(!showAnnouncementMessages);
 			setButtonText(button, showAnnouncementMessages);
 		});
-		buttonUseTTSAnnouncements = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
+		buttonUseTTSAnnouncements = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> {
 			useTTSAnnouncements = Config.setUseTTSAnnouncements(!useTTSAnnouncements);
 			setButtonText(button, useTTSAnnouncements);
 		});
-		buttonHideSpecialRailColors = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
+		buttonHideSpecialRailColors = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> {
 			hideSpecialRailColors = Config.setHideSpecialRailColors(!hideSpecialRailColors);
 			setButtonText(button, hideSpecialRailColors);
 		});
-		buttonHideTranslucentParts = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
+		buttonHideTranslucentParts = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> {
 			hideTranslucentParts = Config.setHideTranslucentParts(!hideTranslucentParts);
 			setButtonText(button, hideTranslucentParts);
 		});
-		buttonShiftToToggleSitting = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
+		buttonShiftToToggleSitting = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> {
 			shiftToToggleSitting = Config.setShiftToToggleSitting(!shiftToToggleSitting);
 			setButtonText(button, shiftToToggleSitting);
 		});
-		buttonUseDynamicFPS = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
+		buttonLanguageOptions = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> {
+			languageOptions = Config.setLanguageOptions(languageOptions + 1);
+			button.setMessage(Text.translatable("options.mtr.language_options_" + languageOptions));
+		});
+		buttonUseDynamicFPS = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> {
 			useDynamicFPS = Config.setUseDynamicFPS(!useDynamicFPS);
 			setButtonText(button, useDynamicFPS);
 		});
 		sliderTrackTextureOffset = new WidgetShorterSlider(0, 0, Config.TRACK_OFFSET_COUNT - 1, Object::toString, null);
 		sliderDynamicTextureResolution = new WidgetShorterSlider(0, 0, Config.DYNAMIC_RESOLUTION_COUNT - 1, Object::toString, null);
 		sliderTrainRenderDistanceRatio = new WidgetShorterSlider(0, 0, Config.TRAIN_RENDER_DISTANCE_RATIO_COUNT - 1, num -> String.format("%d%%", (num + 1) * 100 / Config.TRAIN_RENDER_DISTANCE_RATIO_COUNT), null);
-		buttonSupportPatreon = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> Util.getPlatform().openUri("https://www.patreon.com/minecraft_transit_railway"));
+		buttonSupportPatreon = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> Util.getPlatform().openUri("https://www.patreon.com/minecraft_transit_railway"));
 	}
 
 	@Override
@@ -103,6 +110,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		hideSpecialRailColors = Config.hideSpecialRailColors();
 		hideTranslucentParts = Config.hideTranslucentParts();
 		shiftToToggleSitting = Config.shiftToToggleSitting();
+		languageOptions = Config.languageOptions();
 		useDynamicFPS = Config.useDynamicFPS();
 
 		final int offsetY;
@@ -122,6 +130,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 			IDrawing.setPositionAndWidth(buttonHideSpecialRailColors, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
 			IDrawing.setPositionAndWidth(buttonHideTranslucentParts, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
 			IDrawing.setPositionAndWidth(buttonShiftToToggleSitting, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
+			IDrawing.setPositionAndWidth(buttonLanguageOptions, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
 			IDrawing.setPositionAndWidth(buttonUseDynamicFPS, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
 			IDrawing.setPositionAndWidth(sliderTrackTextureOffset, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
 			IDrawing.setPositionAndWidth(sliderDynamicTextureResolution, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
@@ -134,6 +143,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		setButtonText(buttonHideSpecialRailColors, hideSpecialRailColors);
 		setButtonText(buttonHideTranslucentParts, hideTranslucentParts);
 		setButtonText(buttonShiftToToggleSitting, shiftToToggleSitting);
+		buttonLanguageOptions.setMessage(Text.translatable("options.mtr.language_options_" + languageOptions));
 		setButtonText(buttonUseDynamicFPS, useDynamicFPS);
 		sliderTrackTextureOffset.setHeight(BUTTON_HEIGHT);
 		sliderTrackTextureOffset.setValue(Config.trackTextureOffset());
@@ -153,6 +163,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 			addDrawableChild(buttonHideSpecialRailColors);
 			addDrawableChild(buttonHideTranslucentParts);
 			addDrawableChild(buttonShiftToToggleSitting);
+			addDrawableChild(buttonLanguageOptions);
 			addDrawableChild(buttonUseDynamicFPS);
 			addDrawableChild(sliderTrackTextureOffset);
 			addDrawableChild(sliderDynamicTextureResolution);
@@ -176,6 +187,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 				drawString(matrices, font, Text.translatable("options.mtr.hide_special_rail_colors"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 				drawString(matrices, font, Text.translatable("options.mtr.hide_translucent_parts"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 				drawString(matrices, font, Text.translatable("options.mtr.shift_to_toggle_sitting", minecraft == null ? "" : minecraft.options.keyShift.getTranslatedKeyMessage()), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
+				drawString(matrices, font, Text.translatable("options.mtr.language_options"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 				drawString(matrices, font, Text.translatable("options.mtr.use_dynamic_fps"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 				drawString(matrices, font, Text.translatable("options.mtr.track_texture_offset"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 				drawString(matrices, font, Text.translatable("options.mtr.dynamic_texture_resolution"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
@@ -205,7 +217,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 				final Component text = patreon.tierAmount < 1000 ? Text.translatable("options.mtr.anonymous") : Text.literal(patreon.name);
 				maxWidth = Math.max(maxWidth, font.width(text));
 				drawString(matrices, font, text, SQUARE_SIZE - TEXT_PADDING + x, yStart2 + y + TEXT_HEIGHT + TEXT_PADDING, ARGB_LIGHT_GRAY);
-				y += TEXT_HEIGHT;
+				y += TEXT_HEIGHT + 2;
 			}
 
 			super.render(matrices, mouseX, mouseY, delta);
@@ -221,6 +233,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		Config.setDynamicTextureResolution(sliderDynamicTextureResolution.getIntValue());
 		Config.setTrainRenderDistanceRatio(sliderTrainRenderDistanceRatio.getIntValue());
 		ClientData.DATA_CACHE.sync();
+		ClientData.DATA_CACHE.refreshDynamicResources();
 		ClientData.SIGNAL_BLOCKS.writeCache();
 	}
 

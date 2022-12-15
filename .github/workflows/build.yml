@@ -4,45 +4,41 @@ on: [ pull_request, push ]
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
-        minecraft: [ 1.16.5, 1.17.1, 1.18.2, 1.19.2 ]
-        loader: [ fabric, forge, common ]
+        minecraft: [ 1.16.5, 1.17.1, 1.18.2, 1.19.2, 1.19.3 ]
         variation: [ normal, server, lifts ]
-        exclude:
-          - loader: common
-            variation: normal
-          - loader: common
-            variation: lifts
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@main
       - name: Validate gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
+        uses: gradle/wrapper-validation-action@master
       - name: Setup JDK 17
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@main
         with:
           java-version: 17
+          distribution: 'zulu'
       - name: Make gradle wrapper executable
         run: chmod +x ./gradlew
-      - name: Build ${{ matrix.minecraft }} ${{ matrix.loader }}
-        run: ./gradlew ${{ matrix.loader }}:build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}" -Pvariation="${{ matrix.variation }}"
+      - name: Build ${{ matrix.minecraft }}
+        run: ./gradlew build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}" -Pvariation="${{ matrix.variation }}" --continue
       - name: Capture release artifacts
-        if: matrix.loader != 'common'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@main
         with:
           name: Fabric and Forge ${{ matrix.variation }}
           path: build/release/
       - name: Capture lib artifacts
-        uses: actions/upload-artifact@v2
+        if: ${{ matrix.variation == 'normal' || matrix.variation == 'server' }}
+        uses: actions/upload-artifact@main
         with:
-          name: Libraries ${{ matrix.variation }}
+          name: Libraries
           path: build/libs/
       - name: Upload files to SFTP
         env:
           MY_KEY: ${{ secrets.FTP_HOST }}
-        if: ${{ env.MY_KEY != '' && (matrix.variation == 'normal' || matrix.loader == 'common') }}
-        uses: sand4rt/ftp-deployer@v1.4
+        if: ${{ env.MY_KEY != '' }}
+        uses: sand4rt/ftp-deployer@master
         with:
           sftp: true
           host: ${{ secrets.FTP_HOST }}
@@ -55,8 +51,8 @@ jobs:
       - name: Upload version file to SFTP
         env:
           MY_KEY: ${{ secrets.FTP_HOST }}
-        if: ${{ env.MY_KEY != '' && matrix.loader == 'common' && matrix.minecraft == '1.16.5' }}
-        uses: sand4rt/ftp-deployer@v1.4
+        if: ${{ env.MY_KEY != '' && matrix.minecraft == '1.16.5' }}
+        uses: sand4rt/ftp-deployer@master
         with:
           sftp: true
           host: ${{ secrets.FTP_HOST }}
@@ -70,12 +66,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@main
       - name: Upload Translations to Crowdin
         env:
           MY_KEY: ${{ secrets.CROWDIN_API_KEY }}
         if: ${{ env.MY_KEY != '' && github.ref == 'refs/heads/master' }}
-        uses: crowdin/github-action@1.4.8
+        uses: crowdin/github-action@master
         with:
           upload_sources: true
           upload_translations: false

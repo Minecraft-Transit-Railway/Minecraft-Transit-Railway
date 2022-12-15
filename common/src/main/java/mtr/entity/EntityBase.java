@@ -1,13 +1,13 @@
 package mtr.entity;
 
 import mtr.Registry;
+import mtr.mappings.EntityMapper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 
-public abstract class EntityBase extends Entity {
+public abstract class EntityBase extends EntityMapper {
 
 	private int clientInterpolationSteps;
 	private double clientX;
@@ -39,7 +39,7 @@ public abstract class EntityBase extends Entity {
 	}
 
 	@Override
-	public final Packet<?> getAddEntityPacket() {
+	public final Packet<?> getAddEntityPacket2() {
 		return Registry.createAddEntityPacket(this);
 	}
 

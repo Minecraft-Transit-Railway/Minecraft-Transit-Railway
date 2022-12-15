@@ -3,9 +3,11 @@ package mtr.screen;
 import mtr.data.IGui;
 import mtr.data.RailwayData;
 import mtr.mappings.Text;
+import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 
+import java.util.Locale;
 import java.util.function.Consumer;
 
 public class WidgetBetterTextField extends EditBox implements IGui {
@@ -45,7 +47,7 @@ public class WidgetBetterTextField extends EditBox implements IGui {
 			if (filter.isEmpty()) {
 				newText = trySetLength(text);
 			} else {
-				newText = trySetLength(text.toUpperCase().replaceAll(filter, ""));
+				newText = trySetLength(text.toUpperCase(Locale.ENGLISH).replaceAll(filter, ""));
 				if (!newText.equals(text)) {
 					setValue(newText);
 				}
@@ -57,7 +59,7 @@ public class WidgetBetterTextField extends EditBox implements IGui {
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (isVisible() && RailwayData.isBetween(mouseX, x, x + width) && RailwayData.isBetween(mouseY, y, y + height)) {
+		if (isVisible() && RailwayData.isBetween(mouseX, UtilitiesClient.getWidgetX(this), UtilitiesClient.getWidgetX(this) + width) && RailwayData.isBetween(mouseY, UtilitiesClient.getWidgetY(this), UtilitiesClient.getWidgetY(this) + height)) {
 			if (button == 1) {
 				setValue("");
 			}

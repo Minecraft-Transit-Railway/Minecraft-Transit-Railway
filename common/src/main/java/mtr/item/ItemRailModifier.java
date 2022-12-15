@@ -23,13 +23,13 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 	private final RailType railType;
 
 	public ItemRailModifier() {
-		super(true, true, false);
+		super(true, true, true, false);
 		isOneWay = false;
 		railType = null;
 	}
 
-	public ItemRailModifier(boolean forNonContinuousMovementNode, boolean forContinuousMovementNode, boolean isOneWay, RailType railType) {
-		super(forNonContinuousMovementNode, forContinuousMovementNode, true);
+	public ItemRailModifier(boolean forNonContinuousMovementNode, boolean forContinuousMovementNode, boolean forAirplaneNode, boolean isOneWay, RailType railType) {
+		super(forNonContinuousMovementNode, forContinuousMovementNode, forAirplaneNode, true);
 		this.isOneWay = isOneWay;
 		this.railType = railType;
 	}
@@ -85,8 +85,8 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 			final boolean isValid = rail1.isValid() && rail2.isValid();
 
 			if (goodRadius && isValid && isValidContinuousMovement) {
-				railwayData.addRail(transportMode, posStart, posEnd, rail1, false);
-				final long newId = railwayData.addRail(transportMode, posEnd, posStart, rail2, true);
+				railwayData.addRail(player, transportMode, posStart, posEnd, rail1, false);
+				final long newId = railwayData.addRail(player, transportMode, posEnd, posStart, rail2, true);
 				world.setBlockAndUpdate(posStart, stateStart.setValue(BlockNode.IS_CONNECTED, true));
 				world.setBlockAndUpdate(posEnd, stateEnd.setValue(BlockNode.IS_CONNECTED, true));
 				PacketTrainDataGuiServer.createRailS2C(world, transportMode, posStart, posEnd, rail1, rail2, newId);
@@ -97,8 +97,8 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 	}
 
 	@Override
-	protected void onRemove(Level world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData) {
-		railwayData.removeRailConnection(posStart, posEnd);
+	protected void onRemove(Level world, BlockPos posStart, BlockPos posEnd, Player player, RailwayData railwayData) {
+		railwayData.removeRailConnection(player, posStart, posEnd);
 		PacketTrainDataGuiServer.removeRailConnectionS2C(world, posStart, posEnd);
 	}
 }

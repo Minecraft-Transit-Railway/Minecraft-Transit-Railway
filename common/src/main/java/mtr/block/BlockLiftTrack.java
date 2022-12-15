@@ -1,13 +1,10 @@
 package mtr.block;
 
-import mtr.entity.EntityLift;
 import mtr.mappings.BlockDirectionalMapper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,13 +18,6 @@ public class BlockLiftTrack extends BlockDirectionalMapper {
 
 	public BlockLiftTrack() {
 		super(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2));
-	}
-
-	@Override
-	public void entityInside(BlockState blockState, Level world, BlockPos blockPos, Entity entity) {
-		if (entity instanceof EntityLift) {
-			((EntityLift) entity).updateByTrack(blockPos);
-		}
 	}
 
 	@Override

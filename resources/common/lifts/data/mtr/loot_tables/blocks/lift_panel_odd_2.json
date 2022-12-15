@@ -1,0 +1,28 @@
+{
+	"type": "minecraft:block",
+	"pools": [
+		{
+			"rolls": 1,
+			"entries": [
+				{
+					"type": "minecraft:item",
+					"conditions": [
+						{
+							"condition": "minecraft:block_state_property",
+							"block": "mtr:lift_panel_odd_2",
+							"properties": {
+								"side": "left"
+							}
+						}
+					],
+					"name": "mtr:lift_panel_odd_2"
+				}
+			],
+			"conditions": [
+				{
+					"condition": "minecraft:survives_explosion"
+				}
+			]
+		}
+	]
+}

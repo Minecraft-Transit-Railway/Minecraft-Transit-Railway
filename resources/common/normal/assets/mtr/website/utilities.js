@@ -15,13 +15,6 @@ const UTILITIES = {
 		}
 	},
 	connectLine: (x1, y1, direction1, offsetIndex1, routeCount1, x2, y2, direction2, offsetIndex2, routeCount2, lineWidth, segments) => {
-		if (x2 > x1) {
-			UTILITIES.connectLine1(x1, y1, direction1, offsetIndex1, routeCount1, x2, y2, direction2, offsetIndex2, routeCount2, lineWidth, segments);
-		} else {
-			UTILITIES.connectLine1(x2, y2, direction2, offsetIndex2, routeCount2, x1, y1, direction1, offsetIndex1, routeCount1, lineWidth, segments);
-		}
-	},
-	connectLine1: (x1, y1, direction1, offsetIndex1, routeCount1, x2, y2, direction2, offsetIndex2, routeCount2, lineWidth, segments) => {
 		const offset1 = (offsetIndex1 - (routeCount1 - 1) / 2) * lineWidth;
 		const offset2 = (offsetIndex2 - (routeCount2 - 1) / 2) * lineWidth;
 		const offset1Rotated = UTILITIES.rotatePoint(offset1, 0, direction1);
@@ -31,6 +24,15 @@ const UTILITIES = {
 		x2 += offset2Rotated["x"];
 		y2 += offset2Rotated["y"];
 
+		if (x2 > x1) {
+			UTILITIES.connectLine1(x1, y1, direction1, offset1, routeCount1, x2, y2, direction2, offset2, routeCount2, lineWidth, segments);
+			return false;
+		} else {
+			UTILITIES.connectLine1(x2, y2, direction2, offset2, routeCount2, x1, y1, direction1, offset1, routeCount1, lineWidth, segments);
+			return true;
+		}
+	},
+	connectLine1: (x1, y1, direction1, offset1, routeCount1, x2, y2, direction2, offset2, routeCount2, lineWidth, segments) => {
 		const {x, y} = UTILITIES.rotatePoint(x2 - x1, y2 - y1, -direction1);
 		const signX = Math.sign(x);
 		const signY = Math.sign(y);
@@ -98,7 +100,7 @@ const UTILITIES = {
 	},
 	getDrawStationElement: (stationElement, color1, color2) => {
 		const element = document.createElement("div");
-		element.className = "route_station_name";
+		element.className = "route_station_name text";
 		if (color1 != null) {
 			element.innerHTML = `<span class="route_segment bottom" style="background-color: ${UTILITIES.convertColor(color1)}">&nbsp</span>`;
 		}
@@ -109,11 +111,12 @@ const UTILITIES = {
 		element.appendChild(stationElement);
 		return element;
 	},
-	getDrawLineElement: (icon, innerElement, color) => {
+	getDrawLineElement: (icon, innerElement, color, htmlBefore) => {
 		const element = document.createElement("div");
 		element.className = "route_duration";
 		element.innerHTML =
 			`<span class="route_segment ${color == null ? "walk" : ""}" style="background-color: ${color == null ? 0 : UTILITIES.convertColor(color)}">&nbsp</span>` +
+			(htmlBefore ? htmlBefore : "") +
 			`<span class="material-icons small">${icon}</span>`;
 		element.appendChild(innerElement);
 		return element;
@@ -205,6 +208,7 @@ const UTILITIES = {
 		"bus_normal": "directions_bus",
 		"bus_light_rail": "local_taxi",
 		"bus_high_speed": "airport_shuttle",
+		"airplane_normal": "flight",
 	},
 	angles: [0, 45, 90, 135],
 	fonts: ["Noto Sans", "Noto Serif TC", "Noto Serif SC", "Noto Serif JP", "Noto Serif KR", "Material Icons"],

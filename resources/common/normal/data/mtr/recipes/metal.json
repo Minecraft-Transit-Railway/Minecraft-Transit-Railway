@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"tag": "c:iron_blocks"
+		},
+		{
+			"tag": "c:iron_blocks"
+		}
+	],
+	"result": {
+		"item": "mtr:metal",
+		"count": 2
+	}
+}

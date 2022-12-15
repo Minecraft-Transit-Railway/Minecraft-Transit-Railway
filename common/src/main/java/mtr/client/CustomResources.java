@@ -4,8 +4,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mtr.MTR;
+import mtr.data.EnumHelper;
 import mtr.mappings.Utilities;
 import mtr.mappings.UtilitiesClient;
+import mtr.model.ModelSimpleTrainBase;
+import mtr.model.ModelTrainBase;
 import mtr.render.JonModelTrainRenderer;
 import mtr.render.RenderTrains;
 import mtr.sound.JonTrainSound;
@@ -18,17 +21,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class CustomResources implements IResourcePackCreatorProperties, ICustomResources {
 
 	public static final Map<String, CustomSign> CUSTOM_SIGNS = new HashMap<>();
-
+	private static final List<Consumer<ResourceManager>> RELOAD_LISTENERS = new ArrayList<>();
 
 	public static void reload(ResourceManager manager) {
 		TrainClientRegistry.reset();
@@ -46,16 +46,20 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 						final String trainId = CUSTOM_TRAIN_ID_PREFIX + entry.getKey();
 
 						final String baseTrainType = getOrDefault(jsonObject, CUSTOM_TRAINS_BASE_TRAIN_TYPE, "", JsonElement::getAsString);
-						final TrainClientRegistry.TrainProperties baseTrainProperties = TrainClientRegistry.getTrainProperties(baseTrainType);
+						final TrainProperties baseTrainProperties = TrainClientRegistry.getTrainProperties(baseTrainType);
+						final String description = getOrDefault(jsonObject, CUSTOM_TRAINS_DESCRIPTION, baseTrainProperties.description, JsonElement::getAsString);
+						final String wikipediaArticle = getOrDefault(jsonObject, CUSTOM_TRAINS_WIKIPEDIA_ARTICLE, baseTrainProperties.wikipediaArticle, JsonElement::getAsString);
 
-						// TODO Better ways around this?
 						final JonModelTrainRenderer jonRendererOrDefault = baseTrainProperties.renderer instanceof JonModelTrainRenderer ? (JonModelTrainRenderer) baseTrainProperties.renderer : new JonModelTrainRenderer(null, "", "", "");
 						final JonTrainSound jonSoundOrDefault = baseTrainProperties.sound instanceof JonTrainSound ? (JonTrainSound) baseTrainProperties.sound : new JonTrainSound("", new JonTrainSound.JonTrainSoundConfig(null, 0, 0.5F, false, false));
 						final String baseBveSoundBaseId = baseTrainProperties.sound instanceof BveTrainSound ? ((BveTrainSound) baseTrainProperties.sound).config.baseName : "";
+						final ModelSimpleTrainBase<?> modelSimpleTrainBase = jonRendererOrDefault.model instanceof ModelSimpleTrainBase<?> ? ((ModelSimpleTrainBase<?>) jonRendererOrDefault.model) : null;
 
 						final String textureId = getOrDefault(jsonObject, CUSTOM_TRAINS_TEXTURE_ID, jonRendererOrDefault.textureId, JsonElement::getAsString);
 						final String gangwayConnectionId = getOrDefault(jsonObject, CUSTOM_TRAINS_GANGWAY_CONNECTION_ID, jonRendererOrDefault.gangwayConnectionId, JsonElement::getAsString);
 						final String trainBarrierId = getOrDefault(jsonObject, CUSTOM_TRAINS_TRAIN_BARRIER_ID, jonRendererOrDefault.trainBarrierId, JsonElement::getAsString);
+						final DoorAnimationType doorAnimationType = EnumHelper.valueOf(modelSimpleTrainBase == null ? DoorAnimationType.STANDARD : modelSimpleTrainBase.doorAnimationType, getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_ANIMATION_TYPE, "", JsonElement::getAsString));
+						final boolean renderDoorOverlay = getOrDefault(jsonObject, CUSTOM_TRAINS_RENDER_DOOR_OVERLAY, modelSimpleTrainBase != null, JsonElement::getAsBoolean);
 						final float riderOffset = getOrDefault(jsonObject, CUSTOM_TRAINS_RIDER_OFFSET, baseTrainProperties.riderOffset, JsonElement::getAsFloat);
 						final String bveSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_BVE_SOUND_BASE_ID, baseBveSoundBaseId, JsonElement::getAsString);
 						final int speedSoundCount = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_COUNT, jonSoundOrDefault.config.speedSoundCount, JsonElement::getAsInt);
@@ -79,11 +83,10 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 						}
 
 						if (!baseTrainProperties.baseTrainType.isEmpty()) {
-							if (useBveSound) {
-								TrainClientRegistry.register(trainId, baseTrainType, jonRendererOrDefault.model, textureId, name, color, gangwayConnectionId, trainBarrierId, riderOffset, baseTrainProperties.bogiePosition, baseTrainProperties.isJacobsBogie, bveSoundBaseId, null);
-							} else {
-								TrainClientRegistry.register(trainId, baseTrainType, jonRendererOrDefault.model, textureId, name, color, gangwayConnectionId, trainBarrierId, riderOffset, baseTrainProperties.bogiePosition, baseTrainProperties.isJacobsBogie, speedSoundBaseId, new JonTrainSound.JonTrainSoundConfig(doorSoundBaseId, speedSoundCount, doorCloseSoundTime, accelSoundAtCoast, constPlaybackSpeed));
-							}
+							final ModelTrainBase model = modelSimpleTrainBase == null ? jonRendererOrDefault.model : (ModelTrainBase) modelSimpleTrainBase.createNew(doorAnimationType, renderDoorOverlay);
+							final String soundBaseId = useBveSound ? bveSoundBaseId : speedSoundBaseId;
+							final JonTrainSound.JonTrainSoundConfig soundConfig = useBveSound ? null : new JonTrainSound.JonTrainSoundConfig(doorSoundBaseId, speedSoundCount, doorCloseSoundTime, accelSoundAtCoast, constPlaybackSpeed);
+							TrainClientRegistry.register(trainId, baseTrainType, name, description, wikipediaArticle, model, textureId, color, gangwayConnectionId, trainBarrierId, riderOffset, riderOffset, baseTrainProperties.bogiePosition, baseTrainProperties.isJacobsBogie, soundBaseId, soundConfig);
 							customTrains.add(trainId);
 						}
 
@@ -98,11 +101,10 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 								final boolean useLegacy = jsonProperties.has("parts_normal");
 								// TODO temporary code end
 
-								if (useBveSound) {
-									TrainClientRegistry.register(trainId, newBaseTrainType2.toLowerCase(), useLegacy ? new DynamicTrainModelLegacy(jsonModel, jsonProperties) : new DynamicTrainModel(jsonModel, jsonProperties), textureId, name, color, gangwayConnectionId2, trainBarrierId, riderOffset, baseTrainProperties.bogiePosition, baseTrainProperties.isJacobsBogie, bveSoundBaseId, null);
-								} else {
-									TrainClientRegistry.register(trainId, newBaseTrainType2.toLowerCase(), useLegacy ? new DynamicTrainModelLegacy(jsonModel, jsonProperties) : new DynamicTrainModel(jsonModel, jsonProperties), textureId, name, color, gangwayConnectionId2, trainBarrierId, riderOffset, baseTrainProperties.bogiePosition, baseTrainProperties.isJacobsBogie, speedSoundBaseId, new JonTrainSound.JonTrainSoundConfig(doorSoundBaseId, speedSoundCount, doorCloseSoundTime, accelSoundAtCoast, constPlaybackSpeed));
-								}
+								final ModelTrainBase model = useLegacy ? new DynamicTrainModelLegacy(jsonModel, jsonProperties, doorAnimationType) : new DynamicTrainModel(jsonModel, jsonProperties, doorAnimationType);
+								final String soundBaseId = useBveSound ? bveSoundBaseId : speedSoundBaseId;
+								final JonTrainSound.JonTrainSoundConfig soundConfig = useBveSound ? null : new JonTrainSound.JonTrainSoundConfig(doorSoundBaseId, speedSoundCount, doorCloseSoundTime, accelSoundAtCoast, constPlaybackSpeed);
+								TrainClientRegistry.register(trainId, newBaseTrainType2.toLowerCase(Locale.ENGLISH), name, description, wikipediaArticle, model, textureId, color, gangwayConnectionId2, trainBarrierId, riderOffset, riderOffset, baseTrainProperties.bogiePosition, baseTrainProperties.isJacobsBogie, soundBaseId, soundConfig);
 								customTrains.add(trainId);
 							}));
 						}
@@ -133,6 +135,8 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 			}
 		});
 
+		RELOAD_LISTENERS.forEach(resourceManagerConsumer -> resourceManagerConsumer.accept(manager));
+
 		System.out.println("Loaded " + customTrains.size() + " custom train(s)");
 		customTrains.forEach(System.out::println);
 		System.out.println("Loaded " + CUSTOM_SIGNS.size() + " custom sign(s)");
@@ -141,7 +145,7 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 
 	public static int colorStringToInt(String string) {
 		try {
-			return Integer.parseInt(string.toUpperCase().replaceAll("[^\\dA-F]", ""), 16);
+			return Integer.parseInt(string.toUpperCase(Locale.ENGLISH).replaceAll("[^\\dA-F]", ""), 16);
 		} catch (Exception ignored) {
 			return 0;
 		}
@@ -171,6 +175,10 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 		} else {
 			return defaultValue;
 		}
+	}
+
+	public static void registerReloadListener(Consumer<ResourceManager> listener) {
+		RELOAD_LISTENERS.add(listener);
 	}
 
 	public static class CustomSign {

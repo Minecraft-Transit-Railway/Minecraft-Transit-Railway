@@ -2,10 +2,20 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.ClientData;
+import mtr.client.DoorAnimationType;
+import mtr.client.ScrollingText;
+import mtr.data.Route;
+import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
+import mtr.mappings.UtilitiesClient;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
 
-public class ModelLondonUnderground1995 extends ModelSimpleTrainBase {
+import java.util.List;
+
+public class ModelLondonUnderground1995 extends ModelSimpleTrainBase<ModelLondonUnderground1995> {
 
 	private final ModelMapper window;
 	private final ModelMapper window_1;
@@ -155,7 +165,15 @@ public class ModelLondonUnderground1995 extends ModelSimpleTrainBase {
 	private final ModelMapper light_3_r2;
 	private final ModelMapper light_2_r5;
 
-	public ModelLondonUnderground1995() {
+	private final boolean is1995;
+
+	public ModelLondonUnderground1995(boolean is1995) {
+		this(is1995, DoorAnimationType.STANDARD, true);
+	}
+
+	private ModelLondonUnderground1995(boolean is1995, DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(doorAnimationType, renderDoorOverlay);
+		this.is1995 = is1995;
 		final int textureWidth = 288;
 		final int textureHeight = 288;
 
@@ -1059,6 +1077,11 @@ public class ModelLondonUnderground1995 extends ModelSimpleTrainBase {
 	private static final int DOOR_MAX = 12;
 
 	@Override
+	public ModelLondonUnderground1995 createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		return new ModelLondonUnderground1995(is1995, doorAnimationType, renderDoorOverlay);
+	}
+
+	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		final boolean isEnd1 = isIndex(0, position, getWindowPositions());
 		final boolean isEnd2 = isIndex(-1, position, getWindowPositions());
@@ -1249,12 +1272,43 @@ public class ModelLondonUnderground1995 extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected float getDoorAnimationX(float value, boolean opening) {
-		return 0;
+	protected int getDoorMax() {
+		return DOOR_MAX;
 	}
 
 	@Override
-	protected float getDoorAnimationZ(float value, boolean opening) {
-		return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
+	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform, List<ScrollingText> scrollingTexts) {
+		if (scrollingTexts.isEmpty()) {
+			scrollingTexts.add(new ScrollingText(0.46F, 0.09F, 6, false));
+		}
+
+		final String destinationString = getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false);
+		renderFrontDestination(
+				matrices, font, immediate,
+				0, -2.08F, getEndPositions()[0] / 16F - 3.56F, 0, 0, -0.01F,
+				0, 0, 0.66F, 0.08F,
+				0xFFFF9900, 0xFFFF9900, 1, getAlternatingString(destinationString), false, car, totalCars
+		);
+
+		final String nextStationString = getLondonNextStationString(thisRoute, nextRoute, thisStation, nextStation, lastStation, destinationString, atPlatform);
+		scrollingTexts.get(0).changeImage(nextStationString.isEmpty() ? null : ClientData.DATA_CACHE.getPixelatedText(nextStationString, is1995 ? 0xFFFF9900 : 0xFFFF0000, Integer.MAX_VALUE, false));
+		scrollingTexts.get(0).setVertexConsumer(vertexConsumers);
+
+		final int[] positions = {-6, 0, 6};
+		for (final int position : positions) {
+			for (int i = 0; i < 2; i++) {
+				matrices.pushPose();
+				UtilitiesClient.rotateYDegrees(matrices, i == 1 ? -90 : 90);
+				UtilitiesClient.rotateXDegrees(matrices, 48);
+				matrices.translate(position - 0.23F, -0.55F, 1.96F);
+				scrollingTexts.get(0).scrollText(matrices);
+				matrices.popPose();
+			}
+		}
+	}
+
+	@Override
+	protected String defaultDestinationString() {
+		return "Not in Service";
 	}
 }

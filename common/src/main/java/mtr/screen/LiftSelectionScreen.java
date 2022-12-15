@@ -1,34 +1,34 @@
 package mtr.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import mtr.client.ClientData;
 import mtr.data.DataConverter;
 import mtr.data.IGui;
+import mtr.data.LiftClient;
 import mtr.data.NameColorDataBase;
-import mtr.entity.EntityLift;
 import mtr.mappings.ScreenMapper;
 import mtr.mappings.Text;
 import mtr.packet.PacketTrainDataGuiClient;
-import mtr.render.RenderLift;
+import mtr.render.RenderTrains;
+import net.minecraft.core.BlockPos;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class LiftSelectionScreen extends ScreenMapper implements IGui {
 
 	private final DashboardList selectionList;
-	private final List<Integer> floorLevels;
+	private final List<BlockPos> floorLevels = new ArrayList<>();
 	private final List<String> floorDescriptions = new ArrayList<>();
-	private final EntityLift entityLift;
+	private final LiftClient lift;
 
-	public LiftSelectionScreen(EntityLift entityLift) {
+	public LiftSelectionScreen(LiftClient lift) {
 		super(Text.literal(""));
-		this.entityLift = entityLift;
-		final Map<Integer, String> floors = entityLift == null ? new HashMap<>() : entityLift.floors;
-		floorLevels = new ArrayList<>(floors.keySet());
-		floorLevels.sort((a, b) -> b - a);
-		floorLevels.forEach(floorLevel -> floorDescriptions.add(IGui.formatStationName(floors.getOrDefault(floorLevel, ""))));
+		this.lift = lift;
+		lift.iterateFloors(floor -> {
+			floorLevels.add(floor);
+			floorDescriptions.add(IGui.formatStationName(String.join("|", ClientData.DATA_CACHE.requestLiftFloorText(floor))));
+		});
 		selectionList = new DashboardList(this::onPress, null, null, null, null, null, null, () -> "", text -> {
 		});
 	}
@@ -47,8 +47,8 @@ public class LiftSelectionScreen extends ScreenMapper implements IGui {
 	public void tick() {
 		selectionList.tick();
 		final List<NameColorDataBase> list = new ArrayList<>();
-		for (int i = 0; i < floorLevels.size(); i++) {
-			list.add(new DataConverter(floorDescriptions.get(i), hasStoppingFloor(floorLevels.get(i)) ? RenderLift.LIGHT_COLOR : ARGB_BLACK));
+		for (int i = floorLevels.size() - 1; i >= 0; i--) {
+			list.add(new DataConverter(floorDescriptions.get(i), lift.liftInstructions.containsInstruction(floorLevels.get(i).getY()) ? RenderTrains.LIFT_LIGHT_COLOR : ARGB_BLACK));
 		}
 		selectionList.setData(list, true, false, false, false, false, false);
 	}
@@ -81,17 +81,9 @@ public class LiftSelectionScreen extends ScreenMapper implements IGui {
 	}
 
 	private void onPress(NameColorDataBase data, int index) {
-		if (entityLift != null) {
-			PacketTrainDataGuiClient.sendPressLiftButtonC2S(entityLift.getUUID(), floorLevels.get(index));
+		if (lift != null) {
+			PacketTrainDataGuiClient.sendPressLiftButtonC2S(lift.id, floorLevels.get(floorLevels.size() - index - 1).getY());
 		}
 		onClose();
-	}
-
-	private boolean hasStoppingFloor(int floor) {
-		if (entityLift != null) {
-			return entityLift.hasStoppingFloorsClient(floor, true) || entityLift.hasStoppingFloorsClient(floor, false);
-		} else {
-			return false;
-		}
 	}
 }

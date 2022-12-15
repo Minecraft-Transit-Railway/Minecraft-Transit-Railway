@@ -6,6 +6,7 @@ import net.minecraft.util.Mth;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class MotorData4 extends MotorDataBase { // 4 for BVE4 and OpenBVE
 
@@ -21,12 +22,12 @@ public class MotorData4 extends MotorDataBase { // 4 for BVE4 and OpenBVE
 		String[] lines = textContent.split("[\\r\\n]+");
 		String section = "";
 		for (final String line : lines) {
-			final String lineTrim = line.trim().toLowerCase();
+			final String lineTrim = line.trim().toLowerCase(Locale.ENGLISH);
 			if (StringUtils.isEmpty(lineTrim)) {
 				continue;
 			}
 			if (lineTrim.startsWith("#")) {
-				section = lineTrim.substring(1).trim().toLowerCase();
+				section = lineTrim.substring(1).trim().toLowerCase(Locale.ENGLISH);
 				continue;
 			}
 			switch (section) {

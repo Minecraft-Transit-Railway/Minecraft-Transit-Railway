@@ -155,6 +155,7 @@ const DATA = {
 		}
 
 		const lineQueue = {};
+		const lineDirections = {};
 		let maxDensity = 1;
 		routes.forEach(route => {
 			const routeStations = route["stations"];
@@ -166,7 +167,9 @@ const DATA = {
 					const stopId1 = routeStations[i - 1].split("_")[0];
 
 					if (stopId1 !== stopId2 && routesToShow.includes(routeId)) {
-						const key = routeId + [stopId1, stopId2].sort().join(" ");
+						const sortedKeyPart = [stopId1, stopId2].sort();
+						const isForwards = sortedKeyPart[0] === stopId1;
+						const key = routeId + sortedKeyPart.join(" ");
 						const density = route["densities"][i - 1];
 
 						if (key in lineQueue) {
@@ -181,6 +184,12 @@ const DATA = {
 								"density": density,
 							};
 							maxDensity = Math.max(maxDensity, density);
+						}
+
+						if (key in lineDirections) {
+							lineDirections[key][isForwards ? 0 : 1] = true;
+						} else {
+							lineDirections[key] = [isForwards, !isForwards];
 						}
 					}
 
@@ -201,20 +210,40 @@ const DATA = {
 			}
 		});
 
+		Object.keys(lineDirections).forEach(key => {
+			if (lineDirections[key][0] !== lineDirections[key][1] && key in lineQueue) {
+				lineQueue[key + "_arrows1"] = lineQueue[key];
+				lineQueue[key + "_arrows2"] = lineQueue[key];
+			}
+		});
+
 		const stationQueue = {};
+		const connectionQueue = {};
+		const isSelected = stationId => SETTINGS.selectedDirectionsStations.length > 0 ? SETTINGS.selectedDirectionsStations.includes(stationId) : SETTINGS.selectedRoutes.length === 0 || tempStations[stationId]["routeIds"].some(routeId => SETTINGS.selectedRoutes.includes(routeId));
 		for (const stationId in tempStations) {
 			const routeCounts = UTILITIES.angles.map(angle => tempStations[stationId][`routes${angle}`].length);
-			stationQueue[stations[stationId]["name"]] = {
+			stationQueue[stationId] = {
 				"id": stationId,
+				"name": stations[stationId]["name"],
 				"width": (Math.max(1, Math.max(routeCounts[0], routeCounts[1])) + 1) * SETTINGS.size * 6,
 				"height": (Math.max(1, Math.max(routeCounts[2], routeCounts[3])) + 1) * SETTINGS.size * 6,
 				"left": tempStations[stationId]["x"],
 				"top": tempStations[stationId]["y"],
 				"angle": routeCounts[1] + routeCounts[3] > routeCounts[0] + routeCounts[2] ? 45 : 0,
-				"selected": SETTINGS.selectedDirectionsStations.length > 0 ? SETTINGS.selectedDirectionsStations.includes(stationId) : SETTINGS.selectedRoutes.length === 0 || tempStations[stationId]["routeIds"].some(routeId => SETTINGS.selectedRoutes.includes(routeId)),
+				"selected": isSelected(stationId),
 				"types": tempStations[stationId]["types"],
 			};
-			UTILITIES.angles.forEach(angle => stationQueue[stations[stationId]["name"]][`routes${angle}`] = tempStations[stationId][`routes${angle}`]);
+			UTILITIES.angles.forEach(angle => stationQueue[stationId][`routes${angle}`] = tempStations[stationId][`routes${angle}`]);
+
+			stations[stationId]["connections"].filter(connectionId => connectionId in tempStations).forEach(connectionId => {
+				connectionQueue[`${stationId}_${connectionId}_connection`] = {
+					"x1": tempStations[stationId]["x"],
+					"y1": tempStations[stationId]["y"],
+					"x2": tempStations[connectionId]["x"],
+					"y2": tempStations[connectionId]["y"],
+					"selected": isSelected(stationId) && isSelected(connectionId),
+				};
+			});
 		}
 
 		Object.keys(stations).forEach(stationId => {
@@ -231,7 +260,7 @@ const DATA = {
 		DIRECTIONS.writeStationsInResult(1);
 		DIRECTIONS.writeStationsInResult(2);
 		DOCUMENT.onSearch();
-		DRAWING.drawMap(lineQueue, stationQueue);
+		DRAWING.drawMap(lineQueue, stationQueue, connectionQueue);
 	},
 	routeSelected: (routeId, stopId1, stopId2) => {
 		if (SETTINGS.selectedDirectionsStations.length > 0) {

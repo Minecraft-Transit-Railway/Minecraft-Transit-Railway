@@ -5,7 +5,7 @@
 		"black": "mtr:block/black",
 		"yellow": "block/yellow_concrete",
 		"ticket": "mtr:block/ticket_processor",
-		"arrow": "mtr:sign/arrow_down_left"
+		"arrow": "mtr:block/sign/arrow_down_left"
 	},
 	"elements": [
 		{

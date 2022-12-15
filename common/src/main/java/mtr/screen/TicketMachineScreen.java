@@ -27,7 +27,7 @@ public class TicketMachineScreen extends ScreenMapper implements IGui, IPacket {
 
 		for (int i = 0; i < BUTTON_COUNT; i++) {
 			final int index = i;
-			buttons[i] = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.add_value"), button -> {
+			buttons[i] = UtilitiesClient.newButton(Text.translatable("gui.mtr.add_value"), button -> {
 				PacketTrainDataGuiClient.addBalanceC2S(getAddAmount(index), (int) Math.pow(2, index));
 				if (minecraft != null) {
 					UtilitiesClient.setScreen(minecraft, null);

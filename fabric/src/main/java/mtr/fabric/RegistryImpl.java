@@ -1,8 +1,8 @@
 package mtr.fabric;
 
+import mtr.mappings.FabricRegistryUtilities;
 import mtr.mappings.NetworkUtilities;
 import mtr.mixin.PlayerTeleportationStateAccessor;
-import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Consumer;
@@ -28,8 +29,11 @@ public class RegistryImpl {
 		return true;
 	}
 
-	public static CreativeModeTab getItemGroup(ResourceLocation id, Supplier<ItemStack> supplier) {
-		return FabricItemGroupBuilder.build(id, supplier);
+	public static Supplier<CreativeModeTab> getCreativeModeTab(ResourceLocation id, Supplier<ItemStack> supplier) {
+		return () -> FabricRegistryUtilities.createCreativeModeTab(id, supplier);
+	}
+
+	public static void registerCreativeModeTab(ResourceLocation resourceLocation, Item item) {
 	}
 
 	public static Packet<?> createAddEntityPacket(Entity entity) {

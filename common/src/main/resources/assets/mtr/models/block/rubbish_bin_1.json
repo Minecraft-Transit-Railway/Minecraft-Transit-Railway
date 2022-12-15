@@ -2,8 +2,8 @@
 	"parent": "block/block",
 	"textures": {
 		"particle": "mtr:block/metal",
-		"rubbish": "mtr:sign/rubbish",
-		"spit": "mtr:sign/spit"
+		"rubbish": "mtr:block/sign/rubbish",
+		"spit": "mtr:block/sign/spit"
 	},
 	"elements": [
 		{	"__comment": "Base",

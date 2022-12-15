@@ -1,5 +1,6 @@
 package mtr.block;
 
+import mtr.data.IGui;
 import mtr.mappings.BlockEntityClientSerializableMapper;
 import mtr.mappings.EntityBlockMapper;
 import mtr.mappings.Text;
@@ -32,7 +33,6 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 	public static final int MAX_OPEN_VALUE = 32;
 
 	public static final BooleanProperty END = BooleanProperty.create("end");
-	public static final BooleanProperty ODD = BooleanProperty.create("odd");
 	public static final BooleanProperty UNLOCKED = BooleanProperty.create("unlocked");
 	public static final BooleanProperty TEMP = BooleanProperty.create("temp");
 
@@ -117,13 +117,14 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 		world.setBlockAndUpdate(pos, state.setValue(UNLOCKED, unlocked));
 	}
 
-	public static abstract class TileEntityPSDAPGDoorBase extends BlockEntityClientSerializableMapper {
+	public static abstract class TileEntityPSDAPGDoorBase extends BlockEntityClientSerializableMapper implements IGui {
 
 		private int open;
 		private float openClient;
 		private boolean temp = true;
 
 		private static final String KEY_OPEN = "open";
+		private static final String KEY_TEMP = "temp";
 
 		public TileEntityPSDAPGDoorBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
@@ -132,11 +133,13 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 		@Override
 		public void readCompoundTag(CompoundTag compoundTag) {
 			open = compoundTag.getInt(KEY_OPEN);
+			temp = compoundTag.getBoolean(KEY_TEMP);
 		}
 
 		@Override
 		public void writeCompoundTag(CompoundTag compoundTag) {
 			compoundTag.putInt(KEY_OPEN, open);
+			compoundTag.putBoolean(KEY_TEMP, temp);
 			if (temp && level != null) {
 				level.setBlockAndUpdate(worldPosition, level.getBlockState(worldPosition).setValue(TEMP, false));
 				temp = false;
@@ -152,13 +155,16 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 				this.open = open;
 				setChanged();
 				syncData();
+				if (open == 1 && level != null) {
+					level.setBlockAndUpdate(worldPosition, level.getBlockState(worldPosition).setValue(TEMP, false));
+				}
 			}
 		}
 
 		public float getOpen(float lastFrameDuration) {
 			final float change = lastFrameDuration * 0.95F;
-			if (Math.abs(open - openClient) < change) {
-				openClient = open;
+			if (Math.abs(open - SMALL_OFFSET_16 * 2 - openClient) < change) {
+				openClient = open - SMALL_OFFSET_16 * 2;
 			} else if (openClient < open) {
 				openClient += change;
 			} else {

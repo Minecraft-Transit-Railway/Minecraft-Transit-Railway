@@ -45,7 +45,7 @@ const init = () => {
 						const noRoute = name === "" && destination === "";
 						playerListElement.innerHTML +=
 							`<div class="player text">` +
-							`<img src="https://mc-heads.net/avatar/${player}" alt=""/>` +
+							`<img src="https://minotar.net/avatar/${player}" alt=""/>` +
 							`<span style="${noRoute ? "" : "max-width: 6em; min-width: 6em; overflow: hidden"}">&nbsp;&nbsp;&nbsp;${player}</span>` +
 							`<div class="player_route" style="display: ${noRoute ? "none" : ""}; border-left: 0.3em solid ${UTILITIES.convertColor(color)}">` +
 							`<div class="arrival">` +
