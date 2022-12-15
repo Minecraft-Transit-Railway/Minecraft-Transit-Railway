@@ -14,7 +14,8 @@ def minecraft_version = rootProject.properties.containsKey("buildVersion") ? roo
 def minecraft_main_version = minecraft_version.split("\\.")[1] as int
 def minecraft_mod_api_tools_version = new JsonSlurper().parse(("https://api.github.com/repos/jonafanho/Minecraft-Mod-API-Tools/git/refs/heads/master").toURL())["object"]["sha"]
 def patreon_api_key = rootProject.properties.containsKey("patreonApiKey") ? rootProject.getProperties().get("patreonApiKey").toString() : ""
-def parchment_version = new XmlSlurper().parse("https://ldtteam.jfrog.io/artifactory/parchmentmc-internal/org/parchmentmc/data/parchment-${minecraft_version}/maven-metadata.xml").versioning.release
+def is_1_19_3 = minecraft_version == "1.19.3"
+def parchment_version = is_1_19_3 ? "N/A" : new XmlSlurper().parse("https://ldtteam.jfrog.io/artifactory/parchmentmc-internal/org/parchmentmc/data/parchment-${minecraft_version}/maven-metadata.xml").versioning.release
 
 rootProject.ext.fabric_loader_version = new JsonSlurper().parse(("https://meta.fabricmc.net/v2/versions/loader/" + minecraft_version).toURL())[0]["loader"]["version"]
 rootProject.ext.forge_version = minecraft_version + "-" + new JsonSlurper().parse(("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json").toURL())["promos"][minecraft_version + "-latest"]
@@ -48,7 +49,7 @@ subprojects {
 
 	dependencies {
 		minecraft "com.mojang:minecraft:${minecraft_version}"
-		mappings loom.layered() {
+		mappings is_1_19_3 ? loom.officialMojangMappings() : loom.layered() {
 			officialMojangMappings()
 			parchment("org.parchmentmc.data:parchment-${minecraft_version}:${parchment_version}@zip")
 		}
@@ -87,7 +88,7 @@ task setupFiles() {
 	System.out.println("Parchment: " + parchment_version)
 
 	download {
-		src "https://github.com/jonafanho/Minecraft-Mappings/archive/refs/heads/1.${minecraft_main_version}.zip"
+		src "https://github.com/jonafanho/Minecraft-Mappings/archive/refs/heads/1.${minecraft_main_version}${is_1_19_3 ? ".3" : ""}.zip"
 		dest "common/src/main/java/mtr/mappings/mappings.zip"
 		overwrite true
 		retries - 1
@@ -197,6 +198,13 @@ task setupFiles() {
 		from "fabric/src/main/UnknownPacketMixinTemplate.java"
 		into "fabric/src/main/java/mtr/mixin"
 		filter(ReplaceTokens, tokens: ["path1": minecraft_main_version <= 17 || minecraft_version == "1.18" ? "apache/logging/log4j" : "slf4j", "path2": minecraft_main_version <= 17 || minecraft_version == "1.18" ? "apache.logging.log4j" : "slf4j"])
+		rename "(.+)Template.java", "\$1.java"
+	}
+	copy {
+		outputs.upToDateWhen { false }
+		from "forge/src/main/LevelRendererMixinTemplate.java"
+		into "forge/src/main/java/mtr/mixin"
+		filter(ReplaceTokens, tokens: ["path": is_1_19_3 ? "org.joml" : "com.mojang.math"])
 		rename "(.+)Template.java", "\$1.java"
 	}
 

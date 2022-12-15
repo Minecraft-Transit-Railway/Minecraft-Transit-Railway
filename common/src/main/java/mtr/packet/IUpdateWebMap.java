@@ -22,8 +22,8 @@ public interface IUpdateWebMap {
 	String MARKER_SET_DEPOT_AREAS_ID = "mtr_depot_areas";
 	String MARKER_SET_DEPOTS_TITLE = "Depots";
 	String MARKER_SET_DEPOT_AREAS_TITLE = "Depot Areas";
-	String STATION_ICON_PATH = "/assets/mtr/textures/sign/logo.png";
-	String DEPOT_ICON_PATH = "/assets/mtr/textures/sign/logo_grayscale.png";
+	String STATION_ICON_PATH = "/assets/mtr/textures/block/sign/logo.png";
+	String DEPOT_ICON_PATH = "/assets/mtr/textures/block/sign/logo_grayscale.png";
 	String STATION_ICON_KEY = "mtr_station";
 	String DEPOT_ICON_KEY = "mtr_depot";
 	int ICON_SIZE = 24;

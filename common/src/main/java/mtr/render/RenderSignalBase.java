@@ -2,7 +2,6 @@ package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
 import mtr.block.BlockNode;
 import mtr.block.BlockSignalLightBase;
 import mtr.block.BlockSignalSemaphoreBase;
@@ -12,6 +11,7 @@ import mtr.data.IGui;
 import mtr.data.Rail;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.BlockEntityRendererMapper;
+import mtr.mappings.UtilitiesClient;
 import mtr.path.PathData;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
@@ -73,7 +73,7 @@ public abstract class RenderSignalBase<T extends BlockEntityMapper> extends Bloc
 
 			if (occupiedAspect >= 0) {
 				matrices.pushPose();
-				matrices.mulPose(Vector3f.YN.rotationDegrees(newFacing.toYRot()));
+				UtilitiesClient.rotateYDegrees(matrices, -newFacing.toYRot());
 				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new ResourceLocation("mtr:textures/block/white.png"), false));
 				render(matrices, vertexConsumers, vertexConsumer, entity, tickDelta, newFacing, occupiedAspect, i == 1);
 				// TODO temporary code

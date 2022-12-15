@@ -11,11 +11,6 @@ public class RegistryObject<T> {
 		this.supplier = supplier;
 	}
 
-	// TODO this is here just for backwards compatibility
-	public T register() {
-		return get();
-	}
-
 	public T get() {
 		if (object == null) {
 			object = supplier.get();

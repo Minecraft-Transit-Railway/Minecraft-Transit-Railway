@@ -390,7 +390,7 @@ public class BlockRailwaySign extends BlockDirectionalMapper implements EntityBl
 		public final int backgroundColor;
 
 		SignType(String texture, String translation, boolean small, boolean flipTexture, boolean flipCustomText, boolean hasCustomText, int backgroundColor) {
-			textureId = new ResourceLocation("mtr:textures/sign/" + texture + ".png");
+			textureId = new ResourceLocation("mtr:textures/block/sign/" + texture + ".png");
 			customText = hasCustomText ? Text.translatable("sign.mtr." + translation + "_cjk").append("|").append(Text.translatable("sign.mtr." + translation)).getString() : "";
 			this.small = small;
 			this.flipTexture = flipTexture;

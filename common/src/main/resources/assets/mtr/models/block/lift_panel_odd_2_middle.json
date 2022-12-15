@@ -1,6 +1,6 @@
 {
 	"textures": {
-		"circle": "mtr:sign/circle",
+		"circle": "mtr:block/sign/circle",
 		"black": "mtr:block/black",
 		"particle": "mtr:block/metal"
 	},

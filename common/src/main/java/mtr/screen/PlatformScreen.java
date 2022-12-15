@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.data.Platform;
 import mtr.data.TransportMode;
 import mtr.mappings.Text;
+import mtr.mappings.UtilitiesClient;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -19,8 +20,8 @@ public class PlatformScreen extends SavedRailScreenBase<Platform> {
 	@Override
 	protected void init() {
 		super.init();
-		sliderDwellTimeMin.y = SQUARE_SIZE * 2 + TEXT_FIELD_PADDING;
-		sliderDwellTimeSec.y = SQUARE_SIZE * 5 / 2 + TEXT_FIELD_PADDING;
+		UtilitiesClient.setWidgetY(sliderDwellTimeMin, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING);
+		UtilitiesClient.setWidgetY(sliderDwellTimeSec, SQUARE_SIZE * 5 / 2 + TEXT_FIELD_PADDING);
 	}
 
 	@Override

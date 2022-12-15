@@ -1202,7 +1202,7 @@ public class ModelE44 extends ModelSimpleTrainBase<ModelE44> {
 
 	private static final int DOOR_MAX = 14;
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 6.34F, 13, "door_overlay_e44_left.png", "door_overlay_e44_right.png");
-	private static final ModelDoorOverlayTopMLR MODEL_DOOR_OVERLAY_TOP = new ModelDoorOverlayTopMLR("mtr:textures/sign/door_overlay_e44_top.png");
+	private static final ModelDoorOverlayTopMLR MODEL_DOOR_OVERLAY_TOP = new ModelDoorOverlayTopMLR("mtr:textures/block/sign/door_overlay_e44_top.png");
 
 	@Override
 	public ModelE44 createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {

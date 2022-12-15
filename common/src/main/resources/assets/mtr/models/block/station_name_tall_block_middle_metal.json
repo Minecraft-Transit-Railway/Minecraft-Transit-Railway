@@ -3,7 +3,7 @@
 	"textures": {
 		"particle": "mtr:block/station_pole",
 		"metal": "mtr:block/metal",
-		"gap": "mtr:sign/gap_small"
+		"gap": "mtr:block/sign/gap_small"
 	},
 	"elements": [
 		{

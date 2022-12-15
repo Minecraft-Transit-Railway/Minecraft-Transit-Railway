@@ -115,9 +115,9 @@ public class DashboardList implements IGui {
 
 	public void tick() {
 		textFieldSearch.tick();
-		buttonPrevPage.x = x;
-		buttonNextPage.x = x + SQUARE_SIZE * 3;
-		textFieldSearch.x = x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2;
+		UtilitiesClient.setWidgetX(buttonPrevPage, x);
+		UtilitiesClient.setWidgetX(buttonNextPage, x + SQUARE_SIZE * 3);
+		UtilitiesClient.setWidgetX(textFieldSearch, x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2);
 
 		final String text = textFieldSearch.getValue();
 		dataFiltered.clear();

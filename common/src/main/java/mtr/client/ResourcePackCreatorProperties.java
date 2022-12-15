@@ -9,6 +9,7 @@ import mtr.MTR;
 import mtr.data.EnumHelper;
 import mtr.data.IGui;
 import mtr.data.TransportMode;
+import mtr.mappings.UtilitiesClient;
 import mtr.model.ModelTrainBase;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -277,7 +278,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 	public void export() {
 		try {
 			final Minecraft minecraft = Minecraft.getInstance();
-			final File resourcePackDirectory = minecraft.getResourcePackDirectory();
+			final File resourcePackDirectory = UtilitiesClient.getResourcePackDirectory(minecraft);
 			final FileOutputStream fileOutputStream = new FileOutputStream(String.format("%s/%s_%s.zip", resourcePackDirectory.toString(), customTrainId, ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("uuuu_MM_dd_HH_mm_ss"))));
 			final ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
 

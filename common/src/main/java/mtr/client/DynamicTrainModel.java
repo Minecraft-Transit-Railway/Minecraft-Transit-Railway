@@ -151,7 +151,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 				final float xOffset;
 				switch (EnumHelper.valueOf(ResourcePackCreatorProperties.DoorOffset.NONE, partObject.get(KEY_PROPERTIES_DOOR_OFFSET).getAsString())) {
 					case LEFT_POSITIVE:
-						xOffset = doorLeftX;
+						xOffset = -doorLeftX;
 						zOffset = doorLeftZ;
 						break;
 					case RIGHT_POSITIVE:
@@ -159,7 +159,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 						zOffset = doorRightZ;
 						break;
 					case LEFT_NEGATIVE:
-						xOffset = doorLeftX;
+						xOffset = -doorLeftX;
 						zOffset = -doorLeftZ;
 						break;
 					case RIGHT_NEGATIVE:
@@ -177,7 +177,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 					final float x = positionElement.getAsJsonArray().get(0).getAsFloat();
 					final float z = positionElement.getAsJsonArray().get(1).getAsFloat();
 					if (mirror) {
-						renderOnceFlipped(part, matrices, vertices, light, x + xOffset, z - zOffset);
+						renderOnceFlipped(part, matrices, vertices, light, x - xOffset, z - zOffset);
 					} else {
 						renderOnce(part, matrices, vertices, light, x + xOffset, z + zOffset);
 					}

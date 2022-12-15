@@ -2,7 +2,6 @@ package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
 import mtr.MTRClient;
 import mtr.client.TrainClientRegistry;
 import mtr.client.TrainProperties;
@@ -86,8 +85,8 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 
 		matrices.pushPose();
 		matrices.translate(x, y, z);
-		matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yaw));
-		matrices.mulPose(Vector3f.XP.rotation((float) Math.PI + (hasPitch ? pitch : 0)));
+		UtilitiesClient.rotateY(matrices, (float) Math.PI + yaw);
+		UtilitiesClient.rotateX(matrices, (float) Math.PI + (hasPitch ? pitch : 0));
 
 		final int light = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage));
 
@@ -95,7 +94,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 			final boolean isBoat = train.transportMode == TransportMode.BOAT;
 
 			matrices.translate(0, isBoat ? 0.875 : 0.5, 0);
-			matrices.mulPose(Vector3f.YP.rotationDegrees(90));
+			UtilitiesClient.rotateYDegrees(matrices, 90);
 
 			final EntityModel<? extends Entity> model = isBoat ? MODEL_BOAT : MODEL_MINECART;
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(model.renderType(resolveTexture(textureId, textureId -> textureId + ".png")));
@@ -131,10 +130,10 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 		if (train.transportMode == TransportMode.CABLE_CAR && !isTranslucentBatch) {
 			matrices.translate(0, TransportMode.CABLE_CAR.railOffset + 0.5, 0);
 			if (!hasPitch) {
-				matrices.mulPose(Vector3f.XP.rotation(pitch));
+				UtilitiesClient.rotateX(matrices, pitch);
 			}
 			if (trainId.endsWith("_rht")) {
-				matrices.mulPose(Vector3f.YP.rotationDegrees(180));
+				UtilitiesClient.rotateYDegrees(matrices, 180);
 			}
 			MODEL_CABLE_CAR_GRIP.render(matrices, vertexConsumers, light);
 		}
@@ -173,8 +172,8 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 		if (trainProperties.isJacobsBogie) {
 			matrices.pushPose();
 			matrices.translate(x, y, z);
-			matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yaw));
-			matrices.mulPose(Vector3f.XP.rotation((float) Math.PI + ((pitch < 0 ? train.transportMode.hasPitchAscending : train.transportMode.hasPitchDescending) ? pitch : 0)));
+			UtilitiesClient.rotateY(matrices, (float) Math.PI + yaw);
+			UtilitiesClient.rotateX(matrices, (float) Math.PI + ((pitch < 0 ? train.transportMode.hasPitchAscending : train.transportMode.hasPitchDescending) ? pitch : 0));
 			MODEL_BOGIE.render(matrices, vertexConsumers, light, 0);
 			matrices.popPose();
 		}
