@@ -13,7 +13,7 @@ public class ModelDoorOverlayTopSP1900 extends ModelDoorOverlayTopBase {
 	private final ModelMapper outer_roof_2_r1;
 	private final ModelMapper outer_roof_1_r1;
 
-	private static final ResourceLocation TEXTURE_ID = new ResourceLocation("mtr:textures/sign/door_overlay_sp1900_top.png");
+	private static final ResourceLocation TEXTURE_ID = new ResourceLocation("mtr:textures/block/sign/door_overlay_sp1900_top.png");
 
 	public ModelDoorOverlayTopSP1900() {
 		final int textureWidth = 24;

@@ -67,7 +67,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	private static final List<List<Map<ResourceLocation, Set<BiConsumer<PoseStack, VertexConsumer>>>>> RENDERS = new ArrayList<>(TOTAL_RENDER_STAGES);
 	private static final List<List<Map<ResourceLocation, Set<BiConsumer<PoseStack, VertexConsumer>>>>> CURRENT_RENDERS = new ArrayList<>(TOTAL_RENDER_STAGES);
 	private static final ResourceLocation LIFT_TEXTURE = new ResourceLocation("mtr:textures/entity/lift_1.png");
-	private static final ResourceLocation ARROW_TEXTURE = new ResourceLocation("mtr:textures/sign/lift_arrow.png");
+	private static final ResourceLocation ARROW_TEXTURE = new ResourceLocation("mtr:textures/block/sign/lift_arrow.png");
 
 	static {
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {

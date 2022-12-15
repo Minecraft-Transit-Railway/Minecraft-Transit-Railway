@@ -26,10 +26,10 @@ public class RouteMapGenerator implements IGui {
 
 	public static final int PIXEL_SCALE = 4;
 	private static final int MIN_VERTICAL_SIZE = 5;
-	private static final String LOGO_RESOURCE = "textures/sign/logo.png";
-	private static final String EXIT_RESOURCE = "textures/sign/exit_letter_blank.png";
-	private static final String ARROW_RESOURCE = "textures/sign/arrow.png";
-	private static final String CIRCLE_RESOURCE = "textures/sign/circle.png";
+	private static final String LOGO_RESOURCE = "textures/block/sign/logo.png";
+	private static final String EXIT_RESOURCE = "textures/block/sign/exit_letter_blank.png";
+	private static final String ARROW_RESOURCE = "textures/block/sign/arrow.png";
+	private static final String CIRCLE_RESOURCE = "textures/block/sign/circle.png";
 	private static final String TEMP_CIRCULAR_MARKER = "temp_circular_marker";
 	private static final int PIXEL_RESOLUTION = 24;
 
