@@ -12,13 +12,13 @@ plugins {
 def default_minecraft_version = "1.16.5"
 def minecraft_version = rootProject.properties.containsKey("buildVersion") ? rootProject.getProperties().get("buildVersion").toString() : default_minecraft_version
 def minecraft_main_version = minecraft_version.split("\\.")[1] as int
-def minecraft_mod_api_tools_version = new JsonSlurper().parse(("https://api.github.com/repos/jonafanho/Minecraft-Mod-API-Tools/git/refs/heads/master").toURL())["object"]["sha"]
+def minecraft_mod_api_tools_version = getJson("https://api.github.com/repos/jonafanho/Minecraft-Mod-API-Tools/git/refs/heads/master")["object"]["sha"]
 def patreon_api_key = rootProject.properties.containsKey("patreonApiKey") ? rootProject.getProperties().get("patreonApiKey").toString() : ""
 def is_1_19_3 = minecraft_version == "1.19.3"
-def parchment_version = is_1_19_3 ? "N/A" : new XmlSlurper().parse("https://ldtteam.jfrog.io/artifactory/parchmentmc-internal/org/parchmentmc/data/parchment-${minecraft_version}/maven-metadata.xml").versioning.release
+def parchment_version = getXml("https://ldtteam.jfrog.io/artifactory/parchmentmc-internal/org/parchmentmc/data/parchment-${minecraft_version}/maven-metadata.xml").versioning.release
 
-rootProject.ext.fabric_loader_version = new JsonSlurper().parse(("https://meta.fabricmc.net/v2/versions/loader/" + minecraft_version).toURL())[0]["loader"]["version"]
-rootProject.ext.forge_version = minecraft_version + "-" + new JsonSlurper().parse(("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json").toURL())["promos"][minecraft_version + "-latest"]
+rootProject.ext.fabric_loader_version = getJson("https://meta.fabricmc.net/v2/versions/loader/" + minecraft_version)[0]["loader"]["version"]
+rootProject.ext.forge_version = minecraft_version + "-" + getJson("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json")["promos"][minecraft_version + "-latest"]
 rootProject.ext.fabric_api_version = getModrinthVersion("fabric", minecraft_version, "fabric-api")
 rootProject.ext.mod_menu_version = getModrinthVersion("fabric", minecraft_version, "modmenu")
 rootProject.ext.architectury_version = getModrinthVersion("forge", minecraft_version, "architectury-api").split("\\+")[0]
@@ -49,7 +49,7 @@ subprojects {
 
 	dependencies {
 		minecraft "com.mojang:minecraft:${minecraft_version}"
-		mappings is_1_19_3 ? loom.officialMojangMappings() : loom.layered() {
+		mappings loom.layered() {
 			officialMojangMappings()
 			parchment("org.parchmentmc.data:parchment-${minecraft_version}:${parchment_version}@zip")
 		}
@@ -264,12 +264,34 @@ allprojects {
 	}
 }
 
-static def getModrinthVersion(loader, minecraftVersion, projectId) {
-	def versionsArray = new JsonSlurper().parse(("https://api.modrinth.com/v2/project/" + projectId + "/version").toURL())
+static String getModrinthVersion(String loader, String minecraftVersion, String projectId) {
+	def versionsArray = getJson("https://api.modrinth.com/v2/project/" + projectId + "/version")
 	for (def versionElement : versionsArray) {
 		if (versionElement["loaders"].contains(loader) && versionElement["game_versions"].contains(minecraftVersion)) {
 			return versionElement["version_number"]
 		}
 	}
 	return ""
+}
+
+static Object getJson(String url) {
+	while (true) {
+		try {
+			return new JsonSlurper().parse(url.toURL())
+		} catch (Exception e) {
+			e.printStackTrace()
+			Thread.sleep(1000)
+		}
+	}
+}
+
+static Object getXml(String url) {
+	while (true) {
+		try {
+			return new XmlSlurper().parse(url)
+		} catch (Exception e) {
+			e.printStackTrace()
+			Thread.sleep(1000)
+		}
+	}
 }
