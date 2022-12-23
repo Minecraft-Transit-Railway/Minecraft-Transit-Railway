@@ -39,19 +39,24 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 	private final ModelMapper side_panel;
 	private final ModelMapper side_panel_translucent;
 	private final ModelMapper roof_window;
-	private final ModelMapper c_light_11_r1;
-	private final ModelMapper c_light_10_r1;
-	private final ModelMapper c_light_7_r1;
-	private final ModelMapper c_light_4_r1;
-	private final ModelMapper c_light_2_r1;
 	private final ModelMapper inner_roof_5_r1;
 	private final ModelMapper inner_roof_3_r1;
 	private final ModelMapper inner_roof_2_r1;
 	private final ModelMapper roof_door;
+	private final ModelMapper c_light_pole_5_r2;
+	private final ModelMapper c_light_pole_4_r2;
+	private final ModelMapper c_light_pole_3_r2;
+	private final ModelMapper c_light_pole_2_r2;
+	private final ModelMapper c_light_pole_1_r2;
 	private final ModelMapper inner_roof_6_r1;
 	private final ModelMapper inner_roof_4_r1;
 	private final ModelMapper inner_roof_3_r2;
 	private final ModelMapper roof_light;
+	private final ModelMapper c_light_11_r1;
+	private final ModelMapper c_light_1_r1;
+	private final ModelMapper c_light_3_r1;
+	private final ModelMapper c_light_5_r1;
+	private final ModelMapper c_light_9_r1;
 	private final ModelMapper light_r1;
 	private final ModelMapper roof_exterior;
 	private final ModelMapper outer_roof_5_r1;
@@ -151,13 +156,15 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 	private final ModelMapper driver_door_upper_1_r1;
 	private final ModelMapper upper_wall_1_r6;
 	private final ModelMapper front;
+	private final ModelMapper antler_base_r1;
+	private final ModelMapper antler_1_r1;
+	private final ModelMapper antler_2_r1;
+	private final ModelMapper antler_base_r2;
 	private final ModelMapper front_middle_top_2_r1;
 	private final ModelMapper front_middle_top_1_r1;
 	private final ModelMapper front_3_r1;
 	private final ModelMapper front_1_r1;
 	private final ModelMapper side_1;
-	private final ModelMapper antler_2_r1;
-	private final ModelMapper antler_base_r1;
 	private final ModelMapper outer_roof_11_r1;
 	private final ModelMapper outer_roof_10_r1;
 	private final ModelMapper outer_roof_9_r1;
@@ -181,8 +188,6 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 	private final ModelMapper front_side_upper_2_r1;
 	private final ModelMapper front_side_upper_1_r1;
 	private final ModelMapper side_2;
-	private final ModelMapper antler_2_r2;
-	private final ModelMapper antler_base_r2;
 	private final ModelMapper outer_roof_11_r2;
 	private final ModelMapper outer_roof_10_r2;
 	private final ModelMapper outer_roof_9_r2;
@@ -369,42 +374,6 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 		roof_window.texOffs(84, 69).addBox(-10.2292F, -34.8796F, -16, 5, 0, 32, 0, false);
 		roof_window.texOffs(122, 0).addBox(-2, -33, -16, 2, 0, 32, 0, false);
 
-		c_light_11_r1 = new ModelMapper(modelDataWrapper);
-		c_light_11_r1.setPos(0, -0.5638F, -1.9552F);
-		roof_window.addChild(c_light_11_r1);
-		setRotationAngle(c_light_11_r1, 1.9199F, 0, 0);
-		c_light_11_r1.texOffs(182, 501).addBox(-12, 26.75F, 25.5F, 0, 0, 0, 0.2F, false);
-		c_light_11_r1.texOffs(123, 473).addBox(-12, 23.75F, 25.5F, 0, 0, 0, 0.2F, false);
-
-		c_light_10_r1 = new ModelMapper(modelDataWrapper);
-		c_light_10_r1.setPos(0, -3.479F, -5.724F);
-		roof_window.addChild(c_light_10_r1);
-		setRotationAngle(c_light_10_r1, 1.7453F, 0, 0);
-		c_light_10_r1.texOffs(57, 479).addBox(-12, 19, 25.5F, 0, 0, 0, 0.2F, false);
-		c_light_10_r1.texOffs(211, 476).addBox(-12, 16, 25.5F, 0, 0, 0, 0.2F, false);
-
-		c_light_7_r1 = new ModelMapper(modelDataWrapper);
-		c_light_7_r1.setPos(0, -5.7888F, 10.073F);
-		roof_window.addChild(c_light_7_r1);
-		setRotationAngle(c_light_7_r1, -1.5708F, 0, 0);
-		c_light_7_r1.texOffs(214, 505).addBox(-12, 6.75F, -25.5F, 0, 0, 0, 0.2F, false);
-		c_light_7_r1.texOffs(106, 473).addBox(-12, 9.75F, -25.5F, 0, 0, 0, 0.2F, false);
-		c_light_7_r1.texOffs(41, 467).addBox(-12, 12.75F, -25.5F, 0, 0, 0, 0.2F, false);
-
-		c_light_4_r1 = new ModelMapper(modelDataWrapper);
-		c_light_4_r1.setPos(0, -3.479F, 5.724F);
-		roof_window.addChild(c_light_4_r1);
-		setRotationAngle(c_light_4_r1, -1.7453F, 0, 0);
-		c_light_4_r1.texOffs(211, 476).addBox(-12, 16, -25.5F, 0, 0, 0, 0.2F, false);
-		c_light_4_r1.texOffs(196, 497).addBox(-12, 19, -25.5F, 0, 0, 0, 0.2F, false);
-
-		c_light_2_r1 = new ModelMapper(modelDataWrapper);
-		c_light_2_r1.setPos(0, -0.5638F, 1.9552F);
-		roof_window.addChild(c_light_2_r1);
-		setRotationAngle(c_light_2_r1, -1.9199F, 0, 0);
-		c_light_2_r1.texOffs(123, 473).addBox(-12, 23.75F, -25.5F, 0, 0, 0, 0.2F, false);
-		c_light_2_r1.texOffs(47, 471).addBox(-12, 26.75F, -25.5F, 0, 0, 0, 0.2F, false);
-
 		inner_roof_5_r1 = new ModelMapper(modelDataWrapper);
 		inner_roof_5_r1.setPos(-2, -33, 0);
 		roof_window.addChild(inner_roof_5_r1);
@@ -429,6 +398,36 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 		roof_door.texOffs(64, 69).addBox(-10.2292F, -34.8796F, -16, 5, 0, 32, 0, false);
 		roof_door.texOffs(114, 0).addBox(-2, -33, -16, 2, 0, 32, 0, false);
 
+		c_light_pole_5_r2 = new ModelMapper(modelDataWrapper);
+		c_light_pole_5_r2.setPos(0, -2.7144F, -6.4586F);
+		roof_door.addChild(c_light_pole_5_r2);
+		setRotationAngle(c_light_pole_5_r2, 1.7453F, 0, 0);
+		c_light_pole_5_r2.texOffs(118, 500).addBox(-12, 16.75F, 26.5F, 0, 5, 0, 0.2F, false);
+
+		c_light_pole_4_r2 = new ModelMapper(modelDataWrapper);
+		c_light_pole_4_r2.setPos(0, 0, -1.6039F);
+		roof_door.addChild(c_light_pole_4_r2);
+		setRotationAngle(c_light_pole_4_r2, 1.9199F, 0, 0);
+		c_light_pole_4_r2.texOffs(118, 500).addBox(-12, 22.75F, 26.5F, 0, 5, 0, 0.2F, false);
+
+		c_light_pole_3_r2 = new ModelMapper(modelDataWrapper);
+		c_light_pole_3_r2.setPos(0, -5.1888F, 12.073F);
+		roof_door.addChild(c_light_pole_3_r2);
+		setRotationAngle(c_light_pole_3_r2, -1.5708F, 0, 0);
+		c_light_pole_3_r2.texOffs(118, 500).addBox(-12, 7, -26.5F, 0, 10, 0, 0.2F, false);
+
+		c_light_pole_2_r2 = new ModelMapper(modelDataWrapper);
+		c_light_pole_2_r2.setPos(0, -2.7144F, 6.6046F);
+		roof_door.addChild(c_light_pole_2_r2);
+		setRotationAngle(c_light_pole_2_r2, -1.7453F, 0, 0);
+		c_light_pole_2_r2.texOffs(118, 500).addBox(-12, 16.75F, -26.5F, 0, 5, 0, 0.2F, false);
+
+		c_light_pole_1_r2 = new ModelMapper(modelDataWrapper);
+		c_light_pole_1_r2.setPos(0, 0, 1.75F);
+		roof_door.addChild(c_light_pole_1_r2);
+		setRotationAngle(c_light_pole_1_r2, -1.9199F, 0, 0);
+		c_light_pole_1_r2.texOffs(118, 500).addBox(-12, 22.75F, -26.5F, 0, 5, 0, 0.2F, false);
+
 		inner_roof_6_r1 = new ModelMapper(modelDataWrapper);
 		inner_roof_6_r1.setPos(-2, -33, 0);
 		roof_door.addChild(inner_roof_6_r1);
@@ -449,7 +448,43 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 
 		roof_light = new ModelMapper(modelDataWrapper);
 		roof_light.setPos(0, 24, 0);
-		
+
+
+		c_light_11_r1 = new ModelMapper(modelDataWrapper);
+		c_light_11_r1.setPos(0, -0.5638F, -1.9552F);
+		roof_light.addChild(c_light_11_r1);
+		setRotationAngle(c_light_11_r1, 1.9199F, 0, 0);
+		c_light_11_r1.texOffs(182, 501).addBox(-12, 26.75F, 25.5F, 0, 0, 0, 0.2F, false);
+		c_light_11_r1.texOffs(123, 473).addBox(-12, 23.75F, 25.5F, 0, 0, 0, 0.2F, false);
+
+		c_light_1_r1 = new ModelMapper(modelDataWrapper);
+		c_light_1_r1.setPos(0, -0.5638F, 1.9552F);
+		roof_light.addChild(c_light_1_r1);
+		setRotationAngle(c_light_1_r1, -1.9199F, 0, 0);
+		c_light_1_r1.texOffs(47, 471).addBox(-12, 26.75F, -25.5F, 0, 0, 0, 0.2F, false);
+		c_light_1_r1.texOffs(123, 473).addBox(-12, 23.75F, -25.5F, 0, 0, 0, 0.2F, false);
+
+		c_light_3_r1 = new ModelMapper(modelDataWrapper);
+		c_light_3_r1.setPos(0, -3.479F, 5.724F);
+		roof_light.addChild(c_light_3_r1);
+		setRotationAngle(c_light_3_r1, -1.7453F, 0, 0);
+		c_light_3_r1.texOffs(196, 497).addBox(-12, 19, -25.5F, 0, 0, 0, 0.2F, false);
+		c_light_3_r1.texOffs(211, 476).addBox(-12, 16, -25.5F, 0, 0, 0, 0.2F, false);
+
+		c_light_5_r1 = new ModelMapper(modelDataWrapper);
+		c_light_5_r1.setPos(0, -5.7888F, 10.073F);
+		roof_light.addChild(c_light_5_r1);
+		setRotationAngle(c_light_5_r1, -1.5708F, 0, 0);
+		c_light_5_r1.texOffs(41, 467).addBox(-12, 12.75F, -25.5F, 0, 0, 0, 0.2F, false);
+		c_light_5_r1.texOffs(106, 473).addBox(-12, 9.75F, -25.5F, 0, 0, 0, 0.2F, false);
+		c_light_5_r1.texOffs(214, 505).addBox(-12, 6.75F, -25.5F, 0, 0, 0, 0.2F, false);
+
+		c_light_9_r1 = new ModelMapper(modelDataWrapper);
+		c_light_9_r1.setPos(0, -3.479F, -5.724F);
+		roof_light.addChild(c_light_9_r1);
+		setRotationAngle(c_light_9_r1, 1.7453F, 0, 0);
+		c_light_9_r1.texOffs(211, 476).addBox(-12, 16, 25.5F, 0, 0, 0, 0.2F, false);
+		c_light_9_r1.texOffs(57, 479).addBox(-12, 19, 25.5F, 0, 0, 0, 0.2F, false);
 
 		light_r1 = new ModelMapper(modelDataWrapper);
 		light_r1.setPos(-2, -33, 0);
@@ -784,7 +819,7 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 
 		roof_end_light = new ModelMapper(modelDataWrapper);
 		roof_end_light.setPos(0, 24, 0);
-		
+
 
 		c_light_22_r1 = new ModelMapper(modelDataWrapper);
 		c_light_22_r1.setPos(0, -0.5638F, -1.9552F);
@@ -847,7 +882,7 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 
 		roof_end_exterior = new ModelMapper(modelDataWrapper);
 		roof_end_exterior.setPos(0, 24, 0);
-		
+
 
 		outer_roof_1 = new ModelMapper(modelDataWrapper);
 		outer_roof_1.setPos(0, 0, 0);
@@ -987,7 +1022,7 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 		c_t_light_1 = new ModelMapper(modelDataWrapper);
 		c_t_light_1.setPos(0, 4.2112F, 10.073F);
 		head.addChild(c_t_light_1);
-		
+
 
 		c_light_24_r1 = new ModelMapper(modelDataWrapper);
 		c_light_24_r1.setPos(0, 0, 0);
@@ -1022,7 +1057,7 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 		c_t_light_2.setPos(-10, 4.2112F, 0.073F);
 		head.addChild(c_t_light_2);
 		setRotationAngle(c_t_light_2, 0, -1.5708F, 0);
-		
+
 
 		c_light_25_r1 = new ModelMapper(modelDataWrapper);
 		c_light_25_r1.setPos(0, 0, 0);
@@ -1057,7 +1092,7 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 		c_t_light_3.setPos(10, 4.2112F, 0.073F);
 		head.addChild(c_t_light_3);
 		setRotationAngle(c_t_light_3, 0, 1.5708F, 0);
-		
+
 
 		c_light_26_r1 = new ModelMapper(modelDataWrapper);
 		c_light_26_r1.setPos(0, 0, 0);
@@ -1091,7 +1126,7 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 		c_t_light_4 = new ModelMapper(modelDataWrapper);
 		c_t_light_4.setPos(0, 4.2112F, -10.073F);
 		head.addChild(c_t_light_4);
-		
+
 
 		c_light_25_r2 = new ModelMapper(modelDataWrapper);
 		c_light_25_r2.setPos(0, 0, 0);
@@ -1164,6 +1199,32 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 		front.texOffs(228, 0).addBox(-21, 0, 31, 42, 0, 14, 0, false);
 		front.texOffs(22, 472).addBox(-1.5F, -8.25F, 45, 3, 3, 2, 0, false);
 
+		antler_base_r1 = new ModelMapper(modelDataWrapper);
+		antler_base_r1.setPos(10, -7, 0);
+		front.addChild(antler_base_r1);
+		setRotationAngle(antler_base_r1, 0, 0, -0.5236F);
+		antler_base_r1.texOffs(-10, 502).addBox(-10, -50, 29, 1, 12, 1, 0, true);
+
+		antler_1_r1 = new ModelMapper(modelDataWrapper);
+		antler_1_r1.setPos(10, -7, 0);
+		front.addChild(antler_1_r1);
+		setRotationAngle(antler_1_r1, 0, 0, -1.1781F);
+		antler_1_r1.texOffs(-10, 502).addBox(19, -44.75F, 29, 1, 4, 1, 0, true);
+		antler_1_r1.texOffs(-10, 502).addBox(17, -42.75F, 29, 1, 4, 1, 0, true);
+
+		antler_2_r1 = new ModelMapper(modelDataWrapper);
+		antler_2_r1.setPos(-10, -7, 0);
+		front.addChild(antler_2_r1);
+		setRotationAngle(antler_2_r1, 0, 0, 1.1781F);
+		antler_2_r1.texOffs(-10, 502).addBox(-18, -42.75F, 29, 1, 4, 1, 0, false);
+		antler_2_r1.texOffs(-10, 502).addBox(-20, -44.75F, 29, 1, 4, 1, 0, false);
+
+		antler_base_r2 = new ModelMapper(modelDataWrapper);
+		antler_base_r2.setPos(-10, -7, 0);
+		front.addChild(antler_base_r2);
+		setRotationAngle(antler_base_r2, 0, 0, 0.5236F);
+		antler_base_r2.texOffs(-10, 502).addBox(9, -50, 29, 1, 12, 1, 0, false);
+
 		front_middle_top_2_r1 = new ModelMapper(modelDataWrapper);
 		front_middle_top_2_r1.setPos(0, -36.1042F, 37.8711F);
 		front.addChild(front_middle_top_2_r1);
@@ -1192,19 +1253,6 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 		side_1.setPos(0, 0, 0);
 		front.addChild(side_1);
 		side_1.texOffs(201, 277).addBox(0, -42, 16, 6, 1, 10, 0, false);
-
-		antler_2_r1 = new ModelMapper(modelDataWrapper);
-		antler_2_r1.setPos(-10, -7, 0);
-		side_1.addChild(antler_2_r1);
-		setRotationAngle(antler_2_r1, 0, 0, 1.1781F);
-		antler_2_r1.texOffs(-10, 502).addBox(-18, -42.75F, 29, 1, 4, 1, 0, false);
-		antler_2_r1.texOffs(-10, 502).addBox(-20, -44.75F, 29, 1, 4, 1, 0, false);
-
-		antler_base_r1 = new ModelMapper(modelDataWrapper);
-		antler_base_r1.setPos(-10, -7, 0);
-		side_1.addChild(antler_base_r1);
-		setRotationAngle(antler_base_r1, 0, 0, 0.5236F);
-		antler_base_r1.texOffs(-10, 502).addBox(9, -50, 29, 1, 12, 1, 0, false);
 
 		outer_roof_11_r1 = new ModelMapper(modelDataWrapper);
 		outer_roof_11_r1.setPos(18.7914F, -32.8777F, 31);
@@ -1343,19 +1391,6 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 		front.addChild(side_2);
 		side_2.texOffs(201, 277).addBox(-6, -42, 16, 6, 1, 10, 0, true);
 
-		antler_2_r2 = new ModelMapper(modelDataWrapper);
-		antler_2_r2.setPos(10, -7, 0);
-		side_2.addChild(antler_2_r2);
-		setRotationAngle(antler_2_r2, 0, 0, -1.1781F);
-		antler_2_r2.texOffs(-10, 502).addBox(17, -42.75F, 29, 1, 4, 1, 0, true);
-		antler_2_r2.texOffs(-10, 502).addBox(19, -44.75F, 29, 1, 4, 1, 0, true);
-
-		antler_base_r2 = new ModelMapper(modelDataWrapper);
-		antler_base_r2.setPos(10, -7, 0);
-		side_2.addChild(antler_base_r2);
-		setRotationAngle(antler_base_r2, 0, 0, -0.5236F);
-		antler_base_r2.texOffs(-10, 502).addBox(-10, -50, 29, 1, 12, 1, 0, true);
-
 		outer_roof_11_r2 = new ModelMapper(modelDataWrapper);
 		outer_roof_11_r2.setPos(-18.7914F, -32.8777F, 31);
 		side_2.addChild(outer_roof_11_r2);
@@ -1490,7 +1525,7 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 
 		headlights = new ModelMapper(modelDataWrapper);
 		headlights.setPos(0, 24, 0);
-		
+
 
 		headlight_4_r1 = new ModelMapper(modelDataWrapper);
 		headlight_4_r1.setPos(-14.0978F, -7, 42.5574F);
@@ -1518,7 +1553,7 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 
 		tail_lights = new ModelMapper(modelDataWrapper);
 		tail_lights.setPos(0, 24, 0);
-		
+
 
 		tail_light_2_r1 = new ModelMapper(modelDataWrapper);
 		tail_light_2_r1.setPos(-14.0978F, -7, 42.5574F);
@@ -1534,7 +1569,7 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 
 		door_light = new ModelMapper(modelDataWrapper);
 		door_light.setPos(0, 24, 0);
-		
+
 
 		outer_roof_1_r4 = new ModelMapper(modelDataWrapper);
 		outer_roof_1_r4.setPos(-20, -13, 0);
@@ -1544,7 +1579,7 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 
 		door_light_on = new ModelMapper(modelDataWrapper);
 		door_light_on.setPos(0, 24, 0);
-		
+
 
 		light_r2 = new ModelMapper(modelDataWrapper);
 		light_r2.setPos(-20, -13, 0);
@@ -1554,7 +1589,7 @@ public class ModelMLRChristmas extends ModelSimpleTrainBase<ModelMLRChristmas> {
 
 		door_light_off = new ModelMapper(modelDataWrapper);
 		door_light_off.setPos(0, 24, 0);
-		
+
 
 		light_r3 = new ModelMapper(modelDataWrapper);
 		light_r3.setPos(-20, -13, 0);
