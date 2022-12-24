@@ -188,34 +188,40 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 	private final ModelMapper present_6_r1;
 	private final ModelMapper present_5_r1;
 	private final ModelMapper present_2_r1;
-	private final ModelMapper christmas_mirror;
+	private final ModelMapper christmas_antler;
+	private final ModelMapper antler_2_r1;
+	private final ModelMapper antler_base_r1;
+	private final ModelMapper christmas_light_head;
+	private final ModelMapper christmas_light_holder;
 	private final ModelMapper c_light_pole_5_r1;
 	private final ModelMapper c_light_pole_4_r1;
 	private final ModelMapper c_light_pole_3_r1;
 	private final ModelMapper c_light_pole_2_r1;
 	private final ModelMapper c_light_pole_1_r1;
-	private final ModelMapper antler_2_r1;
-	private final ModelMapper antler_base_r1;
-	private final ModelMapper christmas_light;
 	private final ModelMapper christmas_light_red;
-	private final ModelMapper ct_light_14_r1;
 	private final ModelMapper c_light_9_r1;
 	private final ModelMapper c_light_5_r1;
 	private final ModelMapper c_light_1_r1;
 	private final ModelMapper christmas_light_yellow;
-	private final ModelMapper ct_light_20_r1;
 	private final ModelMapper c_light_10_r1;
 	private final ModelMapper c_light_6_r1;
 	private final ModelMapper c_light_2_r1;
 	private final ModelMapper christmas_light_green;
-	private final ModelMapper ct_light_36_r1;
 	private final ModelMapper c_light_11_r1;
 	private final ModelMapper c_light_7_r1;
 	private final ModelMapper c_light_3_r1;
 	private final ModelMapper christmas_light_blue;
-	private final ModelMapper ct_light_48_r1;
+	private final ModelMapper c_light_12_r1;
 	private final ModelMapper c_light_8_r1;
 	private final ModelMapper c_light_4_r1;
+	private final ModelMapper christmas_light_tree_red;
+	private final ModelMapper ct_light_13_r1;
+	private final ModelMapper christmas_light_tree_yellow;
+	private final ModelMapper ct_light_20_r1;
+	private final ModelMapper christmas_light_tree_green;
+	private final ModelMapper ct_light_36_r1;
+	private final ModelMapper christmas_light_tree_blue;
+	private final ModelMapper ct_light_48_r1;
 
 	protected boolean isChristmas;
 
@@ -1251,110 +1257,184 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 		setRotationAngle(present_2_r1, 0, 0.0873F, 0);
 		present_2_r1.texOffs(72, 384).addBox(1.75F, -3, -3.5F, 3, 3, 3, 0, false);
 
-		christmas_mirror = new ModelMapper(modelDataWrapper);
-		christmas_mirror.setPos(0, 24, 0);
+		christmas_antler = new ModelMapper(modelDataWrapper);
+		christmas_antler.setPos(0, 24, 0);
 
-
-		c_light_pole_5_r1 = new ModelMapper(modelDataWrapper);
-		c_light_pole_5_r1.setPos(0, -2.7144F, -6.4586F);
-		christmas_mirror.addChild(c_light_pole_5_r1);
-		setRotationAngle(c_light_pole_5_r1, 1.7453F, 0, 0);
-		c_light_pole_5_r1.texOffs(85, 385).addBox(-12, 16.75F, 26.5F, 0, 5, 0, 0.2F, false);
-
-		c_light_pole_4_r1 = new ModelMapper(modelDataWrapper);
-		c_light_pole_4_r1.setPos(0, 0, -1.6039F);
-		christmas_mirror.addChild(c_light_pole_4_r1);
-		setRotationAngle(c_light_pole_4_r1, 1.9199F, 0, 0);
-		c_light_pole_4_r1.texOffs(85, 385).addBox(-12, 22.75F, 26.5F, 0, 5, 0, 0.2F, false);
-
-		c_light_pole_3_r1 = new ModelMapper(modelDataWrapper);
-		c_light_pole_3_r1.setPos(0, -5.1888F, 12.073F);
-		christmas_mirror.addChild(c_light_pole_3_r1);
-		setRotationAngle(c_light_pole_3_r1, -1.5708F, 0, 0);
-		c_light_pole_3_r1.texOffs(85, 385).addBox(-12, 7, -26.5F, 0, 10, 0, 0.2F, false);
-
-		c_light_pole_2_r1 = new ModelMapper(modelDataWrapper);
-		c_light_pole_2_r1.setPos(0, -2.7144F, 6.6046F);
-		christmas_mirror.addChild(c_light_pole_2_r1);
-		setRotationAngle(c_light_pole_2_r1, -1.7453F, 0, 0);
-		c_light_pole_2_r1.texOffs(85, 385).addBox(-12, 16.75F, -26.5F, 0, 5, 0, 0.2F, false);
-
-		c_light_pole_1_r1 = new ModelMapper(modelDataWrapper);
-		c_light_pole_1_r1.setPos(0, 0, 1.75F);
-		christmas_mirror.addChild(c_light_pole_1_r1);
-		setRotationAngle(c_light_pole_1_r1, -1.9199F, 0, 0);
-		c_light_pole_1_r1.texOffs(85, 385).addBox(-12, 22.75F, -26.5F, 0, 5, 0, 0.2F, false);
 
 		antler_2_r1 = new ModelMapper(modelDataWrapper);
 		antler_2_r1.setPos(-10, -7, 0);
-		christmas_mirror.addChild(antler_2_r1);
+		christmas_antler.addChild(antler_2_r1);
 		setRotationAngle(antler_2_r1, 0, 0, 1.1781F);
-		antler_2_r1.texOffs(22, 383).addBox(-18, -42.75F, 29, 1, 4, 1, 0, false);
-		antler_2_r1.texOffs(22, 383).addBox(-20, -44.75F, 29, 1, 4, 1, 0, false);
+		antler_2_r1.texOffs(22, 383).addBox(-18, -42.75F, 0, 1, 4, 1, 0, false);
+		antler_2_r1.texOffs(22, 383).addBox(-20, -44.75F, 0, 1, 4, 1, 0, false);
 
 		antler_base_r1 = new ModelMapper(modelDataWrapper);
 		antler_base_r1.setPos(-10, -7, 0);
-		christmas_mirror.addChild(antler_base_r1);
+		christmas_antler.addChild(antler_base_r1);
 		setRotationAngle(antler_base_r1, 0, 0, 0.5236F);
-		antler_base_r1.texOffs(22, 383).addBox(9, -50, 29, 1, 12, 1, 0, false);
+		antler_base_r1.texOffs(22, 383).addBox(9, -50, 0, 1, 12, 1, 0, false);
 
-		christmas_light = new ModelMapper(modelDataWrapper);
-		christmas_light.setPos(0, 24, 0);
-		christmas_light.texOffs(12, 392).addBox(-2, -28, 0, 4, 4, 0, 0, false);
-		christmas_light.texOffs(12, 387).addBox(-1.5F, -8.25F, 45, 3, 3, 2, 0, false);
+		christmas_light_head = new ModelMapper(modelDataWrapper);
+		christmas_light_head.setPos(0, 24, 0);
+		christmas_light_head.texOffs(12, 392).addBox(-2, -28, 0, 4, 4, 0, 0, false);
+		christmas_light_head.texOffs(12, 387).addBox(-1.5F, -8.25F, 45, 3, 3, 2, 0, false);
+
+		christmas_light_holder = new ModelMapper(modelDataWrapper);
+		christmas_light_holder.setPos(0, 24, 0);
+
+
+		c_light_pole_5_r1 = new ModelMapper(modelDataWrapper);
+		c_light_pole_5_r1.setPos(0, -31.8F, 5.2F);
+		christmas_light_holder.addChild(c_light_pole_5_r1);
+		setRotationAngle(c_light_pole_5_r1, 1.7453F, 0, 0);
+		c_light_pole_5_r1.texOffs(85, 385).addBox(-12, 0.2F, 0.2F, 0, 5, 0, 0.2F, false);
+
+		c_light_pole_4_r1 = new ModelMapper(modelDataWrapper);
+		c_light_pole_4_r1.setPos(0, -33.8491F, 12.9867F);
+		christmas_light_holder.addChild(c_light_pole_4_r1);
+		setRotationAngle(c_light_pole_4_r1, 1.9199F, 0, 0);
+		c_light_pole_4_r1.texOffs(85, 385).addBox(-12, -2.5F, 0, 0, 5, 0, 0.2F, false);
+
+		c_light_pole_3_r1 = new ModelMapper(modelDataWrapper);
+		c_light_pole_3_r1.setPos(0, -32, 0);
+		christmas_light_holder.addChild(c_light_pole_3_r1);
+		setRotationAngle(c_light_pole_3_r1, -1.5708F, 0, 0);
+		c_light_pole_3_r1.texOffs(85, 385).addBox(-12, -5, 0, 0, 10, 0, 0.2F, false);
+
+		c_light_pole_2_r1 = new ModelMapper(modelDataWrapper);
+		c_light_pole_2_r1.setPos(0, -31.8F, -5.2F);
+		christmas_light_holder.addChild(c_light_pole_2_r1);
+		setRotationAngle(c_light_pole_2_r1, -1.7453F, 0, 0);
+		c_light_pole_2_r1.texOffs(85, 385).addBox(-12, 0.2F, -0.2F, 0, 5, 0, 0.2F, false);
+
+		c_light_pole_1_r1 = new ModelMapper(modelDataWrapper);
+		c_light_pole_1_r1.setPos(0, -33.8491F, -12.9867F);
+		christmas_light_holder.addChild(c_light_pole_1_r1);
+		setRotationAngle(c_light_pole_1_r1, -1.9199F, 0, 0);
+		c_light_pole_1_r1.texOffs(85, 385).addBox(-12, -2.5F, 0, 0, 5, 0, 0.2F, false);
 
 		christmas_light_red = new ModelMapper(modelDataWrapper);
 		christmas_light_red.setPos(0, 24, 0);
-		christmas_light_red.texOffs(70, 385).addBox(1, -21.2888F, -2.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_red.texOffs(70, 385).addBox(0, -17.2888F, -4.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_red.texOffs(70, 385).addBox(-1, -13.2888F, -6.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_red.texOffs(70, 385).addBox(-5, -8.0388F, -8.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_red.texOffs(70, 385).addBox(-3, -6.0388F, -8.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_red.texOffs(70, 385).addBox(6, -7.2888F, -8.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_red.texOffs(70, 385).addBox(-0.2F, -0.2F, 0.2F, 0, 0, 0, 0.2F, false);
 
-		ct_light_14_r1 = new ModelMapper(modelDataWrapper);
-		ct_light_14_r1.setPos(0, 0, 0);
-		christmas_light_red.addChild(ct_light_14_r1);
-		setRotationAngle(ct_light_14_r1, 0, -1.5708F, 0);
-		ct_light_14_r1.texOffs(70, 385).addBox(-0.2F, -0.2F, 0.2F, 0, 0, 0, 0.2F, false);
-		ct_light_14_r1.texOffs(70, 385).addBox(6, -7.2888F, -8.177F, 0, 0, 0, 0.2F, false);
-		ct_light_14_r1.texOffs(70, 385).addBox(-3, -6.0388F, -8.177F, 0, 0, 0, 0.2F, false);
-		ct_light_14_r1.texOffs(70, 385).addBox(-5, -8.0388F, -8.177F, 0, 0, 0, 0.2F, false);
-		ct_light_14_r1.texOffs(70, 385).addBox(-1, -13.2888F, -6.177F, 0, 0, 0, 0.2F, false);
-		ct_light_14_r1.texOffs(70, 385).addBox(0, -17.2888F, -4.177F, 0, 0, 0, 0.2F, false);
-		ct_light_14_r1.texOffs(70, 385).addBox(1, -21.2888F, -2.177F, 0, 0, 0, 0.2F, false);
 
 		c_light_9_r1 = new ModelMapper(modelDataWrapper);
-		c_light_9_r1.setPos(0, -3.479F, -5.724F);
+		c_light_9_r1.setPos(0, -31.8F, 5.2F);
 		christmas_light_red.addChild(c_light_9_r1);
 		setRotationAngle(c_light_9_r1, 1.7453F, 0, 0);
-		c_light_9_r1.texOffs(61, 385).addBox(-12, 19, 25.5F, 0, 0, 0, 0.2F, false);
+		c_light_9_r1.texOffs(61, 385).addBox(-12, 1.05F, -0.2F, 0, 0, 0, 0.2F, false);
 
 		c_light_5_r1 = new ModelMapper(modelDataWrapper);
-		c_light_5_r1.setPos(0, -5.7888F, 10.073F);
+		c_light_5_r1.setPos(0, -32, 0);
 		christmas_light_red.addChild(c_light_5_r1);
 		setRotationAngle(c_light_5_r1, -1.5708F, 0, 0);
-		c_light_5_r1.texOffs(61, 385).addBox(-12, 12.75F, -25.5F, 0, 0, 0, 0.2F, false);
+		c_light_5_r1.texOffs(61, 385).addBox(-12, 3.75F, 0.4F, 0, 0, 0, 0.2F, false);
 
 		c_light_1_r1 = new ModelMapper(modelDataWrapper);
-		c_light_1_r1.setPos(0, -0.5638F, 1.9552F);
+		c_light_1_r1.setPos(0, -33.5402F, -10.625F);
 		christmas_light_red.addChild(c_light_1_r1);
 		setRotationAngle(c_light_1_r1, -1.9199F, 0, 0);
-		c_light_1_r1.texOffs(61, 385).addBox(-12, 26.75F, -25.5F, 0, 0, 0, 0.2F, false);
+		c_light_1_r1.texOffs(61, 385).addBox(-12, 2.8249F, 0.9175F, 0, 0, 0, 0.2F, false);
 
 		christmas_light_yellow = new ModelMapper(modelDataWrapper);
 		christmas_light_yellow.setPos(0, 24, 0);
-		christmas_light_yellow.texOffs(82, 385).addBox(-1, -18.2888F, -2.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_yellow.texOffs(82, 385).addBox(2, -15.2888F, -4.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_yellow.texOffs(82, 385).addBox(1, -11.2888F, -6.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_yellow.texOffs(82, 385).addBox(-3, -12.2888F, -6.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_yellow.texOffs(82, 385).addBox(-2, -9.5388F, -8.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_yellow.texOffs(82, 385).addBox(-6, -7.0388F, -8.177F, 0, 0, 0, 0.2F, false);
+
+
+		c_light_10_r1 = new ModelMapper(modelDataWrapper);
+		c_light_10_r1.setPos(0, -31.8F, 5.2F);
+		christmas_light_yellow.addChild(c_light_10_r1);
+		setRotationAngle(c_light_10_r1, 1.7453F, 0, 0);
+		c_light_10_r1.texOffs(73, 385).addBox(-12, 3.55F, -0.2F, 0, 0, 0, 0.2F, false);
+
+		c_light_6_r1 = new ModelMapper(modelDataWrapper);
+		c_light_6_r1.setPos(0, -32, 0);
+		christmas_light_yellow.addChild(c_light_6_r1);
+		setRotationAngle(c_light_6_r1, -1.5708F, 0, 0);
+		c_light_6_r1.texOffs(73, 385).addBox(-12, 1.25F, 0.4F, 0, 0, 0, 0.2F, false);
+
+		c_light_2_r1 = new ModelMapper(modelDataWrapper);
+		c_light_2_r1.setPos(0, -33.5402F, -10.625F);
+		christmas_light_yellow.addChild(c_light_2_r1);
+		setRotationAngle(c_light_2_r1, -1.9199F, 0, 0);
+		c_light_2_r1.texOffs(73, 385).addBox(-12, 0.3249F, 0.9175F, 0, 0, 0, 0.2F, false);
+
+		christmas_light_green = new ModelMapper(modelDataWrapper);
+		christmas_light_green.setPos(0, 24, 0);
+
+
+		c_light_11_r1 = new ModelMapper(modelDataWrapper);
+		c_light_11_r1.setPos(0, -33.5402F, 10.625F);
+		christmas_light_green.addChild(c_light_11_r1);
+		setRotationAngle(c_light_11_r1, 1.9199F, 0, 0);
+		c_light_11_r1.texOffs(61, 391).addBox(-12, 0.3249F, -0.9175F, 0, 0, 0, 0.2F, false);
+
+		c_light_7_r1 = new ModelMapper(modelDataWrapper);
+		c_light_7_r1.setPos(0, -32, 0);
+		christmas_light_green.addChild(c_light_7_r1);
+		setRotationAngle(c_light_7_r1, -1.5708F, 0, 0);
+		c_light_7_r1.texOffs(61, 391).addBox(-12, -1.25F, 0.4F, 0, 0, 0, 0.2F, false);
+
+		c_light_3_r1 = new ModelMapper(modelDataWrapper);
+		c_light_3_r1.setPos(0, -31.8F, -5.2F);
+		christmas_light_green.addChild(c_light_3_r1);
+		setRotationAngle(c_light_3_r1, -1.7453F, 0, 0);
+		c_light_3_r1.texOffs(61, 391).addBox(-12, 3.55F, 0.2F, 0, 0, 0, 0.2F, false);
+
+		christmas_light_blue = new ModelMapper(modelDataWrapper);
+		christmas_light_blue.setPos(0, 24, 0);
+
+
+		c_light_12_r1 = new ModelMapper(modelDataWrapper);
+		c_light_12_r1.setPos(0, -33.5402F, 10.625F);
+		christmas_light_blue.addChild(c_light_12_r1);
+		setRotationAngle(c_light_12_r1, 1.9199F, 0, 0);
+		c_light_12_r1.texOffs(73, 391).addBox(-12, 2.8249F, -0.9175F, 0, 0, 0, 0.2F, false);
+
+		c_light_8_r1 = new ModelMapper(modelDataWrapper);
+		c_light_8_r1.setPos(0, -32, 0);
+		christmas_light_blue.addChild(c_light_8_r1);
+		setRotationAngle(c_light_8_r1, -1.5708F, 0, 0);
+		c_light_8_r1.texOffs(73, 391).addBox(-12, -3.75F, 0.4F, 0, 0, 0, 0.2F, false);
+
+		c_light_4_r1 = new ModelMapper(modelDataWrapper);
+		c_light_4_r1.setPos(0, -31.8F, -5.2F);
+		christmas_light_blue.addChild(c_light_4_r1);
+		setRotationAngle(c_light_4_r1, -1.7453F, 0, 0);
+		c_light_4_r1.texOffs(73, 391).addBox(-12, 1.05F, 0.2F, 0, 0, 0, 0.2F, false);
+
+		christmas_light_tree_red = new ModelMapper(modelDataWrapper);
+		christmas_light_tree_red.setPos(0, 24, 0);
+		christmas_light_tree_red.texOffs(70, 385).addBox(1, -21.2888F, -2.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_red.texOffs(70, 385).addBox(0, -17.2888F, -4.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_red.texOffs(70, 385).addBox(-1, -13.2888F, -6.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_red.texOffs(70, 385).addBox(-5, -8.0388F, -8.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_red.texOffs(70, 385).addBox(-3, -6.0388F, -8.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_red.texOffs(70, 385).addBox(6, -7.2888F, -8.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_red.texOffs(70, 385).addBox(-0.2F, -0.2F, 0.2F, 0, 0, 0, 0.2F, false);
+
+		ct_light_13_r1 = new ModelMapper(modelDataWrapper);
+		ct_light_13_r1.setPos(0, 0, 0);
+		christmas_light_tree_red.addChild(ct_light_13_r1);
+		setRotationAngle(ct_light_13_r1, 0, -1.5708F, 0);
+		ct_light_13_r1.texOffs(70, 385).addBox(6, -7.2888F, -8.177F, 0, 0, 0, 0.2F, false);
+		ct_light_13_r1.texOffs(70, 385).addBox(-3, -6.0388F, -8.177F, 0, 0, 0, 0.2F, false);
+		ct_light_13_r1.texOffs(70, 385).addBox(-5, -8.0388F, -8.177F, 0, 0, 0, 0.2F, false);
+		ct_light_13_r1.texOffs(70, 385).addBox(-1, -13.2888F, -6.177F, 0, 0, 0, 0.2F, false);
+		ct_light_13_r1.texOffs(70, 385).addBox(0, -17.2888F, -4.177F, 0, 0, 0, 0.2F, false);
+		ct_light_13_r1.texOffs(70, 385).addBox(1, -21.2888F, -2.177F, 0, 0, 0, 0.2F, false);
+		ct_light_13_r1.texOffs(70, 385).addBox(-0.2F, -0.2F, 0.2F, 0, 0, 0, 0.2F, false);
+
+		christmas_light_tree_yellow = new ModelMapper(modelDataWrapper);
+		christmas_light_tree_yellow.setPos(0, 24, 0);
+		christmas_light_tree_yellow.texOffs(82, 385).addBox(-1, -18.2888F, -2.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_yellow.texOffs(82, 385).addBox(2, -15.2888F, -4.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_yellow.texOffs(82, 385).addBox(1, -11.2888F, -6.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_yellow.texOffs(82, 385).addBox(-3, -12.2888F, -6.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_yellow.texOffs(82, 385).addBox(-2, -9.5388F, -8.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_yellow.texOffs(82, 385).addBox(-6, -7.0388F, -8.177F, 0, 0, 0, 0.2F, false);
 
 		ct_light_20_r1 = new ModelMapper(modelDataWrapper);
 		ct_light_20_r1.setPos(0, 0, 0);
-		christmas_light_yellow.addChild(ct_light_20_r1);
+		christmas_light_tree_yellow.addChild(ct_light_20_r1);
 		setRotationAngle(ct_light_20_r1, 0, -1.5708F, 0);
 		ct_light_20_r1.texOffs(82, 385).addBox(-6, -7.0388F, -8.177F, 0, 0, 0, 0.2F, false);
 		ct_light_20_r1.texOffs(82, 385).addBox(-2, -9.5388F, -8.177F, 0, 0, 0, 0.2F, false);
@@ -1363,35 +1443,17 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 		ct_light_20_r1.texOffs(82, 385).addBox(2, -15.2888F, -4.177F, 0, 0, 0, 0.2F, false);
 		ct_light_20_r1.texOffs(82, 385).addBox(-1, -18.2888F, -2.177F, 0, 0, 0, 0.2F, false);
 
-		c_light_10_r1 = new ModelMapper(modelDataWrapper);
-		c_light_10_r1.setPos(0, -0.5638F, -1.9552F);
-		christmas_light_yellow.addChild(c_light_10_r1);
-		setRotationAngle(c_light_10_r1, 1.9199F, 0, 0);
-		c_light_10_r1.texOffs(73, 385).addBox(-12, 23.75F, 25.5F, 0, 0, 0, 0.2F, false);
-
-		c_light_6_r1 = new ModelMapper(modelDataWrapper);
-		c_light_6_r1.setPos(0, -5.7888F, 10.073F);
-		christmas_light_yellow.addChild(c_light_6_r1);
-		setRotationAngle(c_light_6_r1, -1.5708F, 0, 0);
-		c_light_6_r1.texOffs(73, 385).addBox(-12, 9.75F, -25.5F, 0, 0, 0, 0.2F, false);
-
-		c_light_2_r1 = new ModelMapper(modelDataWrapper);
-		c_light_2_r1.setPos(0, -0.5638F, 1.9552F);
-		christmas_light_yellow.addChild(c_light_2_r1);
-		setRotationAngle(c_light_2_r1, -1.9199F, 0, 0);
-		c_light_2_r1.texOffs(73, 385).addBox(-12, 23.75F, -25.5F, 0, 0, 0, 0.2F, false);
-
-		christmas_light_green = new ModelMapper(modelDataWrapper);
-		christmas_light_green.setPos(0, 24, 0);
-		christmas_light_green.texOffs(70, 391).addBox(1.75F, -19.2888F, -2.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_green.texOffs(70, 391).addBox(-5, -10.2888F, -6.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_green.texOffs(70, 391).addBox(0, -7.0388F, -8.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_green.texOffs(70, 391).addBox(7.5F, -9.0388F, -8.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_green.texOffs(70, 391).addBox(4, -14.2888F, -4.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_green = new ModelMapper(modelDataWrapper);
+		christmas_light_tree_green.setPos(0, 24, 0);
+		christmas_light_tree_green.texOffs(70, 391).addBox(1.75F, -19.2888F, -2.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_green.texOffs(70, 391).addBox(-5, -10.2888F, -6.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_green.texOffs(70, 391).addBox(0, -7.0388F, -8.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_green.texOffs(70, 391).addBox(7.5F, -9.0388F, -8.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_green.texOffs(70, 391).addBox(4, -14.2888F, -4.177F, 0, 0, 0, 0.2F, false);
 
 		ct_light_36_r1 = new ModelMapper(modelDataWrapper);
 		ct_light_36_r1.setPos(0, 0, 0);
-		christmas_light_green.addChild(ct_light_36_r1);
+		christmas_light_tree_green.addChild(ct_light_36_r1);
 		setRotationAngle(ct_light_36_r1, 0, -1.5708F, 0);
 		ct_light_36_r1.texOffs(70, 391).addBox(4, -14.2888F, -4.177F, 0, 0, 0, 0.2F, false);
 		ct_light_36_r1.texOffs(70, 391).addBox(7.5F, -9.0388F, -8.177F, 0, 0, 0, 0.2F, false);
@@ -1399,36 +1461,18 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 		ct_light_36_r1.texOffs(70, 391).addBox(-5, -10.2888F, -6.177F, 0, 0, 0, 0.2F, false);
 		ct_light_36_r1.texOffs(70, 391).addBox(1.75F, -19.2888F, -2.177F, 0, 0, 0, 0.2F, false);
 
-		c_light_11_r1 = new ModelMapper(modelDataWrapper);
-		c_light_11_r1.setPos(0, -0.5638F, -1.9552F);
-		christmas_light_green.addChild(c_light_11_r1);
-		setRotationAngle(c_light_11_r1, 1.9199F, 0, 0);
-		c_light_11_r1.texOffs(61, 391).addBox(-12, 26.75F, 25.5F, 0, 0, 0, 0.2F, false);
-
-		c_light_7_r1 = new ModelMapper(modelDataWrapper);
-		c_light_7_r1.setPos(0, -5.7888F, 10.073F);
-		christmas_light_green.addChild(c_light_7_r1);
-		setRotationAngle(c_light_7_r1, -1.5708F, 0, 0);
-		c_light_7_r1.texOffs(61, 391).addBox(-12, 6.75F, -25.5F, 0, 0, 0, 0.2F, false);
-
-		c_light_3_r1 = new ModelMapper(modelDataWrapper);
-		c_light_3_r1.setPos(0, -3.479F, 5.724F);
-		christmas_light_green.addChild(c_light_3_r1);
-		setRotationAngle(c_light_3_r1, -1.7453F, 0, 0);
-		c_light_3_r1.texOffs(61, 391).addBox(-12, 19, -25.5F, 0, 0, 0, 0.2F, false);
-
-		christmas_light_blue = new ModelMapper(modelDataWrapper);
-		christmas_light_blue.setPos(0, 24, 0);
-		christmas_light_blue.texOffs(82, 391).addBox(4, -12.2888F, -6.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_blue.texOffs(82, 391).addBox(3, -8.5388F, -8.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_blue.texOffs(82, 391).addBox(-7, -9.0388F, -8.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_blue.texOffs(82, 391).addBox(-2, -11.0388F, -6.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_blue.texOffs(82, 391).addBox(-3, -15.2888F, -4.177F, 0, 0, 0, 0.2F, false);
-		christmas_light_blue.texOffs(82, 391).addBox(-1, -21.7888F, -2.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_blue = new ModelMapper(modelDataWrapper);
+		christmas_light_tree_blue.setPos(0, 24, 0);
+		christmas_light_tree_blue.texOffs(82, 391).addBox(4, -12.2888F, -6.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_blue.texOffs(82, 391).addBox(3, -8.5388F, -8.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_blue.texOffs(82, 391).addBox(-7, -9.0388F, -8.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_blue.texOffs(82, 391).addBox(-2, -11.0388F, -6.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_blue.texOffs(82, 391).addBox(-3, -15.2888F, -4.177F, 0, 0, 0, 0.2F, false);
+		christmas_light_tree_blue.texOffs(82, 391).addBox(-1, -21.7888F, -2.177F, 0, 0, 0, 0.2F, false);
 
 		ct_light_48_r1 = new ModelMapper(modelDataWrapper);
 		ct_light_48_r1.setPos(0, 0, 0);
-		christmas_light_blue.addChild(ct_light_48_r1);
+		christmas_light_tree_blue.addChild(ct_light_48_r1);
 		setRotationAngle(ct_light_48_r1, 0, -1.5708F, 0);
 		ct_light_48_r1.texOffs(82, 391).addBox(4, -12.2888F, -6.177F, 0, 0, 0, 0.2F, false);
 		ct_light_48_r1.texOffs(82, 391).addBox(-1, -21.7888F, -2.177F, 0, 0, 0, 0.2F, false);
@@ -1436,18 +1480,6 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 		ct_light_48_r1.texOffs(82, 391).addBox(-2, -11.0388F, -6.177F, 0, 0, 0, 0.2F, false);
 		ct_light_48_r1.texOffs(82, 391).addBox(-7, -9.0388F, -8.177F, 0, 0, 0, 0.2F, false);
 		ct_light_48_r1.texOffs(82, 391).addBox(3, -8.5388F, -8.177F, 0, 0, 0, 0.2F, false);
-
-		c_light_8_r1 = new ModelMapper(modelDataWrapper);
-		c_light_8_r1.setPos(0, -3.479F, -5.724F);
-		christmas_light_blue.addChild(c_light_8_r1);
-		setRotationAngle(c_light_8_r1, 1.7453F, 0, 0);
-		c_light_8_r1.texOffs(73, 391).addBox(-12, 16, 25.5F, 0, 0, 0, 0.2F, false);
-
-		c_light_4_r1 = new ModelMapper(modelDataWrapper);
-		c_light_4_r1.setPos(0, -3.479F, 5.724F);
-		christmas_light_blue.addChild(c_light_4_r1);
-		setRotationAngle(c_light_4_r1, -1.7453F, 0, 0);
-		c_light_4_r1.texOffs(73, 391).addBox(-12, 16, -25.5F, 0, 0, 0, 0.2F, false);
 
 		modelDataWrapper.setModelPart(textureWidth, textureHeight);
 		window_1.setModelPart();
@@ -1484,12 +1516,17 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 		door_light_on.setModelPart();
 		door_light_off.setModelPart();
 		christmas_tree.setModelPart();
-		christmas_mirror.setModelPart();
-		christmas_light.setModelPart();
+		christmas_antler.setModelPart();
+		christmas_light_head.setModelPart();
+		christmas_light_holder.setModelPart();
 		christmas_light_red.setModelPart();
 		christmas_light_yellow.setModelPart();
 		christmas_light_green.setModelPart();
 		christmas_light_blue.setModelPart();
+		christmas_light_tree_red.setModelPart();
+		christmas_light_tree_yellow.setModelPart();
+		christmas_light_tree_green.setModelPart();
+		christmas_light_tree_blue.setModelPart();
 	}
 
 	private static final int DOOR_MAX = 14;
@@ -1578,6 +1615,9 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 					renderMirror(seats, matrices, vertices, light, position + (isEvenWindow ? -0.75F : 0.75F));
 					renderMirror(side_panel, matrices, vertices, light, position - (isEvenWindow ? 15.75F : 14.25F));
 					renderMirror(side_panel, matrices, vertices, light, position + (isEvenWindow ? 14.25F : 15.75F));
+					if (isChristmas) {
+						renderMirror(christmas_light_holder, matrices, vertices, light, position);
+					}
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
@@ -1594,6 +1634,10 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 				}
 				renderMirror(roof_exterior, matrices, vertices, light, position);
 				break;
+		}
+
+		if (renderDetails && isChristmas) {
+			renderChristmasLights(matrices, vertices, renderStage, christmas_light_red, christmas_light_yellow, christmas_light_green, christmas_light_blue, light, position);
 		}
 	}
 
@@ -1620,6 +1664,9 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 				if (renderDetails) {
 					renderOnce(door_handrails, matrices, vertices, light, position);
 					renderMirror(roof_door, matrices, vertices, light, position);
+					if (isChristmas) {
+						renderMirror(christmas_light_holder, matrices, vertices, light, position);
+					}
 				}
 				break;
 			case EXTERIOR:
@@ -1639,6 +1686,10 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 				}
 				break;
 		}
+
+		if (renderDetails && isChristmas) {
+			renderChristmasLights(matrices, vertices, renderStage, christmas_light_red, christmas_light_yellow, christmas_light_green, christmas_light_blue, light, position);
+		}
 	}
 
 	@Override
@@ -1650,8 +1701,7 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 			case ALWAYS_ON_LIGHTS:
 				renderOnceFlipped(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
 				if (renderDetails && isChristmas) {
-					renderOnceFlipped(christmas_light, matrices, vertices, light, position);
-					renderChristmasLights(matrices, vertices, renderStage, light, position);
+					renderOnceFlipped(christmas_light_head, matrices, vertices, light, position);
 				}
 				break;
 			case INTERIOR:
@@ -1659,9 +1709,9 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 				if (renderDetails) {
 					renderOnce(roof_end, matrices, vertices, light, position);
 					if (isChristmas) {
+						renderMirror(christmas_light_holder, matrices, vertices, light, position);
 						renderOnce(christmas_tree, matrices, vertices, light, position);
-						renderMirror(christmas_mirror, matrices, vertices, light, position);
-						renderChristmasLights(matrices, vertices, renderStage, light, position);
+						renderMirror(christmas_antler, matrices, vertices, light, position - 30);
 					}
 				}
 				break;
@@ -1674,6 +1724,11 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 				renderOnceFlipped(roof_end_vents, matrices, vertices, light, position + 2);
 				break;
 		}
+
+		if (renderDetails && isChristmas) {
+			renderChristmasLights(matrices, vertices, renderStage, christmas_light_red, christmas_light_yellow, christmas_light_green, christmas_light_blue, light, position);
+			renderChristmasLights(matrices, vertices, renderStage, christmas_light_tree_red, christmas_light_tree_yellow, christmas_light_tree_green, christmas_light_tree_blue, light, position);
+		}
 	}
 
 	@Override
@@ -1685,8 +1740,7 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 			case ALWAYS_ON_LIGHTS:
 				renderOnce(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
 				if (renderDetails && isChristmas) {
-					renderOnce(christmas_light, matrices, vertices, light, position);
-					renderChristmasLights(matrices, vertices, renderStage, light, position);
+					renderOnce(christmas_light_head, matrices, vertices, light, position);
 				}
 				break;
 			case INTERIOR:
@@ -1694,9 +1748,9 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 				if (renderDetails) {
 					renderOnceFlipped(roof_end, matrices, vertices, light, position);
 					if (isChristmas) {
-						renderOnceFlipped(christmas_tree, matrices, vertices, light, position);
-						renderMirror(christmas_mirror, matrices, vertices, light, position);
-						renderChristmasLights(matrices, vertices, renderStage, light, position);
+						renderMirror(christmas_light_holder, matrices, vertices, light, position);
+						renderOnce(christmas_tree, matrices, vertices, light, position);
+						renderMirror(christmas_antler, matrices, vertices, light, position + 30);
 					}
 				}
 				break;
@@ -1708,6 +1762,11 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 				renderMirror(roof_exterior, matrices, vertices, light, position);
 				renderOnce(roof_end_vents, matrices, vertices, light, position - 2);
 				break;
+		}
+
+		if (renderDetails && isChristmas) {
+			renderChristmasLights(matrices, vertices, renderStage, christmas_light_red, christmas_light_yellow, christmas_light_green, christmas_light_blue, light, position);
+			renderChristmasLights(matrices, vertices, renderStage, christmas_light_tree_red, christmas_light_tree_yellow, christmas_light_tree_green, christmas_light_tree_blue, light, position);
 		}
 	}
 
@@ -1721,6 +1780,9 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 				renderOnce(end, matrices, vertices, light, position);
 				if (renderDetails) {
 					renderOnce(roof_end, matrices, vertices, light, position);
+					if (isChristmas) {
+						renderMirror(christmas_light_holder, matrices, vertices, light, position);
+					}
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
@@ -1732,6 +1794,10 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 				renderOnce(roof_end_exterior, matrices, vertices, light, position);
 				renderOnceFlipped(roof_end_vents, matrices, vertices, light, position);
 				break;
+		}
+
+		if (renderDetails && isChristmas) {
+			renderChristmasLights(matrices, vertices, renderStage, christmas_light_red, christmas_light_yellow, christmas_light_green, christmas_light_blue, light, position);
 		}
 	}
 
@@ -1745,6 +1811,9 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 				renderOnceFlipped(end, matrices, vertices, light, position);
 				if (renderDetails) {
 					renderOnceFlipped(roof_end, matrices, vertices, light, position);
+					if (isChristmas) {
+						renderMirror(christmas_light_holder, matrices, vertices, light, position);
+					}
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
@@ -1756,6 +1825,10 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 				renderOnceFlipped(roof_end_exterior, matrices, vertices, light, position);
 				renderOnce(roof_end_vents, matrices, vertices, light, position);
 				break;
+		}
+
+		if (renderDetails && isChristmas) {
+			renderChristmasLights(matrices, vertices, renderStage, christmas_light_red, christmas_light_yellow, christmas_light_green, christmas_light_blue, light, position);
 		}
 	}
 
@@ -1808,20 +1881,20 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 		return "East Rail";
 	}
 
-	private void renderChristmasLights(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position) {
+	private static void renderChristmasLights(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, ModelMapper lightRed, ModelMapper lightYellow, ModelMapper lightGreen, ModelMapper lightBlue, int light, int position) {
 		if (renderStage == RenderStage.INTERIOR || renderStage == RenderStage.ALWAYS_ON_LIGHTS) {
 			final boolean[] lights = CHRISTMAS_LIGHT_STAGES[(int) ((System.currentTimeMillis() / 500) % CHRISTMAS_LIGHT_STAGES.length)];
 			if (renderStage == RenderStage.ALWAYS_ON_LIGHTS == lights[0]) {
-				renderMirror(christmas_light_red, matrices, vertices, light / 2, position);
+				renderMirror(lightRed, matrices, vertices, light / 2, position);
 			}
 			if (renderStage == RenderStage.ALWAYS_ON_LIGHTS == lights[1]) {
-				renderMirror(christmas_light_yellow, matrices, vertices, light / 2, position);
+				renderMirror(lightYellow, matrices, vertices, light / 2, position);
 			}
 			if (renderStage == RenderStage.ALWAYS_ON_LIGHTS == lights[2]) {
-				renderMirror(christmas_light_green, matrices, vertices, light / 2, position);
+				renderMirror(lightGreen, matrices, vertices, light / 2, position);
 			}
 			if (renderStage == RenderStage.ALWAYS_ON_LIGHTS == lights[3]) {
-				renderMirror(christmas_light_blue, matrices, vertices, light / 2, position);
+				renderMirror(lightBlue, matrices, vertices, light / 2, position);
 			}
 		}
 	}

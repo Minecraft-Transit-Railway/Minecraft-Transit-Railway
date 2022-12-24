@@ -109,6 +109,12 @@ public class ClientCache extends DataCache implements IGui {
 		});
 	}
 
+	public void resetFonts() {
+		font = null;
+		fontCjk = null;
+		refreshDynamicResources();
+	}
+
 	public void refreshDynamicResources() {
 		System.out.println("Refreshing dynamic resources");
 		resourcesToRefresh.addAll(dynamicResources.keySet());

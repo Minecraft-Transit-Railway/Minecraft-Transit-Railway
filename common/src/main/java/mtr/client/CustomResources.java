@@ -33,6 +33,7 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 	public static void reload(ResourceManager manager) {
 		TrainClientRegistry.reset();
 		RenderTrains.clearTextureAvailability();
+		ClientData.DATA_CACHE.resetFonts();
 		CUSTOM_SIGNS.clear();
 		final List<String> customTrains = new ArrayList<>();
 

@@ -275,23 +275,30 @@ static String getModrinthVersion(String loader, String minecraftVersion, String 
 }
 
 static Object getJson(String url) {
+	int tries = 0
 	while (true) {
 		try {
+			if (tries > 1) {
+				System.out.println("Parsed ${url} after ${tries} tries")
+			}
 			return new JsonSlurper().parse(url.toURL())
-		} catch (Exception e) {
-			e.printStackTrace()
+		} catch (Exception ignored) {
 			Thread.sleep(1000)
 		}
 	}
 }
 
 static Object getXml(String url) {
+	int tries = 0
 	while (true) {
 		try {
+			if (tries > 1) {
+				System.out.println("Parsed ${url} after ${tries} tries")
+			}
 			return new XmlSlurper().parse(url)
-		} catch (Exception e) {
-			e.printStackTrace()
+		} catch (Exception ignored) {
 			Thread.sleep(1000)
+			tries++
 		}
 	}
 }
