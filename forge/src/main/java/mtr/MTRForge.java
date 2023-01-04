@@ -11,6 +11,7 @@ import mtr.render.RenderDrivingOverlay;
 import mtr.render.RenderLift;
 import mtr.render.RenderTrains;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -123,7 +124,7 @@ public class MTRForge {
 		public static void onClientSetupEvent(FMLClientSetupEvent event) {
 			MTRClient.init();
 			ForgeUtilities.registerTextureStitchEvent(textureAtlas -> {
-				if (textureAtlas.location().getPath().equals("textures/atlas/blocks.png")) {
+				if (((TextureAtlas) textureAtlas).location().getPath().equals("textures/atlas/blocks.png")) {
 					CustomResources.reload(Minecraft.getInstance().getResourceManager());
 				}
 			});
