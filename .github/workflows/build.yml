@@ -62,6 +62,29 @@ jobs:
           remote_folder: ${{ secrets.FTP_PATH }}
           local_folder: build/latest
           include: '["latest.json"]'
+  server:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        minecraft: [ 1.16.5, 1.17.1, 1.18.2, 1.19.2, 1.19.3 ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@main
+      - name: Validate gradle wrapper
+        uses: gradle/wrapper-validation-action@master
+      - name: Setup JDK 17
+        uses: actions/setup-java@main
+        with:
+          java-version: 17
+          distribution: 'zulu'
+      - name: Make gradle wrapper executable
+        run: chmod +x ./gradlew
+      - name: Build ${{ matrix.minecraft }}
+        run: ./gradlew build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}" -PtestServer="true" --continue
+      - name: Test ${{ matrix.minecraft }} Server
+        run: ./gradlew testServer -PbuildVersion="${{ matrix.minecraft }}" --continue
   crowdin:
     runs-on: ubuntu-latest
     steps:

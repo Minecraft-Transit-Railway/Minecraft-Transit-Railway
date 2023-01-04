@@ -445,7 +445,12 @@ public class MTR implements IPacket {
 					railwayData.simulateTrains();
 				}
 			});
+
 			gameTick++;
+
+			if (Keys.TEST_SERVER && gameTick > 200) {
+				throw new RuntimeException("Terminating test server");
+			}
 		});
 		Registry.registerPlayerJoinEvent(player -> {
 			PacketTrainDataGuiServer.versionCheckS2C(player);

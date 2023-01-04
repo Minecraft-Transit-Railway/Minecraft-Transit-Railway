@@ -92,6 +92,7 @@ task moveForgeBuilds() {
 task testServer {
 	doLast {
 		if (rootProject.variation == "normal") {
+			new File("server", "eula.txt").text = "eula=true"
 			copy {
 				from "../build/latest"
 				into "server/mods"
@@ -125,6 +126,7 @@ task testServer {
 			} else {
 				javaexec {
 					mainClass = "@libraries/net/minecraftforge/forge/${rootProject.forge_version}/${Os.isFamily(Os.FAMILY_WINDOWS) ? "win" : "unix"}_args.txt"
+					args = "nogui"
 					workingDir = "server"
 				}
 			}

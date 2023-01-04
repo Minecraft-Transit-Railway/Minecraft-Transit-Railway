@@ -83,6 +83,7 @@ task moveFabricBuilds() {
 task testServer {
 	doLast {
 		if (rootProject.variation == "normal") {
+			new File("server", "eula.txt").text = "eula=true"
 			copy {
 				from "../build/latest"
 				into "server/mods"
@@ -103,7 +104,7 @@ task testServer {
 			}
 			javaexec {
 				mainClass = "-jar"
-				args = ["fabric-server.jar"]
+				args = ["fabric-server.jar", "nogui"]
 				workingDir = "server"
 			}
 		}
