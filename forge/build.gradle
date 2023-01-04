@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 loom {
 	forge {
 		mixinConfig "mtr.mixins.json"
@@ -19,7 +21,7 @@ configurations {
 
 dependencies {
 	forge "net.minecraftforge:forge:${rootProject.forge_version}"
-	modApi "${rootProject.architectury_id}:architectury-forge:${rootProject.architectury_version}"
+	modApi "${rootProject.architectury_id}:architectury-forge:${rootProject.architectury_data[0].split("\\+")[0]}"
 
 	common(project(path: ":common", configuration: "namedElements")) { transitive false }
 	shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
@@ -82,6 +84,49 @@ task moveForgeBuilds() {
 				include "*${rootProject.mod_version}-dev-shadow.jar"
 				into "../build/libs"
 				rename "(.+)", "MTR-\$1"
+			}
+		}
+	}
+}
+
+task testServer {
+	doLast {
+		if (rootProject.variation == "normal") {
+			copy {
+				from "../build/latest"
+				into "server/mods"
+				include "MTR-forge-*-latest.jar"
+				rename "(.+)", "MTR.jar"
+			}
+			download {
+				src rootProject.architectury_data[1]
+				dest "forge/server/mods/architectury.jar"
+				overwrite true
+				retries - 1
+			}
+			download {
+				src "https://maven.minecraftforge.net/net/minecraftforge/forge/${rootProject.forge_version}/forge-${rootProject.forge_version}-installer.jar"
+				dest "forge/server/forge-installer.jar"
+				overwrite true
+				retries - 1
+			}
+			javaexec {
+				mainClass = "-jar"
+				args = ["forge-installer.jar", "--installServer"]
+				workingDir = "server"
+			}
+
+			if (new File("server/forge-${rootProject.forge_version}.jar").exists()) {
+				javaexec {
+					mainClass = "-jar"
+					args = ["forge-${rootProject.forge_version}.jar", "nogui"]
+					workingDir = "server"
+				}
+			} else {
+				javaexec {
+					mainClass = "@libraries/net/minecraftforge/forge/${rootProject.forge_version}/${Os.isFamily(Os.FAMILY_WINDOWS) ? "win" : "unix"}_args.txt"
+					workingDir = "server"
+				}
 			}
 		}
 	}
