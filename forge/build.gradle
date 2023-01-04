@@ -92,7 +92,10 @@ task moveForgeBuilds() {
 task testServer {
 	doLast {
 		if (rootProject.variation == "normal") {
-			new File("server", "eula.txt").text = "eula=true"
+			copy {
+				from "../resources/eula.txt"
+				into "server"
+			}
 			copy {
 				from "../build/latest"
 				into "server/mods"
