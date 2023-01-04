@@ -84,6 +84,10 @@ jobs:
       - name: Build ${{ matrix.minecraft }}
         run: ./gradlew build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}" -PtestServer="true" --continue
       - name: Test ${{ matrix.minecraft }} Server
+        if: ${{ matrix.minecraft == '1.16.5' }}
+        run: ./gradlew fabric:testServer -PbuildVersion="${{ matrix.minecraft }}" --continue
+      - name: Test ${{ matrix.minecraft }} Server
+        if: ${{ matrix.minecraft != '1.16.5' }}
         run: ./gradlew testServer -PbuildVersion="${{ matrix.minecraft }}" --continue
   crowdin:
     runs-on: ubuntu-latest

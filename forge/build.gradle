@@ -119,19 +119,10 @@ task testServer {
 				args = ["forge-installer.jar", "--installServer"]
 				workingDir = "server"
 			}
-
-			if (new File("server/forge-${rootProject.forge_version}.jar").exists()) {
-				javaexec {
-					mainClass = "-jar"
-					args = ["forge-${rootProject.forge_version}.jar", "nogui"]
-					workingDir = "server"
-				}
-			} else {
-				javaexec {
-					mainClass = "@libraries/net/minecraftforge/forge/${rootProject.forge_version}/${Os.isFamily(Os.FAMILY_WINDOWS) ? "win" : "unix"}_args.txt"
-					args = "nogui"
-					workingDir = "server"
-				}
+			javaexec {
+				mainClass = "@libraries/net/minecraftforge/forge/${rootProject.forge_version}/${Os.isFamily(Os.FAMILY_WINDOWS) ? "win" : "unix"}_args.txt"
+				args = ["nogui"]
+				workingDir = "server"
 			}
 		}
 	}
