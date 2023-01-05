@@ -115,6 +115,7 @@ task testServer {
 			javaexec {
 				mainClass = "-jar"
 				args = ["fabric-server.jar", "nogui"]
+				jvmArgs = ["-Xms4G", "-Xmx4G"]
 				workingDir = "server"
 			}
 		}

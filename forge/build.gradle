@@ -129,6 +129,7 @@ task testServer {
 				javaexec {
 					mainClass = "@libraries/net/minecraftforge/forge/${rootProject.forge_version}/${Os.isFamily(Os.FAMILY_WINDOWS) ? "win" : "unix"}_args.txt"
 					args = ["nogui"]
+					jvmArgs = ["-Xms4G", "-Xmx4G"]
 					workingDir = "server"
 				}
 			}
