@@ -12,10 +12,11 @@ plugins {
 def default_minecraft_version = "1.16.5"
 def minecraft_version = rootProject.properties.containsKey("buildVersion") ? rootProject.getProperties().get("buildVersion").toString() : default_minecraft_version
 def minecraft_main_version = minecraft_version.split("\\.")[1] as int
-def minecraft_mod_api_tools_version = getJson("https://api.github.com/repos/jonafanho/Minecraft-Mod-API-Tools/git/refs/heads/master")["object"]["sha"]
+def minecraft_mod_api_tools_version = "b33012bd4098a807dca91dc469f2b0018df6ff96" // TODO getJson("https://api.github.com/repos/jonafanho/Minecraft-Mod-API-Tools/git/refs/heads/master")["object"]["sha"]
 def patreon_api_key = rootProject.properties.containsKey("patreonApiKey") ? rootProject.getProperties().get("patreonApiKey").toString() : ""
 def is_1_19_3 = minecraft_version == "1.19.3"
 def parchment_version = getXml("https://ldtteam.jfrog.io/artifactory/parchmentmc-internal/org/parchmentmc/data/parchment-${minecraft_version}/maven-metadata.xml").versioning.release
+def testServer = rootProject.properties.containsKey("testServer") ? rootProject.getProperties().get("testServer").toString() : ""
 
 rootProject.ext.fabric_loader_version = [minecraft_version, getJson("https://meta.fabricmc.net/v2/versions/loader/" + minecraft_version)[0]["loader"]["version"]]
 rootProject.ext.forge_version = minecraft_version + "-" + getJson("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json")["promos"][minecraft_version + "-latest"]
@@ -177,7 +178,7 @@ task setupFiles() {
 		outputs.upToDateWhen { false }
 		from "common/src/main/KeysTemplate.java"
 		into "common/src/main/java/mtr"
-		filter(ReplaceTokens, tokens: ["key": patreon_api_key, "version": minecraft_version + "-" + rootProject.mod_version, "lifts": rootProject.variation])
+		filter(ReplaceTokens, tokens: ["key": patreon_api_key, "version": minecraft_version + "-" + rootProject.mod_version, "lifts": rootProject.variation, "server": testServer])
 		rename "(.+)Template.java", "\$1.java"
 	}
 	copy {

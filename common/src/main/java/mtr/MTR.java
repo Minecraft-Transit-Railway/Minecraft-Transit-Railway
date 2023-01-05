@@ -445,7 +445,13 @@ public class MTR implements IPacket {
 					railwayData.simulateTrains();
 				}
 			});
+
 			gameTick++;
+
+			if (Keys.TEST_SERVER && gameTick > 200) {
+				System.out.printf("Terminating test server for %s%n", Registry.isFabric() ? "Fabric" : "Forge");
+				Runtime.getRuntime().halt(0);
+			}
 		});
 		Registry.registerPlayerJoinEvent(player -> {
 			PacketTrainDataGuiServer.versionCheckS2C(player);

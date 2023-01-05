@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 architectury {
 	platformSetupLoomIde()
 	fabric()
@@ -84,6 +86,15 @@ task testServer {
 	doLast {
 		if (rootProject.variation == "normal") {
 			copy {
+				from "../resources/eula.txt"
+				into "server"
+			}
+			copy {
+				from "../resources/server.properties"
+				into "server"
+				filter(ReplaceTokens, tokens: ["port": String.valueOf(25000 + new Random().nextInt(500))])
+			}
+			copy {
 				from "../build/latest"
 				into "server/mods"
 				include "MTR-fabric-*-latest.jar"
@@ -103,7 +114,8 @@ task testServer {
 			}
 			javaexec {
 				mainClass = "-jar"
-				args = ["fabric-server.jar"]
+				args = ["fabric-server.jar", "nogui"]
+				jvmArgs = ["-Xms4G", "-Xmx4G"]
 				workingDir = "server"
 			}
 		}
