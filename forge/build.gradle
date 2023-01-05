@@ -125,13 +125,7 @@ task testServer {
 				args = ["forge-installer.jar", "--installServer"]
 				workingDir = "server"
 			}
-			if (rootProject.forge_version.startsWith("1.16.5")) {
-				javaexec {
-					mainClass = "-jar"
-					args = ["forge-${rootProject.forge_version}.jar", "nogui"]
-					workingDir = "server"
-				}
-			} else {
+			if (!rootProject.forge_version.startsWith("1.16.5")) {
 				javaexec {
 					mainClass = "@libraries/net/minecraftforge/forge/${rootProject.forge_version}/${Os.isFamily(Os.FAMILY_WINDOWS) ? "win" : "unix"}_args.txt"
 					args = ["nogui"]

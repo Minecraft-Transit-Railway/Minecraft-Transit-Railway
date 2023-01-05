@@ -74,14 +74,7 @@ jobs:
         uses: actions/checkout@main
       - name: Validate gradle wrapper
         uses: gradle/wrapper-validation-action@master
-      - name: Setup JDK 8
-        if: ${{ matrix.minecraft == '1.16.5' }}
-        uses: actions/setup-java@main
-        with:
-          java-version: 8
-          distribution: 'zulu'
       - name: Setup JDK 17
-        if: ${{ matrix.minecraft != '1.16.5' }}
         uses: actions/setup-java@main
         with:
           java-version: 17
