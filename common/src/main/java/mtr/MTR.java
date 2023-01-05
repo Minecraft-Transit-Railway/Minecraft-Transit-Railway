@@ -449,7 +449,7 @@ public class MTR implements IPacket {
 			gameTick++;
 
 			if (Keys.TEST_SERVER && gameTick > 200) {
-				throw new RuntimeException("Terminating test server");
+				throw new RuntimeException(String.format("Terminating test server for %s", Registry.isFabric() ? "Fabric" : "Forge"));
 			}
 		});
 		Registry.registerPlayerJoinEvent(player -> {

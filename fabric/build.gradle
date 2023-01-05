@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 architectury {
 	platformSetupLoomIde()
 	fabric()
@@ -86,6 +88,11 @@ task testServer {
 			copy {
 				from "../resources/eula.txt"
 				into "server"
+			}
+			copy {
+				from "../resources/server.properties"
+				into "server"
+				filter(ReplaceTokens, tokens: ["port": String.valueOf(25000 + new Random().nextInt(500))])
 			}
 			copy {
 				from "../build/latest"

@@ -1,3 +1,4 @@
+import org.apache.tools.ant.filters.ReplaceTokens
 import org.apache.tools.ant.taskdefs.condition.Os
 
 loom {
@@ -97,6 +98,11 @@ task testServer {
 				into "server"
 			}
 			copy {
+				from "../resources/server.properties"
+				into "server"
+				filter(ReplaceTokens, tokens: ["port": String.valueOf(25500 + new Random().nextInt(500))])
+			}
+			copy {
 				from "../build/latest"
 				into "server/mods"
 				include "MTR-forge-*-latest.jar"
@@ -119,10 +125,18 @@ task testServer {
 				args = ["forge-installer.jar", "--installServer"]
 				workingDir = "server"
 			}
-			javaexec {
-				mainClass = "@libraries/net/minecraftforge/forge/${rootProject.forge_version}/${Os.isFamily(Os.FAMILY_WINDOWS) ? "win" : "unix"}_args.txt"
-				args = ["nogui"]
-				workingDir = "server"
+			if (rootProject.forge_version.startsWith("1.16.5")) {
+				javaexec {
+					mainClass = "-jar"
+					args = ["forge-${rootProject.forge_version}.jar", "nogui"]
+					workingDir = "server"
+				}
+			} else {
+				javaexec {
+					mainClass = "@libraries/net/minecraftforge/forge/${rootProject.forge_version}/${Os.isFamily(Os.FAMILY_WINDOWS) ? "win" : "unix"}_args.txt"
+					args = ["nogui"]
+					workingDir = "server"
+				}
 			}
 		}
 	}
