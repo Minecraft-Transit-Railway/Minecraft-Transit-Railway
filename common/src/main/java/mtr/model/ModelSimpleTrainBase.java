@@ -1,21 +1,13 @@
 package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mtr.client.DoorAnimationType;
 import mtr.client.IDrawing;
-import mtr.client.ScrollingText;
 import mtr.data.IGui;
-import mtr.data.Route;
-import mtr.data.Station;
-import mtr.data.TrainClient;
 import mtr.mappings.UtilitiesClient;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
-
-import java.util.List;
 
 public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 
@@ -49,7 +41,7 @@ public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderExtraDetails1(PoseStack matrices, MultiBufferSource vertexConsumers, int light, int lightOnInteriorLevel, boolean lightsOn, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
+	protected void renderExtraDetails(PoseStack matrices, MultiBufferSource vertexConsumers, int light, int lightOnInteriorLevel, boolean lightsOn, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		for (final int position : getDoorPositions()) {
 			final ModelDoorOverlay modelDoorOverlay = renderDoorOverlay ? getModelDoorOverlay() : null;
 			if (modelDoorOverlay != null) {
@@ -61,21 +53,6 @@ public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 				modelDoorOverlayTop.render(matrices, vertexConsumers, light, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ);
 			}
 		}
-	}
-
-	@Override
-	protected void renderExtraDetails2(PoseStack matrices, MultiBufferSource vertexConsumers, TrainClient train, int car, int totalCars, boolean atPlatform) {
-		final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-		final Route thisRoute = train.getThisRoute();
-		final Route nextRoute = train.getNextRoute();
-		final Station thisStation = train.getThisStation();
-		final Station nextStation = train.getNextStation();
-		final Station lastStation = train.getLastStation();
-		renderTextDisplays(matrices, vertexConsumers, Minecraft.getInstance().font, immediate, thisRoute, nextRoute, thisStation, nextStation, lastStation, thisRoute == null ? null : thisRoute.getDestination(train.getCurrentStationIndex()), car, totalCars, atPlatform, train.scrollingTexts);
-		immediate.endBatch();
-	}
-
-	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform, List<ScrollingText> scrollingTexts) {
 	}
 
 	protected void renderFrontDestination(PoseStack matrices, Font font, MultiBufferSource.BufferSource immediate, float x1, float y1, float z1, float x2, float y2, float z2, float rotationX, float rotationY, float maxWidth, float maxHeight, int colorCjk, int color, float fontSizeRatio, String text, boolean padOneLine, int car, int totalCars) {
@@ -100,14 +77,6 @@ public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 				matrices.popPose();
 			}
 		}
-	}
-
-	protected String getDestinationString(Station station, String customDestination, TextSpacingType textSpacingType, boolean toUpperCase) {
-		return getDestinationString(station, customDestination, defaultDestinationString(), textSpacingType, toUpperCase);
-	}
-
-	protected String defaultDestinationString() {
-		return "";
 	}
 
 	public abstract T createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay);

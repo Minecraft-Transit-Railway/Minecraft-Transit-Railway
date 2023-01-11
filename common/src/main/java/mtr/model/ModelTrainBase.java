@@ -1,13 +1,17 @@
 package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mtr.MTRClient;
 import mtr.client.DoorAnimationType;
+import mtr.client.ScrollingText;
 import mtr.data.*;
 import mtr.mappings.ModelMapper;
 import mtr.render.MoreRenderLayers;
 import mtr.render.RenderTrains;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -23,6 +27,8 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 
 	public final DoorAnimationType doorAnimationType;
 	public final boolean renderDoorOverlay;
+
+	private final List<ScrollingText> tempScrollingTexts = new ArrayList<>();
 
 	public ModelTrainBase(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
 		this.doorAnimationType = doorAnimationType;
@@ -61,24 +67,32 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 			render(matrices, vertexConsumers.getBuffer(renderLayerInterior), RenderStage.INTERIOR, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
 
 			if (renderDetails) {
-				renderExtraDetails1(matrices, vertexConsumers, light, lightOnInteriorLevel, lightsOn, doorLeftX, doorRightX, doorLeftZ, doorRightZ);
+				renderExtraDetails(matrices, vertexConsumers, light, lightOnInteriorLevel, lightsOn, doorLeftX, doorRightX, doorLeftZ, doorRightZ);
 			}
 
 			render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(texture)), RenderStage.EXTERIOR, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
 			render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(texture, true)), RenderStage.ALWAYS_ON_LIGHTS, MAX_LIGHT_GLOWING, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
 
-			if (renderDetails && data instanceof TrainClient) {
-				renderExtraDetails2(matrices, vertexConsumers, (TrainClient) data, currentCar, trainCars, atPlatform);
+			if (renderDetails) {
+				final TrainClient train = data instanceof TrainClient ? (TrainClient) data : null;
+				final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+				final Route thisRoute = train == null ? null : train.getThisRoute();
+				final Route nextRoute = train == null ? null : train.getNextRoute();
+				final Station thisStation = train == null ? null : train.getThisStation();
+				final Station nextStation = train == null ? null : train.getNextStation();
+				final Station lastStation = train == null ? null : train.getLastStation();
+				renderTextDisplays(matrices, vertexConsumers, Minecraft.getInstance().font, immediate, thisRoute, nextRoute, thisStation, nextStation, lastStation, thisRoute == null ? null : thisRoute.getDestination(train.getCurrentStationIndex()), currentCar, trainCars, atPlatform, train == null ? tempScrollingTexts : train.scrollingTexts);
+				immediate.endBatch();
 			}
 		}
 
 		matrices.popPose();
 	}
 
-	protected void renderExtraDetails1(PoseStack matrices, MultiBufferSource vertexConsumers, int light, int lightOnInteriorLevel, boolean lightsOn, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
+	protected void renderExtraDetails(PoseStack matrices, MultiBufferSource vertexConsumers, int light, int lightOnInteriorLevel, boolean lightsOn, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 	}
 
-	protected void renderExtraDetails2(PoseStack matrices, MultiBufferSource vertexConsumers, TrainClient trainClient, int car, int totalCars, boolean atPlatform) {
+	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform, List<ScrollingText> scrollingTexts) {
 	}
 
 	protected float getDoorDuration() {
@@ -92,46 +106,8 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 
 	protected abstract int getDoorMax();
 
-	protected static void setRotationAngle(ModelMapper bone, float x, float y, float z) {
-		bone.setRotationAngle(x, y, z);
-	}
-
-	protected static void renderMirror(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float position) {
-		renderOnce(bone, matrices, vertices, light, position);
-		renderOnceFlipped(bone, matrices, vertices, light, position);
-	}
-
-	protected static void renderOnce(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float position) {
-		bone.render(matrices, vertices, 0, position, 0, light, OverlayTexture.NO_OVERLAY);
-	}
-
-	protected static void renderOnce(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
-		bone.render(matrices, vertices, positionX, positionZ, 0, light, OverlayTexture.NO_OVERLAY);
-	}
-
-	protected static void renderOnce(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float positionX, float positionY, float positionZ) {
-		bone.render(matrices, vertices, positionX, positionY, positionZ, 0, light, OverlayTexture.NO_OVERLAY);
-	}
-
-	protected static void renderOnceFlipped(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float position) {
-		bone.render(matrices, vertices, 0, position, (float) Math.PI, light, OverlayTexture.NO_OVERLAY);
-	}
-
-	protected static void renderOnceFlipped(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
-		bone.render(matrices, vertices, -positionX, positionZ, (float) Math.PI, light, OverlayTexture.NO_OVERLAY);
-	}
-
-	protected static void renderOnceFlipped(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float positionX, float positionY, float positionZ) {
-		bone.render(matrices, vertices, -positionX, positionY, positionZ, (float) Math.PI, light, OverlayTexture.NO_OVERLAY);
-	}
-
-	protected static boolean isIndex(int index, int value, int[] array) {
-		final int finalIndex = index < 0 ? array.length + index : index;
-		return finalIndex < array.length && finalIndex >= 0 && array[finalIndex] == value;
-	}
-
-	protected static String getDestinationString(Station station, String customDestination, String defaultDestinationString, ModelSimpleTrainBase.TextSpacingType textSpacingType, boolean toUpperCase) {
-		final String text = customDestination == null ? station == null ? defaultDestinationString : station.name : customDestination;
+	protected String getDestinationString(Station station, String customDestination, ModelSimpleTrainBase.TextSpacingType textSpacingType, boolean toUpperCase) {
+		final String text = customDestination == null ? station == null ? defaultDestinationString() : station.name : customDestination;
 		final String finalResult;
 
 		if (textSpacingType == ModelSimpleTrainBase.TextSpacingType.NORMAL) {
@@ -186,6 +162,48 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		}
 
 		return toUpperCase ? finalResult.toUpperCase(Locale.ENGLISH) : finalResult;
+	}
+
+	protected String defaultDestinationString() {
+		return "";
+	}
+
+	protected static void setRotationAngle(ModelMapper bone, float x, float y, float z) {
+		bone.setRotationAngle(x, y, z);
+	}
+
+	protected static void renderMirror(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float position) {
+		renderOnce(bone, matrices, vertices, light, position);
+		renderOnceFlipped(bone, matrices, vertices, light, position);
+	}
+
+	protected static void renderOnce(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float position) {
+		bone.render(matrices, vertices, 0, position, 0, light, OverlayTexture.NO_OVERLAY);
+	}
+
+	protected static void renderOnce(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
+		bone.render(matrices, vertices, positionX, positionZ, 0, light, OverlayTexture.NO_OVERLAY);
+	}
+
+	protected static void renderOnce(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float positionX, float positionY, float positionZ) {
+		bone.render(matrices, vertices, positionX, positionY, positionZ, 0, light, OverlayTexture.NO_OVERLAY);
+	}
+
+	protected static void renderOnceFlipped(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float position) {
+		bone.render(matrices, vertices, 0, position, (float) Math.PI, light, OverlayTexture.NO_OVERLAY);
+	}
+
+	protected static void renderOnceFlipped(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
+		bone.render(matrices, vertices, -positionX, positionZ, (float) Math.PI, light, OverlayTexture.NO_OVERLAY);
+	}
+
+	protected static void renderOnceFlipped(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float positionX, float positionY, float positionZ) {
+		bone.render(matrices, vertices, -positionX, positionY, positionZ, (float) Math.PI, light, OverlayTexture.NO_OVERLAY);
+	}
+
+	protected static boolean isIndex(int index, int value, int[] array) {
+		final int finalIndex = index < 0 ? array.length + index : index;
+		return finalIndex < array.length && finalIndex >= 0 && array[finalIndex] == value;
 	}
 
 	protected static String getAlternatingString(String text) {
