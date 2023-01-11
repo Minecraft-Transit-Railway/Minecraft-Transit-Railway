@@ -2,18 +2,22 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.MTRClient;
 import mtr.client.DoorAnimationType;
-import mtr.data.IGui;
-import mtr.data.NameColorDataBase;
-import mtr.data.TrainClient;
+import mtr.data.*;
 import mtr.mappings.ModelMapper;
 import mtr.render.MoreRenderLayers;
+import mtr.render.RenderTrains;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui {
 
@@ -126,5 +130,101 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		return finalIndex < array.length && finalIndex >= 0 && array[finalIndex] == value;
 	}
 
+	protected static String getDestinationString(Station station, String customDestination, String defaultDestinationString, ModelSimpleTrainBase.TextSpacingType textSpacingType, boolean toUpperCase) {
+		final String text = customDestination == null ? station == null ? defaultDestinationString : station.name : customDestination;
+		final String finalResult;
+
+		if (textSpacingType == ModelSimpleTrainBase.TextSpacingType.NORMAL) {
+			finalResult = text;
+		} else {
+			final String[] textSplit = text.split("\\|");
+			final List<String> result = new ArrayList<>();
+			boolean hasCjk = false;
+
+			for (final String textPart : textSplit) {
+				final boolean isCjk = IGui.isCjk(textPart);
+				if (textSpacingType == ModelSimpleTrainBase.TextSpacingType.SPACE_CJK || textSpacingType == ModelSimpleTrainBase.TextSpacingType.SPACE_CJK_FLIPPED) {
+					result.add(textSpacingType == ModelSimpleTrainBase.TextSpacingType.SPACE_CJK ? result.size() : 0, isCjk && textPart.length() == 2 ? textPart.charAt(0) + " " + textPart.charAt(1) : textPart);
+				} else if (textSpacingType == ModelSimpleTrainBase.TextSpacingType.SPACE_CJK_LARGE) {
+					if (isCjk) {
+						final StringBuilder cjkResult = new StringBuilder();
+						for (int i = 0; i < textPart.length(); i++) {
+							cjkResult.append(textPart.charAt(i));
+							for (int j = 0; j < (textPart.length() == 2 ? 3 : 1); j++) {
+								cjkResult.append("   ");
+							}
+						}
+						result.add(cjkResult.toString().trim());
+					} else {
+						result.add(textPart);
+					}
+				} else if (textSpacingType == ModelSimpleTrainBase.TextSpacingType.MLR_SPACING) {
+					final StringBuilder stringBuilder;
+					if (isCjk) {
+						stringBuilder = new StringBuilder(textPart);
+						for (int i = textPart.length(); i < 3; i++) {
+							stringBuilder.append(" ");
+						}
+						hasCjk = true;
+					} else {
+						stringBuilder = new StringBuilder();
+						for (int i = textPart.length(); i < 9; i++) {
+							stringBuilder.append(" ");
+						}
+						stringBuilder.append(textPart);
+					}
+					result.add(stringBuilder.toString());
+				}
+			}
+
+			if (!hasCjk && textSpacingType == ModelSimpleTrainBase.TextSpacingType.MLR_SPACING) {
+				result.add(0, " ");
+				result.add(0, " ");
+			}
+
+			finalResult = String.join("|", result);
+		}
+
+		return toUpperCase ? finalResult.toUpperCase(Locale.ENGLISH) : finalResult;
+	}
+
+	protected static String getAlternatingString(String text) {
+		final String[] textSplit = text.split("\\|");
+		return textSplit[((int) Math.floor(MTRClient.getGameTick() / 30)) % textSplit.length];
+	}
+
+	protected static String getLondonNextStationString(Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String destinationString, boolean atPlatform) {
+		final Station station = atPlatform ? thisStation : nextStation;
+		if (station == null || thisRoute == null) {
+			return "";
+		} else {
+			final List<String> messages = new ArrayList<>();
+			final boolean isTerminating = lastStation != null && station.id == lastStation.id && nextRoute == null;
+
+			if (!isTerminating) {
+				messages.add(IGui.insertTranslation("gui.mtr.london_train_route_announcement_cjk", "gui.mtr.london_train_route_announcement", 2, IGui.textOrUntitled(thisRoute.name), IGui.textOrUntitled(destinationString)));
+			}
+
+			if (atPlatform) {
+				messages.add(IGui.insertTranslation("gui.mtr.london_train_this_station_announcement_cjk", "gui.mtr.london_train_this_station_announcement", 1, IGui.textOrUntitled(station.name)));
+			} else {
+				messages.add(IGui.insertTranslation("gui.mtr.london_train_next_station_announcement_cjk", "gui.mtr.london_train_next_station_announcement", 1, IGui.textOrUntitled(station.name)));
+			}
+
+			final String mergedInterchangeRoutes = RenderTrains.getInterchangeRouteNames(station, thisRoute, nextRoute);
+			if (!mergedInterchangeRoutes.isEmpty()) {
+				messages.add(IGui.insertTranslation("gui.mtr.london_train_interchange_announcement_cjk", "gui.mtr.london_train_interchange_announcement", 1, mergedInterchangeRoutes));
+			}
+
+			if (isTerminating) {
+				messages.add(IGui.insertTranslation("gui.mtr.london_train_terminating_announcement_cjk", "gui.mtr.london_train_terminating_announcement", 1, IGui.textOrUntitled(station.name)));
+			}
+
+			return IGui.formatStationName(IGui.mergeStations(messages, "", " "));
+		}
+	}
+
 	public enum RenderStage {LIGHTS, ALWAYS_ON_LIGHTS, INTERIOR, INTERIOR_TRANSLUCENT, EXTERIOR}
+
+	protected enum TextSpacingType {NORMAL, SPACE_CJK, SPACE_CJK_FLIPPED, SPACE_CJK_LARGE, MLR_SPACING}
 }

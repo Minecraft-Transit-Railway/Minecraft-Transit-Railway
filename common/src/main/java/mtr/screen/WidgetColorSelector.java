@@ -24,19 +24,22 @@ public class WidgetColorSelector extends ButtonMapper implements IGui {
 
 	private int color;
 	private final ScreenMapper screen;
+	private final boolean hasMargin;
 	private final Runnable callback;
 
-	public WidgetColorSelector(ScreenMapper screen, Runnable callback) {
+	public WidgetColorSelector(ScreenMapper screen, boolean hasMargin, Runnable callback) {
 		super(0, 0, 0, SQUARE_SIZE, Text.literal(""), button -> {
 		});
 		this.screen = screen;
+		this.hasMargin = hasMargin;
 		this.callback = callback;
 	}
 
 	@Override
 	public void renderButton(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		super.renderButton(matrices, mouseX, mouseY, delta);
-		Gui.fill(matrices, UtilitiesClient.getWidgetX(this) - 1, UtilitiesClient.getWidgetY(this) - 1, UtilitiesClient.getWidgetX(this) + width + 1, UtilitiesClient.getWidgetY(this) + height + 1, ARGB_BLACK | color);
+		final int margin = hasMargin ? 1 : 0;
+		Gui.fill(matrices, UtilitiesClient.getWidgetX(this) - margin, UtilitiesClient.getWidgetY(this) - margin, UtilitiesClient.getWidgetX(this) + width + margin, UtilitiesClient.getWidgetY(this) + height + margin, ARGB_BLACK | color);
 	}
 
 	@Override

@@ -180,6 +180,58 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 		updateModel();
 	}
 
+	public void editPartDisplay(int index, boolean isDisplay) {
+		getPartFromIndex(index, partObject -> {
+			if (isDisplay) {
+				partObject.add(KEY_PROPERTIES_DISPLAY, new JsonObject());
+				IResourcePackCreatorProperties.checkSchema(propertiesObject);
+			} else {
+				partObject.remove(KEY_PROPERTIES_DISPLAY);
+			}
+		});
+		updateModel();
+	}
+
+	public void editPartDisplayPadding(int index, float padding, boolean isY) {
+		getPartFromIndex(index, partObject -> {
+			if (!partObject.has(KEY_PROPERTIES_DISPLAY)) {
+				editPartDisplay(index, true);
+			}
+			partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).addProperty(isY ? KEY_PROPERTIES_DISPLAY_Y_PADDING : KEY_PROPERTIES_DISPLAY_X_PADDING, padding);
+		});
+		updateModel();
+	}
+
+	public void editPartDisplayType(int index) {
+		getPartFromIndex(index, partObject -> {
+			if (!partObject.has(KEY_PROPERTIES_DISPLAY)) {
+				editPartDisplay(index, true);
+			}
+			cycleEnumProperty(partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY), KEY_PROPERTIES_DISPLAY_TYPE, DisplayType.DESTINATION, DisplayType.values());
+		});
+		updateModel();
+	}
+
+	public void editPartDisplayColor(int index, int color) {
+		getPartFromIndex(index, partObject -> {
+			if (!partObject.has(KEY_PROPERTIES_DISPLAY)) {
+				editPartDisplay(index, true);
+			}
+			partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).addProperty(KEY_PROPERTIES_DISPLAY_COLOR, Integer.toHexString(color & RGB_WHITE).toUpperCase(Locale.ENGLISH));
+		});
+		updateModel();
+	}
+
+	public void editPartDisplayShouldScroll(int index, boolean shouldScroll) {
+		getPartFromIndex(index, partObject -> {
+			if (!partObject.has(KEY_PROPERTIES_DISPLAY)) {
+				editPartDisplay(index, true);
+			}
+			partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).addProperty(KEY_PROPERTIES_DISPLAY_SHOULD_SCROLL, shouldScroll);
+		});
+		updateModel();
+	}
+
 	public void editPartDoorOffset(int index) {
 		getPartFromIndex(index, partObject -> cycleEnumProperty(partObject, KEY_PROPERTIES_DOOR_OFFSET, DoorOffset.NONE, DoorOffset.values()));
 		updateModel();
@@ -352,4 +404,21 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 	public enum DoorOffset {NONE, LEFT_POSITIVE, RIGHT_POSITIVE, LEFT_NEGATIVE, RIGHT_NEGATIVE}
 
 	public enum RenderCondition {ALL, DOORS_OPEN, DOORS_CLOSED, DOOR_LEFT_OPEN, DOOR_RIGHT_OPEN, DOOR_LEFT_CLOSED, DOOR_RIGHT_CLOSED, MOVING_FORWARDS, MOVING_BACKWARDS}
+
+	public enum DisplayType {
+
+		DESTINATION(false),
+		DESTINATION_UPPER_CASE(true),
+		ROUTE_NUMBER(true),
+		ROUTE_NUMBER_UPPER_CASE(false),
+		NEXT_STATION_PLAIN(false),
+		NEXT_STATION_PLAIN_UPPER_CASE(true),
+		NEXT_STATION_UK(false);
+
+		public final boolean upperCase;
+
+		DisplayType(boolean upperCase) {
+			this.upperCase = upperCase;
+		}
+	}
 }

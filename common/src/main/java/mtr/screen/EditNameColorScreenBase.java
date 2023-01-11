@@ -32,7 +32,7 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		colorText = Text.translatable(colorKey);
 
 		textFieldName = new WidgetBetterTextField("");
-		colorSelector = new WidgetColorSelector(this, () -> {
+		colorSelector = new WidgetColorSelector(this, true, () -> {
 		});
 	}
 
