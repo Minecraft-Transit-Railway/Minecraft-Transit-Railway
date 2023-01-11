@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mtr.data.EnumHelper;
+import mtr.data.IGui;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.mappings.ModelDataWrapper;
@@ -207,31 +208,32 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 				final float x = positionElement.getAsJsonArray().get(0).getAsFloat();
 				final float z = positionElement.getAsJsonArray().get(1).getAsFloat();
 				final JsonObject displayObject = partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY);
+				final int colorCjk = CustomResources.colorStringToInt(displayObject.get(KEY_PROPERTIES_DISPLAY_COLOR_CJK).getAsString()) | ARGB_BLACK;
 				final int color = CustomResources.colorStringToInt(displayObject.get(KEY_PROPERTIES_DISPLAY_COLOR).getAsString()) | ARGB_BLACK;
+				final float cjkSizeRatio = displayObject.get(KEY_PROPERTIES_DISPLAY_CJK_SIZE_RATIO).getAsFloat();
 				final boolean shouldScroll = displayObject.get(KEY_PROPERTIES_DISPLAY_SHOULD_SCROLL).getAsBoolean();
 				final String destinationString = getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false);
-				final String text;
+				final String tempText1;
 				switch (EnumHelper.valueOf(ResourcePackCreatorProperties.DisplayType.DESTINATION, displayObject.get(KEY_PROPERTIES_DISPLAY_TYPE).getAsString())) {
 					case DESTINATION:
-					case DESTINATION_UPPER_CASE:
-						text = destinationString;
+						tempText1 = destinationString;
 						break;
 					case ROUTE_NUMBER:
-					case ROUTE_NUMBER_UPPER_CASE:
-						text = thisRoute == null ? "" : thisRoute.lightRailRouteNumber;
+						tempText1 = thisRoute == null ? "" : thisRoute.lightRailRouteNumber;
 						break;
 					case NEXT_STATION_PLAIN:
-					case NEXT_STATION_PLAIN_UPPER_CASE:
 						final Station station = atPlatform ? thisStation : nextStation;
-						text = station == null ? Text.translatable("gui.mtr.untitled").getString() : station.name;
+						tempText1 = station == null ? Text.translatable("gui.mtr.untitled").getString() : station.name;
 						break;
 					case NEXT_STATION_UK:
-						text = getLondonNextStationString(thisRoute, nextRoute, thisStation, nextStation, lastStation, destinationString, atPlatform);
+						tempText1 = getLondonNextStationString(thisRoute, nextRoute, thisStation, nextStation, lastStation, destinationString, atPlatform);
 						break;
 					default:
-						text = "";
+						tempText1 = "";
 						break;
 				}
+				final String tempText2 = displayObject.get(KEY_PROPERTIES_DISPLAY_FORCE_UPPER_CASE).getAsBoolean() ? tempText1.toUpperCase(Locale.ENGLISH) : tempText1;
+				final String text = displayObject.get(KEY_PROPERTIES_DISPLAY_FORCE_SINGLE_LINE).getAsBoolean() ? IGui.formatStationName(tempText2) : tempText2;
 
 				partsInfo.get(partName).forEach(partInfo -> {
 					final float width = partInfo.width - displayObject.get(KEY_PROPERTIES_DISPLAY_X_PADDING).getAsFloat();
@@ -256,7 +258,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 						scrollingTexts.get(scrollIndex[0]).scrollText(matrices);
 						scrollIndex[0]++;
 					} else {
-						IDrawing.drawStringWithFont(matrices, Minecraft.getInstance().font, immediate, text, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, 0, 0, width, height, 1, color, color, 2, false, MAX_LIGHT_GLOWING, null);
+						IDrawing.drawStringWithFont(matrices, Minecraft.getInstance().font, immediate, text, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, 0, 0, width, height, 1, colorCjk, color, cjkSizeRatio < 0 ? 1 / (1 - cjkSizeRatio) : 1 + cjkSizeRatio, false, MAX_LIGHT_GLOWING, null);
 					}
 
 					matrices.popPose();

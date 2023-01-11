@@ -202,6 +202,16 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 		updateModel();
 	}
 
+	public void editPartDisplayCjkSizeRatio(int index, float cjkSizeRatio) {
+		getPartFromIndex(index, partObject -> {
+			if (!partObject.has(KEY_PROPERTIES_DISPLAY)) {
+				editPartDisplay(index, true);
+			}
+			partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).addProperty(KEY_PROPERTIES_DISPLAY_CJK_SIZE_RATIO, cjkSizeRatio);
+		});
+		updateModel();
+	}
+
 	public void editPartDisplayType(int index) {
 		getPartFromIndex(index, partObject -> {
 			if (!partObject.has(KEY_PROPERTIES_DISPLAY)) {
@@ -212,12 +222,12 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 		updateModel();
 	}
 
-	public void editPartDisplayColor(int index, int color) {
+	public void editPartDisplayColor(int index, int color, boolean isCjk) {
 		getPartFromIndex(index, partObject -> {
 			if (!partObject.has(KEY_PROPERTIES_DISPLAY)) {
 				editPartDisplay(index, true);
 			}
-			partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).addProperty(KEY_PROPERTIES_DISPLAY_COLOR, Integer.toHexString(color & RGB_WHITE).toUpperCase(Locale.ENGLISH));
+			partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).addProperty(isCjk ? KEY_PROPERTIES_DISPLAY_COLOR_CJK : KEY_PROPERTIES_DISPLAY_COLOR, Integer.toHexString(color & RGB_WHITE).toUpperCase(Locale.ENGLISH));
 		});
 		updateModel();
 	}
@@ -228,6 +238,26 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 				editPartDisplay(index, true);
 			}
 			partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).addProperty(KEY_PROPERTIES_DISPLAY_SHOULD_SCROLL, shouldScroll);
+		});
+		updateModel();
+	}
+
+	public void editPartDisplayForceUpperCase(int index, boolean forceUpperCase) {
+		getPartFromIndex(index, partObject -> {
+			if (!partObject.has(KEY_PROPERTIES_DISPLAY)) {
+				editPartDisplay(index, true);
+			}
+			partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).addProperty(KEY_PROPERTIES_DISPLAY_FORCE_UPPER_CASE, forceUpperCase);
+		});
+		updateModel();
+	}
+
+	public void editPartDisplayForceSingleLine(int index, boolean forceSingleLine) {
+		getPartFromIndex(index, partObject -> {
+			if (!partObject.has(KEY_PROPERTIES_DISPLAY)) {
+				editPartDisplay(index, true);
+			}
+			partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).addProperty(KEY_PROPERTIES_DISPLAY_FORCE_SINGLE_LINE, forceSingleLine);
 		});
 		updateModel();
 	}
@@ -405,20 +435,5 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 	public enum RenderCondition {ALL, DOORS_OPEN, DOORS_CLOSED, DOOR_LEFT_OPEN, DOOR_RIGHT_OPEN, DOOR_LEFT_CLOSED, DOOR_RIGHT_CLOSED, MOVING_FORWARDS, MOVING_BACKWARDS}
 
-	public enum DisplayType {
-
-		DESTINATION(false),
-		DESTINATION_UPPER_CASE(true),
-		ROUTE_NUMBER(true),
-		ROUTE_NUMBER_UPPER_CASE(false),
-		NEXT_STATION_PLAIN(false),
-		NEXT_STATION_PLAIN_UPPER_CASE(true),
-		NEXT_STATION_UK(false);
-
-		public final boolean upperCase;
-
-		DisplayType(boolean upperCase) {
-			this.upperCase = upperCase;
-		}
-	}
+	public enum DisplayType {DESTINATION, ROUTE_NUMBER, NEXT_STATION_PLAIN, NEXT_STATION_UK}
 }
