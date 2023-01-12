@@ -1291,7 +1291,7 @@ public class ModelLondonUnderground1995 extends ModelSimpleTrainBase<ModelLondon
 		);
 
 		final String nextStationString = getLondonNextStationString(thisRoute, nextRoute, thisStation, nextStation, lastStation, destinationString, atPlatform);
-		scrollingTexts.get(0).changeImage(nextStationString.isEmpty() ? null : ClientData.DATA_CACHE.getPixelatedText(nextStationString, is1995 ? 0xFFFF9900 : 0xFFFF0000, Integer.MAX_VALUE, false));
+		scrollingTexts.get(0).changeImage(nextStationString.isEmpty() ? null : ClientData.DATA_CACHE.getPixelatedText(nextStationString, is1995 ? 0xFFFF9900 : 0xFFFF0000, Integer.MAX_VALUE, 0, false));
 		scrollingTexts.get(0).setVertexConsumer(vertexConsumers);
 
 		final int[] positions = {-6, 0, 6};

@@ -5,17 +5,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import mtr.data.EnumHelper;
-import mtr.data.IGui;
-import mtr.data.Route;
-import mtr.data.Station;
+import mtr.data.*;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
 import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import mtr.model.ModelTrainBase;
+import mtr.screen.ResourcePackCreatorScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 
 import java.util.*;
@@ -207,31 +206,71 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 			partObject.getAsJsonArray(KEY_PROPERTIES_POSITIONS).forEach(positionElement -> {
 				final float x = positionElement.getAsJsonArray().get(0).getAsFloat();
 				final float z = positionElement.getAsJsonArray().get(1).getAsFloat();
+				final String destinationString = getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false);
+
 				final JsonObject displayObject = partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY);
 				final int colorCjk = CustomResources.colorStringToInt(displayObject.get(KEY_PROPERTIES_DISPLAY_COLOR_CJK).getAsString()) | ARGB_BLACK;
 				final int color = CustomResources.colorStringToInt(displayObject.get(KEY_PROPERTIES_DISPLAY_COLOR).getAsString()) | ARGB_BLACK;
 				final float cjkSizeRatio = displayObject.get(KEY_PROPERTIES_DISPLAY_CJK_SIZE_RATIO).getAsFloat();
 				final boolean shouldScroll = displayObject.get(KEY_PROPERTIES_DISPLAY_SHOULD_SCROLL).getAsBoolean();
-				final String destinationString = getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false);
+				final ResourcePackCreatorProperties.DisplayType displayType = EnumHelper.valueOf(ResourcePackCreatorProperties.DisplayType.DESTINATION, displayObject.get(KEY_PROPERTIES_DISPLAY_TYPE).getAsString());
+
 				final String tempText1;
-				switch (EnumHelper.valueOf(ResourcePackCreatorProperties.DisplayType.DESTINATION, displayObject.get(KEY_PROPERTIES_DISPLAY_TYPE).getAsString())) {
-					case DESTINATION:
-						tempText1 = destinationString;
-						break;
-					case ROUTE_NUMBER:
-						tempText1 = thisRoute == null ? "" : thisRoute.lightRailRouteNumber;
-						break;
-					case NEXT_STATION_PLAIN:
-						final Station station = atPlatform ? thisStation : nextStation;
-						tempText1 = station == null ? Text.translatable("gui.mtr.untitled").getString() : station.name;
-						break;
-					case NEXT_STATION_UK:
-						tempText1 = getLondonNextStationString(thisRoute, nextRoute, thisStation, nextStation, lastStation, destinationString, atPlatform);
-						break;
-					default:
-						tempText1 = "";
-						break;
+				final Screen screen = Minecraft.getInstance().screen;
+
+				if (screen instanceof ResourcePackCreatorScreen) {
+					final String testText = ((ResourcePackCreatorScreen) screen).getTestText();
+					final Station testStation = new Station();
+					final Route testRoute = new Route(TransportMode.TRAIN);
+					testStation.name = testText;
+					testRoute.name = testText;
+
+					switch (displayType) {
+						case DESTINATION:
+						case ROUTE_NUMBER:
+						case NEXT_STATION_PLAIN:
+							tempText1 = testText;
+							break;
+						case NEXT_STATION_KCR:
+							tempText1 = getHongKongNextStationString(testStation, testStation, atPlatform, true);
+							break;
+						case NEXT_STATION_MTR:
+							tempText1 = getHongKongNextStationString(testStation, testStation, atPlatform, false);
+							break;
+						case NEXT_STATION_UK:
+							tempText1 = getLondonNextStationString(testRoute, testRoute, testStation, testStation, testStation, testText, atPlatform);
+							break;
+						default:
+							tempText1 = "";
+							break;
+					}
+				} else {
+					switch (displayType) {
+						case DESTINATION:
+							tempText1 = destinationString;
+							break;
+						case ROUTE_NUMBER:
+							tempText1 = thisRoute == null ? "" : thisRoute.lightRailRouteNumber;
+							break;
+						case NEXT_STATION_PLAIN:
+							final Station station = atPlatform ? thisStation : nextStation;
+							tempText1 = station == null ? Text.translatable("gui.mtr.untitled").getString() : station.name;
+							break;
+						case NEXT_STATION_KCR:
+							tempText1 = getHongKongNextStationString(thisStation, nextStation, atPlatform, true);
+							break;
+						case NEXT_STATION_MTR:
+							tempText1 = getHongKongNextStationString(thisStation, nextStation, atPlatform, false);
+							break;
+						case NEXT_STATION_UK:
+							tempText1 = getLondonNextStationString(thisRoute, nextRoute, thisStation, nextStation, lastStation, destinationString, atPlatform);
+							break;
+						default:
+							tempText1 = "";
+							break;
+					}
 				}
+
 				final String tempText2 = displayObject.get(KEY_PROPERTIES_DISPLAY_FORCE_UPPER_CASE).getAsBoolean() ? tempText1.toUpperCase(Locale.ENGLISH) : tempText1;
 				final String text = displayObject.get(KEY_PROPERTIES_DISPLAY_FORCE_SINGLE_LINE).getAsBoolean() ? IGui.formatStationName(tempText2) : tempText2;
 
@@ -239,7 +278,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 					final float width = partInfo.width - displayObject.get(KEY_PROPERTIES_DISPLAY_X_PADDING).getAsFloat();
 					final float height = partInfo.height - displayObject.get(KEY_PROPERTIES_DISPLAY_Y_PADDING).getAsFloat();
 					while (shouldScroll && scrollingTexts.size() <= scrollIndex[0]) {
-						scrollingTexts.add(new ScrollingText(width, height, 4, height < 0.1));
+						scrollingTexts.add(new ScrollingText(width, height, 4, height < 0.2));
 					}
 
 					matrices.pushPose();
@@ -253,7 +292,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 
 					if (shouldScroll) {
 						matrices.translate(-width / 2, -height / 2, 0);
-						scrollingTexts.get(scrollIndex[0]).changeImage(text.isEmpty() ? null : ClientData.DATA_CACHE.getPixelatedText(text, color, Integer.MAX_VALUE, height < 0.1));
+						scrollingTexts.get(scrollIndex[0]).changeImage(text.isEmpty() ? null : ClientData.DATA_CACHE.getPixelatedText(text, color, Integer.MAX_VALUE, cjkSizeRatio, height < 0.2));
 						scrollingTexts.get(scrollIndex[0]).setVertexConsumer(vertexConsumers);
 						scrollingTexts.get(scrollIndex[0]).scrollText(matrices);
 						scrollIndex[0]++;

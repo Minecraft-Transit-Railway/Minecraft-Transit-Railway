@@ -1968,7 +1968,7 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 		final String destinationString = getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false);
 
 		if (renderFirstDestination || renderSecondDestination) {
-			scrollingTexts.get(0).changeImage(destinationString.isEmpty() ? null : ClientData.DATA_CACHE.getPixelatedText(destinationString.replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, false));
+			scrollingTexts.get(0).changeImage(destinationString.isEmpty() ? null : ClientData.DATA_CACHE.getPixelatedText(destinationString.replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, 0, false));
 			scrollingTexts.get(0).setVertexConsumer(vertexConsumers);
 
 			for (int i = 0; i < 2; i++) {
@@ -1988,7 +1988,7 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 		}
 
 		final String nextStationString = getLondonNextStationString(thisRoute, nextRoute, thisStation, nextStation, lastStation, destinationString, atPlatform);
-		scrollingTexts.get(1).changeImage(nextStationString.isEmpty() ? null : ClientData.DATA_CACHE.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, true));
+		scrollingTexts.get(1).changeImage(nextStationString.isEmpty() ? null : ClientData.DATA_CACHE.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, 0, true));
 		scrollingTexts.get(1).setVertexConsumer(vertexConsumers);
 
 		for (int i = 0; i < 2; i++) {

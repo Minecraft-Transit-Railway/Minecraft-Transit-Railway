@@ -1292,7 +1292,7 @@ public class ModelLondonUndergroundD78 extends ModelSimpleTrainBase<ModelLondonU
 		final boolean isEnd1Head = car == 0;
 		final boolean isEnd2Head = car == totalCars - 1;
 		final String nextStationString = getLondonNextStationString(thisRoute, nextRoute, thisStation, nextStation, lastStation, destinationString, atPlatform);
-		scrollingTexts.get(0).changeImage(nextStationString.isEmpty() ? null : ClientData.DATA_CACHE.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, true));
+		scrollingTexts.get(0).changeImage(nextStationString.isEmpty() ? null : ClientData.DATA_CACHE.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, 0, true));
 		scrollingTexts.get(0).setVertexConsumer(vertexConsumers);
 
 		for (int i = 0; i < 2; i++) {

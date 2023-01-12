@@ -211,6 +211,16 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		return textSplit[((int) Math.floor(MTRClient.getGameTick() / 30)) % textSplit.length];
 	}
 
+	protected static String getHongKongNextStationString(Station thisStation, Station nextStation, boolean atPlatform, boolean isKcr) {
+		if (atPlatform && thisStation != null) {
+			return thisStation.name;
+		} else if (!atPlatform && nextStation != null) {
+			return IGui.insertTranslation(isKcr ? "gui.mtr.next_station_cjk" : "gui.mtr.next_station_announcement_cjk", isKcr ? "gui.mtr.next_station" : "gui.mtr.next_station_announcement", 1, IGui.textOrUntitled(nextStation.name));
+		} else {
+			return "";
+		}
+	}
+
 	protected static String getLondonNextStationString(Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String destinationString, boolean atPlatform) {
 		final Station station = atPlatform ? thisStation : nextStation;
 		if (station == null || thisRoute == null) {

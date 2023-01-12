@@ -61,6 +61,7 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 	private final WidgetBetterCheckbox checkboxShouldScroll;
 	private final WidgetBetterCheckbox checkboxForceUpperCase;
 	private final WidgetBetterCheckbox checkboxForceSingleLine;
+	private final WidgetBetterTextField textFieldDisplayTest;
 
 	private final Button buttonPartStage;
 	private final Button buttonPartDoorOffset;
@@ -86,6 +87,7 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 
 	private static final int MIN_SCALE = 1;
 	private static final float MOUSE_SCALE = 0.005F;
+	private static final String DEFAULT_TEST_STRING = "測試|Test";
 
 	public ResourcePackCreatorScreen() {
 		super(Text.literal(""));
@@ -195,6 +197,7 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 			RenderTrains.creatorProperties.editPartDisplayForceSingleLine(editingPartIndex, checked);
 			updateControls(true);
 		});
+		textFieldDisplayTest = new WidgetBetterTextField(DEFAULT_TEST_STRING, Integer.MAX_VALUE);
 
 		buttonPartStage = UtilitiesClient.newButton(button -> {
 			RenderTrains.creatorProperties.editPartRenderStage(editingPartIndex);
@@ -294,11 +297,13 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 		sliderDisplayCjkSizeRatio.setHeight(SQUARE_SIZE / 2);
 
 		IDrawing.setPositionAndWidth(buttonDisplayType, 0, SQUARE_SIZE * 11 / 2, PANEL_WIDTH);
-		IDrawing.setPositionAndWidth(colorSelectorDisplayCjk, PANEL_WIDTH - SQUARE_SIZE, SQUARE_SIZE * 13 / 2, SQUARE_SIZE);
-		IDrawing.setPositionAndWidth(colorSelectorDisplay, PANEL_WIDTH - SQUARE_SIZE, SQUARE_SIZE * 15 / 2, SQUARE_SIZE);
-		IDrawing.setPositionAndWidth(checkboxShouldScroll, 0, SQUARE_SIZE * 17 / 2, PANEL_WIDTH);
-		IDrawing.setPositionAndWidth(checkboxForceUpperCase, 0, SQUARE_SIZE * 19 / 2, PANEL_WIDTH);
-		IDrawing.setPositionAndWidth(checkboxForceSingleLine, 0, SQUARE_SIZE * 21 / 2, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(colorSelectorDisplayCjk, PANEL_WIDTH - SQUARE_SIZE, SQUARE_SIZE * 13 / 2, SQUARE_SIZE / 2);
+		IDrawing.setPositionAndWidth(colorSelectorDisplay, PANEL_WIDTH - SQUARE_SIZE / 2, SQUARE_SIZE * 13 / 2, SQUARE_SIZE / 2);
+		IDrawing.setPositionAndWidth(checkboxShouldScroll, 0, SQUARE_SIZE * 15 / 2, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(checkboxForceUpperCase, 0, SQUARE_SIZE * 17 / 2, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(checkboxForceSingleLine, 0, SQUARE_SIZE * 19 / 2, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(textFieldDisplayTest, TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 21 / 2 + TEXT_FIELD_PADDING / 2, PANEL_WIDTH - TEXT_FIELD_PADDING);
+		textFieldDisplayTest.setValue(DEFAULT_TEST_STRING);
 
 		IDrawing.setPositionAndWidth(buttonPartStage, xStart, 0, PANEL_WIDTH);
 		IDrawing.setPositionAndWidth(buttonPartDoorOffset, xStart, SQUARE_SIZE, PANEL_WIDTH);
@@ -351,6 +356,7 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 		addDrawableChild(checkboxShouldScroll);
 		addDrawableChild(checkboxForceUpperCase);
 		addDrawableChild(checkboxForceSingleLine);
+		addDrawableChild(textFieldDisplayTest);
 
 		addDrawableChild(buttonPartStage);
 		addDrawableChild(buttonPartDoorOffset);
@@ -378,9 +384,8 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 
 			if (isEditing()) {
 				drawCenteredString(matrices, font, Text.translatable("gui.mtr.editing_part", RenderTrains.creatorProperties.getPropertiesPartsArray().get(editingPartIndex).getAsJsonObject().get(KEY_PROPERTIES_NAME).getAsString()), PANEL_WIDTH / 2, TEXT_PADDING, ARGB_WHITE);
-				if (colorSelectorDisplayCjk.visible && colorSelectorDisplay.visible) {
-					drawString(matrices, font, Text.translatable("gui.mtr.part_display_cjk_text_color"), TEXT_PADDING, SQUARE_SIZE * 13 / 2 + TEXT_PADDING, ARGB_WHITE);
-					drawString(matrices, font, Text.translatable("gui.mtr.part_display_text_color"), TEXT_PADDING, SQUARE_SIZE * 15 / 2 + TEXT_PADDING, ARGB_WHITE);
+				if (colorSelectorDisplay.visible) {
+					drawString(matrices, font, Text.translatable(colorSelectorDisplayCjk.visible ? "gui.mtr.part_display_text_color_cjk" : "gui.mtr.part_display_text_color"), TEXT_PADDING, SQUARE_SIZE * 13 / 2 + TEXT_PADDING, ARGB_WHITE);
 				}
 				drawCenteredString(matrices, font, Text.translatable("gui.mtr.part_positions"), width - PANEL_WIDTH / 2, SQUARE_SIZE * 3 + TEXT_PADDING, ARGB_WHITE);
 				drawCenteredString(matrices, font, Text.translatable("gui.mtr.part_whitelisted_cars"), width - PANEL_WIDTH / 2, SQUARE_SIZE * 4 + TEXT_PADDING * 2 + TEXT_HEIGHT + TEXT_FIELD_PADDING, ARGB_WHITE);
@@ -456,6 +461,10 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 				doorRightValue = Math.max(0, doorRightValue - increment);
 			}
 		}
+	}
+
+	public String getTestText() {
+		return IGui.textOrUntitled(textFieldDisplayTest.getValue());
 	}
 
 	private List<DataConverter> updatePartsList(JsonArray jsonArray, Function<JsonObject, Integer> color, Function<JsonObject, String> extraText) {
@@ -547,8 +556,12 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 			checkboxShouldScroll.visible = hasDisplay;
 			checkboxForceUpperCase.visible = hasDisplay;
 			checkboxForceSingleLine.visible = hasDisplay;
+			UtilitiesClient.setWidgetX(textFieldDisplayTest, (hasDisplay ? 0 : width) + TEXT_FIELD_PADDING / 2);
 
 			if (hasDisplay) {
+				final boolean shouldScroll = partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).get(KEY_PROPERTIES_DISPLAY_SHOULD_SCROLL).getAsBoolean();
+				final boolean forceSingleLine = partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).get(KEY_PROPERTIES_DISPLAY_FORCE_SINGLE_LINE).getAsBoolean();
+
 				final int sliderDisplayXPaddingValue = Math.round(partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).get(KEY_PROPERTIES_DISPLAY_X_PADDING).getAsFloat() * 20 + 20);
 				if (sliderDisplayXPaddingValue != sliderDisplayXPadding.getIntValue()) {
 					sliderDisplayXPadding.setValue(sliderDisplayXPaddingValue);
@@ -557,17 +570,20 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 				if (sliderDisplayYPaddingValue != sliderDisplayYPadding.getIntValue()) {
 					sliderDisplayYPadding.setValue(sliderDisplayYPaddingValue);
 				}
-				final int sliderDisplayCjkSizeRatio = Math.round(partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).get(KEY_PROPERTIES_DISPLAY_CJK_SIZE_RATIO).getAsFloat() * 10 + 20);
+				final int sliderDisplayCjkSizeRatio = (forceSingleLine ? 0 : Math.round(partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).get(KEY_PROPERTIES_DISPLAY_CJK_SIZE_RATIO).getAsFloat() * 10)) + 20;
 				if (sliderDisplayCjkSizeRatio != this.sliderDisplayCjkSizeRatio.getIntValue()) {
 					this.sliderDisplayCjkSizeRatio.setValue(sliderDisplayCjkSizeRatio);
 				}
 
+				colorSelectorDisplayCjk.visible = !shouldScroll;
+				this.sliderDisplayCjkSizeRatio.visible = !forceSingleLine;
+
 				buttonDisplayType.setMessage(Text.translatable("gui.mtr.part_display_type_" + partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).get(KEY_PROPERTIES_DISPLAY_TYPE).getAsString().toLowerCase(Locale.ENGLISH)));
 				colorSelectorDisplayCjk.setColor(CustomResources.colorStringToInt(partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).get(KEY_PROPERTIES_DISPLAY_COLOR_CJK).getAsString()));
 				colorSelectorDisplay.setColor(CustomResources.colorStringToInt(partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).get(KEY_PROPERTIES_DISPLAY_COLOR).getAsString()));
-				checkboxShouldScroll.setChecked(partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).get(KEY_PROPERTIES_DISPLAY_SHOULD_SCROLL).getAsBoolean());
+				checkboxShouldScroll.setChecked(shouldScroll);
 				checkboxForceUpperCase.setChecked(partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).get(KEY_PROPERTIES_DISPLAY_FORCE_UPPER_CASE).getAsBoolean());
-				checkboxForceSingleLine.setChecked(partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).get(KEY_PROPERTIES_DISPLAY_FORCE_SINGLE_LINE).getAsBoolean());
+				checkboxForceSingleLine.setChecked(forceSingleLine);
 			}
 
 			buttonPartStage.setMessage(Text.translatable("gui.mtr.part_stage_" + partObject.get(KEY_PROPERTIES_STAGE).getAsString().toLowerCase(Locale.ENGLISH)));
@@ -608,6 +624,7 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 			checkboxShouldScroll.visible = false;
 			checkboxForceUpperCase.visible = false;
 			checkboxForceSingleLine.visible = false;
+			UtilitiesClient.setWidgetX(textFieldDisplayTest, width + TEXT_FIELD_PADDING / 2);
 
 			buttonPartStage.visible = false;
 			buttonPartDoorOffset.visible = false;
@@ -639,7 +656,7 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 	}
 
 	private void onUpdateColor(boolean isCjk) {
-		RenderTrains.creatorProperties.editPartDisplayColor(editingPartIndex, colorSelectorDisplay.getColor(), isCjk);
+		RenderTrains.creatorProperties.editPartDisplayColor(editingPartIndex, (isCjk ? colorSelectorDisplayCjk : colorSelectorDisplay).getColor(), isCjk);
 		updateControls(false);
 	}
 
