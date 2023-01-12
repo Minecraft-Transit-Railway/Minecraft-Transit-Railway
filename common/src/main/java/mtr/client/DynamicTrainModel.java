@@ -111,7 +111,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 
 	@Override
 	protected void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails) {
-		iterateParts(trainCars, currentCar, partObject -> {
+		iterateParts(currentCar, trainCars, partObject -> {
 			if (!renderDetails && partObject.get(KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR).getAsBoolean() || !renderStage.toString().equals(partObject.get(KEY_PROPERTIES_STAGE).getAsString().toUpperCase(Locale.ENGLISH))) {
 				return;
 			}
@@ -364,7 +364,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 		}
 	}
 
-	private void iterateParts(int trainCars, int currentCar, Consumer<JsonObject> callback) {
+	private void iterateParts(int currentCar, int trainCars, Consumer<JsonObject> callback) {
 		properties.getAsJsonArray(KEY_PROPERTIES_PARTS).forEach(partElement -> {
 			final JsonObject partObject = partElement.getAsJsonObject();
 			final String whitelistedCars = partObject.get(KEY_PROPERTIES_WHITELISTED_CARS).getAsString();
