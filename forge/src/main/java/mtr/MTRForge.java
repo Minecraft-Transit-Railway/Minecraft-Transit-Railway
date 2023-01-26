@@ -123,6 +123,7 @@ public class MTRForge {
 		@SubscribeEvent
 		public static void onClientSetupEvent(FMLClientSetupEvent event) {
 			MTRClient.init();
+			event.enqueueWork(MTRClient::initItemModelPredicate);
 			ForgeUtilities.registerTextureStitchEvent(textureAtlas -> {
 				if (((TextureAtlas) textureAtlas).location().getPath().equals("textures/atlas/blocks.png")) {
 					CustomResources.reload(Minecraft.getInstance().getResourceManager());
