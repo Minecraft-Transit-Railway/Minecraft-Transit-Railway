@@ -52,7 +52,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	private static final String KEY_REPEAT_INDEX_2 = "repeat_index_2";
 	private static final String KEY_TRAINS = "trains";
 	private static final String KEY_ACCELERATION_CONSTANT = "acceleration_constant";
-	private static final String KEY_BRAKINGPOWER_CONSTANT = "braking_power_constant";
+	private static final String KEY_BRAKING_POWER_CONSTANT = "braking_power_constant";
 
 	public Siding(long id, TransportMode transportMode, BlockPos pos1, BlockPos pos2, float railLength) {
 		super(id, transportMode, pos1, pos2);
@@ -60,7 +60,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		setTrainDetails();
 		unlimitedTrains = transportMode.continuousMovement;
 		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : Train.ACCELERATION_DEFAULT;
-		brakingPowerConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : Train.ACCELERATION_DEFAULT;
+		brakingPowerConstant = transportMode.continuousMovement ? Train.MAX_BRAKING_POWER : Train.BRAKING_POWER_DEFAULT;
 	}
 
 	public Siding(TransportMode transportMode, BlockPos pos1, BlockPos pos2, float railLength) {
@@ -69,6 +69,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		setTrainDetails();
 		unlimitedTrains = transportMode.continuousMovement;
 		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : Train.ACCELERATION_DEFAULT;
+		brakingPowerConstant = transportMode.continuousMovement ? Train.MAX_BRAKING_POWER : Train.BRAKING_POWER_DEFAULT;
 	}
 
 	public Siding(Map<String, Value> map) {
@@ -84,12 +85,14 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		repeatIndex2 = messagePackHelper.getInt(KEY_REPEAT_INDEX_2);
 		final float tempAccelerationConstant = RailwayData.round(messagePackHelper.getFloat(KEY_ACCELERATION_CONSTANT, Train.ACCELERATION_DEFAULT), 3);
 		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : tempAccelerationConstant <= 0 ? Train.ACCELERATION_DEFAULT : tempAccelerationConstant;
+		final float tempBrakingPowerConstant = RailwayData.round(messagePackHelper.getFloat(KEY_BRAKING_POWER_CONSTANT, Train.BRAKING_POWER_DEFAULT), 3);
+		brakingPowerConstant = transportMode.continuousMovement ? Train.MAX_BRAKING_POWER : tempBrakingPowerConstant <= 0 ? Train.BRAKING_POWER_DEFAULT : tempBrakingPowerConstant;
 
 		messagePackHelper.iterateArrayValue(KEY_PATH, pathSection -> path.add(new PathData(RailwayData.castMessagePackValueToSKMap(pathSection))));
 
 		generateTimeSegments(path, timeSegments, platformTimes);
 
-		messagePackHelper.iterateArrayValue(KEY_TRAINS, value -> trains.add(new TrainServer(id, railLength, timeSegments, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, isManual, maxManualSpeed, dwellTime, RailwayData.castMessagePackValueToSKMap(value))));
+		messagePackHelper.iterateArrayValue(KEY_TRAINS, value -> trains.add(new TrainServer(id, railLength, timeSegments, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, brakingPowerConstant, isManual, maxManualSpeed, dwellTime, RailwayData.castMessagePackValueToSKMap(value))));
 		generateDistances();
 	}
 
@@ -106,6 +109,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		repeatIndex1 = compoundTag.getInt(KEY_REPEAT_INDEX_1);
 		repeatIndex2 = compoundTag.getInt(KEY_REPEAT_INDEX_2);
 		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : Train.ACCELERATION_DEFAULT;
+		brakingPowerConstant = transportMode.continuousMovement ? Train.MAX_BRAKING_POWER : Train.BRAKING_POWER_DEFAULT;
 
 		final CompoundTag tagPath = compoundTag.getCompound(KEY_PATH);
 		final int pathCount = tagPath.getAllKeys().size();
@@ -116,7 +120,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		generateTimeSegments(path, timeSegments, platformTimes);
 
 		final CompoundTag tagTrains = compoundTag.getCompound(KEY_TRAINS);
-		tagTrains.getAllKeys().forEach(key -> trains.add(new TrainServer(id, railLength, timeSegments, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, isManual, maxManualSpeed, dwellTime, tagTrains.getCompound(key))));
+		tagTrains.getAllKeys().forEach(key -> trains.add(new TrainServer(id, railLength, timeSegments, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, brakingPowerConstant, isManual, maxManualSpeed, dwellTime, tagTrains.getCompound(key))));
 		generateDistances();
 	}
 
@@ -130,6 +134,8 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		maxManualSpeed = packet.readInt();
 		final float tempAccelerationConstant = RailwayData.round(packet.readFloat(), 3);
 		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : tempAccelerationConstant <= 0 ? Train.ACCELERATION_DEFAULT : tempAccelerationConstant;
+		final float tempBrakingPowerConstant = RailwayData.round(packet.readFloat(), 3);
+		brakingPowerConstant = transportMode.continuousMovement ? Train.MAX_BRAKING_POWER : tempBrakingPowerConstant <= 0 ? Train.BRAKING_POWER_DEFAULT : tempBrakingPowerConstant;
 	}
 
 	@Override
@@ -152,6 +158,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		messagePacker.packString(KEY_REPEAT_INDEX_1).packInt(repeatIndex1);
 		messagePacker.packString(KEY_REPEAT_INDEX_2).packInt(repeatIndex2);
 		messagePacker.packString(KEY_ACCELERATION_CONSTANT).packFloat(accelerationConstant);
+		messagePacker.packString(KEY_BRAKING_POWER_CONSTANT).packFloat(brakingPowerConstant);
 		RailwayData.writeMessagePackDataset(messagePacker, path, KEY_PATH);
 	}
 
@@ -176,6 +183,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		packet.writeBoolean(isManual);
 		packet.writeInt(maxManualSpeed);
 		packet.writeFloat(accelerationConstant);
+		packet.writeFloat(brakingPowerConstant);
 	}
 
 	@Override
@@ -196,6 +204,8 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 				maxManualSpeed = packet.readInt();
 				final float newAccelerationConstant = RailwayData.round(packet.readFloat(), 3);
 				accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : newAccelerationConstant;
+				final float newBrakingPowerConstant = RailwayData.round(packet.readFloat(), 3);
+				brakingPowerConstant = transportMode.continuousMovement ? Train.MAX_BRAKING_POWER : newBrakingPowerConstant;
 				if (packet.readBoolean()) {
 					trains.clear();
 				}
@@ -217,7 +227,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		setTrainDetails(customId, trainType, false);
 	}
 
-	public void setUnlimitedTrains(boolean unlimitedTrains, int maxTrains, boolean isManual, int maxManualSpeed, float accelerationConstant, int newDwellTime, boolean clearTrains, Consumer<FriendlyByteBuf> sendPacket) {
+	public void setUnlimitedTrains(boolean unlimitedTrains, int maxTrains, boolean isManual, int maxManualSpeed, float accelerationConstant, float brakingPowerConstant, int newDwellTime, boolean clearTrains, Consumer<FriendlyByteBuf> sendPacket) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
 		packet.writeUtf(transportMode.toString());
@@ -231,6 +241,8 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		packet.writeInt(maxManualSpeed);
 		final float tempAccelerationConstant = RailwayData.round(accelerationConstant, 3);
 		packet.writeFloat(tempAccelerationConstant);
+		final float tempBrakingPowerConstant = RailwayData.round(brakingPowerConstant, 3);
+		packet.writeFloat(tempBrakingPowerConstant);
 		packet.writeBoolean(clearTrains);
 		sendPacket.accept(packet);
 		this.unlimitedTrains = transportMode.continuousMovement || unlimitedTrains;
@@ -238,6 +250,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		this.isManual = isManual;
 		this.maxManualSpeed = maxManualSpeed;
 		this.accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : tempAccelerationConstant;
+		this.brakingPowerConstant = transportMode.continuousMovement ? Train.MAX_BRAKING_POWER : tempBrakingPowerConstant;
 		if (clearTrains) {
 			trains.clear();
 		}
@@ -249,6 +262,10 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 
 	public float getAccelerationConstant() {
 		return accelerationConstant;
+	}
+
+	public float getBrakingPowerConstant() {
+		return brakingPowerConstant;
 	}
 
 	public void setSidingData(Level world, Depot depot, Map<BlockPos, Map<BlockPos, Rail>> rails) {
@@ -391,7 +408,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		}
 
 		if (trainCars > 0 && (trains.isEmpty() || spawnTrain && (unlimitedTrains || trains.size() <= maxTrains))) {
-			final TrainServer train = new TrainServer(unlimitedTrains || maxTrains > 0 ? new Random().nextLong() : id, id, railLength, trainId, baseTrainType, trainCars, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, timeSegments, isManual, maxManualSpeed, dwellTime);
+			final TrainServer train = new TrainServer(unlimitedTrains || maxTrains > 0 ? new Random().nextLong() : id, id, railLength, trainId, baseTrainType, trainCars, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, brakingPowerConstant, timeSegments, isManual, maxManualSpeed, dwellTime);
 			trains.add(train);
 		}
 
@@ -458,7 +475,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 			path.add(new PathData(rails.get(pos1).get(pos2), id, 0, pos1, pos2, -1));
 		}
 
-		trains.add(new TrainServer(id, id, railLength, trainId, baseTrainType, trainCars, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, timeSegments, isManual, maxManualSpeed, dwellTime));
+		trains.add(new TrainServer(id, id, railLength, trainId, baseTrainType, trainCars, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, brakingPowerConstant, timeSegments, isManual, maxManualSpeed, dwellTime));
 	}
 
 	private void generateDistances() {
@@ -510,8 +527,8 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 
 			while (railProgress < distanceSum2) {
 				final int speedChange;
-				if (speed > railSpeed || nextStoppingDistance - railProgress + 1 < 0.5 * speed * speed / accelerationConstant) {
-					speed = Math.max(speed - accelerationConstant, accelerationConstant);
+				if (speed > railSpeed || nextStoppingDistance - railProgress + 1 < 0.5 * speed * speed / brakingPowerConstant) {
+					speed = Math.max(speed - brakingPowerConstant, brakingPowerConstant);
 					speedChange = -1;
 				} else if (speed < railSpeed) {
 					speed = Math.min(speed + accelerationConstant, railSpeed);
@@ -567,14 +584,17 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		private final float startTime;
 		private final int speedChange;
 		private final float accelerationConstant;
+		private final float brakingPowerConstant;
 
-		private TimeSegment(double startRailProgress, float startSpeed, float startTime, int speedChange, float accelerationConstant) {
+		private TimeSegment(double startRailProgress, float startSpeed, float startTime, int speedChange, float accelerationConstant, float brakingPowerConstant) {
 			this.startRailProgress = startRailProgress;
 			this.startSpeed = startSpeed;
 			this.startTime = startTime;
 			this.speedChange = Integer.compare(speedChange, 0);
 			final float tempAccelerationConstant = RailwayData.round(accelerationConstant, 3);
 			this.accelerationConstant = tempAccelerationConstant <= 0 ? Train.ACCELERATION_DEFAULT : tempAccelerationConstant;
+			final float tempBrakingPowerConstant = RailwayData.round(brakingPowerConstant, 3);
+			this.brakingPowerConstant = tempBrakingPowerConstant <= 0 ? Train.BRAKING_POWER_DEFAULT : tempBrakingPowerConstant;
 		}
 
 		public double getTime(double railProgress) {
@@ -583,7 +603,8 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 				return startTime + distance / startSpeed;
 			} else {
 				final float acceleration = speedChange * accelerationConstant;
-				return startTime + (distance == 0 ? 0 : (Math.sqrt(2 * acceleration * distance + startSpeed * startSpeed) - startSpeed) / acceleration);
+				final float brakingPower = speedChange * brakingPowerConstant;
+				return startTime + (distance == 0 ? 0 : (Math.sqrt((acceleration + brakingPower) * distance + startSpeed * startSpeed) - startSpeed) / acceleration);
 			}
 		}
 	}
