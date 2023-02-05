@@ -538,7 +538,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 				}
 
 				if (timeSegments.isEmpty() || timeSegments.get(timeSegments.size() - 1).speedChange != speedChange) {
-					timeSegments.add(new TimeSegment(railProgress, speed, time, speedChange, accelerationConstant));
+					timeSegments.add(new TimeSegment(railProgress, speed, time, speedChange, accelerationConstant, brakingPowerConstant));
 				}
 
 				railProgress = Math.min(railProgress + speed, distanceSum2);
