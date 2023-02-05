@@ -31,6 +31,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	private int repeatIndex1;
 	private int repeatIndex2;
 	private float accelerationConstant;
+	private float brakingPowerConstant;
 
 	public final float railLength;
 	private final List<PathData> path = new ArrayList<>();
@@ -51,6 +52,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	private static final String KEY_REPEAT_INDEX_2 = "repeat_index_2";
 	private static final String KEY_TRAINS = "trains";
 	private static final String KEY_ACCELERATION_CONSTANT = "acceleration_constant";
+	private static final String KEY_BRAKINGPOWER_CONSTANT = "braking_power_constant";
 
 	public Siding(long id, TransportMode transportMode, BlockPos pos1, BlockPos pos2, float railLength) {
 		super(id, transportMode, pos1, pos2);
@@ -58,6 +60,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		setTrainDetails();
 		unlimitedTrains = transportMode.continuousMovement;
 		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : Train.ACCELERATION_DEFAULT;
+		brakingPowerConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : Train.ACCELERATION_DEFAULT;
 	}
 
 	public Siding(TransportMode transportMode, BlockPos pos1, BlockPos pos2, float railLength) {
