@@ -239,12 +239,16 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 	}
 
 	private void onSelectingTrain() {
-		final List<DataConverter> trainList = new ArrayList<>();
+		final List<TrainForList> trainsForListTemp = new ArrayList<>();
+		final List<TrainForList> trainsForListUnavailable = new ArrayList<>();
+
 		TrainClientRegistry.forEach(transportMode, (id, trainProperties) -> {
-			final boolean isAvailable = savedRailBase.isValidVehicle(TrainType.getSpacing(trainProperties.baseTrainType));
-			trainList.add(new DataConverter((isAvailable ? trainProperties.name.getString() : WARNING + " " + trainProperties.name.getString()), isAvailable ? trainProperties.color : 0));
+			final TrainForList trainForList = new TrainForList(savedRailBase, id, trainProperties);
+			(trainForList.isAvailable ? trainsForListTemp : trainsForListUnavailable).add(trainForList);
 		});
-		availableTrainsList.setData(trainList, false, false, false, false, true, false);
+
+		trainsForListTemp.addAll(trainsForListUnavailable);
+		availableTrainsList.setData(trainsForListTemp, false, false, false, false, true, false);
 		setIsSelectingTrain(true);
 	}
 
@@ -263,10 +267,12 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 	}
 
 	private void onAdd(NameColorDataBase data, int index) {
-		final String baseTrainType = TrainClientRegistry.getTrainProperties(transportMode, index).baseTrainType;
-		if (savedRailBase.isValidVehicle(TrainType.getSpacing(baseTrainType))) {
-			savedRailBase.setTrainIdAndBaseType(TrainClientRegistry.getTrainId(transportMode, index), baseTrainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
-			setIsSelectingTrain(false);
+		if (data instanceof TrainForList) {
+			final String baseTrainType = ((TrainForList) data).trainProperties.baseTrainType;
+			if (savedRailBase.isValidVehicle(TrainType.getSpacing(baseTrainType))) {
+				savedRailBase.setTrainIdAndBaseType(((TrainForList) data).trainId, baseTrainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
+				setIsSelectingTrain(false);
+			}
 		}
 	}
 
@@ -307,6 +313,26 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 			return "";
 		} else {
 			return result;
+		}
+	}
+
+	private static class TrainForList extends NameColorDataBase {
+
+		private final String trainId;
+		private final TrainProperties trainProperties;
+		private final boolean isAvailable;
+
+		private TrainForList(Siding savedRailBase, String trainId, TrainProperties trainProperties) {
+			this.trainId = trainId;
+			this.trainProperties = trainProperties;
+			isAvailable = savedRailBase.isValidVehicle(TrainType.getSpacing(trainProperties.baseTrainType));
+			this.name = (isAvailable ? "" : WARNING + " ") + trainProperties.name.getString();
+			this.color = isAvailable ? trainProperties.color : 0;
+		}
+
+		@Override
+		protected boolean hasTransportMode() {
+			return false;
 		}
 	}
 }

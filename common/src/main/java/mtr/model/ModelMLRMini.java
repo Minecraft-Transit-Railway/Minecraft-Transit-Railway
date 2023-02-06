@@ -4,17 +4,17 @@ import mtr.client.DoorAnimationType;
 
 public class ModelMLRMini extends ModelMLR {
 
-	public ModelMLRMini() {
-		super();
+	public ModelMLRMini(boolean isChristmas) {
+		super(isChristmas);
 	}
 
-	private ModelMLRMini(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
-		super(doorAnimationType, renderDoorOverlay);
+	private ModelMLRMini(boolean isChristmas, DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(isChristmas, doorAnimationType, renderDoorOverlay);
 	}
 
 	@Override
 	public ModelMLRMini createNew(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
-		return new ModelMLRMini(doorAnimationType, renderDoorOverlay);
+		return new ModelMLRMini(isChristmas, doorAnimationType, renderDoorOverlay);
 	}
 
 	@Override

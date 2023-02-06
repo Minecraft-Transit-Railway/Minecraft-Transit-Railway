@@ -109,6 +109,12 @@ public class ClientCache extends DataCache implements IGui {
 		});
 	}
 
+	public void resetFonts() {
+		font = null;
+		fontCjk = null;
+		refreshDynamicResources();
+	}
+
 	public void refreshDynamicResources() {
 		System.out.println("Refreshing dynamic resources");
 		resourcesToRefresh.addAll(dynamicResources.keySet());
@@ -230,8 +236,8 @@ public class ClientCache extends DataCache implements IGui {
 		}
 	}
 
-	public DynamicResource getPixelatedText(String text, int textColor, int maxWidth, boolean fullPixel) {
-		return getResource(String.format("pixelated_text_%s_%s_%s_%s", text, textColor, maxWidth, fullPixel), () -> RouteMapGenerator.generatePixelatedText(text, textColor, maxWidth, fullPixel), DefaultRenderingColor.TRANSPARENT);
+	public DynamicResource getPixelatedText(String text, int textColor, int maxWidth, float cjkSizeRatio, boolean fullPixel) {
+		return getResource(String.format("pixelated_text_%s_%s_%s_%s_%s", text, textColor, maxWidth, cjkSizeRatio, fullPixel), () -> RouteMapGenerator.generatePixelatedText(text, textColor, maxWidth, cjkSizeRatio, fullPixel), DefaultRenderingColor.TRANSPARENT);
 	}
 
 	public DynamicResource getColorStrip(long platformId) {

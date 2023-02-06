@@ -269,13 +269,13 @@ public class BveTrainSound extends TrainSoundBase {
 		if (event == null) {
 			return;
 		}
-		((ClientLevel) world).playLocalSound(pos, event, SoundSource.BLOCKS, Math.min(1, gain), pitch, true);
+		((ClientLevel) world).playLocalSound(pos, event, SoundSource.BLOCKS, Math.min(1, gain), pitch, false);
 	}
 
 	private static void playLocalSound(Level world, SoundEvent event, BlockPos pos) {
 		if (event == null) {
 			return;
 		}
-		((ClientLevel) world).playLocalSound(pos, event, SoundSource.BLOCKS, 1, 1, true);
+		((ClientLevel) world).playLocalSound(pos, event, SoundSource.BLOCKS, 1, 1, false);
 	}
 }

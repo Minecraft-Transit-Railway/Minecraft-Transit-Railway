@@ -71,6 +71,11 @@ public class WidgetShorterSlider extends AbstractSliderButton implements IGui {
 	}
 
 	@Override
+	public void setWidth(int width) {
+		super.setWidth(Math.min(width, 380));
+	}
+
+	@Override
 	protected void updateMessage() {
 		setMessage(Text.literal(setMessage.apply(getIntValue())));
 	}

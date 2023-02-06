@@ -23,6 +23,16 @@ public interface IResourcePackCreatorProperties {
 	String KEY_PROPERTIES_STAGE = "stage";
 	String KEY_PROPERTIES_MIRROR = "mirror";
 	String KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR = "skip_rendering_if_too_far";
+	String KEY_PROPERTIES_DISPLAY = "display";
+	String KEY_PROPERTIES_DISPLAY_X_PADDING = "x_padding";
+	String KEY_PROPERTIES_DISPLAY_Y_PADDING = "y_padding";
+	String KEY_PROPERTIES_DISPLAY_CJK_SIZE_RATIO = "cjk_size_ratio";
+	String KEY_PROPERTIES_DISPLAY_TYPE = "type";
+	String KEY_PROPERTIES_DISPLAY_COLOR_CJK = "color_cjk";
+	String KEY_PROPERTIES_DISPLAY_COLOR = "color";
+	String KEY_PROPERTIES_DISPLAY_SHOULD_SCROLL = "should_scroll";
+	String KEY_PROPERTIES_DISPLAY_FORCE_UPPER_CASE = "force_upper_case";
+	String KEY_PROPERTIES_DISPLAY_FORCE_SINGLE_LINE = "force_single_line";
 	String KEY_PROPERTIES_DOOR_OFFSET = "door_offset";
 	String KEY_PROPERTIES_RENDER_CONDITION = "render_condition";
 	String KEY_PROPERTIES_POSITIONS = "positions";
@@ -93,6 +103,40 @@ public interface IResourcePackCreatorProperties {
 				});
 
 				positionElementsToRemove.forEach(partObject.getAsJsonArray(KEY_PROPERTIES_POSITIONS)::remove);
+
+				if (partObject.has(KEY_PROPERTIES_DISPLAY) && partObject.get(KEY_PROPERTIES_DISPLAY).isJsonObject()) {
+					final JsonObject displayObject = partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY);
+
+					if (!displayObject.has(KEY_PROPERTIES_DISPLAY_X_PADDING) || !displayObject.get(KEY_PROPERTIES_DISPLAY_X_PADDING).isJsonPrimitive()) {
+						displayObject.addProperty(KEY_PROPERTIES_DISPLAY_X_PADDING, 0);
+					}
+					if (!displayObject.has(KEY_PROPERTIES_DISPLAY_Y_PADDING) || !displayObject.get(KEY_PROPERTIES_DISPLAY_Y_PADDING).isJsonPrimitive()) {
+						displayObject.addProperty(KEY_PROPERTIES_DISPLAY_Y_PADDING, 0);
+					}
+					if (!displayObject.has(KEY_PROPERTIES_DISPLAY_CJK_SIZE_RATIO) || !displayObject.get(KEY_PROPERTIES_DISPLAY_CJK_SIZE_RATIO).isJsonPrimitive()) {
+						displayObject.addProperty(KEY_PROPERTIES_DISPLAY_CJK_SIZE_RATIO, 0);
+					}
+					if (!displayObject.has(KEY_PROPERTIES_DISPLAY_TYPE) || !displayObject.get(KEY_PROPERTIES_DISPLAY_TYPE).isJsonPrimitive()) {
+						displayObject.addProperty(KEY_PROPERTIES_DISPLAY_TYPE, ResourcePackCreatorProperties.DisplayType.DESTINATION.toString());
+					}
+					if (!displayObject.has(KEY_PROPERTIES_DISPLAY_COLOR_CJK) || !displayObject.get(KEY_PROPERTIES_DISPLAY_COLOR_CJK).isJsonPrimitive()) {
+						displayObject.addProperty(KEY_PROPERTIES_DISPLAY_COLOR_CJK, "FF9900");
+					}
+					if (!displayObject.has(KEY_PROPERTIES_DISPLAY_COLOR) || !displayObject.get(KEY_PROPERTIES_DISPLAY_COLOR).isJsonPrimitive()) {
+						displayObject.addProperty(KEY_PROPERTIES_DISPLAY_COLOR, "FF9900");
+					}
+					if (!displayObject.has(KEY_PROPERTIES_DISPLAY_SHOULD_SCROLL) || !displayObject.get(KEY_PROPERTIES_DISPLAY_SHOULD_SCROLL).isJsonPrimitive()) {
+						displayObject.addProperty(KEY_PROPERTIES_DISPLAY_SHOULD_SCROLL, false);
+					}
+					if (!displayObject.has(KEY_PROPERTIES_DISPLAY_FORCE_UPPER_CASE) || !displayObject.get(KEY_PROPERTIES_DISPLAY_FORCE_UPPER_CASE).isJsonPrimitive()) {
+						displayObject.addProperty(KEY_PROPERTIES_DISPLAY_FORCE_UPPER_CASE, false);
+					}
+					if (!displayObject.has(KEY_PROPERTIES_DISPLAY_FORCE_SINGLE_LINE) || !displayObject.get(KEY_PROPERTIES_DISPLAY_FORCE_SINGLE_LINE).isJsonPrimitive()) {
+						displayObject.addProperty(KEY_PROPERTIES_DISPLAY_FORCE_SINGLE_LINE, false);
+					}
+				} else {
+					partObject.remove(KEY_PROPERTIES_DISPLAY);
+				}
 			} else {
 				partElementsToRemove.add(partElement);
 			}

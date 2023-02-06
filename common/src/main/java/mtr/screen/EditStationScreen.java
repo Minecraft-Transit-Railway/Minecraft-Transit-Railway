@@ -21,6 +21,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 
 	String editingExit;
 	int editingDestinationIndex;
+	int clickDelay;
 
 	private final Component stationZoneText = Text.translatable("gui.mtr.zone");
 	private final Component exitParentsText = Text.translatable("gui.mtr.exit_parents");
@@ -48,10 +49,10 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		textFieldExitParentNumber = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "1", 2);
 		textFieldExitDestination = new WidgetBetterTextField("");
 
-		buttonAddExitParent = UtilitiesClient.newButton(Text.translatable("gui.mtr.add_exit"), button -> changeEditingExit("", -1));
-		buttonDoneExitParent = UtilitiesClient.newButton(Text.translatable("gui.done"), button -> onDoneExitParent());
-		buttonAddExitDestination = UtilitiesClient.newButton(Text.translatable("gui.mtr.add_exit_destination"), button -> changeEditingExit(editingExit, station.exits.containsKey(editingExit) ? station.exits.get(editingExit).size() : -1));
-		buttonDoneExitDestination = UtilitiesClient.newButton(Text.translatable("gui.done"), button -> onDoneExitDestination());
+		buttonAddExitParent = UtilitiesClient.newButton(Text.translatable("gui.mtr.add_exit"), button -> checkClickDelay(() -> changeEditingExit("", -1)));
+		buttonDoneExitParent = UtilitiesClient.newButton(Text.translatable("gui.done"), button -> checkClickDelay(this::onDoneExitParent));
+		buttonAddExitDestination = UtilitiesClient.newButton(Text.translatable("gui.mtr.add_exit_destination"), button -> checkClickDelay(() -> changeEditingExit(editingExit, station.exits.containsKey(editingExit) ? station.exits.get(editingExit).size() : -1)));
+		buttonDoneExitDestination = UtilitiesClient.newButton(Text.translatable("gui.done"), button -> checkClickDelay(this::onDoneExitDestination));
 
 		exitParentList = new DashboardList(null, null, this::onEditExitParent, null, null, this::onDeleteExitParent, null, () -> ClientData.EXIT_PARENTS_SEARCH, text -> ClientData.EXIT_PARENTS_SEARCH = text);
 		exitDestinationList = new DashboardList(null, null, this::onEditExitDestination, this::onSortExitDestination, null, this::onDeleteExitDestination, this::getExitDestinationList, () -> ClientData.EXIT_DESTINATIONS_SEARCH, text -> ClientData.EXIT_DESTINATIONS_SEARCH = text);
@@ -103,6 +104,11 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	@Override
 	public void tick() {
 		super.tick();
+
+		if (clickDelay > 0) {
+			clickDelay--;
+		}
+
 		textFieldZone.tick();
 		textFieldExitParentLetter.tick();
 		textFieldExitParentNumber.tick();
@@ -251,6 +257,13 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 
 	private List<String> getExitDestinationList() {
 		return parentExists() ? data.exits.get(editingExit) : new ArrayList<>();
+	}
+
+	private void checkClickDelay(Runnable callback) {
+		if (clickDelay == 0) {
+			callback.run();
+			clickDelay = 10;
+		}
 	}
 
 	private boolean parentExists() {
