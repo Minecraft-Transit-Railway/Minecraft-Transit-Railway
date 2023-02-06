@@ -204,10 +204,13 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 		} catch (Exception ignored) {
 			maxTrains = 0;
 		}
+		
+		boolean hasAcceleration = true;
 		float accelerationConstant;
 		try {
 			accelerationConstant = RailwayData.round(Mth.clamp((float) sliderAccelerationConstant.getIntValue() / SLIDER_SCALE + Train.MIN_ACCELERATION, Train.MIN_ACCELERATION, Train.MAX_ACCELERATION), 3);
 		} catch (Exception ignored) {
+			hasAcceleration = false;
 			accelerationConstant = Train.ACCELERATION_DEFAULT;
 		}
 
@@ -215,7 +218,11 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 		try {
 			brakingPowerConstant = RailwayData.round(Mth.clamp((float) sliderBrakingPowerConstant.getIntValue() / SLIDER_SCALE + Train.MIN_BRAKING_POWER, Train.MIN_BRAKING_POWER, Train.MAX_BRAKING_POWER), 3);
 		} catch (Exception ignored) {
-			brakingPowerConstant = Train.BRAKING_POWER_DEFAULT;
+			if (hasAcceleration) {
+				brakingPowerConstant = accelerationConstant;
+			} else {
+				brakingPowerConstant = Train.BRAKING_POWER_DEFAULT;
+			}	
 		}
 		
 		final boolean isManual = buttonIsManual.selected();
