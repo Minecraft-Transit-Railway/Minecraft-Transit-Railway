@@ -6,8 +6,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        minecraft: [ 1.17.1 ]
-        variation: [ normal ]
+        minecraft: [ 1.16.5, 1.17.1, 1.18.2, 1.19.2, 1.19.3 ]
+        variation: [ normal, server, lifts ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
