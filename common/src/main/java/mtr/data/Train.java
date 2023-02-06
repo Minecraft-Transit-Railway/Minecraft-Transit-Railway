@@ -527,12 +527,11 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 							manualNotch = -3;
 						} else {
 							if (isCurrentlyManual) {
+								final RailType railType = convertMaxManualSpeed(maxManualSpeed);
 								if (manualNotch >= -2 && manualNotch <= 0) {
-									final RailType railType = convertMaxManualSpeed(maxManualSpeed);
-									speed = Mth.clamp(speed + manualNotch * newAcceleration / 2, 0, railType == null ? RailType.IRON.maxBlocksPerTick : railType.maxBlocksPerTick);
+									speed = Mth.clamp(speed - manualNotch * newBrakingPower / 2, 0, railType == null ? RailType.IRON.maxBlocksPerTick : railType.maxBlocksPerTick);
 								} else if (manualNotch > 0) {
-									final RailType railType = convertMaxManualSpeed(maxManualSpeed);
-									speed = Mth.clamp(speed + manualNotch * newBrakingPower / 2, 0, railType == null ? RailType.IRON.maxBlocksPerTick : railType.maxBlocksPerTick);
+									speed = Mth.clamp(speed + manualNotch * newAcceleration / 2, 0, railType == null ? RailType.IRON.maxBlocksPerTick : railType.maxBlocksPerTick);
 								}
 							} else {
 								final float railSpeed = getRailSpeed(getIndex(0, spacing, false));
