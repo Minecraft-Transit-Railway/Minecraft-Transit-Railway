@@ -16,6 +16,7 @@ import mtr.servlet.Webserver;
 import mtr.sound.LoopingSoundInstance;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.Item;
 
 import java.util.ArrayList;
@@ -344,6 +345,16 @@ public class MTRClient implements IPacket {
 					IDrawing.narrateOrAnnounce(IGui.insertTranslation("gui.mtr.welcome_station_cjk", "gui.mtr.welcome_station", 1, IGui.textOrUntitled(station.name)));
 				}
 			};
+		}
+	}
+
+	public static int getStationColor(BlockPos pos) {
+		final int defaultColor = 0x7F7F7F;
+		if (pos == null) {
+			return defaultColor;
+		} else {
+			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
+			return station == null ? defaultColor : station.color;
 		}
 	}
 
