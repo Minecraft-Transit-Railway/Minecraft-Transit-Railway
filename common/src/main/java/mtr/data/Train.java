@@ -234,8 +234,6 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		speed = packet.readFloat();
 		final float tempAccelerationConstant = RailwayData.round(packet.readFloat(), 3);
 		accelerationConstant = tempAccelerationConstant <= 0 ? ACCELERATION_DEFAULT : tempAccelerationConstant;
-		final float tempBrakingPowerConstant = RailwayData.round(packet.readFloat(), 3);
-		brakingPowerConstant = tempBrakingPowerConstant <= 0 ? BRAKING_POWER_DEFAULT : tempBrakingPowerConstant;
 		railProgress = packet.readDouble();
 		elapsedDwellTicks = packet.readFloat();
 		nextStoppingIndex = packet.readInt();
@@ -261,6 +259,9 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		}
 
 		inventory = null;
+		
+		final float tempBrakingPowerConstant = RailwayData.round(packet.readFloat(), 3);
+		brakingPowerConstant = tempBrakingPowerConstant <= 0 ? BRAKING_POWER_DEFAULT : tempBrakingPowerConstant;
 	}
 
 	@Override
@@ -327,7 +328,6 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		packet.writeFloat(railLength);
 		packet.writeFloat(speed);
 		packet.writeFloat(accelerationConstant);
-		packet.writeFloat(brakingPowerConstant);
 		packet.writeDouble(railProgress);
 		packet.writeFloat(elapsedDwellTicks);
 		packet.writeInt(nextStoppingIndex);
@@ -344,6 +344,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		packet.writeBoolean(doorTarget);
 		packet.writeInt(ridingEntities.size());
 		ridingEntities.forEach(packet::writeUUID);
+		packet.writeFloat(brakingPowerConstant);
 	}
 
 	@Override
