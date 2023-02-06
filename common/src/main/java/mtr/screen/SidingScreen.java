@@ -54,7 +54,6 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 	private static final int MAX_TRAINS_WIDTH = 80;
 	private static final int DESCRIPTION_WIDTH = 160;
 	private static final int SLIDER_SCALE = 1000;
-	private static final int BRAKING_POWER_SLIDER_SCALE = 1200; //SLIDER_SCALE * Train.MAX_BRAKING_POWER / Train.MAX_ACCELERATION
 	private static final float ACCELERATION_UNIT_CONVERSION_1 = 20 * 20; // m/tick^2 to m/s^2
 	private static final float ACCELERATION_UNIT_CONVERSION_2 = ACCELERATION_UNIT_CONVERSION_1 * 3.6F; // m/tick^2 to km/h/s
 	private static final Map<String, String> WIKIPEDIA_ARTICLES = new HashMap<>();
@@ -66,7 +65,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 		availableTrainsList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.TRAINS_SEARCH, text -> ClientData.TRAINS_SEARCH = text);
 		textFieldMaxTrains = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "", MAX_TRAINS_TEXT_LENGTH);
 		sliderAccelerationConstant = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, Math.round((Train.MAX_ACCELERATION - Train.MIN_ACCELERATION) * SLIDER_SCALE), this::accelerationSliderFormatter, null);
-		sliderBrakingPowerConstant = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, Math.round((Train.MAX_BRAKING_POWER - Train.MIN_BRAKING_POWER) * BRAKING_POWER_SLIDER_SCALE), this::brakingPowerSliderFormatter, null);
+		sliderBrakingPowerConstant = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, Math.round((Train.MAX_BRAKING_POWER - Train.MIN_BRAKING_POWER) * SLIDER_SCALE), this::brakingPowerSliderFormatter, null);
 		buttonIsManual = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.is_manual"), checked -> {
 			if (checked && !textFieldMaxTrains.getValue().equals("1")) {
 				textFieldMaxTrains.setValue("1");
