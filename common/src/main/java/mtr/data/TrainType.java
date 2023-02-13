@@ -103,6 +103,8 @@ public enum TrainType {
 	DARK_OAK_BOAT("boat_1_1"),
 	NGONG_PING_360_CRYSTAL("cable_car_1_1"),
 	NGONG_PING_360_CRYSTAL_RHT("cable_car_1_1"),
+	NGONG_PING_360_CRYSTAL_PLUS("cable_car_1_1"),
+	NGONG_PING_360_CRYSTAL_PLUS_RHT("cable_car_1_1"),
 	NGONG_PING_360_NORMAL_RED("cable_car_1_1"),
 	NGONG_PING_360_NORMAL_RED_RHT("cable_car_1_1"),
 	NGONG_PING_360_NORMAL_ORANGE("cable_car_1_1"),
