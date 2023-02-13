@@ -150,6 +150,8 @@ public class TrainClientRegistry {
 		register(TrainType.DARK_OAK_BOAT, "Boat", null, "textures/entity/boat/dark_oak", 0x8F7748, -1.5F, 0);
 		register(TrainType.NGONG_PING_360_CRYSTAL, "Ngong_Ping_360", new ModelNgongPing360(false), "mtr:textures/entity/ngong_ping_360_crystal", 0x062540, 0, 0);
 		register(TrainType.NGONG_PING_360_CRYSTAL_RHT, "Ngong_Ping_360", new ModelNgongPing360(true), "mtr:textures/entity/ngong_ping_360_crystal", 0x062540, 0, 0);
+		register(TrainType.NGONG_PING_360_CRYSTAL_PLUS, "Ngong_Ping_360", new ModelNgongPing360(false), "mtr:textures/entity/ngong_ping_360_crystal_plus", 0x062540, 0, 0);
+		register(TrainType.NGONG_PING_360_CRYSTAL_PLUS_RHT, "Ngong_Ping_360", new ModelNgongPing360(true), "mtr:textures/entity/ngong_ping_360_crystal_plus", 0x062540, 0, 0);
 		register(TrainType.NGONG_PING_360_NORMAL_RED, "Ngong_Ping_360", new ModelNgongPing360(false), "mtr:textures/entity/ngong_ping_360_normal_red", 0x062540, 0, 0);
 		register(TrainType.NGONG_PING_360_NORMAL_RED_RHT, "Ngong_Ping_360", new ModelNgongPing360(true), "mtr:textures/entity/ngong_ping_360_normal_red", 0x062540, 0, 0);
 		register(TrainType.NGONG_PING_360_NORMAL_ORANGE, "Ngong_Ping_360", new ModelNgongPing360(false), "mtr:textures/entity/ngong_ping_360_normal_orange", 0x062540, 0, 0);
