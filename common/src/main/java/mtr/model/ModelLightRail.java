@@ -1049,7 +1049,7 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 				0, isRHT ? -90 : 90, 1.2F, 0.08F,
 				color, color, 1, ((routeNumber.isEmpty() ? "" : routeNumber + "|") + getDestinationString(lastStation, customDestination, TextSpacingType.SPACE_CJK, true)).replace("|", "  "), false, 0, 2
 		);
-.
+
 		final Station station = atPlatform ? thisStation : nextStation;
 		if (station != null) {
 			final String stationString = getDestinationString(station, null, TextSpacingType.SPACE_CJK_LARGE, true);
