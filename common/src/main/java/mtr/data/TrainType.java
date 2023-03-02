@@ -56,6 +56,8 @@ public enum TrainType {
 	LIGHT_RAIL_2_RHT("train_22_2"),
 	LIGHT_RAIL_3("train_22_2"),
 	LIGHT_RAIL_3_RHT("train_22_2"),
+	LIGHT_RAIL_3R("train_22_2"),
+	LIGHT_RAIL_3R_RHT("train_22_2"),
 	LIGHT_RAIL_4("train_22_2"),
 	LIGHT_RAIL_4_RHT("train_22_2"),
 	LIGHT_RAIL_5("train_22_2"),
