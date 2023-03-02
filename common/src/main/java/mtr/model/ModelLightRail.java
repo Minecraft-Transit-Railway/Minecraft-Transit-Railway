@@ -1030,7 +1030,7 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 			);
 		}
 
-		final float sideOffset = (128 - (phase <= 3 || phase == 7 ? 64 : phase == 5 ? 0 : 1)) / 16F;
+		final float sideOffset = (128 - (phase <= 3 ? 64 : phase == 5 ? 0 : 1)) / 16F;
 		renderFrontDestination(
 				matrices, font, immediate,
 				isRHT ? -1.26F : 1.26F, -1.76F, sideOffset - 0.3F, 0, 0, 0,
