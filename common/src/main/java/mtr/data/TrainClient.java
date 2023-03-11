@@ -221,7 +221,13 @@ public class TrainClient extends Train implements IGui {
 
 	@Override
 	protected float getModelZOffset() {
-		return baseTrainType.startsWith("london_underground_199") || trainId.startsWith("london_underground_199") || baseTrainType.equals("mpl_85") || trainId.equals("mpl_85") ? reversed ? -0.5F : 0.5F : 0; // TODO integrate this into TrainClientRegistry
+		return baseTrainType.startsWith("london_underground_199")
+				|| trainId.startsWith("london_underground_199")
+				|| baseTrainType.equals("mpl_85")
+				|| trainId.equals("mpl_85")
+				|| baseTrainType.equals("br_423")
+				|| trainId.equals("br_423") ?
+				reversed ? -0.5F : 0.5F : 0; // TODO integrate this into TrainClientRegistry
 	}
 
 	@Override
