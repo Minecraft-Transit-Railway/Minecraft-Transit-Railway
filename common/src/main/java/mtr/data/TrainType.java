@@ -94,6 +94,7 @@ public enum TrainType {
 	CLASS_802_TPE("train_24_2"),
 	CLASS_802_TPE_MINI("train_18_2"),
 	MPL_85("train_21_2"),
+	BR_423("train_15_2"),
 	MINECART("train_1_1"),
 	OAK_BOAT("boat_1_1"),
 	SPRUCE_BOAT("boat_1_1"),
