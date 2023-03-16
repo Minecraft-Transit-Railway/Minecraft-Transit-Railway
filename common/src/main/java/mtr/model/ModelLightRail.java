@@ -899,6 +899,7 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 						break;
 					case 3:
 					case 5:
+					case 7:
 						renderOnce(head_exterior_3_5, matrices, vertices, light, position);
 						break;
 					case 4:
@@ -965,6 +966,7 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 			case 2:
 				return isRHT ? MODEL_DOOR_OVERLAY_RHT : MODEL_DOOR_OVERLAY;
 			case 3:
+			case 7:
 				return isRHT ? MODEL_DOOR_OVERLAY_3_RHT : MODEL_DOOR_OVERLAY_3;
 			case 4:
 			case 6:
@@ -1003,8 +1005,8 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 	@Override
 	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform, List<ScrollingText> scrollingTexts) {
 		final String routeNumber = thisRoute == null ? "" : thisRoute.lightRailRouteNumber;
-		final float frontOffset = phase == 3 || phase == 5 ? 2.75F : phase == 4 || phase == 6 ? 3.02F : 2.87F;
-		final int color = phase == 3 ? 0xFF00FF00 : 0xFFFF9900;
+		final float frontOffset = phase == 3 || phase == 5 || phase == 7 ? 2.75F : phase == 4 || phase == 6 ? 3.02F : 2.87F;
+		final int color = phase == 3 || phase == 7 ? 0xFFA4FE07 : 0xFFFF9900;
 
 		renderFrontDestination(
 				matrices, font, immediate,
