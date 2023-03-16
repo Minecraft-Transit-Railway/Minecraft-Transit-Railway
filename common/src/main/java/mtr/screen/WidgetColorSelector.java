@@ -43,8 +43,8 @@ public class WidgetColorSelector extends ButtonMapper implements IGui {
 	}
 
 	@Override
-	public void renderButton(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		super.renderButton(matrices, mouseX, mouseY, delta);
+	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+		super.render(matrices, mouseX, mouseY, delta);
 		final int margin = hasMargin ? 1 : 0;
 		Gui.fill(matrices, UtilitiesClient.getWidgetX(this) - margin, UtilitiesClient.getWidgetY(this) - margin, UtilitiesClient.getWidgetX(this) + width + margin, UtilitiesClient.getWidgetY(this) + height + margin, ARGB_BLACK | color);
 	}

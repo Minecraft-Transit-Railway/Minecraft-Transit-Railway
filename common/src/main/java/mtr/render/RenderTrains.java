@@ -468,7 +468,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		final int maxRailDistance = UtilitiesClient.getRenderDistance() * 16;
 
 		rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-			final BlockPos pos2 = new BlockPos(x1, y1, z1);
+			final BlockPos pos2 = RailwayData.newBlockPos(x1, y1, z1);
 			if (shouldNotRender(pos2, maxRailDistance, null)) {
 				return;
 			}
@@ -506,7 +506,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 			final int color = ARGB_BLACK | signalBlock.color.getMaterialColor().col;
 			rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-				final BlockPos pos2 = new BlockPos(x1, y1, z1);
+				final BlockPos pos2 = RailwayData.newBlockPos(x1, y1, z1);
 				if (shouldNotRender(pos2, maxRailDistance, null)) {
 					return;
 				}

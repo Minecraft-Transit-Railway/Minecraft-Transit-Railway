@@ -735,6 +735,22 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		return new GsonBuilder().setPrettyPrinting().create().toJson(jsonElement);
 	}
 
+	public static BlockPos newBlockPos(Vec3 vec3) {
+		return newBlockPos(vec3.x, vec3.y, vec3.z);
+	}
+
+	public static BlockPos newBlockPos(double x, double y, double z) {
+		return RailwayData.newBlockPos((int) x, (int) y, (int) z);
+	}
+
+	public static BlockPos newBlockPos(int x, int y, int z) {
+		return new BlockPos(x, y, z);
+	}
+
+	public static BlockPos offsetBlockPos(BlockPos pos, double x, double y, double z) {
+		return pos.offset((int) x, (int) y, (int) z);
+	}
+
 	public static RailwayData getInstance(Level world) {
 		return getInstance(world, () -> new RailwayData(world), NAME);
 	}

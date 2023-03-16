@@ -3,6 +3,7 @@ package mtr.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.MTRClient;
 import mtr.client.Config;
+import mtr.data.RailwayData;
 import mtr.data.TrainClient;
 import mtr.entity.EntitySeat;
 import mtr.mappings.Utilities;
@@ -85,7 +86,7 @@ public abstract class TrainRendererBase {
 	public static BlockPos applyAverageTransform(Vec3 viewOffset, double x, double y, double z) {
 		final boolean noOffset = viewOffset == null;
 		final Vec3 cameraPos = cameraEntity == null ? null : cameraEntity.position();
-		final BlockPos posAverage = new BlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.x), y + (noOffset || cameraPos == null ? 0 : cameraPos.y), z + (noOffset || cameraPos == null ? 0 : cameraPos.z));
+		final BlockPos posAverage = RailwayData.newBlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.x), y + (noOffset || cameraPos == null ? 0 : cameraPos.y), z + (noOffset || cameraPos == null ? 0 : cameraPos.z));
 
 		if (RenderTrains.shouldNotRender(posAverage, UtilitiesClient.getRenderDistance() * (Config.trainRenderDistanceRatio() + 1), null)) {
 			return null;

@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class ModUpload {
 
-	private static final String[] MINECRAFT_VERSIONS = {"1.16.5", "1.17.1", "1.18.2", "1.19.2", "1.19.3"};
+	private static final String[] MINECRAFT_VERSIONS = {"1.16.5", "1.17.1", "1.18.2", "1.19.2", "1.19.3", "1.19.4"};
 
 	public static void main(String[] args) throws IOException {
 		if (args.length == 2) {

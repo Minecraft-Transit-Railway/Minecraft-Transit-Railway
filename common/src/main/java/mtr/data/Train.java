@@ -673,7 +673,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		for (int checkX = 1; checkX <= 3; checkX++) {
 			for (int checkY = -2; checkY <= 3; checkY++) {
 				for (double checkZ = -halfSpacing; checkZ <= halfSpacing; checkZ++) {
-					final BlockPos checkPos = new BlockPos(trainX + offsetVec.x * checkX + traverseVec.x * checkZ, trainY + checkY, trainZ + offsetVec.z * checkX + traverseVec.z * checkZ);
+					final BlockPos checkPos = RailwayData.newBlockPos(trainX + offsetVec.x * checkX + traverseVec.x * checkZ, trainY + checkY, trainZ + offsetVec.z * checkX + traverseVec.z * checkZ);
 					final Block block = world.getBlockState(checkPos).getBlock();
 
 					if (block instanceof BlockPlatform || block instanceof BlockPSDAPGBase) {

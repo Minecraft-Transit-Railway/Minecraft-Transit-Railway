@@ -149,7 +149,7 @@ public class RouteFinderServletHandler extends HttpServlet {
 		} else if (parameterPos != null) {
 			try {
 				final String[] coordinates = parameterPos.split(",");
-				return new PositionInfo(new BlockPos(Double.parseDouble(coordinates[0]), Double.parseDouble(coordinates[1]), Double.parseDouble(coordinates[2])), railwayData, null, null, false);
+				return new PositionInfo(RailwayData.newBlockPos(Double.parseDouble(coordinates[0]), Double.parseDouble(coordinates[1]), Double.parseDouble(coordinates[2])), railwayData, null, null, false);
 			} catch (Exception ignored) {
 			}
 			errors.add(String.format("The block position '%s' is not formatted correctly.", parameterPos));
