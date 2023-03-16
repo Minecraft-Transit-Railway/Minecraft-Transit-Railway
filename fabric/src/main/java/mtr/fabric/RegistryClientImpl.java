@@ -1,6 +1,6 @@
 package mtr.fabric;
 
-import mtr.client.ClientData;
+import mtr.MTRClient;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.BlockEntityRendererMapper;
 import mtr.mappings.EntityRendererMapper;
@@ -50,17 +50,7 @@ public class RegistryClientImpl {
 	}
 
 	public static void registerBlockColors(Block block) {
-		ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> {
-			final int defaultColor = 0x7F7F7F;
-			if (pos != null) {
-				try {
-					return ClientData.STATIONS.stream().filter(station1 -> station1.inArea(pos.getX(), pos.getZ())).findFirst().map(station2 -> station2.color).orElse(defaultColor);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-			return defaultColor;
-		}, block);
+		ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> MTRClient.getStationColor(pos), block);
 	}
 
 	public static void registerNetworkReceiver(ResourceLocation resourceLocation, Consumer<FriendlyByteBuf> consumer) {

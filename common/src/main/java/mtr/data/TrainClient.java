@@ -72,7 +72,7 @@ public class TrainClient extends Train implements IGui {
 			return;
 		}
 
-		final BlockPos soundPos = new BlockPos(carX, carY, carZ);
+		final BlockPos soundPos = RailwayData.newBlockPos(carX, carY, carZ);
 		trainSound.playAllCars(world, soundPos, ridingCar);
 		if (doorLeftOpen || doorRightOpen) {
 			trainSound.playAllCarsDoorOpening(world, soundPos, ridingCar);
@@ -193,7 +193,7 @@ public class TrainClient extends Train implements IGui {
 				nearestDistance = checkDistance;
 			}
 		}
-		final BlockPos soundPos = new BlockPos(positions[nearestCar].x, positions[nearestCar].y, positions[nearestCar].z);
+		final BlockPos soundPos = RailwayData.newBlockPos(positions[nearestCar].x, positions[nearestCar].y, positions[nearestCar].z);
 		trainSound.playNearestCar(world, soundPos, nearestCar);
 
 		return true;
@@ -221,7 +221,13 @@ public class TrainClient extends Train implements IGui {
 
 	@Override
 	protected float getModelZOffset() {
-		return baseTrainType.startsWith("london_underground_199") || trainId.startsWith("london_underground_199") || baseTrainType.equals("mpl_85") || trainId.equals("mpl_85") ? reversed ? -0.5F : 0.5F : 0; // TODO integrate this into TrainClientRegistry
+		return baseTrainType.startsWith("london_underground_199")
+				|| trainId.startsWith("london_underground_199")
+				|| baseTrainType.equals("mpl_85")
+				|| trainId.equals("mpl_85")
+				|| baseTrainType.equals("br_423")
+				|| trainId.equals("br_423") ?
+				reversed ? -0.5F : 0.5F : 0; // TODO integrate this into TrainClientRegistry
 	}
 
 	@Override

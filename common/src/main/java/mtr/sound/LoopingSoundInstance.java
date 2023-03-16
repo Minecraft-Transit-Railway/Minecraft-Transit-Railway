@@ -1,6 +1,7 @@
 package mtr.sound;
 
 import mtr.MTR;
+import mtr.data.RailwayData;
 import mtr.mappings.RegistryUtilities;
 import mtr.mappings.SoundInstanceMapper;
 import net.minecraft.client.Minecraft;
@@ -46,7 +47,7 @@ public class LoopingSoundInstance extends SoundInstanceMapper implements Tickabl
 			final int distance = playerPos.distManhattan(pos);
 
 			if (distance <= MAX_DISTANCE) {
-				final int currentDistance = playerPos.distManhattan(new BlockPos(x, y, z));
+				final int currentDistance = playerPos.distManhattan(RailwayData.newBlockPos(x, y, z));
 
 				if (distance < currentDistance) {
 					x = pos.getX();

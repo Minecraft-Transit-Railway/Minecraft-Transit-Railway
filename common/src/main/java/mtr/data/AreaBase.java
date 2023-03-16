@@ -109,7 +109,7 @@ public abstract class AreaBase extends NameColorDataBase {
 	}
 
 	public BlockPos getCenter() {
-		return nonNullCorners(this) ? new BlockPos((corner1.getA() + corner2.getA()) / 2, 0, (corner1.getB() + corner2.getB()) / 2) : null;
+		return nonNullCorners(this) ? RailwayData.newBlockPos((corner1.getA() + corner2.getA()) / 2, 0, (corner1.getB() + corner2.getB()) / 2) : null;
 	}
 
 	private void setCorners(int corner1a, int corner1b, int corner2a, int corner2b) {

@@ -526,7 +526,7 @@ public class Rail extends SerializedDataBase {
 
 		private boolean createTunnel() {
 			return create(true, editPos -> {
-				final BlockPos pos = new BlockPos(editPos);
+				final BlockPos pos = RailwayData.newBlockPos(editPos);
 				if (!blacklistedPos.contains(pos) && canPlace(world, pos)) {
 					world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
 					blacklistedPos.add(pos);
@@ -536,7 +536,7 @@ public class Rail extends SerializedDataBase {
 
 		private boolean createTunnelWall() {
 			return create(false, editPos -> {
-				final BlockPos pos = new BlockPos(editPos);
+				final BlockPos pos = RailwayData.newBlockPos(editPos);
 				if (!blacklistedPos.contains(pos) && canPlace(world, pos)) {
 					world.setBlockAndUpdate(pos, state);
 					blacklistedPos.add(pos);
@@ -546,7 +546,7 @@ public class Rail extends SerializedDataBase {
 
 		private boolean createBridge() {
 			return create(false, editPos -> {
-				final BlockPos pos = new BlockPos(editPos);
+				final BlockPos pos = RailwayData.newBlockPos(editPos);
 				final boolean isTopHalf = editPos.y - Math.floor(editPos.y) >= 0.5;
 				blacklistedPos.add(getHalfPos(pos, isTopHalf));
 
@@ -617,7 +617,7 @@ public class Rail extends SerializedDataBase {
 		}
 
 		private static BlockPos getHalfPos(BlockPos pos, boolean isTopHalf) {
-			return new BlockPos(pos.getX(), pos.getY() * 2 + (isTopHalf ? 1 : 0), pos.getZ());
+			return RailwayData.newBlockPos(pos.getX(), pos.getY() * 2 + (isTopHalf ? 1 : 0), pos.getZ());
 		}
 	}
 

@@ -448,7 +448,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	private void generateDefaultPath(Map<BlockPos, Map<BlockPos, Rail>> rails) {
 		trains.clear();
 
-		final List<BlockPos> orderedPositions = getOrderedPositions(new BlockPos(0, 0, 0), false);
+		final List<BlockPos> orderedPositions = getOrderedPositions(RailwayData.newBlockPos(0, 0, 0), false);
 		final BlockPos pos1 = orderedPositions.get(0);
 		final BlockPos pos2 = orderedPositions.get(1);
 		if (RailwayData.containsRail(rails, pos1, pos2)) {

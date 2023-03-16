@@ -102,8 +102,8 @@ public class PathFinder {
 								} else {
 									final int heightDifference1 = cruisingAltitude - pos1.getY();
 									final int heightDifference2 = cruisingAltitude - pos2.getY();
-									final BlockPos cruisingPos1 = pos1.offset(pathPart1.direction.cos * Math.abs(heightDifference1) * 4, heightDifference1, pathPart1.direction.sin * Math.abs(heightDifference1) * 4);
-									final BlockPos cruisingPos4 = pos2.offset(-pathPart2.direction.cos * Math.abs(heightDifference2) * 4, heightDifference2, -pathPart2.direction.sin * Math.abs(heightDifference2) * 4);
+									final BlockPos cruisingPos1 = RailwayData.offsetBlockPos(pos1, pathPart1.direction.cos * Math.abs(heightDifference1) * 4, heightDifference1, pathPart1.direction.sin * Math.abs(heightDifference1) * 4);
+									final BlockPos cruisingPos4 = RailwayData.offsetBlockPos(pos2, -pathPart2.direction.cos * Math.abs(heightDifference2) * 4, heightDifference2, -pathPart2.direction.sin * Math.abs(heightDifference2) * 4);
 									final int turnArc = Math.min(MAX_AIRPLANE_TURN_ARC, cruisingPos1.distManhattan(cruisingPos4) / 8);
 									final RailType dummyRailType = useFastSpeed ? RailType.AIRPLANE_DUMMY : RailType.RUNWAY;
 
@@ -190,7 +190,7 @@ public class PathFinder {
 			final RailAngle rotateAngle = turnRight ? RailAngle.SEE : RailAngle.NEE;
 			tempAngle = tempAngle.add(rotateAngle);
 			final Vec3 posOffset = new Vec3(turnArc, 0, 0).yRot((float) -oldTempAngle.angleRadians - (float) rotateAngle.angleRadians / 2);
-			tempPos = oldTempPos.offset(posOffset.x, posOffset.y, posOffset.z);
+			tempPos = RailwayData.offsetBlockPos(oldTempPos, posOffset.x, posOffset.y, posOffset.z);
 
 			if (reverse) {
 				tempRailPath.add(0, new PathData(new Rail(tempPos, tempAngle.getOpposite(), oldTempPos, oldTempAngle, railType, TransportMode.AIRPLANE), 0, 0, tempPos, oldTempPos, stopIndex));

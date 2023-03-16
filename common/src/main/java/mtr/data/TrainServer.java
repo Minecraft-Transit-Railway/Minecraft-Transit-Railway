@@ -128,7 +128,7 @@ public class TrainServer extends Train {
 			}
 		});
 
-		final BlockPos frontPos = new BlockPos(positions[reversed ? positions.length - 1 : 0]);
+		final BlockPos frontPos = RailwayData.newBlockPos(positions[reversed ? positions.length - 1 : 0]);
 		if (RailwayData.chunkLoaded(world, frontPos)) {
 			checkBlock(frontPos, checkPos -> {
 				if (RailwayData.chunkLoaded(world, checkPos)) {
