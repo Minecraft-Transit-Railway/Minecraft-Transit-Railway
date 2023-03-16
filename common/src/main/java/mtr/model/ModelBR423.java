@@ -840,31 +840,31 @@ public class ModelBR423 extends ModelSimpleTrainBase<ModelBR423> {
 				matrices, font, immediate,
 				0, -43F / 16, -8.75F, noRoute ? 0 : (routeWidthBig + margin) / 2, 0.66F, -0.01F - 3F / 16,
 				-35, 0, widthBig - (noRoute ? margin * 2 : margin * 3 + routeWidthBig), 0.16F,
-				0xFF00FF00, 0xFF00FF00, 1, destinationString, false, car, totalCars
+				ARGB_WHITE, ARGB_WHITE, 1, destinationString, false, car, totalCars
 		);
 		renderFrontDestination(
 				matrices, font, immediate,
 				0, -43F / 16, -8.75F, -widthBig / 2 + margin + routeWidthBig / 2, 0.66F, -0.01F - 3F / 16,
 				-35, 0, routeWidthBig, 0.16F,
-				0xFF00FF00, 0xFF00FF00, 1, routeNumber, false, car, totalCars
+				ARGB_WHITE, ARGB_WHITE, 1, routeNumber, false, car, totalCars
 		);
 
 		renderFrontDestination(
 				matrices, font, immediate,
 				-1.31F, -1.68F, center + (noRoute ? 0 : (-routeWidthBig - margin) / 2), 0, 0, -0.01F,
 				0, 90, widthSmall - (noRoute ? margin * 2 : margin * 3 + routeWidthSmall), 0.1F,
-				0xFF00FF00, 0xFF00FF00, 1, destinationString, false, 0, 1
+				ARGB_WHITE, ARGB_WHITE, 1, destinationString, false, 0, 1
 		);
 		renderFrontDestination(
 				matrices, font, immediate,
 				-1.31F, -1.68F, center + widthSmall / 2 - margin - routeWidthSmall / 2, 0, 0, -0.01F,
 				0, 90, routeWidthSmall, 0.1F,
-				0xFF00FF00, 0xFF00FF00, 1, routeNumber, false, 0, 1
+				ARGB_WHITE, ARGB_WHITE, 1, routeNumber, false, 0, 1
 		);
 	}
 
 	@Override
 	protected String defaultDestinationString() {
-		return "Not in Service";
+		return "Nicht Einsteigen";
 	}
 }

@@ -128,12 +128,12 @@ task setupFiles() {
 		}
 	}
 	if (rootProject.variation == "normal" || rootProject.variation == "server") {
-//		download {
-//			src "https://unpkg.com/fabric/dist/fabric.min.js"
-//			dest "common/src/main/resources/assets/mtr/website/fabric.min.js"
-//			overwrite true
-//			retries - 1
-//		}
+		download {
+			src "https://unpkg.com/fabric/dist/fabric.min.js"
+			dest "common/src/main/resources/assets/mtr/website/fabric.min.js"
+			overwrite true
+			retries - 1
+		}
 		download {
 			src "https://raw.githubusercontent.com/bramstein/fontfaceobserver/master/fontfaceobserver.standalone.js"
 			dest "common/src/main/resources/assets/mtr/website/fontfaceobserver.standalone.js"
