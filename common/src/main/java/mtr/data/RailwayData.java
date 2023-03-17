@@ -749,7 +749,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public static BlockPos offsetBlockPos(BlockPos pos, double x, double y, double z) {
-		return x == 0 && y == 0 && z == 0 ? pos : new BlockPos(pos.getX() + x, pos.getY() + y, pos.getZ() + z);
+		return x == 0 && y == 0 && z == 0 ? pos : newBlockPos(pos.getX() + x, pos.getY() + y, pos.getZ() + z);
 	}
 
 	public static RailwayData getInstance(Level world) {
