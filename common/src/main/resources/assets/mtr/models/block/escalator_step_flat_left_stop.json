@@ -1,6 +1,7 @@
 {
+	"credit": "Made with Blockbench",
 	"parent": "mtr:block/escalator_step_flat_left_base",
 	"textures": {
-		"step": "mtr:block/escalator_stop"
+		"step": "mtr:block/escalator_flat_stop"
 	}
 }
