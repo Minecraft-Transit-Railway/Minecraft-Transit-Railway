@@ -3,6 +3,6 @@
 	"ambientocclusion": false,
 	"render": "transparent",
 	"textures": {
-		"step": "mtr:block/escalator_up"
+		"step": "mtr:block/escalator_stop"
 	}
 }

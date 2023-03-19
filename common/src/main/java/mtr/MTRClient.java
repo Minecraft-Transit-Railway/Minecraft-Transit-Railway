@@ -44,6 +44,9 @@ public class MTRClient implements IPacket {
 
 	public static void init() {
 		if (!Keys.LIFTS_ONLY) {
+			RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.ESCALATOR_STEP.get());
+			RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.ESCALATOR_SIDE.get());
+
 			RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.APG_DOOR.get());
 			RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.APG_GLASS.get());
 			RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.APG_GLASS_END.get());

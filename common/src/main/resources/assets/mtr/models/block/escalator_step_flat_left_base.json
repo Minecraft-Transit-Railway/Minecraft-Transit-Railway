@@ -1,36 +1,41 @@
 {
+	"credit": "Made with Blockbench",
 	"parent": "block/block",
 	"textures": {
-		"particle": "mtr:block/metal"
+		"1": "mtr:block/escalators/escalator",
+		"particle": "mtr:block/escalators/escalator",
+		"step": "mtr:block/escalator_flat_down"
 	},
 	"elements": [
-		{   "__comment": "Bottom",
-			"from": [ 0, 0, 0 ],
-			"to": [ 16, 1, 16 ],
+		{
+			"name": "Step left",
+			"from": [0, 16, 0],
+			"to": [16, 16, 11],
 			"faces": {
-				"down": { "texture": "#particle", "cullface": "down" },
-				"up": { "texture": "#particle" },
-				"east": { "texture": "#particle", "cullface": "east" },
-				"west": { "texture": "#particle", "cullface": "west" }
+				"up": {"uv": [0, 0, 16, 16], "rotation": 270, "texture": "#step"}
 			}
 		},
-		{   "__comment": "Main left",
-			"from": [ 0, 0, 12 ],
-			"to": [ 16, 16, 16.1 ],
+		{
+			"name": "Bottom",
+			"from": [0, 0, 0],
+			"to": [16, 1, 16],
 			"faces": {
-				"up": { "uv": [ 0, 12, 16, 16 ], "texture": "#particle", "cullface": "up" },
-				"north": { "texture": "#particle" },
-				"south": { "texture": "#particle", "cullface": "south" },
-				"east": { "uv": [ 0, 8, 4, 16 ], "texture": "#particle", "cullface": "east" },
-				"west": { "uv": [ 12, 8, 16, 16 ], "texture": "#particle", "cullface": "west" }
+				"up": {"uv": [7.5, 5.25, 11.5, 9.25], "rotation": 270, "texture": "#1"},
+				"down": {"uv": [7.5, 9.25, 11.5, 5.25], "rotation": 90, "texture": "#1", "cullface": "down"}
 			}
 		},
-		{   "__comment": "Step left",
-			"from": [ 0, 16, 0 ],
-			"to": [ 16, 16, 12 ],
+		{
+			"name": "Main right",
+			"from": [0, 0, 11],
+			"to": [16, 16, 16],
 			"faces": {
-				"up": { "uv": [ 0, 0, 16, 16 ], "texture": "#step", "rotation": 270 }
+				"north": {"uv": [0, 2.375, 4, 6.375], "texture": "#1"},
+				"east": {"uv": [0, 2.375, 1.25, 6.375], "texture": "#1", "cullface": "west"},
+				"south": {"uv": [0, 2.375, 4, 6.375], "texture": "#1", "cullface": "north"},
+				"west": {"uv": [2.625, 2.375, 4, 6.375], "texture": "#1", "cullface": "east"},
+				"up": {"uv": [0, 2.375, 4, 3.625], "rotation": 180, "texture": "#1", "cullface": "up"}
 			}
 		}
-	]
+	],
+	"render": "transparent"
 }
