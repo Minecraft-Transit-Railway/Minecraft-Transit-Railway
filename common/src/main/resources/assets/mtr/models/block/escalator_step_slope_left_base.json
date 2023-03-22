@@ -970,8 +970,8 @@
 		},
 		{
 			"name": "Main",
-			"from": [5, 0, 11.005],
-			"to": [21, 12, 16.008],
+			"from": [5, 0, 11.01],
+			"to": [21, 12, 16.02],
 			"rotation": {"angle": -45, "axis": "z", "origin": [8, 8, 8], "rescale": true},
 			"faces": {
 				"north": {"uv": [0, 2.375, 4, 6.375], "texture": "#1"},
