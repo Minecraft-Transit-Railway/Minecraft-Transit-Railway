@@ -21,7 +21,7 @@
 		{
 			"name": "Main",
 			"from": [5, 0, -0.005],
-			"to": [21, 12, 5],
+			"to": [21, 12, 4.998],
 			"rotation": {"angle": -45, "axis": "z", "origin": [8, 8, 8], "rescale": true},
 			"faces": {
 				"north": {"uv": [4, 2.375, 0, 6.375], "texture": "#1"},
@@ -946,7 +946,6 @@
 			}
 		}
 	],
-	"display": {},
 	"groups": [
 		0,
 		1,

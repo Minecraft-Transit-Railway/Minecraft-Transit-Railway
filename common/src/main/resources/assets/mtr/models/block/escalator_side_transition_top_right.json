@@ -48,7 +48,7 @@
 		},
 		{
 			"from": [6.4, -0.2, -0.001],
-			"to": [11, 2.85, 5.001],
+			"to": [11.2, 2.85, 5.002],
 			"rotation": {"angle": -45, "axis": "z", "origin": [8, -0.5, 0]},
 			"faces": {
 				"north": {"uv": [7.5, 4.125, 11.5, 5.125], "texture": "#particle"},
@@ -57,15 +57,12 @@
 			}
 		},
 		{
-			"name": "Main Flat",
-			"from": [-8, -16, 0.045],
-			"to": [9.5, 0, 4.993],
-			"rotation": {"angle": 0, "axis": "y", "origin": [0, 3, 0.05]},
+			"name": "Main",
+			"from": [0, -16, 0],
+			"to": [10.4, 0, 5],
 			"faces": {
 				"north": {"uv": [0, 2.375, 4, 6.375], "texture": "#particle", "cullface": "north"},
-				"east": {"uv": [2.75, 2.375, 4, 6.375], "texture": "#particle", "cullface": "east"},
 				"south": {"uv": [0, 2.375, 4, 6.375], "texture": "#particle"},
-				"west": {"uv": [0, 2.375, 1.25, 6.375], "texture": "#particle", "cullface": "west"},
 				"up": {"uv": [0, 2.375, 4, 3.625], "texture": "#particle", "cullface": "up"}
 			}
 		}

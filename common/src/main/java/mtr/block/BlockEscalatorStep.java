@@ -60,7 +60,7 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 		final boolean direction = IBlock.getStatePropertySafe(state,DIRECTION);
 		final EnumEscalatorState running = IBlock.getStatePropertySafe(state,STATUS);
-		final float speed = 0.05F;
+		final float speed = 0.1F;
 
 		if(running == EnumEscalatorState.RUNNING){
 			switch (facing) {
