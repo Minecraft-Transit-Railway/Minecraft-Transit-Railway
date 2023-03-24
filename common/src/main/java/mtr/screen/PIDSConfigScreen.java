@@ -1,7 +1,6 @@
 package mtr.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.block.BlockPIDSBase;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.*;
@@ -33,15 +32,17 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 	private final WidgetBetterCheckbox selectAllCheckbox;
 	private final Button filterButton;
 	private final Set<Long> filterPlatformIds;
+	private final int linesPerArrival;
 
 	private static final int MAX_MESSAGE_LENGTH = 2048;
 
-	public PIDSConfigScreen(BlockPos pos1, BlockPos pos2, int maxArrivals) {
+	public PIDSConfigScreen(BlockPos pos1, BlockPos pos2, int maxArrivals, int linesPerArrival) {
 		super(Text.literal(""));
 		this.pos1 = pos1;
 		this.pos2 = pos2;
-		messages = new String[maxArrivals];
-		for (int i = 0; i < maxArrivals; i++) {
+		this.linesPerArrival = linesPerArrival;
+		messages = new String[maxArrivals * linesPerArrival];
+		for (int i = 0; i < maxArrivals * linesPerArrival; i++) {
 			messages[i] = "";
 		}
 		hideArrival = new boolean[maxArrivals];
@@ -49,8 +50,8 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 		selectAllCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.automatically_detect_nearby_platform"), checked -> {
 		});
 
-		textFieldMessages = new WidgetBetterTextField[maxArrivals];
-		for (int i = 0; i < maxArrivals; i++) {
+		textFieldMessages = new WidgetBetterTextField[maxArrivals * linesPerArrival];
+		for (int i = 0; i < maxArrivals * linesPerArrival; i++) {
 			textFieldMessages[i] = new WidgetBetterTextField("", MAX_MESSAGE_LENGTH);
 		}
 
@@ -65,11 +66,13 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 			filterPlatformIds = new HashSet<>();
 		} else {
 			final BlockEntity entity = world.getBlockEntity(pos1);
-			if (entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
-				filterPlatformIds = ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getPlatformIds();
+			if (entity instanceof IPIDS.TileEntityPIDS) {
+				filterPlatformIds = ((IPIDS.TileEntityPIDS) entity).getPlatformIds();
+				for (int i = 0; i < maxArrivals * linesPerArrival; i++) {
+					messages[i] = ((IPIDS.TileEntityPIDS) entity).getMessage(i);
+				}
 				for (int i = 0; i < maxArrivals; i++) {
-					messages[i] = ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getMessage(i);
-					hideArrival[i] = ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getHideArrival(i);
+					hideArrival[i] = ((IPIDS.TileEntityPIDS) entity).getHideArrival(i);
 				}
 			} else {
 				filterPlatformIds = new HashSet<>();
@@ -97,9 +100,10 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 			IDrawing.setPositionAndWidth(textFieldMessage, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 6 + TEXT_FIELD_PADDING / 2 + (SQUARE_SIZE + TEXT_FIELD_PADDING) * i, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING - textWidth);
 			textFieldMessage.setValue(messages[i]);
 			addDrawableChild(textFieldMessage);
-
+		}
+		for (int i = 0; i < buttonsHideArrival.length; i++) {
 			final WidgetBetterCheckbox buttonHideArrival = buttonsHideArrival[i];
-			IDrawing.setPositionAndWidth(buttonHideArrival, width - SQUARE_SIZE - textWidth + TEXT_PADDING, SQUARE_SIZE * 6 + TEXT_FIELD_PADDING / 2 + (SQUARE_SIZE + TEXT_FIELD_PADDING) * i, textWidth);
+			IDrawing.setPositionAndWidth(buttonHideArrival, width - SQUARE_SIZE - textWidth + TEXT_PADDING, SQUARE_SIZE * 6 + TEXT_FIELD_PADDING / 2 + (SQUARE_SIZE + TEXT_FIELD_PADDING) * (i * linesPerArrival), textWidth);
 			buttonHideArrival.setChecked(hideArrival[i]);
 			addDrawableChild(buttonHideArrival);
 		}
@@ -116,6 +120,8 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 	public void onClose() {
 		for (int i = 0; i < textFieldMessages.length; i++) {
 			messages[i] = textFieldMessages[i].getValue();
+		}
+		for (int i = 0; i < buttonsHideArrival.length; i++) {
 			hideArrival[i] = buttonsHideArrival[i].selected();
 		}
 		if (selectAllCheckbox.selected()) {

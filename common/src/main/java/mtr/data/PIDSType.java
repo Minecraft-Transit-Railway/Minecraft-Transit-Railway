@@ -2,7 +2,8 @@ package mtr.data;
 
 public enum PIDSType {
 	ARRIVAL_PROJECTOR(false, true, false),
-	PIDS(true, false, true);
+	PIDS(true, false, true),
+	PIDS_VERTICAL(true, false, true);
 
 	public final boolean showTerminatingPlatforms;
 	public final boolean showPlatformNumber;

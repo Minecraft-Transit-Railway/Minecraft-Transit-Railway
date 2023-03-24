@@ -75,11 +75,12 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		Registry.sendToPlayer(player, PACKET_OPEN_LIFT_CUSTOMIZATION_SCREEN, packet);
 	}
 
-	public static void openPIDSConfigScreenS2C(ServerPlayer player, BlockPos pos1, BlockPos pos2, int maxArrivals) {
+	public static void openPIDSConfigScreenS2C(ServerPlayer player, BlockPos pos1, BlockPos pos2, int maxArrivals, int linesPerArrival) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(pos1);
 		packet.writeBlockPos(pos2);
 		packet.writeInt(maxArrivals);
+		packet.writeInt(linesPerArrival);
 		Registry.sendToPlayer(player, PACKET_OPEN_PIDS_CONFIG_SCREEN, packet);
 	}
 
@@ -370,11 +371,14 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 	public static void receivePIDSMessageC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
 		final BlockPos pos1 = packet.readBlockPos();
 		final BlockPos pos2 = packet.readBlockPos();
+		final int maxMessages = packet.readInt();
+		final String[] messages = new String[maxMessages];
+		for (int i = 0; i < maxMessages; i++) {
+			messages[i] = packet.readUtf(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		}
 		final int maxArrivals = packet.readInt();
-		final String[] messages = new String[maxArrivals];
 		final boolean[] hideArrivals = new boolean[maxArrivals];
 		for (int i = 0; i < maxArrivals; i++) {
-			messages[i] = packet.readUtf(SerializedDataBase.PACKET_STRING_READ_LENGTH);
 			hideArrivals[i] = packet.readBoolean();
 		}
 		final int platformIdCount = packet.readInt();
@@ -383,19 +387,19 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			platformIds.add(packet.readLong());
 		}
 		minecraftServer.execute(() -> {
-			final List<BlockPIDSBase.TileEntityBlockPIDSBase> entities = new ArrayList<>();
+			final List<IPIDS.TileEntityPIDS> entities = new ArrayList<>();
 
 			final BlockEntity entity1 = player.level.getBlockEntity(pos1);
-			if (entity1 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
-				entities.add((BlockPIDSBase.TileEntityBlockPIDSBase) entity1);
+			if (entity1 instanceof IPIDS.TileEntityPIDS) {
+				entities.add((IPIDS.TileEntityPIDS) entity1);
 			}
 
 			final BlockEntity entity2 = player.level.getBlockEntity(pos2);
-			if (entity2 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
-				entities.add((BlockPIDSBase.TileEntityBlockPIDSBase) entity2);
+			if (entity2 instanceof IPIDS.TileEntityPIDS) {
+				entities.add((IPIDS.TileEntityPIDS) entity2);
 			}
 
-			setTileEntityDataAndWriteUpdate(player, entity -> entity.setData(messages, hideArrivals, platformIds), entities.toArray(new BlockPIDSBase.TileEntityBlockPIDSBase[0]));
+			setTileEntityDataAndWriteUpdate(player, entity -> entity.setData(messages, hideArrivals, platformIds), entities.toArray(new IPIDS.TileEntityPIDS[0]));
 		});
 	}
 

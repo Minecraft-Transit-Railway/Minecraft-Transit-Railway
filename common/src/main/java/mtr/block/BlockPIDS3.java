@@ -9,7 +9,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BlockPIDS3 extends BlockPIDSBase {
+public class BlockPIDS3 extends BlockPIDSBaseHorizontal {
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
@@ -23,16 +23,17 @@ public class BlockPIDS3 extends BlockPIDSBase {
 		return new TileEntityBlockPIDS3(pos, state);
 	}
 
-	public static class TileEntityBlockPIDS3 extends TileEntityBlockPIDSBase {
+	public static class TileEntityBlockPIDS3 extends TileEntityBlockPIDSBaseHorizontal {
 
 		public static final int MAX_ARRIVALS = 2;
+		public static final int LINES_PER_ARRIVAL = 1;
 
 		public TileEntityBlockPIDS3(BlockPos pos, BlockState state) {
 			super(BlockEntityTypes.PIDS_3_TILE_ENTITY.get(), pos, state);
 		}
 
 		@Override
-		protected int getMaxArrivals() {
+		public int getMaxArrivals() {
 			return MAX_ARRIVALS;
 		}
 	}
