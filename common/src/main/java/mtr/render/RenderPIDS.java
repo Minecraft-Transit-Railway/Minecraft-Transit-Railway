@@ -33,6 +33,8 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 	private final float destinationMaxWidth;
 	private final float platformMaxWidth;
 	private final float arrivalMaxWidth;
+	private final float callingAtMaxWidth;
+	private final float callingAtStationMaxWidth;
 	private final int maxArrivals;
 	private final int linesPerArrival;
 	private final float maxHeight;
@@ -49,15 +51,32 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 	public static final int MAX_VIEW_DISTANCE = 16;
 	private static final int SWITCH_LANGUAGE_TICKS = 60;
 	private static final int CAR_TEXT_COLOR = 0xFF0000;
+	private static final int STATIONS_PER_PAGE = 10;
+	private static final int SWITCH_PAGE_TICKS = 120;
 
 	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, int linesPerArrival, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, PIDSType renderType, int textColor, int firstTrainColor, float textPadding, boolean appendDotAfterMin) {
 		super(dispatcher);
 		scale = 160 * (maxArrivals * linesPerArrival) / maxHeight * textPadding;
 		totalScaledWidth = scale * maxWidth / 16;
 		destinationStart = renderArrivalNumber ? scale * 2 / 16 : 0;
-		destinationMaxWidth = renderType == PIDSType.PIDS_VERTICAL ? totalScaledWidth : totalScaledWidth * 0.7F;
-		platformMaxWidth = renderType.showPlatformNumber ? scale * 2 / 16 : 0;
-		arrivalMaxWidth = renderType == PIDSType.PIDS_VERTICAL ? totalScaledWidth *  8 / 16 : totalScaledWidth - destinationStart - destinationMaxWidth - platformMaxWidth;
+		switch (renderType) {
+			case PIDS_VERTICAL:
+				destinationMaxWidth = totalScaledWidth;
+				platformMaxWidth = 0;
+				arrivalMaxWidth = totalScaledWidth * 8 / 16;
+				break;
+			case SPIDS:
+				destinationMaxWidth = totalScaledWidth;
+				platformMaxWidth = totalScaledWidth * 8 / 16;
+				arrivalMaxWidth = totalScaledWidth * 7 / 16;
+				break;
+			default:
+				destinationMaxWidth = totalScaledWidth * 0.7F;
+				platformMaxWidth = renderType.showPlatformNumber ? scale * 2 / 16 : 0;
+				arrivalMaxWidth = totalScaledWidth - destinationStart - destinationMaxWidth - platformMaxWidth;
+		}
+		callingAtMaxWidth = totalScaledWidth;
+		callingAtStationMaxWidth = totalScaledWidth;
 		this.maxArrivals = maxArrivals;
 		this.linesPerArrival = linesPerArrival;
 		this.maxHeight = maxHeight;
@@ -113,6 +132,11 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 			final Map<Long, String> platformIdToName = new HashMap<>();
 			final List<ScheduleEntry> scheduleList = getSchedules(entity, pos, platformIdToName);
 
+			//Determine PIDS tri-state based on renderType
+			final boolean renderClassic = renderType == PIDSType.PIDS || renderType == PIDSType.ARRIVAL_PROJECTOR;
+			final boolean renderVertical = renderType == PIDSType.PIDS_VERTICAL;
+			final boolean renderSingle = renderType == PIDSType.SPIDS;
+
 			//Determine if car length should be shown
 			final boolean showCarLength;
 			final float carLengthMaxWidth;
@@ -128,7 +152,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 						minCars = trainCars;
 					}
 				}
-				showCarLength = minCars != maxCars;
+				showCarLength = minCars != maxCars || renderSingle;
 				carLengthMaxWidth = showCarLength ? scale * 6 / 16 : 0;
 			} else {
 				showCarLength = false;
@@ -137,17 +161,22 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 
 			final int displayPageOffset = entity instanceof IPIDSRenderChild ? ((IPIDSRenderChild) entity).getDisplayPage() * maxArrivals : 0;
 
-			//Loop through all arrivals
+			//Loop through all lines
 			for (int i = 0; i < maxArrivals * linesPerArrival; i++) {
-				final boolean arrivalLine = i % linesPerArrival == 0;
+				final int arrivalLine = i % linesPerArrival;
 				final int arrivalNum = (int) Math.floor(i / (float) linesPerArrival);
 
 				//Switch language based on SWITCH_LANGUAGE_TICKS
 				final int languageTicks = (int) Math.floor(MTRClient.getGameTick()) / SWITCH_LANGUAGE_TICKS;
 				final String destinationString;
 				final boolean useCustomMessage;
+
+				//Get current schedule
 				final ScheduleEntry currentSchedule = arrivalNum + displayPageOffset < scheduleList.size() ? scheduleList.get(arrivalNum + displayPageOffset) : null;
 				final Route route = currentSchedule == null ? null : ClientData.DATA_CACHE.routeIdMap.get(currentSchedule.routeId);
+				List<Route.RoutePlatform> stations = route == null ? null : route.platformIds.subList(currentSchedule.currentStationIndex + 1, route.platformIds.size());
+				final int callingAtMaxPages = stations == null || !renderSingle ? 1 : (int) Math.ceil(stations.size() / (float) STATIONS_PER_PAGE);
+				final int callingAtPage = callingAtMaxPages == 1 ? 0 : (int) Math.floor(MTRClient.getGameTick() / (float) SWITCH_PAGE_TICKS) % callingAtMaxPages;
 
 				//Check if arrival number exists
 				if (arrivalNum < scheduleList.size() && !hideArrival[arrivalNum] && route != null) {
@@ -157,7 +186,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 
 					//Check if there is a custom message to be shown
 					if (customMessages[i].isEmpty()) {
-						if (arrivalLine) destinationString = (isLightRailRoute ? routeNumberSplit[languageTicks % routeNumberSplit.length] + " " : "") + IGui.textOrUntitled(destinationSplit[languageTicks % destinationSplit.length]);
+						if ((arrivalLine == 0 && !renderSingle) || (arrivalLine == 1 && renderSingle)) destinationString = (isLightRailRoute ? routeNumberSplit[languageTicks % routeNumberSplit.length] + " " : "") + IGui.textOrUntitled(destinationSplit[languageTicks % destinationSplit.length]);
 						else destinationString = "";
 						useCustomMessage = false;
 					} else {
@@ -166,7 +195,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 						final int indexToUse = languageTicks % (destinationMaxIndex + customMessageSplit.length);
 
 						if (indexToUse < destinationMaxIndex) {
-							if (arrivalLine) destinationString = (isLightRailRoute ? routeNumberSplit[languageTicks % routeNumberSplit.length] + " " : "") + IGui.textOrUntitled(destinationSplit[languageTicks % destinationSplit.length]);
+							if ((arrivalLine == 0 && !renderSingle) || (arrivalLine == 1 && renderSingle)) destinationString = (isLightRailRoute ? routeNumberSplit[languageTicks % routeNumberSplit.length] + " " : "") + IGui.textOrUntitled(destinationSplit[languageTicks % destinationSplit.length]);
 							else destinationString = "";
 							useCustomMessage = false;
 						} else {
@@ -205,39 +234,97 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					final int seconds = (int) ((currentSchedule.arrivalMillis - System.currentTimeMillis()) / 1000);
 					final boolean isCJK = IGui.isCjk(destinationString);
 					if (seconds >= 60) {
-						if (!arrivalLine || renderType != PIDSType.PIDS_VERTICAL) arrivalText = Text.translatable(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60).append(appendDotAfterMin && !isCJK ? "." : "");
+						if ((arrivalLine == 1 && renderVertical) || (arrivalLine == 0 && renderSingle) || renderClassic) arrivalText = Text.translatable(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60).append(appendDotAfterMin && !isCJK ? "." : "");
 						else arrivalText = Text.literal("");
 					} else {
-						if (!arrivalLine || renderType != PIDSType.PIDS_VERTICAL) arrivalText = seconds > 0 ? Text.translatable(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds).append(appendDotAfterMin && !isCJK ? "." : "") : null;
+						if ((arrivalLine == 1 && renderVertical) || (arrivalLine == 0 && renderSingle) || renderClassic) arrivalText = seconds > 0 ? Text.translatable(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds).append(appendDotAfterMin && !isCJK ? "." : "") : null;
 						else arrivalText = Text.literal("");
 					}
+
 					//Get car length text
 					final Component carText;
-					if (!arrivalLine || renderType != PIDSType.PIDS_VERTICAL) carText = Text.translatable(isCJK ? "gui.mtr.arrival_car_cjk" : "gui.mtr.arrival_car", currentSchedule.trainCars);
+					if ((arrivalLine == 1 && renderVertical) || (arrivalLine == 15 && renderSingle) || renderClassic) carText = Text.translatable(isCJK ? "gui.mtr.arrival_car_cjk" : "gui.mtr.arrival_car", currentSchedule.trainCars);
 					else carText = Text.literal("");
+
+					//Get calling at text
+					final Component callingAtText;
+					if (renderSingle && arrivalLine == 3) {
+						callingAtText = Text.translatable(isCJK ? "gui.mtr.calling_at_cjk" : "gui.mtr.calling_at", callingAtPage + 1, callingAtMaxPages);
+					} else {
+						callingAtText = Text.literal("");
+					}
+
+					//Get calling at station
+					final String callingAtStationText;
+					int callingAtStationNumber = arrivalLine - 4 + callingAtPage * STATIONS_PER_PAGE;
+					if (renderSingle && arrivalLine >= 4 && arrivalLine < 14 && callingAtStationNumber < stations.size()) {
+						callingAtStationText = ClientData.DATA_CACHE.platformIdToStation.get(stations.get(callingAtStationNumber).platformId).name;
+					} else {
+						callingAtStationText = "";
+					}
 
 					//Render arrival number
 					if (renderArrivalNumber) {
 						textRenderer.draw(matrices, String.valueOf(i + 1), 0, 0, seconds > 0 ? textColor : firstTrainColor);
 					}
 
-					final float newDestinationMaxWidth = destinationMaxWidth - (renderType == PIDSType.PIDS_VERTICAL ? 0 : carLengthMaxWidth);
+					final float newDestinationMaxWidth = destinationMaxWidth - (!renderClassic ? 0 : carLengthMaxWidth);
 
 					//Render platform number
-					if (renderType.showPlatformNumber) {
-						final String platformName = platformIdToName.get(route.platformIds.get(currentSchedule.currentStationIndex).platformId);
-						if (platformName != null) {
-							textRenderer.draw(matrices, platformName, destinationStart + newDestinationMaxWidth, 0, seconds > 0 ? textColor : firstTrainColor);
+					if (renderType.showPlatformNumber && ((arrivalLine == 0 && renderSingle) || renderClassic)) {
+						matrices.pushPose();
+						final Component platformName = renderSingle ? Text.translatable(isCJK ? "gui.mtr.platform_abbr_cjk" : "gui.mtr.platform_abbr", platformIdToName.get(route.platformIds.get(currentSchedule.currentStationIndex).platformId)) : Text.literal(platformIdToName.get(route.platformIds.get(currentSchedule.currentStationIndex).platformId));
+						final int platformWidth = textRenderer.width(platformName);
+						if (renderClassic) {
+							matrices.translate(destinationStart + newDestinationMaxWidth, 0, 0);
 						}
+						else {
+							if (platformWidth > platformMaxWidth) {
+								matrices.translate(totalScaledWidth - platformMaxWidth, 0, 0);
+								matrices.scale(platformMaxWidth / platformWidth, 1, 1);
+							} else {
+								matrices.translate(totalScaledWidth - platformWidth, 0, 0);
+							}
+						}
+						textRenderer.draw(matrices, platformName, 0, 0, seconds > 0 ? textColor : firstTrainColor);
+						matrices.popPose();
+					}
+
+					//Render calling at text
+					if (renderSingle && arrivalLine == 3) {
+						matrices.pushPose();
+						final int callingAtWidth = textRenderer.width(callingAtText);
+						matrices.translate(destinationStart, 0, 0);
+						if (callingAtWidth > callingAtMaxWidth) {
+							matrices.scale(callingAtMaxWidth / callingAtWidth, 1, 1);
+						} else {
+						}
+						textRenderer.draw(matrices, callingAtText, 0, 0, seconds > 0 ? textColor : firstTrainColor);
+						matrices.popPose();
+					}
+
+					//Render calling at station
+					if (renderSingle && arrivalLine >= 4 && arrivalLine < 14) {
+						matrices.pushPose();
+						final int callingAtStationWidth = textRenderer.width(callingAtStationText);
+						matrices.translate(destinationStart, 0, 0);
+						if (callingAtStationWidth > callingAtStationMaxWidth) {
+							matrices.scale(callingAtStationMaxWidth / callingAtStationWidth, 1, 1);
+						}
+						textRenderer.draw(matrices, callingAtStationText, 0, 0, seconds > 0 ? textColor : firstTrainColor);
+						matrices.popPose();
 					}
 
 					//Render car length
 					if (showCarLength) {
 						matrices.pushPose();
-						matrices.translate(renderType == PIDSType.PIDS_VERTICAL ? destinationStart : (destinationStart + newDestinationMaxWidth + platformMaxWidth), 0, 0);
+						if (!renderSingle) matrices.translate(renderVertical ? destinationStart : (destinationStart + newDestinationMaxWidth + platformMaxWidth), 0, 0);
 						final int carTextWidth = textRenderer.width(carText);
 						if (carTextWidth > carLengthMaxWidth) {
+							if (renderSingle) matrices.translate(totalScaledWidth - carLengthMaxWidth, 0, 0);
 							matrices.scale(carLengthMaxWidth / carTextWidth, 1, 1);
+						} else if (renderSingle) {
+							matrices.translate(totalScaledWidth - carTextWidth, 0, 0);
 						}
 						textRenderer.draw(matrices, carText, 0, 0, CAR_TEXT_COLOR);
 						matrices.popPose();
@@ -257,11 +344,12 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					if (arrivalText != null) {
 						matrices.pushPose();
 						final int arrivalWidth = textRenderer.width(arrivalText);
+						if (renderSingle) matrices.translate(destinationStart, 0, 0);
 						if (arrivalWidth > arrivalMaxWidth) {
-							matrices.translate(totalScaledWidth - arrivalMaxWidth, 0, 0);
+							if (!renderSingle) matrices.translate(totalScaledWidth - arrivalMaxWidth, 0, 0);
 							matrices.scale(arrivalMaxWidth / arrivalWidth, 1, 1);
 						} else {
-							matrices.translate(totalScaledWidth - arrivalWidth, 0, 0);
+							if (!renderSingle) matrices.translate(totalScaledWidth - arrivalWidth, 0, 0);
 						}
 						textRenderer.draw(matrices, arrivalText, 0, 0, textColor);
 						matrices.popPose();
