@@ -14,15 +14,17 @@ import java.util.Set;
 
 public interface IPIDS extends IBlock {
 
-    abstract class TileEntityPIDS extends BlockEntityClientSerializableMapper {
+    abstract class TileEntityPIDS extends BlockEntityClientSerializableMapper implements IPIDSRenderChild {
         private long cachedRefreshTime;
         private long cachedPlatformId;
         public final String[] messages = new String[getMaxArrivals() * getLinesPerArrival()];
         private final boolean[] hideArrival = new boolean[getMaxArrivals()];
         private final Set<Long> platformIds = new HashSet<>();
+        private int displayPage = 0;
         private static final String KEY_MESSAGE = "message";
         private static final String KEY_HIDE_ARRIVAL = "hide_arrival";
         private static final String KEY_PLATFORM_IDS = "platform_ids";
+        private static final String KEY_DISPLAY_PAGE = "display_page";
 
         public TileEntityPIDS(BlockEntityType<?> type, BlockPos pos, BlockState state) {
             super(type, pos, state);
@@ -30,8 +32,10 @@ public interface IPIDS extends IBlock {
 
         @Override
         public void readCompoundTag(CompoundTag compoundTag) {
-            for (int i = 0; i < getMaxArrivals(); i++) {
+            for (int i = 0; i < getMaxArrivals() * getLinesPerArrival(); i++) {
                 messages[i] = compoundTag.getString(KEY_MESSAGE + i);
+            }
+            for (int i = 0; i < getMaxArrivals(); i++) {
                 hideArrival[i] = compoundTag.getBoolean(KEY_HIDE_ARRIVAL + i);
             }
             platformIds.clear();
@@ -39,26 +43,31 @@ public interface IPIDS extends IBlock {
             for (final long platformId : platformIdsArray) {
                 platformIds.add(platformId);
             }
+            displayPage = compoundTag.getInt(KEY_DISPLAY_PAGE);
         }
 
         @Override
         public void writeCompoundTag(CompoundTag compoundTag) {
-            for (int i = 0; i < getMaxArrivals(); i++) {
+            for (int i = 0; i < getMaxArrivals() * getLinesPerArrival(); i++) {
                 compoundTag.putString(KEY_MESSAGE + i, messages[i] == null ? "" : messages[i]);
+            }
+            for (int i = 0; i < getMaxArrivals(); i++) {
                 compoundTag.putBoolean(KEY_HIDE_ARRIVAL + i, hideArrival[i]);
             }
             compoundTag.putLongArray(KEY_PLATFORM_IDS, new ArrayList<>(platformIds));
+            compoundTag.putInt(KEY_DISPLAY_PAGE, displayPage);
         }
 
         public AABB getRenderBoundingBox() {
             return new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
         }
 
-        public void setData(String[] messages, boolean[] hideArrival, Set<Long> platformIds) {
+        public void setData(String[] messages, boolean[] hideArrival, Set<Long> platformIds, int displayPage) {
             System.arraycopy(messages, 0, this.messages, 0, Math.min(messages.length, this.messages.length));
             System.arraycopy(hideArrival, 0, this.hideArrival, 0, Math.min(hideArrival.length, this.hideArrival.length));
             this.platformIds.clear();
             this.platformIds.addAll(platformIds);
+            this.displayPage = displayPage;
             setChanged();
             syncData();
         }
@@ -71,12 +80,16 @@ public interface IPIDS extends IBlock {
             return cachedPlatformId;
         }
 
+        public int getDisplayPage() {
+            return displayPage;
+        }
+
         public Set<Long> getPlatformIds() {
             return platformIds;
         }
 
         public String getMessage(int index) {
-            if (index >= 0 && index < getMaxArrivals()) {
+            if (index >= 0 && index < getMaxArrivals() * getLinesPerArrival()) {
                 if (messages[index] == null) {
                     messages[index] = "";
                 }

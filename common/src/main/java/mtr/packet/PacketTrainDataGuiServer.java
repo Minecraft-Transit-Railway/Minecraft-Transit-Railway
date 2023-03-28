@@ -386,6 +386,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		for (int i = 0; i < platformIdCount; i++) {
 			platformIds.add(packet.readLong());
 		}
+		final int arrivalPage = packet.readInt();
 		minecraftServer.execute(() -> {
 			final List<IPIDS.TileEntityPIDS> entities = new ArrayList<>();
 
@@ -399,7 +400,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 				entities.add((IPIDS.TileEntityPIDS) entity2);
 			}
 
-			setTileEntityDataAndWriteUpdate(player, entity -> entity.setData(messages, hideArrivals, platformIds), entities.toArray(new IPIDS.TileEntityPIDS[0]));
+			setTileEntityDataAndWriteUpdate(player, entity -> entity.setData(messages, hideArrivals, platformIds, arrivalPage), entities.toArray(new IPIDS.TileEntityPIDS[0]));
 		});
 	}
 

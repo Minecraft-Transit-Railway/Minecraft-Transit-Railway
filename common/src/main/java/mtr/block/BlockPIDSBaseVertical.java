@@ -50,8 +50,6 @@ public abstract class BlockPIDSBaseVertical extends BlockDirectionalDoubleBlockB
         }
 
         @Override
-        public int getLinesPerArrival() {
-            return 2;
-        }
+        public abstract int getLinesPerArrival();
     }
 }
