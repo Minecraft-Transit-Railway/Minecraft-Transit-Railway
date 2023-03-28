@@ -132,7 +132,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 				carLengthMaxWidth = 0;
 			}
 
-			final int displayPageOffset = entity instanceof BlockArrivalProjectorBase.TileEntityArrivalProjectorBase ? ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getDisplayPage() * maxArrivals : 0;
+			final int displayPageOffset = entity instanceof IPIDSRenderChild ? ((IPIDSRenderChild) entity).getDisplayPage() * maxArrivals : 0;
 
 			for (int i = 0; i < maxArrivals * linesPerArrival; i++) {
 				final boolean arrivalLine = i % linesPerArrival == 0;
