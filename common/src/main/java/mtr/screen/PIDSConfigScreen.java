@@ -143,7 +143,6 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 				buttonHideArrival.setChecked(hideArrival[index]);
 				if (Math.floor(i / (double) MAX_ARRIVALS_PER_PAGE) != page) {
 					buttonHideArrival.visible = false;
-					buttonHideArrival.showLabel = false;
 				}
 				addDrawableChild(buttonHideArrival);
 			}
@@ -157,7 +156,6 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 			if (i % linesPerArrival == 0) {
 				final int index = i / linesPerArrival;
 				buttonsHideArrival[index].visible = Math.floor(i / (double) MAX_ARRIVALS_PER_PAGE) == page;
-				buttonsHideArrival[index].showLabel = Math.floor(i / (double) MAX_ARRIVALS_PER_PAGE) == page;
 			}
 		}
 	}
