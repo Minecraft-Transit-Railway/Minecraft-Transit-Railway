@@ -31,6 +31,7 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 
 	private static final int MAX_REQUESTS = 10;
 	private static final int WALKING_SPEED_TICKS_PER_METER = 5;
+	private static final boolean DEBUG_DISABLE_DENSITY = false;
 
 	public RailwayDataRouteFinderModule(RailwayData railwayData, Level world, Map<BlockPos, Map<BlockPos, Rail>> rails) {
 		super(railwayData, world, rails);
@@ -48,6 +49,10 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 			switch (tickStage) {
 				case GET_POS:
 					if (routeFinderQueue.isEmpty()) {
+						if (DEBUG_DISABLE_DENSITY) {
+							return;
+						}
+
 						final Random random = new Random();
 						int shortestDistance = Integer.MAX_VALUE;
 						BlockPos tempStartPos = null;
