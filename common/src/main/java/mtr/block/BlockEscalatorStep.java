@@ -23,6 +23,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class BlockEscalatorStep extends BlockEscalatorBase {
 
 	public static final BooleanProperty DIRECTION = BooleanProperty.create("direction");
+	public static final BooleanProperty STATUS = BooleanProperty.create("status");
 
 	@Override
 	public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
@@ -57,38 +58,57 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 		final boolean direction = IBlock.getStatePropertySafe(state, DIRECTION);
 		final float speed = 0.1F;
 
-		switch (facing) {
-			case NORTH:
-				entity.push(0, 0, direction ? -speed : speed);
-				break;
-			case EAST:
-				entity.push(direction ? speed : -speed, 0, 0);
-				break;
-			case SOUTH:
-				entity.push(0, 0, direction ? speed : -speed);
-				break;
-			case WEST:
-				entity.push(direction ? -speed : speed, 0, 0);
-				break;
-			default:
-				break;
+		if (IBlock.getStatePropertySafe(state, STATUS)) {
+			switch (facing) {
+				case NORTH:
+					entity.push(0, 0, direction ? -speed : speed);
+					break;
+				case EAST:
+					entity.push(direction ? speed : -speed, 0, 0);
+					break;
+				case SOUTH:
+					entity.push(0, 0, direction ? speed : -speed);
+					break;
+				case WEST:
+					entity.push(direction ? -speed : speed, 0, 0);
+					break;
+				default:
+					break;
+			}
 		}
 	}
 
 	@Override
 	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
-			final boolean direction = !IBlock.getStatePropertySafe(state, DIRECTION);
+			final boolean direction = IBlock.getStatePropertySafe(state, DIRECTION);
+			final boolean running = IBlock.getStatePropertySafe(state, STATUS);
 			final Direction blockFacing = IBlock.getStatePropertySafe(state, FACING);
+			final boolean newDirection;
+			final boolean newRunning;
 
-			update(world, pos, blockFacing, direction);
-			update(world, pos, blockFacing.getOpposite(), direction);
+			if (direction && running) {
+				// FORWARD to BACKWARD
+				newDirection = false;
+				newRunning = true;
+			} else if (!direction && running) {
+				// BACKWARD to STOP
+				newDirection = false;
+				newRunning = false;
+			} else {
+				// STOP to FORWARD
+				newDirection = true;
+				newRunning = true;
+			}
+
+			update(world, pos, blockFacing, newDirection, newRunning);
+			update(world, pos, blockFacing.getOpposite(), newDirection, newRunning);
 
 			final BlockPos sidePos = pos.relative(IBlock.getSideDirection(state));
 			if (isStep(world, sidePos)) {
 				final BlockEscalatorStep block = (BlockEscalatorStep) world.getBlockState(sidePos).getBlock();
-				block.update(world, sidePos, blockFacing, direction);
-				block.update(world, sidePos, blockFacing.getOpposite(), direction);
+				block.update(world, sidePos, blockFacing, newDirection, newRunning);
+				block.update(world, sidePos, blockFacing.getOpposite(), newDirection, newRunning);
 			}
 		});
 	}
@@ -100,21 +120,21 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, DIRECTION, ORIENTATION, SIDE);
+		builder.add(FACING, DIRECTION, ORIENTATION, SIDE, STATUS);
 	}
 
-	private void update(Level world, BlockPos pos, Direction offset, boolean direction) {
-		world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(DIRECTION, direction));
+	private void update(Level world, BlockPos pos, Direction offset, boolean direction, boolean running) {
+		world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(DIRECTION, direction).setValue(STATUS, running));
 		final BlockPos offsetPos = pos.relative(offset);
 
 		if (isStep(world, offsetPos)) {
-			update(world, offsetPos, offset, direction);
+			update(world, offsetPos, offset, direction, running);
 		}
 		if (isStep(world, offsetPos.above())) {
-			update(world, offsetPos.above(), offset, direction);
+			update(world, offsetPos.above(), offset, direction, running);
 		}
 		if (isStep(world, offsetPos.below())) {
-			update(world, offsetPos.below(), offset, direction);
+			update(world, offsetPos.below(), offset, direction, running);
 		}
 	}
 
