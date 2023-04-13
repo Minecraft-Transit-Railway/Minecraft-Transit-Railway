@@ -219,7 +219,6 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_PANEL_ODD_1.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_PANEL_EVEN_2.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_PANEL_ODD_2.get());
-
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.ESCALATOR_STEP.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.ESCALATOR_SIDE.get());
 

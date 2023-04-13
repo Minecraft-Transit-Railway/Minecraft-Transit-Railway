@@ -1,37 +1,38 @@
 {
-	"credit": "Made with Blockbench",
 	"parent": "block/block",
 	"textures": {
-		"1": "mtr:block/escalators/escalator",
-		"particle": "mtr:block/escalators/escalator"
+		"particle": "mtr:block/escalator"
 	},
 	"elements": [
 		{
-			"name": "Step left",
-			"from": [0, 16, 0],
-			"to": [16, 16, 11],
+			"__comment": "Step left",
+			"from": [ 0, 16, 0 ],
+			"to": [ 16, 16, 11 ],
 			"faces": {
-				"up": {"uv": [0, 0, 16, 16], "rotation": 270, "texture": "#step", "cullface": "up"}
+				"up": { "uv": [ 0, 0, 16, 16 ], "rotation": 270, "texture": "#step", "cullface": "up" }
 			}
 		},
 		{
-			"name": "Main",
-			"from": [0, 0, 11],
-			"to": [16, 16, 16],
-			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, 16]},
+			"__comment": "Main",
+			"from": [ 0, 0, 11 ],
+			"to": [ 16, 16, 16 ],
+			"rotation": {
+				"angle": 0,
+				"axis": "y",
+				"origin": [ 0, 0, 16 ]
+			},
 			"faces": {
-				"south": {"uv": [4, 2.375, 0, 6.375], "texture": "#1", "cullface": "south"},
-				"up": {"uv": [0, 3.625, 4, 2.375], "texture": "#1", "cullface": "up"}
+				"south": { "uv": [ 4, 2.375, 0, 6.375 ], "texture": "#particle", "cullface": "south" },
+				"up": { "uv": [ 0, 3.625, 4, 2.375 ], "texture": "#particle", "cullface": "up" }
 			}
 		},
 		{
-			"name": "Bottom",
-			"from": [0, 0, 0],
-			"to": [16, 1, 16],
+			"__comment": "Bottom",
+			"from": [ 0, 0, 0 ],
+			"to": [ 16, 1, 16 ],
 			"faces": {
-				"down": {"uv": [7.5, 5.25, 11.5, 9.25], "rotation": 90, "texture": "#1", "cullface": "down"}
+				"down": { "uv": [ 7.5, 5.25, 11.5, 9.25 ], "rotation": 90, "texture": "#particle", "cullface": "down" }
 			}
 		}
-	],
-	"render": "transparent"
+	]
 }
