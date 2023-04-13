@@ -5,7 +5,7 @@
 	},
 	"elements": [
 		{
-			"__comment": "Bottom",
+			"__comment": "bottom",
 			"from": [ 0, 0, 0 ],
 			"to": [ 16, 1, 16 ],
 			"faces": {
@@ -13,7 +13,7 @@
 			}
 		},
 		{
-			"__comment": "Main",
+			"__comment": "main",
 			"from": [ 0, 0, 0 ],
 			"to": [ 16, 16, 5 ],
 			"faces": {
@@ -22,7 +22,7 @@
 			}
 		},
 		{
-			"__comment": "Step",
+			"__comment": "step",
 			"from": [ 0, 16, 5 ],
 			"to": [ 16, 16, 16 ],
 			"faces": {

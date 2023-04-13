@@ -5,7 +5,7 @@
 	},
 	"elements": [
 		{
-			"__comment": "Step right",
+			"__comment": "step right",
 			"from": [ 0, 16, 5 ],
 			"to": [ 16, 16, 16 ],
 			"faces": {
@@ -13,7 +13,7 @@
 			}
 		},
 		{
-			"__comment": "Main Slope",
+			"__comment": "main slope",
 			"from": [ 0, 0, 0.05 ],
 			"to": [ 8, 8, 5 ],
 			"rotation": {
@@ -30,7 +30,7 @@
 			}
 		},
 		{
-			"__comment": "Main Flat",
+			"__comment": "main flat",
 			"from": [ 0, 0, 0 ],
 			"to": [ 16, 16, 5 ],
 			"faces": {
@@ -40,7 +40,7 @@
 			}
 		},
 		{
-			"__comment": "Bottom",
+			"__comment": "bottom",
 			"from": [ 0, 0, 0 ],
 			"to": [ 16, 4, 16 ],
 			"rotation": {
@@ -54,7 +54,7 @@
 			}
 		},
 		{
-			"__comment": "Bottom Slope",
+			"__comment": "bottom slope",
 			"from": [ 5, 0, 0 ],
 			"to": [ 8, 1, 16 ],
 			"rotation": {
