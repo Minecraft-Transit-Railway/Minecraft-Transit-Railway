@@ -438,6 +438,13 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					platformIds = new HashSet<>();
 				}
 				break;
+			case SPIDS:
+				if (entity instanceof IPIDS.TileEntityPIDS) {
+					platformIds = ((IPIDS.TileEntityPIDS) entity).getPlatformIds();
+				} else {
+					platformIds = new HashSet<>();
+				}
+				break;
 			case PIDS:
             case PIDS_VERTICAL:
 				final Set<Long> tempPlatformIds;
