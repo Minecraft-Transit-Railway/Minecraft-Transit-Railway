@@ -1,5 +1,6 @@
 package mtr.block;
 
+import mtr.data.IPIDSRenderChild;
 import mtr.mappings.BlockDirectionalMapper;
 import mtr.mappings.BlockEntityClientSerializableMapper;
 import mtr.mappings.EntityBlockMapper;
@@ -68,7 +69,7 @@ public abstract class BlockArrivalProjectorBase extends BlockDirectionalMapper i
 		builder.add(FACING);
 	}
 
-	public static class TileEntityArrivalProjectorBase extends BlockEntityClientSerializableMapper {
+	public static class TileEntityArrivalProjectorBase extends BlockEntityClientSerializableMapper implements IPIDSRenderChild {
 
 		private final Set<Long> platformIds = new HashSet<>();
 		private int displayPage;
