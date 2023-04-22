@@ -215,7 +215,7 @@ public class MTR implements IPacket {
 			registerBlockItem.accept("pids_2", Blocks.PIDS_2, CreativeModeTabs.RAILWAY_FACILITIES);
 			registerBlockItem.accept("pids_3", Blocks.PIDS_3, CreativeModeTabs.RAILWAY_FACILITIES);
 			registerBlockItem.accept("pids_4", Blocks.PIDS_4, CreativeModeTabs.RAILWAY_FACILITIES);
-			registerBlockItem.accept("spids_1", Blocks.SPIDS_1, CreativeModeTabs.RAILWAY_FACILITIES);
+			registerBlockItem.accept("pids_single_arrival_1", Blocks.PIDS_SINGLE_ARRIVAL_1, CreativeModeTabs.RAILWAY_FACILITIES);
 			registerBlockItem.accept("pids_pole", Blocks.PIDS_POLE, CreativeModeTabs.RAILWAY_FACILITIES);
 			registerBlockItem.accept("platform", Blocks.PLATFORM, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 			registerBlockItem.accept("platform_indented", Blocks.PLATFORM_INDENTED, CreativeModeTabs.STATION_BUILDING_BLOCKS);
@@ -365,7 +365,7 @@ public class MTR implements IPacket {
 			registerBlockEntityType.accept("pids_2", BlockEntityTypes.PIDS_2_TILE_ENTITY);
 			registerBlockEntityType.accept("pids_3", BlockEntityTypes.PIDS_3_TILE_ENTITY);
 			registerBlockEntityType.accept("pids_4", BlockEntityTypes.PIDS_4_TILE_ENTITY);
-			registerBlockEntityType.accept("spids_1", BlockEntityTypes.SPIDS_1_TILE_ENTITY);
+			registerBlockEntityType.accept("pids_single_arrival_1", BlockEntityTypes.PIDS_SINGLE_ARRIVAL_1_TILE_ENTITY);
 			registerBlockEntityType.accept("railway_sign_2_even", BlockEntityTypes.RAILWAY_SIGN_2_EVEN_TILE_ENTITY);
 			registerBlockEntityType.accept("railway_sign_2_odd", BlockEntityTypes.RAILWAY_SIGN_2_ODD_TILE_ENTITY);
 			registerBlockEntityType.accept("railway_sign_3_even", BlockEntityTypes.RAILWAY_SIGN_3_EVEN_TILE_ENTITY);

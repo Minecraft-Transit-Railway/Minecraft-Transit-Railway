@@ -1,7 +1,6 @@
 package mtr.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.block.BlockArrivalProjectorBase;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.*;
@@ -37,21 +36,22 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 	private final Component hideArrivalText = Text.translatable("gui.mtr.hide_arrival");
 	private final WidgetBetterCheckbox selectAllCheckbox;
 	private final Button filterButton;
-	private final ImageButton buttonNextPage;
 	private final ImageButton buttonPrevPage;
+	private final ImageButton buttonNextPage;
 	private final Set<Long> filterPlatformIds;
 	private final int displayPage;
+	private final int maxArrivals;
 	private final int linesPerArrival;
-	private final int MAX_ARRIVALS_PER_PAGE = 8;
 	private int page = 0;
-	private final int totalPages;
 
 	private static final int MAX_MESSAGE_LENGTH = 2048;
+	private static final int TEXT_FIELDS_Y_OFFSET = SQUARE_SIZE * 8 + TEXT_FIELD_PADDING / 2;
 
 	public PIDSConfigScreen(BlockPos pos1, BlockPos pos2, int maxArrivals, int linesPerArrival) {
 		super(Text.literal(""));
 		this.pos1 = pos1;
 		this.pos2 = pos2;
+		this.maxArrivals = maxArrivals;
 		this.linesPerArrival = linesPerArrival;
 		messages = new String[maxArrivals * linesPerArrival];
 		for (int i = 0; i < maxArrivals * linesPerArrival; i++) {
@@ -73,11 +73,8 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 			});
 		}
 
-		buttonNextPage = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
 		buttonPrevPage = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
-
-		totalPages = (int) Math.ceil((maxArrivals * linesPerArrival) / (float) MAX_ARRIVALS_PER_PAGE);
-		page = 0;
+		buttonNextPage = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
 
 		final Level world = Minecraft.getInstance().level;
 		if (world == null) {
@@ -107,7 +104,8 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 	@Override
 	protected void init() {
 		super.init();
-		final int textWidth = font.width(hideArrivalText) + SQUARE_SIZE + TEXT_PADDING * 2;
+		final int hideArrivalWidth = font.width(hideArrivalText) + SQUARE_SIZE + TEXT_PADDING;
+		final int customMessageWidth = font.width(messageText) + SQUARE_SIZE + TEXT_PADDING;
 
 		IDrawing.setPositionAndWidth(selectAllCheckbox, SQUARE_SIZE, SQUARE_SIZE, PANEL_WIDTH);
 		selectAllCheckbox.setChecked(filterPlatformIds.isEmpty());
@@ -121,43 +119,42 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 		displayPageInput.setValue(String.valueOf(displayPage + 1));
 		addDrawableChild(displayPageInput);
 
-		IDrawing.setPositionAndWidth(buttonNextPage, SQUARE_SIZE * 4 + PANEL_WIDTH, SQUARE_SIZE * 7, SQUARE_SIZE);
-		addDrawableChild(buttonNextPage);
-
-		IDrawing.setPositionAndWidth(buttonPrevPage, SQUARE_SIZE + PANEL_WIDTH, SQUARE_SIZE * 7, SQUARE_SIZE);
+		IDrawing.setPositionAndWidth(buttonPrevPage, customMessageWidth, SQUARE_SIZE * 7, SQUARE_SIZE);
 		addDrawableChild(buttonPrevPage);
+
+		IDrawing.setPositionAndWidth(buttonNextPage, customMessageWidth + SQUARE_SIZE * 3, SQUARE_SIZE * 7, SQUARE_SIZE);
+		addDrawableChild(buttonNextPage);
 
 		for (int i = 0; i < textFieldMessages.length; i++) {
 			final WidgetBetterTextField textFieldMessage = textFieldMessages[i];
-			int y = SQUARE_SIZE * 8 + TEXT_FIELD_PADDING / 2 + (SQUARE_SIZE + TEXT_FIELD_PADDING) * (i % MAX_ARRIVALS_PER_PAGE);
-			IDrawing.setPositionAndWidth(textFieldMessage, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, y, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING - textWidth);
+			final int y = TEXT_FIELDS_Y_OFFSET + (SQUARE_SIZE + TEXT_FIELD_PADDING) * (i % getMaxArrivalsPerPage());
+			IDrawing.setPositionAndWidth(textFieldMessage, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, y, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING - hideArrivalWidth);
 			textFieldMessage.setValue(messages[i]);
-			if (Math.floor(i / (double) MAX_ARRIVALS_PER_PAGE) != page) {
-				textFieldMessage.visible = false;
-			}
 			addDrawableChild(textFieldMessage);
 			if (i % linesPerArrival == 0) {
 				final int index = i / linesPerArrival;
 				final WidgetBetterCheckbox buttonHideArrival = buttonsHideArrival[index];
-				IDrawing.setPositionAndWidth(buttonHideArrival, width - SQUARE_SIZE - textWidth + TEXT_PADDING, y, textWidth);
+				IDrawing.setPositionAndWidth(buttonHideArrival, width - SQUARE_SIZE - hideArrivalWidth + TEXT_PADDING, y, hideArrivalWidth);
 				buttonHideArrival.setChecked(hideArrival[index]);
-				if (Math.floor(i / (double) MAX_ARRIVALS_PER_PAGE) != page) {
-					buttonHideArrival.visible = false;
-				}
 				addDrawableChild(buttonHideArrival);
 			}
 		}
+
+		setPage(0);
 	}
 
 	private void setPage(int newPage) {
-		page = Mth.clamp(newPage, 0, totalPages - 1);
+		final int maxArrivalsPerPage = getMaxArrivalsPerPage();
+		final int maxPages = getMaxPages() - 1;
+		page = Mth.clamp(newPage, 0, maxPages);
 		for (int i = 0; i < textFieldMessages.length; i++) {
-			textFieldMessages[i].visible = Math.floor(i / (double) MAX_ARRIVALS_PER_PAGE) == page;
+			textFieldMessages[i].visible = i / maxArrivalsPerPage == page;
 			if (i % linesPerArrival == 0) {
-				final int index = i / linesPerArrival;
-				buttonsHideArrival[index].visible = Math.floor(i / (double) MAX_ARRIVALS_PER_PAGE) == page;
+				buttonsHideArrival[i / linesPerArrival].visible = i / maxArrivalsPerPage == page;
 			}
 		}
+		buttonPrevPage.visible = page > 0;
+		buttonNextPage.visible = page < maxPages;
 	}
 
 	@Override
@@ -194,8 +191,11 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 			renderBackground(matrices);
 			font.draw(matrices, Text.translatable("gui.mtr.display_page"), SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE);
 			font.draw(matrices, Text.translatable("gui.mtr.filtered_platforms", selectAllCheckbox.selected() ? 0 : filterPlatformIds.size()), SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
-			font.draw(matrices, messageText, SQUARE_SIZE + TEXT_PADDING, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE);
-			Gui.drawCenteredString(matrices, font, String.format("%s/%s", page + 1, totalPages), SQUARE_SIZE * 3 + PANEL_WIDTH, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE);
+			font.draw(matrices, messageText, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE);
+			final int maxPages = getMaxPages();
+			if (maxPages > 1) {
+				Gui.drawCenteredString(matrices, font, String.format("%s/%s", page + 1, maxPages), SQUARE_SIZE * 3 + font.width(messageText) + TEXT_PADDING, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE);
+			}
 			super.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -205,6 +205,14 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 	@Override
 	public boolean isPauseScreen() {
 		return false;
+	}
+
+	private int getMaxArrivalsPerPage() {
+		return Math.max(1, (height - TEXT_FIELDS_Y_OFFSET - SQUARE_SIZE) / (SQUARE_SIZE + TEXT_FIELD_PADDING));
+	}
+
+	private int getMaxPages() {
+		return (int) Math.ceil((float) maxArrivals / getMaxArrivalsPerPage());
 	}
 
 	public static Button getPlatformFilterButton(BlockPos pos, WidgetBetterCheckbox selectAllCheckbox, Set<Long> filterPlatformIds, ScreenMapper thisScreen) {

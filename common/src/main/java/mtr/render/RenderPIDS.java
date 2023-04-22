@@ -65,7 +65,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 				platformMaxWidth = 0;
 				arrivalMaxWidth = totalScaledWidth * 8 / 16;
 				break;
-			case SPIDS:
+			case PIDS_SINGLE_ARRIVAL:
 				destinationMaxWidth = totalScaledWidth;
 				platformMaxWidth = totalScaledWidth * 8 / 16;
 				arrivalMaxWidth = totalScaledWidth * 7 / 16;
@@ -102,7 +102,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 			return;
 		}
 
-		//Get PIDS position and determine if it should render arrivals
+		// Get PIDS position and determine if it should render arrivals
 		final BlockPos pos = entity.getBlockPos();
 		final Direction facing = IBlock.getStatePropertySafe(world, pos, HorizontalDirectionalBlock.FACING);
 		if (RenderTrains.shouldNotRender(pos, Math.min(MAX_VIEW_DISTANCE, RenderTrains.maxTrainRenderDistance), rotate90 ? null : facing)) {
@@ -112,7 +112,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 			return;
 		}
 
-		//Get PIDS custom messages and show arrivals
+		// Get PIDS custom messages and show arrivals
 		final String[] customMessages = new String[maxArrivals * linesPerArrival];
 		final boolean[] hideArrival = new boolean[maxArrivals];
 		for (int i = 0; i < maxArrivals * linesPerArrival; i++) {
@@ -132,12 +132,12 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 			final Map<Long, String> platformIdToName = new HashMap<>();
 			final List<ScheduleEntry> scheduleList = getSchedules(entity, pos, platformIdToName);
 
-			//Determine PIDS tri-state based on renderType
+			// Determine PIDS tri-state based on renderType
 			final boolean renderClassic = renderType == PIDSType.PIDS || renderType == PIDSType.ARRIVAL_PROJECTOR;
 			final boolean renderVertical = renderType == PIDSType.PIDS_VERTICAL;
-			final boolean renderSingle = renderType == PIDSType.SPIDS;
+			final boolean renderSingle = renderType == PIDSType.PIDS_SINGLE_ARRIVAL;
 
-			//Determine if car length should be shown
+			// Determine if car length should be shown
 			final boolean showCarLength;
 			final float carLengthMaxWidth;
 			if (renderType.showCarCount) {
@@ -161,21 +161,21 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 
 			final int displayPageOffset = entity instanceof IPIDSRenderChild ? ((IPIDSRenderChild) entity).getDisplayPage() * maxArrivals : 0;
 
-			//Loop through all lines
+			// Loop through all lines
 			for (int j = 0; j < maxArrivals; j++) {
-				int arrivalLine = 0;
-				//Get current schedule
+				int arrivalLine;
+				// Get current schedule
 				final int languageTicks = (int) Math.floor(MTRClient.getGameTick()) / SWITCH_LANGUAGE_TICKS;
 				final ScheduleEntry currentSchedule = j + displayPageOffset < scheduleList.size() ? scheduleList.get(j + displayPageOffset) : null;
 				final Route route = currentSchedule == null ? null : ClientData.DATA_CACHE.routeIdMap.get(currentSchedule.routeId);
 
 				final boolean isCJK;
-				//Check if there is a custom message (to determine CJK translations)
+				// Check if there is a custom message (to determine CJK translations)
 				if (j < scheduleList.size() && !hideArrival[j] && route != null) {
 					final String[] destinationSplit = ClientData.DATA_CACHE.getFormattedRouteDestination(route, currentSchedule.currentStationIndex, "").split("\\|");
 					final boolean isLightRailRoute = route.isLightRailRoute;
 					final String[] routeNumberSplit = route.lightRailRouteNumber.split("\\|");
-					String checkString;
+					final String checkString;
 					if (customMessages[j * linesPerArrival].isEmpty()) {
 						checkString = (isLightRailRoute ? routeNumberSplit[languageTicks % routeNumberSplit.length] + " " : "") + IGui.textOrUntitled(destinationSplit[languageTicks % destinationSplit.length]);
 					} else {
@@ -198,26 +198,28 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					arrivalLine = i % linesPerArrival;
 					final int arrivalNum = (int) Math.floor(i / (float) linesPerArrival);
 
-					//Switch language based on SWITCH_LANGUAGE_TICKS
+					// Switch language based on SWITCH_LANGUAGE_TICKS
 					final String destinationString;
 					final boolean useCustomMessage;
 
-					//Get current schedule
-					List<Route.RoutePlatform> stations = route == null ? null : route.platformIds.subList(currentSchedule.currentStationIndex + 1, route.platformIds.size());
+					// Get current schedule
+					final List<Route.RoutePlatform> stations = route == null ? null : route.platformIds.subList(currentSchedule.currentStationIndex + 1, route.platformIds.size());
 					final int callingAtMaxPages = stations == null || !renderSingle ? 1 : (int) Math.max(Math.ceil(stations.size() / (float) STATIONS_PER_PAGE), 1);
 					final int callingAtPage = callingAtMaxPages == 1 ? 0 : (int) Math.floor(MTRClient.getGameTick() / (float) SWITCH_PAGE_TICKS) % callingAtMaxPages;
 
-					//Check if arrival number exists
+					// Check if arrival number exists
 					if (arrivalNum < scheduleList.size() && !hideArrival[arrivalNum] && route != null) {
 						final String[] destinationSplit = ClientData.DATA_CACHE.getFormattedRouteDestination(route, currentSchedule.currentStationIndex, "").split("\\|");
 						final boolean isLightRailRoute = route.isLightRailRoute;
 						final String[] routeNumberSplit = route.lightRailRouteNumber.split("\\|");
 
-						//Check if there is a custom message to be shown
+						// Check if there is a custom message to be shown
 						if (customMessages[i].isEmpty()) {
-							if ((arrivalLine == 0 && !renderSingle) || (arrivalLine == 1 && renderSingle))
+							if ((arrivalLine == 0 && !renderSingle) || (arrivalLine == 1 && renderSingle)) {
 								destinationString = (isLightRailRoute ? routeNumberSplit[languageTicks % routeNumberSplit.length] + " " : "") + IGui.textOrUntitled(destinationSplit[languageTicks % destinationSplit.length]);
-							else destinationString = "";
+							} else {
+								destinationString = "";
+							}
 							useCustomMessage = false;
 						} else {
 							final String[] customMessageSplit = customMessages[i].split("\\|");
@@ -225,9 +227,11 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 							final int indexToUse = languageTicks % (destinationMaxIndex + customMessageSplit.length);
 
 							if (indexToUse < destinationMaxIndex) {
-								if ((arrivalLine == 0 && !renderSingle) || (arrivalLine == 1 && renderSingle))
+								if ((arrivalLine == 0 && !renderSingle) || (arrivalLine == 1 && renderSingle)) {
 									destinationString = (isLightRailRoute ? routeNumberSplit[languageTicks % routeNumberSplit.length] + " " : "") + IGui.textOrUntitled(destinationSplit[languageTicks % destinationSplit.length]);
-								else destinationString = "";
+								} else {
+									destinationString = "";
+								}
 								useCustomMessage = false;
 							} else {
 								destinationString = customMessageSplit[indexToUse - destinationMaxIndex];
@@ -240,7 +244,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 						useCustomMessage = true;
 					}
 
-					//Translate the rendering matrix to the correct position
+					// Translate the rendering matrix to the correct position
 					matrices.pushPose();
 					matrices.translate(0.5, 0, 0.5);
 					UtilitiesClient.rotateYDegrees(matrices, (rotate90 ? 90 : 0) - facing.toYRot());
@@ -248,71 +252,80 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					matrices.translate((startX - 8) / 16, -startY / 16 + (i / (float) linesPerArrival) * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
 					matrices.scale(1F / scale, 1F / scale, 1F / scale);
 
-					//Get text renderer
+					// Get text renderer
 					final Font textRenderer = Minecraft.getInstance().font;
 
 					if (useCustomMessage) {
-						//Render custom message
+						// Render custom message
 						final int destinationWidth = textRenderer.width(destinationString);
 						if (destinationWidth > totalScaledWidth) {
 							matrices.scale(totalScaledWidth / destinationWidth, 1, 1);
 						}
 						textRenderer.draw(matrices, destinationString, 0, 0, textColor);
 					} else {
-						//Render arrival
+						// Render arrival
 						final Component arrivalText;
-						//Get arrival time
+						// Get arrival time
 						final int seconds = (int) ((currentSchedule.arrivalMillis - System.currentTimeMillis()) / 1000);
 						if (seconds >= 60) {
-							if ((arrivalLine == 1 && renderVertical) || (arrivalLine == 0 && renderSingle) || renderClassic)
+							if ((arrivalLine == 1 && renderVertical) || (arrivalLine == 0 && renderSingle) || renderClassic) {
 								arrivalText = Text.translatable(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60).append(appendDotAfterMin && !isCJK ? "." : "");
-							else arrivalText = Text.literal("");
+							} else {
+								arrivalText = Text.literal("");
+							}
 						} else {
-							if ((arrivalLine == 1 && renderVertical) || (arrivalLine == 0 && renderSingle) || renderClassic)
+							if ((arrivalLine == 1 && renderVertical) || (arrivalLine == 0 && renderSingle) || renderClassic) {
 								arrivalText = seconds > 0 ? Text.translatable(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds).append(appendDotAfterMin && !isCJK ? "." : "") : null;
-							else arrivalText = Text.literal("");
+							} else {
+								arrivalText = Text.literal("");
+							}
 						}
 
-						//Get car length text
+						// Get car length text
 						final Component carText;
-						if ((arrivalLine == 1 && renderVertical) || (arrivalLine == 15 && renderSingle) || renderClassic)
+						if ((arrivalLine == 1 && renderVertical) || (arrivalLine == 15 && renderSingle) || renderClassic) {
 							carText = Text.translatable(isCJK ? "gui.mtr.arrival_car_cjk" : "gui.mtr.arrival_car", currentSchedule.trainCars);
-						else carText = Text.literal("");
+						} else {
+							carText = Text.literal("");
+						}
 
-						//Get calling at text
+						// Get calling at text
 						final Component callingAtText;
 						if (renderSingle && arrivalLine == 3) {
-							if (stations.size() > 0)
+							if (stations.size() > 0) {
 								callingAtText = Text.translatable(isCJK ? "gui.mtr.calling_at_cjk" : "gui.mtr.calling_at", callingAtPage + 1, callingAtMaxPages);
-							else
+							} else {
 								callingAtText = Text.translatable(isCJK ? "gui.mtr.terminates_here_cjk" : "gui.mtr.terminates_here_1");
+							}
 						} else {
 							callingAtText = Text.literal("");
 						}
 
-						//Get calling at station
+						// Get calling at station
 						final String callingAtStationText;
-						int callingAtStationNumber = arrivalLine - 4 + callingAtPage * STATIONS_PER_PAGE;
+						final int callingAtStationNumber = arrivalLine - 4 + callingAtPage * STATIONS_PER_PAGE;
 						if (renderSingle && arrivalLine >= 4 && arrivalLine < 14 && callingAtStationNumber < stations.size()) {
-							String[] callingAtStationTextSplit = ClientData.DATA_CACHE.platformIdToStation.get(stations.get(callingAtStationNumber).platformId).name.split("\\|");
+							final String[] callingAtStationTextSplit = ClientData.DATA_CACHE.platformIdToStation.get(stations.get(callingAtStationNumber).platformId).name.split("\\|");
 							final int indexToUse = languageTicks % callingAtStationTextSplit.length;
 							callingAtStationText = callingAtStationTextSplit[indexToUse];
 						} else {
-							if (renderSingle && stations.size() == 0 && !isCJK && arrivalLine == 4)
+							if (renderSingle && stations.size() == 0 && !isCJK && arrivalLine == 4) {
 								callingAtStationText = Text.translatable("gui.mtr.terminates_here_2").getString();
-							else if (renderSingle && stations.size() == 0 && !isCJK && arrivalLine == 5)
+							} else if (renderSingle && stations.size() == 0 && !isCJK && arrivalLine == 5) {
 								callingAtStationText = Text.translatable("gui.mtr.terminates_here_3").getString();
-							else callingAtStationText = "";
+							} else {
+								callingAtStationText = "";
+							}
 						}
 
-						//Render arrival number
+						// Render arrival number
 						if (renderArrivalNumber) {
 							textRenderer.draw(matrices, String.valueOf(i + 1), 0, 0, seconds > 0 ? textColor : firstTrainColor);
 						}
 
 						final float newDestinationMaxWidth = destinationMaxWidth - (!renderClassic ? 0 : carLengthMaxWidth);
 
-						//Render platform number
+						// Render platform number
 						if (renderType.showPlatformNumber && ((arrivalLine == 0 && renderSingle) || renderClassic)) {
 							matrices.pushPose();
 							final Component platformName = renderSingle ? Text.translatable(isCJK ? "gui.mtr.platform_abbr_cjk" : "gui.mtr.platform_abbr", platformIdToName.get(route.platformIds.get(currentSchedule.currentStationIndex).platformId)) : Text.literal(platformIdToName.get(route.platformIds.get(currentSchedule.currentStationIndex).platformId));
@@ -331,7 +344,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 							matrices.popPose();
 						}
 
-						//Render calling at text
+						// Render calling at text
 						if (renderSingle && arrivalLine == 3) {
 							matrices.pushPose();
 							final int callingAtWidth = textRenderer.width(callingAtText);
@@ -339,17 +352,18 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 								matrices.translate(destinationStart, 0, 0);
 							}
 							if (callingAtWidth > callingAtMaxWidth) {
-								if (stations.size() == 0)
-									matrices.translate(totalScaledWidth / 2 - callingAtMaxWidth / 2.0f, 0, 0);
+								if (stations.size() == 0) {
+									matrices.translate(totalScaledWidth / 2 - callingAtMaxWidth / 2, 0, 0);
+								}
 								matrices.scale(callingAtMaxWidth / callingAtWidth, 1, 1);
 							} else if (stations.size() == 0) {
-								matrices.translate(totalScaledWidth / 2 - callingAtWidth / 2.0f, 0, 0);
+								matrices.translate(totalScaledWidth / 2 - callingAtWidth / 2F, 0, 0);
 							}
 							textRenderer.draw(matrices, callingAtText, 0, 0, seconds > 0 ? textColor : firstTrainColor);
 							matrices.popPose();
 						}
 
-						//Render calling at station
+						// Render calling at station
 						if (renderSingle && arrivalLine >= 4 && arrivalLine < 14) {
 							matrices.pushPose();
 							final int callingAtStationWidth = textRenderer.width(callingAtStationText);
@@ -357,24 +371,28 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 								matrices.translate(destinationStart, 0, 0);
 							}
 							if (callingAtStationWidth > callingAtStationMaxWidth) {
-								if (stations.size() == 0)
-									matrices.translate(totalScaledWidth / 2 - callingAtStationMaxWidth / 2.0f, 0, 0);
+								if (stations.size() == 0) {
+									matrices.translate(totalScaledWidth / 2 - callingAtStationMaxWidth / 2, 0, 0);
+								}
 								matrices.scale(callingAtStationMaxWidth / callingAtStationWidth, 1, 1);
 							} else if (stations.size() == 0) {
-								matrices.translate(totalScaledWidth / 2 - callingAtStationWidth / 2.0f, 0, 0);
+								matrices.translate(totalScaledWidth / 2 - callingAtStationWidth / 2F, 0, 0);
 							}
 							textRenderer.draw(matrices, callingAtStationText, 0, 0, seconds > 0 ? textColor : firstTrainColor);
 							matrices.popPose();
 						}
 
-						//Render car length
+						// Render car length
 						if (showCarLength) {
 							matrices.pushPose();
-							if (!renderSingle)
+							if (!renderSingle) {
 								matrices.translate(renderVertical ? destinationStart : (destinationStart + newDestinationMaxWidth + platformMaxWidth), 0, 0);
+							}
 							final int carTextWidth = textRenderer.width(carText);
 							if (carTextWidth > carLengthMaxWidth) {
-								if (renderSingle) matrices.translate(totalScaledWidth - carLengthMaxWidth, 0, 0);
+								if (renderSingle) {
+									matrices.translate(totalScaledWidth - carLengthMaxWidth, 0, 0);
+								}
 								matrices.scale(carLengthMaxWidth / carTextWidth, 1, 1);
 							} else if (renderSingle) {
 								matrices.translate(totalScaledWidth - carTextWidth, 0, 0);
@@ -383,7 +401,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 							matrices.popPose();
 						}
 
-						//Render destination
+						// Render destination
 						matrices.pushPose();
 						matrices.translate(destinationStart, 0, 0);
 						final int destinationWidth = textRenderer.width(destinationString);
@@ -393,16 +411,22 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 						textRenderer.draw(matrices, destinationString, 0, 0, seconds > 0 ? textColor : firstTrainColor);
 						matrices.popPose();
 
-						//Render arrival time
+						// Render arrival time
 						if (arrivalText != null) {
 							matrices.pushPose();
 							final int arrivalWidth = textRenderer.width(arrivalText);
-							if (renderSingle) matrices.translate(destinationStart, 0, 0);
+							if (renderSingle) {
+								matrices.translate(destinationStart, 0, 0);
+							}
 							if (arrivalWidth > arrivalMaxWidth) {
-								if (!renderSingle) matrices.translate(totalScaledWidth - arrivalMaxWidth, 0, 0);
+								if (!renderSingle) {
+									matrices.translate(totalScaledWidth - arrivalMaxWidth, 0, 0);
+								}
 								matrices.scale(arrivalMaxWidth / arrivalWidth, 1, 1);
 							} else {
-								if (!renderSingle) matrices.translate(totalScaledWidth - arrivalWidth, 0, 0);
+								if (!renderSingle) {
+									matrices.translate(totalScaledWidth - arrivalWidth, 0, 0);
+								}
 							}
 							textRenderer.draw(matrices, arrivalText, 0, 0, textColor);
 							matrices.popPose();
@@ -438,7 +462,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					platformIds = new HashSet<>();
 				}
 				break;
-			case SPIDS:
+			case PIDS_SINGLE_ARRIVAL:
 				if (entity instanceof IPIDS.TileEntityPIDS) {
 					platformIds = ((IPIDS.TileEntityPIDS) entity).getPlatformIds();
 				} else {
@@ -446,7 +470,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 				}
 				break;
 			case PIDS:
-            case PIDS_VERTICAL:
+			case PIDS_VERTICAL:
 				final Set<Long> tempPlatformIds;
 				if (entity instanceof IPIDS.TileEntityPIDS) {
 					tempPlatformIds = ((IPIDS.TileEntityPIDS) entity).getPlatformIds();

@@ -97,6 +97,7 @@ public abstract class BlockPIDSBaseHorizontal extends BlockDirectionalMapper imp
 	}
 
 	public abstract static class TileEntityBlockPIDSBaseHorizontal extends TileEntityPIDS {
+
 		public TileEntityBlockPIDSBaseHorizontal(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
 		}
