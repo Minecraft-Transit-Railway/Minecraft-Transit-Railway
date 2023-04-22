@@ -3,16 +3,22 @@ package mtr.block;
 import mtr.data.IPIDS;
 import mtr.mappings.BlockDirectionalMapper;
 import mtr.mappings.EntityBlockMapper;
+import mtr.mappings.Text;
 import mtr.packet.PacketTrainDataGuiServer;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
@@ -25,6 +31,8 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
+
+import java.util.List;
 
 public abstract class BlockPIDSBaseHorizontal extends BlockDirectionalMapper implements EntityBlockMapper, IPIDS {
 
@@ -83,6 +91,14 @@ public abstract class BlockPIDSBaseHorizontal extends BlockDirectionalMapper imp
 			if (entity1 instanceof TileEntityBlockPIDSBaseHorizontal && entity2 instanceof TileEntityBlockPIDSBaseHorizontal) {
 				System.arraycopy(((TileEntityBlockPIDSBaseHorizontal) entity1).messages, 0, ((TileEntityBlockPIDSBaseHorizontal) entity2).messages, 0, Math.min(((TileEntityBlockPIDSBaseHorizontal) entity1).messages.length, ((TileEntityBlockPIDSBaseHorizontal) entity2).messages.length));
 			}
+		}
+	}
+
+	@Override
+	public void appendHoverText(ItemStack stack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
+		final BlockEntity blockEntity = createBlockEntity(null, null);
+		if (blockEntity instanceof TileEntityPIDS) {
+			tooltip.add(Text.translatable("tooltip.mtr.arrivals", ((TileEntityPIDS) blockEntity).getMaxArrivals()).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 		}
 	}
 

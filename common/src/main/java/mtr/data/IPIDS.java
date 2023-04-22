@@ -15,6 +15,7 @@ import java.util.Set;
 public interface IPIDS extends IBlock {
 
 	abstract class TileEntityPIDS extends BlockEntityClientSerializableMapper implements IPIDSRenderChild {
+
 		private long cachedRefreshTime;
 		private long cachedPlatformId;
 		public final String[] messages = new String[getMaxArrivals() * getLinesPerArrival()];
@@ -111,5 +112,4 @@ public interface IPIDS extends IBlock {
 
 		public abstract int getLinesPerArrival();
 	}
-
 }
