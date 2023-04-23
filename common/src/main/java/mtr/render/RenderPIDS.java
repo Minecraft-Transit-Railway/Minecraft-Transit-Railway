@@ -305,7 +305,8 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 						final String callingAtStationText;
 						final int callingAtStationNumber = arrivalLine - 4 + callingAtPage * STATIONS_PER_PAGE;
 						if (renderSingle && arrivalLine >= 4 && arrivalLine < 14 && callingAtStationNumber < stations.size()) {
-							final String[] callingAtStationTextSplit = ClientData.DATA_CACHE.platformIdToStation.get(stations.get(callingAtStationNumber).platformId).name.split("\\|");
+							final Station station = ClientData.DATA_CACHE.platformIdToStation.get(stations.get(callingAtStationNumber).platformId);
+							final String[] callingAtStationTextSplit = station == null ? new String[]{""} : station.name.split("\\|");
 							final int indexToUse = languageTicks % callingAtStationTextSplit.length;
 							callingAtStationText = callingAtStationTextSplit[indexToUse];
 						} else {

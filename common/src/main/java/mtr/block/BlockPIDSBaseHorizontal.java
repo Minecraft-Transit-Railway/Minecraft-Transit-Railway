@@ -96,7 +96,7 @@ public abstract class BlockPIDSBaseHorizontal extends BlockDirectionalMapper imp
 
 	@Override
 	public void appendHoverText(ItemStack stack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
-		final BlockEntity blockEntity = createBlockEntity(null, null);
+		final BlockEntity blockEntity = createBlockEntity(new BlockPos(0, 0, 0), null);
 		if (blockEntity instanceof TileEntityPIDS) {
 			tooltip.add(Text.translatable("tooltip.mtr.arrivals", ((TileEntityPIDS) blockEntity).getMaxArrivals()).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 		}
