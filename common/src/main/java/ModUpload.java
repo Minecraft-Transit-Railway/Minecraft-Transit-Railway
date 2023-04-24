@@ -20,6 +20,7 @@ public class ModUpload {
 					final String modVersionMtr = modLoader.name + "-" + minecraftVersion + "-" + modVersion[0];
 					final String urlMtr = "https://www.minecrafttransitrailway.com/libs/latest/MTR-" + modLoader.name + "-" + minecraftVersion + "-latest.jar";
 					final String fileNameMtr = "MTR-" + modVersionMtr + ".jar";
+					final String modVersionUpperCase = modVersionMtr.toUpperCase(Locale.ENGLISH).replace("HOTFIX", "hotfix");
 
 					final Map<String, DependencyType> dependenciesCurseForge = new HashMap<>();
 					dependenciesCurseForge.put(modLoader == ModLoader.FABRIC ? "fabric-api" : "architectury-api", DependencyType.REQUIRED);
@@ -27,7 +28,7 @@ public class ModUpload {
 					dependenciesCurseForge.put("mtr-station-decoration", DependencyType.OPTIONAL);
 					while (true) {
 						final boolean[] success = {false};
-						NetworkUtils.openConnectionSafe(urlMtr, inputStream -> success[0] = new ModId("266707", ModProvider.CURSE_FORGE).uploadFile("", modVersionMtr.toUpperCase(Locale.ENGLISH), "See Discord", dependenciesCurseForge, modLoader == ModLoader.FABRIC ? ReleaseStatus.BETA : ReleaseStatus.ALPHA, Collections.singleton(minecraftVersion), Collections.singleton(modLoader), false, inputStream, fileNameMtr, args[0]));
+						NetworkUtils.openConnectionSafe(urlMtr, inputStream -> success[0] = new ModId("266707", ModProvider.CURSE_FORGE).uploadFile("", modVersionUpperCase, "See Discord", dependenciesCurseForge, modLoader == ModLoader.FABRIC ? ReleaseStatus.BETA : ReleaseStatus.ALPHA, Collections.singleton(minecraftVersion), Collections.singleton(modLoader), false, inputStream, fileNameMtr, args[0]));
 						if (success[0]) {
 							break;
 						}
@@ -39,7 +40,7 @@ public class ModUpload {
 					dependenciesModrinth.put("AM3NyLOZ", DependencyType.OPTIONAL);
 					while (true) {
 						final boolean[] success = {false};
-						NetworkUtils.openConnectionSafe(urlMtr, inputStream -> success[0] = new ModId("XKPAmI6u", ModProvider.MODRINTH).uploadFile("Minecraft Transit Railway", modVersionMtr.toUpperCase(Locale.ENGLISH), "See Discord", dependenciesModrinth, ReleaseStatus.BETA, Collections.singleton(minecraftVersion), Collections.singleton(modLoader), false, inputStream, fileNameMtr, args[1]));
+						NetworkUtils.openConnectionSafe(urlMtr, inputStream -> success[0] = new ModId("XKPAmI6u", ModProvider.MODRINTH).uploadFile(modVersionUpperCase, modVersionUpperCase, "See Discord", dependenciesModrinth, ReleaseStatus.BETA, Collections.singleton(minecraftVersion), Collections.singleton(modLoader), false, inputStream, fileNameMtr, args[1]));
 						if (success[0]) {
 							break;
 						}
