@@ -128,6 +128,8 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 			}
 		}
 
+		final MatrixStackHolder matrixStackHolder = new MatrixStackHolder(matrices);
+
 		try {
 			final Map<Long, String> platformIdToName = new HashMap<>();
 			final List<ScheduleEntry> scheduleList = getSchedules(entity, pos, platformIdToName);
@@ -245,7 +247,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					}
 
 					// Translate the rendering matrix to the correct position
-					matrices.pushPose();
+					matrixStackHolder.push();
 					matrices.translate(0.5, 0, 0.5);
 					UtilitiesClient.rotateYDegrees(matrices, (rotate90 ? 90 : 0) - facing.toYRot());
 					UtilitiesClient.rotateZDegrees(matrices, 180);
@@ -328,9 +330,10 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 
 						// Render platform number
 						if (renderType.showPlatformNumber && ((arrivalLine == 0 && renderSingle) || renderClassic)) {
-							matrices.pushPose();
-							final Component platformName = renderSingle ? Text.translatable(isCJK ? "gui.mtr.platform_abbr_cjk" : "gui.mtr.platform_abbr", platformIdToName.get(route.platformIds.get(currentSchedule.currentStationIndex).platformId)) : Text.literal(platformIdToName.get(route.platformIds.get(currentSchedule.currentStationIndex).platformId));
-							final int platformWidth = textRenderer.width(platformName);
+							matrixStackHolder.push();
+							final String platformName = platformIdToName.get(route.platformIds.get(currentSchedule.currentStationIndex).platformId);
+							final Component platformNameComponent = platformName == null ? Text.literal("") : renderSingle ? Text.translatable(isCJK ? "gui.mtr.platform_abbreviated_cjk" : "gui.mtr.platform_abbreviated", platformName) : Text.literal(platformName);
+							final int platformWidth = textRenderer.width(platformNameComponent);
 							if (renderClassic) {
 								matrices.translate(destinationStart + newDestinationMaxWidth, 0, 0);
 							} else {
@@ -341,13 +344,13 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 									matrices.translate(totalScaledWidth - platformWidth, 0, 0);
 								}
 							}
-							textRenderer.draw(matrices, platformName, 0, 0, seconds > 0 ? textColor : firstTrainColor);
-							matrices.popPose();
+							textRenderer.draw(matrices, platformNameComponent, 0, 0, seconds > 0 ? textColor : firstTrainColor);
+							matrixStackHolder.pop();
 						}
 
 						// Render calling at text
 						if (renderSingle && arrivalLine == 3) {
-							matrices.pushPose();
+							matrixStackHolder.push();
 							final int callingAtWidth = textRenderer.width(callingAtText);
 							if (stations.size() != 0) {
 								matrices.translate(destinationStart, 0, 0);
@@ -361,12 +364,12 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 								matrices.translate(totalScaledWidth / 2 - callingAtWidth / 2F, 0, 0);
 							}
 							textRenderer.draw(matrices, callingAtText, 0, 0, seconds > 0 ? textColor : firstTrainColor);
-							matrices.popPose();
+							matrixStackHolder.pop();
 						}
 
 						// Render calling at station
 						if (renderSingle && arrivalLine >= 4 && arrivalLine < 14) {
-							matrices.pushPose();
+							matrixStackHolder.push();
 							final int callingAtStationWidth = textRenderer.width(callingAtStationText);
 							if (stations.size() != 0) {
 								matrices.translate(destinationStart, 0, 0);
@@ -380,12 +383,12 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 								matrices.translate(totalScaledWidth / 2 - callingAtStationWidth / 2F, 0, 0);
 							}
 							textRenderer.draw(matrices, callingAtStationText, 0, 0, seconds > 0 ? textColor : firstTrainColor);
-							matrices.popPose();
+							matrixStackHolder.pop();
 						}
 
 						// Render car length
 						if (showCarLength) {
-							matrices.pushPose();
+							matrixStackHolder.push();
 							if (!renderSingle) {
 								matrices.translate(renderVertical ? destinationStart : (destinationStart + newDestinationMaxWidth + platformMaxWidth), 0, 0);
 							}
@@ -399,22 +402,22 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 								matrices.translate(totalScaledWidth - carTextWidth, 0, 0);
 							}
 							textRenderer.draw(matrices, carText, 0, 0, CAR_TEXT_COLOR);
-							matrices.popPose();
+							matrixStackHolder.pop();
 						}
 
 						// Render destination
-						matrices.pushPose();
+						matrixStackHolder.push();
 						matrices.translate(destinationStart, 0, 0);
 						final int destinationWidth = textRenderer.width(destinationString);
 						if (destinationWidth > newDestinationMaxWidth) {
 							matrices.scale(newDestinationMaxWidth / destinationWidth, 1, 1);
 						}
 						textRenderer.draw(matrices, destinationString, 0, 0, seconds > 0 ? textColor : firstTrainColor);
-						matrices.popPose();
+						matrixStackHolder.pop();
 
 						// Render arrival time
 						if (arrivalText != null) {
-							matrices.pushPose();
+							matrixStackHolder.push();
 							final int arrivalWidth = textRenderer.width(arrivalText);
 							if (renderSingle) {
 								matrices.translate(destinationStart, 0, 0);
@@ -430,15 +433,16 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 								}
 							}
 							textRenderer.draw(matrices, arrivalText, 0, 0, textColor);
-							matrices.popPose();
+							matrixStackHolder.pop();
 						}
 					}
-					matrices.popPose();
+					matrixStackHolder.pop();
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ignored) {
 		}
+
+		matrixStackHolder.popAll();
 	}
 
 	public List<ScheduleEntry> getSchedules(T entity, BlockPos pos, final Map<Long, String> platformIdToName) {
