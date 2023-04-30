@@ -5,11 +5,14 @@ import mtr.MTRClient;
 import mtr.block.BlockArrivalProjectorBase;
 import mtr.block.IBlock;
 import mtr.client.ClientData;
+import mtr.client.Config;
 import mtr.data.*;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.BlockEntityRendererMapper;
 import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -48,7 +51,6 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 	private final int firstTrainColor;
 	private final boolean appendDotAfterMin;
 
-	public static final int MAX_VIEW_DISTANCE = 16;
 	private static final int SWITCH_LANGUAGE_TICKS = 60;
 	private static final int CAR_TEXT_COLOR = 0xFF0000;
 	private static final int STATIONS_PER_PAGE = 10;
@@ -91,6 +93,11 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 		this.appendDotAfterMin = appendDotAfterMin;
 	}
 
+	@Environment(EnvType.CLIENT)
+	public int getViewDistance() {
+		return Config.PIDSMaxDistance();
+	}
+
 	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, int linesPerArrival, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, PIDSType renderType, int textColor, int firstTrainColor) {
 		this(dispatcher, maxArrivals, linesPerArrival, startX, startY, startZ, maxHeight, maxWidth, rotate90, renderArrivalNumber, renderType, textColor, firstTrainColor, 1, false);
 	}
@@ -105,7 +112,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 		// Get PIDS position and determine if it should render arrivals
 		final BlockPos pos = entity.getBlockPos();
 		final Direction facing = IBlock.getStatePropertySafe(world, pos, HorizontalDirectionalBlock.FACING);
-		if (RenderTrains.shouldNotRender(pos, Math.min(MAX_VIEW_DISTANCE, RenderTrains.maxTrainRenderDistance), rotate90 ? null : facing)) {
+		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, rotate90 ? null : facing)) {
 			return;
 		}
 		if (IBlock.getStatePropertySafe(entity.getBlockState(), HALF) == DoubleBlockHalf.LOWER) {

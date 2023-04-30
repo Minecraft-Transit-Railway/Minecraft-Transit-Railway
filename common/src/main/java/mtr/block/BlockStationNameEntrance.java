@@ -1,7 +1,10 @@
 package mtr.block;
 
 import mtr.BlockEntityTypes;
+import mtr.client.Config;
 import mtr.mappings.BlockEntityMapper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -101,6 +104,11 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IB
 				default:
 					return ARGB_WHITE;
 			}
+		}
+
+		@Environment(EnvType.CLIENT)
+		public double getViewDistance() {
+			return Config.stationNameTiledMaxDistance();
 		}
 	}
 }

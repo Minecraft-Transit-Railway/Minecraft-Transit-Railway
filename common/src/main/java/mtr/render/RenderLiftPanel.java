@@ -8,12 +8,15 @@ import mtr.block.BlockLiftTrackFloor;
 import mtr.block.IBlock;
 import mtr.block.ITripleBlock;
 import mtr.client.ClientData;
+import mtr.client.Config;
 import mtr.client.IDrawing;
 import mtr.data.Lift;
 import mtr.item.ItemLiftButtonsLinkModifier;
 import mtr.mappings.BlockEntityRendererMapper;
 import mtr.mappings.Utilities;
 import mtr.mappings.UtilitiesClient;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -44,6 +47,11 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.TileEntityLiftPanel1Ba
 		super(dispatcher);
 		this.isOdd = isOdd;
 		this.isFlat = isFlat;
+	}
+
+	@Environment(EnvType.CLIENT)
+	public int getViewDistance() {
+		return Config.liftPanelMaxDistance();
 	}
 
 	@Override

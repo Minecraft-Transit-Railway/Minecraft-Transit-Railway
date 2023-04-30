@@ -1,9 +1,12 @@
 package mtr.block;
 
+import mtr.client.Config;
 import mtr.data.IPIDS;
 import mtr.mappings.EntityBlockMapper;
 import mtr.mappings.Text;
 import mtr.packet.PacketTrainDataGuiServer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -70,5 +73,10 @@ public abstract class BlockPIDSBaseVertical extends BlockDirectionalDoubleBlockB
 
 		@Override
 		public abstract int getLinesPerArrival();
+
+		@Environment(EnvType.CLIENT)
+		public double getViewDistance() {
+			return Config.PIDSMaxDistance();
+		}
 	}
 }

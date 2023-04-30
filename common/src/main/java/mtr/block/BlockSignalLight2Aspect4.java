@@ -1,7 +1,10 @@
 package mtr.block;
 
 import mtr.BlockEntityTypes;
+import mtr.client.Config;
 import mtr.mappings.BlockEntityMapper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -20,6 +23,11 @@ public class BlockSignalLight2Aspect4 extends BlockSignalLightBase {
 
 		public TileEntitySignalLight2Aspect4(BlockPos pos, BlockState state) {
 			super(BlockEntityTypes.SIGNAL_LIGHT_2_ASPECT_4.get(), pos, state);
+		}
+
+		@Environment(EnvType.CLIENT)
+		public double getViewDistance() {
+			return Config.signalMaxDistance();
 		}
 	}
 }

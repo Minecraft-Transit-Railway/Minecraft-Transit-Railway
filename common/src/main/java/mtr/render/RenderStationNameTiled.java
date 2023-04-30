@@ -4,8 +4,11 @@ import mtr.block.BlockStationNameBase;
 import mtr.block.BlockStationNameEntrance;
 import mtr.block.IBlock;
 import mtr.client.ClientData;
+import mtr.client.Config;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
@@ -21,6 +24,11 @@ public class RenderStationNameTiled<T extends BlockStationNameBase.TileEntitySta
 	public RenderStationNameTiled(BlockEntityRenderDispatcher dispatcher, boolean showLogo) {
 		super(dispatcher);
 		this.showLogo = showLogo;
+	}
+
+	@Environment(EnvType.CLIENT)
+	public int getViewDistance() {
+		return Config.stationNameTiledMaxDistance();
 	}
 
 	@Override

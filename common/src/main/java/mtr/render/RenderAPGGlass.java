@@ -3,7 +3,10 @@ package mtr.render;
 import mtr.block.BlockAPGGlass;
 import mtr.block.IBlock;
 import mtr.client.ClientData;
+import mtr.client.Config;
 import mtr.client.IDrawing;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,6 +21,10 @@ public class RenderAPGGlass extends RenderRouteBase<BlockAPGGlass.TileEntityAPGG
 
 	public RenderAPGGlass(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher, 4, 8, 4, 8, false, BlockAPGGlass.ARROW_DIRECTION);
+	}
+	@Environment(EnvType.CLIENT)
+	public int getViewDistance() {
+		return Config.APGMaxDistance();
 	}
 
 	@Override

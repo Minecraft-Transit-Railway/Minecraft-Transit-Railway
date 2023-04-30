@@ -5,16 +5,15 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
-import mtr.client.ClientCache;
-import mtr.client.ClientData;
-import mtr.client.CustomResources;
-import mtr.client.IDrawing;
+import mtr.client.*;
 import mtr.data.IGui;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Station;
 import mtr.mappings.BlockEntityRendererMapper;
 import mtr.mappings.UtilitiesClient;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -32,6 +31,11 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 
 	public RenderRailwaySign(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
+	}
+
+	@Environment(EnvType.CLIENT)
+	public int getViewDistance() {
+		return Config.railwaySignMaxDistance();
 	}
 
 	@Override

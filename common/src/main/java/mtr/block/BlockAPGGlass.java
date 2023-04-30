@@ -2,8 +2,11 @@ package mtr.block;
 
 import mtr.BlockEntityTypes;
 import mtr.Items;
+import mtr.client.Config;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.EntityBlockMapper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -54,6 +57,11 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements EntityBlockMa
 
 		public TileEntityAPGGlass(BlockPos pos, BlockState state) {
 			super(BlockEntityTypes.APG_GLASS_TILE_ENTITY.get(), pos, state);
+		}
+
+		@Environment(EnvType.CLIENT)
+		public double getViewDistance() {
+			return Config.APGMaxDistance();
 		}
 	}
 }

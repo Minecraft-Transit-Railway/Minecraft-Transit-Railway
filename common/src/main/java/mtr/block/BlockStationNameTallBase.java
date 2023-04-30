@@ -1,5 +1,8 @@
 package mtr.block;
 
+import mtr.client.Config;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Tuple;
@@ -131,6 +134,11 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 				default:
 					return ARGB_WHITE;
 			}
+		}
+
+		@Environment(EnvType.CLIENT)
+		public double getViewDistance() {
+			return Config.stationNameTallMaxDistance();
 		}
 	}
 }

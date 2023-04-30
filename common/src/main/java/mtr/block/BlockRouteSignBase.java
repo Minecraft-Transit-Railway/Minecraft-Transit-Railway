@@ -1,8 +1,11 @@
 package mtr.block;
 
+import mtr.client.Config;
 import mtr.mappings.BlockEntityClientSerializableMapper;
 import mtr.mappings.EntityBlockMapper;
 import mtr.packet.PacketTrainDataGuiServer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -79,6 +82,11 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 
 		public long getPlatformId() {
 			return platformId;
+		}
+
+		@Environment(EnvType.CLIENT)
+		public double getViewDistance() {
+			return Config.routeSignMaxDistance();
 		}
 	}
 }

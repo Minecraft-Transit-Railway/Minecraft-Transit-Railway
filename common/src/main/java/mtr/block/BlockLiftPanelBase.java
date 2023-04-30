@@ -2,7 +2,10 @@ package mtr.block;
 
 import mtr.Items;
 import mtr.MTR;
+import mtr.client.Config;
 import mtr.mappings.*;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -227,6 +230,11 @@ public abstract class BlockLiftPanelBase extends BlockDirectionalMapper implemen
 			if (world != null && !world.isClientSide && blockEntity instanceof TileEntityLiftPanel1Base) {
 				((TileEntityLiftPanel1Base) blockEntity).convert();
 			}
+		}
+
+		@Environment(EnvType.CLIENT)
+		public double getViewDistance() {
+			return Config.liftPanelMaxDistance();
 		}
 	}
 }

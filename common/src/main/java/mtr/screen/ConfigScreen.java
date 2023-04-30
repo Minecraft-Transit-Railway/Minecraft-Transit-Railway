@@ -41,11 +41,11 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 	private final WidgetShorterSlider sliderTrackTextureOffset;
 	private final WidgetShorterSlider sliderDynamicTextureResolution;
 	private final WidgetShorterSlider sliderTrainRenderDistanceRatio;
+	private final Button buttonDetailedViewingDistance;
 	private final Button buttonSupportPatreon;
 
 	private static final int BUTTON_WIDTH = 60;
 	private static final int BUTTON_HEIGHT = TEXT_HEIGHT + TEXT_PADDING;
-
 	public ConfigScreen() {
 		this(false, false);
 	}
@@ -97,6 +97,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		sliderTrackTextureOffset = new WidgetShorterSlider(0, 0, Config.TRACK_OFFSET_COUNT - 1, Object::toString, null);
 		sliderDynamicTextureResolution = new WidgetShorterSlider(0, 0, Config.DYNAMIC_RESOLUTION_COUNT - 1, Object::toString, null);
 		sliderTrainRenderDistanceRatio = new WidgetShorterSlider(0, 0, Config.TRAIN_RENDER_DISTANCE_RATIO_COUNT - 1, num -> String.format("%d%%", (num + 1) * 100 / Config.TRAIN_RENDER_DISTANCE_RATIO_COUNT), null);
+		buttonDetailedViewingDistance = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> this.minecraft.setScreen(new ViewDistanceConfigScreen(this)));
 		buttonSupportPatreon = UtilitiesClient.newButton(BUTTON_HEIGHT, Text.literal(""), button -> Util.getPlatform().openUri("https://www.patreon.com/minecraft_transit_railway"));
 	}
 
@@ -135,6 +136,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 			IDrawing.setPositionAndWidth(sliderTrackTextureOffset, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
 			IDrawing.setPositionAndWidth(sliderDynamicTextureResolution, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
 			IDrawing.setPositionAndWidth(sliderTrainRenderDistanceRatio, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
+			IDrawing.setPositionAndWidth(buttonDetailedViewingDistance,width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
 		}
 		IDrawing.setPositionAndWidth(buttonSupportPatreon, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * i + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
 		setButtonText(buttonUseMTRFont, useMTRFont);
@@ -145,6 +147,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		setButtonText(buttonShiftToToggleSitting, shiftToToggleSitting);
 		buttonLanguageOptions.setMessage(Text.translatable("options.mtr.language_options_" + languageOptions));
 		setButtonText(buttonUseDynamicFPS, useDynamicFPS);
+		buttonDetailedViewingDistance.setMessage(Text.translatable("options.mtr.open_detailed_view_distance"));
 		sliderTrackTextureOffset.setHeight(BUTTON_HEIGHT);
 		sliderTrackTextureOffset.setValue(Config.trackTextureOffset());
 		sliderDynamicTextureResolution.setHeight(BUTTON_HEIGHT);
@@ -168,6 +171,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 			addDrawableChild(sliderTrackTextureOffset);
 			addDrawableChild(sliderDynamicTextureResolution);
 			addDrawableChild(sliderTrainRenderDistanceRatio);
+			addDrawableChild(buttonDetailedViewingDistance);
 		}
 		addDrawableChild(buttonSupportPatreon);
 	}
@@ -192,6 +196,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 				drawString(matrices, font, Text.translatable("options.mtr.track_texture_offset"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 				drawString(matrices, font, Text.translatable("options.mtr.dynamic_texture_resolution"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 				drawString(matrices, font, Text.translatable("options.mtr.vehicle_render_distance_ratio"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
+				drawString(matrices, font, Text.translatable("options.mtr.detailed_view_distance"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 			}
 			drawString(matrices, font, Text.translatable("options.mtr.support_patreon"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 

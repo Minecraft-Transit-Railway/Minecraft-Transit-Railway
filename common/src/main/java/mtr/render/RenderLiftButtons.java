@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import mtr.block.BlockLiftButtons;
 import mtr.block.IBlock;
 import mtr.client.ClientData;
+import mtr.client.Config;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.data.Lift;
@@ -13,6 +14,8 @@ import mtr.item.ItemLiftButtonsLinkModifier;
 import mtr.mappings.BlockEntityRendererMapper;
 import mtr.mappings.Utilities;
 import mtr.mappings.UtilitiesClient;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
@@ -37,6 +40,11 @@ public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButton
 
 	public RenderLiftButtons(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
+	}
+
+	@Environment(EnvType.CLIENT)
+	public int getViewDistance() {
+		return Config.liftButtonMaxDistance();
 	}
 
 	@Override

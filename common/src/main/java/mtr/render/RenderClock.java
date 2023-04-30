@@ -4,10 +4,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mtr.block.BlockClock;
 import mtr.block.IBlock;
+import mtr.client.Config;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.mappings.BlockEntityRendererMapper;
 import mtr.mappings.UtilitiesClient;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
@@ -20,6 +23,11 @@ public class RenderClock extends BlockEntityRendererMapper<BlockClock.TileEntity
 
 	public RenderClock(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
+	}
+
+	@Environment(EnvType.CLIENT)
+	public int getViewDistance() {
+		return Config.clockMaxDistance();
 	}
 
 	@Override
