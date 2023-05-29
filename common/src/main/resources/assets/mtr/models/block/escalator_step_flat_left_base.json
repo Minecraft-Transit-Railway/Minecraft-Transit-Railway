@@ -16,11 +16,6 @@
 			"__comment": "main",
 			"from": [ 0, 0, 11 ],
 			"to": [ 16, 16, 16 ],
-			"rotation": {
-				"angle": 0,
-				"axis": "y",
-				"origin": [ 0, 0, 16 ]
-			},
 			"faces": {
 				"south": { "uv": [ 4, 2.375, 0, 6.375 ], "texture": "#particle", "cullface": "south" },
 				"up": { "uv": [ 0, 3.625, 4, 2.375 ], "texture": "#particle", "cullface": "up" }

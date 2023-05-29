@@ -14,12 +14,9 @@
 		},
 		{
 			"__comment": "main slope",
-			"from": [ 0, 0, 0.05 ],
+			"from": [ 0, 0, -0.03 ],
 			"to": [ 8, 8, 5 ],
-			"rotation": {
-				"angle": -45,
-				"axis": "z",
-				"origin": [ 8, 8, 8 ],
+			"rotation": { "angle": -45, "axis": "z", "origin": [ 8, 8, 8 ],
 				"rescale": true
 			},
 			"faces": {
@@ -43,11 +40,6 @@
 			"__comment": "bottom",
 			"from": [ 0, 0, 0 ],
 			"to": [ 16, 4, 16 ],
-			"rotation": {
-				"angle": 0,
-				"axis": "y",
-				"origin": [ 0, 3, 0 ]
-			},
 			"faces": {
 				"up": { "uv": [ 11.5, 5.25, 7.5, 9.25 ], "rotation": 270, "texture": "#particle" },
 				"down": { "uv": [ 11.5, 9.25, 7.5, 5.25 ], "rotation": 90, "texture": "#particle", "cullface": "down" }
@@ -57,10 +49,7 @@
 			"__comment": "bottom slope",
 			"from": [ 5, 0, 0 ],
 			"to": [ 8, 1, 16 ],
-			"rotation": {
-				"angle": -45,
-				"axis": "z",
-				"origin": [ 8, 8, 8 ],
+			"rotation": { "angle": -45, "axis": "z", "origin": [ 8, 8, 8 ],
 				"rescale": true
 			},
 			"faces": {
