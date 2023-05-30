@@ -224,16 +224,20 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 								final int size = messageUnpacker.unpackMapHeader();
 								final HashMap<String, Value> result = new HashMap<>(size);
 
-								for (int i = 0; i < size; i++) {
-									result.put(messageUnpacker.unpackString(), messageUnpacker.unpackValue());
-								}
+								try {
+									for (int i = 0; i < size; i++) {
+										result.put(messageUnpacker.unpackString(), messageUnpacker.unpackValue());
+									}
 
-								final T data = getData.apply(result);
-								if (skipVerify || !(data instanceof NameColorDataBase) || !((NameColorDataBase) data).name.isEmpty()) {
-									callback.accept(data);
-								}
+									final T data = getData.apply(result);
+									if (skipVerify || !(data instanceof NameColorDataBase) || !((NameColorDataBase) data).name.isEmpty()) {
+										callback.accept(data);
+									}
 
-								existingFiles.put(idFile, getHash(data, true));
+									existingFiles.put(idFile, getHash(data, true));
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
