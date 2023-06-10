@@ -10,6 +10,7 @@ import mtr.mappings.PersistentStateMapper;
 import mtr.mappings.Utilities;
 import mtr.packet.*;
 import mtr.path.PathData;
+import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -268,6 +269,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public void simulateTrains() {
+		Minecraft.getInstance().getProfiler().push("RailwayData.simulateTrans()");
 		final List<? extends Player> players = world.players();
 		players.forEach(player -> {
 			final BlockPos playerBlockPos = player.blockPosition();
@@ -395,6 +397,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		prevSidingCount = sidings.size();
 
 		railwayDataFileSaveModule.autoSaveTick();
+		Minecraft.getInstance().getProfiler().popPush("RailwayData.simulateTrans()");
 	}
 
 	public void onPlayerJoin(ServerPlayer serverPlayer) {
