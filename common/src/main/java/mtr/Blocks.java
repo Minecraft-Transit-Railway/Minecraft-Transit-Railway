@@ -50,6 +50,8 @@ public interface Blocks {
 	RegistryObject<Block> MARBLE_SANDY_SLAB = new RegistryObject<>(() -> new SlabBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_YELLOW).requiresCorrectToolForDrops().strength(1)));
 	RegistryObject<Block> METAL = new RegistryObject<>(() -> new Block(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2)));
 	RegistryObject<Block> METAL_SLAB = new RegistryObject<>(() -> new SlabBlock(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2)));
+	RegistryObject<Block> TILE = new RegistryObject<>(() -> new Block(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2)));
+	RegistryObject<Block> TILE_SLAB = new RegistryObject<>(() -> new SlabBlock(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2)));
 	RegistryObject<Block> PIDS_1 = new RegistryObject<>(BlockPIDS1::new);
 	RegistryObject<Block> PIDS_2 = new RegistryObject<>(BlockPIDS2::new);
 	RegistryObject<Block> PIDS_3 = new RegistryObject<>(BlockPIDS3::new);
@@ -123,6 +125,7 @@ public interface Blocks {
 	RegistryObject<Block> STATION_COLOR_GRAVEL = new RegistryObject<>(() -> new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.GRAVEL)));
 	RegistryObject<Block> STATION_COLOR_IRON_BLOCK = new RegistryObject<>(() -> new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.IRON_BLOCK)));
 	RegistryObject<Block> STATION_COLOR_METAL = new RegistryObject<>(() -> new BlockStationColor(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 10)));
+	RegistryObject<Block> STATION_COLOR_TILE = new RegistryObject<>(() -> new BlockStationColor(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 10)));
 	RegistryObject<Block> STATION_COLOR_PLANKS = new RegistryObject<>(() -> new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.OAK_PLANKS)));
 	RegistryObject<Block> STATION_COLOR_POLE = new RegistryObject<>(() -> new BlockStationColorPole(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.STONE).requiresCorrectToolForDrops().strength(2).noOcclusion(), true));
 	RegistryObject<Block> STATION_COLOR_POLISHED_ANDESITE = new RegistryObject<>(() -> new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.POLISHED_ANDESITE)));
@@ -157,6 +160,7 @@ public interface Blocks {
 	RegistryObject<Block> STATION_COLOR_GRAVEL_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.GRAVEL)));
 	RegistryObject<Block> STATION_COLOR_IRON_BLOCK_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.IRON_BLOCK)));
 	RegistryObject<Block> STATION_COLOR_METAL_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 10)));
+	RegistryObject<Block> STATION_COLOR_TILE_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 10)));
 	RegistryObject<Block> STATION_COLOR_PLANKS_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.OAK_PLANKS)));
 	RegistryObject<Block> STATION_COLOR_POLISHED_ANDESITE_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.POLISHED_ANDESITE)));
 	RegistryObject<Block> STATION_COLOR_POLISHED_DIORITE_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.POLISHED_DIORITE)));
