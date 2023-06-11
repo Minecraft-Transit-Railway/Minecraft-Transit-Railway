@@ -211,6 +211,8 @@ public class MTR implements IPacket {
 			registerBlockItem.accept("marble_sandy_slab", Blocks.MARBLE_SANDY_SLAB, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 			registerBlockItem.accept("metal", Blocks.METAL, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 			registerBlockItem.accept("metal_slab", Blocks.METAL_SLAB, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+			registerBlockItem.accept("tile", Blocks.TILE, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+			registerBlockItem.accept("tile_slab", Blocks.TILE_SLAB, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 			registerBlockItem.accept("pids_1", Blocks.PIDS_1, CreativeModeTabs.RAILWAY_FACILITIES);
 			registerBlockItem.accept("pids_2", Blocks.PIDS_2, CreativeModeTabs.RAILWAY_FACILITIES);
 			registerBlockItem.accept("pids_3", Blocks.PIDS_3, CreativeModeTabs.RAILWAY_FACILITIES);
