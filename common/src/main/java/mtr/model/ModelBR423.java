@@ -61,6 +61,7 @@ public class ModelBR423 extends ModelSimpleTrainBase<ModelBR423> {
 	private final ModelMapper roof_door_exterior;
 	private final ModelMapper roof_2_r7;
 	private final ModelMapper roof_1_r4;
+	private final ModelMapper vent;
 	private final ModelMapper light_window;
 	private final ModelMapper light_door;
 	private final ModelMapper light_head;
@@ -163,8 +164,8 @@ public class ModelBR423 extends ModelSimpleTrainBase<ModelBR423> {
 
 		window_3_interior = new ModelMapper(modelDataWrapper);
 		window_3_interior.setPos(0, 24, 0);
-		window_3_interior.texOffs(143, 257).addBox(0, 0, -13.5F, 20, 1, 27, 0, false);
-		window_3_interior.texOffs(210, 224).addBox(20, -33, -13.5F, 0, 33, 27, 0, false);
+		window_3_interior.texOffs(194, 260).addBox(0, 0, -13.5F, 20, 1, 27, 0, false);
+		window_3_interior.texOffs(166, 213).addBox(20, -33, -13.5F, 0, 33, 27, 0, false);
 
 		curve_top_r3 = new ModelMapper(modelDataWrapper);
 		curve_top_r3.setPos(13, -37, 0);
@@ -197,16 +198,16 @@ public class ModelBR423 extends ModelSimpleTrainBase<ModelBR423> {
 		window_3_exterior = new ModelMapper(modelDataWrapper);
 		window_3_exterior.setPos(0, 24, 0);
 		window_3_exterior.texOffs(224, 142).addBox(20, 0, -13.5F, 1, 4, 27, 0, false);
-		window_3_exterior.texOffs(214, 177).addBox(21, -36, -13.5F, 0, 36, 27, 0, false);
+		window_3_exterior.texOffs(192, 177).addBox(21, -36, -13.5F, 0, 36, 27, 0, false);
 
 		door_interior = new ModelMapper(modelDataWrapper);
 		door_interior.setPos(0, 24, 0);
 		door_interior.texOffs(142, 117).addBox(0, 0, -13, 20, 1, 26, 0, false);
-		door_interior.texOffs(150, 243).addBox(16, -32, -13, 4, 32, 2, 0, false);
+		door_interior.texOffs(273, 27).addBox(16, -32, -13, 4, 32, 2, 0, false);
 		door_interior.texOffs(206, 17).addBox(16, -32, 11, 4, 32, 2, 0, false);
-		door_interior.texOffs(112, 215).addBox(6, -38, -12.9F, 10, 38, 0, 0, false);
-		door_interior.texOffs(112, 215).addBox(6, -38, 12.9F, 10, 38, 0, 0, false);
-		door_interior.texOffs(98, 253).addBox(16, -37, -13, 4, 5, 26, 0, false);
+		door_interior.texOffs(40, 231).addBox(6, -38, -12.9F, 10, 38, 0, 0, false);
+		door_interior.texOffs(40, 231).addBox(6, -38, 12.9F, 10, 38, 0, 0, false);
+		door_interior.texOffs(220, 229).addBox(16, -37, -13, 4, 5, 26, 0, false);
 
 		curve_top_r4 = new ModelMapper(modelDataWrapper);
 		curve_top_r4.setPos(12, -34, 0);
@@ -236,7 +237,7 @@ public class ModelBR423 extends ModelSimpleTrainBase<ModelBR423> {
 
 		door_left_interior = new ModelMapper(modelDataWrapper);
 		door_left_interior.setPos(0, 24, 0);
-		door_left_interior.texOffs(188, 204).addBox(20, -35, -12, 1, 35, 12, 0, false);
+		door_left_interior.texOffs(248, 182).addBox(20, -35, -12, 1, 35, 12, 0, false);
 
 		door_right_interior = new ModelMapper(modelDataWrapper);
 		door_right_interior.setPos(0, 24, 0);
@@ -275,8 +276,8 @@ public class ModelBR423 extends ModelSimpleTrainBase<ModelBR423> {
 		end_exterior_left.setPos(0, 0, 0);
 		end_exterior.addChild(end_exterior_left);
 		end_exterior_left.texOffs(164, 17).addBox(20, 0, 0, 1, 4, 2, 0, false);
-		end_exterior_left.texOffs(166, 241).addBox(21, -36, 0, 0, 36, 2, 0, false);
-		end_exterior_left.texOffs(132, 243).addBox(12, -35, 2, 9, 35, 0, 0, false);
+		end_exterior_left.texOffs(266, 104).addBox(21, -36, 0, 0, 36, 2, 0, false);
+		end_exterior_left.texOffs(268, 61).addBox(12, -35, 2, 9, 35, 0, 0, false);
 
 		roof_2_r1 = new ModelMapper(modelDataWrapper);
 		roof_2_r1.setPos(17, -43, 0);
@@ -294,7 +295,7 @@ public class ModelBR423 extends ModelSimpleTrainBase<ModelBR423> {
 		end_exterior_right.setPos(0, 0, 0);
 		end_exterior.addChild(end_exterior_right);
 		end_exterior_right.texOffs(164, 23).addBox(-21, 0, 0, 1, 4, 2, 0, true);
-		end_exterior_right.texOffs(162, 241).addBox(-21, -36, 0, 0, 36, 2, 0, true);
+		end_exterior_right.texOffs(262, 104).addBox(-21, -36, 0, 0, 36, 2, 0, true);
 		end_exterior_right.texOffs(0, 63).addBox(-21, -35, 2, 9, 35, 0, 0, true);
 
 		roof_3_r1 = new ModelMapper(modelDataWrapper);
@@ -377,6 +378,10 @@ public class ModelBR423 extends ModelSimpleTrainBase<ModelBR423> {
 		setRotationAngle(roof_1_r4, 0, 0, -0.3491F);
 		roof_1_r4.texOffs(168, 85).addBox(0, -5, -13, 0, 5, 26, 0, false);
 
+		vent = new ModelMapper(modelDataWrapper);
+		vent.setPos(0, 24, 0);
+		vent.texOffs(74, 237).addBox(-13, -49, -40, 26, 6, 40, 0, false);
+
 		light_window = new ModelMapper(modelDataWrapper);
 		light_window.setPos(0, 24, 0);
 		light_window.texOffs(217, 0).addBox(2, -38.2F, -13.5F, 4, 0, 27, 0, false);
@@ -418,7 +423,7 @@ public class ModelBR423 extends ModelSimpleTrainBase<ModelBR423> {
 		front_4_r1.setPos(0, -43, -20);
 		head_exterior.addChild(front_4_r1);
 		setRotationAngle(front_4_r1, 0.9599F, 0, 0);
-		front_4_r1.texOffs(21, 255).addBox(-17, -3, -25, 34, 0, 19, 0, false);
+		front_4_r1.texOffs(-19, 269).addBox(-17, -3, -25, 34, 0, 19, 0, false);
 
 		front_3_r1 = new ModelMapper(modelDataWrapper);
 		front_3_r1.setPos(0, -11, -40);
@@ -636,6 +641,7 @@ public class ModelBR423 extends ModelSimpleTrainBase<ModelBR423> {
 		roof_window_exterior_1.setModelPart();
 		roof_window_exterior_2.setModelPart();
 		roof_door_exterior.setModelPart();
+		vent.setModelPart();
 		light_window.setModelPart();
 		light_door.setModelPart();
 		light_head.setModelPart();
@@ -718,6 +724,10 @@ public class ModelBR423 extends ModelSimpleTrainBase<ModelBR423> {
 					renderOnceFlipped(i % 2 == 0 ? roof_window_exterior_1 : roof_window_exterior_2, matrices, vertices, light, windowPosition);
 					break;
 			}
+		}
+
+		if (renderStage == RenderStage.EXTERIOR) {
+			renderMirror(vent, matrices, vertices, light, position);
 		}
 	}
 

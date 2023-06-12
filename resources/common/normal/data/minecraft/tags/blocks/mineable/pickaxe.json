@@ -44,6 +44,8 @@
 		"mtr:pids_1",
 		"mtr:pids_2",
 		"mtr:pids_3",
+		"mtr:pids_4",
+		"mtr:pids_single_arrival_1",
 		"mtr:pids_pole",
 		"mtr:platform",
 		"mtr:platform_indented",

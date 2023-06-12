@@ -116,7 +116,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 			if (trainProperties.bogiePosition != 0 && !isTranslucentBatch) {
 				if (trainProperties.isJacobsBogie) {
 					if (carIndex == 0) {
-						MODEL_BOGIE.render(matrices, vertexConsumers, light, -(int) (trainProperties.bogiePosition * 16));
+						MODEL_BOGIE.render(matrices, vertexConsumers, light, train.trainCars == 1 ? 0 : -(int) (trainProperties.bogiePosition * 16));
 					} else if (carIndex == train.trainCars - 1) {
 						MODEL_BOGIE.render(matrices, vertexConsumers, light, (int) (trainProperties.bogiePosition * 16));
 					}

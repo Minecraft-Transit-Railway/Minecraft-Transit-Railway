@@ -1,8 +1,19 @@
 {
-	"parent": "block/slab_top",
+	"parent": "block/block",
 	"textures": {
-		"bottom": "mtr:block/metal",
-		"top": "block/iron_block",
-		"side": "mtr:block/metal"
-	}
+		"particle": "mtr:block/escalator"
+	},
+	"elements": [
+		{
+			"from": [ 0, 0, 0 ],
+			"to": [ 16, 16, 16 ],
+			"faces": {
+				"north": { "uv": [ 0, 2.375, 4, 6.375 ], "texture": "#particle" },
+				"east": { "uv": [ 0, 2.375, 4, 6.375 ], "texture": "#particle" },
+				"south": { "uv": [ 0, 2.375, 4, 6.375 ], "texture": "#particle" },
+				"west": { "uv": [ 0, 2.375, 4, 6.375 ], "texture": "#particle" },
+				"down": { "uv": [ 0, 2.375, 4, 6.375 ], "texture": "#particle" }
+			}
+		}
+	]
 }
