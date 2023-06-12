@@ -157,6 +157,7 @@ public class MTRClient implements IPacket {
 			RegistryClient.registerBlockColors(Blocks.STATION_COLOR_GRAVEL.get());
 			RegistryClient.registerBlockColors(Blocks.STATION_COLOR_IRON_BLOCK.get());
 			RegistryClient.registerBlockColors(Blocks.STATION_COLOR_METAL.get());
+			RegistryClient.registerBlockColors(Blocks.STATION_COLOR_TILE.get());
 			RegistryClient.registerBlockColors(Blocks.STATION_COLOR_PLANKS.get());
 			RegistryClient.registerBlockColors(Blocks.STATION_COLOR_POLISHED_ANDESITE.get());
 			RegistryClient.registerBlockColors(Blocks.STATION_COLOR_POLISHED_DIORITE.get());
@@ -190,6 +191,7 @@ public class MTRClient implements IPacket {
 			RegistryClient.registerBlockColors(Blocks.STATION_COLOR_GRAVEL_SLAB.get());
 			RegistryClient.registerBlockColors(Blocks.STATION_COLOR_IRON_BLOCK_SLAB.get());
 			RegistryClient.registerBlockColors(Blocks.STATION_COLOR_METAL_SLAB.get());
+			RegistryClient.registerBlockColors(Blocks.STATION_COLOR_TILE_SLAB.get());
 			RegistryClient.registerBlockColors(Blocks.STATION_COLOR_PLANKS_SLAB.get());
 			RegistryClient.registerBlockColors(Blocks.STATION_COLOR_POLISHED_ANDESITE_SLAB.get());
 			RegistryClient.registerBlockColors(Blocks.STATION_COLOR_POLISHED_DIORITE_SLAB.get());
