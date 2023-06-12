@@ -15,7 +15,7 @@
 	"block.minecraft.iron_block_slab": "Iron Block Slab",
 	"block.minecraft.metal": "Metal Block",
 	"block.minecraft.metal_slab": "Metal Slab",
-	"block.minecraft.tile": "Tessera Tiles"
+	"block.minecraft.tile": "Tessera Tiles",
 	"block.minecraft.tile_slab": "Tessera Tile Slab",
 	"block.minecraft.planks": "Wooden Planks",
 	"block.minecraft.planks_slab": "Wooden Planks Slab",
@@ -252,7 +252,7 @@
 	"gui.mtr.lift_style_opaque": "Opaque",
 	"gui.mtr.lift_style_transparent": "Transparent",
 	"gui.mtr.lift_track_required": "Lift / Elevator Tracks Required",
-	"gui.mtr.light_rail_route_announcement": "This is\ route %s to %s.",
+	"gui.mtr.light_rail_route_announcement": "This is route %s to %s.",
 	"gui.mtr.light_rail_route_announcement_cjk": "本班為%s綫列車前往%s。",
 	"gui.mtr.light_rail_route_number": "Route Number",
 	"gui.mtr.london_train_interchange_announcement": "Change here for %s.",
