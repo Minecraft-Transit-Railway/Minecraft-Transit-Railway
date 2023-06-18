@@ -9,17 +9,14 @@
 			"from": [ 0, 16, 0 ],
 			"to": [ 16, 16, 11 ],
 			"faces": {
-				"up": { "uv": [ 0, 0, 16, 16 ], "rotation": 270, "texture": "#step" }
+				"up": { "uv": [ 0, 12.8, 3.2, 16 ], "rotation": 270, "texture": "#step" }
 			}
 		},
 		{
 			"__comment": "main slope",
 			"from": [ 0, 0, 11 ],
-			"to": [ 8, 8, 15.95 ],
-			"rotation": {
-				"angle": -45,
-				"axis": "z",
-				"origin": [ 8, 8, 8 ],
+			"to": [ 8, 8, 16.03 ],
+			"rotation": { "angle": -45, "axis": "z", "origin": [ 8, 8, 8 ],
 				"rescale": true
 			},
 			"faces": {
@@ -33,11 +30,6 @@
 			"__comment": "main flat",
 			"from": [ 0, 0, 11 ],
 			"to": [ 16, 16, 16 ],
-			"rotation": {
-				"angle": 0,
-				"axis": "y",
-				"origin": [ 0, 0, 16 ]
-			},
 			"faces": {
 				"south": { "uv": [ 4, 2.375, 0, 5.375 ], "texture": "#particle" },
 				"west": { "uv": [ 4, 2.375, 2.625, 6.375 ], "texture": "#particle", "cullface": "east" },
@@ -48,11 +40,6 @@
 			"__comment": "bottom",
 			"from": [ 0, 0, 0 ],
 			"to": [ 16, 4, 16 ],
-			"rotation": {
-				"angle": 0,
-				"axis": "y",
-				"origin": [ 0, 3, 16 ]
-			},
 			"faces": {
 				"up": { "uv": [ 7.5, 5.25, 11.5, 9.25 ], "rotation": 270, "texture": "#particle" },
 				"down": { "uv": [ 7.5, 9.25, 11.5, 5.25 ], "rotation": 90, "texture": "#particle", "cullface": "down" }
@@ -62,10 +49,7 @@
 			"__comment": "bottom slope",
 			"from": [ 5, 0, 0 ],
 			"to": [ 8, 1, 16 ],
-			"rotation": {
-				"angle": -45,
-				"axis": "z",
-				"origin": [ 8, 8, 8 ],
+			"rotation": { "angle": -45, "axis": "z", "origin": [ 8, 8, 8 ],
 				"rescale": true
 			},
 			"faces": {

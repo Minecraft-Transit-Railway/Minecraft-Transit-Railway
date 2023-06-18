@@ -9,18 +9,13 @@
 			"from": [ 0, 16, 0 ],
 			"to": [ 16, 16, 11 ],
 			"faces": {
-				"up": { "uv": [ 0, 0, 16, 16 ], "rotation": 270, "texture": "#step", "cullface": "up" }
+				"up": { "uv": [ 0, 12.8, 3.2, 16 ], "rotation": 270, "texture": "#step", "cullface": "up" }
 			}
 		},
 		{
 			"__comment": "main",
 			"from": [ 0, 0, 11 ],
 			"to": [ 16, 16, 16 ],
-			"rotation": {
-				"angle": 0,
-				"axis": "y",
-				"origin": [ 0, 0, 16 ]
-			},
 			"faces": {
 				"south": { "uv": [ 4, 2.375, 0, 6.375 ], "texture": "#particle", "cullface": "south" },
 				"up": { "uv": [ 0, 3.625, 4, 2.375 ], "texture": "#particle", "cullface": "up" }
