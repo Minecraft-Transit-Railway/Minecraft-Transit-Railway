@@ -3,7 +3,10 @@ package mtr.render;
 import mtr.block.BlockStationNameTallBase;
 import mtr.block.IBlock;
 import mtr.client.ClientData;
+import mtr.client.Config;
 import mtr.client.IDrawing;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
@@ -18,6 +21,11 @@ public class RenderStationNameTall<T extends BlockStationNameTallBase.TileEntity
 
 	public RenderStationNameTall(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
+	}
+
+	@Environment(EnvType.CLIENT)
+	public int getViewDistance() {
+		return Config.stationNameTallMaxDistance();
 	}
 
 	@Override

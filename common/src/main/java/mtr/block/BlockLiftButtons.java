@@ -3,8 +3,11 @@ package mtr.block;
 import mtr.BlockEntityTypes;
 import mtr.Items;
 import mtr.MTR;
+import mtr.client.Config;
 import mtr.data.LiftInstructions;
 import mtr.mappings.*;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -158,6 +161,11 @@ public class BlockLiftButtons extends BlockDirectionalMapper implements EntityBl
 				blockEntity.setChanged();
 				((TileEntityLiftButtons) blockEntity).syncData();
 			}
+		}
+
+		@Environment(EnvType.CLIENT)
+		public double getViewDistance() {
+			return Config.liftButtonMaxDistance();
 		}
 	}
 }

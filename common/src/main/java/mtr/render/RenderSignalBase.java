@@ -7,12 +7,15 @@ import mtr.block.BlockSignalLightBase;
 import mtr.block.BlockSignalSemaphoreBase;
 import mtr.block.IBlock;
 import mtr.client.ClientData;
+import mtr.client.Config;
 import mtr.data.IGui;
 import mtr.data.Rail;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.BlockEntityRendererMapper;
 import mtr.mappings.UtilitiesClient;
 import mtr.path.PathData;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
@@ -40,6 +43,11 @@ public abstract class RenderSignalBase<T extends BlockEntityMapper> extends Bloc
 	@Deprecated
 	public RenderSignalBase(BlockEntityRenderDispatcher dispatcher, boolean isSingleSided) {
 		this(dispatcher, isSingleSided, 2);
+	}
+
+	@Environment(EnvType.CLIENT)
+	public int getViewDistance() {
+		return Config.signalMaxDistance();
 	}
 
 	@Override

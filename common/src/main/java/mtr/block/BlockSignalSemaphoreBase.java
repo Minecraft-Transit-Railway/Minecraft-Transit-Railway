@@ -1,8 +1,11 @@
 package mtr.block;
 
+import mtr.client.Config;
 import mtr.mappings.BlockDirectionalMapper;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.EntityBlockMapper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -48,6 +51,11 @@ public abstract class BlockSignalSemaphoreBase extends BlockDirectionalMapper im
 
 		public TileEntitySignalSemaphoreBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
+		}
+
+		@Environment(EnvType.CLIENT)
+		public double getViewDistance() {
+			return Config.signalMaxDistance();
 		}
 	}
 }

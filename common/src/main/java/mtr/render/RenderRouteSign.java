@@ -6,6 +6,7 @@ import mtr.block.BlockRouteSignBase;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
 import mtr.client.ClientData;
+import mtr.client.Config;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.data.Platform;
@@ -13,6 +14,8 @@ import mtr.data.RailwayData;
 import mtr.data.Station;
 import mtr.mappings.BlockEntityRendererMapper;
 import mtr.mappings.UtilitiesClient;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
@@ -36,6 +39,11 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 
 	public RenderRouteSign(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
+	}
+
+	@Environment(EnvType.CLIENT)
+	public int getViewDistance() {
+		return Config.routeSignMaxDistance();
 	}
 
 	@Override

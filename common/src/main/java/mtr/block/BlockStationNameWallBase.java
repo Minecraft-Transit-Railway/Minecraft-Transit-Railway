@@ -1,5 +1,8 @@
 package mtr.block;
 
+import mtr.client.Config;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -65,6 +68,11 @@ public abstract class BlockStationNameWallBase extends BlockStationNameBase {
 
 		public TileEntityStationNameWallBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state, 0, 0, false);
+		}
+
+		@Environment(EnvType.CLIENT)
+		public double getViewDistance() {
+			return Config.stationNameTiledMaxDistance();
 		}
 	}
 }

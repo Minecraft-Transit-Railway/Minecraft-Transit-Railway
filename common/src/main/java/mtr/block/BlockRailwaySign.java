@@ -1,8 +1,11 @@
 package mtr.block;
 
 import mtr.BlockEntityTypes;
+import mtr.client.Config;
 import mtr.mappings.*;
 import mtr.packet.PacketTrainDataGuiServer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -247,6 +250,11 @@ public class BlockRailwaySign extends BlockDirectionalMapper implements EntityBl
 				default:
 					return null;
 			}
+		}
+
+		@Environment(EnvType.CLIENT)
+		public double getViewDistance() {
+			return Config.railwaySignMaxDistance();
 		}
 	}
 

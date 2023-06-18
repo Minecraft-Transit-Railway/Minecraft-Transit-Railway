@@ -240,7 +240,10 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			if (posAverage == null) {
 				return;
 			}
-
+			if (RenderTrains.shouldNotRender(posAverage, Math.min(Config.liftMaxDistance(), RenderTrains.maxTrainRenderDistance), null)) {
+				matrices.popPose();
+				return;
+			}
 			matrices.translate(x, y, z);
 			UtilitiesClient.rotateXDegrees(matrices, 180);
 			UtilitiesClient.rotateYDegrees(matrices, 180 + lift.facing.toYRot());
@@ -374,7 +377,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	}
 
 	public static void renderLiftDisplay(PoseStack matrices, MultiBufferSource vertexConsumers, BlockPos pos, String floorNumber, Lift.LiftDirection liftDirection, float maxWidth, float height) {
-		if (RenderTrains.shouldNotRender(pos, Math.min(RenderPIDS.MAX_VIEW_DISTANCE, RenderTrains.maxTrainRenderDistance), null)) {
+		if (RenderTrains.shouldNotRender(pos, Math.min(Config.liftMaxDistance(), RenderTrains.maxTrainRenderDistance), null)) {
 			return;
 		}
 

@@ -1,9 +1,12 @@
 package mtr.block;
 
 import mtr.BlockEntityTypes;
+import mtr.client.Config;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.BlockMapper;
 import mtr.mappings.EntityBlockMapper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -50,6 +53,11 @@ public class BlockClock extends BlockMapper implements EntityBlockMapper {
 
 		public TileEntityClock(BlockPos pos, BlockState state) {
 			super(BlockEntityTypes.CLOCK_TILE_ENTITY.get(), pos, state);
+		}
+
+		@Environment(EnvType.CLIENT)
+		public double getViewDistance() {
+			return Config.clockMaxDistance();
 		}
 	}
 }

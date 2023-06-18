@@ -1,9 +1,12 @@
 package mtr.block;
 
+import mtr.client.Config;
 import mtr.data.IGui;
 import mtr.mappings.BlockEntityClientSerializableMapper;
 import mtr.mappings.EntityBlockMapper;
 import mtr.mappings.Text;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -175,6 +178,11 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 
 		public boolean isOpen() {
 			return open > 0;
+		}
+
+		@Environment(EnvType.CLIENT)
+		public double getViewDistance() {
+			return Config.PSDAPGDoorMaxDistance();
 		}
 	}
 }

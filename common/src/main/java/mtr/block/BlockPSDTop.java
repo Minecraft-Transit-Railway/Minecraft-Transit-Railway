@@ -2,12 +2,15 @@ package mtr.block;
 
 import mtr.BlockEntityTypes;
 import mtr.Items;
+import mtr.client.Config;
 import mtr.data.DataCache;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.mappings.BlockDirectionalMapper;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.EntityBlockMapper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
@@ -198,6 +201,11 @@ public class BlockPSDTop extends BlockDirectionalMapper implements EntityBlockMa
 				cachedRefreshTime = System.currentTimeMillis();
 			}
 			return cachedPlatformId;
+		}
+
+		@Environment(EnvType.CLIENT)
+		public double getViewDistance() {
+			return Config.PSDTopMaxDistance();
 		}
 	}
 

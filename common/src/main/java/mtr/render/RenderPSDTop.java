@@ -5,7 +5,10 @@ import mtr.block.BlockPSDAPGGlassEndBase;
 import mtr.block.BlockPSDTop;
 import mtr.block.IBlock;
 import mtr.client.ClientData;
+import mtr.client.Config;
 import mtr.client.IDrawing;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,6 +29,11 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 
 	public RenderPSDTop(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher, 2 - SMALL_OFFSET_16, 7.5F, 1.5F, 0.125F, true, BlockPSDTop.ARROW_DIRECTION);
+	}
+
+	@Environment(EnvType.CLIENT)
+	public int getViewDistance() {
+		return Config.PSDTopMaxDistance();
 	}
 
 	@Override
