@@ -190,6 +190,7 @@
 	"gui.mtr.depot_color": "Depot Colour",
 	"gui.mtr.depot_name": "Depot Name",
 	"gui.mtr.depots": "Depots",
+	"gui.mtr.disable_automatic_braking": "Disable automatic braking of drivable vehicle",
 	"gui.mtr.disable_next_station_announcements": "Disable Next Station Announcements",
 	"gui.mtr.dismount_hold": "Hold %s to force dismount: %s",
 	"gui.mtr.display_page": "Page Number",

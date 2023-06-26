@@ -31,6 +31,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 	private final float oldAcceleration;
 	private final boolean oldIsManual;
 	private final int oldMaxManualSpeed;
+	private final boolean oldDisableAutomaticBraking;
 	private final int oldDwellTime;
 
 	private final TransportMode transportMode;
@@ -41,6 +42,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 	private final WidgetShorterSlider sliderAccelerationConstant;
 	private final WidgetBetterCheckbox buttonIsManual;
 	private final WidgetShorterSlider sliderMaxManualSpeed;
+	private final WidgetBetterCheckbox buttonDisableAutomaticBraking;
 
 	private static final Component SELECTED_TRAIN_TEXT = Text.translatable("gui.mtr.selected_vehicle");
 	private static final Component MAX_TRAINS_TEXT = Text.translatable("gui.mtr.max_vehicles");
@@ -69,6 +71,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 			setIsSelectingTrain(false);
 		});
 		sliderMaxManualSpeed = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, RailType.DIAMOND.ordinal(), this::speedSliderFormatter, null);
+		buttonDisableAutomaticBraking = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.disable_automatic_braking"), checked -> { });
 		buttonUnlimitedTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.unlimited_vehicles"), checked -> {
 			if (checked) {
 				buttonIsManual.setChecked(false);
@@ -83,6 +86,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 		oldAcceleration = savedRailBase.getAccelerationConstant();
 		oldIsManual = savedRailBase.getIsManual();
 		oldMaxManualSpeed = savedRailBase.getMaxManualSpeed();
+		oldDisableAutomaticBraking = savedRailBase.getDisableAutomaticBraking();
 		oldDwellTime = savedRailBase.getDwellTime();
 	}
 
@@ -102,6 +106,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 
 		buttonIsManual.setChecked(savedRailBase.getIsManual());
 		buttonUnlimitedTrains.setChecked(savedRailBase.getUnlimitedTrains());
+		buttonDisableAutomaticBraking.setChecked(savedRailBase.getDisableAutomaticBraking());
 
 		IDrawing.setPositionAndWidth(textFieldMaxTrains, SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING * 3 / 2, MAX_TRAINS_WIDTH - TEXT_FIELD_PADDING);
 		textFieldMaxTrains.setValue(savedRailBase.getUnlimitedTrains() ? "" : String.valueOf(savedRailBase.getMaxTrains() + 1));
@@ -128,6 +133,8 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 		UtilitiesClient.setWidgetY(sliderDwellTimeMin, SQUARE_SIZE * 8 + TEXT_FIELD_PADDING * 2);
 		UtilitiesClient.setWidgetY(sliderDwellTimeSec, SQUARE_SIZE * 17 / 2 + TEXT_FIELD_PADDING * 2);
 
+		IDrawing.setPositionAndWidth(buttonDisableAutomaticBraking, SQUARE_SIZE, SQUARE_SIZE * 10 + TEXT_FIELD_PADDING * 2, width - textWidth - SQUARE_SIZE * 2);
+
 		setIsSelectingTrain(false);
 
 		if (showScheduleControls) {
@@ -136,6 +143,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 			addDrawableChild(sliderAccelerationConstant);
 			addDrawableChild(buttonIsManual);
 			addDrawableChild(sliderMaxManualSpeed);
+			addDrawableChild(buttonDisableAutomaticBraking);
 		}
 	}
 
@@ -200,10 +208,11 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 		}
 		final boolean isManual = buttonIsManual.selected();
 		final int maxManualSpeed = sliderMaxManualSpeed.getIntValue();
+		final boolean manualAutomaticBreaking = buttonDisableAutomaticBraking.selected();
 		final int minutes = sliderDwellTimeMin.getIntValue();
 		final float second = sliderDwellTimeSec.getIntValue() / 2F;
 		final int dwellTime = (int) ((second + minutes * SECONDS_PER_MINUTE) * 2);
-		savedRailBase.setUnlimitedTrains(buttonUnlimitedTrains.selected(), maxTrains, isManual, maxManualSpeed, accelerationConstant, dwellTime, oldAcceleration != accelerationConstant || oldIsManual != isManual || oldMaxManualSpeed != maxManualSpeed || oldDwellTime != dwellTime, packet -> PacketTrainDataGuiClient.sendUpdate(getPacketIdentifier(), packet));
+		savedRailBase.setUnlimitedTrains(buttonUnlimitedTrains.selected(), maxTrains, isManual, maxManualSpeed, manualAutomaticBreaking, accelerationConstant, dwellTime, oldAcceleration != accelerationConstant || oldIsManual != isManual || oldMaxManualSpeed != maxManualSpeed || oldDisableAutomaticBraking != manualAutomaticBreaking || oldDwellTime != dwellTime, packet -> PacketTrainDataGuiClient.sendUpdate(getPacketIdentifier(), packet));
 		super.onClose();
 	}
 
@@ -260,6 +269,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 		sliderAccelerationConstant.visible = !isSelectingTrain;
 		buttonIsManual.visible = !isSelectingTrain;
 		sliderMaxManualSpeed.visible = !isSelectingTrain && buttonIsManual.selected();
+		buttonDisableAutomaticBraking.visible = !isSelectingTrain && buttonIsManual.selected();
 		sliderDwellTimeMin.visible = !isSelectingTrain && buttonIsManual.selected();
 		sliderDwellTimeSec.visible = !isSelectingTrain && buttonIsManual.selected();
 		buttonSelectTrain.setMessage(TrainClientRegistry.getTrainProperties(savedRailBase.getTrainId()).name);
