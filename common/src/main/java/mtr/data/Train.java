@@ -504,9 +504,9 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 						}
 					} else {
 						if (!world.isClientSide()) {
-							final int checkIndex = getIndex(0, spacing, true) + 1;
-							if (isRailBlocked(checkIndex)) {
-								nextStoppingIndex = checkIndex - 1;
+							int blockedRailIndex = getNextBlockedRailIndex();
+							if (blockedRailIndex != -1) {
+								nextStoppingIndex = blockedRailIndex - 1;
 							} else if (nextPlatformIndex > 0 && nextPlatformIndex < path.size()) {
 								nextStoppingIndex = nextPlatformIndex;
 								if (manualNotch < -2) {
@@ -599,6 +599,16 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private int getNextBlockedRailIndex() {
+		final int checkIndex = getIndex(0, spacing, true) + 1;
+		for (int i = checkIndex; i < path.size(); i++) {
+			if (isRailBlocked(i)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	protected final void calculateCar(Level world, Vec3[] positions, int index, int dwellTicks, CalculateCarCallback calculateCarCallback) {
