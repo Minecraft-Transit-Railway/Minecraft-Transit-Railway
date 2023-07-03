@@ -106,7 +106,17 @@ public interface IGui {
 			if (Arrays.stream(combinedArguments).allMatch(Objects::nonNull)) {
 				result.append("|");
 				if (overrideFirst == null) {
-					result.append(Text.translatable(keyCJK, (Object[]) combinedArguments).getString());
+					if (keyCJK == "gui.mtr.station_cjk") {
+						for (String name : combinedArguments) {
+							if (!canInsertSuffix(name)) {
+								result.append(name);
+							} else {
+								result.append(Text.translatable(keyCJK, (Object[]) combinedArguments).getString());
+							}
+						}
+					} else {
+						result.append(Text.translatable(keyCJK, (Object[]) combinedArguments).getString());
+					}
 				} else {
 					final String[] newCombinedArguments = new String[expectedArguments + 1];
 					System.arraycopy(combinedArguments, 0, newCombinedArguments, 1, expectedArguments);
@@ -119,7 +129,17 @@ public interface IGui {
 			if (Arrays.stream(combinedArguments).allMatch(Objects::nonNull)) {
 				result.append("|");
 				if (overrideFirst == null) {
-					result.append(Text.translatable(key, (Object[]) combinedArguments).getString());
+					if (key == "gui.mtr.station") {
+						for (String name : combinedArguments) {
+							if (!canInsertSuffix(name)) {
+								result.append(name);
+							} else {
+								result.append(Text.translatable(key, (Object[]) combinedArguments).getString());
+							}
+						}
+					} else {
+						result.append(Text.translatable(key, (Object[]) combinedArguments).getString());
+					}
 				} else {
 					final String[] newCombinedArguments = new String[expectedArguments + 1];
 					System.arraycopy(combinedArguments, 0, newCombinedArguments, 1, expectedArguments);
@@ -237,6 +257,20 @@ public interface IGui {
 		});
 
 		return String.join("|", flattened);
+	}
+
+	static boolean canInsertSuffix(String name) {
+		if (isCjk(name)) {
+			if (name.endsWith(Text.translatable("gui.mtr.station_cjk", "").getString().trim())) {
+				return false;
+			}
+			return true;
+		} else {
+			if (name.toLowerCase().endsWith(Text.translatable("gui.mtr.station", "").getString().trim().toLowerCase())) {
+				return false;
+			}
+			return true;
+		}
 	}
 
 	static boolean isCjk(String text) {
