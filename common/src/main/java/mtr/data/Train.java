@@ -504,8 +504,8 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 						}
 					} else {
 						if (!world.isClientSide()) {
-							int blockedRailIndex = getNextBlockedRailIndex();
-							if (blockedRailIndex != -1) {
+							final int blockedRailIndex = getNextBlockedRailIndex();
+							if (blockedRailIndex != -1 && (!(blockedRailIndex > nextPlatformIndex + 1))) {
 								nextStoppingIndex = blockedRailIndex - 1;
 							} else if (nextPlatformIndex > 0 && nextPlatformIndex < path.size()) {
 								nextStoppingIndex = nextPlatformIndex;
@@ -672,7 +672,51 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 	}
 
 	private boolean canAutomaticBraking(Level world) {
-		return !isCurrentlyManual || !disableAutomaticBraking || path.size() == nextStoppingIndex + 1 || (world.isClientSide() ? nextStoppingIndex != nextPlatformIndex : isRailBlocked(getIndex(0, spacing, true) + (isOppositeRail() ? 2 : 1)));
+		final int oppositeRailOrSidingIndex = getOppositeRailOrSidingIndex();
+		if (world.isClientSide()) {
+			if (oppositeRailOrSidingIndex == -1) {
+				return !isCurrentlyManual ||
+						!disableAutomaticBraking ||
+						nextStoppingIndex != nextPlatformIndex;
+			} else {
+				return !isCurrentlyManual ||
+						!disableAutomaticBraking ||
+						distances.get(oppositeRailOrSidingIndex) - railProgress < 0.5 * speed * speed / accelerationConstant ||
+						nextStoppingIndex != nextPlatformIndex;
+			}
+		} else {
+			final int blockedRailStopIndex = getNextBlockedRailIndex() - 1;
+			if (blockedRailStopIndex == -2) {
+				return !isCurrentlyManual ||
+						!disableAutomaticBraking ||
+						distances.get(oppositeRailOrSidingIndex) - railProgress < 0.5 * speed * speed / accelerationConstant;
+			} else if (oppositeRailOrSidingIndex == -1) {
+				return !isCurrentlyManual ||
+						!disableAutomaticBraking ||
+						distances.get(blockedRailStopIndex) - railProgress < 0.5 * speed * speed / accelerationConstant;
+			} else {
+				return !isCurrentlyManual ||
+						!disableAutomaticBraking ||
+						distances.get(oppositeRailOrSidingIndex) - railProgress < 0.5 * speed * speed / accelerationConstant ||
+						distances.get(blockedRailStopIndex) - railProgress < 0.5 * speed * speed / accelerationConstant;
+			}
+		}
+	}
+
+	private int getOppositeRailOrSidingIndex() {
+		final int checkIndex = getIndex(0, spacing, false);
+		if (isOppositeRail()) {
+			return nextStoppingIndex;
+		}
+		for (int i = checkIndex; i < path.size(); i++) {
+			if (path.size() > i + 1 && path.get(i).isOppositeRail(path.get(i + 1))) {
+				return i;
+			}
+			if (path.size() == i + 1) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	private double getRailProgress(int car, int trainSpacing) {
