@@ -21,7 +21,7 @@ public class VehicleRidingServer {
 	private static final float INNER_PADDING = 0.5F;
 	private static final int BOX_PADDING = 3;
 
-	public static void mountRider(Level world, Set<UUID> ridingEntities, long id, long routeId, double carX, double carY, double carZ, double length, double width, float carYaw, float carPitch, boolean doorOpen, boolean canMount, int percentageOffset, ResourceLocation packetId, Function<Player, Boolean> canRide, Consumer<Player> ridingCallback) {
+	public static void mountRider(Level world, Set<UUID> ridingEntities, long id, long routeId, double carX, double carY, double carZ, double length, double width, float carYaw, float carPitch, boolean doorOpen, int percentageOffset, ResourceLocation packetId, Function<Player, Boolean> canRide, Consumer<Player> ridingCallback) {
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData == null) {
 			return;
@@ -30,23 +30,21 @@ public class VehicleRidingServer {
 		final double halfLength = length / 2;
 		final double halfWidth = width / 2;
 
-		if (canMount) {
-			final double margin = halfLength + BOX_PADDING;
-			world.getEntitiesOfClass(Player.class, new AABB(carX + margin, carY + margin, carZ + margin, carX - margin, carY - margin, carZ - margin), player -> !player.isSpectator() && !ridingEntities.contains(player.getUUID()) && railwayData.railwayDataCoolDownModule.canRide(player) && canRide.apply(player)).forEach(player -> {
-				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
-				if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 2.5 && Math.abs(positionRotated.z) <= halfLength && !railwayData.railwayDataCoolDownModule.shouldDismount(player)) {
-					ridingEntities.add(player.getUUID());
-					final float percentageX = (float) (positionRotated.x / width + 0.5);
-					final float percentageZ = (float) (length == 0 ? 0 : positionRotated.z / length + 0.5) + percentageOffset;
-					final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
-					packet.writeLong(id);
-					packet.writeFloat(percentageX);
-					packet.writeFloat(percentageZ);
-					packet.writeUUID(player.getUUID());
-					world.players().forEach(worldPlayer -> Registry.sendToPlayer((ServerPlayer) worldPlayer, packetId, packet));
-				}
-			});
-		}
+		final double margin = halfLength + BOX_PADDING;
+		world.getEntitiesOfClass(Player.class, new AABB(carX + margin, carY + margin, carZ + margin, carX - margin, carY - margin, carZ - margin), player -> !player.isSpectator() && !ridingEntities.contains(player.getUUID()) && railwayData.railwayDataCoolDownModule.canRide(player) && canRide.apply(player)).forEach(player -> {
+			final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
+			if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 2.5 && Math.abs(positionRotated.z) <= halfLength && !railwayData.railwayDataCoolDownModule.shouldDismount(player)) {
+				ridingEntities.add(player.getUUID());
+				final float percentageX = (float) (positionRotated.x / width + 0.5);
+				final float percentageZ = (float) (length == 0 ? 0 : positionRotated.z / length + 0.5) + percentageOffset;
+				final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+				packet.writeLong(id);
+				packet.writeFloat(percentageX);
+				packet.writeFloat(percentageZ);
+				packet.writeUUID(player.getUUID());
+				world.players().forEach(worldPlayer -> Registry.sendToPlayer((ServerPlayer) worldPlayer, packetId, packet));
+			}
+		});
 
 		final Set<UUID> ridersToRemove = new HashSet<>();
 		ridingEntities.forEach(uuid -> {
