@@ -28,6 +28,7 @@ public interface ICustomResources {
 	String CUSTOM_TRAINS_SPEED_SOUND_COUNT = "speed_sound_count";
 	String CUSTOM_TRAINS_SPEED_SOUND_BASE_ID = "speed_sound_base_id";
 	String CUSTOM_TRAINS_DOOR_SOUND_BASE_ID = "door_sound_base_id";
+	String CUSTOM_TRAINS_HORN_SOUND_BASE_ID = "horn_sound_base_id";
 	String CUSTOM_TRAINS_DOOR_CLOSE_SOUND_TIME = "door_close_sound_time";
 	String CUSTOM_TRAINS_ACCEL_SOUND_AT_COAST = "accel_sound_at_coast";
 	String CUSTOM_TRAINS_CONST_PLAYBACK_SPEED = "const_playback_speed";

@@ -38,6 +38,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 	protected boolean isOnRoute = false;
 	protected boolean isCurrentlyManual;
 	protected int manualNotch;
+	protected boolean playHorn;
 
 	public final long sidingId;
 	public final String trainId;
@@ -243,6 +244,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		manualToAutomaticTime = packet.readInt();
 		isOnRoute = packet.readBoolean();
 		manualNotch = packet.readInt();
+		playHorn = packet.readBoolean();
 		doorTarget = packet.readBoolean();
 
 		final int ridingEntitiesCount = packet.readInt();
@@ -330,6 +332,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		packet.writeInt(manualToAutomaticTime);
 		packet.writeBoolean(isOnRoute);
 		packet.writeInt(manualNotch);
+		packet.writeBoolean(playHorn);
 		packet.writeBoolean(doorTarget);
 		packet.writeInt(ridingEntities.size());
 		ridingEntities.forEach(packet::writeUUID);
@@ -375,6 +378,18 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 			return true;
 		} else {
 			doorTarget = false;
+			return false;
+		}
+	}
+
+	public boolean honk(boolean isHonking) {
+		if (isHonking && !playHorn) {
+			playHorn = true;
+			return true;
+		} else if (!isHonking && playHorn) {
+			playHorn = false;
+			return true;
+		} else {
 			return false;
 		}
 	}

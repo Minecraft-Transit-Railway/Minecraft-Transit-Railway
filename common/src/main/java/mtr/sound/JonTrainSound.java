@@ -26,9 +26,11 @@ public class JonTrainSound extends TrainSoundBase {
 	private static final String SOUND_DECELERATION = "_deceleration_";
 	private static final String SOUND_DOOR_OPEN = "_door_open";
 	private static final String SOUND_DOOR_CLOSE = "_door_close";
+	private static final String SOUND_HORN = "_horn";
 	private static final String SOUND_RANDOM = "_random";
 	private static final int RANDOM_SOUND_CHANCE = 300;
 
+	public HornSoundInstance hornSoundInstance;
 	private JonTrainSound(String soundId, JonTrainSoundConfig config, TrainClient train) {
 		this.config = config;
 		this.soundId = soundId;
@@ -90,16 +92,40 @@ public class JonTrainSound extends TrainSoundBase {
 		}
 	}
 
+	@Override
+	public void playAllCarsHorn(Level world, BlockPos pos, int carIndex) {
+		if (world instanceof ClientLevel && config.hornSoundBaseId != null) {
+			final String soundId = config.hornSoundBaseId + SOUND_HORN;
+			if (hornSoundInstance == null) {
+				hornSoundInstance = new HornSoundInstance(soundId);
+			}
+			hornSoundInstance.play(pos);
+		}
+	}
+
+	@Override
+	public void stopAllCarsHorn(Level world, BlockPos pos, int carIndex) {
+		if (world instanceof ClientLevel && config.hornSoundBaseId != null) {
+			final String soundId = config.hornSoundBaseId + SOUND_HORN;
+			if (hornSoundInstance == null) {
+				hornSoundInstance = new HornSoundInstance(soundId);
+			}
+			hornSoundInstance.stop();
+		}
+	}
+
 	public static class JonTrainSoundConfig {
 
 		public final String doorSoundBaseId;
+		public final String hornSoundBaseId;
 		public final int speedSoundCount;
 		public final float doorCloseSoundTime;
 		public final boolean useAccelerationSoundsWhenCoasting;
 		public final boolean constantPlaybackSpeed;
 
-		public JonTrainSoundConfig(String doorSoundBaseId, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting, boolean constantPlaybackSpeed) {
+		public JonTrainSoundConfig(String doorSoundBaseId, String hornSoundBaseId, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting, boolean constantPlaybackSpeed) {
 			this.doorSoundBaseId = doorSoundBaseId;
+			this.hornSoundBaseId = hornSoundBaseId;
 			this.speedSoundCount = speedSoundCount;
 			this.doorCloseSoundTime = doorCloseSoundTime;
 			this.useAccelerationSoundsWhenCoasting = useAccelerationSoundsWhenCoasting;
@@ -108,6 +134,7 @@ public class JonTrainSound extends TrainSoundBase {
 
 		public JonTrainSoundConfig(String doorSoundBaseId, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
 			this.doorSoundBaseId = doorSoundBaseId;
+			this.hornSoundBaseId = doorSoundBaseId;
 			this.speedSoundCount = speedSoundCount;
 			this.doorCloseSoundTime = doorCloseSoundTime;
 			this.useAccelerationSoundsWhenCoasting = useAccelerationSoundsWhenCoasting;

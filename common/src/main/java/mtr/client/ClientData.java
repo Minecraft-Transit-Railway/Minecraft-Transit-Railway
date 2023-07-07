@@ -61,6 +61,7 @@ public final class ClientData {
 		final boolean tempPressingAccelerate = KeyMappings.TRAIN_ACCELERATE.isDown();
 		final boolean tempPressingBrake = KeyMappings.TRAIN_BRAKE.isDown();
 		final boolean tempPressingDoors = KeyMappings.TRAIN_TOGGLE_DOORS.isDown();
+		final boolean pressingHorn = KeyMappings.TRAIN_HONK.isDown();
 		PacketTrainDataGuiClient.sendDriveTrainC2S(
 				tempPressingAccelerate && !pressingAccelerate,
 				tempPressingBrake && !pressingBrake,
@@ -69,6 +70,7 @@ public final class ClientData {
 		pressingAccelerate = tempPressingAccelerate;
 		pressingBrake = tempPressingBrake;
 		pressingDoors = tempPressingDoors;
+		PacketTrainDataGuiClient.sendHornC2S(pressingHorn);
 
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		final Player player = minecraftClient.player;

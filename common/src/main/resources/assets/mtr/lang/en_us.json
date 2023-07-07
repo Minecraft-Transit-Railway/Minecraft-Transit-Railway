@@ -549,6 +549,7 @@
 	"key.mtr.train_accelerate": "Accelerate Vehicle",
 	"key.mtr.train_brake": "Brake Vehicle",
 	"key.mtr.train_toggle_doors": "Toggle Doors",
+	"key.mtr.train_honk": "Play the train horn",
 	"options.mtr.anonymous": "Anonymous",
 	"options.mtr.dynamic_texture_resolution": "Dynamic texture resolution (higher values might crash!)",
 	"options.mtr.hide_special_rail_colors": "Hide special rail colours",

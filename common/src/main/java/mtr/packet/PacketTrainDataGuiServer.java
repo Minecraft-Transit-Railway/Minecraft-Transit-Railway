@@ -337,6 +337,14 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
+	public static void receiveHornC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
+		final RailwayData railwayData = RailwayData.getInstance(player.level);
+		if (railwayData != null) {
+			final boolean pressingHorn = packet.readBoolean();
+			minecraftServer.execute(() -> railwayData.railwayDataDriveTrainModule.horn(player, pressingHorn));
+		}
+	}
+
 	public static void receivePressLiftButtonC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
 		final RailwayData railwayData = RailwayData.getInstance(player.level);
 		if (railwayData != null) {

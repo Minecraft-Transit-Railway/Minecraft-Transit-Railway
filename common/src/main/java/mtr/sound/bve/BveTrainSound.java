@@ -265,6 +265,16 @@ public class BveTrainSound extends TrainSoundBase {
 		playLocalSound(world, soundEvent, pos);
 	}
 
+	@Override
+	public void playAllCarsHorn(Level world, BlockPos pos, int carIndex) {
+
+	}
+
+	@Override
+	public void stopAllCarsHorn(Level world, BlockPos pos, int carIndex) {
+
+	}
+
 	private static void playLocalSound(Level world, SoundEvent event, BlockPos pos, float gain, float pitch) {
 		if (event == null) {
 			return;
