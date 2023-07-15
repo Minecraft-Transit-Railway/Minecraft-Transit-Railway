@@ -230,7 +230,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		try {
 			UpdateDynmap.updateDynmap(world, this);
 		} catch (NoClassDefFoundError | IllegalStateException ignored) {
-			System.out.println("Dynamp is not loaded");
+			System.out.println("Dynmap is not loaded");
 		} catch (Exception ignored) {
 		}
 		try {
