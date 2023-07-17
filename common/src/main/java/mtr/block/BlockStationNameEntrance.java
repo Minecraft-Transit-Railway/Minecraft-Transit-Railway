@@ -42,7 +42,7 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IB
 	@Override
 	public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-		return world.getBlockState(pos.relative(facing)).getMaterial().isSolid();
+		return world.getBlockState(pos.relative(facing)).isSolid();
 	}
 
 	@Override

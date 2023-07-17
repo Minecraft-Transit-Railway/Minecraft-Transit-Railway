@@ -29,9 +29,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -48,7 +45,7 @@ public class BlockNode extends BlockDirectionalMapper {
 	public static final BooleanProperty IS_CONNECTED = BooleanProperty.create("is_connected");
 
 	public BlockNode(TransportMode transportMode) {
-		super(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).strength(2).noOcclusion());
+		super(BlockBehaviour.Properties.of().strength(2).noOcclusion());
 		this.transportMode = transportMode;
 		registerDefaultState(defaultBlockState().setValue(FACING, false).setValue(IS_22_5, false).setValue(IS_45, false));
 	}
@@ -78,11 +75,6 @@ public class BlockNode extends BlockDirectionalMapper {
 	@Override
 	public VoxelShape getCollisionShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
 		return Shapes.empty();
-	}
-
-	@Override
-	public PushReaction getPistonPushReaction(BlockState blockState) {
-		return PushReaction.BLOCK;
 	}
 
 	@Override
@@ -119,7 +111,7 @@ public class BlockNode extends BlockDirectionalMapper {
 		@Override
 		public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
 			final BlockPos posBelow = pos.below();
-			return (world.getFluidState(posBelow).getType() != Fluids.EMPTY || world.getBlockState(posBelow).getMaterial() == Material.ICE) && world.getFluidState(pos).getType() == Fluids.EMPTY;
+			return (world.getFluidState(posBelow).getType() != Fluids.EMPTY || world.getBlockState(posBelow).is(Blocks.ICE)) && world.getFluidState(pos).getType() == Fluids.EMPTY;
 		}
 
 		@Override

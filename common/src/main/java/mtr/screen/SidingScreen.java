@@ -1,7 +1,6 @@
 package mtr.screen;
 
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.Icons;
 import mtr.Patreon;
 import mtr.client.ClientData;
@@ -13,6 +12,7 @@ import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -147,16 +147,16 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		super.render(matrices, mouseX, mouseY, delta);
+	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+		super.render(guiGraphics, mouseX, mouseY, delta);
 		if (!isSelectingTrain) {
-			font.draw(matrices, SELECTED_TRAIN_TEXT, SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING + TEXT_PADDING, ARGB_WHITE);
+			guiGraphics.drawString(font, SELECTED_TRAIN_TEXT, SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING + TEXT_PADDING, ARGB_WHITE);
 			if (showScheduleControls) {
-				font.draw(matrices, MAX_TRAINS_TEXT, SQUARE_SIZE, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING * 3 / 2F + TEXT_PADDING, ARGB_WHITE);
-				font.draw(matrices, ACCELERATION_CONSTANT_TEXT, SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_FIELD_PADDING * 2 + TEXT_PADDING, ARGB_WHITE);
+				guiGraphics.drawString(font, MAX_TRAINS_TEXT, SQUARE_SIZE, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING * 3 / 2 + TEXT_PADDING, ARGB_WHITE);
+				guiGraphics.drawString(font, ACCELERATION_CONSTANT_TEXT, SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_FIELD_PADDING * 2 + TEXT_PADDING, ARGB_WHITE);
 				if (buttonIsManual.selected()) {
-					font.draw(matrices, MAX_MANUAL_SPEED, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_FIELD_PADDING * 2 + TEXT_PADDING, ARGB_WHITE);
-					font.draw(matrices, MANUAL_TO_AUTOMATIC_TIME, SQUARE_SIZE, SQUARE_SIZE * 8 + TEXT_FIELD_PADDING * 2 + TEXT_PADDING, ARGB_WHITE);
+					guiGraphics.drawString(font, MAX_MANUAL_SPEED, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_FIELD_PADDING * 2 + TEXT_PADDING, ARGB_WHITE);
+					guiGraphics.drawString(font, MANUAL_TO_AUTOMATIC_TIME, SQUARE_SIZE, SQUARE_SIZE * 8 + TEXT_FIELD_PADDING * 2 + TEXT_PADDING, ARGB_WHITE);
 				}
 			}
 		} else {
@@ -166,18 +166,18 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 				final int spacing = TrainType.getSpacing(properties.baseTrainType);
 				final int cars = (int) Math.floor(savedRailBase.railLength / spacing);
 				int y = SQUARE_SIZE;
-				y = drawWrappedText(matrices, properties.name, y, ARGB_WHITE);
-				y = drawWrappedText(matrices, Text.translatable("gui.mtr.vehicle_length", spacing - 1), y, ARGB_WHITE);
-				y = drawWrappedText(matrices, Text.translatable("gui.mtr.cars_to_spawn", (cars == 0 ? WARNING + " " : "") + Math.min(cars, savedRailBase.transportMode.maxLength)), y, ARGB_WHITE);
+				y = drawWrappedText(guiGraphics, properties.name, y, ARGB_WHITE);
+				y = drawWrappedText(guiGraphics, Text.translatable("gui.mtr.vehicle_length", spacing - 1), y, ARGB_WHITE);
+				y = drawWrappedText(guiGraphics, Text.translatable("gui.mtr.cars_to_spawn", (cars == 0 ? WARNING + " " : "") + Math.min(cars, savedRailBase.transportMode.maxLength)), y, ARGB_WHITE);
 				if (properties.description != null) {
 					for (final String text : properties.description.split("[|\n]")) {
-						y = drawWrappedText(matrices, Text.literal(text), y, ARGB_LIGHT_GRAY);
+						y = drawWrappedText(guiGraphics, Text.literal(text), y, ARGB_LIGHT_GRAY);
 					}
 				}
 				if (properties.wikipediaArticle != null) {
 					final String fullText = fetchWikipediaArticle(properties.wikipediaArticle);
 					for (final String text : fullText.split("\n")) {
-						y = drawWrappedText(matrices, Text.literal(text), y, ARGB_LIGHT_GRAY);
+						y = drawWrappedText(guiGraphics, Text.literal(text), y, ARGB_LIGHT_GRAY);
 					}
 				}
 			}
@@ -224,8 +224,8 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 	}
 
 	@Override
-	protected void renderExtra(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		availableTrainsList.render(matrices, font);
+	protected void renderExtra(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+		availableTrainsList.render(guiGraphics, font);
 	}
 
 	@Override
@@ -286,16 +286,16 @@ public class SidingScreen extends SavedRailScreenBase<Siding> implements Icons {
 		return railType == null ? Text.translatable("gui.mtr.unlimited").getString() : String.format("%s km/h", railType.speedLimit);
 	}
 
-	private int drawWrappedText(PoseStack matrices, Component component, int y, int color) {
+	private int drawWrappedText(GuiGraphics guiGraphics, Component component, int y, int color) {
 		final List<FormattedCharSequence> splitText = font.split(component, DESCRIPTION_WIDTH);
 		int newY = y;
 		for (final FormattedCharSequence formattedCharSequence : splitText) {
 			final int nextY = newY + TEXT_HEIGHT + 2;
 			if (nextY > height - SQUARE_SIZE - TEXT_HEIGHT) {
-				font.draw(matrices, "...", width - DESCRIPTION_WIDTH - SQUARE_SIZE, newY, color);
+				guiGraphics.drawString(font, "...", width - DESCRIPTION_WIDTH - SQUARE_SIZE, newY, color);
 				return height;
 			} else {
-				font.draw(matrices, formattedCharSequence, width - DESCRIPTION_WIDTH - SQUARE_SIZE, newY, color);
+				guiGraphics.drawString(font, formattedCharSequence, width - DESCRIPTION_WIDTH - SQUARE_SIZE, newY, color);
 			}
 			newY = nextY;
 		}

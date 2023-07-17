@@ -40,7 +40,7 @@ shadowJar {
 	exclude "fabric.mod.json"
 
 	configurations = [project.configurations.shadowCommon]
-	classifier "dev-shadow"
+	archiveClassifier = "dev-shadow"
 	relocate "javax.servlet", "mtr.libraries.javax.servlet"
 	relocate "org.eclipse", "mtr.libraries.org.eclipse"
 }
@@ -48,7 +48,7 @@ shadowJar {
 remapJar {
 	input.set shadowJar.archiveFile
 	dependsOn shadowJar
-	classifier null
+	archiveClassifier = null
 }
 
 components.java {
@@ -57,7 +57,7 @@ components.java {
 	}
 }
 
-task moveForgeBuilds() {
+tasks.register("moveForgeBuilds") {
 	doLast {
 		delete fileTree("../build/release").matching {
 			include "**/${rootProject.variation_header}-forge*"
@@ -90,7 +90,7 @@ task moveForgeBuilds() {
 	}
 }
 
-task testServer {
+tasks.register("testServer") {
 	doLast {
 		if (rootProject.variation == "normal") {
 			copy {
@@ -108,13 +108,13 @@ task testServer {
 				include "MTR-forge-*-latest.jar"
 				rename "(.+)", "MTR.jar"
 			}
-			download {
+			download.run {
 				src rootProject.architectury_data[1]
 				dest "forge/server/mods/architectury.jar"
 				overwrite true
 				retries - 1
 			}
-			download {
+			download.run {
 				src "https://maven.minecraftforge.net/net/minecraftforge/forge/${rootProject.forge_version}/forge-${rootProject.forge_version}-installer.jar"
 				dest "forge/server/forge-installer.jar"
 				overwrite true

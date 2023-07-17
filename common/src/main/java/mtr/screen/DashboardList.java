@@ -1,7 +1,6 @@
 package mtr.screen;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
@@ -10,7 +9,7 @@ import mtr.data.NameColorDataBase;
 import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.Screen;
@@ -149,8 +148,8 @@ public class DashboardList implements IGui {
 		this.hasDelete = hasPermission && hasDelete;
 	}
 
-	public void render(PoseStack matrices, Font textRenderer) {
-		Gui.drawCenteredString(matrices, textRenderer, String.format("%s/%s", page + 1, totalPages), x + SQUARE_SIZE * 2, y + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE);
+	public void render(GuiGraphics guiGraphics, Font textRenderer) {
+		guiGraphics.drawCenteredString(textRenderer, String.format("%s/%s", page + 1, totalPages), x + SQUARE_SIZE * 2, y + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE);
 		final int itemsToShow = itemsToShow();
 		for (int i = 0; i < itemsToShow; i++) {
 			if (i + itemsToShow * page < dataFiltered.size()) {
@@ -170,13 +169,13 @@ public class DashboardList implements IGui {
 				final int textStart = TEXT_PADDING * 2 + TEXT_HEIGHT;
 				final int textWidth = textRenderer.width(drawString);
 				final int availableSpace = width - textStart;
-				matrices.pushPose();
-				matrices.translate(x + textStart, 0, 0);
+				guiGraphics.pose().pushPose();
+				guiGraphics.pose().translate(x + textStart, 0, 0);
 				if (textWidth > availableSpace) {
-					matrices.scale((float) availableSpace / textWidth, 1, 1);
+					guiGraphics.pose().scale((float) availableSpace / textWidth, 1, 1);
 				}
-				textRenderer.draw(matrices, drawString, 0, y + drawY, ARGB_WHITE);
-				matrices.popPose();
+				guiGraphics.drawString(textRenderer, drawString, 0, y + drawY, ARGB_WHITE);
+				guiGraphics.pose().popPose();
 			}
 		}
 	}

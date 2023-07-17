@@ -12,7 +12,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.SlabType;
-import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.phys.Vec3;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.value.Value;
@@ -627,18 +626,18 @@ public class Rail extends SerializedDataBase {
 	}
 
 	public enum RailActionType {
-		BRIDGE("percentage_complete_bridge", "rail_action_bridge", MaterialColor.COLOR_LIGHT_GRAY),
-		TUNNEL("percentage_complete_tunnel", "rail_action_tunnel", MaterialColor.COLOR_BROWN),
-		TUNNEL_WALL("percentage_complete_tunnel_wall", "rail_action_tunnel_wall", MaterialColor.COLOR_GRAY);
+		BRIDGE("percentage_complete_bridge", "rail_action_bridge", 0xCCCCCC),
+		TUNNEL("percentage_complete_tunnel", "rail_action_tunnel", 0x663300),
+		TUNNEL_WALL("percentage_complete_tunnel_wall", "rail_action_tunnel_wall", 0x999999);
 
 		private final String progressTranslation;
 		private final String nameTranslation;
 		private final int color;
 
-		RailActionType(String progressTranslation, String nameTranslation, MaterialColor materialColor) {
+		RailActionType(String progressTranslation, String nameTranslation, int color) {
 			this.progressTranslation = progressTranslation;
 			this.nameTranslation = nameTranslation;
-			color = materialColor.col;
+			this.color = color;
 		}
 	}
 }

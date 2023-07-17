@@ -1,6 +1,5 @@
 package mtr.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.block.BlockArrivalProjectorBase;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
@@ -9,6 +8,7 @@ import mtr.mappings.Text;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -71,12 +71,12 @@ public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, 
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
 		try {
-			renderBackground(matrices);
-			font.draw(matrices, Text.translatable("gui.mtr.filtered_platforms", selectAllCheckbox.selected() ? 0 : filterPlatformIds.size()), SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
-			font.draw(matrices, Text.translatable("gui.mtr.display_page"), SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE);
-			super.render(matrices, mouseX, mouseY, delta);
+			renderBackground(guiGraphics);
+			guiGraphics.drawString(font, Text.translatable("gui.mtr.filtered_platforms", selectAllCheckbox.selected() ? 0 : filterPlatformIds.size()), SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
+			guiGraphics.drawString(font, Text.translatable("gui.mtr.display_page"), SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE);
+			super.render(guiGraphics, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

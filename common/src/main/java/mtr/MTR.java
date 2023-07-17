@@ -459,13 +459,13 @@ public class MTR implements IPacket {
 		});
 		Registry.registerPlayerJoinEvent(player -> {
 			PacketTrainDataGuiServer.versionCheckS2C(player);
-			final RailwayData railwayData = RailwayData.getInstance(player.getLevel());
+			final RailwayData railwayData = RailwayData.getInstance(player.level());
 			if (railwayData != null) {
 				railwayData.onPlayerJoin(player);
 			}
 		});
 		Registry.registerPlayerQuitEvent(player -> {
-			final RailwayData railwayData = RailwayData.getInstance(player.getLevel());
+			final RailwayData railwayData = RailwayData.getInstance(player.level());
 			if (railwayData != null) {
 				railwayData.disconnectPlayer(player);
 			}

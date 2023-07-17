@@ -1,5 +1,6 @@
 package mtr.render;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.MTRClient;
 import mtr.block.BlockArrivalProjectorBase;
@@ -263,7 +264,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 						if (destinationWidth > totalScaledWidth) {
 							matrices.scale(totalScaledWidth / destinationWidth, 1, 1);
 						}
-						textRenderer.draw(matrices, destinationString, 0, 0, textColor);
+						textRenderer.drawInBatch(destinationString, 0, 0, textColor, false, matrices.last().pose(), vertexConsumers, Font.DisplayMode.NORMAL, 0, 0xF000F0);
 					} else {
 						// Render arrival
 						final Component arrivalText;
@@ -323,7 +324,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 
 						// Render arrival number
 						if (renderArrivalNumber) {
-							textRenderer.draw(matrices, String.valueOf(i + 1), 0, 0, seconds > 0 ? textColor : firstTrainColor);
+							textRenderer.drawInBatch(String.valueOf(i + 1), 0, 0, seconds > 0 ? textColor : firstTrainColor, false, matrices.last().pose(), vertexConsumers, Font.DisplayMode.NORMAL, 0, 0xF000F0);
 						}
 
 						final float newDestinationMaxWidth = destinationMaxWidth - (!renderClassic ? 0 : carLengthMaxWidth);
@@ -344,7 +345,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 									matrices.translate(totalScaledWidth - platformWidth, 0, 0);
 								}
 							}
-							textRenderer.draw(matrices, platformNameComponent, 0, 0, seconds > 0 ? textColor : firstTrainColor);
+							textRenderer.drawInBatch(platformNameComponent, 0, 0, seconds > 0 ? textColor : firstTrainColor, false, matrices.last().pose(), vertexConsumers, Font.DisplayMode.NORMAL, 0, 0xF000F0);
 							matrixStackHolder.pop();
 						}
 
@@ -363,7 +364,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 							} else if (stations.size() == 0) {
 								matrices.translate(totalScaledWidth / 2 - callingAtWidth / 2F, 0, 0);
 							}
-							textRenderer.draw(matrices, callingAtText, 0, 0, seconds > 0 ? textColor : firstTrainColor);
+							textRenderer.drawInBatch(callingAtText, 0, 0, seconds > 0 ? textColor : firstTrainColor, false, matrices.last().pose(), vertexConsumers, Font.DisplayMode.NORMAL, 0, 0xF000F0);
 							matrixStackHolder.pop();
 						}
 
@@ -382,7 +383,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 							} else if (stations.size() == 0) {
 								matrices.translate(totalScaledWidth / 2 - callingAtStationWidth / 2F, 0, 0);
 							}
-							textRenderer.draw(matrices, callingAtStationText, 0, 0, seconds > 0 ? textColor : firstTrainColor);
+							textRenderer.drawInBatch(callingAtStationText, 0, 0, seconds > 0 ? textColor : firstTrainColor, false, matrices.last().pose(), vertexConsumers, Font.DisplayMode.NORMAL, 0, 0xF000F0);
 							matrixStackHolder.pop();
 						}
 
@@ -401,7 +402,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 							} else if (renderSingle) {
 								matrices.translate(totalScaledWidth - carTextWidth, 0, 0);
 							}
-							textRenderer.draw(matrices, carText, 0, 0, CAR_TEXT_COLOR);
+							textRenderer.drawInBatch(carText, 0, 0, CAR_TEXT_COLOR, false, matrices.last().pose(), vertexConsumers, Font.DisplayMode.NORMAL, 0, 0xF000F0);
 							matrixStackHolder.pop();
 						}
 
@@ -412,7 +413,8 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 						if (destinationWidth > newDestinationMaxWidth) {
 							matrices.scale(newDestinationMaxWidth / destinationWidth, 1, 1);
 						}
-						textRenderer.draw(matrices, destinationString, 0, 0, seconds > 0 ? textColor : firstTrainColor);
+						textRenderer.drawInBatch(destinationString, 0, 0, seconds > 0 ? textColor : firstTrainColor, false, matrices.last().pose(), vertexConsumers, Font.DisplayMode.NORMAL, 0, 0xF000F0);
+						textRenderer.drawInBatch(destinationString, 0, 0, seconds > 0 ? textColor : firstTrainColor, false, matrices.last().pose(), vertexConsumers, Font.DisplayMode.NORMAL, 0, 0xF000F0);
 						matrixStackHolder.pop();
 
 						// Render arrival time
@@ -432,7 +434,11 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 									matrices.translate(totalScaledWidth - arrivalWidth, 0, 0);
 								}
 							}
-							textRenderer.draw(matrices, arrivalText, 0, 0, textColor);
+							textRenderer.drawInBatch(arrivalText, 0, 0, textColor, false, matrices.last().pose(), vertexConsumers, Font.DisplayMode.NORMAL, 0, 0xF000F0);
+							RenderSystem.disableDepthTest();
+							((MultiBufferSource.BufferSource) vertexConsumers).endBatch();
+							RenderSystem.enableDepthTest();
+							textRenderer.drawInBatch(arrivalText, 0, 0, textColor, false, matrices.last().pose(), vertexConsumers, Font.DisplayMode.NORMAL, 0, 0xF000F0);
 							matrixStackHolder.pop();
 						}
 					}

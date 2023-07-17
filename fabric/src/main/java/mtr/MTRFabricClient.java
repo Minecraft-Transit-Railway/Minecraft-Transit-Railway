@@ -30,7 +30,7 @@ public class MTRFabricClient implements ClientModInitializer, ICustomResources {
 			matrices.popPose();
 		});
 		WorldRenderEvents.END.register(event -> MTRClient.incrementGameTick());
-		HudRenderCallback.EVENT.register((matrices, tickDelta) -> RenderDrivingOverlay.render(matrices));
+		HudRenderCallback.EVENT.register((guiGraphics, tickDelta) -> RenderDrivingOverlay.render(guiGraphics));
 		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new CustomResourcesWrapper());
 	}
 

@@ -1,6 +1,5 @@
 package mtr.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.client.ClientData;
 import mtr.data.DataConverter;
 import mtr.data.IGui;
@@ -10,6 +9,7 @@ import mtr.mappings.ScreenMapper;
 import mtr.mappings.Text;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.RenderTrains;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 
 import java.util.ArrayList;
@@ -54,11 +54,11 @@ public class LiftSelectionScreen extends ScreenMapper implements IGui {
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
 		try {
-			renderBackground(matrices);
-			selectionList.render(matrices, font);
-			super.render(matrices, mouseX, mouseY, delta);
+			renderBackground(guiGraphics);
+			selectionList.render(guiGraphics, font);
+			super.render(guiGraphics, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

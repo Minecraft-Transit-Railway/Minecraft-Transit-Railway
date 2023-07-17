@@ -1,6 +1,5 @@
 package mtr.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.block.BlockTrainAnnouncer;
 import mtr.data.DataConverter;
 import mtr.data.RailwayData;
@@ -8,7 +7,7 @@ import mtr.mappings.RegistryUtilities;
 import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -104,9 +103,9 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 	}
 
 	@Override
-	protected void renderAdditional(PoseStack matrices) {
-		Gui.fill(matrices, availableSoundsList.x, availableSoundsList.y, availableSoundsList.x + availableSoundsList.width, availableSoundsList.y + availableSoundsList.height, ARGB_BACKGROUND);
-		availableSoundsList.render(matrices, font);
+	protected void renderAdditional(GuiGraphics guiGraphics) {
+		guiGraphics.fill(availableSoundsList.x, availableSoundsList.y, availableSoundsList.x + availableSoundsList.width, availableSoundsList.y + availableSoundsList.height, ARGB_BACKGROUND);
+		availableSoundsList.render(guiGraphics, font);
 	}
 
 	private void setListVisibility(boolean visible) {

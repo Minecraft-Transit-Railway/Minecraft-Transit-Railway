@@ -2,11 +2,9 @@ package mtr.render;
 
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.data.*;
-import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 
@@ -24,11 +22,7 @@ public class RenderDrivingOverlay implements IGui {
 	private static final int HOT_BAR_WIDTH = 182;
 	private static final int HOT_BAR_HEIGHT = 22;
 
-	public static void render(Object matrices) {
-		render((PoseStack) matrices);
-	}
-
-	public static void render(PoseStack matrices) {
+	public static void render(GuiGraphics guiGraphics) {
 		if (coolDown > 0) {
 			coolDown--;
 		} else {
@@ -42,47 +36,47 @@ public class RenderDrivingOverlay implements IGui {
 			return;
 		}
 
-		matrices.pushPose();
+		guiGraphics.pose().pushPose();
 		RenderSystem.enableBlend();
-		UtilitiesClient.beginDrawingTexture(new ResourceLocation("textures/gui/widgets.png"));
+		final ResourceLocation resourceLocation = new ResourceLocation("textures/gui/widgets.png");
 		final int startX = (window.getGuiScaledWidth() - HOT_BAR_WIDTH) / 2;
 		final int startY = window.getGuiScaledHeight() - (player.isCreative() ? 47 : 63);
 
-		GuiComponent.blit(matrices, startX, startY, 0, 0, 0, 61, HOT_BAR_HEIGHT, 256, 256);
-		GuiComponent.blit(matrices, startX + 61, startY, 0, 141, 0, 41, HOT_BAR_HEIGHT, 256, 256);
-		GuiComponent.blit(matrices, startX + 120, startY, 0, 0, 0, 21, HOT_BAR_HEIGHT, 256, 256);
-		GuiComponent.blit(matrices, startX + 141, startY, 0, 141, 0, 41, HOT_BAR_HEIGHT, 256, 256);
+		guiGraphics.blit(resourceLocation, startX, startY, 0, 0, 0, 61, HOT_BAR_HEIGHT, 256, 256);
+		guiGraphics.blit(resourceLocation, startX + 61, startY, 0, 141, 0, 41, HOT_BAR_HEIGHT, 256, 256);
+		guiGraphics.blit(resourceLocation, startX + 120, startY, 0, 0, 0, 21, HOT_BAR_HEIGHT, 256, 256);
+		guiGraphics.blit(resourceLocation, startX + 141, startY, 0, 141, 0, 41, HOT_BAR_HEIGHT, 256, 256);
 
-		GuiComponent.blit(matrices, startX + 39 + Math.max(accelerationSign, -2) * 20, startY - 1, 0, 0, 22, 24, 24, 256, 256);
-		GuiComponent.blit(matrices, startX + (doorValue > 0 ? doorValue < 1 ? 139 : 159 : 119), startY - 1, 0, 0, 22, 24, 24, 256, 256);
+		guiGraphics.blit(resourceLocation, startX + 39 + Math.max(accelerationSign, -2) * 20, startY - 1, 0, 0, 22, 24, 24, 256, 256);
+		guiGraphics.blit(resourceLocation, startX + (doorValue > 0 ? doorValue < 1 ? 139 : 159 : 119), startY - 1, 0, 0, 22, 24, 24, 256, 256);
 
-		client.font.drawShadow(matrices, "B2", startX + 5.5F, startY + 7.5F, doorValue == 0 && accelerationSign == -2 ? ARGB_WHITE : ARGB_GRAY);
-		client.font.drawShadow(matrices, "B1", startX + 25.5F, startY + 7.5F, doorValue == 0 && accelerationSign == -1 ? ARGB_WHITE : ARGB_GRAY);
-		client.font.drawShadow(matrices, "N", startX + 48.5F, startY + 7.5F, doorValue == 0 && accelerationSign == 0 ? ARGB_WHITE : ARGB_GRAY);
-		client.font.drawShadow(matrices, "P1", startX + 65.5F, startY + 7.5F, doorValue == 0 && accelerationSign == 1 ? ARGB_WHITE : ARGB_GRAY);
-		client.font.drawShadow(matrices, "P2", startX + 85.5F, startY + 7.5F, doorValue == 0 && accelerationSign == 2 ? ARGB_WHITE : ARGB_GRAY);
+		guiGraphics.drawString(client.font, "B2", (int) (startX + 5.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == -2 ? ARGB_WHITE : ARGB_GRAY, true);
+		guiGraphics.drawString(client.font, "B1", (int) (startX + 25.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == -1 ? ARGB_WHITE : ARGB_GRAY, true);
+		guiGraphics.drawString(client.font, "N", (int) (startX + 48.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == 0 ? ARGB_WHITE : ARGB_GRAY, true);
+		guiGraphics.drawString(client.font, "P1", (int) (startX + 65.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == 1 ? ARGB_WHITE : ARGB_GRAY, true);
+		guiGraphics.drawString(client.font, "P2", (int) (startX + 85.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == 2 ? ARGB_WHITE : ARGB_GRAY, true);
 
-		client.font.drawShadow(matrices, "DC", startX + 125.5F, startY + 7.5F, speed == 0 && doorValue == 0 ? ARGB_WHITE : ARGB_GRAY);
-		client.font.drawShadow(matrices, String.valueOf(Math.round(doorValue * 10) / 10F), startX + 144.5F, startY + 7.5F, doorValue > 0 && doorValue < 1 ? ARGB_WHITE : ARGB_GRAY);
-		client.font.drawShadow(matrices, "DO", startX + 165.5F, startY + 7.5F, speed == 0 && doorValue == 1 ? ARGB_WHITE : ARGB_GRAY);
+		guiGraphics.drawString(client.font, "DC", (int) (startX + 125.5F), (int) (startY + 7.5F), speed == 0 && doorValue == 0 ? ARGB_WHITE : ARGB_GRAY, true);
+		guiGraphics.drawString(client.font, String.valueOf(Math.round(doorValue * 10) / 10F), (int) (startX + 144.5F), (int) (startY + 7.5F), doorValue > 0 && doorValue < 1 ? ARGB_WHITE : ARGB_GRAY, true);
+		guiGraphics.drawString(client.font, "DO", (int) (startX + 165.5F), (int) (startY + 7.5F), speed == 0 && doorValue == 1 ? ARGB_WHITE : ARGB_GRAY, true);
 
 		final String speedText = RailwayData.round(speed * 3.6F, 1) + " km/h";
-		client.font.drawShadow(matrices, speedText, startX - client.font.width(speedText) - TEXT_PADDING, window.getGuiScaledHeight() - 14.5F, ARGB_WHITE);
+		guiGraphics.drawString(client.font, speedText, startX - client.font.width(speedText) - TEXT_PADDING, (int) (window.getGuiScaledHeight() - 14.5F), ARGB_WHITE, true);
 		if (thisStation != null) {
-			client.font.drawShadow(matrices, thisStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, window.getGuiScaledHeight() - 44.5F, ARGB_WHITE);
+			guiGraphics.drawString(client.font, thisStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getGuiScaledHeight() - 44.5F), ARGB_WHITE, true);
 		}
 		if (nextStation != null) {
-			client.font.drawShadow(matrices, "> " + nextStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, window.getGuiScaledHeight() - 34.5F, ARGB_WHITE);
+			guiGraphics.drawString(client.font, "> " + nextStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getGuiScaledHeight() - 34.5F), ARGB_WHITE, true);
 		}
 		if (thisRoute != null) {
-			client.font.drawShadow(matrices, thisRoute, startX + HOT_BAR_WIDTH + TEXT_PADDING, window.getGuiScaledHeight() - 19.5F, ARGB_WHITE);
+			guiGraphics.drawString(client.font, thisRoute, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getGuiScaledHeight() - 19.5F), ARGB_WHITE, true);
 		}
 		if (lastStation != null) {
-			client.font.drawShadow(matrices, "> " + lastStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, window.getGuiScaledHeight() - 9.5F, ARGB_WHITE);
+			guiGraphics.drawString(client.font, "> " + lastStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getGuiScaledHeight() - 9.5F), ARGB_WHITE, true);
 		}
 
 		RenderSystem.disableBlend();
-		matrices.popPose();
+		guiGraphics.pose().popPose();
 	}
 
 	public static void setData(int accelerationSign, TrainClient trainClient) {

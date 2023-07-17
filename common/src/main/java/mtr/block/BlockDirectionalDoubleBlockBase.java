@@ -14,7 +14,6 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.material.PushReaction;
 
 public abstract class BlockDirectionalDoubleBlockBase extends BlockDirectionalMapper implements IBlock {
 
@@ -64,11 +63,6 @@ public abstract class BlockDirectionalDoubleBlockBase extends BlockDirectionalMa
 	@Override
 	public BlockState mirror(BlockState state, Mirror mirror) {
 		return state;
-	}
-
-	@Override
-	public PushReaction getPistonPushReaction(BlockState blockState) {
-		return PushReaction.BLOCK;
 	}
 
 	protected BlockState getAdditionalState(BlockPos pos, Direction facing) {

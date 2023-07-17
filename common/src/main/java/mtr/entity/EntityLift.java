@@ -35,7 +35,7 @@ public abstract class EntityLift extends EntityBase {
 
 	@Override
 	public void tick() {
-		if (level.isClientSide) {
+		if (level().isClientSide) {
 			setClientPosition();
 		} else {
 			scanTrack();
@@ -63,8 +63,8 @@ public abstract class EntityLift extends EntityBase {
 		for (int x = -2; x <= 2; x++) {
 			for (int z = -2; z <= 2; z++) {
 				final BlockPos trackPos = blockPosition().offset(x, 0, z);
-				if (level.getBlockState(trackPos).getBlock() instanceof BlockLiftTrack) {
-					ItemLiftRefresher.refreshLift(level, trackPos, (int) Math.round(getX() * 2) - trackPos.getX() * 2, (int) Math.round(getZ() * 2) - trackPos.getZ() * 2, liftType.width, liftType.depth, liftType.isDoubleSided, Direction.fromYRot(-Utilities.getYaw(this)));
+				if (level().getBlockState(trackPos).getBlock() instanceof BlockLiftTrack) {
+					ItemLiftRefresher.refreshLift(level(), trackPos, (int) Math.round(getX() * 2) - trackPos.getX() * 2, (int) Math.round(getZ() * 2) - trackPos.getZ() * 2, liftType.width, liftType.depth, liftType.isDoubleSided, Direction.fromYRot(-Utilities.getYaw(this)));
 					System.out.println(liftType + " lift at " + blockPosition() + " converted");
 					kill();
 					return;

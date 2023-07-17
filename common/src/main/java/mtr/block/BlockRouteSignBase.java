@@ -18,8 +18,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.phys.BlockHitResult;
 
 public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase implements EntityBlockMapper, IBlock {
@@ -27,7 +25,7 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 	public static final IntegerProperty ARROW_DIRECTION = IntegerProperty.create("propagate_property", 0, 3);
 
 	public BlockRouteSignBase() {
-		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 15).noOcclusion());
+		super(Properties.of().requiresCorrectToolForDrops().strength(2).lightLevel(state -> 15).noOcclusion());
 	}
 
 	@Override

@@ -32,7 +32,7 @@ processResources {
 
 shadowJar {
 	configurations = [project.configurations.shadowCommon]
-	classifier "dev-shadow"
+	archiveClassifier = "dev-shadow"
 	relocate "javax.servlet", "mtr.libraries.javax.servlet"
 	relocate "org.eclipse", "mtr.libraries.org.eclipse"
 }
@@ -40,7 +40,7 @@ shadowJar {
 remapJar {
 	input.set shadowJar.archiveFile
 	dependsOn shadowJar
-	classifier null
+	archiveClassifier = null
 }
 
 components.java {
@@ -49,7 +49,7 @@ components.java {
 	}
 }
 
-task moveFabricBuilds() {
+tasks.register("moveFabricBuilds") {
 	doLast {
 		delete fileTree("../build/release").matching {
 			include "**/${rootProject.variation_header}-fabric*"
@@ -82,7 +82,7 @@ task moveFabricBuilds() {
 	}
 }
 
-task testServer {
+tasks.register("testServer") {
 	doLast {
 		if (rootProject.variation == "normal") {
 			copy {
@@ -100,13 +100,13 @@ task testServer {
 				include "MTR-fabric-*-latest.jar"
 				rename "(.+)", "MTR.jar"
 			}
-			download {
+			download.run {
 				src rootProject.fabric_api_data[1]
 				dest "fabric/server/mods/fabric-api.jar"
 				overwrite true
 				retries - 1
 			}
-			download {
+			download.run {
 				src "https://meta.fabricmc.net/v2/versions/loader/${rootProject.fabric_loader_version[0]}/${rootProject.fabric_loader_version[1]}/0.11.1/server/jar"
 				dest "fabric/server/fabric-server.jar"
 				overwrite true

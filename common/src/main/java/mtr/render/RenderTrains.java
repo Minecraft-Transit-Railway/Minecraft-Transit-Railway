@@ -504,7 +504,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			final float u1 = width * i + 1 - width * signalBlocks.size() / 2;
 			final float u2 = u1 + width;
 
-			final int color = ARGB_BLACK | signalBlock.color.getMaterialColor().col;
+			final int color = ARGB_BLACK | signalBlock.color.getMapColor().col;
 			rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 				final BlockPos pos2 = RailwayData.newBlockPos(x1, y1, z1);
 				if (shouldNotRender(pos2, maxRailDistance, null)) {

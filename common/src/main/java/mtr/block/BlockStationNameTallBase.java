@@ -16,8 +16,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.phys.BlockHitResult;
 
 public abstract class BlockStationNameTallBase extends BlockStationNameBase implements IBlock {
@@ -25,7 +23,7 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 	public static final BooleanProperty METAL = BooleanProperty.create("metal");
 
 	public BlockStationNameTallBase() {
-		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion());
+		super(Properties.of().requiresCorrectToolForDrops().strength(2).noOcclusion());
 	}
 
 	@Override

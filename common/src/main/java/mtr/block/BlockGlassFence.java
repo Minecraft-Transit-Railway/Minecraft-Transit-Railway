@@ -14,8 +14,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -27,7 +25,7 @@ public class BlockGlassFence extends BlockDirectionalDoubleBlockBase {
 	public static final IntegerProperty NUMBER = IntegerProperty.create("number", 1, 7);
 
 	public BlockGlassFence() {
-		super(Properties.of(Material.STONE, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion());
+		super(Properties.of().requiresCorrectToolForDrops().strength(2).noOcclusion());
 	}
 
 	@Override

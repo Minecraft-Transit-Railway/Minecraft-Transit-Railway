@@ -39,9 +39,9 @@ public class EntitySeat extends EntityBase {
 
 	@Override
 	public void tick() {
-		if (level.isClientSide) {
+		if (level().isClientSide) {
 			if (clientPlayer == null) {
-				clientPlayer = entityData == null ? null : entityData.get(PLAYER_ID).map(value -> level.getPlayerByUUID(value)).orElse(null);
+				clientPlayer = entityData == null ? null : entityData.get(PLAYER_ID).map(value -> level().getPlayerByUUID(value)).orElse(null);
 			}
 
 			if (clientPlayer == null || hasPassenger(clientPlayer)) {
@@ -57,7 +57,7 @@ public class EntitySeat extends EntityBase {
 					setPos(player.getX(), player.getY(), player.getZ());
 				}
 
-				final RailwayData railwayData = RailwayData.getInstance(level);
+				final RailwayData railwayData = RailwayData.getInstance(level());
 				if (railwayData != null) {
 					railwayData.railwayDataCoolDownModule.updatePlayerSeatCoolDown(player);
 				}

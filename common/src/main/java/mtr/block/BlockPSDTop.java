@@ -28,9 +28,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -48,7 +45,7 @@ public class BlockPSDTop extends BlockDirectionalMapper implements EntityBlockMa
 	public static final EnumProperty<EnumPersistent> PERSISTENT = EnumProperty.create("persistent", EnumPersistent.class);
 
 	public BlockPSDTop() {
-		super(Properties.of(Material.METAL, MaterialColor.QUARTZ).requiresCorrectToolForDrops().strength(2).noOcclusion());
+		super(Properties.of().requiresCorrectToolForDrops().strength(2).noOcclusion());
 	}
 
 	@Override
@@ -122,11 +119,6 @@ public class BlockPSDTop extends BlockDirectionalMapper implements EntityBlockMa
 		} else {
 			return baseShape;
 		}
-	}
-
-	@Override
-	public PushReaction getPistonPushReaction(BlockState blockState) {
-		return PushReaction.BLOCK;
 	}
 
 	@Override

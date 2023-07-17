@@ -1,6 +1,5 @@
 package mtr.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.data.Platform;
@@ -11,6 +10,7 @@ import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import mtr.packet.IPacket;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -91,15 +91,15 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
 		try {
-			renderBackground(matrices);
+			renderBackground(guiGraphics);
 			if (shouldRenderExtra()) {
-				renderExtra(matrices, mouseX, mouseY, delta);
+				renderExtra(guiGraphics, mouseX, mouseY, delta);
 			} else {
-				font.draw(matrices, savedRailNumberText, SQUARE_SIZE, SQUARE_SIZE + TEXT_FIELD_PADDING / 2F + TEXT_PADDING, ARGB_WHITE);
+				guiGraphics.drawString(font, savedRailNumberText, SQUARE_SIZE, SQUARE_SIZE + TEXT_FIELD_PADDING / 2 + TEXT_PADDING, ARGB_WHITE);
 			}
-			super.render(matrices, mouseX, mouseY, delta);
+			super.render(guiGraphics, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -122,7 +122,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 		return false;
 	}
 
-	protected void renderExtra(PoseStack matrices, int mouseX, int mouseY, float delta) {
+	protected void renderExtra(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
 	}
 
 	protected abstract String getNumberStringKey();
