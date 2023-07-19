@@ -2,7 +2,7 @@
 ## Minecraft Transit Railway mod
 _Minecraft Transit Railway_是一个[我的世界模组](https://minecraft.gamepedia.com/Mods)以香港地铁、伦敦地铁和纽约地铁为基础。它在游戏中添加了火车以及其他杂项方块和物品。有了这个mod，就有可能在你的世界里建立一个功能齐全的铁路系统！
 
-[！[视频预告片](https://github.com/jonafanho/Minecraft-Transit-Railway/blob/master/images/footer/video-preview.png)](https://www.youtube.com/watch?v=1cZfU7t4cAk)
+[![视频](https://github.com/jonafanho/Minecraft-Transit-Railway/blob/master/images/footer/video-preview.png)](https://www.youtube.com/watch?v=1cZfU7t4cAk)
 
 请报告您发现的任何问题或错误；非常感谢！请参阅[待办事项列表](https://github.com/jonafanho/Minecraft-Transit-Railway/projects/2)查看当前已知的问题。
 ### 下载和安装
@@ -14,7 +14,7 @@ mod或查看项目信息。
 快看一看吧。
 ### 贡献
 #### 帮助翻译模组！
-〔Minecraft Transit Railway mod的Crowdin网站〕(https://crwd.in/minecraft-transit-railway)可用！
+[Minecraft Transit Railway mod的Crowdin网站](https://crwd.in/minecraft-transit-railway)可用！
 
 Crowdin是一个基于云的平台，供翻译人员为项目做出贡献。在您的帮助下，我们可以将mod翻译成许多不同的语言。您可以创建一个免费帐户开始翻译。
 
