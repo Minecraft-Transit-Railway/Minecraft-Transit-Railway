@@ -22,11 +22,17 @@ public class RenderDrivingOverlay implements IGui {
 	private static final int HOT_BAR_WIDTH = 182;
 	private static final int HOT_BAR_HEIGHT = 22;
 
-	public static void render(GuiGraphics guiGraphics) {
+	public static void render(Object guiGraphics1) {
 		if (coolDown > 0) {
 			coolDown--;
 		} else {
 			return;
+		}
+		GuiGraphics guiGraphics;
+		if(guiGraphics1 instanceof GuiGraphics){
+			guiGraphics = (GuiGraphics) guiGraphics1;
+		}else{
+			throw new RuntimeException();
 		}
 
 		final Minecraft client = Minecraft.getInstance();
