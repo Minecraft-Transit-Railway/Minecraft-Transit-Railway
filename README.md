@@ -64,4 +64,4 @@ Let's connect.
 &nbsp;
 <a href="https://www.patreon.com/minecraft_transit_railway" target="_blank"><img src="https://github.com/jonafanho/Minecraft-Transit-Railway/blob/master/images/footer/patreon.png" alt="Patreon" width=64></a>
 ## Other Lauguages
-[简体中文](),[]()
+[简体中文](https://jonafanho/Minecraft-Transit-Railway/CHINESE-README.md)
