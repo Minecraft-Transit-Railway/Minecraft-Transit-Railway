@@ -9,12 +9,12 @@ plugins {
 	id "com.github.johnrengelman.shadow" version "+" apply false
 }
 
-def default_minecraft_version = "1.20"
+def default_minecraft_version = "1.20.1"
 def minecraft_version = rootProject.properties.containsKey("buildVersion") ? rootProject.getProperties().get("buildVersion").toString() : default_minecraft_version
 def minecraft_main_version = minecraft_version.split("\\.")[1] as int
 def patreon_api_key = rootProject.properties.containsKey("patreonApiKey") ? rootProject.getProperties().get("patreonApiKey").toString() : ""
 def is_1_19_3 = minecraft_version == "1.19.3" || minecraft_version == "1.19.4"
-def is_1_20 = minecraft_version == "1.20"
+def is_1_20 = minecraft_version == "1.20" || "1.20.1"
 def testServer = rootProject.properties.containsKey("testServer") ? rootProject.getProperties().get("testServer").toString() : ""
 
 rootProject.ext.fabric_loader_version = [minecraft_version, getJson("https://meta.fabricmc.net/v2/versions/loader/" + minecraft_version)[0]["loader"]["version"]]
