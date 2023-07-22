@@ -26,15 +26,23 @@ public class JonTrainSound extends TrainSoundBase {
 	private static final String SOUND_DECELERATION = "_deceleration_";
 	private static final String SOUND_DOOR_OPEN = "_door_open";
 	private static final String SOUND_DOOR_CLOSE = "_door_close";
-	private static final String SOUND_HORN = "_horn";
+	private static final String SOUND_PRIMARY_HORN = "_primary_horn";
+	private static final String SOUND_SECONDARY_HORN = "_secondary_horn";
+	private static final String SOUND_MUSIC_HORN = "_music_horn";
 	private static final String SOUND_RANDOM = "_random";
 	private static final int RANDOM_SOUND_CHANCE = 300;
 
-	public HornSoundInstance hornSoundInstance;
+	private final TrainHornSoundInstance soundLoopPrimaryHorn;
+	private final TrainHornSoundInstance soundLoopSecondaryHorn;
+	private final TrainHornSoundInstance soundLoopMusicHorn;
+
 	private JonTrainSound(String soundId, JonTrainSoundConfig config, TrainClient train) {
 		this.config = config;
 		this.soundId = soundId;
 		this.train = train;
+		this.soundLoopPrimaryHorn = new TrainHornSoundInstance(RegistryUtilities.createSoundEvent(new ResourceLocation(MTR.MOD_ID, config.hornSoundBaseId + SOUND_PRIMARY_HORN)), train);
+		this.soundLoopSecondaryHorn = new TrainHornSoundInstance(RegistryUtilities.createSoundEvent(new ResourceLocation(MTR.MOD_ID, config.hornSoundBaseId + SOUND_SECONDARY_HORN)), train);
+		this.soundLoopMusicHorn = new TrainHornSoundInstance(RegistryUtilities.createSoundEvent(new ResourceLocation(MTR.MOD_ID, config.hornSoundBaseId + SOUND_MUSIC_HORN)), train);
 	}
 
 	public JonTrainSound(String soundId, JonTrainSoundConfig config) {
@@ -69,6 +77,35 @@ public class JonTrainSound extends TrainSoundBase {
 				((ClientLevel) world).playLocalSound(pos, RegistryUtilities.createSoundEvent(new ResourceLocation(MTR.MOD_ID, speedSoundId)), SoundSource.BLOCKS, 1, 1, false);
 			}
 		}
+
+		switch (train.getHornType()) {
+			case -1:
+				if (soundLoopPrimaryHorn != null) {
+					soundLoopPrimaryHorn.stopHorn();
+				}
+				if (soundLoopSecondaryHorn != null) {
+					soundLoopSecondaryHorn.stopHorn();
+				}
+				if (soundLoopMusicHorn != null) {
+					soundLoopMusicHorn.stopHorn();
+				}
+				break;
+			case 0:
+				if (soundLoopPrimaryHorn != null) {
+					soundLoopPrimaryHorn.setData(1, 1, pos);
+				}
+				break;
+			case 1:
+				if (soundLoopSecondaryHorn != null) {
+					soundLoopSecondaryHorn.setData(1, 1, pos);
+				}
+				break;
+			case 2:
+				if (soundLoopMusicHorn != null) {
+					soundLoopMusicHorn.setData(1, 1, pos);
+				}
+				break;
+		}
 	}
 
 	@Override
@@ -89,28 +126,6 @@ public class JonTrainSound extends TrainSoundBase {
 			if (soundId != null) {
 				((ClientLevel) world).playLocalSound(pos, RegistryUtilities.createSoundEvent(new ResourceLocation(MTR.MOD_ID, soundId)), SoundSource.BLOCKS, 1, 1, false);
 			}
-		}
-	}
-
-	@Override
-	public void playAllCarsHorn(Level world, BlockPos pos, int carIndex) {
-		if (world instanceof ClientLevel && config.hornSoundBaseId != null) {
-			final String soundId = config.hornSoundBaseId + SOUND_HORN;
-			if (hornSoundInstance == null) {
-				hornSoundInstance = new HornSoundInstance(soundId);
-			}
-			hornSoundInstance.play(pos);
-		}
-	}
-
-	@Override
-	public void stopAllCarsHorn(Level world, BlockPos pos, int carIndex) {
-		if (world instanceof ClientLevel && config.hornSoundBaseId != null) {
-			final String soundId = config.hornSoundBaseId + SOUND_HORN;
-			if (hornSoundInstance == null) {
-				hornSoundInstance = new HornSoundInstance(soundId);
-			}
-			hornSoundInstance.stop();
 		}
 	}
 

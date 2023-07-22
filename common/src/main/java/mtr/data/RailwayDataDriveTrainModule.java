@@ -4,17 +4,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class RailwayDataDriveTrainModule extends RailwayDataModuleBase {
 
 	private final Set<UUID> acceleratePlayers = new HashSet<>();
 	private final Set<UUID> brakePlayers = new HashSet<>();
 	private final Set<UUID> doorsPlayers = new HashSet<>();
-	private final Set<UUID> honkingPlayers = new HashSet<>();
+	private final Map<UUID, Integer> honkingPlayers = new HashMap<>();
 	private final Set<UUID> notHonkingPlayers = new HashSet<>();
 
 	public RailwayDataDriveTrainModule(RailwayData railwayData, Level world, Map<BlockPos, Map<BlockPos, Rail>> rails) {
@@ -41,9 +38,13 @@ public class RailwayDataDriveTrainModule extends RailwayDataModuleBase {
 		}
 	}
 
-	public void horn(ServerPlayer player, boolean pressingHorn) {
-		if (pressingHorn) {
-			honkingPlayers.add(player.getUUID());
+	public void honk(ServerPlayer player, boolean pressingPrimaryHorn, boolean pressingSecondaryHorn, boolean pressingMusicHorn) {
+		if (pressingPrimaryHorn) {
+			honkingPlayers.put(player.getUUID(), 0);
+		} else if (pressingSecondaryHorn) {
+			honkingPlayers.put(player.getUUID(), 1);
+		} else if (pressingMusicHorn) {
+			honkingPlayers.put(player.getUUID(), 2);
 		} else {
 			notHonkingPlayers.add(player.getUUID());
 			honkingPlayers.remove(player.getUUID());
@@ -61,9 +62,9 @@ public class RailwayDataDriveTrainModule extends RailwayDataModuleBase {
 			if (doorsPlayers.contains(ridingEntity) && trainServer.toggleDoors()) {
 				dirty = true;
 			}
-			if (honkingPlayers.contains(ridingEntity) && trainServer.honk(true)) {
+			if (honkingPlayers.containsKey(ridingEntity) && trainServer.honk(true, honkingPlayers.get(ridingEntity))) {
 				dirty = true;
-			} else if (notHonkingPlayers.contains(ridingEntity) && trainServer.honk(false)) {
+			} else if (notHonkingPlayers.contains(ridingEntity) && trainServer.honk(false, -1)) {
 				dirty = true;
 			}
 		}

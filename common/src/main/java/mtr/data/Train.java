@@ -38,7 +38,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 	protected boolean isOnRoute = false;
 	protected boolean isCurrentlyManual;
 	protected int manualNotch;
-	protected boolean playHorn;
+	protected int hornType = -1;
 
 	public final long sidingId;
 	public final String trainId;
@@ -244,7 +244,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		manualToAutomaticTime = packet.readInt();
 		isOnRoute = packet.readBoolean();
 		manualNotch = packet.readInt();
-		playHorn = packet.readBoolean();
+		hornType = packet.readInt();
 		doorTarget = packet.readBoolean();
 
 		final int ridingEntitiesCount = packet.readInt();
@@ -332,7 +332,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		packet.writeInt(manualToAutomaticTime);
 		packet.writeBoolean(isOnRoute);
 		packet.writeInt(manualNotch);
-		packet.writeBoolean(playHorn);
+		packet.writeInt(hornType);
 		packet.writeBoolean(doorTarget);
 		packet.writeInt(ridingEntities.size());
 		ridingEntities.forEach(packet::writeUUID);
@@ -382,12 +382,12 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		}
 	}
 
-	public boolean honk(boolean isHonking) {
-		if (isHonking && !playHorn) {
-			playHorn = true;
+	public boolean honk(boolean isHonking, int type) {
+		if (isHonking && hornType == -1) {
+			hornType = type;
 			return true;
-		} else if (!isHonking && playHorn) {
-			playHorn = false;
+		} else if (!isHonking && hornType != -1) {
+			hornType = -1;
 			return true;
 		} else {
 			return false;

@@ -29,6 +29,10 @@ public class ConfigFile {
 	public final SoundEvent compressorLoop;
 	public final SoundEvent compressorRelease;
 
+	public final SoundEvent primaryHorn;
+	public final SoundEvent secondaryHorn;
+	public final SoundEvent musicHorn;
+
 	public final SoundEvent noise;
 	public final SoundEvent shoe;
 
@@ -66,6 +70,10 @@ public class ConfigFile {
 		SoundEvent compressorAttack = null;
 		SoundEvent compressorLoop = null;
 		SoundEvent compressorRelease = null;
+
+		SoundEvent primaryHorn = null;
+		SoundEvent secondaryHorn = null;
+		SoundEvent musicHorn = null;
 
 		SoundEvent noise = null;
 		SoundEvent shoe = null;
@@ -196,6 +204,18 @@ public class ConfigFile {
 								compressorRelease = valueAsSoundEvent;
 								break;
 						}
+					case "horn":
+						switch (key) {
+							case "primary":
+								primaryHorn = valueAsSoundEvent;
+								break;
+							case "secondary":
+								secondaryHorn = valueAsSoundEvent;
+								break;
+							case "music":
+								musicHorn = valueAsSoundEvent;
+								break;
+						}
 					case "others":
 						switch (key) {
 							case "noise":
@@ -230,6 +250,9 @@ public class ConfigFile {
 		this.compressorAttack = compressorAttack;
 		this.compressorLoop = compressorLoop;
 		this.compressorRelease = compressorRelease;
+		this.primaryHorn = primaryHorn;
+		this.secondaryHorn = secondaryHorn;
+		this.musicHorn = musicHorn;
 		this.noise = noise;
 		this.shoe = shoe;
 		this.motorNoiseDataType = motorNoiseDataType;

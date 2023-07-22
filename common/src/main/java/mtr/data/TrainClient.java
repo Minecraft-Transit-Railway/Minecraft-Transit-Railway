@@ -77,11 +77,6 @@ public class TrainClient extends Train implements IGui {
 		if (doorLeftOpen || doorRightOpen) {
 			trainSound.playAllCarsDoorOpening(world, soundPos, ridingCar);
 		}
-		if (playHorn && isPlayerRiding(clientPlayer)) {
-			trainSound.playAllCarsHorn(world, soundPos, ridingCar);
-		} else {
-			trainSound.stopAllCarsHorn(world, soundPos, ridingCar);
-		}
 
 		final Vec3 offset = vehicleRidingClient.renderPlayerAndGetOffset();
 		final double newX = carX - offset.x;
@@ -350,7 +345,7 @@ public class TrainClient extends Train implements IGui {
 		isOnRoute = train.isOnRoute;
 		isCurrentlyManual = train.isCurrentlyManual;
 		manualNotch = train.manualNotch;
-		playHorn = train.playHorn;
+		hornType = train.hornType;
 	}
 
 	public final float speedChange() {
@@ -371,6 +366,10 @@ public class TrainClient extends Train implements IGui {
 
 	public final List<Long> getRouteIds() {
 		return routeIds;
+	}
+
+	public final int getHornType() {
+		return hornType;
 	}
 
 	private int getPreviousStoppingIndex(int headIndex) {

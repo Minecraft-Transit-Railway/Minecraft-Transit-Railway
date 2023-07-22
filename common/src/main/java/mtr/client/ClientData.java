@@ -28,6 +28,9 @@ public final class ClientData {
 	private static boolean pressingAccelerate = false;
 	private static boolean pressingBrake = false;
 	private static boolean pressingDoors = false;
+	private static boolean pressingPrimaryHorn = false;
+	private static boolean pressingSecondaryHorn = false;
+	private static boolean pressingMusicHorn = false;
 	private static float shiftHoldingTicks = 0;
 
 	public static final Set<Station> STATIONS = new HashSet<>();
@@ -61,7 +64,9 @@ public final class ClientData {
 		final boolean tempPressingAccelerate = KeyMappings.TRAIN_ACCELERATE.isDown();
 		final boolean tempPressingBrake = KeyMappings.TRAIN_BRAKE.isDown();
 		final boolean tempPressingDoors = KeyMappings.TRAIN_TOGGLE_DOORS.isDown();
-		final boolean pressingHorn = KeyMappings.TRAIN_HONK.isDown();
+		final boolean tempPressingPrimaryHorn = KeyMappings.TRAIN_PRIMARY_HORN.isDown();
+		final boolean tempPressingSecondaryHorn = KeyMappings.TRAIN_SECONDARY_HORN.isDown();
+		final boolean tempPressingMusicHorn = KeyMappings.TRAIN_MUSIC_HORN.isDown();
 		PacketTrainDataGuiClient.sendDriveTrainC2S(
 				tempPressingAccelerate && !pressingAccelerate,
 				tempPressingBrake && !pressingBrake,
@@ -70,7 +75,12 @@ public final class ClientData {
 		pressingAccelerate = tempPressingAccelerate;
 		pressingBrake = tempPressingBrake;
 		pressingDoors = tempPressingDoors;
-		PacketTrainDataGuiClient.sendHornC2S(pressingHorn);
+		if (tempPressingPrimaryHorn != pressingPrimaryHorn || tempPressingSecondaryHorn != pressingSecondaryHorn || tempPressingMusicHorn != pressingMusicHorn) {
+			PacketTrainDataGuiClient.sendHornC2S(tempPressingPrimaryHorn, tempPressingSecondaryHorn, tempPressingMusicHorn);
+			pressingPrimaryHorn = tempPressingPrimaryHorn;
+			pressingSecondaryHorn = tempPressingSecondaryHorn;
+			pressingMusicHorn = tempPressingMusicHorn;
+		}
 
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		final Player player = minecraftClient.player;

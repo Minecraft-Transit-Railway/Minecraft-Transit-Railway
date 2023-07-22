@@ -289,7 +289,9 @@ public class MTRClient implements IPacket {
 			RegistryClient.registerKeyBinding(KeyMappings.TRAIN_ACCELERATE);
 			RegistryClient.registerKeyBinding(KeyMappings.TRAIN_BRAKE);
 			RegistryClient.registerKeyBinding(KeyMappings.TRAIN_TOGGLE_DOORS);
-			RegistryClient.registerKeyBinding(KeyMappings.TRAIN_HONK);
+			RegistryClient.registerKeyBinding(KeyMappings.TRAIN_PRIMARY_HORN);
+			RegistryClient.registerKeyBinding(KeyMappings.TRAIN_SECONDARY_HORN);
+			RegistryClient.registerKeyBinding(KeyMappings.TRAIN_MUSIC_HORN);
 			RegistryClient.registerKeyBinding(KeyMappings.DEBUG_1_NEGATIVE);
 			RegistryClient.registerKeyBinding(KeyMappings.DEBUG_2_NEGATIVE);
 			RegistryClient.registerKeyBinding(KeyMappings.DEBUG_3_NEGATIVE);

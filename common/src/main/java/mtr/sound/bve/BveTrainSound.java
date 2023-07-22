@@ -4,6 +4,7 @@ import mtr.MTRClient;
 import mtr.client.TrainClientRegistry;
 import mtr.client.TrainProperties;
 import mtr.data.TrainClient;
+import mtr.sound.TrainHornSoundInstance;
 import mtr.sound.TrainLoopingSoundInstance;
 import mtr.sound.TrainSoundBase;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -36,6 +37,9 @@ public class BveTrainSound extends TrainSoundBase {
 	private final TrainLoopingSoundInstance soundLoopNoise;
 	private final TrainLoopingSoundInstance soundLoopShoe;
 	private final TrainLoopingSoundInstance soundLoopCompressor;
+	private final TrainHornSoundInstance soundLoopPrimaryHorn;
+	private final TrainHornSoundInstance soundLoopSecondaryHorn;
+	private final TrainHornSoundInstance soundLoopMusicHorn;
 	private final int[][] bogieRailId;
 
 	private BveTrainSound(BveTrainSoundConfig config, TrainClient train) {
@@ -49,6 +53,9 @@ public class BveTrainSound extends TrainSoundBase {
 			soundLoopNoise = null;
 			soundLoopShoe = null;
 			soundLoopCompressor = null;
+			soundLoopPrimaryHorn = null;
+			soundLoopSecondaryHorn = null;
+			soundLoopMusicHorn = null;
 			bogieRailId = new int[0][0];
 		} else {
 			bogieRailId = new int[train.trainCars][2];
@@ -62,6 +69,9 @@ public class BveTrainSound extends TrainSoundBase {
 			soundLoopNoise = config.soundCfg.noise == null ? null : new TrainLoopingSoundInstance(config.soundCfg.noise, train);
 			soundLoopShoe = config.soundCfg.shoe == null ? null : new TrainLoopingSoundInstance(config.soundCfg.shoe, train);
 			soundLoopCompressor = config.soundCfg.compressorLoop == null ? null : new TrainLoopingSoundInstance(config.soundCfg.compressorLoop, train);
+			soundLoopPrimaryHorn = config.soundCfg.primaryHorn == null ? null : new TrainHornSoundInstance(config.soundCfg.primaryHorn, train);
+			soundLoopSecondaryHorn = config.soundCfg.secondaryHorn == null ? null : new TrainHornSoundInstance(config.soundCfg.secondaryHorn, train);
+			soundLoopMusicHorn = config.soundCfg.musicHorn == null ? null : new TrainHornSoundInstance(config.soundCfg.musicHorn, train);
 
 			soundLoopMotor = new TrainLoopingSoundInstance[config.soundCfg.motor.length];
 			for (int i = 0; i < Math.min(config.soundCfg.motor.length, config.motorData.getSoundCount()); ++i) {
@@ -95,6 +105,36 @@ public class BveTrainSound extends TrainSoundBase {
 		// Rolling noise
 		if (soundLoopRun != null) {
 			soundLoopRun.setData(Math.min(1, speed * 0.04F), speed * 0.04F, pos);
+		}
+
+		// Train Horn
+		switch (train.getHornType()) {
+			case -1:
+				if (soundLoopPrimaryHorn != null) {
+					soundLoopPrimaryHorn.stopHorn();
+				}
+				if (soundLoopSecondaryHorn != null) {
+					soundLoopSecondaryHorn.stopHorn();
+				}
+				if (soundLoopMusicHorn != null) {
+					soundLoopMusicHorn.stopHorn();
+				}
+				break;
+			case 0:
+				if (soundLoopPrimaryHorn != null) {
+					soundLoopPrimaryHorn.setData(1, 1, pos);
+				}
+				break;
+			case 1:
+				if (soundLoopSecondaryHorn != null) {
+					soundLoopSecondaryHorn.setData(1, 1, pos);
+				}
+				break;
+			case 2:
+				if (soundLoopMusicHorn != null) {
+					soundLoopMusicHorn.setData(1, 1, pos);
+				}
+				break;
 		}
 
 		// Simulation of circuit breaker in traction controller
@@ -263,16 +303,6 @@ public class BveTrainSound extends TrainSoundBase {
 		}
 
 		playLocalSound(world, soundEvent, pos);
-	}
-
-	@Override
-	public void playAllCarsHorn(Level world, BlockPos pos, int carIndex) {
-
-	}
-
-	@Override
-	public void stopAllCarsHorn(Level world, BlockPos pos, int carIndex) {
-
 	}
 
 	private static void playLocalSound(Level world, SoundEvent event, BlockPos pos, float gain, float pitch) {

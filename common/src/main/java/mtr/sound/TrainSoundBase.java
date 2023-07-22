@@ -13,8 +13,4 @@ public abstract class TrainSoundBase {
 	public abstract void playAllCars(Level world, BlockPos pos, int carIndex);
 
 	public abstract void playAllCarsDoorOpening(Level world, BlockPos pos, int carIndex);
-
-	public abstract void playAllCarsHorn(Level world, BlockPos pos, int carIndex);
-
-	public abstract void stopAllCarsHorn(Level world, BlockPos pos, int carIndex);
 }
