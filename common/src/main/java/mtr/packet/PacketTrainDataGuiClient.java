@@ -363,8 +363,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	}
 
 	public static void sendHornC2S(boolean pressingPrimaryHorn, boolean pressingSecondaryHorn, boolean pressingMusicHorn) {
-		final boolean horn = pressingPrimaryHorn || pressingSecondaryHorn || pressingMusicHorn;
-		if (horn && Train.isHoldingKey(Minecraft.getInstance().player)) {
+		if ((pressingPrimaryHorn || pressingSecondaryHorn || pressingMusicHorn) && Train.isHoldingKey(Minecraft.getInstance().player)) {
 			final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 			packet.writeBoolean(pressingPrimaryHorn);
 			packet.writeBoolean(pressingSecondaryHorn);

@@ -38,7 +38,9 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 	protected boolean isOnRoute = false;
 	protected boolean isCurrentlyManual;
 	protected int manualNotch;
-	protected int hornType = -1;
+	protected boolean isPrimaryHornPressed;
+	protected boolean isSecondaryHornPressed;
+	protected boolean isMusicHornPressed;
 
 	public final long sidingId;
 	public final String trainId;
@@ -244,7 +246,9 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		manualToAutomaticTime = packet.readInt();
 		isOnRoute = packet.readBoolean();
 		manualNotch = packet.readInt();
-		hornType = packet.readInt();
+		isPrimaryHornPressed = packet.readBoolean();
+		isSecondaryHornPressed = packet.readBoolean();
+		isMusicHornPressed = packet.readBoolean();
 		doorTarget = packet.readBoolean();
 
 		final int ridingEntitiesCount = packet.readInt();
@@ -332,7 +336,9 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		packet.writeInt(manualToAutomaticTime);
 		packet.writeBoolean(isOnRoute);
 		packet.writeInt(manualNotch);
-		packet.writeInt(hornType);
+		packet.writeBoolean(isPrimaryHornPressed);
+		packet.writeBoolean(isSecondaryHornPressed);
+		packet.writeBoolean(isMusicHornPressed);
 		packet.writeBoolean(doorTarget);
 		packet.writeInt(ridingEntities.size());
 		ridingEntities.forEach(packet::writeUUID);
@@ -382,15 +388,30 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		}
 	}
 
-	public boolean honk(boolean isHonking, int type) {
-		if (isHonking && hornType == -1) {
-			hornType = type;
-			return true;
-		} else if (!isHonking && hornType != -1) {
-			hornType = -1;
-			return true;
-		} else {
-			return false;
+	public void setHornStatus(int type, boolean status) {
+		switch (type) {
+			case 0:
+				isPrimaryHornPressed = status;
+				break;
+			case 1:
+				isSecondaryHornPressed = status;
+				break;
+			case 2:
+				isMusicHornPressed = status;
+				break;
+		}
+	}
+
+	public boolean getHornStatus(int type) {
+		switch (type) {
+			case 0:
+				return isPrimaryHornPressed;
+			case 1:
+				return isSecondaryHornPressed;
+			case 2:
+				return isMusicHornPressed;
+			default:
+				return false;
 		}
 	}
 

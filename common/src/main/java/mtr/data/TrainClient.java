@@ -345,7 +345,9 @@ public class TrainClient extends Train implements IGui {
 		isOnRoute = train.isOnRoute;
 		isCurrentlyManual = train.isCurrentlyManual;
 		manualNotch = train.manualNotch;
-		hornType = train.hornType;
+		isPrimaryHornPressed = train.isPrimaryHornPressed;
+		isSecondaryHornPressed = train.isSecondaryHornPressed;
+		isMusicHornPressed = train.isMusicHornPressed;
 	}
 
 	public final float speedChange() {
@@ -366,10 +368,6 @@ public class TrainClient extends Train implements IGui {
 
 	public final List<Long> getRouteIds() {
 		return routeIds;
-	}
-
-	public final int getHornType() {
-		return hornType;
 	}
 
 	private int getPreviousStoppingIndex(int headIndex) {

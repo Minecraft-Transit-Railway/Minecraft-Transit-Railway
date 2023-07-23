@@ -108,33 +108,26 @@ public class BveTrainSound extends TrainSoundBase {
 		}
 
 		// Train Horn
-		switch (train.getHornType()) {
-			case -1:
-				if (soundLoopPrimaryHorn != null) {
-					soundLoopPrimaryHorn.stopHorn();
-				}
-				if (soundLoopSecondaryHorn != null) {
-					soundLoopSecondaryHorn.stopHorn();
-				}
-				if (soundLoopMusicHorn != null) {
-					soundLoopMusicHorn.stopHorn();
-				}
-				break;
-			case 0:
-				if (soundLoopPrimaryHorn != null) {
-					soundLoopPrimaryHorn.setData(1, 1, pos);
-				}
-				break;
-			case 1:
-				if (soundLoopSecondaryHorn != null) {
-					soundLoopSecondaryHorn.setData(1, 1, pos);
-				}
-				break;
-			case 2:
-				if (soundLoopMusicHorn != null) {
-					soundLoopMusicHorn.setData(1, 1, pos);
-				}
-				break;
+		if (soundLoopPrimaryHorn != null) {
+			if (train.getHornStatus(0)) {
+				soundLoopPrimaryHorn.setData(1, 1, pos);
+			} else {
+				soundLoopPrimaryHorn.stopHorn();
+			}
+		}
+		if (soundLoopSecondaryHorn != null) {
+			if (train.getHornStatus(1)) {
+				soundLoopSecondaryHorn.setData(1, 1, pos);
+			} else {
+				soundLoopSecondaryHorn.stopHorn();
+			}
+		}
+		if (soundLoopMusicHorn != null) {
+			if (train.getHornStatus(2)) {
+				soundLoopMusicHorn.setData(1, 1, pos);
+			} else {
+				soundLoopMusicHorn.stopHorn();
+			}
 		}
 
 		// Simulation of circuit breaker in traction controller
