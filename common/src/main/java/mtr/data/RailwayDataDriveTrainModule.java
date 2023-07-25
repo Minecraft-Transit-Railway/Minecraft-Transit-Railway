@@ -26,6 +26,7 @@ public class RailwayDataDriveTrainModule extends RailwayDataModuleBase {
 		acceleratePlayers.clear();
 		brakePlayers.clear();
 		doorsPlayers.clear();
+		musicHornPlayers.clear();
 	}
 
 	public void drive(ServerPlayer player, boolean pressingAccelerate, boolean pressingBrake, boolean pressingDoors) {
@@ -40,7 +41,7 @@ public class RailwayDataDriveTrainModule extends RailwayDataModuleBase {
 		}
 	}
 
-	public void honk(ServerPlayer player, boolean pressingPrimaryHorn, boolean pressingSecondaryHorn, boolean pressingMusicHorn) {
+	public void honk(ServerPlayer player, boolean pressingPrimaryHorn, boolean pressingSecondaryHorn, boolean shouldSetMusicHorn) {
 		if (pressingPrimaryHorn) {
 			primaryHornPlayers.add(player.getUUID());
 		} else {
@@ -51,10 +52,8 @@ public class RailwayDataDriveTrainModule extends RailwayDataModuleBase {
 		} else {
 			secondaryHornPlayers.remove(player.getUUID());
 		}
-		if (pressingMusicHorn) {
+		if (shouldSetMusicHorn) {
 			musicHornPlayers.add(player.getUUID());
-		} else {
-			musicHornPlayers.remove(player.getUUID());
 		}
 	}
 
@@ -83,11 +82,8 @@ public class RailwayDataDriveTrainModule extends RailwayDataModuleBase {
 				trainServer.setHornStatus(1, false);
 				dirty = true;
 			}
-			if (!musicHornPlayers.isEmpty()) {
-				trainServer.setHornStatus(2, true);
-				dirty = true;
-			} else if (trainServer.getHornStatus(2)) {
-				trainServer.setHornStatus(2, false);
+			if (musicHornPlayers.contains(ridingEntity)) {
+				trainServer.setHornStatus(2, !trainServer.getHornStatus(2));
 				dirty = true;
 			}
 		}

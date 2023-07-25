@@ -342,8 +342,8 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		if (railwayData != null) {
 			final boolean pressingPrimaryHorn = packet.readBoolean();
 			final boolean pressingSecondaryHorn = packet.readBoolean();
-			final boolean pressingMusicHorn = packet.readBoolean();
-			minecraftServer.execute(() -> railwayData.railwayDataDriveTrainModule.honk(player, pressingPrimaryHorn, pressingSecondaryHorn, pressingMusicHorn));
+			final boolean shouldSetMusicHorn = packet.readBoolean();
+			minecraftServer.execute(() -> railwayData.railwayDataDriveTrainModule.honk(player, pressingPrimaryHorn, pressingSecondaryHorn, shouldSetMusicHorn));
 		}
 	}
 

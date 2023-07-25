@@ -64,9 +64,6 @@ public final class ClientData {
 		final boolean tempPressingAccelerate = KeyMappings.TRAIN_ACCELERATE.isDown();
 		final boolean tempPressingBrake = KeyMappings.TRAIN_BRAKE.isDown();
 		final boolean tempPressingDoors = KeyMappings.TRAIN_TOGGLE_DOORS.isDown();
-		final boolean tempPressingPrimaryHorn = KeyMappings.TRAIN_PRIMARY_HORN.isDown();
-		final boolean tempPressingSecondaryHorn = KeyMappings.TRAIN_SECONDARY_HORN.isDown();
-		final boolean tempPressingMusicHorn = KeyMappings.TRAIN_MUSIC_HORN.isDown();
 		PacketTrainDataGuiClient.sendDriveTrainC2S(
 				tempPressingAccelerate && !pressingAccelerate,
 				tempPressingBrake && !pressingBrake,
@@ -75,12 +72,18 @@ public final class ClientData {
 		pressingAccelerate = tempPressingAccelerate;
 		pressingBrake = tempPressingBrake;
 		pressingDoors = tempPressingDoors;
-		if (tempPressingPrimaryHorn != pressingPrimaryHorn || tempPressingSecondaryHorn != pressingSecondaryHorn || tempPressingMusicHorn != pressingMusicHorn) {
-			PacketTrainDataGuiClient.sendHornC2S(tempPressingPrimaryHorn, tempPressingSecondaryHorn, tempPressingMusicHorn);
-			pressingPrimaryHorn = tempPressingPrimaryHorn;
-			pressingSecondaryHorn = tempPressingSecondaryHorn;
-			pressingMusicHorn = tempPressingMusicHorn;
+
+		final boolean tempPressingPrimaryHorn = KeyMappings.TRAIN_PRIMARY_HORN.isDown();
+		final boolean tempPressingSecondaryHorn = KeyMappings.TRAIN_SECONDARY_HORN.isDown();
+		final boolean tempPressingMusicHorn = KeyMappings.TRAIN_MUSIC_HORN.isDown();
+
+		final boolean shouldSetMusicHorn = tempPressingMusicHorn && !pressingMusicHorn;
+		if (tempPressingPrimaryHorn != pressingPrimaryHorn || tempPressingSecondaryHorn != pressingSecondaryHorn || shouldSetMusicHorn) {
+			PacketTrainDataGuiClient.sendHornC2S(tempPressingPrimaryHorn, tempPressingSecondaryHorn, shouldSetMusicHorn);
 		}
+		pressingPrimaryHorn = tempPressingPrimaryHorn;
+		pressingSecondaryHorn = tempPressingSecondaryHorn;
+		pressingMusicHorn = tempPressingMusicHorn;
 
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		final Player player = minecraftClient.player;

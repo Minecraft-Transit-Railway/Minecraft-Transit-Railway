@@ -362,20 +362,17 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		}
 	}
 
-	public static void sendHornC2S(boolean pressingPrimaryHorn, boolean pressingSecondaryHorn, boolean pressingMusicHorn) {
-		if ((pressingPrimaryHorn || pressingSecondaryHorn || pressingMusicHorn) && Train.isHoldingKey(Minecraft.getInstance().player)) {
-			final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+	public static void sendHornC2S(boolean pressingPrimaryHorn, boolean pressingSecondaryHorn, boolean shouldSetMusicHorn) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		if ((pressingPrimaryHorn || pressingSecondaryHorn) && Train.isHoldingKey(Minecraft.getInstance().player)) {
 			packet.writeBoolean(pressingPrimaryHorn);
 			packet.writeBoolean(pressingSecondaryHorn);
-			packet.writeBoolean(pressingMusicHorn);
-			RegistryClient.sendToServer(PACKET_TRAIN_HONK, packet);
 		} else {
-			final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 			packet.writeBoolean(false);
 			packet.writeBoolean(false);
-			packet.writeBoolean(false);
-			RegistryClient.sendToServer(PACKET_TRAIN_HONK, packet);
 		}
+		packet.writeBoolean(shouldSetMusicHorn);
+		RegistryClient.sendToServer(PACKET_TRAIN_HONK, packet);
 	}
 
 	public static void sendPressLiftButtonC2S(long id, int floor) {
