@@ -10,7 +10,7 @@ import net.minecraft.sounds.SoundSource;
 
 public class TrainLoopingSoundInstance extends TickableSoundInstanceMapper {
 
-	private final TrainClient train;
+	protected final TrainClient train;
 
 	public TrainLoopingSoundInstance(SoundEvent event, TrainClient train) {
 		super(event, SoundSource.BLOCKS);

@@ -110,23 +110,23 @@ public class BveTrainSound extends TrainSoundBase {
 		// Train Horn
 		if (soundLoopPrimaryHorn != null) {
 			if (train.getHornStatus(0)) {
-				soundLoopPrimaryHorn.setData(1, 1, pos);
+				soundLoopPrimaryHorn.setData(pos);
 			} else {
-				soundLoopPrimaryHorn.stopHorn();
+				soundLoopPrimaryHorn.stopHorn(train);
 			}
 		}
 		if (soundLoopSecondaryHorn != null) {
 			if (train.getHornStatus(1)) {
-				soundLoopSecondaryHorn.setData(1, 1, pos);
+				soundLoopSecondaryHorn.setData(pos);
 			} else {
-				soundLoopSecondaryHorn.stopHorn();
+				soundLoopSecondaryHorn.stopHorn(train);
 			}
 		}
 		if (soundLoopMusicHorn != null) {
 			if (train.getHornStatus(2)) {
-				soundLoopMusicHorn.setData(1, 1, pos);
+				soundLoopMusicHorn.setData(pos);
 			} else {
-				soundLoopMusicHorn.stopHorn();
+				soundLoopMusicHorn.stopHorn(train);
 			}
 		}
 
