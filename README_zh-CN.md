@@ -27,7 +27,19 @@ _Minecraft Transit Railway_ 是一个基于香港地铁、伦敦地铁和纽约�
 
 视频教程：
 - [**“姚鲜森学长菌”的 MTR 模组教程 (推荐)**](https://space.bilibili.com/1170347936/channel/collectiondetail?sid=203289)：哔哩哔哩视频教程，适合新手。
-- 官方视频教程：可在[哔哩哔哩](https://search.bilibili.com/all?keyword=Minecraft+Transit+Railway+%E6%A8%A1%E7%BB%84%E6%95%99%E7%A8%8B)上寻找 Youtube 搬运，关键词：`Minecraft Transit Railway 模组教程`。
+- 官方视频教程：B站教学
+- [1](https://www.bilibili.com/video/BV1x44y1m7Lb/?spm_id_from=333.788.recommend_more_video.10&vd_source=9476e9daabe90b3a085f4bfc81971915)
+- [2](https://www.bilibili.com/video/BV1JL411n7vu/?spm_id_from=333.788.recommend_more_video.8&vd_source=9476e9daabe90b3a085f4bfc81971915)
+- [3](https://www.bilibili.com/video/BV1RL411E7uF/?spm_id_from=333.788.recommend_more_video.0&vd_source=9476e9daabe90b3a085f4bfc81971915)
+- [4](https://www.bilibili.com/video/BV1iU4y1c7ab/?spm_id_from=333.788.recommend_more_video.-1&vd_source=9476e9daabe90b3a085f4bfc81971915)
+- [5](https://www.bilibili.com/video/BV1pR4y1W7PQ/spm_id_from=333.788.recommend_more_video.-1&vd_source=9476e9daabe90b3a085f4bfc81971915)
+- [6](https://www.bilibili.com/video/BV1Vr4y1b7jW/?spm_id_from=333.788.recommend_more_video.-1&vd_source=9476e9daabe90b3a085f4bfc81971915)
+- [7](https://www.bilibili.com/video/BV1qZ4y1e7Q1/?spm_id_from=333.788.recommend_more_video.-1&vd_source=9476e9daabe90b3a085f4bfc81971915)
+- [8](https://www.bilibili.com/video/BV1HB4y1W7PL/?spm_id_from=333.788.recommend_more_video.0&vd_source=9476e9daabe90b3a085f4bfc81971915)
+- [9](https://www.bilibili.com/video/BV1be4y1B7x6/?spm_id_from=333.788.recommend_more_video.-1&vd_source=9476e9daabe90b3a085f4bfc81971915)
+- [10](https://www.bilibili.com/video/BV1Lv4y1R7pM/?spm_id_from=333.788.recommend_more_video.-1&vd_source=9476e9daabe90b3a085f4bfc81971915)
+- [11](https://www.bilibili.com/video/BV1rs4y1J7Us/?spm_id_from=333.788.recommend_more_video.0&vd_source=9476e9daabe90b3a085f4bfc81971915)
+- [飞机](https://www.bilibili.com/video/BV1Cv4y1C7xa/?spm_id_from=333.788.recommend_more_video.-1&vd_source=9476e9daabe90b3a085f4bfc81971915)
 
 其它资源：
 - [**MTRBBS (我的世界铁路中文论坛)**](https://www.mtrbbs.top/)：国内最大的 MTR 模组论坛、列车资源包下载站。
