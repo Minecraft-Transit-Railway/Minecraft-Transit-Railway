@@ -1,47 +1,39 @@
-package mtr.render;
+package org.mtr.mod.render;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import mtr.block.BlockNode;
-import mtr.block.IBlock;
-import mtr.client.IDrawing;
-import mtr.mappings.BlockEntityRendererMapper;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockEntityRenderer;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mod.block.BlockNode;
+import org.mtr.mod.block.IBlock;
+import org.mtr.mod.client.IDrawing;
 
-public class RenderBoatNode extends BlockEntityRendererMapper<BlockNode.TileEntityBoatNode> {
+public class RenderBoatNode extends BlockEntityRenderer<BlockNode.BlockEntity> {
 
-	public RenderBoatNode(BlockEntityRenderDispatcher dispatcher) {
+	public RenderBoatNode(BlockEntityRendererArgument dispatcher) {
 		super(dispatcher);
 	}
 
 	@Override
-	public void render(BlockNode.TileEntityBoatNode entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
-		final Level world = entity.getLevel();
+	public void render(BlockNode.BlockEntity entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
+		final World world = entity.getWorld2();
 		if (world == null) {
 			return;
 		}
 
-		final BlockState state = world.getBlockState(entity.getBlockPos());
-		if (state.getBlock() instanceof BlockNode.BlockBoatNode && !IBlock.getStatePropertySafe(state, BlockNode.IS_CONNECTED)) {
+		final BlockState state = world.getBlockState(entity.getPos2());
+		if (state.getBlock().data instanceof BlockNode.BlockBoatNode && !IBlock.getStatePropertySafe(state, BlockNode.IS_CONNECTED)) {
 			return;
 		}
 
-		final Player player = Minecraft.getInstance().player;
-		if (player == null || !RenderTrains.isHoldingRailRelated(player)) {
+		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+		if (clientPlayerEntity == null || !RenderTrains.isHoldingRailRelated(clientPlayerEntity)) {
 			return;
 		}
 
-		matrices.pushPose();
-		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation("textures/block/oak_log.png")));
-		IDrawing.drawTexture(matrices, vertexConsumer, 0.25F, 0, 0.25F, 0.25F, 0, 0.75F, 0.75F, 0, 0.75F, 0.75F, 0, 0.25F, 0.25F, 0.25F, 0.75F, 0.75F, Direction.EAST, -1, light);
-		IDrawing.drawTexture(matrices, vertexConsumer, 0.75F, 0, 0.25F, 0.75F, 0, 0.75F, 0.25F, 0, 0.75F, 0.25F, 0, 0.25F, 0.25F, 0.25F, 0.75F, 0.75F, Direction.DOWN, -1, light);
-		matrices.popPose();
+		graphicsHolder.push();
+		graphicsHolder.createVertexConsumer(MoreRenderLayers.getExterior(new Identifier("textures/block/oak_log.png")));
+		IDrawing.drawTexture(graphicsHolder, 0.25F, 0, 0.25F, 0.25F, 0, 0.75F, 0.75F, 0, 0.75F, 0.75F, 0, 0.25F, 0.25F, 0.25F, 0.75F, 0.75F, Direction.EAST, -1, light);
+		IDrawing.drawTexture(graphicsHolder, 0.75F, 0, 0.25F, 0.75F, 0, 0.75F, 0.25F, 0, 0.75F, 0.25F, 0, 0.25F, 0.25F, 0.25F, 0.75F, 0.75F, Direction.DOWN, -1, light);
+		graphicsHolder.pop();
 	}
 }

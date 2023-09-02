@@ -1,22 +1,13 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.BlockEntityTypes;
-import mtr.data.RailwayData;
-import mtr.data.ScheduleEntry;
-import mtr.mappings.BlockEntityMapper;
-import mtr.mappings.TickableMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.BlockEntityTypes;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Set;
 
 public class BlockTrainScheduleSensor extends BlockTrainPoweredSensorBase {
 
@@ -25,39 +16,27 @@ public class BlockTrainScheduleSensor extends BlockTrainPoweredSensorBase {
 	}
 
 	@Override
-	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
-		return new TileEntityTrainScheduleSensor(pos, state);
+	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new BlockEntity(blockPos, blockState);
 	}
 
 	@Override
-	public <T extends BlockEntityMapper> void tick(Level world, BlockPos pos, T blockEntity) {
-		TileEntityTrainScheduleSensor.tick(world, pos, blockEntity);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(POWERED);
 	}
 
-	@Override
-	public BlockEntityType<? extends BlockEntityMapper> getType() {
-		return BlockEntityTypes.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY.get();
-	}
-
-	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(POWERED);
-	}
-
-	public static class TileEntityTrainScheduleSensor extends TileEntityTrainSensorBase implements TickableMapper {
+	public static class BlockEntity extends BlockEntityBase {
 
 		private int seconds = 10;
 		private static final String KEY_SECONDS = "seconds";
 
-		public TileEntityTrainScheduleSensor(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY.get(), pos, state);
+		public BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.TRAIN_SCHEDULE_SENSOR.get(), pos, state);
 		}
 
 		@Override
-		public void tick() {
-			if (level != null) {
-				tick(level, worldPosition, this);
-			}
+		public void blockEntityTick() {
+			tick(getWorld2(), getPos2(), this);
 		}
 
 		@Override
@@ -73,7 +52,7 @@ public class BlockTrainScheduleSensor extends BlockTrainPoweredSensorBase {
 		}
 
 		@Override
-		public void setData(Set<Long> filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String... strings) {
+		public void setData(LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String... strings) {
 			seconds = number;
 			setData(filterRouteIds, stoppedOnly, movingOnly);
 		}
@@ -82,43 +61,17 @@ public class BlockTrainScheduleSensor extends BlockTrainPoweredSensorBase {
 			return seconds;
 		}
 
-		public static <T extends BlockEntityMapper> void tick(Level world, BlockPos pos, T blockEntity) {
-			if (world != null && !world.isClientSide) {
+		public static <T extends BlockEntityExtension> void tick(@Nullable World world, BlockPos pos, T blockEntity) {
+			if (world != null && !world.isClient()) {
 				final BlockState state = world.getBlockState(pos);
 				final Block block = state.getBlock();
-				final boolean isActive = IBlock.getStatePropertySafe(state, POWERED) > 1 && world.getBlockTicks().hasScheduledTick(pos, block);
+				final boolean isActive = IBlock.getStatePropertySafe(state, POWERED) > 1 && hasScheduledTick(world, pos, block);
 
-				if (isActive || !(block instanceof BlockTrainScheduleSensor) || !(blockEntity instanceof BlockTrainScheduleSensor.TileEntityTrainScheduleSensor)) {
+				if (isActive || !(block.data instanceof BlockTrainScheduleSensor) || !(blockEntity instanceof BlockEntity)) {
 					return;
 				}
 
-				final RailwayData railwayData = RailwayData.getInstance(world);
-				if (railwayData == null) {
-					return;
-				}
-
-				final long platformId = RailwayData.getClosePlatformId(railwayData.platforms, railwayData.dataCache, pos, 4, 4, 0);
-				if (platformId == 0) {
-					return;
-				}
-
-				final List<ScheduleEntry> schedules = railwayData.getSchedulesAtPlatform(platformId);
-				if (schedules == null) {
-					return;
-				}
-
-				final List<ScheduleEntry> scheduleList = new ArrayList<>();
-				schedules.forEach(scheduleEntry -> {
-					if (((TileEntityTrainScheduleSensor) blockEntity).matchesFilter(scheduleEntry.routeId, -1)) {
-						scheduleList.add(scheduleEntry);
-					}
-				});
-				if (!scheduleList.isEmpty()) {
-					Collections.sort(scheduleList);
-					if ((scheduleList.get(0).arrivalMillis - System.currentTimeMillis()) / 1000 == ((TileEntityTrainScheduleSensor) blockEntity).seconds) {
-						((BlockTrainScheduleSensor) block).power(world, state, pos);
-					}
-				}
+				// TODO
 			}
 		}
 	}

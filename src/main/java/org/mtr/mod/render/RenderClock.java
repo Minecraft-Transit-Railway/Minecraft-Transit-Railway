@@ -1,62 +1,55 @@
-package mtr.render;
+package org.mtr.mod.render;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import mtr.block.BlockClock;
-import mtr.block.IBlock;
-import mtr.client.IDrawing;
-import mtr.data.IGui;
-import mtr.mappings.BlockEntityRendererMapper;
-import mtr.mappings.UtilitiesClient;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import org.mtr.init.MTR;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockEntityRenderer;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mod.block.BlockClock;
+import org.mtr.mod.block.IBlock;
+import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.data.IGui;
 
-public class RenderClock extends BlockEntityRendererMapper<BlockClock.TileEntityClock> implements IGui, IBlock {
+public class RenderClock extends BlockEntityRenderer<BlockClock.BlockEntity> implements IGui, IBlock {
 
-	public RenderClock(BlockEntityRenderDispatcher dispatcher) {
+	public RenderClock(BlockEntityRendererArgument dispatcher) {
 		super(dispatcher);
 	}
 
 	@Override
-	public void render(BlockClock.TileEntityClock entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
-		final Level world = entity.getLevel();
+	public void render(BlockClock.BlockEntity entity, float v, GraphicsHolder graphicsHolder, int i, int i1) {
+		final World world = entity.getWorld2();
 		if (world == null) {
 			return;
 		}
 
-		final BlockPos pos = entity.getBlockPos();
+		final BlockPos pos = entity.getPos2();
 
 		final BlockState state = world.getBlockState(pos);
 		final boolean rotated = IBlock.getStatePropertySafe(state, BlockClock.FACING);
 
-		matrices.pushPose();
-		matrices.translate(0.5, 0.3125, 0.5);
+		graphicsHolder.push();
+		graphicsHolder.translate(0.5, 0.3125, 0.5);
 		if (rotated) {
-			UtilitiesClient.rotateYDegrees(matrices, 90);
+			graphicsHolder.rotateYDegrees(90);
 		}
 
-		final long time = world.getDayTime() + 6000;
+		final long time = world.getTime() + 6000;
 
-		drawHand(matrices, vertexConsumers, time * 360F / 12000, true);
-		drawHand(matrices, vertexConsumers, time * 360F / 1000, false);
+		drawHand(graphicsHolder, time * 360F / 12000, true);
+		drawHand(graphicsHolder, time * 360F / 1000, false);
 
-		UtilitiesClient.rotateYDegrees(matrices, 180);
-		drawHand(matrices, vertexConsumers, time * 360F / 12000, true);
-		drawHand(matrices, vertexConsumers, time * 360F / 1000, false);
+		graphicsHolder.rotateYDegrees(180);
+		drawHand(graphicsHolder, time * 360F / 12000, true);
+		drawHand(graphicsHolder, time * 360F / 1000, false);
 
-		matrices.popPose();
+		graphicsHolder.pop();
 	}
 
-	private static void drawHand(PoseStack matrices, MultiBufferSource vertexConsumers, float rotation, boolean isHourHand) {
-		matrices.pushPose();
-		UtilitiesClient.rotateZDegrees(matrices, -rotation);
-		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new ResourceLocation("mtr:textures/block/white.png"), false));
-		IDrawing.drawTexture(matrices, vertexConsumer, -0.01F, isHourHand ? 0.15F : 0.24F, isHourHand ? 0.1F : 0.105F, 0.01F, -0.03F, isHourHand ? 0.1F : 0.105F, Direction.UP, ARGB_LIGHT_GRAY, MAX_LIGHT_INTERIOR);
-		matrices.popPose();
+	private static void drawHand(GraphicsHolder graphicsHolder, float rotation, boolean isHourHand) {
+		graphicsHolder.push();
+		graphicsHolder.rotateZDegrees(-rotation);
+		graphicsHolder.createVertexConsumer(MoreRenderLayers.getLight(new Identifier(MTR.MOD_ID, "textures/block/white.png"), false));
+		IDrawing.drawTexture(graphicsHolder, -0.01F, isHourHand ? 0.15F : 0.24F, isHourHand ? 0.1F : 0.105F, 0.01F, -0.03F, isHourHand ? 0.1F : 0.105F, Direction.UP, ARGB_LIGHT_GRAY, MAX_LIGHT_INTERIOR);
+		graphicsHolder.pop();
 	}
 }

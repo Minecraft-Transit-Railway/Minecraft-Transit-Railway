@@ -1,51 +1,38 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.mappings.BlockDirectionalMapper;
-import mtr.mappings.EntityBlockMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.mapper.DirectionHelper;
+import org.mtr.mapping.tool.HolderBase;
 
-public abstract class BlockSignalLightBase extends BlockDirectionalMapper implements EntityBlockMapper {
+import javax.annotation.Nonnull;
+import java.util.List;
+
+public abstract class BlockSignalLightBase extends BlockExtension implements DirectionHelper, BlockWithEntity {
 
 	private final int shapeX;
 	private final int shapeHeight;
 
-	public BlockSignalLightBase(Properties settings, int shapeX, int shapeHeight) {
-		super(settings);
+	public BlockSignalLightBase(BlockSettings blockSettings, int shapeX, int shapeHeight) {
+		super(blockSettings);
 		this.shapeX = shapeX;
 		this.shapeHeight = shapeHeight;
 	}
 
-	// TODO backwards compatibility
-	@Deprecated
-	public BlockSignalLightBase(Properties settings) {
-		this(settings, 2, 14);
+	@Override
+	public BlockState getPlacementState2(ItemPlacementContext ctx) {
+		return getDefaultState2().with(new Property<>(FACING.data), ctx.getPlayerFacing().data);
 	}
 
+	@Nonnull
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		return defaultBlockState().setValue(FACING, ctx.getHorizontalDirection());
-	}
-
-	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return IBlock.getVoxelShapeByDirection(shapeX, 0, 5, 16 - shapeX, shapeHeight, 11, IBlock.getStatePropertySafe(state, FACING));
 	}
 
 	@Override
-	public PushReaction getPistonPushReaction(BlockState blockState) {
-		return PushReaction.BLOCK;
-	}
-
-	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(FACING);
 	}
 }

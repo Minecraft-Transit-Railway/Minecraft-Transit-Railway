@@ -1,16 +1,21 @@
-package mtr.screen;
+package org.mtr.mod.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.client.IDrawing;
-import mtr.data.IGui;
-import mtr.data.NameColorDataBase;
-import mtr.mappings.ScreenMapper;
-import mtr.mappings.Text;
-import mtr.mappings.UtilitiesClient;
-import mtr.packet.IPacket;
-import net.minecraft.network.chat.Component;
+import org.mtr.core.data.NameColorDataBase;
+import org.mtr.core.tools.Utilities;
+import org.mtr.mapping.holder.ClickableWidget;
+import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mapping.holder.MutableText;
+import org.mtr.mapping.holder.Screen;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.ScreenExtension;
+import org.mtr.mapping.mapper.TextFieldWidgetExtension;
+import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.data.IGui;
+import org.mtr.mod.packet.IPacket;
 
-public abstract class EditNameColorScreenBase<T extends NameColorDataBase> extends ScreenMapper implements IGui, IPacket {
+public abstract class EditNameColorScreenBase<T extends NameColorDataBase> extends ScreenExtension implements Utilities, IGui, IPacket {
 
 	private int nameStart;
 	private int colorStart;
@@ -18,40 +23,38 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 
 	protected final T data;
 	private final DashboardScreen dashboardScreen;
-	private final Component nameText;
-	private final Component colorText;
+	private final MutableText nameText;
+	private final MutableText colorText;
 
-	private final WidgetBetterTextField textFieldName;
+	private final TextFieldWidgetExtension textFieldName;
 	private final WidgetColorSelector colorSelector;
 
 	public EditNameColorScreenBase(T data, DashboardScreen dashboardScreen, String nameKey, String colorKey) {
-		super(Text.literal(""));
+		super();
 		this.data = data;
 		this.dashboardScreen = dashboardScreen;
-		nameText = Text.translatable(nameKey);
-		colorText = Text.translatable(colorKey);
+		nameText = TextHelper.translatable(nameKey);
+		colorText = TextHelper.translatable(colorKey);
 
-		textFieldName = new WidgetBetterTextField("");
+		textFieldName = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 1024, TextCase.DEFAULT, null, null);
 		colorSelector = new WidgetColorSelector(this, true, () -> {
 		});
 	}
 
 	@Override
-	public void tick() {
-		textFieldName.tick();
+	public void tick2() {
+		textFieldName.tick2();
 	}
 
 	@Override
-	public void onClose() {
-		super.onClose();
-		if (minecraft != null) {
-			UtilitiesClient.setScreen(minecraft, dashboardScreen);
-		}
+	public void onClose2() {
+		super.onClose2();
+		MinecraftClient.getInstance().openScreen(new Screen(dashboardScreen));
 		saveData();
 	}
 
 	@Override
-	public boolean isPauseScreen() {
+	public boolean isPauseScreen2() {
 		return false;
 	}
 
@@ -60,25 +63,25 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		this.colorStart = colorStart;
 		this.colorEnd = colorEnd;
 
-		super.init();
+		super.init2();
 		final int yStart = SQUARE_SIZE + TEXT_FIELD_PADDING / 2;
 		IDrawing.setPositionAndWidth(textFieldName, nameStart + TEXT_FIELD_PADDING / 2, yStart, colorStart - nameStart - TEXT_FIELD_PADDING);
 		IDrawing.setPositionAndWidth(colorSelector, colorStart + TEXT_FIELD_PADDING / 2, yStart, colorEnd - colorStart - TEXT_FIELD_PADDING);
 
-		textFieldName.setValue(data.name);
-		colorSelector.setColor(data.color);
+		textFieldName.setText2(data.getName());
+		colorSelector.setColor(data.getColor());
 
-		addDrawableChild(textFieldName);
-		addDrawableChild(colorSelector);
+		addChild(new ClickableWidget(textFieldName));
+		addChild(new ClickableWidget(colorSelector));
 	}
 
-	protected void renderTextFields(PoseStack matrices) {
-		drawCenteredString(matrices, font, nameText, (nameStart + colorStart) / 2, TEXT_PADDING, ARGB_WHITE);
-		drawCenteredString(matrices, font, colorText, (colorStart + colorEnd) / 2, TEXT_PADDING, ARGB_WHITE);
+	protected void renderTextFields(GraphicsHolder graphicsHolder) {
+		graphicsHolder.drawCenteredText(nameText, (nameStart + colorStart) / 2, TEXT_PADDING, ARGB_WHITE);
+		graphicsHolder.drawCenteredText(colorText, (colorStart + colorEnd) / 2, TEXT_PADDING, ARGB_WHITE);
 	}
 
 	protected void saveData() {
-		data.name = textFieldName.getValue();
-		data.color = colorSelector.getColor();
+		data.setName(textFieldName.getText2());
+		data.setColor(colorSelector.getColor());
 	}
 }

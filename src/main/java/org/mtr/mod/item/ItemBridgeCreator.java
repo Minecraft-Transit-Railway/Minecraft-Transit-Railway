@@ -1,20 +1,22 @@
-package mtr.item;
+package org.mtr.mod.item;
 
-import mtr.data.RailwayData;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
+import org.mtr.mapping.holder.*;
+import org.mtr.mod.Init;
 
 public class ItemBridgeCreator extends ItemNodeModifierSelectableBlockBase {
 
-	public ItemBridgeCreator(int width) {
-		super(true, 0, width);
+	public ItemBridgeCreator(int width, ItemSettings itemSettings) {
+		super(true, 0, width, itemSettings);
 	}
 
 	@Override
-	protected boolean onConnect(Player player, ItemStack stack, RailwayData railwayData, BlockPos posStart, BlockPos posEnd, int radius, int height) {
+	protected boolean onConnect(ServerPlayerEntity serverPlayerEntity, ItemStack stack, BlockPos posStart, BlockPos posEnd, int radius, int height) {
 		final BlockState state = getSavedState(stack);
-		return state == null || railwayData.railwayDataRailActionsModule.markRailForBridge(player, posStart, posEnd, radius, state);
+		if (state == null) {
+			return true;
+		}
+		final boolean[] success = {false};
+		Init.getRailActionModule(serverPlayerEntity.getServerWorld(), railActionModule -> success[0] = railActionModule.markRailForBridge(serverPlayerEntity, posStart, posEnd, radius, state));
+		return success[0];
 	}
 }

@@ -1,25 +1,27 @@
-package mtr.client;
+package org.mtr.mod.client;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import mtr.data.*;
-import mtr.mappings.ModelDataWrapper;
-import mtr.mappings.ModelMapper;
-import mtr.mappings.Text;
-import mtr.mappings.UtilitiesClient;
-import mtr.model.ModelTrainBase;
-import mtr.screen.ResourcePackCreatorScreen;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.MultiBufferSource;
+import it.unimi.dsi.fastutil.objects.Object2BooleanAVLTreeMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import org.mtr.core.data.EnumHelper;
+import org.mtr.core.data.InterchangeColorsForStationName;
+import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mapping.holder.Screen;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.ModelPartExtension;
+import org.mtr.mod.data.IGui;
+import org.mtr.mod.model.ModelTrainBase;
+import org.mtr.mod.screen.ResourcePackCreatorScreen;
 
-import java.util.*;
+import java.util.Locale;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntSupplier;
 
 public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCreatorProperties {
 
@@ -29,39 +31,33 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 	private float doorRightZ;
 	private boolean head1IsFront;
 
-	public final Map<String, ModelMapper> parts = new HashMap<>();
-	public final Map<String, Set<PartInfo>> partsInfo = new HashMap<>();
-	public final JsonObject properties;
-	public final int doorMax;
-	private final Map<String, Boolean> whitelistBlacklistCache = new HashMap<>();
+	private final Object2ObjectAVLTreeMap<String, ModelPartExtension> parts = new Object2ObjectAVLTreeMap<>();
+	private final Object2ObjectAVLTreeMap<String, ObjectOpenHashSet<PartInfo>> partsInfo = new Object2ObjectAVLTreeMap<>();
+	private final JsonObject properties;
+	private final int doorMax;
+	private final Object2BooleanAVLTreeMap<String> whitelistBlacklistCache = new Object2BooleanAVLTreeMap<>();
 
 	public DynamicTrainModel(JsonObject model, JsonObject properties, DoorAnimationType doorAnimationType) {
-		super(doorAnimationType, false);
+		super(tryWrapper(() -> model.getAsJsonObject("resolution").get("width").getAsInt()), tryWrapper(() -> model.getAsJsonObject("resolution").get("height").getAsInt()), doorAnimationType, false);
 
 		try {
-			final JsonObject resolution = model.getAsJsonObject("resolution");
-			final int textureWidth = resolution.get("width").getAsInt();
-			final int textureHeight = resolution.get("height").getAsInt();
+			final Object2ObjectAVLTreeMap<String, ModelPartExtension> elementsByKey = new Object2ObjectAVLTreeMap<>();
+			model.getAsJsonArray("elements").forEach(element -> elementsByKey.put(element.getAsJsonObject().get("uuid").getAsString(), createModelPart()));
 
-			final ModelDataWrapper modelDataWrapper = new ModelDataWrapper(this, textureWidth, textureHeight);
-
-			final Map<String, ModelMapper> elementsByKey = new HashMap<>();
-			model.getAsJsonArray("elements").forEach(element -> elementsByKey.put(element.getAsJsonObject().get("uuid").getAsString(), new ModelMapper(modelDataWrapper)));
-
-			final Map<String, String> uuidToParentString = new HashMap<>();
+			final Object2ObjectAVLTreeMap<String, String> uuidToParentString = new Object2ObjectAVLTreeMap<>();
 			model.getAsJsonArray("outliner").forEach(element -> {
 				final JsonObject elementObject = element.getAsJsonObject();
-				parts.put(elementObject.get("name").getAsString(), addChildren(elementObject, elementsByKey, uuidToParentString, modelDataWrapper));
+				parts.put(elementObject.get("name").getAsString(), addChildren(elementObject, elementsByKey, uuidToParentString));
 			});
 
 			model.getAsJsonArray("elements").forEach(element -> {
 				final JsonObject elementObject = element.getAsJsonObject();
 				final String uuid = elementObject.get("uuid").getAsString();
-				final ModelMapper child = elementsByKey.get(uuid);
+				final ModelPartExtension child = elementsByKey.get(uuid);
 
 				final Double[] origin = {0D, 0D, 0D};
 				getArrayFromValue(origin, elementObject, "origin", JsonElement::getAsDouble);
-				child.setPos(-origin[0].floatValue(), -origin[1].floatValue(), origin[2].floatValue());
+				child.setPivot(-origin[0].floatValue(), -origin[1].floatValue(), origin[2].floatValue());
 
 				final Double[] rotation = {0D, 0D, 0D};
 				getArrayFromValue(rotation, elementObject, "rotation", JsonElement::getAsDouble);
@@ -78,7 +74,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 				final double inflate = elementObject.has("inflate") ? elementObject.get("inflate").getAsDouble() : 0;
 				final boolean mirror = elementObject.has("shade") && !elementObject.get("shade").getAsBoolean();
 
-				child.texOffs(uvOffset[0], uvOffset[1]).addBox(
+				child.setTextureUVOffset(uvOffset[0], uvOffset[1]).addCuboid(
 						origin[0].floatValue() - posTo[0].floatValue(), origin[1].floatValue() - posTo[1].floatValue(), posFrom[2].floatValue() - origin[2].floatValue(),
 						Math.round(posTo[0].floatValue() - posFrom[0].floatValue()), Math.round(posTo[1].floatValue() - posFrom[1].floatValue()), Math.round(posTo[2].floatValue() - posFrom[2].floatValue()),
 						(float) inflate, mirror
@@ -89,7 +85,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 				if (width > 0 && height > 0) {
 					final String parentName = uuidToParentString.get(uuid);
 					if (!partsInfo.containsKey(parentName)) {
-						partsInfo.put(parentName, new HashSet<>());
+						partsInfo.put(parentName, new ObjectOpenHashSet<>());
 					}
 					partsInfo.get(parentName).add(new PartInfo(
 							origin[0] / 16, origin[1] / 16, origin[2] / 16,
@@ -100,12 +96,12 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 				}
 			});
 
-			modelDataWrapper.setModelPart(textureWidth, textureHeight);
 			parts.values().forEach(part -> {
-				part.setPos(0, 0, 0);
-				part.texOffs(0, 0).addBox(0, 0, 0, 0, 0, 0, 0, false);
-				part.setModelPart();
+				part.setPivot(0, 0, 0);
+				part.setTextureUVOffset(0, 0).addCuboid(0, 0, 0, 0, 0, 0, 0, false);
 			});
+
+			buildModel();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -116,7 +112,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 	}
 
 	@Override
-	protected void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails) {
+	protected void render(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails) {
 		this.doorLeftX = doorLeftX;
 		this.doorRightX = doorRightX;
 		this.doorLeftZ = doorLeftZ;
@@ -128,7 +124,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 				return;
 			}
 
-			final ModelMapper part = parts.get(partObject.get(KEY_PROPERTIES_NAME).getAsString());
+			final ModelPartExtension part = parts.get(partObject.get(KEY_PROPERTIES_NAME).getAsString());
 
 			if (part != null) {
 				final float xOffset = getOffsetX(partObject);
@@ -138,9 +134,9 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 					final float x = positionElement.getAsJsonArray().get(0).getAsFloat();
 					final float z = positionElement.getAsJsonArray().get(1).getAsFloat();
 					if (mirror) {
-						renderOnceFlipped(part, matrices, vertices, light, x - xOffset, z - zOffset);
+						renderOnceFlipped(part, graphicsHolder, light, x - xOffset, z - zOffset);
 					} else {
-						renderOnce(part, matrices, vertices, light, x + xOffset, z + zOffset);
+						renderOnce(part, graphicsHolder, light, x + xOffset, z + zOffset);
 					}
 				});
 			}
@@ -148,7 +144,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 	}
 
 	@Override
-	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform, List<ScrollingText> scrollingTexts) {
+	protected void renderTextDisplays(GraphicsHolder graphicsHolder, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
 		final int[] scrollIndex = {0};
 
 		iterateParts(car, totalCars, partObject -> {
@@ -165,7 +161,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 			partObject.getAsJsonArray(KEY_PROPERTIES_POSITIONS).forEach(positionElement -> {
 				final float x = positionElement.getAsJsonArray().get(0).getAsFloat() + getOffsetX(partObject);
 				final float z = positionElement.getAsJsonArray().get(1).getAsFloat() + getOffsetZ(partObject);
-				final String destinationString = getDestinationString(lastStation, customDestination, TextSpacingType.NORMAL, false);
+				final String destinationString = getDestinationString(thisRouteDestination, TextSpacingType.NORMAL, false);
 
 				final JsonObject displayObject = partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY);
 				final int colorCjk = CustomResources.colorStringToInt(displayObject.get(KEY_PROPERTIES_DISPLAY_COLOR_CJK).getAsString()) | ARGB_BLACK;
@@ -175,14 +171,10 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 				final ResourcePackCreatorProperties.DisplayType displayType = EnumHelper.valueOf(ResourcePackCreatorProperties.DisplayType.DESTINATION, displayObject.get(KEY_PROPERTIES_DISPLAY_TYPE).getAsString());
 
 				final String tempText1;
-				final Screen screen = Minecraft.getInstance().screen;
+				final Screen screen = MinecraftClient.getInstance().getCurrentScreenMapped();
 
-				if (screen instanceof ResourcePackCreatorScreen) {
-					final String testText = ((ResourcePackCreatorScreen) screen).getTestText();
-					final Station testStation = new Station();
-					final Route testRoute = new Route(TransportMode.TRAIN);
-					testStation.name = testText;
-					testRoute.name = testText;
+				if (screen != null && screen.data instanceof ResourcePackCreatorScreen) {
+					final String testText = ((ResourcePackCreatorScreen) screen.data).getTestText();
 
 					switch (displayType) {
 						case DESTINATION:
@@ -191,13 +183,14 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 							tempText1 = testText;
 							break;
 						case NEXT_STATION_KCR:
-							tempText1 = getHongKongNextStationString(testStation, testStation, atPlatform, true);
+							tempText1 = getHongKongNextStationString(testText, testText, atPlatform, true);
 							break;
 						case NEXT_STATION_MTR:
-							tempText1 = getHongKongNextStationString(testStation, testStation, atPlatform, false);
+							tempText1 = getHongKongNextStationString(testText, testText, atPlatform, false);
 							break;
 						case NEXT_STATION_UK:
-							tempText1 = getLondonNextStationString(testRoute, testRoute, testStation, testStation, testStation, testText, atPlatform);
+							tempText1 = getLondonNextStationString(testText, testText, testText, consumer -> {
+							}, testText, atPlatform, false);
 							break;
 						default:
 							tempText1 = "";
@@ -209,20 +202,19 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 							tempText1 = destinationString;
 							break;
 						case ROUTE_NUMBER:
-							tempText1 = thisRoute == null ? "" : thisRoute.lightRailRouteNumber;
+							tempText1 = thisRouteNumber;
 							break;
 						case NEXT_STATION_PLAIN:
-							final Station station = atPlatform ? thisStation : nextStation;
-							tempText1 = station == null ? Text.translatable("gui.mtr.untitled").getString() : station.name;
+							tempText1 = IGui.textOrUntitled(atPlatform ? thisStationName : nextStationName);
 							break;
 						case NEXT_STATION_KCR:
-							tempText1 = getHongKongNextStationString(thisStation, nextStation, atPlatform, true);
+							tempText1 = getHongKongNextStationString(nextStationName, nextStationName, atPlatform, true);
 							break;
 						case NEXT_STATION_MTR:
-							tempText1 = getHongKongNextStationString(thisStation, nextStation, atPlatform, false);
+							tempText1 = getHongKongNextStationString(nextStationName, nextStationName, atPlatform, false);
 							break;
 						case NEXT_STATION_UK:
-							tempText1 = getLondonNextStationString(thisRoute, nextRoute, thisStation, nextStation, lastStation, destinationString, atPlatform);
+							tempText1 = getLondonNextStationString(thisRouteName, thisStationName, nextStationName, getInterchanges, destinationString, atPlatform, isTerminating);
 							break;
 						default:
 							tempText1 = "";
@@ -240,26 +232,26 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 						scrollingTexts.add(new ScrollingText(width, height, 4, height < 0.2));
 					}
 
-					matrices.pushPose();
-					matrices.translate(x / 16, 0, z / 16);
-					UtilitiesClient.rotateYDegrees(matrices, mirror ? 180 : 0);
-					matrices.translate(-partInfo.originX, -partInfo.originY, partInfo.originZ);
-					UtilitiesClient.rotateZDegrees(matrices, partInfo.rotationZ);
-					UtilitiesClient.rotateYDegrees(matrices, partInfo.rotationY);
-					UtilitiesClient.rotateXDegrees(matrices, partInfo.rotationX);
-					matrices.translate(-partInfo.offsetX, -partInfo.offsetY, partInfo.offsetZ - SMALL_OFFSET);
+					graphicsHolder.push();
+					graphicsHolder.translate(x / 16, 0, z / 16);
+					graphicsHolder.rotateYDegrees(mirror ? 180 : 0);
+					graphicsHolder.translate(-partInfo.originX, -partInfo.originY, partInfo.originZ);
+					graphicsHolder.rotateZDegrees(partInfo.rotationZ);
+					graphicsHolder.rotateYDegrees(partInfo.rotationY);
+					graphicsHolder.rotateXDegrees(partInfo.rotationX);
+					graphicsHolder.translate(-partInfo.offsetX, -partInfo.offsetY, partInfo.offsetZ - SMALL_OFFSET);
 
 					if (shouldScroll) {
-						matrices.translate(-width / 2, -height / 2, 0);
-						scrollingTexts.get(scrollIndex[0]).changeImage(text.isEmpty() ? null : ClientData.DATA_CACHE.getPixelatedText(text, color, Integer.MAX_VALUE, cjkSizeRatio, height < 0.2));
-						scrollingTexts.get(scrollIndex[0]).setVertexConsumer(vertexConsumers);
-						scrollingTexts.get(scrollIndex[0]).scrollText(matrices);
+						graphicsHolder.translate(-width / 2, -height / 2, 0);
+						scrollingTexts.get(scrollIndex[0]).changeImage(text.isEmpty() ? null : DynamicTextureCache.instance.getPixelatedText(text, color, Integer.MAX_VALUE, cjkSizeRatio, height < 0.2));
+						scrollingTexts.get(scrollIndex[0]).createVertexConsumer(graphicsHolder);
+						scrollingTexts.get(scrollIndex[0]).scrollText(graphicsHolder);
 						scrollIndex[0]++;
 					} else {
-						IDrawing.drawStringWithFont(matrices, Minecraft.getInstance().font, immediate, text, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, 0, 0, width, height, 1, colorCjk, color, cjkSizeRatio < 0 ? 1 / (1 - cjkSizeRatio) : 1 + cjkSizeRatio, false, MAX_LIGHT_GLOWING, null);
+						IDrawing.drawStringWithFont(graphicsHolder, text, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, 0, 0, width, height, 1, colorCjk, color, cjkSizeRatio < 0 ? 1 / (1 - cjkSizeRatio) : 1 + cjkSizeRatio, false, MAX_LIGHT_GLOWING, null);
 					}
 
-					matrices.popPose();
+					graphicsHolder.pop();
 				});
 			});
 		});
@@ -270,12 +262,12 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 		return doorMax;
 	}
 
-	private ModelMapper addChildren(JsonObject jsonObject, Map<String, ModelMapper> children, Map<String, String> uuidToParentString, ModelDataWrapper modelDataWrapper) {
-		final ModelMapper part = new ModelMapper(modelDataWrapper);
+	private ModelPartExtension addChildren(JsonObject jsonObject, Object2ObjectAVLTreeMap<String, ModelPartExtension> children, Object2ObjectAVLTreeMap<String, String> uuidToParentString) {
+		final ModelPartExtension part = createModelPart();
 		jsonObject.getAsJsonArray("children").forEach(child -> {
 			final boolean hasMoreChildren = child.isJsonObject();
 			if (hasMoreChildren) {
-				part.addChild(addChildren(child.getAsJsonObject(), children, uuidToParentString, modelDataWrapper));
+				part.addChild(addChildren(child.getAsJsonObject(), children, uuidToParentString));
 			} else {
 				part.addChild(children.get(child.getAsString()));
 				uuidToParentString.put(child.getAsString(), jsonObject.get("name").getAsString());
@@ -331,7 +323,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 			final String key = String.format("%s|%s|%s|%s", trainCars, currentCar, whitelistedCars, blacklistedCars);
 			final boolean skip;
 			if (whitelistBlacklistCache.containsKey(key)) {
-				skip = whitelistBlacklistCache.get(key);
+				skip = whitelistBlacklistCache.getBoolean(key);
 			} else {
 				final String[] whitelistedCarsFilters = whitelistedCars.split(",");
 				final String[] blacklistedCarsFilters = blacklistedCars.split(",");
@@ -395,6 +387,14 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 				return -doorRightZ;
 			default:
 				return 0;
+		}
+	}
+
+	private static int tryWrapper(IntSupplier supplier) {
+		try {
+			return supplier.getAsInt();
+		} catch (Exception ignored) {
+			return 0;
 		}
 	}
 

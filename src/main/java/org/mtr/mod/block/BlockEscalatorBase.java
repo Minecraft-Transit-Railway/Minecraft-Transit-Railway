@@ -1,85 +1,72 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.Items;
-import mtr.mappings.HorizontalBlockWithSoftLanding;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.BlockHelper;
+import org.mtr.mapping.mapper.DirectionHelper;
+import org.mtr.mod.Items;
 
-public abstract class BlockEscalatorBase extends HorizontalBlockWithSoftLanding implements IBlock {
+import javax.annotation.Nonnull;
 
-	public static final EnumProperty<EnumEscalatorOrientation> ORIENTATION = EnumProperty.create("orientation", EnumEscalatorOrientation.class);
+public abstract class BlockEscalatorBase extends BlockExtension implements IBlock, DirectionHelper {
+
+	public static final EnumProperty<EnumEscalatorOrientation> ORIENTATION = EnumProperty.of("orientation", EnumEscalatorOrientation.class);
 
 	protected BlockEscalatorBase() {
-		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion());
+		super(BlockHelper.createBlockSettings(true));
 	}
 
+	@Nonnull
 	@Override
-	public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
-		if (getSideDirection(state) == direction && !newState.is(this)) {
-			return Blocks.AIR.defaultBlockState();
+	public BlockState getStateForNeighborUpdate2(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+		if (getSideDirection(state) == direction && !neighborState.isOf(new Block(this))) {
+			return Blocks.getAirMapped().getDefaultState();
 		} else {
-			return state.setValue(ORIENTATION, getOrientation(world, pos, state));
+			return state.with(new Property<>(ORIENTATION.data), getOrientation(BlockView.cast(world), pos, state));
 		}
 	}
 
+	@Nonnull
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext collisionContext) {
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return super.getOutlineShape2(state, world, pos, context);
+	}
+
+	@Nonnull
+	@Override
+	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final EnumEscalatorOrientation orientation = getOrientation(world, pos, state);
 
 		if (orientation == EnumEscalatorOrientation.SLOPE || orientation == EnumEscalatorOrientation.TRANSITION_TOP) {
-			return Shapes.or(Block.box(0, 0, 0, 16, 8, 16), IBlock.getVoxelShapeByDirection(0, 8, 0, 16, 15, 8, IBlock.getStatePropertySafe(state, FACING)));
+			return VoxelShapes.union(Block.createCuboidShape(0, 0, 0, 16, 8, 16), IBlock.getVoxelShapeByDirection(0, 8, 0, 16, 15, 8, IBlock.getStatePropertySafe(state, FACING)));
 		} else {
-			return Shapes.block();
+			return VoxelShapes.fullCube();
 		}
 	}
 
+	@Nonnull
 	@Override
-	public BlockState rotate(BlockState state, Rotation rotation) {
-		return state;
-	}
-
-	@Override
-	public Item asItem() {
+	public Item asItem2() {
 		return Items.ESCALATOR.get();
 	}
 
+	@Nonnull
 	@Override
-	public ItemStack getCloneItemStack(BlockGetter blockGetter, BlockPos blockPos, BlockState blockState) {
-		return new ItemStack(asItem());
+	public ItemStack getPickStack2(BlockView world, BlockPos pos, BlockState state) {
+		return new ItemStack(new ItemConvertible(asItem2().data));
 	}
 
-	@Override
-	public PushReaction getPistonPushReaction(BlockState blockState) {
-		return PushReaction.BLOCK;
-	}
-
-	protected final EnumEscalatorOrientation getOrientation(BlockGetter world, BlockPos pos, BlockState state) {
+	protected final EnumEscalatorOrientation getOrientation(BlockView world, BlockPos pos, BlockState state) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 
-		final BlockPos posAhead = pos.relative(facing);
-		final BlockPos posBehind = pos.relative(facing, -1);
+		final BlockPos posAhead = pos.offset(facing);
+		final BlockPos posBehind = pos.offset(facing, -1);
 
-		final boolean isAhead = state.is(world.getBlockState(posAhead).getBlock());
-		final boolean isAheadUp = state.is(world.getBlockState(posAhead.above()).getBlock());
+		final boolean isAhead = state.isOf(world.getBlockState(posAhead).getBlock());
+		final boolean isAheadUp = state.isOf(world.getBlockState(posAhead.up()).getBlock());
 
-		final boolean isBehind = state.is(world.getBlockState(posBehind).getBlock());
-		final boolean isBehindDown = state.is(world.getBlockState(posBehind.below()).getBlock());
+		final boolean isBehind = state.isOf(world.getBlockState(posBehind).getBlock());
+		final boolean isBehindDown = state.isOf(world.getBlockState(posBehind.down()).getBlock());
 
 		if (isAhead && isBehind) {
 			return EnumEscalatorOrientation.FLAT;
@@ -98,10 +85,10 @@ public abstract class BlockEscalatorBase extends HorizontalBlockWithSoftLanding 
 
 	private Direction getSideDirection(BlockState state) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-		return IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT ? facing.getCounterClockWise() : facing.getClockWise();
+		return IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT ? facing.rotateYCounterclockwise() : facing.rotateYClockwise();
 	}
 
-	protected enum EnumEscalatorOrientation implements StringRepresentable {
+	public enum EnumEscalatorOrientation implements StringIdentifiable {
 
 		LANDING_BOTTOM("landing_bottom"), LANDING_TOP("landing_top"), FLAT("flat"), SLOPE("slope"), TRANSITION_BOTTOM("transition_bottom"), TRANSITION_TOP("transition_top");
 		private final String name;
@@ -110,8 +97,9 @@ public abstract class BlockEscalatorBase extends HorizontalBlockWithSoftLanding 
 			name = nameIn;
 		}
 
+		@Nonnull
 		@Override
-		public String getSerializedName() {
+		public String asString2() {
 			return name;
 		}
 	}

@@ -16,18 +16,15 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"mtr.MTRFabric"
+			"org.mtr.init.MTR"
 		],
 		"client": [
-			"mtr.MTRFabricClient"
+			"org.mtr.init.MTRClient"
 		],
 		"modmenu": [
-			"mtr.ModMenuConfig"
+			"org.mtr.init.ModMenuConfig"
 		]
 	},
-	"mixins": [
-		"mtr.mixins.json"
-	],
 	"depends": {
 		"fabric": "*",
 		"minecraft": "*"

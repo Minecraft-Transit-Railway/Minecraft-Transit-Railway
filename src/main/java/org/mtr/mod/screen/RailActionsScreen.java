@@ -1,74 +1,65 @@
-package mtr.screen;
+package org.mtr.mod.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import io.netty.buffer.Unpooled;
-import mtr.RegistryClient;
-import mtr.client.ClientData;
-import mtr.data.IGui;
-import mtr.data.NameColorDataBase;
-import mtr.mappings.ScreenMapper;
-import mtr.mappings.Text;
-import mtr.packet.IPacket;
-import net.minecraft.network.FriendlyByteBuf;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.ScreenExtension;
+import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mapping.registry.RegistryClient;
+import org.mtr.mod.client.ClientData;
+import org.mtr.mod.data.IGui;
+import org.mtr.mod.packet.IPacket;
+import org.mtr.mod.packet.PacketDeleteRailAction;
 
-public class RailActionsScreen extends ScreenMapper implements IGui, IPacket {
+public class RailActionsScreen extends ScreenExtension implements IGui, IPacket {
 
-	final DashboardList railActionsList;
+	private final DashboardList railActionsList;
 
 	public RailActionsScreen() {
-		super(Text.literal(""));
+		super();
 		railActionsList = new DashboardList(null, null, null, null, null, this::onDelete, null, () -> "", text -> {
 		});
-
 	}
 
 	@Override
-	protected void init() {
-		super.init();
+	protected void init2() {
+		super.init2();
 		railActionsList.x = SQUARE_SIZE;
 		railActionsList.y = SQUARE_SIZE * 2;
 		railActionsList.width = width - SQUARE_SIZE * 2;
 		railActionsList.height = height - SQUARE_SIZE * 2;
-		railActionsList.init(this::addDrawableChild);
+		railActionsList.init(this::addChild);
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		try {
-			renderBackground(matrices);
-			railActionsList.render(matrices, font);
-			drawCenteredString(matrices, font, Text.translatable("gui.mtr.rail_actions"), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
-			super.render(matrices, mouseX, mouseY, delta);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
+		renderBackground(graphicsHolder);
+		railActionsList.render(graphicsHolder);
+		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.rail_actions"), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+		super.render(graphicsHolder, mouseX, mouseY, delta);
 	}
 
 	@Override
-	public void mouseMoved(double mouseX, double mouseY) {
+	public void mouseMoved2(double mouseX, double mouseY) {
 		railActionsList.mouseMoved(mouseX, mouseY);
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
 		railActionsList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled(mouseX, mouseY, amount);
+		return super.mouseScrolled2(mouseX, mouseY, amount);
 	}
 
 	@Override
-	public void tick() {
+	public void tick2() {
 		railActionsList.tick();
-		railActionsList.setData(ClientData.RAIL_ACTIONS, false, false, false, false, false, true);
+		railActionsList.setData(ClientData.instance.railActions, false, false, false, false, false, true);
 	}
 
 	@Override
-	public boolean isPauseScreen() {
+	public boolean isPauseScreen2() {
 		return false;
 	}
 
-	private void onDelete(NameColorDataBase data, int index) {
-		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
-		packet.writeLong(data.id);
-		RegistryClient.sendToServer(PACKET_REMOVE_RAIL_ACTION, packet);
+	private void onDelete(DashboardListItem dashboardListItem, int index) {
+		RegistryClient.sendPacketToServer(new PacketDeleteRailAction(dashboardListItem.id));
 	}
 }

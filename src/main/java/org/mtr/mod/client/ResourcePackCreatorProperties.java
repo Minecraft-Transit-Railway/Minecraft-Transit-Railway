@@ -1,21 +1,16 @@
-package mtr.client;
+package org.mtr.mod.client;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.MTR;
-import mtr.data.EnumHelper;
-import mtr.data.IGui;
-import mtr.data.TransportMode;
-import mtr.mappings.UtilitiesClient;
-import mtr.model.ModelTrainBase;
-import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.resources.ResourceLocation;
+import org.mtr.core.data.EnumHelper;
+import org.mtr.core.data.TransportMode;
+import org.mtr.init.MTR;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.MinecraftClientHelper;
+import org.mtr.mod.data.IGui;
+import org.mtr.mod.model.ModelTrainBase;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -42,7 +37,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 	private JsonObject propertiesObject = new JsonObject();
 	private String textureFileName = "";
 	private Path textureFilePath;
-	private ResourceLocation texture;
+	private Identifier texture;
 	private final JsonObject customResourcesObject = new JsonObject();
 
 	public ResourcePackCreatorProperties() {
@@ -62,7 +57,6 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 	public void loadPropertiesFile(Path path) {
 		readJson(path, (fileName, jsonObject) -> {
 			propertiesFileName = fileName;
-			DynamicTrainModelLegacy.migrateOldSchema(jsonObject);
 			IResourcePackCreatorProperties.checkSchema(jsonObject);
 			propertiesObject = jsonObject;
 			updateModel();
@@ -70,10 +64,9 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 	}
 
 	public void loadTextureFile(Path path) {
-		final Minecraft minecraft = Minecraft.getInstance();
-		try {
-			final NativeImage nativeImage = NativeImage.read(Files.newInputStream(path, StandardOpenOption.READ));
-			texture = minecraft.getTextureManager().register(MTR.MOD_ID, new DynamicTexture(nativeImage));
+		try (final InputStream inputStream = Files.newInputStream(path, StandardOpenOption.READ)) {
+			final NativeImage nativeImage = NativeImage.read(inputStream);
+			texture = MinecraftClient.getInstance().getTextureManager().registerDynamicTexture(MTR.MOD_ID, new NativeImageBackedTexture(nativeImage));
 			textureFileName = path.getFileName().toString();
 			textureFilePath = path;
 		} catch (IOException e) {
@@ -300,12 +293,9 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 		updateModel();
 	}
 
-	public void render(PoseStack matrices, int currentCar, int trainCars, boolean head1IsFront, float leftDoorValue, float rightDoorValue, boolean opening, int light) {
+	public void render(GraphicsHolder graphicsHolder, int currentCar, int trainCars, boolean head1IsFront, float leftDoorValue, float rightDoorValue, boolean opening, int light) {
 		if (model != null) {
-			final Minecraft minecraft = Minecraft.getInstance();
-			final MultiBufferSource.BufferSource immediate = minecraft.renderBuffers().bufferSource();
-			model.render(matrices, immediate, null, texture == null ? new ResourceLocation("mtr:textures/block/white.png") : texture, light, leftDoorValue, rightDoorValue, opening, currentCar, trainCars, head1IsFront, true, false, true, false);
-			immediate.endBatch();
+			model.render(graphicsHolder, null, texture == null ? new Identifier(MTR.MOD_ID, "textures/block/white.png") : texture, light, leftDoorValue, rightDoorValue, opening, currentCar, trainCars, head1IsFront, true, false, true, false);
 		}
 	}
 
@@ -359,8 +349,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 	public void export() {
 		try {
-			final Minecraft minecraft = Minecraft.getInstance();
-			final File resourcePackDirectory = UtilitiesClient.getResourcePackDirectory(minecraft);
+			final File resourcePackDirectory = MinecraftClientHelper.getResourcePackDirectory();
 			final FileOutputStream fileOutputStream = new FileOutputStream(String.format("%s/%s_%s.zip", resourcePackDirectory.toString(), customTrainId, ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("uuuu_MM_dd_HH_mm_ss"))));
 			final ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
 
@@ -373,7 +362,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 			zipOutputStream.close();
 			fileOutputStream.close();
 
-			Util.getPlatform().openFile(resourcePackDirectory);
+			Util.getOperatingSystem().open(resourcePackDirectory);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -415,7 +404,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 	private static void readJson(Path path, BiConsumer<String, JsonObject> jsonCallback) {
 		try {
-			jsonCallback.accept(path.getFileName().toString(), new JsonParser().parse(String.join("", Files.readAllLines(path))).getAsJsonObject());
+			jsonCallback.accept(path.getFileName().toString(), JsonParser.parseString(String.join("", Files.readAllLines(path))).getAsJsonObject());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

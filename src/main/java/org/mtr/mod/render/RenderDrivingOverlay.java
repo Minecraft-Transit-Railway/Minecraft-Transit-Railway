@@ -1,14 +1,14 @@
-package mtr.render;
+package org.mtr.mod.render;
 
-import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.data.*;
-import mtr.mappings.UtilitiesClient;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.resources.ResourceLocation;
+import org.mtr.core.tools.Utilities;
+import org.mtr.mapping.holder.ClientPlayerEntity;
+import org.mtr.mapping.holder.Identifier;
+import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mapping.holder.Window;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.GuiDrawing;
+import org.mtr.mod.data.IGui;
 
 public class RenderDrivingOverlay implements IGui {
 
@@ -24,80 +24,60 @@ public class RenderDrivingOverlay implements IGui {
 	private static final int HOT_BAR_WIDTH = 182;
 	private static final int HOT_BAR_HEIGHT = 22;
 
-	public static void render(Object matrices) {
-		render((PoseStack) matrices);
-	}
-
-	public static void render(PoseStack matrices) {
+	public static void render(GraphicsHolder graphicsHolder) {
 		if (coolDown > 0) {
 			coolDown--;
 		} else {
 			return;
 		}
 
-		final Minecraft client = Minecraft.getInstance();
-		final LocalPlayer player = client.player;
-		final Window window = client.getWindow();
-		if (window == null || player == null) {
+		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+		final Window window = minecraftClient.getWindow();
+		if (clientPlayerEntity == null) {
 			return;
 		}
 
-		matrices.pushPose();
-		RenderSystem.enableBlend();
-		UtilitiesClient.beginDrawingTexture(new ResourceLocation("textures/gui/widgets.png"));
-		final int startX = (window.getGuiScaledWidth() - HOT_BAR_WIDTH) / 2;
-		final int startY = window.getGuiScaledHeight() - (player.isCreative() ? 47 : 63);
+		graphicsHolder.push();
+		final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
+		guiDrawing.beginDrawingTexture(new Identifier("textures/gui/widgets.png"));
+		final int startX = (window.getScaledWidth() - HOT_BAR_WIDTH) / 2;
+		final int startY = window.getScaledHeight() - (clientPlayerEntity.isCreative() ? 47 : 63);
 
-		GuiComponent.blit(matrices, startX, startY, 0, 0, 0, 61, HOT_BAR_HEIGHT, 256, 256);
-		GuiComponent.blit(matrices, startX + 61, startY, 0, 141, 0, 41, HOT_BAR_HEIGHT, 256, 256);
-		GuiComponent.blit(matrices, startX + 120, startY, 0, 0, 0, 21, HOT_BAR_HEIGHT, 256, 256);
-		GuiComponent.blit(matrices, startX + 141, startY, 0, 141, 0, 41, HOT_BAR_HEIGHT, 256, 256);
+		IGui.drawTexture(guiDrawing, startX, startY, 0F, 0, 61, HOT_BAR_HEIGHT, 256, 256);
+		IGui.drawTexture(guiDrawing, startX + 61, startY, 141F, 0, 41, HOT_BAR_HEIGHT, 256, 256);
+		IGui.drawTexture(guiDrawing, startX + 120, startY, 0F, 0, 21, HOT_BAR_HEIGHT, 256, 256);
+		IGui.drawTexture(guiDrawing, startX + 141, startY, 141F, 0, 41, HOT_BAR_HEIGHT, 256, 256);
 
-		GuiComponent.blit(matrices, startX + 39 + Math.max(accelerationSign, -2) * 20, startY - 1, 0, 0, 22, 24, 24, 256, 256);
-		GuiComponent.blit(matrices, startX + (doorValue > 0 ? doorValue < 1 ? 139 : 159 : 119), startY - 1, 0, 0, 22, 24, 24, 256, 256);
+		IGui.drawTexture(guiDrawing, startX + 39 + Math.max(accelerationSign, -2) * 20, startY - 1, 0F, 22, 24, 24, 256, 256);
+		IGui.drawTexture(guiDrawing, startX + (doorValue > 0 ? doorValue < 1 ? 139 : 159 : 119), startY - 1, 0F, 22, 24, 24, 256, 256);
 
-		client.font.drawShadow(matrices, "B2", startX + 5.5F, startY + 7.5F, doorValue == 0 && accelerationSign == -2 ? ARGB_WHITE : ARGB_GRAY);
-		client.font.drawShadow(matrices, "B1", startX + 25.5F, startY + 7.5F, doorValue == 0 && accelerationSign == -1 ? ARGB_WHITE : ARGB_GRAY);
-		client.font.drawShadow(matrices, "N", startX + 48.5F, startY + 7.5F, doorValue == 0 && accelerationSign == 0 ? ARGB_WHITE : ARGB_GRAY);
-		client.font.drawShadow(matrices, "P1", startX + 65.5F, startY + 7.5F, doorValue == 0 && accelerationSign == 1 ? ARGB_WHITE : ARGB_GRAY);
-		client.font.drawShadow(matrices, "P2", startX + 85.5F, startY + 7.5F, doorValue == 0 && accelerationSign == 2 ? ARGB_WHITE : ARGB_GRAY);
+		graphicsHolder.drawCenteredText("B2", (int) (startX + 5.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == -2 ? ARGB_WHITE : ARGB_GRAY);
+		graphicsHolder.drawCenteredText("B1", (int) (startX + 25.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == -1 ? ARGB_WHITE : ARGB_GRAY);
+		graphicsHolder.drawCenteredText("N", (int) (startX + 48.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == 0 ? ARGB_WHITE : ARGB_GRAY);
+		graphicsHolder.drawCenteredText("P1", (int) (startX + 65.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == 1 ? ARGB_WHITE : ARGB_GRAY);
+		graphicsHolder.drawCenteredText("P2", (int) (startX + 85.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == 2 ? ARGB_WHITE : ARGB_GRAY);
 
-		client.font.drawShadow(matrices, "DC", startX + 125.5F, startY + 7.5F, speed == 0 && doorValue == 0 ? ARGB_WHITE : ARGB_GRAY);
-		client.font.drawShadow(matrices, String.valueOf(Math.round(doorValue * 10) / 10F), startX + 144.5F, startY + 7.5F, doorValue > 0 && doorValue < 1 ? ARGB_WHITE : ARGB_GRAY);
-		client.font.drawShadow(matrices, "DO", startX + 165.5F, startY + 7.5F, speed == 0 && doorValue == 1 ? ARGB_WHITE : ARGB_GRAY);
+		graphicsHolder.drawCenteredText("DC", (int) (startX + 125.5F), (int) (startY + 7.5F), speed == 0 && doorValue == 0 ? ARGB_WHITE : ARGB_GRAY);
+		graphicsHolder.drawCenteredText(String.valueOf(Math.round(doorValue * 10) / 10F), (int) (startX + 144.5F), (int) (startY + 7.5F), doorValue > 0 && doorValue < 1 ? ARGB_WHITE : ARGB_GRAY);
+		graphicsHolder.drawCenteredText("DO", (int) (startX + 165.5F), (int) (startY + 7.5F), speed == 0 && doorValue == 1 ? ARGB_WHITE : ARGB_GRAY);
 
-		final String speedText = RailwayData.round(speed * 3.6F, 1) + " km/h";
-		client.font.drawShadow(matrices, speedText, startX - client.font.width(speedText) - TEXT_PADDING, window.getGuiScaledHeight() - 14.5F, ARGB_WHITE);
+		final String speedText = Utilities.round(speed * 3.6F, 1) + " km/h";
+		graphicsHolder.drawText(speedText, startX - GraphicsHolder.getTextWidth(speedText) - TEXT_PADDING, (int) (window.getScaledHeight() - 14.5F), ARGB_WHITE, true, MAX_LIGHT_GLOWING);
 		if (thisStation != null) {
-			client.font.drawShadow(matrices, thisStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, window.getGuiScaledHeight() - 44.5F, ARGB_WHITE);
+			graphicsHolder.drawText(thisStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 44.5F), ARGB_WHITE, true, MAX_LIGHT_GLOWING);
 		}
 		if (nextStation != null) {
-			client.font.drawShadow(matrices, "> " + nextStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, window.getGuiScaledHeight() - 34.5F, ARGB_WHITE);
+			graphicsHolder.drawText("> " + nextStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 34.5F), ARGB_WHITE, true, MAX_LIGHT_GLOWING);
 		}
 		if (thisRoute != null) {
-			client.font.drawShadow(matrices, thisRoute, startX + HOT_BAR_WIDTH + TEXT_PADDING, window.getGuiScaledHeight() - 19.5F, ARGB_WHITE);
+			graphicsHolder.drawText(thisRoute, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 19.5F), ARGB_WHITE, true, MAX_LIGHT_GLOWING);
 		}
 		if (lastStation != null) {
-			client.font.drawShadow(matrices, "> " + lastStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, window.getGuiScaledHeight() - 9.5F, ARGB_WHITE);
+			graphicsHolder.drawText("> " + lastStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 9.5F), ARGB_WHITE, true, MAX_LIGHT_GLOWING);
 		}
 
 		RenderSystem.disableBlend();
-		matrices.popPose();
-	}
-
-	public static void setData(int accelerationSign, TrainClient trainClient) {
-		RenderDrivingOverlay.accelerationSign = accelerationSign;
-		RenderDrivingOverlay.doorValue = trainClient.getDoorValue();
-		coolDown = 2;
-		RenderDrivingOverlay.speed = trainClient.getSpeed() * 20;
-		final Route thisRoute = trainClient.getThisRoute();
-		final Route nextRoute = trainClient.getNextRoute();
-		final Station thisStation = trainClient.getThisStation();
-		final Station nextStation = trainClient.getNextStation();
-		final Station lastStation = trainClient.getLastStation();
-		RenderDrivingOverlay.thisStation = thisStation == null ? null : IGui.formatStationName(thisStation.name);
-		RenderDrivingOverlay.nextStation = nextStation == null ? nextRoute == null ? null : IGui.formatStationName(nextRoute.name) : IGui.formatStationName(nextStation.name);
-		RenderDrivingOverlay.thisRoute = thisRoute == null ? null : IGui.formatStationName(thisRoute.name);
-		RenderDrivingOverlay.lastStation = lastStation == null ? null : IGui.formatStationName(lastStation.name);
+		graphicsHolder.pop();
 	}
 }

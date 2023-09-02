@@ -1,25 +1,26 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.BlockEntityTypes;
-import mtr.mappings.BlockEntityMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.state.BlockState;
+import org.mtr.mapping.holder.BlockPos;
+import org.mtr.mapping.holder.BlockSettings;
+import org.mtr.mapping.holder.BlockState;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mod.BlockEntityTypes;
 
 public class BlockStationNameWallBlack extends BlockStationNameWallBase {
 
-	public BlockStationNameWallBlack(Properties settings) {
-		super(settings);
+	public BlockStationNameWallBlack(BlockSettings blockSettings) {
+		super(blockSettings);
 	}
 
 	@Override
-	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
-		return new TileEntityStationNameWallBlack(pos, state);
+	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new BlockEntity(blockPos, blockState);
 	}
 
-	public static class TileEntityStationNameWallBlack extends TileEntityStationNameWallBase {
+	public static class BlockEntity extends BlockEntityWallBase {
 
-		public TileEntityStationNameWallBlack(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.STATION_NAME_WALL_BLACK_TILE_ENTITY.get(), pos, state);
+		public BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.STATION_NAME_WALL_BLACK.get(), pos, state);
 		}
 
 		@Override

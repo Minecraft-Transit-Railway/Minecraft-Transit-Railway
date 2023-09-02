@@ -1,6 +1,6 @@
-package mtr.model;
+package org.mtr.mod.model;
 
-import mtr.client.DoorAnimationType;
+import org.mtr.mod.client.DoorAnimationType;
 
 public class ModelSTrainMini extends ModelSTrain {
 

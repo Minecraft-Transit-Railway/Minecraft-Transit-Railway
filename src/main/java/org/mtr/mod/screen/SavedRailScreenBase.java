@@ -1,20 +1,22 @@
-package mtr.screen;
+package org.mtr.mod.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.client.IDrawing;
-import mtr.data.IGui;
-import mtr.data.Platform;
-import mtr.data.SavedRailBase;
-import mtr.data.TransportMode;
-import mtr.mappings.ScreenMapper;
-import mtr.mappings.Text;
-import mtr.mappings.UtilitiesClient;
-import mtr.packet.IPacket;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import org.mtr.core.data.AreaBase;
+import org.mtr.core.data.SavedRailBase;
+import org.mtr.core.data.TransportMode;
+import org.mtr.mapping.holder.ClickableWidget;
+import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mapping.holder.MutableText;
+import org.mtr.mapping.holder.Screen;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.ScreenExtension;
+import org.mtr.mapping.mapper.TextFieldWidgetExtension;
+import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.data.IGui;
+import org.mtr.mod.packet.IPacket;
 
-public abstract class SavedRailScreenBase<T extends SavedRailBase> extends ScreenMapper implements IGui, IPacket {
+public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> extends ScreenExtension implements IGui, IPacket {
 
 	protected final T savedRailBase;
 	protected final int textWidth;
@@ -23,98 +25,94 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	protected final WidgetShorterSlider sliderDwellTimeSec;
 
 	private final DashboardScreen dashboardScreen;
-	private final WidgetBetterTextField textFieldSavedRailNumber;
+	private final TextFieldWidgetExtension textFieldSavedRailNumber;
 
-	private final Component savedRailNumberText;
+	private final MutableText savedRailNumberText;
 
 	protected static final int SECONDS_PER_MINUTE = 60;
+	private static final int MAX_DWELL_TIME = 1200;
 	private static final int MAX_SAVED_RAIL_NUMBER_LENGTH = 10;
 
-	public SavedRailScreenBase(T savedRailBase, TransportMode transportMode, DashboardScreen dashboardScreen, Component... additionalTexts) {
-		super(Text.literal(""));
+	public SavedRailScreenBase(T savedRailBase, TransportMode transportMode, DashboardScreen dashboardScreen, MutableText... additionalTexts) {
+		super();
 		this.savedRailBase = savedRailBase;
 		showScheduleControls = !transportMode.continuousMovement;
 		this.dashboardScreen = dashboardScreen;
-		savedRailNumberText = Text.translatable(getNumberStringKey());
+		savedRailNumberText = TextHelper.translatable(getNumberStringKey());
 
-		font = Minecraft.getInstance().font;
-		textFieldSavedRailNumber = new WidgetBetterTextField("1", MAX_SAVED_RAIL_NUMBER_LENGTH);
+		textFieldSavedRailNumber = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_SAVED_RAIL_NUMBER_LENGTH, TextCase.DEFAULT, null, "1");
 
 		int additionalTextWidths = 0;
-		for (final Component additionalText : additionalTexts) {
-			additionalTextWidths = Math.max(additionalTextWidths, font.width(additionalText));
+		for (final MutableText additionalText : additionalTexts) {
+			additionalTextWidths = Math.max(additionalTextWidths, GraphicsHolder.getTextWidth(additionalText));
 		}
-		textWidth = Math.max(font.width(savedRailNumberText), additionalTextWidths) + TEXT_PADDING;
+		textWidth = Math.max(GraphicsHolder.getTextWidth(savedRailNumberText), additionalTextWidths) + TEXT_PADDING;
 
-		sliderDwellTimeMin = new WidgetShorterSlider(0, 0, (int) Math.floor(Platform.MAX_DWELL_TIME / 2F / SECONDS_PER_MINUTE), value -> Text.translatable("gui.mtr.arrival_min", value).getString(), null);
-		sliderDwellTimeSec = new WidgetShorterSlider(0, 0, SECONDS_PER_MINUTE * 2 - 1, 10, 2, value -> Text.translatable("gui.mtr.arrival_sec", value / 2F).getString(), null);
+		sliderDwellTimeMin = new WidgetShorterSlider(0, 0, (int) Math.floor(MAX_DWELL_TIME / 2F / SECONDS_PER_MINUTE), value -> TextHelper.translatable("gui.mtr.arrival_min", value).getString(), null);
+		sliderDwellTimeSec = new WidgetShorterSlider(0, 0, SECONDS_PER_MINUTE * 2 - 1, 10, 2, value -> TextHelper.translatable("gui.mtr.arrival_sec", value / 2F).getString(), null);
 	}
 
 	@Override
-	protected void init() {
-		super.init();
+	protected void init2() {
+		super.init2();
 
 		IDrawing.setPositionAndWidth(textFieldSavedRailNumber, SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, width - textWidth - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING);
-		textFieldSavedRailNumber.setValue(savedRailBase.name);
-		textFieldSavedRailNumber.setResponder(text -> savedRailBase.name = textFieldSavedRailNumber.getValue());
+		textFieldSavedRailNumber.setText2(savedRailBase.getName());
+		textFieldSavedRailNumber.setChangedListener2(text -> savedRailBase.setName(textFieldSavedRailNumber.getText2()));
 
-		final int sliderTextWidth = Math.max(font.width(Text.translatable("gui.mtr.arrival_min", "88")), font.width(Text.translatable("gui.mtr.arrival_sec", "88.8"))) + TEXT_PADDING;
-		UtilitiesClient.setWidgetX(sliderDwellTimeMin, SQUARE_SIZE + textWidth);
+		final int sliderTextWidth = Math.max(GraphicsHolder.getTextWidth(TextHelper.translatable("gui.mtr.arrival_min", "88")), GraphicsHolder.getTextWidth(TextHelper.translatable("gui.mtr.arrival_sec", "88.8"))) + TEXT_PADDING;
+		sliderDwellTimeMin.setX2(SQUARE_SIZE + textWidth);
 		sliderDwellTimeMin.setHeight(SQUARE_SIZE / 2);
-		sliderDwellTimeMin.setWidth(width - textWidth - SQUARE_SIZE * 2 - sliderTextWidth);
-		sliderDwellTimeMin.setValue((int) Math.floor(savedRailBase.getDwellTime() / 2F / SECONDS_PER_MINUTE));
+		sliderDwellTimeMin.setWidth2(width - textWidth - SQUARE_SIZE * 2 - sliderTextWidth);
 
-		UtilitiesClient.setWidgetX(sliderDwellTimeSec, SQUARE_SIZE + textWidth);
+		sliderDwellTimeSec.setX2(SQUARE_SIZE + textWidth);
 		sliderDwellTimeSec.setHeight(SQUARE_SIZE / 2);
-		sliderDwellTimeSec.setWidth(width - textWidth - SQUARE_SIZE * 2 - sliderTextWidth);
-		sliderDwellTimeSec.setValue(savedRailBase.getDwellTime() % (SECONDS_PER_MINUTE * 2));
+		sliderDwellTimeSec.setWidth2(width - textWidth - SQUARE_SIZE * 2 - sliderTextWidth);
 
-		addDrawableChild(textFieldSavedRailNumber);
+		addChild(new ClickableWidget(textFieldSavedRailNumber));
 		if (showScheduleControls) {
-			addDrawableChild(sliderDwellTimeMin);
-			addDrawableChild(sliderDwellTimeSec);
+			addChild(new ClickableWidget(sliderDwellTimeMin));
+			addChild(new ClickableWidget(sliderDwellTimeSec));
 		}
 	}
 
 	@Override
-	public void tick() {
-		textFieldSavedRailNumber.tick();
-		UtilitiesClient.setWidgetX(textFieldSavedRailNumber, shouldRenderExtra() ? width * 2 : SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2);
+	public void tick2() {
+		textFieldSavedRailNumber.tick2();
+		textFieldSavedRailNumber.setX2(shouldRenderExtra() ? width * 2 : SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2);
 
-		final int maxMin = (int) Math.floor(Platform.MAX_DWELL_TIME / 2F / SECONDS_PER_MINUTE);
+		final int maxMin = (int) Math.floor(MAX_DWELL_TIME / 2F / SECONDS_PER_MINUTE);
 		if (sliderDwellTimeMin.getIntValue() == 0 && sliderDwellTimeSec.getIntValue() == 0) {
 			sliderDwellTimeSec.setValue(1);
 		}
-		if (sliderDwellTimeMin.getIntValue() == maxMin && sliderDwellTimeSec.getIntValue() > Platform.MAX_DWELL_TIME % (SECONDS_PER_MINUTE * 2)) {
-			sliderDwellTimeSec.setValue(Platform.MAX_DWELL_TIME % (SECONDS_PER_MINUTE * 2));
+		if (sliderDwellTimeMin.getIntValue() == maxMin && sliderDwellTimeSec.getIntValue() > MAX_DWELL_TIME % (SECONDS_PER_MINUTE * 2)) {
+			sliderDwellTimeSec.setValue(MAX_DWELL_TIME % (SECONDS_PER_MINUTE * 2));
 		}
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 		try {
-			renderBackground(matrices);
+			renderBackground(graphicsHolder);
 			if (shouldRenderExtra()) {
-				renderExtra(matrices, mouseX, mouseY, delta);
+				renderExtra(graphicsHolder, mouseX, mouseY, delta);
 			} else {
-				font.draw(matrices, savedRailNumberText, SQUARE_SIZE, SQUARE_SIZE + TEXT_FIELD_PADDING / 2F + TEXT_PADDING, ARGB_WHITE);
+				graphicsHolder.drawText(savedRailNumberText, SQUARE_SIZE, SQUARE_SIZE + TEXT_FIELD_PADDING / 2 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
 			}
-			super.render(matrices, mouseX, mouseY, delta);
+			super.render(graphicsHolder, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void onClose() {
-		super.onClose();
-		if (minecraft != null) {
-			UtilitiesClient.setScreen(minecraft, dashboardScreen);
-		}
+	public void onClose2() {
+		super.onClose2();
+		MinecraftClient.getInstance().openScreen(new Screen(dashboardScreen));
 	}
 
 	@Override
-	public boolean isPauseScreen() {
+	public boolean isPauseScreen2() {
 		return false;
 	}
 
@@ -122,10 +120,8 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 		return false;
 	}
 
-	protected void renderExtra(PoseStack matrices, int mouseX, int mouseY, float delta) {
+	protected void renderExtra(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 	}
 
 	protected abstract String getNumberStringKey();
-
-	protected abstract ResourceLocation getPacketIdentifier();
 }

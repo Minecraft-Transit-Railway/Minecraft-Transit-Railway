@@ -1,40 +1,23 @@
-package mtr;
+package org.mtr.mod;
 
-import mtr.mappings.Utilities;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
+import org.mtr.init.MTR;
+import org.mtr.mapping.holder.Identifier;
+import org.mtr.mapping.holder.ItemConvertible;
+import org.mtr.mapping.holder.ItemStack;
+import org.mtr.mapping.registry.CreativeModeTabHolder;
+import org.mtr.mapping.registry.Registry;
 
-import java.util.function.Supplier;
+public final class CreativeModeTabs {
 
-public interface CreativeModeTabs {
-
-	Wrapper CORE = Keys.LIFTS_ONLY ? new Wrapper() : new Wrapper(new ResourceLocation(MTR.MOD_ID, "core"), () -> new ItemStack(Items.RAILWAY_DASHBOARD.get()));
-	Wrapper RAILWAY_FACILITIES = Keys.LIFTS_ONLY ? new Wrapper() : new Wrapper(new ResourceLocation(MTR.MOD_ID, "railway_facilities"), () -> new ItemStack(Blocks.TICKET_PROCESSOR.get()));
-	Wrapper STATION_BUILDING_BLOCKS = Keys.LIFTS_ONLY ? new Wrapper() : new Wrapper(new ResourceLocation(MTR.MOD_ID, "station_building_blocks"), () -> new ItemStack(Blocks.LOGO.get()));
-	Wrapper ESCALATORS_LIFTS = new Wrapper(new ResourceLocation(MTR.MOD_ID, "escalators_lifts"), () -> new ItemStack(Items.ESCALATOR.get()));
-
-	class Wrapper {
-
-		public final ResourceLocation resourceLocation;
-		private final Supplier<CreativeModeTab> creativeModeTabSupplier;
-		private CreativeModeTab creativeModeTab;
-
-		public Wrapper(ResourceLocation resourceLocation, Supplier<ItemStack> itemSupplier) {
-			this.resourceLocation = resourceLocation;
-			creativeModeTabSupplier = Registry.getCreativeModeTab(resourceLocation, itemSupplier);
-		}
-
-		public CreativeModeTab get() {
-			if (creativeModeTab == null) {
-				creativeModeTab = creativeModeTabSupplier.get();
-			}
-			return creativeModeTab;
-		}
-
-		public Wrapper() {
-			resourceLocation = new ResourceLocation("");
-			creativeModeTabSupplier = Utilities::getDefaultTab;
-		}
+	static {
+		CORE = Registry.createCreativeModeTabHolder(new Identifier(MTR.MOD_ID, "core"), () -> new ItemStack(new ItemConvertible(Items.RAILWAY_DASHBOARD.get().data)));
+		RAILWAY_FACILITIES = Registry.createCreativeModeTabHolder(new Identifier(MTR.MOD_ID, "railway_facilities"), () -> new ItemStack(new ItemConvertible(Blocks.TICKET_PROCESSOR.get().data)));
+		STATION_BUILDING_BLOCKS = Registry.createCreativeModeTabHolder(new Identifier(MTR.MOD_ID, "station_building_blocks"), () -> new ItemStack(new ItemConvertible(Blocks.LOGO.get().data)));
+		ESCALATORS_LIFTS = Registry.createCreativeModeTabHolder(new Identifier(MTR.MOD_ID, "escalators_lifts"), () -> new ItemStack(new ItemConvertible(Items.ESCALATOR.get().data)));
 	}
+
+	public static final CreativeModeTabHolder CORE;
+	public static final CreativeModeTabHolder RAILWAY_FACILITIES;
+	public static final CreativeModeTabHolder STATION_BUILDING_BLOCKS;
+	public static final CreativeModeTabHolder ESCALATORS_LIFTS;
 }

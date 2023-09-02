@@ -1,46 +1,44 @@
-package mtr.render;
+package org.mtr.mod.render;
 
-import mtr.mappings.RenderLayerMapper;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import org.mtr.mapping.holder.Identifier;
+import org.mtr.mapping.holder.RenderLayer;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Supplier;
 
-public class MoreRenderLayers extends RenderLayerMapper {
+public class MoreRenderLayers {
 
-	private static final Map<String, RenderType> LIGHT_CACHE = new HashMap<>();
-	private static final Map<ResourceLocation, RenderType> INTERIOR_CACHE = new HashMap<>();
-	private static final Map<ResourceLocation, RenderType> INTERIOR_TRANSLUCENT_CACHE = new HashMap<>();
-	private static final Map<ResourceLocation, RenderType> EXTERIOR_CACHE = new HashMap<>();
-	private static final Map<ResourceLocation, RenderType> EXTERIOR_TRANSLUCENT_CACHE = new HashMap<>();
+	private static final Object2ObjectAVLTreeMap<String, RenderLayer> LIGHT_CACHE = new Object2ObjectAVLTreeMap<>();
+	private static final Object2ObjectAVLTreeMap<Identifier, RenderLayer> INTERIOR_CACHE = new Object2ObjectAVLTreeMap<>();
+	private static final Object2ObjectAVLTreeMap<Identifier, RenderLayer> INTERIOR_TRANSLUCENT_CACHE = new Object2ObjectAVLTreeMap<>();
+	private static final Object2ObjectAVLTreeMap<Identifier, RenderLayer> EXTERIOR_CACHE = new Object2ObjectAVLTreeMap<>();
+	private static final Object2ObjectAVLTreeMap<Identifier, RenderLayer> EXTERIOR_TRANSLUCENT_CACHE = new Object2ObjectAVLTreeMap<>();
 
-	public static RenderType getLight(ResourceLocation texture, boolean isTranslucent) {
-		return checkCache(texture.toString() + isTranslucent, () -> beaconBeam(texture, isTranslucent), LIGHT_CACHE);
+	public static RenderLayer getLight(Identifier texture, boolean isTranslucent) {
+		return checkCache(texture.toString() + isTranslucent, () -> RenderLayer.getBeaconBeam(texture, isTranslucent), LIGHT_CACHE);
 	}
 
-	public static RenderType getInterior(ResourceLocation texture) {
-		return checkCache(texture, () -> entityCutout(texture), INTERIOR_CACHE);
+	public static RenderLayer getInterior(Identifier texture) {
+		return checkCache(texture, () -> RenderLayer.getEntityCutout(texture), INTERIOR_CACHE);
 	}
 
-	public static RenderType getInteriorTranslucent(ResourceLocation texture) {
-		return checkCache(texture, () -> entityTranslucentCull(texture), INTERIOR_TRANSLUCENT_CACHE);
+	public static RenderLayer getInteriorTranslucent(Identifier texture) {
+		return checkCache(texture, () -> RenderLayer.getEntityTranslucentCull(texture), INTERIOR_TRANSLUCENT_CACHE);
 	}
 
-	public static RenderType getExterior(ResourceLocation texture) {
-		return checkCache(texture, () -> entityCutout(texture), EXTERIOR_CACHE);
+	public static RenderLayer getExterior(Identifier texture) {
+		return checkCache(texture, () -> RenderLayer.getEntityCutout(texture), EXTERIOR_CACHE);
 	}
 
-	public static RenderType getExteriorTranslucent(ResourceLocation texture) {
-		return checkCache(texture, () -> entityTranslucentCull(texture), EXTERIOR_TRANSLUCENT_CACHE);
+	public static RenderLayer getExteriorTranslucent(Identifier texture) {
+		return checkCache(texture, () -> RenderLayer.getEntityTranslucentCull(texture), EXTERIOR_TRANSLUCENT_CACHE);
 	}
 
-	private static <T> RenderType checkCache(T identifier, Supplier<RenderType> supplier, Map<T, RenderType> cache) {
+	private static <T> RenderLayer checkCache(T identifier, Supplier<RenderLayer> supplier, Object2ObjectAVLTreeMap<T, RenderLayer> cache) {
 		if (cache.containsKey(identifier)) {
 			return cache.get(identifier);
 		} else {
-			final RenderType renderLayer = supplier.get();
+			final RenderLayer renderLayer = supplier.get();
 			cache.put(identifier, renderLayer);
 			return renderLayer;
 		}

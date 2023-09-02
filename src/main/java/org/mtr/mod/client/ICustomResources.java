@@ -1,4 +1,4 @@
-package mtr.client;
+package org.mtr.mod.client;
 
 import com.google.gson.JsonObject;
 

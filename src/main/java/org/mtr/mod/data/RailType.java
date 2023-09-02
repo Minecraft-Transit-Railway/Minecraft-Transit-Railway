@@ -1,46 +1,41 @@
-package mtr.data;
+package org.mtr.mod.data;
 
-import net.minecraft.world.level.material.MaterialColor;
+import org.mtr.core.data.Rail;
+import org.mtr.mapping.holder.MapColor;
 
 public enum RailType implements IGui {
-	WOODEN(20, MaterialColor.WOOD, false, true, true, RailSlopeStyle.CURVE),
-	STONE(40, MaterialColor.STONE, false, true, true, RailSlopeStyle.CURVE),
-	EMERALD(60, MaterialColor.EMERALD, false, true, true, RailSlopeStyle.CURVE),
-	IRON(80, MaterialColor.METAL, false, true, true, RailSlopeStyle.CURVE),
-	OBSIDIAN(120, MaterialColor.COLOR_PURPLE, false, true, true, RailSlopeStyle.CURVE),
-	BLAZE(160, MaterialColor.COLOR_ORANGE, false, true, true, RailSlopeStyle.CURVE),
-	QUARTZ(200, MaterialColor.QUARTZ, false, true, true, RailSlopeStyle.CURVE),
-	DIAMOND(300, MaterialColor.DIAMOND, false, true, true, RailSlopeStyle.CURVE),
-	PLATFORM(80, MaterialColor.COLOR_RED, true, false, true, RailSlopeStyle.CURVE),
-	SIDING(40, MaterialColor.COLOR_YELLOW, true, false, true, RailSlopeStyle.CURVE),
-	TURN_BACK(80, MaterialColor.COLOR_BLUE, false, false, true, RailSlopeStyle.CURVE),
-	CABLE_CAR(30, MaterialColor.SNOW, false, true, true, RailSlopeStyle.CABLE),
-	CABLE_CAR_STATION(2, MaterialColor.SNOW, false, true, true, RailSlopeStyle.CURVE),
-	RUNWAY(300, MaterialColor.ICE, false, true, false, RailSlopeStyle.CURVE),
-	AIRPLANE_DUMMY(900, MaterialColor.COLOR_BLACK, false, true, false, RailSlopeStyle.CURVE),
-	NONE(20, MaterialColor.COLOR_BLACK, false, false, true, RailSlopeStyle.CURVE);
+	WOODEN(20, MapColor.getOakTanMapped(), false, true, true, Rail.Shape.CURVE),
+	STONE(40, MapColor.getStoneGrayMapped(), false, true, true, Rail.Shape.CURVE),
+	EMERALD(60, MapColor.getEmeraldGreenMapped(), false, true, true, Rail.Shape.CURVE),
+	IRON(80, MapColor.getIronGrayMapped(), false, true, true, Rail.Shape.CURVE),
+	OBSIDIAN(120, MapColor.getPurpleMapped(), false, true, true, Rail.Shape.CURVE),
+	BLAZE(160, MapColor.getOrangeMapped(), false, true, true, Rail.Shape.CURVE),
+	QUARTZ(200, MapColor.getOffWhiteMapped(), false, true, true, Rail.Shape.CURVE),
+	DIAMOND(300, MapColor.getDiamondBlueMapped(), false, true, true, Rail.Shape.CURVE),
+	PLATFORM(80, MapColor.getRedMapped(), true, false, true, Rail.Shape.CURVE),
+	SIDING(40, MapColor.getYellowMapped(), true, false, true, Rail.Shape.CURVE),
+	TURN_BACK(80, MapColor.getBlueMapped(), false, false, true, Rail.Shape.CURVE),
+	CABLE_CAR(30, MapColor.getWhiteMapped(), false, true, true, Rail.Shape.STRAIGHT),
+	CABLE_CAR_STATION(2, MapColor.getWhiteMapped(), false, true, true, Rail.Shape.CURVE),
+	RUNWAY(300, MapColor.getPalePurpleMapped(), false, true, false, Rail.Shape.CURVE),
+	AIRPLANE_DUMMY(900, MapColor.getBlackMapped(), false, true, false, Rail.Shape.CURVE),
+	NONE(20, MapColor.getBlackMapped(), false, false, true, Rail.Shape.CURVE);
 
 	public final int speedLimit;
-	public final float maxBlocksPerTick;
+	public final float speedLimitMetersPerMillisecond;
 	public final int color;
 	public final boolean hasSavedRail;
 	public final boolean canAccelerate;
 	public final boolean hasSignal;
-	public final RailSlopeStyle railSlopeStyle;
+	public final Rail.Shape railShape;
 
-	RailType(int speedLimit, MaterialColor MaterialColor, boolean hasSavedRail, boolean canAccelerate, boolean hasSignal, RailSlopeStyle railSlopeStyle) {
+	RailType(int speedLimit, MapColor mapColor, boolean hasSavedRail, boolean canAccelerate, boolean hasSignal, Rail.Shape railShape) {
 		this.speedLimit = speedLimit;
-		maxBlocksPerTick = speedLimit / 3.6F / 20;
-		color = MaterialColor.col | ARGB_BLACK;
+		speedLimitMetersPerMillisecond = speedLimit / 3600F;
+		color = mapColor.getColorMapped() | ARGB_BLACK;
 		this.hasSavedRail = hasSavedRail;
 		this.canAccelerate = canAccelerate;
 		this.hasSignal = hasSignal;
-		this.railSlopeStyle = railSlopeStyle;
+		this.railShape = railShape;
 	}
-
-	public static float getDefaultMaxBlocksPerTick(TransportMode transportMode) {
-		return (transportMode.continuousMovement ? CABLE_CAR_STATION : WOODEN).maxBlocksPerTick;
-	}
-
-	public enum RailSlopeStyle {CURVE, CABLE}
 }

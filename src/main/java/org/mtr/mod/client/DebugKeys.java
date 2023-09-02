@@ -1,11 +1,12 @@
-package mtr.client;
+package org.mtr.mod.client;
 
-import mtr.KeyMappings;
-import mtr.MTRClient;
-import mtr.data.RailwayData;
-import mtr.mappings.Text;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
+import org.mtr.core.tools.Utilities;
+import org.mtr.mapping.holder.ClientPlayerEntity;
+import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mapping.holder.Text;
+import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mod.InitClient;
+import org.mtr.mod.KeyBindings;
 
 public class DebugKeys {
 
@@ -27,17 +28,17 @@ public class DebugKeys {
 	}
 
 	public void tick() {
-		final boolean tempPressing1Negative = KeyMappings.DEBUG_1_NEGATIVE.isDown();
-		final boolean tempPressing2Negative = KeyMappings.DEBUG_2_NEGATIVE.isDown();
-		final boolean tempPressing3Negative = KeyMappings.DEBUG_3_NEGATIVE.isDown();
-		final boolean tempPressing1Positive = KeyMappings.DEBUG_1_POSITIVE.isDown();
-		final boolean tempPressing2Positive = KeyMappings.DEBUG_2_POSITIVE.isDown();
-		final boolean tempPressing3Positive = KeyMappings.DEBUG_3_POSITIVE.isDown();
-		final boolean tempPressingCategoryNegative = KeyMappings.DEBUG_ROTATE_CATEGORY_NEGATIVE.isDown();
-		final boolean tempPressingCategoryPositive = KeyMappings.DEBUG_ROTATE_CATEGORY_POSITIVE.isDown();
+		final boolean tempPressing1Negative = KeyBindings.DEBUG_1_NEGATIVE.isPressed();
+		final boolean tempPressing2Negative = KeyBindings.DEBUG_2_NEGATIVE.isPressed();
+		final boolean tempPressing3Negative = KeyBindings.DEBUG_3_NEGATIVE.isPressed();
+		final boolean tempPressing1Positive = KeyBindings.DEBUG_1_POSITIVE.isPressed();
+		final boolean tempPressing2Positive = KeyBindings.DEBUG_2_POSITIVE.isPressed();
+		final boolean tempPressing3Positive = KeyBindings.DEBUG_3_POSITIVE.isPressed();
+		final boolean tempPressingCategoryNegative = KeyBindings.DEBUG_ROTATE_CATEGORY_NEGATIVE.isPressed();
+		final boolean tempPressingCategoryPositive = KeyBindings.DEBUG_ROTATE_CATEGORY_POSITIVE.isPressed();
 
 		final boolean tempIsPressing = tempPressing1Negative || tempPressing2Negative || tempPressing3Negative || tempPressing1Positive || tempPressing2Positive || tempPressing3Positive || tempPressingCategoryNegative || tempPressingCategoryPositive;
-		final float gameTick = MTRClient.getGameTick();
+		final float gameTick = InitClient.getGameTick();
 
 		final boolean shouldIncrement;
 		final boolean fastPress;
@@ -56,19 +57,19 @@ public class DebugKeys {
 			field2[index] += (fastPress ? 10 : 1) * (tempPressing2Negative ? -1 : tempPressing2Positive ? 1 : 0);
 			field3[index] += (fastPress ? 10 : 1) * (tempPressing3Negative ? -1 : tempPressing3Positive ? 1 : 0);
 
-			final LocalPlayer player = Minecraft.getInstance().player;
-			if (player != null) {
+			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+			if (clientPlayerEntity != null) {
 				if (tempPressingCategoryNegative || tempPressingCategoryPositive) {
-					player.displayClientMessage(Text.literal(String.format("Category: %s", index)), true);
+					clientPlayerEntity.sendMessage(new Text(TextHelper.literal(String.format("Category: %s", index)).data), true);
 				}
 				if (tempPressing1Negative || tempPressing1Positive) {
-					player.displayClientMessage(Text.literal(String.format("Category: %s - Value: %s", index, getField1(index))), true);
+					clientPlayerEntity.sendMessage(new Text(TextHelper.literal(String.format("Category: %s - Value: %s", index, getField1(index))).data), true);
 				}
 				if (tempPressing2Negative || tempPressing2Positive) {
-					player.displayClientMessage(Text.literal(String.format("Category: %s - Value: %s", index, getField2(index))), true);
+					clientPlayerEntity.sendMessage(new Text(TextHelper.literal(String.format("Category: %s - Value: %s", index, getField2(index))).data), true);
 				}
 				if (tempPressing3Negative || tempPressing3Positive) {
-					player.displayClientMessage(Text.literal(String.format("Category: %s - Value: %s", index, getField3(index))), true);
+					clientPlayerEntity.sendMessage(new Text(TextHelper.literal(String.format("Category: %s - Value: %s", index, getField3(index))).data), true);
 				}
 			}
 		}
@@ -76,15 +77,15 @@ public class DebugKeys {
 		isPressing = tempIsPressing;
 	}
 
-	public float getField1(int category) {
-		return RailwayData.round(field1[Math.abs(category) % categories] * scale, 5);
+	public double getField1(int category) {
+		return Utilities.round(field1[Math.abs(category) % categories] * scale, 5);
 	}
 
-	public float getField2(int category) {
-		return RailwayData.round(field2[Math.abs(category) % categories] * scale, 5);
+	public double getField2(int category) {
+		return Utilities.round(field2[Math.abs(category) % categories] * scale, 5);
 	}
 
-	public float getField3(int category) {
-		return RailwayData.round(field3[Math.abs(category) % categories] * scale, 5);
+	public double getField3(int category) {
+		return Utilities.round(field3[Math.abs(category) % categories] * scale, 5);
 	}
 }

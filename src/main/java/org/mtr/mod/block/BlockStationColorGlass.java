@@ -1,30 +1,26 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.SlabType;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.SlabBlockExtension;
 
 public class BlockStationColorGlass extends BlockStationColor {
 
-	public BlockStationColorGlass(Properties settings) {
-		super(settings);
+	public BlockStationColorGlass() {
+		super();
 	}
 
 	@Override
-	public boolean skipRendering(BlockState state, BlockState neighborState, Direction direction) {
-		return neighborState.getBlock() instanceof BlockStationColorGlass || (neighborState.getBlock() instanceof BlockStationColorGlassSlab && IBlock.getStatePropertySafe(neighborState, SlabBlock.TYPE) == SlabType.DOUBLE) || super.skipRendering(state, neighborState, direction);
+	public boolean isSideInvisible2(BlockState state, BlockState neighborState, Direction direction) {
+		return neighborState.getBlock().data instanceof BlockStationColorGlass || (neighborState.getBlock().data instanceof BlockStationColorGlassSlab && SlabBlockExtension.getType(neighborState) == SlabType.DOUBLE) || super.isSideInvisible2(state, neighborState, direction);
 	}
 
 	@Override
-	public float getShadeBrightness(BlockState state, BlockGetter world, BlockPos pos) {
+	public float getAmbientOcclusionLightLevel2(BlockState state, BlockView world, BlockPos pos) {
 		return 1;
 	}
 
 	@Override
-	public boolean propagatesSkylightDown(BlockState state, BlockGetter world, BlockPos pos) {
+	public boolean isTranslucent2(BlockState state, BlockView world, BlockPos pos) {
 		return true;
 	}
 }

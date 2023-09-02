@@ -1,28 +1,31 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.BlockEntityTypes;
-import mtr.Items;
-import mtr.mappings.BlockEntityMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.state.BlockState;
+import org.mtr.mapping.holder.BlockPos;
+import org.mtr.mapping.holder.BlockState;
+import org.mtr.mapping.holder.Item;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mod.BlockEntityTypes;
+import org.mtr.mod.Items;
+
+import javax.annotation.Nonnull;
 
 public class BlockLiftDoor extends BlockPSDAPGDoorBase {
 
 	@Override
-	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
-		return new TileEntityLiftDoor(pos, state);
+	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new BlockEntity(blockPos, blockState);
 	}
 
+	@Nonnull
 	@Override
-	public Item asItem() {
+	public Item asItem2() {
 		return Items.LIFT_DOOR_1.get();
 	}
 
-	public static class TileEntityLiftDoor extends TileEntityPSDAPGDoorBase {
+	public static class BlockEntity extends BlockEntityBase {
 
-		public TileEntityLiftDoor(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_DOOR_EVEN_1_TILE_ENTITY.get(), pos, state);
+		public BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.LIFT_DOOR_EVEN_1.get(), pos, state);
 		}
 	}
 }

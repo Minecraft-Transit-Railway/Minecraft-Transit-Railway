@@ -1,101 +1,77 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.BlockEntityTypes;
-import mtr.mappings.BlockEntityMapper;
-import mtr.mappings.EntityBlockMapper;
-import mtr.mappings.TickableMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.BlockEntityTypes;
 
+import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements EntityBlockMapper {
+public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements BlockWithEntity {
 
-	public BlockTactileMap(Properties settings) {
-		super(settings);
+	public BlockTactileMap(BlockSettings blockSettings) {
+		super(blockSettings);
 	}
 
+	@Nonnull
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
-		if (world.isClientSide && TileEntityTactileMap.onUse != null) {
-			TileEntityTactileMap.onUse.accept(pos);
-			return InteractionResult.SUCCESS;
+	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		if (world.isClient() && BlockEntity.onUse != null) {
+			BlockEntity.onUse.accept(pos);
+			return ActionResult.SUCCESS;
 		} else {
-			return InteractionResult.CONSUME;
+			return ActionResult.CONSUME;
 		}
 	}
 
+	@Nonnull
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
 			return IBlock.getVoxelShapeByDirection(0, 0, 2, 16, 7, 14, facing);
 		} else {
-			return Shapes.or(Block.box(4, 0, 4, 12, 1, 12), IBlock.getVoxelShapeByDirection(6, 1, 7, 10, 16, 9, facing));
+			return VoxelShapes.union(Block.createCuboidShape(4, 0, 4, 12, 1, 12), IBlock.getVoxelShapeByDirection(6, 1, 7, 10, 16, 9, facing));
 		}
 	}
 
 	@Override
-	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
-		return new TileEntityTactileMap(pos, state);
+	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new BlockEntity(blockPos, blockState);
 	}
 
 	@Override
-	public <T extends BlockEntityMapper> void tick(Level world, BlockPos pos, T blockEntity) {
-		TileEntityTactileMap.tick(world, pos);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(FACING);
+		properties.add(HALF);
 	}
 
-	@Override
-	public BlockEntityType<? extends BlockEntityMapper> getType() {
-		return BlockEntityTypes.TACTILE_MAP_TILE_ENTITY.get();
-	}
-
-	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, HALF);
-	}
-
-	public static class TileEntityTactileMap extends BlockEntityMapper implements TickableMapper {
+	public static class BlockEntity extends BlockEntityExtension {
 
 		public static BiConsumer<BlockPos, Boolean> updateSoundSource = null;
 		public static Consumer<BlockPos> onUse = null;
 
-		public TileEntityTactileMap(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TACTILE_MAP_TILE_ENTITY.get(), pos, state);
+		public BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.TACTILE_MAP.get(), pos, state);
 		}
 
 		@Override
-		public void tick() {
-			tick(level, worldPosition);
+		public void blockEntityTick() {
+			if (world != null && world.isClient() && updateSoundSource != null) {
+				updateSoundSource.accept(getPos2(), false);
+			}
 		}
 
 		@Override
-		public void setRemoved() {
-			if (level != null && level.isClientSide && updateSoundSource != null) {
-				updateSoundSource.accept(worldPosition, true);
+		public void markRemoved2() {
+			if (getWorld2() != null && getWorld2().isClient() && updateSoundSource != null) {
+				updateSoundSource.accept(getPos2(), true);
 			}
-			super.setRemoved();
-		}
-
-		public static <T extends BlockEntityMapper> void tick(Level world, BlockPos pos) {
-			if (world != null && world.isClientSide && updateSoundSource != null) {
-				updateSoundSource.accept(pos, false);
-			}
+			super.markRemoved2();
 		}
 	}
 }

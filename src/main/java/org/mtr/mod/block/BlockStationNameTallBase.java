@@ -1,35 +1,25 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.phys.BlockHitResult;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockHelper;
+import org.mtr.mapping.tool.HolderBase;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
 
 public abstract class BlockStationNameTallBase extends BlockStationNameBase implements IBlock {
 
-	public static final BooleanProperty METAL = BooleanProperty.create("metal");
+	public static final BooleanProperty METAL = BooleanProperty.of("metal");
 
 	public BlockStationNameTallBase() {
-		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion());
+		super(BlockHelper.createBlockSettings(true));
 	}
 
+	@Nonnull
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
+	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			final boolean isWhite = IBlock.getStatePropertySafe(state, COLOR) == 0;
 			final int newColorProperty = isWhite ? 2 : 0;
@@ -38,60 +28,64 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 			updateProperties(world, pos, newMetalProperty, newColorProperty);
 			switch (IBlock.getStatePropertySafe(state, THIRD)) {
 				case LOWER:
-					updateProperties(world, pos.above(), newMetalProperty, newColorProperty);
-					updateProperties(world, pos.above(2), newMetalProperty, newColorProperty);
+					updateProperties(world, pos.up(), newMetalProperty, newColorProperty);
+					updateProperties(world, pos.up(2), newMetalProperty, newColorProperty);
 					break;
 				case MIDDLE:
-					updateProperties(world, pos.below(), newMetalProperty, newColorProperty);
-					updateProperties(world, pos.above(), newMetalProperty, newColorProperty);
+					updateProperties(world, pos.down(), newMetalProperty, newColorProperty);
+					updateProperties(world, pos.up(), newMetalProperty, newColorProperty);
 					break;
 				case UPPER:
-					updateProperties(world, pos.below(), newMetalProperty, newColorProperty);
-					updateProperties(world, pos.below(2), newMetalProperty, newColorProperty);
+					updateProperties(world, pos.down(), newMetalProperty, newColorProperty);
+					updateProperties(world, pos.down(2), newMetalProperty, newColorProperty);
 					break;
 			}
 		});
 	}
 
+	@Nonnull
 	@Override
-	public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
-		if ((direction == Direction.UP && IBlock.getStatePropertySafe(state, THIRD) != EnumThird.UPPER || direction == Direction.DOWN && IBlock.getStatePropertySafe(state, THIRD) != EnumThird.LOWER) && !newState.is(this)) {
-			return Blocks.AIR.defaultBlockState();
+	public BlockState getStateForNeighborUpdate2(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+		if ((direction == Direction.UP && IBlock.getStatePropertySafe(state, THIRD) != EnumThird.UPPER || direction == Direction.DOWN && IBlock.getStatePropertySafe(state, THIRD) != EnumThird.LOWER) && !neighborState.isOf(new Block(this))) {
+			return Blocks.getAirMapped().getDefaultState();
 		} else {
 			return state;
 		}
 	}
 
 	@Override
-	public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		switch (IBlock.getStatePropertySafe(state, THIRD)) {
 			case MIDDLE:
-				IBlock.onBreakCreative(world, player, pos.below());
+				IBlock.onBreakCreative(world, player, pos.down());
 				break;
 			case UPPER:
-				IBlock.onBreakCreative(world, player, pos.below(2));
+				IBlock.onBreakCreative(world, player, pos.down(2));
 				break;
 		}
-		super.playerWillDestroy(world, pos, state, player);
+		super.onBreak2(world, pos, state, player);
 	}
 
 	@Override
-	public void setPlacedBy(Level world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
-		if (!world.isClientSide) {
+	public void onPlaced2(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+		if (!world.isClient()) {
 			final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-			world.setBlock(pos.above(), defaultBlockState().setValue(FACING, facing).setValue(METAL, true).setValue(THIRD, EnumThird.MIDDLE), 3);
-			world.setBlock(pos.above(2), defaultBlockState().setValue(FACING, facing).setValue(METAL, true).setValue(THIRD, EnumThird.UPPER), 3);
-			world.updateNeighborsAt(pos, Blocks.AIR);
-			state.updateNeighbourShapes(world, pos, 3);
+			world.setBlockState(pos.up(), getDefaultState2().with(new Property<>(FACING.data), facing.data).with(new Property<>(METAL.data), true).with(new Property<>(THIRD.data), EnumThird.MIDDLE), 3);
+			world.setBlockState(pos.up(2), getDefaultState2().with(new Property<>(FACING.data), facing.data).with(new Property<>(METAL.data), true).with(new Property<>(THIRD.data), EnumThird.UPPER), 3);
+			world.updateNeighbors(pos, Blocks.getAirMapped());
+			state.updateNeighbors(new WorldAccess(world.data), pos, 3);
 		}
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(COLOR, FACING, METAL, THIRD);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(COLOR);
+		properties.add(FACING);
+		properties.add(METAL);
+		properties.add(THIRD);
 	}
 
-	protected static Tuple<Integer, Integer> getBounds(BlockState state) {
+	protected static ImmutablePair<Integer, Integer> getBounds(BlockState state) {
 		final EnumThird third = IBlock.getStatePropertySafe(state, THIRD);
 		final int start, end;
 		switch (third) {
@@ -108,16 +102,16 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 				end = 16;
 				break;
 		}
-		return new Tuple<>(start, end);
+		return new ImmutablePair<>(start, end);
 	}
 
-	private static void updateProperties(Level world, BlockPos pos, boolean metalProperty, int colorProperty) {
-		world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(COLOR, colorProperty).setValue(METAL, metalProperty));
+	private static void updateProperties(World world, BlockPos pos, boolean metalProperty, int colorProperty) {
+		world.setBlockState(pos, world.getBlockState(pos).with(new Property<>(COLOR.data), colorProperty).with(new Property<>(METAL.data), metalProperty));
 	}
 
-	public static class TileEntityStationNameTallBase extends TileEntityStationNameBase {
+	public static class BlockEntityTallBase extends BlockEntityBase {
 
-		public TileEntityStationNameTallBase(BlockEntityType<?> type, BlockPos pos, BlockState state, float zOffset, boolean isDoubleSided) {
+		public BlockEntityTallBase(BlockEntityType<?> type, BlockPos pos, BlockState state, float zOffset, boolean isDoubleSided) {
 			super(type, pos, state, 0.21875F, zOffset, isDoubleSided);
 		}
 

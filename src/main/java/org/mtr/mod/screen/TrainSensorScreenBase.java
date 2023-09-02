@@ -1,81 +1,76 @@
-package mtr.screen;
+package org.mtr.mod.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.block.BlockTrainSensorBase;
-import mtr.client.ClientData;
-import mtr.client.IDrawing;
-import mtr.data.IGui;
-import mtr.data.NameColorDataBase;
-import mtr.data.Route;
-import mtr.mappings.ScreenMapper;
-import mtr.mappings.Text;
-import mtr.mappings.UtilitiesClient;
-import mtr.packet.IPacket;
-import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import org.mtr.core.data.Route;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.registry.RegistryClient;
+import org.mtr.mod.block.BlockTrainSensorBase;
+import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.data.IGui;
+import org.mtr.mod.packet.IPacket;
+import org.mtr.mod.packet.PacketUpdateTrainSensorConfig;
 
-import java.util.*;
+import java.util.Collections;
 
-public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui, IPacket {
+public abstract class TrainSensorScreenBase extends ScreenExtension implements IGui, IPacket {
 
 	private boolean stoppedOnly;
 	private boolean movingOnly;
 
-	protected final BlockPos pos;
-	protected final WidgetBetterTextField[] textFields;
+	protected final BlockPos blockPos;
+	protected final TextFieldWidgetExtension[] textFields;
 
-	private final Set<Long> filterRouteIds;
+	private final LongAVLTreeSet filterRouteIds;
 	private final int textFieldCount;
-	private final Component[] textFieldLabels;
-	private final WidgetBetterCheckbox stoppedOnlyCheckbox;
-	private final WidgetBetterCheckbox movingOnlyCheckbox;
-	private final Button filterButton;
+	private final MutableText[] textFieldLabels;
+	private final CheckboxWidgetExtension stoppedOnlyCheckbox;
+	private final CheckboxWidgetExtension movingOnlyCheckbox;
+	private final ButtonWidgetExtension filterButton;
 	private final boolean hasSpeedCheckboxes;
 	private final int yStart;
 
 	@SafeVarargs
-	public TrainSensorScreenBase(BlockPos pos, boolean hasSpeedCheckboxes, Tuple<WidgetBetterTextField, Component>... textFieldsAndLabels) {
-		super(Text.literal(""));
-		this.pos = pos;
+	public TrainSensorScreenBase(BlockPos blockPos, boolean hasSpeedCheckboxes, ObjectObjectImmutablePair<TextFieldWidgetExtension, MutableText>... textFieldsAndLabels) {
+		super();
+		this.blockPos = blockPos;
 
 		textFieldCount = textFieldsAndLabels.length;
-		textFields = new WidgetBetterTextField[textFieldCount];
-		textFieldLabels = new Component[textFieldCount];
+		textFields = new TextFieldWidgetExtension[textFieldCount];
+		textFieldLabels = new MutableText[textFieldCount];
 
 		for (int i = 0; i < textFieldCount; i++) {
-			textFields[i] = textFieldsAndLabels[i].getA();
-			textFieldLabels[i] = textFieldsAndLabels[i].getB();
+			textFields[i] = textFieldsAndLabels[i].left();
+			textFieldLabels[i] = textFieldsAndLabels[i].right();
 		}
 
-		final Level world = Minecraft.getInstance().level;
-		if (world == null) {
-			filterRouteIds = new HashSet<>();
+		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
+		if (clientWorld == null) {
+			filterRouteIds = new LongAVLTreeSet();
 		} else {
-			final BlockEntity entity = world.getBlockEntity(pos);
-			if (entity instanceof BlockTrainSensorBase.TileEntityTrainSensorBase) {
-				filterRouteIds = ((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).getRouteIds();
-				stoppedOnly = ((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).getStoppedOnly();
-				movingOnly = ((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).getMovingOnly();
+			final BlockEntity blockEntity = clientWorld.getBlockEntity(blockPos);
+			if (blockEntity != null && blockEntity.data instanceof BlockTrainSensorBase.BlockEntityBase) {
+				filterRouteIds = ((BlockTrainSensorBase.BlockEntityBase) blockEntity.data).getRouteIds();
+				stoppedOnly = ((BlockTrainSensorBase.BlockEntityBase) blockEntity.data).getStoppedOnly();
+				movingOnly = ((BlockTrainSensorBase.BlockEntityBase) blockEntity.data).getMovingOnly();
 			} else {
-				filterRouteIds = new HashSet<>();
+				filterRouteIds = new LongAVLTreeSet();
 			}
 		}
 
-		stoppedOnlyCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.stopped_only"), checked -> setChecked(checked, movingOnly));
-		movingOnlyCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.moving_only"), checked -> setChecked(stoppedOnly, checked));
+		stoppedOnlyCheckbox = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> setChecked(checked, movingOnly));
+		stoppedOnlyCheckbox.setMessage2(new Text(TextHelper.translatable("gui.mtr.stopped_only").data));
+		movingOnlyCheckbox = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> setChecked(stoppedOnly, checked));
+		movingOnlyCheckbox.setMessage2(new Text(TextHelper.translatable("gui.mtr.moving_only").data));
 
-		filterButton = UtilitiesClient.newButton(button -> {
-			if (minecraft != null) {
-				final List<NameColorDataBase> routes = new ArrayList<>(ClientData.ROUTES);
-				Collections.sort(routes);
-				UtilitiesClient.setScreen(minecraft, new DashboardListSelectorScreen(this, routes, filterRouteIds, false, false));
-			}
+		filterButton = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> {
+			final ObjectArrayList<DashboardListItem> routes = new ObjectArrayList<>(ClientData.convertDataSet(ClientData.instance.routes));
+			Collections.sort(routes);
+			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this, new ObjectImmutableList<>(routes), filterRouteIds, false, false)));
 		});
 
 		this.hasSpeedCheckboxes = hasSpeedCheckboxes;
@@ -83,75 +78,75 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 	}
 
 	@Override
-	protected void init() {
-		super.init();
+	protected void init2() {
+		super.init2();
 
 		final int textFieldWidth = textFieldCount == 0 ? 0 : (width - SQUARE_SIZE * 2) / textFieldCount;
 		for (int i = 0; i < textFieldCount; i++) {
 			IDrawing.setPositionAndWidth(textFields[i], SQUARE_SIZE + TEXT_FIELD_PADDING / 2 + textFieldWidth * i, SQUARE_SIZE + TEXT_HEIGHT + TEXT_PADDING + TEXT_FIELD_PADDING / 2, textFieldWidth - TEXT_FIELD_PADDING);
-			addDrawableChild(textFields[i]);
+			addChild(new ClickableWidget(textFields[i]));
 		}
 
 		if (hasSpeedCheckboxes) {
 			IDrawing.setPositionAndWidth(stoppedOnlyCheckbox, SQUARE_SIZE, yStart - SQUARE_SIZE * 2, PANEL_WIDTH);
 			IDrawing.setPositionAndWidth(movingOnlyCheckbox, SQUARE_SIZE, yStart - SQUARE_SIZE, PANEL_WIDTH);
-			addDrawableChild(stoppedOnlyCheckbox);
-			addDrawableChild(movingOnlyCheckbox);
+			addChild(new ClickableWidget(stoppedOnlyCheckbox));
+			addChild(new ClickableWidget(movingOnlyCheckbox));
 			setChecked(stoppedOnly, movingOnly);
 		}
 
 		IDrawing.setPositionAndWidth(filterButton, SQUARE_SIZE, yStart + SQUARE_SIZE * 2, PANEL_WIDTH / 2);
-		filterButton.setMessage(Text.translatable("selectWorld.edit"));
-		addDrawableChild(filterButton);
+		filterButton.setMessage2(new Text(TextHelper.translatable("selectWorld.edit").data));
+		addChild(new ClickableWidget(filterButton));
 	}
 
 	@Override
-	public void tick() {
-		for (final WidgetBetterTextField textField : textFields) {
-			textField.tick();
+	public void tick2() {
+		for (final TextFieldWidgetExtension textField : textFields) {
+			textField.tick2();
 		}
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 		try {
-			renderBackground(matrices);
+			renderBackground(graphicsHolder);
 			for (int i = 0; i < textFieldCount; i++) {
-				font.draw(matrices, textFieldLabels[i], SQUARE_SIZE + (float) (width / 2 - SQUARE_SIZE) * i, SQUARE_SIZE, ARGB_WHITE);
+				graphicsHolder.drawText(textFieldLabels[i], SQUARE_SIZE + (width / 2 - SQUARE_SIZE) * i, SQUARE_SIZE, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
 			}
-			font.draw(matrices, Text.translatable("gui.mtr.filtered_routes", filterRouteIds.size()), SQUARE_SIZE, yStart + TEXT_PADDING, ARGB_WHITE);
-			font.draw(matrices, Text.translatable(filterRouteIds.isEmpty() ? "gui.mtr.filtered_routes_empty" : "gui.mtr.filtered_routes_condition"), SQUARE_SIZE, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+			graphicsHolder.drawText(TextHelper.translatable("gui.mtr.filtered_routes", filterRouteIds.size()), SQUARE_SIZE, yStart + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+			graphicsHolder.drawText(TextHelper.translatable(filterRouteIds.isEmpty() ? "gui.mtr.filtered_routes_empty" : "gui.mtr.filtered_routes_condition"), SQUARE_SIZE, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
 			int i = 0;
 			for (final long routeId : filterRouteIds) {
-				final Route route = ClientData.DATA_CACHE.routeIdMap.get(routeId);
+				final Route route = ClientData.instance.routeIdMap.get(routeId);
 				if (route != null) {
-					font.draw(matrices, Text.literal(IGui.formatStationName(route.name)), SQUARE_SIZE, yStart + SQUARE_SIZE * 3 + TEXT_PADDING + i, ARGB_WHITE);
+					graphicsHolder.drawText(TextHelper.literal(IGui.formatStationName(route.getName())), SQUARE_SIZE, yStart + SQUARE_SIZE * 3 + TEXT_PADDING + i, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
 				}
 				i += TEXT_HEIGHT;
 			}
-			renderAdditional(matrices);
-			super.render(matrices, mouseX, mouseY, delta);
+			renderAdditional(graphicsHolder);
+			super.render(graphicsHolder, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void onClose() {
+	public void onClose2() {
 		final String[] strings = new String[textFieldCount];
 		for (int i = 0; i < textFieldCount; i++) {
-			strings[i] = textFields[i].getValue();
+			strings[i] = textFields[i].getText2();
 		}
-		PacketTrainDataGuiClient.sendTrainSensorC2S(pos, filterRouteIds, stoppedOnly, movingOnly, getNumber(), strings);
-		super.onClose();
+		RegistryClient.sendPacketToServer(new PacketUpdateTrainSensorConfig(blockPos, filterRouteIds, stoppedOnly, movingOnly, getNumber(), strings));
+		super.onClose2();
 	}
 
 	@Override
-	public boolean isPauseScreen() {
+	public boolean isPauseScreen2() {
 		return false;
 	}
 
-	protected void renderAdditional(PoseStack matrices) {
+	protected void renderAdditional(GraphicsHolder graphicsHolder) {
 	}
 
 	protected int getNumber() {

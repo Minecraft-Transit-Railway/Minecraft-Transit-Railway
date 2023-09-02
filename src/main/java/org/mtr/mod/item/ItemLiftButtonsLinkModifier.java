@@ -1,61 +1,31 @@
-package mtr.item;
+package org.mtr.mod.item;
 
-import mtr.CreativeModeTabs;
-import mtr.block.BlockLiftButtons;
-import mtr.block.BlockLiftPanelBase;
-import mtr.block.BlockLiftTrackFloor;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import org.mtr.mapping.holder.*;
+import org.mtr.mod.block.BlockLiftButtons;
+import org.mtr.mod.block.BlockLiftPanelBase;
+import org.mtr.mod.block.BlockLiftTrackFloor;
 
 public class ItemLiftButtonsLinkModifier extends ItemBlockClickingBase {
 
 	private final boolean isConnector;
 
-	public ItemLiftButtonsLinkModifier(boolean isConnector) {
-		super(CreativeModeTabs.ESCALATORS_LIFTS, properties -> properties.stacksTo(1));
+	public ItemLiftButtonsLinkModifier(boolean isConnector, ItemSettings itemSettings) {
+		super(itemSettings.maxCount(1));
 		this.isConnector = isConnector;
 	}
 
 	@Override
-	protected void onStartClick(UseOnContext context, CompoundTag compoundTag) {
+	protected void onStartClick(ItemUsageContext context, CompoundTag compoundTag) {
 	}
 
 	@Override
-	protected void onEndClick(UseOnContext context, BlockPos posEnd, CompoundTag compoundTag) {
-		final Level world = context.getLevel();
-		final BlockPos posStart = context.getClickedPos();
-		final Block blockStart = world.getBlockState(posStart).getBlock();
-		final Block blockEnd = world.getBlockState(posEnd).getBlock();
-
-		if (blockStart instanceof BlockLiftTrackFloor && blockEnd instanceof BlockLiftButtons || blockStart instanceof BlockLiftButtons && blockEnd instanceof BlockLiftTrackFloor || blockStart instanceof BlockLiftTrackFloor && blockEnd instanceof BlockLiftPanelBase || blockStart instanceof BlockLiftPanelBase && blockEnd instanceof BlockLiftTrackFloor) {
-			final BlockPos posFloor;
-			final BlockPos posButtons;
-			if (blockStart instanceof BlockLiftTrackFloor) {
-				posFloor = posStart;
-				posButtons = posEnd;
-			} else {
-				posFloor = posEnd;
-				posButtons = posStart;
-			}
-
-			final BlockEntity blockEntity = world.getBlockEntity(posButtons);
-			if (blockEntity instanceof BlockLiftButtons.TileEntityLiftButtons) {
-				((BlockLiftButtons.TileEntityLiftButtons) blockEntity).registerFloor(posFloor, isConnector);
-			}
-
-			if (blockEntity instanceof BlockLiftPanelBase.TileEntityLiftPanel1Base) {
-				((BlockLiftPanelBase.TileEntityLiftPanel1Base) blockEntity).registerFloor(posFloor, isConnector);
-			}
-		}
+	protected void onEndClick(ItemUsageContext context, BlockPos posEnd, CompoundTag compoundTag) {
+		// TODO
 	}
 
 	@Override
-	protected boolean clickCondition(UseOnContext context) {
-		final Block block = context.getLevel().getBlockState(context.getClickedPos()).getBlock();
-		return block instanceof BlockLiftTrackFloor || block instanceof BlockLiftButtons || block instanceof BlockLiftPanelBase;
+	protected boolean clickCondition(ItemUsageContext context) {
+		final Block block = context.getWorld().getBlockState(context.getBlockPos()).getBlock();
+		return block.data instanceof BlockLiftTrackFloor || block.data instanceof BlockLiftButtons || block.data instanceof BlockLiftPanelBase;
 	}
 }

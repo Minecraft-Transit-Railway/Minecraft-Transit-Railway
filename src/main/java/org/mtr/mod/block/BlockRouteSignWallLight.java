@@ -1,20 +1,16 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.BlockEntityTypes;
-import mtr.mappings.BlockEntityMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mod.BlockEntityTypes;
+
+import javax.annotation.Nonnull;
 
 public class BlockRouteSignWallLight extends BlockRouteSignBase implements IBlock {
 
+	@Nonnull
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final boolean isLower = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.LOWER;
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 		final VoxelShape main = IBlock.getVoxelShapeByDirection(1.5, isLower ? 10 : 0, 0, 14.5, 16, 1, facing);
@@ -22,19 +18,19 @@ public class BlockRouteSignWallLight extends BlockRouteSignBase implements IBloc
 			return main;
 		} else {
 			final VoxelShape light = IBlock.getVoxelShapeByDirection(1.5, 15, 0, 14.5, 16, 4, facing);
-			return Shapes.or(main, light);
+			return VoxelShapes.union(main, light);
 		}
 	}
 
 	@Override
-	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
-		return new TileEntityRouteSignWallLight(pos, state);
+	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new BlockEntity(blockPos, blockState);
 	}
 
-	public static class TileEntityRouteSignWallLight extends TileEntityRouteSignBase {
+	public static class BlockEntity extends BlockEntityBase {
 
-		public TileEntityRouteSignWallLight(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.ROUTE_SIGN_WALL_LIGHT_TILE_ENTITY.get(), pos, state);
+		public BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.ROUTE_SIGN_WALL_LIGHT.get(), pos, state);
 		}
 	}
 }

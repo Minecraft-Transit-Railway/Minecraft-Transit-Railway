@@ -1,54 +1,51 @@
-package mtr.screen;
+package org.mtr.mod.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.block.BlockLiftTrackFloor;
-import mtr.client.IDrawing;
-import mtr.data.IGui;
-import mtr.mappings.ScreenMapper;
-import mtr.mappings.Text;
-import mtr.packet.IPacket;
-import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.registry.RegistryClient;
+import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.block.BlockLiftTrackFloor;
+import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.data.IGui;
+import org.mtr.mod.packet.IPacket;
+import org.mtr.mod.packet.PacketUpdateLiftTrackFloorConfig;
 
-public class LiftTrackFloorScreen extends ScreenMapper implements IGui, IPacket {
+public class LiftTrackFloorScreen extends ScreenExtension implements IGui, IPacket {
 
-	private final WidgetBetterTextField textFieldFloorNumber;
-	private final WidgetBetterTextField textFieldFloorDescription;
-	private final WidgetBetterCheckbox checkboxShouldDing;
+	private final TextFieldWidgetExtension textFieldFloorNumber;
+	private final TextFieldWidgetExtension textFieldFloorDescription;
+	private final CheckboxWidgetExtension checkboxShouldDing;
 
-	private final BlockPos pos;
+	private final BlockPos blockPos;
 	private final String initialFloorNumber;
 	private final String initialFloorDescription;
 	private final boolean initialShouldDing;
 	private final int textWidth;
-	private static final Component TEXT_FLOOR_NUMBER = Text.translatable("gui.mtr.lift_floor_number");
-	private static final Component TEXT_FLOOR_DESCRIPTION = Text.translatable("gui.mtr.lift_floor_description");
+	private static final MutableText TEXT_FLOOR_NUMBER = TextHelper.translatable("gui.mtr.lift_floor_number");
+	private static final MutableText TEXT_FLOOR_DESCRIPTION = TextHelper.translatable("gui.mtr.lift_floor_description");
 	private static final int TEXT_FIELD_WIDTH = 240;
 
-	public LiftTrackFloorScreen(BlockPos pos) {
-		super(Text.literal(""));
-		this.pos = pos;
+	public LiftTrackFloorScreen(BlockPos blockPos) {
+		super();
+		this.blockPos = blockPos;
 
-		textFieldFloorNumber = new WidgetBetterTextField("1", 8);
-		textFieldFloorDescription = new WidgetBetterTextField("Concourse");
-		checkboxShouldDing = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.lift_should_ding"), checked -> {
+		textFieldFloorNumber = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 8, TextCase.DEFAULT, null, "1");
+		textFieldFloorDescription = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 256, TextCase.DEFAULT, null, "Concourse");
+		checkboxShouldDing = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
 		});
+		checkboxShouldDing.setMessage2(new Text(TextHelper.translatable("gui.mtr.lift_should_ding").data));
 
-		final Level world = Minecraft.getInstance().level;
-		if (world == null) {
+		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
+		if (clientWorld == null) {
 			initialFloorNumber = "1";
 			initialFloorDescription = "";
 			initialShouldDing = false;
 		} else {
-			final BlockEntity entity = world.getBlockEntity(pos);
-			if (entity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor) {
-				initialFloorNumber = ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) entity).getFloorNumber();
-				initialFloorDescription = ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) entity).getFloorDescription();
-				initialShouldDing = ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) entity).getShouldDing();
+			final BlockEntity blockEntity = clientWorld.getBlockEntity(blockPos);
+			if (blockEntity != null && blockEntity.data instanceof BlockLiftTrackFloor.BlockEntity) {
+				initialFloorNumber = ((BlockLiftTrackFloor.BlockEntity) blockEntity.data).getFloorNumber();
+				initialFloorDescription = ((BlockLiftTrackFloor.BlockEntity) blockEntity.data).getFloorDescription();
+				initialShouldDing = ((BlockLiftTrackFloor.BlockEntity) blockEntity.data).getShouldDing();
 			} else {
 				initialFloorNumber = "1";
 				initialFloorDescription = "";
@@ -56,13 +53,12 @@ public class LiftTrackFloorScreen extends ScreenMapper implements IGui, IPacket 
 			}
 		}
 
-		font = Minecraft.getInstance().font;
-		textWidth = Math.max(font.width(TEXT_FLOOR_NUMBER), font.width(TEXT_FLOOR_DESCRIPTION));
+		textWidth = Math.max(GraphicsHolder.getTextWidth(TEXT_FLOOR_NUMBER), GraphicsHolder.getTextWidth(TEXT_FLOOR_DESCRIPTION));
 	}
 
 	@Override
-	protected void init() {
-		super.init();
+	protected void init2() {
+		super.init2();
 
 		final int startX = (width - textWidth - TEXT_PADDING - TEXT_FIELD_WIDTH) / 2;
 		final int startY = (height - SQUARE_SIZE * 3 - TEXT_FIELD_PADDING * 2) / 2;
@@ -70,43 +66,39 @@ public class LiftTrackFloorScreen extends ScreenMapper implements IGui, IPacket 
 		IDrawing.setPositionAndWidth(textFieldFloorDescription, startX + textWidth + TEXT_PADDING + TEXT_FIELD_PADDING / 2, startY + SQUARE_SIZE + TEXT_FIELD_PADDING * 3 / 2, TEXT_FIELD_WIDTH - TEXT_FIELD_PADDING);
 		IDrawing.setPositionAndWidth(checkboxShouldDing, startX, startY + SQUARE_SIZE * 2 + TEXT_FIELD_PADDING * 2, TEXT_FIELD_WIDTH);
 
-		textFieldFloorNumber.setValue(initialFloorNumber);
-		textFieldFloorDescription.setValue(initialFloorDescription);
+		textFieldFloorNumber.setText2(initialFloorNumber);
+		textFieldFloorDescription.setText2(initialFloorDescription);
 		checkboxShouldDing.setChecked(initialShouldDing);
 
-		addDrawableChild(textFieldFloorNumber);
-		addDrawableChild(textFieldFloorDescription);
-		addDrawableChild(checkboxShouldDing);
+		addChild(new ClickableWidget(textFieldFloorNumber));
+		addChild(new ClickableWidget(textFieldFloorDescription));
+		addChild(new ClickableWidget(checkboxShouldDing));
 	}
 
 	@Override
-	public void tick() {
-		textFieldFloorNumber.tick();
-		textFieldFloorDescription.tick();
+	public void tick2() {
+		textFieldFloorNumber.tick2();
+		textFieldFloorDescription.tick2();
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		try {
-			renderBackground(matrices);
-			final int startX = (width - textWidth - TEXT_PADDING - TEXT_FIELD_WIDTH) / 2;
-			final int startY = (height - SQUARE_SIZE * 3 - TEXT_FIELD_PADDING * 2) / 2;
-			font.draw(matrices, TEXT_FLOOR_NUMBER, startX, startY + TEXT_FIELD_PADDING / 2F + TEXT_PADDING, ARGB_WHITE);
-			font.draw(matrices, TEXT_FLOOR_DESCRIPTION, startX, startY + SQUARE_SIZE + TEXT_FIELD_PADDING * 3 / 2F + TEXT_PADDING, ARGB_WHITE);
-			super.render(matrices, mouseX, mouseY, delta);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
+		renderBackground(graphicsHolder);
+		final int startX = (width - textWidth - TEXT_PADDING - TEXT_FIELD_WIDTH) / 2;
+		final int startY = (height - SQUARE_SIZE * 3 - TEXT_FIELD_PADDING * 2) / 2;
+		graphicsHolder.drawText(TEXT_FLOOR_NUMBER, startX, startY + TEXT_FIELD_PADDING / 2 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+		graphicsHolder.drawText(TEXT_FLOOR_DESCRIPTION, startX, startY + SQUARE_SIZE + TEXT_FIELD_PADDING * 3 / 2 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+		super.render(graphicsHolder, mouseX, mouseY, delta);
 	}
 
 	@Override
-	public void onClose() {
-		PacketTrainDataGuiClient.sendLiftTrackFloorC2S(pos, textFieldFloorNumber.getValue(), textFieldFloorDescription.getValue(), checkboxShouldDing.selected());
-		super.onClose();
+	public void onClose2() {
+		RegistryClient.sendPacketToServer(new PacketUpdateLiftTrackFloorConfig(blockPos, textFieldFloorNumber.getText2(), textFieldFloorDescription.getText2(), checkboxShouldDing.isChecked2()));
+		super.onClose2();
 	}
 
 	@Override
-	public boolean isPauseScreen() {
+	public boolean isPauseScreen2() {
 		return false;
 	}
 }

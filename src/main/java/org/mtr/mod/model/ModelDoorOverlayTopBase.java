@@ -1,20 +1,22 @@
-package mtr.model;
+package org.mtr.mod.model;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.world.entity.Entity;
+import org.mtr.mapping.holder.EntityAbstractMapping;
+import org.mtr.mapping.mapper.EntityModelExtension;
+import org.mtr.mapping.mapper.GraphicsHolder;
 
-public abstract class ModelDoorOverlayTopBase extends EntityModel<Entity> {
+public abstract class ModelDoorOverlayTopBase extends EntityModelExtension<EntityAbstractMapping> {
 
-	@Override
-	public void setupAnim(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
+	public ModelDoorOverlayTopBase(int textureWidth, int textureHeight) {
+		super(textureWidth, textureHeight);
 	}
 
 	@Override
-	public final void renderToBuffer(PoseStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+	public void setAngles2(EntityAbstractMapping entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
 	}
 
-	public abstract void render(PoseStack matrices, MultiBufferSource vertexConsumers, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ);
+	@Override
+	public final void render(GraphicsHolder graphicsHolder, int light, int overlay, float red, float green, float blue, float alpha) {
+	}
+
+	public abstract void renderNew(GraphicsHolder graphicsHolder, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ);
 }

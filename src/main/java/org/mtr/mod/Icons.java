@@ -1,4 +1,4 @@
-package mtr;
+package org.mtr.mod;
 
 public interface Icons {
 

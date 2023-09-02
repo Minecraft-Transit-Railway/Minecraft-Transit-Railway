@@ -1,123 +1,105 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.data.IGui;
-import mtr.mappings.BlockEntityClientSerializableMapper;
-import mtr.mappings.EntityBlockMapper;
-import mtr.mappings.Text;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.data.IGui;
 
-public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements EntityBlockMapper {
+import javax.annotation.Nonnull;
+import java.util.List;
+
+public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements BlockWithEntity {
 
 	public static final int MAX_OPEN_VALUE = 32;
 
-	public static final BooleanProperty END = BooleanProperty.create("end");
-	public static final BooleanProperty UNLOCKED = BooleanProperty.create("unlocked");
-	public static final BooleanProperty TEMP = BooleanProperty.create("temp");
+	public static final BooleanProperty END = BooleanProperty.of("end");
+	public static final BooleanProperty UNLOCKED = BooleanProperty.of("unlocked");
+	public static final BooleanProperty TEMP = BooleanProperty.of("temp");
 
+	@Nonnull
 	@Override
-	public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
-		if (IBlock.getSideDirection(state) == direction && !newState.is(this)) {
-			return Blocks.AIR.defaultBlockState();
+	public BlockState getStateForNeighborUpdate2(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+		if (IBlock.getSideDirection(state) == direction && !neighborState.isOf(new Block(this))) {
+			return Blocks.getAirMapped().getDefaultState();
 		} else {
-			final BlockState superState = super.updateShape(state, direction, newState, world, pos, posFrom);
-			if (superState.getBlock() == Blocks.AIR) {
+			final BlockState superState = super.getStateForNeighborUpdate2(state, direction, neighborState, world, pos, neighborPos);
+			if (superState.getBlock().equals(Blocks.getAirMapped())) {
 				return superState;
 			} else {
-				final boolean end = world.getBlockState(pos.relative(IBlock.getSideDirection(state).getOpposite())).getBlock() instanceof BlockPSDAPGGlassEndBase;
-				return superState.setValue(END, end);
+				final boolean end = world.getBlockState(pos.offset(IBlock.getSideDirection(state).getOpposite())).getBlock().data instanceof BlockPSDAPGGlassEndBase;
+				return superState.with(new Property<>(END.data), end);
 			}
 		}
 	}
 
 	@Override
-	public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		BlockPos offsetPos = pos;
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
-			offsetPos = offsetPos.below();
+			offsetPos = offsetPos.down();
 		}
 		if (IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT) {
-			offsetPos = offsetPos.relative(IBlock.getSideDirection(state));
+			offsetPos = offsetPos.offset(IBlock.getSideDirection(state));
 		}
 		IBlock.onBreakCreative(world, player, offsetPos);
-		super.playerWillDestroy(world, pos, state, player);
+		super.onBreak2(world, pos, state, player);
 	}
 
+	@Nonnull
 	@Override
-	public void tick(BlockState state, ServerLevel world, BlockPos pos) {
-		final BlockEntity entity = world.getBlockEntity(pos);
-		if (IBlock.getStatePropertySafe(state, UNLOCKED) && entity instanceof TileEntityPSDAPGDoorBase) {
-			((TileEntityPSDAPGDoorBase) entity).setOpen(0);
-		}
-	}
-
-	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
+	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			final boolean unlocked = IBlock.getStatePropertySafe(state, UNLOCKED);
 			for (int y = -1; y <= 1; y++) {
-				final BlockState scanState = world.getBlockState(pos.above(y));
-				if (state.is(scanState.getBlock())) {
-					lockDoor(world, pos.above(y), scanState, !unlocked);
+				final BlockState scanState = world.getBlockState(pos.up(y));
+				if (state.isOf(scanState.getBlock())) {
+					lockDoor(world, pos.up(y), scanState, !unlocked);
 				}
 			}
-			player.displayClientMessage(!unlocked ? Text.translatable("gui.mtr.psd_apg_door_unlocked") : Text.translatable("gui.mtr.psd_apg_door_locked"), true);
+			player.sendMessage(new Text((!unlocked ? TextHelper.translatable("gui.mtr.psd_apg_door_unlocked") : TextHelper.translatable("gui.mtr.psd_apg_door_locked")).data), true);
 		});
 	}
 
+	@Nonnull
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext collisionContext) {
+	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final BlockEntity entity = world.getBlockEntity(pos);
-		return entity instanceof TileEntityPSDAPGDoorBase && ((TileEntityPSDAPGDoorBase) entity).isOpen() ? Shapes.empty() : super.getCollisionShape(state, world, pos, collisionContext);
+		return entity != null && entity.data instanceof BlockEntityBase && ((BlockEntityBase) entity.data).isOpen() ? VoxelShapes.empty() : super.getCollisionShape2(state, world, pos, context);
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(END, FACING, HALF, SIDE, TEMP, UNLOCKED);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(END);
+		properties.add(FACING);
+		properties.add(HALF);
+		properties.add(SIDE);
+		properties.add(TEMP);
+		properties.add(UNLOCKED);
 	}
 
-	private static void lockDoor(Level world, BlockPos pos, BlockState state, boolean unlocked) {
+	private static void lockDoor(World world, BlockPos pos, BlockState state, boolean unlocked) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-		final BlockPos leftPos = pos.relative(facing.getCounterClockWise());
-		final BlockPos rightPos = pos.relative(facing.getClockWise());
+		final BlockPos leftPos = pos.offset(facing.rotateYCounterclockwise());
+		final BlockPos rightPos = pos.offset(facing.rotateYClockwise());
 		final BlockState leftState = world.getBlockState(leftPos);
 		final BlockState rightState = world.getBlockState(rightPos);
 
-		if (leftState.is(state.getBlock())) {
-			final BlockState toggled = leftState.setValue(UNLOCKED, unlocked);
-			world.setBlockAndUpdate(leftPos, toggled);
+		if (leftState.isOf(state.getBlock())) {
+			final BlockState toggled = leftState.with(new Property<>(UNLOCKED.data), unlocked);
+			world.setBlockState(leftPos, toggled);
 		}
 
-		if (rightState.is(state.getBlock())) {
-			final BlockState toggled = rightState.setValue(UNLOCKED, unlocked);
-			world.setBlockAndUpdate(rightPos, toggled);
+		if (rightState.isOf(state.getBlock())) {
+			final BlockState toggled = rightState.with(new Property<>(UNLOCKED.data), unlocked);
+			world.setBlockState(rightPos, toggled);
 		}
 
-		world.setBlockAndUpdate(pos, state.setValue(UNLOCKED, unlocked));
+		world.setBlockState(pos, state.with(new Property<>(UNLOCKED.data), unlocked));
 	}
 
-	public static abstract class TileEntityPSDAPGDoorBase extends BlockEntityClientSerializableMapper implements IGui {
+	public static abstract class BlockEntityBase extends BlockEntityExtension implements IGui {
 
 		private int open;
 		private float openClient;
@@ -126,7 +108,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 		private static final String KEY_OPEN = "open";
 		private static final String KEY_TEMP = "temp";
 
-		public TileEntityPSDAPGDoorBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		public BlockEntityBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
 		}
 
@@ -140,23 +122,25 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 		public void writeCompoundTag(CompoundTag compoundTag) {
 			compoundTag.putInt(KEY_OPEN, open);
 			compoundTag.putBoolean(KEY_TEMP, temp);
-			if (temp && level != null) {
-				level.setBlockAndUpdate(worldPosition, level.getBlockState(worldPosition).setValue(TEMP, false));
+			if (temp && getWorld2() != null) {
+				getWorld2().setBlockState(getPos2(), getWorld2().getBlockState(getPos2()).with(new Property<>(TEMP.data), false));
 				temp = false;
 			}
 		}
 
-		public AABB getRenderBoundingBox() {
-			return new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+		@Override
+		public void blockEntityTick() {
+			if (getWorld2() != null && IBlock.getStatePropertySafe(getWorld2(), getPos2(), new Property<>(UNLOCKED.data))) {
+				setOpen(0);
+			}
 		}
 
 		public void setOpen(int open) {
 			if (open != this.open) {
 				this.open = open;
-				setChanged();
-				syncData();
-				if (open == 1 && level != null) {
-					level.setBlockAndUpdate(worldPosition, level.getBlockState(worldPosition).setValue(TEMP, false));
+				markDirty2();
+				if (open == 1 && getWorld2() != null) {
+					getWorld2().setBlockState(getPos2(), getWorld2().getBlockState(getPos2()).with(new Property<>(TEMP.data), false));
 				}
 			}
 		}

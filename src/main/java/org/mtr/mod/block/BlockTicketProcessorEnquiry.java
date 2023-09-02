@@ -1,16 +1,11 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.SoundEvents;
-import mtr.data.TicketSystem;
-import mtr.mappings.Text;
-import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mod.SoundEvents;
+import org.mtr.mod.data.TicketSystem;
+
+import javax.annotation.Nonnull;
 
 public class BlockTicketProcessorEnquiry extends BlockTicketProcessor {
 
@@ -18,13 +13,14 @@ public class BlockTicketProcessorEnquiry extends BlockTicketProcessor {
 		super(false, false, false);
 	}
 
+	@Nonnull
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
-		if (!world.isClientSide) {
-			final int playerScore = TicketSystem.getPlayerScore(world, player, TicketSystem.BALANCE_OBJECTIVE).getScore();
-			player.displayClientMessage(Text.translatable("gui.mtr.balance", String.valueOf(playerScore)), true);
-			world.playSound(null, pos, SoundEvents.TICKET_PROCESSOR_ENTRY, SoundSource.BLOCKS, 1, 1);
+	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		if (!world.isClient()) {
+			final int playerScore = TicketSystem.getBalance(world, player);
+			player.sendMessage(new Text(TextHelper.translatable("gui.mtr.balance", String.valueOf(playerScore)).data), true);
+			world.playSound((PlayerEntity) null, pos, SoundEvents.TICKET_PROCESSOR_ENTRY.get(), SoundCategory.BLOCKS, 1, 1);
 		}
-		return InteractionResult.SUCCESS;
+		return ActionResult.SUCCESS;
 	}
 }

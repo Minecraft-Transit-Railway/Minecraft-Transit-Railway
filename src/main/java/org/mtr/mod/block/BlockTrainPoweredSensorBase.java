@@ -1,51 +1,43 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.mappings.Utilities;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import org.mtr.mapping.holder.*;
 
 public abstract class BlockTrainPoweredSensorBase extends BlockTrainSensorBase {
 
-	public static final IntegerProperty POWERED = IntegerProperty.create("powered", 0, 2);
+	public static final IntegerProperty POWERED = IntegerProperty.of("powered", 0, 2);
 	private static final int UPDATE_TICKS = 10;
 
 	public BlockTrainPoweredSensorBase() {
 		super();
-		registerDefaultState(defaultBlockState().setValue(POWERED, 0));
 	}
 
 	@Override
-	public void tick(BlockState state, ServerLevel world, BlockPos pos) {
+	public void scheduledTick2(BlockState state, ServerWorld world, BlockPos pos, Random random) {
 		final int oldPowered = IBlock.getStatePropertySafe(state, POWERED);
 		if (oldPowered > 0) {
-			world.setBlockAndUpdate(pos, state.setValue(POWERED, oldPowered - 1));
-			if (!world.getBlockTicks().hasScheduledTick(pos, this)) {
-				Utilities.scheduleBlockTick(world, pos, this, UPDATE_TICKS);
+			world.setBlockState(pos, state.with(new Property<>(POWERED.data), oldPowered - 1));
+			if (!hasScheduledTick(World.cast(world), pos, new Block(this))) {
+				scheduleBlockTick(World.cast(world), pos, new Block(this), UPDATE_TICKS);
 			}
 		}
 	}
 
 	@Override
-	public boolean isSignalSource(BlockState blockState) {
+	public boolean emitsRedstonePower2(BlockState blockState) {
 		return true;
 	}
 
 	@Override
-	public int getSignal(BlockState state, BlockGetter blockGetter, BlockPos blockPos, Direction direction) {
+	public int getWeakRedstonePower2(BlockState state, BlockView world, BlockPos pos, Direction direction) {
 		return IBlock.getStatePropertySafe(state, POWERED) > 0 ? 15 : 0;
 	}
 
-	public void power(Level world, BlockState state, BlockPos pos) {
+	public void power(World world, BlockState state, BlockPos pos) {
 		final int oldPowered = IBlock.getStatePropertySafe(state, POWERED);
 		if (oldPowered < 2) {
-			world.setBlockAndUpdate(pos, state.setValue(POWERED, 2));
-			if (oldPowered == 0 && !world.getBlockTicks().hasScheduledTick(pos, this)) {
-				Utilities.scheduleBlockTick(world, pos, this, UPDATE_TICKS);
+			world.setBlockState(pos, state.with(new Property<>(POWERED.data), 2));
+			if (oldPowered == 0 && !hasScheduledTick(world, pos, new Block(this))) {
+				scheduleBlockTick(world, pos, new Block(this), UPDATE_TICKS);
 			}
 		}
 	}

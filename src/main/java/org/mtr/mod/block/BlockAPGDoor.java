@@ -1,28 +1,32 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.BlockEntityTypes;
-import mtr.Items;
-import mtr.mappings.BlockEntityMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.state.BlockState;
+import org.mtr.mapping.holder.BlockPos;
+import org.mtr.mapping.holder.BlockState;
+import org.mtr.mapping.holder.Item;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mod.BlockEntityTypes;
+import org.mtr.mod.Items;
 
-public class BlockAPGDoor extends BlockPSDAPGDoorBase {
+import javax.annotation.Nonnull;
+
+public class BlockAPGDoor extends BlockPSDAPGDoorBase implements BlockWithEntity {
 
 	@Override
-	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
-		return new TileEntityAPGDoor(pos, state);
+	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new BlockEntity(blockPos, blockState);
 	}
 
+	@Nonnull
 	@Override
-	public Item asItem() {
+	public Item asItem2() {
 		return Items.APG_DOOR.get();
 	}
 
-	public static class TileEntityAPGDoor extends TileEntityPSDAPGDoorBase {
+	public static class BlockEntity extends BlockEntityBase {
 
-		public TileEntityAPGDoor(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.APG_DOOR_TILE_ENTITY.get(), pos, state);
+		public BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.APG_DOOR.get(), pos, state);
 		}
 	}
 }

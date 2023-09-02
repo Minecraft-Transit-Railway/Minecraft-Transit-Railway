@@ -1,65 +1,58 @@
-package mtr.item;
+package org.mtr.mod.item;
 
-import mtr.CreativeModeTabs;
-import mtr.mappings.Text;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.ItemExtension;
+import org.mtr.mapping.mapper.TextHelper;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.Function;
 
-public abstract class ItemBlockClickingBase extends ItemWithCreativeTabBase {
+public abstract class ItemBlockClickingBase extends ItemExtension {
 
 	public static final String TAG_POS = "pos";
 
-	public ItemBlockClickingBase(CreativeModeTabs.Wrapper creativeModeTab, Function<Properties, Properties> propertiesConsumer) {
-		super(creativeModeTab, propertiesConsumer);
+	public ItemBlockClickingBase(ItemSettings itemSettings) {
+		super(itemSettings);
 	}
 
+	@Nonnull
 	@Override
-	public InteractionResult useOn(UseOnContext context) {
-		if (!context.getLevel().isClientSide) {
+	public ActionResult useOnBlock2(ItemUsageContext context) {
+		if (!context.getWorld().isClient()) {
 			if (clickCondition(context)) {
-				final CompoundTag compoundTag = context.getItemInHand().getOrCreateTag();
+				final CompoundTag compoundTag = context.getStack().getOrCreateTag();
 
 				if (compoundTag.contains(TAG_POS)) {
-					final BlockPos posEnd = BlockPos.of(compoundTag.getLong(TAG_POS));
+					final BlockPos posEnd = BlockPos.fromLong(compoundTag.getLong(TAG_POS));
 					onEndClick(context, posEnd, compoundTag);
 					compoundTag.remove(TAG_POS);
 				} else {
-					compoundTag.putLong(TAG_POS, context.getClickedPos().asLong());
+					compoundTag.putLong(TAG_POS, context.getBlockPos().asLong());
 					onStartClick(context, compoundTag);
 				}
 
-				return InteractionResult.SUCCESS;
+				return ActionResult.SUCCESS;
 			} else {
-				return InteractionResult.FAIL;
+				return ActionResult.FAIL;
 			}
 		} else {
-			return super.useOn(context);
+			return super.useOnBlock2(context);
 		}
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag tooltipFlag) {
+	public void addTooltips(ItemStack stack, @Nullable World world, List<MutableText> tooltip, TooltipContext options) {
 		final CompoundTag compoundTag = stack.getOrCreateTag();
 		final long posLong = compoundTag.getLong(TAG_POS);
 		if (posLong != 0) {
-			tooltip.add(Text.translatable("tooltip.mtr.selected_block", BlockPos.of(posLong).toShortString()).setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
+			tooltip.add(TextHelper.translatable("tooltip.mtr.selected_block", BlockPos.fromLong(posLong).toShortString()).formatted(TextFormatting.GOLD));
 		}
 	}
 
-	protected abstract void onStartClick(UseOnContext context, CompoundTag compoundTag);
+	protected abstract void onStartClick(ItemUsageContext context, CompoundTag compoundTag);
 
-	protected abstract void onEndClick(UseOnContext context, BlockPos posEnd, CompoundTag compoundTag);
+	protected abstract void onEndClick(ItemUsageContext context, BlockPos posEnd, CompoundTag compoundTag);
 
-	protected abstract boolean clickCondition(UseOnContext context);
+	protected abstract boolean clickCondition(ItemUsageContext context);
 }

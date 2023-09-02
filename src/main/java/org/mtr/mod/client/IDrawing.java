@@ -1,65 +1,49 @@
-package mtr.client;
+package org.mtr.mod.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.text2speech.Narrator;
-import mtr.MTR;
-import mtr.data.IGui;
-import mtr.mappings.Text;
-import mtr.mappings.UtilitiesClient;
-import mtr.screen.WidgetBetterTextField;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
-import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
+import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.init.MTR;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.*;
+import org.mtr.mod.data.IGui;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.annotation.Nullable;
 
 public interface IDrawing {
 
-	static void drawStringWithFont(PoseStack matrices, Font textRenderer, MultiBufferSource.BufferSource immediate, String text, float x, float y, int light) {
-		drawStringWithFont(matrices, textRenderer, immediate, text, IGui.HorizontalAlignment.CENTER, IGui.VerticalAlignment.CENTER, x, y, -1, -1, 1, IGui.ARGB_WHITE, true, light, null);
+	static void drawStringWithFont(GraphicsHolder graphicsHolder, String text, float x, float y, int light) {
+		drawStringWithFont(graphicsHolder, text, IGui.HorizontalAlignment.CENTER, IGui.VerticalAlignment.CENTER, x, y, -1, -1, 1, IGui.ARGB_WHITE, true, light, null);
 	}
 
-	static void drawStringWithFont(PoseStack matrices, Font textRenderer, MultiBufferSource.BufferSource immediate, String text, IGui.HorizontalAlignment horizontalAlignment, IGui.VerticalAlignment verticalAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColor, boolean shadow, int light, DrawingCallback drawingCallback) {
-		drawStringWithFont(matrices, textRenderer, immediate, text, horizontalAlignment, verticalAlignment, horizontalAlignment, x, y, maxWidth, maxHeight, scale, textColor, shadow, light, drawingCallback);
+	static void drawStringWithFont(GraphicsHolder graphicsHolder, String text, IGui.HorizontalAlignment horizontalAlignment, IGui.VerticalAlignment verticalAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColor, boolean shadow, int light, @Nullable DrawingCallback drawingCallback) {
+		drawStringWithFont(graphicsHolder, text, horizontalAlignment, verticalAlignment, horizontalAlignment, x, y, maxWidth, maxHeight, scale, textColor, shadow, light, drawingCallback);
 	}
 
-	static void drawStringWithFont(PoseStack matrices, Font textRenderer, MultiBufferSource.BufferSource immediate, String text, IGui.HorizontalAlignment horizontalAlignment, IGui.VerticalAlignment verticalAlignment, IGui.HorizontalAlignment xAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColor, boolean shadow, int light, DrawingCallback drawingCallback) {
-		drawStringWithFont(matrices, textRenderer, immediate, text, horizontalAlignment, verticalAlignment, xAlignment, x, y, maxWidth, maxHeight, scale, textColor, textColor, 2, shadow, light, drawingCallback);
+	static void drawStringWithFont(GraphicsHolder graphicsHolder, String text, IGui.HorizontalAlignment horizontalAlignment, IGui.VerticalAlignment verticalAlignment, IGui.HorizontalAlignment xAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColor, boolean shadow, int light, @Nullable DrawingCallback drawingCallback) {
+		drawStringWithFont(graphicsHolder, text, horizontalAlignment, verticalAlignment, xAlignment, x, y, maxWidth, maxHeight, scale, textColor, textColor, 2, shadow, light, drawingCallback);
 	}
 
-	static void drawStringWithFont(PoseStack matrices, Font textRenderer, MultiBufferSource.BufferSource immediate, String text, IGui.HorizontalAlignment horizontalAlignment, IGui.VerticalAlignment verticalAlignment, IGui.HorizontalAlignment xAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColorCjk, int textColor, float fontSizeRatio, boolean shadow, int light, DrawingCallback drawingCallback) {
-		final Style style = Config.useMTRFont() ? Style.EMPTY.withFont(new ResourceLocation(MTR.MOD_ID, "mtr")) : Style.EMPTY;
+	static void drawStringWithFont(GraphicsHolder graphicsHolder, String text, IGui.HorizontalAlignment horizontalAlignment, IGui.VerticalAlignment verticalAlignment, IGui.HorizontalAlignment xAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColorCjk, int textColor, float fontSizeRatio, boolean shadow, int light, @Nullable DrawingCallback drawingCallback) {
+		final Style style = Config.useMTRFont() ? Style.getEmptyMapped().withFont(new Identifier(MTR.MOD_ID, "mtr")) : Style.getEmptyMapped();
 
 		while (text.contains("||")) {
 			text = text.replace("||", "|");
 		}
 		final String[] stringSplit = text.split("\\|");
 
-		final List<Boolean> isCJKList = new ArrayList<>();
-		final List<FormattedCharSequence> orderedTexts = new ArrayList<>();
+		final BooleanArrayList isCJKList = new BooleanArrayList();
+		final ObjectArrayList<OrderedText> orderedTexts = new ObjectArrayList<>();
 		int totalHeight = 0, totalWidth = 0;
 		for (final String stringSplitPart : stringSplit) {
 			final boolean isCJK = IGui.isCjk(stringSplitPart);
 			isCJKList.add(isCJK);
 
-			final FormattedCharSequence orderedText = Text.literal(stringSplitPart).setStyle(style).getVisualOrderText();
+			final OrderedText orderedText = TextHelper.mutableTextToOrderedText(TextHelper.setStyle(TextHelper.literal(stringSplitPart), style));
 			orderedTexts.add(orderedText);
 
-			totalHeight += IGui.LINE_HEIGHT * (isCJK ? fontSizeRatio : 1);
-			final int width = (int) Math.ceil(textRenderer.width(orderedText) * (isCJK ? fontSizeRatio : 1));
+			totalHeight += Math.round(IGui.LINE_HEIGHT * (isCJK ? fontSizeRatio : 1));
+			final int width = (int) Math.ceil(GraphicsHolder.getTextWidth(orderedText) * (isCJK ? fontSizeRatio : 1));
 			if (width > totalWidth) {
 				totalWidth = width;
 			}
@@ -69,7 +53,7 @@ public interface IDrawing {
 			scale = totalHeight / maxHeight;
 		}
 
-		matrices.pushPose();
+		graphicsHolder.push();
 
 		final float totalWidthScaled;
 		final float scaleX;
@@ -80,37 +64,35 @@ public interface IDrawing {
 			totalWidthScaled = totalWidth;
 			scaleX = scale;
 		}
-		matrices.scale(1 / scaleX, 1 / scale, 1 / scale);
+		graphicsHolder.scale(1 / scaleX, 1 / scale, 1 / scale);
 
 		float offset = verticalAlignment.getOffset(y * scale, totalHeight);
 		for (int i = 0; i < orderedTexts.size(); i++) {
-			final boolean isCJK = isCJKList.get(i);
+			final boolean isCJK = isCJKList.getBoolean(i);
 			final float extraScale = isCJK ? fontSizeRatio : 1;
 			if (isCJK) {
-				matrices.pushPose();
-				matrices.scale(extraScale, extraScale, 1);
+				graphicsHolder.push();
+				graphicsHolder.scale(extraScale, extraScale, 1);
 			}
 
-			final float xOffset = horizontalAlignment.getOffset(xAlignment.getOffset(x * scaleX, totalWidth), textRenderer.width(orderedTexts.get(i)) * extraScale - totalWidth);
+			final float xOffset = horizontalAlignment.getOffset(xAlignment.getOffset(x * scaleX, totalWidth), GraphicsHolder.getTextWidth(orderedTexts.get(i)) * extraScale - totalWidth);
 
-			final float shade = light == IGui.MAX_LIGHT_GLOWING ? 1 : Math.min(LightTexture.block(light) / 16F * 0.1F + 0.7F, 1);
+			final float shade = light == IGui.MAX_LIGHT_GLOWING ? 1 : Math.min(LightmapTextureManager.getBlockLightCoordinates(light) / 16F * 0.1F + 0.7F, 1);
 			final int a = ((isCJK ? textColorCjk : textColor) >> 24) & 0xFF;
 			final int r = (int) ((((isCJK ? textColorCjk : textColor) >> 16) & 0xFF) * shade);
 			final int g = (int) ((((isCJK ? textColorCjk : textColor) >> 8) & 0xFF) * shade);
 			final int b = (int) (((isCJK ? textColorCjk : textColor) & 0xFF) * shade);
 
-			if (immediate != null) {
-				UtilitiesClient.drawInBatch(textRenderer, orderedTexts.get(i), xOffset / extraScale, offset / extraScale, (a << 24) + (r << 16) + (g << 8) + b, shadow, matrices.last().pose(), immediate, 0, light);
-			}
+			graphicsHolder.drawText(orderedTexts.get(i), Math.round(xOffset / extraScale), Math.round(offset / extraScale), (a << 24) + (r << 16) + (g << 8) + b, shadow, light);
 
 			if (isCJK) {
-				matrices.popPose();
+				graphicsHolder.pop();
 			}
 
 			offset += IGui.LINE_HEIGHT * extraScale;
 		}
 
-		matrices.popPose();
+		graphicsHolder.pop();
 
 		if (drawingCallback != null) {
 			final float x1 = xAlignment.getOffset(x, totalWidthScaled / scale);
@@ -119,63 +101,54 @@ public interface IDrawing {
 		}
 	}
 
-	static void drawLine(PoseStack matrices, MultiBufferSource vertexConsumers, float x1, float y1, float z1, float x2, float y2, float z2, int r, int g, int b) {
-		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderType.lines());
-		final PoseStack.Pose pose = matrices.last();
-		vertexConsumer.vertex(pose.pose(), x1, y1, z1).color(r, g, b, 0xFF).normal(pose.normal(), 0, 1, 0).endVertex();
-		vertexConsumer.vertex(pose.pose(), x2, y2, z2).color(r, g, b, 0xFF).normal(pose.normal(), 0, 1, 0).endVertex();
+	static void drawTexture(GraphicsHolder graphicsHolder, float x1, float y1, float z1, float x2, float y2, float z2, Direction facing, int color, int light) {
+		drawTexture(graphicsHolder, x1, y1, z1, x2, y2, z2, 0, 0, 1, 1, facing, color, light);
 	}
 
-	static void drawRectangle(VertexConsumer vertexConsumer, double x1, double y1, double x2, double y2, int color) {
-		final int a = (color >> 24) & 0xFF;
-		final int r = (color >> 16) & 0xFF;
-		final int g = (color >> 8) & 0xFF;
-		final int b = color & 0xFF;
-		if (a == 0) {
-			return;
-		}
-		vertexConsumer.vertex(x1, y1, 0).color(r, g, b, a).endVertex();
-		vertexConsumer.vertex(x1, y2, 0).color(r, g, b, a).endVertex();
-		vertexConsumer.vertex(x2, y2, 0).color(r, g, b, a).endVertex();
-		vertexConsumer.vertex(x2, y1, 0).color(r, g, b, a).endVertex();
+	static void drawTexture(GraphicsHolder graphicsHolder, float x, float y, float width, float height, Direction facing, int light) {
+		drawTexture(graphicsHolder, x, y, 0, x + width, y + height, 0, 0, 0, 1, 1, facing, -1, light);
 	}
 
-	static void drawTexture(PoseStack matrices, VertexConsumer vertexConsumer, float x1, float y1, float z1, float x2, float y2, float z2, Direction facing, int color, int light) {
-		drawTexture(matrices, vertexConsumer, x1, y1, z1, x2, y2, z2, 0, 0, 1, 1, facing, color, light);
+	static void drawTexture(GraphicsHolder graphicsHolder, float x, float y, float width, float height, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
+		drawTexture(graphicsHolder, x, y, 0, x + width, y + height, 0, u1, v1, u2, v2, facing, color, light);
 	}
 
-	static void drawTexture(PoseStack matrices, VertexConsumer vertexConsumer, float x, float y, float width, float height, Direction facing, int light) {
-		drawTexture(matrices, vertexConsumer, x, y, 0, x + width, y + height, 0, 0, 0, 1, 1, facing, -1, light);
+	static void drawTexture(GraphicsHolder graphicsHolder, float x1, float y1, float z1, float x2, float y2, float z2, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
+		drawTexture(graphicsHolder, x1, y2, z1, x2, y2, z2, x2, y1, z2, x1, y1, z1, u1, v1, u2, v2, facing, color, light);
 	}
 
-	static void drawTexture(PoseStack matrices, VertexConsumer vertexConsumer, float x, float y, float width, float height, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
-		drawTexture(matrices, vertexConsumer, x, y, 0, x + width, y + height, 0, u1, v1, u2, v2, facing, color, light);
+	static void drawTexture(GraphicsHolder graphicsHolder, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
+		graphicsHolder.drawTextureInWorld(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, u1, v1, u2, v2, facing, color, light);
 	}
 
-	static void drawTexture(PoseStack matrices, VertexConsumer vertexConsumer, float x1, float y1, float z1, float x2, float y2, float z2, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
-		drawTexture(matrices, vertexConsumer, x1, y2, z1, x2, y2, z2, x2, y1, z2, x1, y1, z1, u1, v1, u2, v2, facing, color, light);
+	static void setPositionAndWidth(ButtonWidgetExtension widget, int x, int y, int widgetWidth) {
+		widget.setX2(x);
+		widget.setY2(y);
+		widget.setWidth2(MathHelper.clamp(widgetWidth, 0, 380));
 	}
 
-	static void drawTexture(PoseStack matrices, VertexConsumer vertexConsumer, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
-		final Vec3i vec3i = facing.getNormal();
-		final PoseStack.Pose pose = matrices.last();
-		final int a = (color >> 24) & 0xFF;
-		final int r = (color >> 16) & 0xFF;
-		final int g = (color >> 8) & 0xFF;
-		final int b = color & 0xFF;
-		if (a == 0) {
-			return;
-		}
-		vertexConsumer.vertex(pose.pose(), x1, y1, z1).color(r, g, b, a).uv(u1, v2).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(pose.normal(), vec3i.getX(), vec3i.getY(), vec3i.getZ()).endVertex();
-		vertexConsumer.vertex(pose.pose(), x2, y2, z2).color(r, g, b, a).uv(u2, v2).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(pose.normal(), vec3i.getX(), vec3i.getY(), vec3i.getZ()).endVertex();
-		vertexConsumer.vertex(pose.pose(), x3, y3, z3).color(r, g, b, a).uv(u2, v1).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(pose.normal(), vec3i.getX(), vec3i.getY(), vec3i.getZ()).endVertex();
-		vertexConsumer.vertex(pose.pose(), x4, y4, z4).color(r, g, b, a).uv(u1, v1).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(pose.normal(), vec3i.getX(), vec3i.getY(), vec3i.getZ()).endVertex();
+	static void setPositionAndWidth(CheckboxWidgetExtension widget, int x, int y, int widgetWidth) {
+		widget.setX2(x);
+		widget.setY2(y);
+		widget.setWidth2(MathHelper.clamp(widgetWidth, 0, 380));
 	}
 
-	static void setPositionAndWidth(AbstractWidget widget, int x, int y, int widgetWidth) {
-		UtilitiesClient.setWidgetX(widget, x);
-		UtilitiesClient.setWidgetY(widget, y);
-		widget.setWidth(Mth.clamp(widgetWidth, 0, 380 - (widget instanceof WidgetBetterTextField ? IGui.TEXT_FIELD_PADDING : 0)));
+	static void setPositionAndWidth(TextFieldWidgetExtension widget, int x, int y, int widgetWidth) {
+		widget.setX2(x);
+		widget.setY2(y);
+		widget.setWidth2(MathHelper.clamp(widgetWidth, 0, 380 - IGui.TEXT_FIELD_PADDING));
+	}
+
+	static void setPositionAndWidth(TexturedButtonWidgetExtension widget, int x, int y, int widgetWidth) {
+		widget.setX2(x);
+		widget.setY2(y);
+		widget.setWidth2(MathHelper.clamp(widgetWidth, 0, 380));
+	}
+
+	static void setPositionAndWidth(SliderWidgetExtension widget, int x, int y, int widgetWidth) {
+		widget.setX2(x);
+		widget.setY2(y);
+		widget.setWidth2(MathHelper.clamp(widgetWidth, 0, 380));
 	}
 
 	static void narrateOrAnnounce(String message) {
@@ -185,9 +158,9 @@ public interface IDrawing {
 				Narrator.getNarrator().say(newMessage, true);
 			}
 			if (Config.showAnnouncementMessages()) {
-				final Player player = Minecraft.getInstance().player;
+				final ClientPlayerEntity player = MinecraftClient.getInstance().getPlayerMapped();
 				if (player != null) {
-					player.displayClientMessage(Text.literal(newMessage), false);
+					player.sendMessage(new Text(TextHelper.literal(newMessage).data), false);
 				}
 			}
 		}

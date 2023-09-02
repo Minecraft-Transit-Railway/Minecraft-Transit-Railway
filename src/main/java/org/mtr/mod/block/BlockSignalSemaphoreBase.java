@@ -1,52 +1,43 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.mappings.BlockDirectionalMapper;
-import mtr.mappings.BlockEntityMapper;
-import mtr.mappings.EntityBlockMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.mapper.DirectionHelper;
+import org.mtr.mapping.tool.HolderBase;
 
-public abstract class BlockSignalSemaphoreBase extends BlockDirectionalMapper implements EntityBlockMapper {
+import javax.annotation.Nonnull;
+import java.util.List;
 
-	public BlockSignalSemaphoreBase(Properties settings) {
-		super(settings);
+public abstract class BlockSignalSemaphoreBase extends BlockExtension implements DirectionHelper, BlockWithEntity {
+
+	public BlockSignalSemaphoreBase(BlockSettings blockSettings) {
+		super(blockSettings);
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		return defaultBlockState().setValue(FACING, ctx.getHorizontalDirection());
+	public BlockState getPlacementState2(ItemPlacementContext ctx) {
+		return getDefaultState2().with(new Property<>(FACING.data), ctx.getPlayerFacing().data);
+	}
+
+	@Nonnull
+	@Override
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return VoxelShapes.union(IBlock.getVoxelShapeByDirection(4, 4, 5, 12, 8, 11, IBlock.getStatePropertySafe(state, FACING)), Block.createCuboidShape(6, 0, 6, 10, 12, 10));
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
-		return Shapes.or(IBlock.getVoxelShapeByDirection(4, 4, 5, 12, 8, 11, IBlock.getStatePropertySafe(state, FACING)), Block.box(6, 0, 6, 10, 12, 10));
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(FACING);
 	}
 
-	@Override
-	public PushReaction getPistonPushReaction(BlockState blockState) {
-		return PushReaction.BLOCK;
-	}
-
-	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING);
-	}
-
-	public static abstract class TileEntitySignalSemaphoreBase extends BlockEntityMapper {
+	public static abstract class BlockEntityBase extends BlockEntityExtension {
 
 		public float angle1;
 		public float angle2;
 
-		public TileEntitySignalSemaphoreBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		public BlockEntityBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
 		}
 	}

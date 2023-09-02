@@ -1,40 +1,37 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.BlockEntityTypes;
-import mtr.mappings.BlockEntityMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mod.BlockEntityTypes;
+
+import javax.annotation.Nonnull;
 
 public class BlockStationNameTallWall extends BlockStationNameTallBase {
 
+	@Nonnull
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
-		final Tuple<Integer, Integer> bounds = getBounds(state);
-		return IBlock.getVoxelShapeByDirection(2, bounds.getA(), 0, 14, bounds.getB(), 0.5, IBlock.getStatePropertySafe(state, FACING));
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		final ImmutablePair<Integer, Integer> bounds = getBounds(state);
+		return IBlock.getVoxelShapeByDirection(2, bounds.getLeft(), 0, 14, bounds.getRight(), 0.5, IBlock.getStatePropertySafe(state, FACING));
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		final Direction blockSide = ctx.getClickedFace();
-		final Direction facing = blockSide == Direction.UP || blockSide == Direction.DOWN ? ctx.getHorizontalDirection() : blockSide.getOpposite();
-		return IBlock.isReplaceable(ctx, Direction.UP, 3) ? defaultBlockState().setValue(FACING, facing).setValue(METAL, true).setValue(THIRD, EnumThird.LOWER) : null;
+	public BlockState getPlacementState2(ItemPlacementContext ctx) {
+		final Direction blockSide = ctx.getSide();
+		final Direction facing = blockSide == Direction.UP || blockSide == Direction.DOWN ? ctx.getPlayerFacing() : blockSide.getOpposite();
+		return IBlock.isReplaceable(ctx, Direction.UP, 3) ? getDefaultState2().with(new Property<>(FACING.data), facing.data).with(new Property<>(METAL.data), true).with(new Property<>(THIRD.data), EnumThird.LOWER) : null;
 	}
 
 	@Override
-	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
-		return new TileEntityStationNameTallWall(pos, state);
+	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new BlockEntity(blockPos, blockState);
 	}
 
-	public static class TileEntityStationNameTallWall extends TileEntityStationNameTallBase {
+	public static class BlockEntity extends BlockEntityTallBase {
 
-		public TileEntityStationNameTallWall(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.STATION_NAME_TALL_WALL_TILE_ENTITY.get(), pos, state, 0.03125F, false);
+		public BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.STATION_NAME_TALL_WALL.get(), pos, state, 0.03125F, false);
 		}
 	}
 }

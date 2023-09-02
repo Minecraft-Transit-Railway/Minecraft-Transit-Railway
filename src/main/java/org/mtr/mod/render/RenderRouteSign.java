@@ -1,29 +1,19 @@
-package mtr.render;
+package org.mtr.mod.render;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import mtr.block.BlockRouteSignBase;
-import mtr.block.BlockStationNameBase;
-import mtr.block.IBlock;
-import mtr.client.ClientData;
-import mtr.client.IDrawing;
-import mtr.data.IGui;
-import mtr.data.Platform;
-import mtr.data.RailwayData;
-import mtr.data.Station;
-import mtr.mappings.BlockEntityRendererMapper;
-import mtr.mappings.UtilitiesClient;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import org.mtr.core.data.Platform;
+import org.mtr.core.data.Station;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockEntityRenderer;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mod.InitClient;
+import org.mtr.mod.block.BlockRouteSignBase;
+import org.mtr.mod.block.BlockStationNameBase;
+import org.mtr.mod.block.IBlock;
+import org.mtr.mod.client.DynamicTextureCache;
+import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.data.IGui;
 
-import java.util.Map;
-
-public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBase> extends BlockEntityRendererMapper<T> implements IBlock, IGui {
+public class RenderRouteSign<T extends BlockRouteSignBase.BlockEntityBase> extends BlockEntityRenderer<T> implements IBlock, IGui {
 
 	private static final float SIDE = 2.5F / 16;
 	private static final float BOTTOM = 10.5F / 16;
@@ -34,18 +24,18 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 	private static final float HEIGHT_TOP = TOP - MIDDLE;
 	private static final float TEXTURE_BREAK = MIDDLE / HEIGHT_BOTTOM;
 
-	public RenderRouteSign(BlockEntityRenderDispatcher dispatcher) {
+	public RenderRouteSign(BlockEntityRendererArgument dispatcher) {
 		super(dispatcher);
 	}
 
 	@Override
-	public void render(T entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
-		final BlockGetter world = entity.getLevel();
+	public void render(T entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
+		final World world = entity.getWorld2();
 		if (world == null) {
 			return;
 		}
 
-		final BlockPos pos = entity.getBlockPos();
+		final BlockPos pos = entity.getPos2();
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
 		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
@@ -55,37 +45,36 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 		final boolean isTop = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
 		final int arrowDirection = IBlock.getStatePropertySafe(state, BlockRouteSignBase.ARROW_DIRECTION);
 
-		final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
+		final Station station = InitClient.findStation(pos);
 		if (station == null) {
 			return;
 		}
 
-		final Map<Long, Platform> platformPositions = ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id);
-		if (platformPositions == null || platformPositions.isEmpty()) {
+		if (station.savedRails.isEmpty()) {
 			return;
 		}
 
-		final Platform platform = platformPositions.get(entity.getPlatformId());
+		final Platform platform = station.savedRails.stream().filter(checkPlatform -> checkPlatform.getId() == entity.getPlatformId()).findFirst().orElse(null);
 		if (platform == null) {
 			return;
 		}
 
-		matrices.pushPose();
-		matrices.translate(0.5, 0, 0.5);
-		UtilitiesClient.rotateYDegrees(matrices, -facing.toYRot());
-		matrices.translate(-0.5, 0, 0.4375 - SMALL_OFFSET * 2);
+		graphicsHolder.push();
+		graphicsHolder.translate(0.5, 0, 0.5);
+		graphicsHolder.rotateYDegrees(-facing.asRotation());
+		graphicsHolder.translate(-0.5, 0, 0.4375 - SMALL_OFFSET * 2);
 
-		final VertexConsumer vertexConsumer1 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platform.id, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.2F, WIDTH / HEIGHT_TOP, ARGB_BLACK, ARGB_WHITE, 0).resourceLocation));
-		IDrawing.drawTexture(matrices, vertexConsumer1, 1 - SIDE, TOP + (isTop ? 0 : 1), 0, SIDE, MIDDLE + (isTop ? 0 : 1), 0, 0, 0, 1, 1, facing.getOpposite(), -1, light);
+		graphicsHolder.createVertexConsumer(MoreRenderLayers.getExterior(DynamicTextureCache.instance.getDirectionArrow(platform.getId(), (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.2F, WIDTH / HEIGHT_TOP, ARGB_BLACK, ARGB_WHITE, 0).identifier));
+		IDrawing.drawTexture(graphicsHolder, 1 - SIDE, TOP + (isTop ? 0 : 1), 0, SIDE, MIDDLE + (isTop ? 0 : 1), 0, 0, 0, 1, 1, facing.getOpposite(), -1, light);
 
-		final VertexConsumer vertexConsumer2 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getRouteMap(platform.id, true, false, HEIGHT_BOTTOM / WIDTH, false).resourceLocation));
-		IDrawing.drawTexture(matrices, vertexConsumer2, 1 - SIDE, MIDDLE + (isTop ? 0 : 1), 0, 1 - SIDE, isTop ? 0 : BOTTOM, 0, SIDE, isTop ? 0 : BOTTOM, 0, SIDE, MIDDLE + (isTop ? 0 : 1), 0, 0, 0, isTop ? TEXTURE_BREAK : 1, 1, facing.getOpposite(), -1, light);
+		graphicsHolder.createVertexConsumer(MoreRenderLayers.getExterior(DynamicTextureCache.instance.getRouteMap(platform.getId(), true, false, HEIGHT_BOTTOM / WIDTH, false).identifier));
+		IDrawing.drawTexture(graphicsHolder, 1 - SIDE, MIDDLE + (isTop ? 0 : 1), 0, 1 - SIDE, isTop ? 0 : BOTTOM, 0, SIDE, isTop ? 0 : BOTTOM, 0, SIDE, MIDDLE + (isTop ? 0 : 1), 0, 0, 0, isTop ? TEXTURE_BREAK : 1, 1, facing.getOpposite(), -1, light);
 
-		matrices.popPose();
+		graphicsHolder.pop();
 	}
 
 	@Override
-	public boolean shouldRenderOffScreen(T blockEntity) {
+	public boolean rendersOutsideBoundingBox(T blockEntity) {
 		return true;
 	}
 }

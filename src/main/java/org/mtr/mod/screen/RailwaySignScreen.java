@@ -1,32 +1,31 @@
-package mtr.screen;
+package org.mtr.mod.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.block.BlockRailwaySign;
-import mtr.block.BlockRouteSignBase;
-import mtr.client.ClientData;
-import mtr.client.CustomResources;
-import mtr.client.IDrawing;
-import mtr.data.*;
-import mtr.mappings.ScreenMapper;
-import mtr.mappings.Text;
-import mtr.mappings.UtilitiesClient;
-import mtr.packet.PacketTrainDataGuiClient;
-import mtr.render.RenderRailwaySign;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.core.data.Station;
+import org.mtr.init.MTR;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.registry.RegistryClient;
+import org.mtr.mod.InitClient;
+import org.mtr.mod.block.BlockRailwaySign;
+import org.mtr.mod.block.BlockRouteSignBase;
+import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.CustomResources;
+import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.data.IGui;
+import org.mtr.mod.packet.PacketUpdateRailwaySignConfig;
+import org.mtr.mod.render.RenderRailwaySign;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-public class RailwaySignScreen extends ScreenMapper implements IGui {
+public class RailwaySignScreen extends ScreenExtension implements IGui {
 
 	private int editingIndex;
 	private int page;
@@ -38,28 +37,28 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 	private final boolean isRailwaySign;
 	private final int length;
 	private final String[] signIds;
-	private final Set<Long> selectedIds;
-	private final List<NameColorDataBase> exitsForList = new ArrayList<>();
-	private final List<NameColorDataBase> platformsForList = new ArrayList<>();
-	private final List<NameColorDataBase> routesForList = new ArrayList<>();
-	private final List<NameColorDataBase> stationsForList = new ArrayList<>();
-	private final List<String> allSignIds = new ArrayList<>();
+	private final LongAVLTreeSet selectedIds;
+	private final ObjectAVLTreeSet<DashboardListItem> exitsForList = new ObjectAVLTreeSet<>();
+	private final ObjectImmutableList<DashboardListItem> platformsForList;
+	private final ObjectAVLTreeSet<DashboardListItem> routesForList;
+	private final ObjectAVLTreeSet<DashboardListItem> stationsForList;
+	private final ObjectAVLTreeSet<String> allSignIds = new ObjectAVLTreeSet<>();
 
-	private final Button[] buttonsEdit;
-	private final Button[] buttonsSelection;
-	private final Button buttonClear;
-	private final ImageButton buttonPrevPage;
-	private final ImageButton buttonNextPage;
+	private final ButtonWidgetExtension[] buttonsEdit;
+	private final ButtonWidgetExtension[] buttonsSelection;
+	private final ButtonWidgetExtension buttonClear;
+	private final TexturedButtonWidgetExtension buttonPrevPage;
+	private final TexturedButtonWidgetExtension buttonNextPage;
 
 	private static final int SIGN_SIZE = 32;
 	private static final int SIGN_BUTTON_SIZE = 16;
 	private static final int BUTTON_Y_START = SIGN_SIZE + SQUARE_SIZE + SQUARE_SIZE / 2;
 
 	public RailwaySignScreen(BlockPos signPos) {
-		super(Text.literal(""));
+		super();
 		editingIndex = -1;
 		this.signPos = signPos;
-		final ClientLevel world = Minecraft.getInstance().level;
+		final ClientWorld world = MinecraftClient.getInstance().getWorldMapped();
 
 		for (final BlockRailwaySign.SignType signType : BlockRailwaySign.SignType.values()) {
 			allSignIds.add(signType.toString());
@@ -68,78 +67,81 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 		Collections.sort(sortedKeys);
 		allSignIds.addAll(sortedKeys);
 
-		try {
-			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, signPos);
-			if (station != null) {
-				final Map<String, List<String>> exits = station.getGeneratedExits();
-				final List<String> exitParents = new ArrayList<>(exits.keySet());
-				exitParents.sort(String::compareTo);
-				exitParents.forEach(exitParent -> {
-					final List<String> destinations = exits.get(exitParent);
-					exitsForList.add(new DataConverter(Station.serializeExit(exitParent), exitParent + " " + (destinations.size() > 0 ? destinations.get(0) : ""), 0));
-				});
+		final Station station = InitClient.findStation(signPos);
+		if (station == null) {
+			platformsForList = ObjectImmutableList.of();
+			stationsForList = new ObjectAVLTreeSet<>();
+			routesForList = new ObjectAVLTreeSet<>();
+		} else {
+			final Object2ObjectAVLTreeMap<String, ObjectArrayList<String>> exits = new Object2ObjectAVLTreeMap<>(); // TODO
 
-				final List<Platform> platforms = new ArrayList<>(ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id).values());
-				Collections.sort(platforms);
-				platforms.stream().map(platform -> new DataConverter(platform.id, platform.name + " " + IGui.mergeStations(ClientData.DATA_CACHE.requestPlatformIdToRoutes(platform.id).stream().map(route -> route.stationDetails.get(route.stationDetails.size() - 1).stationName).collect(Collectors.toList())), 0)).forEach(platformsForList::add);
+			final ObjectArrayList<String> exitParents = new ObjectArrayList<>(exits.keySet());
+			exitParents.sort(String::compareTo);
+			exitParents.forEach(exitParent -> {
+				final ObjectArrayList<String> destinations = exits.get(exitParent);
+				exitsForList.add(new DashboardListItem(InitClient.serializeExit(exitParent), exitParent + " " + (destinations.isEmpty() ? "" : destinations.get(0)), 0));
+			});
 
-				ClientData.DATA_CACHE.getAllRoutesIncludingConnectingStations(station).forEach((color, route) -> routesForList.add(new DataConverter(route.color, route.name, route.color)));
-				ClientData.DATA_CACHE.getConnectingStationsIncludingThisOne(station).forEach(connectingStation -> stationsForList.add(new DataConverter(connectingStation.id, connectingStation.name, connectingStation.color)));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			platformsForList = PIDSConfigScreen.getPlatformsForList(station);
+
+			final ObjectAVLTreeSet<Station> connectingStationsIncludingThisOne = new ObjectAVLTreeSet<>(station.connectedStations);
+			connectingStationsIncludingThisOne.add(station);
+			stationsForList = ClientData.convertDataSet(connectingStationsIncludingThisOne);
+
+			routesForList = ClientData.convertDataSet(station.getOneInterchangeRouteFromEachColor(true));
 		}
 
 		if (world != null) {
 			final BlockEntity entity = world.getBlockEntity(signPos);
-			if (entity instanceof BlockRailwaySign.TileEntityRailwaySign) {
-				signIds = ((BlockRailwaySign.TileEntityRailwaySign) entity).getSignIds();
-				selectedIds = ((BlockRailwaySign.TileEntityRailwaySign) entity).getSelectedIds();
+			if (entity != null && entity.data instanceof BlockRailwaySign.BlockEntity) {
+				signIds = ((BlockRailwaySign.BlockEntity) entity.data).getSignIds();
+				selectedIds = ((BlockRailwaySign.BlockEntity) entity.data).getSelectedIds();
 				isRailwaySign = true;
 			} else {
 				signIds = new String[0];
-				selectedIds = new HashSet<>();
+				selectedIds = new LongAVLTreeSet();
 				isRailwaySign = false;
-				if (entity instanceof BlockRouteSignBase.TileEntityRouteSignBase) {
-					selectedIds.add(((BlockRouteSignBase.TileEntityRouteSignBase) entity).getPlatformId());
+				if (entity != null && entity.data instanceof BlockRouteSignBase.BlockEntityBase) {
+					selectedIds.add(((BlockRouteSignBase.BlockEntityBase) entity.data).getPlatformId());
 				}
 			}
-			if (world.getBlockState(signPos).getBlock() instanceof BlockRailwaySign) {
-				length = ((BlockRailwaySign) world.getBlockState(signPos).getBlock()).length;
+			final Block block = world.getBlockState(signPos).getBlock();
+			if (block.data instanceof BlockRailwaySign) {
+				length = ((BlockRailwaySign) block.data).length;
 			} else {
 				length = 0;
 			}
 		} else {
 			length = 0;
 			signIds = new String[0];
-			selectedIds = new HashSet<>();
+			selectedIds = new LongAVLTreeSet();
 			isRailwaySign = false;
 		}
 
-		buttonsEdit = new Button[length];
+		buttonsEdit = new ButtonWidgetExtension[length];
 		for (int i = 0; i < buttonsEdit.length; i++) {
 			final int index = i;
-			buttonsEdit[i] = UtilitiesClient.newButton(Text.translatable("selectWorld.edit"), button -> edit(index));
+			buttonsEdit[i] = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("selectWorld.edit"), button -> edit(index));
 		}
 
-		buttonsSelection = new Button[allSignIds.size()];
+		buttonsSelection = new ButtonWidgetExtension[allSignIds.size()];
 		for (int i = 0; i < allSignIds.size(); i++) {
 			final int index = i;
-			buttonsSelection[i] = UtilitiesClient.newButton(SIGN_BUTTON_SIZE, Text.literal(""), button -> setNewSignId(allSignIds.get(index)));
+			buttonsSelection[i] = new ButtonWidgetExtension(0, 0, 0, SIGN_BUTTON_SIZE, button -> setNewSignId(allSignIds.get(index)));
 		}
 
-		buttonClear = UtilitiesClient.newButton(Text.translatable("gui.mtr.reset_sign"), button -> setNewSignId(null));
-		buttonPrevPage = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
-		buttonNextPage = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
+		buttonClear = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.reset_sign"), button -> setNewSignId(null));
+		buttonPrevPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier(MTR.MOD_ID, "textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
+		buttonNextPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier(MTR.MOD_ID, "textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
 	}
 
 	@Override
-	protected void init() {
-		super.init();
+	protected void init2() {
+		super.init2();
 
 		for (int i = 0; i < buttonsEdit.length; i++) {
 			IDrawing.setPositionAndWidth(buttonsEdit[i], (width - SIGN_SIZE * length) / 2 + i * SIGN_SIZE, SIGN_SIZE, SIGN_SIZE);
-			addDrawableChild(buttonsEdit[i]);
+			addChild(new ClickableWidget(buttonsEdit[i]));
 		}
 
 		columns = Math.max((width - SIGN_BUTTON_SIZE * 3) / (SIGN_BUTTON_SIZE * 8) * 2, 1);
@@ -151,7 +153,7 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 		totalPages = loopSigns((index, x, y, isBig) -> {
 			IDrawing.setPositionAndWidth(buttonsSelection[index], (isBig ? xOffsetBig : xOffsetSmall) + x, BUTTON_Y_START + y, isBig ? SIGN_BUTTON_SIZE * 3 : SIGN_BUTTON_SIZE);
 			buttonsSelection[index].visible = false;
-			addDrawableChild(buttonsSelection[index]);
+			addChild(new ClickableWidget(buttonsSelection[index]));
 		}, true);
 
 		final int buttonClearX = (width - PANEL_WIDTH - SQUARE_SIZE * 4) / 2;
@@ -159,83 +161,80 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 
 		IDrawing.setPositionAndWidth(buttonClear, buttonClearX, buttonY, PANEL_WIDTH);
 		buttonClear.visible = false;
-		addDrawableChild(buttonClear);
+		addChild(new ClickableWidget(buttonClear));
 
 		IDrawing.setPositionAndWidth(buttonPrevPage, buttonClearX + PANEL_WIDTH, buttonY, SQUARE_SIZE);
 		buttonPrevPage.visible = false;
-		addDrawableChild(buttonPrevPage);
+		addChild(new ClickableWidget(buttonPrevPage));
 		IDrawing.setPositionAndWidth(buttonNextPage, buttonClearX + PANEL_WIDTH + SQUARE_SIZE * 3, buttonY, SQUARE_SIZE);
 		buttonNextPage.visible = false;
-		addDrawableChild(buttonNextPage);
+		addChild(new ClickableWidget(buttonNextPage));
 
-		if (!isRailwaySign && minecraft != null) {
-			UtilitiesClient.setScreen(minecraft, new DashboardListSelectorScreen(this::onClose, platformsForList, selectedIds, true, false));
+		if (!isRailwaySign) {
+			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this::onClose2, platformsForList, selectedIds, true, false)));
 		}
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		try {
-			renderBackground(matrices);
-			super.render(matrices, mouseX, mouseY, delta);
-			if (minecraft == null) {
-				return;
-			}
+	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
+		renderBackground(graphicsHolder);
+		super.render(graphicsHolder, mouseX, mouseY, delta);
 
-			for (int i = 0; i < signIds.length; i++) {
-				if (signIds[i] != null) {
-					RenderRailwaySign.drawSign(matrices, null, null, font, signPos, signIds[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, RenderRailwaySign.getMaxWidth(signIds, i, false), RenderRailwaySign.getMaxWidth(signIds, i, true), selectedIds, Direction.UP, 0, (textureId, x, y, size, flipTexture) -> {
-						UtilitiesClient.beginDrawingTexture(textureId);
-						blit(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size);
-					});
+		for (int i = 0; i < signIds.length; i++) {
+			if (signIds[i] != null) {
+				RenderRailwaySign.drawSign(graphicsHolder, null, signPos, signIds[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, RenderRailwaySign.getMaxWidth(signIds, i, false), RenderRailwaySign.getMaxWidth(signIds, i, true), selectedIds, Direction.UP, 0, (textureId, x, y, size, flipTexture) -> {
+					final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
+					guiDrawing.beginDrawingTexture(textureId);
+					guiDrawing.drawTexture((int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size);
+					guiDrawing.finishDrawingTexture();
+				});
+			}
+		}
+
+		if (editingIndex >= 0) {
+			final int xOffsetSmall = (width - SIGN_BUTTON_SIZE * (columns * 4 + 3)) / 2 + SIGN_BUTTON_SIZE;
+			final int xOffsetBig = xOffsetSmall + SIGN_BUTTON_SIZE * (columns + 1);
+
+			loopSigns((index, x, y, isBig) -> {
+				final String signId = allSignIds.get(index);
+				final CustomResources.CustomSign sign = RenderRailwaySign.getSign(signId);
+				if (sign != null) {
+					final boolean moveRight = sign.hasCustomText() && sign.flipCustomText;
+					final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
+					guiDrawing.beginDrawingTexture(sign.textureId);
+					RenderRailwaySign.drawSign(graphicsHolder, null, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), BUTTON_Y_START + y, SIGN_BUTTON_SIZE, 2, 2, selectedIds, Direction.UP, 0, (textureId, x1, y1, size, flipTexture) -> guiDrawing.drawTexture((int) x1, (int) y1, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
+					guiDrawing.finishDrawingTexture();
 				}
-			}
+			}, false);
 
-			if (editingIndex >= 0) {
-				final int xOffsetSmall = (width - SIGN_BUTTON_SIZE * (columns * 4 + 3)) / 2 + SIGN_BUTTON_SIZE;
-				final int xOffsetBig = xOffsetSmall + SIGN_BUTTON_SIZE * (columns + 1);
-
-				loopSigns((index, x, y, isBig) -> {
-					final String signId = allSignIds.get(index);
-					final CustomResources.CustomSign sign = RenderRailwaySign.getSign(signId);
-					if (sign != null) {
-						final boolean moveRight = sign.hasCustomText() && sign.flipCustomText;
-						UtilitiesClient.beginDrawingTexture(sign.textureId);
-						RenderRailwaySign.drawSign(matrices, null, null, font, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), BUTTON_Y_START + y, SIGN_BUTTON_SIZE, 2, 2, selectedIds, Direction.UP, 0, (textureId, x1, y1, size, flipTexture) -> blit(matrices, (int) x1, (int) y1, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
-					}
-				}, false);
-
-				Gui.drawCenteredString(matrices, font, String.format("%s/%s", page + 1, totalPages), (width - PANEL_WIDTH - SQUARE_SIZE * 4) / 2 + PANEL_WIDTH + SQUARE_SIZE * 2, height - SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			graphicsHolder.drawCenteredText(String.format("%s/%s", page + 1, totalPages), (width - PANEL_WIDTH - SQUARE_SIZE * 4) / 2 + PANEL_WIDTH + SQUARE_SIZE * 2, height - SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
 		}
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
 		setPage(page + (int) Math.signum(-amount));
-		return super.mouseScrolled(mouseX, mouseY, amount);
+		return super.mouseScrolled2(mouseX, mouseY, amount);
 	}
 
 	@Override
-	public void onClose() {
-		PacketTrainDataGuiClient.sendSignIdsC2S(signPos, selectedIds, signIds);
-		super.onClose();
+	public void onClose2() {
+		RegistryClient.sendPacketToServer(new PacketUpdateRailwaySignConfig(signPos, selectedIds, signIds));
+		super.onClose2();
 	}
 
 	@Override
-	public boolean isPauseScreen() {
+	public boolean isPauseScreen2() {
 		return false;
 	}
 
 	@Override
-	public void resize(Minecraft client, int width, int height) {
-		super.resize(client, width, height);
-		for (Button button : buttonsEdit) {
+	public void resize2(MinecraftClient client, int width, int height) {
+		super.resize2(client, width, height);
+		for (ButtonWidgetExtension button : buttonsEdit) {
 			button.active = true;
 		}
-		for (Button button : buttonsSelection) {
+		for (ButtonWidgetExtension button : buttonsSelection) {
 			button.visible = false;
 		}
 		editingIndex = -1;
@@ -296,7 +295,7 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 
 	private void edit(int editingIndex) {
 		this.editingIndex = editingIndex;
-		for (Button button : buttonsEdit) {
+		for (ButtonWidgetExtension button : buttonsEdit) {
 			button.active = true;
 		}
 		buttonClear.visible = true;
@@ -304,21 +303,21 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 		buttonsEdit[editingIndex].active = false;
 	}
 
-	private void setNewSignId(String newSignId) {
+	private void setNewSignId(@Nullable String newSignId) {
 		if (editingIndex >= 0 && editingIndex < signIds.length) {
 			signIds[editingIndex] = newSignId;
 			final boolean isExitLetter = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.EXIT_LETTER.toString()) || newSignId.equals(BlockRailwaySign.SignType.EXIT_LETTER_FLIPPED.toString()));
 			final boolean isPlatform = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.PLATFORM.toString()) || newSignId.equals(BlockRailwaySign.SignType.PLATFORM_FLIPPED.toString()));
 			final boolean isLine = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.LINE.toString()) || newSignId.equals(BlockRailwaySign.SignType.LINE_FLIPPED.toString()));
 			final boolean isStation = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.STATION.toString()) || newSignId.equals(BlockRailwaySign.SignType.STATION_FLIPPED.toString()));
-			if ((isExitLetter || isPlatform || isLine || isStation) && minecraft != null) {
-				UtilitiesClient.setScreen(minecraft, new DashboardListSelectorScreen(this, isExitLetter ? exitsForList : isPlatform ? platformsForList : isLine ? routesForList : stationsForList, selectedIds, false, false));
+			if ((isExitLetter || isPlatform || isLine || isStation)) {
+				MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this, new ObjectImmutableList<>(isExitLetter ? exitsForList : isPlatform ? platformsForList : isLine ? routesForList : stationsForList), selectedIds, false, false)));
 			}
 		}
 	}
 
 	private void setPage(int newPage) {
-		page = Mth.clamp(newPage, 0, totalPages - 1);
+		page = MathHelper.clamp(newPage, 0, totalPages - 1);
 		buttonPrevPage.visible = editingIndex >= 0 && page > 0;
 		buttonNextPage.visible = editingIndex >= 0 && page < totalPages - 1;
 	}

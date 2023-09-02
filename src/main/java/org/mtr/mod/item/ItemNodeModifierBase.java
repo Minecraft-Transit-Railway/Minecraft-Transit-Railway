@@ -1,24 +1,12 @@
-package mtr.item;
+package org.mtr.mod.item;
 
-import mtr.CreativeModeTabs;
-import mtr.block.BlockNode;
-import mtr.data.RailAngle;
-import mtr.data.RailwayData;
-import mtr.data.TransportMode;
-import mtr.mappings.Text;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
+import org.mtr.core.data.TransportMode;
+import org.mtr.core.tools.Angle;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mod.block.BlockNode;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
@@ -31,8 +19,8 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 	public static final String TAG_POS = "pos";
 	private static final String TAG_TRANSPORT_MODE = "transport_mode";
 
-	public ItemNodeModifierBase(boolean forNonContinuousMovementNode, boolean forContinuousMovementNode, boolean forAirplaneNode, boolean isConnector) {
-		super(CreativeModeTabs.CORE, properties -> properties.stacksTo(1));
+	public ItemNodeModifierBase(boolean forNonContinuousMovementNode, boolean forContinuousMovementNode, boolean forAirplaneNode, boolean isConnector, ItemSettings itemSettings) {
+		super(itemSettings.maxCount(1));
 		this.forNonContinuousMovementNode = forNonContinuousMovementNode;
 		this.forContinuousMovementNode = forContinuousMovementNode;
 		this.forAirplaneNode = forAirplaneNode;
@@ -40,44 +28,42 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag tooltipFlag) {
+	public void addTooltips(ItemStack stack, @Nullable World world, List<MutableText> tooltip, TooltipContext options) {
 		final CompoundTag compoundTag = stack.getOrCreateTag();
 		final long posLong = compoundTag.getLong(TAG_POS);
 		if (posLong != 0) {
-			tooltip.add(Text.translatable("tooltip.mtr.selected_block", BlockPos.of(posLong).toShortString()).setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
+			tooltip.add(TextHelper.translatable("tooltip.mtr.selected_block", BlockPos.fromLong(posLong).toShortString()).formatted(TextFormatting.GOLD));
 		}
 	}
 
 	@Override
-	protected void onStartClick(UseOnContext context, CompoundTag compoundTag) {
-		compoundTag.putString(TAG_TRANSPORT_MODE, ((BlockNode) context.getLevel().getBlockState(context.getClickedPos()).getBlock()).transportMode.toString());
+	protected void onStartClick(ItemUsageContext context, CompoundTag compoundTag) {
+		compoundTag.putString(TAG_TRANSPORT_MODE, ((BlockNode) context.getWorld().getBlockState(context.getBlockPos()).getBlock().data).transportMode.toString());
 	}
 
 	@Override
-	protected void onEndClick(UseOnContext context, BlockPos posEnd, CompoundTag compoundTag) {
-		final Level world = context.getLevel();
-		final RailwayData railwayData = RailwayData.getInstance(world);
-		final BlockPos posStart = context.getClickedPos();
+	protected void onEndClick(ItemUsageContext context, BlockPos posEnd, CompoundTag compoundTag) {
+		final World world = context.getWorld();
+		final BlockPos posStart = context.getBlockPos();
 		final BlockState stateStart = world.getBlockState(posStart);
 		final Block blockStart = stateStart.getBlock();
 		final BlockState stateEnd = world.getBlockState(posEnd);
+		final PlayerEntity player = context.getPlayer();
 
-		if (railwayData != null && stateEnd.getBlock() instanceof BlockNode && ((BlockNode) blockStart).transportMode.toString().equals(compoundTag.getString(TAG_TRANSPORT_MODE))) {
-			final Player player = context.getPlayer();
-
+		if (ServerPlayerEntity.isInstance(player) && stateEnd.getBlock().data instanceof BlockNode && ((BlockNode) blockStart.data).transportMode.toString().equals(compoundTag.getString(TAG_TRANSPORT_MODE))) {
 			if (isConnector) {
 				if (!posStart.equals(posEnd)) {
 					final float angle1 = BlockNode.getAngle(stateStart);
 					final float angle2 = BlockNode.getAngle(stateEnd);
 
 					final float angleDifference = (float) Math.toDegrees(Math.atan2(posEnd.getZ() - posStart.getZ(), posEnd.getX() - posStart.getX()));
-					final RailAngle railAngleStart = RailAngle.fromAngle(angle1 + (RailAngle.similarFacing(angleDifference, angle1) ? 0 : 180));
-					final RailAngle railAngleEnd = RailAngle.fromAngle(angle2 + (RailAngle.similarFacing(angleDifference, angle2) ? 180 : 0));
+					final Angle angleStart = Angle.fromAngle(angle1 + (Angle.similarFacing(angleDifference, angle1) ? 0 : 180));
+					final Angle angleEnd = Angle.fromAngle(angle2 + (Angle.similarFacing(angleDifference, angle2) ? 180 : 0));
 
-					onConnect(world, context.getItemInHand(), ((BlockNode) blockStart).transportMode, stateStart, stateEnd, posStart, posEnd, railAngleStart, railAngleEnd, player, railwayData);
+					onConnect(world, context.getStack(), ((BlockNode) blockStart.data).transportMode, stateStart, stateEnd, posStart, posEnd, angleStart, angleEnd, ServerPlayerEntity.cast(player));
 				}
 			} else {
-				onRemove(world, posStart, posEnd, player, railwayData);
+				onRemove(world, posStart, posEnd, ServerPlayerEntity.cast(player));
 			}
 		}
 
@@ -85,11 +71,11 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 	}
 
 	@Override
-	protected boolean clickCondition(UseOnContext context) {
-		final Level world = context.getLevel();
-		final Block blockStart = world.getBlockState(context.getClickedPos()).getBlock();
-		if (blockStart instanceof BlockNode) {
-			final BlockNode blockNode = (BlockNode) blockStart;
+	protected boolean clickCondition(ItemUsageContext context) {
+		final World world = context.getWorld();
+		final Block blockStart = world.getBlockState(context.getBlockPos()).getBlock();
+		if (blockStart.data instanceof BlockNode) {
+			final BlockNode blockNode = (BlockNode) blockStart.data;
 			if (blockNode.transportMode == TransportMode.AIRPLANE) {
 				return forAirplaneNode;
 			} else {
@@ -100,7 +86,7 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 		}
 	}
 
-	protected abstract void onConnect(Level world, ItemStack stack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData);
+	protected abstract void onConnect(World world, ItemStack stack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, Angle facingStart, Angle facingEnd, @Nullable ServerPlayerEntity player);
 
-	protected abstract void onRemove(Level world, BlockPos posStart, BlockPos posEnd, Player player, RailwayData railwayData);
+	protected abstract void onRemove(World world, BlockPos posStart, BlockPos posEnd, @Nullable ServerPlayerEntity player);
 }

@@ -1,4 +1,6 @@
-package mtr.data;
+package org.mtr.mod.data;
+
+import org.mtr.core.data.TransportMode;
 
 import java.util.Locale;
 

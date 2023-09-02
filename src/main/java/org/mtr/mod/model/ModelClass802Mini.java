@@ -1,7 +1,7 @@
-package mtr.model;
+package org.mtr.mod.model;
 
-import mtr.client.DoorAnimationType;
-import mtr.mappings.ModelMapper;
+import org.mtr.mapping.mapper.ModelPartExtension;
+import org.mtr.mod.client.DoorAnimationType;
 
 public class ModelClass802Mini extends ModelClass802 {
 
@@ -44,12 +44,12 @@ public class ModelClass802Mini extends ModelClass802 {
 	}
 
 	@Override
-	protected ModelMapper[] windowParts() {
+	protected ModelPartExtension[] windowParts() {
 		return windowPartsMini();
 	}
 
 	@Override
-	protected ModelMapper[] windowEndParts() {
+	protected ModelPartExtension[] windowEndParts() {
 		return windowEndPartsMini();
 	}
 }

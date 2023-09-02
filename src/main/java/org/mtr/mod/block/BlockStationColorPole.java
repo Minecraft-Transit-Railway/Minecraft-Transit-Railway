@@ -1,43 +1,37 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.mappings.BlockMapper;
-import mtr.mappings.Text;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.BlockHelper;
+import org.mtr.mapping.mapper.TextHelper;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
-public class BlockStationColorPole extends BlockMapper {
+public class BlockStationColorPole extends BlockExtension {
 
 	private final boolean showTooltip;
 
-	public BlockStationColorPole(Properties settings, boolean showTooltip) {
-		super(settings);
+	public BlockStationColorPole(boolean showTooltip) {
+		super(BlockHelper.createBlockSettings(false));
 		this.showTooltip = showTooltip;
 	}
 
+	@Nonnull
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return getStationPoleShape();
 	}
 
 	@Override
-	public void appendHoverText(ItemStack itemStack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
+	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
 		if (showTooltip) {
-			tooltip.add(Text.translatable("tooltip.mtr.station_color").setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+			tooltip.add(TextHelper.translatable("tooltip.mtr.station_color").formatted(TextFormatting.GRAY));
 		}
 	}
 
 	public static VoxelShape getStationPoleShape() {
-		return Block.box(6, 0, 6, 10, 16, 10);
+		return Block.createCuboidShape(6, 0, 6, 10, 16, 10);
 	}
 }

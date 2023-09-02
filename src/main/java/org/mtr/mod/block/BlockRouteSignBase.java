@@ -1,63 +1,55 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.mappings.BlockEntityClientSerializableMapper;
-import mtr.mappings.EntityBlockMapper;
-import mtr.packet.PacketTrainDataGuiServer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.phys.BlockHitResult;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.mapper.BlockHelper;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.registry.Registry;
+import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
 
-public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase implements EntityBlockMapper, IBlock {
+import javax.annotation.Nonnull;
+import java.util.List;
 
-	public static final IntegerProperty ARROW_DIRECTION = IntegerProperty.create("propagate_property", 0, 3);
+public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase implements IBlock, BlockWithEntity {
+
+	public static final IntegerProperty ARROW_DIRECTION = IntegerProperty.of("propagate_property", 0, 3);
 
 	public BlockRouteSignBase() {
-		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 15).noOcclusion());
+		super(BlockHelper.createBlockSettings(true, blockState -> 15));
 	}
 
+	@Nonnull
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult hit) {
-		final double y = hit.getLocation().y;
+	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		final double y = hit.getPos().getYMapped();
 		final boolean isUpper = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			if (isUpper && y - Math.floor(y) > 0.8125) {
-				world.setBlockAndUpdate(pos, state.cycle(ARROW_DIRECTION));
-				propagate(world, pos, Direction.DOWN, ARROW_DIRECTION, 1);
+				world.setBlockState(pos, state.cycle(new Property<>(ARROW_DIRECTION.data)));
+				propagate(world, pos, Direction.DOWN, new Property<>(ARROW_DIRECTION.data), 1);
 			} else {
-				final BlockEntity entity = world.getBlockEntity(pos.below(isUpper ? 1 : 0));
-				if (entity instanceof TileEntityRouteSignBase) {
-					PacketTrainDataGuiServer.openRailwaySignScreenS2C((ServerPlayer) player, entity.getBlockPos());
+				final BlockEntity entity = world.getBlockEntity(pos.down(isUpper ? 1 : 0));
+				if (entity != null && entity.data instanceof BlockEntityBase) {
+					Registry.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(entity.getPos()));
 				}
 			}
 		});
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, HALF, ARROW_DIRECTION);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(FACING);
+		properties.add(HALF);
+		properties.add(ARROW_DIRECTION);
 	}
 
-	public static abstract class TileEntityRouteSignBase extends BlockEntityClientSerializableMapper {
+	public static abstract class BlockEntityBase extends BlockEntityExtension {
 
 		private long platformId;
 		private static final String KEY_PLATFORM_ID = "platform_id";
 
-		public TileEntityRouteSignBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		public BlockEntityBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
 		}
 
@@ -73,8 +65,7 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 
 		public void setPlatformId(long platformId) {
 			this.platformId = platformId;
-			setChanged();
-			syncData();
+			markDirty2();
 		}
 
 		public long getPlatformId() {
