@@ -20,4 +20,8 @@ public final class CreativeModeTabs {
 	public static final CreativeModeTabHolder RAILWAY_FACILITIES;
 	public static final CreativeModeTabHolder STATION_BUILDING_BLOCKS;
 	public static final CreativeModeTabHolder ESCALATORS_LIFTS;
+
+	public static void init() {
+		Init.LOGGER.info("Registering Minecraft Transit Railway creative mode tabs");
+	}
 }

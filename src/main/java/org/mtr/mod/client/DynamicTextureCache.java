@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import org.mtr.init.MTR;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
+import org.mtr.mod.Init;
 import org.mtr.mod.data.IGui;
 
 import javax.annotation.Nullable;
@@ -45,7 +46,7 @@ public class DynamicTextureCache implements IGui {
 	}
 
 	public void refreshDynamicResources() {
-		System.out.println("Refreshing dynamic resources");
+		Init.LOGGER.info("Refreshing dynamic resources");
 		resourcesToRefresh.addAll(dynamicResources.keySet());
 	}
 

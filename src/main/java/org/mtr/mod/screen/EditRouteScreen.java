@@ -117,9 +117,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 			data.setCircularState(Route.CircularState.NONE);
 		}
 
-		RegistryClient.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(data), routes -> {
-
-		}));
+		RegistryClient.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(data)));
 	}
 
 	private void setRouteType(Route route, RouteType newRouteType) {

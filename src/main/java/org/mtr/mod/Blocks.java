@@ -406,4 +406,8 @@ public final class Blocks {
 	public static final BlockRegistryObject TRAIN_CARGO_UNLOADER;
 	public static final BlockRegistryObject TRAIN_REDSTONE_SENSOR;
 	public static final BlockRegistryObject TRAIN_SCHEDULE_SENSOR;
+
+	public static void init() {
+		Init.LOGGER.info("Registering Minecraft Transit Railway blocks");
+	}
 }

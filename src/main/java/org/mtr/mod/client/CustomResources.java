@@ -10,6 +10,7 @@ import org.mtr.core.data.EnumHelper;
 import org.mtr.init.MTR;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
+import org.mtr.mod.Init;
 import org.mtr.mod.model.ModelSimpleTrainBase;
 import org.mtr.mod.model.ModelTrainBase;
 import org.mtr.mod.render.LegacyVehicleRenderer;
@@ -130,9 +131,9 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 
 		RELOAD_LISTENERS.forEach(Runnable::run);
 
-		System.out.println("Loaded " + customTrains.size() + " custom train(s)");
+		Init.LOGGER.info("Loaded " + customTrains.size() + " custom train(s)");
 		customTrains.forEach(System.out::println);
-		System.out.println("Loaded " + CUSTOM_SIGNS.size() + " custom sign(s)");
+		Init.LOGGER.info("Loaded " + CUSTOM_SIGNS.size() + " custom sign(s)");
 		CUSTOM_SIGNS.keySet().forEach(System.out::println);
 	}
 

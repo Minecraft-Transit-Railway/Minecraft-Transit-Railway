@@ -20,30 +20,31 @@ import org.mtr.mapping.registry.Registry;
 import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.packet.*;
 
-import java.net.URI;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 public final class Init {
 
 	private static Main main;
 	private static Socket socket;
+
+	public static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 	private static final String CHANNEL = "update";
 	private static final Object2ObjectArrayMap<ServerWorld, RailActionModule> RAIL_ACTION_MODULES = new Object2ObjectArrayMap<>();
 
 	public static void init() {
-		System.out.println(Blocks.APG_GLASS);
-		System.out.println(Items.APG_GLASS);
-		System.out.println(Blocks.APG_GLASS);
-		System.out.println(Items.APG_GLASS);
-		System.out.println(BlockEntityTypes.APG_GLASS);
-		System.out.println(CreativeModeTabs.CORE);
-		System.out.println(SoundEvents.TICKET_BARRIER);
+		Blocks.init();
+		Items.init();
+		BlockEntityTypes.init();
+		CreativeModeTabs.init();
+		SoundEvents.init();
 
 		// Register packets
 		Registry.setupPackets(new Identifier(MTR.MOD_ID, "packet"));
 		Registry.registerPacket(PacketAddBalance.class, PacketAddBalance::new);
 		Registry.registerPacket(PacketBroadcastRailActions.class, PacketBroadcastRailActions::new);
+		Registry.registerPacket(PacketCloseDashboardScreen.class, packetBuffer -> new PacketCloseDashboardScreen());
 		Registry.registerPacket(PacketData.class, PacketData::new);
 		Registry.registerPacket(PacketDeleteRailAction.class, PacketDeleteRailAction::new);
 		Registry.registerPacket(PacketDriveTrain.class, PacketDriveTrain::new);
@@ -79,20 +80,26 @@ public final class Init {
 			);
 
 			// Set up the socket
-			socket = IO.socket(URI.create("http://localhost:8888"), IO.Options.builder().setForceNew(false).build());
-			socket.on(CHANNEL, args -> {
-				try {
-					final JsonObject jsonObject = JsonParser.parseString(args[0].toString()).getAsJsonObject();
-					jsonObject.keySet().forEach(key -> {
-						final ServerPlayerEntity serverPlayerEntity = minecraftServer.getPlayerManager().getPlayer(UUID.fromString(key));
-						if (serverPlayerEntity != null) {
-							Registry.sendPacketToClient(serverPlayerEntity, new PacketData(IntegrationServlet.Operation.UPDATE, jsonObject.getAsJsonObject(key)));
-						}
-					});
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			});
+			try {
+				socket = IO.socket("http://localhost:8888").connect();
+				socket.on(CHANNEL, args -> {
+					try {
+						final JsonObject responseObject = JsonParser.parseString(args[0].toString()).getAsJsonObject();
+						responseObject.keySet().forEach(playerUuid -> {
+							final ServerPlayerEntity serverPlayerEntity = minecraftServer.getPlayerManager().getPlayer(UUID.fromString(playerUuid));
+							if (serverPlayerEntity != null) {
+								final JsonObject formattedObject = new JsonObject();
+								formattedObject.add("data", responseObject.getAsJsonObject(playerUuid));
+								Registry.sendPacketToClient(serverPlayerEntity, new PacketData(IntegrationServlet.Operation.LIST, formattedObject));
+							}
+						});
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		});
 
 		EventRegistry.registerServerStopping(minecraftServer -> {
@@ -142,6 +149,18 @@ public final class Init {
 		if (railActionModule != null) {
 			consumer.accept(railActionModule);
 		}
+	}
+
+	public static BlockPos positionToBlockPos(Position position) {
+		return new BlockPos((int) position.getX(), (int) position.getY(), (int) position.getZ());
+	}
+
+	public static Position blockPosToPosition(BlockPos blockPos) {
+		return new Position(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+	}
+
+	public static BlockPos newBlockPos(double x, double y, double z) {
+		return new BlockPos(net.minecraft.util.math.MathHelper.floor(x), net.minecraft.util.math.MathHelper.floor(y), net.minecraft.util.math.MathHelper.floor(z));
 	}
 
 	private static class ClientGroupNew extends ClientGroupSchema {

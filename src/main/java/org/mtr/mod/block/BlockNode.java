@@ -6,6 +6,8 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.BlockEntityTypes;
+import org.mtr.mod.Init;
+import org.mtr.mod.packet.PacketData;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -21,7 +23,7 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 	public static final BooleanProperty IS_CONNECTED = BooleanProperty.of("is_connected");
 
 	public BlockNode(TransportMode transportMode) {
-		super(BlockHelper.createBlockSettings(true));
+		super(BlockHelper.createBlockSettings(true).nonOpaque());
 		this.transportMode = transportMode;
 	}
 
@@ -34,7 +36,7 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 	@Override
 	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		if (!world.isClient()) {
-			// TODO
+			PacketData.deleteRailNode(ServerWorld.cast(world), Init.blockPosToPosition(pos));
 		}
 	}
 
@@ -58,10 +60,10 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 		properties.add(IS_CONNECTED);
 	}
 
-	public static void resetRailNode(World world, BlockPos pos) {
-		final BlockState state = world.getBlockState(pos);
+	public static void resetRailNode(ServerWorld serverWorld, BlockPos blockPos) {
+		final BlockState state = serverWorld.getBlockState(blockPos);
 		if (state.getBlock().data instanceof BlockNode) {
-			world.setBlockState(pos, state.with(new Property<>(BlockNode.IS_CONNECTED.data), false));
+			serverWorld.setBlockState(blockPos, state.with(new Property<>(BlockNode.IS_CONNECTED.data), false));
 		}
 	}
 

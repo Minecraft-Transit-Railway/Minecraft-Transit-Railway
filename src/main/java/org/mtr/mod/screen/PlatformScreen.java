@@ -42,9 +42,7 @@ public class PlatformScreen extends SavedRailScreenBase<Platform, Station> {
 		final float second = sliderDwellTimeSec.getIntValue() / 2F;
 		savedRailBase.setDwellTime((long) ((second + (long) minutes * SECONDS_PER_MINUTE) * 2));
 
-		RegistryClient.sendPacketToServer(PacketData.fromPlatforms(IntegrationServlet.Operation.UPDATE, ObjectSet.of(savedRailBase), platforms -> {
-
-		}));
+		RegistryClient.sendPacketToServer(PacketData.fromPlatforms(IntegrationServlet.Operation.UPDATE, ObjectSet.of(savedRailBase)));
 
 		super.onClose2();
 	}

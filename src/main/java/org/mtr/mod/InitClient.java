@@ -1,8 +1,6 @@
 package org.mtr.mod;
 
-import net.minecraft.util.math.MathHelper;
 import org.mtr.core.data.Station;
-import org.mtr.core.tools.Position;
 import org.mtr.init.MTR;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.Identifier;
@@ -359,11 +357,7 @@ public final class InitClient {
 	}
 
 	public static Station findStation(BlockPos blockPos) {
-		return ClientData.instance.stations.stream().filter(station -> station.inArea(new Position(blockPos.getX(), blockPos.getY(), blockPos.getZ()))).findFirst().orElse(null);
-	}
-
-	public static BlockPos newBlockPos(double x, double y, double z) {
-		return new BlockPos(MathHelper.floor(x), MathHelper.floor(y), MathHelper.floor(z));
+		return ClientData.instance.stations.stream().filter(station -> station.inArea(Init.blockPosToPosition(blockPos))).findFirst().orElse(null);
 	}
 
 	public static String getShiftText() {
