@@ -7,6 +7,7 @@ import org.mtr.core.data.*;
 import org.mtr.core.tools.Position;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.registry.RegistryClient;
+import org.mtr.mod.Init;
 import org.mtr.mod.KeyBindings;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.packet.PacketDriveTrain;
@@ -18,8 +19,6 @@ import java.util.stream.Collectors;
 public final class ClientData extends Data {
 
 	public final ObjectAVLTreeSet<VehicleExtension> vehicles = new ObjectAVLTreeSet<>();
-
-	public final ObjectAVLTreeSet<Rail> rails = new ObjectAVLTreeSet<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
 
 	public static ClientData instance = new ClientData();
@@ -104,7 +103,7 @@ public final class ClientData extends Data {
 	}
 
 	public static Rail getRail(BlockPos blockPos1, BlockPos blockPos2) {
-		return tryGet(ClientData.instance.positionToRailConnections, new Position(blockPos1.getX(), blockPos1.getY(), blockPos1.getZ()), new Position(blockPos2.getX(), blockPos2.getY(), blockPos2.getZ()));
+		return tryGet(ClientData.instance.positionToRailConnections, Init.blockPosToPosition(blockPos1), Init.blockPosToPosition(blockPos2));
 	}
 
 	public static <T extends NameColorDataBase> ObjectAVLTreeSet<DashboardListItem> getFilteredDataSet(TransportMode transportMode, ObjectAVLTreeSet<T> dataSet) {

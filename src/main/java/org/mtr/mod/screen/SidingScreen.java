@@ -202,9 +202,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 		savedRailBase.setMaxVehicles(maxTrains);
 		savedRailBase.setAcceleration(accelerationConstant);
 
-		RegistryClient.sendPacketToServer(PacketData.fromSidings(IntegrationServlet.Operation.UPDATE, ObjectSet.of(savedRailBase), sidings -> {
-
-		}));
+		RegistryClient.sendPacketToServer(PacketData.fromSidings(IntegrationServlet.Operation.UPDATE, ObjectSet.of(savedRailBase)));
 
 		super.onClose2();
 	}

@@ -4,7 +4,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.MinecraftClientHelper;
-import org.mtr.mod.InitClient;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.Config;
 
 import javax.annotation.Nullable;
@@ -60,7 +60,7 @@ public abstract class TrainRendererBase {
 	public static BlockPos applyAverageTransform(@Nullable Vector3d viewOffset, double x, double y, double z) {
 		final boolean noOffset = viewOffset == null;
 		final Vector3d cameraPos = cameraEntity == null ? null : cameraEntity.getPos();
-		final BlockPos posAverage = InitClient.newBlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.getXMapped()), y + (noOffset || cameraPos == null ? 0 : cameraPos.getYMapped()), z + (noOffset || cameraPos == null ? 0 : cameraPos.getZMapped()));
+		final BlockPos posAverage = Init.newBlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.getXMapped()), y + (noOffset || cameraPos == null ? 0 : cameraPos.getYMapped()), z + (noOffset || cameraPos == null ? 0 : cameraPos.getZMapped()));
 
 		if (RenderTrains.shouldNotRender(posAverage, MinecraftClientHelper.getRenderDistance() * (Config.trainRenderDistanceRatio() + 1), null)) {
 			return null;

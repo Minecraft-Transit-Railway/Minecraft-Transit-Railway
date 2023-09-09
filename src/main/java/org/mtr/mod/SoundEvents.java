@@ -24,4 +24,8 @@ public final class SoundEvents {
 	public static final SoundEventRegistryObject TICKET_PROCESSOR_EXIT;
 	public static final SoundEventRegistryObject TICKET_PROCESSOR_EXIT_CONCESSIONARY;
 	public static final SoundEventRegistryObject TICKET_PROCESSOR_FAIL;
+
+	public static void init() {
+		Init.LOGGER.info("Registering Minecraft Transit Railway sound events");
+	}
 }

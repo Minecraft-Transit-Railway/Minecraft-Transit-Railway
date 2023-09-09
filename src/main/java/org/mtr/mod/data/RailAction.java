@@ -7,7 +7,7 @@ import org.mtr.core.tools.Vector;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.SlabBlockExtension;
 import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mod.InitClient;
+import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockNode;
 
 import java.util.Random;
@@ -166,6 +166,6 @@ public class RailAction {
 	}
 
 	private static BlockPos fromVector(Vector vector) {
-		return InitClient.newBlockPos(vector.x, vector.y, vector.z);
+		return Init.newBlockPos(vector.x, vector.y, vector.z);
 	}
 }

@@ -12,7 +12,7 @@ import org.mtr.mapping.mapper.ClickableWidgetExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.GuiDrawing;
 import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mod.InitClient;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
@@ -83,7 +83,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		for (int i = topLeft.leftInt(); i <= bottomRight.leftInt(); i += increment) {
 			for (int j = topLeft.rightInt(); j <= bottomRight.rightInt(); j += increment) {
 				if (world != null) {
-					final int color = divideColorRGB(world.getBlockState(InitClient.newBlockPos(i, world.getTopY(HeightMapType.getMotionBlockingMapped(), i, j) - 1, j)).getBlock().getDefaultMapColor().getColorMapped(), 2);
+					final int color = divideColorRGB(world.getBlockState(Init.newBlockPos(i, world.getTopY(HeightMapType.getMotionBlockingMapped(), i, j) - 1, j)).getBlock().getDefaultMapColor().getColorMapped(), 2);
 					drawRectangleFromWorldCoords(guiDrawing, i, j, i + increment, j + increment, ARGB_BLACK | color);
 				}
 			}
@@ -115,9 +115,9 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 
 		if (player != null) {
 			drawFromWorldCoords(player.getX(), player.getZ(), (x1, y1) -> {
-				guiDrawing.drawRectangle(x1 - 2, y1 - 3, x1 + 2, y1 + 3, ARGB_WHITE);
-				guiDrawing.drawRectangle(x1 - 3, y1 - 2, x1 + 3, y1 + 2, ARGB_WHITE);
-				guiDrawing.drawRectangle(x1 - 2, y1 - 2, x1 + 2, y1 + 2, ARGB_BLUE);
+				guiDrawing.drawRectangle(getX2() + x1 - 2, getY2() + y1 - 3, getX2() + x1 + 2, getY2() + y1 + 3, ARGB_WHITE);
+				guiDrawing.drawRectangle(getX2() + x1 - 3, getY2() + y1 - 2, getX2() + x1 + 3, getY2() + y1 + 2, ARGB_WHITE);
+				guiDrawing.drawRectangle(getX2() + x1 - 2, getY2() + y1 - 2, getX2() + x1 + 2, getY2() + y1 + 2, ARGB_BLUE);
 			});
 		}
 
@@ -313,7 +313,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		final double z1 = (posZ1 - centerY) * scale + height / 2D;
 		final double x2 = (posX2 - centerX) * scale + width / 2D;
 		final double z2 = (posZ2 - centerY) * scale + height / 2D;
-		guiDrawing.drawRectangle(x1, z1, x2, z2, color);
+		guiDrawing.drawRectangle(getX2() + x1, getY2() + z1, getX2() + x2, getY2() + z2, color);
 	}
 
 	private void drawRectangle(GuiDrawing guiDrawing, double xA, double yA, double xB, double yB, int color) {

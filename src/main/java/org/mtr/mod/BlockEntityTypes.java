@@ -135,4 +135,8 @@ public final class BlockEntityTypes {
 	public static final BlockEntityTypeRegistryObject<BlockTrainCargoUnloader.BlockEntity> TRAIN_CARGO_UNLOADER;
 	public static final BlockEntityTypeRegistryObject<BlockTrainRedstoneSensor.BlockEntity> TRAIN_REDSTONE_SENSOR;
 	public static final BlockEntityTypeRegistryObject<BlockTrainScheduleSensor.BlockEntity> TRAIN_SCHEDULE_SENSOR;
+
+	public static void init() {
+		Init.LOGGER.info("Registering Minecraft Transit Railway block entity types");
+	}
 }

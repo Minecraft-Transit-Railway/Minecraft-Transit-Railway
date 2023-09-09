@@ -1,10 +1,11 @@
 package org.mtr.mod.client;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.mtr.core.tools.Utilities;
 import org.mtr.mapping.holder.MathHelper;
 import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mod.Init;
 import org.mtr.mod.Patreon;
 
 import java.nio.file.Files;
@@ -151,7 +152,7 @@ public class Config {
 	}
 
 	public static void refreshProperties() {
-		System.out.println("Refreshed MTR mod config");
+		Init.LOGGER.info("Refreshed Minecraft Transit Railway mod config");
 		try {
 			final JsonObject jsonConfig = JsonParser.parseString(String.join("", Files.readAllLines(CONFIG_FILE_PATH))).getAsJsonObject();
 			try {
@@ -201,7 +202,7 @@ public class Config {
 	}
 
 	private static void writeToFile() {
-		System.out.println("Wrote MTR mod config to file");
+		Init.LOGGER.info("Wrote Minecraft Transit Railway mod config to file");
 		final JsonObject jsonConfig = new JsonObject();
 		jsonConfig.addProperty(USE_MTR_FONT_KEY, useMTRFont);
 		jsonConfig.addProperty(SHOW_ANNOUNCEMENT_MESSAGES, showAnnouncementMessages);
@@ -215,7 +216,7 @@ public class Config {
 		jsonConfig.addProperty(TRAIN_RENDER_DISTANCE_RATIO, trainRenderDistanceRatio);
 
 		try {
-			Files.write(CONFIG_FILE_PATH, Collections.singleton(new GsonBuilder().setPrettyPrinting().create().toJson(jsonConfig)));
+			Files.write(CONFIG_FILE_PATH, Collections.singleton(Utilities.prettyPrint(jsonConfig)));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

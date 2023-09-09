@@ -106,18 +106,12 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		});
 		buttonGenerateRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.refresh_path"), button -> {
 			saveData();
-			RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.GENERATE, ObjectSet.of(depot), depots -> {
-
-			}));
+			RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.GENERATE, ObjectSet.of(depot)));
 		});
-		buttonClearTrains = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.clear_vehicles"), button -> RegistryClient.sendPacketToServer(PacketData.fromSidings(IntegrationServlet.Operation.CLEAR, depot.savedRails, sidings -> {
-
-		})));
+		buttonClearTrains = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.clear_vehicles"), button -> RegistryClient.sendPacketToServer(PacketData.fromSidings(IntegrationServlet.Operation.CLEAR, depot.savedRails)));
 		checkboxRepeatIndefinitely = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, button -> {
 			saveData();
-			RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.GENERATE, ObjectSet.of(depot), depots -> {
-
-			}));
+			RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.GENERATE, ObjectSet.of(depot)));
 		});
 		checkboxRepeatIndefinitely.setMessage2(new Text(TextHelper.translatable("gui.mtr.repeat_indefinitely").data));
 		textFieldCruisingAltitude = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 5, TextCase.DEFAULT, "[^-\\d]", String.valueOf(DEFAULT_CRUISING_ALTITUDE));
@@ -261,9 +255,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			e.printStackTrace();
 			data.setCruisingAltitude(DEFAULT_CRUISING_ALTITUDE);
 		}
-		RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.UPDATE, ObjectSet.of(data), depots -> {
-			// TODO
-		}));
+		RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.UPDATE, ObjectSet.of(data)));
 	}
 
 	private void toggleRealTime() {

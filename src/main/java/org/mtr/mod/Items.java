@@ -242,4 +242,8 @@ public final class Items {
 	public static final ItemRegistryObject TUNNEL_WALL_CREATOR_6_5;
 	public static final ItemRegistryObject TUNNEL_WALL_CREATOR_6_7;
 	public static final ItemRegistryObject TUNNEL_WALL_CREATOR_6_9;
+
+	public static void init() {
+		Init.LOGGER.info("Registering Minecraft Transit Railway items");
+	}
 }

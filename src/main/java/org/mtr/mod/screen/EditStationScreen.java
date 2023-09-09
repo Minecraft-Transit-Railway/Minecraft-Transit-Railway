@@ -177,9 +177,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		} catch (Exception ignored) {
 			data.setZone1(0);
 		}
-		RegistryClient.sendPacketToServer(PacketData.fromStations(IntegrationServlet.Operation.UPDATE, ObjectSet.of(data), stations -> {
-
-		}));
+		RegistryClient.sendPacketToServer(PacketData.fromStations(IntegrationServlet.Operation.UPDATE, ObjectSet.of(data)));
 	}
 
 	private void changeEditingExit(@Nullable String editingExit, int editingDestinationIndex) {

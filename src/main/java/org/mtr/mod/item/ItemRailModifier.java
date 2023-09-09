@@ -1,13 +1,17 @@
 package org.mtr.mod.item;
 
+import com.google.gson.JsonObject;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
+import org.mtr.core.serializers.JsonReader;
 import org.mtr.core.tools.Angle;
 import org.mtr.core.tools.Position;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.data.RailType;
+import org.mtr.mod.packet.PacketData;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -16,6 +20,8 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 
 	private final boolean isOneWay;
 	private final RailType railType;
+
+	private static final Rail DUMMY_RAIL = new Rail(new JsonReader(new JsonObject()));
 
 	public ItemRailModifier(ItemSettings itemSettings) {
 		super(true, true, true, false, itemSettings);
@@ -69,8 +75,8 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 				newRailType = railType;
 			}
 
-			final Position positionStart = new Position(posStart.getX(), posStart.getY(), posStart.getZ());
-			final Position positionEnd = new Position(posEnd.getX(), posEnd.getY(), posEnd.getZ());
+			final Position positionStart = Init.blockPosToPosition(posStart);
+			final Position positionEnd = Init.blockPosToPosition(posEnd);
 			final Rail rail1;
 			final Rail rail2;
 
@@ -88,17 +94,17 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 					rail2 = Rail.newTurnBackRail(positionEnd, facingEnd, positionStart, facingStart, Rail.Shape.CURVE, Rail.Shape.CURVE, transportMode);
 					break;
 				default:
-					rail1 = Rail.newRail(positionStart, facingStart, positionEnd, facingEnd, (long) newRailType.speedLimitMetersPerMillisecond, newRailType.railShape, newRailType.railShape, false, newRailType.canAccelerate, newRailType.hasSignal, transportMode);
-					rail2 = Rail.newRail(positionEnd, facingEnd, positionStart, facingStart, (long) newRailType.speedLimitMetersPerMillisecond, newRailType.railShape, newRailType.railShape, false, newRailType.canAccelerate, newRailType.hasSignal, transportMode);
+					rail1 = Rail.newRail(positionStart, facingStart, positionEnd, facingEnd, newRailType.speedLimit, newRailType.railShape, newRailType.railShape, false, newRailType.canAccelerate, newRailType.hasSignal, transportMode);
+					rail2 = Rail.newRail(positionEnd, facingEnd, positionStart, facingStart, newRailType.speedLimit, newRailType.railShape, newRailType.railShape, false, newRailType.canAccelerate, newRailType.hasSignal, transportMode);
 			}
 
 			final boolean goodRadius = rail1.goodRadius() && rail2.goodRadius();
-			final boolean isValid = !rail1.isInvalid() && !rail2.isInvalid();
+			final boolean isValid = rail1.isValid() && rail2.isValid();
 
 			if (goodRadius && isValid && isValidContinuousMovement) {
 				world.setBlockState(posStart, stateStart.with(new Property<>(BlockNode.IS_CONNECTED.data), true));
 				world.setBlockState(posEnd, stateEnd.with(new Property<>(BlockNode.IS_CONNECTED.data), true));
-				// TODO
+				PacketData.createOrDeleteRail(ServerWorld.cast(world), positionStart, positionEnd, rail1, rail2, true, isOneWay);
 			} else if (player != null) {
 				player.sendMessage(new Text(TextHelper.translatable(isValidContinuousMovement ? goodRadius ? "gui.mtr.invalid_orientation" : "gui.mtr.radius_too_small" : "gui.mtr.cable_car_invalid_orientation").data), true);
 			}
@@ -107,6 +113,6 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 
 	@Override
 	protected void onRemove(World world, BlockPos posStart, BlockPos posEnd, @Nullable ServerPlayerEntity player) {
-		// TODO
+		PacketData.createOrDeleteRail(ServerWorld.cast(world), Init.blockPosToPosition(posStart), Init.blockPosToPosition(posEnd), DUMMY_RAIL, DUMMY_RAIL, false, isOneWay);
 	}
 }
