@@ -1,51 +1,57 @@
-import org.mtr.mod.BuildTools
-
 plugins {
 	id "java"
-	id "fabric-loom" version "+"
+	id "com.github.johnrengelman.shadow" version "+" apply false
 }
 
 group "org.mtr.mod"
 version rootProject.properties.version
-final BuildTools buildTools = new BuildTools("1.20.1", "fabric", project)
 
-dependencies {
-	minecraft "com.mojang:minecraft:${buildTools.minecraftVersion}"
-	mappings "net.fabricmc:yarn:${buildTools.getYarnVersion()}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${buildTools.getFabricVersion()}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${buildTools.getFabricApiVersion()}"
-	modApi "com.terraformersmc:modmenu:${buildTools.getModMenuVersion()}"
-	implementation "com.google.code.gson:gson:+"
-	implementation "com.google.code.findbugs:jsr305:+"
-	implementation "it.unimi.dsi:fastutil:+"
-	implementation "com.corundumstudio.socketio:netty-socketio:+"
-	implementation "org.msgpack:msgpack-core:+"
-	implementation "io.socket:socket.io-client:+"
-	implementation "com.github.jonafanho:Socket-IO-Webserver:master-SNAPSHOT"
-	implementation name: "Minecraft-Mappings-common-0.0.1"
-	implementation name: "Minecraft-Mappings-fabric-${buildTools.minecraftVersion}-0.0.1"
-	implementation name: "Transport-Simulation-Core-0.0.1"
-	implementation name: "BlueMapAPI-2.6.0"
-	implementation name: "Dynmap-3.2.1"
-	compileOnly "xyz.jpenilla:squaremap-api:+"
-}
+subprojects {
+	apply plugin: "java"
+	apply plugin: "com.github.johnrengelman.shadow"
 
-repositories {
-	flatDir { dirs "libs" }
-	maven { url = "https://maven.terraformersmc.com/" }
-	maven { url "https://jitpack.io" }
-}
-
-java {
-	toolchain {
-		languageVersion.set(JavaLanguageVersion.of(buildTools.javaLanguageVersion))
+	configurations {
+		shadowImplementation
+		implementation.extendsFrom shadowImplementation
 	}
-	withSourcesJar()
-	withJavadocJar()
-}
 
-build {
-	doLast {
-		buildTools.copyBuildFile()
+	dependencies {
+		implementation "com.google.code.findbugs:jsr305:+"
+		shadowImplementation "com.google.code.gson:gson:+"
+		shadowImplementation "it.unimi.dsi:fastutil:+"
+		shadowImplementation "com.corundumstudio.socketio:netty-socketio:+"
+		shadowImplementation "org.msgpack:msgpack-core:+"
+		shadowImplementation "io.socket:socket.io-client:+"
+		shadowImplementation "com.github.jonafanho:Socket-IO-Webserver:master-SNAPSHOT"
+		shadowImplementation name: "Minecraft-Mappings-common-0.0.1"
+		shadowImplementation name: "Transport-Simulation-Core-0.0.1"
+		compileOnly "xyz.jpenilla:squaremap-api:+"
+		compileOnly name: "BlueMapAPI-2.6.0"
+		compileOnly name: "Dynmap-3.2.1"
+	}
+
+	repositories {
+		flatDir { dirs "../libs" }
+		maven { url "https://jitpack.io" }
+	}
+
+	shadowJar {
+		minimize()
+		configurations = [project.configurations.shadowImplementation]
+		relocate "ch.randelshofer", "org.mtr.libraries.ch.randelshofer"
+		relocate "com.corundumstudio", "org.mtr.libraries.com.corundumstudio"
+		relocate "com.fasterxml", "org.mtr.libraries.com.fasterxml"
+		relocate "com.google", "org.mtr.libraries.com.google"
+		relocate "io.netty", "org.mtr.libraries.io.netty"
+		relocate "io.socket", "org.mtr.libraries.io.socket"
+		relocate "it.unimi", "org.mtr.libraries.it.unimi"
+		relocate "org.json", "org.mtr.libraries.org.json"
+		relocate "org.msgpack", "org.mtr.libraries.org.msgpack"
+		relocate "org.slf4j", "org.mtr.libraries.org.slf4j"
+		exclude "META-INF/maven/**"
+		exclude "META-INF/native-image/**"
+		exclude "META-INF/proguard/**"
+		exclude "META-INF/services/**"
+		exclude "META-INF/versions/**"
 	}
 }
