@@ -5,12 +5,14 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mod.BlockEntityTypes;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
 public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 
+	@Nonnull
 	@Override
 	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new BlockEntity(blockPos, blockState);

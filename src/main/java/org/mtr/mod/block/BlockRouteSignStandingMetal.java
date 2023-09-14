@@ -19,6 +19,7 @@ public class BlockRouteSignStandingMetal extends BlockRouteSignBase implements I
 		return VoxelShapes.union(main, VoxelShapes.union(leg1, leg2));
 	}
 
+	@Nonnull
 	@Override
 	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new BlockEntity(blockPos, blockState);

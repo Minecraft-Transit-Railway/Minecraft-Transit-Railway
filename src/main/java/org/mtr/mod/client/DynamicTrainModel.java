@@ -13,6 +13,7 @@ import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
+import org.mtr.mod.Init;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.model.ModelTrainBase;
 import org.mtr.mod.screen.ResourcePackCreatorScreen;
@@ -103,7 +104,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 
 			buildModel();
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 
 		IResourcePackCreatorProperties.checkSchema(properties);

@@ -202,7 +202,7 @@ public class DynamicTextureCache implements IGui {
 				try {
 					font = Font.createFont(Font.TRUETYPE_FONT, inputStream);
 				} catch (Exception e) {
-					e.printStackTrace();
+					Init.logException(e);
 				}
 			});
 		}
@@ -212,7 +212,7 @@ public class DynamicTextureCache implements IGui {
 				try {
 					fontCjk = Font.createFont(Font.TRUETYPE_FONT, inputStream);
 				} catch (Exception e) {
-					e.printStackTrace();
+					Init.logException(e);
 				}
 			});
 		}
@@ -247,7 +247,7 @@ public class DynamicTextureCache implements IGui {
 				try {
 					newKey = URLEncoder.encode(key, "UTF-8");
 				} catch (Exception e) {
-					e.printStackTrace();
+					Init.logException(e);
 				}
 				final Identifier identifier = new Identifier(MTR.MOD_ID, "dynamic_texture_" + newKey.toLowerCase(Locale.ENGLISH).replaceAll("[^0-9a-z_]", "_"));
 				MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, new AbstractTexture(nativeImageBackedTexture.data));

@@ -11,6 +11,7 @@ import org.mtr.init.MTR;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
+import org.mtr.mod.Init;
 import org.mtr.mod.data.IGui;
 
 import java.util.Collections;
@@ -56,7 +57,7 @@ public class RouteMapGenerator implements IGui {
 			drawStringPixelated(nativeImage, pixels, dimensions, textColor, fullPixel);
 			return nativeImage;
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 
 		return null;
@@ -75,7 +76,7 @@ public class RouteMapGenerator implements IGui {
 			}
 			return nativeImage;
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 
 		return null;
@@ -98,7 +99,7 @@ public class RouteMapGenerator implements IGui {
 			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, ARGB_WHITE, false);
 			return nativeImage;
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 
 		return null;
@@ -121,7 +122,7 @@ public class RouteMapGenerator implements IGui {
 			clearColor(nativeImage, invertColor(ARGB_BLACK | stationColor));
 			return nativeImage;
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 
 		return null;
@@ -149,7 +150,7 @@ public class RouteMapGenerator implements IGui {
 
 			return nativeImage;
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 
 		return null;
@@ -172,7 +173,7 @@ public class RouteMapGenerator implements IGui {
 			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, ARGB_BLACK, false);
 			return nativeImage;
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 
 		return null;
@@ -200,7 +201,7 @@ public class RouteMapGenerator implements IGui {
 
 			return nativeImage;
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 
 		return null;
@@ -219,7 +220,7 @@ public class RouteMapGenerator implements IGui {
 
 			return nativeImage;
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 
 		return null;
@@ -244,7 +245,7 @@ public class RouteMapGenerator implements IGui {
 			}
 			return nativeImage;
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 
 		return null;
@@ -263,7 +264,7 @@ public class RouteMapGenerator implements IGui {
 			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, ARGB_WHITE, false);
 			return nativeImage;
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 
 		return null;
@@ -340,7 +341,7 @@ public class RouteMapGenerator implements IGui {
 
 			return nativeImage;
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 
 		return null;
@@ -519,7 +520,7 @@ public class RouteMapGenerator implements IGui {
 				return nativeImage;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 
 		return null;
@@ -801,7 +802,7 @@ public class RouteMapGenerator implements IGui {
 					}
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				Init.logException(e);
 			}
 		});
 	}

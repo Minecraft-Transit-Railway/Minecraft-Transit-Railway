@@ -11,6 +11,7 @@ import org.mtr.core.data.SavedRailBase;
 import org.mtr.mapping.holder.MinecraftServer;
 import org.mtr.mapping.holder.World;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.data.IGui;
 
@@ -30,13 +31,13 @@ public class UpdateDynmap implements IGui, IUpdateWebMap {
 						IUpdateWebMap.readResource(STATION_ICON_PATH, inputStream -> markerAPI.createMarkerIcon(STATION_ICON_KEY, STATION_ICON_KEY, inputStream));
 						IUpdateWebMap.readResource(DEPOT_ICON_PATH, inputStream -> markerAPI.createMarkerIcon(DEPOT_ICON_KEY, DEPOT_ICON_KEY, inputStream));
 					} catch (Exception e) {
-						e.printStackTrace();
+						Init.logException(e);
 					}
 				}
 			});
 		} catch (
 				Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 	}
 
@@ -45,7 +46,7 @@ public class UpdateDynmap implements IGui, IUpdateWebMap {
 			updateDynmap(world, ClientData.instance.stations, MARKER_SET_STATIONS_ID, MARKER_SET_STATIONS_TITLE, MARKER_SET_STATION_AREAS_ID, MARKER_SET_STATION_AREAS_TITLE, STATION_ICON_KEY);
 			updateDynmap(world, ClientData.instance.depots, MARKER_SET_DEPOTS_ID, MARKER_SET_DEPOTS_TITLE, MARKER_SET_DEPOT_AREAS_ID, MARKER_SET_DEPOT_AREAS_TITLE, DEPOT_ICON_KEY);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 	}
 

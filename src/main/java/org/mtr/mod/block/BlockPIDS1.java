@@ -16,6 +16,7 @@ public class BlockPIDS1 extends BlockPIDSBaseHorizontal {
 		return VoxelShapes.union(shape1, shape2);
 	}
 
+	@Nonnull
 	@Override
 	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new BlockEntity(blockPos, blockState);

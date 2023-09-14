@@ -15,6 +15,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class BuildTools {
 
@@ -24,6 +26,8 @@ public class BuildTools {
 
 	private final Path path;
 	private final String version;
+
+	private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	public BuildTools(String minecraftVersion, String loader, Project project) {
 		this.minecraftVersion = minecraftVersion;
@@ -67,15 +71,19 @@ public class BuildTools {
 			try {
 				return JsonParser.parseString(IOUtils.toString(new URL(url), StandardCharsets.UTF_8));
 			} catch (Exception e) {
-				e.printStackTrace();
+				logException(e);
 			}
 			try {
 				Thread.sleep(1000);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logException(e);
 			}
 		}
 
 		return new JsonObject();
+	}
+
+	private static void logException(Exception e) {
+		LOGGER.log(Level.INFO, e.getMessage(), e);
 	}
 }

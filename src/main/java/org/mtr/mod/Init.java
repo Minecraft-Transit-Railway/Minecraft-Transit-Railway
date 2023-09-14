@@ -23,6 +23,7 @@ import org.mtr.mod.packet.*;
 
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class Init {
@@ -94,11 +95,11 @@ public final class Init {
 							}
 						});
 					} catch (Exception e) {
-						e.printStackTrace();
+						logException(e);
 					}
 				});
 			} catch (Exception e) {
-				e.printStackTrace();
+				logException(e);
 			}
 		});
 
@@ -161,6 +162,10 @@ public final class Init {
 
 	public static BlockPos newBlockPos(double x, double y, double z) {
 		return new BlockPos(net.minecraft.util.math.MathHelper.floor(x), net.minecraft.util.math.MathHelper.floor(y), net.minecraft.util.math.MathHelper.floor(z));
+	}
+
+	public static void logException(Exception e) {
+		LOGGER.log(Level.INFO, e.getMessage(), e);
 	}
 
 	private static class ClientGroupNew extends ClientGroupSchema {

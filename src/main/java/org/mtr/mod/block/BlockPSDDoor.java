@@ -18,6 +18,7 @@ public class BlockPSDDoor extends BlockPSDAPGDoorBase {
 		this.style = style;
 	}
 
+	@Nonnull
 	@Override
 	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new BlockEntity(style, blockPos, blockState);

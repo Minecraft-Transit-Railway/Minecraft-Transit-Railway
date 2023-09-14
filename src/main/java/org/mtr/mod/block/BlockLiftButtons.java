@@ -57,6 +57,7 @@ public class BlockLiftButtons extends BlockExtension implements DirectionHelper,
 		return IBlock.getVoxelShapeByDirection(4, 0, 0, 12, 16, 1, IBlock.getStatePropertySafe(state, FACING));
 	}
 
+	@Nonnull
 	@Override
 	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new BlockEntity(blockPos, blockState);

@@ -10,6 +10,7 @@ import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.packet.PacketData;
@@ -152,7 +153,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 
 			super.render(graphicsHolder, mouseX, mouseY, delta);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 	}
 
@@ -213,7 +214,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 			try {
 				final String exitParent = parentLetter + Integer.parseInt(parentNumber);
 			} catch (Exception e) {
-				e.printStackTrace();
+				Init.logException(e);
 			}
 		}
 		changeEditingExit(null, -1);

@@ -31,6 +31,7 @@ public class BlockClock extends BlockExtension implements BlockWithEntity {
 		return VoxelShapes.union(IBlock.getVoxelShapeByDirection(3, 0, 6, 13, 12, 10, facing), Block.createCuboidShape(7.5, 12, 7.5, 8.5, 16, 8.5));
 	}
 
+	@Nonnull
 	@Override
 	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new BlockEntity(blockPos, blockState);

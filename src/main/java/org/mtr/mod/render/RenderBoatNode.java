@@ -26,7 +26,7 @@ public class RenderBoatNode extends BlockEntityRenderer<BlockNode.BlockEntity> {
 		}
 
 		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
-		if (clientPlayerEntity == null || !RenderTrains.isHoldingRailRelated(clientPlayerEntity)) {
+		if (clientPlayerEntity == null || !RenderRails.isHoldingRailRelated(clientPlayerEntity)) {
 			return;
 		}
 

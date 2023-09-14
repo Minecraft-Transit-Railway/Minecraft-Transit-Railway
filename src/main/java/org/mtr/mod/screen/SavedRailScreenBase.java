@@ -12,6 +12,7 @@ import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextFieldWidgetExtension;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.IPacket;
@@ -101,7 +102,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 			}
 			super.render(graphicsHolder, mouseX, mouseY, delta);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 	}
 
