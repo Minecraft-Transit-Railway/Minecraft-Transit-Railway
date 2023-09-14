@@ -117,6 +117,17 @@ public interface IDrawing {
 		drawTexture(graphicsHolder, x1, y2, z1, x2, y2, z2, x2, y1, z2, x1, y1, z1, u1, v1, u2, v2, facing, color, light);
 	}
 
+	static void drawTexture(GraphicsHolder graphicsHolder, double x1, double y1, double z1, double x2, double y2, double z2, double x3, double y3, double z3, double x4, double y4, double z4, Vector3d playerOffset, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
+		drawTexture(
+				graphicsHolder,
+				(float) (x1 - playerOffset.getXMapped()), (float) (y1 - playerOffset.getYMapped()), (float) (z1 - playerOffset.getZMapped()),
+				(float) (x2 - playerOffset.getXMapped()), (float) (y2 - playerOffset.getYMapped()), (float) (z2 - playerOffset.getZMapped()),
+				(float) (x3 - playerOffset.getXMapped()), (float) (y3 - playerOffset.getYMapped()), (float) (z3 - playerOffset.getZMapped()),
+				(float) (x4 - playerOffset.getXMapped()), (float) (y4 - playerOffset.getYMapped()), (float) (z4 - playerOffset.getZMapped()),
+				u1, v1, u2, v2, facing, color, light
+		);
+	}
+
 	static void drawTexture(GraphicsHolder graphicsHolder, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
 		graphicsHolder.drawTextureInWorld(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, u1, v1, u2, v2, facing, color, light);
 	}

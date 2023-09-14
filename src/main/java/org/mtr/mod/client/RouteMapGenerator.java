@@ -5,10 +5,7 @@ import it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.objects.*;
-import org.mtr.core.data.Platform;
-import org.mtr.core.data.Route;
-import org.mtr.core.data.RoutePlatformData;
-import org.mtr.core.data.Station;
+import org.mtr.core.data.*;
 import org.mtr.core.tools.Utilities;
 import org.mtr.init.MTR;
 import org.mtr.mapping.holder.*;
@@ -458,9 +455,8 @@ public class RouteMapGenerator implements IGui {
 						}
 
 						final Station station = route.getRoutePlatforms().get(stationIndex).platform.area;
-						stationPositionsGrouped.computeIfAbsent(station, set -> new ObjectOpenHashSet<>());
 
-						if (!stationPosition.isCommon || stationPositionsGrouped.get(station).stream().noneMatch(stationPosition2 -> stationPosition2.stationPosition.x == stationPosition.x)) {
+						if (!stationPosition.isCommon || stationPositionsGrouped.getOrDefault(station, new ObjectOpenHashSet<>()).stream().noneMatch(stationPosition2 -> stationPosition2.stationPosition.x == stationPosition.x)) {
 							final Int2ObjectAVLTreeMap<ObjectArrayList<Route>> connectingRoutesMap = station == null ? new Int2ObjectAVLTreeMap<>() : station.getInterchangeStationToColorToRoutesMap(false).getOrDefault(station, new Int2ObjectAVLTreeMap<>());
 							final IntArrayList allColors = new IntArrayList(connectingRoutesMap.keySet());
 							Collections.sort(allColors);
@@ -478,7 +474,7 @@ public class RouteMapGenerator implements IGui {
 									}
 								}
 							});
-							stationPositionsGrouped.get(station).add(new StationPositionGrouped(stationPosition, stationIndex - currentIndex, interchangeColors, interchangeNames));
+							Data.put(stationPositionsGrouped, station, new StationPositionGrouped(stationPosition, stationIndex - currentIndex, interchangeColors, interchangeNames), ObjectOpenHashSet::new);
 						}
 					}
 				}

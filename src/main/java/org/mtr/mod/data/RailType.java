@@ -18,24 +18,32 @@ public enum RailType implements IGui {
 	CABLE_CAR(30, MapColor.getWhiteMapped(), false, true, true, Rail.Shape.STRAIGHT),
 	CABLE_CAR_STATION(2, MapColor.getWhiteMapped(), false, true, true, Rail.Shape.CURVE),
 	RUNWAY(300, MapColor.getPalePurpleMapped(), false, true, false, Rail.Shape.CURVE),
-	AIRPLANE_DUMMY(900, MapColor.getBlackMapped(), false, true, false, Rail.Shape.CURVE),
-	NONE(20, MapColor.getBlackMapped(), false, false, true, Rail.Shape.CURVE);
+	AIRPLANE_DUMMY(900, MapColor.getBlackMapped(), false, true, false, Rail.Shape.CURVE);
 
 	public final int speedLimit;
 	public final float speedLimitMetersPerMillisecond;
 	public final int color;
-	public final boolean hasSavedRail;
+	public final boolean isSavedRail;
 	public final boolean canAccelerate;
 	public final boolean hasSignal;
 	public final Rail.Shape railShape;
 
-	RailType(int speedLimit, MapColor mapColor, boolean hasSavedRail, boolean canAccelerate, boolean hasSignal, Rail.Shape railShape) {
+	RailType(int speedLimit, MapColor mapColor, boolean isSavedRail, boolean canAccelerate, boolean hasSignal, Rail.Shape railShape) {
 		this.speedLimit = speedLimit;
 		speedLimitMetersPerMillisecond = speedLimit / 3600F;
 		color = mapColor.getColorMapped() | ARGB_BLACK;
-		this.hasSavedRail = hasSavedRail;
+		this.isSavedRail = isSavedRail;
 		this.canAccelerate = canAccelerate;
 		this.hasSignal = hasSignal;
 		this.railShape = railShape;
+	}
+
+	public static int getRailColor(Rail rail) {
+		for (final RailType railType : values()) {
+			if (railType.speedLimit == rail.getSpeedLimitKilometersPerHour()) {
+				return railType.color;
+			}
+		}
+		return ARGB_BLACK;
 	}
 }

@@ -17,6 +17,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
 import org.mtr.mapping.registry.EventRegistry;
 import org.mtr.mapping.registry.Registry;
+import org.mtr.mapping.tool.DummyClass;
 import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.packet.*;
 
@@ -39,6 +40,7 @@ public final class Init {
 		BlockEntityTypes.init();
 		CreativeModeTabs.init();
 		SoundEvents.init();
+		DummyClass.enableLogging();
 
 		// Register packets
 		Registry.setupPackets(new Identifier(MTR.MOD_ID, "packet"));
@@ -88,9 +90,7 @@ public final class Init {
 						responseObject.keySet().forEach(playerUuid -> {
 							final ServerPlayerEntity serverPlayerEntity = minecraftServer.getPlayerManager().getPlayer(UUID.fromString(playerUuid));
 							if (serverPlayerEntity != null) {
-								final JsonObject formattedObject = new JsonObject();
-								formattedObject.add("data", responseObject.getAsJsonObject(playerUuid));
-								Registry.sendPacketToClient(serverPlayerEntity, new PacketData(IntegrationServlet.Operation.LIST, formattedObject));
+								Registry.sendPacketToClient(serverPlayerEntity, new PacketData(IntegrationServlet.Operation.LIST, responseObject.getAsJsonObject(playerUuid)));
 							}
 						});
 					} catch (Exception e) {
