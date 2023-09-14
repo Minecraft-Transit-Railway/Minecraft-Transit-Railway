@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 
 public class BlockAPGDoor extends BlockPSDAPGDoorBase implements BlockWithEntity {
 
+	@Nonnull
 	@Override
 	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new BlockEntity(blockPos, blockState);

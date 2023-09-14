@@ -21,7 +21,6 @@ public enum RailType implements IGui {
 	AIRPLANE_DUMMY(900, MapColor.getBlackMapped(), false, true, false, Rail.Shape.CURVE);
 
 	public final int speedLimit;
-	public final float speedLimitMetersPerMillisecond;
 	public final int color;
 	public final boolean isSavedRail;
 	public final boolean canAccelerate;
@@ -30,7 +29,6 @@ public enum RailType implements IGui {
 
 	RailType(int speedLimit, MapColor mapColor, boolean isSavedRail, boolean canAccelerate, boolean hasSignal, Rail.Shape railShape) {
 		this.speedLimit = speedLimit;
-		speedLimitMetersPerMillisecond = speedLimit / 3600F;
 		color = mapColor.getColorMapped() | ARGB_BLACK;
 		this.isSavedRail = isSavedRail;
 		this.canAccelerate = canAccelerate;
@@ -39,11 +37,19 @@ public enum RailType implements IGui {
 	}
 
 	public static int getRailColor(Rail rail) {
-		for (final RailType railType : values()) {
-			if (railType.speedLimit == rail.getSpeedLimitKilometersPerHour()) {
-				return railType.color;
+		if (rail.isPlatform()) {
+			return PLATFORM.color;
+		} else if (rail.isSiding()) {
+			return SIDING.color;
+		} else if (rail.canTurnBack()) {
+			return TURN_BACK.color;
+		} else {
+			for (final RailType railType : values()) {
+				if (railType.speedLimit == rail.getSpeedLimitKilometersPerHour()) {
+					return railType.color;
+				}
 			}
+			return ARGB_BLACK;
 		}
-		return ARGB_BLACK;
 	}
 }

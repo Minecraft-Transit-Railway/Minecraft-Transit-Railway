@@ -9,6 +9,7 @@ import org.mtr.init.MTR;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.MinecraftClientHelper;
+import org.mtr.mod.Init;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.model.ModelTrainBase;
 
@@ -70,7 +71,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 			textureFileName = path.getFileName().toString();
 			textureFilePath = path;
 		} catch (IOException e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 	}
 
@@ -364,7 +365,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 			Util.getOperatingSystem().open(resourcePackDirectory);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 	}
 
@@ -406,7 +407,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 		try {
 			jsonCallback.accept(path.getFileName().toString(), JsonParser.parseString(String.join("", Files.readAllLines(path))).getAsJsonObject());
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 	}
 

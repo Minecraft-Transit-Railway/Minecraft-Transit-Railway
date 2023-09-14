@@ -23,6 +23,7 @@ public class BlockLiftDoorOdd extends BlockPSDAPGDoorBase implements ITripleBloc
 		super.onBreak2(world, pos, state, player);
 	}
 
+	@Nonnull
 	@Override
 	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new BlockEntity(blockPos, blockState);

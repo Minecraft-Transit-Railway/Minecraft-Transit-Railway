@@ -5,6 +5,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockArrivalProjectorBase;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
@@ -82,7 +83,7 @@ public class ArrivalProjectorConfigScreen extends ScreenExtension implements IGu
 		try {
 			displayPage = Math.max(0, Integer.parseInt(displayPageInput.getText2()) - 1);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 		RegistryClient.sendPacketToServer(new PacketUpdateArrivalProjectorConfig(blockPos, filterPlatformIds, displayPage));
 		super.onClose2();

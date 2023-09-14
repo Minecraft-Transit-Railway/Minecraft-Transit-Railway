@@ -12,6 +12,7 @@ import org.mtr.mapping.holder.Text;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.IPacket;
@@ -99,7 +100,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 
 			super.render(graphicsHolder, mouseX, mouseY, delta);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 	}
 

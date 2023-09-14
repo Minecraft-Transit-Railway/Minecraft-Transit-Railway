@@ -15,6 +15,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.packet.PacketData;
@@ -252,7 +253,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		try {
 			data.setCruisingAltitude(Integer.parseInt(textFieldCruisingAltitude.getText2()));
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 			data.setCruisingAltitude(DEFAULT_CRUISING_ALTITUDE);
 		}
 		RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.UPDATE, ObjectSet.of(data)));

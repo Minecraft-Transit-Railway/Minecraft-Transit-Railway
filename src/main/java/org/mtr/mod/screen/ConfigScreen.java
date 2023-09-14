@@ -2,6 +2,7 @@ package org.mtr.mod.screen;
 
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
+import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.Patreon;
 import org.mtr.mod.client.ClientData;
@@ -212,7 +213,7 @@ public class ConfigScreen extends ScreenExtension implements IGui {
 
 			super.render(graphicsHolder, mouseX, mouseY, delta);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 	}
 

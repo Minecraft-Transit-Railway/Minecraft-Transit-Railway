@@ -49,6 +49,7 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IB
 		return VoxelShapes.empty();
 	}
 
+	@Nonnull
 	@Override
 	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new BlockEntity(blockPos, blockState);

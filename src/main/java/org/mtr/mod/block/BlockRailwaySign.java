@@ -112,6 +112,7 @@ public class BlockRailwaySign extends BlockExtension implements IBlock, Directio
 		tooltip.add(TextHelper.translatable(isOdd ? "tooltip.mtr.railway_sign_odd" : "tooltip.mtr.railway_sign_even").formatted(TextFormatting.GRAY));
 	}
 
+	@Nonnull
 	@Override
 	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		if (this == org.mtr.mod.Blocks.RAILWAY_SIGN_MIDDLE.get().data) {

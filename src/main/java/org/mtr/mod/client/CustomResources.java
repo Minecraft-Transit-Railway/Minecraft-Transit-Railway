@@ -103,7 +103,7 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 							}));
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
+						Init.logException(e);
 					}
 				});
 			} catch (Exception ignored) {
@@ -122,7 +122,7 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 
 						CUSTOM_SIGNS.put(CUSTOM_SIGN_ID_PREFIX + entry.getKey(), new CustomSign(new Identifier(jsonObject.get(CUSTOM_SIGNS_TEXTURE_ID).getAsString()), flipTexture, customText, flipCustomText, small, backgroundColor));
 					} catch (Exception e) {
-						e.printStackTrace();
+						Init.logException(e);
 					}
 				});
 			} catch (Exception ignored) {

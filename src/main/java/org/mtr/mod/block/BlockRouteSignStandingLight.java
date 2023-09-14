@@ -24,6 +24,7 @@ public class BlockRouteSignStandingLight extends BlockRouteSignBase implements I
 		}
 	}
 
+	@Nonnull
 	@Override
 	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new BlockEntity(blockPos, blockState);

@@ -194,14 +194,14 @@ public class PacketData extends PacketHandler {
 		try {
 			request.setEntity(new StringEntity(contentObject.toString()));
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 
 		try (final CloseableHttpClient closeableHttpClient = HttpClients.createDefault(); final CloseableHttpResponse response = closeableHttpClient.execute(request)) {
 			final String result = EntityUtils.toString(response.getEntity());
 			consumer.accept(parseJson(result).getAsJsonObject("data"));
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 	}
 

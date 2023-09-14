@@ -4,6 +4,7 @@ import org.mtr.core.data.AreaBase;
 import org.mtr.core.data.SavedRailBase;
 import org.mtr.core.tools.Position;
 import org.mtr.init.MTR;
+import org.mtr.mod.Init;
 import org.mtr.mod.data.IGui;
 
 import java.awt.*;
@@ -34,7 +35,7 @@ public interface IUpdateWebMap {
 				callback.accept(inputStream);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 	}
 

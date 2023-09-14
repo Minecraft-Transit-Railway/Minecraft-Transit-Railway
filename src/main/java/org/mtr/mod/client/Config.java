@@ -197,7 +197,7 @@ public class Config {
 			}
 		} catch (Exception e) {
 			writeToFile();
-			e.printStackTrace();
+			Init.logException(e);
 		}
 	}
 
@@ -218,7 +218,7 @@ public class Config {
 		try {
 			Files.write(CONFIG_FILE_PATH, Collections.singleton(Utilities.prettyPrint(jsonConfig)));
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 	}
 }

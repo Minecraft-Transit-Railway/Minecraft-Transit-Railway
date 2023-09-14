@@ -6,6 +6,7 @@ import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.BlockEntityTypes;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class BlockLiftPanelOdd2 extends BlockLiftPanelBase {
@@ -21,6 +22,7 @@ public class BlockLiftPanelOdd2 extends BlockLiftPanelBase {
 		properties.add(SIDE);
 	}
 
+	@Nonnull
 	@Override
 	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new BlockEntity(blockPos, blockState);

@@ -22,6 +22,7 @@ public class BlockRouteSignWallLight extends BlockRouteSignBase implements IBloc
 		}
 	}
 
+	@Nonnull
 	@Override
 	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new BlockEntity(blockPos, blockState);

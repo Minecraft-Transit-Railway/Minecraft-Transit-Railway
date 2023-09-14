@@ -8,6 +8,7 @@ import org.mtr.core.data.Route;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.registry.RegistryClient;
+import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockTrainSensorBase;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.IDrawing;
@@ -127,7 +128,7 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 			renderAdditional(graphicsHolder);
 			super.render(graphicsHolder, mouseX, mouseY, delta);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 	}
 

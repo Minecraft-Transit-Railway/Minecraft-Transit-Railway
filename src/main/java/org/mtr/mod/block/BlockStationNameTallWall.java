@@ -23,6 +23,7 @@ public class BlockStationNameTallWall extends BlockStationNameTallBase {
 		return IBlock.isReplaceable(ctx, Direction.UP, 3) ? getDefaultState2().with(new Property<>(FACING.data), facing.data).with(new Property<>(METAL.data), true).with(new Property<>(THIRD.data), EnumThird.LOWER) : null;
 	}
 
+	@Nonnull
 	@Override
 	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new BlockEntity(blockPos, blockState);

@@ -97,6 +97,7 @@ public class BlockPSDTop extends BlockExtension implements IBlock, DirectionHelp
 		}
 	}
 
+	@Nonnull
 	@Override
 	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new BlockEntity(blockPos, blockState);

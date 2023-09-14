@@ -39,6 +39,7 @@ public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements 
 		}
 	}
 
+	@Nonnull
 	@Override
 	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new BlockEntity(blockPos, blockState);

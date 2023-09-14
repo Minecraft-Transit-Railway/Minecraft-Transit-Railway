@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResources;
 import org.mtr.mod.client.ICustomResources;
 import org.mtr.mod.client.IDrawing;
@@ -196,7 +197,7 @@ public class ResourcePackCreatorOptionsScreen extends ScreenExtension implements
 				try {
 					callback.accept(paths.get(0));
 				} catch (Exception e) {
-					e.printStackTrace();
+					Init.logException(e);
 				}
 			}
 		})));

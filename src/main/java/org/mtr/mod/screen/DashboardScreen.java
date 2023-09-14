@@ -12,6 +12,7 @@ import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
@@ -210,7 +211,7 @@ public class DashboardScreen extends ScreenExtension implements IGui, IPacket {
 					break;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			Init.logException(e);
 		}
 	}
 
