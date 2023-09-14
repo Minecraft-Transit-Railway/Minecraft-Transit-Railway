@@ -55,11 +55,11 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 				if (blockStart.data instanceof BlockNode.BlockContinuousMovementNode && blockEnd.data instanceof BlockNode.BlockContinuousMovementNode) {
 					if (((BlockNode.BlockContinuousMovementNode) blockStart.data).isStation && ((BlockNode.BlockContinuousMovementNode) blockEnd.data).isStation) {
 						isValidContinuousMovement = true;
-						newRailType = railType.hasSavedRail ? railType : RailType.CABLE_CAR_STATION;
+						newRailType = railType.isSavedRail ? railType : RailType.CABLE_CAR_STATION;
 					} else {
 						final int differenceX = posEnd.getX() - posStart.getX();
 						final int differenceZ = posEnd.getZ() - posStart.getZ();
-						isValidContinuousMovement = !railType.hasSavedRail && facingStart.isParallel(facingEnd)
+						isValidContinuousMovement = !railType.isSavedRail && facingStart.isParallel(facingEnd)
 								&& ((facingStart == Angle.N || facingStart == Angle.S) && differenceX == 0
 								|| (facingStart == Angle.E || facingStart == Angle.W) && differenceZ == 0
 								|| (facingStart == Angle.NE || facingStart == Angle.SW) && differenceX == -differenceZ
@@ -94,8 +94,8 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 					rail2 = Rail.newTurnBackRail(positionEnd, facingEnd, positionStart, facingStart, Rail.Shape.CURVE, Rail.Shape.CURVE, transportMode);
 					break;
 				default:
-					rail1 = Rail.newRail(positionStart, facingStart, positionEnd, facingEnd, newRailType.speedLimit, newRailType.railShape, newRailType.railShape, false, newRailType.canAccelerate, newRailType.hasSignal, transportMode);
-					rail2 = Rail.newRail(positionEnd, facingEnd, positionStart, facingStart, newRailType.speedLimit, newRailType.railShape, newRailType.railShape, false, newRailType.canAccelerate, newRailType.hasSignal, transportMode);
+					rail1 = Rail.newRail(positionStart, facingStart, positionEnd, facingEnd, newRailType.speedLimit, newRailType.railShape, newRailType.railShape, false, false, newRailType.canAccelerate, newRailType.hasSignal, transportMode);
+					rail2 = Rail.newRail(positionEnd, facingEnd, positionStart, facingStart, newRailType.speedLimit, newRailType.railShape, newRailType.railShape, false, false, newRailType.canAccelerate, newRailType.hasSignal, transportMode);
 			}
 
 			final boolean goodRadius = rail1.goodRadius() && rail2.goodRadius();
@@ -104,7 +104,7 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 			if (goodRadius && isValid && isValidContinuousMovement) {
 				world.setBlockState(posStart, stateStart.with(new Property<>(BlockNode.IS_CONNECTED.data), true));
 				world.setBlockState(posEnd, stateEnd.with(new Property<>(BlockNode.IS_CONNECTED.data), true));
-				PacketData.createOrDeleteRail(ServerWorld.cast(world), positionStart, positionEnd, rail1, rail2, true, isOneWay);
+				PacketData.createOrDeleteRail(ServerWorld.cast(world), positionStart, positionEnd, isOneWay ? DUMMY_RAIL : rail1, rail2);
 			} else if (player != null) {
 				player.sendMessage(new Text(TextHelper.translatable(isValidContinuousMovement ? goodRadius ? "gui.mtr.invalid_orientation" : "gui.mtr.radius_too_small" : "gui.mtr.cable_car_invalid_orientation").data), true);
 			}
@@ -113,6 +113,6 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 
 	@Override
 	protected void onRemove(World world, BlockPos posStart, BlockPos posEnd, @Nullable ServerPlayerEntity player) {
-		PacketData.createOrDeleteRail(ServerWorld.cast(world), Init.blockPosToPosition(posStart), Init.blockPosToPosition(posEnd), DUMMY_RAIL, DUMMY_RAIL, false, isOneWay);
+		PacketData.createOrDeleteRail(ServerWorld.cast(world), Init.blockPosToPosition(posStart), Init.blockPosToPosition(posEnd), DUMMY_RAIL, DUMMY_RAIL);
 	}
 }

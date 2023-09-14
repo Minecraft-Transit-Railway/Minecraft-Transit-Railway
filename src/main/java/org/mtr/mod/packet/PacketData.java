@@ -55,8 +55,8 @@ public class PacketData extends PacketHandler {
 		return new PacketData(operation, null, null, null, null, dataSet, null);
 	}
 
-	private static PacketData fromRailNodes(IntegrationServlet.Operation operation, ObjectSet<RailNode> dataSet) {
-		return new PacketData(operation, null, null, null, null, null, dataSet);
+	private static PacketData fromRailNodes(ObjectSet<RailNode> railNodes) {
+		return new PacketData(IntegrationServlet.Operation.UPDATE, null, null, null, null, null, railNodes);
 	}
 
 	private PacketData(IntegrationServlet.Operation operation, ObjectSet<Station> stations, ObjectSet<Platform> platforms, ObjectSet<Siding> sidings, ObjectSet<Route> routes, ObjectSet<Depot> depots, ObjectSet<RailNode> railNodes) {
@@ -98,15 +98,27 @@ public class PacketData extends PacketHandler {
 		writeJsonObjectToDataSet(ClientData.instance.routes, jsonObject.getAsJsonArray("routes"), jsonReader -> new Route(jsonReader, ClientData.instance));
 		writeJsonObjectToDataSet(ClientData.instance.depots, jsonObject.getAsJsonArray("depots"), jsonReader -> new Depot(jsonReader, ClientData.instance));
 		writeJsonObjectToDataSet(ClientData.instance.railNodes, jsonObject.getAsJsonArray("rails"));
+		ClientData.instance.sync();
 	}
 
 	private void sendHttpRequestAndBroadcastResultToAllPlayers(ServerWorld serverWorld) {
 		sendHttpRequest(operation, jsonObject, data -> {
 			// Check if there are any rail nodes that need to be reset
+			final ObjectAVLTreeSet<Position> allPositions = new ObjectAVLTreeSet<>();
+			final ObjectAVLTreeSet<Position> connectedPositions = new ObjectAVLTreeSet<>();
 			data.getAsJsonArray("rails").forEach(jsonElement -> {
 				final RailNode railNode = new RailNode(new JsonReader(jsonElement));
-				if (railNode.getConnectionsAsMap().isEmpty()) {
-					BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(railNode.getPosition()));
+				final Position position = railNode.getPosition();
+				final Object2ObjectOpenHashMap<Position, Rail> connections = railNode.getConnectionsAsMap();
+				allPositions.add(position);
+				if (!connections.isEmpty()) {
+					connectedPositions.add(position);
+					connectedPositions.addAll(connections.keySet());
+				}
+			});
+			allPositions.forEach(position -> {
+				if (connectedPositions.stream().noneMatch(checkPosition -> checkPosition.equals(position))) {
+					BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(position));
 				}
 			});
 
@@ -115,7 +127,7 @@ public class PacketData extends PacketHandler {
 		});
 	}
 
-	private <T extends NameColorDataBase> void writeJsonObjectToDataSet(ObjectSet<T> dataSet, JsonArray jsonArray, Function<JsonReader, T> function) {
+	private <T extends NameColorDataBase> void writeJsonObjectToDataSet(ObjectAVLTreeSet<T> dataSet, JsonArray jsonArray, Function<JsonReader, T> function) {
 		if (jsonArray != null) {
 			final ObjectArraySet<T> newData = new ObjectArraySet<>();
 			final LongAVLTreeSet idList = new LongAVLTreeSet();
@@ -142,64 +154,37 @@ public class PacketData extends PacketHandler {
 
 	private void writeJsonObjectToDataSet(ObjectOpenHashBigSet<RailNode> railNodes, JsonArray jsonArray) {
 		if (jsonArray != null) {
-			final ObjectArraySet<RailNode> newData = new ObjectArraySet<>();
-			final Object2ObjectAVLTreeMap<Position, RailNode> positionToRailNodeMap = new Object2ObjectAVLTreeMap<>();
-
-			jsonArray.forEach(jsonElement -> {
-				final RailNode railNode = new RailNode(new JsonReader(jsonElement.getAsJsonObject()));
-				newData.add(railNode);
-				positionToRailNodeMap.put(railNode.getPosition(), railNode);
-			});
+			final ObjectAVLTreeSet<Position> positionsToRemove = new ObjectAVLTreeSet<>();
+			final ObjectArraySet<RailNode> objectsToAdd = new ObjectArraySet<>();
 
 			// If the rail node coming from the server has no rail connections, delete it, otherwise, update it
-			if (operation == IntegrationServlet.Operation.UPDATE || operation == IntegrationServlet.Operation.DELETE) {
-				final ObjectArraySet<RailNode> objectsToRemove = new ObjectArraySet<>();
-				final ObjectArraySet<RailNode> objectsToAdd = new ObjectArraySet<>();
-
-				if (!positionToRailNodeMap.isEmpty()) {
-					railNodes.forEach(existingRailNode -> {
-						final RailNode newRailNode = positionToRailNodeMap.get(existingRailNode.getPosition());
-						if (newRailNode != null) {
-							if (!newRailNode.getConnectionsAsMap().isEmpty()) {
-								objectsToAdd.add(newRailNode);
-							}
-							objectsToRemove.add(existingRailNode);
-						}
-					});
+			jsonArray.forEach(jsonElement -> {
+				final RailNode railNode = new RailNode(new JsonReader(jsonElement.getAsJsonObject()));
+				if (!railNode.getConnectionsAsMap().isEmpty()) {
+					objectsToAdd.add(railNode);
 				}
+				positionsToRemove.add(railNode.getPosition());
+			});
 
-				objectsToRemove.forEach(railNodes::remove);
-				railNodes.addAll(objectsToAdd);
-			}
-
-			if (operation == IntegrationServlet.Operation.UPDATE) {
-				railNodes.addAll(newData);
-			}
+			railNodes.removeIf(railNode -> positionsToRemove.contains(railNode.getPosition()));
+			railNodes.addAll(objectsToAdd);
 		}
 	}
 
-	public static void createOrDeleteRail(ServerWorld serverWorld, Position positionStart, Position positionEnd, Rail rail1, Rail rail2, boolean isCreate, boolean isOneWay) {
+	public static void createOrDeleteRail(ServerWorld serverWorld, Position positionStart, Position positionEnd, Rail rail1, Rail rail2) {
 		final RailNode railNode1 = new RailNode(positionStart);
 		railNode1.addConnection(positionEnd, rail1);
 		final RailNode railNode2 = new RailNode(positionEnd);
 		railNode2.addConnection(positionStart, rail2);
-		final ObjectArrayList<PacketData> packetDataList = new ObjectArrayList<>();
 
-		if (isCreate && isOneWay) {
-			packetDataList.add(fromRailNodes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(railNode1)));
-			packetDataList.add(fromRailNodes(IntegrationServlet.Operation.DELETE, ObjectSet.of(railNode2)));
-		} else {
-			final ObjectArraySet<RailNode> railNodes = new ObjectArraySet<>();
-			railNodes.add(railNode1);
-			railNodes.add(railNode2);
-			packetDataList.add(fromRailNodes(isCreate ? IntegrationServlet.Operation.UPDATE : IntegrationServlet.Operation.DELETE, railNodes));
-		}
-
-		packetDataList.forEach(packetData -> packetData.sendHttpRequestAndBroadcastResultToAllPlayers(serverWorld));
+		final ObjectArraySet<RailNode> railNodes = new ObjectArraySet<>();
+		railNodes.add(railNode1);
+		railNodes.add(railNode2);
+		fromRailNodes(railNodes).sendHttpRequestAndBroadcastResultToAllPlayers(serverWorld);
 	}
 
 	public static void deleteRailNode(ServerWorld serverWorld, Position position) {
-		PacketData.fromRailNodes(IntegrationServlet.Operation.DELETE, ObjectSet.of(new RailNode(position))).sendHttpRequestAndBroadcastResultToAllPlayers(serverWorld);
+		PacketData.fromRailNodes(ObjectSet.of(new RailNode(position))).sendHttpRequestAndBroadcastResultToAllPlayers(serverWorld);
 	}
 
 	protected static void sendHttpRequest(IntegrationServlet.Operation operation, JsonObject contentObject, Consumer<JsonObject> consumer) {
@@ -234,10 +219,5 @@ public class PacketData extends PacketHandler {
 		} catch (Exception ignored) {
 			return new JsonObject();
 		}
-	}
-
-	@FunctionalInterface
-	public interface Callback {
-		void accept(ObjectAVLTreeSet<Station> stations, ObjectAVLTreeSet<Platform> platforms, ObjectAVLTreeSet<Siding> sidings, ObjectAVLTreeSet<Route> routes, ObjectAVLTreeSet<Depot> depots);
 	}
 }

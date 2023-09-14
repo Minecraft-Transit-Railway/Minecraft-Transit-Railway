@@ -3,6 +3,7 @@ package org.mtr.mod.client;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.core.data.*;
 import org.mtr.core.tools.Position;
 import org.mtr.mapping.holder.*;
@@ -20,6 +21,7 @@ public final class ClientData extends Data {
 
 	public final ObjectAVLTreeSet<VehicleExtension> vehicles = new ObjectAVLTreeSet<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
+	public final ObjectOpenHashSet<Rail> oneWayRails = new ObjectOpenHashSet<>();
 
 	public static ClientData instance = new ClientData();
 	public static String DASHBOARD_SEARCH = "";
@@ -35,6 +37,18 @@ public final class ClientData extends Data {
 	private static float shiftHoldingTicks = 0;
 
 	private static final Map<UUID, Integer> PLAYER_RIDING_COOL_DOWN = new HashMap<>();
+
+	@Override
+	public void sync() {
+		super.sync();
+
+		oneWayRails.clear();
+		positionToRailConnections.forEach((position1, map) -> map.forEach((position2, rail) -> {
+			if (tryGet(positionToRailConnections, position2, position1) == null) {
+				oneWayRails.add(rail);
+			}
+		}));
+	}
 
 	public static void tick() {
 		final Set<UUID> playersToRemove = new HashSet<>();
@@ -119,9 +133,7 @@ public final class ClientData extends Data {
 		savedRails.forEach(savedRail -> {
 			if (savedRail.isTransportMode(transportMode)) {
 				final Position position = savedRail.getMidPosition();
-				final Position newPosition = new Position(position.getX(), 0, position.getZ());
-				map.computeIfAbsent(newPosition, newSavedRails -> ObjectArrayList.of());
-				map.get(newPosition).add(savedRail);
+				Data.put(map, new Position(position.getX(), 0, position.getZ()), savedRail, ObjectArrayList::new);
 			}
 		});
 		map.forEach((position, newSavedRails) -> newSavedRails.sort((savedRail1, savedRail2) -> {
