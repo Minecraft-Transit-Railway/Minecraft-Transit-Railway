@@ -1,0 +1,40 @@
+import org.mtr.mod.BuildTools
+
+plugins {
+	id "fabric-loom" version "+"
+}
+
+final BuildTools buildTools = new BuildTools(minecraftVersion, "fabric", project)
+
+dependencies {
+	minecraft "com.mojang:minecraft:${minecraftVersion}"
+	mappings "net.fabricmc:yarn:${buildTools.getYarnVersion()}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${buildTools.getFabricVersion()}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${buildTools.getFabricApiVersion()}"
+	modApi "com.terraformersmc:modmenu:${buildTools.getModMenuVersion()}"
+	shadowImplementation name: "Minecraft-Mappings-fabric-${minecraftVersion}-0.0.1"
+}
+
+repositories {
+	maven { url = "https://maven.terraformersmc.com/" }
+}
+
+java {
+	toolchain {
+		languageVersion.set(JavaLanguageVersion.of(buildTools.javaLanguageVersion))
+	}
+	withSourcesJar()
+	withJavadocJar()
+}
+
+build {
+	doLast {
+		buildTools.copyBuildFile()
+	}
+}
+
+remapJar {
+	dependsOn(shadowJar)
+	mustRunAfter(shadowJar)
+	inputFile = file(shadowJar.archivePath)
+}

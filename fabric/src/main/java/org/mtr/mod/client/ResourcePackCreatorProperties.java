@@ -1,0 +1,429 @@
+package org.mtr.mod.client;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import org.mtr.core.data.EnumHelper;
+import org.mtr.core.data.TransportMode;
+import org.mtr.init.MTR;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.MinecraftClientHelper;
+import org.mtr.mod.Init;
+import org.mtr.mod.data.IGui;
+import org.mtr.mod.model.ModelTrainBase;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+public class ResourcePackCreatorProperties implements IResourcePackCreatorProperties, ICustomResources, IGui {
+
+	private String customTrainId = "my_custom_train_id";
+	private String modelFileName = "";
+	private JsonObject modelObject = new JsonObject();
+	private DynamicTrainModel model;
+	private String propertiesFileName = "";
+	private JsonObject propertiesObject = new JsonObject();
+	private String textureFileName = "";
+	private Path textureFilePath;
+	private Identifier texture;
+	private final JsonObject customResourcesObject = new JsonObject();
+
+	public ResourcePackCreatorProperties() {
+		IResourcePackCreatorProperties.checkSchema(propertiesObject);
+		ICustomResources.createCustomTrainSchema(customResourcesObject, customTrainId, "My Custom Train Name", "My Custom Train Description", "", "000000", "", "", DoorAnimationType.STANDARD.toString(), false, 0);
+	}
+
+	public void loadModelFile(Path path) {
+		readJson(path, (fileName, jsonObject) -> {
+			modelFileName = fileName;
+			jsonObject.remove("textures");
+			modelObject = jsonObject;
+			updateModel();
+		});
+	}
+
+	public void loadPropertiesFile(Path path) {
+		readJson(path, (fileName, jsonObject) -> {
+			propertiesFileName = fileName;
+			IResourcePackCreatorProperties.checkSchema(jsonObject);
+			propertiesObject = jsonObject;
+			updateModel();
+		});
+	}
+
+	public void loadTextureFile(Path path) {
+		try (final InputStream inputStream = Files.newInputStream(path, StandardOpenOption.READ)) {
+			final NativeImage nativeImage = NativeImage.read(inputStream);
+			texture = MinecraftClient.getInstance().getTextureManager().registerDynamicTexture(Init.MOD_ID, new NativeImageBackedTexture(nativeImage));
+			textureFileName = path.getFileName().toString();
+			textureFilePath = path;
+		} catch (IOException e) {
+			Init.logException(e);
+		}
+	}
+
+	public void editCustomResourcesId(String id) {
+		final String name = getCustomTrainObject().get(CUSTOM_TRAINS_NAME).getAsString();
+		final String description = getCustomTrainObject().get(CUSTOM_TRAINS_DESCRIPTION).getAsString();
+		final String wikipediaArticle = getCustomTrainObject().get(CUSTOM_TRAINS_WIKIPEDIA_ARTICLE).getAsString();
+		final String color = getCustomTrainObject().get(CUSTOM_TRAINS_COLOR).getAsString();
+		final String gangwayConnectionId = getCustomTrainObject().get(CUSTOM_TRAINS_GANGWAY_CONNECTION_ID).getAsString();
+		final String trainBarrierId = getCustomTrainObject().get(CUSTOM_TRAINS_TRAIN_BARRIER_ID).getAsString();
+		final String doorAnimationType = getCustomTrainObject().get(CUSTOM_TRAINS_DOOR_ANIMATION_TYPE).getAsString();
+		final float riderOffset = getCustomTrainObject().get(CUSTOM_TRAINS_RIDER_OFFSET).getAsFloat();
+		customTrainId = id;
+		ICustomResources.createCustomTrainSchema(customResourcesObject, id, name, description, wikipediaArticle, color, gangwayConnectionId, trainBarrierId, doorAnimationType, false, riderOffset);
+	}
+
+	public void editCustomResourcesName(String name) {
+		getCustomTrainObject().addProperty(CUSTOM_TRAINS_NAME, name);
+	}
+
+	public void editCustomResourcesColor(int color) {
+		getCustomTrainObject().addProperty(CUSTOM_TRAINS_COLOR, Integer.toHexString(color & RGB_WHITE).toUpperCase(Locale.ENGLISH));
+	}
+
+	public void editCustomResourcesGangwayConnectionId(String gangwayConnectionId) {
+		getCustomTrainObject().addProperty(CUSTOM_TRAINS_GANGWAY_CONNECTION_ID, gangwayConnectionId);
+	}
+
+	public void editCustomResourcesTrainBarrierId(String trainBarrierId) {
+		getCustomTrainObject().addProperty(CUSTOM_TRAINS_TRAIN_BARRIER_ID, trainBarrierId);
+	}
+
+	public void editDoorAnimationType() {
+		cycleEnumProperty(getCustomTrainObject(), CUSTOM_TRAINS_DOOR_ANIMATION_TYPE, DoorAnimationType.STANDARD, DoorAnimationType.values());
+		updateModel();
+	}
+
+	public void editCustomResourcesRiderOffset(float riderOffset) {
+		getCustomTrainObject().addProperty(CUSTOM_TRAINS_RIDER_OFFSET, riderOffset);
+	}
+
+	public void editTransportMode() {
+		cycleEnumProperty(propertiesObject, KEY_PROPERTIES_TRANSPORT_MODE, TransportMode.TRAIN, TransportMode.values());
+		updateModel();
+	}
+
+	public void editLength(int length) {
+		propertiesObject.addProperty(KEY_PROPERTIES_LENGTH, length);
+		updateModel();
+	}
+
+	public void editWidth(int width) {
+		propertiesObject.addProperty(KEY_PROPERTIES_WIDTH, width);
+		updateModel();
+	}
+
+	public void editDoorMax(int doorMax) {
+		propertiesObject.addProperty(KEY_PROPERTIES_DOOR_MAX, doorMax);
+		updateModel();
+	}
+
+	public void addPart(String partName) {
+		final JsonObject partsObject = new JsonObject();
+		partsObject.addProperty(KEY_PROPERTIES_NAME, partName);
+		partsObject.addProperty(KEY_PROPERTIES_STAGE, ModelTrainBase.RenderStage.EXTERIOR.toString());
+		partsObject.addProperty(KEY_PROPERTIES_MIRROR, false);
+		partsObject.addProperty(KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR, false);
+		partsObject.addProperty(KEY_PROPERTIES_DOOR_OFFSET, DoorOffset.NONE.toString());
+		partsObject.addProperty(KEY_PROPERTIES_RENDER_CONDITION, RenderCondition.ALL.toString());
+		final JsonArray positionsArray = new JsonArray();
+		final JsonArray positionPairArray = new JsonArray();
+		positionPairArray.add(0);
+		positionPairArray.add(0);
+		positionsArray.add(positionPairArray);
+		partsObject.add(KEY_PROPERTIES_POSITIONS, positionsArray);
+		partsObject.addProperty(KEY_PROPERTIES_WHITELISTED_CARS, "");
+		partsObject.addProperty(KEY_PROPERTIES_BLACKLISTED_CARS, "");
+
+		propertiesObject.getAsJsonArray(KEY_PROPERTIES_PARTS).add(partsObject);
+		updateModel();
+	}
+
+	public void removePart(int index) {
+		getPartFromIndex(index, partObject -> propertiesObject.getAsJsonArray(KEY_PROPERTIES_PARTS).remove(index));
+		updateModel();
+	}
+
+	public void editPartRenderStage(int index) {
+		getPartFromIndex(index, partObject -> cycleEnumProperty(partObject, KEY_PROPERTIES_STAGE, ModelTrainBase.RenderStage.EXTERIOR, ModelTrainBase.RenderStage.values()));
+		updateModel();
+	}
+
+	public void editPartMirror(int index, boolean mirror) {
+		getPartFromIndex(index, partObject -> partObject.addProperty(KEY_PROPERTIES_MIRROR, mirror));
+		updateModel();
+	}
+
+	public void editPartSkipRenderingIfTooFar(int index, boolean mirror) {
+		getPartFromIndex(index, partObject -> partObject.addProperty(KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR, mirror));
+		updateModel();
+	}
+
+	public void editPartDisplay(int index, boolean isDisplay) {
+		getPartFromIndex(index, partObject -> {
+			if (isDisplay) {
+				partObject.add(KEY_PROPERTIES_DISPLAY, new JsonObject());
+				IResourcePackCreatorProperties.checkSchema(propertiesObject);
+			} else {
+				partObject.remove(KEY_PROPERTIES_DISPLAY);
+			}
+		});
+		updateModel();
+	}
+
+	public void editPartDisplayPadding(int index, float padding, boolean isY) {
+		getPartFromIndex(index, partObject -> {
+			if (!partObject.has(KEY_PROPERTIES_DISPLAY)) {
+				editPartDisplay(index, true);
+			}
+			partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).addProperty(isY ? KEY_PROPERTIES_DISPLAY_Y_PADDING : KEY_PROPERTIES_DISPLAY_X_PADDING, padding);
+		});
+		updateModel();
+	}
+
+	public void editPartDisplayCjkSizeRatio(int index, float cjkSizeRatio) {
+		getPartFromIndex(index, partObject -> {
+			if (!partObject.has(KEY_PROPERTIES_DISPLAY)) {
+				editPartDisplay(index, true);
+			}
+			partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).addProperty(KEY_PROPERTIES_DISPLAY_CJK_SIZE_RATIO, cjkSizeRatio);
+		});
+		updateModel();
+	}
+
+	public void editPartDisplayType(int index) {
+		getPartFromIndex(index, partObject -> {
+			if (!partObject.has(KEY_PROPERTIES_DISPLAY)) {
+				editPartDisplay(index, true);
+			}
+			cycleEnumProperty(partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY), KEY_PROPERTIES_DISPLAY_TYPE, DisplayType.DESTINATION, DisplayType.values());
+		});
+		updateModel();
+	}
+
+	public void editPartDisplayColor(int index, int color, boolean isCjk) {
+		getPartFromIndex(index, partObject -> {
+			if (!partObject.has(KEY_PROPERTIES_DISPLAY)) {
+				editPartDisplay(index, true);
+			}
+			partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).addProperty(isCjk ? KEY_PROPERTIES_DISPLAY_COLOR_CJK : KEY_PROPERTIES_DISPLAY_COLOR, Integer.toHexString(color & RGB_WHITE).toUpperCase(Locale.ENGLISH));
+		});
+		updateModel();
+	}
+
+	public void editPartDisplayShouldScroll(int index, boolean shouldScroll) {
+		getPartFromIndex(index, partObject -> {
+			if (!partObject.has(KEY_PROPERTIES_DISPLAY)) {
+				editPartDisplay(index, true);
+			}
+			partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).addProperty(KEY_PROPERTIES_DISPLAY_SHOULD_SCROLL, shouldScroll);
+		});
+		updateModel();
+	}
+
+	public void editPartDisplayForceUpperCase(int index, boolean forceUpperCase) {
+		getPartFromIndex(index, partObject -> {
+			if (!partObject.has(KEY_PROPERTIES_DISPLAY)) {
+				editPartDisplay(index, true);
+			}
+			partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).addProperty(KEY_PROPERTIES_DISPLAY_FORCE_UPPER_CASE, forceUpperCase);
+		});
+		updateModel();
+	}
+
+	public void editPartDisplayForceSingleLine(int index, boolean forceSingleLine) {
+		getPartFromIndex(index, partObject -> {
+			if (!partObject.has(KEY_PROPERTIES_DISPLAY)) {
+				editPartDisplay(index, true);
+			}
+			partObject.getAsJsonObject(KEY_PROPERTIES_DISPLAY).addProperty(KEY_PROPERTIES_DISPLAY_FORCE_SINGLE_LINE, forceSingleLine);
+		});
+		updateModel();
+	}
+
+	public void editPartDoorOffset(int index) {
+		getPartFromIndex(index, partObject -> cycleEnumProperty(partObject, KEY_PROPERTIES_DOOR_OFFSET, DoorOffset.NONE, DoorOffset.values()));
+		updateModel();
+	}
+
+	public void editPartRenderCondition(int index) {
+		getPartFromIndex(index, partObject -> cycleEnumProperty(partObject, KEY_PROPERTIES_RENDER_CONDITION, RenderCondition.ALL, RenderCondition.values()));
+		updateModel();
+	}
+
+	public void editPartPositions(int index, String positions) {
+		final JsonArray positionsArray = new JsonArray();
+		final String[] positionsSplit = positions.replaceAll("[^\\d.,\\-]", "").split(",");
+		for (int i = 1; i < positionsSplit.length; i += 2) {
+			try {
+				final float x = Float.parseFloat(positionsSplit[i - 1]);
+				final float z = Float.parseFloat(positionsSplit[i]);
+				final JsonArray positionPairArray = new JsonArray();
+				positionPairArray.add(x);
+				positionPairArray.add(z);
+				positionsArray.add(positionPairArray);
+			} catch (Exception ignored) {
+			}
+		}
+		getPartFromIndex(index, partObject -> partObject.add(KEY_PROPERTIES_POSITIONS, positionsArray));
+		updateModel();
+	}
+
+	public void editPartWhitelistedCars(int index, String whitelistedCars) {
+		getPartFromIndex(index, partObject -> partObject.addProperty(KEY_PROPERTIES_WHITELISTED_CARS, formatCarExpression(whitelistedCars)));
+		updateModel();
+	}
+
+	public void editPartBlacklistedCars(int index, String blacklistedCars) {
+		getPartFromIndex(index, partObject -> partObject.addProperty(KEY_PROPERTIES_BLACKLISTED_CARS, formatCarExpression(blacklistedCars)));
+		updateModel();
+	}
+
+	public void render(GraphicsHolder graphicsHolder, int currentCar, int trainCars, boolean head1IsFront, float leftDoorValue, float rightDoorValue, boolean opening, int light) {
+		if (model != null) {
+			model.render(graphicsHolder, null, texture == null ? new Identifier(Init.MOD_ID, "textures/block/white.png") : texture, light, leftDoorValue, rightDoorValue, opening, currentCar, trainCars, head1IsFront, true, false, true, false);
+		}
+	}
+
+	public JsonObject getCustomTrainObject() {
+		return customResourcesObject.getAsJsonObject(CUSTOM_TRAINS_KEY).getAsJsonObject(customTrainId);
+	}
+
+	public JsonArray getModelPartsArray() {
+		return modelObject.has(KEY_MODEL_OUTLINER) ? modelObject.getAsJsonArray(KEY_MODEL_OUTLINER) : new JsonArray();
+	}
+
+	public String getTransportMode() {
+		return propertiesObject.get(KEY_PROPERTIES_TRANSPORT_MODE).getAsString();
+	}
+
+	public int getLength() {
+		return propertiesObject.get(KEY_PROPERTIES_LENGTH).getAsInt();
+	}
+
+	public int getWidth() {
+		return propertiesObject.get(KEY_PROPERTIES_WIDTH).getAsInt();
+	}
+
+	public int getDoorMax() {
+		return propertiesObject.get(KEY_PROPERTIES_DOOR_MAX).getAsInt();
+	}
+
+	public String getDoorAnimationType() {
+		return getCustomTrainObject().get(CUSTOM_TRAINS_DOOR_ANIMATION_TYPE).getAsString();
+	}
+
+	public JsonArray getPropertiesPartsArray() {
+		return propertiesObject.getAsJsonArray(KEY_PROPERTIES_PARTS);
+	}
+
+	public String getCustomTrainId() {
+		return customTrainId;
+	}
+
+	public String getModelFileName() {
+		return modelFileName;
+	}
+
+	public String getPropertiesFileName() {
+		return propertiesFileName;
+	}
+
+	public String getTextureFileName() {
+		return textureFileName;
+	}
+
+	public void export() {
+		try {
+			final File resourcePackDirectory = MinecraftClientHelper.getResourcePackDirectory();
+			final FileOutputStream fileOutputStream = new FileOutputStream(String.format("%s/%s_%s.zip", resourcePackDirectory.toString(), customTrainId, ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("uuuu_MM_dd_HH_mm_ss"))));
+			final ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
+
+			writeToZip(zipOutputStream, "pack.mcmeta", "{\"pack\":{\"pack_format\":6,\"description\":\"Minecraft Transit Railway\\n" + getCustomTrainObject().get(CUSTOM_TRAINS_NAME).getAsString() + "\"}}");
+			writeToZip(zipOutputStream, String.format("assets/mtr/%s.json", CUSTOM_RESOURCES_ID), customResourcesObject.toString());
+			writeToZip(zipOutputStream, String.format("assets/mtr/%s/%s.bbmodel", customTrainId, customTrainId), modelObject.toString());
+			writeToZip(zipOutputStream, String.format("assets/mtr/%s/%s.json", customTrainId, customTrainId), propertiesObject.toString());
+			writeToZip(zipOutputStream, String.format("assets/mtr/%s/%s.png", customTrainId, customTrainId), Files.newInputStream(textureFilePath));
+
+			zipOutputStream.close();
+			fileOutputStream.close();
+
+			Util.getOperatingSystem().open(resourcePackDirectory);
+		} catch (Exception e) {
+			Init.logException(e);
+		}
+	}
+
+	private void writeToZip(ZipOutputStream zipOutputStream, String fileName, String content) throws IOException {
+		writeToZip(zipOutputStream, fileName, new ByteArrayInputStream(content.getBytes()));
+	}
+
+	private void writeToZip(ZipOutputStream zipOutputStream, String fileName, InputStream inputStream) throws IOException {
+		zipOutputStream.putNextEntry(new ZipEntry(fileName));
+		final byte[] bytes = new byte[1024];
+		int length;
+		while ((length = inputStream.read(bytes)) >= 0) {
+			zipOutputStream.write(bytes, 0, length);
+		}
+		inputStream.close();
+	}
+
+	private void updateModel() {
+		try {
+			model = new DynamicTrainModel(modelObject, propertiesObject, EnumHelper.valueOf(DoorAnimationType.STANDARD, getCustomTrainObject().get(CUSTOM_TRAINS_DOOR_ANIMATION_TYPE).getAsString()));
+		} catch (Exception ignored) {
+			model = null;
+		}
+	}
+
+	private void getPartFromIndex(int index, Consumer<JsonObject> callback) {
+		final JsonArray jsonArray = propertiesObject.getAsJsonArray(KEY_PROPERTIES_PARTS);
+		if (index >= 0 && index < jsonArray.size()) {
+			callback.accept(jsonArray.get(index).getAsJsonObject());
+		}
+	}
+
+	private static <T extends Enum<T>> void cycleEnumProperty(JsonObject jsonObject, String key, T defaultValue, T[] enumValues) {
+		final T enumValue = EnumHelper.valueOf(defaultValue, jsonObject.get(key).getAsString());
+		jsonObject.addProperty(key, enumValues[(enumValue.ordinal() + 1) % enumValues.length].toString());
+	}
+
+	private static void readJson(Path path, BiConsumer<String, JsonObject> jsonCallback) {
+		try {
+			jsonCallback.accept(path.getFileName().toString(), JsonParser.parseString(String.join("", Files.readAllLines(path))).getAsJsonObject());
+		} catch (Exception e) {
+			Init.logException(e);
+		}
+	}
+
+	private static String formatCarExpression(String expression) {
+		final Matcher matcher = Pattern.compile("%\\d+(\\+\\d+)*|-?\\d+").matcher(expression);
+		final StringBuilder result = new StringBuilder();
+		while (matcher.find()) {
+			result.append(matcher.group()).append(",");
+		}
+		final String resultString = result.toString();
+		return resultString.endsWith(",") ? resultString.substring(0, resultString.length() - 1) : resultString;
+	}
+
+	public enum DoorOffset {NONE, LEFT_POSITIVE, RIGHT_POSITIVE, LEFT_NEGATIVE, RIGHT_NEGATIVE}
+
+	public enum RenderCondition {ALL, DOORS_OPEN, DOORS_CLOSED, DOOR_LEFT_OPEN, DOOR_RIGHT_OPEN, DOOR_LEFT_CLOSED, DOOR_RIGHT_CLOSED, MOVING_FORWARDS, MOVING_BACKWARDS}
+
+	public enum DisplayType {DESTINATION, ROUTE_NUMBER, NEXT_STATION_PLAIN, NEXT_STATION_KCR, NEXT_STATION_MTR, NEXT_STATION_UK}
+}

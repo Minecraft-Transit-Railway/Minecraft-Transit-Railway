@@ -1,0 +1,42 @@
+import org.mtr.mod.BuildTools
+
+plugins {
+	id "net.minecraftforge.gradle" version "+"
+}
+
+final BuildTools buildTools = new BuildTools(minecraftVersion, "forge", project)
+
+minecraft {
+	mappings channel: "official", version: minecraftVersion
+}
+
+sourceSets.main.resources { srcDir "src/generated/resources" }
+
+dependencies {
+	minecraft "net.minecraftforge:forge:${minecraftVersion}-${buildTools.getForgeVersion()}"
+	shadowImplementation name: "Minecraft-Mappings-forge-${minecraftVersion}-0.0.1"
+}
+
+java {
+	toolchain {
+		languageVersion.set(JavaLanguageVersion.of(buildTools.javaLanguageVersion))
+	}
+	withSourcesJar()
+	withJavadocJar()
+}
+
+build {
+	doLast {
+		buildTools.copyBuildFile()
+	}
+}
+
+shadowJar {
+	finalizedBy "reobfShadowJar"
+}
+
+reobf {
+	shadowJar {}
+}
+
+assemble.dependsOn shadowJar
