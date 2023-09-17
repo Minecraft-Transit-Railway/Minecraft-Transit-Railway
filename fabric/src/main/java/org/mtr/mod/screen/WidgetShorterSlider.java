@@ -26,7 +26,7 @@ public class WidgetShorterSlider extends SliderWidgetExtension implements IGui {
 
 	public WidgetShorterSlider(int x, int width, int maxValue, int markerFrequency, int markerDisplayedRatio, IntFunction<String> setMessage, @Nullable IntConsumer shiftClickAction) {
 		super(x, 0, width, 0);
-		this.maxValue = maxValue;
+		this.maxValue = Math.max(maxValue, 1);
 		this.setMessage = setMessage;
 		this.shiftClickAction = shiftClickAction;
 		this.markerFrequency = markerFrequency;

@@ -1,7 +1,6 @@
 package org.mtr.mod;
 
 import org.mtr.core.data.Station;
-import org.mtr.init.MTR;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MinecraftClient;
@@ -9,10 +8,7 @@ import org.mtr.mapping.holder.RenderLayer;
 import org.mtr.mapping.registry.EventRegistryClient;
 import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.block.*;
-import org.mtr.mod.client.ClientData;
-import org.mtr.mod.client.Config;
-import org.mtr.mod.client.DynamicTextureCache;
-import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.*;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.PIDSType;
 import org.mtr.mod.item.ItemBlockClickingBase;
@@ -321,6 +317,8 @@ public final class InitClient {
 
 			ClientData.instance.vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
 		});
+
+		EventRegistryClient.registerResourcesReload(new Identifier(Init.MOD_ID, "custom_resources"), CustomResources::reload);
 
 		EventRegistryClient.registerRenderWorldLast((graphicsHolder, matrix4f, worldRenderer, tickDelta) -> RenderTrains.render(graphicsHolder));
 

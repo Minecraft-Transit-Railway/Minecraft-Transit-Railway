@@ -234,7 +234,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	}
 
 	private void onEditExitParent(DashboardListItem dashboardListItem, int index) {
-		changeEditingExit(formatExitName(dashboardListItem.name), -1);
+		changeEditingExit(formatExitName(dashboardListItem.getName(true)), -1);
 	}
 
 	private void onDeleteExitParent(DashboardListItem dashboardListItem, int index) {
@@ -251,7 +251,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 
 	private void onDeleteExitDestination(DashboardListItem dashboardListItem, int index) {
 		if (parentExists()) {
-			exits.get(editingExit).remove(dashboardListItem.name);
+			exits.get(editingExit).remove(dashboardListItem.getName(true));
 		}
 		changeEditingExit(editingExit, -1);
 	}

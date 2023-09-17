@@ -1,5 +1,7 @@
 package org.mtr.mod.client;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.lang3.StringUtils;
 import org.mtr.core.data.TransportMode;
 import org.mtr.mapping.mapper.TextHelper;
@@ -9,20 +11,20 @@ import org.mtr.mod.render.LegacyVehicleRenderer;
 import org.mtr.mod.sound.*;
 
 import javax.annotation.Nullable;
-import java.util.*;
-import java.util.function.BiConsumer;
+import java.util.Locale;
 
 public class TrainClientRegistry {
 
-	private static final Map<String, TrainProperties> REGISTRY = new HashMap<>();
-	private static final Map<TransportMode, List<String>> KEY_ORDERS = new HashMap<>();
+	private static final Object2ObjectOpenHashMap<String, TrainProperties> REGISTRY = new Object2ObjectOpenHashMap<>();
+	private static final Object2ObjectOpenHashMap<TransportMode, ObjectArrayList<String>> KEY_ORDERS = new Object2ObjectOpenHashMap<>();
+
+	static {
+		resetRegistry();
+	}
 
 	public static void register(String key, TrainProperties properties) {
 		final String keyLower = key.toLowerCase(Locale.ENGLISH);
 		final TransportMode transportMode = TrainType.getTransportMode(properties.baseTrainType);
-		if (!KEY_ORDERS.containsKey(transportMode)) {
-			KEY_ORDERS.put(transportMode, new ArrayList<>());
-		}
 		if (!KEY_ORDERS.get(transportMode).contains(keyLower)) {
 			KEY_ORDERS.get(transportMode).add(keyLower);
 		}
@@ -44,8 +46,7 @@ public class TrainClientRegistry {
 	}
 
 	public static void reset() {
-		REGISTRY.clear();
-		KEY_ORDERS.clear();
+		resetRegistry();
 
 		register(TrainType.SP1900, "SP1900_EMU", new ModelSP1900(false), "mtr:textures/entity/sp1900", 0x003399, "mtr:textures/entity/sp1900", "", 8.5F, false, "sp1900", new LegacyVehicleSoundConfig("sp1900", 120, 0.5F, false));
 		register(TrainType.SP1900_SMALL, "SP1900_EMU", new ModelSP1900Small(false), "mtr:textures/entity/sp1900", 0x003399, "mtr:textures/entity/sp1900", "", 6F, false, "sp1900", new LegacyVehicleSoundConfig("sp1900", 120, 0.5F, false));
@@ -176,7 +177,24 @@ public class TrainClientRegistry {
 		return KEY_ORDERS.get(transportMode).get(index >= 0 && index < KEY_ORDERS.get(transportMode).size() ? index : 0);
 	}
 
-	public static void forEach(TransportMode transportMode, BiConsumer<String, TrainProperties> biConsumer) {
-		KEY_ORDERS.get(transportMode).forEach(key -> biConsumer.accept(key, REGISTRY.get(key)));
+	public static void forEach(TransportMode transportMode, TrainRegistryCallback trainRegistryCallback) {
+		final ObjectArrayList<String> keys = KEY_ORDERS.get(transportMode);
+		for (int i = 0; i < keys.size(); i++) {
+			final String trainId = keys.get(i);
+			trainRegistryCallback.accept(i, trainId, REGISTRY.get(trainId));
+		}
+	}
+
+	private static void resetRegistry() {
+		REGISTRY.clear();
+		KEY_ORDERS.clear();
+		for (final TransportMode transportMode : TransportMode.values()) {
+			KEY_ORDERS.put(transportMode, new ObjectArrayList<>());
+		}
+	}
+
+	@FunctionalInterface
+	public interface TrainRegistryCallback {
+		void accept(long id, String trainId, TrainProperties trainProperties);
 	}
 }

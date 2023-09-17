@@ -20,14 +20,15 @@ import javax.annotation.Nullable;
 
 public class DashboardListSelectorScreen extends ScreenExtension implements IGui {
 
-	private final DashboardList availableList;
-	private final DashboardList selectedList;
-	private final ButtonWidgetExtension buttonDone;
+	protected final ObjectImmutableList<DashboardListItem> allData;
+	protected final LongCollection selectedIds;
+
+	protected final DashboardList availableList;
+	protected final DashboardList selectedList;
+	protected final ButtonWidgetExtension buttonDone;
 
 	private final ScreenExtension previousScreen;
 	private final Runnable onClose;
-	private final ObjectImmutableList<DashboardListItem> allData;
-	private final LongCollection selectedIds;
 	private final boolean isSingleSelect;
 	private final boolean canRepeat;
 
@@ -58,8 +59,8 @@ public class DashboardListSelectorScreen extends ScreenExtension implements IGui
 		super.init2();
 		availableList.x = width / 2 - PANEL_WIDTH - SQUARE_SIZE;
 		selectedList.x = width / 2 + SQUARE_SIZE;
-		availableList.y = selectedList.y = SQUARE_SIZE * 2;
-		availableList.height = selectedList.height = height - SQUARE_SIZE * 5;
+		availableList.y = selectedList.y = SQUARE_SIZE * 2 - TEXT_PADDING;
+		availableList.height = selectedList.height = height - SQUARE_SIZE * 5 + TEXT_PADDING;
 		availableList.width = selectedList.width = PANEL_WIDTH;
 		availableList.init(this::addChild);
 		selectedList.init(this::addChild);
@@ -78,10 +79,14 @@ public class DashboardListSelectorScreen extends ScreenExtension implements IGui
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 		renderBackground(graphicsHolder);
 		availableList.render(graphicsHolder);
-		selectedList.render(graphicsHolder);
+		selectedList.render(graphicsHolder, false);
 		super.render(graphicsHolder, mouseX, mouseY, delta);
-		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.available"), width / 2 - PANEL_WIDTH / 2 - SQUARE_SIZE, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
-		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.selected"), width / 2 + PANEL_WIDTH / 2 + SQUARE_SIZE, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+		renderAdditional(graphicsHolder, mouseX, mouseY, delta);
+	}
+
+	public void renderAdditional(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
+		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.available"), width / 2 - PANEL_WIDTH / 2 - SQUARE_SIZE, SQUARE_SIZE, ARGB_WHITE);
+		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.selected"), width / 2 + PANEL_WIDTH / 2 + SQUARE_SIZE, SQUARE_SIZE, ARGB_WHITE);
 	}
 
 	@Override
@@ -113,7 +118,7 @@ public class DashboardListSelectorScreen extends ScreenExtension implements IGui
 		return false;
 	}
 
-	private void updateList() {
+	protected void updateList() {
 		final ObjectArrayList<DashboardListItem> availableData = new ObjectArrayList<>();
 		for (final DashboardListItem dashboardListItem : allData) {
 			if (canRepeat || !selectedIds.contains(dashboardListItem.id)) {

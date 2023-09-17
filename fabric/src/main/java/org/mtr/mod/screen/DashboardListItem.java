@@ -7,9 +7,9 @@ import java.util.Locale;
 public class DashboardListItem implements Comparable<DashboardListItem> {
 
 	public final long id;
-	public final String name;
-	public final int color;
 	public final NameColorDataBase data;
+	private final String name;
+	private final int color;
 
 	public DashboardListItem(long id, String name, int color) {
 		this.id = id;
@@ -23,6 +23,14 @@ public class DashboardListItem implements Comparable<DashboardListItem> {
 		this.name = data.getName();
 		this.color = data.getColor();
 		this.data = data;
+	}
+
+	public String getName(boolean formatted) {
+		return name;
+	}
+
+	public int getColor(boolean formatted) {
+		return color;
 	}
 
 	private String combineNameColorId() {

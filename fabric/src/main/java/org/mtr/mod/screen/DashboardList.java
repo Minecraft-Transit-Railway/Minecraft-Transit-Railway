@@ -130,7 +130,7 @@ public class DashboardList implements IGui {
 		final String text = textFieldSearch.getText2();
 		dataFiltered.clear();
 		for (int i = 0; i < dataSorted.size(); i++) {
-			if (dataSorted.get(i).name.toLowerCase(Locale.ENGLISH).contains(text.toLowerCase(Locale.ENGLISH))) {
+			if (dataSorted.get(i).getName(true).toLowerCase(Locale.ENGLISH).contains(text.toLowerCase(Locale.ENGLISH))) {
 				dataFiltered.put(i, dataSorted.get(i));
 			}
 		}
@@ -158,6 +158,10 @@ public class DashboardList implements IGui {
 	}
 
 	public void render(GraphicsHolder graphicsHolder) {
+		render(graphicsHolder, true);
+	}
+
+	public void render(GraphicsHolder graphicsHolder, boolean formatted) {
 		graphicsHolder.drawCenteredText(String.format("%s/%s", page + 1, totalPages), x + SQUARE_SIZE * 2, y + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE);
 		final int itemsToShow = itemsToShow();
 		for (int i = 0; i < itemsToShow; i++) {
@@ -169,10 +173,10 @@ public class DashboardList implements IGui {
 
 				final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
 				guiDrawing.beginDrawingRectangle();
-				guiDrawing.drawRectangle(x + TEXT_PADDING, y + drawY, x + TEXT_PADDING + TEXT_HEIGHT, y + drawY + TEXT_HEIGHT, ARGB_BLACK | data.color);
+				guiDrawing.drawRectangle(x + TEXT_PADDING, y + drawY, x + TEXT_PADDING + TEXT_HEIGHT, y + drawY + TEXT_HEIGHT, ARGB_BLACK | data.getColor(formatted));
 				guiDrawing.finishDrawingRectangle();
 
-				final String drawString = IGui.formatStationName(data.name);
+				final String drawString = IGui.formatStationName(data.getName(formatted));
 				final int textStart = TEXT_PADDING * 2 + TEXT_HEIGHT;
 				final int textWidth = GraphicsHolder.getTextWidth(drawString);
 				final int availableSpace = width - textStart;

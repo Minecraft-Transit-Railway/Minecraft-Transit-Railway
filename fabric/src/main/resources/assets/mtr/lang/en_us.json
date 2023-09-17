@@ -208,6 +208,7 @@
 	"gui.mtr.door_animation_type_standard": "Doors: Standard",
 	"gui.mtr.door_animation_type_standard_slow": "Doors: Slow",
 	"gui.mtr.drag_file_to_upload": "Drag File to Upload",
+	"gui.mtr.duplicate_vehicle_cars": "Duplicate Cars",
 	"gui.mtr.dwell_time": "Vehicle Dwell Time",
 	"gui.mtr.edit_area": "Click and drag to draw area.",
 	"gui.mtr.edit_instructions": "Edit Instructions",

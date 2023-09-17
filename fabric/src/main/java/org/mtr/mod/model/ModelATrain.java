@@ -13,7 +13,6 @@ public class ModelATrain extends ModelSimpleTrainBase<ModelATrain> {
 	private final ModelPartExtension handrail_3_r1;
 	private final ModelPartExtension top_handrail_3_r1;
 	private final ModelPartExtension seat_back_r1;
-	private final ModelPartExtension bench;
 	private final ModelPartExtension window_ael;
 	private final ModelPartExtension upper_wall_r2;
 	private final ModelPartExtension window_exterior_tcl;
@@ -282,10 +281,6 @@ public class ModelATrain extends ModelSimpleTrainBase<ModelATrain> {
 		window_tcl_handrails.addChild(seat_back_r1);
 		setRotationAngle(seat_back_r1, 0, 0, -0.0524F);
 		seat_back_r1.setTextureUVOffset(116, 175).addCuboid(-1, -8, -22, 1, 8, 44, 0, false);
-
-		bench = createModelPart();
-		bench.setPivot(0, 0, 0);
-		window_tcl_handrails.addChild(bench);
 
 
 		window_ael = createModelPart();
