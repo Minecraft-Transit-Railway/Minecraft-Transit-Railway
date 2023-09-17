@@ -36,7 +36,6 @@ public class ModelRTrain extends ModelSimpleTrainBase<ModelRTrain> {
 	private final ModelPartExtension end;
 	private final ModelPartExtension upper_wall_3_r1;
 	private final ModelPartExtension upper_wall_2_r1;
-	private final ModelPartExtension seat_end_1;
 	private final ModelPartExtension seat_end_2;
 	private final ModelPartExtension seat_bottom_3_r1;
 	private final ModelPartExtension seat_back_3_r1;
@@ -321,10 +320,6 @@ public class ModelRTrain extends ModelSimpleTrainBase<ModelRTrain> {
 		end.addChild(upper_wall_2_r1);
 		setRotationAngle(upper_wall_2_r1, 0, 0, 0.1107F);
 		upper_wall_2_r1.setTextureUVOffset(0, 103).addCuboid(0, -19, -36, 2, 19, 22, 0, false);
-
-		seat_end_1 = createModelPart();
-		seat_end_1.setPivot(0, 0, 24);
-		end.addChild(seat_end_1);
 
 
 		seat_end_2 = createModelPart();

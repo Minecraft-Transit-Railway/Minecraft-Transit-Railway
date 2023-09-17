@@ -40,12 +40,12 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 		}
 
 		availableSoundsList = new DashboardList((data, color) -> {
-			final String soundIdString = data.name;
+			final String soundIdString = data.getName(true);
 			if (!soundIdString.isEmpty() && clientWorld != null && MinecraftClient.getInstance().getPlayerMapped() != null) {
 				clientWorld.playSoundAtBlockCenter(pos, AbstractSoundInstanceExtension.createSoundEvent(new Identifier(soundIdString)), SoundCategory.BLOCKS, 1000000, 1, false);
 			}
 		}, null, null, null, (data, color) -> {
-			textFields[1].setText2(data.name);
+			textFields[1].setText2(data.getName(true));
 			setListVisibility(false);
 		}, null, null, () -> "", text -> {
 		}, false);

@@ -636,7 +636,7 @@ public class ResourcePackCreatorScreen extends ScreenExtension implements IResou
 	}
 
 	private void onAdd(DashboardListItem dashboardListItem, int index) {
-		RenderTrains.creatorProperties.addPart(dashboardListItem.name);
+		RenderTrains.creatorProperties.addPart(dashboardListItem.getName(true));
 		updateControls(true);
 	}
 

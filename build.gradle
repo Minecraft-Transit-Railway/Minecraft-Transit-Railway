@@ -26,6 +26,7 @@ subprojects {
 		shadowImplementation name: "Minecraft-Mappings-common-0.0.1"
 		shadowImplementation name: "Transport-Simulation-Core-0.0.1"
 		compileOnly "xyz.jpenilla:squaremap-api:+"
+		compileOnly "net.kyori:adventure-api:+"
 		compileOnly name: "BlueMapAPI-2.6.0"
 		compileOnly name: "Dynmap-3.2.1"
 	}

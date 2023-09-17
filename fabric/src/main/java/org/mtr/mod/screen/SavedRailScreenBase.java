@@ -80,7 +80,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 	@Override
 	public void tick2() {
 		textFieldSavedRailNumber.tick2();
-		textFieldSavedRailNumber.setX2(shouldRenderExtra() ? width * 2 : SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2);
+		textFieldSavedRailNumber.setX2(SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2);
 
 		final int maxMin = (int) Math.floor(MAX_DWELL_TIME / 2F / SECONDS_PER_MINUTE);
 		if (sliderDwellTimeMin.getIntValue() == 0 && sliderDwellTimeSec.getIntValue() == 0) {
@@ -95,11 +95,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(graphicsHolder);
-			if (shouldRenderExtra()) {
-				renderExtra(graphicsHolder, mouseX, mouseY, delta);
-			} else {
-				graphicsHolder.drawText(savedRailNumberText, SQUARE_SIZE, SQUARE_SIZE + TEXT_FIELD_PADDING / 2 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
-			}
+			graphicsHolder.drawText(savedRailNumberText, SQUARE_SIZE, SQUARE_SIZE + TEXT_FIELD_PADDING / 2 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
 			super.render(graphicsHolder, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			Init.logException(e);
@@ -115,13 +111,6 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 	@Override
 	public boolean isPauseScreen2() {
 		return false;
-	}
-
-	protected boolean shouldRenderExtra() {
-		return false;
-	}
-
-	protected void renderExtra(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 	}
 
 	protected abstract String getNumberStringKey();
