@@ -1,8 +1,10 @@
 package org.mtr.mod.packet;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.*;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -26,6 +28,7 @@ import org.mtr.mapping.registry.Registry;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.client.ClientData;
+import org.mtr.mod.data.VehicleExtension;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -98,6 +101,34 @@ public class PacketData extends PacketHandler {
 		writeJsonObjectToDataSet(ClientData.instance.routes, jsonObject.getAsJsonArray("routes"), jsonReader -> new Route(jsonReader, ClientData.instance));
 		writeJsonObjectToDataSet(ClientData.instance.depots, jsonObject.getAsJsonArray("depots"), jsonReader -> new Depot(jsonReader, ClientData.instance));
 		writeJsonObjectToDataSet(ClientData.instance.railNodes, jsonObject.getAsJsonArray("rails"));
+
+		final JsonArray vehicleUpdateArray = jsonObject.getAsJsonArray("update");
+		if (vehicleUpdateArray != null) {
+			final Long2ObjectAVLTreeMap<ObjectObjectImmutablePair<JsonElement, VehicleExtension>> vehiclesToUpdate = new Long2ObjectAVLTreeMap<>();
+			vehicleUpdateArray.forEach(vehicleElement -> {
+				final VehicleExtension vehicleExtension = new VehicleExtension(vehicleElement.getAsJsonObject(), ClientData.instance);
+				vehiclesToUpdate.put(vehicleExtension.getId(), new ObjectObjectImmutablePair<>(vehicleElement, vehicleExtension));
+			});
+			ClientData.instance.vehicles.forEach(checkVehicle -> {
+				final ObjectObjectImmutablePair<JsonElement, VehicleExtension> existingVehicleData = vehiclesToUpdate.remove(checkVehicle.getId());
+				if (existingVehicleData != null) {
+					checkVehicle.updateData(new JsonReader(existingVehicleData.left()));
+					checkVehicle.vehicleExtraData.newPath.forEach(pathData -> pathData.init(ClientData.instance));
+				}
+			});
+			vehiclesToUpdate.forEach((vehicleId, vehicleData) -> {
+				ClientData.instance.vehicles.add(vehicleData.right());
+				vehicleData.right().vehicleExtraData.newPath.forEach(pathData -> pathData.init(ClientData.instance));
+			});
+		}
+
+		final JsonArray vehicleRemoveArray = jsonObject.getAsJsonArray("remove");
+		if (vehicleRemoveArray != null) {
+			final LongAVLTreeSet vehicleIdsToRemove = new LongAVLTreeSet();
+			vehicleRemoveArray.forEach(vehicleIdElement -> vehicleIdsToRemove.add(vehicleIdElement.getAsLong()));
+			ClientData.instance.vehicles.removeIf(vehicleExtension -> vehicleIdsToRemove.contains(vehicleExtension.getId()));
+		}
+
 		ClientData.instance.sync();
 	}
 
