@@ -85,7 +85,7 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 							graphicsHolder,
 							vehicle.vehicleExtraData.getThisRouteColor(),
 							routeSplit[0],
-							routeSplit[1],
+							routeSplit.length > 1 ? routeSplit[1] : "",
 							vehicle.vehicleExtraData.getThisStationName(),
 							vehicle.vehicleExtraData.getThisRouteDestination(),
 							vehicle.vehicleExtraData.getNextStationName(),

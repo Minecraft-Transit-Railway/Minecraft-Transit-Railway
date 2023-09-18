@@ -1,10 +1,12 @@
 package org.mtr.mod.data;
 
-import it.unimi.dsi.fastutil.longs.Long2LongAVLTreeMap;
+import com.google.gson.JsonObject;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.lang3.StringUtils;
-import org.mtr.core.data.*;
-import org.mtr.core.serializers.ReaderBase;
+import org.mtr.core.data.Data;
+import org.mtr.core.data.Vehicle;
+import org.mtr.core.data.VehicleExtraData;
+import org.mtr.core.serializers.JsonReader;
 import org.mtr.core.tools.Utilities;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
@@ -22,16 +24,12 @@ public class VehicleExtension extends Vehicle {
 	private static final int SHIFT_ACTIVATE_TICKS = 30;
 	private static final int DISMOUNT_PROGRESS_BAR_LENGTH = 30;
 
-	public VehicleExtension(VehicleExtraData vehicleExtraData, Siding siding, TransportMode transportMode, Data data) {
-		super(vehicleExtraData, siding, transportMode, data);
-	}
-
-	public VehicleExtension(VehicleExtraData vehicleExtraData, Siding siding, ReaderBase readerBase, Data data) {
-		super(vehicleExtraData, siding, readerBase, data);
+	public VehicleExtension(JsonObject jsonObject, Data data) {
+		super(new VehicleExtraData(new JsonReader(jsonObject.getAsJsonObject("data"))), null, new JsonReader(jsonObject.getAsJsonObject("vehicle")), data);
 	}
 
 	public void simulate(long millisElapsed) {
-		simulate(millisElapsed, new ObjectArrayList<>(), new Long2LongAVLTreeMap());
+		simulate(millisElapsed, null, null);
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
 		final String thisRouteName = vehicleExtraData.getThisRouteName();

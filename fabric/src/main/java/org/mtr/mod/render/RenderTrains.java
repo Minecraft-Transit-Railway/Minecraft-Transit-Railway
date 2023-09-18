@@ -60,6 +60,7 @@ public class RenderTrains implements IGui {
 			return;
 		}
 
+		RenderVehicles.render(graphicsHolder);
 		RenderRails.render(graphicsHolder);
 
 		if (lastRenderedTick != InitClient.getGameTick()) {
