@@ -309,18 +309,14 @@ public final class InitClient {
 			gameMillis = 0;
 		});
 
-		EventRegistryClient.registerStartClientTick(() -> {
-			final long currentMillis = System.currentTimeMillis();
-			final long millisElapsed = MinecraftClient.getInstance().isPaused() ? 0 : currentMillis - lastMillis;
-			lastMillis = currentMillis;
-			gameMillis += millisElapsed;
-
-			ClientData.instance.vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
-		});
+		EventRegistryClient.registerStartClientTick(InitClient::incrementGameMillis);
 
 		EventRegistryClient.registerResourcesReload(new Identifier(Init.MOD_ID, "custom_resources"), CustomResources::reload);
 
-		EventRegistryClient.registerRenderWorldLast((graphicsHolder, matrix4f, worldRenderer, tickDelta) -> RenderTrains.render(graphicsHolder));
+		EventRegistryClient.registerRenderWorldLast((graphicsHolder, matrix4f, worldRenderer, tickDelta) -> {
+			incrementGameMillis();
+			RenderTrains.render(graphicsHolder);
+		});
 
 		Patreon.getPatreonList(Config.PATREON_LIST);
 		Config.refreshProperties();
@@ -388,6 +384,13 @@ public final class InitClient {
 
 	public static long getGameMillis() {
 		return gameMillis;
+	}
+
+	private static void incrementGameMillis() {
+		final long currentMillis = System.currentTimeMillis();
+		final long millisElapsed = currentMillis - lastMillis;
+		lastMillis = currentMillis;
+		gameMillis += millisElapsed;
 	}
 
 	private static RegistryClient.ModelPredicateProvider checkItemPredicateTag() {

@@ -1,12 +1,10 @@
 package org.mtr.mod.screen;
 
-import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.apache.commons.lang3.StringUtils;
 import org.mtr.core.data.Depot;
-import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.data.Route;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.servlet.IntegrationServlet;
@@ -23,7 +21,6 @@ import org.mtr.mod.packet.PacketData;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.stream.Collectors;
 
 public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
@@ -103,7 +100,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			saveData();
 			final ObjectArrayList<DashboardListItem> routes = new ObjectArrayList<>(ClientData.getFilteredDataSet(transportMode, ClientData.instance.routes));
 			Collections.sort(routes);
-			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this, new ObjectImmutableList<>(routes), data.routes.stream().map(NameColorDataBase::getId).collect(Collectors.toCollection(LongArrayList::new)), false, true)));
+			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this, new ObjectImmutableList<>(routes), data.getRouteIds(), false, true)));
 		});
 		buttonGenerateRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.refresh_path"), button -> {
 			saveData();
@@ -182,7 +179,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		textFieldCruisingAltitude.tick2();
 
 		for (int i = 0; i < HOURS_PER_DAY; i++) {
-			data.setFrequency(sliders[i].getIntValue(), i);
+			data.setFrequency(i, sliders[i].getIntValue());
 		}
 
 		if (data.routes.isEmpty()) {

@@ -25,7 +25,12 @@ public class VehicleExtension extends Vehicle {
 	private static final int DISMOUNT_PROGRESS_BAR_LENGTH = 30;
 
 	public VehicleExtension(JsonObject jsonObject, Data data) {
-		super(new VehicleExtraData(new JsonReader(jsonObject.getAsJsonObject("data"))), null, new JsonReader(jsonObject.getAsJsonObject("vehicle")), data);
+		super(new VehicleExtraData(new JsonReader(jsonObject.getAsJsonObject("data"))), null, true, new JsonReader(jsonObject.getAsJsonObject("vehicle")), data);
+	}
+
+	public void updateData(JsonObject jsonObject) {
+		updateData(new JsonReader(jsonObject.getAsJsonObject("vehicle")));
+		vehicleExtraData.updateData(new JsonReader(jsonObject.getAsJsonObject("data")));
 	}
 
 	public void simulate(long millisElapsed) {

@@ -26,9 +26,9 @@ public class ModelBogie extends EntityModelExtension<EntityAbstractMapping> {
 		buildModel();
 	}
 
-	public void render(GraphicsHolder graphicsHolder, int light, int position) {
+	public void render(GraphicsHolder graphicsHolder, int light) {
 		graphicsHolder.createVertexConsumer(MoreRenderLayers.getExterior(texture));
-		ModelTrainBase.renderMirror(bogie, graphicsHolder, light, position);
+		ModelTrainBase.renderMirror(bogie, graphicsHolder, light, 0);
 	}
 
 	@Override

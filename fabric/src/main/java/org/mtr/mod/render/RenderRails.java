@@ -2,7 +2,6 @@ package org.mtr.mod.render;
 
 import org.mtr.core.data.Rail;
 import org.mtr.core.tools.Utilities;
-import org.mtr.init.MTR;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.MinecraftClientHelper;
@@ -34,6 +33,7 @@ public class RenderRails implements IGui {
 
 		final boolean renderColors = isHoldingRailRelated(clientPlayerEntity);
 		final int maxRailDistance = MinecraftClientHelper.getRenderDistance() * 16;
+		final Vector3d playerOffset = RenderTrains.getPlayerOffset();
 
 		ClientData.instance.positionToRailConnections.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
 			if (!Utilities.isBetween(clientPlayerEntity.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !Utilities.isBetween(clientPlayerEntity.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
@@ -61,7 +61,6 @@ public class RenderRails implements IGui {
 						renderRailStandard(clientWorld, rail, 0.5F + SMALL_OFFSET, true, 1, null, 0, 0.75F, 1, 0.25F);
 					}
 
-					final Vector3d playerOffset = RenderTrains.getPlayerOffset();
 					graphicsHolder.createVertexConsumer(RenderLayer.getLines());
 					rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 						graphicsHolder.drawLineInWorld(
