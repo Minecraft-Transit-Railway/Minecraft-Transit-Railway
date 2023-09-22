@@ -8,6 +8,7 @@ import org.mtr.core.data.InterchangeColorsForStationName;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.InitClient;
+import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.ResourcePackCreatorProperties;
 import org.mtr.mod.data.IGui;
 
@@ -20,7 +21,7 @@ public class RenderTrains implements IGui {
 	public static int maxTrainRenderDistance;
 	public static ResourcePackCreatorProperties creatorProperties = new ResourcePackCreatorProperties();
 
-	private static float lastRenderedTick;
+	private static long lastRenderedMillis;
 
 	public static final int PLAYER_RENDER_OFFSET = 1000;
 
@@ -50,6 +51,8 @@ public class RenderTrains implements IGui {
 	}
 
 	public static void render(GraphicsHolder graphicsHolder) {
+		ClientData.instance.vehicles.forEach(vehicle -> vehicle.simulate(InitClient.getGameMillis() - lastRenderedMillis));
+		lastRenderedMillis = InitClient.getGameMillis();
 		// TODO
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
@@ -63,13 +66,11 @@ public class RenderTrains implements IGui {
 		RenderVehicles.render(graphicsHolder);
 		RenderRails.render(graphicsHolder);
 
-		if (lastRenderedTick != InitClient.getGameTick()) {
-			for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
-				for (int j = 0; j < QueuedRenderLayer.values().length; j++) {
-					CURRENT_RENDERS.get(i).get(j).clear();
-					CURRENT_RENDERS.get(i).get(j).putAll(RENDERS.get(i).get(j));
-					RENDERS.get(i).get(j).clear();
-				}
+		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
+			for (int j = 0; j < QueuedRenderLayer.values().length; j++) {
+				CURRENT_RENDERS.get(i).get(j).clear();
+				CURRENT_RENDERS.get(i).get(j).putAll(RENDERS.get(i).get(j));
+				RENDERS.get(i).get(j).clear();
 			}
 		}
 
@@ -97,8 +98,6 @@ public class RenderTrains implements IGui {
 				});
 			}
 		}
-
-		lastRenderedTick = InitClient.getGameTick();
 	}
 
 	public static boolean shouldNotRender(BlockPos pos, int maxDistance, @Nullable Direction facing) {

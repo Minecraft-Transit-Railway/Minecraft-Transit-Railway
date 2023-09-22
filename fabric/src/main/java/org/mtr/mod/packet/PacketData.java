@@ -1,7 +1,6 @@
 package org.mtr.mod.packet;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
@@ -104,21 +103,21 @@ public class PacketData extends PacketHandler {
 
 		final JsonArray vehicleUpdateArray = jsonObject.getAsJsonArray("update");
 		if (vehicleUpdateArray != null) {
-			final Long2ObjectAVLTreeMap<ObjectObjectImmutablePair<JsonElement, VehicleExtension>> vehiclesToUpdate = new Long2ObjectAVLTreeMap<>();
+			final Long2ObjectAVLTreeMap<ObjectObjectImmutablePair<JsonObject, VehicleExtension>> vehiclesToUpdate = new Long2ObjectAVLTreeMap<>();
 			vehicleUpdateArray.forEach(vehicleElement -> {
 				final VehicleExtension vehicleExtension = new VehicleExtension(vehicleElement.getAsJsonObject(), ClientData.instance);
-				vehiclesToUpdate.put(vehicleExtension.getId(), new ObjectObjectImmutablePair<>(vehicleElement, vehicleExtension));
+				vehiclesToUpdate.put(vehicleExtension.getId(), new ObjectObjectImmutablePair<>(vehicleElement.getAsJsonObject(), vehicleExtension));
 			});
 			ClientData.instance.vehicles.forEach(checkVehicle -> {
-				final ObjectObjectImmutablePair<JsonElement, VehicleExtension> existingVehicleData = vehiclesToUpdate.remove(checkVehicle.getId());
+				final ObjectObjectImmutablePair<JsonObject, VehicleExtension> existingVehicleData = vehiclesToUpdate.remove(checkVehicle.getId());
 				if (existingVehicleData != null) {
-					checkVehicle.updateData(new JsonReader(existingVehicleData.left()));
-					checkVehicle.vehicleExtraData.newPath.forEach(pathData -> pathData.init(ClientData.instance));
+					checkVehicle.updateData(existingVehicleData.left());
+					checkVehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.init(ClientData.instance));
 				}
 			});
 			vehiclesToUpdate.forEach((vehicleId, vehicleData) -> {
 				ClientData.instance.vehicles.add(vehicleData.right());
-				vehicleData.right().vehicleExtraData.newPath.forEach(pathData -> pathData.init(ClientData.instance));
+				vehicleData.right().vehicleExtraData.immutablePath.forEach(pathData -> pathData.init(ClientData.instance));
 			});
 		}
 
