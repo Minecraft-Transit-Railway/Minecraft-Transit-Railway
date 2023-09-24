@@ -1058,7 +1058,7 @@ public class ModelLondonUnderground1995 extends ModelSimpleTrainBase<ModelLondon
 		final boolean useHead2 = isEnd2Head && isEnd2;
 
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				if (useHead1) {
 					renderOnceFlipped(window_light_head, graphicsHolder, light, position);
 					renderOnce(window_light, graphicsHolder, light, position);
@@ -1124,7 +1124,7 @@ public class ModelLondonUnderground1995 extends ModelSimpleTrainBase<ModelLondon
 		final boolean doorOpen = doorLeftZ > 0 || doorRightZ > 0;
 
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				if (doorOpen && renderDetails) {
 					if (isDoorLight1) {
 						renderMirror(door_light_on, graphicsHolder, light, position - 48);
@@ -1173,14 +1173,14 @@ public class ModelLondonUnderground1995 extends ModelSimpleTrainBase<ModelLondon
 
 	@Override
 	protected void renderHeadPosition1(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
-		if (renderStage == RenderStage.ALWAYS_ON_LIGHTS) {
+		if (renderStage == RenderStage.ALWAYS_ON_LIGHT) {
 			renderOnceFlipped(useHeadlights ? headlights : tail_lights, graphicsHolder, light, position);
 		}
 	}
 
 	@Override
 	protected void renderHeadPosition2(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
-		if (renderStage == RenderStage.ALWAYS_ON_LIGHTS) {
+		if (renderStage == RenderStage.ALWAYS_ON_LIGHT) {
 			renderOnce(useHeadlights ? headlights : tail_lights, graphicsHolder, light, position);
 		}
 	}
@@ -1188,7 +1188,7 @@ public class ModelLondonUnderground1995 extends ModelSimpleTrainBase<ModelLondon
 	@Override
 	protected void renderEndPosition1(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnceFlipped(window_light_end, graphicsHolder, light, position);
 				break;
 			case INTERIOR:
@@ -1203,7 +1203,7 @@ public class ModelLondonUnderground1995 extends ModelSimpleTrainBase<ModelLondon
 	@Override
 	protected void renderEndPosition2(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnce(window_light_end, graphicsHolder, light, position);
 				break;
 			case INTERIOR:

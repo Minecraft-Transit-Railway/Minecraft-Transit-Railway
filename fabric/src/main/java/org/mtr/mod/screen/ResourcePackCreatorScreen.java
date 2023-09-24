@@ -697,9 +697,9 @@ public class ResourcePackCreatorScreen extends ScreenExtension implements IResou
 				return 0xE53935;
 			case INTERIOR_TRANSLUCENT:
 				return 0xFB8C00;
-			case LIGHTS:
+			case LIGHT:
 				return 0xF2D600;
-			case ALWAYS_ON_LIGHTS:
+			case ALWAYS_ON_LIGHT:
 				return 0x1E88E5;
 			default:
 				return 0;

@@ -36,8 +36,8 @@ public class PacketOpenDashboardScreen extends PacketData {
 
 	@Override
 	public void runClientQueued() {
-		IPacket.openScreen(new DashboardScreen(transportMode, useTimeAndWindSync), screenExtension -> screenExtension instanceof DashboardScreen);
 		super.runClientQueued();
+		IPacket.openScreen(new DashboardScreen(transportMode, useTimeAndWindSync), screenExtension -> screenExtension instanceof DashboardScreen);
 	}
 
 	public static void create(PlayerEntity playerEntity, TransportMode transportMode) {

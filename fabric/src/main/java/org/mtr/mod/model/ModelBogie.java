@@ -6,7 +6,8 @@ import org.mtr.mapping.mapper.EntityModelExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mod.Init;
-import org.mtr.mod.render.MoreRenderLayers;
+import org.mtr.mod.render.RenderTrains;
+import org.mtr.mod.render.StoredMatrixTransformations;
 
 public class ModelBogie extends EntityModelExtension<EntityAbstractMapping> {
 
@@ -26,9 +27,12 @@ public class ModelBogie extends EntityModelExtension<EntityAbstractMapping> {
 		buildModel();
 	}
 
-	public void render(GraphicsHolder graphicsHolder, int light) {
-		graphicsHolder.createVertexConsumer(MoreRenderLayers.getExterior(texture));
-		ModelTrainBase.renderMirror(bogie, graphicsHolder, light, 0);
+	public void render(StoredMatrixTransformations storedMatrixTransformations, int light) {
+		RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
+			storedMatrixTransformations.transform(graphicsHolder);
+			ModelTrainBase.renderMirror(bogie, graphicsHolder, light, 0);
+			graphicsHolder.pop();
+		});
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.client.DoorAnimationType;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.render.StoredMatrixTransformations;
 
 public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 
@@ -37,16 +38,16 @@ public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderExtraDetails(GraphicsHolder graphicsHolder, int light, int lightOnInteriorLevel, boolean lightsOn, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
+	protected void renderExtraDetails(StoredMatrixTransformations storedMatrixTransformations, int light, int lightOnInteriorLevel, boolean lightsOn, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		for (final int position : getDoorPositions()) {
 			final ModelDoorOverlay modelDoorOverlay = renderDoorOverlay ? getModelDoorOverlay() : null;
 			if (modelDoorOverlay != null) {
-				modelDoorOverlay.render(graphicsHolder, RenderStage.INTERIOR, lightOnInteriorLevel, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ, lightsOn);
-				modelDoorOverlay.render(graphicsHolder, RenderStage.EXTERIOR, light, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ, lightsOn);
+				modelDoorOverlay.render(storedMatrixTransformations, RenderStage.INTERIOR, lightOnInteriorLevel, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ, lightsOn);
+				modelDoorOverlay.render(storedMatrixTransformations, RenderStage.EXTERIOR, light, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ, lightsOn);
 			}
 			final ModelDoorOverlayTopBase modelDoorOverlayTop = renderDoorOverlay ? getModelDoorOverlayTop() : null;
 			if (modelDoorOverlayTop != null) {
-				modelDoorOverlayTop.render(graphicsHolder, light, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ);
+				modelDoorOverlayTop.renderNew(storedMatrixTransformations, light, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ);
 			}
 		}
 	}

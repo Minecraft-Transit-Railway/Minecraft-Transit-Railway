@@ -814,7 +814,7 @@ public class ModelCMStock extends ModelSimpleTrainBase<ModelCMStock> {
 	@Override
 	protected void renderWindowPositions(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnce(roof_light, graphicsHolder, light, position);
 				break;
 			case INTERIOR:
@@ -842,7 +842,7 @@ public class ModelCMStock extends ModelSimpleTrainBase<ModelCMStock> {
 		final boolean notLastDoor = !isIndex(0, position, getDoorPositions()) && !isIndex(-1, position, getDoorPositions());
 
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				if (notLastDoor) {
 					renderOnce(roof_door_light, graphicsHolder, light, position);
 				}
@@ -886,10 +886,10 @@ public class ModelCMStock extends ModelSimpleTrainBase<ModelCMStock> {
 	@Override
 	protected void renderHeadPosition1(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnce(roof_end_light, graphicsHolder, light, position);
 				break;
-			case ALWAYS_ON_LIGHTS:
+			case ALWAYS_ON_LIGHT:
 				renderOnce(useHeadlights ? headlights : tail_lights, graphicsHolder, light, position);
 				break;
 			case INTERIOR:
@@ -908,10 +908,10 @@ public class ModelCMStock extends ModelSimpleTrainBase<ModelCMStock> {
 	@Override
 	protected void renderHeadPosition2(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnceFlipped(roof_end_light, graphicsHolder, light, position);
 				break;
-			case ALWAYS_ON_LIGHTS:
+			case ALWAYS_ON_LIGHT:
 				renderOnceFlipped(useHeadlights ? headlights : tail_lights, graphicsHolder, light, position);
 				break;
 			case INTERIOR:
@@ -930,7 +930,7 @@ public class ModelCMStock extends ModelSimpleTrainBase<ModelCMStock> {
 	@Override
 	protected void renderEndPosition1(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnce(roof_end_light, graphicsHolder, light, position);
 				break;
 			case INTERIOR:
@@ -949,7 +949,7 @@ public class ModelCMStock extends ModelSimpleTrainBase<ModelCMStock> {
 	@Override
 	protected void renderEndPosition2(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnceFlipped(roof_end_light, graphicsHolder, light, position);
 				break;
 			case INTERIOR:

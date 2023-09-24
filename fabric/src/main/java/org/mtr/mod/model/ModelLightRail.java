@@ -760,7 +760,7 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 		for (int i = 0; i < 2; i++) {
 			final int roofPosition = position + i * 32 - 16;
 			switch (renderStage) {
-				case LIGHTS:
+				case LIGHT:
 					renderMirror(phase == 5 ? roof_light_5 : roof_light, graphicsHolder, light, roofPosition);
 					break;
 				case INTERIOR:
@@ -778,7 +778,7 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 	@Override
 	protected void renderDoorPositions(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderMirror(phase == 5 ? roof_light_5 : roof_light, graphicsHolder, light, position);
 				break;
 			case INTERIOR:
@@ -828,10 +828,10 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 	@Override
 	protected void renderHeadPosition1(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderMirror(phase == 5 ? roof_light_5 : roof_light, graphicsHolder, light, position);
 				break;
-			case ALWAYS_ON_LIGHTS:
+			case ALWAYS_ON_LIGHT:
 				renderOnce(headlights, graphicsHolder, light, position);
 				break;
 			case INTERIOR:
@@ -873,10 +873,10 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 	@Override
 	protected void renderHeadPosition2(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderMirror(phase == 5 ? roof_light_5 : roof_light, graphicsHolder, light, position);
 				break;
-			case ALWAYS_ON_LIGHTS:
+			case ALWAYS_ON_LIGHT:
 				renderOnce(tail_lights, graphicsHolder, light, position);
 				break;
 			case INTERIOR:

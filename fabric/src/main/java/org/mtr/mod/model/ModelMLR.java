@@ -1544,7 +1544,7 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 	protected void renderWindowPositions(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		final boolean isEvenWindow = isEvenWindow(position);
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderMirror(roof_light, graphicsHolder, light, position);
 				break;
 			case INTERIOR:
@@ -1595,7 +1595,7 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 		final boolean doorOpen = doorLeftZ > 0 || doorRightZ > 0;
 
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderMirror(roof_light, graphicsHolder, light, position);
 				if (middleDoor && doorOpen) {
 					renderMirror(door_light_on, graphicsHolder, light, position - 22);
@@ -1643,10 +1643,10 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 	@Override
 	protected void renderHeadPosition1(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnce(roof_end_light, graphicsHolder, light, position);
 				break;
-			case ALWAYS_ON_LIGHTS:
+			case ALWAYS_ON_LIGHT:
 				renderOnceFlipped(useHeadlights ? headlights : tail_lights, graphicsHolder, light, position);
 				if (renderDetails && isChristmas) {
 					renderOnceFlipped(christmas_light_head, graphicsHolder, light, position);
@@ -1682,10 +1682,10 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 	@Override
 	protected void renderHeadPosition2(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnceFlipped(roof_end_light, graphicsHolder, light, position);
 				break;
-			case ALWAYS_ON_LIGHTS:
+			case ALWAYS_ON_LIGHT:
 				renderOnce(useHeadlights ? headlights : tail_lights, graphicsHolder, light, position);
 				if (renderDetails && isChristmas) {
 					renderOnce(christmas_light_head, graphicsHolder, light, position);
@@ -1721,7 +1721,7 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 	@Override
 	protected void renderEndPosition1(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnce(roof_end_light, graphicsHolder, light, position);
 				break;
 			case INTERIOR:
@@ -1752,7 +1752,7 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 	@Override
 	protected void renderEndPosition2(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnceFlipped(roof_end_light, graphicsHolder, light, position);
 				break;
 			case INTERIOR:
@@ -1830,18 +1830,18 @@ public class ModelMLR extends ModelSimpleTrainBase<ModelMLR> {
 	}
 
 	private static void renderChristmasLights(GraphicsHolder graphicsHolder, RenderStage renderStage, ModelPartExtension lightRed, ModelPartExtension lightYellow, ModelPartExtension lightGreen, ModelPartExtension lightBlue, int light, int position) {
-		if (renderStage == RenderStage.INTERIOR || renderStage == RenderStage.ALWAYS_ON_LIGHTS) {
+		if (renderStage == RenderStage.INTERIOR || renderStage == RenderStage.ALWAYS_ON_LIGHT) {
 			final boolean[] lights = CHRISTMAS_LIGHT_STAGES[(int) ((System.currentTimeMillis() / 500) % CHRISTMAS_LIGHT_STAGES.length)];
-			if (renderStage == RenderStage.ALWAYS_ON_LIGHTS == lights[0]) {
+			if (renderStage == RenderStage.ALWAYS_ON_LIGHT == lights[0]) {
 				renderMirror(lightRed, graphicsHolder, light / 2, position);
 			}
-			if (renderStage == RenderStage.ALWAYS_ON_LIGHTS == lights[1]) {
+			if (renderStage == RenderStage.ALWAYS_ON_LIGHT == lights[1]) {
 				renderMirror(lightYellow, graphicsHolder, light / 2, position);
 			}
-			if (renderStage == RenderStage.ALWAYS_ON_LIGHTS == lights[2]) {
+			if (renderStage == RenderStage.ALWAYS_ON_LIGHT == lights[2]) {
 				renderMirror(lightGreen, graphicsHolder, light / 2, position);
 			}
-			if (renderStage == RenderStage.ALWAYS_ON_LIGHTS == lights[3]) {
+			if (renderStage == RenderStage.ALWAYS_ON_LIGHT == lights[3]) {
 				renderMirror(lightBlue, graphicsHolder, light / 2, position);
 			}
 		}

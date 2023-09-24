@@ -2112,7 +2112,7 @@ public class ModelA320 extends ModelSimpleTrainBase<ModelA320> {
 	@Override
 	protected void renderWindowPositions(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnce(end_light, graphicsHolder, light, position);
 				renderMirror(window_interior_blank_light, graphicsHolder, light, position - 194);
 

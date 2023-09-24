@@ -14,8 +14,8 @@ import org.mtr.mod.client.DoorAnimationType;
 import org.mtr.mod.client.ScrollingText;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.VehicleExtension;
-import org.mtr.mod.render.MoreRenderLayers;
 import org.mtr.mod.render.RenderTrains;
+import org.mtr.mod.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 	public final void render(GraphicsHolder graphicsHolder, int light, int overlay, float red, float green, float blue, float alpha) {
 	}
 
-	public final void render(GraphicsHolder graphicsHolder, @Nullable NameColorDataBase data, Identifier texture, int light, float doorLeftValue, float doorRightValue, boolean opening, int currentCar, int trainCars, boolean head1IsFront, boolean lightsOn, boolean isTranslucent, boolean renderDetails, boolean atPlatform) {
+	public final void render(GraphicsHolder graphicsHolderText, StoredMatrixTransformations storedMatrixTransformations, @Nullable NameColorDataBase data, Identifier texture, int light, float doorLeftValue, float doorRightValue, boolean opening, int currentCar, int trainCars, boolean head1IsFront, boolean lightsOn, boolean isTranslucent, boolean renderDetails, boolean atPlatform) {
 		final float doorLeftX = DoorAnimationType.getDoorAnimationX(doorAnimationType, doorLeftValue);
 		final float doorRightX = DoorAnimationType.getDoorAnimationX(doorAnimationType, doorRightValue);
 		final float doorLeftZ = DoorAnimationType.getDoorAnimationZ(doorAnimationType, getDoorMax(), getDoorDuration(), doorLeftValue, opening);
@@ -54,35 +54,52 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 		final int lightOnInteriorLevel = lightsOn ? MAX_LIGHT_INTERIOR : light;
 		final int lightOnGlowingLevel = lightsOn ? MAX_LIGHT_GLOWING : light;
 
-		graphicsHolder.push();
-		baseTransform(graphicsHolder);
+		final StoredMatrixTransformations storedMatrixTransformationsNew = storedMatrixTransformations.copy();
+		storedMatrixTransformationsNew.add(this::baseTransform);
 
 		if (isTranslucent) {
 			if (renderDetails) {
-				graphicsHolder.createVertexConsumer(lightsOn ? MoreRenderLayers.getInteriorTranslucent(texture) : MoreRenderLayers.getExteriorTranslucent(texture));
-				render(graphicsHolder, RenderStage.INTERIOR_TRANSLUCENT, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, true);
+				RenderTrains.scheduleRender(texture, false, lightsOn ? RenderTrains.QueuedRenderLayer.INTERIOR_TRANSLUCENT : RenderTrains.QueuedRenderLayer.EXTERIOR_TRANSLUCENT, graphicsHolder -> {
+					storedMatrixTransformationsNew.transform(graphicsHolder);
+					render(graphicsHolder, RenderStage.INTERIOR_TRANSLUCENT, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, true);
+					graphicsHolder.pop();
+				});
 			}
 		} else {
-			graphicsHolder.createVertexConsumer(lightsOn ? MoreRenderLayers.getLight(texture, false) : MoreRenderLayers.getExterior(texture));
-			render(graphicsHolder, RenderStage.LIGHTS, lightOnGlowingLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
-			graphicsHolder.createVertexConsumer(lightsOn ? MoreRenderLayers.getInterior(texture) : MoreRenderLayers.getExterior(texture));
-			render(graphicsHolder, RenderStage.INTERIOR, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
+			RenderTrains.scheduleRender(texture, false, lightsOn ? RenderTrains.QueuedRenderLayer.LIGHT : RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
+				storedMatrixTransformationsNew.transform(graphicsHolder);
+				render(graphicsHolder, RenderStage.LIGHT, lightOnGlowingLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
+				graphicsHolder.pop();
+			});
+
+			RenderTrains.scheduleRender(texture, false, lightsOn ? RenderTrains.QueuedRenderLayer.INTERIOR : RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
+				storedMatrixTransformationsNew.transform(graphicsHolder);
+				render(graphicsHolder, RenderStage.INTERIOR, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
+				graphicsHolder.pop();
+			});
 
 			if (renderDetails) {
-				renderExtraDetails(graphicsHolder, light, lightOnInteriorLevel, lightsOn, doorLeftX, doorRightX, doorLeftZ, doorRightZ);
+				renderExtraDetails(storedMatrixTransformationsNew, light, lightOnInteriorLevel, lightsOn, doorLeftX, doorRightX, doorLeftZ, doorRightZ);
 			}
 
-			graphicsHolder.createVertexConsumer(MoreRenderLayers.getExterior(texture));
-			render(graphicsHolder, RenderStage.EXTERIOR, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
-			graphicsHolder.createVertexConsumer(MoreRenderLayers.getLight(texture, true));
-			render(graphicsHolder, RenderStage.ALWAYS_ON_LIGHTS, MAX_LIGHT_GLOWING, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
+			RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
+				storedMatrixTransformationsNew.transform(graphicsHolder);
+				render(graphicsHolder, RenderStage.EXTERIOR, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
+				graphicsHolder.pop();
+			});
+
+			RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, graphicsHolder -> {
+				storedMatrixTransformationsNew.transform(graphicsHolder);
+				render(graphicsHolder, RenderStage.ALWAYS_ON_LIGHT, MAX_LIGHT_GLOWING, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
+				graphicsHolder.pop();
+			});
 
 			if (renderDetails) {
 				final VehicleExtension vehicle = data instanceof VehicleExtension ? (VehicleExtension) data : null;
 				if (vehicle != null) {
 					final String[] routeSplit = vehicle.vehicleExtraData.getThisRouteName().split("\\|\\|");
 					renderTextDisplays(
-							graphicsHolder,
+							graphicsHolderText,
 							vehicle.vehicleExtraData.getThisRouteColor(),
 							routeSplit[0],
 							routeSplit.length > 1 ? routeSplit[1] : "",
@@ -98,11 +115,9 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 				}
 			}
 		}
-
-		graphicsHolder.pop();
 	}
 
-	protected void renderExtraDetails(GraphicsHolder graphicsHolder, int light, int lightOnInteriorLevel, boolean lightsOn, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
+	protected void renderExtraDetails(StoredMatrixTransformations storedMatrixTransformations, int light, int lightOnInteriorLevel, boolean lightsOn, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 	}
 
 	protected void renderTextDisplays(GraphicsHolder graphicsHolder, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
@@ -257,7 +272,7 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 		return IGui.formatStationName(IGui.mergeStations(messages, "", " "));
 	}
 
-	public enum RenderStage {LIGHTS, ALWAYS_ON_LIGHTS, INTERIOR, INTERIOR_TRANSLUCENT, EXTERIOR}
+	public enum RenderStage {LIGHT, ALWAYS_ON_LIGHT, INTERIOR, INTERIOR_TRANSLUCENT, EXTERIOR}
 
 	protected enum TextSpacingType {NORMAL, SPACE_CJK, SPACE_CJK_FLIPPED, SPACE_CJK_LARGE, MLR_SPACING}
 }

@@ -1678,7 +1678,7 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 		final int loopEnd = getBogiePositions()[1] - (isEnd2Head ? 94 : 4);
 
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				for (int i = loopStart; i <= loopEnd; i += 30) {
 					renderMirror(window_light, graphicsHolder, light, i);
 				}
@@ -1740,7 +1740,7 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 		final boolean doorOpen = doorLeftZ > 0 || doorRightZ > 0;
 
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				if (firstDoor && doorOpen) {
 					renderMirror(door_light_on, graphicsHolder, light, 0);
 				}
@@ -1788,10 +1788,10 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 	@Override
 	protected void renderHeadPosition1(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnceFlipped(end_light, graphicsHolder, light, position + 90);
 				break;
-			case ALWAYS_ON_LIGHTS:
+			case ALWAYS_ON_LIGHT:
 				renderOnceFlipped(useHeadlights ? headlights : tail_lights, graphicsHolder, light, position + 30);
 				break;
 			case INTERIOR:
@@ -1811,10 +1811,10 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 	@Override
 	protected void renderHeadPosition2(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnce(end_light, graphicsHolder, light, position - 90);
 				break;
-			case ALWAYS_ON_LIGHTS:
+			case ALWAYS_ON_LIGHT:
 				renderOnce(useHeadlights ? headlights : tail_lights, graphicsHolder, light, position - 30);
 				break;
 			case INTERIOR:
@@ -1834,7 +1834,7 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 	@Override
 	protected void renderEndPosition1(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnceFlipped(end_light, graphicsHolder, light, position);
 				break;
 			case INTERIOR:
@@ -1855,7 +1855,7 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 	@Override
 	protected void renderEndPosition2(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnce(end_light, graphicsHolder, light, position);
 				break;
 			case INTERIOR:

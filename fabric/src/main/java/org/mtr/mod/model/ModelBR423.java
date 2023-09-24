@@ -634,7 +634,7 @@ public class ModelBR423 extends ModelSimpleTrainBase<ModelBR423> {
 			final boolean isEnd2 = isEnd2Head && i == windowPositions.length - 1;
 
 			switch (renderStage) {
-				case LIGHTS:
+				case LIGHT:
 					if (isEnd1) {
 						renderOnce(light_head, graphicsHolder, light, windowPosition);
 					} else if (isEnd2) {
@@ -699,7 +699,7 @@ public class ModelBR423 extends ModelSimpleTrainBase<ModelBR423> {
 	@Override
 	protected void renderDoorPositions(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderMirror(light_door, graphicsHolder, light, position);
 				break;
 			case INTERIOR:
@@ -724,7 +724,7 @@ public class ModelBR423 extends ModelSimpleTrainBase<ModelBR423> {
 	@Override
 	protected void renderHeadPosition1(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
-			case ALWAYS_ON_LIGHTS:
+			case ALWAYS_ON_LIGHT:
 				renderOnce(useHeadlights ? headlights : tail_lights, graphicsHolder, light, position);
 				break;
 			case EXTERIOR:
@@ -736,7 +736,7 @@ public class ModelBR423 extends ModelSimpleTrainBase<ModelBR423> {
 	@Override
 	protected void renderHeadPosition2(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
-			case ALWAYS_ON_LIGHTS:
+			case ALWAYS_ON_LIGHT:
 				renderOnceFlipped(useHeadlights ? headlights : tail_lights, graphicsHolder, light, position);
 				break;
 			case EXTERIOR:
