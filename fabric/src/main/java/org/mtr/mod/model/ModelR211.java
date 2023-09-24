@@ -1284,7 +1284,7 @@ public class ModelR211 extends ModelSimpleTrainBase<ModelR211> {
 	@Override
 	protected void renderWindowPositions(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderMirror(roof_light, graphicsHolder, light, position);
 				renderMirror(roof_light, graphicsHolder, light, position - 15);
 				renderMirror(roof_light, graphicsHolder, light, position + 15);
@@ -1315,7 +1315,7 @@ public class ModelR211 extends ModelSimpleTrainBase<ModelR211> {
 		final boolean doorOpen = doorLeftZ > 0 || doorRightZ > 0;
 
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderMirror(roof_light, graphicsHolder, light, position);
 				if (doorOpen) {
 					renderMirror(door_light_interior_on, graphicsHolder, light, position);
@@ -1366,11 +1366,11 @@ public class ModelR211 extends ModelSimpleTrainBase<ModelR211> {
 	@Override
 	protected void renderHeadPosition1(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnce(roof_light, graphicsHolder, light, position + 20);
 				renderOnceFlipped(roof_light, graphicsHolder, light, position + 20);
 				break;
-			case ALWAYS_ON_LIGHTS:
+			case ALWAYS_ON_LIGHT:
 				renderOnce(useHeadlights ? headlights : tail_lights, graphicsHolder, light, position);
 				break;
 			case INTERIOR:
@@ -1388,11 +1388,11 @@ public class ModelR211 extends ModelSimpleTrainBase<ModelR211> {
 	@Override
 	protected void renderHeadPosition2(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderOnce(roof_light, graphicsHolder, light, position - 20);
 				renderOnceFlipped(roof_light, graphicsHolder, light, position - 20);
 				break;
-			case ALWAYS_ON_LIGHTS:
+			case ALWAYS_ON_LIGHT:
 				renderOnceFlipped(useHeadlights ? headlights : tail_lights, graphicsHolder, light, position);
 				break;
 			case INTERIOR:
@@ -1410,7 +1410,7 @@ public class ModelR211 extends ModelSimpleTrainBase<ModelR211> {
 	@Override
 	protected void renderEndPosition1(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				if (!openGangway) {
 					renderOnce(roof_light, graphicsHolder, light, position + 16);
 					renderOnceFlipped(roof_light, graphicsHolder, light, position + 16);
@@ -1445,7 +1445,7 @@ public class ModelR211 extends ModelSimpleTrainBase<ModelR211> {
 	@Override
 	protected void renderEndPosition2(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				if (!openGangway) {
 					renderOnce(roof_light, graphicsHolder, light, position - 16);
 					renderOnceFlipped(roof_light, graphicsHolder, light, position - 16);

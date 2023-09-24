@@ -245,7 +245,7 @@ public class ModelLift1 extends ModelTrainBase {
 				final boolean edge2Z = j == depth;
 
 				switch (renderStage) {
-					case LIGHTS:
+					case LIGHT:
 						if (!edge1X && !edge2X && !edge1Z && !edge2Z) {
 							ModelTrainBase.renderOnce(main_light, graphicsHolder, light, x, heightOffset, z);
 						}

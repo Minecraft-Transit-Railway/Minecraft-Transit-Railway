@@ -18,6 +18,8 @@ import org.mtr.mod.data.IGui;
 import org.mtr.mod.model.ModelBogie;
 import org.mtr.mod.model.ModelTrainBase;
 
+import java.util.function.Consumer;
+
 public class RenderVehicles implements IGui {
 
 	private static final ModelBogie MODEL_BOGIE = new ModelBogie();
@@ -62,7 +64,7 @@ public class RenderVehicles implements IGui {
 				final BlockPos blockPos = Init.newBlockPos(pivotPosition.x, pivotPosition.y + 1, pivotPosition.z);
 				final int light = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
 
-				bogiePositions.forEach(bogiePosition -> renderModel(graphicsHolder, bogiePosition.left(), bogiePosition.right(), vehicle.getReversed(), () -> MODEL_BOGIE.render(graphicsHolder, light), playerOffset));
+				bogiePositions.forEach(bogiePosition -> renderModel(bogiePosition.left(), bogiePosition.right(), vehicle.getReversed(), storedMatrixTransformations -> MODEL_BOGIE.render(storedMatrixTransformations, light), playerOffset));
 
 				final VehicleCar vehicleCar = vehicleCars.get(i);
 				final TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(vehicleCar.getVehicleId());
@@ -80,11 +82,10 @@ public class RenderVehicles implements IGui {
 					final Vector position2 = rotationalVector.multiply(pivotOffset2, pivotOffset2, pivotOffset2).add(pivotPosition);
 
 					renderModel(
-							graphicsHolder,
 							position1,
 							position2,
 							vehicle.getReversed(),
-							() -> model.render(graphicsHolder, vehicle, new Identifier(legacyVehicleRenderer.textureId + ".png"), light, 0, 0, false, carNumber, totalCars, !vehicle.getReversed(), vehicle.getIsOnRoute(), false, true, false),
+							storedMatrixTransformations -> model.render(graphicsHolder, storedMatrixTransformations, vehicle, new Identifier(legacyVehicleRenderer.textureId + ".png"), light, 0, 0, false, carNumber, totalCars, !vehicle.getReversed(), vehicle.getIsOnRoute(), false, true, false),
 							playerOffset
 					);
 
@@ -111,24 +112,25 @@ public class RenderVehicles implements IGui {
 		});
 	}
 
-	private static void renderModel(GraphicsHolder graphicsHolder, Vector position1, Vector position2, boolean reversed, Runnable render, Vector3d playerOffset) {
+	private static void renderModel(Vector position1, Vector position2, boolean reversed, Consumer<StoredMatrixTransformations> render, Vector3d playerOffset) {
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 		if (clientWorld == null) {
 			return;
 		}
 
 		final DoubleDoubleImmutablePair angles = getAngles(position1, position2);
-		graphicsHolder.push();
-		graphicsHolder.translate(
-				Utilities.getAverage(position1.x, position2.x) - playerOffset.getXMapped(),
-				Utilities.getAverage(position1.y, position2.y) - playerOffset.getYMapped(),
-				Utilities.getAverage(position1.z, position2.z) - playerOffset.getZMapped()
-		);
-		graphicsHolder.rotateYRadians((float) (angles.leftDouble() + (reversed ? 0 : Math.PI)));
-		graphicsHolder.rotateXRadians((float) ((reversed ? -1 : 1) * angles.rightDouble() + Math.PI));
-		graphicsHolder.translate(0, -1, 0);
-		render.run();
-		graphicsHolder.pop();
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
+		storedMatrixTransformations.add(graphicsHolder -> {
+			graphicsHolder.translate(
+					Utilities.getAverage(position1.x, position2.x) - playerOffset.getXMapped(),
+					Utilities.getAverage(position1.y, position2.y) - playerOffset.getYMapped(),
+					Utilities.getAverage(position1.z, position2.z) - playerOffset.getZMapped()
+			);
+			graphicsHolder.rotateYRadians((float) (angles.leftDouble() + (reversed ? 0 : Math.PI)));
+			graphicsHolder.rotateXRadians((float) ((reversed ? -1 : 1) * angles.rightDouble() + Math.PI));
+			graphicsHolder.translate(0, -1, 0);
+		});
+		render.accept(storedMatrixTransformations);
 	}
 
 	private static void renderConnection(boolean shouldRender, boolean renderInterior, PreviousConnectionPositions previousConnectionPositions, String textureId, Vector endPosition1, Vector endPosition2, DoubleDoubleImmutablePair angles, double offsetX, double offsetZ, boolean isOnRoute) {

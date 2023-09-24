@@ -1,9 +1,9 @@
 package org.mtr.mod.model;
 
 import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
-import org.mtr.mod.render.MoreRenderLayers;
+import org.mtr.mod.render.RenderTrains;
+import org.mtr.mod.render.StoredMatrixTransformations;
 
 public class ModelDoorOverlayTopMLR extends ModelDoorOverlayTopBase {
 
@@ -42,11 +42,14 @@ public class ModelDoorOverlayTopMLR extends ModelDoorOverlayTopBase {
 	}
 
 	@Override
-	public void renderNew(GraphicsHolder graphicsHolder, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
-		graphicsHolder.createVertexConsumer(MoreRenderLayers.getExterior(texture));
-		ModelTrainBase.renderOnce(left, graphicsHolder, light, doorRightX, position + doorRightZ);
-		ModelTrainBase.renderOnce(right, graphicsHolder, light, doorRightX, position - doorRightZ);
-		ModelTrainBase.renderOnceFlipped(left, graphicsHolder, light, doorLeftX, position - doorLeftZ);
-		ModelTrainBase.renderOnceFlipped(right, graphicsHolder, light, doorLeftX, position + doorLeftZ);
+	public void renderNew(StoredMatrixTransformations storedMatrixTransformations, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
+		RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
+			storedMatrixTransformations.transform(graphicsHolder);
+			ModelTrainBase.renderOnce(left, graphicsHolder, light, doorRightX, position + doorRightZ);
+			ModelTrainBase.renderOnce(right, graphicsHolder, light, doorRightX, position - doorRightZ);
+			ModelTrainBase.renderOnceFlipped(left, graphicsHolder, light, doorLeftX, position - doorLeftZ);
+			ModelTrainBase.renderOnceFlipped(right, graphicsHolder, light, doorLeftX, position + doorLeftZ);
+			graphicsHolder.pop();
+		});
 	}
 }

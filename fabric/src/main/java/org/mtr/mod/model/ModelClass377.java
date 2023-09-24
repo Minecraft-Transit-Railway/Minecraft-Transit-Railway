@@ -1482,7 +1482,7 @@ public class ModelClass377 extends ModelSimpleTrainBase<ModelClass377> {
 		final float[] windowPositions = getNewWindowPositions();
 
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				for (final float i : windowPositions) {
 					renderMirror(window_light, graphicsHolder, light, i);
 				}
@@ -1561,7 +1561,7 @@ public class ModelClass377 extends ModelSimpleTrainBase<ModelClass377> {
 		final boolean doorOpen = doorLeftZ > 0 || doorRightZ > 0;
 
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				if (isFirstDoor && doorOpen) {
 					renderMirror(door_light_on, graphicsHolder, light, 0);
 				}
@@ -1610,7 +1610,7 @@ public class ModelClass377 extends ModelSimpleTrainBase<ModelClass377> {
 	@Override
 	protected void renderHeadPosition1(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
-			case ALWAYS_ON_LIGHTS:
+			case ALWAYS_ON_LIGHT:
 				renderOnceFlipped(useHeadlights ? headlights : tail_lights, graphicsHolder, light, position - 12.5F);
 				break;
 			case INTERIOR:
@@ -1625,7 +1625,7 @@ public class ModelClass377 extends ModelSimpleTrainBase<ModelClass377> {
 	@Override
 	protected void renderHeadPosition2(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
-			case ALWAYS_ON_LIGHTS:
+			case ALWAYS_ON_LIGHT:
 				renderOnce(useHeadlights ? headlights : tail_lights, graphicsHolder, light, position + 12.5F);
 				break;
 			case INTERIOR:

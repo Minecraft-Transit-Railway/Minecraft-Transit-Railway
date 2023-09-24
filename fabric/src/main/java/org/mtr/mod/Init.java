@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.core.Main;
@@ -29,12 +30,14 @@ public final class Init {
 
 	private static Main main;
 	private static Socket socket;
+	private static int gameTick;
 
 
 	public static final String MOD_ID = "mtr";
 	public static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 	private static final String CHANNEL = "update";
 	private static final Object2ObjectArrayMap<ServerWorld, RailActionModule> RAIL_ACTION_MODULES = new Object2ObjectArrayMap<>();
+	private static final Object2ObjectAVLTreeMap<UUID, BlockPos> PLAYER_POSITIONS = new Object2ObjectAVLTreeMap<>();
 
 	public static void init() {
 		Blocks.init();
@@ -111,11 +114,28 @@ public final class Init {
 		});
 
 		EventRegistry.registerPlayerJoin(Init::updatePlayerPosition);
+		EventRegistry.registerPlayerDisconnect((minecraftServer, serverPlayerEntity) -> PLAYER_POSITIONS.remove(serverPlayerEntity.getUuid()));
 
 		EventRegistry.registerEndWorldTick(serverWorld -> {
 			final RailActionModule railActionModule = RAIL_ACTION_MODULES.get(serverWorld);
 			if (railActionModule != null) {
 				railActionModule.tick();
+			}
+
+			gameTick++;
+
+			if (gameTick % 40 == 0) {
+				final ObjectArrayList<ServerPlayerEntity> playersToUpdate = new ObjectArrayList<>();
+				MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntity -> {
+					final UUID uuid = serverPlayerEntity.getUuid();
+					final BlockPos oldBlockPos = PLAYER_POSITIONS.get(uuid);
+					final BlockPos newBlockPos = serverPlayerEntity.getBlockPos();
+					if (oldBlockPos == null || newBlockPos.getManhattanDistance(new Vector3i(oldBlockPos.data)) > 8) {
+						playersToUpdate.add(serverPlayerEntity);
+						PLAYER_POSITIONS.put(uuid, newBlockPos);
+					}
+				});
+				updatePlayerPosition(serverWorld.getServer(), playersToUpdate.toArray(new ServerPlayerEntity[0]));
 			}
 		});
 

@@ -1,10 +1,10 @@
 package org.mtr.mod.model;
 
 import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mod.Init;
-import org.mtr.mod.render.MoreRenderLayers;
+import org.mtr.mod.render.RenderTrains;
+import org.mtr.mod.render.StoredMatrixTransformations;
 
 public class ModelDoorOverlayTopSP1900 extends ModelDoorOverlayTopBase {
 
@@ -37,8 +37,11 @@ public class ModelDoorOverlayTopSP1900 extends ModelDoorOverlayTopBase {
 	}
 
 	@Override
-	public void renderNew(GraphicsHolder graphicsHolder, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
-		graphicsHolder.createVertexConsumer(MoreRenderLayers.getExterior(TEXTURE_ID));
-		ModelTrainBase.renderMirror(bb_main, graphicsHolder, light, position);
+	public void renderNew(StoredMatrixTransformations storedMatrixTransformations, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
+		RenderTrains.scheduleRender(TEXTURE_ID, false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
+			storedMatrixTransformations.transform(graphicsHolder);
+			ModelTrainBase.renderMirror(bb_main, graphicsHolder, light, position);
+			graphicsHolder.pop();
+		});
 	}
 }

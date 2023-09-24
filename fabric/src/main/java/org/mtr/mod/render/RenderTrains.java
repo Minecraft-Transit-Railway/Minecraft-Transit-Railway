@@ -89,6 +89,12 @@ public class RenderTrains implements IGui {
 						case INTERIOR:
 							renderLayer = MoreRenderLayers.getInterior(key);
 							break;
+						case INTERIOR_TRANSLUCENT:
+							renderLayer = MoreRenderLayers.getInteriorTranslucent(key);
+							break;
+						case EXTERIOR_TRANSLUCENT:
+							renderLayer = MoreRenderLayers.getExteriorTranslucent(key);
+							break;
 						default:
 							renderLayer = MoreRenderLayers.getExterior(key);
 							break;
@@ -148,5 +154,5 @@ public class RenderTrains implements IGui {
 		return cameraPos == null || playerFacingAway || maxDistanceXZ(cameraPos, pos) > maxDistance;
 	}
 
-	public enum QueuedRenderLayer {LIGHT, LIGHT_TRANSLUCENT, INTERIOR, EXTERIOR}
+	public enum QueuedRenderLayer {LIGHT, INTERIOR, EXTERIOR, LIGHT_TRANSLUCENT, INTERIOR_TRANSLUCENT, EXTERIOR_TRANSLUCENT}
 }

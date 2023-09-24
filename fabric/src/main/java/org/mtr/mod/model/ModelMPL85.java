@@ -1257,7 +1257,7 @@ public class ModelMPL85 extends ModelSimpleTrainBase<ModelMPL85> {
 	@Override
 	protected void renderWindowPositions(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderMirror(light_window, graphicsHolder, light, position);
 				break;
 			case INTERIOR:
@@ -1272,7 +1272,7 @@ public class ModelMPL85 extends ModelSimpleTrainBase<ModelMPL85> {
 	@Override
 	protected void renderDoorPositions(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
-			case LIGHTS:
+			case LIGHT:
 				renderMirror(light_door, graphicsHolder, light, position);
 				if (renderDetails) {
 					if (doorLeftZ > 0) {
@@ -1374,7 +1374,7 @@ public class ModelMPL85 extends ModelSimpleTrainBase<ModelMPL85> {
 
 	private void renderEndPosition1(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights, boolean isHead) {
 		switch (renderStage) {
-			case ALWAYS_ON_LIGHTS:
+			case ALWAYS_ON_LIGHT:
 				if (isHead) {
 					renderOnce(useHeadlights ? headlights : tail_lights, graphicsHolder, light, position);
 				}
@@ -1393,7 +1393,7 @@ public class ModelMPL85 extends ModelSimpleTrainBase<ModelMPL85> {
 
 	private void renderEndPosition2(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, int position, boolean useHeadlights, boolean isHead) {
 		switch (renderStage) {
-			case ALWAYS_ON_LIGHTS:
+			case ALWAYS_ON_LIGHT:
 				if (isHead) {
 					renderOnceFlipped(useHeadlights ? headlights : tail_lights, graphicsHolder, light, position);
 				}
