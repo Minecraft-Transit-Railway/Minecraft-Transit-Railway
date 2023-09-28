@@ -45,7 +45,7 @@ public enum RailType implements IGui {
 			return TURN_BACK.color;
 		} else {
 			for (final RailType railType : values()) {
-				if (railType.speedLimit == rail.getSpeedLimitKilometersPerHour()) {
+				if (railType.speedLimit == Math.max(rail.getSpeedLimitKilometersPerHour(false), rail.getSpeedLimitKilometersPerHour(true))) {
 					return railType.color;
 				}
 			}

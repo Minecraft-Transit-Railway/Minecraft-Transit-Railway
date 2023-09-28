@@ -9,7 +9,6 @@ import org.mtr.core.data.Station;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.registry.RegistryClient;
-import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockRailwaySign;
 import org.mtr.mod.block.BlockRouteSignBase;
@@ -131,8 +130,8 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 		}
 
 		buttonClear = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.reset_sign"), button -> setNewSignId(null));
-		buttonPrevPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier(Init.MOD_ID, "textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
-		buttonNextPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier(Init.MOD_ID, "textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
+		buttonPrevPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_left.png"), new Identifier("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1));
+		buttonNextPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_right.png"), new Identifier("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1));
 	}
 
 	@Override
@@ -212,9 +211,9 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 	}
 
 	@Override
-	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
+	public boolean mouseScrolled3(double mouseX, double mouseY, double amount) {
 		setPage(page + (int) Math.signum(-amount));
-		return super.mouseScrolled2(mouseX, mouseY, amount);
+		return super.mouseScrolled3(mouseX, mouseY, amount);
 	}
 
 	@Override

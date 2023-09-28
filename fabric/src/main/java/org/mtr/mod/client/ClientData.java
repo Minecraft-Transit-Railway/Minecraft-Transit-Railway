@@ -3,7 +3,6 @@ package org.mtr.mod.client;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.core.data.*;
 import org.mtr.core.tools.Position;
 import org.mtr.mapping.holder.*;
@@ -21,7 +20,6 @@ public final class ClientData extends Data {
 
 	public final ObjectAVLTreeSet<VehicleExtension> vehicles = new ObjectAVLTreeSet<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
-	public final ObjectOpenHashSet<Rail> oneWayRails = new ObjectOpenHashSet<>();
 
 	public static ClientData instance = new ClientData();
 	public static String DASHBOARD_SEARCH = "";
@@ -37,18 +35,6 @@ public final class ClientData extends Data {
 	private static float shiftHoldingTicks = 0;
 
 	private static final Map<UUID, Integer> PLAYER_RIDING_COOL_DOWN = new HashMap<>();
-
-	@Override
-	public void sync() {
-		super.sync();
-
-		oneWayRails.clear();
-		positionToRailConnections.forEach((position1, map) -> map.forEach((position2, rail) -> {
-			if (tryGet(positionToRailConnections, position2, position1) == null) {
-				oneWayRails.add(rail);
-			}
-		}));
-	}
 
 	public static void tick() {
 		final Set<UUID> playersToRemove = new HashSet<>();
@@ -117,7 +103,7 @@ public final class ClientData extends Data {
 	}
 
 	public static Rail getRail(BlockPos blockPos1, BlockPos blockPos2) {
-		return tryGet(ClientData.instance.positionToRailConnections, Init.blockPosToPosition(blockPos1), Init.blockPosToPosition(blockPos2));
+		return tryGet(ClientData.instance.positionsToRail, Init.blockPosToPosition(blockPos1), Init.blockPosToPosition(blockPos2));
 	}
 
 	public static <T extends NameColorDataBase> ObjectAVLTreeSet<DashboardListItem> getFilteredDataSet(TransportMode transportMode, ObjectAVLTreeSet<T> dataSet) {

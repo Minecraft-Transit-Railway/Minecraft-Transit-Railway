@@ -206,7 +206,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 	}
 
 	@Override
-	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
+	public boolean mouseScrolled3(double mouseX, double mouseY, double amount) {
 		final double oldScale = scale;
 		if (oldScale > SCALE_LOWER_LIMIT && amount < 0) {
 			centerX -= (mouseX - getX2() - width / 2D) / scale;

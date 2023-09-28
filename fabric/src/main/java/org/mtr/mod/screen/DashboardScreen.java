@@ -142,7 +142,6 @@ public class DashboardScreen extends ScreenExtension implements IGui, IPacket {
 
 	@Override
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
-		renderBackground(graphicsHolder);
 		widgetMap.render(graphicsHolder, mouseX, mouseY, delta);
 		graphicsHolder.push();
 		graphicsHolder.translate(0, 0, 500);
@@ -161,15 +160,15 @@ public class DashboardScreen extends ScreenExtension implements IGui, IPacket {
 	}
 
 	@Override
-	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
+	public boolean mouseScrolled3(double mouseX, double mouseY, double amount) {
 		dashboardList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled2(mouseX, mouseY, amount);
+		return super.mouseScrolled3(mouseX, mouseY, amount);
 	}
 
 	@Override
 	public void tick2() {
-		textFieldName.tick2();
-		textFieldCustomDestination.tick2();
+		textFieldName.tick3();
+		textFieldCustomDestination.tick3();
 		dashboardList.tick();
 
 		try {

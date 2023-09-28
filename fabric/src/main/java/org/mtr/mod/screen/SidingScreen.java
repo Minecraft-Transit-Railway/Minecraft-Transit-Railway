@@ -113,7 +113,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 	@Override
 	public void tick2() {
 		super.tick2();
-		textFieldMaxTrains.tick2();
+		textFieldMaxTrains.tick3();
 	}
 
 	@Override

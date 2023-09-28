@@ -35,7 +35,7 @@ public class RenderRails implements IGui {
 		final int maxRailDistance = MinecraftClientHelper.getRenderDistance() * 16;
 		final Vector3d playerOffset = RenderTrains.getPlayerOffset();
 
-		ClientData.instance.positionToRailConnections.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
+		ClientData.instance.positionsToRail.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
 			if (!Utilities.isBetween(clientPlayerEntity.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !Utilities.isBetween(clientPlayerEntity.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
 				return;
 			}
@@ -54,7 +54,7 @@ public class RenderRails implements IGui {
 					}
 					break;
 				case CABLE_CAR:
-					if (rail.isPlatform() || rail.isSiding() || rail.getSpeedLimitKilometersPerHour() == RailType.CABLE_CAR_STATION.speedLimit) {
+					if (rail.isPlatform() || rail.isSiding() || (rail.getSpeedLimitKilometersPerHour(false) == RailType.CABLE_CAR_STATION.speedLimit && rail.getSpeedLimitKilometersPerHour(true) == RailType.CABLE_CAR_STATION.speedLimit)) {
 						renderRailStandard(clientWorld, rail, 0.25F + SMALL_OFFSET, renderColors, 0.25F, new Identifier(Init.MOD_ID, "textures/block/metal.png"), 0.25F, 0, 0.75F, 1);
 					}
 					if (renderColors && !rail.isPlatform() && !rail.isSiding()) {
@@ -62,7 +62,7 @@ public class RenderRails implements IGui {
 					}
 
 					graphicsHolder.createVertexConsumer(RenderLayer.getLines());
-					rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+					rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 						graphicsHolder.drawLineInWorld(
 								(float) (x1 - playerOffset.getXMapped()),
 								(float) (y1 - playerOffset.getYMapped() + 0.5),
@@ -105,17 +105,20 @@ public class RenderRails implements IGui {
 		final int maxRailDistance = MinecraftClientHelper.getRenderDistance() * 16;
 
 		if (renderColors || texture != null) {
-			rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+			rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 				final BlockPos pos2 = Init.newBlockPos(x1, y1, z1);
 				if (RenderTrains.shouldNotRender(pos2, maxRailDistance, null)) {
 					return;
 				}
 
-				if (renderColors && ClientData.instance.oneWayRails.contains(rail)) {
+				final long speedLimit1 = rail.getSpeedLimitKilometersPerHour(false);
+				final long speedLimit2 = rail.getSpeedLimitKilometersPerHour(true);
+
+				if (renderColors && (speedLimit1 == 0 || speedLimit2 == 0)) {
 					RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/one_way_rail_arrow.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
 						final Vector3d playerOffset = RenderTrains.getPlayerOffset();
-						IDrawing.drawTexture(graphicsHolder, x1, y1 + yOffset, z1, x2, y1 + yOffset + SMALL_OFFSET, z2, x3, y2 + yOffset, z3, x4, y2 + yOffset + SMALL_OFFSET, z4, playerOffset, 0, 0.75F, 1, 0.25F, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
-						IDrawing.drawTexture(graphicsHolder, x2, y1 + yOffset + SMALL_OFFSET, z2, x1, y1 + yOffset, z1, x4, y2 + yOffset + SMALL_OFFSET, z4, x3, y2 + yOffset, z3, playerOffset, 0, 0.75F, 1, 0.25F, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
+						IDrawing.drawTexture(graphicsHolder, x1, y1 + yOffset, z1, x2, y1 + yOffset + SMALL_OFFSET, z2, x3, y2 + yOffset, z3, x4, y2 + yOffset + SMALL_OFFSET, z4, playerOffset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
+						IDrawing.drawTexture(graphicsHolder, x2, y1 + yOffset + SMALL_OFFSET, z2, x1, y1 + yOffset, z1, x4, y2 + yOffset + SMALL_OFFSET, z4, x3, y2 + yOffset, z3, playerOffset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
 					});
 				}
 

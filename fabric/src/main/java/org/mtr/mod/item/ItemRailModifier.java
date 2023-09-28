@@ -1,9 +1,7 @@
 package org.mtr.mod.item;
 
-import com.google.gson.JsonObject;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
-import org.mtr.core.serializers.JsonReader;
 import org.mtr.core.tools.Angle;
 import org.mtr.core.tools.Position;
 import org.mtr.mapping.holder.*;
@@ -20,8 +18,6 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 
 	private final boolean isOneWay;
 	private final RailType railType;
-
-	private static final Rail DUMMY_RAIL = new Rail(new JsonReader(new JsonObject()));
 
 	public ItemRailModifier(ItemSettings itemSettings) {
 		super(true, true, true, false, itemSettings);
@@ -77,42 +73,34 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 
 			final Position positionStart = Init.blockPosToPosition(posStart);
 			final Position positionEnd = Init.blockPosToPosition(posEnd);
-			final Rail rail1;
-			final Rail rail2;
+			final Rail rail;
 
 			switch (newRailType) {
 				case PLATFORM:
-					rail1 = Rail.newPlatformRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.CURVE, Rail.Shape.CURVE, transportMode);
-					rail2 = Rail.newPlatformRail(positionEnd, facingEnd, positionStart, facingStart, Rail.Shape.CURVE, Rail.Shape.CURVE, transportMode);
+					rail = Rail.newPlatformRail(positionStart, facingStart, Rail.Shape.CURVE, positionEnd, facingEnd, Rail.Shape.CURVE, transportMode);
 					break;
 				case SIDING:
-					rail1 = Rail.newSidingRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.CURVE, Rail.Shape.CURVE, transportMode);
-					rail2 = Rail.newSidingRail(positionEnd, facingEnd, positionStart, facingStart, Rail.Shape.CURVE, Rail.Shape.CURVE, transportMode);
+					rail = Rail.newSidingRail(positionStart, facingStart, Rail.Shape.CURVE, positionEnd, facingEnd, Rail.Shape.CURVE, transportMode);
 					break;
 				case TURN_BACK:
-					rail1 = Rail.newTurnBackRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.CURVE, Rail.Shape.CURVE, transportMode);
-					rail2 = Rail.newTurnBackRail(positionEnd, facingEnd, positionStart, facingStart, Rail.Shape.CURVE, Rail.Shape.CURVE, transportMode);
+					rail = Rail.newTurnBackRail(positionStart, facingStart, Rail.Shape.CURVE, positionEnd, facingEnd, Rail.Shape.CURVE, transportMode);
 					break;
 				default:
-					rail1 = Rail.newRail(positionStart, facingStart, positionEnd, facingEnd, newRailType.speedLimit, newRailType.railShape, newRailType.railShape, false, false, newRailType.canAccelerate, newRailType.hasSignal, transportMode);
-					rail2 = Rail.newRail(positionEnd, facingEnd, positionStart, facingStart, newRailType.speedLimit, newRailType.railShape, newRailType.railShape, false, false, newRailType.canAccelerate, newRailType.hasSignal, transportMode);
+					rail = Rail.newRail(positionStart, facingStart, newRailType.railShape, positionEnd, facingEnd, newRailType.railShape, isOneWay ? 0 : newRailType.speedLimit, newRailType.speedLimit, false, false, newRailType.canAccelerate, newRailType.hasSignal, transportMode);
 			}
 
-			final boolean goodRadius = rail1.goodRadius() && rail2.goodRadius();
-			final boolean isValid = rail1.isValid() && rail2.isValid();
-
-			if (goodRadius && isValid && isValidContinuousMovement) {
+			if (rail.isValid() && isValidContinuousMovement) {
 				world.setBlockState(posStart, stateStart.with(new Property<>(BlockNode.IS_CONNECTED.data), true));
 				world.setBlockState(posEnd, stateEnd.with(new Property<>(BlockNode.IS_CONNECTED.data), true));
-				PacketData.createOrDeleteRail(ServerWorld.cast(world), positionStart, positionEnd, isOneWay ? DUMMY_RAIL : rail1, rail2);
+				PacketData.updateRail(ServerWorld.cast(world), rail);
 			} else if (player != null) {
-				player.sendMessage(new Text(TextHelper.translatable(isValidContinuousMovement ? goodRadius ? "gui.mtr.invalid_orientation" : "gui.mtr.radius_too_small" : "gui.mtr.cable_car_invalid_orientation").data), true);
+				player.sendMessage(new Text(TextHelper.translatable(isValidContinuousMovement ? "gui.mtr.invalid_orientation" : "gui.mtr.cable_car_invalid_orientation").data), true);
 			}
 		}
 	}
 
 	@Override
 	protected void onRemove(World world, BlockPos posStart, BlockPos posEnd, @Nullable ServerPlayerEntity player) {
-		PacketData.createOrDeleteRail(ServerWorld.cast(world), Init.blockPosToPosition(posStart), Init.blockPosToPosition(posEnd), DUMMY_RAIL, DUMMY_RAIL);
+		PacketData.deleteRail(ServerWorld.cast(world), Rail.newRail(Init.blockPosToPosition(posStart), Angle.N, Rail.Shape.CURVE, Init.blockPosToPosition(posEnd), Angle.N, Rail.Shape.CURVE, 0, 0, false, false, false, false, TransportMode.TRAIN));
 	}
 }

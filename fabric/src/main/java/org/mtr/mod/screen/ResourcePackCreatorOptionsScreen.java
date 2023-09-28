@@ -131,10 +131,10 @@ public class ResourcePackCreatorOptionsScreen extends ScreenExtension implements
 
 	@Override
 	public void tick2() {
-		textFieldId.tick2();
-		textFieldName.tick2();
-		textFieldGangwayConnectionId.tick2();
-		textFieldTrainBarrierId.tick2();
+		textFieldId.tick3();
+		textFieldName.tick3();
+		textFieldGangwayConnectionId.tick3();
+		textFieldTrainBarrierId.tick3();
 	}
 
 	@Override

@@ -44,7 +44,7 @@ public class RailAction {
 		this.height = height;
 		this.state = state;
 		isSlab = state != null && SlabBlock.isInstance(state.getBlock());
-		length = rail.getLength();
+		length = rail.railMath.getLength();
 		distance = 0;
 	}
 
@@ -121,9 +121,9 @@ public class RailAction {
 	private boolean create(boolean includeMiddle, Consumer<Vector> consumer) {
 		final long startTime = System.currentTimeMillis();
 		while (System.currentTimeMillis() - startTime < 2) {
-			final Vector pos1 = rail.getPosition(distance);
+			final Vector pos1 = rail.railMath.getPosition(distance, false);
 			distance += INCREMENT;
-			final Vector pos2 = rail.getPosition(distance);
+			final Vector pos2 = rail.railMath.getPosition(distance, false);
 			final Vector vec3 = new Vector(pos2.x - pos1.x, 0, pos2.z - pos1.z).normalize().rotateY((float) Math.PI / 2);
 
 			for (double x = -radius; x <= radius; x += INCREMENT) {
