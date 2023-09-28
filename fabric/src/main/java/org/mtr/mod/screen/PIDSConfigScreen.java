@@ -7,7 +7,6 @@ import org.mtr.core.data.Platform;
 import org.mtr.core.data.RoutePlatformData;
 import org.mtr.core.data.Station;
 import org.mtr.core.tools.Utilities;
-import org.mtr.init.MTR;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.registry.RegistryClient;
@@ -76,8 +75,8 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui, IPacket {
 			buttonsHideArrival[i].setMessage2(new Text(hideArrivalText.data));
 		}
 
-		buttonPrevPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier(Init.MOD_ID, "textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
-		buttonNextPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier(Init.MOD_ID, "textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
+		buttonPrevPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_left.png"), new Identifier("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1));
+		buttonNextPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_right.png"), new Identifier("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1));
 
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 		if (clientWorld == null) {
@@ -163,7 +162,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui, IPacket {
 	@Override
 	public void tick2() {
 		for (final TextFieldWidgetExtension textFieldMessage : textFieldMessages) {
-			textFieldMessage.tick2();
+			textFieldMessage.tick3();
 		}
 	}
 

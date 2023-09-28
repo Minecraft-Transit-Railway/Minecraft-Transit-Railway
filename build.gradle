@@ -19,10 +19,10 @@ subprojects {
 		implementation "com.google.code.findbugs:jsr305:+"
 		shadowImplementation "com.google.code.gson:gson:+"
 		shadowImplementation "it.unimi.dsi:fastutil:+"
-		shadowImplementation "com.corundumstudio.socketio:netty-socketio:+"
+		shadowImplementation("com.corundumstudio.socketio:netty-socketio:+") { exclude group: "io.netty", module: "netty-transport-native-epoll" }
 		shadowImplementation "org.msgpack:msgpack-core:+"
 		shadowImplementation "io.socket:socket.io-client:+"
-		shadowImplementation "com.github.jonafanho:Socket-IO-Webserver:master-SNAPSHOT"
+		shadowImplementation("com.github.jonafanho:Socket-IO-Webserver:master-SNAPSHOT") { exclude group: "io.netty", module: "netty-transport-native-epoll" }
 		shadowImplementation name: "Minecraft-Mappings-common-0.0.1"
 		shadowImplementation name: "Transport-Simulation-Core-0.0.1"
 		compileOnly "xyz.jpenilla:squaremap-api:+"

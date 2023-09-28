@@ -1,6 +1,6 @@
 package org.mtr.mod.screen;
 
-import org.mtr.mapping.holder.ClickableWidget;
+import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.holder.Text;
 import org.mtr.mapping.mapper.GraphicsHolder;
@@ -65,20 +65,23 @@ public class WidgetShorterSlider extends SliderWidgetExtension implements IGui {
 
 	@Override
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
+		final boolean isHovered = isHovered2();
+
 		final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
-		guiDrawing.beginDrawingTexture(ClickableWidget.getWidgetsTextureMapped());
+		guiDrawing.beginDrawingTexture(new Identifier(String.format("textures/gui/sprites/widget/slider%s.png", isHovered ? "_highlighted" : "")));
+		IGui.drawTexture(guiDrawing, getX2(), getY2(), 0F, 0, width / 2, height / 2, 200, 20);
+		IGui.drawTexture(guiDrawing, getX2(), getY2() + height / 2, 0F, 20 - height / 2, width / 2, height / 2, 200, 20);
+		IGui.drawTexture(guiDrawing, getX2() + width / 2, getY2(), 200F - width / 2, 0, width / 2, height / 2, 200, 20);
+		IGui.drawTexture(guiDrawing, getX2() + width / 2, getY2() + height / 2, 200F - width / 2, 20 - height / 2, width / 2, height / 2, 200, 20);
+		guiDrawing.finishDrawingTexture();
 
-		IGui.drawTexture(guiDrawing, getX2(), getY2(), 0, 46, width / 2, height / 2);
-		IGui.drawTexture(guiDrawing, getX2(), getY2() + height / 2, 0, 66 - height / 2, width / 2, height / 2);
-		IGui.drawTexture(guiDrawing, getX2() + width / 2, getY2(), 200 - width / 2, 46, width / 2, height / 2);
-		IGui.drawTexture(guiDrawing, getX2() + width / 2, getY2() + height / 2, 200 - width / 2, 66 - height / 2, width / 2, height / 2);
-
-		final int v = isHovered2() ? 86 : 66;
+		guiDrawing.beginDrawingTexture(new Identifier(String.format("textures/gui/sprites/widget/slider_handle%s.png", isHovered ? "_highlighted" : "")));
 		final int xOffset = (width - SLIDER_WIDTH) * getIntValue() / maxValue;
-		IGui.drawTexture(guiDrawing, getX2() + xOffset, getY2(), 0, v, SLIDER_WIDTH / 2, height / 2);
-		IGui.drawTexture(guiDrawing, getX2() + xOffset, getY2() + height / 2, 0, v + 20 - height / 2, SLIDER_WIDTH / 2, height / 2);
-		IGui.drawTexture(guiDrawing, getX2() + xOffset + SLIDER_WIDTH / 2, getY2(), 200 - SLIDER_WIDTH / 2, v, SLIDER_WIDTH / 2, height / 2);
-		IGui.drawTexture(guiDrawing, getX2() + xOffset + SLIDER_WIDTH / 2, getY2() + height / 2, 200 - SLIDER_WIDTH / 2, v + 20 - height / 2, SLIDER_WIDTH / 2, height / 2);
+		IGui.drawTexture(guiDrawing, getX2() + xOffset, getY2(), 0F, 0, SLIDER_WIDTH / 2, height / 2, 8, 20);
+		IGui.drawTexture(guiDrawing, getX2() + xOffset, getY2() + height / 2, 0F, 20 - height / 2, SLIDER_WIDTH / 2, height / 2, 8, 20);
+		IGui.drawTexture(guiDrawing, getX2() + xOffset + SLIDER_WIDTH / 2, getY2(), 200F - SLIDER_WIDTH / 2, 0, SLIDER_WIDTH / 2, height / 2, 8, 20);
+		IGui.drawTexture(guiDrawing, getX2() + xOffset + SLIDER_WIDTH / 2, getY2() + height / 2, 200F - SLIDER_WIDTH / 2, 20 - height / 2, SLIDER_WIDTH / 2, height / 2, 8, 20);
+		guiDrawing.finishDrawingTexture();
 
 		graphicsHolder.drawText(getMessage2().getString(), getX2() + width + TEXT_PADDING, getY2() + (height - TEXT_HEIGHT) / 2, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
 

@@ -3,6 +3,7 @@ package org.mtr.mod.data;
 import org.mtr.core.data.Station;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ScoreboardCriteria;
+import org.mtr.mapping.mapper.ScoreboardHelper;
 import org.mtr.mapping.mapper.TextHelper;
 
 import javax.annotation.Nonnull;
@@ -71,7 +72,7 @@ public class TicketSystem {
 			world.getScoreboard().addObjective(objective, ScoreboardCriteria.DUMMY, new Text(TextHelper.literal(title).data), ScoreboardCriterionRenderType.INTEGER);
 		} catch (Exception ignored) {
 		}
-		final ScoreboardObjective scoreboardObjective = world.getScoreboard().getObjective(objective);
+		final ScoreboardObjective scoreboardObjective = ScoreboardHelper.getScoreboardObjective(world.getScoreboard(), objective);
 		return scoreboardObjective == null ? null : world.getScoreboard().getPlayerScore(player.getGameProfile().getName(), scoreboardObjective);
 	}
 

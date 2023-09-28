@@ -52,6 +52,8 @@ public class RenderDrivingOverlay implements IGui {
 		IGui.drawTexture(guiDrawing, startX + 39 + Math.max(accelerationSign, -2) * 20, startY - 1, 0F, 22, 24, 24, 256, 256);
 		IGui.drawTexture(guiDrawing, startX + (doorValue > 0 ? doorValue < 1 ? 139 : 159 : 119), startY - 1, 0F, 22, 24, 24, 256, 256);
 
+		guiDrawing.finishDrawingTexture();
+
 		graphicsHolder.drawCenteredText("B2", (int) (startX + 5.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == -2 ? ARGB_WHITE : ARGB_GRAY);
 		graphicsHolder.drawCenteredText("B1", (int) (startX + 25.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == -1 ? ARGB_WHITE : ARGB_GRAY);
 		graphicsHolder.drawCenteredText("N", (int) (startX + 48.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == 0 ? ARGB_WHITE : ARGB_GRAY);

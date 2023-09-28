@@ -164,10 +164,10 @@ public class WidgetColorSelector extends ButtonWidgetExtension implements IGui {
 
 		@Override
 		public void tick2() {
-			textFieldRed.tick2();
-			textFieldGreen.tick2();
-			textFieldBlue.tick2();
-			textFieldColor.tick2();
+			textFieldRed.tick3();
+			textFieldGreen.tick3();
+			textFieldBlue.tick3();
+			textFieldColor.tick3();
 		}
 
 		@Override

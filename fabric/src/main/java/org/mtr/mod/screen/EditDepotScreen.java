@@ -175,8 +175,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		super.tick2();
 		buttonGenerateRoute.active = successfulSegments >= 0;
 		departuresList.tick();
-		textFieldDeparture.tick2();
-		textFieldCruisingAltitude.tick2();
+		textFieldDeparture.tick3();
+		textFieldCruisingAltitude.tick3();
 
 		for (int i = 0; i < HOURS_PER_DAY; i++) {
 			data.setFrequency(i, sliders[i].getIntValue());
@@ -238,9 +238,9 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	}
 
 	@Override
-	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
+	public boolean mouseScrolled3(double mouseX, double mouseY, double amount) {
 		departuresList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled2(mouseX, mouseY, amount);
+		return super.mouseScrolled3(mouseX, mouseY, amount);
 	}
 
 	@Override

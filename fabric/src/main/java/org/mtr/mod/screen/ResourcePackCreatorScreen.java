@@ -403,7 +403,7 @@ public class ResourcePackCreatorScreen extends ScreenExtension implements IResou
 	}
 
 	@Override
-	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
+	public boolean mouseScrolled3(double mouseX, double mouseY, double amount) {
 		if (mouseX >= PANEL_WIDTH && mouseX < width - PANEL_WIDTH) {
 			scale = Math.max(scale - (float) amount, MIN_SCALE);
 			final float bound = cars * RenderTrains.creatorProperties.getLength() / 2F;
@@ -411,7 +411,7 @@ public class ResourcePackCreatorScreen extends ScreenExtension implements IResou
 		}
 		availableModelPartsList.mouseScrolled(mouseX, mouseY, amount);
 		usedModelPartsList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled2(mouseX, mouseY, amount);
+		return super.mouseScrolled3(mouseX, mouseY, amount);
 	}
 
 	@Override
@@ -433,9 +433,9 @@ public class ResourcePackCreatorScreen extends ScreenExtension implements IResou
 	public void tick2() {
 		availableModelPartsList.tick();
 		usedModelPartsList.tick();
-		textFieldPositions.tick2();
-		textFieldWhitelistedCars.tick2();
-		textFieldBlacklistedCars.tick2();
+		textFieldPositions.tick3();
+		textFieldWhitelistedCars.tick3();
+		textFieldBlacklistedCars.tick3();
 
 		final float maxTime = EnumHelper.valueOf(DoorAnimationType.STANDARD, RenderTrains.creatorProperties.getDoorAnimationType()).maxTime;
 		final float increment = 1F / Vehicle.DOOR_MOVE_TIME;

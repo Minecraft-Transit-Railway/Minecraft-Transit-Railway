@@ -79,7 +79,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 
 	@Override
 	public void tick2() {
-		textFieldSavedRailNumber.tick2();
+		textFieldSavedRailNumber.tick3();
 		textFieldSavedRailNumber.setX2(SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2);
 
 		final int maxMin = (int) Math.floor(MAX_DWELL_TIME / 2F / SECONDS_PER_MINUTE);
