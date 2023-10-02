@@ -92,14 +92,19 @@ public class RenderTrains implements IGui {
 						case INTERIOR_TRANSLUCENT:
 							renderLayer = MoreRenderLayers.getInteriorTranslucent(key);
 							break;
+						case EXTERIOR:
+							renderLayer = MoreRenderLayers.getExterior(key);
+							break;
 						case EXTERIOR_TRANSLUCENT:
 							renderLayer = MoreRenderLayers.getExteriorTranslucent(key);
 							break;
 						default:
-							renderLayer = MoreRenderLayers.getExterior(key);
+							renderLayer = null;
 							break;
 					}
-					graphicsHolder.createVertexConsumer(renderLayer);
+					if (renderLayer != null) {
+						graphicsHolder.createVertexConsumer(renderLayer);
+					}
 					value.forEach(renderer -> renderer.accept(graphicsHolder));
 				});
 			}
@@ -122,6 +127,10 @@ public class RenderTrains implements IGui {
 			map.put(identifier, new ObjectArraySet<>());
 		}
 		map.get(identifier).add(callback);
+	}
+
+	public static void scheduleRender(Consumer<GraphicsHolder> callback) {
+		scheduleRender(new Identifier(""), false, QueuedRenderLayer.TEXT, callback);
 	}
 
 	public static String getInterchangeRouteNames(Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges) {
@@ -154,5 +163,5 @@ public class RenderTrains implements IGui {
 		return cameraPos == null || playerFacingAway || maxDistanceXZ(cameraPos, pos) > maxDistance;
 	}
 
-	public enum QueuedRenderLayer {LIGHT, INTERIOR, EXTERIOR, LIGHT_TRANSLUCENT, INTERIOR_TRANSLUCENT, EXTERIOR_TRANSLUCENT}
+	public enum QueuedRenderLayer {LIGHT, INTERIOR, EXTERIOR, LIGHT_TRANSLUCENT, INTERIOR_TRANSLUCENT, EXTERIOR_TRANSLUCENT, TEXT}
 }

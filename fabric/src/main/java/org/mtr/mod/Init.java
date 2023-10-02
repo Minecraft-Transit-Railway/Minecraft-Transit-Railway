@@ -4,9 +4,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.socket.client.IO;
 import io.socket.client.Socket;
-import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
 import org.mtr.core.Main;
 import org.mtr.core.client.Client;
 import org.mtr.core.generated.ClientGroupSchema;
@@ -30,14 +32,13 @@ public final class Init {
 
 	private static Main main;
 	private static Socket socket;
-	private static int gameTick;
 
 
 	public static final String MOD_ID = "mtr";
 	public static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 	private static final String CHANNEL = "update";
 	private static final Object2ObjectArrayMap<ServerWorld, RailActionModule> RAIL_ACTION_MODULES = new Object2ObjectArrayMap<>();
-	private static final Object2ObjectAVLTreeMap<UUID, BlockPos> PLAYER_POSITIONS = new Object2ObjectAVLTreeMap<>();
+	private static final Object2ObjectArrayMap<Identifier, IntObjectImmutablePair<ObjectArraySet<ObjectBooleanImmutablePair<ServerPlayerEntity>>>> PLAYERS_TO_UPDATE = new Object2ObjectArrayMap<>();
 
 	public static void init() {
 		Blocks.init();
@@ -51,7 +52,6 @@ public final class Init {
 		Registry.setupPackets(new Identifier(MOD_ID, "packet"));
 		Registry.registerPacket(PacketAddBalance.class, PacketAddBalance::new);
 		Registry.registerPacket(PacketBroadcastRailActions.class, PacketBroadcastRailActions::new);
-		Registry.registerPacket(PacketCloseDashboardScreen.class, packetBuffer -> new PacketCloseDashboardScreen());
 		Registry.registerPacket(PacketData.class, PacketData::new);
 		Registry.registerPacket(PacketDeleteRailAction.class, PacketDeleteRailAction::new);
 		Registry.registerPacket(PacketDriveTrain.class, PacketDriveTrain::new);
@@ -61,6 +61,7 @@ public final class Init {
 		Registry.registerPacket(PacketOpenPIDSConfigScreen.class, PacketOpenPIDSConfigScreen::new);
 		Registry.registerPacket(PacketOpenResourcePackCreatorScreen.class, PacketOpenResourcePackCreatorScreen::new);
 		Registry.registerPacket(PacketOpenTicketMachineScreen.class, PacketOpenTicketMachineScreen::new);
+		Registry.registerPacket(PacketRequestData.class, PacketRequestData::new);
 		Registry.registerPacket(PacketUpdateArrivalProjectorConfig.class, PacketUpdateArrivalProjectorConfig::new);
 		Registry.registerPacket(PacketUpdateLiftTrackFloorConfig.class, PacketUpdateLiftTrackFloorConfig::new);
 		Registry.registerPacket(PacketUpdatePIDSConfig.class, PacketUpdatePIDSConfig::new);
@@ -72,10 +73,14 @@ public final class Init {
 			// Start up the backend
 			final ObjectArrayList<String> worldNames = new ObjectArrayList<>();
 			RAIL_ACTION_MODULES.clear();
+			PLAYERS_TO_UPDATE.clear();
+			final int[] index = {0};
 			MinecraftServerHelper.iterateWorlds(minecraftServer, serverWorld -> {
 				final Identifier identifier = MinecraftServerHelper.getWorldId(new World(serverWorld.data));
 				worldNames.add(String.format("%s/%s", identifier.getNamespace(), identifier.getPath()));
 				RAIL_ACTION_MODULES.put(serverWorld, new RailActionModule(serverWorld));
+				PLAYERS_TO_UPDATE.put(identifier, new IntObjectImmutablePair<>(index[0], new ObjectArraySet<>()));
+				index[0]++;
 			});
 			main = new Main(
 					1200000,
@@ -113,29 +118,26 @@ public final class Init {
 			}
 		});
 
-		EventRegistry.registerPlayerJoin(Init::updatePlayerPosition);
-		EventRegistry.registerPlayerDisconnect((minecraftServer, serverPlayerEntity) -> PLAYER_POSITIONS.remove(serverPlayerEntity.getUuid()));
+		EventRegistry.registerStartServerTick(() -> {
+			if (socket != null) {
+				PLAYERS_TO_UPDATE.forEach((identifier, worldDetails) -> {
+					final ObjectArraySet<ObjectBooleanImmutablePair<ServerPlayerEntity>> playerDetails = worldDetails.right();
+					if (!playerDetails.isEmpty()) {
+						final ClientGroupNew clientGroupNew = new ClientGroupNew(worldDetails.leftInt());
+						playerDetails.forEach(clientGroupNew::addClient);
+						playerDetails.clear();
+						final JsonObject jsonObject = new JsonObject();
+						clientGroupNew.serializeDataJson(new JsonWriter(jsonObject));
+						socket.emit(CHANNEL, jsonObject.toString());
+					}
+				});
+			}
+		});
 
 		EventRegistry.registerEndWorldTick(serverWorld -> {
 			final RailActionModule railActionModule = RAIL_ACTION_MODULES.get(serverWorld);
 			if (railActionModule != null) {
 				railActionModule.tick();
-			}
-
-			gameTick++;
-
-			if (gameTick % 40 == 0) {
-				final ObjectArrayList<ServerPlayerEntity> playersToUpdate = new ObjectArrayList<>();
-				MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntity -> {
-					final UUID uuid = serverPlayerEntity.getUuid();
-					final BlockPos oldBlockPos = PLAYER_POSITIONS.get(uuid);
-					final BlockPos newBlockPos = serverPlayerEntity.getBlockPos();
-					if (oldBlockPos == null || newBlockPos.getManhattanDistance(new Vector3i(oldBlockPos.data)) > 8) {
-						playersToUpdate.add(serverPlayerEntity);
-						PLAYER_POSITIONS.put(uuid, newBlockPos);
-					}
-				});
-				updatePlayerPosition(serverWorld.getServer(), playersToUpdate.toArray(new ServerPlayerEntity[0]));
 			}
 		});
 
@@ -143,26 +145,10 @@ public final class Init {
 		Registry.init();
 	}
 
-	public static void updatePlayerPosition(MinecraftServer minecraftServer, ServerPlayerEntity... serverPlayerEntities) {
-		if (socket != null) {
-			final Object2ObjectArrayMap<Identifier, ClientGroupNew> worlds = new Object2ObjectArrayMap<>();
-			final int[] index = {0};
-			MinecraftServerHelper.iterateWorlds(minecraftServer, serverWorld -> {
-				worlds.put(MinecraftServerHelper.getWorldId(new World(serverWorld.data)), new ClientGroupNew(index[0]));
-				index[0]++;
-			});
-
-			for (final ServerPlayerEntity serverPlayerEntity : serverPlayerEntities) {
-				worlds.get(MinecraftServerHelper.getWorldId(new World(serverPlayerEntity.getServerWorld().data))).addClient(serverPlayerEntity);
-			}
-
-			worlds.forEach((identifier, clientGroupNew) -> {
-				if (clientGroupNew.shouldUpdate()) {
-					final JsonObject jsonObject = new JsonObject();
-					clientGroupNew.serializeDataJson(new JsonWriter(jsonObject));
-					socket.emit(CHANNEL, jsonObject.toString());
-				}
-			});
+	public static void schedulePlayerUpdate(ServerPlayerEntity serverPlayerEntity, boolean forceUpdate) {
+		final IntObjectImmutablePair<ObjectArraySet<ObjectBooleanImmutablePair<ServerPlayerEntity>>> worldDetails = PLAYERS_TO_UPDATE.get(MinecraftServerHelper.getWorldId(new World(serverPlayerEntity.getServerWorld().data)));
+		if (worldDetails != null) {
+			worldDetails.right().add(new ObjectBooleanImmutablePair<>(serverPlayerEntity, forceUpdate));
 		}
 	}
 
@@ -203,21 +189,18 @@ public final class Init {
 			jsonWriter.writeInt("dimension", dimensionIndex);
 		}
 
-		private void addClient(ServerPlayerEntity serverPlayerEntity) {
-			clients.add(new ClientNew(serverPlayerEntity));
-		}
-
-		private boolean shouldUpdate() {
-			return !clients.isEmpty();
+		private void addClient(ObjectBooleanImmutablePair<ServerPlayerEntity> player) {
+			clients.add(new ClientNew(player.left(), player.rightBoolean()));
 		}
 	}
 
 	private static class ClientNew extends Client {
 
-		protected ClientNew(ServerPlayerEntity serverPlayerEntity) {
+		protected ClientNew(ServerPlayerEntity serverPlayerEntity, boolean forceUpdate) {
 			super(serverPlayerEntity.getUuid());
 			final BlockPos blockPos = serverPlayerEntity.getBlockPos();
 			position = new Position(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+			this.forceUpdate = forceUpdate;
 		}
 	}
 }

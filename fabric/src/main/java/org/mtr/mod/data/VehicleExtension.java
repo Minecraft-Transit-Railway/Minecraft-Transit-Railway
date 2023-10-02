@@ -19,7 +19,7 @@ import java.util.Locale;
 
 public class VehicleExtension extends Vehicle {
 
-	public final ObjectArrayList<ScrollingText> scrollingTexts = new ObjectArrayList<>();
+	private final ObjectArrayList<ObjectArrayList<ScrollingText>> scrollingTexts = new ObjectArrayList<>();
 
 	private static final int SHIFT_ACTIVATE_TICKS = 30;
 	private static final int DISMOUNT_PROGRESS_BAR_LENGTH = 30;
@@ -28,9 +28,11 @@ public class VehicleExtension extends Vehicle {
 		super(new VehicleExtraData(new JsonReader(jsonObject.getAsJsonObject("data"))), null, true, new JsonReader(jsonObject.getAsJsonObject("vehicle")), data);
 	}
 
-	public void updateData(JsonObject jsonObject) {
-		updateData(new JsonReader(jsonObject.getAsJsonObject("vehicle")));
-		vehicleExtraData.updateData(new JsonReader(jsonObject.getAsJsonObject("data")));
+	public void updateData(@Nullable JsonObject jsonObject) {
+		if (jsonObject != null) {
+			updateData(new JsonReader(jsonObject.getAsJsonObject("vehicle")));
+			vehicleExtraData.updateData(new JsonReader(jsonObject.getAsJsonObject("data")));
+		}
 	}
 
 	public void simulate(long millisElapsed) {
@@ -68,6 +70,13 @@ public class VehicleExtension extends Vehicle {
 		}
 
 		// TODO chat announcements (next station, route number, etc.)
+	}
+
+	public ObjectArrayList<ScrollingText> getScrollingText(int car) {
+		while (scrollingTexts.size() <= car) {
+			scrollingTexts.add(new ObjectArrayList<>());
+		}
+		return scrollingTexts.get(car);
 	}
 
 	public static boolean showShiftProgressBar() {

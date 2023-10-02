@@ -3,10 +3,8 @@ package org.mtr.mod.packet;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -20,11 +18,9 @@ import org.mtr.core.serializers.JsonReader;
 import org.mtr.core.servlet.IntegrationServlet;
 import org.mtr.core.tools.Position;
 import org.mtr.core.tools.Utilities;
-import org.mtr.mapping.holder.MinecraftServer;
-import org.mtr.mapping.holder.PacketBuffer;
-import org.mtr.mapping.holder.ServerPlayerEntity;
-import org.mtr.mapping.holder.ServerWorld;
+import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
+import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mapping.registry.Registry;
 import org.mtr.mod.Init;
@@ -32,6 +28,7 @@ import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.data.VehicleExtension;
 
+import javax.annotation.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -102,41 +99,18 @@ public class PacketData extends PacketHandler {
 
 	@Override
 	public void runClientQueued() {
-		writeJsonObjectToDataSet(ClientData.instance.stations, jsonObject.getAsJsonArray("stations"), jsonReader -> new Station(jsonReader, ClientData.instance), NameColorDataBase::getId);
-		writeJsonObjectToDataSet(ClientData.instance.platforms, jsonObject.getAsJsonArray("platforms"), jsonReader -> new Platform(jsonReader, ClientData.instance), NameColorDataBase::getId);
-		writeJsonObjectToDataSet(ClientData.instance.sidings, jsonObject.getAsJsonArray("sidings"), jsonReader -> new Siding(jsonReader, ClientData.instance), NameColorDataBase::getId);
-		writeJsonObjectToDataSet(ClientData.instance.routes, jsonObject.getAsJsonArray("routes"), jsonReader -> new Route(jsonReader, ClientData.instance), NameColorDataBase::getId);
-		writeJsonObjectToDataSet(ClientData.instance.depots, jsonObject.getAsJsonArray("depots"), jsonReader -> new Depot(jsonReader, ClientData.instance), NameColorDataBase::getId);
-		writeJsonObjectToDataSet(ClientData.instance.rails, jsonObject.getAsJsonArray("rails"), Rail::new, Rail::getHexId);
-
-		final JsonArray vehicleUpdateArray = jsonObject.getAsJsonArray("update");
-		if (vehicleUpdateArray != null) {
-			final Long2ObjectAVLTreeMap<ObjectObjectImmutablePair<JsonObject, VehicleExtension>> vehiclesToUpdate = new Long2ObjectAVLTreeMap<>();
-			vehicleUpdateArray.forEach(vehicleElement -> {
-				final VehicleExtension vehicleExtension = new VehicleExtension(vehicleElement.getAsJsonObject(), ClientData.instance);
-				vehiclesToUpdate.put(vehicleExtension.getId(), new ObjectObjectImmutablePair<>(vehicleElement.getAsJsonObject(), vehicleExtension));
-			});
-			ClientData.instance.vehicles.forEach(checkVehicle -> {
-				final ObjectObjectImmutablePair<JsonObject, VehicleExtension> existingVehicleData = vehiclesToUpdate.remove(checkVehicle.getId());
-				if (existingVehicleData != null) {
-					checkVehicle.updateData(existingVehicleData.left());
-					checkVehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(ClientData.instance));
-				}
-			});
-			vehiclesToUpdate.forEach((vehicleId, vehicleData) -> {
-				ClientData.instance.vehicles.add(vehicleData.right());
-				vehicleData.right().vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(ClientData.instance));
-			});
+		final Screen screen = MinecraftClient.getInstance().getCurrentScreenMapped();
+		if (screen == null || !(screen.data instanceof ScreenExtension)) {
+			writeJsonObjectToDataSet(ClientData.instance.stations, jsonObject.getAsJsonArray("stations"), jsonReader -> new Station(jsonReader, ClientData.instance), NameColorDataBase::getId);
+			writeJsonObjectToDataSet(ClientData.instance.platforms, jsonObject.getAsJsonArray("platforms"), jsonReader -> new Platform(jsonReader, ClientData.instance), NameColorDataBase::getId);
+			writeJsonObjectToDataSet(ClientData.instance.sidings, jsonObject.getAsJsonArray("sidings"), jsonReader -> new Siding(jsonReader, ClientData.instance), NameColorDataBase::getId);
+			writeJsonObjectToDataSet(ClientData.instance.routes, jsonObject.getAsJsonArray("routes"), jsonReader -> new Route(jsonReader, ClientData.instance), NameColorDataBase::getId);
+			writeJsonObjectToDataSet(ClientData.instance.depots, jsonObject.getAsJsonArray("depots"), jsonReader -> new Depot(jsonReader, ClientData.instance), NameColorDataBase::getId);
+			writeJsonObjectToDataSet(ClientData.instance.rails, jsonObject.getAsJsonArray("rails"), Rail::new, Rail::getHexId);
+			writeJsonObjectToDataSet(jsonObject.getAsJsonArray("update"), jsonObject.getAsJsonArray("keep"));
+			ClientData.instance.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(ClientData.instance)));
+			ClientData.instance.sync();
 		}
-
-		final JsonArray vehicleRemoveArray = jsonObject.getAsJsonArray("remove");
-		if (vehicleRemoveArray != null) {
-			final LongAVLTreeSet vehicleIdsToRemove = new LongAVLTreeSet();
-			vehicleRemoveArray.forEach(vehicleIdElement -> vehicleIdsToRemove.add(vehicleIdElement.getAsLong()));
-			ClientData.instance.vehicles.removeIf(vehicleExtension -> vehicleIdsToRemove.contains(vehicleExtension.getId()));
-		}
-
-		ClientData.instance.sync();
 	}
 
 	private void sendHttpRequestAndBroadcastResultToAllPlayers(ServerWorld serverWorld) {
@@ -148,7 +122,7 @@ public class PacketData extends PacketHandler {
 		});
 	}
 
-	private <T extends SerializedDataBase, U> void writeJsonObjectToDataSet(ObjectSet<T> dataSet, JsonArray jsonArray, Function<JsonReader, T> createInstance, Function<T, U> getId) {
+	private <T extends SerializedDataBase, U> void writeJsonObjectToDataSet(ObjectSet<T> dataSet, @Nullable JsonArray jsonArray, Function<JsonReader, T> createInstance, Function<T, U> getId) {
 		if (jsonArray != null) {
 			final ObjectArraySet<T> newData = new ObjectArraySet<>();
 			final ObjectOpenHashSet<U> idList = new ObjectOpenHashSet<>();
@@ -170,6 +144,15 @@ public class PacketData extends PacketHandler {
 			if (operation == IntegrationServlet.Operation.UPDATE || operation == IntegrationServlet.Operation.LIST) {
 				dataSet.addAll(newData);
 			}
+		}
+	}
+
+	private void writeJsonObjectToDataSet(@Nullable JsonArray vehicleUpdateArray, @Nullable JsonArray keepVehicleIdsArray) {
+		if (vehicleUpdateArray != null && keepVehicleIdsArray != null) {
+			final LongAVLTreeSet keepVehicleIds = new LongAVLTreeSet();
+			keepVehicleIdsArray.forEach(vehicleIdElement -> keepVehicleIds.add(vehicleIdElement.getAsLong()));
+			ClientData.instance.vehicles.removeIf(vehicle -> !keepVehicleIds.contains(vehicle.getId()));
+			vehicleUpdateArray.forEach(vehicleElement -> ClientData.instance.vehicles.add(new VehicleExtension(vehicleElement.getAsJsonObject(), ClientData.instance)));
 		}
 	}
 

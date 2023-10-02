@@ -7,6 +7,7 @@ import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mod.client.DoorAnimationType;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.ScrollingText;
+import org.mtr.mod.render.StoredMatrixTransformations;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -1237,14 +1238,14 @@ public class ModelLondonUndergroundD78 extends ModelSimpleTrainBase<ModelLondonU
 	}
 
 	@Override
-	protected void renderTextDisplays(GraphicsHolder graphicsHolder, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
+	protected void renderTextDisplays(StoredMatrixTransformations storedMatrixTransformations, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
 		if (scrollingTexts.isEmpty()) {
 			scrollingTexts.add(new ScrollingText(0.72F, 0.08F, 8, true));
 		}
 
 		final String destinationString = getDestinationString(thisRouteDestination, TextSpacingType.NORMAL, false);
 		renderFrontDestination(
-				graphicsHolder,
+				storedMatrixTransformations,
 				0, -2.18F, getEndPositions()[0] / 16F - 1.25F, 0, 0, -0.01F,
 				0, 0, 0.8F, 0.14F,
 				0xFFFF9900, 0xFFFF9900, 1, getAlternatingString(destinationString), false, car, totalCars
@@ -1254,16 +1255,17 @@ public class ModelLondonUndergroundD78 extends ModelSimpleTrainBase<ModelLondonU
 		final boolean isEnd2Head = car == totalCars - 1;
 		final String nextStationString = getLondonNextStationString(thisRouteName, thisStationName, nextStationName, getInterchanges, destinationString, atPlatform, isTerminating);
 		scrollingTexts.get(0).changeImage(nextStationString.isEmpty() ? null : DynamicTextureCache.instance.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, 0, true));
-		scrollingTexts.get(0).createVertexConsumer(graphicsHolder);
 
 		for (int i = 0; i < 2; i++) {
-			graphicsHolder.push();
-			if (i == 1) {
-				graphicsHolder.rotateYDegrees(180);
-			}
-			graphicsHolder.translate(-0.36F, -2.32F, (getEndPositions()[1] + 11 - (i == 1 && isEnd1Head || i == 0 && isEnd2Head ? 16 : 0)) / 16F - 0.01);
-			scrollingTexts.get(0).scrollText(graphicsHolder);
-			graphicsHolder.pop();
+			final StoredMatrixTransformations storedMatrixTransformationsNew = storedMatrixTransformations.copy();
+			final boolean flip = i == 1;
+			storedMatrixTransformationsNew.add(graphicsHolder -> {
+				if (flip) {
+					graphicsHolder.rotateYDegrees(180);
+				}
+				graphicsHolder.translate(-0.36F, -2.32F, (getEndPositions()[1] + 11 - (flip && isEnd1Head || !flip && isEnd2Head ? 16 : 0)) / 16F - 0.01);
+			});
+			scrollingTexts.get(0).scrollText(storedMatrixTransformationsNew);
 		}
 	}
 

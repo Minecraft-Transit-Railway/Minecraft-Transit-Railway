@@ -99,7 +99,7 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 				if (vehicle != null) {
 					final String[] routeSplit = vehicle.vehicleExtraData.getThisRouteName().split("\\|\\|");
 					renderTextDisplays(
-							graphicsHolderText,
+							storedMatrixTransformationsNew,
 							vehicle.vehicleExtraData.getThisRouteColor(),
 							routeSplit[0],
 							routeSplit.length > 1 ? routeSplit[1] : "",
@@ -111,7 +111,8 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 							trainCars,
 							atPlatform,
 							vehicle.vehicleExtraData.getIsTerminating(),
-							vehicle.scrollingTexts);
+							vehicle.getScrollingText(currentCar)
+					);
 				}
 			}
 		}
@@ -120,7 +121,7 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 	protected void renderExtraDetails(StoredMatrixTransformations storedMatrixTransformations, int light, int lightOnInteriorLevel, boolean lightsOn, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 	}
 
-	protected void renderTextDisplays(GraphicsHolder graphicsHolder, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
+	protected void renderTextDisplays(StoredMatrixTransformations storedMatrixTransformations, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
 	}
 
 	protected float getDoorDuration() {

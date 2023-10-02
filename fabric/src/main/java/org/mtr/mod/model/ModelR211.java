@@ -6,6 +6,7 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mod.client.DoorAnimationType;
 import org.mtr.mod.client.ScrollingText;
+import org.mtr.mod.render.StoredMatrixTransformations;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -1508,15 +1509,15 @@ public class ModelR211 extends ModelSimpleTrainBase<ModelR211> {
 	}
 
 	@Override
-	protected void renderTextDisplays(GraphicsHolder graphicsHolder, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
+	protected void renderTextDisplays(StoredMatrixTransformations storedMatrixTransformations, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
 		renderFrontDestination(
-				graphicsHolder,
+				storedMatrixTransformations,
 				0, -2.26F, getEndPositions()[0] / 16F - 1.37F, 0, 0, -0.01F,
 				0, 0, 0.44F, 0.12F,
 				ARGB_WHITE, ARGB_WHITE, 1, getDestinationString(thisRouteDestination, TextSpacingType.NORMAL, true), true, car, totalCars
 		);
 		renderFrontDestination(
-				graphicsHolder,
+				storedMatrixTransformations,
 				0.5F, 0, getEndPositions()[0] / 16F - 1.37F, 0.35F, -1.57F, -0.01F,
 				0, -20, 0.4F, 0.36F,
 				ARGB_WHITE, ARGB_WHITE, 1, thisRouteNumber, false, car, totalCars

@@ -8,7 +8,8 @@ import org.mtr.mod.client.DoorAnimationType;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.RouteMapGenerator;
 import org.mtr.mod.client.ScrollingText;
-import org.mtr.mod.render.MoreRenderLayers;
+import org.mtr.mod.render.RenderTrains;
+import org.mtr.mod.render.StoredMatrixTransformations;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -959,12 +960,12 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 	}
 
 	@Override
-	protected void renderTextDisplays(GraphicsHolder graphicsHolder, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
+	protected void renderTextDisplays(StoredMatrixTransformations storedMatrixTransformations, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
 		final float frontOffset = phase == 3 || phase == 5 || phase == 7 ? 2.75F : phase == 4 || phase == 6 ? 3.02F : 2.87F;
 		final int color = phase == 3 || phase == 7 ? 0xFFA4FE07 : 0xFFFF9900;
 
 		renderFrontDestination(
-				graphicsHolder,
+				storedMatrixTransformations,
 				0, 0, getEndPositions()[0] / 16F - frontOffset, thisRouteNumber.isEmpty() ? 0 : -0.2F, phase == 4 || phase == 6 ? -2.14F : -2.18F, -0.01F,
 				phase == 4 || phase == 6 ? -7.5F : 0, 0, 0.56F, 0.26F,
 				color, color, 3, getDestinationString(thisRouteDestination, TextSpacingType.SPACE_CJK_FLIPPED, true), true, 0, 2
@@ -972,13 +973,13 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 
 		if (!thisRouteNumber.isEmpty()) {
 			renderFrontDestination(
-					graphicsHolder,
+					storedMatrixTransformations,
 					0, 0, getEndPositions()[0] / 16F - frontOffset, 0.31F, phase == 4 || phase == 6 ? -2.14F : -2.15F, -0.01F,
 					phase == 4 || phase == 6 ? -7.5F : 0, 0, 0.4F, 0.26F,
 					color, color, 3, thisRouteNumber, false, 0, 2
 			);
 			renderFrontDestination(
-					graphicsHolder,
+					storedMatrixTransformations,
 					0, 0, getEndPositions()[0] / 16F - 2.92F, 0, phase == 1 || phase == 6 ? -2.13F : -2.24F, -0.01F,
 					-5, 0, 0.38F, 0.2F,
 					color, color, 3, thisRouteNumber, false, 1, 2
@@ -987,19 +988,19 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 
 		final float sideOffset = (128 - (phase <= 3 ? 64 : phase == 5 ? 0 : 1)) / 16F;
 		renderFrontDestination(
-				graphicsHolder,
+				storedMatrixTransformations,
 				isRHT ? -1.26F : 1.26F, -1.76F, sideOffset - 0.3F, 0, 0, 0,
 				0, isRHT ? 90 : -90, 0.56F, 0.26F,
 				color, color, 3, getDestinationString(thisRouteDestination, TextSpacingType.SPACE_CJK_FLIPPED, true), true, 0, 2
 		);
 		renderFrontDestination(
-				graphicsHolder,
+				storedMatrixTransformations,
 				isRHT ? -1.26F : 1.26F, -1.73F, sideOffset + 0.42F, 0, 0, 0,
 				0, isRHT ? 90 : -90, 0.4F, 0.26F,
 				color, color, 3, thisRouteNumber, false, 0, 2
 		);
 		renderFrontDestination(
-				graphicsHolder,
+				storedMatrixTransformations,
 				isRHT ? -1.05F : 1.05F, -1.89F, sideOffset, 0, 0, 0,
 				0, isRHT ? -90 : 90, 1.2F, 0.08F,
 				color, color, 1, ((thisRouteNumber.isEmpty() ? "" : thisRouteNumber + "|") + getDestinationString(thisRouteDestination, TextSpacingType.SPACE_CJK, true)).replace("|", "  "), false, 0, 2
@@ -1009,12 +1010,18 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 		if (!stationName.isEmpty()) {
 			final String stationString = getDestinationString(stationName, TextSpacingType.SPACE_CJK_LARGE, true);
 			final DynamicTextureCache.DynamicResource dynamicResource = DynamicTextureCache.instance.getPixelatedText(stationString, 0xFFFF9900, 300, 0, true);
-			graphicsHolder.createVertexConsumer(MoreRenderLayers.getLight(dynamicResource.identifier, true));
-			graphicsHolder.push();
-			graphicsHolder.rotateYDegrees(180);
-			graphicsHolder.translate(-0.35F, -2.2F, 8.99F);
-			RouteMapGenerator.scrollTextLightRail(graphicsHolder, stationString.split("\\|").length, 0.7F, 0.07F, dynamicResource.width, dynamicResource.height);
-			graphicsHolder.pop();
+			final StoredMatrixTransformations storedMatrixTransformationsNew = storedMatrixTransformations.copy();
+
+			storedMatrixTransformationsNew.add(graphicsHolder -> {
+				graphicsHolder.rotateYDegrees(180);
+				graphicsHolder.translate(-0.35F, -2.2F, 8.99F);
+			});
+
+			RenderTrains.scheduleRender(dynamicResource.identifier, false, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, graphicsHolder -> {
+				storedMatrixTransformationsNew.transform(graphicsHolder);
+				RouteMapGenerator.scrollTextLightRail(graphicsHolder, stationString.split("\\|").length, 0.7F, 0.07F, dynamicResource.width, dynamicResource.height);
+				graphicsHolder.pop();
+			});
 		}
 	}
 

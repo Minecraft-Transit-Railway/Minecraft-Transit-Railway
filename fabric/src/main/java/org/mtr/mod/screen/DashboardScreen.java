@@ -17,8 +17,8 @@ import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.IPacket;
-import org.mtr.mod.packet.PacketCloseDashboardScreen;
 import org.mtr.mod.packet.PacketData;
+import org.mtr.mod.packet.PacketRequestData;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -217,7 +217,7 @@ public class DashboardScreen extends ScreenExtension implements IGui, IPacket {
 	@Override
 	public void onClose2() {
 		super.onClose2();
-		RegistryClient.sendPacketToServer(new PacketCloseDashboardScreen());
+		RegistryClient.sendPacketToServer(new PacketRequestData(true));
 	}
 
 	@Override

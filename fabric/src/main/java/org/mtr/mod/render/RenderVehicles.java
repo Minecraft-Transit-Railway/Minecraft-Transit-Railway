@@ -193,6 +193,23 @@ public class RenderVehicles implements IGui {
 								position4.x, position4.y, position4.z,
 								playerOffset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
 						);
+					} else {
+						IDrawing.drawTexture(
+								graphicsHolderNew,
+								position7.x, position7.y, position7.z,
+								position2.x, position2.y, position2.z,
+								position1.x, position1.y, position1.z,
+								position8.x, position8.y, position8.z,
+								playerOffset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
+						);
+						IDrawing.drawTexture(
+								graphicsHolderNew,
+								position3.x, position3.y, position3.z,
+								position6.x, position6.y, position6.z,
+								position5.x, position5.y, position5.z,
+								position4.x, position4.y, position4.z,
+								playerOffset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
+						);
 					}
 				});
 

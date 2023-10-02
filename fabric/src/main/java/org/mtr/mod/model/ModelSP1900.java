@@ -6,6 +6,7 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mod.client.DoorAnimationType;
 import org.mtr.mod.client.ScrollingText;
+import org.mtr.mod.render.StoredMatrixTransformations;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -1698,9 +1699,9 @@ public class ModelSP1900 extends ModelSimpleTrainBase<ModelSP1900> {
 	}
 
 	@Override
-	protected void renderTextDisplays(GraphicsHolder graphicsHolder, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
+	protected void renderTextDisplays(StoredMatrixTransformations storedMatrixTransformations, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
 		renderFrontDestination(
-				graphicsHolder,
+				storedMatrixTransformations,
 				0, 0, getEndPositions()[0] / 16F - 3.34F, 0, -2.36F, -0.01F,
 				-20, 0, 0.76F, 0.42F,
 				isC1141A ? 0xFFFFFF00 : 0xFFFF9900, isC1141A ? 0xFFFF0000 : 0xFFFF9900, 3, getDestinationString(thisRouteDestination, isC1141A ? TextSpacingType.NORMAL : TextSpacingType.SPACE_CJK, true), true, car, totalCars
