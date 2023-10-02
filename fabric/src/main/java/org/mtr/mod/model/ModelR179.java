@@ -6,6 +6,7 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mod.client.DoorAnimationType;
 import org.mtr.mod.client.ScrollingText;
+import org.mtr.mod.render.StoredMatrixTransformations;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -1754,21 +1755,21 @@ public class ModelR179 extends ModelSimpleTrainBase<ModelR179> {
 	}
 
 	@Override
-	protected void renderTextDisplays(GraphicsHolder graphicsHolder, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
+	protected void renderTextDisplays(StoredMatrixTransformations storedMatrixTransformations, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
 		renderFrontDestination(
-				graphicsHolder,
+				storedMatrixTransformations,
 				-21.5F / 16, -13F / 16, -getWindowPositions()[0] / 16F, 0.12F, -0.98F, -0.01F,
 				-6, 90, 1.16F, 0.24F,
 				0xFFFF9900, 0xFFFF9900, 2, getDestinationString(thisRouteDestination, TextSpacingType.NORMAL, true), true, 0, 1
 		);
 		renderFrontDestination(
-				graphicsHolder,
+				storedMatrixTransformations,
 				-21.5F / 16, -13F / 16, -getWindowPositions()[0] / 16F, -0.6F, -0.95F, -0.01F,
 				-6, 90, 0.22F, 0.24F,
 				0xFFFF9900, 0xFFFF9900, 2, thisRouteNumber, false, 0, 1
 		);
 		renderFrontDestination(
-				graphicsHolder,
+				storedMatrixTransformations,
 				0, -2.28F, getEndPositions()[0] / 16F - 1.62F, 0, 0, -0.01F,
 				0, 0, 0.5F, 0.36F,
 				0xFFFF0000, 0xFFFF0000, 2, thisRouteNumber, false, car, totalCars

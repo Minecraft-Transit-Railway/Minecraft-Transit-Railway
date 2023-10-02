@@ -4,6 +4,7 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.client.DoorAnimationType;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.render.RenderTrains;
 import org.mtr.mod.render.StoredMatrixTransformations;
 
 public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
@@ -52,26 +53,34 @@ public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 		}
 	}
 
-	protected void renderFrontDestination(GraphicsHolder graphicsHolder, float x1, float y1, float z1, float x2, float y2, float z2, float rotationX, float rotationY, float maxWidth, float maxHeight, int colorCjk, int color, float fontSizeRatio, String text, boolean padOneLine, int car, int totalCars) {
+	protected void renderFrontDestination(StoredMatrixTransformations storedMatrixTransformations, float x1, float y1, float z1, float x2, float y2, float z2, float rotationX, float rotationY, float maxWidth, float maxHeight, int colorCjk, int color, float fontSizeRatio, String text, boolean padOneLine, int car, int totalCars) {
 		final boolean isEnd1Head = car == 0;
 		final boolean isEnd2Head = car == totalCars - 1;
 
 		for (int i = 0; i < 2; i++) {
 			if (i == 0 && isEnd1Head || i == 1 && isEnd2Head) {
-				graphicsHolder.push();
-				if (i == 1) {
-					graphicsHolder.rotateYDegrees(180);
-				}
-				graphicsHolder.translate(x1, y1, z1);
-				if (rotationY != 0) {
-					graphicsHolder.rotateYDegrees(rotationY);
-				}
-				if (rotationX != 0) {
-					graphicsHolder.rotateXDegrees(rotationX);
-				}
-				graphicsHolder.translate(x2, y2, z2);
-				IDrawing.drawStringWithFont(graphicsHolder, text, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, 0, 0, maxWidth, (padOneLine && !text.contains("|") ? IGui.isCjk(text) ? fontSizeRatio / (fontSizeRatio + 1) : 0.5F : 1) * maxHeight, 1, colorCjk, color, fontSizeRatio, false, MAX_LIGHT_GLOWING, null);
-				graphicsHolder.pop();
+				final StoredMatrixTransformations storedMatrixTransformationsNew = storedMatrixTransformations.copy();
+				final boolean flip = i == 1;
+
+				storedMatrixTransformationsNew.add(graphicsHolder -> {
+					if (flip) {
+						graphicsHolder.rotateYDegrees(180);
+					}
+					graphicsHolder.translate(x1, y1, z1);
+					if (rotationY != 0) {
+						graphicsHolder.rotateYDegrees(rotationY);
+					}
+					if (rotationX != 0) {
+						graphicsHolder.rotateXDegrees(rotationX);
+					}
+					graphicsHolder.translate(x2, y2, z2);
+				});
+
+				RenderTrains.scheduleRender(graphicsHolder -> {
+					storedMatrixTransformationsNew.transform(graphicsHolder);
+					IDrawing.drawStringWithFont(graphicsHolder, text, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, 0, 0, maxWidth, (padOneLine && !text.contains("|") ? IGui.isCjk(text) ? fontSizeRatio / (fontSizeRatio + 1) : 0.5F : 1) * maxHeight, 1, colorCjk, color, fontSizeRatio, false, MAX_LIGHT_GLOWING, null);
+					graphicsHolder.pop();
+				});
 			}
 		}
 	}

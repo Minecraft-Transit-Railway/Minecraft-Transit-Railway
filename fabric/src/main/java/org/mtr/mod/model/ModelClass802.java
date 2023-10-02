@@ -7,6 +7,7 @@ import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mod.client.DoorAnimationType;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.ScrollingText;
+import org.mtr.mod.render.StoredMatrixTransformations;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -1908,7 +1909,7 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 	}
 
 	@Override
-	protected void renderTextDisplays(GraphicsHolder graphicsHolder, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
+	protected void renderTextDisplays(StoredMatrixTransformations storedMatrixTransformations, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
 		if (scrollingTexts.isEmpty()) {
 			scrollingTexts.add(new ScrollingText(0.46F, 0.16F, 4, false));
 			scrollingTexts.add(new ScrollingText(0.7F, 0.06F, 8, true));
@@ -1921,19 +1922,21 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 
 		if (renderFirstDestination || renderSecondDestination) {
 			scrollingTexts.get(0).changeImage(destinationString.isEmpty() ? null : DynamicTextureCache.instance.getPixelatedText(destinationString.replace("|", " "), 0xFFFF9900, Integer.MAX_VALUE, 0, false));
-			scrollingTexts.get(0).createVertexConsumer(graphicsHolder);
 
 			for (int i = 0; i < 2; i++) {
 				if (i == 0 && renderFirstDestination || i == 1 && renderSecondDestination) {
 					for (int j = 0; j < 2; j++) {
-						final int flip = j == 1 ? -1 : 1;
-						graphicsHolder.push();
-						graphicsHolder.translate(-21F / 16 * flip, -13F / 16, getEndPositions()[i] / 16F + (i == 0 ? 1 : -1) * (1.28F + (i == 0 && isEnd1Head || i == 1 && isEnd2Head ? 5.63F : 0)));
-						graphicsHolder.rotateYDegrees(90 * flip);
-						graphicsHolder.rotateXDegrees(-8);
-						graphicsHolder.translate(-0.23F, -1.38F, -0.01F);
-						scrollingTexts.get(0).scrollText(graphicsHolder);
-						graphicsHolder.pop();
+						final StoredMatrixTransformations storedMatrixTransformationsNew = storedMatrixTransformations.copy();
+						final boolean flip = i == 1;
+						final int sign = j == 1 ? -1 : 1;
+						final int endPosition = getEndPositions()[i];
+						storedMatrixTransformationsNew.add(graphicsHolder -> {
+							graphicsHolder.translate(-21F / 16 * sign, -13F / 16, endPosition / 16F + (!flip ? 1 : -1) * (1.28F + (!flip && isEnd1Head || flip && isEnd2Head ? 5.63F : 0)));
+							graphicsHolder.rotateYDegrees(90 * sign);
+							graphicsHolder.rotateXDegrees(-8);
+							graphicsHolder.translate(-0.23F, -1.38F, -0.01F);
+						});
+						scrollingTexts.get(0).scrollText(storedMatrixTransformationsNew);
 					}
 				}
 			}
@@ -1941,16 +1944,17 @@ public class ModelClass802 extends ModelSimpleTrainBase<ModelClass802> {
 
 		final String nextStationString = getLondonNextStationString(thisRouteName, thisStationName, nextStationName, getInterchanges, destinationString, atPlatform, isTerminating);
 		scrollingTexts.get(1).changeImage(nextStationString.isEmpty() ? null : DynamicTextureCache.instance.getPixelatedText(nextStationString, 0xFFFF9900, Integer.MAX_VALUE, 0, true));
-		scrollingTexts.get(1).createVertexConsumer(graphicsHolder);
 
 		for (int i = 0; i < 2; i++) {
-			graphicsHolder.push();
-			if (i == 1) {
-				graphicsHolder.rotateYDegrees(180);
-			}
-			graphicsHolder.translate(-0.35F, -2.19F, (getEndPositions()[1] - (i == 1 && isEnd1Head || i == 0 && isEnd2Head ? 90 : 0)) / 16F - 0.51F);
-			scrollingTexts.get(1).scrollText(graphicsHolder);
-			graphicsHolder.pop();
+			final StoredMatrixTransformations storedMatrixTransformationsNew = storedMatrixTransformations.copy();
+			final boolean flip = i == 1;
+			storedMatrixTransformationsNew.add(graphicsHolder -> {
+				if (flip) {
+					graphicsHolder.rotateYDegrees(180);
+				}
+				graphicsHolder.translate(-0.35F, -2.19F, (getEndPositions()[1] - (flip && isEnd1Head || !flip && isEnd2Head ? 90 : 0)) / 16F - 0.51F);
+			});
+			scrollingTexts.get(1).scrollText(storedMatrixTransformationsNew);
 		}
 	}
 

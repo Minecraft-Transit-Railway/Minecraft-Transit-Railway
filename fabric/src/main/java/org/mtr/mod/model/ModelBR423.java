@@ -6,6 +6,7 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mod.client.DoorAnimationType;
 import org.mtr.mod.client.ScrollingText;
+import org.mtr.mod.render.StoredMatrixTransformations;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -800,7 +801,7 @@ public class ModelBR423 extends ModelSimpleTrainBase<ModelBR423> {
 	}
 
 	@Override
-	protected void renderTextDisplays(GraphicsHolder graphicsHolder, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
+	protected void renderTextDisplays(StoredMatrixTransformations storedMatrixTransformations, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
 		final boolean noRoute = thisRouteNumber.isEmpty();
 		final String destinationString = getAlternatingString(getDestinationString(thisRouteDestination, TextSpacingType.NORMAL, false));
 		final float center = 26.5F / 16;
@@ -811,26 +812,26 @@ public class ModelBR423 extends ModelSimpleTrainBase<ModelBR423> {
 		final float margin = 0.03F;
 
 		renderFrontDestination(
-				graphicsHolder,
+				storedMatrixTransformations,
 				0, -43F / 16, -8.75F, noRoute ? 0 : (routeWidthBig + margin) / 2, 0.66F, -0.01F - 3F / 16,
 				-35, 0, widthBig - (noRoute ? margin * 2 : margin * 3 + routeWidthBig), 0.16F,
 				ARGB_WHITE, ARGB_WHITE, 1, destinationString, false, car, totalCars
 		);
 		renderFrontDestination(
-				graphicsHolder,
+				storedMatrixTransformations,
 				0, -43F / 16, -8.75F, -widthBig / 2 + margin + routeWidthBig / 2, 0.66F, -0.01F - 3F / 16,
 				-35, 0, routeWidthBig, 0.16F,
 				ARGB_WHITE, ARGB_WHITE, 1, thisRouteNumber, false, car, totalCars
 		);
 
 		renderFrontDestination(
-				graphicsHolder,
+				storedMatrixTransformations,
 				-1.31F, -1.68F, center + (noRoute ? 0 : (-routeWidthBig - margin) / 2), 0, 0, -0.01F,
 				0, 90, widthSmall - (noRoute ? margin * 2 : margin * 3 + routeWidthSmall), 0.1F,
 				ARGB_WHITE, ARGB_WHITE, 1, destinationString, false, 0, 1
 		);
 		renderFrontDestination(
-				graphicsHolder,
+				storedMatrixTransformations,
 				-1.31F, -1.68F, center + widthSmall / 2 - margin - routeWidthSmall / 2, 0, 0, -0.01F,
 				0, 90, routeWidthSmall, 0.1F,
 				ARGB_WHITE, ARGB_WHITE, 1, thisRouteNumber, false, 0, 1

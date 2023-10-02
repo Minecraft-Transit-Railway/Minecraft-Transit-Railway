@@ -1,10 +1,7 @@
 package org.mtr.mod;
 
 import org.mtr.core.data.Station;
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.holder.RenderLayer;
+import org.mtr.mapping.holder.*;
 import org.mtr.mapping.registry.EventRegistryClient;
 import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.block.*;
@@ -12,6 +9,7 @@ import org.mtr.mod.client.*;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.PIDSType;
 import org.mtr.mod.item.ItemBlockClickingBase;
+import org.mtr.mod.packet.PacketRequestData;
 import org.mtr.mod.render.*;
 import org.mtr.mod.sound.LoopingSoundInstance;
 
@@ -22,6 +20,7 @@ public final class InitClient {
 	private static long lastMillis = 0;
 	private static long gameMillis = 0;
 	private static float lastPlayedTrainSoundsTick = 0;
+	private static BlockPos lastPosition;
 
 	public static final int TICKS_PER_SPEED_SOUND = 4;
 	public static final LoopingSoundInstance TACTILE_MAP_SOUND_INSTANCE = new LoopingSoundInstance("tactile_map_music");
@@ -307,9 +306,20 @@ public final class InitClient {
 			DynamicTextureCache.instance = new DynamicTextureCache();
 			lastMillis = System.currentTimeMillis();
 			gameMillis = 0;
+			lastPosition = null;
 		});
 
-		EventRegistryClient.registerStartClientTick(InitClient::incrementGameMillis);
+		EventRegistryClient.registerStartClientTick(() -> {
+			incrementGameMillis();
+			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+			if (clientPlayerEntity != null) {
+				final BlockPos blockPos = clientPlayerEntity.getBlockPos();
+				if (lastPosition == null || lastPosition.getManhattanDistance(new Vector3i(blockPos.data)) > 8) {
+					RegistryClient.sendPacketToServer(new PacketRequestData(false));
+					lastPosition = blockPos;
+				}
+			}
+		});
 
 		EventRegistryClient.registerResourcesReload(new Identifier(Init.MOD_ID, "custom_resources"), CustomResources::reload);
 

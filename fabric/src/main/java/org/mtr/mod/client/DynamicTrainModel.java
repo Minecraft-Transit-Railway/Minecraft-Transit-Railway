@@ -16,6 +16,8 @@ import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mod.Init;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.model.ModelTrainBase;
+import org.mtr.mod.render.RenderTrains;
+import org.mtr.mod.render.StoredMatrixTransformations;
 import org.mtr.mod.screen.ResourcePackCreatorScreen;
 
 import java.util.Locale;
@@ -145,7 +147,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 	}
 
 	@Override
-	protected void renderTextDisplays(GraphicsHolder graphicsHolder, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
+	protected void renderTextDisplays(StoredMatrixTransformations storedMatrixTransformations, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
 		final int[] scrollIndex = {0};
 
 		iterateParts(car, totalCars, partObject -> {
@@ -233,26 +235,30 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 						scrollingTexts.add(new ScrollingText(width, height, 4, height < 0.2));
 					}
 
-					graphicsHolder.push();
-					graphicsHolder.translate(x / 16, 0, z / 16);
-					graphicsHolder.rotateYDegrees(mirror ? 180 : 0);
-					graphicsHolder.translate(-partInfo.originX, -partInfo.originY, partInfo.originZ);
-					graphicsHolder.rotateZDegrees(partInfo.rotationZ);
-					graphicsHolder.rotateYDegrees(partInfo.rotationY);
-					graphicsHolder.rotateXDegrees(partInfo.rotationX);
-					graphicsHolder.translate(-partInfo.offsetX, -partInfo.offsetY, partInfo.offsetZ - SMALL_OFFSET);
+					final StoredMatrixTransformations storedMatrixTransformationsNew = storedMatrixTransformations.copy();
+					storedMatrixTransformationsNew.add(graphicsHolder -> {
+						graphicsHolder.translate(x / 16, 0, z / 16);
+						graphicsHolder.rotateYDegrees(mirror ? 180 : 0);
+						graphicsHolder.translate(-partInfo.originX, -partInfo.originY, partInfo.originZ);
+						graphicsHolder.rotateZDegrees(partInfo.rotationZ);
+						graphicsHolder.rotateYDegrees(partInfo.rotationY);
+						graphicsHolder.rotateXDegrees(partInfo.rotationX);
+						graphicsHolder.translate(-partInfo.offsetX, -partInfo.offsetY, partInfo.offsetZ - SMALL_OFFSET);
+					});
 
 					if (shouldScroll) {
-						graphicsHolder.translate(-width / 2, -height / 2, 0);
+						final StoredMatrixTransformations storedMatrixTransformationsInner = storedMatrixTransformationsNew.copy();
+						storedMatrixTransformationsInner.add(graphicsHolder -> graphicsHolder.translate(-width / 2, -height / 2, 0));
 						scrollingTexts.get(scrollIndex[0]).changeImage(text.isEmpty() ? null : DynamicTextureCache.instance.getPixelatedText(text, color, Integer.MAX_VALUE, cjkSizeRatio, height < 0.2));
-						scrollingTexts.get(scrollIndex[0]).createVertexConsumer(graphicsHolder);
-						scrollingTexts.get(scrollIndex[0]).scrollText(graphicsHolder);
+						scrollingTexts.get(scrollIndex[0]).scrollText(storedMatrixTransformationsInner);
 						scrollIndex[0]++;
 					} else {
-						IDrawing.drawStringWithFont(graphicsHolder, text, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, 0, 0, width, height, 1, colorCjk, color, cjkSizeRatio < 0 ? 1 / (1 - cjkSizeRatio) : 1 + cjkSizeRatio, false, MAX_LIGHT_GLOWING, null);
+						RenderTrains.scheduleRender(graphicsHolder -> {
+							storedMatrixTransformationsNew.transform(graphicsHolder);
+							IDrawing.drawStringWithFont(graphicsHolder, text, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, 0, 0, width, height, 1, colorCjk, color, cjkSizeRatio < 0 ? 1 / (1 - cjkSizeRatio) : 1 + cjkSizeRatio, false, MAX_LIGHT_GLOWING, null);
+							graphicsHolder.pop();
+						});
 					}
-
-					graphicsHolder.pop();
 				});
 			});
 		});
