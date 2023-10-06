@@ -123,28 +123,28 @@ public class ModelDoorOverlay extends EntityModelExtension<EntityAbstractMapping
 				final RenderLayer renderLayerInteriorLeft = lightsOn ? MoreRenderLayers.getInterior(doorOverlayTextureLeft) : MoreRenderLayers.getExterior(doorOverlayTextureLeft);
 				final RenderLayer renderLayerInteriorRight = lightsOn ? MoreRenderLayers.getInterior(doorOverlayTextureRight) : MoreRenderLayers.getExterior(doorOverlayTextureRight);
 				if (renderRight) {
-					RenderTrains.scheduleRender(doorOverlayTextureLeft, false, lightsOn ? RenderTrains.QueuedRenderLayer.INTERIOR : RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
-						storedMatrixTransformations.transform(graphicsHolder);
+					RenderTrains.scheduleRender(doorOverlayTextureLeft, false, lightsOn ? RenderTrains.QueuedRenderLayer.INTERIOR : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+						storedMatrixTransformations.transform(graphicsHolder, offset);
 						ModelTrainBase.renderOnce(door_right_overlay_interior, graphicsHolder, light, doorRightX, position - doorRightZ);
 						ModelTrainBase.renderOnce(wall_1, graphicsHolder, light, position);
 						graphicsHolder.pop();
 					});
-					RenderTrains.scheduleRender(doorOverlayTextureRight, false, lightsOn ? RenderTrains.QueuedRenderLayer.INTERIOR : RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
-						storedMatrixTransformations.transform(graphicsHolder);
+					RenderTrains.scheduleRender(doorOverlayTextureRight, false, lightsOn ? RenderTrains.QueuedRenderLayer.INTERIOR : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+						storedMatrixTransformations.transform(graphicsHolder, offset);
 						ModelTrainBase.renderOnce(door_left_overlay_interior, graphicsHolder, light, doorRightX, position + doorRightZ);
 						ModelTrainBase.renderOnce(wall_2, graphicsHolder, light, position);
 						graphicsHolder.pop();
 					});
 				}
 				if (renderLeft) {
-					RenderTrains.scheduleRender(doorOverlayTextureLeft, false, lightsOn ? RenderTrains.QueuedRenderLayer.INTERIOR : RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
-						storedMatrixTransformations.transform(graphicsHolder);
+					RenderTrains.scheduleRender(doorOverlayTextureLeft, false, lightsOn ? RenderTrains.QueuedRenderLayer.INTERIOR : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+						storedMatrixTransformations.transform(graphicsHolder, offset);
 						ModelTrainBase.renderOnceFlipped(door_right_overlay_interior, graphicsHolder, light, doorLeftX, position + doorLeftZ);
 						ModelTrainBase.renderOnceFlipped(wall_1, graphicsHolder, light, position);
 						graphicsHolder.pop();
 					});
-					RenderTrains.scheduleRender(doorOverlayTextureRight, false, lightsOn ? RenderTrains.QueuedRenderLayer.INTERIOR : RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
-						storedMatrixTransformations.transform(graphicsHolder);
+					RenderTrains.scheduleRender(doorOverlayTextureRight, false, lightsOn ? RenderTrains.QueuedRenderLayer.INTERIOR : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+						storedMatrixTransformations.transform(graphicsHolder, offset);
 						ModelTrainBase.renderOnceFlipped(door_left_overlay_interior, graphicsHolder, light, doorLeftX, position - doorLeftZ);
 						ModelTrainBase.renderOnceFlipped(wall_2, graphicsHolder, light, position);
 						graphicsHolder.pop();
@@ -153,25 +153,25 @@ public class ModelDoorOverlay extends EntityModelExtension<EntityAbstractMapping
 				break;
 			case EXTERIOR:
 				if (renderRight) {
-					RenderTrains.scheduleRender(doorOverlayTextureLeft, false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
-						storedMatrixTransformations.transform(graphicsHolder);
+					RenderTrains.scheduleRender(doorOverlayTextureLeft, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+						storedMatrixTransformations.transform(graphicsHolder, offset);
 						ModelTrainBase.renderOnce(door_left_overlay_exterior, graphicsHolder, light / 4 * 3, doorRightX, position + doorRightZ);
 						graphicsHolder.pop();
 					});
-					RenderTrains.scheduleRender(doorOverlayTextureRight, false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
-						storedMatrixTransformations.transform(graphicsHolder);
+					RenderTrains.scheduleRender(doorOverlayTextureRight, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+						storedMatrixTransformations.transform(graphicsHolder, offset);
 						ModelTrainBase.renderOnce(door_right_overlay_exterior, graphicsHolder, light / 4 * 3, doorRightX, position - doorRightZ);
 						graphicsHolder.pop();
 					});
 				}
 				if (renderLeft) {
-					RenderTrains.scheduleRender(doorOverlayTextureLeft, false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
-						storedMatrixTransformations.transform(graphicsHolder);
+					RenderTrains.scheduleRender(doorOverlayTextureLeft, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+						storedMatrixTransformations.transform(graphicsHolder, offset);
 						ModelTrainBase.renderOnceFlipped(door_left_overlay_exterior, graphicsHolder, light / 4 * 3, doorLeftX, position - doorLeftZ);
 						graphicsHolder.pop();
 					});
-					RenderTrains.scheduleRender(doorOverlayTextureRight, false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
-						storedMatrixTransformations.transform(graphicsHolder);
+					RenderTrains.scheduleRender(doorOverlayTextureRight, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+						storedMatrixTransformations.transform(graphicsHolder, offset);
 						ModelTrainBase.renderOnceFlipped(door_right_overlay_exterior, graphicsHolder, light / 4 * 3, doorLeftX, position + doorLeftZ);
 						graphicsHolder.pop();
 					});

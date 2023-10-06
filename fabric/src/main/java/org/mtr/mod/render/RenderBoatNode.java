@@ -9,7 +9,7 @@ import org.mtr.mod.client.IDrawing;
 
 public class RenderBoatNode extends BlockEntityRenderer<BlockNode.BlockEntity> {
 
-	public RenderBoatNode(BlockEntityRendererArgument dispatcher) {
+	public RenderBoatNode(Argument dispatcher) {
 		super(dispatcher);
 	}
 

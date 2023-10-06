@@ -17,7 +17,7 @@ public abstract class RenderSignalBase<T extends BlockEntityExtension> extends B
 	protected final boolean isSingleSided;
 	protected final int aspects;
 
-	public RenderSignalBase(BlockEntityRendererArgument dispatcher, boolean isSingleSided, int aspects) {
+	public RenderSignalBase(Argument dispatcher, boolean isSingleSided, int aspects) {
 		super(dispatcher);
 		this.isSingleSided = isSingleSided;
 		this.aspects = aspects;

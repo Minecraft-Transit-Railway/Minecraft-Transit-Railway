@@ -8,6 +8,7 @@ import org.mtr.mod.block.*;
 import org.mtr.mod.client.*;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.PIDSType;
+import org.mtr.mod.entity.EntityRendering;
 import org.mtr.mod.item.ItemBlockClickingBase;
 import org.mtr.mod.packet.PacketRequestData;
 import org.mtr.mod.render.*;
@@ -140,6 +141,9 @@ public final class InitClient {
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_WHITE, dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_GRAY, dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_BLACK, dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
+
+		RegistryClient.registerEntityRenderer(EntityTypes.RENDERING, RenderTrains::new);
+		RegistryClient.worldRenderingEntity = EntityRendering::new;
 
 		RegistryClient.registerItemModelPredicate(Items.RAIL_CONNECTOR_20, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		RegistryClient.registerItemModelPredicate(Items.RAIL_CONNECTOR_20_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
@@ -323,11 +327,6 @@ public final class InitClient {
 
 		EventRegistryClient.registerResourcesReload(new Identifier(Init.MOD_ID, "custom_resources"), CustomResources::reload);
 
-		EventRegistryClient.registerRenderWorldLast((graphicsHolder, matrix4f, worldRenderer, tickDelta) -> {
-			incrementGameMillis();
-			RenderTrains.render(graphicsHolder);
-		});
-
 		Patreon.getPatreonList(Config.PATREON_LIST);
 		Config.refreshProperties();
 
@@ -396,7 +395,7 @@ public final class InitClient {
 		return gameMillis;
 	}
 
-	private static void incrementGameMillis() {
+	public static void incrementGameMillis() {
 		final long currentMillis = System.currentTimeMillis();
 		final long millisElapsed = currentMillis - lastMillis;
 		lastMillis = currentMillis;

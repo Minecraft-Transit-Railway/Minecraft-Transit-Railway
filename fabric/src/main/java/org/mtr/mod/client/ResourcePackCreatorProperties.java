@@ -6,7 +6,6 @@ import com.google.gson.JsonParser;
 import org.mtr.core.data.EnumHelper;
 import org.mtr.core.data.TransportMode;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.data.IGui;
@@ -294,9 +293,9 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 		updateModel();
 	}
 
-	public void render(GraphicsHolder graphicsHolder, int currentCar, int trainCars, boolean head1IsFront, float leftDoorValue, float rightDoorValue, boolean opening, int light) {
+	public void render(int currentCar, int trainCars, boolean head1IsFront, float leftDoorValue, float rightDoorValue, boolean opening, int light) {
 		if (model != null) {
-			model.render(graphicsHolder, new StoredMatrixTransformations(), null, texture == null ? new Identifier(Init.MOD_ID, "textures/block/white.png") : texture, light, leftDoorValue, rightDoorValue, opening, currentCar, trainCars, head1IsFront, true, false, true, false);
+			model.render(new StoredMatrixTransformations(), null, texture == null ? new Identifier(Init.MOD_ID, "textures/block/white.png") : texture, light, leftDoorValue, rightDoorValue, opening, currentCar, trainCars, head1IsFront, true, false, true, false);
 		}
 	}
 

@@ -18,7 +18,7 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.BlockEntity> {
 	private static final float COLOR_STRIP_START = 14.5F / 16;
 	private static final float COLOR_STRIP_END = 15 / 16F;
 
-	public RenderPSDTop(BlockEntityRendererArgument dispatcher) {
+	public RenderPSDTop(Argument dispatcher) {
 		super(dispatcher, 2 - SMALL_OFFSET_16, 7.5F, 1.5F, 0.125F, true, BlockPSDTop.ARROW_DIRECTION);
 	}
 
@@ -47,8 +47,8 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.BlockEntity> {
 		if (!airLeft && !airRight || persistent) {
 			return;
 		}
-		RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/psd_top.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
-			storedMatrixTransformations.transform(graphicsHolder);
+		RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/psd_top.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			storedMatrixTransformations.transform(graphicsHolder, offset);
 			if (airLeft) {
 				// back
 				IDrawing.drawTexture(graphicsHolder, -0.125F, 0, 0.5F, 0.5F, 0, -0.125F, 0.5F, 1, -0.125F, -0.125F, 1, 0.5F, 0, 0, 1, 1, facing, -1, light);
@@ -98,8 +98,8 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.BlockEntity> {
 		final boolean isNotPersistent = IBlock.getStatePropertySafe(state, BlockPSDTop.PERSISTENT) == BlockPSDTop.EnumPersistent.NONE;
 		final boolean airLeft = isNotPersistent && IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_LEFT);
 		final boolean airRight = isNotPersistent && IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_RIGHT);
-		RenderTrains.scheduleRender(DynamicTextureCache.instance.getColorStrip(platformId).identifier, false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
-			storedMatrixTransformations.transform(graphicsHolder);
+		RenderTrains.scheduleRender(DynamicTextureCache.instance.getColorStrip(platformId).identifier, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			storedMatrixTransformations.transform(graphicsHolder, offset);
 			IDrawing.drawTexture(graphicsHolder, airLeft ? 0.625F : 0, COLOR_STRIP_START, 0, airRight ? 0.375F : 1, COLOR_STRIP_END, 0, facing, color, light);
 			if (airLeft) {
 				IDrawing.drawTexture(graphicsHolder, END_FRONT_OFFSET, COLOR_STRIP_START, -0.625F - END_FRONT_OFFSET, 0.75F + END_FRONT_OFFSET, COLOR_STRIP_END, 0.125F - END_FRONT_OFFSET, facing, -1, light);

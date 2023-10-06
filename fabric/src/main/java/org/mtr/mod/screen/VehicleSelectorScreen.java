@@ -5,10 +5,12 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.jetbrains.annotations.Nullable;
 import org.mtr.core.data.Siding;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.data.VehicleCar;
+import org.mtr.core.servlet.IntegrationServlet;
 import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.holder.OrderedText;
@@ -16,12 +18,14 @@ import org.mtr.mapping.mapper.ButtonWidgetExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.Icons;
 import org.mtr.mod.Patreon;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.TrainClientRegistry;
 import org.mtr.mod.client.TrainProperties;
 import org.mtr.mod.data.TrainType;
+import org.mtr.mod.packet.PacketData;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -104,6 +108,7 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 		selectedIds.clear();
 		selectedIds.addAll(getSelectedIds(siding));
 		super.updateList();
+		RegistryClient.sendPacketToServer(PacketData.fromSidings(IntegrationServlet.Operation.UPDATE, ObjectSet.of(siding)));
 
 		final ObjectArrayList<VehicleCar> currentList = siding.getVehicleCars();
 		final double remainingLength = siding.getRailLength() - currentList.stream().mapToDouble(VehicleCar::getLength).sum();

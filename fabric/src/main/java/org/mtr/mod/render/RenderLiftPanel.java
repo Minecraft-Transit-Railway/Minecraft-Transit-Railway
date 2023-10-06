@@ -1,6 +1,5 @@
 package org.mtr.mod.render;
 
-import org.mtr.mapping.holder.BlockEntityRendererArgument;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.block.BlockLiftPanelBase;
@@ -10,7 +9,7 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> exten
 	private final boolean isOdd;
 	private final boolean isFlat;
 
-	public RenderLiftPanel(BlockEntityRendererArgument dispatcher, boolean isOdd, boolean isFlat) {
+	public RenderLiftPanel(Argument dispatcher, boolean isOdd, boolean isFlat) {
 		super(dispatcher);
 		this.isOdd = isOdd;
 		this.isFlat = isFlat;

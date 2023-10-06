@@ -8,7 +8,6 @@ import org.mtr.core.data.VehicleCar;
 import org.mtr.core.tools.Utilities;
 import org.mtr.core.tools.Vector;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.IDrawing;
@@ -27,13 +26,11 @@ public class RenderVehicles implements IGui {
 	private static final float CONNECTION_Z_OFFSET = 0.5F;
 	private static final float CONNECTION_X_OFFSET = 0.25F;
 
-	public static void render(GraphicsHolder graphicsHolder) {
+	public static void render() {
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 		if (clientWorld == null) {
 			return;
 		}
-
-		final Vector3d playerOffset = RenderTrains.getPlayerOffset();
 
 		ClientData.instance.vehicles.forEach(vehicle -> {
 			final ObjectImmutableList<VehicleCar> vehicleCars = vehicle.vehicleExtraData.getVehicleCars(vehicle.getReversed());
@@ -64,7 +61,7 @@ public class RenderVehicles implements IGui {
 				final BlockPos blockPos = Init.newBlockPos(pivotPosition.x, pivotPosition.y + 1, pivotPosition.z);
 				final int light = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
 
-				bogiePositions.forEach(bogiePosition -> renderModel(bogiePosition.left(), bogiePosition.right(), vehicle.getReversed(), storedMatrixTransformations -> MODEL_BOGIE.render(storedMatrixTransformations, light), playerOffset));
+				bogiePositions.forEach(bogiePosition -> renderModel(bogiePosition.left(), bogiePosition.right(), vehicle.getReversed(), storedMatrixTransformations -> MODEL_BOGIE.render(storedMatrixTransformations, light)));
 
 				final VehicleCar vehicleCar = vehicleCars.get(i);
 				final TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(vehicleCar.getVehicleId());
@@ -85,8 +82,7 @@ public class RenderVehicles implements IGui {
 							position1,
 							position2,
 							vehicle.getReversed(),
-							storedMatrixTransformations -> model.render(graphicsHolder, storedMatrixTransformations, vehicle, new Identifier(legacyVehicleRenderer.textureId + ".png"), light, 0, 0, false, carNumber, totalCars, !vehicle.getReversed(), vehicle.getIsOnRoute(), false, true, false),
-							playerOffset
+							storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, new Identifier(legacyVehicleRenderer.textureId + ".png"), light, 0, 0, false, carNumber, totalCars, !vehicle.getReversed(), vehicle.getIsOnRoute(), false, true, false)
 					);
 
 					renderConnection(
@@ -112,7 +108,7 @@ public class RenderVehicles implements IGui {
 		});
 	}
 
-	private static void renderModel(Vector position1, Vector position2, boolean reversed, Consumer<StoredMatrixTransformations> render, Vector3d playerOffset) {
+	private static void renderModel(Vector position1, Vector position2, boolean reversed, Consumer<StoredMatrixTransformations> render) {
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 		if (clientWorld == null) {
 			return;
@@ -122,9 +118,9 @@ public class RenderVehicles implements IGui {
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
 		storedMatrixTransformations.add(graphicsHolder -> {
 			graphicsHolder.translate(
-					Utilities.getAverage(position1.x, position2.x) - playerOffset.getXMapped(),
-					Utilities.getAverage(position1.y, position2.y) - playerOffset.getYMapped(),
-					Utilities.getAverage(position1.z, position2.z) - playerOffset.getZMapped()
+					Utilities.getAverage(position1.x, position2.x),
+					Utilities.getAverage(position1.y, position2.y),
+					Utilities.getAverage(position1.z, position2.z)
 			);
 			graphicsHolder.rotateYRadians((float) (angles.leftDouble() + (reversed ? 0 : Math.PI)));
 			graphicsHolder.rotateXRadians((float) ((reversed ? -1 : 1) * angles.rightDouble() + Math.PI));
@@ -154,110 +150,106 @@ public class RenderVehicles implements IGui {
 				final BlockPos blockPosConnection = Init.newBlockPos(position1.x, position1.y + 1, position1.z);
 				final int lightConnection = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPosConnection), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPosConnection));
 
-				RenderTrains.scheduleRender(new Identifier(textureId + "exterior.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolderNew -> {
-					final Vector3d playerOffset = RenderTrains.getPlayerOffset();
+				RenderTrains.scheduleRender(new Identifier(textureId + "exterior.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 					// Sides
 					IDrawing.drawTexture(
-							graphicsHolderNew,
+							graphicsHolder,
 							position2.x, position2.y, position2.z,
 							position7.x, position7.y, position7.z,
 							position8.x, position8.y, position8.z,
 							position1.x, position1.y, position1.z,
-							playerOffset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
+							offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
 					);
 					IDrawing.drawTexture(
-							graphicsHolderNew,
+							graphicsHolder,
 							position6.x, position6.y, position6.z,
 							position3.x, position3.y, position3.z,
 							position4.x, position4.y, position4.z,
 							position5.x, position5.y, position5.z,
-							playerOffset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
+							offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
 					);
 
 					if (renderInterior) {
 						// Top
 						IDrawing.drawTexture(
-								graphicsHolderNew,
+								graphicsHolder,
 								position3.x, position3.y, position3.z,
 								position6.x, position6.y, position6.z,
 								position7.x, position7.y, position7.z,
 								position2.x, position2.y, position2.z,
-								playerOffset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
+								offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
 						);
 						// Bottom
 						IDrawing.drawTexture(
-								graphicsHolderNew,
+								graphicsHolder,
 								position1.x, position1.y, position1.z,
 								position8.x, position8.y, position8.z,
 								position5.x, position5.y, position5.z,
 								position4.x, position4.y, position4.z,
-								playerOffset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
+								offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
 						);
 					} else {
 						IDrawing.drawTexture(
-								graphicsHolderNew,
+								graphicsHolder,
 								position7.x, position7.y, position7.z,
 								position2.x, position2.y, position2.z,
 								position1.x, position1.y, position1.z,
 								position8.x, position8.y, position8.z,
-								playerOffset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
+								offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
 						);
 						IDrawing.drawTexture(
-								graphicsHolderNew,
+								graphicsHolder,
 								position3.x, position3.y, position3.z,
 								position6.x, position6.y, position6.z,
 								position5.x, position5.y, position5.z,
 								position4.x, position4.y, position4.z,
-								playerOffset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
+								offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
 						);
 					}
 				});
 
 				if (renderInterior) {
-					RenderTrains.scheduleRender(new Identifier(textureId + "side.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolderNew -> {
-						final Vector3d playerOffset = RenderTrains.getPlayerOffset();
+					RenderTrains.scheduleRender(new Identifier(textureId + "side.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 						// Sides
 						IDrawing.drawTexture(
-								graphicsHolderNew,
+								graphicsHolder,
 								position7.x, position7.y, position7.z,
 								position2.x, position2.y, position2.z,
 								position1.x, position1.y, position1.z,
 								position8.x, position8.y, position8.z,
-								playerOffset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, isOnRoute ? MAX_LIGHT_GLOWING : lightConnection
+								offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, isOnRoute ? MAX_LIGHT_GLOWING : lightConnection
 						);
 						IDrawing.drawTexture(
-								graphicsHolderNew,
+								graphicsHolder,
 								position3.x, position3.y, position3.z,
 								position6.x, position6.y, position6.z,
 								position5.x, position5.y, position5.z,
 								position4.x, position4.y, position4.z,
-								playerOffset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, isOnRoute ? MAX_LIGHT_GLOWING : lightConnection
+								offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, isOnRoute ? MAX_LIGHT_GLOWING : lightConnection
 						);
 					});
 
-					RenderTrains.scheduleRender(new Identifier(textureId + "roof.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolderNew -> {
-						final Vector3d playerOffset = RenderTrains.getPlayerOffset();
+					RenderTrains.scheduleRender(new Identifier(textureId + "roof.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 						// Top
 						IDrawing.drawTexture(
-								graphicsHolderNew,
+								graphicsHolder,
 								position6.x, position6.y, position6.z,
 								position3.x, position3.y, position3.z,
 								position2.x, position2.y, position2.z,
 								position7.x, position7.y, position7.z,
-								playerOffset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, isOnRoute ? MAX_LIGHT_GLOWING : lightConnection
+								offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, isOnRoute ? MAX_LIGHT_GLOWING : lightConnection
 						);
 					});
 
-					RenderTrains.scheduleRender(new Identifier(textureId + "floor.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolderNew -> {
-						final Vector3d playerOffset = RenderTrains.getPlayerOffset();
+					RenderTrains.scheduleRender(new Identifier(textureId + "floor.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 						// Bottom
 						IDrawing.drawTexture(
-								graphicsHolderNew,
+								graphicsHolder,
 								position8.x, position8.y, position8.z,
 								position1.x, position1.y, position1.z,
 								position4.x, position4.y, position4.z,
 								position5.x, position5.y, position5.z,
-								playerOffset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, isOnRoute ? MAX_LIGHT_GLOWING : lightConnection
+								offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, isOnRoute ? MAX_LIGHT_GLOWING : lightConnection
 						);
 					});
 				}

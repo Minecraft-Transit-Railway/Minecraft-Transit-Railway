@@ -24,7 +24,7 @@ public class RenderRouteSign<T extends BlockRouteSignBase.BlockEntityBase> exten
 	private static final float HEIGHT_TOP = TOP - MIDDLE;
 	private static final float TEXTURE_BREAK = MIDDLE / HEIGHT_BOTTOM;
 
-	public RenderRouteSign(BlockEntityRendererArgument dispatcher) {
+	public RenderRouteSign(Argument dispatcher) {
 		super(dispatcher);
 	}
 

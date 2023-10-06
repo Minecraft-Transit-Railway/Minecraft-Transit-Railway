@@ -100,7 +100,7 @@ public class PacketData extends PacketHandler {
 	@Override
 	public void runClientQueued() {
 		final Screen screen = MinecraftClient.getInstance().getCurrentScreenMapped();
-		if (screen == null || !(screen.data instanceof ScreenExtension)) {
+		if (operation != IntegrationServlet.Operation.LIST || screen == null || !(screen.data instanceof ScreenExtension)) {
 			writeJsonObjectToDataSet(ClientData.instance.stations, jsonObject.getAsJsonArray("stations"), jsonReader -> new Station(jsonReader, ClientData.instance), NameColorDataBase::getId);
 			writeJsonObjectToDataSet(ClientData.instance.platforms, jsonObject.getAsJsonArray("platforms"), jsonReader -> new Platform(jsonReader, ClientData.instance), NameColorDataBase::getId);
 			writeJsonObjectToDataSet(ClientData.instance.sidings, jsonObject.getAsJsonArray("sidings"), jsonReader -> new Siding(jsonReader, ClientData.instance), NameColorDataBase::getId);

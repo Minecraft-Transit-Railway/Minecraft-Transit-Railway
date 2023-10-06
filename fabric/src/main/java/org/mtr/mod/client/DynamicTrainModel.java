@@ -253,8 +253,8 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 						scrollingTexts.get(scrollIndex[0]).scrollText(storedMatrixTransformationsInner);
 						scrollIndex[0]++;
 					} else {
-						RenderTrains.scheduleRender(graphicsHolder -> {
-							storedMatrixTransformationsNew.transform(graphicsHolder);
+						RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
+							storedMatrixTransformationsNew.transform(graphicsHolder, offset);
 							IDrawing.drawStringWithFont(graphicsHolder, text, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, 0, 0, width, height, 1, colorCjk, color, cjkSizeRatio < 0 ? 1 / (1 - cjkSizeRatio) : 1 + cjkSizeRatio, false, MAX_LIGHT_GLOWING, null);
 							graphicsHolder.pop();
 						});

@@ -11,7 +11,7 @@ import org.mtr.mod.data.IGui;
 
 public class RenderClock extends BlockEntityRenderer<BlockClock.BlockEntity> implements IGui, IBlock {
 
-	public RenderClock(BlockEntityRendererArgument dispatcher) {
+	public RenderClock(Argument dispatcher) {
 		super(dispatcher);
 	}
 

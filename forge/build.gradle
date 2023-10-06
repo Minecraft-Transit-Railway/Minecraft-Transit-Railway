@@ -1,20 +1,38 @@
+import org.apache.tools.ant.filters.ReplaceTokens
 import org.mtr.mod.BuildTools
 
 plugins {
 	id "net.minecraftforge.gradle" version "+"
+	id "org.spongepowered.mixin" version "+"
 }
 
 final BuildTools buildTools = new BuildTools(minecraftVersion, "forge", project)
 
 minecraft {
 	mappings channel: "official", version: minecraftVersion
+	runs {
+		configureEach {
+			property "forge.logging.markers", "REGISTRIES"
+			property "forge.logging.console.level", "debug"
+		}
+		client {}
+		server { args "--nogui" }
+	}
 }
 
 sourceSets.main.resources { srcDir "src/generated/resources" }
 
 dependencies {
 	minecraft "net.minecraftforge:forge:${minecraftVersion}-${buildTools.getForgeVersion()}"
-	shadowImplementation name: "Minecraft-Mappings-forge-${minecraftVersion}-0.0.1"
+	annotationProcessor "org.spongepowered:mixin:+:processor"
+	shadowImplementation "org.mtr:Minecraft-Mappings-forge-${minecraftVersion}:0.0.1-dev"
+}
+
+mixin {
+	add sourceSets.main, "mtr.refmap.json"
+	config "mtr.mixins.json"
+	debug.verbose = true
+	debug.export = true
 }
 
 java {
@@ -23,6 +41,38 @@ java {
 	}
 	withSourcesJar()
 	withJavadocJar()
+}
+
+tasks.register("setupFiles") {
+	copy {
+		outputs.upToDateWhen { false }
+		from "src/main/mods.template.toml"
+		into "src/main/resources/META-INF"
+		filter(ReplaceTokens, tokens: ["minecraft": minecraftVersion, "version": minecraftVersion + "-" + version])
+		rename "(.+).template.toml", "\$1.toml"
+	}
+
+	delete fileTree("src/main/java/org/mtr/mod")
+	delete fileTree("src/main/resources/assets")
+	delete fileTree("src/main/resources/data")
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "../fabric/src/main/java/org/mtr/mod"
+		into "src/main/java/org/mtr/mod"
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "../fabric/src/main/resources/assets"
+		into "src/main/resources/assets"
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "../fabric/src/main/resources/data"
+		into "src/main/resources/data"
+	}
 }
 
 build {

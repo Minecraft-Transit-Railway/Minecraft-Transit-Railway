@@ -45,7 +45,7 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 	public final void render(GraphicsHolder graphicsHolder, int light, int overlay, float red, float green, float blue, float alpha) {
 	}
 
-	public final void render(GraphicsHolder graphicsHolderText, StoredMatrixTransformations storedMatrixTransformations, @Nullable NameColorDataBase data, Identifier texture, int light, float doorLeftValue, float doorRightValue, boolean opening, int currentCar, int trainCars, boolean head1IsFront, boolean lightsOn, boolean isTranslucent, boolean renderDetails, boolean atPlatform) {
+	public final void render(StoredMatrixTransformations storedMatrixTransformations, @Nullable NameColorDataBase data, Identifier texture, int light, float doorLeftValue, float doorRightValue, boolean opening, int currentCar, int trainCars, boolean head1IsFront, boolean lightsOn, boolean isTranslucent, boolean renderDetails, boolean atPlatform) {
 		final float doorLeftX = DoorAnimationType.getDoorAnimationX(doorAnimationType, doorLeftValue);
 		final float doorRightX = DoorAnimationType.getDoorAnimationX(doorAnimationType, doorRightValue);
 		final float doorLeftZ = DoorAnimationType.getDoorAnimationZ(doorAnimationType, getDoorMax(), getDoorDuration(), doorLeftValue, opening);
@@ -59,21 +59,21 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 
 		if (isTranslucent) {
 			if (renderDetails) {
-				RenderTrains.scheduleRender(texture, false, lightsOn ? RenderTrains.QueuedRenderLayer.INTERIOR_TRANSLUCENT : RenderTrains.QueuedRenderLayer.EXTERIOR_TRANSLUCENT, graphicsHolder -> {
-					storedMatrixTransformationsNew.transform(graphicsHolder);
+				RenderTrains.scheduleRender(texture, false, lightsOn ? RenderTrains.QueuedRenderLayer.INTERIOR_TRANSLUCENT : RenderTrains.QueuedRenderLayer.EXTERIOR_TRANSLUCENT, (graphicsHolder, offset) -> {
+					storedMatrixTransformationsNew.transform(graphicsHolder, offset);
 					render(graphicsHolder, RenderStage.INTERIOR_TRANSLUCENT, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, true);
 					graphicsHolder.pop();
 				});
 			}
 		} else {
-			RenderTrains.scheduleRender(texture, false, lightsOn ? RenderTrains.QueuedRenderLayer.LIGHT : RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
-				storedMatrixTransformationsNew.transform(graphicsHolder);
+			RenderTrains.scheduleRender(texture, false, lightsOn ? RenderTrains.QueuedRenderLayer.LIGHT : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+				storedMatrixTransformationsNew.transform(graphicsHolder, offset);
 				render(graphicsHolder, RenderStage.LIGHT, lightOnGlowingLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
 				graphicsHolder.pop();
 			});
 
-			RenderTrains.scheduleRender(texture, false, lightsOn ? RenderTrains.QueuedRenderLayer.INTERIOR : RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
-				storedMatrixTransformationsNew.transform(graphicsHolder);
+			RenderTrains.scheduleRender(texture, false, lightsOn ? RenderTrains.QueuedRenderLayer.INTERIOR : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+				storedMatrixTransformationsNew.transform(graphicsHolder, offset);
 				render(graphicsHolder, RenderStage.INTERIOR, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
 				graphicsHolder.pop();
 			});
@@ -82,14 +82,14 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 				renderExtraDetails(storedMatrixTransformationsNew, light, lightOnInteriorLevel, lightsOn, doorLeftX, doorRightX, doorLeftZ, doorRightZ);
 			}
 
-			RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
-				storedMatrixTransformationsNew.transform(graphicsHolder);
+			RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+				storedMatrixTransformationsNew.transform(graphicsHolder, offset);
 				render(graphicsHolder, RenderStage.EXTERIOR, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
 				graphicsHolder.pop();
 			});
 
-			RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, graphicsHolder -> {
-				storedMatrixTransformationsNew.transform(graphicsHolder);
+			RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
+				storedMatrixTransformationsNew.transform(graphicsHolder, offset);
 				render(graphicsHolder, RenderStage.ALWAYS_ON_LIGHT, MAX_LIGHT_GLOWING, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
 				graphicsHolder.pop();
 			});

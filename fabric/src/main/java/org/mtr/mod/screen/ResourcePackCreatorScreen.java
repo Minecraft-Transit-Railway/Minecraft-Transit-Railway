@@ -681,7 +681,7 @@ public class ResourcePackCreatorScreen extends ScreenExtension implements IResou
 			for (int i = 0; i < cars; i++) {
 				graphicsHolder.push();
 				graphicsHolder.translate(0, 0, (i - (cars - 1) / 2F) * (RenderTrains.creatorProperties.getLength() + 1) + translation);
-				RenderTrains.creatorProperties.render(graphicsHolder, i, cars, head1IsFront, doorLeftValue, doorRightValue, openingRight || openingLeft, light);
+				RenderTrains.creatorProperties.render(i, cars, head1IsFront, doorLeftValue, doorRightValue, openingRight || openingLeft, light);
 				graphicsHolder.pop();
 			}
 			graphicsHolder.pop();

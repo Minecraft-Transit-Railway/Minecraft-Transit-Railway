@@ -44,6 +44,7 @@ public final class Init {
 		Blocks.init();
 		Items.init();
 		BlockEntityTypes.init();
+		EntityTypes.init();
 		CreativeModeTabs.init();
 		SoundEvents.init();
 		DummyClass.enableLogging();
