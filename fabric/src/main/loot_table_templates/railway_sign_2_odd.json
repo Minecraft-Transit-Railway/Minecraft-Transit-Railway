@@ -8,7 +8,7 @@
 					"type": "minecraft:item",
 					"conditions": [
 						{
-							"condition": "minecraft:any_of",
+							"condition": "minecraft:@condition@",
 							"terms": [
 								{
 									"condition": "minecraft:block_state_property",

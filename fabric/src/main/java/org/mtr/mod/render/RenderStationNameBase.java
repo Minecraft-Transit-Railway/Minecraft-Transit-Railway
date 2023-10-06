@@ -13,7 +13,7 @@ import org.mtr.mod.data.IGui;
 
 public abstract class RenderStationNameBase<T extends BlockStationNameBase.BlockEntityBase> extends BlockEntityRenderer<T> implements IGui, IDrawing {
 
-	public RenderStationNameBase(BlockEntityRendererArgument dispatcher) {
+	public RenderStationNameBase(Argument dispatcher) {
 		super(dispatcher);
 	}
 

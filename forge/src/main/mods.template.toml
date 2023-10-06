@@ -4,7 +4,7 @@ license = "MIT"
 
 [[mods]]
 modId = "mtr"
-version = "${version}"
+version = "@version@"
 displayName = "Minecraft Transit Railway"
 authors = "Jonathan Ho"
 description = "A Minecraft mod that adds automated train systems into the game."
@@ -20,6 +20,6 @@ side = "BOTH"
 [[dependencies.mtr]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.16.5,)"
+versionRange = "[@minecraft@]"
 ordering = "NONE"
 side = "BOTH"

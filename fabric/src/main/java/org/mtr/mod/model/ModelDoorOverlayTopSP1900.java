@@ -38,8 +38,8 @@ public class ModelDoorOverlayTopSP1900 extends ModelDoorOverlayTopBase {
 
 	@Override
 	public void renderNew(StoredMatrixTransformations storedMatrixTransformations, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
-		RenderTrains.scheduleRender(TEXTURE_ID, false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
-			storedMatrixTransformations.transform(graphicsHolder);
+		RenderTrains.scheduleRender(TEXTURE_ID, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			storedMatrixTransformations.transform(graphicsHolder, offset);
 			ModelTrainBase.renderMirror(bb_main, graphicsHolder, light, position);
 			graphicsHolder.pop();
 		});

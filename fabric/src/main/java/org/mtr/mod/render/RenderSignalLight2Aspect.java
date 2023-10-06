@@ -1,6 +1,5 @@
 package org.mtr.mod.render;
 
-import org.mtr.mapping.holder.BlockEntityRendererArgument;
 import org.mtr.mapping.holder.Direction;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
@@ -11,7 +10,7 @@ public class RenderSignalLight2Aspect<T extends BlockEntityExtension> extends Re
 	private final boolean redOnTop;
 	private final int proceedColor;
 
-	public RenderSignalLight2Aspect(BlockEntityRendererArgument dispatcher, boolean isSingleSided, boolean redOnTop, int proceedColor) {
+	public RenderSignalLight2Aspect(Argument dispatcher, boolean isSingleSided, boolean redOnTop, int proceedColor) {
 		super(dispatcher, isSingleSided, 2);
 		this.redOnTop = redOnTop;
 		this.proceedColor = proceedColor;

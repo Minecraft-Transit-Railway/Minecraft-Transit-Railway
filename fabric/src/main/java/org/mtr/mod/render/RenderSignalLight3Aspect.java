@@ -1,6 +1,5 @@
 package org.mtr.mod.render;
 
-import org.mtr.mapping.holder.BlockEntityRendererArgument;
 import org.mtr.mapping.holder.Direction;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
@@ -8,7 +7,7 @@ import org.mtr.mod.client.IDrawing;
 
 public class RenderSignalLight3Aspect<T extends BlockEntityExtension> extends RenderSignalBase<T> {
 
-	public RenderSignalLight3Aspect(BlockEntityRendererArgument dispatcher, boolean isSingleSided) {
+	public RenderSignalLight3Aspect(Argument dispatcher, boolean isSingleSided) {
 		super(dispatcher, isSingleSided, 3);
 	}
 

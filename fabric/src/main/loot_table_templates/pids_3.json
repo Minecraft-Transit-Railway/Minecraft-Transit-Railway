@@ -8,18 +8,18 @@
 					"type": "minecraft:item",
 					"conditions": [
 						{
-							"condition": "minecraft:any_of",
+							"condition": "minecraft:@condition@",
 							"terms": [
 								{
 									"condition": "minecraft:block_state_property",
-									"block": "mtr:railway_sign_6_odd",
+									"block": "mtr:pids_3",
 									"properties": {
 										"facing": "north"
 									}
 								},
 								{
 									"condition": "minecraft:block_state_property",
-									"block": "mtr:railway_sign_6_odd",
+									"block": "mtr:pids_3",
 									"properties": {
 										"facing": "east"
 									}
@@ -27,7 +27,7 @@
 							]
 						}
 					],
-					"name": "mtr:railway_sign_6_odd"
+					"name": "mtr:pids_3"
 				}
 			],
 			"conditions": [

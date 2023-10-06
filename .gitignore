@@ -31,10 +31,14 @@ bin/
 # fabric
 
 run/
+loot_tables/
+**/org/mtr/mixin/
 forge/src/main/java/org/mtr/mod
 forge/src/main/resources/assets
 forge/src/main/resources/data
+forge/src/main/resources/META-INF
 **/website/
+fabric.mod.json
 Keys.java
 **/lang/*.json
 !en_us.json

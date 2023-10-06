@@ -8,19 +8,26 @@
 					"type": "minecraft:item",
 					"conditions": [
 						{
-							"condition": "minecraft:any_of",
+							"condition": "minecraft:@condition@",
 							"terms": [
 								{
 									"condition": "minecraft:block_state_property",
-									"block": "mtr:pids_4",
+									"block": "mtr:railway_sign_4_even",
 									"properties": {
-										"half": "lower"
+										"facing": "north"
+									}
+								},
+								{
+									"condition": "minecraft:block_state_property",
+									"block": "mtr:railway_sign_4_even",
+									"properties": {
+										"facing": "east"
 									}
 								}
 							]
 						}
 					],
-					"name": "mtr:pids_4"
+					"name": "mtr:railway_sign_4_even"
 				}
 			],
 			"conditions": [

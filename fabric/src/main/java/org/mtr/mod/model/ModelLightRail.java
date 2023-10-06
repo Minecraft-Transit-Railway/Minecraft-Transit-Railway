@@ -1017,8 +1017,8 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 				graphicsHolder.translate(-0.35F, -2.2F, 8.99F);
 			});
 
-			RenderTrains.scheduleRender(dynamicResource.identifier, false, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, graphicsHolder -> {
-				storedMatrixTransformationsNew.transform(graphicsHolder);
+			RenderTrains.scheduleRender(dynamicResource.identifier, false, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
+				storedMatrixTransformations.transform(graphicsHolder, offset);
 				RouteMapGenerator.scrollTextLightRail(graphicsHolder, stationString.split("\\|").length, 0.7F, 0.07F, dynamicResource.width, dynamicResource.height);
 				graphicsHolder.pop();
 			});
@@ -1027,7 +1027,7 @@ public class ModelLightRail extends ModelSimpleTrainBase<ModelLightRail> {
 
 	@Override
 	protected String defaultDestinationString() {
-		return "不載客|Not in Service";
+		return "\u4E0D載客|Not in Service";
 	}
 
 	private static DoorAnimationType getDoorAnimationType(int phase) {

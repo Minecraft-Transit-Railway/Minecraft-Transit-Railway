@@ -1,3 +1,4 @@
+import org.apache.tools.ant.filters.ReplaceTokens
 import org.mtr.mod.BuildTools
 
 plugins {
@@ -12,7 +13,7 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${buildTools.getFabricVersion()}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${buildTools.getFabricApiVersion()}"
 	modApi "com.terraformersmc:modmenu:${buildTools.getModMenuVersion()}"
-	shadowImplementation name: "Minecraft-Mappings-fabric-${minecraftVersion}-0.0.1"
+	shadowImplementation "org.mtr:Minecraft-Mappings-fabric-${minecraftVersion}:0.0.1-dev"
 }
 
 repositories {
@@ -25,6 +26,26 @@ java {
 	}
 	withSourcesJar()
 	withJavadocJar()
+}
+
+tasks.register("setupFiles") {
+	copy {
+		outputs.upToDateWhen { false }
+		from "src/main/KeysTemplate.java"
+		into "src/main/java/org/mtr/mod"
+		filter(ReplaceTokens, tokens: ["key": patreonApiKey, "version": minecraftVersion + "-" + version, "server": testServer])
+		rename "(.+)Template.java", "\$1.java"
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "src/main/fabric.mod.template.json"
+		into "src/main/resources"
+		filter(ReplaceTokens, tokens: ["minecraft": minecraftVersion, "version": minecraftVersion + "-" + version])
+		rename "(.+).template.json", "\$1.json"
+	}
+
+	buildTools.copyLootTables();
 }
 
 build {

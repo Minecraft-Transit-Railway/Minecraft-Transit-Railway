@@ -7,6 +7,11 @@ dependencies {
 	implementation "com.google.code.gson:gson:+"
 	implementation "commons-io:commons-io:+"
 	implementation "com.github.jonafanho:Minecraft-Mod-API-Tools:master-SNAPSHOT"
+	implementation "org.mtr:Minecraft-Mappings-common:0.0.1"
+}
+
+repositories {
+	flatDir { dirs "../libs" }
 }
 
 java {

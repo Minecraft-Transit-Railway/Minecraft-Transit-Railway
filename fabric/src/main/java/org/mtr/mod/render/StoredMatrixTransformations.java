@@ -1,6 +1,7 @@
 package org.mtr.mod.render;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.mapping.holder.Vector3d;
 import org.mtr.mapping.mapper.GraphicsHolder;
 
 import java.util.function.Consumer;
@@ -13,8 +14,9 @@ public class StoredMatrixTransformations {
 		transformations.add(transformation);
 	}
 
-	public void transform(GraphicsHolder graphicsHolder) {
+	public void transform(GraphicsHolder graphicsHolder, Vector3d offset) {
 		graphicsHolder.push();
+		graphicsHolder.translate(-offset.getXMapped(), -offset.getYMapped(), -offset.getZMapped());
 		transformations.forEach(transformation -> transformation.accept(graphicsHolder));
 	}
 
