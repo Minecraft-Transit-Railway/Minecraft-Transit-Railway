@@ -40,4 +40,8 @@ subprojects {
 		configurations = [project.configurations.shadowImplementation]
 		dependencies { exclude(dependency { minecraftLibraries.contains("${it.moduleGroup}:${it.moduleName}:".toString()) }) }
 	}
+
+	tasks.withType(Javadoc).tap {
+		configureEach { javadoc.options.addStringOption("Xdoclint:none", "-quiet") }
+	}
 }

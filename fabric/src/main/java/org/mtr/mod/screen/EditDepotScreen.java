@@ -106,7 +106,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			saveData();
 			RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.GENERATE, ObjectSet.of(depot)));
 		});
-		buttonClearTrains = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.clear_vehicles"), button -> RegistryClient.sendPacketToServer(PacketData.fromSidings(IntegrationServlet.Operation.CLEAR, depot.savedRails)));
+		buttonClearTrains = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.clear_vehicles"), button -> RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.CLEAR, ObjectSet.of(depot))));
 		checkboxRepeatIndefinitely = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, button -> {
 			saveData();
 			RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.GENERATE, ObjectSet.of(depot)));

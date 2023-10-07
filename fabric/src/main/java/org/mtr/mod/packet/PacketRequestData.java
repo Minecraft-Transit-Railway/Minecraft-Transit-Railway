@@ -5,7 +5,6 @@ import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mod.Init;
-import org.mtr.mod.client.ClientData;
 
 public class PacketRequestData extends PacketHandler {
 
@@ -17,9 +16,6 @@ public class PacketRequestData extends PacketHandler {
 
 	public PacketRequestData(boolean forceUpdate) {
 		this.forceUpdate = forceUpdate;
-		if (forceUpdate) {
-			ClientData.instance.vehicles.clear();
-		}
 	}
 
 	@Override

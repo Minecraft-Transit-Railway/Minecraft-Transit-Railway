@@ -1,5 +1,6 @@
 package org.mtr.mod.render;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.mtr.core.data.Rail;
 import org.mtr.core.tools.Utilities;
 import org.mtr.mapping.holder.*;
@@ -18,6 +19,7 @@ import org.mtr.mod.data.RailType;
 import org.mtr.mod.item.ItemNodeModifierBase;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 
 public class RenderRails implements IGui {
 
@@ -42,13 +44,13 @@ public class RenderRails implements IGui {
 				case TRAIN:
 					renderRailStandard(clientWorld, rail, renderColors, 1);
 					if (renderColors) {
-//						renderSignalsStandard(clientWorld, matrices, vertexConsumers, rail, startPos, endPos);
+						renderSignalsStandard(clientWorld, rail);
 					}
 					break;
 				case BOAT:
 					if (renderColors) {
 						renderRailStandard(clientWorld, rail, true, 0.5F);
-//						renderSignalsStandard(clientWorld, matrices, vertexConsumers, rail, startPos, endPos);
+						renderSignalsStandard(clientWorld, rail);
 					}
 					break;
 				case CABLE_CAR:
@@ -73,7 +75,7 @@ public class RenderRails implements IGui {
 				case AIRPLANE:
 					if (renderColors) {
 						renderRailStandard(clientWorld, rail, true, 1);
-//						renderSignalsStandard(clientWorld, matrices, vertexConsumers, rail, startPos, endPos);
+						renderSignalsStandard(clientWorld, rail);
 					} else {
 						renderRailStandard(clientWorld, rail, 0.0625F + SMALL_OFFSET, false, 0.25F, new Identifier("textures/block/iron_block.png"), 0.25F, 0, 0.75F, 1);
 					}
@@ -126,6 +128,33 @@ public class RenderRails implements IGui {
 					});
 				}
 			}, -railWidth, railWidth);
+		}
+	}
+
+	private static void renderSignalsStandard(ClientWorld clientWorld, Rail rail) {
+		final int maxRailDistance = MinecraftClientHelper.getRenderDistance() * 16;
+		final IntArrayList colors = new IntArrayList(rail.getSignalColors());
+		Collections.sort(colors);
+		final float width = 1F / 16;
+
+		for (int i = 0; i < colors.size(); i++) {
+			final int color = ARGB_BLACK | colors.getInt(i);
+			final boolean shouldGlow = false; // TODO
+			final float u1 = width * i + 1 - width * colors.size() / 2;
+			final float u2 = u1 + width;
+
+			rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+				final BlockPos pos2 = Init.newBlockPos(x1, y1, z1);
+				if (RenderTrains.shouldNotRender(pos2, maxRailDistance, null)) {
+					return;
+				}
+
+				final int light = shouldGlow ? MAX_LIGHT_GLOWING : LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), pos2), clientWorld.getLightLevel(LightType.getSkyMapped(), pos2));
+				RenderTrains.scheduleRender(shouldGlow ? new Identifier(Init.MOD_ID, "textures/block/white.png") : new Identifier("textures/block/white_wool.png"), false, shouldGlow ? RenderTrains.QueuedRenderLayer.LIGHT : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+					IDrawing.drawTexture(graphicsHolder, x1, y1, z1, x2, y1 + SMALL_OFFSET, z2, x3, y2, z3, x4, y2 + SMALL_OFFSET, z4, offset, u1, 0, u2, 1, Direction.UP, color, light);
+					IDrawing.drawTexture(graphicsHolder, x4, y2 + SMALL_OFFSET, z4, x3, y2, z3, x2, y1 + SMALL_OFFSET, z2, x1, y1, z1, offset, u1, 0, u2, 1, Direction.UP, color, light);
+				});
+			}, u1 - 1, u2 - 1);
 		}
 	}
 }

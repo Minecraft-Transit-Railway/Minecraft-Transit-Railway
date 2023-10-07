@@ -38,34 +38,38 @@ public class PacketData extends PacketHandler {
 	private final JsonObject jsonObject;
 
 	public static PacketData fromStations(IntegrationServlet.Operation operation, ObjectSet<Station> dataSet) {
-		return new PacketData(operation, dataSet, null, null, null, null, null, null);
+		return new PacketData(operation, dataSet, null, null, null, null, null, null, null);
 	}
 
 	public static PacketData fromPlatforms(IntegrationServlet.Operation operation, ObjectSet<Platform> dataSet) {
-		return new PacketData(operation, null, dataSet, null, null, null, null, null);
+		return new PacketData(operation, null, dataSet, null, null, null, null, null, null);
 	}
 
 	public static PacketData fromSidings(IntegrationServlet.Operation operation, ObjectSet<Siding> dataSet) {
-		return new PacketData(operation, null, null, dataSet, null, null, null, null);
+		return new PacketData(operation, null, null, dataSet, null, null, null, null, null);
 	}
 
 	public static PacketData fromRoutes(IntegrationServlet.Operation operation, ObjectSet<Route> dataSet) {
-		return new PacketData(operation, null, null, null, dataSet, null, null, null);
+		return new PacketData(operation, null, null, null, dataSet, null, null, null, null);
 	}
 
 	public static PacketData fromDepots(IntegrationServlet.Operation operation, ObjectSet<Depot> dataSet) {
-		return new PacketData(operation, null, null, null, null, dataSet, null, null);
+		return new PacketData(operation, null, null, null, null, dataSet, null, null, null);
 	}
 
 	private static PacketData fromRail(IntegrationServlet.Operation operation, Rail rail) {
-		return new PacketData(operation, null, null, null, null, null, ObjectSet.of(rail), null);
+		return new PacketData(operation, null, null, null, null, null, ObjectSet.of(rail), null, null);
 	}
 
 	private static PacketData fromRailNode(Position position) {
-		return new PacketData(IntegrationServlet.Operation.DELETE, null, null, null, null, null, null, ObjectSet.of(position));
+		return new PacketData(IntegrationServlet.Operation.DELETE, null, null, null, null, null, null, ObjectSet.of(position), null);
 	}
 
-	private PacketData(IntegrationServlet.Operation operation, ObjectSet<Station> stations, ObjectSet<Platform> platforms, ObjectSet<Siding> sidings, ObjectSet<Route> routes, ObjectSet<Depot> depots, ObjectSet<Rail> rails, ObjectSet<Position> positions) {
+	private static PacketData fromSignalModification(IntegrationServlet.Operation operation, SignalModification signalModification) {
+		return new PacketData(operation, null, null, null, null, null, null, null, ObjectSet.of(signalModification));
+	}
+
+	private PacketData(IntegrationServlet.Operation operation, ObjectSet<Station> stations, ObjectSet<Platform> platforms, ObjectSet<Siding> sidings, ObjectSet<Route> routes, ObjectSet<Depot> depots, ObjectSet<Rail> rails, ObjectSet<Position> positions, ObjectSet<SignalModification> signalModifications) {
 		this.operation = operation;
 		jsonObject = new JsonObject();
 		jsonObject.add("stations", writeDataSetToJsonArray(stations));
@@ -75,6 +79,7 @@ public class PacketData extends PacketHandler {
 		jsonObject.add("depots", writeDataSetToJsonArray(depots));
 		jsonObject.add("rails", writeDataSetToJsonArray(rails));
 		jsonObject.add("positions", writeDataSetToJsonArray(positions));
+		jsonObject.add("signals", writeDataSetToJsonArray(signalModifications));
 	}
 
 	public PacketData(IntegrationServlet.Operation operation, JsonObject jsonObject) {
@@ -116,7 +121,11 @@ public class PacketData extends PacketHandler {
 	private void sendHttpRequestAndBroadcastResultToAllPlayers(ServerWorld serverWorld) {
 		sendHttpRequest(operation, jsonObject, data -> {
 			// Check if there are any rail nodes that need to be reset
-			data.getAsJsonArray("positions").forEach(jsonElement -> BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(new Position(new JsonReader(jsonElement)))));
+			final JsonArray positionsArray = data.getAsJsonArray("positions");
+			if (positionsArray != null) {
+				positionsArray.forEach(jsonElement -> BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(new Position(new JsonReader(jsonElement)))));
+			}
+
 			// Broadcast result to all players
 			MinecraftServerHelper.iteratePlayers(serverWorld, worldPlayer -> Registry.sendPacketToClient(worldPlayer, new PacketData(operation, data)));
 		});
@@ -166,6 +175,10 @@ public class PacketData extends PacketHandler {
 
 	public static void deleteRailNode(ServerWorld serverWorld, Position position) {
 		fromRailNode(position).sendHttpRequestAndBroadcastResultToAllPlayers(serverWorld);
+	}
+
+	public static void modifySignal(ServerWorld serverWorld, SignalModification signalModification) {
+		fromSignalModification(IntegrationServlet.Operation.UPDATE, signalModification).sendHttpRequestAndBroadcastResultToAllPlayers(serverWorld);
 	}
 
 	protected static void sendHttpRequest(IntegrationServlet.Operation operation, JsonObject contentObject, Consumer<JsonObject> consumer) {
