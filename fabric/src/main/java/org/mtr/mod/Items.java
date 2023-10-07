@@ -1,10 +1,9 @@
 package org.mtr.mod;
 
 import org.mtr.core.data.TransportMode;
-import org.mtr.core.tools.DyeColor;
-import org.mtr.init.MTR;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.Item;
+import org.mtr.mapping.holder.MapColor;
 import org.mtr.mapping.mapper.ItemExtension;
 import org.mtr.mapping.mapper.PlaceableOnWaterItemExtension;
 import org.mtr.mapping.registry.ItemRegistryObject;
@@ -71,40 +70,40 @@ public final class Items {
 		RAIL_REMOVER = Registry.registerItem(new Identifier(Init.MOD_ID, "rail_remover"), itemSettings -> new Item(new ItemRailModifier(itemSettings)), CreativeModeTabs.CORE);
 
 		// Signal connectors
-		SIGNAL_CONNECTOR_WHITE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_white"), itemSettings -> new Item(new ItemSignalModifier(true, DyeColor.WHITE, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_CONNECTOR_ORANGE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_orange"), itemSettings -> new Item(new ItemSignalModifier(true, DyeColor.ORANGE, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_CONNECTOR_MAGENTA = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_magenta"), itemSettings -> new Item(new ItemSignalModifier(true, DyeColor.MAGENTA, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_CONNECTOR_LIGHT_BLUE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_light_blue"), itemSettings -> new Item(new ItemSignalModifier(true, DyeColor.LIGHT_BLUE, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_CONNECTOR_YELLOW = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_yellow"), itemSettings -> new Item(new ItemSignalModifier(true, DyeColor.YELLOW, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_CONNECTOR_LIME = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_lime"), itemSettings -> new Item(new ItemSignalModifier(true, DyeColor.LIME, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_CONNECTOR_PINK = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_pink"), itemSettings -> new Item(new ItemSignalModifier(true, DyeColor.PINK, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_CONNECTOR_GRAY = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_gray"), itemSettings -> new Item(new ItemSignalModifier(true, DyeColor.GRAY, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_CONNECTOR_LIGHT_GRAY = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_light_gray"), itemSettings -> new Item(new ItemSignalModifier(true, DyeColor.LIGHT_GRAY, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_CONNECTOR_CYAN = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_cyan"), itemSettings -> new Item(new ItemSignalModifier(true, DyeColor.CYAN, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_CONNECTOR_PURPLE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_purple"), itemSettings -> new Item(new ItemSignalModifier(true, DyeColor.PURPLE, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_CONNECTOR_BLUE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_blue"), itemSettings -> new Item(new ItemSignalModifier(true, DyeColor.BLUE, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_CONNECTOR_BROWN = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_brown"), itemSettings -> new Item(new ItemSignalModifier(true, DyeColor.BROWN, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_CONNECTOR_GREEN = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_green"), itemSettings -> new Item(new ItemSignalModifier(true, DyeColor.GREEN, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_CONNECTOR_RED = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_red"), itemSettings -> new Item(new ItemSignalModifier(true, DyeColor.RED, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_CONNECTOR_BLACK = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_black"), itemSettings -> new Item(new ItemSignalModifier(true, DyeColor.BLACK, itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_CONNECTOR_WHITE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_white"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getWhiteMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_CONNECTOR_ORANGE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_orange"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getOrangeMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_CONNECTOR_MAGENTA = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_magenta"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getMagentaMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_CONNECTOR_LIGHT_BLUE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_light_blue"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getLightBlueMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_CONNECTOR_YELLOW = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_yellow"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getYellowMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_CONNECTOR_LIME = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_lime"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getLimeMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_CONNECTOR_PINK = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_pink"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getPinkMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_CONNECTOR_GRAY = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_gray"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getGrayMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_CONNECTOR_LIGHT_GRAY = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_light_gray"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getLightGrayMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_CONNECTOR_CYAN = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_cyan"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getCyanMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_CONNECTOR_PURPLE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_purple"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getPurpleMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_CONNECTOR_BLUE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_blue"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getBlueMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_CONNECTOR_BROWN = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_brown"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getBrownMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_CONNECTOR_GREEN = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_green"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getGreenMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_CONNECTOR_RED = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_red"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getRedMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_CONNECTOR_BLACK = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_black"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getBlackMapped(), itemSettings)), CreativeModeTabs.CORE);
 
 		// Signal removers
-		SIGNAL_REMOVER_WHITE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_white"), itemSettings -> new Item(new ItemSignalModifier(false, DyeColor.WHITE, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_REMOVER_ORANGE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_orange"), itemSettings -> new Item(new ItemSignalModifier(false, DyeColor.ORANGE, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_REMOVER_MAGENTA = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_magenta"), itemSettings -> new Item(new ItemSignalModifier(false, DyeColor.MAGENTA, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_REMOVER_LIGHT_BLUE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_light_blue"), itemSettings -> new Item(new ItemSignalModifier(false, DyeColor.LIGHT_BLUE, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_REMOVER_YELLOW = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_yellow"), itemSettings -> new Item(new ItemSignalModifier(false, DyeColor.YELLOW, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_REMOVER_LIME = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_lime"), itemSettings -> new Item(new ItemSignalModifier(false, DyeColor.LIME, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_REMOVER_PINK = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_pink"), itemSettings -> new Item(new ItemSignalModifier(false, DyeColor.PINK, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_REMOVER_GRAY = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_gray"), itemSettings -> new Item(new ItemSignalModifier(false, DyeColor.GRAY, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_REMOVER_LIGHT_GRAY = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_light_gray"), itemSettings -> new Item(new ItemSignalModifier(false, DyeColor.LIGHT_GRAY, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_REMOVER_CYAN = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_cyan"), itemSettings -> new Item(new ItemSignalModifier(false, DyeColor.CYAN, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_REMOVER_PURPLE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_purple"), itemSettings -> new Item(new ItemSignalModifier(false, DyeColor.PURPLE, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_REMOVER_BLUE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_blue"), itemSettings -> new Item(new ItemSignalModifier(false, DyeColor.BLUE, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_REMOVER_BROWN = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_brown"), itemSettings -> new Item(new ItemSignalModifier(false, DyeColor.BROWN, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_REMOVER_GREEN = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_green"), itemSettings -> new Item(new ItemSignalModifier(false, DyeColor.GREEN, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_REMOVER_RED = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_red"), itemSettings -> new Item(new ItemSignalModifier(false, DyeColor.RED, itemSettings)), CreativeModeTabs.CORE);
-		SIGNAL_REMOVER_BLACK = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_black"), itemSettings -> new Item(new ItemSignalModifier(false, DyeColor.BLACK, itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_REMOVER_WHITE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_white"), itemSettings -> new Item(new ItemSignalModifier(false, MapColor.getWhiteMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_REMOVER_ORANGE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_orange"), itemSettings -> new Item(new ItemSignalModifier(false, MapColor.getOrangeMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_REMOVER_MAGENTA = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_magenta"), itemSettings -> new Item(new ItemSignalModifier(false, MapColor.getMagentaMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_REMOVER_LIGHT_BLUE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_light_blue"), itemSettings -> new Item(new ItemSignalModifier(false, MapColor.getLightBlueMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_REMOVER_YELLOW = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_yellow"), itemSettings -> new Item(new ItemSignalModifier(false, MapColor.getYellowMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_REMOVER_LIME = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_lime"), itemSettings -> new Item(new ItemSignalModifier(false, MapColor.getLimeMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_REMOVER_PINK = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_pink"), itemSettings -> new Item(new ItemSignalModifier(false, MapColor.getPinkMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_REMOVER_GRAY = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_gray"), itemSettings -> new Item(new ItemSignalModifier(false, MapColor.getGrayMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_REMOVER_LIGHT_GRAY = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_light_gray"), itemSettings -> new Item(new ItemSignalModifier(false, MapColor.getLightGrayMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_REMOVER_CYAN = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_cyan"), itemSettings -> new Item(new ItemSignalModifier(false, MapColor.getCyanMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_REMOVER_PURPLE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_purple"), itemSettings -> new Item(new ItemSignalModifier(false, MapColor.getPurpleMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_REMOVER_BLUE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_blue"), itemSettings -> new Item(new ItemSignalModifier(false, MapColor.getBlueMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_REMOVER_BROWN = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_brown"), itemSettings -> new Item(new ItemSignalModifier(false, MapColor.getBrownMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_REMOVER_GREEN = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_green"), itemSettings -> new Item(new ItemSignalModifier(false, MapColor.getGreenMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_REMOVER_RED = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_red"), itemSettings -> new Item(new ItemSignalModifier(false, MapColor.getRedMapped(), itemSettings)), CreativeModeTabs.CORE);
+		SIGNAL_REMOVER_BLACK = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_remover_black"), itemSettings -> new Item(new ItemSignalModifier(false, MapColor.getBlackMapped(), itemSettings)), CreativeModeTabs.CORE);
 
 		// Building tools
 		BRIDGE_CREATOR_3 = Registry.registerItem(new Identifier(Init.MOD_ID, "bridge_creator_3"), itemSettings -> new Item(new ItemBridgeCreator(3, itemSettings)), CreativeModeTabs.CORE);
