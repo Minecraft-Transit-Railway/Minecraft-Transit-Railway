@@ -65,8 +65,8 @@ public class PacketData extends PacketHandler {
 		return new PacketData(IntegrationServlet.Operation.DELETE, null, null, null, null, null, null, ObjectSet.of(position), null);
 	}
 
-	private static PacketData fromSignalModification(IntegrationServlet.Operation operation, SignalModification signalModification) {
-		return new PacketData(operation, null, null, null, null, null, null, null, ObjectSet.of(signalModification));
+	private static PacketData fromSignalModification(SignalModification signalModification) {
+		return new PacketData(IntegrationServlet.Operation.UPDATE, null, null, null, null, null, null, null, ObjectSet.of(signalModification));
 	}
 
 	private PacketData(IntegrationServlet.Operation operation, ObjectSet<Station> stations, ObjectSet<Platform> platforms, ObjectSet<Siding> sidings, ObjectSet<Route> routes, ObjectSet<Depot> depots, ObjectSet<Rail> rails, ObjectSet<Position> positions, ObjectSet<SignalModification> signalModifications) {
@@ -178,7 +178,7 @@ public class PacketData extends PacketHandler {
 	}
 
 	public static void modifySignal(ServerWorld serverWorld, SignalModification signalModification) {
-		fromSignalModification(IntegrationServlet.Operation.UPDATE, signalModification).sendHttpRequestAndBroadcastResultToAllPlayers(serverWorld);
+		fromSignalModification(signalModification).sendHttpRequestAndBroadcastResultToAllPlayers(serverWorld);
 	}
 
 	protected static void sendHttpRequest(IntegrationServlet.Operation operation, JsonObject contentObject, Consumer<JsonObject> consumer) {

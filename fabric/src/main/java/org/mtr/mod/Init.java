@@ -182,7 +182,7 @@ public final class Init {
 
 		private ClientGroupNew(int dimensionIndex) {
 			this.dimensionIndex = dimensionIndex;
-			updateRadius = 64;
+			updateRadius = 16 * 16; // 16 chunks
 		}
 
 		private void serializeDataJson(JsonWriter jsonWriter) {
