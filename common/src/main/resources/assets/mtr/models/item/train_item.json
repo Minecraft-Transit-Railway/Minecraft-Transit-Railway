@@ -1,0 +1,19 @@
+{
+"parent": "item/generated",
+"textures": {
+"layer0": "item/train_item"
+},
+"overrides": [
+{
+"predicate": {
+"number": true
+},
+"model": "item/train_item_number"
+},
+{
+"predicate": {
+"number": false
+},
+"model": "item/train_item_no_number"
+}
+]
