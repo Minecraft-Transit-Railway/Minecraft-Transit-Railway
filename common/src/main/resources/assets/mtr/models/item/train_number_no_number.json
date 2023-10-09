@@ -1,0 +1,7 @@
+{
+"parent": "item/generated",
+"textures": {
+"layer0": "item/train_item_no_number"
+}
+}
+
