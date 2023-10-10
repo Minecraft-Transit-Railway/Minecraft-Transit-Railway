@@ -22,7 +22,7 @@ jobs:
       - name: Make gradle wrapper executable
         run: chmod +x ./gradlew
       - name: Setup files
-        run: ./gradlew setupFiles -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+        run: ./gradlew setupFiles -PminecraftVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
       - name: Build ${{ matrix.minecraft }}
         run: ./gradlew build -PminecraftVersion="${{ matrix.minecraft }}"
       - name: Capture release artifacts
