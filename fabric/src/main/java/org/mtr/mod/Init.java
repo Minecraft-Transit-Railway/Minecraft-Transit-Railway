@@ -87,7 +87,6 @@ public final class Init {
 					1200000,
 					minecraftServer.getOverworld().getTime(),
 					minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"),
-					"website",
 					8888,
 					worldNames.toArray(new String[0])
 			);
