@@ -1,6 +1,6 @@
 package org.mtr.mod.screen;
 
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.BlockEntity;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.ClientWorld;

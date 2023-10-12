@@ -1,11 +1,11 @@
 package org.mtr.mod.screen;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.core.data.EnumHelper;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.data.Vehicle;
+import org.mtr.libraries.com.google.gson.JsonArray;
+import org.mtr.libraries.com.google.gson.JsonObject;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.TextCase;

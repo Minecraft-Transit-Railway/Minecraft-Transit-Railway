@@ -6,8 +6,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TODO add 1.16.5 and 1.17.1 after fixing fastutil and gson incompatibilities
-        minecraft: [ 1.18.2, 1.19.4, 1.20.2 ]
+        minecraft: [ 1.16.5, 1.17.1, 1.18.2, 1.19.4, 1.20.2 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

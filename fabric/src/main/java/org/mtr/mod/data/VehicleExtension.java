@@ -1,13 +1,13 @@
 package org.mtr.mod.data;
 
-import com.google.gson.JsonObject;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.lang3.StringUtils;
 import org.mtr.core.data.Data;
 import org.mtr.core.data.Vehicle;
 import org.mtr.core.data.VehicleExtraData;
 import org.mtr.core.serializers.JsonReader;
 import org.mtr.core.tools.Utilities;
+import org.mtr.libraries.com.google.gson.JsonObject;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Items;

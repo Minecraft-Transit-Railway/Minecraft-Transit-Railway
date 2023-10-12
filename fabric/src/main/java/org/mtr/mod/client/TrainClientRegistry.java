@@ -1,9 +1,9 @@
 package org.mtr.mod.client;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.lang3.StringUtils;
 import org.mtr.core.data.TransportMode;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.data.TrainType;
 import org.mtr.mod.model.*;

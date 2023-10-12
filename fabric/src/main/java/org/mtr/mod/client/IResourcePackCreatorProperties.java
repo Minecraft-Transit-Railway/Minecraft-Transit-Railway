@@ -1,9 +1,9 @@
 package org.mtr.mod.client;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.mtr.core.data.TransportMode;
+import org.mtr.libraries.com.google.gson.JsonArray;
+import org.mtr.libraries.com.google.gson.JsonElement;
+import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.mod.model.ModelTrainBase;
 
 import java.util.ArrayList;

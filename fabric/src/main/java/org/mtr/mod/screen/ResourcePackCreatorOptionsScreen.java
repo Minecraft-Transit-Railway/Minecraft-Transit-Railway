@@ -1,6 +1,6 @@
 package org.mtr.mod.screen;
 
-import com.google.gson.JsonObject;
+import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.TextCase;

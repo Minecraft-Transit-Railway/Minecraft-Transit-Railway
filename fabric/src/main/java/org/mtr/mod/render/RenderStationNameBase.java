@@ -1,7 +1,10 @@
 package org.mtr.mod.render;
 
 import org.mtr.core.data.Station;
-import org.mtr.mapping.holder.*;
+import org.mtr.mapping.holder.BlockPos;
+import org.mtr.mapping.holder.BlockState;
+import org.mtr.mapping.holder.Direction;
+import org.mtr.mapping.holder.World;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.TextHelper;

@@ -1,6 +1,5 @@
 package org.mtr.mod;
 
-import org.mtr.init.MTR;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.ItemConvertible;
 import org.mtr.mapping.holder.ItemStack;
