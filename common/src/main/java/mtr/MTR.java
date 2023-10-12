@@ -211,6 +211,8 @@ public class MTR implements IPacket {
 			registerBlockItem.accept("marble_sandy_slab", Blocks.MARBLE_SANDY_SLAB, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 			registerBlockItem.accept("metal", Blocks.METAL, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 			registerBlockItem.accept("metal_slab", Blocks.METAL_SLAB, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+			registerBlockItem.accept("tile", Blocks.TILE, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+			registerBlockItem.accept("tile_slab", Blocks.TILE_SLAB, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 			registerBlockItem.accept("pids_1", Blocks.PIDS_1, CreativeModeTabs.RAILWAY_FACILITIES);
 			registerBlockItem.accept("pids_2", Blocks.PIDS_2, CreativeModeTabs.RAILWAY_FACILITIES);
 			registerBlockItem.accept("pids_3", Blocks.PIDS_3, CreativeModeTabs.RAILWAY_FACILITIES);
@@ -280,6 +282,7 @@ public class MTR implements IPacket {
 			registerEnchantedBlockItem.accept("station_color_gravel", Blocks.STATION_COLOR_GRAVEL, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 			registerEnchantedBlockItem.accept("station_color_iron_block", Blocks.STATION_COLOR_IRON_BLOCK, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 			registerEnchantedBlockItem.accept("station_color_metal", Blocks.STATION_COLOR_METAL, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+			registerEnchantedBlockItem.accept("station_color_tile", Blocks.STATION_COLOR_TILE, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 			registerEnchantedBlockItem.accept("station_color_planks", Blocks.STATION_COLOR_PLANKS, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 			registerEnchantedBlockItem.accept("station_color_polished_andesite", Blocks.STATION_COLOR_POLISHED_ANDESITE, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 			registerEnchantedBlockItem.accept("station_color_polished_diorite", Blocks.STATION_COLOR_POLISHED_DIORITE, CreativeModeTabs.STATION_BUILDING_BLOCKS);
@@ -313,6 +316,7 @@ public class MTR implements IPacket {
 			registerEnchantedBlockItem.accept("station_color_gravel_slab", Blocks.STATION_COLOR_GRAVEL_SLAB, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 			registerEnchantedBlockItem.accept("station_color_iron_block_slab", Blocks.STATION_COLOR_IRON_BLOCK_SLAB, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 			registerEnchantedBlockItem.accept("station_color_metal_slab", Blocks.STATION_COLOR_METAL_SLAB, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+			registerEnchantedBlockItem.accept("station_color_tile_slab", Blocks.STATION_COLOR_TILE_SLAB, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 			registerEnchantedBlockItem.accept("station_color_planks_slab", Blocks.STATION_COLOR_PLANKS_SLAB, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 			registerEnchantedBlockItem.accept("station_color_polished_andesite_slab", Blocks.STATION_COLOR_POLISHED_ANDESITE_SLAB, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 			registerEnchantedBlockItem.accept("station_color_polished_diorite_slab", Blocks.STATION_COLOR_POLISHED_DIORITE_SLAB, CreativeModeTabs.STATION_BUILDING_BLOCKS);
