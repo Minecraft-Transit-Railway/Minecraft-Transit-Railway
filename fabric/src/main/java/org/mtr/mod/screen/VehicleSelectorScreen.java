@@ -1,16 +1,15 @@
 package org.mtr.mod.screen;
 
-import com.google.gson.JsonObject;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
-import org.jetbrains.annotations.Nullable;
 import org.mtr.core.data.Siding;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.data.VehicleCar;
 import org.mtr.core.servlet.IntegrationServlet;
+import org.mtr.libraries.com.google.gson.JsonObject;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.holder.OrderedText;
@@ -27,6 +26,7 @@ import org.mtr.mod.client.TrainProperties;
 import org.mtr.mod.data.TrainType;
 import org.mtr.mod.packet.PacketData;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 

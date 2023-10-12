@@ -1,6 +1,6 @@
 package org.mtr.mod.client;
 
-import com.google.gson.JsonObject;
+import org.mtr.libraries.com.google.gson.JsonObject;
 
 public interface ICustomResources {
 

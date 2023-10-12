@@ -1,9 +1,9 @@
 package org.mtr.mod.packet;
 
-import com.google.gson.JsonObject;
 import org.mtr.core.data.EnumHelper;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.servlet.IntegrationServlet;
+import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.holder.PlayerEntity;
 import org.mtr.mapping.holder.ServerPlayerEntity;

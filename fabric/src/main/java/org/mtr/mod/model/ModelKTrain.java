@@ -1,7 +1,7 @@
 package org.mtr.mod.model;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.core.data.InterchangeColorsForStationName;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mod.client.DoorAnimationType;

@@ -1,11 +1,11 @@
 package org.mtr.mod.screen;
 
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.core.data.Route;
 import org.mtr.core.data.RouteType;
 import org.mtr.core.data.Station;
 import org.mtr.core.servlet.IntegrationServlet;
 import org.mtr.core.tools.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.holder.Text;

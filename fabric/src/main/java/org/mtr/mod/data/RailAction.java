@@ -1,9 +1,9 @@
 package org.mtr.mod.data;
 
-import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import org.mtr.core.data.Rail;
 import org.mtr.core.tools.Utilities;
 import org.mtr.core.tools.Vector;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.SlabBlockExtension;
 import org.mtr.mapping.mapper.TextHelper;

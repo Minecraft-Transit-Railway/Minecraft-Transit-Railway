@@ -1,9 +1,8 @@
 package org.mtr.mod.client;
 
 import com.mojang.text2speech.Narrator;
-import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.init.MTR;
+import org.mtr.libraries.it.unimi.dsi.fastutil.booleans.BooleanArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mod.Init;

@@ -1,7 +1,7 @@
 package org.mtr.mod.data;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.core.data.Rail;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.BlockState;
 import org.mtr.mapping.holder.ServerPlayerEntity;

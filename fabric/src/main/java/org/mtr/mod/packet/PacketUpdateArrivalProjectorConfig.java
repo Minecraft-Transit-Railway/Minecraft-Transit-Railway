@@ -1,6 +1,6 @@
 package org.mtr.mod.packet;
 
-import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mod.block.BlockArrivalProjectorBase;

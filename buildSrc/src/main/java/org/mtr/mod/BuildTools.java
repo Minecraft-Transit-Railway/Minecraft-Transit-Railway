@@ -1,6 +1,5 @@
 package org.mtr.mod;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -10,7 +9,7 @@ import com.jonafanho.apitools.ModProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.Project;
-import org.mtr.mapping.tool.CreateClientWorldRenderingMixin;
+import org.mtr.mapping.mixin.CreateClientWorldRenderingMixin;
 
 import java.io.IOException;
 import java.net.URL;
@@ -18,8 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -92,23 +89,6 @@ public class BuildTools {
 		final Path directory = path.getParent().resolve("build/release");
 		Files.createDirectories(directory);
 		Files.copy(path.resolve(String.format("build/libs/%s-%s%s.jar", loader, version, loader.equals("fabric") ? "" : "-all")), directory.resolve(String.format("MTR-%s-%s-%s.jar", loader, minecraftVersion, version)), StandardCopyOption.REPLACE_EXISTING);
-	}
-
-	public static List<String> getLibraries(String minecraftVersion) {
-		final JsonArray versionsArray = getJson("https://piston-meta.mojang.com/mc/game/version_manifest_v2.json").getAsJsonObject().getAsJsonArray("versions");
-		for (final JsonElement versionElement : versionsArray) {
-			final JsonObject versionObject = versionElement.getAsJsonObject();
-			if (versionObject.get("id").getAsString().equals(minecraftVersion)) {
-				final JsonArray librariesArray = getJson(versionObject.get("url").getAsString()).getAsJsonObject().getAsJsonArray("libraries");
-				final List<String> libraries = new ArrayList<>();
-				librariesArray.forEach(libraryElement -> {
-					final String[] librarySplit = libraryElement.getAsJsonObject().get("name").getAsString().split(":");
-					libraries.add(String.format("%s:%s:", librarySplit[0], librarySplit[1]));
-				});
-				return libraries;
-			}
-		}
-		return new ArrayList<>();
 	}
 
 	private static JsonElement getJson(String url) {

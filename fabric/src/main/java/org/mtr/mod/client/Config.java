@@ -1,8 +1,8 @@
 package org.mtr.mod.client;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.mtr.core.tools.Utilities;
+import org.mtr.libraries.com.google.gson.JsonObject;
+import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.mapping.holder.MathHelper;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mod.Init;

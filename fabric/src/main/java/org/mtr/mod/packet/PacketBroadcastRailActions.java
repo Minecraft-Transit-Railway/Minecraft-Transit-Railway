@@ -1,6 +1,6 @@
 package org.mtr.mod.packet;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mod.client.ClientData;

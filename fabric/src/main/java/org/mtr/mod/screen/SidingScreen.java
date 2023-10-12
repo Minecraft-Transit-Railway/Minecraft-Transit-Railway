@@ -1,11 +1,11 @@
 package org.mtr.mod.screen;
 
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.core.data.Depot;
 import org.mtr.core.data.Siding;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.servlet.IntegrationServlet;
 import org.mtr.core.tools.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.registry.RegistryClient;
