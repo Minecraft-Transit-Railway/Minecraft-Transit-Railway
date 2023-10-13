@@ -37,7 +37,9 @@ public class WidgetColorSelector extends ButtonWidgetExtension implements IGui {
 		if (visible) {
 			final int margin = hasMargin ? 1 : 0;
 			final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
+			guiDrawing.beginDrawingRectangle();
 			guiDrawing.drawRectangle(getX2() - margin, getY2() - margin, getX2() + width + margin, getY2() + height + margin, ARGB_BLACK | color);
+			guiDrawing.finishDrawingRectangle();
 		}
 	}
 
