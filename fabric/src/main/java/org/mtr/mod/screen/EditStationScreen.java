@@ -141,6 +141,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 			final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
 			guiDrawing.beginDrawingRectangle();
 			guiDrawing.drawRectangle(width / 2F, EXIT_PANELS_START - SQUARE_SIZE, width / 2F + 1, height, ARGB_WHITE_TRANSLUCENT);
+			guiDrawing.finishDrawingRectangle();
 
 			exitParentList.render(graphicsHolder);
 			exitDestinationList.render(graphicsHolder);
