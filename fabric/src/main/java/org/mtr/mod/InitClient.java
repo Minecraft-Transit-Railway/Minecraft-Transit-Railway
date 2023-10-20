@@ -311,6 +311,7 @@ public final class InitClient {
 			lastMillis = System.currentTimeMillis();
 			gameMillis = 0;
 			lastPosition = null;
+			CustomResourceLoader.reload(); // TODO texture reload event not always working
 		});
 
 		EventRegistryClient.registerStartClientTick(() -> {
@@ -324,8 +325,6 @@ public final class InitClient {
 				}
 			}
 		});
-
-		EventRegistryClient.registerResourcesReload(new Identifier(Init.MOD_ID, "custom_resources"), CustomResources::reload);
 
 		Patreon.getPatreonList(Config.PATREON_LIST);
 		Config.refreshProperties();

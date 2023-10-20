@@ -1,4 +1,5 @@
 import org.apache.tools.ant.filters.ReplaceTokens
+import org.mtr.core.Generator
 import org.mtr.mod.BuildTools
 
 plugins {
@@ -45,7 +46,8 @@ tasks.register("setupFiles") {
 		rename "(.+).template.json", "\$1.json"
 	}
 
-	buildTools.copyLootTables();
+	buildTools.copyLootTables()
+	Generator.generate(project, false)
 }
 
 build {

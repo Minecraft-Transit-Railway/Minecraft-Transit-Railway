@@ -41,6 +41,7 @@ public final class Init {
 	private static final Object2ObjectArrayMap<Identifier, IntObjectImmutablePair<ObjectArraySet<ObjectBooleanImmutablePair<ServerPlayerEntity>>>> PLAYERS_TO_UPDATE = new Object2ObjectArrayMap<>();
 
 	public static void init() {
+		AsciiArt.print();
 		Blocks.init();
 		Items.init();
 		BlockEntityTypes.init();
@@ -60,7 +61,6 @@ public final class Init {
 		Registry.registerPacket(PacketOpenDashboardScreen.class, PacketOpenDashboardScreen::new);
 		Registry.registerPacket(PacketOpenLiftCustomizationScreen.class, PacketOpenLiftCustomizationScreen::new);
 		Registry.registerPacket(PacketOpenPIDSConfigScreen.class, PacketOpenPIDSConfigScreen::new);
-		Registry.registerPacket(PacketOpenResourcePackCreatorScreen.class, PacketOpenResourcePackCreatorScreen::new);
 		Registry.registerPacket(PacketOpenTicketMachineScreen.class, PacketOpenTicketMachineScreen::new);
 		Registry.registerPacket(PacketRequestData.class, PacketRequestData::new);
 		Registry.registerPacket(PacketUpdateArrivalProjectorConfig.class, PacketUpdateArrivalProjectorConfig::new);

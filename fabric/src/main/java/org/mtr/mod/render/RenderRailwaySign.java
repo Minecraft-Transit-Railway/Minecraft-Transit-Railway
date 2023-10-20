@@ -16,7 +16,7 @@ import org.mtr.mod.block.BlockRailwaySign;
 import org.mtr.mod.block.BlockStationNameBase;
 import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.ClientData;
-import org.mtr.mod.client.CustomResources;
+import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
@@ -56,7 +56,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 		int backgroundColor = 0;
 		for (final String signId : signIds) {
 			if (signId != null) {
-				final CustomResources.CustomSign sign = getSign(signId);
+				final CustomResourceLoader.CustomSign sign = getSign(signId);
 				if (sign != null) {
 					renderBackground = true;
 					if (sign.backgroundColor != 0) {
@@ -121,7 +121,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 			return;
 		}
 
-		final CustomResources.CustomSign sign = getSign(signId);
+		final CustomResourceLoader.CustomSign sign = getSign(signId);
 		if (sign == null) {
 			return;
 		}
@@ -272,12 +272,12 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 		});
 	}
 
-	public static CustomResources.CustomSign getSign(@Nullable String signId) {
+	public static CustomResourceLoader.CustomSign getSign(@Nullable String signId) {
 		try {
 			final BlockRailwaySign.SignType sign = BlockRailwaySign.SignType.valueOf(signId);
-			return new CustomResources.CustomSign(sign.textureId, sign.flipTexture, sign.customText, sign.flipCustomText, sign.small, sign.backgroundColor);
+			return new CustomResourceLoader.CustomSign(sign.textureId, sign.flipTexture, sign.customText, sign.flipCustomText, sign.small, sign.backgroundColor);
 		} catch (Exception ignored) {
-			return signId == null ? null : CustomResources.CUSTOM_SIGNS.get(signId);
+			return signId == null ? null : CustomResourceLoader.CUSTOM_SIGNS.get(signId);
 		}
 	}
 
@@ -285,7 +285,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 		float maxWidthLeft = 0;
 		for (int i = index + (right ? 1 : -1); right ? i < signIds.length : i >= 0; i += (right ? 1 : -1)) {
 			if (signIds[i] != null) {
-				final CustomResources.CustomSign sign = RenderRailwaySign.getSign(signIds[i]);
+				final CustomResourceLoader.CustomSign sign = RenderRailwaySign.getSign(signIds[i]);
 				if (sign != null && sign.hasCustomText() && right == sign.flipCustomText) {
 					maxWidthLeft /= 2;
 				}

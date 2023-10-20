@@ -13,7 +13,7 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockRailwaySign;
 import org.mtr.mod.block.BlockRouteSignBase;
 import org.mtr.mod.client.ClientData;
-import org.mtr.mod.client.CustomResources;
+import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.PacketUpdateRailwaySignConfig;
@@ -62,7 +62,7 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 		for (final BlockRailwaySign.SignType signType : BlockRailwaySign.SignType.values()) {
 			allSignIds.add(signType.toString());
 		}
-		final List<String> sortedKeys = new ArrayList<>(CustomResources.CUSTOM_SIGNS.keySet());
+		final List<String> sortedKeys = new ArrayList<>(CustomResourceLoader.CUSTOM_SIGNS.keySet());
 		Collections.sort(sortedKeys);
 		allSignIds.addAll(sortedKeys);
 
@@ -196,7 +196,7 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 
 			loopSigns((index, x, y, isBig) -> {
 				final String signId = allSignIds.get(index);
-				final CustomResources.CustomSign sign = RenderRailwaySign.getSign(signId);
+				final CustomResourceLoader.CustomSign sign = RenderRailwaySign.getSign(signId);
 				if (sign != null) {
 					final boolean moveRight = sign.hasCustomText() && sign.flipCustomText;
 					final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
@@ -250,7 +250,7 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 		int totalPagesSmallCount = 1;
 		int totalPagesBigCount = 1;
 		for (int i = 0; i < allSignIds.size(); i++) {
-			final CustomResources.CustomSign sign = RenderRailwaySign.getSign(allSignIds.get(i));
+			final CustomResourceLoader.CustomSign sign = RenderRailwaySign.getSign(allSignIds.get(i));
 			final boolean isBig = sign != null && sign.hasCustomText();
 
 			final boolean onPage = (isBig ? indexBig : indexSmall) / pageCount == page;

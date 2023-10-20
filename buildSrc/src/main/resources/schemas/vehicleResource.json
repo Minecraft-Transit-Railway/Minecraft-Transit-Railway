@@ -1,0 +1,79 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"models": {
+			"type": "array",
+			"items": {
+				"$ref": "vehicleModel.json"
+			}
+		},
+		"name": {
+			"type": "string"
+		},
+		"color": {
+			"type": "integer",
+			"minimum": 0,
+			"maximum": 16777215
+		},
+		"width": {
+			"type": "number",
+			"minimum": 0
+		},
+		"height": {
+			"type": "number",
+			"minimum": 0
+		},
+		"description": {
+			"type": "string"
+		},
+		"wikipediaArticle": {
+			"type": "string"
+		},
+		"gangwayConnectionResource": {
+			"type": "string"
+		},
+		"vehicleBarrierResource": {
+			"type": "string"
+		},
+		"doorAnimationType": {
+			"$ref": "DoorAnimationType"
+		},
+		"bveSoundBaseResource": {
+			"type": "string"
+		},
+		"speedSoundCount": {
+			"type": "integer",
+			"minimum": 1
+		},
+		"speedSoundBaseResource": {
+			"type": "string"
+		},
+		"doorSoundBaseResource": {
+			"type": "string"
+		},
+		"doorCloseSoundType": {
+			"type": "number"
+		}
+	},
+	"required": [
+		"models",
+		"name",
+		"color",
+		"width",
+		"height",
+		"description",
+		"wikipediaArticle",
+		"gangwayConnectionResource",
+		"vehicleBarrierResource",
+		"doorAnimationType",
+		"bveSoundBaseResource",
+		"speedSoundCount",
+		"speedSoundBaseResource",
+		"doorSoundBaseResource",
+		"doorCloseSoundType"
+	]
+}
