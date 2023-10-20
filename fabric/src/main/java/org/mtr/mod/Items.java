@@ -24,7 +24,6 @@ public final class Items {
 		// Misc
 		DRIVER_KEY = Registry.registerItem(new Identifier(Init.MOD_ID, "driver_key"), itemSettings -> new Item(new ItemExtension(itemSettings.maxCount(1))), CreativeModeTabs.CORE);
 		BOAT_NODE = Registry.registerItem(new Identifier(Init.MOD_ID, "boat_node"), itemSettings -> new Item(new PlaceableOnWaterItemExtension(Blocks.BOAT_NODE.get(), itemSettings)), CreativeModeTabs.CORE);
-		RESOURCE_PACK_CREATOR = Registry.registerItem(new Identifier(Init.MOD_ID, "resource_pack_creator"), itemSettings -> new Item(new ItemResourcePackCreator(itemSettings)), CreativeModeTabs.CORE);
 
 		// Doors
 		APG_DOOR = Registry.registerItem(new Identifier(Init.MOD_ID, "apg_door"), itemSettings -> new Item(new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.APG, itemSettings)), CreativeModeTabs.RAILWAY_FACILITIES);
@@ -184,7 +183,6 @@ public final class Items {
 	public static final ItemRegistryObject RAIL_CONNECTOR_TURN_BACK;
 	public static final ItemRegistryObject RAIL_REMOVER;
 	public static final ItemRegistryObject RAILWAY_DASHBOARD;
-	public static final ItemRegistryObject RESOURCE_PACK_CREATOR;
 	public static final ItemRegistryObject SIGNAL_CONNECTOR_BLACK;
 	public static final ItemRegistryObject SIGNAL_CONNECTOR_BLUE;
 	public static final ItemRegistryObject SIGNAL_CONNECTOR_BROWN;

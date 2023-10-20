@@ -64,6 +64,12 @@ tasks.register("setupFiles") {
 
 	copy {
 		outputs.upToDateWhen { false }
+		from "../fabric/src/main/java/org/mtr/core"
+		into "src/main/java/org/mtr/core"
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
 		from "../fabric/src/main/resources/assets"
 		into "src/main/resources/assets"
 	}

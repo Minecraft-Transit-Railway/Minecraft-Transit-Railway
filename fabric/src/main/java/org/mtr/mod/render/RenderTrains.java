@@ -10,7 +10,6 @@ import org.mtr.mapping.mapper.EntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.ClientData;
-import org.mtr.mod.client.ResourcePackCreatorProperties;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.entity.EntityRendering;
 
@@ -22,7 +21,6 @@ import java.util.function.Consumer;
 public class RenderTrains extends EntityRenderer<EntityRendering> implements IGui {
 
 	public static int maxTrainRenderDistance;
-	public static ResourcePackCreatorProperties creatorProperties = new ResourcePackCreatorProperties();
 
 	private static long lastRenderedMillis;
 
