@@ -1,0 +1,26 @@
+{
+	"vehicles": [
+		{
+			"id": "sp1900_normal",
+			"name": "train.mtr.sp1900",
+			"color": "003399",
+			"transportMode": "TRAIN",
+			"length": 25,
+			"width": 2,
+			"bogie1Position": -8.5,
+			"bogie2Position": 8.5,
+			"wikipediaArticle": "SP1900_EMU",
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_normal.json"
+				}
+			],
+			"speedSoundCount": 120,
+			"speedSoundBaseResource": "sp1900"
+		}
+	],
+	"signs": [
+	]
+}

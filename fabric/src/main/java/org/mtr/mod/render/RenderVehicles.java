@@ -10,21 +10,17 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair
 import org.mtr.mapping.holder.*;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.client.TrainClientRegistry;
-import org.mtr.mod.client.TrainProperties;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.model.ModelBogie;
-import org.mtr.mod.model.ModelTrainBase;
 
+import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public class RenderVehicles implements IGui {
 
 	private static final ModelBogie MODEL_BOGIE = new ModelBogie();
-	private static final float CONNECTION_HEIGHT = 2.25F;
-	private static final float CONNECTION_Z_OFFSET = 0.5F;
-	private static final float CONNECTION_X_OFFSET = 0.25F;
 
 	public static void render() {
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
@@ -64,46 +60,57 @@ public class RenderVehicles implements IGui {
 				bogiePositions.forEach(bogiePosition -> renderModel(bogiePosition.left(), bogiePosition.right(), vehicle.getReversed(), storedMatrixTransformations -> MODEL_BOGIE.render(storedMatrixTransformations, light)));
 
 				final VehicleCar vehicleCar = vehicleCars.get(i);
-				final TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(vehicleCar.getVehicleId());
-				final LegacyVehicleRenderer legacyVehicleRenderer = trainProperties.legacyVehicleRenderer;
-				final ModelTrainBase model = legacyVehicleRenderer.model;
+				final int carNumber = vehicle.getReversed() ? totalCars - i - 1 : i;
+				final double pivotOffset = Utilities.getAverage(vehicleCar.getBogie1Position(), vehicleCar.getBogie2Position());
+				final double halfLength = vehicleCar.getLength() / 2;
+				final Vector rotationalVector = new Vector(0, 0, 1).rotateX(angles.rightDouble()).rotateY(angles.leftDouble());
+				final double pivotOffset1 = pivotOffset - halfLength;
+				final double pivotOffset2 = pivotOffset + halfLength;
+				final Vector position1 = rotationalVector.multiply(pivotOffset1, pivotOffset1, pivotOffset1).add(pivotPosition);
+				final Vector position2 = rotationalVector.multiply(pivotOffset2, pivotOffset2, pivotOffset2).add(pivotPosition);
 
-				if (model != null) {
-					final int carNumber = vehicle.getReversed() ? totalCars - i - 1 : i;
-					final double pivotOffset = Utilities.getAverage(vehicleCar.getBogie1Position(), vehicleCar.getBogie2Position());
-					final double halfLength = vehicleCar.getLength() / 2;
-					final Vector rotationalVector = new Vector(0, 0, 1).rotateX(angles.rightDouble()).rotateY(angles.leftDouble());
-					final double pivotOffset1 = pivotOffset - halfLength;
-					final double pivotOffset2 = pivotOffset + halfLength;
-					final Vector position1 = rotationalVector.multiply(pivotOffset1, pivotOffset1, pivotOffset1).add(pivotPosition);
-					final Vector position2 = rotationalVector.multiply(pivotOffset2, pivotOffset2, pivotOffset2).add(pivotPosition);
+				CustomResourceLoader.getVehicleById(vehicle.getTransportMode(), vehicleCar.getVehicleId(), vehicleResource -> vehicleResource.iterateModels(vehicleModel -> {
+					final DynamicVehicleModel model = vehicleModel.model;
 
-					renderModel(
-							position1,
-							position2,
-							vehicle.getReversed(),
-							storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, new Identifier(legacyVehicleRenderer.textureId + ".png"), light, 0, 0, false, carNumber, totalCars, !vehicle.getReversed(), vehicle.getIsOnRoute(), false, true, false)
-					);
-
-					renderConnection(
-							!legacyVehicleRenderer.gangwayConnectionId.isEmpty(),
-							true,
-							previousGangwayConnectionPositions,
-							legacyVehicleRenderer.gangwayConnectionId + "_connector_",
-							position1, position2, angles,
-							vehicleCar.getWidth() / 2 - CONNECTION_X_OFFSET, CONNECTION_Z_OFFSET,
-							vehicle.getIsOnRoute()
-					);
-					renderConnection(
-							!legacyVehicleRenderer.trainBarrierId.isEmpty(),
-							false,
-							previousBarrierConnectionPositions,
-							legacyVehicleRenderer.trainBarrierId + "_barrier_",
-							position1, position2, angles,
-							vehicleCar.getWidth() / 2 + CONNECTION_X_OFFSET / 2, CONNECTION_Z_OFFSET * 2,
-							vehicle.getIsOnRoute()
-					);
-				}
+					if (model != null) {
+						renderModel(
+								position1,
+								position2,
+								vehicle.getReversed(),
+								storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, light)
+						);
+						renderConnection(
+								model.modelProperties.hasGangway, true, previousGangwayConnectionPositions,
+								model.modelProperties.gangwayInnerSideTexture,
+								model.modelProperties.gangwayInnerTopTexture,
+								model.modelProperties.gangwayInnerBottomTexture,
+								model.modelProperties.gangwayOuterSideTexture,
+								model.modelProperties.gangwayOuterTopTexture,
+								model.modelProperties.gangwayOuterBottomTexture,
+								position1, position2, angles,
+								model.modelProperties.getGangwayWidth(),
+								model.modelProperties.getGangwayHeight(),
+								model.modelProperties.getGangwayYOffset(),
+								model.modelProperties.getGangwayZOffset(),
+								vehicle.getIsOnRoute()
+						);
+						renderConnection(
+								model.modelProperties.hasBarrier, false, previousBarrierConnectionPositions,
+								model.modelProperties.barrierInnerSideTexture,
+								model.modelProperties.barrierInnerTopTexture,
+								model.modelProperties.barrierInnerBottomTexture,
+								model.modelProperties.barrierOuterSideTexture,
+								model.modelProperties.barrierOuterTopTexture,
+								model.modelProperties.barrierOuterBottomTexture,
+								position1, position2, angles,
+								model.modelProperties.getBarrierWidth(),
+								model.modelProperties.getBarrierHeight(),
+								model.modelProperties.getBarrierYOffset(),
+								model.modelProperties.getBarrierZOffset(),
+								vehicle.getIsOnRoute()
+						);
+					}
+				}));
 			}
 		});
 	}
@@ -129,7 +136,17 @@ public class RenderVehicles implements IGui {
 		render.accept(storedMatrixTransformations);
 	}
 
-	private static void renderConnection(boolean shouldRender, boolean renderInterior, PreviousConnectionPositions previousConnectionPositions, String textureId, Vector endPosition1, Vector endPosition2, DoubleDoubleImmutablePair angles, double offsetX, double offsetZ, boolean isOnRoute) {
+	private static void renderConnection(
+			boolean shouldRender, boolean canHaveLight, PreviousConnectionPositions previousConnectionPositions,
+			@Nullable Identifier innerSideTexture,
+			@Nullable Identifier innerTopTexture,
+			@Nullable Identifier innerBottomTexture,
+			@Nullable Identifier outerSideTexture,
+			@Nullable Identifier outerTopTexture,
+			@Nullable Identifier outerBottomTexture,
+			Vector endPosition1, Vector endPosition2, DoubleDoubleImmutablePair angles,
+			double width, double height, double yOffset, double zOffset, boolean isOnRoute
+	) {
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 		if (clientWorld == null) {
 			return;
@@ -137,10 +154,10 @@ public class RenderVehicles implements IGui {
 
 		if (shouldRender) {
 			if (previousConnectionPositions.isValid()) {
-				final Vector position1 = new Vector(-offsetX, 1 + SMALL_OFFSET, offsetZ).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition1);
-				final Vector position2 = new Vector(-offsetX, CONNECTION_HEIGHT + 1 + SMALL_OFFSET, offsetZ).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition1);
-				final Vector position3 = new Vector(offsetX, CONNECTION_HEIGHT + 1 + SMALL_OFFSET, offsetZ).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition1);
-				final Vector position4 = new Vector(offsetX, 1 + SMALL_OFFSET, offsetZ).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition1);
+				final Vector position1 = new Vector(-width / 2, yOffset + SMALL_OFFSET, zOffset).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition1);
+				final Vector position2 = new Vector(-width / 2, height + yOffset + SMALL_OFFSET, zOffset).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition1);
+				final Vector position3 = new Vector(width / 2, height + yOffset + SMALL_OFFSET, zOffset).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition1);
+				final Vector position4 = new Vector(width / 2, yOffset + SMALL_OFFSET, zOffset).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition1);
 
 				final Vector position5 = previousConnectionPositions.position1;
 				final Vector position6 = previousConnectionPositions.position2;
@@ -150,7 +167,7 @@ public class RenderVehicles implements IGui {
 				final BlockPos blockPosConnection = Init.newBlockPos(position1.x, position1.y + 1, position1.z);
 				final int lightConnection = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPosConnection), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPosConnection));
 
-				RenderTrains.scheduleRender(new Identifier(textureId + "exterior.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+				RenderTrains.scheduleRender(outerSideTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 					// Sides
 					IDrawing.drawTexture(
 							graphicsHolder,
@@ -168,97 +185,81 @@ public class RenderVehicles implements IGui {
 							position5.x, position5.y, position5.z,
 							offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
 					);
-
-					if (renderInterior) {
-						// Top
-						IDrawing.drawTexture(
-								graphicsHolder,
-								position3.x, position3.y, position3.z,
-								position6.x, position6.y, position6.z,
-								position7.x, position7.y, position7.z,
-								position2.x, position2.y, position2.z,
-								offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
-						);
-						// Bottom
-						IDrawing.drawTexture(
-								graphicsHolder,
-								position1.x, position1.y, position1.z,
-								position8.x, position8.y, position8.z,
-								position5.x, position5.y, position5.z,
-								position4.x, position4.y, position4.z,
-								offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
-						);
-					} else {
-						IDrawing.drawTexture(
-								graphicsHolder,
-								position7.x, position7.y, position7.z,
-								position2.x, position2.y, position2.z,
-								position1.x, position1.y, position1.z,
-								position8.x, position8.y, position8.z,
-								offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
-						);
-						IDrawing.drawTexture(
-								graphicsHolder,
-								position3.x, position3.y, position3.z,
-								position6.x, position6.y, position6.z,
-								position5.x, position5.y, position5.z,
-								position4.x, position4.y, position4.z,
-								offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
-						);
-					}
 				});
 
-				if (renderInterior) {
-					RenderTrains.scheduleRender(new Identifier(textureId + "side.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
-						// Sides
-						IDrawing.drawTexture(
-								graphicsHolder,
-								position7.x, position7.y, position7.z,
-								position2.x, position2.y, position2.z,
-								position1.x, position1.y, position1.z,
-								position8.x, position8.y, position8.z,
-								offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, isOnRoute ? MAX_LIGHT_GLOWING : lightConnection
-						);
-						IDrawing.drawTexture(
-								graphicsHolder,
-								position3.x, position3.y, position3.z,
-								position6.x, position6.y, position6.z,
-								position5.x, position5.y, position5.z,
-								position4.x, position4.y, position4.z,
-								offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, isOnRoute ? MAX_LIGHT_GLOWING : lightConnection
-						);
-					});
+				RenderTrains.scheduleRender(outerTopTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+					// Top
+					IDrawing.drawTexture(
+							graphicsHolder,
+							position3.x, position3.y, position3.z,
+							position6.x, position6.y, position6.z,
+							position7.x, position7.y, position7.z,
+							position2.x, position2.y, position2.z,
+							offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
+					);
+				});
 
-					RenderTrains.scheduleRender(new Identifier(textureId + "roof.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
-						// Top
-						IDrawing.drawTexture(
-								graphicsHolder,
-								position6.x, position6.y, position6.z,
-								position3.x, position3.y, position3.z,
-								position2.x, position2.y, position2.z,
-								position7.x, position7.y, position7.z,
-								offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, isOnRoute ? MAX_LIGHT_GLOWING : lightConnection
-						);
-					});
+				RenderTrains.scheduleRender(outerBottomTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+					// Bottom
+					IDrawing.drawTexture(
+							graphicsHolder,
+							position1.x, position1.y, position1.z,
+							position8.x, position8.y, position8.z,
+							position5.x, position5.y, position5.z,
+							position4.x, position4.y, position4.z,
+							offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, lightConnection
+					);
+				});
 
-					RenderTrains.scheduleRender(new Identifier(textureId + "floor.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
-						// Bottom
-						IDrawing.drawTexture(
-								graphicsHolder,
-								position8.x, position8.y, position8.z,
-								position1.x, position1.y, position1.z,
-								position4.x, position4.y, position4.z,
-								position5.x, position5.y, position5.z,
-								offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, isOnRoute ? MAX_LIGHT_GLOWING : lightConnection
-						);
-					});
-				}
+				RenderTrains.scheduleRender(innerSideTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+					// Sides
+					IDrawing.drawTexture(
+							graphicsHolder,
+							position7.x, position7.y, position7.z,
+							position2.x, position2.y, position2.z,
+							position1.x, position1.y, position1.z,
+							position8.x, position8.y, position8.z,
+							offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, canHaveLight && isOnRoute ? MAX_LIGHT_GLOWING : lightConnection
+					);
+					IDrawing.drawTexture(
+							graphicsHolder,
+							position3.x, position3.y, position3.z,
+							position6.x, position6.y, position6.z,
+							position5.x, position5.y, position5.z,
+							position4.x, position4.y, position4.z,
+							offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, canHaveLight && isOnRoute ? MAX_LIGHT_GLOWING : lightConnection
+					);
+				});
+
+				RenderTrains.scheduleRender(innerTopTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+					// Top
+					IDrawing.drawTexture(
+							graphicsHolder,
+							position6.x, position6.y, position6.z,
+							position3.x, position3.y, position3.z,
+							position2.x, position2.y, position2.z,
+							position7.x, position7.y, position7.z,
+							offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, canHaveLight && isOnRoute ? MAX_LIGHT_GLOWING : lightConnection
+					);
+				});
+
+				RenderTrains.scheduleRender(innerBottomTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+					// Bottom
+					IDrawing.drawTexture(
+							graphicsHolder,
+							position8.x, position8.y, position8.z,
+							position1.x, position1.y, position1.z,
+							position4.x, position4.y, position4.z,
+							position5.x, position5.y, position5.z,
+							offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, canHaveLight && isOnRoute ? MAX_LIGHT_GLOWING : lightConnection
+					);
+				});
 			}
 
-			previousConnectionPositions.position1 = new Vector(offsetX, 1 + SMALL_OFFSET, -offsetZ).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition2);
-			previousConnectionPositions.position2 = new Vector(offsetX, CONNECTION_HEIGHT + 1 + SMALL_OFFSET, -offsetZ).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition2);
-			previousConnectionPositions.position3 = new Vector(-offsetX, CONNECTION_HEIGHT + 1 + SMALL_OFFSET, -offsetZ).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition2);
-			previousConnectionPositions.position4 = new Vector(-offsetX, 1 + SMALL_OFFSET, -offsetZ).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition2);
+			previousConnectionPositions.position1 = new Vector(width / 2, yOffset + SMALL_OFFSET, -zOffset).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition2);
+			previousConnectionPositions.position2 = new Vector(width / 2, height + yOffset + SMALL_OFFSET, -zOffset).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition2);
+			previousConnectionPositions.position3 = new Vector(-width / 2, height + yOffset + SMALL_OFFSET, -zOffset).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition2);
+			previousConnectionPositions.position4 = new Vector(-width / 2, yOffset + SMALL_OFFSET, -zOffset).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition2);
 		} else {
 			previousConnectionPositions.position1 = null;
 			previousConnectionPositions.position2 = null;

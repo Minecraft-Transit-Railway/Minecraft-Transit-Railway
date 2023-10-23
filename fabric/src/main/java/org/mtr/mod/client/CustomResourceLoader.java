@@ -1,8 +1,11 @@
 package org.mtr.mod.client;
 
 import org.mtr.core.data.CustomResources;
+import org.mtr.core.data.SignResource;
+import org.mtr.core.data.TransportMode;
+import org.mtr.core.data.VehicleResource;
 import org.mtr.core.serializers.JsonReader;
-import org.mtr.libraries.com.google.gson.JsonElement;
+import org.mtr.core.tools.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
@@ -12,86 +15,95 @@ import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.render.RenderTrains;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Locale;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class CustomResourceLoader {
 
-	public static final Object2ObjectAVLTreeMap<String, CustomSign> CUSTOM_SIGNS = new Object2ObjectAVLTreeMap<>();
-	private static final ObjectArrayList<Runnable> RELOAD_LISTENERS = new ObjectArrayList<>();
+	private static final Object2ObjectAVLTreeMap<TransportMode, ObjectArrayList<VehicleResource>> VEHICLES = new Object2ObjectAVLTreeMap<>();
+	private static final Object2ObjectAVLTreeMap<TransportMode, Object2ObjectAVLTreeMap<String, VehicleResource>> VEHICLES_CACHE = new Object2ObjectAVLTreeMap<>();
+	private static final ObjectArrayList<SignResource> SIGNS = new ObjectArrayList<>();
+	private static final Object2ObjectAVLTreeMap<String, SignResource> SIGNS_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
 
+	static {
+		for (final TransportMode transportMode : TransportMode.values()) {
+			VEHICLES.put(transportMode, new ObjectArrayList<>());
+			VEHICLES_CACHE.put(transportMode, new Object2ObjectAVLTreeMap<>());
+		}
+	}
+
 	public static void reload() {
-		TrainClientRegistry.reset();
 		RenderTrains.clearTextureAvailability();
 		DynamicTextureCache.instance.resetFonts();
-		CUSTOM_SIGNS.clear();
-		final ObjectArrayList<String> customTrains = new ObjectArrayList<>();
+		VEHICLES.forEach((transportMode, vehicleResources) -> vehicleResources.clear());
+		VEHICLES_CACHE.forEach((transportMode, vehicleResourcesCache) -> vehicleResourcesCache.clear());
+		SIGNS.clear();
+		SIGNS_CACHE.clear();
 
-		ResourceManagerHelper.readResource(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_ID + ".json"), inputStream -> {
+		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_ID + ".json"), inputStream -> {
 			try {
-				final CustomResources customResources = new CustomResources(new JsonReader(JsonParser.parseReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)).getAsJsonObject()));
-				// TODO
+				final CustomResources customResources = new CustomResources(readResource(inputStream));
+				customResources.iterateVehicles(vehicleResource -> {
+					VEHICLES.get(vehicleResource.getTransportMode()).add(vehicleResource);
+					VEHICLES_CACHE.get(vehicleResource.getTransportMode()).put(vehicleResource.getId(), vehicleResource);
+				});
+				customResources.iterateSigns(signResource -> {
+					SIGNS.add(signResource);
+					SIGNS_CACHE.put(signResource.getId(), signResource);
+				});
 			} catch (Exception e) {
 				Init.logException(e);
 			}
 		});
 
-		RELOAD_LISTENERS.forEach(Runnable::run);
-
-		Init.LOGGER.info("Loaded " + customTrains.size() + " custom train(s)");
-		customTrains.forEach(Init.LOGGER::info);
-		Init.LOGGER.info("Loaded " + CUSTOM_SIGNS.size() + " custom sign(s)");
-		CUSTOM_SIGNS.keySet().forEach(Init.LOGGER::info);
+		Init.LOGGER.info("Loaded " + VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum) + " vehicle(s)");
+		VEHICLES.forEach((transportMode, vehicleResources) -> vehicleResources.forEach(VehicleResource::print));
+		Init.LOGGER.info("Loaded " + SIGNS.size() + " sign(s)");
+		SIGNS.forEach(SignResource::print);
 	}
 
-	public static int colorStringToInt(String string) {
-		try {
-			return Integer.parseInt(string.toUpperCase(Locale.ENGLISH).replaceAll("[^\\dA-F]", ""), 16);
-		} catch (Exception ignored) {
-			return 0;
+	public static void iterateVehicles(TransportMode transportMode, Consumer<VehicleResource> consumer) {
+		VEHICLES.get(transportMode).forEach(consumer);
+	}
+
+	public static void getVehicleByIndex(TransportMode transportMode, int index, Consumer<VehicleResource> consumer) {
+		if (index >= 0) {
+			final VehicleResource vehicleResource = Utilities.getElement(VEHICLES.get(transportMode), index);
+			if (vehicleResource != null) {
+				consumer.accept(vehicleResource);
+			}
 		}
 	}
 
-	private static void readResource(String path, Consumer<JsonObject> callback) {
-		ResourceManagerHelper.readResource(new Identifier(Init.MOD_ID, path), inputStream -> callback.accept(JsonParser.parseReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)).getAsJsonObject()));
-	}
-
-	private static <T> T getOrDefault(JsonObject jsonObject, String key, T defaultValue, Function<JsonElement, T> function) {
-		if (jsonObject.has(key)) {
-			return function.apply(jsonObject.get(key));
-		} else {
-			return defaultValue;
+	public static void getVehicleById(TransportMode transportMode, String vehicleId, Consumer<VehicleResource> consumer) {
+		final VehicleResource vehicleResource = VEHICLES_CACHE.get(transportMode).get(vehicleId);
+		if (vehicleResource != null) {
+			consumer.accept(vehicleResource);
 		}
 	}
 
-	public static void registerReloadListener(Runnable listener) {
-		RELOAD_LISTENERS.add(listener);
+	public static void getSignById(String signId, Consumer<SignResource> consumer) {
+		final SignResource signResource = SIGNS_CACHE.get(signId);
+		if (signResource != null) {
+			consumer.accept(signResource);
+		}
 	}
 
-	public static class CustomSign {
+	public static ObjectArrayList<String> getSortedSignIds() {
+		final ObjectArrayList<String> signIds = new ObjectArrayList<>(SIGNS_CACHE.keySet());
+		signIds.sort(String::compareTo);
+		return signIds;
+	}
 
-		public final Identifier textureId;
-		public final boolean flipTexture;
-		public final String customText;
-		public final boolean flipCustomText;
-		public final boolean small;
-		public final int backgroundColor;
-
-		public CustomSign(Identifier textureId, boolean flipTexture, String customText, boolean flipCustomText, boolean small, int backgroundColor) {
-			this.textureId = textureId;
-			this.flipTexture = flipTexture;
-			this.customText = customText;
-			this.flipCustomText = flipCustomText;
-			this.small = small;
-			this.backgroundColor = backgroundColor;
-		}
-
-		public boolean hasCustomText() {
-			return !customText.isEmpty();
+	public static JsonReader readResource(InputStream inputStream) {
+		try (final InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+			return new JsonReader(JsonParser.parseReader(inputStreamReader));
+		} catch (Exception e) {
+			Init.logException(e);
+			return new JsonReader(new JsonObject());
 		}
 	}
 }

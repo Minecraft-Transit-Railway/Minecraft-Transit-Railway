@@ -5,27 +5,31 @@
 		"SerializedDataBase"
 	],
 	"properties": {
-		"models": {
-			"type": "array",
-			"items": {
-				"$ref": "vehicleModel.json"
-			}
+		"id": {
+			"type": "string"
 		},
 		"name": {
 			"type": "string"
 		},
 		"color": {
-			"type": "integer",
-			"minimum": 0,
-			"maximum": 16777215
+			"type": "string"
+		},
+		"transportMode": {
+			"$ref": "TransportMode"
+		},
+		"length": {
+			"type": "number",
+			"minimum": 0
 		},
 		"width": {
 			"type": "number",
 			"minimum": 0
 		},
-		"height": {
-			"type": "number",
-			"minimum": 0
+		"bogie1Position": {
+			"type": "number"
+		},
+		"bogie2Position": {
+			"type": "number"
 		},
 		"description": {
 			"type": "string"
@@ -33,14 +37,11 @@
 		"wikipediaArticle": {
 			"type": "string"
 		},
-		"gangwayConnectionResource": {
-			"type": "string"
-		},
-		"vehicleBarrierResource": {
-			"type": "string"
-		},
-		"doorAnimationType": {
-			"$ref": "DoorAnimationType"
+		"models": {
+			"type": "array",
+			"items": {
+				"$ref": "vehicleModel.json"
+			}
 		},
 		"bveSoundBaseResource": {
 			"type": "string"
@@ -51,29 +52,20 @@
 		},
 		"speedSoundBaseResource": {
 			"type": "string"
-		},
-		"doorSoundBaseResource": {
-			"type": "string"
-		},
-		"doorCloseSoundType": {
-			"type": "number"
 		}
 	},
 	"required": [
-		"models",
+		"id",
 		"name",
 		"color",
+		"length",
 		"width",
-		"height",
+		"bogie1Position",
+		"bogie2Position",
 		"description",
 		"wikipediaArticle",
-		"gangwayConnectionResource",
-		"vehicleBarrierResource",
-		"doorAnimationType",
 		"bveSoundBaseResource",
 		"speedSoundCount",
-		"speedSoundBaseResource",
-		"doorSoundBaseResource",
-		"doorCloseSoundType"
+		"speedSoundBaseResource"
 	]
 }

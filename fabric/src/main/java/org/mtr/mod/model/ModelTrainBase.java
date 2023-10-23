@@ -2,6 +2,7 @@ package org.mtr.mod.model;
 
 import org.mtr.core.data.InterchangeColorsForStationName;
 import org.mtr.core.data.NameColorDataBase;
+import org.mtr.core.data.RenderStage;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.EntityAbstractMapping;
 import org.mtr.mapping.holder.Identifier;
@@ -272,8 +273,6 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 
 		return IGui.formatStationName(IGui.mergeStations(messages, "", " "));
 	}
-
-	public enum RenderStage {LIGHT, ALWAYS_ON_LIGHT, INTERIOR, INTERIOR_TRANSLUCENT, EXTERIOR}
 
 	protected enum TextSpacingType {NORMAL, SPACE_CJK, SPACE_CJK_FLIPPED, SPACE_CJK_LARGE, MLR_SPACING}
 }

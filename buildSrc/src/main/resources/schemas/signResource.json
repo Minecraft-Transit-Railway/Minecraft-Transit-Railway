@@ -5,6 +5,9 @@
 		"SerializedDataBase"
 	],
 	"properties": {
+		"id": {
+			"type": "string"
+		},
 		"textureResource": {
 			"type": "string"
 		},
@@ -21,12 +24,11 @@
 			"type": "boolean"
 		},
 		"backgroundColor": {
-			"type": "integer",
-			"minimum": 0,
-			"maximum": 16777215
+			"type": "string"
 		}
 	},
 	"required": [
+		"id",
 		"textureResource",
 		"flipTexture",
 		"customText",

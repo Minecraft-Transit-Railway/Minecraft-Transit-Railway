@@ -3,6 +3,7 @@ package org.mtr.mod.screen;
 import org.mtr.core.data.Siding;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.data.VehicleCar;
+import org.mtr.core.data.VehicleResource;
 import org.mtr.core.servlet.IntegrationServlet;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -20,10 +21,8 @@ import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.Icons;
 import org.mtr.mod.Patreon;
+import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.client.TrainClientRegistry;
-import org.mtr.mod.client.TrainProperties;
-import org.mtr.mod.data.TrainType;
 import org.mtr.mod.packet.PacketData;
 
 import javax.annotation.Nullable;
@@ -75,24 +74,24 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.selected"), SQUARE_SIZE * 3 + spareSpace + PANEL_WIDTH * 3 / 2, SQUARE_SIZE, ARGB_WHITE);
 
 		final int index = availableList.getHoverItemIndex();
-		if (index >= 0) {
-			final TrainProperties properties = TrainClientRegistry.getTrainProperties(siding.getTransportMode(), index);
-			final int spacing = TrainType.getSpacing(properties.baseTrainType);
+		CustomResourceLoader.getVehicleByIndex(siding.getTransportMode(), index, vehicleResource -> {
 			int y = SQUARE_SIZE;
-			y = drawWrappedText(graphicsHolder, properties.name, y, ARGB_WHITE);
-			y = drawWrappedText(graphicsHolder, TextHelper.translatable("gui.mtr.vehicle_length", spacing - 1), y, ARGB_WHITE);
-			if (properties.description != null) {
-				for (final String text : properties.description.split("[|\n]")) {
+			y = drawWrappedText(graphicsHolder, vehicleResource.getName(), y, ARGB_WHITE);
+			y = drawWrappedText(graphicsHolder, TextHelper.translatable("gui.mtr.vehicle_length", vehicleResource.getLength()), y, ARGB_WHITE);
+			final String description = vehicleResource.getDescription().getString();
+			if (!description.isEmpty()) {
+				for (final String text : description.split("[|\n]")) {
 					y = drawWrappedText(graphicsHolder, TextHelper.literal(text), y, ARGB_LIGHT_GRAY);
 				}
 			}
-			if (properties.wikipediaArticle != null) {
-				final String fullText = fetchWikipediaArticle(properties.wikipediaArticle);
+			final String wikipediaArticle = vehicleResource.getWikipediaArticle();
+			if (!wikipediaArticle.isEmpty()) {
+				final String fullText = fetchWikipediaArticle(wikipediaArticle);
 				for (final String text : fullText.split("\n")) {
 					y = drawWrappedText(graphicsHolder, TextHelper.literal(text), y, ARGB_LIGHT_GRAY);
 				}
 			}
-		}
+		});
 	}
 
 	@Override
@@ -100,8 +99,8 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 		final ObjectArrayList<VehicleCar> tempList = new ObjectArrayList<>();
 		selectedIds.forEach(selectedId -> allData.stream().filter(data -> data.id == selectedId).findFirst().ifPresent(data -> {
 			if (data instanceof VehicleForList) {
-				final TrainProperties trainProperties = ((VehicleForList) data).trainProperties;
-				tempList.add(new VehicleCar(((VehicleForList) data).vehicleId, TrainType.getSpacing(trainProperties.baseTrainType), TrainType.getWidth(trainProperties.baseTrainType), -trainProperties.bogiePosition, trainProperties.bogiePosition));
+				final VehicleResource vehicleResource = ((VehicleForList) data).vehicleResource;
+				tempList.add(new VehicleCar(vehicleResource.getId(), vehicleResource.getLength(), vehicleResource.getWidth(), vehicleResource.getBogie1Position(), vehicleResource.getBogie2Position()));
 			}
 		}));
 		siding.setVehicleCars(tempList);
@@ -114,7 +113,7 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 		final double remainingLength = siding.getRailLength() - currentList.stream().mapToDouble(VehicleCar::getLength).sum();
 		allData.forEach(data -> {
 			if (data instanceof VehicleForList) {
-				((VehicleForList) data).disabled = TrainType.getSpacing(((VehicleForList) data).trainProperties.baseTrainType) > remainingLength;
+				((VehicleForList) data).disabled = ((VehicleForList) data).vehicleResource.getLength() > remainingLength;
 			}
 		});
 	}
@@ -137,7 +136,11 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 
 	private static ObjectImmutableList<DashboardListItem> getVehicleList(TransportMode transportMode) {
 		final ObjectArrayList<DashboardListItem> trainsForList = new ObjectArrayList<>();
-		TrainClientRegistry.forEach(transportMode, (id, trainId, trainProperties) -> trainsForList.add(new VehicleForList(id, trainId, trainProperties)));
+		final long[] id = {0};
+		CustomResourceLoader.iterateVehicles(transportMode, vehicleResource -> {
+			trainsForList.add(new VehicleForList(id[0], vehicleResource));
+			id[0]++;
+		});
 		return new ObjectImmutableList<>(trainsForList);
 	}
 
@@ -145,7 +148,7 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 		final ObjectImmutableList<DashboardListItem> trainsForList = getVehicleList(siding.getTransportMode());
 		final LongArrayList selectedIds = new LongArrayList();
 		siding.getVehicleCars().forEach(vehicleCar -> trainsForList.stream()
-				.filter(data -> data instanceof VehicleForList && vehicleCar.getVehicleId().equals(((VehicleForList) data).vehicleId))
+				.filter(data -> data instanceof VehicleForList && vehicleCar.getVehicleId().equals(((VehicleForList) data).vehicleResource.getId()))
 				.mapToLong(data -> data.id)
 				.findFirst()
 				.ifPresent(selectedIds::add)
@@ -170,13 +173,11 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 	private static class VehicleForList extends DashboardListItem {
 
 		private boolean disabled;
-		private final String vehicleId;
-		private final TrainProperties trainProperties;
+		private final VehicleResource vehicleResource;
 
-		public VehicleForList(long id, String vehicleId, TrainProperties trainProperties) {
-			super(id, trainProperties.name.getString(), trainProperties.color);
-			this.vehicleId = vehicleId;
-			this.trainProperties = trainProperties;
+		public VehicleForList(long index, VehicleResource vehicleResource) {
+			super(index, vehicleResource.getName().getString(), vehicleResource.getColor());
+			this.vehicleResource = vehicleResource;
 		}
 
 		@Override

@@ -141,12 +141,14 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 		UNAVAILABLE_TEXTURES.clear();
 	}
 
-	public static void scheduleRender(Identifier identifier, boolean priority, QueuedRenderLayer queuedRenderLayer, BiConsumer<GraphicsHolder, Vector3d> callback) {
-		final Object2ObjectArrayMap<Identifier, ObjectArraySet<BiConsumer<GraphicsHolder, Vector3d>>> map = RENDERS.get(priority ? 1 : 0).get(queuedRenderLayer.ordinal());
-		if (!map.containsKey(identifier)) {
-			map.put(identifier, new ObjectArraySet<>());
+	public static void scheduleRender(@Nullable Identifier identifier, boolean priority, QueuedRenderLayer queuedRenderLayer, BiConsumer<GraphicsHolder, Vector3d> callback) {
+		if (identifier != null) {
+			final Object2ObjectArrayMap<Identifier, ObjectArraySet<BiConsumer<GraphicsHolder, Vector3d>>> map = RENDERS.get(priority ? 1 : 0).get(queuedRenderLayer.ordinal());
+			if (!map.containsKey(identifier)) {
+				map.put(identifier, new ObjectArraySet<>());
+			}
+			map.get(identifier).add(callback);
 		}
-		map.get(identifier).add(callback);
 	}
 
 	public static void scheduleRender(QueuedRenderLayer queuedRenderLayer, BiConsumer<GraphicsHolder, Vector3d> callback) {
