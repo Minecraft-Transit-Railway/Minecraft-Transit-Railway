@@ -1,5 +1,6 @@
 package org.mtr.mod.screen;
 
+import org.mtr.core.data.SignResource;
 import org.mtr.core.data.Station;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
@@ -20,9 +21,6 @@ import org.mtr.mod.packet.PacketUpdateRailwaySignConfig;
 import org.mtr.mod.render.RenderRailwaySign;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class RailwaySignScreen extends ScreenExtension implements IGui {
 
@@ -62,9 +60,8 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 		for (final BlockRailwaySign.SignType signType : BlockRailwaySign.SignType.values()) {
 			allSignIds.add(signType.toString());
 		}
-		final List<String> sortedKeys = new ArrayList<>(CustomResourceLoader.CUSTOM_SIGNS.keySet());
-		Collections.sort(sortedKeys);
-		allSignIds.addAll(sortedKeys);
+
+		allSignIds.addAll(CustomResourceLoader.getSortedSignIds());
 
 		final Station station = InitClient.findStation(signPos);
 		if (station == null) {
@@ -196,11 +193,11 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 
 			loopSigns((index, x, y, isBig) -> {
 				final String signId = allSignIds.get(index);
-				final CustomResourceLoader.CustomSign sign = RenderRailwaySign.getSign(signId);
+				final SignResource sign = RenderRailwaySign.getSign(signId);
 				if (sign != null) {
-					final boolean moveRight = sign.hasCustomText() && sign.flipCustomText;
+					final boolean moveRight = sign.hasCustomText && sign.getFlipCustomText();
 					final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
-					guiDrawing.beginDrawingTexture(sign.textureId);
+					guiDrawing.beginDrawingTexture(sign.getTexture());
 					RenderRailwaySign.drawSign(graphicsHolder, null, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), BUTTON_Y_START + y, SIGN_BUTTON_SIZE, 2, 2, selectedIds, Direction.UP, 0, (textureId, x1, y1, size, flipTexture) -> guiDrawing.drawTexture((int) x1, (int) y1, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
 					guiDrawing.finishDrawingTexture();
 				}
@@ -250,8 +247,8 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 		int totalPagesSmallCount = 1;
 		int totalPagesBigCount = 1;
 		for (int i = 0; i < allSignIds.size(); i++) {
-			final CustomResourceLoader.CustomSign sign = RenderRailwaySign.getSign(allSignIds.get(i));
-			final boolean isBig = sign != null && sign.hasCustomText();
+			final SignResource sign = RenderRailwaySign.getSign(allSignIds.get(i));
+			final boolean isBig = sign != null && sign.hasCustomText;
 
 			final boolean onPage = (isBig ? indexBig : indexSmall) / pageCount == page;
 			buttonsSelection[i].visible = onPage;

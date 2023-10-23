@@ -1,0 +1,75 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"names": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"positions": {
+			"type": "array",
+			"items": {
+				"$ref": "modelPropertiesPartPosition.json"
+			}
+		},
+		"positionsFlipped": {
+			"type": "array",
+			"items": {
+				"$ref": "modelPropertiesPartPosition.json"
+			}
+		},
+		"renderStage": {
+			"$ref": "RenderStage"
+		},
+		"type": {
+			"$ref": "PartType"
+		},
+		"displayXPadding": {
+			"type": "number",
+			"minimum": 0
+		},
+		"displayYPadding": {
+			"type": "number",
+			"minimum": 0
+		},
+		"displayScrollStyle": {
+			"$ref": "DisplayScrollStyle"
+		},
+		"doorVehicleSide": {
+			"$ref": "DoorVehicleSide"
+		},
+		"doorXMultiplier": {
+			"type": "number"
+		},
+		"doorZMultiplier": {
+			"type": "number"
+		},
+		"doorAnimationType": {
+			"$ref": "DoorAnimationType"
+		},
+		"doorSoundBaseResource": {
+			"type": "string"
+		},
+		"doorCloseSoundTime": {
+			"type": "number"
+		}
+	},
+	"required": [
+		"renderStage",
+		"type",
+		"displayXPadding",
+		"displayYPadding",
+		"displayScrollStyle",
+		"doorVehicleSide",
+		"doorXMultiplier",
+		"doorZMultiplier",
+		"doorAnimationType",
+		"doorSoundBaseResource",
+		"doorCloseSoundTime"
+	]
+}

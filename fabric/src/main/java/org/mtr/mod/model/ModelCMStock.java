@@ -1,5 +1,6 @@
 package org.mtr.mod.model;
 
+import org.mtr.core.data.RenderStage;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mod.client.DoorAnimationType;

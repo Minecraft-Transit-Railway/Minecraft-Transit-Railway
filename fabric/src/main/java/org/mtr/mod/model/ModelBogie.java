@@ -12,7 +12,7 @@ import org.mtr.mod.render.StoredMatrixTransformations;
 public class ModelBogie extends EntityModelExtension<EntityAbstractMapping> {
 
 	private final ModelPartExtension bogie;
-	private final Identifier texture = new Identifier(Init.MOD_ID, "textures/entity/bogie_1.png");
+	private final Identifier texture = new Identifier(Init.MOD_ID, "textures/vehicle/bogie_1.png");
 
 	public ModelBogie() {
 		super(186, 77);

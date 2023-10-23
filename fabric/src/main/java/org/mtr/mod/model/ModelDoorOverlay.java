@@ -1,5 +1,6 @@
 package org.mtr.mod.model;
 
+import org.mtr.core.data.RenderStage;
 import org.mtr.mapping.holder.EntityAbstractMapping;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.RenderLayer;
@@ -117,7 +118,7 @@ public class ModelDoorOverlay extends EntityModelExtension<EntityAbstractMapping
 		buildModel();
 	}
 
-	public void render(StoredMatrixTransformations storedMatrixTransformations, ModelTrainBase.RenderStage renderStage, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean lightsOn) {
+	public void render(StoredMatrixTransformations storedMatrixTransformations, RenderStage renderStage, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean lightsOn) {
 		switch (renderStage) {
 			case INTERIOR:
 				final RenderLayer renderLayerInteriorLeft = lightsOn ? MoreRenderLayers.getInterior(doorOverlayTextureLeft) : MoreRenderLayers.getExterior(doorOverlayTextureLeft);

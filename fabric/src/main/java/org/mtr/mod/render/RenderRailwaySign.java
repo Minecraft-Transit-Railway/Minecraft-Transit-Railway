@@ -1,6 +1,7 @@
 package org.mtr.mod.render;
 
 import org.mtr.core.data.NameColorDataBase;
+import org.mtr.core.data.SignResource;
 import org.mtr.core.data.Station;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
@@ -56,11 +57,11 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 		int backgroundColor = 0;
 		for (final String signId : signIds) {
 			if (signId != null) {
-				final CustomResourceLoader.CustomSign sign = getSign(signId);
+				final SignResource sign = getSign(signId);
 				if (sign != null) {
 					renderBackground = true;
-					if (sign.backgroundColor != 0) {
-						backgroundColor = sign.backgroundColor;
+					if (sign.getBackgroundColor() != 0) {
+						backgroundColor = sign.getBackgroundColor();
 						break;
 					}
 				}
@@ -121,17 +122,17 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 			return;
 		}
 
-		final CustomResourceLoader.CustomSign sign = getSign(signId);
+		final SignResource sign = getSign(signId);
 		if (sign == null) {
 			return;
 		}
 
-		final float signSize = (sign.small ? BlockRailwaySign.SMALL_SIGN_PERCENTAGE : 1) * size;
+		final float signSize = (sign.getSmall() ? BlockRailwaySign.SMALL_SIGN_PERCENTAGE : 1) * size;
 		final float margin = (size - signSize) / 2;
 
-		final boolean hasCustomText = sign.hasCustomText();
-		final boolean flipCustomText = sign.flipCustomText;
-		final boolean flipTexture = sign.flipTexture;
+		final boolean hasCustomText = sign.hasCustomText;
+		final boolean flipCustomText = sign.getFlipCustomText();
+		final boolean flipTexture = sign.getFlipTexture();
 		final boolean isExit = signId.equals(BlockRailwaySign.SignType.EXIT_LETTER.toString()) || signId.equals(BlockRailwaySign.SignType.EXIT_LETTER_FLIPPED.toString());
 		final boolean isLine = signId.equals(BlockRailwaySign.SignType.LINE.toString()) || signId.equals(BlockRailwaySign.SignType.LINE_FLIPPED.toString());
 		final boolean isPlatform = signId.equals(BlockRailwaySign.SignType.PLATFORM.toString()) || signId.equals(BlockRailwaySign.SignType.PLATFORM_FLIPPED.toString());
@@ -235,15 +236,15 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 				});
 			}
 		} else {
-			drawTexture.drawTexture(sign.textureId, x + margin, y + margin, signSize, flipTexture);
+			drawTexture.drawTexture(sign.getTexture(), x + margin, y + margin, signSize, flipTexture);
 
 			if (hasCustomText) {
 				final float fixedMargin = size * (1 - BlockRailwaySign.SMALL_SIGN_PERCENTAGE) / 2;
-				final boolean isSmall = sign.small;
+				final boolean isSmall = sign.getSmall();
 				final float maxWidth = Math.max(0, (flipCustomText ? maxWidthLeft : maxWidthRight) * size - fixedMargin * (isSmall ? 1 : 2));
 				final float start = flipCustomText ? x - (isSmall ? 0 : fixedMargin) : x + size + (isSmall ? 0 : fixedMargin);
 				if (storedMatrixTransformations == null) {
-					IDrawing.drawStringWithFont(graphicsHolder, isExit || isLine ? "..." : sign.customText, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, start, y + fixedMargin, maxWidth, size - fixedMargin * 2, 0.01F, ARGB_WHITE, false, MAX_LIGHT_GLOWING, null);
+					IDrawing.drawStringWithFont(graphicsHolder, isExit || isLine ? "..." : sign.getCustomText().getString(), flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, start, y + fixedMargin, maxWidth, size - fixedMargin * 2, 0.01F, ARGB_WHITE, false, MAX_LIGHT_GLOWING, null);
 				} else {
 					final String signText;
 					if (isStation) {
@@ -254,7 +255,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 								.collect(Collectors.toList())
 						);
 					} else {
-						signText = sign.customText;
+						signText = sign.getCustomText().getString();
 					}
 					renderCustomText(signText, storedMatrixTransformations, facing, size, start, flipCustomText, maxWidth, backgroundColor);
 				}
@@ -272,12 +273,14 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 		});
 	}
 
-	public static CustomResourceLoader.CustomSign getSign(@Nullable String signId) {
-		try {
-			final BlockRailwaySign.SignType sign = BlockRailwaySign.SignType.valueOf(signId);
-			return new CustomResourceLoader.CustomSign(sign.textureId, sign.flipTexture, sign.customText, sign.flipCustomText, sign.small, sign.backgroundColor);
-		} catch (Exception ignored) {
-			return signId == null ? null : CustomResourceLoader.CUSTOM_SIGNS.get(signId);
+	public static SignResource getSign(@Nullable String signId) {
+		// TODO load existing signs from BlockRailwaySign.SignType using the resource pack format
+		if (signId == null) {
+			return null;
+		} else {
+			final SignResource[] signResource = {null};
+			CustomResourceLoader.getSignById(signId, newSignResource -> signResource[0] = newSignResource);
+			return signResource[0];
 		}
 	}
 
@@ -285,8 +288,8 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 		float maxWidthLeft = 0;
 		for (int i = index + (right ? 1 : -1); right ? i < signIds.length : i >= 0; i += (right ? 1 : -1)) {
 			if (signIds[i] != null) {
-				final CustomResourceLoader.CustomSign sign = RenderRailwaySign.getSign(signIds[i]);
-				if (sign != null && sign.hasCustomText() && right == sign.flipCustomText) {
+				final SignResource sign = RenderRailwaySign.getSign(signIds[i]);
+				if (sign != null && sign.hasCustomText && right == sign.getFlipCustomText()) {
 					maxWidthLeft /= 2;
 				}
 				return maxWidthLeft;
