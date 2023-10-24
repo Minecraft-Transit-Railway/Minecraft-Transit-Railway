@@ -1,11 +1,11 @@
 package org.mtr.core.data;
 
-import org.mtr.core.generated.ModelPropertiesPartPositionSchema;
+import org.mtr.core.generated.PartPositionSchema;
 import org.mtr.core.serializers.ReaderBase;
 
-public final class ModelPropertiesPartPosition extends ModelPropertiesPartPositionSchema {
+public final class PartPosition extends PartPositionSchema {
 
-	public ModelPropertiesPartPosition(ReaderBase readerBase) {
+	public PartPosition(ReaderBase readerBase) {
 		super(readerBase);
 		updateData(readerBase);
 	}

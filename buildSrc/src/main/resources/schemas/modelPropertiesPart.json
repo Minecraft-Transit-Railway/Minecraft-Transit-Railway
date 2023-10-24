@@ -11,16 +11,10 @@
 				"type": "string"
 			}
 		},
-		"positions": {
+		"positionDefinitions": {
 			"type": "array",
 			"items": {
-				"$ref": "modelPropertiesPartPosition.json"
-			}
-		},
-		"positionsFlipped": {
-			"type": "array",
-			"items": {
-				"$ref": "modelPropertiesPartPosition.json"
+				"type": "string"
 			}
 		},
 		"renderStage": {

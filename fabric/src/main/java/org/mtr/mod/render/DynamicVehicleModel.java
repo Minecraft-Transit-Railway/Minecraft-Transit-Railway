@@ -1,9 +1,6 @@
 package org.mtr.mod.render;
 
-import org.mtr.core.data.BlockbenchElement;
-import org.mtr.core.data.BlockbenchModel;
-import org.mtr.core.data.BlockbenchOutline;
-import org.mtr.core.data.ModelProperties;
+import org.mtr.core.data.*;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.mapping.holder.EntityAbstractMapping;
 import org.mtr.mapping.holder.Identifier;
@@ -19,16 +16,36 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 
 	public final ModelProperties modelProperties;
 	private final Identifier texture;
-	private final Object2ObjectOpenHashMap<String, ModelPartExtension> nameToParentModelPart = new Object2ObjectOpenHashMap<>();
 
-	public DynamicVehicleModel(BlockbenchModel blockbenchModel, Identifier texture, ModelProperties modelProperties) {
+	public DynamicVehicleModel(BlockbenchModel blockbenchModel, Identifier texture, ModelProperties modelProperties, PositionDefinitions positionDefinitions) {
 		super(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight());
+
 		final Object2ObjectOpenHashMap<String, BlockbenchElement> uuidToBlockbenchElement = new Object2ObjectOpenHashMap<>();
 		blockbenchModel.getElements().forEach(blockbenchElement -> uuidToBlockbenchElement.put(blockbenchElement.getUuid(), blockbenchElement));
-		blockbenchModel.getOutlines().forEach(blockbenchOutline -> addChildren(blockbenchOutline, uuidToBlockbenchElement));
+
+		final Object2ObjectOpenHashMap<String, ModelPartExtension> nameToParentModelPart = new Object2ObjectOpenHashMap<>();
+		blockbenchModel.getOutlines().forEach(blockbenchOutline -> {
+			final ObjectHolder<ModelPartExtension> parentModelPart = new ObjectHolder<>(this::createModelPart);
+
+			iterateChildren(blockbenchOutline, uuid -> {
+				final BlockbenchElement blockbenchElement = uuidToBlockbenchElement.remove(uuid);
+				if (blockbenchElement != null) {
+					parentModelPart.create();
+					final ModelPartExtension childModelPart = createModelPart();
+					parentModelPart.createAndGet().addChild(childModelPart);
+					blockbenchElement.setModelPart(childModelPart);
+				}
+			});
+
+			if (parentModelPart.exists()) {
+				nameToParentModelPart.put(blockbenchOutline.getName(), parentModelPart.createAndGet());
+			}
+		});
+
 		buildModel();
 		this.texture = texture;
 		this.modelProperties = modelProperties;
+		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(nameToParentModelPart, positionDefinitions));
 	}
 
 	@Override
@@ -40,28 +57,10 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	}
 
 	public void render(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light) {
-		modelProperties.render(texture, storedMatrixTransformations, vehicle, light, nameToParentModelPart);
+		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.render(texture, storedMatrixTransformations, vehicle, light));
 	}
 
-	private void addChildren(BlockbenchOutline blockbenchOutline, Object2ObjectOpenHashMap<String, BlockbenchElement> uuidToBlockbenchElement) {
-		final ObjectHolder<ModelPartExtension> parentModelPart = new ObjectHolder<>(this::createModelPart);
-
-		iterateChildren(blockbenchOutline, uuid -> {
-			final BlockbenchElement blockbenchElement = uuidToBlockbenchElement.remove(uuid);
-			if (blockbenchElement != null) {
-				parentModelPart.create();
-				final ModelPartExtension childModelPart = createModelPart();
-				parentModelPart.createAndGet().addChild(childModelPart);
-				blockbenchElement.setModelPart(childModelPart);
-			}
-		});
-
-		if (parentModelPart.exists()) {
-			nameToParentModelPart.put(blockbenchOutline.getName(), parentModelPart.createAndGet());
-		}
-	}
-
-	private void iterateChildren(BlockbenchOutline blockbenchOutline, Consumer<String> consumer) {
+	private static void iterateChildren(BlockbenchOutline blockbenchOutline, Consumer<String> consumer) {
 		blockbenchOutline.childrenUuid.forEach(consumer);
 		blockbenchOutline.getChildren().forEach(childOutline -> iterateChildren(childOutline, consumer));
 	}

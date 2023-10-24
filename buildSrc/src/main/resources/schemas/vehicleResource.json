@@ -43,6 +43,18 @@
 				"$ref": "vehicleModel.json"
 			}
 		},
+		"bogie1Models": {
+			"type": "array",
+			"items": {
+				"$ref": "vehicleModel.json"
+			}
+		},
+		"bogie2Models": {
+			"type": "array",
+			"items": {
+				"$ref": "vehicleModel.json"
+			}
+		},
 		"bveSoundBaseResource": {
 			"type": "string"
 		},
