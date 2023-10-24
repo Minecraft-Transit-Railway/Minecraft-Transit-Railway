@@ -2,11 +2,9 @@ package org.mtr.core.data;
 
 import org.mtr.core.generated.ModelPropertiesSchema;
 import org.mtr.core.serializers.ReaderBase;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.mapper.ModelPartExtension;
-import org.mtr.mod.data.VehicleExtension;
-import org.mtr.mod.render.StoredMatrixTransformations;
+
+import java.util.function.Consumer;
 
 public final class ModelProperties extends ModelPropertiesSchema {
 
@@ -40,22 +38,22 @@ public final class ModelProperties extends ModelPropertiesSchema {
 				!barrierOuterSideResource.isEmpty() ||
 				!barrierOuterTopResource.isEmpty() ||
 				!barrierOuterBottomResource.isEmpty();
-		gangwayInnerSideTexture = VehicleModel.formatIdentifier(gangwayInnerSideResource, "png");
-		gangwayInnerTopTexture = VehicleModel.formatIdentifier(gangwayInnerTopResource, "png");
-		gangwayInnerBottomTexture = VehicleModel.formatIdentifier(gangwayInnerBottomResource, "png");
-		gangwayOuterSideTexture = VehicleModel.formatIdentifier(gangwayOuterSideResource, "png");
-		gangwayOuterTopTexture = VehicleModel.formatIdentifier(gangwayOuterTopResource, "png");
-		gangwayOuterBottomTexture = VehicleModel.formatIdentifier(gangwayOuterBottomResource, "png");
-		barrierInnerSideTexture = VehicleModel.formatIdentifier(barrierInnerSideResource, "png");
-		barrierInnerTopTexture = VehicleModel.formatIdentifier(barrierInnerTopResource, "png");
-		barrierInnerBottomTexture = VehicleModel.formatIdentifier(barrierInnerBottomResource, "png");
-		barrierOuterSideTexture = VehicleModel.formatIdentifier(barrierOuterSideResource, "png");
-		barrierOuterTopTexture = VehicleModel.formatIdentifier(barrierOuterTopResource, "png");
-		barrierOuterBottomTexture = VehicleModel.formatIdentifier(barrierOuterBottomResource, "png");
+		gangwayInnerSideTexture = CustomResourceTools.formatIdentifier(gangwayInnerSideResource, "png");
+		gangwayInnerTopTexture = CustomResourceTools.formatIdentifier(gangwayInnerTopResource, "png");
+		gangwayInnerBottomTexture = CustomResourceTools.formatIdentifier(gangwayInnerBottomResource, "png");
+		gangwayOuterSideTexture = CustomResourceTools.formatIdentifier(gangwayOuterSideResource, "png");
+		gangwayOuterTopTexture = CustomResourceTools.formatIdentifier(gangwayOuterTopResource, "png");
+		gangwayOuterBottomTexture = CustomResourceTools.formatIdentifier(gangwayOuterBottomResource, "png");
+		barrierInnerSideTexture = CustomResourceTools.formatIdentifier(barrierInnerSideResource, "png");
+		barrierInnerTopTexture = CustomResourceTools.formatIdentifier(barrierInnerTopResource, "png");
+		barrierInnerBottomTexture = CustomResourceTools.formatIdentifier(barrierInnerBottomResource, "png");
+		barrierOuterSideTexture = CustomResourceTools.formatIdentifier(barrierOuterSideResource, "png");
+		barrierOuterTopTexture = CustomResourceTools.formatIdentifier(barrierOuterTopResource, "png");
+		barrierOuterBottomTexture = CustomResourceTools.formatIdentifier(barrierOuterBottomResource, "png");
 	}
 
-	public void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, Object2ObjectOpenHashMap<String, ModelPartExtension> nameToModelPart) {
-		parts.forEach(modelPropertiesPart -> modelPropertiesPart.render(texture, storedMatrixTransformations, vehicle, light, nameToModelPart));
+	public void iterateParts(Consumer<ModelPropertiesPart> consumer) {
+		parts.forEach(consumer);
 	}
 
 	public double getGangwayWidth() {

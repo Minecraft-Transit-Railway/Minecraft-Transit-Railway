@@ -2,9 +2,11 @@ package org.mtr.core.data;
 
 import org.mtr.core.generated.VehicleResourceSchema;
 import org.mtr.core.serializers.ReaderBase;
+import org.mtr.core.tools.Utilities;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
+import org.mtr.mod.render.DynamicVehicleModel;
 
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -29,7 +31,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 	}
 
 	public int getColor() {
-		return colorStringToInt(color);
+		return CustomResourceTools.colorStringToInt(color);
 	}
 
 	public TransportMode getTransportMode() {
@@ -60,15 +62,21 @@ public final class VehicleResource extends VehicleResourceSchema {
 		return wikipediaArticle;
 	}
 
-	public void iterateModels(Consumer<VehicleModel> consumer) {
-		models.forEach(consumer);
+	public void iterateModels(Consumer<DynamicVehicleModel> consumer) {
+		models.forEach(vehicleModel -> {
+			if (vehicleModel.model != null) {
+				consumer.accept(vehicleModel.model);
+			}
+		});
 	}
 
-	static int colorStringToInt(String color) {
-		try {
-			return Integer.parseInt(color.toUpperCase(Locale.ENGLISH).replaceAll("[^\\dA-F]", ""), 16);
-		} catch (Exception ignored) {
-			return 0;
+	public void iterateBogieModels(int index, Consumer<DynamicVehicleModel> consumer) {
+		if (Utilities.isBetween(index, 0, 1)) {
+			(index == 0 ? bogie1Models : bogie2Models).forEach(vehicleModel -> {
+				if (vehicleModel.model != null) {
+					consumer.accept(vehicleModel.model);
+				}
+			});
 		}
 	}
 }

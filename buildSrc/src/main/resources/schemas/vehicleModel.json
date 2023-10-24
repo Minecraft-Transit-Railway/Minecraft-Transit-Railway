@@ -13,11 +13,15 @@
 		},
 		"modelPropertiesResource": {
 			"type": "string"
+		},
+		"positionDefinitionsResource": {
+			"type": "string"
 		}
 	},
 	"required": [
 		"modelResource",
 		"textureResource",
-		"modelPropertiesResource"
+		"modelPropertiesResource",
+		"positionDefinitionsResource"
 	]
 }

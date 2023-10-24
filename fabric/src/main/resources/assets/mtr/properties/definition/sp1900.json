@@ -1,0 +1,203 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window",
+			"positions": [
+				{
+					"z": -96
+				},
+				{
+					"z": -32
+				},
+				{
+					"z": 32
+				},
+				{
+					"z": 96
+				}
+			]
+		},
+		{
+			"name": "windowFlipped",
+			"positionsFlipped": [
+				{
+					"z": -96
+				},
+				{
+					"z": -32
+				},
+				{
+					"z": 32
+				},
+				{
+					"z": 96
+				}
+			]
+		},
+		{
+			"name": "sidePanel",
+			"positions": [
+				{
+					"z": -111.9
+				},
+				{
+					"z": -80.1
+				},
+				{
+					"z": -47.9
+				},
+				{
+					"z": -16.1
+				},
+				{
+					"z": 16.1
+				},
+				{
+					"z": 47.9
+				},
+				{
+					"z": 80.1
+				},
+				{
+					"z": 111.9
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -111.9
+				},
+				{
+					"z": -80.1
+				},
+				{
+					"z": -47.9
+				},
+				{
+					"z": -16.1
+				},
+				{
+					"z": 16.1
+				},
+				{
+					"z": 47.9
+				},
+				{
+					"z": 80.1
+				},
+				{
+					"z": 111.9
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"z": -128
+				},
+				{
+					"z": -64
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 64
+				},
+				{
+					"z": 128
+				}
+			]
+		},
+		{
+			"name": "doorFlipped",
+			"positionsFlipped": [
+				{
+					"z": -128
+				},
+				{
+					"z": -64
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 64
+				},
+				{
+					"z": 128
+				}
+			]
+		},
+		{
+			"name": "end",
+			"positions": [
+				{
+					"z": -160
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 160
+				}
+			]
+		},
+		{
+			"name": "endFlipped",
+			"positions": [
+				{
+					"z": 160
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -160
+				}
+			]
+		},
+		{
+			"name": "sidePanelEnd",
+			"positions": [
+				{
+					"z": -144.1
+				},
+				{
+					"z": 144.1
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -144.1
+				},
+				{
+					"z": 144.1
+				}
+			]
+		},
+		{
+			"name": "poleOdd",
+			"positions": [
+				{
+					"z": -128
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 128
+				}
+			]
+		},
+		{
+			"name": "poleEven",
+			"positions": [
+				{
+					"z": -64
+				},
+				{
+					"z": 64
+				}
+			]
+		}
+	]
+}

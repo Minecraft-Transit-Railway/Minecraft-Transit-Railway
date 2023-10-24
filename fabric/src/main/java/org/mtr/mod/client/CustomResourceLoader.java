@@ -6,6 +6,7 @@ import org.mtr.core.data.TransportMode;
 import org.mtr.core.data.VehicleResource;
 import org.mtr.core.serializers.JsonReader;
 import org.mtr.core.tools.Utilities;
+import org.mtr.libraries.com.google.gson.JsonElement;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
@@ -22,6 +23,7 @@ import java.util.function.Consumer;
 
 public class CustomResourceLoader {
 
+	private static final Object2ObjectAVLTreeMap<String, JsonElement> RESOURCE_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, ObjectArrayList<VehicleResource>> VEHICLES = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, Object2ObjectAVLTreeMap<String, VehicleResource>> VEHICLES_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final ObjectArrayList<SignResource> SIGNS = new ObjectArrayList<>();
@@ -38,6 +40,7 @@ public class CustomResourceLoader {
 	public static void reload() {
 		RenderTrains.clearTextureAvailability();
 		DynamicTextureCache.instance.resetFonts();
+		RESOURCE_CACHE.clear();
 		VEHICLES.forEach((transportMode, vehicleResources) -> vehicleResources.clear());
 		VEHICLES_CACHE.forEach((transportMode, vehicleResourcesCache) -> vehicleResourcesCache.clear());
 		SIGNS.clear();
@@ -45,7 +48,7 @@ public class CustomResourceLoader {
 
 		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_ID + ".json"), inputStream -> {
 			try {
-				final CustomResources customResources = new CustomResources(readResource(inputStream));
+				final CustomResources customResources = new CustomResources(new JsonReader(readResource(inputStream)));
 				customResources.iterateVehicles(vehicleResource -> {
 					VEHICLES.get(vehicleResource.getTransportMode()).add(vehicleResource);
 					VEHICLES_CACHE.get(vehicleResource.getTransportMode()).put(vehicleResource.getId(), vehicleResource);
@@ -98,12 +101,26 @@ public class CustomResourceLoader {
 		return signIds;
 	}
 
-	public static JsonReader readResource(InputStream inputStream) {
+	public static void readResource(Identifier identifier, Consumer<JsonElement> consumer) {
+		final String identifierString = identifier.data.toString();
+		final JsonElement jsonElement = RESOURCE_CACHE.get(identifierString);
+		if (jsonElement == null) {
+			ResourceManagerHelper.readResource(identifier, inputStream -> {
+				final JsonElement newJsonElement = readResource(inputStream);
+				consumer.accept(newJsonElement);
+				RESOURCE_CACHE.put(identifierString, newJsonElement);
+			});
+		} else {
+			consumer.accept(jsonElement);
+		}
+	}
+
+	private static JsonElement readResource(InputStream inputStream) {
 		try (final InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-			return new JsonReader(JsonParser.parseReader(inputStreamReader));
+			return JsonParser.parseReader(inputStreamReader);
 		} catch (Exception e) {
 			Init.logException(e);
-			return new JsonReader(new JsonObject());
+			return new JsonObject();
 		}
 	}
 }

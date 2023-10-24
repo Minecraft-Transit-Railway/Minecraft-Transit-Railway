@@ -26,7 +26,7 @@ public final class SignResource extends SignResourceSchema {
 	}
 
 	public Identifier getTexture() {
-		return VehicleModel.formatIdentifier(textureResource, "png");
+		return CustomResourceTools.formatIdentifier(textureResource, "png");
 	}
 
 	public boolean getFlipTexture() {
@@ -46,6 +46,6 @@ public final class SignResource extends SignResourceSchema {
 	}
 
 	public int getBackgroundColor() {
-		return VehicleResource.colorStringToInt(backgroundColor);
+		return CustomResourceTools.colorStringToInt(backgroundColor);
 	}
 }

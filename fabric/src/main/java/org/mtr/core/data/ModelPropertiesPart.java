@@ -3,6 +3,8 @@ package org.mtr.core.data;
 import org.mtr.core.generated.ModelPropertiesPartSchema;
 import org.mtr.core.serializers.ReaderBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectIntImmutablePair;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.OverlayTexture;
@@ -14,27 +16,37 @@ import org.mtr.mod.render.StoredMatrixTransformations;
 
 public final class ModelPropertiesPart extends ModelPropertiesPartSchema implements IGui {
 
+	private final ObjectArrayList<RenderProperties> renderPropertiesList = new ObjectArrayList<>();
+
 	public ModelPropertiesPart(ReaderBase readerBase) {
 		super(readerBase);
 		updateData(readerBase);
 	}
 
-	void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, Object2ObjectOpenHashMap<String, ModelPartExtension> nameToModelPart) {
+	public void writeCache(Object2ObjectOpenHashMap<String, ModelPartExtension> nameToParentModelPart, PositionDefinitions positionDefinitionsObject) {
+		final ObjectArraySet<ModelPartExtension> modelParts = new ObjectArraySet<>();
 		names.forEach(name -> {
-			final ModelPartExtension modelPart = nameToModelPart.get(name);
+			final ModelPartExtension modelPart = nameToParentModelPart.get(name);
 			if (modelPart != null) {
-				switch (type) {
-					case NORMAL:
-						renderNormal(texture, storedMatrixTransformations, vehicle, getRenderProperties(renderStage, light, vehicle), modelPart);
-						break;
-					case DISPLAY:
-						break;
-				}
+				modelParts.add(modelPart);
+			}
+		});
+		positionDefinitions.forEach(positionDefinitionName -> positionDefinitionsObject.getPositionDefinition(positionDefinitionName, (positions, positionsFlipped) -> modelParts.forEach(modelPart -> renderPropertiesList.add(new RenderProperties(modelPart, positions, positionsFlipped)))));
+	}
+
+	public void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light) {
+		renderPropertiesList.forEach(renderProperties -> {
+			switch (type) {
+				case NORMAL:
+					renderNormal(texture, storedMatrixTransformations, vehicle, getRenderProperties(renderStage, light, vehicle), renderProperties.modelPart, renderProperties.positions, renderProperties.positionsFlipped);
+					break;
+				case DISPLAY:
+					break;
 			}
 		});
 	}
 
-	private void renderNormal(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, ObjectIntImmutablePair<RenderTrains.QueuedRenderLayer> renderProperties, ModelPartExtension modelPart) {
+	private void renderNormal(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, ObjectIntImmutablePair<RenderTrains.QueuedRenderLayer> renderProperties, ModelPartExtension modelPart, ObjectArrayList<PartPosition> positions, ObjectArrayList<PartPosition> positionsFlipped) {
 		RenderTrains.scheduleRender(texture, false, renderProperties.left(), (graphicsHolder, offset) -> {
 			storedMatrixTransformations.transform(graphicsHolder, offset);
 			positions.forEach(position -> modelPart.render(
@@ -80,5 +92,18 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		}
 
 		return new ObjectIntImmutablePair<>(RenderTrains.QueuedRenderLayer.EXTERIOR, light);
+	}
+
+	private static class RenderProperties {
+
+		private final ModelPartExtension modelPart;
+		private final ObjectArrayList<PartPosition> positions;
+		private final ObjectArrayList<PartPosition> positionsFlipped;
+
+		private RenderProperties(ModelPartExtension modelPart, ObjectArrayList<PartPosition> positions, ObjectArrayList<PartPosition> positionsFlipped) {
+			this.modelPart = modelPart;
+			this.positions = positions;
+			this.positionsFlipped = positionsFlipped;
+		}
 	}
 }
