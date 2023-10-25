@@ -3,7 +3,7 @@ package org.mtr.mod;
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
-public class ObjectHolder<T> {
+public final class ObjectHolder<T> {
 
 	private T object;
 	private final Supplier<T> supplier;

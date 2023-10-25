@@ -9,6 +9,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mod.Init;
+import org.mtr.mod.block.BlockPlatform;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
@@ -18,6 +19,8 @@ import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public class RenderVehicles implements IGui {
+
+	private static final int CHECK_DOOR_RADIUS = 2;
 
 	public static void render() {
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
@@ -66,16 +69,11 @@ public class RenderVehicles implements IGui {
 				CustomResourceLoader.getVehicleById(vehicle.getTransportMode(), vehicleCar.getVehicleId(), vehicleResource -> {
 					for (int j = 0; j < bogiePositions.size(); j++) {
 						final ObjectObjectImmutablePair<Vector, Vector> bogiePosition = bogiePositions.get(j);
-						vehicleResource.iterateBogieModels(j, model -> renderModel(bogiePosition.left(), bogiePosition.right(), vehicle.getReversed(), storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, light)));
+						vehicleResource.iterateBogieModels(j, model -> renderModel(bogiePosition.left(), bogiePosition.right(), vehicle.getReversed(), storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, light, box -> false)));
 					}
 
-					vehicleResource.iterateModels(model -> {
-						renderModel(
-								position1,
-								position2,
-								vehicle.getReversed(),
-								storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, light)
-						);
+					renderModel(position1, position2, vehicle.getReversed(), storedMatrixTransformations -> vehicleResource.iterateModels(model -> {
+						model.render(storedMatrixTransformations, vehicle, light, doorway -> canOpenDoors(doorway, pivotPosition, angles, vehicle.getReversed()));
 						renderConnection(
 								model.modelProperties.hasGangway, true, previousGangwayConnectionPositions,
 								model.modelProperties.gangwayInnerSideTexture,
@@ -106,10 +104,35 @@ public class RenderVehicles implements IGui {
 								model.modelProperties.getBarrierZOffset(),
 								vehicle.getIsOnRoute()
 						);
-					});
+					}));
 				});
 			}
 		});
+	}
+
+	private static boolean canOpenDoors(Box doorway, Vector pivotPosition, DoubleDoubleImmutablePair angles, boolean reversed) {
+		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
+		if (clientWorld == null) {
+			return false;
+		}
+
+		final Vector3d doorwayPosition = doorway.getCenter().multiply(1F / 16)
+				.rotateY((float) (-angles.leftDouble() + (reversed ? 0 : Math.PI)))
+				.rotateX((float) ((reversed ? -1 : 1) * -angles.rightDouble() + Math.PI))
+				.add(pivotPosition.x, pivotPosition.y, pivotPosition.z);
+
+		for (double checkX = doorwayPosition.getXMapped() - CHECK_DOOR_RADIUS; checkX <= doorwayPosition.getXMapped() + CHECK_DOOR_RADIUS; checkX++) {
+			for (double checkY = doorwayPosition.getYMapped() - CHECK_DOOR_RADIUS; checkY <= doorwayPosition.getYMapped() + CHECK_DOOR_RADIUS; checkY++) {
+				for (double checkZ = doorwayPosition.getZMapped() - CHECK_DOOR_RADIUS; checkZ <= doorwayPosition.getZMapped() + CHECK_DOOR_RADIUS; checkZ++) {
+					final BlockPos checkPos = new BlockPos((int) Math.round(checkX), (int) Math.round(checkY), (int) Math.round(checkZ));
+					if (clientWorld.getBlockState(checkPos).getBlock().data instanceof BlockPlatform) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 
 	private static void renderModel(Vector position1, Vector position2, boolean reversed, Consumer<StoredMatrixTransformations> render) {

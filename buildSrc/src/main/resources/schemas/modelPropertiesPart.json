@@ -34,9 +34,6 @@
 		"displayScrollStyle": {
 			"$ref": "DisplayScrollStyle"
 		},
-		"doorVehicleSide": {
-			"$ref": "DoorVehicleSide"
-		},
 		"doorXMultiplier": {
 			"type": "number"
 		},
@@ -59,7 +56,6 @@
 		"displayXPadding",
 		"displayYPadding",
 		"displayScrollStyle",
-		"doorVehicleSide",
 		"doorXMultiplier",
 		"doorZMultiplier",
 		"doorAnimationType",

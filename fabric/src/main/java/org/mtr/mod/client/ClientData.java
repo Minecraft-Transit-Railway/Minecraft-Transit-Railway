@@ -1,5 +1,7 @@
 package org.mtr.mod.client;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.core.data.*;
 import org.mtr.core.tools.Position;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
@@ -9,6 +11,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.Init;
 import org.mtr.mod.KeyBindings;
+import org.mtr.mod.data.PersistentVehicleData;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.packet.PacketDriveTrain;
 import org.mtr.mod.screen.DashboardListItem;
@@ -19,6 +22,7 @@ import java.util.stream.Collectors;
 public final class ClientData extends Data {
 
 	public final ObjectAVLTreeSet<VehicleExtension> vehicles = new ObjectAVLTreeSet<>();
+	public final Long2ObjectAVLTreeMap<PersistentVehicleData> vehicleIdToPersistentVehicleData = new Long2ObjectAVLTreeMap<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
 
 	public static ClientData instance = new ClientData();
@@ -35,6 +39,23 @@ public final class ClientData extends Data {
 	private static float shiftHoldingTicks = 0;
 
 	private static final Map<UUID, Integer> PLAYER_RIDING_COOL_DOWN = new HashMap<>();
+
+	@Override
+	public void sync() {
+		super.sync();
+		final LongAVLTreeSet vehicleIds = vehicles.stream().map(NameColorDataBase::getId).collect(Collectors.toCollection(LongAVLTreeSet::new));
+		final LongAVLTreeSet idsToRemove = new LongAVLTreeSet();
+		vehicleIdToPersistentVehicleData.keySet().forEach(vehicleId -> {
+			if (!vehicleIds.contains(vehicleId)) {
+				idsToRemove.add(vehicleId);
+			}
+		});
+		idsToRemove.forEach(vehicleIdToPersistentVehicleData::remove);
+	}
+
+	public PersistentVehicleData getPersistentVehicleData(long vehicleId) {
+		return vehicleIdToPersistentVehicleData.getOrDefault(vehicleId, new PersistentVehicleData());
+	}
 
 	public static void tick() {
 		final Set<UUID> playersToRemove = new HashSet<>();
