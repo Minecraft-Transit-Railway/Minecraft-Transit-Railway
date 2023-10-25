@@ -7,25 +7,29 @@ import org.mtr.core.data.VehicleExtraData;
 import org.mtr.core.serializers.JsonReader;
 import org.mtr.core.tools.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Items;
 import org.mtr.mod.client.ClientData;
-import org.mtr.mod.client.ScrollingText;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
 
 public class VehicleExtension extends Vehicle {
 
-	private final ObjectArrayList<ObjectArrayList<ScrollingText>> scrollingTexts = new ObjectArrayList<>();
-
+	public final PersistentVehicleData persistentVehicleData;
 	private static final int SHIFT_ACTIVATE_TICKS = 30;
 	private static final int DISMOUNT_PROGRESS_BAR_LENGTH = 30;
 
 	public VehicleExtension(JsonObject jsonObject, Data data) {
 		super(new VehicleExtraData(new JsonReader(jsonObject.getAsJsonObject("data"))), null, true, new JsonReader(jsonObject.getAsJsonObject("vehicle")), data);
+		final PersistentVehicleData tempPersistentVehicleData = ClientData.instance.vehicleIdToPersistentVehicleData.get(getId());
+		if (tempPersistentVehicleData == null) {
+			persistentVehicleData = new PersistentVehicleData();
+			ClientData.instance.vehicleIdToPersistentVehicleData.put(getId(), persistentVehicleData);
+		} else {
+			persistentVehicleData = tempPersistentVehicleData;
+		}
 	}
 
 	public void updateData(@Nullable JsonObject jsonObject) {
@@ -37,6 +41,7 @@ public class VehicleExtension extends Vehicle {
 
 	public void simulate(long millisElapsed) {
 		simulate(millisElapsed, null, null);
+		persistentVehicleData.tick(millisElapsed, vehicleExtraData);
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
 		final String thisRouteName = vehicleExtraData.getThisRouteName();
@@ -70,13 +75,6 @@ public class VehicleExtension extends Vehicle {
 		}
 
 		// TODO chat announcements (next station, route number, etc.)
-	}
-
-	public ObjectArrayList<ScrollingText> getScrollingText(int car) {
-		while (scrollingTexts.size() <= car) {
-			scrollingTexts.add(new ObjectArrayList<>());
-		}
-		return scrollingTexts.get(car);
 	}
 
 	public static boolean showShiftProgressBar() {

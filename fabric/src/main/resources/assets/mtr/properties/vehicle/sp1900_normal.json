@@ -26,6 +26,16 @@
 		},
 		{
 			"names": [
+				"window_floor"
+			],
+			"positionDefinitions": [
+				"window",
+				"windowFlipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
 				"side_panel_sp1900"
 			],
 			"positionDefinitions": [
@@ -100,6 +110,34 @@
 		},
 		{
 			"names": [
+				"door_floor"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"type": "DOORWAY"
+		},
+		{
+			"names": [
+				"doorway"
+			],
+			"positionDefinitions": [
+				"doorFlipped"
+			],
+			"type": "DOORWAY"
+		},
+		{
+			"names": [
 				"door_left"
 			],
 			"positionDefinitions": [
@@ -107,6 +145,7 @@
 			],
 			"renderStage": "INTERIOR",
 			"type": "NORMAL",
+			"doorZMultiplier": 14,
 			"doorAnimationType": "NORMAL"
 		},
 		{
@@ -118,6 +157,7 @@
 			],
 			"renderStage": "INTERIOR",
 			"type": "NORMAL",
+			"doorZMultiplier": -14,
 			"doorAnimationType": "NORMAL"
 		},
 		{
@@ -129,6 +169,7 @@
 			],
 			"renderStage": "INTERIOR",
 			"type": "NORMAL",
+			"doorZMultiplier": -14,
 			"doorAnimationType": "NORMAL"
 		},
 		{
@@ -140,6 +181,7 @@
 			],
 			"renderStage": "INTERIOR",
 			"type": "NORMAL",
+			"doorZMultiplier": 14,
 			"doorAnimationType": "NORMAL"
 		},
 		{
@@ -202,6 +244,7 @@
 			],
 			"renderStage": "EXTERIOR",
 			"type": "NORMAL",
+			"doorZMultiplier": -14,
 			"doorAnimationType": "NORMAL"
 		},
 		{
@@ -213,6 +256,7 @@
 			],
 			"renderStage": "EXTERIOR",
 			"type": "NORMAL",
+			"doorZMultiplier": 14,
 			"doorAnimationType": "NORMAL"
 		},
 		{
@@ -224,6 +268,7 @@
 			],
 			"renderStage": "EXTERIOR",
 			"type": "NORMAL",
+			"doorZMultiplier": 14,
 			"doorAnimationType": "NORMAL"
 		},
 		{
@@ -235,6 +280,7 @@
 			],
 			"renderStage": "EXTERIOR",
 			"type": "NORMAL",
+			"doorZMultiplier": -14,
 			"doorAnimationType": "NORMAL"
 		},
 		{
@@ -277,6 +323,15 @@
 			],
 			"renderStage": "INTERIOR",
 			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"end_floor"
+			],
+			"positionDefinitions": [
+				"end"
+			],
+			"type": "FLOOR"
 		},
 		{
 			"names": [

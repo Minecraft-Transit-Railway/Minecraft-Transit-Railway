@@ -112,7 +112,7 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 							trainCars,
 							atPlatform,
 							vehicle.vehicleExtraData.getIsTerminating(),
-							vehicle.getScrollingText(currentCar)
+							vehicle.persistentVehicleData.getScrollingText(currentCar)
 					);
 				}
 			}
