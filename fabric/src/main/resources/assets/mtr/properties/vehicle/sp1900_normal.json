@@ -365,6 +365,7 @@
 			"type": "NORMAL"
 		}
 	],
+	"modelYOffset": 1,
 	"gangwayInnerSideResource": "mtr:textures/gangway/sp1900_side.png",
 	"gangwayInnerTopResource": "mtr:textures/gangway/sp1900_roof.png",
 	"gangwayInnerBottomResource": "mtr:textures/gangway/sp1900_floor.png",

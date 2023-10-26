@@ -56,6 +56,10 @@ public final class ModelProperties extends ModelPropertiesSchema {
 		parts.forEach(consumer);
 	}
 
+	public double getModelYOffset() {
+		return modelYOffset;
+	}
+
 	public double getGangwayWidth() {
 		return gangwayWidth;
 	}

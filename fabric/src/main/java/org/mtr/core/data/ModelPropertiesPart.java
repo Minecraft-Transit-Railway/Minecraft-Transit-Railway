@@ -13,8 +13,8 @@ import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.render.RenderTrains;
 import org.mtr.mod.render.StoredMatrixTransformations;
 
+import javax.annotation.Nullable;
 import java.util.Comparator;
-import java.util.function.Predicate;
 
 public final class ModelPropertiesPart extends ModelPropertiesPartSchema implements IGui {
 
@@ -75,29 +75,30 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 					checkDoorway.getMinYMapped(),
 					checkDoorway.getMaxYMapped()
 			) + getClosestDistance(
-					partDetails.box.getMinZMapped(),
-					partDetails.box.getMaxZMapped(),
+					// Blockbench exports models upside down
+					-partDetails.box.getMinZMapped(),
+					-partDetails.box.getMaxZMapped(),
 					checkDoorway.getMinZMapped(),
 					checkDoorway.getMaxZMapped()
 			))).ifPresent(closestDoorway -> partDetails.doorway = closestDoorway));
 		}
 	}
 
-	public void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, Predicate<Box> checkDoors) {
+	public void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, @Nullable ObjectArrayList<Box> openDoorways) {
 		switch (type) {
 			case NORMAL:
-				renderNormal(texture, storedMatrixTransformations, vehicle, getRenderProperties(renderStage, light, vehicle), checkDoors);
+				renderNormal(texture, storedMatrixTransformations, vehicle, getRenderProperties(renderStage, light, vehicle), openDoorways);
 				break;
 			case DISPLAY:
 				break;
 		}
 	}
 
-	private void renderNormal(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, ObjectIntImmutablePair<RenderTrains.QueuedRenderLayer> renderProperties, Predicate<Box> checkDoors) {
+	private void renderNormal(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, ObjectIntImmutablePair<RenderTrains.QueuedRenderLayer> renderProperties, @Nullable ObjectArrayList<Box> openDoorways) {
 		RenderTrains.scheduleRender(texture, false, renderProperties.left(), (graphicsHolder, offset) -> {
 			storedMatrixTransformations.transform(graphicsHolder, offset);
 			partDetailsList.forEach(partDetails -> {
-				final boolean canOpenDoors = vehicle.persistentVehicleData.getDoorValue() > 0 && partDetails.doorway != null && checkDoors.test(partDetails.doorway);
+				final boolean canOpenDoors = openDoorways != null && openDoorways.contains(partDetails.doorway);
 				final float x = (float) (partDetails.position.getX() + (canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() * doorXMultiplier : 0));
 				final float y = (float) partDetails.position.getY();
 				final float z = (float) (partDetails.position.getZ() + (canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() * doorZMultiplier : 0));
@@ -133,8 +134,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	private static Box add(MutableBox mutableBox, double x, double y, double z, boolean flipped) {
 		final Box box = mutableBox.get();
 		return new Box(
-				(flipped ? -1 : 1) * (box.getMinXMapped() + x), box.getMinYMapped() + y, box.getMinZMapped() + z,
-				(flipped ? -1 : 1) * (box.getMaxXMapped() + x), box.getMaxYMapped() + y, box.getMaxZMapped() + z
+				(flipped ? -1 : 1) * box.getMinXMapped() + x / 16, box.getMinYMapped() + y / 16, (flipped ? -1 : 1) * box.getMinZMapped() + z / 16,
+				(flipped ? -1 : 1) * box.getMaxXMapped() + x / 16, box.getMaxYMapped() + y / 16, (flipped ? -1 : 1) * box.getMaxZMapped() + z / 16
 		);
 	}
 

@@ -10,5 +10,6 @@
 			"renderStage": "EXTERIOR",
 			"type": "NORMAL"
 		}
-	]
+	],
+	"modelYOffset": 1
 }
