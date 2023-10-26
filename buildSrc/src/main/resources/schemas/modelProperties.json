@@ -11,6 +11,9 @@
 				"$ref": "modelPropertiesPart.json"
 			}
 		},
+		"modelYOffset": {
+			"type": "number"
+		},
 		"gangwayInnerSideResource": {
 			"type": "string"
 		},
@@ -77,6 +80,7 @@
 		}
 	},
 	"required": [
+		"modelYOffset",
 		"gangwayInnerSideResource",
 		"gangwayInnerTopResource",
 		"gangwayInnerBottomResource",

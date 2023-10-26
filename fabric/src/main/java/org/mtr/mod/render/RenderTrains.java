@@ -68,7 +68,8 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 	}
 
 	public static void render(GraphicsHolder graphicsHolder, Vector3d offset) {
-		ClientData.instance.vehicles.forEach(vehicle -> vehicle.simulate(InitClient.getGameMillis() - lastRenderedMillis));
+		final long millisElapsed = InitClient.getGameMillis() - lastRenderedMillis;
+		ClientData.instance.vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
 		lastRenderedMillis = InitClient.getGameMillis();
 		// TODO
 
@@ -80,7 +81,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 			return;
 		}
 
-		RenderVehicles.render();
+		RenderVehicles.render(millisElapsed);
 		RenderRails.render();
 
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {

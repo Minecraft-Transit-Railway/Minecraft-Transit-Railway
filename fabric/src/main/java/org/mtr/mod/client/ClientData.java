@@ -16,7 +16,7 @@ import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.packet.PacketDriveTrain;
 import org.mtr.mod.screen.DashboardListItem;
 
-import java.util.*;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 public final class ClientData extends Data {
@@ -38,8 +38,6 @@ public final class ClientData extends Data {
 	private static boolean pressingDoors = false;
 	private static float shiftHoldingTicks = 0;
 
-	private static final Map<UUID, Integer> PLAYER_RIDING_COOL_DOWN = new HashMap<>();
-
 	@Override
 	public void sync() {
 		super.sync();
@@ -58,15 +56,6 @@ public final class ClientData extends Data {
 	}
 
 	public static void tick() {
-		final Set<UUID> playersToRemove = new HashSet<>();
-		PLAYER_RIDING_COOL_DOWN.forEach((uuid, coolDown) -> {
-			if (coolDown <= 0) {
-				playersToRemove.add(uuid);
-			}
-			PLAYER_RIDING_COOL_DOWN.put(uuid, coolDown - 1);
-		});
-		playersToRemove.forEach(PLAYER_RIDING_COOL_DOWN::remove);
-
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
 		final boolean tempPressingAccelerate = KeyBindings.TRAIN_ACCELERATE.isPressed();
@@ -92,14 +81,6 @@ public final class ClientData extends Data {
 				shiftHoldingTicks = 0;
 			}
 		}
-	}
-
-	public static void updatePlayerRidingOffset(UUID uuid) {
-		PLAYER_RIDING_COOL_DOWN.put(uuid, 2);
-	}
-
-	public static boolean isRiding(UUID uuid) {
-		return PLAYER_RIDING_COOL_DOWN.containsKey(uuid);
 	}
 
 	public static boolean hasPermission() {

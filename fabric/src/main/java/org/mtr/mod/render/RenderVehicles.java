@@ -3,12 +3,15 @@ package org.mtr.mod.render;
 import org.mtr.core.data.VehicleCar;
 import org.mtr.core.tools.Utilities;
 import org.mtr.core.tools.Vector;
-import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mod.Init;
+import org.mtr.mod.InitClient;
+import org.mtr.mod.Items;
 import org.mtr.mod.block.BlockPlatform;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.CustomResourceLoader;
@@ -16,17 +19,40 @@ import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 
 import javax.annotation.Nullable;
+import java.util.Comparator;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class RenderVehicles implements IGui {
 
-	private static final int CHECK_DOOR_RADIUS = 2;
+	private static long ridingVehicleId;
+	private static double ridingVehicleX;
+	private static double ridingVehicleY;
+	private static double ridingVehicleZ;
+	private static int ridingVehicleCarNumber;
+	private static int ridingVehicleCoolDown;
 
-	public static void render() {
-		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
-		if (clientWorld == null) {
+	private static final int CHECK_DOOR_RADIUS = 2;
+	private static final int RIDE_STEP_THRESHOLD = 8;
+	private static final int RIDING_COOL_DOWN = 5;
+	private static final float VEHICLE_WALKING_SPEED_MULTIPLIER = 0.005F;
+	private static final float HALF_PLAYER_WIDTH = 0.3F;
+
+	public static void render(long millisElapsed) {
+		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
+		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+		if (clientWorld == null || clientPlayerEntity == null) {
 			return;
 		}
+
+		if (ridingVehicleCoolDown < RIDING_COOL_DOWN) {
+			ridingVehicleCoolDown++;
+		} else {
+			ridingVehicleId = 0;
+		}
+
+		final boolean canRide = !clientPlayerEntity.isSpectator();
 
 		ClientData.instance.vehicles.forEach(vehicle -> {
 			final ObjectImmutableList<VehicleCar> vehicleCars = vehicle.vehicleExtraData.getVehicleCars(vehicle.getReversed());
@@ -36,44 +62,50 @@ public class RenderVehicles implements IGui {
 			final PreviousConnectionPositions previousBarrierConnectionPositions = new PreviousConnectionPositions();
 
 			for (int i = 0; i < totalCars; i++) {
-				final ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>> bogiePositions = positions.get(i);
-				final Vector pivotPosition;
-				final DoubleDoubleImmutablePair angles;
-
-				if (bogiePositions.size() == 1) {
-					final ObjectObjectImmutablePair<Vector, Vector> bogiePosition = bogiePositions.get(0);
-					pivotPosition = Vector.getAverage(bogiePosition.left(), bogiePosition.right());
-					angles = getAngles(bogiePosition.left(), bogiePosition.right());
-				} else if (bogiePositions.size() == 2) {
-					final Vector average1 = Vector.getAverage(bogiePositions.get(0).left(), bogiePositions.get(0).right());
-					final Vector average2 = Vector.getAverage(bogiePositions.get(1).left(), bogiePositions.get(1).right());
-					pivotPosition = Vector.getAverage(average1, average2);
-					angles = getAngles(average1, average2);
-				} else {
-					pivotPosition = new Vector(0, 0, 0);
-					angles = new DoubleDoubleImmutablePair(0, 0);
-				}
-
-				final BlockPos blockPos = Init.newBlockPos(pivotPosition.x, pivotPosition.y + 1, pivotPosition.z);
-				final int light = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
 				final VehicleCar vehicleCar = vehicleCars.get(i);
+				final ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>> bogiePositionsList = positions.get(i);
+				final RenderVehicleTransformationHelper renderVehicleTransformationHelper = new RenderVehicleTransformationHelper(bogiePositionsList, vehicleCar.getBogie1Position(), vehicleCar.getBogie2Position(), vehicleCar.getLength(), vehicle.getReversed());
 				final int carNumber = vehicle.getReversed() ? totalCars - i - 1 : i;
-				final double pivotOffset = Utilities.getAverage(vehicleCar.getBogie1Position(), vehicleCar.getBogie2Position());
-				final double halfLength = vehicleCar.getLength() / 2;
-				final Vector rotationalVector = new Vector(0, 0, 1).rotateX(angles.rightDouble()).rotateY(angles.leftDouble());
-				final double pivotOffset1 = pivotOffset - halfLength;
-				final double pivotOffset2 = pivotOffset + halfLength;
-				final Vector position1 = rotationalVector.multiply(pivotOffset1, pivotOffset1, pivotOffset1).add(pivotPosition);
-				final Vector position2 = rotationalVector.multiply(pivotOffset2, pivotOffset2, pivotOffset2).add(pivotPosition);
+				final ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsAndDoorways = new ObjectArrayList<>();
+				final Vector3d playerPosition = renderVehicleTransformationHelper.transformBackwards(clientPlayerEntity.getPos(), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
 
 				CustomResourceLoader.getVehicleById(vehicle.getTransportMode(), vehicleCar.getVehicleId(), vehicleResource -> {
-					for (int j = 0; j < bogiePositions.size(); j++) {
-						final ObjectObjectImmutablePair<Vector, Vector> bogiePosition = bogiePositions.get(j);
-						vehicleResource.iterateBogieModels(j, model -> renderModel(bogiePosition.left(), bogiePosition.right(), vehicle.getReversed(), storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, light, box -> false)));
+					for (int j = 0; j < bogiePositionsList.size(); j++) {
+						final RenderVehicleTransformationHelper bogieRenderVehicleTransformationHelper = new RenderVehicleTransformationHelper(bogiePositionsList.get(j), vehicle.getReversed());
+						vehicleResource.iterateBogieModels(j, model -> renderModel(bogieRenderVehicleTransformationHelper, storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, bogieRenderVehicleTransformationHelper.light, null)));
 					}
 
-					renderModel(position1, position2, vehicle.getReversed(), storedMatrixTransformations -> vehicleResource.iterateModels(model -> {
-						model.render(storedMatrixTransformations, vehicle, light, doorway -> canOpenDoors(doorway, pivotPosition, angles, vehicle.getReversed()));
+					renderModel(renderVehicleTransformationHelper, storedMatrixTransformations -> vehicleResource.iterateModels(model -> {
+						final ObjectArrayList<Box> openDoorways = vehicle.persistentVehicleData.getDoorValue() > 0 ? model.doorways.stream()
+								.filter(doorway -> canOpenDoors(doorway, renderVehicleTransformationHelper))
+								.collect(Collectors.toCollection(ObjectArrayList::new)) : new ObjectArrayList<>();
+						model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelper.light, openDoorways);
+
+						if (canRide) {
+							model.floors.forEach(floor -> {
+								floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(floor, true));
+								renderFloorOrDoorway(floor, true, playerPosition, renderVehicleTransformationHelper);
+							});
+
+							openDoorways.forEach(doorway -> {
+								floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(doorway, false));
+								renderFloorOrDoorway(doorway, false, playerPosition, renderVehicleTransformationHelper);
+							});
+
+							if (ridingVehicleId == 0 || ridingVehicleId == vehicle.getId()) {
+								for (final Box doorway : openDoorways) {
+									if (boxContains(doorway, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped())) {
+										ridingVehicleX = playerPosition.getXMapped();
+										ridingVehicleY = playerPosition.getYMapped();
+										ridingVehicleZ = playerPosition.getZMapped();
+										ridingVehicleCarNumber = carNumber;
+										ridingVehicleId = vehicle.getId();
+										break;
+									}
+								}
+							}
+						}
+
 						renderConnection(
 								model.modelProperties.hasGangway, true, previousGangwayConnectionPositions,
 								model.modelProperties.gangwayInnerSideTexture,
@@ -82,13 +114,15 @@ public class RenderVehicles implements IGui {
 								model.modelProperties.gangwayOuterSideTexture,
 								model.modelProperties.gangwayOuterTopTexture,
 								model.modelProperties.gangwayOuterBottomTexture,
-								position1, position2, angles,
+								renderVehicleTransformationHelper,
+								vehicleCar.getLength(),
 								model.modelProperties.getGangwayWidth(),
 								model.modelProperties.getGangwayHeight(),
 								model.modelProperties.getGangwayYOffset(),
 								model.modelProperties.getGangwayZOffset(),
 								vehicle.getIsOnRoute()
 						);
+
 						renderConnection(
 								model.modelProperties.hasBarrier, false, previousBarrierConnectionPositions,
 								model.modelProperties.barrierInnerSideTexture,
@@ -97,7 +131,8 @@ public class RenderVehicles implements IGui {
 								model.modelProperties.barrierOuterSideTexture,
 								model.modelProperties.barrierOuterTopTexture,
 								model.modelProperties.barrierOuterBottomTexture,
-								position1, position2, angles,
+								renderVehicleTransformationHelper,
+								vehicleCar.getLength(),
 								model.modelProperties.getBarrierWidth(),
 								model.modelProperties.getBarrierHeight(),
 								model.modelProperties.getBarrierYOffset(),
@@ -106,25 +141,68 @@ public class RenderVehicles implements IGui {
 						);
 					}));
 				});
+
+				if (canRide && ridingVehicleId == vehicle.getId() && ridingVehicleCarNumber == carNumber) {
+					ridingVehicleCoolDown = 0;
+					clientPlayerEntity.setFallDistanceMapped(0);
+					clientPlayerEntity.setVelocity(0, 0, 0);
+					clientPlayerEntity.setMovementSpeed(0);
+
+					final float speedMultiplier = millisElapsed * VEHICLE_WALKING_SPEED_MULTIPLIER * (clientPlayerEntity.isSprinting() ? 2 : 1);
+					final Vector3d movement = renderVehicleTransformationHelper.transformBackwards(new Vector3d(
+							Math.abs(clientPlayerEntity.getSidewaysSpeedMapped()) > 0.5 ? Math.copySign(speedMultiplier, clientPlayerEntity.getSidewaysSpeedMapped()) : 0,
+							0,
+							Math.abs(clientPlayerEntity.getForwardSpeedMapped()) > 0.5 ? Math.copySign(speedMultiplier, clientPlayerEntity.getForwardSpeedMapped()) : 0
+					), (vector, pitch) -> vector, (vector, yaw) -> vector.rotateY((float) (yaw - Math.toRadians(EntityHelper.getYaw(new Entity(clientPlayerEntity.data))))), (vector, x, y, z) -> vector);
+					final ObjectArrayList<Vector3d> offsets = new ObjectArrayList<>();
+
+					clampPosition(floorsAndDoorways, ridingVehicleX + movement.getXMapped() - HALF_PLAYER_WIDTH, ridingVehicleZ + movement.getZMapped() - HALF_PLAYER_WIDTH, offsets);
+					clampPosition(floorsAndDoorways, ridingVehicleX + movement.getXMapped() + HALF_PLAYER_WIDTH, ridingVehicleZ + movement.getZMapped() - HALF_PLAYER_WIDTH, offsets);
+					clampPosition(floorsAndDoorways, ridingVehicleX + movement.getXMapped() + HALF_PLAYER_WIDTH, ridingVehicleZ + movement.getZMapped() + HALF_PLAYER_WIDTH, offsets);
+					clampPosition(floorsAndDoorways, ridingVehicleX + movement.getXMapped() - HALF_PLAYER_WIDTH, ridingVehicleZ + movement.getZMapped() + HALF_PLAYER_WIDTH, offsets);
+
+					if (offsets.isEmpty()) {
+						ridingVehicleId = 0;
+					} else {
+						double clampX = 0;
+						double maxY = -Double.MAX_VALUE;
+						double clampZ = 0;
+						for (final Vector3d offset : offsets) {
+							if (Math.abs(offset.getXMapped()) > Math.abs(clampX)) {
+								clampX = offset.getXMapped();
+							}
+							maxY = Math.max(maxY, offset.getYMapped());
+							if (Math.abs(offset.getZMapped()) > Math.abs(clampZ)) {
+								clampZ = offset.getZMapped();
+							}
+						}
+						ridingVehicleX += movement.getXMapped() + clampX;
+						ridingVehicleY = maxY;
+						ridingVehicleZ += movement.getZMapped() + clampZ;
+					}
+
+					if (InitClient.getGameTick() > 40) {
+						final Vector3d newPlayerPosition = renderVehicleTransformationHelper.transformForwards(new Vector3d(ridingVehicleX, ridingVehicleY, ridingVehicleZ), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+						clientPlayerEntity.updatePosition(newPlayerPosition.getXMapped(), newPlayerPosition.getYMapped(), newPlayerPosition.getZMapped());
+						InitClient.scheduleMovePlayer(() -> clientPlayerEntity.updatePosition(newPlayerPosition.getXMapped(), newPlayerPosition.getYMapped(), newPlayerPosition.getZMapped()));
+					}
+				}
 			}
 		});
 	}
 
-	private static boolean canOpenDoors(Box doorway, Vector pivotPosition, DoubleDoubleImmutablePair angles, boolean reversed) {
+	private static boolean canOpenDoors(Box doorway, RenderVehicleTransformationHelper renderVehicleTransformationHelper) {
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 		if (clientWorld == null) {
 			return false;
 		}
 
-		final Vector3d doorwayPosition = doorway.getCenter().multiply(1F / 16)
-				.rotateY((float) (-angles.leftDouble() + (reversed ? 0 : Math.PI)))
-				.rotateX((float) ((reversed ? -1 : 1) * -angles.rightDouble() + Math.PI))
-				.add(pivotPosition.x, pivotPosition.y, pivotPosition.z);
+		final Vector3d doorwayPosition = renderVehicleTransformationHelper.transformForwards(doorway.getCenter(), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
 
 		for (double checkX = doorwayPosition.getXMapped() - CHECK_DOOR_RADIUS; checkX <= doorwayPosition.getXMapped() + CHECK_DOOR_RADIUS; checkX++) {
 			for (double checkY = doorwayPosition.getYMapped() - CHECK_DOOR_RADIUS; checkY <= doorwayPosition.getYMapped() + CHECK_DOOR_RADIUS; checkY++) {
 				for (double checkZ = doorwayPosition.getZMapped() - CHECK_DOOR_RADIUS; checkZ <= doorwayPosition.getZMapped() + CHECK_DOOR_RADIUS; checkZ++) {
-					final BlockPos checkPos = new BlockPos((int) Math.round(checkX), (int) Math.round(checkY), (int) Math.round(checkZ));
+					final BlockPos checkPos = Init.newBlockPos(checkX, checkY, checkZ);
 					if (clientWorld.getBlockState(checkPos).getBlock().data instanceof BlockPlatform) {
 						return true;
 					}
@@ -135,24 +213,23 @@ public class RenderVehicles implements IGui {
 		return false;
 	}
 
-	private static void renderModel(Vector position1, Vector position2, boolean reversed, Consumer<StoredMatrixTransformations> render) {
+	private static void renderModel(RenderVehicleTransformationHelper renderVehicleTransformationHelper, Consumer<StoredMatrixTransformations> render) {
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 		if (clientWorld == null) {
 			return;
 		}
 
-		final DoubleDoubleImmutablePair angles = getAngles(position1, position2);
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
-		storedMatrixTransformations.add(graphicsHolder -> {
-			graphicsHolder.translate(
-					Utilities.getAverage(position1.x, position2.x),
-					Utilities.getAverage(position1.y, position2.y),
-					Utilities.getAverage(position1.z, position2.z)
-			);
-			graphicsHolder.rotateYRadians((float) (angles.leftDouble() + (reversed ? 0 : Math.PI)));
-			graphicsHolder.rotateXRadians((float) ((reversed ? -1 : 1) * angles.rightDouble() + Math.PI));
-			graphicsHolder.translate(0, -1, 0);
-		});
+		storedMatrixTransformations.add(graphicsHolder -> renderVehicleTransformationHelper.transformBackwards(new Object(), (object, pitch) -> {
+			graphicsHolder.rotateXRadians((float) (Math.PI + pitch)); // Blockbench exports models upside down
+			return new Object();
+		}, (object, yaw) -> {
+			graphicsHolder.rotateYRadians(-yaw);
+			return new Object();
+		}, (object, x, y, z) -> {
+			graphicsHolder.translate(-x, -y, -z);
+			return new Object();
+		}));
 		render.accept(storedMatrixTransformations);
 	}
 
@@ -164,8 +241,8 @@ public class RenderVehicles implements IGui {
 			@Nullable Identifier outerSideTexture,
 			@Nullable Identifier outerTopTexture,
 			@Nullable Identifier outerBottomTexture,
-			Vector endPosition1, Vector endPosition2, DoubleDoubleImmutablePair angles,
-			double width, double height, double yOffset, double zOffset, boolean isOnRoute
+			RenderVehicleTransformationHelper renderVehicleTransformationHelper,
+			double vehicleLength, double width, double height, double yOffset, double zOffset, boolean isOnRoute
 	) {
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 		if (clientWorld == null) {
@@ -173,11 +250,12 @@ public class RenderVehicles implements IGui {
 		}
 
 		if (shouldRender) {
+			final double halfLength = vehicleLength / 2;
 			if (previousConnectionPositions.isValid()) {
-				final Vector position1 = new Vector(-width / 2, yOffset + SMALL_OFFSET, zOffset).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition1);
-				final Vector position2 = new Vector(-width / 2, height + yOffset + SMALL_OFFSET, zOffset).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition1);
-				final Vector position3 = new Vector(width / 2, height + yOffset + SMALL_OFFSET, zOffset).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition1);
-				final Vector position4 = new Vector(width / 2, yOffset + SMALL_OFFSET, zOffset).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition1);
+				final Vector position1 = renderVehicleTransformationHelper.transformForwardsRaw(new Vector(-width / 2, yOffset + SMALL_OFFSET, zOffset - halfLength), Vector::rotateX, Vector::rotateY, Vector::add);
+				final Vector position2 = renderVehicleTransformationHelper.transformForwardsRaw(new Vector(-width / 2, height + yOffset + SMALL_OFFSET, zOffset - halfLength), Vector::rotateX, Vector::rotateY, Vector::add);
+				final Vector position3 = renderVehicleTransformationHelper.transformForwardsRaw(new Vector(width / 2, height + yOffset + SMALL_OFFSET, zOffset - halfLength), Vector::rotateX, Vector::rotateY, Vector::add);
+				final Vector position4 = renderVehicleTransformationHelper.transformForwardsRaw(new Vector(width / 2, yOffset + SMALL_OFFSET, zOffset - halfLength), Vector::rotateX, Vector::rotateY, Vector::add);
 
 				final Vector position5 = previousConnectionPositions.position1;
 				final Vector position6 = previousConnectionPositions.position2;
@@ -276,10 +354,10 @@ public class RenderVehicles implements IGui {
 				});
 			}
 
-			previousConnectionPositions.position1 = new Vector(width / 2, yOffset + SMALL_OFFSET, -zOffset).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition2);
-			previousConnectionPositions.position2 = new Vector(width / 2, height + yOffset + SMALL_OFFSET, -zOffset).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition2);
-			previousConnectionPositions.position3 = new Vector(-width / 2, height + yOffset + SMALL_OFFSET, -zOffset).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition2);
-			previousConnectionPositions.position4 = new Vector(-width / 2, yOffset + SMALL_OFFSET, -zOffset).rotateX(angles.rightDouble()).rotateY(angles.leftDouble()).add(endPosition2);
+			previousConnectionPositions.position1 = renderVehicleTransformationHelper.transformForwardsRaw(new Vector(width / 2, yOffset + SMALL_OFFSET, -zOffset + halfLength), Vector::rotateX, Vector::rotateY, Vector::add);
+			previousConnectionPositions.position2 = renderVehicleTransformationHelper.transformForwardsRaw(new Vector(width / 2, height + yOffset + SMALL_OFFSET, -zOffset + halfLength), Vector::rotateX, Vector::rotateY, Vector::add);
+			previousConnectionPositions.position3 = renderVehicleTransformationHelper.transformForwardsRaw(new Vector(-width / 2, height + yOffset + SMALL_OFFSET, -zOffset + halfLength), Vector::rotateX, Vector::rotateY, Vector::add);
+			previousConnectionPositions.position4 = renderVehicleTransformationHelper.transformForwardsRaw(new Vector(-width / 2, yOffset + SMALL_OFFSET, -zOffset + halfLength), Vector::rotateX, Vector::rotateY, Vector::add);
 		} else {
 			previousConnectionPositions.position1 = null;
 			previousConnectionPositions.position2 = null;
@@ -288,14 +366,108 @@ public class RenderVehicles implements IGui {
 		}
 	}
 
-	private static DoubleDoubleImmutablePair getAngles(Vector position1, Vector position2) {
-		final double x1 = position1.x;
-		final double y1 = position1.y;
-		final double z1 = position1.z;
-		final double x2 = position2.x;
-		final double y2 = position2.y;
-		final double z2 = position2.z;
-		return new DoubleDoubleImmutablePair(Math.atan2(x2 - x1, z2 - z1), Math.atan2(y2 - y1, Math.sqrt((x2 - x1) * (x2 - x1) + (z2 - z1) * (z2 - z1))));
+	private static void renderFloorOrDoorway(Box floorOrDoorway, boolean isFloor, Vector3d playerPosition, RenderVehicleTransformationHelper renderVehicleTransformationHelper) {
+		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+		if (clientPlayerEntity != null && clientPlayerEntity.isHolding(Items.BRUSH.get())) {
+			final Vector3d corner1 = renderVehicleTransformationHelper.transformForwards(new Vector3d(floorOrDoorway.getMinXMapped(), floorOrDoorway.getMaxYMapped(), floorOrDoorway.getMinZMapped()), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+			final Vector3d corner2 = renderVehicleTransformationHelper.transformForwards(new Vector3d(floorOrDoorway.getMaxXMapped(), floorOrDoorway.getMaxYMapped(), floorOrDoorway.getMinZMapped()), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+			final Vector3d corner3 = renderVehicleTransformationHelper.transformForwards(new Vector3d(floorOrDoorway.getMaxXMapped(), floorOrDoorway.getMaxYMapped(), floorOrDoorway.getMaxZMapped()), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+			final Vector3d corner4 = renderVehicleTransformationHelper.transformForwards(new Vector3d(floorOrDoorway.getMinXMapped(), floorOrDoorway.getMaxYMapped(), floorOrDoorway.getMaxZMapped()), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+			final int color = boxContains(floorOrDoorway,
+					playerPosition.getXMapped() - HALF_PLAYER_WIDTH,
+					playerPosition.getYMapped(),
+					playerPosition.getZMapped() - HALF_PLAYER_WIDTH
+			) || boxContains(floorOrDoorway,
+					playerPosition.getXMapped() + HALF_PLAYER_WIDTH,
+					playerPosition.getYMapped(),
+					playerPosition.getZMapped() - HALF_PLAYER_WIDTH
+			) || boxContains(floorOrDoorway,
+					playerPosition.getXMapped() + HALF_PLAYER_WIDTH,
+					playerPosition.getYMapped(),
+					playerPosition.getZMapped() + HALF_PLAYER_WIDTH
+			) || boxContains(floorOrDoorway,
+					playerPosition.getXMapped() - HALF_PLAYER_WIDTH,
+					playerPosition.getYMapped(),
+					playerPosition.getZMapped() + HALF_PLAYER_WIDTH
+			) ? 0xFF00FF00 : isFloor ? ARGB_WHITE : 0xFFFF0000;
+			RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.LINES, (graphicsHolder, offset) -> {
+				graphicsHolder.drawLineInWorld(
+						(float) (corner1.getXMapped() - offset.getXMapped()), (float) (corner1.getYMapped() - offset.getYMapped()), (float) (corner1.getZMapped() - offset.getZMapped()),
+						(float) (corner2.getXMapped() - offset.getXMapped()), (float) (corner2.getYMapped() - offset.getYMapped()), (float) (corner2.getZMapped() - offset.getZMapped()),
+						color
+				);
+				graphicsHolder.drawLineInWorld(
+						(float) (corner2.getXMapped() - offset.getXMapped()), (float) (corner2.getYMapped() - offset.getYMapped()), (float) (corner2.getZMapped() - offset.getZMapped()),
+						(float) (corner3.getXMapped() - offset.getXMapped()), (float) (corner3.getYMapped() - offset.getYMapped()), (float) (corner3.getZMapped() - offset.getZMapped()),
+						color
+				);
+				graphicsHolder.drawLineInWorld(
+						(float) (corner3.getXMapped() - offset.getXMapped()), (float) (corner3.getYMapped() - offset.getYMapped()), (float) (corner3.getZMapped() - offset.getZMapped()),
+						(float) (corner4.getXMapped() - offset.getXMapped()), (float) (corner4.getYMapped() - offset.getYMapped()), (float) (corner4.getZMapped() - offset.getZMapped()),
+						color
+				);
+				graphicsHolder.drawLineInWorld(
+						(float) (corner4.getXMapped() - offset.getXMapped()), (float) (corner4.getYMapped() - offset.getYMapped()), (float) (corner4.getZMapped() - offset.getZMapped()),
+						(float) (corner1.getXMapped() - offset.getXMapped()), (float) (corner1.getYMapped() - offset.getYMapped()), (float) (corner1.getZMapped() - offset.getZMapped()),
+						color
+				);
+			});
+		}
+	}
+
+	/**
+	 * Find an intersecting floor or doorway from the player position.
+	 * If there are multiple intersecting floors or doorways, get the one with the highest Y level.
+	 * If there are no intersecting floors or doorways, find the closest floor or doorway instead.
+	 */
+	@Nullable
+	private static ObjectBooleanImmutablePair<Box> bestPosition(ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsOrDoorways, double x, double y, double z) {
+		return floorsOrDoorways.stream().filter(floorOrDoorway -> boxContains(floorOrDoorway.left(), x, y, z)).max(Comparator.comparingDouble(floorOrDoorway -> floorOrDoorway.left().getMaxYMapped())).orElse(floorsOrDoorways.stream().min(Comparator.comparingDouble(floorOrDoorway -> Math.min(
+				Math.abs(floorOrDoorway.left().getMinXMapped() - x),
+				Math.abs(floorOrDoorway.left().getMaxXMapped() - x)
+		) + Math.min(
+				Math.abs(floorOrDoorway.left().getMinYMapped() - y),
+				Math.abs(floorOrDoorway.left().getMaxYMapped() - y)
+		) + Math.min(
+				Math.abs(floorOrDoorway.left().getMinZMapped() - z),
+				Math.abs(floorOrDoorway.left().getMaxZMapped() - z)
+		))).orElse(null));
+	}
+
+	private static boolean boxContains(Box box, double x, double y, double z) {
+		return Utilities.isBetween(
+				x,
+				box.getMinXMapped(),
+				box.getMaxXMapped()
+		) && Utilities.isBetween(
+				y,
+				box.getMinYMapped(),
+				box.getMaxYMapped(),
+				RIDE_STEP_THRESHOLD
+		) && Utilities.isBetween(
+				z,
+				box.getMinZMapped(),
+				box.getMaxZMapped()
+		);
+	}
+
+	private static void clampPosition(ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsAndDoorways, double x, double z, ObjectArrayList<Vector3d> offsets) {
+		final ObjectBooleanImmutablePair<Box> floorOrDoorway = bestPosition(floorsAndDoorways, x, ridingVehicleY, z);
+
+		if (floorOrDoorway != null) {
+			if (floorOrDoorway.rightBoolean()) {
+				// If the intersecting or closest floor or doorway is a floor, then force the player to be in bounds
+				offsets.add(new Vector3d(
+						Utilities.clamp(x, floorOrDoorway.left().getMinXMapped(), floorOrDoorway.left().getMaxXMapped()) - x,
+						floorOrDoorway.left().getMaxYMapped(),
+						Utilities.clamp(z, floorOrDoorway.left().getMinZMapped(), floorOrDoorway.left().getMaxZMapped()) - z
+				));
+			} else if (boxContains(floorOrDoorway.left(), x, ridingVehicleY, z)) {
+				// If the intersecting or closest floor or doorway is a doorway, then don't force the player to be in bounds
+				// Dismount if the player is not intersecting the doorway
+				offsets.add(new Vector3d(0, floorOrDoorway.left().getMaxYMapped(), 0));
+			}
+		}
 	}
 
 	private static class PreviousConnectionPositions {

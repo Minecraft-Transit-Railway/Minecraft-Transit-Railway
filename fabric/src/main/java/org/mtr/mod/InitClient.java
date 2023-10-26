@@ -22,6 +22,7 @@ public final class InitClient {
 	private static long gameMillis = 0;
 	private static float lastPlayedTrainSoundsTick = 0;
 	private static BlockPos lastPosition;
+	private static Runnable movePlayer;
 
 	public static final int TICKS_PER_SPEED_SOUND = 4;
 	public static final LoopingSoundInstance TACTILE_MAP_SOUND_INSTANCE = new LoopingSoundInstance("tactile_map_music");
@@ -326,6 +327,13 @@ public final class InitClient {
 			}
 		});
 
+		EventRegistryClient.registerEndClientTick(() -> {
+			if (movePlayer != null) {
+				movePlayer.run();
+				movePlayer = null;
+			}
+		});
+
 		Patreon.getPatreonList(Config.PATREON_LIST);
 		Config.refreshProperties();
 
@@ -349,6 +357,10 @@ public final class InitClient {
 			final Station station = findStation(blockPos);
 			return station == null ? defaultColor : station.getColor();
 		}
+	}
+
+	public static void scheduleMovePlayer(Runnable movePlayer) {
+		InitClient.movePlayer = movePlayer;
 	}
 
 	public static boolean canPlaySound() {

@@ -1,10 +1,7 @@
 package org.mtr.mod.render;
 
 import org.mtr.core.data.*;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.EntityAbstractMapping;
 import org.mtr.mapping.holder.Identifier;
@@ -15,8 +12,8 @@ import org.mtr.mod.MutableBox;
 import org.mtr.mod.ObjectHolder;
 import org.mtr.mod.data.VehicleExtension;
 
+import javax.annotation.Nullable;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstractMapping> {
 
@@ -42,7 +39,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 					parentModelPart.create();
 					final ModelPartExtension childModelPart = createModelPart();
 					parentModelPart.createAndGet().addChild(childModelPart);
-					mutableBox.add(blockbenchElement.setModelPart(childModelPart));
+					mutableBox.add(blockbenchElement.setModelPart(childModelPart, (float) modelProperties.getModelYOffset()));
 				}
 			});
 
@@ -71,8 +68,8 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	public void render(GraphicsHolder graphicsHolder, int light, int overlay, float red, float green, float blue, float alpha) {
 	}
 
-	public void render(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, Predicate<Box> checkDoors) {
-		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.render(texture, storedMatrixTransformations, vehicle, light, checkDoors));
+	public void render(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, @Nullable ObjectArrayList<Box> openDoorways) {
+		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.render(texture, storedMatrixTransformations, vehicle, light, openDoorways));
 	}
 
 	private static void iterateChildren(BlockbenchOutline blockbenchOutline, Consumer<String> consumer) {
