@@ -34,6 +34,8 @@
 					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
 				}
 			],
+			"hasGangway1": true,
+			"hasGangway2": true,
 			"speedSoundCount": 120,
 			"speedSoundBaseResource": "sp1900"
 		}
