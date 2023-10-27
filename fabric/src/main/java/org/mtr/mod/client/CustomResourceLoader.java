@@ -72,26 +72,26 @@ public class CustomResourceLoader {
 		VEHICLES.get(transportMode).forEach(consumer);
 	}
 
-	public static void getVehicleByIndex(TransportMode transportMode, int index, Consumer<VehicleResource> consumer) {
+	public static void getVehicleByIndex(TransportMode transportMode, int index, Consumer<VehicleResource> ifPresent) {
 		if (index >= 0) {
 			final VehicleResource vehicleResource = Utilities.getElement(VEHICLES.get(transportMode), index);
 			if (vehicleResource != null) {
-				consumer.accept(vehicleResource);
+				ifPresent.accept(vehicleResource);
 			}
 		}
 	}
 
-	public static void getVehicleById(TransportMode transportMode, String vehicleId, Consumer<VehicleResource> consumer) {
+	public static void getVehicleById(TransportMode transportMode, String vehicleId, Consumer<VehicleResource> ifPresent) {
 		final VehicleResource vehicleResource = VEHICLES_CACHE.get(transportMode).get(vehicleId);
 		if (vehicleResource != null) {
-			consumer.accept(vehicleResource);
+			ifPresent.accept(vehicleResource);
 		}
 	}
 
-	public static void getSignById(String signId, Consumer<SignResource> consumer) {
+	public static void getSignById(String signId, Consumer<SignResource> ifPresent) {
 		final SignResource signResource = SIGNS_CACHE.get(signId);
 		if (signResource != null) {
-			consumer.accept(signResource);
+			ifPresent.accept(signResource);
 		}
 	}
 

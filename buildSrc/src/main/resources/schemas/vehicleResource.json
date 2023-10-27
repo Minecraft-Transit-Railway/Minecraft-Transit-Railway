@@ -55,6 +55,18 @@
 				"$ref": "vehicleModel.json"
 			}
 		},
+		"hasGangway1": {
+			"type": "boolean"
+		},
+		"hasGangway2": {
+			"type": "boolean"
+		},
+		"hasBarrier1": {
+			"type": "boolean"
+		},
+		"hasBarrier2": {
+			"type": "boolean"
+		},
 		"bveSoundBaseResource": {
 			"type": "string"
 		},
@@ -76,6 +88,10 @@
 		"bogie2Position",
 		"description",
 		"wikipediaArticle",
+		"hasGangway1",
+		"hasGangway2",
+		"hasBarrier1",
+		"hasBarrier2",
 		"bveSoundBaseResource",
 		"speedSoundCount",
 		"speedSoundBaseResource"

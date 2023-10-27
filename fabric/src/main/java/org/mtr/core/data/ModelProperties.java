@@ -8,8 +8,6 @@ import java.util.function.Consumer;
 
 public final class ModelProperties extends ModelPropertiesSchema {
 
-	public final boolean hasGangway;
-	public final boolean hasBarrier;
 	public final Identifier gangwayInnerSideTexture;
 	public final Identifier gangwayInnerTopTexture;
 	public final Identifier gangwayInnerBottomTexture;
@@ -26,18 +24,6 @@ public final class ModelProperties extends ModelPropertiesSchema {
 	public ModelProperties(ReaderBase readerBase) {
 		super(readerBase);
 		updateData(readerBase);
-		hasGangway = !gangwayInnerSideResource.isEmpty() ||
-				!gangwayInnerTopResource.isEmpty() ||
-				!gangwayInnerBottomResource.isEmpty() ||
-				!gangwayOuterSideResource.isEmpty() ||
-				!gangwayOuterTopResource.isEmpty() ||
-				!gangwayOuterBottomResource.isEmpty();
-		hasBarrier = !barrierInnerSideResource.isEmpty() ||
-				!barrierInnerTopResource.isEmpty() ||
-				!barrierInnerBottomResource.isEmpty() ||
-				!barrierOuterSideResource.isEmpty() ||
-				!barrierOuterTopResource.isEmpty() ||
-				!barrierOuterBottomResource.isEmpty();
 		gangwayInnerSideTexture = CustomResourceTools.formatIdentifier(gangwayInnerSideResource, "png");
 		gangwayInnerTopTexture = CustomResourceTools.formatIdentifier(gangwayInnerTopResource, "png");
 		gangwayInnerBottomTexture = CustomResourceTools.formatIdentifier(gangwayInnerBottomResource, "png");

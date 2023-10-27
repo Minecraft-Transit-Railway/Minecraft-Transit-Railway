@@ -62,21 +62,43 @@ public final class VehicleResource extends VehicleResourceSchema {
 		return wikipediaArticle;
 	}
 
-	public void iterateModels(Consumer<DynamicVehicleModel> consumer) {
-		models.forEach(vehicleModel -> {
-			if (vehicleModel.model != null) {
-				consumer.accept(vehicleModel.model);
+	public void iterateModels(ModelConsumer modelConsumer) {
+		for (int i = 0; i < models.size(); i++) {
+			final VehicleModel vehicleModel = models.get(i);
+			if (vehicleModel != null) {
+				modelConsumer.accept(i, vehicleModel.model);
 			}
-		});
+		}
 	}
 
-	public void iterateBogieModels(int index, Consumer<DynamicVehicleModel> consumer) {
-		if (Utilities.isBetween(index, 0, 1)) {
-			(index == 0 ? bogie1Models : bogie2Models).forEach(vehicleModel -> {
+	public void iterateBogieModels(int bogieIndex, Consumer<DynamicVehicleModel> consumer) {
+		if (Utilities.isBetween(bogieIndex, 0, 1)) {
+			(bogieIndex == 0 ? bogie1Models : bogie2Models).forEach(vehicleModel -> {
 				if (vehicleModel.model != null) {
 					consumer.accept(vehicleModel.model);
 				}
 			});
 		}
+	}
+
+	public boolean hasGangway1() {
+		return hasGangway1;
+	}
+
+	public boolean hasGangway2() {
+		return hasGangway2;
+	}
+
+	public boolean hasBarrier1() {
+		return hasBarrier1;
+	}
+
+	public boolean hasBarrier2() {
+		return hasBarrier2;
+	}
+
+	@FunctionalInterface
+	public interface ModelConsumer {
+		void accept(int index, DynamicVehicleModel dynamicVehicleModel);
 	}
 }

@@ -13,9 +13,8 @@ public class RenderVehicleTransformationHelper {
 	private final Vector pivotPosition;
 	private final double yaw;
 	private final double pitch;
-	private final boolean reversed;
 
-	public RenderVehicleTransformationHelper(ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>> bogiePositionsList, double bogie1Position, double bogie2Position, double length, boolean reversed) {
+	public RenderVehicleTransformationHelper(ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>> bogiePositionsList, double bogie1Position, double bogie2Position, double length) {
 		if (bogiePositionsList.size() == 1 || bogiePositionsList.size() == 2) {
 			final Vector bogiesMidpoint;
 
@@ -44,36 +43,22 @@ public class RenderVehicleTransformationHelper {
 			pitch = 0;
 		}
 
-		this.reversed = reversed;
 		light = getLight(pivotPosition);
 	}
 
-	public RenderVehicleTransformationHelper(ObjectObjectImmutablePair<Vector, Vector> bogiePositions, boolean reversed) {
+	public RenderVehicleTransformationHelper(ObjectObjectImmutablePair<Vector, Vector> bogiePositions) {
 		pivotPosition = Vector.getAverage(bogiePositions.left(), bogiePositions.right());
 		yaw = getYaw(bogiePositions.left(), bogiePositions.right());
 		pitch = getPitch(bogiePositions.left(), bogiePositions.right());
-		this.reversed = reversed;
 		light = getLight(pivotPosition);
 	}
 
 	public <T> T transformForwards(T initialValue, Rotate<T> rotateX, Rotate<T> rotateY, Translate<T> translate) {
-		return translate.apply(rotateY.apply(rotateX.apply(initialValue, getPitch(pitch, reversed)), getYaw(yaw, reversed)), pivotPosition.x, pivotPosition.y, pivotPosition.z);
-	}
-
-	public <T> T transformForwardsRaw(T initialValue, Rotate<T> rotateX, Rotate<T> rotateY, Translate<T> translate) {
-		return translate.apply(rotateY.apply(rotateX.apply(initialValue, getPitch(pitch, false)), getYaw(yaw, false)), pivotPosition.x, pivotPosition.y, pivotPosition.z);
+		return translate.apply(rotateY.apply(rotateX.apply(initialValue, (float) pitch), (float) yaw), pivotPosition.x, pivotPosition.y, pivotPosition.z);
 	}
 
 	public <T> T transformBackwards(T initialValue, Rotate<T> rotateX, Rotate<T> rotateY, Translate<T> translate) {
-		return rotateX.apply(rotateY.apply(translate.apply(initialValue, -pivotPosition.x, -pivotPosition.y, -pivotPosition.z), -getYaw(yaw, reversed)), -getPitch(pitch, reversed));
-	}
-
-	private static float getYaw(double yaw, boolean reversed) {
-		return (float) (yaw + (reversed ? Math.PI : 0));
-	}
-
-	private static float getPitch(double pitch, boolean reversed) {
-		return (reversed ? -1 : 1) * (float) pitch;
+		return rotateX.apply(rotateY.apply(translate.apply(initialValue, -pivotPosition.x, -pivotPosition.y, -pivotPosition.z), (float) -yaw), (float) -pitch);
 	}
 
 	private static int getLight(Vector pivotPosition) {
