@@ -100,7 +100,7 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 		selectedIds.forEach(selectedId -> allData.stream().filter(data -> data.id == selectedId).findFirst().ifPresent(data -> {
 			if (data instanceof VehicleForList) {
 				final VehicleResource vehicleResource = ((VehicleForList) data).vehicleResource;
-				tempList.add(new VehicleCar(vehicleResource.getId(), vehicleResource.getLength(), vehicleResource.getWidth(), vehicleResource.getBogie1Position(), vehicleResource.getBogie2Position()));
+				tempList.add(new VehicleCar(vehicleResource.getId(), vehicleResource.getLength(), vehicleResource.getWidth(), vehicleResource.getBogie1Position(), vehicleResource.getBogie2Position(), vehicleResource.getCouplingPadding1(), vehicleResource.getCouplingPadding2()));
 			}
 		}));
 		siding.setVehicleCars(tempList);
@@ -110,12 +110,16 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 		RegistryClient.sendPacketToServer(PacketData.fromSidings(IntegrationServlet.Operation.UPDATE, ObjectSet.of(siding)));
 
 		final ObjectArrayList<VehicleCar> currentList = siding.getVehicleCars();
-		final double remainingLength = siding.getRailLength() - currentList.stream().mapToDouble(VehicleCar::getLength).sum();
-		allData.forEach(data -> {
+		double remainingLength = siding.getRailLength();
+		for (int i = 0; i < currentList.size(); i++) {
+			remainingLength -= currentList.get(i).getTotalLength(i == 0, false);
+		}
+		for (final DashboardListItem data : allData) {
 			if (data instanceof VehicleForList) {
-				((VehicleForList) data).disabled = ((VehicleForList) data).vehicleResource.getLength() > remainingLength;
+				final VehicleForList vehicleForList = (VehicleForList) data;
+				vehicleForList.disabled = vehicleForList.vehicleResource.getCouplingPadding1() + vehicleForList.vehicleResource.getLength() > remainingLength;
 			}
-		});
+		}
 	}
 
 	private int drawWrappedText(GraphicsHolder graphicsHolder, MutableText component, int y, int color) {
