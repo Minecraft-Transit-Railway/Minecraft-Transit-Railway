@@ -1,7 +1,7 @@
 package org.mtr.mod.client;
 
-import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import org.mtr.core.tools.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
 import org.mtr.mapping.holder.*;
