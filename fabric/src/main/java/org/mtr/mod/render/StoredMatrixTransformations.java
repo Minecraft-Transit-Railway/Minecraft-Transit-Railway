@@ -9,6 +9,11 @@ import java.util.function.Consumer;
 public class StoredMatrixTransformations {
 
 	private final ObjectArrayList<Consumer<GraphicsHolder>> transformations = new ObjectArrayList<>();
+	private final boolean useDefaultOffset;
+
+	public StoredMatrixTransformations(boolean useDefaultOffset) {
+		this.useDefaultOffset = useDefaultOffset;
+	}
 
 	public void add(Consumer<GraphicsHolder> transformation) {
 		transformations.add(transformation);
@@ -16,12 +21,14 @@ public class StoredMatrixTransformations {
 
 	public void transform(GraphicsHolder graphicsHolder, Vector3d offset) {
 		graphicsHolder.push();
-		graphicsHolder.translate(-offset.getXMapped(), -offset.getYMapped(), -offset.getZMapped());
+		if (useDefaultOffset) {
+			graphicsHolder.translate(-offset.getXMapped(), -offset.getYMapped(), -offset.getZMapped());
+		}
 		transformations.forEach(transformation -> transformation.accept(graphicsHolder));
 	}
 
 	public StoredMatrixTransformations copy() {
-		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(useDefaultOffset);
 		storedMatrixTransformations.transformations.addAll(transformations);
 		return storedMatrixTransformations;
 	}

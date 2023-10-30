@@ -10,7 +10,7 @@ import org.mtr.mod.Init;
 public class RenderVehicleTransformationHelper {
 
 	public final int light;
-	private final Vector pivotPosition;
+	public final Vector pivotPosition;
 	private final double yaw;
 	private final double pitch;
 

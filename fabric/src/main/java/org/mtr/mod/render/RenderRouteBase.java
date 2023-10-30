@@ -40,7 +40,7 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.BlockEntityBase> ext
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, DirectionHelper.FACING);
 
-		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(true);
 		storedMatrixTransformations.add(graphicsHolderNew -> {
 			graphicsHolderNew.translate(0.5 + entity.getPos2().getX(), entity.getPos2().getY(), 0.5 + entity.getPos2().getZ());
 			graphicsHolderNew.rotateYDegrees(-facing.asRotation());

@@ -31,6 +31,14 @@
 		"bogie2Position": {
 			"type": "number"
 		},
+		"couplingPadding1": {
+			"type": "number",
+			"minimum": 0
+		},
+		"couplingPadding2": {
+			"type": "number",
+			"minimum": 0
+		},
 		"description": {
 			"type": "string"
 		},
@@ -86,6 +94,8 @@
 		"width",
 		"bogie1Position",
 		"bogie2Position",
+		"couplingPadding1",
+		"couplingPadding2",
 		"description",
 		"wikipediaArticle",
 		"hasGangway1",

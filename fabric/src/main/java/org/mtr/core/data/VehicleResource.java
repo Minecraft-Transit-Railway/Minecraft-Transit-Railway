@@ -54,6 +54,14 @@ public final class VehicleResource extends VehicleResourceSchema {
 		return bogie2Position;
 	}
 
+	public double getCouplingPadding1() {
+		return couplingPadding1;
+	}
+
+	public double getCouplingPadding2() {
+		return couplingPadding2;
+	}
+
 	public MutableText getDescription() {
 		return TextHelper.translatable(description);
 	}

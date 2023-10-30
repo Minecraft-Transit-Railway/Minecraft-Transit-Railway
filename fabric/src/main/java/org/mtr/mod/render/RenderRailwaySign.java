@@ -68,7 +68,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 			}
 		}
 
-		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(true);
 		storedMatrixTransformations.add(graphicsHolderNew -> {
 			graphicsHolderNew.translate(0.5 + entity.getPos2().getX(), 0.53125 + entity.getPos2().getY(), 0.5 + entity.getPos2().getZ());
 			graphicsHolderNew.rotateYDegrees(-facing.asRotation());
