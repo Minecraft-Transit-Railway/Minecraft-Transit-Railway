@@ -285,56 +285,6 @@
 		},
 		{
 			"names": [
-				"roof_end_light_sp1900"
-			],
-			"positionDefinitions": [
-				"end"
-			],
-			"renderStage": "LIGHT",
-			"type": "NORMAL"
-		},
-		{
-			"names": [
-				"roof_end_sp1900"
-			],
-			"positionDefinitions": [
-				"end"
-			],
-			"renderStage": "INTERIOR",
-			"type": "NORMAL"
-		},
-		{
-			"names": [
-				"top_handrail_sp1900"
-			],
-			"positionDefinitions": [
-				"end",
-				"endFlipped"
-			],
-			"renderStage": "INTERIOR",
-			"type": "NORMAL"
-		},
-		{
-			"names": [
-				"end"
-			],
-			"positionDefinitions": [
-				"end"
-			],
-			"renderStage": "INTERIOR",
-			"type": "NORMAL"
-		},
-		{
-			"names": [
-				"end_floor"
-			],
-			"positionDefinitions": [
-				"end"
-			],
-			"type": "FLOOR"
-		},
-		{
-			"names": [
 				"side_panel_sp1900"
 			],
 			"positionDefinitions": [
@@ -355,12 +305,23 @@
 		},
 		{
 			"names": [
-				"end_exterior",
-				"roof_end_exterior"
+				"door_light_on"
 			],
 			"positionDefinitions": [
-				"end"
+				"doorLight"
 			],
+			"condition": "DOORS_OPENED",
+			"renderStage": "ALWAYS_ON_LIGHT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"door_light_off"
+			],
+			"positionDefinitions": [
+				"doorLight"
+			],
+			"condition": "DOORS_CLOSED",
 			"renderStage": "EXTERIOR",
 			"type": "NORMAL"
 		}

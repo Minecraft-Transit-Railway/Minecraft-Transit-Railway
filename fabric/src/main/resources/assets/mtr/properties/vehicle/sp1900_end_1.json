@@ -1,0 +1,66 @@
+{
+	"parts": [
+		{
+			"names": [
+				"roof_end_light_sp1900"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "LIGHT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"roof_end_sp1900"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "INTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"top_handrail_sp1900"
+			],
+			"positionDefinitions": [
+				"end1",
+				"end1Flipped"
+			],
+			"renderStage": "INTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"end"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "INTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"end_floor"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"end_exterior",
+				"roof_end_exterior"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "EXTERIOR",
+			"type": "NORMAL"
+		}
+	],
+	"modelYOffset": 1
+}

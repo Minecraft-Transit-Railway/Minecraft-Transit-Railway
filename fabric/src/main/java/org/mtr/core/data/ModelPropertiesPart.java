@@ -59,10 +59,22 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		}));
 	}
 
+	public void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, @Nullable ObjectArrayList<Box> openDoorways) {
+		if (matchesCondition(vehicle, openDoorways == null || openDoorways.isEmpty())) {
+			switch (type) {
+				case NORMAL:
+					renderNormal(texture, storedMatrixTransformations, vehicle, getRenderProperties(renderStage, light, vehicle), openDoorways);
+					break;
+				case DISPLAY:
+					break;
+			}
+		}
+	}
+
 	/**
 	 * If this part is a door, find the closest doorway.
 	 */
-	public void mapDoors(ObjectArraySet<Box> doorways) {
+	void mapDoors(ObjectArraySet<Box> doorways) {
 		if (doorXMultiplier != 0 || doorZMultiplier != 0) {
 			partDetailsList.forEach(partDetails -> doorways.stream().min(Comparator.comparingDouble(checkDoorway -> getClosestDistance(
 					partDetails.box.getMinXMapped(),
@@ -75,22 +87,11 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 					checkDoorway.getMinYMapped(),
 					checkDoorway.getMaxYMapped()
 			) + getClosestDistance(
-					// Blockbench exports models upside down
-					-partDetails.box.getMinZMapped(),
-					-partDetails.box.getMaxZMapped(),
+					partDetails.box.getMinZMapped(),
+					partDetails.box.getMaxZMapped(),
 					checkDoorway.getMinZMapped(),
 					checkDoorway.getMaxZMapped()
 			))).ifPresent(closestDoorway -> partDetails.doorway = closestDoorway));
-		}
-	}
-
-	public void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, @Nullable ObjectArrayList<Box> openDoorways) {
-		switch (type) {
-			case NORMAL:
-				renderNormal(texture, storedMatrixTransformations, vehicle, getRenderProperties(renderStage, light, vehicle), openDoorways);
-				break;
-			case DISPLAY:
-				break;
 		}
 	}
 
@@ -99,13 +100,30 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			storedMatrixTransformations.transform(graphicsHolder, offset);
 			partDetailsList.forEach(partDetails -> {
 				final boolean canOpenDoors = openDoorways != null && openDoorways.contains(partDetails.doorway);
-				final float x = (float) (partDetails.position.getX() + (canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() * doorXMultiplier : 0));
+				final float x = (float) (partDetails.position.getX() + doorAnimationType.getDoorAnimationX(doorXMultiplier, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0));
 				final float y = (float) partDetails.position.getY();
-				final float z = (float) (partDetails.position.getZ() + (canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() * doorZMultiplier : 0));
+				final float z = (float) (partDetails.position.getZ() + doorAnimationType.getDoorAnimationZ(doorZMultiplier, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0, vehicle.vehicleExtraData.getDoorMultiplier() > 0));
 				partDetails.modelParts.forEach(modelPart -> modelPart.render(graphicsHolder, x, y, z, partDetails.flipped ? (float) Math.PI : 0, renderProperties.rightInt(), OverlayTexture.getDefaultUvMapped()));
 			});
 			graphicsHolder.pop();
 		});
+	}
+
+	private boolean matchesCondition(VehicleExtension vehicle, boolean noOpenDoorways) {
+		switch (condition) {
+			case AT_DEPOT:
+				return !vehicle.getIsOnRoute();
+			case ON_ROUTE_FORWARDS:
+				return vehicle.getIsOnRoute() && !vehicle.getReversed();
+			case ON_ROUTE_BACKWARDS:
+				return vehicle.getIsOnRoute() && vehicle.getReversed();
+			case DOORS_CLOSED:
+				return vehicle.persistentVehicleData.getDoorValue() == 0 || noOpenDoorways;
+			case DOORS_OPENED:
+				return vehicle.persistentVehicleData.getDoorValue() > 0 && !noOpenDoorways;
+			default:
+				return true;
+		}
 	}
 
 	private static ObjectIntImmutablePair<RenderTrains.QueuedRenderLayer> getRenderProperties(RenderStage renderStage, int light, VehicleExtension vehicle) {
@@ -134,8 +152,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	private static Box add(MutableBox mutableBox, double x, double y, double z, boolean flipped) {
 		final Box box = mutableBox.get();
 		return new Box(
-				(flipped ? -1 : 1) * box.getMinXMapped() + x / 16, box.getMinYMapped() + y / 16, (flipped ? -1 : 1) * box.getMinZMapped() + z / 16,
-				(flipped ? -1 : 1) * box.getMaxXMapped() + x / 16, box.getMaxYMapped() + y / 16, (flipped ? -1 : 1) * box.getMaxZMapped() + z / 16
+				(flipped ? -1 : 1) * box.getMinXMapped() + x / 16, box.getMinYMapped() + y / 16, (flipped ? 1 : -1) * box.getMinZMapped() + z / 16,
+				(flipped ? -1 : 1) * box.getMaxXMapped() + x / 16, box.getMaxYMapped() + y / 16, (flipped ? 1 : -1) * box.getMaxZMapped() + z / 16
 		);
 	}
 

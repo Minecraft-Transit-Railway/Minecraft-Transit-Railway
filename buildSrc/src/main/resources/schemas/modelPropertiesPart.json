@@ -17,6 +17,9 @@
 				"type": "string"
 			}
 		},
+		"condition": {
+			"$ref": "PartCondition"
+		},
 		"renderStage": {
 			"$ref": "RenderStage"
 		},
@@ -51,6 +54,7 @@
 		}
 	},
 	"required": [
+		"condition",
 		"renderStage",
 		"type",
 		"displayXPadding",

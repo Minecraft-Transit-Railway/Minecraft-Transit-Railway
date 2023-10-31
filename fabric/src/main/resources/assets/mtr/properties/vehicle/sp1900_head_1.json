@@ -1,0 +1,107 @@
+{
+	"parts": [
+		{
+			"names": [
+				"roof_end_light_sp1900"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "LIGHT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"roof_end_sp1900"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "INTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"top_handrail_head_sp1900"
+			],
+			"positionDefinitions": [
+				"headHandrail1"
+			],
+			"renderStage": "INTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"head"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"renderStage": "INTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"head_floor"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"head_exterior"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"renderStage": "EXTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"roof_end_exterior"
+			],
+			"positionDefinitions": [
+				"roofHead1"
+			],
+			"renderStage": "EXTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "ALWAYS_ON_LIGHT",
+			"type": "NORMAL"
+		}
+	],
+	"modelYOffset": 1
+}

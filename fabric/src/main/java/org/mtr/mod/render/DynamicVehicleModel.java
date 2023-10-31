@@ -1,7 +1,10 @@
 package org.mtr.mod.render;
 
 import org.mtr.core.data.*;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.EntityAbstractMapping;
 import org.mtr.mapping.holder.Identifier;
@@ -18,9 +21,9 @@ import java.util.function.Consumer;
 public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstractMapping> {
 
 	public final ModelProperties modelProperties;
-	public final ObjectImmutableList<Box> floors;
-	public final ObjectImmutableList<Box> doorways;
 	private final Identifier texture;
+	private final ObjectArraySet<Box> floors = new ObjectArraySet<>();
+	private final ObjectArraySet<Box> doorways = new ObjectArraySet<>();
 
 	public DynamicVehicleModel(BlockbenchModel blockbenchModel, Identifier texture, ModelProperties modelProperties, PositionDefinitions positionDefinitions) {
 		super(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight());
@@ -51,13 +54,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		buildModel();
 		this.texture = texture;
 		this.modelProperties = modelProperties;
-
-		final ObjectArraySet<Box> floors = new ObjectArraySet<>();
-		final ObjectArraySet<Box> doorways = new ObjectArraySet<>();
 		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(nameToPart, positionDefinitions, floors, doorways));
-		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.mapDoors(doorways));
-		this.floors = new ObjectImmutableList<>(floors);
-		this.doorways = new ObjectImmutableList<>(doorways);
 	}
 
 	@Override
@@ -70,6 +67,11 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 
 	public void render(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, @Nullable ObjectArrayList<Box> openDoorways) {
 		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.render(texture, storedMatrixTransformations, vehicle, light, openDoorways));
+	}
+
+	public void writeFloorsAndDoorways(ObjectArraySet<Box> floors, ObjectArraySet<Box> doorways) {
+		floors.addAll(this.floors);
+		doorways.addAll(this.doorways);
 	}
 
 	private static void iterateChildren(BlockbenchOutline blockbenchOutline, Consumer<String> consumer) {
