@@ -43,15 +43,14 @@ public final class BlockbenchElement extends BlockbenchElementSchema {
 		final Vector3d vector1 = new Vector3d(x, y, z).rotateX(rotationX).rotateY(rotationY).rotateZ(rotationZ);
 		final Vector3d vector2 = new Vector3d(x + sizeX, y + sizeY, z + sizeZ).rotateX(rotationX).rotateY(rotationY).rotateZ(rotationZ);
 
-		// Blockbench exports models upside down
-		// Also normalize dimensions (16 Blockbench units = 1 Minecraft block)
+		// Normalize dimensions (16 Blockbench units = 1 Minecraft block)
 		return new Box(
-				(vector1.getXMapped() + originX) / 16,
-				(vector1.getYMapped() + originY) / -16,
-				(vector1.getZMapped() + originZ) / 16,
-				(vector2.getXMapped() + originX) / 16,
-				(vector2.getYMapped() + originY) / -16,
-				(vector2.getZMapped() + originZ) / 16
+				-(vector1.getXMapped() + originX) / 16,
+				-(vector1.getYMapped() + originY) / 16,
+				-(vector1.getZMapped() + originZ) / 16,
+				-(vector2.getXMapped() + originX) / 16,
+				-(vector2.getYMapped() + originY) / 16,
+				-(vector2.getZMapped() + originZ) / 16
 		);
 	}
 }

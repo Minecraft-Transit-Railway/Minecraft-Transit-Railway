@@ -5,143 +5,147 @@ import org.mtr.core.tools.Utilities;
 
 public enum DoorAnimationType {
 
-	STANDARD(0.5F),
-	STANDARD_SLOW(0.5F),
-	CONSTANT(0.5F),
-	PLUG_FAST(0.5F),
+	STANDARD(0.5),
+	STANDARD_SLOW(0.5),
+	CONSTANT(0.5),
+	PLUG_FAST(0.5),
 	PLUG_SLOW(2),
-	BOUNCY_1(0.5F),
-	BOUNCY_2(0.5F),
-	MLR(0.7F),
-	R179(0.6F),
-	R211(0.7F);
+	BOUNCY_1(0.5),
+	BOUNCY_2(0.5),
+	MLR(0.7),
+	R179(0.6),
+	R211(0.7);
 
-	public final float maxTime;
+	public final double maxTime;
 
-	DoorAnimationType(float maxTime) {
+	DoorAnimationType(double maxTime) {
 		this.maxTime = maxTime;
 	}
 
-	public float getDoorAnimationX(float value) {
+	public double getDoorAnimationX(double multiplier, double time) {
 		switch (this) {
 			case PLUG_FAST:
-				return value < 0.05 ? -value * 20 - 0.01F : -1.01F;
+				return time < 0.05 ? -time * 20 - 0.01 : -1.01;
 			case PLUG_SLOW:
-				return smoothEnds(-0.01F, -1.01F, 0, 0.1F, value);
+				return smoothEnds(-0.01, -multiplier - 0.01, 0, 0.1, time);
 			default:
 				return 0;
 		}
 	}
 
-	public float getDoorAnimationZ(int doorMax, float duration, float value, boolean opening) {
+	public double getDoorAnimationZ(double multiplier, double time, boolean opening) {
+		return Math.copySign(getDoorAnimationZAbsolute(Math.abs(multiplier), time, opening), multiplier);
+	}
+
+	private double getDoorAnimationZAbsolute(double doorMax, double time, boolean opening) {
 		switch (this) {
 			case CONSTANT:
-				return doorMax * Utilities.clamp(value, 0, 1) / duration;
+				return doorMax * Utilities.clamp(time / 0.5, 0, 1);
 			case PLUG_FAST:
-				return smoothEnds(-doorMax, doorMax, -duration, duration, value);
+				return smoothEnds(-doorMax, doorMax, -0.5, 0.5, time);
 			case PLUG_SLOW:
 				if (opening) {
-					return smoothEnds(0, doorMax, 0.05F, 0.5F, value);
+					return smoothEnds(0, doorMax, 0.05, 0.5, time);
 				} else {
-					if (value > 0.5) {
-						return smoothEnds(2, doorMax, 0.5F, 1, value);
-					} else if (value < 0.3) {
-						return smoothEnds(0, 2, 0.05F, 0.3F, value);
+					if (time > 0.5) {
+						return smoothEnds(2, doorMax, 0.5, 1, time);
+					} else if (time < 0.3) {
+						return smoothEnds(0, 2, 0.05, 0.3, time);
 					} else {
 						return 2;
 					}
 				}
 			case BOUNCY_1:
 				if (opening) {
-					if (value > 0.4) {
-						return smoothEnds(doorMax - 1, doorMax - 0.5F, 0.4F, 0.5F, value);
+					if (time > 0.4) {
+						return smoothEnds(doorMax - 1, doorMax - 0.5, 0.4, 0.5, time);
 					} else {
-						return smoothEnds(-doorMax + 1, doorMax - 1, -0.4F, 0.4F, value);
+						return smoothEnds(-doorMax + 1, doorMax - 1, -0.4, 0.4, time);
 					}
 				} else {
-					if (value > 0.2) {
-						return smoothEnds(1, doorMax - 0.5F, 0.2F, 0.5F, value);
-					} else if (value > 0.1) {
-						return smoothEnds(1.5F, 1, 0.1F, 0.2F, value);
+					if (time > 0.2) {
+						return smoothEnds(1, doorMax - 0.5, 0.2, 0.5, time);
+					} else if (time > 0.1) {
+						return smoothEnds(1.5, 1, 0.1, 0.2, time);
 					} else {
-						return smoothEnds(-1.5F, 1.5F, -0.1F, 0.1F, value);
+						return smoothEnds(-1.5, 1.5, -0.1, 0.1, time);
 					}
 				}
 			case BOUNCY_2:
 				if (opening) {
-					if (value > 0.4) {
-						return smoothEnds(doorMax - 0.5F, doorMax, 0.4F, 0.5F, value);
+					if (time > 0.4) {
+						return smoothEnds(doorMax - 0.5, doorMax, 0.4, 0.5, time);
 					} else {
-						return smoothEnds(-doorMax + 0.5F, doorMax - 0.5F, -0.4F, 0.4F, value);
+						return smoothEnds(-doorMax + 0.5, doorMax - 0.5, -0.4, 0.4, time);
 					}
 				} else {
-					if (value > 0.3) {
-						return smoothEnds(1, doorMax, 0.3F, 0.5F, value);
-					} else if (value > 0.1) {
-						return smoothEnds(3, 1, 0.1F, 0.3F, value);
+					if (time > 0.3) {
+						return smoothEnds(1, doorMax, 0.3, 0.5, time);
+					} else if (time > 0.1) {
+						return smoothEnds(3, 1, 0.1, 0.3, time);
 					} else {
-						return smoothEnds(-3, 3, -0.1F, 0.1F, value);
+						return smoothEnds(-3, 3, -0.1, 0.1, time);
 					}
 				}
 			case MLR:
 				if (opening) {
-					if (value < 0.2) {
+					if (time < 0.2) {
 						return 0;
-					} else if (value > 0.7) {
+					} else if (time > 0.7) {
 						return doorMax;
 					} else {
-						return (value - 0.2F) * 2 * doorMax;
+						return (time - 0.2) * 2 * doorMax;
 					}
 				} else {
-					final float stoppingPoint = 1.5F;
-					if (value > 0.25) {
-						return Math.min((value - 0.25F) * 2 * doorMax + stoppingPoint + 1, doorMax);
-					} else if (value > 0.2) {
-						return smoothEnds(stoppingPoint, stoppingPoint + 2, 0.2F, 0.3F, value);
-					} else if (value < 0.1) {
-						return value / 0.1F * stoppingPoint;
+					final double stoppingPoint = 1.5;
+					if (time > 0.25) {
+						return Math.min((time - 0.25) * 2 * doorMax + stoppingPoint + 1, doorMax);
+					} else if (time > 0.2) {
+						return smoothEnds(stoppingPoint, stoppingPoint + 2, 0.2, 0.3, time);
+					} else if (time < 0.1) {
+						return time / 0.1 * stoppingPoint;
 					} else {
 						return stoppingPoint;
 					}
 				}
 			case R179:
 				if (opening) {
-					if (value > 0.4) {
-						return smoothEnds(doorMax - 1, doorMax - 0.5F, 0.4F, 0.6F, value);
+					if (time > 0.4) {
+						return smoothEnds(doorMax - 1, doorMax - 0.5, 0.4, 0.6, time);
 					} else {
-						return smoothEnds(-doorMax + 1, doorMax - 1, -0.4F, 0.4F, value);
+						return smoothEnds(-doorMax + 1, doorMax - 1, -0.4, 0.4, time);
 					}
 				} else {
-					if (value > 0.2) {
-						return smoothEnds(1, doorMax - 0.5F, 0.2F, 0.6F, value);
+					if (time > 0.2) {
+						return smoothEnds(1, doorMax - 0.5, 0.2, 0.6, time);
 					} else {
-						return smoothEnds(-1.5F, 1.5F, -0.4F, 0.4F, value);
+						return smoothEnds(-1.5, 1.5, -0.4, 0.4, time);
 					}
 				}
 			case R211:
-				if (value < 0.2) {
+				if (time < 0.2) {
 					return 0;
-				} else if (value > 0.7) {
+				} else if (time > 0.7) {
 					return doorMax;
 				} else {
-					return (value - 0.2F) * 2 * doorMax;
+					return (time - 0.2) * 2 * doorMax;
 				}
 			case STANDARD_SLOW:
 				if (!opening) {
-					if (value > 0.2) {
-						return smoothEnds(1, doorMax, 0.2F, duration, value);
-					} else if (value > 0.1) {
+					if (time > 0.2) {
+						return smoothEnds(1, doorMax, 0.2, 0.5, time);
+					} else if (time > 0.1) {
 						return 1;
 					} else {
-						return smoothEnds(0, 1, 0, 0.1F, value);
+						return smoothEnds(0, 1, 0, 0.1, time);
 					}
 				}
 			default:
-				return smoothEnds(0, doorMax, 0, duration, value);
+				return smoothEnds(0, doorMax, 0, 0.5, time);
 		}
 	}
 
-	private static float smoothEnds(float startValue, float endValue, float startTime, float endTime, float time) {
+	private static double smoothEnds(double startValue, double endValue, double startTime, double endTime, double time) {
 		if (time < startTime) {
 			return startValue;
 		}
@@ -149,8 +153,8 @@ public enum DoorAnimationType {
 			return endValue;
 		}
 
-		final float timeChange = endTime - startTime;
-		final float valueChange = endValue - startValue;
-		return valueChange * (float) (1 - Math.cos(Math.PI * (time - startTime) / timeChange)) / 2 + startValue;
+		final double timeChange = endTime - startTime;
+		final double valueChange = endValue - startValue;
+		return valueChange * (1 - Math.cos(Math.PI * (time - startTime) / timeChange)) / 2 + startValue;
 	}
 }

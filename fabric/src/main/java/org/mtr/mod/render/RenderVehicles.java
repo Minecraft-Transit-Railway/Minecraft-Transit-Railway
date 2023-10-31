@@ -70,30 +70,30 @@ public class RenderVehicles implements IGui {
 				// Extra floors to be used to define where the gangways are
 				final GangwayMovementPositions gangwayMovementPositions1 = new GangwayMovementPositions(renderVehicleTransformationHelper, false);
 				final GangwayMovementPositions gangwayMovementPositions2 = new GangwayMovementPositions(renderVehicleTransformationHelper, true);
+				// Find open doorways (close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates)
+				final ObjectArrayList<Box> openDoorways = vehicle.persistentVehicleData.getDoorValue() > 0 ? vehicleResource.doorways.stream().filter(doorway -> canOpenDoors(doorway, renderVehicleTransformationHelper)).collect(Collectors.toCollection(ObjectArrayList::new)) : new ObjectArrayList<>();
+
+				if (canRide) {
+					vehicleResource.floors.forEach(floor -> {
+						floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(floor, true));
+						renderFloorOrDoorway(floor, ARGB_WHITE, playerPosition, renderVehicleTransformationHelper, ridingPerspectiveOffset);
+						// Find the floors with the lowest and highest Z values to be used to define where the gangways are
+						gangwayMovementPositions1.check(floor);
+						gangwayMovementPositions2.check(floor);
+					});
+
+					openDoorways.forEach(doorway -> {
+						floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(doorway, false));
+						renderFloorOrDoorway(doorway, 0xFFFF0000, playerPosition, renderVehicleTransformationHelper, ridingPerspectiveOffset);
+					});
+
+					// Check and mount player
+					VehicleRidingMovement.startRiding(openDoorways, vehicle.getId(), carNumber, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped());
+				}
 
 				// Each car can have more than one model defined
 				renderModel(renderVehicleTransformationHelper, ridingPerspectiveCarOffset, storedMatrixTransformations -> vehicleResource.iterateModels((modelIndex, model) -> {
-					// Find open doorways (close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates)
-					final ObjectArrayList<Box> openDoorways = vehicle.persistentVehicleData.getDoorValue() > 0 ? model.doorways.stream().filter(doorway -> canOpenDoors(doorway, renderVehicleTransformationHelper)).collect(Collectors.toCollection(ObjectArrayList::new)) : new ObjectArrayList<>();
 					model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelper.light, openDoorways);
-
-					if (canRide) {
-						model.floors.forEach(floor -> {
-							floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(floor, true));
-							renderFloorOrDoorway(floor, ARGB_WHITE, playerPosition, renderVehicleTransformationHelper, ridingPerspectiveOffset);
-							// Find the floors with the lowest and highest Z values to be used to define where the gangways are
-							gangwayMovementPositions1.check(floor);
-							gangwayMovementPositions2.check(floor);
-						});
-
-						openDoorways.forEach(doorway -> {
-							floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(doorway, false));
-							renderFloorOrDoorway(doorway, 0xFFFF0000, playerPosition, renderVehicleTransformationHelper, ridingPerspectiveOffset);
-						});
-
-						// Check and mount player
-						VehicleRidingMovement.startRiding(openDoorways, vehicle.getId(), carNumber, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped());
-					}
 
 					if (modelIndex >= previousGangwayPositionsList.size()) {
 						previousGangwayPositionsList.add(new PreviousConnectionPositions());
@@ -227,10 +227,10 @@ public class RenderVehicles implements IGui {
 
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(ridingPerspectiveCarOffset == null);
 		storedMatrixTransformations.add(graphicsHolder -> renderVehicleTransformationHelper.transformBackwards(new Object(), (object, pitch) -> {
-			graphicsHolder.rotateXRadians((float) (Math.PI + pitch)); // Blockbench exports models upside down
+			graphicsHolder.rotateXRadians((float) (Math.PI - pitch)); // Blockbench exports models upside down
 			return new Object();
 		}, (object, yaw) -> {
-			graphicsHolder.rotateYRadians(-yaw);
+			graphicsHolder.rotateYRadians((float) (Math.PI - yaw));
 			return new Object();
 		}, (object, x, y, z) -> {
 			if (ridingPerspectiveCarOffset == null) {

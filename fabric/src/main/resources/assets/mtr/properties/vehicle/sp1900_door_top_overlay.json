@@ -1,0 +1,16 @@
+{
+	"parts": [
+		{
+			"names": [
+				"outer_roof"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped"
+			],
+			"renderStage": "EXTERIOR",
+			"type": "NORMAL"
+		}
+	],
+	"modelYOffset": 1
+}
