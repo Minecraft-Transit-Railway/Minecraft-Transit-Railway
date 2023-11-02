@@ -2,7 +2,7 @@
 	"parts": [
 		{
 			"names": [
-				"roof_light_sp1900"
+				"roof_light_c1141a"
 			],
 			"positionDefinitions": [
 				"window",
@@ -15,8 +15,8 @@
 		{
 			"names": [
 				"window",
-				"roof_sp1900",
-				"top_handrail_sp1900"
+				"roof_c1141a",
+				"top_handrail_c1141a"
 			],
 			"positionDefinitions": [
 				"window",
@@ -26,7 +26,8 @@
 		},
 		{
 			"names": [
-				"window_floor"
+				"window_floor",
+				"window_floor_c1141a"
 			],
 			"positionDefinitions": [
 				"window",
@@ -36,19 +37,19 @@
 		},
 		{
 			"names": [
-				"side_panel_sp1900"
+				"side_panel_c1141a"
 			],
 			"positionDefinitions": [
-				"sidePanelSp1900"
+				"sidePanelC1141a"
 			],
 			"renderStage": "INTERIOR"
 		},
 		{
 			"names": [
-				"side_panel_sp1900_translucent"
+				"side_panel_c1141a_translucent"
 			],
 			"positionDefinitions": [
-				"sidePanelSp1900"
+				"sidePanelC1141a"
 			],
 			"renderStage": "INTERIOR_TRANSLUCENT"
 		},
@@ -82,7 +83,17 @@
 		},
 		{
 			"names": [
-				"roof_sp1900",
+				"door_light_c1141a"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"roof_c1141a",
 				"door"
 			],
 			"positionDefinitions": [
@@ -154,24 +165,6 @@
 			"renderStage": "INTERIOR",
 			"doorZMultiplier": 14,
 			"doorAnimationType": "NORMAL"
-		},
-		{
-			"names": [
-				"tv_pole"
-			],
-			"positionDefinitions": [
-				"poleOdd"
-			],
-			"renderStage": "INTERIOR"
-		},
-		{
-			"names": [
-				"pole"
-			],
-			"positionDefinitions": [
-				"poleEven"
-			],
-			"renderStage": "INTERIOR"
 		},
 		{
 			"names": [

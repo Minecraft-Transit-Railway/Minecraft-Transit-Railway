@@ -2,28 +2,19 @@
 	"parts": [
 		{
 			"names": [
-				"roof_end_light_sp1900"
+				"roof_end_light"
 			],
 			"positionDefinitions": [
-				"end1"
+				"end2"
 			],
 			"renderStage": "LIGHT"
 		},
 		{
 			"names": [
-				"roof_end_sp1900"
+				"roof_end"
 			],
 			"positionDefinitions": [
-				"end1"
-			],
-			"renderStage": "INTERIOR"
-		},
-		{
-			"names": [
-				"top_handrail_head_sp1900"
-			],
-			"positionDefinitions": [
-				"headHandrail1"
+				"end2"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -32,7 +23,7 @@
 				"head"
 			],
 			"positionDefinitions": [
-				"end1Flipped"
+				"end2Flipped"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -41,7 +32,7 @@
 				"head_floor"
 			],
 			"positionDefinitions": [
-				"end1Flipped"
+				"end2Flipped"
 			],
 			"type": "FLOOR"
 		},
@@ -50,16 +41,26 @@
 				"head_exterior"
 			],
 			"positionDefinitions": [
-				"end1Flipped"
+				"end2Flipped"
 			],
 			"renderStage": "EXTERIOR"
 		},
 		{
 			"names": [
-				"roof_end_exterior"
+				"roof_exterior"
 			],
 			"positionDefinitions": [
-				"roofHead1"
+				"end2",
+				"end2Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"roof_end_vents"
+			],
+			"positionDefinitions": [
+				"roofHead2"
 			],
 			"renderStage": "EXTERIOR"
 		},
@@ -68,17 +69,7 @@
 				"headlights"
 			],
 			"positionDefinitions": [
-				"end1Flipped"
-			],
-			"condition": "ON_ROUTE_FORWARDS",
-			"renderStage": "ALWAYS_ON_LIGHT"
-		},
-		{
-			"names": [
-				"tail_lights"
-			],
-			"positionDefinitions": [
-				"end1Flipped"
+				"end2Flipped"
 			],
 			"condition": "ON_ROUTE_BACKWARDS",
 			"renderStage": "ALWAYS_ON_LIGHT"
@@ -88,7 +79,17 @@
 				"tail_lights"
 			],
 			"positionDefinitions": [
-				"end1Flipped"
+				"end2Flipped"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
 			],
 			"condition": "AT_DEPOT",
 			"renderStage": "ALWAYS_ON_LIGHT"

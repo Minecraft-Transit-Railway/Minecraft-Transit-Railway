@@ -23,18 +23,22 @@ public enum DoorAnimationType {
 	}
 
 	public double getDoorAnimationX(double multiplier, double time) {
-		switch (this) {
-			case PLUG_FAST:
-				return time < 0.05 ? -time * 20 - 0.01 : -1.01;
-			case PLUG_SLOW:
-				return smoothEnds(-0.01, -multiplier - 0.01, 0, 0.1, time);
-			default:
-				return 0;
-		}
+		return Math.copySign(getDoorAnimationXAbsolute(Math.abs(multiplier), time), multiplier);
 	}
 
 	public double getDoorAnimationZ(double multiplier, double time, boolean opening) {
 		return Math.copySign(getDoorAnimationZAbsolute(Math.abs(multiplier), time, opening), multiplier);
+	}
+
+	private double getDoorAnimationXAbsolute(double multiplier, double time) {
+		switch (this) {
+			case PLUG_FAST:
+				return time < 0.05 ? time * 20 * multiplier + 0.05 : multiplier + 0.05;
+			case PLUG_SLOW:
+				return smoothEnds(0.05, multiplier + 0.05, 0, 0.1, time);
+			default:
+				return 0;
+		}
 	}
 
 	private double getDoorAnimationZAbsolute(double doorMax, double time, boolean opening) {

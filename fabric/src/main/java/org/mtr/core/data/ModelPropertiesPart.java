@@ -28,12 +28,12 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	/**
 	 * Maps each part name to the corresponding part and collects all floors, doors, and doorways for processing later.
 	 */
-	public void writeCache(Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ModelPartExtension, Box>> nameToPart, PositionDefinitions positionDefinitionsObject, ObjectArraySet<Box> floors, ObjectArraySet<Box> doorways) {
+	public void writeCache(Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ModelPartExtension, MutableBox>> nameToPart, PositionDefinitions positionDefinitionsObject, ObjectArraySet<Box> floors, ObjectArraySet<Box> doorways) {
 		final ObjectArrayList<ModelPartExtension> modelParts = new ObjectArrayList<>();
 		final MutableBox mutableBox = new MutableBox();
 
 		names.forEach(name -> {
-			final ObjectObjectImmutablePair<ModelPartExtension, Box> part = nameToPart.get(name);
+			final ObjectObjectImmutablePair<ModelPartExtension, MutableBox> part = nameToPart.get(name);
 			if (part != null) {
 				modelParts.add(part.left());
 				mutableBox.add(part.right());
@@ -44,16 +44,16 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			switch (type) {
 				case NORMAL:
 				case DISPLAY:
-					positions.forEach(position -> partDetailsList.add(new PartDetails(modelParts, add(mutableBox, position.getX(), position.getY(), position.getZ(), false), position, false)));
-					positionsFlipped.forEach(position -> partDetailsList.add(new PartDetails(modelParts, add(mutableBox, position.getX(), position.getY(), position.getZ(), true), position, true)));
+					positions.forEach(position -> partDetailsList.add(new PartDetails(modelParts, add(mutableBox.get(), position.getX(), position.getY(), position.getZ(), false), position, false)));
+					positionsFlipped.forEach(position -> partDetailsList.add(new PartDetails(modelParts, add(mutableBox.get(), position.getX(), position.getY(), position.getZ(), true), position, true)));
 					break;
 				case FLOOR:
-					positions.forEach(position -> floors.add(add(mutableBox, position.getX(), position.getY(), position.getZ(), false)));
-					positionsFlipped.forEach(position -> floors.add(add(mutableBox, position.getX(), position.getY(), position.getZ(), true)));
+					positions.forEach(position -> mutableBox.getAll().forEach(box -> floors.add(add(box, position.getX(), position.getY(), position.getZ(), false))));
+					positionsFlipped.forEach(position -> mutableBox.getAll().forEach(box -> floors.add(add(box, position.getX(), position.getY(), position.getZ(), true))));
 					break;
 				case DOORWAY:
-					positions.forEach(position -> doorways.add(add(mutableBox, position.getX(), position.getY(), position.getZ(), false)));
-					positionsFlipped.forEach(position -> doorways.add(add(mutableBox, position.getX(), position.getY(), position.getZ(), true)));
+					positions.forEach(position -> mutableBox.getAll().forEach(box -> doorways.add(add(box, position.getX(), position.getY(), position.getZ(), false))));
+					positionsFlipped.forEach(position -> mutableBox.getAll().forEach(box -> doorways.add(add(box, position.getX(), position.getY(), position.getZ(), true))));
 					break;
 			}
 		}));
@@ -149,8 +149,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		return new ObjectIntImmutablePair<>(RenderTrains.QueuedRenderLayer.EXTERIOR, light);
 	}
 
-	private static Box add(MutableBox mutableBox, double x, double y, double z, boolean flipped) {
-		final Box box = mutableBox.get();
+	private static Box add(Box box, double x, double y, double z, boolean flipped) {
 		return new Box(
 				(flipped ? -1 : 1) * box.getMinXMapped() + x / 16, box.getMinYMapped() + y / 16, (flipped ? 1 : -1) * box.getMinZMapped() + z / 16,
 				(flipped ? -1 : 1) * box.getMaxXMapped() + x / 16, box.getMaxYMapped() + y / 16, (flipped ? 1 : -1) * box.getMaxZMapped() + z / 16

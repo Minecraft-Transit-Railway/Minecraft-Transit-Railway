@@ -2,7 +2,7 @@
 	"parts": [
 		{
 			"names": [
-				"roof_end_light_sp1900"
+				"roof_end_light_c1141a"
 			],
 			"positionDefinitions": [
 				"end1"
@@ -12,7 +12,7 @@
 		{
 			"names": [
 				"end",
-				"roof_end_sp1900"
+				"roof_end_c1141a"
 			],
 			"positionDefinitions": [
 				"end1"
@@ -21,7 +21,7 @@
 		},
 		{
 			"names": [
-				"top_handrail_sp1900"
+				"top_handrail_head_c1141a"
 			],
 			"positionDefinitions": [
 				"end1",
