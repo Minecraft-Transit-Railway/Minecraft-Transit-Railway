@@ -5,44 +5,56 @@
 				"door_left_overlay_interior"
 			],
 			"positionDefinitions": [
-				"door"
+				"doorTcl",
+				"doorTclEnd1",
+				"doorTclEnd2Flipped"
 			],
 			"renderStage": "INTERIOR",
+			"doorXMultiplier": -1,
 			"doorZMultiplier": 14,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "PLUG_FAST"
 		},
 		{
 			"names": [
 				"door_right_overlay_exterior"
 			],
 			"positionDefinitions": [
-				"door"
+				"doorTcl",
+				"doorTclEnd1",
+				"doorTclEnd2Flipped"
 			],
 			"renderStage": "EXTERIOR",
+			"doorXMultiplier": -1,
 			"doorZMultiplier": -14,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "PLUG_FAST"
 		},
 		{
 			"names": [
 				"door_left_overlay_interior"
 			],
 			"positionDefinitions": [
-				"doorFlipped"
+				"doorTclFlipped",
+				"doorTclEnd1Flipped",
+				"doorTclEnd2"
 			],
 			"renderStage": "INTERIOR",
+			"doorXMultiplier": 1,
 			"doorZMultiplier": -14,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "PLUG_FAST"
 		},
 		{
 			"names": [
 				"door_right_overlay_exterior"
 			],
 			"positionDefinitions": [
-				"doorFlipped"
+				"doorTclFlipped",
+				"doorTclEnd1Flipped",
+				"doorTclEnd2"
 			],
 			"renderStage": "EXTERIOR",
+			"doorXMultiplier": 1,
 			"doorZMultiplier": 14,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "PLUG_FAST"
 		},
 		{
 			"names": [

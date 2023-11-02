@@ -31,7 +31,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		final Object2ObjectOpenHashMap<String, BlockbenchElement> uuidToBlockbenchElement = new Object2ObjectOpenHashMap<>();
 		blockbenchModel.getElements().forEach(blockbenchElement -> uuidToBlockbenchElement.put(blockbenchElement.getUuid(), blockbenchElement));
 
-		final Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ModelPartExtension, Box>> nameToPart = new Object2ObjectOpenHashMap<>();
+		final Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ModelPartExtension, MutableBox>> nameToPart = new Object2ObjectOpenHashMap<>();
 		blockbenchModel.getOutlines().forEach(blockbenchOutline -> {
 			final ObjectHolder<ModelPartExtension> parentModelPart = new ObjectHolder<>(this::createModelPart);
 			final MutableBox mutableBox = new MutableBox();
@@ -47,7 +47,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 			});
 
 			if (parentModelPart.exists()) {
-				nameToPart.put(blockbenchOutline.getName(), new ObjectObjectImmutablePair<>(parentModelPart.createAndGet(), mutableBox.get()));
+				nameToPart.put(blockbenchOutline.getName(), new ObjectObjectImmutablePair<>(parentModelPart.createAndGet(), mutableBox));
 			}
 		});
 

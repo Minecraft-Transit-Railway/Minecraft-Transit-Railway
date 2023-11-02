@@ -2,11 +2,11 @@
 	"parts": [
 		{
 			"names": [
-				"roof_light_sp1900"
+				"roof_light"
 			],
 			"positionDefinitions": [
-				"window",
-				"windowFlipped",
+				"window1",
+				"window2",
 				"door",
 				"doorFlipped"
 			],
@@ -14,13 +14,25 @@
 		},
 		{
 			"names": [
-				"window",
-				"roof_sp1900",
-				"top_handrail_sp1900"
+				"window_1",
+				"window_1_tv",
+				"window_handrails",
+				"roof_window"
 			],
 			"positionDefinitions": [
-				"window",
-				"windowFlipped"
+				"window1"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_2",
+				"window_2_tv",
+				"window_handrails",
+				"roof_window"
+			],
+			"positionDefinitions": [
+				"window2"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -29,61 +41,72 @@
 				"window_floor"
 			],
 			"positionDefinitions": [
-				"window",
-				"windowFlipped"
+				"window1",
+				"window2"
 			],
 			"type": "FLOOR"
 		},
 		{
 			"names": [
-				"side_panel_sp1900"
+				"seat"
 			],
 			"positionDefinitions": [
-				"sidePanelSp1900"
+				"seat"
 			],
 			"renderStage": "INTERIOR"
 		},
 		{
 			"names": [
-				"side_panel_sp1900_translucent"
+				"seat_floor"
 			],
 			"positionDefinitions": [
-				"sidePanelSp1900"
+				"seat"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"side_panel"
+			],
+			"positionDefinitions": [
+				"sidePanel"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"side_panel_translucent"
+			],
+			"positionDefinitions": [
+				"sidePanel"
 			],
 			"renderStage": "INTERIOR_TRANSLUCENT"
 		},
 		{
 			"names": [
+				"window_exterior_1",
 				"roof_exterior"
 			],
 			"positionDefinitions": [
-				"window",
-				"windowFlipped"
+				"window1"
 			],
 			"renderStage": "EXTERIOR"
 		},
 		{
 			"names": [
-				"window_exterior_1"
+				"window_exterior_2",
+				"roof_exterior"
 			],
 			"positionDefinitions": [
-				"window"
+				"window2"
 			],
 			"renderStage": "EXTERIOR"
 		},
 		{
 			"names": [
-				"window_exterior_2"
-			],
-			"positionDefinitions": [
-				"window"
-			],
-			"renderStage": "EXTERIOR"
-		},
-		{
-			"names": [
-				"roof_sp1900",
-				"door"
+				"roof_door",
+				"door",
+				"door_handrails"
 			],
 			"positionDefinitions": [
 				"door",
@@ -120,7 +143,7 @@
 			],
 			"renderStage": "INTERIOR",
 			"doorZMultiplier": 14,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "MLR"
 		},
 		{
 			"names": [
@@ -131,7 +154,7 @@
 			],
 			"renderStage": "INTERIOR",
 			"doorZMultiplier": -14,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "MLR"
 		},
 		{
 			"names": [
@@ -142,7 +165,7 @@
 			],
 			"renderStage": "INTERIOR",
 			"doorZMultiplier": -14,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "MLR"
 		},
 		{
 			"names": [
@@ -153,25 +176,7 @@
 			],
 			"renderStage": "INTERIOR",
 			"doorZMultiplier": 14,
-			"doorAnimationType": "NORMAL"
-		},
-		{
-			"names": [
-				"tv_pole"
-			],
-			"positionDefinitions": [
-				"poleOdd"
-			],
-			"renderStage": "INTERIOR"
-		},
-		{
-			"names": [
-				"pole"
-			],
-			"positionDefinitions": [
-				"poleEven"
-			],
-			"renderStage": "INTERIOR"
+			"doorAnimationType": "MLR"
 		},
 		{
 			"names": [
@@ -185,65 +190,66 @@
 		},
 		{
 			"names": [
-				"door_exterior_1"
+				"door_exterior"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorFlipped"
 			],
 			"renderStage": "EXTERIOR"
 		},
 		{
 			"names": [
-				"door_exterior_2"
-			],
-			"positionDefinitions": [
-				"door"
-			],
-			"renderStage": "EXTERIOR"
-		},
-		{
-			"names": [
-				"door_left_exterior_1"
-			],
-			"positionDefinitions": [
-				"door"
-			],
-			"renderStage": "EXTERIOR",
-			"doorZMultiplier": -14,
-			"doorAnimationType": "NORMAL"
-		},
-		{
-			"names": [
-				"door_right_exterior_1"
+				"door_left_exterior"
 			],
 			"positionDefinitions": [
 				"door"
 			],
 			"renderStage": "EXTERIOR",
 			"doorZMultiplier": 14,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "MLR"
 		},
 		{
 			"names": [
-				"door_left_exterior_2"
-			],
-			"positionDefinitions": [
-				"door"
-			],
-			"renderStage": "EXTERIOR",
-			"doorZMultiplier": 14,
-			"doorAnimationType": "NORMAL"
-		},
-		{
-			"names": [
-				"door_right_exterior_2"
+				"door_right_exterior"
 			],
 			"positionDefinitions": [
 				"door"
 			],
 			"renderStage": "EXTERIOR",
 			"doorZMultiplier": -14,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "MLR"
+		},
+		{
+			"names": [
+				"door_left_exterior"
+			],
+			"positionDefinitions": [
+				"doorFlipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "MLR"
+		},
+		{
+			"names": [
+				"door_right_exterior"
+			],
+			"positionDefinitions": [
+				"doorFlipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "MLR"
+		},
+		{
+			"names": [
+				"door_light"
+			],
+			"positionDefinitions": [
+				"doorLight"
+			],
+			"renderStage": "EXTERIOR"
 		},
 		{
 			"names": [
@@ -267,14 +273,20 @@
 		}
 	],
 	"modelYOffset": 1,
-	"gangwayInnerSideResource": "mtr:textures/gangway/sp1900_side.png",
-	"gangwayInnerTopResource": "mtr:textures/gangway/sp1900_roof.png",
-	"gangwayInnerBottomResource": "mtr:textures/gangway/sp1900_floor.png",
-	"gangwayOuterSideResource": "mtr:textures/gangway/sp1900_exterior.png",
-	"gangwayOuterTopResource": "mtr:textures/gangway/sp1900_exterior.png",
-	"gangwayOuterBottomResource": "mtr:textures/gangway/sp1900_exterior.png",
-	"gangwayWidth": 1.5,
+	"gangwayInnerSideResource": "mtr:textures/gangway/m_train_side.png",
+	"gangwayInnerTopResource": "mtr:textures/gangway/m_train_roof.png",
+	"gangwayInnerBottomResource": "mtr:textures/gangway/m_train_floor.png",
+	"gangwayOuterSideResource": "mtr:textures/gangway/m_train_exterior.png",
+	"gangwayOuterTopResource": "mtr:textures/gangway/m_train_exterior.png",
+	"gangwayOuterBottomResource": "mtr:textures/gangway/m_train_exterior.png",
+	"gangwayWidth": 1,
 	"gangwayHeight": 2.25,
 	"gangwayYOffset": 1,
-	"gangwayZOffset": 0.5
+	"gangwayZOffset": 0.5,
+	"barrierInnerSideResource": "mtr:textures/barrier/mlr_exterior.png",
+	"barrierOuterSideResource": "mtr:textures/barrier/mlr_exterior.png",
+	"barrierWidth": 2.25,
+	"barrierHeight": 1,
+	"barrierYOffset": 1.25,
+	"barrierZOffset": 0.25
 }

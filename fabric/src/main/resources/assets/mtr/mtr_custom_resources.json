@@ -12,6 +12,12 @@
 			"couplingPadding1": 0,
 			"couplingPadding2": 0,
 			"wikipediaArticle": "SP1900_EMU",
+			"tags": [
+				"family:sp1900",
+				"iso_3166:HK",
+				"doors:5",
+				"type:car"
+			],
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
@@ -83,6 +89,12 @@
 			"couplingPadding1": 1,
 			"couplingPadding2": 0,
 			"wikipediaArticle": "SP1900_EMU",
+			"tags": [
+				"family:sp1900",
+				"iso_3166:HK",
+				"doors:5",
+				"type:cab_1"
+			],
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
@@ -154,6 +166,12 @@
 			"couplingPadding1": 0,
 			"couplingPadding2": 1,
 			"wikipediaArticle": "SP1900_EMU",
+			"tags": [
+				"family:sp1900",
+				"iso_3166:HK",
+				"doors:5",
+				"type:cab_2"
+			],
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
@@ -225,6 +243,12 @@
 			"couplingPadding1": 1,
 			"couplingPadding2": 1,
 			"wikipediaArticle": "SP1900_EMU",
+			"tags": [
+				"family:sp1900",
+				"iso_3166:HK",
+				"doors:5",
+				"type:cab_3"
+			],
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
@@ -283,6 +307,1150 @@
 			"hasGangway2": false,
 			"speedSoundCount": 120,
 			"speedSoundBaseResource": "sp1900"
+		},
+		{
+			"id": "c1141a_c",
+			"name": "C1141A",
+			"color": "B42249",
+			"transportMode": "TRAIN",
+			"length": 25,
+			"width": 2,
+			"bogie1Position": -8.5,
+			"bogie2Position": 8.5,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MTR_CRRC_Changchun_EMU",
+			"tags": [
+				"family:c1141a",
+				"iso_3166:HK",
+				"doors:5",
+				"type:car"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"speedSoundCount": 96,
+			"speedSoundBaseResource": "c1141a"
+		},
+		{
+			"id": "c1141a_d1",
+			"name": "C1141A Cab (Forwards)",
+			"color": "B42249",
+			"transportMode": "TRAIN",
+			"length": 25,
+			"width": 2,
+			"bogie1Position": -8.5,
+			"bogie2Position": 8.5,
+			"couplingPadding1": 1,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MTR_CRRC_Changchun_EMU",
+			"tags": [
+				"family:c1141a",
+				"iso_3166:HK",
+				"doors:5",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"speedSoundCount": 96,
+			"speedSoundBaseResource": "c1141a"
+		},
+		{
+			"id": "c1141a_d2",
+			"name": "C1141A Cab (Backwards)",
+			"color": "B42249",
+			"transportMode": "TRAIN",
+			"length": 25,
+			"width": 2,
+			"bogie1Position": -8.5,
+			"bogie2Position": 8.5,
+			"couplingPadding1": 0,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "MTR_CRRC_Changchun_EMU",
+			"tags": [
+				"family:c1141a",
+				"iso_3166:HK",
+				"doors:5",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"speedSoundCount": 96,
+			"speedSoundBaseResource": "c1141a"
+		},
+		{
+			"id": "c1141a_d3",
+			"name": "C1141A Cab (Double)",
+			"color": "B42249",
+			"transportMode": "TRAIN",
+			"length": 25,
+			"width": 2,
+			"bogie1Position": -8.5,
+			"bogie2Position": 8.5,
+			"couplingPadding1": 1,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "MTR_CRRC_Changchun_EMU",
+			"tags": [
+				"family:c1141a",
+				"iso_3166:HK",
+				"doors:5",
+				"type:cab_3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"speedSoundCount": 96,
+			"speedSoundBaseResource": "c1141a"
+		},
+		{
+			"id": "a_train_x",
+			"name": "Tung Chung Line CAF Train",
+			"color": "F69447",
+			"transportMode": "TRAIN",
+			"length": 25,
+			"width": 2,
+			"bogie1Position": -8.5,
+			"bogie2Position": 8.5,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MTR_Adtranz%E2%80%93CAF_EMU",
+			"tags": [
+				"family:a_train",
+				"iso_3166:HK",
+				"doors:5",
+				"type:car"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_tcl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_tcl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_tcl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_a_train_tcl.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_a_train_tcl_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_a_train_tcl.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_a_train_tcl_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"speedSoundCount": 96,
+			"speedSoundBaseResource": "a_train"
+		},
+		{
+			"id": "a_train_v1",
+			"name": "Tung Chung Line CAF Train Cab (Forwards)",
+			"color": "F69447",
+			"transportMode": "TRAIN",
+			"length": 25,
+			"width": 2,
+			"bogie1Position": -8.5,
+			"bogie2Position": 8.5,
+			"couplingPadding1": 2,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MTR_Adtranz%E2%80%93CAF_EMU",
+			"tags": [
+				"family:a_train",
+				"iso_3166:HK",
+				"doors:5",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_tcl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_tcl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_tcl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_a_train_tcl.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_a_train_tcl_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_a_train_tcl.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_a_train_tcl_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"speedSoundCount": 96,
+			"speedSoundBaseResource": "a_train"
+		},
+		{
+			"id": "a_train_v2",
+			"name": "Tung Chung Line CAF Train Cab (Backwards)",
+			"color": "F69447",
+			"transportMode": "TRAIN",
+			"length": 25,
+			"width": 2,
+			"bogie1Position": -8.5,
+			"bogie2Position": 8.5,
+			"couplingPadding1": 0,
+			"couplingPadding2": 2,
+			"wikipediaArticle": "MTR_Adtranz%E2%80%93CAF_EMU",
+			"tags": [
+				"family:a_train",
+				"iso_3166:HK",
+				"doors:5",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_tcl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_tcl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_tcl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_a_train_tcl.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_a_train_tcl_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_a_train_tcl.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_a_train_tcl_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"speedSoundCount": 96,
+			"speedSoundBaseResource": "a_train"
+		},
+		{
+			"id": "a_train_v3",
+			"name": "Tung Chung Line CAF Train Cab (Double)",
+			"color": "F69447",
+			"transportMode": "TRAIN",
+			"length": 25,
+			"width": 2,
+			"bogie1Position": -8.5,
+			"bogie2Position": 8.5,
+			"couplingPadding1": 2,
+			"couplingPadding2": 2,
+			"wikipediaArticle": "MTR_Adtranz%E2%80%93CAF_EMU",
+			"tags": [
+				"family:a_train",
+				"iso_3166:HK",
+				"doors:5",
+				"type:cab_3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_tcl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_tcl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_tcl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_a_train_tcl.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_a_train_tcl_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_a_train_tcl.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_a_train_tcl_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_tcl_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"speedSoundCount": 96,
+			"speedSoundBaseResource": "a_train"
+		},
+		{
+			"id": "a_train_g",
+			"name": "Airport Express CAF Train",
+			"color": "008D8D",
+			"transportMode": "TRAIN",
+			"length": 25,
+			"width": 2,
+			"bogie1Position": -8.5,
+			"bogie2Position": 8.5,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MTR_Adtranz%E2%80%93CAF_EMU",
+			"tags": [
+				"family:a_train",
+				"iso_3166:HK",
+				"doors:2",
+				"type:car"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"speedSoundCount": 96,
+			"speedSoundBaseResource": "a_train"
+		},
+		{
+			"id": "a_train_e1",
+			"name": "Airport Express CAF Train Cab (Forwards)",
+			"color": "008D8D",
+			"transportMode": "TRAIN",
+			"length": 25,
+			"width": 2,
+			"bogie1Position": -8.5,
+			"bogie2Position": 8.5,
+			"couplingPadding1": 2,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MTR_Adtranz%E2%80%93CAF_EMU",
+			"tags": [
+				"family:a_train",
+				"iso_3166:HK",
+				"doors:2",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"speedSoundCount": 96,
+			"speedSoundBaseResource": "a_train"
+		},
+		{
+			"id": "a_train_e2",
+			"name": "Airport Express CAF Train Cab (Backwards)",
+			"color": "008D8D",
+			"transportMode": "TRAIN",
+			"length": 25,
+			"width": 2,
+			"bogie1Position": -8.5,
+			"bogie2Position": 8.5,
+			"couplingPadding1": 0,
+			"couplingPadding2": 2,
+			"wikipediaArticle": "MTR_Adtranz%E2%80%93CAF_EMU",
+			"tags": [
+				"family:a_train",
+				"iso_3166:HK",
+				"doors:2",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"speedSoundCount": 96,
+			"speedSoundBaseResource": "a_train"
+		},
+		{
+			"id": "a_train_e3",
+			"name": "Airport Express CAF Train Cab (Double)",
+			"color": "008D8D",
+			"transportMode": "TRAIN",
+			"length": 25,
+			"width": 2,
+			"bogie1Position": -8.5,
+			"bogie2Position": 8.5,
+			"couplingPadding1": 2,
+			"couplingPadding2": 2,
+			"wikipediaArticle": "MTR_Adtranz%E2%80%93CAF_EMU",
+			"tags": [
+				"family:a_train",
+				"iso_3166:HK",
+				"doors:2",
+				"type:cab_3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"speedSoundCount": 96,
+			"speedSoundBaseResource": "a_train"
+		},
+		{
+			"id": "mlr_5",
+			"name": "MLR",
+			"color": "6CB5E2",
+			"transportMode": "TRAIN",
+			"length": 25,
+			"width": 2,
+			"bogie1Position": -8.5,
+			"bogie2Position": 8.5,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MTR_Metro_Cammell_EMU_(AC)",
+			"tags": [
+				"family:mlr",
+				"iso_3166:HK",
+				"doors:5",
+				"type:car"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"hasBarrier1": true,
+			"hasBarrier2": true,
+			"speedSoundCount": 120,
+			"speedSoundBaseResource": "mlr"
+		},
+		{
+			"id": "mlr_11",
+			"name": "MLR Cab (Forwards)",
+			"color": "6CB5E2",
+			"transportMode": "TRAIN",
+			"length": 25,
+			"width": 2,
+			"bogie1Position": -8.5,
+			"bogie2Position": 8.5,
+			"couplingPadding1": 1,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MTR_Metro_Cammell_EMU_(AC)",
+			"tags": [
+				"family:mlr",
+				"iso_3166:HK",
+				"doors:5",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"hasBarrier1": false,
+			"hasBarrier2": true,
+			"speedSoundCount": 120,
+			"speedSoundBaseResource": "mlr"
+		},
+		{
+			"id": "mlr_12",
+			"name": "MLR Cab (Backwards)",
+			"color": "6CB5E2",
+			"transportMode": "TRAIN",
+			"length": 25,
+			"width": 2,
+			"bogie1Position": -8.5,
+			"bogie2Position": 8.5,
+			"couplingPadding1": 0,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "MTR_Metro_Cammell_EMU_(AC)",
+			"tags": [
+				"family:mlr",
+				"iso_3166:HK",
+				"doors:5",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"hasBarrier1": true,
+			"hasBarrier2": false,
+			"speedSoundCount": 120,
+			"speedSoundBaseResource": "mlr"
+		},
+		{
+			"id": "mlr_13",
+			"name": "MLR Cab (Double)",
+			"color": "6CB5E2",
+			"transportMode": "TRAIN",
+			"length": 25,
+			"width": 2,
+			"bogie1Position": -8.5,
+			"bogie2Position": 8.5,
+			"couplingPadding1": 1,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "MTR_Metro_Cammell_EMU_(AC)",
+			"tags": [
+				"family:mlr",
+				"iso_3166:HK",
+				"doors:5",
+				"type:cab_3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"hasBarrier1": false,
+			"hasBarrier2": false,
+			"speedSoundCount": 120,
+			"speedSoundBaseResource": "mlr"
 		}
 	],
 	"signs": [

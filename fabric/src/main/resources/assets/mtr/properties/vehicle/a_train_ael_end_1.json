@@ -2,17 +2,8 @@
 	"parts": [
 		{
 			"names": [
-				"roof_end_light_sp1900"
-			],
-			"positionDefinitions": [
-				"end1"
-			],
-			"renderStage": "LIGHT"
-		},
-		{
-			"names": [
-				"end",
-				"roof_end_sp1900"
+				"end_ael",
+				"end_door_ael"
 			],
 			"positionDefinitions": [
 				"end1"
@@ -21,17 +12,7 @@
 		},
 		{
 			"names": [
-				"top_handrail_sp1900"
-			],
-			"positionDefinitions": [
-				"end1",
-				"end1Flipped"
-			],
-			"renderStage": "INTERIOR"
-		},
-		{
-			"names": [
-				"end_floor"
+				"end_floor_ael"
 			],
 			"positionDefinitions": [
 				"end1"
@@ -40,11 +21,22 @@
 		},
 		{
 			"names": [
-				"end_exterior",
+				"end_exterior_ael",
 				"roof_end_exterior"
 			],
 			"positionDefinitions": [
 				"end1"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_exterior_ael",
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"windowAelEnd1",
+				"windowAelEnd1Flipped"
 			],
 			"renderStage": "EXTERIOR"
 		}

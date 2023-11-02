@@ -1,0 +1,566 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "windowTcl",
+			"positions": [
+				{
+					"z": -40
+				},
+				{
+					"z": 40
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -40
+				},
+				{
+					"z": 40
+				}
+			]
+		},
+		{
+			"name": "windowTclEnd1",
+			"positions": [
+				{
+					"z": -120
+				}
+			]
+		},
+		{
+			"name": "windowTclEnd2",
+			"positionsFlipped": [
+				{
+					"z": 120
+				}
+			]
+		},
+		{
+			"name": "windowTclEnd1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -120
+				}
+			]
+		},
+		{
+			"name": "windowTclEnd2Flipped",
+			"positions": [
+				{
+					"z": 120
+				}
+			]
+		},
+		{
+			"name": "windowAel",
+			"positions": [
+				{
+					"z": -39
+				},
+				{
+					"z": -13
+				},
+				{
+					"z": 13
+				},
+				{
+					"z": 39
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -39
+				},
+				{
+					"z": -13
+				},
+				{
+					"z": 13
+				},
+				{
+					"z": 39
+				}
+			]
+		},
+		{
+			"name": "windowAelEnd1",
+			"positions": [
+				{
+					"z": -173
+				},
+				{
+					"z": -147
+				},
+				{
+					"z": -121
+				}
+			]
+		},
+		{
+			"name": "windowAelEnd2",
+			"positionsFlipped": [
+				{
+					"z": 121
+				},
+				{
+					"z": 147
+				},
+				{
+					"z": 173
+				}
+			]
+		},
+		{
+			"name": "windowAelEnd1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -173
+				},
+				{
+					"z": -147
+				},
+				{
+					"z": -121
+				}
+			]
+		},
+		{
+			"name": "windowAelEnd2Flipped",
+			"positions": [
+				{
+					"z": 121
+				},
+				{
+					"z": 147
+				},
+				{
+					"z": 173
+				}
+			]
+		},
+		{
+			"name": "sidePanelTcl",
+			"positions": [
+				{
+					"z": -142
+				},
+				{
+					"z": -98
+				},
+				{
+					"z": -62
+				},
+				{
+					"z": -18
+				},
+				{
+					"z": 18
+				},
+				{
+					"z": 62
+				},
+				{
+					"z": 98
+				},
+				{
+					"z": 142
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -142
+				},
+				{
+					"z": -98
+				},
+				{
+					"z": -62
+				},
+				{
+					"z": -18
+				},
+				{
+					"z": 18
+				},
+				{
+					"z": 62
+				},
+				{
+					"z": 98
+				},
+				{
+					"z": 142
+				}
+			]
+		},
+		{
+			"name": "sidePanelAel",
+			"positions": [
+				{
+					"z": -108.1
+				},
+				{
+					"z": -91.9
+				},
+				{
+					"z": -68.1
+				},
+				{
+					"z": -51.9
+				},
+				{
+					"z": 51.9
+				},
+				{
+					"z": 68.1
+				},
+				{
+					"z": 91.9
+				},
+				{
+					"z": 108.1
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -108.1
+				},
+				{
+					"z": -91.9
+				},
+				{
+					"z": -68.1
+				},
+				{
+					"z": -51.9
+				},
+				{
+					"z": 51.9
+				},
+				{
+					"z": 68.1
+				},
+				{
+					"z": 91.9
+				},
+				{
+					"z": 108.1
+				}
+			]
+		},
+		{
+			"name": "doorTcl",
+			"positions": [
+				{
+					"z": -80
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 80
+				}
+			]
+		},
+		{
+			"name": "doorTclFlipped",
+			"positionsFlipped": [
+				{
+					"z": -80
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 80
+				}
+			]
+		},
+		{
+			"name": "doorTclEnd1",
+			"positions": [
+				{
+					"z": -160
+				}
+			]
+		},
+		{
+			"name": "doorTclEnd1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -160
+				}
+			]
+		},
+		{
+			"name": "doorTclEnd2",
+			"positionsFlipped": [
+				{
+					"z": 160
+				}
+			]
+		},
+		{
+			"name": "doorTclEnd2Flipped",
+			"positions": [
+				{
+					"z": 160
+				}
+			]
+		},
+		{
+			"name": "doorAel",
+			"positions": [
+				{
+					"z": -80
+				},
+				{
+					"z": 80
+				}
+			]
+		},
+		{
+			"name": "doorAelFlipped",
+			"positionsFlipped": [
+				{
+					"z": -80
+				},
+				{
+					"z": 80
+				}
+			]
+		},
+		{
+			"name": "doorRoofAel",
+			"positions": [
+				{
+					"z": -82
+				},
+				{
+					"z": -78
+				},
+				{
+					"z": 78
+				},
+				{
+					"z": 82
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -82
+				},
+				{
+					"z": -78
+				},
+				{
+					"z": 78
+				},
+				{
+					"z": 82
+				}
+			]
+		},
+		{
+			"name": "luggageRack",
+			"positions": [
+				{
+					"z": -100
+				},
+				{
+					"z": -60
+				},
+				{
+					"z": 60
+				},
+				{
+					"z": 100
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -100
+				},
+				{
+					"z": -60
+				},
+				{
+					"z": 60
+				},
+				{
+					"z": 100
+				}
+			]
+		},
+		{
+			"name": "doorOverlayWall1",
+			"positions": [
+				{
+					"z": -173.9
+				},
+				{
+					"z": -93.9
+				},
+				{
+					"z": -13.9
+				},
+				{
+					"z": 66.1
+				},
+				{
+					"z": 146.1
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -146.1
+				},
+				{
+					"z": -66.1
+				},
+				{
+					"z": 13.9
+				},
+				{
+					"z": 93.9
+				},
+				{
+					"z": 173.9
+				}
+			]
+		},
+		{
+			"name": "doorOverlayWall2",
+			"positions": [
+				{
+					"z": -146.1
+				},
+				{
+					"z": -66.1
+				},
+				{
+					"z": 13.9
+				},
+				{
+					"z": 93.9
+				},
+				{
+					"z": 173.9
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -173.9
+				},
+				{
+					"z": -93.9
+				},
+				{
+					"z": -13.9
+				},
+				{
+					"z": 66.1
+				},
+				{
+					"z": 146.1
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -184
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 184
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -184
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 184
+				}
+			]
+		},
+		{
+			"name": "end1RoofAel",
+			"positions": [
+				{
+					"z": -156
+				},
+				{
+					"z": -116
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -156
+				},
+				{
+					"z": -116
+				}
+			]
+		},
+		{
+			"name": "end2RoofAel",
+			"positions": [
+				{
+					"z": 116
+				},
+				{
+					"z": 156
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 116
+				},
+				{
+					"z": 156
+				}
+			]
+		},
+		{
+			"name": "doorLightTcl",
+			"positions": [
+				{
+					"z": -40
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -40
+				}
+			]
+		},
+		{
+			"name": "doorLightAel",
+			"positions": [
+				{
+					"z": 0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		}
+	]
+}

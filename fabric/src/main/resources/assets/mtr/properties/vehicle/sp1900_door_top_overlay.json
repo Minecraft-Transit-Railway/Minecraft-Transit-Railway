@@ -8,8 +8,7 @@
 				"door",
 				"doorFlipped"
 			],
-			"renderStage": "EXTERIOR",
-			"type": "NORMAL"
+			"renderStage": "EXTERIOR"
 		}
 	],
 	"modelYOffset": 1

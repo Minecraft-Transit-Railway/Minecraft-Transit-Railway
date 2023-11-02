@@ -45,6 +45,12 @@
 		"wikipediaArticle": {
 			"type": "string"
 		},
+		"tags": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
 		"models": {
 			"type": "array",
 			"items": {

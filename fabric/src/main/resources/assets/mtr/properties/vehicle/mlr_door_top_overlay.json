@@ -2,56 +2,47 @@
 	"parts": [
 		{
 			"names": [
-				"door_left_overlay_interior"
+				"door_left"
 			],
 			"positionDefinitions": [
 				"door"
 			],
-			"renderStage": "INTERIOR",
+			"renderStage": "EXTERIOR",
 			"doorZMultiplier": 14,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "MLR"
 		},
 		{
 			"names": [
-				"door_right_overlay_exterior"
+				"door_right"
 			],
 			"positionDefinitions": [
 				"door"
 			],
 			"renderStage": "EXTERIOR",
 			"doorZMultiplier": -14,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "MLR"
 		},
 		{
 			"names": [
-				"door_left_overlay_interior"
+				"door_left"
 			],
 			"positionDefinitions": [
 				"doorFlipped"
 			],
-			"renderStage": "INTERIOR",
+			"renderStage": "EXTERIOR",
 			"doorZMultiplier": -14,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "MLR"
 		},
 		{
 			"names": [
-				"door_right_overlay_exterior"
+				"door_right"
 			],
 			"positionDefinitions": [
 				"doorFlipped"
 			],
 			"renderStage": "EXTERIOR",
 			"doorZMultiplier": 14,
-			"doorAnimationType": "NORMAL"
-		},
-		{
-			"names": [
-				"wall_2"
-			],
-			"positionDefinitions": [
-				"doorOverlayWall2"
-			],
-			"renderStage": "INTERIOR"
+			"doorAnimationType": "MLR"
 		}
 	],
 	"modelYOffset": 1
