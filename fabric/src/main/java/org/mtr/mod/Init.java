@@ -6,6 +6,7 @@ import org.mtr.core.generated.ClientGroupSchema;
 import org.mtr.core.serializers.JsonWriter;
 import org.mtr.core.servlet.IntegrationServlet;
 import org.mtr.core.tools.Position;
+import org.mtr.core.tools.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.libraries.io.socket.client.IO;
@@ -17,6 +18,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
+import org.mtr.mapping.mapper.WorldHelper;
 import org.mtr.mapping.registry.EventRegistry;
 import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.tool.DummyClass;
@@ -28,15 +30,20 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class Init {
+public final class Init implements Utilities {
 
 	private static Main main;
 	private static Socket socket;
+	private static Runnable sendWorldTimeUpdate;
+	private static int serverTick;
 
 
 	public static final String MOD_ID = "mtr";
 	public static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	public static final int SECONDS_PER_MC_HOUR = 50;
+
 	private static final String CHANNEL = "update";
+	private static final int MILLIS_PER_MC_DAY = SECONDS_PER_MC_HOUR * MILLIS_PER_SECOND * HOURS_PER_DAY;
 	private static final Object2ObjectArrayMap<ServerWorld, RailActionModule> RAIL_ACTION_MODULES = new Object2ObjectArrayMap<>();
 	private static final Object2ObjectArrayMap<Identifier, IntObjectImmutablePair<ObjectArraySet<ObjectBooleanImmutablePair<ServerPlayerEntity>>>> PLAYERS_TO_UPDATE = new Object2ObjectArrayMap<>();
 
@@ -83,13 +90,7 @@ public final class Init {
 				PLAYERS_TO_UPDATE.put(identifier, new IntObjectImmutablePair<>(index[0], new ObjectArraySet<>()));
 				index[0]++;
 			});
-			main = new Main(
-					1200000,
-					minecraftServer.getOverworld().getTime(),
-					minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"),
-					8888,
-					worldNames.toArray(new String[0])
-			);
+			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), 8888, worldNames.toArray(new String[0]));
 
 			// Set up the socket
 			try {
@@ -110,6 +111,15 @@ public final class Init {
 			} catch (Exception e) {
 				logException(e);
 			}
+
+			serverTick = 0;
+			sendWorldTimeUpdate = () -> {
+				final JsonObject timeObject = new JsonObject();
+				timeObject.addProperty("gameMillis", (WorldHelper.getTimeOfDay(minecraftServer.getOverworld()) + 6000) * SECONDS_PER_MC_HOUR);
+				timeObject.addProperty("millisPerDay", MILLIS_PER_MC_DAY);
+				PacketData.sendHttpRequest("misc/set-time", timeObject, responseObject -> {
+				});
+			};
 		});
 
 		EventRegistry.registerServerStopping(minecraftServer -> {
@@ -132,6 +142,12 @@ public final class Init {
 					}
 				});
 			}
+
+			if (sendWorldTimeUpdate != null && serverTick % (SECONDS_PER_MC_HOUR * 10) == 0) {
+				sendWorldTimeUpdate.run();
+			}
+			sendWorldTimeUpdate = null;
+			serverTick++;
 		});
 
 		EventRegistry.registerEndWorldTick(serverWorld -> {

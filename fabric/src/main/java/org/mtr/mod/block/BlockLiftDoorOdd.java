@@ -42,7 +42,6 @@ public class BlockLiftDoorOdd extends BlockPSDAPGDoorBase implements ITripleBloc
 		properties.add(HALF);
 		properties.add(ODD);
 		properties.add(SIDE);
-		properties.add(TEMP);
 		properties.add(UNLOCKED);
 	}
 

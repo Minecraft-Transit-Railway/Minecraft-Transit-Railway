@@ -50,7 +50,6 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private static final int PANELS_START = SQUARE_SIZE * 2 + TEXT_FIELD_PADDING;
 	private static final int SLIDER_WIDTH = 64;
 	private static final int MAX_TRAINS_PER_HOUR = 5;
-	private static final int SECONDS_PER_MC_HOUR = 50;
 	private static final int DEFAULT_CRUISING_ALTITUDE = 256;
 	private static final int TRAIN_FREQUENCY_MULTIPLIER = 4;
 
@@ -352,7 +351,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		if (value == 0) {
 			headwayText = "";
 		} else {
-			headwayText = " (" + Utilities.round((float) TRAIN_FREQUENCY_MULTIPLIER * SECONDS_PER_MC_HOUR / value, 1) + TextHelper.translatable("gui.mtr.s").getString() + ")";
+			headwayText = " (" + Utilities.round((float) TRAIN_FREQUENCY_MULTIPLIER * Init.SECONDS_PER_MC_HOUR / value, 1) + TextHelper.translatable("gui.mtr.s").getString() + ")";
 		}
 		return value / (float) TRAIN_FREQUENCY_MULTIPLIER + TextHelper.translatable("gui.mtr.tph").getString() + headwayText;
 	}
