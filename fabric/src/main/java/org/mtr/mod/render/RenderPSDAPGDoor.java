@@ -39,17 +39,13 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.BlockEntityBase> ext
 			return;
 		}
 
-		final BlockPos pos = entity.getPos2();
-		if (IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.TEMP)) {
-			return;
-		}
-
-		final Direction facing = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.FACING);
-		final boolean side = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.SIDE) == EnumSide.RIGHT;
-		final boolean half = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.HALF) == DoubleBlockHalf.UPPER;
-		final boolean end = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.END);
-		final boolean unlocked = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.UNLOCKED);
-		final float open = Math.min(entity.getOpen(MinecraftClient.getInstance().getLastFrameDuration()), type >= 3 ? 0.75F : 1);
+		final BlockPos blockPos = entity.getPos2();
+		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, BlockPSDAPGDoorBase.FACING);
+		final boolean side = IBlock.getStatePropertySafe(world, blockPos, BlockPSDAPGDoorBase.SIDE) == EnumSide.RIGHT;
+		final boolean half = IBlock.getStatePropertySafe(world, blockPos, BlockPSDAPGDoorBase.HALF) == DoubleBlockHalf.UPPER;
+		final boolean end = IBlock.getStatePropertySafe(world, blockPos, BlockPSDAPGDoorBase.END);
+		final boolean unlocked = IBlock.getStatePropertySafe(world, blockPos, BlockPSDAPGDoorBase.UNLOCKED);
+		final double open = Math.min(entity.getDoorValue(), type >= 3 ? 0.75F : 1);
 
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(true);
 		storedMatrixTransformations.add(graphicsHolderNew -> {
@@ -80,7 +76,7 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.BlockEntityBase> ext
 				break;
 			case 2:
 				if (half) {
-					final Block block = world.getBlockState(pos.offset(side ? facing.rotateYClockwise() : facing.rotateYCounterclockwise())).getBlock();
+					final Block block = world.getBlockState(blockPos.offset(side ? facing.rotateYClockwise() : facing.rotateYCounterclockwise())).getBlock();
 					if (block.data instanceof BlockAPGGlass || block.data instanceof BlockAPGGlassEnd) {
 						RenderTrains.scheduleRender(new Identifier(String.format("mtr:textures/block/apg_door_light_%s.png", open > 0 ? "on" : "off")), false, open > 0 ? RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolderNew, offset) -> {
 							storedMatrixTransformationsLight.transform(graphicsHolderNew, offset);
@@ -138,7 +134,7 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.BlockEntityBase> ext
 				}
 				break;
 			case 4:
-				if (IBlock.getStatePropertySafe(world, pos, ITripleBlock.ODD)) {
+				if (IBlock.getStatePropertySafe(world, blockPos, ITripleBlock.ODD)) {
 					break;
 				}
 				storedMatrixTransformations.add(matricesNew -> matricesNew.translate(side ? 0.5 : -0.5, 0, 0));

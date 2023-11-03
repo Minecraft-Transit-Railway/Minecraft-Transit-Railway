@@ -119,7 +119,7 @@ public class PacketData extends PacketHandler {
 	}
 
 	private void sendHttpRequestAndBroadcastResultToAllPlayers(ServerWorld serverWorld) {
-		sendHttpRequest(operation, jsonObject, data -> {
+		sendHttpDataRequest(operation, jsonObject, data -> {
 			// Check if there are any rail nodes that need to be reset
 			final JsonArray positionsArray = data.getAsJsonArray("positions");
 			if (positionsArray != null) {
@@ -181,8 +181,8 @@ public class PacketData extends PacketHandler {
 		fromSignalModification(signalModification).sendHttpRequestAndBroadcastResultToAllPlayers(serverWorld);
 	}
 
-	protected static void sendHttpRequest(IntegrationServlet.Operation operation, JsonObject contentObject, Consumer<JsonObject> consumer) {
-		final HttpPost request = new HttpPost("http://localhost:8888/mtr/api/data/" + operation.getEndpoint());
+	public static void sendHttpRequest(String endpoint, JsonObject contentObject, Consumer<JsonObject> consumer) {
+		final HttpPost request = new HttpPost("http://localhost:8888/mtr/api/" + endpoint);
 		request.addHeader("content-type", "application/json");
 
 		try {
@@ -197,6 +197,10 @@ public class PacketData extends PacketHandler {
 		} catch (Exception e) {
 			Init.logException(e);
 		}
+	}
+
+	protected static void sendHttpDataRequest(IntegrationServlet.Operation operation, JsonObject contentObject, Consumer<JsonObject> consumer) {
+		sendHttpRequest("data/" + operation.getEndpoint(), contentObject, consumer);
 	}
 
 	private static <T extends SerializedDataBase> JsonArray writeDataSetToJsonArray(ObjectSet<T> dataSet) {

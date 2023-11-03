@@ -3,6 +3,7 @@ package org.mtr.mod.render;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.WorldHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockClock;
 import org.mtr.mod.block.IBlock;
@@ -33,7 +34,7 @@ public class RenderClock extends BlockEntityRenderer<BlockClock.BlockEntity> imp
 			graphicsHolder.rotateYDegrees(90);
 		}
 
-		final long time = world.getTime() + 6000;
+		final long time = WorldHelper.getTimeOfDay(world) + 6000;
 
 		drawHand(graphicsHolder, time * 360F / 12000, true);
 		drawHand(graphicsHolder, time * 360F / 1000, false);

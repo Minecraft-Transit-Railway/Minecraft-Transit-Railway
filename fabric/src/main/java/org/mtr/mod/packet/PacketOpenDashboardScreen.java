@@ -41,6 +41,6 @@ public class PacketOpenDashboardScreen extends PacketData {
 	}
 
 	public static void create(PlayerEntity playerEntity, TransportMode transportMode) {
-		sendHttpRequest(IntegrationServlet.Operation.LIST, new JsonObject(), data -> Registry.sendPacketToClient(ServerPlayerEntity.cast(playerEntity), new PacketOpenDashboardScreen(data, transportMode, false)));
+		sendHttpDataRequest(IntegrationServlet.Operation.LIST, new JsonObject(), data -> Registry.sendPacketToClient(ServerPlayerEntity.cast(playerEntity), new PacketOpenDashboardScreen(data, transportMode, false)));
 	}
 }

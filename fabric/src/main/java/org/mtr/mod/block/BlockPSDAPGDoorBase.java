@@ -1,5 +1,6 @@
 package org.mtr.mod.block;
 
+import org.mtr.core.tools.Utilities;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockWithEntity;
@@ -12,11 +13,8 @@ import java.util.List;
 
 public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements BlockWithEntity {
 
-	public static final int MAX_OPEN_VALUE = 32;
-
 	public static final BooleanProperty END = BooleanProperty.of("end");
 	public static final BooleanProperty UNLOCKED = BooleanProperty.of("unlocked");
-	public static final BooleanProperty TEMP = BooleanProperty.of("temp");
 
 	@Nonnull
 	@Override
@@ -65,8 +63,14 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 	@Nonnull
 	@Override
 	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		final BlockEntity entity = world.getBlockEntity(pos);
-		return entity != null && entity.data instanceof BlockEntityBase && ((BlockEntityBase) entity.data).isOpen() ? VoxelShapes.empty() : super.getCollisionShape2(state, world, pos, context);
+		final BlockEntity entity = world.getBlockEntity(pos); // TODO
+		return super.getCollisionShape2(state, world, pos, context);
+	}
+
+	@Nonnull
+	@Override
+	public BlockRenderType getRenderType2(BlockState state) {
+		return BlockRenderType.getEntityblockAnimatedMapped();
 	}
 
 	@Override
@@ -75,7 +79,6 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 		properties.add(FACING);
 		properties.add(HALF);
 		properties.add(SIDE);
-		properties.add(TEMP);
 		properties.add(UNLOCKED);
 	}
 
@@ -101,64 +104,18 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 
 	public static abstract class BlockEntityBase extends BlockEntityExtension implements IGui {
 
-		private int open;
-		private float openClient;
-		private boolean temp = true;
-
-		private static final String KEY_OPEN = "open";
-		private static final String KEY_TEMP = "temp";
+		private double doorValue;
 
 		public BlockEntityBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
 		}
 
-		@Override
-		public void readCompoundTag(CompoundTag compoundTag) {
-			open = compoundTag.getInt(KEY_OPEN);
-			temp = compoundTag.getBoolean(KEY_TEMP);
+		public void open(double vehicleDoorValue) {
+			doorValue = Utilities.clamp(vehicleDoorValue, 0, 1);
 		}
 
-		@Override
-		public void writeCompoundTag(CompoundTag compoundTag) {
-			compoundTag.putInt(KEY_OPEN, open);
-			compoundTag.putBoolean(KEY_TEMP, temp);
-			if (temp && getWorld2() != null) {
-				getWorld2().setBlockState(getPos2(), getWorld2().getBlockState(getPos2()).with(new Property<>(TEMP.data), false));
-				temp = false;
-			}
-		}
-
-		@Override
-		public void blockEntityTick() {
-			if (getWorld2() != null && IBlock.getStatePropertySafe(getWorld2(), getPos2(), new Property<>(UNLOCKED.data))) {
-				setOpen(0);
-			}
-		}
-
-		public void setOpen(int open) {
-			if (open != this.open) {
-				this.open = open;
-				markDirty2();
-				if (open == 1 && getWorld2() != null) {
-					getWorld2().setBlockState(getPos2(), getWorld2().getBlockState(getPos2()).with(new Property<>(TEMP.data), false));
-				}
-			}
-		}
-
-		public float getOpen(float lastFrameDuration) {
-			final float change = lastFrameDuration * 0.95F;
-			if (Math.abs(open - SMALL_OFFSET_16 * 2 - openClient) < change) {
-				openClient = open - SMALL_OFFSET_16 * 2;
-			} else if (openClient < open) {
-				openClient += change;
-			} else {
-				openClient -= change;
-			}
-			return openClient / 32;
-		}
-
-		public boolean isOpen() {
-			return open > 0;
+		public double getDoorValue() {
+			return doorValue;
 		}
 	}
 }
