@@ -111,7 +111,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 		}
 
 		public void open(double vehicleDoorValue) {
-			doorValue = Utilities.clamp(vehicleDoorValue, 0, 1);
+			doorValue = Utilities.clamp(vehicleDoorValue * 2, 0, 1);
 		}
 
 		public double getDoorValue() {

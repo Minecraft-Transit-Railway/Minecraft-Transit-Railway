@@ -50,35 +50,33 @@ public class RenderVehicles implements IGui {
 			final ObjectArrayList<PreviousConnectionPositions> previousBarrierPositionsList = new ObjectArrayList<>();
 			final PreviousGangwayMovementPositions previousGangwayMovementPositions = new PreviousGangwayMovementPositions();
 			// Calculating vehicle transformations in advance
-			final ObjectArrayList<VehicleProperties> vehiclePropertiesList = vehicle.getVehicleCarsAndPositions().stream().map(VehicleProperties::new).collect(Collectors.toCollection(ObjectArrayList::new));
-			final Vector3d ridingPerspectiveOffset = getRidingPerspectiveOffset(vehicle, vehiclePropertiesList);
+			final ObjectArrayList<VehicleProperties> vehiclePropertiesList = getTransformedVehiclePropertiesList(vehicle, vehicle.getVehicleCarsAndPositions().stream().map(VehicleProperties::new).collect(Collectors.toCollection(ObjectArrayList::new)));
 
 			// Iterate all cars of a vehicle
 			iterateWithIndex(vehiclePropertiesList, (carNumber, vehicleProperties) -> CustomResourceLoader.getVehicleById(vehicle.getTransportMode(), vehicleProperties.vehicleCar.getVehicleId(), vehicleResource -> {
-				final RenderVehicleTransformationHelper renderVehicleTransformationHelper = vehicleProperties.renderVehicleTransformationHelper;
-				// Calculate the relative offset of the vehicle car with respect to the player position
-				final Vector3d ridingPerspectiveCarOffset = ridingPerspectiveOffset == null ? null : new Vector3d(renderVehicleTransformationHelper.pivotPosition.x, renderVehicleTransformationHelper.pivotPosition.y, renderVehicleTransformationHelper.pivotPosition.z).subtract(ridingPerspectiveOffset);
+				final RenderVehicleTransformationHelper renderVehicleTransformationHelperAbsolute = vehicleProperties.renderVehicleTransformationHelperAbsolute;
+				final RenderVehicleTransformationHelper renderVehicleTransformationHelperOffset = vehicleProperties.renderVehicleTransformationHelperOffset;
 
 				// Render each bogie of the car
 				for (int bogieIndex = 0; bogieIndex < vehicleProperties.bogiePositionsList.size(); bogieIndex++) {
-					final RenderVehicleTransformationHelper bogieRenderVehicleTransformationHelper = new RenderVehicleTransformationHelper(vehicleProperties.bogiePositionsList.get(bogieIndex));
-					vehicleResource.iterateBogieModels(bogieIndex, model -> renderModel(bogieRenderVehicleTransformationHelper, ridingPerspectiveCarOffset, storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, bogieRenderVehicleTransformationHelper.light, null)));
+					final RenderVehicleTransformationHelper renderVehicleTransformationHelperBogie = new RenderVehicleTransformationHelper(vehicleProperties.bogiePositionsList.get(bogieIndex), renderVehicleTransformationHelperOffset);
+					vehicleResource.iterateBogieModels(bogieIndex, model -> renderModel(renderVehicleTransformationHelperBogie, storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperBogie.light, null)));
 				}
 
 				// Player position relative to the car
-				final Vector3d playerPosition = renderVehicleTransformationHelper.transformBackwards(clientPlayerEntity.getPos(), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+				final Vector3d playerPosition = renderVehicleTransformationHelperAbsolute.transformBackwards(clientPlayerEntity.getPos(), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
 				// A temporary list to store all floors and doorways
 				final ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsAndDoorways = new ObjectArrayList<>();
 				// Extra floors to be used to define where the gangways are
-				final GangwayMovementPositions gangwayMovementPositions1 = new GangwayMovementPositions(renderVehicleTransformationHelper, false);
-				final GangwayMovementPositions gangwayMovementPositions2 = new GangwayMovementPositions(renderVehicleTransformationHelper, true);
+				final GangwayMovementPositions gangwayMovementPositions1 = new GangwayMovementPositions(renderVehicleTransformationHelperAbsolute, false);
+				final GangwayMovementPositions gangwayMovementPositions2 = new GangwayMovementPositions(renderVehicleTransformationHelperAbsolute, true);
 				// Find open doorways (close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates)
-				final ObjectArrayList<Box> openDoorways = vehicle.isMoving() ? new ObjectArrayList<>() : vehicleResource.doorways.stream().filter(doorway -> canOpenDoors(doorway, renderVehicleTransformationHelper, vehicle.persistentVehicleData.getDoorValue())).collect(Collectors.toCollection(ObjectArrayList::new));
+				final ObjectArrayList<Box> openDoorways = vehicle.isMoving() || !vehicle.persistentVehicleData.checkCanOpenDoors() ? new ObjectArrayList<>() : vehicleResource.doorways.stream().filter(doorway -> canOpenDoors(doorway, renderVehicleTransformationHelperAbsolute, vehicle.persistentVehicleData.getDoorValue())).collect(Collectors.toCollection(ObjectArrayList::new));
 
 				if (canRide) {
 					vehicleResource.floors.forEach(floor -> {
 						floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(floor, true));
-						renderFloorOrDoorway(floor, ARGB_WHITE, playerPosition, renderVehicleTransformationHelper, ridingPerspectiveOffset);
+						renderFloorOrDoorway(floor, ARGB_WHITE, playerPosition, renderVehicleTransformationHelperOffset);
 						// Find the floors with the lowest and highest Z values to be used to define where the gangways are
 						gangwayMovementPositions1.check(floor);
 						gangwayMovementPositions2.check(floor);
@@ -86,16 +84,16 @@ public class RenderVehicles implements IGui {
 
 					openDoorways.forEach(doorway -> {
 						floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(doorway, false));
-						renderFloorOrDoorway(doorway, 0xFFFF0000, playerPosition, renderVehicleTransformationHelper, ridingPerspectiveOffset);
+						renderFloorOrDoorway(doorway, 0xFFFF0000, playerPosition, renderVehicleTransformationHelperOffset);
 					});
 
 					// Check and mount player
-					VehicleRidingMovement.startRiding(openDoorways, vehicle.getId(), carNumber, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped());
+					VehicleRidingMovement.startRiding(openDoorways, vehicle.getId(), carNumber, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped(), renderVehicleTransformationHelperAbsolute.yaw);
 				}
 
 				// Each car can have more than one model defined
-				renderModel(renderVehicleTransformationHelper, ridingPerspectiveCarOffset, storedMatrixTransformations -> vehicleResource.iterateModels((modelIndex, model) -> {
-					model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelper.light, openDoorways);
+				renderModel(renderVehicleTransformationHelperOffset, storedMatrixTransformations -> vehicleResource.iterateModels((modelIndex, model) -> {
+					model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperAbsolute.light, openDoorways);
 
 					if (modelIndex >= previousGangwayPositionsList.size()) {
 						previousGangwayPositionsList.add(new PreviousConnectionPositions());
@@ -117,8 +115,7 @@ public class RenderVehicles implements IGui {
 							model.modelProperties.gangwayOuterSideTexture,
 							model.modelProperties.gangwayOuterTopTexture,
 							model.modelProperties.gangwayOuterBottomTexture,
-							renderVehicleTransformationHelper,
-							ridingPerspectiveOffset,
+							renderVehicleTransformationHelperOffset,
 							vehicleProperties.vehicleCar.getLength(),
 							model.modelProperties.getGangwayWidth(),
 							model.modelProperties.getGangwayHeight(),
@@ -139,8 +136,7 @@ public class RenderVehicles implements IGui {
 							model.modelProperties.barrierOuterSideTexture,
 							model.modelProperties.barrierOuterTopTexture,
 							model.modelProperties.barrierOuterBottomTexture,
-							renderVehicleTransformationHelper,
-							ridingPerspectiveOffset,
+							renderVehicleTransformationHelperOffset,
 							vehicleProperties.vehicleCar.getLength(),
 							model.modelProperties.getBarrierWidth(),
 							model.modelProperties.getBarrierHeight(),
@@ -153,12 +149,12 @@ public class RenderVehicles implements IGui {
 				// If the vehicle has gangways, add extra floors to define where the gangways are
 				if (vehicleResource.hasGangway1()) {
 					final Box gangwayConnectionFloor1 = gangwayMovementPositions1.getBox();
-					renderFloorOrDoorway(gangwayConnectionFloor1, 0xFF0000FF, playerPosition, renderVehicleTransformationHelper, ridingPerspectiveOffset);
+					renderFloorOrDoorway(gangwayConnectionFloor1, 0xFF0000FF, playerPosition, renderVehicleTransformationHelperOffset);
 					floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(gangwayConnectionFloor1, true));
 				}
 				if (vehicleResource.hasGangway2()) {
 					final Box gangwayConnectionFloor2 = gangwayMovementPositions2.getBox();
-					renderFloorOrDoorway(gangwayConnectionFloor2, 0xFF0000FF, playerPosition, renderVehicleTransformationHelper, ridingPerspectiveOffset);
+					renderFloorOrDoorway(gangwayConnectionFloor2, 0xFF0000FF, playerPosition, renderVehicleTransformationHelperOffset);
 					floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(gangwayConnectionFloor2, true));
 				}
 
@@ -170,7 +166,7 @@ public class RenderVehicles implements IGui {
 							vehicleResource.hasGangway1() ? previousGangwayMovementPositions.gangwayMovementPositions : null,
 							vehicleResource.hasGangway1() ? gangwayMovementPositions1 : null,
 							vehicleResource.hasGangway2() ? gangwayMovementPositions2 : null,
-							renderVehicleTransformationHelper
+							renderVehicleTransformationHelperAbsolute
 					);
 				}
 
@@ -239,13 +235,8 @@ public class RenderVehicles implements IGui {
 		return canOpenDoors;
 	}
 
-	private static void renderModel(RenderVehicleTransformationHelper renderVehicleTransformationHelper, @Nullable Vector3d ridingPerspectiveCarOffset, Consumer<StoredMatrixTransformations> render) {
-		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
-		if (clientWorld == null) {
-			return;
-		}
-
-		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(ridingPerspectiveCarOffset == null);
+	private static void renderModel(RenderVehicleTransformationHelper renderVehicleTransformationHelper, Consumer<StoredMatrixTransformations> render) {
+		final StoredMatrixTransformations storedMatrixTransformations = renderVehicleTransformationHelper.getStoredMatrixTransformations();
 		storedMatrixTransformations.add(graphicsHolder -> renderVehicleTransformationHelper.transformBackwards(new Object(), (object, pitch) -> {
 			graphicsHolder.rotateXRadians((float) (Math.PI - pitch)); // Blockbench exports models upside down
 			return new Object();
@@ -253,11 +244,7 @@ public class RenderVehicles implements IGui {
 			graphicsHolder.rotateYRadians((float) (Math.PI - yaw));
 			return new Object();
 		}, (object, x, y, z) -> {
-			if (ridingPerspectiveCarOffset == null) {
-				graphicsHolder.translate(-x, -y, -z);
-			} else {
-				graphicsHolder.translate(ridingPerspectiveCarOffset.getXMapped(), ridingPerspectiveCarOffset.getYMapped(), ridingPerspectiveCarOffset.getZMapped());
-			}
+			graphicsHolder.translate(-x, -y, -z);
 			return new Object();
 		}));
 
@@ -273,7 +260,6 @@ public class RenderVehicles implements IGui {
 			@Nullable Identifier outerTopTexture,
 			@Nullable Identifier outerBottomTexture,
 			RenderVehicleTransformationHelper renderVehicleTransformationHelper,
-			@Nullable Vector3d ridingPerspectiveOffset,
 			double vehicleLength, double width, double height, double yOffset, double zOffset, boolean isOnRoute
 	) {
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
@@ -297,37 +283,37 @@ public class RenderVehicles implements IGui {
 			final BlockPos blockPosConnection = Init.newBlockPos(position1.x, position1.y + 1, position1.z);
 			final int lightConnection = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPosConnection), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPosConnection));
 
-			RenderTrains.scheduleRender(outerSideTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			RenderTrains.scheduleRender(outerSideTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
 				// Sides
-				drawTexture(graphicsHolder, position2, position7, position8, position1, ridingPerspectiveOffset, offset, lightConnection);
-				drawTexture(graphicsHolder, position6, position3, position4, position5, ridingPerspectiveOffset, offset, lightConnection);
-			});
+				drawTexture(graphicsHolder, position2, position7, position8, position1, newOffset, lightConnection);
+				drawTexture(graphicsHolder, position6, position3, position4, position5, newOffset, lightConnection);
+			}));
 
-			RenderTrains.scheduleRender(outerTopTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			RenderTrains.scheduleRender(outerTopTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
 				// Top
-				drawTexture(graphicsHolder, position3, position6, position7, position2, ridingPerspectiveOffset, offset, lightConnection);
-			});
+				drawTexture(graphicsHolder, position3, position6, position7, position2, newOffset, lightConnection);
+			}));
 
-			RenderTrains.scheduleRender(outerBottomTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			RenderTrains.scheduleRender(outerBottomTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
 				// Bottom
-				drawTexture(graphicsHolder, position1, position8, position5, position4, ridingPerspectiveOffset, offset, lightConnection);
-			});
+				drawTexture(graphicsHolder, position1, position8, position5, position4, newOffset, lightConnection);
+			}));
 
-			RenderTrains.scheduleRender(innerSideTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			RenderTrains.scheduleRender(innerSideTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
 				// Sides
-				drawTexture(graphicsHolder, position7, position2, position1, position8, ridingPerspectiveOffset, offset, canHaveLight && isOnRoute ? MAX_LIGHT_GLOWING : lightConnection);
-				drawTexture(graphicsHolder, position3, position6, position5, position4, ridingPerspectiveOffset, offset, canHaveLight && isOnRoute ? MAX_LIGHT_GLOWING : lightConnection);
-			});
+				drawTexture(graphicsHolder, position7, position2, position1, position8, newOffset, canHaveLight && isOnRoute ? MAX_LIGHT_GLOWING : lightConnection);
+				drawTexture(graphicsHolder, position3, position6, position5, position4, newOffset, canHaveLight && isOnRoute ? MAX_LIGHT_GLOWING : lightConnection);
+			}));
 
-			RenderTrains.scheduleRender(innerTopTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			RenderTrains.scheduleRender(innerTopTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
 				// Top
-				drawTexture(graphicsHolder, position6, position3, position2, position7, ridingPerspectiveOffset, offset, canHaveLight && isOnRoute ? MAX_LIGHT_GLOWING : lightConnection);
-			});
+				drawTexture(graphicsHolder, position6, position3, position2, position7, newOffset, canHaveLight && isOnRoute ? MAX_LIGHT_GLOWING : lightConnection);
+			}));
 
-			RenderTrains.scheduleRender(innerBottomTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			RenderTrains.scheduleRender(innerBottomTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
 				// Bottom
-				drawTexture(graphicsHolder, position8, position1, position4, position5, ridingPerspectiveOffset, offset, canHaveLight && isOnRoute ? MAX_LIGHT_GLOWING : lightConnection);
-			});
+				drawTexture(graphicsHolder, position8, position1, position4, position5, newOffset, canHaveLight && isOnRoute ? MAX_LIGHT_GLOWING : lightConnection);
+			}));
 		}
 
 		if (shouldRender2) {
@@ -343,7 +329,7 @@ public class RenderVehicles implements IGui {
 		}
 	}
 
-	private static void renderFloorOrDoorway(Box floorOrDoorway, int color, Vector3d playerPosition, RenderVehicleTransformationHelper renderVehicleTransformationHelper, @Nullable Vector3d ridingPerspectiveOffset) {
+	private static void renderFloorOrDoorway(Box floorOrDoorway, int color, Vector3d playerPosition, RenderVehicleTransformationHelper renderVehicleTransformationHelper) {
 		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
 		if (clientPlayerEntity != null && clientPlayerEntity.isHolding(Items.BRUSH.get())) {
 			final Vector3d corner1 = renderVehicleTransformationHelper.transformForwards(new Vector3d(floorOrDoorway.getMinXMapped(), floorOrDoorway.getMaxYMapped(), floorOrDoorway.getMinZMapped()), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
@@ -367,50 +353,49 @@ public class RenderVehicles implements IGui {
 					playerPosition.getYMapped(),
 					playerPosition.getZMapped() + HALF_PLAYER_WIDTH
 			) ? 0xFF00FF00 : color;
-			RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.LINES, (graphicsHolder, offset) -> {
-				drawLine(graphicsHolder, corner1, corner2, ridingPerspectiveOffset, offset, newColor);
-				drawLine(graphicsHolder, corner2, corner3, ridingPerspectiveOffset, offset, newColor);
-				drawLine(graphicsHolder, corner3, corner4, ridingPerspectiveOffset, offset, newColor);
-				drawLine(graphicsHolder, corner4, corner1, ridingPerspectiveOffset, offset, newColor);
-			});
+			RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.LINES, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
+				drawLine(graphicsHolder, corner1, corner2, newOffset, newColor);
+				drawLine(graphicsHolder, corner2, corner3, newOffset, newColor);
+				drawLine(graphicsHolder, corner3, corner4, newOffset, newColor);
+				drawLine(graphicsHolder, corner4, corner1, newOffset, newColor);
+			}));
 		}
 	}
 
 	/**
-	 * @return the absolute world position of the player or {@code null} if the player is not riding a vehicle
+	 * @return an updated list of vehicle car properties with rendering offset information
 	 */
-	@Nullable
-	private static Vector3d getRidingPerspectiveOffset(VehicleExtension vehicle, ObjectArrayList<VehicleProperties> vehiclePropertiesList) {
-		if (vehicle.isMoving()) {
-			final IntObjectImmutablePair<Vector3d> ridingVehicleCarNumberAndPosition = VehicleRidingMovement.getRidingVehicleCarNumberAndPosition(vehicle.getId());
-			if (ridingVehicleCarNumberAndPosition != null) {
-				final VehicleProperties vehicleProperties = vehiclePropertiesList.get(ridingVehicleCarNumberAndPosition.leftInt());
-				final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
-				if (vehicleProperties != null && clientPlayerEntity != null) {
-					return vehicleProperties.renderVehicleTransformationHelper.transformForwards(ridingVehicleCarNumberAndPosition.right().add(0, clientPlayerEntity.getStandingEyeHeight(), 0), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
-				}
+	private static ObjectArrayList<VehicleProperties> getTransformedVehiclePropertiesList(VehicleExtension vehicle, ObjectArrayList<VehicleProperties> vehiclePropertiesList) {
+		final IntObjectImmutablePair<ObjectObjectImmutablePair<Vector3d, Double>> ridingVehicleCarNumberAndOffset = VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(vehicle.getId());
+		if (ridingVehicleCarNumberAndOffset != null) {
+			final VehicleProperties ridingVehicleProperties = vehiclePropertiesList.get(ridingVehicleCarNumberAndOffset.leftInt());
+			if (ridingVehicleProperties != null) {
+				final Vector3d playerRelativePosition = ridingVehicleCarNumberAndOffset.right().left();
+				final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+				final ClientPlayerEntity clientPlayerEntity = minecraftClient.getGameRendererMapped().getCamera().isThirdPerson() ? null : minecraftClient.getPlayerMapped();
+				final double playerYOffset = playerRelativePosition.rotateX((float) ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.pitch).getYMapped() - playerRelativePosition.getYMapped() + (clientPlayerEntity == null ? 0 : clientPlayerEntity.getStandingEyeHeight());
+				return vehiclePropertiesList.stream().map(vehicleProperties -> new VehicleProperties(vehicleProperties.vehicleCar, vehicleProperties.bogiePositionsList.stream().map(bogiePositions -> new ObjectObjectImmutablePair<>(
+						ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.transformBackwards(bogiePositions.left(), (vector, pitch) -> vector, Vector::rotateY, Vector::add).add(-playerRelativePosition.getXMapped(), -playerRelativePosition.getYMapped() - playerYOffset, -playerRelativePosition.getZMapped()),
+						ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.transformBackwards(bogiePositions.right(), (vector, pitch) -> vector, Vector::rotateY, Vector::add).add(-playerRelativePosition.getXMapped(), -playerRelativePosition.getYMapped() - playerYOffset, -playerRelativePosition.getZMapped())
+				)).collect(Collectors.toCollection(ObjectArrayList::new)), vehicleProperties.renderVehicleTransformationHelperAbsolute, ridingVehicleProperties.renderVehicleTransformationHelperAbsolute, ridingVehicleCarNumberAndOffset.right().right())).collect(Collectors.toCollection(ObjectArrayList::new));
 			}
 		}
 
-		return null;
+		return vehiclePropertiesList;
 	}
 
-	private static void drawTexture(GraphicsHolder graphicsHolder, Vector position1, Vector position2, Vector position3, Vector position4, @Nullable Vector3d ridingPerspectiveOffset, Vector3d defaultOffset, int light) {
-		final double offsetX = ridingPerspectiveOffset == null ? 0 : ridingPerspectiveOffset.getXMapped();
-		final double offsetY = ridingPerspectiveOffset == null ? 0 : ridingPerspectiveOffset.getYMapped();
-		final double offsetZ = ridingPerspectiveOffset == null ? 0 : ridingPerspectiveOffset.getZMapped();
+	private static void drawTexture(GraphicsHolder graphicsHolder, Vector position1, Vector position2, Vector position3, Vector position4, Vector3d offset, int light) {
 		IDrawing.drawTexture(
 				graphicsHolder,
-				position1.x - offsetX, position1.y - offsetY, position1.z - offsetZ,
-				position2.x - offsetX, position2.y - offsetY, position2.z - offsetZ,
-				position3.x - offsetX, position3.y - offsetY, position3.z - offsetZ,
-				position4.x - offsetX, position4.y - offsetY, position4.z - offsetZ,
-				ridingPerspectiveOffset == null ? defaultOffset : Vector3d.getZeroMapped(), 0, 0, 1, 1, Direction.UP, ARGB_WHITE, light
+				position1.x, position1.y, position1.z,
+				position2.x, position2.y, position2.z,
+				position3.x, position3.y, position3.z,
+				position4.x, position4.y, position4.z,
+				offset, 0, 0, 1, 1, Direction.UP, ARGB_WHITE, light
 		);
 	}
 
-	private static void drawLine(GraphicsHolder graphicsHolder, Vector3d corner1, Vector3d corner2, @Nullable Vector3d ridingPerspectiveOffset, Vector3d defaultOffset, int color) {
-		final Vector3d offset = ridingPerspectiveOffset == null ? defaultOffset : ridingPerspectiveOffset;
+	private static void drawLine(GraphicsHolder graphicsHolder, Vector3d corner1, Vector3d corner2, Vector3d offset, int color) {
 		graphicsHolder.drawLineInWorld(
 				(float) (corner1.getXMapped() - offset.getXMapped()), (float) (corner1.getYMapped() - offset.getYMapped()), (float) (corner1.getZMapped() - offset.getZMapped()),
 				(float) (corner2.getXMapped() - offset.getXMapped()), (float) (corner2.getYMapped() - offset.getYMapped()), (float) (corner2.getZMapped() - offset.getZMapped()),
@@ -428,12 +413,38 @@ public class RenderVehicles implements IGui {
 
 		private final VehicleCar vehicleCar;
 		private final ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>> bogiePositionsList;
-		private final RenderVehicleTransformationHelper renderVehicleTransformationHelper;
+		private final RenderVehicleTransformationHelper renderVehicleTransformationHelperAbsolute;
+		private final RenderVehicleTransformationHelper renderVehicleTransformationHelperOffset;
 
 		private VehicleProperties(ObjectObjectImmutablePair<VehicleCar, ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>>> vehicleCarAndPosition) {
 			vehicleCar = vehicleCarAndPosition.left();
 			bogiePositionsList = vehicleCarAndPosition.right();
-			renderVehicleTransformationHelper = new RenderVehicleTransformationHelper(bogiePositionsList, vehicleCar.getBogie1Position(), vehicleCar.getBogie2Position(), vehicleCar.getLength());
+			renderVehicleTransformationHelperAbsolute = renderVehicleTransformationHelperOffset = new RenderVehicleTransformationHelper(
+					bogiePositionsList,
+					vehicleCar.getBogie1Position(),
+					vehicleCar.getBogie2Position(),
+					vehicleCar.getLength(),
+					false,
+					false,
+					0,
+					0
+			);
+		}
+
+		private VehicleProperties(VehicleCar vehicleCar, ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>> bogiePositionsList, RenderVehicleTransformationHelper renderVehicleTransformationHelperAbsolute, RenderVehicleTransformationHelper ridingRenderVehicleTransformationHelperAbsolute, @Nullable Double ridingYawDifference) {
+			this.vehicleCar = vehicleCar;
+			this.bogiePositionsList = bogiePositionsList;
+			this.renderVehicleTransformationHelperAbsolute = renderVehicleTransformationHelperAbsolute;
+			renderVehicleTransformationHelperOffset = new RenderVehicleTransformationHelper(
+					bogiePositionsList,
+					vehicleCar.getBogie1Position(),
+					vehicleCar.getBogie2Position(),
+					vehicleCar.getLength(),
+					true,
+					ridingYawDifference != null,
+					ridingYawDifference == null ? ridingRenderVehicleTransformationHelperAbsolute.yaw : ridingYawDifference,
+					-ridingRenderVehicleTransformationHelperAbsolute.pitch
+			);
 		}
 	}
 

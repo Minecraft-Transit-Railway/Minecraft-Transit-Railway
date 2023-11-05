@@ -4,6 +4,7 @@ import org.mtr.core.tools.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mod.InitClient;
@@ -26,6 +27,9 @@ public class VehicleRidingMovement {
 	private static int ridingVehicleCarNumberCacheOld;
 	private static Vector3d ridingPositionCacheOld;
 	private static Vector3d ridingPositionCache;
+	private static Double ridingYawDifferenceOld;
+	private static Double ridingYawDifference;
+	private static double previousVehicleYaw;
 
 	private static final float VEHICLE_WALKING_SPEED_MULTIPLIER = 0.005F;
 	private static final int RIDING_COOL_DOWN = 5;
@@ -37,14 +41,18 @@ public class VehicleRidingMovement {
 			// If no vehicles are updating the player's position, dismount the player
 			ridingVehicleId = 0;
 		}
-		ridingVehicleCarNumberCacheOld = ridingVehicleCarNumber;
-		ridingPositionCacheOld = ridingPositionCache;
+
+		if (ridingPositionCache != null) {
+			ridingVehicleCarNumberCacheOld = ridingVehicleCarNumber;
+			ridingPositionCacheOld = ridingPositionCache;
+			ridingYawDifferenceOld = ridingYawDifference;
+		}
 	}
 
 	/**
 	 * Iterate through all open doorways and see if the player is intersecting any of them. If so, start riding the vehicle.
 	 */
-	public static void startRiding(ObjectArrayList<Box> openDoorways, long vehicleId, int carNumber, double x, double y, double z) {
+	public static void startRiding(ObjectArrayList<Box> openDoorways, long vehicleId, int carNumber, double x, double y, double z, double yaw) {
 		if (ridingVehicleId == 0 || ridingVehicleId == vehicleId) {
 			for (final Box doorway : openDoorways) {
 				if (RenderVehicles.boxContains(doorway, x, y, z)) {
@@ -54,6 +62,11 @@ public class VehicleRidingMovement {
 					ridingVehicleY = y;
 					ridingVehicleZ = z;
 					isOnGangway = false;
+					ridingPositionCacheOld = null;
+					ridingPositionCache = null;
+					ridingYawDifferenceOld = null;
+					ridingYawDifference = null;
+					previousVehicleYaw = yaw;
 				}
 			}
 		}
@@ -95,12 +108,14 @@ public class VehicleRidingMovement {
 						isOnGangway = false;
 						ridingVehicleX = thisCarGangwayMovementPositions1.getX(ridingVehicleX);
 						ridingVehicleZ = thisCarGangwayMovementPositions1.getZ() + ridingVehicleZ + movementZ - 1;
+						ridingPositionCache = null;
 					} else if (ridingVehicleZ + movementZ < 0) {
 						// If player has left the gangway (in the -Z direction) and consequently moved to the previous car, convert back to non-gangway positioning for ridingVehicleX and Z
 						isOnGangway = false;
 						ridingVehicleCarNumber--;
 						ridingVehicleX = previousCarGangwayMovementPositions.getX(ridingVehicleX);
 						ridingVehicleZ = previousCarGangwayMovementPositions.getZ() + ridingVehicleZ + movementZ;
+						ridingPositionCache = null;
 					} else {
 						// Gangway positioning logic
 						ridingVehicleX = Utilities.clamp(ridingVehicleX + movementX, 0, 1);
@@ -136,12 +151,14 @@ public class VehicleRidingMovement {
 					isOnGangway = true;
 					ridingVehicleX = thisCarGangwayMovementPositions1.getPercentageX(ridingVehicleX + movementX);
 					ridingVehicleZ = thisCarGangwayMovementPositions1.getPercentageZ(ridingVehicleZ + movementZ);
+					ridingPositionCache = null;
 				} else if (thisCarGangwayMovementPositions2 != null && thisCarGangwayMovementPositions2.getPercentageZ(ridingVehicleZ + movementZ) > 0) {
 					// If player has entered the gangway (in the +Z direction) and consequently moved to the next car, convert to gangway positioning for ridingVehicleX and Z
 					isOnGangway = true;
 					ridingVehicleCarNumber++;
 					ridingVehicleX = thisCarGangwayMovementPositions2.getPercentageX(ridingVehicleX + movementX);
 					ridingVehicleZ = thisCarGangwayMovementPositions2.getPercentageZ(ridingVehicleZ + movementZ);
+					ridingPositionCache = null;
 				} else {
 					// Calculate and store all the offsets that should be applied to the player to keep them in bounds of the floors
 					final ObjectArrayList<Vector3d> offsets = new ObjectArrayList<>();
@@ -175,16 +192,22 @@ public class VehicleRidingMovement {
 					ridingPositionCache = new Vector3d(ridingVehicleX, ridingVehicleY, ridingVehicleZ);
 					final Vector3d newPlayerPosition = renderVehicleTransformationHelper.transformForwards(ridingPositionCache, Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
 					movePlayer(newPlayerPosition.getXMapped(), newPlayerPosition.getYMapped(), newPlayerPosition.getZMapped());
+					final Entity entity = new Entity(clientPlayerEntity.data);
+					EntityHelper.setYaw(entity, (float) Math.toDegrees(previousVehicleYaw - renderVehicleTransformationHelper.yaw) + EntityHelper.getYaw(entity));
 				}
 			}
+
+			ridingYawDifference = Math.abs(renderVehicleTransformationHelper.yaw - previousVehicleYaw) > 0.001 ? renderVehicleTransformationHelper.yaw + Math.toRadians(EntityHelper.getYaw(new Entity(clientPlayerEntity.data))) : null;
+			previousVehicleYaw = renderVehicleTransformationHelper.yaw;
 		}
 	}
 
 	/**
-	 * @return {@code null} if the player is not riding a vehicle or an {@link IntObjectImmutablePair} of the car number the player is currently riding in and the relative position of the player with respect to the center of the car they are currently riding in.
+	 * @return {@code null} if the player is not riding a vehicle or an {@link IntObjectImmutablePair} of the car number the player is currently riding in and the relative position and yaw of the player with respect to the center of the car they are currently riding in.
 	 */
-	public static IntObjectImmutablePair<Vector3d> getRidingVehicleCarNumberAndPosition(long vehicleId) {
-		return vehicleId == ridingVehicleId ? new IntObjectImmutablePair<>(ridingVehicleCarNumberCacheOld, ridingPositionCacheOld) : null;
+	@Nullable
+	public static IntObjectImmutablePair<ObjectObjectImmutablePair<Vector3d, Double>> getRidingVehicleCarNumberAndOffset(long vehicleId) {
+		return vehicleId == ridingVehicleId ? new IntObjectImmutablePair<>(ridingVehicleCarNumberCacheOld, new ObjectObjectImmutablePair<>(ridingPositionCacheOld, ridingYawDifferenceOld)) : null;
 	}
 
 	/**
