@@ -9,6 +9,7 @@ import org.mtr.mod.client.ScrollingText;
 public final class PersistentVehicleData {
 
 	private double doorValue;
+	private int doorCoolDown;
 	private final ObjectArrayList<ObjectArrayList<ScrollingText>> scrollingTexts = new ObjectArrayList<>();
 
 	public ObjectArrayList<ScrollingText> getScrollingText(int car) {
@@ -20,9 +21,19 @@ public final class PersistentVehicleData {
 
 	public void tick(long millisElapsed, VehicleExtraData vehicleExtraData) {
 		doorValue = Utilities.clamp(doorValue + (double) (millisElapsed * vehicleExtraData.getDoorMultiplier()) / Vehicle.DOOR_MOVE_TIME, 0, 1);
+		if (checkCanOpenDoors()) {
+			doorCoolDown--;
+		}
+		if (doorValue > 0) {
+			doorCoolDown = 2;
+		}
 	}
 
 	public double getDoorValue() {
 		return doorValue;
+	}
+
+	public boolean checkCanOpenDoors() {
+		return doorCoolDown > 0;
 	}
 }

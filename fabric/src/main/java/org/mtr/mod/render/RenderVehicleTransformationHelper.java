@@ -5,16 +5,24 @@ import org.mtr.core.tools.Vector;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.EntityHelper;
+import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.Init;
+
+import java.util.function.Consumer;
 
 public class RenderVehicleTransformationHelper {
 
 	public final int light;
 	public final Vector pivotPosition;
-	private final double yaw;
-	private final double pitch;
+	public final double yaw;
+	public final double pitch;
+	private final boolean renderWithRespectToPlayerPosition;
+	private final boolean renderWithRespectToPlayerRotation;
+	private final double ridingYawDifference;
+	private final double ridingPitchDifference;
 
-	public RenderVehicleTransformationHelper(ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>> bogiePositionsList, double bogie1Position, double bogie2Position, double length) {
+	public RenderVehicleTransformationHelper(ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>> bogiePositionsList, double bogie1Position, double bogie2Position, double length, boolean renderWithRespectToPlayerPosition, boolean renderWithRespectToPlayerRotation, double ridingYawDifference, double ridingPitchDifference) {
 		if (bogiePositionsList.size() == 1 || bogiePositionsList.size() == 2) {
 			final Vector bogiesMidpoint;
 
@@ -44,13 +52,21 @@ public class RenderVehicleTransformationHelper {
 		}
 
 		light = getLight(pivotPosition);
+		this.renderWithRespectToPlayerPosition = renderWithRespectToPlayerPosition;
+		this.renderWithRespectToPlayerRotation = renderWithRespectToPlayerRotation;
+		this.ridingYawDifference = ridingYawDifference;
+		this.ridingPitchDifference = ridingPitchDifference;
 	}
 
-	public RenderVehicleTransformationHelper(ObjectObjectImmutablePair<Vector, Vector> bogiePositions) {
+	public RenderVehicleTransformationHelper(ObjectObjectImmutablePair<Vector, Vector> bogiePositions, RenderVehicleTransformationHelper renderVehicleTransformationHelper) {
 		pivotPosition = Vector.getAverage(bogiePositions.left(), bogiePositions.right());
 		yaw = getYaw(bogiePositions.left(), bogiePositions.right());
 		pitch = getPitch(bogiePositions.left(), bogiePositions.right());
 		light = getLight(pivotPosition);
+		renderWithRespectToPlayerPosition = renderVehicleTransformationHelper.renderWithRespectToPlayerPosition;
+		renderWithRespectToPlayerRotation = renderVehicleTransformationHelper.renderWithRespectToPlayerRotation;
+		ridingYawDifference = renderVehicleTransformationHelper.ridingYawDifference;
+		ridingPitchDifference = renderVehicleTransformationHelper.ridingPitchDifference;
 	}
 
 	public <T> T transformForwards(T initialValue, Rotate<T> rotateX, Rotate<T> rotateY, Translate<T> translate) {
@@ -59,6 +75,43 @@ public class RenderVehicleTransformationHelper {
 
 	public <T> T transformBackwards(T initialValue, Rotate<T> rotateX, Rotate<T> rotateY, Translate<T> translate) {
 		return rotateX.apply(rotateY.apply(translate.apply(initialValue, -pivotPosition.x, -pivotPosition.y, -pivotPosition.z), (float) -yaw), (float) -pitch);
+	}
+
+	public StoredMatrixTransformations getStoredMatrixTransformations() {
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(!renderWithRespectToPlayerPosition);
+		storedMatrixTransformations.add(this::transformGraphicsHolder);
+		return storedMatrixTransformations;
+	}
+
+	public void render(GraphicsHolder graphicsHolder, Vector3d offset, Consumer<Vector3d> newConsumer) {
+		graphicsHolder.push();
+		transformGraphicsHolder(graphicsHolder);
+		newConsumer.accept(renderWithRespectToPlayerPosition ? Vector3d.getZeroMapped() : offset);
+		graphicsHolder.pop();
+	}
+
+	private void transformGraphicsHolder(GraphicsHolder graphicsHolder) {
+		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+		final Camera camera = minecraftClient.getGameRendererMapped().getCamera();
+		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+		if (clientPlayerEntity == null) {
+			return;
+		}
+
+		if (renderWithRespectToPlayerPosition && camera.isThirdPerson()) {
+			// TODO third person not smooth
+			final Vector3d vector3d = clientPlayerEntity.getPos().subtract(camera.getPos());
+			graphicsHolder.translate(vector3d.getXMapped(), vector3d.getYMapped(), vector3d.getZMapped());
+		}
+
+		if (renderWithRespectToPlayerRotation) {
+			graphicsHolder.rotateYDegrees(-camera.getYaw());
+			if (camera.isThirdPerson() && Math.abs(EntityHelper.getYaw(new Entity(clientPlayerEntity.data)) - camera.getYaw()) > 90) {
+				graphicsHolder.rotateYDegrees(180);
+			}
+		}
+
+		graphicsHolder.rotateYRadians((float) ridingYawDifference);
 	}
 
 	private static int getLight(Vector pivotPosition) {
