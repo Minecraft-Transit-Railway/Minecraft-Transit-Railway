@@ -1,7 +1,7 @@
 package org.mtr.mod.screen;
 
 import org.mtr.core.data.NameColorDataBase;
-import org.mtr.core.tools.Utilities;
+import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.MutableText;

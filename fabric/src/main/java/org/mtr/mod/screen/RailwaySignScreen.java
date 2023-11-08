@@ -1,6 +1,5 @@
 package org.mtr.mod.screen;
 
-import org.mtr.core.data.SignResource;
 import org.mtr.core.data.Station;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
@@ -19,6 +18,7 @@ import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.PacketUpdateRailwaySignConfig;
 import org.mtr.mod.render.RenderRailwaySign;
+import org.mtr.mod.resource.SignResource;
 
 import javax.annotation.Nullable;
 

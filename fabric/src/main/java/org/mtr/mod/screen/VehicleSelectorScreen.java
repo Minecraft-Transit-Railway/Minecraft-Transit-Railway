@@ -3,7 +3,6 @@ package org.mtr.mod.screen;
 import org.mtr.core.data.Siding;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.data.VehicleCar;
-import org.mtr.core.data.VehicleResource;
 import org.mtr.core.servlet.IntegrationServlet;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -24,6 +23,7 @@ import org.mtr.mod.Patreon;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.packet.PacketData;
+import org.mtr.mod.resource.VehicleResource;
 
 import javax.annotation.Nullable;
 import java.util.List;

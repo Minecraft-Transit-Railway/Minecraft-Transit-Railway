@@ -1,8 +1,8 @@
 package org.mtr.mod.screen;
 
-import org.mtr.core.data.EnumHelper;
 import org.mtr.core.data.Lift;
-import org.mtr.core.tools.Angle;
+import org.mtr.core.tool.Angle;
+import org.mtr.core.tool.EnumHelper;
 import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.Direction;
 import org.mtr.mapping.holder.MutableText;

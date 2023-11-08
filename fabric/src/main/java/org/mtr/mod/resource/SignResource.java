@@ -1,11 +1,11 @@
-package org.mtr.core.data;
+package org.mtr.mod.resource;
 
-import org.mtr.core.generated.SignResourceSchema;
-import org.mtr.core.serializers.ReaderBase;
+import org.mtr.core.serializer.ReaderBase;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
+import org.mtr.mod.generated.resource.SignResourceSchema;
 
 public final class SignResource extends SignResourceSchema {
 

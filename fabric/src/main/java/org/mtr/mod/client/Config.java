@@ -1,6 +1,6 @@
 package org.mtr.mod.client;
 
-import org.mtr.core.tools.Utilities;
+import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.mapping.holder.MathHelper;

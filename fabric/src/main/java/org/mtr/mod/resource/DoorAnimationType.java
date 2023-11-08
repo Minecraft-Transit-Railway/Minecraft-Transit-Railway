@@ -1,7 +1,7 @@
-package org.mtr.core.data;
+package org.mtr.mod.resource;
 
 
-import org.mtr.core.tools.Utilities;
+import org.mtr.core.tool.Utilities;
 
 public enum DoorAnimationType {
 

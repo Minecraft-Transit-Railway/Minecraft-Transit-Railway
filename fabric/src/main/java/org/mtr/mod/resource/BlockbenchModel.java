@@ -1,8 +1,8 @@
-package org.mtr.core.data;
+package org.mtr.mod.resource;
 
-import org.mtr.core.generated.BlockbenchModelSchema;
-import org.mtr.core.serializers.ReaderBase;
+import org.mtr.core.serializer.ReaderBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.mod.generated.resource.BlockbenchModelSchema;
 
 public final class BlockbenchModel extends BlockbenchModelSchema {
 

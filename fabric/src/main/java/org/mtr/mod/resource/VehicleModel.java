@@ -1,9 +1,9 @@
-package org.mtr.core.data;
+package org.mtr.mod.resource;
 
-import org.mtr.core.generated.VehicleModelSchema;
-import org.mtr.core.serializers.JsonReader;
-import org.mtr.core.serializers.ReaderBase;
+import org.mtr.core.serializer.JsonReader;
+import org.mtr.core.serializer.ReaderBase;
 import org.mtr.mod.client.CustomResourceLoader;
+import org.mtr.mod.generated.resource.VehicleModelSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
 
 public final class VehicleModel extends VehicleModelSchema {

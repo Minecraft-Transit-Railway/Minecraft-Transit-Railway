@@ -2,7 +2,7 @@ package org.mtr.mod.data;
 
 import org.mtr.core.data.Vehicle;
 import org.mtr.core.data.VehicleExtraData;
-import org.mtr.core.tools.Utilities;
+import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mod.client.ScrollingText;
 

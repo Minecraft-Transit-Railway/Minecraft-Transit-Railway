@@ -2,7 +2,7 @@ package org.mtr.mod.item;
 
 import org.mtr.core.data.SignalModification;
 import org.mtr.core.data.TransportMode;
-import org.mtr.core.tools.Angle;
+import org.mtr.core.tool.Angle;
 import org.mtr.mapping.holder.*;
 import org.mtr.mod.Init;
 import org.mtr.mod.packet.PacketData;

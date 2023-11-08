@@ -1,13 +1,13 @@
 package org.mtr.mod.model;
 
 import org.mtr.core.data.InterchangeColorsForStationName;
-import org.mtr.core.data.RenderStage;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mod.client.DoorAnimationType;
 import org.mtr.mod.client.ScrollingText;
 import org.mtr.mod.render.StoredMatrixTransformations;
+import org.mtr.mod.resource.RenderStage;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;

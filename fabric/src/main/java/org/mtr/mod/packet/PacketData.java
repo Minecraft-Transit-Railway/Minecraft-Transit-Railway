@@ -6,11 +6,13 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.mtr.core.data.Position;
 import org.mtr.core.data.*;
-import org.mtr.core.serializers.JsonReader;
+import org.mtr.core.serializer.JsonReader;
+import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.servlet.IntegrationServlet;
-import org.mtr.core.tools.Position;
-import org.mtr.core.tools.Utilities;
+import org.mtr.core.tool.EnumHelper;
+import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonArray;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.com.google.gson.JsonParser;
@@ -182,7 +184,7 @@ public class PacketData extends PacketHandler {
 	}
 
 	public static void sendHttpRequest(String endpoint, JsonObject contentObject, Consumer<JsonObject> consumer) {
-		final HttpPost request = new HttpPost("http://localhost:8888/mtr/api/" + endpoint);
+		final HttpPost request = new HttpPost("http://localhost:8888/" + endpoint);
 		request.addHeader("content-type", "application/json");
 
 		try {
@@ -193,14 +195,22 @@ public class PacketData extends PacketHandler {
 
 		try (final CloseableHttpClient closeableHttpClient = HttpClients.createDefault(); final CloseableHttpResponse response = closeableHttpClient.execute(request)) {
 			final String result = EntityUtils.toString(response.getEntity());
-			consumer.accept(parseJson(result).getAsJsonObject("data"));
+			consumer.accept(parseJson(result));
 		} catch (Exception e) {
 			Init.logException(e);
 		}
 	}
 
+	public static JsonObject parseJson(String data) {
+		try {
+			return JsonParser.parseString(data).getAsJsonObject();
+		} catch (Exception ignored) {
+			return new JsonObject();
+		}
+	}
+
 	protected static void sendHttpDataRequest(IntegrationServlet.Operation operation, JsonObject contentObject, Consumer<JsonObject> consumer) {
-		sendHttpRequest("data/" + operation.getEndpoint(), contentObject, consumer);
+		sendHttpRequest("mtr/api/data/" + operation.getEndpoint(), contentObject, data -> consumer.accept(data.getAsJsonObject("data")));
 	}
 
 	private static <T extends SerializedDataBase> JsonArray writeDataSetToJsonArray(ObjectSet<T> dataSet) {
@@ -209,13 +219,5 @@ public class PacketData extends PacketHandler {
 			dataSet.forEach(data -> jsonArray.add(Utilities.getJsonObjectFromData(data)));
 		}
 		return jsonArray;
-	}
-
-	private static JsonObject parseJson(String data) {
-		try {
-			return JsonParser.parseString(data).getAsJsonObject();
-		} catch (Exception ignored) {
-			return new JsonObject();
-		}
 	}
 }

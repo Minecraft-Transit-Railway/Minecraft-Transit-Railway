@@ -5,7 +5,7 @@ import org.mtr.core.data.Depot;
 import org.mtr.core.data.Route;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.servlet.IntegrationServlet;
-import org.mtr.core.tools.Utilities;
+import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;

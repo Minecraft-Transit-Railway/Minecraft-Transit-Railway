@@ -78,9 +78,9 @@ public class WidgetShorterSlider extends SliderWidgetExtension implements IGui {
 		guiDrawing.beginDrawingTexture(new Identifier(String.format("textures/gui/sprites/widget/slider_handle%s.png", isHovered ? "_highlighted" : "")));
 		final int xOffset = (width - SLIDER_WIDTH) * getIntValue() / maxValue;
 		IGui.drawTexture(guiDrawing, getX2() + xOffset, getY2(), 0F, 0, SLIDER_WIDTH / 2, height / 2, 8, 20);
-		IGui.drawTexture(guiDrawing, getX2() + xOffset, getY2() + height / 2, 0F, 20 - height / 2, SLIDER_WIDTH / 2, height / 2, 8, 20);
-		IGui.drawTexture(guiDrawing, getX2() + xOffset + SLIDER_WIDTH / 2, getY2(), 200F - SLIDER_WIDTH / 2, 0, SLIDER_WIDTH / 2, height / 2, 8, 20);
-		IGui.drawTexture(guiDrawing, getX2() + xOffset + SLIDER_WIDTH / 2, getY2() + height / 2, 200F - SLIDER_WIDTH / 2, 20 - height / 2, SLIDER_WIDTH / 2, height / 2, 8, 20);
+		IGui.drawTexture(guiDrawing, getX2() + xOffset, getY2() + height / 2, 0, 20 - height / 2F, SLIDER_WIDTH / 2, height / 2, 8, 20);
+		IGui.drawTexture(guiDrawing, getX2() + xOffset + SLIDER_WIDTH / 2, getY2(), 200F - SLIDER_WIDTH / 2F, 0, SLIDER_WIDTH / 2, height / 2, 8, 20);
+		IGui.drawTexture(guiDrawing, getX2() + xOffset + SLIDER_WIDTH / 2, getY2() + height / 2, 200F - SLIDER_WIDTH / 2F, 20 - height / 2F, SLIDER_WIDTH / 2, height / 2, 8, 20);
 		guiDrawing.finishDrawingTexture();
 
 		graphicsHolder.drawText(getMessage2().getString(), getX2() + width + TEXT_PADDING, getY2() + (height - TEXT_HEIGHT) / 2, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
@@ -88,7 +88,11 @@ public class WidgetShorterSlider extends SliderWidgetExtension implements IGui {
 		if (markerFrequency > 0) {
 			for (int i = 1; i <= maxValue / markerFrequency; i++) {
 				final int xOffset1 = (width - SLIDER_WIDTH) * i * markerFrequency / maxValue;
-				IGui.drawTexture(guiDrawing, getX2() + xOffset1 + SLIDER_WIDTH / 3, getY2() + height, 10, 68, 2, TICK_HEIGHT);
+				final int x = getX2() + xOffset1 + SLIDER_WIDTH / 3;
+				final int y = getY2() + height;
+				guiDrawing.beginDrawingRectangle();
+				guiDrawing.drawRectangle(x, y, x + 2, y + TICK_HEIGHT, ARGB_GRAY);
+				guiDrawing.finishDrawingRectangle();
 				graphicsHolder.drawCenteredText(String.valueOf(i * markerFrequency / markerDisplayedRatio), getX2() + xOffset1 + SLIDER_WIDTH / 2, getY2() + height + TICK_HEIGHT + 2, ARGB_WHITE);
 			}
 		}

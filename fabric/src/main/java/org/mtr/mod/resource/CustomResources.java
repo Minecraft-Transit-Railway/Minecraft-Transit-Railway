@@ -1,7 +1,7 @@
-package org.mtr.core.data;
+package org.mtr.mod.resource;
 
-import org.mtr.core.generated.CustomResourcesSchema;
-import org.mtr.core.serializers.ReaderBase;
+import org.mtr.core.serializer.ReaderBase;
+import org.mtr.mod.generated.resource.CustomResourcesSchema;
 
 import java.util.function.Consumer;
 

@@ -1,7 +1,6 @@
 package org.mtr.mod.render;
 
 import org.mtr.core.data.NameColorDataBase;
-import org.mtr.core.data.SignResource;
 import org.mtr.core.data.Station;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
@@ -21,6 +20,7 @@ import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.resource.SignResource;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;

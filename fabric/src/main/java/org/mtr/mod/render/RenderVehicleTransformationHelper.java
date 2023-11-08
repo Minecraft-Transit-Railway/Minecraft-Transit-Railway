@@ -1,7 +1,7 @@
 package org.mtr.mod.render;
 
-import org.mtr.core.tools.Utilities;
-import org.mtr.core.tools.Vector;
+import org.mtr.core.tool.Utilities;
+import org.mtr.core.tool.Vector;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;

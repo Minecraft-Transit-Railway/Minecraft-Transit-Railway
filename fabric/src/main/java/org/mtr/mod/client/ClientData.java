@@ -1,12 +1,15 @@
 package org.mtr.mod.client;
 
+import org.mtr.core.data.Position;
 import org.mtr.core.data.*;
-import org.mtr.core.tools.Position;
+import org.mtr.libraries.com.google.gson.JsonArray;
+import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectLongImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.Init;
@@ -14,6 +17,7 @@ import org.mtr.mod.KeyBindings;
 import org.mtr.mod.data.PersistentVehicleData;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.packet.PacketDriveTrain;
+import org.mtr.mod.packet.PacketFetchArrivals;
 import org.mtr.mod.screen.DashboardListItem;
 
 import java.util.Comparator;
@@ -24,6 +28,7 @@ public final class ClientData extends Data {
 	public final ObjectAVLTreeSet<VehicleExtension> vehicles = new ObjectAVLTreeSet<>();
 	public final Long2ObjectAVLTreeMap<PersistentVehicleData> vehicleIdToPersistentVehicleData = new Long2ObjectAVLTreeMap<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
+	private final Long2ObjectAVLTreeMap<ObjectLongImmutablePair<JsonObject>> arrivalRequests = new Long2ObjectAVLTreeMap<>();
 
 	public static ClientData instance = new ClientData();
 	public static String DASHBOARD_SEARCH = "";
@@ -38,6 +43,8 @@ public final class ClientData extends Data {
 	private static boolean pressingDoors = false;
 	private static float shiftHoldingTicks = 0;
 
+	private static final int CACHED_ARRIVAL_REQUESTS_MILLIS = 3000;
+
 	@Override
 	public void sync() {
 		super.sync();
@@ -51,8 +58,26 @@ public final class ClientData extends Data {
 		idsToRemove.forEach(vehicleIdToPersistentVehicleData::remove);
 	}
 
-	public PersistentVehicleData getPersistentVehicleData(long vehicleId) {
-		return vehicleIdToPersistentVehicleData.getOrDefault(vehicleId, new PersistentVehicleData());
+	public JsonObject requestArrivals(long platformId) {
+		final ObjectLongImmutablePair<JsonObject> arrivalData = arrivalRequests.get(platformId);
+		if (arrivalData == null || arrivalData.rightLong() < System.currentTimeMillis()) {
+			RegistryClient.sendPacketToServer(new PacketFetchArrivals(platformId));
+			final JsonObject returnObject;
+			if (arrivalData == null) {
+				returnObject = new JsonObject();
+				returnObject.add("data", new JsonArray());
+			} else {
+				returnObject = arrivalData.left();
+			}
+			writeArrivalRequest(platformId, returnObject);
+			return returnObject;
+		} else {
+			return arrivalData.left();
+		}
+	}
+
+	public void writeArrivalRequest(long platformId, JsonObject jsonObject) {
+		arrivalRequests.put(platformId, new ObjectLongImmutablePair<>(jsonObject, System.currentTimeMillis() + CACHED_ARRIVAL_REQUESTS_MILLIS));
 	}
 
 	public static void tick() {

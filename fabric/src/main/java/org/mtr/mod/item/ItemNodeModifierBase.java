@@ -1,7 +1,7 @@
 package org.mtr.mod.item;
 
 import org.mtr.core.data.TransportMode;
-import org.mtr.core.tools.Angle;
+import org.mtr.core.tool.Angle;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.block.BlockNode;
