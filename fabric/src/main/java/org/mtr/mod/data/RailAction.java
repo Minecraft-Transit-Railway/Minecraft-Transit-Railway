@@ -1,8 +1,8 @@
 package org.mtr.mod.data;
 
 import org.mtr.core.data.Rail;
-import org.mtr.core.tools.Utilities;
-import org.mtr.core.tools.Vector;
+import org.mtr.core.tool.Utilities;
+import org.mtr.core.tool.Vector;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.SlabBlockExtension;
@@ -10,6 +10,7 @@ import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockNode;
 
+import javax.annotation.Nullable;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -33,7 +34,7 @@ public class RailAction {
 
 	private static final double INCREMENT = 0.01;
 
-	public RailAction(ServerWorld serverWorld, ServerPlayerEntity serverPlayerEntity, RailActionType railActionType, Rail rail, int radius, int height, BlockState state) {
+	public RailAction(ServerWorld serverWorld, ServerPlayerEntity serverPlayerEntity, RailActionType railActionType, Rail rail, int radius, int height, @Nullable BlockState state) {
 		id = new Random().nextLong();
 		this.serverWorld = serverWorld;
 		uuid = serverPlayerEntity.getUuid();

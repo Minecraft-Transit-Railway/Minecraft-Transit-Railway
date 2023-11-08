@@ -2,7 +2,6 @@ package org.mtr.mod.screen;
 
 import org.mtr.core.data.*;
 import org.mtr.core.servlet.IntegrationServlet;
-import org.mtr.core.tools.Position;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;

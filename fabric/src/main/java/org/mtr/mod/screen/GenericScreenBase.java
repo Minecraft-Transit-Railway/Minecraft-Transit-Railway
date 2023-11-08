@@ -1,6 +1,6 @@
 package org.mtr.mod.screen;
 
-import org.mtr.core.data.SerializedDataBase;
+import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.Screen;

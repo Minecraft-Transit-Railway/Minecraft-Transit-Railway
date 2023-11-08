@@ -1,7 +1,7 @@
 package org.mtr.mod.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import org.mtr.core.tools.Utilities;
+import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.ClientPlayerEntity;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MinecraftClient;

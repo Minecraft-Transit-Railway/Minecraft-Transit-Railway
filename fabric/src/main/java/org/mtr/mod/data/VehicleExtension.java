@@ -4,18 +4,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.mtr.core.data.Data;
 import org.mtr.core.data.Vehicle;
 import org.mtr.core.data.VehicleExtraData;
-import org.mtr.core.serializers.JsonReader;
-import org.mtr.core.tools.Utilities;
+import org.mtr.core.serializer.JsonReader;
+import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Items;
 import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.VehicleRidingMovement;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
 
-public class VehicleExtension extends Vehicle {
+public class VehicleExtension extends Vehicle implements Utilities {
 
 	public final PersistentVehicleData persistentVehicleData;
 	private static final int SHIFT_ACTIVATE_TICKS = 30;
@@ -50,9 +51,9 @@ public class VehicleExtension extends Vehicle {
 		final String thisRouteDestination = vehicleExtraData.getThisRouteDestination();
 
 		// Render client action bar floating text
-		if (clientPlayerEntity != null && showShiftProgressBar() && (!isCurrentlyManual || !isHoldingKey(clientPlayerEntity))) {
-			if (speed > 5 || thisRouteName.isEmpty() || thisStationName.isEmpty() || thisRouteDestination.isEmpty()) {
-				clientPlayerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr.vehicle_speed", Utilities.round(speed, 1), Utilities.round(speed * 3.6F, 1)).data), true);
+		if (clientPlayerEntity != null && VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(id) != null && showShiftProgressBar() && (!isCurrentlyManual || !isHoldingKey(clientPlayerEntity))) {
+			if (speed * MILLIS_PER_SECOND > 5 || thisRouteName.isEmpty() || thisStationName.isEmpty() || thisRouteDestination.isEmpty()) {
+				clientPlayerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr.vehicle_speed", Utilities.round(speed * MILLIS_PER_SECOND, 1), Utilities.round(speed * 3.6F * MILLIS_PER_SECOND, 1)).data), true);
 			} else {
 				final MutableText text;
 				switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {

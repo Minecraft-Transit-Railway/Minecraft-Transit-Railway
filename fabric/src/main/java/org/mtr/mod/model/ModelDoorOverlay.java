@@ -1,6 +1,5 @@
 package org.mtr.mod.model;
 
-import org.mtr.core.data.RenderStage;
 import org.mtr.mapping.holder.EntityAbstractMapping;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.RenderLayer;
@@ -11,6 +10,7 @@ import org.mtr.mod.Init;
 import org.mtr.mod.render.MoreRenderLayers;
 import org.mtr.mod.render.RenderTrains;
 import org.mtr.mod.render.StoredMatrixTransformations;
+import org.mtr.mod.resource.RenderStage;
 
 public class ModelDoorOverlay extends EntityModelExtension<EntityAbstractMapping> {
 

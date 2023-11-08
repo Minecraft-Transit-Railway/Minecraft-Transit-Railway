@@ -1,5 +1,6 @@
-package org.mtr.core.data;
+package org.mtr.mod.resource;
 
+import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.mapping.holder.Identifier;
 
 import javax.annotation.Nullable;

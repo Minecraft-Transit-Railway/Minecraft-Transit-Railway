@@ -1,12 +1,12 @@
 package org.mtr.mod;
 
 import org.mtr.core.Main;
-import org.mtr.core.client.Client;
-import org.mtr.core.generated.ClientGroupSchema;
-import org.mtr.core.serializers.JsonWriter;
+import org.mtr.core.data.Client;
+import org.mtr.core.data.Position;
+import org.mtr.core.generated.data.ClientGroupSchema;
+import org.mtr.core.serializer.JsonWriter;
 import org.mtr.core.servlet.IntegrationServlet;
-import org.mtr.core.tools.Position;
-import org.mtr.core.tools.Utilities;
+import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.libraries.io.socket.client.IO;
@@ -64,6 +64,7 @@ public final class Init implements Utilities {
 		Registry.registerPacket(PacketData.class, PacketData::new);
 		Registry.registerPacket(PacketDeleteRailAction.class, PacketDeleteRailAction::new);
 		Registry.registerPacket(PacketDriveTrain.class, PacketDriveTrain::new);
+		Registry.registerPacket(PacketFetchArrivals.class, PacketFetchArrivals::new);
 		Registry.registerPacket(PacketOpenBlockEntityScreen.class, PacketOpenBlockEntityScreen::new);
 		Registry.registerPacket(PacketOpenDashboardScreen.class, PacketOpenDashboardScreen::new);
 		Registry.registerPacket(PacketOpenLiftCustomizationScreen.class, PacketOpenLiftCustomizationScreen::new);
@@ -117,7 +118,7 @@ public final class Init implements Utilities {
 				final JsonObject timeObject = new JsonObject();
 				timeObject.addProperty("gameMillis", (WorldHelper.getTimeOfDay(minecraftServer.getOverworld()) + 6000) * SECONDS_PER_MC_HOUR);
 				timeObject.addProperty("millisPerDay", MILLIS_PER_MC_DAY);
-				PacketData.sendHttpRequest("misc/set-time", timeObject, responseObject -> {
+				PacketData.sendHttpRequest("mtr/api/operation/set-time", timeObject, responseObject -> {
 				});
 			};
 		});

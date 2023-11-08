@@ -1,6 +1,6 @@
 package org.mtr.mod.client;
 
-import org.mtr.core.tools.Utilities;
+import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.Vector3d;
 import org.mtr.mod.render.RenderVehicleTransformationHelper;

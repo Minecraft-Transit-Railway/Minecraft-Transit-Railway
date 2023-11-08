@@ -1,9 +1,9 @@
 package org.mtr.mod.item;
 
+import org.mtr.core.data.Position;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
-import org.mtr.core.tools.Angle;
-import org.mtr.core.tools.Position;
+import org.mtr.core.tool.Angle;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;

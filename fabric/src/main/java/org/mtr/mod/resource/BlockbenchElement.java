@@ -1,11 +1,11 @@
-package org.mtr.core.data;
+package org.mtr.mod.resource;
 
-import org.mtr.core.generated.BlockbenchElementSchema;
-import org.mtr.core.serializers.ReaderBase;
-import org.mtr.core.tools.Utilities;
+import org.mtr.core.serializer.ReaderBase;
+import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.Vector3d;
 import org.mtr.mapping.mapper.ModelPartExtension;
+import org.mtr.mod.generated.resource.BlockbenchElementSchema;
 
 public final class BlockbenchElement extends BlockbenchElementSchema {
 

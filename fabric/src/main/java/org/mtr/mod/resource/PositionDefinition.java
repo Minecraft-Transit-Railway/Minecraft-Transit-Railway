@@ -1,8 +1,8 @@
-package org.mtr.core.data;
+package org.mtr.mod.resource;
 
-import org.mtr.core.generated.PositionDefinitionSchema;
-import org.mtr.core.serializers.ReaderBase;
+import org.mtr.core.serializer.ReaderBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.mod.generated.resource.PositionDefinitionSchema;
 
 import java.util.function.BiConsumer;
 

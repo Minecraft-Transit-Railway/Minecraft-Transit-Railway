@@ -1,8 +1,8 @@
 package org.mtr.mod.packet;
 
 import org.mtr.core.data.AreaBase;
+import org.mtr.core.data.Position;
 import org.mtr.core.data.SavedRailBase;
-import org.mtr.core.tools.Position;
 import org.mtr.init.MTR;
 import org.mtr.mod.Init;
 import org.mtr.mod.data.IGui;

@@ -1,12 +1,12 @@
 package org.mtr.mod.model;
 
-import org.mtr.core.data.RenderStage;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.client.DoorAnimationType;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.render.RenderTrains;
 import org.mtr.mod.render.StoredMatrixTransformations;
+import org.mtr.mod.resource.RenderStage;
 
 public abstract class ModelSimpleTrainBase<T> extends ModelTrainBase {
 

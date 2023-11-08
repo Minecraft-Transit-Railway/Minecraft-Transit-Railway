@@ -1,6 +1,5 @@
 package org.mtr.mod.render;
 
-import org.mtr.core.data.*;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
@@ -14,6 +13,7 @@ import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mod.MutableBox;
 import org.mtr.mod.ObjectHolder;
 import org.mtr.mod.data.VehicleExtension;
+import org.mtr.mod.resource.*;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;

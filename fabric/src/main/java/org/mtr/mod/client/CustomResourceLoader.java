@@ -1,11 +1,8 @@
 package org.mtr.mod.client;
 
-import org.mtr.core.data.CustomResources;
-import org.mtr.core.data.SignResource;
 import org.mtr.core.data.TransportMode;
-import org.mtr.core.data.VehicleResource;
-import org.mtr.core.serializers.JsonReader;
-import org.mtr.core.tools.Utilities;
+import org.mtr.core.serializer.JsonReader;
+import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonElement;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.com.google.gson.JsonParser;
@@ -15,6 +12,9 @@ import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.render.RenderTrains;
+import org.mtr.mod.resource.CustomResources;
+import org.mtr.mod.resource.SignResource;
+import org.mtr.mod.resource.VehicleResource;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;

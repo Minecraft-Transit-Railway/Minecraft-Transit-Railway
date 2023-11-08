@@ -3,7 +3,7 @@ package org.mtr.mod.screen;
 import org.mtr.core.data.Platform;
 import org.mtr.core.data.RoutePlatformData;
 import org.mtr.core.data.Station;
-import org.mtr.core.tools.Utilities;
+import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;

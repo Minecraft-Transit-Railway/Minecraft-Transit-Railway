@@ -2,7 +2,6 @@ package org.mtr.mod.model;
 
 import org.mtr.core.data.InterchangeColorsForStationName;
 import org.mtr.core.data.NameColorDataBase;
-import org.mtr.core.data.RenderStage;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.EntityAbstractMapping;
 import org.mtr.mapping.holder.Identifier;
@@ -17,6 +16,7 @@ import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.render.RenderTrains;
 import org.mtr.mod.render.StoredMatrixTransformations;
+import org.mtr.mod.resource.RenderStage;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
