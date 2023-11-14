@@ -6,6 +6,7 @@ import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.OverlayTexture;
 import org.mtr.mapping.mapper.ModelPartExtension;
+import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mod.MutableBox;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.VehicleExtension;
@@ -28,7 +29,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	/**
 	 * Maps each part name to the corresponding part and collects all floors, doors, and doorways for processing later.
 	 */
-	public void writeCache(Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ModelPartExtension, MutableBox>> nameToPart, PositionDefinitions positionDefinitionsObject, ObjectArraySet<Box> floors, ObjectArraySet<Box> doorways) {
+	public void writeCache(Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ModelPartExtension, MutableBox>> nameToPart, PositionDefinitions positionDefinitionsObject, ObjectArraySet<Box> floors, ObjectArraySet<Box> doorways, Object2ObjectOpenHashMap<RenderStage, OptimizedModel.MaterialGroup> materialGroupsForRenderStage) {
 		final ObjectArrayList<ModelPartExtension> modelParts = new ObjectArrayList<>();
 		final MutableBox mutableBox = new MutableBox();
 
@@ -43,6 +44,10 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		positionDefinitions.forEach(positionDefinitionName -> positionDefinitionsObject.getPositionDefinition(positionDefinitionName, (positions, positionsFlipped) -> {
 			switch (type) {
 				case NORMAL:
+					modelParts.forEach(modelPartExtension -> {
+						positions.forEach(position -> materialGroupsForRenderStage.get(renderStage).addCube(modelPartExtension, position.getX() / 16, position.getY() / 16, position.getZ() / 16, false, MAX_LIGHT_INTERIOR));
+						positionsFlipped.forEach(position -> materialGroupsForRenderStage.get(renderStage).addCube(modelPartExtension, position.getX() / 16, position.getY() / 16, position.getZ() / 16, true, MAX_LIGHT_INTERIOR));
+					});
 				case DISPLAY:
 					positions.forEach(position -> partDetailsList.add(new PartDetails(modelParts, add(mutableBox.get(), position.getX(), position.getY(), position.getZ(), false), position, false)));
 					positionsFlipped.forEach(position -> partDetailsList.add(new PartDetails(modelParts, add(mutableBox.get(), position.getX(), position.getY(), position.getZ(), true), position, true)));
