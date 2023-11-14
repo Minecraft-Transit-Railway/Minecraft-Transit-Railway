@@ -9,6 +9,7 @@ import com.jonafanho.apitools.ModProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.Project;
+import org.mtr.mapping.mixin.CreateAccessWidener;
 import org.mtr.mapping.mixin.CreateClientWorldRenderingMixin;
 
 import java.io.IOException;
@@ -40,6 +41,7 @@ public class BuildTools {
 		version = project.getVersion().toString();
 		majorVersion = Integer.parseInt(minecraftVersion.split("\\.")[1]);
 		javaLanguageVersion = majorVersion <= 16 ? 8 : majorVersion == 17 ? 16 : 17;
+		CreateAccessWidener.create(minecraftVersion, loader, path.resolve("src/main/resources").resolve(loader.equals("fabric") ? "mtr.accesswidener" : "META-INF/accesstransformer.cfg"));
 		final Path mixinPath = path.resolve("src/main/java/org/mtr/mixin");
 		Files.createDirectories(mixinPath);
 		CreateClientWorldRenderingMixin.create(minecraftVersion, loader, mixinPath, "org.mtr.mixin");

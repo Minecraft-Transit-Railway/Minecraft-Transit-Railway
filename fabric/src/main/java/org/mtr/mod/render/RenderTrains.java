@@ -10,6 +10,7 @@ import org.mtr.mapping.mapper.EntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.entity.EntityRendering;
 
@@ -130,6 +131,8 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 				});
 			}
 		}
+
+		CustomResourceLoader.OPTIMIZED_RENDERER.render();
 	}
 
 	public static boolean shouldNotRender(BlockPos pos, int maxDistance, @Nullable Direction facing) {

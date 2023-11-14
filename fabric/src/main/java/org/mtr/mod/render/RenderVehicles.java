@@ -58,10 +58,14 @@ public class RenderVehicles implements IGui {
 				final RenderVehicleTransformationHelper renderVehicleTransformationHelperOffset = vehicleProperties.renderVehicleTransformationHelperOffset;
 
 				// Render each bogie of the car
-				for (int bogieIndex = 0; bogieIndex < vehicleProperties.bogiePositionsList.size(); bogieIndex++) {
-					final RenderVehicleTransformationHelper renderVehicleTransformationHelperBogie = new RenderVehicleTransformationHelper(vehicleProperties.bogiePositionsList.get(bogieIndex), renderVehicleTransformationHelperOffset);
-					vehicleResource.iterateBogieModels(bogieIndex, model -> renderModel(renderVehicleTransformationHelperBogie, storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperBogie.light, null)));
-				}
+				iterateWithIndex(vehicleProperties.bogiePositionsList, (bogieIndex, bogiePositions) -> {
+					final RenderVehicleTransformationHelper renderVehicleTransformationHelperBogie = new RenderVehicleTransformationHelper(bogiePositions, renderVehicleTransformationHelperOffset);
+					if (Config.useDynamicFPS()) {
+						renderModel(renderVehicleTransformationHelperBogie, storedMatrixTransformations -> vehicleResource.queueBogie(bogieIndex, storedMatrixTransformations, renderVehicleTransformationHelperBogie.light));
+					} else {
+						vehicleResource.iterateBogieModels(bogieIndex, model -> renderModel(renderVehicleTransformationHelperBogie, storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperBogie.light, null)));
+					}
+				});
 
 				// Player position relative to the car
 				final Vector3d playerPosition = renderVehicleTransformationHelperAbsolute.transformBackwards(clientPlayerEntity.getPos(), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
@@ -92,59 +96,67 @@ public class RenderVehicles implements IGui {
 				}
 
 				// Each car can have more than one model defined
-				renderModel(renderVehicleTransformationHelperOffset, storedMatrixTransformations -> vehicleResource.iterateModels((modelIndex, model) -> {
-					model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperAbsolute.light, openDoorways);
-
-					if (modelIndex >= previousGangwayPositionsList.size()) {
-						previousGangwayPositionsList.add(new PreviousConnectionPositions());
+				renderModel(renderVehicleTransformationHelperOffset, storedMatrixTransformations -> {
+					if (Config.useDynamicFPS()) {
+						vehicleResource.queue(storedMatrixTransformations, renderVehicleTransformationHelperAbsolute.light);
 					}
 
-					if (modelIndex >= previousBarrierPositionsList.size()) {
-						previousBarrierPositionsList.add(new PreviousConnectionPositions());
-					}
+					vehicleResource.iterateModels((modelIndex, model) -> {
+						if (!Config.useDynamicFPS()) {
+							model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperAbsolute.light, openDoorways);
+						}
 
-					// Render gangway
-					renderConnection(
-							vehicleResource.hasGangway1(),
-							vehicleResource.hasGangway2(),
-							true,
-							previousGangwayPositionsList.get(modelIndex),
-							model.modelProperties.gangwayInnerSideTexture,
-							model.modelProperties.gangwayInnerTopTexture,
-							model.modelProperties.gangwayInnerBottomTexture,
-							model.modelProperties.gangwayOuterSideTexture,
-							model.modelProperties.gangwayOuterTopTexture,
-							model.modelProperties.gangwayOuterBottomTexture,
-							renderVehicleTransformationHelperOffset,
-							vehicleProperties.vehicleCar.getLength(),
-							model.modelProperties.getGangwayWidth(),
-							model.modelProperties.getGangwayHeight(),
-							model.modelProperties.getGangwayYOffset(),
-							model.modelProperties.getGangwayZOffset(),
-							vehicle.getIsOnRoute()
-					);
+						if (modelIndex >= previousGangwayPositionsList.size()) {
+							previousGangwayPositionsList.add(new PreviousConnectionPositions());
+						}
 
-					// Render barrier
-					renderConnection(
-							vehicleResource.hasBarrier1(),
-							vehicleResource.hasBarrier2(),
-							false,
-							previousBarrierPositionsList.get(modelIndex),
-							model.modelProperties.barrierInnerSideTexture,
-							model.modelProperties.barrierInnerTopTexture,
-							model.modelProperties.barrierInnerBottomTexture,
-							model.modelProperties.barrierOuterSideTexture,
-							model.modelProperties.barrierOuterTopTexture,
-							model.modelProperties.barrierOuterBottomTexture,
-							renderVehicleTransformationHelperOffset,
-							vehicleProperties.vehicleCar.getLength(),
-							model.modelProperties.getBarrierWidth(),
-							model.modelProperties.getBarrierHeight(),
-							model.modelProperties.getBarrierYOffset(),
-							model.modelProperties.getBarrierZOffset(),
-							vehicle.getIsOnRoute()
-					);
-				}));
+						if (modelIndex >= previousBarrierPositionsList.size()) {
+							previousBarrierPositionsList.add(new PreviousConnectionPositions());
+						}
+
+						// Render gangway
+						renderConnection(
+								vehicleResource.hasGangway1(),
+								vehicleResource.hasGangway2(),
+								true,
+								previousGangwayPositionsList.get(modelIndex),
+								model.modelProperties.gangwayInnerSideTexture,
+								model.modelProperties.gangwayInnerTopTexture,
+								model.modelProperties.gangwayInnerBottomTexture,
+								model.modelProperties.gangwayOuterSideTexture,
+								model.modelProperties.gangwayOuterTopTexture,
+								model.modelProperties.gangwayOuterBottomTexture,
+								renderVehicleTransformationHelperOffset,
+								vehicleProperties.vehicleCar.getLength(),
+								model.modelProperties.getGangwayWidth(),
+								model.modelProperties.getGangwayHeight(),
+								model.modelProperties.getGangwayYOffset(),
+								model.modelProperties.getGangwayZOffset(),
+								vehicle.getIsOnRoute()
+						);
+
+						// Render barrier
+						renderConnection(
+								vehicleResource.hasBarrier1(),
+								vehicleResource.hasBarrier2(),
+								false,
+								previousBarrierPositionsList.get(modelIndex),
+								model.modelProperties.barrierInnerSideTexture,
+								model.modelProperties.barrierInnerTopTexture,
+								model.modelProperties.barrierInnerBottomTexture,
+								model.modelProperties.barrierOuterSideTexture,
+								model.modelProperties.barrierOuterTopTexture,
+								model.modelProperties.barrierOuterBottomTexture,
+								renderVehicleTransformationHelperOffset,
+								vehicleProperties.vehicleCar.getLength(),
+								model.modelProperties.getBarrierWidth(),
+								model.modelProperties.getBarrierHeight(),
+								model.modelProperties.getBarrierYOffset(),
+								model.modelProperties.getBarrierZOffset(),
+								vehicle.getIsOnRoute()
+						);
+					});
+				});
 
 				// If the vehicle has gangways, add extra floors to define where the gangways are
 				if (vehicleResource.hasGangway1()) {

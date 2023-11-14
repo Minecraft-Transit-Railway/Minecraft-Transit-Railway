@@ -10,6 +10,7 @@ import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.EntityModelExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
+import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mod.MutableBox;
 import org.mtr.mod.ObjectHolder;
 import org.mtr.mod.data.VehicleExtension;
@@ -24,6 +25,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	private final Identifier texture;
 	private final ObjectArraySet<Box> floors = new ObjectArraySet<>();
 	private final ObjectArraySet<Box> doorways = new ObjectArraySet<>();
+	private final Object2ObjectOpenHashMap<RenderStage, OptimizedModel.MaterialGroup> materialGroupsForRenderStage = new Object2ObjectOpenHashMap<>();
 
 	public DynamicVehicleModel(BlockbenchModel blockbenchModel, Identifier texture, ModelProperties modelProperties, PositionDefinitions positionDefinitions) {
 		super(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight());
@@ -54,7 +56,12 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		buildModel();
 		this.texture = texture;
 		this.modelProperties = modelProperties;
-		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(nameToPart, positionDefinitions, floors, doorways));
+
+		for (final RenderStage renderStage : RenderStage.values()) {
+			materialGroupsForRenderStage.put(renderStage, new OptimizedModel.MaterialGroup(renderStage.shaderType, texture));
+		}
+
+		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(nameToPart, positionDefinitions, floors, doorways, materialGroupsForRenderStage));
 	}
 
 	@Override
@@ -69,9 +76,10 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.render(texture, storedMatrixTransformations, vehicle, light, openDoorways));
 	}
 
-	public void writeFloorsAndDoorways(ObjectArraySet<Box> floors, ObjectArraySet<Box> doorways) {
+	public void writeFloorsAndDoorways(ObjectArraySet<Box> floors, ObjectArraySet<Box> doorways, ObjectArrayList<OptimizedModel.MaterialGroup> materialGroups) {
 		floors.addAll(this.floors);
 		doorways.addAll(this.doorways);
+		materialGroups.addAll(this.materialGroupsForRenderStage.values());
 	}
 
 	private static void iterateChildren(BlockbenchOutline blockbenchOutline, Consumer<String> consumer) {
