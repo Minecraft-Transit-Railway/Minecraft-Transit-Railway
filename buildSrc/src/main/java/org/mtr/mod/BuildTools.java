@@ -41,7 +41,11 @@ public class BuildTools {
 		version = project.getVersion().toString();
 		majorVersion = Integer.parseInt(minecraftVersion.split("\\.")[1]);
 		javaLanguageVersion = majorVersion <= 16 ? 8 : majorVersion == 17 ? 16 : 17;
-		CreateAccessWidener.create(minecraftVersion, loader, path.resolve("src/main/resources").resolve(loader.equals("fabric") ? "mtr.accesswidener" : "META-INF/accesstransformer.cfg"));
+
+		final Path accessWidenerPath = path.resolve("src/main/resources").resolve(loader.equals("fabric") ? "" : "META-INF");
+		Files.createDirectories(accessWidenerPath);
+		CreateAccessWidener.create(minecraftVersion, loader, accessWidenerPath.resolve(loader.equals("fabric") ? "mtr.accesswidener" : "accesstransformer.cfg"));
+
 		final Path mixinPath = path.resolve("src/main/java/org/mtr/mixin");
 		Files.createDirectories(mixinPath);
 		CreateClientWorldRenderingMixin.create(minecraftVersion, loader, mixinPath, "org.mtr.mixin");
