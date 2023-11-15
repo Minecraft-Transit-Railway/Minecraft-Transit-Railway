@@ -3,7 +3,7 @@ package org.mtr.mod.data;
 import org.apache.commons.lang3.StringUtils;
 import org.mtr.core.data.Data;
 import org.mtr.core.data.Vehicle;
-import org.mtr.core.data.VehicleExtraData;
+import org.mtr.core.integration.VehicleUpdate;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
@@ -22,8 +22,8 @@ public class VehicleExtension extends Vehicle implements Utilities {
 	private static final int SHIFT_ACTIVATE_TICKS = 30;
 	private static final int DISMOUNT_PROGRESS_BAR_LENGTH = 30;
 
-	public VehicleExtension(JsonObject jsonObject, Data data) {
-		super(new VehicleExtraData(new JsonReader(jsonObject.getAsJsonObject("data"))), null, true, new JsonReader(jsonObject.getAsJsonObject("vehicle")), data);
+	public VehicleExtension(VehicleUpdate vehicleUpdate, Data data) {
+		super(vehicleUpdate.getVehicleExtraData(), null, true, new JsonReader(Utilities.getJsonObjectFromData(vehicleUpdate.getVehicle())), data);
 		final PersistentVehicleData tempPersistentVehicleData = ClientData.instance.vehicleIdToPersistentVehicleData.get(getId());
 		if (tempPersistentVehicleData == null) {
 			persistentVehicleData = new PersistentVehicleData();

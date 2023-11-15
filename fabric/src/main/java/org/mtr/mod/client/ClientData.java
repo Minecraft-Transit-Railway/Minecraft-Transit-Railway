@@ -2,10 +2,10 @@ package org.mtr.mod.client;
 
 import org.mtr.core.data.Position;
 import org.mtr.core.data.*;
-import org.mtr.libraries.com.google.gson.JsonArray;
-import org.mtr.libraries.com.google.gson.JsonObject;
+import org.mtr.core.operation.ArrivalsResponse;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -28,7 +28,7 @@ public final class ClientData extends Data {
 	public final ObjectAVLTreeSet<VehicleExtension> vehicles = new ObjectAVLTreeSet<>();
 	public final Long2ObjectAVLTreeMap<PersistentVehicleData> vehicleIdToPersistentVehicleData = new Long2ObjectAVLTreeMap<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
-	private final Long2ObjectAVLTreeMap<ObjectLongImmutablePair<JsonObject>> arrivalRequests = new Long2ObjectAVLTreeMap<>();
+	private final Long2ObjectAVLTreeMap<ObjectLongImmutablePair<ArrivalsResponse>> arrivalRequests = new Long2ObjectAVLTreeMap<>();
 
 	public static ClientData instance = new ClientData();
 	public static String DASHBOARD_SEARCH = "";
@@ -58,26 +58,25 @@ public final class ClientData extends Data {
 		idsToRemove.forEach(vehicleIdToPersistentVehicleData::remove);
 	}
 
-	public JsonObject requestArrivals(long platformId) {
-		final ObjectLongImmutablePair<JsonObject> arrivalData = arrivalRequests.get(platformId);
+	public ArrivalsResponse requestArrivals(long requestKey, LongImmutableList platformIds, int count, int page, boolean realtimeOnly) {
+		final ObjectLongImmutablePair<ArrivalsResponse> arrivalData = arrivalRequests.get(requestKey);
 		if (arrivalData == null || arrivalData.rightLong() < System.currentTimeMillis()) {
-			RegistryClient.sendPacketToServer(new PacketFetchArrivals(platformId));
-			final JsonObject returnObject;
+			RegistryClient.sendPacketToServer(new PacketFetchArrivals(requestKey, platformIds, count, page, realtimeOnly));
+			final ArrivalsResponse arrivalsResponse;
 			if (arrivalData == null) {
-				returnObject = new JsonObject();
-				returnObject.add("data", new JsonArray());
+				arrivalsResponse = new ArrivalsResponse();
 			} else {
-				returnObject = arrivalData.left();
+				arrivalsResponse = arrivalData.left();
 			}
-			writeArrivalRequest(platformId, returnObject);
-			return returnObject;
+			writeArrivalRequest(requestKey, arrivalsResponse);
+			return arrivalsResponse;
 		} else {
 			return arrivalData.left();
 		}
 	}
 
-	public void writeArrivalRequest(long platformId, JsonObject jsonObject) {
-		arrivalRequests.put(platformId, new ObjectLongImmutablePair<>(jsonObject, System.currentTimeMillis() + CACHED_ARRIVAL_REQUESTS_MILLIS));
+	public void writeArrivalRequest(long requestKey, ArrivalsResponse arrivalsResponse) {
+		arrivalRequests.put(requestKey, new ObjectLongImmutablePair<>(arrivalsResponse, System.currentTimeMillis() + CACHED_ARRIVAL_REQUESTS_MILLIS));
 	}
 
 	public static void tick() {

@@ -1,8 +1,8 @@
 package org.mtr.mod.render;
 
+import org.mtr.core.operation.ArrivalsResponse;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.Direction;
 import org.mtr.mapping.holder.World;
@@ -76,34 +76,24 @@ public class RenderPIDS<T extends BlockEntityExtension> extends BlockEntityRende
 		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, DirectionHelper.FACING);
 
 		ClientData.instance.platforms.stream().filter(platform -> platform.closeTo(Init.blockPosToPosition(entity.getPos2()), 5)).findFirst().ifPresent(platform -> {
-			try {
-				final ObjectArrayList<PacketFetchArrivals.Arrival> arrivals = new ObjectArrayList<>();
-				final JsonObject response = ClientData.instance.requestArrivals(platform.getId());
-				response.getAsJsonArray("data").forEach(arrivalElement -> arrivals.add(new PacketFetchArrivals.Arrival(arrivalElement.getAsJsonObject())));
+			final ArrivalsResponse arrivalsResponse = ClientData.instance.requestArrivals(blockPos.asLong(), LongImmutableList.of(platform.getId()), maxArrivals, 0, true);
+			RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolderNew, offset) -> arrivalsResponse.iterateArrivals((arrivalIndex, arrivalResponse) -> {
+				final int languageTicks = (int) Math.floor(InitClient.getGameTick()) / SWITCH_LANGUAGE_TICKS;
 
-				RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolderNew, offset) -> {
-					for (int i = 0; i < Math.min(maxArrivals, arrivals.size()); i++) {
-						final int languageTicks = (int) Math.floor(InitClient.getGameTick()) / SWITCH_LANGUAGE_TICKS;
+				graphicsHolderNew.push();
+				graphicsHolderNew.translate(blockPos.getX() - offset.getXMapped() + 0.5, blockPos.getY() - offset.getYMapped(), blockPos.getZ() - offset.getZMapped() + 0.5);
+				graphicsHolderNew.rotateYDegrees((rotate90 ? 90 : 0) - facing.asRotation());
+				graphicsHolderNew.rotateZDegrees(180);
+				graphicsHolderNew.translate((startX - 8) / 16, -startY / 16 + arrivalIndex * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
+				graphicsHolderNew.scale(1F / scale, 1F / scale, 1F / scale);
 
-						graphicsHolderNew.push();
-						graphicsHolderNew.translate(blockPos.getX() - offset.getXMapped() + 0.5, blockPos.getY() - offset.getYMapped(), blockPos.getZ() - offset.getZMapped() + 0.5);
-						graphicsHolderNew.rotateYDegrees((rotate90 ? 90 : 0) - facing.asRotation());
-						graphicsHolderNew.rotateZDegrees(180);
-						graphicsHolderNew.translate((startX - 8) / 16, -startY / 16 + i * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
-						graphicsHolderNew.scale(1F / scale, 1F / scale, 1F / scale);
+				final long arrivalSeconds = Math.max(0, (arrivalResponse.getArrival() - PacketFetchArrivals.millisOffset - System.currentTimeMillis()) / MILLIS_PER_SECOND);
+				final long delay = arrivalResponse.getDeviation() / MILLIS_PER_SECOND;
+				// TODO formatting
+				graphicsHolderNew.drawText(arrivalResponse.getDestination().split("\\|")[0] + " D: " + delay + " A: " + (arrivalSeconds == 0 ? "" : arrivalSeconds) + " I: " + arrivalResponse.getIndex(), 0, 0, textColor, false, MAX_LIGHT_GLOWING);
 
-						final PacketFetchArrivals.Arrival arrival = arrivals.get(i);
-						final long arrivalSeconds = Math.max(0, (arrival.arrivalTime - PacketFetchArrivals.millisOffset - System.currentTimeMillis()) / MILLIS_PER_SECOND);
-						final long delay = arrival.delay / MILLIS_PER_SECOND;
-						// TODO formatting
-						graphicsHolderNew.drawText(arrival.destination.split("\\|")[0] + " D: " + delay + " A: " + (arrivalSeconds == 0 ? "" : arrivalSeconds), 0, 0, textColor, false, MAX_LIGHT_GLOWING);
-
-						graphicsHolderNew.pop();
-					}
-				});
-			} catch (Exception ignored) {
-				ignored.printStackTrace();
-			}
+				graphicsHolderNew.pop();
+			}));
 		});
 	}
 }

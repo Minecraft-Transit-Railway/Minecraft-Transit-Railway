@@ -1,9 +1,9 @@
 package org.mtr.mod.packet;
 
 import org.mtr.core.data.TransportMode;
+import org.mtr.core.integration.Integration;
 import org.mtr.core.servlet.IntegrationServlet;
 import org.mtr.core.tool.EnumHelper;
-import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.holder.PlayerEntity;
 import org.mtr.mapping.holder.ServerPlayerEntity;
@@ -21,8 +21,8 @@ public class PacketOpenDashboardScreen extends PacketData {
 		useTimeAndWindSync = packetBuffer.readBoolean();
 	}
 
-	private PacketOpenDashboardScreen(JsonObject jsonObject, TransportMode transportMode, boolean useTimeAndWindSync) {
-		super(IntegrationServlet.Operation.LIST, jsonObject);
+	private PacketOpenDashboardScreen(Integration integration, TransportMode transportMode, boolean useTimeAndWindSync) {
+		super(IntegrationServlet.Operation.LIST, integration);
 		this.transportMode = transportMode;
 		this.useTimeAndWindSync = useTimeAndWindSync;
 	}
@@ -41,6 +41,6 @@ public class PacketOpenDashboardScreen extends PacketData {
 	}
 
 	public static void create(PlayerEntity playerEntity, TransportMode transportMode) {
-		sendHttpDataRequest(IntegrationServlet.Operation.LIST, new JsonObject(), data -> Registry.sendPacketToClient(ServerPlayerEntity.cast(playerEntity), new PacketOpenDashboardScreen(data, transportMode, false)));
+		sendHttpDataRequest(IntegrationServlet.Operation.LIST, new Integration(), integration -> Registry.sendPacketToClient(ServerPlayerEntity.cast(playerEntity), new PacketOpenDashboardScreen(integration, transportMode, false)));
 	}
 }

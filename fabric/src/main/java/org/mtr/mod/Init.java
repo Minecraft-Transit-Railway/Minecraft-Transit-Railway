@@ -4,6 +4,8 @@ import org.mtr.core.Main;
 import org.mtr.core.data.Client;
 import org.mtr.core.data.Position;
 import org.mtr.core.generated.data.ClientGroupSchema;
+import org.mtr.core.integration.Integration;
+import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.JsonWriter;
 import org.mtr.core.servlet.IntegrationServlet;
 import org.mtr.core.tool.Utilities;
@@ -102,7 +104,7 @@ public final class Init implements Utilities {
 						responseObject.keySet().forEach(playerUuid -> {
 							final ServerPlayerEntity serverPlayerEntity = minecraftServer.getPlayerManager().getPlayer(UUID.fromString(playerUuid));
 							if (serverPlayerEntity != null) {
-								Registry.sendPacketToClient(serverPlayerEntity, new PacketData(IntegrationServlet.Operation.LIST, responseObject.getAsJsonObject(playerUuid)));
+								Registry.sendPacketToClient(serverPlayerEntity, new PacketData(IntegrationServlet.Operation.LIST, new Integration(new JsonReader(responseObject.getAsJsonObject(playerUuid)))));
 							}
 						});
 					} catch (Exception e) {
@@ -118,7 +120,7 @@ public final class Init implements Utilities {
 				final JsonObject timeObject = new JsonObject();
 				timeObject.addProperty("gameMillis", (WorldHelper.getTimeOfDay(minecraftServer.getOverworld()) + 6000) * SECONDS_PER_MC_HOUR);
 				timeObject.addProperty("millisPerDay", MILLIS_PER_MC_DAY);
-				PacketData.sendHttpRequest("mtr/api/operation/set-time", timeObject, responseObject -> {
+				PacketData.sendHttpRequest("operation/set-time", timeObject, responseObject -> {
 				});
 			};
 		});
@@ -147,7 +149,6 @@ public final class Init implements Utilities {
 			if (sendWorldTimeUpdate != null && serverTick % (SECONDS_PER_MC_HOUR * 10) == 0) {
 				sendWorldTimeUpdate.run();
 			}
-			sendWorldTimeUpdate = null;
 			serverTick++;
 		});
 
