@@ -92,7 +92,7 @@ public class RenderVehicles implements IGui {
 					});
 
 					// Check and mount player
-					VehicleRidingMovement.startRiding(openDoorways, vehicle.getId(), carNumber, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped(), renderVehicleTransformationHelperAbsolute.yaw);
+					VehicleRidingMovement.startRiding(openDoorways, vehicle.vehicleExtraData.getSidingId(), vehicle.getId(), carNumber, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped(), renderVehicleTransformationHelperAbsolute.yaw);
 				}
 
 				// Each car can have more than one model defined
