@@ -87,10 +87,10 @@ public class RenderPIDS<T extends BlockEntityExtension> extends BlockEntityRende
 				graphicsHolderNew.translate((startX - 8) / 16, -startY / 16 + arrivalIndex * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
 				graphicsHolderNew.scale(1F / scale, 1F / scale, 1F / scale);
 
-				final long arrivalSeconds = Math.max(0, (arrivalResponse.getArrival() - PacketFetchArrivals.millisOffset - System.currentTimeMillis()) / MILLIS_PER_SECOND);
+				final long arrivalSeconds = Math.max(0, (arrivalResponse.getArrival() - PacketFetchArrivals.getMillisOffset() - System.currentTimeMillis()) / MILLIS_PER_SECOND);
 				final long delay = arrivalResponse.getDeviation() / MILLIS_PER_SECOND;
 				// TODO formatting
-				graphicsHolderNew.drawText(arrivalResponse.getDestination().split("\\|")[0] + " D: " + delay + " A: " + (arrivalSeconds == 0 ? "" : arrivalSeconds) + " I: " + arrivalResponse.getIndex(), 0, 0, textColor, false, MAX_LIGHT_GLOWING);
+				graphicsHolderNew.drawText(arrivalResponse.getDestination().split("\\|")[0] + " D: " + delay + " A: " + (arrivalSeconds == 0 ? "" : arrivalSeconds) + " I: " + arrivalResponse.getDepartureIndex(), 0, 0, textColor, false, MAX_LIGHT_GLOWING);
 
 				graphicsHolderNew.pop();
 			}));

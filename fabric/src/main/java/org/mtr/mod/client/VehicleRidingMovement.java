@@ -7,7 +7,9 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePai
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
+import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.InitClient;
+import org.mtr.mod.packet.PacketUpdateVehicleRidingEntities;
 import org.mtr.mod.render.RenderVehicleTransformationHelper;
 import org.mtr.mod.render.RenderVehicles;
 
@@ -16,6 +18,7 @@ import java.util.Comparator;
 
 public class VehicleRidingMovement {
 
+	private static long ridingSidingId;
 	private static long ridingVehicleId;
 	private static int ridingVehicleCarNumber;
 	private static double ridingVehicleX;
@@ -31,14 +34,19 @@ public class VehicleRidingMovement {
 	private static Double ridingYawDifference;
 	private static double previousVehicleYaw;
 
+	private static long sendPositionUpdateTime;
+
 	private static final float VEHICLE_WALKING_SPEED_MULTIPLIER = 0.005F;
 	private static final int RIDING_COOL_DOWN = 5;
+	private static final int SEND_UPDATE_FREQUENCY = 1000;
 
 	public static void tick() {
 		if (ridingVehicleCoolDown < RIDING_COOL_DOWN) {
 			ridingVehicleCoolDown++;
 		} else {
 			// If no vehicles are updating the player's position, dismount the player
+			sendUpdate(true);
+			ridingSidingId = 0;
 			ridingVehicleId = 0;
 		}
 
@@ -47,15 +55,20 @@ public class VehicleRidingMovement {
 			ridingPositionCacheOld = ridingPositionCache;
 			ridingYawDifferenceOld = ridingYawDifference;
 		}
+
+		if (sendPositionUpdateTime > 0 && sendPositionUpdateTime <= System.currentTimeMillis()) {
+			sendUpdate(false);
+		}
 	}
 
 	/**
 	 * Iterate through all open doorways and see if the player is intersecting any of them. If so, start riding the vehicle.
 	 */
-	public static void startRiding(ObjectArrayList<Box> openDoorways, long vehicleId, int carNumber, double x, double y, double z, double yaw) {
+	public static void startRiding(ObjectArrayList<Box> openDoorways, long sidingId, long vehicleId, int carNumber, double x, double y, double z, double yaw) {
 		if (ridingVehicleId == 0 || ridingVehicleId == vehicleId) {
 			for (final Box doorway : openDoorways) {
 				if (RenderVehicles.boxContains(doorway, x, y, z)) {
+					ridingSidingId = sidingId;
 					ridingVehicleId = vehicleId;
 					ridingVehicleCarNumber = carNumber;
 					ridingVehicleX = x;
@@ -67,6 +80,7 @@ public class VehicleRidingMovement {
 					ridingYawDifferenceOld = null;
 					ridingYawDifference = null;
 					previousVehicleYaw = yaw;
+					sendUpdate(false);
 				}
 			}
 		}
@@ -97,10 +111,16 @@ public class VehicleRidingMovement {
 			final double movementX = movement.getXMapped();
 			final double movementZ = movement.getZMapped();
 
+			if (sendPositionUpdateTime == 0 && (movementX != 0 || movementZ != 0)) {
+				sendPositionUpdateTime = System.currentTimeMillis() + SEND_UPDATE_FREQUENCY;
+			}
+
 			if (isOnGangway) {
 				// If the player is currently standing on a gangway, ridingVehicleX and Z will indicate percentages along the gangway (rather than a relative coordinate inside the vehicle car)
 				if (thisCarGangwayMovementPositions1 == null || previousCarGangwayMovementPositions == null) {
 					// Dismount player
+					sendUpdate(true);
+					ridingSidingId = 0;
 					ridingVehicleId = 0;
 				} else {
 					if (ridingVehicleZ + movementZ > 1) {
@@ -169,6 +189,8 @@ public class VehicleRidingMovement {
 
 					if (offsets.isEmpty()) {
 						// Player is not standing on any floor, dismount player
+						sendUpdate(true);
+						ridingSidingId = 0;
 						ridingVehicleId = 0;
 					} else {
 						// Find the highest amounts to clamp the player movement in both the X and Z direction and apply the clamps
@@ -268,6 +290,13 @@ public class VehicleRidingMovement {
 
 			runnable.run();
 			InitClient.scheduleMovePlayer(runnable);
+		}
+	}
+
+	private static void sendUpdate(boolean dismount) {
+		if (ridingSidingId != 0 && ridingVehicleId != 0) {
+			RegistryClient.sendPacketToServer(PacketUpdateVehicleRidingEntities.create(ridingSidingId, ridingVehicleId, dismount ? -1 : ridingVehicleCarNumber, ridingVehicleX, ridingVehicleY, ridingVehicleZ, isOnGangway));
+			sendPositionUpdateTime = 0;
 		}
 	}
 

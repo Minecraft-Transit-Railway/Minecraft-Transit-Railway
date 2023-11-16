@@ -10,7 +10,6 @@ import org.mtr.core.serializer.JsonWriter;
 import org.mtr.core.servlet.IntegrationServlet;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.libraries.io.socket.client.IO;
 import org.mtr.libraries.io.socket.client.Socket;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
@@ -78,6 +77,7 @@ public final class Init implements Utilities {
 		Registry.registerPacket(PacketUpdatePIDSConfig.class, PacketUpdatePIDSConfig::new);
 		Registry.registerPacket(PacketUpdateRailwaySignConfig.class, PacketUpdateRailwaySignConfig::new);
 		Registry.registerPacket(PacketUpdateTrainSensorConfig.class, PacketUpdateTrainSensorConfig::new);
+		Registry.registerPacket(PacketUpdateVehicleRidingEntities.class, PacketUpdateVehicleRidingEntities::new);
 
 		// Register events
 		EventRegistry.registerServerStarted(minecraftServer -> {
@@ -99,17 +99,13 @@ public final class Init implements Utilities {
 			try {
 				socket = IO.socket("http://localhost:8888").connect();
 				socket.on(CHANNEL, args -> {
-					try {
-						final JsonObject responseObject = JsonParser.parseString(args[0].toString()).getAsJsonObject();
-						responseObject.keySet().forEach(playerUuid -> {
-							final ServerPlayerEntity serverPlayerEntity = minecraftServer.getPlayerManager().getPlayer(UUID.fromString(playerUuid));
-							if (serverPlayerEntity != null) {
-								Registry.sendPacketToClient(serverPlayerEntity, new PacketData(IntegrationServlet.Operation.LIST, new Integration(new JsonReader(responseObject.getAsJsonObject(playerUuid)))));
-							}
-						});
-					} catch (Exception e) {
-						logException(e);
-					}
+					final JsonObject responseObject = PacketData.parseJson(args[0].toString());
+					responseObject.keySet().forEach(playerUuid -> {
+						final ServerPlayerEntity serverPlayerEntity = minecraftServer.getPlayerManager().getPlayer(UUID.fromString(playerUuid));
+						if (serverPlayerEntity != null) {
+							Registry.sendPacketToClient(serverPlayerEntity, new PacketData(IntegrationServlet.Operation.LIST, new Integration(new JsonReader(responseObject.getAsJsonObject(playerUuid)))));
+						}
+					});
 				});
 			} catch (Exception e) {
 				logException(e);
