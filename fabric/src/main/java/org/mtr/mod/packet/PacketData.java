@@ -29,6 +29,7 @@ import org.mtr.mapping.registry.Registry;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.data.VehicleExtension;
 
 import javax.annotation.Nullable;
@@ -114,6 +115,8 @@ public class PacketData extends PacketHandler {
 	public void runClientQueued() {
 		final Screen screen = MinecraftClient.getInstance().getCurrentScreenMapped();
 		if (operation != IntegrationServlet.Operation.LIST || screen == null || !(screen.data instanceof ScreenExtension)) {
+			final int simplifiedRoutesSize = ClientData.instance.simplifiedRoutes.size();
+
 			if (integration.hasData()) {
 				writeJsonObjectToDataSet(ClientData.instance.stations, integration::iterateStations, NameColorDataBase::getId);
 				writeJsonObjectToDataSet(ClientData.instance.platforms, integration::iteratePlatforms, NameColorDataBase::getId);
@@ -136,6 +139,11 @@ public class PacketData extends PacketHandler {
 
 			if (integration.hasData()) {
 				ClientData.instance.sync();
+			}
+
+			// TODO better checking if routes have changed
+			if (simplifiedRoutesSize != ClientData.instance.simplifiedRoutes.size()) {
+				DynamicTextureCache.instance.reload();
 			}
 		}
 	}

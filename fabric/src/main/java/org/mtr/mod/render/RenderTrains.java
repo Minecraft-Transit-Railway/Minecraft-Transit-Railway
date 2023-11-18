@@ -147,6 +147,10 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 		scheduleRender(new Identifier(""), false, queuedRenderLayer, callback);
 	}
 
+	public static void cancelRender(Identifier identifier) {
+		RENDERS.forEach(renderForPriority -> renderForPriority.forEach(renderForPriorityAndQueuedRenderLayer -> renderForPriorityAndQueuedRenderLayer.remove(identifier)));
+	}
+
 	public static String getInterchangeRouteNames(Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges) {
 		final ObjectArrayList<String> interchangeRouteNames = new ObjectArrayList<>();
 		getInterchanges.accept((connectingStationName, interchangeColorsForStationName) -> interchangeColorsForStationName.forEach((color, interchangeRouteNamesForColor) -> interchangeRouteNamesForColor.forEach(interchangeRouteNames::add)));

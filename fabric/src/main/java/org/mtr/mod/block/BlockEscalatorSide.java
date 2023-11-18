@@ -21,7 +21,7 @@ public class BlockEscalatorSide extends BlockEscalatorBase {
 	@Nonnull
 	@Override
 	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return VoxelShapes.union(getOutlineShape2(state, world, pos, context), super.getCollisionShape2(state, world, pos, context));
+		return VoxelShapes.combine(getOutlineShape2(state, world, pos, context), super.getCollisionShape2(state, world, pos, context), BooleanBiFunction.getAndMapped());
 	}
 
 	@Nonnull

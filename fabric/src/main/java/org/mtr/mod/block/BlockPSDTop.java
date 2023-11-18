@@ -5,7 +5,6 @@ import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.BlockEntityTypes;
 import org.mtr.mod.Items;
-import org.mtr.mod.client.ClientData;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -161,10 +160,6 @@ public class BlockPSDTop extends BlockExtension implements IBlock, DirectionHelp
 
 		public BlockEntityBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
-		}
-
-		public long getPlatformId() {
-			return ClientData.getClosePlatform(getPos2()).getId();
 		}
 	}
 

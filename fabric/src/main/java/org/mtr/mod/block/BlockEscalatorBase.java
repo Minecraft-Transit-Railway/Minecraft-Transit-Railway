@@ -13,7 +13,7 @@ public abstract class BlockEscalatorBase extends BlockExtension implements IBloc
 	public static final EnumProperty<EnumEscalatorOrientation> ORIENTATION = EnumProperty.of("orientation", EnumEscalatorOrientation.class);
 
 	protected BlockEscalatorBase() {
-		super(BlockHelper.createBlockSettings(true));
+		super(BlockHelper.createBlockSettings(true).nonOpaque());
 	}
 
 	@Nonnull

@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 public abstract class BlockPSDAPGBase extends BlockDirectionalDoubleBlockBase {
 
 	public BlockPSDAPGBase() {
-		super(BlockHelper.createBlockSettings(true));
+		super(BlockHelper.createBlockSettings(true).nonOpaque());
 	}
 
 	@Nonnull

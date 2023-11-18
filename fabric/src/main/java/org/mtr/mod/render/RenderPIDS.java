@@ -10,7 +10,6 @@ import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.ClientData;
@@ -75,7 +74,7 @@ public class RenderPIDS<T extends BlockEntityExtension> extends BlockEntityRende
 		final BlockPos blockPos = entity.getPos2();
 		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, DirectionHelper.FACING);
 
-		ClientData.instance.platforms.stream().filter(platform -> platform.closeTo(Init.blockPosToPosition(entity.getPos2()), 5)).findFirst().ifPresent(platform -> {
+		InitClient.findClosePlatform(entity.getPos2(), 5, platform -> {
 			final ArrivalsResponse arrivalsResponse = ClientData.instance.requestArrivals(blockPos.asLong(), LongImmutableList.of(platform.getId()), maxArrivals, 0, true);
 			RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolderNew, offset) -> arrivalsResponse.iterateArrivals((arrivalIndex, arrivalResponse) -> {
 				final int languageTicks = (int) Math.floor(InitClient.getGameTick()) / SWITCH_LANGUAGE_TICKS;

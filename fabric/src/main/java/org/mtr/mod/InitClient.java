@@ -1,5 +1,6 @@
 package org.mtr.mod;
 
+import org.mtr.core.data.Platform;
 import org.mtr.core.data.Station;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.registry.EventRegistryClient;
@@ -15,6 +16,7 @@ import org.mtr.mod.render.*;
 import org.mtr.mod.sound.LoopingSoundInstance;
 
 import javax.annotation.Nullable;
+import java.util.function.Consumer;
 
 public final class InitClient {
 
@@ -315,6 +317,7 @@ public final class InitClient {
 			gameMillis = 0;
 			lastPosition = null;
 			CustomResourceLoader.reload(); // TODO texture reload event not always working
+			DynamicTextureCache.instance.reload();
 		});
 
 		EventRegistryClient.registerStartClientTick(() -> {
@@ -374,6 +377,10 @@ public final class InitClient {
 
 	public static Station findStation(BlockPos blockPos) {
 		return ClientData.instance.stations.stream().filter(station -> station.inArea(Init.blockPosToPosition(blockPos))).findFirst().orElse(null);
+	}
+
+	public static void findClosePlatform(BlockPos blockPos, int radius, Consumer<Platform> consumer) {
+		ClientData.instance.platforms.stream().filter(platform -> platform.closeTo(Init.blockPosToPosition(blockPos), radius)).findFirst().ifPresent(consumer);
 	}
 
 	public static String getShiftText() {
