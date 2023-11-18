@@ -146,6 +146,8 @@ public final class InitClient {
 		RegistryClient.registerEntityRenderer(EntityTypes.RENDERING, RenderTrains::new);
 		RegistryClient.worldRenderingEntity = EntityRendering::new;
 
+		RegistryClient.registerItemModelPredicate(Items.RAIL_CONNECTOR_100, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
+		RegistryClient.registerItemModelPredicate(Items.RAIL_CONNECTOR_100_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		RegistryClient.registerItemModelPredicate(Items.RAIL_CONNECTOR_20, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		RegistryClient.registerItemModelPredicate(Items.RAIL_CONNECTOR_20_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		RegistryClient.registerItemModelPredicate(Items.RAIL_CONNECTOR_40, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());

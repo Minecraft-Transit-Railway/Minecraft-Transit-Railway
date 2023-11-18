@@ -53,6 +53,8 @@ public final class Items {
 		RAIL_CONNECTOR_60_ONE_WAY = Registry.registerItem(new Identifier(Init.MOD_ID, "rail_connector_60_one_way"), itemSettings -> new Item(new ItemRailModifier(true, false, true, true, RailType.EMERALD, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_80 = Registry.registerItem(new Identifier(Init.MOD_ID, "rail_connector_80"), itemSettings -> new Item(new ItemRailModifier(true, false, true, false, RailType.IRON, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_80_ONE_WAY = Registry.registerItem(new Identifier(Init.MOD_ID, "rail_connector_80_one_way"), itemSettings -> new Item(new ItemRailModifier(true, false, true, true, RailType.IRON, itemSettings)), CreativeModeTabs.CORE);
+		RAIL_CONNECTOR_100 = Registry.registerItem(new Identifier(Init.MOD_ID, "rail_connector_100"), itemSettings -> new Item(new ItemRailModifier(true, false, true, false, RailType.ICE, itemSettings)), CreativeModeTabs.CORE);
+		RAIL_CONNECTOR_100_ONE_WAY = Registry.registerItem(new Identifier(Init.MOD_ID, "rail_connector_100_one_way"), itemSettings -> new Item(new ItemRailModifier(true, false, true, true, RailType.ICE, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_120 = Registry.registerItem(new Identifier(Init.MOD_ID, "rail_connector_120"), itemSettings -> new Item(new ItemRailModifier(true, false, true, false, RailType.OBSIDIAN, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_120_ONE_WAY = Registry.registerItem(new Identifier(Init.MOD_ID, "rail_connector_120_one_way"), itemSettings -> new Item(new ItemRailModifier(true, false, true, true, RailType.OBSIDIAN, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_160 = Registry.registerItem(new Identifier(Init.MOD_ID, "rail_connector_160"), itemSettings -> new Item(new ItemRailModifier(true, false, true, false, RailType.BLAZE, itemSettings)), CreativeModeTabs.CORE);
@@ -67,7 +69,6 @@ public final class Items {
 		RAIL_CONNECTOR_CABLE_CAR = Registry.registerItem(new Identifier(Init.MOD_ID, "rail_connector_cable_car"), itemSettings -> new Item(new ItemRailModifier(false, true, false, true, RailType.CABLE_CAR, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_RUNWAY = Registry.registerItem(new Identifier(Init.MOD_ID, "rail_connector_runway"), itemSettings -> new Item(new ItemRailModifier(false, false, true, true, RailType.RUNWAY, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_REMOVER = Registry.registerItem(new Identifier(Init.MOD_ID, "rail_remover"), itemSettings -> new Item(new ItemRailModifier(itemSettings)), CreativeModeTabs.CORE);
-
 		// Signal connectors
 		SIGNAL_CONNECTOR_WHITE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_white"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getWhiteMapped(), itemSettings)), CreativeModeTabs.CORE);
 		SIGNAL_CONNECTOR_ORANGE = Registry.registerItem(new Identifier(Init.MOD_ID, "signal_connector_orange"), itemSettings -> new Item(new ItemSignalModifier(true, MapColor.getOrangeMapped(), itemSettings)), CreativeModeTabs.CORE);
@@ -176,6 +177,8 @@ public final class Items {
 	public static final ItemRegistryObject RAIL_CONNECTOR_60_ONE_WAY;
 	public static final ItemRegistryObject RAIL_CONNECTOR_80;
 	public static final ItemRegistryObject RAIL_CONNECTOR_80_ONE_WAY;
+	public static final ItemRegistryObject RAIL_CONNECTOR_100;
+	public static final ItemRegistryObject RAIL_CONNECTOR_100_ONE_WAY;
 	public static final ItemRegistryObject RAIL_CONNECTOR_CABLE_CAR;
 	public static final ItemRegistryObject RAIL_CONNECTOR_PLATFORM;
 	public static final ItemRegistryObject RAIL_CONNECTOR_RUNWAY;
