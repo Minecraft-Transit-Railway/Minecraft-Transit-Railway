@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 public final class ClientData extends Data {
 
+	public final ObjectAVLTreeSet<SimplifiedRoute> simplifiedRoutes = new ObjectAVLTreeSet<>();
 	public final ObjectAVLTreeSet<VehicleExtension> vehicles = new ObjectAVLTreeSet<>();
 	public final Long2ObjectAVLTreeMap<PersistentVehicleData> vehicleIdToPersistentVehicleData = new Long2ObjectAVLTreeMap<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();

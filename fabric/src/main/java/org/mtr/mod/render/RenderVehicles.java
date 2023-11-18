@@ -61,9 +61,9 @@ public class RenderVehicles implements IGui {
 				iterateWithIndex(vehicleProperties.bogiePositionsList, (bogieIndex, bogiePositions) -> {
 					final RenderVehicleTransformationHelper renderVehicleTransformationHelperBogie = new RenderVehicleTransformationHelper(bogiePositions, renderVehicleTransformationHelperOffset);
 					if (Config.useDynamicFPS()) {
-						renderModel(renderVehicleTransformationHelperBogie, storedMatrixTransformations -> vehicleResource.queueBogie(bogieIndex, storedMatrixTransformations, renderVehicleTransformationHelperBogie.light));
+						renderModel(renderVehicleTransformationHelperBogie, storedMatrixTransformations -> vehicleResource.queueBogie(bogieIndex, storedMatrixTransformations, vehicle, renderVehicleTransformationHelperBogie.light));
 					} else {
-						vehicleResource.iterateBogieModels(bogieIndex, model -> renderModel(renderVehicleTransformationHelperBogie, storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperBogie.light, null)));
+						vehicleResource.iterateBogieModels(bogieIndex, model -> renderModel(renderVehicleTransformationHelperBogie, storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperBogie.light, new ObjectArrayList<>())));
 					}
 				});
 
@@ -98,13 +98,11 @@ public class RenderVehicles implements IGui {
 				// Each car can have more than one model defined
 				renderModel(renderVehicleTransformationHelperOffset, storedMatrixTransformations -> {
 					if (Config.useDynamicFPS()) {
-						vehicleResource.queue(storedMatrixTransformations, renderVehicleTransformationHelperAbsolute.light);
+						vehicleResource.queue(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperAbsolute.light, openDoorways);
 					}
 
 					vehicleResource.iterateModels((modelIndex, model) -> {
-						if (!Config.useDynamicFPS()) {
-							model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperAbsolute.light, openDoorways);
-						}
+						model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperAbsolute.light, openDoorways);
 
 						if (modelIndex >= previousGangwayPositionsList.size()) {
 							previousGangwayPositionsList.add(new PreviousConnectionPositions());

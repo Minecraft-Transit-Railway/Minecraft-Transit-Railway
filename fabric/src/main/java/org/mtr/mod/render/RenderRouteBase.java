@@ -48,7 +48,7 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.BlockEntityBase> ext
 
 		renderAdditionalUnmodified(storedMatrixTransformations.copy(), state, facing, light);
 
-		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, null)) {
+		if (!RenderTrains.shouldNotRender(pos, null)) {
 			final long platformId = entity.getPlatformId();
 
 			if (platformId != 0) {
@@ -118,7 +118,7 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.BlockEntityBase> ext
 		while (true) {
 			final BlockState state = world.getBlockState(pos.offset(searchLeft ? facing.rotateYCounterclockwise() : facing.rotateYClockwise(), number));
 
-			if (state.getBlock() == thisBlock) {
+			if (state.getBlock().equals(thisBlock)) {
 				final boolean isLeft = isLeft(state);
 				final boolean isRight = isRight(state);
 

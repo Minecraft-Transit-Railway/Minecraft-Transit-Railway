@@ -85,7 +85,7 @@ public class PacketData extends PacketHandler {
 	) {
 		this.operation = operation;
 		integration = new Integration();
-		integration.add(stations, platforms, sidings, routes, depots);
+		integration.add(stations, platforms, sidings, routes, depots, null);
 		integration.add(rails, positions);
 		integration.add(signalModifications);
 	}
@@ -121,6 +121,8 @@ public class PacketData extends PacketHandler {
 				writeJsonObjectToDataSet(ClientData.instance.routes, integration::iterateRoutes, NameColorDataBase::getId);
 				writeJsonObjectToDataSet(ClientData.instance.depots, integration::iterateDepots, NameColorDataBase::getId);
 				writeJsonObjectToDataSet(ClientData.instance.rails, integration::iterateRails, Rail::getHexId);
+				ClientData.instance.simplifiedRoutes.clear();
+				integration.iterateSimplifiedRoutes(ClientData.instance.simplifiedRoutes::add);
 			}
 
 			if (integration.hasVehicle()) {
@@ -131,7 +133,10 @@ public class PacketData extends PacketHandler {
 			}
 
 			ClientData.instance.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(ClientData.instance)));
-			ClientData.instance.sync();
+
+			if (integration.hasData()) {
+				ClientData.instance.sync();
+			}
 		}
 	}
 

@@ -41,7 +41,7 @@ public class RenderRouteSign<T extends BlockRouteSignBase.BlockEntityBase> exten
 		final BlockPos pos = entity.getPos2();
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
-		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
+		if (RenderTrains.shouldNotRender(pos, facing)) {
 			return;
 		}
 
