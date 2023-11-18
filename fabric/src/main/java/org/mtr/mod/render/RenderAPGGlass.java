@@ -15,7 +15,7 @@ public class RenderAPGGlass extends RenderRouteBase<BlockAPGGlass.BlockEntity> {
 	private static final float COLOR_STRIP_END = 0.78125F;
 
 	public RenderAPGGlass(Argument dispatcher) {
-		super(dispatcher, 4, 8, 4, 8, false, BlockAPGGlass.ARROW_DIRECTION);
+		super(dispatcher, 4, 8, 4, 8, false, 2, BlockAPGGlass.ARROW_DIRECTION);
 	}
 
 	@Override

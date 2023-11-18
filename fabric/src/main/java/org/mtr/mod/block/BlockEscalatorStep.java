@@ -36,7 +36,7 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 		if (orientation == EnumEscalatorOrientation.FLAT || orientation == EnumEscalatorOrientation.TRANSITION_BOTTOM) {
 			return Block.createCuboidShape(0, 0, 0, 16, 15, 16);
 		} else {
-			return VoxelShapes.union(Block.createCuboidShape(1, 0, 1, 15, 16, 15), super.getCollisionShape2(state, world, pos, context));
+			return VoxelShapes.combine(Block.createCuboidShape(1, 0, 1, 15, 16, 15), super.getCollisionShape2(state, world, pos, context), BooleanBiFunction.getAndMapped());
 		}
 	}
 

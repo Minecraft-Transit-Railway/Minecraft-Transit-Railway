@@ -39,7 +39,6 @@ public class CustomResourceLoader {
 	}
 
 	public static void reload() {
-		DynamicTextureCache.instance.reload();
 		OPTIMIZED_RENDERER.beginReload();
 		RESOURCE_CACHE.clear();
 		VEHICLES.forEach((transportMode, vehicleResources) -> vehicleResources.clear());

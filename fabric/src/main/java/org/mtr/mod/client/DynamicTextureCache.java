@@ -7,6 +7,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.render.RenderTrains;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -289,13 +290,8 @@ public class DynamicTextureCache implements IGui {
 
 		private void remove() {
 			if (!identifier.equals(DEFAULT_BLACK_RESOURCE) && !identifier.equals(DEFAULT_WHITE_RESOURCE) && !identifier.equals(DEFAULT_TRANSPARENT_RESOURCE)) {
-				final TextureManager textureManager = MinecraftClient.getInstance().getTextureManager();
-				textureManager.destroyTexture(identifier);
-				final AbstractTexture abstractTexture = textureManager.getTexture(identifier);
-				if (abstractTexture != null) {
-					abstractTexture.clearGlId();
-					abstractTexture.close();
-				}
+				MinecraftClient.getInstance().getTextureManager().destroyTexture(identifier);
+				RenderTrains.cancelRender(identifier);
 			}
 		}
 	}
