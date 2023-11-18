@@ -19,7 +19,7 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.BlockEntity> {
 	private static final float COLOR_STRIP_END = 15 / 16F;
 
 	public RenderPSDTop(Argument dispatcher) {
-		super(dispatcher, 2 - SMALL_OFFSET_16, 7.5F, 1.5F, 0.125F, true, BlockPSDTop.ARROW_DIRECTION);
+		super(dispatcher, 2 - SMALL_OFFSET_16, 7.5F, 1.5F, 0.125F, true, 3, BlockPSDTop.ARROW_DIRECTION);
 	}
 
 	@Override

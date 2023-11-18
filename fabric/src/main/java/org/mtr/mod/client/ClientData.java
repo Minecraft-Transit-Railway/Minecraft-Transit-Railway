@@ -20,7 +20,6 @@ import org.mtr.mod.packet.PacketDriveTrain;
 import org.mtr.mod.packet.PacketFetchArrivals;
 import org.mtr.mod.screen.DashboardListItem;
 
-import java.util.Comparator;
 import java.util.stream.Collectors;
 
 public final class ClientData extends Data {
@@ -159,25 +158,5 @@ public final class ClientData extends Data {
 			}
 		}));
 		return map;
-	}
-
-	public static Platform getClosePlatform(BlockPos blockPos) {
-		return getClosePlatform(blockPos, 5, 2);
-	}
-
-	public static Platform getClosePlatform(BlockPos blockPos, int radius, int offsetY) {
-		for (int i = 1; i <= radius; i++) {
-			final int searchRadius = i;
-			final Position position = new Position(blockPos.getX(), blockPos.getY() + offsetY, blockPos.getZ());
-			final Platform platform = ClientData.instance.platforms.stream()
-					.filter(checkPlatform -> checkPlatform.closeTo(position, searchRadius))
-					.min(Comparator.comparingLong(checkPlatform -> checkPlatform.getMidPosition().distManhattan(position)))
-					.orElse(null);
-			if (platform != null) {
-				return platform;
-			}
-		}
-
-		return null;
 	}
 }
