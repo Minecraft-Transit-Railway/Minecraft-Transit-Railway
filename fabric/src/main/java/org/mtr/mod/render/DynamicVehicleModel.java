@@ -1,5 +1,6 @@
 package org.mtr.mod.render;
 
+import org.mtr.core.data.Data;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
@@ -16,7 +17,6 @@ import org.mtr.mod.ObjectHolder;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.resource.*;
 
-import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstractMapping> {
@@ -25,7 +25,8 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	private final Identifier texture;
 	private final ObjectArraySet<Box> floors = new ObjectArraySet<>();
 	private final ObjectArraySet<Box> doorways = new ObjectArraySet<>();
-	private final Object2ObjectOpenHashMap<RenderStage, OptimizedModel.MaterialGroup> materialGroupsForRenderStage = new Object2ObjectOpenHashMap<>();
+	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModel.MaterialGroup>> materialGroupsForPartConditionAndRenderStage = new Object2ObjectOpenHashMap<>();
+	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModel.MaterialGroup>> materialGroupsForPartConditionAndRenderStageDoorsClosed = new Object2ObjectOpenHashMap<>();
 
 	public DynamicVehicleModel(BlockbenchModel blockbenchModel, Identifier texture, ModelProperties modelProperties, PositionDefinitions positionDefinitions) {
 		super(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight());
@@ -56,12 +57,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		buildModel();
 		this.texture = texture;
 		this.modelProperties = modelProperties;
-
-		for (final RenderStage renderStage : RenderStage.values()) {
-			materialGroupsForRenderStage.put(renderStage, new OptimizedModel.MaterialGroup(renderStage.shaderType, texture));
-		}
-
-		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(nameToPart, positionDefinitions, floors, doorways, materialGroupsForRenderStage));
+		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(texture, nameToPart, positionDefinitions, floors, doorways, materialGroupsForPartConditionAndRenderStage, materialGroupsForPartConditionAndRenderStageDoorsClosed));
 	}
 
 	@Override
@@ -72,14 +68,20 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	public void render(GraphicsHolder graphicsHolder, int light, int overlay, float red, float green, float blue, float alpha) {
 	}
 
-	public void render(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, @Nullable ObjectArrayList<Box> openDoorways) {
+	public void render(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, ObjectArrayList<Box> openDoorways) {
 		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.render(texture, storedMatrixTransformations, vehicle, light, openDoorways));
 	}
 
-	public void writeFloorsAndDoorways(ObjectArraySet<Box> floors, ObjectArraySet<Box> doorways, ObjectArrayList<OptimizedModel.MaterialGroup> materialGroups) {
+	public void writeFloorsAndDoorways(
+			ObjectArraySet<Box> floors,
+			ObjectArraySet<Box> doorways,
+			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModel.MaterialGroup>> materialGroupsForPartCondition,
+			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModel.MaterialGroup>> materialGroupsForPartConditionDoorsClosed
+	) {
 		floors.addAll(this.floors);
 		doorways.addAll(this.doorways);
-		materialGroups.addAll(this.materialGroupsForRenderStage.values());
+		materialGroupsForPartConditionAndRenderStage.forEach((partCondition, materialGroupsForRenderStage) -> Data.put(materialGroupsForPartCondition, partCondition, materialGroupsForRenderStage.values(), ObjectArrayList::new));
+		materialGroupsForPartConditionAndRenderStageDoorsClosed.forEach((partCondition, materialGroupsForRenderStage) -> Data.put(materialGroupsForPartConditionDoorsClosed, partCondition, materialGroupsForRenderStage.values(), ObjectArrayList::new));
 	}
 
 	private static void iterateChildren(BlockbenchOutline blockbenchOutline, Consumer<String> consumer) {

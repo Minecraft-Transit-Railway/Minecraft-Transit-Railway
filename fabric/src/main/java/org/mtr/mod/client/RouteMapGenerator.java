@@ -3,17 +3,18 @@ package org.mtr.mod.client;
 import org.mtr.core.data.*;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectIntImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.data.IGui;
 
-import java.util.Collections;
 import java.util.Locale;
 import java.util.function.BiConsumer;
 
@@ -64,7 +65,7 @@ public class RouteMapGenerator implements IGui {
 
 	public static NativeImage generateColorStrip(long platformId) {
 		try {
-			final IntArrayList colors = getRouteStream(platformId, (route, currentStationIndex) -> {
+			final IntArrayList colors = getRouteStream(platformId, (simplifiedRoute, currentStationIndex) -> {
 			});
 			if (colors.isEmpty()) {
 				return null;
@@ -276,7 +277,7 @@ public class RouteMapGenerator implements IGui {
 
 		try {
 			final ObjectArrayList<String> destinations = new ObjectArrayList<>();
-			final IntArrayList colors = getRouteStream(platformId, (route, currentStationIndex) -> destinations.add(String.format("%s%s", route.getCircularState() == Route.CircularState.NONE ? "" : TEMP_CIRCULAR_MARKER, route.getDestination(currentStationIndex))));
+			final IntArrayList colors = getRouteStream(platformId, (simplifiedRoute, currentStationIndex) -> destinations.add(String.format("%s%s", simplifiedRoute.getCircularState() == Route.CircularState.NONE ? "" : TEMP_CIRCULAR_MARKER, simplifiedRoute.getPlatforms().get(currentStationIndex).getDestination())));
 			final boolean isTerminating = destinations.isEmpty();
 
 			final boolean leftToRight = horizontalAlignment == HorizontalAlignment.CENTER ? hasLeft || !hasRight : horizontalAlignment != HorizontalAlignment.RIGHT;
@@ -352,8 +353,8 @@ public class RouteMapGenerator implements IGui {
 		}
 
 		try {
-			final ObjectArrayList<ObjectIntImmutablePair<Route>> routeDetails = new ObjectArrayList<>();
-			getRouteStream(platformId, (route, currentStationIndex) -> routeDetails.add(new ObjectIntImmutablePair<>(route, currentStationIndex)));
+			final ObjectArrayList<ObjectIntImmutablePair<SimplifiedRoute>> routeDetails = new ObjectArrayList<>();
+			getRouteStream(platformId, (simplifiedRoute, currentStationIndex) -> routeDetails.add(new ObjectIntImmutablePair<>(simplifiedRoute, currentStationIndex)));
 			final int routeCount = routeDetails.size();
 
 			if (routeCount > 0) {
@@ -362,8 +363,6 @@ public class RouteMapGenerator implements IGui {
 				final ObjectArrayList<LongArrayList> stationsIdsAfter = new ObjectArrayList<>();
 				final ObjectArrayList<Int2ObjectAVLTreeMap<StationPosition>> stationPositions = new ObjectArrayList<>();
 				final int[] colorIndices = new int[routeCount];
-				final IntAVLTreeSet currentRouteColors = new IntAVLTreeSet();
-				final ObjectAVLTreeSet<String> currentRouteNames = new ObjectAVLTreeSet<>();
 				int colorIndex = -1;
 				int previousColor = -1;
 				for (int routeIndex = 0; routeIndex < routeCount; routeIndex++) {
@@ -371,12 +370,12 @@ public class RouteMapGenerator implements IGui {
 					stationsIdsAfter.add(new LongArrayList());
 					stationPositions.add(new Int2ObjectAVLTreeMap<>());
 
-					final ObjectIntImmutablePair<Route> routeDetail = routeDetails.get(routeIndex);
-					final ObjectArrayList<RoutePlatformData> routePlatforms = routeDetail.left().getRoutePlatforms();
+					final ObjectIntImmutablePair<SimplifiedRoute> routeDetail = routeDetails.get(routeIndex);
+					final ObjectArrayList<SimplifiedRoutePlatform> simplifiedRoutePlatforms = routeDetail.left().getPlatforms();
 					final int currentIndex = routeDetail.rightInt();
-					for (int stationIndex = 0; stationIndex < routePlatforms.size(); stationIndex++) {
+					for (int stationIndex = 0; stationIndex < simplifiedRoutePlatforms.size(); stationIndex++) {
 						if (stationIndex != currentIndex) {
-							final long stationId = getStationId(routePlatforms.get(stationIndex).platform.getId());
+							final long stationId = getStationId(simplifiedRoutePlatforms.get(stationIndex).getPlatformId());
 							if (stationIndex < currentIndex) {
 								stationsIdsBefore.get(stationsIdsBefore.size() - 1).add(0, stationId);
 							} else {
@@ -391,8 +390,6 @@ public class RouteMapGenerator implements IGui {
 						previousColor = color;
 					}
 					colorIndices[routeIndex] = colorIndex;
-					currentRouteColors.add(color);
-					currentRouteNames.add(routeDetail.left().getName().split("\\|\\|")[0]);
 				}
 
 				for (int routeIndex = 0; routeIndex < routeCount; routeIndex++) {
@@ -442,45 +439,34 @@ public class RouteMapGenerator implements IGui {
 				final NativeImage nativeImage = new NativeImage(NativeImageFormat.getAbgrMapped(), width, height, false);
 				nativeImage.fillRect(0, 0, width, height, ARGB_WHITE);
 
-				final Object2ObjectAVLTreeMap<Station, ObjectOpenHashSet<StationPositionGrouped>> stationPositionsGrouped = new Object2ObjectAVLTreeMap<>();
+				final Object2ObjectOpenHashMap<SimplifiedRoutePlatform, ObjectOpenHashSet<StationPositionGrouped>> stationPositionsGrouped = new Object2ObjectOpenHashMap<>();
 				for (int routeIndex = 0; routeIndex < routeCount; routeIndex++) {
-					final Route route = routeDetails.get(routeIndex).left();
+					final SimplifiedRoute simplifiedRoute = routeDetails.get(routeIndex).left();
 					final int currentIndex = routeDetails.get(routeIndex).rightInt();
 					final Int2ObjectAVLTreeMap<StationPosition> routeStationPositions = stationPositions.get(routeIndex);
 
-					for (int stationIndex = 0; stationIndex < route.getRoutePlatforms().size(); stationIndex++) {
+					for (int stationIndex = 0; stationIndex < simplifiedRoute.getPlatforms().size(); stationIndex++) {
 						final StationPosition stationPosition = routeStationPositions.get(stationIndex - currentIndex);
-						if (stationIndex < route.getRoutePlatforms().size() - 1) {
-							drawLine(nativeImage, stationPosition, routeStationPositions.get(stationIndex + 1 - currentIndex), widthScale, heightScale, xOffset, yOffset, stationIndex < currentIndex ? ARGB_LIGHT_GRAY : ARGB_BLACK | route.getColor());
+						if (stationIndex < simplifiedRoute.getPlatforms().size() - 1) {
+							drawLine(nativeImage, stationPosition, routeStationPositions.get(stationIndex + 1 - currentIndex), widthScale, heightScale, xOffset, yOffset, stationIndex < currentIndex ? ARGB_LIGHT_GRAY : ARGB_BLACK | simplifiedRoute.getColor());
 						}
 
-						final Station station = route.getRoutePlatforms().get(stationIndex).platform.area;
+						final SimplifiedRoutePlatform simplifiedRoutePlatform = simplifiedRoute.getPlatforms().get(stationIndex);
 
-						if (!stationPosition.isCommon || stationPositionsGrouped.getOrDefault(station, new ObjectOpenHashSet<>()).stream().noneMatch(stationPosition2 -> stationPosition2.stationPosition.x == stationPosition.x)) {
-							final Int2ObjectAVLTreeMap<ObjectArrayList<Route>> connectingRoutesMap = station == null ? new Int2ObjectAVLTreeMap<>() : station.getInterchangeStationToColorToRoutesMap(false).getOrDefault(station, new Int2ObjectAVLTreeMap<>());
-							final IntArrayList allColors = new IntArrayList(connectingRoutesMap.keySet());
-							Collections.sort(allColors);
-
+						if (!stationPosition.isCommon || stationPositionsGrouped.getOrDefault(simplifiedRoutePlatform, new ObjectOpenHashSet<>()).stream().noneMatch(stationPosition2 -> stationPosition2.stationPosition.x == stationPosition.x)) {
 							final IntArrayList interchangeColors = new IntArrayList();
 							final ObjectArrayList<String> interchangeNames = new ObjectArrayList<>();
-							allColors.forEach(color -> {
-								final String name = connectingRoutesMap.get(color).get(0).getName();
-								if (!currentRouteColors.contains(color) && !currentRouteNames.contains(name)) {
-									if (!interchangeColors.contains(color)) {
-										interchangeColors.add(color);
-									}
-									if (!interchangeNames.contains(name)) {
-										interchangeNames.add(name);
-									}
-								}
+							simplifiedRoutePlatform.forEach((color, interchangeRouteNamesForColor) -> {
+								interchangeColors.add(color);
+								interchangeRouteNamesForColor.forEach(interchangeNames::add);
 							});
-							Data.put(stationPositionsGrouped, station, new StationPositionGrouped(stationPosition, stationIndex - currentIndex, interchangeColors, interchangeNames), ObjectOpenHashSet::new);
+							Data.put(stationPositionsGrouped, simplifiedRoutePlatform, new StationPositionGrouped(stationPosition, stationIndex - currentIndex, interchangeColors, interchangeNames), ObjectOpenHashSet::new);
 						}
 					}
 				}
 
 				final int maxStringWidth = (int) (scale * 0.9 * ((vertical ? heightScale : widthScale) / 2 + extraPadding / routeCount));
-				stationPositionsGrouped.forEach((station, stationPositionGroupedSet) -> stationPositionGroupedSet.forEach(stationPositionGrouped -> {
+				stationPositionsGrouped.forEach((simplifiedRoutePlatform, stationPositionGroupedSet) -> stationPositionGroupedSet.forEach(stationPositionGrouped -> {
 					final int x = Math.round((stationPositionGrouped.stationPosition.x + xOffset) * scale * widthScale);
 					final int y = Math.round((stationPositionGrouped.stationPosition.y + yOffset) * scale * heightScale);
 					final int lines = stationPositionGrouped.stationPosition.isCommon ? colorIndices[colorIndices.length - 1] : 0;
@@ -508,7 +494,7 @@ public class RouteMapGenerator implements IGui {
 					drawStation(nativeImage, x, y, heightScale, lines, passed);
 
 					final int[] dimensions = new int[2];
-					final byte[] pixels = clientCache.getTextPixels(station == null ? "" : station.getName(), dimensions, maxStringWidth, (int) ((fontSizeBig + fontSizeSmall) * DynamicTextureCache.LINE_HEIGHT_MULTIPLIER), fontSizeBig, fontSizeSmall, fontSizeSmall / 4, vertical ? HorizontalAlignment.RIGHT : HorizontalAlignment.CENTER);
+					final byte[] pixels = clientCache.getTextPixels(simplifiedRoutePlatform == null ? "" : simplifiedRoutePlatform.getStationName(), dimensions, maxStringWidth, (int) ((fontSizeBig + fontSizeSmall) * DynamicTextureCache.LINE_HEIGHT_MULTIPLIER), fontSizeBig, fontSizeSmall, fontSizeSmall / 4, vertical ? HorizontalAlignment.RIGHT : HorizontalAlignment.CENTER);
 					drawString(nativeImage, pixels, x, y + (textBelow ? lines * lineSpacing : -1) + (textBelow ? 1 : -1) * lineSize * 5 / 4, dimensions, HorizontalAlignment.CENTER, textBelow ? VerticalAlignment.TOP : VerticalAlignment.BOTTOM, currentStation ? ARGB_BLACK : 0, passed ? ARGB_LIGHT_GRAY : currentStation ? ARGB_WHITE : ARGB_BLACK, vertical);
 				}));
 
@@ -603,19 +589,19 @@ public class RouteMapGenerator implements IGui {
 		return (float) lineSpacing / scale * (colorIndices[routeIndex] - colorIndices[colorIndices.length - 1] / 2F);
 	}
 
-	private static IntArrayList getRouteStream(long platformId, BiConsumer<Route, Integer> nonTerminatingCallback) {
+	private static IntArrayList getRouteStream(long platformId, BiConsumer<SimplifiedRoute, Integer> nonTerminatingCallback) {
 		final IntArrayList colors = new IntArrayList();
 		final IntArrayList terminatingColors = new IntArrayList();
-		ClientData.instance.routes.stream().filter(route -> getPlatformIndex(route, platformId) >= 0 && !route.getHidden()).sorted((a, b) -> a.getColor() == b.getColor() ? a.compareTo(b) : a.getColor() - b.getColor()).forEach(route -> {
-			final int currentStationIndex = getPlatformIndex(route, platformId);
-			if (currentStationIndex < route.getRoutePlatforms().size() - 1) {
-				nonTerminatingCallback.accept(route, currentStationIndex);
-				if (!colors.contains(route.getColor())) {
-					colors.add(route.getColor());
+		ClientData.instance.simplifiedRoutes.stream().filter(simplifiedRoute -> simplifiedRoute.getPlatformIndex(platformId) >= 0).sorted().forEach(simplifiedRoute -> {
+			final int currentStationIndex = simplifiedRoute.getPlatformIndex(platformId);
+			if (currentStationIndex < simplifiedRoute.getPlatforms().size() - 1) {
+				nonTerminatingCallback.accept(simplifiedRoute, currentStationIndex);
+				if (!colors.contains(simplifiedRoute.getColor())) {
+					colors.add(simplifiedRoute.getColor());
 				}
 			} else {
-				if (!terminatingColors.contains(route.getColor())) {
-					terminatingColors.add(route.getColor());
+				if (!terminatingColors.contains(simplifiedRoute.getColor())) {
+					terminatingColors.add(simplifiedRoute.getColor());
 				}
 			}
 		});
@@ -623,15 +609,6 @@ public class RouteMapGenerator implements IGui {
 			colors.addAll(terminatingColors);
 		}
 		return colors;
-	}
-
-	private static int getPlatformIndex(Route route, long platformId) {
-		for (int i = 0; i < route.getRoutePlatforms().size(); i++) {
-			if (route.getRoutePlatforms().get(i).platform.getId() == platformId) {
-				return i;
-			}
-		}
-		return -1;
 	}
 
 	private static long getStationId(long platformId) {

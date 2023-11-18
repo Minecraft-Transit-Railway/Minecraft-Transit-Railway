@@ -38,13 +38,9 @@ public class DynamicTextureCache implements IGui {
 	private static final Identifier DEFAULT_WHITE_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/white.png");
 	private static final Identifier DEFAULT_TRANSPARENT_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/transparent.png");
 
-	public void resetFonts() {
+	public void reload() {
 		font = null;
 		fontCjk = null;
-		refreshDynamicResources();
-	}
-
-	public void refreshDynamicResources() {
 		Init.LOGGER.info("Refreshing dynamic resources");
 		resourcesToRefresh.addAll(dynamicResources.keySet());
 	}
