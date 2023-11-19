@@ -23,11 +23,11 @@ public enum DoorAnimationType {
 	}
 
 	public double getDoorAnimationX(double multiplier, double time) {
-		return Math.copySign(getDoorAnimationXAbsolute(Math.abs(multiplier), time), multiplier);
+		return multiplier == 0 ? 0 : Math.copySign(getDoorAnimationXAbsolute(Math.abs(multiplier), time), multiplier);
 	}
 
 	public double getDoorAnimationZ(double multiplier, double time, boolean opening) {
-		return Math.copySign(getDoorAnimationZAbsolute(Math.abs(multiplier), time, opening), multiplier);
+		return multiplier == 0 ? 0 : Math.copySign(getDoorAnimationZAbsolute(Math.abs(multiplier), time, opening), multiplier);
 	}
 
 	private double getDoorAnimationXAbsolute(double multiplier, double time) {

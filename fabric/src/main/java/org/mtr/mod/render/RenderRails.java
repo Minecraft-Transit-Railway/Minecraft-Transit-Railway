@@ -99,12 +99,10 @@ public class RenderRails implements IGui {
 	}
 
 	private static void renderRailStandard(ClientWorld clientWorld, Rail rail, float yOffset, boolean renderColors, float railWidth, @Nullable Identifier texture, float u1, float v1, float u2, float v2) {
-		final int maxRailDistance = MinecraftClientHelper.getRenderDistance() * 16;
-
 		if (renderColors || texture != null) {
 			rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 				final BlockPos pos2 = Init.newBlockPos(x1, y1, z1);
-				if (RenderTrains.shouldNotRender(pos2, maxRailDistance, null)) {
+				if (RenderTrains.shouldNotRender(pos2, null)) {
 					return;
 				}
 
@@ -132,7 +130,6 @@ public class RenderRails implements IGui {
 	}
 
 	private static void renderSignalsStandard(ClientWorld clientWorld, Rail rail) {
-		final int maxRailDistance = MinecraftClientHelper.getRenderDistance() * 16;
 		final IntArrayList colors = new IntArrayList(rail.getSignalColors());
 		Collections.sort(colors);
 		final float width = 1F / 16;
@@ -145,7 +142,7 @@ public class RenderRails implements IGui {
 
 			rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 				final BlockPos pos2 = Init.newBlockPos(x1, y1, z1);
-				if (RenderTrains.shouldNotRender(pos2, maxRailDistance, null)) {
+				if (RenderTrains.shouldNotRender(pos2, null)) {
 					return;
 				}
 

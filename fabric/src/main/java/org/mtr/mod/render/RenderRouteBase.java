@@ -4,6 +4,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockPSDTop;
 import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.DynamicTextureCache;
@@ -17,15 +18,17 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.BlockEntityBase> ext
 	protected final float sidePadding;
 	private final float z;
 	private final boolean transparentWhite;
+	private final int platformSearchYOffset;
 	private final IntegerProperty arrowDirectionProperty;
 
-	public RenderRouteBase(Argument dispatcher, float z, float topPadding, float bottomPadding, float sidePadding, boolean transparentWhite, IntegerProperty arrowDirectionProperty) {
+	public RenderRouteBase(Argument dispatcher, float z, float topPadding, float bottomPadding, float sidePadding, boolean transparentWhite, int platformSearchYOffset, IntegerProperty arrowDirectionProperty) {
 		super(dispatcher);
 		this.z = z / 16;
 		this.topPadding = topPadding / 16;
 		this.bottomPadding = bottomPadding / 16;
 		this.sidePadding = sidePadding / 16;
 		this.transparentWhite = transparentWhite;
+		this.platformSearchYOffset = platformSearchYOffset;
 		this.arrowDirectionProperty = arrowDirectionProperty;
 	}
 
@@ -36,8 +39,8 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.BlockEntityBase> ext
 			return;
 		}
 
-		final BlockPos pos = entity.getPos2();
-		final BlockState state = world.getBlockState(pos);
+		final BlockPos blockPos = entity.getPos2();
+		final BlockState state = world.getBlockState(blockPos);
 		final Direction facing = IBlock.getStatePropertySafe(state, DirectionHelper.FACING);
 
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(true);
@@ -48,20 +51,20 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.BlockEntityBase> ext
 
 		renderAdditionalUnmodified(storedMatrixTransformations.copy(), state, facing, light);
 
-		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, null)) {
-			final long platformId = entity.getPlatformId();
+		if (!RenderTrains.shouldNotRender(blockPos, null)) {
+			InitClient.findClosePlatform(blockPos.down(platformSearchYOffset), 5, platform -> {
+				final long platformId = platform.getId();
 
-			if (platformId != 0) {
 				storedMatrixTransformations.add(graphicsHolderNew -> {
 					graphicsHolderNew.translate(0, 1, 0);
 					graphicsHolderNew.rotateZDegrees(180);
 					graphicsHolderNew.translate(-0.5, -getAdditionalOffset(state), z);
 				});
 
-				final int leftBlocks = getTextureNumber(world, pos, facing, true);
-				final int rightBlocks = getTextureNumber(world, pos, facing, false);
+				final int leftBlocks = getTextureNumber(world, blockPos, facing, true);
+				final int rightBlocks = getTextureNumber(world, blockPos, facing, false);
 				final int color = getShadingColor(facing, ARGB_WHITE);
-				final RenderType renderType = getRenderType(world, pos.offset(facing.rotateYCounterclockwise(), leftBlocks), state);
+				final RenderType renderType = getRenderType(world, blockPos.offset(facing.rotateYCounterclockwise(), leftBlocks), state);
 
 				if ((renderType == RenderType.ARROW || renderType == RenderType.ROUTE) && IBlock.getStatePropertySafe(state, SIDE_EXTENDED) != EnumSide.SINGLE) {
 					final float width = leftBlocks + rightBlocks + 1 - sidePadding * 2;
@@ -83,7 +86,7 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.BlockEntityBase> ext
 				}
 
 				renderAdditional(storedMatrixTransformations, platformId, state, leftBlocks, rightBlocks, facing.getOpposite(), color, light);
-			}
+			});
 		}
 	}
 
@@ -118,7 +121,7 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.BlockEntityBase> ext
 		while (true) {
 			final BlockState state = world.getBlockState(pos.offset(searchLeft ? facing.rotateYCounterclockwise() : facing.rotateYClockwise(), number));
 
-			if (state.getBlock() == thisBlock) {
+			if (state.getBlock().equals(thisBlock)) {
 				final boolean isLeft = isLeft(state);
 				final boolean isRight = isRight(state);
 

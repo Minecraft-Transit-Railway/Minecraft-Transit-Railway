@@ -2,14 +2,15 @@ package org.mtr.mod.render;
 
 import org.mtr.core.data.InterchangeColorsForStationName;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.Config;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.entity.EntityRendering;
@@ -21,17 +22,10 @@ import java.util.function.Consumer;
 
 public class RenderTrains extends EntityRenderer<EntityRendering> implements IGui {
 
-	public static int maxTrainRenderDistance;
-
 	private static long lastRenderedMillis;
 
 	public static final int PLAYER_RENDER_OFFSET = 1000;
 
-	public static final ObjectAVLTreeSet<String> AVAILABLE_TEXTURES = new ObjectAVLTreeSet<>();
-	public static final ObjectAVLTreeSet<String> UNAVAILABLE_TEXTURES = new ObjectAVLTreeSet<>();
-
-	public static final int DETAIL_RADIUS = 32;
-	public static final int DETAIL_RADIUS_SQUARED = DETAIL_RADIUS * DETAIL_RADIUS;
 	private static final int TOTAL_RENDER_STAGES = 2;
 	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArraySet<BiConsumer<GraphicsHolder, Vector3d>>>>> RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
 	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArraySet<BiConsumer<GraphicsHolder, Vector3d>>>>> CURRENT_RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
@@ -72,7 +66,6 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 		final long millisElapsed = InitClient.getGameMillis() - lastRenderedMillis;
 		ClientData.instance.vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
 		lastRenderedMillis = InitClient.getGameMillis();
-		// TODO
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
@@ -132,17 +125,12 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 			}
 		}
 
-		CustomResourceLoader.OPTIMIZED_RENDERER.render();
+		CustomResourceLoader.OPTIMIZED_RENDERER.render(!Config.hideTranslucentParts());
 	}
 
-	public static boolean shouldNotRender(BlockPos pos, int maxDistance, @Nullable Direction facing) {
+	public static boolean shouldNotRender(BlockPos pos, @Nullable Direction facing) {
 		final Entity camera = MinecraftClient.getInstance().getCameraEntityMapped();
-		return shouldNotRender(camera == null ? null : camera.getPos(), pos, maxDistance, facing);
-	}
-
-	public static void clearTextureAvailability() {
-		AVAILABLE_TEXTURES.clear();
-		UNAVAILABLE_TEXTURES.clear();
+		return shouldNotRender(camera == null ? null : camera.getPos(), pos, facing);
 	}
 
 	public static void scheduleRender(@Nullable Identifier identifier, boolean priority, QueuedRenderLayer queuedRenderLayer, BiConsumer<GraphicsHolder, Vector3d> callback) {
@@ -159,6 +147,10 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 		scheduleRender(new Identifier(""), false, queuedRenderLayer, callback);
 	}
 
+	public static void cancelRender(Identifier identifier) {
+		RENDERS.forEach(renderForPriority -> renderForPriority.forEach(renderForPriorityAndQueuedRenderLayer -> renderForPriorityAndQueuedRenderLayer.remove(identifier)));
+	}
+
 	public static String getInterchangeRouteNames(Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges) {
 		final ObjectArrayList<String> interchangeRouteNames = new ObjectArrayList<>();
 		getInterchanges.accept((connectingStationName, interchangeColorsForStationName) -> interchangeColorsForStationName.forEach((color, interchangeRouteNamesForColor) -> interchangeRouteNamesForColor.forEach(interchangeRouteNames::add)));
@@ -169,7 +161,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 		return Math.max(Math.abs(pos1.getXMapped() - pos2.getX()), Math.abs(pos1.getZMapped() - pos2.getZ()));
 	}
 
-	private static boolean shouldNotRender(@Nullable Vector3d cameraPos, BlockPos pos, int maxDistance, @Nullable Direction facing) {
+	private static boolean shouldNotRender(@Nullable Vector3d cameraPos, BlockPos pos, @Nullable Direction facing) {
 		final boolean playerFacingAway;
 		if (cameraPos == null || facing == null) {
 			playerFacingAway = false;
@@ -182,7 +174,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 				playerFacingAway = Math.signum(playerZOffset) == facing.getOffsetZ() && Math.abs(playerZOffset) >= 0.5;
 			}
 		}
-		return cameraPos == null || playerFacingAway || maxDistanceXZ(cameraPos, pos) > maxDistance;
+		return cameraPos == null || playerFacingAway || maxDistanceXZ(cameraPos, pos) > MinecraftClientHelper.getRenderDistance() * (Config.trainRenderDistanceRatio() + 1);
 	}
 
 	public enum QueuedRenderLayer {LIGHT, INTERIOR, EXTERIOR, LIGHT_TRANSLUCENT, INTERIOR_TRANSLUCENT, EXTERIOR_TRANSLUCENT, LINES, TEXT}

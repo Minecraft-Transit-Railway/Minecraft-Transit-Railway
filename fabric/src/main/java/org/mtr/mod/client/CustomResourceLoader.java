@@ -12,7 +12,6 @@ import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
-import org.mtr.mod.render.RenderTrains;
 import org.mtr.mod.resource.CustomResources;
 import org.mtr.mod.resource.SignResource;
 import org.mtr.mod.resource.VehicleResource;
@@ -40,8 +39,6 @@ public class CustomResourceLoader {
 	}
 
 	public static void reload() {
-		RenderTrains.clearTextureAvailability();
-		DynamicTextureCache.instance.resetFonts();
 		OPTIMIZED_RENDERER.beginReload();
 		RESOURCE_CACHE.clear();
 		VEHICLES.forEach((transportMode, vehicleResources) -> vehicleResources.clear());
