@@ -6,7 +6,7 @@ import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mod.Init;
 
-public class PacketRequestData extends PacketHandler {
+public final class PacketRequestData extends PacketHandler {
 
 	private final boolean forceUpdate;
 

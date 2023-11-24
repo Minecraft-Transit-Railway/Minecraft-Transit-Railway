@@ -10,7 +10,7 @@ import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.registry.Registry;
 import org.mtr.mod.screen.DashboardScreen;
 
-public class PacketOpenDashboardScreen extends PacketData {
+public final class PacketOpenDashboardScreen extends PacketDataBase {
 
 	private final TransportMode transportMode;
 	private final boolean useTimeAndWindSync;
@@ -22,7 +22,7 @@ public class PacketOpenDashboardScreen extends PacketData {
 	}
 
 	private PacketOpenDashboardScreen(Integration integration, TransportMode transportMode, boolean useTimeAndWindSync) {
-		super(IntegrationServlet.Operation.LIST, integration);
+		super(IntegrationServlet.Operation.LIST, integration, false, true);
 		this.transportMode = transportMode;
 		this.useTimeAndWindSync = useTimeAndWindSync;
 	}

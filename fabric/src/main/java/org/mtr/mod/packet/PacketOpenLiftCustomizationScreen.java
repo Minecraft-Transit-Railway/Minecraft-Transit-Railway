@@ -3,7 +3,7 @@ package org.mtr.mod.packet;
 import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.registry.PacketHandler;
 
-public class PacketOpenLiftCustomizationScreen extends PacketHandler {
+public final class PacketOpenLiftCustomizationScreen extends PacketHandler {
 
 	private final long id;
 

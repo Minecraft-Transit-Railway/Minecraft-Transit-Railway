@@ -2,7 +2,6 @@ package org.mtr.mod.client;
 
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.mapping.holder.MathHelper;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mod.Init;
@@ -45,7 +44,7 @@ public class Config {
 	private static final String TRAIN_RENDER_DISTANCE_RATIO = "train_render_distance_ratio";
 
 	public static boolean useMTRFont() {
-		return useMTRFont;
+		return false; // TODO no fancy font rendering
 	}
 
 	public static boolean showAnnouncementMessages() {
@@ -154,7 +153,7 @@ public class Config {
 	public static void refreshProperties() {
 		Init.LOGGER.info("Refreshed Minecraft Transit Railway mod config");
 		try {
-			final JsonObject jsonConfig = JsonParser.parseString(String.join("", Files.readAllLines(CONFIG_FILE_PATH))).getAsJsonObject();
+			final JsonObject jsonConfig = Utilities.parseJson(String.join("", Files.readAllLines(CONFIG_FILE_PATH)));
 			try {
 				useMTRFont = jsonConfig.get(USE_MTR_FONT_KEY).getAsBoolean();
 			} catch (Exception ignored) {

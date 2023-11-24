@@ -5,7 +5,7 @@ import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.registry.PacketHandler;
 
-public class PacketDriveTrain extends PacketHandler {
+public final class PacketDriveTrain extends PacketHandler {
 
 	private final boolean pressingAccelerate;
 	private final boolean pressingBrake;

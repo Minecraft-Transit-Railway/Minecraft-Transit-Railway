@@ -51,7 +51,7 @@ public class RailActionsScreen extends ScreenExtension implements IGui, IPacket 
 	@Override
 	public void tick2() {
 		railActionsList.tick();
-		railActionsList.setData(ClientData.instance.railActions, false, false, false, false, false, true);
+		railActionsList.setData(ClientData.getInstance().railActions, false, false, false, false, false, true);
 	}
 
 	@Override

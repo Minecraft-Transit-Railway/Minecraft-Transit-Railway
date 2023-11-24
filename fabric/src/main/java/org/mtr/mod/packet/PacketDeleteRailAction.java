@@ -6,7 +6,7 @@ import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mod.Init;
 
-public class PacketDeleteRailAction extends PacketHandler {
+public final class PacketDeleteRailAction extends PacketHandler {
 
 	private final long id;
 

@@ -6,7 +6,7 @@ import org.mtr.mapping.mapper.PlayerHelper;
 import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mod.data.TicketSystem;
 
-public class PacketAddBalance extends PacketHandler {
+public final class PacketAddBalance extends PacketHandler {
 
 	private final int index;
 
