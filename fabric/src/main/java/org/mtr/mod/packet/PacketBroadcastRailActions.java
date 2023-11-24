@@ -7,7 +7,7 @@ import org.mtr.mod.client.ClientData;
 import org.mtr.mod.data.RailAction;
 import org.mtr.mod.screen.DashboardListItem;
 
-public class PacketBroadcastRailActions extends PacketHandler {
+public final class PacketBroadcastRailActions extends PacketHandler {
 
 	private final ObjectArrayList<RailAction> railActions;
 	private final ObjectArrayList<DashboardListItem> dashboardListItems;
@@ -38,7 +38,7 @@ public class PacketBroadcastRailActions extends PacketHandler {
 
 	@Override
 	public void runClientQueued() {
-		ClientData.instance.railActions.clear();
-		ClientData.instance.railActions.addAll(dashboardListItems);
+		ClientData.getInstance().railActions.clear();
+		ClientData.getInstance().railActions.addAll(dashboardListItems);
 	}
 }

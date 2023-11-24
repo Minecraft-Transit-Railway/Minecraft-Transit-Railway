@@ -6,7 +6,7 @@ import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mod.block.BlockRailwaySign;
 import org.mtr.mod.block.BlockRouteSignBase;
 
-public class PacketUpdateRailwaySignConfig extends PacketHandler {
+public final class PacketUpdateRailwaySignConfig extends PacketHandler {
 
 	private final BlockPos blockPos;
 	private final LongAVLTreeSet selectedIds;

@@ -4,7 +4,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mod.block.BlockEntityPIDS;
 
-public class PacketUpdatePIDSConfig extends PacketUpdateArrivalProjectorConfig {
+public final class PacketUpdatePIDSConfig extends PacketUpdateArrivalProjectorConfig {
 
 	private final BlockPos blockPos2;
 	private final String[] messages;

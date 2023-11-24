@@ -69,7 +69,7 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 		movingOnlyCheckbox.setMessage2(new Text(TextHelper.translatable("gui.mtr.moving_only").data));
 
 		filterButton = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> {
-			final ObjectArrayList<DashboardListItem> routes = new ObjectArrayList<>(ClientData.convertDataSet(ClientData.instance.routes));
+			final ObjectArrayList<DashboardListItem> routes = new ObjectArrayList<>(ClientData.convertDataSet(ClientData.getInstance().routes));
 			Collections.sort(routes);
 			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this, new ObjectImmutableList<>(routes), filterRouteIds, false, false)));
 		});
@@ -119,7 +119,7 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 			graphicsHolder.drawText(TextHelper.translatable(filterRouteIds.isEmpty() ? "gui.mtr.filtered_routes_empty" : "gui.mtr.filtered_routes_condition"), SQUARE_SIZE, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
 			int i = 0;
 			for (final long routeId : filterRouteIds) {
-				final Route route = ClientData.instance.routeIdMap.get(routeId);
+				final Route route = ClientData.getInstance().routeIdMap.get(routeId);
 				if (route != null) {
 					graphicsHolder.drawText(TextHelper.literal(IGui.formatStationName(route.getName())), SQUARE_SIZE, yStart + SQUARE_SIZE * 3 + TEXT_PADDING + i, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
 				}

@@ -6,7 +6,7 @@ import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mod.block.*;
 import org.mtr.mod.screen.*;
 
-public class PacketOpenBlockEntityScreen extends PacketHandler {
+public final class PacketOpenBlockEntityScreen extends PacketHandler {
 
 	private final BlockPos blockPos;
 

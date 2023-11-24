@@ -97,7 +97,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 		buttonEditInstructions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.edit_instructions"), button -> {
 			saveData();
-			final ObjectArrayList<DashboardListItem> routes = new ObjectArrayList<>(ClientData.getFilteredDataSet(transportMode, ClientData.instance.routes));
+			final ObjectArrayList<DashboardListItem> routes = new ObjectArrayList<>(ClientData.getFilteredDataSet(transportMode, ClientData.getDashboardInstance().routes));
 			Collections.sort(routes);
 			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this, new ObjectImmutableList<>(routes), data.getRouteIds(), false, true)));
 		});
@@ -184,8 +184,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		if (data.routes.isEmpty()) {
 			checkboxRepeatIndefinitely.visible = false;
 		} else {
-			final Route firstRoute = ClientData.instance.routeIdMap.get(data.routes.get(0).getId());
-			final Route lastRoute = ClientData.instance.routeIdMap.get(data.routes.get(data.routes.size() - 1).getId());
+			final Route firstRoute = ClientData.getDashboardInstance().routeIdMap.get(data.routes.get(0).getId());
+			final Route lastRoute = ClientData.getDashboardInstance().routeIdMap.get(data.routes.get(data.routes.size() - 1).getId());
 			checkboxRepeatIndefinitely.visible = firstRoute != null && lastRoute != null && !firstRoute.getRoutePlatforms().isEmpty() && !lastRoute.getRoutePlatforms().isEmpty() && Utilities.getElement(firstRoute.getRoutePlatforms(), 0) == Utilities.getElement(lastRoute.getRoutePlatforms(), -1);
 		}
 	}

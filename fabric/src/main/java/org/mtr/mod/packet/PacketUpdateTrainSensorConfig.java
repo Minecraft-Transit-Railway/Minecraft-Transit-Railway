@@ -5,7 +5,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mod.block.BlockTrainSensorBase;
 
-public class PacketUpdateTrainSensorConfig extends PacketHandler {
+public final class PacketUpdateTrainSensorConfig extends PacketHandler {
 
 	private final BlockPos blockPos;
 	private final LongAVLTreeSet filterRouteIds;

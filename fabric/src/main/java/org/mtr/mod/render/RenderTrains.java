@@ -64,7 +64,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 
 	public static void render(GraphicsHolder graphicsHolder, Vector3d offset) {
 		final long millisElapsed = InitClient.getGameMillis() - lastRenderedMillis;
-		ClientData.instance.vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
+		ClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
 		lastRenderedMillis = InitClient.getGameMillis();
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();

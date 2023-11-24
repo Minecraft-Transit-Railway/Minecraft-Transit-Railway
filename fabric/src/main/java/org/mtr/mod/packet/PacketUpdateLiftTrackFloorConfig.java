@@ -4,7 +4,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mod.block.BlockLiftTrackFloor;
 
-public class PacketUpdateLiftTrackFloorConfig extends PacketHandler {
+public final class PacketUpdateLiftTrackFloorConfig extends PacketHandler {
 
 	private final BlockPos blockPos;
 	private final String floorNumber;

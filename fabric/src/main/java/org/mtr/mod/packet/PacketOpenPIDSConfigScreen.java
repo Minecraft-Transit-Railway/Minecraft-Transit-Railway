@@ -6,7 +6,7 @@ import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mod.block.BlockEntityPIDS;
 import org.mtr.mod.screen.PIDSConfigScreen;
 
-public class PacketOpenPIDSConfigScreen extends PacketHandler {
+public final class PacketOpenPIDSConfigScreen extends PacketHandler {
 
 	private final BlockPos blockPos1;
 	private final BlockPos blockPos2;
