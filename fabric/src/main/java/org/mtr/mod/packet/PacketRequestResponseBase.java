@@ -20,7 +20,7 @@ public abstract class PacketRequestResponseBase<T extends SerializedDataBase> ex
 
 	public PacketRequestResponseBase(PacketBuffer packetBuffer) {
 		final boolean isResponse = packetBuffer.readBoolean();
-		final JsonObject jsonObject = PacketData.parseJson(readString(packetBuffer));
+		final JsonObject jsonObject = Utilities.parseJson(readString(packetBuffer));
 		request = isResponse ? null : createRequest(new JsonReader(jsonObject));
 		response = isResponse ? Response.create(jsonObject) : null;
 	}

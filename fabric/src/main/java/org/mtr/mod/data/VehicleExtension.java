@@ -24,10 +24,10 @@ public class VehicleExtension extends Vehicle implements Utilities {
 
 	public VehicleExtension(VehicleUpdate vehicleUpdate, Data data) {
 		super(vehicleUpdate.getVehicleExtraData(), null, true, new JsonReader(Utilities.getJsonObjectFromData(vehicleUpdate.getVehicle())), data);
-		final PersistentVehicleData tempPersistentVehicleData = ClientData.instance.vehicleIdToPersistentVehicleData.get(getId());
+		final PersistentVehicleData tempPersistentVehicleData = ClientData.getInstance().vehicleIdToPersistentVehicleData.get(getId());
 		if (tempPersistentVehicleData == null) {
 			persistentVehicleData = new PersistentVehicleData();
-			ClientData.instance.vehicleIdToPersistentVehicleData.put(getId(), persistentVehicleData);
+			ClientData.getInstance().vehicleIdToPersistentVehicleData.put(getId(), persistentVehicleData);
 		} else {
 			persistentVehicleData = tempPersistentVehicleData;
 		}

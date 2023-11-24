@@ -9,7 +9,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
 import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mod.client.ClientData;
 
-public class PacketFetchArrivals extends PacketRequestResponseBase<ArrivalsRequest> implements Utilities {
+public final class PacketFetchArrivals extends PacketRequestResponseBase<ArrivalsRequest> implements Utilities {
 
 	private final long requestKey;
 
@@ -53,7 +53,7 @@ public class PacketFetchArrivals extends PacketRequestResponseBase<ArrivalsReque
 
 	@Override
 	protected void runClient(Response response) {
-		ClientData.instance.writeArrivalRequest(requestKey, response.getData(ArrivalsResponse::new));
+		ClientData.getInstance().writeArrivalRequest(requestKey, response.getData(ArrivalsResponse::new));
 		millisOffset = response.getCurrentTime() - System.currentTimeMillis();
 	}
 

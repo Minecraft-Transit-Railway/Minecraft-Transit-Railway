@@ -7,7 +7,7 @@ import org.mtr.mod.client.ClientData;
 public class DataConverter extends NameColorDataBase {
 
 	public DataConverter(String name, int color) {
-		super(TransportMode.TRAIN, ClientData.instance);
+		super(TransportMode.TRAIN, ClientData.getInstance());
 		this.name = name;
 		this.color = color;
 	}

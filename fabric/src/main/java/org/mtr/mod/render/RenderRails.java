@@ -35,7 +35,7 @@ public class RenderRails implements IGui {
 		final boolean renderColors = isHoldingRailRelated(clientPlayerEntity);
 		final int maxRailDistance = MinecraftClientHelper.getRenderDistance() * 16;
 
-		ClientData.instance.positionsToRail.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
+		ClientData.getInstance().positionsToRail.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
 			if (!Utilities.isBetween(clientPlayerEntity.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !Utilities.isBetween(clientPlayerEntity.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
 				return;
 			}

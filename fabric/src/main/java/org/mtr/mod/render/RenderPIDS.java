@@ -5,12 +5,15 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.Direction;
+import org.mtr.mapping.holder.Vector3d;
 import org.mtr.mapping.holder.World;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.InitClient;
+import org.mtr.mod.block.BlockPIDSBaseHorizontal;
+import org.mtr.mod.block.BlockPIDSBaseVertical;
 import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.data.IGui;
@@ -73,26 +76,40 @@ public class RenderPIDS<T extends BlockEntityExtension> extends BlockEntityRende
 
 		final BlockPos blockPos = entity.getPos2();
 		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, DirectionHelper.FACING);
+		final boolean isHorizontal = entity instanceof BlockPIDSBaseHorizontal.BlockEntityHorizontalBase;
+		final boolean isVertical = entity instanceof BlockPIDSBaseVertical.BlockEntityVerticalBase;
+		if (isHorizontal && (facing == Direction.NORTH || facing == Direction.EAST) || isVertical && IBlock.getStatePropertySafe(world, blockPos, BlockPIDSBaseVertical.HALF) == IBlock.DoubleBlockHalf.LOWER) {
+			return;
+		}
 
 		InitClient.findClosePlatform(entity.getPos2(), 5, platform -> {
-			final ArrivalsResponse arrivalsResponse = ClientData.instance.requestArrivals(blockPos.asLong(), LongImmutableList.of(platform.getId()), maxArrivals, 0, true);
-			RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolderNew, offset) -> arrivalsResponse.iterateArrivals((arrivalIndex, arrivalResponse) -> {
-				final int languageTicks = (int) Math.floor(InitClient.getGameTick()) / SWITCH_LANGUAGE_TICKS;
+			final ArrivalsResponse arrivalsResponse = ClientData.getInstance().requestArrivals(blockPos.asLong(), LongImmutableList.of(platform.getId()), maxArrivals, 0, true);
+			RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolderNew, offset) -> {
+				render(blockPos, facing, arrivalsResponse, graphicsHolderNew, offset, false);
+				if (isHorizontal) {
+					render(blockPos.offset(facing), facing, arrivalsResponse, graphicsHolderNew, offset, true);
+				}
+			});
+		});
+	}
 
-				graphicsHolderNew.push();
-				graphicsHolderNew.translate(blockPos.getX() - offset.getXMapped() + 0.5, blockPos.getY() - offset.getYMapped(), blockPos.getZ() - offset.getZMapped() + 0.5);
-				graphicsHolderNew.rotateYDegrees((rotate90 ? 90 : 0) - facing.asRotation());
-				graphicsHolderNew.rotateZDegrees(180);
-				graphicsHolderNew.translate((startX - 8) / 16, -startY / 16 + arrivalIndex * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
-				graphicsHolderNew.scale(1F / scale, 1F / scale, 1F / scale);
+	private void render(BlockPos blockPos, Direction facing, ArrivalsResponse arrivalsResponse, GraphicsHolder graphicsHolder, Vector3d offset, boolean addRotation) {
+		arrivalsResponse.iterateArrivals((arrivalIndex, arrivalResponse) -> {
+			final int languageTicks = (int) Math.floor(InitClient.getGameTick()) / SWITCH_LANGUAGE_TICKS;
 
-				final long arrivalSeconds = Math.max(0, (arrivalResponse.getArrival() - PacketFetchArrivals.getMillisOffset() - System.currentTimeMillis()) / MILLIS_PER_SECOND);
-				final long delay = arrivalResponse.getDeviation() / MILLIS_PER_SECOND;
-				// TODO formatting
-				graphicsHolderNew.drawText(arrivalResponse.getDestination().split("\\|")[0] + " D: " + delay + " A: " + (arrivalSeconds == 0 ? "" : arrivalSeconds) + " I: " + arrivalResponse.getDepartureIndex(), 0, 0, textColor, false, MAX_LIGHT_GLOWING);
+			graphicsHolder.push();
+			graphicsHolder.translate(blockPos.getX() - offset.getXMapped() + 0.5, blockPos.getY() - offset.getYMapped(), blockPos.getZ() - offset.getZMapped() + 0.5);
+			graphicsHolder.rotateYDegrees((rotate90 ? 90 : 0) + (addRotation ? 180 : 0) - facing.asRotation());
+			graphicsHolder.rotateZDegrees(180);
+			graphicsHolder.translate((startX - 8) / 16, -startY / 16 + arrivalIndex * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
+			graphicsHolder.scale(1F / scale, 1F / scale, 1F / scale);
 
-				graphicsHolderNew.pop();
-			}));
+			final long arrivalSeconds = Math.max(0, (arrivalResponse.getArrival() - PacketFetchArrivals.getMillisOffset() - System.currentTimeMillis()) / MILLIS_PER_SECOND);
+			final long delay = arrivalResponse.getDeviation() / MILLIS_PER_SECOND;
+			// TODO formatting
+			graphicsHolder.drawText(arrivalResponse.getDestination().split("\\|")[0] + " D: " + delay + " A: " + (arrivalSeconds == 0 ? "" : arrivalSeconds) + " I: " + arrivalResponse.getDepartureIndex(), 0, 0, textColor, false, MAX_LIGHT_GLOWING);
+
+			graphicsHolder.pop();
 		});
 	}
 }

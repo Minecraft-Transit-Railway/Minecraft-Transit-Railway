@@ -30,7 +30,9 @@ public final class ClientData extends Data {
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
 	private final Long2ObjectAVLTreeMap<ObjectLongImmutablePair<ArrivalsResponse>> arrivalRequests = new Long2ObjectAVLTreeMap<>();
 
-	public static ClientData instance = new ClientData();
+	private static ClientData instance = new ClientData();
+	private static ClientData dashboardInstance = new ClientData();
+
 	public static String DASHBOARD_SEARCH = "";
 	public static String ROUTES_PLATFORMS_SEARCH = "";
 	public static String ROUTES_PLATFORMS_SELECTED_SEARCH = "";
@@ -77,6 +79,19 @@ public final class ClientData extends Data {
 
 	public void writeArrivalRequest(long requestKey, ArrivalsResponse arrivalsResponse) {
 		arrivalRequests.put(requestKey, new ObjectLongImmutablePair<>(arrivalsResponse, System.currentTimeMillis() + CACHED_ARRIVAL_REQUESTS_MILLIS));
+	}
+
+	public static ClientData getInstance() {
+		return instance;
+	}
+
+	public static ClientData getDashboardInstance() {
+		return dashboardInstance;
+	}
+
+	public static void reset() {
+		ClientData.instance = new ClientData();
+		ClientData.dashboardInstance = new ClientData();
 	}
 
 	public static void tick() {
@@ -129,7 +144,7 @@ public final class ClientData extends Data {
 	}
 
 	public static Rail getRail(BlockPos blockPos1, BlockPos blockPos2) {
-		return tryGet(ClientData.instance.positionsToRail, Init.blockPosToPosition(blockPos1), Init.blockPosToPosition(blockPos2));
+		return tryGet(ClientData.getInstance().positionsToRail, Init.blockPosToPosition(blockPos1), Init.blockPosToPosition(blockPos2));
 	}
 
 	public static <T extends NameColorDataBase> ObjectAVLTreeSet<DashboardListItem> getFilteredDataSet(TransportMode transportMode, ObjectAVLTreeSet<T> dataSet) {

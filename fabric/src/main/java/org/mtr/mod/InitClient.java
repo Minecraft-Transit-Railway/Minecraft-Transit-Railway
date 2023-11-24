@@ -309,7 +309,7 @@ public final class InitClient {
 		RegistryClient.setupPackets(new Identifier(Init.MOD_ID, "packet"));
 
 		EventRegistryClient.registerClientJoin(() -> {
-			ClientData.instance = new ClientData();
+			ClientData.reset();
 			DynamicTextureCache.instance = new DynamicTextureCache();
 			lastMillis = System.currentTimeMillis();
 			gameMillis = 0;
@@ -374,11 +374,11 @@ public final class InitClient {
 	}
 
 	public static Station findStation(BlockPos blockPos) {
-		return ClientData.instance.stations.stream().filter(station -> station.inArea(Init.blockPosToPosition(blockPos))).findFirst().orElse(null);
+		return ClientData.getInstance().stations.stream().filter(station -> station.inArea(Init.blockPosToPosition(blockPos))).findFirst().orElse(null);
 	}
 
 	public static void findClosePlatform(BlockPos blockPos, int radius, Consumer<Platform> consumer) {
-		ClientData.instance.platforms.stream().filter(platform -> platform.closeTo(Init.blockPosToPosition(blockPos), radius)).findFirst().ifPresent(consumer);
+		ClientData.getInstance().platforms.stream().filter(platform -> platform.closeTo(Init.blockPosToPosition(blockPos), radius)).findFirst().ifPresent(consumer);
 	}
 
 	public static String getShiftText() {

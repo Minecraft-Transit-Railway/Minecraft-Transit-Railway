@@ -11,7 +11,7 @@ import org.mtr.mapping.holder.PacketBuffer;
 
 import javax.annotation.Nullable;
 
-public class PacketUpdateVehicleRidingEntities extends PacketRequestResponseBase<UpdateVehicleRidingEntities> implements Utilities {
+public final class PacketUpdateVehicleRidingEntities extends PacketRequestResponseBase<UpdateVehicleRidingEntities> implements Utilities {
 
 	public static PacketUpdateVehicleRidingEntities create(long sidingId, long vehicleId, int ridingCar, double x, double y, double z, boolean isOnGangway) {
 		final UpdateVehicleRidingEntities updateVehicleRidingEntities = new UpdateVehicleRidingEntities(sidingId, vehicleId);

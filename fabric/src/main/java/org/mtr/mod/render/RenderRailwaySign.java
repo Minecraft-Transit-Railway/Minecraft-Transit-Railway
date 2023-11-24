@@ -249,9 +249,9 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 					final String signText;
 					if (isStation) {
 						signText = IGui.mergeStations(selectedIds.longStream()
-								.filter(ClientData.instance.stationIdMap::containsKey)
+								.filter(ClientData.getInstance().stationIdMap::containsKey)
 								.sorted()
-								.mapToObj(stationId -> IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, ClientData.instance.stationIdMap.get(stationId).getName()))
+								.mapToObj(stationId -> IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, ClientData.getInstance().stationIdMap.get(stationId).getName()))
 								.collect(Collectors.toList())
 						);
 					} else {

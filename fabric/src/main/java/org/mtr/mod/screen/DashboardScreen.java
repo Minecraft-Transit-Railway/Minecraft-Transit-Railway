@@ -69,9 +69,9 @@ public class DashboardScreen extends ScreenExtension implements IGui, IPacket {
 		buttonTabRoutes = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.routes"), button -> onSelectTab(SelectedTab.ROUTES));
 		buttonTabDepots = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.depots"), button -> onSelectTab(SelectedTab.DEPOTS));
 
-		buttonAddStation = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_station"), button -> startEditingArea(new Station(ClientData.instance), true));
-		buttonAddRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_route"), button -> startEditingRoute(new Route(transportMode, ClientData.instance), true));
-		buttonAddDepot = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_depot"), button -> startEditingArea(new Depot(transportMode, ClientData.instance), true));
+		buttonAddStation = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_station"), button -> startEditingArea(new Station(ClientData.getDashboardInstance()), true));
+		buttonAddRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_route"), button -> startEditingRoute(new Route(transportMode, ClientData.getDashboardInstance()), true));
+		buttonAddDepot = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_depot"), button -> startEditingArea(new Depot(transportMode, ClientData.getDashboardInstance()), true));
 		buttonDoneEditingStation = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> onDoneEditingArea());
 		buttonDoneEditingRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> onDoneEditingRoute());
 		buttonDoneEditingRouteDestination = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> onDoneEditingRouteDestination());
@@ -174,14 +174,14 @@ public class DashboardScreen extends ScreenExtension implements IGui, IPacket {
 			switch (selectedTab) {
 				case STATIONS:
 					if (editingArea == null) {
-						dashboardList.setData(ClientData.convertDataSet(ClientData.instance.stations), true, true, true, false, false, true);
+						dashboardList.setData(ClientData.convertDataSet(ClientData.getDashboardInstance().stations), true, true, true, false, false, true);
 					} else {
 						dashboardList.setData(ClientData.convertDataSet(editingArea.savedRails), true, false, true, false, false, false);
 					}
 					break;
 				case ROUTES:
 					if (editingRoute == null) {
-						dashboardList.setData(ClientData.getFilteredDataSet(transportMode, ClientData.instance.routes), false, true, true, false, false, true);
+						dashboardList.setData(ClientData.getFilteredDataSet(transportMode, ClientData.getDashboardInstance().routes), false, true, true, false, false, true);
 					} else {
 						final ObjectArrayList<DashboardListItem> routeData = editingRoute.getRoutePlatforms().stream().map(routePlatformData -> {
 							final Platform platform = routePlatformData.platform;
@@ -202,7 +202,7 @@ public class DashboardScreen extends ScreenExtension implements IGui, IPacket {
 					break;
 				case DEPOTS:
 					if (editingArea == null) {
-						dashboardList.setData(ClientData.getFilteredDataSet(transportMode, ClientData.instance.depots), true, true, true, false, false, true);
+						dashboardList.setData(ClientData.getFilteredDataSet(transportMode, ClientData.getDashboardInstance().depots), true, true, true, false, false, true);
 					} else {
 						dashboardList.setData(ClientData.convertDataSet(editingArea.savedRails), true, false, true, false, false, false);
 					}

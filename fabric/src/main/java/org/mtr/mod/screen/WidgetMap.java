@@ -68,8 +68,8 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		scale = 1;
 		setShowStations(true);
 
-		flatPositionToPlatformMap = ClientData.getFlatPositionToSavedRails(ClientData.instance.platforms, transportMode);
-		flatPositionToSidingMap = ClientData.getFlatPositionToSavedRails(ClientData.instance.sidings, transportMode);
+		flatPositionToPlatformMap = ClientData.getFlatPositionToSavedRails(ClientData.getDashboardInstance().platforms, transportMode);
+		flatPositionToSidingMap = ClientData.getFlatPositionToSavedRails(ClientData.getDashboardInstance().sidings, transportMode);
 	}
 
 	@Override
@@ -93,7 +93,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 
 		if (showStations) {
 			flatPositionToPlatformMap.forEach((position, platforms) -> drawRectangleFromWorldCoords(guiDrawing, position.getX(), position.getZ(), position.getX() + 1, position.getZ() + 1, ARGB_WHITE));
-			for (final Station station : ClientData.instance.stations) {
+			for (final Station station : ClientData.getDashboardInstance().stations) {
 				if (AreaBase.validCorners(station)) {
 					drawRectangleFromWorldCoords(guiDrawing, station.getMinX(), station.getMinZ(), station.getMaxX(), station.getMaxZ(), ARGB_BLACK_TRANSLUCENT + station.getColor());
 				}
@@ -101,7 +101,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 			mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(guiDrawing, x1, z1, x2, z2, ARGB_WHITE), true);
 		} else {
 			flatPositionToSidingMap.forEach((position, sidings) -> drawRectangleFromWorldCoords(guiDrawing, position.getX(), position.getZ(), position.getX() + 1, position.getZ() + 1, ARGB_WHITE));
-			for (final Depot depot : ClientData.instance.depots) {
+			for (final Depot depot : ClientData.getDashboardInstance().depots) {
 				if (depot.isTransportMode(transportMode) && AreaBase.validCorners(depot)) {
 					drawRectangleFromWorldCoords(guiDrawing, depot.getMinX(), depot.getMinZ(), depot.getMaxX(), depot.getMaxZ(), ARGB_BLACK_TRANSLUCENT + depot.getColor());
 				}
@@ -115,9 +115,9 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 
 		if (player != null) {
 			drawFromWorldCoords(player.getX(), player.getZ(), (x1, y1) -> {
-				guiDrawing.drawRectangle(getX2() + x1 - 2, getY2() + y1 - 3, getX2() + x1 + 2, getY2() + y1 + 3, ARGB_WHITE);
-				guiDrawing.drawRectangle(getX2() + x1 - 3, getY2() + y1 - 2, getX2() + x1 + 3, getY2() + y1 + 2, ARGB_WHITE);
-				guiDrawing.drawRectangle(getX2() + x1 - 2, getY2() + y1 - 2, getX2() + x1 + 2, getY2() + y1 + 2, ARGB_BLUE);
+				guiDrawing.drawRectangle(getX2() + Math.max(0, x1 - 2), getY2() + y1 - 3, getX2() + x1 + 2, getY2() + y1 + 3, ARGB_WHITE);
+				guiDrawing.drawRectangle(getX2() + Math.max(0, x1 - 3), getY2() + y1 - 2, getX2() + x1 + 3, getY2() + y1 + 2, ARGB_WHITE);
+				guiDrawing.drawRectangle(getX2() + Math.max(0, x1 - 2), getY2() + y1 - 2, getX2() + x1 + 2, getY2() + y1 + 2, ARGB_BLUE);
 			});
 		}
 
@@ -138,7 +138,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		}
 
 		if (showStations) {
-			for (final Station station : ClientData.instance.stations) {
+			for (final Station station : ClientData.getDashboardInstance().stations) {
 				if (canDrawAreaText(station)) {
 					final Position position = station.getCenter();
 					final String stationString = String.format("%s|(%s)", station.getName(), TextHelper.translatable("gui.mtr.zone_number", station.getZone1()).getString());
@@ -146,7 +146,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 				}
 			}
 		} else {
-			for (final Depot depot : ClientData.instance.depots) {
+			for (final Depot depot : ClientData.getDashboardInstance().depots) {
 				if (canDrawAreaText(depot)) {
 					final Position position = depot.getCenter();
 					drawFromWorldCoords(position.getX(), position.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(graphicsHolder, depot.getName(), getX2() + x1.floatValue(), getY2() + y1.floatValue(), MAX_LIGHT_GLOWING));
@@ -313,17 +313,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		final double z1 = (posZ1 - centerY) * scale + height / 2D;
 		final double x2 = (posX2 - centerX) * scale + width / 2D;
 		final double z2 = (posZ2 - centerY) * scale + height / 2D;
-		guiDrawing.drawRectangle(getX2() + x1, getY2() + z1, getX2() + x2, getY2() + z2, color);
-	}
-
-	private void drawRectangle(GuiDrawing guiDrawing, double xA, double yA, double xB, double yB, int color) {
-		final double x1 = Math.min(xA, xB);
-		final double y1 = Math.min(yA, yB);
-		final double x2 = Math.max(xA, xB);
-		final double y2 = Math.max(yA, yB);
-		if (x1 < width && y1 < height && x2 >= 0 && y2 >= 0) {
-			guiDrawing.drawRectangle(getX2() + Math.max(0, x1), getY2() + y1, getX2() + x2, getY2() + y2, color);
-		}
+		guiDrawing.drawRectangle(getX2() + Math.max(0, x1), getY2() + z1, getX2() + x2, getY2() + z2, color);
 	}
 
 	private boolean canDrawAreaText(AreaBase<?, ?> areaBase) {

@@ -99,11 +99,11 @@ public final class Init implements Utilities {
 			try {
 				socket = IO.socket("http://localhost:8888").connect();
 				socket.on(CHANNEL, args -> {
-					final JsonObject responseObject = PacketData.parseJson(args[0].toString());
+					final JsonObject responseObject = Utilities.parseJson(args[0].toString());
 					responseObject.keySet().forEach(playerUuid -> {
 						final ServerPlayerEntity serverPlayerEntity = minecraftServer.getPlayerManager().getPlayer(UUID.fromString(playerUuid));
 						if (serverPlayerEntity != null) {
-							Registry.sendPacketToClient(serverPlayerEntity, new PacketData(IntegrationServlet.Operation.LIST, new Integration(new JsonReader(responseObject.getAsJsonObject(playerUuid)))));
+							Registry.sendPacketToClient(serverPlayerEntity, new PacketData(IntegrationServlet.Operation.LIST, new Integration(new JsonReader(responseObject.getAsJsonObject(playerUuid))), true, false));
 						}
 					});
 				});
