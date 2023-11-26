@@ -6,13 +6,19 @@ import org.mtr.mod.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
 
-public class BlockPIDS3 extends BlockPIDSBaseHorizontal {
+public class BlockPIDSHorizontal2 extends BlockPIDSHorizontalBase {
+
+	private static final int MAX_ARRIVALS = 3;
+
+	public BlockPIDSHorizontal2() {
+		super(MAX_ARRIVALS);
+	}
 
 	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		VoxelShape shape1 = IBlock.getVoxelShapeByDirection(6, 0, 0, 10, 10, 16, IBlock.getStatePropertySafe(state, FACING));
-		VoxelShape shape2 = IBlock.getVoxelShapeByDirection(7.5, 10, 12.5, 8.5, 16, 13.5, IBlock.getStatePropertySafe(state, FACING));
+		VoxelShape shape1 = IBlock.getVoxelShapeByDirection(6, 0, 0, 10, 9, 16, IBlock.getStatePropertySafe(state, FACING));
+		VoxelShape shape2 = IBlock.getVoxelShapeByDirection(7.5, 9, 12.5, 8.5, 16, 13.5, IBlock.getStatePropertySafe(state, FACING));
 		return VoxelShapes.union(shape1, shape2);
 	}
 
@@ -24,16 +30,8 @@ public class BlockPIDS3 extends BlockPIDSBaseHorizontal {
 
 	public static class BlockEntity extends BlockEntityHorizontalBase {
 
-		public static final int MAX_ARRIVALS = 2;
-		public static final int LINES_PER_ARRIVAL = 1;
-
 		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.PIDS_3.get(), pos, state);
-		}
-
-		@Override
-		public int getMaxArrivals() {
-			return MAX_ARRIVALS;
+			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_HORIZONTAL_2.get(), pos, state);
 		}
 	}
 }

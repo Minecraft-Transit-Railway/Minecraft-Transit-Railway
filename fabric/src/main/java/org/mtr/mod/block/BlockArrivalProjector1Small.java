@@ -9,16 +9,22 @@ import javax.annotation.Nonnull;
 
 public class BlockArrivalProjector1Small extends BlockArrivalProjectorBase {
 
+	private static final int MAX_ARRIVALS = 12;
+
+	public BlockArrivalProjector1Small() {
+		super(MAX_ARRIVALS);
+	}
+
 	@Nonnull
 	@Override
 	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new BlockEntity(blockPos, blockState);
 	}
 
-	public static class BlockEntity extends BlockEntityBase {
+	public static class BlockEntity extends BlockEntityArrivalProjectorBase {
 
 		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.ARRIVAL_PROJECTOR_1_SMALL.get(), pos, state);
+			super(MAX_ARRIVALS, BlockEntityTypes.ARRIVAL_PROJECTOR_1_SMALL.get(), pos, state);
 		}
 	}
 }

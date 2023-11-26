@@ -12,35 +12,35 @@ import javax.annotation.Nullable;
 public final class PacketData extends PacketDataBase {
 
 	public static PacketData fromStations(IntegrationServlet.Operation operation, ObjectSet<Station> dataSet) {
-		return PacketData.create(operation, dataSet, null, null, null, null, null, null, null, true, true);
+		return PacketData.create(operation, dataSet, null, null, null, null, null, null, null, true);
 	}
 
 	public static PacketData fromPlatforms(IntegrationServlet.Operation operation, ObjectSet<Platform> dataSet) {
-		return PacketData.create(operation, null, dataSet, null, null, null, null, null, null, true, true);
+		return PacketData.create(operation, null, dataSet, null, null, null, null, null, null, true);
 	}
 
 	public static PacketData fromSidings(IntegrationServlet.Operation operation, ObjectSet<Siding> dataSet) {
-		return PacketData.create(operation, null, null, dataSet, null, null, null, null, null, true, true);
+		return PacketData.create(operation, null, null, dataSet, null, null, null, null, null, true);
 	}
 
 	public static PacketData fromRoutes(IntegrationServlet.Operation operation, ObjectSet<Route> dataSet) {
-		return PacketData.create(operation, null, null, null, dataSet, null, null, null, null, true, true);
+		return PacketData.create(operation, null, null, null, dataSet, null, null, null, null, true);
 	}
 
 	public static PacketData fromDepots(IntegrationServlet.Operation operation, ObjectSet<Depot> dataSet) {
-		return PacketData.create(operation, null, null, null, null, dataSet, null, null, null, true, true);
+		return PacketData.create(operation, null, null, null, null, dataSet, null, null, null, true);
 	}
 
 	private static PacketData fromRail(IntegrationServlet.Operation operation, Rail rail) {
-		return PacketData.create(operation, null, null, null, null, null, ObjectSet.of(rail), null, null, true, false);
+		return PacketData.create(operation, null, null, null, null, null, ObjectSet.of(rail), null, null, false);
 	}
 
 	private static PacketData fromRailNode(Position position) {
-		return PacketData.create(IntegrationServlet.Operation.DELETE, null, null, null, null, null, null, ObjectSet.of(position), null, true, false);
+		return PacketData.create(IntegrationServlet.Operation.DELETE, null, null, null, null, null, null, ObjectSet.of(position), null, false);
 	}
 
 	private static PacketData fromSignalModification(SignalModification signalModification) {
-		return PacketData.create(IntegrationServlet.Operation.UPDATE, null, null, null, null, null, null, null, ObjectSet.of(signalModification), true, false);
+		return PacketData.create(IntegrationServlet.Operation.UPDATE, null, null, null, null, null, null, null, ObjectSet.of(signalModification), false);
 	}
 
 	private static PacketData create(
@@ -53,14 +53,13 @@ public final class PacketData extends PacketDataBase {
 			@Nullable ObjectSet<Rail> rails,
 			@Nullable ObjectSet<Position> positions,
 			@Nullable ObjectSet<SignalModification> signalModifications,
-			boolean updateClientDataInstance,
 			boolean updateClientDataDashboardInstance
 	) {
 		final Integration integration = new Integration();
 		integration.add(stations, platforms, sidings, routes, depots, null);
 		integration.add(rails, positions);
 		integration.add(signalModifications);
-		return new PacketData(operation, integration, updateClientDataInstance, updateClientDataDashboardInstance);
+		return new PacketData(operation, integration, true, updateClientDataDashboardInstance);
 	}
 
 	public PacketData(IntegrationServlet.Operation operation, Integration integration, boolean updateClientDataInstance, boolean updateClientDataDashboardInstance) {

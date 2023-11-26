@@ -1,35 +1,20 @@
 package org.mtr.mod.block;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.tool.HolderBase;
-import org.mtr.mod.data.IPIDSRenderChild;
-import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 
-public abstract class BlockArrivalProjectorBase extends BlockExtension implements DirectionHelper, BlockWithEntity {
+public abstract class BlockArrivalProjectorBase extends BlockPIDSBase {
 
-	public BlockArrivalProjectorBase() {
-		super(BlockHelper.createBlockSettings(true, blockState -> 5));
-	}
+	private static final BiPredicate<World, BlockPos> CAN_STORE_DATA = (world, blockPos) -> true;
+	private static final BiFunction<World, BlockPos, BlockPos> GET_BLOCK_POS_WITH_DATA = (world, blockPos) -> blockPos;
 
-	@Nonnull
-	@Override
-	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		return IBlock.checkHoldingBrush(world, player, () -> {
-			final BlockEntity entity = world.getBlockEntity(pos);
-
-			if (entity != null && entity.data instanceof BlockEntityBase) {
-				((BlockEntityBase) entity.data).markDirty2();
-				Registry.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(pos));
-			}
-		});
+	public BlockArrivalProjectorBase(int maxArrivals) {
+		super(maxArrivals, CAN_STORE_DATA, GET_BLOCK_POS_WITH_DATA);
 	}
 
 	@Override
@@ -54,47 +39,10 @@ public abstract class BlockArrivalProjectorBase extends BlockExtension implement
 		properties.add(FACING);
 	}
 
-	public static class BlockEntityBase extends BlockEntityExtension implements IPIDSRenderChild {
+	public static class BlockEntityArrivalProjectorBase extends BlockEntityBase {
 
-		private final LongAVLTreeSet platformIds = new LongAVLTreeSet();
-		private int displayPage;
-
-		private static final String KEY_PLATFORM_IDS = "platform_ids";
-		private static final String KEY_DISPLAY_PAGE = "display_page";
-
-		public BlockEntityBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-			super(type, pos, state);
-		}
-
-		@Override
-		public void readCompoundTag(CompoundTag compoundTag) {
-			platformIds.clear();
-			final long[] platformIdsArray = compoundTag.getLongArray(KEY_PLATFORM_IDS);
-			for (final long platformId : platformIdsArray) {
-				platformIds.add(platformId);
-			}
-			displayPage = compoundTag.getInt(KEY_DISPLAY_PAGE);
-		}
-
-		@Override
-		public void writeCompoundTag(CompoundTag compoundTag) {
-			compoundTag.putLongArray(KEY_PLATFORM_IDS, new ArrayList<>(platformIds));
-			compoundTag.putInt(KEY_DISPLAY_PAGE, displayPage);
-		}
-
-		public LongAVLTreeSet getPlatformIds() {
-			return platformIds;
-		}
-
-		public int getDisplayPage() {
-			return displayPage;
-		}
-
-		public void setData(Set<Long> platformIds, int displayPage) {
-			this.platformIds.clear();
-			this.platformIds.addAll(platformIds);
-			this.displayPage = displayPage;
-			markDirty2();
+		public BlockEntityArrivalProjectorBase(int maxArrivals, BlockEntityType<?> type, BlockPos pos, BlockState state) {
+			super(maxArrivals, CAN_STORE_DATA, GET_BLOCK_POS_WITH_DATA, type, pos, state);
 		}
 	}
 }

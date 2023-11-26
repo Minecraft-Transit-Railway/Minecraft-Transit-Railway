@@ -2,57 +2,73 @@ package org.mtr.mod.packet;
 
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.mapping.holder.*;
-import org.mtr.mod.block.BlockEntityPIDS;
+import org.mtr.mapping.registry.PacketHandler;
+import org.mtr.mod.block.BlockPIDSBase;
 
-public final class PacketUpdatePIDSConfig extends PacketUpdateArrivalProjectorConfig {
+public final class PacketUpdatePIDSConfig extends PacketHandler {
 
-	private final BlockPos blockPos2;
+	private final BlockPos blockPos;
 	private final String[] messages;
-	private final boolean[] hideArrivals;
+	private final boolean[] hideArrival;
+	private final LongAVLTreeSet platformIds;
+	private final int displayPage;
 
 	public PacketUpdatePIDSConfig(PacketBuffer packetBuffer) {
-		super(packetBuffer);
-		blockPos2 = packetBuffer.readBlockPos();
+		blockPos = packetBuffer.readBlockPos();
+
 		final int maxMessages = packetBuffer.readInt();
 		messages = new String[maxMessages];
 		for (int i = 0; i < maxMessages; i++) {
 			messages[i] = readString(packetBuffer);
 		}
+
 		final int maxArrivals = packetBuffer.readInt();
-		hideArrivals = new boolean[maxArrivals];
+		hideArrival = new boolean[maxArrivals];
 		for (int i = 0; i < maxArrivals; i++) {
-			hideArrivals[i] = packetBuffer.readBoolean();
+			hideArrival[i] = packetBuffer.readBoolean();
 		}
+
+		final int platformIdCount = packetBuffer.readInt();
+		platformIds = new LongAVLTreeSet();
+		for (int i = 0; i < platformIdCount; i++) {
+			platformIds.add(packetBuffer.readLong());
+		}
+
+		displayPage = packetBuffer.readInt();
 	}
 
-	public PacketUpdatePIDSConfig(BlockPos blockPos1, BlockPos blockPos2, String[] messages, boolean[] hideArrivals, LongAVLTreeSet filterPlatformIds, int displayPage) {
-		super(blockPos1, filterPlatformIds, displayPage);
-		this.blockPos2 = blockPos2;
+	public PacketUpdatePIDSConfig(BlockPos blockPos, String[] messages, boolean[] hideArrival, LongAVLTreeSet platformIds, int displayPage) {
+		this.blockPos = blockPos;
 		this.messages = messages;
-		this.hideArrivals = hideArrivals;
+		this.hideArrival = hideArrival;
+		this.platformIds = platformIds;
+		this.displayPage = displayPage;
 	}
 
 	@Override
 	public void write(PacketBuffer packetBuffer) {
-		super.write(packetBuffer);
-		packetBuffer.writeBlockPos(blockPos2);
+		packetBuffer.writeBlockPos(blockPos);
+
 		packetBuffer.writeInt(messages.length);
 		for (final String message : messages) {
 			writeString(packetBuffer, message);
 		}
-		packetBuffer.writeInt(hideArrivals.length);
-		for (final boolean hideArrival : hideArrivals) {
+
+		packetBuffer.writeInt(hideArrival.length);
+		for (final boolean hideArrival : hideArrival) {
 			packetBuffer.writeBoolean(hideArrival);
 		}
+
+		packetBuffer.writeInt(platformIds.size());
+		platformIds.forEach(packetBuffer::writeLong);
+		packetBuffer.writeInt(displayPage);
 	}
 
 	@Override
 	public void runServerQueued(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		final BlockEntity entity1 = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos1);
-		final BlockEntity entity2 = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos2);
-		if (entity1 != null && entity2 != null && entity1.data instanceof BlockEntityPIDS && entity2.data instanceof BlockEntityPIDS) {
-			((BlockEntityPIDS) entity1.data).setData(messages, hideArrivals, filterPlatformIds, displayPage);
-			((BlockEntityPIDS) entity2.data).setData(messages, hideArrivals, filterPlatformIds, displayPage);
+		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
+		if (entity != null && entity.data instanceof BlockPIDSBase.BlockEntityBase) {
+			((BlockPIDSBase.BlockEntityBase) entity.data).setData(messages, hideArrival, platformIds, displayPage);
 		}
 	}
 }
