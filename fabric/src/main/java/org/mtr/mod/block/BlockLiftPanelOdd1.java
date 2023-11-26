@@ -18,7 +18,7 @@ public class BlockLiftPanelOdd1 extends BlockLiftPanelBase {
 	@Override
 	public void addBlockProperties(List<HolderBase<?>> properties) {
 		properties.add(FACING);
-		properties.add(ODD);
+		properties.add(CENTER);
 		properties.add(SIDE);
 	}
 

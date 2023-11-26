@@ -72,7 +72,6 @@ public final class Init implements Utilities {
 		Registry.registerPacket(PacketOpenPIDSConfigScreen.class, PacketOpenPIDSConfigScreen::new);
 		Registry.registerPacket(PacketOpenTicketMachineScreen.class, PacketOpenTicketMachineScreen::new);
 		Registry.registerPacket(PacketRequestData.class, PacketRequestData::new);
-		Registry.registerPacket(PacketUpdateArrivalProjectorConfig.class, PacketUpdateArrivalProjectorConfig::new);
 		Registry.registerPacket(PacketUpdateLiftTrackFloorConfig.class, PacketUpdateLiftTrackFloorConfig::new);
 		Registry.registerPacket(PacketUpdatePIDSConfig.class, PacketUpdatePIDSConfig::new);
 		Registry.registerPacket(PacketUpdateRailwaySignConfig.class, PacketUpdateRailwaySignConfig::new);

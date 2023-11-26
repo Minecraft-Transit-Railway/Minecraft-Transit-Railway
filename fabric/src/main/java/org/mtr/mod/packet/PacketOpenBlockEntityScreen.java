@@ -36,8 +36,6 @@ public final class PacketOpenBlockEntityScreen extends PacketHandler {
 				IPacket.openScreen(new RailwaySignScreen(blockPos), screenExtension -> screenExtension instanceof RailwaySignScreen);
 			} else if (blockEntity.data instanceof BlockLiftTrackFloor.BlockEntity) {
 				IPacket.openScreen(new LiftTrackFloorScreen(blockPos), screenExtension -> screenExtension instanceof LiftTrackFloorScreen);
-			} else if (blockEntity.data instanceof BlockArrivalProjectorBase.BlockEntityBase) {
-				IPacket.openScreen(new ArrivalProjectorConfigScreen(blockPos), screenExtension -> screenExtension instanceof ArrivalProjectorConfigScreen);
 			}
 		});
 	}

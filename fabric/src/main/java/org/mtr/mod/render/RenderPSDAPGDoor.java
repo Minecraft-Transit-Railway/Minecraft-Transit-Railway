@@ -134,7 +134,7 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.BlockEntityBase> ext
 				}
 				break;
 			case 4:
-				if (IBlock.getStatePropertySafe(world, blockPos, ITripleBlock.ODD)) {
+				if (IBlock.getStatePropertySafe(world, blockPos, TripleHorizontalBlock.CENTER)) {
 					break;
 				}
 				storedMatrixTransformations.add(matricesNew -> matricesNew.translate(side ? 0.5 : -0.5, 0, 0));

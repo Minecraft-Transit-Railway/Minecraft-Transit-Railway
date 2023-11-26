@@ -48,12 +48,12 @@ public final class Blocks {
 		LIFT_DOOR_ODD_1 = Registry.registerBlock(new Identifier(Init.MOD_ID, "lift_door_odd_1"), () -> new Block(new BlockLiftDoorOdd()));
 
 		// PIDS projectors
-		PIDS_1 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "pids_1"), () -> new Block(new BlockPIDS1()), CreativeModeTabs.RAILWAY_FACILITIES);
-		PIDS_2 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "pids_2"), () -> new Block(new BlockPIDS2()), CreativeModeTabs.RAILWAY_FACILITIES);
-		PIDS_3 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "pids_3"), () -> new Block(new BlockPIDS3()), CreativeModeTabs.RAILWAY_FACILITIES);
-		PIDS_4 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "pids_4"), () -> new Block(new BlockPIDS4()), CreativeModeTabs.RAILWAY_FACILITIES);
+		PIDS_1 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "pids_1"), () -> new Block(new BlockPIDSHorizontal1()), CreativeModeTabs.RAILWAY_FACILITIES);
+		PIDS_2 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "pids_2"), () -> new Block(new BlockPIDSHorizontal2()), CreativeModeTabs.RAILWAY_FACILITIES);
+		PIDS_3 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "pids_3"), () -> new Block(new BlockPIDSHorizontal3()), CreativeModeTabs.RAILWAY_FACILITIES);
+		PIDS_4 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "pids_4"), () -> new Block(new BlockPIDSVertical1()), CreativeModeTabs.RAILWAY_FACILITIES);
 		PIDS_POLE = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "pids_pole"), () -> new Block(new BlockPIDSPole(BlockHelper.createBlockSettings(false))), CreativeModeTabs.RAILWAY_FACILITIES);
-		PIDS_SINGLE_ARRIVAL_1 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "pids_single_arrival_1"), () -> new Block(new BlockPIDSSingleArrival1()), CreativeModeTabs.RAILWAY_FACILITIES);
+		PIDS_SINGLE_ARRIVAL_1 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "pids_single_arrival_1"), () -> new Block(new BlockPIDSVerticalSingleArrival1()), CreativeModeTabs.RAILWAY_FACILITIES);
 		ARRIVAL_PROJECTOR_1_SMALL = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "arrival_projector_1_small"), () -> new Block(new BlockArrivalProjector1Small()), CreativeModeTabs.RAILWAY_FACILITIES);
 		ARRIVAL_PROJECTOR_1_MEDIUM = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "arrival_projector_1_medium"), () -> new Block(new BlockArrivalProjector1Medium()), CreativeModeTabs.RAILWAY_FACILITIES);
 		ARRIVAL_PROJECTOR_1_LARGE = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "arrival_projector_1_large"), () -> new Block(new BlockArrivalProjector1Large()), CreativeModeTabs.RAILWAY_FACILITIES);

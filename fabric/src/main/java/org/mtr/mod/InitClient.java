@@ -1,14 +1,14 @@
 package org.mtr.mod;
 
 import org.mtr.core.data.Platform;
+import org.mtr.core.data.Position;
 import org.mtr.core.data.Station;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.registry.EventRegistryClient;
 import org.mtr.mapping.registry.RegistryClient;
-import org.mtr.mod.block.*;
+import org.mtr.mod.block.BlockTactileMap;
 import org.mtr.mod.client.*;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.data.PIDSType;
 import org.mtr.mod.entity.EntityRendering;
 import org.mtr.mod.item.ItemBlockClickingBase;
 import org.mtr.mod.packet.PacketRequestData;
@@ -16,6 +16,7 @@ import org.mtr.mod.render.*;
 import org.mtr.mod.sound.LoopingSoundInstance;
 
 import javax.annotation.Nullable;
+import java.util.Comparator;
 import java.util.function.Consumer;
 
 public final class InitClient {
@@ -96,9 +97,9 @@ public final class InitClient {
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.LIFT_PANEL_ODD_2, dispatcher -> new RenderLiftPanel<>(dispatcher, true, true));
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.LIFT_DOOR_EVEN_1, dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 3));
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.LIFT_DOOR_ODD_1, dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 4));
-		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_SMALL, dispatcher -> new RenderPIDS<>(dispatcher, 12, 1, 1, 15, 16, 14, 14, false, false, PIDSType.ARRIVAL_PROJECTOR, 0xFF9900, 0xFF9900));
-		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_MEDIUM, dispatcher -> new RenderPIDS<>(dispatcher, 12, 1, -15, 15, 16, 30, 46, false, false, PIDSType.ARRIVAL_PROJECTOR, 0xFF9900, 0xFF9900));
-		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_LARGE, dispatcher -> new RenderPIDS<>(dispatcher, 16, 1, -15, 15, 16, 46, 46, false, false, PIDSType.ARRIVAL_PROJECTOR, 0xFF9900, 0xFF9900));
+		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_SMALL, dispatcher -> new RenderPIDS<>(dispatcher, 1, 15, 16, 14, 14, false, 1));
+		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_MEDIUM, dispatcher -> new RenderPIDS<>(dispatcher, -15, 15, 16, 30, 46, false, 1));
+		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_LARGE, dispatcher -> new RenderPIDS<>(dispatcher, -15, 15, 16, 46, 46, false, 1));
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.BOAT_NODE, RenderBoatNode::new);
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.CLOCK, RenderClock::new);
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.PSD_DOOR_1, dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 0));
@@ -106,11 +107,11 @@ public final class InitClient {
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.PSD_TOP, RenderPSDTop::new);
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.APG_GLASS, RenderAPGGlass::new);
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.APG_DOOR, dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 2));
-		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.PIDS_1, dispatcher -> new RenderPIDS<>(dispatcher, BlockPIDS1.BlockEntity.MAX_ARRIVALS, BlockPIDS1.BlockEntity.LINES_PER_ARRIVAL, 1, 3.25F, 6, 2.5F, 30, true, false, PIDSType.PIDS, 0xFF9900, 0xFF9900));
-		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.PIDS_2, dispatcher -> new RenderPIDS<>(dispatcher, BlockPIDS2.BlockEntity.MAX_ARRIVALS, BlockPIDS2.BlockEntity.LINES_PER_ARRIVAL, 1.5F, 7.5F, 6, 6.5F, 29, true, true, PIDSType.PIDS, 0xFF9900, 0xFF9900));
-		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.PIDS_3, dispatcher -> new RenderPIDS<>(dispatcher, BlockPIDS3.BlockEntity.MAX_ARRIVALS, BlockPIDS3.BlockEntity.LINES_PER_ARRIVAL, 2.5F, 7.5F, 6, 6.5F, 27, true, false, PIDSType.PIDS, 0xFF9900, 0x33CC00, 1.25F, true));
-		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.PIDS_4, dispatcher -> new RenderPIDS<>(dispatcher, BlockPIDS4.BlockEntity.MAX_ARRIVALS, BlockPIDS4.BlockEntity.LINES_PER_ARRIVAL, 2F, 14F, 15, 28F, 12, false, false, PIDSType.PIDS_VERTICAL, 0xFF9900, 0xFF9900));
-		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.PIDS_SINGLE_ARRIVAL_1, dispatcher -> new RenderPIDS<>(dispatcher, BlockPIDSSingleArrival1.BlockEntity.MAX_ARRIVALS, BlockPIDSSingleArrival1.BlockEntity.LINES_PER_ARRIVAL, 2F, 14F, 15, 28F, 12, false, false, PIDSType.PIDS_SINGLE_ARRIVAL, 0xFF9900, 0xFF9900));
+		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.PIDS_HORIZONTAL_1, dispatcher -> new RenderPIDS<>(dispatcher, 1, 3.25F, 6, 2.5F, 30, true, 1));
+		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.PIDS_HORIZONTAL_2, dispatcher -> new RenderPIDS<>(dispatcher, 1.5F, 7.5F, 6, 6.5F, 29, true, 1));
+		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.PIDS_HORIZONTAL_3, dispatcher -> new RenderPIDS<>(dispatcher, 2.5F, 7.5F, 6, 6.5F, 27, true, 1.25F));
+		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.PIDS_VERTICAL_1, dispatcher -> new RenderPIDS<>(dispatcher, 2F, 14F, 15, 28F, 12, false, 1));
+		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.PIDS_VERTICAL_SINGLE_ARRIVAL_1, dispatcher -> new RenderPIDS<>(dispatcher, 2F, 14F, 15, 28F, 12, false, 1));
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.RAILWAY_SIGN_2_EVEN, RenderRailwaySign::new);
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.RAILWAY_SIGN_2_ODD, RenderRailwaySign::new);
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.RAILWAY_SIGN_3_EVEN, RenderRailwaySign::new);
@@ -378,7 +379,8 @@ public final class InitClient {
 	}
 
 	public static void findClosePlatform(BlockPos blockPos, int radius, Consumer<Platform> consumer) {
-		ClientData.getInstance().platforms.stream().filter(platform -> platform.closeTo(Init.blockPosToPosition(blockPos), radius)).findFirst().ifPresent(consumer);
+		final Position position = Init.blockPosToPosition(blockPos);
+		ClientData.getInstance().platforms.stream().filter(platform -> platform.closeTo(Init.blockPosToPosition(blockPos), radius)).min(Comparator.comparingDouble(platform -> platform.getApproximateClosestDistance(position, ClientData.getInstance()))).ifPresent(consumer);
 	}
 
 	public static String getShiftText() {

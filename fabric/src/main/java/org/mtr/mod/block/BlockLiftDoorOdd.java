@@ -9,17 +9,17 @@ import org.mtr.mod.Items;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class BlockLiftDoorOdd extends BlockPSDAPGDoorBase implements ITripleBlock {
+public class BlockLiftDoorOdd extends BlockPSDAPGDoorBase implements TripleHorizontalBlock {
 
 	@Nonnull
 	@Override
 	public BlockState getStateForNeighborUpdate2(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
-		return ITripleBlock.updateShape(state, direction, neighborState.isOf(new Block(this)), () -> super.getStateForNeighborUpdate2(state, direction, neighborState, world, pos, neighborPos));
+		return TripleHorizontalBlock.getStateForNeighborUpdate(state, direction, neighborState.isOf(new Block(this)), super.getStateForNeighborUpdate2(state, direction, neighborState, world, pos, neighborPos));
 	}
 
 	@Override
 	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-		ITripleBlock.playerWillDestroy(world, pos, state, player, IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER);
+		TripleHorizontalBlock.onBreak(world, pos.down(IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER ? 1 : 0), state, player);
 		super.onBreak2(world, pos, state, player);
 	}
 
@@ -40,7 +40,7 @@ public class BlockLiftDoorOdd extends BlockPSDAPGDoorBase implements ITripleBloc
 		properties.add(END);
 		properties.add(FACING);
 		properties.add(HALF);
-		properties.add(ODD);
+		properties.add(CENTER);
 		properties.add(SIDE);
 		properties.add(UNLOCKED);
 	}

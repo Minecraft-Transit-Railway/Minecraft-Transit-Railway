@@ -13,7 +13,7 @@ import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
-import org.mtr.mod.block.BlockEntityPIDS;
+import org.mtr.mod.block.BlockPIDSBase;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.IPacket;
@@ -25,8 +25,7 @@ import java.util.stream.Collectors;
 
 public class PIDSConfigScreen extends ScreenExtension implements IGui, IPacket {
 
-	private final BlockPos blockPos1;
-	private final BlockPos blockPos2;
+	private final BlockPos blockPos;
 	private final String[] messages;
 	private final boolean[] hideArrival;
 	private final TextFieldWidgetExtension[] textFieldMessages;
@@ -41,20 +40,17 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui, IPacket {
 	private final LongAVLTreeSet filterPlatformIds;
 	private final int displayPage;
 	private final int maxArrivals;
-	private final int linesPerArrival;
 	private int page = 0;
 
 	private static final int MAX_MESSAGE_LENGTH = 2048;
 	private static final int TEXT_FIELDS_Y_OFFSET = SQUARE_SIZE * 8 + TEXT_FIELD_PADDING / 2;
 
-	public PIDSConfigScreen(BlockPos blockPos1, BlockPos blockPos2, int maxArrivals, int linesPerArrival) {
+	public PIDSConfigScreen(BlockPos blockPos, int maxArrivals) {
 		super();
-		this.blockPos1 = blockPos1;
-		this.blockPos2 = blockPos2;
+		this.blockPos = blockPos;
 		this.maxArrivals = maxArrivals;
-		this.linesPerArrival = linesPerArrival;
-		messages = new String[maxArrivals * linesPerArrival];
-		for (int i = 0; i < maxArrivals * linesPerArrival; i++) {
+		messages = new String[maxArrivals];
+		for (int i = 0; i < maxArrivals; i++) {
 			messages[i] = "";
 		}
 		hideArrival = new boolean[maxArrivals];
@@ -63,8 +59,8 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui, IPacket {
 		});
 		selectAllCheckbox.setMessage2(new Text(TextHelper.translatable("gui.mtr.automatically_detect_nearby_platform").data));
 
-		textFieldMessages = new TextFieldWidgetExtension[maxArrivals * linesPerArrival];
-		for (int i = 0; i < maxArrivals * linesPerArrival; i++) {
+		textFieldMessages = new TextFieldWidgetExtension[maxArrivals];
+		for (int i = 0; i < maxArrivals; i++) {
 			textFieldMessages[i] = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, "");
 		}
 
@@ -83,23 +79,23 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui, IPacket {
 			filterPlatformIds = new LongAVLTreeSet();
 			displayPage = 0;
 		} else {
-			final BlockEntity blockEntity = clientWorld.getBlockEntity(blockPos1);
-			if (blockEntity != null && blockEntity.data instanceof BlockEntityPIDS) {
-				filterPlatformIds = ((BlockEntityPIDS) blockEntity.data).getFilterPlatformIds();
-				for (int i = 0; i < maxArrivals * linesPerArrival; i++) {
-					messages[i] = ((BlockEntityPIDS) blockEntity.data).getMessage(i);
+			final BlockEntity blockEntity = clientWorld.getBlockEntity(blockPos);
+			if (blockEntity != null && blockEntity.data instanceof BlockPIDSBase.BlockEntityBase) {
+				filterPlatformIds = ((BlockPIDSBase.BlockEntityBase) blockEntity.data).getPlatformIds();
+				for (int i = 0; i < maxArrivals; i++) {
+					messages[i] = ((BlockPIDSBase.BlockEntityBase) blockEntity.data).getMessage(i);
 				}
 				for (int i = 0; i < maxArrivals; i++) {
-					hideArrival[i] = ((BlockEntityPIDS) blockEntity.data).getHideArrival(i);
+					hideArrival[i] = ((BlockPIDSBase.BlockEntityBase) blockEntity.data).getHideArrival(i);
 				}
-				displayPage = ((BlockEntityPIDS) blockEntity.data).getDisplayPage();
+				displayPage = ((BlockPIDSBase.BlockEntityBase) blockEntity.data).getDisplayPage();
 			} else {
 				filterPlatformIds = new LongAVLTreeSet();
 				displayPage = 0;
 			}
 		}
 
-		filterButton = getPlatformFilterButton(blockPos1, selectAllCheckbox, filterPlatformIds, this);
+		filterButton = getPlatformFilterButton(blockPos, selectAllCheckbox, filterPlatformIds, this);
 		displayPageInput = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 3, TextCase.DEFAULT, "\\D", "1");
 	}
 
@@ -133,13 +129,10 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui, IPacket {
 			IDrawing.setPositionAndWidth(textFieldMessage, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, y, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING - hideArrivalWidth);
 			textFieldMessage.setText2(messages[i]);
 			addChild(new ClickableWidget(textFieldMessage));
-			if (i % linesPerArrival == 0) {
-				final int index = i / linesPerArrival;
-				final CheckboxWidgetExtension buttonHideArrival = buttonsHideArrival[index];
-				IDrawing.setPositionAndWidth(buttonHideArrival, width - SQUARE_SIZE - hideArrivalWidth + TEXT_PADDING, y, hideArrivalWidth);
-				buttonHideArrival.setChecked(hideArrival[index]);
-				addChild(new ClickableWidget(buttonHideArrival));
-			}
+			final CheckboxWidgetExtension buttonHideArrival = buttonsHideArrival[i];
+			IDrawing.setPositionAndWidth(buttonHideArrival, width - SQUARE_SIZE - hideArrivalWidth + TEXT_PADDING, y, hideArrivalWidth);
+			buttonHideArrival.setChecked(hideArrival[i]);
+			addChild(new ClickableWidget(buttonHideArrival));
 		}
 
 		setPage(0);
@@ -151,9 +144,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui, IPacket {
 		page = MathHelper.clamp(newPage, 0, maxPages);
 		for (int i = 0; i < textFieldMessages.length; i++) {
 			textFieldMessages[i].visible = i / maxArrivalsPerPage == page;
-			if (i % linesPerArrival == 0) {
-				buttonsHideArrival[i / linesPerArrival].visible = i / maxArrivalsPerPage == page;
-			}
+			buttonsHideArrival[i].visible = i / maxArrivalsPerPage == page;
 		}
 		buttonPrevPage.visible = page > 0;
 		buttonNextPage.visible = page < maxPages;
@@ -183,7 +174,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui, IPacket {
 		} catch (Exception e) {
 			Init.logException(e);
 		}
-		RegistryClient.sendPacketToServer(new PacketUpdatePIDSConfig(blockPos1, blockPos2, messages, hideArrival, filterPlatformIds, displayPage));
+		RegistryClient.sendPacketToServer(new PacketUpdatePIDSConfig(blockPos, messages, hideArrival, filterPlatformIds, displayPage));
 		super.onClose2();
 	}
 

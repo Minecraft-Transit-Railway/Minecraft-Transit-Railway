@@ -7,64 +7,37 @@ import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.Direction;
 import org.mtr.mapping.holder.Vector3d;
 import org.mtr.mapping.holder.World;
-import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.InitClient;
-import org.mtr.mod.block.BlockPIDSBaseHorizontal;
-import org.mtr.mod.block.BlockPIDSBaseVertical;
+import org.mtr.mod.block.BlockPIDSBase;
+import org.mtr.mod.block.BlockPIDSHorizontalBase;
 import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.data.PIDSType;
 import org.mtr.mod.packet.PacketFetchArrivals;
 
-public class RenderPIDS<T extends BlockEntityExtension> extends BlockEntityRenderer<T> implements IGui, Utilities {
+public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEntityRenderer<T> implements IGui, Utilities {
 
-	private final float scale;
-	private final float totalScaledWidth;
-	private final float destinationStart;
-	private final float destinationMaxWidth;
-	private final float platformMaxWidth;
-	private final float arrivalMaxWidth;
-	private final int maxArrivals;
 	private final float maxHeight;
 	private final float startX;
 	private final float startY;
 	private final float startZ;
 	private final boolean rotate90;
-	private final boolean renderArrivalNumber;
-	private final PIDSType renderType;
-	private final int textColor;
-	private final int firstTrainColor;
-	private final boolean appendDotAfterMin;
+	private final int textColor = 0xFF9900; // TODO
+	private final float textPadding;
 
 	private static final int SWITCH_LANGUAGE_TICKS = 60;
 
-	public RenderPIDS(Argument dispatcher, int maxArrivals, int linesPerArrival, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, PIDSType renderType, int textColor, int firstTrainColor, float textPadding, boolean appendDotAfterMin) {
+	public RenderPIDS(Argument dispatcher, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, float textPadding) {
 		super(dispatcher);
-		scale = 160 * maxArrivals / maxHeight * textPadding;
-		totalScaledWidth = scale * maxWidth / 16;
-		destinationStart = renderArrivalNumber ? scale * 2 / 16 : 0;
-		destinationMaxWidth = totalScaledWidth * 0.7F;
-		platformMaxWidth = renderType.showPlatformNumber ? scale * 2 / 16 : 0;
-		arrivalMaxWidth = totalScaledWidth - destinationStart - destinationMaxWidth - platformMaxWidth;
-		this.maxArrivals = maxArrivals;
 		this.maxHeight = maxHeight;
 		this.startX = startX;
 		this.startY = startY;
 		this.startZ = startZ;
 		this.rotate90 = rotate90;
-		this.renderArrivalNumber = renderArrivalNumber;
-		this.renderType = renderType;
-		this.textColor = textColor;
-		this.firstTrainColor = firstTrainColor;
-		this.appendDotAfterMin = appendDotAfterMin;
-	}
-
-	public RenderPIDS(Argument dispatcher, int maxArrivals, int linesPerArrival, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, PIDSType renderType, int textColor, int firstTrainColor) {
-		this(dispatcher, maxArrivals, linesPerArrival, startX, startY, startZ, maxHeight, maxWidth, rotate90, renderArrivalNumber, renderType, textColor, firstTrainColor, 1, false);
+		this.textPadding = textPadding;
 	}
 
 	@Override
@@ -75,25 +48,27 @@ public class RenderPIDS<T extends BlockEntityExtension> extends BlockEntityRende
 		}
 
 		final BlockPos blockPos = entity.getPos2();
-		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, DirectionHelper.FACING);
-		final boolean isHorizontal = entity instanceof BlockPIDSBaseHorizontal.BlockEntityHorizontalBase;
-		final boolean isVertical = entity instanceof BlockPIDSBaseVertical.BlockEntityVerticalBase;
-		if (isHorizontal && (facing == Direction.NORTH || facing == Direction.EAST) || isVertical && IBlock.getStatePropertySafe(world, blockPos, BlockPIDSBaseVertical.HALF) == IBlock.DoubleBlockHalf.LOWER) {
+		if (!entity.canStoreData.test(world, blockPos)) {
 			return;
 		}
 
+		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, DirectionHelper.FACING);
+		final boolean isHorizontal = entity instanceof BlockPIDSHorizontalBase.BlockEntityHorizontalBase;
+
 		InitClient.findClosePlatform(entity.getPos2(), 5, platform -> {
-			final ArrivalsResponse arrivalsResponse = ClientData.getInstance().requestArrivals(blockPos.asLong(), LongImmutableList.of(platform.getId()), maxArrivals, 0, true);
+			final ArrivalsResponse arrivalsResponse = ClientData.getInstance().requestArrivals(blockPos.asLong(), LongImmutableList.of(platform.getId()), entity.maxArrivals, 0, true);
 			RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolderNew, offset) -> {
-				render(blockPos, facing, arrivalsResponse, graphicsHolderNew, offset, false);
+				render(blockPos, facing, arrivalsResponse, entity.maxArrivals, graphicsHolderNew, offset, false);
 				if (isHorizontal) {
-					render(blockPos.offset(facing), facing, arrivalsResponse, graphicsHolderNew, offset, true);
+					render(blockPos.offset(facing), facing, arrivalsResponse, entity.maxArrivals, graphicsHolderNew, offset, true);
 				}
 			});
 		});
 	}
 
-	private void render(BlockPos blockPos, Direction facing, ArrivalsResponse arrivalsResponse, GraphicsHolder graphicsHolder, Vector3d offset, boolean addRotation) {
+	private void render(BlockPos blockPos, Direction facing, ArrivalsResponse arrivalsResponse, int maxArrivals, GraphicsHolder graphicsHolder, Vector3d offset, boolean addRotation) {
+		final float scale = 160 * maxArrivals / maxHeight * textPadding;
+
 		arrivalsResponse.iterateArrivals((arrivalIndex, arrivalResponse) -> {
 			final int languageTicks = (int) Math.floor(InitClient.getGameTick()) / SWITCH_LANGUAGE_TICKS;
 
@@ -102,7 +77,7 @@ public class RenderPIDS<T extends BlockEntityExtension> extends BlockEntityRende
 			graphicsHolder.rotateYDegrees((rotate90 ? 90 : 0) + (addRotation ? 180 : 0) - facing.asRotation());
 			graphicsHolder.rotateZDegrees(180);
 			graphicsHolder.translate((startX - 8) / 16, -startY / 16 + arrivalIndex * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
-			graphicsHolder.scale(1F / scale, 1F / scale, 1F / scale);
+			graphicsHolder.scale(1 / scale, 1 / scale, 1 / scale);
 
 			final long arrivalSeconds = Math.max(0, (arrivalResponse.getArrival() - PacketFetchArrivals.getMillisOffset() - System.currentTimeMillis()) / MILLIS_PER_SECOND);
 			final long delay = arrivalResponse.getDeviation() / MILLIS_PER_SECOND;

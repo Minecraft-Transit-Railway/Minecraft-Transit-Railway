@@ -80,7 +80,7 @@ public abstract class PacketDataBase extends PacketHandler {
 	protected void sendHttpRequestAndBroadcastResultToAllPlayers(ServerWorld serverWorld) {
 		sendHttpDataRequest(operation, integration, newIntegration -> {
 			// Check if there are any rail nodes that need to be reset
-			integration.iteratePositions(position -> BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(position)));
+			newIntegration.iteratePositions(position -> BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(position)));
 			// Broadcast result to all players
 			MinecraftServerHelper.iteratePlayers(serverWorld, worldPlayer -> Registry.sendPacketToClient(worldPlayer, new PacketData(operation, newIntegration, updateClientDataInstance, updateClientDataDashboardInstance)));
 		});
