@@ -105,6 +105,7 @@ public final class PIDSFormatter implements Utilities, IGui {
 					parseTag("index", textInTag, arrivalResponse -> addTextFromArrivalResponse(String.valueOf(arrivalResponse.getDepartureIndex()), textAfterTag));
 					parseTag("routeName", textInTag, arrivalResponse -> addTextFromArrivalResponse(arrivalResponse.getRouteName(), textAfterTag));
 					parseTag("routeNumber", textInTag, arrivalResponse -> addTextFromArrivalResponse(arrivalResponse.getRouteNumber(), textAfterTag));
+					parseTag("platformNumber", textInTag, arrivalResponse -> addTextFromArrivalResponse(arrivalResponse.getPlatformName(), textAfterTag));
 				case '$':
 					// Change the color
 					parseTag("routeColor", textInTag, arrivalResponse -> {
@@ -205,7 +206,7 @@ public final class PIDSFormatter implements Utilities, IGui {
 	 * @param padZero               whether to add an extra {@code 0} if the string is only one character long
 	 */
 	private static String formatTime(long millis, String pattern, boolean subtractCurrentMillis, boolean useUtc, boolean padZero) {
-		final String result = DateTimeFormatter.ofPattern(pattern).format(Instant.ofEpochMilli(millis - (subtractCurrentMillis ? PacketFetchArrivals.getMillisOffset() + System.currentTimeMillis() : 0)).atZone(useUtc ? ZoneOffset.UTC : ZoneId.systemDefault()));
+		final String result = DateTimeFormatter.ofPattern(pattern).format(Instant.ofEpochMilli(Math.max(0, millis - (subtractCurrentMillis ? PacketFetchArrivals.getMillisOffset() + System.currentTimeMillis() : 0))).atZone(useUtc ? ZoneOffset.UTC : ZoneId.systemDefault()));
 		return (padZero && result.length() == 1 ? "0" : "") + result;
 	}
 

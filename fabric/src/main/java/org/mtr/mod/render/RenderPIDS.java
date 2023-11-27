@@ -56,16 +56,21 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 		}
 
 		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, DirectionHelper.FACING);
-		final boolean isHorizontal = entity instanceof BlockPIDSHorizontalBase.BlockEntityHorizontalBase;
 
-		InitClient.findClosePlatform(entity.getPos2(), 5, platform -> {
-			final ArrivalsResponse arrivalsResponse = ClientData.getInstance().requestArrivals(blockPos.asLong(), LongImmutableList.of(platform.getId()), entity.maxArrivals, 0, true);
-			RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolderNew, offset) -> {
-				render(entity, blockPos, facing, arrivalsResponse, graphicsHolderNew, offset, false);
-				if (isHorizontal) {
-					render(entity, blockPos.offset(facing), facing, arrivalsResponse, graphicsHolderNew, offset, true);
-				}
-			});
+		if (entity.getPlatformIds().isEmpty()) {
+			InitClient.findClosePlatform(entity.getPos2(), 5, platform -> getArrivalsAndRender(entity, blockPos, facing, LongImmutableList.of(platform.getId())));
+		} else {
+			getArrivalsAndRender(entity, blockPos, facing, new LongImmutableList(entity.getPlatformIds()));
+		}
+	}
+
+	private void getArrivalsAndRender(T entity, BlockPos blockPos, Direction facing, LongImmutableList platformIds) {
+		final ArrivalsResponse arrivalsResponse = ClientData.getInstance().requestArrivals(blockPos.asLong(), platformIds, entity.maxArrivals, 0, true);
+		RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolderNew, offset) -> {
+			render(entity, blockPos, facing, arrivalsResponse, graphicsHolderNew, offset, false);
+			if (entity instanceof BlockPIDSHorizontalBase.BlockEntityHorizontalBase) {
+				render(entity, blockPos.offset(facing), facing, arrivalsResponse, graphicsHolderNew, offset, true);
+			}
 		});
 	}
 
@@ -74,6 +79,12 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 		final ObjectImmutableList<ArrivalResponse> arrivalResponse = arrivalsResponse.getArrivals();
 
 		for (int i = 0; i < entity.maxArrivals; i++) {
+			final int languageTicks = (int) Math.floor(InitClient.getGameTick()) / SWITCH_LANGUAGE_TICKS;
+			final String[] messageSplit = entity.getMessage(i).split("\\|");
+			if (messageSplit.length == 0) {
+				break;
+			}
+
 			graphicsHolder.push();
 			graphicsHolder.translate(blockPos.getX() - offset.getXMapped() + 0.5, blockPos.getY() - offset.getYMapped(), blockPos.getZ() - offset.getZMapped() + 0.5);
 			graphicsHolder.rotateYDegrees((rotate90 ? 90 : 0) + (addRotation ? 180 : 0) - facing.asRotation());
@@ -81,8 +92,6 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 			graphicsHolder.translate((startX - 8) / 16, -startY / 16 + i * maxHeight / entity.maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
 			graphicsHolder.scale(1 / scale, 1 / scale, 1 / scale);
 
-			final int languageTicks = (int) Math.floor(InitClient.getGameTick()) / SWITCH_LANGUAGE_TICKS;
-			final String[] messageSplit = entity.getMessage(i).split("\\|");
 			final ObjectImmutableList<PIDSFormatter.Column> columns = new PIDSFormatter(arrivalResponse, messageSplit[languageTicks % messageSplit.length]).getColumns();
 
 			columns.forEach(column -> {

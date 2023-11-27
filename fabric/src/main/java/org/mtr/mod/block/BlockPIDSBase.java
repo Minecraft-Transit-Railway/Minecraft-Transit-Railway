@@ -57,6 +57,9 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 			this.canStoreData = canStoreData;
 			this.getBlockPosWithData = getBlockPosWithData;
 			messages = new String[maxArrivals];
+			for (int i = 0; i < maxArrivals; i++) {
+				messages[i] = defaultFormat(i);
+			}
 		}
 
 		@Override
@@ -64,7 +67,8 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 			final boolean compatibilityMode = compoundTag.contains(KEY_HIDE_ARRIVAL + 0); // TODO temporary code
 
 			for (int i = 0; i < maxArrivals; i++) {
-				messages[i] = (compatibilityMode && !compoundTag.getBoolean(KEY_HIDE_ARRIVAL + i) ? defaultFormat(i) + "|" : "") + compoundTag.getString(KEY_MESSAGE + i);
+				final String message = compoundTag.getString(KEY_MESSAGE + i);
+				messages[i] = (compatibilityMode && !compoundTag.getBoolean(KEY_HIDE_ARRIVAL + i) ? defaultFormat(i) + (message.isEmpty() ? "" : "|") : "") + message;
 			}
 
 			platformIds.clear();
