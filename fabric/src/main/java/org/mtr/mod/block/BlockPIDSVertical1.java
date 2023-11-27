@@ -34,7 +34,12 @@ public class BlockPIDSVertical1 extends BlockPIDSVerticalBase {
 
 		@Override
 		public String defaultFormat(int line) {
-			return ""; // TODO
+			// TODO
+			if (line % 2 == 0) {
+				return "@0-100L@$#FF9900$%destination*%".replace("*", String.valueOf(line / 2 + 1));
+			} else {
+				return "@0-100R@$#FF9900$%RAH*%:%RA0m*%:%RA0s*%".replace("*", String.valueOf(line / 2 + 1));
+			}
 		}
 	}
 }

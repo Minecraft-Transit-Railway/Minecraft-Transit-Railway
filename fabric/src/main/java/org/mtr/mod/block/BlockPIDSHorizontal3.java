@@ -36,7 +36,7 @@ public class BlockPIDSHorizontal3 extends BlockPIDSHorizontalBase {
 
 		@Override
 		public String defaultFormat(int line) {
-			return ""; // TODO
+			return "@0-60L@$#FF9900$%destination*%@60-100R@%RAH*%:%RA0m*%:%RA0s*%".replace("*", String.valueOf(line + 1)); // TODO
 		}
 	}
 }
