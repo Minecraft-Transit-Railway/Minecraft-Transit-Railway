@@ -18,7 +18,7 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 	public final BiFunction<World, BlockPos, BlockPos> getBlockPosWithData;
 
 	public BlockPIDSBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData) {
-		super(BlockHelper.createBlockSettings(true, blockState -> 5));
+		super(BlockHelper.createBlockSettings(true, blockState -> 5).nonOpaque());
 		this.maxArrivals = maxArrivals;
 		this.canStoreData = canStoreData;
 		this.getBlockPosWithData = getBlockPosWithData;
@@ -43,8 +43,7 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 		public final BiPredicate<World, BlockPos> canStoreData;
 		public final BiFunction<World, BlockPos, BlockPos> getBlockPosWithData;
 
-		public final String[] messages;
-		private final boolean[] hideArrival;
+		private final String[] messages;
 		private final LongAVLTreeSet platformIds = new LongAVLTreeSet();
 		private int displayPage;
 		private static final String KEY_MESSAGE = "message";
@@ -58,22 +57,22 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 			this.canStoreData = canStoreData;
 			this.getBlockPosWithData = getBlockPosWithData;
 			messages = new String[maxArrivals];
-			hideArrival = new boolean[maxArrivals];
 		}
 
 		@Override
 		public void readCompoundTag(CompoundTag compoundTag) {
+			final boolean compatibilityMode = compoundTag.contains(KEY_HIDE_ARRIVAL + 0); // TODO temporary code
+
 			for (int i = 0; i < maxArrivals; i++) {
-				messages[i] = compoundTag.getString(KEY_MESSAGE + i);
+				messages[i] = (compatibilityMode && !compoundTag.getBoolean(KEY_HIDE_ARRIVAL + i) ? defaultFormat(i) + "|" : "") + compoundTag.getString(KEY_MESSAGE + i);
 			}
-			for (int i = 0; i < maxArrivals; i++) {
-				hideArrival[i] = compoundTag.getBoolean(KEY_HIDE_ARRIVAL + i);
-			}
+
 			platformIds.clear();
 			final long[] platformIdsArray = compoundTag.getLongArray(KEY_PLATFORM_IDS);
 			for (final long platformId : platformIdsArray) {
 				platformIds.add(platformId);
 			}
+
 			displayPage = compoundTag.getInt(KEY_DISPLAY_PAGE);
 		}
 
@@ -82,16 +81,12 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 			for (int i = 0; i < maxArrivals; i++) {
 				compoundTag.putString(KEY_MESSAGE + i, messages[i] == null ? "" : messages[i]);
 			}
-			for (int i = 0; i < maxArrivals; i++) {
-				compoundTag.putBoolean(KEY_HIDE_ARRIVAL + i, hideArrival[i]);
-			}
 			compoundTag.putLongArray(KEY_PLATFORM_IDS, new ArrayList<>(platformIds));
 			compoundTag.putInt(KEY_DISPLAY_PAGE, displayPage);
 		}
 
-		public void setData(String[] messages, boolean[] hideArrival, LongAVLTreeSet platformIds, int displayPage) {
+		public void setData(String[] messages, LongAVLTreeSet platformIds, int displayPage) {
 			System.arraycopy(messages, 0, this.messages, 0, Math.min(messages.length, this.messages.length));
-			System.arraycopy(hideArrival, 0, this.hideArrival, 0, Math.min(hideArrival.length, this.hideArrival.length));
 			this.platformIds.clear();
 			this.platformIds.addAll(platformIds);
 			this.displayPage = displayPage;
@@ -117,12 +112,6 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 			}
 		}
 
-		public boolean getHideArrival(int index) {
-			if (index >= 0 && index < maxArrivals) {
-				return hideArrival[index];
-			} else {
-				return false;
-			}
-		}
+		public abstract String defaultFormat(int line);
 	}
 }

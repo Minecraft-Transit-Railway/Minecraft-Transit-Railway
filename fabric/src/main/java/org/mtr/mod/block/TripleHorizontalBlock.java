@@ -10,11 +10,11 @@ public interface TripleHorizontalBlock extends IBlock, DirectionHelper {
 
 	/**
 	 * This {@link BooleanProperty} will be {@code true} if this is the center block of the multi block structure; {@code false} otherwise.
-	 * <p>
+	 * <br/>
 	 * The multi-block structure will have the following states:
-	 * <p>
+	 * <br/>
 	 * {@code LF RT RF}
-	 * <p>
+	 * <br/>
 	 * where {@code L} is {@code SIDE = LEFT}, {@code R} is {@code SIDE = RIGHT},
 	 * {@code F} is {@code CENTER = false}, and {@code T} is {@code CENTER = true}.
 	 */

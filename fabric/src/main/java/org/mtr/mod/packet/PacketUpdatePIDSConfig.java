@@ -9,7 +9,6 @@ public final class PacketUpdatePIDSConfig extends PacketHandler {
 
 	private final BlockPos blockPos;
 	private final String[] messages;
-	private final boolean[] hideArrival;
 	private final LongAVLTreeSet platformIds;
 	private final int displayPage;
 
@@ -22,12 +21,6 @@ public final class PacketUpdatePIDSConfig extends PacketHandler {
 			messages[i] = readString(packetBuffer);
 		}
 
-		final int maxArrivals = packetBuffer.readInt();
-		hideArrival = new boolean[maxArrivals];
-		for (int i = 0; i < maxArrivals; i++) {
-			hideArrival[i] = packetBuffer.readBoolean();
-		}
-
 		final int platformIdCount = packetBuffer.readInt();
 		platformIds = new LongAVLTreeSet();
 		for (int i = 0; i < platformIdCount; i++) {
@@ -37,10 +30,9 @@ public final class PacketUpdatePIDSConfig extends PacketHandler {
 		displayPage = packetBuffer.readInt();
 	}
 
-	public PacketUpdatePIDSConfig(BlockPos blockPos, String[] messages, boolean[] hideArrival, LongAVLTreeSet platformIds, int displayPage) {
+	public PacketUpdatePIDSConfig(BlockPos blockPos, String[] messages, LongAVLTreeSet platformIds, int displayPage) {
 		this.blockPos = blockPos;
 		this.messages = messages;
-		this.hideArrival = hideArrival;
 		this.platformIds = platformIds;
 		this.displayPage = displayPage;
 	}
@@ -54,11 +46,6 @@ public final class PacketUpdatePIDSConfig extends PacketHandler {
 			writeString(packetBuffer, message);
 		}
 
-		packetBuffer.writeInt(hideArrival.length);
-		for (final boolean hideArrival : hideArrival) {
-			packetBuffer.writeBoolean(hideArrival);
-		}
-
 		packetBuffer.writeInt(platformIds.size());
 		platformIds.forEach(packetBuffer::writeLong);
 		packetBuffer.writeInt(displayPage);
@@ -68,7 +55,7 @@ public final class PacketUpdatePIDSConfig extends PacketHandler {
 	public void runServerQueued(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
 		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
 		if (entity != null && entity.data instanceof BlockPIDSBase.BlockEntityBase) {
-			((BlockPIDSBase.BlockEntityBase) entity.data).setData(messages, hideArrival, platformIds, displayPage);
+			((BlockPIDSBase.BlockEntityBase) entity.data).setData(messages, platformIds, displayPage);
 		}
 	}
 }
