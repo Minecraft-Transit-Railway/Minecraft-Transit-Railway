@@ -33,5 +33,10 @@ public class BlockPIDSHorizontal2 extends BlockPIDSHorizontalBase {
 		public BlockEntity(BlockPos pos, BlockState state) {
 			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_HORIZONTAL_2.get(), pos, state);
 		}
+
+		@Override
+		public String defaultFormat(int line) {
+			return ""; // TODO
+		}
 	}
 }
