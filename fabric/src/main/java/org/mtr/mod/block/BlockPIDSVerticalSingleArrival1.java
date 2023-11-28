@@ -6,7 +6,13 @@ import org.mtr.mod.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
 
-public class BlockPIDS4 extends BlockPIDSBaseVertical {
+public class BlockPIDSVerticalSingleArrival1 extends BlockPIDSVerticalBase {
+
+	private static final int MAX_ARRIVALS = 16;
+
+	public BlockPIDSVerticalSingleArrival1() {
+		super(MAX_ARRIVALS);
+	}
 
 	@Nonnull
 	@Override
@@ -22,24 +28,20 @@ public class BlockPIDS4 extends BlockPIDSBaseVertical {
 
 	public static class BlockEntity extends BlockEntityVerticalBase {
 
-		public static final int MAX_ARRIVALS = 8;
-		public static final int LINES_PER_ARRIVAL = 2;
-		private final BlockState state;
-
 		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.PIDS_4.get(), pos, state);
-			this.state = state;
+			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_VERTICAL_SINGLE_ARRIVAL_1.get(), pos, state);
 		}
 
 		@Override
-		public int getMaxArrivals() {
-			final boolean isBottom = IBlock.getStatePropertySafe(this.state, HALF) == DoubleBlockHalf.LOWER;
-			return isBottom ? 0 : MAX_ARRIVALS;
-		}
-
-		@Override
-		public int getLinesPerArrival() {
-			return LINES_PER_ARRIVAL;
+		public String defaultFormat(int line) {
+			// TODO
+			if (line == 0) {
+				return "@0-100L@$#FF9900$%destination1%";
+			} else if (line == 1) {
+				return "@0-100R@$#FF9900$%RAH1%:%RA0m1%:%RA0s1%";
+			} else {
+				return "";
+			}
 		}
 	}
 }

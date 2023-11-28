@@ -6,7 +6,13 @@ import org.mtr.mod.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
 
-public class BlockPIDSSingleArrival1 extends BlockPIDSBaseVertical {
+public class BlockPIDSVertical1 extends BlockPIDSVerticalBase {
+
+	private static final int MAX_ARRIVALS = 16;
+
+	public BlockPIDSVertical1() {
+		super(MAX_ARRIVALS);
+	}
 
 	@Nonnull
 	@Override
@@ -22,24 +28,18 @@ public class BlockPIDSSingleArrival1 extends BlockPIDSBaseVertical {
 
 	public static class BlockEntity extends BlockEntityVerticalBase {
 
-		public static final int MAX_ARRIVALS = 1;
-		public static final int LINES_PER_ARRIVAL = 16;
-		private final BlockState state;
-
 		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.PIDS_SINGLE_ARRIVAL_1.get(), pos, state);
-			this.state = state;
+			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_VERTICAL_1.get(), pos, state);
 		}
 
 		@Override
-		public int getMaxArrivals() {
-			final boolean isBottom = IBlock.getStatePropertySafe(this.state, HALF) == DoubleBlockHalf.LOWER;
-			return isBottom ? 0 : MAX_ARRIVALS;
-		}
-
-		@Override
-		public int getLinesPerArrival() {
-			return LINES_PER_ARRIVAL;
+		public String defaultFormat(int line) {
+			// TODO
+			if (line % 2 == 0) {
+				return "@0-100L@$#FF9900$%destination*%".replace("*", String.valueOf(line / 2 + 1));
+			} else {
+				return "@0-100R@$#FF9900$%RAH*%:%RA0m*%:%RA0s*%".replace("*", String.valueOf(line / 2 + 1));
+			}
 		}
 	}
 }

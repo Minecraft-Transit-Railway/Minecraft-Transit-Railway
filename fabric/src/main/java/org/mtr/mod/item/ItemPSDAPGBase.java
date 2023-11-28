@@ -7,7 +7,7 @@ import org.mtr.mod.Blocks;
 import org.mtr.mod.block.BlockPSDAPGBase;
 import org.mtr.mod.block.BlockPSDTop;
 import org.mtr.mod.block.IBlock;
-import org.mtr.mod.block.ITripleBlock;
+import org.mtr.mod.block.TripleHorizontalBlock;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -44,7 +44,7 @@ public class ItemPSDAPGBase extends ItemExtension implements IBlock {
 				if (item.isDoor) {
 					BlockState neighborState = state.with(new Property<>(SIDE.data), x == 0 ? EnumSide.LEFT : EnumSide.RIGHT);
 					if (type.isOdd) {
-						neighborState = neighborState.with(new Property<>(ITripleBlock.ODD.data), x > 0 && x < horizontalBlocks - 1);
+						neighborState = neighborState.with(new Property<>(TripleHorizontalBlock.CENTER.data), x > 0 && x < horizontalBlocks - 1);
 					}
 					world.setBlockState(newPos.up(y), neighborState);
 				} else {

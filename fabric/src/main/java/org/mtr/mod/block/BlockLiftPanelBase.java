@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class BlockLiftPanelBase extends BlockExtension implements ITripleBlock, DirectionHelper, BlockWithEntity {
+public abstract class BlockLiftPanelBase extends BlockExtension implements IBlock, DirectionHelper, TripleHorizontalBlock, BlockWithEntity {
 
 	private final boolean isOdd;
 	private final boolean isFlat;
@@ -23,7 +23,7 @@ public abstract class BlockLiftPanelBase extends BlockExtension implements ITrip
 	@Override
 	public BlockState getStateForNeighborUpdate2(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
 		if (isOdd) {
-			return ITripleBlock.updateShape(state, direction, neighborState.isOf(new Block(this)), () -> super.getStateForNeighborUpdate2(state, direction, neighborState, world, pos, neighborPos));
+			return TripleHorizontalBlock.getStateForNeighborUpdate(state, direction, neighborState.isOf(new Block(this)), super.getStateForNeighborUpdate2(state, direction, neighborState, world, pos, neighborPos));
 		} else {
 			if (IBlock.getSideDirection(state) == direction && !neighborState.isOf(new Block(this))) {
 				return Blocks.getAirMapped().getDefaultState();
@@ -37,7 +37,7 @@ public abstract class BlockLiftPanelBase extends BlockExtension implements ITrip
 	public BlockState getPlacementState2(ItemPlacementContext ctx) {
 		final Direction direction = ctx.getPlayerFacing();
 		if (isOdd) {
-			return IBlock.isReplaceable(ctx, direction.rotateYClockwise(), 3) ? getDefaultState2().with(new Property<>(FACING.data), direction.data).with(new Property<>(SIDE.data), EnumSide.LEFT).with(new Property<>(ODD.data), false) : null;
+			return TripleHorizontalBlock.getPlacementState(ctx, getDefaultState2());
 		} else {
 			return IBlock.isReplaceable(ctx, direction.rotateYClockwise(), 2) ? getDefaultState2().with(new Property<>(FACING.data), direction.data).with(new Property<>(SIDE.data), EnumSide.LEFT) : null;
 		}
@@ -55,10 +55,7 @@ public abstract class BlockLiftPanelBase extends BlockExtension implements ITrip
 			final Direction direction = IBlock.getStatePropertySafe(state, FACING);
 
 			if (isOdd) {
-				world.setBlockState(pos.offset(direction.rotateYClockwise()), getDefaultState2().with(new Property<>(FACING.data), direction.data).with(new Property<>(SIDE.data), EnumSide.RIGHT).with(new Property<>(ODD.data), true), 3);
-				world.setBlockState(pos.offset(direction.rotateYClockwise(), 2), getDefaultState2().with(new Property<>(FACING.data), direction.data).with(new Property<>(SIDE.data), EnumSide.RIGHT).with(new Property<>(ODD.data), false), 3);
-				world.updateNeighbors(pos.offset(direction.rotateYClockwise()), Blocks.getAirMapped());
-				state.updateNeighbors(new WorldAccess(world.data), pos.offset(direction.rotateYClockwise()), 3);
+				TripleHorizontalBlock.onPlaced(world, pos, state, getDefaultState2());
 			} else {
 				world.setBlockState(pos.offset(direction.rotateYClockwise()), getDefaultState2().with(new Property<>(FACING.data), direction.data).with(new Property<>(SIDE.data), EnumSide.RIGHT), 3);
 			}
@@ -71,7 +68,7 @@ public abstract class BlockLiftPanelBase extends BlockExtension implements ITrip
 	@Override
 	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		if (isOdd) {
-			ITripleBlock.playerWillDestroy(world, pos, state, player, false);
+			TripleHorizontalBlock.onBreak(world, pos, state, player);
 		} else {
 			if (IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT) {
 				IBlock.onBreakCreative(world, player, pos.offset(IBlock.getSideDirection(state)));
