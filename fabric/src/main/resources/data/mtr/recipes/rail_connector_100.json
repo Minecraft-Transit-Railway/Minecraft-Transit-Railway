@@ -1,9 +1,9 @@
 {
  	"type": "minecraft:crafting_shaped",
  	"pattern": [
- 		"BRB",
- 		"BIB",
- 		"BRB"
+ 		"GRG",
+ 		"GIG",
+ 		"GRG"
  	],
  	"key": {
  		"R": {
@@ -12,7 +12,7 @@
  		"I": {
  			"tag": "c:iron_ingots"
  		},
- 		"B": {
+ 		"G": {
  			"item": "minecraft:golden"
  		}
  	},
