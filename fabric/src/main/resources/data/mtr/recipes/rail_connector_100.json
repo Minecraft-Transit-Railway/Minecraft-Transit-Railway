@@ -1,9 +1,9 @@
 {
  	"type": "minecraft:crafting_shaped",
  	"pattern": [
- 		"GRG",
- 		"GIG",
- 		"GRG"
+ 	 "BRB",
+ 		"BIB",
+ 		"BRB"
  	],
  	"key": {
  		"R": {
