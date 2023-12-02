@@ -13,7 +13,7 @@
  			"tag": "c:iron_ingots"
  		},
  		"G": {
- 			"item": "minecraft:golden"
+ 			"item": "minecraft:gold_ingot"
  		}
  	},
  	"result": {
