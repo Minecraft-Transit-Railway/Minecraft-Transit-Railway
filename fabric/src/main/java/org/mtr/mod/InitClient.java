@@ -155,6 +155,8 @@ public final class InitClient {
 		RegistryClient.registerItemModelPredicate(Items.RAIL_CONNECTOR_40_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		RegistryClient.registerItemModelPredicate(Items.RAIL_CONNECTOR_60, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		RegistryClient.registerItemModelPredicate(Items.RAIL_CONNECTOR_60_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
+		RegistryClient.registerItemModelPredicate(Items.RAIL_CONNECTOR_70, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
+		RegistryClient.registerItemModelPredicate(Items.RAIL_CONNECTOR_70_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		RegistryClient.registerItemModelPredicate(Items.RAIL_CONNECTOR_80, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		RegistryClient.registerItemModelPredicate(Items.RAIL_CONNECTOR_80_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		RegistryClient.registerItemModelPredicate(Items.RAIL_CONNECTOR_100, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
