@@ -26,7 +26,7 @@ public abstract class BlockPoleCheckBase extends BlockExtension implements Direc
 
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		final String[] strings = TextHelper.translatable("tooltip.mtr.pole_placement", getTooltipBlockText()).getString().split("\n");
+		final String[] strings = TextHelper.translatable("tooltip.mtr.pole_placement", getTooltipBlockText().data).getString().split("\n");
 		for (final String string : strings) {
 			tooltip.add(TextHelper.literal(string).formatted(TextFormatting.GRAY));
 		}

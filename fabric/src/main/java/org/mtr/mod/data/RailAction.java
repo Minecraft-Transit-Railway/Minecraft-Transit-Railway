@@ -3,7 +3,7 @@ package org.mtr.mod.data;
 import org.mtr.core.data.Rail;
 import org.mtr.core.tool.Utilities;
 import org.mtr.core.tool.Vector;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.SlabBlockExtension;
 import org.mtr.mapping.mapper.TextHelper;
@@ -30,7 +30,7 @@ public class RailAction {
 	private final double length;
 	private final BlockState state;
 	private final boolean isSlab;
-	private final ObjectAVLTreeSet<BlockPos> blacklistedPositions = new ObjectAVLTreeSet<>();
+	private final ObjectOpenHashSet<BlockPos> blacklistedPositions = new ObjectOpenHashSet<>();
 
 	private static final double INCREMENT = 0.01;
 

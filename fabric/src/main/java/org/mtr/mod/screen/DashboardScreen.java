@@ -383,7 +383,9 @@ public class DashboardScreen extends ScreenExtension implements IGui, IPacket {
 	}
 
 	private void onClickAddPlatformToRoute(long platformId) {
-		editingRoute.getRoutePlatforms().add(new RoutePlatformData(platformId));
+		final RoutePlatformData routePlatformData = new RoutePlatformData(platformId);
+		editingRoute.getRoutePlatforms().add(routePlatformData);
+		routePlatformData.writePlatformCache(editingRoute, ClientData.getDashboardInstance().platformIdMap);
 		RegistryClient.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute)));
 	}
 

@@ -1,6 +1,6 @@
 package org.mtr.mod.block;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.HolderBase;
@@ -71,7 +71,7 @@ public class BlockLiftButtons extends BlockExtension implements DirectionHelper,
 
 	public static class BlockEntity extends BlockEntityExtension {
 
-		private final ObjectAVLTreeSet<BlockPos> trackPositions = new ObjectAVLTreeSet<>();
+		private final ObjectOpenHashSet<BlockPos> trackPositions = new ObjectOpenHashSet<>();
 
 		private static final String KEY_TRACK_FLOOR_POS = "track_floor_pos";
 

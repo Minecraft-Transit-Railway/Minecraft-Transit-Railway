@@ -63,11 +63,11 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 
 		if (canSaveBlock) {
 			final BlockState state = getSavedState(stack);
-			final String[] textSplit = TextHelper.translatable(state.isAir() ? "tooltip.mtr.shift_right_click_to_select_material" : "tooltip.mtr.shift_right_click_to_clear", InitClient.getShiftText(), TextHelper.translatable(org.mtr.mod.Blocks.RAIL_NODE.get().getTranslationKey())).getString().split("\\|");
+			final String[] textSplit = TextHelper.translatable(state.isAir() ? "tooltip.mtr.shift_right_click_to_select_material" : "tooltip.mtr.shift_right_click_to_clear", InitClient.getShiftText(), TextHelper.translatable(org.mtr.mod.Blocks.RAIL_NODE.get().getTranslationKey()).data).getString().split("\\|");
 			for (String text : textSplit) {
 				tooltip.add(TextHelper.literal(text).formatted(TextFormatting.GRAY).formatted(TextFormatting.ITALIC));
 			}
-			tooltip.add(TextHelper.translatable("tooltip.mtr.selected_material", TextHelper.translatable(state.getBlock().getTranslationKey())).formatted(TextFormatting.GREEN));
+			tooltip.add(TextHelper.translatable("tooltip.mtr.selected_material", TextHelper.translatable(state.getBlock().getTranslationKey()).data).formatted(TextFormatting.GREEN));
 		}
 
 		super.addTooltips(stack, world, tooltip, options);
