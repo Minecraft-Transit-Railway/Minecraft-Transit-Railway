@@ -1,5 +1,6 @@
 package org.mtr.mod.packet;
 
+import org.mtr.core.data.Data;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.integration.Integration;
 import org.mtr.core.servlet.IntegrationServlet;
@@ -15,10 +16,8 @@ public final class PacketOpenDashboardScreen extends PacketDataBase {
 	private final TransportMode transportMode;
 	private final boolean useTimeAndWindSync;
 
-	public PacketOpenDashboardScreen(PacketBuffer packetBuffer) {
-		super(packetBuffer);
-		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, readString(packetBuffer));
-		useTimeAndWindSync = packetBuffer.readBoolean();
+	public static PacketOpenDashboardScreen create(PacketBuffer packetBuffer) {
+		return create(packetBuffer, (operation, integration, updateClientDataInstance, updateClientDataDashboardInstance) -> new PacketOpenDashboardScreen(integration, EnumHelper.valueOf(TransportMode.TRAIN, readString(packetBuffer)), packetBuffer.readBoolean()));
 	}
 
 	private PacketOpenDashboardScreen(Integration integration, TransportMode transportMode, boolean useTimeAndWindSync) {
@@ -41,6 +40,6 @@ public final class PacketOpenDashboardScreen extends PacketDataBase {
 	}
 
 	public static void create(PlayerEntity playerEntity, TransportMode transportMode) {
-		sendHttpDataRequest(IntegrationServlet.Operation.LIST, new Integration(), integration -> Registry.sendPacketToClient(ServerPlayerEntity.cast(playerEntity), new PacketOpenDashboardScreen(integration, transportMode, false)));
+		sendHttpDataRequest(IntegrationServlet.Operation.LIST, new Integration(new Data()), integration -> Registry.sendPacketToClient(ServerPlayerEntity.cast(playerEntity), new PacketOpenDashboardScreen(integration, transportMode, false)));
 	}
 }

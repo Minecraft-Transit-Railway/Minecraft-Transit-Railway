@@ -55,7 +55,7 @@ public final class PacketData extends PacketDataBase {
 			@Nullable ObjectSet<SignalModification> signalModifications,
 			boolean updateClientDataDashboardInstance
 	) {
-		final Integration integration = new Integration();
+		final Integration integration = new Integration(new Data());
 		integration.add(stations, platforms, sidings, routes, depots, null);
 		integration.add(rails, positions);
 		integration.add(signalModifications);
@@ -66,8 +66,8 @@ public final class PacketData extends PacketDataBase {
 		super(operation, integration, updateClientDataInstance, updateClientDataDashboardInstance);
 	}
 
-	public PacketData(PacketBuffer packetBuffer) {
-		super(packetBuffer);
+	public static PacketData create(PacketBuffer packetBuffer) {
+		return create(packetBuffer, PacketData::new);
 	}
 
 	public static void updateRail(ServerWorld serverWorld, Rail rail) {

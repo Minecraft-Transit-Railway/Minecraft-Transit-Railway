@@ -2,6 +2,7 @@ package org.mtr.mod;
 
 import org.mtr.core.Main;
 import org.mtr.core.data.Client;
+import org.mtr.core.data.Data;
 import org.mtr.core.data.Position;
 import org.mtr.core.generated.data.ClientGroupSchema;
 import org.mtr.core.integration.Integration;
@@ -62,12 +63,12 @@ public final class Init implements Utilities {
 		Registry.setupPackets(new Identifier(MOD_ID, "packet"));
 		Registry.registerPacket(PacketAddBalance.class, PacketAddBalance::new);
 		Registry.registerPacket(PacketBroadcastRailActions.class, PacketBroadcastRailActions::new);
-		Registry.registerPacket(PacketData.class, PacketData::new);
+		Registry.registerPacket(PacketData.class, PacketData::create);
 		Registry.registerPacket(PacketDeleteRailAction.class, PacketDeleteRailAction::new);
 		Registry.registerPacket(PacketDriveTrain.class, PacketDriveTrain::new);
 		Registry.registerPacket(PacketFetchArrivals.class, PacketFetchArrivals::new);
 		Registry.registerPacket(PacketOpenBlockEntityScreen.class, PacketOpenBlockEntityScreen::new);
-		Registry.registerPacket(PacketOpenDashboardScreen.class, PacketOpenDashboardScreen::new);
+		Registry.registerPacket(PacketOpenDashboardScreen.class, PacketOpenDashboardScreen::create);
 		Registry.registerPacket(PacketOpenLiftCustomizationScreen.class, PacketOpenLiftCustomizationScreen::new);
 		Registry.registerPacket(PacketOpenPIDSConfigScreen.class, PacketOpenPIDSConfigScreen::new);
 		Registry.registerPacket(PacketOpenTicketMachineScreen.class, PacketOpenTicketMachineScreen::new);
@@ -102,7 +103,7 @@ public final class Init implements Utilities {
 					responseObject.keySet().forEach(playerUuid -> {
 						final ServerPlayerEntity serverPlayerEntity = minecraftServer.getPlayerManager().getPlayer(UUID.fromString(playerUuid));
 						if (serverPlayerEntity != null) {
-							Registry.sendPacketToClient(serverPlayerEntity, new PacketData(IntegrationServlet.Operation.LIST, new Integration(new JsonReader(responseObject.getAsJsonObject(playerUuid))), true, false));
+							Registry.sendPacketToClient(serverPlayerEntity, new PacketData(IntegrationServlet.Operation.LIST, new Integration(new JsonReader(responseObject.getAsJsonObject(playerUuid)), new Data()), true, false));
 						}
 					});
 				});
