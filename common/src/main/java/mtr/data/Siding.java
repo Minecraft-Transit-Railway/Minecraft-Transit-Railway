@@ -604,7 +604,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 			} else {
 				final float acceleration = speedChange * accelerationConstant;
 				final float brakingPower = speedChange * brakingPowerConstant;
-				return startTime + (distance == 0 ? 0 : (Math.sqrt((acceleration + brakingPower) * distance + startSpeed * startSpeed) - startSpeed) / acceleration);
+				return startTime + (distance == 0 ? 0 : (Math.sqrt((acceleration + brakingPower) * distance + startSpeed * startSpeed) - startSpeed) / (acceleration + brakingPower) * 2);
 			}
 		}
 	}
