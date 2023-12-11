@@ -22,6 +22,8 @@ jobs:
         run: chmod +x ./gradlew
       - name: Setup Fabric files
         run: ./gradlew fabric:setupFiles -PminecraftVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+      - name: Setup Forge files
+        run: ./gradlew forge:setupFiles -PminecraftVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
       - name: Build ${{ matrix.minecraft }}
         run: ./gradlew build -PminecraftVersion="${{ matrix.minecraft }}"
       - name: Capture release artifacts
