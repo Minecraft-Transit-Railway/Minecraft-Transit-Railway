@@ -47,6 +47,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 	public final int width;
 	public final int trainCars;
 	public final float accelerationConstant;
+	public final float brakingPowerConstant;
 	public final boolean isManualAllowed;
 	public final int maxManualSpeed;
 	public final int manualToAutomaticTime;
@@ -60,9 +61,12 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 
 	private final float railLength;
 
-	public static final float ACCELERATION_DEFAULT = 0.01F; // m/tick^2
-	public static final float MAX_ACCELERATION = 0.05F; // m/tick^2
-	public static final float MIN_ACCELERATION = 0.001F; // m/tick^2
+	public static final float ACCELERATION_DEFAULT = 0.006F; // 0.006m/tick^2 = 2.4m/s^2 = 8.64km/h/s
+	public static final float MAX_ACCELERATION = 0.05F; // 0.05m/tick^2 = 20m/s^2 = 72km/h/s
+	public static final float MIN_ACCELERATION = 0.001F; // 0.001m/tick^2 = 1m/s^2 = 3.6km/h/s
+	public static final float BRAKING_POWER_DEFAULT = 0.01F; // 0.01m/tick^2 = 4.0m/s^2 = 14.4km/h/s
+	public static final float MAX_BRAKING_POWER = 0.05F; // 0.05m/tick^2 = 20m/s^2 = 72km/h/s
+	public static final float MIN_BRAKING_POWER = 0.001F; // 0.001m/tick^2 = 1m/s^2 = 3.6km/h/s
 	public static final int DOOR_MOVE_TIME = 64;
 	protected static final int MAX_CHECK_DISTANCE = 32;
 	protected static final int DOOR_DELAY = 20;
@@ -80,7 +84,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 	private static final String KEY_RIDING_ENTITIES = "riding_entities";
 	private static final String KEY_CARGO = "cargo";
 
-	public Train(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2, float accelerationConstant, boolean isManualAllowed, int maxManualSpeed, int manualToAutomaticTime) {
+	public Train(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2, float accelerationConstant, float brakingPowerConstant, boolean isManualAllowed, int maxManualSpeed, int manualToAutomaticTime) {
 		super(id);
 		this.sidingId = sidingId;
 		this.railLength = RailwayData.round(railLength, 3);
@@ -102,14 +106,16 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		this.repeatIndex1 = repeatIndex1;
 		this.repeatIndex2 = repeatIndex2;
 		final float tempAccelerationConstant = RailwayData.round(accelerationConstant, 3);
+		final float tempBrakingPowerConstant = RailwayData.round(brakingPowerConstant, 3);
 		this.accelerationConstant = tempAccelerationConstant <= 0 ? ACCELERATION_DEFAULT : tempAccelerationConstant;
+		this.brakingPowerConstant = tempBrakingPowerConstant <= 0 ? BRAKING_POWER_DEFAULT : tempBrakingPowerConstant;
 		inventory = new SimpleContainer(trainCars);
 	}
 
 	public Train(
 			long sidingId, float railLength,
 			List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2,
-			float accelerationConstant, boolean isManualAllowed, int maxManualSpeed, int manualToAutomaticTime,
+			float accelerationConstant, float brakingPowerConstant, boolean isManualAllowed, int maxManualSpeed, int manualToAutomaticTime,
 			Map<String, Value> map
 	) {
 		super(map);
@@ -122,6 +128,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		this.repeatIndex1 = repeatIndex1;
 		this.repeatIndex2 = repeatIndex2;
 		this.accelerationConstant = accelerationConstant;
+		this.brakingPowerConstant = brakingPowerConstant;
 		this.isManualAllowed = isManualAllowed;
 		this.maxManualSpeed = maxManualSpeed;
 		this.manualToAutomaticTime = manualToAutomaticTime;
@@ -168,7 +175,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 	public Train(
 			long sidingId, float railLength,
 			List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2,
-			float accelerationConstant, boolean isManualAllowed, int maxManualSpeed, int manualToAutomaticTime,
+			float accelerationConstant, float brakingPowerConstant, boolean isManualAllowed, int maxManualSpeed, int manualToAutomaticTime,
 			CompoundTag compoundTag
 	) {
 		super(compoundTag);
@@ -180,6 +187,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		this.repeatIndex1 = repeatIndex1;
 		this.repeatIndex2 = repeatIndex2;
 		this.accelerationConstant = accelerationConstant;
+		this.brakingPowerConstant = brakingPowerConstant;
 		this.isManualAllowed = isManualAllowed;
 		this.maxManualSpeed = maxManualSpeed;
 		this.manualToAutomaticTime = manualToAutomaticTime;
@@ -251,6 +259,9 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		}
 
 		inventory = null;
+		
+		final float tempBrakingPowerConstant = RailwayData.round(packet.readFloat(), 3);
+		brakingPowerConstant = tempBrakingPowerConstant <= 0 ? BRAKING_POWER_DEFAULT : tempBrakingPowerConstant;
 	}
 
 	@Override
@@ -333,6 +344,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 		packet.writeBoolean(doorTarget);
 		packet.writeInt(ridingEntities.size());
 		ridingEntities.forEach(packet::writeUUID);
+		packet.writeFloat(brakingPowerConstant);
 	}
 
 	@Override
@@ -460,6 +472,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 				}
 			} else {
 				final float newAcceleration = accelerationConstant * ticksElapsed;
+				final float newBrakingPower = brakingPowerConstant * ticksElapsed;
 
 				if (railProgress >= distances.get(distances.size() - 1) - (railLength - trainCars * spacing) / 2) {
 					isOnRoute = false;
@@ -510,13 +523,15 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 						}
 
 						final double stoppingDistance = distances.get(nextStoppingIndex) - railProgress;
-						if (!transportMode.continuousMovement && stoppingDistance < 0.5 * speed * speed / accelerationConstant) {
-							speed = stoppingDistance <= 0 ? Train.ACCELERATION_DEFAULT : (float) Math.max(speed - (0.5 * speed * speed / stoppingDistance) * ticksElapsed, Train.ACCELERATION_DEFAULT);
+						if (!transportMode.continuousMovement && stoppingDistance < 0.5 * speed * speed / brakingPowerConstant) {
+							speed = stoppingDistance <= 0 ? Train.BRAKING_POWER_DEFAULT : (float) Math.max(speed - (0.5 * speed * speed / stoppingDistance) * ticksElapsed, Train.BRAKING_POWER_DEFAULT);
 							manualNotch = -3;
 						} else {
 							if (isCurrentlyManual) {
-								if (manualNotch >= -2) {
-									final RailType railType = convertMaxManualSpeed(maxManualSpeed);
+								final RailType railType = convertMaxManualSpeed(maxManualSpeed);
+								if (manualNotch >= -2 && manualNotch <= 0) {
+									speed = Mth.clamp(speed + manualNotch * newBrakingPower / 2, 0, railType == null ? RailType.IRON.maxBlocksPerTick : railType.maxBlocksPerTick);
+								} else if (manualNotch > 0) {
 									speed = Mth.clamp(speed + manualNotch * newAcceleration / 2, 0, railType == null ? RailType.IRON.maxBlocksPerTick : railType.maxBlocksPerTick);
 								}
 							} else {
@@ -525,7 +540,7 @@ public abstract class Train extends NameColorDataBase implements IPacket {
 									speed = Math.min(speed + newAcceleration, railSpeed);
 									manualNotch = 2;
 								} else if (speed > railSpeed) {
-									speed = Math.max(speed - newAcceleration, railSpeed);
+									speed = Math.max(speed - newBrakingPower, railSpeed);
 									manualNotch = -2;
 								} else {
 									manualNotch = 0;

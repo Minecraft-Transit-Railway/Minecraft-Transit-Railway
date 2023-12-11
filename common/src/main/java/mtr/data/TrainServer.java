@@ -38,18 +38,18 @@ public class TrainServer extends Train {
 	private static final int TRAIN_UPDATE_DISTANCE = 128;
 	private static final int TICKS_TO_SEND_RAIL_PROGRESS = 40;
 
-	public TrainServer(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2, float accelerationConstant, List<Siding.TimeSegment> timeSegments, boolean isManual, int maxManualSpeed, int manualToAutomaticTime) {
-		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, isManual, maxManualSpeed, manualToAutomaticTime);
+	public TrainServer(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2, float accelerationConstant, float brakingPowerConstant, List<Siding.TimeSegment> timeSegments, boolean isManual, int maxManualSpeed, int manualToAutomaticTime) {
+		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, brakingPowerConstant, isManual, maxManualSpeed, manualToAutomaticTime);
 		this.timeSegments = timeSegments;
 	}
 
 	public TrainServer(
 			long sidingId, float railLength, List<Siding.TimeSegment> timeSegments,
 			List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2,
-			float accelerationConstant, boolean isManual, int maxManualSpeed, int manualToAutomaticTime,
+			float accelerationConstant, float brakingPowerConstant, boolean isManual, int maxManualSpeed, int manualToAutomaticTime,
 			Map<String, Value> map
 	) {
-		super(sidingId, railLength, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, isManual, maxManualSpeed, manualToAutomaticTime, map);
+		super(sidingId, railLength, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, brakingPowerConstant, isManual, maxManualSpeed, manualToAutomaticTime, map);
 		this.timeSegments = timeSegments;
 	}
 
@@ -57,10 +57,10 @@ public class TrainServer extends Train {
 	public TrainServer(
 			long sidingId, float railLength, List<Siding.TimeSegment> timeSegments,
 			List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2,
-			float accelerationConstant, boolean isManual, int maxManualSpeed, int manualToAutomaticTime,
+			float accelerationConstant, float brakingPowerConstant, boolean isManual, int maxManualSpeed, int manualToAutomaticTime,
 			CompoundTag compoundTag
 	) {
-		super(sidingId, railLength, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, isManual, maxManualSpeed, manualToAutomaticTime, compoundTag);
+		super(sidingId, railLength, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, brakingPowerConstant, isManual, maxManualSpeed, manualToAutomaticTime, compoundTag);
 		this.timeSegments = timeSegments;
 	}
 
