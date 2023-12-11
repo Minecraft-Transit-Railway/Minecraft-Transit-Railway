@@ -6,6 +6,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.mtr.core.data.Data;
 import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.data.Rail;
 import org.mtr.core.integration.Integration;
@@ -50,8 +51,17 @@ public abstract class PacketDataBase extends PacketHandler {
 		this.updateClientDataDashboardInstance = updateClientDataDashboardInstance;
 	}
 
-	public PacketDataBase(PacketBuffer packetBuffer) {
-		this(EnumHelper.valueOf(IntegrationServlet.Operation.UPDATE, readString(packetBuffer)), new Integration(new JsonReader(Utilities.parseJson(readString(packetBuffer)))), packetBuffer.readBoolean(), packetBuffer.readBoolean());
+	protected static <T extends PacketDataBase> T create(PacketBuffer packetBuffer, PacketDataBaseInstance<T> packetDataBaseInstance) {
+		final IntegrationServlet.Operation operation = EnumHelper.valueOf(IntegrationServlet.Operation.UPDATE, readString(packetBuffer));
+		final JsonReader integrationJsonReader = new JsonReader(Utilities.parseJson(readString(packetBuffer)));
+		final boolean updateClientDataInstance = packetBuffer.readBoolean();
+		final boolean updateClientDataDashboardInstance = packetBuffer.readBoolean();
+		return packetDataBaseInstance.create(
+				operation,
+				new Integration(integrationJsonReader, updateClientDataDashboardInstance ? ClientData.getDashboardInstance() : ClientData.getInstance()),
+				updateClientDataInstance,
+				updateClientDataDashboardInstance
+		);
 	}
 
 	@Override
@@ -160,6 +170,11 @@ public abstract class PacketDataBase extends PacketHandler {
 	}
 
 	protected static void sendHttpDataRequest(IntegrationServlet.Operation operation, Integration integration, Consumer<Integration> consumer) {
-		sendHttpRequest("data/" + operation.getEndpoint(), Utilities.getJsonObjectFromData(integration), data -> consumer.accept(Response.create(data).getData(Integration::new)));
+		sendHttpRequest("data/" + operation.getEndpoint(), Utilities.getJsonObjectFromData(integration), data -> consumer.accept(Response.create(data).getData(jsonReader -> new Integration(jsonReader, new Data()))));
+	}
+
+	@FunctionalInterface
+	protected interface PacketDataBaseInstance<T extends PacketDataBase> {
+		T create(IntegrationServlet.Operation operation, Integration integration, boolean updateClientDataInstance, boolean updateClientDataDashboardInstance);
 	}
 }
