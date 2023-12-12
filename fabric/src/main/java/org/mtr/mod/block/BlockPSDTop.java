@@ -67,7 +67,7 @@ public class BlockPSDTop extends BlockExtension implements IBlock, DirectionHelp
 	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		final Block blockDown = world.getBlockState(pos.down()).getBlock();
 		if (blockDown.data instanceof BlockPSDAPGBase) {
-			blockDown.onBreak(world, pos.down(), world.getBlockState(pos.down()), player);
+			((BlockPSDAPGBase) blockDown.data).onBreak3(world, pos.down(), world.getBlockState(pos.down()), player);
 			world.setBlockState(pos.down(), Blocks.getAirMapped().getDefaultState());
 		}
 		super.onBreak3(world, pos, state, player);
