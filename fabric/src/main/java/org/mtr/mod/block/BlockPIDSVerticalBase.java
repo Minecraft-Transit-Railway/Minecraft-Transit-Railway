@@ -32,9 +32,9 @@ public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBl
 	}
 
 	@Override
-	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		DoubleVerticalBlock.onBreak(world, pos, state, player);
-		super.onBreak2(world, pos, state, player);
+		super.onBreak3(world, pos, state, player);
 	}
 
 	@Override

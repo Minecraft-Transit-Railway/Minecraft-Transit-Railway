@@ -22,11 +22,11 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 	}
 
 	@Override
-	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		if (IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT) {
 			IBlock.onBreakCreative(world, player, pos.offset(IBlock.getSideDirection(state)));
 		}
-		super.onBreak2(world, pos, state, player);
+		super.onBreak3(world, pos, state, player);
 	}
 
 	@Nonnull
