@@ -52,7 +52,7 @@ public abstract class BlockEscalatorBase extends BlockExtension implements IBloc
 
 	@Nonnull
 	@Override
-	public ItemStack getPickStack2(BlockView world, BlockPos pos, BlockState state) {
+	public ItemStack getPickStack3(BlockView world, BlockPos pos, BlockState state) {
 		return new ItemStack(new ItemConvertible(asItem2().data));
 	}
 

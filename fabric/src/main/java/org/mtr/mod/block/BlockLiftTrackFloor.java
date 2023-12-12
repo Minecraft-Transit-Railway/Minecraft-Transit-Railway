@@ -34,7 +34,7 @@ public class BlockLiftTrackFloor extends BlockLiftTrack implements BlockWithEnti
 	}
 
 	@Override
-	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		// TODO
 	}
 

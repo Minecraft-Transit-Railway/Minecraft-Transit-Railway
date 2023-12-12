@@ -13,7 +13,7 @@ public abstract class BlockPSDAPGBase extends BlockDirectionalDoubleBlockBase {
 
 	@Nonnull
 	@Override
-	public ItemStack getPickStack2(BlockView world, BlockPos pos, BlockState state) {
+	public ItemStack getPickStack3(BlockView world, BlockPos pos, BlockState state) {
 		return new ItemStack(new ItemConvertible(asItem2().data));
 	}
 

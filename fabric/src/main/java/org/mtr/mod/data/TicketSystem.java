@@ -25,24 +25,18 @@ public class TicketSystem {
 			return EnumTicketBarrierOpen.CLOSED;
 		}
 
-		final ScoreboardPlayerScore balanceScore = getPlayerScore(world, player, BALANCE_OBJECTIVE, BALANCE_OBJECTIVE_TITLE);
-		final ScoreboardPlayerScore entryZoneScore = getPlayerScore(world, player, ENTRY_ZONE_OBJECTIVE, ENTRY_ZONE_TITLE);
-		if (balanceScore == null || entryZoneScore == null) {
-			return EnumTicketBarrierOpen.CLOSED;
-		}
-
 		final boolean isEntering;
 		if (isEntrance && isExit) {
-			isEntering = entryZoneScore.getScore() == 0;
+			isEntering = getPlayerScore(world, player, ENTRY_ZONE_OBJECTIVE, ENTRY_ZONE_TITLE) == 0;
 		} else {
 			isEntering = isEntrance;
 		}
 
 		final boolean canOpen;
 		if (isEntering) {
-			canOpen = onEnter(station, player, balanceScore, entryZoneScore, remindIfNoRecord);
+			canOpen = onEnter(world, station, player, remindIfNoRecord);
 		} else {
-			canOpen = onExit(station, player, balanceScore, entryZoneScore, remindIfNoRecord);
+			canOpen = onExit(world, station, player, remindIfNoRecord);
 		}
 
 		if (canOpen) {
@@ -55,52 +49,68 @@ public class TicketSystem {
 	}
 
 	public static int getBalance(World world, PlayerEntity player) {
-		final ScoreboardPlayerScore scoreboardPlayerScore = getPlayerScore(world, player, BALANCE_OBJECTIVE, BALANCE_OBJECTIVE_TITLE);
-		return scoreboardPlayerScore == null ? 0 : scoreboardPlayerScore.getScore();
+		return getPlayerScore(world, player, BALANCE_OBJECTIVE, BALANCE_OBJECTIVE_TITLE);
 	}
 
 	public static void addBalance(World world, PlayerEntity player, int amount) {
-		final ScoreboardPlayerScore scoreboardPlayerScore = getPlayerScore(world, player, BALANCE_OBJECTIVE, BALANCE_OBJECTIVE_TITLE);
-		if (scoreboardPlayerScore != null) {
-			scoreboardPlayerScore.setScore(scoreboardPlayerScore.getScore() + amount);
+		incrementPlayerScore(world, player, BALANCE_OBJECTIVE, BALANCE_OBJECTIVE_TITLE, amount);
+	}
+
+	private static int getPlayerScore(World world, PlayerEntity player, String objective, String title) {
+		final ScoreboardObjective scoreboardObjective = tryAddObjective(world, objective, title);
+		return scoreboardObjective == null ? 0 : ScoreboardHelper.getPlayerScore(world.getScoreboard(), player.getGameProfile().getName(), scoreboardObjective);
+	}
+
+	private static void setPlayerScore(World world, PlayerEntity player, String objective, String title, int value) {
+		final ScoreboardObjective scoreboardObjective = tryAddObjective(world, objective, title);
+		if (scoreboardObjective != null) {
+			ScoreboardHelper.setPlayerScore(world.getScoreboard(), player.getGameProfile().getName(), scoreboardObjective, value);
+		}
+	}
+
+	private static void incrementPlayerScore(World world, PlayerEntity player, String objective, String title, int value) {
+		final ScoreboardObjective scoreboardObjective = tryAddObjective(world, objective, title);
+		if (scoreboardObjective != null) {
+			ScoreboardHelper.incrementPlayerScore(world.getScoreboard(), player.getGameProfile().getName(), scoreboardObjective, value);
 		}
 	}
 
 	@Nullable
-	private static ScoreboardPlayerScore getPlayerScore(World world, PlayerEntity player, String objective, String title) {
+	private static ScoreboardObjective tryAddObjective(World world, String objective, String title) {
 		try {
-			world.getScoreboard().addObjective(objective, ScoreboardCriteria.DUMMY, new Text(TextHelper.literal(title).data), ScoreboardCriterionRenderType.INTEGER);
+			return ScoreboardHelper.addObjective(world.getScoreboard(), objective, ScoreboardCriteria.DUMMY, new Text(TextHelper.literal(title).data), ScoreboardCriterionRenderType.INTEGER);
 		} catch (Exception ignored) {
 		}
-		final ScoreboardObjective scoreboardObjective = ScoreboardHelper.getScoreboardObjective(world.getScoreboard(), objective);
-		return scoreboardObjective == null ? null : world.getScoreboard().getPlayerScore(player.getGameProfile().getName(), scoreboardObjective);
+		return null;
 	}
 
-	private static boolean onEnter(Station station, PlayerEntity player, ScoreboardPlayerScore balanceScore, ScoreboardPlayerScore entryZoneScore, boolean remindIfNoRecord) {
-		final int entryZone = entryZoneScore.getScore();
+	private static boolean onEnter(World world, Station station, PlayerEntity player, boolean remindIfNoRecord) {
+		final int entryZone = getPlayerScore(world, player, ENTRY_ZONE_OBJECTIVE, ENTRY_ZONE_TITLE);
 
 		if (entryZone != 0) {
 			if (remindIfNoRecord) {
 				player.sendMessage(new Text(TextHelper.translatable("gui.mtr.already_entered").data), true);
 				return false;
 			} else {
-				entryZoneScore.setScore(0);
-				balanceScore.incrementScore(-EVASION_FINE);
+				setPlayerScore(world, player, ENTRY_ZONE_OBJECTIVE, ENTRY_ZONE_TITLE, 0);
+				incrementPlayerScore(world, player, BALANCE_OBJECTIVE, BALANCE_OBJECTIVE_TITLE, -EVASION_FINE);
 			}
 		}
 
-		if (balanceScore.getScore() >= 0) {
-			entryZoneScore.setScore(encodeZone((int) station.getZone1()));
-			player.sendMessage(new Text(TextHelper.translatable("gui.mtr.enter_barrier", String.format("%s (%s)", station.getName().replace('|', ' '), station.getZone1()), balanceScore.getScore()).data), true);
+		final int balance = getPlayerScore(world, player, BALANCE_OBJECTIVE, BALANCE_OBJECTIVE_TITLE);
+
+		if (balance >= 0) {
+			setPlayerScore(world, player, ENTRY_ZONE_OBJECTIVE, ENTRY_ZONE_TITLE, encodeZone((int) station.getZone1()));
+			player.sendMessage(new Text(TextHelper.translatable("gui.mtr.enter_barrier", String.format("%s (%s)", station.getName().replace('|', ' '), station.getZone1()), balance).data), true);
 			return true;
 		} else {
-			player.sendMessage(new Text(TextHelper.translatable("gui.mtr.insufficient_balance", balanceScore.getScore()).data), true);
+			player.sendMessage(new Text(TextHelper.translatable("gui.mtr.insufficient_balance", balance).data), true);
 			return false;
 		}
 	}
 
-	private static boolean onExit(Station station, PlayerEntity player, ScoreboardPlayerScore balanceScore, ScoreboardPlayerScore entryZoneScore, boolean remindIfNoRecord) {
-		final int entryZone = entryZoneScore.getScore();
+	private static boolean onExit(World world, Station station, PlayerEntity player, boolean remindIfNoRecord) {
+		final int entryZone = getPlayerScore(world, player, ENTRY_ZONE_OBJECTIVE, ENTRY_ZONE_TITLE);
 		final long fare = BASE_FARE + ZONE_FARE * Math.abs(station.getZone1() - decodeZone(entryZone));
 		final int finalFare = entryZone != 0 ? isConcessionary(player) ? (int) Math.ceil(fare / 2F) : (int) fare : EVASION_FINE;
 
@@ -108,9 +118,10 @@ public class TicketSystem {
 			player.sendMessage(new Text(TextHelper.translatable("gui.mtr.already_exited").data), true);
 			return false;
 		} else {
-			entryZoneScore.setScore(0);
-			balanceScore.incrementScore(-finalFare);
-			player.sendMessage(new Text(TextHelper.translatable("gui.mtr.exit_barrier", String.format("%s (%s)", station.getName().replace('|', ' '), station.getZone1()), finalFare, balanceScore.getScore()).data), true);
+			setPlayerScore(world, player, ENTRY_ZONE_OBJECTIVE, ENTRY_ZONE_TITLE, 0);
+			incrementPlayerScore(world, player, BALANCE_OBJECTIVE, BALANCE_OBJECTIVE_TITLE, -finalFare);
+			final int balance = getPlayerScore(world, player, BALANCE_OBJECTIVE, BALANCE_OBJECTIVE_TITLE);
+			player.sendMessage(new Text(TextHelper.translatable("gui.mtr.exit_barrier", String.format("%s (%s)", station.getName().replace('|', ' '), station.getZone1()), finalFare, balance).data), true);
 			return true;
 		}
 	}

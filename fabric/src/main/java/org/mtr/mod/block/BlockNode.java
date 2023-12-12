@@ -34,7 +34,7 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 	}
 
 	@Override
-	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		if (!world.isClient()) {
 			PacketData.deleteRailNode(ServerWorld.cast(world), Init.blockPosToPosition(pos));
 		}
