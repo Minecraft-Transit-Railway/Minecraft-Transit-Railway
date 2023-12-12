@@ -11,12 +11,12 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mod.MutableBox;
-import org.mtr.mod.client.Config;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.generated.resource.ModelPropertiesPartSchema;
 import org.mtr.mod.render.RenderTrains;
+import org.mtr.mod.render.RenderVehicles;
 import org.mtr.mod.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
@@ -93,7 +93,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			switch (type) {
 				case NORMAL:
 					final ObjectIntImmutablePair<RenderTrains.QueuedRenderLayer> renderProperties = getRenderProperties(renderStage, light, vehicle);
-					if (Config.useDynamicFPS()) {
+					if (RenderVehicles.useOptimizedRendering()) {
 						RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> renderNormal(storedMatrixTransformations, vehicle, renderProperties, openDoorways, light, graphicsHolder, offset));
 					} else {
 						RenderTrains.scheduleRender(texture, false, renderProperties.left(), (graphicsHolder, offset) -> renderNormal(storedMatrixTransformations, vehicle, renderProperties, openDoorways, light, graphicsHolder, offset));
@@ -141,7 +141,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			final float y = (float) partDetails.y;
 			final float z = (float) (partDetails.z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0, vehicle.vehicleExtraData.getDoorMultiplier() > 0));
 
-			if (Config.useDynamicFPS()) {
+			if (RenderVehicles.useOptimizedRendering()) {
 				// If doors are open, only render the optimized door parts
 				// Otherwise, the main model already includes closed doors
 				if (!openDoorways.isEmpty() && partDetails.optimizedModelDoor != null) {

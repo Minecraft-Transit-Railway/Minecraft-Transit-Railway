@@ -9,6 +9,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePai
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.Init;
 import org.mtr.mod.Items;
 import org.mtr.mod.block.BlockPSDAPGDoorBase;
@@ -60,7 +61,7 @@ public class RenderVehicles implements IGui {
 				// Render each bogie of the car
 				iterateWithIndex(vehicleProperties.bogiePositionsList, (bogieIndex, bogiePositions) -> {
 					final RenderVehicleTransformationHelper renderVehicleTransformationHelperBogie = new RenderVehicleTransformationHelper(bogiePositions, renderVehicleTransformationHelperOffset);
-					if (Config.useDynamicFPS()) {
+					if (useOptimizedRendering()) {
 						renderModel(renderVehicleTransformationHelperBogie, storedMatrixTransformations -> vehicleResource.queueBogie(bogieIndex, storedMatrixTransformations, vehicle, renderVehicleTransformationHelperBogie.light));
 					} else {
 						vehicleResource.iterateBogieModels(bogieIndex, model -> renderModel(renderVehicleTransformationHelperBogie, storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperBogie.light, new ObjectArrayList<>())));
@@ -97,7 +98,7 @@ public class RenderVehicles implements IGui {
 
 				// Each car can have more than one model defined
 				renderModel(renderVehicleTransformationHelperOffset, storedMatrixTransformations -> {
-					if (Config.useDynamicFPS()) {
+					if (useOptimizedRendering()) {
 						vehicleResource.queue(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperAbsolute.light, openDoorways);
 					}
 
@@ -200,6 +201,10 @@ public class RenderVehicles implements IGui {
 				box.getMinZMapped(),
 				box.getMaxZMapped()
 		);
+	}
+
+	public static boolean useOptimizedRendering() {
+		return Config.useDynamicFPS() && OptimizedRenderer.hasOptimizedRendering();
 	}
 
 	/**
