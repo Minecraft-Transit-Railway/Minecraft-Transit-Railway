@@ -6,7 +6,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        minecraft: [ 1.16.5, 1.17.1, 1.18.2, 1.19.4, 1.20.4 ]
+        minecraft: [ 1.20.4 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -22,8 +22,6 @@ jobs:
         run: chmod +x ./gradlew
       - name: Setup Fabric files
         run: ./gradlew fabric:setupFiles -PminecraftVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
-      - name: Setup Forge files
-        run: ./gradlew forge:setupFiles -PminecraftVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
       - name: Build ${{ matrix.minecraft }}
         run: ./gradlew build -PminecraftVersion="${{ matrix.minecraft }}"
       - name: Capture release artifacts
