@@ -1,0 +1,33 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"tag": "c:iron_ingot"
+		},
+		{
+			"tag": "c:white_dyes"
+		},
+		{
+			"tag": "c:iron_ingot"
+		}
+	],
+	"result": {
+		"item": "mtr:platform_jp_3_indented",
+		"count": 6
+	}
+}

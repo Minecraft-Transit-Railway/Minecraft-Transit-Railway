@@ -1,0 +1,35 @@
+
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"tag": "c:brown_dyes"
+		},
+		{
+			"tag": "c:black_dyes"
+		},
+		{
+			"tag": "c:brown_dyes"
+		}
+	],
+	"result": {
+		"item": "mtr:platform_jp_2",
+		"count": 6
+	}
