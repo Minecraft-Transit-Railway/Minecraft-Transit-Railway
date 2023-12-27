@@ -40,24 +40,27 @@ public class Patreon implements Keys, IGui, Comparable<Patreon> {
 
 	public static void getPatreonList(List<Patreon> patreonList) {
 		patreonList.clear();
-		CompletableFuture.runAsync(() -> openConnectionSafeJson("https://www.patreon.com/api/oauth2/v2/campaigns/7782318/members?include=currently_entitled_tiers&fields%5Bmember%5D=full_name,lifetime_support_cents,patron_status&fields%5Btier%5D=title,amount_cents&page%5Bcount%5D=" + Integer.MAX_VALUE, jsonElement -> {
-			final JsonObject jsonObjectData = jsonElement.getAsJsonObject();
-			final Map<String, JsonObject> idMap = new HashMap<>();
-			jsonObjectData.getAsJsonArray("included").forEach(jsonElementData -> {
-				final JsonObject jsonObject = jsonElementData.getAsJsonObject();
-				idMap.put(jsonObject.get("id").getAsString(), jsonObject.getAsJsonObject("attributes"));
-			});
 
-			jsonObjectData.getAsJsonArray("data").forEach(jsonElementData -> {
-				final JsonObject jsonObjectAttributes = jsonElementData.getAsJsonObject().getAsJsonObject("attributes");
-				final JsonArray jsonObjectTiers = jsonElementData.getAsJsonObject().getAsJsonObject("relationships").getAsJsonObject("currently_entitled_tiers").getAsJsonArray("data");
-				if (!jsonObjectAttributes.get("patron_status").isJsonNull() && jsonObjectAttributes.get("patron_status").getAsString().equals("active_patron") && !jsonObjectTiers.isEmpty()) {
-					patreonList.add(new Patreon(jsonObjectAttributes, idMap.get(jsonObjectTiers.get(0).getAsJsonObject().get("id").getAsString())));
-				}
-			});
+		if (!PATREON_API_KEY.isEmpty()) {
+			CompletableFuture.runAsync(() -> openConnectionSafeJson("https://www.patreon.com/api/oauth2/v2/campaigns/7782318/members?include=currently_entitled_tiers&fields%5Bmember%5D=full_name,lifetime_support_cents,patron_status&fields%5Btier%5D=title,amount_cents&page%5Bcount%5D=" + Integer.MAX_VALUE, jsonElement -> {
+				final JsonObject jsonObjectData = jsonElement.getAsJsonObject();
+				final Map<String, JsonObject> idMap = new HashMap<>();
+				jsonObjectData.getAsJsonArray("included").forEach(jsonElementData -> {
+					final JsonObject jsonObject = jsonElementData.getAsJsonObject();
+					idMap.put(jsonObject.get("id").getAsString(), jsonObject.getAsJsonObject("attributes"));
+				});
 
-			Collections.sort(patreonList);
-		}, "Authorization", "Bearer " + PATREON_API_KEY));
+				jsonObjectData.getAsJsonArray("data").forEach(jsonElementData -> {
+					final JsonObject jsonObjectAttributes = jsonElementData.getAsJsonObject().getAsJsonObject("attributes");
+					final JsonArray jsonObjectTiers = jsonElementData.getAsJsonObject().getAsJsonObject("relationships").getAsJsonObject("currently_entitled_tiers").getAsJsonArray("data");
+					if (!jsonObjectAttributes.get("patron_status").isJsonNull() && jsonObjectAttributes.get("patron_status").getAsString().equals("active_patron") && !jsonObjectTiers.isEmpty()) {
+						patreonList.add(new Patreon(jsonObjectAttributes, idMap.get(jsonObjectTiers.get(0).getAsJsonObject().get("id").getAsString())));
+					}
+				});
+
+				Collections.sort(patreonList);
+			}, "Authorization", "Bearer " + PATREON_API_KEY));
+		}
 	}
 
 	public static void openConnectionSafe(String url, Consumer<InputStream> callback, String... requestProperties) {
