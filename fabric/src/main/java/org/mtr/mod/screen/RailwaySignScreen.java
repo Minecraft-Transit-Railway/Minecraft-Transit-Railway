@@ -1,6 +1,7 @@
 package org.mtr.mod.screen;
 
 import org.mtr.core.data.Station;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
@@ -80,7 +81,17 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 			connectingStationsIncludingThisOne.add(station);
 			stationsForList = ClientData.convertDataSet(connectingStationsIncludingThisOne);
 
-			routesForList = ClientData.convertDataSet(station.getOneInterchangeRouteFromEachColor(true));
+			final LongAVLTreeSet platformIds = new LongAVLTreeSet();
+			connectingStationsIncludingThisOne.forEach(connectingStation -> connectingStation.savedRails.forEach(platform -> platformIds.add(platform.getId())));
+			routesForList = new ObjectAVLTreeSet<>();
+			final IntAVLTreeSet addedColors = new IntAVLTreeSet();
+			ClientData.getInstance().simplifiedRoutes.forEach(simplifiedRoute -> {
+				final int color = simplifiedRoute.getColor();
+				if (!addedColors.contains(color) && simplifiedRoute.getPlatforms().stream().anyMatch(simplifiedRoutePlatform -> platformIds.contains(simplifiedRoutePlatform.getPlatformId()))) {
+					routesForList.add(new DashboardListItem(color, simplifiedRoute.getName().split("\\|\\|")[0], color));
+					addedColors.add(color);
+				}
+			});
 		}
 
 		if (world != null) {
