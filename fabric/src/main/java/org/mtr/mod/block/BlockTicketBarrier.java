@@ -32,11 +32,20 @@ public class BlockTicketBarrier extends BlockExtension implements DirectionHelpe
 			if (open.isOpen() && playerPosRotated.getZMapped() > 0) {
 				world.setBlockState(pos, state.with(new Property<>(OPEN.data), TicketSystem.EnumTicketBarrierOpen.CLOSED));
 			} else if (!open.isOpen() && playerPosRotated.getZMapped() < 0) {
-				final TicketSystem.EnumTicketBarrierOpen newOpen = TicketSystem.passThrough(world, pos, PlayerEntity.cast(entity), isEntrance, !isEntrance, SoundEvents.TICKET_BARRIER.get(), SoundEvents.TICKET_BARRIER_CONCESSIONARY.get(), SoundEvents.TICKET_BARRIER.get(), SoundEvents.TICKET_BARRIER_CONCESSIONARY.get(), null, false);
-				world.setBlockState(pos, state.with(new Property<>(OPEN.data), newOpen));
-				if (newOpen != TicketSystem.EnumTicketBarrierOpen.CLOSED && !hasScheduledTick(world, pos, new Block(this))) {
-					scheduleBlockTick(world, pos, new Block(this), 40);
-				}
+				TicketSystem.passThrough(
+						world, pos, PlayerEntity.cast(entity),
+						isEntrance, !isEntrance,
+						SoundEvents.TICKET_BARRIER.get(), SoundEvents.TICKET_BARRIER_CONCESSIONARY.get(),
+						SoundEvents.TICKET_BARRIER.get(), SoundEvents.TICKET_BARRIER_CONCESSIONARY.get(),
+						null,
+						false,
+						newOpen -> {
+							world.setBlockState(pos, state.with(new Property<>(OPEN.data), newOpen));
+							if (newOpen != TicketSystem.EnumTicketBarrierOpen.CLOSED && !hasScheduledTick(world, pos, new Block(this))) {
+								scheduleBlockTick(world, pos, new Block(this), 40);
+							}
+						}
+				);
 			}
 		}
 	}
