@@ -2,6 +2,7 @@ package org.mtr.mod.render;
 
 import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.data.Station;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -177,15 +178,26 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 				return;
 			}
 
-			final ObjectArrayList<IntObjectImmutablePair<String>> selectedIdsSorted = station.getOneInterchangeRouteFromEachColor(true).stream()
-					.map(route -> new IntObjectImmutablePair<>(route.getColor(), route.getName()))
-					.sorted(Comparator.comparingInt(IntObjectImmutablePair::leftInt))
-					.collect(Collectors.toCollection(ObjectArrayList::new));
+			final LongAVLTreeSet platformIds = new LongAVLTreeSet();
+			station.savedRails.forEach(platform -> platformIds.add(platform.getId()));
+			station.connectedStations.forEach(connectingStation -> connectingStation.savedRails.forEach(platform -> platformIds.add(platform.getId())));
+
+			final ObjectArrayList<IntObjectImmutablePair<String>> selectedRoutesSorted = new ObjectArrayList<>();
+			final IntAVLTreeSet addedColors = new IntAVLTreeSet();
+			ClientData.getInstance().simplifiedRoutes.forEach(simplifiedRoute -> {
+				final int color = simplifiedRoute.getColor();
+				if (!addedColors.contains(color) && selectedIds.contains(color) && simplifiedRoute.getPlatforms().stream().anyMatch(simplifiedRoutePlatform -> platformIds.contains(simplifiedRoutePlatform.getPlatformId()))) {
+					selectedRoutesSorted.add(new IntObjectImmutablePair<>(color, simplifiedRoute.getName().split("\\|\\|")[0]));
+					addedColors.add(color);
+				}
+			});
+
+			selectedRoutesSorted.sort(Comparator.comparingInt(IntObjectImmutablePair::leftInt));
 			final float maxWidth = Math.max(0, ((flipCustomText ? maxWidthLeft : maxWidthRight) + 1) * size - margin * 2);
 			final float height = size - margin * 2;
 			final List<DynamicTextureCache.DynamicResource> resourceLocationDataList = new ArrayList<>();
 			float totalTextWidth = 0;
-			for (final IntObjectImmutablePair<String> route : selectedIdsSorted) {
+			for (final IntObjectImmutablePair<String> route : selectedRoutesSorted) {
 				final DynamicTextureCache.DynamicResource resourceLocationData = DynamicTextureCache.instance.getRouteSquare(route.leftInt(), route.right(), flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT);
 				resourceLocationDataList.add(resourceLocationData);
 				totalTextWidth += height * resourceLocationData.width / resourceLocationData.height + margin / 2F;
