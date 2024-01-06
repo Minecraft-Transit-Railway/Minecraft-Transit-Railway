@@ -1,5 +1,5 @@
 <p align="center">
- <h1 align="center">Minecraft Transit Railway 3.0</h1>
+ <h1 align="center">Minecraft Transit Railway 4.0</h1>
 </p>
 
 <p align="center">
@@ -45,7 +45,7 @@ Crowdin 是一个云平台，翻译者可以通过它为项目做出贡献。在
 ### 添加功能
 
 1. fork 本项目；
-2. 在您的 fork 上，**基于开发分支（当前为 `3.3.0`）创建一个新分支**；
+2. 在您的 fork 上，**基于开发分支（当前为 `4.0.0`）创建一个新分支**；
 3. 将更改提交到新分支；
 4. 创建 Pull Request，**将您的分支合并到此存储库的开发分支中**。
 
