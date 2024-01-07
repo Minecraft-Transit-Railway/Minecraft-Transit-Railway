@@ -23,7 +23,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 	private static final int DISMOUNT_PROGRESS_BAR_LENGTH = 30;
 
 	public VehicleExtension(VehicleUpdate vehicleUpdate, Data data) {
-		super(vehicleUpdate.getVehicleExtraData(), null, true, new JsonReader(Utilities.getJsonObjectFromData(vehicleUpdate.getVehicle())), data);
+		super(vehicleUpdate.getVehicleExtraData(), null, new JsonReader(Utilities.getJsonObjectFromData(vehicleUpdate.getVehicle())), data);
 		final PersistentVehicleData tempPersistentVehicleData = ClientData.getInstance().vehicleIdToPersistentVehicleData.get(getId());
 		if (tempPersistentVehicleData == null) {
 			persistentVehicleData = new PersistentVehicleData();

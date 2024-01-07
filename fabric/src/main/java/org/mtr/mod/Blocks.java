@@ -42,7 +42,9 @@ public final class Blocks {
 		LIFT_PANEL_ODD_1 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "lift_panel_odd_1"), () -> new Block(new BlockLiftPanelOdd1()), CreativeModeTabs.ESCALATORS_LIFTS);
 		LIFT_PANEL_EVEN_2 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "lift_panel_even_2"), () -> new Block(new BlockLiftPanelEven2()), CreativeModeTabs.ESCALATORS_LIFTS);
 		LIFT_PANEL_ODD_2 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "lift_panel_odd_2"), () -> new Block(new BlockLiftPanelOdd2()), CreativeModeTabs.ESCALATORS_LIFTS);
-		LIFT_TRACK_1 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "lift_track_1"), () -> new Block(new BlockLiftTrack()), CreativeModeTabs.ESCALATORS_LIFTS);
+		LIFT_TRACK_HORIZONTAL_1 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "lift_track_horizontal_1"), () -> new Block(new BlockLiftTrackHorizontal()), CreativeModeTabs.ESCALATORS_LIFTS);
+		LIFT_TRACK_VERTICAL_1 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "lift_track_1"), () -> new Block(new BlockLiftTrackVertical()), CreativeModeTabs.ESCALATORS_LIFTS);
+		LIFT_TRACK_DIAGONAL_1 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "lift_track_diagonal_1"), () -> new Block(new BlockLiftTrackDiagonal()), CreativeModeTabs.ESCALATORS_LIFTS);
 		LIFT_TRACK_FLOOR_1 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "lift_track_floor_1"), () -> new Block(new BlockLiftTrackFloor()), CreativeModeTabs.ESCALATORS_LIFTS);
 		LIFT_DOOR_EVEN_1 = Registry.registerBlock(new Identifier(Init.MOD_ID, "lift_door_1"), () -> new Block(new BlockLiftDoor()));
 		LIFT_DOOR_ODD_1 = Registry.registerBlock(new Identifier(Init.MOD_ID, "lift_door_odd_1"), () -> new Block(new BlockLiftDoorOdd()));
@@ -259,7 +261,9 @@ public final class Blocks {
 	public static final BlockRegistryObject LIFT_PANEL_EVEN_2;
 	public static final BlockRegistryObject LIFT_PANEL_ODD_1;
 	public static final BlockRegistryObject LIFT_PANEL_ODD_2;
-	public static final BlockRegistryObject LIFT_TRACK_1;
+	public static final BlockRegistryObject LIFT_TRACK_HORIZONTAL_1;
+	public static final BlockRegistryObject LIFT_TRACK_VERTICAL_1;
+	public static final BlockRegistryObject LIFT_TRACK_DIAGONAL_1;
 	public static final BlockRegistryObject LIFT_TRACK_FLOOR_1;
 	public static final BlockRegistryObject LOGO;
 	public static final BlockRegistryObject MARBLE_BLUE;
