@@ -1,11 +1,16 @@
 package org.mtr.mod.block;
 
+import org.mtr.core.data.LiftDirection;
+import org.mtr.core.operation.PressLift;
+import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.BlockEntityTypes;
+import org.mtr.mod.Init;
 import org.mtr.mod.Items;
+import org.mtr.mod.packet.PacketDataBase;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -35,9 +40,17 @@ public class BlockLiftButtons extends BlockExtension implements DirectionHelper,
 			} else {
 				final boolean unlocked = IBlock.getStatePropertySafe(state, UNLOCKED);
 				if (unlocked) {
-					final double y = hit.getPos().getYMapped();
-					// TODO
-					return ActionResult.SUCCESS;
+					final org.mtr.mapping.holder.BlockEntity blockEntity = world.getBlockEntity(pos);
+					if (blockEntity != null && blockEntity.data instanceof BlockEntity) {
+						final LiftDirection liftDirection = MathHelper.fractionalPart(hit.getPos().getYMapped()) < 0.25 ? LiftDirection.DOWN : LiftDirection.UP;
+						final PressLift pressLift = new PressLift();
+						((BlockEntity) blockEntity.data).trackPositions.forEach(blockPos -> pressLift.add(Init.blockPosToPosition(blockPos), liftDirection));
+						PacketDataBase.sendHttpRequest("operation/press-lift", Utilities.getJsonObjectFromData(pressLift), jsonObject -> {
+						});
+						return ActionResult.SUCCESS;
+					} else {
+						return ActionResult.FAIL;
+					}
 				} else {
 					return ActionResult.FAIL;
 				}

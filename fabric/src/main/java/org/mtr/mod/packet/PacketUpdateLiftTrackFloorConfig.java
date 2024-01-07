@@ -38,6 +38,7 @@ public final class PacketUpdateLiftTrackFloorConfig extends PacketHandler {
 		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
 		if (entity != null && entity.data instanceof BlockLiftTrackFloor.BlockEntity) {
 			((BlockLiftTrackFloor.BlockEntity) entity.data).setData(floorNumber, floorDescription, shouldDing);
+			// TODO update lift floor
 		}
 	}
 }

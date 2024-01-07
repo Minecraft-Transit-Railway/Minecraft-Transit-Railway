@@ -1,16 +1,20 @@
 package org.mtr.mod.screen;
 
 import org.mtr.core.data.Lift;
+import org.mtr.core.servlet.IntegrationServlet;
 import org.mtr.core.tool.Angle;
 import org.mtr.core.tool.EnumHelper;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.Direction;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.holder.Text;
 import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.IPacket;
+import org.mtr.mod.packet.PacketData;
 
 import java.util.Locale;
 
@@ -50,53 +54,54 @@ public class LiftCustomizationScreen extends ScreenExtension implements IGui, IP
 		liftDirection = Direction.fromRotation(lift.getAngle().angleDegrees);
 
 		buttonHeightMinus = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> {
-			lift.setHeight(Math.max(MIN_DIMENSION * 2, lift.getHeight() - 1));
+			lift.setDimensions(Math.max(MIN_DIMENSION, lift.getHeight() - 0.5), lift.getWidth(), lift.getDepth(), lift.getOffsetX(), lift.getOffsetY(), lift.getOffsetZ());
 			updateControls();
 		});
 		buttonHeightAdd = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> {
-			lift.setHeight(Math.min(MAX_DIMENSION * 2, lift.getHeight() + 1));
+			lift.setDimensions(Math.min(MAX_DIMENSION, lift.getHeight() + 0.5), lift.getWidth(), lift.getDepth(), lift.getOffsetX(), lift.getOffsetY(), lift.getOffsetZ());
 			updateControls();
 		});
 		buttonWidthMinus = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> {
-			lift.setWidth(Math.max(MIN_DIMENSION, lift.getWidth() - 1));
+			lift.setDimensions(lift.getHeight(), Math.max(MIN_DIMENSION, lift.getWidth() - 1), lift.getDepth(), lift.getOffsetX(), lift.getOffsetY(), lift.getOffsetZ());
 			updateControls();
 		});
 		buttonWidthAdd = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> {
-			lift.setWidth(Math.min(MAX_DIMENSION, lift.getWidth() + 1));
+			lift.setDimensions(lift.getHeight(), Math.min(MAX_DIMENSION, lift.getWidth() + 1), lift.getDepth(), lift.getOffsetX(), lift.getOffsetY(), lift.getOffsetZ());
 			updateControls();
 		});
 		buttonDepthMinus = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> {
-			lift.setDepth(Math.max(MIN_DIMENSION, lift.getDepth() - 1));
+			lift.setDimensions(lift.getHeight(), lift.getWidth(), Math.max(MIN_DIMENSION, lift.getDepth() - 1), lift.getOffsetX(), lift.getOffsetY(), lift.getOffsetZ());
 			updateControls();
 		});
 		buttonDepthAdd = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> {
-			lift.setDepth(Math.min(MAX_DIMENSION, lift.getDepth() + 1));
+			lift.setDimensions(lift.getHeight(), lift.getWidth(), Math.min(MAX_DIMENSION, lift.getDepth() + 1), lift.getOffsetX(), lift.getOffsetY(), lift.getOffsetZ());
 			updateControls();
 		});
 		buttonOffsetXMinus = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> {
-			lift.setOffsetX(Math.max(-MAX_OFFSET * 2, lift.getOffsetX() - 1));
+			lift.setDimensions(lift.getHeight(), lift.getWidth(), lift.getDepth(), Math.max(-MAX_OFFSET, lift.getOffsetX() - 0.5), lift.getOffsetY(), lift.getOffsetZ());
 			updateControls();
 		});
 		buttonOffsetXAdd = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> {
-			lift.setOffsetX(Math.min(MAX_OFFSET * 2, lift.getOffsetX() + 1));
+			lift.setDimensions(lift.getHeight(), lift.getWidth(), lift.getDepth(), Math.min(MAX_OFFSET, lift.getOffsetX() + 0.5), lift.getOffsetY(), lift.getOffsetZ());
 			updateControls();
 		});
 		buttonOffsetYMinus = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> {
-			lift.setOffsetY(Math.max(-MAX_OFFSET, lift.getOffsetY() - 1));
+			lift.setDimensions(lift.getHeight(), lift.getWidth(), lift.getDepth(), lift.getOffsetX(), Math.max(-MAX_OFFSET, lift.getOffsetY() - 1), lift.getOffsetZ());
 			updateControls();
 		});
 		buttonOffsetYAdd = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> {
-			lift.setOffsetY(Math.min(MAX_OFFSET, lift.getOffsetY() + 1));
+			lift.setDimensions(lift.getHeight(), lift.getWidth(), lift.getDepth(), lift.getOffsetX(), Math.min(MAX_OFFSET, lift.getOffsetY() + 1), lift.getOffsetZ());
 			updateControls();
 		});
 		buttonOffsetZMinus = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> {
-			lift.setOffsetZ(Math.max(-MAX_OFFSET * 2, lift.getOffsetZ() - 1));
+			lift.setDimensions(lift.getHeight(), lift.getWidth(), lift.getDepth(), lift.getOffsetX(), lift.getOffsetY(), Math.max(-MAX_OFFSET, lift.getOffsetZ() - 0.5));
 			updateControls();
 		});
 		buttonOffsetZAdd = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> {
-			lift.setOffsetZ(Math.min(MAX_OFFSET * 2, lift.getOffsetZ() + 1));
+			lift.setDimensions(lift.getHeight(), lift.getWidth(), lift.getDepth(), lift.getOffsetX(), lift.getOffsetY(), Math.min(MAX_OFFSET, lift.getOffsetZ() + 0.5));
 			updateControls();
 		});
+
 		final MutableText doubleSidedText = TextHelper.translatable("gui.mtr.lift_is_double_sided");
 		final MutableText rotateAnticlockwiseText = TextHelper.translatable("gui.mtr.rotate_anticlockwise");
 		final MutableText rotateClockwiseText = TextHelper.translatable("gui.mtr.rotate_clockwise");
@@ -167,18 +172,18 @@ public class LiftCustomizationScreen extends ScreenExtension implements IGui, IP
 		guiDrawing.drawRectangle(0, 0, width2, height, ARGB_BACKGROUND);
 		guiDrawing.finishDrawingRectangle();
 		super.render(graphicsHolder, mouseX, mouseY, delta);
-		graphicsHolder.drawCenteredText(TextHelper.translatable("tooltip.mtr.rail_action_height", lift.getHeight() / 2F), width2 / 2, TEXT_PADDING, ARGB_WHITE);
+		graphicsHolder.drawCenteredText(TextHelper.translatable("tooltip.mtr.rail_action_height", lift.getHeight()), width2 / 2, TEXT_PADDING, ARGB_WHITE);
 		graphicsHolder.drawCenteredText(TextHelper.translatable("tooltip.mtr.rail_action_width", lift.getWidth()), width2 / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 		graphicsHolder.drawCenteredText(TextHelper.translatable("tooltip.mtr.rail_action_depth", lift.getDepth()), width2 / 2, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
-		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.offset_x", lift.getOffsetX() / 2F), width2 / 2, SQUARE_SIZE * 3 + TEXT_PADDING, ARGB_WHITE);
+		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.offset_x", lift.getOffsetX()), width2 / 2, SQUARE_SIZE * 3 + TEXT_PADDING, ARGB_WHITE);
 		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.offset_y", lift.getOffsetY()), width2 / 2, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE);
-		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.offset_z", lift.getOffsetZ() / 2F), width2 / 2, SQUARE_SIZE * 5 + TEXT_PADDING, ARGB_WHITE);
+		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.offset_z", lift.getOffsetZ()), width2 / 2, SQUARE_SIZE * 5 + TEXT_PADDING, ARGB_WHITE);
 	}
 
 	@Override
 	public void onClose2() {
 		super.onClose2();
-		// TODO
+		RegistryClient.sendPacketToServer(PacketData.fromLifts(IntegrationServlet.Operation.UPDATE, ObjectSet.of(lift)));
 	}
 
 	@Override
@@ -187,18 +192,18 @@ public class LiftCustomizationScreen extends ScreenExtension implements IGui, IP
 	}
 
 	private void updateControls() {
-		buttonHeightMinus.active = lift.getHeight() > MIN_DIMENSION * 2;
-		buttonHeightAdd.active = lift.getHeight() < MAX_DIMENSION * 2;
+		buttonHeightMinus.active = lift.getHeight() > MIN_DIMENSION;
+		buttonHeightAdd.active = lift.getHeight() < MAX_DIMENSION;
 		buttonWidthMinus.active = lift.getWidth() > MIN_DIMENSION;
 		buttonWidthAdd.active = lift.getWidth() < MAX_DIMENSION;
 		buttonDepthMinus.active = lift.getDepth() > MIN_DIMENSION;
 		buttonDepthAdd.active = lift.getDepth() < MAX_DIMENSION;
-		buttonOffsetXMinus.active = lift.getOffsetX() > -MAX_OFFSET * 2;
-		buttonOffsetXAdd.active = lift.getOffsetX() < MAX_OFFSET * 2;
+		buttonOffsetXMinus.active = lift.getOffsetX() > -MAX_OFFSET;
+		buttonOffsetXAdd.active = lift.getOffsetX() < MAX_OFFSET;
 		buttonOffsetYMinus.active = lift.getOffsetY() > -MAX_OFFSET;
 		buttonOffsetYAdd.active = lift.getOffsetY() < MAX_OFFSET;
-		buttonOffsetZMinus.active = lift.getOffsetZ() > -MAX_OFFSET * 2;
-		buttonOffsetZAdd.active = lift.getOffsetZ() < MAX_OFFSET * 2;
+		buttonOffsetZMinus.active = lift.getOffsetZ() > -MAX_OFFSET;
+		buttonOffsetZAdd.active = lift.getOffsetZ() < MAX_OFFSET;
 		buttonIsDoubleSided.setChecked(lift.getIsDoubleSided());
 		buttonLiftStyle.setMessage2(new Text(TextHelper.translatable("gui.mtr.lift_style", TextHelper.translatable("gui.mtr.lift_style_" + lift.getStyle().toLowerCase(Locale.ENGLISH))).data));
 	}

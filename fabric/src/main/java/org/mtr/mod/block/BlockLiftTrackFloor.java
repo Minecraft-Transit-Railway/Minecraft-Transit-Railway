@@ -1,15 +1,22 @@
 package org.mtr.mod.block;
 
+import org.mtr.core.data.LiftFloor;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.registry.Registry;
 import org.mtr.mod.BlockEntityTypes;
+import org.mtr.mod.Init;
+import org.mtr.mod.packet.PacketData;
 import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
 
-public class BlockLiftTrackFloor extends BlockLiftTrack implements BlockWithEntity {
+public class BlockLiftTrackFloor extends BlockLiftTrackBase implements BlockWithEntity {
 
 	public BlockLiftTrackFloor() {
 		super();
@@ -35,7 +42,26 @@ public class BlockLiftTrackFloor extends BlockLiftTrack implements BlockWithEnti
 
 	@Override
 	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-		// TODO
+		if (!world.isClient()) {
+			PacketData.deleteLift(ServerWorld.cast(world), new LiftFloor(Init.blockPosToPosition(pos)));
+		}
+	}
+
+	@Nonnull
+	@Override
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, FACING));
+	}
+
+	@Override
+	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
+		tooltip.add(TextHelper.translatable("tooltip.mtr.lift_track_floor").formatted(TextFormatting.GRAY));
+	}
+
+	@Override
+	public ObjectArrayList<Direction> getConnectingDirections(BlockState blockState) {
+		final Direction facing = IBlock.getStatePropertySafe(blockState, FACING);
+		return ObjectArrayList.of(Direction.UP, Direction.DOWN, facing.rotateYClockwise(), facing.rotateYCounterclockwise());
 	}
 
 	public static class BlockEntity extends BlockEntityExtension {
