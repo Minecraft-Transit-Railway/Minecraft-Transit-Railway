@@ -65,12 +65,12 @@ public class RenderLifts implements IGui {
 			});
 			final BlockPos blockPos = Init.newBlockPos(position.x, position.y, position.z);
 			final int light = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
-			new ModelLift1((int) Math.round(lift.getHeight() * 2), (int) Math.round(lift.getWidth() * 2), (int) Math.round(lift.getDepth() * 2), lift.getIsDoubleSided()).render(
+			new ModelLift1((int) Math.round(lift.getHeight() * 2), (int) Math.round(lift.getWidth()), (int) Math.round(lift.getDepth()), lift.getIsDoubleSided()).render(
 					storedMatrixTransformations,
 					null,
 					LIFT_TEXTURE,
 					light,
-					0, 0, false,
+					lift.getDoorValue() * 2, lift.getDoorValue() * 2, false,
 					0, 1, true, true, false, true, false
 			);
 		});
