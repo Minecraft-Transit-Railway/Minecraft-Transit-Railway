@@ -1,20 +1,22 @@
 package org.mtr.mod.block;
 
+import org.mtr.core.data.Lift;
 import org.mtr.core.data.LiftDirection;
-import org.mtr.core.operation.PressLift;
-import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.BlockEntityTypes;
 import org.mtr.mod.Init;
 import org.mtr.mod.Items;
-import org.mtr.mod.packet.PacketDataBase;
+import org.mtr.mod.client.ClientData;
+import org.mtr.mod.packet.PacketPressLiftButton;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class BlockLiftButtons extends BlockExtension implements DirectionHelper, BlockWithEntity {
 
@@ -39,14 +41,11 @@ public class BlockLiftButtons extends BlockExtension implements DirectionHelper,
 				return ActionResult.PASS;
 			} else {
 				final boolean unlocked = IBlock.getStatePropertySafe(state, UNLOCKED);
-				if (unlocked) {
+				final double hitY = MathHelper.fractionalPart(hit.getPos().getYMapped());
+				if (unlocked && hitY < 0.5) {
 					final org.mtr.mapping.holder.BlockEntity blockEntity = world.getBlockEntity(pos);
 					if (blockEntity != null && blockEntity.data instanceof BlockEntity) {
-						final LiftDirection liftDirection = MathHelper.fractionalPart(hit.getPos().getYMapped()) < 0.25 ? LiftDirection.DOWN : LiftDirection.UP;
-						final PressLift pressLift = new PressLift();
-						((BlockEntity) blockEntity.data).trackPositions.forEach(blockPos -> pressLift.add(Init.blockPosToPosition(blockPos), liftDirection));
-						PacketDataBase.sendHttpRequest("operation/press-lift", Utilities.getJsonObjectFromData(pressLift), jsonObject -> {
-						});
+						Registry.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketPressLiftButton(hitY < 0.25 ? LiftDirection.DOWN : LiftDirection.UP, ((BlockEntity) blockEntity.data).trackPositions));
 						return ActionResult.SUCCESS;
 					} else {
 						return ActionResult.FAIL;
@@ -80,6 +79,26 @@ public class BlockLiftButtons extends BlockExtension implements DirectionHelper,
 	public void addBlockProperties(List<HolderBase<?>> properties) {
 		properties.add(FACING);
 		properties.add(UNLOCKED);
+	}
+
+	/**
+	 * @param trackPosition the position of the lift floor track
+	 * @param buttonStates  an array with at least 2 elements: has down button, has up button
+	 * @param callback      a callback for the lift and floor index, only run if the lift floor track exists in the lift
+	 */
+	public static void hasButtonsClient(BlockPos trackPosition, boolean[] buttonStates, FloorLiftCallback callback) {
+		ClientData.getInstance().lifts.forEach(lift -> {
+			final int floorIndex = lift.getFloorIndex(Init.blockPosToPosition(trackPosition));
+			if (floorIndex > 0) {
+				buttonStates[0] = true;
+			}
+			if (floorIndex < lift.getFloorCount() - 1) {
+				buttonStates[1] = true;
+			}
+			if (floorIndex >= 0) {
+				callback.accept(floorIndex, lift);
+			}
+		});
 	}
 
 	public static class BlockEntity extends BlockEntityExtension {
@@ -120,5 +139,14 @@ public class BlockLiftButtons extends BlockExtension implements DirectionHelper,
 			}
 			markDirty2();
 		}
+
+		public void forEachTrackPosition(Consumer<BlockPos> consumer) {
+			trackPositions.forEach(consumer);
+		}
+	}
+
+	@FunctionalInterface
+	public interface FloorLiftCallback {
+		void accept(int floor, Lift lift);
 	}
 }

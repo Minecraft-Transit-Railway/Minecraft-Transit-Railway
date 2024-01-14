@@ -55,70 +55,75 @@ public class LiftCustomizationScreen extends ScreenExtension implements IGui, IP
 
 		buttonHeightMinus = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> {
 			lift.setDimensions(Math.max(MIN_DIMENSION, lift.getHeight() - 0.5), lift.getWidth(), lift.getDepth(), lift.getOffsetX(), lift.getOffsetY(), lift.getOffsetZ());
-			updateControls();
+			updateControls(true);
 		});
 		buttonHeightAdd = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> {
 			lift.setDimensions(Math.min(MAX_DIMENSION, lift.getHeight() + 0.5), lift.getWidth(), lift.getDepth(), lift.getOffsetX(), lift.getOffsetY(), lift.getOffsetZ());
-			updateControls();
+			updateControls(true);
 		});
 		buttonWidthMinus = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> {
 			lift.setDimensions(lift.getHeight(), Math.max(MIN_DIMENSION, lift.getWidth() - 1), lift.getDepth(), lift.getOffsetX(), lift.getOffsetY(), lift.getOffsetZ());
-			updateControls();
+			updateControls(true);
 		});
 		buttonWidthAdd = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> {
 			lift.setDimensions(lift.getHeight(), Math.min(MAX_DIMENSION, lift.getWidth() + 1), lift.getDepth(), lift.getOffsetX(), lift.getOffsetY(), lift.getOffsetZ());
-			updateControls();
+			updateControls(true);
 		});
 		buttonDepthMinus = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> {
 			lift.setDimensions(lift.getHeight(), lift.getWidth(), Math.max(MIN_DIMENSION, lift.getDepth() - 1), lift.getOffsetX(), lift.getOffsetY(), lift.getOffsetZ());
-			updateControls();
+			updateControls(true);
 		});
 		buttonDepthAdd = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> {
 			lift.setDimensions(lift.getHeight(), lift.getWidth(), Math.min(MAX_DIMENSION, lift.getDepth() + 1), lift.getOffsetX(), lift.getOffsetY(), lift.getOffsetZ());
-			updateControls();
+			updateControls(true);
 		});
 		buttonOffsetXMinus = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> {
 			lift.setDimensions(lift.getHeight(), lift.getWidth(), lift.getDepth(), Math.max(-MAX_OFFSET, lift.getOffsetX() - 0.5), lift.getOffsetY(), lift.getOffsetZ());
-			updateControls();
+			updateControls(true);
 		});
 		buttonOffsetXAdd = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> {
 			lift.setDimensions(lift.getHeight(), lift.getWidth(), lift.getDepth(), Math.min(MAX_OFFSET, lift.getOffsetX() + 0.5), lift.getOffsetY(), lift.getOffsetZ());
-			updateControls();
+			updateControls(true);
 		});
 		buttonOffsetYMinus = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> {
 			lift.setDimensions(lift.getHeight(), lift.getWidth(), lift.getDepth(), lift.getOffsetX(), Math.max(-MAX_OFFSET, lift.getOffsetY() - 1), lift.getOffsetZ());
-			updateControls();
+			updateControls(true);
 		});
 		buttonOffsetYAdd = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> {
 			lift.setDimensions(lift.getHeight(), lift.getWidth(), lift.getDepth(), lift.getOffsetX(), Math.min(MAX_OFFSET, lift.getOffsetY() + 1), lift.getOffsetZ());
-			updateControls();
+			updateControls(true);
 		});
 		buttonOffsetZMinus = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> {
 			lift.setDimensions(lift.getHeight(), lift.getWidth(), lift.getDepth(), lift.getOffsetX(), lift.getOffsetY(), Math.max(-MAX_OFFSET, lift.getOffsetZ() - 0.5));
-			updateControls();
+			updateControls(true);
 		});
 		buttonOffsetZAdd = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> {
 			lift.setDimensions(lift.getHeight(), lift.getWidth(), lift.getDepth(), lift.getOffsetX(), lift.getOffsetY(), Math.min(MAX_OFFSET, lift.getOffsetZ() + 0.5));
-			updateControls();
+			updateControls(true);
 		});
 
 		final MutableText doubleSidedText = TextHelper.translatable("gui.mtr.lift_is_double_sided");
 		final MutableText rotateAnticlockwiseText = TextHelper.translatable("gui.mtr.rotate_anticlockwise");
 		final MutableText rotateClockwiseText = TextHelper.translatable("gui.mtr.rotate_clockwise");
-		buttonIsDoubleSided = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, lift::setIsDoubleSided);
+		buttonIsDoubleSided = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
+			lift.setIsDoubleSided(checked);
+			updateControls(true);
+		});
 		buttonIsDoubleSided.setMessage2(new Text(doubleSidedText.data));
 		buttonLiftStyle = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> {
 			liftStyle = LiftStyle.values()[(liftStyle.ordinal() + 1) % LiftStyle.values().length];
 			lift.setStyle(liftStyle.toString());
-			updateControls();
+			updateControls(true);
 		});
 		buttonRotateAnticlockwise = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, rotateAnticlockwiseText, button -> {
 			liftDirection = liftDirection.rotateYCounterclockwise();
 			lift.setAngle(Angle.fromAngle(liftDirection.asRotation()));
+			updateControls(true);
 		});
 		buttonRotateClockwise = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, rotateClockwiseText, button -> {
 			liftDirection = liftDirection.rotateYClockwise();
 			lift.setAngle(Angle.fromAngle(liftDirection.asRotation()));
+			updateControls(true);
 		});
 
 		width1 = Math.max(Math.max(SQUARE_SIZE * 3, GraphicsHolder.getTextWidth(doubleSidedText)), Math.max(GraphicsHolder.getTextWidth(rotateAnticlockwiseText), GraphicsHolder.getTextWidth(rotateClockwiseText))) + TEXT_PADDING * 2;
@@ -162,7 +167,7 @@ public class LiftCustomizationScreen extends ScreenExtension implements IGui, IP
 //		addChild(new ClickableWidget(buttonLiftStyle));
 		addChild(new ClickableWidget(buttonRotateAnticlockwise));
 		addChild(new ClickableWidget(buttonRotateClockwise));
-		updateControls();
+		updateControls(false);
 	}
 
 	@Override
@@ -181,17 +186,11 @@ public class LiftCustomizationScreen extends ScreenExtension implements IGui, IP
 	}
 
 	@Override
-	public void onClose2() {
-		super.onClose2();
-		RegistryClient.sendPacketToServer(PacketData.fromLifts(IntegrationServlet.Operation.UPDATE, ObjectSet.of(lift)));
-	}
-
-	@Override
 	public boolean isPauseScreen2() {
 		return false;
 	}
 
-	private void updateControls() {
+	private void updateControls(boolean sendUpdate) {
 		buttonHeightMinus.active = lift.getHeight() > MIN_DIMENSION;
 		buttonHeightAdd.active = lift.getHeight() < MAX_DIMENSION;
 		buttonWidthMinus.active = lift.getWidth() > MIN_DIMENSION;
@@ -206,6 +205,10 @@ public class LiftCustomizationScreen extends ScreenExtension implements IGui, IP
 		buttonOffsetZAdd.active = lift.getOffsetZ() < MAX_OFFSET;
 		buttonIsDoubleSided.setChecked(lift.getIsDoubleSided());
 		buttonLiftStyle.setMessage2(new Text(TextHelper.translatable("gui.mtr.lift_style", TextHelper.translatable("gui.mtr.lift_style_" + lift.getStyle().toLowerCase(Locale.ENGLISH))).data));
+
+		if (sendUpdate) {
+			RegistryClient.sendPacketToServer(PacketData.fromLifts(IntegrationServlet.Operation.UPDATE, ObjectSet.of(lift)));
+		}
 	}
 
 	private enum LiftStyle {TRANSPARENT, OPAQUE}
