@@ -10,8 +10,8 @@ import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.packet.PacketUpdateVehicleRidingEntities;
+import org.mtr.mod.render.RenderVehicleHelper;
 import org.mtr.mod.render.RenderVehicleTransformationHelper;
-import org.mtr.mod.render.RenderVehicles;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
@@ -67,7 +67,7 @@ public class VehicleRidingMovement {
 	public static void startRiding(ObjectArrayList<Box> openDoorways, long sidingId, long vehicleId, int carNumber, double x, double y, double z, double yaw) {
 		if (ridingVehicleId == 0 || ridingVehicleId == vehicleId) {
 			for (final Box doorway : openDoorways) {
-				if (RenderVehicles.boxContains(doorway, x, y, z)) {
+				if (RenderVehicleHelper.boxContains(doorway, x, y, z)) {
 					ridingSidingId = sidingId;
 					ridingVehicleId = vehicleId;
 					ridingVehicleCarNumber = carNumber;
@@ -182,10 +182,10 @@ public class VehicleRidingMovement {
 				} else {
 					// Calculate and store all the offsets that should be applied to the player to keep them in bounds of the floors
 					final ObjectArrayList<Vector3d> offsets = new ObjectArrayList<>();
-					clampPosition(floorsAndDoorways, ridingVehicleX + movementX - RenderVehicles.HALF_PLAYER_WIDTH, ridingVehicleZ + movementZ - RenderVehicles.HALF_PLAYER_WIDTH, offsets);
-					clampPosition(floorsAndDoorways, ridingVehicleX + movementX + RenderVehicles.HALF_PLAYER_WIDTH, ridingVehicleZ + movementZ - RenderVehicles.HALF_PLAYER_WIDTH, offsets);
-					clampPosition(floorsAndDoorways, ridingVehicleX + movementX + RenderVehicles.HALF_PLAYER_WIDTH, ridingVehicleZ + movementZ + RenderVehicles.HALF_PLAYER_WIDTH, offsets);
-					clampPosition(floorsAndDoorways, ridingVehicleX + movementX - RenderVehicles.HALF_PLAYER_WIDTH, ridingVehicleZ + movementZ + RenderVehicles.HALF_PLAYER_WIDTH, offsets);
+					clampPosition(floorsAndDoorways, ridingVehicleX + movementX - RenderVehicleHelper.HALF_PLAYER_WIDTH, ridingVehicleZ + movementZ - RenderVehicleHelper.HALF_PLAYER_WIDTH, offsets);
+					clampPosition(floorsAndDoorways, ridingVehicleX + movementX + RenderVehicleHelper.HALF_PLAYER_WIDTH, ridingVehicleZ + movementZ - RenderVehicleHelper.HALF_PLAYER_WIDTH, offsets);
+					clampPosition(floorsAndDoorways, ridingVehicleX + movementX + RenderVehicleHelper.HALF_PLAYER_WIDTH, ridingVehicleZ + movementZ + RenderVehicleHelper.HALF_PLAYER_WIDTH, offsets);
+					clampPosition(floorsAndDoorways, ridingVehicleX + movementX - RenderVehicleHelper.HALF_PLAYER_WIDTH, ridingVehicleZ + movementZ + RenderVehicleHelper.HALF_PLAYER_WIDTH, offsets);
 
 					if (offsets.isEmpty()) {
 						// Player is not standing on any floor, dismount player
@@ -239,7 +239,7 @@ public class VehicleRidingMovement {
 	 */
 	@Nullable
 	private static ObjectBooleanImmutablePair<Box> bestPosition(ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsOrDoorways, double x, double y, double z) {
-		return floorsOrDoorways.stream().filter(floorOrDoorway -> RenderVehicles.boxContains(floorOrDoorway.left(), x, y, z)).max(Comparator.comparingDouble(floorOrDoorway -> floorOrDoorway.left().getMaxYMapped())).orElse(floorsOrDoorways.stream().min(Comparator.comparingDouble(floorOrDoorway -> Math.min(
+		return floorsOrDoorways.stream().filter(floorOrDoorway -> RenderVehicleHelper.boxContains(floorOrDoorway.left(), x, y, z)).max(Comparator.comparingDouble(floorOrDoorway -> floorOrDoorway.left().getMaxYMapped())).orElse(floorsOrDoorways.stream().min(Comparator.comparingDouble(floorOrDoorway -> Math.min(
 				Math.abs(floorOrDoorway.left().getMinXMapped() - x),
 				Math.abs(floorOrDoorway.left().getMaxXMapped() - x)
 		) + Math.min(
@@ -262,7 +262,7 @@ public class VehicleRidingMovement {
 						floorOrDoorway.left().getMaxYMapped(),
 						Utilities.clamp(z, floorOrDoorway.left().getMinZMapped(), floorOrDoorway.left().getMaxZMapped()) - z
 				));
-			} else if (RenderVehicles.boxContains(floorOrDoorway.left(), x, ridingVehicleY, z)) {
+			} else if (RenderVehicleHelper.boxContains(floorOrDoorway.left(), x, ridingVehicleY, z)) {
 				// If the intersecting or closest floor or doorway is a doorway, then don't force the player to be in bounds
 				// Dismount if the player is not intersecting the doorway
 				offsets.add(new Vector3d(0, floorOrDoorway.left().getMaxYMapped(), 0));

@@ -12,6 +12,7 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.Config;
 import org.mtr.mod.client.CustomResourceLoader;
+import org.mtr.mod.client.VehicleRidingMovement;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.entity.EntityRendering;
 
@@ -76,8 +77,10 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 			return;
 		}
 
+		// Tick the riding cool down (dismount player if they are no longer riding a vehicle) and store the player offset cache
+		VehicleRidingMovement.tick();
 		RenderVehicles.render(millisElapsed);
-		RenderLifts.render();
+		RenderLifts.render(millisElapsed);
 		RenderRails.render();
 
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
