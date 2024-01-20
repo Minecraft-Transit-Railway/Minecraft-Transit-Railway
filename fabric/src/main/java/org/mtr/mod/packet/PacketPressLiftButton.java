@@ -50,7 +50,7 @@ public final class PacketPressLiftButton extends PacketHandler {
 
 	@Override
 	public void runClientQueued() {
-		// has down button, has up button
+		// Array order: has down button, has up button
 		final boolean[] buttonStates = {false, false};
 		trackPositions.forEach(trackPosition -> BlockLiftButtons.hasButtonsClient(trackPosition, buttonStates, (floor, lift) -> {
 		}));

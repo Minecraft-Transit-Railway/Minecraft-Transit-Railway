@@ -49,12 +49,14 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 		final StoredMatrixTransformations storedMatrixTransformations1 = new StoredMatrixTransformations(true);
 		storedMatrixTransformations1.add(graphicsHolder -> graphicsHolder.translate(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5));
 
-		// has down button, has up button, pressed down button, pressed up button
+		// Array order: has down button, has up button, pressed down button, pressed up button
 		final boolean[] buttonStates = {false, false, false, false};
 		final ObjectArrayList<ObjectObjectImmutablePair<BlockPos, Lift>> sortedPositionsAndLifts = new ObjectArrayList<>();
 
 		blockEntity.forEachTrackPosition(trackPosition -> {
+			// Render button link if holding linker item
 			renderLiftObjectLink(storedMatrixTransformations1, world, blockPos, trackPosition, facing, holdingLinker);
+			// Figure out whether the up and down buttons should be rendered
 			BlockLiftButtons.hasButtonsClient(trackPosition, buttonStates, (floorIndex, lift) -> {
 				sortedPositionsAndLifts.add(new ObjectObjectImmutablePair<>(trackPosition, lift));
 				final ObjectArraySet<LiftDirection> instructionDirections = lift.hasInstruction(floorIndex);
@@ -71,7 +73,10 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 			});
 		});
 
+		// Sort list and only render the two closest lifts
 		sortedPositionsAndLifts.sort(Comparator.comparingInt(sortedPositionAndLift -> blockPos.getManhattanDistance(new Vector3i(sortedPositionAndLift.left().data))));
+
+		// Check whether the player is looking at the top or bottom button
 		final HitResult hitResult = MinecraftClient.getInstance().getCrosshairTargetMapped();
 		final boolean lookingAtTopHalf;
 		final boolean lookingAtBottomHalf;
@@ -92,6 +97,7 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 			graphicsHolder.translate(0, 0, 0.4375 - SMALL_OFFSET);
 		});
 
+		// Render buttons
 		if (buttonStates[0]) {
 			RenderTrains.scheduleRender(BUTTON_TEXTURE, false, buttonStates[2] || lookingAtBottomHalf ? RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				storedMatrixTransformations2.transform(graphicsHolder, offset);
@@ -107,6 +113,7 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 			});
 		}
 
+		// Render the floor display
 		if (!sortedPositionsAndLifts.isEmpty()) {
 			final int count = Math.min(2, sortedPositionsAndLifts.size());
 			final float width = count == 1 ? 0.25F : 0.375F;
@@ -117,14 +124,17 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 				graphicsHolder.translate(-width / 2, 0, 0);
 			});
 
+			// Render the black background
 			RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/black.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				storedMatrixTransformations3.transform(graphicsHolder, offset);
 				IDrawing.drawTexture(graphicsHolder, 0, -0.9375F, width, 0.40625F, Direction.UP, light);
 				graphicsHolder.pop();
 			});
 
+			// Check if the two closest lifts are visually in order, based on the direction the buttons are facing
+			final boolean reverseRendering = count > 1 && reverseRendering(facing.rotateYCounterclockwise(), sortedPositionsAndLifts.get(0).left(), sortedPositionsAndLifts.get(1).left());
 			for (int i = 0; i < count; i++) {
-				final double x = (i + 0.5) * width / count;
+				final double x = ((reverseRendering ? count - i - 1 : i) + 0.5) * width / count;
 				final StoredMatrixTransformations storedMatrixTransformations4 = storedMatrixTransformations3.copy();
 				storedMatrixTransformations4.add(graphicsHolder -> graphicsHolder.translate(x, -0.875, -SMALL_OFFSET));
 				RenderLifts.renderLiftDisplay(storedMatrixTransformations4, world, sortedPositionsAndLifts.get(i).right(), width / count, 0.3125F);
@@ -132,7 +142,7 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 		}
 	}
 
-	public static void renderLiftObjectLink(StoredMatrixTransformations storedMatrixTransformations, World world, BlockPos pos, BlockPos trackPosition, Direction facing, boolean holdingLinker) {
+	private static void renderLiftObjectLink(StoredMatrixTransformations storedMatrixTransformations, World world, BlockPos pos, BlockPos trackPosition, Direction facing, boolean holdingLinker) {
 		if (holdingLinker) {
 			final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, FACING);
 			RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.LINES, (graphicsHolder, offset) -> {
@@ -148,6 +158,16 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 				);
 				graphicsHolder.pop();
 			});
+		}
+	}
+
+	private static boolean reverseRendering(Direction direction, BlockPos blockPos1, BlockPos blockPos2) {
+		if (direction.getOffsetX() != 0) {
+			return Math.signum(blockPos2.getX() - blockPos1.getX()) == direction.getOffsetX();
+		} else if (direction.getOffsetZ() != 0) {
+			return Math.signum(blockPos2.getZ() - blockPos1.getZ()) == direction.getOffsetZ();
+		} else {
+			return false;
 		}
 	}
 }
