@@ -54,8 +54,14 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 		final ObjectArrayList<ObjectObjectImmutablePair<BlockPos, Lift>> sortedPositionsAndLifts = new ObjectArrayList<>();
 
 		blockEntity.forEachTrackPosition(trackPosition -> {
-			// Render button link if holding linker item
-			renderLiftObjectLink(storedMatrixTransformations1, world, blockPos, trackPosition, facing, holdingLinker);
+			// Render track link if holding linker item
+			final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, FACING);
+			renderLiftObjectLink(
+					storedMatrixTransformations1, world,
+					new Vector3d(facing.getOffsetX() / 2F, 0.5, facing.getOffsetZ() / 2F),
+					new Vector3d(trackPosition.getX() - blockPos.getX() + trackFacing.getOffsetX() / 2F, trackPosition.getY() - blockPos.getY() + 0.5, trackPosition.getZ() - blockPos.getZ() + trackFacing.getOffsetZ() / 2F),
+					holdingLinker
+			);
 			// Figure out whether the up and down buttons should be rendered
 			BlockLiftButtons.hasButtonsClient(trackPosition, buttonStates, (floorIndex, lift) -> {
 				sortedPositionsAndLifts.add(new ObjectObjectImmutablePair<>(trackPosition, lift));
@@ -142,18 +148,17 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 		}
 	}
 
-	private static void renderLiftObjectLink(StoredMatrixTransformations storedMatrixTransformations, World world, BlockPos pos, BlockPos trackPosition, Direction facing, boolean holdingLinker) {
+	public static void renderLiftObjectLink(StoredMatrixTransformations storedMatrixTransformations, World world, Vector3d position1, Vector3d position2, boolean holdingLinker) {
 		if (holdingLinker) {
-			final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, FACING);
 			RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.LINES, (graphicsHolder, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolder, offset);
 				graphicsHolder.drawLineInWorld(
-						trackPosition.getX() - pos.getX() + trackFacing.getOffsetX() / 2F,
-						trackPosition.getY() - pos.getY() + 0.5F,
-						trackPosition.getZ() - pos.getZ() + trackFacing.getOffsetZ() / 2F,
-						facing.getOffsetX() / 2F,
-						0.25F,
-						facing.getOffsetZ() / 2F,
+						(float) position1.getXMapped(),
+						(float) position1.getYMapped(),
+						(float) position1.getZMapped(),
+						(float) position2.getXMapped(),
+						(float) position2.getYMapped(),
+						(float) position2.getZMapped(),
 						ARGB_WHITE
 				);
 				graphicsHolder.pop();
