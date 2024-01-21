@@ -23,8 +23,8 @@ public class RenderLifts implements IGui {
 	private static final int LIFT_DISPLAY_COLOR = 0xFFFF0000;
 	private static final Identifier LIFT_TEXTURE = new Identifier(Init.MOD_ID, "textures/vehicle/lift_1.png");
 	private static final ModelSmallCube MODEL_SMALL_CUBE = new ModelSmallCube(new Identifier("textures/block/redstone_block.png"));
-	private static final double LIFT_DOOR_VALUE = 0.75;
-	private static final double LIFT_FLOOR_PADDING = 0.25;
+	private static final float LIFT_DOOR_VALUE = 0.75F;
+	private static final float LIFT_FLOOR_PADDING = 0.25F;
 
 	public static void render(long millisElapsed) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
@@ -85,8 +85,8 @@ public class RenderLifts implements IGui {
 			final boolean doorway1Open;
 			final boolean doorway2Open;
 			if (lift.hasCoolDown()) {
-				doorway1Open = RenderVehicleHelper.canOpenDoors(doorway1, renderVehicleTransformationHelperAbsolute, lift.getDoorValue() / 2);
-				doorway2Open = lift.getIsDoubleSided() && RenderVehicleHelper.canOpenDoors(doorway2, renderVehicleTransformationHelperAbsolute, lift.getDoorValue() / 2);
+				doorway1Open = RenderVehicleHelper.canOpenDoors(doorway1, renderVehicleTransformationHelperAbsolute, Math.min(lift.getDoorValue(), LIFT_DOOR_VALUE) / 2);
+				doorway2Open = lift.getIsDoubleSided() && RenderVehicleHelper.canOpenDoors(doorway2, renderVehicleTransformationHelperAbsolute, Math.min(lift.getDoorValue(), LIFT_DOOR_VALUE) / 2);
 				if (doorway1Open) {
 					openDoorways.add(doorway1);
 				}
@@ -121,7 +121,7 @@ public class RenderLifts implements IGui {
 						null,
 						LIFT_TEXTURE,
 						renderVehicleTransformationHelperOffset.light,
-						doorway1Open ? lift.getDoorValue() : 0, doorway2Open ? lift.getDoorValue() : 0, false,
+						doorway1Open ? lift.getDoorValue() / LIFT_DOOR_VALUE : 0, doorway2Open ? lift.getDoorValue() / LIFT_DOOR_VALUE : 0, false,
 						0, 1, true, true, false, true, false
 				);
 
@@ -152,20 +152,12 @@ public class RenderLifts implements IGui {
 	}
 
 	public static void renderLiftDisplay(StoredMatrixTransformations storedMatrixTransformations, World world, Lift lift, float width, float height) {
-		final LiftDirection liftDirection = lift.getDirection();
-		final LiftFloor liftFloor = lift.getCurrentFloor();
-		final BlockEntity floorEntity = world.getBlockEntity(Init.positionToBlockPos(liftFloor.getPosition()));
-		final String floorNumber;
-
-		if (floorEntity != null && floorEntity.data instanceof BlockLiftTrackFloor.BlockEntity) {
-			floorNumber = ((BlockLiftTrackFloor.BlockEntity) floorEntity.data).getFloorNumber();
-		} else {
-			floorNumber = liftFloor.getNumber();
-		}
+		final ObjectObjectImmutablePair<LiftDirection, ObjectObjectImmutablePair<String, String>> liftDetails = getLiftDetails(world, lift, Init.positionToBlockPos(lift.getCurrentFloor().getPosition()));
+		final LiftDirection liftDirection = liftDetails.left();
 
 		RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
 			storedMatrixTransformations.transform(graphicsHolder, offset);
-			IDrawing.drawStringWithFont(graphicsHolder, floorNumber, IGui.HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM, 0, height, width, -1, 18 / width, LIFT_DISPLAY_COLOR, false, MAX_LIGHT_GLOWING, null);
+			IDrawing.drawStringWithFont(graphicsHolder, liftDetails.right().left(), IGui.HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM, 0, height, width, -1, 18 / width, LIFT_DISPLAY_COLOR, false, MAX_LIGHT_GLOWING, null);
 			graphicsHolder.pop();
 		});
 
@@ -176,6 +168,23 @@ public class RenderLifts implements IGui {
 				graphicsHolder.pop();
 			});
 		}
+	}
+
+	public static ObjectObjectImmutablePair<LiftDirection, ObjectObjectImmutablePair<String, String>> getLiftDetails(World world, Lift lift, BlockPos blockPos) {
+		final LiftFloor liftFloor = lift.getCurrentFloor();
+		final BlockEntity floorEntity = world.getBlockEntity(blockPos);
+		final String floorNumber;
+		final String floorDescription;
+
+		if (floorEntity != null && floorEntity.data instanceof BlockLiftTrackFloor.BlockEntity) {
+			floorNumber = ((BlockLiftTrackFloor.BlockEntity) floorEntity.data).getFloorNumber();
+			floorDescription = ((BlockLiftTrackFloor.BlockEntity) floorEntity.data).getFloorDescription();
+		} else {
+			floorNumber = liftFloor.getNumber();
+			floorDescription = liftFloor.getDescription();
+		}
+
+		return new ObjectObjectImmutablePair<>(lift.getDirection(), new ObjectObjectImmutablePair<>(floorNumber, floorDescription));
 	}
 
 	private static ObjectObjectImmutablePair<Vector, Vector> getVirtualBogiePositions(Lift lift) {

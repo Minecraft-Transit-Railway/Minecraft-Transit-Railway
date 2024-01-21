@@ -126,11 +126,6 @@ public class BlockLiftButtons extends BlockExtension implements DirectionHelper,
 			compoundTag.putLongArray(KEY_TRACK_FLOOR_POS, trackPositionsList);
 		}
 
-		@Override
-		public void blockEntityTick() {
-			// TODO
-		}
-
 		public void registerFloor(BlockPos pos, boolean isAdd) {
 			if (isAdd) {
 				trackPositions.add(pos);

@@ -113,9 +113,25 @@ public abstract class BlockLiftPanelBase extends BlockExtension implements IBloc
 			compoundTag.putLong(KEY_TRACK_FLOOR_POS, trackPosition == null ? 0 : trackPosition.asLong());
 		}
 
-		@Override
-		public void blockEntityTick() {
-			// TODO
+		public void registerFloor(World world, BlockPos pos, boolean isAdd) {
+			if (IBlock.getStatePropertySafe(world, getPos2(), SIDE) == EnumSide.RIGHT) {
+				final BlockEntity blockEntity = world.getBlockEntity(getPos2().offset(IBlock.getStatePropertySafe(world, getPos2(), FACING).rotateYCounterclockwise()));
+				if (blockEntity != null && blockEntity.data instanceof BlockLiftPanelBase.BlockEntityBase) {
+					((BlockEntityBase) blockEntity.data).registerFloor(world, pos, isAdd);
+				}
+			} else {
+				if (isAdd) {
+					trackPosition = pos;
+				} else {
+					trackPosition = null;
+				}
+				markDirty2();
+			}
+		}
+
+		@Nullable
+		public BlockPos getTrackPosition() {
+			return trackPosition;
 		}
 	}
 }

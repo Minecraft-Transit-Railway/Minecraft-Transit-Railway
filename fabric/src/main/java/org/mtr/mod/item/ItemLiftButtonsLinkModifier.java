@@ -33,9 +33,15 @@ public class ItemLiftButtonsLinkModifier extends ItemBlockClickingBase {
 	}
 
 	private static void connect(World world, BlockPos blockPos1, BlockPos blockPos2, boolean isAdd) {
-		final BlockEntity blockEntity = world.getBlockEntity(blockPos1);
-		if (blockEntity != null && blockEntity.data instanceof BlockLiftButtons.BlockEntity) {
-			((BlockLiftButtons.BlockEntity) blockEntity.data).registerFloor(blockPos2, isAdd);
+		final BlockEntity blockEntity1 = world.getBlockEntity(blockPos1);
+		final BlockEntity blockEntity2 = world.getBlockEntity(blockPos2);
+		if (blockEntity1 != null && blockEntity2 != null && blockEntity2.data instanceof BlockLiftTrackFloor.BlockEntity) {
+			if (blockEntity1.data instanceof BlockLiftButtons.BlockEntity) {
+				((BlockLiftButtons.BlockEntity) blockEntity1.data).registerFloor(blockPos2, isAdd);
+			}
+			if (blockEntity1.data instanceof BlockLiftPanelBase.BlockEntityBase) {
+				((BlockLiftPanelBase.BlockEntityBase) blockEntity1.data).registerFloor(world, blockPos2, isAdd);
+			}
 		}
 	}
 }
