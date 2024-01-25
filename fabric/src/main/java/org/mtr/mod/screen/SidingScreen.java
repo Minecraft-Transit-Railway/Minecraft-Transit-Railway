@@ -21,12 +21,14 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 	private final CheckboxWidgetExtension buttonUnlimitedTrains;
 	private final TextFieldWidgetExtension textFieldMaxTrains;
 	private final WidgetShorterSlider sliderAccelerationConstant;
+	private final WidgetShorterSlider sliderBrakingPowerConstant;
 	private final CheckboxWidgetExtension buttonIsManual;
 	private final WidgetShorterSlider sliderMaxManualSpeed;
 
 	private static final MutableText SELECTED_TRAIN_TEXT = TextHelper.translatable("gui.mtr.selected_vehicle");
 	private static final MutableText MAX_TRAINS_TEXT = TextHelper.translatable("gui.mtr.max_vehicles");
 	private static final MutableText ACCELERATION_CONSTANT_TEXT = TextHelper.translatable("gui.mtr.acceleration");
+	private static final MutableText BRAKING_POWER_CONSTANT_TEXT = TextHelper.translatable("gui.mtr.braking_power");
 	private static final MutableText MANUAL_TO_AUTOMATIC_TIME = TextHelper.translatable("gui.mtr.manual_to_automatic_time");
 	private static final MutableText MAX_MANUAL_SPEED = TextHelper.translatable("gui.mtr.max_manual_speed");
 	private static final int MAX_TRAINS_TEXT_LENGTH = 3;
@@ -36,10 +38,11 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 	private static final float ACCELERATION_UNIT_CONVERSION_2 = ACCELERATION_UNIT_CONVERSION_1 * 3.6F; // m/ms^2 to km/h/s
 
 	public SidingScreen(Siding siding, TransportMode transportMode, DashboardScreen dashboardScreen) {
-		super(siding, transportMode, dashboardScreen, SELECTED_TRAIN_TEXT, MAX_TRAINS_TEXT, ACCELERATION_CONSTANT_TEXT, MANUAL_TO_AUTOMATIC_TIME, MAX_MANUAL_SPEED);
+		super(siding, transportMode, dashboardScreen, SELECTED_TRAIN_TEXT, MAX_TRAINS_TEXT, ACCELERATION_CONSTANT_TEXT, MANUAL_TO_AUTOMATIC_TIME, MAX_MANUAL_SPEED, BRAKING_POWER_CONSTANT_TEXT);
 		buttonSelectTrain = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> MinecraftClient.getInstance().openScreen(new Screen(new VehicleSelectorScreen(this, savedRailBase))));
 		textFieldMaxTrains = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_TRAINS_TEXT_LENGTH, TextCase.DEFAULT, "\\D", null);
 		sliderAccelerationConstant = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, (int) Math.round((Siding.MAX_ACCELERATION - Siding.MIN_ACCELERATION) * SLIDER_SCALE), this::accelerationSliderFormatter, null);
+		sliderBrakingPowerConstant = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, (int) Math.round((Siding.MAX_BRAKING_POWER - Siding.MIN_BRAKING_POWER) * SLIDER_SCALE), this::brakingPowerSliderFormatter, null);
 		buttonIsManual = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
 			if (checked && !textFieldMaxTrains.getText2().equals("1")) {
 				textFieldMaxTrains.setText2("1");
@@ -89,6 +92,11 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 		sliderAccelerationConstant.setHeight2(SQUARE_SIZE);
 		sliderAccelerationConstant.setValue((int) Math.round((savedRailBase.getAcceleration() - Siding.MIN_ACCELERATION) * SLIDER_SCALE));
 
+		sliderBrakingPowerConstant.setX2(SQUARE_SIZE + textWidth);
+		sliderBrakingPowerConstant.setY2(SQUARE_SIZE * 4 + TEXT_FIELD_PADDING * 2);
+		sliderBrakingPowerConstant.setHeight2(SQUARE_SIZE);
+		sliderBrakingPowerConstant.setValue((int) Math.round((savedRailBase.getBrakingPower() - Siding.MIN_BRAKING_POWER) * SLIDER_SCALE));
+
 		IDrawing.setPositionAndWidth(buttonIsManual, SQUARE_SIZE, SQUARE_SIZE * 6 + TEXT_FIELD_PADDING * 2, width - textWidth - SQUARE_SIZE * 2);
 
 		sliderMaxManualSpeed.setX2(SQUARE_SIZE + textWidth);
@@ -105,6 +113,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 			addChild(new ClickableWidget(sliderAccelerationConstant));
 			addChild(new ClickableWidget(buttonIsManual));
 			addChild(new ClickableWidget(sliderMaxManualSpeed));
+			addChild(new ClickableWidget(sliderBrakingPowerConstant));
 		}
 
 		setButtons();
@@ -123,6 +132,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 		if (showScheduleControls) {
 			graphicsHolder.drawText(MAX_TRAINS_TEXT, SQUARE_SIZE, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING * 3 / 2 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
 			graphicsHolder.drawText(ACCELERATION_CONSTANT_TEXT, SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_FIELD_PADDING * 2 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+			graphicsHolder.drawText(BRAKING_POWER_CONSTANT_TEXT, SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_FIELD_PADDING * 2 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
 			if (buttonIsManual.isChecked2()) {
 				graphicsHolder.drawText(MAX_MANUAL_SPEED, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_FIELD_PADDING * 2 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
 				graphicsHolder.drawText(MANUAL_TO_AUTOMATIC_TIME, SQUARE_SIZE, SQUARE_SIZE * 8 + TEXT_FIELD_PADDING * 2 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
@@ -146,6 +156,13 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 			accelerationConstant = Siding.ACCELERATION_DEFAULT;
 		}
 
+		double brakingPowerConstant;
+		try {
+			brakingPowerConstant = Utilities.round(MathHelper.clamp((float) sliderbrakingPowerConstant.getIntValue() / SLIDER_SCALE + Siding.MIN_BRAKING_POWER, Siding.MIN_BRAKING_POWER, Siding.MAX_BRAKING_POWER), 8);
+		} catch (Exception ignored) {
+			brakingPowerConstant = Siding.BRAKING_POWER_DEFAULT;
+		}
+
 		if (buttonIsManual.isChecked2()) {
 			savedRailBase.setIsManual(true);
 		} else if (buttonUnlimitedTrains.isChecked2()) {
@@ -154,6 +171,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 			savedRailBase.setMaxVehicles(maxTrains);
 		}
 		savedRailBase.setAcceleration(accelerationConstant);
+		savedRailBase.setBrakingPower(brakingPowerConstant);
 
 		RegistryClient.sendPacketToServer(PacketData.fromSidings(IntegrationServlet.Operation.UPDATE, ObjectSet.of(savedRailBase)));
 
@@ -173,6 +191,11 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 
 	private String accelerationSliderFormatter(int value) {
 		final double valueMeterPerMillisecondSquared = ((double) value / SLIDER_SCALE + Siding.MIN_ACCELERATION);
+		return String.format("%s m/s² (%s km/h/s)", Utilities.round(valueMeterPerMillisecondSquared * ACCELERATION_UNIT_CONVERSION_1, 1), Utilities.round(valueMeterPerMillisecondSquared * ACCELERATION_UNIT_CONVERSION_2, 1));
+	}
+
+	private String brakingPowerSliderFormatter(int value) {
+		final double valueMeterPerMillisecondSquared = ((double) value / SLIDER_SCALE + Siding.MIN_BRAKING_POWER);
 		return String.format("%s m/s² (%s km/h/s)", Utilities.round(valueMeterPerMillisecondSquared * ACCELERATION_UNIT_CONVERSION_1, 1), Utilities.round(valueMeterPerMillisecondSquared * ACCELERATION_UNIT_CONVERSION_2, 1));
 	}
 
