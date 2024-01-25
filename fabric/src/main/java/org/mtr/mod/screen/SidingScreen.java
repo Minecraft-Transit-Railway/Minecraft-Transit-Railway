@@ -160,7 +160,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 		try {
 			brakingPowerConstant = Utilities.round(MathHelper.clamp((float) sliderBrakingPowerConstant.getIntValue() / SLIDER_SCALE + Siding.MIN_BRAKING_POWER, Siding.MIN_BRAKING_POWER, Siding.MAX_BRAKING_POWER), 8);
 		} catch (Exception ignored) {
-			brakingPowerConstant = Siding.BRAKING_POWER_DEFAULT;
+			brakingPowerConstant = accelerationConstant;
 		}
 
 		if (buttonIsManual.isChecked2()) {
