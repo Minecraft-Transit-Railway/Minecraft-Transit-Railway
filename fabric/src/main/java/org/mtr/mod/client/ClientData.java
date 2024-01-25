@@ -20,6 +20,7 @@ import org.mtr.mod.packet.PacketDriveTrain;
 import org.mtr.mod.packet.PacketFetchArrivals;
 import org.mtr.mod.screen.DashboardListItem;
 
+import javax.annotation.Nullable;
 import java.util.stream.Collectors;
 
 public final class ClientData extends Data {
@@ -137,6 +138,17 @@ public final class ClientData extends Data {
 		}
 		final GameMode gameMode = playerListEntry.getGameMode();
 		return gameMode == GameMode.getCreativeMapped() || gameMode == GameMode.getSurvivalMapped();
+	}
+
+	@Nullable
+	public static Lift getLift(long liftId) {
+		// Don't use liftIdMap
+		for (final Lift lift : ClientData.getInstance().lifts) {
+			if (lift.getId() == liftId) {
+				return lift;
+			}
+		}
+		return null;
 	}
 
 	public static float getShiftHoldingTicks() {

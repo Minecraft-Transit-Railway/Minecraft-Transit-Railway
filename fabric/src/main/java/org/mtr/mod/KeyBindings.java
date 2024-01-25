@@ -33,4 +33,8 @@ public final class KeyBindings {
 	public static final KeyBinding DEBUG_3_POSITIVE;
 	public static final KeyBinding DEBUG_ROTATE_CATEGORY_NEGATIVE;
 	public static final KeyBinding DEBUG_ROTATE_CATEGORY_POSITIVE;
+
+	public static void init() {
+		Init.LOGGER.info("Registering Minecraft Transit Railway key bindings");
+	}
 }
