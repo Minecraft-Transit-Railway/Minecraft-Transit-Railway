@@ -9,7 +9,7 @@ dependencies {
 	implementation "commons-io:commons-io:+"
 	implementation "com.github.jonafanho:Minecraft-Mod-API-Tools:master-SNAPSHOT"
 	implementation "org.mtr:Minecraft-Mappings-common:0.0.1"
-	implementation "org.mtr:Transport-Simulation-Core:Build-Tools"
+	implementation "com.github.CokeStudios:Transport-Simulation-Core:Build-Tools"
 }
 
 repositories {
