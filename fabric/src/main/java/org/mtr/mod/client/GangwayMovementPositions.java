@@ -3,8 +3,8 @@ package org.mtr.mod.client;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.Vector3d;
+import org.mtr.mod.render.RenderVehicleHelper;
 import org.mtr.mod.render.RenderVehicleTransformationHelper;
-import org.mtr.mod.render.RenderVehicles;
 
 public class GangwayMovementPositions {
 
@@ -26,18 +26,18 @@ public class GangwayMovementPositions {
 		if (getMax) {
 			if (box.getMaxZMapped() > z) {
 				xMin = box.getMinXMapped();
-				xMinClamped = xMin + RenderVehicles.HALF_PLAYER_WIDTH;
+				xMinClamped = xMin + RenderVehicleHelper.HALF_PLAYER_WIDTH;
 				xMax = box.getMaxXMapped();
-				xMaxClamped = xMax - RenderVehicles.HALF_PLAYER_WIDTH;
+				xMaxClamped = xMax - RenderVehicleHelper.HALF_PLAYER_WIDTH;
 				y = box.getMaxYMapped();
 				z = box.getMaxZMapped();
 			}
 		} else {
 			if (box.getMinZMapped() < z) {
 				xMin = box.getMinXMapped();
-				xMinClamped = xMin + RenderVehicles.HALF_PLAYER_WIDTH;
+				xMinClamped = xMin + RenderVehicleHelper.HALF_PLAYER_WIDTH;
 				xMax = box.getMaxXMapped();
-				xMaxClamped = xMax - RenderVehicles.HALF_PLAYER_WIDTH;
+				xMaxClamped = xMax - RenderVehicleHelper.HALF_PLAYER_WIDTH;
 				y = box.getMaxYMapped();
 				z = box.getMinZMapped();
 			}
@@ -45,7 +45,7 @@ public class GangwayMovementPositions {
 	}
 
 	public Box getBox() {
-		return new Box(xMin, y, z, xMax, y, z + (getMax ? 1 : -1) * RenderVehicles.HALF_PLAYER_WIDTH);
+		return new Box(xMin, y, z, xMax, y, z + (getMax ? 1 : -1) * RenderVehicleHelper.HALF_PLAYER_WIDTH);
 	}
 
 	public double getPercentageX(double x) {

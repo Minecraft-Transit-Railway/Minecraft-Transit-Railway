@@ -90,7 +90,7 @@ public abstract class PacketDataBase extends PacketHandler {
 	protected void sendHttpRequestAndBroadcastResultToAllPlayers(ServerWorld serverWorld) {
 		sendHttpDataRequest(operation, integration, newIntegration -> {
 			// Check if there are any rail nodes that need to be reset
-			newIntegration.iteratePositions(position -> BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(position)));
+			newIntegration.iterateRailNodePositions(railNodePosition -> BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(railNodePosition)));
 			// Broadcast result to all players
 			MinecraftServerHelper.iteratePlayers(serverWorld, worldPlayer -> Registry.sendPacketToClient(worldPlayer, new PacketData(operation, newIntegration, updateClientDataInstance, updateClientDataDashboardInstance)));
 		});
@@ -110,11 +110,16 @@ public abstract class PacketDataBase extends PacketHandler {
 			integration.iterateSimplifiedRoutes(clientData.simplifiedRoutes::add);
 		}
 
-		if (integration.hasVehicle()) {
+		if (integration.hasVehicleOrLift()) {
 			final LongAVLTreeSet keepVehicleIds = new LongAVLTreeSet();
 			integration.iterateVehiclesToKeep(keepVehicleIds::add);
 			clientData.vehicles.removeIf(vehicle -> !keepVehicleIds.contains(vehicle.getId()));
 			integration.iterateVehiclesToUpdate(vehicleUpdate -> clientData.vehicles.add(new VehicleExtension(vehicleUpdate, clientData)));
+
+			final LongAVLTreeSet keepLiftIds = new LongAVLTreeSet();
+			integration.iterateLiftsToKeep(keepLiftIds::add);
+			clientData.lifts.removeIf(lift -> !keepLiftIds.contains(lift.getId()));
+			integration.iterateLiftsToUpdate(clientData.lifts::add);
 		}
 
 		clientData.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(clientData)));

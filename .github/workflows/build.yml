@@ -27,7 +27,7 @@ jobs:
       - name: Capture release artifacts
         uses: actions/upload-artifact@main
         with:
-          name: Fabric and Forge
+          name: Fabric and Forge ${{ matrix.minecraft }}
           path: build/release/
   crowdin:
     runs-on: ubuntu-latest

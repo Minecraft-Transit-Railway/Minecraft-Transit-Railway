@@ -1,6 +1,7 @@
 package org.mtr.mod.screen;
 
 import org.mtr.core.data.Station;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
@@ -39,7 +40,7 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 	private final ObjectImmutableList<DashboardListItem> platformsForList;
 	private final ObjectAVLTreeSet<DashboardListItem> routesForList;
 	private final ObjectAVLTreeSet<DashboardListItem> stationsForList;
-	private final ObjectAVLTreeSet<String> allSignIds = new ObjectAVLTreeSet<>();
+	private final ObjectArrayList<String> allSignIds = new ObjectArrayList<>();
 
 	private final ButtonWidgetExtension[] buttonsEdit;
 	private final ButtonWidgetExtension[] buttonsSelection;
@@ -56,10 +57,6 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 		editingIndex = -1;
 		this.signPos = signPos;
 		final ClientWorld world = MinecraftClient.getInstance().getWorldMapped();
-
-		for (final BlockRailwaySign.SignType signType : BlockRailwaySign.SignType.values()) {
-			allSignIds.add(signType.toString());
-		}
 
 		allSignIds.addAll(CustomResourceLoader.getSortedSignIds());
 
@@ -84,7 +81,17 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 			connectingStationsIncludingThisOne.add(station);
 			stationsForList = ClientData.convertDataSet(connectingStationsIncludingThisOne);
 
-			routesForList = ClientData.convertDataSet(station.getOneInterchangeRouteFromEachColor(true));
+			final LongAVLTreeSet platformIds = new LongAVLTreeSet();
+			connectingStationsIncludingThisOne.forEach(connectingStation -> connectingStation.savedRails.forEach(platform -> platformIds.add(platform.getId())));
+			routesForList = new ObjectAVLTreeSet<>();
+			final IntAVLTreeSet addedColors = new IntAVLTreeSet();
+			ClientData.getInstance().simplifiedRoutes.forEach(simplifiedRoute -> {
+				final int color = simplifiedRoute.getColor();
+				if (!addedColors.contains(color) && simplifiedRoute.getPlatforms().stream().anyMatch(simplifiedRoutePlatform -> platformIds.contains(simplifiedRoutePlatform.getPlatformId()))) {
+					routesForList.add(new DashboardListItem(color, simplifiedRoute.getName().split("\\|\\|")[0], color));
+					addedColors.add(color);
+				}
+			});
 		}
 
 		if (world != null) {
@@ -181,7 +188,7 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 				RenderRailwaySign.drawSign(graphicsHolder, null, signPos, signIds[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, RenderRailwaySign.getMaxWidth(signIds, i, false), RenderRailwaySign.getMaxWidth(signIds, i, true), selectedIds, Direction.UP, 0, (textureId, x, y, size, flipTexture) -> {
 					final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
 					guiDrawing.beginDrawingTexture(textureId);
-					guiDrawing.drawTexture((int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size);
+					guiDrawing.drawTexture(x, y, x + size, y + size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1);
 					guiDrawing.finishDrawingTexture();
 				});
 			}
@@ -196,10 +203,12 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 				final SignResource sign = RenderRailwaySign.getSign(signId);
 				if (sign != null) {
 					final boolean moveRight = sign.hasCustomText && sign.getFlipCustomText();
-					final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
-					guiDrawing.beginDrawingTexture(sign.getTexture());
-					RenderRailwaySign.drawSign(graphicsHolder, null, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), BUTTON_Y_START + y, SIGN_BUTTON_SIZE, 2, 2, selectedIds, Direction.UP, 0, (textureId, x1, y1, size, flipTexture) -> guiDrawing.drawTexture((int) x1, (int) y1, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
-					guiDrawing.finishDrawingTexture();
+					RenderRailwaySign.drawSign(graphicsHolder, null, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), BUTTON_Y_START + y, SIGN_BUTTON_SIZE, 2, 2, selectedIds, Direction.UP, 0, (textureId, x1, y1, size, flipTexture) -> {
+						final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
+						guiDrawing.beginDrawingTexture(sign.getTexture());
+						guiDrawing.drawTexture(x1, y1, x1 + size, y1 + size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1);
+						guiDrawing.finishDrawingTexture();
+					});
 				}
 			}, false);
 
@@ -302,10 +311,10 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 	private void setNewSignId(@Nullable String newSignId) {
 		if (editingIndex >= 0 && editingIndex < signIds.length) {
 			signIds[editingIndex] = newSignId;
-			final boolean isExitLetter = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.EXIT_LETTER.toString()) || newSignId.equals(BlockRailwaySign.SignType.EXIT_LETTER_FLIPPED.toString()));
-			final boolean isPlatform = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.PLATFORM.toString()) || newSignId.equals(BlockRailwaySign.SignType.PLATFORM_FLIPPED.toString()));
-			final boolean isLine = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.LINE.toString()) || newSignId.equals(BlockRailwaySign.SignType.LINE_FLIPPED.toString()));
-			final boolean isStation = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.STATION.toString()) || newSignId.equals(BlockRailwaySign.SignType.STATION_FLIPPED.toString()));
+			final boolean isExitLetter = newSignId != null && (newSignId.equals("exit_letter") || newSignId.equals("exit_letter_flipped"));
+			final boolean isPlatform = newSignId != null && (newSignId.equals("platform") || newSignId.equals("platform_flipped"));
+			final boolean isLine = newSignId != null && (newSignId.equals("line") || newSignId.equals("line_flipped"));
+			final boolean isStation = newSignId != null && (newSignId.equals("station") || newSignId.equals("station_flipped"));
 			if ((isExitLetter || isPlatform || isLine || isStation)) {
 				MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this, new ObjectImmutableList<>(isExitLetter ? exitsForList : isPlatform ? platformsForList : isLine ? routesForList : stationsForList), selectedIds, false, false)));
 			}
