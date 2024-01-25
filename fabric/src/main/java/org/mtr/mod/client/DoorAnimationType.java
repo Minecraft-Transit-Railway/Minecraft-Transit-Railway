@@ -26,7 +26,7 @@ public enum DoorAnimationType {
 			case PLUG_FAST:
 				return value < 0.05 ? -value * 20 - 0.01F : -1.01F;
 			case PLUG_SLOW:
-				return smoothEnds(-0.01F, -1.01F, 0, 0.1F, value);
+				return smoothEnds(0.01F, 1.01F, 0, 0.1F, value);
 			default:
 				return 0;
 		}
