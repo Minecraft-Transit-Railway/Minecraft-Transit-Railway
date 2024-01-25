@@ -8,10 +8,6 @@ plugins {
 
 final BuildTools buildTools = new BuildTools(minecraftVersion, "fabric", project)
 
-loom {
-	accessWidenerPath = file("src/main/resources/mtr.accesswidener")
-}
-
 dependencies {
 	minecraft "com.mojang:minecraft:${minecraftVersion}"
 	mappings "net.fabricmc:yarn:${buildTools.getYarnVersion()}:v2"
