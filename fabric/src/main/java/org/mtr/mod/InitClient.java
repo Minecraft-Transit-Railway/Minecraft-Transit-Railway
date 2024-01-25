@@ -32,6 +32,8 @@ public final class InitClient {
 	private static final int SAMPLE_MILLIS = 1000;
 
 	public static void init() {
+		KeyBindings.init();
+
 		RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), Blocks.APG_DOOR);
 		RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), Blocks.APG_GLASS);
 		RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), Blocks.APG_GLASS_END);
