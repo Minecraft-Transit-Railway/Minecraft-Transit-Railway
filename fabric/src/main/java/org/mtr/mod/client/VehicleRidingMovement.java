@@ -9,9 +9,11 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.InitClient;
+import org.mtr.mod.KeyBindings;
 import org.mtr.mod.packet.PacketUpdateVehicleRidingEntities;
 import org.mtr.mod.render.RenderVehicleHelper;
 import org.mtr.mod.render.RenderVehicleTransformationHelper;
+import org.mtr.mod.screen.LiftSelectionScreen;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
@@ -58,6 +60,14 @@ public class VehicleRidingMovement {
 
 		if (sendPositionUpdateTime > 0 && sendPositionUpdateTime <= System.currentTimeMillis()) {
 			sendUpdate(false);
+		}
+
+		if (KeyBindings.LIFT_MENU.isPressed()) {
+			final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+			final Screen currentScreen = minecraftClient.getCurrentScreenMapped();
+			if (ClientData.getLift(ridingVehicleId) != null && (currentScreen == null || !(currentScreen.data instanceof LiftSelectionScreen))) {
+				minecraftClient.openScreen(new Screen(new LiftSelectionScreen(ridingVehicleId)));
+			}
 		}
 	}
 
