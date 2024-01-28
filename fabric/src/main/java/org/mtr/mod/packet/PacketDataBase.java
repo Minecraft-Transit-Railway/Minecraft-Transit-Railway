@@ -52,8 +52,8 @@ public abstract class PacketDataBase extends PacketHandler {
 	}
 
 	protected static <T extends PacketDataBase> T create(PacketBuffer packetBuffer, PacketDataBaseInstance<T> packetDataBaseInstance) {
-		final IntegrationServlet.Operation operation = EnumHelper.valueOf(IntegrationServlet.Operation.UPDATE, readString(packetBuffer));
-		final JsonReader integrationJsonReader = new JsonReader(Utilities.parseJson(readString(packetBuffer)));
+		final IntegrationServlet.Operation operation = EnumHelper.valueOf(IntegrationServlet.Operation.UPDATE, readStringTrimmed(packetBuffer));
+		final JsonReader integrationJsonReader = new JsonReader(Utilities.parseJson(readStringTrimmed(packetBuffer)));
 		final boolean updateClientDataInstance = packetBuffer.readBoolean();
 		final boolean updateClientDataDashboardInstance = packetBuffer.readBoolean();
 		return packetDataBaseInstance.create(
@@ -66,8 +66,8 @@ public abstract class PacketDataBase extends PacketHandler {
 
 	@Override
 	public void write(PacketBuffer packetBuffer) {
-		writeString(packetBuffer, operation.toString());
-		writeString(packetBuffer, Utilities.getJsonObjectFromData(integration).toString());
+		writeStringTrimmed(packetBuffer, operation.toString());
+		writeStringTrimmed(packetBuffer, Utilities.getJsonObjectFromData(integration).toString());
 		packetBuffer.writeBoolean(updateClientDataInstance);
 		packetBuffer.writeBoolean(updateClientDataDashboardInstance);
 	}
@@ -172,6 +172,23 @@ public abstract class PacketDataBase extends PacketHandler {
 		} catch (Exception e) {
 			Init.logException(e);
 		}
+	}
+
+	public static void writeStringTrimmed(PacketBuffer packetBuffer, String text) {
+		final int maxLength = 32767;
+		packetBuffer.writeInt((int) Math.ceil((float) text.length() / maxLength));
+		for (int i = 0; i < text.length(); i += maxLength) {
+			writeString(packetBuffer, text.substring(i, Math.min(text.length(), i + maxLength)));
+		}
+	}
+
+	public static String readStringTrimmed(PacketBuffer packetBuffer) {
+		final StringBuilder stringBuilder = new StringBuilder();
+		final int count = packetBuffer.readInt();
+		for (int i = 0; i < count; i++) {
+			stringBuilder.append(readString(packetBuffer));
+		}
+		return stringBuilder.toString();
 	}
 
 	protected static void sendHttpDataRequest(IntegrationServlet.Operation operation, Integration integration, Consumer<Integration> consumer) {

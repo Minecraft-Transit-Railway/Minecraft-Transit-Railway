@@ -3155,6 +3155,62 @@
 			"hasBarrier2": false,
 			"speedSoundCount": 120,
 			"speedSoundBaseResource": "mlr"
+		},
+		{
+			"id": "ngong_ping_360_crystal",
+			"name": "Ngong Ping 360 Crystal Cabin (LHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:left"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_crystal.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_crystal_rht",
+			"name": "Ngong Ping 360 Crystal Cabin (RHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:right"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_crystal.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
 		}
 	],
 	"signs": [
