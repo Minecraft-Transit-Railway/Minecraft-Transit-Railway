@@ -71,7 +71,7 @@ public class RenderLifts implements IGui {
 			final RenderVehicleHelper.VehicleProperties vehicleProperties = RenderVehicleHelper.getTransformedVehiclePropertiesList(lift, ObjectArrayList.of(new RenderVehicleHelper.VehicleProperties(new ObjectObjectImmutablePair<>(
 					new VehicleCar("", lift.getDepth(), lift.getWidth(), 0, 0, 0, 0),
 					ObjectArrayList.of(getVirtualBogiePositions(lift))
-			)))).get(0);
+			), true))).get(0);
 			final RenderVehicleTransformationHelper renderVehicleTransformationHelperAbsolute = vehicleProperties.renderVehicleTransformationHelperAbsolute;
 			final RenderVehicleTransformationHelper renderVehicleTransformationHelperOffset = vehicleProperties.renderVehicleTransformationHelperOffset;
 

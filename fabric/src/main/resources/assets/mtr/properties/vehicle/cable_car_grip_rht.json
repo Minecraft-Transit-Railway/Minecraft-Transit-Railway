@@ -1,0 +1,14 @@
+{
+	"parts": [
+		{
+			"names": [
+				"grip"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "EXTERIOR"
+		}
+	],
+	"modelYOffset": 0.5
+}

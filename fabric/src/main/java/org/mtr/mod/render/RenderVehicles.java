@@ -35,7 +35,9 @@ public class RenderVehicles implements IGui {
 			final ObjectArrayList<PreviousConnectionPositions> previousBarrierPositionsList = new ObjectArrayList<>();
 			final PreviousGangwayMovementPositions previousGangwayMovementPositions = new PreviousGangwayMovementPositions();
 			// Calculating vehicle transformations in advance
-			final ObjectArrayList<RenderVehicleHelper.VehicleProperties> vehiclePropertiesList = RenderVehicleHelper.getTransformedVehiclePropertiesList(vehicle, vehicle.getVehicleCarsAndPositions().stream().map(RenderVehicleHelper.VehicleProperties::new).collect(Collectors.toCollection(ObjectArrayList::new)));
+			final ObjectArrayList<RenderVehicleHelper.VehicleProperties> vehiclePropertiesList = RenderVehicleHelper.getTransformedVehiclePropertiesList(vehicle, vehicle.getVehicleCarsAndPositions().stream()
+					.map(vehicleCarAndPosition -> new RenderVehicleHelper.VehicleProperties(vehicleCarAndPosition, !vehicle.getTransportMode().hasPitchAscending && !vehicle.getTransportMode().hasPitchDescending))
+					.collect(Collectors.toCollection(ObjectArrayList::new)));
 
 			// Iterate all cars of a vehicle
 			iterateWithIndex(vehiclePropertiesList, (carNumber, vehicleProperties) -> CustomResourceLoader.getVehicleById(vehicle.getTransportMode(), vehicleProperties.vehicleCar.getVehicleId(), vehicleResource -> {
@@ -60,7 +62,7 @@ public class RenderVehicles implements IGui {
 				final GangwayMovementPositions gangwayMovementPositions1 = new GangwayMovementPositions(renderVehicleTransformationHelperAbsolute, false);
 				final GangwayMovementPositions gangwayMovementPositions2 = new GangwayMovementPositions(renderVehicleTransformationHelperAbsolute, true);
 				// Find open doorways (close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates)
-				final ObjectArrayList<Box> openDoorways = vehicle.isMoving() || !vehicle.persistentVehicleData.checkCanOpenDoors() ? new ObjectArrayList<>() : vehicleResource.doorways.stream().filter(doorway -> RenderVehicleHelper.canOpenDoors(doorway, renderVehicleTransformationHelperAbsolute, vehicle.persistentVehicleData.getDoorValue())).collect(Collectors.toCollection(ObjectArrayList::new));
+				final ObjectArrayList<Box> openDoorways = !vehicle.getTransportMode().continuousMovement && vehicle.isMoving() || !vehicle.persistentVehicleData.checkCanOpenDoors() ? new ObjectArrayList<>() : vehicleResource.doorways.stream().filter(doorway -> RenderVehicleHelper.canOpenDoors(doorway, renderVehicleTransformationHelperAbsolute, vehicle.persistentVehicleData.getDoorValue())).collect(Collectors.toCollection(ObjectArrayList::new));
 
 				if (canRide) {
 					vehicleResource.floors.forEach(floor -> {
