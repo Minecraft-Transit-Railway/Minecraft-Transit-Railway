@@ -3157,7 +3157,7 @@
 			"speedSoundBaseResource": "mlr"
 		},
 		{
-			"id": "ngong_ping_360_crystal",
+			"id": "ngong_ping_360_crystal_lht",
 			"name": "Ngong Ping 360 Crystal Cabin (LHT)",
 			"color": "062540",
 			"transportMode": "CABLE_CAR",
@@ -3199,6 +3199,230 @@
 				{
 					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
 					"textureResource": "mtr:textures/vehicle/ngong_ping_360_crystal.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_crystal_plus_lht",
+			"name": "Ngong Ping 360 Crystal+ Cabin (LHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:left"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_crystal_plus.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_crystal_plus_rht",
+			"name": "Ngong Ping 360 Crystal+ Cabin (RHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:right"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_crystal_plus.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_normal_red_lht",
+			"name": "Ngong Ping 360 Red Cabin (LHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:left"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_normal_red.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_normal_red_rht",
+			"name": "Ngong Ping 360 Red Cabin (RHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:right"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_normal_red.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_normal_orange_lht",
+			"name": "Ngong Ping 360 Orange Cabin (LHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:left"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_normal_orange.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_normal_orange_rht",
+			"name": "Ngong Ping 360 Orange Cabin (RHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:right"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_normal_orange.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_normal_light_blue_lht",
+			"name": "Ngong Ping 360 Light Blue Cabin (LHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:left"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_normal_light_blue.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_normal_light_blue_rht",
+			"name": "Ngong Ping 360 Light Blue Cabin (RHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:right"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_normal_light_blue.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_rht.json",
 					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
 				}
