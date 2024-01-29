@@ -9,7 +9,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.KeyBindings;
 import org.mtr.mod.packet.PacketUpdateVehicleRidingEntities;
@@ -336,7 +335,7 @@ public class VehicleRidingMovement {
 
 	private static void sendUpdate(boolean dismount) {
 		if (ridingSidingId != 0 && ridingVehicleId != 0) {
-			RegistryClient.sendPacketToServer(PacketUpdateVehicleRidingEntities.create(ridingSidingId, ridingVehicleId, dismount ? -1 : ridingVehicleCarNumber, ridingVehicleX, ridingVehicleY, ridingVehicleZ, isOnGangway));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketUpdateVehicleRidingEntities.create(ridingSidingId, ridingVehicleId, dismount ? -1 : ridingVehicleCarNumber, ridingVehicleX, ridingVehicleY, ridingVehicleZ, isOnGangway));
 			sendPositionUpdateTime = 0;
 		}
 	}

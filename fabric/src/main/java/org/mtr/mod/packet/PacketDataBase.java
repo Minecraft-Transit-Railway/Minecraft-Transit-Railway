@@ -27,7 +27,6 @@ import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
 import org.mtr.mapping.registry.PacketHandler;
-import org.mtr.mapping.registry.Registry;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.client.ClientData;
@@ -92,7 +91,7 @@ public abstract class PacketDataBase extends PacketHandler {
 			// Check if there are any rail nodes that need to be reset
 			newIntegration.iterateRailNodePositions(railNodePosition -> BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(railNodePosition)));
 			// Broadcast result to all players
-			MinecraftServerHelper.iteratePlayers(serverWorld, worldPlayer -> Registry.sendPacketToClient(worldPlayer, new PacketData(operation, newIntegration, updateClientDataInstance, updateClientDataDashboardInstance)));
+			MinecraftServerHelper.iteratePlayers(serverWorld, worldPlayer -> Init.REGISTRY.sendPacketToClient(worldPlayer, new PacketData(operation, newIntegration, updateClientDataInstance, updateClientDataDashboardInstance)));
 		});
 	}
 

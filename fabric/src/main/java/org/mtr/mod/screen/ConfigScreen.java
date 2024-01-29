@@ -2,7 +2,6 @@ package org.mtr.mod.screen;
 
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.Patreon;
@@ -225,7 +224,7 @@ public class ConfigScreen extends ScreenExtension implements IGui {
 		Config.setTrackTextureOffset(sliderTrackTextureOffset.getIntValue());
 		Config.setDynamicTextureResolution(sliderDynamicTextureResolution.getIntValue());
 		Config.setTrainRenderDistanceRatio(sliderTrainRenderDistanceRatio.getIntValue());
-		RegistryClient.sendPacketToServer(new PacketRequestData(true));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketRequestData(true));
 	}
 
 	private static void setButtonText(ButtonWidget button, boolean state) {

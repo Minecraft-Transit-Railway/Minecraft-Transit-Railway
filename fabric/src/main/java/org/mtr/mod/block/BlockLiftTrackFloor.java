@@ -6,7 +6,6 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockWithEntity;
 import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mapping.registry.Registry;
 import org.mtr.mod.BlockEntityTypes;
 import org.mtr.mod.Init;
 import org.mtr.mod.packet.PacketData;
@@ -29,7 +28,7 @@ public class BlockLiftTrackFloor extends BlockLiftTrackBase implements BlockWith
 			final org.mtr.mapping.holder.BlockEntity entity = world.getBlockEntity(pos);
 			if (entity != null && entity.data instanceof BlockEntity) {
 				((BlockEntity) entity.data).markDirty2();
-				Registry.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(pos));
+				Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(pos));
 			}
 		});
 	}

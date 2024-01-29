@@ -7,7 +7,7 @@ import org.mtr.mapping.holder.BlockState;
 import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
-import org.mtr.mapping.registry.Registry;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.packet.PacketBroadcastRailActions;
 
@@ -66,6 +66,6 @@ public class RailActionModule {
 	}
 
 	private void broadcastUpdate() {
-		MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntity -> Registry.sendPacketToClient(serverPlayerEntity, new PacketBroadcastRailActions(railActions)));
+		MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntity -> Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketBroadcastRailActions(railActions)));
 	}
 }

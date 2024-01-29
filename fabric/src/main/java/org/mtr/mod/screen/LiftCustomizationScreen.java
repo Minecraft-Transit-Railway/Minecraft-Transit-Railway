@@ -10,7 +10,7 @@ import org.mtr.mapping.holder.Direction;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.holder.Text;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.registry.RegistryClient;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.IPacket;
@@ -207,7 +207,7 @@ public class LiftCustomizationScreen extends ScreenExtension implements IGui, IP
 		buttonLiftStyle.setMessage2(new Text(TextHelper.translatable("gui.mtr.lift_style", TextHelper.translatable("gui.mtr.lift_style_" + lift.getStyle().toLowerCase(Locale.ENGLISH))).data));
 
 		if (sendUpdate) {
-			RegistryClient.sendPacketToServer(PacketData.fromLifts(IntegrationServlet.Operation.UPDATE, ObjectSet.of(lift)));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromLifts(IntegrationServlet.Operation.UPDATE, ObjectSet.of(lift)));
 		}
 	}
 
