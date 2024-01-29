@@ -8,7 +8,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mapping.registry.RegistryClient;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.packet.PacketData;
 
 public class PlatformScreen extends SavedRailScreenBase<Platform, Station> {
@@ -42,7 +42,7 @@ public class PlatformScreen extends SavedRailScreenBase<Platform, Station> {
 		final float second = sliderDwellTimeSec.getIntValue() / 2F;
 		savedRailBase.setDwellTime((long) ((second + (long) minutes * SECONDS_PER_MINUTE) * 1000));
 
-		RegistryClient.sendPacketToServer(PacketData.fromPlatforms(IntegrationServlet.Operation.UPDATE, ObjectSet.of(savedRailBase)));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromPlatforms(IntegrationServlet.Operation.UPDATE, ObjectSet.of(savedRailBase)));
 
 		super.onClose2();
 	}

@@ -17,8 +17,8 @@ import org.mtr.mapping.mapper.ButtonWidgetExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.Icons;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.Patreon;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
@@ -107,7 +107,7 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 		selectedIds.clear();
 		selectedIds.addAll(getSelectedIds(siding));
 		super.updateList();
-		RegistryClient.sendPacketToServer(PacketData.fromSidings(IntegrationServlet.Operation.UPDATE, ObjectSet.of(siding)));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromSidings(IntegrationServlet.Operation.UPDATE, ObjectSet.of(siding)));
 
 		final ObjectArrayList<VehicleCar> currentList = siding.getVehicleCars();
 		double remainingLength = siding.getRailLength();

@@ -11,8 +11,8 @@ import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.World;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ScreenExtension;
-import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.Init;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.PacketPressLiftButton;
@@ -100,7 +100,7 @@ public class LiftSelectionScreen extends ScreenExtension implements IGui {
 	}
 
 	private void onPress(DashboardListItem dashboardListItem, int index) {
-		RegistryClient.sendPacketToServer(new PacketPressLiftButton(LiftDirection.NONE, ObjectOpenHashSet.of(floorLevels.get(floorLevels.size() - index - 1))));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketPressLiftButton(LiftDirection.NONE, ObjectOpenHashSet.of(floorLevels.get(floorLevels.size() - index - 1))));
 		onClose2();
 	}
 }

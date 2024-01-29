@@ -9,7 +9,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
@@ -213,7 +212,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui, IPacket {
 		} catch (Exception e) {
 			Init.logException(e);
 		}
-		RegistryClient.sendPacketToServer(new PacketUpdatePIDSConfig(blockPos, messages, filterPlatformIds, displayPage));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdatePIDSConfig(blockPos, messages, filterPlatformIds, displayPage));
 		super.onClose2();
 	}
 

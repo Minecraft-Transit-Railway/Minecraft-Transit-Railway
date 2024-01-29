@@ -8,7 +8,6 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.mapper.ItemExtension;
 import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mapping.registry.Registry;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockLiftTrackBase;
 import org.mtr.mod.block.BlockLiftTrackFloor;
@@ -55,7 +54,7 @@ public class ItemLiftRefresher extends ItemExtension implements DirectionHelper 
 			liftFloors.addAll(liftFloors2);
 			final boolean needsReverse = Utilities.getElement(liftFloors, -1).getPosition().getY() < Utilities.getElement(liftFloors, 0).getPosition().getY();
 			PacketData.generateLiftPath(ServerWorld.cast(world), needsReverse ? reverseList(liftFloors) : liftFloors);
-			Registry.sendPacketToClient(ServerPlayerEntity.cast(playerEntity), new PacketOpenLiftCustomizationScreen(Init.positionToBlockPos(liftFloors.get(0).getPosition())));
+			Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(playerEntity), new PacketOpenLiftCustomizationScreen(Init.positionToBlockPos(liftFloors.get(0).getPosition())));
 			return ActionResult.getSuccessMapped();
 		}
 	}

@@ -11,8 +11,8 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectLongImmutablePair;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.Init;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.KeyBindings;
 import org.mtr.mod.data.PersistentVehicleData;
 import org.mtr.mod.data.VehicleExtension;
@@ -63,7 +63,7 @@ public final class ClientData extends Data {
 	public ArrivalsResponse requestArrivals(long requestKey, LongImmutableList platformIds, int count, int page, boolean realtimeOnly) {
 		final ObjectLongImmutablePair<ArrivalsResponse> arrivalData = arrivalRequests.get(requestKey);
 		if (arrivalData == null || arrivalData.rightLong() < System.currentTimeMillis()) {
-			RegistryClient.sendPacketToServer(new PacketFetchArrivals(requestKey, platformIds, count, page, realtimeOnly));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketFetchArrivals(requestKey, platformIds, count, page, realtimeOnly));
 			final ArrivalsResponse arrivalsResponse;
 			if (arrivalData == null) {
 				arrivalsResponse = new ArrivalsResponse();
@@ -102,7 +102,7 @@ public final class ClientData extends Data {
 		final boolean tempPressingDoors = KeyBindings.TRAIN_TOGGLE_DOORS.isPressed();
 
 		if (VehicleExtension.isHoldingKey(clientPlayerEntity) && (pressingAccelerate || pressingBrake || pressingDoors)) {
-			RegistryClient.sendPacketToServer(new PacketDriveTrain(
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDriveTrain(
 					tempPressingAccelerate && !pressingAccelerate,
 					tempPressingBrake && !pressingBrake,
 					tempPressingDoors && !pressingDoors

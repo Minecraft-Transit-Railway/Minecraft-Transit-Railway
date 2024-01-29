@@ -8,9 +8,9 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.Init;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.packet.PacketData;
@@ -179,7 +179,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		} catch (Exception ignored) {
 			data.setZone1(0);
 		}
-		RegistryClient.sendPacketToServer(PacketData.fromStations(IntegrationServlet.Operation.UPDATE, ObjectSet.of(data)));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromStations(IntegrationServlet.Operation.UPDATE, ObjectSet.of(data)));
 	}
 
 	private void changeEditingExit(@Nullable String editingExit, int editingDestinationIndex) {

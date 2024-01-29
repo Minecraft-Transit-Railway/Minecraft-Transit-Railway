@@ -11,9 +11,9 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.Init;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.packet.PacketData;
@@ -103,12 +103,12 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		});
 		buttonGenerateRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.refresh_path"), button -> {
 			saveData();
-			RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.GENERATE, ObjectSet.of(depot)));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.GENERATE, ObjectSet.of(depot)));
 		});
-		buttonClearTrains = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.clear_vehicles"), button -> RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.CLEAR, ObjectSet.of(depot))));
+		buttonClearTrains = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.clear_vehicles"), button -> InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.CLEAR, ObjectSet.of(depot))));
 		checkboxRepeatIndefinitely = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, button -> {
 			saveData();
-			RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.GENERATE, ObjectSet.of(depot)));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.GENERATE, ObjectSet.of(depot)));
 		});
 		checkboxRepeatIndefinitely.setMessage2(new Text(TextHelper.translatable("gui.mtr.repeat_indefinitely").data));
 		textFieldCruisingAltitude = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 5, TextCase.DEFAULT, "[^-\\d]", String.valueOf(DEFAULT_CRUISING_ALTITUDE));
@@ -252,7 +252,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			Init.logException(e);
 			data.setCruisingAltitude(DEFAULT_CRUISING_ALTITUDE);
 		}
-		RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.UPDATE, ObjectSet.of(data)));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.UPDATE, ObjectSet.of(data)));
 	}
 
 	private void toggleRealTime() {

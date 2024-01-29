@@ -8,7 +8,7 @@ import org.mtr.core.tool.EnumHelper;
 import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.holder.PlayerEntity;
 import org.mtr.mapping.holder.ServerPlayerEntity;
-import org.mtr.mapping.registry.Registry;
+import org.mtr.mod.Init;
 import org.mtr.mod.screen.DashboardScreen;
 
 public final class PacketOpenDashboardScreen extends PacketDataBase {
@@ -40,6 +40,6 @@ public final class PacketOpenDashboardScreen extends PacketDataBase {
 	}
 
 	public static void create(PlayerEntity playerEntity, TransportMode transportMode) {
-		sendHttpDataRequest(IntegrationServlet.Operation.LIST, new Integration(new Data()), integration -> Registry.sendPacketToClient(ServerPlayerEntity.cast(playerEntity), new PacketOpenDashboardScreen(integration, transportMode, false)));
+		sendHttpDataRequest(IntegrationServlet.Operation.LIST, new Integration(new Data()), integration -> Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(playerEntity), new PacketOpenDashboardScreen(integration, transportMode, false)));
 	}
 }

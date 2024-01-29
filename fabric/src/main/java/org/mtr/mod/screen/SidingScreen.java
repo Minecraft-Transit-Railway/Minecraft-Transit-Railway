@@ -8,9 +8,9 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.Icons;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.RailType;
 import org.mtr.mod.packet.PacketData;
@@ -155,7 +155,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 		}
 		savedRailBase.setAcceleration(accelerationConstant);
 
-		RegistryClient.sendPacketToServer(PacketData.fromSidings(IntegrationServlet.Operation.UPDATE, ObjectSet.of(savedRailBase)));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromSidings(IntegrationServlet.Operation.UPDATE, ObjectSet.of(savedRailBase)));
 
 		super.onClose2();
 	}

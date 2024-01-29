@@ -3,9 +3,9 @@ package org.mtr.mod.block;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.BlockEntityTypes;
+import org.mtr.mod.Init;
 import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
 
 import javax.annotation.Nonnull;
@@ -36,7 +36,7 @@ public class BlockRailwaySign extends BlockExtension implements IBlock, Directio
 			if (hitSide == facing || hitSide == facing.getOpposite()) {
 				final BlockPos checkPos = findEndWithDirection(world, pos, hitSide.getOpposite(), false);
 				if (checkPos != null) {
-					Registry.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(checkPos));
+					Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(checkPos));
 				}
 			}
 		});

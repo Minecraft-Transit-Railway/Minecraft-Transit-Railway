@@ -1,19 +1,18 @@
 package org.mtr.mod;
 
 import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.registry.SoundEventRegistryObject;
 
 public final class SoundEvents {
 
 	static {
-		TICKET_BARRIER = Registry.registerSoundEvent(new Identifier(Init.MOD_ID, "ticket_barrier"));
-		TICKET_BARRIER_CONCESSIONARY = Registry.registerSoundEvent(new Identifier(Init.MOD_ID, "ticket_barrier_concessionary"));
-		TICKET_PROCESSOR_ENTRY = Registry.registerSoundEvent(new Identifier(Init.MOD_ID, "ticket_processor_entry"));
-		TICKET_PROCESSOR_ENTRY_CONCESSIONARY = Registry.registerSoundEvent(new Identifier(Init.MOD_ID, "ticket_processor_entry_concessionary"));
-		TICKET_PROCESSOR_EXIT = Registry.registerSoundEvent(new Identifier(Init.MOD_ID, "ticket_processor_exit"));
-		TICKET_PROCESSOR_EXIT_CONCESSIONARY = Registry.registerSoundEvent(new Identifier(Init.MOD_ID, "ticket_processor_exit_concessionary"));
-		TICKET_PROCESSOR_FAIL = Registry.registerSoundEvent(new Identifier(Init.MOD_ID, "ticket_processor_fail"));
+		TICKET_BARRIER = Init.REGISTRY.registerSoundEvent(new Identifier(Init.MOD_ID, "ticket_barrier"));
+		TICKET_BARRIER_CONCESSIONARY = Init.REGISTRY.registerSoundEvent(new Identifier(Init.MOD_ID, "ticket_barrier_concessionary"));
+		TICKET_PROCESSOR_ENTRY = Init.REGISTRY.registerSoundEvent(new Identifier(Init.MOD_ID, "ticket_processor_entry"));
+		TICKET_PROCESSOR_ENTRY_CONCESSIONARY = Init.REGISTRY.registerSoundEvent(new Identifier(Init.MOD_ID, "ticket_processor_entry_concessionary"));
+		TICKET_PROCESSOR_EXIT = Init.REGISTRY.registerSoundEvent(new Identifier(Init.MOD_ID, "ticket_processor_exit"));
+		TICKET_PROCESSOR_EXIT_CONCESSIONARY = Init.REGISTRY.registerSoundEvent(new Identifier(Init.MOD_ID, "ticket_processor_exit_concessionary"));
+		TICKET_PROCESSOR_FAIL = Init.REGISTRY.registerSoundEvent(new Identifier(Init.MOD_ID, "ticket_processor_fail"));
 	}
 
 	public static final SoundEventRegistryObject TICKET_BARRIER;

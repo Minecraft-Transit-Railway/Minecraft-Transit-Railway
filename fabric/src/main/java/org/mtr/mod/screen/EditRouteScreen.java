@@ -10,9 +10,9 @@ import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.holder.Text;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.Init;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.IPacket;
@@ -118,7 +118,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 			data.setCircularState(Route.CircularState.NONE);
 		}
 
-		RegistryClient.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(data)));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(data)));
 	}
 
 	private void setRouteType(Route route, RouteType newRouteType) {

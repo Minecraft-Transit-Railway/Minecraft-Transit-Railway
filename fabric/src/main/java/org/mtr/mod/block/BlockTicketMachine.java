@@ -1,8 +1,8 @@
 package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.Init;
 import org.mtr.mod.data.TicketSystem;
 import org.mtr.mod.packet.PacketOpenTicketMachineScreen;
 
@@ -19,7 +19,7 @@ public class BlockTicketMachine extends BlockDirectionalDoubleBlockBase {
 	@Override
 	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		if (!world.isClient()) {
-			Registry.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenTicketMachineScreen(TicketSystem.getBalance(world, player)));
+			Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenTicketMachineScreen(TicketSystem.getBalance(world, player)));
 		}
 		return ActionResult.SUCCESS;
 	}

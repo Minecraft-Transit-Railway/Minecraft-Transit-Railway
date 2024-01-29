@@ -9,7 +9,7 @@ import org.mtr.mapping.holder.MinecraftServer;
 import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.registry.PacketHandler;
-import org.mtr.mapping.registry.Registry;
+import org.mtr.mod.Init;
 
 import javax.annotation.Nullable;
 
@@ -55,7 +55,7 @@ public abstract class PacketRequestResponseBase<T extends SerializedDataBase> ex
 			PacketData.sendHttpRequest(getEndpoint(), Utilities.getJsonObjectFromData(request), data -> {
 				final PacketRequestResponseBase<T> newInstance = createInstance(Response.create(data));
 				if (newInstance != null) {
-					Registry.sendPacketToClient(serverPlayerEntity, newInstance);
+					Init.REGISTRY.sendPacketToClient(serverPlayerEntity, newInstance);
 				}
 			});
 		}
