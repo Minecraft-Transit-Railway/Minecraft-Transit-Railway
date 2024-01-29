@@ -21,7 +21,7 @@ public class Config
     public static final int TRAIN_RENDER_DISTANCE_RATIO_COUNT = 16;
     private static final Path CONFIG_FILE_PATH = MinecraftClient.getInstance().getRunDirectoryMapped().toPath().resolve("config").resolve("mtr.json");
 
-    public static final Property<Boolean> USE_MTR_FONT = new Property<>("use_mtr_font", false)
+    public static final Property<Boolean> USE_MTR_FONT = new Property<Boolean>("use_mtr_font", false)
     {
         @Override
         public Boolean get() {
@@ -29,19 +29,19 @@ public class Config
         }
     };
 
-    public static final Property<Boolean> SHOW_ANNOUNCEMENT_MESSAGES = new Property<>("show_announcement_messages", false);
+    public static final Property<Boolean> SHOW_ANNOUNCEMENT_MESSAGES = new Property<Boolean>("show_announcement_messages", false);
 
-    public static final Property<Boolean> USE_TTS_ANNOUNCEMENTS = new Property<>("use_tts_announcements", false);
+    public static final Property<Boolean> USE_TTS_ANNOUNCEMENTS = new Property<Boolean>("use_tts_announcements", false);
 
-    public static final Property<Boolean> HIDE_SPECIAL_RAIL_COLORS = new Property<>("hide_special_rail_colors", false);
+    public static final Property<Boolean> HIDE_SPECIAL_RAIL_COLORS = new Property<Boolean>("hide_special_rail_colors", false);
 
-    public static final Property<Boolean> HIDE_TRANSLUCENT_PARTS = new Property<>("hide_translucent_parts", false);
+    public static final Property<Boolean> HIDE_TRANSLUCENT_PARTS = new Property<Boolean>("hide_translucent_parts", false);
 
-    public static final Property<Boolean> SHIFT_TO_TOGGLE_SITTING = new Property<>("shift_to_toggle_sitting", false);
+    public static final Property<Boolean> SHIFT_TO_TOGGLE_SITTING = new Property<Boolean>("shift_to_toggle_sitting", false);
 
-    public static final Property<Boolean> USE_DYNAMIC_FPS = new Property<>("use_dynamic_fps", false);
+    public static final Property<Boolean> USE_DYNAMIC_FPS = new Property<Boolean>("use_dynamic_fps", false);
 
-    public static final Property<Integer> LANGUAGE_OPTIONS = new Property<>("language_options", 0)
+    public static final Property<Integer> LANGUAGE_OPTIONS = new Property<Integer>("language_options", 0)
     {
         @Override
         public void set(Integer value) {
@@ -49,7 +49,7 @@ public class Config
         }
     };
 
-    public static final Property<Integer> TRACK_TEXTURE_OFFSET = new Property<>("track_texture_offset", 0)
+    public static final Property<Integer> TRACK_TEXTURE_OFFSET = new Property<Integer>("track_texture_offset", 0)
     {
         @Override
         public void set(Integer value) {
@@ -57,7 +57,7 @@ public class Config
         }
     };
 
-    public static final Property<Integer> DYNAMIC_TEXTURE_RESOLUTION = new Property<>("dynamic texture resolution", 2)
+    public static final Property<Integer> DYNAMIC_TEXTURE_RESOLUTION = new Property<Integer>("dynamic texture resolution", 2)
     {
         @Override
         public void set(Integer value) {
@@ -65,7 +65,7 @@ public class Config
         }
     };
 
-    public static final Property<Integer> TRAIN_RENDER_DISTANCE_RATIO = new Property<>("rain_render_distance_ratio", 7)
+    public static final Property<Integer> TRAIN_RENDER_DISTANCE_RATIO = new Property<Integer>("rain_render_distance_ratio", 7)
     {
         @Override
         public void set(Integer value) {
