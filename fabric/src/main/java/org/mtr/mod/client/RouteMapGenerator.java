@@ -36,7 +36,7 @@ public class RouteMapGenerator implements IGui {
 	private static final int PIXEL_RESOLUTION = 24;
 
 	public static void setConstants() {
-		scale = (int) Math.pow(2, Config.dynamicTextureResolution() + 5);
+		scale = (int) Math.pow(2, Config.DYNAMIC_TEXTURE_RESOLUTION.get() + 5);
 		lineSize = scale / 8;
 		lineSpacing = lineSize * 3 / 2;
 		fontSizeBig = lineSize * 2;

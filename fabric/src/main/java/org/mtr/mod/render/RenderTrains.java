@@ -130,7 +130,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 			}
 		}
 
-		CustomResourceLoader.OPTIMIZED_RENDERER.render(!Config.hideTranslucentParts());
+		CustomResourceLoader.OPTIMIZED_RENDERER.render(!Config.HIDE_TRANSLUCENT_PARTS.get());
 	}
 
 	public static boolean shouldNotRender(BlockPos pos, @Nullable Direction facing) {
@@ -179,7 +179,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 				playerFacingAway = Math.signum(playerZOffset) == facing.getOffsetZ() && Math.abs(playerZOffset) >= 0.5;
 			}
 		}
-		return cameraPos == null || playerFacingAway || maxDistanceXZ(cameraPos, pos) > MinecraftClientHelper.getRenderDistance() * (Config.trainRenderDistanceRatio() + 1);
+		return cameraPos == null || playerFacingAway || maxDistanceXZ(cameraPos, pos) > MinecraftClientHelper.getRenderDistance() * (Config.TRAIN_RENDER_DISTANCE_RATIO.get() + 1);
 	}
 
 	public enum QueuedRenderLayer {LIGHT, INTERIOR, EXTERIOR, LIGHT_TRANSLUCENT, INTERIOR_TRANSLUCENT, EXTERIOR_TRANSLUCENT, LINES, TEXT}
