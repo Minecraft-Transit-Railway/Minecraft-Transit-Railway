@@ -44,7 +44,6 @@ public final class ClientData extends Data {
 	private static boolean pressingAccelerate = false;
 	private static boolean pressingBrake = false;
 	private static boolean pressingDoors = false;
-	private static float shiftHoldingTicks = 0;
 
 	private static final int CACHED_ARRIVAL_REQUESTS_MILLIS = 3000;
 
@@ -113,14 +112,6 @@ public final class ClientData extends Data {
 		pressingAccelerate = tempPressingAccelerate;
 		pressingBrake = tempPressingBrake;
 		pressingDoors = tempPressingDoors;
-
-		if (clientPlayerEntity != null) {
-			if (clientPlayerEntity.isSneaking()) {
-				shiftHoldingTicks += minecraftClient.getLastFrameDuration();
-			} else {
-				shiftHoldingTicks = 0;
-			}
-		}
 	}
 
 	public static boolean hasPermission() {
@@ -149,10 +140,6 @@ public final class ClientData extends Data {
 			}
 		}
 		return null;
-	}
-
-	public static float getShiftHoldingTicks() {
-		return shiftHoldingTicks;
 	}
 
 	public static Rail getRail(BlockPos blockPos1, BlockPos blockPos2) {

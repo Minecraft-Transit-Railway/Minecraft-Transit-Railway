@@ -43,7 +43,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 					} else {
 						neighborState = state;
 					}
-					playerEntity.sendMessage(new Text(TextHelper.translatable("tooltip.mtr.selected_material", TextHelper.translatable(neighborState.getBlock().getTranslationKey())).data), true);
+					playerEntity.sendMessage(new Text(TextHelper.translatable("tooltip.mtr.selected_material", TextHelper.translatable(neighborState.getBlock().getTranslationKey()).getString()).data), true);
 					final CompoundTag compoundTag = context.getStack().getOrCreateTag();
 					compoundTag.putInt(TAG_BLOCK_ID, Block.getRawIdFromState(neighborState));
 					return ActionResult.SUCCESS;
@@ -67,7 +67,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 			for (String text : textSplit) {
 				tooltip.add(TextHelper.literal(text).formatted(TextFormatting.GRAY).formatted(TextFormatting.ITALIC));
 			}
-			tooltip.add(TextHelper.translatable("tooltip.mtr.selected_material", TextHelper.translatable(state.getBlock().getTranslationKey()).data).formatted(TextFormatting.GREEN));
+			tooltip.add(TextHelper.translatable("tooltip.mtr.selected_material", TextHelper.translatable(state.getBlock().getTranslationKey()).getString()).formatted(TextFormatting.GREEN));
 		}
 
 		super.addTooltips(stack, world, tooltip, options);
