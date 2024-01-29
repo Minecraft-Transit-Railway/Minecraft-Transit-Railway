@@ -108,10 +108,10 @@ public class DynamicTextureCache implements IGui {
 		final boolean oneRow = horizontalAlignment == null;
 		final String[] defaultTextSplit = IGui.textOrUntitled(text).split("\\|");
 		final String[] textSplit;
-		if (Config.languageOptions() == 0) {
+		if (Config.LANGUAGE_OPTIONS.get() == 0) {
 			textSplit = defaultTextSplit;
 		} else {
-			final String[] tempTextSplit = Arrays.stream(IGui.textOrUntitled(text).split("\\|")).filter(textPart -> IGui.isCjk(textPart) == (Config.languageOptions() == 1)).toArray(String[]::new);
+			final String[] tempTextSplit = Arrays.stream(IGui.textOrUntitled(text).split("\\|")).filter(textPart -> IGui.isCjk(textPart) == (Config.LANGUAGE_OPTIONS.get() == 1)).toArray(String[]::new);
 			textSplit = tempTextSplit.length == 0 ? defaultTextSplit : tempTextSplit;
 		}
 		final AttributedString[] attributedStrings = new AttributedString[textSplit.length];

@@ -13,211 +13,164 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Config {
+public class Config
+{
+    public static final List<Patreon> PATREON_LIST = new ArrayList<>();
+    public static final int TRACK_OFFSET_COUNT = 32;
+    public static final int DYNAMIC_RESOLUTION_COUNT = 8;
+    public static final int TRAIN_RENDER_DISTANCE_RATIO_COUNT = 16;
+    private static final Path CONFIG_FILE_PATH = MinecraftClient.getInstance().getRunDirectoryMapped().toPath().resolve("config").resolve("mtr.json");
 
-	private static boolean useMTRFont;
-	private static boolean showAnnouncementMessages;
-	private static boolean useTTSAnnouncements;
-	private static boolean hideSpecialRailColors;
-	private static boolean hideTranslucentParts;
-	private static boolean shiftToToggleSitting;
-	private static int languageOptions;
-	private static boolean useDynamicFPS = true;
-	private static int trackTextureOffset;
-	private static int dynamicTextureResolution = 2;
-	private static int trainRenderDistanceRatio = 7;
+    public static final Property<Boolean> USE_MTR_FONT = new Property<>("use_mtr_font", false)
+    {
+        @Override
+        public Boolean get() {
+            return false; // TODO no fancy font rendering
+        }
+    };
 
-	public static final List<Patreon> PATREON_LIST = new ArrayList<>();
-	public static final int TRACK_OFFSET_COUNT = 32;
-	public static final int DYNAMIC_RESOLUTION_COUNT = 8;
-	public static final int TRAIN_RENDER_DISTANCE_RATIO_COUNT = 16;
-	private static final Path CONFIG_FILE_PATH = MinecraftClient.getInstance().getRunDirectoryMapped().toPath().resolve("config").resolve("mtr.json");
-	private static final String USE_MTR_FONT_KEY = "use_mtr_font";
-	private static final String SHOW_ANNOUNCEMENT_MESSAGES = "show_announcement_messages";
-	private static final String HIDE_SPECIAL_RAIL_COLORS = "hide_special_rail_colors";
-	private static final String HIDE_TRANSLUCENT_PARTS = "hide_translucent_parts";
-	private static final String SHIFT_TO_TOGGLE_SITTING = "shift_to_toggle_sitting";
-	private static final String LANGUAGE_OPTIONS = "language_options";
-	private static final String USE_TTS_ANNOUNCEMENTS = "use_tts_announcements";
-	private static final String TRACK_TEXTURE_OFFSET = "track_texture_offset";
-	private static final String DYNAMIC_TEXTURE_RESOLUTION = "dynamic texture resolution";
-	private static final String TRAIN_RENDER_DISTANCE_RATIO = "train_render_distance_ratio";
+    public static final Property<Boolean> SHOW_ANNOUNCEMENT_MESSAGES = new Property<>("show_announcement_messages", false);
 
-	public static boolean useMTRFont() {
-		return false; // TODO no fancy font rendering
-	}
+    public static final Property<Boolean> USE_TTS_ANNOUNCEMENTS = new Property<>("use_tts_announcements", false);
 
-	public static boolean showAnnouncementMessages() {
-		return showAnnouncementMessages;
-	}
+    public static final Property<Boolean> HIDE_SPECIAL_RAIL_COLORS = new Property<>("hide_special_rail_colors", false);
 
-	public static boolean useTTSAnnouncements() {
-		return useTTSAnnouncements;
-	}
+    public static final Property<Boolean> HIDE_TRANSLUCENT_PARTS = new Property<>("hide_translucent_parts", false);
 
-	public static boolean hideTranslucentParts() {
-		return hideTranslucentParts;
-	}
+    public static final Property<Boolean> SHIFT_TO_TOGGLE_SITTING = new Property<>("shift_to_toggle_sitting", false);
 
-	public static boolean shiftToToggleSitting() {
-		return shiftToToggleSitting;
-	}
+    public static final Property<Boolean> USE_DYNAMIC_FPS = new Property<>("use_dynamic_fps", false);
 
-	public static int languageOptions() {
-		return languageOptions;
-	}
+    public static final Property<Integer> LANGUAGE_OPTIONS = new Property<>("language_options", 0)
+    {
+        @Override
+        public void set(Integer value) {
+            this.value = value % 3;
+        }
+    };
 
-	public static boolean hideSpecialRailColors() {
-		return hideSpecialRailColors;
-	}
+    public static final Property<Integer> TRACK_TEXTURE_OFFSET = new Property<>("track_texture_offset", 0)
+    {
+        @Override
+        public void set(Integer value) {
+            this.value = MathHelper.clamp(value, 0, TRACK_OFFSET_COUNT - 1);
+        }
+    };
 
-	public static boolean useDynamicFPS() {
-		return useDynamicFPS;
-	}
+    public static final Property<Integer> DYNAMIC_TEXTURE_RESOLUTION = new Property<>("dynamic texture resolution", 2)
+    {
+        @Override
+        public void set(Integer value) {
+            this.value = MathHelper.clamp(value, 0, DYNAMIC_RESOLUTION_COUNT - 1);
+        }
+    };
 
-	public static int trackTextureOffset() {
-		return trackTextureOffset;
-	}
+    public static final Property<Integer> TRAIN_RENDER_DISTANCE_RATIO = new Property<>("rain_render_distance_ratio", 7)
+    {
+        @Override
+        public void set(Integer value) {
+            this.value = MathHelper.clamp(value, 0, TRAIN_RENDER_DISTANCE_RATIO_COUNT - 1);
+        }
+    };
 
-	public static int dynamicTextureResolution() {
-		return dynamicTextureResolution;
-	}
+    public static void refreshProperties() {
+        Init.LOGGER.info("Refreshed Minecraft Transit Railway mod config");
+        try {
+            final JsonObject jsonConfig = Utilities.parseJson(String.join("", Files.readAllLines(CONFIG_FILE_PATH)));
+            try {
+                USE_MTR_FONT.set(jsonConfig.get(USE_MTR_FONT.getId()).getAsBoolean());
+            } catch (Exception ignored) {
+            }
+            try {
+                SHOW_ANNOUNCEMENT_MESSAGES.set(jsonConfig.get(SHOW_ANNOUNCEMENT_MESSAGES.getId()).getAsBoolean());
+            } catch (Exception ignored) {
+            }
+            try {
+                USE_TTS_ANNOUNCEMENTS.set(jsonConfig.get(USE_TTS_ANNOUNCEMENTS.getId()).getAsBoolean());
+            } catch (Exception ignored) {
+            }
+            try {
+                HIDE_SPECIAL_RAIL_COLORS.set(jsonConfig.get(HIDE_SPECIAL_RAIL_COLORS.getId()).getAsBoolean());
+            } catch (Exception ignored) {
+            }
+            try {
+                HIDE_TRANSLUCENT_PARTS.set(jsonConfig.get(HIDE_TRANSLUCENT_PARTS.getId()).getAsBoolean());
+            } catch (Exception ignored) {
+            }
+            try {
+                SHIFT_TO_TOGGLE_SITTING.set(jsonConfig.get(SHIFT_TO_TOGGLE_SITTING.getId()).getAsBoolean());
+            } catch (Exception ignored) {
+            }
+            try {
+                LANGUAGE_OPTIONS.set(jsonConfig.get(LANGUAGE_OPTIONS.getId()).getAsInt());
+            } catch (Exception ignored) {
+            }
+            try {
+                TRACK_TEXTURE_OFFSET.set(jsonConfig.get(TRACK_TEXTURE_OFFSET.getId()).getAsInt());
+            } catch (Exception ignored) {
+            }
+            try {
+                DYNAMIC_TEXTURE_RESOLUTION.set(jsonConfig.get(DYNAMIC_TEXTURE_RESOLUTION.getId()).getAsInt());
+            } catch (Exception ignored) {
+            }
+            try {
+                TRAIN_RENDER_DISTANCE_RATIO.set(jsonConfig.get(TRAIN_RENDER_DISTANCE_RATIO.getId()).getAsInt());
+            } catch (Exception ignored) {
+            }
+        } catch (Exception e) {
+            writeToFile();
+            Init.logException(e);
+        }
+    }
 
-	public static int trainRenderDistanceRatio() {
-		return trainRenderDistanceRatio;
-	}
+    private static void writeToFile() {
+        Init.LOGGER.info("Wrote Minecraft Transit Railway mod config to file");
+        final JsonObject jsonConfig = new JsonObject();
+        jsonConfig.addProperty(USE_MTR_FONT.getId(), USE_MTR_FONT.get());
+        jsonConfig.addProperty(SHOW_ANNOUNCEMENT_MESSAGES.getId(), SHOW_ANNOUNCEMENT_MESSAGES.get());
+        jsonConfig.addProperty(USE_TTS_ANNOUNCEMENTS.getId(), USE_TTS_ANNOUNCEMENTS.get());
+        jsonConfig.addProperty(HIDE_SPECIAL_RAIL_COLORS.getId(), HIDE_SPECIAL_RAIL_COLORS.get());
+        jsonConfig.addProperty(HIDE_TRANSLUCENT_PARTS.getId(), HIDE_TRANSLUCENT_PARTS.get());
+        jsonConfig.addProperty(SHIFT_TO_TOGGLE_SITTING.getId(), SHIFT_TO_TOGGLE_SITTING.get());
+        jsonConfig.addProperty(LANGUAGE_OPTIONS.getId(), LANGUAGE_OPTIONS.get());
+        jsonConfig.addProperty(TRACK_TEXTURE_OFFSET.getId(), TRACK_TEXTURE_OFFSET.get());
+        jsonConfig.addProperty(DYNAMIC_TEXTURE_RESOLUTION.getId(), DYNAMIC_TEXTURE_RESOLUTION.get());
+        jsonConfig.addProperty(TRAIN_RENDER_DISTANCE_RATIO.getId(), TRAIN_RENDER_DISTANCE_RATIO.get());
 
-	public static boolean setUseMTRFont(boolean value) {
-		useMTRFont = value;
-		writeToFile();
-		return useMTRFont;
-	}
+        try {
+            Files.write(CONFIG_FILE_PATH, Collections.singleton(Utilities.prettyPrint(jsonConfig)));
+        } catch (Exception e) {
+            Init.logException(e);
+        }
+    }
 
-	public static boolean setShowAnnouncementMessages(boolean value) {
-		showAnnouncementMessages = value;
-		writeToFile();
-		return showAnnouncementMessages;
-	}
+    public static class Property<T>
+    {
+        protected T value;
+        protected final T defaultValue;
+        protected final String id;
 
-	public static boolean setUseTTSAnnouncements(boolean value) {
-		useTTSAnnouncements = value;
-		writeToFile();
-		return useTTSAnnouncements;
-	}
+        public Property(String id, T defaultValue) {
+            this.id = id;
+            this.value = defaultValue;
+            this.defaultValue = defaultValue;
+        }
 
-	public static boolean setHideSpecialRailColors(boolean value) {
-		hideSpecialRailColors = value;
-		writeToFile();
-		return hideSpecialRailColors;
-	}
+        public String getId() {
+            return id;
+        }
 
-	public static boolean setHideTranslucentParts(boolean value) {
-		hideTranslucentParts = value;
-		writeToFile();
-		return hideTranslucentParts;
-	}
+        public T get() {
+            return value;
+        }
 
-	public static boolean setShiftToToggleSitting(boolean value) {
-		shiftToToggleSitting = value;
-		writeToFile();
-		return shiftToToggleSitting;
-	}
+        public void set(T value) {
+            this.value = value;
+            writeToFile();
+        }
 
-	public static int setLanguageOptions(int value) {
-		languageOptions = value % 3;
-		writeToFile();
-		return languageOptions;
-	}
-
-	public static boolean setUseDynamicFPS(boolean value) {
-		useDynamicFPS = value;
-		writeToFile();
-		return useDynamicFPS;
-	}
-
-	public static void setTrackTextureOffset(int value) {
-		trackTextureOffset = MathHelper.clamp(value, 0, TRACK_OFFSET_COUNT - 1);
-		writeToFile();
-	}
-
-	public static void setDynamicTextureResolution(int value) {
-		dynamicTextureResolution = MathHelper.clamp(value, 0, DYNAMIC_RESOLUTION_COUNT - 1);
-		writeToFile();
-	}
-
-	public static void setTrainRenderDistanceRatio(int value) {
-		trainRenderDistanceRatio = MathHelper.clamp(value, 0, TRAIN_RENDER_DISTANCE_RATIO_COUNT - 1);
-		writeToFile();
-	}
-
-	public static void refreshProperties() {
-		Init.LOGGER.info("Refreshed Minecraft Transit Railway mod config");
-		try {
-			final JsonObject jsonConfig = Utilities.parseJson(String.join("", Files.readAllLines(CONFIG_FILE_PATH)));
-			try {
-				useMTRFont = jsonConfig.get(USE_MTR_FONT_KEY).getAsBoolean();
-			} catch (Exception ignored) {
-			}
-			try {
-				showAnnouncementMessages = jsonConfig.get(SHOW_ANNOUNCEMENT_MESSAGES).getAsBoolean();
-			} catch (Exception ignored) {
-			}
-			try {
-				useTTSAnnouncements = jsonConfig.get(USE_TTS_ANNOUNCEMENTS).getAsBoolean();
-			} catch (Exception ignored) {
-			}
-			try {
-				hideSpecialRailColors = jsonConfig.get(HIDE_SPECIAL_RAIL_COLORS).getAsBoolean();
-			} catch (Exception ignored) {
-			}
-			try {
-				hideTranslucentParts = jsonConfig.get(HIDE_TRANSLUCENT_PARTS).getAsBoolean();
-			} catch (Exception ignored) {
-			}
-			try {
-				shiftToToggleSitting = jsonConfig.get(SHIFT_TO_TOGGLE_SITTING).getAsBoolean();
-			} catch (Exception ignored) {
-			}
-			try {
-				languageOptions = jsonConfig.get(LANGUAGE_OPTIONS).getAsInt() % 3;
-			} catch (Exception ignored) {
-			}
-			try {
-				trackTextureOffset = MathHelper.clamp(jsonConfig.get(TRACK_TEXTURE_OFFSET).getAsInt(), 0, TRACK_OFFSET_COUNT - 1);
-			} catch (Exception ignored) {
-			}
-			try {
-				dynamicTextureResolution = MathHelper.clamp(jsonConfig.get(DYNAMIC_TEXTURE_RESOLUTION).getAsInt(), 0, DYNAMIC_RESOLUTION_COUNT - 1);
-			} catch (Exception ignored) {
-			}
-			try {
-				trainRenderDistanceRatio = MathHelper.clamp(jsonConfig.get(TRAIN_RENDER_DISTANCE_RATIO).getAsInt(), 0, TRAIN_RENDER_DISTANCE_RATIO_COUNT - 1);
-			} catch (Exception ignored) {
-			}
-		} catch (Exception e) {
-			writeToFile();
-			Init.logException(e);
-		}
-	}
-
-	private static void writeToFile() {
-		Init.LOGGER.info("Wrote Minecraft Transit Railway mod config to file");
-		final JsonObject jsonConfig = new JsonObject();
-		jsonConfig.addProperty(USE_MTR_FONT_KEY, useMTRFont);
-		jsonConfig.addProperty(SHOW_ANNOUNCEMENT_MESSAGES, showAnnouncementMessages);
-		jsonConfig.addProperty(USE_TTS_ANNOUNCEMENTS, useTTSAnnouncements);
-		jsonConfig.addProperty(HIDE_SPECIAL_RAIL_COLORS, hideSpecialRailColors);
-		jsonConfig.addProperty(HIDE_TRANSLUCENT_PARTS, hideTranslucentParts);
-		jsonConfig.addProperty(SHIFT_TO_TOGGLE_SITTING, shiftToToggleSitting);
-		jsonConfig.addProperty(LANGUAGE_OPTIONS, languageOptions);
-		jsonConfig.addProperty(TRACK_TEXTURE_OFFSET, trackTextureOffset);
-		jsonConfig.addProperty(DYNAMIC_TEXTURE_RESOLUTION, dynamicTextureResolution);
-		jsonConfig.addProperty(TRAIN_RENDER_DISTANCE_RATIO, trainRenderDistanceRatio);
-
-		try {
-			Files.write(CONFIG_FILE_PATH, Collections.singleton(Utilities.prettyPrint(jsonConfig)));
-		} catch (Exception e) {
-			Init.logException(e);
-		}
-	}
+        public T getDefault() {
+            return defaultValue;
+        }
+    }
 }

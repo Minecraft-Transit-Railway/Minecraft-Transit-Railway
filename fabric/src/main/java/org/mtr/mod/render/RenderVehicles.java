@@ -173,7 +173,7 @@ public class RenderVehicles implements IGui {
 	}
 
 	public static boolean useOptimizedRendering() {
-		return Config.useDynamicFPS() && OptimizedRenderer.hasOptimizedRendering();
+		return Config.USE_DYNAMIC_FPS.get() && OptimizedRenderer.hasOptimizedRendering();
 	}
 
 	private static void renderConnection(

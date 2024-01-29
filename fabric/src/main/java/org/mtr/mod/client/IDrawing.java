@@ -25,7 +25,7 @@ public interface IDrawing {
 	}
 
 	static void drawStringWithFont(GraphicsHolder graphicsHolder, String text, IGui.HorizontalAlignment horizontalAlignment, IGui.VerticalAlignment verticalAlignment, IGui.HorizontalAlignment xAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColorCjk, int textColor, float fontSizeRatio, boolean shadow, int light, @Nullable DrawingCallback drawingCallback) {
-		final Style style = Config.useMTRFont() ? Style.getEmptyMapped().withFont(new Identifier(Init.MOD_ID, "mtr")) : Style.getEmptyMapped();
+		final Style style = Config.USE_MTR_FONT.get() ? Style.getEmptyMapped().withFont(new Identifier(Init.MOD_ID, "mtr")) : Style.getEmptyMapped();
 
 		while (text.contains("||")) {
 			text = text.replace("||", "|");
@@ -165,10 +165,10 @@ public interface IDrawing {
 	static void narrateOrAnnounce(String message) {
 		String newMessage = IGui.formatStationName(message).replace("  ", " ");
 		if (!newMessage.isEmpty()) {
-			if (Config.useTTSAnnouncements()) {
+			if (Config.USE_TTS_ANNOUNCEMENTS.get()) {
 				Narrator.getNarrator().say(newMessage, true);
 			}
-			if (Config.showAnnouncementMessages()) {
+			if (Config.SHOW_ANNOUNCEMENT_MESSAGES.get()) {
 				final ClientPlayerEntity player = MinecraftClient.getInstance().getPlayerMapped();
 				if (player != null) {
 					player.sendMessage(new Text(TextHelper.literal(newMessage).data), false);
