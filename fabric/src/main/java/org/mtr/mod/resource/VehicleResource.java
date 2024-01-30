@@ -11,7 +11,6 @@ import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.generated.resource.VehicleResourceSchema;
@@ -19,7 +18,6 @@ import org.mtr.mod.render.DynamicVehicleModel;
 import org.mtr.mod.render.RenderTrains;
 import org.mtr.mod.render.StoredMatrixTransformations;
 
-import java.util.Locale;
 import java.util.function.Consumer;
 
 public final class VehicleResource extends VehicleResourceSchema {
@@ -50,10 +48,6 @@ public final class VehicleResource extends VehicleResourceSchema {
 		optimizedModelsDoorsClosed = writeToOptimizedModels(materialGroupsModelDoorsClosed);
 		optimizedModelsBogie1 = writeToOptimizedModels(materialGroupsBogie1Model);
 		optimizedModelsBogie2 = writeToOptimizedModels(materialGroupsBogie2Model);
-	}
-
-	public void print() {
-		Init.LOGGER.info(String.format("%s:%s", transportMode.toString().toLowerCase(Locale.ENGLISH), id));
 	}
 
 	public void queue(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, ObjectArrayList<Box> openDoorways) {

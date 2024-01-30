@@ -27,6 +27,7 @@ import org.mtr.mapping.tool.DummyClass;
 import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.packet.*;
 
+import java.net.ServerSocket;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -36,6 +37,7 @@ public final class Init implements Utilities {
 
 	private static Main main;
 	private static Socket socket;
+	private static int port;
 	private static Runnable sendWorldTimeUpdate;
 	private static int serverTick;
 
@@ -95,11 +97,12 @@ public final class Init implements Utilities {
 				PLAYERS_TO_UPDATE.put(identifier, new IntObjectImmutablePair<>(index[0], new ObjectArraySet<>()));
 				index[0]++;
 			});
-			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), 8888, worldNames.toArray(new String[0]));
+			setFreePort();
+			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), port, worldNames.toArray(new String[0]));
 
 			// Set up the socket
 			try {
-				socket = IO.socket("http://localhost:8888").connect();
+				socket = IO.socket("http://localhost:" + port).connect();
 				socket.on(CHANNEL, args -> {
 					final JsonObject responseObject = Utilities.parseJson(args[0].toString());
 					responseObject.keySet().forEach(playerUuid -> {
@@ -175,6 +178,10 @@ public final class Init implements Utilities {
 		}
 	}
 
+	public static int getPort() {
+		return port;
+	}
+
 	public static BlockPos positionToBlockPos(Position position) {
 		return new BlockPos((int) position.getX(), (int) position.getY(), (int) position.getZ());
 	}
@@ -189,6 +196,17 @@ public final class Init implements Utilities {
 
 	public static void logException(Exception e) {
 		LOGGER.log(Level.INFO, e.getMessage(), e);
+	}
+
+	private static void setFreePort() {
+		for (int i = 8888; i <= 65535; i++) {
+			try (final ServerSocket serverSocket = new ServerSocket(i)) {
+				port = serverSocket.getLocalPort();
+				LOGGER.log(Level.INFO, "Found available port: " + port);
+				return;
+			} catch (Exception ignored) {
+			}
+		}
 	}
 
 	private static class ClientGroupNew extends ClientGroupSchema {

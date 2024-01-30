@@ -25,7 +25,7 @@ public final class ClientPacketHelper {
 				openScreen(new TrainScheduleSensorScreen(blockPos), screenExtension -> screenExtension instanceof TrainScheduleSensorScreen);
 			} else if (blockEntity.data instanceof BlockTrainSensorBase.BlockEntityBase) {
 				openScreen(new TrainBasicSensorScreen(blockPos), screenExtension -> screenExtension instanceof TrainBasicSensorScreen);
-			} else if (blockEntity.data instanceof BlockRailwaySign.BlockEntity) {
+			} else if (blockEntity.data instanceof BlockRailwaySign.BlockEntity || blockEntity.data instanceof BlockRouteSignBase.BlockEntityBase) {
 				openScreen(new RailwaySignScreen(blockPos), screenExtension -> screenExtension instanceof RailwaySignScreen);
 			} else if (blockEntity.data instanceof BlockLiftTrackFloor.BlockEntity) {
 				openScreen(new LiftTrackFloorScreen(blockPos), screenExtension -> screenExtension instanceof LiftTrackFloorScreen);

@@ -157,7 +157,7 @@ public abstract class PacketDataBase extends PacketHandler {
 
 	public static void sendHttpRequest(String endpoint, JsonObject contentObject, Consumer<JsonObject> consumer) {
 		try {
-			final HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8888/mtr/api/" + endpoint).openConnection();
+			final HttpURLConnection connection = (HttpURLConnection) new URL(String.format("http://localhost:%s/mtr/api/%s", Init.getPort(), endpoint)).openConnection();
 			connection.setRequestMethod("POST");
 			connection.setRequestProperty("content-type", "application/json");
 			connection.setDoOutput(true);
