@@ -4,7 +4,6 @@ import org.mtr.core.serializer.ReaderBase;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mod.Init;
 import org.mtr.mod.generated.resource.SignResourceSchema;
 
 public final class SignResource extends SignResourceSchema {
@@ -15,10 +14,6 @@ public final class SignResource extends SignResourceSchema {
 		super(readerBase);
 		updateData(readerBase);
 		hasCustomText = !customText.isEmpty();
-	}
-
-	public void print() {
-		Init.LOGGER.info(String.format("%s %s", id, customText.isEmpty() ? "" : String.format("(%s)", getCustomText().getString())));
 	}
 
 	public String getId() {

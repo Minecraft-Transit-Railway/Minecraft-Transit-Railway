@@ -224,7 +224,9 @@ public class ConfigScreen extends ScreenExtension implements IGui {
 		Config.setTrackTextureOffset(sliderTrackTextureOffset.getIntValue());
 		Config.setDynamicTextureResolution(sliderDynamicTextureResolution.getIntValue());
 		Config.setTrainRenderDistanceRatio(sliderTrainRenderDistanceRatio.getIntValue());
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketRequestData(true));
+		if (MinecraftClient.getInstance().getWorldMapped() != null) {
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketRequestData(true));
+		}
 	}
 
 	private static void setButtonText(ButtonWidget button, boolean state) {

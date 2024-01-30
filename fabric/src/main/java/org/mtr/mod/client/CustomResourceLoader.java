@@ -64,9 +64,7 @@ public class CustomResourceLoader {
 
 		OPTIMIZED_RENDERER.finishReload();
 		Init.LOGGER.info("Loaded " + VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum) + " vehicle(s)");
-		VEHICLES.forEach((transportMode, vehicleResources) -> vehicleResources.forEach(VehicleResource::print));
 		Init.LOGGER.info("Loaded " + SIGNS.size() + " sign(s)");
-		SIGNS.forEach(SignResource::print);
 	}
 
 	public static void iterateVehicles(TransportMode transportMode, Consumer<VehicleResource> consumer) {
