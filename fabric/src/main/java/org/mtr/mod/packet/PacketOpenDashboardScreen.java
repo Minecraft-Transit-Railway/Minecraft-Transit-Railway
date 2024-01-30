@@ -9,7 +9,6 @@ import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.holder.PlayerEntity;
 import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mod.Init;
-import org.mtr.mod.screen.DashboardScreen;
 
 public final class PacketOpenDashboardScreen extends PacketDataBase {
 
@@ -36,7 +35,7 @@ public final class PacketOpenDashboardScreen extends PacketDataBase {
 	@Override
 	public void runClientQueued() {
 		super.runClientQueued();
-		IPacket.openScreen(new DashboardScreen(transportMode, useTimeAndWindSync), screenExtension -> screenExtension instanceof DashboardScreen);
+		ClientPacketHelper.openDashboardScreen(transportMode, useTimeAndWindSync);
 	}
 
 	public static void create(PlayerEntity playerEntity, TransportMode transportMode) {

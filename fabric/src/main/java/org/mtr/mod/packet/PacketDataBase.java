@@ -1,11 +1,6 @@
 package org.mtr.mod.packet;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.apache.commons.io.IOUtils;
 import org.mtr.core.data.Data;
 import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.data.Rail;
@@ -33,6 +28,11 @@ import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.data.VehicleExtension;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -156,18 +156,20 @@ public abstract class PacketDataBase extends PacketHandler {
 	}
 
 	public static void sendHttpRequest(String endpoint, JsonObject contentObject, Consumer<JsonObject> consumer) {
-		final HttpPost request = new HttpPost("http://localhost:8888/mtr/api/" + endpoint);
-		request.addHeader("content-type", "application/json");
-
 		try {
-			request.setEntity(new StringEntity(contentObject.toString()));
-		} catch (Exception e) {
-			Init.logException(e);
-		}
+			final HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8888/mtr/api/" + endpoint).openConnection();
+			connection.setRequestMethod("POST");
+			connection.setRequestProperty("content-type", "application/json");
+			connection.setDoOutput(true);
 
-		try (final CloseableHttpClient closeableHttpClient = HttpClients.createDefault(); final CloseableHttpResponse response = closeableHttpClient.execute(request)) {
-			final String result = EntityUtils.toString(response.getEntity());
-			consumer.accept(Utilities.parseJson(result));
+			try (final OutputStream dataOutputStream = connection.getOutputStream()) {
+				dataOutputStream.write(contentObject.toString().getBytes(StandardCharsets.UTF_8));
+				dataOutputStream.flush();
+			}
+
+			try (final InputStream inputStream = connection.getInputStream()) {
+				consumer.accept(Utilities.parseJson(IOUtils.toString(inputStream, StandardCharsets.UTF_8)));
+			}
 		} catch (Exception e) {
 			Init.logException(e);
 		}

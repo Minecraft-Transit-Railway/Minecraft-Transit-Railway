@@ -13,12 +13,11 @@ import org.mtr.mapping.mapper.*;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.IPacket;
 import org.mtr.mod.packet.PacketData;
 
 import java.util.Locale;
 
-public class LiftCustomizationScreen extends ScreenExtension implements IGui, IPacket {
+public class LiftCustomizationScreen extends ScreenExtension implements IGui {
 
 	private LiftStyle liftStyle;
 	private Direction liftDirection;
