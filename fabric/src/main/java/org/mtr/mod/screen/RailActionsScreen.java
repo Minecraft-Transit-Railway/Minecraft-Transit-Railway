@@ -6,10 +6,9 @@ import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.IPacket;
 import org.mtr.mod.packet.PacketDeleteRailAction;
 
-public class RailActionsScreen extends ScreenExtension implements IGui, IPacket {
+public class RailActionsScreen extends ScreenExtension implements IGui {
 
 	private final DashboardList railActionsList;
 

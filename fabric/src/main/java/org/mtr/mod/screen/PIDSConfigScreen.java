@@ -15,14 +15,13 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockPIDSBase;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.IPacket;
 import org.mtr.mod.packet.PacketUpdatePIDSConfig;
 
 import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class PIDSConfigScreen extends ScreenExtension implements IGui, IPacket {
+public class PIDSConfigScreen extends ScreenExtension implements IGui {
 
 	private final BlockPos blockPos;
 	/**

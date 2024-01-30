@@ -2,7 +2,6 @@ package org.mtr.mod.packet;
 
 import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.registry.PacketHandler;
-import org.mtr.mod.screen.TicketMachineScreen;
 
 public final class PacketOpenTicketMachineScreen extends PacketHandler {
 
@@ -23,6 +22,6 @@ public final class PacketOpenTicketMachineScreen extends PacketHandler {
 
 	@Override
 	public void runClientQueued() {
-		IPacket.openScreen(new TicketMachineScreen(balance), screenExtension -> screenExtension instanceof TicketMachineScreen);
+		ClientPacketHelper.openTicketMachineScreen(balance);
 	}
 }

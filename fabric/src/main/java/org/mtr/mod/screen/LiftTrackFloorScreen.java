@@ -7,10 +7,9 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockLiftTrackFloor;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.IPacket;
 import org.mtr.mod.packet.PacketUpdateLiftTrackFloorConfig;
 
-public class LiftTrackFloorScreen extends ScreenExtension implements IGui, IPacket {
+public class LiftTrackFloorScreen extends ScreenExtension implements IGui {
 
 	private final TextFieldWidgetExtension textFieldFloorNumber;
 	private final TextFieldWidgetExtension textFieldFloorDescription;

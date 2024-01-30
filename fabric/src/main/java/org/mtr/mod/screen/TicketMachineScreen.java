@@ -5,10 +5,9 @@ import org.mtr.mapping.mapper.*;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.IPacket;
 import org.mtr.mod.packet.PacketAddBalance;
 
-public class TicketMachineScreen extends ScreenExtension implements IGui, IPacket {
+public class TicketMachineScreen extends ScreenExtension implements IGui {
 
 	private final ButtonWidgetExtension[] buttons = new ButtonWidgetExtension[BUTTON_COUNT];
 	private final MutableText balanceText;

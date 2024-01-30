@@ -15,10 +15,9 @@ import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.IPacket;
 import org.mtr.mod.packet.PacketData;
 
-public class EditRouteScreen extends EditNameColorScreenBase<Route> implements IGui, IPacket {
+public class EditRouteScreen extends EditNameColorScreenBase<Route> implements IGui {
 
 	private final MutableText lightRailRouteNumberText = TextHelper.translatable("gui.mtr.light_rail_route_number");
 
