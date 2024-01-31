@@ -28,8 +28,8 @@ public class BveVehicleSound extends VehicleSoundBase {
 	public BveVehicleSound(BveVehicleSoundConfig config) {
 		this.config = config;
 
-		mrPress = new Random().nextInt(config.config.mrPressMin, config.config.mrPressMax + 1);
-		isCompressorActive = new Random().nextInt(0, 20) == 0; // Currently set to 1/20 at client-side load
+		mrPress = randomInt(config.config.mrPressMin, config.config.mrPressMax + 1);
+		isCompressorActive = randomInt(0, 20) == 0; // Currently set to 1/20 at client-side load
 		isCompressorActiveLastElapsed = isCompressorActive;
 
 		createVehicleLoopingSoundHolder = () -> {
@@ -165,6 +165,10 @@ public class BveVehicleSound extends VehicleSoundBase {
 		oldSpeedChange = speedChange;
 		oldOnRoute = isOnRoute;
 		isCompressorActiveLastElapsed = isCompressorActive;
+	}
+
+	private static int randomInt(int minInclusive, int maxExclusive) {
+		return new Random().nextInt(maxExclusive - minInclusive) + minInclusive;
 	}
 
 	private static class VehicleLoopingSoundHolder {

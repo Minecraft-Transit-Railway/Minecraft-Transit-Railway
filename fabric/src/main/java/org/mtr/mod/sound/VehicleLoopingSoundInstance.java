@@ -34,7 +34,7 @@ public class VehicleLoopingSoundInstance extends MovingSoundInstanceExtension {
 	@Override
 	public void tick2() {
 		if (coolDown == 0) {
-			setDone();
+			setDone2();
 		} else {
 			coolDown--;
 		}
