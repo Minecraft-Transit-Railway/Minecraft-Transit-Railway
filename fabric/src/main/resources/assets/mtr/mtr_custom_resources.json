@@ -2388,8 +2388,7 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": true,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "a_train"
+			"bveSoundBaseResource": "a_train"
 		},
 		{
 			"id": "a_train_v1",
@@ -2459,8 +2458,7 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": true,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "a_train"
+			"bveSoundBaseResource": "a_train"
 		},
 		{
 			"id": "a_train_v2",
@@ -2530,8 +2528,7 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": false,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "a_train"
+			"bveSoundBaseResource": "a_train"
 		},
 		{
 			"id": "a_train_v3",
@@ -2601,8 +2598,7 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": false,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "a_train"
+			"bveSoundBaseResource": "a_train"
 		},
 		{
 			"id": "a_train_g",
@@ -2660,8 +2656,7 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": true,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "a_train"
+			"bveSoundBaseResource": "a_train"
 		},
 		{
 			"id": "a_train_e1",
@@ -2719,8 +2714,7 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": true,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "a_train"
+			"bveSoundBaseResource": "a_train"
 		},
 		{
 			"id": "a_train_e2",
@@ -2778,8 +2772,7 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": false,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "a_train"
+			"bveSoundBaseResource": "a_train"
 		},
 		{
 			"id": "a_train_e3",
@@ -2837,8 +2830,7 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": false,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "a_train"
+			"bveSoundBaseResource": "a_train"
 		},
 		{
 			"id": "mlr_5",
@@ -2916,7 +2908,7 @@
 			"hasGangway2": true,
 			"hasBarrier1": true,
 			"hasBarrier2": true,
-			"speedSoundCount": 120,
+			"speedSoundCount": 93,
 			"speedSoundBaseResource": "mlr"
 		},
 		{
@@ -2995,7 +2987,7 @@
 			"hasGangway2": true,
 			"hasBarrier1": false,
 			"hasBarrier2": true,
-			"speedSoundCount": 120,
+			"speedSoundCount": 93,
 			"speedSoundBaseResource": "mlr"
 		},
 		{
@@ -3074,7 +3066,7 @@
 			"hasGangway2": false,
 			"hasBarrier1": true,
 			"hasBarrier2": false,
-			"speedSoundCount": 120,
+			"speedSoundCount": 93,
 			"speedSoundBaseResource": "mlr"
 		},
 		{
@@ -3153,7 +3145,7 @@
 			"hasGangway2": false,
 			"hasBarrier1": false,
 			"hasBarrier2": false,
-			"speedSoundCount": 120,
+			"speedSoundCount": 93,
 			"speedSoundBaseResource": "mlr"
 		},
 		{

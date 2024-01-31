@@ -46,12 +46,16 @@ public class RenderVehicles implements IGui {
 
 				// Render each bogie of the car
 				iterateWithIndex(vehicleProperties.bogiePositionsList, (bogieIndex, bogiePositions) -> {
-					final RenderVehicleTransformationHelper renderVehicleTransformationHelperBogie = new RenderVehicleTransformationHelper(bogiePositions, renderVehicleTransformationHelperOffset);
+					final RenderVehicleTransformationHelper renderVehicleTransformationHelperBogie = new RenderVehicleTransformationHelper(bogiePositions, vehicleProperties.averageAbsoluteBogiePositionsList.get(bogieIndex), renderVehicleTransformationHelperOffset);
 					if (useOptimizedRendering()) {
 						RenderVehicleHelper.renderModel(renderVehicleTransformationHelperBogie, storedMatrixTransformations -> vehicleResource.queueBogie(bogieIndex, storedMatrixTransformations, vehicle, renderVehicleTransformationHelperBogie.light));
 					} else {
 						vehicleResource.iterateBogieModels(bogieIndex, model -> RenderVehicleHelper.renderModel(renderVehicleTransformationHelperBogie, storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperBogie.light, new ObjectArrayList<>())));
 					}
+
+					// Play sound
+					final Vector bogiePosition = renderVehicleTransformationHelperBogie.pivotPosition;
+					vehicle.playSound(vehicleResource, carNumber, bogieIndex, Init.newBlockPos(bogiePosition.x, bogiePosition.y, bogiePosition.z));
 				});
 
 				// Player position relative to the car

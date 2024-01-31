@@ -130,10 +130,21 @@ public class RenderVehicleHelper {
 				final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 				final ClientPlayerEntity clientPlayerEntity = minecraftClient.getGameRendererMapped().getCamera().isThirdPerson() ? null : minecraftClient.getPlayerMapped();
 				final double playerYOffset = playerRelativePosition.rotateX((float) ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.pitch).getYMapped() - playerRelativePosition.getYMapped() + (clientPlayerEntity == null ? 0 : clientPlayerEntity.getStandingEyeHeight());
-				return vehiclePropertiesList.stream().map(vehicleProperties -> new VehicleProperties(vehicleProperties.vehicleCar, vehicleProperties.bogiePositionsListNormalized.stream().map(bogiePositions -> new ObjectObjectImmutablePair<>(
-						ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.transformBackwards(bogiePositions.left(), (vector, pitch) -> vector, Vector::rotateY, Vector::add).add(-playerRelativePosition.getXMapped(), -playerRelativePosition.getYMapped() - playerYOffset, -playerRelativePosition.getZMapped()),
-						ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.transformBackwards(bogiePositions.right(), (vector, pitch) -> vector, Vector::rotateY, Vector::add).add(-playerRelativePosition.getXMapped(), -playerRelativePosition.getYMapped() - playerYOffset, -playerRelativePosition.getZMapped())
-				)).collect(Collectors.toCollection(ObjectArrayList::new)), vehicleProperties.renderVehicleTransformationHelperAbsolute, ridingVehicleProperties.renderVehicleTransformationHelperAbsolute, ridingVehicleCarNumberAndOffset.right().right())).collect(Collectors.toCollection(ObjectArrayList::new));
+
+				return vehiclePropertiesList.stream().map(vehicleProperties -> {
+					final ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>> bogiePositionsList = new ObjectArrayList<>();
+					final ObjectArrayList<Vector> averageAbsoluteBogiePositionsList = new ObjectArrayList<>();
+
+					vehicleProperties.bogiePositionsListNormalized.forEach(bogiePositions -> {
+						bogiePositionsList.add(new ObjectObjectImmutablePair<>(
+								ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.transformBackwards(bogiePositions.left(), (vector, pitch) -> vector, Vector::rotateY, Vector::add).add(-playerRelativePosition.getXMapped(), -playerRelativePosition.getYMapped() - playerYOffset, -playerRelativePosition.getZMapped()),
+								ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.transformBackwards(bogiePositions.right(), (vector, pitch) -> vector, Vector::rotateY, Vector::add).add(-playerRelativePosition.getXMapped(), -playerRelativePosition.getYMapped() - playerYOffset, -playerRelativePosition.getZMapped())
+						));
+						averageAbsoluteBogiePositionsList.add(Vector.getAverage(bogiePositions.left(), bogiePositions.right()));
+					});
+
+					return new VehicleProperties(vehicleProperties.vehicleCar, bogiePositionsList, averageAbsoluteBogiePositionsList, vehicleProperties.renderVehicleTransformationHelperAbsolute, ridingVehicleProperties.renderVehicleTransformationHelperAbsolute, ridingVehicleCarNumberAndOffset.right().right());
+				}).collect(Collectors.toCollection(ObjectArrayList::new));
 			}
 		}
 
@@ -169,6 +180,7 @@ public class RenderVehicleHelper {
 
 		public final VehicleCar vehicleCar;
 		public final ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>> bogiePositionsList;
+		public final ObjectArrayList<Vector> averageAbsoluteBogiePositionsList;
 		public final RenderVehicleTransformationHelper renderVehicleTransformationHelperAbsolute;
 		public final RenderVehicleTransformationHelper renderVehicleTransformationHelperOffset;
 		private final ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>> bogiePositionsListNormalized;
@@ -194,6 +206,9 @@ public class RenderVehicleHelper {
 				bogiePositionsListNormalized = bogiePositionsList;
 			}
 
+			averageAbsoluteBogiePositionsList = new ObjectArrayList<>();
+			bogiePositionsList.forEach(bogiePositions -> averageAbsoluteBogiePositionsList.add(Vector.getAverage(bogiePositions.left(), bogiePositions.right())));
+
 			renderVehicleTransformationHelperAbsolute = renderVehicleTransformationHelperOffset = new RenderVehicleTransformationHelper(
 					bogiePositionsListNormalized,
 					vehicleCar.getBogie1Position(),
@@ -206,9 +221,10 @@ public class RenderVehicleHelper {
 			);
 		}
 
-		private VehicleProperties(VehicleCar vehicleCar, ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>> bogiePositionsList, RenderVehicleTransformationHelper renderVehicleTransformationHelperAbsolute, RenderVehicleTransformationHelper ridingRenderVehicleTransformationHelperAbsolute, @Nullable Double ridingYawDifference) {
+		private VehicleProperties(VehicleCar vehicleCar, ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>> bogiePositionsList, ObjectArrayList<Vector> averageAbsoluteBogiePositionsList, RenderVehicleTransformationHelper renderVehicleTransformationHelperAbsolute, RenderVehicleTransformationHelper ridingRenderVehicleTransformationHelperAbsolute, @Nullable Double ridingYawDifference) {
 			this.vehicleCar = vehicleCar;
 			this.bogiePositionsListNormalized = this.bogiePositionsList = bogiePositionsList;
+			this.averageAbsoluteBogiePositionsList = averageAbsoluteBogiePositionsList;
 			this.renderVehicleTransformationHelperAbsolute = renderVehicleTransformationHelperAbsolute;
 			renderVehicleTransformationHelperOffset = new RenderVehicleTransformationHelper(
 					bogiePositionsList,
