@@ -84,12 +84,24 @@
 		"bveSoundBaseResource": {
 			"type": "string"
 		},
-		"speedSoundCount": {
+		"legacySpeedSoundBaseResource": {
+			"type": "string"
+		},
+		"legacySpeedSoundCount": {
 			"type": "integer",
 			"minimum": 1
 		},
-		"speedSoundBaseResource": {
+		"legacyUseAccelerationSoundsWhenCoasting": {
+			"type": "boolean"
+		},
+		"legacyConstantPlaybackSpeed": {
+			"type": "boolean"
+		},
+		"legacyDoorSoundBaseResource": {
 			"type": "string"
+		},
+		"legacyDoorCloseSoundTime": {
+			"type": "number"
 		}
 	},
 	"required": [
@@ -109,7 +121,11 @@
 		"hasBarrier1",
 		"hasBarrier2",
 		"bveSoundBaseResource",
-		"speedSoundCount",
-		"speedSoundBaseResource"
+		"legacySpeedSoundBaseResource",
+		"legacySpeedSoundCount",
+		"legacyUseAccelerationSoundsWhenCoasting",
+		"legacyConstantPlaybackSpeed",
+		"legacyDoorSoundBaseResource",
+		"legacyDoorCloseSoundTime"
 	]
 }

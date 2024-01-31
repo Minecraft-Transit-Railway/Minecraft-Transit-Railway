@@ -45,12 +45,6 @@
 		},
 		"doorAnimationType": {
 			"$ref": "DoorAnimationType"
-		},
-		"doorSoundBaseResource": {
-			"type": "string"
-		},
-		"doorCloseSoundTime": {
-			"type": "number"
 		}
 	},
 	"required": [
@@ -62,8 +56,6 @@
 		"displayScrollStyle",
 		"doorXMultiplier",
 		"doorZMultiplier",
-		"doorAnimationType",
-		"doorSoundBaseResource",
-		"doorCloseSoundTime"
+		"doorAnimationType"
 	]
 }

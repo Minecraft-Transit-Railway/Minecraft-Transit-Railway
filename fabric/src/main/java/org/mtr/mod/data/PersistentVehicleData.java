@@ -12,6 +12,7 @@ import org.mtr.mod.sound.VehicleSoundBase;
 public final class PersistentVehicleData {
 
 	private double doorValue;
+	private double oldDoorValue;
 	private int doorCoolDown;
 	private final ObjectArrayList<VehicleSoundBase> vehicleSoundBaseList = new ObjectArrayList<>();
 	private final ObjectArrayList<ObjectArrayList<ScrollingText>> scrollingTexts = new ObjectArrayList<>();
@@ -24,6 +25,7 @@ public final class PersistentVehicleData {
 	}
 
 	public void tick(long millisElapsed, VehicleExtraData vehicleExtraData) {
+		oldDoorValue = doorValue;
 		doorValue = Utilities.clamp(doorValue + (double) (millisElapsed * vehicleExtraData.getDoorMultiplier()) / Vehicle.DOOR_MOVE_TIME, 0, 1);
 		if (checkCanOpenDoors()) {
 			doorCoolDown--;
@@ -41,10 +43,18 @@ public final class PersistentVehicleData {
 		return doorCoolDown > 0;
 	}
 
-	public void playSound(VehicleResource vehicleResource, int carNumber, int bogieIndex, BlockPos bogiePosition, float speed, float speedChange, float acceleration, boolean isOnRoute) {
+	public void playMotorSound(VehicleResource vehicleResource, int carNumber, int bogieIndex, BlockPos bogiePosition, float speed, float speedChange, float acceleration, boolean isOnRoute) {
+		getVehicleSoundBase(vehicleResource, carNumber).playMotorSound(carNumber * 2 + bogieIndex, bogiePosition, speed, speedChange, acceleration, isOnRoute);
+	}
+
+	public void playDoorSound(VehicleResource vehicleResource, int carNumber, BlockPos vehiclePosition) {
+		getVehicleSoundBase(vehicleResource, carNumber).playDoorSound(vehiclePosition, doorValue, oldDoorValue);
+	}
+
+	private VehicleSoundBase getVehicleSoundBase(VehicleResource vehicleResource, int carNumber) {
 		while (vehicleSoundBaseList.size() <= carNumber) {
 			vehicleSoundBaseList.add(vehicleResource.createVehicleSoundBase.get());
 		}
-		vehicleSoundBaseList.get(carNumber).playSound(carNumber * 2 + bogieIndex, bogiePosition, speed, speedChange, acceleration, isOnRoute);
+		return vehicleSoundBaseList.get(carNumber);
 	}
 }
