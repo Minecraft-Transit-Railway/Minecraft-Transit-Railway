@@ -51,7 +51,7 @@ public class BveVehicleSound extends VehicleSoundBase {
 	}
 
 	@Override
-	public void playSound(int bogieIndex, BlockPos blockPos, float speed, float speedChange, float acceleration, boolean isOnRoute) {
+	public void playMotorSound(int bogieIndex, BlockPos blockPos, float speed, float speedChange, float acceleration, boolean isOnRoute) {
 		final float secondsElapsed = MinecraftClient.getInstance().getLastFrameDuration() / 20;
 		final float speedKilometersPerHour = speed * 3600;
 		final float speedMetersPerSecond = speed * 1000;
@@ -165,6 +165,16 @@ public class BveVehicleSound extends VehicleSoundBase {
 		oldSpeedChange = speedChange;
 		oldOnRoute = isOnRoute;
 		isCompressorActiveLastElapsed = isCompressorActive;
+	}
+
+	@Override
+	protected void playDoorSound(BlockPos blockPos, boolean isOpen) {
+		playSoundInWorld(isOpen ? config.config.doorOpen : config.config.doorClose, blockPos, 2, 1);
+	}
+
+	@Override
+	protected double getDoorCloseSoundTime() {
+		return config.config.doorCloseSoundLength;
 	}
 
 	private static int randomInt(int minInclusive, int maxExclusive) {

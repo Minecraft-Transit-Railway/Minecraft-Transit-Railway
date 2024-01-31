@@ -17,7 +17,10 @@ import org.mtr.mod.generated.resource.VehicleResourceSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
 import org.mtr.mod.render.RenderTrains;
 import org.mtr.mod.render.StoredMatrixTransformations;
-import org.mtr.mod.sound.*;
+import org.mtr.mod.sound.BveVehicleSound;
+import org.mtr.mod.sound.BveVehicleSoundConfig;
+import org.mtr.mod.sound.LegacyVehicleSound;
+import org.mtr.mod.sound.VehicleSoundBase;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -57,7 +60,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 		optimizedModelsBogie2 = writeToOptimizedModels(materialGroupsBogie2Model);
 
 		if (bveSoundBaseResource.isEmpty()) {
-			final LegacyVehicleSound legacyVehicleSound = new LegacyVehicleSound(speedSoundBaseResource, new LegacyVehicleSoundConfig("", (int) speedSoundCount, 0, false));
+			final LegacyVehicleSound legacyVehicleSound = new LegacyVehicleSound(legacySpeedSoundBaseResource, (int) legacySpeedSoundCount, legacyUseAccelerationSoundsWhenCoasting, legacyConstantPlaybackSpeed, legacyDoorSoundBaseResource, legacyDoorCloseSoundTime);
 			createVehicleSoundBase = () -> legacyVehicleSound;
 		} else {
 			final BveVehicleSoundConfig bveVehicleSoundConfig = new BveVehicleSoundConfig(bveSoundBaseResource);

@@ -1,18 +1,19 @@
 package org.mtr.mod.client;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mtr.core.data.TransportMode;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.data.TrainType;
 import org.mtr.mod.model.*;
-import org.mtr.mod.render.LegacyVehicleRenderer;
-import org.mtr.mod.sound.*;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
 
+/**
+ * This class is the old method of registering vehicles.
+ * This is unused for 4.0.0 and will be deleted soon.
+ */
+@Deprecated
 public class TrainClientRegistry {
 
 	private static final Object2ObjectOpenHashMap<String, TrainProperties> REGISTRY = new Object2ObjectOpenHashMap<>();
@@ -32,9 +33,6 @@ public class TrainClientRegistry {
 	}
 
 	public static void register(String key, String baseTrainType, @Nullable String name, @Nullable String description, String wikipediaArticle, @Nullable ModelTrainBase model, String textureId, int color, String gangwayConnectionId, String trainBarrierId, float riderOffset, float riderOffsetDismounting, float bogiePosition, boolean isJacobsBogie, @Nullable String soundId, @Nullable LegacyVehicleSoundConfig legacyVehicleSoundConfig) {
-		final LegacyVehicleRenderer legacyVehicleRenderer = new LegacyVehicleRenderer(model, textureId, gangwayConnectionId, trainBarrierId);
-		final VehicleSoundBase vehicleSound = legacyVehicleSoundConfig == null ? new BveVehicleSound(new BveVehicleSoundConfig(soundId == null ? "" : soundId)) : new LegacyVehicleSound(soundId, legacyVehicleSoundConfig);
-		register(key, new TrainProperties(baseTrainType, TextHelper.translatable(name == null ? "train.mtr." + key.toLowerCase(Locale.ENGLISH) : name), description, wikipediaArticle, color, riderOffset, riderOffsetDismounting, bogiePosition, isJacobsBogie, !StringUtils.isEmpty(gangwayConnectionId), legacyVehicleRenderer, vehicleSound));
 	}
 
 	private static void register(TrainType defaultTrainType, String wikipediaArticle, @Nullable ModelTrainBase model, String textureId, int color, String gangwayConnectionId, String trainBarrierId, float bogiePosition, boolean isJacobsBogie, @Nullable String soundId, @Nullable LegacyVehicleSoundConfig legacyVehicleSoundConfig) {
@@ -196,5 +194,11 @@ public class TrainClientRegistry {
 	@FunctionalInterface
 	public interface TrainRegistryCallback {
 		void accept(long id, String trainId, TrainProperties trainProperties);
+	}
+
+	private static class LegacyVehicleSoundConfig {
+
+		public LegacyVehicleSoundConfig(@Nullable String doorSoundBaseId, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
+		}
 	}
 }
