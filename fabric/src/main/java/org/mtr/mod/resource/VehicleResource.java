@@ -17,13 +17,16 @@ import org.mtr.mod.generated.resource.VehicleResourceSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
 import org.mtr.mod.render.RenderTrains;
 import org.mtr.mod.render.StoredMatrixTransformations;
+import org.mtr.mod.sound.*;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public final class VehicleResource extends VehicleResourceSchema {
 
 	public final ObjectImmutableList<Box> floors;
 	public final ObjectImmutableList<Box> doorways;
+	public final Supplier<VehicleSoundBase> createVehicleSoundBase;
 	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModel> optimizedModels;
 	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModel> optimizedModelsDoorsClosed;
 	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModel> optimizedModelsBogie1;
@@ -32,22 +35,34 @@ public final class VehicleResource extends VehicleResourceSchema {
 	public VehicleResource(ReaderBase readerBase) {
 		super(readerBase);
 		updateData(readerBase);
+
 		final ObjectArraySet<Box> floors = new ObjectArraySet<>();
 		final ObjectArraySet<Box> doorways = new ObjectArraySet<>();
 		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModel.MaterialGroup>> materialGroupsModel = new Object2ObjectOpenHashMap<>();
 		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModel.MaterialGroup>> materialGroupsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
 		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModel.MaterialGroup>> materialGroupsBogie1Model = new Object2ObjectOpenHashMap<>();
 		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModel.MaterialGroup>> materialGroupsBogie2Model = new Object2ObjectOpenHashMap<>();
+
 		models.forEach(vehicleModel -> vehicleModel.model.writeFloorsAndDoorways(floors, doorways, materialGroupsModel, materialGroupsModelDoorsClosed));
 		models.forEach(vehicleModel -> vehicleModel.model.modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.mapDoors(doorways)));
 		bogie1Models.forEach(vehicleModel -> vehicleModel.model.writeFloorsAndDoorways(new ObjectArraySet<>(), new ObjectArraySet<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie1Model));
 		bogie2Models.forEach(vehicleModel -> vehicleModel.model.writeFloorsAndDoorways(new ObjectArraySet<>(), new ObjectArraySet<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie2Model));
+
 		this.floors = new ObjectImmutableList<>(floors);
 		this.doorways = new ObjectImmutableList<>(doorways);
+
 		optimizedModels = writeToOptimizedModels(materialGroupsModel);
 		optimizedModelsDoorsClosed = writeToOptimizedModels(materialGroupsModelDoorsClosed);
 		optimizedModelsBogie1 = writeToOptimizedModels(materialGroupsBogie1Model);
 		optimizedModelsBogie2 = writeToOptimizedModels(materialGroupsBogie2Model);
+
+		if (bveSoundBaseResource.isEmpty()) {
+			final LegacyVehicleSound legacyVehicleSound = new LegacyVehicleSound(speedSoundBaseResource, new LegacyVehicleSoundConfig("", (int) speedSoundCount, 0, false));
+			createVehicleSoundBase = () -> legacyVehicleSound;
+		} else {
+			final BveVehicleSoundConfig bveVehicleSoundConfig = new BveVehicleSoundConfig(bveSoundBaseResource);
+			createVehicleSoundBase = () -> new BveVehicleSound(bveVehicleSoundConfig);
+		}
 	}
 
 	public void queue(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, ObjectArrayList<Box> openDoorways) {

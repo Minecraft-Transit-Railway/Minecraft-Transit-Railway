@@ -58,8 +58,8 @@ public class RenderVehicleTransformationHelper {
 		this.ridingPitchDifference = ridingPitchDifference;
 	}
 
-	public RenderVehicleTransformationHelper(ObjectObjectImmutablePair<Vector, Vector> bogiePositions, RenderVehicleTransformationHelper renderVehicleTransformationHelper) {
-		pivotPosition = Vector.getAverage(bogiePositions.left(), bogiePositions.right());
+	public RenderVehicleTransformationHelper(ObjectObjectImmutablePair<Vector, Vector> bogiePositions, Vector averageAbsoluteBogiePosition, RenderVehicleTransformationHelper renderVehicleTransformationHelper) {
+		pivotPosition = averageAbsoluteBogiePosition;
 		yaw = getYaw(bogiePositions.left(), bogiePositions.right());
 		pitch = getPitch(bogiePositions.left(), bogiePositions.right());
 		light = getLight(pivotPosition);

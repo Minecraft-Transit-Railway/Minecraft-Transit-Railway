@@ -6,19 +6,19 @@ import org.mtr.core.integration.VehicleUpdate;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.mapping.holder.ClientPlayerEntity;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.holder.MutableText;
-import org.mtr.mapping.holder.Text;
+import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Items;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.VehicleRidingMovement;
+import org.mtr.mod.resource.VehicleResource;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
 
 public class VehicleExtension extends Vehicle implements Utilities {
+
+	private double oldSpeed;
 
 	public final PersistentVehicleData persistentVehicleData;
 
@@ -41,6 +41,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 	}
 
 	public void simulate(long millisElapsed) {
+		oldSpeed = speed;
 		simulate(millisElapsed, null, null);
 		persistentVehicleData.tick(millisElapsed, vehicleExtraData);
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
@@ -76,6 +77,10 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		}
 
 		// TODO chat announcements (next station, route number, etc.)
+	}
+
+	public void playSound(VehicleResource vehicleResource, int carNumber, int bogieIndex, BlockPos bogiePosition) {
+		persistentVehicleData.playSound(vehicleResource, carNumber, bogieIndex, bogiePosition, (float) speed, (float) (speed - oldSpeed), (float) vehicleExtraData.getAcceleration(), getIsOnRoute());
 	}
 
 	public static boolean isHoldingKey(@Nullable ClientPlayerEntity clientPlayerEntity) {
