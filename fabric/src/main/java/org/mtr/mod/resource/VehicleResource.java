@@ -22,6 +22,7 @@ import org.mtr.mod.sound.BveVehicleSoundConfig;
 import org.mtr.mod.sound.LegacyVehicleSound;
 import org.mtr.mod.sound.VehicleSoundBase;
 
+import javax.annotation.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -35,21 +36,27 @@ public final class VehicleResource extends VehicleResourceSchema {
 	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModel> optimizedModelsBogie1;
 	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModel> optimizedModelsBogie2;
 
-	public VehicleResource(ReaderBase readerBase) {
+	public VehicleResource(ReaderBase readerBase, @Nullable VehicleModel extraModel, @Nullable Box extraFloor, ObjectArraySet<Box> doorways) {
 		super(readerBase);
 		updateData(readerBase);
 
 		final ObjectArraySet<Box> floors = new ObjectArraySet<>();
-		final ObjectArraySet<Box> doorways = new ObjectArraySet<>();
 		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModel.MaterialGroup>> materialGroupsModel = new Object2ObjectOpenHashMap<>();
 		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModel.MaterialGroup>> materialGroupsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
 		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModel.MaterialGroup>> materialGroupsBogie1Model = new Object2ObjectOpenHashMap<>();
 		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModel.MaterialGroup>> materialGroupsBogie2Model = new Object2ObjectOpenHashMap<>();
 
-		models.forEach(vehicleModel -> vehicleModel.model.writeFloorsAndDoorways(floors, doorways, materialGroupsModel, materialGroupsModelDoorsClosed));
-		models.forEach(vehicleModel -> vehicleModel.model.modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.mapDoors(doorways)));
-		bogie1Models.forEach(vehicleModel -> vehicleModel.model.writeFloorsAndDoorways(new ObjectArraySet<>(), new ObjectArraySet<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie1Model));
-		bogie2Models.forEach(vehicleModel -> vehicleModel.model.writeFloorsAndDoorways(new ObjectArraySet<>(), new ObjectArraySet<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie2Model));
+		if (extraModel != null) {
+			models.add(extraModel);
+		}
+		if (extraFloor != null) {
+			floors.add(extraFloor);
+		}
+
+		forEachNonNull(models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(floors, doorways, materialGroupsModel, materialGroupsModelDoorsClosed));
+		forEachNonNull(models, dynamicVehicleModel -> dynamicVehicleModel.modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.mapDoors(doorways)));
+		forEachNonNull(bogie1Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArraySet<>(), new ObjectArraySet<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie1Model));
+		forEachNonNull(bogie2Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArraySet<>(), new ObjectArraySet<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie2Model));
 
 		this.floors = new ObjectImmutableList<>(floors);
 		this.doorways = new ObjectImmutableList<>(doorways);
@@ -66,6 +73,10 @@ public final class VehicleResource extends VehicleResourceSchema {
 			final BveVehicleSoundConfig bveVehicleSoundConfig = new BveVehicleSoundConfig(bveSoundBaseResource);
 			createVehicleSoundBase = () -> new BveVehicleSound(bveVehicleSoundConfig);
 		}
+	}
+
+	public VehicleResource(ReaderBase readerBase) {
+		this(readerBase, null, null, new ObjectArraySet<>());
 	}
 
 	public void queue(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, ObjectArrayList<Box> openDoorways) {
@@ -133,7 +144,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 	public void iterateModels(ModelConsumer modelConsumer) {
 		for (int i = 0; i < models.size(); i++) {
 			final VehicleModel vehicleModel = models.get(i);
-			if (vehicleModel != null) {
+			if (vehicleModel != null && vehicleModel.model != null) {
 				modelConsumer.accept(i, vehicleModel.model);
 			}
 		}
@@ -198,6 +209,14 @@ public final class VehicleResource extends VehicleResourceSchema {
 		final Object2ObjectOpenHashMap<PartCondition, OptimizedModel> optimizedModels = new Object2ObjectOpenHashMap<>();
 		materialGroupsModel.forEach((partCondition, materialGroups) -> optimizedModels.put(partCondition, new OptimizedModel(materialGroups)));
 		return optimizedModels;
+	}
+
+	private static void forEachNonNull(ObjectArrayList<VehicleModel> models, Consumer<DynamicVehicleModel> consumer) {
+		models.forEach(vehicleModel -> {
+			if (vehicleModel.model != null) {
+				consumer.accept(vehicleModel.model);
+			}
+		});
 	}
 
 	@FunctionalInterface

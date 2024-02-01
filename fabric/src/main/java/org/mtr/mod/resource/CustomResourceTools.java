@@ -2,6 +2,7 @@ package org.mtr.mod.resource;
 
 import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.mapping.holder.Identifier;
+import org.mtr.mod.Init;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
@@ -17,6 +18,11 @@ public interface CustomResourceTools extends SerializedDataBase {
 		} else {
 			return new Identifier(String.format("%s.%s", identifierString, extension));
 		}
+	}
+
+	static Identifier formatIdentifierWithDefault(String identifierString, String extension) {
+		final Identifier identifier = formatIdentifier(identifierString, extension);
+		return identifier == null ? new Identifier(Init.MOD_ID, "textures/block/transparent.png") : identifier;
 	}
 
 	static int colorStringToInt(String color) {

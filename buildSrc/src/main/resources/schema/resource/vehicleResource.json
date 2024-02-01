@@ -108,6 +108,7 @@
 		"id",
 		"name",
 		"color",
+		"transportMode",
 		"length",
 		"width",
 		"bogie1Position",

@@ -38,6 +38,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 	public SidingScreen(Siding siding, TransportMode transportMode, DashboardScreen dashboardScreen) {
 		super(siding, transportMode, dashboardScreen, SELECTED_TRAIN_TEXT, MAX_TRAINS_TEXT, ACCELERATION_CONSTANT_TEXT, MANUAL_TO_AUTOMATIC_TIME, MAX_MANUAL_SPEED);
 		buttonSelectTrain = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> MinecraftClient.getInstance().openScreen(new Screen(new VehicleSelectorScreen(this, savedRailBase))));
+		buttonSelectTrain.setMessage2(new Text(TextHelper.translatable("selectWorld.edit").data));
 		textFieldMaxTrains = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_TRAINS_TEXT_LENGTH, TextCase.DEFAULT, "\\D", null);
 		sliderAccelerationConstant = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, (int) Math.round((Siding.MAX_ACCELERATION - Siding.MIN_ACCELERATION) * SLIDER_SCALE), this::accelerationSliderFormatter, null);
 		buttonIsManual = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
