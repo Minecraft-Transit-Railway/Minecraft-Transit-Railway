@@ -35,6 +35,7 @@ generated/
 loot_tables/
 **/org/mtr/mixin/
 forge/src/main/java/org/mtr/core
+forge/src/main/java/org/mtr/legacy
 forge/src/main/java/org/mtr/mod
 forge/src/main/resources/assets
 forge/src/main/resources/data

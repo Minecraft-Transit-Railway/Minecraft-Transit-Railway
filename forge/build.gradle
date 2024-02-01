@@ -54,6 +54,7 @@ tasks.register("setupFiles") {
 	}
 
 	delete fileTree("src/main/java/org/mtr/mod")
+	delete fileTree("src/main/java/org/mtr/legacy")
 	delete fileTree("src/main/resources/assets")
 	delete fileTree("src/main/resources/data")
 
@@ -61,6 +62,12 @@ tasks.register("setupFiles") {
 		outputs.upToDateWhen { false }
 		from "../fabric/src/main/java/org/mtr/mod"
 		into "src/main/java/org/mtr/mod"
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "../fabric/src/main/java/org/mtr/legacy"
+		into "src/main/java/org/mtr/legacy"
 	}
 
 	copy {

@@ -4,21 +4,34 @@ import org.mtr.core.serializer.ReaderBase;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mod.generated.resource.ModelPropertiesSchema;
 
+import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public final class ModelProperties extends ModelPropertiesSchema {
 
+	@Nullable
 	public final Identifier gangwayInnerSideTexture;
+	@Nullable
 	public final Identifier gangwayInnerTopTexture;
+	@Nullable
 	public final Identifier gangwayInnerBottomTexture;
+	@Nullable
 	public final Identifier gangwayOuterSideTexture;
+	@Nullable
 	public final Identifier gangwayOuterTopTexture;
+	@Nullable
 	public final Identifier gangwayOuterBottomTexture;
+	@Nullable
 	public final Identifier barrierInnerSideTexture;
+	@Nullable
 	public final Identifier barrierInnerTopTexture;
+	@Nullable
 	public final Identifier barrierInnerBottomTexture;
+	@Nullable
 	public final Identifier barrierOuterSideTexture;
+	@Nullable
 	public final Identifier barrierOuterTopTexture;
+	@Nullable
 	public final Identifier barrierOuterBottomTexture;
 
 	public ModelProperties(ReaderBase readerBase) {

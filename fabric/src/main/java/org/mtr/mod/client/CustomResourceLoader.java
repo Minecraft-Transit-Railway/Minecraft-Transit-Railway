@@ -1,8 +1,8 @@
 package org.mtr.mod.client;
 
 import org.mtr.core.data.TransportMode;
-import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
+import org.mtr.legacy.resource.CustomResourcesConverter;
 import org.mtr.libraries.com.google.gson.JsonElement;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.com.google.gson.JsonParser;
@@ -16,6 +16,7 @@ import org.mtr.mod.resource.CustomResources;
 import org.mtr.mod.resource.SignResource;
 import org.mtr.mod.resource.VehicleResource;
 
+import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -48,7 +49,7 @@ public class CustomResourceLoader {
 
 		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_ID + ".json"), inputStream -> {
 			try {
-				final CustomResources customResources = new CustomResources(new JsonReader(readResource(inputStream)));
+				final CustomResources customResources = CustomResourcesConverter.convert(readResource(inputStream).getAsJsonObject());
 				customResources.iterateVehicles(vehicleResource -> {
 					VEHICLES.get(vehicleResource.getTransportMode()).add(vehicleResource);
 					VEHICLES_CACHE.get(vehicleResource.getTransportMode()).put(vehicleResource.getId(), vehicleResource);
@@ -100,17 +101,19 @@ public class CustomResourceLoader {
 		return signIds;
 	}
 
-	public static void readResource(Identifier identifier, Consumer<JsonElement> consumer) {
-		final String identifierString = identifier.data.toString();
-		final JsonElement jsonElement = RESOURCE_CACHE.get(identifierString);
-		if (jsonElement == null) {
-			ResourceManagerHelper.readResource(identifier, inputStream -> {
-				final JsonElement newJsonElement = readResource(inputStream);
-				consumer.accept(newJsonElement);
-				RESOURCE_CACHE.put(identifierString, newJsonElement);
-			});
-		} else {
-			consumer.accept(jsonElement);
+	public static void readResource(@Nullable Identifier identifier, Consumer<JsonElement> consumer) {
+		if (identifier != null) {
+			final String identifierString = identifier.data.toString();
+			final JsonElement jsonElement = RESOURCE_CACHE.get(identifierString);
+			if (jsonElement == null) {
+				ResourceManagerHelper.readResource(identifier, inputStream -> {
+					final JsonElement newJsonElement = readResource(inputStream);
+					consumer.accept(newJsonElement);
+					RESOURCE_CACHE.put(identifierString, newJsonElement);
+				});
+			} else {
+				consumer.accept(jsonElement);
+			}
 		}
 	}
 
