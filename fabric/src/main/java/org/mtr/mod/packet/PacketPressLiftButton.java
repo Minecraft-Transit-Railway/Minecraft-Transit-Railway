@@ -10,8 +10,8 @@ import org.mtr.mapping.holder.MinecraftServer;
 import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.registry.PacketHandler;
-import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.Init;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockLiftButtons;
 
 public final class PacketPressLiftButton extends PacketHandler {
@@ -60,6 +60,6 @@ public final class PacketPressLiftButton extends PacketHandler {
 		} else {
 			newPressDirection = buttonStates[0] ? LiftDirection.DOWN : LiftDirection.UP;
 		}
-		RegistryClient.sendPacketToServer(new PacketPressLiftButton(newPressDirection, trackPositions));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketPressLiftButton(newPressDirection, trackPositions));
 	}
 }

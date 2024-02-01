@@ -2,13 +2,12 @@ package org.mtr.mod.screen;
 
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.registry.RegistryClient;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.IPacket;
 import org.mtr.mod.packet.PacketAddBalance;
 
-public class TicketMachineScreen extends ScreenExtension implements IGui, IPacket {
+public class TicketMachineScreen extends ScreenExtension implements IGui {
 
 	private final ButtonWidgetExtension[] buttons = new ButtonWidgetExtension[BUTTON_COUNT];
 	private final MutableText balanceText;
@@ -22,7 +21,7 @@ public class TicketMachineScreen extends ScreenExtension implements IGui, IPacke
 		for (int i = 0; i < BUTTON_COUNT; i++) {
 			final int index = i;
 			buttons[i] = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_value"), button -> {
-				RegistryClient.sendPacketToServer(new PacketAddBalance(index));
+				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketAddBalance(index));
 				MinecraftClient.getInstance().openScreen(null);
 			});
 		}

@@ -3,13 +3,12 @@ package org.mtr.mod.screen;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mapping.registry.RegistryClient;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.IPacket;
 import org.mtr.mod.packet.PacketDeleteRailAction;
 
-public class RailActionsScreen extends ScreenExtension implements IGui, IPacket {
+public class RailActionsScreen extends ScreenExtension implements IGui {
 
 	private final DashboardList railActionsList;
 
@@ -60,6 +59,6 @@ public class RailActionsScreen extends ScreenExtension implements IGui, IPacket 
 	}
 
 	private void onDelete(DashboardListItem dashboardListItem, int index) {
-		RegistryClient.sendPacketToServer(new PacketDeleteRailAction(dashboardListItem.id));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDeleteRailAction(dashboardListItem.id));
 	}
 }

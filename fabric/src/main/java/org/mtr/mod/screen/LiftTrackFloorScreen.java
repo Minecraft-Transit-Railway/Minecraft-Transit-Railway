@@ -2,15 +2,14 @@ package org.mtr.mod.screen;
 
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockLiftTrackFloor;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.IPacket;
 import org.mtr.mod.packet.PacketUpdateLiftTrackFloorConfig;
 
-public class LiftTrackFloorScreen extends ScreenExtension implements IGui, IPacket {
+public class LiftTrackFloorScreen extends ScreenExtension implements IGui {
 
 	private final TextFieldWidgetExtension textFieldFloorNumber;
 	private final TextFieldWidgetExtension textFieldFloorDescription;
@@ -93,7 +92,7 @@ public class LiftTrackFloorScreen extends ScreenExtension implements IGui, IPack
 
 	@Override
 	public void onClose2() {
-		RegistryClient.sendPacketToServer(new PacketUpdateLiftTrackFloorConfig(blockPos, textFieldFloorNumber.getText2(), textFieldFloorDescription.getText2(), checkboxShouldDing.isChecked2()));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateLiftTrackFloorConfig(blockPos, textFieldFloorNumber.getText2(), textFieldFloorDescription.getText2(), checkboxShouldDing.isChecked2()));
 		super.onClose2();
 	}
 

@@ -9,20 +9,19 @@ import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.Init;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.IPacket;
 import org.mtr.mod.packet.PacketData;
 import org.mtr.mod.packet.PacketRequestData;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class DashboardScreen extends ScreenExtension implements IGui, IPacket {
+public class DashboardScreen extends ScreenExtension implements IGui {
 
 	private SelectedTab selectedTab;
 	private AreaBase<?, ?> editingArea;
@@ -216,7 +215,7 @@ public class DashboardScreen extends ScreenExtension implements IGui, IPacket {
 	@Override
 	public void onClose2() {
 		super.onClose2();
-		RegistryClient.sendPacketToServer(new PacketRequestData(true));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketRequestData(true));
 	}
 
 	@Override
@@ -300,7 +299,7 @@ public class DashboardScreen extends ScreenExtension implements IGui, IPacket {
 
 	private void onSort() {
 		if (selectedTab == SelectedTab.ROUTES && editingRoute != null) {
-			RegistryClient.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute)));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute)));
 		}
 	}
 
@@ -309,24 +308,24 @@ public class DashboardScreen extends ScreenExtension implements IGui, IPacket {
 			case STATIONS:
 				if (dashboardListItem.data instanceof Station) {
 					final Station station = (Station) dashboardListItem.data;
-					MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> RegistryClient.sendPacketToServer(PacketData.fromStations(IntegrationServlet.Operation.DELETE, ObjectSet.of(station))), IGui.formatStationName(station.getName()), this)));
+					MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromStations(IntegrationServlet.Operation.DELETE, ObjectSet.of(station))), IGui.formatStationName(station.getName()), this)));
 				}
 				break;
 			case ROUTES:
 				if (editingRoute == null) {
 					if (dashboardListItem.data instanceof Route) {
 						final Route route = (Route) dashboardListItem.data;
-						MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> RegistryClient.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.DELETE, ObjectSet.of(route))), IGui.formatStationName(route.getName()), this)));
+						MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.DELETE, ObjectSet.of(route))), IGui.formatStationName(route.getName()), this)));
 					}
 				} else {
 					editingRoute.getRoutePlatforms().remove(index);
-					RegistryClient.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute)));
+					InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute)));
 				}
 				break;
 			case DEPOTS:
 				if (dashboardListItem.data instanceof Depot) {
 					final Depot depot = (Depot) dashboardListItem.data;
-					MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.DELETE, ObjectSet.of(depot))), IGui.formatStationName(depot.getName()), this)));
+					MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.DELETE, ObjectSet.of(depot))), IGui.formatStationName(depot.getName()), this)));
 				}
 				break;
 		}
@@ -376,9 +375,9 @@ public class DashboardScreen extends ScreenExtension implements IGui, IPacket {
 
 	private void onDrawCornersMouseRelease() {
 		if (editingArea instanceof Station) {
-			RegistryClient.sendPacketToServer(PacketData.fromStations(IntegrationServlet.Operation.UPDATE, ObjectSet.of((Station) editingArea)));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromStations(IntegrationServlet.Operation.UPDATE, ObjectSet.of((Station) editingArea)));
 		} else if (editingArea instanceof Depot) {
-			RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.UPDATE, ObjectSet.of((Depot) editingArea)));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.UPDATE, ObjectSet.of((Depot) editingArea)));
 		}
 	}
 
@@ -386,7 +385,7 @@ public class DashboardScreen extends ScreenExtension implements IGui, IPacket {
 		final RoutePlatformData routePlatformData = new RoutePlatformData(platformId);
 		editingRoute.getRoutePlatforms().add(routePlatformData);
 		routePlatformData.writePlatformCache(editingRoute, ClientData.getDashboardInstance().platformIdMap);
-		RegistryClient.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute)));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute)));
 	}
 
 	private void onClickEditSavedRail(SavedRailBase<?, ?> savedRail) {
@@ -401,9 +400,9 @@ public class DashboardScreen extends ScreenExtension implements IGui, IPacket {
 		editingArea.setName(IGui.textOrUntitled(textFieldName.getText2()));
 		editingArea.setColor(colorSelector.getColor());
 		if (editingArea instanceof Station) {
-			RegistryClient.sendPacketToServer(PacketData.fromStations(IntegrationServlet.Operation.UPDATE, ObjectSet.of((Station) editingArea)));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromStations(IntegrationServlet.Operation.UPDATE, ObjectSet.of((Station) editingArea)));
 		} else if (editingArea instanceof Depot) {
-			RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.UPDATE, ObjectSet.of((Depot) editingArea)));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.UPDATE, ObjectSet.of((Depot) editingArea)));
 		}
 		stopEditing();
 	}
@@ -411,14 +410,14 @@ public class DashboardScreen extends ScreenExtension implements IGui, IPacket {
 	private void onDoneEditingRoute() {
 		editingRoute.setName(IGui.textOrUntitled(textFieldName.getText2()));
 		editingRoute.setColor(colorSelector.getColor());
-		RegistryClient.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute)));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute)));
 		stopEditing();
 	}
 
 	private void onDoneEditingRouteDestination() {
 		if (isValidRoutePlatformIndex()) {
 			editingRoute.getRoutePlatforms().get(editingRoutePlatformIndex).setCustomDestination(textFieldCustomDestination.getText2());
-			RegistryClient.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute)));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute)));
 		}
 		startEditingRoute(editingRoute, isNew);
 	}

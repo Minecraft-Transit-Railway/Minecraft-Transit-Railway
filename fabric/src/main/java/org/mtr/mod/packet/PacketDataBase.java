@@ -1,11 +1,6 @@
 package org.mtr.mod.packet;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.apache.commons.io.IOUtils;
 import org.mtr.core.data.Data;
 import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.data.Rail;
@@ -27,13 +22,17 @@ import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
 import org.mtr.mapping.registry.PacketHandler;
-import org.mtr.mapping.registry.Registry;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.data.VehicleExtension;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -52,8 +51,8 @@ public abstract class PacketDataBase extends PacketHandler {
 	}
 
 	protected static <T extends PacketDataBase> T create(PacketBuffer packetBuffer, PacketDataBaseInstance<T> packetDataBaseInstance) {
-		final IntegrationServlet.Operation operation = EnumHelper.valueOf(IntegrationServlet.Operation.UPDATE, readString(packetBuffer));
-		final JsonReader integrationJsonReader = new JsonReader(Utilities.parseJson(readString(packetBuffer)));
+		final IntegrationServlet.Operation operation = EnumHelper.valueOf(IntegrationServlet.Operation.UPDATE, readStringTrimmed(packetBuffer));
+		final JsonReader integrationJsonReader = new JsonReader(Utilities.parseJson(readStringTrimmed(packetBuffer)));
 		final boolean updateClientDataInstance = packetBuffer.readBoolean();
 		final boolean updateClientDataDashboardInstance = packetBuffer.readBoolean();
 		return packetDataBaseInstance.create(
@@ -66,8 +65,8 @@ public abstract class PacketDataBase extends PacketHandler {
 
 	@Override
 	public void write(PacketBuffer packetBuffer) {
-		writeString(packetBuffer, operation.toString());
-		writeString(packetBuffer, Utilities.getJsonObjectFromData(integration).toString());
+		writeStringTrimmed(packetBuffer, operation.toString());
+		writeStringTrimmed(packetBuffer, Utilities.getJsonObjectFromData(integration).toString());
 		packetBuffer.writeBoolean(updateClientDataInstance);
 		packetBuffer.writeBoolean(updateClientDataDashboardInstance);
 	}
@@ -92,7 +91,7 @@ public abstract class PacketDataBase extends PacketHandler {
 			// Check if there are any rail nodes that need to be reset
 			newIntegration.iterateRailNodePositions(railNodePosition -> BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(railNodePosition)));
 			// Broadcast result to all players
-			MinecraftServerHelper.iteratePlayers(serverWorld, worldPlayer -> Registry.sendPacketToClient(worldPlayer, new PacketData(operation, newIntegration, updateClientDataInstance, updateClientDataDashboardInstance)));
+			MinecraftServerHelper.iteratePlayers(serverWorld, worldPlayer -> Init.REGISTRY.sendPacketToClient(worldPlayer, new PacketData(operation, newIntegration, updateClientDataInstance, updateClientDataDashboardInstance)));
 		});
 	}
 
@@ -157,21 +156,40 @@ public abstract class PacketDataBase extends PacketHandler {
 	}
 
 	public static void sendHttpRequest(String endpoint, JsonObject contentObject, Consumer<JsonObject> consumer) {
-		final HttpPost request = new HttpPost("http://localhost:8888/mtr/api/" + endpoint);
-		request.addHeader("content-type", "application/json");
-
 		try {
-			request.setEntity(new StringEntity(contentObject.toString()));
-		} catch (Exception e) {
-			Init.logException(e);
-		}
+			final HttpURLConnection connection = (HttpURLConnection) new URL(String.format("http://localhost:%s/mtr/api/%s", Init.getPort(), endpoint)).openConnection();
+			connection.setRequestMethod("POST");
+			connection.setRequestProperty("content-type", "application/json");
+			connection.setDoOutput(true);
 
-		try (final CloseableHttpClient closeableHttpClient = HttpClients.createDefault(); final CloseableHttpResponse response = closeableHttpClient.execute(request)) {
-			final String result = EntityUtils.toString(response.getEntity());
-			consumer.accept(Utilities.parseJson(result));
+			try (final OutputStream dataOutputStream = connection.getOutputStream()) {
+				dataOutputStream.write(contentObject.toString().getBytes(StandardCharsets.UTF_8));
+				dataOutputStream.flush();
+			}
+
+			try (final InputStream inputStream = connection.getInputStream()) {
+				consumer.accept(Utilities.parseJson(IOUtils.toString(inputStream, StandardCharsets.UTF_8)));
+			}
 		} catch (Exception e) {
 			Init.logException(e);
 		}
+	}
+
+	public static void writeStringTrimmed(PacketBuffer packetBuffer, String text) {
+		final int maxLength = 32767;
+		packetBuffer.writeInt((int) Math.ceil((float) text.length() / maxLength));
+		for (int i = 0; i < text.length(); i += maxLength) {
+			writeString(packetBuffer, text.substring(i, Math.min(text.length(), i + maxLength)));
+		}
+	}
+
+	public static String readStringTrimmed(PacketBuffer packetBuffer) {
+		final StringBuilder stringBuilder = new StringBuilder();
+		final int count = packetBuffer.readInt();
+		for (int i = 0; i < count; i++) {
+			stringBuilder.append(readString(packetBuffer));
+		}
+		return stringBuilder.toString();
 	}
 
 	protected static void sendHttpDataRequest(IntegrationServlet.Operation operation, Integration integration, Consumer<Integration> consumer) {

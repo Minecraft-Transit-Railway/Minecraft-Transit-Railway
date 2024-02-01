@@ -1,5 +1,6 @@
 package org.mtr.mod.client;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -7,7 +8,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePai
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
-import org.mtr.mapping.registry.RegistryClient;
+import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.KeyBindings;
 import org.mtr.mod.packet.PacketUpdateVehicleRidingEntities;
@@ -28,6 +29,7 @@ public class VehicleRidingMovement {
 	private static double ridingVehicleZ;
 	private static boolean isOnGangway;
 	private static int ridingVehicleCoolDown;
+	private static float shiftHoldingTicks;
 
 	private static int ridingVehicleCarNumberCacheOld;
 	private static Vector3d ridingPositionCacheOld;
@@ -41,9 +43,11 @@ public class VehicleRidingMovement {
 	private static final float VEHICLE_WALKING_SPEED_MULTIPLIER = 0.005F;
 	private static final int RIDING_COOL_DOWN = 5;
 	private static final int SEND_UPDATE_FREQUENCY = 1000;
+	private static final int SHIFT_ACTIVATE_TICKS = 30;
+	private static final int DISMOUNT_PROGRESS_BAR_LENGTH = 30;
 
 	public static void tick() {
-		if (ridingVehicleCoolDown < RIDING_COOL_DOWN) {
+		if (ridingVehicleCoolDown < RIDING_COOL_DOWN && shiftHoldingTicks < SHIFT_ACTIVATE_TICKS) {
 			ridingVehicleCoolDown++;
 		} else {
 			// If no vehicles are updating the player's position, dismount the player
@@ -62,11 +66,23 @@ public class VehicleRidingMovement {
 			sendUpdate(false);
 		}
 
-		if (KeyBindings.LIFT_MENU.isPressed()) {
+		if (ridingVehicleId == 0) {
+			shiftHoldingTicks = 0;
+		} else {
 			final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-			final Screen currentScreen = minecraftClient.getCurrentScreenMapped();
-			if (ClientData.getLift(ridingVehicleId) != null && (currentScreen == null || !(currentScreen.data instanceof LiftSelectionScreen))) {
-				minecraftClient.openScreen(new Screen(new LiftSelectionScreen(ridingVehicleId)));
+
+			if (KeyBindings.LIFT_MENU.isPressed()) {
+				final Screen currentScreen = minecraftClient.getCurrentScreenMapped();
+				if (ClientData.getLift(ridingVehicleId) != null && (currentScreen == null || !(currentScreen.data instanceof LiftSelectionScreen))) {
+					minecraftClient.openScreen(new Screen(new LiftSelectionScreen(ridingVehicleId)));
+				}
+			}
+
+			final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+			if (clientPlayerEntity != null && clientPlayerEntity.isSneaking()) {
+				shiftHoldingTicks += minecraftClient.getLastFrameDuration();
+			} else {
+				shiftHoldingTicks = 0;
 			}
 		}
 	}
@@ -242,6 +258,20 @@ public class VehicleRidingMovement {
 		return vehicleId == ridingVehicleId ? new IntObjectImmutablePair<>(ridingVehicleCarNumberCacheOld, new ObjectObjectImmutablePair<>(ridingPositionCacheOld, ridingYawDifferenceOld)) : null;
 	}
 
+	public static boolean showShiftProgressBar() {
+		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+
+		if (shiftHoldingTicks > 0 && clientPlayerEntity != null) {
+			final int progressFilled = MathHelper.clamp((int) (shiftHoldingTicks * DISMOUNT_PROGRESS_BAR_LENGTH / SHIFT_ACTIVATE_TICKS), 0, DISMOUNT_PROGRESS_BAR_LENGTH);
+			final String progressBar = String.format("§6%s§7%s", StringUtils.repeat('|', progressFilled), StringUtils.repeat('|', DISMOUNT_PROGRESS_BAR_LENGTH - progressFilled));
+			clientPlayerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr.dismount_hold", minecraftClient.getOptionsMapped().getKeySneakMapped().getBoundKeyLocalizedText().getString(), progressBar).data), true);
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 	/**
 	 * Find an intersecting floor or doorway from the player position.
 	 * If there are multiple intersecting floors or doorways, get the one with the highest Y level.
@@ -305,7 +335,7 @@ public class VehicleRidingMovement {
 
 	private static void sendUpdate(boolean dismount) {
 		if (ridingSidingId != 0 && ridingVehicleId != 0) {
-			RegistryClient.sendPacketToServer(PacketUpdateVehicleRidingEntities.create(ridingSidingId, ridingVehicleId, dismount ? -1 : ridingVehicleCarNumber, ridingVehicleX, ridingVehicleY, ridingVehicleZ, isOnGangway));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketUpdateVehicleRidingEntities.create(ridingSidingId, ridingVehicleId, dismount ? -1 : ridingVehicleCarNumber, ridingVehicleX, ridingVehicleY, ridingVehicleZ, isOnGangway));
 			sendPositionUpdateTime = 0;
 		}
 	}

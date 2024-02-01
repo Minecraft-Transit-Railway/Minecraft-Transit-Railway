@@ -4,8 +4,8 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.mapper.BlockWithEntity;
-import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.Init;
 import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
 
 import javax.annotation.Nonnull;
@@ -31,7 +31,7 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 			} else {
 				final BlockEntity entity = world.getBlockEntity(pos.down(isUpper ? 1 : 0));
 				if (entity != null && entity.data instanceof BlockEntityBase) {
-					Registry.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(entity.getPos()));
+					Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(entity.getPos()));
 				}
 			}
 		});

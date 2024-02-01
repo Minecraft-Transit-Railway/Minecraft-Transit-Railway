@@ -27,6 +27,7 @@ import org.mtr.mapping.tool.DummyClass;
 import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.packet.*;
 
+import java.net.ServerSocket;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -36,12 +37,14 @@ public final class Init implements Utilities {
 
 	private static Main main;
 	private static Socket socket;
+	private static int port;
 	private static Runnable sendWorldTimeUpdate;
 	private static int serverTick;
 
 
 	public static final String MOD_ID = "mtr";
 	public static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	public static final Registry REGISTRY = new Registry();
 	public static final int SECONDS_PER_MC_HOUR = 50;
 
 	private static final String CHANNEL = "update";
@@ -60,25 +63,25 @@ public final class Init implements Utilities {
 		DummyClass.enableLogging();
 
 		// Register packets
-		Registry.setupPackets(new Identifier(MOD_ID, "packet"));
-		Registry.registerPacket(PacketAddBalance.class, PacketAddBalance::new);
-		Registry.registerPacket(PacketBroadcastRailActions.class, PacketBroadcastRailActions::new);
-		Registry.registerPacket(PacketData.class, PacketData::create);
-		Registry.registerPacket(PacketDeleteRailAction.class, PacketDeleteRailAction::new);
-		Registry.registerPacket(PacketDriveTrain.class, PacketDriveTrain::new);
-		Registry.registerPacket(PacketFetchArrivals.class, PacketFetchArrivals::new);
-		Registry.registerPacket(PacketOpenBlockEntityScreen.class, PacketOpenBlockEntityScreen::new);
-		Registry.registerPacket(PacketOpenDashboardScreen.class, PacketOpenDashboardScreen::create);
-		Registry.registerPacket(PacketOpenLiftCustomizationScreen.class, PacketOpenLiftCustomizationScreen::new);
-		Registry.registerPacket(PacketOpenPIDSConfigScreen.class, PacketOpenPIDSConfigScreen::new);
-		Registry.registerPacket(PacketOpenTicketMachineScreen.class, PacketOpenTicketMachineScreen::new);
-		Registry.registerPacket(PacketPressLiftButton.class, PacketPressLiftButton::new);
-		Registry.registerPacket(PacketRequestData.class, PacketRequestData::new);
-		Registry.registerPacket(PacketUpdateLiftTrackFloorConfig.class, PacketUpdateLiftTrackFloorConfig::new);
-		Registry.registerPacket(PacketUpdatePIDSConfig.class, PacketUpdatePIDSConfig::new);
-		Registry.registerPacket(PacketUpdateRailwaySignConfig.class, PacketUpdateRailwaySignConfig::new);
-		Registry.registerPacket(PacketUpdateTrainSensorConfig.class, PacketUpdateTrainSensorConfig::new);
-		Registry.registerPacket(PacketUpdateVehicleRidingEntities.class, PacketUpdateVehicleRidingEntities::new);
+		REGISTRY.setupPackets(new Identifier(MOD_ID, "packet"));
+		REGISTRY.registerPacket(PacketAddBalance.class, PacketAddBalance::new);
+		REGISTRY.registerPacket(PacketBroadcastRailActions.class, PacketBroadcastRailActions::new);
+		REGISTRY.registerPacket(PacketData.class, PacketData::create);
+		REGISTRY.registerPacket(PacketDeleteRailAction.class, PacketDeleteRailAction::new);
+		REGISTRY.registerPacket(PacketDriveTrain.class, PacketDriveTrain::new);
+		REGISTRY.registerPacket(PacketFetchArrivals.class, PacketFetchArrivals::new);
+		REGISTRY.registerPacket(PacketOpenBlockEntityScreen.class, PacketOpenBlockEntityScreen::new);
+		REGISTRY.registerPacket(PacketOpenDashboardScreen.class, PacketOpenDashboardScreen::create);
+		REGISTRY.registerPacket(PacketOpenLiftCustomizationScreen.class, PacketOpenLiftCustomizationScreen::new);
+		REGISTRY.registerPacket(PacketOpenPIDSConfigScreen.class, PacketOpenPIDSConfigScreen::new);
+		REGISTRY.registerPacket(PacketOpenTicketMachineScreen.class, PacketOpenTicketMachineScreen::new);
+		REGISTRY.registerPacket(PacketPressLiftButton.class, PacketPressLiftButton::new);
+		REGISTRY.registerPacket(PacketRequestData.class, PacketRequestData::new);
+		REGISTRY.registerPacket(PacketUpdateLiftTrackFloorConfig.class, PacketUpdateLiftTrackFloorConfig::new);
+		REGISTRY.registerPacket(PacketUpdatePIDSConfig.class, PacketUpdatePIDSConfig::new);
+		REGISTRY.registerPacket(PacketUpdateRailwaySignConfig.class, PacketUpdateRailwaySignConfig::new);
+		REGISTRY.registerPacket(PacketUpdateTrainSensorConfig.class, PacketUpdateTrainSensorConfig::new);
+		REGISTRY.registerPacket(PacketUpdateVehicleRidingEntities.class, PacketUpdateVehicleRidingEntities::new);
 
 		// Register events
 		EventRegistry.registerServerStarted(minecraftServer -> {
@@ -94,17 +97,18 @@ public final class Init implements Utilities {
 				PLAYERS_TO_UPDATE.put(identifier, new IntObjectImmutablePair<>(index[0], new ObjectArraySet<>()));
 				index[0]++;
 			});
-			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), 8888, worldNames.toArray(new String[0]));
+			setFreePort();
+			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), port, worldNames.toArray(new String[0]));
 
 			// Set up the socket
 			try {
-				socket = IO.socket("http://localhost:8888").connect();
+				socket = IO.socket("http://localhost:" + port).connect();
 				socket.on(CHANNEL, args -> {
 					final JsonObject responseObject = Utilities.parseJson(args[0].toString());
 					responseObject.keySet().forEach(playerUuid -> {
 						final ServerPlayerEntity serverPlayerEntity = minecraftServer.getPlayerManager().getPlayer(UUID.fromString(playerUuid));
 						if (serverPlayerEntity != null) {
-							Registry.sendPacketToClient(serverPlayerEntity, new PacketData(IntegrationServlet.Operation.LIST, new Integration(new JsonReader(responseObject.getAsJsonObject(playerUuid)), new Data()), true, false));
+							REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketData(IntegrationServlet.Operation.LIST, new Integration(new JsonReader(responseObject.getAsJsonObject(playerUuid)), new Data()), true, false));
 						}
 					});
 				});
@@ -157,7 +161,7 @@ public final class Init implements Utilities {
 		});
 
 		// Finish registration
-		Registry.init();
+		REGISTRY.init();
 	}
 
 	public static void schedulePlayerUpdate(ServerPlayerEntity serverPlayerEntity, boolean forceUpdate) {
@@ -174,6 +178,10 @@ public final class Init implements Utilities {
 		}
 	}
 
+	public static int getPort() {
+		return port;
+	}
+
 	public static BlockPos positionToBlockPos(Position position) {
 		return new BlockPos((int) position.getX(), (int) position.getY(), (int) position.getZ());
 	}
@@ -188,6 +196,17 @@ public final class Init implements Utilities {
 
 	public static void logException(Exception e) {
 		LOGGER.log(Level.INFO, e.getMessage(), e);
+	}
+
+	private static void setFreePort() {
+		for (int i = 8888; i <= 65535; i++) {
+			try (final ServerSocket serverSocket = new ServerSocket(i)) {
+				port = serverSocket.getLocalPort();
+				LOGGER.log(Level.INFO, "Found available port: " + port);
+				return;
+			} catch (Exception ignored) {
+			}
+		}
 	}
 
 	private static class ClientGroupNew extends ClientGroupSchema {

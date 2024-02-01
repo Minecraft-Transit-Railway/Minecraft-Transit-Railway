@@ -6,7 +6,7 @@ import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.mapper.BlockWithEntity;
-import org.mtr.mapping.registry.Registry;
+import org.mtr.mod.Init;
 import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
 
 import javax.annotation.Nonnull;
@@ -25,7 +25,7 @@ public abstract class BlockTrainSensorBase extends BlockExtension implements Blo
 			final BlockEntity entity = world.getBlockEntity(pos);
 			if (entity != null && entity.data instanceof BlockEntityBase) {
 				((BlockEntityBase) entity.data).markDirty2();
-				Registry.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(pos));
+				Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(pos));
 			}
 		});
 	}

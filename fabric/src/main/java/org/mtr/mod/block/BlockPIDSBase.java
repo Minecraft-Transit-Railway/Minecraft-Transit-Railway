@@ -3,7 +3,7 @@ package org.mtr.mod.block;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.registry.Registry;
+import org.mtr.mod.Init;
 import org.mtr.mod.packet.PacketOpenPIDSConfigScreen;
 
 import javax.annotation.Nonnull;
@@ -32,7 +32,7 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 			final BlockEntity entity = world.getBlockEntity(newBlockPos);
 			if (entity != null && entity.data instanceof BlockEntityBase) {
 				((BlockEntityBase) entity.data).markDirty2();
-				Registry.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenPIDSConfigScreen(newBlockPos, ((BlockEntityBase) entity.data).maxArrivals));
+				Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenPIDSConfigScreen(newBlockPos, ((BlockEntityBase) entity.data).maxArrivals));
 			}
 		});
 	}

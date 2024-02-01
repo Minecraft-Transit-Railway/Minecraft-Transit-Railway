@@ -7,18 +7,17 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.Init;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockTrainSensorBase;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.IPacket;
 import org.mtr.mod.packet.PacketUpdateTrainSensorConfig;
 
 import java.util.Collections;
 
-public abstract class TrainSensorScreenBase extends ScreenExtension implements IGui, IPacket {
+public abstract class TrainSensorScreenBase extends ScreenExtension implements IGui {
 
 	private boolean stoppedOnly;
 	private boolean movingOnly;
@@ -138,7 +137,7 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 		for (int i = 0; i < textFieldCount; i++) {
 			strings[i] = textFields[i].getText2();
 		}
-		RegistryClient.sendPacketToServer(new PacketUpdateTrainSensorConfig(blockPos, filterRouteIds, stoppedOnly, movingOnly, getNumber(), strings));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateTrainSensorConfig(blockPos, filterRouteIds, stoppedOnly, movingOnly, getNumber(), strings));
 		super.onClose2();
 	}
 

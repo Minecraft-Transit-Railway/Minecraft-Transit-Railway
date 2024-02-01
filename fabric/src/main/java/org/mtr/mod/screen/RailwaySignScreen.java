@@ -9,7 +9,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockRailwaySign;
 import org.mtr.mod.block.BlockRouteSignBase;
@@ -224,7 +223,7 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 
 	@Override
 	public void onClose2() {
-		RegistryClient.sendPacketToServer(new PacketUpdateRailwaySignConfig(signPos, selectedIds, signIds));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateRailwaySignConfig(signPos, selectedIds, signIds));
 		super.onClose2();
 	}
 

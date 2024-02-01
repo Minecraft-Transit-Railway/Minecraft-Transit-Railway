@@ -74,8 +74,10 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": true,
-			"speedSoundCount": 120,
-			"speedSoundBaseResource": "sp1900"
+			"legacySpeedSoundBaseResource": "sp1900",
+			"legacySpeedSoundCount": 120,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "sp1900_d1",
@@ -151,8 +153,10 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": true,
-			"speedSoundCount": 120,
-			"speedSoundBaseResource": "sp1900"
+			"legacySpeedSoundBaseResource": "sp1900",
+			"legacySpeedSoundCount": 120,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "sp1900_d2",
@@ -228,8 +232,10 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": false,
-			"speedSoundCount": 120,
-			"speedSoundBaseResource": "sp1900"
+			"legacySpeedSoundBaseResource": "sp1900",
+			"legacySpeedSoundCount": 120,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "sp1900_d3",
@@ -305,8 +311,10 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": false,
-			"speedSoundCount": 120,
-			"speedSoundBaseResource": "sp1900"
+			"legacySpeedSoundBaseResource": "sp1900",
+			"legacySpeedSoundCount": 120,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "c1141a_c",
@@ -382,8 +390,10 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": true,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "c1141a"
+			"legacySpeedSoundBaseResource": "c1141a",
+			"legacySpeedSoundCount": 96,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "c1141a_d1",
@@ -459,8 +469,10 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": true,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "c1141a"
+			"legacySpeedSoundBaseResource": "c1141a",
+			"legacySpeedSoundCount": 96,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "c1141a_d2",
@@ -536,8 +548,10 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": false,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "c1141a"
+			"legacySpeedSoundBaseResource": "c1141a",
+			"legacySpeedSoundCount": 96,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "c1141a_d3",
@@ -613,8 +627,10 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": false,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "c1141a"
+			"legacySpeedSoundBaseResource": "c1141a",
+			"legacySpeedSoundCount": 96,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "m_train_c",
@@ -684,8 +700,10 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": true,
-			"speedSoundCount": 90,
-			"speedSoundBaseResource": "m_train"
+			"legacySpeedSoundBaseResource": "m_train",
+			"legacySpeedSoundCount": 90,
+			"legacyDoorSoundBaseResource": "m_train",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "m_train_a1",
@@ -755,8 +773,10 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": true,
-			"speedSoundCount": 90,
-			"speedSoundBaseResource": "m_train"
+			"legacySpeedSoundBaseResource": "m_train",
+			"legacySpeedSoundCount": 90,
+			"legacyDoorSoundBaseResource": "m_train",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "m_train_a2",
@@ -826,8 +846,10 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": false,
-			"speedSoundCount": 90,
-			"speedSoundBaseResource": "m_train"
+			"legacySpeedSoundBaseResource": "m_train",
+			"legacySpeedSoundCount": 90,
+			"legacyDoorSoundBaseResource": "m_train",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "m_train_a3",
@@ -897,8 +919,10 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": false,
-			"speedSoundCount": 90,
-			"speedSoundBaseResource": "m_train"
+			"legacySpeedSoundBaseResource": "m_train",
+			"legacySpeedSoundCount": 90,
+			"legacyDoorSoundBaseResource": "m_train",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "k_train_c",
@@ -968,8 +992,10 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": true,
-			"speedSoundCount": 66,
-			"speedSoundBaseResource": "k_train"
+			"legacySpeedSoundBaseResource": "k_train",
+			"legacySpeedSoundCount": 66,
+			"legacyDoorSoundBaseResource": "k_train",
+			"legacyDoorCloseSoundTime": 1
 		},
 		{
 			"id": "k_train_a1",
@@ -1039,8 +1065,10 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": true,
-			"speedSoundCount": 66,
-			"speedSoundBaseResource": "k_train"
+			"legacySpeedSoundBaseResource": "k_train",
+			"legacySpeedSoundCount": 66,
+			"legacyDoorSoundBaseResource": "k_train",
+			"legacyDoorCloseSoundTime": 1
 		},
 		{
 			"id": "k_train_a2",
@@ -1110,8 +1138,10 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": false,
-			"speedSoundCount": 66,
-			"speedSoundBaseResource": "k_train"
+			"legacySpeedSoundBaseResource": "k_train",
+			"legacySpeedSoundCount": 66,
+			"legacyDoorSoundBaseResource": "k_train",
+			"legacyDoorCloseSoundTime": 1
 		},
 		{
 			"id": "k_train_a3",
@@ -1181,8 +1211,10 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": false,
-			"speedSoundCount": 66,
-			"speedSoundBaseResource": "k_train"
+			"legacySpeedSoundBaseResource": "k_train",
+			"legacySpeedSoundCount": 66,
+			"legacyDoorSoundBaseResource": "k_train",
+			"legacyDoorCloseSoundTime": 1
 		},
 		{
 			"id": "k_train_tcl_x",
@@ -1252,8 +1284,10 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": true,
-			"speedSoundCount": 66,
-			"speedSoundBaseResource": "k_train"
+			"legacySpeedSoundBaseResource": "k_train",
+			"legacySpeedSoundCount": 66,
+			"legacyDoorSoundBaseResource": "k_train",
+			"legacyDoorCloseSoundTime": 1
 		},
 		{
 			"id": "k_train_tcl_v1",
@@ -1323,8 +1357,10 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": true,
-			"speedSoundCount": 66,
-			"speedSoundBaseResource": "k_train"
+			"legacySpeedSoundBaseResource": "k_train",
+			"legacySpeedSoundCount": 66,
+			"legacyDoorSoundBaseResource": "k_train",
+			"legacyDoorCloseSoundTime": 1
 		},
 		{
 			"id": "k_train_tcl_v2",
@@ -1394,8 +1430,10 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": false,
-			"speedSoundCount": 66,
-			"speedSoundBaseResource": "k_train"
+			"legacySpeedSoundBaseResource": "k_train",
+			"legacySpeedSoundCount": 66,
+			"legacyDoorSoundBaseResource": "k_train",
+			"legacyDoorCloseSoundTime": 1
 		},
 		{
 			"id": "k_train_tcl_v3",
@@ -1465,8 +1503,10 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": false,
-			"speedSoundCount": 66,
-			"speedSoundBaseResource": "k_train"
+			"legacySpeedSoundBaseResource": "k_train",
+			"legacySpeedSoundCount": 66,
+			"legacyDoorSoundBaseResource": "k_train",
+			"legacyDoorCloseSoundTime": 1
 		},
 		{
 			"id": "k_train_ael_g",
@@ -1536,8 +1576,10 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": true,
-			"speedSoundCount": 66,
-			"speedSoundBaseResource": "k_train"
+			"legacySpeedSoundBaseResource": "k_train",
+			"legacySpeedSoundCount": 66,
+			"legacyDoorSoundBaseResource": "k_train",
+			"legacyDoorCloseSoundTime": 1
 		},
 		{
 			"id": "k_train_ael_e1",
@@ -1607,8 +1649,10 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": true,
-			"speedSoundCount": 66,
-			"speedSoundBaseResource": "k_train"
+			"legacySpeedSoundBaseResource": "k_train",
+			"legacySpeedSoundCount": 66,
+			"legacyDoorSoundBaseResource": "k_train",
+			"legacyDoorCloseSoundTime": 1
 		},
 		{
 			"id": "k_train_ael_e2",
@@ -1678,8 +1722,10 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": false,
-			"speedSoundCount": 66,
-			"speedSoundBaseResource": "k_train"
+			"legacySpeedSoundBaseResource": "k_train",
+			"legacySpeedSoundCount": 66,
+			"legacyDoorSoundBaseResource": "k_train",
+			"legacyDoorCloseSoundTime": 1
 		},
 		{
 			"id": "k_train_ael_e3",
@@ -1749,8 +1795,10 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": false,
-			"speedSoundCount": 66,
-			"speedSoundBaseResource": "k_train"
+			"legacySpeedSoundBaseResource": "k_train",
+			"legacySpeedSoundCount": 66,
+			"legacyDoorSoundBaseResource": "k_train",
+			"legacyDoorCloseSoundTime": 1
 		},
 		{
 			"id": "c_train_c",
@@ -1820,8 +1868,10 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": true,
-			"speedSoundCount": 69,
-			"speedSoundBaseResource": "c_train"
+			"legacySpeedSoundBaseResource": "c_train",
+			"legacySpeedSoundCount": 69,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "c_train_a1",
@@ -1891,8 +1941,10 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": true,
-			"speedSoundCount": 69,
-			"speedSoundBaseResource": "c_train"
+			"legacySpeedSoundBaseResource": "c_train",
+			"legacySpeedSoundCount": 69,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "c_train_a2",
@@ -1962,8 +2014,10 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": false,
-			"speedSoundCount": 69,
-			"speedSoundBaseResource": "c_train"
+			"legacySpeedSoundBaseResource": "c_train",
+			"legacySpeedSoundCount": 69,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "c_train_a3",
@@ -2033,8 +2087,10 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": false,
-			"speedSoundCount": 69,
-			"speedSoundBaseResource": "c_train"
+			"legacySpeedSoundBaseResource": "c_train",
+			"legacySpeedSoundCount": 69,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "s_train_b",
@@ -2104,8 +2160,10 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": true,
-			"speedSoundCount": 42,
-			"speedSoundBaseResource": "s_train"
+			"legacySpeedSoundBaseResource": "s_train",
+			"legacySpeedSoundCount": 42,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "s_train_a1",
@@ -2175,8 +2233,10 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": true,
-			"speedSoundCount": 42,
-			"speedSoundBaseResource": "s_train"
+			"legacySpeedSoundBaseResource": "s_train",
+			"legacySpeedSoundCount": 42,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "s_train_a2",
@@ -2246,8 +2306,10 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": false,
-			"speedSoundCount": 42,
-			"speedSoundBaseResource": "s_train"
+			"legacySpeedSoundBaseResource": "s_train",
+			"legacySpeedSoundCount": 42,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "s_train_a3",
@@ -2317,8 +2379,10 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": false,
-			"speedSoundCount": 42,
-			"speedSoundBaseResource": "s_train"
+			"legacySpeedSoundBaseResource": "s_train",
+			"legacySpeedSoundCount": 42,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "a_train_x",
@@ -2388,8 +2452,7 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": true,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "a_train"
+			"bveSoundBaseResource": "a_train"
 		},
 		{
 			"id": "a_train_v1",
@@ -2459,8 +2522,7 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": true,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "a_train"
+			"bveSoundBaseResource": "a_train"
 		},
 		{
 			"id": "a_train_v2",
@@ -2530,8 +2592,7 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": false,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "a_train"
+			"bveSoundBaseResource": "a_train"
 		},
 		{
 			"id": "a_train_v3",
@@ -2601,8 +2662,7 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": false,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "a_train"
+			"bveSoundBaseResource": "a_train"
 		},
 		{
 			"id": "a_train_g",
@@ -2660,8 +2720,7 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": true,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "a_train"
+			"bveSoundBaseResource": "a_train"
 		},
 		{
 			"id": "a_train_e1",
@@ -2719,8 +2778,7 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": true,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "a_train"
+			"bveSoundBaseResource": "a_train"
 		},
 		{
 			"id": "a_train_e2",
@@ -2778,8 +2836,7 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": false,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "a_train"
+			"bveSoundBaseResource": "a_train"
 		},
 		{
 			"id": "a_train_e3",
@@ -2837,8 +2894,7 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": false,
-			"speedSoundCount": 96,
-			"speedSoundBaseResource": "a_train"
+			"bveSoundBaseResource": "a_train"
 		},
 		{
 			"id": "mlr_5",
@@ -2916,8 +2972,11 @@
 			"hasGangway2": true,
 			"hasBarrier1": true,
 			"hasBarrier2": true,
-			"speedSoundCount": 120,
-			"speedSoundBaseResource": "mlr"
+			"legacySpeedSoundBaseResource": "mlr",
+			"legacySpeedSoundCount": 93,
+			"legacyUseAccelerationSoundsWhenCoasting": true,
+			"legacyDoorSoundBaseResource": "mlr",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "mlr_11",
@@ -2995,8 +3054,11 @@
 			"hasGangway2": true,
 			"hasBarrier1": false,
 			"hasBarrier2": true,
-			"speedSoundCount": 120,
-			"speedSoundBaseResource": "mlr"
+			"legacySpeedSoundBaseResource": "mlr",
+			"legacySpeedSoundCount": 93,
+			"legacyUseAccelerationSoundsWhenCoasting": true,
+			"legacyDoorSoundBaseResource": "mlr",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "mlr_12",
@@ -3074,8 +3136,11 @@
 			"hasGangway2": false,
 			"hasBarrier1": true,
 			"hasBarrier2": false,
-			"speedSoundCount": 120,
-			"speedSoundBaseResource": "mlr"
+			"legacySpeedSoundBaseResource": "mlr",
+			"legacySpeedSoundCount": 93,
+			"legacyUseAccelerationSoundsWhenCoasting": true,
+			"legacyDoorSoundBaseResource": "mlr",
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "mlr_13",
@@ -3153,8 +3218,291 @@
 			"hasGangway2": false,
 			"hasBarrier1": false,
 			"hasBarrier2": false,
-			"speedSoundCount": 120,
-			"speedSoundBaseResource": "mlr"
+			"legacySpeedSoundBaseResource": "mlr",
+			"legacySpeedSoundCount": 93,
+			"legacyUseAccelerationSoundsWhenCoasting": true,
+			"legacyDoorSoundBaseResource": "mlr",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "ngong_ping_360_crystal_lht",
+			"name": "Ngong Ping 360 Crystal Cabin (LHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:left"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_crystal.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_crystal_rht",
+			"name": "Ngong Ping 360 Crystal Cabin (RHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:right"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_crystal.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_crystal_plus_lht",
+			"name": "Ngong Ping 360 Crystal+ Cabin (LHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:left"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_crystal_plus.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_crystal_plus_rht",
+			"name": "Ngong Ping 360 Crystal+ Cabin (RHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:right"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_crystal_plus.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_normal_red_lht",
+			"name": "Ngong Ping 360 Red Cabin (LHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:left"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_normal_red.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_normal_red_rht",
+			"name": "Ngong Ping 360 Red Cabin (RHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:right"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_normal_red.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_normal_orange_lht",
+			"name": "Ngong Ping 360 Orange Cabin (LHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:left"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_normal_orange.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_normal_orange_rht",
+			"name": "Ngong Ping 360 Orange Cabin (RHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:right"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_normal_orange.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_normal_light_blue_lht",
+			"name": "Ngong Ping 360 Light Blue Cabin (LHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:left"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_normal_light_blue.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_lht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		},
+		{
+			"id": "ngong_ping_360_normal_light_blue_rht",
+			"name": "Ngong Ping 360 Light Blue Cabin (RHT)",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:right"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_normal_light_blue.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip_rht.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
 		}
 	],
 	"signs": [

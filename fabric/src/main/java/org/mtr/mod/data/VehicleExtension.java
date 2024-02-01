@@ -1,26 +1,31 @@
 package org.mtr.mod.data;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mtr.core.data.Data;
 import org.mtr.core.data.Vehicle;
 import org.mtr.core.integration.VehicleUpdate;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
+import org.mtr.core.tool.Vector;
 import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.mapping.holder.*;
+import org.mtr.mapping.holder.ClientPlayerEntity;
+import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mapping.holder.MutableText;
+import org.mtr.mapping.holder.Text;
 import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mod.Init;
 import org.mtr.mod.Items;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.VehicleRidingMovement;
+import org.mtr.mod.resource.VehicleResource;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
 
 public class VehicleExtension extends Vehicle implements Utilities {
 
+	private double oldSpeed;
+
 	public final PersistentVehicleData persistentVehicleData;
-	private static final int SHIFT_ACTIVATE_TICKS = 30;
-	private static final int DISMOUNT_PROGRESS_BAR_LENGTH = 30;
 
 	public VehicleExtension(VehicleUpdate vehicleUpdate, Data data) {
 		super(vehicleUpdate.getVehicleExtraData(), null, new JsonReader(Utilities.getJsonObjectFromData(vehicleUpdate.getVehicle())), data);
@@ -41,6 +46,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 	}
 
 	public void simulate(long millisElapsed) {
+		oldSpeed = speed;
 		simulate(millisElapsed, null, null);
 		persistentVehicleData.tick(millisElapsed, vehicleExtraData);
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
@@ -51,7 +57,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		final String thisRouteDestination = vehicleExtraData.getThisRouteDestination();
 
 		// Render client action bar floating text
-		if (clientPlayerEntity != null && VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(id) != null && showShiftProgressBar() && (!isCurrentlyManual || !isHoldingKey(clientPlayerEntity))) {
+		if (clientPlayerEntity != null && VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(id) != null && VehicleRidingMovement.showShiftProgressBar() && (!isCurrentlyManual || !isHoldingKey(clientPlayerEntity))) {
 			if (speed * MILLIS_PER_SECOND > 5 || thisRouteName.isEmpty() || thisStationName.isEmpty() || thisRouteDestination.isEmpty()) {
 				clientPlayerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr.vehicle_speed", Utilities.round(speed * MILLIS_PER_SECOND, 1), Utilities.round(speed * 3.6F * MILLIS_PER_SECOND, 1)).data), true);
 			} else {
@@ -78,19 +84,12 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		// TODO chat announcements (next station, route number, etc.)
 	}
 
-	public static boolean showShiftProgressBar() {
-		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
-		final float shiftHoldingTicks = ClientData.getShiftHoldingTicks();
+	public void playMotorSound(VehicleResource vehicleResource, int carNumber, int bogieIndex, Vector bogiePosition) {
+		persistentVehicleData.playMotorSound(vehicleResource, carNumber, bogieIndex, Init.newBlockPos(bogiePosition.x, bogiePosition.y, bogiePosition.z), (float) speed, (float) (speed - oldSpeed), (float) vehicleExtraData.getAcceleration(), getIsOnRoute());
+	}
 
-		if (shiftHoldingTicks > 0 && clientPlayerEntity != null) {
-			final int progressFilled = MathHelper.clamp((int) (shiftHoldingTicks * DISMOUNT_PROGRESS_BAR_LENGTH / SHIFT_ACTIVATE_TICKS), 0, DISMOUNT_PROGRESS_BAR_LENGTH);
-			final String progressBar = String.format("§6%s§7%s", StringUtils.repeat('|', progressFilled), StringUtils.repeat('|', DISMOUNT_PROGRESS_BAR_LENGTH - progressFilled));
-			clientPlayerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr.dismount_hold", minecraftClient.getOptionsMapped().getKeySneakMapped().getBoundKeyLocalizedText(), progressBar).data), true);
-			return false;
-		} else {
-			return true;
-		}
+	public void playDoorSound(VehicleResource vehicleResource, int carNumber, Vector vehiclePosition) {
+		persistentVehicleData.playDoorSound(vehicleResource, carNumber, Init.newBlockPos(vehiclePosition.x, vehiclePosition.y, vehiclePosition.z));
 	}
 
 	public static boolean isHoldingKey(@Nullable ClientPlayerEntity clientPlayerEntity) {

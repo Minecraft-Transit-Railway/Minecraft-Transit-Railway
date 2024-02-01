@@ -5,7 +5,6 @@ import org.mtr.core.data.LiftDirection;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.BlockEntityTypes;
 import org.mtr.mod.Init;
@@ -45,7 +44,7 @@ public class BlockLiftButtons extends BlockExtension implements DirectionHelper,
 				if (unlocked && hitY < 0.5) {
 					final org.mtr.mapping.holder.BlockEntity blockEntity = world.getBlockEntity(pos);
 					if (blockEntity != null && blockEntity.data instanceof BlockEntity) {
-						Registry.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketPressLiftButton(hitY < 0.25 ? LiftDirection.DOWN : LiftDirection.UP, ((BlockEntity) blockEntity.data).trackPositions));
+						Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketPressLiftButton(hitY < 0.25 ? LiftDirection.DOWN : LiftDirection.UP, ((BlockEntity) blockEntity.data).trackPositions));
 						return ActionResult.SUCCESS;
 					} else {
 						return ActionResult.FAIL;

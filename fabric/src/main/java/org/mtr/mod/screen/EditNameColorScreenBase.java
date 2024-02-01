@@ -13,9 +13,8 @@ import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.IPacket;
 
-public abstract class EditNameColorScreenBase<T extends NameColorDataBase> extends ScreenExtension implements Utilities, IGui, IPacket {
+public abstract class EditNameColorScreenBase<T extends NameColorDataBase> extends ScreenExtension implements Utilities, IGui {
 
 	private int nameStart;
 	private int colorStart;

@@ -9,21 +9,19 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockPIDSBase;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.IPacket;
 import org.mtr.mod.packet.PacketUpdatePIDSConfig;
 
 import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class PIDSConfigScreen extends ScreenExtension implements IGui, IPacket {
+public class PIDSConfigScreen extends ScreenExtension implements IGui {
 
 	private final BlockPos blockPos;
 	/**
@@ -213,7 +211,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui, IPacket {
 		} catch (Exception e) {
 			Init.logException(e);
 		}
-		RegistryClient.sendPacketToServer(new PacketUpdatePIDSConfig(blockPos, messages, filterPlatformIds, displayPage));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdatePIDSConfig(blockPos, messages, filterPlatformIds, displayPage));
 		super.onClose2();
 	}
 

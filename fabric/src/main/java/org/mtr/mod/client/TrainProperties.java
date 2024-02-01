@@ -4,7 +4,6 @@ import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.render.LegacyVehicleRenderer;
 import org.mtr.mod.sound.LegacyVehicleSound;
-import org.mtr.mod.sound.LegacyVehicleSoundConfig;
 import org.mtr.mod.sound.VehicleSoundBase;
 
 import javax.annotation.Nullable;
@@ -52,7 +51,7 @@ public class TrainProperties {
 				false,
 				false,
 				new LegacyVehicleRenderer(null, "", "", ""),
-				new LegacyVehicleSound("", new LegacyVehicleSoundConfig(null, 0, 0.5F, false))
+				new LegacyVehicleSound("", 0, false, false, "", 0)
 		);
 	}
 }
