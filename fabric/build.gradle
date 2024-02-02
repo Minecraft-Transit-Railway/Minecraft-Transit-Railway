@@ -52,7 +52,7 @@ tasks.register("setupFiles") {
 
 	buildTools.copyLootTables()
 	Generator.generate(project, "schema/resource", "mod/generated/resource", false, "core.data", "mod.resource")
-	Generator.generate(project, "schema/legacy", "legacy/generated/resource", false, "core.data", "legacy.resource")
+	Generator.generate(project, "schema/legacy", "legacy/generated/resource", false)
 }
 
 build {

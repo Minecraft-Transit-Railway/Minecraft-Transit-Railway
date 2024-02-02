@@ -1,0 +1,27 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"texture_id": {
+			"type": "string"
+		},
+		"flip_texture": {
+			"type": "boolean"
+		},
+		"custom_text": {
+			"type": "string"
+		},
+		"flip_custom_text": {
+			"type": "boolean"
+		},
+		"small": {
+			"type": "boolean"
+		},
+		"background_color": {
+			"type": "string"
+		}
+	}
+}

@@ -23,7 +23,7 @@ public final class CustomResourcesConverter {
 		if (hasCustomTrains) {
 			jsonObject.getAsJsonObject("custom_trains").entrySet().forEach(entry -> {
 				try {
-					vehicleResources.addAll(new LegacyVehicleResource(new JsonReader(entry.getValue())).convert(entry.getKey()));
+					new LegacyVehicleResource(new JsonReader(entry.getValue())).convert(vehicleResources, entry.getKey());
 				} catch (Exception e) {
 					Init.logException(e);
 				}
@@ -33,7 +33,13 @@ public final class CustomResourcesConverter {
 		final ObjectArrayList<SignResource> signResources = new ObjectArrayList<>();
 
 		if (hasCustomSigns) {
-
+			jsonObject.getAsJsonObject("custom_signs").entrySet().forEach(entry -> {
+				try {
+					new LegacySignResource(new JsonReader(entry.getValue())).convert(signResources, entry.getKey());
+				} catch (Exception e) {
+					Init.logException(e);
+				}
+			});
 		}
 
 		return new CustomResources(vehicleResources, signResources);
