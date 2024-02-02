@@ -28,9 +28,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 		updateData(readerBase);
 	}
 
-	public ObjectArrayList<VehicleResource> convert(String id) {
-		final ObjectArrayList<VehicleResource> vehicleResources = new ObjectArrayList<>();
-
+	public void convert(ObjectArrayList<VehicleResource> vehicleResources, String id) {
 		for (int i = 0; i < Variation.values().length; i++) {
 			final Variation variation = Variation.values()[i];
 			final VehicleResource[] baseVehicleResource = {null};
@@ -219,8 +217,6 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				vehicleResources.add(new VehicleResource(new JsonReader(baseObject)));
 			}
 		}
-
-		return vehicleResources;
 	}
 
 	private void processModel(int currentCar, int totalCars, JsonArray propertiesPartsArray, JsonArray positionDefinitionsArray, JsonArray partsArray, double doorMax, @Nullable String renderConditionOverride, @Nullable String whitelistedCarsOverride, @Nullable String blacklistedCarsOverride) {
