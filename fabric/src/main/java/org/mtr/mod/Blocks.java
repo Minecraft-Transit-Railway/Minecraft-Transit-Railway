@@ -60,7 +60,7 @@ public final class Blocks {
 		ARRIVAL_PROJECTOR_1_LARGE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "arrival_projector_1_large"), () -> new Block(new BlockArrivalProjector1Large()), CreativeModeTabs.RAILWAY_FACILITIES);
 
 		// blocks
-				PLATFORM = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), false)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), false)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		PLATFORM_INDENTED = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_indented"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		PLATFORM_NA_1 = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_na_1"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), false)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		PLATFORM_NA_1_INDENTED = Registry.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_na_1_indented"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
