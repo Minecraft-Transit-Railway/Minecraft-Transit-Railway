@@ -1,11 +1,13 @@
 package org.mtr.mod;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.jonafanho.apitools.ModId;
 import com.jonafanho.apitools.ModLoader;
 import com.jonafanho.apitools.ModProvider;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.Project;
@@ -18,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -89,6 +92,44 @@ public class BuildTools {
 				}
 			});
 		}
+	}
+
+	public void copyVehicleTemplates() throws IOException {
+		final ObjectArrayList<String> vehicles = new ObjectArrayList<>();
+
+		try (final Stream<Path> stream = Files.list(path.resolve("src/main/vehicle_templates"))) {
+			stream.sorted().forEach(vehicleTemplatePath -> {
+				try {
+					final JsonObject fileObject = JsonParser.parseString(FileUtils.readFileToString(vehicleTemplatePath.toFile(), StandardCharsets.UTF_8)).getAsJsonObject();
+					final JsonObject replacementObject = fileObject.getAsJsonObject("replacements");
+					final int variationCount = replacementObject.entrySet().stream().map(Map.Entry::getValue).findFirst().orElse(new JsonArray()).getAsJsonArray().size();
+
+					fileObject.getAsJsonArray("vehicles").forEach(vehicleElement -> {
+						for (int i = 0; i < variationCount; i++) {
+							final JsonObject vehicleObject = vehicleElement.getAsJsonObject();
+							final double length = replacementObject.getAsJsonArray("lengths").get(i).getAsDouble();
+							final String id = vehicleObject.get("id").getAsString();
+							vehicleObject.addProperty("length", length);
+							vehicleObject.addProperty("bogie1Position", length <= 4 || id.contains("cab_3") ? 0 : (-length / 2 + (length <= 14 && (id.contains("trailer") || id.contains("cab_2")) ? 0 : 4)));
+							vehicleObject.addProperty("bogie2Position", length <= 4 || id.contains("cab_3") ? 0 : (length / 2 - (length <= 14 && (id.contains("trailer") || id.contains("cab_1")) ? 0 : 4)));
+							String newFileString = vehicleObject.toString();
+							for (final Map.Entry<String, JsonElement> entry : replacementObject.entrySet()) {
+								newFileString = newFileString.replace(String.format("@%s@", entry.getKey()), entry.getValue().getAsJsonArray().get(i).getAsString());
+							}
+							vehicles.add(newFileString);
+						}
+					});
+				} catch (Exception e) {
+					logException(e);
+				}
+			});
+		}
+
+		FileUtils.write(
+				path.resolve("src/main/resources/assets/mtr/mtr_custom_resources.json").toFile(),
+				FileUtils.readFileToString(path.resolve("src/main/mtr_custom_resources_template.json").toFile(), StandardCharsets.UTF_8).replace("\"@token@\"", String.join(",", vehicles)),
+				StandardCharsets.UTF_8
+		);
 	}
 
 	public void copyBuildFile() throws IOException {

@@ -43,5 +43,6 @@ forge/src/main/resources/META-INF
 fabric.mod.json
 mtr.accesswidener
 Keys.java
+mtr_custom_resources.json
 **/lang/*.json
 !en_us.json

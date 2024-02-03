@@ -35,8 +35,8 @@
 				"roof_exterior"
 			],
 			"positionDefinitions": [
-				"windowAelEnd2",
-				"windowAelEnd2Flipped"
+				"windowEnd2",
+				"windowEnd2Flipped"
 			],
 			"renderStage": "EXTERIOR"
 		}

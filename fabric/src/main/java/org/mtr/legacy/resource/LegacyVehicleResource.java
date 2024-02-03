@@ -98,6 +98,8 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				final double bogiePosition = length < 10 ? 0 : length * 0.34;
 				baseObject.addProperty("bogie1Position", -bogiePosition);
 				baseObject.addProperty("bogie2Position", bogiePosition);
+				baseObject.addProperty("couplingPadding1", (i & 0b01) == 0 ? 0 : 1);
+				baseObject.addProperty("couplingPadding2", (i & 0b10) == 0 ? 0 : 1);
 				baseObject.addProperty("hasGangway1", (!gangway_connection_id.isEmpty() || has_gangway_connection) && (i & 0b01) == 0);
 				baseObject.addProperty("hasGangway2", (!gangway_connection_id.isEmpty() || has_gangway_connection) && (i & 0b10) == 0);
 				baseObject.addProperty("hasBarrier1", !train_barrier_id.isEmpty() && (i & 0b01) == 0);
@@ -108,6 +110,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				baseObject.addProperty("legacyUseAccelerationSoundsWhenCoasting", accel_sound_at_coast);
 				baseObject.addProperty("legacyConstantPlaybackSpeed", const_playback_speed);
 				baseObject.addProperty("legacyDoorSoundBaseResource", door_sound_base_id);
+				baseObject.addProperty("legacyDoorCloseSoundTime", door_close_sound_time);
 				baseObject.addProperty("legacyDoorCloseSoundTime", door_close_sound_time);
 
 				final JsonObject modelObject = new JsonObject();
@@ -404,7 +407,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 	}
 
 	private enum Variation {
-		TRAILER(""), CAB_1(" Cab (Forwards)"), CAB_2(" Cab (Backwards)");
+		TRAILER(""), CAB_1(" Cab (Forwards)"), CAB_2(" Cab (Backwards)"), CAB_3(" Cab (Double)");
 
 		private final String key;
 		private final String description;

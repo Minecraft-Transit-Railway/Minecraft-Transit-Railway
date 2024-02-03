@@ -5,9 +5,9 @@
 				"door_right_overlay_interior"
 			],
 			"positionDefinitions": [
-				"doorTcl",
-				"doorTclEnd1",
-				"doorTclEnd2Flipped"
+				"door",
+				"doorEnd1",
+				"doorEnd2Flipped"
 			],
 			"renderStage": "INTERIOR",
 			"doorXMultiplier": -1,
@@ -19,9 +19,9 @@
 				"door_left_overlay_exterior"
 			],
 			"positionDefinitions": [
-				"doorTcl",
-				"doorTclEnd1",
-				"doorTclEnd2Flipped"
+				"door",
+				"doorEnd1",
+				"doorEnd2Flipped"
 			],
 			"renderStage": "EXTERIOR",
 			"doorXMultiplier": -1,
@@ -33,9 +33,9 @@
 				"door_right_overlay_interior"
 			],
 			"positionDefinitions": [
-				"doorTclFlipped",
-				"doorTclEnd1Flipped",
-				"doorTclEnd2"
+				"doorFlipped",
+				"doorEnd1Flipped",
+				"doorEnd2"
 			],
 			"renderStage": "INTERIOR",
 			"doorXMultiplier": 1,
@@ -47,9 +47,9 @@
 				"door_left_overlay_exterior"
 			],
 			"positionDefinitions": [
-				"doorTclFlipped",
-				"doorTclEnd1Flipped",
-				"doorTclEnd2"
+				"doorFlipped",
+				"doorEnd1Flipped",
+				"doorEnd2"
 			],
 			"renderStage": "EXTERIOR",
 			"doorXMultiplier": 1,
