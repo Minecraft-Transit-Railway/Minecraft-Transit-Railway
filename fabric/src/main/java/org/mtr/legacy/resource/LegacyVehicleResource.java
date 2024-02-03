@@ -228,7 +228,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 			final String[] whitelistedCarsFilters = (whitelistedCarsOverride == null ? tryGet(propertiesPartsObject, "whitelisted_cars") : whitelistedCarsOverride).split(",");
 			final String[] blacklistedCarsFilters = (blacklistedCarsOverride == null ? tryGet(propertiesPartsObject, "blacklisted_cars") : blacklistedCarsOverride).split(",");
 
-			if (matchesFilter(blacklistedCarsFilters, currentCar, totalCars) <= matchesFilter(whitelistedCarsFilters, currentCar, 3)) {
+			if (matchesFilter(blacklistedCarsFilters, currentCar, totalCars) <= matchesFilter(whitelistedCarsFilters, currentCar, totalCars)) {
 				final JsonObject partsObject = new JsonObject();
 				partsArray.add(partsObject);
 

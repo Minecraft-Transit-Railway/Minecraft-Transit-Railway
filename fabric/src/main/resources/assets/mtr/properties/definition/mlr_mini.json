@@ -3,21 +3,21 @@
 		{
 			"name": "window1",
 			"positions": [
-			],
-			"positionsFlipped": [
 				{
 					"z": 0
 				}
+			],
+			"positionsFlipped": [
 			]
 		},
 		{
 			"name": "window2",
 			"positions": [
+			],
+			"positionsFlipped": [
 				{
 					"z": 0
 				}
-			],
-			"positionsFlipped": [
 			]
 		},
 		{
