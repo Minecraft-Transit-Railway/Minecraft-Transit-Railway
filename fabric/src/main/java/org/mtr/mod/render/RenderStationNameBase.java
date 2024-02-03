@@ -34,7 +34,7 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.Block
 
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(true);
 		storedMatrixTransformations.add(graphicsHolderNew -> {
-			graphicsHolderNew.translate(0.5 + entity.getPos2().getX(), 0.5 + entity.yOffset + entity.getPos2().getY(), 0.5 + entity.getPos2().getZ());
+			graphicsHolderNew.translate(0.5 + pos.getX(), 0.5 + entity.yOffset + pos.getY(), 0.5 + pos.getZ());
 			graphicsHolderNew.rotateYDegrees(-facing.asRotation());
 			graphicsHolderNew.rotateZDegrees(180);
 		});

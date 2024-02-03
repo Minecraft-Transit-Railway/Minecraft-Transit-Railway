@@ -52,7 +52,7 @@ public class RenderStationNameTiled<T extends BlockStationNameBase.BlockEntityBa
 		int length = 1;
 		while (true) {
 			final Block checkBlock = world.getBlockState(pos.offset(lookRight ? facing.rotateYClockwise() : facing.rotateYCounterclockwise(), length)).getBlock();
-			if (checkBlock.data instanceof BlockStationNameBase && checkBlock == thisBlock) {
+			if (checkBlock.data instanceof BlockStationNameBase && checkBlock.data == thisBlock.data) {
 				length++;
 			} else {
 				break;

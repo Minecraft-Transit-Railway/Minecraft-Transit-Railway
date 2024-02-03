@@ -6,6 +6,7 @@
 			],
 			"positionDefinitions": [
 				"window",
+				"windowFlipped",
 				"windowEnd1",
 				"windowEnd2",
 				"windowEnd1Flipped",
@@ -23,6 +24,7 @@
 			],
 			"positionDefinitions": [
 				"window",
+				"windowFlipped",
 				"windowEnd1",
 				"windowEnd2",
 				"windowEnd1Flipped",
@@ -36,6 +38,7 @@
 			],
 			"positionDefinitions": [
 				"window",
+				"windowFlipped",
 				"windowEnd1",
 				"windowEnd2",
 				"windowEnd1Flipped",
@@ -67,6 +70,7 @@
 			],
 			"positionDefinitions": [
 				"window",
+				"windowFlipped",
 				"windowEnd1",
 				"windowEnd2",
 				"windowEnd1Flipped",
@@ -85,7 +89,8 @@
 				"window_exterior_tcl"
 			],
 			"positionDefinitions": [
-				"window"
+				"window",
+				"windowFlipped"
 			],
 			"renderStage": "EXTERIOR"
 		},

@@ -4,15 +4,15 @@
 			"name": "window1",
 			"positions": [
 				{
-					"z": 0
-				}
-			],
-			"positionsFlipped": [
-				{
 					"z": -64
 				},
 				{
 					"z": 64
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 0
 				}
 			]
 		},
@@ -20,15 +20,15 @@
 			"name": "window2",
 			"positions": [
 				{
-					"z": -64
-				},
-				{
-					"z": 64
+					"z": 0
 				}
 			],
 			"positionsFlipped": [
 				{
-					"z": 0
+					"z": -64
+				},
+				{
+					"z": 64
 				}
 			]
 		},

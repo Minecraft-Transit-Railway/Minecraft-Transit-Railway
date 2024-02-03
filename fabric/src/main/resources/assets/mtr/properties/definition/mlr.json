@@ -4,18 +4,18 @@
 			"name": "window1",
 			"positions": [
 				{
-					"z": -32
-				},
-				{
-					"z": 96
-				}
-			],
-			"positionsFlipped": [
-				{
 					"z": -96
 				},
 				{
 					"z": 32
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -32
+				},
+				{
+					"z": 96
 				}
 			]
 		},
@@ -23,18 +23,18 @@
 			"name": "window2",
 			"positions": [
 				{
-					"z": -96
-				},
-				{
-					"z": 32
-				}
-			],
-			"positionsFlipped": [
-				{
 					"z": -32
 				},
 				{
 					"z": 96
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -96
+				},
+				{
+					"z": 32
 				}
 			]
 		},

@@ -12,7 +12,7 @@ public abstract class BlockStationNameBase extends BlockExtension implements Dir
 	public static final IntegerProperty COLOR = IntegerProperty.of("color", 0, 2);
 
 	protected BlockStationNameBase(BlockSettings blockSettings) {
-		super(blockSettings);
+		super(blockSettings.nonOpaque());
 	}
 
 	@Override

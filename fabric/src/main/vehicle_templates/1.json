@@ -584,7 +584,7 @@
 		},
 		{
 			"id": "k_train_tcl@definition@_trailer",
-			"name": "K-Train (Tung Chung Line) Trailer (@name@)",
+			"name": "K-Train Trailer (Tung Chung Line, @name@)",
 			"color": "0EAB52",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -654,7 +654,7 @@
 		},
 		{
 			"id": "k_train_tcl@definition@_cab_1",
-			"name": "K-Train Cab (Tung Chung Line, Forwards) Trailer (@name@)",
+			"name": "K-Train Cab (Tung Chung Line, Forwards, @name@)",
 			"color": "0EAB52",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -724,7 +724,7 @@
 		},
 		{
 			"id": "k_train_tcl@definition@_cab_2",
-			"name": "K-Train Cab (Tung Chung Line, Backwards) Trailer (@name@)",
+			"name": "K-Train Cab (Tung Chung Line, Backwards, @name@)",
 			"color": "0EAB52",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -794,7 +794,7 @@
 		},
 		{
 			"id": "k_train_tcl@definition@_cab_3",
-			"name": "K-Train Cab (Tung Chung Line, Double) Trailer (@name@)",
+			"name": "K-Train Cab (Tung Chung Line, Double, @name@)",
 			"color": "0EAB52",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -864,7 +864,7 @@
 		},
 		{
 			"id": "k_train_ael@definition@_trailer",
-			"name": "K-Train (Airport Express) Trailer (@name@)",
+			"name": "K-Train Trailer (Airport Express, @name@)",
 			"color": "0EAB52",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -934,7 +934,7 @@
 		},
 		{
 			"id": "k_train_ael@definition@_cab_1",
-			"name": "K-Train Cab (Airport Express, Forwards) Trailer (@name@)",
+			"name": "K-Train Cab (Airport Express, Forwards, @name@)",
 			"color": "0EAB52",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -1004,7 +1004,7 @@
 		},
 		{
 			"id": "k_train_ael@definition@_cab_2",
-			"name": "K-Train Cab (Airport Express, Backwards) Trailer (@name@)",
+			"name": "K-Train Cab (Airport Express, Backwards, @name@)",
 			"color": "0EAB52",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -1074,7 +1074,7 @@
 		},
 		{
 			"id": "k_train_ael@definition@_cab_3",
-			"name": "K-Train Cab (Airport Express, Double) Trailer (@name@)",
+			"name": "K-Train Cab (Airport Express, Double, @name@)",
 			"color": "0EAB52",
 			"transportMode": "TRAIN",
 			"width": 2,
