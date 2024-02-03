@@ -7,7 +7,6 @@ import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.mapper.SlabBlockExtension;
 import org.mtr.mapping.registry.BlockRegistryObject;
-import org.mtr.mapping.registry.Registry;
 import org.mtr.mod.block.*;
 
 
