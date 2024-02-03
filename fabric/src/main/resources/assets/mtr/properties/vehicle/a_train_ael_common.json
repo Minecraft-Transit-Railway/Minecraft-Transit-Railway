@@ -5,11 +5,11 @@
 				"roof_light_window_ael"
 			],
 			"positionDefinitions": [
-				"windowAel",
-				"windowAelEnd1",
-				"windowAelEnd1Flipped",
-				"windowAelEnd2",
-				"windowAelEnd2Flipped"
+				"window",
+				"windowEnd1",
+				"windowEnd1Flipped",
+				"windowEnd2",
+				"windowEnd2Flipped"
 			],
 			"renderStage": "LIGHT"
 		},
@@ -19,11 +19,11 @@
 				"roof_window_ael"
 			],
 			"positionDefinitions": [
-				"windowAel",
-				"windowAelEnd1",
-				"windowAelEnd1Flipped",
-				"windowAelEnd2",
-				"windowAelEnd2Flipped"
+				"window",
+				"windowEnd1",
+				"windowEnd1Flipped",
+				"windowEnd2",
+				"windowEnd2Flipped"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -32,11 +32,11 @@
 				"window_floor_ael"
 			],
 			"positionDefinitions": [
-				"windowAel",
-				"windowAelEnd1",
-				"windowAelEnd1Flipped",
-				"windowAelEnd2",
-				"windowAelEnd2Flipped"
+				"window",
+				"windowEnd1",
+				"windowEnd1Flipped",
+				"windowEnd2",
+				"windowEnd2Flipped"
 			],
 			"type": "FLOOR"
 		},
@@ -45,7 +45,7 @@
 				"side_panel_ael"
 			],
 			"positionDefinitions": [
-				"sidePanelAel"
+				"sidePanel"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -54,7 +54,7 @@
 				"side_panel_ael_translucent"
 			],
 			"positionDefinitions": [
-				"sidePanelAel"
+				"sidePanel"
 			],
 			"renderStage": "INTERIOR_TRANSLUCENT"
 		},
@@ -63,8 +63,8 @@
 				"roof_exterior"
 			],
 			"positionDefinitions": [
-				"windowAel",
-				"doorRoofAel"
+				"window",
+				"doorRoof"
 			],
 			"renderStage": "EXTERIOR"
 		},
@@ -73,7 +73,7 @@
 				"window_exterior_ael"
 			],
 			"positionDefinitions": [
-				"windowAel"
+				"window"
 			],
 			"renderStage": "EXTERIOR"
 		},
@@ -82,8 +82,8 @@
 				"roof_light_door_ael"
 			],
 			"positionDefinitions": [
-				"doorAel",
-				"doorAelFlipped"
+				"door",
+				"doorFlipped"
 			],
 			"renderStage": "LIGHT"
 		},
@@ -94,8 +94,8 @@
 				"roof_door_ael"
 			],
 			"positionDefinitions": [
-				"doorAel",
-				"doorAelFlipped"
+				"door",
+				"doorFlipped"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -104,8 +104,8 @@
 				"door_floor_ael"
 			],
 			"positionDefinitions": [
-				"doorAel",
-				"doorAelFlipped"
+				"door",
+				"doorFlipped"
 			],
 			"type": "FLOOR"
 		},
@@ -132,8 +132,8 @@
 				"door_floor_ael"
 			],
 			"positionDefinitions": [
-				"doorAel",
-				"doorAelFlipped"
+				"door",
+				"doorFlipped"
 			],
 			"type": "FLOOR"
 		},
@@ -142,8 +142,8 @@
 				"doorway_ael"
 			],
 			"positionDefinitions": [
-				"doorAel",
-				"doorAelFlipped"
+				"door",
+				"doorFlipped"
 			],
 			"type": "DOORWAY"
 		},
@@ -152,7 +152,7 @@
 				"door_left_ael"
 			],
 			"positionDefinitions": [
-				"doorAel"
+				"door"
 			],
 			"renderStage": "INTERIOR",
 			"doorXMultiplier": -1,
@@ -164,7 +164,7 @@
 				"door_right_ael"
 			],
 			"positionDefinitions": [
-				"doorAel"
+				"door"
 			],
 			"renderStage": "INTERIOR",
 			"doorXMultiplier": -1,
@@ -176,7 +176,7 @@
 				"door_left_ael"
 			],
 			"positionDefinitions": [
-				"doorAelFlipped"
+				"doorFlipped"
 			],
 			"renderStage": "INTERIOR",
 			"doorXMultiplier": 1,
@@ -188,7 +188,7 @@
 				"door_right_ael"
 			],
 			"positionDefinitions": [
-				"doorAelFlipped"
+				"doorFlipped"
 			],
 			"renderStage": "INTERIOR",
 			"doorXMultiplier": 1,
@@ -200,8 +200,8 @@
 				"door_exterior_ael"
 			],
 			"positionDefinitions": [
-				"doorAel",
-				"doorAelFlipped"
+				"door",
+				"doorFlipped"
 			],
 			"renderStage": "EXTERIOR"
 		},
@@ -210,7 +210,7 @@
 				"door_left_exterior_ael"
 			],
 			"positionDefinitions": [
-				"doorAel"
+				"door"
 			],
 			"renderStage": "EXTERIOR",
 			"doorXMultiplier": -1,
@@ -222,7 +222,7 @@
 				"door_right_exterior_ael"
 			],
 			"positionDefinitions": [
-				"doorAel"
+				"door"
 			],
 			"renderStage": "EXTERIOR",
 			"doorXMultiplier": -1,
@@ -234,7 +234,7 @@
 				"door_left_exterior_ael"
 			],
 			"positionDefinitions": [
-				"doorAelFlipped"
+				"doorFlipped"
 			],
 			"renderStage": "EXTERIOR",
 			"doorXMultiplier": 1,
@@ -246,7 +246,7 @@
 				"door_right_exterior_ael"
 			],
 			"positionDefinitions": [
-				"doorAelFlipped"
+				"doorFlipped"
 			],
 			"renderStage": "EXTERIOR",
 			"doorXMultiplier": 1,
@@ -258,7 +258,7 @@
 				"door_light_on"
 			],
 			"positionDefinitions": [
-				"doorLightAel"
+				"doorLight"
 			],
 			"condition": "DOORS_OPENED",
 			"renderStage": "ALWAYS_ON_LIGHT"
@@ -268,7 +268,7 @@
 				"door_light_off"
 			],
 			"positionDefinitions": [
-				"doorLightAel"
+				"doorLight"
 			],
 			"condition": "DOORS_CLOSED",
 			"renderStage": "EXTERIOR"

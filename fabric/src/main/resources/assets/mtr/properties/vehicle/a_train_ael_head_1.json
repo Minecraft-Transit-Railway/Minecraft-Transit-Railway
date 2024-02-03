@@ -25,7 +25,7 @@
 				"roof_exterior"
 			],
 			"positionDefinitions": [
-				"end1RoofAel"
+				"end1Roof"
 			],
 			"renderStage": "EXTERIOR"
 		},
