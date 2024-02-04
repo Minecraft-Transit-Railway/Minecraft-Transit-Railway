@@ -7,9 +7,10 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.MinecraftServer;
-import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.registry.PacketHandler;
+import org.mtr.mapping.tool.PacketBufferReceiver;
+import org.mtr.mapping.tool.PacketBufferSender;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockLiftButtons;
@@ -24,20 +25,20 @@ public final class PacketPressLiftButton extends PacketHandler {
 		this.trackPositions = trackPositions;
 	}
 
-	public PacketPressLiftButton(PacketBuffer packetBuffer) {
-		pressDirection = EnumHelper.valueOf(LiftDirection.NONE, readString(packetBuffer));
+	public PacketPressLiftButton(PacketBufferReceiver packetBufferReceiver) {
+		pressDirection = EnumHelper.valueOf(LiftDirection.NONE, packetBufferReceiver.readString());
 		trackPositions = new ObjectOpenHashSet<>();
-		final int count = packetBuffer.readInt();
+		final int count = packetBufferReceiver.readInt();
 		for (int i = 0; i < count; i++) {
-			trackPositions.add(packetBuffer.readBlockPos());
+			trackPositions.add(BlockPos.fromLong(packetBufferReceiver.readLong()));
 		}
 	}
 
 	@Override
-	public void write(PacketBuffer packetBuffer) {
-		writeString(packetBuffer, pressDirection.toString());
-		packetBuffer.writeInt(trackPositions.size());
-		trackPositions.forEach(packetBuffer::writeBlockPos);
+	public void write(PacketBufferSender packetBufferSender) {
+		packetBufferSender.writeString(pressDirection.toString());
+		packetBufferSender.writeInt(trackPositions.size());
+		trackPositions.forEach(blockPos -> packetBufferSender.writeLong(blockPos.asLong()));
 	}
 
 	@Override

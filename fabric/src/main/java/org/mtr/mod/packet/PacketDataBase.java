@@ -22,6 +22,8 @@ import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
 import org.mtr.mapping.registry.PacketHandler;
+import org.mtr.mapping.tool.PacketBufferReceiver;
+import org.mtr.mapping.tool.PacketBufferSender;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.client.ClientData;
@@ -50,11 +52,11 @@ public abstract class PacketDataBase extends PacketHandler {
 		this.updateClientDataDashboardInstance = updateClientDataDashboardInstance;
 	}
 
-	protected static <T extends PacketDataBase> T create(PacketBuffer packetBuffer, PacketDataBaseInstance<T> packetDataBaseInstance) {
-		final IntegrationServlet.Operation operation = EnumHelper.valueOf(IntegrationServlet.Operation.UPDATE, readStringTrimmed(packetBuffer));
-		final JsonReader integrationJsonReader = new JsonReader(Utilities.parseJson(readStringTrimmed(packetBuffer)));
-		final boolean updateClientDataInstance = packetBuffer.readBoolean();
-		final boolean updateClientDataDashboardInstance = packetBuffer.readBoolean();
+	protected static <T extends PacketDataBase> T create(PacketBufferReceiver packetBufferReceiver, PacketDataBaseInstance<T> packetDataBaseInstance) {
+		final IntegrationServlet.Operation operation = EnumHelper.valueOf(IntegrationServlet.Operation.UPDATE, packetBufferReceiver.readString());
+		final JsonReader integrationJsonReader = new JsonReader(Utilities.parseJson(packetBufferReceiver.readString()));
+		final boolean updateClientDataInstance = packetBufferReceiver.readBoolean();
+		final boolean updateClientDataDashboardInstance = packetBufferReceiver.readBoolean();
 		return packetDataBaseInstance.create(
 				operation,
 				new Integration(integrationJsonReader, updateClientDataDashboardInstance ? ClientData.getDashboardInstance() : ClientData.getInstance()),
@@ -64,11 +66,11 @@ public abstract class PacketDataBase extends PacketHandler {
 	}
 
 	@Override
-	public void write(PacketBuffer packetBuffer) {
-		writeStringTrimmed(packetBuffer, operation.toString());
-		writeStringTrimmed(packetBuffer, Utilities.getJsonObjectFromData(integration).toString());
-		packetBuffer.writeBoolean(updateClientDataInstance);
-		packetBuffer.writeBoolean(updateClientDataDashboardInstance);
+	public void write(PacketBufferSender packetBufferSender) {
+		packetBufferSender.writeString(operation.toString());
+		packetBufferSender.writeString(Utilities.getJsonObjectFromData(integration).toString());
+		packetBufferSender.writeBoolean(updateClientDataInstance);
+		packetBufferSender.writeBoolean(updateClientDataDashboardInstance);
 	}
 
 	@Override
@@ -173,23 +175,6 @@ public abstract class PacketDataBase extends PacketHandler {
 		} catch (Exception e) {
 			Init.logException(e);
 		}
-	}
-
-	public static void writeStringTrimmed(PacketBuffer packetBuffer, String text) {
-		final int maxLength = 32767;
-		packetBuffer.writeInt((int) Math.ceil((float) text.length() / maxLength));
-		for (int i = 0; i < text.length(); i += maxLength) {
-			writeString(packetBuffer, text.substring(i, Math.min(text.length(), i + maxLength)));
-		}
-	}
-
-	public static String readStringTrimmed(PacketBuffer packetBuffer) {
-		final StringBuilder stringBuilder = new StringBuilder();
-		final int count = packetBuffer.readInt();
-		for (int i = 0; i < count; i++) {
-			stringBuilder.append(readString(packetBuffer));
-		}
-		return stringBuilder.toString();
 	}
 
 	protected static void sendHttpDataRequest(IntegrationServlet.Operation operation, Integration integration, Consumer<Integration> consumer) {

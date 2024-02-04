@@ -7,7 +7,7 @@ import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.ClientPlayerEntity;
 import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.holder.PacketBuffer;
+import org.mtr.mapping.tool.PacketBufferReceiver;
 
 import javax.annotation.Nullable;
 
@@ -22,8 +22,8 @@ public final class PacketUpdateVehicleRidingEntities extends PacketRequestRespon
 		return new PacketUpdateVehicleRidingEntities(updateVehicleRidingEntities);
 	}
 
-	public PacketUpdateVehicleRidingEntities(PacketBuffer packetBuffer) {
-		super(packetBuffer);
+	public PacketUpdateVehicleRidingEntities(PacketBufferReceiver packetBufferReceiver) {
+		super(packetBufferReceiver);
 	}
 
 	private PacketUpdateVehicleRidingEntities(UpdateVehicleRidingEntities updateVehicleRidingEntities) {

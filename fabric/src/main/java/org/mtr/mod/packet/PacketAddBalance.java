@@ -4,6 +4,8 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.InventoryHelper;
 import org.mtr.mapping.mapper.PlayerHelper;
 import org.mtr.mapping.registry.PacketHandler;
+import org.mtr.mapping.tool.PacketBufferReceiver;
+import org.mtr.mapping.tool.PacketBufferSender;
 import org.mtr.mod.data.TicketSystem;
 
 public final class PacketAddBalance extends PacketHandler {
@@ -12,8 +14,8 @@ public final class PacketAddBalance extends PacketHandler {
 
 	private static final int EMERALD_TO_DOLLAR = 10;
 
-	public PacketAddBalance(PacketBuffer packetBuffer) {
-		index = packetBuffer.readInt();
+	public PacketAddBalance(PacketBufferReceiver packetBufferReceiver) {
+		index = packetBufferReceiver.readInt();
 	}
 
 	public PacketAddBalance(int index) {
@@ -21,8 +23,8 @@ public final class PacketAddBalance extends PacketHandler {
 	}
 
 	@Override
-	public void write(PacketBuffer packetBuffer) {
-		packetBuffer.writeInt(index);
+	public void write(PacketBufferSender packetBufferSender) {
+		packetBufferSender.writeInt(index);
 	}
 
 	@Override

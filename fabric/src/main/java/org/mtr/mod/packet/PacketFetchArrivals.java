@@ -6,7 +6,8 @@ import org.mtr.core.operation.ArrivalsResponse;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
-import org.mtr.mapping.holder.PacketBuffer;
+import org.mtr.mapping.tool.PacketBufferReceiver;
+import org.mtr.mapping.tool.PacketBufferSender;
 import org.mtr.mod.client.ClientData;
 
 public final class PacketFetchArrivals extends PacketRequestResponseBase<ArrivalsRequest> implements Utilities {
@@ -15,9 +16,9 @@ public final class PacketFetchArrivals extends PacketRequestResponseBase<Arrival
 
 	private static long millisOffset;
 
-	public PacketFetchArrivals(PacketBuffer packetBuffer) {
-		super(packetBuffer);
-		requestKey = packetBuffer.readLong();
+	public PacketFetchArrivals(PacketBufferReceiver packetBufferReceiver) {
+		super(packetBufferReceiver);
+		requestKey = packetBufferReceiver.readLong();
 	}
 
 	public PacketFetchArrivals(long requestKey, LongImmutableList platformIds, int count, int page, boolean realtimeOnly) {
@@ -31,9 +32,9 @@ public final class PacketFetchArrivals extends PacketRequestResponseBase<Arrival
 	}
 
 	@Override
-	public void write(PacketBuffer packetBuffer) {
-		super.write(packetBuffer);
-		packetBuffer.writeLong(requestKey);
+	public void write(PacketBufferSender packetBufferSender) {
+		super.write(packetBufferSender);
+		packetBufferSender.writeLong(requestKey);
 	}
 
 	@Override

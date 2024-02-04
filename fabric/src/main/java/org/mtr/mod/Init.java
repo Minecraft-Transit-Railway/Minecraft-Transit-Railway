@@ -1,5 +1,6 @@
 package org.mtr.mod;
 
+import org.apache.commons.io.FileUtils;
 import org.mtr.core.Main;
 import org.mtr.core.data.Client;
 import org.mtr.core.data.Data;
@@ -28,6 +29,10 @@ import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.packet.*;
 
 import java.net.ServerSocket;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -97,7 +102,7 @@ public final class Init implements Utilities {
 				PLAYERS_TO_UPDATE.put(identifier, new IntObjectImmutablePair<>(index[0], new ObjectArraySet<>()));
 				index[0]++;
 			});
-			setFreePort();
+			setFreePort(minecraftServer);
 			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), port, worldNames.toArray(new String[0]));
 
 			// Set up the socket
@@ -198,8 +203,21 @@ public final class Init implements Utilities {
 		LOGGER.log(Level.INFO, e.getMessage(), e);
 	}
 
-	private static void setFreePort() {
-		for (int i = 8888; i <= 65535; i++) {
+	private static void setFreePort(MinecraftServer minecraftServer) {
+		final Path filePath = minecraftServer.getRunDirectory().toPath().resolve("config/mtr_webserver_port.txt");
+		int startingPort = 8888;
+
+		try {
+			startingPort = Integer.parseInt(FileUtils.readFileToString(filePath.toFile(), StandardCharsets.UTF_8));
+		} catch (Exception ignored) {
+			try {
+				Files.write(filePath, String.valueOf(startingPort).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+			} catch (Exception e) {
+				logException(e);
+			}
+		}
+
+		for (int i = startingPort; i <= 65535; i++) {
 			try (final ServerSocket serverSocket = new ServerSocket(i)) {
 				port = serverSocket.getLocalPort();
 				LOGGER.log(Level.INFO, "Found available port: " + port);

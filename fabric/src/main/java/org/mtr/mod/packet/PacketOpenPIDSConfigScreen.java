@@ -1,17 +1,18 @@
 package org.mtr.mod.packet;
 
 import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.registry.PacketHandler;
+import org.mtr.mapping.tool.PacketBufferReceiver;
+import org.mtr.mapping.tool.PacketBufferSender;
 
 public final class PacketOpenPIDSConfigScreen extends PacketHandler {
 
 	private final BlockPos blockPos;
 	private final int maxArrivals;
 
-	public PacketOpenPIDSConfigScreen(PacketBuffer packetBuffer) {
-		blockPos = packetBuffer.readBlockPos();
-		maxArrivals = packetBuffer.readInt();
+	public PacketOpenPIDSConfigScreen(PacketBufferReceiver packetBufferReceiver) {
+		blockPos = BlockPos.fromLong(packetBufferReceiver.readLong());
+		maxArrivals = packetBufferReceiver.readInt();
 	}
 
 	public PacketOpenPIDSConfigScreen(BlockPos blockPos, int maxArrivals) {
@@ -20,9 +21,9 @@ public final class PacketOpenPIDSConfigScreen extends PacketHandler {
 	}
 
 	@Override
-	public void write(PacketBuffer packetBuffer) {
-		packetBuffer.writeBlockPos(blockPos);
-		packetBuffer.writeInt(maxArrivals);
+	public void write(PacketBufferSender packetBufferSender) {
+		packetBufferSender.writeLong(blockPos.asLong());
+		packetBufferSender.writeInt(maxArrivals);
 	}
 
 	@Override
