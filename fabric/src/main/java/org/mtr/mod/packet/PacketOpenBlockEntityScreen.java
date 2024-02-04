@@ -1,15 +1,16 @@
 package org.mtr.mod.packet;
 
 import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.registry.PacketHandler;
+import org.mtr.mapping.tool.PacketBufferReceiver;
+import org.mtr.mapping.tool.PacketBufferSender;
 
 public final class PacketOpenBlockEntityScreen extends PacketHandler {
 
 	private final BlockPos blockPos;
 
-	public PacketOpenBlockEntityScreen(PacketBuffer packetBuffer) {
-		blockPos = packetBuffer.readBlockPos();
+	public PacketOpenBlockEntityScreen(PacketBufferReceiver packetBufferReceiver) {
+		blockPos = BlockPos.fromLong(packetBufferReceiver.readLong());
 	}
 
 	public PacketOpenBlockEntityScreen(BlockPos blockPos) {
@@ -17,8 +18,8 @@ public final class PacketOpenBlockEntityScreen extends PacketHandler {
 	}
 
 	@Override
-	public void write(PacketBuffer packetBuffer) {
-		packetBuffer.writeBlockPos(blockPos);
+	public void write(PacketBufferSender packetBufferSender) {
+		packetBufferSender.writeLong(blockPos.asLong());
 	}
 
 	@Override

@@ -1,7 +1,12 @@
 package org.mtr.mod.packet;
 
-import org.mtr.mapping.holder.*;
+import org.mtr.mapping.holder.BlockEntity;
+import org.mtr.mapping.holder.BlockPos;
+import org.mtr.mapping.holder.MinecraftServer;
+import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.registry.PacketHandler;
+import org.mtr.mapping.tool.PacketBufferReceiver;
+import org.mtr.mapping.tool.PacketBufferSender;
 import org.mtr.mod.block.BlockLiftTrackFloor;
 
 public final class PacketUpdateLiftTrackFloorConfig extends PacketHandler {
@@ -11,11 +16,11 @@ public final class PacketUpdateLiftTrackFloorConfig extends PacketHandler {
 	private final String floorDescription;
 	private final boolean shouldDing;
 
-	public PacketUpdateLiftTrackFloorConfig(PacketBuffer packetBuffer) {
-		blockPos = packetBuffer.readBlockPos();
-		floorNumber = readString(packetBuffer);
-		floorDescription = readString(packetBuffer);
-		shouldDing = packetBuffer.readBoolean();
+	public PacketUpdateLiftTrackFloorConfig(PacketBufferReceiver packetBufferReceiver) {
+		blockPos = BlockPos.fromLong(packetBufferReceiver.readLong());
+		floorNumber = packetBufferReceiver.readString();
+		floorDescription = packetBufferReceiver.readString();
+		shouldDing = packetBufferReceiver.readBoolean();
 	}
 
 	public PacketUpdateLiftTrackFloorConfig(BlockPos blockPos, String floorNumber, String floorDescription, boolean shouldDing) {
@@ -26,11 +31,11 @@ public final class PacketUpdateLiftTrackFloorConfig extends PacketHandler {
 	}
 
 	@Override
-	public void write(PacketBuffer packetBuffer) {
-		packetBuffer.writeBlockPos(blockPos);
-		writeString(packetBuffer, floorNumber);
-		writeString(packetBuffer, floorDescription);
-		packetBuffer.writeBoolean(shouldDing);
+	public void write(PacketBufferSender packetBufferSender) {
+		packetBufferSender.writeLong(blockPos.asLong());
+		packetBufferSender.writeString(floorNumber);
+		packetBufferSender.writeString(floorDescription);
+		packetBufferSender.writeBoolean(shouldDing);
 	}
 
 	@Override

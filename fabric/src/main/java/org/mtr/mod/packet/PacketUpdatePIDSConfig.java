@@ -1,8 +1,13 @@
 package org.mtr.mod.packet;
 
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.mapping.holder.*;
+import org.mtr.mapping.holder.BlockEntity;
+import org.mtr.mapping.holder.BlockPos;
+import org.mtr.mapping.holder.MinecraftServer;
+import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.registry.PacketHandler;
+import org.mtr.mapping.tool.PacketBufferReceiver;
+import org.mtr.mapping.tool.PacketBufferSender;
 import org.mtr.mod.block.BlockPIDSBase;
 
 public final class PacketUpdatePIDSConfig extends PacketHandler {
@@ -12,22 +17,22 @@ public final class PacketUpdatePIDSConfig extends PacketHandler {
 	private final LongAVLTreeSet platformIds;
 	private final int displayPage;
 
-	public PacketUpdatePIDSConfig(PacketBuffer packetBuffer) {
-		blockPos = packetBuffer.readBlockPos();
+	public PacketUpdatePIDSConfig(PacketBufferReceiver packetBufferReceiver) {
+		blockPos = BlockPos.fromLong(packetBufferReceiver.readLong());
 
-		final int maxMessages = packetBuffer.readInt();
+		final int maxMessages = packetBufferReceiver.readInt();
 		messages = new String[maxMessages];
 		for (int i = 0; i < maxMessages; i++) {
-			messages[i] = readString(packetBuffer);
+			messages[i] = packetBufferReceiver.readString();
 		}
 
-		final int platformIdCount = packetBuffer.readInt();
+		final int platformIdCount = packetBufferReceiver.readInt();
 		platformIds = new LongAVLTreeSet();
 		for (int i = 0; i < platformIdCount; i++) {
-			platformIds.add(packetBuffer.readLong());
+			platformIds.add(packetBufferReceiver.readLong());
 		}
 
-		displayPage = packetBuffer.readInt();
+		displayPage = packetBufferReceiver.readInt();
 	}
 
 	public PacketUpdatePIDSConfig(BlockPos blockPos, String[] messages, LongAVLTreeSet platformIds, int displayPage) {
@@ -38,17 +43,17 @@ public final class PacketUpdatePIDSConfig extends PacketHandler {
 	}
 
 	@Override
-	public void write(PacketBuffer packetBuffer) {
-		packetBuffer.writeBlockPos(blockPos);
+	public void write(PacketBufferSender packetBufferSender) {
+		packetBufferSender.writeLong(blockPos.asLong());
 
-		packetBuffer.writeInt(messages.length);
+		packetBufferSender.writeInt(messages.length);
 		for (final String message : messages) {
-			writeString(packetBuffer, message);
+			packetBufferSender.writeString(message);
 		}
 
-		packetBuffer.writeInt(platformIds.size());
-		platformIds.forEach(packetBuffer::writeLong);
-		packetBuffer.writeInt(displayPage);
+		packetBufferSender.writeInt(platformIds.size());
+		platformIds.forEach(packetBufferSender::writeLong);
+		packetBufferSender.writeInt(displayPage);
 	}
 
 	@Override

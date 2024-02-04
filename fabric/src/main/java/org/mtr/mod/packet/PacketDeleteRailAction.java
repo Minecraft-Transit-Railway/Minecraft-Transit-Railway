@@ -1,17 +1,18 @@
 package org.mtr.mod.packet;
 
 import org.mtr.mapping.holder.MinecraftServer;
-import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.registry.PacketHandler;
+import org.mtr.mapping.tool.PacketBufferReceiver;
+import org.mtr.mapping.tool.PacketBufferSender;
 import org.mtr.mod.Init;
 
 public final class PacketDeleteRailAction extends PacketHandler {
 
 	private final long id;
 
-	public PacketDeleteRailAction(PacketBuffer packetBuffer) {
-		id = packetBuffer.readLong();
+	public PacketDeleteRailAction(PacketBufferReceiver packetBufferReceiver) {
+		id = packetBufferReceiver.readLong();
 	}
 
 	public PacketDeleteRailAction(long id) {
@@ -19,8 +20,8 @@ public final class PacketDeleteRailAction extends PacketHandler {
 	}
 
 	@Override
-	public void write(PacketBuffer packetBuffer) {
-		packetBuffer.writeLong(id);
+	public void write(PacketBufferSender packetBufferSender) {
+		packetBufferSender.writeLong(id);
 	}
 
 	@Override
