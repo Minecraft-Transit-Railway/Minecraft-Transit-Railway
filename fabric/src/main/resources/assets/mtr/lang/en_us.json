@@ -136,6 +136,8 @@
 	"block.mtr.train_schedule_sensor": "Schedule Sensor",
 	"block.mtr.train_sensor": "Redstone Sensor",
 	"category.mtr.keybinding": "Minecraft Transit Railway Keybinding",
+	"command.mtr.generate_all": "Path generation for all depots started",
+	"command.mtr.generate_filter": "Path generation for depots matching \"%s\" started",
 	"entity.mtr.seat": "",
 	"gui.mtr.acceleration": "Vehicle Acceleration",
 	"gui.mtr.add_balance_for_emeralds": "Add $%s for %s emerald(s)",
