@@ -1,5 +1,6 @@
 package org.mtr.mod;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
 import org.apache.commons.io.FileUtils;
 import org.mtr.core.Main;
 import org.mtr.core.data.Client;
@@ -7,6 +8,7 @@ import org.mtr.core.data.Data;
 import org.mtr.core.data.Position;
 import org.mtr.core.generated.data.ClientGroupSchema;
 import org.mtr.core.integration.Integration;
+import org.mtr.core.operation.GenerateMultiple;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.JsonWriter;
 import org.mtr.core.servlet.IntegrationServlet;
@@ -87,6 +89,20 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketUpdateRailwaySignConfig.class, PacketUpdateRailwaySignConfig::new);
 		REGISTRY.registerPacket(PacketUpdateTrainSensorConfig.class, PacketUpdateTrainSensorConfig::new);
 		REGISTRY.registerPacket(PacketUpdateVehicleRidingEntities.class, PacketUpdateVehicleRidingEntities::new);
+
+		// Register command
+		REGISTRY.registerCommand("generate", commandBuilder -> {
+			commandBuilder.permissionLevel(2);
+			commandBuilder.executes(contextHandler -> {
+				contextHandler.sendSuccess("command.mtr.generate_all", true);
+				return generateDepotsFromCommand("");
+			});
+			commandBuilder.then("name", StringArgumentType.greedyString(), innerCommandBuilder -> innerCommandBuilder.executes(contextHandler -> {
+				final String filter = contextHandler.getString("name");
+				contextHandler.sendSuccess("command.mtr.generate_filter", true, filter);
+				return generateDepotsFromCommand(filter);
+			}));
+		});
 
 		// Register events
 		EventRegistry.registerServerStarted(minecraftServer -> {
@@ -225,6 +241,14 @@ public final class Init implements Utilities {
 			} catch (Exception ignored) {
 			}
 		}
+	}
+
+	private static int generateDepotsFromCommand(String filter) {
+		final GenerateMultiple generateMultiple = new GenerateMultiple();
+		generateMultiple.setFilter(filter);
+		PacketDataBase.sendHttpRequest("operation/generate", Utilities.getJsonObjectFromData(generateMultiple), jsonObject -> {
+		});
+		return 1;
 	}
 
 	private static class ClientGroupNew extends ClientGroupSchema {
