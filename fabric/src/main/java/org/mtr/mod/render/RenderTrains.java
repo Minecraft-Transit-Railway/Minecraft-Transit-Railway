@@ -3,7 +3,6 @@ package org.mtr.mod.render;
 import org.mtr.core.data.InterchangeColorsForStationName;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
@@ -28,14 +27,15 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 	public static final int PLAYER_RENDER_OFFSET = 1000;
 
 	private static final int TOTAL_RENDER_STAGES = 2;
-	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArraySet<BiConsumer<GraphicsHolder, Vector3d>>>>> RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
-	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArraySet<BiConsumer<GraphicsHolder, Vector3d>>>>> CURRENT_RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
+	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<BiConsumer<GraphicsHolder, Vector3d>>>>> RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
+	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<BiConsumer<GraphicsHolder, Vector3d>>>>> CURRENT_RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
+	private static final OcclusionCullingThread OCCLUSION_CULLING_THREAD = new OcclusionCullingThread();
 
 	static {
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
 			final int renderStageCount = QueuedRenderLayer.values().length;
-			final ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArraySet<BiConsumer<GraphicsHolder, Vector3d>>>> rendersList = new ObjectArrayList<>(renderStageCount);
-			final ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArraySet<BiConsumer<GraphicsHolder, Vector3d>>>> currentRendersList = new ObjectArrayList<>(renderStageCount);
+			final ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<BiConsumer<GraphicsHolder, Vector3d>>>> rendersList = new ObjectArrayList<>(renderStageCount);
+			final ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<BiConsumer<GraphicsHolder, Vector3d>>>> currentRendersList = new ObjectArrayList<>(renderStageCount);
 
 			for (int j = 0; j < renderStageCount; j++) {
 				rendersList.add(j, new Object2ObjectArrayMap<>());
@@ -68,6 +68,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 		ClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
 		ClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
 		lastRenderedMillis = InitClient.getGameMillis();
+		OCCLUSION_CULLING_THREAD.start();
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
@@ -140,11 +141,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 
 	public static void scheduleRender(@Nullable Identifier identifier, boolean priority, QueuedRenderLayer queuedRenderLayer, BiConsumer<GraphicsHolder, Vector3d> callback) {
 		if (identifier != null) {
-			final Object2ObjectArrayMap<Identifier, ObjectArraySet<BiConsumer<GraphicsHolder, Vector3d>>> map = RENDERS.get(priority ? 1 : 0).get(queuedRenderLayer.ordinal());
-			if (!map.containsKey(identifier)) {
-				map.put(identifier, new ObjectArraySet<>());
-			}
-			map.get(identifier).add(callback);
+			RENDERS.get(priority ? 1 : 0).get(queuedRenderLayer.ordinal()).computeIfAbsent(identifier, key -> new ObjectArrayList<>()).add(callback);
 		}
 	}
 

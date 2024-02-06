@@ -7,7 +7,7 @@
 				"wall_3"
 			],
 			"positionDefinitions": [
-				"main"
+				"mainFlipped"
 			],
 			"renderStage": "EXTERIOR"
 		},
@@ -26,7 +26,7 @@
 				"floor"
 			],
 			"positionDefinitions": [
-				"main"
+				"mainFlipped"
 			],
 			"type": "FLOOR"
 		},
@@ -35,18 +35,7 @@
 				"door_left"
 			],
 			"positionDefinitions": [
-				"main"
-			],
-			"renderStage": "EXTERIOR",
-			"doorZMultiplier": -9,
-			"doorAnimationType": "NORMAL"
-		},
-		{
-			"names": [
-				"door_right"
-			],
-			"positionDefinitions": [
-				"main"
+				"mainFlipped"
 			],
 			"renderStage": "EXTERIOR",
 			"doorZMultiplier": 9,
@@ -54,10 +43,21 @@
 		},
 		{
 			"names": [
+				"door_right"
+			],
+			"positionDefinitions": [
+				"mainFlipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -9,
+			"doorAnimationType": "NORMAL"
+		},
+		{
+			"names": [
 				"doorway"
 			],
 			"positionDefinitions": [
-				"main"
+				"mainFlipped"
 			],
 			"type": "DOORWAY"
 		}
