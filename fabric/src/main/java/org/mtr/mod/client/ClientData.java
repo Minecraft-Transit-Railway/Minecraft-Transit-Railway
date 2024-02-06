@@ -60,13 +60,17 @@ public final class ClientData extends Data {
 	public ArrivalsResponse requestArrivals(long requestKey, LongImmutableList platformIds, int count, int page, boolean realtimeOnly) {
 		final ObjectLongImmutablePair<ArrivalsResponse> arrivalData = arrivalRequests.get(requestKey);
 		if (arrivalData == null || arrivalData.rightLong() < System.currentTimeMillis()) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketFetchArrivals(requestKey, platformIds, count, page, realtimeOnly));
+			if (!platformIds.isEmpty()) {
+				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketFetchArrivals(requestKey, platformIds, count, page, realtimeOnly));
+			}
+
 			final ArrivalsResponse arrivalsResponse;
 			if (arrivalData == null) {
 				arrivalsResponse = new ArrivalsResponse();
 			} else {
 				arrivalsResponse = arrivalData.left();
 			}
+
 			writeArrivalRequest(requestKey, arrivalsResponse);
 			return arrivalsResponse;
 		} else {

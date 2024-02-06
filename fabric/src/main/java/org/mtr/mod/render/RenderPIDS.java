@@ -3,6 +3,7 @@ package org.mtr.mod.render;
 import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.core.operation.ArrivalsResponse;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.BlockPos;
@@ -58,7 +59,9 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, DirectionHelper.FACING);
 
 		if (entity.getPlatformIds().isEmpty()) {
-			InitClient.findClosePlatform(entity.getPos2(), 5, platform -> getArrivalsAndRender(entity, blockPos, facing, LongImmutableList.of(platform.getId())));
+			final LongArrayList platforms = new LongArrayList();
+			InitClient.findClosePlatform(entity.getPos2(), 5, platform -> platforms.add(platform.getId()));
+			getArrivalsAndRender(entity, blockPos, facing, new LongImmutableList(platforms));
 		} else {
 			getArrivalsAndRender(entity, blockPos, facing, new LongImmutableList(entity.getPlatformIds()));
 		}

@@ -24,7 +24,7 @@ public class RenderVehicleHelper {
 	public static final float HALF_PLAYER_WIDTH = 0.3F;
 	private static final int CHECK_DOOR_RADIUS_XZ = 1;
 	private static final int CHECK_DOOR_RADIUS_Y = 2;
-	private static final int RIDE_STEP_THRESHOLD = 8;
+	private static final double RIDE_STEP_THRESHOLD = 0.75;
 
 	/**
 	 * @return whether the doorway is close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates
