@@ -17,6 +17,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.AttributedString;
 import java.util.Arrays;
 import java.util.Locale;
@@ -241,7 +242,7 @@ public class DynamicTextureCache implements IGui {
 				final NativeImageBackedTexture nativeImageBackedTexture = new NativeImageBackedTexture(nativeImage);
 				String newKey = key;
 				try {
-					newKey = URLEncoder.encode(key, "UTF-8");
+					newKey = URLEncoder.encode(key, StandardCharsets.UTF_8);
 				} catch (Exception e) {
 					Init.logException(e);
 				}

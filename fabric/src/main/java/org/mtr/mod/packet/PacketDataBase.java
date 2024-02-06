@@ -17,7 +17,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.MinecraftServer;
-import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
@@ -29,6 +28,7 @@ import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.data.VehicleExtension;
+import org.mtr.mod.render.OcclusionCullingThread;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -116,6 +116,9 @@ public abstract class PacketDataBase extends PacketHandler {
 			integration.iterateVehiclesToKeep(keepVehicleIds::add);
 			clientData.vehicles.removeIf(vehicle -> !keepVehicleIds.contains(vehicle.getId()));
 			integration.iterateVehiclesToUpdate(vehicleUpdate -> clientData.vehicles.add(new VehicleExtension(vehicleUpdate, clientData)));
+
+			OcclusionCullingThread.VEHICLES.clear();
+			OcclusionCullingThread.VEHICLES.addAll(clientData.vehicles);
 
 			final LongAVLTreeSet keepLiftIds = new LongAVLTreeSet();
 			integration.iterateLiftsToKeep(keepLiftIds::add);
