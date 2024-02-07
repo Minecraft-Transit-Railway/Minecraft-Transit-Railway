@@ -59,7 +59,7 @@ public final class Blocks {
 		ARRIVAL_PROJECTOR_1_MEDIUM = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "arrival_projector_1_medium"), () -> new Block(new BlockArrivalProjector1Medium()), CreativeModeTabs.RAILWAY_FACILITIES);
 		ARRIVAL_PROJECTOR_1_LARGE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "arrival_projector_1_large"), () -> new Block(new BlockArrivalProjector1Large()), CreativeModeTabs.RAILWAY_FACILITIES);
 
-		// blocks
+		// Platform blocks
 		PLATFORM = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), false)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		PLATFORM_INDENTED = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_indented"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		PLATFORM_NA_1 = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_na_1"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), false)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
@@ -68,6 +68,21 @@ public final class Blocks {
 		PLATFORM_NA_2_INDENTED = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_na_2_indented"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		PLATFORM_UK_1 = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_uk_1"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), false)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		PLATFORM_UK_1_INDENTED = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_uk_1_indented"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_JP_1 = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_jp_1"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), false)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_JP_1_INDENTED = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_jp_1_indented"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_JP_2 = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_jp_2"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), false)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_JP_2_INDENTED = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_jp_2_indented"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_JP_3 = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_jp_3"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), false)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_JP_3_INDENTED = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_jp_3_indented"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_JP_4 = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_jp_4"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), false)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_JP_4_INDENTED = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_jp_4_indented"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+                PLATFORM_JP_5 = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_jp_5"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), false)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_JP_5_INDENTED = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_jp_5_indented"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_JP_6 = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_jp_6"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), false)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_JP_6_INDENTED = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_jp_6_indented"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+
+
+
 
 		// Signs
 		RAILWAY_SIGN_2_EVEN = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "railway_sign_2_even"), () -> new Block(new BlockRailwaySign(2, false)), CreativeModeTabs.RAILWAY_FACILITIES);
@@ -285,6 +300,18 @@ public final class Blocks {
 	public static final BlockRegistryObject PLATFORM_NA_2_INDENTED;
 	public static final BlockRegistryObject PLATFORM_UK_1;
 	public static final BlockRegistryObject PLATFORM_UK_1_INDENTED;
+	public static final BlockRegistryObject PLATFORM_JP_1;
+	public static final BlockRegistryObject PLATFORM_JP_1_INDENTED;
+	public static final BlockRegistryObject PLATFORM_JP_2;
+	public static final BlockRegistryObject PLATFORM_JP_2_INDENTED;
+	public static final BlockRegistryObject PLATFORM_JP_3;
+	public static final BlockRegistryObject PLATFORM_JP_3_INDENTED;
+	public static final BlockRegistryObject PLATFORM_JP_4;
+	public static final BlockRegistryObject PLATFORM_JP_4_INDENTED;
+	public static final BlockRegistryObject PLATFORM_JP_5;
+	public static final BlockRegistryObject PLATFORM_JP_5_INDENTED;
+	public static final BlockRegistryObject PLATFORM_JP_6;
+	public static final BlockRegistryObject PLATFORM_JP_6_INDENTED;
 	public static final BlockRegistryObject PSD_DOOR_1;
 	public static final BlockRegistryObject PSD_DOOR_2;
 	public static final BlockRegistryObject PSD_GLASS_1;
