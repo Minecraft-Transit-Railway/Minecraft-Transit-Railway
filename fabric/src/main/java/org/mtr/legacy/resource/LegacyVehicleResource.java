@@ -33,7 +33,13 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 			final Variation variation = Variation.values()[i];
 			final VehicleResource[] baseVehicleResource = {null};
 			for (final TransportMode transportMode : TransportMode.values()) {
-				CustomResourceLoader.getVehicleById(transportMode, String.format("%s_%s", base_train_type, variation.key), vehicleResource -> baseVehicleResource[0] = vehicleResource);
+				final String newBaseTrainType;
+				if (transportMode == TransportMode.CABLE_CAR || base_train_type.startsWith("light_rail")) {
+					newBaseTrainType = i < 3 ? "" : base_train_type.endsWith("_rht") ? base_train_type : base_train_type + "_lht";
+				} else {
+					newBaseTrainType = String.format("%s_%s", base_train_type, variation.key);
+				}
+				CustomResourceLoader.getVehicleById(transportMode, newBaseTrainType, vehicleResource -> baseVehicleResource[0] = vehicleResource);
 				if (baseVehicleResource[0] != null) {
 					break;
 				}
@@ -63,7 +69,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				}
 
 				if (propertiesObject[0] == null) {
-					break;
+					continue;
 				}
 
 				double length = 0;
@@ -90,7 +96,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				}
 
 				if (length == 0 || width == 0) {
-					break;
+					continue;
 				}
 
 				baseObject.addProperty("length", length);
@@ -407,7 +413,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 	}
 
 	private enum Variation {
-		TRAILER(""), CAB_1(" Cab (Forwards)"), CAB_2(" Cab (Backwards)"), CAB_3(" Cab (Double)");
+		TRAILER(" (Trailer)"), CAB_1(" Cab (Forwards)"), CAB_2(" Cab (Backwards)"), CAB_3(" Cab (Double)");
 
 		private final String key;
 		private final String description;

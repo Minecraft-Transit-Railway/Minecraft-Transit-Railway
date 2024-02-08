@@ -5,7 +5,7 @@
 				"grip"
 			],
 			"positionDefinitions": [
-				"main"
+				"mainFlipped"
 			],
 			"renderStage": "EXTERIOR"
 		}
