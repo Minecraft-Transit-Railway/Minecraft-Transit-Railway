@@ -34,8 +34,8 @@ public final class PacketOpenDashboardScreen extends PacketDataBase {
 	}
 
 	@Override
-	public void runClientQueued() {
-		super.runClientQueued();
+	public void runClient() {
+		super.runClient();
 		ClientPacketHelper.openDashboardScreen(transportMode, useTimeAndWindSync);
 	}
 

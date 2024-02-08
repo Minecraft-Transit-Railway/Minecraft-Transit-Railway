@@ -38,7 +38,7 @@ public final class PacketBroadcastRailActions extends PacketHandler {
 	}
 
 	@Override
-	public void runClientQueued() {
+	public void runClient() {
 		ClientData.getInstance().railActions.clear();
 		ClientData.getInstance().railActions.addAll(dashboardListItems);
 	}

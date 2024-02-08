@@ -23,7 +23,7 @@ public final class PacketOpenBlockEntityScreen extends PacketHandler {
 	}
 
 	@Override
-	public void runClientQueued() {
+	public void runClient() {
 		ClientPacketHelper.openBlockEntityScreen(blockPos);
 	}
 }

@@ -50,7 +50,7 @@ public final class PacketUpdateRailwaySignConfig extends PacketHandler {
 	}
 
 	@Override
-	public void runServerQueued(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
+	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
 		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
 		if (entity != null) {
 			if (entity.data instanceof BlockRailwaySign.BlockEntity) {

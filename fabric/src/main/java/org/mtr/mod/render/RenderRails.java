@@ -1,7 +1,10 @@
 package org.mtr.mod.render;
 
+import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
+import com.logisticscraft.occlusionculling.util.Vec3d;
 import org.mtr.core.data.Rail;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.PlayerHelper;
 import org.mtr.mod.Init;
@@ -18,8 +21,11 @@ import org.mtr.mod.item.ItemNodeModifierBase;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
+import java.util.function.Function;
 
 public class RenderRails implements IGui {
+
+	private static final OcclusionCullingThread OCCLUSION_CULLING_THREAD = new OcclusionCullingThread();
 
 	public static void render() {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
@@ -30,9 +36,26 @@ public class RenderRails implements IGui {
 			return;
 		}
 
+		OCCLUSION_CULLING_THREAD.start();
+		final ObjectArrayList<Function<OcclusionCullingInstance, Runnable>> cullingTasks = new ObjectArrayList<>();
+		final Vector3d cameraPosition = minecraftClient.getGameRendererMapped().getCamera().getPos();
+		final Vec3d camera = new Vec3d(cameraPosition.getXMapped(), cameraPosition.getYMapped(), cameraPosition.getZMapped());
 		final boolean renderColors = isHoldingRailRelated(clientPlayerEntity);
 
-		ClientData.getInstance().rails.forEach(rail -> {
+		ClientData.getInstance().positionsToRail.forEach((startPosition, railMap) -> railMap.forEach((endPosition, rail) -> {
+			cullingTasks.add(occlusionCullingInstance -> {
+				final boolean shouldRender = occlusionCullingInstance.isAABBVisible(new Vec3d(
+						Math.min(startPosition.getX(), endPosition.getX()),
+						Math.min(startPosition.getY(), endPosition.getY()),
+						Math.min(startPosition.getZ(), endPosition.getZ())
+				), new Vec3d(
+						Math.max(startPosition.getX(), endPosition.getX()),
+						Math.max(startPosition.getY(), endPosition.getY()),
+						Math.max(startPosition.getZ(), endPosition.getZ())
+				), camera);
+				return () -> ClientData.getInstance().railCulling.put(rail.getHexId(), shouldRender);
+			});
+
 			if (ClientData.getInstance().railCulling.getOrDefault(rail.getHexId(), false)) {
 				switch (rail.getTransportMode()) {
 					case TRAIN:
@@ -76,6 +99,12 @@ public class RenderRails implements IGui {
 						break;
 				}
 			}
+		}));
+
+		OCCLUSION_CULLING_THREAD.schedule(occlusionCullingInstance -> {
+			final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
+			cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
+			minecraftClient.execute(() -> tasks.forEach(Runnable::run));
 		});
 	}
 

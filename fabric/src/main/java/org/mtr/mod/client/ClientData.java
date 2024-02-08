@@ -14,12 +14,10 @@ import org.mtr.mod.data.PersistentVehicleData;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.packet.PacketDriveTrain;
 import org.mtr.mod.packet.PacketFetchArrivals;
-import org.mtr.mod.render.OcclusionCullingThread;
 import org.mtr.mod.screen.DashboardListItem;
 
 import javax.annotation.Nullable;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -28,7 +26,7 @@ public final class ClientData extends Data {
 	public final ObjectAVLTreeSet<SimplifiedRoute> simplifiedRoutes = new ObjectAVLTreeSet<>();
 	public final ObjectAVLTreeSet<VehicleExtension> vehicles = new ObjectAVLTreeSet<>();
 	public final Long2ObjectAVLTreeMap<PersistentVehicleData> vehicleIdToPersistentVehicleData = new Long2ObjectAVLTreeMap<>();
-	public final ConcurrentHashMap<String, Boolean> railCulling = new ConcurrentHashMap<>();
+	public final Object2BooleanOpenHashMap<String> railCulling = new Object2BooleanOpenHashMap<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
 	private final Long2ObjectAVLTreeMap<ObjectLongImmutablePair<ArrivalsResponse>> arrivalRequests = new Long2ObjectAVLTreeMap<>();
 
@@ -53,8 +51,6 @@ public final class ClientData extends Data {
 		super.sync();
 		checkAndRemoveFromMap(vehicleIdToPersistentVehicleData, vehicles, NameColorDataBase::getId);
 		checkAndRemoveFromMap(railCulling, rails, TwoPositionsBase::getHexId);
-		OcclusionCullingThread.RAILS.clear();
-		positionsToRail.forEach((startPosition, railMap) -> railMap.forEach((endPosition, rail) -> OcclusionCullingThread.RAILS.add(new OcclusionCullingThread.RailWrapper(startPosition, endPosition, rail))));
 	}
 
 	public ArrivalsResponse requestArrivals(long requestKey, LongImmutableList platformIds, int count, int page, boolean realtimeOnly) {

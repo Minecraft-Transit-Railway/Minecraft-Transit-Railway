@@ -22,7 +22,7 @@ public final class PacketOpenTicketMachineScreen extends PacketHandler {
 	}
 
 	@Override
-	public void runClientQueued() {
+	public void runClient() {
 		ClientPacketHelper.openTicketMachineScreen(balance);
 	}
 }

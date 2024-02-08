@@ -60,7 +60,7 @@ public final class PacketUpdateTrainSensorConfig extends PacketHandler {
 	}
 
 	@Override
-	public void runServerQueued(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
+	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
 		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
 		if (entity != null && entity.data instanceof BlockTrainSensorBase.BlockEntityBase) {
 			((BlockTrainSensorBase.BlockEntityBase) entity.data).setData(filterRouteIds, stoppedOnly, movingOnly, number, strings);

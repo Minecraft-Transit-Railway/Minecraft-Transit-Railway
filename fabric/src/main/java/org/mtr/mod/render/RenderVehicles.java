@@ -1,5 +1,7 @@
 package org.mtr.mod.render;
 
+import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
+import com.logisticscraft.occlusionculling.util.Vec3d;
 import org.mtr.core.tool.Vector;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
@@ -12,9 +14,12 @@ import org.mtr.mod.client.*;
 import org.mtr.mod.data.IGui;
 
 import javax.annotation.Nullable;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class RenderVehicles implements IGui {
+
+	private static final OcclusionCullingThread OCCLUSION_CULLING_THREAD = new OcclusionCullingThread();
 
 	public static void render(long millisElapsed) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
@@ -23,6 +28,11 @@ public class RenderVehicles implements IGui {
 		if (clientWorld == null || clientPlayerEntity == null) {
 			return;
 		}
+
+		OCCLUSION_CULLING_THREAD.start();
+		final ObjectArrayList<Function<OcclusionCullingInstance, Runnable>> cullingTasks = new ObjectArrayList<>();
+		final Vector3d cameraPosition = minecraftClient.getGameRendererMapped().getCamera().getPos();
+		final Vec3d camera = new Vec3d(cameraPosition.getXMapped(), cameraPosition.getYMapped(), cameraPosition.getZMapped());
 
 		// When riding a moving vehicle, the client movement is always out of sync with the vehicle rendering. This produces annoying shaking effects.
 		// Offsets are used to render the vehicle with respect to the player position rather than the absolute world position, eliminating shaking.
@@ -44,9 +54,22 @@ public class RenderVehicles implements IGui {
 			iterateWithIndex(vehiclePropertiesList, (carNumber, vehicleProperties) -> {
 				final RenderVehicleTransformationHelper renderVehicleTransformationHelperAbsolute = vehicleProperties.renderVehicleTransformationHelperAbsolute;
 				final RenderVehicleTransformationHelper renderVehicleTransformationHelperOffset = vehicleProperties.renderVehicleTransformationHelperOffset;
-				vehicle.persistentVehicleData.pivotPositions[carNumber] = renderVehicleTransformationHelperAbsolute.pivotPosition;
 
-				if (vehicle.persistentVehicleData.rayTracing[carNumber]) {
+				cullingTasks.add(occlusionCullingInstance -> {
+					final double longestDimension = vehicle.persistentVehicleData.longestDimensions[carNumber];
+					final boolean shouldRender = occlusionCullingInstance.isAABBVisible(new Vec3d(
+							renderVehicleTransformationHelperAbsolute.pivotPosition.x - longestDimension,
+							renderVehicleTransformationHelperAbsolute.pivotPosition.y - 8,
+							renderVehicleTransformationHelperAbsolute.pivotPosition.z - longestDimension
+					), new Vec3d(
+							renderVehicleTransformationHelperAbsolute.pivotPosition.x + longestDimension,
+							renderVehicleTransformationHelperAbsolute.pivotPosition.y + 8,
+							renderVehicleTransformationHelperAbsolute.pivotPosition.z + longestDimension
+					), camera);
+					return () -> vehicle.persistentVehicleData.rayTracing[carNumber] = shouldRender;
+				});
+
+				if (vehicle.persistentVehicleData.rayTracing[carNumber] || VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(vehicle.getId()) != null) {
 					CustomResourceLoader.getVehicleById(vehicle.getTransportMode(), vehicleProperties.vehicleCar.getVehicleId(), vehicleResource -> {
 
 						// Render each bogie of the car
@@ -104,11 +127,11 @@ public class RenderVehicles implements IGui {
 							vehicleResource.iterateModels((modelIndex, model) -> {
 								model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperAbsolute.light, openDoorways);
 
-								if (modelIndex >= previousGangwayPositionsList.size()) {
+								while (modelIndex >= previousGangwayPositionsList.size()) {
 									previousGangwayPositionsList.add(new PreviousConnectionPositions());
 								}
 
-								if (modelIndex >= previousBarrierPositionsList.size()) {
+								while (modelIndex >= previousBarrierPositionsList.size()) {
 									previousBarrierPositionsList.add(new PreviousConnectionPositions());
 								}
 
@@ -184,6 +207,12 @@ public class RenderVehicles implements IGui {
 					});
 				}
 			});
+		});
+
+		OCCLUSION_CULLING_THREAD.schedule(occlusionCullingInstance -> {
+			final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
+			cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
+			minecraftClient.execute(() -> tasks.forEach(Runnable::run));
 		});
 	}
 

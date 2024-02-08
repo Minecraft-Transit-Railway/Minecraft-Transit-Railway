@@ -32,7 +32,7 @@ public final class PacketDriveTrain extends PacketHandler {
 	}
 
 	@Override
-	public void runServerQueued(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
+	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
 		// TODO
 	}
 }

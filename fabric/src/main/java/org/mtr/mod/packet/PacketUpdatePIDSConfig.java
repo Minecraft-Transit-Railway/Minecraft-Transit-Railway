@@ -57,7 +57,7 @@ public final class PacketUpdatePIDSConfig extends PacketHandler {
 	}
 
 	@Override
-	public void runServerQueued(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
+	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
 		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
 		if (entity != null && entity.data instanceof BlockPIDSBase.BlockEntityBase) {
 			((BlockPIDSBase.BlockEntityBase) entity.data).setData(messages, platformIds, displayPage);

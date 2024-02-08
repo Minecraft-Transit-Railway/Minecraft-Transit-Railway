@@ -27,7 +27,7 @@ public final class PacketOpenPIDSConfigScreen extends PacketHandler {
 	}
 
 	@Override
-	public void runClientQueued() {
+	public void runClient() {
 		ClientPacketHelper.openPIDSConfigScreen(blockPos, maxArrivals);
 	}
 }
