@@ -39,7 +39,7 @@ public final class PacketUpdateLiftTrackFloorConfig extends PacketHandler {
 	}
 
 	@Override
-	public void runServerQueued(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
+	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
 		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
 		if (entity != null && entity.data instanceof BlockLiftTrackFloor.BlockEntity) {
 			((BlockLiftTrackFloor.BlockEntity) entity.data).setData(floorNumber, floorDescription, shouldDing);

@@ -25,7 +25,7 @@ public final class PacketRequestData extends PacketHandler {
 	}
 
 	@Override
-	public void runServerQueued(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
+	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
 		Init.schedulePlayerUpdate(serverPlayerEntity, forceUpdate);
 	}
 }

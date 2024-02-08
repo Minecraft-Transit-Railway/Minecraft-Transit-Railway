@@ -23,7 +23,7 @@ public final class PacketOpenLiftCustomizationScreen extends PacketHandler {
 	}
 
 	@Override
-	public void runClientQueued() {
+	public void runClient() {
 		ClientPacketHelper.openLiftCustomizationScreen(blockPos);
 	}
 }

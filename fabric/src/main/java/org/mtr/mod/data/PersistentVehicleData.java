@@ -4,7 +4,6 @@ import org.mtr.core.data.Vehicle;
 import org.mtr.core.data.VehicleCar;
 import org.mtr.core.data.VehicleExtraData;
 import org.mtr.core.tool.Utilities;
-import org.mtr.core.tool.Vector;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.BlockPos;
@@ -20,7 +19,6 @@ public final class PersistentVehicleData {
 
 	public final boolean[] rayTracing;
 	public final double[] longestDimensions;
-	public final Vector[] pivotPositions;
 	private final ObjectArrayList<VehicleSoundBase> vehicleSoundBaseList = new ObjectArrayList<>();
 	private final ObjectArrayList<ObjectArrayList<ScrollingText>> scrollingTexts = new ObjectArrayList<>();
 
@@ -30,7 +28,6 @@ public final class PersistentVehicleData {
 		for (int i = 0; i < immutableVehicleCars.size(); i++) {
 			longestDimensions[i] = Math.max(immutableVehicleCars.get(i).getLength(), immutableVehicleCars.get(i).getWidth());
 		}
-		pivotPositions = new Vector[immutableVehicleCars.size()];
 	}
 
 	public ObjectArrayList<ScrollingText> getScrollingText(int car) {

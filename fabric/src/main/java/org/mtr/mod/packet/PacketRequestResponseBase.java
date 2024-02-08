@@ -43,15 +43,7 @@ public abstract class PacketRequestResponseBase<T extends SerializedDataBase> ex
 	}
 
 	@Override
-	public final void runServer() {
-	}
-
-	@Override
-	public final void runClient() {
-	}
-
-	@Override
-	public final void runServerQueued(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
+	public final void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
 		if (request != null) {
 			PacketData.sendHttpRequest(getEndpoint(), Utilities.getJsonObjectFromData(request), data -> {
 				final PacketRequestResponseBase<T> newInstance = createInstance(Response.create(data));
@@ -63,7 +55,7 @@ public abstract class PacketRequestResponseBase<T extends SerializedDataBase> ex
 	}
 
 	@Override
-	public final void runClientQueued() {
+	public final void runClient() {
 		if (response != null) {
 			runClient(response);
 		}

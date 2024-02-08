@@ -42,7 +42,7 @@ public final class PacketPressLiftButton extends PacketHandler {
 	}
 
 	@Override
-	public void runServerQueued(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
+	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
 		final PressLift pressLift = new PressLift();
 		trackPositions.forEach(blockPos -> pressLift.add(Init.blockPosToPosition(blockPos), pressDirection));
 		PacketDataBase.sendHttpRequest("operation/press-lift", Utilities.getJsonObjectFromData(pressLift), jsonObject -> {
@@ -50,7 +50,7 @@ public final class PacketPressLiftButton extends PacketHandler {
 	}
 
 	@Override
-	public void runClientQueued() {
+	public void runClient() {
 		// Array order: has down button, has up button
 		final boolean[] buttonStates = {false, false};
 		trackPositions.forEach(trackPosition -> BlockLiftButtons.hasButtonsClient(trackPosition, buttonStates, (floor, lift) -> {
