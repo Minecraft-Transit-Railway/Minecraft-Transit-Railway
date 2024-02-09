@@ -21,7 +21,7 @@ public final class SignResource extends SignResourceSchema {
 	}
 
 	public Identifier getTexture() {
-		return CustomResourceTools.formatIdentifier(textureResource, "png");
+		return CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
 	}
 
 	public boolean getFlipTexture() {

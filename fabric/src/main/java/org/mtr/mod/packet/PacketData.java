@@ -6,8 +6,8 @@ import org.mtr.core.servlet.IntegrationServlet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
-import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.holder.ServerWorld;
+import org.mtr.mapping.tool.PacketBufferReceiver;
 
 import javax.annotation.Nullable;
 
@@ -73,8 +73,8 @@ public final class PacketData extends PacketDataBase {
 		super(operation, integration, updateClientDataInstance, updateClientDataDashboardInstance);
 	}
 
-	public static PacketData create(PacketBuffer packetBuffer) {
-		return create(packetBuffer, PacketData::new);
+	public static PacketData create(PacketBufferReceiver packetBufferReceiver) {
+		return create(packetBufferReceiver, PacketData::new);
 	}
 
 	public static void generateLiftPath(ServerWorld serverWorld, ObjectArrayList<LiftFloor> liftFloors) {

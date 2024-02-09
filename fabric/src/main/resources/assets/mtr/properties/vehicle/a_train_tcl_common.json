@@ -5,13 +5,14 @@
 				"roof_light_tcl"
 			],
 			"positionDefinitions": [
-				"windowTcl",
-				"windowTclEnd1",
-				"windowTclEnd2",
-				"windowTclEnd1Flipped",
-				"windowTclEnd2Flipped",
-				"doorTcl",
-				"doorTclFlipped"
+				"window",
+				"windowFlipped",
+				"windowEnd1",
+				"windowEnd2",
+				"windowEnd1Flipped",
+				"windowEnd2Flipped",
+				"door",
+				"doorFlipped"
 			],
 			"renderStage": "LIGHT"
 		},
@@ -22,11 +23,12 @@
 				"roof_window_tcl"
 			],
 			"positionDefinitions": [
-				"windowTcl",
-				"windowTclEnd1",
-				"windowTclEnd2",
-				"windowTclEnd1Flipped",
-				"windowTclEnd2Flipped"
+				"window",
+				"windowFlipped",
+				"windowEnd1",
+				"windowEnd2",
+				"windowEnd1Flipped",
+				"windowEnd2Flipped"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -35,11 +37,12 @@
 				"window_floor_tcl"
 			],
 			"positionDefinitions": [
-				"windowTcl",
-				"windowTclEnd1",
-				"windowTclEnd2",
-				"windowTclEnd1Flipped",
-				"windowTclEnd2Flipped"
+				"window",
+				"windowFlipped",
+				"windowEnd1",
+				"windowEnd2",
+				"windowEnd1Flipped",
+				"windowEnd2Flipped"
 			],
 			"type": "FLOOR"
 		},
@@ -48,7 +51,7 @@
 				"side_panel_tcl"
 			],
 			"positionDefinitions": [
-				"sidePanelTcl"
+				"sidePanel"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -57,7 +60,7 @@
 				"side_panel_tcl_translucent"
 			],
 			"positionDefinitions": [
-				"sidePanelTcl"
+				"sidePanel"
 			],
 			"renderStage": "INTERIOR_TRANSLUCENT"
 		},
@@ -66,17 +69,18 @@
 				"roof_exterior"
 			],
 			"positionDefinitions": [
-				"windowTcl",
-				"windowTclEnd1",
-				"windowTclEnd2",
-				"windowTclEnd1Flipped",
-				"windowTclEnd2Flipped",
-				"doorTcl",
-				"doorTclFlipped",
-				"doorTclEnd1",
-				"doorTclEnd2",
-				"doorTclEnd1Flipped",
-				"doorTclEnd2Flipped"
+				"window",
+				"windowFlipped",
+				"windowEnd1",
+				"windowEnd2",
+				"windowEnd1Flipped",
+				"windowEnd2Flipped",
+				"door",
+				"doorFlipped",
+				"doorEnd1",
+				"doorEnd2",
+				"doorEnd1Flipped",
+				"doorEnd2Flipped"
 			],
 			"renderStage": "EXTERIOR"
 		},
@@ -85,7 +89,8 @@
 				"window_exterior_tcl"
 			],
 			"positionDefinitions": [
-				"windowTcl"
+				"window",
+				"windowFlipped"
 			],
 			"renderStage": "EXTERIOR"
 		},
@@ -95,12 +100,12 @@
 				"door_tcl_handrail"
 			],
 			"positionDefinitions": [
-				"doorTcl",
-				"doorTclFlipped",
-				"doorTclEnd1",
-				"doorTclEnd2",
-				"doorTclEnd1Flipped",
-				"doorTclEnd2Flipped"
+				"door",
+				"doorFlipped",
+				"doorEnd1",
+				"doorEnd2",
+				"doorEnd1Flipped",
+				"doorEnd2Flipped"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -109,8 +114,8 @@
 				"roof_door_tcl"
 			],
 			"positionDefinitions": [
-				"doorTcl",
-				"doorTclFlipped"
+				"door",
+				"doorFlipped"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -119,12 +124,12 @@
 				"door_floor_tcl"
 			],
 			"positionDefinitions": [
-				"doorTcl",
-				"doorTclFlipped",
-				"doorTclEnd1",
-				"doorTclEnd2",
-				"doorTclEnd1Flipped",
-				"doorTclEnd2Flipped"
+				"door",
+				"doorFlipped",
+				"doorEnd1",
+				"doorEnd2",
+				"doorEnd1Flipped",
+				"doorEnd2Flipped"
 			],
 			"type": "FLOOR"
 		},
@@ -133,12 +138,12 @@
 				"doorway_tcl"
 			],
 			"positionDefinitions": [
-				"doorTcl",
-				"doorTclFlipped",
-				"doorTclEnd1",
-				"doorTclEnd2",
-				"doorTclEnd1Flipped",
-				"doorTclEnd2Flipped"
+				"door",
+				"doorFlipped",
+				"doorEnd1",
+				"doorEnd2",
+				"doorEnd1Flipped",
+				"doorEnd2Flipped"
 			],
 			"type": "DOORWAY"
 		},
@@ -147,9 +152,9 @@
 				"door_left_tcl"
 			],
 			"positionDefinitions": [
-				"doorTcl",
-				"doorTclEnd1",
-				"doorTclEnd2Flipped"
+				"door",
+				"doorEnd1",
+				"doorEnd2Flipped"
 			],
 			"renderStage": "INTERIOR",
 			"doorXMultiplier": -1,
@@ -161,9 +166,9 @@
 				"door_right_tcl"
 			],
 			"positionDefinitions": [
-				"doorTcl",
-				"doorTclEnd1",
-				"doorTclEnd2Flipped"
+				"door",
+				"doorEnd1",
+				"doorEnd2Flipped"
 			],
 			"renderStage": "INTERIOR",
 			"doorXMultiplier": -1,
@@ -175,9 +180,9 @@
 				"door_left_tcl"
 			],
 			"positionDefinitions": [
-				"doorTclFlipped",
-				"doorTclEnd1Flipped",
-				"doorTclEnd2"
+				"doorFlipped",
+				"doorEnd1Flipped",
+				"doorEnd2"
 			],
 			"renderStage": "INTERIOR",
 			"doorXMultiplier": 1,
@@ -189,9 +194,9 @@
 				"door_right_tcl"
 			],
 			"positionDefinitions": [
-				"doorTclFlipped",
-				"doorTclEnd1Flipped",
-				"doorTclEnd2"
+				"doorFlipped",
+				"doorEnd1Flipped",
+				"doorEnd2"
 			],
 			"renderStage": "INTERIOR",
 			"doorXMultiplier": 1,
@@ -203,8 +208,8 @@
 				"door_exterior_tcl"
 			],
 			"positionDefinitions": [
-				"doorTcl",
-				"doorTclFlipped"
+				"door",
+				"doorFlipped"
 			],
 			"renderStage": "EXTERIOR"
 		},
@@ -213,7 +218,7 @@
 				"door_left_exterior_tcl"
 			],
 			"positionDefinitions": [
-				"doorTcl"
+				"door"
 			],
 			"renderStage": "EXTERIOR",
 			"doorXMultiplier": -1,
@@ -225,7 +230,7 @@
 				"door_right_exterior_tcl"
 			],
 			"positionDefinitions": [
-				"doorTcl"
+				"door"
 			],
 			"renderStage": "EXTERIOR",
 			"doorXMultiplier": -1,
@@ -237,7 +242,7 @@
 				"door_left_exterior_tcl"
 			],
 			"positionDefinitions": [
-				"doorTclFlipped"
+				"doorFlipped"
 			],
 			"renderStage": "EXTERIOR",
 			"doorXMultiplier": 1,
@@ -249,7 +254,7 @@
 				"door_right_exterior_tcl"
 			],
 			"positionDefinitions": [
-				"doorTclFlipped"
+				"doorFlipped"
 			],
 			"renderStage": "EXTERIOR",
 			"doorXMultiplier": 1,
@@ -261,7 +266,7 @@
 				"door_light_on"
 			],
 			"positionDefinitions": [
-				"doorLightTcl"
+				"doorLight2"
 			],
 			"condition": "DOORS_OPENED",
 			"renderStage": "ALWAYS_ON_LIGHT"
@@ -271,7 +276,7 @@
 				"door_light_off"
 			],
 			"positionDefinitions": [
-				"doorLightTcl"
+				"doorLight2"
 			],
 			"condition": "DOORS_CLOSED",
 			"renderStage": "EXTERIOR"

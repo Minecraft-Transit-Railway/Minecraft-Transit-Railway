@@ -26,8 +26,6 @@ public class LegacyVehicleSound extends VehicleSoundBase {
 	private static final String SOUND_DECELERATION = "_deceleration_";
 	private static final String SOUND_DOOR_OPEN = "_door_open";
 	private static final String SOUND_DOOR_CLOSE = "_door_close";
-	private static final String SOUND_RANDOM = "_random";
-	private static final int RANDOM_SOUND_CHANCE = 300;
 
 	public LegacyVehicleSound(@Nullable String legacySpeedSoundBaseResource, int legacySpeedSoundCount, boolean legacyUseAccelerationSoundsWhenCoasting, boolean legacyConstantPlaybackSpeed, String legacyDoorSoundBaseResource, double legacyDoorCloseSoundTime) {
 		this.legacySpeedSoundBaseResource = legacySpeedSoundBaseResource;
@@ -49,10 +47,6 @@ public class LegacyVehicleSound extends VehicleSoundBase {
 			final int floorSpeed = (int) Math.floor(speed / referenceAcceleration / InitClient.MILLIS_PER_SPEED_SOUND);
 			if (floorSpeed > 0) {
 				final Random random = new Random();
-
-				if (floorSpeed >= 30 && random.nextInt(RANDOM_SOUND_CHANCE) == 0) {
-					playSoundInWorld(AbstractSoundInstanceExtension.createSoundEvent(new Identifier(Init.MOD_ID, legacySpeedSoundBaseResource + SOUND_RANDOM)), blockPos, 10, 1);
-				}
 
 				final int index = Math.min(floorSpeed, legacySpeedSoundCount) - 1;
 				final boolean isAccelerating = speedChange == 0 ? legacyUseAccelerationSoundsWhenCoasting || random.nextBoolean() : speedChange > 0;

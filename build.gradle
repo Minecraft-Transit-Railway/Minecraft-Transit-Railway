@@ -20,6 +20,7 @@ subprojects {
 		shadowImplementation "com.github.jonafanho:Shadow-Libraries:master-SNAPSHOT"
 		shadowImplementation "org.mtr:Minecraft-Mappings-common:0.0.1"
 		shadowImplementation "org.mtr:Transport-Simulation-Core:0.0.1"
+		shadowImplementation "com.logisticscraft:occlusionculling:+"
 		compileOnly "com.google.code.findbugs:jsr305:+"
 		compileOnly "xyz.jpenilla:squaremap-api:+"
 		compileOnly "net.kyori:adventure-api:+"
@@ -29,6 +30,7 @@ subprojects {
 	repositories {
 		flatDir { dirs "../libs" }
 		maven { url "https://jitpack.io" }
+		maven { url "https://repo.codemc.org/repository/maven-public" }
 	}
 
 	shadowJar {

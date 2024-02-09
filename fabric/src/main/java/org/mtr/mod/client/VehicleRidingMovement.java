@@ -3,6 +3,7 @@ package org.mtr.mod.client;
 import org.apache.commons.lang3.StringUtils;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
@@ -269,6 +270,12 @@ public class VehicleRidingMovement {
 			return false;
 		} else {
 			return true;
+		}
+	}
+
+	public static void writeVehicleId(LongAVLTreeSet keepVehicleIds) {
+		if (ridingVehicleId != 0) {
+			keepVehicleIds.add(ridingVehicleId);
 		}
 	}
 

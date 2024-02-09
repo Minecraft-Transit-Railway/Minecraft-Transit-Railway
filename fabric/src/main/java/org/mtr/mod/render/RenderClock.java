@@ -24,26 +24,30 @@ public class RenderClock extends BlockEntityRenderer<BlockClock.BlockEntity> imp
 		}
 
 		final BlockPos pos = entity.getPos2();
-
 		final BlockState state = world.getBlockState(pos);
 		final boolean rotated = IBlock.getStatePropertySafe(state, BlockClock.FACING);
 
-		graphicsHolder.push();
-		graphicsHolder.translate(0.5, 0.3125, 0.5);
-		if (rotated) {
-			graphicsHolder.rotateYDegrees(90);
-		}
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(true);
+		storedMatrixTransformations.add(graphicsHolderNew -> {
+			graphicsHolderNew.translate(pos.getX() + 0.5, pos.getY() + 0.3125, pos.getZ() + 0.5);
+			if (rotated) {
+				graphicsHolderNew.rotateYDegrees(90);
+			}
+		});
 
-		final long time = WorldHelper.getTimeOfDay(world) + 6000;
+		RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, RenderTrains.QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
+			storedMatrixTransformations.transform(graphicsHolderNew, offset);
+			final long time = WorldHelper.getTimeOfDay(world) + 6000;
 
-		drawHand(graphicsHolder, time * 360F / 12000, true);
-		drawHand(graphicsHolder, time * 360F / 1000, false);
+			drawHand(graphicsHolderNew, time * 360F / 12000, true);
+			drawHand(graphicsHolderNew, time * 360F / 1000, false);
 
-		graphicsHolder.rotateYDegrees(180);
-		drawHand(graphicsHolder, time * 360F / 12000, true);
-		drawHand(graphicsHolder, time * 360F / 1000, false);
+			graphicsHolderNew.rotateYDegrees(180);
+			drawHand(graphicsHolderNew, time * 360F / 12000, true);
+			drawHand(graphicsHolderNew, time * 360F / 1000, false);
 
-		graphicsHolder.pop();
+			graphicsHolderNew.pop();
+		});
 	}
 
 	private static void drawHand(GraphicsHolder graphicsHolder, float rotation, boolean isHourHand) {

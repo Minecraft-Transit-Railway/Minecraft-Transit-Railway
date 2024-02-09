@@ -1,15 +1,16 @@
 package org.mtr.mod.packet;
 
 import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.registry.PacketHandler;
+import org.mtr.mapping.tool.PacketBufferReceiver;
+import org.mtr.mapping.tool.PacketBufferSender;
 
 public final class PacketOpenLiftCustomizationScreen extends PacketHandler {
 
 	private final BlockPos blockPos;
 
-	public PacketOpenLiftCustomizationScreen(PacketBuffer packetBuffer) {
-		blockPos = packetBuffer.readBlockPos();
+	public PacketOpenLiftCustomizationScreen(PacketBufferReceiver packetBufferReceiver) {
+		blockPos = BlockPos.fromLong(packetBufferReceiver.readLong());
 	}
 
 	public PacketOpenLiftCustomizationScreen(BlockPos blockPos) {
@@ -17,12 +18,12 @@ public final class PacketOpenLiftCustomizationScreen extends PacketHandler {
 	}
 
 	@Override
-	public void write(PacketBuffer packetBuffer) {
-		packetBuffer.writeBlockPos(blockPos);
+	public void write(PacketBufferSender packetBufferSender) {
+		packetBufferSender.writeLong(blockPos.asLong());
 	}
 
 	@Override
-	public void runClientQueued() {
+	public void runClient() {
 		ClientPacketHelper.openLiftCustomizationScreen(blockPos);
 	}
 }

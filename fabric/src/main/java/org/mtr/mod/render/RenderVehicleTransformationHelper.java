@@ -41,8 +41,8 @@ public class RenderVehicleTransformationHelper {
 
 			final double pivotOffset = Utilities.getAverage(bogie1Position, bogie2Position);
 			final double halfLength = length / 2;
-			final double pivotOffset1 = pivotOffset - halfLength;
-			final double pivotOffset2 = pivotOffset + halfLength;
+			final double pivotOffset1 = -pivotOffset - halfLength;
+			final double pivotOffset2 = -pivotOffset + halfLength;
 			final Vector rotationalVector = new Vector(0, 0, 1).rotateX(pitch).rotateY(yaw);
 			pivotPosition = Vector.getAverage(rotationalVector.multiply(pivotOffset1, pivotOffset1, pivotOffset1).add(bogiesMidpoint), rotationalVector.multiply(pivotOffset2, pivotOffset2, pivotOffset2).add(bogiesMidpoint));
 		} else {

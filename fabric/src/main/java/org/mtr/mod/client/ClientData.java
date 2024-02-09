@@ -4,12 +4,8 @@ import org.mtr.core.data.Position;
 import org.mtr.core.data.*;
 import org.mtr.core.operation.ArrivalsResponse;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectLongImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.*;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
@@ -21,6 +17,8 @@ import org.mtr.mod.packet.PacketFetchArrivals;
 import org.mtr.mod.screen.DashboardListItem;
 
 import javax.annotation.Nullable;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class ClientData extends Data {
@@ -28,6 +26,7 @@ public final class ClientData extends Data {
 	public final ObjectAVLTreeSet<SimplifiedRoute> simplifiedRoutes = new ObjectAVLTreeSet<>();
 	public final ObjectAVLTreeSet<VehicleExtension> vehicles = new ObjectAVLTreeSet<>();
 	public final Long2ObjectAVLTreeMap<PersistentVehicleData> vehicleIdToPersistentVehicleData = new Long2ObjectAVLTreeMap<>();
+	public final Object2BooleanOpenHashMap<String> railCulling = new Object2BooleanOpenHashMap<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
 	private final Long2ObjectAVLTreeMap<ObjectLongImmutablePair<ArrivalsResponse>> arrivalRequests = new Long2ObjectAVLTreeMap<>();
 
@@ -50,26 +49,24 @@ public final class ClientData extends Data {
 	@Override
 	public void sync() {
 		super.sync();
-		final LongAVLTreeSet vehicleIds = vehicles.stream().map(NameColorDataBase::getId).collect(Collectors.toCollection(LongAVLTreeSet::new));
-		final LongAVLTreeSet idsToRemove = new LongAVLTreeSet();
-		vehicleIdToPersistentVehicleData.keySet().forEach(vehicleId -> {
-			if (!vehicleIds.contains(vehicleId)) {
-				idsToRemove.add(vehicleId);
-			}
-		});
-		idsToRemove.forEach(vehicleIdToPersistentVehicleData::remove);
+		checkAndRemoveFromMap(vehicleIdToPersistentVehicleData, vehicles, NameColorDataBase::getId);
+		checkAndRemoveFromMap(railCulling, rails, TwoPositionsBase::getHexId);
 	}
 
 	public ArrivalsResponse requestArrivals(long requestKey, LongImmutableList platformIds, int count, int page, boolean realtimeOnly) {
 		final ObjectLongImmutablePair<ArrivalsResponse> arrivalData = arrivalRequests.get(requestKey);
 		if (arrivalData == null || arrivalData.rightLong() < System.currentTimeMillis()) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketFetchArrivals(requestKey, platformIds, count, page, realtimeOnly));
+			if (!platformIds.isEmpty()) {
+				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketFetchArrivals(requestKey, platformIds, count, page, realtimeOnly));
+			}
+
 			final ArrivalsResponse arrivalsResponse;
 			if (arrivalData == null) {
 				arrivalsResponse = new ArrivalsResponse();
 			} else {
 				arrivalsResponse = arrivalData.left();
 			}
+
 			writeArrivalRequest(requestKey, arrivalsResponse);
 			return arrivalsResponse;
 		} else {
@@ -172,5 +169,16 @@ public final class ClientData extends Data {
 			}
 		}));
 		return map;
+	}
+
+	private static <T, U, V> void checkAndRemoveFromMap(Map<T, U> map, ObjectSet<V> dataSet, Function<V, T> getId) {
+		final ObjectAVLTreeSet<T> idSet = dataSet.stream().map(getId).collect(Collectors.toCollection(ObjectAVLTreeSet::new));
+		final ObjectArrayList<T> idsToRemove = new ObjectArrayList<>();
+		map.keySet().forEach(id -> {
+			if (!idSet.contains(id)) {
+				idsToRemove.add(id);
+			}
+		});
+		idsToRemove.forEach(map::remove);
 	}
 }

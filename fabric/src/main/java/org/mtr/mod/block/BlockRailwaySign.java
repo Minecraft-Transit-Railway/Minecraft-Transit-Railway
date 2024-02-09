@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 public class BlockRailwaySign extends BlockExtension implements IBlock, DirectionHelper, BlockWithEntity {
 
@@ -179,7 +180,7 @@ public class BlockRailwaySign extends BlockExtension implements IBlock, Directio
 			Arrays.stream(compoundTag.getLongArray(KEY_SELECTED_IDS)).forEach(selectedIds::add);
 			for (int i = 0; i < signIds.length; i++) {
 				final String signId = compoundTag.getString(KEY_SIGN_LENGTH + i);
-				signIds[i] = signId.isEmpty() ? null : signId;
+				signIds[i] = signId.isEmpty() ? null : signId.toLowerCase(Locale.ENGLISH);
 			}
 		}
 

@@ -1,11 +1,14 @@
 package org.mtr.mod;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
+import org.apache.commons.io.FileUtils;
 import org.mtr.core.Main;
 import org.mtr.core.data.Client;
 import org.mtr.core.data.Data;
 import org.mtr.core.data.Position;
 import org.mtr.core.generated.data.ClientGroupSchema;
 import org.mtr.core.integration.Integration;
+import org.mtr.core.operation.GenerateMultiple;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.JsonWriter;
 import org.mtr.core.servlet.IntegrationServlet;
@@ -28,6 +31,10 @@ import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.packet.*;
 
 import java.net.ServerSocket;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -83,6 +90,20 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketUpdateTrainSensorConfig.class, PacketUpdateTrainSensorConfig::new);
 		REGISTRY.registerPacket(PacketUpdateVehicleRidingEntities.class, PacketUpdateVehicleRidingEntities::new);
 
+		// Register command
+		REGISTRY.registerCommand("generate", commandBuilder -> {
+			commandBuilder.permissionLevel(2);
+			commandBuilder.executes(contextHandler -> {
+				contextHandler.sendSuccess("command.mtr.generate_all", true);
+				return generateDepotsFromCommand("");
+			});
+			commandBuilder.then("name", StringArgumentType.greedyString(), innerCommandBuilder -> innerCommandBuilder.executes(contextHandler -> {
+				final String filter = contextHandler.getString("name");
+				contextHandler.sendSuccess("command.mtr.generate_filter", true, filter);
+				return generateDepotsFromCommand(filter);
+			}));
+		});
+
 		// Register events
 		EventRegistry.registerServerStarted(minecraftServer -> {
 			// Start up the backend
@@ -97,7 +118,7 @@ public final class Init implements Utilities {
 				PLAYERS_TO_UPDATE.put(identifier, new IntObjectImmutablePair<>(index[0], new ObjectArraySet<>()));
 				index[0]++;
 			});
-			setFreePort();
+			setFreePort(minecraftServer);
 			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), port, worldNames.toArray(new String[0]));
 
 			// Set up the socket
@@ -198,8 +219,21 @@ public final class Init implements Utilities {
 		LOGGER.log(Level.INFO, e.getMessage(), e);
 	}
 
-	private static void setFreePort() {
-		for (int i = 8888; i <= 65535; i++) {
+	private static void setFreePort(MinecraftServer minecraftServer) {
+		final Path filePath = minecraftServer.getRunDirectory().toPath().resolve("config/mtr_webserver_port.txt");
+		int startingPort = 8888;
+
+		try {
+			startingPort = Integer.parseInt(FileUtils.readFileToString(filePath.toFile(), StandardCharsets.UTF_8));
+		} catch (Exception ignored) {
+			try {
+				Files.write(filePath, String.valueOf(startingPort).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+			} catch (Exception e) {
+				logException(e);
+			}
+		}
+
+		for (int i = startingPort; i <= 65535; i++) {
 			try (final ServerSocket serverSocket = new ServerSocket(i)) {
 				port = serverSocket.getLocalPort();
 				LOGGER.log(Level.INFO, "Found available port: " + port);
@@ -207,6 +241,14 @@ public final class Init implements Utilities {
 			} catch (Exception ignored) {
 			}
 		}
+	}
+
+	private static int generateDepotsFromCommand(String filter) {
+		final GenerateMultiple generateMultiple = new GenerateMultiple();
+		generateMultiple.setFilter(filter);
+		PacketDataBase.sendHttpRequest("operation/generate", Utilities.getJsonObjectFromData(generateMultiple), jsonObject -> {
+		});
+		return 1;
 	}
 
 	private static class ClientGroupNew extends ClientGroupSchema {

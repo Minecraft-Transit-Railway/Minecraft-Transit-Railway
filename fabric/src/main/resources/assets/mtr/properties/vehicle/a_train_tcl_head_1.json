@@ -43,7 +43,7 @@
 				"window_exterior_end_tcl"
 			],
 			"positionDefinitions": [
-				"windowTclEnd1Flipped"
+				"windowEnd1Flipped"
 			],
 			"renderStage": "EXTERIOR"
 		},
@@ -52,8 +52,8 @@
 				"door_exterior_end"
 			],
 			"positionDefinitions": [
-				"doorTclEnd1",
-				"doorTclEnd1Flipped"
+				"doorEnd1",
+				"doorEnd1Flipped"
 			],
 			"renderStage": "EXTERIOR"
 		},
@@ -62,7 +62,7 @@
 				"door_left_exterior_end"
 			],
 			"positionDefinitions": [
-				"doorTclEnd1"
+				"doorEnd1"
 			],
 			"renderStage": "EXTERIOR",
 			"doorXMultiplier": -1,
@@ -74,7 +74,7 @@
 				"door_right_exterior_end"
 			],
 			"positionDefinitions": [
-				"doorTclEnd1"
+				"doorEnd1"
 			],
 			"renderStage": "EXTERIOR",
 			"doorXMultiplier": -1,
@@ -86,7 +86,7 @@
 				"door_left_exterior_end"
 			],
 			"positionDefinitions": [
-				"doorTclEnd1Flipped"
+				"doorEnd1Flipped"
 			],
 			"renderStage": "EXTERIOR",
 			"doorXMultiplier": 1,
@@ -98,7 +98,7 @@
 				"door_right_exterior_end"
 			],
 			"positionDefinitions": [
-				"doorTclEnd1Flipped"
+				"doorEnd1Flipped"
 			],
 			"renderStage": "EXTERIOR",
 			"doorXMultiplier": 1,

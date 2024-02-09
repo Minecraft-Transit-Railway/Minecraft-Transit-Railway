@@ -13,19 +13,19 @@ import org.mtr.core.tool.EnumHelper;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.MinecraftServer;
-import org.mtr.mapping.holder.PacketBuffer;
 import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
 import org.mtr.mapping.registry.PacketHandler;
+import org.mtr.mapping.tool.PacketBufferReceiver;
+import org.mtr.mapping.tool.PacketBufferSender;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.DynamicTextureCache;
+import org.mtr.mod.client.VehicleRidingMovement;
 import org.mtr.mod.data.VehicleExtension;
 
 import java.io.InputStream;
@@ -35,6 +35,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.LongConsumer;
+import java.util.function.ToLongFunction;
 
 public abstract class PacketDataBase extends PacketHandler {
 
@@ -50,11 +52,11 @@ public abstract class PacketDataBase extends PacketHandler {
 		this.updateClientDataDashboardInstance = updateClientDataDashboardInstance;
 	}
 
-	protected static <T extends PacketDataBase> T create(PacketBuffer packetBuffer, PacketDataBaseInstance<T> packetDataBaseInstance) {
-		final IntegrationServlet.Operation operation = EnumHelper.valueOf(IntegrationServlet.Operation.UPDATE, readStringTrimmed(packetBuffer));
-		final JsonReader integrationJsonReader = new JsonReader(Utilities.parseJson(readStringTrimmed(packetBuffer)));
-		final boolean updateClientDataInstance = packetBuffer.readBoolean();
-		final boolean updateClientDataDashboardInstance = packetBuffer.readBoolean();
+	protected static <T extends PacketDataBase> T create(PacketBufferReceiver packetBufferReceiver, PacketDataBaseInstance<T> packetDataBaseInstance) {
+		final IntegrationServlet.Operation operation = EnumHelper.valueOf(IntegrationServlet.Operation.UPDATE, packetBufferReceiver.readString());
+		final JsonReader integrationJsonReader = new JsonReader(Utilities.parseJson(packetBufferReceiver.readString()));
+		final boolean updateClientDataInstance = packetBufferReceiver.readBoolean();
+		final boolean updateClientDataDashboardInstance = packetBufferReceiver.readBoolean();
 		return packetDataBaseInstance.create(
 				operation,
 				new Integration(integrationJsonReader, updateClientDataDashboardInstance ? ClientData.getDashboardInstance() : ClientData.getInstance()),
@@ -64,20 +66,20 @@ public abstract class PacketDataBase extends PacketHandler {
 	}
 
 	@Override
-	public void write(PacketBuffer packetBuffer) {
-		writeStringTrimmed(packetBuffer, operation.toString());
-		writeStringTrimmed(packetBuffer, Utilities.getJsonObjectFromData(integration).toString());
-		packetBuffer.writeBoolean(updateClientDataInstance);
-		packetBuffer.writeBoolean(updateClientDataDashboardInstance);
+	public void write(PacketBufferSender packetBufferSender) {
+		packetBufferSender.writeString(operation.toString());
+		packetBufferSender.writeString(Utilities.getJsonObjectFromData(integration).toString());
+		packetBufferSender.writeBoolean(updateClientDataInstance);
+		packetBufferSender.writeBoolean(updateClientDataDashboardInstance);
 	}
 
 	@Override
-	public void runServerQueued(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
+	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
 		sendHttpRequestAndBroadcastResultToAllPlayers(serverPlayerEntity.getServerWorld());
 	}
 
 	@Override
-	public void runClientQueued() {
+	public void runClient() {
 		if (updateClientDataInstance) {
 			updateClientForClientData(ClientData.getInstance());
 		}
@@ -110,15 +112,8 @@ public abstract class PacketDataBase extends PacketHandler {
 		}
 
 		if (integration.hasVehicleOrLift()) {
-			final LongAVLTreeSet keepVehicleIds = new LongAVLTreeSet();
-			integration.iterateVehiclesToKeep(keepVehicleIds::add);
-			clientData.vehicles.removeIf(vehicle -> !keepVehicleIds.contains(vehicle.getId()));
-			integration.iterateVehiclesToUpdate(vehicleUpdate -> clientData.vehicles.add(new VehicleExtension(vehicleUpdate, clientData)));
-
-			final LongAVLTreeSet keepLiftIds = new LongAVLTreeSet();
-			integration.iterateLiftsToKeep(keepLiftIds::add);
-			clientData.lifts.removeIf(lift -> !keepLiftIds.contains(lift.getId()));
-			integration.iterateLiftsToUpdate(clientData.lifts::add);
+			updateVehicles(clientData.vehicles, integration::iterateVehiclesToKeep, integration::iterateVehiclesToUpdate, vehicleUpdate -> vehicleUpdate.getVehicle().getId(), vehicleUpdate -> new VehicleExtension(vehicleUpdate, clientData));
+			updateVehicles(clientData.lifts, integration::iterateLiftsToKeep, integration::iterateLiftsToUpdate, NameColorDataBase::getId, lift -> lift);
 		}
 
 		clientData.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(clientData)));
@@ -175,25 +170,24 @@ public abstract class PacketDataBase extends PacketHandler {
 		}
 	}
 
-	public static void writeStringTrimmed(PacketBuffer packetBuffer, String text) {
-		final int maxLength = 32767;
-		packetBuffer.writeInt((int) Math.ceil((float) text.length() / maxLength));
-		for (int i = 0; i < text.length(); i += maxLength) {
-			writeString(packetBuffer, text.substring(i, Math.min(text.length(), i + maxLength)));
-		}
-	}
-
-	public static String readStringTrimmed(PacketBuffer packetBuffer) {
-		final StringBuilder stringBuilder = new StringBuilder();
-		final int count = packetBuffer.readInt();
-		for (int i = 0; i < count; i++) {
-			stringBuilder.append(readString(packetBuffer));
-		}
-		return stringBuilder.toString();
-	}
-
 	protected static void sendHttpDataRequest(IntegrationServlet.Operation operation, Integration integration, Consumer<Integration> consumer) {
 		sendHttpRequest("data/" + operation.getEndpoint(), Utilities.getJsonObjectFromData(integration), data -> consumer.accept(Response.create(data).getData(jsonReader -> new Integration(jsonReader, new Data()))));
+	}
+
+	private static <T extends NameColorDataBase, U> void updateVehicles(ObjectAVLTreeSet<T> dataSet, Consumer<LongConsumer> iterateKeep, Consumer<Consumer<U>> iterateUpdate, ToLongFunction<U> getId, Function<U, T> createInstance) {
+		final LongAVLTreeSet keepIds = new LongAVLTreeSet();
+		iterateKeep.accept(keepIds::add);
+		VehicleRidingMovement.writeVehicleId(keepIds);
+
+		final LongAVLTreeSet updateIds = new LongAVLTreeSet();
+		final ObjectArrayList<U> dataSetToUpdate = new ObjectArrayList<>();
+		iterateUpdate.accept(dataToUpdate -> {
+			dataSetToUpdate.add(dataToUpdate);
+			updateIds.add(getId.applyAsLong(dataToUpdate));
+		});
+
+		dataSet.removeIf(data -> !keepIds.contains(data.getId()) || updateIds.contains(data.getId()));
+		dataSetToUpdate.forEach(dataToUpdate -> dataSet.add(createInstance.apply(dataToUpdate)));
 	}
 
 	@FunctionalInterface
