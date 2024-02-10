@@ -3,6 +3,8 @@ package org.mtr.mod.packet;
 import org.mtr.core.data.*;
 import org.mtr.core.integration.Integration;
 import org.mtr.core.servlet.IntegrationServlet;
+import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
@@ -66,11 +68,11 @@ public final class PacketData extends PacketDataBase {
 		integration.add(stations, platforms, sidings, routes, depots, lifts, null);
 		integration.add(rails, positions);
 		integration.add(signalModifications);
-		return new PacketData(operation, integration, true, updateClientDataDashboardInstance);
+		return new PacketData(operation, Utilities.getJsonObjectFromData(integration), true, updateClientDataDashboardInstance);
 	}
 
-	public PacketData(IntegrationServlet.Operation operation, Integration integration, boolean updateClientDataInstance, boolean updateClientDataDashboardInstance) {
-		super(operation, integration, updateClientDataInstance, updateClientDataDashboardInstance);
+	public PacketData(IntegrationServlet.Operation operation, JsonObject integrationObject, boolean updateClientDataInstance, boolean updateClientDataDashboardInstance) {
+		super(operation, integrationObject, updateClientDataInstance, updateClientDataDashboardInstance);
 	}
 
 	public static PacketData create(PacketBufferReceiver packetBufferReceiver) {

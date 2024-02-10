@@ -1,8 +1,5 @@
 package org.mtr.mod;
 
-import org.mtr.core.data.Data;
-import org.mtr.core.integration.Integration;
-import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.servlet.IntegrationServlet;
 import org.mtr.core.servlet.ServletBase;
 import org.mtr.libraries.com.google.gson.JsonElement;
@@ -43,10 +40,9 @@ public final class SocketServlet extends HttpServlet {
 		responseObject.keySet().forEach(playerUuid -> {
 			final ServerPlayerEntity serverPlayerEntity = minecraftServer.getPlayerManager().getPlayer(UUID.fromString(playerUuid));
 			if (serverPlayerEntity != null) {
-				Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketData(IntegrationServlet.Operation.LIST, new Integration(new JsonReader(responseObject.getAsJsonObject(playerUuid)), new Data()), true, false));
+				Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketData(IntegrationServlet.Operation.LIST, responseObject.getAsJsonObject(playerUuid), true, false));
 			}
 		});
-		System.out.println();
 
 		ServletBase.sendResponse(httpServletResponse, asyncContext, "", ServletBase.getMimeType(""), HttpResponseStatus.OK);
 	}

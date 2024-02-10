@@ -40,10 +40,10 @@ forge/src/main/java/org/mtr/mod
 forge/src/main/resources/assets
 forge/src/main/resources/data
 forge/src/main/resources/META-INF
-font/mtr.json
 fabric.mod.json
 mtr.accesswidener
 Keys.java
 mtr_custom_resources.json
+**/font/mtr.json
 **/lang/*.json
 !en_us.json

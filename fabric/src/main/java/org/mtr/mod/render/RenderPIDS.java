@@ -31,7 +31,7 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 	private final boolean rotate90;
 	private final float textPadding;
 
-	private static final int SWITCH_LANGUAGE_TICKS = 60;
+	public static final int SWITCH_LANGUAGE_TICKS = 60;
 
 	public RenderPIDS(Argument dispatcher, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, float textPadding) {
 		super(dispatcher);
