@@ -1,6 +1,5 @@
 package org.mtr.mod.packet;
 
-import org.apache.commons.io.IOUtils;
 import org.mtr.core.data.Data;
 import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.data.Rail;
@@ -9,6 +8,7 @@ import org.mtr.core.integration.Response;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.servlet.IntegrationServlet;
+import org.mtr.core.servlet.Webserver;
 import org.mtr.core.tool.EnumHelper;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
@@ -28,11 +28,7 @@ import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.VehicleRidingMovement;
 import org.mtr.mod.data.VehicleExtension;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import javax.annotation.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.LongConsumer;
@@ -150,24 +146,8 @@ public abstract class PacketDataBase extends PacketHandler {
 		}
 	}
 
-	public static void sendHttpRequest(String endpoint, JsonObject contentObject, Consumer<JsonObject> consumer) {
-		try {
-			final HttpURLConnection connection = (HttpURLConnection) new URL(String.format("http://localhost:%s/mtr/api/%s", Init.getPort(), endpoint)).openConnection();
-			connection.setRequestMethod("POST");
-			connection.setRequestProperty("content-type", "application/json");
-			connection.setDoOutput(true);
-
-			try (final OutputStream dataOutputStream = connection.getOutputStream()) {
-				dataOutputStream.write(contentObject.toString().getBytes(StandardCharsets.UTF_8));
-				dataOutputStream.flush();
-			}
-
-			try (final InputStream inputStream = connection.getInputStream()) {
-				consumer.accept(Utilities.parseJson(IOUtils.toString(inputStream, StandardCharsets.UTF_8)));
-			}
-		} catch (Exception e) {
-			Init.logException(e);
-		}
+	public static void sendHttpRequest(String endpoint, JsonObject contentObject, @Nullable Consumer<JsonObject> consumer) {
+		Webserver.sendPostRequest(String.format("http://localhost:%s/mtr/api/%s", Init.getServerPort(), endpoint), contentObject, consumer);
 	}
 
 	protected static void sendHttpDataRequest(IntegrationServlet.Operation operation, Integration integration, Consumer<Integration> consumer) {

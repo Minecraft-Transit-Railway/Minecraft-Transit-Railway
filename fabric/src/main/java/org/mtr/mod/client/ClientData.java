@@ -1,5 +1,6 @@
 package org.mtr.mod.client;
 
+import com.logisticscraft.occlusionculling.util.Vec3d;
 import org.mtr.core.data.Position;
 import org.mtr.core.data.*;
 import org.mtr.core.operation.ArrivalsResponse;
@@ -26,7 +27,7 @@ public final class ClientData extends Data {
 	public final ObjectAVLTreeSet<SimplifiedRoute> simplifiedRoutes = new ObjectAVLTreeSet<>();
 	public final ObjectAVLTreeSet<VehicleExtension> vehicles = new ObjectAVLTreeSet<>();
 	public final Long2ObjectAVLTreeMap<PersistentVehicleData> vehicleIdToPersistentVehicleData = new Long2ObjectAVLTreeMap<>();
-	public final Object2BooleanOpenHashMap<String> railCulling = new Object2BooleanOpenHashMap<>();
+	public final Object2ObjectArrayMap<String, RailWrapper> railWrapperList = new Object2ObjectArrayMap<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
 	private final Long2ObjectAVLTreeMap<ObjectLongImmutablePair<ArrivalsResponse>> arrivalRequests = new Long2ObjectAVLTreeMap<>();
 
@@ -50,7 +51,13 @@ public final class ClientData extends Data {
 	public void sync() {
 		super.sync();
 		checkAndRemoveFromMap(vehicleIdToPersistentVehicleData, vehicles, NameColorDataBase::getId);
-		checkAndRemoveFromMap(railCulling, rails, TwoPositionsBase::getHexId);
+		checkAndRemoveFromMap(railWrapperList, rails, Rail::getHexId);
+		positionsToRail.forEach((startPosition, railMap) -> railMap.forEach((endPosition, rail) -> {
+			final String hexId = rail.getHexId();
+			if (!railWrapperList.containsKey(hexId)) {
+				railWrapperList.put(hexId, new RailWrapper(rail, hexId, startPosition, endPosition));
+			}
+		}));
 	}
 
 	public ArrivalsResponse requestArrivals(long requestKey, LongImmutableList platformIds, int count, int page, boolean realtimeOnly) {
@@ -180,5 +187,29 @@ public final class ClientData extends Data {
 			}
 		});
 		idsToRemove.forEach(map::remove);
+	}
+
+	public static class RailWrapper {
+
+		public boolean shouldRender;
+		public final Rail rail;
+		public final String hexId;
+		public final Vec3d startVector;
+		public final Vec3d endVector;
+
+		public RailWrapper(Rail rail, String hexId, Position startPosition, Position endPosition) {
+			this.rail = rail;
+			this.hexId = hexId;
+			startVector = new Vec3d(
+					Math.min(startPosition.getX(), endPosition.getX()),
+					Math.min(startPosition.getY(), endPosition.getY()),
+					Math.min(startPosition.getZ(), endPosition.getZ())
+			);
+			endVector = new Vec3d(
+					Math.max(startPosition.getX(), endPosition.getX()),
+					Math.max(startPosition.getY(), endPosition.getY()),
+					Math.max(startPosition.getZ(), endPosition.getZ())
+			);
+		}
 	}
 }

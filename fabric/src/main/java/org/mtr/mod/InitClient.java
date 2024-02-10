@@ -326,7 +326,7 @@ public final class InitClient {
 			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
 			if (clientPlayerEntity != null) {
 				final BlockPos blockPos = clientPlayerEntity.getBlockPos();
-				if (lastPosition == null || lastPosition.getManhattanDistance(new Vector3i(blockPos.data)) > 8) {
+				if (lastPosition == null || lastPosition.getManhattanDistance(new Vector3i(blockPos.data)) > 32) {
 					REGISTRY_CLIENT.sendPacketToServer(new PacketRequestData(false));
 					lastPosition = blockPos;
 				}
