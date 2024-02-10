@@ -37,25 +37,25 @@ import java.util.function.ToLongFunction;
 public abstract class PacketDataBase extends PacketHandler {
 
 	protected final IntegrationServlet.Operation operation;
-	protected final Integration integration;
+	protected final JsonObject integrationObject;
 	private final boolean updateClientDataInstance;
 	private final boolean updateClientDataDashboardInstance;
 
-	public PacketDataBase(IntegrationServlet.Operation operation, Integration integration, boolean updateClientDataInstance, boolean updateClientDataDashboardInstance) {
+	public PacketDataBase(IntegrationServlet.Operation operation, JsonObject integrationObject, boolean updateClientDataInstance, boolean updateClientDataDashboardInstance) {
 		this.operation = operation;
-		this.integration = integration;
+		this.integrationObject = integrationObject;
 		this.updateClientDataInstance = updateClientDataInstance;
 		this.updateClientDataDashboardInstance = updateClientDataDashboardInstance;
 	}
 
 	protected static <T extends PacketDataBase> T create(PacketBufferReceiver packetBufferReceiver, PacketDataBaseInstance<T> packetDataBaseInstance) {
 		final IntegrationServlet.Operation operation = EnumHelper.valueOf(IntegrationServlet.Operation.UPDATE, packetBufferReceiver.readString());
-		final JsonReader integrationJsonReader = new JsonReader(Utilities.parseJson(packetBufferReceiver.readString()));
+		final JsonObject integrationObject = Utilities.parseJson(packetBufferReceiver.readString());
 		final boolean updateClientDataInstance = packetBufferReceiver.readBoolean();
 		final boolean updateClientDataDashboardInstance = packetBufferReceiver.readBoolean();
 		return packetDataBaseInstance.create(
 				operation,
-				new Integration(integrationJsonReader, updateClientDataDashboardInstance ? ClientData.getDashboardInstance() : ClientData.getInstance()),
+				integrationObject,
 				updateClientDataInstance,
 				updateClientDataDashboardInstance
 		);
@@ -64,7 +64,7 @@ public abstract class PacketDataBase extends PacketHandler {
 	@Override
 	public void write(PacketBufferSender packetBufferSender) {
 		packetBufferSender.writeString(operation.toString());
-		packetBufferSender.writeString(Utilities.getJsonObjectFromData(integration).toString());
+		packetBufferSender.writeString(integrationObject.toString());
 		packetBufferSender.writeBoolean(updateClientDataInstance);
 		packetBufferSender.writeBoolean(updateClientDataDashboardInstance);
 	}
@@ -85,15 +85,16 @@ public abstract class PacketDataBase extends PacketHandler {
 	}
 
 	protected void sendHttpRequestAndBroadcastResultToAllPlayers(ServerWorld serverWorld) {
-		sendHttpDataRequest(operation, integration, newIntegration -> {
+		sendHttpDataRequest(operation, integrationObject, newIntegrationObject -> {
 			// Check if there are any rail nodes that need to be reset
-			newIntegration.iterateRailNodePositions(railNodePosition -> BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(railNodePosition)));
+			new Integration(new JsonReader(newIntegrationObject), new Data()).iterateRailNodePositions(railNodePosition -> BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(railNodePosition)));
 			// Broadcast result to all players
-			MinecraftServerHelper.iteratePlayers(serverWorld, worldPlayer -> Init.REGISTRY.sendPacketToClient(worldPlayer, new PacketData(operation, newIntegration, updateClientDataInstance, updateClientDataDashboardInstance)));
+			MinecraftServerHelper.iteratePlayers(serverWorld, worldPlayer -> Init.REGISTRY.sendPacketToClient(worldPlayer, new PacketData(operation, newIntegrationObject, updateClientDataInstance, updateClientDataDashboardInstance)));
 		});
 	}
 
 	private void updateClientForClientData(ClientData clientData) {
+		final Integration integration = new Integration(new JsonReader(integrationObject), clientData);
 		final int simplifiedRoutesSize = clientData.simplifiedRoutes.size();
 
 		if (integration.hasData()) {
@@ -150,8 +151,8 @@ public abstract class PacketDataBase extends PacketHandler {
 		Webserver.sendPostRequest(String.format("http://localhost:%s/mtr/api/%s", Init.getServerPort(), endpoint), contentObject, consumer);
 	}
 
-	protected static void sendHttpDataRequest(IntegrationServlet.Operation operation, Integration integration, Consumer<Integration> consumer) {
-		sendHttpRequest("data/" + operation.getEndpoint(), Utilities.getJsonObjectFromData(integration), data -> consumer.accept(Response.create(data).getData(jsonReader -> new Integration(jsonReader, new Data()))));
+	protected static void sendHttpDataRequest(IntegrationServlet.Operation operation, JsonObject integrationObject, Consumer<JsonObject> consumer) {
+		sendHttpRequest("data/" + operation.getEndpoint(), integrationObject, data -> consumer.accept(Response.create(data).data));
 	}
 
 	private static <T extends NameColorDataBase, U> void updateVehicles(ObjectAVLTreeSet<T> dataSet, Consumer<LongConsumer> iterateKeep, Consumer<Consumer<U>> iterateUpdate, ToLongFunction<U> getId, Function<U, T> createInstance) {
@@ -172,6 +173,6 @@ public abstract class PacketDataBase extends PacketHandler {
 
 	@FunctionalInterface
 	protected interface PacketDataBaseInstance<T extends PacketDataBase> {
-		T create(IntegrationServlet.Operation operation, Integration integration, boolean updateClientDataInstance, boolean updateClientDataDashboardInstance);
+		T create(IntegrationServlet.Operation operation, JsonObject integrationObject, boolean updateClientDataInstance, boolean updateClientDataDashboardInstance);
 	}
 }

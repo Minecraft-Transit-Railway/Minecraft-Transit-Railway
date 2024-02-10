@@ -3,7 +3,9 @@ package org.mtr.mod;
 import org.mtr.core.data.Platform;
 import org.mtr.core.data.Position;
 import org.mtr.core.data.Station;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.registry.EventRegistryClient;
 import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.block.BlockTactileMap;
@@ -347,7 +349,8 @@ public final class InitClient {
 		BlockTactileMap.BlockEntity.onUse = blockPos -> {
 			final Station station = findStation(blockPos);
 			if (station != null) {
-				IDrawing.narrateOrAnnounce(IGui.insertTranslation("gui.mtr.welcome_station_cjk", "gui.mtr.welcome_station", 1, IGui.textOrUntitled(station.getName())));
+				final String text = IGui.formatStationName(IGui.insertTranslation("gui.mtr.welcome_station_cjk", "gui.mtr.welcome_station", 1, IGui.textOrUntitled(station.getName())));
+				IDrawing.narrateOrAnnounce(text, ObjectArrayList.of(TextHelper.literal(text)));
 			}
 		};
 

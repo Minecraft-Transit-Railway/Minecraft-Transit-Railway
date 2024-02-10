@@ -323,7 +323,9 @@ public class DynamicTextureCache implements IGui {
 			if (!queue.isEmpty()) {
 				try {
 					final Runnable task = queue.remove(0);
-					task.run();
+					if (task != null) {
+						task.run();
+					}
 				} catch (Exception e) {
 					Init.logException(e);
 				}

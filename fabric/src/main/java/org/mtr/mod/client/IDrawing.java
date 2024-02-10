@@ -162,17 +162,18 @@ public interface IDrawing {
 		widget.setWidth2(MathHelper.clamp(widgetWidth, 0, 380));
 	}
 
-	static void narrateOrAnnounce(String message) {
-		String newMessage = IGui.formatStationName(message).replace("  ", " ");
-		if (!newMessage.isEmpty()) {
-			if (Config.useTTSAnnouncements()) {
-				Narrator.getNarrator().say(newMessage, true);
-			}
-			if (Config.showAnnouncementMessages()) {
-				final ClientPlayerEntity player = MinecraftClient.getInstance().getPlayerMapped();
-				if (player != null) {
-					player.sendMessage(new Text(TextHelper.literal(newMessage).data), false);
-				}
+	static void narrateOrAnnounce(String narrateMessage, ObjectArrayList<MutableText> chatMessages) {
+		if (Config.useTTSAnnouncements() && !narrateMessage.isEmpty()) {
+			Narrator.getNarrator().say(narrateMessage, true);
+		}
+		if (Config.showAnnouncementMessages() && !chatMessages.isEmpty()) {
+			final ClientPlayerEntity player = MinecraftClient.getInstance().getPlayerMapped();
+			if (player != null) {
+				chatMessages.forEach(chatMessage -> {
+					if (!chatMessage.getString().isEmpty()) {
+						player.sendMessage(new Text(chatMessage.data), false);
+					}
+				});
 			}
 		}
 	}
