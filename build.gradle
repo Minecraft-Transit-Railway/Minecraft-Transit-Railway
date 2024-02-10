@@ -16,10 +16,13 @@ subprojects {
 	}
 
 	dependencies {
-		shadowImplementation "com.github.jonafanho:Socket-IO-Webserver:master-SNAPSHOT"
 		shadowImplementation "com.github.jonafanho:Shadow-Libraries:master-SNAPSHOT"
 		shadowImplementation "org.mtr:Minecraft-Mappings-common:0.0.1"
 		shadowImplementation "org.mtr:Transport-Simulation-Core:0.0.1"
+		shadowImplementation "org.eclipse.jetty:jetty-server:9.+"
+		shadowImplementation "org.eclipse.jetty:jetty-servlet:9.+"
+		shadowImplementation "org.eclipse.jetty:jetty-util:9.+"
+		shadowImplementation "javax.servlet:javax.servlet-api:+"
 		shadowImplementation "com.logisticscraft:occlusionculling:+"
 		compileOnly "com.google.code.findbugs:jsr305:+"
 		compileOnly "xyz.jpenilla:squaremap-api:+"
@@ -36,6 +39,9 @@ subprojects {
 	shadowJar {
 		configurations = [project.configurations.shadowImplementation]
 		minimize { exclude(dependency("com.github.jonafanho.Shadow-Libraries:net:.*")) }
+		relocate "com.logisticscraft", "org.mtr.libraries.com.logisticscraft"
+		relocate "org.eclipse", "org.mtr.libraries.org.eclipse"
+		relocate "javax.servlet", "org.mtr.libraries.javax.servlet"
 	}
 
 	tasks.withType(Javadoc).tap {

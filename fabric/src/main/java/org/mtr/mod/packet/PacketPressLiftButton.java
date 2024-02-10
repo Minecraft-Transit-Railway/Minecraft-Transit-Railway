@@ -45,8 +45,7 @@ public final class PacketPressLiftButton extends PacketHandler {
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
 		final PressLift pressLift = new PressLift();
 		trackPositions.forEach(blockPos -> pressLift.add(Init.blockPosToPosition(blockPos), pressDirection));
-		PacketDataBase.sendHttpRequest("operation/press-lift", Utilities.getJsonObjectFromData(pressLift), jsonObject -> {
-		});
+		PacketDataBase.sendHttpRequest("operation/press-lift", Utilities.getJsonObjectFromData(pressLift), null);
 	}
 
 	@Override

@@ -2,20 +2,16 @@ package org.mtr.mod;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.mtr.core.Main;
 import org.mtr.core.data.Client;
-import org.mtr.core.data.Data;
 import org.mtr.core.data.Position;
 import org.mtr.core.generated.data.ClientGroupSchema;
-import org.mtr.core.integration.Integration;
 import org.mtr.core.operation.GenerateMultiple;
-import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.JsonWriter;
-import org.mtr.core.servlet.IntegrationServlet;
+import org.mtr.core.servlet.Webserver;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.libraries.io.socket.client.IO;
-import org.mtr.libraries.io.socket.client.Socket;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -35,7 +31,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,8 +38,8 @@ import java.util.logging.Logger;
 public final class Init implements Utilities {
 
 	private static Main main;
-	private static Socket socket;
-	private static int port;
+	private static Webserver webserver;
+	private static int serverPort;
 	private static Runnable sendWorldTimeUpdate;
 	private static int serverTick;
 
@@ -118,32 +113,21 @@ public final class Init implements Utilities {
 				PLAYERS_TO_UPDATE.put(identifier, new IntObjectImmutablePair<>(index[0], new ObjectArraySet<>()));
 				index[0]++;
 			});
-			setFreePort(minecraftServer);
-			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), port, worldNames.toArray(new String[0]));
 
-			// Set up the socket
-			try {
-				socket = IO.socket("http://localhost:" + port).connect();
-				socket.on(CHANNEL, args -> {
-					final JsonObject responseObject = Utilities.parseJson(args[0].toString());
-					responseObject.keySet().forEach(playerUuid -> {
-						final ServerPlayerEntity serverPlayerEntity = minecraftServer.getPlayerManager().getPlayer(UUID.fromString(playerUuid));
-						if (serverPlayerEntity != null) {
-							REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketData(IntegrationServlet.Operation.LIST, new Integration(new JsonReader(responseObject.getAsJsonObject(playerUuid)), new Data()), true, false));
-						}
-					});
-				});
-			} catch (Exception e) {
-				logException(e);
-			}
+			final int defaultPort = getDefaultPortFromConfig(minecraftServer);
+			serverPort = findFreePort(defaultPort);
+			final int port = findFreePort(serverPort + 1);
+			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, port, worldNames.toArray(new String[0]));
+			webserver = new Webserver(port);
+			webserver.addServlet(new ServletHolder(new SocketServlet(minecraftServer)), "/mtr/api/socket");
+			webserver.start();
 
 			serverTick = 0;
 			sendWorldTimeUpdate = () -> {
 				final JsonObject timeObject = new JsonObject();
 				timeObject.addProperty("gameMillis", (WorldHelper.getTimeOfDay(minecraftServer.getOverworld()) + 6000) * SECONDS_PER_MC_HOUR);
 				timeObject.addProperty("millisPerDay", MILLIS_PER_MC_DAY);
-				PacketData.sendHttpRequest("operation/set-time", timeObject, responseObject -> {
-				});
+				PacketData.sendHttpRequest("operation/set-time", timeObject, null);
 			};
 		});
 
@@ -151,10 +135,13 @@ public final class Init implements Utilities {
 			if (main != null) {
 				main.stop();
 			}
+			if (webserver != null) {
+				webserver.stop();
+			}
 		});
 
 		EventRegistry.registerStartServerTick(() -> {
-			if (socket != null) {
+			if (webserver != null) {
 				PLAYERS_TO_UPDATE.forEach((identifier, worldDetails) -> {
 					final ObjectArraySet<ObjectBooleanImmutablePair<ServerPlayerEntity>> playerDetails = worldDetails.right();
 					if (!playerDetails.isEmpty()) {
@@ -163,7 +150,7 @@ public final class Init implements Utilities {
 						playerDetails.clear();
 						final JsonObject jsonObject = new JsonObject();
 						clientGroupNew.serializeDataJson(new JsonWriter(jsonObject));
-						socket.emit(CHANNEL, jsonObject.toString());
+						PacketDataBase.sendHttpRequest("socket", jsonObject, null);
 					}
 				});
 			}
@@ -199,8 +186,8 @@ public final class Init implements Utilities {
 		}
 	}
 
-	public static int getPort() {
-		return port;
+	public static int getServerPort() {
+		return serverPort;
 	}
 
 	public static BlockPos positionToBlockPos(Position position) {
@@ -219,35 +206,39 @@ public final class Init implements Utilities {
 		LOGGER.log(Level.INFO, e.getMessage(), e);
 	}
 
-	private static void setFreePort(MinecraftServer minecraftServer) {
+	private static int getDefaultPortFromConfig(MinecraftServer minecraftServer) {
 		final Path filePath = minecraftServer.getRunDirectory().toPath().resolve("config/mtr_webserver_port.txt");
-		int startingPort = 8888;
+		final int defaultPort = 8888;
 
 		try {
-			startingPort = Integer.parseInt(FileUtils.readFileToString(filePath.toFile(), StandardCharsets.UTF_8));
+			return Integer.parseInt(FileUtils.readFileToString(filePath.toFile(), StandardCharsets.UTF_8));
 		} catch (Exception ignored) {
 			try {
-				Files.write(filePath, String.valueOf(startingPort).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+				Files.write(filePath, String.valueOf(defaultPort).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 			} catch (Exception e) {
 				logException(e);
 			}
 		}
 
-		for (int i = startingPort; i <= 65535; i++) {
+		return defaultPort;
+	}
+
+	private static int findFreePort(int startingPort) {
+		for (int i = Math.max(1025, startingPort); i <= 65535; i++) {
 			try (final ServerSocket serverSocket = new ServerSocket(i)) {
-				port = serverSocket.getLocalPort();
-				LOGGER.log(Level.INFO, "Found available port: " + port);
-				return;
+				final int port = serverSocket.getLocalPort();
+				Main.LOGGER.log(Level.INFO, "Found available port: " + port);
+				return port;
 			} catch (Exception ignored) {
 			}
 		}
+		return 0;
 	}
 
 	private static int generateDepotsFromCommand(String filter) {
 		final GenerateMultiple generateMultiple = new GenerateMultiple();
 		generateMultiple.setFilter(filter);
-		PacketDataBase.sendHttpRequest("operation/generate", Utilities.getJsonObjectFromData(generateMultiple), jsonObject -> {
-		});
+		PacketDataBase.sendHttpRequest("operation/generate", Utilities.getJsonObjectFromData(generateMultiple), null);
 		return 1;
 	}
 

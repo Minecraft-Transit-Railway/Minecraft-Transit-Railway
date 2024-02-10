@@ -42,21 +42,15 @@ public class RenderRails implements IGui {
 		final Vec3d camera = new Vec3d(cameraPosition.getXMapped(), cameraPosition.getYMapped(), cameraPosition.getZMapped());
 		final boolean renderColors = isHoldingRailRelated(clientPlayerEntity);
 
-		ClientData.getInstance().positionsToRail.forEach((startPosition, railMap) -> railMap.forEach((endPosition, rail) -> {
+		ClientData.getInstance().railWrapperList.values().forEach(railWrapper -> {
+			final Rail rail = railWrapper.rail;
+
 			cullingTasks.add(occlusionCullingInstance -> {
-				final boolean shouldRender = occlusionCullingInstance.isAABBVisible(new Vec3d(
-						Math.min(startPosition.getX(), endPosition.getX()),
-						Math.min(startPosition.getY(), endPosition.getY()),
-						Math.min(startPosition.getZ(), endPosition.getZ())
-				), new Vec3d(
-						Math.max(startPosition.getX(), endPosition.getX()),
-						Math.max(startPosition.getY(), endPosition.getY()),
-						Math.max(startPosition.getZ(), endPosition.getZ())
-				), camera);
-				return () -> ClientData.getInstance().railCulling.put(rail.getHexId(), shouldRender);
+				final boolean shouldRender = occlusionCullingInstance.isAABBVisible(railWrapper.startVector, railWrapper.endVector, camera);
+				return () -> railWrapper.shouldRender = shouldRender;
 			});
 
-			if (ClientData.getInstance().railCulling.getOrDefault(rail.getHexId(), false)) {
+			if (railWrapper.shouldRender) {
 				switch (rail.getTransportMode()) {
 					case TRAIN:
 						renderRailStandard(clientWorld, rail, renderColors, 1);
@@ -99,7 +93,7 @@ public class RenderRails implements IGui {
 						break;
 				}
 			}
-		}));
+		});
 
 		OCCLUSION_CULLING_THREAD.schedule(occlusionCullingInstance -> {
 			final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
