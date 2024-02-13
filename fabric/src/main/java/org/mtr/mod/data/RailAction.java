@@ -115,6 +115,7 @@ public class RailAction {
 			}
 			if (!blacklistedPositions.contains(getHalfPos(placePos, placeHalf)) && canPlace(serverWorld, placePos)) {
 				serverWorld.setBlockState(placePos, placeState);
+				blacklistedPositions.add(getHalfPos(placePos, placeHalf));
 			}
 		});
 	}
