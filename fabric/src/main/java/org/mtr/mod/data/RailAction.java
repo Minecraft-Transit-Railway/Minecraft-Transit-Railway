@@ -94,7 +94,6 @@ public class RailAction {
 		return create(false, vector -> {
 			final boolean isTopHalf = vector.y - Math.floor(vector.y) >= 0.5;
 			final BlockPos blockPos = fromVector(vector);
-			blacklistedPositions.add(getHalfPos(blockPos, isTopHalf));
 
 			final BlockPos placePos;
 			final BlockState placeState;
@@ -110,12 +109,15 @@ public class RailAction {
 				placeHalf = true;
 			}
 
+			BlockPos halfPos = getHalfPos(placePos, placeHalf);
+			if(blacklistedPositions.contains(halfPos)) return;
+
 			if (placePos != blockPos && canPlace(serverWorld, blockPos)) {
 				serverWorld.setBlockState(blockPos, Blocks.getAirMapped().getDefaultState());
 			}
-			if (!blacklistedPositions.contains(getHalfPos(placePos, placeHalf)) && canPlace(serverWorld, placePos)) {
+			if (canPlace(serverWorld, placePos)) {
 				serverWorld.setBlockState(placePos, placeState);
-				blacklistedPositions.add(getHalfPos(placePos, placeHalf));
+				blacklistedPositions.add(halfPos);
 			}
 		});
 	}
