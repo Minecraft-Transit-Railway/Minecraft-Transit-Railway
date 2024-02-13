@@ -63,7 +63,7 @@ public class RailAction {
 	}
 
 	public String getDescription() {
-		return TextHelper.translatable("gui.mtr." + railActionType.nameTranslation, playerName, length, state == null ? "" : state.getBlock().getTranslationKey()).getString();
+		return TextHelper.translatable("gui.mtr." + railActionType.nameTranslation, playerName, Utilities.round(length, 1), state == null ? "" : TextHelper.translatable(state.getBlock().getTranslationKey()).getString()).getString();
 	}
 
 	public int getColor() {
