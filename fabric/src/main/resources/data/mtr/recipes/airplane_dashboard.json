@@ -1,0 +1,25 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"FFF",
+		"RGL",
+		"FFF"
+	],
+	"key": {
+		"F": {
+			"item": "minecraft:feather"
+		},
+		"R": {
+			"tag": "c:redstone_dusts"
+		},
+		"G": {
+			"item": "minecraft:glass_pane"
+		},
+		"L": {
+			"tag": "c:glowstone_dusts"
+		}
+	},
+	"result": {
+		"item": "mtr:dashboard_4"
+	}
+}
