@@ -159,7 +159,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 			}
 		}
 
-		final String mousePosText = String.format("(%s, %s)", Utilities.round(mouseWorldPos.leftDouble(), 1), Utilities.round(mouseWorldPos.rightDouble(), 1));
+		final String mousePosText = String.format("(%.1f, %.1f)", mouseWorldPos.leftDouble(), mouseWorldPos.rightDouble());
 		graphicsHolder.drawText(mousePosText, getX2() + width - TEXT_PADDING - GraphicsHolder.getTextWidth(mousePosText), getY2() + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
 	}
 
