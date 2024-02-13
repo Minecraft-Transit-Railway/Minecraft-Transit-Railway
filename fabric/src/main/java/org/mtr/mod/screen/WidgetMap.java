@@ -76,7 +76,9 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 		final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
 		guiDrawing.beginDrawingRectangle();
-
+		// Background
+		guiDrawing.drawRectangle(getX2(), getY2(), getX2() + width, getY2() + height, ARGB_BLACK);
+		
 		final IntIntImmutablePair topLeft = coordsToWorldPos(0, 0);
 		final IntIntImmutablePair bottomRight = coordsToWorldPos(width, height);
 		final int increment = scale >= 1 ? 1 : (int) Math.ceil(1 / scale);
@@ -84,7 +86,10 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 			for (int j = topLeft.rightInt(); j <= bottomRight.rightInt(); j += increment) {
 				if (world != null) {
 					final int color = divideColorRGB(world.getBlockState(Init.newBlockPos(i, world.getTopY(HeightMapType.getMotionBlockingMapped(), i, j) - 1, j)).getBlock().getDefaultMapColor().getColorMapped(), 2);
-					drawRectangleFromWorldCoords(guiDrawing, i, j, i + increment, j + increment, ARGB_BLACK | color);
+					// Skip rendering block with same color as background, can save some frames
+					if(color != 0) {
+						drawRectangleFromWorldCoords(guiDrawing, i, j, i + increment, j + increment, ARGB_BLACK | color);
+					}
 				}
 			}
 		}
