@@ -279,10 +279,10 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		(isPlatform ? flatPositionToPlatformMap : flatPositionToSidingMap).forEach((position, savedRails) -> {
 			final int savedRailCount = savedRails.size();
 			for (int i = 0; i < savedRailCount; i++) {
-				final float left = position.getX();
-				final float right = position.getX() + 1;
-				final float top = position.getZ() + (float) i / savedRailCount;
-				final float bottom = position.getZ() + (i + 1F) / savedRailCount;
+				final double left = position.getX();
+				final double right = position.getX() + 1;
+				final double top = position.getZ() + (double) i / savedRailCount;
+				final double bottom = position.getZ() + (i + 1D) / savedRailCount;
 				if (Utilities.isBetween(mouseWorldPos.leftDouble(), left, right) && Utilities.isBetween(mouseWorldPos.rightDouble(), top, bottom)) {
 					mouseOnSavedRailCallback.mouseOnSavedRailCallback(savedRails.get(i), left, top, right, bottom);
 				}
