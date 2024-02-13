@@ -15,6 +15,10 @@ public class BlockStationColor extends BlockExtension {
 		super(BlockHelper.createBlockSettings(false));
 	}
 
+	public BlockStationColor(boolean nonOpaque) {
+		super(BlockHelper.createBlockSettings(false).nonOpaque());
+	}
+
 	@Nonnull
 	@Override
 	public String getTranslationKey2() {
