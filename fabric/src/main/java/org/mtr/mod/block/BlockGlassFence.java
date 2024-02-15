@@ -14,7 +14,7 @@ public class BlockGlassFence extends BlockDirectionalDoubleBlockBase {
 	public static final IntegerProperty NUMBER = IntegerProperty.of("number", 1, 7);
 
 	public BlockGlassFence() {
-		super(BlockHelper.createBlockSettings(true));
+		super(BlockHelper.createBlockSettings(true).nonOpaque());
 	}
 
 	@Nonnull

@@ -1,72 +1,84 @@
 package org.mtr.mod.packet;
 
 import org.mtr.core.integration.Response;
-import org.mtr.core.serializer.JsonReader;
-import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.mapping.holder.MinecraftServer;
 import org.mtr.mapping.holder.ServerPlayerEntity;
+import org.mtr.mapping.holder.ServerWorld;
+import org.mtr.mapping.holder.World;
+import org.mtr.mapping.mapper.MinecraftServerHelper;
 import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mapping.tool.PacketBufferSender;
 import org.mtr.mod.Init;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class PacketRequestResponseBase<T extends SerializedDataBase> extends PacketHandler {
+/**
+ * Sends a round trip request/response. This is meant to be used on the Minecraft client only.
+ * <p>
+ * Minecraft client -> Minecraft server -> Transport Simulation Core -> Minecraft server -> Minecraft client
+ */
+public abstract class PacketRequestResponseBase extends PacketHandler {
 
-	private final T request;
-	private final Response response;
+	private final String content;
 
 	public PacketRequestResponseBase(PacketBufferReceiver packetBufferReceiver) {
-		final boolean isResponse = packetBufferReceiver.readBoolean();
-		final JsonObject jsonObject = Utilities.parseJson(packetBufferReceiver.readString());
-		request = isResponse ? null : createRequest(new JsonReader(jsonObject));
-		response = isResponse ? Response.create(jsonObject) : null;
+		content = packetBufferReceiver.readString();
 	}
 
-	public PacketRequestResponseBase(T request) {
-		this.request = request;
-		response = null;
-	}
-
-	protected PacketRequestResponseBase(Response response) {
-		request = null;
-		this.response = response;
+	public PacketRequestResponseBase(String content) {
+		this.content = content;
 	}
 
 	@Override
 	public void write(PacketBufferSender packetBufferSender) {
-		packetBufferSender.writeBoolean(request == null);
-		packetBufferSender.writeString((request == null ? response.getJson() : Utilities.getJsonObjectFromData(request)).toString());
+		packetBufferSender.writeString(content);
 	}
 
 	@Override
 	public final void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		if (request != null) {
-			PacketData.sendHttpRequest(getEndpoint(), Utilities.getJsonObjectFromData(request), data -> {
-				final PacketRequestResponseBase<T> newInstance = createInstance(Response.create(data));
-				if (newInstance != null) {
-					Init.REGISTRY.sendPacketToClient(serverPlayerEntity, newInstance);
-				}
-			});
-		}
+		runServer(serverPlayerEntity.getServerWorld(), serverPlayerEntity);
 	}
 
 	@Override
 	public final void runClient() {
-		if (response != null) {
-			runClient(response);
-		}
+		runClient(Response.create(Utilities.parseJson(content)));
 	}
 
-	@Nullable
-	protected abstract PacketRequestResponseBase<T> createInstance(Response response);
+	protected final void runServer(ServerWorld serverWorld, @Nullable ServerPlayerEntity serverPlayerEntity) {
+		Init.sendHttpRequest(getEndpoint(), new World(serverWorld.data), content, responseType() == ResponseType.NONE ? null : response -> {
+			if (responseType() == ResponseType.PLAYER) {
+				if (serverPlayerEntity != null) {
+					Init.REGISTRY.sendPacketToClient(serverPlayerEntity, getInstance(response));
+				}
+			} else {
+				MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntityNew -> Init.REGISTRY.sendPacketToClient(serverPlayerEntityNew, getInstance(response)));
+			}
+		});
+	}
 
-	protected abstract T createRequest(JsonReader jsonReader);
+	protected void runClient(Response response) {
+	}
 
+	/**
+	 * @param content the content being sent from the Minecraft server to the Minecraft client
+	 * @return an instance of the packet (should be constructed using {@link #PacketRequestResponseBase(String)})
+	 */
+	protected abstract PacketRequestResponseBase getInstance(String content);
+
+	@Nonnull
 	protected abstract String getEndpoint();
 
-	protected abstract void runClient(Response responseData);
+	/**
+	 * If a response is needed, override {@link #runClient()}.
+	 *
+	 * @return whether this request expects a response from the POST request
+	 */
+	protected abstract ResponseType responseType();
+
+	protected enum ResponseType {
+		NONE, PLAYER, ALL
+	}
 }

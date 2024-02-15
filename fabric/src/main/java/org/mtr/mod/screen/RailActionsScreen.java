@@ -4,7 +4,7 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.InitClient;
-import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.PacketDeleteRailAction;
 
@@ -50,7 +50,7 @@ public class RailActionsScreen extends ScreenExtension implements IGui {
 	@Override
 	public void tick2() {
 		railActionsList.tick();
-		railActionsList.setData(ClientData.getInstance().railActions, false, false, false, false, false, true);
+		railActionsList.setData(MinecraftClientData.getInstance().railActions, false, false, false, false, false, true);
 	}
 
 	@Override

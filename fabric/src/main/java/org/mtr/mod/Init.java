@@ -2,21 +2,18 @@ package org.mtr.mod;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.mtr.core.Main;
-import org.mtr.core.data.Client;
 import org.mtr.core.data.Position;
-import org.mtr.core.generated.data.ClientGroupSchema;
-import org.mtr.core.operation.GenerateMultiple;
-import org.mtr.core.serializer.JsonWriter;
+import org.mtr.core.operation.GenerateByDepotName;
+import org.mtr.core.operation.SetTime;
 import org.mtr.core.servlet.Webserver;
+import org.mtr.core.tool.RequestHelper;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
 import org.mtr.mapping.mapper.WorldHelper;
@@ -26,6 +23,7 @@ import org.mtr.mapping.tool.DummyClass;
 import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.packet.*;
 
+import javax.annotation.Nullable;
 import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -33,7 +31,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.function.Consumer;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public final class Init implements Utilities {
 
@@ -43,16 +40,15 @@ public final class Init implements Utilities {
 	private static Runnable sendWorldTimeUpdate;
 	private static int serverTick;
 
-
 	public static final String MOD_ID = "mtr";
-	public static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	public static final Logger LOGGER = LogManager.getLogger("Minecraft Transit Railway");
 	public static final Registry REGISTRY = new Registry();
 	public static final int SECONDS_PER_MC_HOUR = 50;
 
-	private static final String CHANNEL = "update";
 	private static final int MILLIS_PER_MC_DAY = SECONDS_PER_MC_HOUR * MILLIS_PER_SECOND * HOURS_PER_DAY;
 	private static final Object2ObjectArrayMap<ServerWorld, RailActionModule> RAIL_ACTION_MODULES = new Object2ObjectArrayMap<>();
-	private static final Object2ObjectArrayMap<Identifier, IntObjectImmutablePair<ObjectArraySet<ObjectBooleanImmutablePair<ServerPlayerEntity>>>> PLAYERS_TO_UPDATE = new Object2ObjectArrayMap<>();
+	private static final ObjectArrayList<String> WORLD_ID_LIST = new ObjectArrayList<>();
+	private static final RequestHelper REQUEST_HELPER = new RequestHelper(false);
 
 	public static void init() {
 		AsciiArt.print();
@@ -68,67 +64,65 @@ public final class Init implements Utilities {
 		REGISTRY.setupPackets(new Identifier(MOD_ID, "packet"));
 		REGISTRY.registerPacket(PacketAddBalance.class, PacketAddBalance::new);
 		REGISTRY.registerPacket(PacketBroadcastRailActions.class, PacketBroadcastRailActions::new);
-		REGISTRY.registerPacket(PacketData.class, PacketData::create);
+		REGISTRY.registerPacket(PacketDeleteData.class, PacketDeleteData::new);
 		REGISTRY.registerPacket(PacketDeleteRailAction.class, PacketDeleteRailAction::new);
+		REGISTRY.registerPacket(PacketDepotGenerate.class, PacketDepotGenerate::new);
 		REGISTRY.registerPacket(PacketDriveTrain.class, PacketDriveTrain::new);
 		REGISTRY.registerPacket(PacketFetchArrivals.class, PacketFetchArrivals::new);
 		REGISTRY.registerPacket(PacketOpenBlockEntityScreen.class, PacketOpenBlockEntityScreen::new);
-		REGISTRY.registerPacket(PacketOpenDashboardScreen.class, PacketOpenDashboardScreen::create);
+		REGISTRY.registerPacket(PacketOpenDashboardScreen.class, PacketOpenDashboardScreen::new);
 		REGISTRY.registerPacket(PacketOpenLiftCustomizationScreen.class, PacketOpenLiftCustomizationScreen::new);
 		REGISTRY.registerPacket(PacketOpenPIDSConfigScreen.class, PacketOpenPIDSConfigScreen::new);
 		REGISTRY.registerPacket(PacketOpenTicketMachineScreen.class, PacketOpenTicketMachineScreen::new);
 		REGISTRY.registerPacket(PacketPressLiftButton.class, PacketPressLiftButton::new);
 		REGISTRY.registerPacket(PacketRequestData.class, PacketRequestData::new);
+		REGISTRY.registerPacket(PacketUpdateData.class, PacketUpdateData::new);
 		REGISTRY.registerPacket(PacketUpdateLiftTrackFloorConfig.class, PacketUpdateLiftTrackFloorConfig::new);
 		REGISTRY.registerPacket(PacketUpdatePIDSConfig.class, PacketUpdatePIDSConfig::new);
 		REGISTRY.registerPacket(PacketUpdateRailwaySignConfig.class, PacketUpdateRailwaySignConfig::new);
 		REGISTRY.registerPacket(PacketUpdateTrainSensorConfig.class, PacketUpdateTrainSensorConfig::new);
+		REGISTRY.registerPacket(PacketUpdateVehiclesLifts.class, PacketUpdateVehiclesLifts::new);
 		REGISTRY.registerPacket(PacketUpdateVehicleRidingEntities.class, PacketUpdateVehicleRidingEntities::new);
 
 		// Register command
-		REGISTRY.registerCommand("generate", commandBuilder -> {
+		REGISTRY.registerCommand("generate-by-depot-name", commandBuilder -> {
 			commandBuilder.permissionLevel(2);
 			commandBuilder.executes(contextHandler -> {
 				contextHandler.sendSuccess("command.mtr.generate_all", true);
-				return generateDepotsFromCommand("");
+				return generateDepotsFromCommand(contextHandler.getWorld(), "");
 			});
 			commandBuilder.then("name", StringArgumentType.greedyString(), innerCommandBuilder -> innerCommandBuilder.executes(contextHandler -> {
 				final String filter = contextHandler.getString("name");
 				contextHandler.sendSuccess("command.mtr.generate_filter", true, filter);
-				return generateDepotsFromCommand(filter);
+				return generateDepotsFromCommand(contextHandler.getWorld(), filter);
 			}));
 		});
 
 		// Register events
 		EventRegistry.registerServerStarted(minecraftServer -> {
 			// Start up the backend
-			final ObjectArrayList<String> worldNames = new ObjectArrayList<>();
 			RAIL_ACTION_MODULES.clear();
-			PLAYERS_TO_UPDATE.clear();
-			final int[] index = {0};
+			WORLD_ID_LIST.clear();
 			MinecraftServerHelper.iterateWorlds(minecraftServer, serverWorld -> {
-				final Identifier identifier = MinecraftServerHelper.getWorldId(new World(serverWorld.data));
-				worldNames.add(String.format("%s/%s", identifier.getNamespace(), identifier.getPath()));
 				RAIL_ACTION_MODULES.put(serverWorld, new RailActionModule(serverWorld));
-				PLAYERS_TO_UPDATE.put(identifier, new IntObjectImmutablePair<>(index[0], new ObjectArraySet<>()));
-				index[0]++;
+				WORLD_ID_LIST.add(getWorldId(new World(serverWorld.data)));
 			});
 
 			final int defaultPort = getDefaultPortFromConfig(minecraftServer);
 			serverPort = findFreePort(defaultPort);
 			final int port = findFreePort(serverPort + 1);
-			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, port, worldNames.toArray(new String[0]));
+			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, port, WORLD_ID_LIST.toArray(new String[0]));
 			webserver = new Webserver(port);
-			webserver.addServlet(new ServletHolder(new SocketServlet(minecraftServer)), "/mtr/api/socket");
+			webserver.addServlet(new ServletHolder(new SocketServlet(minecraftServer)), "/");
 			webserver.start();
 
 			serverTick = 0;
-			sendWorldTimeUpdate = () -> {
-				final JsonObject timeObject = new JsonObject();
-				timeObject.addProperty("gameMillis", (WorldHelper.getTimeOfDay(minecraftServer.getOverworld()) + 6000) * SECONDS_PER_MC_HOUR);
-				timeObject.addProperty("millisPerDay", MILLIS_PER_MC_DAY);
-				PacketData.sendHttpRequest("operation/set-time", timeObject, null);
-			};
+			sendWorldTimeUpdate = () -> sendHttpRequest(
+					"operation/set-time",
+					null,
+					Utilities.getJsonObjectFromData(new SetTime((WorldHelper.getTimeOfDay(minecraftServer.getOverworld()) + 6000) * SECONDS_PER_MC_HOUR, MILLIS_PER_MC_DAY)).toString(),
+					null
+			);
 		});
 
 		EventRegistry.registerServerStopping(minecraftServer -> {
@@ -141,20 +135,6 @@ public final class Init implements Utilities {
 		});
 
 		EventRegistry.registerStartServerTick(() -> {
-			if (webserver != null) {
-				PLAYERS_TO_UPDATE.forEach((identifier, worldDetails) -> {
-					final ObjectArraySet<ObjectBooleanImmutablePair<ServerPlayerEntity>> playerDetails = worldDetails.right();
-					if (!playerDetails.isEmpty()) {
-						final ClientGroupNew clientGroupNew = new ClientGroupNew(worldDetails.leftInt());
-						playerDetails.forEach(clientGroupNew::addClient);
-						playerDetails.clear();
-						final JsonObject jsonObject = new JsonObject();
-						clientGroupNew.serializeDataJson(new JsonWriter(jsonObject));
-						PacketDataBase.sendHttpRequest("socket", jsonObject, null);
-					}
-				});
-			}
-
 			if (sendWorldTimeUpdate != null && serverTick % (SECONDS_PER_MC_HOUR * 10) == 0) {
 				sendWorldTimeUpdate.run();
 			}
@@ -172,13 +152,6 @@ public final class Init implements Utilities {
 		REGISTRY.init();
 	}
 
-	public static void schedulePlayerUpdate(ServerPlayerEntity serverPlayerEntity, boolean forceUpdate) {
-		final IntObjectImmutablePair<ObjectArraySet<ObjectBooleanImmutablePair<ServerPlayerEntity>>> worldDetails = PLAYERS_TO_UPDATE.get(MinecraftServerHelper.getWorldId(new World(serverPlayerEntity.getServerWorld().data)));
-		if (worldDetails != null) {
-			worldDetails.right().add(new ObjectBooleanImmutablePair<>(serverPlayerEntity, forceUpdate));
-		}
-	}
-
 	public static void getRailActionModule(ServerWorld serverWorld, Consumer<RailActionModule> consumer) {
 		final RailActionModule railActionModule = RAIL_ACTION_MODULES.get(serverWorld);
 		if (railActionModule != null) {
@@ -186,8 +159,13 @@ public final class Init implements Utilities {
 		}
 	}
 
-	public static int getServerPort() {
-		return serverPort;
+	public static void sendHttpRequest(String endpoint, @Nullable World world, String content, @Nullable Consumer<String> consumer) {
+		REQUEST_HELPER.sendPostRequest(String.format(
+				"http://localhost:%s/mtr/api/%s?%s",
+				serverPort,
+				endpoint,
+				world == null ? "dimensions=all" : "dimension=" + WORLD_ID_LIST.indexOf(getWorldId(world))
+		), content, consumer);
 	}
 
 	public static BlockPos positionToBlockPos(Position position) {
@@ -202,8 +180,12 @@ public final class Init implements Utilities {
 		return new BlockPos(MathHelper.floor(x), MathHelper.floor(y), MathHelper.floor(z));
 	}
 
+	public static boolean isChunkLoaded(World world, ChunkManager chunkManager, BlockPos blockPos) {
+		return chunkManager.getWorldChunk(blockPos.getX() / 16, blockPos.getZ() / 16) != null && world.isRegionLoaded(blockPos, blockPos);
+	}
+
 	public static void logException(Exception e) {
-		LOGGER.log(Level.INFO, e.getMessage(), e);
+		LOGGER.error(e);
 	}
 
 	private static int getDefaultPortFromConfig(MinecraftServer minecraftServer) {
@@ -235,39 +217,15 @@ public final class Init implements Utilities {
 		return 0;
 	}
 
-	private static int generateDepotsFromCommand(String filter) {
-		final GenerateMultiple generateMultiple = new GenerateMultiple();
-		generateMultiple.setFilter(filter);
-		PacketDataBase.sendHttpRequest("operation/generate", Utilities.getJsonObjectFromData(generateMultiple), null);
+	private static String getWorldId(World world) {
+		final Identifier identifier = MinecraftServerHelper.getWorldId(world);
+		return String.format("%s/%s", identifier.getNamespace(), identifier.getPath());
+	}
+
+	private static int generateDepotsFromCommand(World world, String filter) {
+		final GenerateByDepotName generateByDepotName = new GenerateByDepotName();
+		generateByDepotName.setFilter(filter);
+		sendHttpRequest("operation/generate", world, Utilities.getJsonObjectFromData(generateByDepotName).toString(), null);
 		return 1;
-	}
-
-	private static class ClientGroupNew extends ClientGroupSchema {
-
-		private final int dimensionIndex;
-
-		private ClientGroupNew(int dimensionIndex) {
-			this.dimensionIndex = dimensionIndex;
-			updateRadius = 16 * 16; // 16 chunks
-		}
-
-		private void serializeDataJson(JsonWriter jsonWriter) {
-			super.serializeData(jsonWriter);
-			jsonWriter.writeInt("dimension", dimensionIndex);
-		}
-
-		private void addClient(ObjectBooleanImmutablePair<ServerPlayerEntity> player) {
-			clients.add(new ClientNew(player.left(), player.rightBoolean()));
-		}
-	}
-
-	private static class ClientNew extends Client {
-
-		protected ClientNew(ServerPlayerEntity serverPlayerEntity, boolean forceUpdate) {
-			super(serverPlayerEntity.getUuid());
-			final BlockPos blockPos = serverPlayerEntity.getBlockPos();
-			position = new Position(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-			this.forceUpdate = forceUpdate;
-		}
 	}
 }

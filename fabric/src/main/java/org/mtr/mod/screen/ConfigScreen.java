@@ -5,11 +5,10 @@ import org.mtr.mapping.mapper.*;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.Patreon;
-import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.Config;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.PacketRequestData;
 
 public class ConfigScreen extends ScreenExtension implements IGui {
 
@@ -53,7 +52,7 @@ public class ConfigScreen extends ScreenExtension implements IGui {
 	private ConfigScreen(boolean hasTimeAndWindControls, boolean useTimeAndWindSync) {
 		super();
 
-		this.hasTimeAndWindControls = hasTimeAndWindControls && ClientData.hasPermission();
+		this.hasTimeAndWindControls = hasTimeAndWindControls && MinecraftClientData.hasPermission();
 		this.useTimeAndWindSync = useTimeAndWindSync;
 
 		checkboxUseTimeAndWindSync = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
@@ -225,7 +224,7 @@ public class ConfigScreen extends ScreenExtension implements IGui {
 		Config.setDynamicTextureResolution(sliderDynamicTextureResolution.getIntValue());
 		Config.setTrainRenderDistanceRatio(sliderTrainRenderDistanceRatio.getIntValue());
 		if (MinecraftClient.getInstance().getWorldMapped() != null) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketRequestData(true));
+//			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketRequestData(true));
 		}
 	}
 

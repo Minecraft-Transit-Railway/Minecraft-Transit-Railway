@@ -319,7 +319,7 @@ public class DynamicTextureCache implements IGui {
 		private final ObjectArrayList<Runnable> queue = new ObjectArrayList<>();
 
 		@Override
-		public void runTick() {
+		protected void runTick() {
 			if (!queue.isEmpty()) {
 				try {
 					final Runnable task = queue.remove(0);
@@ -330,6 +330,11 @@ public class DynamicTextureCache implements IGui {
 					Init.logException(e);
 				}
 			}
+		}
+
+		@Override
+		protected boolean isRunning() {
+			return MinecraftClient.getInstance().isRunning();
 		}
 	}
 

@@ -1,7 +1,5 @@
 package org.mtr.mod;
 
-import org.mtr.mapping.holder.MinecraftClient;
-
 public abstract class CustomThread extends Thread {
 
 	private boolean started;
@@ -16,7 +14,7 @@ public abstract class CustomThread extends Thread {
 
 	@Override
 	public final void run() {
-		while (MinecraftClient.getInstance().isRunning()) {
+		while (isRunning()) {
 			try {
 				runTick();
 			} catch (Exception e) {
@@ -26,4 +24,6 @@ public abstract class CustomThread extends Thread {
 	}
 
 	protected abstract void runTick();
+
+	protected abstract boolean isRunning();
 }

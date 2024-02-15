@@ -19,6 +19,7 @@ subprojects {
 		shadowImplementation "com.github.jonafanho:Shadow-Libraries:master-SNAPSHOT"
 		shadowImplementation "org.mtr:Minecraft-Mappings-common:0.0.1"
 		shadowImplementation "org.mtr:Transport-Simulation-Core:0.0.1"
+		shadowImplementation "com.squareup.okhttp3:okhttp:+"
 		shadowImplementation "org.eclipse.jetty:jetty-server:9.+"
 		shadowImplementation "org.eclipse.jetty:jetty-servlet:9.+"
 		shadowImplementation "org.eclipse.jetty:jetty-util:9.+"

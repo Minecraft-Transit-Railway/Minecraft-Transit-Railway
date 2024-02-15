@@ -4,19 +4,20 @@ import org.apache.commons.lang3.StringUtils;
 import org.mtr.core.data.Depot;
 import org.mtr.core.data.Route;
 import org.mtr.core.data.TransportMode;
-import org.mtr.core.servlet.IntegrationServlet;
+import org.mtr.core.operation.GenerateByDepotIds;
+import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
-import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.packet.PacketData;
+import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.packet.PacketDepotGenerate;
+import org.mtr.mod.packet.PacketUpdateData;
 
 import java.util.Calendar;
 import java.util.Collections;
@@ -97,18 +98,24 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 		buttonEditInstructions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.edit_instructions"), button -> {
 			saveData();
-			final ObjectArrayList<DashboardListItem> routes = new ObjectArrayList<>(ClientData.getFilteredDataSet(transportMode, ClientData.getDashboardInstance().routes));
+			final ObjectArrayList<DashboardListItem> routes = new ObjectArrayList<>(MinecraftClientData.getFilteredDataSet(transportMode, MinecraftClientData.getDashboardInstance().routes));
 			Collections.sort(routes);
 			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this, new ObjectImmutableList<>(routes), data.getRouteIds(), false, true)));
 		});
 		buttonGenerateRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.refresh_path"), button -> {
 			saveData();
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.GENERATE, ObjectSet.of(depot)));
+			final GenerateByDepotIds generateByDepotIds = new GenerateByDepotIds();
+			generateByDepotIds.addDepotId(depot.getId());
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotGenerate(generateByDepotIds));
 		});
-		buttonClearTrains = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.clear_vehicles"), button -> InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.CLEAR, ObjectSet.of(depot))));
+		buttonClearTrains = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.clear_vehicles"), button -> {
+//			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.CLEAR, ObjectSet.of(depot)))
+		});
 		checkboxRepeatIndefinitely = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, button -> {
 			saveData();
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.GENERATE, ObjectSet.of(depot)));
+			final GenerateByDepotIds generateByDepotIds = new GenerateByDepotIds();
+			generateByDepotIds.addDepotId(depot.getId());
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotGenerate(generateByDepotIds));
 		});
 		checkboxRepeatIndefinitely.setMessage2(new Text(TextHelper.translatable("gui.mtr.repeat_indefinitely").data));
 		textFieldCruisingAltitude = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 5, TextCase.DEFAULT, "[^-\\d]", String.valueOf(DEFAULT_CRUISING_ALTITUDE));
@@ -184,8 +191,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		if (data.routes.isEmpty()) {
 			checkboxRepeatIndefinitely.visible = false;
 		} else {
-			final Route firstRoute = ClientData.getDashboardInstance().routeIdMap.get(data.routes.get(0).getId());
-			final Route lastRoute = ClientData.getDashboardInstance().routeIdMap.get(data.routes.get(data.routes.size() - 1).getId());
+			final Route firstRoute = MinecraftClientData.getDashboardInstance().routeIdMap.get(data.routes.get(0).getId());
+			final Route lastRoute = MinecraftClientData.getDashboardInstance().routeIdMap.get(data.routes.get(data.routes.size() - 1).getId());
 			checkboxRepeatIndefinitely.visible = firstRoute != null && lastRoute != null && !firstRoute.getRoutePlatforms().isEmpty() && !lastRoute.getRoutePlatforms().isEmpty() && Utilities.getElement(firstRoute.getRoutePlatforms(), 0) == Utilities.getElement(lastRoute.getRoutePlatforms(), -1);
 		}
 	}
@@ -252,7 +259,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			Init.logException(e);
 			data.setCruisingAltitude(DEFAULT_CRUISING_ALTITUDE);
 		}
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.UPDATE, ObjectSet.of(data)));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addDepot(data)));
 	}
 
 	private void toggleRealTime() {

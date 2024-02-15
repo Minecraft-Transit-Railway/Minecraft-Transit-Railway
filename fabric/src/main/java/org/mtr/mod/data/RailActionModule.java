@@ -8,7 +8,7 @@ import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
 import org.mtr.mod.Init;
-import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.packet.PacketBroadcastRailActions;
 
 public class RailActionModule {
@@ -28,7 +28,7 @@ public class RailActionModule {
 	}
 
 	public boolean markRailForBridge(ServerPlayerEntity serverPlayerEntity, BlockPos pos1, BlockPos pos2, int radius, BlockState state) {
-		final Rail rail = ClientData.getRail(pos1, pos2);
+		final Rail rail = MinecraftClientData.getRail(pos1, pos2);
 		if (rail == null) {
 			return false;
 		} else {
@@ -39,7 +39,7 @@ public class RailActionModule {
 	}
 
 	public boolean markRailForTunnel(ServerPlayerEntity serverPlayerEntity, BlockPos pos1, BlockPos pos2, int radius, int height) {
-		final Rail rail = ClientData.getRail(pos1, pos2);
+		final Rail rail = MinecraftClientData.getRail(pos1, pos2);
 		if (rail == null) {
 			return false;
 		} else {
@@ -50,7 +50,7 @@ public class RailActionModule {
 	}
 
 	public boolean markRailForTunnelWall(ServerPlayerEntity serverPlayerEntity, BlockPos pos1, BlockPos pos2, int radius, int height, BlockState state) {
-		final Rail rail = ClientData.getRail(pos1, pos2);
+		final Rail rail = MinecraftClientData.getRail(pos1, pos2);
 		if (rail == null) {
 			return false;
 		} else {

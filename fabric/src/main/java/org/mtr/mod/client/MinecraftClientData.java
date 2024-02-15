@@ -22,17 +22,16 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public final class ClientData extends Data {
+public final class MinecraftClientData extends ClientData {
 
-	public final ObjectAVLTreeSet<SimplifiedRoute> simplifiedRoutes = new ObjectAVLTreeSet<>();
 	public final ObjectAVLTreeSet<VehicleExtension> vehicles = new ObjectAVLTreeSet<>();
 	public final Long2ObjectAVLTreeMap<PersistentVehicleData> vehicleIdToPersistentVehicleData = new Long2ObjectAVLTreeMap<>();
 	public final Object2ObjectArrayMap<String, RailWrapper> railWrapperList = new Object2ObjectArrayMap<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
 	private final Long2ObjectAVLTreeMap<ObjectLongImmutablePair<ArrivalsResponse>> arrivalRequests = new Long2ObjectAVLTreeMap<>();
 
-	private static ClientData instance = new ClientData();
-	private static ClientData dashboardInstance = new ClientData();
+	private static MinecraftClientData instance = new MinecraftClientData();
+	private static MinecraftClientData dashboardInstance = new MinecraftClientData();
 
 	public static String DASHBOARD_SEARCH = "";
 	public static String ROUTES_PLATFORMS_SEARCH = "";
@@ -85,17 +84,17 @@ public final class ClientData extends Data {
 		arrivalRequests.put(requestKey, new ObjectLongImmutablePair<>(arrivalsResponse, System.currentTimeMillis() + CACHED_ARRIVAL_REQUESTS_MILLIS));
 	}
 
-	public static ClientData getInstance() {
+	public static MinecraftClientData getInstance() {
 		return instance;
 	}
 
-	public static ClientData getDashboardInstance() {
+	public static MinecraftClientData getDashboardInstance() {
 		return dashboardInstance;
 	}
 
 	public static void reset() {
-		ClientData.instance = new ClientData();
-		ClientData.dashboardInstance = new ClientData();
+		MinecraftClientData.instance = new MinecraftClientData();
+		MinecraftClientData.dashboardInstance = new MinecraftClientData();
 	}
 
 	public static void tick() {
@@ -138,7 +137,7 @@ public final class ClientData extends Data {
 	@Nullable
 	public static Lift getLift(long liftId) {
 		// Don't use liftIdMap
-		for (final Lift lift : ClientData.getInstance().lifts) {
+		for (final Lift lift : MinecraftClientData.getInstance().lifts) {
 			if (lift.getId() == liftId) {
 				return lift;
 			}
@@ -147,7 +146,7 @@ public final class ClientData extends Data {
 	}
 
 	public static Rail getRail(BlockPos blockPos1, BlockPos blockPos2) {
-		return tryGet(ClientData.getInstance().positionsToRail, Init.blockPosToPosition(blockPos1), Init.blockPosToPosition(blockPos2));
+		return tryGet(MinecraftClientData.getInstance().positionsToRail, Init.blockPosToPosition(blockPos1), Init.blockPosToPosition(blockPos2));
 	}
 
 	public static <T extends NameColorDataBase> ObjectAVLTreeSet<DashboardListItem> getFilteredDataSet(TransportMode transportMode, ObjectAVLTreeSet<T> dataSet) {

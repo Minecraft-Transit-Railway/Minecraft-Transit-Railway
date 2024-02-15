@@ -3,13 +3,15 @@ package org.mtr.mod.item;
 import org.mtr.core.data.Position;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
+import org.mtr.core.data.TwoPositionsBase;
 import org.mtr.core.tool.Angle;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.data.RailType;
-import org.mtr.mod.packet.PacketData;
+import org.mtr.mod.packet.PacketDeleteData;
+import org.mtr.mod.packet.PacketUpdateData;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -92,7 +94,7 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 			if (rail.isValid() && isValidContinuousMovement) {
 				world.setBlockState(posStart, stateStart.with(new Property<>(BlockNode.IS_CONNECTED.data), true));
 				world.setBlockState(posEnd, stateEnd.with(new Property<>(BlockNode.IS_CONNECTED.data), true));
-				PacketData.updateRail(ServerWorld.cast(world), rail);
+				PacketUpdateData.sendDirectlyToServerRail(ServerWorld.cast(world), rail);
 			} else if (player != null) {
 				player.sendMessage(new Text(TextHelper.translatable(isValidContinuousMovement ? "gui.mtr.invalid_orientation" : "gui.mtr.cable_car_invalid_orientation").data), true);
 			}
@@ -101,6 +103,6 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 
 	@Override
 	protected void onRemove(World world, BlockPos posStart, BlockPos posEnd, @Nullable ServerPlayerEntity player) {
-		PacketData.deleteRail(ServerWorld.cast(world), Rail.newRail(Init.blockPosToPosition(posStart), Angle.N, Rail.Shape.CURVE, Init.blockPosToPosition(posEnd), Angle.N, Rail.Shape.CURVE, 0, 0, false, false, false, false, TransportMode.TRAIN));
+		PacketDeleteData.sendDirectlyToServerRailId(ServerWorld.cast(world), TwoPositionsBase.getHexId(Init.blockPosToPosition(posStart), Init.blockPosToPosition(posEnd)));
 	}
 }

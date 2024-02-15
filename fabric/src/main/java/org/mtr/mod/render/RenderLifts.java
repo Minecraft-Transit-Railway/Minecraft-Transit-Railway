@@ -11,7 +11,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mod.Init;
 import org.mtr.mod.Items;
 import org.mtr.mod.block.BlockLiftTrackFloor;
-import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.VehicleRidingMovement;
 import org.mtr.mod.data.IGui;
@@ -37,7 +37,7 @@ public class RenderLifts implements IGui {
 		final boolean canRide = !clientPlayerEntity.isSpectator();
 		final boolean isHoldingRefresher = clientPlayerEntity.isHolding(Items.LIFT_REFRESHER.get());
 
-		ClientData.getInstance().lifts.forEach(lift -> {
+		MinecraftClientData.getInstance().lifts.forEach(lift -> {
 			if (isHoldingRefresher) {
 				// Render lift path for debugging
 				final LiftFloor[] previousLiftFloor = {null};

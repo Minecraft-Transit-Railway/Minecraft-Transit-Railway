@@ -6,7 +6,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.*;
-import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.screen.*;
 
 import java.util.function.Consumer;
@@ -38,7 +38,7 @@ public final class ClientPacketHelper {
 	}
 
 	public static void openLiftCustomizationScreen(BlockPos blockPos) {
-		for (final Lift lift : ClientData.getInstance().lifts) {
+		for (final Lift lift : MinecraftClientData.getInstance().lifts) {
 			if (lift.getFloorIndex(Init.blockPosToPosition(blockPos)) >= 0) {
 				MinecraftClient.getInstance().openScreen(new Screen(new LiftCustomizationScreen(lift)));
 				break;

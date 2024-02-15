@@ -12,7 +12,7 @@ import org.mtr.mapping.mapper.*;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockRailwaySign;
 import org.mtr.mod.block.BlockRouteSignBase;
-import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
@@ -78,13 +78,13 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 
 			final ObjectAVLTreeSet<Station> connectingStationsIncludingThisOne = new ObjectAVLTreeSet<>(station.connectedStations);
 			connectingStationsIncludingThisOne.add(station);
-			stationsForList = ClientData.convertDataSet(connectingStationsIncludingThisOne);
+			stationsForList = MinecraftClientData.convertDataSet(connectingStationsIncludingThisOne);
 
 			final LongAVLTreeSet platformIds = new LongAVLTreeSet();
 			connectingStationsIncludingThisOne.forEach(connectingStation -> connectingStation.savedRails.forEach(platform -> platformIds.add(platform.getId())));
 			routesForList = new ObjectAVLTreeSet<>();
 			final IntAVLTreeSet addedColors = new IntAVLTreeSet();
-			ClientData.getInstance().simplifiedRoutes.forEach(simplifiedRoute -> {
+			MinecraftClientData.getInstance().simplifiedRoutes.forEach(simplifiedRoute -> {
 				final int color = simplifiedRoute.getColor();
 				if (!addedColors.contains(color) && simplifiedRoute.getPlatforms().stream().anyMatch(simplifiedRoutePlatform -> platformIds.contains(simplifiedRoutePlatform.getPlatformId()))) {
 					routesForList.add(new DashboardListItem(color, simplifiedRoute.getName().split("\\|\\|")[0], color));

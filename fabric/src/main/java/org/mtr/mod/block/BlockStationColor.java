@@ -12,7 +12,11 @@ import java.util.List;
 public class BlockStationColor extends BlockExtension {
 
 	public BlockStationColor() {
-		super(BlockHelper.createBlockSettings(false));
+		this(BlockHelper.createBlockSettings(false));
+	}
+
+	protected BlockStationColor(BlockSettings blockSettings) {
+		super(blockSettings);
 	}
 
 	public BlockStationColor(boolean nonOpaque) {

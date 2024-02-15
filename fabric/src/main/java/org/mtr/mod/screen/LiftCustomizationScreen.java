@@ -1,10 +1,9 @@
 package org.mtr.mod.screen;
 
 import org.mtr.core.data.Lift;
-import org.mtr.core.servlet.IntegrationServlet;
+import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Angle;
 import org.mtr.core.tool.EnumHelper;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.Direction;
 import org.mtr.mapping.holder.MutableText;
@@ -12,8 +11,9 @@ import org.mtr.mapping.holder.Text;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.PacketData;
+import org.mtr.mod.packet.PacketUpdateData;
 
 import java.util.Locale;
 
@@ -206,7 +206,7 @@ public class LiftCustomizationScreen extends ScreenExtension implements IGui {
 		buttonLiftStyle.setMessage2(new Text(TextHelper.translatable("gui.mtr.lift_style", TextHelper.translatable("gui.mtr.lift_style_" + lift.getStyle().toLowerCase(Locale.ENGLISH))).data));
 
 		if (sendUpdate) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromLifts(IntegrationServlet.Operation.UPDATE, ObjectSet.of(lift)));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addLift(lift)));
 		}
 	}
 

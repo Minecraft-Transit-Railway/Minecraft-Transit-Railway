@@ -62,8 +62,8 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 
 	public static void render(GraphicsHolder graphicsHolder, Vector3d offset) {
 		final long millisElapsed = getMillisElapsed();
-		ClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
-		ClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
+		MinecraftClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
+		MinecraftClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
 		lastRenderedMillis = InitClient.getGameMillis();
 		OCCLUSION_CULLING_THREAD.start();
 		DynamicTextureCache.instance.tick();

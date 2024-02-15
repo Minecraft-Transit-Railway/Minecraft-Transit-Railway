@@ -13,7 +13,7 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.GuiDrawing;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
-import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 
@@ -68,8 +68,8 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		scale = 1;
 		setShowStations(true);
 
-		flatPositionToPlatformMap = ClientData.getFlatPositionToSavedRails(ClientData.getDashboardInstance().platforms, transportMode);
-		flatPositionToSidingMap = ClientData.getFlatPositionToSavedRails(ClientData.getDashboardInstance().sidings, transportMode);
+		flatPositionToPlatformMap = MinecraftClientData.getFlatPositionToSavedRails(MinecraftClientData.getDashboardInstance().platforms, transportMode);
+		flatPositionToSidingMap = MinecraftClientData.getFlatPositionToSavedRails(MinecraftClientData.getDashboardInstance().sidings, transportMode);
 	}
 
 	@Override
@@ -98,7 +98,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 
 		if (showStations) {
 			flatPositionToPlatformMap.forEach((position, platforms) -> drawRectangleFromWorldCoords(guiDrawing, position.getX(), position.getZ(), position.getX() + 1, position.getZ() + 1, ARGB_WHITE));
-			for (final Station station : ClientData.getDashboardInstance().stations) {
+			for (final Station station : MinecraftClientData.getDashboardInstance().stations) {
 				if (AreaBase.validCorners(station)) {
 					drawRectangleFromWorldCoords(guiDrawing, station.getMinX(), station.getMinZ(), station.getMaxX(), station.getMaxZ(), ARGB_BLACK_TRANSLUCENT + station.getColor());
 				}
@@ -106,7 +106,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 			mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(guiDrawing, x1, z1, x2, z2, ARGB_WHITE), true);
 		} else {
 			flatPositionToSidingMap.forEach((position, sidings) -> drawRectangleFromWorldCoords(guiDrawing, position.getX(), position.getZ(), position.getX() + 1, position.getZ() + 1, ARGB_WHITE));
-			for (final Depot depot : ClientData.getDashboardInstance().depots) {
+			for (final Depot depot : MinecraftClientData.getDashboardInstance().depots) {
 				if (depot.isTransportMode(transportMode) && AreaBase.validCorners(depot)) {
 					drawRectangleFromWorldCoords(guiDrawing, depot.getMinX(), depot.getMinZ(), depot.getMaxX(), depot.getMaxZ(), ARGB_BLACK_TRANSLUCENT + depot.getColor());
 				}
@@ -143,7 +143,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		}
 
 		if (showStations) {
-			for (final Station station : ClientData.getDashboardInstance().stations) {
+			for (final Station station : MinecraftClientData.getDashboardInstance().stations) {
 				if (canDrawAreaText(station)) {
 					final Position position = station.getCenter();
 					final String stationString = String.format("%s|(%s)", station.getName(), TextHelper.translatable("gui.mtr.zone_number", station.getZone1()).getString());
@@ -151,7 +151,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 				}
 			}
 		} else {
-			for (final Depot depot : ClientData.getDashboardInstance().depots) {
+			for (final Depot depot : MinecraftClientData.getDashboardInstance().depots) {
 				if (canDrawAreaText(depot)) {
 					final Position position = depot.getCenter();
 					drawFromWorldCoords(position.getX(), position.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(graphicsHolder, depot.getName(), getX2() + x1.floatValue(), getY2() + y1.floatValue(), MAX_LIGHT_GLOWING));
@@ -192,7 +192,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 	@Override
 	public boolean mouseClicked2(double mouseX, double mouseY, int button) {
 		if (isMouseOver2(mouseX, mouseY)) {
-			if (ClientData.hasPermission()) {
+			if (MinecraftClientData.hasPermission()) {
 				if (mapState == MapState.EDITING_AREA) {
 					drawArea1 = coordsToWorldPos((int) (mouseX - getX2()), (int) (mouseY - getY2()));
 					drawArea2 = null;
