@@ -2,9 +2,9 @@ package org.mtr.mod.screen;
 
 import org.mtr.core.data.Lift;
 import org.mtr.core.data.LiftDirection;
+import org.mtr.core.operation.PressLift;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.ClientWorld;
 import org.mtr.mapping.holder.MinecraftClient;
@@ -13,7 +13,7 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
-import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.PacketPressLiftButton;
 import org.mtr.mod.render.RenderLifts;
@@ -28,7 +28,7 @@ public class LiftSelectionScreen extends ScreenExtension implements IGui {
 	public LiftSelectionScreen(long liftId) {
 		super();
 		this.liftId = liftId;
-		final Lift lift = ClientData.getLift(liftId);
+		final Lift lift = MinecraftClientData.getLift(liftId);
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 		if (lift != null && clientWorld != null) {
 			lift.iterateFloors(floor -> {
@@ -58,7 +58,7 @@ public class LiftSelectionScreen extends ScreenExtension implements IGui {
 
 	@Override
 	public void tick2() {
-		final Lift lift = ClientData.getLift(liftId);
+		final Lift lift = MinecraftClientData.getLift(liftId);
 		if (lift == null) {
 			onClose2();
 		} else {
@@ -100,7 +100,9 @@ public class LiftSelectionScreen extends ScreenExtension implements IGui {
 	}
 
 	private void onPress(DashboardListItem dashboardListItem, int index) {
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketPressLiftButton(LiftDirection.NONE, ObjectOpenHashSet.of(floorLevels.get(floorLevels.size() - index - 1))));
+		final PressLift pressLift = new PressLift();
+		pressLift.add(Init.blockPosToPosition(floorLevels.get(floorLevels.size() - index - 1)), LiftDirection.NONE);
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketPressLiftButton(pressLift));
 		onClose2();
 	}
 }

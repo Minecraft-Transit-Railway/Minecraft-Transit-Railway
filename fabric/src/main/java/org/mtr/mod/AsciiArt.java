@@ -60,6 +60,6 @@ public final class AsciiArt {
 	}
 
 	public static void print() {
-		ART.get(new Random().nextInt(ART.size())).forEach(System.out::println);
+		ART.get(new Random().nextInt(ART.size())).forEach(Init.LOGGER::info);
 	}
 }

@@ -18,7 +18,7 @@ public final class OcclusionCullingThread extends CustomThread {
 	private Consumer<OcclusionCullingInstance> queuedTask;
 
 	@Override
-	public void runTick() {
+	protected void runTick() {
 		updateInstance();
 		occlusionCullingInstance.resetCache();
 		final Consumer<OcclusionCullingInstance> currentTask = queuedTask;
@@ -27,6 +27,11 @@ public final class OcclusionCullingThread extends CustomThread {
 		if (currentTask != null) {
 			currentTask.accept(occlusionCullingInstance);
 		}
+	}
+
+	@Override
+	protected boolean isRunning() {
+		return MinecraftClient.getInstance().isRunning();
 	}
 
 	private void updateInstance() {

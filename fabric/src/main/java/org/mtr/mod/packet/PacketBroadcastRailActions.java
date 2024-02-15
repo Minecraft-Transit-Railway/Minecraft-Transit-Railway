@@ -4,7 +4,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mapping.tool.PacketBufferSender;
-import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.RailAction;
 import org.mtr.mod.screen.DashboardListItem;
 
@@ -39,7 +39,7 @@ public final class PacketBroadcastRailActions extends PacketHandler {
 
 	@Override
 	public void runClient() {
-		ClientData.getInstance().railActions.clear();
-		ClientData.getInstance().railActions.addAll(dashboardListItems);
+		MinecraftClientData.getInstance().railActions.clear();
+		MinecraftClientData.getInstance().railActions.addAll(dashboardListItems);
 	}
 }

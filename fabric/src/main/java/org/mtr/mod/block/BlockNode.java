@@ -7,7 +7,7 @@ import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.BlockEntityTypes;
 import org.mtr.mod.Init;
-import org.mtr.mod.packet.PacketData;
+import org.mtr.mod.packet.PacketDeleteData;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,7 +36,7 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 	@Override
 	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		if (!world.isClient()) {
-			PacketData.deleteRailNode(ServerWorld.cast(world), Init.blockPosToPosition(pos));
+			PacketDeleteData.sendDirectlyToServerRailNodePosition(ServerWorld.cast(world), Init.blockPosToPosition(pos));
 		}
 	}
 
@@ -77,6 +77,7 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 			super(TransportMode.BOAT);
 		}
 
+		@Nonnull
 		@Override
 		public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
 			return new BlockEntity(blockPos, blockState);

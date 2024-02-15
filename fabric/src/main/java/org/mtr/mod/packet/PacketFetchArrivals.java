@@ -3,14 +3,15 @@ package org.mtr.mod.packet;
 import org.mtr.core.integration.Response;
 import org.mtr.core.operation.ArrivalsRequest;
 import org.mtr.core.operation.ArrivalsResponse;
-import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mapping.tool.PacketBufferSender;
-import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.MinecraftClientData;
 
-public final class PacketFetchArrivals extends PacketRequestResponseBase<ArrivalsRequest> implements Utilities {
+import javax.annotation.Nonnull;
+
+public final class PacketFetchArrivals extends PacketRequestResponseBase implements Utilities {
 
 	private final long requestKey;
 
@@ -22,12 +23,12 @@ public final class PacketFetchArrivals extends PacketRequestResponseBase<Arrival
 	}
 
 	public PacketFetchArrivals(long requestKey, LongImmutableList platformIds, int count, int page, boolean realtimeOnly) {
-		super(new ArrivalsRequest(platformIds, count, page, realtimeOnly));
+		super(Utilities.getJsonObjectFromData(new ArrivalsRequest(platformIds, count, page, realtimeOnly)).toString());
 		this.requestKey = requestKey;
 	}
 
-	private PacketFetchArrivals(long requestKey, Response response) {
-		super(response);
+	private PacketFetchArrivals(String content, long requestKey) {
+		super(content);
 		this.requestKey = requestKey;
 	}
 
@@ -38,24 +39,25 @@ public final class PacketFetchArrivals extends PacketRequestResponseBase<Arrival
 	}
 
 	@Override
-	protected PacketRequestResponseBase<ArrivalsRequest> createInstance(Response response) {
-		return new PacketFetchArrivals(requestKey, response);
+	protected void runClient(Response response) {
+		MinecraftClientData.getInstance().writeArrivalRequest(requestKey, response.getData(ArrivalsResponse::new));
+		millisOffset = response.getCurrentTime() - System.currentTimeMillis();
 	}
 
 	@Override
-	protected ArrivalsRequest createRequest(JsonReader jsonReader) {
-		return new ArrivalsRequest(jsonReader);
+	protected PacketRequestResponseBase getInstance(String content) {
+		return new PacketFetchArrivals(content, requestKey);
 	}
 
+	@Nonnull
 	@Override
 	protected String getEndpoint() {
 		return "operation/arrivals";
 	}
 
 	@Override
-	protected void runClient(Response response) {
-		ClientData.getInstance().writeArrivalRequest(requestKey, response.getData(ArrivalsResponse::new));
-		millisOffset = response.getCurrentTime() - System.currentTimeMillis();
+	protected PacketRequestResponseBase.ResponseType responseType() {
+		return PacketRequestResponseBase.ResponseType.PLAYER;
 	}
 
 	public static long getMillisOffset() {

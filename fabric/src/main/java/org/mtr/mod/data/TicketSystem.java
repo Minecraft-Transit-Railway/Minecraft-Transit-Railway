@@ -11,7 +11,7 @@ import org.mtr.mapping.mapper.ScoreboardCriteria;
 import org.mtr.mapping.mapper.ScoreboardHelper;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
-import org.mtr.mod.packet.PacketDataBase;
+import org.mtr.mod.client.MinecraftClientData;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,38 +32,43 @@ public class TicketSystem {
 	private static final int EVASION_FINE = 500;
 
 	public static void passThrough(World world, BlockPos blockPos, PlayerEntity player, boolean isEntrance, boolean isExit, SoundEvent entrySound, SoundEvent entrySoundConcessionary, SoundEvent exitSound, SoundEvent exitSoundConcessionary, @Nullable SoundEvent failSound, boolean remindIfNoRecord, Consumer<EnumTicketBarrierOpen> callback) {
-		PacketDataBase.sendHttpRequest("operation/nearby-stations", Utilities.getJsonObjectFromData(new NearbyAreasRequest<>(Init.blockPosToPosition(blockPos), 0)), jsonObject -> {
-			final ObjectImmutableList<Station> stations = Response.create(jsonObject).getData(NearbyAreasResponse::new).getStations();
-			if (stations.isEmpty()) {
-				callback.accept(EnumTicketBarrierOpen.CLOSED);
-			} else {
-				final Station station = stations.get(0);
-				final boolean isEntering;
+		Init.sendHttpRequest("operation/nearby-stations", world, Utilities.getJsonObjectFromData(new NearbyAreasRequest<>(Init.blockPosToPosition(blockPos), 0)).toString(), content -> {
+			final MinecraftServer minecraftServer = world.getServer();
+			if (minecraftServer != null) {
+				minecraftServer.execute(() -> {
+					final ObjectImmutableList<Station> stations = Response.create(Utilities.parseJson(content)).getData(jsonReader -> new NearbyAreasResponse(jsonReader, new MinecraftClientData())).getStations();
+					if (stations.isEmpty()) {
+						callback.accept(EnumTicketBarrierOpen.CLOSED);
+					} else {
+						final Station station = stations.get(0);
+						final boolean isEntering;
 
-				if (isEntrance && isExit) {
-					isEntering = !entered(
-							getPlayerScore(world, player, ENTRY_ZONE_1_OBJECTIVE, ENTRY_ZONE_1_TITLE),
-							getPlayerScore(world, player, ENTRY_ZONE_2_OBJECTIVE, ENTRY_ZONE_2_TITLE),
-							getPlayerScore(world, player, ENTRY_ZONE_3_OBJECTIVE, ENTRY_ZONE_3_TITLE)
-					);
-				} else {
-					isEntering = isEntrance;
-				}
+						if (isEntrance && isExit) {
+							isEntering = !entered(
+									getPlayerScore(world, player, ENTRY_ZONE_1_OBJECTIVE, ENTRY_ZONE_1_TITLE),
+									getPlayerScore(world, player, ENTRY_ZONE_2_OBJECTIVE, ENTRY_ZONE_2_TITLE),
+									getPlayerScore(world, player, ENTRY_ZONE_3_OBJECTIVE, ENTRY_ZONE_3_TITLE)
+							);
+						} else {
+							isEntering = isEntrance;
+						}
 
-				final boolean canOpen;
-				if (isEntering) {
-					canOpen = onEnter(world, station, player, remindIfNoRecord);
-				} else {
-					canOpen = onExit(world, station, player, remindIfNoRecord);
-				}
+						final boolean canOpen;
+						if (isEntering) {
+							canOpen = onEnter(world, station, player, remindIfNoRecord);
+						} else {
+							canOpen = onExit(world, station, player, remindIfNoRecord);
+						}
 
-				if (canOpen) {
-					world.playSound((PlayerEntity) null, blockPos, isConcessionary(player) ? (isEntering ? entrySoundConcessionary : exitSoundConcessionary) : (isEntering ? entrySound : exitSound), SoundCategory.BLOCKS, 1, 1);
-				} else if (failSound != null) {
-					world.playSound((PlayerEntity) null, blockPos, failSound, SoundCategory.BLOCKS, 1, 1);
-				}
+						if (canOpen) {
+							world.playSound((PlayerEntity) null, blockPos, isConcessionary(player) ? (isEntering ? entrySoundConcessionary : exitSoundConcessionary) : (isEntering ? entrySound : exitSound), SoundCategory.BLOCKS, 1, 1);
+						} else if (failSound != null) {
+							world.playSound((PlayerEntity) null, blockPos, failSound, SoundCategory.BLOCKS, 1, 1);
+						}
 
-				callback.accept(canOpen ? isConcessionary(player) ? EnumTicketBarrierOpen.OPEN_CONCESSIONARY : EnumTicketBarrierOpen.OPEN : EnumTicketBarrierOpen.CLOSED);
+						callback.accept(canOpen ? isConcessionary(player) ? EnumTicketBarrierOpen.OPEN_CONCESSIONARY : EnumTicketBarrierOpen.OPEN : EnumTicketBarrierOpen.CLOSED);
+					}
+				});
 			}
 		});
 	}

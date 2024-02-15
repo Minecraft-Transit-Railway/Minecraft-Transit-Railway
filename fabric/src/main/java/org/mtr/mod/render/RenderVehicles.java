@@ -40,7 +40,7 @@ public class RenderVehicles implements IGui {
 		final boolean canRide = !clientPlayerEntity.isSpectator();
 
 		// Iterate all vehicles that the client knows about
-		ClientData.getInstance().vehicles.forEach(vehicle -> {
+		MinecraftClientData.getInstance().vehicles.forEach(vehicle -> {
 			// Used to store gangway or barrier connection positions of the previously iterated car
 			final ObjectArrayList<PreviousConnectionPositions> previousGangwayPositionsList = new ObjectArrayList<>();
 			final ObjectArrayList<PreviousConnectionPositions> previousBarrierPositionsList = new ObjectArrayList<>();
