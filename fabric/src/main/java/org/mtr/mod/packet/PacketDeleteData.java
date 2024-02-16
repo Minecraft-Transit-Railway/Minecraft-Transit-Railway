@@ -5,8 +5,11 @@ import org.mtr.core.integration.Response;
 import org.mtr.core.operation.DeleteDataRequest;
 import org.mtr.core.operation.DeleteDataResponse;
 import org.mtr.core.tool.Utilities;
+import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.tool.PacketBufferReceiver;
+import org.mtr.mod.Init;
+import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.client.MinecraftClientData;
 
 import javax.annotation.Nonnull;
@@ -23,6 +26,12 @@ public final class PacketDeleteData extends PacketRequestResponseBase {
 
 	private PacketDeleteData(String content) {
 		super(content);
+	}
+
+	@Override
+	protected void runServer(ServerWorld serverWorld, String content) {
+		// Check if there are any rail nodes that need to be reset
+		Response.create(Utilities.parseJson(content)).getData(DeleteDataResponse::new).iterateRailNodePosition(railNodePosition -> BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(railNodePosition)));
 	}
 
 	@Override
@@ -49,14 +58,14 @@ public final class PacketDeleteData extends PacketRequestResponseBase {
 	}
 
 	public static void sendDirectlyToServerLiftFloorPosition(ServerWorld serverWorld, Position liftFloorPositions) {
-		new PacketDeleteData(new DeleteDataRequest().addLiftFloorPosition(liftFloorPositions)).runServer(serverWorld, null);
+		new PacketDeleteData(new DeleteDataRequest().addLiftFloorPosition(liftFloorPositions)).runServer(serverWorld, (ServerPlayerEntity) null);
 	}
 
 	public static void sendDirectlyToServerRailNodePosition(ServerWorld serverWorld, Position railNodePosition) {
-		new PacketDeleteData(new DeleteDataRequest().addRailNodePosition(railNodePosition)).runServer(serverWorld, null);
+		new PacketDeleteData(new DeleteDataRequest().addRailNodePosition(railNodePosition)).runServer(serverWorld, (ServerPlayerEntity) null);
 	}
 
 	public static void sendDirectlyToServerRailId(ServerWorld serverWorld, String railId) {
-		new PacketDeleteData(new DeleteDataRequest().addRailId(railId)).runServer(serverWorld, null);
+		new PacketDeleteData(new DeleteDataRequest().addRailId(railId)).runServer(serverWorld, (ServerPlayerEntity) null);
 	}
 }

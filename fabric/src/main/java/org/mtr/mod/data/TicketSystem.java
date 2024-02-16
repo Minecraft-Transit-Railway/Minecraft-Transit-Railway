@@ -184,7 +184,7 @@ public class TicketSystem {
 
 	public enum EnumTicketBarrierOpen implements StringIdentifiable {
 
-		CLOSED("closed"), OPEN("open"), OPEN_CONCESSIONARY("open_concessionary");
+		CLOSED("closed"), PENDING("pending"), OPEN("open"), OPEN_CONCESSIONARY("open_concessionary");
 		private final String name;
 
 		EnumTicketBarrierOpen(String nameIn) {
@@ -195,10 +195,6 @@ public class TicketSystem {
 		@Override
 		public String asString2() {
 			return name;
-		}
-
-		public boolean isOpen() {
-			return this != CLOSED;
 		}
 	}
 }

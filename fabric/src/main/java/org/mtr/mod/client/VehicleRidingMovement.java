@@ -327,7 +327,7 @@ public class VehicleRidingMovement {
 				final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 				final ClientWorld clientWorld = minecraftClient.getWorldMapped();
 				final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
-				if (clientPlayerEntity != null && clientWorld != null && Math.abs(x) < Integer.MAX_VALUE && Math.abs(y) < Integer.MAX_VALUE && Math.abs(z) < Integer.MAX_VALUE) {
+				if (clientPlayerEntity != null && clientWorld != null) {
 					clientPlayerEntity.setFallDistanceMapped(0);
 					clientPlayerEntity.setVelocity(0, 0, 0);
 					clientPlayerEntity.setMovementSpeed(0);

@@ -12,9 +12,9 @@ import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.block.BlockPlatform;
 import org.mtr.mod.block.BlockSignalLightBase;
 import org.mtr.mod.block.BlockSignalSemaphoreBase;
-import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.Config;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.RailType;
 import org.mtr.mod.item.ItemNodeModifierBase;
@@ -43,7 +43,7 @@ public class RenderRails implements IGui {
 		final boolean renderColors = isHoldingRailRelated(clientPlayerEntity);
 
 		MinecraftClientData.getInstance().railWrapperList.values().forEach(railWrapper -> {
-			final Rail rail = railWrapper.rail;
+			final Rail rail = railWrapper.getRail();
 
 			cullingTasks.add(occlusionCullingInstance -> {
 				final boolean shouldRender = occlusionCullingInstance.isAABBVisible(railWrapper.startVector, railWrapper.endVector, camera);

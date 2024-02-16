@@ -35,10 +35,15 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 	protected void runClient(Response response) {
 		final MinecraftClientData minecraftClientData = MinecraftClientData.getInstance();
 		final VehicleLiftResponse vehicleLiftResponse = response.getData(jsonReader -> new VehicleLiftResponse(jsonReader, minecraftClientData));
-		updateVehiclesOrLifts(minecraftClientData.vehicles, vehicleLiftResponse::iterateVehiclesToKeep, vehicleLiftResponse::iterateVehiclesToUpdate, vehicleUpdate -> vehicleUpdate.getVehicle().getId(), vehicleUpdate -> new VehicleExtension(vehicleUpdate, minecraftClientData));
-		updateVehiclesOrLifts(minecraftClientData.lifts, vehicleLiftResponse::iterateLiftsToKeep, vehicleLiftResponse::iterateLiftsToUpdate, NameColorDataBase::getId, lift -> lift);
-		minecraftClientData.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(minecraftClientData)));
-		minecraftClientData.sync();
+		final boolean hasUpdate1 = updateVehiclesOrLifts(minecraftClientData.vehicles, vehicleLiftResponse::iterateVehiclesToKeep, vehicleLiftResponse::iterateVehiclesToUpdate, vehicleUpdate -> vehicleUpdate.getVehicle().getId(), vehicleUpdate -> new VehicleExtension(vehicleUpdate, minecraftClientData));
+		final boolean hasUpdate2 = updateVehiclesOrLifts(minecraftClientData.lifts, vehicleLiftResponse::iterateLiftsToKeep, vehicleLiftResponse::iterateLiftsToUpdate, NameColorDataBase::getId, lift -> lift);
+
+		if (hasUpdate1 || hasUpdate2) {
+			if (hasUpdate1) {
+				minecraftClientData.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(minecraftClientData)));
+			}
+			minecraftClientData.sync();
+		}
 	}
 
 	@Override
@@ -57,7 +62,7 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 		return PacketRequestResponseBase.ResponseType.NONE;
 	}
 
-	private static <T extends NameColorDataBase, U> void updateVehiclesOrLifts(ObjectAVLTreeSet<T> dataSet, Consumer<LongConsumer> iterateKeep, Consumer<Consumer<U>> iterateUpdate, ToLongFunction<U> getId, Function<U, T> createInstance) {
+	private static <T extends NameColorDataBase, U> boolean updateVehiclesOrLifts(ObjectAVLTreeSet<T> dataSet, Consumer<LongConsumer> iterateKeep, Consumer<Consumer<U>> iterateUpdate, ToLongFunction<U> getId, Function<U, T> createInstance) {
 		final LongAVLTreeSet keepIds = new LongAVLTreeSet();
 		iterateKeep.accept(keepIds::add);
 		VehicleRidingMovement.writeVehicleId(keepIds);
@@ -69,7 +74,8 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 			updateIds.add(getId.applyAsLong(dataToUpdate));
 		});
 
-		dataSet.removeIf(data -> !keepIds.contains(data.getId()) || updateIds.contains(data.getId()));
+		final boolean removedItems = dataSet.removeIf(data -> !keepIds.contains(data.getId()) || updateIds.contains(data.getId()));
 		dataSetToUpdate.forEach(dataToUpdate -> dataSet.add(createInstance.apply(dataToUpdate)));
+		return !dataSetToUpdate.isEmpty() || removedItems;
 	}
 }

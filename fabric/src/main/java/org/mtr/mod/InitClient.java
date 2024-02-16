@@ -29,6 +29,7 @@ public final class InitClient {
 	private static long gameMillis = 0;
 	private static long lastPlayedTrainSoundsMillis = 0;
 	private static long lastUpdatePacketMillis = 0;
+	private static long lastDataCleanMillis = 0;
 	private static Runnable movePlayer;
 
 	public static final RegistryClient REGISTRY_CLIENT = new RegistryClient(Init.REGISTRY);
@@ -326,11 +327,20 @@ public final class InitClient {
 		EventRegistryClient.registerStartClientTick(() -> {
 			incrementGameMillis();
 			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
-			if (clientPlayerEntity != null && lastUpdatePacketMillis >= 0 && getGameMillis() - lastUpdatePacketMillis > 2000) {
+
+			// If player is moving, send a request every 0.5 seconds to the server to fetch any new nearby data
+			if (clientPlayerEntity != null && lastUpdatePacketMillis >= 0 && getGameMillis() - lastUpdatePacketMillis > 500) {
 				final DataRequest dataRequest = new DataRequest(clientPlayerEntity.getUuidAsString(), Init.blockPosToPosition(clientPlayerEntity.getBlockPos()), MinecraftClientHelper.getRenderDistance() * 16L);
 				dataRequest.writeExistingIds(MinecraftClientData.getInstance());
 				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketRequestData(dataRequest));
 				lastUpdatePacketMillis = -1;
+				lastDataCleanMillis = getGameMillis();
+			}
+
+			// If player hasn't moved in 2 seconds, clean any out of range data
+			if (lastDataCleanMillis >= 0 && getGameMillis() - lastDataCleanMillis > 2000) {
+				MinecraftClientData.getInstance().clean();
+				lastDataCleanMillis = -1;
 			}
 		});
 
