@@ -1,5 +1,6 @@
 package org.mtr.mod.item;
 
+import org.mtr.core.data.Lift;
 import org.mtr.core.data.LiftFloor;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -11,8 +12,8 @@ import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockLiftTrackBase;
 import org.mtr.mod.block.BlockLiftTrackFloor;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.packet.PacketOpenLiftCustomizationScreen;
-import org.mtr.mod.packet.PacketUpdateData;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,7 +54,7 @@ public class ItemLiftRefresher extends ItemExtension implements DirectionHelper 
 			liftFloors.addAll(reverseList(liftFloors1));
 			liftFloors.addAll(liftFloors2);
 			final boolean needsReverse = Utilities.getElement(liftFloors, -1).getPosition().getY() < Utilities.getElement(liftFloors, 0).getPosition().getY();
-			PacketUpdateData.sendDirectlyToServerLift(ServerWorld.cast(world), needsReverse ? reverseList(liftFloors) : liftFloors);
+			sendUpdate(ServerWorld.cast(world), needsReverse ? reverseList(liftFloors) : liftFloors);
 			Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(playerEntity), new PacketOpenLiftCustomizationScreen(Init.positionToBlockPos(liftFloors.get(0).getPosition())));
 			return ActionResult.getSuccessMapped();
 		}
@@ -102,5 +103,12 @@ public class ItemLiftRefresher extends ItemExtension implements DirectionHelper 
 			liftFloorsReversed.add(0, liftFloor);
 		}
 		return liftFloorsReversed;
+	}
+
+	private static void sendUpdate(ServerWorld serverWorld, ObjectArrayList<LiftFloor> liftFloors) {
+		final Lift lift = new Lift(new MinecraftClientData());
+		lift.setFloors(liftFloors);
+		lift.setDimensions(3, 2, 2, 0, 0, 0);
+		Init.sendHttpRequest("operation/generate-by-lift", new World(serverWorld.data), Utilities.getJsonObjectFromData(lift).toString(), null);
 	}
 }

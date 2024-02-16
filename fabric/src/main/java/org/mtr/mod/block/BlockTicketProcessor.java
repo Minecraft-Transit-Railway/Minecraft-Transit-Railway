@@ -36,7 +36,7 @@ public class BlockTicketProcessor extends BlockDirectionalDoubleBlockBase {
 					SoundEvents.TICKET_PROCESSOR_EXIT.get(), SoundEvents.TICKET_PROCESSOR_EXIT_CONCESSIONARY.get(),
 					SoundEvents.TICKET_PROCESSOR_FAIL.get(),
 					true,
-					open -> world.setBlockState(blockPosCopy, state.with(new Property<>(LIGHTS.data), open.isOpen() ? EnumTicketProcessorLights.GREEN : EnumTicketProcessorLights.RED))
+					open -> world.setBlockState(blockPosCopy, state.with(new Property<>(LIGHTS.data), open == TicketSystem.EnumTicketBarrierOpen.CLOSED ? EnumTicketProcessorLights.RED : EnumTicketProcessorLights.GREEN))
 			);
 			scheduleBlockTick(world, blockPosCopy, new Block(this), 20);
 		}

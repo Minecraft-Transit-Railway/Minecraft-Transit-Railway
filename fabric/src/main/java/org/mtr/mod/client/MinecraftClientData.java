@@ -8,6 +8,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.KeyBindings;
@@ -53,8 +54,11 @@ public final class MinecraftClientData extends ClientData {
 		checkAndRemoveFromMap(railWrapperList, rails, Rail::getHexId);
 		positionsToRail.forEach((startPosition, railMap) -> railMap.forEach((endPosition, rail) -> {
 			final String hexId = rail.getHexId();
-			if (!railWrapperList.containsKey(hexId)) {
+			final RailWrapper railWrapper = railWrapperList.get(hexId);
+			if (railWrapper == null) {
 				railWrapperList.put(hexId, new RailWrapper(rail, hexId, startPosition, endPosition));
+			} else {
+				railWrapper.rail = rail;
 			}
 		}));
 	}
@@ -82,6 +86,20 @@ public final class MinecraftClientData extends ClientData {
 
 	public void writeArrivalRequest(long requestKey, ArrivalsResponse arrivalsResponse) {
 		arrivalRequests.put(requestKey, new ObjectLongImmutablePair<>(arrivalsResponse, System.currentTimeMillis() + CACHED_ARRIVAL_REQUESTS_MILLIS));
+	}
+
+	public void clean() {
+		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+		if (clientPlayerEntity != null) {
+			final Position position = Init.blockPosToPosition(clientPlayerEntity.getBlockPos());
+			final int requestRadius = MinecraftClientHelper.getRenderDistance() * 16;
+			stations.removeIf(station -> !station.inArea(position, requestRadius));
+			platforms.removeIf(platform -> !platform.closeTo(position, requestRadius));
+			sidings.removeIf(siding -> !siding.closeTo(position, requestRadius));
+			depots.removeIf(depot -> !depot.inArea(position, requestRadius));
+			rails.removeIf(rail -> !rail.closeTo(position, requestRadius));
+			sync();
+		}
 	}
 
 	public static MinecraftClientData getInstance() {
@@ -191,12 +209,12 @@ public final class MinecraftClientData extends ClientData {
 	public static class RailWrapper {
 
 		public boolean shouldRender;
-		public final Rail rail;
 		public final String hexId;
 		public final Vec3d startVector;
 		public final Vec3d endVector;
+		private Rail rail;
 
-		public RailWrapper(Rail rail, String hexId, Position startPosition, Position endPosition) {
+		private RailWrapper(Rail rail, String hexId, Position startPosition, Position endPosition) {
 			this.rail = rail;
 			this.hexId = hexId;
 			startVector = new Vec3d(
@@ -209,6 +227,10 @@ public final class MinecraftClientData extends ClientData {
 					Math.max(startPosition.getY(), endPosition.getY()),
 					Math.max(startPosition.getZ(), endPosition.getZ())
 			);
+		}
+
+		public Rail getRail() {
+			return rail;
 		}
 	}
 }

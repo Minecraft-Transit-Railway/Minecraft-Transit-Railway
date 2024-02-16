@@ -29,10 +29,11 @@ public class BlockTicketBarrier extends BlockExtension implements DirectionHelpe
 			final Vector3d playerPosRotated = entity.getPos().subtract(blockPos.getX() + 0.5, 0, blockPos.getZ() + 0.5).rotateY((float) Math.toRadians(facing.asRotation()));
 			final TicketSystem.EnumTicketBarrierOpen open = IBlock.getStatePropertySafe(state, new Property<>(OPEN.data));
 
-			if (open.isOpen() && playerPosRotated.getZMapped() > 0) {
+			if (open == TicketSystem.EnumTicketBarrierOpen.OPEN || open == TicketSystem.EnumTicketBarrierOpen.OPEN_CONCESSIONARY && playerPosRotated.getZMapped() > 0) {
 				world.setBlockState(blockPos, state.with(new Property<>(OPEN.data), TicketSystem.EnumTicketBarrierOpen.CLOSED));
-			} else if (!open.isOpen() && playerPosRotated.getZMapped() < 0) {
+			} else if (open == TicketSystem.EnumTicketBarrierOpen.CLOSED && playerPosRotated.getZMapped() < 0) {
 				final BlockPos blockPosCopy = new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+				world.setBlockState(blockPosCopy, state.with(new Property<>(OPEN.data), TicketSystem.EnumTicketBarrierOpen.PENDING));
 				TicketSystem.passThrough(
 						world, blockPosCopy, PlayerEntity.cast(entity),
 						isEntrance, !isEntrance,
@@ -74,7 +75,7 @@ public class BlockTicketBarrier extends BlockExtension implements DirectionHelpe
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 		final TicketSystem.EnumTicketBarrierOpen open = IBlock.getStatePropertySafe(state, new Property<>(OPEN.data));
 		final VoxelShape base = IBlock.getVoxelShapeByDirection(15, 0, 0, 16, 24, 16, facing);
-		return open.isOpen() ? base : VoxelShapes.union(IBlock.getVoxelShapeByDirection(0, 0, 7, 16, 24, 9, facing), base);
+		return open == TicketSystem.EnumTicketBarrierOpen.OPEN || open == TicketSystem.EnumTicketBarrierOpen.OPEN_CONCESSIONARY ? base : VoxelShapes.union(IBlock.getVoxelShapeByDirection(0, 0, 7, 16, 24, 9, facing), base);
 	}
 
 	@Override

@@ -1,8 +1,10 @@
 package org.mtr.mod;
 
 import org.mtr.core.integration.Response;
+import org.mtr.core.operation.PlayerPresentResponse;
 import org.mtr.core.operation.VehicleLiftResponse;
 import org.mtr.core.servlet.ServletBase;
+import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonElement;
 import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.libraries.io.netty.handler.codec.http.HttpResponseStatus;
@@ -36,15 +38,21 @@ public final class SocketServlet extends HttpServlet {
 		final AsyncContext asyncContext = httpServletRequest.startAsync();
 		asyncContext.setTimeout(0);
 		final JsonElement jsonElement = JsonParser.parseReader(httpServletRequest.getReader());
+		final boolean playerPresent;
 
 		if (minecraftServer != null && jsonElement.isJsonObject()) {
 			final Response response = Response.create(jsonElement.getAsJsonObject());
 			final ServerPlayerEntity serverPlayerEntity = minecraftServer.getPlayerManager().getPlayer(UUID.fromString(response.getData(jsonReader -> new VehicleLiftResponse(jsonReader, new MinecraftClientData())).getClientId()));
-			if (serverPlayerEntity != null) {
+			if (serverPlayerEntity == null) {
+				playerPresent = false;
+			} else {
+				playerPresent = true;
 				Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketUpdateVehiclesLifts(response));
 			}
+		} else {
+			playerPresent = false;
 		}
 
-		ServletBase.sendResponse(httpServletResponse, asyncContext, "", ServletBase.getMimeType(""), HttpResponseStatus.OK);
+		ServletBase.sendResponse(httpServletResponse, asyncContext, Utilities.getJsonObjectFromData(new PlayerPresentResponse(playerPresent)).toString(), ServletBase.getMimeType(""), HttpResponseStatus.OK);
 	}
 }

@@ -56,7 +56,11 @@ public abstract class PacketRequestResponseBase extends PacketHandler {
 			} else {
 				MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntityNew -> Init.REGISTRY.sendPacketToClient(serverPlayerEntityNew, getInstance(response)));
 			}
+			runServer(serverWorld, response);
 		});
+	}
+
+	protected void runServer(ServerWorld serverWorld, String content) {
 	}
 
 	protected void runClient(Response response) {
