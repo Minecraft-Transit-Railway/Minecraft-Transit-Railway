@@ -22,6 +22,9 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 	public static final BooleanProperty IS_45 = BooleanProperty.of("is_45");
 	public static final BooleanProperty IS_CONNECTED = BooleanProperty.of("is_connected");
 
+	// Allows for ghost rails to use the correct HitResult
+	private static final double SHAPE_PADDING = 0.1;
+
 	public BlockNode(TransportMode transportMode) {
 		super(BlockHelper.createBlockSettings(true).nonOpaque());
 		this.transportMode = transportMode;
@@ -42,8 +45,8 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 
 	@Nonnull
 	@Override
-	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getStatePropertySafe(state, IS_CONNECTED) ? Block.createCuboidShape(0, 0, 0, 16, 1, 16) : VoxelShapes.fullCube();
+	public final VoxelShape getOutlineShape2(BlockState blockState, BlockView world, BlockPos pos, ShapeContext context) {
+		return Block.createCuboidShape(SHAPE_PADDING, getShapeY1(), SHAPE_PADDING, 16 - SHAPE_PADDING, getShapeY2(blockState), 16 - SHAPE_PADDING);
 	}
 
 	@Nonnull
@@ -58,6 +61,14 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 		properties.add(IS_22_5);
 		properties.add(IS_45);
 		properties.add(IS_CONNECTED);
+	}
+
+	double getShapeY1() {
+		return SHAPE_PADDING;
+	}
+
+	double getShapeY2(BlockState blockState) {
+		return IBlock.getStatePropertySafe(blockState, IS_CONNECTED) ? 1 : 16 - SHAPE_PADDING;
 	}
 
 	public static void resetRailNode(ServerWorld serverWorld, BlockPos blockPos) {
@@ -108,18 +119,22 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 			return getDefaultState2().with(new Property<>(FACING.data), quadrant % 4 >= 2).with(new Property<>(IS_45.data), quadrant % 2 >= 1).with(new Property<>(IS_22_5.data), false).with(new Property<>(IS_CONNECTED.data), false);
 		}
 
-		@Nonnull
-		@Override
-		public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-			return Block.createCuboidShape(0, upper ? 8 : 0, 0, 16, upper ? 16 : 8, 16);
-		}
-
 		@Override
 		public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
 			final String[] strings = TextHelper.translatable("tooltip.mtr.cable_car_node" + (isStation ? "_station" : "")).getString().split("\n");
 			for (final String string : strings) {
 				tooltip.add(TextHelper.literal(string).formatted(TextFormatting.GRAY));
 			}
+		}
+
+		@Override
+		double getShapeY1() {
+			return upper ? 8 : SHAPE_PADDING;
+		}
+
+		@Override
+		double getShapeY2(BlockState blockState) {
+			return upper ? 16 - SHAPE_PADDING : 8;
 		}
 	}
 }

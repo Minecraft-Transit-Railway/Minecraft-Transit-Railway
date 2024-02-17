@@ -213,12 +213,6 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 	}
 
 	@Override
-	public void onClose2() {
-		super.onClose2();
-//		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketRequestData(true));
-	}
-
-	@Override
 	public boolean isPauseScreen2() {
 		return false;
 	}
