@@ -13,7 +13,7 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockLiftButtons;
 import org.mtr.mod.block.BlockLiftPanelBase;
 import org.mtr.mod.block.IBlock;
-import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
@@ -71,7 +71,7 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> exten
 		);
 
 		Lift lift = null;
-		for (final Lift checkLift : ClientData.getInstance().lifts) {
+		for (final Lift checkLift : MinecraftClientData.getInstance().lifts) {
 			if (checkLift.getFloorIndex(Init.blockPosToPosition(trackPosition)) >= 0) {
 				lift = checkLift;
 				break;

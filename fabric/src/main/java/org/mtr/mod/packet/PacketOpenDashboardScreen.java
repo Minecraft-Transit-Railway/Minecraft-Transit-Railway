@@ -1,27 +1,31 @@
 package org.mtr.mod.packet;
 
-import org.mtr.core.data.Data;
 import org.mtr.core.data.TransportMode;
-import org.mtr.core.integration.Integration;
-import org.mtr.core.servlet.IntegrationServlet;
+import org.mtr.core.integration.Response;
+import org.mtr.core.operation.ListDataResponse;
 import org.mtr.core.tool.EnumHelper;
-import org.mtr.mapping.holder.PlayerEntity;
+import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.mapping.holder.ServerPlayerEntity;
+import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mapping.tool.PacketBufferSender;
-import org.mtr.mod.Init;
+import org.mtr.mod.client.MinecraftClientData;
 
-public final class PacketOpenDashboardScreen extends PacketDataBase {
+import javax.annotation.Nonnull;
+
+public final class PacketOpenDashboardScreen extends PacketRequestResponseBase {
 
 	private final TransportMode transportMode;
 	private final boolean useTimeAndWindSync;
 
-	public static PacketOpenDashboardScreen create(PacketBufferReceiver packetBufferReceiver) {
-		return create(packetBufferReceiver, (operation, integration, updateClientDataInstance, updateClientDataDashboardInstance) -> new PacketOpenDashboardScreen(integration, EnumHelper.valueOf(TransportMode.TRAIN, packetBufferReceiver.readString()), packetBufferReceiver.readBoolean()));
+	public PacketOpenDashboardScreen(PacketBufferReceiver packetBufferReceiver) {
+		super(packetBufferReceiver);
+		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packetBufferReceiver.readString());
+		useTimeAndWindSync = packetBufferReceiver.readBoolean();
 	}
 
-	private PacketOpenDashboardScreen(Integration integration, TransportMode transportMode, boolean useTimeAndWindSync) {
-		super(IntegrationServlet.Operation.LIST, integration, false, true);
+	private PacketOpenDashboardScreen(String content, TransportMode transportMode, boolean useTimeAndWindSync) {
+		super(content);
 		this.transportMode = transportMode;
 		this.useTimeAndWindSync = useTimeAndWindSync;
 	}
@@ -34,12 +38,28 @@ public final class PacketOpenDashboardScreen extends PacketDataBase {
 	}
 
 	@Override
-	public void runClient() {
-		super.runClient();
+	protected void runClient(Response response) {
 		ClientPacketHelper.openDashboardScreen(transportMode, useTimeAndWindSync);
+		response.getData(jsonReader -> new ListDataResponse(jsonReader, MinecraftClientData.getDashboardInstance())).write();
 	}
 
-	public static void create(PlayerEntity playerEntity, TransportMode transportMode) {
-		sendHttpDataRequest(IntegrationServlet.Operation.LIST, new Integration(new Data()), integration -> Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(playerEntity), new PacketOpenDashboardScreen(integration, transportMode, false)));
+	@Override
+	protected PacketRequestResponseBase getInstance(String content) {
+		return new PacketOpenDashboardScreen(content, transportMode, useTimeAndWindSync);
+	}
+
+	@Nonnull
+	@Override
+	protected String getEndpoint() {
+		return "operation/list-data";
+	}
+
+	@Override
+	protected PacketRequestResponseBase.ResponseType responseType() {
+		return PacketRequestResponseBase.ResponseType.PLAYER;
+	}
+
+	public static void sendDirectlyToServer(ServerWorld serverWorld, ServerPlayerEntity serverPlayerEntity, TransportMode transportMode, boolean useTimeAndWindSync) {
+		new PacketOpenDashboardScreen(new JsonObject().toString(), transportMode, useTimeAndWindSync).runServer(serverWorld, serverPlayerEntity);
 	}
 }

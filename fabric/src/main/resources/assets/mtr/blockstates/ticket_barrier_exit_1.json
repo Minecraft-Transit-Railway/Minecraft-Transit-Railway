@@ -15,6 +15,21 @@
 			"model": "mtr:block/ticket_barrier_exit_1_closed",
 			"y": 270
 		},
+		"facing=north,open=pending": {
+			"model": "mtr:block/ticket_barrier_exit_1_closed"
+		},
+		"facing=east,open=pending": {
+			"model": "mtr:block/ticket_barrier_exit_1_closed",
+			"y": 90
+		},
+		"facing=south,open=pending": {
+			"model": "mtr:block/ticket_barrier_exit_1_closed",
+			"y": 180
+		},
+		"facing=west,open=pending": {
+			"model": "mtr:block/ticket_barrier_exit_1_closed",
+			"y": 270
+		},
 		"facing=north,open=open": {
 			"model": "mtr:block/ticket_barrier_exit_1_open"
 		},

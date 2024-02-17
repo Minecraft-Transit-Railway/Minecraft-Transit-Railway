@@ -3,21 +3,27 @@ package org.mtr.mod.render;
 import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
 import com.logisticscraft.occlusionculling.util.Vec3d;
 import org.mtr.core.data.Rail;
+import org.mtr.core.tool.Angle;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mapping.mapper.PlayerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.block.BlockPlatform;
 import org.mtr.mod.block.BlockSignalLightBase;
 import org.mtr.mod.block.BlockSignalSemaphoreBase;
-import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.Config;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.RailType;
+import org.mtr.mod.item.ItemBlockClickingBase;
 import org.mtr.mod.item.ItemNodeModifierBase;
+import org.mtr.mod.item.ItemRailModifier;
+import org.mtr.mod.item.ItemRailShapeModifier;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -40,66 +46,100 @@ public class RenderRails implements IGui {
 		final ObjectArrayList<Function<OcclusionCullingInstance, Runnable>> cullingTasks = new ObjectArrayList<>();
 		final Vector3d cameraPosition = minecraftClient.getGameRendererMapped().getCamera().getPos();
 		final Vec3d camera = new Vec3d(cameraPosition.getXMapped(), cameraPosition.getYMapped(), cameraPosition.getZMapped());
-		final boolean renderColors = isHoldingRailRelated(clientPlayerEntity);
+		final boolean holdingRailRelated = isHoldingRailRelated(clientPlayerEntity);
 
-		ClientData.getInstance().positionsToRail.forEach((startPosition, railMap) -> railMap.forEach((endPosition, rail) -> {
+		final Rail hoverRail;
+		if (PlayerHelper.isHolding(new PlayerEntity(clientPlayerEntity.data), item -> item.data instanceof ItemRailShapeModifier)) {
+			hoverRail = MinecraftClientData.getInstance().getFacingRail(false);
+		} else {
+			hoverRail = null;
+		}
+
+		final ObjectArrayList<Rail> railsToRender = new ObjectArrayList<>();
+		MinecraftClientData.getInstance().railWrapperList.values().forEach(railWrapper -> {
 			cullingTasks.add(occlusionCullingInstance -> {
-				final boolean shouldRender = occlusionCullingInstance.isAABBVisible(new Vec3d(
-						Math.min(startPosition.getX(), endPosition.getX()),
-						Math.min(startPosition.getY(), endPosition.getY()),
-						Math.min(startPosition.getZ(), endPosition.getZ())
-				), new Vec3d(
-						Math.max(startPosition.getX(), endPosition.getX()),
-						Math.max(startPosition.getY(), endPosition.getY()),
-						Math.max(startPosition.getZ(), endPosition.getZ())
-				), camera);
-				return () -> ClientData.getInstance().railCulling.put(rail.getHexId(), shouldRender);
+				final boolean shouldRender = occlusionCullingInstance.isAABBVisible(railWrapper.startVector, railWrapper.endVector, camera);
+				return () -> railWrapper.shouldRender = shouldRender;
 			});
+			if (railWrapper.shouldRender) {
+				railsToRender.add(railWrapper.getRail());
+			}
+		});
 
-			if (ClientData.getInstance().railCulling.getOrDefault(rail.getHexId(), false)) {
-				switch (rail.getTransportMode()) {
-					case TRAIN:
-						renderRailStandard(clientWorld, rail, renderColors, 1);
-						if (renderColors) {
-							renderSignalsStandard(clientWorld, rail);
-						}
-						break;
-					case BOAT:
-						if (renderColors) {
-							renderRailStandard(clientWorld, rail, true, 0.5F);
-							renderSignalsStandard(clientWorld, rail);
-						}
-						break;
-					case CABLE_CAR:
-						if (rail.isPlatform() || rail.isSiding() || rail.getSpeedLimitKilometersPerHour(false) == RailType.CABLE_CAR_STATION.speedLimit || rail.getSpeedLimitKilometersPerHour(true) == RailType.CABLE_CAR_STATION.speedLimit) {
-							renderRailStandard(clientWorld, rail, 0.25F + SMALL_OFFSET, renderColors, 0.25F, new Identifier(Init.MOD_ID, "textures/block/metal.png"), 0.25F, 0, 0.75F, 1);
-						}
-						if (renderColors && !rail.isPlatform() && !rail.isSiding()) {
-							renderRailStandard(clientWorld, rail, 0.5F + SMALL_OFFSET, true, 1, null, 0, 0.75F, 1, 0.25F);
-						}
+		// Ghost rail
+		final ItemStack itemStack = clientPlayerEntity.getStackInHand(clientPlayerEntity.getActiveHand());
+		final Item item = itemStack.getItem();
+		if (item.data instanceof ItemRailModifier) {
+			final HitResult hitResult = minecraftClient.getCrosshairTargetMapped();
+			if (hitResult != null) {
+				final Vector3d hitPos = hitResult.getPos();
+				final BlockPos posStart = Init.newBlockPos(hitPos.getXMapped(), hitPos.getYMapped(), hitPos.getZMapped());
+				final CompoundTag compoundTag = itemStack.getOrCreateTag();
 
-						RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.LINES, (graphicsHolder, offset) -> rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> graphicsHolder.drawLineInWorld(
-								(float) (x1 - offset.getXMapped()),
-								(float) (y1 - offset.getYMapped() + 0.5),
-								(float) (z1 - offset.getZMapped()),
-								(float) (x3 - offset.getXMapped()),
-								(float) (y2 - offset.getYMapped() + 0.5),
-								(float) (z3 - offset.getZMapped()),
-								renderColors ? RailType.getRailColor(rail) : ARGB_BLACK
-						), 0, 0));
+				if (compoundTag.contains(ItemBlockClickingBase.TAG_POS)) {
+					final BlockPos posEnd = BlockPos.fromLong(compoundTag.getLong(ItemBlockClickingBase.TAG_POS));
+					final BlockState blockStateEnd = clientWorld.getBlockState(posEnd);
 
-						break;
-					case AIRPLANE:
-						if (renderColors) {
-							renderRailStandard(clientWorld, rail, true, 1);
-							renderSignalsStandard(clientWorld, rail);
-						} else {
-							renderRailStandard(clientWorld, rail, 0.0625F + SMALL_OFFSET, false, 0.25F, new Identifier("textures/block/iron_block.png"), 0.25F, 0, 0.75F, 1);
+					if (blockStateEnd.getBlock().data instanceof BlockNode) {
+						final BlockState blockStateStart = clientWorld.getBlockState(posStart);
+						final float angleEnd = BlockNode.getAngle(blockStateEnd);
+						final ObjectObjectImmutablePair<Angle, Angle> angles = ItemNodeModifierBase.getAngles(
+								posStart, blockStateStart.getBlock().data instanceof BlockNode ? BlockNode.getAngle(blockStateStart) : blockStateEnd.getBlock().data instanceof BlockNode.BlockContinuousMovementNode ? angleEnd : EntityHelper.getYaw(new Entity(clientPlayerEntity.data)) + 90,
+								posEnd, angleEnd
+						);
+						final Rail rail = ((ItemRailModifier) item.data).createRail(ItemNodeModifierBase.getTransportMode(compoundTag), blockStateStart, blockStateEnd, posStart, posEnd, angles.left(), angles.right());
+						if (rail != null) {
+							railsToRender.add(rail);
 						}
-						break;
+					}
 				}
 			}
-		}));
+		}
+
+		railsToRender.forEach(rail -> {
+			final boolean renderColors = holdingRailRelated || hoverRail == rail;
+			switch (rail.getTransportMode()) {
+				case TRAIN:
+					renderRailStandard(clientWorld, rail, renderColors, 1);
+					if (renderColors) {
+						renderSignalsStandard(clientWorld, rail);
+					}
+					break;
+				case BOAT:
+					if (renderColors) {
+						renderRailStandard(clientWorld, rail, true, 0.5F);
+						renderSignalsStandard(clientWorld, rail);
+					}
+					break;
+				case CABLE_CAR:
+					if (rail.isPlatform() || rail.isSiding() || rail.getSpeedLimitKilometersPerHour(false) == RailType.CABLE_CAR_STATION.speedLimit || rail.getSpeedLimitKilometersPerHour(true) == RailType.CABLE_CAR_STATION.speedLimit) {
+						renderRailStandard(clientWorld, rail, 0.25F + SMALL_OFFSET, renderColors, 0.25F, new Identifier(Init.MOD_ID, "textures/block/metal.png"), 0.25F, 0, 0.75F, 1);
+					}
+					if (renderColors && !rail.isPlatform() && !rail.isSiding()) {
+						renderRailStandard(clientWorld, rail, 0.5F + SMALL_OFFSET, true, 1, null, 0, 0.75F, 1, 0.25F);
+					}
+
+					RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.LINES, (graphicsHolder, offset) -> rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> graphicsHolder.drawLineInWorld(
+							(float) (x1 - offset.getXMapped()),
+							(float) (y1 - offset.getYMapped() + 0.5),
+							(float) (z1 - offset.getZMapped()),
+							(float) (x3 - offset.getXMapped()),
+							(float) (y2 - offset.getYMapped() + 0.5),
+							(float) (z3 - offset.getZMapped()),
+							renderColors ? RailType.getRailColor(rail) : ARGB_BLACK
+					), 0, 0));
+
+					break;
+				case AIRPLANE:
+					if (renderColors) {
+						renderRailStandard(clientWorld, rail, true, 1);
+						renderSignalsStandard(clientWorld, rail);
+					} else {
+						renderRailStandard(clientWorld, rail, 0.0625F + SMALL_OFFSET, false, 0.25F, new Identifier("textures/block/iron_block.png"), 0.25F, 0, 0.75F, 1);
+					}
+					break;
+			}
+		});
 
 		OCCLUSION_CULLING_THREAD.schedule(occlusionCullingInstance -> {
 			final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();

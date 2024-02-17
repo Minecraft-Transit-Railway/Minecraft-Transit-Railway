@@ -1,31 +1,46 @@
 package org.mtr.mod.packet;
 
-import org.mtr.mapping.holder.MinecraftServer;
-import org.mtr.mapping.holder.ServerPlayerEntity;
-import org.mtr.mapping.registry.PacketHandler;
+import org.mtr.core.integration.Response;
+import org.mtr.core.operation.DataRequest;
+import org.mtr.core.operation.DataResponse;
+import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.tool.PacketBufferReceiver;
-import org.mtr.mapping.tool.PacketBufferSender;
-import org.mtr.mod.Init;
+import org.mtr.mod.client.MinecraftClientData;
 
-public final class PacketRequestData extends PacketHandler {
+import javax.annotation.Nonnull;
 
-	private final boolean forceUpdate;
+public final class PacketRequestData extends PacketRequestResponseBase {
 
 	public PacketRequestData(PacketBufferReceiver packetBufferReceiver) {
-		forceUpdate = packetBufferReceiver.readBoolean();
+		super(packetBufferReceiver);
 	}
 
-	public PacketRequestData(boolean forceUpdate) {
-		this.forceUpdate = forceUpdate;
+	public PacketRequestData(DataRequest dataRequest) {
+		super(Utilities.getJsonObjectFromData(dataRequest).toString());
+	}
+
+	private PacketRequestData(String content) {
+		super(content);
 	}
 
 	@Override
-	public void write(PacketBufferSender packetBufferSender) {
-		packetBufferSender.writeBoolean(forceUpdate);
+	protected void runClient(Response response) {
+		response.getData(jsonReader -> new DataResponse(jsonReader, MinecraftClientData.getInstance())).write();
 	}
 
 	@Override
-	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		Init.schedulePlayerUpdate(serverPlayerEntity, forceUpdate);
+	protected PacketRequestResponseBase getInstance(String content) {
+		return new PacketRequestData(content);
+	}
+
+	@Nonnull
+	@Override
+	protected String getEndpoint() {
+		return "operation/get-data";
+	}
+
+	@Override
+	protected PacketRequestResponseBase.ResponseType responseType() {
+		return PacketRequestResponseBase.ResponseType.PLAYER;
 	}
 }

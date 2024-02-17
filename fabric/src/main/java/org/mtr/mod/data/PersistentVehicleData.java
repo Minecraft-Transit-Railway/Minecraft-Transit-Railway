@@ -15,6 +15,7 @@ public final class PersistentVehicleData {
 
 	private double doorValue;
 	private double oldDoorValue;
+	private double nextAnnouncementRailProgress;
 	private int doorCoolDown;
 
 	public final boolean[] rayTracing;
@@ -37,7 +38,7 @@ public final class PersistentVehicleData {
 		return scrollingTexts.get(car);
 	}
 
-	public void tick(long millisElapsed, VehicleExtraData vehicleExtraData) {
+	public void tick(double railProgress, long millisElapsed, VehicleExtraData vehicleExtraData) {
 		oldDoorValue = doorValue;
 		doorValue = Utilities.clamp(doorValue + (double) (millisElapsed * vehicleExtraData.getDoorMultiplier()) / Vehicle.DOOR_MOVE_TIME, 0, 1);
 		if (checkCanOpenDoors()) {
@@ -45,6 +46,7 @@ public final class PersistentVehicleData {
 		}
 		if (doorValue > 0) {
 			doorCoolDown = 2;
+			nextAnnouncementRailProgress = railProgress + vehicleExtraData.getTotalVehicleLength() * 1.5;
 		}
 	}
 
@@ -54,6 +56,10 @@ public final class PersistentVehicleData {
 
 	public boolean checkCanOpenDoors() {
 		return doorCoolDown > 0;
+	}
+
+	public boolean canAnnounce(double oldRailProgress, double railProgress) {
+		return oldRailProgress < nextAnnouncementRailProgress && railProgress >= nextAnnouncementRailProgress;
 	}
 
 	public void playMotorSound(VehicleResource vehicleResource, int carNumber, int bogieIndex, BlockPos bogiePosition, float speed, float speedChange, float acceleration, boolean isOnRoute) {

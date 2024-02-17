@@ -44,5 +44,6 @@ fabric.mod.json
 mtr.accesswidener
 Keys.java
 mtr_custom_resources.json
+**/font/mtr.json
 **/lang/*.json
 !en_us.json

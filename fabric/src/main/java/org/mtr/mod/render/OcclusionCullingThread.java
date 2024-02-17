@@ -7,37 +7,31 @@ import org.mtr.mapping.holder.BlockView;
 import org.mtr.mapping.holder.ClientWorld;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.mapper.MinecraftClientHelper;
+import org.mtr.mod.CustomThread;
 
 import java.util.function.Consumer;
 
-public final class OcclusionCullingThread extends Thread {
+public final class OcclusionCullingThread extends CustomThread {
 
-	private boolean started;
 	private int renderDistance;
 	private OcclusionCullingInstance occlusionCullingInstance;
 	private Consumer<OcclusionCullingInstance> queuedTask;
 
 	@Override
-	public synchronized void start() {
-		if (!started) {
-			super.start();
+	protected void runTick() {
+		updateInstance();
+		occlusionCullingInstance.resetCache();
+		final Consumer<OcclusionCullingInstance> currentTask = queuedTask;
+		queuedTask = null;
+
+		if (currentTask != null) {
+			currentTask.accept(occlusionCullingInstance);
 		}
-		started = true;
 	}
 
 	@Override
-	public void run() {
-		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		while (minecraftClient.isRunning()) {
-			updateInstance();
-			occlusionCullingInstance.resetCache();
-			final Consumer<OcclusionCullingInstance> currentTask = queuedTask;
-			queuedTask = null;
-
-			if (currentTask != null) {
-				currentTask.accept(occlusionCullingInstance);
-			}
-		}
+	protected boolean isRunning() {
+		return MinecraftClient.getInstance().isRunning();
 	}
 
 	private void updateInstance() {

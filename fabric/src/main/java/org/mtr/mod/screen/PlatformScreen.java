@@ -3,13 +3,13 @@ package org.mtr.mod.screen;
 import org.mtr.core.data.Platform;
 import org.mtr.core.data.Station;
 import org.mtr.core.data.TransportMode;
-import org.mtr.core.servlet.IntegrationServlet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
+import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.InitClient;
-import org.mtr.mod.packet.PacketData;
+import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.packet.PacketUpdateData;
 
 public class PlatformScreen extends SavedRailScreenBase<Platform, Station> {
 
@@ -42,7 +42,7 @@ public class PlatformScreen extends SavedRailScreenBase<Platform, Station> {
 		final float second = sliderDwellTimeSec.getIntValue() / 2F;
 		savedRailBase.setDwellTime((long) ((second + (long) minutes * SECONDS_PER_MINUTE) * 1000));
 
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromPlatforms(IntegrationServlet.Operation.UPDATE, ObjectSet.of(savedRailBase)));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addPlatform(savedRailBase)));
 
 		super.onClose2();
 	}

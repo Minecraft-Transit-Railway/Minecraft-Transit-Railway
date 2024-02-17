@@ -6,7 +6,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import org.mtr.mapping.holder.World;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
 import org.mtr.mod.Init;
-import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 import xyz.jpenilla.squaremap.api.*;
 import xyz.jpenilla.squaremap.api.marker.Marker;
@@ -42,8 +42,8 @@ public class UpdateSquaremap implements IGui, IUpdateWebMap {
 
 	public static void updateSquaremap(World world) {
 		try {
-			updateSquaremap(world, ClientData.getInstance().stations, MARKER_SET_STATIONS_ID, MARKER_SET_STATIONS_TITLE, MARKER_SET_STATION_AREAS_ID, MARKER_SET_STATION_AREAS_TITLE, STATION_ICON_KEY);
-			updateSquaremap(world, ClientData.getInstance().depots, MARKER_SET_DEPOTS_ID, MARKER_SET_DEPOTS_TITLE, MARKER_SET_DEPOT_AREAS_ID, MARKER_SET_DEPOT_AREAS_TITLE, DEPOT_ICON_KEY);
+			updateSquaremap(world, MinecraftClientData.getInstance().stations, MARKER_SET_STATIONS_ID, MARKER_SET_STATIONS_TITLE, MARKER_SET_STATION_AREAS_ID, MARKER_SET_STATION_AREAS_TITLE, STATION_ICON_KEY);
+			updateSquaremap(world, MinecraftClientData.getInstance().depots, MARKER_SET_DEPOTS_ID, MARKER_SET_DEPOTS_TITLE, MARKER_SET_DEPOT_AREAS_ID, MARKER_SET_DEPOT_AREAS_TITLE, DEPOT_ICON_KEY);
 		} catch (IllegalStateException ignored) {
 		} catch (Exception e) {
 			Init.logException(e);

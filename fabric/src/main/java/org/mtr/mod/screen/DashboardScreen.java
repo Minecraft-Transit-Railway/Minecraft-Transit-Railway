@@ -1,10 +1,10 @@
 package org.mtr.mod.screen;
 
 import org.mtr.core.data.*;
-import org.mtr.core.servlet.IntegrationServlet;
+import org.mtr.core.operation.DeleteDataRequest;
+import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.Screen;
@@ -12,11 +12,11 @@ import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
-import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.PacketData;
-import org.mtr.mod.packet.PacketRequestData;
+import org.mtr.mod.packet.PacketDeleteData;
+import org.mtr.mod.packet.PacketUpdateData;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -68,9 +68,9 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		buttonTabRoutes = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.routes"), button -> onSelectTab(SelectedTab.ROUTES));
 		buttonTabDepots = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.depots"), button -> onSelectTab(SelectedTab.DEPOTS));
 
-		buttonAddStation = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_station"), button -> startEditingArea(new Station(ClientData.getDashboardInstance()), true));
-		buttonAddRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_route"), button -> startEditingRoute(new Route(transportMode, ClientData.getDashboardInstance()), true));
-		buttonAddDepot = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_depot"), button -> startEditingArea(new Depot(transportMode, ClientData.getDashboardInstance()), true));
+		buttonAddStation = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_station"), button -> startEditingArea(new Station(MinecraftClientData.getDashboardInstance()), true));
+		buttonAddRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_route"), button -> startEditingRoute(new Route(transportMode, MinecraftClientData.getDashboardInstance()), true));
+		buttonAddDepot = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_depot"), button -> startEditingArea(new Depot(transportMode, MinecraftClientData.getDashboardInstance()), true));
 		buttonDoneEditingStation = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> onDoneEditingArea());
 		buttonDoneEditingRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> onDoneEditingRoute());
 		buttonDoneEditingRouteDestination = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> onDoneEditingRouteDestination());
@@ -79,7 +79,7 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		buttonRailActions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.rail_actions_button"), button -> MinecraftClient.getInstance().openScreen(new Screen(new RailActionsScreen())));
 		buttonOptions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("menu.options"), button -> MinecraftClient.getInstance().openScreen(new Screen(new ConfigScreen(useTimeAndWindSync))));
 
-		dashboardList = new DashboardList(this::onFind, this::onDrawArea, this::onEdit, this::onSort, null, this::onDelete, this::getList, () -> ClientData.DASHBOARD_SEARCH, text -> ClientData.DASHBOARD_SEARCH = text);
+		dashboardList = new DashboardList(this::onFind, this::onDrawArea, this::onEdit, this::onSort, null, this::onDelete, this::getList, () -> MinecraftClientData.DASHBOARD_SEARCH, text -> MinecraftClientData.DASHBOARD_SEARCH = text);
 
 		onSelectTab(SelectedTab.STATIONS);
 	}
@@ -173,14 +173,14 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 			switch (selectedTab) {
 				case STATIONS:
 					if (editingArea == null) {
-						dashboardList.setData(ClientData.convertDataSet(ClientData.getDashboardInstance().stations), true, true, true, false, false, true);
+						dashboardList.setData(MinecraftClientData.convertDataSet(MinecraftClientData.getDashboardInstance().stations), true, true, true, false, false, true);
 					} else {
-						dashboardList.setData(ClientData.convertDataSet(editingArea.savedRails), true, false, true, false, false, false);
+						dashboardList.setData(MinecraftClientData.convertDataSet(editingArea.savedRails), true, false, true, false, false, false);
 					}
 					break;
 				case ROUTES:
 					if (editingRoute == null) {
-						dashboardList.setData(ClientData.getFilteredDataSet(transportMode, ClientData.getDashboardInstance().routes), false, true, true, false, false, true);
+						dashboardList.setData(MinecraftClientData.getFilteredDataSet(transportMode, MinecraftClientData.getDashboardInstance().routes), false, true, true, false, false, true);
 					} else {
 						final ObjectArrayList<DashboardListItem> routeData = editingRoute.getRoutePlatforms().stream().map(routePlatformData -> {
 							final Platform platform = routePlatformData.platform;
@@ -201,21 +201,15 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 					break;
 				case DEPOTS:
 					if (editingArea == null) {
-						dashboardList.setData(ClientData.getFilteredDataSet(transportMode, ClientData.getDashboardInstance().depots), true, true, true, false, false, true);
+						dashboardList.setData(MinecraftClientData.getFilteredDataSet(transportMode, MinecraftClientData.getDashboardInstance().depots), true, true, true, false, false, true);
 					} else {
-						dashboardList.setData(ClientData.convertDataSet(editingArea.savedRails), true, false, true, false, false, false);
+						dashboardList.setData(MinecraftClientData.convertDataSet(editingArea.savedRails), true, false, true, false, false, false);
 					}
 					break;
 			}
 		} catch (Exception e) {
 			Init.logException(e);
 		}
-	}
-
-	@Override
-	public void onClose2() {
-		super.onClose2();
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketRequestData(true));
 	}
 
 	@Override
@@ -299,7 +293,7 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 
 	private void onSort() {
 		if (selectedTab == SelectedTab.ROUTES && editingRoute != null) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute)));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addRoute(editingRoute)));
 		}
 	}
 
@@ -308,24 +302,24 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 			case STATIONS:
 				if (dashboardListItem.data instanceof Station) {
 					final Station station = (Station) dashboardListItem.data;
-					MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromStations(IntegrationServlet.Operation.DELETE, ObjectSet.of(station))), IGui.formatStationName(station.getName()), this)));
+					MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDeleteData(new DeleteDataRequest().addStationId(station.getId()))), IGui.formatStationName(station.getName()), this)));
 				}
 				break;
 			case ROUTES:
 				if (editingRoute == null) {
 					if (dashboardListItem.data instanceof Route) {
 						final Route route = (Route) dashboardListItem.data;
-						MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.DELETE, ObjectSet.of(route))), IGui.formatStationName(route.getName()), this)));
+						MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDeleteData(new DeleteDataRequest().addRouteId(route.getId()))), IGui.formatStationName(route.getName()), this)));
 					}
 				} else {
 					editingRoute.getRoutePlatforms().remove(index);
-					InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute)));
+					InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addRoute(editingRoute)));
 				}
 				break;
 			case DEPOTS:
 				if (dashboardListItem.data instanceof Depot) {
 					final Depot depot = (Depot) dashboardListItem.data;
-					MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.DELETE, ObjectSet.of(depot))), IGui.formatStationName(depot.getName()), this)));
+					MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDeleteData(new DeleteDataRequest().addDepotId(depot.getId()))), IGui.formatStationName(depot.getName()), this)));
 				}
 				break;
 		}
@@ -375,17 +369,17 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 
 	private void onDrawCornersMouseRelease() {
 		if (editingArea instanceof Station) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromStations(IntegrationServlet.Operation.UPDATE, ObjectSet.of((Station) editingArea)));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addStation((Station) editingArea)));
 		} else if (editingArea instanceof Depot) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.UPDATE, ObjectSet.of((Depot) editingArea)));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addDepot((Depot) editingArea)));
 		}
 	}
 
 	private void onClickAddPlatformToRoute(long platformId) {
 		final RoutePlatformData routePlatformData = new RoutePlatformData(platformId);
 		editingRoute.getRoutePlatforms().add(routePlatformData);
-		routePlatformData.writePlatformCache(editingRoute, ClientData.getDashboardInstance().platformIdMap);
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute)));
+		routePlatformData.writePlatformCache(editingRoute, MinecraftClientData.getDashboardInstance().platformIdMap);
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addRoute(editingRoute)));
 	}
 
 	private void onClickEditSavedRail(SavedRailBase<?, ?> savedRail) {
@@ -400,9 +394,9 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		editingArea.setName(IGui.textOrUntitled(textFieldName.getText2()));
 		editingArea.setColor(colorSelector.getColor());
 		if (editingArea instanceof Station) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromStations(IntegrationServlet.Operation.UPDATE, ObjectSet.of((Station) editingArea)));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addStation((Station) editingArea)));
 		} else if (editingArea instanceof Depot) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.UPDATE, ObjectSet.of((Depot) editingArea)));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addDepot((Depot) editingArea)));
 		}
 		stopEditing();
 	}
@@ -410,14 +404,14 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 	private void onDoneEditingRoute() {
 		editingRoute.setName(IGui.textOrUntitled(textFieldName.getText2()));
 		editingRoute.setColor(colorSelector.getColor());
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute)));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addRoute(editingRoute)));
 		stopEditing();
 	}
 
 	private void onDoneEditingRouteDestination() {
 		if (isValidRoutePlatformIndex()) {
 			editingRoute.getRoutePlatforms().get(editingRoutePlatformIndex).setCustomDestination(textFieldCustomDestination.getText2());
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute)));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addRoute(editingRoute)));
 		}
 		startEditingRoute(editingRoute, isNew);
 	}
@@ -434,7 +428,7 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 	}
 
 	private void toggleButtons() {
-		final boolean hasPermission = ClientData.hasPermission();
+		final boolean hasPermission = MinecraftClientData.hasPermission();
 		final boolean showRouteDestinationFields = isValidRoutePlatformIndex();
 
 		buttonAddStation.visible = selectedTab == SelectedTab.STATIONS && editingArea == null && hasPermission;

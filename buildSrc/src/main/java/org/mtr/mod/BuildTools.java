@@ -94,6 +94,17 @@ public class BuildTools {
 		}
 	}
 
+	public void copyFontDefinition() throws IOException {
+		FileUtils.write(
+				path.resolve("src/main/resources/assets/mtr/font/mtr.json").toFile(),
+				FileUtils.readFileToString(path.resolve("src/main/font_template.json").toFile(), StandardCharsets.UTF_8).replace(
+						"@type@",
+						majorVersion >= 20 ? "reference\",\"id\":\"minecraft:include/default" : "legacy_unicode\",\"sizes\":\"minecraft:font/glyph_sizes.bin\",\"template\":\"minecraft:font/unicode_page_%s.png"
+				),
+				StandardCharsets.UTF_8
+		);
+	}
+
 	public void copyVehicleTemplates() throws IOException {
 		final ObjectArrayList<String> vehicles = new ObjectArrayList<>();
 

@@ -6,9 +6,12 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.PacketFetchArrivals;
+import org.mtr.mod.render.RenderPIDS;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -80,7 +83,25 @@ public final class PIDSFormatter implements Utilities, IGui {
 			switch (tagChar) {
 				case '%':
 					// Add text chunks for placeholders
-					parseTag("destination", textInTag, arrivalResponse -> addTextFromArrivalResponse(arrivalResponse.getDestination(), textAfterTag));
+					parseTag("destination", textInTag, arrivalResponse -> {
+						// TODO better switching with messages
+						final String[] destinationSplit = arrivalResponse.getDestination().split("\\|");
+						final String destinationText = destinationSplit.length == 0 ? "" : destinationSplit[((int) Math.floor(InitClient.getGameTick()) / RenderPIDS.SWITCH_LANGUAGE_TICKS) % destinationSplit.length];
+						final String suffix = IGui.isCjk(destinationText) ? "_cjk" : "";
+						final String destination;
+						switch (arrivalResponse.getCircularState()) {
+							case CLOCKWISE:
+								destination = TextHelper.translatable("gui.mtr.clockwise_via" + suffix, destinationText).getString();
+								break;
+							case ANTICLOCKWISE:
+								destination = TextHelper.translatable("gui.mtr.anticlockwise_via" + suffix, destinationText).getString();
+								break;
+							default:
+								destination = destinationText;
+								break;
+						}
+						addTextFromArrivalResponse(destination, textAfterTag);
+					});
 					parseTag("RAH", textInTag, arrivalResponse -> addTextFromArrivalResponse(formatTime(arrivalResponse.getArrival(), "H", true, true, false), textAfterTag));
 					parseTag("RAm", textInTag, arrivalResponse -> addTextFromArrivalResponse(formatTime(arrivalResponse.getArrival(), "m", true, true, false), textAfterTag));
 					parseTag("RAs", textInTag, arrivalResponse -> addTextFromArrivalResponse(formatTime(arrivalResponse.getArrival(), "s", true, true, false), textAfterTag));

@@ -1,13 +1,23 @@
 package org.mtr.mod.item;
 
+import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
+import org.mtr.core.data.TwoPositionsBase;
+import org.mtr.core.integration.Response;
+import org.mtr.core.operation.RailsRequest;
+import org.mtr.core.operation.RailsResponse;
 import org.mtr.core.tool.Angle;
+import org.mtr.core.tool.EnumHelper;
+import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockNode;
 
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 
@@ -16,7 +26,6 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 	public final boolean forAirplaneNode;
 	protected final boolean isConnector;
 
-	public static final String TAG_POS = "pos";
 	private static final String TAG_TRANSPORT_MODE = "transport_mode";
 
 	public ItemNodeModifierBase(boolean forNonContinuousMovementNode, boolean forContinuousMovementNode, boolean forAirplaneNode, boolean isConnector, ItemSettings itemSettings) {
@@ -25,15 +34,6 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 		this.forContinuousMovementNode = forContinuousMovementNode;
 		this.forAirplaneNode = forAirplaneNode;
 		this.isConnector = isConnector;
-	}
-
-	@Override
-	public void addTooltips(ItemStack stack, @Nullable World world, List<MutableText> tooltip, TooltipContext options) {
-		final CompoundTag compoundTag = stack.getOrCreateTag();
-		final long posLong = compoundTag.getLong(TAG_POS);
-		if (posLong != 0) {
-			tooltip.add(TextHelper.translatable("tooltip.mtr.selected_block", BlockPos.fromLong(posLong).toShortString()).formatted(TextFormatting.GOLD));
-		}
 	}
 
 	@Override
@@ -53,14 +53,8 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 		if (ServerPlayerEntity.isInstance(player) && stateEnd.getBlock().data instanceof BlockNode && ((BlockNode) blockStart.data).transportMode.toString().equals(compoundTag.getString(TAG_TRANSPORT_MODE))) {
 			if (isConnector) {
 				if (!posStart.equals(posEnd)) {
-					final float angle1 = BlockNode.getAngle(stateStart);
-					final float angle2 = BlockNode.getAngle(stateEnd);
-
-					final float angleDifference = (float) Math.toDegrees(Math.atan2(posEnd.getZ() - posStart.getZ(), posEnd.getX() - posStart.getX()));
-					final Angle angleStart = Angle.fromAngle(angle1 + (Angle.similarFacing(angleDifference, angle1) ? 0 : 180));
-					final Angle angleEnd = Angle.fromAngle(angle2 + (Angle.similarFacing(angleDifference, angle2) ? 180 : 0));
-
-					onConnect(world, context.getStack(), ((BlockNode) blockStart.data).transportMode, stateStart, stateEnd, posStart, posEnd, angleStart, angleEnd, ServerPlayerEntity.cast(player));
+					final ObjectObjectImmutablePair<Angle, Angle> angles = getAngles(posStart, BlockNode.getAngle(stateStart), posEnd, BlockNode.getAngle(stateEnd));
+					onConnect(world, context.getStack(), ((BlockNode) blockStart.data).transportMode, stateStart, stateEnd, posStart, posEnd, angles.left(), angles.right(), ServerPlayerEntity.cast(player));
 				}
 			} else {
 				onRemove(world, posStart, posEnd, ServerPlayerEntity.cast(player));
@@ -89,4 +83,34 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 	protected abstract void onConnect(World world, ItemStack stack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, Angle facingStart, Angle facingEnd, @Nullable ServerPlayerEntity player);
 
 	protected abstract void onRemove(World world, BlockPos posStart, BlockPos posEnd, @Nullable ServerPlayerEntity player);
+
+	public static void getRail(World world, BlockPos blockPos1, BlockPos blockPos2, @Nullable ServerPlayerEntity serverPlayerEntity, Consumer<Rail> consumer) {
+		Init.sendHttpRequest(
+				"operation/rails",
+				world,
+				Utilities.getJsonObjectFromData(new RailsRequest().addRailId(TwoPositionsBase.getHexId(Init.blockPosToPosition(blockPos1), Init.blockPosToPosition(blockPos2)))).toString(),
+				content -> {
+					final ObjectImmutableList<Rail> rails = Response.create(Utilities.parseJson(content)).getData(RailsResponse::new).getRails();
+					if (rails.isEmpty()) {
+						if (serverPlayerEntity != null) {
+							serverPlayerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr.rail_not_found_action").data), true);
+						}
+					} else {
+						consumer.accept(rails.get(0));
+					}
+				}
+		);
+	}
+
+	public static ObjectObjectImmutablePair<Angle, Angle> getAngles(BlockPos posStart, float angle1, BlockPos posEnd, float angle2) {
+		final float angleDifference = (float) Math.toDegrees(Math.atan2(posEnd.getZ() - posStart.getZ(), posEnd.getX() - posStart.getX()));
+		return new ObjectObjectImmutablePair<>(
+				Angle.fromAngle(angle1 + (Angle.similarFacing(angleDifference, angle1) ? 0 : 180)),
+				Angle.fromAngle(angle2 + (Angle.similarFacing(angleDifference, angle2) ? 180 : 0))
+		);
+	}
+
+	public static TransportMode getTransportMode(CompoundTag compoundTag) {
+		return EnumHelper.valueOf(TransportMode.TRAIN, compoundTag.getString(TAG_TRANSPORT_MODE));
+	}
 }

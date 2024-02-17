@@ -10,7 +10,7 @@ import org.mtr.mapping.holder.MathHelper;
 import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.TextCase;
-import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 
@@ -148,7 +148,7 @@ public class DashboardList implements IGui {
 	public void setData(ObjectArrayList<DashboardListItem> dataList, boolean hasFind, boolean hasDrawArea, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
 		dataSorted = new ObjectArrayList<>(dataList);
 		this.hasFind = hasFind;
-		final boolean hasPermission = ClientData.hasPermission();
+		final boolean hasPermission = MinecraftClientData.hasPermission();
 		this.hasDrawArea = hasPermission && hasDrawArea;
 		this.hasEdit = hasPermission && hasEdit;
 		this.hasSort = hasPermission && hasSort;

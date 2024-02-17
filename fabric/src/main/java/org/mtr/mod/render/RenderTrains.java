@@ -8,10 +8,7 @@ import org.mtr.mapping.mapper.EntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mod.InitClient;
-import org.mtr.mod.client.ClientData;
-import org.mtr.mod.client.Config;
-import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.client.VehicleRidingMovement;
+import org.mtr.mod.client.*;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.entity.EntityRendering;
 
@@ -64,11 +61,12 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 	}
 
 	public static void render(GraphicsHolder graphicsHolder, Vector3d offset) {
-		final long millisElapsed = InitClient.getGameMillis() - lastRenderedMillis;
-		ClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
-		ClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
+		final long millisElapsed = getMillisElapsed();
+		MinecraftClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
+		MinecraftClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
 		lastRenderedMillis = InitClient.getGameMillis();
 		OCCLUSION_CULLING_THREAD.start();
+		DynamicTextureCache.instance.tick();
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
@@ -157,6 +155,12 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 		final ObjectArrayList<String> interchangeRouteNames = new ObjectArrayList<>();
 		getInterchanges.accept((connectingStationName, interchangeColorsForStationName) -> interchangeColorsForStationName.forEach((color, interchangeRouteNamesForColor) -> interchangeRouteNamesForColor.forEach(interchangeRouteNames::add)));
 		return IGui.mergeStationsWithCommas(interchangeRouteNames);
+	}
+
+	private static long getMillisElapsed() {
+		final long millisElapsed = InitClient.getGameMillis() - lastRenderedMillis;
+		final long gameMillisElapsed = (long) (MinecraftClient.getInstance().getLastFrameDuration() * 50);
+		return Math.abs(gameMillisElapsed - millisElapsed) < 50 ? gameMillisElapsed : millisElapsed;
 	}
 
 	private static double maxDistanceXZ(Vector3d pos1, BlockPos pos2) {

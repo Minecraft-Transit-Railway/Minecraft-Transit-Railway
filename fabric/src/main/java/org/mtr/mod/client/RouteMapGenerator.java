@@ -16,6 +16,7 @@ import org.mtr.mod.Init;
 import org.mtr.mod.data.IGui;
 
 import java.util.Locale;
+import java.util.Random;
 import java.util.function.BiConsumer;
 
 public class RouteMapGenerator implements IGui {
@@ -32,7 +33,8 @@ public class RouteMapGenerator implements IGui {
 	private static final String EXIT_RESOURCE = "textures/block/sign/exit_letter_blank.png";
 	private static final String ARROW_RESOURCE = "textures/block/sign/arrow.png";
 	private static final String CIRCLE_RESOURCE = "textures/block/sign/circle.png";
-	private static final String TEMP_CIRCULAR_MARKER = "temp_circular_marker";
+	private static final String TEMP_CIRCULAR_MARKER_CLOCKWISE = String.format("temp_circular_marker_%s_clockwise", Integer.toHexString(new Random().nextInt()));
+	private static final String TEMP_CIRCULAR_MARKER_ANTICLOCKWISE = String.format("temp_circular_marker_%s_anticlockwise", Integer.toHexString(new Random().nextInt()));
 	private static final int PIXEL_RESOLUTION = 24;
 
 	public static void setConstants() {
@@ -277,7 +279,20 @@ public class RouteMapGenerator implements IGui {
 
 		try {
 			final ObjectArrayList<String> destinations = new ObjectArrayList<>();
-			final IntArrayList colors = getRouteStream(platformId, (simplifiedRoute, currentStationIndex) -> destinations.add(String.format("%s%s", simplifiedRoute.getCircularState() == Route.CircularState.NONE ? "" : TEMP_CIRCULAR_MARKER, simplifiedRoute.getPlatforms().get(currentStationIndex).getDestination())));
+			final IntArrayList colors = getRouteStream(platformId, (simplifiedRoute, currentStationIndex) -> {
+				final String tempMarker;
+				switch (simplifiedRoute.getCircularState()) {
+					case CLOCKWISE:
+						tempMarker = TEMP_CIRCULAR_MARKER_CLOCKWISE;
+						break;
+					case ANTICLOCKWISE:
+						tempMarker = TEMP_CIRCULAR_MARKER_ANTICLOCKWISE;
+						break;
+					default:
+						tempMarker = "";
+				}
+				destinations.add(tempMarker + simplifiedRoute.getPlatforms().get(currentStationIndex).getDestination());
+			});
 			final boolean isTerminating = destinations.isEmpty();
 
 			final boolean leftToRight = horizontalAlignment == HorizontalAlignment.CENTER ? hasLeft || !hasRight : horizontalAlignment != HorizontalAlignment.RIGHT;
@@ -299,10 +314,17 @@ public class RouteMapGenerator implements IGui {
 				circleX = (int) horizontalAlignment.getOffset(0, tileSize - width);
 			} else {
 				String destinationString = IGui.mergeStations(destinations);
-				final boolean noToString = destinationString.startsWith(TEMP_CIRCULAR_MARKER);
-				destinationString = destinationString.replace(TEMP_CIRCULAR_MARKER, "");
-				if (!destinationString.isEmpty() && showToString && !noToString) {
-					destinationString = IGui.insertTranslation("gui.mtr.to_cjk", "gui.mtr.to", 1, destinationString);
+				final boolean isClockwise = destinationString.startsWith(TEMP_CIRCULAR_MARKER_CLOCKWISE);
+				final boolean isAnticlockwise = destinationString.startsWith(TEMP_CIRCULAR_MARKER_ANTICLOCKWISE);
+				destinationString = destinationString.replace(TEMP_CIRCULAR_MARKER_CLOCKWISE, "").replace(TEMP_CIRCULAR_MARKER_ANTICLOCKWISE, "");
+				if (!destinationString.isEmpty()) {
+					if (isClockwise) {
+						destinationString = IGui.insertTranslation("gui.mtr.clockwise_via_cjk", "gui.mtr.clockwise_via", 1, destinationString);
+					} else if (isAnticlockwise) {
+						destinationString = IGui.insertTranslation("gui.mtr.anticlockwise_via_cjk", "gui.mtr.anticlockwise_via", 1, destinationString);
+					} else if (showToString) {
+						destinationString = IGui.insertTranslation("gui.mtr.to_cjk", "gui.mtr.to", 1, destinationString);
+					}
 				}
 
 				final int tilePadding = tileSize / 4;
@@ -328,7 +350,7 @@ public class RouteMapGenerator implements IGui {
 				drawResource(nativeImage, CIRCLE_RESOURCE, circleX, padding, tileSize, tileSize, false, (float) i / colors.size(), (i + 1F) / colors.size(), colors.getInt(i), false);
 			}
 
-			final Platform platform = ClientData.getInstance().platformIdMap.get(platformId);
+			final Platform platform = MinecraftClientData.getInstance().platformIdMap.get(platformId);
 			if (platform != null) {
 				final int[] dimensionsPlatformNumber = new int[2];
 				final byte[] pixelsPlatformNumber = clientCache.getTextPixels(platform.getName(), dimensionsPlatformNumber, tileSize, (int) (tileSize * DynamicTextureCache.LINE_HEIGHT_MULTIPLIER * 3 / 4), tileSize * 3 / 4, tileSize * 3 / 4, 0, HorizontalAlignment.CENTER);
@@ -592,7 +614,7 @@ public class RouteMapGenerator implements IGui {
 	private static IntArrayList getRouteStream(long platformId, BiConsumer<SimplifiedRoute, Integer> nonTerminatingCallback) {
 		final IntArrayList colors = new IntArrayList();
 		final IntArrayList terminatingColors = new IntArrayList();
-		ClientData.getInstance().simplifiedRoutes.stream().filter(simplifiedRoute -> simplifiedRoute.getPlatformIndex(platformId) >= 0).sorted().forEach(simplifiedRoute -> {
+		MinecraftClientData.getInstance().simplifiedRoutes.stream().filter(simplifiedRoute -> simplifiedRoute.getPlatformIndex(platformId) >= 0).sorted().forEach(simplifiedRoute -> {
 			final int currentStationIndex = simplifiedRoute.getPlatformIndex(platformId);
 			if (currentStationIndex < simplifiedRoute.getPlatforms().size() - 1) {
 				nonTerminatingCallback.accept(simplifiedRoute, currentStationIndex);
@@ -612,13 +634,13 @@ public class RouteMapGenerator implements IGui {
 	}
 
 	private static long getStationId(long platformId) {
-		final Platform platform = ClientData.getInstance().platformIdMap.get(platformId);
+		final Platform platform = MinecraftClientData.getInstance().platformIdMap.get(platformId);
 		final Station station = platform == null ? null : platform.area;
 		return station == null ? -1 : station.getId();
 	}
 
 	private static String getStationName(long platformId) {
-		final Platform platform = ClientData.getInstance().platformIdMap.get(platformId);
+		final Platform platform = MinecraftClientData.getInstance().platformIdMap.get(platformId);
 		final Station station = platform == null ? null : platform.area;
 		return station == null ? "" : station.getName();
 	}
