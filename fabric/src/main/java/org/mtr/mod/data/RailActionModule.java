@@ -2,13 +2,11 @@ package org.mtr.mod.data;
 
 import org.mtr.core.data.Rail;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.BlockState;
 import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
 import org.mtr.mod.Init;
-import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.packet.PacketBroadcastRailActions;
 
 public class RailActionModule {
@@ -27,37 +25,18 @@ public class RailActionModule {
 		}
 	}
 
-	public boolean markRailForBridge(ServerPlayerEntity serverPlayerEntity, BlockPos pos1, BlockPos pos2, int radius, BlockState state) {
-		final Rail rail = MinecraftClientData.getRail(pos1, pos2);
-		if (rail == null) {
-			return false;
-		} else {
-			railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.BRIDGE, rail, radius, 0, state));
-			broadcastUpdate();
-			return true;
-		}
+	public void markRailForBridge(Rail rail, ServerPlayerEntity serverPlayerEntity, int radius, BlockState blockState) {
+		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.BRIDGE, rail, radius, 0, blockState));
+		broadcastUpdate();
 	}
 
-	public boolean markRailForTunnel(ServerPlayerEntity serverPlayerEntity, BlockPos pos1, BlockPos pos2, int radius, int height) {
-		final Rail rail = MinecraftClientData.getRail(pos1, pos2);
-		if (rail == null) {
-			return false;
-		} else {
-			railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.TUNNEL, rail, radius, height, null));
-			broadcastUpdate();
-			return true;
-		}
+	public void markRailForTunnel(Rail rail, ServerPlayerEntity serverPlayerEntity, int radius, int height) {
+		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.TUNNEL, rail, radius, height, null));
 	}
 
-	public boolean markRailForTunnelWall(ServerPlayerEntity serverPlayerEntity, BlockPos pos1, BlockPos pos2, int radius, int height, BlockState state) {
-		final Rail rail = MinecraftClientData.getRail(pos1, pos2);
-		if (rail == null) {
-			return false;
-		} else {
-			railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.TUNNEL_WALL, rail, radius + 1, height + 1, state));
-			broadcastUpdate();
-			return true;
-		}
+	public void markRailForTunnelWall(Rail rail, ServerPlayerEntity serverPlayerEntity, int radius, int height, BlockState blockState) {
+		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.TUNNEL_WALL, rail, radius + 1, height + 1, blockState));
+		broadcastUpdate();
 	}
 
 	public void removeRailAction(long id) {

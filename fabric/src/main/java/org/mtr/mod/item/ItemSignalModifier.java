@@ -19,10 +19,10 @@ public class ItemSignalModifier extends ItemNodeModifierBase {
 	}
 
 	@Override
-	protected void onConnect(World world, ItemStack stack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, Angle facingStart, Angle facingEnd, @Nullable ServerPlayerEntity player) {
+	protected void onConnect(World world, ItemStack stack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, Angle facingStart, Angle facingEnd, @Nullable ServerPlayerEntity serverPlayerEntity) {
 		final SignalModification signalModification = new SignalModification(Init.blockPosToPosition(posStart), Init.blockPosToPosition(posEnd), false);
 		signalModification.putColorToAdd(color.getColorMapped());
-		PacketUpdateData.sendDirectlyToServerSignalModification(ServerWorld.cast(world), signalModification);
+		getRail(world, posStart, posEnd, serverPlayerEntity, rail -> PacketUpdateData.sendDirectlyToServerSignalModification(ServerWorld.cast(world), signalModification));
 	}
 
 	@Override

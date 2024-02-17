@@ -409,6 +409,10 @@ public final class InitClient {
 		return MinecraftClient.getInstance().getOptionsMapped().getKeySneakMapped().getBoundKeyLocalizedText().getString();
 	}
 
+	public static String getRightClickText() {
+		return MinecraftClient.getInstance().getOptionsMapped().getKeyUseMapped().getBoundKeyLocalizedText().getString();
+	}
+
 	public static long serializeExit(String exit) {
 		final char[] characters = exit.toCharArray();
 		long code = 0;

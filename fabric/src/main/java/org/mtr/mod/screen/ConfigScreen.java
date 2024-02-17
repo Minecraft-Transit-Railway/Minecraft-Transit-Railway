@@ -5,9 +5,9 @@ import org.mtr.mapping.mapper.*;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.Patreon;
-import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.Config;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 
 public class ConfigScreen extends ScreenExtension implements IGui {
@@ -223,9 +223,6 @@ public class ConfigScreen extends ScreenExtension implements IGui {
 		Config.setTrackTextureOffset(sliderTrackTextureOffset.getIntValue());
 		Config.setDynamicTextureResolution(sliderDynamicTextureResolution.getIntValue());
 		Config.setTrainRenderDistanceRatio(sliderTrainRenderDistanceRatio.getIntValue());
-		if (MinecraftClient.getInstance().getWorldMapped() != null) {
-//			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketRequestData(true));
-		}
 	}
 
 	private static void setButtonText(ButtonWidget button, boolean state) {
