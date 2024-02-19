@@ -13,8 +13,8 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.GuiDrawing;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
-import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 
 import java.util.function.BiConsumer;
@@ -78,7 +78,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		guiDrawing.beginDrawingRectangle();
 		// Background
 		guiDrawing.drawRectangle(getX2(), getY2(), getX2() + width, getY2() + height, ARGB_BLACK);
-		
+
 		final IntIntImmutablePair topLeft = coordsToWorldPos(0, 0);
 		final IntIntImmutablePair bottomRight = coordsToWorldPos(width, height);
 		final int increment = scale >= 1 ? 1 : (int) Math.ceil(1 / scale);
@@ -87,7 +87,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 				if (world != null) {
 					final int color = divideColorRGB(world.getBlockState(Init.newBlockPos(i, world.getTopY(HeightMapType.getMotionBlockingMapped(), i, j) - 1, j)).getBlock().getDefaultMapColor().getColorMapped(), 2);
 					// Skip rendering block with same color as background, can save some frames
-					if(color != 0) {
+					if (color != 0) {
 						drawRectangleFromWorldCoords(guiDrawing, i, j, i + increment, j + increment, ARGB_BLACK | color);
 					}
 				}
