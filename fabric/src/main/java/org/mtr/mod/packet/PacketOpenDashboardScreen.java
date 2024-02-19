@@ -38,7 +38,7 @@ public final class PacketOpenDashboardScreen extends PacketRequestResponseBase {
 	}
 
 	@Override
-	protected void runClient(Response response) {
+	protected void runClientInbound(Response response) {
 		ClientPacketHelper.openDashboardScreen(transportMode, useTimeAndWindSync);
 		response.getData(jsonReader -> new ListDataResponse(jsonReader, MinecraftClientData.getDashboardInstance())).write();
 	}
@@ -60,6 +60,6 @@ public final class PacketOpenDashboardScreen extends PacketRequestResponseBase {
 	}
 
 	public static void sendDirectlyToServer(ServerWorld serverWorld, ServerPlayerEntity serverPlayerEntity, TransportMode transportMode, boolean useTimeAndWindSync) {
-		new PacketOpenDashboardScreen(new JsonObject().toString(), transportMode, useTimeAndWindSync).runServer(serverWorld, serverPlayerEntity);
+		new PacketOpenDashboardScreen(new JsonObject().toString(), transportMode, useTimeAndWindSync).runServerOutbound(serverWorld, serverPlayerEntity);
 	}
 }

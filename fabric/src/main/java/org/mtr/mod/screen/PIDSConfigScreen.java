@@ -209,7 +209,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 		try {
 			displayPage = Math.max(0, Integer.parseInt(displayPageInput.getText2()) - 1);
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error(e);
 		}
 		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdatePIDSConfig(blockPos, messages, filterPlatformIds, displayPage));
 		super.onClose2();

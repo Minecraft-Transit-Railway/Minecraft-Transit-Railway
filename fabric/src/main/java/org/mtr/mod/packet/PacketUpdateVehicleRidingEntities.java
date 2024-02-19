@@ -5,9 +5,12 @@ import org.mtr.core.operation.UpdateVehicleRidingEntities;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.ClientPlayerEntity;
 import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mapping.holder.ServerPlayerEntity;
+import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public final class PacketUpdateVehicleRidingEntities extends PacketRequestResponseBase implements Utilities {
 
@@ -17,7 +20,7 @@ public final class PacketUpdateVehicleRidingEntities extends PacketRequestRespon
 		if (clientPlayerEntity != null) {
 			updateVehicleRidingEntities.add(new VehicleRidingEntity(clientPlayerEntity.getUuid(), ridingCar, x, y, z, isOnGangway));
 		}
-		return new PacketUpdateVehicleRidingEntities(updateVehicleRidingEntities);
+		return new PacketUpdateVehicleRidingEntities(Utilities.getJsonObjectFromData(updateVehicleRidingEntities).toString());
 	}
 
 	public PacketUpdateVehicleRidingEntities(PacketBufferReceiver packetBufferReceiver) {
@@ -28,8 +31,12 @@ public final class PacketUpdateVehicleRidingEntities extends PacketRequestRespon
 		super(content);
 	}
 
-	private PacketUpdateVehicleRidingEntities(UpdateVehicleRidingEntities updateVehicleRidingEntities) {
-		super(Utilities.getJsonObjectFromData(updateVehicleRidingEntities).toString());
+	@Override
+	protected void runServerOutbound(ServerWorld serverWorld, @Nullable ServerPlayerEntity serverPlayerEntity) {
+		super.runServerOutbound(serverWorld, serverPlayerEntity);
+		if (serverPlayerEntity != null) {
+			serverPlayerEntity.setFallDistanceMapped(0);
+		}
 	}
 
 	@Override

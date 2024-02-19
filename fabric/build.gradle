@@ -10,6 +10,7 @@ final BuildTools buildTools = new BuildTools(minecraftVersion, "fabric", project
 
 loom {
 	accessWidenerPath = file("src/main/resources/mtr.accesswidener")
+	runConfigs.configureEach { ideConfigGenerated = true }
 }
 
 dependencies {

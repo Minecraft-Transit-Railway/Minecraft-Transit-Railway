@@ -176,7 +176,7 @@ public final class PIDSFormatter implements Utilities, IGui {
 					consumer.accept(arrivalResponse);
 				}
 			} catch (Exception e) {
-				Init.logException(e);
+				Init.LOGGER.error(e);
 			}
 		}
 	}

@@ -153,7 +153,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 
 			super.render(graphicsHolder, mouseX, mouseY, delta);
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error(e);
 		}
 	}
 
@@ -214,7 +214,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 			try {
 				final String exitParent = parentLetter + Integer.parseInt(parentNumber);
 			} catch (Exception e) {
-				Init.logException(e);
+				Init.LOGGER.error(e);
 			}
 		}
 		changeEditingExit(null, -1);

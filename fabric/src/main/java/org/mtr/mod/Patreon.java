@@ -75,10 +75,10 @@ public class Patreon implements Keys, IGui, Comparable<Patreon> {
 			try (final InputStream inputStream = connection.getInputStream()) {
 				callback.accept(inputStream);
 			} catch (Exception e) {
-				Init.logException(e);
+				Init.LOGGER.error(e);
 			}
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error(e);
 		}
 	}
 
@@ -87,7 +87,7 @@ public class Patreon implements Keys, IGui, Comparable<Patreon> {
 			try (final InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
 				callback.accept(JsonParser.parseReader(inputStreamReader));
 			} catch (Exception e) {
-				Init.logException(e);
+				Init.LOGGER.error(e);
 			}
 		}, requestProperties);
 	}

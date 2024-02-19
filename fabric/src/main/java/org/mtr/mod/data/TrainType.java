@@ -159,7 +159,7 @@ public enum TrainType {
 					length = Integer.parseInt(remainingSplit[0]);
 					width = Integer.parseInt(remainingSplit[1]);
 				} catch (Exception e) {
-					Init.logException(e);
+					Init.LOGGER.error(e);
 				}
 
 				trainTypeCallback.trainTypeCallback(transportMode, Math.max(length, 1), Math.max(width, 1));

@@ -196,7 +196,7 @@ public class Config {
 			}
 		} catch (Exception e) {
 			writeToFile();
-			Init.logException(e);
+			Init.LOGGER.error(e);
 		}
 	}
 
@@ -217,7 +217,7 @@ public class Config {
 		try {
 			Files.write(CONFIG_FILE_PATH, Collections.singleton(Utilities.prettyPrint(jsonConfig)));
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error(e);
 		}
 	}
 }
