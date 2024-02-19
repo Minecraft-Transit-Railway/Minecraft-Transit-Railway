@@ -12,7 +12,11 @@ import java.util.List;
 public class BlockStationColorSlab extends SlabBlockExtension {
 
 	public BlockStationColorSlab() {
-		super(BlockHelper.createBlockSettings(false));
+		this(BlockHelper.createBlockSettings(false));
+	}
+
+	protected BlockStationColorSlab(BlockSettings blockSettings) {
+		super(blockSettings);
 	}
 
 	@Nonnull
