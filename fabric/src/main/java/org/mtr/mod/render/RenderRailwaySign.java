@@ -16,7 +16,7 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockRailwaySign;
 import org.mtr.mod.block.BlockStationNameBase;
 import org.mtr.mod.block.IBlock;
-import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.IDrawing;
@@ -184,7 +184,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 
 			final ObjectArrayList<IntObjectImmutablePair<String>> selectedRoutesSorted = new ObjectArrayList<>();
 			final IntAVLTreeSet addedColors = new IntAVLTreeSet();
-			ClientData.getInstance().simplifiedRoutes.forEach(simplifiedRoute -> {
+			MinecraftClientData.getInstance().simplifiedRoutes.forEach(simplifiedRoute -> {
 				final int color = simplifiedRoute.getColor();
 				if (!addedColors.contains(color) && selectedIds.contains(color) && simplifiedRoute.getPlatforms().stream().anyMatch(simplifiedRoutePlatform -> platformIds.contains(simplifiedRoutePlatform.getPlatformId()))) {
 					selectedRoutesSorted.add(new IntObjectImmutablePair<>(color, simplifiedRoute.getName().split("\\|\\|")[0]));
@@ -261,9 +261,9 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 					final String signText;
 					if (isStation) {
 						signText = IGui.mergeStations(selectedIds.longStream()
-								.filter(ClientData.getInstance().stationIdMap::containsKey)
+								.filter(MinecraftClientData.getInstance().stationIdMap::containsKey)
 								.sorted()
-								.mapToObj(stationId -> IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, ClientData.getInstance().stationIdMap.get(stationId).getName()))
+								.mapToObj(stationId -> IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, MinecraftClientData.getInstance().stationIdMap.get(stationId).getName()))
 								.collect(Collectors.toList())
 						);
 					} else {

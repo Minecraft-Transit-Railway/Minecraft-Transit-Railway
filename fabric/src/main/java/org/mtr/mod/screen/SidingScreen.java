@@ -3,17 +3,17 @@ package org.mtr.mod.screen;
 import org.mtr.core.data.Depot;
 import org.mtr.core.data.Siding;
 import org.mtr.core.data.TransportMode;
-import org.mtr.core.servlet.IntegrationServlet;
+import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.Icons;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.RailType;
-import org.mtr.mod.packet.PacketData;
+import org.mtr.mod.packet.PacketUpdateData;
 
 public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements Icons {
 
@@ -156,7 +156,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 		}
 		savedRailBase.setAcceleration(accelerationConstant);
 
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromSidings(IntegrationServlet.Operation.UPDATE, ObjectSet.of(savedRailBase)));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addSiding(savedRailBase)));
 
 		super.onClose2();
 	}

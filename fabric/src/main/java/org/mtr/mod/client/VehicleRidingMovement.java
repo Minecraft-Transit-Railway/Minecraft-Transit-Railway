@@ -74,7 +74,7 @@ public class VehicleRidingMovement {
 
 			if (KeyBindings.LIFT_MENU.isPressed()) {
 				final Screen currentScreen = minecraftClient.getCurrentScreenMapped();
-				if (ClientData.getLift(ridingVehicleId) != null && (currentScreen == null || !(currentScreen.data instanceof LiftSelectionScreen))) {
+				if (MinecraftClientData.getLift(ridingVehicleId) != null && (currentScreen == null || !(currentScreen.data instanceof LiftSelectionScreen))) {
 					minecraftClient.openScreen(new Screen(new LiftSelectionScreen(ridingVehicleId)));
 				}
 			}
@@ -323,16 +323,16 @@ public class VehicleRidingMovement {
 	 */
 	private static void movePlayer(double x, double y, double z) {
 		if (InitClient.getGameTick() > 40) {
-			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
-			if (clientPlayerEntity == null) {
-				return;
-			}
-
 			final Runnable runnable = () -> {
-				clientPlayerEntity.setFallDistanceMapped(0);
-				clientPlayerEntity.setVelocity(0, 0, 0);
-				clientPlayerEntity.setMovementSpeed(0);
-				clientPlayerEntity.updatePosition(x, y, z);
+				final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+				final ClientWorld clientWorld = minecraftClient.getWorldMapped();
+				final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+				if (clientPlayerEntity != null && clientWorld != null) {
+					clientPlayerEntity.setFallDistanceMapped(0);
+					clientPlayerEntity.setVelocity(0, 0, 0);
+					clientPlayerEntity.setMovementSpeed(0);
+					clientPlayerEntity.updatePosition(x, y, z);
+				}
 			};
 
 			runnable.run();

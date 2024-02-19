@@ -3,8 +3,10 @@ package org.mtr.mod;
 import org.mtr.core.data.Platform;
 import org.mtr.core.data.Position;
 import org.mtr.core.data.Station;
+import org.mtr.core.operation.DataRequest;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.registry.EventRegistryClient;
 import org.mtr.mapping.registry.RegistryClient;
@@ -26,7 +28,8 @@ public final class InitClient {
 	private static long lastMillis = 0;
 	private static long gameMillis = 0;
 	private static long lastPlayedTrainSoundsMillis = 0;
-	private static BlockPos lastPosition;
+	private static long lastUpdatePacketMillis = 0;
+	private static long lastDataCleanMillis = 0;
 	private static Runnable movePlayer;
 
 	public static final RegistryClient REGISTRY_CLIENT = new RegistryClient(Init.REGISTRY);
@@ -314,24 +317,30 @@ public final class InitClient {
 		REGISTRY_CLIENT.setupPackets(new Identifier(Init.MOD_ID, "packet"));
 
 		EventRegistryClient.registerClientJoin(() -> {
-			ClientData.reset();
+			MinecraftClientData.reset();
 			DynamicTextureCache.instance = new DynamicTextureCache();
 			lastMillis = System.currentTimeMillis();
 			gameMillis = 0;
-			lastPosition = null;
-			CustomResourceLoader.reload(); // TODO texture reload event not always working
 			DynamicTextureCache.instance.reload();
 		});
 
 		EventRegistryClient.registerStartClientTick(() -> {
 			incrementGameMillis();
 			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
-			if (clientPlayerEntity != null) {
-				final BlockPos blockPos = clientPlayerEntity.getBlockPos();
-				if (lastPosition == null || lastPosition.getManhattanDistance(new Vector3i(blockPos.data)) > 32) {
-					REGISTRY_CLIENT.sendPacketToServer(new PacketRequestData(false));
-					lastPosition = blockPos;
-				}
+
+			// If player is moving, send a request every 0.5 seconds to the server to fetch any new nearby data
+			if (clientPlayerEntity != null && lastUpdatePacketMillis >= 0 && getGameMillis() - lastUpdatePacketMillis > 500) {
+				final DataRequest dataRequest = new DataRequest(clientPlayerEntity.getUuidAsString(), Init.blockPosToPosition(clientPlayerEntity.getBlockPos()), MinecraftClientHelper.getRenderDistance() * 16L);
+				dataRequest.writeExistingIds(MinecraftClientData.getInstance());
+				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketRequestData(dataRequest));
+				lastUpdatePacketMillis = -1;
+				lastDataCleanMillis = getGameMillis();
+			}
+
+			// If player hasn't moved in 2 seconds, clean any out of range data
+			if (lastDataCleanMillis >= 0 && getGameMillis() - lastDataCleanMillis > 2000) {
+				MinecraftClientData.getInstance().clean();
+				lastDataCleanMillis = -1;
 			}
 		});
 
@@ -341,6 +350,14 @@ public final class InitClient {
 				movePlayer = null;
 			}
 		});
+
+		EventRegistryClient.registerChunkLoad((clientWorld, worldChunk) -> {
+			if (lastUpdatePacketMillis < 0) {
+				lastUpdatePacketMillis = getGameMillis();
+			}
+		});
+
+		EventRegistryClient.registerResourceReloadEvent(CustomResourceLoader::reload);
 
 		Patreon.getPatreonList(Config.PATREON_LIST);
 		Config.refreshProperties();
@@ -380,16 +397,20 @@ public final class InitClient {
 	}
 
 	public static Station findStation(BlockPos blockPos) {
-		return ClientData.getInstance().stations.stream().filter(station -> station.inArea(Init.blockPosToPosition(blockPos))).findFirst().orElse(null);
+		return MinecraftClientData.getInstance().stations.stream().filter(station -> station.inArea(Init.blockPosToPosition(blockPos))).findFirst().orElse(null);
 	}
 
 	public static void findClosePlatform(BlockPos blockPos, int radius, Consumer<Platform> consumer) {
 		final Position position = Init.blockPosToPosition(blockPos);
-		ClientData.getInstance().platforms.stream().filter(platform -> platform.closeTo(Init.blockPosToPosition(blockPos), radius)).min(Comparator.comparingDouble(platform -> platform.getApproximateClosestDistance(position, ClientData.getInstance()))).ifPresent(consumer);
+		MinecraftClientData.getInstance().platforms.stream().filter(platform -> platform.closeTo(Init.blockPosToPosition(blockPos), radius)).min(Comparator.comparingDouble(platform -> platform.getApproximateClosestDistance(position, MinecraftClientData.getInstance()))).ifPresent(consumer);
 	}
 
 	public static String getShiftText() {
 		return MinecraftClient.getInstance().getOptionsMapped().getKeySneakMapped().getBoundKeyLocalizedText().getString();
+	}
+
+	public static String getRightClickText() {
+		return MinecraftClient.getInstance().getOptionsMapped().getKeyUseMapped().getBoundKeyLocalizedText().getString();
 	}
 
 	public static long serializeExit(String exit) {

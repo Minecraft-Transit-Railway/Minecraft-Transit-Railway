@@ -3,9 +3,8 @@ package org.mtr.mod.screen;
 import org.mtr.core.data.Route;
 import org.mtr.core.data.RouteType;
 import org.mtr.core.data.Station;
-import org.mtr.core.servlet.IntegrationServlet;
+import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.holder.Text;
@@ -14,8 +13,9 @@ import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.PacketData;
+import org.mtr.mod.packet.PacketUpdateData;
 
 public class EditRouteScreen extends EditNameColorScreenBase<Route> implements IGui {
 
@@ -117,7 +117,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 			data.setCircularState(Route.CircularState.NONE);
 		}
 
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(data)));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addRoute(data)));
 	}
 
 	private void setRouteType(Route route, RouteType newRouteType) {

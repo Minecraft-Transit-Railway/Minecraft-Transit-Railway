@@ -2,7 +2,7 @@ package org.mtr.mod.data;
 
 import org.mtr.core.data.Data;
 import org.mtr.core.data.Vehicle;
-import org.mtr.core.integration.VehicleUpdate;
+import org.mtr.core.operation.VehicleUpdate;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
 import org.mtr.core.tool.Vector;
@@ -12,8 +12,8 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.Items;
-import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.VehicleRidingMovement;
 import org.mtr.mod.resource.VehicleResource;
 
@@ -28,10 +28,10 @@ public class VehicleExtension extends Vehicle implements Utilities {
 
 	public VehicleExtension(VehicleUpdate vehicleUpdate, Data data) {
 		super(vehicleUpdate.getVehicleExtraData(), null, new JsonReader(Utilities.getJsonObjectFromData(vehicleUpdate.getVehicle())), data);
-		final PersistentVehicleData tempPersistentVehicleData = ClientData.getInstance().vehicleIdToPersistentVehicleData.get(getId());
+		final PersistentVehicleData tempPersistentVehicleData = MinecraftClientData.getInstance().vehicleIdToPersistentVehicleData.get(getId());
 		if (tempPersistentVehicleData == null) {
 			persistentVehicleData = new PersistentVehicleData(vehicleExtraData.immutableVehicleCars);
-			ClientData.getInstance().vehicleIdToPersistentVehicleData.put(getId(), persistentVehicleData);
+			MinecraftClientData.getInstance().vehicleIdToPersistentVehicleData.put(getId(), persistentVehicleData);
 		} else {
 			persistentVehicleData = tempPersistentVehicleData;
 		}

@@ -26,18 +26,19 @@ public class BlockTicketProcessor extends BlockDirectionalDoubleBlockBase {
 
 	@Nonnull
 	@Override
-	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	public ActionResult onUse2(BlockState state, World world, BlockPos blockPos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		if (!world.isClient() && IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
+			final BlockPos blockPosCopy = new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 			TicketSystem.passThrough(
-					world, pos, player,
+					world, blockPosCopy, player,
 					canEnter, canExit,
 					SoundEvents.TICKET_PROCESSOR_ENTRY.get(), SoundEvents.TICKET_PROCESSOR_ENTRY_CONCESSIONARY.get(),
 					SoundEvents.TICKET_PROCESSOR_EXIT.get(), SoundEvents.TICKET_PROCESSOR_EXIT_CONCESSIONARY.get(),
 					SoundEvents.TICKET_PROCESSOR_FAIL.get(),
 					true,
-					open -> world.setBlockState(pos, state.with(new Property<>(LIGHTS.data), open.isOpen() ? EnumTicketProcessorLights.GREEN : EnumTicketProcessorLights.RED))
+					open -> world.setBlockState(blockPosCopy, state.with(new Property<>(LIGHTS.data), open == TicketSystem.EnumTicketBarrierOpen.CLOSED ? EnumTicketProcessorLights.RED : EnumTicketProcessorLights.GREEN))
 			);
-			scheduleBlockTick(world, pos, new Block(this), 20);
+			scheduleBlockTick(world, blockPosCopy, new Block(this), 20);
 		}
 		return ActionResult.SUCCESS;
 	}

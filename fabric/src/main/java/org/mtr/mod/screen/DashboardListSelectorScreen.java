@@ -12,7 +12,7 @@ import org.mtr.mapping.mapper.ButtonWidgetExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 
@@ -49,8 +49,8 @@ public class DashboardListSelectorScreen extends ScreenExtension implements IGui
 		this.isSingleSelect = isSingleSelect;
 		this.canRepeat = canRepeat;
 
-		availableList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.ROUTES_PLATFORMS_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SEARCH = text);
-		selectedList = new DashboardList(null, null, null, this::updateList, null, this::onDelete, () -> selectedIds instanceof LongList ? (LongList) selectedIds : new LongArrayList(), () -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH = text);
+		availableList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> MinecraftClientData.ROUTES_PLATFORMS_SEARCH, text -> MinecraftClientData.ROUTES_PLATFORMS_SEARCH = text);
+		selectedList = new DashboardList(null, null, null, this::updateList, null, this::onDelete, () -> selectedIds instanceof LongList ? (LongList) selectedIds : new LongArrayList(), () -> MinecraftClientData.ROUTES_PLATFORMS_SELECTED_SEARCH, text -> MinecraftClientData.ROUTES_PLATFORMS_SELECTED_SEARCH = text);
 		buttonDone = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> onClose2());
 	}
 

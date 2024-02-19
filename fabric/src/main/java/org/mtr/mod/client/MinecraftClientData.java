@@ -8,9 +8,12 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.EntityHelper;
+import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.KeyBindings;
+import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.data.PersistentVehicleData;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.packet.PacketDriveTrain;
@@ -22,17 +25,16 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public final class ClientData extends Data {
+public final class MinecraftClientData extends ClientData {
 
-	public final ObjectAVLTreeSet<SimplifiedRoute> simplifiedRoutes = new ObjectAVLTreeSet<>();
 	public final ObjectAVLTreeSet<VehicleExtension> vehicles = new ObjectAVLTreeSet<>();
 	public final Long2ObjectAVLTreeMap<PersistentVehicleData> vehicleIdToPersistentVehicleData = new Long2ObjectAVLTreeMap<>();
 	public final Object2ObjectArrayMap<String, RailWrapper> railWrapperList = new Object2ObjectArrayMap<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
 	private final Long2ObjectAVLTreeMap<ObjectLongImmutablePair<ArrivalsResponse>> arrivalRequests = new Long2ObjectAVLTreeMap<>();
 
-	private static ClientData instance = new ClientData();
-	private static ClientData dashboardInstance = new ClientData();
+	private static MinecraftClientData instance = new MinecraftClientData();
+	private static MinecraftClientData dashboardInstance = new MinecraftClientData();
 
 	public static String DASHBOARD_SEARCH = "";
 	public static String ROUTES_PLATFORMS_SEARCH = "";
@@ -54,8 +56,11 @@ public final class ClientData extends Data {
 		checkAndRemoveFromMap(railWrapperList, rails, Rail::getHexId);
 		positionsToRail.forEach((startPosition, railMap) -> railMap.forEach((endPosition, rail) -> {
 			final String hexId = rail.getHexId();
-			if (!railWrapperList.containsKey(hexId)) {
+			final RailWrapper railWrapper = railWrapperList.get(hexId);
+			if (railWrapper == null) {
 				railWrapperList.put(hexId, new RailWrapper(rail, hexId, startPosition, endPosition));
+			} else {
+				railWrapper.rail = rail;
 			}
 		}));
 	}
@@ -85,17 +90,74 @@ public final class ClientData extends Data {
 		arrivalRequests.put(requestKey, new ObjectLongImmutablePair<>(arrivalsResponse, System.currentTimeMillis() + CACHED_ARRIVAL_REQUESTS_MILLIS));
 	}
 
-	public static ClientData getInstance() {
+	public void clean() {
+		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+		if (clientPlayerEntity != null) {
+			final Position position = Init.blockPosToPosition(clientPlayerEntity.getBlockPos());
+			final int requestRadius = MinecraftClientHelper.getRenderDistance() * 16;
+			stations.removeIf(station -> !station.inArea(position, requestRadius));
+			platforms.removeIf(platform -> !platform.closeTo(position, requestRadius));
+			sidings.removeIf(siding -> !siding.closeTo(position, requestRadius));
+			depots.removeIf(depot -> !depot.inArea(position, requestRadius));
+			rails.removeIf(rail -> !rail.closeTo(position, requestRadius));
+			sync();
+		}
+	}
+
+	@Nullable
+	public Rail getFacingRail(boolean includeCableType) {
+		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
+		if (clientWorld == null) {
+			return null;
+		}
+
+		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+		if (clientPlayerEntity == null) {
+			return null;
+		}
+
+		final HitResult hitResult = minecraftClient.getCrosshairTargetMapped();
+		if (hitResult == null) {
+			return null;
+		}
+
+		final Vector3d hitPos = hitResult.getPos();
+		final BlockPos blockPos = Init.newBlockPos(hitPos.getXMapped(), hitPos.getYMapped(), hitPos.getZMapped());
+
+		if (clientWorld.getBlockState(blockPos).getBlock().data instanceof BlockNode) {
+			final float playerAngle = EntityHelper.getYaw(new Entity(clientPlayerEntity.data)) + 90;
+			final Rail[] closestRail = {null};
+			final double[] closestAngle = {720};
+
+			positionsToRail.getOrDefault(Init.blockPosToPosition(blockPos), new Object2ObjectOpenHashMap<>()).forEach((endPosition, rail) -> {
+				if (includeCableType || rail.railMath.getShape() != Rail.Shape.CABLE) {
+					final double angle = Math.abs(Math.toDegrees(Math.atan2(endPosition.getZ() - blockPos.getZ(), endPosition.getX() - blockPos.getX())) - playerAngle) % 360;
+					final double clampedAngle = angle > 180 ? 360 - angle : angle;
+					if (clampedAngle < closestAngle[0]) {
+						closestRail[0] = rail;
+						closestAngle[0] = clampedAngle;
+					}
+				}
+			});
+
+			return closestRail[0];
+		} else {
+			return null;
+		}
+	}
+
+	public static MinecraftClientData getInstance() {
 		return instance;
 	}
 
-	public static ClientData getDashboardInstance() {
+	public static MinecraftClientData getDashboardInstance() {
 		return dashboardInstance;
 	}
 
 	public static void reset() {
-		ClientData.instance = new ClientData();
-		ClientData.dashboardInstance = new ClientData();
+		MinecraftClientData.instance = new MinecraftClientData();
+		MinecraftClientData.dashboardInstance = new MinecraftClientData();
 	}
 
 	public static void tick() {
@@ -138,16 +200,12 @@ public final class ClientData extends Data {
 	@Nullable
 	public static Lift getLift(long liftId) {
 		// Don't use liftIdMap
-		for (final Lift lift : ClientData.getInstance().lifts) {
+		for (final Lift lift : MinecraftClientData.getInstance().lifts) {
 			if (lift.getId() == liftId) {
 				return lift;
 			}
 		}
 		return null;
-	}
-
-	public static Rail getRail(BlockPos blockPos1, BlockPos blockPos2) {
-		return tryGet(ClientData.getInstance().positionsToRail, Init.blockPosToPosition(blockPos1), Init.blockPosToPosition(blockPos2));
 	}
 
 	public static <T extends NameColorDataBase> ObjectAVLTreeSet<DashboardListItem> getFilteredDataSet(TransportMode transportMode, ObjectAVLTreeSet<T> dataSet) {
@@ -192,12 +250,12 @@ public final class ClientData extends Data {
 	public static class RailWrapper {
 
 		public boolean shouldRender;
-		public final Rail rail;
 		public final String hexId;
 		public final Vec3d startVector;
 		public final Vec3d endVector;
+		private Rail rail;
 
-		public RailWrapper(Rail rail, String hexId, Position startPosition, Position endPosition) {
+		private RailWrapper(Rail rail, String hexId, Position startPosition, Position endPosition) {
 			this.rail = rail;
 			this.hexId = hexId;
 			startVector = new Vec3d(
@@ -210,6 +268,10 @@ public final class ClientData extends Data {
 					Math.max(startPosition.getY(), endPosition.getY()),
 					Math.max(startPosition.getZ(), endPosition.getZ())
 			);
+		}
+
+		public Rail getRail() {
+			return rail;
 		}
 	}
 }

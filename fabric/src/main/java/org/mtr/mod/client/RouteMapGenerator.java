@@ -350,7 +350,7 @@ public class RouteMapGenerator implements IGui {
 				drawResource(nativeImage, CIRCLE_RESOURCE, circleX, padding, tileSize, tileSize, false, (float) i / colors.size(), (i + 1F) / colors.size(), colors.getInt(i), false);
 			}
 
-			final Platform platform = ClientData.getInstance().platformIdMap.get(platformId);
+			final Platform platform = MinecraftClientData.getInstance().platformIdMap.get(platformId);
 			if (platform != null) {
 				final int[] dimensionsPlatformNumber = new int[2];
 				final byte[] pixelsPlatformNumber = clientCache.getTextPixels(platform.getName(), dimensionsPlatformNumber, tileSize, (int) (tileSize * DynamicTextureCache.LINE_HEIGHT_MULTIPLIER * 3 / 4), tileSize * 3 / 4, tileSize * 3 / 4, 0, HorizontalAlignment.CENTER);
@@ -614,7 +614,7 @@ public class RouteMapGenerator implements IGui {
 	private static IntArrayList getRouteStream(long platformId, BiConsumer<SimplifiedRoute, Integer> nonTerminatingCallback) {
 		final IntArrayList colors = new IntArrayList();
 		final IntArrayList terminatingColors = new IntArrayList();
-		ClientData.getInstance().simplifiedRoutes.stream().filter(simplifiedRoute -> simplifiedRoute.getPlatformIndex(platformId) >= 0).sorted().forEach(simplifiedRoute -> {
+		MinecraftClientData.getInstance().simplifiedRoutes.stream().filter(simplifiedRoute -> simplifiedRoute.getPlatformIndex(platformId) >= 0).sorted().forEach(simplifiedRoute -> {
 			final int currentStationIndex = simplifiedRoute.getPlatformIndex(platformId);
 			if (currentStationIndex < simplifiedRoute.getPlatforms().size() - 1) {
 				nonTerminatingCallback.accept(simplifiedRoute, currentStationIndex);
@@ -634,13 +634,13 @@ public class RouteMapGenerator implements IGui {
 	}
 
 	private static long getStationId(long platformId) {
-		final Platform platform = ClientData.getInstance().platformIdMap.get(platformId);
+		final Platform platform = MinecraftClientData.getInstance().platformIdMap.get(platformId);
 		final Station station = platform == null ? null : platform.area;
 		return station == null ? -1 : station.getId();
 	}
 
 	private static String getStationName(long platformId) {
-		final Platform platform = ClientData.getInstance().platformIdMap.get(platformId);
+		final Platform platform = MinecraftClientData.getInstance().platformIdMap.get(platformId);
 		final Station station = platform == null ? null : platform.area;
 		return station == null ? "" : station.getName();
 	}

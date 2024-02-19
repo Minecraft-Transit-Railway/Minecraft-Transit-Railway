@@ -1,17 +1,15 @@
 package org.mtr.mod.packet;
 
 import org.mtr.core.data.VehicleRidingEntity;
-import org.mtr.core.integration.Response;
 import org.mtr.core.operation.UpdateVehicleRidingEntities;
-import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.ClientPlayerEntity;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 
-public final class PacketUpdateVehicleRidingEntities extends PacketRequestResponseBase<UpdateVehicleRidingEntities> implements Utilities {
+public final class PacketUpdateVehicleRidingEntities extends PacketRequestResponseBase implements Utilities {
 
 	public static PacketUpdateVehicleRidingEntities create(long sidingId, long vehicleId, int ridingCar, double x, double y, double z, boolean isOnGangway) {
 		final UpdateVehicleRidingEntities updateVehicleRidingEntities = new UpdateVehicleRidingEntities(sidingId, vehicleId);
@@ -26,27 +24,27 @@ public final class PacketUpdateVehicleRidingEntities extends PacketRequestRespon
 		super(packetBufferReceiver);
 	}
 
+	private PacketUpdateVehicleRidingEntities(String content) {
+		super(content);
+	}
+
 	private PacketUpdateVehicleRidingEntities(UpdateVehicleRidingEntities updateVehicleRidingEntities) {
-		super(updateVehicleRidingEntities);
-	}
-
-	@Nullable
-	@Override
-	protected PacketRequestResponseBase<UpdateVehicleRidingEntities> createInstance(Response response) {
-		return null;
+		super(Utilities.getJsonObjectFromData(updateVehicleRidingEntities).toString());
 	}
 
 	@Override
-	protected UpdateVehicleRidingEntities createRequest(JsonReader jsonReader) {
-		return new UpdateVehicleRidingEntities(jsonReader);
+	protected PacketRequestResponseBase getInstance(String content) {
+		return new PacketUpdateVehicleRidingEntities(content);
 	}
 
+	@Nonnull
 	@Override
 	protected String getEndpoint() {
 		return "operation/update-riding-entities";
 	}
 
 	@Override
-	protected void runClient(Response response) {
+	protected PacketRequestResponseBase.ResponseType responseType() {
+		return PacketRequestResponseBase.ResponseType.NONE;
 	}
 }

@@ -1,19 +1,18 @@
 package org.mtr.mod.screen;
 
 import org.mtr.core.data.Station;
-import org.mtr.core.servlet.IntegrationServlet;
+import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
-import org.mtr.mod.client.ClientData;
 import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.packet.PacketData;
+import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.packet.PacketUpdateData;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
@@ -58,8 +57,8 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		buttonAddExitDestination = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_exit_destination"), button -> checkClickDelay(() -> changeEditingExit(editingExit, exits.containsKey(editingExit) ? exits.get(editingExit).size() : -1)));
 		buttonDoneExitDestination = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> checkClickDelay(this::onDoneExitDestination));
 
-		exitParentList = new DashboardList(null, null, this::onEditExitParent, null, null, this::onDeleteExitParent, null, () -> ClientData.EXIT_PARENTS_SEARCH, text -> ClientData.EXIT_PARENTS_SEARCH = text);
-		exitDestinationList = new DashboardList(null, null, this::onEditExitDestination, this::onSortExitDestination, null, this::onDeleteExitDestination, this::getExitDestinationList, () -> ClientData.EXIT_DESTINATIONS_SEARCH, text -> ClientData.EXIT_DESTINATIONS_SEARCH = text);
+		exitParentList = new DashboardList(null, null, this::onEditExitParent, null, null, this::onDeleteExitParent, null, () -> MinecraftClientData.EXIT_PARENTS_SEARCH, text -> MinecraftClientData.EXIT_PARENTS_SEARCH = text);
+		exitDestinationList = new DashboardList(null, null, this::onEditExitDestination, this::onSortExitDestination, null, this::onDeleteExitDestination, this::getExitDestinationList, () -> MinecraftClientData.EXIT_DESTINATIONS_SEARCH, text -> MinecraftClientData.EXIT_DESTINATIONS_SEARCH = text);
 	}
 
 	@Override
@@ -179,7 +178,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		} catch (Exception ignored) {
 			data.setZone1(0);
 		}
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromStations(IntegrationServlet.Operation.UPDATE, ObjectSet.of(data)));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addStation(data)));
 	}
 
 	private void changeEditingExit(@Nullable String editingExit, int editingDestinationIndex) {

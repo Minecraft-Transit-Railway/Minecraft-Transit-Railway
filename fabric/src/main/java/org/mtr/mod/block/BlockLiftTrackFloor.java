@@ -1,6 +1,5 @@
 package org.mtr.mod.block;
 
-import org.mtr.core.data.LiftFloor;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
@@ -8,7 +7,7 @@ import org.mtr.mapping.mapper.BlockWithEntity;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.BlockEntityTypes;
 import org.mtr.mod.Init;
-import org.mtr.mod.packet.PacketData;
+import org.mtr.mod.packet.PacketDeleteData;
 import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
 
 import javax.annotation.Nonnull;
@@ -42,7 +41,7 @@ public class BlockLiftTrackFloor extends BlockLiftTrackBase implements BlockWith
 	@Override
 	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		if (!world.isClient()) {
-			PacketData.deleteLift(ServerWorld.cast(world), new LiftFloor(Init.blockPosToPosition(pos)));
+			PacketDeleteData.sendDirectlyToServerLiftFloorPosition(ServerWorld.cast(world), Init.blockPosToPosition(pos));
 		}
 	}
 

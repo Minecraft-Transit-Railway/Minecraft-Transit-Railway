@@ -1,5 +1,6 @@
 package org.mtr.mod.item;
 
+import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Angle;
 import org.mtr.mapping.holder.*;
@@ -74,9 +75,9 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	}
 
 	@Override
-	protected final void onConnect(World world, ItemStack stack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, Angle facingStart, Angle facingEnd, @Nullable ServerPlayerEntity serverPlayerEntity) {
-		if (serverPlayerEntity != null && !onConnect(serverPlayerEntity, stack, posStart, posEnd, radius, height)) {
-			serverPlayerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr.rail_not_found_action").data), true);
+	protected final void onConnect(World world, ItemStack itemStack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, Angle facingStart, Angle facingEnd, @Nullable ServerPlayerEntity serverPlayerEntity) {
+		if (serverPlayerEntity != null) {
+			getRail(world, posStart, posEnd, serverPlayerEntity, rail -> onConnect(rail, serverPlayerEntity, itemStack, radius, height));
 		}
 	}
 
@@ -93,5 +94,5 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 		}
 	}
 
-	protected abstract boolean onConnect(ServerPlayerEntity serverPlayerEntity, ItemStack itemStack, BlockPos posStart, BlockPos posEnd, int radius, int height);
+	protected abstract void onConnect(Rail rail, ServerPlayerEntity serverPlayerEntity, ItemStack itemStack, int radius, int height);
 }

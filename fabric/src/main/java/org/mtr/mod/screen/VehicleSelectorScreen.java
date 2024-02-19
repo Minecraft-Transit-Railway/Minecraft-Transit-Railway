@@ -3,13 +3,12 @@ package org.mtr.mod.screen;
 import org.mtr.core.data.Siding;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.data.VehicleCar;
-import org.mtr.core.servlet.IntegrationServlet;
+import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.holder.OrderedText;
@@ -22,7 +21,8 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.Patreon;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.packet.PacketData;
+import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.packet.PacketUpdateData;
 import org.mtr.mod.resource.VehicleResource;
 
 import javax.annotation.Nullable;
@@ -107,7 +107,7 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 		selectedIds.clear();
 		selectedIds.addAll(getSelectedIds(siding));
 		super.updateList();
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromSidings(IntegrationServlet.Operation.UPDATE, ObjectSet.of(siding)));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addSiding(siding)));
 
 		final ObjectArrayList<VehicleCar> currentList = siding.getVehicleCars();
 		double remainingLength = siding.getRailLength();

@@ -1,6 +1,10 @@
 package org.mtr.mod.item;
 
-import org.mtr.mapping.holder.*;
+import org.mtr.core.data.Rail;
+import org.mtr.mapping.holder.BlockState;
+import org.mtr.mapping.holder.ItemSettings;
+import org.mtr.mapping.holder.ItemStack;
+import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mod.Init;
 
 public class ItemTunnelWallCreator extends ItemNodeModifierSelectableBlockBase {
@@ -10,13 +14,10 @@ public class ItemTunnelWallCreator extends ItemNodeModifierSelectableBlockBase {
 	}
 
 	@Override
-	protected boolean onConnect(ServerPlayerEntity serverPlayerEntity, ItemStack stack, BlockPos posStart, BlockPos posEnd, int radius, int height) {
-		final BlockState state = getSavedState(stack);
-		if (state == null) {
-			return true;
+	protected void onConnect(Rail rail, ServerPlayerEntity serverPlayerEntity, ItemStack itemStack, int radius, int height) {
+		final BlockState blockState = getSavedState(itemStack);
+		if (blockState != null) {
+			Init.getRailActionModule(serverPlayerEntity.getServerWorld(), railActionModule -> railActionModule.markRailForTunnelWall(rail, serverPlayerEntity, radius, height, blockState));
 		}
-		final boolean[] success = {false};
-		Init.getRailActionModule(serverPlayerEntity.getServerWorld(), railActionModule -> success[0] = railActionModule.markRailForTunnelWall(serverPlayerEntity, posStart, posEnd, radius, height, state));
-		return success[0];
 	}
 }
