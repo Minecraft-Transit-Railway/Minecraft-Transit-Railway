@@ -6,7 +6,7 @@ import org.mtr.mapping.mapper.SlabBlockExtension;
 public class BlockStationColorGlassSlab extends BlockStationColorSlab {
 
 	public BlockStationColorGlassSlab() {
-		super();
+		super(true);
 	}
 
 	@Override

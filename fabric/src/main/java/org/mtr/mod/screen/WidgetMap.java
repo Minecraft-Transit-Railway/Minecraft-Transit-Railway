@@ -76,7 +76,9 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 		final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
 		guiDrawing.beginDrawingRectangle();
-
+		// Background
+		guiDrawing.drawRectangle(getX2(), getY2(), getX2() + width, getY2() + height, ARGB_BLACK);
+		
 		final IntIntImmutablePair topLeft = coordsToWorldPos(0, 0);
 		final IntIntImmutablePair bottomRight = coordsToWorldPos(width, height);
 		final int increment = scale >= 1 ? 1 : (int) Math.ceil(1 / scale);
@@ -84,7 +86,10 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 			for (int j = topLeft.rightInt(); j <= bottomRight.rightInt(); j += increment) {
 				if (world != null) {
 					final int color = divideColorRGB(world.getBlockState(Init.newBlockPos(i, world.getTopY(HeightMapType.getMotionBlockingMapped(), i, j) - 1, j)).getBlock().getDefaultMapColor().getColorMapped(), 2);
-					drawRectangleFromWorldCoords(guiDrawing, i, j, i + increment, j + increment, ARGB_BLACK | color);
+					// Skip rendering block with same color as background, can save some frames
+					if(color != 0) {
+						drawRectangleFromWorldCoords(guiDrawing, i, j, i + increment, j + increment, ARGB_BLACK | color);
+					}
 				}
 			}
 		}
@@ -154,7 +159,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 			}
 		}
 
-		final String mousePosText = String.format("(%s, %s)", Utilities.round(mouseWorldPos.leftDouble(), 1), Utilities.round(mouseWorldPos.rightDouble(), 1));
+		final String mousePosText = String.format("(%.1f, %.1f)", mouseWorldPos.leftDouble(), mouseWorldPos.rightDouble());
 		graphicsHolder.drawText(mousePosText, getX2() + width - TEXT_PADDING - GraphicsHolder.getTextWidth(mousePosText), getY2() + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
 	}
 
@@ -274,10 +279,10 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		(isPlatform ? flatPositionToPlatformMap : flatPositionToSidingMap).forEach((position, savedRails) -> {
 			final int savedRailCount = savedRails.size();
 			for (int i = 0; i < savedRailCount; i++) {
-				final float left = position.getX();
-				final float right = position.getX() + 1;
-				final float top = position.getZ() + (float) i / savedRailCount;
-				final float bottom = position.getZ() + (i + 1F) / savedRailCount;
+				final double left = position.getX();
+				final double right = position.getX() + 1;
+				final double top = position.getZ() + (double) i / savedRailCount;
+				final double bottom = position.getZ() + (i + 1D) / savedRailCount;
 				if (Utilities.isBetween(mouseWorldPos.leftDouble(), left, right) && Utilities.isBetween(mouseWorldPos.rightDouble(), top, bottom)) {
 					mouseOnSavedRailCallback.mouseOnSavedRailCallback(savedRails.get(i), left, top, right, bottom);
 				}

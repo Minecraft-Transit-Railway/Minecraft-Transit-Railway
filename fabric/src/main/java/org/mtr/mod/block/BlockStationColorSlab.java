@@ -10,9 +10,12 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class BlockStationColorSlab extends SlabBlockExtension {
-
 	public BlockStationColorSlab() {
 		super(BlockHelper.createBlockSettings(false));
+	}
+
+	public BlockStationColorSlab(boolean nonOpaque) {
+		super(BlockHelper.createBlockSettings(false).nonOpaque());
 	}
 
 	@Nonnull
