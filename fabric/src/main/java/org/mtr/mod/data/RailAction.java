@@ -109,8 +109,10 @@ public class RailAction {
 				placeHalf = true;
 			}
 
-			BlockPos halfPos = getHalfPos(placePos, placeHalf);
-			if(blacklistedPositions.contains(halfPos)) return;
+			final BlockPos halfPos = getHalfPos(placePos, placeHalf);
+			if (blacklistedPositions.contains(halfPos)) {
+				return;
+			}
 
 			if (placePos != blockPos && canPlace(serverWorld, blockPos)) {
 				serverWorld.setBlockState(blockPos, Blocks.getAirMapped().getDefaultState());
