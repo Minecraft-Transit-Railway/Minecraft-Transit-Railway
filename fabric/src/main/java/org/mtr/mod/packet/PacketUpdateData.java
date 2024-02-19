@@ -29,7 +29,7 @@ public final class PacketUpdateData extends PacketRequestResponseBase {
 	}
 
 	@Override
-	protected void runClient(Response response) {
+	protected void runClientInbound(Response response) {
 		final MinecraftClientData minecraftClientData = MinecraftClientData.getInstance();
 		response.getData(jsonReader -> new UpdateDataResponse(jsonReader, minecraftClientData)).write();
 		response.getData(jsonReader -> new UpdateDataResponse(jsonReader, MinecraftClientData.getDashboardInstance())).write();
@@ -54,10 +54,10 @@ public final class PacketUpdateData extends PacketRequestResponseBase {
 	}
 
 	public static void sendDirectlyToServerRail(ServerWorld serverWorld, Rail rail) {
-		new PacketUpdateData(new UpdateDataRequest(new MinecraftClientData()).addRail(rail)).runServer(serverWorld, (ServerPlayerEntity) null);
+		new PacketUpdateData(new UpdateDataRequest(new MinecraftClientData()).addRail(rail)).runServerOutbound(serverWorld, (ServerPlayerEntity) null);
 	}
 
 	public static void sendDirectlyToServerSignalModification(ServerWorld serverWorld, SignalModification signalModification) {
-		new PacketUpdateData(new UpdateDataRequest(new MinecraftClientData()).addSignalModification(signalModification)).runServer(serverWorld, (ServerPlayerEntity) null);
+		new PacketUpdateData(new UpdateDataRequest(new MinecraftClientData()).addSignalModification(signalModification)).runServerOutbound(serverWorld, (ServerPlayerEntity) null);
 	}
 }

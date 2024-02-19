@@ -39,15 +39,15 @@ public abstract class PacketRequestResponseBase extends PacketHandler {
 
 	@Override
 	public final void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		runServer(serverPlayerEntity.getServerWorld(), serverPlayerEntity);
+		runServerOutbound(serverPlayerEntity.getServerWorld(), serverPlayerEntity);
 	}
 
 	@Override
 	public final void runClient() {
-		runClient(Response.create(Utilities.parseJson(content)));
+		runClientInbound(Response.create(Utilities.parseJson(content)));
 	}
 
-	protected final void runServer(ServerWorld serverWorld, @Nullable ServerPlayerEntity serverPlayerEntity) {
+	protected void runServerOutbound(ServerWorld serverWorld, @Nullable ServerPlayerEntity serverPlayerEntity) {
 		Init.sendHttpRequest(getEndpoint(), new World(serverWorld.data), content, responseType() == ResponseType.NONE ? null : response -> {
 			if (responseType() == ResponseType.PLAYER) {
 				if (serverPlayerEntity != null) {
@@ -56,14 +56,14 @@ public abstract class PacketRequestResponseBase extends PacketHandler {
 			} else {
 				MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntityNew -> Init.REGISTRY.sendPacketToClient(serverPlayerEntityNew, getInstance(response)));
 			}
-			runServer(serverWorld, response);
+			runServerInbound(serverWorld, response);
 		});
 	}
 
-	protected void runServer(ServerWorld serverWorld, String content) {
+	protected void runServerInbound(ServerWorld serverWorld, String content) {
 	}
 
-	protected void runClient(Response response) {
+	protected void runClientInbound(Response response) {
 	}
 
 	/**

@@ -25,7 +25,7 @@ public final class CustomResourcesConverter {
 				try {
 					new LegacyVehicleResource(new JsonReader(entry.getValue())).convert(vehicleResources, entry.getKey());
 				} catch (Exception e) {
-					Init.logException(e);
+					Init.LOGGER.error(e);
 				}
 			});
 		}
@@ -37,7 +37,7 @@ public final class CustomResourcesConverter {
 				try {
 					new LegacySignResource(new JsonReader(entry.getValue())).convert(signResources, entry.getKey());
 				} catch (Exception e) {
-					Init.logException(e);
+					Init.LOGGER.error(e);
 				}
 			});
 		}

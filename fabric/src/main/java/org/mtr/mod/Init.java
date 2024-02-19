@@ -30,7 +30,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 
 public final class Init implements Utilities {
 
@@ -41,7 +40,7 @@ public final class Init implements Utilities {
 	private static int serverTick;
 
 	public static final String MOD_ID = "mtr";
-	public static final Logger LOGGER = LogManager.getLogger("Minecraft Transit Railway");
+	public static final Logger LOGGER = LogManager.getLogger("MinecraftTransitRailway");
 	public static final Registry REGISTRY = new Registry();
 	public static final int SECONDS_PER_MC_HOUR = 50;
 
@@ -85,18 +84,27 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketUpdateVehicleRidingEntities.class, PacketUpdateVehicleRidingEntities::new);
 
 		// Register command
-		REGISTRY.registerCommand("generate-by-depot-name", commandBuilder -> {
-			commandBuilder.permissionLevel(2);
-			commandBuilder.executes(contextHandler -> {
-				contextHandler.sendSuccess("command.mtr.generate_all", true);
-				return generateDepotsFromCommand(contextHandler.getWorld(), "");
+		REGISTRY.registerCommand("mtr", commandBuilderMtr -> {
+			commandBuilderMtr.then("generate", commandBuilderGenerate -> {
+				commandBuilderGenerate.permissionLevel(2);
+				commandBuilderGenerate.executes(contextHandler -> {
+					contextHandler.sendSuccess("command.mtr.generate_all", true);
+					return generateDepotsFromCommand(contextHandler.getWorld(), "");
+				});
+				commandBuilderGenerate.then("name", StringArgumentType.greedyString(), innerCommandBuilder -> innerCommandBuilder.executes(contextHandler -> {
+					final String filter = contextHandler.getString("name");
+					contextHandler.sendSuccess("command.mtr.generate_filter", true, filter);
+					return generateDepotsFromCommand(contextHandler.getWorld(), filter);
+				}));
 			});
-			commandBuilder.then("name", StringArgumentType.greedyString(), innerCommandBuilder -> innerCommandBuilder.executes(contextHandler -> {
-				final String filter = contextHandler.getString("name");
-				contextHandler.sendSuccess("command.mtr.generate_filter", true, filter);
-				return generateDepotsFromCommand(contextHandler.getWorld(), filter);
-			}));
-		});
+			commandBuilderMtr.then("clear", commandBuilderGenerate -> {
+				commandBuilderGenerate.permissionLevel(2);
+				commandBuilderGenerate.executes(contextHandler -> {
+					contextHandler.sendSuccess("command.mtr.clear", true);
+					return 1;
+				});
+			});
+		}, "minecrafttransitrailway");
 
 		// Register events
 		EventRegistry.registerServerStarted(minecraftServer -> {
@@ -184,10 +192,6 @@ public final class Init implements Utilities {
 		return chunkManager.getWorldChunk(blockPos.getX() / 16, blockPos.getZ() / 16) != null && world.isRegionLoaded(blockPos, blockPos);
 	}
 
-	public static void logException(Exception e) {
-		LOGGER.error(e);
-	}
-
 	private static int getDefaultPortFromConfig(MinecraftServer minecraftServer) {
 		final Path filePath = minecraftServer.getRunDirectory().toPath().resolve("config/mtr_webserver_port.txt");
 		final int defaultPort = 8888;
@@ -198,7 +202,7 @@ public final class Init implements Utilities {
 			try {
 				Files.write(filePath, String.valueOf(defaultPort).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 			} catch (Exception e) {
-				logException(e);
+				LOGGER.error(e);
 			}
 		}
 
@@ -209,7 +213,7 @@ public final class Init implements Utilities {
 		for (int i = Math.max(1025, startingPort); i <= 65535; i++) {
 			try (final ServerSocket serverSocket = new ServerSocket(i)) {
 				final int port = serverSocket.getLocalPort();
-				Main.LOGGER.log(Level.INFO, "Found available port: " + port);
+				LOGGER.info("Found available port: " + port);
 				return port;
 			} catch (Exception ignored) {
 			}
@@ -225,7 +229,7 @@ public final class Init implements Utilities {
 	private static int generateDepotsFromCommand(World world, String filter) {
 		final GenerateByDepotName generateByDepotName = new GenerateByDepotName();
 		generateByDepotName.setFilter(filter);
-		sendHttpRequest("operation/generate", world, Utilities.getJsonObjectFromData(generateByDepotName).toString(), null);
+		sendHttpRequest("operation/generate-by-depot-name", world, Utilities.getJsonObjectFromData(generateByDepotName).toString(), null);
 		return 1;
 	}
 }

@@ -39,6 +39,7 @@ public class VehicleRidingMovement {
 	private static Double ridingYawDifference;
 	private static double previousVehicleYaw;
 
+	// Cool down for sending player position to simulator
 	private static long sendPositionUpdateTime;
 
 	private static final float VEHICLE_WALKING_SPEED_MULTIPLIER = 0.005F;
@@ -107,7 +108,9 @@ public class VehicleRidingMovement {
 					ridingYawDifferenceOld = null;
 					ridingYawDifference = null;
 					previousVehicleYaw = yaw;
-					sendUpdate(false);
+					if (ridingVehicleId == 0) {
+						sendUpdate(false);
+					}
 				}
 			}
 		}

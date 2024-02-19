@@ -256,7 +256,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		try {
 			data.setCruisingAltitude(Integer.parseInt(textFieldCruisingAltitude.getText2()));
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error(e);
 			data.setCruisingAltitude(DEFAULT_CRUISING_ALTITUDE);
 		}
 		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addDepot(data)));
