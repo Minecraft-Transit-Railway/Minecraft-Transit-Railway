@@ -1,5 +1,6 @@
 package org.mtr.mod.screen;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.core.data.Position;
 import org.mtr.core.data.*;
 import org.mtr.core.tool.Utilities;
@@ -41,10 +42,13 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 	private final ClientPlayerEntity player;
 	private final Object2ObjectAVLTreeMap<Position, ObjectArrayList<Platform>> flatPositionToPlatformMap;
 	private final Object2ObjectAVLTreeMap<Position, ObjectArrayList<Siding>> flatPositionToSidingMap;
+	private final Object2ObjectOpenHashMap<BlockPos, CachedBlockInfo> cachedMap = new Object2ObjectOpenHashMap<>();
 
 	private static final int ARGB_BLUE = 0xFF4285F4;
 	private static final int SCALE_UPPER_LIMIT = 64;
 	private static final double SCALE_LOWER_LIMIT = 1 / 128D;
+
+	private double elapsed = -1;
 
 	public WidgetMap(TransportMode transportMode, OnDrawCorners onDrawCorners, Runnable onDrawCornersMouseRelease, Consumer<Long> onClickAddPlatformToRoute, Consumer<SavedRailBase<?, ?>> onClickEditSavedRail, BiFunction<Double, Double, Boolean> isRestrictedMouseArea) {
 		super(0, 0, 0, 0);
@@ -74,6 +78,12 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 
 	@Override
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
+		elapsed += delta;
+		if(elapsed == -1 || elapsed >= 1) {
+			elapsed = 0;
+			if(world != null) refreshMap(World.cast(world));
+		}
+
 		final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
 		guiDrawing.beginDrawingRectangle();
 		// Background
@@ -84,12 +94,11 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		final int increment = scale >= 1 ? 1 : (int) Math.ceil(1 / scale);
 		for (int i = topLeft.leftInt(); i <= bottomRight.leftInt(); i += increment) {
 			for (int j = topLeft.rightInt(); j <= bottomRight.rightInt(); j += increment) {
-				if (world != null) {
-					final int color = divideColorRGB(world.getBlockState(Init.newBlockPos(i, world.getTopY(HeightMapType.getMotionBlockingMapped(), i, j) - 1, j)).getBlock().getDefaultMapColor().getColorMapped(), 2);
-					// Skip rendering block with same color as background, can save some frames
-					if (color != 0) {
-						drawRectangleFromWorldCoords(guiDrawing, i, j, i + increment, j + increment, ARGB_BLACK | color);
-					}
+				CachedBlockInfo blockInfo = cachedMap.get(Init.newBlockPos(i, 0, j));
+
+				// Skip rendering block with same color as background, can save some frames
+				if(blockInfo != null && blockInfo.color != 0) {
+					drawRectangleFromWorldCoords(guiDrawing, i, j, i + increment, j + increment, ARGB_BLACK | blockInfo.color);
 				}
 			}
 		}
@@ -309,6 +318,37 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		}
 	}
 
+	public void refreshMap(World world) {
+		cachedMap.clear();
+		final IntIntImmutablePair topLeft = coordsToWorldPos(0, 0);
+		final IntIntImmutablePair bottomRight = coordsToWorldPos(width, height);
+		final int increment = scale >= 1 ? 1 : (int) Math.ceil(1 / scale);
+		for (int i = topLeft.leftInt(); i <= bottomRight.leftInt(); i += increment) {
+			for (int j = topLeft.rightInt(); j <= bottomRight.rightInt(); j += increment) {
+				BlockPos pos = Init.newBlockPos(i, 0, j);
+				if(!Init.isChunkLoaded(world, world.getChunkManager(), pos)) continue;
+				int y = player.getBlockPos().getY();
+
+				while(true) {
+					if(y < -64 || !world.getBlockState(Init.newBlockPos(i, y, j)).isAir()) {
+						break;
+					} else {
+						y--;
+					}
+				}
+
+				BlockPos finalPos = Init.newBlockPos(i, y, j);
+				BlockPos lightReferencePos = finalPos.up();
+				int lightLvlBlock = world.getLightLevel(LightType.getBlockMapped(), lightReferencePos);
+				int lightLvlSky = world.getLightLevel(LightType.getSkyMapped(), lightReferencePos);
+				int lightLvl = Math.max(lightLvlBlock, lightLvlSky);
+
+				final int color = divideColorRGB(world.getBlockState(finalPos).getBlock().getDefaultMapColor().getColorMapped(), 1 + ((15 - lightLvl) / 2));
+				cachedMap.put(pos, new CachedBlockInfo(y, color));
+			}
+		}
+	}
+
 	private void drawRectangleFromWorldCoords(GuiDrawing guiDrawing, IntIntImmutablePair corner1, IntIntImmutablePair corner2, int color) {
 		drawRectangleFromWorldCoords(guiDrawing, corner1.leftInt(), corner1.rightInt(), corner2.leftInt(), corner2.rightInt(), color);
 	}
@@ -348,6 +388,16 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 	@FunctionalInterface
 	private interface MouseOnSavedRailCallback {
 		void mouseOnSavedRailCallback(SavedRailBase<?, ?> savedRail, double x1, double z1, double x2, double z2);
+	}
+
+	private class CachedBlockInfo {
+		public final int cachedY;
+		public final int color;
+
+		public CachedBlockInfo(int cachedY, int color) {
+			this.cachedY = cachedY;
+			this.color = color;
+		}
 	}
 
 	private enum MapState {DEFAULT, EDITING_AREA, EDITING_ROUTE}
