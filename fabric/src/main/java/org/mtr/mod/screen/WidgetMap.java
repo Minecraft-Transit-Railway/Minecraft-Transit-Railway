@@ -9,10 +9,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.ClickableWidgetExtension;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.GuiDrawing;
-import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mapping.mapper.*;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
@@ -24,13 +21,14 @@ import java.util.function.Consumer;
 
 
 public class WidgetMap extends ClickableWidgetExtension implements IGui {
-
 	private double scale;
 	private double centerX;
 	private double centerY;
 	private IntIntImmutablePair drawArea1, drawArea2;
 	private MapState mapState;
+	private MapOverlayMode mapOverlayMode;
 	private boolean showStations;
+	private double updateMapTimer;
 
 	private final TransportMode transportMode;
 	private final OnDrawCorners onDrawCorners;
@@ -42,13 +40,10 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 	private final ClientPlayerEntity player;
 	private final Object2ObjectAVLTreeMap<Position, ObjectArrayList<Platform>> flatPositionToPlatformMap;
 	private final Object2ObjectAVLTreeMap<Position, ObjectArrayList<Siding>> flatPositionToSidingMap;
-	private final Object2ObjectOpenHashMap<BlockPos, CachedBlockInfo> cachedMap = new Object2ObjectOpenHashMap<>();
-
+	private final Object2ObjectOpenHashMap<IntIntImmutablePair, MapImage> mapTextures = new Object2ObjectOpenHashMap<>();
 	private static final int ARGB_BLUE = 0xFF4285F4;
 	private static final int SCALE_UPPER_LIMIT = 64;
 	private static final double SCALE_LOWER_LIMIT = 1 / 128D;
-
-	private double elapsed = -1;
 
 	public WidgetMap(TransportMode transportMode, OnDrawCorners onDrawCorners, Runnable onDrawCornersMouseRelease, Consumer<Long> onClickAddPlatformToRoute, Consumer<SavedRailBase<?, ?>> onClickEditSavedRail, BiFunction<Double, Double, Boolean> isRestrictedMouseArea) {
 		super(0, 0, 0, 0);
@@ -69,7 +64,9 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 			centerX = player.getX();
 			centerY = player.getZ();
 		}
+		updateMapTimer = -1;
 		scale = 1;
+		mapOverlayMode = MapOverlayMode.TOP_VIEW;
 		setShowStations(true);
 
 		flatPositionToPlatformMap = MinecraftClientData.getFlatPositionToSavedRails(MinecraftClientData.getDashboardInstance().platforms, transportMode);
@@ -78,31 +75,31 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 
 	@Override
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
-		elapsed += delta;
-		if(elapsed == -1 || elapsed >= 1) {
-			elapsed = 0;
-			if(world != null) refreshMap(World.cast(world));
+		if(updateMapTimer == -1 || updateMapTimer >= 40) {
+			updateMapTimer = 0;
+			if(world != null) updateMap(World.cast(world), mapOverlayMode);
 		}
+		updateMapTimer += delta;
 
 		final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
-		guiDrawing.beginDrawingRectangle();
 		// Background
+		guiDrawing.beginDrawingRectangle();
 		guiDrawing.drawRectangle(getX2(), getY2(), getX2() + width, getY2() + height, ARGB_BLACK);
+		guiDrawing.finishDrawingRectangle();
 
-		final IntIntImmutablePair topLeft = coordsToWorldPos(0, 0);
-		final IntIntImmutablePair bottomRight = coordsToWorldPos(width, height);
-		final int increment = scale >= 1 ? 1 : (int) Math.ceil(1 / scale);
-		for (int i = topLeft.leftInt(); i <= bottomRight.leftInt(); i += increment) {
-			for (int j = topLeft.rightInt(); j <= bottomRight.rightInt(); j += increment) {
-				CachedBlockInfo blockInfo = cachedMap.get(Init.newBlockPos(i, 0, j));
+		for(MapImage mapImage : mapTextures.values()) {
+			if(!world.getChunkManager().isChunkLoaded(mapImage.chunkX, mapImage.chunkZ)) continue;
 
-				// Skip rendering block with same color as background, can save some frames
-				if(blockInfo != null && blockInfo.color != 0) {
-					drawRectangleFromWorldCoords(guiDrawing, i, j, i + increment, j + increment, ARGB_BLACK | blockInfo.color);
-				}
+			int xTL = mapImage.chunkX * 16;
+			int zTL = mapImage.chunkZ * 16;
+			if(!mapImage.disposed) {
+				drawRectangleFromWorldCoords(guiDrawing, xTL, zTL, xTL + 16, zTL + 16, mapImage.textureId);
 			}
 		}
 
+
+		// Continue drawing our overlay
+		guiDrawing.beginDrawingRectangle();
 		final DoubleDoubleImmutablePair mouseWorldPos = coordsToWorldPos((double) mouseX - getX2(), mouseY - getY2());
 
 		if (showStations) {
@@ -236,7 +233,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 
 	@Override
 	public boolean isMouseOver2(double mouseX, double mouseY) {
-		return mouseX >= getX2() && mouseY >= getY2() && mouseX < getX2() + width && mouseY < getY2() + height && !(mouseX >= getX2() + width - SQUARE_SIZE * 10 && mouseY >= getY2() + height - SQUARE_SIZE) && !isRestrictedMouseArea.apply(mouseX, mouseY);
+		return mouseX >= getX2() && mouseY >= getY2() && mouseX < getX2() + width && mouseY < getY2() + height && !(mouseX >= getX2() + width - SQUARE_SIZE * 12 && mouseY >= getY2() + height - SQUARE_SIZE) && !isRestrictedMouseArea.apply(mouseX, mouseY);
 	}
 
 	// Implicit overrides, don't add @Override
@@ -284,6 +281,12 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		this.showStations = showStations;
 	}
 
+	public void setOverlayMode(MapOverlayMode overlayMode) {
+		this.mapOverlayMode = overlayMode;
+		disposeMapTextures();
+		if(world != null) updateMap(World.cast(world), mapOverlayMode);
+	}
+
 	private void mouseOnSavedRail(DoubleDoubleImmutablePair mouseWorldPos, MouseOnSavedRailCallback mouseOnSavedRailCallback, boolean isPlatform) {
 		(isPlatform ? flatPositionToPlatformMap : flatPositionToSidingMap).forEach((position, savedRails) -> {
 			final int savedRailCount = savedRails.size();
@@ -318,35 +321,74 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		}
 	}
 
-	public void refreshMap(World world) {
-		cachedMap.clear();
+	public void updateMap(World world, MapOverlayMode overlayMode) {
 		final IntIntImmutablePair topLeft = coordsToWorldPos(0, 0);
 		final IntIntImmutablePair bottomRight = coordsToWorldPos(width, height);
-		final int increment = scale >= 1 ? 1 : (int) Math.ceil(1 / scale);
-		for (int i = topLeft.leftInt(); i <= bottomRight.leftInt(); i += increment) {
-			for (int j = topLeft.rightInt(); j <= bottomRight.rightInt(); j += increment) {
-				BlockPos pos = Init.newBlockPos(i, 0, j);
-				if(!Init.isChunkLoaded(world, world.getChunkManager(), pos)) continue;
-				int y = player.getBlockPos().getY();
 
-				while(true) {
-					if(y < -64 || !world.getBlockState(Init.newBlockPos(i, y, j)).isAir()) {
-						break;
-					} else {
-						y--;
-					}
+		for (int i = topLeft.leftInt(); i <= bottomRight.leftInt(); i += 16) {
+			for (int j = topLeft.rightInt(); j <= bottomRight.rightInt(); j += 16) {
+				int chunkX = i / 16;
+				int chunkZ = j / 16;
+
+				if(!world.getChunkManager().isChunkLoaded(chunkX, chunkZ)) continue;
+
+				int chunkXStart = chunkX * 16;
+				int chunkZStart = chunkZ * 16;
+				IntIntImmutablePair chunkXZ = new IntIntImmutablePair(chunkX, chunkZ);
+
+				MapImage mapTexture = mapTextures.get(chunkXZ);
+				if(mapTexture == null) {
+					NativeImage nativeImage = new NativeImage(16, 16, false);
+					mapTexture = new MapImage(chunkX, chunkZ, new NativeImageBackedTexture(nativeImage));
 				}
 
-				BlockPos finalPos = Init.newBlockPos(i, y, j);
-				BlockPos lightReferencePos = finalPos.up();
-				int lightLvlBlock = world.getLightLevel(LightType.getBlockMapped(), lightReferencePos);
-				int lightLvlSky = world.getLightLevel(LightType.getSkyMapped(), lightReferencePos);
-				int lightLvl = Math.max(lightLvlBlock, lightLvlSky);
+				// Loop each block in chunk
+                for(int k = 0; k < 16; k++) {
+                    for(int l = 0; l < 16; l++) {
+                        final int blockX = chunkXStart + k;
+                        final int blockZ = chunkZStart + l;
+						// The y position of the highest block in this coordinates
+						final int topY = world.getTopY(HeightMapType.getMotionBlockingMapped(), blockX, blockZ) - 1;
+						final int blockY;
+						if(overlayMode == MapOverlayMode.TOP_VIEW) {
+							blockY = topY;
+						} else {
+							int currentY = Math.min(topY, player.getBlockPos().getY());
 
-				final int color = divideColorRGB(world.getBlockState(finalPos).getBlock().getDefaultMapColor().getColorMapped(), 1 + ((15 - lightLvl) / 2));
-				cachedMap.put(pos, new CachedBlockInfo(y, color));
-			}
+							// Find lowest Y level so it can be projected
+							while(true) {
+								if(currentY < -64 || !world.getBlockState(Init.newBlockPos(blockX, currentY, blockZ)).isAir()) {
+									break;
+								} else {
+									currentY--;
+								}
+							}
+							blockY = currentY;
+						}
+
+                        final BlockPos finalPos = Init.newBlockPos(blockX, blockY, blockZ);
+                        final BlockPos lightReferencePos = finalPos.up();
+                        int lightLevelBlock = world.getLightLevel(LightType.getBlockMapped(), lightReferencePos);
+                        int lightLevelSky = world.getLightLevel(LightType.getSkyMapped(), lightReferencePos);
+                        // Light Level determined by the max brightness of either what the sky produce or what the block produce
+						int lightLevel = Math.max(lightLevelBlock, lightLevelSky);
+
+                        int color = divideColorRGB(world.getBlockState(finalPos).getBlock().getDefaultMapColor().getColorMapped(), overlayMode == MapOverlayMode.TOP_VIEW ? 2 : 1 + ((15 - lightLevel) / 4));
+                        mapTexture.texture.getImage().setPixelColor(k, l, convertColorABGR(color));
+                    }
+                }
+
+                mapTexture.texture.upload();
+                mapTextures.put(chunkXZ, mapTexture);
+            }
 		}
+	}
+
+	public void disposeMapTextures() {
+		for(MapImage tex : mapTextures.values()) {
+			tex.close();
+		}
+		mapTextures.clear();
 	}
 
 	private void drawRectangleFromWorldCoords(GuiDrawing guiDrawing, IntIntImmutablePair corner1, IntIntImmutablePair corner2, int color) {
@@ -361,6 +403,17 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		guiDrawing.drawRectangle(getX2() + Math.max(0, x1), getY2() + z1, getX2() + x2, getY2() + z2, color);
 	}
 
+	private void drawRectangleFromWorldCoords(GuiDrawing guiDrawing, double posX1, double posZ1, double posX2, double posZ2, Identifier img) {
+		guiDrawing.beginDrawingTexture(img);
+		final double x1 = (posX1 - centerX) * scale + width / 2D;
+		final double z1 = (posZ1 - centerY) * scale + height / 2D;
+		final double x2 = (posX2 - centerX) * scale + width / 2D;
+		final double z2 = (posZ2 - centerY) * scale + height / 2D;
+
+		guiDrawing.drawTexture(getX2() + Math.max(0, x1), getY2() + z1, getX2() + x2, getY2() + z2, 0, 0, 1, 1);
+		guiDrawing.finishDrawingTexture();
+	}
+
 	private boolean canDrawAreaText(AreaBase<?, ?> areaBase) {
 		return areaBase.getCenter() != null && scale >= 80F / Math.max(areaBase.getMaxX() - areaBase.getMinX(), areaBase.getMaxZ() - areaBase.getMinZ());
 	}
@@ -373,10 +426,18 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		}
 	}
 
-	private static int divideColorRGB(int color, int amount) {
-		final int r = ((color >> 16) & 0xFF) / amount;
-		final int g = ((color >> 8) & 0xFF) / amount;
-		final int b = (color & 0xFF) / amount;
+	private static int convertColorABGR(int rgb) {
+		int a = 255;
+		int r = (rgb >> 16) & 255;
+		int g = (rgb >> 8) & 255;
+		int b = (rgb) & 255;
+		return a << 24 | b << 16 | g << 8 | r;
+	}
+
+	private static int divideColorRGB(int color, double amount) {
+		final int r = (int)(((color >> 16) & 0xFF) / amount);
+		final int g = (int)(((color >> 8) & 0xFF) / amount);
+		final int b = (int)((color & 0xFF) / amount);
 		return (r << 16) + (g << 8) + b;
 	}
 
@@ -389,16 +450,25 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 	private interface MouseOnSavedRailCallback {
 		void mouseOnSavedRailCallback(SavedRailBase<?, ?> savedRail, double x1, double z1, double x2, double z2);
 	}
+	private class MapImage {
+		private final Identifier textureId;
+		private final NativeImageBackedTexture texture;
+		private final int chunkX;
+		private final int chunkZ;
+		private boolean disposed = false;
+		private MapImage(int chunkX, int chunkZ, NativeImageBackedTexture texture)  {
+			this.textureId = MinecraftClient.getInstance().getTextureManager().registerDynamicTexture("mtr_dashboard_map", texture);
+			this.texture = texture;
+			this.chunkX = chunkX;
+			this.chunkZ = chunkZ;
+		}
 
-	private class CachedBlockInfo {
-		public final int cachedY;
-		public final int color;
-
-		public CachedBlockInfo(int cachedY, int color) {
-			this.cachedY = cachedY;
-			this.color = color;
+		public void close() {
+			disposed = true;
+			MinecraftClient.getInstance().getTextureManager().destroyTexture(this.textureId);
 		}
 	}
+	public enum MapOverlayMode { TOP_VIEW, CURRENT_Y }
 
 	private enum MapState {DEFAULT, EDITING_AREA, EDITING_ROUTE}
 }

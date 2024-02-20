@@ -65,7 +65,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 		MinecraftClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
 		MinecraftClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
 		lastRenderedMillis = InitClient.getGameMillis();
-		OCCLUSION_CULLING_THREAD.start();
+//		OCCLUSION_CULLING_THREAD.start();
 		DynamicTextureCache.instance.tick();
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();

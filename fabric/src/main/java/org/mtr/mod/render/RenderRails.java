@@ -42,7 +42,7 @@ public class RenderRails implements IGui {
 			return;
 		}
 
-		OCCLUSION_CULLING_THREAD.start();
+//		OCCLUSION_CULLING_THREAD.start();
 		final ObjectArrayList<Function<OcclusionCullingInstance, Runnable>> cullingTasks = new ObjectArrayList<>();
 		final Vector3d cameraPosition = minecraftClient.getGameRendererMapped().getCamera().getPos();
 		final Vec3d camera = new Vec3d(cameraPosition.getXMapped(), cameraPosition.getYMapped(), cameraPosition.getZMapped());
