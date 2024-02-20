@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 public final class MinecraftClientData extends ClientData {
 
-	public final ObjectAVLTreeSet<VehicleExtension> vehicles = new ObjectAVLTreeSet<>();
+	public final ObjectArraySet<VehicleExtension> vehicles = new ObjectArraySet<>();
 	public final Long2ObjectAVLTreeMap<PersistentVehicleData> vehicleIdToPersistentVehicleData = new Long2ObjectAVLTreeMap<>();
 	public final Object2ObjectArrayMap<String, RailWrapper> railWrapperList = new Object2ObjectArrayMap<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
@@ -208,15 +208,15 @@ public final class MinecraftClientData extends ClientData {
 		return null;
 	}
 
-	public static <T extends NameColorDataBase> ObjectAVLTreeSet<DashboardListItem> getFilteredDataSet(TransportMode transportMode, ObjectAVLTreeSet<T> dataSet) {
-		return convertDataSet(dataSet.stream().filter(data -> data.isTransportMode(transportMode)).collect(Collectors.toCollection(ObjectAVLTreeSet::new)));
+	public static <T extends NameColorDataBase> ObjectArraySet<DashboardListItem> getFilteredDataSet(TransportMode transportMode, ObjectArraySet<T> dataSet) {
+		return convertDataSet(dataSet.stream().filter(data -> data.isTransportMode(transportMode)).collect(Collectors.toCollection(ObjectArraySet::new)));
 	}
 
-	public static <T extends NameColorDataBase> ObjectAVLTreeSet<DashboardListItem> convertDataSet(ObjectAVLTreeSet<T> dataSet) {
-		return new ObjectAVLTreeSet<>(dataSet.stream().map(DashboardListItem::new).collect(Collectors.toSet()));
+	public static <T extends NameColorDataBase> ObjectArraySet<DashboardListItem> convertDataSet(ObjectArraySet<T> dataSet) {
+		return dataSet.stream().map(DashboardListItem::new).collect(Collectors.toCollection(ObjectArraySet::new));
 	}
 
-	public static <T extends AreaBase<T, U>, U extends SavedRailBase<U, T>> Object2ObjectAVLTreeMap<Position, ObjectArrayList<U>> getFlatPositionToSavedRails(ObjectAVLTreeSet<U> savedRails, TransportMode transportMode) {
+	public static <T extends AreaBase<T, U>, U extends SavedRailBase<U, T>> Object2ObjectAVLTreeMap<Position, ObjectArrayList<U>> getFlatPositionToSavedRails(ObjectArraySet<U> savedRails, TransportMode transportMode) {
 		final Object2ObjectAVLTreeMap<Position, ObjectArrayList<U>> map = new Object2ObjectAVLTreeMap<>();
 		savedRails.forEach(savedRail -> {
 			if (savedRail.isTransportMode(transportMode)) {

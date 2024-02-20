@@ -1,9 +1,7 @@
 package org.mtr.mod.screen;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mtr.core.data.Depot;
-import org.mtr.core.data.Route;
-import org.mtr.core.data.TransportMode;
+import org.mtr.core.data.*;
 import org.mtr.core.operation.GenerateByDepotIds;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
@@ -16,16 +14,17 @@ import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.PacketDepotGenerate;
 import org.mtr.mod.packet.PacketUpdateData;
 
+import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 
 public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
-
-	private int successfulSegments;
 
 	private final int sliderX;
 	private final int sliderWidthWithText;
@@ -179,7 +178,6 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	@Override
 	public void tick2() {
 		super.tick2();
-		buttonGenerateRoute.active = successfulSegments >= 0;
 		departuresList.tick();
 		textFieldDeparture.tick3();
 		textFieldCruisingAltitude.tick3();
@@ -227,9 +225,13 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		}
 		graphicsHolder.drawText(TextHelper.translatable("gui.mtr.sidings_in_depot", data.savedRails.size()), rightPanelsX + TEXT_PADDING, yStartRightPane, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
 
-		final String[] stringSplit = getSuccessfulSegmentsText().getString().split("\\|");
-		for (int i = 0; i < stringSplit.length; i++) {
-			graphicsHolder.drawText(stringSplit[i], rightPanelsX + TEXT_PADDING, yStartRightPane + SQUARE_SIZE * 2 + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+		// Temporary workaround to get the latest depot path generation status
+		final Depot newDepot = MinecraftClientData.getDashboardInstance().depotIdMap.get(data.getId());
+		if (newDepot != null) {
+			final String[] stringSplit = getSuccessfulSegmentsText(newDepot).split("\\|");
+			for (int i = 0; i < stringSplit.length; i++) {
+				graphicsHolder.drawText(stringSplit[i], rightPanelsX + TEXT_PADDING, yStartRightPane + SQUARE_SIZE * 2 + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+			}
 		}
 
 		if (showScheduleControls && !data.getUseRealTime()) {
@@ -343,14 +345,32 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		return false;
 	}
 
-	private MutableText getSuccessfulSegmentsText() {
-		if (successfulSegments < 0) {
-			return TextHelper.translatable("gui.mtr.generating_path");
-		} else if (successfulSegments == 0) {
-			return TextHelper.translatable("gui.mtr.path_not_generated");
-		} else {
-			return TextHelper.translatable("gui.mtr.path_not_found_between"); // TODO
+	private static String getSuccessfulSegmentsText(Depot depot) {
+		final long lastGeneratedMillis = depot.getLastGeneratedMillis();
+
+		if (lastGeneratedMillis == 0) {
+			return "";
 		}
+
+		final long timeDifference = System.currentTimeMillis() - lastGeneratedMillis;
+		final StringBuilder stringBuilder = new StringBuilder(TextHelper.translatable("gui.mtr.path_refresh_time", getTimeDifferenceString(timeDifference)).getString()).append("|").append(DateFormat.getDateTimeInstance().format(new Date(lastGeneratedMillis))).append("||");
+
+		if (depot.getLastGeneratedStatus((lastGeneratedFailedStartId, lastGeneratedFailedEndId) -> stringBuilder.append(TextHelper.translatable(
+				"gui.mtr.path_not_found_between",
+				getRoute(depot, lastGeneratedFailedStartId, lastGeneratedFailedEndId),
+				getStation(lastGeneratedFailedStartId),
+				getStation(lastGeneratedFailedEndId)
+		).getString()))) {
+			if (depot.savedRails.isEmpty()) {
+				stringBuilder.append(TextHelper.translatable("gui.mtr.path_not_generated_no_sidings").getString());
+			} else if (getPlatformCount(depot) < 2) {
+				stringBuilder.append(TextHelper.translatable("gui.mtr.path_not_generated_platforms").getString());
+			} else {
+				stringBuilder.append(TextHelper.translatable("gui.mtr.path_found").getString());
+			}
+		}
+
+		return stringBuilder.toString();
 	}
 
 	private static String getSliderString(int value) {
@@ -366,5 +386,49 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private static String getTimeString(int hour) {
 		final String hourString = StringUtils.leftPad(String.valueOf(hour), 2, "0");
 		return String.format("%s:00-%s:59", hourString, hourString);
+	}
+
+	private static String getTimeDifferenceString(long timeDifference) {
+		final MutableText mutableText;
+		if (timeDifference >= HOURS_PER_DAY * 60 * 60 * MILLIS_PER_SECOND) {
+			mutableText = TextHelper.translatable("gui.mtr.days", timeDifference / (HOURS_PER_DAY * 60 * 60 * MILLIS_PER_SECOND));
+		} else if (timeDifference >= 60 * 60 * MILLIS_PER_SECOND) {
+			mutableText = TextHelper.translatable("gui.mtr.hours", timeDifference / (60 * 60 * MILLIS_PER_SECOND));
+		} else if (timeDifference >= 60 * MILLIS_PER_SECOND) {
+			mutableText = TextHelper.translatable("gui.mtr.minutes", timeDifference / (60 * MILLIS_PER_SECOND));
+		} else {
+			mutableText = TextHelper.translatable("gui.mtr.seconds", timeDifference / MILLIS_PER_SECOND);
+		}
+		return mutableText.getString();
+	}
+
+	private static String getRoute(Depot depot, long lastGeneratedFailedStartId, long lastGeneratedFailedEndId) {
+		long previousId = 0;
+		String previousRouteName = "";
+		for (final Route route : depot.routes) {
+			for (final RoutePlatformData routePlatform : route.getRoutePlatforms()) {
+				final long thisId = routePlatform.platform.getId();
+				if (previousId == lastGeneratedFailedStartId && thisId == lastGeneratedFailedEndId) {
+					return IGui.formatStationName(previousRouteName);
+				}
+				previousId = thisId;
+			}
+			previousRouteName = route.getName();
+		}
+		return IGui.formatStationName("");
+	}
+
+	private static String getStation(long platformId) {
+		final Platform platform = MinecraftClientData.getDashboardInstance().platformIdMap.get(platformId);
+		final Station station = platform == null ? null : platform.area;
+		return IGui.formatStationName(station == null ? "" : station.getName());
+	}
+
+	private static int getPlatformCount(Depot depot) {
+		int platformCount = 0;
+		for (final Route route : depot.routes) {
+			platformCount += route.getRoutePlatforms().size();
+		}
+		return platformCount;
 	}
 }

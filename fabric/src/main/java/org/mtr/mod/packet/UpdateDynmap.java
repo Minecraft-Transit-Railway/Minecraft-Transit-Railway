@@ -5,7 +5,6 @@ import org.dynmap.DynmapCommonAPIListener;
 import org.dynmap.markers.AreaMarker;
 import org.mtr.core.data.AreaBase;
 import org.mtr.core.data.SavedRailBase;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.MinecraftServer;
@@ -50,7 +49,7 @@ public class UpdateDynmap implements IGui, IUpdateWebMap {
 		}
 	}
 
-	private static <T extends AreaBase<T, U>, U extends SavedRailBase<U, T>> void updateDynmap(World world, ObjectAVLTreeSet<T> areas, String areasId, String areasTitle, String areaAreasId, String areaAreasTitle, String iconKey) {
+	private static <T extends AreaBase<T, U>, U extends SavedRailBase<U, T>> void updateDynmap(World world, ObjectArraySet<T> areas, String areasId, String areasTitle, String areaAreasId, String areaAreasTitle, String iconKey) {
 		if (dynmapCommonAPI != null) {
 			final String worldId;
 			switch (MinecraftServerHelper.getWorldId(world).toString()) {

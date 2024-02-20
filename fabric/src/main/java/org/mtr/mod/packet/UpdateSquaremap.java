@@ -2,7 +2,7 @@ package org.mtr.mod.packet;
 
 import org.mtr.core.data.AreaBase;
 import org.mtr.core.data.SavedRailBase;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.mapping.holder.World;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
 import org.mtr.mod.Init;
@@ -50,7 +50,7 @@ public class UpdateSquaremap implements IGui, IUpdateWebMap {
 		}
 	}
 
-	private static <T extends AreaBase<T, U>, U extends SavedRailBase<U, T>> void updateSquaremap(World world, ObjectAVLTreeSet<T> areas, String areasId, String areasTitle, String areaAreasId, String areaAreasTitle, String iconKey) {
+	private static <T extends AreaBase<T, U>, U extends SavedRailBase<U, T>> void updateSquaremap(World world, ObjectArraySet<T> areas, String areasId, String areasTitle, String areaAreasId, String areaAreasTitle, String iconKey) {
 		final MapWorld mapWorld = SquaremapProvider.get().getWorldIfEnabled(WorldIdentifier.parse(MinecraftServerHelper.getWorldId(world).toString())).orElse(null);
 		if (mapWorld == null) {
 			return;

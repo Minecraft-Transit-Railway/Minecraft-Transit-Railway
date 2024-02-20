@@ -39,8 +39,8 @@ public final class PacketOpenDashboardScreen extends PacketRequestResponseBase {
 
 	@Override
 	protected void runClientInbound(Response response) {
-		ClientPacketHelper.openDashboardScreen(transportMode, useTimeAndWindSync);
 		response.getData(jsonReader -> new ListDataResponse(jsonReader, MinecraftClientData.getDashboardInstance())).write();
+		ClientPacketHelper.openDashboardScreen(transportMode, useTimeAndWindSync);
 	}
 
 	@Override

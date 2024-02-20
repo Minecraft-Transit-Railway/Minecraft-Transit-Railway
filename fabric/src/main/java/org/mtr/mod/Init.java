@@ -22,6 +22,8 @@ import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.tool.DummyClass;
 import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.packet.*;
+import org.mtr.mod.servlet.DepotGenerationServlet;
+import org.mtr.mod.servlet.VehicleLiftServlet;
 
 import javax.annotation.Nullable;
 import java.net.ServerSocket;
@@ -66,6 +68,7 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketDeleteData.class, PacketDeleteData::new);
 		REGISTRY.registerPacket(PacketDeleteRailAction.class, PacketDeleteRailAction::new);
 		REGISTRY.registerPacket(PacketDepotGenerate.class, PacketDepotGenerate::new);
+		REGISTRY.registerPacket(PacketDepotGeneration.class, PacketDepotGeneration::new);
 		REGISTRY.registerPacket(PacketDriveTrain.class, PacketDriveTrain::new);
 		REGISTRY.registerPacket(PacketFetchArrivals.class, PacketFetchArrivals::new);
 		REGISTRY.registerPacket(PacketOpenBlockEntityScreen.class, PacketOpenBlockEntityScreen::new);
@@ -121,7 +124,8 @@ public final class Init implements Utilities {
 			final int port = findFreePort(serverPort + 1);
 			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, port, WORLD_ID_LIST.toArray(new String[0]));
 			webserver = new Webserver(port);
-			webserver.addServlet(new ServletHolder(new SocketServlet(minecraftServer)), "/");
+			webserver.addServlet(new ServletHolder(new DepotGenerationServlet(minecraftServer)), "/depot-generation");
+			webserver.addServlet(new ServletHolder(new VehicleLiftServlet(minecraftServer)), "/vehicles-lifts");
 			webserver.start();
 
 			serverTick = 0;

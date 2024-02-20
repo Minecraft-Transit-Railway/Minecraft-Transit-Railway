@@ -4,17 +4,17 @@ import org.mtr.core.data.Station;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockRailwaySign;
 import org.mtr.mod.block.BlockRouteSignBase;
-import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.PacketUpdateRailwaySignConfig;
 import org.mtr.mod.render.RenderRailwaySign;
@@ -35,10 +35,10 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 	private final int length;
 	private final String[] signIds;
 	private final LongAVLTreeSet selectedIds;
-	private final ObjectAVLTreeSet<DashboardListItem> exitsForList = new ObjectAVLTreeSet<>();
+	private final ObjectArraySet<DashboardListItem> exitsForList = new ObjectArraySet<>();
 	private final ObjectImmutableList<DashboardListItem> platformsForList;
-	private final ObjectAVLTreeSet<DashboardListItem> routesForList;
-	private final ObjectAVLTreeSet<DashboardListItem> stationsForList;
+	private final ObjectArraySet<DashboardListItem> routesForList;
+	private final ObjectArraySet<DashboardListItem> stationsForList;
 	private final ObjectArrayList<String> allSignIds = new ObjectArrayList<>();
 
 	private final ButtonWidgetExtension[] buttonsEdit;
@@ -62,8 +62,8 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 		final Station station = InitClient.findStation(signPos);
 		if (station == null) {
 			platformsForList = ObjectImmutableList.of();
-			stationsForList = new ObjectAVLTreeSet<>();
-			routesForList = new ObjectAVLTreeSet<>();
+			stationsForList = new ObjectArraySet<>();
+			routesForList = new ObjectArraySet<>();
 		} else {
 			final Object2ObjectAVLTreeMap<String, ObjectArrayList<String>> exits = new Object2ObjectAVLTreeMap<>(); // TODO
 
@@ -76,13 +76,13 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 
 			platformsForList = PIDSConfigScreen.getPlatformsForList(station);
 
-			final ObjectAVLTreeSet<Station> connectingStationsIncludingThisOne = new ObjectAVLTreeSet<>(station.connectedStations);
+			final ObjectArraySet<Station> connectingStationsIncludingThisOne = new ObjectArraySet<>(station.connectedStations);
 			connectingStationsIncludingThisOne.add(station);
 			stationsForList = MinecraftClientData.convertDataSet(connectingStationsIncludingThisOne);
 
 			final LongAVLTreeSet platformIds = new LongAVLTreeSet();
 			connectingStationsIncludingThisOne.forEach(connectingStation -> connectingStation.savedRails.forEach(platform -> platformIds.add(platform.getId())));
-			routesForList = new ObjectAVLTreeSet<>();
+			routesForList = new ObjectArraySet<>();
 			final IntAVLTreeSet addedColors = new IntAVLTreeSet();
 			MinecraftClientData.getInstance().simplifiedRoutes.forEach(simplifiedRoute -> {
 				final int color = simplifiedRoute.getColor();
