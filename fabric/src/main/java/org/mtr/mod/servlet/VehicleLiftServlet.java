@@ -1,4 +1,4 @@
-package org.mtr.mod;
+package org.mtr.mod.servlet;
 
 import org.mtr.core.integration.Response;
 import org.mtr.core.operation.PlayerPresentResponse;
@@ -10,6 +10,7 @@ import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.libraries.io.netty.handler.codec.http.HttpResponseStatus;
 import org.mtr.mapping.holder.MinecraftServer;
 import org.mtr.mapping.holder.ServerPlayerEntity;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.packet.PacketUpdateVehiclesLifts;
 
@@ -20,12 +21,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
 
-public final class SocketServlet extends HttpServlet {
+public final class VehicleLiftServlet extends HttpServlet {
 
 	private static MinecraftServer minecraftServer;
 
-	public SocketServlet(MinecraftServer minecraftServer) {
-		SocketServlet.minecraftServer = minecraftServer;
+	public VehicleLiftServlet(MinecraftServer minecraftServer) {
+		VehicleLiftServlet.minecraftServer = minecraftServer;
 	}
 
 	@Override
@@ -53,6 +54,6 @@ public final class SocketServlet extends HttpServlet {
 			playerPresent = false;
 		}
 
-		ServletBase.sendResponse(httpServletResponse, asyncContext, Utilities.getJsonObjectFromData(new PlayerPresentResponse(playerPresent)).toString(), ServletBase.getMimeType(""), HttpResponseStatus.OK);
+		ServletBase.sendResponse(httpServletResponse, asyncContext, Utilities.getJsonObjectFromData(new PlayerPresentResponse(playerPresent)).toString(), ServletBase.getMimeType("json"), HttpResponseStatus.OK);
 	}
 }

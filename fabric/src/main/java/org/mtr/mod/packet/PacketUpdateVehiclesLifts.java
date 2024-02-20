@@ -4,8 +4,8 @@ import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.integration.Response;
 import org.mtr.core.operation.VehicleLiftResponse;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.VehicleRidingMovement;
@@ -62,7 +62,7 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 		return PacketRequestResponseBase.ResponseType.NONE;
 	}
 
-	private static <T extends NameColorDataBase, U> boolean updateVehiclesOrLifts(ObjectAVLTreeSet<T> dataSet, Consumer<LongConsumer> iterateKeep, Consumer<Consumer<U>> iterateUpdate, ToLongFunction<U> getId, Function<U, T> createInstance) {
+	private static <T extends NameColorDataBase, U> boolean updateVehiclesOrLifts(ObjectArraySet<T> dataSet, Consumer<LongConsumer> iterateKeep, Consumer<Consumer<U>> iterateUpdate, ToLongFunction<U> getId, Function<U, T> createInstance) {
 		final LongAVLTreeSet keepIds = new LongAVLTreeSet();
 		iterateKeep.accept(keepIds::add);
 		VehicleRidingMovement.writeVehicleId(keepIds);
