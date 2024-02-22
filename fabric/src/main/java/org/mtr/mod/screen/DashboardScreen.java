@@ -6,6 +6,7 @@ import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.ClickableWidget;
+import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.*;
@@ -43,8 +44,8 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 	private final ButtonWidgetExtension buttonDoneEditingRouteDestination;
 	private final ButtonWidgetExtension buttonZoomIn;
 	private final ButtonWidgetExtension buttonZoomOut;
-	private final ButtonWidgetExtension buttonMapTopView;
-	private final ButtonWidgetExtension buttonMapCurrentY;
+	private final TexturedButtonWidgetExtension buttonMapTopView;
+	private final TexturedButtonWidgetExtension buttonMapCurrentY;
 	private final ButtonWidgetExtension buttonRailActions;
 	private final ButtonWidgetExtension buttonOptions;
 
@@ -78,8 +79,8 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		buttonDoneEditingRouteDestination = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> onDoneEditingRouteDestination());
 		buttonZoomIn = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> widgetMap.scale(1));
 		buttonZoomOut = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> widgetMap.scale(-1));
-		buttonMapTopView = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("^"), button -> widgetMap.setOverlayMode(WidgetMap.MapOverlayMode.TOP_VIEW));
-		buttonMapCurrentY = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("v"), button -> widgetMap.setOverlayMode(WidgetMap.MapOverlayMode.CURRENT_Y));
+		buttonMapTopView = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_map_top_view.png"), new Identifier("textures/gui/sprites/mtr/icon_map_top_view_highlighted.png"), button -> widgetMap.setOverlayMode(WorldMap.MapOverlayMode.TOP_VIEW));
+		buttonMapCurrentY = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_map_current_y.png"), new Identifier("textures/gui/sprites/mtr/icon_map_current_y_highlighted.png"), button -> widgetMap.setOverlayMode(WorldMap.MapOverlayMode.CURRENT_Y));
 		buttonRailActions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.rail_actions_button"), button -> MinecraftClient.getInstance().openScreen(new Screen(new RailActionsScreen())));
 		buttonOptions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("menu.options"), button -> MinecraftClient.getInstance().openScreen(new Screen(new ConfigScreen(useTimeAndWindSync))));
 
@@ -426,7 +427,7 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 
 	@Override
 	public void onClose2() {
-		widgetMap.disposeMapTextures();
+		widgetMap.onClose();
 		super.onClose2();
 	}
 
