@@ -2,30 +2,44 @@ package org.mtr.mod.render;
 
 import com.logisticscraft.occlusionculling.DataProvider;
 import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.BlockView;
 import org.mtr.mapping.holder.ClientWorld;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mod.CustomThread;
+import org.mtr.mod.Init;
 
 import java.util.function.Consumer;
 
-public final class OcclusionCullingThread extends CustomThread {
+public final class WorkerThread extends CustomThread {
 
 	private int renderDistance;
 	private OcclusionCullingInstance occlusionCullingInstance;
-	private Consumer<OcclusionCullingInstance> queuedTask;
+	private Consumer<OcclusionCullingInstance> queuedOcclusionTask;
+	private final ObjectArrayList<Runnable> queue = new ObjectArrayList<>();
 
 	@Override
 	protected void runTick() {
 		updateInstance();
 		occlusionCullingInstance.resetCache();
-		final Consumer<OcclusionCullingInstance> currentTask = queuedTask;
-		queuedTask = null;
+		final Consumer<OcclusionCullingInstance> currentTask = queuedOcclusionTask;
+		queuedOcclusionTask = null;
 
 		if (currentTask != null) {
 			currentTask.accept(occlusionCullingInstance);
+		}
+
+		if (!queue.isEmpty()) {
+			try {
+				final Runnable task = queue.remove(0);
+				if (task != null) {
+					task.run();
+				}
+			} catch (Exception e) {
+				Init.LOGGER.error("", e);
+			}
 		}
 	}
 
@@ -34,16 +48,20 @@ public final class OcclusionCullingThread extends CustomThread {
 		return MinecraftClient.getInstance().isRunning();
 	}
 
+	public void schedule(Consumer<OcclusionCullingInstance> consumer) {
+		queuedOcclusionTask = consumer;
+	}
+
+	public void schedule(Runnable runnable) {
+		queue.add(runnable);
+	}
+
 	private void updateInstance() {
 		final int newRenderDistance = MinecraftClientHelper.getRenderDistance();
 		if (renderDistance != newRenderDistance) {
 			renderDistance = newRenderDistance;
 			occlusionCullingInstance = new OcclusionCullingInstance(renderDistance * 16, new CullingDataProvider());
 		}
-	}
-
-	public void schedule(Consumer<OcclusionCullingInstance> consumer) {
-		queuedTask = consumer;
 	}
 
 	private static final class CullingDataProvider implements DataProvider {

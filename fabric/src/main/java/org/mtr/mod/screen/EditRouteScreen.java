@@ -99,7 +99,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 
 			super.render(graphicsHolder, mouseX, mouseY, delta);
 		} catch (Exception e) {
-			Init.LOGGER.error(e);
+			Init.LOGGER.error("", e);
 		}
 	}
 

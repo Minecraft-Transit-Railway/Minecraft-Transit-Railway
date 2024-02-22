@@ -1,5 +1,6 @@
 package org.mtr.mod.packet;
 
+import org.mtr.core.integration.Response;
 import org.mtr.core.operation.GenerateByDepotIds;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.tool.PacketBufferReceiver;
@@ -21,6 +22,11 @@ public final class PacketDepotGenerate extends PacketRequestResponseBase {
 	}
 
 	@Override
+	protected void runClientInbound(Response response) {
+		PacketUpdateData.update(response);
+	}
+
+	@Override
 	protected PacketRequestResponseBase getInstance(String content) {
 		return new PacketDepotGenerate(content);
 	}
@@ -33,6 +39,6 @@ public final class PacketDepotGenerate extends PacketRequestResponseBase {
 
 	@Override
 	protected ResponseType responseType() {
-		return ResponseType.NONE;
+		return ResponseType.ALL;
 	}
 }
