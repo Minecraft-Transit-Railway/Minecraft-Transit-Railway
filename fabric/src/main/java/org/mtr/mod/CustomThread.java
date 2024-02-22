@@ -18,7 +18,7 @@ public abstract class CustomThread extends Thread {
 			try {
 				runTick();
 			} catch (Exception e) {
-				Init.LOGGER.error(e);
+				Init.LOGGER.error("", e);
 			}
 		}
 	}

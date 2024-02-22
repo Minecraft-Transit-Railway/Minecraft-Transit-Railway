@@ -22,11 +22,11 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 	private static long lastRenderedMillis;
 
 	public static final int PLAYER_RENDER_OFFSET = 1000;
+	public static final WorkerThread WORKER_THREAD = new WorkerThread();
 
 	private static final int TOTAL_RENDER_STAGES = 2;
 	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<BiConsumer<GraphicsHolder, Vector3d>>>>> RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
 	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<BiConsumer<GraphicsHolder, Vector3d>>>>> CURRENT_RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
-	private static final OcclusionCullingThread OCCLUSION_CULLING_THREAD = new OcclusionCullingThread();
 
 	static {
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
@@ -65,7 +65,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 		MinecraftClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
 		MinecraftClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
 		lastRenderedMillis = InitClient.getGameMillis();
-		OCCLUSION_CULLING_THREAD.start();
+		WORKER_THREAD.start();
 		DynamicTextureCache.instance.tick();
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();

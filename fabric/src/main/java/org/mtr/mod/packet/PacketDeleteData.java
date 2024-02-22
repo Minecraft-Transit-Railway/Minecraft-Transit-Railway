@@ -5,7 +5,6 @@ import org.mtr.core.integration.Response;
 import org.mtr.core.operation.DeleteDataRequest;
 import org.mtr.core.operation.DeleteDataResponse;
 import org.mtr.core.tool.Utilities;
-import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mod.Init;
@@ -58,14 +57,14 @@ public final class PacketDeleteData extends PacketRequestResponseBase {
 	}
 
 	public static void sendDirectlyToServerLiftFloorPosition(ServerWorld serverWorld, Position liftFloorPositions) {
-		new PacketDeleteData(new DeleteDataRequest().addLiftFloorPosition(liftFloorPositions)).runServerOutbound(serverWorld, (ServerPlayerEntity) null);
+		new PacketDeleteData(new DeleteDataRequest().addLiftFloorPosition(liftFloorPositions)).runServerOutbound(serverWorld, null);
 	}
 
 	public static void sendDirectlyToServerRailNodePosition(ServerWorld serverWorld, Position railNodePosition) {
-		new PacketDeleteData(new DeleteDataRequest().addRailNodePosition(railNodePosition)).runServerOutbound(serverWorld, (ServerPlayerEntity) null);
+		new PacketDeleteData(new DeleteDataRequest().addRailNodePosition(railNodePosition)).runServerOutbound(serverWorld, null);
 	}
 
 	public static void sendDirectlyToServerRailId(ServerWorld serverWorld, String railId) {
-		new PacketDeleteData(new DeleteDataRequest().addRailId(railId)).runServerOutbound(serverWorld, (ServerPlayerEntity) null);
+		new PacketDeleteData(new DeleteDataRequest().addRailId(railId)).runServerOutbound(serverWorld, null);
 	}
 }

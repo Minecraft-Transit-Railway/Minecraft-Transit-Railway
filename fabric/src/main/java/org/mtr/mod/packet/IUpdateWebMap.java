@@ -35,7 +35,7 @@ public interface IUpdateWebMap {
 				callback.accept(inputStream);
 			}
 		} catch (IOException e) {
-			Init.LOGGER.error(e);
+			Init.LOGGER.error("", e);
 		}
 	}
 

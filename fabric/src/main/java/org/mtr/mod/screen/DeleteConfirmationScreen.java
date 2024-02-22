@@ -49,7 +49,7 @@ public class DeleteConfirmationScreen extends ScreenExtension implements IGui {
 			super.render(graphicsHolder, mouseX, mouseY, delta);
 			graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.delete_confirmation", IGui.formatStationName(name)), width / 2, height / 2 - SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
 		} catch (Exception e) {
-			Init.LOGGER.error(e);
+			Init.LOGGER.error("", e);
 		}
 	}
 

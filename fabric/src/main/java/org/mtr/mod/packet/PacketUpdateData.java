@@ -6,7 +6,6 @@ import org.mtr.core.integration.Response;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.operation.UpdateDataResponse;
 import org.mtr.core.tool.Utilities;
-import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mod.client.DynamicTextureCache;
@@ -30,11 +29,7 @@ public final class PacketUpdateData extends PacketRequestResponseBase {
 
 	@Override
 	protected void runClientInbound(Response response) {
-		final MinecraftClientData minecraftClientData = MinecraftClientData.getInstance();
-		response.getData(jsonReader -> new UpdateDataResponse(jsonReader, minecraftClientData)).write();
-		response.getData(jsonReader -> new UpdateDataResponse(jsonReader, MinecraftClientData.getDashboardInstance())).write();
-		minecraftClientData.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(minecraftClientData)));
-		DynamicTextureCache.instance.reload();
+		update(response);
 	}
 
 	@Override
@@ -54,10 +49,18 @@ public final class PacketUpdateData extends PacketRequestResponseBase {
 	}
 
 	public static void sendDirectlyToServerRail(ServerWorld serverWorld, Rail rail) {
-		new PacketUpdateData(new UpdateDataRequest(new MinecraftClientData()).addRail(rail)).runServerOutbound(serverWorld, (ServerPlayerEntity) null);
+		new PacketUpdateData(new UpdateDataRequest(new MinecraftClientData()).addRail(rail)).runServerOutbound(serverWorld, null);
 	}
 
 	public static void sendDirectlyToServerSignalModification(ServerWorld serverWorld, SignalModification signalModification) {
-		new PacketUpdateData(new UpdateDataRequest(new MinecraftClientData()).addSignalModification(signalModification)).runServerOutbound(serverWorld, (ServerPlayerEntity) null);
+		new PacketUpdateData(new UpdateDataRequest(new MinecraftClientData()).addSignalModification(signalModification)).runServerOutbound(serverWorld, null);
+	}
+
+	public static void update(Response response) {
+		final MinecraftClientData minecraftClientData = MinecraftClientData.getInstance();
+		response.getData(jsonReader -> new UpdateDataResponse(jsonReader, minecraftClientData)).write();
+		response.getData(jsonReader -> new UpdateDataResponse(jsonReader, MinecraftClientData.getDashboardInstance())).write();
+		minecraftClientData.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(minecraftClientData)));
+		DynamicTextureCache.instance.reload();
 	}
 }

@@ -258,7 +258,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		try {
 			data.setCruisingAltitude(Integer.parseInt(textFieldCruisingAltitude.getText2()));
 		} catch (Exception e) {
-			Init.LOGGER.error(e);
+			Init.LOGGER.error("", e);
 			data.setCruisingAltitude(DEFAULT_CRUISING_ALTITUDE);
 		}
 		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addDepot(data)));
@@ -355,20 +355,24 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		final long timeDifference = System.currentTimeMillis() - lastGeneratedMillis;
 		final StringBuilder stringBuilder = new StringBuilder(TextHelper.translatable("gui.mtr.path_refresh_time", getTimeDifferenceString(timeDifference)).getString()).append("|").append(DateFormat.getDateTimeInstance().format(new Date(lastGeneratedMillis))).append("||");
 
-		if (depot.getLastGeneratedStatus((lastGeneratedFailedStartId, lastGeneratedFailedEndId) -> stringBuilder.append(TextHelper.translatable(
+		switch (depot.getLastGeneratedStatus()) {
+			case SUCCESSFUL:
+				stringBuilder.append(TextHelper.translatable("gui.mtr.path_found").getString());
+				break;
+			case NO_SIDINGS:
+				stringBuilder.append(TextHelper.translatable("gui.mtr.path_not_generated_no_sidings").getString());
+				break;
+			case TWO_PLATFORMS_REQUIRED:
+				stringBuilder.append(TextHelper.translatable("gui.mtr.path_not_generated_platforms").getString());
+				break;
+		}
+
+		depot.getFailedPlatformIds((lastGeneratedFailedStartId, lastGeneratedFailedEndId) -> stringBuilder.append(TextHelper.translatable(
 				"gui.mtr.path_not_found_between",
 				getRoute(depot, lastGeneratedFailedStartId, lastGeneratedFailedEndId),
 				getStation(lastGeneratedFailedStartId),
 				getStation(lastGeneratedFailedEndId)
-		).getString()))) {
-			if (depot.savedRails.isEmpty()) {
-				stringBuilder.append(TextHelper.translatable("gui.mtr.path_not_generated_no_sidings").getString());
-			} else if (getPlatformCount(depot) < 2) {
-				stringBuilder.append(TextHelper.translatable("gui.mtr.path_not_generated_platforms").getString());
-			} else {
-				stringBuilder.append(TextHelper.translatable("gui.mtr.path_found").getString());
-			}
-		}
+		).getString()));
 
 		return stringBuilder.toString();
 	}
@@ -422,13 +426,5 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		final Platform platform = MinecraftClientData.getDashboardInstance().platformIdMap.get(platformId);
 		final Station station = platform == null ? null : platform.area;
 		return IGui.formatStationName(station == null ? "" : station.getName());
-	}
-
-	private static int getPlatformCount(Depot depot) {
-		int platformCount = 0;
-		for (final Route route : depot.routes) {
-			platformCount += route.getRoutePlatforms().size();
-		}
-		return platformCount;
 	}
 }

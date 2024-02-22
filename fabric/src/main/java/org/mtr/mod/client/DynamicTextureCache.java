@@ -4,7 +4,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHa
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
-import org.mtr.mod.CustomThread;
 import org.mtr.mod.Init;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.render.RenderTrains;
@@ -29,7 +28,6 @@ public class DynamicTextureCache implements IGui {
 
 	private final Object2ObjectLinkedOpenHashMap<String, DynamicResource> dynamicResources = new Object2ObjectLinkedOpenHashMap<>();
 	private final ObjectArrayList<Runnable> resourceRegistryQueue = new ObjectArrayList<>();
-	private final DynamicTextureThread dynamicTextureThread = new DynamicTextureThread();
 
 	public static DynamicTextureCache instance = new DynamicTextureCache();
 
@@ -46,7 +44,6 @@ public class DynamicTextureCache implements IGui {
 	}
 
 	public void tick() {
-		dynamicTextureThread.start();
 		final ObjectArrayList<String> keysToRemove = new ObjectArrayList<>();
 		dynamicResources.forEach((checkKey, checkDynamicResource) -> {
 			if (checkDynamicResource.coolDown >= 0) {
@@ -222,13 +219,13 @@ public class DynamicTextureCache implements IGui {
 		}
 
 		RouteMapGenerator.setConstants();
-		dynamicTextureThread.queue.add(() -> {
+		RenderTrains.WORKER_THREAD.schedule(() -> {
 			while (font == null) {
 				ResourceManagerHelper.readResource(new Identifier(Init.MOD_ID, "font/noto-sans-semibold.ttf"), inputStream -> {
 					try {
 						font = Font.createFont(Font.TRUETYPE_FONT, inputStream);
 					} catch (Exception e) {
-						Init.LOGGER.error(e);
+						Init.LOGGER.error("", e);
 					}
 				});
 			}
@@ -238,7 +235,7 @@ public class DynamicTextureCache implements IGui {
 					try {
 						fontCjk = Font.createFont(Font.TRUETYPE_FONT, inputStream);
 					} catch (Exception e) {
-						Init.LOGGER.error(e);
+						Init.LOGGER.error("", e);
 					}
 				});
 			}
@@ -260,7 +257,7 @@ public class DynamicTextureCache implements IGui {
 					try {
 						newKey = URLEncoder.encode(key, "UTF-8");
 					} catch (Exception e) {
-						Init.LOGGER.error(e);
+						Init.LOGGER.error("", e);
 					}
 					final Identifier identifier = new Identifier(Init.MOD_ID, "dynamic_texture_" + newKey.toLowerCase(Locale.ENGLISH).replaceAll("[^0-9a-z_]", "_"));
 					MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, new AbstractTexture(nativeImageBackedTexture.data));
@@ -311,30 +308,6 @@ public class DynamicTextureCache implements IGui {
 				MinecraftClient.getInstance().getTextureManager().destroyTexture(identifier);
 				RenderTrains.cancelRender(identifier);
 			}
-		}
-	}
-
-	private static class DynamicTextureThread extends CustomThread {
-
-		private final ObjectArrayList<Runnable> queue = new ObjectArrayList<>();
-
-		@Override
-		protected void runTick() {
-			if (!queue.isEmpty()) {
-				try {
-					final Runnable task = queue.remove(0);
-					if (task != null) {
-						task.run();
-					}
-				} catch (Exception e) {
-					Init.LOGGER.error(e);
-				}
-			}
-		}
-
-		@Override
-		protected boolean isRunning() {
-			return MinecraftClient.getInstance().isRunning();
 		}
 	}
 

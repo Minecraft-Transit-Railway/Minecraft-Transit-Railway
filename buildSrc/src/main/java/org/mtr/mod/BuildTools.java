@@ -88,7 +88,7 @@ public class BuildTools {
 							StandardCharsets.UTF_8
 					);
 				} catch (Exception e) {
-					LOGGER.error(e);
+					LOGGER.error("", e);
 				}
 			});
 		}
@@ -131,7 +131,7 @@ public class BuildTools {
 						}
 					});
 				} catch (Exception e) {
-					LOGGER.error(e);
+					LOGGER.error("", e);
 				}
 			});
 		}
@@ -154,12 +154,12 @@ public class BuildTools {
 			try {
 				return JsonParser.parseString(IOUtils.toString(new URL(url), StandardCharsets.UTF_8));
 			} catch (Exception e) {
-				LOGGER.error(e);
+				LOGGER.error("", e);
 			}
 			try {
 				Thread.sleep(1000);
 			} catch (Exception e) {
-				LOGGER.error(e);
+				LOGGER.error("", e);
 			}
 		}
 
