@@ -115,7 +115,7 @@ public class BlockLiftButtons extends BlockExtension implements DirectionHelper,
 			if (floorIndex > 0) {
 				buttonStates[0] = true;
 			}
-			if (floorIndex < lift.getFloorCount() - 1) {
+			if (floorIndex >= 0 && floorIndex < lift.getFloorCount() - 1) {
 				buttonStates[1] = true;
 			}
 			if (floorIndex >= 0) {
