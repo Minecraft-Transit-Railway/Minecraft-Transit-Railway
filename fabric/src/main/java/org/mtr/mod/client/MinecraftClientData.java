@@ -9,7 +9,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
-import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.KeyBindings;
@@ -88,20 +87,6 @@ public final class MinecraftClientData extends ClientData {
 
 	public void writeArrivalRequest(long requestKey, ArrivalsResponse arrivalsResponse) {
 		arrivalRequests.put(requestKey, new ObjectLongImmutablePair<>(arrivalsResponse, System.currentTimeMillis() + CACHED_ARRIVAL_REQUESTS_MILLIS));
-	}
-
-	public void clean() {
-		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
-		if (clientPlayerEntity != null) {
-			final Position position = Init.blockPosToPosition(clientPlayerEntity.getBlockPos());
-			final int requestRadius = MinecraftClientHelper.getRenderDistance() * 16;
-			stations.removeIf(station -> !station.inArea(position, requestRadius));
-			platforms.removeIf(platform -> !platform.closeTo(position, requestRadius));
-			sidings.removeIf(siding -> !siding.closeTo(position, requestRadius));
-			depots.removeIf(depot -> !depot.inArea(position, requestRadius));
-			rails.removeIf(rail -> !rail.closeTo(position, requestRadius));
-			sync();
-		}
 	}
 
 	@Nullable

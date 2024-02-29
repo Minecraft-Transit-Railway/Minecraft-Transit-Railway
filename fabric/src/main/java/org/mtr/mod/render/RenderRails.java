@@ -138,7 +138,7 @@ public class RenderRails implements IGui {
 			}
 		});
 
-		RenderTrains.WORKER_THREAD.schedule(occlusionCullingInstance -> {
+		RenderTrains.WORKER_THREAD.scheduleRails(occlusionCullingInstance -> {
 			final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
 			cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
 			minecraftClient.execute(() -> tasks.forEach(Runnable::run));
