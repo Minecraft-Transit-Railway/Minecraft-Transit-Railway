@@ -39,6 +39,15 @@
 				"windowEnd2Flipped"
 			],
 			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"seat"
+			],
+			"positionDefinitions": [
+				"seatEnd2"
+			],
+			"renderStage": "INTERIOR"
 		}
 	],
 	"modelYOffset": 1

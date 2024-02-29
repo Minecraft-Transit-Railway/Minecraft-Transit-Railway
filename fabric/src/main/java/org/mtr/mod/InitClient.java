@@ -29,7 +29,6 @@ public final class InitClient {
 	private static long gameMillis = 0;
 	private static long lastPlayedTrainSoundsMillis = 0;
 	private static long lastUpdatePacketMillis = 0;
-	private static long lastDataCleanMillis = 0;
 	private static Runnable movePlayer;
 
 	public static final RegistryClient REGISTRY_CLIENT = new RegistryClient(Init.REGISTRY);
@@ -334,13 +333,6 @@ public final class InitClient {
 				dataRequest.writeExistingIds(MinecraftClientData.getInstance());
 				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketRequestData(dataRequest));
 				lastUpdatePacketMillis = -1;
-				lastDataCleanMillis = getGameMillis();
-			}
-
-			// If player hasn't moved in 2 seconds, clean any out of range data
-			if (lastDataCleanMillis >= 0 && getGameMillis() - lastDataCleanMillis > 2000) {
-				MinecraftClientData.getInstance().clean();
-				lastDataCleanMillis = -1;
 			}
 		});
 

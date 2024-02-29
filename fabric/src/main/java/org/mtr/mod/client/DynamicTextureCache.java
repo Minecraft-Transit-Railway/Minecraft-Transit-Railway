@@ -2,6 +2,7 @@ package org.mtr.mod.client;
 
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
@@ -27,6 +28,7 @@ public class DynamicTextureCache implements IGui {
 	private Font fontCjk;
 
 	private final Object2ObjectLinkedOpenHashMap<String, DynamicResource> dynamicResources = new Object2ObjectLinkedOpenHashMap<>();
+	private final ObjectOpenHashSet<String> generatingResources = new ObjectOpenHashSet<>();
 	private final ObjectArrayList<Runnable> resourceRegistryQueue = new ObjectArrayList<>();
 
 	public static DynamicTextureCache instance = new DynamicTextureCache();
@@ -41,6 +43,7 @@ public class DynamicTextureCache implements IGui {
 		fontCjk = null;
 		Init.LOGGER.info("Refreshing dynamic resources");
 		dynamicResources.values().forEach(dynamicResource -> dynamicResource.needsRefresh = true);
+		generatingResources.clear();
 	}
 
 	public void tick() {
@@ -218,8 +221,13 @@ public class DynamicTextureCache implements IGui {
 			return dynamicResource;
 		}
 
+		if (generatingResources.contains(key)) {
+			return defaultRenderingColor.dynamicResource;
+		}
+
+		generatingResources.add(key);
 		RouteMapGenerator.setConstants();
-		RenderTrains.WORKER_THREAD.schedule(() -> {
+		RenderTrains.WORKER_THREAD.scheduleDynamicTextures(() -> {
 			while (font == null) {
 				ResourceManagerHelper.readResource(new Identifier(Init.MOD_ID, "font/noto-sans-semibold.ttf"), inputStream -> {
 					try {
@@ -265,11 +273,11 @@ public class DynamicTextureCache implements IGui {
 				}
 
 				dynamicResources.put(key, dynamicResourceNew);
+				generatingResources.remove(key);
 			});
 		});
 
 		if (dynamicResource == null) {
-			dynamicResources.put(key, defaultRenderingColor.dynamicResource);
 			return defaultRenderingColor.dynamicResource;
 		} else {
 			dynamicResource.coolDown = 0;

@@ -17,30 +17,20 @@ public final class WorkerThread extends CustomThread {
 
 	private int renderDistance;
 	private OcclusionCullingInstance occlusionCullingInstance;
-	private Consumer<OcclusionCullingInstance> queuedOcclusionTask;
+	private final ObjectArrayList<Consumer<OcclusionCullingInstance>> occlusionQueue1 = new ObjectArrayList<>();
+	private final ObjectArrayList<Consumer<OcclusionCullingInstance>> occlusionQueue2 = new ObjectArrayList<>();
 	private final ObjectArrayList<Runnable> queue = new ObjectArrayList<>();
 
 	@Override
 	protected void runTick() {
-		updateInstance();
-		occlusionCullingInstance.resetCache();
-		final Consumer<OcclusionCullingInstance> currentTask = queuedOcclusionTask;
-		queuedOcclusionTask = null;
-
-		if (currentTask != null) {
-			currentTask.accept(occlusionCullingInstance);
+		if (!occlusionQueue1.isEmpty() || !occlusionQueue2.isEmpty()) {
+			updateInstance();
+			occlusionCullingInstance.resetCache();
+			run(occlusionQueue1, task -> task.accept(occlusionCullingInstance));
+			run(occlusionQueue2, task -> task.accept(occlusionCullingInstance));
 		}
 
-		if (!queue.isEmpty()) {
-			try {
-				final Runnable task = queue.remove(0);
-				if (task != null) {
-					task.run();
-				}
-			} catch (Exception e) {
-				Init.LOGGER.error("", e);
-			}
-		}
+		run(queue, Runnable::run);
 	}
 
 	@Override
@@ -48,11 +38,19 @@ public final class WorkerThread extends CustomThread {
 		return MinecraftClient.getInstance().isRunning();
 	}
 
-	public void schedule(Consumer<OcclusionCullingInstance> consumer) {
-		queuedOcclusionTask = consumer;
+	public void scheduleVehicles(Consumer<OcclusionCullingInstance> consumer) {
+		if (occlusionQueue1.size() < 2) {
+			occlusionQueue1.add(consumer);
+		}
 	}
 
-	public void schedule(Runnable runnable) {
+	public void scheduleRails(Consumer<OcclusionCullingInstance> consumer) {
+		if (occlusionQueue2.size() < 2) {
+			occlusionQueue2.add(consumer);
+		}
+	}
+
+	public void scheduleDynamicTextures(Runnable runnable) {
 		queue.add(runnable);
 	}
 
@@ -61,6 +59,19 @@ public final class WorkerThread extends CustomThread {
 		if (renderDistance != newRenderDistance) {
 			renderDistance = newRenderDistance;
 			occlusionCullingInstance = new OcclusionCullingInstance(renderDistance * 16, new CullingDataProvider());
+		}
+	}
+
+	private static <T> void run(ObjectArrayList<T> queue, Consumer<T> consumer) {
+		if (!queue.isEmpty()) {
+			try {
+				final T task = queue.remove(0);
+				if (task != null) {
+					consumer.accept(task);
+				}
+			} catch (Exception e) {
+				Init.LOGGER.error("", e);
+			}
 		}
 	}
 
