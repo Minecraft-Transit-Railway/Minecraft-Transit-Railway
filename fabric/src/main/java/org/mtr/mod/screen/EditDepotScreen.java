@@ -2,7 +2,7 @@ package org.mtr.mod.screen;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mtr.core.data.*;
-import org.mtr.core.operation.GenerateByDepotIds;
+import org.mtr.core.operation.GenerateOrClearByDepotIds;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -15,6 +15,7 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.packet.PacketDepotClear;
 import org.mtr.mod.packet.PacketDepotGenerate;
 import org.mtr.mod.packet.PacketUpdateData;
 
@@ -103,18 +104,21 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		});
 		buttonGenerateRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.refresh_path"), button -> {
 			saveData();
-			final GenerateByDepotIds generateByDepotIds = new GenerateByDepotIds();
-			generateByDepotIds.addDepotId(depot.getId());
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotGenerate(generateByDepotIds));
+			final GenerateOrClearByDepotIds generateOrClearByDepotIds = new GenerateOrClearByDepotIds();
+			generateOrClearByDepotIds.addDepotId(depot.getId());
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotGenerate(generateOrClearByDepotIds));
 		});
 		buttonClearTrains = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.clear_vehicles"), button -> {
-//			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.CLEAR, ObjectSet.of(depot)))
+			saveData();
+			final GenerateOrClearByDepotIds generateOrClearByDepotIds = new GenerateOrClearByDepotIds();
+			generateOrClearByDepotIds.addDepotId(depot.getId());
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotClear(generateOrClearByDepotIds));
 		});
 		checkboxRepeatIndefinitely = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, button -> {
 			saveData();
-			final GenerateByDepotIds generateByDepotIds = new GenerateByDepotIds();
-			generateByDepotIds.addDepotId(depot.getId());
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotGenerate(generateByDepotIds));
+			final GenerateOrClearByDepotIds generateOrClearByDepotIds = new GenerateOrClearByDepotIds();
+			generateOrClearByDepotIds.addDepotId(depot.getId());
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotGenerate(generateOrClearByDepotIds));
 		});
 		checkboxRepeatIndefinitely.setMessage2(new Text(TextHelper.translatable("gui.mtr.repeat_indefinitely").data));
 		textFieldCruisingAltitude = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 5, TextCase.DEFAULT, "[^-\\d]", String.valueOf(DEFAULT_CRUISING_ALTITUDE));
