@@ -50,8 +50,13 @@ public final class WorkerThread extends CustomThread {
 		}
 	}
 
-	public void scheduleDynamicTextures(Runnable runnable) {
-		queue.add(runnable);
+	public boolean scheduleDynamicTextures(Runnable runnable) {
+		if (occlusionQueue2.size() < 2) {
+			queue.add(runnable);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private void updateInstance() {
