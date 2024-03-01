@@ -103,6 +103,12 @@ public final class Init implements Utilities {
 					final boolean backupDirectoryExists = Files.isDirectory(backupDirectory);
 					if (worldDirectoryExists && backupDirectoryExists) {
 						try {
+							if (main != null) {
+								main.stop();
+							}
+							if (webserver != null) {
+								webserver.stop();
+							}
 							contextHandler.sendSuccess(String.format("Restoring world backup from %s to %s...", backupDirectory, worldDirectory), true);
 							FileUtils.deleteDirectory(worldDirectory.toFile());
 							contextHandler.sendSuccess("Deleting world complete", true);
