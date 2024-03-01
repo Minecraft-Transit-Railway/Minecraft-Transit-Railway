@@ -34,6 +34,7 @@ public class DynamicTextureCache implements IGui {
 	public static DynamicTextureCache instance = new DynamicTextureCache();
 
 	public static final float LINE_HEIGHT_MULTIPLIER = 1.25F;
+	private static final int COOL_DOWN_TIME = 10000; // Images not requested within the last 10 seconds will be unregistered
 	private static final Identifier DEFAULT_BLACK_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/black.png");
 	private static final Identifier DEFAULT_WHITE_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/white.png");
 	private static final Identifier DEFAULT_TRANSPARENT_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/transparent.png");
@@ -49,10 +50,7 @@ public class DynamicTextureCache implements IGui {
 	public void tick() {
 		final ObjectArrayList<String> keysToRemove = new ObjectArrayList<>();
 		dynamicResources.forEach((checkKey, checkDynamicResource) -> {
-			if (checkDynamicResource.coolDown >= 0) {
-				checkDynamicResource.coolDown++;
-			}
-			if (checkDynamicResource.coolDown >= 20) {
+			if (checkDynamicResource.expiryTime < System.currentTimeMillis()) {
 				checkDynamicResource.remove();
 				keysToRemove.add(checkKey);
 			}
@@ -217,7 +215,7 @@ public class DynamicTextureCache implements IGui {
 		final DynamicResource dynamicResource = dynamicResources.get(key);
 
 		if (dynamicResource != null && !dynamicResource.needsRefresh) {
-			dynamicResource.coolDown = 0;
+			dynamicResource.expiryTime = System.currentTimeMillis() + COOL_DOWN_TIME;
 			return dynamicResource;
 		}
 
@@ -281,7 +279,7 @@ public class DynamicTextureCache implements IGui {
 		if (dynamicResource == null) {
 			return defaultRenderingColor.dynamicResource;
 		} else {
-			dynamicResource.coolDown = 0;
+			dynamicResource.expiryTime = System.currentTimeMillis() + COOL_DOWN_TIME;
 			dynamicResource.needsRefresh = false;
 			return dynamicResource;
 		}
@@ -289,7 +287,7 @@ public class DynamicTextureCache implements IGui {
 
 	public static class DynamicResource {
 
-		private int coolDown;
+		private long expiryTime;
 		private boolean needsRefresh;
 		public final int width;
 		public final int height;
@@ -329,7 +327,6 @@ public class DynamicTextureCache implements IGui {
 
 		DefaultRenderingColor(Identifier identifier) {
 			dynamicResource = new DynamicResource(identifier, null);
-			dynamicResource.coolDown = -1;
 		}
 	}
 }
