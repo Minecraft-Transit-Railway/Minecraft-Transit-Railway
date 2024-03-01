@@ -1,9 +1,11 @@
 package org.mtr.mod.screen;
 
 import org.mtr.core.data.Station;
+import org.mtr.core.data.StationExit;
 import org.mtr.core.operation.UpdateDataRequest;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.*;
@@ -15,16 +17,15 @@ import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.packet.PacketUpdateData;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class EditStationScreen extends EditNameColorScreenBase<Station> {
 
-	String editingExit;
-	int editingDestinationIndex;
-	int clickDelay;
-
-	public final Object2ObjectAVLTreeMap<String, ObjectArrayList<String>> exits = new Object2ObjectAVLTreeMap<>(); // TODO
+	private StationExit editingExit;
+	private int editingDestinationIndex;
+	private int clickDelay;
 
 	private final MutableText stationZoneText = TextHelper.translatable("gui.mtr.zone");
 	private final MutableText exitParentsText = TextHelper.translatable("gui.mtr.exit_parents");
@@ -52,9 +53,9 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		textFieldExitParentNumber = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 2, TextCase.DEFAULT, "\\D", "1");
 		textFieldExitDestination = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 1024, TextCase.DEFAULT, null, null);
 
-		buttonAddExitParent = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_exit"), button -> checkClickDelay(() -> changeEditingExit("", -1)));
+		buttonAddExitParent = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_exit"), button -> checkClickDelay(() -> changeEditingExit(new StationExit(), -1)));
 		buttonDoneExitParent = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> checkClickDelay(this::onDoneExitParent));
-		buttonAddExitDestination = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_exit_destination"), button -> checkClickDelay(() -> changeEditingExit(editingExit, exits.containsKey(editingExit) ? exits.get(editingExit).size() : -1)));
+		buttonAddExitDestination = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_exit_destination"), button -> checkClickDelay(() -> changeEditingExit(editingExit, editingExit == null ? -1 : editingExit.getDestinations().size())));
 		buttonDoneExitDestination = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> checkClickDelay(this::onDoneExitDestination));
 
 		exitParentList = new DashboardList(null, null, this::onEditExitParent, null, null, this::onDeleteExitParent, null, () -> MinecraftClientData.EXIT_PARENTS_SEARCH, text -> MinecraftClientData.EXIT_PARENTS_SEARCH = text);
@@ -120,14 +121,8 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		exitParentList.tick();
 		exitDestinationList.tick();
 
-		final ObjectArrayList<DashboardListItem> exitParents = exits.keySet().stream().sorted().map(value -> {
-			final ObjectArrayList<String> destinations = exits.get(value);
-			final String additional = destinations.size() > 1 ? "(+" + (destinations.size() - 1) + ")" : "";
-			return new DashboardListItem(0, !destinations.isEmpty() ? value + "|" + destinations.get(0) + "|" + additional : value, 0);
-		}).collect(Collectors.toCollection(ObjectArrayList::new));
-		exitParentList.setData(exitParents, false, false, true, false, false, true);
-
-		final ObjectArrayList<DashboardListItem> exitDestinations = parentExists() ? exits.get(editingExit).stream().map(value -> new DashboardListItem(0, value, 0)).collect(Collectors.toCollection(ObjectArrayList::new)) : new ObjectArrayList<>();
+		exitParentList.setData(getExitsForDashboardList(getStationExits(data, false)), false, false, true, false, false, true);
+		final ObjectArrayList<DashboardListItem> exitDestinations = parentExists() ? editingExit.getDestinations().stream().map(value -> new DashboardListItem(0, value, 0)).collect(Collectors.toCollection(ObjectArrayList::new)) : new ObjectArrayList<>();
 		exitDestinationList.setData(exitDestinations, false, false, true, true, false, true);
 	}
 
@@ -178,19 +173,31 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		} catch (Exception ignored) {
 			data.setZone1(0);
 		}
+
+		final ObjectArrayList<StationExit> exitsToRemove = new ObjectArrayList<>();
+		final ObjectOpenHashSet<String> visitedExits = new ObjectOpenHashSet<>();
+		data.getExits().forEach(exit -> {
+			if (visitedExits.contains(exit.getName())) {
+				exitsToRemove.add(exit);
+			} else {
+				visitedExits.add(exit.getName());
+			}
+		});
+		exitsToRemove.forEach(data.getExits()::remove);
+
 		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addStation(data)));
 	}
 
-	private void changeEditingExit(@Nullable String editingExit, int editingDestinationIndex) {
+	private void changeEditingExit(@Nullable StationExit editingExit, int editingDestinationIndex) {
 		this.editingExit = editingExit;
 		this.editingDestinationIndex = parentExists() ? editingDestinationIndex : -1;
 
 		if (editingExit != null) {
-			textFieldExitParentLetter.setText2(editingExit.toUpperCase(Locale.ENGLISH).replaceAll("[^A-Z]", ""));
-			textFieldExitParentNumber.setText2(editingExit.replaceAll("\\D", ""));
+			textFieldExitParentLetter.setText2(editingExit.getName().toUpperCase(Locale.ENGLISH).replaceAll("[^A-Z]", ""));
+			textFieldExitParentNumber.setText2(editingExit.getName().replaceAll("\\D", ""));
 		}
-		if (editingDestinationIndex >= 0 && editingDestinationIndex < exits.get(editingExit).size()) {
-			textFieldExitDestination.setText2(exits.get(editingExit).get(editingDestinationIndex));
+		if (editingExit != null && editingDestinationIndex >= 0 && editingDestinationIndex < editingExit.getDestinations().size()) {
+			textFieldExitDestination.setText2(editingExit.getDestinations().get(editingDestinationIndex));
 		} else {
 			textFieldExitDestination.setText2("");
 		}
@@ -210,9 +217,18 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	private void onDoneExitParent() {
 		final String parentLetter = textFieldExitParentLetter.getText2();
 		final String parentNumber = textFieldExitParentNumber.getText2();
-		if (!parentLetter.isEmpty() && !parentNumber.isEmpty()) {
+		if (!parentLetter.isEmpty() && !parentNumber.isEmpty() && parentExists()) {
 			try {
-				final String exitParent = parentLetter + Integer.parseInt(parentNumber);
+				final String exitName = parentLetter + Integer.parseInt(parentNumber);
+				editingExit.setName(exitName);
+				if (!data.getExits().contains(editingExit)) {
+					final StationExit overlappingExit = getStationExit(exitName);
+					if (overlappingExit == null) {
+						data.getExits().add(editingExit);
+					} else {
+						overlappingExit.getDestinations().addAll(editingExit.getDestinations());
+					}
+				}
 			} catch (Exception e) {
 				Init.LOGGER.error("", e);
 			}
@@ -223,7 +239,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	private void onDoneExitDestination() {
 		final String destination = textFieldExitDestination.getText2();
 		if (parentExists() && editingDestinationIndex >= 0 && !destination.isEmpty()) {
-			final ObjectArrayList<String> destinations = exits.get(editingExit);
+			final ObjectArrayList<String> destinations = editingExit.getDestinations();
 			if (editingDestinationIndex < destinations.size()) {
 				destinations.set(editingDestinationIndex, destination);
 			} else {
@@ -234,7 +250,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	}
 
 	private void onEditExitParent(DashboardListItem dashboardListItem, int index) {
-		changeEditingExit(formatExitName(dashboardListItem.getName(true)), -1);
+		changeEditingExit(getStationExit(formatExitName(dashboardListItem.getName(true))), -1);
 	}
 
 	private void onDeleteExitParent(DashboardListItem dashboardListItem, int index) {
@@ -251,13 +267,13 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 
 	private void onDeleteExitDestination(DashboardListItem dashboardListItem, int index) {
 		if (parentExists()) {
-			exits.get(editingExit).remove(dashboardListItem.getName(true));
+			editingExit.getDestinations().remove(dashboardListItem.getName(true));
 		}
 		changeEditingExit(editingExit, -1);
 	}
 
 	private ObjectArrayList<String> getExitDestinationList() {
-		return parentExists() ? exits.get(editingExit) : new ObjectArrayList<>();
+		return parentExists() ? editingExit.getDestinations() : new ObjectArrayList<>();
 	}
 
 	private void checkClickDelay(Runnable callback) {
@@ -268,7 +284,69 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	}
 
 	private boolean parentExists() {
-		return editingExit != null && exits.containsKey(editingExit);
+		return editingExit != null;
+	}
+
+	@Nullable
+	private StationExit getStationExit(String exitName) {
+		for (final StationExit exit : data.getExits()) {
+			if (exit.getName().equals(exitName)) {
+				return exit;
+			}
+		}
+		return null;
+	}
+
+	public static ObjectArrayList<StationExit> getStationExits(Station station, boolean addExitParents) {
+		final ObjectArrayList<StationExit> newExits = new ObjectArrayList<>();
+		final ObjectArrayList<StationExit> exits = station.getExits();
+		final Object2ObjectOpenHashMap<String, StationExit> addedParentExits = new Object2ObjectOpenHashMap<>();
+		Collections.sort(exits);
+		exits.forEach(exit -> {
+			if (addExitParents) {
+				final String parentExitName = exit.getName().substring(0, 1);
+				if (!addedParentExits.containsKey(parentExitName)) {
+					final StationExit newExit = new StationExit();
+					newExit.setName(parentExitName);
+					newExits.add(newExit);
+					addedParentExits.put(parentExitName, newExit);
+				}
+				final StationExit parentExit = addedParentExits.get(parentExitName);
+				if (parentExit != null && parentExit != exit) {
+					parentExit.getDestinations().addAll(exit.getDestinations());
+				}
+			}
+			newExits.add(exit);
+		});
+		return newExits;
+	}
+
+	public static ObjectArrayList<DashboardListItem> getExitsForDashboardList(ObjectArrayList<StationExit> exits) {
+		return exits.stream().map(stationExit -> {
+			final ObjectArrayList<String> destinations = stationExit.getDestinations();
+			final String additional = destinations.size() > 1 ? String.format("|(+%s)", destinations.size() - 1) : "";
+			return new DashboardListItem(serializeExit(stationExit.getName()), String.format("%s%s", stationExit.getName(), destinations.isEmpty() ? "" : String.format("|%s%s", destinations.get(0), additional)), 0);
+		}).collect(Collectors.toCollection(ObjectArrayList::new));
+	}
+
+	public static String deserializeExit(long code) {
+		final StringBuilder exit = new StringBuilder();
+		long charCodes = code;
+		while (charCodes > 0) {
+			exit.insert(0, (char) (charCodes & 0xFF));
+			charCodes = charCodes >> 8;
+		}
+		return exit.toString();
+	}
+
+	private static long serializeExit(String exitName) {
+		final char[] characters = exitName.toCharArray();
+		long code = 0;
+		for (final char character : characters) {
+			code = code << 8;
+			code += character;
+		}
+		return code;
 	}
 
 	private static String formatExitName(String text) {

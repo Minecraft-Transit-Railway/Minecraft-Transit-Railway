@@ -405,26 +405,6 @@ public final class InitClient {
 		return MinecraftClient.getInstance().getOptionsMapped().getKeyUseMapped().getBoundKeyLocalizedText().getString();
 	}
 
-	public static long serializeExit(String exit) {
-		final char[] characters = exit.toCharArray();
-		long code = 0;
-		for (final char character : characters) {
-			code = code << 8;
-			code += character;
-		}
-		return code;
-	}
-
-	public static String deserializeExit(long code) {
-		StringBuilder exit = new StringBuilder();
-		long charCodes = code;
-		while (charCodes > 0) {
-			exit.insert(0, (char) (charCodes & 0xFF));
-			charCodes = charCodes >> 8;
-		}
-		return exit.toString();
-	}
-
 	public static float getGameTick() {
 		return gameMillis / 50F;
 	}
