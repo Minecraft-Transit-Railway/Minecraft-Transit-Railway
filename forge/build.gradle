@@ -96,11 +96,6 @@ build {
 }
 
 shadowJar {
-	finalizedBy "reobfShadowJar"
-}
-
-reobf {
-	shadowJar {}
 }
 
 assemble.dependsOn shadowJar
