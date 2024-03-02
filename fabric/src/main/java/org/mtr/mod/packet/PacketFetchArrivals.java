@@ -39,7 +39,7 @@ public final class PacketFetchArrivals extends PacketRequestResponseBase impleme
 	}
 
 	@Override
-	protected void runClient(Response response) {
+	protected void runClientInbound(Response response) {
 		MinecraftClientData.getInstance().writeArrivalRequest(requestKey, response.getData(ArrivalsResponse::new));
 		millisOffset = response.getCurrentTime() - System.currentTimeMillis();
 	}

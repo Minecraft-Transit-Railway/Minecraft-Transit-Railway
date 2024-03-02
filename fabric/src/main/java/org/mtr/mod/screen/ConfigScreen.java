@@ -213,7 +213,7 @@ public class ConfigScreen extends ScreenExtension implements IGui {
 
 			super.render(graphicsHolder, mouseX, mouseY, delta);
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 	}
 

@@ -29,7 +29,7 @@ public class BlockTicketBarrier extends BlockExtension implements DirectionHelpe
 			final Vector3d playerPosRotated = entity.getPos().subtract(blockPos.getX() + 0.5, 0, blockPos.getZ() + 0.5).rotateY((float) Math.toRadians(facing.asRotation()));
 			final TicketSystem.EnumTicketBarrierOpen open = IBlock.getStatePropertySafe(state, new Property<>(OPEN.data));
 
-			if (open == TicketSystem.EnumTicketBarrierOpen.OPEN || open == TicketSystem.EnumTicketBarrierOpen.OPEN_CONCESSIONARY && playerPosRotated.getZMapped() > 0) {
+			if ((open == TicketSystem.EnumTicketBarrierOpen.OPEN || open == TicketSystem.EnumTicketBarrierOpen.OPEN_CONCESSIONARY) && playerPosRotated.getZMapped() > 0) {
 				world.setBlockState(blockPos, state.with(new Property<>(OPEN.data), TicketSystem.EnumTicketBarrierOpen.CLOSED));
 			} else if (open == TicketSystem.EnumTicketBarrierOpen.CLOSED && playerPosRotated.getZMapped() < 0) {
 				final BlockPos blockPosCopy = new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());

@@ -10,6 +10,8 @@ import com.jonafanho.apitools.ModProvider;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.gradle.api.Project;
 import org.mtr.mapping.mixin.CreateAccessWidener;
 import org.mtr.mapping.mixin.CreateClientWorldRenderingMixin;
@@ -21,8 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class BuildTools {
@@ -35,7 +35,7 @@ public class BuildTools {
 	private final String version;
 	private final int majorVersion;
 
-	private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	private static final Logger LOGGER = LogManager.getLogger("Build");
 
 	public BuildTools(String minecraftVersion, String loader, Project project) throws IOException {
 		this.minecraftVersion = minecraftVersion;
@@ -88,7 +88,7 @@ public class BuildTools {
 							StandardCharsets.UTF_8
 					);
 				} catch (Exception e) {
-					logException(e);
+					LOGGER.error("", e);
 				}
 			});
 		}
@@ -131,7 +131,7 @@ public class BuildTools {
 						}
 					});
 				} catch (Exception e) {
-					logException(e);
+					LOGGER.error("", e);
 				}
 			});
 		}
@@ -154,19 +154,15 @@ public class BuildTools {
 			try {
 				return JsonParser.parseString(IOUtils.toString(new URL(url), StandardCharsets.UTF_8));
 			} catch (Exception e) {
-				logException(e);
+				LOGGER.error("", e);
 			}
 			try {
 				Thread.sleep(1000);
 			} catch (Exception e) {
-				logException(e);
+				LOGGER.error("", e);
 			}
 		}
 
 		return new JsonObject();
-	}
-
-	private static void logException(Exception e) {
-		LOGGER.log(Level.INFO, e.getMessage(), e);
 	}
 }

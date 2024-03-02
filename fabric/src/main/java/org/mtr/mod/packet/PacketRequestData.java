@@ -24,7 +24,7 @@ public final class PacketRequestData extends PacketRequestResponseBase {
 	}
 
 	@Override
-	protected void runClient(Response response) {
+	protected void runClientInbound(Response response) {
 		response.getData(jsonReader -> new DataResponse(jsonReader, MinecraftClientData.getInstance())).write();
 	}
 

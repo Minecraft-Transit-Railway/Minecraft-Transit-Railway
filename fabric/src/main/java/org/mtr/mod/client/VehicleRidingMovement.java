@@ -39,6 +39,7 @@ public class VehicleRidingMovement {
 	private static Double ridingYawDifference;
 	private static double previousVehicleYaw;
 
+	// Cool down for sending player position to simulator
 	private static long sendPositionUpdateTime;
 
 	private static final float VEHICLE_WALKING_SPEED_MULTIPLIER = 0.005F;
@@ -107,7 +108,9 @@ public class VehicleRidingMovement {
 					ridingYawDifferenceOld = null;
 					ridingYawDifference = null;
 					previousVehicleYaw = yaw;
-					sendUpdate(false);
+					if (ridingVehicleId == 0) {
+						sendUpdate(false);
+					}
 				}
 			}
 		}
@@ -286,16 +289,14 @@ public class VehicleRidingMovement {
 	 */
 	@Nullable
 	private static ObjectBooleanImmutablePair<Box> bestPosition(ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsOrDoorways, double x, double y, double z) {
-		return floorsOrDoorways.stream().filter(floorOrDoorway -> RenderVehicleHelper.boxContains(floorOrDoorway.left(), x, y, z)).max(Comparator.comparingDouble(floorOrDoorway -> floorOrDoorway.left().getMaxYMapped())).orElse(floorsOrDoorways.stream().min(Comparator.comparingDouble(floorOrDoorway -> Math.min(
-				Math.abs(floorOrDoorway.left().getMinXMapped() - x),
-				Math.abs(floorOrDoorway.left().getMaxXMapped() - x)
-		) + Math.min(
-				Math.abs(floorOrDoorway.left().getMinYMapped() - y),
-				Math.abs(floorOrDoorway.left().getMaxYMapped() - y)
-		) + Math.min(
-				Math.abs(floorOrDoorway.left().getMinZMapped() - z),
-				Math.abs(floorOrDoorway.left().getMaxZMapped() - z)
-		))).orElse(null));
+		return floorsOrDoorways.stream().filter(floorOrDoorway -> RenderVehicleHelper.boxContains(floorOrDoorway.left(), x, y, z)).max(Comparator.comparingDouble(floorOrDoorway -> floorOrDoorway.left().getMaxYMapped())).orElse(floorsOrDoorways.stream().min(Comparator.comparingDouble(floorOrDoorway -> {
+			final Box box = floorOrDoorway.left();
+			final double minX = box.getMinXMapped();
+			final double maxX = box.getMaxXMapped();
+			final double minZ = box.getMinZMapped();
+			final double maxZ = box.getMaxZMapped();
+			return (Utilities.isBetween(x, minX, maxX) ? 0 : Math.min(Math.abs(minX - x), Math.abs(maxX - x))) + (Utilities.isBetween(z, minZ, maxZ) ? 0 : Math.min(Math.abs(minZ - z), Math.abs(maxZ - z)));
+		})).orElse(null));
 	}
 
 	private static void clampPosition(ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsAndDoorways, double x, double z, ObjectArrayList<Vector3d> offsets) {

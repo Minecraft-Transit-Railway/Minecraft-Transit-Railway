@@ -3,6 +3,7 @@ package org.mtr.mod.client;
 import org.mtr.core.data.*;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -59,7 +60,7 @@ public class RouteMapGenerator implements IGui {
 			drawStringPixelated(nativeImage, pixels, dimensions, textColor, fullPixel);
 			return nativeImage;
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 
 		return null;
@@ -78,7 +79,7 @@ public class RouteMapGenerator implements IGui {
 			}
 			return nativeImage;
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 
 		return null;
@@ -101,7 +102,7 @@ public class RouteMapGenerator implements IGui {
 			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, ARGB_WHITE, false);
 			return nativeImage;
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 
 		return null;
@@ -124,7 +125,7 @@ public class RouteMapGenerator implements IGui {
 			clearColor(nativeImage, invertColor(ARGB_BLACK | stationColor));
 			return nativeImage;
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 
 		return null;
@@ -152,7 +153,7 @@ public class RouteMapGenerator implements IGui {
 
 			return nativeImage;
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 
 		return null;
@@ -175,7 +176,7 @@ public class RouteMapGenerator implements IGui {
 			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, ARGB_BLACK, false);
 			return nativeImage;
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 
 		return null;
@@ -203,7 +204,7 @@ public class RouteMapGenerator implements IGui {
 
 			return nativeImage;
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 
 		return null;
@@ -222,7 +223,7 @@ public class RouteMapGenerator implements IGui {
 
 			return nativeImage;
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 
 		return null;
@@ -247,7 +248,7 @@ public class RouteMapGenerator implements IGui {
 			}
 			return nativeImage;
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 
 		return null;
@@ -266,7 +267,7 @@ public class RouteMapGenerator implements IGui {
 			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, ARGB_WHITE, false);
 			return nativeImage;
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 
 		return null;
@@ -363,7 +364,7 @@ public class RouteMapGenerator implements IGui {
 
 			return nativeImage;
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 
 		return null;
@@ -384,6 +385,7 @@ public class RouteMapGenerator implements IGui {
 				final ObjectArrayList<LongArrayList> stationsIdsBefore = new ObjectArrayList<>();
 				final ObjectArrayList<LongArrayList> stationsIdsAfter = new ObjectArrayList<>();
 				final ObjectArrayList<Int2ObjectAVLTreeMap<StationPosition>> stationPositions = new ObjectArrayList<>();
+				final IntAVLTreeSet colors = new IntAVLTreeSet();
 				final int[] colorIndices = new int[routeCount];
 				int colorIndex = -1;
 				int previousColor = -1;
@@ -397,7 +399,7 @@ public class RouteMapGenerator implements IGui {
 					final int currentIndex = routeDetail.rightInt();
 					for (int stationIndex = 0; stationIndex < simplifiedRoutePlatforms.size(); stationIndex++) {
 						if (stationIndex != currentIndex) {
-							final long stationId = getStationId(simplifiedRoutePlatforms.get(stationIndex).getPlatformId());
+							final long stationId = simplifiedRoutePlatforms.get(stationIndex).getStationId();
 							if (stationIndex < currentIndex) {
 								stationsIdsBefore.get(stationsIdsBefore.size() - 1).add(0, stationId);
 							} else {
@@ -407,6 +409,7 @@ public class RouteMapGenerator implements IGui {
 					}
 
 					final int color = routeDetail.left().getColor();
+					colors.add(color);
 					if (color != previousColor) {
 						colorIndex++;
 						previousColor = color;
@@ -461,7 +464,7 @@ public class RouteMapGenerator implements IGui {
 				final NativeImage nativeImage = new NativeImage(NativeImageFormat.getAbgrMapped(), width, height, false);
 				nativeImage.fillRect(0, 0, width, height, ARGB_WHITE);
 
-				final Object2ObjectOpenHashMap<SimplifiedRoutePlatform, ObjectOpenHashSet<StationPositionGrouped>> stationPositionsGrouped = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<String, ObjectOpenHashSet<StationPositionGrouped>> stationPositionsGrouped = new Object2ObjectOpenHashMap<>();
 				for (int routeIndex = 0; routeIndex < routeCount; routeIndex++) {
 					final SimplifiedRoute simplifiedRoute = routeDetails.get(routeIndex).left();
 					final int currentIndex = routeDetails.get(routeIndex).rightInt();
@@ -474,21 +477,24 @@ public class RouteMapGenerator implements IGui {
 						}
 
 						final SimplifiedRoutePlatform simplifiedRoutePlatform = simplifiedRoute.getPlatforms().get(stationIndex);
+						final String key = String.format("%s||%s", simplifiedRoutePlatform.getStationName(), simplifiedRoutePlatform.getStationId());
 
-						if (!stationPosition.isCommon || stationPositionsGrouped.getOrDefault(simplifiedRoutePlatform, new ObjectOpenHashSet<>()).stream().noneMatch(stationPosition2 -> stationPosition2.stationPosition.x == stationPosition.x)) {
+						if (!stationPosition.isCommon || stationPositionsGrouped.getOrDefault(key, new ObjectOpenHashSet<>()).stream().noneMatch(stationPosition2 -> stationPosition2.stationPosition.x == stationPosition.x)) {
 							final IntArrayList interchangeColors = new IntArrayList();
 							final ObjectArrayList<String> interchangeNames = new ObjectArrayList<>();
 							simplifiedRoutePlatform.forEach((color, interchangeRouteNamesForColor) -> {
-								interchangeColors.add(color);
-								interchangeRouteNamesForColor.forEach(interchangeNames::add);
+								if (!colors.contains(color)) {
+									interchangeColors.add(color);
+									interchangeRouteNamesForColor.forEach(interchangeNames::add);
+								}
 							});
-							Data.put(stationPositionsGrouped, simplifiedRoutePlatform, new StationPositionGrouped(stationPosition, stationIndex - currentIndex, interchangeColors, interchangeNames), ObjectOpenHashSet::new);
+							Data.put(stationPositionsGrouped, key, new StationPositionGrouped(stationPosition, stationIndex - currentIndex, interchangeColors, interchangeNames), ObjectOpenHashSet::new);
 						}
 					}
 				}
 
 				final int maxStringWidth = (int) (scale * 0.9 * ((vertical ? heightScale : widthScale) / 2 + extraPadding / routeCount));
-				stationPositionsGrouped.forEach((simplifiedRoutePlatform, stationPositionGroupedSet) -> stationPositionGroupedSet.forEach(stationPositionGrouped -> {
+				stationPositionsGrouped.forEach((key, stationPositionGroupedSet) -> stationPositionGroupedSet.forEach(stationPositionGrouped -> {
 					final int x = Math.round((stationPositionGrouped.stationPosition.x + xOffset) * scale * widthScale);
 					final int y = Math.round((stationPositionGrouped.stationPosition.y + yOffset) * scale * heightScale);
 					final int lines = stationPositionGrouped.stationPosition.isCommon ? colorIndices[colorIndices.length - 1] : 0;
@@ -516,7 +522,7 @@ public class RouteMapGenerator implements IGui {
 					drawStation(nativeImage, x, y, heightScale, lines, passed);
 
 					final int[] dimensions = new int[2];
-					final byte[] pixels = clientCache.getTextPixels(simplifiedRoutePlatform == null ? "" : simplifiedRoutePlatform.getStationName(), dimensions, maxStringWidth, (int) ((fontSizeBig + fontSizeSmall) * DynamicTextureCache.LINE_HEIGHT_MULTIPLIER), fontSizeBig, fontSizeSmall, fontSizeSmall / 4, vertical ? HorizontalAlignment.RIGHT : HorizontalAlignment.CENTER);
+					final byte[] pixels = clientCache.getTextPixels(key.split("\\|\\|")[0], dimensions, maxStringWidth, (int) ((fontSizeBig + fontSizeSmall) * DynamicTextureCache.LINE_HEIGHT_MULTIPLIER), fontSizeBig, fontSizeSmall, fontSizeSmall / 4, vertical ? HorizontalAlignment.RIGHT : HorizontalAlignment.CENTER);
 					drawString(nativeImage, pixels, x, y + (textBelow ? lines * lineSpacing : -1) + (textBelow ? 1 : -1) * lineSize * 5 / 4, dimensions, HorizontalAlignment.CENTER, textBelow ? VerticalAlignment.TOP : VerticalAlignment.BOTTOM, currentStation ? ARGB_BLACK : 0, passed ? ARGB_LIGHT_GRAY : currentStation ? ARGB_WHITE : ARGB_BLACK, vertical);
 				}));
 
@@ -527,7 +533,7 @@ public class RouteMapGenerator implements IGui {
 				return nativeImage;
 			}
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 
 		return null;
@@ -631,12 +637,6 @@ public class RouteMapGenerator implements IGui {
 			colors.addAll(terminatingColors);
 		}
 		return colors;
-	}
-
-	private static long getStationId(long platformId) {
-		final Platform platform = MinecraftClientData.getInstance().platformIdMap.get(platformId);
-		final Station station = platform == null ? null : platform.area;
-		return station == null ? -1 : station.getId();
 	}
 
 	private static String getStationName(long platformId) {
@@ -800,7 +800,7 @@ public class RouteMapGenerator implements IGui {
 					}
 				}
 			} catch (Exception e) {
-				Init.logException(e);
+				Init.LOGGER.error("", e);
 			}
 		});
 	}

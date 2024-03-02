@@ -2,11 +2,11 @@ package org.mtr.mod.render;
 
 import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.data.Station;
+import org.mtr.core.data.StationExit;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
@@ -16,12 +16,13 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockRailwaySign;
 import org.mtr.mod.block.BlockStationNameBase;
 import org.mtr.mod.block.IBlock;
-import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.resource.SignResource;
+import org.mtr.mod.screen.EditStationScreen;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -145,8 +146,13 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 				return;
 			}
 
-			final Object2ObjectAVLTreeMap<String, ObjectArrayList<String>> exits = new Object2ObjectAVLTreeMap<>(); // TODO
-			final List<String> selectedExitsSorted = selectedIds.longStream().mapToObj(InitClient::deserializeExit).filter(exits::containsKey).sorted(String::compareTo).collect(Collectors.toList());
+			final ObjectArrayList<StationExit> selectedExitsSorted = new ObjectArrayList<>();
+			final ObjectArrayList<StationExit> exits = EditStationScreen.getStationExits(station, true);
+			exits.forEach(exit -> {
+				if (selectedIds.longStream().anyMatch(selectedId -> EditStationScreen.deserializeExit(selectedId).equals(exit.getName()))) {
+					selectedExitsSorted.add(exit);
+				}
+			});
 
 			graphicsHolder.push();
 			graphicsHolder.translate(x + margin + (flipCustomText ? signSize : 0), y + margin, 0);
@@ -155,10 +161,10 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 			graphicsHolder.scale(Math.min(1, maxWidth / exitWidth), 1, 1);
 
 			for (int i = 0; i < selectedExitsSorted.size(); i++) {
-				final String selectedExit = selectedExitsSorted.get(flipCustomText ? selectedExitsSorted.size() - i - 1 : i);
+				final StationExit stationExit = selectedExitsSorted.get(flipCustomText ? selectedExitsSorted.size() - i - 1 : i);
 				final float signOffset = (flipCustomText ? -1 : 1) * signSize * i - (flipCustomText ? signSize : 0);
 
-				RenderTrains.scheduleRender(DynamicTextureCache.instance.getExitSignLetter(selectedExit.substring(0, 1), selectedExit.substring(1), backgroundColor).identifier, true, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+				RenderTrains.scheduleRender(DynamicTextureCache.instance.getExitSignLetter(stationExit.getName().substring(0, 1), stationExit.getName().substring(1), backgroundColor).identifier, true, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 					storedMatrixTransformations.transform(graphicsHolderNew, offset);
 					graphicsHolderNew.translate(x + margin + (flipCustomText ? signSize : 0), y + margin, 0);
 					graphicsHolderNew.scale(Math.min(1, maxWidth / exitWidth), 1, 1);
@@ -166,8 +172,8 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 					graphicsHolderNew.pop();
 				});
 
-				if (maxWidth > exitWidth && selectedExitsSorted.size() == 1 && !exits.get(selectedExit).isEmpty()) {
-					renderCustomText(exits.get(selectedExit).get(0), storedMatrixTransformations, facing, size, flipCustomText ? x : x + size, flipCustomText, maxWidth - exitWidth - margin * 2, backgroundColor);
+				if (maxWidth > exitWidth && selectedExitsSorted.size() == 1 && !stationExit.getDestinations().isEmpty()) {
+					renderCustomText(stationExit.getDestinations().get(0), storedMatrixTransformations, facing, size, flipCustomText ? x : x + size, flipCustomText, maxWidth - exitWidth - margin * 2, backgroundColor);
 				}
 			}
 

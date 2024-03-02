@@ -19,8 +19,6 @@ import java.util.stream.Collectors;
 
 public class RenderVehicles implements IGui {
 
-	private static final OcclusionCullingThread OCCLUSION_CULLING_THREAD = new OcclusionCullingThread();
-
 	public static void render(long millisElapsed) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
@@ -29,7 +27,6 @@ public class RenderVehicles implements IGui {
 			return;
 		}
 
-		OCCLUSION_CULLING_THREAD.start();
 		final ObjectArrayList<Function<OcclusionCullingInstance, Runnable>> cullingTasks = new ObjectArrayList<>();
 		final Vector3d cameraPosition = minecraftClient.getGameRendererMapped().getCamera().getPos();
 		final Vec3d camera = new Vec3d(cameraPosition.getXMapped(), cameraPosition.getYMapped(), cameraPosition.getZMapped());
@@ -209,7 +206,7 @@ public class RenderVehicles implements IGui {
 			});
 		});
 
-		OCCLUSION_CULLING_THREAD.schedule(occlusionCullingInstance -> {
+		RenderTrains.WORKER_THREAD.scheduleVehicles(occlusionCullingInstance -> {
 			final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
 			cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
 			minecraftClient.execute(() -> tasks.forEach(Runnable::run));
