@@ -18,6 +18,7 @@ public class RailShapeModifierScreen extends ScreenExtension implements IGui {
 
 	private Rail.Shape shape;
 	private double radius;
+	private boolean needUpdate;
 
 	private final Rail rail;
 	private final double maxRadius;
@@ -37,6 +38,7 @@ public class RailShapeModifierScreen extends ScreenExtension implements IGui {
 
 	public RailShapeModifierScreen(String railId) {
 		super();
+		needUpdate = false;
 		rail = MinecraftClientData.getInstance().railIdMap.get(railId);
 		shape = rail == null ? Rail.Shape.QUADRATIC : rail.railMath.getShape();
 		radius = rail == null ? 0 : rail.railMath.getVerticalRadius();
@@ -67,7 +69,7 @@ public class RailShapeModifierScreen extends ScreenExtension implements IGui {
 		IDrawing.setPositionAndWidth(buttonPlus0, xStart + BUTTON_WIDTH - SQUARE_SIZE * 6, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2);
 		IDrawing.setPositionAndWidth(buttonPlus1, xStart + BUTTON_WIDTH - SQUARE_SIZE * 4, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2);
 		IDrawing.setPositionAndWidth(buttonPlus2, xStart + BUTTON_WIDTH - SQUARE_SIZE * 2, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2);
-		IDrawing.setPositionAndWidth(textFieldRadius, 0, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, BUTTON_WIDTH - SQUARE_SIZE * 12 - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldRadius, (xStart + SQUARE_SIZE * 6) + TEXT_FIELD_PADDING / 2, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, BUTTON_WIDTH - SQUARE_SIZE * 12 - TEXT_FIELD_PADDING);
 
 		addChild(new ClickableWidget(buttonShape));
 		addChild(new ClickableWidget(buttonMinus2));
@@ -78,20 +80,7 @@ public class RailShapeModifierScreen extends ScreenExtension implements IGui {
 		addChild(new ClickableWidget(buttonPlus2));
 		addChild(new ClickableWidget(textFieldRadius));
 
-		textFieldRadius.setText2(String.valueOf(radius));
-		textFieldRadius.setChangedListener2(text -> {
-			try {
-				update(Double.parseDouble(text), true);
-			} catch (Exception ignored) {
-			}
-		});
 		update(radius, false);
-	}
-
-	@Override
-	public void tick2() {
-		super.tick2();
-		textFieldRadius.tick3();
 	}
 
 	@Override
@@ -112,10 +101,17 @@ public class RailShapeModifierScreen extends ScreenExtension implements IGui {
 		return false;
 	}
 
-	private void update(double newRadius, boolean sendPacket) {
+	@Override
+	public void onClose2() {
+		super.onClose2();
+		if(needUpdate){
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(Rail.copy(rail, shape, radius))));
+		}
+	}
+
+	private void update(double newRadius, boolean updateClient){
 		buttonShape.setMessage2(new Text(TextHelper.translatable(shape == Rail.Shape.QUADRATIC ? "gui.mtr.rail_shape_quadratic" : "gui.mtr.rail_shape_two_radii").data));
 		radius = Utilities.clamp(Utilities.round(newRadius, 2), 0, maxRadius);
-		textFieldRadius.setX2((shape == Rail.Shape.QUADRATIC ? width : xStart + SQUARE_SIZE * 6) + TEXT_FIELD_PADDING / 2);
 		buttonMinus2.setVisibleMapped(shape != Rail.Shape.QUADRATIC);
 		buttonMinus1.setVisibleMapped(shape != Rail.Shape.QUADRATIC);
 		buttonMinus0.setVisibleMapped(shape != Rail.Shape.QUADRATIC);
@@ -128,15 +124,14 @@ public class RailShapeModifierScreen extends ScreenExtension implements IGui {
 		buttonPlus0.setActiveMapped(radius < maxRadius);
 		buttonPlus1.setActiveMapped(radius < maxRadius);
 		buttonPlus2.setActiveMapped(radius < maxRadius);
-
-		try {
-			if (Double.parseDouble(textFieldRadius.getText2()) != radius) {
-				textFieldRadius.setText2(String.valueOf(radius));
-			}
-		} catch (Exception ignored) {
-		}
-		if (sendPacket) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(Rail.copy(rail, shape, radius))));
+		textFieldRadius.setVisibleMapped(shape != Rail.Shape.QUADRATIC);
+		textFieldRadius.setText2(String.valueOf(radius));
+		if(updateClient){
+			final MinecraftClientData clientData = MinecraftClientData.getInstance();
+			clientData.rails.remove(rail);
+			clientData.rails.add(Rail.copy(rail, shape, radius));
+			clientData.sync();
+			needUpdate = true;
 		}
 	}
 }
