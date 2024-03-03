@@ -3,6 +3,7 @@ package org.mtr.mod.block;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.render.pids.PIDSRenderController;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -10,8 +11,8 @@ import java.util.List;
 
 public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 
-	public BlockPIDSHorizontalBase(int maxArrivals) {
-		super(maxArrivals, BlockPIDSHorizontalBase::canStoreData, BlockPIDSHorizontalBase::getBlockPosWithData);
+	public BlockPIDSHorizontalBase(int maxArrivals, PIDSRenderController renderController) {
+		super(maxArrivals, BlockPIDSHorizontalBase::canStoreData, BlockPIDSHorizontalBase::getBlockPosWithData, renderController);
 	}
 
 

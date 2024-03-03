@@ -5,6 +5,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mod.Init;
 import org.mtr.mod.packet.PacketOpenPIDSConfigScreen;
+import org.mtr.mod.render.pids.PIDSRenderController;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -16,13 +17,15 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 	public final int maxArrivals;
 	public final BiPredicate<World, BlockPos> canStoreData;
 	public final BiFunction<World, BlockPos, BlockPos> getBlockPosWithData;
+	public final PIDSRenderController renderController;
 
-	public BlockPIDSBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData) {
+	public BlockPIDSBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData, PIDSRenderController renderController) {
 		super(BlockHelper.createBlockSettings(true, blockState -> 5).nonOpaque());
 		this.maxArrivals = maxArrivals;
 		this.canStoreData = canStoreData;
 		this.getBlockPosWithData = getBlockPosWithData;
-	}
+        this.renderController = renderController;
+    }
 
 	@Nonnull
 	@Override

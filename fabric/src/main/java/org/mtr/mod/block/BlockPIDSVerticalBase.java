@@ -4,6 +4,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.render.pids.PIDSRenderController;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -11,8 +12,8 @@ import java.util.List;
 
 public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBlock {
 
-	public BlockPIDSVerticalBase(int maxArrivals) {
-		super(maxArrivals, BlockPIDSVerticalBase::canStoreData, BlockPIDSVerticalBase::getBlockPosWithData);
+	public BlockPIDSVerticalBase(int maxArrivals, PIDSRenderController renderController) {
+		super(maxArrivals, BlockPIDSVerticalBase::canStoreData, BlockPIDSVerticalBase::getBlockPosWithData, renderController);
 	}
 
 	@Nonnull

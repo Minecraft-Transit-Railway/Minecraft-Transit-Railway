@@ -3,6 +3,7 @@ package org.mtr.mod.block;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mod.BlockEntityTypes;
+import org.mtr.mod.render.pids.PIDSRenderController;
 
 import javax.annotation.Nonnull;
 
@@ -11,7 +12,7 @@ public class BlockPIDSVertical1 extends BlockPIDSVerticalBase {
 	private static final int MAX_ARRIVALS = 16;
 
 	public BlockPIDSVertical1() {
-		super(MAX_ARRIVALS);
+		super(MAX_ARRIVALS, new PIDSRenderController(16, 32));
 	}
 
 	@Nonnull
