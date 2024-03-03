@@ -31,6 +31,15 @@
 		},
 		{
 			"names": [
+				"seat"
+			],
+			"positionDefinitions": [
+				"seatEnd1"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
 				"headlights"
 			],
 			"positionDefinitions": [

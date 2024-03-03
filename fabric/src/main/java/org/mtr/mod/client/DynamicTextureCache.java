@@ -2,9 +2,9 @@ package org.mtr.mod.client;
 
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
-import org.mtr.mod.CustomThread;
 import org.mtr.mod.Init;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.render.RenderTrains;
@@ -28,12 +28,13 @@ public class DynamicTextureCache implements IGui {
 	private Font fontCjk;
 
 	private final Object2ObjectLinkedOpenHashMap<String, DynamicResource> dynamicResources = new Object2ObjectLinkedOpenHashMap<>();
+	private final ObjectOpenHashSet<String> generatingResources = new ObjectOpenHashSet<>();
 	private final ObjectArrayList<Runnable> resourceRegistryQueue = new ObjectArrayList<>();
-	private final DynamicTextureThread dynamicTextureThread = new DynamicTextureThread();
 
 	public static DynamicTextureCache instance = new DynamicTextureCache();
 
 	public static final float LINE_HEIGHT_MULTIPLIER = 1.25F;
+	private static final int COOL_DOWN_TIME = 10000; // Images not requested within the last 10 seconds will be unregistered
 	private static final Identifier DEFAULT_BLACK_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/black.png");
 	private static final Identifier DEFAULT_WHITE_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/white.png");
 	private static final Identifier DEFAULT_TRANSPARENT_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/transparent.png");
@@ -43,16 +44,13 @@ public class DynamicTextureCache implements IGui {
 		fontCjk = null;
 		Init.LOGGER.info("Refreshing dynamic resources");
 		dynamicResources.values().forEach(dynamicResource -> dynamicResource.needsRefresh = true);
+		generatingResources.clear();
 	}
 
 	public void tick() {
-		dynamicTextureThread.start();
 		final ObjectArrayList<String> keysToRemove = new ObjectArrayList<>();
 		dynamicResources.forEach((checkKey, checkDynamicResource) -> {
-			if (checkDynamicResource.coolDown >= 0) {
-				checkDynamicResource.coolDown++;
-			}
-			if (checkDynamicResource.coolDown >= 20) {
+			if (checkDynamicResource.expiryTime < System.currentTimeMillis()) {
 				checkDynamicResource.remove();
 				keysToRemove.add(checkKey);
 			}
@@ -217,18 +215,21 @@ public class DynamicTextureCache implements IGui {
 		final DynamicResource dynamicResource = dynamicResources.get(key);
 
 		if (dynamicResource != null && !dynamicResource.needsRefresh) {
-			dynamicResource.coolDown = 0;
+			dynamicResource.expiryTime = System.currentTimeMillis() + COOL_DOWN_TIME;
 			return dynamicResource;
 		}
 
-		RouteMapGenerator.setConstants();
-		dynamicTextureThread.queue.add(() -> {
+		if (generatingResources.contains(key)) {
+			return defaultRenderingColor.dynamicResource;
+		}
+
+		if (RenderTrains.WORKER_THREAD.scheduleDynamicTextures(() -> {
 			while (font == null) {
 				ResourceManagerHelper.readResource(new Identifier(Init.MOD_ID, "font/noto-sans-semibold.ttf"), inputStream -> {
 					try {
 						font = Font.createFont(Font.TRUETYPE_FONT, inputStream);
 					} catch (Exception e) {
-						Init.logException(e);
+						Init.LOGGER.error("", e);
 					}
 				});
 			}
@@ -238,7 +239,7 @@ public class DynamicTextureCache implements IGui {
 					try {
 						fontCjk = Font.createFont(Font.TRUETYPE_FONT, inputStream);
 					} catch (Exception e) {
-						Init.logException(e);
+						Init.LOGGER.error("", e);
 					}
 				});
 			}
@@ -260,7 +261,7 @@ public class DynamicTextureCache implements IGui {
 					try {
 						newKey = URLEncoder.encode(key, "UTF-8");
 					} catch (Exception e) {
-						Init.logException(e);
+						Init.LOGGER.error("", e);
 					}
 					final Identifier identifier = new Identifier(Init.MOD_ID, "dynamic_texture_" + newKey.toLowerCase(Locale.ENGLISH).replaceAll("[^0-9a-z_]", "_"));
 					MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, new AbstractTexture(nativeImageBackedTexture.data));
@@ -268,14 +269,17 @@ public class DynamicTextureCache implements IGui {
 				}
 
 				dynamicResources.put(key, dynamicResourceNew);
+				generatingResources.remove(key);
 			});
-		});
+		})) {
+			RouteMapGenerator.setConstants();
+			generatingResources.add(key);
+		}
 
 		if (dynamicResource == null) {
-			dynamicResources.put(key, defaultRenderingColor.dynamicResource);
 			return defaultRenderingColor.dynamicResource;
 		} else {
-			dynamicResource.coolDown = 0;
+			dynamicResource.expiryTime = System.currentTimeMillis() + COOL_DOWN_TIME;
 			dynamicResource.needsRefresh = false;
 			return dynamicResource;
 		}
@@ -283,7 +287,7 @@ public class DynamicTextureCache implements IGui {
 
 	public static class DynamicResource {
 
-		private int coolDown;
+		private long expiryTime;
 		private boolean needsRefresh;
 		public final int width;
 		public final int height;
@@ -314,30 +318,6 @@ public class DynamicTextureCache implements IGui {
 		}
 	}
 
-	private static class DynamicTextureThread extends CustomThread {
-
-		private final ObjectArrayList<Runnable> queue = new ObjectArrayList<>();
-
-		@Override
-		protected void runTick() {
-			if (!queue.isEmpty()) {
-				try {
-					final Runnable task = queue.remove(0);
-					if (task != null) {
-						task.run();
-					}
-				} catch (Exception e) {
-					Init.logException(e);
-				}
-			}
-		}
-
-		@Override
-		protected boolean isRunning() {
-			return MinecraftClient.getInstance().isRunning();
-		}
-	}
-
 	private enum DefaultRenderingColor {
 		BLACK(DEFAULT_BLACK_RESOURCE),
 		WHITE(DEFAULT_WHITE_RESOURCE),
@@ -347,7 +327,6 @@ public class DynamicTextureCache implements IGui {
 
 		DefaultRenderingColor(Identifier identifier) {
 			dynamicResource = new DynamicResource(identifier, null);
-			dynamicResource.coolDown = -1;
 		}
 	}
 }

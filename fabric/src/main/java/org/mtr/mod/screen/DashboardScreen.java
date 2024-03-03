@@ -217,7 +217,7 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 					break;
 			}
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 	}
 

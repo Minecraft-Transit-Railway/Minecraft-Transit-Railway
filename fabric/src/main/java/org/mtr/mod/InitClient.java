@@ -29,7 +29,6 @@ public final class InitClient {
 	private static long gameMillis = 0;
 	private static long lastPlayedTrainSoundsMillis = 0;
 	private static long lastUpdatePacketMillis = 0;
-	private static long lastDataCleanMillis = 0;
 	private static Runnable movePlayer;
 
 	public static final RegistryClient REGISTRY_CLIENT = new RegistryClient(Init.REGISTRY);
@@ -334,13 +333,6 @@ public final class InitClient {
 				dataRequest.writeExistingIds(MinecraftClientData.getInstance());
 				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketRequestData(dataRequest));
 				lastUpdatePacketMillis = -1;
-				lastDataCleanMillis = getGameMillis();
-			}
-
-			// If player hasn't moved in 2 seconds, clean any out of range data
-			if (lastDataCleanMillis >= 0 && getGameMillis() - lastDataCleanMillis > 2000) {
-				MinecraftClientData.getInstance().clean();
-				lastDataCleanMillis = -1;
 			}
 		});
 
@@ -411,26 +403,6 @@ public final class InitClient {
 
 	public static String getRightClickText() {
 		return MinecraftClient.getInstance().getOptionsMapped().getKeyUseMapped().getBoundKeyLocalizedText().getString();
-	}
-
-	public static long serializeExit(String exit) {
-		final char[] characters = exit.toCharArray();
-		long code = 0;
-		for (final char character : characters) {
-			code = code << 8;
-			code += character;
-		}
-		return code;
-	}
-
-	public static String deserializeExit(long code) {
-		StringBuilder exit = new StringBuilder();
-		long charCodes = code;
-		while (charCodes > 0) {
-			exit.insert(0, (char) (charCodes & 0xFF));
-			charCodes = charCodes >> 8;
-		}
-		return exit.toString();
 	}
 
 	public static float getGameTick() {

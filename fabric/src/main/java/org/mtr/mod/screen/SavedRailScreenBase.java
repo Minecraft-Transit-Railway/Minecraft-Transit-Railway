@@ -97,7 +97,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 			graphicsHolder.drawText(savedRailNumberText, SQUARE_SIZE, SQUARE_SIZE + TEXT_FIELD_PADDING / 2 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
 			super.render(graphicsHolder, mouseX, mouseY, delta);
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 	}
 

@@ -6,8 +6,8 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mod.client.IDrawing;
@@ -75,20 +75,24 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 		final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
 		final DoubleDoubleImmutablePair mouseWorldPos = coordsToWorldPos((double) mouseX - getX2(), mouseY - getY2());
+		final IntIntImmutablePair topLeft = coordsToWorldPos(0, 0);
+		final IntIntImmutablePair bottomRight = coordsToWorldPos(width, height);
 
 		// Background
 		guiDrawing.beginDrawingRectangle();
 		guiDrawing.drawRectangle(getX2(), getY2(), getX2() + width, getY2() + height, ARGB_BLACK);
 		guiDrawing.finishDrawingRectangle();
 
+		// World Map
 		if(world != null) {
-			updateWorldMapRegion();
-			worldMap.update(World.cast(world), player, delta);
+			worldMap.tick(World.cast(world), player, delta);
 
-			worldMap.forEachTile(World.cast(world), (mapImage) -> {
-				int blockX = mapImage.chunkX * CHUNK_SIZE;
-				int blockZ = mapImage.chunkZ * CHUNK_SIZE;
-				drawRectangleFromWorldCoords(guiDrawing, mapImage.textureId, blockX, blockZ, blockX + CHUNK_SIZE, blockZ + CHUNK_SIZE);
+			worldMap.forEachTile(mapImage -> {
+				int posX = mapImage.chunkX * CHUNK_SIZE;
+				int posZ = mapImage.chunkZ * CHUNK_SIZE;
+				boolean outOfView = (posX + WorldMap.CHUNK_SIZE) < topLeft.leftInt() || (posZ + WorldMap.CHUNK_SIZE) < (topLeft).rightInt() || posX > bottomRight.leftInt() || posZ > bottomRight.rightInt();
+				if(outOfView) return;
+				drawRectangleFromWorldCoords(guiDrawing, mapImage.textureId, posX, posZ, posX + CHUNK_SIZE, posZ + CHUNK_SIZE);
 			});
 		}
 
@@ -146,7 +150,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		drawMousePositionText(graphicsHolder, mouseWorldPos);
 	}
 
-	private void drawAreas(GraphicsHolder graphicsHolder, ObjectAVLTreeSet<? extends AreaBase<?, ?>> areas) {
+	private void drawAreas(GraphicsHolder graphicsHolder, ObjectArraySet<? extends AreaBase<?, ?>> areas) {
 		for (final AreaBase<?, ?> area : areas) {
 			if (canDrawAreaText(area)) {
 				final Position position = area.getCenter();
@@ -260,9 +264,6 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 	public void scale(double amount) {
 		scale *= Math.pow(2, amount);
 		scale = MathHelper.clamp(scale, SCALE_LOWER_LIMIT, SCALE_UPPER_LIMIT);
-
-		updateWorldMapRegion();
-		if(world != null) worldMap.refresh(World.cast(world), player);
 	}
 
 	public void find(Position position) {
@@ -291,7 +292,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 
 	public void setOverlayMode(WorldMap.MapOverlayMode overlayMode) {
 		worldMap.setMapOverlayMode(overlayMode);
-		if(world != null) worldMap.forceRefresh(World.cast(world), player);
+		if(world != null) worldMap.updateMap(World.cast(world), player);
 	}
 
 	public void onClose() {
@@ -355,11 +356,6 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 
 		guiDrawing.drawTexture(getX2() + Math.max(0, x1), getY2() + z1, getX2() + x2, getY2() + z2, uScale, 0, 1, 1);
 		guiDrawing.finishDrawingTexture();
-	}
-	private void updateWorldMapRegion() {
-		final IntIntImmutablePair topLeft = coordsToWorldPos(0, 0);
-		final IntIntImmutablePair bottomRight = coordsToWorldPos(width, height);
-		worldMap.setRegion(topLeft, bottomRight);
 	}
 
 	private boolean canDrawAreaText(AreaBase<?, ?> areaBase) {

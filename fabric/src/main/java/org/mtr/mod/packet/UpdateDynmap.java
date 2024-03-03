@@ -5,7 +5,6 @@ import org.dynmap.DynmapCommonAPIListener;
 import org.dynmap.markers.AreaMarker;
 import org.mtr.core.data.AreaBase;
 import org.mtr.core.data.SavedRailBase;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.MinecraftServer;
@@ -31,13 +30,13 @@ public class UpdateDynmap implements IGui, IUpdateWebMap {
 						IUpdateWebMap.readResource(STATION_ICON_PATH, inputStream -> markerAPI.createMarkerIcon(STATION_ICON_KEY, STATION_ICON_KEY, inputStream));
 						IUpdateWebMap.readResource(DEPOT_ICON_PATH, inputStream -> markerAPI.createMarkerIcon(DEPOT_ICON_KEY, DEPOT_ICON_KEY, inputStream));
 					} catch (Exception e) {
-						Init.logException(e);
+						Init.LOGGER.error("", e);
 					}
 				}
 			});
 		} catch (
 				Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 	}
 
@@ -46,11 +45,11 @@ public class UpdateDynmap implements IGui, IUpdateWebMap {
 			updateDynmap(world, MinecraftClientData.getInstance().stations, MARKER_SET_STATIONS_ID, MARKER_SET_STATIONS_TITLE, MARKER_SET_STATION_AREAS_ID, MARKER_SET_STATION_AREAS_TITLE, STATION_ICON_KEY);
 			updateDynmap(world, MinecraftClientData.getInstance().depots, MARKER_SET_DEPOTS_ID, MARKER_SET_DEPOTS_TITLE, MARKER_SET_DEPOT_AREAS_ID, MARKER_SET_DEPOT_AREAS_TITLE, DEPOT_ICON_KEY);
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 	}
 
-	private static <T extends AreaBase<T, U>, U extends SavedRailBase<U, T>> void updateDynmap(World world, ObjectAVLTreeSet<T> areas, String areasId, String areasTitle, String areaAreasId, String areaAreasTitle, String iconKey) {
+	private static <T extends AreaBase<T, U>, U extends SavedRailBase<U, T>> void updateDynmap(World world, ObjectArraySet<T> areas, String areasId, String areasTitle, String areaAreasId, String areaAreasTitle, String iconKey) {
 		if (dynmapCommonAPI != null) {
 			final String worldId;
 			switch (MinecraftServerHelper.getWorldId(world).toString()) {

@@ -56,7 +56,7 @@ public final class AsciiArt {
 	}
 
 	private static void addToList(ObjectArrayList<String> list, String string) {
-		list.add(string.replace("?", "\\").replace("^", "\"").replaceAll("\\(v\\.+\\)", String.format("(%s)", Keys.MOD_VERSION)));
+		list.add(string.replace("?", "\\").replace("^", "\"").replaceAll("\\(v\\.+\\)", String.format("(%s)", Keys.MOD_VERSION)).replace(" ", " "));
 	}
 
 	public static void print() {

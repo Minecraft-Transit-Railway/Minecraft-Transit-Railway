@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.mtr.core.Main;
 import org.mtr.core.data.Position;
-import org.mtr.core.operation.GenerateByDepotName;
+import org.mtr.core.operation.GenerateOrClearByDepotName;
 import org.mtr.core.operation.SetTime;
 import org.mtr.core.servlet.Webserver;
 import org.mtr.core.tool.RequestHelper;
@@ -17,11 +17,13 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
 import org.mtr.mapping.mapper.WorldHelper;
+import org.mtr.mapping.registry.CommandBuilder;
 import org.mtr.mapping.registry.EventRegistry;
 import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.tool.DummyClass;
 import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.packet.*;
+import org.mtr.mod.servlet.VehicleLiftServlet;
 
 import javax.annotation.Nullable;
 import java.net.ServerSocket;
@@ -30,7 +32,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 
 public final class Init implements Utilities {
 
@@ -41,7 +42,7 @@ public final class Init implements Utilities {
 	private static int serverTick;
 
 	public static final String MOD_ID = "mtr";
-	public static final Logger LOGGER = LogManager.getLogger("Minecraft Transit Railway");
+	public static final Logger LOGGER = LogManager.getLogger("MinecraftTransitRailway");
 	public static final Registry REGISTRY = new Registry();
 	public static final int SECONDS_PER_MC_HOUR = 50;
 
@@ -66,6 +67,7 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketBroadcastRailActions.class, PacketBroadcastRailActions::new);
 		REGISTRY.registerPacket(PacketDeleteData.class, PacketDeleteData::new);
 		REGISTRY.registerPacket(PacketDeleteRailAction.class, PacketDeleteRailAction::new);
+		REGISTRY.registerPacket(PacketDepotClear.class, PacketDepotClear::new);
 		REGISTRY.registerPacket(PacketDepotGenerate.class, PacketDepotGenerate::new);
 		REGISTRY.registerPacket(PacketDriveTrain.class, PacketDriveTrain::new);
 		REGISTRY.registerPacket(PacketFetchArrivals.class, PacketFetchArrivals::new);
@@ -85,18 +87,53 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketUpdateVehicleRidingEntities.class, PacketUpdateVehicleRidingEntities::new);
 
 		// Register command
-		REGISTRY.registerCommand("generate-by-depot-name", commandBuilder -> {
-			commandBuilder.permissionLevel(2);
-			commandBuilder.executes(contextHandler -> {
-				contextHandler.sendSuccess("command.mtr.generate_all", true);
-				return generateDepotsFromCommand(contextHandler.getWorld(), "");
+		REGISTRY.registerCommand("mtr", commandBuilderMtr -> {
+			// Generate depot(s) by name
+			commandBuilderMtr.then("generate", commandBuilderGenerate -> generateOrClearDepotsFromCommand(commandBuilderGenerate, true));
+			// Clear depot(s) by name
+			commandBuilderMtr.then("clear", commandBuilderClear -> generateOrClearDepotsFromCommand(commandBuilderClear, false));
+			// Force copy a world backup from one folder another
+			commandBuilderMtr.then("forceCopyWorld", commandBuilderForceCopy -> {
+				commandBuilderForceCopy.permissionLevel(4);
+				commandBuilderForceCopy.then("worldDirectory", StringArgumentType.string(), innerCommandBuilder1 -> innerCommandBuilder1.then("backupDirectory", StringArgumentType.string(), innerCommandBuilder2 -> innerCommandBuilder2.executes(contextHandler -> {
+					final Path runPath = contextHandler.getServer().getRunDirectory().toPath();
+					final Path worldDirectory = runPath.resolve(contextHandler.getString("worldDirectory"));
+					final Path backupDirectory = runPath.resolve(contextHandler.getString("backupDirectory"));
+					final boolean worldDirectoryExists = Files.isDirectory(worldDirectory);
+					final boolean backupDirectoryExists = Files.isDirectory(backupDirectory);
+					if (worldDirectoryExists && backupDirectoryExists) {
+						try {
+							if (main != null) {
+								main.stop();
+							}
+							if (webserver != null) {
+								webserver.stop();
+							}
+							contextHandler.sendSuccess(String.format("Restoring world backup from %s to %s...", backupDirectory, worldDirectory), true);
+							FileUtils.deleteDirectory(worldDirectory.toFile());
+							contextHandler.sendSuccess("Deleting world complete", true);
+							FileUtils.copyDirectory(backupDirectory.toFile(), worldDirectory.toFile());
+							contextHandler.sendSuccess("Restoring world backup complete", true);
+							System.exit(0);
+							return 1;
+						} catch (Exception e) {
+							contextHandler.sendFailure("Restoring world backup failed");
+							LOGGER.error("", e);
+							return -1;
+						}
+					} else {
+						if (backupDirectoryExists) {
+							contextHandler.sendFailure("World directory not found");
+						} else if (worldDirectoryExists) {
+							contextHandler.sendFailure("Backup directory not found");
+						} else {
+							contextHandler.sendFailure("Directories not found");
+						}
+						return -1;
+					}
+				})));
 			});
-			commandBuilder.then("name", StringArgumentType.greedyString(), innerCommandBuilder -> innerCommandBuilder.executes(contextHandler -> {
-				final String filter = contextHandler.getString("name");
-				contextHandler.sendSuccess("command.mtr.generate_filter", true, filter);
-				return generateDepotsFromCommand(contextHandler.getWorld(), filter);
-			}));
-		});
+		}, "minecrafttransitrailway");
 
 		// Register events
 		EventRegistry.registerServerStarted(minecraftServer -> {
@@ -113,7 +150,7 @@ public final class Init implements Utilities {
 			final int port = findFreePort(serverPort + 1);
 			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, port, WORLD_ID_LIST.toArray(new String[0]));
 			webserver = new Webserver(port);
-			webserver.addServlet(new ServletHolder(new SocketServlet(minecraftServer)), "/");
+			webserver.addServlet(new ServletHolder(new VehicleLiftServlet(minecraftServer)), "/vehicles-lifts");
 			webserver.start();
 
 			serverTick = 0;
@@ -184,10 +221,6 @@ public final class Init implements Utilities {
 		return chunkManager.getWorldChunk(blockPos.getX() / 16, blockPos.getZ() / 16) != null && world.isRegionLoaded(blockPos, blockPos);
 	}
 
-	public static void logException(Exception e) {
-		LOGGER.error(e);
-	}
-
 	private static int getDefaultPortFromConfig(MinecraftServer minecraftServer) {
 		final Path filePath = minecraftServer.getRunDirectory().toPath().resolve("config/mtr_webserver_port.txt");
 		final int defaultPort = 8888;
@@ -198,7 +231,7 @@ public final class Init implements Utilities {
 			try {
 				Files.write(filePath, String.valueOf(defaultPort).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 			} catch (Exception e) {
-				logException(e);
+				LOGGER.error("", e);
 			}
 		}
 
@@ -209,7 +242,7 @@ public final class Init implements Utilities {
 		for (int i = Math.max(1025, startingPort); i <= 65535; i++) {
 			try (final ServerSocket serverSocket = new ServerSocket(i)) {
 				final int port = serverSocket.getLocalPort();
-				Main.LOGGER.log(Level.INFO, "Found available port: " + port);
+				LOGGER.info("Found available port: " + port);
 				return port;
 			} catch (Exception ignored) {
 			}
@@ -222,10 +255,23 @@ public final class Init implements Utilities {
 		return String.format("%s/%s", identifier.getNamespace(), identifier.getPath());
 	}
 
-	private static int generateDepotsFromCommand(World world, String filter) {
-		final GenerateByDepotName generateByDepotName = new GenerateByDepotName();
+	private static void generateOrClearDepotsFromCommand(CommandBuilder<?> commandBuilder, boolean isGenerate) {
+		commandBuilder.permissionLevel(2);
+		commandBuilder.executes(contextHandler -> {
+			contextHandler.sendSuccess(isGenerate ? "command.mtr.generate_all" : "command.mtr.clear_all", true);
+			return generateOrClearDepotsFromCommand(contextHandler.getWorld(), "", isGenerate);
+		});
+		commandBuilder.then("name", StringArgumentType.greedyString(), innerCommandBuilder -> innerCommandBuilder.executes(contextHandler -> {
+			final String filter = contextHandler.getString("name");
+			contextHandler.sendSuccess(isGenerate ? "command.mtr.generate_filter" : "command.mtr.clear_filter", true, filter);
+			return generateOrClearDepotsFromCommand(contextHandler.getWorld(), filter, isGenerate);
+		}));
+	}
+
+	private static int generateOrClearDepotsFromCommand(World world, String filter, boolean isGenerate) {
+		final GenerateOrClearByDepotName generateByDepotName = new GenerateOrClearByDepotName();
 		generateByDepotName.setFilter(filter);
-		sendHttpRequest("operation/generate", world, Utilities.getJsonObjectFromData(generateByDepotName).toString(), null);
+		sendHttpRequest(isGenerate ? "operation/generate-by-depot-name" : "operation/clear-by-depot-name", world, Utilities.getJsonObjectFromData(generateByDepotName).toString(), null);
 		return 1;
 	}
 }

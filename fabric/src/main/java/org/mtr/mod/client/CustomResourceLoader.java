@@ -59,7 +59,7 @@ public class CustomResourceLoader {
 					SIGNS_CACHE.put(signResource.getId(), signResource);
 				});
 			} catch (Exception e) {
-				Init.logException(e);
+				Init.LOGGER.error("", e);
 			}
 		});
 
@@ -121,7 +121,7 @@ public class CustomResourceLoader {
 		try (final InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
 			return JsonParser.parseReader(inputStreamReader);
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 			return new JsonObject();
 		}
 	}

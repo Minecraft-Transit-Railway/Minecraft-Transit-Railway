@@ -129,6 +129,15 @@
 		},
 		{
 			"names": [
+				"seat"
+			],
+			"positionDefinitions": [
+				"seat"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
 				"door_floor_ael"
 			],
 			"positionDefinitions": [

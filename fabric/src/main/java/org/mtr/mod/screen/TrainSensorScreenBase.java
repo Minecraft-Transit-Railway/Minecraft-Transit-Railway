@@ -127,7 +127,7 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 			renderAdditional(graphicsHolder);
 			super.render(graphicsHolder, mouseX, mouseY, delta);
 		} catch (Exception e) {
-			Init.logException(e);
+			Init.LOGGER.error("", e);
 		}
 	}
 
