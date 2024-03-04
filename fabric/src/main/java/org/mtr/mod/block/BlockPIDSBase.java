@@ -17,14 +17,12 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 	public final int maxArrivals;
 	public final BiPredicate<World, BlockPos> canStoreData;
 	public final BiFunction<World, BlockPos, BlockPos> getBlockPosWithData;
-	public final PIDSRenderController renderController;
 
-	public BlockPIDSBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData, PIDSRenderController renderController) {
+	public BlockPIDSBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData) {
 		super(BlockHelper.createBlockSettings(true, blockState -> 5).nonOpaque());
 		this.maxArrivals = maxArrivals;
 		this.canStoreData = canStoreData;
 		this.getBlockPosWithData = getBlockPosWithData;
-        this.renderController = renderController;
     }
 
 	@Nonnull
@@ -54,14 +52,16 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 		private static final String KEY_HIDE_ARRIVAL = "hide_arrival";
 		private static final String KEY_PLATFORM_IDS = "platform_ids";
 		private static final String KEY_DISPLAY_PAGE = "display_page";
+		public final PIDSRenderController renderController;
 
-		public BlockEntityBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData, BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		public BlockEntityBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData, BlockEntityType<?> type, BlockPos pos, BlockState state, PIDSRenderController renderController) {
 			super(type, pos, state);
 			this.maxArrivals = maxArrivals;
 			this.canStoreData = canStoreData;
 			this.getBlockPosWithData = getBlockPosWithData;
 			messages = new String[maxArrivals];
-			for (int i = 0; i < maxArrivals; i++) {
+            this.renderController = renderController;
+            for (int i = 0; i < maxArrivals; i++) {
 				messages[i] = "";
 			}
 			hideArrivalArray = new boolean[maxArrivals];

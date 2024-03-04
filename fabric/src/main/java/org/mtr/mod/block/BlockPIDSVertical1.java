@@ -12,7 +12,7 @@ public class BlockPIDSVertical1 extends BlockPIDSVerticalBase {
 	private static final int MAX_ARRIVALS = 16;
 
 	public BlockPIDSVertical1() {
-		super(MAX_ARRIVALS, new PIDSRenderController(16, 32));
+		super(MAX_ARRIVALS);
 	}
 
 	@Nonnull
@@ -30,7 +30,7 @@ public class BlockPIDSVertical1 extends BlockPIDSVerticalBase {
 	public static class BlockEntity extends BlockEntityVerticalBase {
 
 		public BlockEntity(BlockPos pos, BlockState state) {
-			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_VERTICAL_1.get(), pos, state);
+			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_VERTICAL_1.get(), pos, state, new PIDSRenderController(16, 32));
 		}
 	}
 }
