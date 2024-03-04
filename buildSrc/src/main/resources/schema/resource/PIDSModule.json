@@ -1,0 +1,42 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"type": {
+			"type": "string"
+		},
+		"pos": {
+			"type": "object",
+			"properties": {
+				"x": {
+					"type": "number"
+				},
+				"y": {
+					"type": "number"
+				},
+				"w": {
+					"type": "number"
+				},
+				"h": {
+					"type": "number"
+				}
+			}
+		},
+		"align": {
+			"type": "string"
+		},
+		"color": {
+			"type": "integer"
+		},
+		"arrival": {
+			"type": "integer"
+		}
+	},
+	"required": [
+		"type",
+		"pos"
+	]
+}
