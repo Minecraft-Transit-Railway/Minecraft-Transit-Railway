@@ -9,7 +9,6 @@ import org.mtr.mapping.holder.OverlayTexture;
 import org.mtr.mapping.holder.Vector3d;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
-import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mod.MutableBox;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.data.IGui;
@@ -20,7 +19,6 @@ import org.mtr.mod.render.RenderVehicles;
 import org.mtr.mod.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.Comparator;
 
 public final class ModelPropertiesPart extends ModelPropertiesPartSchema implements IGui {
@@ -43,12 +41,12 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			PositionDefinitions positionDefinitionsObject,
 			ObjectArraySet<Box> floors,
 			ObjectArraySet<Box> doorways,
-			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModel.MaterialGroup>> materialGroupsForPartConditionAndRenderStage,
-			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModel.MaterialGroup>> materialGroupsForPartConditionAndRenderStageDoorsClosed
+			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStage,
+			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStageDoorsClosed
 	) {
 		final ObjectArrayList<ModelPartExtension> modelParts = new ObjectArrayList<>();
 		final MutableBox mutableBox = new MutableBox();
-		final OptimizedModel optimizedModelDoor;
+		final OptimizedModelWrapper optimizedModelDoor;
 
 		names.forEach(name -> {
 			final ObjectObjectImmutablePair<ModelPartExtension, MutableBox> part = nameToPart.get(name);
@@ -59,9 +57,9 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		});
 
 		if (isDoor()) {
-			final OptimizedModel.MaterialGroup materialGroup = new OptimizedModel.MaterialGroup(renderStage.shaderType, texture);
+			final OptimizedModelWrapper.MaterialGroupWrapper materialGroup = new OptimizedModelWrapper.MaterialGroupWrapper(renderStage.shaderType, texture);
 			modelParts.forEach(modelPart -> materialGroup.addCube(modelPart, 0, 0, 0, false, MAX_LIGHT_INTERIOR));
-			optimizedModelDoor = new OptimizedModel(Collections.singletonList(materialGroup));
+			optimizedModelDoor = new OptimizedModelWrapper(ObjectArrayList.of(materialGroup));
 		} else {
 			optimizedModelDoor = null;
 		}
@@ -150,7 +148,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 					if (partDetails.flipped) {
 						graphicsHolder.rotateYDegrees(180);
 					}
-					CustomResourceLoader.OPTIMIZED_RENDERER.queue(partDetails.optimizedModelDoor, graphicsHolder, light);
+					CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(partDetails.optimizedModelDoor, graphicsHolder, light);
 					graphicsHolder.pop();
 				}
 			} else {
@@ -160,9 +158,9 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		graphicsHolder.pop();
 	}
 
-	private void addCube(Identifier texture, ObjectArrayList<ModelPartExtension> modelParts, Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModel.MaterialGroup>> materialGroupsForPartConditionAndRenderStage, double x, double y, double z, boolean flipped) {
+	private void addCube(Identifier texture, ObjectArrayList<ModelPartExtension> modelParts, Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStage, double x, double y, double z, boolean flipped) {
 		modelParts.forEach(modelPart -> Data.put(materialGroupsForPartConditionAndRenderStage, condition, renderStage, oldValue -> {
-			final OptimizedModel.MaterialGroup materialGroup = oldValue == null ? new OptimizedModel.MaterialGroup(renderStage.shaderType, texture) : oldValue;
+			final OptimizedModelWrapper.MaterialGroupWrapper materialGroup = oldValue == null ? new OptimizedModelWrapper.MaterialGroupWrapper(renderStage.shaderType, texture) : oldValue;
 			materialGroup.addCube(modelPart, (x + doorAnimationType.getDoorAnimationX(doorXMultiplier, 0)) / 16, y / 16, (z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, 0, false)) / 16, flipped, MAX_LIGHT_INTERIOR);
 			return materialGroup;
 		}, Object2ObjectOpenHashMap::new));
@@ -211,14 +209,14 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 		private Box doorway;
 		private final ObjectArrayList<ModelPartExtension> modelParts;
-		private final OptimizedModel optimizedModelDoor;
+		private final OptimizedModelWrapper optimizedModelDoor;
 		private final Box box;
 		private final double x;
 		private final double y;
 		private final double z;
 		private final boolean flipped;
 
-		private PartDetails(ObjectArrayList<ModelPartExtension> modelParts, @Nullable OptimizedModel optimizedModelDoor, Box box, double x, double y, double z, boolean flipped) {
+		private PartDetails(ObjectArrayList<ModelPartExtension> modelParts, @Nullable OptimizedModelWrapper optimizedModelDoor, Box box, double x, double y, double z, boolean flipped) {
 			this.modelParts = modelParts;
 			this.optimizedModelDoor = optimizedModelDoor;
 			this.box = box;

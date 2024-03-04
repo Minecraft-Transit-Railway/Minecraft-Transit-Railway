@@ -1,5 +1,6 @@
 package org.mtr.mod.client;
 
+import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -16,10 +17,10 @@ import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.net.URLEncoder;
 import java.text.AttributedString;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Random;
 import java.util.function.Supplier;
 
 public class DynamicTextureCache implements IGui {
@@ -253,22 +254,14 @@ public class DynamicTextureCache implements IGui {
 				}
 
 				final DynamicResource dynamicResourceNew;
-				if (nativeImage == null) {
-					dynamicResourceNew = defaultRenderingColor.dynamicResource;
-				} else {
+				if (nativeImage != null) {
 					final NativeImageBackedTexture nativeImageBackedTexture = new NativeImageBackedTexture(nativeImage);
-					String newKey = key;
-					try {
-						newKey = URLEncoder.encode(key, "UTF-8");
-					} catch (Exception e) {
-						Init.LOGGER.error("", e);
-					}
-					final Identifier identifier = new Identifier(Init.MOD_ID, "dynamic_texture_" + newKey.toLowerCase(Locale.ENGLISH).replaceAll("[^0-9a-z_]", "_"));
+					final Identifier identifier = new Identifier(Init.MOD_ID, "id_" + Utilities.numberToPaddedHexString(new Random().nextLong()).toLowerCase(Locale.ENGLISH));
 					MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, new AbstractTexture(nativeImageBackedTexture.data));
 					dynamicResourceNew = new DynamicResource(identifier, nativeImageBackedTexture);
+					dynamicResources.put(key, dynamicResourceNew);
 				}
 
-				dynamicResources.put(key, dynamicResourceNew);
 				generatingResources.remove(key);
 			});
 		})) {
@@ -311,10 +304,8 @@ public class DynamicTextureCache implements IGui {
 		}
 
 		private void remove() {
-			if (!identifier.equals(DEFAULT_BLACK_RESOURCE) && !identifier.equals(DEFAULT_WHITE_RESOURCE) && !identifier.equals(DEFAULT_TRANSPARENT_RESOURCE)) {
-				MinecraftClient.getInstance().getTextureManager().destroyTexture(identifier);
-				RenderTrains.cancelRender(identifier);
-			}
+			MinecraftClient.getInstance().getTextureManager().destroyTexture(identifier);
+			RenderTrains.cancelRender(identifier);
 		}
 	}
 
