@@ -129,7 +129,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 			}
 		}
 
-		CustomResourceLoader.OPTIMIZED_RENDERER.render(!Config.hideTranslucentParts());
+		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.render(!Config.hideTranslucentParts());
 	}
 
 	public static boolean shouldNotRender(BlockPos pos, @Nullable Direction facing) {

@@ -9,7 +9,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.MutableText;
-import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.data.VehicleExtension;
@@ -31,20 +30,20 @@ public final class VehicleResource extends VehicleResourceSchema {
 	public final ObjectImmutableList<Box> floors;
 	public final ObjectImmutableList<Box> doorways;
 	public final Supplier<VehicleSoundBase> createVehicleSoundBase;
-	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModel> optimizedModels;
-	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModel> optimizedModelsDoorsClosed;
-	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModel> optimizedModelsBogie1;
-	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModel> optimizedModelsBogie2;
+	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels;
+	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsDoorsClosed;
+	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie1;
+	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie2;
 
 	public VehicleResource(ReaderBase readerBase, @Nullable VehicleModel extraModel, @Nullable Box extraFloor, ObjectArraySet<Box> doorways) {
 		super(readerBase);
 		updateData(readerBase);
 
 		final ObjectArraySet<Box> floors = new ObjectArraySet<>();
-		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModel.MaterialGroup>> materialGroupsModel = new Object2ObjectOpenHashMap<>();
-		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModel.MaterialGroup>> materialGroupsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
-		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModel.MaterialGroup>> materialGroupsBogie1Model = new Object2ObjectOpenHashMap<>();
-		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModel.MaterialGroup>> materialGroupsBogie2Model = new Object2ObjectOpenHashMap<>();
+		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsModel = new Object2ObjectOpenHashMap<>();
+		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
+		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsBogie1Model = new Object2ObjectOpenHashMap<>();
+		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsBogie2Model = new Object2ObjectOpenHashMap<>();
 
 		if (extraModel != null) {
 			models.add(extraModel);
@@ -193,21 +192,21 @@ public final class VehicleResource extends VehicleResourceSchema {
 		}
 	}
 
-	private static void queue(Object2ObjectOpenHashMap<PartCondition, OptimizedModel> optimizedModels, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, boolean noOpenDoorways) {
+	private static void queue(Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, boolean noOpenDoorways) {
 		optimizedModels.forEach((partCondition, optimizedModel) -> {
 			if (matchesCondition(vehicle, partCondition, noOpenDoorways)) {
 				RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
 					storedMatrixTransformations.transform(graphicsHolder, offset);
-					CustomResourceLoader.OPTIMIZED_RENDERER.queue(optimizedModel, graphicsHolder, light);
+					CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(optimizedModel, graphicsHolder, light);
 					graphicsHolder.pop();
 				});
 			}
 		});
 	}
 
-	private static Object2ObjectOpenHashMap<PartCondition, OptimizedModel> writeToOptimizedModels(Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModel.MaterialGroup>> materialGroupsModel) {
-		final Object2ObjectOpenHashMap<PartCondition, OptimizedModel> optimizedModels = new Object2ObjectOpenHashMap<>();
-		materialGroupsModel.forEach((partCondition, materialGroups) -> optimizedModels.put(partCondition, new OptimizedModel(materialGroups)));
+	private static Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> writeToOptimizedModels(Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsModel) {
+		final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels = new Object2ObjectOpenHashMap<>();
+		materialGroupsModel.forEach((partCondition, materialGroups) -> optimizedModels.put(partCondition, new OptimizedModelWrapper(materialGroups)));
 		return optimizedModels;
 	}
 

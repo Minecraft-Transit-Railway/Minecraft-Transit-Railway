@@ -9,10 +9,10 @@ import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.resource.CustomResources;
+import org.mtr.mod.resource.OptimizedRendererWrapper;
 import org.mtr.mod.resource.SignResource;
 import org.mtr.mod.resource.VehicleResource;
 
@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 
 public class CustomResourceLoader {
 
-	public static final OptimizedRenderer OPTIMIZED_RENDERER = new OptimizedRenderer();
+	public static final OptimizedRendererWrapper OPTIMIZED_RENDERER_WRAPPER = new OptimizedRendererWrapper();
 	private static final Object2ObjectAVLTreeMap<String, JsonElement> RESOURCE_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, ObjectArrayList<VehicleResource>> VEHICLES = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, Object2ObjectAVLTreeMap<String, VehicleResource>> VEHICLES_CACHE = new Object2ObjectAVLTreeMap<>();
@@ -40,7 +40,7 @@ public class CustomResourceLoader {
 	}
 
 	public static void reload() {
-		OPTIMIZED_RENDERER.beginReload();
+		OPTIMIZED_RENDERER_WRAPPER.beginReload();
 		RESOURCE_CACHE.clear();
 		VEHICLES.forEach((transportMode, vehicleResources) -> vehicleResources.clear());
 		VEHICLES_CACHE.forEach((transportMode, vehicleResourcesCache) -> vehicleResourcesCache.clear());
@@ -63,7 +63,7 @@ public class CustomResourceLoader {
 			}
 		});
 
-		OPTIMIZED_RENDERER.finishReload();
+		OPTIMIZED_RENDERER_WRAPPER.finishReload();
 		Init.LOGGER.info("Loaded " + VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum) + " vehicle(s)");
 		Init.LOGGER.info("Loaded " + SIGNS.size() + " sign(s)");
 	}

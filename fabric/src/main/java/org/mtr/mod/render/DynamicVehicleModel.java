@@ -11,7 +11,6 @@ import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.EntityModelExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
-import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mod.MutableBox;
 import org.mtr.mod.ObjectHolder;
 import org.mtr.mod.data.VehicleExtension;
@@ -25,8 +24,8 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	private final Identifier texture;
 	private final ObjectArraySet<Box> floors = new ObjectArraySet<>();
 	private final ObjectArraySet<Box> doorways = new ObjectArraySet<>();
-	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModel.MaterialGroup>> materialGroupsForPartConditionAndRenderStage = new Object2ObjectOpenHashMap<>();
-	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModel.MaterialGroup>> materialGroupsForPartConditionAndRenderStageDoorsClosed = new Object2ObjectOpenHashMap<>();
+	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStage = new Object2ObjectOpenHashMap<>();
+	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStageDoorsClosed = new Object2ObjectOpenHashMap<>();
 
 	public DynamicVehicleModel(BlockbenchModel blockbenchModel, Identifier texture, ModelProperties modelProperties, PositionDefinitions positionDefinitions) {
 		super(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight());
@@ -75,8 +74,8 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	public void writeFloorsAndDoorways(
 			ObjectArraySet<Box> floors,
 			ObjectArraySet<Box> doorways,
-			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModel.MaterialGroup>> materialGroupsForPartCondition,
-			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModel.MaterialGroup>> materialGroupsForPartConditionDoorsClosed
+			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartCondition,
+			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionDoorsClosed
 	) {
 		floors.addAll(this.floors);
 		doorways.addAll(this.doorways);
