@@ -32,7 +32,7 @@ public class BlockPIDSHorizontal2 extends BlockPIDSHorizontalBase {
 	public static class BlockEntity extends BlockEntityHorizontalBase {
 
 		public BlockEntity(BlockPos pos, BlockState state) {
-			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_HORIZONTAL_2.get(), pos, state, new PIDSRenderController(32, 9));
+			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_HORIZONTAL_2.get(), pos, state, new PIDSRenderController(32, 9, ""));
 		}
 
 		@Override

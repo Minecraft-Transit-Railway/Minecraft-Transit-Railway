@@ -13,10 +13,10 @@ public class PIDSRenderController {
     protected final float width;
     protected final float height;
 
-    public PIDSRenderController(float width, float height) {
+    public PIDSRenderController(float width, float height, String defaultLayout) {
         this.width = width;
         this.height = height;
-        loadModules("{\"id\":\"test\",\"modules\":[{\"type\":\"DestinationModule\",\"pos\":{\"x\":1.5,\"y\":1.5,\"w\":22.5,\"h\":1.75},\"align\":\"left\",\"color\":16777215,\"arrival\":0},{\"type\":\"DestinationModule\",\"pos\":{\"x\":1.5,\"y\":3.625,\"w\":22.5,\"h\":1.75},\"align\":\"left\",\"color\":16777215,\"arrival\":1},{\"type\":\"DestinationModule\",\"pos\":{\"x\":1.5,\"y\":5.75,\"w\":22.5,\"h\":1.75},\"align\":\"left\",\"color\":16777215,\"arrival\":2},{\"type\":\"ArrivalTimeModule\",\"pos\":{\"x\":24.5,\"y\":1.5,\"w\":6,\"h\":1.75},\"align\":\"right\",\"color\":65280,\"arrival\":0},{\"type\":\"ArrivalTimeModule\",\"pos\":{\"x\":24.5,\"y\":3.625,\"w\":6,\"h\":1.75},\"align\":\"right\",\"color\":16777215,\"arrival\":1},{\"type\":\"ArrivalTimeModule\",\"pos\":{\"x\":24.5,\"y\":5.75,\"w\":6,\"h\":1.75},\"align\":\"right\",\"color\":16753920,\"arrival\":2}]}");
+        loadModules(defaultLayout);
     }
 
     public List<PIDSModule> getModules() {
@@ -39,7 +39,5 @@ public class PIDSRenderController {
             Init.LOGGER.error("", e);
             data = new PIDSData(new JsonReader(new JsonObject()));
         }
-
-        Init.LOGGER.info(data);
     }
 }

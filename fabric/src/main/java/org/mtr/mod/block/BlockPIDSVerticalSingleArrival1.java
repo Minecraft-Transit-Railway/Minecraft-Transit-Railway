@@ -3,6 +3,7 @@ package org.mtr.mod.block;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mod.BlockEntityTypes;
+import org.mtr.mod.render.pids.PIDSRenderController;
 
 import javax.annotation.Nonnull;
 
@@ -29,7 +30,7 @@ public class BlockPIDSVerticalSingleArrival1 extends BlockPIDSVerticalBase {
 	public static class BlockEntity extends BlockEntityVerticalBase {
 
 		public BlockEntity(BlockPos pos, BlockState state) {
-			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_VERTICAL_SINGLE_ARRIVAL_1.get(), pos, state);
+			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_VERTICAL_SINGLE_ARRIVAL_1.get(), pos, state, new PIDSRenderController(16, 32, ""));
 		}
 	}
 }
