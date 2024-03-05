@@ -100,8 +100,9 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketGetPIDSLayoutData.class, PacketGetPIDSLayoutData::new);
 		REGISTRY.registerPacket(PacketSendPIDSLayoutData.class, PacketSendPIDSLayoutData::new);
 		REGISTRY.registerPacket(PacketSendPIDSLayoutFailed.class, PacketSendPIDSLayoutFailed::new);
-		REGISTRY.registerPacket(PacketUpdatePIDSMetadata.class, PacketUpdatePIDSMetadata::new);
+		REGISTRY.registerPacket(PacketSendPIDSMetadata.class, PacketSendPIDSMetadata::new);
 		REGISTRY.registerPacket(PacketUpdatePIDSLayout.class, PacketUpdatePIDSLayout::new);
+		REGISTRY.registerPacket(PacketUpdatePIDSMetadata.class, PacketUpdatePIDSMetadata::new);
 
 		// Register command
 		REGISTRY.registerCommand("mtr", commandBuilderMtr -> {
