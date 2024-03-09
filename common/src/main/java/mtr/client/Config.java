@@ -42,6 +42,7 @@ public class Config {
 	private static final String TRACK_TEXTURE_OFFSET = "track_texture_offset";
 	private static final String DYNAMIC_TEXTURE_RESOLUTION = "dynamic texture resolution";
 	private static final String TRAIN_RENDER_DISTANCE_RATIO = "train_render_distance_ratio";
+	private static final String USE_DYNAMIC_FPS = "use_dynamic_fps";
 
 	public static boolean useMTRFont() {
 		return useMTRFont;
