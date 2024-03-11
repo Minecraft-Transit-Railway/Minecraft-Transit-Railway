@@ -11,8 +11,8 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mod.Init;
 import org.mtr.mod.Items;
 import org.mtr.mod.block.BlockLiftTrackFloor;
-import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.VehicleRidingMovement;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.model.ModelLift1;
@@ -42,11 +42,8 @@ public class RenderLifts implements IGui {
 				// Render lift path for debugging
 				final LiftFloor[] previousLiftFloor = {null};
 				lift.iterateFloors(liftFloor -> {
-					final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(true);
-					storedMatrixTransformations.add(graphicsHolder -> {
-						final Position position = liftFloor.getPosition();
-						graphicsHolder.translate(position.getX(), position.getY(), position.getZ());
-					});
+					final Position position = liftFloor.getPosition();
+					final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(position.getX(), position.getY(), position.getZ());
 					MODEL_SMALL_CUBE.render(storedMatrixTransformations, MAX_LIGHT_GLOWING);
 
 					if (previousLiftFloor[0] != null) {

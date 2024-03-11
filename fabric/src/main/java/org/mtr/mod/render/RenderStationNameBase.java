@@ -32,9 +32,8 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.Block
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
 		final int color = RenderRouteBase.getShadingColor(facing, entity.getColor(state));
 
-		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(true);
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(0.5 + pos.getX(), 0.5 + entity.yOffset + pos.getY(), 0.5 + pos.getZ());
 		storedMatrixTransformations.add(graphicsHolderNew -> {
-			graphicsHolderNew.translate(0.5 + pos.getX(), 0.5 + entity.yOffset + pos.getY(), 0.5 + pos.getZ());
 			graphicsHolderNew.rotateYDegrees(-facing.asRotation());
 			graphicsHolderNew.rotateZDegrees(180);
 		});
