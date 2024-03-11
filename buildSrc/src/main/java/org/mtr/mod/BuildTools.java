@@ -121,8 +121,18 @@ public class BuildTools {
 							final double length = replacementObject.getAsJsonArray("lengths").get(i).getAsDouble();
 							final String id = vehicleObject.get("id").getAsString();
 							vehicleObject.addProperty("length", length);
-							vehicleObject.addProperty("bogie1Position", length <= 4 || length <= 14 && id.contains("cab_3") ? 0 : (-length / 2 + (length <= 14 && (id.contains("trailer") || id.contains("cab_2")) ? 0 : 4)));
-							vehicleObject.addProperty("bogie2Position", length <= 4 || length <= 14 && id.contains("cab_3") ? 0 : (length / 2 - (length <= 14 && (id.contains("trailer") || id.contains("cab_1")) ? 0 : 4)));
+
+							if (replacementObject.toString().contains("boat_small") && replacementObject.toString().contains("boat_medium")) {
+								vehicleObject.addProperty("bogie1Position", -1);
+								vehicleObject.addProperty("bogie2Position", 1);
+							} else if (length <= 4 || length <= 14 && id.contains("cab_3")) {
+								vehicleObject.addProperty("bogie1Position", 0);
+								vehicleObject.addProperty("bogie2Position", 0);
+							} else {
+								vehicleObject.addProperty("bogie1Position", -length / 2 + (length <= 14 && (id.contains("trailer") || id.contains("cab_2")) ? 0 : 4));
+								vehicleObject.addProperty("bogie2Position", length / 2 - (length <= 14 && (id.contains("trailer") || id.contains("cab_1")) ? 0 : 4));
+							}
+
 							String newFileString = vehicleObject.toString();
 							for (final Map.Entry<String, JsonElement> entry : replacementObject.entrySet()) {
 								newFileString = newFileString.replace(String.format("@%s@", entry.getKey()), entry.getValue().getAsJsonArray().get(i).getAsString());

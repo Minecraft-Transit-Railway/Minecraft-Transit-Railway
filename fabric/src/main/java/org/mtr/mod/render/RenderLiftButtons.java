@@ -46,8 +46,7 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 		final Direction facing = IBlock.getStatePropertySafe(blockState, FACING);
 		final boolean holdingLinker = PlayerHelper.isHolding(PlayerEntity.cast(clientPlayerEntity), item -> item.data instanceof ItemLiftButtonsLinkModifier || Block.getBlockFromItem(item).data instanceof BlockLiftButtons);
 
-		final StoredMatrixTransformations storedMatrixTransformations1 = new StoredMatrixTransformations(true);
-		storedMatrixTransformations1.add(graphicsHolder -> graphicsHolder.translate(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5));
+		final StoredMatrixTransformations storedMatrixTransformations1 = new StoredMatrixTransformations(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5);
 
 		// Array order: has down button, has up button, pressed down button, pressed up button
 		final boolean[] buttonStates = {false, false, false, false};

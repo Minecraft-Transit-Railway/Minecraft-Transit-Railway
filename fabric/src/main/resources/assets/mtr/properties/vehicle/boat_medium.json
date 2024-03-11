@@ -1,0 +1,95 @@
+{
+	"parts": [
+		{
+			"names": [
+				"main"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"upper_level"
+			],
+			"positionDefinitions": [
+				"extra"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_1_left"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "BOUNCY_1"
+		},
+		{
+			"names": [
+				"door_1_right"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "BOUNCY_1"
+		},
+		{
+			"names": [
+				"door_2_left"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "BOUNCY_1"
+		},
+		{
+			"names": [
+				"door_2_right"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "BOUNCY_1"
+		},
+		{
+			"names": [
+				"floor"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"upper_floor"
+			],
+			"positionDefinitions": [
+				"extra"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway_1",
+				"doorway_2"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"type": "DOORWAY"
+		}
+	],
+	"modelYOffset": 0.5
+}

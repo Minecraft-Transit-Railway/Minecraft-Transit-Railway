@@ -47,9 +47,8 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.BlockEntityBase> ext
 		final boolean unlocked = IBlock.getStatePropertySafe(world, blockPos, BlockPSDAPGDoorBase.UNLOCKED);
 		final double open = Math.min(entity.getDoorValue(), type >= 3 ? 0.75F : 1);
 
-		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(true);
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(0.5 + entity.getPos2().getX(), entity.getPos2().getY(), 0.5 + entity.getPos2().getZ());
 		storedMatrixTransformations.add(graphicsHolderNew -> {
-			graphicsHolderNew.translate(0.5 + entity.getPos2().getX(), entity.getPos2().getY(), 0.5 + entity.getPos2().getZ());
 			graphicsHolderNew.rotateYDegrees(-facing.asRotation());
 			graphicsHolderNew.rotateXDegrees(180);
 		});

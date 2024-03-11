@@ -13,9 +13,9 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockLiftButtons;
 import org.mtr.mod.block.BlockLiftPanelBase;
 import org.mtr.mod.block.IBlock;
-import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.item.ItemLiftButtonsLinkModifier;
 
@@ -58,8 +58,7 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> exten
 		final Direction facing = IBlock.getStatePropertySafe(blockState, FACING);
 		final boolean holdingLinker = PlayerHelper.isHolding(PlayerEntity.cast(clientPlayerEntity), item -> item.data instanceof ItemLiftButtonsLinkModifier || Block.getBlockFromItem(item).data instanceof BlockLiftButtons);
 
-		final StoredMatrixTransformations storedMatrixTransformations1 = new StoredMatrixTransformations(true);
-		storedMatrixTransformations1.add(graphicsHolder -> graphicsHolder.translate(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5));
+		final StoredMatrixTransformations storedMatrixTransformations1 = new StoredMatrixTransformations(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5);
 
 		// Render track link if holding linker item
 		final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, FACING);
