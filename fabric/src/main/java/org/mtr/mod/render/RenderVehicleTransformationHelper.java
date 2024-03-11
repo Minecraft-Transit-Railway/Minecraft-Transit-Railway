@@ -78,7 +78,7 @@ public class RenderVehicleTransformationHelper {
 	}
 
 	public StoredMatrixTransformations getStoredMatrixTransformations() {
-		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(!renderWithRespectToPlayerPosition);
+		final StoredMatrixTransformations storedMatrixTransformations = renderWithRespectToPlayerPosition ? new StoredMatrixTransformations() : new StoredMatrixTransformations(pivotPosition.x, pivotPosition.y, pivotPosition.z);
 		storedMatrixTransformations.add(this::transformGraphicsHolder);
 		return storedMatrixTransformations;
 	}

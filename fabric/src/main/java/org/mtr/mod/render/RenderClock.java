@@ -27,13 +27,10 @@ public class RenderClock extends BlockEntityRenderer<BlockClock.BlockEntity> imp
 		final BlockState state = world.getBlockState(pos);
 		final boolean rotated = IBlock.getStatePropertySafe(state, BlockClock.FACING);
 
-		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(true);
-		storedMatrixTransformations.add(graphicsHolderNew -> {
-			graphicsHolderNew.translate(pos.getX() + 0.5, pos.getY() + 0.3125, pos.getZ() + 0.5);
-			if (rotated) {
-				graphicsHolderNew.rotateYDegrees(90);
-			}
-		});
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(pos.getX() + 0.5, pos.getY() + 0.3125, pos.getZ() + 0.5);
+		if (rotated) {
+			storedMatrixTransformations.add(graphicsHolderNew -> graphicsHolderNew.rotateYDegrees(90));
+		}
 
 		RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, RenderTrains.QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
 			storedMatrixTransformations.transform(graphicsHolderNew, offset);

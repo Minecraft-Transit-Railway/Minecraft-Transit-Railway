@@ -78,7 +78,9 @@ public class RenderVehicleHelper {
 			graphicsHolder.rotateYRadians((float) (Math.PI - yaw));
 			return new Object();
 		}, (object, x, y, z) -> {
-			graphicsHolder.translate(-x, -y, -z);
+			if (!storedMatrixTransformations.useDefaultOffset) {
+				graphicsHolder.translate(-x, -y, -z);
+			}
 			return new Object();
 		}));
 
