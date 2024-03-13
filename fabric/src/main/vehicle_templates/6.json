@@ -1,0 +1,58 @@
+{
+	"replacements": {
+		"lengths": [
+			30,
+			30
+		],
+		"id": [
+			"a320",
+			"a320_lufthansa"
+		],
+		"name": [
+			"Airbus A320",
+			"Airbus A320 (Lufthansa)"
+		],
+		"color": [
+			"CCCCCC",
+			"00235F"
+		],
+		"tag": [
+			"None",
+			"Lufthansa"
+		],
+		"texture": [
+			"a320",
+			"a320_lufthansa"
+		]
+	},
+	"vehicles": [
+		{
+			"id": "@id@",
+			"name": "@name@",
+			"color": "@color@",
+			"transportMode": "AIRPLANE",
+			"width": 2,
+			"wikipediaArticle": "Airbus_A320_family",
+			"tags": [
+				"family:A320",
+				"brand:@tag@"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/a320.bbmodel",
+					"textureResource": "mtr:textures/vehicle/@texture@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a320.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a320.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/a320.bbmodel",
+					"textureResource": "mtr:textures/vehicle/@texture@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a320_landing_gear.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a320.json"
+				}
+			]
+		}
+	]
+}

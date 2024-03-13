@@ -38,7 +38,7 @@ public final class BlockbenchElement extends BlockbenchElementSchema {
 		final int sizeY = (int) Math.round(Utilities.getElement(to, 1, 0D) - Utilities.getElement(from, 1, 0D));
 		final int sizeZ = (int) Math.round(Utilities.getElement(to, 2, 0D) - Utilities.getElement(from, 2, 0D));
 
-		modelPart.addCuboid(x, y, z, sizeX, sizeY, sizeZ, (float) inflate, !shade);
+		modelPart.addCuboid(x, y, z, sizeX, sizeY, sizeZ, (float) inflate, !shade || mirror_uv);
 
 		final Vector3d vector1 = new Vector3d(x, y, z).rotateX(rotationX).rotateY(rotationY).rotateZ(rotationZ);
 		final Vector3d vector2 = new Vector3d(x + sizeX, y + sizeY, z + sizeZ).rotateX(rotationX).rotateY(rotationY).rotateZ(rotationZ);
