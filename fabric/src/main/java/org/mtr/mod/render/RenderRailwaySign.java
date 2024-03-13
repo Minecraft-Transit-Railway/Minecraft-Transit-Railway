@@ -87,7 +87,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 			final int newBackgroundColor = backgroundColor | ARGB_BLACK;
 			RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, RenderTrains.QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolderNew, offset);
-				IDrawing.drawTexture(graphicsHolderNew, 0, 0, SMALL_OFFSET, 0.5F * (signIds.length), 0.5F, SMALL_OFFSET, facing, newBackgroundColor, MAX_LIGHT_GLOWING);
+				IDrawing.drawTexture(graphicsHolderNew, 0, 0, SMALL_OFFSET, 0.5F * (signIds.length), 0.5F, SMALL_OFFSET, facing, newBackgroundColor, GraphicsHolder.getDefaultLight());
 				graphicsHolderNew.pop();
 			});
 		}
@@ -108,7 +108,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 						backgroundColor | ARGB_BLACK,
 						(textureId, x, y, size, flipTexture) -> RenderTrains.scheduleRender(textureId, true, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 							storedMatrixTransformations.transform(graphicsHolderNew, offset);
-							IDrawing.drawTexture(graphicsHolderNew, x, y, size, size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1, facing, -1, MAX_LIGHT_GLOWING);
+							IDrawing.drawTexture(graphicsHolderNew, x, y, size, size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1, facing, -1, GraphicsHolder.getDefaultLight());
 							graphicsHolderNew.pop();
 						})
 				);
@@ -167,7 +167,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 					storedMatrixTransformations.transform(graphicsHolderNew, offset);
 					graphicsHolderNew.translate(x + margin + (flipCustomText ? signSize : 0), y + margin, 0);
 					graphicsHolderNew.scale(Math.min(1, maxWidth / exitWidth), 1, 1);
-					IDrawing.drawTexture(graphicsHolderNew, signOffset, 0, signSize, signSize, facing, MAX_LIGHT_GLOWING);
+					IDrawing.drawTexture(graphicsHolderNew, signOffset, 0, signSize, signSize, facing, GraphicsHolder.getDefaultLight());
 					graphicsHolderNew.pop();
 				});
 
@@ -225,7 +225,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 				final float finalXOffset = xOffset;
 				RenderTrains.scheduleRender(resourceLocationData.identifier, true, RenderTrains.QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
 					storedMatrixTransformations2.transform(graphicsHolderNew, offset);
-					IDrawing.drawTexture(graphicsHolderNew, flipCustomText ? -finalXOffset - width : finalXOffset, margin, width, height, Direction.UP, MAX_LIGHT_GLOWING);
+					IDrawing.drawTexture(graphicsHolderNew, flipCustomText ? -finalXOffset - width : finalXOffset, margin, width, height, Direction.UP, GraphicsHolder.getDefaultLight());
 					graphicsHolderNew.pop();
 				});
 				xOffset += width + margin / 2F;
@@ -248,7 +248,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 				final float right = flipCustomText ? x + size - margin : x + (maxWidthRight + 1) * size;
 				RenderTrains.scheduleRender(DynamicTextureCache.instance.getDirectionArrow(selectedIdsSorted.getLong(i), false, false, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, false, margin / size, (right - left) / (bottomOffset - topOffset), backgroundColor, ARGB_WHITE, backgroundColor).identifier, true, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 					storedMatrixTransformations.transform(graphicsHolderNew, offset);
-					IDrawing.drawTexture(graphicsHolderNew, left, topOffset, 0, right, bottomOffset, 0, 0, 0, 1, 1, facing, -1, MAX_LIGHT_GLOWING);
+					IDrawing.drawTexture(graphicsHolderNew, left, topOffset, 0, right, bottomOffset, 0, 0, 0, 1, 1, facing, -1, GraphicsHolder.getDefaultLight());
 					graphicsHolderNew.pop();
 				});
 			}
@@ -261,7 +261,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 				final float maxWidth = Math.max(0, (flipCustomText ? maxWidthLeft : maxWidthRight) * size - fixedMargin * (isSmall ? 1 : 2));
 				final float start = flipCustomText ? x - (isSmall ? 0 : fixedMargin) : x + size + (isSmall ? 0 : fixedMargin);
 				if (storedMatrixTransformations == null) {
-					IDrawing.drawStringWithFont(graphicsHolder, isExit || isLine ? "..." : sign.getCustomText().getString(), flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, start, y + fixedMargin, maxWidth, size - fixedMargin * 2, 0.01F, ARGB_WHITE, false, MAX_LIGHT_GLOWING, null);
+					IDrawing.drawStringWithFont(graphicsHolder, isExit || isLine ? "..." : sign.getCustomText().getString(), flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, start, y + fixedMargin, maxWidth, size - fixedMargin * 2, 0.01F, ARGB_WHITE, false, GraphicsHolder.getDefaultLight(), null);
 				} else {
 					final String signText;
 					if (isStation) {
@@ -285,7 +285,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 		final float width = Math.min(size * dynamicResource.width / dynamicResource.height, maxWidth);
 		RenderTrains.scheduleRender(dynamicResource.identifier, true, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 			storedMatrixTransformations.transform(graphicsHolderNew, offset);
-			IDrawing.drawTexture(graphicsHolderNew, start - (flipCustomText ? width : 0), 0, 0, start + (flipCustomText ? 0 : width), size, 0, 0, 0, 1, 1, facing, -1, MAX_LIGHT_GLOWING);
+			IDrawing.drawTexture(graphicsHolderNew, start - (flipCustomText ? width : 0), 0, 0, start + (flipCustomText ? 0 : width), size, 0, 0, 0, 1, 1, facing, -1, GraphicsHolder.getDefaultLight());
 			graphicsHolderNew.pop();
 		});
 	}

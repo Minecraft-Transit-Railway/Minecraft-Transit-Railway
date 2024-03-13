@@ -29,6 +29,6 @@ public class RenderSignalLight3Aspect<T extends BlockEntityExtension> extends Re
 				color = 0xFF00FF00;
 				break;
 		}
-		IDrawing.drawTexture(graphicsHolder, -0.09375F, y, -0.19375F, 0.09375F, y + 0.1875F, -0.19375F, facing.getOpposite(), color, MAX_LIGHT_GLOWING);
+		IDrawing.drawTexture(graphicsHolder, -0.09375F, y, -0.19375F, 0.09375F, y + 0.1875F, -0.19375F, facing.getOpposite(), color, GraphicsHolder.getDefaultLight());
 	}
 }

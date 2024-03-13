@@ -43,6 +43,8 @@ public enum RailType implements IGui {
 			return SIDING.color;
 		} else if (rail.canTurnBack()) {
 			return TURN_BACK.color;
+		} else if (rail.canConnectRemotely()) {
+			return RUNWAY.color;
 		} else {
 			for (final RailType railType : values()) {
 				if (railType.speedLimit == Math.max(rail.getSpeedLimitKilometersPerHour(false), rail.getSpeedLimitKilometersPerHour(true))) {
