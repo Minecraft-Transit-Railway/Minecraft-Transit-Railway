@@ -53,7 +53,7 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 		final float doorRightZ = DoorAnimationType.getDoorAnimationZ(doorAnimationType, getDoorMax(), getDoorDuration(), doorRightValue, opening);
 
 		final int lightOnInteriorLevel = lightsOn ? MAX_LIGHT_INTERIOR : light;
-		final int lightOnGlowingLevel = lightsOn ? MAX_LIGHT_GLOWING : light;
+		final int lightOnGlowingLevel = lightsOn ? GraphicsHolder.getDefaultLight() : light;
 
 		final StoredMatrixTransformations storedMatrixTransformationsNew = storedMatrixTransformations.copy();
 		storedMatrixTransformationsNew.add(this::baseTransform);
@@ -91,7 +91,7 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 
 			RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
 				storedMatrixTransformationsNew.transform(graphicsHolder, offset);
-				render(graphicsHolder, RenderStage.ALWAYS_ON_LIGHT, MAX_LIGHT_GLOWING, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
+				render(graphicsHolder, RenderStage.ALWAYS_ON_LIGHT, GraphicsHolder.getDefaultLight(), doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
 				graphicsHolder.pop();
 			});
 

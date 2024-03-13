@@ -83,7 +83,7 @@ public class WidgetShorterSlider extends SliderWidgetExtension implements IGui {
 		IGui.drawTexture(guiDrawing, getX2() + xOffset + SLIDER_WIDTH / 2, getY2() + height / 2, 200F - SLIDER_WIDTH / 2F, 20 - height / 2F, SLIDER_WIDTH / 2, height / 2, 8, 20);
 		guiDrawing.finishDrawingTexture();
 
-		graphicsHolder.drawText(getMessage2().getString(), getX2() + width + TEXT_PADDING, getY2() + (height - TEXT_HEIGHT) / 2, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+		graphicsHolder.drawText(getMessage2().getString(), getX2() + width + TEXT_PADDING, getY2() + (height - TEXT_HEIGHT) / 2, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 
 		if (markerFrequency > 0) {
 			for (int i = 1; i <= maxValue / markerFrequency; i++) {

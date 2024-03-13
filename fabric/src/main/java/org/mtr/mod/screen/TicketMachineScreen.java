@@ -54,11 +54,11 @@ public class TicketMachineScreen extends ScreenExtension implements IGui {
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 		renderBackground(graphicsHolder);
 		final MutableText emeraldsText = TextHelper.translatable("gui.mtr.emeralds", getEmeraldCount());
-		graphicsHolder.drawText(balanceText, TEXT_PADDING, TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
-		graphicsHolder.drawText(emeraldsText, width - TEXT_PADDING - GraphicsHolder.getTextWidth(emeraldsText), TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+		graphicsHolder.drawText(balanceText, TEXT_PADDING, TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+		graphicsHolder.drawText(emeraldsText, width - TEXT_PADDING - GraphicsHolder.getTextWidth(emeraldsText), TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 
 		for (int i = 0; i < BUTTON_COUNT; i++) {
-			graphicsHolder.drawText(TextHelper.translatable("gui.mtr.add_balance_for_emeralds", PacketAddBalance.getAddAmount(i), (int) Math.pow(2, i)), TEXT_PADDING, (i + 1) * SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+			graphicsHolder.drawText(TextHelper.translatable("gui.mtr.add_balance_for_emeralds", PacketAddBalance.getAddAmount(i), (int) Math.pow(2, i)), TEXT_PADDING, (i + 1) * SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		}
 
 		super.render(graphicsHolder, mouseX, mouseY, delta);

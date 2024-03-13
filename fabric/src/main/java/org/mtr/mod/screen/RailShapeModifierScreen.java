@@ -101,9 +101,9 @@ public class RailShapeModifierScreen extends ScreenExtension implements IGui {
 		guiDrawing.drawRectangle(0, 0, width, shape == Rail.Shape.QUADRATIC ? SQUARE_SIZE : SQUARE_SIZE * 2 + TEXT_FIELD_PADDING, ARGB_BACKGROUND);
 		guiDrawing.finishDrawingRectangle();
 		super.render(graphicsHolder, mouseX, mouseY, delta);
-		graphicsHolder.drawText(shapeText, TEXT_PADDING, TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+		graphicsHolder.drawText(shapeText, TEXT_PADDING, TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		if (shape != Rail.Shape.QUADRATIC) {
-			graphicsHolder.drawText(radiusText, TEXT_PADDING, SQUARE_SIZE + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+			graphicsHolder.drawText(radiusText, TEXT_PADDING, SQUARE_SIZE + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		}
 	}
 

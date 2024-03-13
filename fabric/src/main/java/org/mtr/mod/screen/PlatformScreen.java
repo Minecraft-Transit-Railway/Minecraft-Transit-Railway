@@ -32,7 +32,7 @@ public class PlatformScreen extends SavedRailScreenBase<Platform, Station> {
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 		super.render(graphicsHolder, mouseX, mouseY, delta);
 		if (showScheduleControls) {
-			graphicsHolder.drawText(DWELL_TIME_TEXT, SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+			graphicsHolder.drawText(DWELL_TIME_TEXT, SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		}
 	}
 

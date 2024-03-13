@@ -109,7 +109,7 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 				final int[] x = {(int) column.horizontalAlignment.getOffset(0, -Math.max(0, availableWidth - textWidth))};
 				column.textChunks.forEach(textChunk -> {
 					if (textChunk.condition.getAsBoolean()) {
-						graphicsHolder.drawText(textChunk.text, x[0], 0, textChunk.color | ARGB_BLACK, false, MAX_LIGHT_GLOWING);
+						graphicsHolder.drawText(textChunk.text, x[0], 0, textChunk.color | ARGB_BLACK, false, GraphicsHolder.getDefaultLight());
 						x[0] += GraphicsHolder.getTextWidth(textChunk.text);
 					}
 				});

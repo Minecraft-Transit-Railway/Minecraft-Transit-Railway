@@ -129,9 +129,9 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		guiDrawing.finishDrawingRectangle();
 
 		if (mapState == MapState.EDITING_AREA) {
-			graphicsHolder.drawText(TextHelper.translatable("gui.mtr.edit_area").getString(), getX2() + TEXT_PADDING, getY2() + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+			graphicsHolder.drawText(TextHelper.translatable("gui.mtr.edit_area").getString(), getX2() + TEXT_PADDING, getY2() + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		} else if (mapState == MapState.EDITING_ROUTE) {
-			graphicsHolder.drawText(TextHelper.translatable("gui.mtr.edit_route").getString(), getX2() + TEXT_PADDING, getY2() + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+			graphicsHolder.drawText(TextHelper.translatable("gui.mtr.edit_route").getString(), getX2() + TEXT_PADDING, getY2() + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		}
 
 		if (scale >= 8) {
@@ -147,20 +147,20 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 				if (canDrawAreaText(station)) {
 					final Position position = station.getCenter();
 					final String stationString = String.format("%s|(%s)", station.getName(), TextHelper.translatable("gui.mtr.zone_number", station.getZone1()).getString());
-					drawFromWorldCoords(position.getX(), position.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(graphicsHolder, stationString, getX2() + x1.floatValue(), getY2() + y1.floatValue(), MAX_LIGHT_GLOWING));
+					drawFromWorldCoords(position.getX(), position.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(graphicsHolder, stationString, getX2() + x1.floatValue(), getY2() + y1.floatValue(), GraphicsHolder.getDefaultLight()));
 				}
 			}
 		} else {
 			for (final Depot depot : MinecraftClientData.getDashboardInstance().depots) {
 				if (canDrawAreaText(depot)) {
 					final Position position = depot.getCenter();
-					drawFromWorldCoords(position.getX(), position.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(graphicsHolder, depot.getName(), getX2() + x1.floatValue(), getY2() + y1.floatValue(), MAX_LIGHT_GLOWING));
+					drawFromWorldCoords(position.getX(), position.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(graphicsHolder, depot.getName(), getX2() + x1.floatValue(), getY2() + y1.floatValue(), GraphicsHolder.getDefaultLight()));
 				}
 			}
 		}
 
 		final String mousePosText = String.format("(%.1f, %.1f)", mouseWorldPos.leftDouble(), mouseWorldPos.rightDouble());
-		graphicsHolder.drawText(mousePosText, getX2() + width - TEXT_PADDING - GraphicsHolder.getTextWidth(mousePosText), getY2() + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+		graphicsHolder.drawText(mousePosText, getX2() + width - TEXT_PADDING - GraphicsHolder.getTextWidth(mousePosText), getY2() + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 	}
 
 	@Override

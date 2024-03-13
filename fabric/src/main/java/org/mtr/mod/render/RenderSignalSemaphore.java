@@ -18,7 +18,7 @@ public class RenderSignalSemaphore<T extends BlockSignalSemaphoreBase.BlockEntit
 	@Override
 	protected void render(GraphicsHolder graphicsHolder, T entity, float tickDelta, Direction facing, int occupiedAspect, boolean isBackSide) {
 		final float angle = isBackSide ? entity.angle2 : entity.angle1;
-		IDrawing.drawTexture(graphicsHolder, -0.0625F, 0.296875F, -0.190625F, 0.0625F, 0.453125F, -0.190625F, facing.getOpposite(), angle < ANGLE / 2F ? 0xFFFF0000 : 0xFF00FF00, MAX_LIGHT_GLOWING);
+		IDrawing.drawTexture(graphicsHolder, -0.0625F, 0.296875F, -0.190625F, 0.0625F, 0.453125F, -0.190625F, facing.getOpposite(), angle < ANGLE / 2F ? 0xFFFF0000 : 0xFF00FF00, GraphicsHolder.getDefaultLight());
 		graphicsHolder.translate(0.1875, 0.375, 0);
 		graphicsHolder.rotateZDegrees(-180 - angle);
 

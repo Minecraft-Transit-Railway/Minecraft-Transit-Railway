@@ -168,12 +168,12 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 	private static ObjectIntImmutablePair<RenderTrains.QueuedRenderLayer> getRenderProperties(RenderStage renderStage, int light, VehicleExtension vehicle) {
 		if (renderStage == RenderStage.ALWAYS_ON_LIGHT) {
-			return new ObjectIntImmutablePair<>(RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, MAX_LIGHT_GLOWING);
+			return new ObjectIntImmutablePair<>(RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, GraphicsHolder.getDefaultLight());
 		} else {
 			if (vehicle.getIsOnRoute()) {
 				switch (renderStage) {
 					case LIGHT:
-						return new ObjectIntImmutablePair<>(RenderTrains.QueuedRenderLayer.LIGHT, MAX_LIGHT_GLOWING);
+						return new ObjectIntImmutablePair<>(RenderTrains.QueuedRenderLayer.LIGHT, GraphicsHolder.getDefaultLight());
 					case INTERIOR:
 						return new ObjectIntImmutablePair<>(RenderTrains.QueuedRenderLayer.INTERIOR, MAX_LIGHT_INTERIOR);
 					case INTERIOR_TRANSLUCENT:
