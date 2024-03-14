@@ -40,7 +40,7 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 
 		if (hasUpdate1 || hasUpdate2) {
 			if (hasUpdate1) {
-				minecraftClientData.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(minecraftClientData)));
+				minecraftClientData.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(minecraftClientData, vehicle.getTransportMode())));
 			}
 			minecraftClientData.sync();
 		}

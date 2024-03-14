@@ -1,6 +1,7 @@
 package org.mtr.mod.client;
 
 import org.mtr.mapping.holder.Direction;
+import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.render.RenderTrains;
@@ -43,7 +44,7 @@ public class ScrollingText implements IGui {
 			final float width = Math.min(Math.min(availableWidth, dynamicResource.width * scale), Math.min(step * pixelScale * scale, (totalSteps - step) * pixelScale * scale));
 			RenderTrains.scheduleRender(dynamicResource.identifier, false, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolder, offset);
-				IDrawing.drawTexture(graphicsHolder, Math.max(widthSteps - step, 0) * scale * pixelScale, 0, width, availableHeight, Math.max((float) (step - widthSteps) / imageSteps, 0), 0, Math.min((float) step / imageSteps, 1), 1, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
+				IDrawing.drawTexture(graphicsHolder, Math.max(widthSteps - step, 0) * scale * pixelScale, 0, width, availableHeight, Math.max((float) (step - widthSteps) / imageSteps, 0), 0, Math.min((float) step / imageSteps, 1), 1, Direction.UP, ARGB_WHITE, GraphicsHolder.getDefaultLight());
 				graphicsHolder.pop();
 			});
 		}

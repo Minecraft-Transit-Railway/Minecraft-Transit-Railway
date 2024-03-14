@@ -128,10 +128,10 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 		for (final OrderedText formattedCharSequence : splitText) {
 			final int nextY = newY + TEXT_HEIGHT + 2;
 			if (nextY > height - SQUARE_SIZE - TEXT_HEIGHT) {
-				graphicsHolder.drawText("...", SQUARE_SIZE, newY, color, false, MAX_LIGHT_GLOWING);
+				graphicsHolder.drawText("...", SQUARE_SIZE, newY, color, false, GraphicsHolder.getDefaultLight());
 				return height;
 			} else {
-				graphicsHolder.drawText(formattedCharSequence, SQUARE_SIZE, newY, color, false, MAX_LIGHT_GLOWING);
+				graphicsHolder.drawText(formattedCharSequence, SQUARE_SIZE, newY, color, false, GraphicsHolder.getDefaultLight());
 			}
 			newY = nextY;
 		}

@@ -77,7 +77,7 @@ public interface IDrawing {
 
 			final float xOffset = horizontalAlignment.getOffset(xAlignment.getOffset(x * scaleX, totalWidth), GraphicsHolder.getTextWidth(orderedTexts.get(i)) * extraScale - totalWidth);
 
-			final float shade = light == IGui.MAX_LIGHT_GLOWING ? 1 : Math.min(LightmapTextureManager.getBlockLightCoordinates(light) / 16F * 0.1F + 0.7F, 1);
+			final float shade = light == GraphicsHolder.getDefaultLight() ? 1 : Math.min(LightmapTextureManager.getBlockLightCoordinates(light) / 16F * 0.1F + 0.7F, 1);
 			final int a = ((isCJK ? textColorCjk : textColor) >> 24) & 0xFF;
 			final int r = (int) ((((isCJK ? textColorCjk : textColor) >> 16) & 0xFF) * shade);
 			final int g = (int) ((((isCJK ? textColorCjk : textColor) >> 8) & 0xFF) * shade);

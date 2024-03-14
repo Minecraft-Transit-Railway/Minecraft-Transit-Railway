@@ -30,9 +30,9 @@ public class RenderSignalLight4Aspect<T extends BlockEntityExtension> extends Re
 				color = 0xFF00FF00;
 				break;
 		}
-		IDrawing.drawTexture(graphicsHolder, -0.09375F, y, -0.19375F, 0.09375F, y + 0.1875F, -0.19375F, facing.getOpposite(), color, MAX_LIGHT_GLOWING);
+		IDrawing.drawTexture(graphicsHolder, -0.09375F, y, -0.19375F, 0.09375F, y + 0.1875F, -0.19375F, facing.getOpposite(), color, GraphicsHolder.getDefaultLight());
 		if (occupiedAspect == 3) {
-			IDrawing.drawTexture(graphicsHolder, -0.09375F, 0.78125F, -0.19375F, 0.09375F, 0.96875F, -0.19375F, facing.getOpposite(), 0xFFFFAA00, MAX_LIGHT_GLOWING);
+			IDrawing.drawTexture(graphicsHolder, -0.09375F, 0.78125F, -0.19375F, 0.09375F, 0.96875F, -0.19375F, facing.getOpposite(), 0xFFFFAA00, GraphicsHolder.getDefaultLight());
 		}
 	}
 }

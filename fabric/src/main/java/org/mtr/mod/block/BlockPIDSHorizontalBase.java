@@ -79,5 +79,20 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 		public BlockEntityHorizontalBase(int maxArrivals, BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(maxArrivals, BlockPIDSHorizontalBase::canStoreData, BlockPIDSHorizontalBase::getBlockPosWithData, type, pos, state);
 		}
+
+		@Override
+		public boolean alternateLines() {
+			return false;
+		}
+
+		@Override
+		public int textColorArrived() {
+			return 0xFF9900;
+		}
+
+		@Override
+		public int textColor() {
+			return 0xFF9900;
+		}
 	}
 }

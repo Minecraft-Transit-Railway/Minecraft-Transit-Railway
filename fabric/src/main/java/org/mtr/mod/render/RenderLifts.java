@@ -8,6 +8,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.Init;
 import org.mtr.mod.Items;
 import org.mtr.mod.block.BlockLiftTrackFloor;
@@ -44,7 +45,7 @@ public class RenderLifts implements IGui {
 				lift.iterateFloors(liftFloor -> {
 					final Position position = liftFloor.getPosition();
 					final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(position.getX(), position.getY(), position.getZ());
-					MODEL_SMALL_CUBE.render(storedMatrixTransformations, MAX_LIGHT_GLOWING);
+					MODEL_SMALL_CUBE.render(storedMatrixTransformations, GraphicsHolder.getDefaultLight());
 
 					if (previousLiftFloor[0] != null) {
 						final Position position1 = liftFloor.getPosition();
@@ -154,14 +155,14 @@ public class RenderLifts implements IGui {
 
 		RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
 			storedMatrixTransformations.transform(graphicsHolder, offset);
-			IDrawing.drawStringWithFont(graphicsHolder, liftDetails.right().left(), IGui.HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM, 0, height, width, -1, 18 / width, LIFT_DISPLAY_COLOR, false, MAX_LIGHT_GLOWING, null);
+			IDrawing.drawStringWithFont(graphicsHolder, liftDetails.right().left(), IGui.HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM, 0, height, width, -1, 18 / width, LIFT_DISPLAY_COLOR, false, GraphicsHolder.getDefaultLight(), null);
 			graphicsHolder.pop();
 		});
 
 		if (liftDirection != LiftDirection.NONE) {
 			RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/sign/lift_arrow.png"), false, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolder, offset);
-				IDrawing.drawTexture(graphicsHolder, -width / 6, 0, width / 3, width / 3, 0, liftDirection == LiftDirection.UP ? 0 : 1, 1, liftDirection == LiftDirection.UP ? 1 : 0, Direction.UP, LIFT_DISPLAY_COLOR, MAX_LIGHT_GLOWING);
+				IDrawing.drawTexture(graphicsHolder, -width / 6, 0, width / 3, width / 3, 0, liftDirection == LiftDirection.UP ? 0 : 1, 1, liftDirection == LiftDirection.UP ? 1 : 0, Direction.UP, LIFT_DISPLAY_COLOR, GraphicsHolder.getDefaultLight());
 				graphicsHolder.pop();
 			});
 		}

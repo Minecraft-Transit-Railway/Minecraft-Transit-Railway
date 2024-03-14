@@ -289,14 +289,17 @@ public class VehicleRidingMovement {
 	 */
 	@Nullable
 	private static ObjectBooleanImmutablePair<Box> bestPosition(ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsOrDoorways, double x, double y, double z) {
-		return floorsOrDoorways.stream().filter(floorOrDoorway -> RenderVehicleHelper.boxContains(floorOrDoorway.left(), x, y, z)).max(Comparator.comparingDouble(floorOrDoorway -> floorOrDoorway.left().getMaxYMapped())).orElse(floorsOrDoorways.stream().min(Comparator.comparingDouble(floorOrDoorway -> {
-			final Box box = floorOrDoorway.left();
-			final double minX = box.getMinXMapped();
-			final double maxX = box.getMaxXMapped();
-			final double minZ = box.getMinZMapped();
-			final double maxZ = box.getMaxZMapped();
-			return (Utilities.isBetween(x, minX, maxX) ? 0 : Math.min(Math.abs(minX - x), Math.abs(maxX - x))) + (Utilities.isBetween(z, minZ, maxZ) ? 0 : Math.min(Math.abs(minZ - z), Math.abs(maxZ - z)));
-		})).orElse(null));
+		return floorsOrDoorways.stream()
+				.filter(floorOrDoorway -> RenderVehicleHelper.boxContains(floorOrDoorway.left(), x, y, z))
+				.max(Comparator.comparingDouble(floorOrDoorway -> floorOrDoorway.left().getMaxYMapped()))
+				.orElse(floorsOrDoorways.stream().filter(floorOrDoorway -> Math.abs(floorOrDoorway.left().getMaxYMapped() - ridingVehicleY) <= 1).min(Comparator.comparingDouble(floorOrDoorway -> {
+					final Box box = floorOrDoorway.left();
+					final double minX = box.getMinXMapped();
+					final double maxX = box.getMaxXMapped();
+					final double minZ = box.getMinZMapped();
+					final double maxZ = box.getMaxZMapped();
+					return (Utilities.isBetween(x, minX, maxX) ? 0 : Math.min(Math.abs(minX - x), Math.abs(maxX - x))) + (Utilities.isBetween(z, minZ, maxZ) ? 0 : Math.min(Math.abs(minZ - z), Math.abs(maxZ - z)));
+				})).orElse(null));
 	}
 
 	private static void clampPosition(ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsAndDoorways, double x, double z, ObjectArrayList<Vector3d> offsets) {

@@ -68,5 +68,25 @@ public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBl
 		public BlockEntityVerticalBase(int maxArrivals, BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(maxArrivals, BlockPIDSVerticalBase::canStoreData, BlockPIDSVerticalBase::getBlockPosWithData, type, pos, state);
 		}
+
+		@Override
+		public boolean showArrivalNumber() {
+			return false;
+		}
+
+		@Override
+		public boolean alternateLines() {
+			return true;
+		}
+
+		@Override
+		public int textColorArrived() {
+			return 0xFF9900;
+		}
+
+		@Override
+		public int textColor() {
+			return 0xFF9900;
+		}
 	}
 }

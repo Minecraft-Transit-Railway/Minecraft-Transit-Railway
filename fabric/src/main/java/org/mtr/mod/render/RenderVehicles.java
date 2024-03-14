@@ -268,18 +268,18 @@ public class RenderVehicles implements IGui {
 
 			RenderTrains.scheduleRender(innerSideTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
 				// Sides
-				drawTexture(graphicsHolder, position7, position2, position1, position8, newOffset, canHaveLight && isOnRoute ? MAX_LIGHT_GLOWING : lightConnection);
-				drawTexture(graphicsHolder, position3, position6, position5, position4, newOffset, canHaveLight && isOnRoute ? MAX_LIGHT_GLOWING : lightConnection);
+				drawTexture(graphicsHolder, position7, position2, position1, position8, newOffset, canHaveLight && isOnRoute ? GraphicsHolder.getDefaultLight() : lightConnection);
+				drawTexture(graphicsHolder, position3, position6, position5, position4, newOffset, canHaveLight && isOnRoute ? GraphicsHolder.getDefaultLight() : lightConnection);
 			}));
 
 			RenderTrains.scheduleRender(innerTopTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
 				// Top
-				drawTexture(graphicsHolder, position6, position3, position2, position7, newOffset, canHaveLight && isOnRoute ? MAX_LIGHT_GLOWING : lightConnection);
+				drawTexture(graphicsHolder, position6, position3, position2, position7, newOffset, canHaveLight && isOnRoute ? GraphicsHolder.getDefaultLight() : lightConnection);
 			}));
 
 			RenderTrains.scheduleRender(innerBottomTexture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
 				// Bottom
-				drawTexture(graphicsHolder, position8, position1, position4, position5, newOffset, canHaveLight && isOnRoute ? MAX_LIGHT_GLOWING : lightConnection);
+				drawTexture(graphicsHolder, position8, position1, position4, position5, newOffset, canHaveLight && isOnRoute ? GraphicsHolder.getDefaultLight() : lightConnection);
 			}));
 		}
 

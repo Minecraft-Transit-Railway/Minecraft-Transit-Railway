@@ -94,7 +94,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 			renderTextFields(graphicsHolder);
 
 			if (textFieldLightRailRouteNumber.visible) {
-				graphicsHolder.drawText(lightRailRouteNumberText, SQUARE_SIZE, SQUARE_SIZE * 6 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+				graphicsHolder.drawText(lightRailRouteNumberText, SQUARE_SIZE, SQUARE_SIZE * 6 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			}
 
 			super.render(graphicsHolder, mouseX, mouseY, delta);

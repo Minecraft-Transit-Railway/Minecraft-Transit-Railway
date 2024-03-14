@@ -74,7 +74,7 @@ public abstract class GenericScreenBase<T extends SerializedDataBase> extends Sc
 		abstract int getWidgetHeight();
 
 		void render(GraphicsHolder graphicsHolder, int offsetY) {
-			graphicsHolder.drawText(title, SQUARE_SIZE, offsetY + getWidgetHeight() / 2, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+			graphicsHolder.drawText(title, SQUARE_SIZE, offsetY + getWidgetHeight() / 2, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		}
 	}
 

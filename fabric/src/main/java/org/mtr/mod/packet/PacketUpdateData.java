@@ -60,7 +60,7 @@ public final class PacketUpdateData extends PacketRequestResponseBase {
 		final MinecraftClientData minecraftClientData = MinecraftClientData.getInstance();
 		response.getData(jsonReader -> new UpdateDataResponse(jsonReader, minecraftClientData)).write();
 		response.getData(jsonReader -> new UpdateDataResponse(jsonReader, MinecraftClientData.getDashboardInstance())).write();
-		minecraftClientData.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(minecraftClientData)));
+		minecraftClientData.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(minecraftClientData, vehicle.getTransportMode())));
 		DynamicTextureCache.instance.reload();
 	}
 }

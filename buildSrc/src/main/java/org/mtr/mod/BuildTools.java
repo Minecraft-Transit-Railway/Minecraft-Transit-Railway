@@ -125,6 +125,9 @@ public class BuildTools {
 							if (replacementObject.toString().contains("boat_small") && replacementObject.toString().contains("boat_medium")) {
 								vehicleObject.addProperty("bogie1Position", -1);
 								vehicleObject.addProperty("bogie2Position", 1);
+							} else if (replacementObject.toString().contains("a320")) {
+								vehicleObject.addProperty("bogie1Position", -14.25);
+								vehicleObject.addProperty("bogie2Position", -2);
 							} else if (length <= 4 || length <= 14 && id.contains("cab_3")) {
 								vehicleObject.addProperty("bogie1Position", 0);
 								vehicleObject.addProperty("bogie2Position", 0);

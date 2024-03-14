@@ -184,7 +184,7 @@ public class DashboardList implements IGui {
 				if (textWidth > availableSpace) {
 					graphicsHolder.scale((float) availableSpace / textWidth, 1, 1);
 				}
-				graphicsHolder.drawText(drawString, 0, y + drawY, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+				graphicsHolder.drawText(drawString, 0, y + drawY, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 				graphicsHolder.pop();
 			}
 		}

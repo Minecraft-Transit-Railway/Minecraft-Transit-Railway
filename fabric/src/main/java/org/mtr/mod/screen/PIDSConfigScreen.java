@@ -24,72 +24,13 @@ import java.util.stream.Collectors;
 public class PIDSConfigScreen extends ScreenExtension implements IGui {
 
 	private final BlockPos blockPos;
-	/**
-	 * Contains the formatting for each line, including any custom messages.
-	 * <br/>
-	 * <br/>
-	 * Placeholders:
-	 * <ul>
-	 * <li>{@code %destination1%} - Destination</li>
-	 * <li>{@code %RAH1%} - Relative arrival hour</li>
-	 * <li>{@code %RAm1%} - Relative arrival minute of hour (0-59)</li>
-	 * <li>{@code %RAs1%} - Relative arrival second of minute (0-59)</li>
-	 * <li>{@code %RA0H1%} - Relative arrival (zero-padded) hour</li>
-	 * <li>{@code %RA0m1%} - Relative arrival (zero-padded) minute of hour (0-59)</li>
-	 * <li>{@code %RA0s1%} - Relative arrival (zero-padded) second of minute (0-59)</li>
-	 * <li>{@code %AAH1%} - Absolute arrival hour of day (24-hour) in the client's local timezone (0-23)</li>
-	 * <li>{@code %AAh1%} - Absolute arrival hour of day (12-hour) in the client's local timezone (1-12)</li>
-	 * <li>{@code %AAm1%} - Absolute arrival minute of hour in the client's local timezone (0-59)</li>
-	 * <li>{@code %AAs1%} - Absolute arrival second of minute in the client's local timezone (0-59)</li>
-	 * <li>{@code %AA0H1%} - Absolute arrival (zero-padded) hour of day (24-hour) in the client's local timezone (0-23)</li>
-	 * <li>{@code %AA0h1%} - Absolute arrival (zero-padded) hour of day (12-hour) in the client's local timezone (1-12)</li>
-	 * <li>{@code %AA0m1%} - Absolute arrival (zero-padded) minute of hour in the client's local timezone (0-59)</li>
-	 * <li>{@code %AA0s1%} - Absolute arrival (zero-padded) second of minute in the client's local timezone (0-59)</li>
-	 * <li>{@code %AAa1%} - Arrival AM/PM in the client's local timezone</li>
-	 * <li>{@code %DH1%} - Deviation (always positive) hour</li>
-	 * <li>{@code %Dm1%} - Deviation (always positive) minute of hour (0-59)</li>
-	 * <li>{@code %Ds1%} - Deviation (always positive) second of minute (0-59)</li>
-	 * <li>{@code %D0H1%} - Deviation (always positive, zero-padded) hour</li>
-	 * <li>{@code %D0m1%} - Deviation (always positive, zero-padded) minute of hour (0-59)</li>
-	 * <li>{@code %D0s1%} - Deviation (always positive, zero-padded) second of minute (0-59)</li>
-	 * <li>{@code %index1%} - Departure index</li>
-	 * <li>{@code %routeName1%} - Route name</li>
-	 * <li>{@code %routeNumber1%} - Route number</li>
-	 * <li>{@code %platformNumber1%} - Platform number</li>
-	 * <li>{@code %cars1%} - Number of cars</li>
-	 * </ul>
-	 * All placeholders listed above end with {@code 1}, meaning that the first arrival's data is shown.
-	 * Indices start at 1, not 0.
-	 * Time-related values are based on {@link java.time.format.DateTimeFormatter} values.
-	 * <br/>
-	 * <br/>
-	 * Tokens:
-	 * <ul>
-	 * <li>{@code $routeColor1$} - Any text following this token will have the route color</li>
-	 * <li>{@code $#FF9900$} - Any text following this token will have the color {@code FF9900}</li>
-	 * <li>{@code $ifAUnder60m1{text1}else{text2}$} - If the arrival is under 60 minutes, show {@code text1}; otherwise, show {@code text2}</li>
-	 * <li>{@code $ifAUnder60s1{text1}else{text2}$} - If the arrival is under 60 seconds, show {@code text1}; otherwise, show {@code text2}</li>
-	 * <li>{@code $ifAUnder1s1{text1}else{text2}$} - If the arrival is under 1 second, show {@code text1}; otherwise, show {@code text2}</li>
-	 * <li>{@code $ifDUnder60m1{text1}else{text2}$} - If the delay is under 60 minutes, show {@code text1}; otherwise, show {@code text2}</li>
-	 * <li>{@code $ifDUnder60s1{text1}else{text2}$} - If the delay is under 60 seconds, show {@code text1}; otherwise, show {@code text2}</li>
-	 * <li>{@code $ifDUnder1s1{text1}else{text2}$} - If the delay is under 1 second, show {@code text1}; otherwise, show {@code text2}</li>
-	 * <li>{@code $ifRealtime1{text1}else{text2}$} - If the arrival is realtime, show {@code text1}; otherwise, show {@code text2}</li>
-	 * <li>{@code $ifDelayed1{text1}else{text2}$} - If the deviation is positive, show {@code text1}; otherwise, show {@code text2}</li>
-	 * <li>{@code $ifTerminating1{text1}else{text2}$} - If the arrival vehicle is terminating, show {@code text1}; otherwise, show {@code text2}</li>
-	 * </ul>
-	 * <br/>
-	 * <br/>
-	 * Columns:
-	 * <ul>
-	 * <li>{@code @40-50L@} - Any following text will be written across the screen from the 40% to 50% space, aligned left</li>
-	 * <li>{@code @60-70C@} - Any following text will be written across the screen from the 60% to 70% space, centered</li>
-	 * <li>{@code @80-90R@} - Any following text will be written across the screen from the 80% to 90% space, aligned right</li>
-	 * </ul>
-	 */
 	private final String[] messages;
+	private final boolean[] hideArrivalArray;
 	private final TextFieldWidgetExtension[] textFieldMessages;
+	private final CheckboxWidgetExtension[] buttonsHideArrival;
 	private final TextFieldWidgetExtension displayPageInput;
 	private final MutableText messageText = TextHelper.translatable("gui.mtr.pids_message");
+	private final MutableText hideArrivalText = TextHelper.translatable("gui.mtr.hide_arrival");
 	private final CheckboxWidgetExtension selectAllCheckbox;
 	private final ButtonWidgetExtension filterButton;
 	private final TexturedButtonWidgetExtension buttonPrevPage;
@@ -110,6 +51,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 		for (int i = 0; i < maxArrivals; i++) {
 			messages[i] = "";
 		}
+		hideArrivalArray = new boolean[maxArrivals];
 
 		selectAllCheckbox = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
 		});
@@ -118,6 +60,13 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 		textFieldMessages = new TextFieldWidgetExtension[maxArrivals];
 		for (int i = 0; i < maxArrivals; i++) {
 			textFieldMessages[i] = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, "");
+		}
+
+		buttonsHideArrival = new CheckboxWidgetExtension[maxArrivals];
+		for (int i = 0; i < maxArrivals; i++) {
+			buttonsHideArrival[i] = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
+			});
+			buttonsHideArrival[i].setMessage2(new Text(hideArrivalText.data));
 		}
 
 		buttonPrevPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_left.png"), new Identifier("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1));
@@ -133,6 +82,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 				filterPlatformIds = ((BlockPIDSBase.BlockEntityBase) blockEntity.data).getPlatformIds();
 				for (int i = 0; i < maxArrivals; i++) {
 					messages[i] = ((BlockPIDSBase.BlockEntityBase) blockEntity.data).getMessage(i);
+					hideArrivalArray[i] = ((BlockPIDSBase.BlockEntityBase) blockEntity.data).getHideArrival(i);
 				}
 				displayPage = ((BlockPIDSBase.BlockEntityBase) blockEntity.data).getDisplayPage();
 			} else {
@@ -149,6 +99,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 	protected void init2() {
 		super.init2();
 		final int customMessageWidth = GraphicsHolder.getTextWidth(messageText) + SQUARE_SIZE + TEXT_PADDING;
+		final int textWidth = GraphicsHolder.getTextWidth(hideArrivalText) + SQUARE_SIZE + TEXT_PADDING * 2;
 
 		IDrawing.setPositionAndWidth(selectAllCheckbox, SQUARE_SIZE, SQUARE_SIZE, PANEL_WIDTH);
 		selectAllCheckbox.setChecked(filterPlatformIds.isEmpty());
@@ -171,9 +122,14 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 		for (int i = 0; i < textFieldMessages.length; i++) {
 			final TextFieldWidgetExtension textFieldMessage = textFieldMessages[i];
 			final int y = TEXT_FIELDS_Y_OFFSET + (SQUARE_SIZE + TEXT_FIELD_PADDING) * (i % getMaxArrivalsPerPage());
-			IDrawing.setPositionAndWidth(textFieldMessage, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, y, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING);
+			IDrawing.setPositionAndWidth(textFieldMessage, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, y, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING - textWidth);
 			textFieldMessage.setText2(messages[i]);
 			addChild(new ClickableWidget(textFieldMessage));
+
+			final CheckboxWidgetExtension buttonHideArrival = buttonsHideArrival[i];
+			IDrawing.setPositionAndWidth(buttonHideArrival, width - SQUARE_SIZE - textWidth + TEXT_PADDING, y + TEXT_FIELD_PADDING / 2, textWidth);
+			buttonHideArrival.setChecked(hideArrivalArray[i]);
+			addChild(new ClickableWidget(buttonHideArrival));
 		}
 
 		setPage(0);
@@ -201,6 +157,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 	public void onClose2() {
 		for (int i = 0; i < textFieldMessages.length; i++) {
 			messages[i] = textFieldMessages[i].getText2();
+			hideArrivalArray[i] = buttonsHideArrival[i].isChecked2();
 		}
 		if (selectAllCheckbox.isChecked2()) {
 			filterPlatformIds.clear();
@@ -211,16 +168,16 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 		} catch (Exception e) {
 			Init.LOGGER.error("", e);
 		}
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdatePIDSConfig(blockPos, messages, filterPlatformIds, displayPage));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdatePIDSConfig(blockPos, messages, hideArrivalArray, filterPlatformIds, displayPage));
 		super.onClose2();
 	}
 
 	@Override
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 		renderBackground(graphicsHolder);
-		graphicsHolder.drawText(TextHelper.translatable("gui.mtr.display_page"), SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
-		graphicsHolder.drawText(TextHelper.translatable("gui.mtr.filtered_platforms", selectAllCheckbox.isChecked2() ? 0 : filterPlatformIds.size()), SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
-		graphicsHolder.drawText(messageText, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+		graphicsHolder.drawText(TextHelper.translatable("gui.mtr.display_page"), SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+		graphicsHolder.drawText(TextHelper.translatable("gui.mtr.filtered_platforms", selectAllCheckbox.isChecked2() ? 0 : filterPlatformIds.size()), SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+		graphicsHolder.drawText(messageText, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		final int maxPages = getMaxPages();
 		if (maxPages > 1) {
 			graphicsHolder.drawCenteredText(String.format("%s/%s", page + 1, maxPages), SQUARE_SIZE * 3 + GraphicsHolder.getTextWidth(messageText) + TEXT_PADDING, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE);

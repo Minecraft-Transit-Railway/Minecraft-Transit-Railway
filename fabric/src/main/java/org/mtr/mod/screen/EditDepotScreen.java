@@ -215,7 +215,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE * 2) / HOURS_PER_DAY);
 		for (int i = 0; i < HOURS_PER_DAY; i++) {
 			if (showScheduleControls && !data.getUseRealTime()) {
-				graphicsHolder.drawText(getTimeString(i), TEXT_PADDING, SQUARE_SIZE * 2 + lineHeight * i + (int) ((lineHeight - TEXT_HEIGHT) / 2F), ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+				graphicsHolder.drawText(getTimeString(i), TEXT_PADDING, SQUARE_SIZE * 2 + lineHeight * i + (int) ((lineHeight - TEXT_HEIGHT) / 2F), ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			}
 			sliders[i].setY2(SQUARE_SIZE * 2 + lineHeight * i);
 			sliders[i].setHeight2(lineHeight);
@@ -225,16 +225,16 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 		final int yStartRightPane = PANELS_START + SQUARE_SIZE * (checkboxRepeatIndefinitely.visible ? 3 : 2) + (showCruisingAltitude ? SQUARE_SIZE + TEXT_FIELD_PADDING : 0) + TEXT_PADDING;
 		if (showCruisingAltitude) {
-			graphicsHolder.drawText(cruisingAltitudeText, rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 2 + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+			graphicsHolder.drawText(cruisingAltitudeText, rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 2 + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		}
-		graphicsHolder.drawText(TextHelper.translatable("gui.mtr.sidings_in_depot", data.savedRails.size()), rightPanelsX + TEXT_PADDING, yStartRightPane, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+		graphicsHolder.drawText(TextHelper.translatable("gui.mtr.sidings_in_depot", data.savedRails.size()), rightPanelsX + TEXT_PADDING, yStartRightPane, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 
 		// Temporary workaround to get the latest depot path generation status
 		final Depot newDepot = MinecraftClientData.getDashboardInstance().depotIdMap.get(data.getId());
 		if (newDepot != null) {
 			final String[] stringSplit = getSuccessfulSegmentsText(newDepot).split("\\|");
 			for (int i = 0; i < stringSplit.length; i++) {
-				graphicsHolder.drawText(stringSplit[i], rightPanelsX + TEXT_PADDING, yStartRightPane + SQUARE_SIZE * 2 + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+				graphicsHolder.drawText(stringSplit[i], rightPanelsX + TEXT_PADDING, yStartRightPane + SQUARE_SIZE * 2 + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			}
 		}
 
