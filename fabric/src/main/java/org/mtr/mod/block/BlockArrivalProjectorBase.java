@@ -46,8 +46,23 @@ public abstract class BlockArrivalProjectorBase extends BlockPIDSBase {
 		}
 
 		@Override
-		public String defaultFormat(int line) {
-			return "@0-60L@$#FF9900$%destination*%@60-70L@%platformNumber*%@70-100R@%RAH*%:%RA0m*%:%RA0s*%".replace("*", String.valueOf(line + 1)); // TODO
+		public boolean showArrivalNumber() {
+			return false;
+		}
+
+		@Override
+		public boolean alternateLines() {
+			return false;
+		}
+
+		@Override
+		public int textColorArrived() {
+			return 0xFF9900;
+		}
+
+		@Override
+		public int textColor() {
+			return 0xFF9900;
 		}
 	}
 }
