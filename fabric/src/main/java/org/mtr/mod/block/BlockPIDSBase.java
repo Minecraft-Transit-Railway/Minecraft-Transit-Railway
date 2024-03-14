@@ -44,6 +44,7 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 		public final BiFunction<World, BlockPos, BlockPos> getBlockPosWithData;
 
 		private final String[] messages;
+		private final boolean[] hideArrivalArray;
 		private final LongAVLTreeSet platformIds = new LongAVLTreeSet();
 		private int displayPage;
 		private static final String KEY_MESSAGE = "message";
@@ -58,17 +59,16 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 			this.getBlockPosWithData = getBlockPosWithData;
 			messages = new String[maxArrivals];
 			for (int i = 0; i < maxArrivals; i++) {
-				messages[i] = defaultFormat(i);
+				messages[i] = "";
 			}
+			hideArrivalArray = new boolean[maxArrivals];
 		}
 
 		@Override
 		public void readCompoundTag(CompoundTag compoundTag) {
-			final boolean compatibilityMode = compoundTag.contains(KEY_HIDE_ARRIVAL + 0); // TODO temporary code
-
 			for (int i = 0; i < maxArrivals; i++) {
-				final String message = compoundTag.getString(KEY_MESSAGE + i);
-				messages[i] = (compatibilityMode && !compoundTag.getBoolean(KEY_HIDE_ARRIVAL + i) ? defaultFormat(i) + (message.isEmpty() ? "" : "|") : "") + message;
+				messages[i] = compoundTag.getString(KEY_MESSAGE + i);
+				hideArrivalArray[i] = compoundTag.getBoolean(KEY_HIDE_ARRIVAL + i);
 			}
 
 			platformIds.clear();
@@ -84,13 +84,15 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 		public void writeCompoundTag(CompoundTag compoundTag) {
 			for (int i = 0; i < maxArrivals; i++) {
 				compoundTag.putString(KEY_MESSAGE + i, messages[i] == null ? "" : messages[i]);
+				compoundTag.putBoolean(KEY_HIDE_ARRIVAL + i, hideArrivalArray[i]);
 			}
 			compoundTag.putLongArray(KEY_PLATFORM_IDS, new ArrayList<>(platformIds));
 			compoundTag.putInt(KEY_DISPLAY_PAGE, displayPage);
 		}
 
-		public void setData(String[] messages, LongAVLTreeSet platformIds, int displayPage) {
+		public void setData(String[] messages, boolean[] hideArrivalArray, LongAVLTreeSet platformIds, int displayPage) {
 			System.arraycopy(messages, 0, this.messages, 0, Math.min(messages.length, this.messages.length));
+			System.arraycopy(hideArrivalArray, 0, this.hideArrivalArray, 0, Math.min(hideArrivalArray.length, this.hideArrivalArray.length));
 			this.platformIds.clear();
 			this.platformIds.addAll(platformIds);
 			this.displayPage = displayPage;
@@ -116,6 +118,20 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 			}
 		}
 
-		public abstract String defaultFormat(int line);
+		public boolean getHideArrival(int index) {
+			if (index >= 0 && index < maxArrivals) {
+				return hideArrivalArray[index];
+			} else {
+				return false;
+			}
+		}
+
+		public abstract boolean showArrivalNumber();
+
+		public abstract boolean alternateLines();
+
+		public abstract int textColorArrived();
+
+		public abstract int textColor();
 	}
 }
