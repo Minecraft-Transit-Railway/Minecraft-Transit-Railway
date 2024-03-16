@@ -10,8 +10,8 @@ import org.mtr.mapping.mapper.*;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockTrainSensorBase;
-import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.PacketUpdateTrainSensorConfig;
 

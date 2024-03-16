@@ -36,7 +36,6 @@ subprojects {
 		configurations = [project.configurations.shadowImplementation]
 		minimize {
 			exclude(dependency("com.github.jonafanho.Shadow-Libraries:net:.*"))
-			exclude(dependency("org.mtr:Transport-Simulation-Core:.*"))
 			exclude(dependency("org.mtr:Minecraft-Mappings-common:.*"))
 			exclude(dependency("org.mtr:Minecraft-Mappings-fabric-${minecraftVersion}:.*"))
 			exclude(dependency("org.mtr:Minecraft-Mappings-forge-${minecraftVersion}:.*"))
