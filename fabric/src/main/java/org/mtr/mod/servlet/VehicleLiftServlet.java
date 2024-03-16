@@ -3,21 +3,21 @@ package org.mtr.mod.servlet;
 import org.mtr.core.integration.Response;
 import org.mtr.core.operation.PlayerPresentResponse;
 import org.mtr.core.operation.VehicleLiftResponse;
+import org.mtr.core.servlet.HttpResponseStatus;
 import org.mtr.core.servlet.ServletBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonElement;
 import org.mtr.libraries.com.google.gson.JsonParser;
-import org.mtr.libraries.io.netty.handler.codec.http.HttpResponseStatus;
+import org.mtr.libraries.javax.servlet.AsyncContext;
+import org.mtr.libraries.javax.servlet.http.HttpServlet;
+import org.mtr.libraries.javax.servlet.http.HttpServletRequest;
+import org.mtr.libraries.javax.servlet.http.HttpServletResponse;
 import org.mtr.mapping.holder.MinecraftServer;
 import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.packet.PacketUpdateVehiclesLifts;
 
-import javax.servlet.AsyncContext;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
 
