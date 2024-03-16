@@ -10,8 +10,8 @@ import org.mtr.mapping.holder.MathHelper;
 import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.TextCase;
-import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 
 import javax.annotation.Nullable;
