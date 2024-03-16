@@ -39,7 +39,10 @@ subprojects {
 
 	shadowJar {
 		configurations = [project.configurations.shadowImplementation]
-		minimize { exclude(dependency("com.github.jonafanho.Shadow-Libraries:net:.*")) }
+		minimize {
+			exclude(dependency("com.github.jonafanho.Shadow-Libraries:net:.*"))
+			exclude(dependency("org.mtr.*:.*:.*"))
+		}
 		relocate "com.logisticscraft", "org.mtr.libraries.com.logisticscraft"
 		relocate "org.eclipse", "org.mtr.libraries.org.eclipse"
 		relocate "javax.servlet", "org.mtr.libraries.javax.servlet"
