@@ -1,6 +1,5 @@
 package org.mtr.mod.block;
 
-import org.jetbrains.annotations.NotNull;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.tool.HolderBase;
@@ -30,7 +29,7 @@ public class BlockLiftDoorOdd extends BlockPSDAPGDoorBase implements TripleHoriz
 		return new BlockEntity(blockPos, blockState);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public BlockRenderType getRenderType2(BlockState state) {
 		return BlockRenderType.getModelMapped();
