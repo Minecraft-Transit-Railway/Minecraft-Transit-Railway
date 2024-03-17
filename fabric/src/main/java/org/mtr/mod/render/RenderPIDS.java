@@ -78,7 +78,7 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 	}
 
 	private void getArrivalsAndRender(T entity, BlockPos blockPos, Direction facing, LongImmutableList platformIds) {
-		final ArrivalsResponse arrivalsResponse = MinecraftClientData.getInstance().requestArrivals(blockPos.asLong(), platformIds, (entity.getDisplayPage() + 1) * entity.maxArrivals, 0, false);
+		final ArrivalsResponse arrivalsResponse = MinecraftClientData.getInstance().requestArrivals(blockPos.asLong(), platformIds, (entity.getDisplayPage() + 1) * entity.maxArrivals / (entity.alternateLines() ? 2 : 1), 0, false);
 		RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
 			render(entity, blockPos, facing, arrivalsResponse, graphicsHolder, offset);
 			if (entity instanceof BlockPIDSHorizontalBase.BlockEntityHorizontalBase) {
@@ -124,7 +124,9 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 					final int messageCount = destinationSplit.length + (customMessage.isEmpty() ? 0 : customMessageSplit.length);
 					renderCustomMessage = languageTicks % messageCount >= destinationSplit.length;
 					languageIndex = (languageTicks % messageCount) - (renderCustomMessage ? destinationSplit.length : 0);
-					arrivalIndex++;
+					if (!entity.alternateLines() || i % 2 == 1) {
+						arrivalIndex++;
+					}
 				}
 			}
 
