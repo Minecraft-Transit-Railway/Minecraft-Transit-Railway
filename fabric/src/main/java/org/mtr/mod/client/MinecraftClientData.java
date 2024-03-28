@@ -64,11 +64,11 @@ public final class MinecraftClientData extends ClientData {
 		}));
 	}
 
-	public ArrivalsResponse requestArrivals(long requestKey, LongImmutableList platformIds, int count, int page, boolean realtimeOnly) {
+	public ArrivalsResponse requestArrivals(long requestKey, LongImmutableList platformIds, int maxCountPerPlatform, int maxCountTotal, boolean realtimeOnly) {
 		final ObjectLongImmutablePair<ArrivalsResponse> arrivalData = arrivalRequests.get(requestKey);
 		if (arrivalData == null || arrivalData.rightLong() < System.currentTimeMillis()) {
 			if (!platformIds.isEmpty()) {
-				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketFetchArrivals(requestKey, platformIds, count, page, realtimeOnly));
+				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketFetchArrivals(requestKey, platformIds, maxCountPerPlatform, maxCountTotal, realtimeOnly));
 			}
 
 			final ArrivalsResponse arrivalsResponse;

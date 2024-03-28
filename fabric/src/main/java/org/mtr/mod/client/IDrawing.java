@@ -132,6 +132,31 @@ public interface IDrawing {
 		graphicsHolder.drawTextureInWorld(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, u1, v1, u2, v2, facing, color, light);
 	}
 
+	static void drawSevenSegment(GraphicsHolder graphicsHolder, String numberString, float availableSpace, float x, float y, float height, IGui.HorizontalAlignment horizontalAlignment, int color, int light) {
+		try {
+			drawSevenSegment(graphicsHolder, Integer.parseInt(numberString), availableSpace, x, y, height, horizontalAlignment, color, light);
+		} catch (Exception ignored) {
+		}
+	}
+
+	static void drawSevenSegment(GraphicsHolder graphicsHolder, int number, float availableSpace, float x, float y, float height, IGui.HorizontalAlignment horizontalAlignment, int color, int light) {
+		// Negatives and decimals are not supported right now
+		final float u = 0.25F;
+		final float v = 170F / 512;
+		final float paddingMultiplier = 1.2F;
+		final float digitWidth = height * u / v * paddingMultiplier;
+		final int digits = (int) Math.floor(availableSpace / digitWidth);
+		final float startX = horizontalAlignment.getOffset(x, digits * digitWidth);
+
+		for (int i = 0; i < digits; i++) {
+			final int digit = (number / (int) Math.pow(10, digits - i - 1)) % 10;
+			final float digitX = startX + digitWidth * i;
+			final float digitU = (digit % 4) * u;
+			final float digitV = Math.floorDiv(digit, 4) * v;
+			drawTexture(graphicsHolder, digitX + (paddingMultiplier - 1) * digitWidth / 2, y, digitWidth / paddingMultiplier, height, digitU, digitV, digitU + u, digitV + v, Direction.UP, color, light);
+		}
+	}
+
 	static void setPositionAndWidth(ButtonWidgetExtension widget, int x, int y, int widgetWidth) {
 		widget.setX2(x);
 		widget.setY2(y);

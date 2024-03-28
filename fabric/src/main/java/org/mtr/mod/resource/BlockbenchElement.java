@@ -18,7 +18,7 @@ public final class BlockbenchElement extends BlockbenchElementSchema {
 		return uuid;
 	}
 
-	public Box setModelPart(ModelPartExtension modelPart, float modelYOffset) {
+	public Box setModelPart(ModelPartExtension modelPart, ModelDisplayPart modelDisplayPart, float modelYOffset) {
 		// Add model Y offset when creating the model parts
 		final float originX = -Utilities.getElement(origin, 0, 0D).floatValue();
 		final float originY = -Utilities.getElement(origin, 1, 0D).floatValue() - modelYOffset * 16;
@@ -39,6 +39,16 @@ public final class BlockbenchElement extends BlockbenchElementSchema {
 		final int sizeZ = (int) Math.round(Utilities.getElement(to, 2, 0D) - Utilities.getElement(from, 2, 0D));
 
 		modelPart.addCuboid(x, y, z, sizeX, sizeY, sizeZ, (float) inflate, !shade || mirror_uv);
+
+		modelDisplayPart.storedMatrixTransformations.add(graphicsHolder -> {
+			graphicsHolder.translate(originX / 16, originY / 16, originZ / 16);
+			graphicsHolder.rotateXRadians(rotationX);
+			graphicsHolder.rotateYRadians(rotationY);
+			graphicsHolder.rotateZRadians(rotationZ);
+			graphicsHolder.translate(x / 16, y / 16, z / 16);
+		});
+		modelDisplayPart.width = sizeX;
+		modelDisplayPart.height = sizeY;
 
 		final Vector3d vector1 = new Vector3d(x, y, z).rotateX(rotationX).rotateY(rotationY).rotateZ(rotationZ);
 		final Vector3d vector2 = new Vector3d(x + sizeX, y + sizeY, z + sizeZ).rotateX(rotationX).rotateY(rotationY).rotateZ(rotationZ);
