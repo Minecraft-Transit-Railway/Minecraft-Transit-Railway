@@ -22,8 +22,8 @@ public final class PacketFetchArrivals extends PacketRequestResponseBase impleme
 		requestKey = packetBufferReceiver.readLong();
 	}
 
-	public PacketFetchArrivals(long requestKey, LongImmutableList platformIds, int count, int page, boolean realtimeOnly) {
-		super(Utilities.getJsonObjectFromData(new ArrivalsRequest(platformIds, count, page, realtimeOnly)).toString());
+	public PacketFetchArrivals(long requestKey, LongImmutableList platformIds, int maxCountPerPlatform, int maxCountTotal, boolean realtimeOnly) {
+		super(Utilities.getJsonObjectFromData(new ArrivalsRequest(platformIds, maxCountPerPlatform, maxCountTotal, realtimeOnly)).toString());
 		this.requestKey = requestKey;
 	}
 

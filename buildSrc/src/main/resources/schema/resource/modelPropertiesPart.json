@@ -34,8 +34,31 @@
 			"type": "number",
 			"minimum": 0
 		},
-		"displayScrollStyle": {
-			"$ref": "DisplayScrollStyle"
+		"displayColorCjk": {
+			"type": "string"
+		},
+		"displayColor": {
+			"type": "string"
+		},
+		"displayMaxLineHeight": {
+			"type": "number",
+			"minimum": 0
+		},
+		"displayCjkSizeRatio": {
+			"type": "number",
+			"minimum": 0
+		},
+		"displayOptions": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"displayType": {
+			"$ref": "DisplayType"
+		},
+		"displayDefaultText": {
+			"type": "string"
 		},
 		"doorXMultiplier": {
 			"type": "number"
@@ -53,7 +76,12 @@
 		"type",
 		"displayXPadding",
 		"displayYPadding",
-		"displayScrollStyle",
+		"displayColorCjk",
+		"displayColor",
+		"displayMaxLineHeight",
+		"displayCjkSizeRatio",
+		"displayType",
+		"displayDefaultText",
 		"doorXMultiplier",
 		"doorZMultiplier",
 		"doorAnimationType"

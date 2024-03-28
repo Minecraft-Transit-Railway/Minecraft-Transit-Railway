@@ -32,7 +32,7 @@ public final class PacketAddBalance extends PacketHandler {
 		final ServerWorld serverWorld = serverPlayerEntity.getServerWorld();
 		TicketSystem.addBalance(new World(serverWorld.data), new PlayerEntity(serverPlayerEntity.data), getAddAmount(index));
 		InventoryHelper.remove(new Inventory(PlayerHelper.getPlayerInventory(new PlayerEntity(serverPlayerEntity.data)).data), itemStack -> itemStack.getItem().equals(Items.getEmeraldMapped()), (int) Math.pow(2, index), false);
-//		serverWorld.playSound(null, serverPlayerEntity.getBlockPos(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundCategory.getBlocksMapped(), 1, 1);
+		serverWorld.playSound((PlayerEntity) null, serverPlayerEntity.getBlockPos(), SoundEvents.getEntityExperienceOrbPickupMapped(), SoundCategory.getBlocksMapped(), 1, 1);
 	}
 
 	public static int getAddAmount(int index) {

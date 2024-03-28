@@ -34,9 +34,11 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		blockbenchModel.getElements().forEach(blockbenchElement -> uuidToBlockbenchElement.put(blockbenchElement.getUuid(), blockbenchElement));
 
 		final Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ModelPartExtension, MutableBox>> nameToPart = new Object2ObjectOpenHashMap<>();
+		final Object2ObjectOpenHashMap<String, ModelDisplayPart> nameToDisplayPart = new Object2ObjectOpenHashMap<>();
 		blockbenchModel.getOutlines().forEach(blockbenchOutline -> {
 			final ObjectHolder<ModelPartExtension> parentModelPart = new ObjectHolder<>(this::createModelPart);
 			final MutableBox mutableBox = new MutableBox();
+			final ObjectHolder<ModelDisplayPart> modelDisplayPart = new ObjectHolder<>(ModelDisplayPart::new);
 
 			iterateChildren(blockbenchOutline, uuid -> {
 				final BlockbenchElement blockbenchElement = uuidToBlockbenchElement.remove(uuid);
@@ -44,19 +46,23 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 					parentModelPart.create();
 					final ModelPartExtension childModelPart = createModelPart();
 					parentModelPart.createAndGet().addChild(childModelPart);
-					mutableBox.add(blockbenchElement.setModelPart(childModelPart, (float) modelProperties.getModelYOffset()));
+					mutableBox.add(blockbenchElement.setModelPart(childModelPart, modelDisplayPart.createAndGet(), (float) modelProperties.getModelYOffset()));
 				}
 			});
 
 			if (parentModelPart.exists()) {
 				nameToPart.put(blockbenchOutline.getName(), new ObjectObjectImmutablePair<>(parentModelPart.createAndGet(), mutableBox));
 			}
+
+			if (modelDisplayPart.exists()) {
+				nameToDisplayPart.put(blockbenchOutline.getName(), modelDisplayPart.createAndGet());
+			}
 		});
 
 		buildModel();
 		this.texture = texture;
 		this.modelProperties = modelProperties;
-		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(texture, nameToPart, positionDefinitions, floors, doorways, materialGroupsForPartConditionAndRenderStage, materialGroupsForPartConditionAndRenderStageDoorsClosed));
+		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(texture, nameToPart, nameToDisplayPart, positionDefinitions, floors, doorways, materialGroupsForPartConditionAndRenderStage, materialGroupsForPartConditionAndRenderStageDoorsClosed));
 	}
 
 	@Override
