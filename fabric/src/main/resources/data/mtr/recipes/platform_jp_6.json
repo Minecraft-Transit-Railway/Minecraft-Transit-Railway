@@ -1,0 +1,36 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"tag": "c:quartz"
+		},
+		{
+			"tag": "c:white_dyes"
+		},
+		{
+			"tag": "c:quartz"
+		}
+	],
+	"result": {
+		"item": "mtr:platform_jp_6",
+		"count": 6
+	}
+}
