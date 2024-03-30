@@ -207,10 +207,10 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				for (int i = 0; i < textSplit.length; i++) {
 					final double lineHeight = isCjk[i] ? displayCjkSizeRatio <= 0 ? 1 : displayCjkSizeRatio : 1;
 					final double textHeight = Math.min((displayPart.height - displayYPadding * 2) * lineHeight / totalHeight, displayMaxLineHeight <= 0 ? Double.MAX_VALUE : displayMaxLineHeight * lineHeight) / 16;
-					final HorizontalAlignment horizontalAlignment = displayOptions.contains(DisplayOption.ALIGN_CENTER.toString()) ? HorizontalAlignment.CENTER : displayOptions.contains(DisplayOption.ALIGN_RIGHT.toString()) ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT;
+					final HorizontalAlignment horizontalAlignment = getHorizontalAlignment(isCjk[i]);
 
 					if (isSevenSegment) {
-						IDrawing.drawSevenSegment(graphicsHolder, textSplit[i], (displayPart.width - (float) displayXPadding * 2) / 16, displayPart.width / 32F, 0, (displayPart.height - (float) displayYPadding * 2) / 16, horizontalAlignment, ARGB_BLACK | displayColorInt, GraphicsHolder.getDefaultLight());
+						IDrawing.drawSevenSegment(graphicsHolder, textSplit[i], (displayPart.width - (float) displayXPadding * 2) / 16, 0, 0, (displayPart.height - (float) displayYPadding * 2) / 16, horizontalAlignment, ARGB_BLACK | displayColorInt, GraphicsHolder.getDefaultLight());
 					} else {
 						final double heightScale = textHeight / (TEXT_HEIGHT + LINE_PADDING);
 						final double textWidth = GraphicsHolder.getTextWidth(textSplit[i]) * heightScale;
@@ -247,8 +247,20 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			case DESTINATION:
 				text = vehicle.getIsOnRoute() ? getOrDefault(vehicle.vehicleExtraData.getThisRouteDestination(), getOrDefault(vehicle.vehicleExtraData.getNextRouteDestination(), getOrDefault(vehicle.vehicleExtraData.getNextStationName(), getOrDefault(vehicle.vehicleExtraData.getThisStationName(), displayDefaultText)))) : displayDefaultText;
 				break;
+			case ROUTE_NUMBER:
+				text = vehicle.getIsOnRoute() ? getOrDefault(vehicle.vehicleExtraData.getThisRouteNumber(), vehicle.vehicleExtraData.getThisRouteDestination(), getOrDefault(vehicle.vehicleExtraData.getNextRouteNumber(), vehicle.vehicleExtraData.getNextRouteDestination(), displayDefaultText)) : displayDefaultText;
+				break;
 			case DEPARTURE_INDEX:
-				text = vehicle.getIsOnRoute() ? String.valueOf(vehicle.getDepartureIndex() + 1) : displayDefaultText;
+				if (vehicle.getIsOnRoute()) {
+					final StringBuilder stringBuilder = new StringBuilder(String.valueOf(vehicle.getDepartureIndex() + 1));
+					final int startLength = stringBuilder.length();
+					for (int i = startLength; i < displayPadZeros; i++) {
+						stringBuilder.insert(0, "0");
+					}
+					text = stringBuilder.toString();
+				} else {
+					text = displayDefaultText;
+				}
 				break;
 			case NEXT_STATION:
 				text = vehicle.vehicleExtraData.getNextStationName();
@@ -262,6 +274,25 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			newText = EnumHelper.valueOf(DisplayOption.NONE, displayOption).format(newText);
 		}
 		return newText;
+	}
+
+	private HorizontalAlignment getHorizontalAlignment(boolean isCjk) {
+		if (isCjk) {
+			if (displayOptions.contains(DisplayOption.ALIGN_LEFT_CJK.toString())) {
+				return HorizontalAlignment.LEFT;
+			} else if (displayOptions.contains(DisplayOption.ALIGN_RIGHT_CJK.toString())) {
+				return HorizontalAlignment.RIGHT;
+			} else if (displayOptions.contains(DisplayOption.ALIGN_CENTER_CJK.toString())) {
+				return HorizontalAlignment.CENTER;
+			}
+		}
+		if (displayOptions.contains(DisplayOption.ALIGN_LEFT.toString())) {
+			return HorizontalAlignment.LEFT;
+		} else if (displayOptions.contains(DisplayOption.ALIGN_RIGHT.toString())) {
+			return HorizontalAlignment.RIGHT;
+		} else {
+			return HorizontalAlignment.CENTER;
+		}
 	}
 
 	private static ObjectIntImmutablePair<RenderTrains.QueuedRenderLayer> getRenderProperties(RenderStage renderStage, int light, VehicleExtension vehicle) {
@@ -311,8 +342,12 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		}
 	}
 
-	private static String getOrDefault(String text1, String text2) {
-		return text1.isEmpty() ? text2 : text1;
+	private static String getOrDefault(String checkText, String defaultText) {
+		return getOrDefault(checkText, checkText, defaultText);
+	}
+
+	private static String getOrDefault(String outputText, String checkText, String defaultText) {
+		return checkText.isEmpty() ? defaultText : outputText;
 	}
 
 	private static class PartDetails {

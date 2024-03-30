@@ -20,6 +20,7 @@ public enum DisplayOption {
 	}),
 	SCROLL_NORMAL(null), SCROLL_LIGHT_RAIL(null),
 	SEVEN_SEGMENT(text -> text.replaceAll("\\D", "")),
+	ALIGN_LEFT_CJK(null), ALIGN_CENTER_CJK(null), ALIGN_RIGHT_CJK(null),
 	ALIGN_LEFT(null), ALIGN_CENTER(null), ALIGN_RIGHT(null),
 	CYCLE_LANGUAGES(text -> {
 		final String[] textSplit = text.split("\\|");

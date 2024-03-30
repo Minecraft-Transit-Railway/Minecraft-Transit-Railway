@@ -397,7 +397,7 @@
 				{
 					"modelResource": "mtr:models/vehicle/cm_stock.bbmodel",
 					"textureResource": "mtr:textures/vehicle/cm_stock.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/m_train_head_1.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/cm_stock_head_1.json",
 					"positionDefinitionsResource": "mtr:properties/definition/urban_line@definition@_base.json"
 				},
 				{
@@ -473,7 +473,7 @@
 				{
 					"modelResource": "mtr:models/vehicle/cm_stock.bbmodel",
 					"textureResource": "mtr:textures/vehicle/cm_stock.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/m_train_head_2.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/cm_stock_head_2.json",
 					"positionDefinitionsResource": "mtr:properties/definition/urban_line@definition@_base.json"
 				},
 				{
@@ -537,13 +537,13 @@
 				{
 					"modelResource": "mtr:models/vehicle/cm_stock.bbmodel",
 					"textureResource": "mtr:textures/vehicle/cm_stock.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/m_train_head_1.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/cm_stock_head_1.json",
 					"positionDefinitionsResource": "mtr:properties/definition/urban_line@definition@_base.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/cm_stock.bbmodel",
 					"textureResource": "mtr:textures/vehicle/cm_stock.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/m_train_head_2.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/cm_stock_head_2.json",
 					"positionDefinitionsResource": "mtr:properties/definition/urban_line@definition@_base.json"
 				},
 				{
