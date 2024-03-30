@@ -65,6 +65,40 @@
 		},
 		{
 			"names": [
+				"destination_display"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayColor": "FF9900",
+			"displayMaxLineHeight": 2,
+			"displayCjkSizeRatio": 3,
+			"displayOptions": [
+				"UPPER_CASE",
+				"SPACE_CJK",
+				"ALIGN_CENTER"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "回廠|Depot"
+		},
+		{
+			"names": [
+				"departure_index_display"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"ALIGN_CENTER"
+			],
+			"displayPadZeros": 3,
+			"displayType": "DEPARTURE_INDEX"
+		},
+		{
+			"names": [
 				"headlights"
 			],
 			"positionDefinitions": [

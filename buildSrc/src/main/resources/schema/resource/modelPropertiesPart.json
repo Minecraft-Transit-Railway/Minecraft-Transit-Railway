@@ -54,6 +54,10 @@
 				"type": "string"
 			}
 		},
+		"displayPadZeros": {
+			"type": "number",
+			"minimum": 0
+		},
 		"displayType": {
 			"$ref": "DisplayType"
 		},
@@ -80,6 +84,7 @@
 		"displayColor",
 		"displayMaxLineHeight",
 		"displayCjkSizeRatio",
+		"displayPadZeros",
 		"displayType",
 		"displayDefaultText",
 		"doorXMultiplier",

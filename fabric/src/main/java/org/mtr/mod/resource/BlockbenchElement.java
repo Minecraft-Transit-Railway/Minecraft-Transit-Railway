@@ -42,9 +42,9 @@ public final class BlockbenchElement extends BlockbenchElementSchema {
 
 		modelDisplayPart.storedMatrixTransformations.add(graphicsHolder -> {
 			graphicsHolder.translate(originX / 16, originY / 16, originZ / 16);
-			graphicsHolder.rotateXRadians(rotationX);
-			graphicsHolder.rotateYRadians(rotationY);
 			graphicsHolder.rotateZRadians(rotationZ);
+			graphicsHolder.rotateYRadians(rotationY);
+			graphicsHolder.rotateXRadians(rotationX);
 			graphicsHolder.translate(x / 16, y / 16, z / 16);
 		});
 		modelDisplayPart.width = sizeX;

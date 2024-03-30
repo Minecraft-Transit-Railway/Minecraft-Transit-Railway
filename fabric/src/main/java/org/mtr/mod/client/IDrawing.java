@@ -146,7 +146,7 @@ public interface IDrawing {
 		final float paddingMultiplier = 1.2F;
 		final float digitWidth = height * u / v * paddingMultiplier;
 		final int digits = (int) Math.floor(availableSpace / digitWidth);
-		final float startX = horizontalAlignment.getOffset(x, digits * digitWidth);
+		final float startX = horizontalAlignment.getOffset(x, digits * digitWidth - availableSpace);
 
 		for (int i = 0; i < digits; i++) {
 			final int digit = (number / (int) Math.pow(10, digits - i - 1)) % 10;

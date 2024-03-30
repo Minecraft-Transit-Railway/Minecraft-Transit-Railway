@@ -2,28 +2,20 @@
 	"parts": [
 		{
 			"names": [
-				"roof_end_light_c1141a"
+				"roof_end_light"
 			],
 			"positionDefinitions": [
-				"end2"
+				"end1"
 			],
 			"renderStage": "LIGHT"
 		},
 		{
 			"names": [
-				"roof_end_c1141a"
-			],
-			"positionDefinitions": [
-				"end2"
-			],
-			"renderStage": "INTERIOR"
-		},
-		{
-			"names": [
+				"roof_end",
 				"head"
 			],
 			"positionDefinitions": [
-				"end2Flipped"
+				"end1"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -32,25 +24,17 @@
 				"head_floor"
 			],
 			"positionDefinitions": [
-				"end2Flipped"
+				"end1"
 			],
 			"type": "FLOOR"
 		},
 		{
 			"names": [
-				"head_exterior"
-			],
-			"positionDefinitions": [
-				"end2Flipped"
-			],
-			"renderStage": "EXTERIOR"
-		},
-		{
-			"names": [
+				"head_exterior",
 				"roof_end_exterior"
 			],
 			"positionDefinitions": [
-				"roofHead2"
+				"end1"
 			],
 			"renderStage": "EXTERIOR"
 		},
@@ -59,15 +43,15 @@
 				"destination_display"
 			],
 			"positionDefinitions": [
-				"end1Flipped"
+				"end1"
 			],
 			"type": "DISPLAY",
-			"displayColorCjk": "FFFF00",
-			"displayColor": "FF0000",
-			"displayMaxLineHeight": 2,
-			"displayCjkSizeRatio": 3,
+			"displayYPadding": 0.5,
+			"displayColorCjk": "000000",
+			"displayColor": "000000",
+			"displayMaxLineHeight": 1,
+			"displayCjkSizeRatio": 2,
 			"displayOptions": [
-				"UPPER_CASE",
 				"ALIGN_CENTER"
 			],
 			"displayType": "DESTINATION",
@@ -78,10 +62,11 @@
 				"departure_index_display"
 			],
 			"positionDefinitions": [
-				"end1Flipped"
+				"end1"
 			],
 			"type": "DISPLAY",
-			"displayColor": "FF9900",
+			"displayYPadding": 0.2,
+			"displayColor": "000000",
 			"displayOptions": [
 				"ALIGN_CENTER"
 			],
@@ -93,17 +78,7 @@
 				"headlights"
 			],
 			"positionDefinitions": [
-				"end2Flipped"
-			],
-			"condition": "ON_ROUTE_BACKWARDS",
-			"renderStage": "ALWAYS_ON_LIGHT"
-		},
-		{
-			"names": [
-				"tail_lights"
-			],
-			"positionDefinitions": [
-				"end2Flipped"
+				"end1"
 			],
 			"condition": "ON_ROUTE_FORWARDS",
 			"renderStage": "ALWAYS_ON_LIGHT"
@@ -113,7 +88,17 @@
 				"tail_lights"
 			],
 			"positionDefinitions": [
-				"end2Flipped"
+				"end1"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end1"
 			],
 			"condition": "AT_DEPOT",
 			"renderStage": "ALWAYS_ON_LIGHT"

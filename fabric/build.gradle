@@ -39,7 +39,7 @@ tasks.register("setupFiles") {
 		outputs.upToDateWhen { false }
 		from "src/main/KeysTemplate.java"
 		into "src/main/java/org/mtr/mod"
-		filter(ReplaceTokens, tokens: ["key": patreonApiKey, "version": minecraftVersion + "-" + version, "server": testServer])
+		filter(ReplaceTokens, tokens: ["key": patreonApiKey, "version": minecraftVersion + "-" + version, "server": testServer, "debug": debug])
 		rename "(.+)Template.java", "\$1.java"
 	}
 

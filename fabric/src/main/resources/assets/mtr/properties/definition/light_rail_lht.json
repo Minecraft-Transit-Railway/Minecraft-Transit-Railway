@@ -207,6 +207,35 @@
 			]
 		},
 		{
+			"name": "departureIndexBox1",
+			"positions": [
+				{
+					"x": 4,
+					"z": -128
+				}
+			]
+		},
+		{
+			"name": "departureIndexBox4",
+			"positions": [
+				{
+					"x": -6,
+					"y": -18,
+					"z": -126
+				}
+			]
+		},
+		{
+			"name": "departureIndexDisplay4",
+			"positions": [
+				{
+					"x": -6,
+					"y": -14.5,
+					"z": -126
+				}
+			]
+		},
+		{
 			"name": "seatPurple",
 			"positions": [
 				{
