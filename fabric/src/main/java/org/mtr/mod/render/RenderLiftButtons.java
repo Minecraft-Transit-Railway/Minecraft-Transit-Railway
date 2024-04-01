@@ -12,6 +12,7 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.PlayerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockLiftButtons;
+import org.mtr.mod.block.BlockLiftTrackFloor;
 import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
@@ -54,13 +55,16 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 
 		blockEntity.forEachTrackPosition(trackPosition -> {
 			// Render track link if holding linker item
-			final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, FACING);
-			renderLiftObjectLink(
-					storedMatrixTransformations1, world,
-					new Vector3d(facing.getOffsetX() / 2F, 0.5, facing.getOffsetZ() / 2F),
-					new Vector3d(trackPosition.getX() - blockPos.getX() + trackFacing.getOffsetX() / 2F, trackPosition.getY() - blockPos.getY() + 0.5, trackPosition.getZ() - blockPos.getZ() + trackFacing.getOffsetZ() / 2F),
-					holdingLinker
-			);
+			if (world.getBlockState(trackPosition).getBlock().data instanceof BlockLiftTrackFloor) {
+				final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, FACING);
+				renderLiftObjectLink(
+						storedMatrixTransformations1, world,
+						new Vector3d(facing.getOffsetX() / 2F, 0.5, facing.getOffsetZ() / 2F),
+						new Vector3d(trackPosition.getX() - blockPos.getX() + trackFacing.getOffsetX() / 2F, trackPosition.getY() - blockPos.getY() + 0.5, trackPosition.getZ() - blockPos.getZ() + trackFacing.getOffsetZ() / 2F),
+						holdingLinker
+				);
+			}
+
 			// Figure out whether the up and down buttons should be rendered
 			BlockLiftButtons.hasButtonsClient(trackPosition, buttonStates, (floorIndex, lift) -> {
 				sortedPositionsAndLifts.add(new ObjectObjectImmutablePair<>(trackPosition, lift));

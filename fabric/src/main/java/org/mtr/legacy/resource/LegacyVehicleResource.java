@@ -35,7 +35,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 			for (final TransportMode transportMode : TransportMode.values()) {
 				final String newBaseTrainType;
 				if (transportMode == TransportMode.CABLE_CAR || base_train_type.startsWith("light_rail")) {
-					newBaseTrainType = i < 3 ? "" : base_train_type.endsWith("_rht") ? base_train_type : base_train_type + "_lht";
+					newBaseTrainType = base_train_type.endsWith("_rht") || base_train_type.endsWith("_lht") ? base_train_type : base_train_type + "_lht";
 				} else {
 					newBaseTrainType = String.format("%s_%s", base_train_type, variation.key);
 				}
