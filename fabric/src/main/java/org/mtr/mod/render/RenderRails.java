@@ -81,9 +81,9 @@ public class RenderRails implements IGui {
 					if (blockStateEnd.getBlock().data instanceof BlockNode) {
 						final BlockState blockStateStart = clientWorld.getBlockState(posStart);
 						final float angleEnd = BlockNode.getAngle(blockStateEnd);
-						final ObjectObjectImmutablePair<Angle, Angle> angles = ItemNodeModifierBase.getAngles(
-								posStart, blockStateStart.getBlock().data instanceof BlockNode ? BlockNode.getAngle(blockStateStart) : blockStateEnd.getBlock().data instanceof BlockNode.BlockContinuousMovementNode ? angleEnd : EntityHelper.getYaw(new Entity(clientPlayerEntity.data)) + 90,
-								posEnd, angleEnd
+						final ObjectObjectImmutablePair<Angle, Angle> angles = Rail.getAngles(
+								Init.blockPosToPosition(posStart), blockStateStart.getBlock().data instanceof BlockNode ? BlockNode.getAngle(blockStateStart) : blockStateEnd.getBlock().data instanceof BlockNode.BlockContinuousMovementNode ? angleEnd : EntityHelper.getYaw(new Entity(clientPlayerEntity.data)) + 90,
+								Init.blockPosToPosition(posEnd), angleEnd
 						);
 						final Rail rail = ((ItemRailModifier) item.data).createRail(ItemNodeModifierBase.getTransportMode(compoundTag), blockStateStart, blockStateEnd, posStart, posEnd, angles.left(), angles.right());
 						if (rail != null) {
