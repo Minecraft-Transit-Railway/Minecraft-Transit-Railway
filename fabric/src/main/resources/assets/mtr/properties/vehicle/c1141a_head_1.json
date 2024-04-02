@@ -59,7 +59,7 @@
 				"destination_display"
 			],
 			"positionDefinitions": [
-				"end2Flipped"
+				"end1Flipped"
 			],
 			"type": "DISPLAY",
 			"displayColorCjk": "FFFF00",
@@ -78,7 +78,7 @@
 				"departure_index_display"
 			],
 			"positionDefinitions": [
-				"end2Flipped"
+				"end1Flipped"
 			],
 			"type": "DISPLAY",
 			"displayColor": "FF9900",
