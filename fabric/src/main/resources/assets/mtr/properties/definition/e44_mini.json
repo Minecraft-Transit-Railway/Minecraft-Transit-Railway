@@ -1,0 +1,126 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "sidePanel",
+			"positions": [
+				{
+					"z": -19
+				},
+				{
+					"z": 19
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -19
+				},
+				{
+					"z": 19
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "doorFlipped",
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -32
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 32
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -32
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 32
+				}
+			]
+		},
+		{
+			"name": "end1Roof",
+			"positions": [
+				{
+					"z": -38
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -38
+				}
+			]
+		},
+		{
+			"name": "end2Roof",
+			"positions": [
+				{
+					"z": 38
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 38
+				}
+			]
+		},
+		{
+			"name": "end1Vents",
+			"positionsFlipped": [
+				{
+					"z": -30
+				}
+			]
+		},
+		{
+			"name": "end2Vents",
+			"positions": [
+				{
+					"z": 30
+				}
+			]
+		},
+		{
+			"name": "doorLight",
+			"positions": [
+				{
+					"z": -22
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -22
+				}
+			]
+		}
+	]
+}
