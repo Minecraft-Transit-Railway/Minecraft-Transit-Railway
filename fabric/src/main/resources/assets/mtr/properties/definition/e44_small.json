@@ -1,0 +1,169 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window",
+			"positions": [
+				{
+					"z": -30
+				},
+				{
+					"z": -0
+				},
+				{
+					"z": 30
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -30
+				},
+				{
+					"z": -0
+				},
+				{
+					"z": 30
+				}
+			]
+		},
+		{
+			"name": "sidePanel",
+			"positions": [
+				{
+					"z": -83
+				},
+				{
+					"z": -45
+				},
+				{
+					"z": 45
+				},
+				{
+					"z": 83
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -83
+				},
+				{
+					"z": -45
+				},
+				{
+					"z": 45
+				},
+				{
+					"z": 83
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"z": -64
+				},
+				{
+					"z": 64
+				}
+			]
+		},
+		{
+			"name": "doorFlipped",
+			"positionsFlipped": [
+				{
+					"z": -64
+				},
+				{
+					"z": 64
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -96
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 96
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -96
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 96
+				}
+			]
+		},
+		{
+			"name": "end1Roof",
+			"positions": [
+				{
+					"z": -102
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -102
+				}
+			]
+		},
+		{
+			"name": "end2Roof",
+			"positions": [
+				{
+					"z": 102
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 102
+				}
+			]
+		},
+		{
+			"name": "end1Vents",
+			"positionsFlipped": [
+				{
+					"z": -94
+				}
+			]
+		},
+		{
+			"name": "end2Vents",
+			"positions": [
+				{
+					"z": 94
+				}
+			]
+		},
+		{
+			"name": "doorLight",
+			"positions": [
+				{
+					"z": -22
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -22
+				}
+			]
+		}
+	]
+}

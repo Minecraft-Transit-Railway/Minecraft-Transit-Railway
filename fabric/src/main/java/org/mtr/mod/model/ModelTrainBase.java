@@ -21,7 +21,6 @@ import org.mtr.mod.resource.RenderStage;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -135,67 +134,6 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 	protected abstract void render(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails);
 
 	protected abstract int getDoorMax();
-
-	protected String getDestinationString(String text, ModelSimpleTrainBase.TextSpacingType textSpacingType, boolean toUpperCase) {
-		final String finalResult;
-
-		if (textSpacingType == ModelSimpleTrainBase.TextSpacingType.NORMAL) {
-			finalResult = text;
-		} else {
-			final String[] textSplit = text.split("\\|");
-			final List<String> result = new ArrayList<>();
-			boolean hasCjk = false;
-
-			for (final String textPart : textSplit) {
-				final boolean isCjk = IGui.isCjk(textPart);
-				if (textSpacingType == ModelSimpleTrainBase.TextSpacingType.SPACE_CJK || textSpacingType == ModelSimpleTrainBase.TextSpacingType.SPACE_CJK_FLIPPED) {
-					result.add(textSpacingType == ModelSimpleTrainBase.TextSpacingType.SPACE_CJK ? result.size() : 0, isCjk && textPart.length() == 2 ? textPart.charAt(0) + " " + textPart.charAt(1) : textPart);
-				} else if (textSpacingType == ModelSimpleTrainBase.TextSpacingType.SPACE_CJK_LARGE) {
-					if (isCjk) {
-						final StringBuilder cjkResult = new StringBuilder();
-						for (int i = 0; i < textPart.length(); i++) {
-							cjkResult.append(textPart.charAt(i));
-							for (int j = 0; j < (textPart.length() == 2 ? 3 : 1); j++) {
-								cjkResult.append("   ");
-							}
-						}
-						result.add(cjkResult.toString().trim());
-					} else {
-						result.add(textPart);
-					}
-				} else if (textSpacingType == ModelSimpleTrainBase.TextSpacingType.MLR_SPACING) {
-					final StringBuilder stringBuilder;
-					if (isCjk) {
-						stringBuilder = new StringBuilder(textPart);
-						for (int i = textPart.length(); i < 3; i++) {
-							stringBuilder.append(" ");
-						}
-						hasCjk = true;
-					} else {
-						stringBuilder = new StringBuilder();
-						for (int i = textPart.length(); i < 9; i++) {
-							stringBuilder.append(" ");
-						}
-						stringBuilder.append(textPart);
-					}
-					result.add(stringBuilder.toString());
-				}
-			}
-
-			if (!hasCjk && textSpacingType == ModelSimpleTrainBase.TextSpacingType.MLR_SPACING) {
-				result.add(0, " ");
-				result.add(0, " ");
-			}
-
-			finalResult = String.join("|", result);
-		}
-
-		return toUpperCase ? finalResult.toUpperCase(Locale.ENGLISH) : finalResult;
-	}
-
-	protected String defaultDestinationString() {
-		return "";
-	}
 
 	protected static void setRotationAngle(ModelPartExtension bone, float x, float y, float z) {
 		bone.setRotation(x, y, z);

@@ -18,7 +18,7 @@ public final class BlockbenchElement extends BlockbenchElementSchema {
 		return uuid;
 	}
 
-	public Box setModelPart(ModelPartExtension modelPart, ModelDisplayPart modelDisplayPart, float modelYOffset) {
+	public Box setModelPart(ModelPartExtension parentModelPart, GroupTransformations groupTransformations, ModelDisplayPart modelDisplayPart, float modelYOffset) {
 		// Add model Y offset when creating the model parts
 		final float originX = -Utilities.getElement(origin, 0, 0D).floatValue();
 		final float originY = -Utilities.getElement(origin, 1, 0D).floatValue() - modelYOffset * 16;
@@ -27,8 +27,7 @@ public final class BlockbenchElement extends BlockbenchElementSchema {
 		final float rotationY = (float) Math.toRadians(-Utilities.getElement(rotation, 1, 0D));
 		final float rotationZ = (float) Math.toRadians(Utilities.getElement(rotation, 2, 0D));
 
-		modelPart.setPivot(originX, originY, originZ);
-		modelPart.setRotation(rotationX, rotationY, rotationZ);
+		final ModelPartExtension modelPart = new GroupTransformations(groupTransformations, origin, rotation).create(parentModelPart, modelYOffset);
 		modelPart.setTextureUVOffset(Utilities.getElement(uv_offset, 0, 0L).intValue(), Utilities.getElement(uv_offset, 1, 0L).intValue());
 
 		final float x = -Utilities.getElement(to, 0, 0D).floatValue() - originX;

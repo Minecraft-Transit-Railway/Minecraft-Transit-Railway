@@ -28,4 +28,8 @@ public final class BlockbenchOutline extends BlockbenchOutlineSchema {
 	public String getName() {
 		return name;
 	}
+
+	public GroupTransformations add(GroupTransformations groupTransformations) {
+		return new GroupTransformations(groupTransformations, origin, rotation);
+	}
 }
