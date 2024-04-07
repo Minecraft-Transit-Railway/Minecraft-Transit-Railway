@@ -89,10 +89,10 @@
 			"hasGangway2": true,
 			"hasBarrier1": true,
 			"hasBarrier2": true,
-			"legacySpeedSoundBaseResource": "e44",
+			"legacySpeedSoundBaseResource": "mlr",
 			"legacySpeedSoundCount": 93,
 			"legacyUseAccelerationSoundsWhenCoasting": true,
-			"legacyDoorSoundBaseResource": "e44",
+			"legacyDoorSoundBaseResource": "m_train",
 			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
@@ -162,10 +162,10 @@
 			"hasGangway2": true,
 			"hasBarrier1": false,
 			"hasBarrier2": true,
-			"legacySpeedSoundBaseResource": "e44",
+			"legacySpeedSoundBaseResource": "mlr",
 			"legacySpeedSoundCount": 93,
 			"legacyUseAccelerationSoundsWhenCoasting": true,
-			"legacyDoorSoundBaseResource": "e44",
+			"legacyDoorSoundBaseResource": "m_train",
 			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
@@ -235,10 +235,10 @@
 			"hasGangway2": false,
 			"hasBarrier1": true,
 			"hasBarrier2": false,
-			"legacySpeedSoundBaseResource": "e44",
+			"legacySpeedSoundBaseResource": "mlr",
 			"legacySpeedSoundCount": 93,
 			"legacyUseAccelerationSoundsWhenCoasting": true,
-			"legacyDoorSoundBaseResource": "e44",
+			"legacyDoorSoundBaseResource": "m_train",
 			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
@@ -308,10 +308,10 @@
 			"hasGangway2": false,
 			"hasBarrier1": false,
 			"hasBarrier2": false,
-			"legacySpeedSoundBaseResource": "e44",
+			"legacySpeedSoundBaseResource": "mlr",
 			"legacySpeedSoundCount": 93,
 			"legacyUseAccelerationSoundsWhenCoasting": true,
-			"legacyDoorSoundBaseResource": "e44",
+			"legacyDoorSoundBaseResource": "m_train",
 			"legacyDoorCloseSoundTime": 0.5
 		}
 	]

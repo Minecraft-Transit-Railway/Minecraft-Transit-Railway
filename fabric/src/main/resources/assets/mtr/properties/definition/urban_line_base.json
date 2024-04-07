@@ -55,6 +55,28 @@
 			]
 		},
 		{
+			"name": "windowOdd",
+			"positions": [
+				{
+					"z": -120
+				},
+				{
+					"z": 40
+				}
+			]
+		},
+		{
+			"name": "windowEven",
+			"positionsFlipped": [
+				{
+					"z": -40
+				},
+				{
+					"z": 120
+				}
+			]
+		},
+		{
 			"name": "sidePanel",
 			"positions": [
 				{

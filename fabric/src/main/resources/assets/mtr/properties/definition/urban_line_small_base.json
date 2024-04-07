@@ -49,6 +49,25 @@
 			]
 		},
 		{
+			"name": "windowOdd",
+			"positions": [
+				{
+					"z": -80
+				},
+				{
+					"z": 80
+				}
+			]
+		},
+		{
+			"name": "windowEven",
+			"positions": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
 			"name": "sidePanel",
 			"positions": [
 				{
