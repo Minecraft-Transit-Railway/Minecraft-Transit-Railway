@@ -43,6 +43,14 @@
 			]
 		},
 		{
+			"name": "windowOdd",
+			"positions": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
 			"name": "sidePanel",
 			"positions": [
 				{
