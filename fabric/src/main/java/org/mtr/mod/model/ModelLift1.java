@@ -377,6 +377,11 @@ public class ModelLift1 extends ModelTrainBase {
 	}
 
 	@Override
+	protected void baseTransform(GraphicsHolder graphicsHolder) {
+		graphicsHolder.translate(0, -1.5, 0);
+	}
+
+	@Override
 	protected int getDoorMax() {
 		return 24 / 4;
 	}

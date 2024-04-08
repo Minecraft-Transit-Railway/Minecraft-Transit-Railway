@@ -62,8 +62,7 @@
 		},
 		{
 			"names": [
-				"seat_1",
-				"window_handrails"
+				"seat_1"
 			],
 			"positionDefinitions": [
 				"seat1"
@@ -72,7 +71,8 @@
 		},
 		{
 			"names": [
-				"seat_2"
+				"seat_2",
+				"window_handrails"
 			],
 			"positionDefinitions": [
 				"seat2"
