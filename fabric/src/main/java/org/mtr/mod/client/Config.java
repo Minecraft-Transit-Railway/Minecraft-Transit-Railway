@@ -42,7 +42,6 @@ public class Config {
 	private static final String TRACK_TEXTURE_OFFSET = "track_texture_offset";
 	private static final String DYNAMIC_TEXTURE_RESOLUTION = "dynamic texture resolution";
 	private static final String TRAIN_RENDER_DISTANCE_RATIO = "train_render_distance_ratio";
-	private static final String USE_DYNAMIC_FPS = "use_dynamic_fps";
 
 	public static boolean useMTRFont() {
 		return false; // TODO no fancy font rendering
@@ -195,10 +194,6 @@ public class Config {
 				trainRenderDistanceRatio = MathHelper.clamp(jsonConfig.get(TRAIN_RENDER_DISTANCE_RATIO).getAsInt(), 0, TRAIN_RENDER_DISTANCE_RATIO_COUNT - 1);
 			} catch (Exception ignored) {
 			}
-			try {
-				useDynamicFPS = jsonConfig.get(USE_DYNAMIC_FPS).getAsBoolean();
-			} catch (Exception ignored) {
-			}
 		} catch (Exception e) {
 			writeToFile();
 			Init.logException(e);
@@ -218,7 +213,6 @@ public class Config {
 		jsonConfig.addProperty(TRACK_TEXTURE_OFFSET, trackTextureOffset);
 		jsonConfig.addProperty(DYNAMIC_TEXTURE_RESOLUTION, dynamicTextureResolution);
 		jsonConfig.addProperty(TRAIN_RENDER_DISTANCE_RATIO, trainRenderDistanceRatio);
-		jsonConfig.addProperty(USE_DYNAMIC_FPS, useDynamicFPS);
 
 		try {
 			Files.write(CONFIG_FILE_PATH, Collections.singleton(Utilities.prettyPrint(jsonConfig)));
