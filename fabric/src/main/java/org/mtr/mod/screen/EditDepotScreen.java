@@ -280,7 +280,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	}
 
 	private void onDeleteDeparture(DashboardListItem dashboardListItem, int index) {
-		checkDeparture(data.getName(), false, true);
+		checkDeparture(dashboardListItem.getName(false), false, true);
 		saveData();
 	}
 
