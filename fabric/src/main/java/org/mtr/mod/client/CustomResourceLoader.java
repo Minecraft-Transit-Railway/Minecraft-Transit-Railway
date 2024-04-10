@@ -9,8 +9,10 @@ import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.Identifier;
+import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
+import org.mtr.mod.Keys;
 import org.mtr.mod.resource.CustomResources;
 import org.mtr.mod.resource.OptimizedRendererWrapper;
 import org.mtr.mod.resource.SignResource;
@@ -20,6 +22,8 @@ import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.function.Consumer;
 
 public class CustomResourceLoader {
@@ -106,11 +110,21 @@ public class CustomResourceLoader {
 			final String identifierString = identifier.data.toString();
 			final JsonElement jsonElement = RESOURCE_CACHE.get(identifierString);
 			if (jsonElement == null) {
-				ResourceManagerHelper.readResource(identifier, inputStream -> {
-					final JsonElement newJsonElement = readResource(inputStream);
-					consumer.accept(newJsonElement);
-					RESOURCE_CACHE.put(identifierString, newJsonElement);
-				});
+				if (Keys.DEBUG) {
+					try (final InputStream inputStream = Files.newInputStream(MinecraftClient.getInstance().getRunDirectoryMapped().toPath().resolve("../src/main/resources/assets").resolve(identifier.getNamespace()).resolve(identifier.getPath()), StandardOpenOption.READ)) {
+						final JsonElement newJsonElement = readResource(inputStream);
+						consumer.accept(newJsonElement);
+						RESOURCE_CACHE.put(identifierString, newJsonElement);
+					} catch (Exception e) {
+						Init.LOGGER.error("", e);
+					}
+				} else {
+					ResourceManagerHelper.readResource(identifier, inputStream -> {
+						final JsonElement newJsonElement = readResource(inputStream);
+						consumer.accept(newJsonElement);
+						RESOURCE_CACHE.put(identifierString, newJsonElement);
+					});
+				}
 			} else {
 				consumer.accept(jsonElement);
 			}

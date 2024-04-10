@@ -8,6 +8,8 @@ import org.mtr.mod.resource.CustomResources;
 import org.mtr.mod.resource.SignResource;
 import org.mtr.mod.resource.VehicleResource;
 
+import java.util.Locale;
+
 public final class CustomResourcesConverter {
 
 	public static CustomResources convert(JsonObject jsonObject) {
@@ -23,7 +25,7 @@ public final class CustomResourcesConverter {
 		if (hasCustomTrains) {
 			jsonObject.getAsJsonObject("custom_trains").entrySet().forEach(entry -> {
 				try {
-					new LegacyVehicleResource(new JsonReader(entry.getValue())).convert(vehicleResources, entry.getKey());
+					new LegacyVehicleResource(new JsonReader(entry.getValue())).convert(vehicleResources, entry.getKey().toLowerCase(Locale.ENGLISH));
 				} catch (Exception e) {
 					Init.LOGGER.error("", e);
 				}

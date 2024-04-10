@@ -1,95 +1,229 @@
 {
 	"replacements": {
 		"lengths": [
-			2,
-			2,
-			2,
-			2,
-			2,
-			2,
-			2,
-			2,
-			2,
-			2
-		],
-		"tag": [
-			"left",
-			"right",
-			"left",
-			"right",
-			"left",
-			"right",
-			"left",
-			"right",
-			"left",
-			"right"
-		],
-		"id": [
-			"crystal",
-			"crystal",
-			"crystal_plus",
-			"crystal_plus",
-			"normal_red",
-			"normal_red",
-			"normal_orange",
-			"normal_orange",
-			"normal_light_blue",
-			"normal_light_blue"
-		],
-		"name": [
-			"Crystal Cabin (LHT)",
-			"Crystal Cabin (RHT)",
-			"Crystal+ (LHT)",
-			"Crystal+ (RHT)",
-			"Red (LHT)",
-			"Red (RHT)",
-			"Orange (LHT)",
-			"Orange (RHT)",
-			"Light Blue (LHT)",
-			"Light Blue (RHT)"
-		],
-		"door": [
-			"_lht",
-			"_rht",
-			"_lht",
-			"_rht",
-			"_lht",
-			"_rht",
-			"_lht",
-			"_rht",
-			"_lht",
-			"_rht"
+			25
 		]
 	},
 	"vehicles": [
 		{
-			"id": "ngong_ping_360_@id@@door@",
-			"name": "Ngong Ping 360 @name@",
-			"color": "062540",
-			"transportMode": "CABLE_CAR",
+			"id": "a_train_ael_trailer",
+			"name": "Airport Express CAF Train",
+			"color": "008D8D",
+			"transportMode": "TRAIN",
 			"width": 2,
-			"wikipediaArticle": "Ngong_Ping_360",
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MTR_Adtranz%E2%80%93CAF_EMU",
 			"tags": [
-				"family:ngong_ping_360",
+				"family:a_train",
 				"iso_3166:HK",
-				"doors:@tag@"
+				"doors:2",
+				"type:trailer"
 			],
 			"models": [
 				{
-					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
-					"textureResource": "mtr:textures/vehicle/ngong_ping_360_@id@.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360@door@.json",
-					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
 				}
 			],
 			"bogie1Models": [
 				{
-					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
-					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip@door@.json",
-					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
 				}
-			]
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"bveSoundBaseResource": "a_train"
+		},
+		{
+			"id": "a_train_ael_cab_1",
+			"name": "Airport Express CAF Train Cab (Forwards)",
+			"color": "008D8D",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 2,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MTR_Adtranz%E2%80%93CAF_EMU",
+			"tags": [
+				"family:a_train",
+				"iso_3166:HK",
+				"doors:2",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"bveSoundBaseResource": "a_train"
+		},
+		{
+			"id": "a_train_ael_cab_2",
+			"name": "Airport Express CAF Train Cab (Backwards)",
+			"color": "008D8D",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 2,
+			"wikipediaArticle": "MTR_Adtranz%E2%80%93CAF_EMU",
+			"tags": [
+				"family:a_train",
+				"iso_3166:HK",
+				"doors:2",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"bveSoundBaseResource": "a_train"
+		},
+		{
+			"id": "a_train_ael_cab_3",
+			"name": "Airport Express CAF Train Cab (Double)",
+			"color": "008D8D",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 2,
+			"couplingPadding2": 2,
+			"wikipediaArticle": "MTR_Adtranz%E2%80%93CAF_EMU",
+			"tags": [
+				"family:a_train",
+				"iso_3166:HK",
+				"doors:2",
+				"type:cab_3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
+					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"bveSoundBaseResource": "a_train"
 		}
 	]
 }

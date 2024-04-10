@@ -66,6 +66,43 @@
 		},
 		{
 			"names": [
+				"destination_display"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"type": "DISPLAY",
+			"displayColorCjk": "FF0000",
+			"displayColor": "FF9900",
+			"displayMaxLineHeight": 1.5,
+			"displayCjkSizeRatio": 2,
+			"displayOptions": [
+				"UPPER_CASE",
+				"ALIGN_LEFT_CJK",
+				"ALIGN_RIGHT"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "||East Rail"
+		},
+		{
+			"names": [
+				"departure_index_display"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"type": "DISPLAY",
+			"displayYPadding": 0.3,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"ALIGN_CENTER",
+				"SEVEN_SEGMENT"
+			],
+			"displayPadZeros": 3,
+			"displayType": "DEPARTURE_INDEX"
+		},
+		{
+			"names": [
 				"headlights"
 			],
 			"positionDefinitions": [

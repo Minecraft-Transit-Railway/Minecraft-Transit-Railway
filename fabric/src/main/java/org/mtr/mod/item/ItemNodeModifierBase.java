@@ -53,7 +53,7 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 		if (ServerPlayerEntity.isInstance(player) && stateEnd.getBlock().data instanceof BlockNode && ((BlockNode) blockStart.data).transportMode.toString().equals(compoundTag.getString(TAG_TRANSPORT_MODE))) {
 			if (isConnector) {
 				if (!posStart.equals(posEnd)) {
-					final ObjectObjectImmutablePair<Angle, Angle> angles = getAngles(posStart, BlockNode.getAngle(stateStart), posEnd, BlockNode.getAngle(stateEnd));
+					final ObjectObjectImmutablePair<Angle, Angle> angles = Rail.getAngles(Init.blockPosToPosition(posStart), BlockNode.getAngle(stateStart), Init.blockPosToPosition(posEnd), BlockNode.getAngle(stateEnd));
 					onConnect(world, context.getStack(), ((BlockNode) blockStart.data).transportMode, stateStart, stateEnd, posStart, posEnd, angles.left(), angles.right(), ServerPlayerEntity.cast(player));
 				}
 			} else {
@@ -99,14 +99,6 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 						consumer.accept(rails.get(0));
 					}
 				}
-		);
-	}
-
-	public static ObjectObjectImmutablePair<Angle, Angle> getAngles(BlockPos posStart, float angle1, BlockPos posEnd, float angle2) {
-		final float angleDifference = (float) Math.toDegrees(Math.atan2(posEnd.getZ() - posStart.getZ(), posEnd.getX() - posStart.getX()));
-		return new ObjectObjectImmutablePair<>(
-				Angle.fromAngle(angle1 + (Angle.similarFacing(angleDifference, angle1) ? 0 : 180)),
-				Angle.fromAngle(angle2 + (Angle.similarFacing(angleDifference, angle2) ? 180 : 0))
 		);
 	}
 

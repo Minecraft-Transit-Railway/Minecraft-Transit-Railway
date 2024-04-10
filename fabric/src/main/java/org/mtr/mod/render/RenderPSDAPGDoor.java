@@ -192,11 +192,10 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.BlockEntityBase> ext
 			bone.setTextureUVOffset(0, 0).addCuboid(-8, -16, -7, 16, 16, 1, 0, false);
 			bone.setTextureUVOffset(0, 17).addCuboid(-8, -6, -8, 16, 6, 1, 0, false);
 
-			final ModelPartExtension cube_r1 = createModelPart();
-			cube_r1.setPivot(0, -6, -8);
-			bone.addChild(cube_r1);
-			cube_r1.setRotation(-0.7854F, 0, 0);
-			cube_r1.setTextureUVOffset(0, 24).addCuboid(-8, -2, 0, 16, 2, 1, 0, false);
+			final ModelPartExtension cube = bone.addChild();
+			cube.setPivot(0, -6, -8);
+			cube.setRotation(-0.7854F, 0, 0);
+			cube.setTextureUVOffset(0, 24).addCuboid(-8, -2, 0, 16, 2, 1, 0, false);
 
 			buildModel();
 		}
@@ -221,11 +220,10 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.BlockEntityBase> ext
 			bone = createModelPart();
 			bone.setTextureUVOffset(0, 4).addCuboid(-0.5F, -9, -7, 1, 1, 3, 0.05F, false);
 
-			final ModelPartExtension cube_r1 = createModelPart();
-			cube_r1.setPivot(0, -9.05F, -4.95F);
-			bone.addChild(cube_r1);
-			cube_r1.setRotation(0.3927F, 0, 0);
-			cube_r1.setTextureUVOffset(0, 0).addCuboid(-0.5F, 0.05F, -3.05F, 1, 1, 3, 0.05F, false);
+			final ModelPartExtension cube = bone.addChild();
+			cube.setPivot(0, -9.05F, -4.95F);
+			cube.setRotation(0.3927F, 0, 0);
+			cube.setTextureUVOffset(0, 0).addCuboid(-0.5F, 0.05F, -3.05F, 1, 1, 3, 0.05F, false);
 
 			buildModel();
 		}

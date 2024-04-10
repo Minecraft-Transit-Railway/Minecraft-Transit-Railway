@@ -16,7 +16,7 @@ import org.mtr.mod.ObjectHolder;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.resource.*;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstractMapping> {
 
@@ -34,29 +34,32 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		blockbenchModel.getElements().forEach(blockbenchElement -> uuidToBlockbenchElement.put(blockbenchElement.getUuid(), blockbenchElement));
 
 		final Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ModelPartExtension, MutableBox>> nameToPart = new Object2ObjectOpenHashMap<>();
+		final Object2ObjectOpenHashMap<String, ModelDisplayPart> nameToDisplayPart = new Object2ObjectOpenHashMap<>();
 		blockbenchModel.getOutlines().forEach(blockbenchOutline -> {
 			final ObjectHolder<ModelPartExtension> parentModelPart = new ObjectHolder<>(this::createModelPart);
 			final MutableBox mutableBox = new MutableBox();
+			final ObjectHolder<ModelDisplayPart> modelDisplayPart = new ObjectHolder<>(ModelDisplayPart::new);
 
-			iterateChildren(blockbenchOutline, uuid -> {
+			iterateChildren(blockbenchOutline, new GroupTransformations(), (uuid, groupTransformations) -> {
 				final BlockbenchElement blockbenchElement = uuidToBlockbenchElement.remove(uuid);
 				if (blockbenchElement != null) {
-					parentModelPart.create();
-					final ModelPartExtension childModelPart = createModelPart();
-					parentModelPart.createAndGet().addChild(childModelPart);
-					mutableBox.add(blockbenchElement.setModelPart(childModelPart, (float) modelProperties.getModelYOffset()));
+					mutableBox.add(blockbenchElement.setModelPart(parentModelPart.createAndGet().addChild(), groupTransformations, modelDisplayPart.createAndGet(), (float) modelProperties.getModelYOffset()));
 				}
 			});
 
 			if (parentModelPart.exists()) {
 				nameToPart.put(blockbenchOutline.getName(), new ObjectObjectImmutablePair<>(parentModelPart.createAndGet(), mutableBox));
 			}
+
+			if (modelDisplayPart.exists()) {
+				nameToDisplayPart.put(blockbenchOutline.getName(), modelDisplayPart.createAndGet());
+			}
 		});
 
 		buildModel();
 		this.texture = texture;
 		this.modelProperties = modelProperties;
-		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(texture, nameToPart, positionDefinitions, floors, doorways, materialGroupsForPartConditionAndRenderStage, materialGroupsForPartConditionAndRenderStageDoorsClosed));
+		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(texture, nameToPart, nameToDisplayPart, positionDefinitions, floors, doorways, materialGroupsForPartConditionAndRenderStage, materialGroupsForPartConditionAndRenderStageDoorsClosed));
 	}
 
 	@Override
@@ -83,8 +86,9 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		materialGroupsForPartConditionAndRenderStageDoorsClosed.forEach((partCondition, materialGroupsForRenderStage) -> Data.put(materialGroupsForPartConditionDoorsClosed, partCondition, materialGroupsForRenderStage.values(), ObjectArrayList::new));
 	}
 
-	private static void iterateChildren(BlockbenchOutline blockbenchOutline, Consumer<String> consumer) {
-		blockbenchOutline.childrenUuid.forEach(consumer);
-		blockbenchOutline.getChildren().forEach(childOutline -> iterateChildren(childOutline, consumer));
+	private static void iterateChildren(BlockbenchOutline blockbenchOutline, GroupTransformations groupTransformations, BiConsumer<String, GroupTransformations> consumer) {
+		final GroupTransformations newGroupTransformations = blockbenchOutline.add(groupTransformations);
+		blockbenchOutline.childrenUuid.forEach(uuid -> consumer.accept(uuid, newGroupTransformations));
+		blockbenchOutline.getChildren().forEach(childOutline -> iterateChildren(childOutline, newGroupTransformations, consumer));
 	}
 }

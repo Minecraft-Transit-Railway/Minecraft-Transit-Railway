@@ -12,6 +12,7 @@ import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockLiftButtons;
 import org.mtr.mod.block.BlockLiftPanelBase;
+import org.mtr.mod.block.BlockLiftTrackFloor;
 import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.IDrawing;
@@ -49,7 +50,7 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> exten
 		}
 
 		final BlockPos trackPosition = blockEntity.getTrackPosition();
-		if (trackPosition == null) {
+		if (trackPosition == null || !(world.getBlockState(trackPosition).getBlock().data instanceof BlockLiftTrackFloor)) {
 			return;
 		}
 

@@ -13,6 +13,18 @@
 			"items": {
 				"$ref": "blockbenchOutline.json"
 			}
+		},
+		"rotation": {
+			"type": "array",
+			"items": {
+				"type": "number"
+			}
+		},
+		"origin": {
+			"type": "array",
+			"items": {
+				"type": "number"
+			}
 		}
 	},
 	"required": [

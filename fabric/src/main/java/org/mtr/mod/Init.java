@@ -4,17 +4,18 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.mtr.core.Main;
 import org.mtr.core.data.Position;
 import org.mtr.core.operation.GenerateOrClearByDepotName;
 import org.mtr.core.operation.SetTime;
 import org.mtr.core.servlet.Webserver;
-import org.mtr.core.tool.RequestHelper;
+import org.mtr.core.simulation.Simulator;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.org.eclipse.jetty.servlet.ServletHolder;
 import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.GameRule;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
 import org.mtr.mapping.mapper.WorldHelper;
 import org.mtr.mapping.registry.CommandBuilder;
@@ -49,7 +50,6 @@ public final class Init implements Utilities {
 	private static final int MILLIS_PER_MC_DAY = SECONDS_PER_MC_HOUR * MILLIS_PER_SECOND * HOURS_PER_DAY;
 	private static final Object2ObjectArrayMap<ServerWorld, RailActionModule> RAIL_ACTION_MODULES = new Object2ObjectArrayMap<>();
 	private static final ObjectArrayList<String> WORLD_ID_LIST = new ObjectArrayList<>();
-	private static final RequestHelper REQUEST_HELPER = new RequestHelper(false);
 
 	public static void init() {
 		AsciiArt.print();
@@ -157,7 +157,11 @@ public final class Init implements Utilities {
 			sendWorldTimeUpdate = () -> sendHttpRequest(
 					"operation/set-time",
 					null,
-					Utilities.getJsonObjectFromData(new SetTime((WorldHelper.getTimeOfDay(minecraftServer.getOverworld()) + 6000) * SECONDS_PER_MC_HOUR, MILLIS_PER_MC_DAY)).toString(),
+					Utilities.getJsonObjectFromData(new SetTime(
+							(WorldHelper.getTimeOfDay(minecraftServer.getOverworld()) + 6000) * SECONDS_PER_MC_HOUR,
+							MILLIS_PER_MC_DAY,
+							GameRule.DO_DAYLIGHT_CYCLE.getBooleanGameRule(minecraftServer)
+					)).toString(),
 					null
 			);
 		});
@@ -197,7 +201,7 @@ public final class Init implements Utilities {
 	}
 
 	public static void sendHttpRequest(String endpoint, @Nullable World world, String content, @Nullable Consumer<String> consumer) {
-		REQUEST_HELPER.sendPostRequest(String.format(
+		Simulator.REQUEST_HELPER.sendPostRequest(String.format(
 				"http://localhost:%s/mtr/api/%s?%s",
 				serverPort,
 				endpoint,

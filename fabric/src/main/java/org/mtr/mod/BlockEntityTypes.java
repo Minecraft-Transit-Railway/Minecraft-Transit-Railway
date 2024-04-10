@@ -4,6 +4,7 @@ import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.registry.BlockEntityTypeRegistryObject;
 import org.mtr.mod.block.*;
 
+@SuppressWarnings("unchecked")
 public final class BlockEntityTypes {
 
 	static {

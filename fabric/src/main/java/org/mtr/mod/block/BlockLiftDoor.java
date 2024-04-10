@@ -1,6 +1,5 @@
 package org.mtr.mod.block;
 
-import org.jetbrains.annotations.NotNull;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.BlockRenderType;
 import org.mtr.mapping.holder.BlockState;
@@ -19,7 +18,7 @@ public class BlockLiftDoor extends BlockPSDAPGDoorBase {
 		return new BlockEntity(blockPos, blockState);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public BlockRenderType getRenderType2(BlockState state) {
 		return BlockRenderType.getModelMapped();
