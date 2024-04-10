@@ -161,7 +161,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 		try {
 			decelerationConstant = Utilities.round(MathHelper.clamp((float) sliderDecelerationConstant.getIntValue() / SLIDER_SCALE + Siding.MIN_ACCELERATION, Siding.MIN_ACCELERATION, Siding.MAX_ACCELERATION), 8);
 		} catch (Exception ignored) {
-			decelerationConstant = accelerationConstant;
+			decelerationConstant = Siding.ACCELERATION_DEFAULT;
 		}
 
 		if (buttonIsManual.isChecked2()) {
