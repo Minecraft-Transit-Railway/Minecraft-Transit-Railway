@@ -12,5 +12,6 @@ plugins {
 }
 
 include("fabric")
+include("forge")
 
 rootProject.name = "Minecraft-Transit-Railway"
