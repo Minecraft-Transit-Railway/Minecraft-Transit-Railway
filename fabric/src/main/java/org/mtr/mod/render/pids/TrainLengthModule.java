@@ -6,12 +6,11 @@ import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.core.serializer.ReaderBase;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class DestinationModule extends TextModule {
-    public final String type = "destination";
+public class TrainLengthModule extends TextModule {
+    public final String type = "trainLength";
 
-    public DestinationModule(float x, float y, float width, float height, ReaderBase data) {
+    public TrainLengthModule(float x, float y, float width, float height, ReaderBase data) {
         super(x, y, width, height, data);
     }
 
@@ -22,7 +21,7 @@ public class DestinationModule extends TextModule {
         if (arrivalResponse == null) {
             return null;
         }
-        text.add(arrivalResponse.getDestination());
+        text.add(String.valueOf(arrivalResponse.getCarCount()));
         return text;
     }
 }

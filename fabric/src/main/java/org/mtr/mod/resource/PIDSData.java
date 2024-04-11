@@ -4,6 +4,7 @@ import org.mtr.core.serializer.ReaderBase;
 import org.mtr.mod.generated.resource.PIDSSchema;
 
 public final class PIDSData extends PIDSSchema {
+
     public PIDSData(ReaderBase readerBase) {
         super(readerBase);
         updateData(readerBase);

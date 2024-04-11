@@ -25,7 +25,7 @@ public class BlockArrivalProjector1Small extends BlockArrivalProjectorBase {
 	public static class BlockEntity extends BlockEntityArrivalProjectorBase {
 
 		public BlockEntity(BlockPos pos, BlockState state) {
-			super(MAX_ARRIVALS, BlockEntityTypes.ARRIVAL_PROJECTOR_1_SMALL.get(), pos, state, new PIDSRenderController(16, 15, ""));
+			super(MAX_ARRIVALS, BlockEntityTypes.ARRIVAL_PROJECTOR_1_SMALL.get(), pos, state);
 		}
 	}
 }

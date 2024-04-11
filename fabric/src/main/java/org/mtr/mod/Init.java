@@ -17,11 +17,13 @@ import org.mtr.libraries.org.eclipse.jetty.servlet.ServletHolder;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.GameRule;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
+import org.mtr.mapping.mapper.PersistenceStateExtension;
 import org.mtr.mapping.mapper.WorldHelper;
 import org.mtr.mapping.registry.CommandBuilder;
 import org.mtr.mapping.registry.EventRegistry;
 import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.tool.DummyClass;
+import org.mtr.mod.data.PIDSLayoutData;
 import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.packet.*;
 import org.mtr.mod.servlet.Tunnel;
@@ -44,6 +46,7 @@ public final class Init implements Utilities {
 	private static Runnable sendWorldTimeUpdate;
 	private static boolean canSendWorldTimeUpdate = true;
 	private static int serverTick;
+	public static PIDSLayoutData pidsLayoutData;
 
 	public static final String MOD_ID = "mtr";
 	public static final Logger LOGGER = LogManager.getLogger("MinecraftTransitRailway");
@@ -92,6 +95,9 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketUpdateTrainSensorConfig.class, PacketUpdateTrainSensorConfig::new);
 		REGISTRY.registerPacket(PacketUpdateVehiclesLifts.class, PacketUpdateVehiclesLifts::new);
 		REGISTRY.registerPacket(PacketUpdateVehicleRidingEntities.class, PacketUpdateVehicleRidingEntities::new);
+		REGISTRY.registerPacket(PacketGetPIDSLayoutData.class, PacketGetPIDSLayoutData::new);
+		REGISTRY.registerPacket(PacketSendPIDSLayoutData.class, PacketSendPIDSLayoutData::new);
+		REGISTRY.registerPacket(PacketSendPIDSLayoutFailed.class, PacketSendPIDSLayoutFailed::new);
 
 		// Register command
 		REGISTRY.registerCommand("mtr", commandBuilderMtr -> {
@@ -151,6 +157,13 @@ public final class Init implements Utilities {
 				RAIL_ACTION_MODULES.put(serverWorld, new RailActionModule(serverWorld));
 				WORLD_ID_LIST.add(getWorldId(new World(serverWorld.data)));
 			});
+
+			// Register PIDS data storage
+			pidsLayoutData = (PIDSLayoutData) PersistenceStateExtension.register(minecraftServer.getOverworld(), () -> new PIDSLayoutData("pids_layout_data"), MOD_ID);
+			pidsLayoutData.setDirty2(true);
+
+			// Add test layout
+			pidsLayoutData.setLayoutData("test", "{\"_editor_size\":\"hb\",\"version\":2,\"id\":\"base_horizontal_b\",\"modules\":[{\"typeID\":\"destination\",\"pos\":{\"x\":1.5,\"y\":1.5,\"w\":22.5,\"h\":1.75},\"data\":{\"align\":\"left\",\"color\":16777215,\"arrival\":0,\"template\":\"%s\"}},{\"typeID\":\"destination\",\"pos\":{\"x\":1.5,\"y\":3.625,\"w\":22.5,\"h\":1.75},\"data\":{\"align\":\"left\",\"color\":16777215,\"arrival\":1,\"template\":\"%s\"}},{\"typeID\":\"destination\",\"pos\":{\"x\":1.5,\"y\":5.75,\"w\":22.5,\"h\":1.75},\"data\":{\"align\":\"left\",\"color\":16777215,\"arrival\":2,\"template\":\"%s\"}},{\"typeID\":\"arrivalTime\",\"pos\":{\"x\":24.5,\"y\":1.5,\"w\":6,\"h\":1.75},\"data\":{\"align\":\"right\",\"color\":16777215,\"arrival\":0,\"mode\":\"i\",\"secText\":\"%s sec\",\"minText\":\"%s min\",\"mixText\":\"%s:%s\"}},{\"typeID\":\"arrivalTime\",\"pos\":{\"x\":24.5,\"y\":3.625,\"w\":6,\"h\":1.75},\"data\":{\"align\":\"right\",\"color\":16777215,\"arrival\":1,\"mode\":\"i\",\"secText\":\"%s sec\",\"minText\":\"%s min\",\"mixText\":\"%s:%s\"}},{\"typeID\":\"arrivalTime\",\"pos\":{\"x\":24.5,\"y\":5.75,\"w\":6,\"h\":1.75},\"data\":{\"align\":\"right\",\"color\":16777215,\"arrival\":2,\"mode\":\"i\",\"secText\":\"%s sec\",\"minText\":\"%s min\",\"mixText\":\"%s:%s\"}}],\"name\":\"Base Horizontal Type B\",\"author\":\"EpicPuppy613\",\"description\":\"MTR Built-in layout.\\n\\nSize: 32 x 9\\nArrivals: 3\"}");
 
 			final int defaultPort = getDefaultPortFromConfig(minecraftServer);
 			serverPort = findFreePort(defaultPort);

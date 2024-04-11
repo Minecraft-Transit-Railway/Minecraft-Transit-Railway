@@ -52,15 +52,13 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 		private static final String KEY_HIDE_ARRIVAL = "hide_arrival";
 		private static final String KEY_PLATFORM_IDS = "platform_ids";
 		private static final String KEY_DISPLAY_PAGE = "display_page";
-		public final PIDSRenderController renderController;
 
-		public BlockEntityBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData, BlockEntityType<?> type, BlockPos pos, BlockState state, PIDSRenderController renderController) {
+		public BlockEntityBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData, BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
 			this.maxArrivals = maxArrivals;
 			this.canStoreData = canStoreData;
 			this.getBlockPosWithData = getBlockPosWithData;
 			messages = new String[maxArrivals];
-            this.renderController = renderController;
             for (int i = 0; i < maxArrivals; i++) {
 				messages[i] = "";
 			}

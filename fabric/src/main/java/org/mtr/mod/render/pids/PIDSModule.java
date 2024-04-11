@@ -1,32 +1,37 @@
 package org.mtr.mod.render.pids;
 
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.core.operation.ArrivalResponse;
+import org.mtr.core.serializer.ReaderBase;
+import org.mtr.mapping.mapper.GraphicsHolder;
 
 import java.util.List;
 
 public abstract class PIDSModule {
-    private final float x;
-    private final float y;
-    private final float width;
-    private final float height;
-    private final int arrivalNum;
+    protected final float x;
+    protected final float y;
+    protected final float width;
+    protected final float height;
 
-    public PIDSModule(float x, float y, float width, float height, int arrivalNum) {
+    public PIDSModule(float x, float y, float width, float height, ReaderBase data) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-        this.arrivalNum = arrivalNum;
     }
 
     public float getX() {
         return x;
     }
-
     public float getY() {
         return y;
     }
+    public float getWidth() {
+        return width;
+    }
+    public float getHeight() {
+        return height;
+    }
 
-    public abstract void render(ObjectImmutableList<ArrivalResponse> arrivals);
+    public abstract void render(GraphicsHolder graphicsHolder, ObjectImmutableList<ArrivalResponse> arrivals);
 }

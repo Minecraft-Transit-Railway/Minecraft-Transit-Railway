@@ -5,34 +5,17 @@
 		"SerializedDataBase"
 	],
 	"properties": {
-		"type": {
+		"typeID": {
 			"type": "string"
 		},
 		"pos": {
+			"$ref": "PIDSModulePos.json"
+		},
+		"data": {
 			"type": "object",
-			"properties": {
-				"x": {
-					"type": "number"
-				},
-				"y": {
-					"type": "number"
-				},
-				"w": {
-					"type": "number"
-				},
-				"h": {
-					"type": "number"
-				}
+			"patternProperties": {
+				".+": { "type":  "string" }
 			}
-		},
-		"align": {
-			"type": "string"
-		},
-		"color": {
-			"type": "integer"
-		},
-		"arrival": {
-			"type": "integer"
 		}
 	},
 	"required": [

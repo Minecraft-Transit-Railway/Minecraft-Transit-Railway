@@ -15,6 +15,7 @@ import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.block.BlockTactileMap;
 import org.mtr.mod.client.*;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.data.PIDSLayoutCache;
 import org.mtr.mod.entity.EntityRendering;
 import org.mtr.mod.item.ItemBlockClickingBase;
 import org.mtr.mod.packet.PacketRequestData;
@@ -36,6 +37,7 @@ public final class InitClient {
 	private static long lastPlayedTrainSoundsMillis = 0;
 	private static long lastUpdatePacketMillis = 0;
 	private static Runnable movePlayer;
+	public static PIDSLayoutCache pidsLayoutCache = new PIDSLayoutCache();
 
 	public static final RegistryClient REGISTRY_CLIENT = new RegistryClient(Init.REGISTRY);
 	public static final int MILLIS_PER_SPEED_SOUND = 200;
@@ -120,7 +122,7 @@ public final class InitClient {
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.APG_GLASS, RenderAPGGlass::new);
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.APG_DOOR, dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 2));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.PIDS_HORIZONTAL_1, dispatcher -> new RenderPIDS<>(dispatcher, 1, 3.25F, 6, 2.5F, 30, true, 1));
-		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.PIDS_HORIZONTAL_2, dispatcher -> new RenderPIDS<>(dispatcher, 1.5F, 7.5F, 6, 6.5F, 29, true, 1));
+		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.PIDS_HORIZONTAL_2, dispatcher -> new RenderPIDS<>(dispatcher, 0F, 9.0F, 6, 6.5F, 29, true, 1));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.PIDS_HORIZONTAL_3, dispatcher -> new RenderPIDS<>(dispatcher, 2.5F, 7.5F, 6, 6.5F, 27, true, 1.25F));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.PIDS_VERTICAL_1, dispatcher -> new RenderPIDS<>(dispatcher, 2F, 14F, 15, 28F, 12, false, 1));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.PIDS_VERTICAL_SINGLE_ARRIVAL_1, dispatcher -> new RenderPIDS<>(dispatcher, 2F, 14F, 15, 28F, 12, false, 1));

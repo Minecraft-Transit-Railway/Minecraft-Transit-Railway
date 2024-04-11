@@ -3,25 +3,26 @@ package org.mtr.mod.resource;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.mod.generated.resource.PIDSModuleSchema;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public final class PIDSModule extends PIDSModuleSchema {
+    private final ReaderBase data;
     public PIDSModule(ReaderBase readerBase) {
         super(readerBase);
+        data = readerBase.getChild("data");
         updateData(readerBase);
     }
 
     public String getType() {
-        return type;
+        return typeID;
     }
 
-    public String getAlign() {
-        return align;
+    public ReaderBase getData() {
+        return data;
     }
 
-    public long getColor() {
-        return color;
-    }
-
-    public long getArrival() {
-        return arrival;
+    public PIDSModulePos getPos() {
+        return pos;
     }
 }

@@ -42,8 +42,8 @@ public abstract class BlockArrivalProjectorBase extends BlockPIDSBase {
 
 	public static abstract class BlockEntityArrivalProjectorBase extends BlockEntityBase {
 
-		public BlockEntityArrivalProjectorBase(int maxArrivals, BlockEntityType<?> type, BlockPos pos, BlockState state, PIDSRenderController renderController) {
-			super(maxArrivals, CAN_STORE_DATA, GET_BLOCK_POS_WITH_DATA, type, pos, state, renderController);
+		public BlockEntityArrivalProjectorBase(int maxArrivals, BlockEntityType<?> type, BlockPos pos, BlockState state) {
+			super(maxArrivals, CAN_STORE_DATA, GET_BLOCK_POS_WITH_DATA, type, pos, state);
 		}
 
 		@Override

@@ -66,8 +66,8 @@ public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBl
 
 	public abstract static class BlockEntityVerticalBase extends BlockEntityBase {
 
-		public BlockEntityVerticalBase(int maxArrivals, BlockEntityType<?> type, BlockPos pos, BlockState state, PIDSRenderController renderController) {
-			super(maxArrivals, BlockPIDSVerticalBase::canStoreData, BlockPIDSVerticalBase::getBlockPosWithData, type, pos, state, renderController);
+		public BlockEntityVerticalBase(int maxArrivals, BlockEntityType<?> type, BlockPos pos, BlockState state) {
+			super(maxArrivals, BlockPIDSVerticalBase::canStoreData, BlockPIDSVerticalBase::getBlockPosWithData, type, pos, state);
 		}
 
 		@Override
