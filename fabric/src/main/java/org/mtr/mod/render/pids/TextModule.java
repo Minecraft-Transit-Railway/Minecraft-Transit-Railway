@@ -30,7 +30,7 @@ public class TextModule extends PIDSModule {
         data.unpackString("template", (value) -> template = value);
     }
 
-    protected ArrayList<String> getText(ObjectImmutableList<ArrivalResponse> arrivals, int offset) {
+    protected ArrayList<String> getText(ObjectImmutableList<ArrivalResponse> arrivals) {
         ArrayList<String> text = new ArrayList<>();
         text.add("");
         return text;
@@ -39,7 +39,7 @@ public class TextModule extends PIDSModule {
     @Override
     public void render(GraphicsHolder graphicsHolder, ObjectImmutableList<ArrivalResponse> arrivals) {
         final float textPadding = height * 0.1f;
-        ArrayList<String> placeholders = getText(arrivals, 0);
+        ArrayList<String> placeholders = getText(arrivals);
         if (placeholders == null || placeholders.isEmpty()) {
             return;
         }

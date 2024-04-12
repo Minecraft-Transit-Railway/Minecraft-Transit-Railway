@@ -8,11 +8,10 @@ import org.mtr.mod.resource.PIDSData;
 import org.mtr.mod.resource.PIDSModulePos;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class PIDSRenderController {
-    private ArrayList<PIDSModule> modules;
-    protected final float arrivals;
+    private final ArrayList<PIDSModule> modules;
+    public final int arrivals;
 
     public PIDSRenderController(String layout) {
         this.modules = loadModules(layout);
@@ -23,19 +22,11 @@ public class PIDSRenderController {
                 maxArrival = Math.max(maxArrival, ((TextModule) module).getArrival());
             }
         }
-        this.arrivals = maxArrival + 1;
+        this.arrivals = (int) (maxArrival + 1);
     }
 
     public ArrayList<PIDSModule> getModules() {
         return modules;
-    }
-
-    public void addModule(PIDSModule module) {
-        modules.add(module);
-    }
-
-    public void clearModules() {
-        modules.clear();
     }
 
     public ArrayList<PIDSModule> loadModules(String raw) {

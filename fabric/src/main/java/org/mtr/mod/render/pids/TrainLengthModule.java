@@ -15,9 +15,9 @@ public class TrainLengthModule extends TextModule {
     }
 
     @Override
-    protected ArrayList<String> getText(ObjectImmutableList<ArrivalResponse> arrivals, int offset) {
+    protected ArrayList<String> getText(ObjectImmutableList<ArrivalResponse> arrivals) {
         ArrayList<String> text = new ArrayList<>();
-        ArrivalResponse arrivalResponse = Utilities.getElement(arrivals, arrival + offset);
+        ArrivalResponse arrivalResponse = Utilities.getElement(arrivals, arrival);
         if (arrivalResponse == null) {
             return null;
         }

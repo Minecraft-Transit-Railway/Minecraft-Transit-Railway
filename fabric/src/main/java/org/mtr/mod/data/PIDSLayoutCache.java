@@ -5,6 +5,7 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.packet.PacketGetPIDSLayoutData;
 import org.mtr.mod.render.pids.PIDSRenderController;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ public class PIDSLayoutCache {
     private final Map<String, PIDSRenderController> pidsLayoutData = new HashMap<>();
     private final Map<String, RequestStatus> pidsRequestStatus = new HashMap<>();
 
+    @Nullable
     public PIDSRenderController getController(String layout) {
         // If the layout exists in the cache, return it
         if (pidsLayoutData.containsKey(layout)) {

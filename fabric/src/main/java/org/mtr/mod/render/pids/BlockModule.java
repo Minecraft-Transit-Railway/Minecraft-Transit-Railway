@@ -5,9 +5,6 @@ import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.mapping.mapper.GraphicsHolder;
 
-import java.util.ArrayList;
-import java.util.Objects;
-
 public class BlockModule extends PIDSModule {
     public final String type = "block";
 

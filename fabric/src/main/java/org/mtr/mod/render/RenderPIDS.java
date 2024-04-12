@@ -14,7 +14,6 @@ import org.mtr.mapping.holder.World;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockArrivalProjectorBase;
 import org.mtr.mod.block.BlockPIDSBase;
@@ -22,33 +21,27 @@ import org.mtr.mod.block.BlockPIDSHorizontalBase;
 import org.mtr.mod.block.IBlock;
 import org.mtr.mod.data.ArrivalsCache;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.PacketFetchArrivals;
 import org.mtr.mod.render.pids.PIDSModule;
 import org.mtr.mod.render.pids.PIDSRenderController;
 import org.mtr.mod.render.pids.TextModule;
+
+import java.util.ArrayList;
 
 public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEntityRenderer<T> implements IGui, Utilities {
 
 	private final float startX;
 	private final float startY;
 	private final float startZ;
-	private final float maxHeight;
-	private final float maxWidth;
 	private final boolean rotate90;
-	private final float textPadding;
 
 	public static final int SWITCH_LANGUAGE_TICKS = 60;
-	private static final String DEFAULT_LAYOUT = "{\"_editor_size\":\"hb\",\"version\":2,\"id\":\"pids_demo\",\"modules\":[{\"typeID\":\"destination\",\"pos\":{\"x\":1.5,\"y\":1.5,\"w\":22.5,\"h\":1.75},\"data\":{\"align\":\"left\",\"color\":16777215,\"arrival\":0,\"template\":\"%s\"}},{\"typeID\":\"arrivalTime\",\"pos\":{\"x\":24.5,\"y\":1.5,\"w\":6,\"h\":1.75},\"data\":{\"align\":\"right\",\"color\":16777215,\"arrival\":0,\"mode\":\"i\",\"secText\":\"%s sec\",\"minText\":\"%s min\",\"mixText\":\"%s:%s\"}},{\"typeID\":\"time\",\"pos\":{\"x\":1.5,\"y\":6.625,\"w\":29,\"h\":1},\"data\":{\"align\":\"center\",\"color\":16777215,\"loc\":\"g\",\"template\":\"Fairview Docks - Platform 1 - %s:%s:%s %s\",\"show24Hour\":false,\"showHours\":true,\"showMinutes\":true,\"showSeconds\":true}},{\"typeID\":\"trainLength\",\"pos\":{\"x\":1.5,\"y\":5,\"w\":29,\"h\":1.25},\"data\":{\"align\":\"left\",\"color\":16777215,\"arrival\":0,\"template\":\"This train has %s coaches.\"}},{\"typeID\":\"text\",\"pos\":{\"x\":1.5,\"y\":3.5,\"w\":29,\"h\":1.25},\"data\":{\"align\":\"left\",\"color\":16777215,\"arrival\":0,\"template\":\"Calling At: Desert Grand Central only\"}}],\"name\":\"PIDS Demo\",\"author\":\"EpicPuppy613\",\"description\":\"A simple demonstration of the new PIDS layout system.\"}";
 
-	public RenderPIDS(Argument dispatcher, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, float textPadding) {
+	public RenderPIDS(Argument dispatcher, float startX, float startY, float startZ, boolean rotate90) {
 		super(dispatcher);
 		this.startX = startX;
 		this.startY = startY;
 		this.startZ = startZ;
-		this.maxHeight = maxHeight;
-		this.maxWidth = maxWidth;
 		this.rotate90 = rotate90;
-		this.textPadding = textPadding;
 	}
 
 	@Override
@@ -97,8 +90,6 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 		// Scale value represents the number of text pixels per block
 		final float scale = 16;
 		final ObjectImmutableList<ArrivalResponse> arrivalResponseList = arrivalsResponse.getArrivals();
-		final boolean hasDifferentCarLengths = hasDifferentCarLengths(arrivalResponseList);
-		int arrivalIndex = entity.getDisplayPage() * entity.maxArrivals;
 
 		// Scale the screen
 		graphicsHolder.push();
@@ -114,12 +105,21 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 		final PIDSRenderController controller = InitClient.pidsLayoutCache.getController(entity.getLayout());
 
 		if (controller == null) {
+			// If controller does not exist, abort rendering and return
 			graphicsHolder.pop();
 			return;
-		};
+		}
 
+		int arrivalOffset = controller.arrivals * (entity.getDisplayPage() - 1);
+
+		final ObjectImmutableList<ArrivalResponse> subList;
+		if (arrivalOffset < arrivalResponseList.size()) {
+			subList = (ObjectImmutableList<ArrivalResponse>) arrivalResponseList.subList(arrivalOffset, Math.min(arrivalOffset + controller.arrivals, arrivalResponseList.size()));
+		} else {
+			subList = new ObjectImmutableList<>(new ArrayList<>());
+		}
 		for (PIDSModule module : controller.getModules()) {
-			module.render(graphicsHolder, arrivalResponseList);
+			module.render(graphicsHolder, subList);
 		}
 
 		// Render test text
@@ -260,17 +260,5 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 		graphicsHolder.scale(scale, scale, 1);
 		graphicsHolder.drawText(text, 0, 0, color | ARGB_BLACK, false, GraphicsHolder.getDefaultLight());
 		graphicsHolder.pop();
-	}
-
-	private static boolean hasDifferentCarLengths(ObjectImmutableList<ArrivalResponse> arrivalResponseList) {
-		int carCount = 0;
-		for (final ArrivalResponse arrivalResponse : arrivalResponseList) {
-			final int currentCarCount = arrivalResponse.getCarCount();
-			if (carCount > 0 && currentCarCount != carCount) {
-				return true;
-			}
-			carCount = currentCarCount;
-		}
-		return false;
 	}
 }

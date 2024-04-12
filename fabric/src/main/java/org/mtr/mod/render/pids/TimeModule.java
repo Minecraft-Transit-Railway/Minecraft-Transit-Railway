@@ -27,7 +27,7 @@ public class TimeModule extends TextModule {
     }
 
     @Override
-    protected ArrayList<String> getText(ObjectImmutableList<ArrivalResponse> arrivals, int offset) {
+    protected ArrayList<String> getText(ObjectImmutableList<ArrivalResponse> arrivals) {
         ArrayList<String> text = new ArrayList<>();
         int time = 0;
         if (useRealTime) {

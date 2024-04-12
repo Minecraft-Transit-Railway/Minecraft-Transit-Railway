@@ -6,7 +6,6 @@ import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.core.serializer.ReaderBase;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class DestinationModule extends TextModule {
     public final String type = "destination";
@@ -16,9 +15,9 @@ public class DestinationModule extends TextModule {
     }
 
     @Override
-    protected ArrayList<String> getText(ObjectImmutableList<ArrivalResponse> arrivals, int offset) {
+    protected ArrayList<String> getText(ObjectImmutableList<ArrivalResponse> arrivals) {
         ArrayList<String> text = new ArrayList<>();
-        ArrivalResponse arrivalResponse = Utilities.getElement(arrivals, arrival + offset);
+        ArrivalResponse arrivalResponse = Utilities.getElement(arrivals, arrival);
         if (arrivalResponse == null) {
             return null;
         }

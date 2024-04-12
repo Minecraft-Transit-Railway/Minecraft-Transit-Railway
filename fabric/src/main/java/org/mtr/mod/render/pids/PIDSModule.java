@@ -5,8 +5,6 @@ import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.mapping.mapper.GraphicsHolder;
 
-import java.util.List;
-
 public abstract class PIDSModule {
     protected final float x;
     protected final float y;

@@ -13,7 +13,6 @@ public class ArrivalTimeModule extends TextModule {
     public final String type = "arrivalTime";
     private String minuteTemplate = "%s min";
     private String secondTemplate = "%s sec";
-    private String arriveTemplate = "%s";
     private String mixedTemplate = "%s:%s";
     private boolean showMixed = false;
 
@@ -27,9 +26,9 @@ public class ArrivalTimeModule extends TextModule {
     }
 
     @Override
-    protected ArrayList<String> getText(ObjectImmutableList<ArrivalResponse> arrivals, int offset) {
+    protected ArrayList<String> getText(ObjectImmutableList<ArrivalResponse> arrivals) {
         ArrayList<String> text = new ArrayList<>();
-        ArrivalResponse arrivalResponse = Utilities.getElement(arrivals, arrival + offset);
+        ArrivalResponse arrivalResponse = Utilities.getElement(arrivals, arrival);
         if (arrivalResponse == null) {
             return null;
         }
@@ -50,7 +49,7 @@ public class ArrivalTimeModule extends TextModule {
             template = mixedTemplate;
         } else {
             text.add("");
-            template = arriveTemplate;
+            template = "%s";
         }
         return text;
     }

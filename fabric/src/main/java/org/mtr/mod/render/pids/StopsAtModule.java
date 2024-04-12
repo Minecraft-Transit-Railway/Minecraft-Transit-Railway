@@ -14,7 +14,7 @@ public class StopsAtModule extends TextModule {
     }
 
     @Override
-    protected ArrayList<String> getText(ObjectImmutableList<ArrivalResponse> arrivals, int offset) {
+    protected ArrayList<String> getText(ObjectImmutableList<ArrivalResponse> arrivals) {
         ArrayList<String> text = new ArrayList<>();
         text.add("Fairview Docks"); //TODO - add actual stops
         return text;

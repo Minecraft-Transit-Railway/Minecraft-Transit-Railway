@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PIDSLayoutData extends PersistenceStateExtension {
-    private final Map<String, String> pidsLayoutData = new HashMap<>();
+    private final Map<String, PIDSLayoutEntry> pidsLayoutData = new HashMap<>();
 
     public PIDSLayoutData(String key) {
         super(key);
@@ -20,7 +20,7 @@ public class PIDSLayoutData extends PersistenceStateExtension {
      * @return the raw JSON data of the layout
      */
     public String getLayoutData(String key) {
-        return pidsLayoutData.get(key);
+        return pidsLayoutData.get(key).data;
     }
 
     /**
@@ -33,7 +33,7 @@ public class PIDSLayoutData extends PersistenceStateExtension {
         if (pidsLayoutData.containsKey(key)) {
             return false;
         }
-        pidsLayoutData.put(key, value);
+        pidsLayoutData.put(key, new PIDSLayoutEntry(value));
         return true;
     }
 
@@ -44,22 +44,33 @@ public class PIDSLayoutData extends PersistenceStateExtension {
      * @param value the raw JSON data to be stored
      */
     public void setLayoutData(String key, String value) {
-        pidsLayoutData.put(key, value);
+        pidsLayoutData.put(key, new PIDSLayoutEntry(value));
+    }
+
+    /**
+     * @return a map of all the layout metadata
+     */
+    public Map<String, PIDSLayoutEntry.PIDSLayoutMetadata> getAllLayouts() {
+        Map<String, PIDSLayoutEntry.PIDSLayoutMetadata> shareableMap = new HashMap<>();
+        for (Map.Entry<String, PIDSLayoutEntry> entry : pidsLayoutData.entrySet()) {
+            shareableMap.put(entry.getKey(), entry.getValue().shareable);
+        }
+        return shareableMap;
     }
 
     @Override
     public void readNbt(CompoundTag compoundTag) {
         pidsLayoutData.clear();
         for (String key : compoundTag.getKeys()) {
-            pidsLayoutData.put(key, compoundTag.getString(key));
+            pidsLayoutData.put(key, new PIDSLayoutEntry(compoundTag.getString(key)));
         }
     }
 
     @NotNull
     @Override
     public CompoundTag writeNbt2(CompoundTag compoundTag) {
-        for (Map.Entry<String, String> entry : pidsLayoutData.entrySet()) {
-            compoundTag.putString(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, PIDSLayoutEntry> entry : pidsLayoutData.entrySet()) {
+            compoundTag.putString(entry.getKey(), entry.getValue().data);
         }
         return compoundTag;
     }
