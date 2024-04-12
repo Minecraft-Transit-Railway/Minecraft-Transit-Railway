@@ -3,6 +3,7 @@ package org.mtr.mod.render.pids;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.core.serializer.ReaderBase;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.render.RenderPIDS;
 
@@ -30,14 +31,14 @@ public class TextModule extends PIDSModule {
         data.unpackString("template", (value) -> template = value);
     }
 
-    protected ArrayList<String> getText(ObjectImmutableList<ArrivalResponse> arrivals) {
+    protected ArrayList<String> getText(ObjectList<ArrivalResponse> arrivals) {
         ArrayList<String> text = new ArrayList<>();
         text.add("");
         return text;
     }
 
     @Override
-    public void render(GraphicsHolder graphicsHolder, ObjectImmutableList<ArrivalResponse> arrivals) {
+    public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals) {
         final float textPadding = height * 0.1f;
         ArrayList<String> placeholders = getText(arrivals);
         if (placeholders == null || placeholders.isEmpty()) {

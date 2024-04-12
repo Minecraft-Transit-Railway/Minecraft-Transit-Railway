@@ -3,6 +3,7 @@ package org.mtr.mod.render.pids;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.core.serializer.ReaderBase;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
 import org.mtr.mapping.holder.MinecraftClient;
 
 import java.time.ZonedDateTime;
@@ -27,7 +28,7 @@ public class TimeModule extends TextModule {
     }
 
     @Override
-    protected ArrayList<String> getText(ObjectImmutableList<ArrivalResponse> arrivals) {
+    protected ArrayList<String> getText(ObjectList<ArrivalResponse> arrivals) {
         ArrayList<String> text = new ArrayList<>();
         int time = 0;
         if (useRealTime) {

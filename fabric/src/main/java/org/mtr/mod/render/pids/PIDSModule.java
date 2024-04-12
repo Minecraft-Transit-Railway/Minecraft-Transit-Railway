@@ -3,6 +3,7 @@ package org.mtr.mod.render.pids;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.core.serializer.ReaderBase;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
 import org.mtr.mapping.mapper.GraphicsHolder;
 
 public abstract class PIDSModule {
@@ -31,5 +32,5 @@ public abstract class PIDSModule {
         return height;
     }
 
-    public abstract void render(GraphicsHolder graphicsHolder, ObjectImmutableList<ArrivalResponse> arrivals);
+    public abstract void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals);
 }

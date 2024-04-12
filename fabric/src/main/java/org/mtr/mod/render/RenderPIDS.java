@@ -7,6 +7,7 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.Direction;
 import org.mtr.mapping.holder.Vector3d;
@@ -110,11 +111,11 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 			return;
 		}
 
-		int arrivalOffset = controller.arrivals * (entity.getDisplayPage() - 1);
+		int arrivalOffset = controller.arrivals * entity.getDisplayPage();
 
-		final ObjectImmutableList<ArrivalResponse> subList;
+		final ObjectList<ArrivalResponse> subList;
 		if (arrivalOffset < arrivalResponseList.size()) {
-			subList = (ObjectImmutableList<ArrivalResponse>) arrivalResponseList.subList(arrivalOffset, Math.min(arrivalOffset + controller.arrivals, arrivalResponseList.size()));
+			subList = arrivalResponseList.subList(arrivalOffset, Math.min(arrivalOffset + controller.arrivals, arrivalResponseList.size()));
 		} else {
 			subList = new ObjectImmutableList<>(new ArrayList<>());
 		}
