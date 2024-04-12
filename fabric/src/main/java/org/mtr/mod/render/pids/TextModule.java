@@ -43,7 +43,7 @@ public class TextModule extends PIDSModule {
         if (placeholders == null || placeholders.isEmpty()) {
             return;
         }
-        String text = template.formatted(placeholders.toArray());
+        String text = String.format(template, placeholders.toArray());
         RenderPIDS.renderText(graphicsHolder, text, x + textPadding, y + textPadding, height - textPadding * 2, color, width - textPadding * 2, align);
     }
 
