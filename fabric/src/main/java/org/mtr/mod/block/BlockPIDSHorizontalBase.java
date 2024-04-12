@@ -77,8 +77,8 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 
 	public abstract static class BlockEntityHorizontalBase extends BlockEntityBase {
 
-		public BlockEntityHorizontalBase(int maxArrivals, BlockEntityType<?> type, BlockPos pos, BlockState state) {
-			super(maxArrivals, BlockPIDSHorizontalBase::canStoreData, BlockPIDSHorizontalBase::getBlockPosWithData, type, pos, state);
+		public BlockEntityHorizontalBase(int maxArrivals, String defaultLayout, BlockEntityType<?> type, BlockPos pos, BlockState state) {
+			super(maxArrivals, defaultLayout, BlockPIDSHorizontalBase::canStoreData, BlockPIDSHorizontalBase::getBlockPosWithData, type, pos, state);
 		}
 
 		@Override

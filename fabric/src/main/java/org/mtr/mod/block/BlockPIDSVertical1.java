@@ -31,7 +31,7 @@ public class BlockPIDSVertical1 extends BlockPIDSVerticalBase {
 	public static class BlockEntity extends BlockEntityVerticalBase {
 
 		public BlockEntity(BlockPos pos, BlockState state) {
-			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_VERTICAL_1.get(), pos, state);
+			super(MAX_ARRIVALS, "base_vertical_a", BlockEntityTypes.PIDS_VERTICAL_1.get(), pos, state);
 		}
 	}
 }

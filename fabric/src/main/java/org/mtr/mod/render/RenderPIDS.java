@@ -111,9 +111,12 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 		// The screen should now be scaled according to the scale value
 
 		// First PIDSRenderController Test
-		final PIDSRenderController controller = InitClient.pidsLayoutCache.getController("test");
+		final PIDSRenderController controller = InitClient.pidsLayoutCache.getController(entity.getLayout());
 
-		if (controller == null) return;
+		if (controller == null) {
+			graphicsHolder.pop();
+			return;
+		};
 
 		for (PIDSModule module : controller.getModules()) {
 			module.render(graphicsHolder, arrivalResponseList);

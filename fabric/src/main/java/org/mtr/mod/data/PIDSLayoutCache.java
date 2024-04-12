@@ -30,6 +30,7 @@ public class PIDSLayoutCache {
     public void setLayout(String key, String layout) {
         pidsLayoutData.put(key, new PIDSRenderController(layout));
         pidsRequestStatus.remove(key);
+        Init.LOGGER.info("PIDS layout data received for '%s' with %s modules".formatted(key, pidsLayoutData.get(key).getModules().size()));
     }
 
     public void setFailed(String key) {

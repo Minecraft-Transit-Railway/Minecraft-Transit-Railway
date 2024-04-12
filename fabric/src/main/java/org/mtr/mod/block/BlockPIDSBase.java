@@ -45,6 +45,7 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 		public final BiFunction<World, BlockPos, BlockPos> getBlockPosWithData;
 
 		private final String[] messages;
+		private String layout;
 		private final boolean[] hideArrivalArray;
 		private final LongAVLTreeSet platformIds = new LongAVLTreeSet();
 		private int displayPage;
@@ -53,12 +54,13 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 		private static final String KEY_PLATFORM_IDS = "platform_ids";
 		private static final String KEY_DISPLAY_PAGE = "display_page";
 
-		public BlockEntityBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData, BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		public BlockEntityBase(int maxArrivals, String defaultLayout, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData, BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
 			this.maxArrivals = maxArrivals;
 			this.canStoreData = canStoreData;
 			this.getBlockPosWithData = getBlockPosWithData;
 			messages = new String[maxArrivals];
+			layout = defaultLayout;
             for (int i = 0; i < maxArrivals; i++) {
 				messages[i] = "";
 			}
@@ -79,6 +81,10 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 			}
 
 			displayPage = compoundTag.getInt(KEY_DISPLAY_PAGE);
+			String layoutRaw = compoundTag.getString("layout");
+			if (!layoutRaw.isEmpty()) {
+				layout = layoutRaw;
+			}
 		}
 
 		@Override
@@ -89,6 +95,7 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 			}
 			compoundTag.putLongArray(KEY_PLATFORM_IDS, new ArrayList<>(platformIds));
 			compoundTag.putInt(KEY_DISPLAY_PAGE, displayPage);
+			compoundTag.putString("layout", layout);
 		}
 
 		public void setData(String[] messages, boolean[] hideArrivalArray, LongAVLTreeSet platformIds, int displayPage) {
@@ -125,6 +132,10 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 			} else {
 				return false;
 			}
+		}
+
+		public String getLayout() {
+			return layout;
 		}
 
 		public abstract boolean showArrivalNumber();

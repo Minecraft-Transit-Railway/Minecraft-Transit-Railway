@@ -33,7 +33,7 @@ public class BlockPIDSHorizontal3 extends BlockPIDSHorizontalBase {
 	public static class BlockEntity extends BlockEntityHorizontalBase {
 
 		public BlockEntity(BlockPos pos, BlockState state) {
-			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_HORIZONTAL_3.get(), pos, state);
+			super(MAX_ARRIVALS, "base_horizontal_c", BlockEntityTypes.PIDS_HORIZONTAL_3.get(), pos, state);
 		}
 
 		@Override
