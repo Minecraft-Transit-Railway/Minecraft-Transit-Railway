@@ -1,6 +1,9 @@
 package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
+import org.mtr.mapping.tool.HolderBase;
+
+import java.util.List;
 
 public abstract class BlockTrainPoweredSensorBase extends BlockTrainSensorBase {
 
@@ -30,6 +33,11 @@ public abstract class BlockTrainPoweredSensorBase extends BlockTrainSensorBase {
 	@Override
 	public int getWeakRedstonePower2(BlockState state, BlockView world, BlockPos pos, Direction direction) {
 		return IBlock.getStatePropertySafe(state, POWERED) > 0 ? 15 : 0;
+	}
+
+	@Override
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(POWERED);
 	}
 
 	public void power(World world, BlockState state, BlockPos pos) {

@@ -1,12 +1,15 @@
 package org.mtr.mod.screen;
 
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockTrainAnnouncer;
+import org.mtr.mod.packet.PacketUpdateTrainAnnouncerConfig;
 
 import java.util.Collections;
 
@@ -105,6 +108,11 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 		guiDrawing.drawRectangle(availableSoundsList.x, availableSoundsList.y, availableSoundsList.x + availableSoundsList.width, availableSoundsList.y + availableSoundsList.height, ARGB_BACKGROUND);
 		guiDrawing.finishDrawingRectangle();
 		availableSoundsList.render(graphicsHolder);
+	}
+
+	@Override
+	protected void sendUpdate(BlockPos blockPos, LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly) {
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateTrainAnnouncerConfig(blockPos, filterRouteIds, stoppedOnly, movingOnly, textFields[0].getText2(), textFields[1].getText2()));
 	}
 
 	private void setListVisibility(boolean visible) {

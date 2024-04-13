@@ -3,9 +3,7 @@ package org.mtr.mod.client;
 import com.logisticscraft.occlusionculling.util.Vec3d;
 import org.mtr.core.data.Position;
 import org.mtr.core.data.*;
-import org.mtr.core.operation.ArrivalsResponse;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
@@ -16,7 +14,6 @@ import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.data.PersistentVehicleData;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.packet.PacketDriveTrain;
-import org.mtr.mod.packet.PacketFetchArrivals;
 import org.mtr.mod.screen.DashboardListItem;
 
 import javax.annotation.Nullable;
@@ -30,7 +27,6 @@ public final class MinecraftClientData extends ClientData {
 	public final Long2ObjectAVLTreeMap<PersistentVehicleData> vehicleIdToPersistentVehicleData = new Long2ObjectAVLTreeMap<>();
 	public final Object2ObjectArrayMap<String, RailWrapper> railWrapperList = new Object2ObjectArrayMap<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
-	private final Long2ObjectAVLTreeMap<ObjectLongImmutablePair<ArrivalsResponse>> arrivalRequests = new Long2ObjectAVLTreeMap<>();
 
 	private static MinecraftClientData instance = new MinecraftClientData();
 	private static MinecraftClientData dashboardInstance = new MinecraftClientData();
@@ -46,8 +42,6 @@ public final class MinecraftClientData extends ClientData {
 	private static boolean pressingBrake = false;
 	private static boolean pressingDoors = false;
 
-	private static final int CACHED_ARRIVAL_REQUESTS_MILLIS = 3000;
-
 	@Override
 	public void sync() {
 		super.sync();
@@ -62,31 +56,6 @@ public final class MinecraftClientData extends ClientData {
 				railWrapper.rail = rail;
 			}
 		}));
-	}
-
-	public ArrivalsResponse requestArrivals(long requestKey, LongImmutableList platformIds, int maxCountPerPlatform, int maxCountTotal, boolean realtimeOnly) {
-		final ObjectLongImmutablePair<ArrivalsResponse> arrivalData = arrivalRequests.get(requestKey);
-		if (arrivalData == null || arrivalData.rightLong() < System.currentTimeMillis()) {
-			if (!platformIds.isEmpty()) {
-				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketFetchArrivals(requestKey, platformIds, maxCountPerPlatform, maxCountTotal, realtimeOnly));
-			}
-
-			final ArrivalsResponse arrivalsResponse;
-			if (arrivalData == null) {
-				arrivalsResponse = new ArrivalsResponse();
-			} else {
-				arrivalsResponse = arrivalData.left();
-			}
-
-			writeArrivalRequest(requestKey, arrivalsResponse);
-			return arrivalsResponse;
-		} else {
-			return arrivalData.left();
-		}
-	}
-
-	public void writeArrivalRequest(long requestKey, ArrivalsResponse arrivalsResponse) {
-		arrivalRequests.put(requestKey, new ObjectLongImmutablePair<>(arrivalsResponse, System.currentTimeMillis() + CACHED_ARRIVAL_REQUESTS_MILLIS));
 	}
 
 	@Nullable

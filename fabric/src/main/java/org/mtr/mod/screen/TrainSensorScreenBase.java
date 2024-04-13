@@ -15,7 +15,7 @@ import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.PacketUpdateTrainSensorConfig;
 
-import java.util.Collections;
+import java.util.stream.Collectors;
 
 public abstract class TrainSensorScreenBase extends ScreenExtension implements IGui {
 
@@ -68,8 +68,7 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 		movingOnlyCheckbox.setMessage2(new Text(TextHelper.translatable("gui.mtr.moving_only").data));
 
 		filterButton = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> {
-			final ObjectArrayList<DashboardListItem> routes = new ObjectArrayList<>(MinecraftClientData.convertDataSet(MinecraftClientData.getInstance().routes));
-			Collections.sort(routes);
+			final ObjectArrayList<DashboardListItem> routes = MinecraftClientData.getInstance().simplifiedRoutes.stream().map(simplifiedRoute -> new DashboardListItem(simplifiedRoute.getId(), simplifiedRoute.getName(), simplifiedRoute.getColor())).sorted().collect(Collectors.toCollection(ObjectArrayList::new));
 			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this, new ObjectImmutableList<>(routes), filterRouteIds, false, false)));
 		});
 
@@ -133,11 +132,7 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 
 	@Override
 	public void onClose2() {
-		final String[] strings = new String[textFieldCount];
-		for (int i = 0; i < textFieldCount; i++) {
-			strings[i] = textFields[i].getText2();
-		}
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateTrainSensorConfig(blockPos, filterRouteIds, stoppedOnly, movingOnly, getNumber(), strings));
+		sendUpdate(blockPos, filterRouteIds, stoppedOnly, movingOnly);
 		super.onClose2();
 	}
 
@@ -149,8 +144,8 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 	protected void renderAdditional(GraphicsHolder graphicsHolder) {
 	}
 
-	protected int getNumber() {
-		return 0;
+	protected void sendUpdate(BlockPos blockPos, LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly) {
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateTrainSensorConfig(blockPos, filterRouteIds, stoppedOnly, movingOnly));
 	}
 
 	private void setChecked(boolean newStoppedOnly, boolean newMovingOnly) {
