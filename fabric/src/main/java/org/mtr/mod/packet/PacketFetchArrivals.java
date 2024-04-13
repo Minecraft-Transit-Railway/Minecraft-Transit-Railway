@@ -7,7 +7,7 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mapping.tool.PacketBufferSender;
-import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.data.ArrivalsCache;
 
 import javax.annotation.Nonnull;
 
@@ -40,7 +40,7 @@ public final class PacketFetchArrivals extends PacketRequestResponseBase impleme
 
 	@Override
 	protected void runClientInbound(Response response) {
-		MinecraftClientData.getInstance().writeArrivalRequest(requestKey, response.getData(ArrivalsResponse::new));
+		ArrivalsCache.INSTANCE.writeArrivalRequest(requestKey, response.getData(ArrivalsResponse::new));
 		millisOffset = response.getCurrentTime() - System.currentTimeMillis();
 	}
 

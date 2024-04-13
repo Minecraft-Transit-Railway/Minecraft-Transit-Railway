@@ -20,7 +20,7 @@ import org.mtr.mod.block.BlockArrivalProjectorBase;
 import org.mtr.mod.block.BlockPIDSBase;
 import org.mtr.mod.block.BlockPIDSHorizontalBase;
 import org.mtr.mod.block.IBlock;
-import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.data.ArrivalsCache;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.PacketFetchArrivals;
 
@@ -79,7 +79,7 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 
 	private void getArrivalsAndRender(T entity, BlockPos blockPos, Direction facing, LongImmutableList platformIds) {
 		final int count = (entity.getDisplayPage() + 1) * entity.maxArrivals / (entity.alternateLines() ? 2 : 1);
-		final ArrivalsResponse arrivalsResponse = MinecraftClientData.getInstance().requestArrivals(blockPos.asLong(), platformIds, count, count, false);
+		final ArrivalsResponse arrivalsResponse = ArrivalsCache.INSTANCE.requestArrivals(blockPos.asLong(), platformIds, count, count, false);
 		RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
 			render(entity, blockPos, facing, arrivalsResponse, graphicsHolder, offset);
 			if (entity instanceof BlockPIDSHorizontalBase.BlockEntityHorizontalBase) {

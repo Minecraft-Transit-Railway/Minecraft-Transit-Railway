@@ -6,7 +6,6 @@ import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mod.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,13 +45,9 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 			super.writeCompoundTag(compoundTag);
 		}
 
-		@Override
-		public void setData(LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String... strings) {
-			if (strings.length >= 2) {
-				message = strings[0];
-				final String soundIdString = strings[1];
-				soundId = soundIdString.isEmpty() ? null : new Identifier(soundIdString);
-			}
+		public void setData(LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, String message, String soundIdString) {
+			this.message = message;
+			soundId = soundIdString.isEmpty() ? null : new Identifier(soundIdString);
 			setData(filterRouteIds, stoppedOnly, movingOnly);
 		}
 
@@ -64,9 +59,9 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 			return soundId == null ? "" : soundId.toString();
 		}
 
-		public void announce(@Nullable PlayerEntity player) {
+		public void announce(PlayerEntity player) {
 			final long currentMillis = System.currentTimeMillis();
-			if (player != null && (!lastAnnouncedMillis.containsKey(player) || currentMillis - lastAnnouncedMillis.get(player) >= ANNOUNCE_COOL_DOWN_MILLIS)) {
+			if (!lastAnnouncedMillis.containsKey(player) || currentMillis - lastAnnouncedMillis.get(player) >= ANNOUNCE_COOL_DOWN_MILLIS) {
 				lastAnnouncedMillis.put(player, System.currentTimeMillis());
 				// TODO
 			}
