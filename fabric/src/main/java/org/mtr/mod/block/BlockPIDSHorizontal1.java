@@ -3,14 +3,12 @@ package org.mtr.mod.block;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mod.BlockEntityTypes;
-import org.mtr.mod.render.pids.PIDSRenderController;
 
 import javax.annotation.Nonnull;
 
 public class BlockPIDSHorizontal1 extends BlockPIDSHorizontalBase {
 
 	private static final int MAX_ARRIVALS = 1;
-	private static final String DEFAULT_LAYOUT = "{\"_editor_size\": \"ha\", \"version\": 1,\"id\":\"base_horizontal_a\",\"modules\":[{\"type\":\"DestinationModule\",\"pos\":{\"x\":1,\"y\":7.5,\"w\":21.5,\"h\":2.5},\"align\":\"left\",\"color\":16777215,\"arrival\":0},{\"type\":\"ArrivalTimeModule\",\"pos\":{\"x\":23,\"y\":7.5,\"w\":8,\"h\":2.5},\"align\":\"right\",\"color\":16777215,\"arrival\":0}],\"name\":\"Base Horizontal Type A\",\"author\":\"EpicPuppy613\",\"description\":\"MTR Built-in layout.\\n\\nSize: 32 x 11\\nArrivals: 1\"}";
 
 	public BlockPIDSHorizontal1() {
 		super(MAX_ARRIVALS);
