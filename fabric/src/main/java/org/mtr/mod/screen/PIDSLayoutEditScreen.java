@@ -30,8 +30,10 @@ public class PIDSLayoutEditScreen extends ScreenExtension implements IGui {
         this.confirmButton = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.confirm"), button -> {
             if (invalidJSON || data == null) return;
             InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdatePIDSLayout(data.getID(), this.dataInput.getText2()));
+            ArrayList<PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata> metadata = new ArrayList<>();
+            metadata.add(new PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata(data.getID(), data.getName(), data.getDescription(), data.getAuthor(), data.getModules().size(), new PIDSRenderController(rawData).arrivals));
             // Add the new metadata locally
-            InitClient.pidsLayoutCache.addMetadata(new ArrayList<>(List.of(new PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata(data.getID(), data.getName(), data.getDescription(), data.getAuthor(), data.getModules().size(), new PIDSRenderController(rawData).arrivals))));
+            InitClient.pidsLayoutCache.addMetadata(metadata);
             // Create a new dashboard screen so that all of the new data is displayed
             MinecraftClient.getInstance().openScreen(new Screen(new PIDSDashboardScreen()));
         });
