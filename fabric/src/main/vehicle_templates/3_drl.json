@@ -1,0 +1,290 @@
+{
+	"replacements": {
+		"lengths": [
+			25
+		],
+		"tag": [
+			"3"
+		],
+		"name": [
+			"Normal"
+		],
+		"definition": [
+			""
+		]
+	},
+	"vehicles": [
+		{
+			"id": "drl@definition@_trailer",
+			"name": "Disneyland Resort Line Trailer (@name@)",
+			"color": "F287B7",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "Disneyland_Resort_line",
+			"tags": [
+				"family:drl",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:trailer"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/drl.bbmodel",
+					"textureResource": "mtr:textures/vehicle/drl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/drl.bbmodel",
+					"textureResource": "mtr:textures/vehicle/drl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/drl.bbmodel",
+					"textureResource": "mtr:textures/vehicle/drl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_drl_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_drl_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"legacySpeedSoundBaseResource": "m_train",
+			"legacySpeedSoundCount": 90
+		},
+		{
+			"id": "drl@definition@_cab_1",
+			"name": "Disneyland Resort Line Cab (Forwards, @name@)",
+			"color": "F287B7",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 1,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "Disneyland_Resort_line",
+			"tags": [
+				"family:drl",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/drl.bbmodel",
+					"textureResource": "mtr:textures/vehicle/drl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/drl.bbmodel",
+					"textureResource": "mtr:textures/vehicle/drl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/drl.bbmodel",
+					"textureResource": "mtr:textures/vehicle/drl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_drl_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_drl_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"legacySpeedSoundBaseResource": "m_train",
+			"legacySpeedSoundCount": 90
+		},
+		{
+			"id": "drl@definition@_cab_2",
+			"name": "Disneyland Resort Line Cab (Backwards, @name@)",
+			"color": "F287B7",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "Disneyland_Resort_line",
+			"tags": [
+				"family:drl",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/drl.bbmodel",
+					"textureResource": "mtr:textures/vehicle/drl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/drl.bbmodel",
+					"textureResource": "mtr:textures/vehicle/drl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/drl.bbmodel",
+					"textureResource": "mtr:textures/vehicle/drl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_drl_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_drl_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"legacySpeedSoundBaseResource": "m_train",
+			"legacySpeedSoundCount": 90
+		},
+		{
+			"id": "drl@definition@_cab_3",
+			"name": "Disneyland Resort Line Cab (Double, @name@)",
+			"color": "F287B7",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 1,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "Disneyland_Resort_line",
+			"tags": [
+				"family:drl",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/drl.bbmodel",
+					"textureResource": "mtr:textures/vehicle/drl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/drl.bbmodel",
+					"textureResource": "mtr:textures/vehicle/drl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/drl.bbmodel",
+					"textureResource": "mtr:textures/vehicle/drl.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_drl_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_drl_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/drl_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/drl@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"legacySpeedSoundBaseResource": "m_train",
+			"legacySpeedSoundCount": 90
+		}
+	]
+}

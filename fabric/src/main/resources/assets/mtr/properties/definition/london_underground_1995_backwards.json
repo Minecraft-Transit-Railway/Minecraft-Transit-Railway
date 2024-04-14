@@ -1,0 +1,199 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window",
+			"positions": [
+				{
+					"z": -4
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -4
+				}
+			]
+		},
+		{
+			"name": "windowEnd1",
+			"positions": [
+				{
+					"z": -100
+				}
+			]
+		},
+		{
+			"name": "windowEnd1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -100
+				}
+			]
+		},
+		{
+			"name": "windowEnd2",
+			"positionsFlipped": [
+				{
+					"z": 92
+				}
+			]
+		},
+		{
+			"name": "windowEnd2Flipped",
+			"positions": [
+				{
+					"z": 92
+				}
+			]
+		},
+		{
+			"name": "sidePanel",
+			"positions": [
+				{
+					"z": -68.5
+				},
+				{
+					"z": 60.5
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -68.5
+				},
+				{
+					"z": 60.5
+				}
+			]
+		},
+		{
+			"name": "sidePanelEnd1",
+			"positions": [
+				{
+					"z": -131.5
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -131.5
+				}
+			]
+		},
+		{
+			"name": "sidePanelEnd2",
+			"positions": [
+				{
+					"z": 123.5
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 123.5
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"z": -52
+				},
+				{
+					"z": 44
+				}
+			]
+		},
+		{
+			"name": "doorFlipped",
+			"positionsFlipped": [
+				{
+					"z": -52
+				},
+				{
+					"z": 44
+				}
+			]
+		},
+		{
+			"name": "doorEnd1",
+			"positions": [
+				{
+					"z": -148
+				}
+			]
+		},
+		{
+			"name": "doorEnd1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -148
+				}
+			]
+		},
+		{
+			"name": "doorEnd2",
+			"positionsFlipped": [
+				{
+					"z": 140
+				}
+			]
+		},
+		{
+			"name": "doorEnd2Flipped",
+			"positions": [
+				{
+					"z": 140
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -100
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 92
+				}
+			]
+		},
+		{
+			"name": "seatHead1",
+			"positionsFlipped": [
+				{
+					"z": -91
+				}
+			]
+		},
+		{
+			"name": "seatHead2",
+			"positions": [
+				{
+					"z": 83
+				}
+			]
+		},
+		{
+			"name": "doorLight",
+			"positions": [
+				{
+					"z": -100
+				},
+				{
+					"z": 92
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -100
+				},
+				{
+					"z": 92
+				}
+			]
+		}
+	]
+}
