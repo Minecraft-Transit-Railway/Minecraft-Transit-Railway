@@ -18,7 +18,7 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockPIDSBase;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.data.PIDSLayoutEntry;
+import org.mtr.mod.data.PIDSLayoutData;
 import org.mtr.mod.packet.PacketUpdatePIDSConfig;
 
 import java.util.ArrayList;
@@ -232,10 +232,10 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 
 	public ButtonWidgetExtension getLayoutSelectionButton(String layout, ScreenExtension thisScreen) {
 		return new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> {
-			Map<Long, PIDSLayoutEntry.PIDSLayoutMetadata> layoutMap = PIDSLayoutSelectorScreen.getLayouts();
+			Map<Long, PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata> layoutMap = PIDSLayoutSelectorScreen.getLayouts();
 			ArrayList<PIDSLayoutSelectorScreen.LayoutListItem> list = new ArrayList<>();
 			long id = -1;
-			for (Map.Entry<Long, PIDSLayoutEntry.PIDSLayoutMetadata> entry : layoutMap.entrySet()) {
+			for (Map.Entry<Long, PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata> entry : layoutMap.entrySet()) {
 				list.add(new PIDSLayoutSelectorScreen.LayoutListItem(entry.getKey(), entry.getValue().name, 0xFFFFFF, entry.getValue()));
 				if (entry.getValue().id.equals(layout)) {
 					id = entry.getKey();

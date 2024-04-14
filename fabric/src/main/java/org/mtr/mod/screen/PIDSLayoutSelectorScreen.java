@@ -8,7 +8,7 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.data.PIDSLayoutEntry;
+import org.mtr.mod.data.PIDSLayoutData;
 
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +40,7 @@ public class PIDSLayoutSelectorScreen extends DashboardListSelectorScreen implem
         if (index < 0 || index >= allData.size()) {
             return;
         }
-        PIDSLayoutEntry.PIDSLayoutMetadata metadata = allData.get(index).metadata;
+        PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata metadata = allData.get(index).metadata;
         int y = SQUARE_SIZE;
         y = drawWrappedText(graphicsHolder, TextHelper.literal(metadata.name), y, ARGB_WHITE);
         y = drawWrappedText(graphicsHolder, TextHelper.translatable("gui.mtr.layout_author", metadata.author.isBlank() ? TextHelper.translatable("gui.mtr.anonymous").getString() : metadata.author), y, ARGB_WHITE);
@@ -49,12 +49,12 @@ public class PIDSLayoutSelectorScreen extends DashboardListSelectorScreen implem
         drawWrappedText(graphicsHolder, TextHelper.literal(metadata.description), y, ARGB_LIGHT_GRAY);
     }
 
-    public static Map<Long, PIDSLayoutEntry.PIDSLayoutMetadata> getLayouts() {
-        final ObjectImmutableList<PIDSLayoutEntry.PIDSLayoutMetadata> metadata = InitClient.pidsLayoutCache.getMetadata();
-        final HashMap<Long, PIDSLayoutEntry.PIDSLayoutMetadata> layouts = new HashMap<>();
+    public static Map<Long, PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata> getLayouts() {
+        final ObjectImmutableList<PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata> metadata = InitClient.pidsLayoutCache.getMetadata();
+        final HashMap<Long, PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata> layouts = new HashMap<>();
         // assign numerical IDs to each layout
         long id = 0;
-        for (PIDSLayoutEntry.PIDSLayoutMetadata data : metadata) {
+        for (PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata data : metadata) {
             layouts.put(id, data);
             id++;
         }
@@ -78,9 +78,9 @@ public class PIDSLayoutSelectorScreen extends DashboardListSelectorScreen implem
     }
 
     public static class LayoutListItem extends DashboardListItem {
-        public final PIDSLayoutEntry.PIDSLayoutMetadata metadata;
+        public final PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata metadata;
 
-        public LayoutListItem(long id, String name, int color, PIDSLayoutEntry.PIDSLayoutMetadata metadata) {
+        public LayoutListItem(long id, String name, int color, PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata metadata) {
             super(id, name, color);
             this.metadata = metadata;
         }
