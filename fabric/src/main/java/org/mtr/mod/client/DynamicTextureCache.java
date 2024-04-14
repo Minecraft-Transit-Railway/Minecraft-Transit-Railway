@@ -43,7 +43,7 @@ public class DynamicTextureCache implements IGui {
 	public void reload() {
 		font = null;
 		fontCjk = null;
-		Init.LOGGER.info("Refreshing dynamic resources");
+		Init.LOGGER.debug("Refreshing dynamic resources");
 		dynamicResources.values().forEach(dynamicResource -> dynamicResource.needsRefresh = true);
 		generatingResources.clear();
 	}

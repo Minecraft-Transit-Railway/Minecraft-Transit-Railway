@@ -40,6 +40,7 @@ public final class Init implements Utilities {
 	private static Webserver webserver;
 	private static int serverPort;
 	private static Runnable sendWorldTimeUpdate;
+	private static boolean canSendWorldTimeUpdate = true;
 	private static int serverTick;
 
 	public static final String MOD_ID = "mtr";
@@ -157,16 +158,27 @@ public final class Init implements Utilities {
 			webserver.start();
 
 			serverTick = 0;
-			sendWorldTimeUpdate = () -> sendHttpRequest(
-					"operation/set-time",
-					null,
-					Utilities.getJsonObjectFromData(new SetTime(
-							(WorldHelper.getTimeOfDay(minecraftServer.getOverworld()) + 6000) * SECONDS_PER_MC_HOUR,
-							MILLIS_PER_MC_DAY,
-							GameRule.DO_DAYLIGHT_CYCLE.getBooleanGameRule(minecraftServer)
-					)).toString(),
-					null
-			);
+			sendWorldTimeUpdate = () -> {
+				if (canSendWorldTimeUpdate) {
+					canSendWorldTimeUpdate = false;
+					sendHttpRequest(
+							"operation/set-time",
+							null,
+							Utilities.getJsonObjectFromData(new SetTime(
+									(WorldHelper.getTimeOfDay(minecraftServer.getOverworld()) + 6000) * SECONDS_PER_MC_HOUR,
+									MILLIS_PER_MC_DAY,
+									GameRule.DO_DAYLIGHT_CYCLE.getBooleanGameRule(minecraftServer)
+							)).toString(),
+							response -> {
+								Main.LOGGER.info("Set time successful");
+								canSendWorldTimeUpdate = true;
+							}
+					);
+				} else {
+					Main.LOGGER.error("Transport Simulation Core not responding; stopping Minecraft server!");
+					minecraftServer.stop(true);
+				}
+			};
 		});
 
 		EventRegistry.registerServerStopping(minecraftServer -> {
@@ -228,6 +240,11 @@ public final class Init implements Utilities {
 		return chunkManager.getWorldChunk(blockPos.getX() / 16, blockPos.getZ() / 16) != null && world.isRegionLoaded(blockPos, blockPos);
 	}
 
+	public static String getWorldId(World world) {
+		final Identifier identifier = MinecraftServerHelper.getWorldId(world);
+		return String.format("%s/%s", identifier.getNamespace(), identifier.getPath());
+	}
+
 	private static int getDefaultPortFromConfig(MinecraftServer minecraftServer) {
 		final Path filePath = minecraftServer.getRunDirectory().toPath().resolve("config/mtr_webserver_port.txt");
 		final int defaultPort = 8888;
@@ -255,11 +272,6 @@ public final class Init implements Utilities {
 			}
 		}
 		return 0;
-	}
-
-	private static String getWorldId(World world) {
-		final Identifier identifier = MinecraftServerHelper.getWorldId(world);
-		return String.format("%s/%s", identifier.getNamespace(), identifier.getPath());
 	}
 
 	private static void generateOrClearDepotsFromCommand(CommandBuilder<?> commandBuilder, boolean isGenerate) {
