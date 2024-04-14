@@ -82,7 +82,7 @@ public class PIDSDashboardScreen extends ScreenExtension implements IGui {
         PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata metadata = allLayouts.get(index).metadata;
         int y = SQUARE_SIZE;
         y = drawWrappedText(graphicsHolder, TextHelper.literal(metadata.name), y, ARGB_WHITE);
-        y = drawWrappedText(graphicsHolder, TextHelper.translatable("gui.mtr.layout_author", metadata.author.isBlank() ? TextHelper.translatable("gui.mtr.anonymous").getString() : metadata.author), y, ARGB_WHITE);
+        y = drawWrappedText(graphicsHolder, TextHelper.translatable("gui.mtr.layout_author", metadata.author.isEmpty() ? TextHelper.translatable("gui.mtr.anonymous").getString() : metadata.author), y, ARGB_WHITE);
         y = drawWrappedText(graphicsHolder, TextHelper.translatable("gui.mtr.layout_arrivals", metadata.arrivalCount), y, ARGB_WHITE);
         y = drawWrappedText(graphicsHolder, TextHelper.translatable("gui.mtr.layout_modules", metadata.moduleCount), y, ARGB_WHITE);
         drawWrappedText(graphicsHolder, TextHelper.literal(metadata.description), y, ARGB_LIGHT_GRAY);

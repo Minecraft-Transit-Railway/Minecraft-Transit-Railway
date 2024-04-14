@@ -91,7 +91,7 @@ public class PIDSLayoutEditScreen extends ScreenExtension implements IGui {
             PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata metadata = new PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata(data.getID(), data.getName(), data.getDescription(), data.getAuthor(), data.getModules().size(), new PIDSRenderController(rawData).arrivals);
             int y = SQUARE_SIZE * 4;
             y = drawWrappedText(graphicsHolder, TextHelper.literal(metadata.name), y, ARGB_WHITE);
-            y = drawWrappedText(graphicsHolder, TextHelper.translatable("gui.mtr.layout_author", metadata.author.isBlank() ? TextHelper.translatable("gui.mtr.anonymous").getString() : metadata.author), y, ARGB_WHITE);
+            y = drawWrappedText(graphicsHolder, TextHelper.translatable("gui.mtr.layout_author", metadata.author.isEmpty() ? TextHelper.translatable("gui.mtr.anonymous").getString() : metadata.author), y, ARGB_WHITE);
             y = drawWrappedText(graphicsHolder, TextHelper.translatable("gui.mtr.layout_arrivals", metadata.arrivalCount), y, ARGB_WHITE);
             y = drawWrappedText(graphicsHolder, TextHelper.translatable("gui.mtr.layout_modules", metadata.moduleCount), y, ARGB_WHITE);
             y = drawWrappedText(graphicsHolder, TextHelper.literal(metadata.description), y, ARGB_LIGHT_GRAY);
