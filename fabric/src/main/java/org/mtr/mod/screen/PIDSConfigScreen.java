@@ -233,7 +233,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 	public ButtonWidgetExtension getLayoutSelectionButton(String layout, ScreenExtension thisScreen) {
 		return new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> {
 			Map<Long, PIDSLayoutEntry.PIDSLayoutMetadata> layoutMap = PIDSLayoutSelectorScreen.getLayouts();
-			ArrayList<DashboardListItem> list = new ArrayList<>();
+			ArrayList<PIDSLayoutSelectorScreen.LayoutListItem> list = new ArrayList<>();
 			long id = -1;
 			for (Map.Entry<Long, PIDSLayoutEntry.PIDSLayoutMetadata> entry : layoutMap.entrySet()) {
 				list.add(new PIDSLayoutSelectorScreen.LayoutListItem(entry.getKey(), entry.getValue().name, 0xFFFFFF, entry.getValue()));
