@@ -98,7 +98,6 @@
 				"ALIGN_CENTER",
 				"SEVEN_SEGMENT"
 			],
-			"displayPadZeros": 3,
 			"displayType": "DEPARTURE_INDEX"
 		},
 		{
