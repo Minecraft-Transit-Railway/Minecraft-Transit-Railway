@@ -59,6 +59,13 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 
 		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, DirectionHelper.FACING);
 
+		final PIDSRenderController controller = InitClient.pidsLayoutCache.getController(entity.getLayout());
+
+		if (controller == null) {
+			// If controller does not exist, abort rendering and return
+			return;
+		}
+
 		if (entity.getPlatformIds().isEmpty()) {
 			final LongArrayList platformIds = new LongArrayList();
 			if (entity instanceof BlockArrivalProjectorBase.BlockEntityArrivalProjectorBase) {
@@ -69,24 +76,24 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 			} else {
 				InitClient.findClosePlatform(entity.getPos2().down(4), 5, platform -> platformIds.add(platform.getId()));
 			}
-			getArrivalsAndRender(entity, blockPos, facing, new LongImmutableList(platformIds));
+			getArrivalsAndRender(controller, entity, blockPos, facing, new LongImmutableList(platformIds));
 		} else {
-			getArrivalsAndRender(entity, blockPos, facing, new LongImmutableList(entity.getPlatformIds()));
+			getArrivalsAndRender(controller, entity, blockPos, facing, new LongImmutableList(entity.getPlatformIds()));
 		}
 	}
 
-	private void getArrivalsAndRender(T entity, BlockPos blockPos, Direction facing, LongImmutableList platformIds) {
-		final int count = (entity.getDisplayPage() + 1) * entity.maxArrivals / (entity.alternateLines() ? 2 : 1);
+	private void getArrivalsAndRender(PIDSRenderController controller, T entity, BlockPos blockPos, Direction facing, LongImmutableList platformIds) {
+		final int count = (entity.getDisplayPage() + 1) * controller.arrivals / (entity.alternateLines() ? 2 : 1);
 		final ArrivalsResponse arrivalsResponse = ArrivalsCache.INSTANCE.requestArrivals(blockPos.asLong(), platformIds, count, count, false);
 		RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
-			render(entity, blockPos, facing, arrivalsResponse, graphicsHolder, offset);
+			render(controller, entity, blockPos, facing, arrivalsResponse, graphicsHolder, offset);
 			if (entity instanceof BlockPIDSHorizontalBase.BlockEntityHorizontalBase) {
-				render(entity, blockPos.offset(facing), facing.getOpposite(), arrivalsResponse, graphicsHolder, offset);
+				render(controller, entity, blockPos.offset(facing), facing.getOpposite(), arrivalsResponse, graphicsHolder, offset);
 			}
 		});
 	}
 
-	private void render(T entity, BlockPos blockPos, Direction facing, ArrivalsResponse arrivalsResponse, GraphicsHolder graphicsHolder, Vector3d offset) {
+	private void render(PIDSRenderController controller, T entity, BlockPos blockPos, Direction facing, ArrivalsResponse arrivalsResponse, GraphicsHolder graphicsHolder, Vector3d offset) {
 		// Scale is 1 px scaled = 1 block pixel (1/16 block)
 		// Scale value represents the number of text pixels per block
 		final float scale = 16;
@@ -101,15 +108,6 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 		graphicsHolder.scale(1 / scale, 1 / scale, 1);
 
 		// The screen should now be scaled according to the scale value
-
-		// First PIDSRenderController Test
-		final PIDSRenderController controller = InitClient.pidsLayoutCache.getController(entity.getLayout());
-
-		if (controller == null) {
-			// If controller does not exist, abort rendering and return
-			graphicsHolder.pop();
-			return;
-		}
 
 		int arrivalOffset = controller.arrivals * entity.getDisplayPage();
 

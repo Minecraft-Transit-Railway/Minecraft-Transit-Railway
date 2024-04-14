@@ -7,11 +7,11 @@ import org.mtr.mod.resource.PIDSData;
 
 public class PIDSLayoutEntry {
     public final String data;
-    public final PIDSLayoutMetadata shareable;
+    public final PIDSLayoutMetadata metadata;
 
     public PIDSLayoutEntry(String data) {
         PIDSData pidsData = new PIDSData(new JsonReader(JsonParser.parseString(data)));
-        this.shareable = new PIDSLayoutMetadata(pidsData.getID(), pidsData.getName(), pidsData.getDescription(), pidsData.getAuthor(), pidsData.getModules().size(), new PIDSRenderController(data).arrivals);
+        this.metadata = new PIDSLayoutMetadata(pidsData.getID(), pidsData.getName(), pidsData.getDescription(), pidsData.getAuthor(), pidsData.getModules().size(), new PIDSRenderController(data).arrivals);
         this.data = data;
     }
 

@@ -5,6 +5,9 @@ import org.mtr.core.data.RoutePlatformData;
 import org.mtr.core.data.Station;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongCollection;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.*;
@@ -15,9 +18,12 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockPIDSBase;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.data.PIDSLayoutEntry;
 import org.mtr.mod.packet.PacketUpdatePIDSConfig;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -25,6 +31,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 
 	private final BlockPos blockPos;
 	private final String[] messages;
+	private String layout;
 	private final boolean[] hideArrivalArray;
 	private final TextFieldWidgetExtension[] textFieldMessages;
 	private final CheckboxWidgetExtension[] buttonsHideArrival;
@@ -33,6 +40,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 	private final MutableText hideArrivalText = TextHelper.translatable("gui.mtr.hide_arrival");
 	private final CheckboxWidgetExtension selectAllCheckbox;
 	private final ButtonWidgetExtension filterButton;
+	private final ButtonWidgetExtension layoutButton;
 	private final TexturedButtonWidgetExtension buttonPrevPage;
 	private final TexturedButtonWidgetExtension buttonNextPage;
 	private final LongAVLTreeSet filterPlatformIds;
@@ -52,6 +60,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 			messages[i] = "";
 		}
 		hideArrivalArray = new boolean[maxArrivals];
+		layout = "";
 
 		selectAllCheckbox = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
 		});
@@ -80,6 +89,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 			final BlockEntity blockEntity = clientWorld.getBlockEntity(blockPos);
 			if (blockEntity != null && blockEntity.data instanceof BlockPIDSBase.BlockEntityBase) {
 				filterPlatformIds = ((BlockPIDSBase.BlockEntityBase) blockEntity.data).getPlatformIds();
+				layout = ((BlockPIDSBase.BlockEntityBase) blockEntity.data).getLayout();
 				for (int i = 0; i < maxArrivals; i++) {
 					messages[i] = ((BlockPIDSBase.BlockEntityBase) blockEntity.data).getMessage(i);
 					hideArrivalArray[i] = ((BlockPIDSBase.BlockEntityBase) blockEntity.data).getHideArrival(i);
@@ -92,6 +102,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 		}
 
 		filterButton = getPlatformFilterButton(blockPos, selectAllCheckbox, filterPlatformIds, this);
+		layoutButton = getLayoutSelectionButton(layout, this);
 		displayPageInput = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 3, TextCase.DEFAULT, "\\D", "1");
 	}
 
@@ -108,6 +119,10 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 		IDrawing.setPositionAndWidth(filterButton, SQUARE_SIZE, SQUARE_SIZE * 3, PANEL_WIDTH / 2);
 		filterButton.setMessage2(new Text(TextHelper.translatable("selectWorld.edit").data));
 		addChild(new ClickableWidget(filterButton));
+
+		IDrawing.setPositionAndWidth(layoutButton, SQUARE_SIZE * 11, SQUARE_SIZE * 3, PANEL_WIDTH / 2);
+		layoutButton.setMessage2(new Text(TextHelper.translatable("selectWorld.edit").data));
+		addChild(new ClickableWidget(layoutButton));
 
 		IDrawing.setPositionAndWidth(displayPageInput, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 5 + TEXT_FIELD_PADDING / 2, PANEL_WIDTH / 2 - TEXT_FIELD_PADDING);
 		displayPageInput.setText2(String.valueOf(displayPage + 1));
@@ -168,7 +183,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 		} catch (Exception e) {
 			Init.LOGGER.error("", e);
 		}
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdatePIDSConfig(blockPos, messages, hideArrivalArray, filterPlatformIds, displayPage));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdatePIDSConfig(blockPos, messages, hideArrivalArray, filterPlatformIds, displayPage, layout));
 		super.onClose2();
 	}
 
@@ -177,6 +192,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 		renderBackground(graphicsHolder);
 		graphicsHolder.drawText(TextHelper.translatable("gui.mtr.display_page"), SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		graphicsHolder.drawText(TextHelper.translatable("gui.mtr.filtered_platforms", selectAllCheckbox.isChecked2() ? 0 : filterPlatformIds.size()), SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+		graphicsHolder.drawText(TextHelper.translatable("gui.mtr.display_layout", layout), SQUARE_SIZE * 11, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		graphicsHolder.drawText(messageText, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		final int maxPages = getMaxPages();
 		if (maxPages > 1) {
@@ -211,6 +227,25 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 					selectAllCheckbox.setChecked(filterPlatformIds.isEmpty());
 				}, new ObjectImmutableList<>(platformsForList), filterPlatformIds, false, false)));
 			}
+		});
+	}
+
+	public ButtonWidgetExtension getLayoutSelectionButton(String layout, ScreenExtension thisScreen) {
+		return new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> {
+			Map<Long, PIDSLayoutEntry.PIDSLayoutMetadata> layoutMap = PIDSLayoutSelectorScreen.getLayouts();
+			ArrayList<DashboardListItem> list = new ArrayList<>();
+			long id = -1;
+			for (Map.Entry<Long, PIDSLayoutEntry.PIDSLayoutMetadata> entry : layoutMap.entrySet()) {
+				list.add(new PIDSLayoutSelectorScreen.LayoutListItem(entry.getKey(), entry.getValue().name, 0xFFFFFF, entry.getValue()));
+				if (entry.getValue().id.equals(layout)) {
+					id = entry.getKey();
+				}
+			}
+			LongCollection layoutList = (id >= 0 ? new LongArrayList(LongList.of(id)) : new LongArrayList());
+			MinecraftClient.getInstance().openScreen(new Screen(new PIDSLayoutSelectorScreen(() -> {
+				MinecraftClient.getInstance().openScreen(new Screen(thisScreen));
+				this.layout = layoutList.isEmpty() ? "" : layoutMap.get(layoutList.iterator().nextLong()).id;
+			}, new ObjectImmutableList<>(list), layoutList)));
 		});
 	}
 

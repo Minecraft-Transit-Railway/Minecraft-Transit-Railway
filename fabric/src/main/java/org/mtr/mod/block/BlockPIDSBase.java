@@ -98,12 +98,13 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 			compoundTag.putString("layout", layout);
 		}
 
-		public void setData(String[] messages, boolean[] hideArrivalArray, LongAVLTreeSet platformIds, int displayPage) {
+		public void setData(String[] messages, boolean[] hideArrivalArray, LongAVLTreeSet platformIds, int displayPage, String layout) {
 			System.arraycopy(messages, 0, this.messages, 0, Math.min(messages.length, this.messages.length));
 			System.arraycopy(hideArrivalArray, 0, this.hideArrivalArray, 0, Math.min(hideArrivalArray.length, this.hideArrivalArray.length));
 			this.platformIds.clear();
 			this.platformIds.addAll(platformIds);
 			this.displayPage = displayPage;
+			this.layout = layout;
 			markDirty2();
 		}
 

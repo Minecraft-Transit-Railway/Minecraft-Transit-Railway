@@ -2,8 +2,12 @@ package org.mtr.mod.data;
 
 import org.jetbrains.annotations.NotNull;
 import org.mtr.mapping.holder.CompoundTag;
+import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.mapper.PersistenceStateExtension;
+import org.mtr.mod.Init;
+import org.mtr.mod.packet.PacketUpdatePIDSMetadata;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +24,9 @@ public class PIDSLayoutData extends PersistenceStateExtension {
      * @return the raw JSON data of the layout
      */
     public String getLayoutData(String key) {
+        if (!pidsLayoutData.containsKey(key)) {
+            return null;
+        }
         return pidsLayoutData.get(key).data;
     }
 
@@ -53,7 +60,7 @@ public class PIDSLayoutData extends PersistenceStateExtension {
     public Map<String, PIDSLayoutEntry.PIDSLayoutMetadata> getAllLayouts() {
         Map<String, PIDSLayoutEntry.PIDSLayoutMetadata> shareableMap = new HashMap<>();
         for (Map.Entry<String, PIDSLayoutEntry> entry : pidsLayoutData.entrySet()) {
-            shareableMap.put(entry.getKey(), entry.getValue().shareable);
+            shareableMap.put(entry.getKey(), entry.getValue().metadata);
         }
         return shareableMap;
     }
@@ -73,5 +80,16 @@ public class PIDSLayoutData extends PersistenceStateExtension {
             compoundTag.putString(entry.getKey(), entry.getValue().data);
         }
         return compoundTag;
+    }
+
+    /**
+     * Send all of the layout data to the client
+     */
+    public void sendMetadata(ServerPlayerEntity player) {
+        ArrayList<PIDSLayoutEntry.PIDSLayoutMetadata> metadata = new ArrayList<>();
+        for (PIDSLayoutEntry entry : pidsLayoutData.values()) {
+            metadata.add(entry.metadata);
+        }
+        Init.REGISTRY.sendPacketToClient(player, new PacketUpdatePIDSMetadata(metadata, true));
     }
 }

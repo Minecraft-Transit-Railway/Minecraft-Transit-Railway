@@ -99,6 +99,7 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketGetPIDSLayoutData.class, PacketGetPIDSLayoutData::new);
 		REGISTRY.registerPacket(PacketSendPIDSLayoutData.class, PacketSendPIDSLayoutData::new);
 		REGISTRY.registerPacket(PacketSendPIDSLayoutFailed.class, PacketSendPIDSLayoutFailed::new);
+		REGISTRY.registerPacket(PacketUpdatePIDSMetadata.class, PacketUpdatePIDSMetadata::new);
 
 		// Register command
 		REGISTRY.registerCommand("mtr", commandBuilderMtr -> {
@@ -228,6 +229,11 @@ public final class Init implements Utilities {
 			if (railActionModule != null) {
 				railActionModule.tick();
 			}
+		});
+
+		EventRegistry.registerPlayerJoin((minecraftServer, serverPlayerEntity) -> {
+			// Send PIDS layout metadata to client
+			Init.pidsLayoutData.sendMetadata(serverPlayerEntity);
 		});
 
 		// Finish registration
