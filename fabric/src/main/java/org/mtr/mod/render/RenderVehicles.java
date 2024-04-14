@@ -9,15 +9,9 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.Init;
-import org.mtr.mod.InitClient;
 import org.mtr.mod.Keys;
-import org.mtr.mod.block.BlockTrainAnnouncer;
-import org.mtr.mod.block.BlockTrainRedstoneSensor;
-import org.mtr.mod.block.BlockTrainSensorBase;
-import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.*;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.PacketTurnOnBlockEntity;
 
 import javax.annotation.Nullable;
 import java.util.function.Function;
@@ -86,31 +80,6 @@ public class RenderVehicles implements IGui {
 
 							// Play motor sound
 							vehicle.playMotorSound(vehicleResource, carNumber, bogieIndex, renderVehicleTransformationHelperBogie.pivotPosition);
-
-							// Check for sensors
-							if (carNumber == 0 && bogieIndex == 0) {
-								final BlockPos blockPos = Init.newBlockPos(bogiePositions.left().x, bogiePositions.left().y, bogiePositions.left().z);
-								for (int xOffset = -1; xOffset <= 1; xOffset++) {
-									for (int yOffset = -1; yOffset <= 1; yOffset++) {
-										for (int zOffset = -1; zOffset <= 1; zOffset++) {
-											final BlockPos offsetBlockPos = blockPos.add(xOffset, yOffset, zOffset);
-											final BlockState blockState = clientWorld.getBlockState(offsetBlockPos);
-											final Block block = blockState.getBlock();
-											if (BlockTrainSensorBase.matchesFilter(new World(clientWorld.data), offsetBlockPos, vehicle.vehicleExtraData.getThisRouteId(), vehicle.getSpeed())) {
-												if (block.data instanceof BlockTrainRedstoneSensor && IBlock.getStatePropertySafe(blockState, BlockTrainRedstoneSensor.POWERED) < 2) {
-													InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketTurnOnBlockEntity(offsetBlockPos));
-												} else if (block.data instanceof BlockTrainAnnouncer) {
-													// TODO check if player is riding
-													final BlockEntity blockEntity = clientWorld.getBlockEntity(offsetBlockPos);
-													if (blockEntity != null && blockEntity.data instanceof BlockTrainAnnouncer.BlockEntity) {
-														((BlockTrainAnnouncer.BlockEntity) blockEntity.data).announce(new PlayerEntity(clientPlayerEntity.data));
-													}
-												}
-											}
-										}
-									}
-								}
-							}
 						});
 
 						// Player position relative to the car

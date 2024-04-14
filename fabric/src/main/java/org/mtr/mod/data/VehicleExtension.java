@@ -11,10 +11,16 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.Items;
+import org.mtr.mod.block.BlockTrainAnnouncer;
+import org.mtr.mod.block.BlockTrainRedstoneSensor;
+import org.mtr.mod.block.BlockTrainSensorBase;
+import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.VehicleRidingMovement;
+import org.mtr.mod.packet.PacketTurnOnBlockEntity;
 import org.mtr.mod.resource.VehicleResource;
 
 import javax.annotation.Nullable;
@@ -50,7 +56,12 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		simulate(millisElapsed, null, null);
 		persistentVehicleData.tick(railProgress, millisElapsed, vehicleExtraData);
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
 		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+
+		if (clientWorld == null || clientPlayerEntity == null) {
+			return;
+		}
 
 		final int thisRouteColor = vehicleExtraData.getThisRouteColor();
 		final String thisRouteName = formatRouteName(vehicleExtraData.getThisRouteName());
@@ -60,8 +71,9 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		final String nextStationName = vehicleExtraData.getNextStationName();
 		final String thisRouteDestination = vehicleExtraData.getThisRouteDestination();
 		final String nextRouteDestination = vehicleExtraData.getNextRouteDestination();
+		final long thisRouteId = vehicleExtraData.getThisRouteId();
 
-		if (clientPlayerEntity != null && VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(id) != null) {
+		if (VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(id) != null) {
 			// Render client action bar floating text
 			if (VehicleRidingMovement.showShiftProgressBar() && (!isCurrentlyManual || !isHoldingKey(clientPlayerEntity))) {
 				if (speed * MILLIS_PER_SECOND > 5 || thisRouteName.isEmpty() || thisStationName.isEmpty() || thisRouteDestination.isEmpty()) {
@@ -161,10 +173,29 @@ public class VehicleExtension extends Vehicle implements Utilities {
 				IDrawing.narrateOrAnnounce(IGui.formatStationName(IGui.mergeStations(narrateText, " ", " ")), chatText);
 			}
 		}
-	}
 
-	public double getSpeed() {
-		return speed;
+		// Check for sensors
+		final Vector headPosition = getHeadPosition();
+		for (int xOffset = -1; xOffset <= 1; xOffset++) {
+			for (int yOffset = -1; yOffset <= 1; yOffset++) {
+				for (int zOffset = -1; zOffset <= 1; zOffset++) {
+					final BlockPos offsetBlockPos = Init.newBlockPos(headPosition.x + xOffset, headPosition.y + yOffset, headPosition.z + zOffset);
+					final BlockState blockState = clientWorld.getBlockState(offsetBlockPos);
+					final Block block = blockState.getBlock();
+					if (BlockTrainSensorBase.matchesFilter(new World(clientWorld.data), offsetBlockPos, thisRouteId, speed)) {
+						if (block.data instanceof BlockTrainRedstoneSensor && IBlock.getStatePropertySafe(blockState, BlockTrainRedstoneSensor.POWERED) < 2) {
+							InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketTurnOnBlockEntity(offsetBlockPos));
+						} else if (block.data instanceof BlockTrainAnnouncer) {
+							// TODO check if player is riding
+							final BlockEntity blockEntity = clientWorld.getBlockEntity(offsetBlockPos);
+							if (blockEntity != null && blockEntity.data instanceof BlockTrainAnnouncer.BlockEntity) {
+								((BlockTrainAnnouncer.BlockEntity) blockEntity.data).announce(new PlayerEntity(clientPlayerEntity.data));
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	public void playMotorSound(VehicleResource vehicleResource, int carNumber, int bogieIndex, Vector bogiePosition) {

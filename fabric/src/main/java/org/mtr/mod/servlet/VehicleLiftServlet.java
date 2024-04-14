@@ -14,6 +14,7 @@ import org.mtr.libraries.javax.servlet.http.HttpServletRequest;
 import org.mtr.libraries.javax.servlet.http.HttpServletResponse;
 import org.mtr.mapping.holder.MinecraftServer;
 import org.mtr.mapping.holder.ServerPlayerEntity;
+import org.mtr.mapping.holder.World;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.packet.PacketUpdateVehiclesLifts;
@@ -39,21 +40,24 @@ public final class VehicleLiftServlet extends HttpServlet {
 		final AsyncContext asyncContext = httpServletRequest.startAsync();
 		asyncContext.setTimeout(0);
 		final JsonElement jsonElement = JsonParser.parseReader(httpServletRequest.getReader());
-		final boolean playerPresent;
+		final String playerDimension;
 
 		if (minecraftServer != null && jsonElement.isJsonObject()) {
 			final Response response = Response.create(jsonElement.getAsJsonObject());
-			final ServerPlayerEntity serverPlayerEntity = minecraftServer.getPlayerManager().getPlayer(UUID.fromString(response.getData(jsonReader -> new VehicleLiftResponse(jsonReader, new MinecraftClientData())).getClientId()));
+			final VehicleLiftResponse vehicleLiftResponse = response.getData(jsonReader -> new VehicleLiftResponse(jsonReader, new MinecraftClientData()));
+			final ServerPlayerEntity serverPlayerEntity = minecraftServer.getPlayerManager().getPlayer(UUID.fromString(vehicleLiftResponse.getClientId()));
 			if (serverPlayerEntity == null) {
-				playerPresent = false;
+				playerDimension = "";
 			} else {
-				playerPresent = true;
-				Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketUpdateVehiclesLifts(response));
+				playerDimension = Init.getWorldId(new World(serverPlayerEntity.getServerWorld().data));
+				if (playerDimension.equals(vehicleLiftResponse.getDimension())) {
+					Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketUpdateVehiclesLifts(response));
+				}
 			}
 		} else {
-			playerPresent = false;
+			playerDimension = "";
 		}
 
-		ServletBase.sendResponse(httpServletResponse, asyncContext, Utilities.getJsonObjectFromData(new PlayerPresentResponse(playerPresent)).toString(), ServletBase.getMimeType("json"), HttpResponseStatus.OK);
+		ServletBase.sendResponse(httpServletResponse, asyncContext, Utilities.getJsonObjectFromData(new PlayerPresentResponse(playerDimension)).toString(), ServletBase.getMimeType("json"), HttpResponseStatus.OK);
 	}
 }
