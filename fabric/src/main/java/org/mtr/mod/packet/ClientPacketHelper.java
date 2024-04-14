@@ -37,6 +37,10 @@ public final class ClientPacketHelper {
 		openScreen(new DashboardScreen(transportMode, useTimeAndWindSync), screenExtension -> screenExtension instanceof DashboardScreen);
 	}
 
+	public static void openPIDSDashboardScreen() {
+		openScreen(new PIDSDashboardScreen(), screenExtension -> screenExtension instanceof PIDSDashboardScreen);
+	}
+
 	public static void openLiftCustomizationScreen(BlockPos blockPos) {
 		for (final Lift lift : MinecraftClientData.getInstance().lifts) {
 			if (lift.getFloorIndex(Init.blockPosToPosition(blockPos)) >= 0) {
