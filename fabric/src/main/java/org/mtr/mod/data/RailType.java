@@ -8,7 +8,7 @@ public enum RailType implements IGui {
 	STONE(40, MapColor.getStoneGrayMapped(), false, true, true, Rail.Shape.QUADRATIC),
 	EMERALD(60, MapColor.getEmeraldGreenMapped(), false, true, true, Rail.Shape.QUADRATIC),
 	IRON(80, MapColor.getIronGrayMapped(), false, true, true, Rail.Shape.QUADRATIC),
-	GOLD(100, MapColor.getYellowMapped(), false, true, true, Rail.Shape.QUADRATIC),
+	GOLD(100, MapColor.getGoldMapped(), false, true, true, Rail.Shape.QUADRATIC),
 	OBSIDIAN(120, MapColor.getPurpleMapped(), false, true, true, Rail.Shape.QUADRATIC),
 	BLAZE(160, MapColor.getOrangeMapped(), false, true, true, Rail.Shape.QUADRATIC),
 	QUARTZ(200, MapColor.getOffWhiteMapped(), false, true, true, Rail.Shape.QUADRATIC),
