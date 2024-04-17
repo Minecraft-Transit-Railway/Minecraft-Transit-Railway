@@ -13,7 +13,7 @@
 			"tag": "c:iron_ingots"
 		},
 		"B": {
-			"tag": "c:packet_ice"
+			"tag": "c:packed_ice"
 		}
 	},
 	"result": {
