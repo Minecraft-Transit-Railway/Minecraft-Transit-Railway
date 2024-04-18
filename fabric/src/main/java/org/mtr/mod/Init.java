@@ -169,13 +169,16 @@ public final class Init implements Utilities {
 									MILLIS_PER_MC_DAY,
 									GameRule.DO_DAYLIGHT_CYCLE.getBooleanGameRule(minecraftServer)
 							)).toString(),
-							response -> {
-								Main.LOGGER.info("Set time successful");
-								canSendWorldTimeUpdate = true;
-							}
+							response -> canSendWorldTimeUpdate = true
 					);
 				} else {
 					Main.LOGGER.error("Transport Simulation Core not responding; stopping Minecraft server!");
+					if (main != null) {
+						main.stop();
+					}
+					if (webserver != null) {
+						webserver.stop();
+					}
 					minecraftServer.stop(true);
 				}
 			};
