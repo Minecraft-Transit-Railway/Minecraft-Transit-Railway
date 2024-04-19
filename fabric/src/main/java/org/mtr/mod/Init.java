@@ -24,6 +24,7 @@ import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.tool.DummyClass;
 import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.packet.*;
+import org.mtr.mod.servlet.Tunnel;
 import org.mtr.mod.servlet.VehicleLiftServlet;
 
 import javax.annotation.Nullable;
@@ -38,6 +39,7 @@ public final class Init implements Utilities {
 
 	private static Main main;
 	private static Webserver webserver;
+	private static Tunnel tunnel;
 	private static int serverPort;
 	private static Runnable sendWorldTimeUpdate;
 	private static boolean canSendWorldTimeUpdate = true;
@@ -72,6 +74,7 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketDepotGenerate.class, PacketDepotGenerate::new);
 		REGISTRY.registerPacket(PacketDriveTrain.class, PacketDriveTrain::new);
 		REGISTRY.registerPacket(PacketFetchArrivals.class, PacketFetchArrivals::new);
+		REGISTRY.registerPacket(PacketForwardClientRequest.class, PacketForwardClientRequest::new);
 		REGISTRY.registerPacket(PacketOpenBlockEntityScreen.class, PacketOpenBlockEntityScreen::new);
 		REGISTRY.registerPacket(PacketOpenDashboardScreen.class, PacketOpenDashboardScreen::new);
 		REGISTRY.registerPacket(PacketOpenLiftCustomizationScreen.class, PacketOpenLiftCustomizationScreen::new);
@@ -151,6 +154,9 @@ public final class Init implements Utilities {
 
 			final int defaultPort = getDefaultPortFromConfig(minecraftServer);
 			serverPort = findFreePort(defaultPort);
+			tunnel = new Tunnel(minecraftServer.getRunDirectory(), defaultPort, () -> {
+			});
+
 			final int port = findFreePort(serverPort + 1);
 			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, port, WORLD_ID_LIST.toArray(new String[0]));
 			webserver = new Webserver(port);
@@ -185,6 +191,9 @@ public final class Init implements Utilities {
 		});
 
 		EventRegistry.registerServerStopping(minecraftServer -> {
+			if (tunnel != null) {
+				tunnel.stop();
+			}
 			if (main != null) {
 				main.stop();
 			}
@@ -218,13 +227,12 @@ public final class Init implements Utilities {
 		}
 	}
 
+	public static void sendHttpRequest(String endpoint, @Nullable String content, @Nullable Consumer<String> consumer) {
+		Simulator.REQUEST_HELPER.sendRequest(String.format("http://localhost:%s%s", serverPort, endpoint), content, consumer);
+	}
+
 	public static void sendHttpRequest(String endpoint, @Nullable World world, String content, @Nullable Consumer<String> consumer) {
-		Simulator.REQUEST_HELPER.sendPostRequest(String.format(
-				"http://localhost:%s/mtr/api/%s?%s",
-				serverPort,
-				endpoint,
-				world == null ? "dimensions=all" : "dimension=" + WORLD_ID_LIST.indexOf(getWorldId(world))
-		), content, consumer);
+		sendHttpRequest(String.format("/mtr/api/%s?%s", endpoint, world == null ? "dimensions=all" : "dimension=" + WORLD_ID_LIST.indexOf(getWorldId(world))), content, consumer);
 	}
 
 	public static BlockPos positionToBlockPos(Position position) {
@@ -248,6 +256,23 @@ public final class Init implements Utilities {
 		return String.format("%s/%s", identifier.getNamespace(), identifier.getPath());
 	}
 
+	public static String getTunnelUrl() {
+		return tunnel.getTunnelUrl();
+	}
+
+	public static int findFreePort(int startingPort) {
+		for (int i = Math.max(1024, startingPort); i <= 65535; i++) {
+			// Start with port 80, then search from 1025 onwards
+			try (final ServerSocket serverSocket = new ServerSocket(i == 1024 ? 80 : i)) {
+				final int port = serverSocket.getLocalPort();
+				LOGGER.info("Found available port: {}", port);
+				return port;
+			} catch (Exception ignored) {
+			}
+		}
+		return 0;
+	}
+
 	private static int getDefaultPortFromConfig(MinecraftServer minecraftServer) {
 		final Path filePath = minecraftServer.getRunDirectory().toPath().resolve("config/mtr_webserver_port.txt");
 		final int defaultPort = 8888;
@@ -263,18 +288,6 @@ public final class Init implements Utilities {
 		}
 
 		return defaultPort;
-	}
-
-	private static int findFreePort(int startingPort) {
-		for (int i = Math.max(1025, startingPort); i <= 65535; i++) {
-			try (final ServerSocket serverSocket = new ServerSocket(i)) {
-				final int port = serverSocket.getLocalPort();
-				LOGGER.info("Found available port: " + port);
-				return port;
-			} catch (Exception ignored) {
-			}
-		}
-		return 0;
 	}
 
 	private static void generateOrClearDepotsFromCommand(CommandBuilder<?> commandBuilder, boolean isGenerate) {

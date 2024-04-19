@@ -68,8 +68,8 @@ public class CustomResourceLoader {
 		});
 
 		OPTIMIZED_RENDERER_WRAPPER.finishReload();
-		Init.LOGGER.info("Loaded " + VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum) + " vehicle(s)");
-		Init.LOGGER.info("Loaded " + SIGNS.size() + " sign(s)");
+		Init.LOGGER.info("Loaded {} vehicle(s)", VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum));
+		Init.LOGGER.info("Loaded {} sign(s)", SIGNS.size());
 	}
 
 	public static void iterateVehicles(TransportMode transportMode, Consumer<VehicleResource> consumer) {

@@ -280,6 +280,12 @@
 			"flipTexture": false
 		},
 		{
+			"id": "transport_system_map",
+			"textureResource": "mtr:textures/block/sign/qr_code.png",
+			"small": false,
+			"flipTexture": false
+		},
+		{
 			"id": "exit_letter",
 			"textureResource": "mtr:textures/block/sign/exit_letter.png",
 			"customText": "sign.mtr.exit_letter",
@@ -888,6 +894,20 @@
 			"customText": "sign.mtr.logo",
 			"small": false,
 			"flipCustomText": true
+		},
+		{
+			"id": "transport_system_map_text",
+			"textureResource": "mtr:textures/block/sign/qr_code.png",
+			"customText": "sign.mtr.transport_system_map",
+			"small": false,
+			"flipTexture": false
+		},
+		{
+			"id": "transport_system_map_text_flipped",
+			"textureResource": "mtr:textures/block/sign/qr_code.png",
+			"customText": "sign.mtr.transport_system_map",
+			"small": false,
+			"flipTexture": true
 		}
 	]
 }

@@ -4,7 +4,9 @@ import org.mtr.core.data.Platform;
 import org.mtr.core.data.Position;
 import org.mtr.core.data.Station;
 import org.mtr.core.operation.DataRequest;
+import org.mtr.core.servlet.Webserver;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.org.eclipse.jetty.servlet.ServletHolder;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mapping.mapper.TextHelper;
@@ -17,6 +19,8 @@ import org.mtr.mod.entity.EntityRendering;
 import org.mtr.mod.item.ItemBlockClickingBase;
 import org.mtr.mod.packet.PacketRequestData;
 import org.mtr.mod.render.*;
+import org.mtr.mod.servlet.ClientServlet;
+import org.mtr.mod.servlet.Tunnel;
 import org.mtr.mod.sound.LoopingSoundInstance;
 
 import javax.annotation.Nullable;
@@ -25,6 +29,8 @@ import java.util.function.Consumer;
 
 public final class InitClient {
 
+	private static Webserver webserver;
+	private static Tunnel tunnel;
 	private static long lastMillis = 0;
 	private static long gameMillis = 0;
 	private static long lastPlayedTrainSoundsMillis = 0;
@@ -321,6 +327,22 @@ public final class InitClient {
 			lastMillis = System.currentTimeMillis();
 			gameMillis = 0;
 			DynamicTextureCache.instance.reload();
+
+			// Clientside webserver for locally hosting the online system map
+			final int port = Init.findFreePort(0);
+			webserver = new Webserver(port);
+			webserver.addServlet(new ServletHolder(new ClientServlet()), "/");
+			webserver.start();
+			tunnel = new Tunnel(MinecraftClient.getInstance().getRunDirectoryMapped(), port, () -> QrCodeHelper.INSTANCE.setClientTunnelUrl(port, tunnel.getTunnelUrl()));
+		});
+
+		EventRegistryClient.registerClientDisconnect(() -> {
+			if (tunnel != null) {
+				tunnel.stop();
+			}
+			if (webserver != null) {
+				webserver.stop();
+			}
 		});
 
 		EventRegistryClient.registerStartClientTick(() -> {
