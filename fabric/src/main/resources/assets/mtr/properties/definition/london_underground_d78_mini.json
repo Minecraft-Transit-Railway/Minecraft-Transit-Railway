@@ -1,0 +1,133 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "windowEnd",
+			"positions": [
+				{
+					"z": 0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "windowMiddle",
+			"positions": [
+			]
+		},
+		{
+			"name": "sidePanel",
+			"positions": [
+				{
+					"z": -43.9
+				},
+				{
+					"z": -20.1
+				},
+				{
+					"z": 20.1
+				},
+				{
+					"z": 43.9
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -43.9
+				},
+				{
+					"z": -20.1
+				},
+				{
+					"z": 20.1
+				},
+				{
+					"z": 43.9
+				}
+			]
+		},
+		{
+			"name": "door1",
+			"positions": [
+				{
+					"z": -32
+				}
+			]
+		},
+		{
+			"name": "door2",
+			"positions": [
+				{
+					"z": 32
+				}
+			]
+		},
+		{
+			"name": "door1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -32
+				}
+			]
+		},
+		{
+			"name": "door2Flipped",
+			"positionsFlipped": [
+				{
+					"z": 32
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -64
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -64
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 64
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 64
+				}
+			]
+		},
+		{
+			"name": "head1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -41
+				}
+			]
+		},
+		{
+			"name": "head2Flipped",
+			"positions": [
+				{
+					"z": 41
+				}
+			]
+		}
+	]
+}
