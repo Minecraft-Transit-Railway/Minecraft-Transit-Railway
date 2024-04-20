@@ -55,19 +55,19 @@
 			"A1A5A7"
 		],
 		"name": [
-			"1995 Trailer",
-			"1995 Cab (Forwards)",
-			"1995 Cab (Backwards)",
-			"1995 Cab (Double)",
-			"1995 Compressed Trailer",
-			"1995 Compressed Cab (Forwards)",
-			"1995 Compressed Cab (Backwards)",
-			"1996 Trailer",
-			"1996 Cab (Forwards)",
-			"1996 Cab (Backwards)",
-			"1996 Compressed Trailer",
-			"1996 Compressed Cab (Forwards)",
-			"1996 Compressed Cab (Backwards)"
+			"1995 Stock Trailer",
+			"1995 Stock Cab (Forwards)",
+			"1995 Stock Cab (Backwards)",
+			"1995 Stock Cab (Double)",
+			"1995 Stock Compressed Trailer",
+			"1995 Stock Compressed Cab (Forwards)",
+			"1995 Stock Compressed Cab (Backwards)",
+			"1996 Stock Trailer",
+			"1996 Stock Cab (Forwards)",
+			"1996 Stock Cab (Backwards)",
+			"1996 Stock Compressed Trailer",
+			"1996 Stock Compressed Cab (Forwards)",
+			"1996 Stock Compressed Cab (Backwards)"
 		],
 		"definition": [
 			"",
