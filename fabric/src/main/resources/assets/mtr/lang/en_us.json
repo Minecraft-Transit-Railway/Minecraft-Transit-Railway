@@ -190,6 +190,7 @@
 	"gui.mtr.custom_resources_rider_offset": "Rider Offset: %s",
 	"gui.mtr.custom_resources_train_barrier_id": "Train Barrier ID",
 	"gui.mtr.days": "%s day(s)",
+	"gui.mtr.deceleration": "Vehicle Deceleration",
 	"gui.mtr.delete_confirmation": "Are you sure you want to delete %s?",
 	"gui.mtr.depot_color": "Depot Colour",
 	"gui.mtr.depot_name": "Depot Name",
