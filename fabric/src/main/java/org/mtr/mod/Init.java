@@ -19,7 +19,6 @@ import org.mtr.mapping.mapper.GameRule;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
 import org.mtr.mapping.mapper.WorldHelper;
 import org.mtr.mapping.registry.CommandBuilder;
-import org.mtr.mapping.registry.EventRegistry;
 import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.tool.DummyClass;
 import org.mtr.mod.data.RailActionModule;
@@ -143,7 +142,7 @@ public final class Init implements Utilities {
 		}, "minecrafttransitrailway");
 
 		// Register events
-		EventRegistry.registerServerStarted(minecraftServer -> {
+		REGISTRY.eventRegistry.registerServerStarted(minecraftServer -> {
 			// Start up the backend
 			RAIL_ACTION_MODULES.clear();
 			WORLD_ID_LIST.clear();
@@ -190,7 +189,7 @@ public final class Init implements Utilities {
 			};
 		});
 
-		EventRegistry.registerServerStopping(minecraftServer -> {
+		REGISTRY.eventRegistry.registerServerStopping(minecraftServer -> {
 			if (tunnel != null) {
 				tunnel.stop();
 			}
@@ -202,14 +201,14 @@ public final class Init implements Utilities {
 			}
 		});
 
-		EventRegistry.registerStartServerTick(() -> {
+		REGISTRY.eventRegistry.registerStartServerTick(() -> {
 			if (sendWorldTimeUpdate != null && serverTick % (SECONDS_PER_MC_HOUR * 10) == 0) {
 				sendWorldTimeUpdate.run();
 			}
 			serverTick++;
 		});
 
-		EventRegistry.registerEndWorldTick(serverWorld -> {
+		REGISTRY.eventRegistry.registerEndWorldTick(serverWorld -> {
 			final RailActionModule railActionModule = RAIL_ACTION_MODULES.get(serverWorld);
 			if (railActionModule != null) {
 				railActionModule.tick();
