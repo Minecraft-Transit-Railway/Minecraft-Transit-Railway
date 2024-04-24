@@ -10,7 +10,6 @@ import org.mtr.libraries.org.eclipse.jetty.servlet.ServletHolder;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mapping.registry.EventRegistryClient;
 import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.block.BlockTactileMap;
 import org.mtr.mod.client.*;
@@ -327,7 +326,7 @@ public final class InitClient {
 
 		REGISTRY_CLIENT.setupPackets(new Identifier(Init.MOD_ID, "packet"));
 
-		EventRegistryClient.registerClientJoin(() -> {
+		REGISTRY_CLIENT.eventRegistryClient.registerClientJoin(() -> {
 			MinecraftClientData.reset();
 			DynamicTextureCache.instance = new DynamicTextureCache();
 			lastMillis = System.currentTimeMillis();
@@ -342,7 +341,7 @@ public final class InitClient {
 			tunnel = new Tunnel(MinecraftClient.getInstance().getRunDirectoryMapped(), port, () -> QrCodeHelper.INSTANCE.setClientTunnelUrl(port, tunnel.getTunnelUrl()));
 		});
 
-		EventRegistryClient.registerClientDisconnect(() -> {
+		REGISTRY_CLIENT.eventRegistryClient.registerClientDisconnect(() -> {
 			if (tunnel != null) {
 				tunnel.stop();
 			}
@@ -351,7 +350,7 @@ public final class InitClient {
 			}
 		});
 
-		EventRegistryClient.registerStartClientTick(() -> {
+		REGISTRY_CLIENT.eventRegistryClient.registerStartClientTick(() -> {
 			incrementGameMillis();
 			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
 			final Entity cameraEntity = MinecraftClient.getInstance().getCameraEntity();
@@ -365,20 +364,20 @@ public final class InitClient {
 			}
 		});
 
-		EventRegistryClient.registerEndClientTick(() -> {
+		REGISTRY_CLIENT.eventRegistryClient.registerEndClientTick(() -> {
 			if (movePlayer != null) {
 				movePlayer.run();
 				movePlayer = null;
 			}
 		});
 
-		EventRegistryClient.registerChunkLoad((clientWorld, worldChunk) -> {
+		REGISTRY_CLIENT.eventRegistryClient.registerChunkLoad((clientWorld, worldChunk) -> {
 			if (lastUpdatePacketMillis < 0) {
 				lastUpdatePacketMillis = getGameMillis();
 			}
 		});
 
-		EventRegistryClient.registerResourceReloadEvent(CustomResourceLoader::reload);
+		REGISTRY_CLIENT.eventRegistryClient.registerResourceReloadEvent(CustomResourceLoader::reload);
 
 		Patreon.getPatreonList(Config.PATREON_LIST);
 		Config.refreshProperties();
