@@ -1,9 +1,7 @@
 package org.mtr.mod.render.pids;
 
 import org.mtr.core.serializer.JsonReader;
-import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.com.google.gson.JsonParser;
-import org.mtr.mod.Init;
 import org.mtr.mod.resource.PIDSData;
 import org.mtr.mod.resource.PIDSModulePos;
 
@@ -34,8 +32,7 @@ public class PIDSRenderController {
         try {
             data = new PIDSData(new JsonReader(JsonParser.parseString(raw)));
         } catch (Exception e) {
-            Init.LOGGER.error("", e);
-            data = new PIDSData(new JsonReader(new JsonObject()));
+            return new ArrayList<>();
         }
         ArrayList<PIDSModule> modules =  new ArrayList<>();
         for (org.mtr.mod.resource.PIDSModule module : data.getModules()) {

@@ -1,6 +1,5 @@
 package org.mtr.mod.render.pids;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
@@ -37,7 +36,7 @@ public class TimeModule extends TextModule {
         } else {
             if (MinecraftClient.getInstance().getWorldMapped() != null) {
                 time = (int) MinecraftClient.getInstance().getWorldMapped().getTime();
-                time = (int) Math.floor(time * 72F / 20) % 86400;
+                time = ((int) Math.floor(time * 72F / 20) + 21600) % 86400;
             }
         }
         String ampm = time >= 43200 ? "PM" : "AM";

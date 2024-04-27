@@ -1,10 +1,13 @@
 package org.mtr.mod.render.pids;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
+import org.mtr.mapping.holder.BlockPos;
+import org.mtr.mapping.holder.Direction;
 import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mod.block.BlockPIDSBase;
+import org.mtr.mod.render.RenderPIDS;
 
 public class BlockModule extends PIDSModule {
     public final String type = "block";
@@ -17,7 +20,7 @@ public class BlockModule extends PIDSModule {
     }
 
     @Override
-    public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals) {
-        // TODO rendering
+    public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing) {
+        renderPIDS.renderRect(entity, blockPos, facing, x, y, width, height, color + 0xFF000000);
     }
 }

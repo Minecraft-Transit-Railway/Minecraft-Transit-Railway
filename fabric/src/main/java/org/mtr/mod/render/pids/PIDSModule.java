@@ -1,10 +1,13 @@
 package org.mtr.mod.render.pids;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
+import org.mtr.mapping.holder.BlockPos;
+import org.mtr.mapping.holder.Direction;
 import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mod.block.BlockPIDSBase;
+import org.mtr.mod.render.RenderPIDS;
 
 public abstract class PIDSModule {
     protected final float x;
@@ -32,5 +35,5 @@ public abstract class PIDSModule {
         return height;
     }
 
-    public abstract void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals);
+    public abstract void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing);
 }
