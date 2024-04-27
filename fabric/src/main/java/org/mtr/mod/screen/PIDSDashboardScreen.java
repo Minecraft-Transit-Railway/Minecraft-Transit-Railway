@@ -7,7 +7,6 @@ import org.mtr.mapping.mapper.ButtonWidgetExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
@@ -47,14 +46,14 @@ public class PIDSDashboardScreen extends ScreenExtension implements IGui {
     @Override
     protected void init2() {
         super.init2();
-        final int spareSpace = Math.max(0, width - SQUARE_SIZE * 4 - PANEL_WIDTH * 2);
+        final int spareSpace = Math.max(0, width - SQUARE_SIZE * 4 - PANEL_WIDTH * 3);
         layoutList.x = SQUARE_SIZE * 3 + spareSpace + PANEL_WIDTH;
         layoutList.y = SQUARE_SIZE * 2 - TEXT_PADDING;
         layoutList.height = height - SQUARE_SIZE * 5 + TEXT_PADDING;
-        layoutList.width = PANEL_WIDTH;
+        layoutList.width = PANEL_WIDTH * 2;
         layoutList.init(this::addChild);
 
-        IDrawing.setPositionAndWidth(newLayoutButton, SQUARE_SIZE * 3 + spareSpace + PANEL_WIDTH, height - SQUARE_SIZE - TEXT_FIELD_PADDING, PANEL_WIDTH);
+        IDrawing.setPositionAndWidth(newLayoutButton, SQUARE_SIZE * 3 + spareSpace + PANEL_WIDTH, height - SQUARE_SIZE - TEXT_FIELD_PADDING, PANEL_WIDTH * 2);
         newLayoutButton.setMessage2(new Text(TextHelper.translatable("gui.mtr.new_layout").data));
         addChild(new ClickableWidget(newLayoutButton));
 

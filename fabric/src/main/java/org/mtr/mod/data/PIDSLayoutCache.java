@@ -17,7 +17,7 @@ import java.util.Map;
 public class PIDSLayoutCache {
     private final Map<String, PIDSLayoutEntry> pidsLayoutData = new HashMap<>();
     private final Map<String, RequestStatus> pidsRequestStatus = new HashMap<>();
-    private final ArrayList<PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata> pidsMetadata = new ArrayList<>();
+    private final Map<String, PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata> pidsMetadata = new HashMap<>();
     private String openEditPending = null;
 
     @Nullable
@@ -47,20 +47,26 @@ public class PIDSLayoutCache {
     }
 
     public ObjectImmutableList<PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata> getMetadata() {
-        return new ObjectImmutableList<>(pidsMetadata);
+        return new ObjectImmutableList<>(pidsMetadata.values());
     }
 
     public void setMetadata(ArrayList<PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata> metadata) {
         pidsMetadata.clear();
-        pidsMetadata.addAll(metadata);
-        // Loop through all metadata and clear the request status for each layout
         for (PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata data : metadata) {
+            pidsMetadata.put(data.id, data);
             pidsRequestStatus.remove(data.id);
+            pidsLayoutData.remove(data.id);
         }
     }
 
-    public void addMetadata(ArrayList<PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata> metadata) {
-        pidsMetadata.addAll(metadata);
+    /**
+     * Update a single metadata entry and clear the local cache for the layout
+     * @param metadata
+     */
+    public void updateMetadata(PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata metadata) {
+        pidsMetadata.put(metadata.id, metadata);
+        pidsLayoutData.remove(metadata.id);
+        pidsRequestStatus.remove(metadata.id);
     }
 
     public void setLayout(String key, String layout) {

@@ -7,6 +7,7 @@ import org.mtr.mapping.holder.CompoundTag;
 import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.mapper.PersistenceStateExtension;
 import org.mtr.mod.Init;
+import org.mtr.mod.packet.PacketSendPIDSMetadata;
 import org.mtr.mod.packet.PacketUpdatePIDSMetadata;
 import org.mtr.mod.render.pids.PIDSRenderController;
 import org.mtr.mod.resource.PIDSData;
@@ -94,7 +95,11 @@ public class PIDSLayoutData extends PersistenceStateExtension {
         for (PIDSLayoutEntry entry : pidsLayoutData.values()) {
             metadata.add(entry.metadata);
         }
-        Init.REGISTRY.sendPacketToClient(player, new PacketUpdatePIDSMetadata(metadata, true));
+        Init.REGISTRY.sendPacketToClient(player, new PacketSendPIDSMetadata(metadata));
+    }
+
+    public void sendUpdate(ServerPlayerEntity player, PIDSLayoutEntry.PIDSLayoutMetadata metadata) {
+        Init.REGISTRY.sendPacketToClient(player, new PacketUpdatePIDSMetadata(metadata));
     }
 
     public static class PIDSLayoutEntry {

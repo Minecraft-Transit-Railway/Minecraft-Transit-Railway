@@ -5,9 +5,6 @@ import org.mtr.core.data.RoutePlatformData;
 import org.mtr.core.data.Station;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongCollection;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.*;
@@ -241,11 +238,10 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 					id = entry.getKey();
 				}
 			}
-			LongCollection layoutList = (id >= 0 ? new LongArrayList(LongList.of(id)) : new LongArrayList());
-			MinecraftClient.getInstance().openScreen(new Screen(new PIDSLayoutSelectorScreen(() -> {
+			MinecraftClient.getInstance().openScreen(new Screen(new PIDSLayoutSelectorScreen((item) -> {
 				MinecraftClient.getInstance().openScreen(new Screen(thisScreen));
-				this.layout = layoutList.isEmpty() ? "" : layoutMap.get(layoutList.iterator().nextLong()).id;
-			}, new ObjectImmutableList<>(list), layoutList)));
+				this.layout = item == null ? "" : item.id;
+			})));
 		});
 	}
 

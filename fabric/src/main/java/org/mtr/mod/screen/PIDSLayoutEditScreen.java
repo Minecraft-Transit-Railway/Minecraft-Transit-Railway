@@ -13,7 +13,6 @@ import org.mtr.mod.packet.PacketUpdatePIDSLayout;
 import org.mtr.mod.render.pids.PIDSRenderController;
 import org.mtr.mod.resource.PIDSData;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class PIDSLayoutEditScreen extends ScreenExtension implements IGui {
@@ -30,10 +29,9 @@ public class PIDSLayoutEditScreen extends ScreenExtension implements IGui {
         this.confirmButton = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.confirm"), button -> {
             if (invalidJSON || data == null) return;
             InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdatePIDSLayout(data.getID(), this.dataInput.getText2()));
-            ArrayList<PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata> metadata = new ArrayList<>();
-            metadata.add(new PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata(data.getID(), data.getName(), data.getDescription(), data.getAuthor(), data.getModules().size(), new PIDSRenderController(rawData).arrivals));
+            PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata metadata = new PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata(data.getID(), data.getName(), data.getDescription(), data.getAuthor(), data.getModules().size(), new PIDSRenderController(rawData).arrivals);
             // Add the new metadata locally
-            InitClient.pidsLayoutCache.addMetadata(metadata);
+            InitClient.pidsLayoutCache.updateMetadata(metadata);
             // Create a new dashboard screen so that all of the new data is displayed
             MinecraftClient.getInstance().openScreen(new Screen(new PIDSDashboardScreen()));
         });
