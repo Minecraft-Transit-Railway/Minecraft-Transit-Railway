@@ -184,7 +184,8 @@ public final class Init implements Utilities {
 					if (webserver != null) {
 						webserver.stop();
 					}
-					minecraftServer.stop(true);
+					Main.LOGGER.error("Shutting down all threads");
+					System.exit(0);
 				}
 			};
 		});

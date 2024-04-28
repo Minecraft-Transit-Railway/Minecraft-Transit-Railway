@@ -14,11 +14,11 @@ public final class ArrivalsCache {
 	public static ArrivalsCache INSTANCE = new ArrivalsCache();
 	private static final int CACHED_ARRIVAL_REQUESTS_MILLIS = 3000;
 
-	public ArrivalsResponse requestArrivals(long requestKey, LongImmutableList platformIds, int maxCountPerPlatform, int maxCountTotal, boolean realtimeOnly) {
+	public ArrivalsResponse requestArrivals(long requestKey, LongImmutableList platformIds, int maxCountPerPlatform, int maxCountTotal) {
 		final ObjectLongImmutablePair<ArrivalsResponse> arrivalData = arrivalRequests.get(requestKey);
 		if (arrivalData == null || arrivalData.rightLong() < System.currentTimeMillis()) {
 			if (!platformIds.isEmpty()) {
-				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketFetchArrivals(requestKey, platformIds, maxCountPerPlatform, maxCountTotal, realtimeOnly));
+				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketFetchArrivals(requestKey, platformIds, maxCountPerPlatform, maxCountTotal));
 			}
 
 			final ArrivalsResponse arrivalsResponse;
