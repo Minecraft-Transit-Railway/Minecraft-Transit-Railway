@@ -2,6 +2,7 @@ package org.mtr.mod.sound;
 
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.AbstractSoundInstanceExtension;
+import org.mtr.mapping.mapper.SoundHelper;
 import org.mtr.mapping.mapper.TickableSoundInstanceExtension;
 import org.mtr.mod.Init;
 
@@ -10,7 +11,7 @@ public class LoopingSoundInstance extends AbstractSoundInstanceExtension impleme
 	private static final int MAX_DISTANCE = 32;
 
 	public LoopingSoundInstance(String soundId) {
-		super(createSoundEvent(new Identifier(Init.MOD_ID, soundId)), SoundCategory.getBlocksMapped());
+		super(SoundHelper.createSoundEvent(new Identifier(Init.MOD_ID, soundId)), SoundCategory.getBlocksMapped());
 		setIsRepeatableMapped(true);
 	}
 

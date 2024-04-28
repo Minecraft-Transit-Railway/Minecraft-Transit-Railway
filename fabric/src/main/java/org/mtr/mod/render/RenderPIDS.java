@@ -79,7 +79,7 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 
 	private void getArrivalsAndRender(T entity, BlockPos blockPos, Direction facing, LongImmutableList platformIds) {
 		final int count = (entity.getDisplayPage() + 1) * entity.maxArrivals / (entity.alternateLines() ? 2 : 1);
-		final ArrivalsResponse arrivalsResponse = ArrivalsCache.INSTANCE.requestArrivals(blockPos.asLong(), platformIds, count, count, false);
+		final ArrivalsResponse arrivalsResponse = ArrivalsCache.INSTANCE.requestArrivals(blockPos.asLong(), platformIds, count, count);
 		RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
 			render(entity, blockPos, facing, arrivalsResponse, graphicsHolder, offset);
 			if (entity instanceof BlockPIDSHorizontalBase.BlockEntityHorizontalBase) {

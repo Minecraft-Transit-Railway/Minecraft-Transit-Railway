@@ -3,7 +3,7 @@ package org.mtr.mod.sound;
 import org.mtr.core.data.Siding;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.mapper.AbstractSoundInstanceExtension;
+import org.mtr.mapping.mapper.SoundHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 
@@ -51,14 +51,14 @@ public class LegacyVehicleSound extends VehicleSoundBase {
 				final int index = Math.min(floorSpeed, legacySpeedSoundCount) - 1;
 				final boolean isAccelerating = speedChange == 0 ? legacyUseAccelerationSoundsWhenCoasting || random.nextBoolean() : speedChange > 0;
 				final String speedSoundId = legacySpeedSoundBaseResource + (isAccelerating ? SOUND_ACCELERATION : SOUND_DECELERATION) + index / SOUND_GROUP_SIZE + SOUND_GROUP_LETTERS[index % SOUND_GROUP_SIZE];
-				playSoundInWorld(AbstractSoundInstanceExtension.createSoundEvent(new Identifier(Init.MOD_ID, speedSoundId)), blockPos, 1, 1);
+				playSoundInWorld(SoundHelper.createSoundEvent(new Identifier(Init.MOD_ID, speedSoundId)), blockPos, 1, 1);
 			}
 		}
 	}
 
 	@Override
 	protected void playDoorSound(BlockPos blockPos, boolean isOpen) {
-		playSoundInWorld(AbstractSoundInstanceExtension.createSoundEvent(new Identifier(Init.MOD_ID, String.format("%s%s", legacyDoorSoundBaseResource, isOpen ? SOUND_DOOR_OPEN : SOUND_DOOR_CLOSE))), blockPos, 2, 1);
+		playSoundInWorld(SoundHelper.createSoundEvent(new Identifier(Init.MOD_ID, String.format("%s%s", legacyDoorSoundBaseResource, isOpen ? SOUND_DOOR_OPEN : SOUND_DOOR_CLOSE))), blockPos, 2, 1);
 	}
 
 	@Override
