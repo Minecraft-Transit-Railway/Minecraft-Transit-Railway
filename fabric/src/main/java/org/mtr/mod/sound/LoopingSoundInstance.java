@@ -16,7 +16,7 @@ public class LoopingSoundInstance extends AbstractSoundInstanceExtension impleme
 	}
 
 	@Override
-	public boolean isDone2() {
+	public boolean isDone() {
 		return false;
 	}
 

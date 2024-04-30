@@ -102,7 +102,7 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 	@Override
 	public void tick2() {
 		for (final TextFieldWidgetExtension textField : textFields) {
-			textField.tick3();
+			textField.tick2();
 		}
 	}
 

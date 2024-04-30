@@ -91,7 +91,7 @@ public class RailShapeModifierScreen extends ScreenExtension implements IGui {
 	@Override
 	public void tick2() {
 		super.tick2();
-		textFieldRadius.tick3();
+		textFieldRadius.tick2();
 	}
 
 	@Override

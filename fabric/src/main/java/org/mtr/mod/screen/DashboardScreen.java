@@ -158,15 +158,15 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 	}
 
 	@Override
-	public boolean mouseScrolled3(double mouseX, double mouseY, double amount) {
+	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
 		dashboardList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled3(mouseX, mouseY, amount);
+		return super.mouseScrolled2(mouseX, mouseY, amount);
 	}
 
 	@Override
 	public void tick2() {
-		textFieldName.tick3();
-		textFieldCustomDestination.tick3();
+		textFieldName.tick2();
+		textFieldCustomDestination.tick2();
 		dashboardList.tick();
 
 		try {

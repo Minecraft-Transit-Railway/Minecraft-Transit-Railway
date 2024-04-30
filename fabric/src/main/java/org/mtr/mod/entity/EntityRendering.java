@@ -19,7 +19,7 @@ public class EntityRendering extends EntityExtension {
 	public EntityRendering(World world) {
 		super(EntityTypes.RENDERING.get(), world);
 		offset = MinecraftClient.getInstance().getGameRendererMapped().getCamera().getPos();
-		setPosition3(offset.getXMapped(), offset.getYMapped(), offset.getZMapped());
+		setPosition2(offset.getXMapped(), offset.getYMapped(), offset.getZMapped());
 	}
 
 	@Override

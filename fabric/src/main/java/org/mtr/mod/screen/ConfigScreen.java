@@ -140,11 +140,11 @@ public class ConfigScreen extends ScreenExtension implements IGui {
 		setButtonText(new ButtonWidget(buttonShiftToToggleSitting), shiftToToggleSitting);
 		buttonLanguageOptions.setMessage2(new Text(TextHelper.translatable("options.mtr.language_options_" + languageOptions).data));
 		setButtonText(new ButtonWidget(buttonUseDynamicFPS), useDynamicFPS);
-		sliderTrackTextureOffset.setHeight2(BUTTON_HEIGHT);
+		sliderTrackTextureOffset.setHeight(BUTTON_HEIGHT);
 		sliderTrackTextureOffset.setValue(Config.trackTextureOffset());
-		sliderDynamicTextureResolution.setHeight2(BUTTON_HEIGHT);
+		sliderDynamicTextureResolution.setHeight(BUTTON_HEIGHT);
 		sliderDynamicTextureResolution.setValue(Config.dynamicTextureResolution());
-		sliderTrainRenderDistanceRatio.setHeight2(BUTTON_HEIGHT);
+		sliderTrainRenderDistanceRatio.setHeight(BUTTON_HEIGHT);
 		sliderTrainRenderDistanceRatio.setValue(Config.trainRenderDistanceRatio());
 		buttonSupportPatreon.setMessage2(new Text(TextHelper.translatable("gui.mtr.support").data));
 
