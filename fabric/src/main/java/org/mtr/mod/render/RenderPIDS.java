@@ -2,11 +2,10 @@ package org.mtr.mod.render;
 
 import org.mtr.core.data.Station;
 import org.mtr.core.operation.ArrivalResponse;
-import org.mtr.core.operation.ArrivalsResponse;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongCollection;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.Direction;
 import org.mtr.mapping.holder.Vector3d;
@@ -20,9 +19,8 @@ import org.mtr.mod.block.BlockArrivalProjectorBase;
 import org.mtr.mod.block.BlockPIDSBase;
 import org.mtr.mod.block.BlockPIDSHorizontalBase;
 import org.mtr.mod.block.IBlock;
-import org.mtr.mod.data.ArrivalsCache;
+import org.mtr.mod.data.ArrivalsCacheClient;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.PacketFetchArrivals;
 
 public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEntityRenderer<T> implements IGui, Utilities {
 
@@ -71,26 +69,24 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 			} else {
 				InitClient.findClosePlatform(entity.getPos2().down(4), 5, platform -> platformIds.add(platform.getId()));
 			}
-			getArrivalsAndRender(entity, blockPos, facing, new LongImmutableList(platformIds));
+			getArrivalsAndRender(entity, world, blockPos, facing, platformIds);
 		} else {
-			getArrivalsAndRender(entity, blockPos, facing, new LongImmutableList(entity.getPlatformIds()));
+			getArrivalsAndRender(entity, world, blockPos, facing, entity.getPlatformIds());
 		}
 	}
 
-	private void getArrivalsAndRender(T entity, BlockPos blockPos, Direction facing, LongImmutableList platformIds) {
-		final int count = (entity.getDisplayPage() + 1) * entity.maxArrivals / (entity.alternateLines() ? 2 : 1);
-		final ArrivalsResponse arrivalsResponse = ArrivalsCache.INSTANCE.requestArrivals(blockPos.asLong(), platformIds, count, count);
+	private void getArrivalsAndRender(T entity, World world, BlockPos blockPos, Direction facing, LongCollection platformIds) {
+		final ObjectArrayList<ArrivalResponse> arrivalResponseList = ArrivalsCacheClient.INSTANCE.requestArrivals(world, platformIds);
 		RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
-			render(entity, blockPos, facing, arrivalsResponse, graphicsHolder, offset);
+			render(entity, blockPos, facing, arrivalResponseList, graphicsHolder, offset);
 			if (entity instanceof BlockPIDSHorizontalBase.BlockEntityHorizontalBase) {
-				render(entity, blockPos.offset(facing), facing.getOpposite(), arrivalsResponse, graphicsHolder, offset);
+				render(entity, blockPos.offset(facing), facing.getOpposite(), arrivalResponseList, graphicsHolder, offset);
 			}
 		});
 	}
 
-	private void render(T entity, BlockPos blockPos, Direction facing, ArrivalsResponse arrivalsResponse, GraphicsHolder graphicsHolder, Vector3d offset) {
+	private void render(T entity, BlockPos blockPos, Direction facing, ObjectArrayList<ArrivalResponse> arrivalResponseList, GraphicsHolder graphicsHolder, Vector3d offset) {
 		final float scale = 160 * entity.maxArrivals / maxHeight * textPadding;
-		final ObjectImmutableList<ArrivalResponse> arrivalResponseList = arrivalsResponse.getArrivals();
 		final boolean hasDifferentCarLengths = hasDifferentCarLengths(arrivalResponseList);
 		int arrivalIndex = entity.getDisplayPage() * entity.maxArrivals;
 
@@ -141,7 +137,7 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 			if (renderCustomMessage) {
 				renderText(graphicsHolder, customMessageSplit[languageIndex], entity.textColor(), maxWidth * scale / 16, false);
 			} else {
-				final long arrival = (arrivalResponse.getArrival() - PacketFetchArrivals.getMillisOffset() - System.currentTimeMillis()) / 1000;
+				final long arrival = (arrivalResponse.getArrival() - ArrivalsCacheClient.INSTANCE.getMillisOffset() - System.currentTimeMillis()) / 1000;
 				final int color = arrival <= 0 ? entity.textColorArrived() : entity.textColor();
 				final String destination = destinationSplit[languageIndex];
 				final String translationSuffix = IGui.isCjk(destination) ? "_cjk" : "";
@@ -220,7 +216,7 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 		graphicsHolder.pop();
 	}
 
-	private static boolean hasDifferentCarLengths(ObjectImmutableList<ArrivalResponse> arrivalResponseList) {
+	private static boolean hasDifferentCarLengths(ObjectArrayList<ArrivalResponse> arrivalResponseList) {
 		int carCount = 0;
 		for (final ArrivalResponse arrivalResponse : arrivalResponseList) {
 			final int currentCarCount = arrivalResponse.getCarCount();

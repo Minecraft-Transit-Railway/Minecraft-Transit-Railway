@@ -62,11 +62,11 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 
 		final int sliderTextWidth = Math.max(GraphicsHolder.getTextWidth(TextHelper.translatable("gui.mtr.arrival_min", "88")), GraphicsHolder.getTextWidth(TextHelper.translatable("gui.mtr.arrival_sec", "88.8"))) + TEXT_PADDING;
 		sliderDwellTimeMin.setX2(SQUARE_SIZE + textWidth);
-		sliderDwellTimeMin.setHeight2(SQUARE_SIZE / 2);
+		sliderDwellTimeMin.setHeight(SQUARE_SIZE / 2);
 		sliderDwellTimeMin.setWidth2(width - textWidth - SQUARE_SIZE * 2 - sliderTextWidth);
 
 		sliderDwellTimeSec.setX2(SQUARE_SIZE + textWidth);
-		sliderDwellTimeSec.setHeight2(SQUARE_SIZE / 2);
+		sliderDwellTimeSec.setHeight(SQUARE_SIZE / 2);
 		sliderDwellTimeSec.setWidth2(width - textWidth - SQUARE_SIZE * 2 - sliderTextWidth);
 
 		addChild(new ClickableWidget(textFieldSavedRailNumber));
@@ -78,7 +78,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 
 	@Override
 	public void tick2() {
-		textFieldSavedRailNumber.tick3();
+		textFieldSavedRailNumber.tick2();
 		textFieldSavedRailNumber.setX2(SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2);
 
 		final int maxMin = (int) Math.floor(MAX_DWELL_TIME / 2F / SECONDS_PER_MINUTE);

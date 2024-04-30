@@ -1,41 +1,45 @@
 package org.mtr.mod.data;
 
-import org.mtr.core.operation.ArrivalsResponse;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectLongImmutablePair;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.packet.PacketFetchArrivals;
+import org.mtr.core.operation.ArrivalResponse;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongCollection;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
+import org.mtr.mapping.holder.World;
 
-public final class ArrivalsCache {
+import java.util.function.Consumer;
 
-	private final Long2ObjectAVLTreeMap<ObjectLongImmutablePair<ArrivalsResponse>> arrivalRequests = new Long2ObjectAVLTreeMap<>();
+public abstract class ArrivalsCache {
 
-	public static ArrivalsCache INSTANCE = new ArrivalsCache();
+	private long nextRequest;
+	private final LongAVLTreeSet queuedPlatformIds = new LongAVLTreeSet();
+	private final ObjectArrayList<ArrivalResponse> arrivalResponseCache = new ObjectArrayList<>();
+
 	private static final int CACHED_ARRIVAL_REQUESTS_MILLIS = 3000;
 
-	public ArrivalsResponse requestArrivals(long requestKey, LongImmutableList platformIds, int maxCountPerPlatform, int maxCountTotal) {
-		final ObjectLongImmutablePair<ArrivalsResponse> arrivalData = arrivalRequests.get(requestKey);
-		if (arrivalData == null || arrivalData.rightLong() < System.currentTimeMillis()) {
-			if (!platformIds.isEmpty()) {
-				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketFetchArrivals(requestKey, platformIds, maxCountPerPlatform, maxCountTotal));
-			}
+	public ObjectArrayList<ArrivalResponse> requestArrivals(World world, LongCollection platformIds) {
+		queuedPlatformIds.addAll(platformIds);
 
-			final ArrivalsResponse arrivalsResponse;
-			if (arrivalData == null) {
-				arrivalsResponse = new ArrivalsResponse();
-			} else {
-				arrivalsResponse = arrivalData.left();
-			}
-
-			writeArrivalRequest(requestKey, arrivalsResponse);
-			return arrivalsResponse;
-		} else {
-			return arrivalData.left();
+		if (System.currentTimeMillis() >= nextRequest) {
+			requestArrivalsFromServer(world, queuedPlatformIds, arrivalResponseList -> {
+				arrivalResponseCache.clear();
+				arrivalResponseCache.addAll(arrivalResponseList);
+			});
+			queuedPlatformIds.clear();
+			nextRequest = System.currentTimeMillis() + CACHED_ARRIVAL_REQUESTS_MILLIS;
 		}
+
+		final ObjectArrayList<ArrivalResponse> arrivals = new ObjectArrayList<>();
+		arrivalResponseCache.forEach(arrivalResponse -> {
+			if (platformIds.contains(arrivalResponse.getPlatformId())) {
+				arrivals.add(arrivalResponse);
+			}
+		});
+
+		return arrivals;
 	}
 
-	public void writeArrivalRequest(long requestKey, ArrivalsResponse arrivalsResponse) {
-		arrivalRequests.put(requestKey, new ObjectLongImmutablePair<>(arrivalsResponse, System.currentTimeMillis() + CACHED_ARRIVAL_REQUESTS_MILLIS));
-	}
+	public abstract long getMillisOffset();
+
+	protected abstract void requestArrivalsFromServer(World world, LongAVLTreeSet platformIds, Consumer<ObjectList<ArrivalResponse>> callback);
 }

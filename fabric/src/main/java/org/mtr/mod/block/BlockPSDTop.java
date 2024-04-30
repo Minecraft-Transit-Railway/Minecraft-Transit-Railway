@@ -59,18 +59,18 @@ public class BlockPSDTop extends BlockExtension implements IBlock, DirectionHelp
 
 	@Nonnull
 	@Override
-	public ItemStack getPickStack3(BlockView world, BlockPos pos, BlockState state) {
+	public ItemStack getPickStack2(BlockView world, BlockPos pos, BlockState state) {
 		return new ItemStack(new ItemConvertible(asItem2().data));
 	}
 
 	@Override
-	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		final Block blockDown = world.getBlockState(pos.down()).getBlock();
 		if (blockDown.data instanceof BlockPSDAPGBase) {
-			((BlockPSDAPGBase) blockDown.data).onBreak3(world, pos.down(), world.getBlockState(pos.down()), player);
+			((BlockPSDAPGBase) blockDown.data).onBreak2(world, pos.down(), world.getBlockState(pos.down()), player);
 			world.setBlockState(pos.down(), Blocks.getAirMapped().getDefaultState());
 		}
-		super.onBreak3(world, pos, state, player);
+		super.onBreak2(world, pos, state, player);
 	}
 
 	@Nonnull

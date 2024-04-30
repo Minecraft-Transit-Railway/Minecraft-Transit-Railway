@@ -66,7 +66,7 @@ public abstract class BlockLiftPanelBase extends BlockExtension implements IBloc
 	}
 
 	@Override
-	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		if (isOdd) {
 			TripleHorizontalBlock.onBreak(world, pos, state, player);
 		} else {
@@ -74,7 +74,7 @@ public abstract class BlockLiftPanelBase extends BlockExtension implements IBloc
 				IBlock.onBreakCreative(world, player, pos.offset(IBlock.getSideDirection(state)));
 			}
 		}
-		super.onBreak3(world, pos, state, player);
+		super.onBreak2(world, pos, state, player);
 	}
 
 	@Nonnull

@@ -121,7 +121,7 @@ public class DashboardList implements IGui {
 	}
 
 	public void tick() {
-		textFieldSearch.tick3();
+		textFieldSearch.tick2();
 		buttonPrevPage.setX2(x);
 		buttonNextPage.setX2(x + SQUARE_SIZE * 3);
 		textFieldSearch.setX2(x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2);

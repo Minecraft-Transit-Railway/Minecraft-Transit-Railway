@@ -76,8 +76,8 @@ public class LiftTrackFloorScreen extends ScreenExtension implements IGui {
 
 	@Override
 	public void tick2() {
-		textFieldFloorNumber.tick3();
-		textFieldFloorDescription.tick3();
+		textFieldFloorNumber.tick2();
+		textFieldFloorDescription.tick2();
 	}
 
 	@Override

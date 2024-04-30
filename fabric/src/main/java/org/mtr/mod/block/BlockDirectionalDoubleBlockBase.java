@@ -30,9 +30,9 @@ public abstract class BlockDirectionalDoubleBlockBase extends BlockExtension imp
 	}
 
 	@Override
-	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		DoubleVerticalBlock.onBreak(world, pos, state, player);
-		super.onBreak3(world, pos, state, player);
+		super.onBreak2(world, pos, state, player);
 	}
 
 	protected BlockState getAdditionalState(BlockPos pos, Direction facing) {
