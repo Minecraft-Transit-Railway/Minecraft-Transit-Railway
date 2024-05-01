@@ -6,6 +6,7 @@ import org.mtr.mod.resource.PIDSData;
 import org.mtr.mod.resource.PIDSModulePos;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class PIDSRenderController {
     private final ArrayList<PIDSModule> modules;
@@ -54,8 +55,14 @@ public class PIDSRenderController {
                 case "stopsAt":
                     modules.add(new StopsAtModule(x, y, w, h, module.getData()));
                     break;
+                case "lineName":
+                    modules.add(new LineNameModule(x, y, w, h, module.getData()));
+                    break;
                 case "text":
                     modules.add(new TextModule(x, y, w, h, module.getData()));
+                    break;
+                case "template":
+                    modules.add(new TemplateModule(x, y, w, h, module.getData()));
                     break;
                 case "time":
                     modules.add(new TimeModule(x, y, w, h, module.getData()));
