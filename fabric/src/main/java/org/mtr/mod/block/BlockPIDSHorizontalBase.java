@@ -43,12 +43,12 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 	}
 
 	@Override
-	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 		if (facing == Direction.SOUTH || facing == Direction.WEST) {
 			IBlock.onBreakCreative(world, player, pos.offset(facing));
 		}
-		super.onBreak3(world, pos, state, player);
+		super.onBreak2(world, pos, state, player);
 	}
 
 	@Override

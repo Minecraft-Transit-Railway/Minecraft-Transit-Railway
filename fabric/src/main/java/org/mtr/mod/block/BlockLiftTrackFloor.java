@@ -39,7 +39,7 @@ public class BlockLiftTrackFloor extends BlockLiftTrackBase implements BlockWith
 	}
 
 	@Override
-	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		if (!world.isClient()) {
 			PacketDeleteData.sendDirectlyToServerLiftFloorPosition(ServerWorld.cast(world), Init.blockPosToPosition(pos));
 		}

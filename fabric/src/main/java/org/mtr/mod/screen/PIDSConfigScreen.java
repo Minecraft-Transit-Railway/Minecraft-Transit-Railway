@@ -149,7 +149,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 	@Override
 	public void tick2() {
 		for (final TextFieldWidgetExtension textFieldMessage : textFieldMessages) {
-			textFieldMessage.tick3();
+			textFieldMessage.tick2();
 		}
 	}
 

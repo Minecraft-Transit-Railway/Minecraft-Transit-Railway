@@ -3,7 +3,7 @@ package org.mtr.mod.sound;
 import org.apache.commons.lang3.StringUtils;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.SoundEvent;
-import org.mtr.mapping.mapper.AbstractSoundInstanceExtension;
+import org.mtr.mapping.mapper.SoundHelper;
 
 import java.util.Locale;
 
@@ -95,7 +95,7 @@ public class BveConfigFile {
 					continue;
 				}
 
-				final SoundEvent valueAsSoundEvent = AbstractSoundInstanceExtension.createSoundEvent(new Identifier(config.audioBaseName + value));
+				final SoundEvent valueAsSoundEvent = SoundHelper.createSoundEvent(new Identifier(config.audioBaseName + value));
 				switch (section) {
 					case "mtr":
 						switch (key) {

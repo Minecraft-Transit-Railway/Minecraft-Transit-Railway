@@ -113,10 +113,10 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 			clickDelay--;
 		}
 
-		textFieldZone.tick3();
-		textFieldExitParentLetter.tick3();
-		textFieldExitParentNumber.tick3();
-		textFieldExitDestination.tick3();
+		textFieldZone.tick2();
+		textFieldExitParentLetter.tick2();
+		textFieldExitParentNumber.tick2();
+		textFieldExitDestination.tick2();
 
 		exitParentList.tick();
 		exitDestinationList.tick();
@@ -159,10 +159,10 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	}
 
 	@Override
-	public boolean mouseScrolled3(double mouseX, double mouseY, double amount) {
+	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
 		exitParentList.mouseScrolled(mouseX, mouseY, amount);
 		exitDestinationList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled3(mouseX, mouseY, amount);
+		return super.mouseScrolled2(mouseX, mouseY, amount);
 	}
 
 	@Override

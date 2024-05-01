@@ -62,7 +62,7 @@ public class BlockRailwaySign extends BlockExtension implements IBlock, Directio
 	}
 
 	@Override
-	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 
 		final BlockPos checkPos = findEndWithDirection(world, pos, facing, true);
@@ -70,7 +70,7 @@ public class BlockRailwaySign extends BlockExtension implements IBlock, Directio
 			IBlock.onBreakCreative(world, player, checkPos);
 		}
 
-		super.onBreak3(world, pos, state, player);
+		super.onBreak2(world, pos, state, player);
 	}
 
 	@Override

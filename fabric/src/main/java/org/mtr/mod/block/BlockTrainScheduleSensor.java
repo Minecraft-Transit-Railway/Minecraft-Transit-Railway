@@ -1,9 +1,9 @@
 package org.mtr.mod.block;
 
 import org.mtr.core.operation.ArrivalResponse;
-import org.mtr.core.operation.ArrivalsResponse;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.BlockState;
 import org.mtr.mapping.holder.CompoundTag;
@@ -11,7 +11,7 @@ import org.mtr.mapping.holder.World;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mod.BlockEntityTypes;
 import org.mtr.mod.InitClient;
-import org.mtr.mod.data.ArrivalsCache;
+import org.mtr.mod.data.ArrivalsCacheClient;
 import org.mtr.mod.packet.PacketTurnOnBlockEntity;
 
 import javax.annotation.Nonnull;
@@ -76,9 +76,9 @@ public class BlockTrainScheduleSensor extends BlockTrainPoweredSensorBase {
 		public static <T extends BlockEntityExtension> void tick(@Nullable World world, BlockPos pos, T blockEntity) {
 			if (world != null && world.isClient() && blockEntity instanceof BlockEntity) {
 				InitClient.findClosePlatform(pos.up(), 5, platform -> {
-					final ArrivalsResponse arrivalsResponse = ArrivalsCache.INSTANCE.requestArrivals(pos.asLong(), LongImmutableList.of(platform.getId()), 10, 10, false);
-					for (final ArrivalResponse arrival : arrivalsResponse.getArrivals()) {
-						if ((!((BlockEntity) blockEntity).realtimeOnly || arrival.getRealtime()) && BlockTrainSensorBase.matchesFilter(world, pos, arrival.getRouteId(), 1) && (arrival.getArrival() - System.currentTimeMillis()) / 1000 == ((BlockEntity) blockEntity).seconds) {
+					final ObjectArrayList<ArrivalResponse> arrivalResponseList = ArrivalsCacheClient.INSTANCE.requestArrivals(world, LongArrayList.of(platform.getId()));
+					for (final ArrivalResponse arrival : arrivalResponseList) {
+						if ((!((BlockEntity) blockEntity).realtimeOnly || arrival.getRealtime()) && BlockTrainSensorBase.matchesFilter(world, pos, arrival.getRouteId(), 1) && (arrival.getArrival() - ArrivalsCacheClient.INSTANCE.getMillisOffset() - System.currentTimeMillis()) / 1000 == ((BlockEntity) blockEntity).seconds) {
 							InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketTurnOnBlockEntity(pos));
 							break;
 						}

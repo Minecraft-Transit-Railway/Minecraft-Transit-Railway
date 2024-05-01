@@ -45,6 +45,11 @@ subprojects {
 		relocate "io.nayuki", "org.mtr.libraries.io.nayuki"
 	}
 
+	tasks.withType(AbstractArchiveTask).configureEach {
+		preserveFileTimestamps = false
+		reproducibleFileOrder = true
+	}
+
 	tasks.withType(Javadoc).tap {
 		configureEach { javadoc.options.addStringOption("Xdoclint:none", "-quiet") }
 	}

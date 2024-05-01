@@ -90,19 +90,19 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 
 		sliderAccelerationConstant.setX2(SQUARE_SIZE + textWidth);
 		sliderAccelerationConstant.setY2(SQUARE_SIZE * 4 + TEXT_FIELD_PADDING * 2);
-		sliderAccelerationConstant.setHeight2(SQUARE_SIZE);
+		sliderAccelerationConstant.setHeight(SQUARE_SIZE);
 		sliderAccelerationConstant.setValue((int) Math.round((savedRailBase.getAcceleration() - Siding.MIN_ACCELERATION) * SLIDER_SCALE));
 
 		sliderDecelerationConstant.setX2(SQUARE_SIZE + textWidth);
 		sliderDecelerationConstant.setY2(SQUARE_SIZE * 5 + TEXT_FIELD_PADDING * 2);
-		sliderDecelerationConstant.setHeight2(SQUARE_SIZE);
+		sliderDecelerationConstant.setHeight(SQUARE_SIZE);
 		sliderDecelerationConstant.setValue((int) Math.round((savedRailBase.getDeceleration() - Siding.MIN_ACCELERATION) * SLIDER_SCALE));
 
 		IDrawing.setPositionAndWidth(buttonIsManual, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_FIELD_PADDING * 2, width - textWidth - SQUARE_SIZE * 2);
 
 		sliderMaxManualSpeed.setX2(SQUARE_SIZE + textWidth);
 		sliderMaxManualSpeed.setY2(SQUARE_SIZE * 8 + TEXT_FIELD_PADDING * 2);
-		sliderMaxManualSpeed.setHeight2(SQUARE_SIZE);
+		sliderMaxManualSpeed.setHeight(SQUARE_SIZE);
 		sliderMaxManualSpeed.setValue(0); // TODO
 
 		sliderDwellTimeMin.setY2(SQUARE_SIZE * 9 + TEXT_FIELD_PADDING * 2);
@@ -123,7 +123,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 	@Override
 	public void tick2() {
 		super.tick2();
-		textFieldMaxTrains.tick3();
+		textFieldMaxTrains.tick2();
 	}
 
 	@Override
