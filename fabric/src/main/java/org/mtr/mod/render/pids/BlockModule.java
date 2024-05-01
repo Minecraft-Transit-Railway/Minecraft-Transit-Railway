@@ -12,15 +12,17 @@ import org.mtr.mod.render.RenderPIDS;
 public class BlockModule extends PIDSModule {
     public final String type = "block";
 
+    protected int layer = 0;
     protected int color = 0xFFFFFF;
 
     public BlockModule(float x, float y, float width, float height, ReaderBase data) {
         super(x, y, width, height, data);
         data.unpackInt("color", (value) -> color = value);
+        data.unpackInt("layer", (value) -> this.layer = value);
     }
 
     @Override
     public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing) {
-        renderPIDS.renderRect(entity, blockPos, facing, x, y, width, height, color + 0xFF000000);
+        renderPIDS.renderRect(entity, blockPos, facing, x, y, width, height, color + 0xFF000000, layer);
     }
 }

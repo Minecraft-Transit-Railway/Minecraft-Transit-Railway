@@ -14,6 +14,7 @@ public abstract class PIDSModule {
     protected final float y;
     protected final float width;
     protected final float height;
+    protected int layer;
 
     public PIDSModule(float x, float y, float width, float height, ReaderBase data) {
         this.x = x;

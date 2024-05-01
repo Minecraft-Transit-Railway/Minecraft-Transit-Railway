@@ -136,7 +136,7 @@ public class StopsAtModule extends TextModule {
                 currentRight -= charWidths[rightBound] * scale;
             }
             trimmedText = trimmedText.substring(0, rightBound);
-            RenderPIDS.renderText(graphicsHolder, trimmedText, (float) x, this.y + textPadding, textSize, color, this.width * 2, IGui.HorizontalAlignment.LEFT);
+            RenderPIDS.renderText(graphicsHolder, trimmedText, (float) x, this.y + textPadding, textSize, color, this.width * 2, IGui.HorizontalAlignment.LEFT, layer);
         } else {
             super.render(graphicsHolder, arrivals, renderPIDS, entity, blockPos, facing);
         }

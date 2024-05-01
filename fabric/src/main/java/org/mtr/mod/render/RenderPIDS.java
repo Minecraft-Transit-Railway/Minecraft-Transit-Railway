@@ -100,7 +100,7 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 		graphicsHolder.translate(blockPos.getX() - offset.getXMapped() + 0.5, blockPos.getY() - offset.getYMapped(), blockPos.getZ() - offset.getZMapped() + 0.5);
 		graphicsHolder.rotateYDegrees((rotate90 ? 90 : 0) - facing.asRotation());
 		graphicsHolder.rotateZDegrees(180);
-		graphicsHolder.translate((startX - 8) / 16, -startY / 16, (startZ - 8) / 16 - SMALL_OFFSET * 3);
+		graphicsHolder.translate((startX - 8) / 16, -startY / 16, (startZ - 8) / 16);
 		graphicsHolder.scale(1 / SCALE, 1 / SCALE, 1);
 
 		// The screen should now be scaled according to the scale value
@@ -120,12 +120,12 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 		graphicsHolder.pop();
 	}
 
-	public static void renderText(GraphicsHolder graphicsHolder, String text, float x, float y, float size, int color, float availableWidth, IGui.HorizontalAlignment align) {
+	public static void renderText(GraphicsHolder graphicsHolder, String text, float x, float y, float size, int color, float availableWidth, IGui.HorizontalAlignment align, int layer) {
 		graphicsHolder.push();
 		// determine the text size and scale the screen; minecraft text is 8 pixels high
 		final float scale = size / 8;
-		// position the text
-		graphicsHolder.translate(x, y, 0);
+		// position the text and apply layer
+		graphicsHolder.translate(x, y, -SMALL_OFFSET * (layer + 2));
 		// remember to scale the text width by the scale
 		// we do this now so that we get the text width in block-pixel scale
 		final float textWidth = GraphicsHolder.getTextWidth(text) * scale;
@@ -143,7 +143,7 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 		graphicsHolder.pop();
 	}
 
-	public void renderRect(T entity, BlockPos blockPos, Direction facing, float x, float y, float width, float height, int color) {
+	public void renderRect(T entity, BlockPos blockPos, Direction facing, float x, float y, float width, float height, int color, int layer) {
 		World world = entity.getWorld2();
 		if (world == null) {
 			return;
@@ -154,7 +154,7 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 			graphicsHolderNew.translate(blockPos.getX() - offset.getXMapped() + 0.5, blockPos.getY() - offset.getYMapped(), blockPos.getZ() - offset.getZMapped() + 0.5);
 			graphicsHolderNew.rotateYDegrees((rotate90 ? 90 : 0) - facing.asRotation());
 			graphicsHolderNew.rotateZDegrees(180);
-			graphicsHolderNew.translate((startX - 8) / 16, -startY / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
+			graphicsHolderNew.translate((startX - 8) / 16, -startY / 16, (startZ - 8) / 16 - SMALL_OFFSET * (layer + 2));
 			graphicsHolderNew.scale(1 / SCALE, 1 / SCALE, 1);
 			IDrawing.drawTexture(graphicsHolderNew, x, y, 0, x + width, y + height, 0, facing, color, GraphicsHolder.getDefaultLight());
 			graphicsHolderNew.pop();

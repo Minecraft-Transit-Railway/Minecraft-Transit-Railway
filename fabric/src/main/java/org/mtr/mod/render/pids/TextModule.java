@@ -17,6 +17,7 @@ public class TextModule extends PIDSModule {
     public final String type = "text";
     protected IGui.HorizontalAlignment align = IGui.HorizontalAlignment.LEFT;
 
+    protected int layer = 1;
     protected int color = 0xFFFFFF;
     protected int arrival = 0;
     protected String template = "";
@@ -27,6 +28,7 @@ public class TextModule extends PIDSModule {
         data.unpackInt("color", (value) -> color = value);
         data.unpackInt("arrival", (value) -> arrival = value);
         data.unpackString("template", (value) -> template = value);
+        data.unpackInt("layer", (value) -> this.layer = value);
     }
 
     protected ArrayList<String> getText(ObjectList<ArrivalResponse> arrivals) {
@@ -37,13 +39,22 @@ public class TextModule extends PIDSModule {
 
     @Override
     public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing) {
+        render(graphicsHolder, arrivals, renderPIDS, entity, blockPos, facing, null);
+    }
+
+    public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing, String textOverride) {
         final float textPadding = height * 0.1f;
         ArrayList<String> placeholders = getText(arrivals);
         if (placeholders == null || placeholders.isEmpty()) {
             return;
         }
-        String text = String.format(template, placeholders.toArray());
-        RenderPIDS.renderText(graphicsHolder, text, x + textPadding, y + textPadding, height - textPadding * 2, color, width - textPadding * 2, align);
+        String text;
+        if (textOverride != null) {
+            text = textOverride;
+        } else {
+            text = String.format(template, placeholders.toArray());
+        }
+        RenderPIDS.renderText(graphicsHolder, text, x + textPadding, y + textPadding, height - textPadding * 2, color, width - textPadding * 2, align, layer);
     }
 
     public int getArrival() {
