@@ -29,7 +29,7 @@ public final class ArrivalsCacheServer extends ArrivalsCache {
 		Init.sendHttpRequest(
 				"operation/arrivals",
 				world,
-				Utilities.getJsonObjectFromData(new ArrivalsRequest(new LongImmutableList(platformIds), 5, 10)).toString(),
+				Utilities.getJsonObjectFromData(new ArrivalsRequest(new LongImmutableList(platformIds), 10, platformIds.size() * 10)).toString(),
 				responseString -> {
 					final Response response = Response.create(Utilities.parseJson(responseString));
 					millisOffset = response.getCurrentTime() - System.currentTimeMillis();
