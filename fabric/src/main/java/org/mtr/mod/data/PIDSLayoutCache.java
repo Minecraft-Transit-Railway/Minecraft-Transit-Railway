@@ -69,6 +69,12 @@ public class PIDSLayoutCache {
         pidsRequestStatus.remove(metadata.id);
     }
 
+    public void removeLayout(String key) {
+        pidsLayoutData.remove(key);
+        pidsMetadata.remove(key);
+        pidsRequestStatus.put(key, RequestStatus.SKIP);
+    }
+
     public void setLayout(String key, String layout) {
         pidsLayoutData.put(key, new PIDSLayoutEntry(layout, new PIDSRenderController(layout)));
         pidsRequestStatus.remove(key);
@@ -88,6 +94,7 @@ public class PIDSLayoutCache {
     }
 
     private enum RequestStatus {
+        SKIP,
         PENDING,
         FAILED
     }

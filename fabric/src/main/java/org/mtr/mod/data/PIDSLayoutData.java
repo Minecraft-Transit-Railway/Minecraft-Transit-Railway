@@ -59,6 +59,10 @@ public class PIDSLayoutData extends PersistenceStateExtension {
         pidsLayoutData.put(key, new PIDSLayoutEntry(value));
     }
 
+    public void removeLayout(String key) {
+        pidsLayoutData.remove(key);
+    }
+
     /**
      * @return a map of all the layout metadata
      */

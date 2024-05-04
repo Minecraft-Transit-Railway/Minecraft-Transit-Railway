@@ -33,7 +33,7 @@ public class PIDSLayoutEditScreen extends ScreenExtension implements IGui {
             // Add the new metadata locally
             InitClient.pidsLayoutCache.updateMetadata(metadata);
             // Create a new dashboard screen so that all of the new data is displayed
-            MinecraftClient.getInstance().openScreen(new Screen(new PIDSDashboardScreen()));
+            onClose2();
         });
         // validate JSON
         try {
@@ -122,5 +122,10 @@ public class PIDSLayoutEditScreen extends ScreenExtension implements IGui {
     @Override
     public boolean isPauseScreen2() {
         return false;
+    }
+
+    @Override
+    public void onClose2() {
+        MinecraftClient.getInstance().openScreen(new Screen(new PIDSDashboardScreen()));
     }
 }

@@ -11,6 +11,8 @@ import org.mtr.mod.Init;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 
+import javax.annotation.Nullable;
+
 public class DeleteConfirmationScreen extends ScreenExtension implements IGui {
 
 	private final Runnable deleteCallback;
@@ -22,7 +24,7 @@ public class DeleteConfirmationScreen extends ScreenExtension implements IGui {
 	private static final int BUTTON_WIDTH = 100;
 	private static final int BUTTON_HALF_PADDING = 10;
 
-	public DeleteConfirmationScreen(Runnable deleteCallback, String name, DashboardScreen dashboardScreen) {
+	public DeleteConfirmationScreen(Runnable deleteCallback, String name, @Nullable DashboardScreen dashboardScreen) {
 		super();
 
 		this.deleteCallback = deleteCallback;
@@ -56,7 +58,9 @@ public class DeleteConfirmationScreen extends ScreenExtension implements IGui {
 	@Override
 	public void onClose2() {
 		super.onClose2();
-		MinecraftClient.getInstance().openScreen(new Screen(dashboardScreen));
+		if (dashboardScreen != null) {
+			MinecraftClient.getInstance().openScreen(new Screen(dashboardScreen));
+		}
 	}
 
 	private void onYes() {

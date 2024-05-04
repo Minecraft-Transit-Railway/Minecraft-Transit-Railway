@@ -12,6 +12,7 @@ import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.PIDSLayoutData;
+import org.mtr.mod.packet.PacketDeletePIDSLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +26,7 @@ public class PIDSDashboardScreen extends ScreenExtension implements IGui {
     private final ArrayList<PIDSLayoutSelectorScreen.LayoutListItem> allLayouts;
 
     public PIDSDashboardScreen() {
-        this.layoutList = new DashboardList(null, null, this::onEdit, null, null, null, null, () -> MinecraftClientData.PIDS_LAYOUT_SEARCH, text -> MinecraftClientData.PIDS_LAYOUT_SEARCH = text);
+        this.layoutList = new DashboardList(null, null, this::onEdit, null, null, this::onDelete, null, () -> MinecraftClientData.PIDS_LAYOUT_SEARCH, text -> MinecraftClientData.PIDS_LAYOUT_SEARCH = text);
         this.newLayoutButton = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.new_layout"), button -> MinecraftClient.getInstance().openScreen(new Screen(new PIDSLayoutEditScreen(""))));
         final ObjectImmutableList<PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata> metadata = InitClient.pidsLayoutCache.getMetadata();
         final HashMap<Long, PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata> layouts = new HashMap<>();
@@ -122,7 +123,7 @@ public class PIDSDashboardScreen extends ScreenExtension implements IGui {
     private void updateList() {
         final ObjectArrayList<DashboardListItem> availableLayouts = new ObjectArrayList<>();
         availableLayouts.addAll(allLayouts);
-        layoutList.setData(availableLayouts, false, false, true, false, false, false);
+        layoutList.setData(availableLayouts, false, false, true, false, false, true);
     }
 
     private void onEdit(DashboardListItem item, int index) {
@@ -143,5 +144,27 @@ public class PIDSDashboardScreen extends ScreenExtension implements IGui {
         } else {
             InitClient.pidsLayoutCache.setEditPending(id);
         }
+    }
+
+    private void onDelete(DashboardListItem item, int index) {
+        // find item id in allLayouts
+        String id = null;
+        PIDSLayoutSelectorScreen.LayoutListItem entry = null;
+        for (PIDSLayoutSelectorScreen.LayoutListItem listItem : allLayouts) {
+            if (listItem.id == item.id) {
+                id = listItem.metadata.id;
+                entry = listItem;
+                break;
+            }
+        }
+        if (id == null) {
+            return;
+        }
+        final String toDelete = id;
+        MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> {
+            InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDeletePIDSLayout(toDelete));
+            InitClient.pidsLayoutCache.removeLayout(toDelete);
+            MinecraftClient.getInstance().openScreen(new Screen(new PIDSDashboardScreen()));
+        }, entry.metadata.name, null)));
     }
 }
