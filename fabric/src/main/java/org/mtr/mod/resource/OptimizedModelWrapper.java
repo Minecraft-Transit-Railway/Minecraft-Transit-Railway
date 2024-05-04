@@ -20,6 +20,10 @@ public final class OptimizedModelWrapper {
 		optimizedModel = RenderVehicles.useOptimizedRendering() ? new OptimizedModel(materialGroupList.stream().map(materialGroup -> materialGroup.materialGroup).filter(Objects::nonNull).collect(Collectors.toList())) : null;
 	}
 
+	public OptimizedModelWrapper(OptimizedModel optimizedModel) {
+		this.optimizedModel = RenderVehicles.useOptimizedRendering() ? optimizedModel : null;
+	}
+
 	public static final class MaterialGroupWrapper {
 
 		@Nullable

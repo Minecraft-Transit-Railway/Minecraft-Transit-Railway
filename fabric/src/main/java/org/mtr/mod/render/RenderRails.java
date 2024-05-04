@@ -17,6 +17,7 @@ import org.mtr.mod.block.BlockPlatform;
 import org.mtr.mod.block.BlockSignalLightBase;
 import org.mtr.mod.block.BlockSignalSemaphoreBase;
 import org.mtr.mod.client.Config;
+import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
@@ -31,6 +32,14 @@ import java.util.Collections;
 import java.util.function.Function;
 
 public class RenderRails implements IGui {
+
+	private static final Identifier IRON_BLOCK_TEXTURE = new Identifier("textures/block/iron_block.png");
+	private static final Identifier METAL_TEXTURE = new Identifier(Init.MOD_ID, "textures/block/metal.png");
+	private static final Identifier RAIL_PREVIEW_TEXTURE = new Identifier(Init.MOD_ID, "textures/block/rail_preview.png");
+	private static final Identifier RAIL_TEXTURE = new Identifier("textures/block/rail.png");
+	private static final Identifier WHITE_TEXTURE = new Identifier(Init.MOD_ID, "textures/block/white.png");
+	private static final Identifier WOOL_TEXTURE = new Identifier("textures/block/white_wool.png");
+	private static final Identifier ONE_WAY_RAIL_ARROW_TEXTURE = new Identifier(Init.MOD_ID, "textures/block/one_way_rail_arrow.png");
 
 	public static void render() {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
@@ -111,7 +120,7 @@ public class RenderRails implements IGui {
 					break;
 				case CABLE_CAR:
 					if (rail.isPlatform() || rail.isSiding() || rail.getSpeedLimitKilometersPerHour(false) == RailType.CABLE_CAR_STATION.speedLimit || rail.getSpeedLimitKilometersPerHour(true) == RailType.CABLE_CAR_STATION.speedLimit) {
-						renderRailStandard(clientWorld, rail, 0.25F + SMALL_OFFSET, renderColors, 0.25F, new Identifier(Init.MOD_ID, "textures/block/metal.png"), 0.25F, 0, 0.75F, 1);
+						renderRailStandard(clientWorld, rail, 0.25F + SMALL_OFFSET, renderColors, 0.25F, METAL_TEXTURE, 0.25F, 0, 0.75F, 1);
 					}
 					if (renderColors && !rail.isPlatform() && !rail.isSiding()) {
 						renderRailStandard(clientWorld, rail, 0.5F + SMALL_OFFSET, true, 1, null, 0, 0.75F, 1, 0.25F);
@@ -125,7 +134,7 @@ public class RenderRails implements IGui {
 							(float) (y2 - offset.getYMapped() + 0.5),
 							(float) (z3 - offset.getZMapped()),
 							renderColors ? RailType.getRailColor(rail) : ARGB_BLACK
-					), 0, 0));
+					), 2, 0, 0));
 
 					break;
 				case AIRPLANE:
@@ -133,7 +142,7 @@ public class RenderRails implements IGui {
 						renderRailStandard(clientWorld, rail, true, 1);
 						renderSignalsStandard(clientWorld, rail);
 					} else {
-						renderRailStandard(clientWorld, rail, 0.0625F + SMALL_OFFSET, false, 0.25F, new Identifier("textures/block/iron_block.png"), 0.25F, 0, 0.75F, 1);
+						renderRailStandard(clientWorld, rail, 0.0625F + SMALL_OFFSET, false, 0.25F, IRON_BLOCK_TEXTURE, 0.25F, 0, 0.75F, 1);
 					}
 					break;
 			}
@@ -157,33 +166,58 @@ public class RenderRails implements IGui {
 	}
 
 	private static void renderRailStandard(ClientWorld clientWorld, Rail rail, boolean renderColors, float railWidth) {
-		renderRailStandard(clientWorld, rail, 0.065625F, renderColors, railWidth, renderColors && RailType.getRailColor(rail) == RailType.QUARTZ.color ? new Identifier(Init.MOD_ID, "textures/block/rail_preview.png") : new Identifier("textures/block/rail.png"), -1, -1, -1, -1);
+		renderRailStandard(clientWorld, rail, 0.065625F, renderColors, railWidth, renderColors && RailType.getRailColor(rail) == RailType.QUARTZ.color ? RAIL_PREVIEW_TEXTURE : RAIL_TEXTURE, -1, -1, -1, -1);
 	}
 
 	private static void renderRailStandard(ClientWorld clientWorld, Rail rail, float yOffset, boolean renderColors, float railWidth, @Nullable Identifier texture, float u1, float v1, float u2, float v2) {
-		if (renderColors || texture != null) {
+		final long speedLimit1 = rail.getSpeedLimitKilometersPerHour(false);
+		final long speedLimit2 = rail.getSpeedLimitKilometersPerHour(true);
+		final boolean useObj = RenderVehicles.useOptimizedRendering(); // TODO
+
+		if (renderColors && (speedLimit1 == 0 || speedLimit2 == 0)) {
+			rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+				RenderTrains.scheduleRender(ONE_WAY_RAIL_ARROW_TEXTURE, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+					IDrawing.drawTexture(graphicsHolder, x1, y1 + yOffset + 0.125, z1, x2, y1 + yOffset + 0.125 + SMALL_OFFSET, z2, x3, y2 + yOffset + 0.125, z3, x4, y2 + yOffset + 0.125 + SMALL_OFFSET, z4, offset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, GraphicsHolder.getDefaultLight());
+					IDrawing.drawTexture(graphicsHolder, x2, y1 + yOffset + 0.125 + SMALL_OFFSET, z2, x1, y1 + yOffset + 0.125, z1, x4, y2 + yOffset + 0.125 + SMALL_OFFSET, z4, x3, y2 + yOffset + 0.125, z3, offset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, GraphicsHolder.getDefaultLight());
+				});
+			}, 1, -1, 1);
+		}
+
+		if (useObj) {
 			rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 				final BlockPos blockPos = Init.newBlockPos(x1, y1, z1);
-				final long speedLimit1 = rail.getSpeedLimitKilometersPerHour(false);
-				final long speedLimit2 = rail.getSpeedLimitKilometersPerHour(true);
+				final int light = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
 
-				if (renderColors && (speedLimit1 == 0 || speedLimit2 == 0)) {
-					RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/one_way_rail_arrow.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
-						IDrawing.drawTexture(graphicsHolder, x1, y1 + yOffset, z1, x2, y1 + yOffset + SMALL_OFFSET, z2, x3, y2 + yOffset, z3, x4, y2 + yOffset + SMALL_OFFSET, z4, offset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, GraphicsHolder.getDefaultLight());
-						IDrawing.drawTexture(graphicsHolder, x2, y1 + yOffset + SMALL_OFFSET, z2, x1, y1 + yOffset, z1, x4, y2 + yOffset + SMALL_OFFSET, z4, x3, y2 + yOffset, z3, offset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, GraphicsHolder.getDefaultLight());
+				CustomResourceLoader.getRailById(rail.getTransportMode(), "default", optimizedModel -> {
+					final double differenceX = x3 - x1;
+					final double differenceZ = z3 - z1;
+					final double yaw = Math.atan2(differenceZ, differenceX);
+					final double pitch = Math.atan2(y2 - y1, Math.sqrt(differenceX * differenceX + differenceZ * differenceZ));
+					RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
+						graphicsHolder.push();
+						graphicsHolder.translate((x1 + x3) / 2 - offset.getXMapped(), (y1 + y2) / 2 - offset.getYMapped(), (z1 + z3) / 2 - offset.getZMapped());
+						graphicsHolder.rotateYRadians((float) (Math.PI / 2 - yaw));
+						graphicsHolder.rotateXRadians((float) -pitch);
+						CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(optimizedModel, graphicsHolder, light);
+						graphicsHolder.pop();
 					});
-				}
+				});
+			}, 2, 0, 0);
+		}
 
-				if (texture != null) {
-					final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F + (float) Config.trackTextureOffset() / Config.TRACK_OFFSET_COUNT;
-					final int color = renderColors || !Config.hideSpecialRailColors() && (rail.isPlatform() || rail.isSiding()) ? RailType.getRailColor(rail) : ARGB_WHITE;
-					final int light = renderColors ? GraphicsHolder.getDefaultLight() : LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
-					RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
-						IDrawing.drawTexture(graphicsHolder, x1, y1 + yOffset, z1, x2, y1 + yOffset + SMALL_OFFSET, z2, x3, y2 + yOffset, z3, x4, y2 + yOffset + SMALL_OFFSET, z4, offset, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light);
-						IDrawing.drawTexture(graphicsHolder, x2, y1 + yOffset + SMALL_OFFSET, z2, x1, y1 + yOffset, z1, x4, y2 + yOffset + SMALL_OFFSET, z4, x3, y2 + yOffset, z3, offset, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light);
-					});
-				}
-			}, -railWidth, railWidth);
+		final boolean isNonObjRendering = !useObj && texture != null;
+		if (isNonObjRendering || renderColors) {
+			final int color = renderColors || !Config.hideSpecialRailColors() && (rail.isPlatform() || rail.isSiding()) ? RailType.getRailColor(rail) : ARGB_WHITE;
+			rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+				final BlockPos blockPos = Init.newBlockPos(x1, y1, z1);
+				final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F + (float) Config.trackTextureOffset() / Config.TRACK_OFFSET_COUNT;
+				final int light = renderColors ? GraphicsHolder.getDefaultLight() : LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
+
+				RenderTrains.scheduleRender(isNonObjRendering ? texture : IRON_BLOCK_TEXTURE, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+					IDrawing.drawTexture(graphicsHolder, x1, y1 + yOffset, z1, x2, y1 + yOffset + SMALL_OFFSET, z2, x3, y2 + yOffset, z3, x4, y2 + yOffset + SMALL_OFFSET, z4, offset, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light);
+					IDrawing.drawTexture(graphicsHolder, x2, y1 + yOffset + SMALL_OFFSET, z2, x1, y1 + yOffset, z1, x4, y2 + yOffset + SMALL_OFFSET, z4, x3, y2 + yOffset, z3, offset, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light);
+				});
+			}, 2, -railWidth, railWidth);
 		}
 	}
 
@@ -201,11 +235,11 @@ public class RenderRails implements IGui {
 			rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 				final BlockPos blockPos = Init.newBlockPos(x1, y1, z1);
 				final int light = shouldGlow ? GraphicsHolder.getDefaultLight() : LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
-				RenderTrains.scheduleRender(shouldGlow ? new Identifier(Init.MOD_ID, "textures/block/white.png") : new Identifier("textures/block/white_wool.png"), false, shouldGlow ? RenderTrains.QueuedRenderLayer.LIGHT : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+				RenderTrains.scheduleRender(shouldGlow ? WHITE_TEXTURE : WOOL_TEXTURE, false, shouldGlow ? RenderTrains.QueuedRenderLayer.LIGHT : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 					IDrawing.drawTexture(graphicsHolder, x1, y1, z1, x2, y1 + SMALL_OFFSET, z2, x3, y2, z3, x4, y2 + SMALL_OFFSET, z4, offset, u1, 0, u2, 1, Direction.UP, color, light);
 					IDrawing.drawTexture(graphicsHolder, x4, y2 + SMALL_OFFSET, z4, x3, y2, z3, x2, y1 + SMALL_OFFSET, z2, x1, y1, z1, offset, u1, 0, u2, 1, Direction.UP, color, light);
 				});
-			}, u1 - 1, u2 - 1);
+			}, 1, u1 - 1, u2 - 1);
 		}
 	}
 }
