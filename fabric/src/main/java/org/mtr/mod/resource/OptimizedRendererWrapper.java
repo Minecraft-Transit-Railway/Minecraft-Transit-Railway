@@ -2,11 +2,12 @@ package org.mtr.mod.resource;
 
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.OptimizedRenderer;
+import org.mtr.mod.data.IGui;
 import org.mtr.mod.render.RenderVehicles;
 
 import javax.annotation.Nullable;
 
-public final class OptimizedRendererWrapper {
+public final class OptimizedRendererWrapper implements IGui {
 
 	@Nullable
 	private final OptimizedRenderer optimizedRenderer;
@@ -29,7 +30,7 @@ public final class OptimizedRendererWrapper {
 
 	public void queue(OptimizedModelWrapper optimizedModel, GraphicsHolder graphicsHolder, int light) {
 		if (optimizedRenderer != null && optimizedModel.optimizedModel != null) {
-			optimizedRenderer.queue(optimizedModel.optimizedModel, graphicsHolder, light);
+			optimizedRenderer.queue(optimizedModel.optimizedModel, graphicsHolder, ARGB_WHITE, light);
 		}
 	}
 

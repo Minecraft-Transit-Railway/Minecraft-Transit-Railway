@@ -215,7 +215,7 @@ public class RenderVehicles implements IGui {
 
 	public static boolean useOptimizedRendering() {
 		// TODO figure out why versions below 1.20 can't load shaders for optimized rendering
-		return Keys.MOD_VERSION.startsWith("1.20") && Config.useDynamicFPS() && OptimizedRenderer.hasOptimizedRendering();
+		return Keys.MOD_VERSION.split("\\+")[1].startsWith("1.20") && Config.useDynamicFPS() && OptimizedRenderer.hasOptimizedRendering();
 	}
 
 	private static void renderConnection(
