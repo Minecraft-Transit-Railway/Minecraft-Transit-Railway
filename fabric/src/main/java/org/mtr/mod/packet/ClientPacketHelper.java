@@ -62,6 +62,10 @@ public final class ClientPacketHelper {
 		openScreen(new TicketMachineScreen(balance), screenExtension -> screenExtension instanceof TicketMachineScreen);
 	}
 
+	public static void openCustomRailScreen(int speed, boolean isOneWay) {
+		openScreen(new CustomRailScreen(speed, isOneWay), screenExtension -> screenExtension instanceof CustomRailScreen);
+	}
+
 	private static void openScreen(ScreenExtension screenExtension, Predicate<ScreenExtension> isInstance) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final Screen screen = minecraftClient.getCurrentScreenMapped();

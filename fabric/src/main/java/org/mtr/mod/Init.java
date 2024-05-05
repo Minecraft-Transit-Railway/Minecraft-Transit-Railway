@@ -75,6 +75,7 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketFetchArrivals.class, PacketFetchArrivals::new);
 		REGISTRY.registerPacket(PacketForwardClientRequest.class, PacketForwardClientRequest::new);
 		REGISTRY.registerPacket(PacketOpenBlockEntityScreen.class, PacketOpenBlockEntityScreen::new);
+		REGISTRY.registerPacket(PacketOpenCustomRailScreen.class, PacketOpenCustomRailScreen::new);
 		REGISTRY.registerPacket(PacketOpenDashboardScreen.class, PacketOpenDashboardScreen::new);
 		REGISTRY.registerPacket(PacketOpenLiftCustomizationScreen.class, PacketOpenLiftCustomizationScreen::new);
 		REGISTRY.registerPacket(PacketOpenPIDSConfigScreen.class, PacketOpenPIDSConfigScreen::new);
@@ -82,6 +83,7 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketPressLiftButton.class, PacketPressLiftButton::new);
 		REGISTRY.registerPacket(PacketRequestData.class, PacketRequestData::new);
 		REGISTRY.registerPacket(PacketTurnOnBlockEntity.class, PacketTurnOnBlockEntity::new);
+		REGISTRY.registerPacket(PacketUpdateCustomRail.class, PacketUpdateCustomRail::new);
 		REGISTRY.registerPacket(PacketUpdateData.class, PacketUpdateData::new);
 		REGISTRY.registerPacket(PacketUpdateLiftTrackFloorConfig.class, PacketUpdateLiftTrackFloorConfig::new);
 		REGISTRY.registerPacket(PacketUpdatePIDSConfig.class, PacketUpdatePIDSConfig::new);

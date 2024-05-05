@@ -60,6 +60,7 @@ public final class Items {
 		RAIL_CONNECTOR_200_ONE_WAY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_200_one_way"), itemSettings -> new Item(new ItemRailModifier(true, false, true, true, RailType.QUARTZ, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_300 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_300"), itemSettings -> new Item(new ItemRailModifier(true, false, true, false, RailType.DIAMOND, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_300_ONE_WAY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_300_one_way"), itemSettings -> new Item(new ItemRailModifier(true, false, true, true, RailType.DIAMOND, itemSettings)), CreativeModeTabs.CORE);
+		RAIL_CONNECTOR_CUSTOM = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_custom"), itemSettings -> new Item(new ItemCustomRailModifier(true, false, true, RailType.CUSTOM, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_PLATFORM = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_platform"), itemSettings -> new Item(new ItemRailModifier(true, true, true, false, RailType.PLATFORM, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_SIDING = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_siding"), itemSettings -> new Item(new ItemRailModifier(true, true, true, false, RailType.SIDING, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_TURN_BACK = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_turn_back"), itemSettings -> new Item(new ItemRailModifier(true, false, true, false, RailType.TURN_BACK, itemSettings)), CreativeModeTabs.CORE);
@@ -176,6 +177,7 @@ public final class Items {
 	public static final ItemRegistryObject RAIL_CONNECTOR_60_ONE_WAY;
 	public static final ItemRegistryObject RAIL_CONNECTOR_80;
 	public static final ItemRegistryObject RAIL_CONNECTOR_80_ONE_WAY;
+	public static final ItemRegistryObject RAIL_CONNECTOR_CUSTOM;
 	public static final ItemRegistryObject RAIL_CONNECTOR_CABLE_CAR;
 	public static final ItemRegistryObject RAIL_CONNECTOR_PLATFORM;
 	public static final ItemRegistryObject RAIL_CONNECTOR_RUNWAY;

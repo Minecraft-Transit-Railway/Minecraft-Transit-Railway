@@ -12,6 +12,7 @@ public enum RailType implements IGui {
 	BLAZE(160, MapColor.getOrangeMapped(), false, true, true, Rail.Shape.QUADRATIC),
 	QUARTZ(200, MapColor.getOffWhiteMapped(), false, true, true, Rail.Shape.QUADRATIC),
 	DIAMOND(300, MapColor.getDiamondBlueMapped(), false, true, true, Rail.Shape.QUADRATIC),
+	CUSTOM(20, MapColor.getWhiteGrayMapped(), false, true, true, Rail.Shape.QUADRATIC),
 	PLATFORM(80, MapColor.getRedMapped(), true, false, true, Rail.Shape.QUADRATIC),
 	SIDING(40, MapColor.getYellowMapped(), true, false, true, Rail.Shape.QUADRATIC),
 	TURN_BACK(80, MapColor.getBlueMapped(), false, false, true, Rail.Shape.QUADRATIC),
