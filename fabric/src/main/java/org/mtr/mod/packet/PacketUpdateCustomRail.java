@@ -1,6 +1,6 @@
 package org.mtr.mod.packet;
 
-import net.minecraft.nbt.NbtCompound;
+import org.mtr.mapping.holder.CompoundTag;
 import org.mtr.mapping.holder.ItemStack;
 import org.mtr.mapping.holder.MinecraftServer;
 import org.mtr.mapping.holder.ServerPlayerEntity;
@@ -32,8 +32,7 @@ public class PacketUpdateCustomRail extends PacketHandler {
     @Override
     public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
         final ItemStack itemStack = serverPlayerEntity.getMainHandStack();
-
-        NbtCompound nbt = itemStack.data.getOrCreateNbt();
+        CompoundTag nbt = itemStack.getOrCreateTag();
         nbt.putInt("railSpeed", speed);
         nbt.putBoolean("isOneWay", isOneWay);
     }
