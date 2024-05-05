@@ -22,6 +22,7 @@ import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.RailType;
 import org.mtr.mod.item.ItemBlockClickingBase;
+import org.mtr.mod.item.ItemCustomRailModifier;
 import org.mtr.mod.item.ItemNodeModifierBase;
 import org.mtr.mod.item.ItemRailModifier;
 import org.mtr.mod.item.ItemRailShapeModifier;
@@ -67,7 +68,7 @@ public class RenderRails implements IGui {
 		// Ghost rail
 		final ItemStack itemStack = clientPlayerEntity.getStackInHand(clientPlayerEntity.getActiveHand());
 		final Item item = itemStack.getItem();
-		if (item.data instanceof ItemRailModifier) {
+		if (item.data instanceof ItemRailModifier || item.data instanceof ItemCustomRailModifier) {
 			final HitResult hitResult = minecraftClient.getCrosshairTargetMapped();
 			if (hitResult != null) {
 				final Vector3d hitPos = hitResult.getPos();
@@ -85,7 +86,12 @@ public class RenderRails implements IGui {
 								Init.blockPosToPosition(posStart), blockStateStart.getBlock().data instanceof BlockNode ? BlockNode.getAngle(blockStateStart) : blockStateEnd.getBlock().data instanceof BlockNode.BlockContinuousMovementNode ? angleEnd : EntityHelper.getYaw(new Entity(clientPlayerEntity.data)) + 90,
 								Init.blockPosToPosition(posEnd), angleEnd
 						);
-						final Rail rail = ((ItemRailModifier) item.data).createRail(ItemNodeModifierBase.getTransportMode(compoundTag), blockStateStart, blockStateEnd, posStart, posEnd, angles.left(), angles.right());
+						final Rail rail;
+						if (item.data instanceof ItemRailModifier) {
+							rail = ((ItemRailModifier) item.data).createRail(ItemNodeModifierBase.getTransportMode(compoundTag), blockStateStart, blockStateEnd, posStart, posEnd, angles.left(), angles.right());
+						} else {
+							rail = ((ItemCustomRailModifier) item.data).createRail(ItemNodeModifierBase.getTransportMode(compoundTag), blockStateStart, blockStateEnd, posStart, posEnd, angles.left(), angles.right(), itemStack);
+						}
 						if (rail != null) {
 							railsToRender.add(rail);
 						}

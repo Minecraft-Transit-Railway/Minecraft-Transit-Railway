@@ -68,7 +68,6 @@ public class ItemCustomRailModifier extends ItemNodeModifierBase {
             final Position positionEnd = Init.blockPosToPosition(posEnd);
             final Rail rail = Rail.newRail(positionStart, facingStart, positionEnd, facingEnd, railType.railShape, 0, "", getIsOneWay(stack) ? 0 : getSpeedLimit(stack), getSpeedLimit(stack), false, false, railType.canAccelerate, false, railType.hasSignal, transportMode);
 
-
             if (rail.isValid()) {
                 return rail;
             }
