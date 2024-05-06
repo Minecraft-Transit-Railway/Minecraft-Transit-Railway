@@ -9,7 +9,6 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.Init;
-import org.mtr.mod.Keys;
 import org.mtr.mod.client.*;
 import org.mtr.mod.data.IGui;
 
@@ -214,8 +213,7 @@ public class RenderVehicles implements IGui {
 	}
 
 	public static boolean useOptimizedRendering() {
-		// TODO figure out why versions below 1.20 can't load shaders for optimized rendering
-		return Keys.MOD_VERSION.split("\\+")[1].startsWith("1.20") && Config.useDynamicFPS() && OptimizedRenderer.hasOptimizedRendering();
+		return Config.useDynamicFPS() && OptimizedRenderer.hasOptimizedRendering();
 	}
 
 	private static void renderConnection(
