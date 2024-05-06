@@ -41,6 +41,7 @@ subprojects {
 			exclude(dependency("org.mtr:Minecraft-Mappings-common:.*"))
 			exclude(dependency("org.mtr:Minecraft-Mappings-fabric-${minecraftVersion}:.*"))
 			exclude(dependency("org.mtr:Minecraft-Mappings-forge-${minecraftVersion}:.*"))
+			exclude(dependency("de.javagl:obj:.*"))
 		}
 		relocate "com.logisticscraft", "org.mtr.libraries.com.logisticscraft"
 		relocate "de.javagl", "org.mtr.libraries.de.javagl"
