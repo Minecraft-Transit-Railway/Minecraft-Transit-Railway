@@ -74,7 +74,7 @@ public class RenderRails implements IGui {
 		});
 
 		// Ghost rail
-		final ItemStack itemStack = clientPlayerEntity.getStackInHand(clientPlayerEntity.getActiveHand());
+		final ItemStack itemStack = getStackInHand();
 		final Item item = itemStack.getItem();
 		if (item.data instanceof ItemRailModifier) {
 			final HitResult hitResult = minecraftClient.getCrosshairTargetMapped();
@@ -241,5 +241,16 @@ public class RenderRails implements IGui {
 				});
 			}, 1, u1 - 1, u2 - 1);
 		}
+	}
+
+	private static ItemStack getStackInHand() {
+		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+		if (clientPlayerEntity != null) {
+			try {
+				return clientPlayerEntity.getStackInHand(clientPlayerEntity.getActiveHand());
+			} catch (Exception ignored) {
+			}
+		}
+		return ItemStack.getEmptyMapped();
 	}
 }
