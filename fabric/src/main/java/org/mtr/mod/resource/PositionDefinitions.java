@@ -17,6 +17,11 @@ public final class PositionDefinitions extends PositionDefinitionsSchema {
 		positionDefinitions.forEach(positionDefinition -> nameToDefinition.put(positionDefinition.getName(), positionDefinition));
 	}
 
+	PositionDefinitions() {
+		super();
+		positionDefinitions.add(new PositionDefinition());
+	}
+
 	void getPositionDefinition(String name, BiConsumer<ObjectArrayList<PartPosition>, ObjectArrayList<PartPosition>> consumer) {
 		final PositionDefinition positionDefinition = nameToDefinition.get(name);
 		if (positionDefinition != null) {

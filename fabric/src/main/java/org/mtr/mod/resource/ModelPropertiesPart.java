@@ -41,6 +41,14 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		displayColorCjkInt = parseColor(displayColorCjk, displayColorInt);
 	}
 
+	ModelPropertiesPart(ObjectSet<String> names) {
+		super(PartCondition.NORMAL, RenderStage.EXTERIOR, PartType.NORMAL, 0, 0, "", "", 0, 0, 0, DisplayType.DESTINATION, "", 0, 0, DoorAnimationType.STANDARD);
+		this.names.addAll(names);
+		positionDefinitions.add("");
+		displayColorInt = 0;
+		displayColorCjkInt = 0;
+	}
+
 	/**
 	 * Maps each part name to the corresponding part and collects all floors, doors, and doorways for processing later.
 	 * Writes to the collective vehicle model parts (one with doors, one without doors).
@@ -106,8 +114,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		}));
 	}
 
-	public void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, ObjectArrayList<Box> openDoorways) {
-		if (VehicleResource.matchesCondition(vehicle, condition, openDoorways.isEmpty())) {
+	public void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, int light, ObjectArrayList<Box> openDoorways) {
+		if (vehicle == null || VehicleResource.matchesCondition(vehicle, condition, openDoorways.isEmpty())) {
 			switch (type) {
 				case NORMAL:
 					final ObjectIntImmutablePair<RenderTrains.QueuedRenderLayer> renderProperties = getRenderProperties(renderStage, light, vehicle);
@@ -118,10 +126,12 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 					}
 					break;
 				case DISPLAY:
-					if (displayOptions.contains(DisplayOption.SEVEN_SEGMENT.toString())) {
-						RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/sign/seven_segment.png"), true, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> renderDisplay(graphicsHolder, offset, storedMatrixTransformations, vehicle, true));
-					} else {
-						RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> renderDisplay(graphicsHolder, offset, storedMatrixTransformations, vehicle, false));
+					if (vehicle != null) {
+						if (displayOptions.contains(DisplayOption.SEVEN_SEGMENT.toString())) {
+							RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/sign/seven_segment.png"), true, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> renderDisplay(graphicsHolder, offset, storedMatrixTransformations, vehicle, true));
+						} else {
+							RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> renderDisplay(graphicsHolder, offset, storedMatrixTransformations, vehicle, false));
+						}
 					}
 					break;
 			}
@@ -156,13 +166,13 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		return doorXMultiplier != 0 || doorZMultiplier != 0;
 	}
 
-	private void renderNormal(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, ObjectIntImmutablePair<RenderTrains.QueuedRenderLayer> renderProperties, ObjectArrayList<Box> openDoorways, int light, GraphicsHolder graphicsHolder, Vector3d offset) {
+	private void renderNormal(StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, ObjectIntImmutablePair<RenderTrains.QueuedRenderLayer> renderProperties, ObjectArrayList<Box> openDoorways, int light, GraphicsHolder graphicsHolder, Vector3d offset) {
 		storedMatrixTransformations.transform(graphicsHolder, offset);
 		partDetailsList.forEach(partDetails -> {
 			final boolean canOpenDoors = openDoorways.contains(partDetails.doorway);
-			final float x = (float) (partDetails.x + doorAnimationType.getDoorAnimationX(doorXMultiplier, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0));
+			final float x = (float) (partDetails.x + (vehicle == null ? 0 : doorAnimationType.getDoorAnimationX(doorXMultiplier, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0)));
 			final float y = (float) partDetails.y;
-			final float z = (float) (partDetails.z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0, vehicle.vehicleExtraData.getDoorMultiplier() > 0));
+			final float z = (float) (partDetails.z + (vehicle == null ? 0 : doorAnimationType.getDoorAnimationZ(doorZMultiplier, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0, vehicle.vehicleExtraData.getDoorMultiplier() > 0)));
 
 			if (RenderVehicles.useOptimizedRendering()) {
 				// If doors are open, only render the optimized door parts
@@ -295,10 +305,10 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		}
 	}
 
-	private static ObjectIntImmutablePair<RenderTrains.QueuedRenderLayer> getRenderProperties(RenderStage renderStage, int light, VehicleExtension vehicle) {
+	private static ObjectIntImmutablePair<RenderTrains.QueuedRenderLayer> getRenderProperties(RenderStage renderStage, int light, @Nullable VehicleExtension vehicle) {
 		if (renderStage == RenderStage.ALWAYS_ON_LIGHT) {
 			return new ObjectIntImmutablePair<>(RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, GraphicsHolder.getDefaultLight());
-		} else {
+		} else if (vehicle != null) {
 			if (vehicle.getIsOnRoute()) {
 				switch (renderStage) {
 					case LIGHT:

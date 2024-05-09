@@ -1,6 +1,7 @@
 package org.mtr.mod.resource;
 
 import org.mtr.core.serializer.ReaderBase;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mod.generated.resource.ModelPropertiesSchema;
 
@@ -51,6 +52,22 @@ public final class ModelProperties extends ModelPropertiesSchema {
 		barrierOuterBottomTexture = CustomResourceTools.formatIdentifier(barrierOuterBottomResource, "png");
 	}
 
+	ModelProperties(double modelYOffset) {
+		super(modelYOffset, "", "", "", "", "", "", 0, 0, 0, 0, "", "", "", "", "", "", 0, 0, 0, 0);
+		gangwayInnerSideTexture = null;
+		gangwayInnerTopTexture = null;
+		gangwayInnerBottomTexture = null;
+		gangwayOuterSideTexture = null;
+		gangwayOuterTopTexture = null;
+		gangwayOuterBottomTexture = null;
+		barrierInnerSideTexture = null;
+		barrierInnerTopTexture = null;
+		barrierInnerBottomTexture = null;
+		barrierOuterSideTexture = null;
+		barrierOuterTopTexture = null;
+		barrierOuterBottomTexture = null;
+	}
+
 	public void iterateParts(Consumer<ModelPropertiesPart> consumer) {
 		parts.forEach(consumer);
 	}
@@ -89,5 +106,11 @@ public final class ModelProperties extends ModelPropertiesSchema {
 
 	public double getBarrierZOffset() {
 		return barrierZOffset;
+	}
+
+	public void addPartsIfEmpty(ObjectSet<String> partNames) {
+		if (parts.isEmpty()) {
+			parts.add(new ModelPropertiesPart(partNames));
+		}
 	}
 }
