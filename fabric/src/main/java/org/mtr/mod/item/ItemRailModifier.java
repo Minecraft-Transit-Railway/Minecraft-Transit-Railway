@@ -5,11 +5,13 @@ import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.data.TwoPositionsBase;
 import org.mtr.core.tool.Angle;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockNode;
+import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.data.RailType;
 import org.mtr.mod.packet.PacketDeleteData;
 import org.mtr.mod.packet.PacketUpdateData;
@@ -21,6 +23,14 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 
 	private final boolean isOneWay;
 	private final RailType railType;
+
+	private static final Object2ObjectAVLTreeMap<TransportMode, ObjectArrayList<String>> LAST_STYLES = new Object2ObjectAVLTreeMap<>();
+
+	static {
+		for (final TransportMode transportMode : TransportMode.values()) {
+			LAST_STYLES.put(transportMode, transportMode == TransportMode.BOAT ? new ObjectArrayList<>() : ObjectArrayList.of(CustomResourceLoader.DEFAULT_RAIL_ID));
+		}
+	}
 
 	public ItemRailModifier(ItemSettings itemSettings) {
 		super(true, true, true, false, itemSettings);
@@ -91,20 +101,21 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 
 			final Position positionStart = Init.blockPosToPosition(posStart);
 			final Position positionEnd = Init.blockPosToPosition(posEnd);
+			final ObjectArrayList<String> styles = LAST_STYLES.get(transportMode);
 			final Rail rail;
 
 			switch (newRailType) {
 				case PLATFORM:
-					rail = Rail.newPlatformRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, new ObjectArrayList<>(), transportMode);
+					rail = Rail.newPlatformRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, styles, transportMode);
 					break;
 				case SIDING:
-					rail = Rail.newSidingRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, new ObjectArrayList<>(), transportMode);
+					rail = Rail.newSidingRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, styles, transportMode);
 					break;
 				case TURN_BACK:
-					rail = Rail.newTurnBackRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, new ObjectArrayList<>(), transportMode);
+					rail = Rail.newTurnBackRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, styles, transportMode);
 					break;
 				default:
-					rail = Rail.newRail(positionStart, facingStart, positionEnd, facingEnd, newRailType.railShape, 0, new ObjectArrayList<>(), isOneWay ? 0 : newRailType.speedLimit, newRailType.speedLimit, false, false, newRailType.canAccelerate, newRailType == RailType.RUNWAY, newRailType.hasSignal, transportMode);
+					rail = Rail.newRail(positionStart, facingStart, positionEnd, facingEnd, newRailType.railShape, 0, styles, isOneWay ? 0 : newRailType.speedLimit, newRailType.speedLimit, false, false, newRailType.canAccelerate, newRailType == RailType.RUNWAY, newRailType.hasSignal, transportMode);
 			}
 
 			if (rail.isValid() && isValidContinuousMovement) {
@@ -113,5 +124,10 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 		}
 
 		return null;
+	}
+
+	public static void setLastStyles(TransportMode transportMode, ObjectArrayList<String> styles) {
+		LAST_STYLES.get(transportMode).clear();
+		LAST_STYLES.get(transportMode).addAll(styles);
 	}
 }

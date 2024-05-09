@@ -376,6 +376,7 @@
 	"gui.mtr.rail_shape": "Rail shape:",
 	"gui.mtr.rail_shape_quadratic": "Quadratic",
 	"gui.mtr.rail_shape_two_radii": "Two Radii",
+	"gui.mtr.rail_style": "Rail style:",
 	"gui.mtr.realtime_only": "Realtime Arrivals Only",
 	"gui.mtr.refresh_path": "Refresh Path",
 	"gui.mtr.repeat_indefinitely": "Repeat Instructions Forever",

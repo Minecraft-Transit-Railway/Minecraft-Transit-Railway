@@ -13,6 +13,11 @@ public final class PositionDefinition extends PositionDefinitionSchema {
 		updateData(readerBase);
 	}
 
+	PositionDefinition() {
+		super("");
+		positions.add(new PartPosition());
+	}
+
 	public String getName() {
 		return name;
 	}

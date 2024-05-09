@@ -16,6 +16,7 @@ import org.mtr.mod.ObjectHolder;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.resource.*;
 
+import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
 
 public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstractMapping> {
@@ -57,6 +58,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		});
 
 		buildModel();
+		modelProperties.addPartsIfEmpty(nameToPart.keySet());
 		this.texture = texture;
 		this.modelProperties = modelProperties;
 		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(texture, nameToPart, nameToDisplayPart, positionDefinitions, floors, doorways, materialGroupsForPartConditionAndRenderStage, materialGroupsForPartConditionAndRenderStageDoorsClosed));
@@ -70,7 +72,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	public void render(GraphicsHolder graphicsHolder, int light, int overlay, float red, float green, float blue, float alpha) {
 	}
 
-	public void render(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, ObjectArrayList<Box> openDoorways) {
+	public void render(StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, int light, ObjectArrayList<Box> openDoorways) {
 		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.render(texture, storedMatrixTransformations, vehicle, light, openDoorways));
 	}
 
