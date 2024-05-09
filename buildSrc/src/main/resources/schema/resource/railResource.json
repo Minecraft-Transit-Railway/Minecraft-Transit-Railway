@@ -1,0 +1,45 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"id": {
+			"type": "string"
+		},
+		"name": {
+			"type": "string"
+		},
+		"color": {
+			"type": "string"
+		},
+		"modelResource": {
+			"type": "string"
+		},
+		"textureResource": {
+			"type": "string"
+		},
+		"flipTextureV": {
+			"type": "boolean"
+		},
+		"repeatInterval": {
+			"type": "number",
+			"minimum": 0
+		},
+		"modelYOffset": {
+			"type": "number"
+		}
+	},
+	"required": [
+		"id",
+		"name",
+		"color",
+		"string",
+		"modelResource",
+		"textureResource",
+		"flipTextureV",
+		"repeatInterval",
+		"modelYOffset"
+	]
+}

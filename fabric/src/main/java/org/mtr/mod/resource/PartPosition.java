@@ -10,6 +10,10 @@ public final class PartPosition extends PartPositionSchema {
 		updateData(readerBase);
 	}
 
+	PartPosition() {
+		super(0, 0, 0);
+	}
+
 	double getX() {
 		return x;
 	}

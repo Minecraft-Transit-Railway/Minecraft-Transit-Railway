@@ -8,9 +8,9 @@ import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.Keys;
@@ -27,21 +27,21 @@ import java.util.function.Consumer;
 public class CustomResourceLoader {
 
 	public static final OptimizedRendererWrapper OPTIMIZED_RENDERER_WRAPPER = new OptimizedRendererWrapper();
+	public static final String DEFAULT_RAIL_ID = "default";
+
 	private static final Object2ObjectAVLTreeMap<String, JsonElement> RESOURCE_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, ObjectArrayList<VehicleResource>> VEHICLES = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, Object2ObjectAVLTreeMap<String, VehicleResource>> VEHICLES_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final ObjectArrayList<SignResource> SIGNS = new ObjectArrayList<>();
 	private static final Object2ObjectAVLTreeMap<String, SignResource> SIGNS_CACHE = new Object2ObjectAVLTreeMap<>();
-	private static final Object2ObjectAVLTreeMap<TransportMode, ObjectArrayList<OptimizedModelWrapper>> RAILS = new Object2ObjectAVLTreeMap<>();
-	private static final Object2ObjectAVLTreeMap<TransportMode, Object2ObjectAVLTreeMap<String, OptimizedModelWrapper>> RAILS_CACHE = new Object2ObjectAVLTreeMap<>();
+	private static final ObjectArrayList<RailResource> RAILS = new ObjectArrayList<>();
+	private static final Object2ObjectAVLTreeMap<String, RailResource> RAILS_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
 
 	static {
 		for (final TransportMode transportMode : TransportMode.values()) {
 			VEHICLES.put(transportMode, new ObjectArrayList<>());
 			VEHICLES_CACHE.put(transportMode, new Object2ObjectAVLTreeMap<>());
-			RAILS.put(transportMode, new ObjectArrayList<>());
-			RAILS_CACHE.put(transportMode, new Object2ObjectAVLTreeMap<>());
 		}
 	}
 
@@ -52,6 +52,12 @@ public class CustomResourceLoader {
 		VEHICLES_CACHE.forEach((transportMode, vehicleResourcesCache) -> vehicleResourcesCache.clear());
 		SIGNS.clear();
 		SIGNS_CACHE.clear();
+		RAILS.clear();
+		RAILS_CACHE.clear();
+
+		final RailResource defaultRailResource = new RailResource(DEFAULT_RAIL_ID, "Default");
+		RAILS.add(defaultRailResource);
+		RAILS_CACHE.put(DEFAULT_RAIL_ID, defaultRailResource);
 
 		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_ID + ".json"), inputStream -> {
 			try {
@@ -64,18 +70,18 @@ public class CustomResourceLoader {
 					SIGNS.add(signResource);
 					SIGNS_CACHE.put(signResource.getId(), signResource);
 				});
+				customResources.iterateRails(CustomResourceLoader::addRail);
 			} catch (Exception e) {
 				Init.LOGGER.error("", e);
 			}
 		});
 
-		final OptimizedModelWrapper optimizedModel = new OptimizedModelWrapper(new OptimizedModel(new Identifier(Init.MOD_ID, "models/rail/rail.obj"), null));
-		RAILS.get(TransportMode.TRAIN).add(optimizedModel);
-		RAILS_CACHE.get(TransportMode.TRAIN).put("default", optimizedModel);
+		CustomResourcesConverter.convertRails(CustomResourceLoader::addRail);
 
 		OPTIMIZED_RENDERER_WRAPPER.finishReload();
-		Init.LOGGER.info("Loaded {} vehicle(s)", VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum));
-		Init.LOGGER.info("Loaded {} sign(s)", SIGNS.size());
+		Init.LOGGER.info("Loaded {} vehicles", VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum));
+		Init.LOGGER.info("Loaded {} signs", SIGNS.size());
+		Init.LOGGER.info("Loaded {} rails", RAILS.size());
 	}
 
 	public static void iterateVehicles(TransportMode transportMode, Consumer<VehicleResource> consumer) {
@@ -111,10 +117,14 @@ public class CustomResourceLoader {
 		return signIds;
 	}
 
-	public static void getRailById(TransportMode transportMode, String railId, Consumer<OptimizedModelWrapper> ifPresent) {
-		final OptimizedModelWrapper optimizedModel = RAILS_CACHE.get(transportMode).get(railId);
-		if (optimizedModel != null) {
-			ifPresent.accept(optimizedModel);
+	public static ObjectImmutableList<RailResource> getRails() {
+		return new ObjectImmutableList<>(RAILS);
+	}
+
+	public static void getRailById(String railId, Consumer<RailResource> ifPresent) {
+		final RailResource railResource = RAILS_CACHE.get(railId);
+		if (railResource != null) {
+			ifPresent.accept(railResource);
 		}
 	}
 
@@ -144,12 +154,21 @@ public class CustomResourceLoader {
 		}
 	}
 
-	private static JsonElement readResource(InputStream inputStream) {
+	public static JsonElement readResource(InputStream inputStream) {
 		try (final InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
 			return JsonParser.parseReader(inputStreamReader);
 		} catch (Exception e) {
 			Init.LOGGER.error("", e);
 			return new JsonObject();
 		}
+	}
+
+	private static void addRail(RailResource railResource) {
+		final RailResource railResource1 = new RailResource(railResource, "_1", " (Forwards)");
+		final RailResource railResource2 = new RailResource(railResource, "_2", " (Backwards)");
+		RAILS.add(railResource1);
+		RAILS.add(railResource2);
+		RAILS_CACHE.put(railResource1.getId(), railResource1);
+		RAILS_CACHE.put(railResource2.getId(), railResource2);
 	}
 }

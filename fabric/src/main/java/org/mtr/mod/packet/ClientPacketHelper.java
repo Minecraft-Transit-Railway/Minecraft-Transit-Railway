@@ -55,7 +55,7 @@ public final class ClientPacketHelper {
 	}
 
 	public static void openRailShapeModifierScreen(String railId) {
-		openScreen(new RailShapeModifierScreen(railId), screenExtension -> screenExtension instanceof RailShapeModifierScreen);
+		openScreen(new RailModifierScreen(railId), screenExtension -> screenExtension instanceof RailModifierScreen);
 	}
 
 	public static void openTicketMachineScreen(int balance) {

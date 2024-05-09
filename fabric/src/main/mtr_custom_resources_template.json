@@ -909,5 +909,13 @@
 			"small": false,
 			"flipTexture": true
 		}
+	],
+	"rails": [
+		{
+			"id": "default_rail",
+			"name": "Default Rail",
+			"modelResource": "mtr:models/rail/rail.obj",
+			"repeatInterval": 0.5
+		}
 	]
 }
