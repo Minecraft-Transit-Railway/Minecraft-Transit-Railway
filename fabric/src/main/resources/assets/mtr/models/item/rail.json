@@ -1,3 +1,3 @@
 {
-	"parent": "mtr:block/rail_buffer"
+	"parent": "mtr:block/rail_node"
 }
