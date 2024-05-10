@@ -16,7 +16,7 @@ public final class Blocks {
 	static {
 		// Nodes
 		RAIL_NODE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "rail"), () -> new Block(new BlockNode(TransportMode.TRAIN)), CreativeModeTabs.CORE);
-		BOAT_NODE = Init.REGISTRY.registerBlock(new Identifier(Init.MOD_ID, "boat_node"), () -> new Block(new BlockNode.BlockBoatNode()));
+		BOAT_NODE = Init.REGISTRY.registerBlock(new Identifier(Init.MOD_ID, "boat_node"), () -> new Block(new BlockNode(TransportMode.BOAT)));
 		CABLE_CAR_NODE_LOWER = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "cable_car_node_lower"), () -> new Block(new BlockNode.BlockContinuousMovementNode(false, false)), CreativeModeTabs.CORE);
 		CABLE_CAR_NODE_UPPER = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "cable_car_node_upper"), () -> new Block(new BlockNode.BlockContinuousMovementNode(true, false)), CreativeModeTabs.CORE);
 		CABLE_CAR_NODE_STATION = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "cable_car_node_station"), () -> new Block(new BlockNode.BlockContinuousMovementNode(false, true)), CreativeModeTabs.CORE);
