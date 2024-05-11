@@ -55,7 +55,13 @@ public final class CustomResourcesConverter {
 		ResourceManagerHelper.readDirectory("rails", (identifier, inputStream) -> {
 			if (identifier.getNamespace().equals("mtrsteamloco") && identifier.getPath().endsWith(".json")) {
 				try {
-					CustomResourceLoader.readResource(inputStream).getAsJsonObject().entrySet().forEach(entry -> callback.accept(new LegacyRailResource(new JsonReader(entry.getValue())).convert(entry.getKey())));
+					final JsonObject jsonObject = CustomResourceLoader.readResource(inputStream).getAsJsonObject();
+					if (jsonObject.has("model")) {
+						final String[] pathSplit = identifier.getPath().split("/");
+						callback.accept(new LegacyRailResource(new JsonReader(jsonObject)).convert(pathSplit[pathSplit.length - 1].split("\\.")[0]));
+					} else {
+						jsonObject.entrySet().forEach(entry -> callback.accept(new LegacyRailResource(new JsonReader(entry.getValue())).convert(entry.getKey())));
+					}
 				} catch (Exception e) {
 					Init.LOGGER.error("", e);
 				}
