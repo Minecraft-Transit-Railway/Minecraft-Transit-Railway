@@ -16,6 +16,7 @@ import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.VehicleRidingMovement;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.item.ItemLiftRefresher;
 import org.mtr.mod.model.ModelLift1;
 import org.mtr.mod.model.ModelSmallCube;
 
@@ -50,15 +51,20 @@ public class RenderLifts implements IGui {
 					if (previousLiftFloor[0] != null) {
 						final Position position1 = liftFloor.getPosition();
 						final Position position2 = previousLiftFloor[0].getPosition();
-						RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.LINES, (graphicsHolder, offset) -> graphicsHolder.drawLineInWorld(
-								(float) (position1.getX() - offset.getXMapped() + 0.5),
-								(float) (position1.getY() - offset.getYMapped() + 0.5),
-								(float) (position1.getZ() - offset.getZMapped() + 0.5),
-								(float) (position2.getX() - offset.getXMapped() + 0.5),
-								(float) (position2.getY() - offset.getYMapped() + 0.5),
-								(float) (position2.getZ() - offset.getZMapped() + 0.5),
-								ARGB_WHITE
-						));
+						RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.LINES, (graphicsHolder, offset) -> {
+							final ObjectArrayList<Vector> trackPositions = ItemLiftRefresher.findPath(new World(clientWorld.data), position1, position2);
+							for (int i = 1; i < trackPositions.size(); i++) {
+								graphicsHolder.drawLineInWorld(
+										(float) (trackPositions.get(i - 1).x - offset.getXMapped() + 0.5),
+										(float) (trackPositions.get(i - 1).y - offset.getYMapped() + 0.5),
+										(float) (trackPositions.get(i - 1).z - offset.getZMapped() + 0.5),
+										(float) (trackPositions.get(i).x - offset.getXMapped() + 0.5),
+										(float) (trackPositions.get(i).y - offset.getYMapped() + 0.5),
+										(float) (trackPositions.get(i).z - offset.getZMapped() + 0.5),
+										ARGB_WHITE
+								);
+							}
+						});
 					}
 
 					previousLiftFloor[0] = liftFloor;
@@ -68,7 +74,7 @@ public class RenderLifts implements IGui {
 			// Calculating vehicle transformations in advance
 			final RenderVehicleHelper.VehicleProperties vehicleProperties = RenderVehicleHelper.getTransformedVehiclePropertiesList(lift, ObjectArrayList.of(new RenderVehicleHelper.VehicleProperties(new ObjectObjectImmutablePair<>(
 					new VehicleCar("", lift.getDepth(), lift.getWidth(), 0, 0, 0, 0),
-					ObjectArrayList.of(getVirtualBogiePositions(lift))
+					ObjectArrayList.of(getVirtualBogiePositions(clientWorld, lift))
 			), true))).get(0);
 			final RenderVehicleTransformationHelper renderVehicleTransformationHelperAbsolute = vehicleProperties.renderVehicleTransformationHelperAbsolute;
 			final RenderVehicleTransformationHelper renderVehicleTransformationHelperOffset = vehicleProperties.renderVehicleTransformationHelperOffset;
@@ -185,8 +191,8 @@ public class RenderLifts implements IGui {
 		return new ObjectObjectImmutablePair<>(lift.getDirection(), new ObjectObjectImmutablePair<>(floorNumber, floorDescription));
 	}
 
-	private static ObjectObjectImmutablePair<Vector, Vector> getVirtualBogiePositions(Lift lift) {
-		final Vector position = lift.getPosition();
+	private static ObjectObjectImmutablePair<Vector, Vector> getVirtualBogiePositions(ClientWorld clientWorld, Lift lift) {
+		final Vector position = lift.getPosition((floorPosition1, floorPosition2) -> ItemLiftRefresher.findPath(new World(clientWorld.data), floorPosition1, floorPosition2));
 		final Angle angle = lift.getAngle();
 		final double x = position.x + lift.getOffsetX();
 		final double y = position.y + lift.getOffsetY();
