@@ -6,6 +6,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.Direction;
 import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockPIDSBase;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.render.RenderPIDS;
@@ -18,6 +19,7 @@ public class TextModule extends PIDSModule {
     protected IGui.HorizontalAlignment align = IGui.HorizontalAlignment.LEFT;
 
     protected int layer = 1;
+    protected String colorMode = "basic";
     protected int color = 0xFFFFFF;
     protected int arrival = 0;
     protected String template = "";
@@ -25,6 +27,7 @@ public class TextModule extends PIDSModule {
     public TextModule(float x, float y, float width, float height, ReaderBase data) {
         super(x, y, width, height, data);
         data.unpackString("align", (value) -> align = Objects.equals(value, "right") ? IGui.HorizontalAlignment.RIGHT : Objects.equals(value, "center") ? IGui.HorizontalAlignment.CENTER : IGui.HorizontalAlignment.LEFT);
+        data.unpackString("colorMode", (value) -> colorMode = value);
         data.unpackInt("color", (value) -> color = value);
         data.unpackInt("arrival", (value) -> arrival = value);
         data.unpackString("template", (value) -> template = value);
@@ -54,6 +57,16 @@ public class TextModule extends PIDSModule {
         } else {
             text = String.format(template, placeholders.toArray());
         }
+        int color = this.color;
+        ArrivalResponse arrival = arrivals.get(this.arrival);
+        if (arrival != null) {
+            if (colorMode.equals("line")) {
+                color = arrival.getRouteColor();
+            } else if (colorMode.equals("station")) {
+                color = InitClient.findStation(blockPos).getColor();
+            }
+        }
+
         RenderPIDS.renderText(graphicsHolder, text, x + textPadding, y + textPadding, height - textPadding * 2, color, width - textPadding * 2, align, layer);
     }
 
