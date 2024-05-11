@@ -28,6 +28,7 @@ public class RailStyleSelectorScreen extends DashboardListSelectorScreen {
 		super.updateList();
 		final ObjectArrayList<String> styles = new ObjectArrayList<>();
 		selectedIds.forEach(index -> styles.add(allRails.get((int) index).getId()));
+		styles.sort(String::compareTo);
 		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(Rail.copy(rail, styles))));
 		ItemRailModifier.setLastStyles(rail.getTransportMode(), styles);
 	}
