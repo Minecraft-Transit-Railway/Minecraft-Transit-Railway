@@ -4,20 +4,25 @@ import org.mtr.core.data.Position;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.data.TwoPositionsBase;
+import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Angle;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.client.CustomResourceLoader;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.RailType;
 import org.mtr.mod.packet.PacketDeleteData;
 import org.mtr.mod.packet.PacketUpdateData;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ItemRailModifier extends ItemNodeModifierBase {
 
@@ -126,8 +131,39 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 		return null;
 	}
 
+	/**
+	 * Saves the rail style that was most recently used
+	 */
 	public static void setLastStyles(TransportMode transportMode, ObjectArrayList<String> styles) {
 		LAST_STYLES.get(transportMode).clear();
-		LAST_STYLES.get(transportMode).addAll(styles);
+		LAST_STYLES.get(transportMode).addAll(styles.stream().distinct().sorted().collect(Collectors.toCollection(ObjectArrayList::new)));
+	}
+
+	/**
+	 * Sets the rail style to what was stored in the cache
+	 *
+	 * @param rail       the rail to change
+	 * @param modifyRail whether to actually change the rail styles
+	 * @return whether the operation was successful (if the rail originally had different styles)
+	 */
+	public static boolean setStyles(Rail rail, boolean modifyRail) {
+		final ObjectArrayList<String> lastStyles = LAST_STYLES.get(rail.getTransportMode());
+		final ObjectImmutableList<String> railStyles = rail.getStyles();
+		if (lastStyles.containsAll(railStyles) && railStyles.containsAll(lastStyles)) {
+			return false;
+		} else {
+			if (modifyRail) {
+				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(getRailWithLastStyles(rail))));
+			}
+			return true;
+		}
+	}
+
+	/**
+	 * @param rail the base rail
+	 * @return a new rail (which is a copy of the supplied rail) with the cached rail styles
+	 */
+	public static Rail getRailWithLastStyles(Rail rail) {
+		return Rail.copy(rail, LAST_STYLES.get(rail.getTransportMode()));
 	}
 }

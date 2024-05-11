@@ -60,14 +60,7 @@ public class RenderRails implements IGui {
 		final Vec3d camera = new Vec3d(cameraPosition.getXMapped(), cameraPosition.getYMapped(), cameraPosition.getZMapped());
 		final boolean holdingRailRelated = isHoldingRailRelated(clientPlayerEntity);
 
-		final ObjectArraySet<Rail> hoverRails = new ObjectArraySet<>();
-		if (PlayerHelper.isHolding(new PlayerEntity(clientPlayerEntity.data), item -> item.data instanceof ItemRailShapeModifier)) {
-			final Rail rail = MinecraftClientData.getInstance().getFacingRail(false);
-			if (rail != null) {
-				hoverRails.add(rail);
-			}
-		}
-
+		// Finding visible rails
 		final ObjectArrayList<Rail> railsToRender = new ObjectArrayList<>();
 		MinecraftClientData.getInstance().railWrapperList.values().forEach(railWrapper -> {
 			cullingTasks.add(occlusionCullingInstance -> {
@@ -79,7 +72,25 @@ public class RenderRails implements IGui {
 			}
 		});
 
-		// Ghost rail
+		// Ghost rails (when holding ItemRailShapeModifier)
+		final ObjectArraySet<Rail> hoverRails = new ObjectArraySet<>();
+		if (PlayerHelper.isHolding(new PlayerEntity(clientPlayerEntity.data), item -> item.data instanceof ItemRailShapeModifier)) {
+			final Rail rail = MinecraftClientData.getInstance().getFacingRail(false);
+			if (rail != null) {
+				if (clientPlayerEntity.isSneaking()) {
+					if (ItemRailModifier.setStyles(rail, false)) {
+						final Rail newRail = ItemRailModifier.getRailWithLastStyles(rail);
+						hoverRails.add(newRail);
+						railsToRender.remove(rail);
+						railsToRender.add(newRail);
+					}
+				} else {
+					hoverRails.add(rail);
+				}
+			}
+		}
+
+		// Ghost rail (when building rail)
 		final ItemStack itemStack = getStackInHand();
 		final Item item = itemStack.getItem();
 		if (item.data instanceof ItemRailModifier) {
