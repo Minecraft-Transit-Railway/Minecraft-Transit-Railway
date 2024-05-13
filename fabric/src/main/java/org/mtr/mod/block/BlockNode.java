@@ -1,5 +1,7 @@
 package org.mtr.mod.block;
 
+import org.jetbrains.annotations.NotNull;
+import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Angle;
 import org.mtr.mapping.holder.*;
@@ -9,6 +11,10 @@ import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.Init;
+import org.mtr.mod.Items;
+import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.item.ItemRailModifier;
+import org.mtr.mod.packet.ClientPacketHelper;
 import org.mtr.mod.packet.PacketDeleteData;
 
 import javax.annotation.Nonnull;
@@ -30,6 +36,26 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 	public BlockNode(TransportMode transportMode) {
 		super(BlockHelper.createBlockSettings(true).nonOpaque());
 		this.transportMode = transportMode;
+	}
+
+	@NotNull
+	@Override
+	public ActionResult onUse2(BlockState blockState, World world, BlockPos blockPos, PlayerEntity playerEntity, Hand hand, BlockHitResult hit) {
+		if (world.isClient() && playerEntity.isHolding(Items.BRUSH.get())) {
+			final Rail rail = MinecraftClientData.getInstance().getFacingRail(false);
+			if (rail == null) {
+				return ActionResult.FAIL;
+			} else {
+				if (playerEntity.isSneaking()) {
+					return ItemRailModifier.setStyles(rail, true) ? ActionResult.SUCCESS : ActionResult.FAIL;
+				} else {
+					ClientPacketHelper.openRailShapeModifierScreen(rail.getHexId());
+					return ActionResult.SUCCESS;
+				}
+			}
+		} else {
+			return ActionResult.FAIL;
+		}
 	}
 
 	@Override

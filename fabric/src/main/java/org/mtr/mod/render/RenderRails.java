@@ -13,6 +13,7 @@ import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.PlayerHelper;
 import org.mtr.mod.Init;
+import org.mtr.mod.Items;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.block.BlockPlatform;
 import org.mtr.mod.block.BlockSignalLightBase;
@@ -26,7 +27,6 @@ import org.mtr.mod.data.RailType;
 import org.mtr.mod.item.ItemBlockClickingBase;
 import org.mtr.mod.item.ItemNodeModifierBase;
 import org.mtr.mod.item.ItemRailModifier;
-import org.mtr.mod.item.ItemRailShapeModifier;
 import org.mtr.mod.model.ModelSmallCube;
 
 import java.util.Collections;
@@ -72,9 +72,9 @@ public class RenderRails implements IGui {
 			}
 		});
 
-		// Ghost rails (when holding ItemRailShapeModifier)
+		// Ghost rails (when holding brush)
 		final ObjectArraySet<Rail> hoverRails = new ObjectArraySet<>();
-		if (PlayerHelper.isHolding(new PlayerEntity(clientPlayerEntity.data), item -> item.data instanceof ItemRailShapeModifier)) {
+		if (clientPlayerEntity.isHolding(Items.BRUSH.get())) {
 			final Rail rail = MinecraftClientData.getInstance().getFacingRail(false);
 			if (rail != null) {
 				if (clientPlayerEntity.isSneaking()) {
@@ -194,7 +194,7 @@ public class RenderRails implements IGui {
 
 	public static boolean isHoldingRailRelated(ClientPlayerEntity clientPlayerEntity) {
 		return PlayerHelper.isHolding(new PlayerEntity(clientPlayerEntity.data),
-				item -> item.data instanceof ItemNodeModifierBase || item.data instanceof ItemRailShapeModifier ||
+				item -> item.data instanceof ItemNodeModifierBase || item.equals(Items.BRUSH.get()) ||
 						Block.getBlockFromItem(item).data instanceof BlockSignalLightBase ||
 						Block.getBlockFromItem(item).data instanceof BlockNode ||
 						Block.getBlockFromItem(item).data instanceof BlockSignalSemaphoreBase ||
