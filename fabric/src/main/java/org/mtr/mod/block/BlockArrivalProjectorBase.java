@@ -15,7 +15,7 @@ public abstract class BlockArrivalProjectorBase extends BlockPIDSBase {
 	private static final BiFunction<World, BlockPos, BlockPos> GET_BLOCK_POS_WITH_DATA = (world, blockPos) -> blockPos;
 
 	public BlockArrivalProjectorBase(int maxArrivals) {
-		super(maxArrivals, CAN_STORE_DATA, GET_BLOCK_POS_WITH_DATA);
+		super(maxArrivals, CAN_STORE_DATA, GET_BLOCK_POS_WITH_DATA, "");
 	}
 
 	@Override

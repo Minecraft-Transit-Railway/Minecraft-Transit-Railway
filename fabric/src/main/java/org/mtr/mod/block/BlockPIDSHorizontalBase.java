@@ -11,8 +11,8 @@ import java.util.List;
 
 public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 
-	public BlockPIDSHorizontalBase(int maxArrivals) {
-		super(maxArrivals, BlockPIDSHorizontalBase::canStoreData, BlockPIDSHorizontalBase::getBlockPosWithData);
+	public BlockPIDSHorizontalBase(int maxArrivals, String typeKey) {
+		super(maxArrivals, BlockPIDSHorizontalBase::canStoreData, BlockPIDSHorizontalBase::getBlockPosWithData, typeKey);
 	}
 
 
@@ -54,7 +54,7 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		tooltip.add(TextHelper.translatable("tooltip.mtr.arrivals", maxArrivals).formatted(TextFormatting.GRAY));
+		tooltip.add(TextHelper.translatable("tooltip.mtr.pids_type", TextHelper.translatable(typeKey).getString()).formatted(TextFormatting.GRAY));
 	}
 
 	@Override

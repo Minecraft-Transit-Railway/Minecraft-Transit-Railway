@@ -46,7 +46,7 @@ public class ArrivalTimeModule extends TextModule {
             final int minutes = (int) Math.floor((double) time / 60);
             final int seconds = (int) time % 60;
             text.add(String.valueOf(minutes));
-            text.add(String.valueOf(seconds));
+            text.add(String.format("%02d", seconds));
             template = mixedTemplate;
         } else {
             text.add("");

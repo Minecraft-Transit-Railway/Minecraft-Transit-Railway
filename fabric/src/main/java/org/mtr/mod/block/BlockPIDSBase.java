@@ -15,14 +15,16 @@ import java.util.function.BiPredicate;
 public abstract class BlockPIDSBase extends BlockExtension implements DirectionHelper, BlockWithEntity {
 
 	public final int maxArrivals;
+	public final String typeKey;
 	public final BiPredicate<World, BlockPos> canStoreData;
 	public final BiFunction<World, BlockPos, BlockPos> getBlockPosWithData;
 
-	public BlockPIDSBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData) {
+	public BlockPIDSBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData, String typeKey) {
 		super(BlockHelper.createBlockSettings(true, blockState -> 5).nonOpaque());
 		this.maxArrivals = maxArrivals;
 		this.canStoreData = canStoreData;
 		this.getBlockPosWithData = getBlockPosWithData;
+		this.typeKey = typeKey;
     }
 
 	@Nonnull

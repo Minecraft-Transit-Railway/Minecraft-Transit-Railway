@@ -12,8 +12,8 @@ import java.util.List;
 
 public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBlock {
 
-	public BlockPIDSVerticalBase(int maxArrivals) {
-		super(maxArrivals, BlockPIDSVerticalBase::canStoreData, BlockPIDSVerticalBase::getBlockPosWithData);
+	public BlockPIDSVerticalBase(int maxArrivals, String typeKey) {
+		super(maxArrivals, BlockPIDSVerticalBase::canStoreData, BlockPIDSVerticalBase::getBlockPosWithData, typeKey);
 	}
 
 	@Nonnull
@@ -42,7 +42,7 @@ public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBl
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
 		final BlockEntityExtension blockEntity = createBlockEntity(new BlockPos(0, 0, 0), Blocks.getAirMapped().getDefaultState());
 		if (blockEntity instanceof BlockEntityBase) {
-			tooltip.add(TextHelper.translatable("tooltip.mtr.arrivals", maxArrivals).formatted(TextFormatting.GRAY));
+			tooltip.add(TextHelper.translatable("tooltip.mtr.pids_type", TextHelper.translatable(typeKey).getString()).formatted(TextFormatting.GRAY));
 		}
 	}
 
