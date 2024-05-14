@@ -1,10 +1,8 @@
 package org.mtr.mod.block;
 
+import org.mtr.core.tool.Vector;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.holder.BlockState;
-import org.mtr.mapping.holder.Direction;
-import org.mtr.mapping.holder.ItemPlacementContext;
-import org.mtr.mapping.holder.Property;
+import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.mapper.DirectionHelper;
@@ -31,6 +29,10 @@ public abstract class BlockLiftTrackBase extends BlockExtension implements Direc
 	}
 
 	public abstract ObjectArrayList<Direction> getConnectingDirections(BlockState blockState);
+
+	public Vector getCenterPoint(BlockPos blockPos, BlockState blockState) {
+		return new Vector(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+	}
 
 	protected static Direction getFacing(ItemPlacementContext context) {
 		final Direction oppositeFace = context.getSide().getOpposite();

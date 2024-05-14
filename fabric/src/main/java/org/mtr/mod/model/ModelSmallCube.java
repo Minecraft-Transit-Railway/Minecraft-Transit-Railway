@@ -25,7 +25,7 @@ public class ModelSmallCube extends EntityModelExtension<EntityAbstractMapping> 
 	}
 
 	public void render(StoredMatrixTransformations storedMatrixTransformations, int light) {
-		RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.LIGHT, (graphicsHolder, offset) -> {
+		RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 			storedMatrixTransformations.transform(graphicsHolder, offset);
 			ModelTrainBase.renderOnce(part, graphicsHolder, light, 0);
 			graphicsHolder.pop();

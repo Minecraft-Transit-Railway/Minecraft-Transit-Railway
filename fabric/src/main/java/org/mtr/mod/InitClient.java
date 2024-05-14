@@ -111,7 +111,6 @@ public final class InitClient {
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_SMALL, dispatcher -> new RenderPIDS<>(dispatcher, 1, 15, 16, 14, 14, false, 1));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_MEDIUM, dispatcher -> new RenderPIDS<>(dispatcher, -15, 15, 16, 30, 46, false, 1));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_LARGE, dispatcher -> new RenderPIDS<>(dispatcher, -15, 15, 16, 46, 46, false, 1));
-		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.BOAT_NODE, RenderBoatNode::new);
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.CLOCK, RenderClock::new);
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.PSD_DOOR_1, dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 0));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.PSD_DOOR_2, dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 1));

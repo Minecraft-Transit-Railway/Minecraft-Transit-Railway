@@ -13,6 +13,7 @@ import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.PlayerHelper;
 import org.mtr.mod.Init;
+import org.mtr.mod.Items;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.block.BlockPlatform;
 import org.mtr.mod.block.BlockSignalLightBase;
@@ -26,9 +27,10 @@ import org.mtr.mod.data.RailType;
 import org.mtr.mod.item.ItemBlockClickingBase;
 import org.mtr.mod.item.ItemNodeModifierBase;
 import org.mtr.mod.item.ItemRailModifier;
-import org.mtr.mod.item.ItemRailShapeModifier;
+import org.mtr.mod.model.ModelSmallCube;
 
 import java.util.Collections;
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
 public class RenderRails implements IGui {
@@ -40,7 +42,9 @@ public class RenderRails implements IGui {
 	private static final Identifier WHITE_TEXTURE = new Identifier(Init.MOD_ID, "textures/block/white.png");
 	private static final Identifier WOOL_TEXTURE = new Identifier("textures/block/white_wool.png");
 	private static final Identifier ONE_WAY_RAIL_ARROW_TEXTURE = new Identifier(Init.MOD_ID, "textures/block/one_way_rail_arrow.png");
+	private static final int INVALID_NODE_CHECK_RADIUS = 16;
 	private static final int FLASHING_INTERVAL = 1000;
+	private static final ModelSmallCube MODEL_SMALL_CUBE = new ModelSmallCube(new Identifier(Init.MOD_ID, "textures/block/white.png"));
 
 	public static void render() {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
@@ -56,14 +60,7 @@ public class RenderRails implements IGui {
 		final Vec3d camera = new Vec3d(cameraPosition.getXMapped(), cameraPosition.getYMapped(), cameraPosition.getZMapped());
 		final boolean holdingRailRelated = isHoldingRailRelated(clientPlayerEntity);
 
-		final ObjectArraySet<Rail> hoverRails = new ObjectArraySet<>();
-		if (PlayerHelper.isHolding(new PlayerEntity(clientPlayerEntity.data), item -> item.data instanceof ItemRailShapeModifier)) {
-			final Rail rail = MinecraftClientData.getInstance().getFacingRail(false);
-			if (rail != null) {
-				hoverRails.add(rail);
-			}
-		}
-
+		// Finding visible rails
 		final ObjectArrayList<Rail> railsToRender = new ObjectArrayList<>();
 		MinecraftClientData.getInstance().railWrapperList.values().forEach(railWrapper -> {
 			cullingTasks.add(occlusionCullingInstance -> {
@@ -75,7 +72,25 @@ public class RenderRails implements IGui {
 			}
 		});
 
-		// Ghost rail
+		// Ghost rails (when holding brush)
+		final ObjectArraySet<Rail> hoverRails = new ObjectArraySet<>();
+		if (clientPlayerEntity.isHolding(Items.BRUSH.get())) {
+			final Rail rail = MinecraftClientData.getInstance().getFacingRail(false);
+			if (rail != null) {
+				if (clientPlayerEntity.isSneaking()) {
+					if (ItemRailModifier.setStyles(rail, false)) {
+						final Rail newRail = ItemRailModifier.getRailWithLastStyles(rail);
+						hoverRails.add(newRail);
+						railsToRender.remove(rail);
+						railsToRender.add(newRail);
+					}
+				} else {
+					hoverRails.add(rail);
+				}
+			}
+		}
+
+		// Ghost rail (when building rail)
 		final ItemStack itemStack = getStackInHand();
 		final Item item = itemStack.getItem();
 		if (item.data instanceof ItemRailModifier) {
@@ -150,6 +165,26 @@ public class RenderRails implements IGui {
 			}
 		});
 
+		// Render nodes
+		if (holdingRailRelated) {
+			MinecraftClientData.getInstance().positionsToRail.keySet().forEach(position -> {
+				final BlockPos blockPos = Init.positionToBlockPos(position);
+				renderNode(clientWorld.getBlockState(blockPos), blockPos, () -> true, GraphicsHolder.getDefaultLight());
+			});
+		}
+
+		// Render nodes with the connected block state but isn't actually connected
+		for (int x = -INVALID_NODE_CHECK_RADIUS; x <= INVALID_NODE_CHECK_RADIUS; x++) {
+			for (int y = -INVALID_NODE_CHECK_RADIUS; y <= INVALID_NODE_CHECK_RADIUS; y++) {
+				for (int z = -INVALID_NODE_CHECK_RADIUS; z <= INVALID_NODE_CHECK_RADIUS; z++) {
+					final BlockPos blockPos = clientPlayerEntity.getBlockPos().add(x, y, z);
+					final BlockState blockState = clientWorld.getBlockState(blockPos);
+					renderNode(blockState, blockPos, () -> blockState.get(new Property<>(BlockNode.IS_CONNECTED.data)) && !MinecraftClientData.getInstance().positionsToRail.containsKey(Init.blockPosToPosition(blockPos)), getFlashingLight());
+				}
+			}
+		}
+
+		// Raytracing
 		RenderTrains.WORKER_THREAD.scheduleRails(occlusionCullingInstance -> {
 			final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
 			cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
@@ -159,7 +194,7 @@ public class RenderRails implements IGui {
 
 	public static boolean isHoldingRailRelated(ClientPlayerEntity clientPlayerEntity) {
 		return PlayerHelper.isHolding(new PlayerEntity(clientPlayerEntity.data),
-				item -> item.data instanceof ItemNodeModifierBase || item.data instanceof ItemRailShapeModifier ||
+				item -> item.data instanceof ItemNodeModifierBase || item.equals(Items.BRUSH.get()) ||
 						Block.getBlockFromItem(item).data instanceof BlockSignalLightBase ||
 						Block.getBlockFromItem(item).data instanceof BlockNode ||
 						Block.getBlockFromItem(item).data instanceof BlockSignalSemaphoreBase ||
@@ -247,6 +282,18 @@ public class RenderRails implements IGui {
 					IDrawing.drawTexture(graphicsHolder, x4, y2 + SMALL_OFFSET, z4, x3, y2, z3, x2, y1 + SMALL_OFFSET, z2, x1, y1, z1, offset, u1, 0, u2, 1, Direction.UP, color, light);
 				});
 			}, 1, u1 - 1, u2 - 1);
+		}
+	}
+
+	private static void renderNode(BlockState blockState, BlockPos blockPos, BooleanSupplier shouldRender, int light) {
+		if (blockState.getBlock().data instanceof BlockNode && shouldRender.getAsBoolean()) {
+			final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5);
+			storedMatrixTransformations.add(graphicsHolder -> {
+				graphicsHolder.rotateYDegrees((blockState.get(new Property<>(BlockNode.FACING.data)) ? -90 : 0) + (blockState.get(new Property<>(BlockNode.IS_45.data)) ? -45 : 0) + (blockState.get(new Property<>(BlockNode.IS_22_5.data)) ? -22.5F : 0));
+				graphicsHolder.scale(4, 0.5F, 0.5F);
+				graphicsHolder.translate(-0.5, 0, -0.5);
+			});
+			MODEL_SMALL_CUBE.render(storedMatrixTransformations, light);
 		}
 	}
 

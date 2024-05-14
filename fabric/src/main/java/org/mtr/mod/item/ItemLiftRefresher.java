@@ -2,7 +2,9 @@ package org.mtr.mod.item;
 
 import org.mtr.core.data.Lift;
 import org.mtr.core.data.LiftFloor;
+import org.mtr.core.data.Position;
 import org.mtr.core.tool.Utilities;
+import org.mtr.core.tool.Vector;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.*;
@@ -37,14 +39,14 @@ public class ItemLiftRefresher extends ItemExtension implements DirectionHelper 
 			final ObjectOpenHashSet<BlockPos> blacklistedBlockPos = new ObjectOpenHashSet<>();
 
 			final ObjectArrayList<LiftFloor> liftFloors1 = new ObjectArrayList<>();
-			if (!findPath(world, blockPos, null, liftFloors1, blacklistedBlockPos, true)) {
+			if (!findPath(world, blockPos, null, liftFloors1, new ObjectArrayList<>(), blacklistedBlockPos, true, false)) {
 				playerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr.lift_track_required").data), true);
 				return ActionResult.getFailMapped();
 			}
 
 			blacklistedBlockPos.remove(blockPos);
 			final ObjectArrayList<LiftFloor> liftFloors2 = new ObjectArrayList<>();
-			findPath(world, blockPos, null, liftFloors2, blacklistedBlockPos, false);
+			findPath(world, blockPos, null, liftFloors2, new ObjectArrayList<>(), blacklistedBlockPos, false, false);
 
 			if (liftFloors1.isEmpty() && liftFloors2.isEmpty()) {
 				return ActionResult.getFailMapped();
@@ -60,7 +62,31 @@ public class ItemLiftRefresher extends ItemExtension implements DirectionHelper 
 		}
 	}
 
-	private static boolean findPath(World world, BlockPos blockPos, @Nullable Direction direction, ObjectArrayList<LiftFloor> liftFloors, ObjectOpenHashSet<BlockPos> blacklistedBlockPos, boolean addFirstFloor) {
+	/**
+	 * Find a path (of lift tracks) from one floor to another
+	 */
+	public static ObjectArrayList<Vector> findPath(World world, Position startPosition, Position endPosition) {
+		final ObjectOpenHashSet<BlockPos> blacklistedBlockPos = new ObjectOpenHashSet<>();
+		final BlockPos startBlockPos = Init.positionToBlockPos(startPosition);
+
+		for (int i = 0; i < 2; i++) {
+			final ObjectArrayList<LiftFloor> liftFloors = new ObjectArrayList<>();
+			final ObjectArrayList<Vector> liftTrackPositions = new ObjectArrayList<>();
+			if (findPath(world, startBlockPos, null, liftFloors, liftTrackPositions, blacklistedBlockPos, false, true)) {
+				if (liftFloors.size() == 1 && liftFloors.get(0).getPosition().equals(endPosition)) {
+					return liftTrackPositions;
+				}
+				blacklistedBlockPos.remove(startBlockPos);
+			}
+		}
+
+		return ObjectArrayList.of(new Vector(startPosition.getX(), startPosition.getY(), startPosition.getZ()), new Vector(endPosition.getX(), endPosition.getY(), endPosition.getZ()));
+	}
+
+	/**
+	 * Find a path (both lift tracks and lift track floors)
+	 */
+	private static boolean findPath(World world, BlockPos blockPos, @Nullable Direction direction, ObjectArrayList<LiftFloor> liftFloors, ObjectArrayList<Vector> liftTrackPositions, ObjectOpenHashSet<BlockPos> blacklistedBlockPos, boolean addFirstFloor, boolean findOneFloorOnly) {
 		if (blacklistedBlockPos.contains(blockPos)) {
 			return false;
 		}
@@ -79,6 +105,7 @@ public class ItemLiftRefresher extends ItemExtension implements DirectionHelper 
 			return false;
 		}
 
+		liftTrackPositions.add(((BlockLiftTrackBase) block.data).getCenterPoint(blockPos, blockState));
 		final BlockEntity blockEntity = world.getBlockEntity(blockPos);
 		if (addFirstFloor && blockEntity != null && blockEntity.data instanceof BlockLiftTrackFloor.BlockEntity) {
 			liftFloors.add(new LiftFloor(
@@ -86,10 +113,14 @@ public class ItemLiftRefresher extends ItemExtension implements DirectionHelper 
 					((BlockLiftTrackFloor.BlockEntity) (blockEntity.data)).getFloorNumber(),
 					((BlockLiftTrackFloor.BlockEntity) (blockEntity.data)).getFloorDescription()
 			));
+
+			if (findOneFloorOnly) {
+				return true;
+			}
 		}
 
 		for (final Direction connectingDirection : connectingDirections) {
-			if (findPath(world, blockPos.offset(connectingDirection), connectingDirection, liftFloors, blacklistedBlockPos, true)) {
+			if (findPath(world, blockPos.offset(connectingDirection), connectingDirection, liftFloors, liftTrackPositions, blacklistedBlockPos, true, findOneFloorOnly)) {
 				break;
 			}
 		}
