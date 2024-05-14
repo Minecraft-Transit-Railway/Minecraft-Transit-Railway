@@ -4,38 +4,25 @@ import org.mtr.core.data.Position;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.data.TwoPositionsBase;
-import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Angle;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
-import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockNode;
-import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.RailType;
 import org.mtr.mod.packet.PacketDeleteData;
 import org.mtr.mod.packet.PacketUpdateData;
+import org.mtr.mod.packet.PacketUpdateLastRailStyles;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 public class ItemRailModifier extends ItemNodeModifierBase {
 
 	private final boolean isOneWay;
 	private final RailType railType;
-
-	private static final Object2ObjectAVLTreeMap<TransportMode, ObjectArrayList<String>> LAST_STYLES = new Object2ObjectAVLTreeMap<>();
-
-	static {
-		for (final TransportMode transportMode : TransportMode.values()) {
-			LAST_STYLES.put(transportMode, transportMode == TransportMode.BOAT ? new ObjectArrayList<>() : ObjectArrayList.of(CustomResourceLoader.DEFAULT_RAIL_ID));
-		}
-	}
 
 	public ItemRailModifier(ItemSettings itemSettings) {
 		super(true, true, true, false, itemSettings);
@@ -60,7 +47,7 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 	@Override
 	protected void onConnect(World world, ItemStack stack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, Angle facingStart, Angle facingEnd, @Nullable ServerPlayerEntity player) {
 		if (railType != null) {
-			final Rail rail = createRail(transportMode, stateStart, stateEnd, posStart, posEnd, facingStart, facingEnd);
+			final Rail rail = createRail(player == null ? null : player.getUuid(), transportMode, stateStart, stateEnd, posStart, posEnd, facingStart, facingEnd);
 			if (rail != null) {
 				world.setBlockState(posStart, stateStart.with(new Property<>(BlockNode.IS_CONNECTED.data), true));
 				world.setBlockState(posEnd, stateEnd.with(new Property<>(BlockNode.IS_CONNECTED.data), true));
@@ -77,8 +64,8 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 	}
 
 	@Nullable
-	public Rail createRail(TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, Angle facingStart, Angle facingEnd) {
-		if (railType != null) {
+	public Rail createRail(@Nullable UUID uuid, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, Angle facingStart, Angle facingEnd) {
+		if (railType != null && uuid != null) {
 			final boolean isValidContinuousMovement;
 			final RailType newRailType;
 
@@ -106,64 +93,27 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 
 			final Position positionStart = Init.blockPosToPosition(posStart);
 			final Position positionEnd = Init.blockPosToPosition(posEnd);
-			final ObjectArrayList<String> styles = LAST_STYLES.get(transportMode);
 			final Rail rail;
 
 			switch (newRailType) {
 				case PLATFORM:
-					rail = Rail.newPlatformRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, styles, transportMode);
+					rail = Rail.newPlatformRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, new ObjectArrayList<>(), transportMode);
 					break;
 				case SIDING:
-					rail = Rail.newSidingRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, styles, transportMode);
+					rail = Rail.newSidingRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, new ObjectArrayList<>(), transportMode);
 					break;
 				case TURN_BACK:
-					rail = Rail.newTurnBackRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, styles, transportMode);
+					rail = Rail.newTurnBackRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, new ObjectArrayList<>(), transportMode);
 					break;
 				default:
-					rail = Rail.newRail(positionStart, facingStart, positionEnd, facingEnd, newRailType.railShape, 0, styles, isOneWay ? 0 : newRailType.speedLimit, newRailType.speedLimit, false, false, newRailType.canAccelerate, newRailType == RailType.RUNWAY, newRailType.hasSignal, transportMode);
+					rail = Rail.newRail(positionStart, facingStart, positionEnd, facingEnd, newRailType.railShape, 0, new ObjectArrayList<>(), isOneWay ? 0 : newRailType.speedLimit, newRailType.speedLimit, false, false, newRailType.canAccelerate, newRailType == RailType.RUNWAY, newRailType.hasSignal, transportMode);
 			}
 
 			if (rail.isValid() && isValidContinuousMovement) {
-				return rail;
+				return PacketUpdateLastRailStyles.SERVER_CACHE.getRailWithLastStyles(uuid, rail);
 			}
 		}
 
 		return null;
-	}
-
-	/**
-	 * Saves the rail style that was most recently used
-	 */
-	public static void setLastStyles(TransportMode transportMode, ObjectArrayList<String> styles) {
-		LAST_STYLES.get(transportMode).clear();
-		LAST_STYLES.get(transportMode).addAll(styles.stream().distinct().sorted().collect(Collectors.toCollection(ObjectArrayList::new)));
-	}
-
-	/**
-	 * Sets the rail style to what was stored in the cache
-	 *
-	 * @param rail       the rail to change
-	 * @param modifyRail whether to actually change the rail styles
-	 * @return whether the operation was successful (if the rail originally had different styles)
-	 */
-	public static boolean setStyles(Rail rail, boolean modifyRail) {
-		final ObjectArrayList<String> lastStyles = LAST_STYLES.get(rail.getTransportMode());
-		final ObjectImmutableList<String> railStyles = rail.getStyles();
-		if (lastStyles.containsAll(railStyles) && railStyles.containsAll(lastStyles)) {
-			return false;
-		} else {
-			if (modifyRail) {
-				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(getRailWithLastStyles(rail))));
-			}
-			return true;
-		}
-	}
-
-	/**
-	 * @param rail the base rail
-	 * @return a new rail (which is a copy of the supplied rail) with the cached rail styles
-	 */
-	public static Rail getRailWithLastStyles(Rail rail) {
-		return Rail.copy(rail, LAST_STYLES.get(rail.getTransportMode()));
 	}
 }

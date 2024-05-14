@@ -51,15 +51,6 @@ public final class RailResource extends RailResourceSchema {
 	}
 
 	/**
-	 * Copy constructor to create the forwards/backwards variants
-	 */
-	public RailResource(RailResource railResource, String idSuffix, String nameSuffix) {
-		super(railResource.id + idSuffix, railResource.name + nameSuffix, railResource.color, railResource.modelResource, railResource.textureResource, railResource.flipTextureV, railResource.repeatInterval, railResource.modelYOffset);
-		optimizedModel = railResource.optimizedModel;
-		dynamicVehicleModel = railResource.dynamicVehicleModel;
-	}
-
-	/**
 	 * Used to create the default rail
 	 */
 	public RailResource(String id, String name) {
@@ -102,5 +93,9 @@ public final class RailResource extends RailResourceSchema {
 
 	public double getModelYOffset() {
 		return modelYOffset;
+	}
+
+	public static String getIdWithoutDirection(String id) {
+		return id.endsWith("_1") || id.endsWith("_2") ? id.substring(0, id.length() - 2) : id;
 	}
 }

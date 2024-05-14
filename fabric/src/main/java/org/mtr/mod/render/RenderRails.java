@@ -25,9 +25,12 @@ import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.RailType;
 import org.mtr.mod.item.ItemBlockClickingBase;
+import org.mtr.mod.item.ItemBrush;
 import org.mtr.mod.item.ItemNodeModifierBase;
 import org.mtr.mod.item.ItemRailModifier;
 import org.mtr.mod.model.ModelSmallCube;
+import org.mtr.mod.packet.PacketUpdateLastRailStyles;
+import org.mtr.mod.resource.RailResource;
 
 import java.util.Collections;
 import java.util.function.BooleanSupplier;
@@ -78,8 +81,8 @@ public class RenderRails implements IGui {
 			final Rail rail = MinecraftClientData.getInstance().getFacingRail(false);
 			if (rail != null) {
 				if (clientPlayerEntity.isSneaking()) {
-					if (ItemRailModifier.setStyles(rail, false)) {
-						final Rail newRail = ItemRailModifier.getRailWithLastStyles(rail);
+					if (PacketUpdateLastRailStyles.CLIENT_CACHE.canApplyStylesToRail(clientPlayerEntity.getUuid(), rail, false)) {
+						final Rail newRail = PacketUpdateLastRailStyles.CLIENT_CACHE.getRailWithLastStyles(clientPlayerEntity.getUuid(), rail);
 						hoverRails.add(newRail);
 						railsToRender.remove(rail);
 						railsToRender.add(newRail);
@@ -111,10 +114,11 @@ public class RenderRails implements IGui {
 								Init.blockPosToPosition(posStart), blockStateStart.getBlock().data instanceof BlockNode ? BlockNode.getAngle(blockStateStart) : blockStateEnd.getBlock().data instanceof BlockNode.BlockContinuousMovementNode ? angleEnd : EntityHelper.getYaw(new Entity(clientPlayerEntity.data)) + 90,
 								Init.blockPosToPosition(posEnd), angleEnd
 						);
-						final Rail rail = ((ItemRailModifier) item.data).createRail(ItemNodeModifierBase.getTransportMode(compoundTag), blockStateStart, blockStateEnd, posStart, posEnd, angles.left(), angles.right());
+						final Rail rail = ((ItemRailModifier) item.data).createRail(clientPlayerEntity.getUuid(), ItemNodeModifierBase.getTransportMode(compoundTag), blockStateStart, blockStateEnd, posStart, posEnd, angles.left(), angles.right());
 						if (rail != null) {
-							railsToRender.add(rail);
-							hoverRails.add(rail);
+							final Rail newRail = PacketUpdateLastRailStyles.CLIENT_CACHE.getRailWithLastStyles(clientPlayerEntity.getUuid(), rail);
+							railsToRender.add(newRail);
+							hoverRails.add(newRail);
 						}
 					}
 				}
@@ -194,7 +198,7 @@ public class RenderRails implements IGui {
 
 	public static boolean isHoldingRailRelated(ClientPlayerEntity clientPlayerEntity) {
 		return PlayerHelper.isHolding(new PlayerEntity(clientPlayerEntity.data),
-				item -> item.data instanceof ItemNodeModifierBase || item.equals(Items.BRUSH.get()) ||
+				item -> item.data instanceof ItemNodeModifierBase || item.data instanceof ItemBrush ||
 						Block.getBlockFromItem(item).data instanceof BlockSignalLightBase ||
 						Block.getBlockFromItem(item).data instanceof BlockNode ||
 						Block.getBlockFromItem(item).data instanceof BlockSignalSemaphoreBase ||
@@ -229,7 +233,7 @@ public class RenderRails implements IGui {
 				renderType[0] = true;
 			} else {
 				final boolean flip = style.endsWith("_2");
-				CustomResourceLoader.getRailById(style, railResource -> rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+				CustomResourceLoader.getRailById(RailResource.getIdWithoutDirection(style), railResource -> rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 					final BlockPos blockPos = Init.newBlockPos(x1, y1, z1);
 					final int light = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
 					final double differenceX = x3 - x1;

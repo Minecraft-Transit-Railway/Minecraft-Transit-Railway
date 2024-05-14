@@ -5,6 +5,7 @@ import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.BlockEntityTypes;
 import org.mtr.mod.Items;
+import org.mtr.mod.item.ItemBrush;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -27,7 +28,7 @@ public class BlockPSDTop extends BlockExtension implements IBlock, DirectionHelp
 	@Override
 	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		return IBlock.checkHoldingItem(world, player, item -> {
-			if (item.data == Items.BRUSH.get().data) {
+			if (item.data instanceof ItemBrush) {
 				world.setBlockState(pos, state.cycle(new Property<>(ARROW_DIRECTION.data)));
 				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise(), new Property<>(ARROW_DIRECTION.data), 1);
 				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise(), new Property<>(ARROW_DIRECTION.data), 1);
