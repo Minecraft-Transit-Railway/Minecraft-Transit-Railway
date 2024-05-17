@@ -70,13 +70,19 @@ public class CustomResourceLoader {
 					SIGNS.add(signResource);
 					SIGNS_CACHE.put(signResource.getId(), signResource);
 				});
-				customResources.iterateRails(CustomResourceLoader::addRail);
+				customResources.iterateRails(railResource -> {
+					RAILS.add(railResource);
+					RAILS_CACHE.put(railResource.getId(), railResource);
+				});
 			} catch (Exception e) {
 				Init.LOGGER.error("", e);
 			}
 		});
 
-		CustomResourcesConverter.convertRails(CustomResourceLoader::addRail);
+		CustomResourcesConverter.convertRails(railResource -> {
+			RAILS.add(railResource);
+			RAILS_CACHE.put(railResource.getId(), railResource);
+		});
 
 		OPTIMIZED_RENDERER_WRAPPER.finishReload();
 		Init.LOGGER.info("Loaded {} vehicles", VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum));
@@ -161,14 +167,5 @@ public class CustomResourceLoader {
 			Init.LOGGER.error("", e);
 			return new JsonObject();
 		}
-	}
-
-	private static void addRail(RailResource railResource) {
-		final RailResource railResource1 = new RailResource(railResource, "_1", " (Forwards)");
-		final RailResource railResource2 = new RailResource(railResource, "_2", " (Backwards)");
-		RAILS.add(railResource1);
-		RAILS.add(railResource2);
-		RAILS_CACHE.put(railResource1.getId(), railResource1);
-		RAILS_CACHE.put(railResource2.getId(), railResource2);
 	}
 }

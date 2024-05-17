@@ -3,6 +3,7 @@ package org.mtr.mod.screen;
 import org.mtr.core.data.Rail;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.TextCase;
@@ -11,6 +12,9 @@ import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.PacketUpdateData;
+import org.mtr.mod.packet.PacketUpdateLastRailStyles;
+
+import java.util.stream.Collectors;
 
 public class RailModifierScreen extends ScreenExtension implements IGui {
 
@@ -22,6 +26,7 @@ public class RailModifierScreen extends ScreenExtension implements IGui {
 	private final double maxRadius;
 	private final ButtonWidgetExtension buttonShape;
 	private final ButtonWidgetExtension buttonStyle;
+	private final ButtonWidgetExtension buttonStyleFlip;
 	private final ButtonWidgetExtension buttonMinus2;
 	private final ButtonWidgetExtension buttonMinus1;
 	private final ButtonWidgetExtension buttonMinus0;
@@ -30,7 +35,7 @@ public class RailModifierScreen extends ScreenExtension implements IGui {
 	private final ButtonWidgetExtension buttonPlus2;
 	private final TextFieldWidgetExtension textFieldRadius;
 	private final MutableText shapeText = TextHelper.translatable("gui.mtr.rail_shape");
-	private final MutableText styleText = TextHelper.translatable("gui.mtr.rail_style");
+	private final MutableText styleText = TextHelper.translatable("gui.mtr.rail_styles");
 	private final MutableText radiusText = TextHelper.translatable("gui.mtr.rail_radius");
 	private final int xStart;
 
@@ -50,6 +55,25 @@ public class RailModifierScreen extends ScreenExtension implements IGui {
 				MinecraftClient.getInstance().openScreen(new Screen(RailStyleSelectorScreen.create(rail)));
 			}
 		});
+		buttonStyleFlip = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.flip_styles"), button -> {
+			if (rail != null) {
+				final ObjectArrayList<String> styles = rail.getStyles().stream().map(style -> {
+					final boolean isForwards = style.endsWith("_1");
+					final boolean isBackwards = style.endsWith("_2");
+					if (isForwards || isBackwards) {
+						return style.substring(0, style.length() - 1) + (isForwards ? "2" : "1");
+					} else {
+						return style;
+					}
+				}).collect(Collectors.toCollection(ObjectArrayList::new));
+				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(Rail.copy(rail, styles))));
+				final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+				if (clientPlayerEntity != null) {
+					InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateLastRailStyles(clientPlayerEntity.getUuid(), rail.getTransportMode(), styles));
+				}
+				MinecraftClient.getInstance().openScreen(null);
+			}
+		});
 		buttonMinus2 = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-10"), button -> update(radius - 10, true));
 		buttonMinus1 = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-1"), button -> update(radius - 1, true));
 		buttonMinus0 = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-0.1"), button -> update(radius - 0.1, true));
@@ -66,7 +90,8 @@ public class RailModifierScreen extends ScreenExtension implements IGui {
 		super.init2();
 
 		IDrawing.setPositionAndWidth(buttonShape, xStart, 0, SQUARE_SIZE * 6);
-		IDrawing.setPositionAndWidth(buttonStyle, xStart + buttonsWidth - SQUARE_SIZE * 6, 0, SQUARE_SIZE * 6);
+		IDrawing.setPositionAndWidth(buttonStyle, xStart + buttonsWidth - SQUARE_SIZE * 6, 0, SQUARE_SIZE * 3);
+		IDrawing.setPositionAndWidth(buttonStyleFlip, xStart + buttonsWidth - SQUARE_SIZE * 3, 0, SQUARE_SIZE * 3);
 		IDrawing.setPositionAndWidth(buttonMinus2, xStart, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2);
 		IDrawing.setPositionAndWidth(buttonMinus1, xStart + SQUARE_SIZE * 2, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2);
 		IDrawing.setPositionAndWidth(buttonMinus0, xStart + SQUARE_SIZE * 4, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2);
@@ -77,6 +102,7 @@ public class RailModifierScreen extends ScreenExtension implements IGui {
 
 		addChild(new ClickableWidget(buttonShape));
 		addChild(new ClickableWidget(buttonStyle));
+		addChild(new ClickableWidget(buttonStyleFlip));
 		addChild(new ClickableWidget(buttonMinus2));
 		addChild(new ClickableWidget(buttonMinus1));
 		addChild(new ClickableWidget(buttonMinus0));

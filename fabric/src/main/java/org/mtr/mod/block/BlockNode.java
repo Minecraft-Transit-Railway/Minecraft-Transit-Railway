@@ -13,7 +13,6 @@ import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.Init;
 import org.mtr.mod.Items;
 import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.item.ItemRailModifier;
 import org.mtr.mod.packet.ClientPacketHelper;
 import org.mtr.mod.packet.PacketDeleteData;
 
@@ -46,12 +45,8 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 			if (rail == null) {
 				return ActionResult.FAIL;
 			} else {
-				if (playerEntity.isSneaking()) {
-					return ItemRailModifier.setStyles(rail, true) ? ActionResult.SUCCESS : ActionResult.FAIL;
-				} else {
-					ClientPacketHelper.openRailShapeModifierScreen(rail.getHexId());
-					return ActionResult.SUCCESS;
-				}
+				ClientPacketHelper.openRailShapeModifierScreen(rail.getHexId());
+				return ActionResult.SUCCESS;
 			}
 		} else {
 			return ActionResult.FAIL;
