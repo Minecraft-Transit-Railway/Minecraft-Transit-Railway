@@ -2,6 +2,7 @@ package org.mtr.mod.resource;
 
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
@@ -27,8 +28,10 @@ public final class RailResource extends RailResourceSchema {
 		updateData(readerBase);
 		final OptimizedModelWrapper[] tempOptimizedModel = {null};
 		final DynamicVehicleModel[] tempDynamicVehicleModel = {null};
+		final boolean isBlockbench = modelResource.endsWith(".bbmodel");
+		final boolean isObj = modelResource.endsWith(".obj");
 
-		if (modelResource.endsWith(".bbmodel")) {
+		if (isBlockbench) {
 			CustomResourceLoader.readResource(CustomResourceTools.formatIdentifier(modelResource, "bbmodel"), jsonElement -> {
 				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroups = new Object2ObjectOpenHashMap<>();
 				tempDynamicVehicleModel[0] = new DynamicVehicleModel(
@@ -37,17 +40,25 @@ public final class RailResource extends RailResourceSchema {
 						new ModelProperties(modelYOffset),
 						new PositionDefinitions()
 				);
-				tempDynamicVehicleModel[0].writeFloorsAndDoorways(new ObjectArraySet<>(), new ObjectArraySet<>(), new Object2ObjectOpenHashMap<>(), materialGroups);
-				tempOptimizedModel[0] = new OptimizedModelWrapper(materialGroups.get(PartCondition.NORMAL));
+				tempDynamicVehicleModel[0].writeFloorsAndDoorways(new ObjectArraySet<>(), new ObjectArraySet<>(), new Object2ObjectOpenHashMap<>(), materialGroups, new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>());
+				tempOptimizedModel[0] = OptimizedModelWrapper.fromMaterialGroups(materialGroups.get(PartCondition.NORMAL));
 			});
+			optimizedModel = tempOptimizedModel[0];
+			dynamicVehicleModel = tempDynamicVehicleModel[0];
+		} else if (isObj) {
+			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModels = new Object2ObjectOpenHashMap<>();
+			dynamicVehicleModel = new DynamicVehicleModel(
+					new Object2ObjectAVLTreeMap<>(OptimizedModel.ObjModel.loadModel(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj"), null, true, flipTextureV)),
+					CustomResourceTools.formatIdentifierWithDefault(textureResource, "png"),
+					new ModelProperties(modelYOffset),
+					new PositionDefinitions()
+			);
+			dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArraySet<>(), new ObjectArraySet<>(), new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>(), objModels);
+			optimizedModel = OptimizedModelWrapper.fromObjModels(objModels.get(PartCondition.NORMAL));
+		} else {
+			dynamicVehicleModel = null;
+			optimizedModel = null;
 		}
-
-		if (tempOptimizedModel[0] == null) {
-			tempOptimizedModel[0] = new OptimizedModelWrapper(new OptimizedModel(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj"), null, flipTextureV));
-		}
-
-		optimizedModel = tempOptimizedModel[0];
-		dynamicVehicleModel = tempDynamicVehicleModel[0];
 	}
 
 	/**
