@@ -243,7 +243,7 @@ public class RenderRails implements IGui {
 					final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations((x1 + x3) / 2, (y1 + y2) / 2 + railResource.getModelYOffset(), (z1 + z3) / 2);
 					storedMatrixTransformations.add(graphicsHolder -> {
 						graphicsHolder.rotateYRadians((float) (Math.PI / 2 - yaw + (flip ? Math.PI : 0)));
-						graphicsHolder.rotateXRadians((float) pitch * (flip ? 1 : -1));
+						graphicsHolder.rotateXRadians((float) (Math.PI - pitch * (flip ? -1 : 1)));
 					});
 					railResource.render(storedMatrixTransformations, light);
 					renderType[1] = true;

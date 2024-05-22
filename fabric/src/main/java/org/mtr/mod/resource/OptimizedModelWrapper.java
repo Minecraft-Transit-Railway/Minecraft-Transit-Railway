@@ -6,6 +6,7 @@ import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mod.render.RenderVehicles;
+import org.mtr.mod.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -15,13 +16,36 @@ public final class OptimizedModelWrapper {
 
 	@Nullable
 	final OptimizedModel optimizedModel;
+	private final ObjectArrayList<StoredMatrixTransformations> storedMatrixTransformationsList = new ObjectArrayList<>();
 
-	public OptimizedModelWrapper(ObjectArrayList<MaterialGroupWrapper> materialGroupList) {
-		optimizedModel = RenderVehicles.useOptimizedRendering() ? new OptimizedModel(materialGroupList.stream().map(materialGroup -> materialGroup.materialGroup).filter(Objects::nonNull).collect(Collectors.toList())) : null;
+	public static OptimizedModelWrapper fromMaterialGroups(ObjectArrayList<MaterialGroupWrapper> materialGroupList) {
+		return new OptimizedModelWrapper(RenderVehicles.useOptimizedRendering() ? OptimizedModel.fromMaterialGroups(materialGroupList.stream().map(materialGroup -> materialGroup.materialGroup).filter(Objects::nonNull).collect(Collectors.toList())) : null);
 	}
 
-	public OptimizedModelWrapper(OptimizedModel optimizedModel) {
-		this.optimizedModel = RenderVehicles.useOptimizedRendering() ? optimizedModel : null;
+	public static OptimizedModelWrapper fromObjModels(ObjectArrayList<ObjModelWrapper> objModels) {
+		return new OptimizedModelWrapper(RenderVehicles.useOptimizedRendering() ? OptimizedModel.fromObjModels(objModels.stream().map(objModel -> objModel.objModel).filter(Objects::nonNull).collect(Collectors.toList())) : null);
+	}
+
+	private OptimizedModelWrapper(@Nullable OptimizedModel optimizedModel) {
+		this.optimizedModel = optimizedModel;
+	}
+
+	public OptimizedModelWrapper(@Nullable OptimizedModelWrapper optimizedModel1, @Nullable OptimizedModelWrapper optimizedModel2) {
+		final boolean nonNull1 = optimizedModel1 != null && optimizedModel1.optimizedModel != null;
+		final boolean nonNull2 = optimizedModel2 != null && optimizedModel2.optimizedModel != null;
+		if (RenderVehicles.useOptimizedRendering()) {
+			if (nonNull1 && nonNull2) {
+				optimizedModel = new OptimizedModel(optimizedModel1.optimizedModel, optimizedModel2.optimizedModel);
+			} else if (nonNull1) {
+				optimizedModel = optimizedModel1.optimizedModel;
+			} else if (nonNull2) {
+				optimizedModel = optimizedModel2.optimizedModel;
+			} else {
+				optimizedModel = null;
+			}
+		} else {
+			optimizedModel = null;
+		}
 	}
 
 	public static final class MaterialGroupWrapper {
@@ -39,6 +63,23 @@ public final class OptimizedModelWrapper {
 			if (materialGroup != null) {
 				materialGroup.addCube(modelPart, x, y, z, flipped, light);
 			}
+		}
+	}
+
+	public static final class ObjModelWrapper {
+
+		private boolean canBeTransformed = true;
+		public final OptimizedModel.ObjModel objModel;
+
+		public ObjModelWrapper(OptimizedModel.ObjModel objModel) {
+			this.objModel = objModel;
+		}
+
+		public void addTransformation(OptimizedModel.ShaderType shaderType, double x, double y, double z, boolean flipped) {
+			if (canBeTransformed) {
+				objModel.addTransformation(shaderType, x, y, z, flipped);
+			}
+			canBeTransformed = false;
 		}
 	}
 }

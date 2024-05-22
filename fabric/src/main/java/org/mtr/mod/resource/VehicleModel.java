@@ -2,6 +2,8 @@ package org.mtr.mod.resource;
 
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.generated.resource.VehicleModelSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
@@ -29,9 +31,20 @@ public final class VehicleModel extends VehicleModelSchema {
 		model = createModel(modelProperties, positionDefinitions);
 	}
 
+	@Nullable
 	private DynamicVehicleModel createModel(@Nullable ModelProperties modelProperties, @Nullable PositionDefinitions positionDefinitions) {
-		final BlockbenchModel[] blockbenchModel = {null};
-		CustomResourceLoader.readResource(CustomResourceTools.formatIdentifier(modelResource, "bbmodel"), jsonElement -> blockbenchModel[0] = new BlockbenchModel(new JsonReader(jsonElement)));
-		return blockbenchModel[0] == null || modelProperties == null || positionDefinitions == null ? null : new DynamicVehicleModel(blockbenchModel[0], CustomResourceTools.formatIdentifierWithDefault(textureResource, "png"), modelProperties, positionDefinitions);
+		if (modelProperties == null || positionDefinitions == null) {
+			return null;
+		}
+
+		if (modelResource.endsWith(".bbmodel")) {
+			final BlockbenchModel[] blockbenchModel = {null};
+			CustomResourceLoader.readResource(CustomResourceTools.formatIdentifier(modelResource, "bbmodel"), jsonElement -> blockbenchModel[0] = new BlockbenchModel(new JsonReader(jsonElement)));
+			return blockbenchModel[0] == null ? null : new DynamicVehicleModel(blockbenchModel[0], CustomResourceTools.formatIdentifierWithDefault(textureResource, "png"), modelProperties, positionDefinitions);
+		} else if (modelResource.endsWith(".obj")) {
+			return new DynamicVehicleModel(new Object2ObjectAVLTreeMap<>(OptimizedModel.ObjModel.loadModel(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj"), null, true, flipTextureV)), CustomResourceTools.formatIdentifierWithDefault(textureResource, "png"), modelProperties, positionDefinitions);
+		} else {
+			return null;
+		}
 	}
 }

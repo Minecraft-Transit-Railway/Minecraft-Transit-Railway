@@ -20,6 +20,7 @@ import org.mtr.mod.resource.VehicleResource;
 import javax.annotation.Nullable;
 import java.util.Locale;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public final class LegacyVehicleResource extends VehicleResourceSchema {
 
@@ -119,15 +120,24 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				baseObject.addProperty("legacyDoorCloseSoundTime", door_close_sound_time);
 				baseObject.addProperty("legacyDoorCloseSoundTime", door_close_sound_time);
 
-				final JsonObject modelObject = new JsonObject();
-				modelObject.addProperty("modelResource", model);
-				modelObject.addProperty("textureResource", texture_id);
+				final int currentCar = i == 0 ? 1 : i == 2 ? 2 : 0;
+				final int totalCars = i == 3 ? 1 : 3;
+
+				final ObjectArrayList<JsonObject> modelObjects = new ObjectArrayList<>();
+				final String[] modelSplit = model.split("\\|");
+				for (int j = 0; j < modelSplit.length; j += 2) {
+					final String[] conditions = j + 1 < modelSplit.length ? modelSplit[j + 1].split(";") : new String[]{};
+					if (conditions.length < 2 || matchesFilter(conditions[1].split(","), currentCar, totalCars) <= matchesFilter(conditions[0].split(","), currentCar, totalCars)) {
+						final JsonObject modelObject = new JsonObject();
+						modelObject.addProperty("modelResource", modelSplit[j]);
+						modelObject.addProperty("textureResource", texture_id);
+						modelObject.addProperty("flipTextureV", flipV);
+						modelObjects.add(modelObject);
+					}
+				}
 
 				final JsonArray positionDefinitionsArray = new JsonArray();
 				final JsonArray partsArray = new JsonArray();
-
-				final int currentCar = i == 0 ? 1 : i == 2 ? 2 : 0;
-				final int totalCars = i == 3 ? 1 : 3;
 
 				try {
 					processModel(currentCar, totalCars, propertiesObject[0].getAsJsonArray("parts_normal"), positionDefinitionsArray, partsArray, doorMax, "NORMAL", null, null);
@@ -211,7 +221,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				}
 				vehicleResources.add(new VehicleResource(
 						new JsonReader(baseObject),
-						new VehicleModel(new JsonReader(modelObject), new ModelProperties(new JsonReader(modelPropertiesObject)), new PositionDefinitions(new JsonReader(positionDefinitionsObject))),
+						modelObjects.stream().map(modelObject -> new VehicleModel(new JsonReader(modelObject), new ModelProperties(new JsonReader(modelPropertiesObject)), new PositionDefinitions(new JsonReader(positionDefinitionsObject)))).collect(Collectors.toCollection(ObjectArrayList::new)),
 						new Box(-x1, 1, -z, x1, 1, z),
 						doorways
 				));

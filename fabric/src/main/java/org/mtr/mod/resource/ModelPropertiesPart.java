@@ -11,6 +11,7 @@ import org.mtr.mapping.holder.OverlayTexture;
 import org.mtr.mapping.holder.Vector3d;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
+import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mod.Init;
 import org.mtr.mod.MutableBox;
 import org.mtr.mod.client.CustomResourceLoader;
@@ -24,6 +25,7 @@ import org.mtr.mod.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
+import java.util.Map;
 
 public final class ModelPropertiesPart extends ModelPropertiesPartSchema implements IGui {
 
@@ -85,7 +87,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		if (isDoor()) {
 			final OptimizedModelWrapper.MaterialGroupWrapper materialGroup = new OptimizedModelWrapper.MaterialGroupWrapper(renderStage.shaderType, texture);
 			modelParts.forEach(modelPart -> materialGroup.addCube(modelPart, 0, 0, 0, false, MAX_LIGHT_INTERIOR));
-			optimizedModelDoor = new OptimizedModelWrapper(ObjectArrayList.of(materialGroup));
+			optimizedModelDoor = OptimizedModelWrapper.fromMaterialGroups(ObjectArrayList.of(materialGroup));
 		} else {
 			optimizedModelDoor = null;
 		}
@@ -110,6 +112,38 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				case DOORWAY:
 					iteratePositions(positions, positionsFlipped, (x, y, z, flipped) -> mutableBox.getAll().forEach(box -> doorways.add(addBox(box, x, y, z, flipped))));
 					break;
+			}
+		}));
+	}
+
+	public void writeCache(
+			Identifier texture,
+			Map<String, OptimizedModel.ObjModel> nameToObjModels,
+			PositionDefinitions positionDefinitionsObject,
+			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStage,
+			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStageDoorsClosed,
+			double modelYOffset
+	) {
+		final ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> objModels = new ObjectArrayList<>();
+		final MutableBox mutableBox = new MutableBox();
+		final ObjectArrayList<ModelDisplayPart> modelDisplayParts = new ObjectArrayList<>();
+		final OptimizedModelWrapper optimizedModelDoor;
+
+		names.forEach(name -> {
+			final OptimizedModel.ObjModel objModel = nameToObjModels.get(name);
+			if (objModel != null) {
+				objModels.add(new OptimizedModelWrapper.ObjModelWrapper(objModel));
+			}
+		});
+
+		positionDefinitions.forEach(positionDefinitionName -> positionDefinitionsObject.getPositionDefinition(positionDefinitionName, (positions, positionsFlipped) -> {
+			if (type == PartType.NORMAL) {
+				iteratePositions(positions, positionsFlipped, (x, y, z, flipped) -> {
+					if (!isDoor()) {
+						addObjModelPosition(objModels, objModelsForPartConditionAndRenderStage, x, y, z, flipped, modelYOffset);
+					}
+					addObjModelPosition(objModels, objModelsForPartConditionAndRenderStageDoorsClosed, x, y, z, flipped, modelYOffset);
+				});
 			}
 		}));
 	}
@@ -248,6 +282,19 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			final OptimizedModelWrapper.MaterialGroupWrapper materialGroup = oldValue == null ? new OptimizedModelWrapper.MaterialGroupWrapper(renderStage.shaderType, texture) : oldValue;
 			materialGroup.addCube(modelPart, (x + doorAnimationType.getDoorAnimationX(doorXMultiplier, 0)) / 16, y / 16, (z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, 0, false)) / 16, flipped, MAX_LIGHT_INTERIOR);
 			return materialGroup;
+		}, Object2ObjectOpenHashMap::new));
+	}
+
+	private void addObjModelPosition(
+			ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> objModels,
+			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStage,
+			double x, double y, double z, boolean flipped, double modelYOffset
+	) {
+		objModels.forEach(objModel -> Data.put(objModelsForPartConditionAndRenderStage, condition, renderStage, oldValue -> {
+			final ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> newObjModels = oldValue == null ? new ObjectArrayList<>() : oldValue;
+			objModel.addTransformation(renderStage.shaderType, (x + doorAnimationType.getDoorAnimationX(doorXMultiplier, 0)) / 16, y / 16 - modelYOffset, (z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, 0, false)) / 16, flipped);
+			newObjModels.add(objModel);
+			return newObjModels;
 		}, Object2ObjectOpenHashMap::new));
 	}
 
