@@ -5,6 +5,7 @@ import org.mtr.core.serializer.ReaderBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.Direction;
+import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockPIDSBase;
@@ -55,15 +56,26 @@ public class TextModule extends PIDSModule {
         if (textOverride != null) {
             text = textOverride;
         } else {
-            text = String.format(template, placeholders.toArray());
+            String[] getText = placeholders.toArray(String[]::new);
+            String[] texts = getText[0].split("\\|\\|")[0].replaceAll("\\\\\\|", "^TEMP^").split("\\|");
+            int textIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderPIDS.SWITCH_TEXT_TICKS) % texts.length;
+            getText[0] = texts[textIndex].replaceAll("\\^TEMP\\^", "|");
+
+            String template = this.template.split("\\|\\|")[0];
+            String[] templates = template.replaceAll("\\|", "^TEMP^").split("\\|");
+            int templateIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderPIDS.SWITCH_TEXT_TICKS) % templates.length;
+            text = String.format(templates[templateIndex].replaceAll("\\^TEMP\\^", "|"), (Object[]) getText);
         }
+
         int color = this.color;
-        ArrivalResponse arrival = arrivals.get(this.arrival);
-        if (arrival != null) {
-            if (colorMode.equals("line")) {
-                color = arrival.getRouteColor();
-            } else if (colorMode.equals("station")) {
-                color = InitClient.findStation(blockPos).getColor();
+        if (this.arrival < arrivals.size()) {
+            ArrivalResponse arrival = arrivals.get(this.arrival);
+            if (arrival != null) {
+                if (colorMode.equals("line")) {
+                    color = arrival.getRouteColor();
+                } else if (colorMode.equals("station")) {
+                    color = InitClient.findStation(blockPos).getColor();
+                }
             }
         }
 

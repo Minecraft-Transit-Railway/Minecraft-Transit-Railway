@@ -55,7 +55,8 @@ public class StopsAtModule extends TextModule {
                 if (i != 0 && i == stops.size() - 1) {
                     stopText.append("and ");
                 }
-                stopText.append(stops.get(i).getStationName());
+                String stationName = stops.get(i).getStationName().split("\\|\\|")[0];
+                stopText.append(stationName.replaceAll("\\\\\\|", "^TEMP^").replaceAll("\\|", " ").replaceAll("\\^TEMP\\^", "|"));
                 if (i != stops.size() - 1) {
                     stopText.append(", ");
                 }
@@ -75,7 +76,11 @@ public class StopsAtModule extends TextModule {
             }
 
             if (stops.size() <= stop + currentPage * stopIncrement) return null;
-            text.add(stops.get(stop + currentPage * stopIncrement).getStationName());
+            // Translation handling
+            String stopText = stops.get(stop + currentPage * stopIncrement).getStationName().split("\\|\\|")[0];
+            String[] stopSplit = stopText.split("\\|");
+            int stopIndex = (int) Math.floor((double) time / RenderPIDS.SWITCH_TEXT_TICKS * pages) % stopSplit.length;
+            text.add(stopSplit[stopIndex].replaceAll("\\^TEMP\\^", "|"));
         }
         return text;
     }

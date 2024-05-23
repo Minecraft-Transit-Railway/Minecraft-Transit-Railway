@@ -29,12 +29,14 @@ public class BlockModule extends PIDSModule {
     @Override
     public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing) {
         int color = this.color;
-        ArrivalResponse arrival = arrivals.get(this.arrival);
-        if (arrival != null) {
-            if (colorMode.equals("line")) {
-                color = arrival.getRouteColor();
-            } else if (colorMode.equals("station")) {
-                color = InitClient.findStation(blockPos).getColor();
+        if (this.arrival < arrivals.size()) {
+            ArrivalResponse arrival = arrivals.get(this.arrival);
+            if (arrival != null) {
+                if (colorMode.equals("line")) {
+                    color = arrival.getRouteColor();
+                } else if (colorMode.equals("station")) {
+                    color = InitClient.findStation(blockPos).getColor();
+                }
             }
         }
         renderPIDS.renderRect(entity, blockPos, facing, x, y, width, height, color + 0xFF000000, layer);

@@ -16,6 +16,7 @@ public class ArrivalTimeModule extends TextModule {
     private String secondTemplate = "%s sec";
     private String mixedTemplate = "%s:%s";
     private boolean showMixed = false;
+    private boolean detectTranslation = false;
 
     public ArrivalTimeModule(float x, float y, float width, float height, ReaderBase data) {
         super(x, y, width, height, data);
@@ -24,6 +25,7 @@ public class ArrivalTimeModule extends TextModule {
         data.unpackString("secText", (value) -> secondTemplate = value);
         data.unpackString("minText", (value) -> minuteTemplate = value);
         data.unpackString("mixText", (value) -> mixedTemplate = value);
+        data.unpackBoolean("legacyMode", (value) -> detectTranslation = value);
     }
 
     @Override

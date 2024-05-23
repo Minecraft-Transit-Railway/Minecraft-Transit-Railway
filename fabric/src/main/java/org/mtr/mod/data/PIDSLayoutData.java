@@ -76,7 +76,6 @@ public class PIDSLayoutData extends PersistenceStateExtension {
 
     @Override
     public void readNbt(CompoundTag compoundTag) {
-        pidsLayoutData.clear();
         for (String key : compoundTag.getKeys()) {
             pidsLayoutData.put(key, new PIDSLayoutEntry(compoundTag.getString(key)));
         }
