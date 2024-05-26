@@ -20,7 +20,6 @@ subprojects {
 		shadowImplementation "org.mtr:Minecraft-Mappings-common:0.0.1"
 		shadowImplementation "org.mtr:Transport-Simulation-Core:0.0.1"
 		shadowImplementation "com.logisticscraft:occlusionculling:+"
-		shadowImplementation "de.javagl:obj:+"
 		shadowImplementation "io.nayuki:qrcodegen:+"
 		compileOnly "com.google.code.findbugs:jsr305:+"
 		compileOnly "xyz.jpenilla:squaremap-api:+"
@@ -41,7 +40,6 @@ subprojects {
 			exclude(dependency("org.mtr:Minecraft-Mappings-common:.*"))
 			exclude(dependency("org.mtr:Minecraft-Mappings-fabric-${minecraftVersion}:.*"))
 			exclude(dependency("org.mtr:Minecraft-Mappings-forge-${minecraftVersion}:.*"))
-			exclude(dependency("de.javagl:obj:.*"))
 		}
 		relocate "com.logisticscraft", "org.mtr.libraries.com.logisticscraft"
 		relocate "de.javagl", "org.mtr.libraries.de.javagl"
