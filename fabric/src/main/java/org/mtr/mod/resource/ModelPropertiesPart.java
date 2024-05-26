@@ -132,7 +132,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			final OptimizedModel.ObjModel objModel = nameToObjModels.get(name);
 			if (objModel != null) {
 				objModels.add(new OptimizedModelWrapper.ObjModelWrapper(objModel));
-				mutableBox.add(new Box(-objModel.minX, -objModel.minY, -objModel.minZ, -objModel.maxX, -objModel.maxY, -objModel.maxZ));
+				mutableBox.add(new Box(-objModel.getMinX(), -objModel.getMinY(), -objModel.getMinZ(), -objModel.getMaxX(), -objModel.getMaxY(), -objModel.getMaxZ()));
 			}
 		});
 

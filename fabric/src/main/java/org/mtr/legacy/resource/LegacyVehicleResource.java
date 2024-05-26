@@ -190,12 +190,12 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 
 				final JsonObject modelPropertiesObject = new JsonObject();
 				modelPropertiesObject.addProperty("modelYOffset", 1);
-				modelPropertiesObject.addProperty("gangwayInnerSideResource", (gangway_connection_id.isEmpty() ? texture_id + "_connector" : gangway_connection_id) + "_side.png");
-				modelPropertiesObject.addProperty("gangwayInnerTopResource", (gangway_connection_id.isEmpty() ? texture_id + "_connector" : gangway_connection_id) + "_roof.png");
-				modelPropertiesObject.addProperty("gangwayInnerBottomResource", (gangway_connection_id.isEmpty() ? texture_id + "_connector" : gangway_connection_id) + "_floor.png");
-				modelPropertiesObject.addProperty("gangwayOuterSideResource", (gangway_connection_id.isEmpty() ? texture_id + "_connector" : gangway_connection_id) + "_exterior.png");
-				modelPropertiesObject.addProperty("gangwayOuterTopResource", (gangway_connection_id.isEmpty() ? texture_id + "_connector" : gangway_connection_id) + "_exterior.png");
-				modelPropertiesObject.addProperty("gangwayOuterBottomResource", (gangway_connection_id.isEmpty() ? texture_id + "_connector" : gangway_connection_id) + "_exterior.png");
+				modelPropertiesObject.addProperty("gangwayInnerSideResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_side.png");
+				modelPropertiesObject.addProperty("gangwayInnerTopResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_roof.png");
+				modelPropertiesObject.addProperty("gangwayInnerBottomResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_floor.png");
+				modelPropertiesObject.addProperty("gangwayOuterSideResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_exterior.png");
+				modelPropertiesObject.addProperty("gangwayOuterTopResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_exterior.png");
+				modelPropertiesObject.addProperty("gangwayOuterBottomResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_exterior.png");
 				modelPropertiesObject.addProperty("gangwayWidth", 1.5);
 				modelPropertiesObject.addProperty("gangwayHeight", 2.25);
 				modelPropertiesObject.addProperty("gangwayYOffset", 1);
