@@ -124,9 +124,9 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				final int totalCars = i == 3 ? 1 : 3;
 
 				final ObjectArrayList<JsonObject> modelObjects = new ObjectArrayList<>();
-				final String[] modelSplit = model.split("\\|");
+				final String[] modelSplit = splitWithEmptyStrings(model, '|');
 				for (int j = 0; j < modelSplit.length; j += 2) {
-					final String[] conditions = j + 1 < modelSplit.length ? modelSplit[j + 1].split(";") : new String[]{};
+					final String[] conditions = j + 1 < modelSplit.length ? splitWithEmptyStrings(modelSplit[j + 1], ';') : new String[]{};
 					if (conditions.length < 2 || matchesFilter(conditions[1].split(","), currentCar, totalCars) <= matchesFilter(conditions[0].split(","), currentCar, totalCars)) {
 						final JsonObject modelObject = new JsonObject();
 						modelObject.addProperty("modelResource", modelSplit[j]);
@@ -297,20 +297,20 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				if (propertiesPartsObject.has("door_offset")) {
 					switch (tryGet(propertiesPartsObject, "door_offset").toUpperCase(Locale.ENGLISH)) {
 						case "LEFT_NEGATIVE":
-							doorXMultiplier = -1;
-							doorZMultiplier = -doorMax;
+							doorXMultiplier = 1;
+							doorZMultiplier = doorMax;
 							break;
 						case "LEFT_POSITIVE":
-							doorXMultiplier = -1;
-							doorZMultiplier = doorMax;
-							break;
-						case "RIGHT_NEGATIVE":
 							doorXMultiplier = 1;
 							doorZMultiplier = -doorMax;
 							break;
-						case "RIGHT_POSITIVE":
-							doorXMultiplier = 1;
+						case "RIGHT_NEGATIVE":
+							doorXMultiplier = -1;
 							doorZMultiplier = doorMax;
+							break;
+						case "RIGHT_POSITIVE":
+							doorXMultiplier = -1;
+							doorZMultiplier = -doorMax;
 							break;
 						default:
 							doorXMultiplier = 0;
@@ -321,11 +321,11 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 					switch (tryGet(propertiesPartsObject, "door_offset_x").toUpperCase(Locale.ENGLISH)) {
 						case "LEFT":
 						case "LEFT_NEGATIVE":
-							doorXMultiplier = -1;
+							doorXMultiplier = 1;
 							break;
 						case "RIGHT":
 						case "RIGHT_NEGATIVE":
-							doorXMultiplier = 1;
+							doorXMultiplier = -1;
 							break;
 						default:
 							doorXMultiplier = 0;
@@ -334,11 +334,11 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 					switch (tryGet(propertiesPartsObject, "door_offset_z").toUpperCase(Locale.ENGLISH)) {
 						case "LEFT":
 						case "RIGHT_NEGATIVE":
-							doorZMultiplier = -doorMax;
+							doorZMultiplier = doorMax;
 							break;
 						case "LEFT_NEGATIVE":
 						case "RIGHT":
-							doorZMultiplier = doorMax;
+							doorZMultiplier = -doorMax;
 							break;
 						default:
 							doorZMultiplier = 0;
@@ -420,6 +420,16 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 		}
 
 		return strength;
+	}
+
+	private static String[] splitWithEmptyStrings(String string, char token) {
+		final String filler = Integer.toHexString(new Random().nextInt());
+		final String[] firstSplit = string.replace(String.valueOf(token), String.format("%1$s%2$s%1$s", filler, token)).split(("\\") + token);
+		final String[] finalSplit = new String[firstSplit.length];
+		for (int i = 0; i < firstSplit.length; i++) {
+			finalSplit[i] = firstSplit[i].replace(filler, "");
+		}
+		return finalSplit;
 	}
 
 	private enum Variation {

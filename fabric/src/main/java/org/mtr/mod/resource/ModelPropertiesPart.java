@@ -26,6 +26,7 @@ import org.mtr.mod.render.StoredMatrixTransformations;
 import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public final class ModelPropertiesPart extends ModelPropertiesPartSchema implements IGui {
 
@@ -117,7 +118,6 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	}
 
 	public void writeCache(
-			Identifier texture,
 			Map<String, OptimizedModel.ObjModel> nameToObjModels,
 			PositionDefinitions positionDefinitionsObject,
 			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStage,
@@ -126,15 +126,17 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	) {
 		final ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> objModels = new ObjectArrayList<>();
 		final MutableBox mutableBox = new MutableBox();
-		final ObjectArrayList<ModelDisplayPart> modelDisplayParts = new ObjectArrayList<>();
-		final OptimizedModelWrapper optimizedModelDoor;
+		final Supplier<OptimizedModelWrapper> optimizedModelDoor;
 
 		names.forEach(name -> {
 			final OptimizedModel.ObjModel objModel = nameToObjModels.get(name);
 			if (objModel != null) {
 				objModels.add(new OptimizedModelWrapper.ObjModelWrapper(objModel));
+				mutableBox.add(new Box(-objModel.minX, -objModel.minY, -objModel.minZ, -objModel.maxX, -objModel.maxY, -objModel.maxZ));
 			}
 		});
+
+		optimizedModelDoor = () -> isDoor() ? OptimizedModelWrapper.fromObjModels(objModels) : null;
 
 		positionDefinitions.forEach(positionDefinitionName -> positionDefinitionsObject.getPositionDefinition(positionDefinitionName, (positions, positionsFlipped) -> {
 			if (type == PartType.NORMAL) {
@@ -143,6 +145,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 						addObjModelPosition(objModels, objModelsForPartConditionAndRenderStage, x, y, z, flipped, modelYOffset);
 					}
 					addObjModelPosition(objModels, objModelsForPartConditionAndRenderStageDoorsClosed, x, y, z, flipped, modelYOffset);
+					partDetailsList.add(new PartDetails(new ObjectArrayList<>(), optimizedModelDoor.get(), addBox(mutableBox.get(), x, y, z, flipped), x, y, z, flipped));
 				});
 			}
 		}));

@@ -6,7 +6,6 @@ import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mod.render.RenderVehicles;
-import org.mtr.mod.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -16,7 +15,6 @@ public final class OptimizedModelWrapper {
 
 	@Nullable
 	final OptimizedModel optimizedModel;
-	private final ObjectArrayList<StoredMatrixTransformations> storedMatrixTransformationsList = new ObjectArrayList<>();
 
 	public static OptimizedModelWrapper fromMaterialGroups(ObjectArrayList<MaterialGroupWrapper> materialGroupList) {
 		return new OptimizedModelWrapper(RenderVehicles.useOptimizedRendering() ? OptimizedModel.fromMaterialGroups(materialGroupList.stream().map(materialGroup -> materialGroup.materialGroup).filter(Objects::nonNull).collect(Collectors.toList())) : null);
@@ -68,7 +66,6 @@ public final class OptimizedModelWrapper {
 
 	public static final class ObjModelWrapper {
 
-		private boolean canBeTransformed = true;
 		public final OptimizedModel.ObjModel objModel;
 
 		public ObjModelWrapper(OptimizedModel.ObjModel objModel) {
@@ -76,10 +73,7 @@ public final class OptimizedModelWrapper {
 		}
 
 		public void addTransformation(OptimizedModel.ShaderType shaderType, double x, double y, double z, boolean flipped) {
-			if (canBeTransformed) {
-				objModel.addTransformation(shaderType, x, y, z, flipped);
-			}
-			canBeTransformed = false;
+			objModel.addTransformation(shaderType, x, y, z, flipped);
 		}
 	}
 }
