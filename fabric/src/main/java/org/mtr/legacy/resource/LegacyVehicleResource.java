@@ -20,6 +20,7 @@ import org.mtr.mod.resource.VehicleResource;
 import javax.annotation.Nullable;
 import java.util.Locale;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public final class LegacyVehicleResource extends VehicleResourceSchema {
 
@@ -119,15 +120,24 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				baseObject.addProperty("legacyDoorCloseSoundTime", door_close_sound_time);
 				baseObject.addProperty("legacyDoorCloseSoundTime", door_close_sound_time);
 
-				final JsonObject modelObject = new JsonObject();
-				modelObject.addProperty("modelResource", model);
-				modelObject.addProperty("textureResource", texture_id);
+				final int currentCar = i == 0 ? 1 : i == 2 ? 2 : 0;
+				final int totalCars = i == 3 ? 1 : 3;
+
+				final ObjectArrayList<JsonObject> modelObjects = new ObjectArrayList<>();
+				final String[] modelSplit = splitWithEmptyStrings(model, '|');
+				for (int j = 0; j < modelSplit.length; j += 2) {
+					final String[] conditions = j + 1 < modelSplit.length ? splitWithEmptyStrings(modelSplit[j + 1], ';') : new String[]{};
+					if (conditions.length < 2 || matchesFilter(conditions[1].split(","), currentCar, totalCars) <= matchesFilter(conditions[0].split(","), currentCar, totalCars)) {
+						final JsonObject modelObject = new JsonObject();
+						modelObject.addProperty("modelResource", modelSplit[j]);
+						modelObject.addProperty("textureResource", texture_id);
+						modelObject.addProperty("flipTextureV", flipV);
+						modelObjects.add(modelObject);
+					}
+				}
 
 				final JsonArray positionDefinitionsArray = new JsonArray();
 				final JsonArray partsArray = new JsonArray();
-
-				final int currentCar = i == 0 ? 1 : i == 2 ? 2 : 0;
-				final int totalCars = i == 3 ? 1 : 3;
 
 				try {
 					processModel(currentCar, totalCars, propertiesObject[0].getAsJsonArray("parts_normal"), positionDefinitionsArray, partsArray, doorMax, "NORMAL", null, null);
@@ -180,12 +190,12 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 
 				final JsonObject modelPropertiesObject = new JsonObject();
 				modelPropertiesObject.addProperty("modelYOffset", 1);
-				modelPropertiesObject.addProperty("gangwayInnerSideResource", (gangway_connection_id.isEmpty() ? texture_id + "_connector" : gangway_connection_id) + "_side.png");
-				modelPropertiesObject.addProperty("gangwayInnerTopResource", (gangway_connection_id.isEmpty() ? texture_id + "_connector" : gangway_connection_id) + "_roof.png");
-				modelPropertiesObject.addProperty("gangwayInnerBottomResource", (gangway_connection_id.isEmpty() ? texture_id + "_connector" : gangway_connection_id) + "_floor.png");
-				modelPropertiesObject.addProperty("gangwayOuterSideResource", (gangway_connection_id.isEmpty() ? texture_id + "_connector" : gangway_connection_id) + "_exterior.png");
-				modelPropertiesObject.addProperty("gangwayOuterTopResource", (gangway_connection_id.isEmpty() ? texture_id + "_connector" : gangway_connection_id) + "_exterior.png");
-				modelPropertiesObject.addProperty("gangwayOuterBottomResource", (gangway_connection_id.isEmpty() ? texture_id + "_connector" : gangway_connection_id) + "_exterior.png");
+				modelPropertiesObject.addProperty("gangwayInnerSideResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_side.png");
+				modelPropertiesObject.addProperty("gangwayInnerTopResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_roof.png");
+				modelPropertiesObject.addProperty("gangwayInnerBottomResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_floor.png");
+				modelPropertiesObject.addProperty("gangwayOuterSideResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_exterior.png");
+				modelPropertiesObject.addProperty("gangwayOuterTopResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_exterior.png");
+				modelPropertiesObject.addProperty("gangwayOuterBottomResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_exterior.png");
 				modelPropertiesObject.addProperty("gangwayWidth", 1.5);
 				modelPropertiesObject.addProperty("gangwayHeight", 2.25);
 				modelPropertiesObject.addProperty("gangwayYOffset", 1);
@@ -211,7 +221,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				}
 				vehicleResources.add(new VehicleResource(
 						new JsonReader(baseObject),
-						new VehicleModel(new JsonReader(modelObject), new ModelProperties(new JsonReader(modelPropertiesObject)), new PositionDefinitions(new JsonReader(positionDefinitionsObject))),
+						modelObjects.stream().map(modelObject -> new VehicleModel(new JsonReader(modelObject), new ModelProperties(new JsonReader(modelPropertiesObject)), new PositionDefinitions(new JsonReader(positionDefinitionsObject)))).collect(Collectors.toCollection(ObjectArrayList::new)),
 						new Box(-x1, 1, -z, x1, 1, z),
 						doorways
 				));
@@ -287,20 +297,20 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				if (propertiesPartsObject.has("door_offset")) {
 					switch (tryGet(propertiesPartsObject, "door_offset").toUpperCase(Locale.ENGLISH)) {
 						case "LEFT_NEGATIVE":
-							doorXMultiplier = -1;
-							doorZMultiplier = -doorMax;
+							doorXMultiplier = 1;
+							doorZMultiplier = doorMax;
 							break;
 						case "LEFT_POSITIVE":
-							doorXMultiplier = -1;
-							doorZMultiplier = doorMax;
-							break;
-						case "RIGHT_NEGATIVE":
 							doorXMultiplier = 1;
 							doorZMultiplier = -doorMax;
 							break;
-						case "RIGHT_POSITIVE":
-							doorXMultiplier = 1;
+						case "RIGHT_NEGATIVE":
+							doorXMultiplier = -1;
 							doorZMultiplier = doorMax;
+							break;
+						case "RIGHT_POSITIVE":
+							doorXMultiplier = -1;
+							doorZMultiplier = -doorMax;
 							break;
 						default:
 							doorXMultiplier = 0;
@@ -311,11 +321,11 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 					switch (tryGet(propertiesPartsObject, "door_offset_x").toUpperCase(Locale.ENGLISH)) {
 						case "LEFT":
 						case "LEFT_NEGATIVE":
-							doorXMultiplier = -1;
+							doorXMultiplier = 1;
 							break;
 						case "RIGHT":
 						case "RIGHT_NEGATIVE":
-							doorXMultiplier = 1;
+							doorXMultiplier = -1;
 							break;
 						default:
 							doorXMultiplier = 0;
@@ -324,11 +334,11 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 					switch (tryGet(propertiesPartsObject, "door_offset_z").toUpperCase(Locale.ENGLISH)) {
 						case "LEFT":
 						case "RIGHT_NEGATIVE":
-							doorZMultiplier = -doorMax;
+							doorZMultiplier = doorMax;
 							break;
 						case "LEFT_NEGATIVE":
 						case "RIGHT":
-							doorZMultiplier = doorMax;
+							doorZMultiplier = -doorMax;
 							break;
 						default:
 							doorZMultiplier = 0;
@@ -410,6 +420,16 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 		}
 
 		return strength;
+	}
+
+	private static String[] splitWithEmptyStrings(String string, char token) {
+		final String filler = Integer.toHexString(new Random().nextInt());
+		final String[] firstSplit = string.replace(String.valueOf(token), String.format("%1$s%2$s%1$s", filler, token)).split(("\\") + token);
+		final String[] finalSplit = new String[firstSplit.length];
+		for (int i = 0; i < firstSplit.length; i++) {
+			finalSplit[i] = firstSplit[i].replace(filler, "");
+		}
+		return finalSplit;
 	}
 
 	private enum Variation {

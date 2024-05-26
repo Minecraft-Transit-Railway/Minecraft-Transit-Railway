@@ -64,6 +64,9 @@
 		},
 		"const_playback_speed": {
 			"type": "boolean"
+		},
+		"flipV": {
+			"type": "boolean"
 		}
 	}
 }
