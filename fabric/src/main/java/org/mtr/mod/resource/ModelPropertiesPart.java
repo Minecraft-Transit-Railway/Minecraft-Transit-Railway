@@ -387,7 +387,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 	private static void iteratePositions(ObjectArrayList<PartPosition> positions, ObjectArrayList<PartPosition> positionsFlipped, PositionCallback positionCallback) {
 		positions.forEach(position -> positionCallback.accept(position.getX(), position.getY(), position.getZ(), false));
-		positionsFlipped.forEach(position -> positionCallback.accept(position.getX(), position.getY(), position.getZ(), true));
+		positionsFlipped.forEach(position -> positionCallback.accept(-position.getX(), position.getY(), position.getZ(), true));
 	}
 
 	private static double getClosestDistance(double a1, double a2, double b1, double b2) {
