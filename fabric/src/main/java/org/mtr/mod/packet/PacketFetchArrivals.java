@@ -71,7 +71,7 @@ public final class PacketFetchArrivals extends PacketHandler {
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketFetchArrivals(ArrivalsCacheServer.INSTANCE.getMillisOffset(), ArrivalsCacheServer.INSTANCE.requestArrivals(new World(serverPlayerEntity.getServerWorld().data), platformIds), callbackId));
+		Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketFetchArrivals(ArrivalsCacheServer.INSTANCE.getMillisOffset() + System.currentTimeMillis(), ArrivalsCacheServer.INSTANCE.requestArrivals(new World(serverPlayerEntity.getServerWorld().data), platformIds), callbackId));
 	}
 
 	@Override

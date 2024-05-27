@@ -41,7 +41,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 			final MutableBox mutableBox = new MutableBox();
 			final ObjectHolder<ModelDisplayPart> modelDisplayPart = new ObjectHolder<>(ModelDisplayPart::new);
 
-			iterateChildren(blockbenchOutline, new GroupTransformations(), (uuid, groupTransformations) -> {
+			iterateChildren(blockbenchOutline, null, new GroupTransformations(), (uuid, groupTransformations) -> {
 				final BlockbenchElement blockbenchElement = uuidToBlockbenchElement.remove(uuid);
 				if (blockbenchElement != null) {
 					mutableBox.add(blockbenchElement.setModelPart(parentModelPart.createAndGet().addChild(), groupTransformations, modelDisplayPart.createAndGet(), (float) modelProperties.getModelYOffset()));
@@ -101,10 +101,10 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		objModelsForPartConditionAndRenderStageDoorsClosed.forEach((partCondition, objModelsForRenderStage) -> Data.put(objModelsForPartConditionDoorsClosed, partCondition, flattenCollection(objModelsForRenderStage.values()), ObjectArrayList::new));
 	}
 
-	private static void iterateChildren(BlockbenchOutline blockbenchOutline, GroupTransformations groupTransformations, BiConsumer<String, GroupTransformations> consumer) {
-		final GroupTransformations newGroupTransformations = blockbenchOutline.add(groupTransformations);
+	private static void iterateChildren(BlockbenchOutline blockbenchOutline, @Nullable BlockbenchOutline previousBlockbenchOutline, GroupTransformations groupTransformations, BiConsumer<String, GroupTransformations> consumer) {
+		final GroupTransformations newGroupTransformations = blockbenchOutline.add(groupTransformations, previousBlockbenchOutline);
 		blockbenchOutline.childrenUuid.forEach(uuid -> consumer.accept(uuid, newGroupTransformations));
-		blockbenchOutline.getChildren().forEach(childOutline -> iterateChildren(childOutline, newGroupTransformations, consumer));
+		blockbenchOutline.getChildren().forEach(childOutline -> iterateChildren(childOutline, blockbenchOutline, groupTransformations, consumer));
 	}
 
 	private static <T> ObjectArrayList<T> flattenCollection(ObjectCollection<? extends ObjectCollection<T>> collection) {
