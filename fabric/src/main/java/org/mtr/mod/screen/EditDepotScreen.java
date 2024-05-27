@@ -376,6 +376,9 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 				getRoute(depot, lastGeneratedFailedStartId, lastGeneratedFailedEndId),
 				getStation(lastGeneratedFailedStartId),
 				getStation(lastGeneratedFailedEndId)
+		).getString()), lastGeneratedFailedSidingCount -> stringBuilder.append("|").append(TextHelper.translatable(
+				"gui.mtr.path_not_found_sidings",
+				lastGeneratedFailedSidingCount
 		).getString()));
 
 		return stringBuilder.toString();
