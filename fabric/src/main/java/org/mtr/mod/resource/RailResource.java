@@ -38,7 +38,8 @@ public final class RailResource extends RailResourceSchema {
 						new BlockbenchModel(new JsonReader(jsonElement)),
 						CustomResourceTools.formatIdentifierWithDefault(textureResource, "png"),
 						new ModelProperties(modelYOffset),
-						new PositionDefinitions()
+						new PositionDefinitions(),
+						""
 				);
 				tempDynamicVehicleModel[0].writeFloorsAndDoorways(new ObjectArraySet<>(), new ObjectArraySet<>(), new Object2ObjectOpenHashMap<>(), materialGroups, new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>());
 				tempOptimizedModel[0] = OptimizedModelWrapper.fromMaterialGroups(materialGroups.get(PartCondition.NORMAL));
@@ -51,7 +52,8 @@ public final class RailResource extends RailResourceSchema {
 					new Object2ObjectAVLTreeMap<>(OptimizedModel.ObjModel.loadModel(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj"), null, true, flipTextureV)),
 					CustomResourceTools.formatIdentifierWithDefault(textureResource, "png"),
 					new ModelProperties(modelYOffset),
-					new PositionDefinitions()
+					new PositionDefinitions(),
+					""
 			);
 			dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArraySet<>(), new ObjectArraySet<>(), new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>(), objModels);
 			optimizedModel = OptimizedModelWrapper.fromObjModels(objModels.get(PartCondition.NORMAL));

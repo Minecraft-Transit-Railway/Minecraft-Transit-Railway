@@ -30,7 +30,7 @@
 				"doorFlipped"
 			],
 			"renderStage": "INTERIOR",
-			"doorZMultiplier": 14,
+			"doorZMultiplier": -14,
 			"doorAnimationType": "BOUNCY_1"
 		},
 		{
@@ -41,7 +41,7 @@
 				"doorFlipped"
 			],
 			"renderStage": "EXTERIOR",
-			"doorZMultiplier": -14,
+			"doorZMultiplier": 14,
 			"doorAnimationType": "BOUNCY_1"
 		}
 	],
