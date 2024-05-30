@@ -164,7 +164,7 @@
 				"doorFlipped"
 			],
 			"renderStage": "INTERIOR",
-			"doorZMultiplier": -14,
+			"doorZMultiplier": 14,
 			"doorAnimationType": "MLR"
 		},
 		{
@@ -175,7 +175,7 @@
 				"doorFlipped"
 			],
 			"renderStage": "INTERIOR",
-			"doorZMultiplier": 14,
+			"doorZMultiplier": -14,
 			"doorAnimationType": "MLR"
 		},
 		{
@@ -228,7 +228,7 @@
 				"doorFlipped"
 			],
 			"renderStage": "EXTERIOR",
-			"doorZMultiplier": -14,
+			"doorZMultiplier": 14,
 			"doorAnimationType": "MLR"
 		},
 		{
@@ -239,7 +239,7 @@
 				"doorFlipped"
 			],
 			"renderStage": "EXTERIOR",
-			"doorZMultiplier": 14,
+			"doorZMultiplier": -14,
 			"doorAnimationType": "MLR"
 		},
 		{

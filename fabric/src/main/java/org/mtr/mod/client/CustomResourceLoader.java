@@ -26,7 +26,10 @@ import java.util.function.Consumer;
 
 public class CustomResourceLoader {
 
+	private static long TEST_DURATION;
+
 	public static final OptimizedRendererWrapper OPTIMIZED_RENDERER_WRAPPER = new OptimizedRendererWrapper();
+	public static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
 	public static final String DEFAULT_RAIL_ID = "default";
 
 	private static final Object2ObjectAVLTreeMap<String, JsonElement> RESOURCE_CACHE = new Object2ObjectAVLTreeMap<>();
@@ -36,7 +39,6 @@ public class CustomResourceLoader {
 	private static final Object2ObjectAVLTreeMap<String, SignResource> SIGNS_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final ObjectArrayList<RailResource> RAILS = new ObjectArrayList<>();
 	private static final Object2ObjectAVLTreeMap<String, RailResource> RAILS_CACHE = new Object2ObjectAVLTreeMap<>();
-	private static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
 
 	static {
 		for (final TransportMode transportMode : TransportMode.values()) {
@@ -54,6 +56,7 @@ public class CustomResourceLoader {
 		SIGNS_CACHE.clear();
 		RAILS.clear();
 		RAILS_CACHE.clear();
+		TEST_DURATION = 0;
 
 		final RailResource defaultRailResource = new RailResource(DEFAULT_RAIL_ID, "Default");
 		RAILS.add(defaultRailResource);
@@ -85,7 +88,7 @@ public class CustomResourceLoader {
 		});
 
 		OPTIMIZED_RENDERER_WRAPPER.finishReload();
-		Init.LOGGER.info("Loaded {} vehicles", VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum));
+		Init.LOGGER.info("Loaded {} vehicles and completed door movement validation in {} ms", VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum), TEST_DURATION / 1E6);
 		Init.LOGGER.info("Loaded {} signs", SIGNS.size());
 		Init.LOGGER.info("Loaded {} rails", RAILS.size());
 	}
@@ -167,5 +170,9 @@ public class CustomResourceLoader {
 			Init.LOGGER.error("", e);
 			return new JsonObject();
 		}
+	}
+
+	public static void incrementTestDuration(long duration) {
+		TEST_DURATION += duration;
 	}
 }
