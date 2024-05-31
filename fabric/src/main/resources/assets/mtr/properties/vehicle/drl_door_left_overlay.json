@@ -33,7 +33,7 @@
 				"doorMiddleFlipped"
 			],
 			"renderStage": "INTERIOR",
-			"doorZMultiplier": 14,
+			"doorZMultiplier": -14,
 			"doorAnimationType": "STANDARD_SLOW"
 		},
 		{
@@ -45,7 +45,7 @@
 				"doorMiddleFlipped"
 			],
 			"renderStage": "EXTERIOR",
-			"doorZMultiplier": -14,
+			"doorZMultiplier": 14,
 			"doorAnimationType": "STANDARD_SLOW"
 		}
 	],

@@ -9,8 +9,10 @@ import org.mtr.mapping.mapper.EntityModelExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mapping.mapper.OptimizedModel;
+import org.mtr.mod.Init;
 import org.mtr.mod.MutableBox;
 import org.mtr.mod.ObjectHolder;
+import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.resource.*;
 
@@ -28,7 +30,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStage = new Object2ObjectOpenHashMap<>();
 	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStageDoorsClosed = new Object2ObjectOpenHashMap<>();
 
-	public DynamicVehicleModel(BlockbenchModel blockbenchModel, Identifier texture, ModelProperties modelProperties, PositionDefinitions positionDefinitions) {
+	public DynamicVehicleModel(BlockbenchModel blockbenchModel, Identifier texture, ModelProperties modelProperties, PositionDefinitions positionDefinitions, String id) {
 		super(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight());
 
 		final Object2ObjectOpenHashMap<String, BlockbenchElement> uuidToBlockbenchElement = new Object2ObjectOpenHashMap<>();
@@ -41,7 +43,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 			final MutableBox mutableBox = new MutableBox();
 			final ObjectHolder<ModelDisplayPart> modelDisplayPart = new ObjectHolder<>(ModelDisplayPart::new);
 
-			iterateChildren(blockbenchOutline, new GroupTransformations(), (uuid, groupTransformations) -> {
+			iterateChildren(blockbenchOutline, null, new GroupTransformations(), (uuid, groupTransformations) -> {
 				final BlockbenchElement blockbenchElement = uuidToBlockbenchElement.remove(uuid);
 				if (blockbenchElement != null) {
 					mutableBox.add(blockbenchElement.setModelPart(parentModelPart.createAndGet().addChild(), groupTransformations, modelDisplayPart.createAndGet(), (float) modelProperties.getModelYOffset()));
@@ -62,15 +64,17 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		this.texture = texture;
 		this.modelProperties = modelProperties;
 		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(texture, nameToPart, nameToDisplayPart, positionDefinitions, floors, doorways, materialGroupsForPartConditionAndRenderStage, materialGroupsForPartConditionAndRenderStageDoorsClosed));
+		testDoors(id);
 	}
 
-	public DynamicVehicleModel(Object2ObjectAVLTreeMap<String, OptimizedModel.ObjModel> nameToObjModels, Identifier texture, ModelProperties modelProperties, PositionDefinitions positionDefinitions) {
+	public DynamicVehicleModel(Object2ObjectAVLTreeMap<String, OptimizedModel.ObjModel> nameToObjModels, Identifier texture, ModelProperties modelProperties, PositionDefinitions positionDefinitions, String id) {
 		super(0, 0);
 		buildModel();
 		modelProperties.addPartsIfEmpty(nameToObjModels.keySet());
 		this.texture = texture;
 		this.modelProperties = modelProperties;
 		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(nameToObjModels, positionDefinitions, objModelsForPartConditionAndRenderStage, objModelsForPartConditionAndRenderStageDoorsClosed, modelProperties.getModelYOffset()));
+		testDoors(id);
 	}
 
 	@Override
@@ -101,10 +105,41 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		objModelsForPartConditionAndRenderStageDoorsClosed.forEach((partCondition, objModelsForRenderStage) -> Data.put(objModelsForPartConditionDoorsClosed, partCondition, flattenCollection(objModelsForRenderStage.values()), ObjectArrayList::new));
 	}
 
-	private static void iterateChildren(BlockbenchOutline blockbenchOutline, GroupTransformations groupTransformations, BiConsumer<String, GroupTransformations> consumer) {
-		final GroupTransformations newGroupTransformations = blockbenchOutline.add(groupTransformations);
+	/**
+	 * Simulate door movement to see if doors overlap (meaning that door X and Z multipliers were set incorrectly)
+	 */
+	private void testDoors(String id) {
+		final long startTime = System.nanoTime();
+		final ObjectArrayList<ObjectArrayList<Box>> boxesList = new ObjectArrayList<>();
+		final int slices = 5;
+		for (int i = 0; i <= slices; i++) {
+			final ObjectArrayList<Box> boxes = new ObjectArrayList<>();
+			final double time = (double) i / slices;
+			modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.getOpenDoorBounds(boxes, time));
+			boxesList.add(boxes);
+		}
+
+		final int count = boxesList.get(0).size();
+		for (int i = 0; i < count; i++) {
+			for (int j = i + 1; j < count; j++) {
+				if (!boxesList.get(0).get(i).intersects(boxesList.get(0).get(j))) {
+					for (int k = 1; k <= slices; k++) {
+						if (boxesList.get(k).get(i).intersects(boxesList.get(k).get(j))) {
+							Init.LOGGER.warn("Vehicle doors overlapping! Door X and Z multipliers were probably set incorrectly ({})", id);
+							return;
+						}
+					}
+				}
+			}
+		}
+
+		CustomResourceLoader.incrementTestDuration(System.nanoTime() - startTime);
+	}
+
+	private static void iterateChildren(BlockbenchOutline blockbenchOutline, @Nullable BlockbenchOutline previousBlockbenchOutline, GroupTransformations groupTransformations, BiConsumer<String, GroupTransformations> consumer) {
+		final GroupTransformations newGroupTransformations = blockbenchOutline.add(groupTransformations, previousBlockbenchOutline);
 		blockbenchOutline.childrenUuid.forEach(uuid -> consumer.accept(uuid, newGroupTransformations));
-		blockbenchOutline.getChildren().forEach(childOutline -> iterateChildren(childOutline, newGroupTransformations, consumer));
+		blockbenchOutline.getChildren().forEach(childOutline -> iterateChildren(childOutline, blockbenchOutline, groupTransformations, consumer));
 	}
 
 	private static <T> ObjectArrayList<T> flattenCollection(ObjectCollection<? extends ObjectCollection<T>> collection) {

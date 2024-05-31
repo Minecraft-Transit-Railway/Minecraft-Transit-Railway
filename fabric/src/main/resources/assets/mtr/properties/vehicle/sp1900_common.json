@@ -141,7 +141,7 @@
 				"doorFlipped"
 			],
 			"renderStage": "INTERIOR",
-			"doorZMultiplier": -14,
+			"doorZMultiplier": 14,
 			"doorAnimationType": "NORMAL"
 		},
 		{
@@ -152,7 +152,7 @@
 				"doorFlipped"
 			],
 			"renderStage": "INTERIOR",
-			"doorZMultiplier": 14,
+			"doorZMultiplier": -14,
 			"doorAnimationType": "NORMAL"
 		},
 		{

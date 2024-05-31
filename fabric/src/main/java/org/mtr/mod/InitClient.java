@@ -380,6 +380,7 @@ public final class InitClient {
 
 		Patreon.getPatreonList(Config.PATREON_LIST);
 		Config.refreshProperties();
+		ResourcePackHelper.fix();
 
 		BlockTactileMap.BlockEntity.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
 		BlockTactileMap.BlockEntity.onUse = blockPos -> {

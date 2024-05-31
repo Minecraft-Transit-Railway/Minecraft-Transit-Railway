@@ -175,6 +175,23 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		}
 	}
 
+	public void getOpenDoorBounds(ObjectArrayList<Box> boxes, double time) {
+		if (isDoor()) {
+			partDetailsList.forEach(partDetails -> {
+				final double x = doorAnimationType.getDoorAnimationX(doorXMultiplier, partDetails.flipped, time) / 16;
+				final double z = doorAnimationType.getDoorAnimationZ(doorZMultiplier, partDetails.flipped, time, true) / 16;
+				boxes.add(new Box(
+						partDetails.box.getMinXMapped() + x,
+						partDetails.box.getMinYMapped(),
+						partDetails.box.getMinZMapped() + z,
+						partDetails.box.getMaxXMapped() + x,
+						partDetails.box.getMaxYMapped(),
+						partDetails.box.getMaxZMapped() + z
+				));
+			});
+		}
+	}
+
 	/**
 	 * If this part is a door, find the closest doorway.
 	 */
@@ -207,9 +224,9 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		storedMatrixTransformations.transform(graphicsHolder, offset);
 		partDetailsList.forEach(partDetails -> {
 			final boolean canOpenDoors = openDoorways.contains(partDetails.doorway);
-			final float x = (float) (partDetails.x + (vehicle == null ? 0 : doorAnimationType.getDoorAnimationX(doorXMultiplier, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0)));
+			final float x = (float) (partDetails.x + (vehicle == null ? 0 : doorAnimationType.getDoorAnimationX(doorXMultiplier, partDetails.flipped, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0)));
 			final float y = (float) partDetails.y;
-			final float z = (float) (partDetails.z + (vehicle == null ? 0 : doorAnimationType.getDoorAnimationZ(doorZMultiplier, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0, vehicle.vehicleExtraData.getDoorMultiplier() > 0)));
+			final float z = (float) (partDetails.z + (vehicle == null ? 0 : doorAnimationType.getDoorAnimationZ(doorZMultiplier, partDetails.flipped, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0, vehicle.vehicleExtraData.getDoorMultiplier() > 0)));
 
 			if (RenderVehicles.useOptimizedRendering()) {
 				// If doors are open, only render the optimized door parts
@@ -283,7 +300,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	private void addCube(Identifier texture, ObjectArrayList<ModelPartExtension> modelParts, Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStage, double x, double y, double z, boolean flipped) {
 		modelParts.forEach(modelPart -> Data.put(materialGroupsForPartConditionAndRenderStage, condition, renderStage, oldValue -> {
 			final OptimizedModelWrapper.MaterialGroupWrapper materialGroup = oldValue == null ? new OptimizedModelWrapper.MaterialGroupWrapper(renderStage.shaderType, texture) : oldValue;
-			materialGroup.addCube(modelPart, (x + doorAnimationType.getDoorAnimationX(doorXMultiplier, 0)) / 16, y / 16, (z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, 0, false)) / 16, flipped, MAX_LIGHT_INTERIOR);
+			materialGroup.addCube(modelPart, (x + doorAnimationType.getDoorAnimationX(doorXMultiplier, flipped, 0)) / 16, y / 16, (z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, flipped, 0, false)) / 16, flipped, MAX_LIGHT_INTERIOR);
 			return materialGroup;
 		}, Object2ObjectOpenHashMap::new));
 	}
@@ -295,7 +312,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	) {
 		objModels.forEach(objModel -> Data.put(objModelsForPartConditionAndRenderStage, condition, renderStage, oldValue -> {
 			final ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> newObjModels = oldValue == null ? new ObjectArrayList<>() : oldValue;
-			objModel.addTransformation(renderStage.shaderType, (x + doorAnimationType.getDoorAnimationX(doorXMultiplier, 0)) / 16, y / 16 - modelYOffset, (z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, 0, false)) / 16, flipped);
+			objModel.addTransformation(renderStage.shaderType, (x + doorAnimationType.getDoorAnimationX(doorXMultiplier, flipped, 0)) / 16, y / 16 - modelYOffset, (z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, flipped, 0, false)) / 16, flipped);
 			newObjModels.add(objModel);
 			return newObjModels;
 		}, Object2ObjectOpenHashMap::new));
@@ -387,7 +404,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 	private static void iteratePositions(ObjectArrayList<PartPosition> positions, ObjectArrayList<PartPosition> positionsFlipped, PositionCallback positionCallback) {
 		positions.forEach(position -> positionCallback.accept(position.getX(), position.getY(), position.getZ(), false));
-		positionsFlipped.forEach(position -> positionCallback.accept(position.getX(), position.getY(), position.getZ(), true));
+		positionsFlipped.forEach(position -> positionCallback.accept(-position.getX(), position.getY(), position.getZ(), true));
 	}
 
 	private static double getClosestDistance(double a1, double a2, double b1, double b2) {

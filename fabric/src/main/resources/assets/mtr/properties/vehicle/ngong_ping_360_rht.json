@@ -38,7 +38,7 @@
 				"mainFlipped"
 			],
 			"renderStage": "EXTERIOR",
-			"doorZMultiplier": 9,
+			"doorZMultiplier": -9,
 			"doorAnimationType": "NORMAL"
 		},
 		{
@@ -49,7 +49,7 @@
 				"mainFlipped"
 			],
 			"renderStage": "EXTERIOR",
-			"doorZMultiplier": -9,
+			"doorZMultiplier": 9,
 			"doorAnimationType": "NORMAL"
 		},
 		{
