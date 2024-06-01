@@ -224,7 +224,7 @@ public class DynamicTextureCache implements IGui {
 			return defaultRenderingColor.dynamicResource;
 		}
 
-		if (RenderTrains.WORKER_THREAD.scheduleDynamicTextures(() -> {
+		RenderTrains.WORKER_THREAD.scheduleDynamicTextures(() -> {
 			while (font == null) {
 				ResourceManagerHelper.readResource(new Identifier(Init.MOD_ID, "font/noto-sans-semibold.ttf"), inputStream -> {
 					try {
@@ -264,10 +264,9 @@ public class DynamicTextureCache implements IGui {
 
 				generatingResources.remove(key);
 			});
-		})) {
-			RouteMapGenerator.setConstants();
-			generatingResources.add(key);
-		}
+		});
+		RouteMapGenerator.setConstants();
+		generatingResources.add(key);
 
 		if (dynamicResource == null) {
 			return defaultRenderingColor.dynamicResource;
