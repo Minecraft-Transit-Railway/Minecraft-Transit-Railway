@@ -1,0 +1,63 @@
+{
+	"parts": [
+		{
+			"names": [
+				"light_window"
+			],
+			"positionDefinitions": [
+				"window6",
+				"window6Flipped"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"window_1_interior",
+				"roof_window_interior"
+			],
+			"positionDefinitions": [
+				"window6",
+				"window6Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_1_exterior"
+			],
+			"positionDefinitions": [
+				"window6",
+				"window6Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"end_interior"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"end_floor"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"end_exterior"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		}
+	],
+	"modelYOffset": 1
+}
