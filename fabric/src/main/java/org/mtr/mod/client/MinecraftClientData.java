@@ -25,6 +25,7 @@ public final class MinecraftClientData extends ClientData {
 
 	public final ObjectArraySet<VehicleExtension> vehicles = new ObjectArraySet<>();
 	public final Long2ObjectAVLTreeMap<PersistentVehicleData> vehicleIdToPersistentVehicleData = new Long2ObjectAVLTreeMap<>();
+	public final Long2ObjectAVLTreeMap<LiftWrapper> liftWrapperList = new Long2ObjectAVLTreeMap<>();
 	public final Object2ObjectArrayMap<String, RailWrapper> railWrapperList = new Object2ObjectArrayMap<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
 
@@ -46,6 +47,17 @@ public final class MinecraftClientData extends ClientData {
 	public void sync() {
 		super.sync();
 		checkAndRemoveFromMap(vehicleIdToPersistentVehicleData, vehicles, NameColorDataBase::getId);
+
+		checkAndRemoveFromMap(liftWrapperList, lifts, Lift::getId);
+		lifts.forEach(lift -> {
+			final LiftWrapper liftWrapper = liftWrapperList.get(lift.getId());
+			if (liftWrapper == null) {
+				liftWrapperList.put(lift.getId(), new LiftWrapper(lift));
+			} else {
+				liftWrapper.lift = lift;
+			}
+		});
+
 		checkAndRemoveFromMap(railWrapperList, rails, Rail::getHexId);
 		positionsToRail.forEach((startPosition, railMap) -> railMap.forEach((endPosition, rail) -> {
 			final String hexId = rail.getHexId();
@@ -199,6 +211,20 @@ public final class MinecraftClientData extends ClientData {
 			}
 		});
 		idsToRemove.forEach(map::remove);
+	}
+
+	public static class LiftWrapper {
+
+		public boolean shouldRender;
+		private Lift lift;
+
+		private LiftWrapper(Lift lift) {
+			this.lift = lift;
+		}
+
+		public Lift getLift() {
+			return lift;
+		}
 	}
 
 	public static class RailWrapper {
