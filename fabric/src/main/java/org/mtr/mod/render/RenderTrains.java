@@ -9,6 +9,7 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.*;
+import org.mtr.mod.data.ArrivalsCacheClient;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.entity.EntityRendering;
 
@@ -81,6 +82,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 		RenderVehicles.render(millisElapsed);
 		RenderLifts.render(millisElapsed);
 		RenderRails.render();
+		ArrivalsCacheClient.INSTANCE.tick();
 
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
 			for (int j = 0; j < QueuedRenderLayer.values().length; j++) {

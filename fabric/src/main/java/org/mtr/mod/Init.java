@@ -21,6 +21,7 @@ import org.mtr.mapping.mapper.WorldHelper;
 import org.mtr.mapping.registry.CommandBuilder;
 import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.tool.DummyClass;
+import org.mtr.mod.data.ArrivalsCacheServer;
 import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.packet.*;
 import org.mtr.mod.servlet.Tunnel;
@@ -207,6 +208,7 @@ public final class Init implements Utilities {
 			if (sendWorldTimeUpdate != null && serverTick % (SECONDS_PER_MC_HOUR * 10) == 0) {
 				sendWorldTimeUpdate.run();
 			}
+			ArrivalsCacheServer.tickAll();
 			serverTick++;
 		});
 

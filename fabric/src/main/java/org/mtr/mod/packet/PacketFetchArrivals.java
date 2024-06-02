@@ -9,7 +9,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
 import org.mtr.mapping.holder.MinecraftServer;
 import org.mtr.mapping.holder.ServerPlayerEntity;
-import org.mtr.mapping.holder.World;
 import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mapping.tool.PacketBufferSender;
@@ -71,7 +70,8 @@ public final class PacketFetchArrivals extends PacketHandler {
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketFetchArrivals(ArrivalsCacheServer.INSTANCE.getMillisOffset() + System.currentTimeMillis(), ArrivalsCacheServer.INSTANCE.requestArrivals(new World(serverPlayerEntity.getServerWorld().data), platformIds), callbackId));
+		final ArrivalsCacheServer instance = ArrivalsCacheServer.getInstance(serverPlayerEntity.getServerWorld());
+		Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketFetchArrivals(instance.getMillisOffset() + System.currentTimeMillis(), instance.requestArrivals(platformIds), callbackId));
 	}
 
 	@Override
