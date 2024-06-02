@@ -76,7 +76,7 @@ public class BlockTrainScheduleSensor extends BlockTrainPoweredSensorBase {
 		public static <T extends BlockEntityExtension> void tick(@Nullable World world, BlockPos pos, T blockEntity) {
 			if (world != null && world.isClient() && blockEntity instanceof BlockEntity) {
 				InitClient.findClosePlatform(pos.up(), 5, platform -> {
-					final ObjectArrayList<ArrivalResponse> arrivalResponseList = ArrivalsCacheClient.INSTANCE.requestArrivals(world, LongArrayList.of(platform.getId()));
+					final ObjectArrayList<ArrivalResponse> arrivalResponseList = ArrivalsCacheClient.INSTANCE.requestArrivals(LongArrayList.of(platform.getId()));
 					for (final ArrivalResponse arrival : arrivalResponseList) {
 						if ((!((BlockEntity) blockEntity).realtimeOnly || arrival.getRealtime()) && BlockTrainSensorBase.matchesFilter(world, pos, arrival.getRouteId(), 1) && (arrival.getArrival() - ArrivalsCacheClient.INSTANCE.getMillisOffset() - System.currentTimeMillis()) / 1000 == ((BlockEntity) blockEntity).seconds) {
 							InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketTurnOnBlockEntity(pos));
