@@ -1,0 +1,146 @@
+{
+	"parts": [
+		{
+			"names": [
+				"end_light"
+			],
+			"positionDefinitions": [
+				"window7"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"end"
+			],
+			"positionDefinitions": [
+				"window7"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"end_translucent"
+			],
+			"positionDefinitions": [
+				"window7"
+			],
+			"renderStage": "INTERIOR_TRANSLUCENT"
+		},
+		{
+			"names": [
+				"head_exterior"
+			],
+			"positionDefinitions": [
+				"window9"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"window7",
+				"window7Flipped",
+				"window8",
+				"window8Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"end_floor"
+			],
+			"positionDefinitions": [
+				"window7"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway_1",
+				"doorway_2"
+			],
+			"positionDefinitions": [
+				"window7"
+			],
+			"type": "DOORWAY"
+		},
+		{
+			"names": [
+				"door_1"
+			],
+			"positionDefinitions": [
+				"window7"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_2"
+			],
+			"positionDefinitions": [
+				"window7"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_exterior_end_1"
+			],
+			"positionDefinitions": [
+				"window7"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_exterior_end_2"
+			],
+			"positionDefinitions": [
+				"window7"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"window9"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"window9"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"window9"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		}
+	],
+	"modelYOffset": 1
+}

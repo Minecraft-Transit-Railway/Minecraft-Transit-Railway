@@ -1,0 +1,96 @@
+{
+	"parts": [
+		{
+			"names": [
+				"christmas_light_holder"
+			],
+			"positionDefinitions": [
+				"window",
+				"door",
+				"end1",
+				"end1Flipped",
+				"end2",
+				"end2Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"christmas_light_red"
+			],
+			"positionDefinitions": [
+				"window",
+				"door",
+				"end1",
+				"end1Flipped",
+				"end2",
+				"end2Flipped"
+			],
+			"condition": "CHRISTMAS_LIGHT_RED",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"christmas_light_yellow"
+			],
+			"positionDefinitions": [
+				"window",
+				"door",
+				"end1",
+				"end1Flipped",
+				"end2",
+				"end2Flipped"
+			],
+			"condition": "CHRISTMAS_LIGHT_YELLOW",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"christmas_light_green"
+			],
+			"positionDefinitions": [
+				"window",
+				"door",
+				"end1",
+				"end1Flipped",
+				"end2",
+				"end2Flipped"
+			],
+			"condition": "CHRISTMAS_LIGHT_GREEN",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"christmas_light_blue"
+			],
+			"positionDefinitions": [
+				"window",
+				"door",
+				"end1",
+				"end1Flipped",
+				"end2",
+				"end2Flipped"
+			],
+			"condition": "CHRISTMAS_LIGHT_BLUE",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"christmas_light_red_off",
+				"christmas_light_yellow_off",
+				"christmas_light_green_off",
+				"christmas_light_blue_off"
+			],
+			"positionDefinitions": [
+				"window",
+				"door",
+				"end1",
+				"end1Flipped",
+				"end2",
+				"end2Flipped"
+			],
+			"renderStage": "INTERIOR"
+		}
+	],
+	"modelYOffset": 1
+}
