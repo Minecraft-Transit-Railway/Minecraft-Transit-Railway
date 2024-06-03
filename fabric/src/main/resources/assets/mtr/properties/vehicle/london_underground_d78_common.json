@@ -160,7 +160,7 @@
 			],
 			"renderStage": "INTERIOR",
 			"doorZMultiplier": 17,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "STANDARD"
 		},
 		{
 			"names": [
@@ -171,7 +171,7 @@
 			],
 			"renderStage": "INTERIOR",
 			"doorZMultiplier": -17,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "STANDARD"
 		},
 		{
 			"names": [
@@ -182,7 +182,7 @@
 			],
 			"renderStage": "INTERIOR",
 			"doorZMultiplier": -17,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "STANDARD"
 		},
 		{
 			"names": [
@@ -193,7 +193,7 @@
 			],
 			"renderStage": "INTERIOR",
 			"doorZMultiplier": 17,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "STANDARD"
 		},
 		{
 			"names": [
@@ -216,7 +216,7 @@
 			],
 			"renderStage": "EXTERIOR",
 			"doorZMultiplier": 17,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "STANDARD"
 		},
 		{
 			"names": [
@@ -227,7 +227,7 @@
 			],
 			"renderStage": "EXTERIOR",
 			"doorZMultiplier": -17,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "STANDARD"
 		},
 		{
 			"names": [
@@ -238,7 +238,7 @@
 			],
 			"renderStage": "EXTERIOR",
 			"doorZMultiplier": -17,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "STANDARD"
 		},
 		{
 			"names": [
@@ -249,7 +249,7 @@
 			],
 			"renderStage": "EXTERIOR",
 			"doorZMultiplier": 17,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "STANDARD"
 		}
 	],
 	"modelYOffset": 1,

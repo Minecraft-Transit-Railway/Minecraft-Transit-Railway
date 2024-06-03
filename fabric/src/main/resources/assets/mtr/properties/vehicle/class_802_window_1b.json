@@ -1,0 +1,32 @@
+{
+	"parts": [
+		{
+			"names": [
+				"window_end_exterior_4"
+			],
+			"positionDefinitions": [
+				"window7"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_end_exterior_5"
+			],
+			"positionDefinitions": [
+				"window8"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_end_exterior_6"
+			],
+			"positionDefinitions": [
+				"window9"
+			],
+			"renderStage": "EXTERIOR"
+		}
+	],
+	"modelYOffset": 1
+}

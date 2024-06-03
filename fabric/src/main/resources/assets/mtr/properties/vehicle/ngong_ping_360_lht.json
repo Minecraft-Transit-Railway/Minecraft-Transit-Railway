@@ -39,7 +39,7 @@
 			],
 			"renderStage": "EXTERIOR",
 			"doorZMultiplier": -9,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "STANDARD"
 		},
 		{
 			"names": [
@@ -50,7 +50,7 @@
 			],
 			"renderStage": "EXTERIOR",
 			"doorZMultiplier": 9,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "STANDARD"
 		},
 		{
 			"names": [

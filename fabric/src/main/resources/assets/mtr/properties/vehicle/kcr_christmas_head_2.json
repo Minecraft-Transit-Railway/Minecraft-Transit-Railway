@@ -1,0 +1,84 @@
+{
+	"parts": [
+		{
+			"names": [
+				"christmas_tree"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"christmas_antler"
+			],
+			"positionDefinitions": [
+				"antler2"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"christmas_light_star"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"christmas_light_tree_red"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"condition": "CHRISTMAS_LIGHT_RED",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"christmas_light_tree_yellow"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"condition": "CHRISTMAS_LIGHT_YELLOW",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"christmas_light_tree_green"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"condition": "CHRISTMAS_LIGHT_GREEN",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"christmas_light_tree_blue"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"condition": "CHRISTMAS_LIGHT_BLUE",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"christmas_light_tree_red_off",
+				"christmas_light_tree_yellow_off",
+				"christmas_light_tree_green_off",
+				"christmas_light_tree_blue_off"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"renderStage": "INTERIOR"
+		}
+	],
+	"modelYOffset": 1
+}
