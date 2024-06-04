@@ -193,9 +193,9 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		if (data.routes.isEmpty()) {
 			checkboxRepeatIndefinitely.visible = false;
 		} else {
-			final Route firstRoute = MinecraftClientData.getDashboardInstance().routeIdMap.get(data.routes.get(0).getId());
-			final Route lastRoute = MinecraftClientData.getDashboardInstance().routeIdMap.get(data.routes.get(data.routes.size() - 1).getId());
-			checkboxRepeatIndefinitely.visible = firstRoute != null && lastRoute != null && !firstRoute.getRoutePlatforms().isEmpty() && !lastRoute.getRoutePlatforms().isEmpty() && Utilities.getElement(firstRoute.getRoutePlatforms(), 0) == Utilities.getElement(lastRoute.getRoutePlatforms(), -1);
+			final Route firstRoute = MinecraftClientData.getDashboardInstance().routeIdMap.get(Utilities.getElement(data.routes, 0).getId());
+			final Route lastRoute = MinecraftClientData.getDashboardInstance().routeIdMap.get(Utilities.getElement(data.routes, -1).getId());
+			checkboxRepeatIndefinitely.visible = firstRoute != null && lastRoute != null && !firstRoute.getRoutePlatforms().isEmpty() && !lastRoute.getRoutePlatforms().isEmpty() && Utilities.getElement(firstRoute.getRoutePlatforms(), 0).getPlatform().getId() == Utilities.getElement(lastRoute.getRoutePlatforms(), -1).getPlatform().getId();
 		}
 	}
 
