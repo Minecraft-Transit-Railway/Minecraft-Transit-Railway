@@ -76,8 +76,9 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		if (VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(id) != null) {
 			// Render client action bar floating text
 			if (VehicleRidingMovement.showShiftProgressBar() && (!isCurrentlyManual || !isHoldingKey(clientPlayerEntity))) {
-				if (speed * MILLIS_PER_SECOND > 5 || thisRouteName.isEmpty() || thisStationName.isEmpty() || thisRouteDestination.isEmpty()) {
-					clientPlayerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr.vehicle_speed", Utilities.round(speed * MILLIS_PER_SECOND, 1), Utilities.round(speed * 3.6F * MILLIS_PER_SECOND, 1)).data), true);
+				final double adjustedSpeed = getAdjustedSpeed();
+				if (adjustedSpeed * MILLIS_PER_SECOND > 5 || thisRouteName.isEmpty() || thisStationName.isEmpty() || thisRouteDestination.isEmpty()) {
+					clientPlayerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr.vehicle_speed", Utilities.round(adjustedSpeed * MILLIS_PER_SECOND, 1), Utilities.round(adjustedSpeed * 3.6F * MILLIS_PER_SECOND, 1)).data), true);
 				} else {
 					final MutableText text;
 					switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {

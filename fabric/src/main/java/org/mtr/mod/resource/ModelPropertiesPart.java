@@ -180,13 +180,17 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			partDetailsList.forEach(partDetails -> {
 				final double x = doorAnimationType.getDoorAnimationX(doorXMultiplier, partDetails.flipped, time) / 16;
 				final double z = doorAnimationType.getDoorAnimationZ(doorZMultiplier, partDetails.flipped, time, true) / 16;
+				final Box box = partDetails.box;
+				final float xOffset = box.getMinXMapped() == box.getMaxXMapped() ? 0.1F : 0;
+				final float yOffset = box.getMinYMapped() == box.getMaxYMapped() ? 0.1F : 0;
+				final float zOffset = box.getMinZMapped() == box.getMaxZMapped() ? 0.1F : 0;
 				boxes.add(new Box(
-						partDetails.box.getMinXMapped() + x,
-						partDetails.box.getMinYMapped(),
-						partDetails.box.getMinZMapped() + z,
-						partDetails.box.getMaxXMapped() + x,
-						partDetails.box.getMaxYMapped(),
-						partDetails.box.getMaxZMapped() + z
+						box.getMinXMapped() - xOffset + x,
+						box.getMinYMapped() - yOffset,
+						box.getMinZMapped() - zOffset + z,
+						box.getMaxXMapped() + xOffset + x,
+						box.getMaxYMapped() + yOffset,
+						box.getMaxZMapped() + zOffset + z
 				));
 			});
 		}

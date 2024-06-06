@@ -152,7 +152,7 @@
 				"doorEnd2"
 			],
 			"renderStage": "INTERIOR",
-			"doorZMultiplier": -12,
+			"doorZMultiplier": 12,
 			"doorAnimationType": "STANDARD"
 		},
 		{
@@ -192,7 +192,7 @@
 				"doorEnd2"
 			],
 			"renderStage": "EXTERIOR",
-			"doorZMultiplier": -12,
+			"doorZMultiplier": 12,
 			"doorAnimationType": "STANDARD"
 		},
 		{
