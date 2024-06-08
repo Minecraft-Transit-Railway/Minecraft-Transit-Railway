@@ -98,12 +98,6 @@ public class RenderVehicleTransformationHelper {
 			return;
 		}
 
-		if (renderWithRespectToPlayerPosition && camera.isThirdPerson()) {
-			// TODO third person not smooth
-			final Vector3d vector3d = clientPlayerEntity.getPos().subtract(camera.getPos());
-			graphicsHolder.translate(vector3d.getXMapped(), vector3d.getYMapped(), vector3d.getZMapped());
-		}
-
 		if (renderWithRespectToPlayerRotation) {
 			graphicsHolder.rotateYDegrees(-camera.getYaw());
 			if (camera.isThirdPerson() && Math.abs(EntityHelper.getYaw(new Entity(clientPlayerEntity.data)) - camera.getYaw()) > 90) {

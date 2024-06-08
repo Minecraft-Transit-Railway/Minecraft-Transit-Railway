@@ -32,7 +32,7 @@ public class RenderLifts implements IGui {
 	private static final float LIFT_DOOR_VALUE = 0.75F;
 	private static final float LIFT_FLOOR_PADDING = 0.25F;
 
-	public static void render(long millisElapsed) {
+	public static void render(long millisElapsed, Vector3d cameraShakeOffset) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
 		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
@@ -85,7 +85,7 @@ public class RenderLifts implements IGui {
 			final RenderVehicleHelper.VehicleProperties vehicleProperties = RenderVehicleHelper.getTransformedVehiclePropertiesList(lift, ObjectArrayList.of(new RenderVehicleHelper.VehicleProperties(new ObjectObjectImmutablePair<>(
 					new VehicleCar("", lift.getDepth(), lift.getWidth(), 0, 0, 0, 0),
 					ObjectArrayList.of(getVirtualBogiePositions(clientWorld, lift))
-			), true))).get(0);
+			), true)), cameraShakeOffset).get(0);
 			final RenderVehicleTransformationHelper renderVehicleTransformationHelperAbsolute = vehicleProperties.renderVehicleTransformationHelperAbsolute;
 			final RenderVehicleTransformationHelper renderVehicleTransformationHelperOffset = vehicleProperties.renderVehicleTransformationHelperOffset;
 

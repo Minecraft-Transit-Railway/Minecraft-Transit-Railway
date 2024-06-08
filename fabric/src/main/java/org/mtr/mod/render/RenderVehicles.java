@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class RenderVehicles implements IGui {
 
-	public static void render(long millisElapsed) {
+	public static void render(long millisElapsed, Vector3d cameraShakeOffset) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
 		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
@@ -44,7 +44,7 @@ public class RenderVehicles implements IGui {
 			// Calculating vehicle transformations in advance
 			final ObjectArrayList<RenderVehicleHelper.VehicleProperties> vehiclePropertiesList = RenderVehicleHelper.getTransformedVehiclePropertiesList(vehicle, vehicle.getVehicleCarsAndPositions().stream()
 					.map(vehicleCarAndPosition -> new RenderVehicleHelper.VehicleProperties(vehicleCarAndPosition, !vehicle.getTransportMode().hasPitchAscending && !vehicle.getTransportMode().hasPitchDescending))
-					.collect(Collectors.toCollection(ObjectArrayList::new)));
+					.collect(Collectors.toCollection(ObjectArrayList::new)), cameraShakeOffset);
 
 			// Iterate all cars of a vehicle
 			iterateWithIndex(vehiclePropertiesList, (carNumber, vehicleProperties) -> {
