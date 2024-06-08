@@ -157,7 +157,6 @@ public final class InitClient {
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_BLACK, dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
 
 		REGISTRY_CLIENT.registerEntityRenderer(EntityTypes.RENDERING, RenderTrains::new);
-		RegistryClient.worldRenderingEntity = EntityRendering::new;
 
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_20, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_20_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
@@ -344,11 +343,28 @@ public final class InitClient {
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerStartClientTick(() -> {
-			incrementGameMillis();
-			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
-			final Entity cameraEntity = MinecraftClient.getInstance().getCameraEntity();
+			final long currentMillis = System.currentTimeMillis();
+			final long millisElapsed = currentMillis - lastMillis;
+			lastMillis = currentMillis;
+			gameMillis += millisElapsed;
+
+			final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
+			if (clientWorld != null) {
+				final boolean[] shouldCreateEntity = {true};
+				MinecraftClientHelper.getEntities(entity -> {
+					if (entity.data instanceof EntityRendering) {
+						shouldCreateEntity[0] = false;
+						((EntityRendering) entity.data).update();
+					}
+				});
+				if (shouldCreateEntity[0]) {
+					MinecraftClientHelper.addEntity(new EntityRendering(new World(clientWorld.data)));
+				}
+			}
 
 			// If player is moving, send a request every 0.5 seconds to the server to fetch any new nearby data
+			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+			final Entity cameraEntity = MinecraftClient.getInstance().getCameraEntity();
 			if (clientPlayerEntity != null && cameraEntity != null && lastUpdatePacketMillis >= 0 && getGameMillis() - lastUpdatePacketMillis > 500) {
 				final DataRequest dataRequest = new DataRequest(clientPlayerEntity.getUuidAsString(), Init.blockPosToPosition(cameraEntity.getBlockPos()), MinecraftClientHelper.getRenderDistance() * 16L);
 				dataRequest.writeExistingIds(MinecraftClientData.getInstance());
@@ -433,13 +449,6 @@ public final class InitClient {
 
 	public static long getGameMillis() {
 		return gameMillis;
-	}
-
-	public static void incrementGameMillis() {
-		final long currentMillis = System.currentTimeMillis();
-		final long millisElapsed = currentMillis - lastMillis;
-		lastMillis = currentMillis;
-		gameMillis += millisElapsed;
 	}
 
 	private static RegistryClient.ModelPredicateProvider checkItemPredicateTag() {

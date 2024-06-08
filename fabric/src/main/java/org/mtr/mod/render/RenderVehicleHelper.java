@@ -123,26 +123,24 @@ public class RenderVehicleHelper {
 	/**
 	 * @return an updated list of vehicle car properties with rendering offset information
 	 */
-	public static <T extends NameColorDataBase> ObjectArrayList<VehicleProperties> getTransformedVehiclePropertiesList(T vehicle, ObjectArrayList<VehicleProperties> vehiclePropertiesList) {
+	public static <T extends NameColorDataBase> ObjectArrayList<VehicleProperties> getTransformedVehiclePropertiesList(T vehicle, ObjectArrayList<VehicleProperties> vehiclePropertiesList, Vector3d cameraShakeOffset) {
 		final IntObjectImmutablePair<ObjectObjectImmutablePair<Vector3d, Double>> ridingVehicleCarNumberAndOffset = VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(vehicle.getId());
 		if (ridingVehicleCarNumberAndOffset != null) {
 			final VehicleProperties ridingVehicleProperties = vehiclePropertiesList.get(ridingVehicleCarNumberAndOffset.leftInt());
 			if (ridingVehicleProperties != null) {
 				final Vector3d playerRelativePosition = ridingVehicleCarNumberAndOffset.right().left();
-				final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-				final ClientPlayerEntity clientPlayerEntity = minecraftClient.getGameRendererMapped().getCamera().isThirdPerson() ? null : minecraftClient.getPlayerMapped();
-				final double playerYOffset = playerRelativePosition.rotateX((float) ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.pitch).getYMapped() - playerRelativePosition.getYMapped() + (clientPlayerEntity == null ? 0 : clientPlayerEntity.getStandingEyeHeight());
-
+				final Vector3d playerRelativePositionNew = playerRelativePosition == null ? Vector3d.getZeroMapped() : playerRelativePosition;
+				final Vector cameraShake = new Vector(cameraShakeOffset.getXMapped(), cameraShakeOffset.getYMapped(), cameraShakeOffset.getZMapped());
 				return vehiclePropertiesList.stream().map(vehicleProperties -> {
 					final ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>> bogiePositionsList = new ObjectArrayList<>();
 					final ObjectArrayList<Vector> averageAbsoluteBogiePositionsList = new ObjectArrayList<>();
 
 					vehicleProperties.bogiePositionsListNormalized.forEach(bogiePositions -> {
 						bogiePositionsList.add(new ObjectObjectImmutablePair<>(
-								ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.transformBackwards(bogiePositions.left(), (vector, pitch) -> vector, Vector::rotateY, Vector::add).add(-playerRelativePosition.getXMapped(), -playerRelativePosition.getYMapped() - playerYOffset, -playerRelativePosition.getZMapped()),
-								ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.transformBackwards(bogiePositions.right(), (vector, pitch) -> vector, Vector::rotateY, Vector::add).add(-playerRelativePosition.getXMapped(), -playerRelativePosition.getYMapped() - playerYOffset, -playerRelativePosition.getZMapped())
+								ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.transformBackwards(bogiePositions.left().add(cameraShake), (vector, pitch) -> vector, Vector::rotateY, Vector::add).add(-playerRelativePositionNew.getXMapped(), -playerRelativePositionNew.getYMapped(), -playerRelativePositionNew.getZMapped()),
+								ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.transformBackwards(bogiePositions.right().add(cameraShake), (vector, pitch) -> vector, Vector::rotateY, Vector::add).add(-playerRelativePositionNew.getXMapped(), -playerRelativePositionNew.getYMapped(), -playerRelativePositionNew.getZMapped())
 						));
-						averageAbsoluteBogiePositionsList.add(Vector.getAverage(bogiePositions.left(), bogiePositions.right()));
+						averageAbsoluteBogiePositionsList.add(Vector.getAverage(bogiePositions.left(), bogiePositions.right()).add(cameraShake));
 					});
 
 					return new VehicleProperties(vehicleProperties.vehicleCar, bogiePositionsList, averageAbsoluteBogiePositionsList, vehicleProperties.renderVehicleTransformationHelperAbsolute, ridingVehicleProperties.renderVehicleTransformationHelperAbsolute, ridingVehicleCarNumberAndOffset.right().right());

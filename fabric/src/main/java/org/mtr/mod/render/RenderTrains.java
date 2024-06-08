@@ -7,6 +7,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.MinecraftClientHelper;
+import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.*;
 import org.mtr.mod.data.ArrivalsCacheClient;
@@ -51,8 +52,12 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 
 	@Override
 	public void render(EntityRendering entityRendering, float yaw, float tickDelta, GraphicsHolder graphicsHolder, int i) {
-		InitClient.incrementGameMillis();
-		render(graphicsHolder, entityRendering.offset);
+		render(graphicsHolder, entityRendering.getCameraPosVec2(MinecraftClient.getInstance().getTickDelta()));
+	}
+
+	@Override
+	public boolean shouldRender2(EntityRendering entity, Frustum frustum, double x, double y, double z) {
+		return true;
 	}
 
 	@Nonnull
@@ -62,12 +67,20 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 	}
 
 	public static void render(GraphicsHolder graphicsHolder, Vector3d offset) {
-		final long millisElapsed = getMillisElapsed();
-		MinecraftClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
-		MinecraftClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
-		lastRenderedMillis = InitClient.getGameMillis();
-		WORKER_THREAD.start();
-		DynamicTextureCache.instance.tick();
+		final long millisElapsed;
+		if (OptimizedRenderer.renderingShadows()) {
+			millisElapsed = 0;
+		} else {
+			millisElapsed = getMillisElapsed();
+			MinecraftClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
+			MinecraftClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
+			lastRenderedMillis = InitClient.getGameMillis();
+			WORKER_THREAD.start();
+			DynamicTextureCache.instance.tick();
+			// Tick the riding cool down (dismount player if they are no longer riding a vehicle) and store the player offset cache
+			VehicleRidingMovement.tick();
+			ArrivalsCacheClient.INSTANCE.tick();
+		}
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
@@ -77,12 +90,10 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 			return;
 		}
 
-		// Tick the riding cool down (dismount player if they are no longer riding a vehicle) and store the player offset cache
-		VehicleRidingMovement.tick();
-		RenderVehicles.render(millisElapsed);
-		RenderLifts.render(millisElapsed);
+		final Vector3d cameraShakeOffset = clientPlayerEntity.getPos().subtract(offset);
+		RenderVehicles.render(millisElapsed, cameraShakeOffset);
+		RenderLifts.render(millisElapsed, cameraShakeOffset);
 		RenderRails.render();
-		ArrivalsCacheClient.INSTANCE.tick();
 
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
 			for (int j = 0; j < QueuedRenderLayer.values().length; j++) {
