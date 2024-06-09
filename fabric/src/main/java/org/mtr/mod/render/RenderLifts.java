@@ -11,6 +11,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePai
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.Init;
 import org.mtr.mod.Items;
 import org.mtr.mod.block.BlockLiftTrackFloor;
@@ -180,11 +181,13 @@ public class RenderLifts implements IGui {
 			}
 		});
 
-		RenderTrains.WORKER_THREAD.scheduleLifts(occlusionCullingInstance -> {
-			final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
-			cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
-			minecraftClient.execute(() -> tasks.forEach(Runnable::run));
-		});
+		if (!OptimizedRenderer.renderingShadows()) {
+			RenderTrains.WORKER_THREAD.scheduleLifts(occlusionCullingInstance -> {
+				final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
+				cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
+				minecraftClient.execute(() -> tasks.forEach(Runnable::run));
+			});
+		}
 	}
 
 	public static void renderLiftDisplay(StoredMatrixTransformations storedMatrixTransformations, World world, Lift lift, float width, float height) {
