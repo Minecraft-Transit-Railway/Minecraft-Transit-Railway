@@ -130,6 +130,7 @@ public class RenderVehicleHelper {
 			if (ridingVehicleProperties != null) {
 				final Vector3d playerRelativePosition = ridingVehicleCarNumberAndOffset.right().left();
 				final Vector3d playerRelativePositionNew = playerRelativePosition == null ? Vector3d.getZeroMapped() : playerRelativePosition;
+				final double playerYOffset = playerRelativePositionNew.rotateX((float) ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.pitch).getYMapped() - playerRelativePositionNew.getYMapped();
 				final Vector cameraShake = new Vector(cameraShakeOffset.getXMapped(), cameraShakeOffset.getYMapped(), cameraShakeOffset.getZMapped());
 				return vehiclePropertiesList.stream().map(vehicleProperties -> {
 					final ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>> bogiePositionsList = new ObjectArrayList<>();
@@ -137,8 +138,8 @@ public class RenderVehicleHelper {
 
 					vehicleProperties.bogiePositionsListNormalized.forEach(bogiePositions -> {
 						bogiePositionsList.add(new ObjectObjectImmutablePair<>(
-								ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.transformBackwards(bogiePositions.left().add(cameraShake), (vector, pitch) -> vector, Vector::rotateY, Vector::add).add(-playerRelativePositionNew.getXMapped(), -playerRelativePositionNew.getYMapped(), -playerRelativePositionNew.getZMapped()),
-								ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.transformBackwards(bogiePositions.right().add(cameraShake), (vector, pitch) -> vector, Vector::rotateY, Vector::add).add(-playerRelativePositionNew.getXMapped(), -playerRelativePositionNew.getYMapped(), -playerRelativePositionNew.getZMapped())
+								ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.transformBackwards(bogiePositions.left().add(cameraShake), (vector, pitch) -> vector, Vector::rotateY, Vector::add).add(-playerRelativePositionNew.getXMapped(), -playerRelativePositionNew.getYMapped() - playerYOffset, -playerRelativePositionNew.getZMapped()),
+								ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.transformBackwards(bogiePositions.right().add(cameraShake), (vector, pitch) -> vector, Vector::rotateY, Vector::add).add(-playerRelativePositionNew.getXMapped(), -playerRelativePositionNew.getYMapped() - playerYOffset, -playerRelativePositionNew.getZMapped())
 						));
 						averageAbsoluteBogiePositionsList.add(Vector.getAverage(bogiePositions.left(), bogiePositions.right()).add(cameraShake));
 					});

@@ -205,11 +205,13 @@ public class RenderVehicles implements IGui {
 			});
 		});
 
-		RenderTrains.WORKER_THREAD.scheduleVehicles(occlusionCullingInstance -> {
-			final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
-			cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
-			minecraftClient.execute(() -> tasks.forEach(Runnable::run));
-		});
+		if (!OptimizedRenderer.renderingShadows()) {
+			RenderTrains.WORKER_THREAD.scheduleVehicles(occlusionCullingInstance -> {
+				final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
+				cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
+				minecraftClient.execute(() -> tasks.forEach(Runnable::run));
+			});
+		}
 	}
 
 	public static boolean useOptimizedRendering() {
