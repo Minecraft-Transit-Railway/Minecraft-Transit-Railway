@@ -1,0 +1,146 @@
+{
+	"parts": [
+		{
+			"names": [
+				"window_end_exterior_1"
+			],
+			"positionDefinitions": [
+				"window1Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_end_exterior_2"
+			],
+			"positionDefinitions": [
+				"window2Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_end_exterior_3"
+			],
+			"positionDefinitions": [
+				"window3Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_end_exterior_4"
+			],
+			"positionDefinitions": [
+				"window4Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_exterior_end"
+			],
+			"positionDefinitions": [
+				"door1Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_left_exterior_end_1"
+			],
+			"positionDefinitions": [
+				"door1Flipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorXMultiplier": -1,
+			"doorZMultiplier": 11,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"door_right_exterior_end_1"
+			],
+			"positionDefinitions": [
+				"door1Flipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorXMultiplier": -1,
+			"doorZMultiplier": -11,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"door_left_exterior_end_2"
+			],
+			"positionDefinitions": [
+				"door1Flipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorXMultiplier": 1,
+			"doorZMultiplier": 11,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"door_right_exterior_end_2"
+			],
+			"positionDefinitions": [
+				"door1Flipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorXMultiplier": 1,
+			"doorZMultiplier": -11,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"head"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"head_exterior"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		}
+	],
+	"modelYOffset": 1
+}
