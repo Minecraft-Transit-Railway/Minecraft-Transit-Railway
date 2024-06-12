@@ -24,7 +24,7 @@ public class ItemDashboard extends ItemExtension {
 			}
 		} else {
 			if (!world.isClient()) {
-				PacketOpenDashboardScreen.sendDirectlyToServer(ServerWorld.cast(world), ServerPlayerEntity.cast(user), transportMode, false);
+				PacketOpenDashboardScreen.sendDirectlyToServer(ServerWorld.cast(world), ServerPlayerEntity.cast(user), transportMode);
 			}
 		}
 	}

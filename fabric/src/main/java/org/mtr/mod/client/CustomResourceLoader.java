@@ -31,6 +31,7 @@ public class CustomResourceLoader {
 	public static final OptimizedRendererWrapper OPTIMIZED_RENDERER_WRAPPER = new OptimizedRendererWrapper();
 	public static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
 	public static final String DEFAULT_RAIL_ID = "default";
+	public static final String DEFAULT_RAIL_3D_ID = "default_3d";
 
 	private static final Object2ObjectAVLTreeMap<String, JsonElement> RESOURCE_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, ObjectArrayList<VehicleResource>> VEHICLES = new Object2ObjectAVLTreeMap<>();

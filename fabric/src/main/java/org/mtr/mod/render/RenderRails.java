@@ -3,6 +3,7 @@ package org.mtr.mod.render;
 import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
 import com.logisticscraft.occlusionculling.util.Vec3d;
 import org.mtr.core.data.Rail;
+import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Angle;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -19,10 +20,10 @@ import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.block.BlockPlatform;
 import org.mtr.mod.block.BlockSignalLightBase;
 import org.mtr.mod.block.BlockSignalSemaphoreBase;
-import org.mtr.mod.client.Config;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.config.Config;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.RailType;
 import org.mtr.mod.item.ItemBlockClickingBase;
@@ -231,11 +232,18 @@ public class RenderRails implements IGui {
 		// Render rail models
 		final boolean[] renderType = {false, false}; // render default rail, rendered something
 		for (final String style : rail.getStyles()) {
-			if (style.equals(CustomResourceLoader.DEFAULT_RAIL_ID)) {
+			final String newStyle;
+			if (OptimizedRenderer.hasOptimizedRendering() && Config.getClient().getDefaultRail3D() && rail.getTransportMode() == TransportMode.TRAIN) {
+				newStyle = style.equals(CustomResourceLoader.DEFAULT_RAIL_ID) ? CustomResourceLoader.DEFAULT_RAIL_3D_ID : style;
+			} else {
+				newStyle = style;
+			}
+
+			if (newStyle.equals(CustomResourceLoader.DEFAULT_RAIL_ID)) {
 				renderType[0] = true;
 			} else {
-				final boolean flip = style.endsWith("_2");
-				CustomResourceLoader.getRailById(RailResource.getIdWithoutDirection(style), railResource -> rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+				final boolean flip = newStyle.endsWith("_2");
+				CustomResourceLoader.getRailById(RailResource.getIdWithoutDirection(newStyle), railResource -> rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 					final BlockPos blockPos = Init.newBlockPos(x1, y1, z1);
 					final int light = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
 					final double differenceX = x3 - x1;
@@ -260,7 +268,7 @@ public class RenderRails implements IGui {
 			final Identifier texture = renderType[1] && !renderType[0] ? IRON_BLOCK_TEXTURE : defaultTexture;
 			rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 				final BlockPos blockPos = Init.newBlockPos(x1, y1, z1);
-				final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F + (float) Config.trackTextureOffset() / Config.TRACK_OFFSET_COUNT;
+				final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F;
 				final int light = renderState == RenderState.FLASHING ? getFlashingLight() : renderState == RenderState.COLORED ? GraphicsHolder.getDefaultLight() : LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
 				RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 					IDrawing.drawTexture(graphicsHolder, x1, y1 + yOffset, z1, x2, y1 + yOffset + SMALL_OFFSET, z2, x3, y2 + yOffset, z3, x4, y2 + yOffset + SMALL_OFFSET, z4, offset, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light);

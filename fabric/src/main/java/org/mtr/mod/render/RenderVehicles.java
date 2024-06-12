@@ -71,7 +71,7 @@ public class RenderVehicles implements IGui {
 						// Render each bogie of the car
 						iterateWithIndex(vehicleProperties.bogiePositionsList, (bogieIndex, bogiePositions) -> {
 							final RenderVehicleTransformationHelper renderVehicleTransformationHelperBogie = new RenderVehicleTransformationHelper(bogiePositions, vehicleProperties.averageAbsoluteBogiePositionsList.get(bogieIndex), renderVehicleTransformationHelperOffset);
-							if (useOptimizedRendering()) {
+							if (OptimizedRenderer.hasOptimizedRendering()) {
 								RenderVehicleHelper.renderModel(renderVehicleTransformationHelperBogie, storedMatrixTransformations -> vehicleResource.queueBogie(bogieIndex, storedMatrixTransformations, vehicle, renderVehicleTransformationHelperBogie.light));
 							} else {
 								vehicleResource.iterateBogieModels(bogieIndex, model -> RenderVehicleHelper.renderModel(renderVehicleTransformationHelperBogie, storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperBogie.light, new ObjectArrayList<>())));
@@ -116,7 +116,7 @@ public class RenderVehicles implements IGui {
 
 						// Each car can have more than one model defined
 						RenderVehicleHelper.renderModel(renderVehicleTransformationHelperOffset, storedMatrixTransformations -> {
-							if (useOptimizedRendering()) {
+							if (OptimizedRenderer.hasOptimizedRendering()) {
 								vehicleResource.queue(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperAbsolute.light, openDoorways);
 							}
 
@@ -212,10 +212,6 @@ public class RenderVehicles implements IGui {
 				minecraftClient.execute(() -> tasks.forEach(Runnable::run));
 			});
 		}
-	}
-
-	public static boolean useOptimizedRendering() {
-		return Config.useDynamicFPS() && OptimizedRenderer.hasOptimizedRendering();
 	}
 
 	private static void renderConnection(

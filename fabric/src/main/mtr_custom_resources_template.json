@@ -912,8 +912,8 @@
 	],
 	"rails": [
 		{
-			"id": "default_rail",
-			"name": "Default Rail",
+			"id": "default_3d",
+			"name": "3D Rail",
 			"modelResource": "mtr:models/rail/rail.obj",
 			"repeatInterval": 0.5
 		}

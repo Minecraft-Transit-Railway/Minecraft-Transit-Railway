@@ -21,6 +21,7 @@ import org.mtr.mapping.mapper.WorldHelper;
 import org.mtr.mapping.registry.CommandBuilder;
 import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.tool.DummyClass;
+import org.mtr.mod.config.Config;
 import org.mtr.mod.data.ArrivalsCacheServer;
 import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.packet.*;
@@ -29,10 +30,8 @@ import org.mtr.mod.servlet.VehicleLiftServlet;
 
 import javax.annotation.Nullable;
 import java.net.ServerSocket;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.function.Consumer;
 
 public final class Init implements Utilities {
@@ -153,7 +152,8 @@ public final class Init implements Utilities {
 				WORLD_ID_LIST.add(getWorldId(new World(serverWorld.data)));
 			});
 
-			final int defaultPort = getDefaultPortFromConfig(minecraftServer);
+			Config.init(minecraftServer.getRunDirectory());
+			final int defaultPort = Config.getServer().getWebserverPort();
 			serverPort = findFreePort(defaultPort);
 			tunnel = new Tunnel(minecraftServer.getRunDirectory(), defaultPort, () -> {
 			});
@@ -274,23 +274,6 @@ public final class Init implements Utilities {
 			}
 		}
 		return 0;
-	}
-
-	private static int getDefaultPortFromConfig(MinecraftServer minecraftServer) {
-		final Path filePath = minecraftServer.getRunDirectory().toPath().resolve("config/mtr_webserver_port.txt");
-		final int defaultPort = 8888;
-
-		try {
-			return Integer.parseInt(FileUtils.readFileToString(filePath.toFile(), StandardCharsets.UTF_8));
-		} catch (Exception ignored) {
-			try {
-				Files.write(filePath, String.valueOf(defaultPort).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-			} catch (Exception e) {
-				LOGGER.error("", e);
-			}
-		}
-
-		return defaultPort;
 	}
 
 	private static void generateOrClearDepotsFromCommand(CommandBuilder<?> commandBuilder, boolean isGenerate) {

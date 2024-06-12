@@ -7,11 +7,11 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.mapping.mapper.OptimizedModel;
+import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.generated.resource.RailResourceSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
 import org.mtr.mod.render.RenderTrains;
-import org.mtr.mod.render.RenderVehicles;
 import org.mtr.mod.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
@@ -73,7 +73,7 @@ public final class RailResource extends RailResourceSchema {
 	}
 
 	public void render(StoredMatrixTransformations storedMatrixTransformations, int light) {
-		if (RenderVehicles.useOptimizedRendering()) {
+		if (OptimizedRenderer.hasOptimizedRendering()) {
 			if (optimizedModel != null) {
 				RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
 					storedMatrixTransformations.transform(graphicsHolder, offset);

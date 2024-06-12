@@ -33,8 +33,8 @@ public final class ClientPacketHelper {
 		});
 	}
 
-	public static void openDashboardScreen(TransportMode transportMode, boolean useTimeAndWindSync) {
-		openScreen(new DashboardScreen(transportMode, useTimeAndWindSync), screenExtension -> screenExtension instanceof DashboardScreen);
+	public static void openDashboardScreen(TransportMode transportMode) {
+		openScreen(new DashboardScreen(transportMode), screenExtension -> screenExtension instanceof DashboardScreen);
 	}
 
 	public static void openLiftCustomizationScreen(BlockPos blockPos) {

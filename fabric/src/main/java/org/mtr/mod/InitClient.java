@@ -12,7 +12,11 @@ import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.block.BlockTactileMap;
-import org.mtr.mod.client.*;
+import org.mtr.mod.client.CustomResourceLoader;
+import org.mtr.mod.client.DynamicTextureCache;
+import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.config.Config;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.entity.EntityRendering;
 import org.mtr.mod.item.ItemBlockClickingBase;
@@ -388,8 +392,8 @@ public final class InitClient {
 
 		REGISTRY_CLIENT.eventRegistryClient.registerResourceReloadEvent(CustomResourceLoader::reload);
 
-		Patreon.getPatreonList(Config.PATREON_LIST);
-		Config.refreshProperties();
+		Patreon.getPatreonList();
+		Config.init(MinecraftClient.getInstance().getRunDirectoryMapped());
 		ResourcePackHelper.fix();
 
 		BlockTactileMap.BlockEntity.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
