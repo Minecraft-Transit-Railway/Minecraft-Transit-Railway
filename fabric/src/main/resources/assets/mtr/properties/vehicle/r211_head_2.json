@@ -145,8 +145,7 @@
 				"UPPER_CASE",
 				"CYCLE_LANGUAGES"
 			],
-			"displayType": "ROUTE_NUMBER",
-			"displayDefaultText": "A"
+			"displayType": "ROUTE_NUMBER"
 		}
 	],
 	"modelYOffset": 1
