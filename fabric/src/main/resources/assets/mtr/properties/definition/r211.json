@@ -1,0 +1,286 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window1",
+			"positions": [
+				{
+					"z": -80
+				}
+			]
+		},
+		{
+			"name": "window1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -80
+				}
+			]
+		},
+		{
+			"name": "window2",
+			"positions": [
+				{
+					"z": 0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "window3",
+			"positions": [
+				{
+					"z": 80
+				}
+			]
+		},
+		{
+			"name": "window3Flipped",
+			"positionsFlipped": [
+				{
+					"z": 80
+				}
+			]
+		},
+		{
+			"name": "roofLight",
+			"positions": [
+				{
+					"z": -95
+				},
+				{
+					"z": -65
+				},
+				{
+					"z": -15
+				},
+				{
+					"z": 15
+				},
+				{
+					"z": 65
+				},
+				{
+					"z": 95
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -95
+				},
+				{
+					"z": -65
+				},
+				{
+					"z": -15
+				},
+				{
+					"z": 15
+				},
+				{
+					"z": 65
+				},
+				{
+					"z": 95
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"z": -40
+				},
+				{
+					"z": 40
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -40
+				},
+				{
+					"z": 40
+				}
+			]
+		},
+		{
+			"name": "doorEnd1",
+			"positions": [
+				{
+					"z": -120
+				}
+			]
+		},
+		{
+			"name": "doorEnd1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -120
+				}
+			]
+		},
+		{
+			"name": "doorEnd2",
+			"positions": [
+				{
+					"z": 120
+				}
+			]
+		},
+		{
+			"name": "doorEnd2Flipped",
+			"positionsFlipped": [
+				{
+					"z": 120
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -144
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -144
+				}
+			]
+		},
+		{
+			"name": "end1Display",
+			"positions": [
+				{
+					"z": -136
+				}
+			]
+		},
+		{
+			"name": "end1Light",
+			"positions": [
+				{
+					"z": -128
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -128
+				}
+			]
+		},
+		{
+			"name": "head1Light",
+			"positions": [
+				{
+					"z": -124
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -124
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 144
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 144
+				}
+			]
+		},
+		{
+			"name": "end2Display",
+			"positionsFlipped": [
+				{
+					"z": 136
+				}
+			]
+		},
+		{
+			"name": "end2Light",
+			"positions": [
+				{
+					"z": 128
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 128
+				}
+			]
+		},
+		{
+			"name": "head2Light",
+			"positions": [
+				{
+					"z": 124
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 124
+				}
+			]
+		},
+		{
+			"name": "sidePanel",
+			"positions": [
+				{
+					"z": -104.1
+				},
+				{
+					"z": -55.9
+				},
+				{
+					"z": -24.1
+				},
+				{
+					"z": 24.1
+				},
+				{
+					"z": 55.9
+				},
+				{
+					"z": 104.1
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -104.1
+				},
+				{
+					"z": -55.9
+				},
+				{
+					"z": -24.1
+				},
+				{
+					"z": 24.1
+				},
+				{
+					"z": 55.9
+				},
+				{
+					"z": 104.1
+				}
+			]
+		}
+	]
+}

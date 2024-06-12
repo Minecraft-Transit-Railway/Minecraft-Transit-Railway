@@ -41,16 +41,6 @@
 		},
 		{
 			"names": [
-				"window_1"
-			],
-			"positionDefinitions": [
-				"window1Flipped",
-				"window8"
-			],
-			"renderStage": "INTERIOR"
-		},
-		{
-			"names": [
 				"side_panel"
 			],
 			"positionDefinitions": [

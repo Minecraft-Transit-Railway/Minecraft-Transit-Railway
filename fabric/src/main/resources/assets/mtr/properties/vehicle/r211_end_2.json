@@ -1,0 +1,87 @@
+{
+	"parts": [
+		{
+			"names": [
+				"window_exterior"
+			],
+			"positionDefinitions": [
+				"window3",
+				"window3Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_exterior"
+			],
+			"positionDefinitions": [
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_left_exterior"
+			],
+			"positionDefinitions": [
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -13,
+			"doorAnimationType": "R211"
+		},
+		{
+			"names": [
+				"door_right_exterior"
+			],
+			"positionDefinitions": [
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 13,
+			"doorAnimationType": "R211"
+		},
+		{
+			"names": [
+				"roof_light"
+			],
+			"positionDefinitions": [
+				"end2Light"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"end",
+				"roof_end",
+				"end_display"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"end_floor"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"end_exterior"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"renderStage": "EXTERIOR"
+		}
+	],
+	"modelYOffset": 1
+}
