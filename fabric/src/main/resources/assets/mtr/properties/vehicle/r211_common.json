@@ -1,0 +1,250 @@
+{
+	"parts": [
+		{
+			"names": [
+				"roof_light"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window1Flipped",
+				"window2",
+				"window3",
+				"window3Flipped",
+				"roofLight"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"window",
+				"roof_window",
+				"window_handrails"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window1Flipped",
+				"window2",
+				"window3",
+				"window3Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"side_panel"
+			],
+			"positionDefinitions": [
+				"sidePanel"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window1Flipped",
+				"window2",
+				"window3",
+				"window3Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_exterior"
+			],
+			"positionDefinitions": [
+				"window2"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_floor"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window1Flipped",
+				"window2",
+				"window3",
+				"window3Flipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"roof_light"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"door",
+				"roof_door",
+				"handrail_door"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"door_floor"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"type": "DOORWAY"
+		},
+		{
+			"names": [
+				"door_left"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": -13,
+			"doorAnimationType": "R211"
+		},
+		{
+			"names": [
+				"door_right"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": 13,
+			"doorAnimationType": "R211"
+		},
+		{
+			"names": [
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_exterior"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_left_exterior"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -13,
+			"doorAnimationType": "R211"
+		},
+		{
+			"names": [
+				"door_right_exterior"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 13,
+			"doorAnimationType": "R211"
+		},
+		{
+			"names": [
+				"door_light_interior_on"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window1Flipped",
+				"window2",
+				"window3",
+				"window3Flipped"
+			],
+			"condition": "DOORS_OPENED",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"door_light_interior_off"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window1Flipped",
+				"window2",
+				"window3",
+				"window3Flipped"
+			],
+			"condition": "DOORS_CLOSED",
+			"renderStage": "EXTERIOR"
+		}
+	],
+	"modelYOffset": 1,
+	"gangwayInnerSideResource": "mtr:textures/gangway/r211_side.png",
+	"gangwayInnerTopResource": "mtr:textures/gangway/r211_roof.png",
+	"gangwayInnerBottomResource": "mtr:textures/gangway/r211_floor.png",
+	"gangwayOuterSideResource": "mtr:textures/gangway/r211_exterior.png",
+	"gangwayOuterTopResource": "mtr:textures/gangway/r211_exterior.png",
+	"gangwayOuterBottomResource": "mtr:textures/gangway/r211_exterior.png",
+	"gangwayWidth": 1.5,
+	"gangwayHeight": 2.25,
+	"gangwayYOffset": 1,
+	"gangwayZOffset": 0.5,
+	"barrierInnerSideResource": "mtr:textures/barrier/r179_exterior.png",
+	"barrierOuterSideResource": "mtr:textures/barrier/r179_exterior.png",
+	"barrierWidth": 2.6,
+	"barrierHeight": 1.25,
+	"barrierYOffset": 1,
+	"barrierZOffset": 0.4
+}
