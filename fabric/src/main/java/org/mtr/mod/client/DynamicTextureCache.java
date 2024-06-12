@@ -7,6 +7,8 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
+import org.mtr.mod.config.Config;
+import org.mtr.mod.config.LanguageDisplay;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.render.RenderTrains;
 
@@ -121,10 +123,10 @@ public class DynamicTextureCache implements IGui {
 		final boolean oneRow = horizontalAlignment == null;
 		final String[] defaultTextSplit = IGui.textOrUntitled(text).split("\\|");
 		final String[] textSplit;
-		if (Config.languageOptions() == 0) {
+		if (Config.getClient().getLanguageDisplay() == LanguageDisplay.NORMAL) {
 			textSplit = defaultTextSplit;
 		} else {
-			final String[] tempTextSplit = Arrays.stream(IGui.textOrUntitled(text).split("\\|")).filter(textPart -> IGui.isCjk(textPart) == (Config.languageOptions() == 1)).toArray(String[]::new);
+			final String[] tempTextSplit = Arrays.stream(IGui.textOrUntitled(text).split("\\|")).filter(textPart -> IGui.isCjk(textPart) == (Config.getClient().getLanguageDisplay() == LanguageDisplay.CJK_ONLY)).toArray(String[]::new);
 			textSplit = tempTextSplit.length == 0 ? defaultTextSplit : tempTextSplit;
 		}
 		final AttributedString[] attributedStrings = new AttributedString[textSplit.length];

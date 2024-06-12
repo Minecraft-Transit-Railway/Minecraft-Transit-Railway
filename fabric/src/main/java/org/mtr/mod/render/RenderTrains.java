@@ -9,7 +9,11 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.InitClient;
-import org.mtr.mod.client.*;
+import org.mtr.mod.client.CustomResourceLoader;
+import org.mtr.mod.client.DynamicTextureCache;
+import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.client.VehicleRidingMovement;
+import org.mtr.mod.config.Config;
 import org.mtr.mod.data.ArrivalsCacheClient;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.entity.EntityRendering;
@@ -69,6 +73,9 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 	public static void render(GraphicsHolder graphicsHolder, Vector3d offset) {
 		final long millisElapsed;
 		if (OptimizedRenderer.renderingShadows()) {
+			if (Config.getClient().getDisableShadowsForShaders()) {
+				return;
+			}
 			millisElapsed = 0;
 		} else {
 			millisElapsed = getMillisElapsed();
@@ -142,7 +149,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 			}
 		}
 
-		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.render(!Config.hideTranslucentParts());
+		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.render(!Config.getClient().getHideTranslucentParts());
 	}
 
 	public static boolean shouldNotRender(BlockPos pos, @Nullable Direction facing) {
@@ -193,7 +200,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 				playerFacingAway = Math.signum(playerZOffset) == facing.getOffsetZ() && Math.abs(playerZOffset) >= 0.5;
 			}
 		}
-		return cameraPos == null || playerFacingAway || maxDistanceXZ(cameraPos, pos) > MinecraftClientHelper.getRenderDistance() * (Config.trainRenderDistanceRatio() + 1);
+		return cameraPos == null || playerFacingAway || maxDistanceXZ(cameraPos, pos) > MinecraftClientHelper.getRenderDistance();
 	}
 
 	public enum QueuedRenderLayer {LIGHT, INTERIOR, EXTERIOR, LIGHT_TRANSLUCENT, INTERIOR_TRANSLUCENT, EXTERIOR_TRANSLUCENT, LINES, TEXT}

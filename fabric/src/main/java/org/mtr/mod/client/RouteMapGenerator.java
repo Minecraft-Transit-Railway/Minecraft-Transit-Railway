@@ -14,6 +14,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
+import org.mtr.mod.config.Config;
 import org.mtr.mod.data.IGui;
 
 import java.util.Locale;
@@ -39,7 +40,7 @@ public class RouteMapGenerator implements IGui {
 	private static final int PIXEL_RESOLUTION = 24;
 
 	public static void setConstants() {
-		scale = (int) Math.pow(2, Config.dynamicTextureResolution() + 5);
+		scale = (int) Math.pow(2, Config.getClient().getDynamicTextureResolution() + 5);
 		lineSize = scale / 8;
 		lineSpacing = lineSize * 3 / 2;
 		fontSizeBig = lineSize * 2;

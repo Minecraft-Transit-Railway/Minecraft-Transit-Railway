@@ -55,7 +55,7 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 	public static final int MAX_COLOR_ZONE_LENGTH = 6;
 	private static final int COLOR_WIDTH = 48;
 
-	public DashboardScreen(TransportMode transportMode, boolean useTimeAndWindSync) {
+	public DashboardScreen(TransportMode transportMode) {
 		super();
 		this.transportMode = transportMode;
 
@@ -77,7 +77,7 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		buttonZoomIn = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> widgetMap.scale(1));
 		buttonZoomOut = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> widgetMap.scale(-1));
 		buttonRailActions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.rail_actions_button"), button -> MinecraftClient.getInstance().openScreen(new Screen(new RailActionsScreen())));
-		buttonOptions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("menu.options"), button -> MinecraftClient.getInstance().openScreen(new Screen(new ConfigScreen(useTimeAndWindSync))));
+		buttonOptions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("menu.options"), button -> MinecraftClient.getInstance().openScreen(new Screen(new ConfigScreen())));
 
 		dashboardList = new DashboardList(this::onFind, this::onDrawArea, this::onEdit, this::onSort, null, this::onDelete, this::getList, () -> MinecraftClientData.DASHBOARD_SEARCH, text -> MinecraftClientData.DASHBOARD_SEARCH = text);
 
