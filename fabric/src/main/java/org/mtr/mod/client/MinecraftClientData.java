@@ -4,6 +4,7 @@ import com.logisticscraft.occlusionculling.util.Vec3d;
 import org.mtr.core.data.Position;
 import org.mtr.core.data.*;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
@@ -27,6 +28,7 @@ public final class MinecraftClientData extends ClientData {
 	public final Long2ObjectAVLTreeMap<PersistentVehicleData> vehicleIdToPersistentVehicleData = new Long2ObjectAVLTreeMap<>();
 	public final Long2ObjectAVLTreeMap<LiftWrapper> liftWrapperList = new Long2ObjectAVLTreeMap<>();
 	public final Object2ObjectArrayMap<String, RailWrapper> railWrapperList = new Object2ObjectArrayMap<>();
+	public final Object2ObjectAVLTreeMap<String, LongArrayList> railIdToBlockedSignalColors = new Object2ObjectAVLTreeMap<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
 
 	private static MinecraftClientData instance = new MinecraftClientData();
@@ -73,10 +75,6 @@ public final class MinecraftClientData extends ClientData {
 	@Nullable
 	public Rail getFacingRail(boolean includeCableType) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
-		if (clientWorld == null) {
-			return null;
-		}
 
 		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
 		if (clientPlayerEntity == null) {
@@ -89,16 +87,23 @@ public final class MinecraftClientData extends ClientData {
 		}
 
 		final Vector3d hitPos = hitResult.getPos();
-		final BlockPos blockPos = Init.newBlockPos(hitPos.getXMapped(), hitPos.getYMapped(), hitPos.getZMapped());
+		return getFacingRail(Init.newBlockPos(hitPos.getXMapped(), hitPos.getYMapped(), hitPos.getZMapped()), EntityHelper.getYaw(new Entity(clientPlayerEntity.data)) + 90, includeCableType);
+	}
+
+	@Nullable
+	public Rail getFacingRail(BlockPos blockPos, float viewAngle, boolean includeCableType) {
+		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
+		if (clientWorld == null) {
+			return null;
+		}
 
 		if (clientWorld.getBlockState(blockPos).getBlock().data instanceof BlockNode) {
-			final float playerAngle = EntityHelper.getYaw(new Entity(clientPlayerEntity.data)) + 90;
 			final Rail[] closestRail = {null};
 			final double[] closestAngle = {720};
 
 			positionsToRail.getOrDefault(Init.blockPosToPosition(blockPos), new Object2ObjectOpenHashMap<>()).forEach((endPosition, rail) -> {
 				if (includeCableType || rail.railMath.getShape() != Rail.Shape.CABLE) {
-					final double angle = Math.abs(Math.toDegrees(Math.atan2(endPosition.getZ() - blockPos.getZ(), endPosition.getX() - blockPos.getX())) - playerAngle) % 360;
+					final double angle = Math.abs(Math.toDegrees(Math.atan2(endPosition.getZ() - blockPos.getZ(), endPosition.getX() - blockPos.getX())) - viewAngle) % 360;
 					final double clampedAngle = angle > 180 ? 360 - angle : angle;
 					if (clampedAngle < closestAngle[0]) {
 						closestRail[0] = rail;
