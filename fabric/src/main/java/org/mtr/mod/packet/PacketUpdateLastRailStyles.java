@@ -4,6 +4,7 @@ import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.EnumHelper;
+import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
@@ -69,7 +70,7 @@ public final class PacketUpdateLastRailStyles extends PacketHandler {
 		public boolean canApplyStylesToRail(UUID uuid, Rail rail, boolean modifyRail) {
 			final ObjectArrayList<String> lastStyles = cache.getOrDefault(uuid, getDefaultStyles()).get(rail.getTransportMode());
 			final ObjectImmutableList<String> railStyles = rail.getStyles();
-			if (lastStyles.containsAll(railStyles) && railStyles.containsAll(lastStyles)) {
+			if (Utilities.sameItems(lastStyles, railStyles)) {
 				return false;
 			} else {
 				if (modifyRail) {

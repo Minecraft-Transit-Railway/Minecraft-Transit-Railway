@@ -1,5 +1,7 @@
 package org.mtr.mod.render;
 
+import org.mtr.core.data.Rail;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
@@ -10,6 +12,7 @@ import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.block.BlockSignalLightBase;
 import org.mtr.mod.block.BlockSignalSemaphoreBase;
 import org.mtr.mod.block.IBlock;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 
 public abstract class RenderSignalBase<T extends BlockEntityExtension> extends BlockEntityRenderer<T> implements IBlock, IGui {
@@ -71,7 +74,13 @@ public abstract class RenderSignalBase<T extends BlockEntityExtension> extends B
 	protected abstract void render(GraphicsHolder graphicsHolder, T entity, float tickDelta, Direction facing, int occupiedAspect, boolean isBackSide);
 
 	private int getOccupiedAspect(BlockPos startPos, float facing) {
-		return 0; // TODO
+		final MinecraftClientData minecraftClientData = MinecraftClientData.getInstance();
+		final Rail rail = minecraftClientData.getFacingRail(startPos, facing, false);
+		if (rail == null) {
+			return 0;
+		} else {
+			return minecraftClientData.railIdToBlockedSignalColors.getOrDefault(rail.getHexId(), new LongArrayList()).isEmpty() ? 0 : 1;
+		}
 	}
 
 	private static BlockPos getNodePos(World world, BlockPos pos, Direction facing) {
