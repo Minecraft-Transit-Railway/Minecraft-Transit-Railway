@@ -136,6 +136,12 @@
 			"flipTexture": false
 		},
 		{
+			"id": "wheelchair_flipped",
+			"textureResource": "mtr:textures/block/sign/wheelchair.png",
+			"small": true,
+			"flipTexture": true
+		},
+		{
 			"id": "toilet",
 			"textureResource": "mtr:textures/block/sign/toilets.png",
 			"small": false,
