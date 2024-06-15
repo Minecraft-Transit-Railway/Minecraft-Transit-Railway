@@ -29,6 +29,8 @@ public final class ClientPacketHelper {
 				openScreen(new RailwaySignScreen(blockPos), screenExtension -> screenExtension instanceof RailwaySignScreen);
 			} else if (blockEntity.data instanceof BlockLiftTrackFloor.BlockEntity) {
 				openScreen(new LiftTrackFloorScreen(blockPos), screenExtension -> screenExtension instanceof LiftTrackFloorScreen);
+			} else if (blockEntity.data instanceof BlockSignalBase.BlockEntityBase) {
+				openScreen(new SignalColorScreen(blockPos), screenExtension -> screenExtension instanceof SignalColorScreen);
 			}
 		});
 	}

@@ -1,12 +1,12 @@
 package org.mtr.mod.render;
 
+import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
-import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.*;
@@ -47,30 +47,27 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 			return;
 		}
 
-		final float angle = IBlock.getStatePropertySafe(state, DirectionHelper.FACING).asRotation() + (IBlock.getStatePropertySafe(state, BlockSignalBase.IS_22_5).booleanValue ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockSignalBase.IS_45).booleanValue ? 45 : 0);
-
-		final BlockPos startPos = getNodePos(world, pos, Direction.fromRotation(angle));
-		if (startPos == null) {
-			return;
-		}
-
+		final float angle = BlockSignalBase.getAngle(state);
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(0.5 + entity.getPos2().getX(), entity.getPos2().getY(), 0.5 + entity.getPos2().getZ());
 
 		for (int i = 0; i < 2; i++) {
 			final float newAngle = angle + i * 180;
 			final boolean isBackSide = i == 1;
-			final ObjectObjectImmutablePair<IntArrayList, IntAVLTreeSet> aspects = getAspects(isBackSide ? entity.signalColors2 : entity.signalColors1, startPos, newAngle + 90);
-			final IntArrayList signalColors = aspects.left();
-			final StoredMatrixTransformations storedMatrixTransformationsNew = storedMatrixTransformations.copy();
-			storedMatrixTransformationsNew.add(graphicsHolderNew -> graphicsHolderNew.rotateYDegrees(-newAngle));
+			final ObjectObjectImmutablePair<IntArrayList, IntAVLTreeSet> aspects = getAspects(pos, newAngle + 90);
+			final IntArrayList detectedColors = aspects.left();
 
-			if (!signalColors.isEmpty()) {
+			if (!detectedColors.isEmpty()) {
+				final StoredMatrixTransformations storedMatrixTransformationsNew = storedMatrixTransformations.copy();
+				storedMatrixTransformationsNew.add(graphicsHolderNew -> graphicsHolderNew.rotateYDegrees(-newAngle));
+				final IntAVLTreeSet filterColors = entity.getSignalColors(isBackSide);
+
 				if (RenderRails.isHoldingRailRelated(clientPlayerEntity)) {
-					final float xStart = -0.015625F * signalColors.size();
-					for (int j = 0; j < signalColors.size(); j++) {
-						final int signalColor = signalColors.getInt(j);
+					final float xStart = -0.015625F * detectedColors.size();
+					for (int j = 0; j < detectedColors.size(); j++) {
+						final int signalColor = detectedColors.getInt(j);
 						final boolean occupied = aspects.right().contains(signalColor);
 						final float x = xStart + j * 0.03125F;
+						final float width = 0.03125F / (filterColors.isEmpty() || filterColors.contains(signalColor) ? 1 : 8);
 						final int lightNew = occupied ? RenderTrains.getFlashingLight() : GraphicsHolder.getDefaultLight();
 						RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, occupied ? RenderTrains.QueuedRenderLayer.EXTERIOR : RenderTrains.QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
 							storedMatrixTransformationsNew.transform(graphicsHolderNew, offset);
@@ -78,17 +75,17 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 									graphicsHolderNew,
 									x, colorIndicatorHeight, -0.15625F,
 									x + 0.03125F, colorIndicatorHeight, -0.15625F,
-									x + 0.03125F, colorIndicatorHeight, -0.1875F,
-									x, colorIndicatorHeight, -0.1875F,
+									x + 0.03125F, colorIndicatorHeight, -0.15625F - width,
+									x, colorIndicatorHeight, -0.15625F - width,
 									0, 0, 1, 1,
 									Direction.UP, signalColor | ARGB_BLACK, lightNew
 							);
 							graphicsHolderNew.pop();
 						});
 					}
-				}
 
-				render(storedMatrixTransformationsNew, entity, tickDelta, aspects.right().isEmpty() ? 0 : 1, isBackSide);
+					render(storedMatrixTransformationsNew, entity, tickDelta, aspects.right().intStream().anyMatch(color -> filterColors.isEmpty() || filterColors.contains(color)) ? 1 : 0, isBackSide);
+				}
 			}
 
 			if (isSingleSided) {
@@ -99,26 +96,25 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 
 	protected abstract void render(StoredMatrixTransformations storedMatrixTransformations, T entity, float tickDelta, int occupiedAspect, boolean isBackSide);
 
-	private ObjectObjectImmutablePair<IntArrayList, IntAVLTreeSet> getAspects(LongArrayList filterColors, BlockPos startPos, float angle) {
+	public static ObjectObjectImmutablePair<IntArrayList, IntAVLTreeSet> getAspects(BlockPos blockPos, float angle) {
+		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
+		if (clientWorld == null) {
+			return new ObjectObjectImmutablePair<>(new IntArrayList(), new IntAVLTreeSet());
+		}
+
+		final BlockPos startPos = getNodePos(clientWorld, blockPos, Direction.fromRotation(angle));
+		if (startPos == null) {
+			return new ObjectObjectImmutablePair<>(new IntArrayList(), new IntAVLTreeSet());
+		}
+
 		final MinecraftClientData minecraftClientData = MinecraftClientData.getInstance();
 		final IntArrayList detectedColors = new IntArrayList();
 		final IntAVLTreeSet occupiedColors = new IntAVLTreeSet();
 
 		minecraftClientData.positionsToRail.get(Init.blockPosToPosition(startPos)).forEach((endPosition, rail) -> {
-			final double difference = Math.abs(Math.toDegrees(Math.atan2(endPosition.getZ() - startPos.getZ(), endPosition.getX() - startPos.getX())) - angle) % 360;
-
-			if (difference <= 90 || difference >= 270) {
-				rail.getSignalColors().forEach(color -> {
-					if (filterColors.isEmpty() || filterColors.contains(color)) {
-						detectedColors.add(color);
-					}
-				});
-
-				minecraftClientData.railIdToBlockedSignalColors.getOrDefault(rail.getHexId(), new LongArrayList()).forEach(color -> {
-					if (filterColors.isEmpty() || filterColors.contains(color)) {
-						occupiedColors.add((int) color);
-					}
-				});
+			if (Math.abs(Utilities.circularDifference(Math.round(Math.toDegrees(Math.atan2(endPosition.getZ() - startPos.getZ(), endPosition.getX() - startPos.getX()))), Math.round(angle), 360)) < 90) {
+				rail.getSignalColors().forEach(detectedColors::add);
+				minecraftClientData.railIdToBlockedSignalColors.getOrDefault(rail.getHexId(), new LongArrayList()).forEach(color -> occupiedColors.add((int) color));
 			}
 		});
 
@@ -126,7 +122,7 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 		return new ObjectObjectImmutablePair<>(detectedColors, occupiedColors);
 	}
 
-	private static BlockPos getNodePos(World world, BlockPos pos, Direction facing) {
+	private static BlockPos getNodePos(ClientWorld world, BlockPos pos, Direction facing) {
 		final int[] checkDistance = {0, 1, -1, 2, -2, 3, -3, 4, -4};
 		for (final int z : checkDistance) {
 			for (final int x : checkDistance) {

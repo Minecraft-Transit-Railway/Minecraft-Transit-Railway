@@ -1,15 +1,18 @@
 package org.mtr.mod.block;
 
 import org.mtr.core.tool.Angle;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.BlockWithEntity;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.Init;
+import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BlockSignalBase extends BlockExtension implements DirectionHelper, BlockWithEntity {
@@ -19,6 +22,18 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 
 	public BlockSignalBase(BlockSettings blockSettings) {
 		super(blockSettings);
+	}
+
+	@Nonnull
+	@Override
+	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		return IBlock.checkHoldingBrush(world, player, () -> {
+			final BlockEntity entity = world.getBlockEntity(pos);
+			if (entity != null && entity.data instanceof BlockEntityBase) {
+				((BlockEntityBase) entity.data).markDirty2();
+				Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(pos));
+			}
+		});
 	}
 
 	@Override
@@ -34,10 +49,14 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 		properties.add(IS_45);
 	}
 
+	public static float getAngle(BlockState state) {
+		return IBlock.getStatePropertySafe(state, DirectionHelper.FACING).asRotation() + (IBlock.getStatePropertySafe(state, BlockSignalBase.IS_22_5).booleanValue ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockSignalBase.IS_45).booleanValue ? 45 : 0);
+	}
+
 	public static abstract class BlockEntityBase extends BlockEntityExtension {
 
-		public final LongArrayList signalColors1 = new LongArrayList();
-		public final LongArrayList signalColors2 = new LongArrayList();
+		private final IntAVLTreeSet signalColors1 = new IntAVLTreeSet();
+		private final IntAVLTreeSet signalColors2 = new IntAVLTreeSet();
 		private static final String KEY_SIGNAL_COLORS_1 = "signal_colors_1";
 		private static final String KEY_SIGNAL_COLORS_2 = "signal_colors_2";
 
@@ -48,11 +67,11 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 		@Override
 		public void readCompoundTag(CompoundTag compoundTag) {
 			signalColors1.clear();
-			for (final long color : compoundTag.getLongArray(KEY_SIGNAL_COLORS_1)) {
+			for (final int color : compoundTag.getIntArray(KEY_SIGNAL_COLORS_1)) {
 				signalColors1.add(color);
 			}
 			signalColors2.clear();
-			for (final long color : compoundTag.getLongArray(KEY_SIGNAL_COLORS_2)) {
+			for (final int color : compoundTag.getIntArray(KEY_SIGNAL_COLORS_2)) {
 				signalColors2.add(color);
 			}
 			super.readCompoundTag(compoundTag);
@@ -60,9 +79,19 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 
 		@Override
 		public void writeCompoundTag(CompoundTag compoundTag) {
-			compoundTag.putLongArray(KEY_SIGNAL_COLORS_1, signalColors1);
-			compoundTag.putLongArray(KEY_SIGNAL_COLORS_2, signalColors2);
+			compoundTag.putIntArray(KEY_SIGNAL_COLORS_1, new ArrayList<>(signalColors1));
+			compoundTag.putIntArray(KEY_SIGNAL_COLORS_2, new ArrayList<>(signalColors2));
 			super.writeCompoundTag(compoundTag);
+		}
+
+		public void setData(IntAVLTreeSet signalColors, boolean isBackSide) {
+			getSignalColors(isBackSide).clear();
+			getSignalColors(isBackSide).addAll(signalColors);
+			markDirty2();
+		}
+
+		public IntAVLTreeSet getSignalColors(boolean isBackSide) {
+			return isBackSide ? signalColors2 : signalColors1;
 		}
 	}
 
