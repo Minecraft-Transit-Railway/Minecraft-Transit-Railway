@@ -18,6 +18,12 @@ public abstract class BlockSignalLightBase extends BlockSignalBase {
 	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getVoxelShapeByDirection(shapeX, 0, 5, 16 - shapeX, shapeHeight, 11, IBlock.getStatePropertySafe(state, FACING));
+		final int newShapeX;
+		if (IBlock.getStatePropertySafe(state, IS_22_5).booleanValue || IBlock.getStatePropertySafe(state, IS_45).booleanValue) {
+			newShapeX = shapeX - 1;
+		} else {
+			newShapeX = shapeX;
+		}
+		return Block.createCuboidShape(newShapeX, 0, newShapeX, 16 - newShapeX, shapeHeight, 16 - newShapeX);
 	}
 }

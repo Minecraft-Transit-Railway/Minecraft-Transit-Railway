@@ -1,15 +1,15 @@
 {
 	"parent": "block/block",
 	"textures": {
-		"particle": "block/coal_block",
-		"pole": "mtr:block/metal"
+		"particle": "block/coal_block"
 	},
 	"elements": [
 		{
-			"from": [ 4, 4, 5 ],
-			"to": [ 12, 8, 11 ],
+			"from": [ 5, 0, 5 ],
+			"to": [ 11, 12, 11 ],
+			"rotation": { "angle": -45, "axis": "y", "origin": [ 8, 0, 8 ] },
 			"faces": {
-				"down": { "texture": "#particle" },
+				"down": { "texture": "#particle", "cullface": "down" },
 				"up": { "texture": "#particle" },
 				"east": { "texture": "#particle" },
 				"west": { "texture": "#particle" },

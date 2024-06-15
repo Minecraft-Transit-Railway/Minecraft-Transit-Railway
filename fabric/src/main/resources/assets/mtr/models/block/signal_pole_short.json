@@ -1,15 +1,14 @@
 {
 	"parent": "block/block",
 	"textures": {
-		"particle": "block/coal_block",
-		"pole": "mtr:block/metal"
+		"particle": "mtr:block/metal"
 	},
 	"elements": [
 		{
-			"from": [ 4, 4, 5 ],
-			"to": [ 12, 8, 11 ],
+			"from": [ 6, 0, 6 ],
+			"to": [ 10, 12, 10 ],
 			"faces": {
-				"down": { "texture": "#particle" },
+				"down": { "texture": "#particle", "cullface": "down" },
 				"up": { "texture": "#particle" },
 				"east": { "texture": "#particle" },
 				"west": { "texture": "#particle" },
