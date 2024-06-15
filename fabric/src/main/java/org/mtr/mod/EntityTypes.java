@@ -7,7 +7,7 @@ import org.mtr.mod.entity.EntityRendering;
 public final class EntityTypes {
 
 	static {
-		RENDERING = Init.REGISTRY.registerEntityType(new Identifier(Init.MOD_ID, "rendering"), EntityRendering::new, 0.01F, 0.01F);
+		RENDERING = Init.REGISTRY.registerEntityType(new Identifier(Init.MOD_ID, "rendering"), EntityRendering::new, Float.MIN_VALUE, Float.MIN_VALUE);
 	}
 
 	public static final EntityTypeRegistryObject<EntityRendering> RENDERING;

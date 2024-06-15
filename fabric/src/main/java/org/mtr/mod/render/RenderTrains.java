@@ -30,6 +30,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 	public static final int PLAYER_RENDER_OFFSET = 1000;
 	public static final WorkerThread WORKER_THREAD = new WorkerThread();
 
+	private static final int FLASHING_INTERVAL = 1000;
 	private static final int TOTAL_RENDER_STAGES = 2;
 	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<BiConsumer<GraphicsHolder, Vector3d>>>>> RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
 	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<BiConsumer<GraphicsHolder, Vector3d>>>>> CURRENT_RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
@@ -175,6 +176,11 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 		final ObjectArrayList<String> interchangeRouteNames = new ObjectArrayList<>();
 		getInterchanges.accept((connectingStationName, interchangeColorsForStationName) -> interchangeColorsForStationName.forEach((color, interchangeRouteNamesForColor) -> interchangeRouteNamesForColor.forEach(interchangeRouteNames::add)));
 		return IGui.mergeStationsWithCommas(interchangeRouteNames);
+	}
+
+	public static int getFlashingLight() {
+		final int light = (int) Math.round((Math.sin(Math.PI * 2 * (System.currentTimeMillis() % FLASHING_INTERVAL) / FLASHING_INTERVAL) + 1) / 2 * 0xF);
+		return LightmapTextureManager.pack(light, light);
 	}
 
 	private static long getMillisElapsed() {

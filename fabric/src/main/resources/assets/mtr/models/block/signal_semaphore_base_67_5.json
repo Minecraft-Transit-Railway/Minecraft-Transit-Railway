@@ -8,6 +8,7 @@
 		{
 			"from": [ 4, 4, 5 ],
 			"to": [ 12, 8, 11 ],
+			"rotation": { "angle": 22.5, "axis": "y", "origin": [ 8, 0, 8 ] },
 			"faces": {
 				"down": { "texture": "#particle" },
 				"up": { "texture": "#particle" },

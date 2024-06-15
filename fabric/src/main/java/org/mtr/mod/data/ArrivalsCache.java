@@ -6,7 +6,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongCollection;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
-import org.mtr.mapping.holder.World;
 
 import java.util.function.Consumer;
 
@@ -20,14 +19,6 @@ public abstract class ArrivalsCache {
 
 	protected ArrivalsCache(int cachedMillis) {
 		this.cachedMillis = cachedMillis;
-	}
-
-	/**
-	 * @deprecated Use {@link ArrivalsCache#requestArrivals(LongCollection)} instead
-	 */
-	@Deprecated
-	public final ObjectArrayList<ArrivalResponse> requestArrivals(World world, LongCollection platformIds) {
-		return requestArrivals(platformIds);
 	}
 
 	public final ObjectArrayList<ArrivalResponse> requestArrivals(LongCollection platformIds) {

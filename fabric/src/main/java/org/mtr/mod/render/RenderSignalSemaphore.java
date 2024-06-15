@@ -12,23 +12,30 @@ public class RenderSignalSemaphore<T extends BlockSignalSemaphoreBase.BlockEntit
 	private static final int SPEED = 4;
 
 	public RenderSignalSemaphore(Argument dispatcher, boolean isSingleSided) {
-		super(dispatcher, isSingleSided, 2);
+		super(dispatcher, isSingleSided, 8, 2);
 	}
 
 	@Override
-	protected void render(GraphicsHolder graphicsHolder, T entity, float tickDelta, Direction facing, int occupiedAspect, boolean isBackSide) {
+	protected void render(StoredMatrixTransformations storedMatrixTransformations, T entity, float tickDelta, int occupiedAspect, boolean isBackSide) {
 		final float angle = isBackSide ? entity.angle2 : entity.angle1;
-		IDrawing.drawTexture(graphicsHolder, -0.0625F, 0.296875F, -0.190625F, 0.0625F, 0.453125F, -0.190625F, facing.getOpposite(), angle < ANGLE / 2F ? 0xFFFF0000 : 0xFF00FF00, GraphicsHolder.getDefaultLight());
-		graphicsHolder.translate(0.1875, 0.375, 0);
-		graphicsHolder.rotateZDegrees(-180 - angle);
+		RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, RenderTrains.QueuedRenderLayer.LIGHT, (graphicsHolder, offset) -> {
+			storedMatrixTransformations.transform(graphicsHolder, offset);
+			IDrawing.drawTexture(graphicsHolder, -0.0625F, 0.296875F, -0.190625F, 0.0625F, 0.453125F, -0.190625F, Direction.UP, angle < ANGLE / 2F ? 0xFFFF0000 : 0xFF00FF00, GraphicsHolder.getDefaultLight());
+			graphicsHolder.pop();
+		});
 
 		final World world = entity.getWorld2();
 		if (world != null) {
 			final BlockPos pos = entity.getPos2();
-			graphicsHolder.createVertexConsumer(MoreRenderLayers.getExterior(new Identifier(Init.MOD_ID, "textures/block/semaphore.png")));
-			final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.getBlockMapped(), pos), world.getLightLevel(LightType.getSkyMapped(), pos));
-			IDrawing.drawTexture(graphicsHolder, -0.705F, -0.5F, -0.19375F, 0.295F, 0.5F, -0.19375F, facing.getOpposite(), ARGB_WHITE, light);
-			IDrawing.drawTexture(graphicsHolder, 0.295F, -0.5F, -0.19375F, -0.705F, 0.5F, -0.19375F, 1, 0, 0, 1, facing.getOpposite(), ARGB_WHITE, light);
+			RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/semaphore.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+				storedMatrixTransformations.transform(graphicsHolder, offset);
+				graphicsHolder.translate(0.1875, 0.375, 0);
+				graphicsHolder.rotateZDegrees(-180 - angle);
+				final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.getBlockMapped(), pos), world.getLightLevel(LightType.getSkyMapped(), pos));
+				IDrawing.drawTexture(graphicsHolder, -0.705F, -0.5F, -0.19375F, 0.295F, 0.5F, -0.19375F, Direction.UP, ARGB_WHITE, light);
+				IDrawing.drawTexture(graphicsHolder, 0.295F, -0.5F, -0.19375F, -0.705F, 0.5F, -0.19375F, 1, 0, 0, 1, Direction.UP, ARGB_WHITE, light);
+				graphicsHolder.pop();
+			});
 		}
 
 		final float newAngle;

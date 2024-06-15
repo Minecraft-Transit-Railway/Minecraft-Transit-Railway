@@ -13,7 +13,12 @@ public abstract class BlockSignalSemaphoreBase extends BlockSignalBase {
 	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return VoxelShapes.union(IBlock.getVoxelShapeByDirection(4, 4, 5, 12, 8, 11, IBlock.getStatePropertySafe(state, FACING)), Block.createCuboidShape(6, 0, 6, 10, 12, 10));
+		final VoxelShape poleShape = Block.createCuboidShape(6, 0, 6, 10, 12, 10);
+		if (IBlock.getStatePropertySafe(state, IS_22_5).booleanValue || IBlock.getStatePropertySafe(state, IS_45).booleanValue) {
+			return VoxelShapes.union(Block.createCuboidShape(3, 4, 3, 13, 8, 13), poleShape);
+		} else {
+			return VoxelShapes.union(IBlock.getVoxelShapeByDirection(4, 4, 5, 12, 8, 11, IBlock.getStatePropertySafe(state, FACING)), poleShape);
+		}
 	}
 
 	public static abstract class BlockEntityBase extends BlockSignalBase.BlockEntityBase {
