@@ -83,9 +83,9 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 							graphicsHolderNew.pop();
 						});
 					}
-
-					render(storedMatrixTransformationsNew, entity, tickDelta, aspects.right().intStream().anyMatch(color -> filterColors.isEmpty() || filterColors.contains(color)) ? 1 : 0, isBackSide);
 				}
+
+				render(storedMatrixTransformationsNew, entity, tickDelta, aspects.right().intStream().anyMatch(color -> filterColors.isEmpty() || filterColors.contains(color)) ? 1 : 0, isBackSide);
 			}
 
 			if (isSingleSided) {
