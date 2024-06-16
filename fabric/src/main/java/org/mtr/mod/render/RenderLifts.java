@@ -145,7 +145,7 @@ public class RenderLifts implements IGui {
 				}
 
 				// Render the lift
-				RenderVehicleHelper.renderModel(renderVehicleTransformationHelperOffset, storedMatrixTransformations -> {
+				RenderVehicleHelper.renderModel(renderVehicleTransformationHelperOffset, 0, storedMatrixTransformations -> {
 					new ModelLift1((int) Math.round(lift.getHeight() * 2), (int) Math.round(lift.getWidth()), (int) Math.round(lift.getDepth()), lift.getIsDoubleSided()).render(
 							storedMatrixTransformations,
 							null,
