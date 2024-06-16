@@ -55,13 +55,16 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 
 	public static abstract class BlockEntityBase extends BlockEntityExtension {
 
+		public final boolean isDoubleSided;
+
 		private final IntAVLTreeSet signalColors1 = new IntAVLTreeSet();
 		private final IntAVLTreeSet signalColors2 = new IntAVLTreeSet();
 		private static final String KEY_SIGNAL_COLORS_1 = "signal_colors_1";
 		private static final String KEY_SIGNAL_COLORS_2 = "signal_colors_2";
 
-		public BlockEntityBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		public BlockEntityBase(BlockEntityType<?> type, boolean isDoubleSided, BlockPos pos, BlockState state) {
 			super(type, pos, state);
+			this.isDoubleSided = isDoubleSided;
 		}
 
 		@Override

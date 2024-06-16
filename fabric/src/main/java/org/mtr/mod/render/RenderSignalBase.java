@@ -18,13 +18,11 @@ import java.util.Collections;
 
 public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase> extends BlockEntityRenderer<T> implements IBlock, IGui {
 
-	protected final boolean isSingleSided;
 	protected final int aspects;
 	private final float colorIndicatorHeight;
 
-	public RenderSignalBase(Argument dispatcher, boolean isSingleSided, int colorIndicatorHeight, int aspects) {
+	public RenderSignalBase(Argument dispatcher, int colorIndicatorHeight, int aspects) {
 		super(dispatcher);
-		this.isSingleSided = isSingleSided;
 		this.aspects = aspects;
 		this.colorIndicatorHeight = colorIndicatorHeight / 16F + SMALL_OFFSET;
 	}
@@ -50,7 +48,7 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 		final float angle = BlockSignalBase.getAngle(state);
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(0.5 + entity.getPos2().getX(), entity.getPos2().getY(), 0.5 + entity.getPos2().getZ());
 
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < (entity.isDoubleSided ? 2 : 1); i++) {
 			final float newAngle = angle + i * 180;
 			final boolean isBackSide = i == 1;
 			final ObjectObjectImmutablePair<IntArrayList, IntAVLTreeSet> aspects = getAspects(pos, newAngle + 90);
@@ -86,10 +84,6 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 				}
 
 				render(storedMatrixTransformationsNew, entity, tickDelta, aspects.right().intStream().anyMatch(color -> filterColors.isEmpty() || filterColors.contains(color)) ? 1 : 0, isBackSide);
-			}
-
-			if (isSingleSided) {
-				break;
 			}
 		}
 	}

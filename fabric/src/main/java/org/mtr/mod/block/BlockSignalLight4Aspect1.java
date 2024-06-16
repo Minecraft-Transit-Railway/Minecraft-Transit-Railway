@@ -23,7 +23,7 @@ public class BlockSignalLight4Aspect1 extends BlockSignalLightBase {
 	public static class BlockEntity extends BlockSignalBase.BlockEntityBase {
 
 		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.SIGNAL_LIGHT_4_ASPECT_1.get(), pos, state);
+			super(BlockEntityTypes.SIGNAL_LIGHT_4_ASPECT_1.get(), false, pos, state);
 		}
 	}
 }

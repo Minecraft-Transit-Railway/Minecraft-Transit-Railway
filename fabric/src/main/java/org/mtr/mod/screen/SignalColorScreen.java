@@ -21,7 +21,7 @@ public class SignalColorScreen extends ScreenExtension implements IGui {
 	private final IntAVLTreeSet detectedColors = new IntAVLTreeSet();
 	private final boolean isBackSide;
 
-	public SignalColorScreen(BlockPos blockPos) {
+	public SignalColorScreen(BlockPos blockPos, BlockSignalBase.BlockEntityBase blockEntity) {
 		super();
 		this.blockPos = blockPos;
 
@@ -37,16 +37,10 @@ public class SignalColorScreen extends ScreenExtension implements IGui {
 			if (clientPlayerEntity == null) {
 				isBackSide = false;
 			} else {
-				isBackSide = Math.abs(Utilities.circularDifference(Math.round(EntityHelper.getYaw(new Entity(clientPlayerEntity.data))), Math.round(angle), 360)) > 90;
+				isBackSide = blockEntity.isDoubleSided && Math.abs(Utilities.circularDifference(Math.round(EntityHelper.getYaw(new Entity(clientPlayerEntity.data))), Math.round(angle), 360)) > 90;
 			}
 
-			final BlockEntity blockEntity = clientWorld.getBlockEntity(blockPos);
-			if (blockEntity != null && blockEntity.data instanceof BlockSignalBase.BlockEntityBase) {
-				signalColors = ((BlockSignalBase.BlockEntityBase) blockEntity.data).getSignalColors(isBackSide);
-			} else {
-				signalColors = new IntAVLTreeSet();
-			}
-
+			signalColors = blockEntity.getSignalColors(isBackSide);
 			detectedColors.addAll(RenderSignalBase.getAspects(blockPos, angle + (isBackSide ? 180 : 0) + 90).left());
 		}
 
@@ -105,6 +99,11 @@ public class SignalColorScreen extends ScreenExtension implements IGui {
 	public void onClose2() {
 		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateSignalConfig(blockPos, signalColors, isBackSide));
 		super.onClose2();
+	}
+
+	@Override
+	public boolean isPauseScreen2() {
+		return false;
 	}
 
 	private void setButtons() {
