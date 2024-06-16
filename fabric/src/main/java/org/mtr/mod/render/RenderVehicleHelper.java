@@ -69,20 +69,23 @@ public class RenderVehicleHelper {
 		return canOpenDoors;
 	}
 
-	public static void renderModel(RenderVehicleTransformationHelper renderVehicleTransformationHelper, Consumer<StoredMatrixTransformations> render) {
+	public static void renderModel(RenderVehicleTransformationHelper renderVehicleTransformationHelper, double oscillationAmount, Consumer<StoredMatrixTransformations> render) {
 		final StoredMatrixTransformations storedMatrixTransformations = renderVehicleTransformationHelper.getStoredMatrixTransformations();
-		storedMatrixTransformations.add(graphicsHolder -> renderVehicleTransformationHelper.transformBackwards(new Object(), (object, pitch) -> {
-			graphicsHolder.rotateXRadians((float) (Math.PI - pitch)); // Blockbench exports models upside down
-			return new Object();
-		}, (object, yaw) -> {
-			graphicsHolder.rotateYRadians((float) (Math.PI - yaw));
-			return new Object();
-		}, (object, x, y, z) -> {
-			if (!storedMatrixTransformations.useDefaultOffset) {
-				graphicsHolder.translate(-x, -y, -z);
-			}
-			return new Object();
-		}));
+		storedMatrixTransformations.add(graphicsHolder -> {
+			renderVehicleTransformationHelper.transformBackwards(new Object(), (object, pitch) -> {
+				graphicsHolder.rotateXRadians((float) (Math.PI - pitch)); // Blockbench exports models upside down
+				return new Object();
+			}, (object, yaw) -> {
+				graphicsHolder.rotateYRadians((float) (Math.PI - yaw));
+				return new Object();
+			}, (object, x, y, z) -> {
+				if (!storedMatrixTransformations.useDefaultOffset) {
+					graphicsHolder.translate(-x, -y, -z);
+				}
+				return new Object();
+			});
+			graphicsHolder.rotateZDegrees((float) oscillationAmount);
+		});
 
 		render.accept(storedMatrixTransformations);
 	}
