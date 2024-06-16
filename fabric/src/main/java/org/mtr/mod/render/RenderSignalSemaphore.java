@@ -11,8 +11,8 @@ public class RenderSignalSemaphore<T extends BlockSignalSemaphoreBase.BlockEntit
 	private static final int ANGLE = 55;
 	private static final int SPEED = 4;
 
-	public RenderSignalSemaphore(Argument dispatcher, boolean isSingleSided) {
-		super(dispatcher, isSingleSided, 8, 2);
+	public RenderSignalSemaphore(Argument dispatcher) {
+		super(dispatcher, 8, 2);
 	}
 
 	@Override

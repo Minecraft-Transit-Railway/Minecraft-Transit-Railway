@@ -9,8 +9,8 @@ import org.mtr.mod.client.IDrawing;
 
 public class RenderSignalLight3Aspect<T extends BlockSignalBase.BlockEntityBase> extends RenderSignalBase<T> {
 
-	public RenderSignalLight3Aspect(Argument dispatcher, boolean isSingleSided) {
-		super(dispatcher, isSingleSided, 15, 3);
+	public RenderSignalLight3Aspect(Argument dispatcher) {
+		super(dispatcher, 15, 3);
 	}
 
 	@Override

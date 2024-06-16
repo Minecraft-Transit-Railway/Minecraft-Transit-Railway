@@ -21,7 +21,7 @@ public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 	private static final int MAX_SECONDS_LENGTH = 5;
 	private static final int DEFAULT_SECONDS = 10;
 
-	public TrainScheduleSensorScreen(BlockPos pos) {
+	public TrainScheduleSensorScreen(BlockPos pos, BlockTrainScheduleSensor.BlockEntity blockEntity) {
 		super(pos, false, new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_SECONDS_LENGTH, TextCase.DEFAULT, "[^\\d-]", null), TextHelper.translatable("gui.mtr.train_schedule_sensor")));
 
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
@@ -29,14 +29,8 @@ public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 			seconds = DEFAULT_SECONDS;
 			realtimeOnly = false;
 		} else {
-			final BlockEntity blockEntity = clientWorld.getBlockEntity(pos);
-			if (blockEntity != null && blockEntity.data instanceof BlockTrainScheduleSensor.BlockEntity) {
-				seconds = ((BlockTrainScheduleSensor.BlockEntity) blockEntity.data).getSeconds();
-				realtimeOnly = ((BlockTrainScheduleSensor.BlockEntity) blockEntity.data).getRealtimeOnly();
-			} else {
-				seconds = DEFAULT_SECONDS;
-				realtimeOnly = false;
-			}
+			seconds = blockEntity.getSeconds();
+			realtimeOnly = blockEntity.getRealtimeOnly();
 		}
 
 		realtimeOnlyCheckbox = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {

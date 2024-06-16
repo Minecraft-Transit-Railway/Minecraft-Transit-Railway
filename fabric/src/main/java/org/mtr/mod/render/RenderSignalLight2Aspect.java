@@ -12,8 +12,8 @@ public class RenderSignalLight2Aspect<T extends BlockSignalBase.BlockEntityBase>
 	private final boolean redOnTop;
 	private final int proceedColor;
 
-	public RenderSignalLight2Aspect(Argument dispatcher, boolean isSingleSided, boolean redOnTop, int proceedColor) {
-		super(dispatcher, isSingleSided, 12, 2);
+	public RenderSignalLight2Aspect(Argument dispatcher, boolean redOnTop, int proceedColor) {
+		super(dispatcher, 12, 2);
 		this.redOnTop = redOnTop;
 		this.proceedColor = proceedColor;
 	}

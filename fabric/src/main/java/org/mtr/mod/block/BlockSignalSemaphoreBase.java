@@ -26,8 +26,8 @@ public abstract class BlockSignalSemaphoreBase extends BlockSignalBase {
 		public float angle1;
 		public float angle2;
 
-		public BlockEntityBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-			super(type, pos, state);
+		public BlockEntityBase(BlockEntityType<?> type, boolean isDoubleSided, BlockPos pos, BlockState state) {
+			super(type, isDoubleSided, pos, state);
 		}
 	}
 }

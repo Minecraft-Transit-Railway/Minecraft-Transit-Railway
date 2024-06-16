@@ -21,7 +21,7 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 
 	private static final int MAX_MESSAGE_LENGTH = 256;
 
-	public TrainAnnouncerScreen(BlockPos pos) {
+	public TrainAnnouncerScreen(BlockPos pos, BlockTrainAnnouncer.BlockEntity blockEntity) {
 		super(pos, true,
 				new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TextHelper.translatable("gui.mtr.announcement_message")),
 				new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TextHelper.translatable("gui.mtr.sound_file"))
@@ -29,14 +29,8 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 		if (clientWorld != null) {
-			final BlockEntity blockEntity = clientWorld.getBlockEntity(pos);
-			if (blockEntity != null && blockEntity.data instanceof BlockTrainAnnouncer.BlockEntity) {
-				initialMessage = ((BlockTrainAnnouncer.BlockEntity) blockEntity.data).getMessage();
-				initialSoundIdString = ((BlockTrainAnnouncer.BlockEntity) blockEntity.data).getSoundIdString();
-			} else {
-				initialMessage = "";
-				initialSoundIdString = "";
-			}
+			initialMessage = blockEntity.getMessage();
+			initialSoundIdString = blockEntity.getSoundIdString();
 		} else {
 			initialMessage = "";
 			initialSoundIdString = "";

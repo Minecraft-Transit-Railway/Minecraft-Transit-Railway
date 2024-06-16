@@ -20,17 +20,17 @@ public final class ClientPacketHelper {
 	public static void openBlockEntityScreen(BlockPos blockPos) {
 		getBlockEntity(blockPos, blockEntity -> {
 			if (blockEntity.data instanceof BlockTrainAnnouncer.BlockEntity) {
-				openScreen(new TrainAnnouncerScreen(blockPos), screenExtension -> screenExtension instanceof TrainAnnouncerScreen);
+				openScreen(new TrainAnnouncerScreen(blockPos, (BlockTrainAnnouncer.BlockEntity) blockEntity.data), screenExtension -> screenExtension instanceof TrainAnnouncerScreen);
 			} else if (blockEntity.data instanceof BlockTrainScheduleSensor.BlockEntity) {
-				openScreen(new TrainScheduleSensorScreen(blockPos), screenExtension -> screenExtension instanceof TrainScheduleSensorScreen);
+				openScreen(new TrainScheduleSensorScreen(blockPos, (BlockTrainScheduleSensor.BlockEntity) blockEntity.data), screenExtension -> screenExtension instanceof TrainScheduleSensorScreen);
 			} else if (blockEntity.data instanceof BlockTrainSensorBase.BlockEntityBase) {
 				openScreen(new TrainBasicSensorScreen(blockPos), screenExtension -> screenExtension instanceof TrainBasicSensorScreen);
 			} else if (blockEntity.data instanceof BlockRailwaySign.BlockEntity || blockEntity.data instanceof BlockRouteSignBase.BlockEntityBase) {
 				openScreen(new RailwaySignScreen(blockPos), screenExtension -> screenExtension instanceof RailwaySignScreen);
 			} else if (blockEntity.data instanceof BlockLiftTrackFloor.BlockEntity) {
-				openScreen(new LiftTrackFloorScreen(blockPos), screenExtension -> screenExtension instanceof LiftTrackFloorScreen);
+				openScreen(new LiftTrackFloorScreen(blockPos, (BlockLiftTrackFloor.BlockEntity) blockEntity.data), screenExtension -> screenExtension instanceof LiftTrackFloorScreen);
 			} else if (blockEntity.data instanceof BlockSignalBase.BlockEntityBase) {
-				openScreen(new SignalColorScreen(blockPos), screenExtension -> screenExtension instanceof SignalColorScreen);
+				openScreen(new SignalColorScreen(blockPos, (BlockSignalBase.BlockEntityBase) blockEntity.data), screenExtension -> screenExtension instanceof SignalColorScreen);
 			}
 		});
 	}
