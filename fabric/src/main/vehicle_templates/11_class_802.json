@@ -39,7 +39,7 @@
 	},
 	"vehicles": [
 		{
-			"id": "class_802_@id@_@definition@_trailer",
+			"id": "class_802_@id@@definition@_trailer",
 			"name": "Class 802 Trailer (@name1@, @name2@)",
 			"color": "@color@",
 			"transportMode": "TRAIN",
@@ -105,7 +105,7 @@
 			"legacyDoorCloseSoundTime": 1
 		},
 		{
-			"id": "class_802_@id@_@definition@_cab_1",
+			"id": "class_802_@id@@definition@_cab_1",
 			"name": "Class 802 Cab (@name1@, Forwards, @name2@)",
 			"color": "@color@",
 			"transportMode": "TRAIN",
@@ -177,7 +177,7 @@
 			"legacyDoorCloseSoundTime": 1
 		},
 		{
-			"id": "class_802_@id@_@definition@_cab_2",
+			"id": "class_802_@id@@definition@_cab_2",
 			"name": "Class 802 Cab (@name1@, Backwards, @name2@)",
 			"color": "@color@",
 			"transportMode": "TRAIN",
@@ -249,7 +249,7 @@
 			"legacyDoorCloseSoundTime": 1
 		},
 		{
-			"id": "class_802_@id@_@definition@_cab_3",
+			"id": "class_802_@id@@definition@_cab_3",
 			"name": "Class 802 Cab (@name1@, Double, @name2@)",
 			"color": "@color@",
 			"transportMode": "TRAIN",
