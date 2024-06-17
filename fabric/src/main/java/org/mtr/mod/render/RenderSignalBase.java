@@ -1,26 +1,30 @@
 package org.mtr.mod.render;
 
+import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
-import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.Init;
-import org.mtr.mod.block.BlockNode;
-import org.mtr.mod.block.BlockSignalLightBase;
-import org.mtr.mod.block.BlockSignalSemaphoreBase;
-import org.mtr.mod.block.IBlock;
+import org.mtr.mod.block.*;
+import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 
-public abstract class RenderSignalBase<T extends BlockEntityExtension> extends BlockEntityRenderer<T> implements IBlock, IGui {
+import java.util.Collections;
 
-	protected final boolean isSingleSided;
+public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase> extends BlockEntityRenderer<T> implements IBlock, IGui {
+
 	protected final int aspects;
+	private final float colorIndicatorHeight;
 
-	public RenderSignalBase(Argument dispatcher, boolean isSingleSided, int aspects) {
+	public RenderSignalBase(Argument dispatcher, int colorIndicatorHeight, int aspects) {
 		super(dispatcher);
-		this.isSingleSided = isSingleSided;
 		this.aspects = aspects;
+		this.colorIndicatorHeight = colorIndicatorHeight / 16F + SMALL_OFFSET;
 	}
 
 	@Override
@@ -30,51 +34,89 @@ public abstract class RenderSignalBase<T extends BlockEntityExtension> extends B
 			return;
 		}
 
+		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+		if (clientPlayerEntity == null) {
+			return;
+		}
+
 		final BlockPos pos = entity.getPos2();
 		final BlockState state = world.getBlockState(pos);
 		if (!(state.getBlock().data instanceof BlockSignalLightBase || state.getBlock().data instanceof BlockSignalSemaphoreBase)) {
 			return;
 		}
-		final Direction facing = IBlock.getStatePropertySafe(state, DirectionHelper.FACING);
-		if (RenderTrains.shouldNotRender(pos, null)) {
-			return;
+
+		final float angle = BlockSignalBase.getAngle(state);
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(0.5 + entity.getPos2().getX(), entity.getPos2().getY(), 0.5 + entity.getPos2().getZ());
+
+		for (int i = 0; i < (entity.isDoubleSided ? 2 : 1); i++) {
+			final float newAngle = angle + i * 180;
+			final boolean isBackSide = i == 1;
+			final ObjectObjectImmutablePair<IntArrayList, IntAVLTreeSet> aspects = getAspects(pos, newAngle + 90);
+			final IntArrayList detectedColors = aspects.left();
+
+			if (!detectedColors.isEmpty()) {
+				final StoredMatrixTransformations storedMatrixTransformationsNew = storedMatrixTransformations.copy();
+				storedMatrixTransformationsNew.add(graphicsHolderNew -> graphicsHolderNew.rotateYDegrees(-newAngle));
+				final IntAVLTreeSet filterColors = entity.getSignalColors(isBackSide);
+
+				if (RenderRails.isHoldingRailRelated(clientPlayerEntity)) {
+					final float xStart = -0.015625F * detectedColors.size();
+					for (int j = 0; j < detectedColors.size(); j++) {
+						final int signalColor = detectedColors.getInt(j);
+						final boolean occupied = aspects.right().contains(signalColor);
+						final float x = xStart + j * 0.03125F;
+						final float width = 0.03125F / (filterColors.isEmpty() || filterColors.contains(signalColor) ? 1 : 8);
+						final int lightNew = occupied ? RenderTrains.getFlashingLight() : GraphicsHolder.getDefaultLight();
+						RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, occupied ? RenderTrains.QueuedRenderLayer.EXTERIOR : RenderTrains.QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
+							storedMatrixTransformationsNew.transform(graphicsHolderNew, offset);
+							IDrawing.drawTexture(
+									graphicsHolderNew,
+									x, colorIndicatorHeight, -0.15625F,
+									x + 0.03125F, colorIndicatorHeight, -0.15625F,
+									x + 0.03125F, colorIndicatorHeight, -0.15625F - width,
+									x, colorIndicatorHeight, -0.15625F - width,
+									0, 0, 1, 1,
+									Direction.UP, signalColor | ARGB_BLACK, lightNew
+							);
+							graphicsHolderNew.pop();
+						});
+					}
+				}
+
+				render(storedMatrixTransformationsNew, entity, tickDelta, aspects.right().intStream().anyMatch(color -> filterColors.isEmpty() || filterColors.contains(color)) ? 1 : 0, isBackSide);
+			}
+		}
+	}
+
+	protected abstract void render(StoredMatrixTransformations storedMatrixTransformations, T entity, float tickDelta, int occupiedAspect, boolean isBackSide);
+
+	public static ObjectObjectImmutablePair<IntArrayList, IntAVLTreeSet> getAspects(BlockPos blockPos, float angle) {
+		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
+		if (clientWorld == null) {
+			return new ObjectObjectImmutablePair<>(new IntArrayList(), new IntAVLTreeSet());
 		}
 
-		final BlockPos startPos = getNodePos(world, pos, facing);
+		final BlockPos startPos = getNodePos(clientWorld, blockPos, Direction.fromRotation(angle));
 		if (startPos == null) {
-			return;
+			return new ObjectObjectImmutablePair<>(new IntArrayList(), new IntAVLTreeSet());
 		}
 
-		graphicsHolder.push();
-		graphicsHolder.translate(0.5, 0, 0.5);
+		final MinecraftClientData minecraftClientData = MinecraftClientData.getInstance();
+		final IntArrayList detectedColors = new IntArrayList();
+		final IntAVLTreeSet occupiedColors = new IntAVLTreeSet();
 
-		for (int i = 0; i < 2; i++) {
-			final Direction newFacing = (i == 1 ? facing.getOpposite() : facing);
-			final int occupiedAspect = getOccupiedAspect(startPos, newFacing.asRotation() + 90);
-
-			if (occupiedAspect >= 0) {
-				graphicsHolder.push();
-				graphicsHolder.rotateYDegrees(-newFacing.asRotation());
-				graphicsHolder.createVertexConsumer(MoreRenderLayers.getLight(new Identifier(Init.MOD_ID, "textures/block/white.png"), false));
-				render(graphicsHolder, entity, tickDelta, newFacing, occupiedAspect, i == 1);
-				graphicsHolder.pop();
+		minecraftClientData.positionsToRail.get(Init.blockPosToPosition(startPos)).forEach((endPosition, rail) -> {
+			if (Math.abs(Utilities.circularDifference(Math.round(Math.toDegrees(Math.atan2(endPosition.getZ() - startPos.getZ(), endPosition.getX() - startPos.getX()))), Math.round(angle), 360)) < 90) {
+				rail.getSignalColors().forEach(detectedColors::add);
+				minecraftClientData.railIdToBlockedSignalColors.getOrDefault(rail.getHexId(), new LongArrayList()).forEach(color -> occupiedColors.add((int) color));
 			}
+		});
 
-			if (isSingleSided) {
-				break;
-			}
-		}
-
-		graphicsHolder.pop();
+		Collections.sort(detectedColors);
+		return new ObjectObjectImmutablePair<>(detectedColors, occupiedColors);
 	}
 
-	protected abstract void render(GraphicsHolder graphicsHolder, T entity, float tickDelta, Direction facing, int occupiedAspect, boolean isBackSide);
-
-	private int getOccupiedAspect(BlockPos startPos, float facing) {
-		return 0; // TODO
-	}
-
-	private static BlockPos getNodePos(World world, BlockPos pos, Direction facing) {
+	private static BlockPos getNodePos(ClientWorld world, BlockPos pos, Direction facing) {
 		final int[] checkDistance = {0, 1, -1, 2, -2, 3, -3, 4, -4};
 		for (final int z : checkDistance) {
 			for (final int x : checkDistance) {

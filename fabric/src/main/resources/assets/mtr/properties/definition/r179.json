@@ -1,0 +1,200 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window",
+			"positions": [
+				{
+					"z": -80
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 80
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -80
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 80
+				}
+			]
+		},
+		{
+			"name": "roofHandle",
+			"positions": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "windowDisplay1",
+			"positions": [
+				{
+					"z": 80
+				}
+			]
+		},
+		{
+			"name": "windowDisplay2",
+			"positions": [
+				{
+					"z": -80
+				}
+			]
+		},
+		{
+			"name": "windowDisplay2Flipped",
+			"positionsFlipped": [
+				{
+					"z": -80
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"z": -40
+				},
+				{
+					"z": 40
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -40
+				},
+				{
+					"z": 40
+				}
+			]
+		},
+		{
+			"name": "doorEnd",
+			"positions": [
+				{
+					"z": -120
+				},
+				{
+					"z": 120
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -120
+				},
+				{
+					"z": 120
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -144
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -144
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 144
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 144
+				}
+			]
+		},
+		{
+			"name": "sidePanel",
+			"positions": [
+				{
+					"z": -107
+				},
+				{
+					"z": -53
+				},
+				{
+					"z": -27
+				},
+				{
+					"z": 27
+				},
+				{
+					"z": 53
+				},
+				{
+					"z": 107
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -107
+				},
+				{
+					"z": -53
+				},
+				{
+					"z": -27
+				},
+				{
+					"z": 27
+				},
+				{
+					"z": 53
+				},
+				{
+					"z": 107
+				}
+			]
+		},
+		{
+			"name": "sidePanelEnd1",
+			"positions": [
+				{
+					"z": -133
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -133
+				}
+			]
+		},
+		{
+			"name": "sidePanelEnd2",
+			"positions": [
+				{
+					"z": 133
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 133
+				}
+			]
+		}
+	]
+}

@@ -3,7 +3,6 @@ package org.mtr.mod.data;
 import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
-import org.mtr.mapping.holder.World;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.packet.PacketFetchArrivals;
 
@@ -15,13 +14,17 @@ public final class ArrivalsCacheClient extends ArrivalsCache {
 
 	public static final ArrivalsCacheClient INSTANCE = new ArrivalsCacheClient();
 
+	private ArrivalsCacheClient() {
+		super(3000);
+	}
+
 	@Override
 	public long getMillisOffset() {
 		return millisOffset;
 	}
 
 	@Override
-	protected void requestArrivalsFromServer(World world, LongAVLTreeSet platformIds, Consumer<ObjectList<ArrivalResponse>> callback) {
+	protected void requestArrivalsFromServer(LongAVLTreeSet platformIds, Consumer<ObjectList<ArrivalResponse>> callback) {
 		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketFetchArrivals(platformIds, (responseTime, arrivalResponseList) -> {
 			if (responseTime > 0) {
 				millisOffset = responseTime - System.currentTimeMillis();

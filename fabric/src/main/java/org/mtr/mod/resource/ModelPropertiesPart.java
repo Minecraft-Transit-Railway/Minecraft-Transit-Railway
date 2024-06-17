@@ -12,6 +12,7 @@ import org.mtr.mapping.holder.Vector3d;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mapping.mapper.OptimizedModel;
+import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.Init;
 import org.mtr.mod.MutableBox;
 import org.mtr.mod.client.CustomResourceLoader;
@@ -20,7 +21,6 @@ import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.generated.resource.ModelPropertiesPartSchema;
 import org.mtr.mod.render.RenderTrains;
-import org.mtr.mod.render.RenderVehicles;
 import org.mtr.mod.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
@@ -156,7 +156,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			switch (type) {
 				case NORMAL:
 					final ObjectIntImmutablePair<RenderTrains.QueuedRenderLayer> renderProperties = getRenderProperties(renderStage, light, vehicle);
-					if (RenderVehicles.useOptimizedRendering()) {
+					if (OptimizedRenderer.hasOptimizedRendering()) {
 						RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> renderNormal(storedMatrixTransformations, vehicle, renderProperties, openDoorways, light, graphicsHolder, offset));
 					} else {
 						RenderTrains.scheduleRender(texture, false, renderProperties.left(), (graphicsHolder, offset) -> renderNormal(storedMatrixTransformations, vehicle, renderProperties, openDoorways, light, graphicsHolder, offset));
@@ -180,13 +180,17 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			partDetailsList.forEach(partDetails -> {
 				final double x = doorAnimationType.getDoorAnimationX(doorXMultiplier, partDetails.flipped, time) / 16;
 				final double z = doorAnimationType.getDoorAnimationZ(doorZMultiplier, partDetails.flipped, time, true) / 16;
+				final Box box = partDetails.box;
+				final float xOffset = box.getMinXMapped() == box.getMaxXMapped() ? 0.1F : 0;
+				final float yOffset = box.getMinYMapped() == box.getMaxYMapped() ? 0.1F : 0;
+				final float zOffset = box.getMinZMapped() == box.getMaxZMapped() ? 0.1F : 0;
 				boxes.add(new Box(
-						partDetails.box.getMinXMapped() + x,
-						partDetails.box.getMinYMapped(),
-						partDetails.box.getMinZMapped() + z,
-						partDetails.box.getMaxXMapped() + x,
-						partDetails.box.getMaxYMapped(),
-						partDetails.box.getMaxZMapped() + z
+						box.getMinXMapped() - xOffset + x,
+						box.getMinYMapped() - yOffset,
+						box.getMinZMapped() - zOffset + z,
+						box.getMaxXMapped() + xOffset + x,
+						box.getMaxYMapped() + yOffset,
+						box.getMaxZMapped() + zOffset + z
 				));
 			});
 		}
@@ -228,7 +232,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			final float y = (float) partDetails.y;
 			final float z = (float) (partDetails.z + (vehicle == null ? 0 : doorAnimationType.getDoorAnimationZ(doorZMultiplier, partDetails.flipped, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0, vehicle.vehicleExtraData.getDoorMultiplier() > 0)));
 
-			if (RenderVehicles.useOptimizedRendering()) {
+			if (OptimizedRenderer.hasOptimizedRendering()) {
 				// If doors are open, only render the optimized door parts
 				// Otherwise, the main model already includes closed doors
 				if (!openDoorways.isEmpty() && partDetails.optimizedModelDoor != null) {

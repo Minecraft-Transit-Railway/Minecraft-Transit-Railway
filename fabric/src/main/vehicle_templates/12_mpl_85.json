@@ -1,0 +1,196 @@
+{
+	"replacements": {
+		"lengths": [
+			22
+		],
+		"id": [
+			"mpl_85"
+		]
+	},
+	"vehicles": [
+		{
+			"id": "mpl_85_trailer",
+			"name": "MPL 85 (Trailer)",
+			"color": "EF7011",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MPL_85",
+			"tags": [
+				"family:mpl_85",
+				"iso_3166:FR",
+				"doors:3",
+				"type:trailer"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/mpl_85.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mpl_85.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mpl_85.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mpl_85.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"legacySpeedSoundBaseResource": "mpl_85",
+			"legacySpeedSoundCount": 48,
+			"legacyDoorSoundBaseResource": "mpl_85",
+			"legacyDoorCloseSoundTime": 1
+		},
+		{
+			"id": "mpl_85_cab_1",
+			"name": "MPL 85 (Forwards)",
+			"color": "EF7011",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MPL_85",
+			"tags": [
+				"family:mpl_85",
+				"iso_3166:FR",
+				"doors:3",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/mpl_85.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mpl_85.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mpl_85.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mpl_85.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"legacySpeedSoundBaseResource": "mpl_85",
+			"legacySpeedSoundCount": 48,
+			"legacyDoorSoundBaseResource": "mpl_85",
+			"legacyDoorCloseSoundTime": 1
+		},
+		{
+			"id": "mpl_85_cab_2",
+			"name": "MPL 85 (Backwards)",
+			"color": "EF7011",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MPL_85",
+			"tags": [
+				"family:mpl_85",
+				"iso_3166:FR",
+				"doors:3",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/mpl_85.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mpl_85.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mpl_85.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mpl_85.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"legacySpeedSoundBaseResource": "mpl_85",
+			"legacySpeedSoundCount": 48,
+			"legacyDoorSoundBaseResource": "mpl_85",
+			"legacyDoorCloseSoundTime": 1
+		},
+		{
+			"id": "mpl_85_cab_3",
+			"name": "MPL 85 (Double)",
+			"color": "EF7011",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MPL_85",
+			"tags": [
+				"family:mpl_85",
+				"iso_3166:FR",
+				"doors:3",
+				"type:cab_3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/mpl_85.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mpl_85.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mpl_85.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mpl_85.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"legacySpeedSoundBaseResource": "mpl_85",
+			"legacySpeedSoundCount": 48,
+			"legacyDoorSoundBaseResource": "mpl_85",
+			"legacyDoorCloseSoundTime": 1
+		}
+	]
+}

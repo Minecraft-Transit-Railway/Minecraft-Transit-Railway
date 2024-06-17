@@ -19,15 +19,17 @@ public final class WorkerThread extends CustomThread {
 	private OcclusionCullingInstance occlusionCullingInstance;
 	private final ObjectArrayList<Consumer<OcclusionCullingInstance>> occlusionQueue1 = new ObjectArrayList<>();
 	private final ObjectArrayList<Consumer<OcclusionCullingInstance>> occlusionQueue2 = new ObjectArrayList<>();
+	private final ObjectArrayList<Consumer<OcclusionCullingInstance>> occlusionQueue3 = new ObjectArrayList<>();
 	private final ObjectArrayList<Runnable> queue = new ObjectArrayList<>();
 
 	@Override
 	protected void runTick() {
-		if (!occlusionQueue1.isEmpty() || !occlusionQueue2.isEmpty()) {
+		if (!occlusionQueue1.isEmpty() || !occlusionQueue2.isEmpty() || !occlusionQueue3.isEmpty()) {
 			updateInstance();
 			occlusionCullingInstance.resetCache();
 			run(occlusionQueue1, task -> task.accept(occlusionCullingInstance));
 			run(occlusionQueue2, task -> task.accept(occlusionCullingInstance));
+			run(occlusionQueue3, task -> task.accept(occlusionCullingInstance));
 		}
 
 		run(queue, Runnable::run);
@@ -44,19 +46,20 @@ public final class WorkerThread extends CustomThread {
 		}
 	}
 
-	public void scheduleRails(Consumer<OcclusionCullingInstance> consumer) {
+	public void scheduleLifts(Consumer<OcclusionCullingInstance> consumer) {
 		if (occlusionQueue2.size() < 2) {
 			occlusionQueue2.add(consumer);
 		}
 	}
 
-	public boolean scheduleDynamicTextures(Runnable runnable) {
-		if (occlusionQueue2.size() < 2) {
-			queue.add(runnable);
-			return true;
-		} else {
-			return false;
+	public void scheduleRails(Consumer<OcclusionCullingInstance> consumer) {
+		if (occlusionQueue3.size() < 2) {
+			occlusionQueue3.add(consumer);
 		}
+	}
+
+	public void scheduleDynamicTextures(Runnable runnable) {
+		queue.add(runnable);
 	}
 
 	private void updateInstance() {

@@ -4,8 +4,6 @@ import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Utilities;
 import org.mtr.legacy.resource.CustomResourcesConverter;
 import org.mtr.libraries.com.google.gson.JsonElement;
-import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
@@ -14,12 +12,11 @@ import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.Keys;
+import org.mtr.mod.config.Config;
 import org.mtr.mod.resource.*;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.function.Consumer;
@@ -31,6 +28,7 @@ public class CustomResourceLoader {
 	public static final OptimizedRendererWrapper OPTIMIZED_RENDERER_WRAPPER = new OptimizedRendererWrapper();
 	public static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
 	public static final String DEFAULT_RAIL_ID = "default";
+	public static final String DEFAULT_RAIL_3D_ID = "default_3d";
 
 	private static final Object2ObjectAVLTreeMap<String, JsonElement> RESOURCE_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, ObjectArrayList<VehicleResource>> VEHICLES = new Object2ObjectAVLTreeMap<>();
@@ -64,7 +62,7 @@ public class CustomResourceLoader {
 
 		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_ID + ".json"), inputStream -> {
 			try {
-				final CustomResources customResources = CustomResourcesConverter.convert(readResource(inputStream).getAsJsonObject());
+				final CustomResources customResources = CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject());
 				customResources.iterateVehicles(vehicleResource -> {
 					VEHICLES.get(vehicleResource.getTransportMode()).add(vehicleResource);
 					VEHICLES_CACHE.get(vehicleResource.getTransportMode()).put(vehicleResource.getId(), vehicleResource);
@@ -144,7 +142,7 @@ public class CustomResourceLoader {
 			if (jsonElement == null) {
 				if (Keys.DEBUG) {
 					try (final InputStream inputStream = Files.newInputStream(MinecraftClient.getInstance().getRunDirectoryMapped().toPath().resolve("../src/main/resources/assets").resolve(identifier.getNamespace()).resolve(identifier.getPath()), StandardOpenOption.READ)) {
-						final JsonElement newJsonElement = readResource(inputStream);
+						final JsonElement newJsonElement = Config.readResource(inputStream);
 						consumer.accept(newJsonElement);
 						RESOURCE_CACHE.put(identifierString, newJsonElement);
 					} catch (Exception e) {
@@ -152,7 +150,7 @@ public class CustomResourceLoader {
 					}
 				} else {
 					ResourceManagerHelper.readResource(identifier, inputStream -> {
-						final JsonElement newJsonElement = readResource(inputStream);
+						final JsonElement newJsonElement = Config.readResource(inputStream);
 						consumer.accept(newJsonElement);
 						RESOURCE_CACHE.put(identifierString, newJsonElement);
 					});
@@ -160,15 +158,6 @@ public class CustomResourceLoader {
 			} else {
 				consumer.accept(jsonElement);
 			}
-		}
-	}
-
-	public static JsonElement readResource(InputStream inputStream) {
-		try (final InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-			return JsonParser.parseReader(inputStreamReader);
-		} catch (Exception e) {
-			Init.LOGGER.error("", e);
-			return new JsonObject();
 		}
 	}
 

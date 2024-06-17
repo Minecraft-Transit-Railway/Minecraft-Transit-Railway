@@ -24,7 +24,7 @@ public class LiftTrackFloorScreen extends ScreenExtension implements IGui {
 	private static final MutableText TEXT_FLOOR_DESCRIPTION = TextHelper.translatable("gui.mtr.lift_floor_description");
 	private static final int TEXT_FIELD_WIDTH = 240;
 
-	public LiftTrackFloorScreen(BlockPos blockPos) {
+	public LiftTrackFloorScreen(BlockPos blockPos, BlockLiftTrackFloor.BlockEntity blockEntity) {
 		super();
 		this.blockPos = blockPos;
 
@@ -40,16 +40,9 @@ public class LiftTrackFloorScreen extends ScreenExtension implements IGui {
 			initialFloorDescription = "";
 			initialShouldDing = false;
 		} else {
-			final BlockEntity blockEntity = clientWorld.getBlockEntity(blockPos);
-			if (blockEntity != null && blockEntity.data instanceof BlockLiftTrackFloor.BlockEntity) {
-				initialFloorNumber = ((BlockLiftTrackFloor.BlockEntity) blockEntity.data).getFloorNumber();
-				initialFloorDescription = ((BlockLiftTrackFloor.BlockEntity) blockEntity.data).getFloorDescription();
-				initialShouldDing = ((BlockLiftTrackFloor.BlockEntity) blockEntity.data).getShouldDing();
-			} else {
-				initialFloorNumber = "1";
-				initialFloorDescription = "";
-				initialShouldDing = false;
-			}
+			initialFloorNumber = blockEntity.getFloorNumber();
+			initialFloorDescription = blockEntity.getFloorDescription();
+			initialShouldDing = blockEntity.getShouldDing();
 		}
 
 		textWidth = Math.max(GraphicsHolder.getTextWidth(TEXT_FLOOR_NUMBER), GraphicsHolder.getTextWidth(TEXT_FLOOR_DESCRIPTION));

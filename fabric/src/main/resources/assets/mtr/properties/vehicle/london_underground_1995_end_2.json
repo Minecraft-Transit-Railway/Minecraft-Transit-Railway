@@ -152,8 +152,8 @@
 				"doorEnd2"
 			],
 			"renderStage": "INTERIOR",
-			"doorZMultiplier": -12,
-			"doorAnimationType": "NORMAL"
+			"doorZMultiplier": 12,
+			"doorAnimationType": "STANDARD"
 		},
 		{
 			"names": [
@@ -164,7 +164,7 @@
 			],
 			"renderStage": "INTERIOR",
 			"doorZMultiplier": -12,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "STANDARD"
 		},
 		{
 			"names": [
@@ -192,8 +192,8 @@
 				"doorEnd2"
 			],
 			"renderStage": "EXTERIOR",
-			"doorZMultiplier": -12,
-			"doorAnimationType": "NORMAL"
+			"doorZMultiplier": 12,
+			"doorAnimationType": "STANDARD"
 		},
 		{
 			"names": [
@@ -204,7 +204,7 @@
 			],
 			"renderStage": "EXTERIOR",
 			"doorZMultiplier": -12,
-			"doorAnimationType": "NORMAL"
+			"doorAnimationType": "STANDARD"
 		}
 	],
 	"modelYOffset": 1

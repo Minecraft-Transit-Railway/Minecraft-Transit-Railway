@@ -69,14 +69,14 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 			} else {
 				InitClient.findClosePlatform(entity.getPos2().down(4), 5, platform -> platformIds.add(platform.getId()));
 			}
-			getArrivalsAndRender(entity, world, blockPos, facing, platformIds);
+			getArrivalsAndRender(entity, blockPos, facing, platformIds);
 		} else {
-			getArrivalsAndRender(entity, world, blockPos, facing, entity.getPlatformIds());
+			getArrivalsAndRender(entity, blockPos, facing, entity.getPlatformIds());
 		}
 	}
 
-	private void getArrivalsAndRender(T entity, World world, BlockPos blockPos, Direction facing, LongCollection platformIds) {
-		final ObjectArrayList<ArrivalResponse> arrivalResponseList = ArrivalsCacheClient.INSTANCE.requestArrivals(world, platformIds);
+	private void getArrivalsAndRender(T entity, BlockPos blockPos, Direction facing, LongCollection platformIds) {
+		final ObjectArrayList<ArrivalResponse> arrivalResponseList = ArrivalsCacheClient.INSTANCE.requestArrivals(platformIds);
 		RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
 			render(entity, blockPos, facing, arrivalResponseList, graphicsHolder, offset);
 			if (entity instanceof BlockPIDSHorizontalBase.BlockEntityHorizontalBase) {

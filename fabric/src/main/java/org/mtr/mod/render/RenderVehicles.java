@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class RenderVehicles implements IGui {
 
-	public static void render(long millisElapsed) {
+	public static void render(long millisElapsed, Vector3d cameraShakeOffset) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
 		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
@@ -44,7 +44,7 @@ public class RenderVehicles implements IGui {
 			// Calculating vehicle transformations in advance
 			final ObjectArrayList<RenderVehicleHelper.VehicleProperties> vehiclePropertiesList = RenderVehicleHelper.getTransformedVehiclePropertiesList(vehicle, vehicle.getVehicleCarsAndPositions().stream()
 					.map(vehicleCarAndPosition -> new RenderVehicleHelper.VehicleProperties(vehicleCarAndPosition, !vehicle.getTransportMode().hasPitchAscending && !vehicle.getTransportMode().hasPitchDescending))
-					.collect(Collectors.toCollection(ObjectArrayList::new)));
+					.collect(Collectors.toCollection(ObjectArrayList::new)), cameraShakeOffset);
 
 			// Iterate all cars of a vehicle
 			iterateWithIndex(vehiclePropertiesList, (carNumber, vehicleProperties) -> {
@@ -71,10 +71,10 @@ public class RenderVehicles implements IGui {
 						// Render each bogie of the car
 						iterateWithIndex(vehicleProperties.bogiePositionsList, (bogieIndex, bogiePositions) -> {
 							final RenderVehicleTransformationHelper renderVehicleTransformationHelperBogie = new RenderVehicleTransformationHelper(bogiePositions, vehicleProperties.averageAbsoluteBogiePositionsList.get(bogieIndex), renderVehicleTransformationHelperOffset);
-							if (useOptimizedRendering()) {
-								RenderVehicleHelper.renderModel(renderVehicleTransformationHelperBogie, storedMatrixTransformations -> vehicleResource.queueBogie(bogieIndex, storedMatrixTransformations, vehicle, renderVehicleTransformationHelperBogie.light));
+							if (OptimizedRenderer.hasOptimizedRendering()) {
+								RenderVehicleHelper.renderModel(renderVehicleTransformationHelperBogie, 0, storedMatrixTransformations -> vehicleResource.queueBogie(bogieIndex, storedMatrixTransformations, vehicle, renderVehicleTransformationHelperBogie.light));
 							} else {
-								vehicleResource.iterateBogieModels(bogieIndex, model -> RenderVehicleHelper.renderModel(renderVehicleTransformationHelperBogie, storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperBogie.light, new ObjectArrayList<>())));
+								vehicleResource.iterateBogieModels(bogieIndex, model -> RenderVehicleHelper.renderModel(renderVehicleTransformationHelperBogie, 0, storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperBogie.light, new ObjectArrayList<>())));
 							}
 
 							// Play motor sound
@@ -90,6 +90,7 @@ public class RenderVehicles implements IGui {
 						final GangwayMovementPositions gangwayMovementPositions2 = new GangwayMovementPositions(renderVehicleTransformationHelperAbsolute, true);
 						// Find open doorways (close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates)
 						final ObjectArrayList<Box> openDoorways = !vehicle.getTransportMode().continuousMovement && vehicle.isMoving() || !vehicle.persistentVehicleData.checkCanOpenDoors() ? new ObjectArrayList<>() : vehicleResource.doorways.stream().filter(doorway -> RenderVehicleHelper.canOpenDoors(doorway, renderVehicleTransformationHelperAbsolute, vehicle.persistentVehicleData.getDoorValue())).collect(Collectors.toCollection(ObjectArrayList::new));
+						final double oscillationAmount = vehicle.persistentVehicleData.getOscillation(carNumber).getAmount();
 
 						if (canRide) {
 							vehicleResource.floors.forEach(floor -> {
@@ -115,8 +116,8 @@ public class RenderVehicles implements IGui {
 						}
 
 						// Each car can have more than one model defined
-						RenderVehicleHelper.renderModel(renderVehicleTransformationHelperOffset, storedMatrixTransformations -> {
-							if (useOptimizedRendering()) {
+						RenderVehicleHelper.renderModel(renderVehicleTransformationHelperOffset, oscillationAmount, storedMatrixTransformations -> {
+							if (OptimizedRenderer.hasOptimizedRendering()) {
 								vehicleResource.queue(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperAbsolute.light, openDoorways);
 							}
 
@@ -149,6 +150,7 @@ public class RenderVehicles implements IGui {
 										model.modelProperties.getGangwayHeight(),
 										model.modelProperties.getGangwayYOffset(),
 										model.modelProperties.getGangwayZOffset(),
+										oscillationAmount,
 										vehicle.getIsOnRoute()
 								);
 
@@ -170,6 +172,7 @@ public class RenderVehicles implements IGui {
 										model.modelProperties.getBarrierHeight(),
 										model.modelProperties.getBarrierYOffset(),
 										model.modelProperties.getBarrierZOffset(),
+										oscillationAmount,
 										vehicle.getIsOnRoute()
 								);
 							});
@@ -205,15 +208,13 @@ public class RenderVehicles implements IGui {
 			});
 		});
 
-		RenderTrains.WORKER_THREAD.scheduleVehicles(occlusionCullingInstance -> {
-			final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
-			cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
-			minecraftClient.execute(() -> tasks.forEach(Runnable::run));
-		});
-	}
-
-	public static boolean useOptimizedRendering() {
-		return Config.useDynamicFPS() && OptimizedRenderer.hasOptimizedRendering();
+		if (!OptimizedRenderer.renderingShadows()) {
+			RenderTrains.WORKER_THREAD.scheduleVehicles(occlusionCullingInstance -> {
+				final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
+				cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
+				minecraftClient.execute(() -> tasks.forEach(Runnable::run));
+			});
+		}
 	}
 
 	private static void renderConnection(
@@ -225,7 +226,7 @@ public class RenderVehicles implements IGui {
 			@Nullable Identifier outerTopTexture,
 			@Nullable Identifier outerBottomTexture,
 			RenderVehicleTransformationHelper renderVehicleTransformationHelper,
-			double vehicleLength, double width, double height, double yOffset, double zOffset, boolean isOnRoute
+			double vehicleLength, double width, double height, double yOffset, double zOffset, double oscillationAmount, boolean isOnRoute
 	) {
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 		if (clientWorld == null) {
@@ -233,12 +234,13 @@ public class RenderVehicles implements IGui {
 		}
 
 		final double halfLength = vehicleLength / 2;
+		final double newOscillationAmount = -Math.toRadians(oscillationAmount);
 
 		if (shouldRender1 && previousConnectionPositions.isValid()) {
-			final Vector position1 = renderVehicleTransformationHelper.transformForwards(new Vector(-width / 2, yOffset + SMALL_OFFSET, zOffset - halfLength), Vector::rotateX, Vector::rotateY, Vector::add);
-			final Vector position2 = renderVehicleTransformationHelper.transformForwards(new Vector(-width / 2, height + yOffset + SMALL_OFFSET, zOffset - halfLength), Vector::rotateX, Vector::rotateY, Vector::add);
-			final Vector position3 = renderVehicleTransformationHelper.transformForwards(new Vector(width / 2, height + yOffset + SMALL_OFFSET, zOffset - halfLength), Vector::rotateX, Vector::rotateY, Vector::add);
-			final Vector position4 = renderVehicleTransformationHelper.transformForwards(new Vector(width / 2, yOffset + SMALL_OFFSET, zOffset - halfLength), Vector::rotateX, Vector::rotateY, Vector::add);
+			final Vector position1 = renderVehicleTransformationHelper.transformForwards(new Vector(-width / 2, yOffset + SMALL_OFFSET, zOffset - halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::add);
+			final Vector position2 = renderVehicleTransformationHelper.transformForwards(new Vector(-width / 2, height + yOffset + SMALL_OFFSET, zOffset - halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::add);
+			final Vector position3 = renderVehicleTransformationHelper.transformForwards(new Vector(width / 2, height + yOffset + SMALL_OFFSET, zOffset - halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::add);
+			final Vector position4 = renderVehicleTransformationHelper.transformForwards(new Vector(width / 2, yOffset + SMALL_OFFSET, zOffset - halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::add);
 
 			final Vector position5 = previousConnectionPositions.position1;
 			final Vector position6 = previousConnectionPositions.position2;
@@ -282,10 +284,10 @@ public class RenderVehicles implements IGui {
 		}
 
 		if (shouldRender2) {
-			previousConnectionPositions.position1 = renderVehicleTransformationHelper.transformForwards(new Vector(width / 2, yOffset + SMALL_OFFSET, -zOffset + halfLength), Vector::rotateX, Vector::rotateY, Vector::add);
-			previousConnectionPositions.position2 = renderVehicleTransformationHelper.transformForwards(new Vector(width / 2, height + yOffset + SMALL_OFFSET, -zOffset + halfLength), Vector::rotateX, Vector::rotateY, Vector::add);
-			previousConnectionPositions.position3 = renderVehicleTransformationHelper.transformForwards(new Vector(-width / 2, height + yOffset + SMALL_OFFSET, -zOffset + halfLength), Vector::rotateX, Vector::rotateY, Vector::add);
-			previousConnectionPositions.position4 = renderVehicleTransformationHelper.transformForwards(new Vector(-width / 2, yOffset + SMALL_OFFSET, -zOffset + halfLength), Vector::rotateX, Vector::rotateY, Vector::add);
+			previousConnectionPositions.position1 = renderVehicleTransformationHelper.transformForwards(new Vector(width / 2, yOffset + SMALL_OFFSET, -zOffset + halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::add);
+			previousConnectionPositions.position2 = renderVehicleTransformationHelper.transformForwards(new Vector(width / 2, height + yOffset + SMALL_OFFSET, -zOffset + halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::add);
+			previousConnectionPositions.position3 = renderVehicleTransformationHelper.transformForwards(new Vector(-width / 2, height + yOffset + SMALL_OFFSET, -zOffset + halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::add);
+			previousConnectionPositions.position4 = renderVehicleTransformationHelper.transformForwards(new Vector(-width / 2, yOffset + SMALL_OFFSET, -zOffset + halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::add);
 		} else {
 			previousConnectionPositions.position1 = null;
 			previousConnectionPositions.position2 = null;

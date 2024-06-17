@@ -35,6 +35,61 @@ public final class VehicleResource extends VehicleResourceSchema {
 	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie1;
 	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie2;
 
+	private static final boolean[][] CHRISTMAS_LIGHT_STAGES = {
+			{true, false, false, false},
+			{false, true, false, false},
+			{false, false, true, false},
+			{false, false, false, true},
+			{true, false, false, false},
+			{false, true, false, false},
+			{false, false, true, false},
+			{false, false, false, true},
+
+			{true, true, false, false},
+			{false, true, true, false},
+			{false, false, true, true},
+			{true, false, false, true},
+			{true, true, false, false},
+			{false, true, true, false},
+			{false, false, true, true},
+			{true, false, false, true},
+
+			{true, false, true, false},
+			{false, true, false, true},
+			{true, false, true, false},
+			{false, true, false, true},
+			{true, false, true, false},
+			{false, true, false, true},
+			{true, false, true, false},
+			{false, true, false, true},
+
+			{true, false, false, false},
+			{true, true, false, false},
+			{true, true, true, false},
+			{true, true, true, true},
+			{false, true, false, false},
+			{false, true, true, false},
+			{false, true, true, true},
+			{true, true, true, true},
+			{false, false, true, false},
+			{false, false, true, true},
+			{true, false, true, true},
+			{true, true, true, true},
+			{false, false, false, true},
+			{true, false, false, true},
+			{true, true, false, true},
+			{true, true, true, true},
+
+			{false, false, false, false},
+			{true, true, true, true},
+			{true, true, true, true},
+			{true, true, true, true},
+			{false, false, false, false},
+			{true, true, true, true},
+			{true, true, true, true},
+			{true, true, true, true},
+	};
+
 	public VehicleResource(ReaderBase readerBase, @Nullable ObjectArrayList<VehicleModel> extraModels, @Nullable Box extraFloor, ObjectArraySet<Box> doorways) {
 		super(readerBase);
 		updateData(readerBase);
@@ -199,8 +254,29 @@ public final class VehicleResource extends VehicleResourceSchema {
 			case DOORS_OPENED:
 				return vehicle.persistentVehicleData.getDoorValue() > 0 && !noOpenDoorways;
 			default:
+				return getChristmasLightState(partCondition);
+		}
+	}
+
+	private static boolean getChristmasLightState(PartCondition partCondition) {
+		final int index;
+		switch (partCondition) {
+			case CHRISTMAS_LIGHT_RED:
+				index = 0;
+				break;
+			case CHRISTMAS_LIGHT_YELLOW:
+				index = 1;
+				break;
+			case CHRISTMAS_LIGHT_GREEN:
+				index = 2;
+				break;
+			case CHRISTMAS_LIGHT_BLUE:
+				index = 3;
+				break;
+			default:
 				return true;
 		}
+		return CHRISTMAS_LIGHT_STAGES[(int) ((System.currentTimeMillis() / 500) % CHRISTMAS_LIGHT_STAGES.length)][index];
 	}
 
 	private static void queue(Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, boolean noOpenDoorways) {

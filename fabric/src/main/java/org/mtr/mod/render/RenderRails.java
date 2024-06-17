@@ -3,14 +3,17 @@ package org.mtr.mod.render;
 import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
 import com.logisticscraft.occlusionculling.util.Vec3d;
 import org.mtr.core.data.Rail;
+import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Angle;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mapping.mapper.PlayerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.Items;
@@ -18,10 +21,10 @@ import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.block.BlockPlatform;
 import org.mtr.mod.block.BlockSignalLightBase;
 import org.mtr.mod.block.BlockSignalSemaphoreBase;
-import org.mtr.mod.client.Config;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.config.Config;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.RailType;
 import org.mtr.mod.item.ItemBlockClickingBase;
@@ -46,7 +49,6 @@ public class RenderRails implements IGui {
 	private static final Identifier WOOL_TEXTURE = new Identifier("textures/block/white_wool.png");
 	private static final Identifier ONE_WAY_RAIL_ARROW_TEXTURE = new Identifier(Init.MOD_ID, "textures/block/one_way_rail_arrow.png");
 	private static final int INVALID_NODE_CHECK_RADIUS = 16;
-	private static final int FLASHING_INTERVAL = 1000;
 	private static final ModelSmallCube MODEL_SMALL_CUBE = new ModelSmallCube(new Identifier(Init.MOD_ID, "textures/block/white.png"));
 
 	public static void render() {
@@ -183,17 +185,18 @@ public class RenderRails implements IGui {
 				for (int z = -INVALID_NODE_CHECK_RADIUS; z <= INVALID_NODE_CHECK_RADIUS; z++) {
 					final BlockPos blockPos = clientPlayerEntity.getBlockPos().add(x, y, z);
 					final BlockState blockState = clientWorld.getBlockState(blockPos);
-					renderNode(blockState, blockPos, () -> blockState.get(new Property<>(BlockNode.IS_CONNECTED.data)) && !MinecraftClientData.getInstance().positionsToRail.containsKey(Init.blockPosToPosition(blockPos)), getFlashingLight());
+					renderNode(blockState, blockPos, () -> blockState.get(new Property<>(BlockNode.IS_CONNECTED.data)) && !MinecraftClientData.getInstance().positionsToRail.containsKey(Init.blockPosToPosition(blockPos)), RenderTrains.getFlashingLight());
 				}
 			}
 		}
 
-		// Raytracing
-		RenderTrains.WORKER_THREAD.scheduleRails(occlusionCullingInstance -> {
-			final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
-			cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
-			minecraftClient.execute(() -> tasks.forEach(Runnable::run));
-		});
+		if (!OptimizedRenderer.renderingShadows()) {
+			RenderTrains.WORKER_THREAD.scheduleRails(occlusionCullingInstance -> {
+				final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
+				cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
+				minecraftClient.execute(() -> tasks.forEach(Runnable::run));
+			});
+		}
 	}
 
 	public static boolean isHoldingRailRelated(ClientPlayerEntity clientPlayerEntity) {
@@ -229,11 +232,18 @@ public class RenderRails implements IGui {
 		// Render rail models
 		final boolean[] renderType = {false, false}; // render default rail, rendered something
 		for (final String style : rail.getStyles()) {
-			if (style.equals(CustomResourceLoader.DEFAULT_RAIL_ID)) {
+			final String newStyle;
+			if (OptimizedRenderer.hasOptimizedRendering() && Config.getClient().getDefaultRail3D() && rail.getTransportMode() == TransportMode.TRAIN) {
+				newStyle = style.equals(CustomResourceLoader.DEFAULT_RAIL_ID) ? CustomResourceLoader.DEFAULT_RAIL_3D_ID : style;
+			} else {
+				newStyle = style;
+			}
+
+			if (newStyle.equals(CustomResourceLoader.DEFAULT_RAIL_ID)) {
 				renderType[0] = true;
 			} else {
-				final boolean flip = style.endsWith("_2");
-				CustomResourceLoader.getRailById(RailResource.getIdWithoutDirection(style), railResource -> rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+				final boolean flip = newStyle.endsWith("_2");
+				CustomResourceLoader.getRailById(RailResource.getIdWithoutDirection(newStyle), railResource -> rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 					final BlockPos blockPos = Init.newBlockPos(x1, y1, z1);
 					final int light = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
 					final double differenceX = x3 - x1;
@@ -244,6 +254,7 @@ public class RenderRails implements IGui {
 					storedMatrixTransformations.add(graphicsHolder -> {
 						graphicsHolder.rotateYRadians((float) (Math.PI / 2 - yaw + (flip ? Math.PI : 0)));
 						graphicsHolder.rotateXRadians((float) (Math.PI - pitch * (flip ? -1 : 1)));
+						graphicsHolder.rotateZDegrees((float) ((x1 * z1) % 10) / 100);
 					});
 					railResource.render(storedMatrixTransformations, light);
 					renderType[1] = true;
@@ -257,8 +268,8 @@ public class RenderRails implements IGui {
 			final Identifier texture = renderType[1] && !renderType[0] ? IRON_BLOCK_TEXTURE : defaultTexture;
 			rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 				final BlockPos blockPos = Init.newBlockPos(x1, y1, z1);
-				final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F + (float) Config.trackTextureOffset() / Config.TRACK_OFFSET_COUNT;
-				final int light = renderState == RenderState.FLASHING ? getFlashingLight() : renderState == RenderState.COLORED ? GraphicsHolder.getDefaultLight() : LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
+				final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F;
+				final int light = renderState == RenderState.FLASHING ? RenderTrains.getFlashingLight() : renderState == RenderState.COLORED ? GraphicsHolder.getDefaultLight() : LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
 				RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 					IDrawing.drawTexture(graphicsHolder, x1, y1 + yOffset, z1, x2, y1 + yOffset + SMALL_OFFSET, z2, x3, y2 + yOffset, z3, x4, y2 + yOffset + SMALL_OFFSET, z4, offset, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light);
 					IDrawing.drawTexture(graphicsHolder, x2, y1 + yOffset + SMALL_OFFSET, z2, x1, y1 + yOffset, z1, x4, y2 + yOffset + SMALL_OFFSET, z4, x3, y2 + yOffset, z3, offset, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light);
@@ -271,19 +282,21 @@ public class RenderRails implements IGui {
 		final IntArrayList colors = new IntArrayList(rail.getSignalColors());
 		Collections.sort(colors);
 		final float width = 1F / 16;
+		final LongArrayList blockedSignalColors = MinecraftClientData.getInstance().railIdToBlockedSignalColors.getOrDefault(rail.getHexId(), new LongArrayList());
 
 		for (int i = 0; i < colors.size(); i++) {
-			final int color = ARGB_BLACK | colors.getInt(i);
-			final boolean shouldGlow = false; // TODO
+			final int rawColor = colors.getInt(i);
+			final int color = ARGB_BLACK | rawColor;
+			final boolean shouldFlash = blockedSignalColors.contains(rawColor);
 			final float u1 = width * i + 1 - width * colors.size() / 2;
 			final float u2 = u1 + width;
 
 			rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 				final BlockPos blockPos = Init.newBlockPos(x1, y1, z1);
-				final int light = shouldGlow ? GraphicsHolder.getDefaultLight() : LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
-				RenderTrains.scheduleRender(shouldGlow ? WHITE_TEXTURE : WOOL_TEXTURE, false, shouldGlow ? RenderTrains.QueuedRenderLayer.LIGHT : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
-					IDrawing.drawTexture(graphicsHolder, x1, y1, z1, x2, y1 + SMALL_OFFSET, z2, x3, y2, z3, x4, y2 + SMALL_OFFSET, z4, offset, u1, 0, u2, 1, Direction.UP, color, light);
-					IDrawing.drawTexture(graphicsHolder, x4, y2 + SMALL_OFFSET, z4, x3, y2, z3, x2, y1 + SMALL_OFFSET, z2, x1, y1, z1, offset, u1, 0, u2, 1, Direction.UP, color, light);
+				final int light = shouldFlash ? RenderTrains.getFlashingLight() : LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
+				RenderTrains.scheduleRender(WOOL_TEXTURE, false, shouldFlash ? RenderTrains.QueuedRenderLayer.EXTERIOR : RenderTrains.QueuedRenderLayer.LIGHT, (graphicsHolder, offset) -> {
+					IDrawing.drawTexture(graphicsHolder, x1, y1 + 0.125, z1, x2, y1 + 0.125 + SMALL_OFFSET, z2, x3, y2 + 0.125, z3, x4, y2 + 0.125 + SMALL_OFFSET, z4, offset, u1, 0, u2, 1, Direction.UP, color, light);
+					IDrawing.drawTexture(graphicsHolder, x4, y2 + 0.125 + SMALL_OFFSET, z4, x3, y2 + 0.125, z3, x2, y1 + 0.125 + SMALL_OFFSET, z2, x1, y1 + 0.125, z1, offset, u1, 0, u2, 1, Direction.UP, color, light);
 				});
 			}, 1, u1 - 1, u2 - 1);
 		}
@@ -310,11 +323,6 @@ public class RenderRails implements IGui {
 			}
 		}
 		return ItemStack.getEmptyMapped();
-	}
-
-	private static int getFlashingLight() {
-		final int light = (int) Math.round((Math.sin(Math.PI * 2 * (System.currentTimeMillis() % FLASHING_INTERVAL) / FLASHING_INTERVAL) + 1) / 2 * 0xF);
-		return LightmapTextureManager.pack(light, light);
 	}
 
 	private enum RenderState {

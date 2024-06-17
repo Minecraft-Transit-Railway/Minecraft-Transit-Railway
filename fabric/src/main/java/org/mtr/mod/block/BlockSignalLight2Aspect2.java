@@ -20,10 +20,10 @@ public class BlockSignalLight2Aspect2 extends BlockSignalLightBase {
 		return new BlockEntity(blockPos, blockState);
 	}
 
-	public static class BlockEntity extends BlockEntityExtension {
+	public static class BlockEntity extends BlockSignalBase.BlockEntityBase {
 
 		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.SIGNAL_LIGHT_2_ASPECT_2.get(), pos, state);
+			super(BlockEntityTypes.SIGNAL_LIGHT_2_ASPECT_2.get(), true, pos, state);
 		}
 	}
 }

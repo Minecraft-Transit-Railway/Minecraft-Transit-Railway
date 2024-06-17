@@ -16,7 +16,8 @@ subprojects {
 	}
 
 	dependencies {
-		shadowImplementation "com.github.jonafanho:Shadow-Libraries:master-SNAPSHOT"
+		shadowImplementation "org.mtr:Shadow-Libraries-net:0.0.1"
+		shadowImplementation "org.mtr:Shadow-Libraries-util:0.0.1"
 		shadowImplementation "org.mtr:Minecraft-Mappings-common:0.0.1"
 		shadowImplementation "org.mtr:Transport-Simulation-Core:0.0.1"
 		shadowImplementation "com.logisticscraft:occlusionculling:+"
@@ -29,14 +30,13 @@ subprojects {
 
 	repositories {
 		flatDir { dirs "../libs" }
-		maven { url "https://jitpack.io" }
 		maven { url "https://repo.codemc.org/repository/maven-public" }
 	}
 
 	shadowJar {
 		configurations = [project.configurations.shadowImplementation]
 		minimize {
-			exclude(dependency("com.github.jonafanho.Shadow-Libraries:net:.*"))
+			exclude(dependency("org.mtr:Shadow-Libraries-net:.*"))
 			exclude(dependency("org.mtr:Minecraft-Mappings-common:.*"))
 			exclude(dependency("org.mtr:Minecraft-Mappings-fabric-${minecraftVersion}:.*"))
 			exclude(dependency("org.mtr:Minecraft-Mappings-forge-${minecraftVersion}:.*"))

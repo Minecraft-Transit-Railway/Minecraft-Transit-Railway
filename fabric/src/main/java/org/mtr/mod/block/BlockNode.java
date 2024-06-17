@@ -56,7 +56,7 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 	@Override
 	public BlockState getPlacementState2(ItemPlacementContext ctx) {
 		final int quadrant = Angle.getQuadrant(ctx.getPlayerYaw(), true);
-		return getDefaultState2().with(new Property<>(FACING.data), quadrant % 8 >= 4).with(new Property<>(IS_45.data), quadrant % 4 >= 2).with(new Property<>(IS_22_5.data), quadrant % 2 >= 1).with(new Property<>(IS_CONNECTED.data), false);
+		return getDefaultState2().with(new Property<>(FACING.data), quadrant % 8 >= 4).with(new Property<>(IS_45.data), quadrant % 4 >= 2).with(new Property<>(IS_22_5.data), quadrant % 2 == 1).with(new Property<>(IS_CONNECTED.data), false);
 	}
 
 	@Override
@@ -119,7 +119,7 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 		@Override
 		public BlockState getPlacementState2(ItemPlacementContext ctx) {
 			final int quadrant = Angle.getQuadrant(ctx.getPlayerYaw(), false);
-			return getDefaultState2().with(new Property<>(FACING.data), quadrant % 4 >= 2).with(new Property<>(IS_45.data), quadrant % 2 >= 1).with(new Property<>(IS_22_5.data), false).with(new Property<>(IS_CONNECTED.data), false);
+			return getDefaultState2().with(new Property<>(FACING.data), quadrant % 4 >= 2).with(new Property<>(IS_45.data), quadrant % 2 == 1).with(new Property<>(IS_22_5.data), false).with(new Property<>(IS_CONNECTED.data), false);
 		}
 
 		@Override

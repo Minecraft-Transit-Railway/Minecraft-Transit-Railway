@@ -36,7 +36,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		super(vehicleUpdate.getVehicleExtraData(), null, new JsonReader(Utilities.getJsonObjectFromData(vehicleUpdate.getVehicle())), data);
 		final PersistentVehicleData tempPersistentVehicleData = MinecraftClientData.getInstance().vehicleIdToPersistentVehicleData.get(getId());
 		if (tempPersistentVehicleData == null) {
-			persistentVehicleData = new PersistentVehicleData(vehicleExtraData.immutableVehicleCars);
+			persistentVehicleData = new PersistentVehicleData(vehicleExtraData.immutableVehicleCars, getTransportMode());
 			MinecraftClientData.getInstance().vehicleIdToPersistentVehicleData.put(getId(), persistentVehicleData);
 		} else {
 			persistentVehicleData = tempPersistentVehicleData;
@@ -76,8 +76,9 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		if (VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(id) != null) {
 			// Render client action bar floating text
 			if (VehicleRidingMovement.showShiftProgressBar() && (!isCurrentlyManual || !isHoldingKey(clientPlayerEntity))) {
-				if (speed * MILLIS_PER_SECOND > 5 || thisRouteName.isEmpty() || thisStationName.isEmpty() || thisRouteDestination.isEmpty()) {
-					clientPlayerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr.vehicle_speed", Utilities.round(speed * MILLIS_PER_SECOND, 1), Utilities.round(speed * 3.6F * MILLIS_PER_SECOND, 1)).data), true);
+				final double adjustedSpeed = getAdjustedSpeed();
+				if (adjustedSpeed * MILLIS_PER_SECOND > 5 || thisRouteName.isEmpty() || thisStationName.isEmpty() || thisRouteDestination.isEmpty()) {
+					clientPlayerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr.vehicle_speed", Utilities.round(adjustedSpeed * MILLIS_PER_SECOND, 1), Utilities.round(adjustedSpeed * 3.6F * MILLIS_PER_SECOND, 1)).data), true);
 				} else {
 					final MutableText text;
 					switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {
@@ -195,6 +196,17 @@ public class VehicleExtension extends Vehicle implements Utilities {
 					}
 				}
 			}
+		}
+
+		// Oscillation
+		double totalLength = 0;
+		for (int i = 0; i < vehicleExtraData.immutableVehicleCars.size(); i++) {
+			final int currentIndex = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, oldRailProgress - totalLength);
+			final int carNumber = reversed ? vehicleExtraData.immutableVehicleCars.size() - i - 1 : i;
+			if (railProgress - totalLength >= vehicleExtraData.immutablePath.get(currentIndex).getEndDistance()) {
+				persistentVehicleData.getOscillation(carNumber).startOscillation(speed * 50);
+			}
+			totalLength += vehicleExtraData.immutableVehicleCars.get(carNumber).getLength();
 		}
 	}
 

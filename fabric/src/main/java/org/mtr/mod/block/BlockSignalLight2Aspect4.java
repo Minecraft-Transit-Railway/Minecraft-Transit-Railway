@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
 public class BlockSignalLight2Aspect4 extends BlockSignalLightBase {
 
 	public BlockSignalLight2Aspect4(BlockSettings blockSettings) {
-		super(blockSettings, 3, 16);
+		super(blockSettings, 2, 14);
 	}
 
 	@Nonnull
@@ -20,10 +20,10 @@ public class BlockSignalLight2Aspect4 extends BlockSignalLightBase {
 		return new BlockEntity(blockPos, blockState);
 	}
 
-	public static class BlockEntity extends BlockEntityExtension {
+	public static class BlockEntity extends BlockSignalBase.BlockEntityBase {
 
 		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.SIGNAL_LIGHT_2_ASPECT_4.get(), pos, state);
+			super(BlockEntityTypes.SIGNAL_LIGHT_2_ASPECT_4.get(), true, pos, state);
 		}
 	}
 }

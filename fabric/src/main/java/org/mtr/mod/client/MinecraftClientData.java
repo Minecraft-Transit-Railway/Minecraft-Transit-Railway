@@ -4,6 +4,7 @@ import com.logisticscraft.occlusionculling.util.Vec3d;
 import org.mtr.core.data.Position;
 import org.mtr.core.data.*;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
@@ -25,7 +26,9 @@ public final class MinecraftClientData extends ClientData {
 
 	public final ObjectArraySet<VehicleExtension> vehicles = new ObjectArraySet<>();
 	public final Long2ObjectAVLTreeMap<PersistentVehicleData> vehicleIdToPersistentVehicleData = new Long2ObjectAVLTreeMap<>();
+	public final Long2ObjectAVLTreeMap<LiftWrapper> liftWrapperList = new Long2ObjectAVLTreeMap<>();
 	public final Object2ObjectArrayMap<String, RailWrapper> railWrapperList = new Object2ObjectArrayMap<>();
+	public final Object2ObjectAVLTreeMap<String, LongArrayList> railIdToBlockedSignalColors = new Object2ObjectAVLTreeMap<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
 
 	private static MinecraftClientData instance = new MinecraftClientData();
@@ -46,6 +49,17 @@ public final class MinecraftClientData extends ClientData {
 	public void sync() {
 		super.sync();
 		checkAndRemoveFromMap(vehicleIdToPersistentVehicleData, vehicles, NameColorDataBase::getId);
+
+		checkAndRemoveFromMap(liftWrapperList, lifts, Lift::getId);
+		lifts.forEach(lift -> {
+			final LiftWrapper liftWrapper = liftWrapperList.get(lift.getId());
+			if (liftWrapper == null) {
+				liftWrapperList.put(lift.getId(), new LiftWrapper(lift));
+			} else {
+				liftWrapper.lift = lift;
+			}
+		});
+
 		checkAndRemoveFromMap(railWrapperList, rails, Rail::getHexId);
 		positionsToRail.forEach((startPosition, railMap) -> railMap.forEach((endPosition, rail) -> {
 			final String hexId = rail.getHexId();
@@ -199,6 +213,20 @@ public final class MinecraftClientData extends ClientData {
 			}
 		});
 		idsToRemove.forEach(map::remove);
+	}
+
+	public static class LiftWrapper {
+
+		public boolean shouldRender;
+		private Lift lift;
+
+		private LiftWrapper(Lift lift) {
+			this.lift = lift;
+		}
+
+		public Lift getLift() {
+			return lift;
+		}
 	}
 
 	public static class RailWrapper {

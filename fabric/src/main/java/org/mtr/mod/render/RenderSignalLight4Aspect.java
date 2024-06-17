@@ -1,18 +1,20 @@
 package org.mtr.mod.render;
 
 import org.mtr.mapping.holder.Direction;
-import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mod.Init;
+import org.mtr.mod.block.BlockSignalBase;
 import org.mtr.mod.client.IDrawing;
 
-public class RenderSignalLight4Aspect<T extends BlockEntityExtension> extends RenderSignalBase<T> {
+public class RenderSignalLight4Aspect<T extends BlockSignalBase.BlockEntityBase> extends RenderSignalBase<T> {
 
-	public RenderSignalLight4Aspect(Argument dispatcher, boolean isSingleSided) {
-		super(dispatcher, isSingleSided, 4);
+	public RenderSignalLight4Aspect(Argument dispatcher) {
+		super(dispatcher, 16, 4);
 	}
 
 	@Override
-	protected void render(GraphicsHolder graphicsHolder, T entity, float tickDelta, Direction facing, int occupiedAspect, boolean isBackSide) {
+	protected void render(StoredMatrixTransformations storedMatrixTransformations, T entity, float tickDelta, int occupiedAspect, boolean isBackSide) {
 		final float y;
 		final int color;
 		switch (occupiedAspect) {
@@ -30,9 +32,14 @@ public class RenderSignalLight4Aspect<T extends BlockEntityExtension> extends Re
 				color = 0xFF00FF00;
 				break;
 		}
-		IDrawing.drawTexture(graphicsHolder, -0.09375F, y, -0.19375F, 0.09375F, y + 0.1875F, -0.19375F, facing.getOpposite(), color, GraphicsHolder.getDefaultLight());
-		if (occupiedAspect == 3) {
-			IDrawing.drawTexture(graphicsHolder, -0.09375F, 0.78125F, -0.19375F, 0.09375F, 0.96875F, -0.19375F, facing.getOpposite(), 0xFFFFAA00, GraphicsHolder.getDefaultLight());
-		}
+
+		RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, RenderTrains.QueuedRenderLayer.LIGHT, (graphicsHolder, offset) -> {
+			storedMatrixTransformations.transform(graphicsHolder, offset);
+			IDrawing.drawTexture(graphicsHolder, -0.09375F, y, -0.19375F, 0.09375F, y + 0.1875F, -0.19375F, Direction.UP, color, GraphicsHolder.getDefaultLight());
+			if (occupiedAspect == 3) {
+				IDrawing.drawTexture(graphicsHolder, -0.09375F, 0.78125F, -0.19375F, 0.09375F, 0.96875F, -0.19375F, Direction.UP, 0xFFFFAA00, GraphicsHolder.getDefaultLight());
+			}
+			graphicsHolder.pop();
+		});
 	}
 }

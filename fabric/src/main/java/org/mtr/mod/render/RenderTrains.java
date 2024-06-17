@@ -7,8 +7,14 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.MinecraftClientHelper;
+import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.InitClient;
-import org.mtr.mod.client.*;
+import org.mtr.mod.client.CustomResourceLoader;
+import org.mtr.mod.client.DynamicTextureCache;
+import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.client.VehicleRidingMovement;
+import org.mtr.mod.config.Config;
+import org.mtr.mod.data.ArrivalsCacheClient;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.entity.EntityRendering;
 
@@ -24,6 +30,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 	public static final int PLAYER_RENDER_OFFSET = 1000;
 	public static final WorkerThread WORKER_THREAD = new WorkerThread();
 
+	private static final int FLASHING_INTERVAL = 1000;
 	private static final int TOTAL_RENDER_STAGES = 2;
 	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<BiConsumer<GraphicsHolder, Vector3d>>>>> RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
 	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<BiConsumer<GraphicsHolder, Vector3d>>>>> CURRENT_RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
@@ -50,8 +57,12 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 
 	@Override
 	public void render(EntityRendering entityRendering, float yaw, float tickDelta, GraphicsHolder graphicsHolder, int i) {
-		InitClient.incrementGameMillis();
-		render(graphicsHolder, entityRendering.offset);
+		render(graphicsHolder, entityRendering.getCameraPosVec2(MinecraftClient.getInstance().getTickDelta()));
+	}
+
+	@Override
+	public boolean shouldRender2(EntityRendering entity, Frustum frustum, double x, double y, double z) {
+		return true;
 	}
 
 	@Nonnull
@@ -61,12 +72,23 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 	}
 
 	public static void render(GraphicsHolder graphicsHolder, Vector3d offset) {
-		final long millisElapsed = getMillisElapsed();
-		MinecraftClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
-		MinecraftClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
-		lastRenderedMillis = InitClient.getGameMillis();
-		WORKER_THREAD.start();
-		DynamicTextureCache.instance.tick();
+		final long millisElapsed;
+		if (OptimizedRenderer.renderingShadows()) {
+			if (Config.getClient().getDisableShadowsForShaders()) {
+				return;
+			}
+			millisElapsed = 0;
+		} else {
+			millisElapsed = getMillisElapsed();
+			MinecraftClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
+			MinecraftClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
+			lastRenderedMillis = InitClient.getGameMillis();
+			WORKER_THREAD.start();
+			DynamicTextureCache.instance.tick();
+			// Tick the riding cool down (dismount player if they are no longer riding a vehicle) and store the player offset cache
+			VehicleRidingMovement.tick();
+			ArrivalsCacheClient.INSTANCE.tick();
+		}
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
@@ -76,10 +98,9 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 			return;
 		}
 
-		// Tick the riding cool down (dismount player if they are no longer riding a vehicle) and store the player offset cache
-		VehicleRidingMovement.tick();
-		RenderVehicles.render(millisElapsed);
-		RenderLifts.render(millisElapsed);
+		final Vector3d cameraShakeOffset = clientPlayerEntity.getPos().subtract(offset);
+		RenderVehicles.render(millisElapsed, cameraShakeOffset);
+		RenderLifts.render(millisElapsed, cameraShakeOffset);
 		RenderRails.render();
 
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
@@ -129,7 +150,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 			}
 		}
 
-		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.render(!Config.hideTranslucentParts());
+		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.render(!Config.getClient().getHideTranslucentParts());
 	}
 
 	public static boolean shouldNotRender(BlockPos pos, @Nullable Direction facing) {
@@ -157,6 +178,11 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 		return IGui.mergeStationsWithCommas(interchangeRouteNames);
 	}
 
+	public static int getFlashingLight() {
+		final int light = (int) Math.round((Math.sin(Math.PI * 2 * (System.currentTimeMillis() % FLASHING_INTERVAL) / FLASHING_INTERVAL) + 1) / 2 * 0xF);
+		return LightmapTextureManager.pack(light, light);
+	}
+
 	private static long getMillisElapsed() {
 		final long millisElapsed = InitClient.getGameMillis() - lastRenderedMillis;
 		final long gameMillisElapsed = (long) (MinecraftClient.getInstance().getLastFrameDuration() * 50);
@@ -180,7 +206,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 				playerFacingAway = Math.signum(playerZOffset) == facing.getOffsetZ() && Math.abs(playerZOffset) >= 0.5;
 			}
 		}
-		return cameraPos == null || playerFacingAway || maxDistanceXZ(cameraPos, pos) > MinecraftClientHelper.getRenderDistance() * (Config.trainRenderDistanceRatio() + 1);
+		return cameraPos == null || playerFacingAway || maxDistanceXZ(cameraPos, pos) > MinecraftClientHelper.getRenderDistance();
 	}
 
 	public enum QueuedRenderLayer {LIGHT, INTERIOR, EXTERIOR, LIGHT_TRANSLUCENT, INTERIOR_TRANSLUCENT, EXTERIOR_TRANSLUCENT, LINES, TEXT}

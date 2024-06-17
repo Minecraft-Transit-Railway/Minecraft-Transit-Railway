@@ -5,7 +5,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mod.Init;
+import org.mtr.mod.config.Config;
 import org.mtr.mod.data.IGui;
 
 import javax.annotation.Nullable;
@@ -25,7 +25,7 @@ public interface IDrawing {
 	}
 
 	static void drawStringWithFont(GraphicsHolder graphicsHolder, String text, IGui.HorizontalAlignment horizontalAlignment, IGui.VerticalAlignment verticalAlignment, IGui.HorizontalAlignment xAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColorCjk, int textColor, float fontSizeRatio, boolean shadow, int light, @Nullable DrawingCallback drawingCallback) {
-		final Style style = Config.useMTRFont() ? Style.getEmptyMapped().withFont(new Identifier(Init.MOD_ID, "mtr")) : Style.getEmptyMapped();
+		final Style style = Style.getEmptyMapped(); // TODO custom font not working
 
 		while (text.contains("||")) {
 			text = text.replace("||", "|");
@@ -188,10 +188,10 @@ public interface IDrawing {
 	}
 
 	static void narrateOrAnnounce(String narrateMessage, ObjectArrayList<MutableText> chatMessages) {
-		if (Config.useTTSAnnouncements() && !narrateMessage.isEmpty()) {
+		if (Config.getClient().getTextToSpeechAnnouncements() && !narrateMessage.isEmpty()) {
 			Narrator.getNarrator().say(narrateMessage, true);
 		}
-		if (Config.showAnnouncementMessages() && !chatMessages.isEmpty()) {
+		if (Config.getClient().getChatAnnouncements() && !chatMessages.isEmpty()) {
 			final ClientPlayerEntity player = MinecraftClient.getInstance().getPlayerMapped();
 			if (player != null) {
 				chatMessages.forEach(chatMessage -> {
