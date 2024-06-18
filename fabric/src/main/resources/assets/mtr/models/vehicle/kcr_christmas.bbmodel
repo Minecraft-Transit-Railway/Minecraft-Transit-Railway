@@ -7,7 +7,7 @@
   "name": "kcr_christmas",
   "model_identifier": "kcr_christmas",
   "modded_entity_entity_class": "",
-  "modded_entity_version": "1.17",
+  "modded_entity_version": "Fabric 1.17+",
   "modded_entity_flip_y": true,
   "visible_box": [
     1,
@@ -37,7 +37,7 @@
       ],
       "to": [
         1.5,
-        17.900000000000002,
+        17.9,
         1.5
       ],
       "autouv": 0,
@@ -53,7 +53,7 @@
             3,
             3,
             6,
-            21.000000000000004
+            21
           ],
           "texture": 0
         },
@@ -62,7 +62,7 @@
             0,
             3,
             3,
-            21.000000000000004
+            21
           ],
           "texture": 0
         },
@@ -71,7 +71,7 @@
             9,
             3,
             12,
-            21.000000000000004
+            21
           ],
           "texture": 0
         },
@@ -80,7 +80,7 @@
             6,
             3,
             9,
-            21.000000000000004
+            21
           ],
           "texture": 0
         },
@@ -1209,7 +1209,7 @@
       "rotation": [
         0,
         0,
-        67.50000000000001
+        67.5
       ],
       "origin": [
         10,
@@ -1302,7 +1302,7 @@
       "rotation": [
         0,
         0,
-        67.50000000000001
+        67.5
       ],
       "origin": [
         10,
@@ -1468,14 +1468,14 @@
       "render_order": "default",
       "allow_mirror_modeling": true,
       "from": [
-        11.999999999999998,
+        12,
         26.3490948961379,
-        -12.98672861000426
+        -12.986728609968141
       ],
       "to": [
-        11.999999999999998,
+        12,
         36.3490948961379,
-        -12.98672861000426
+        -12.986728609968141
       ],
       "autouv": 0,
       "color": 7,
@@ -1489,7 +1489,7 @@
       "origin": [
         0,
         33.8490948961379,
-        -12.986728610004267
+        -12.986728609968141
       ],
       "uv_offset": [
         39,
@@ -1562,14 +1562,14 @@
       "render_order": "default",
       "allow_mirror_modeling": true,
       "from": [
-        11.999999806284904,
-        26.599999234080318,
-        -5.400000572204585
+        12,
+        26.6,
+        -5.4
       ],
       "to": [
-        11.999999806284904,
-        31.59999923408032,
-        -5.400000572204585
+        12,
+        31.6,
+        -5.4
       ],
       "autouv": 0,
       "color": 7,
@@ -1582,8 +1582,8 @@
       ],
       "origin": [
         0,
-        31.799999997019768,
-        -5.199999809265137
+        31.8,
+        -5.2
       ],
       "uv_offset": [
         39,
@@ -1595,7 +1595,7 @@
             39,
             26,
             39,
-            31.000000000000004
+            31
           ],
           "texture": 0
         },
@@ -1604,7 +1604,7 @@
             39,
             26,
             39,
-            31.000000000000004
+            31
           ],
           "texture": 0
         },
@@ -1613,7 +1613,7 @@
             39,
             26,
             39,
-            31.000000000000004
+            31
           ],
           "texture": 0
         },
@@ -1622,7 +1622,7 @@
             39,
             26,
             39,
-            31.000000000000004
+            31
           ],
           "texture": 0
         },
@@ -1750,14 +1750,14 @@
       "render_order": "default",
       "allow_mirror_modeling": true,
       "from": [
-        11.999999999999998,
+        12,
         26.3490948961379,
-        12.98672861000426
+        12.986728609968141
       ],
       "to": [
-        11.999999999999998,
+        12,
         36.3490948961379,
-        12.98672861000426
+        12.986728609968141
       ],
       "autouv": 0,
       "color": 7,
@@ -1771,7 +1771,7 @@
       "origin": [
         0,
         33.8490948961379,
-        12.986728610004267
+        12.986728609968141
       ],
       "uv_offset": [
         39,
@@ -1844,14 +1844,14 @@
       "render_order": "default",
       "allow_mirror_modeling": true,
       "from": [
-        11.999999806284904,
-        26.599999234080318,
-        5.400000572204585
+        12,
+        26.6,
+        5.4
       ],
       "to": [
-        11.999999806284904,
-        31.59999923408032,
-        5.400000572204585
+        12,
+        31.6,
+        5.4
       ],
       "autouv": 0,
       "color": 7,
@@ -1864,8 +1864,8 @@
       ],
       "origin": [
         0,
-        31.799999997019768,
-        5.199999809265137
+        31.8,
+        5.2
       ],
       "uv_offset": [
         39,
@@ -1877,7 +1877,7 @@
             39,
             26,
             39,
-            31.000000000000004
+            31
           ],
           "texture": 0
         },
@@ -1886,7 +1886,7 @@
             39,
             26,
             39,
-            31.000000000000004
+            31
           ],
           "texture": 0
         },
@@ -1895,7 +1895,7 @@
             39,
             26,
             39,
-            31.000000000000004
+            31
           ],
           "texture": 0
         },
@@ -1904,7 +1904,7 @@
             39,
             26,
             39,
-            31.000000000000004
+            31
           ],
           "texture": 0
         },
@@ -1939,12 +1939,12 @@
       "allow_mirror_modeling": true,
       "from": [
         12,
-        30.71526833189997,
+        30.715268331392927,
         -9.707527003572627
       ],
       "to": [
         12,
-        30.71526833189997,
+        30.715268331392927,
         -9.707527003572627
       ],
       "autouv": 0,
@@ -2146,8 +2146,8 @@
       ],
       "origin": [
         0,
-        31.799999997019768,
-        5.199999809265137
+        31.8,
+        5.2
       ],
       "uv_offset": [
         15,
@@ -2221,12 +2221,12 @@
       "allow_mirror_modeling": true,
       "from": [
         12,
-        33.21526833189997,
+        33.21526833139293,
         -9.707527003572627
       ],
       "to": [
         12,
-        33.21526833189997,
+        33.21526833139293,
         -9.707527003572627
       ],
       "autouv": 0,
@@ -2428,8 +2428,8 @@
       ],
       "origin": [
         0,
-        31.799999997019768,
-        5.199999809265137
+        31.8,
+        5.2
       ],
       "uv_offset": [
         27,
@@ -2522,8 +2522,8 @@
       ],
       "origin": [
         0,
-        31.799999997019768,
-        -5.199999809265137
+        31.8,
+        -5.2
       ],
       "uv_offset": [
         15,
@@ -2691,12 +2691,12 @@
       "allow_mirror_modeling": true,
       "from": [
         12,
-        33.21526833189997,
+        33.21526833139293,
         9.707527003572627
       ],
       "to": [
         12,
-        33.21526833189997,
+        33.21526833139293,
         9.707527003572627
       ],
       "autouv": 0,
@@ -2804,8 +2804,8 @@
       ],
       "origin": [
         0,
-        31.799999997019768,
-        -5.199999809265137
+        31.8,
+        -5.2
       ],
       "uv_offset": [
         27,
@@ -2973,12 +2973,12 @@
       "allow_mirror_modeling": true,
       "from": [
         12,
-        30.71526833189997,
+        30.715268331392927,
         9.707527003572627
       ],
       "to": [
         12,
-        30.71526833189997,
+        30.715268331392927,
         9.707527003572627
       ],
       "autouv": 0,
@@ -3066,14 +3066,14 @@
       "render_order": "default",
       "allow_mirror_modeling": true,
       "from": [
-        0.20000000298023224,
-        0.20000000298023224,
-        0.20000000298023224
+        0.2,
+        0.2,
+        0.2
       ],
       "to": [
-        0.20000000298023224,
-        0.20000000298023224,
-        0.20000000298023224
+        0.2,
+        0.2,
+        0.2
       ],
       "autouv": 0,
       "color": 7,
@@ -3687,14 +3687,14 @@
       "render_order": "default",
       "allow_mirror_modeling": true,
       "from": [
-        0.20000000298023224,
-        0.20000000298023224,
-        0.20000000298023224
+        0.2,
+        0.2,
+        0.2
       ],
       "to": [
-        0.20000000298023224,
-        0.20000000298023224,
-        0.20000000298023224
+        0.2,
+        0.2,
+        0.2
       ],
       "autouv": 0,
       "color": 7,
@@ -7411,12 +7411,12 @@
       "allow_mirror_modeling": true,
       "from": [
         12,
-        30.71526833189997,
+        30.715268331392927,
         -9.707527003572627
       ],
       "to": [
         12,
-        30.71526833189997,
+        30.715268331392927,
         -9.707527003572627
       ],
       "autouv": 0,
@@ -7618,8 +7618,8 @@
       ],
       "origin": [
         0,
-        31.799999997019768,
-        5.199999809265137
+        31.8,
+        5.2
       ],
       "uv_offset": [
         24,
@@ -7693,12 +7693,12 @@
       "allow_mirror_modeling": true,
       "from": [
         12,
-        33.21526833189997,
+        33.21526833139293,
         -9.707527003572627
       ],
       "to": [
         12,
-        33.21526833189997,
+        33.21526833139293,
         -9.707527003572627
       ],
       "autouv": 0,
@@ -7900,8 +7900,8 @@
       ],
       "origin": [
         0,
-        31.799999997019768,
-        5.199999809265137
+        31.8,
+        5.2
       ],
       "uv_offset": [
         36,
@@ -7994,8 +7994,8 @@
       ],
       "origin": [
         0,
-        31.799999997019768,
-        -5.199999809265137
+        31.8,
+        -5.2
       ],
       "uv_offset": [
         24,
@@ -8163,12 +8163,12 @@
       "allow_mirror_modeling": true,
       "from": [
         12,
-        33.21526833189997,
+        33.21526833139293,
         9.707527003572627
       ],
       "to": [
         12,
-        33.21526833189997,
+        33.21526833139293,
         9.707527003572627
       ],
       "autouv": 0,
@@ -8276,8 +8276,8 @@
       ],
       "origin": [
         0,
-        31.799999997019768,
-        -5.199999809265137
+        31.8,
+        -5.2
       ],
       "uv_offset": [
         27,
@@ -8445,12 +8445,12 @@
       "allow_mirror_modeling": true,
       "from": [
         12,
-        30.71526833189997,
+        30.715268331392927,
         9.707527003572627
       ],
       "to": [
         12,
-        30.71526833189997,
+        30.715268331392927,
         9.707527003572627
       ],
       "autouv": 0,
@@ -8538,14 +8538,14 @@
       "render_order": "default",
       "allow_mirror_modeling": true,
       "from": [
-        0.20000000298023224,
-        0.20000000298023224,
-        0.20000000298023224
+        0.2,
+        0.2,
+        0.2
       ],
       "to": [
-        0.20000000298023224,
-        0.20000000298023224,
-        0.20000000298023224
+        0.2,
+        0.2,
+        0.2
       ],
       "autouv": 0,
       "color": 7,
@@ -9166,14 +9166,14 @@
       "render_order": "default",
       "allow_mirror_modeling": true,
       "from": [
-        0.20000000298023224,
-        0.20000000298023224,
-        0.20000000298023224
+        0.2,
+        0.2,
+        0.2
       ],
       "to": [
-        0.20000000298023224,
-        0.20000000298023224,
-        0.20000000298023224
+        0.2,
+        0.2,
+        0.2
       ],
       "autouv": 0,
       "color": 7,
@@ -13024,7 +13024,7 @@
       ],
       "to": [
         1.5,
-        8.000000000000007,
+        8,
         55
       ],
       "autouv": 0,
@@ -13050,7 +13050,7 @@
             2,
             31,
             5,
-            34.00000000000001
+            34
           ],
           "texture": 0
         },
@@ -13059,7 +13059,7 @@
             0,
             31,
             2,
-            34.00000000000001
+            34
           ],
           "texture": 0
         },
@@ -13068,7 +13068,7 @@
             7,
             31,
             10,
-            34.00000000000001
+            34
           ],
           "texture": 0
         },
@@ -13077,7 +13077,7 @@
             5,
             31,
             7,
-            34.00000000000001
+            34
           ],
           "texture": 0
         },
@@ -13754,7 +13754,6 @@
   ],
   "textures": [
     {
-      "path": "C:\\Users\\Jonathan\\Documents\\GitHub\\Minecraft-Transit-Railway\\fabric\\src\\main\\resources\\assets\\mtr\\textures\\vehicle\\kcr_christmas.png",
       "name": "kcr_christmas.png",
       "folder": "",
       "namespace": "",
@@ -13777,14 +13776,7 @@
       "internal": true,
       "saved": true,
       "uuid": "519375cd-1b27-a661-be3b-fa2ad5b17599",
-      "relative_path": "../../textures/vehicle/kcr_christmas.png",
-      "source": "data:image/png;base64,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"
+      "relative_path": "../../textures/vehicle/kcr_christmas.png"
     }
-  ],
-  "fabricOptions": {
-    "header": "package com.example.mod;",
-    "entity": "Entity",
-    "render": "",
-    "members": ""
-  }
+  ]
 }

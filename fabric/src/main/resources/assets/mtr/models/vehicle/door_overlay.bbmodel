@@ -1,19 +1,23 @@
 {
   "meta": {
-    "format_version": "3.6",
-    "creation_time": 1620257227,
+    "format_version": "4.10",
     "model_format": "modded_entity",
     "box_uv": true
   },
-  "name": "custom_model",
-  "geometry_name": "",
-  "modded_entity_version": "Fabric 1.15+",
+  "name": "door_overlay",
+  "model_identifier": "door_overlay",
+  "modded_entity_entity_class": "",
+  "modded_entity_version": "Fabric 1.17+",
+  "modded_entity_flip_y": true,
   "visible_box": [
     1,
     1,
     0
   ],
-  "layered_textures": false,
+  "variable_placeholders": "",
+  "variable_placeholder_buttons": [],
+  "timeline_setups": [],
+  "unhandled_root_fields": {},
   "resolution": {
     "width": 38,
     "height": 32
@@ -21,7 +25,11 @@
   "elements": [
     {
       "name": "door_left_bottom",
+      "box_uv": true,
       "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
       "from": [
         19.7,
         1,
@@ -34,7 +42,6 @@
       ],
       "autouv": 0,
       "color": 5,
-      "locked": false,
       "origin": [
         0,
         0,
@@ -100,11 +107,16 @@
           "texture": 0
         }
       },
+      "type": "cube",
       "uuid": "63243300-8cb0-04f4-b883-131ca4f3dfc5"
     },
     {
       "name": "door_left_top",
+      "box_uv": true,
       "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
       "from": [
         19.7,
         14,
@@ -117,11 +129,10 @@
       ],
       "autouv": 0,
       "color": 3,
-      "locked": false,
       "rotation": [
         0,
         0,
-        6.3400000000001455
+        6.34
       ],
       "origin": [
         19.7,
@@ -188,11 +199,16 @@
           "texture": 0
         }
       },
+      "type": "cube",
       "uuid": "293c5837-5790-1d5d-7089-930563a301a1"
     },
     {
       "name": "door_right_bottom",
+      "box_uv": true,
       "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
       "from": [
         -19.7,
         1,
@@ -205,7 +221,6 @@
       ],
       "autouv": 0,
       "color": 3,
-      "locked": false,
       "rotation": [
         0,
         -180,
@@ -276,11 +291,16 @@
           "texture": 0
         }
       },
+      "type": "cube",
       "uuid": "2656c85f-8cf2-4cc7-2480-f77f7a8724eb"
     },
     {
       "name": "door_right_top",
+      "box_uv": true,
       "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
       "from": [
         19.7,
         14,
@@ -293,11 +313,10 @@
       ],
       "autouv": 0,
       "color": 5,
-      "locked": false,
       "rotation": [
         0,
         -180,
-        6.3400000000001455
+        6.34
       ],
       "origin": [
         19.7,
@@ -364,11 +383,16 @@
           "texture": 0
         }
       },
+      "type": "cube",
       "uuid": "30c195e9-4692-ced8-fa9c-376779508d1d"
     },
     {
       "name": "door_left_top",
+      "box_uv": true,
       "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
       "from": [
         20.7,
         14,
@@ -381,11 +405,10 @@
       ],
       "autouv": 0,
       "color": 3,
-      "locked": false,
       "rotation": [
         0,
         0,
-        6.3400000000001455
+        6.34
       ],
       "origin": [
         20.7,
@@ -452,11 +475,16 @@
           "texture": 0
         }
       },
+      "type": "cube",
       "uuid": "6853fae1-fb57-9fd0-a2d0-6da64ea41562"
     },
     {
       "name": "door_right_top",
+      "box_uv": true,
       "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
       "from": [
         20.7,
         14,
@@ -469,11 +497,10 @@
       ],
       "autouv": 0,
       "color": 5,
-      "locked": false,
       "rotation": [
         0,
         -180,
-        6.3400000000001455
+        6.34
       ],
       "origin": [
         20.7,
@@ -540,11 +567,16 @@
           "texture": 0
         }
       },
+      "type": "cube",
       "uuid": "b07ce7ba-e6de-c841-de4e-855ad3f4f5e7"
     },
     {
       "name": "lower_wall_1",
+      "box_uv": true,
       "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
       "from": [
         17,
         1,
@@ -553,11 +585,10 @@
       "to": [
         20,
         14,
-        0.10000000000000009
+        0.1
       ],
       "autouv": 0,
       "color": 3,
-      "locked": false,
       "origin": [
         0,
         0,
@@ -623,11 +654,16 @@
           "texture": 0
         }
       },
+      "type": "cube",
       "uuid": "1213a0bc-3d52-96ab-c7ad-bf8c16527dcf"
     },
     {
       "name": "upper_wall_1",
+      "box_uv": true,
       "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
       "from": [
         17,
         14,
@@ -636,15 +672,14 @@
       "to": [
         20,
         33,
-        0.09999999999999964
+        0.1
       ],
       "autouv": 0,
       "color": 3,
-      "locked": false,
       "rotation": [
         0,
         0,
-        6.3400000000001455
+        6.34
       ],
       "origin": [
         20,
@@ -711,11 +746,16 @@
           "texture": 0
         }
       },
+      "type": "cube",
       "uuid": "c852477d-be9c-14ca-d544-97a14c52b08d"
     },
     {
       "name": "upper_wall_2",
+      "box_uv": true,
       "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
       "from": [
         17,
         14,
@@ -724,15 +764,14 @@
       "to": [
         20,
         33,
-        -0.10000000000000134
+        -0.1
       ],
       "autouv": 0,
       "color": 3,
-      "locked": false,
       "rotation": [
         0,
         0,
-        6.3400000000001455
+        6.34
       ],
       "origin": [
         20,
@@ -795,11 +834,16 @@
           "texture": 0
         }
       },
+      "type": "cube",
       "uuid": "a61a8a37-f385-90f2-899e-183044ae19a0"
     },
     {
       "name": "lower_wall_2",
+      "box_uv": true,
       "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
       "from": [
         17,
         1,
@@ -808,11 +852,10 @@
       "to": [
         20,
         14,
-        -0.09999999999999964
+        -0.1
       ],
       "autouv": 0,
       "color": 3,
-      "locked": false,
       "origin": [
         0,
         0,
@@ -878,6 +921,7 @@
           "texture": 0
         }
       },
+      "type": "cube",
       "uuid": "fa7ed5a0-05f9-d91b-cb75-d2a554bf659d"
     }
   ],
@@ -889,8 +933,10 @@
         0,
         0
       ],
+      "color": 0,
       "uuid": "a346886b-4a3b-0734-3477-f62691177eca",
       "export": true,
+      "mirror_uv": false,
       "isOpen": true,
       "locked": false,
       "visibility": true,
@@ -907,8 +953,10 @@
         0,
         0
       ],
+      "color": 0,
       "uuid": "59942475-fd8b-a2e0-1113-108de7764322",
       "export": true,
+      "mirror_uv": false,
       "isOpen": true,
       "locked": false,
       "visibility": true,
@@ -925,8 +973,10 @@
         0,
         0
       ],
+      "color": 0,
       "uuid": "758d2604-252a-888b-5cbf-47c4bc900ca5",
       "export": true,
+      "mirror_uv": false,
       "isOpen": true,
       "locked": false,
       "visibility": true,
@@ -942,8 +992,10 @@
         0,
         0
       ],
+      "color": 0,
       "uuid": "91f65b8a-696e-e9c6-9354-cbec178b9f41",
       "export": true,
+      "mirror_uv": false,
       "isOpen": true,
       "locked": false,
       "visibility": true,
@@ -959,8 +1011,10 @@
         0,
         0
       ],
+      "color": 0,
       "uuid": "cb438ca0-d246-03d2-f7ff-4fad3e56985b",
       "export": true,
+      "mirror_uv": false,
       "isOpen": true,
       "locked": false,
       "visibility": true,
@@ -977,8 +1031,10 @@
         0,
         0
       ],
+      "color": 0,
       "uuid": "9db89c3e-ffe6-7efb-2330-0412b0be93ec",
       "export": true,
+      "mirror_uv": false,
       "isOpen": true,
       "locked": false,
       "visibility": true,
@@ -991,23 +1047,54 @@
   ],
   "textures": [
     {
-      "path": "C:\\Users\\Jonathan\\Desktop\\texture.png",
-      "name": "texture.png",
-      "folder": "Desktop",
+      "name": "door_overlay_m_train_left.png",
+      "folder": "",
       "namespace": "",
       "id": "0",
+      "width": 380,
+      "height": 320,
+      "uv_width": 38,
+      "uv_height": 32,
       "particle": false,
+      "use_as_default": false,
+      "layers_enabled": false,
+      "sync_to_project": "",
+      "render_mode": "default",
+      "render_sides": "auto",
+      "frame_time": 1,
+      "frame_order_type": "loop",
+      "frame_order": "",
+      "frame_interpolate": false,
       "visible": true,
-      "mode": "bitmap",
+      "internal": true,
       "saved": true,
-      "uuid": "d215c1c5-0a4b-08a5-629a-b85205aac935",
-      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACYAAAAgCAYAAAB+ZAqzAAAAoUlEQVRYR2OM3vPlPwMUzFWsgzEZvLml4WxiGRvn/SRWKVxdulkenI1sPyPIYQoS3AwPXnxlAEmwS6sz/Hx6k6FZyZAkS068fMUAchi3ohxJ+mJEAxiw2T/qMFzBOBpio2mM2Cw2mitHy7HRAna0SiKyvBgtLkaLC3zFxaBtwQ5ah402rbEUPaMt2NEWLJE1EsNolTRaJY22YKnZgh2MdSUA0AvM/7PFgVYAAAAASUVORK5CYII="
+      "uuid": "96d3035f-d755-50b2-6045-6f6cadd83da5",
+      "relative_path": "../../textures/overlay/door_overlay_m_train_left.png"
+    },
+    {
+      "name": "door_overlay_m_train_right.png",
+      "folder": "",
+      "namespace": "",
+      "id": "1",
+      "width": 380,
+      "height": 320,
+      "uv_width": 38,
+      "uv_height": 32,
+      "particle": false,
+      "use_as_default": false,
+      "layers_enabled": false,
+      "sync_to_project": "",
+      "render_mode": "default",
+      "render_sides": "auto",
+      "frame_time": 1,
+      "frame_order_type": "loop",
+      "frame_order": "",
+      "frame_interpolate": false,
+      "visible": true,
+      "internal": true,
+      "saved": true,
+      "uuid": "5a52c5b2-8ddf-ae6e-861f-c48062fc1072",
+      "relative_path": "../../textures/overlay/door_overlay_m_train_right.png"
     }
-  ],
-  "fabricOptions": {
-    "header": "package com.example.mod;",
-    "entity": "Entity",
-    "render": "",
-    "members": ""
-  }
+  ]
 }
