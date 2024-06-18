@@ -920,12 +920,14 @@
 		{
 			"id": "default_3d",
 			"name": "3D Rail",
+			"color": "A7A7A7",
 			"modelResource": "mtr:models/rail/rail.obj",
 			"repeatInterval": 0.5
 		},
 		{
 			"id": "default_3d_siding",
 			"name": "3D Siding Rail",
+			"color": "E5E533",
 			"modelResource": "mtr:models/rail/rail_siding.obj",
 			"repeatInterval": 0.5
 		}
@@ -934,6 +936,7 @@
 		{
 			"id": "teapot",
 			"name": "Utah Teapot (NTE)",
+			"color": "D0D0D0",
 			"modelResource": "mtr:models/object/teapot.obj",
 			"textureResource": "mtr:textures/block/metal.png",
 			"scale": {

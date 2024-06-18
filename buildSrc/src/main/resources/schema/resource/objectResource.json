@@ -11,6 +11,9 @@
 		"name": {
 			"type": "string"
 		},
+		"color": {
+			"type": "string"
+		},
 		"modelResource": {
 			"type": "string"
 		},
@@ -36,6 +39,7 @@
 	"required": [
 		"id",
 		"name",
+		"color",
 		"modelResource",
 		"textureResource",
 		"flipTextureV",

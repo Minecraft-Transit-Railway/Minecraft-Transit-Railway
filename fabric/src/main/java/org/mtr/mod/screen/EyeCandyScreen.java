@@ -17,8 +17,6 @@ import org.mtr.mod.resource.ObjectResource;
 
 public class EyeCandyScreen extends ScreenExtension implements IGui {
 
-	private String oldModelId = "";
-
 	private final ButtonWidgetExtension buttonSelectModel;
 	private final TextFieldWidgetExtension textFieldTranslateX;
 	private final TextFieldWidgetExtension textFieldTranslateY;
@@ -46,12 +44,12 @@ public class EyeCandyScreen extends ScreenExtension implements IGui {
 		super();
 		this.blockPos = blockPos;
 		this.blockEntity = blockEntity;
-		oldModelId = blockEntity.getModelId();
 
 		final ObjectArrayList<DashboardListItem> objectsForList = new ObjectArrayList<>();
 		for (int i = 0; i < loadedObjects.size(); i++) {
-			objectsForList.add(new DashboardListItem(i, loadedObjects.get(i).getName(), ARGB_BLACK));
-			if (loadedObjects.get(i).getId().equals(blockEntity.getModelId())) {
+			final ObjectResource objectResource = loadedObjects.get(i);
+			objectsForList.add(new DashboardListItem(i, objectResource.getName(), objectResource.getColor() | ARGB_BLACK));
+			if (objectResource.getId().equals(blockEntity.getModelId())) {
 				selectedModelIndices.add(i);
 			}
 		}
@@ -116,9 +114,6 @@ public class EyeCandyScreen extends ScreenExtension implements IGui {
 		textFieldRotateX.tick2();
 		textFieldRotateY.tick2();
 		textFieldRotateZ.tick2();
-		if (!oldModelId.equals(blockEntity.getModelId())) {
-			sendUpdate();
-		}
 	}
 
 	@Override

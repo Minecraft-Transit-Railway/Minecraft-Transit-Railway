@@ -94,6 +94,11 @@ public class CustomResourceLoader {
 			RAILS_CACHE.put(railResource.getId(), railResource);
 		});
 
+		CustomResourcesConverter.convertObjects(objectResource -> {
+			OBJECTS.add(objectResource);
+			OBJECTS_CACHE.put(objectResource.getId(), objectResource);
+		});
+
 		OPTIMIZED_RENDERER_WRAPPER.finishReload();
 		Init.LOGGER.info("Loaded {} vehicles and completed door movement validation in {} ms", VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum), TEST_DURATION / 1E6);
 		Init.LOGGER.info("Loaded {} signs", SIGNS.size());

@@ -1,7 +1,5 @@
 package org.mtr.mod.block;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.HolderBase;
@@ -10,6 +8,7 @@ import org.mtr.mod.Init;
 import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class BlockEyeCandy extends BlockExtension implements DirectionHelper, BlockWithEntity {
@@ -29,7 +28,7 @@ public class BlockEyeCandy extends BlockExtension implements DirectionHelper, Bl
 		properties.add(FACING);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
@@ -41,7 +40,7 @@ public class BlockEyeCandy extends BlockExtension implements DirectionHelper, Bl
 		});
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public BlockRenderType getRenderType2(BlockState state) {
 		return BlockRenderType.getEntityblockAnimatedMapped();
