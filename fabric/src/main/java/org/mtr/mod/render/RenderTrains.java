@@ -206,7 +206,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 				playerFacingAway = Math.signum(playerZOffset) == facing.getOffsetZ() && Math.abs(playerZOffset) >= 0.5;
 			}
 		}
-		return cameraPos == null || playerFacingAway || maxDistanceXZ(cameraPos, pos) > MinecraftClientHelper.getRenderDistance();
+		return cameraPos == null || playerFacingAway || maxDistanceXZ(cameraPos, pos) > MinecraftClientHelper.getRenderDistance() * 16;
 	}
 
 	public enum QueuedRenderLayer {LIGHT, INTERIOR, EXTERIOR, LIGHT_TRANSLUCENT, INTERIOR_TRANSLUCENT, EXTERIOR_TRANSLUCENT, LINES, TEXT}

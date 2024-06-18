@@ -22,6 +22,12 @@
 			"items": {
 				"$ref": "railResource.json"
 			}
+		},
+		"objects": {
+			"type": "array",
+			"items": {
+				"$ref": "objectResource.json"
+			}
 		}
 	}
 }

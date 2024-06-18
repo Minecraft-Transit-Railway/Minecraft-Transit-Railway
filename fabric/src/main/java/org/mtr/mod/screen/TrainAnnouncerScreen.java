@@ -10,13 +10,14 @@ import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockTrainAnnouncer;
 import org.mtr.mod.packet.PacketUpdateTrainAnnouncerConfig;
+import org.mtr.mod.resource.CustomResourceTools;
 
 import java.util.Collections;
 
 public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 
 	private final String initialMessage;
-	private final String initialSoundIdString;
+	private final String initialSoundId;
 	private final DashboardList availableSoundsList;
 
 	private static final int MAX_MESSAGE_LENGTH = 256;
@@ -30,16 +31,16 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 		if (clientWorld != null) {
 			initialMessage = blockEntity.getMessage();
-			initialSoundIdString = blockEntity.getSoundIdString();
+			initialSoundId = blockEntity.getSoundId();
 		} else {
 			initialMessage = "";
-			initialSoundIdString = "";
+			initialSoundId = "";
 		}
 
 		availableSoundsList = new DashboardList((data, color) -> {
-			final String soundIdString = data.getName(true);
-			if (!soundIdString.isEmpty() && clientWorld != null && MinecraftClient.getInstance().getPlayerMapped() != null) {
-				clientWorld.playSoundAtBlockCenter(pos, SoundHelper.createSoundEvent(new Identifier(soundIdString)), SoundCategory.BLOCKS, 1000000, 1, false);
+			final String soundId = CustomResourceTools.formatIdentifierString(data.getName(true));
+			if (!soundId.isEmpty() && clientWorld != null && MinecraftClient.getInstance().getPlayerMapped() != null) {
+				clientWorld.playSoundAtBlockCenter(pos, SoundHelper.createSoundEvent(new Identifier(soundId)), SoundCategory.BLOCKS, 1000000, 1, false);
 			}
 		}, null, null, null, (data, color) -> {
 			textFields[1].setText2(data.getName(true));
@@ -57,7 +58,7 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 	protected void init2() {
 		super.init2();
 		textFields[0].setText2(initialMessage);
-		textFields[1].setText2(initialSoundIdString);
+		textFields[1].setText2(initialSoundId);
 
 		setListVisibility(false);
 		availableSoundsList.y = SQUARE_SIZE * 2 + TEXT_HEIGHT + TEXT_PADDING + TEXT_FIELD_PADDING;

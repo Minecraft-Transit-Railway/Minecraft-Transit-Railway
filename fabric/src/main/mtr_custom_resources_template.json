@@ -922,6 +922,25 @@
 			"name": "3D Rail",
 			"modelResource": "mtr:models/rail/rail.obj",
 			"repeatInterval": 0.5
+		},
+		{
+			"id": "default_3d_siding",
+			"name": "3D Siding Rail",
+			"modelResource": "mtr:models/rail/rail_siding.obj",
+			"repeatInterval": 0.5
+		}
+	],
+	"objects": [
+		{
+			"id": "teapot",
+			"name": "Utah Teapot (NTE)",
+			"modelResource": "mtr:models/object/teapot.obj",
+			"textureResource": "mtr:textures/block/metal.png",
+			"scale": {
+				"x": 0.15,
+				"y": 0.20,
+				"z": 0.15
+			}
 		}
 	]
 }

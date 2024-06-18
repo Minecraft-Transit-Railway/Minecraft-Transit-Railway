@@ -8,6 +8,7 @@ import org.mtr.core.servlet.Webserver;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.org.eclipse.jetty.servlet.ServletHolder;
 import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.registry.RegistryClient;
@@ -159,6 +160,7 @@ public final class InitClient {
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_WHITE, dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_GRAY, dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_BLACK, dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
+		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.EYE_CANDY, RenderEyeCandy::new);
 
 		REGISTRY_CLIENT.registerEntityRenderer(EntityTypes.RENDERING, RenderTrains::new);
 
@@ -437,6 +439,15 @@ public final class InitClient {
 	public static void findClosePlatform(BlockPos blockPos, int radius, Consumer<Platform> consumer) {
 		final Position position = Init.blockPosToPosition(blockPos);
 		MinecraftClientData.getInstance().platforms.stream().filter(platform -> platform.closeTo(Init.blockPosToPosition(blockPos), radius)).min(Comparator.comparingDouble(platform -> platform.getApproximateClosestDistance(position, MinecraftClientData.getInstance()))).ifPresent(consumer);
+	}
+
+	public static void transformToFacePlayer(GraphicsHolder graphicsHolder, double x, double y, double z) {
+		final Vector3d cameraPosition = MinecraftClient.getInstance().getGameRendererMapped().getCamera().getPos();
+		final double differenceX = cameraPosition.getXMapped() - x;
+		final double differenceY = cameraPosition.getYMapped() - y;
+		final double differenceZ = cameraPosition.getZMapped() - z;
+		graphicsHolder.rotateYRadians((float) (Math.atan2(differenceX, differenceZ) + Math.PI));
+		graphicsHolder.rotateXRadians((float) Math.atan2(differenceY, Math.sqrt(differenceZ * differenceZ + differenceX * differenceX)));
 	}
 
 	public static String getShiftText() {

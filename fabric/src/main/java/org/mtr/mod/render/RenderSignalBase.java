@@ -4,6 +4,7 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
@@ -105,7 +106,7 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 		final IntArrayList detectedColors = new IntArrayList();
 		final IntAVLTreeSet occupiedColors = new IntAVLTreeSet();
 
-		minecraftClientData.positionsToRail.get(Init.blockPosToPosition(startPos)).forEach((endPosition, rail) -> {
+		minecraftClientData.positionsToRail.getOrDefault(Init.blockPosToPosition(startPos), new Object2ObjectOpenHashMap<>()).forEach((endPosition, rail) -> {
 			if (Math.abs(Utilities.circularDifference(Math.round(Math.toDegrees(Math.atan2(endPosition.getZ() - startPos.getZ(), endPosition.getX() - startPos.getX()))), Math.round(angle), 360)) < 90) {
 				rail.getSignalColors().forEach(detectedColors::add);
 				minecraftClientData.railIdToBlockedSignalColors.getOrDefault(rail.getHexId(), new LongArrayList()).forEach(color -> occupiedColors.add((int) color));

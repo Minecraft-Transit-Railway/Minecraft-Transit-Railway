@@ -1,7 +1,10 @@
 package org.mtr.mod.block;
 
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.mapping.holder.*;
+import org.mtr.mapping.holder.BlockPos;
+import org.mtr.mapping.holder.BlockState;
+import org.mtr.mapping.holder.CompoundTag;
+import org.mtr.mapping.holder.PlayerEntity;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mod.BlockEntityTypes;
 
@@ -20,7 +23,7 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 	public static class BlockEntity extends BlockEntityBase {
 
 		private String message = "";
-		private Identifier soundId;
+		private String soundId = "";
 		private final Map<PlayerEntity, Long> lastAnnouncedMillis = new HashMap<>();
 		private static final int ANNOUNCE_COOL_DOWN_MILLIS = 20000;
 		private static final String KEY_MESSAGE = "message";
@@ -33,21 +36,20 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 		@Override
 		public void readCompoundTag(CompoundTag compoundTag) {
 			message = compoundTag.getString(KEY_MESSAGE);
-			final String soundIdString = compoundTag.getString(KEY_SOUND_ID);
-			soundId = soundIdString.isEmpty() ? null : new Identifier(soundIdString);
+			soundId = compoundTag.getString(KEY_SOUND_ID);
 			super.readCompoundTag(compoundTag);
 		}
 
 		@Override
 		public void writeCompoundTag(CompoundTag compoundTag) {
 			compoundTag.putString(KEY_MESSAGE, message);
-			compoundTag.putString(KEY_SOUND_ID, getSoundIdString());
+			compoundTag.putString(KEY_SOUND_ID, soundId);
 			super.writeCompoundTag(compoundTag);
 		}
 
-		public void setData(LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, String message, String soundIdString) {
+		public void setData(LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, String message, String soundId) {
 			this.message = message;
-			soundId = soundIdString.isEmpty() ? null : new Identifier(soundIdString);
+			this.soundId = soundId;
 			setData(filterRouteIds, stoppedOnly, movingOnly);
 		}
 
@@ -55,8 +57,8 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 			return message;
 		}
 
-		public String getSoundIdString() {
-			return soundId == null ? "" : soundId.toString();
+		public String getSoundId() {
+			return soundId;
 		}
 
 		public void announce(PlayerEntity player) {
