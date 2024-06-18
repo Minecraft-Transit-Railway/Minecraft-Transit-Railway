@@ -21,6 +21,8 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${buildTools.getFabricApiVersion()}"
 	modApi "com.terraformersmc:modmenu:${buildTools.getModMenuVersion()}"
 	shadowImplementation "org.mtr:Minecraft-Mappings-fabric-${minecraftVersion}:0.0.1-dev"
+	testImplementation "org.junit.jupiter:junit-jupiter-api:+"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:+"
 }
 
 repositories {
@@ -70,4 +72,9 @@ remapJar {
 	dependsOn(shadowJar)
 	mustRunAfter(shadowJar)
 	inputFile = file(shadowJar.archivePath)
+}
+
+test {
+	useJUnitPlatform()
+	testLogging { showStandardStreams = true }
 }

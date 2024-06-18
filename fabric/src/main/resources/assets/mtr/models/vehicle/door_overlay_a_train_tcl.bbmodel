@@ -1,12 +1,13 @@
 {
   "meta": {
-    "format_version": "4.5",
+    "format_version": "4.10",
     "model_format": "modded_entity",
     "box_uv": true
   },
-  "name": "custom_model",
-  "model_identifier": "",
-  "modded_entity_version": "Fabric 1.15+",
+  "name": "door_overlay_a_train_tcl",
+  "model_identifier": "door_overlay_a_train_tcl",
+  "modded_entity_entity_class": "",
+  "modded_entity_version": "Fabric 1.17+",
   "modded_entity_flip_y": true,
   "visible_box": [
     1,
@@ -15,6 +16,7 @@
   ],
   "variable_placeholders": "",
   "variable_placeholder_buttons": [],
+  "timeline_setups": [],
   "unhandled_root_fields": {},
   "resolution": {
     "width": 38,
@@ -583,7 +585,7 @@
       "to": [
         20,
         14,
-        0.10000000000000009
+        0.1
       ],
       "autouv": 0,
       "color": 3,
@@ -670,7 +672,7 @@
       "to": [
         20,
         33,
-        0.09999999999999964
+        0.1
       ],
       "autouv": 0,
       "color": 3,
@@ -692,7 +694,7 @@
         "north": {
           "uv": [
             32,
-            -3.608224830031759e-16,
+            0,
             35,
             19
           ],
@@ -701,7 +703,7 @@
         "east": {
           "uv": [
             32,
-            -3.608224830031759e-16,
+            0,
             32,
             19
           ],
@@ -710,7 +712,7 @@
         "south": {
           "uv": [
             35,
-            -3.608224830031759e-16,
+            0,
             38,
             19
           ],
@@ -719,7 +721,7 @@
         "west": {
           "uv": [
             35,
-            -3.608224830031759e-16,
+            0,
             35,
             19
           ],
@@ -728,7 +730,7 @@
         "up": {
           "uv": [
             35,
-            -3.608224830031759e-16,
+            0,
             32,
             0
           ],
@@ -739,7 +741,7 @@
             38,
             0,
             35,
-            -3.608224830031759e-16
+            0
           ],
           "texture": 0
         }
@@ -762,7 +764,7 @@
       "to": [
         20,
         33,
-        -0.10000000000000134
+        -0.1
       ],
       "autouv": 0,
       "color": 3,
@@ -779,9 +781,9 @@
       "faces": {
         "north": {
           "uv": [
-            -1.3322676295501878e-15,
-            -1.3322676295501878e-15,
-            2.9999999999999987,
+            0,
+            0,
+            3,
             19
           ],
           "texture": 0
@@ -789,45 +791,45 @@
         "east": {
           "uv": [
             0,
-            -1.3322676295501878e-15,
-            -1.3322676295501878e-15,
+            0,
+            0,
             19
           ],
           "texture": 0
         },
         "south": {
           "uv": [
-            2.9999999999999973,
-            -1.3322676295501878e-15,
-            5.999999999999997,
+            3,
+            0,
+            6,
             19
           ],
           "texture": 0
         },
         "west": {
           "uv": [
-            2.9999999999999987,
-            -1.3322676295501878e-15,
-            2.9999999999999973,
+            3,
+            0,
+            3,
             19
           ],
           "texture": 0
         },
         "up": {
           "uv": [
-            2.9999999999999987,
-            -1.3322676295501878e-15,
-            -1.3322676295501878e-15,
+            3,
+            0,
+            0,
             0
           ],
           "texture": 0
         },
         "down": {
           "uv": [
-            5.999999999999998,
+            6,
             0,
-            2.9999999999999982,
-            -1.3322676295501878e-15
+            3,
+            0
           ],
           "texture": 0
         }
@@ -850,7 +852,7 @@
       "to": [
         20,
         14,
-        -0.09999999999999964
+        -0.1
       ],
       "autouv": 0,
       "color": 3,
@@ -866,9 +868,9 @@
       "faces": {
         "north": {
           "uv": [
-            3.608224830031759e-16,
+            0,
             19,
-            3.0000000000000004,
+            3,
             32
           ],
           "texture": 0
@@ -877,34 +879,34 @@
           "uv": [
             0,
             19,
-            3.608224830031759e-16,
+            0,
             32
           ],
           "texture": 0
         },
         "south": {
           "uv": [
-            3.000000000000001,
+            3,
             19,
-            6.000000000000001,
+            6,
             32
           ],
           "texture": 0
         },
         "west": {
           "uv": [
-            3.0000000000000004,
+            3,
             19,
-            3.000000000000001,
+            3,
             32
           ],
           "texture": 0
         },
         "up": {
           "uv": [
-            3.0000000000000004,
+            3,
             19,
-            4.440892098500626e-16,
+            0,
             19
           ],
           "texture": 0
@@ -1045,12 +1047,18 @@
   ],
   "textures": [
     {
-      "path": "C:\\Users\\Jonathan\\Desktop\\texture.png",
-      "name": "texture.png",
-      "folder": "Desktop",
+      "name": "door_overlay_a_train_tcl_left.png",
+      "folder": "",
       "namespace": "",
-      "id": "0",
+      "id": "1",
+      "width": 380,
+      "height": 320,
+      "uv_width": 38,
+      "uv_height": 32,
       "particle": false,
+      "use_as_default": false,
+      "layers_enabled": false,
+      "sync_to_project": "",
       "render_mode": "default",
       "render_sides": "auto",
       "frame_time": 1,
@@ -1058,17 +1066,35 @@
       "frame_order": "",
       "frame_interpolate": false,
       "visible": true,
-      "mode": "bitmap",
-      "saved": false,
-      "uuid": "d215c1c5-0a4b-08a5-629a-b85205aac935",
-      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACYAAAAgCAYAAAB+ZAqzAAAAoUlEQVRYR2OM3vPlPwMUzFWsgzEZvLml4WxiGRvn/SRWKVxdulkenI1sPyPIYQoS3AwPXnxlAEmwS6sz/Hx6k6FZyZAkS068fMUAchi3ohxJ+mJEAxiw2T/qMFzBOBpio2mM2Cw2mitHy7HRAna0SiKyvBgtLkaLC3zFxaBtwQ5ah402rbEUPaMt2NEWLJE1EsNolTRaJY22YKnZgh2MdSUA0AvM/7PFgVYAAAAASUVORK5CYII=",
-      "relative_path": "../../../../../../../../../../../../Desktop/texture.png"
+      "internal": true,
+      "saved": true,
+      "uuid": "5da91d16-c42c-d1a1-bd18-778185096886",
+      "relative_path": "../../textures/overlay/door_overlay_a_train_tcl_left.png"
+    },
+    {
+      "name": "door_overlay_a_train_tcl_right.png",
+      "folder": "",
+      "namespace": "",
+      "id": "0",
+      "width": 380,
+      "height": 320,
+      "uv_width": 38,
+      "uv_height": 32,
+      "particle": false,
+      "use_as_default": false,
+      "layers_enabled": false,
+      "sync_to_project": "",
+      "render_mode": "default",
+      "render_sides": "auto",
+      "frame_time": 1,
+      "frame_order_type": "loop",
+      "frame_order": "",
+      "frame_interpolate": false,
+      "visible": true,
+      "internal": true,
+      "saved": true,
+      "uuid": "35a6ed9a-6794-2e9e-61a8-2a377f569608",
+      "relative_path": "../../textures/overlay/door_overlay_a_train_tcl_right.png"
     }
-  ],
-  "fabricOptions": {
-    "header": "package com.example.mod;",
-    "entity": "Entity",
-    "render": "",
-    "members": ""
-  }
+  ]
 }
