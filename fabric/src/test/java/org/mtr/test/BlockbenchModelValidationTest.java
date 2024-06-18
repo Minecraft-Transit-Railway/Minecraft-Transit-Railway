@@ -41,7 +41,7 @@ public final class BlockbenchModelValidationTest {
 						Assertions.assertTrue(relativePath.startsWith("../../textures/vehicle/") || relativePath.startsWith("../../textures/overlay/"), relativePath);
 					});
 
-					Files.write(path, Utilities.prettyPrint(modelObject.toString()).getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING);
+					Files.write(path, modelObject.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
