@@ -26,7 +26,7 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 	 * Used to create the default rail
 	 */
 	public RailResource(String id, String name) {
-		super(id, name, "", "", "", false, 0, 0);
+		super(id, name, "777777", "", "", false, 0, 0);
 		optimizedModel = null;
 		dynamicVehicleModel = null;
 	}

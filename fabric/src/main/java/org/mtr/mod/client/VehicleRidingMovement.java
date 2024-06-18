@@ -93,7 +93,7 @@ public class VehicleRidingMovement {
 	 * Iterate through all open doorways and see if the player is intersecting any of them. If so, start riding the vehicle.
 	 */
 	public static void startRiding(ObjectArrayList<Box> openDoorways, long sidingId, long vehicleId, int carNumber, double x, double y, double z, double yaw) {
-		if (ridingVehicleId == 0 || ridingVehicleId == vehicleId) {
+		if (ridingVehicleId == 0 || isRiding(vehicleId)) {
 			for (final Box doorway : openDoorways) {
 				if (RenderVehicleHelper.boxContains(doorway, x, y, z)) {
 					ridingSidingId = sidingId;
@@ -129,7 +129,7 @@ public class VehicleRidingMovement {
 			return;
 		}
 
-		if (ridingVehicleId == vehicleId && ridingVehicleCarNumber == carNumber) {
+		if (isRiding(vehicleId) && ridingVehicleCarNumber == carNumber) {
 			ridingVehicleCoolDown = 0;
 			final float speedMultiplier = millisElapsed * VEHICLE_WALKING_SPEED_MULTIPLIER * (clientPlayerEntity.isSprinting() ? 2 : 1);
 			// Calculate the relative motion inside vehicle (+Z towards back of vehicle, +/-X towards the left and right of the vehicle)
@@ -259,7 +259,11 @@ public class VehicleRidingMovement {
 	 */
 	@Nullable
 	public static IntObjectImmutablePair<ObjectObjectImmutablePair<Vector3d, Double>> getRidingVehicleCarNumberAndOffset(long vehicleId) {
-		return vehicleId == ridingVehicleId ? new IntObjectImmutablePair<>(ridingVehicleCarNumberCacheOld, new ObjectObjectImmutablePair<>(ridingPositionCacheOld, ridingYawDifferenceOld)) : null;
+		return isRiding(vehicleId) ? new IntObjectImmutablePair<>(ridingVehicleCarNumberCacheOld, new ObjectObjectImmutablePair<>(ridingPositionCacheOld, ridingYawDifferenceOld)) : null;
+	}
+
+	public static boolean isRiding(long vehicleId) {
+		return vehicleId == ridingVehicleId;
 	}
 
 	public static boolean showShiftProgressBar() {

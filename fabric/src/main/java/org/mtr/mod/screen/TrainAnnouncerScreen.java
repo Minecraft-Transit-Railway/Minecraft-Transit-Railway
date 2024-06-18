@@ -49,7 +49,7 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 		}, false);
 
 		final ObjectArrayList<DashboardListItem> soundIds = new ObjectArrayList<>();
-		AbstractSoundInstanceExtension.iterateSoundIds(identifier -> soundIds.add(new DashboardListItem(0, identifier.toString(), ARGB_BACKGROUND)));
+		AbstractSoundInstanceExtension.iterateSoundIds(identifier -> soundIds.add(new DashboardListItem(0, identifier.data.toString(), ARGB_BACKGROUND)));
 		Collections.sort(soundIds);
 		availableSoundsList.setData(soundIds, true, false, false, false, true, false);
 	}

@@ -54,6 +54,10 @@ public final class ObjectResource extends ObjectResourceSchema implements Stored
 		return name;
 	}
 
+	public int getColor() {
+		return CustomResourceTools.colorStringToInt(color);
+	}
+
 	private static double clampNumber(double value) {
 		return value <= 0 ? 1 : value;
 	}

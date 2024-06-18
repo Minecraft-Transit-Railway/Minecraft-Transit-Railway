@@ -4,13 +4,11 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.BlockState;
 import org.mtr.mapping.holder.CompoundTag;
-import org.mtr.mapping.holder.PlayerEntity;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mod.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.function.Consumer;
 
 public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 
@@ -24,7 +22,7 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 
 		private String message = "";
 		private String soundId = "";
-		private final Map<PlayerEntity, Long> lastAnnouncedMillis = new HashMap<>();
+		private long lastAnnouncedMillis;
 		private static final int ANNOUNCE_COOL_DOWN_MILLIS = 20000;
 		private static final String KEY_MESSAGE = "message";
 		private static final String KEY_SOUND_ID = "sound_id";
@@ -61,11 +59,16 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 			return soundId;
 		}
 
-		public void announce(PlayerEntity player) {
+		public void announce(Consumer<String> messageConsumer, Consumer<String> soundIdConsumer) {
 			final long currentMillis = System.currentTimeMillis();
-			if (!lastAnnouncedMillis.containsKey(player) || currentMillis - lastAnnouncedMillis.get(player) >= ANNOUNCE_COOL_DOWN_MILLIS) {
-				lastAnnouncedMillis.put(player, System.currentTimeMillis());
-				// TODO
+			if (currentMillis - lastAnnouncedMillis >= ANNOUNCE_COOL_DOWN_MILLIS) {
+				if (!message.isEmpty()) {
+					messageConsumer.accept(message);
+				}
+				if (!soundId.isEmpty()) {
+					soundIdConsumer.accept(soundId);
+				}
+				lastAnnouncedMillis = System.currentTimeMillis();
 			}
 		}
 	}
