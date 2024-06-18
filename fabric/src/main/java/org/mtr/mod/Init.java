@@ -45,6 +45,7 @@ public final class Init implements Utilities {
 	private static int serverTick;
 
 	public static final String MOD_ID = "mtr";
+	public static final String MOD_ID_NTE = "mtrsteamloco";
 	public static final Logger LOGGER = LogManager.getLogger("MinecraftTransitRailway");
 	public static final Registry REGISTRY = new Registry();
 	public static final int SECONDS_PER_MC_HOUR = 50;
@@ -83,6 +84,7 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketRequestData.class, PacketRequestData::new);
 		REGISTRY.registerPacket(PacketTurnOnBlockEntity.class, PacketTurnOnBlockEntity::new);
 		REGISTRY.registerPacket(PacketUpdateData.class, PacketUpdateData::new);
+		REGISTRY.registerPacket(PacketUpdateEyeCandyConfig.class, PacketUpdateEyeCandyConfig::new);
 		REGISTRY.registerPacket(PacketUpdateLastRailStyles.class, PacketUpdateLastRailStyles::new);
 		REGISTRY.registerPacket(PacketUpdateLiftTrackFloorConfig.class, PacketUpdateLiftTrackFloorConfig::new);
 		REGISTRY.registerPacket(PacketUpdatePIDSConfig.class, PacketUpdatePIDSConfig::new);

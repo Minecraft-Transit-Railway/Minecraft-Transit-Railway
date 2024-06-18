@@ -1,0 +1,23 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"x": {
+			"type": "boolean"
+		},
+		"y": {
+			"type": "boolean"
+		},
+		"z": {
+			"type": "boolean"
+		}
+	},
+	"required": [
+		"x",
+		"y",
+		"z"
+	]
+}

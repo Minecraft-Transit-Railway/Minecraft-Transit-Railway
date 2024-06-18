@@ -3,6 +3,7 @@ package org.mtr.mod.resource;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.generated.resource.VehicleModelSchema;
@@ -37,12 +38,14 @@ public final class VehicleModel extends VehicleModelSchema {
 			return null;
 		}
 
+		final Identifier textureId = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
+
 		if (modelResource.endsWith(".bbmodel")) {
 			final BlockbenchModel[] blockbenchModel = {null};
 			CustomResourceLoader.readResource(CustomResourceTools.formatIdentifier(modelResource, "bbmodel"), jsonElement -> blockbenchModel[0] = new BlockbenchModel(new JsonReader(jsonElement)));
-			return blockbenchModel[0] == null ? null : new DynamicVehicleModel(blockbenchModel[0], CustomResourceTools.formatIdentifierWithDefault(textureResource, "png"), modelProperties, positionDefinitions, id);
+			return blockbenchModel[0] == null ? null : new DynamicVehicleModel(blockbenchModel[0], textureId, modelProperties, positionDefinitions, id);
 		} else if (modelResource.endsWith(".obj")) {
-			return new DynamicVehicleModel(new Object2ObjectAVLTreeMap<>(OptimizedModel.ObjModel.loadModel(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj"), null, true, flipTextureV)), CustomResourceTools.formatIdentifierWithDefault(textureResource, "png"), modelProperties, positionDefinitions, id);
+			return new DynamicVehicleModel(new Object2ObjectAVLTreeMap<>(OptimizedModel.ObjModel.loadModel(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj"), textureId, null, true, flipTextureV)), textureId, modelProperties, positionDefinitions, id);
 		} else {
 			return null;
 		}

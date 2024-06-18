@@ -29,6 +29,7 @@ public class CustomResourceLoader {
 	public static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
 	public static final String DEFAULT_RAIL_ID = "default";
 	public static final String DEFAULT_RAIL_3D_ID = "default_3d";
+	public static final String DEFAULT_RAIL_3D_SIDING_ID = "default_3d_siding";
 
 	private static final Object2ObjectAVLTreeMap<String, JsonElement> RESOURCE_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, ObjectArrayList<VehicleResource>> VEHICLES = new Object2ObjectAVLTreeMap<>();
@@ -37,6 +38,8 @@ public class CustomResourceLoader {
 	private static final Object2ObjectAVLTreeMap<String, SignResource> SIGNS_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final ObjectArrayList<RailResource> RAILS = new ObjectArrayList<>();
 	private static final Object2ObjectAVLTreeMap<String, RailResource> RAILS_CACHE = new Object2ObjectAVLTreeMap<>();
+	private static final ObjectArrayList<ObjectResource> OBJECTS = new ObjectArrayList<>();
+	private static final Object2ObjectAVLTreeMap<String, ObjectResource> OBJECTS_CACHE = new Object2ObjectAVLTreeMap<>();
 
 	static {
 		for (final TransportMode transportMode : TransportMode.values()) {
@@ -54,6 +57,8 @@ public class CustomResourceLoader {
 		SIGNS_CACHE.clear();
 		RAILS.clear();
 		RAILS_CACHE.clear();
+		OBJECTS.clear();
+		OBJECTS_CACHE.clear();
 		TEST_DURATION = 0;
 
 		final RailResource defaultRailResource = new RailResource(DEFAULT_RAIL_ID, "Default");
@@ -75,6 +80,10 @@ public class CustomResourceLoader {
 					RAILS.add(railResource);
 					RAILS_CACHE.put(railResource.getId(), railResource);
 				});
+				customResources.iterateObjects(objectResource -> {
+					OBJECTS.add(objectResource);
+					OBJECTS_CACHE.put(objectResource.getId(), objectResource);
+				});
 			} catch (Exception e) {
 				Init.LOGGER.error("", e);
 			}
@@ -89,6 +98,7 @@ public class CustomResourceLoader {
 		Init.LOGGER.info("Loaded {} vehicles and completed door movement validation in {} ms", VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum), TEST_DURATION / 1E6);
 		Init.LOGGER.info("Loaded {} signs", SIGNS.size());
 		Init.LOGGER.info("Loaded {} rails", RAILS.size());
+		Init.LOGGER.info("Loaded {} objects", OBJECTS.size());
 	}
 
 	public static void iterateVehicles(TransportMode transportMode, Consumer<VehicleResource> consumer) {
@@ -132,6 +142,17 @@ public class CustomResourceLoader {
 		final RailResource railResource = RAILS_CACHE.get(railId);
 		if (railResource != null) {
 			ifPresent.accept(railResource);
+		}
+	}
+
+	public static ObjectImmutableList<ObjectResource> getObjects() {
+		return new ObjectImmutableList<>(OBJECTS);
+	}
+
+	public static void getObjectById(String objectId, Consumer<ObjectResource> ifPresent) {
+		final ObjectResource objectResource = OBJECTS_CACHE.get(objectId);
+		if (objectResource != null) {
+			ifPresent.accept(objectResource);
 		}
 	}
 

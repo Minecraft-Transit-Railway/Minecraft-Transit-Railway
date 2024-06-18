@@ -224,6 +224,9 @@ public final class Blocks {
 		METAL_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "metal_slab"), () -> new Block(new SlabBlockExtension(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		RUBBISH_BIN_1 = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "rubbish_bin_1"), () -> new Block(new BlockRubbishBin(BlockHelper.createBlockSettings(false))), CreativeModeTabs.RAILWAY_FACILITIES);
 		TACTILE_MAP = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "tactile_map"), () -> new Block(new BlockTactileMap(BlockHelper.createBlockSettings(false))), CreativeModeTabs.RAILWAY_FACILITIES);
+
+		// NTE
+		EYE_CANDY = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID_NTE, "eye_candy"), () -> new Block(new BlockEyeCandy()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 	}
 
 	public static final BlockRegistryObject AIRPLANE_NODE;
@@ -409,6 +412,7 @@ public final class Blocks {
 	public static final BlockRegistryObject TRAIN_CARGO_UNLOADER;
 	public static final BlockRegistryObject TRAIN_REDSTONE_SENSOR;
 	public static final BlockRegistryObject TRAIN_SCHEDULE_SENSOR;
+	public static final BlockRegistryObject EYE_CANDY;
 
 	public static void init() {
 		Init.LOGGER.info("Registering Minecraft Transit Railway blocks");

@@ -234,7 +234,7 @@ public class RenderRails implements IGui {
 		for (final String style : rail.getStyles()) {
 			final String newStyle;
 			if (OptimizedRenderer.hasOptimizedRendering() && Config.getClient().getDefaultRail3D() && rail.getTransportMode() == TransportMode.TRAIN) {
-				newStyle = style.equals(CustomResourceLoader.DEFAULT_RAIL_ID) ? CustomResourceLoader.DEFAULT_RAIL_3D_ID : style;
+				newStyle = style.equals(CustomResourceLoader.DEFAULT_RAIL_ID) ? rail.isSiding() ? CustomResourceLoader.DEFAULT_RAIL_3D_SIDING_ID : CustomResourceLoader.DEFAULT_RAIL_3D_ID : style;
 			} else {
 				newStyle = style;
 			}
