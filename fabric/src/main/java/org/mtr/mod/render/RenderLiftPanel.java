@@ -91,7 +91,7 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> exten
 			});
 
 			// Floor Number
-			RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
 				storedMatrixTransformations2.transform(graphicsHolder, offset);
 				IDrawing.drawStringWithFont(graphicsHolder, currentFloorNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, -0.47F, 0.1875F, 0.1875F, 1, ARGB_BLACK, false, GraphicsHolder.getDefaultLight(), null);
 				graphicsHolder.pop();
@@ -118,7 +118,7 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> exten
 		if (liftDirection != LiftDirection.NONE) {
 			final float uv = (gameTick * ARROW_SPEED) % 1;
 			final int color = goingUp ? 0xFF00FF00 : 0xFFFF0000;
-			RenderTrains.scheduleRender(ARROW_TEXTURE, false, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(ARROW_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolder, offset);
 				IDrawing.drawTexture(graphicsHolder, -PANEL_WIDTH / 2 - arrowSize, y, arrowSize, arrowSize, 0, (goingUp ? 0 : 1) + uv, 1, (goingUp ? 1 : 0) + uv, Direction.UP, color, GraphicsHolder.getDefaultLight());
 				IDrawing.drawTexture(graphicsHolder, PANEL_WIDTH / 2, y, arrowSize, arrowSize, 0, (goingUp ? 0 : 1) + uv, 1, (goingUp ? 1 : 0) + uv, Direction.UP, color, GraphicsHolder.getDefaultLight());
@@ -137,7 +137,7 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> exten
 			}
 			final float uv = (goingUp ? -1 : 1) * uvOffset;
 			final String text = String.format("%s%s%s", floorNumber, noFloorNumber || noFloorDisplay ? "" : "|", floorDescription);
-			RenderTrains.scheduleRender(DynamicTextureCache.instance.getLiftPanelDisplay(text, 0xFFAA00).identifier, false, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(DynamicTextureCache.instance.getLiftPanelDisplay(text, 0xFFAA00).identifier, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolder, offset);
 				IDrawing.drawTexture(graphicsHolder, -PANEL_WIDTH / 2, y, PANEL_WIDTH, arrowSize, 0, uv, 1, lineHeight + uv, Direction.UP, ARGB_WHITE, GraphicsHolder.getDefaultLight());
 				graphicsHolder.pop();

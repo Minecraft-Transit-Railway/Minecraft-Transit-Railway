@@ -47,7 +47,7 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.BlockEntity> {
 		if (!airLeft && !airRight || persistent) {
 			return;
 		}
-		RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/psd_top.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+		MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/psd_top.png"), false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 			storedMatrixTransformations.transform(graphicsHolder, offset);
 			if (airLeft) {
 				// back
@@ -98,7 +98,7 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.BlockEntity> {
 		final boolean isNotPersistent = IBlock.getStatePropertySafe(state, BlockPSDTop.PERSISTENT) == BlockPSDTop.EnumPersistent.NONE;
 		final boolean airLeft = isNotPersistent && IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_LEFT);
 		final boolean airRight = isNotPersistent && IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_RIGHT);
-		RenderTrains.scheduleRender(DynamicTextureCache.instance.getColorStrip(platformId).identifier, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+		MainRenderer.scheduleRender(DynamicTextureCache.instance.getColorStrip(platformId).identifier, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 			storedMatrixTransformations.transform(graphicsHolder, offset);
 			IDrawing.drawTexture(graphicsHolder, airLeft ? 0.625F : 0, COLOR_STRIP_START, 0, airRight ? 0.375F : 1, COLOR_STRIP_END, 0, facing, color, light);
 			if (airLeft) {

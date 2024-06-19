@@ -74,7 +74,7 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.BlockEntityBase> ext
 					identifier = DynamicTextureCache.instance.getRouteMap(platformId, false, arrowDirection == 2, width / height, transparentWhite).identifier;
 				}
 
-				RenderTrains.scheduleRender(identifier, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolderNew, offset) -> {
+				MainRenderer.scheduleRender(identifier, false, QueuedRenderLayer.EXTERIOR, (graphicsHolderNew, offset) -> {
 					storedMatrixTransformations.transform(graphicsHolderNew, offset);
 					IDrawing.drawTexture(graphicsHolderNew, leftBlocks == 0 ? sidePadding : 0, topPadding, 0, 1 - (rightBlocks == 0 ? sidePadding : 0), 1 - bottomPadding, 0, (leftBlocks - (leftBlocks == 0 ? 0 : sidePadding)) / width, 0, (width - rightBlocks + (rightBlocks == 0 ? 0 : sidePadding)) / width, 1, facing.getOpposite(), color, light);
 					graphicsHolderNew.pop();

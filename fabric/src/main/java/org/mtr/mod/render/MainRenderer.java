@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class RenderTrains extends EntityRenderer<EntityRendering> implements IGui {
+public class MainRenderer extends EntityRenderer<EntityRendering> implements IGui {
 
 	private static long lastRenderedMillis;
 
@@ -50,7 +50,7 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 		}
 	}
 
-	public RenderTrains(Argument argument) {
+	public MainRenderer(Argument argument) {
 		super(argument);
 	}
 
@@ -182,6 +182,4 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 		final long gameMillisElapsed = (long) (MinecraftClient.getInstance().getLastFrameDuration() * 50);
 		return Math.abs(gameMillisElapsed - millisElapsed) < 50 ? gameMillisElapsed : millisElapsed;
 	}
-
-	public enum QueuedRenderLayer {LIGHT, INTERIOR, EXTERIOR, LIGHT_TRANSLUCENT, INTERIOR_TRANSLUCENT, EXTERIOR_TRANSLUCENT, LINES, TEXT}
 }

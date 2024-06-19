@@ -4,7 +4,8 @@ import org.mtr.mapping.holder.Direction;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.render.RenderTrains;
+import org.mtr.mod.render.MainRenderer;
+import org.mtr.mod.render.QueuedRenderLayer;
 import org.mtr.mod.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
@@ -42,7 +43,7 @@ public class ScrollingText implements IGui {
 			final int totalSteps = widthSteps + imageSteps;
 			final int step = Math.round((InitClient.getGameTick() - ticksOffset) * scrollSpeed) % totalSteps;
 			final float width = Math.min(Math.min(availableWidth, dynamicResource.width * scale), Math.min(step * pixelScale * scale, (totalSteps - step) * pixelScale * scale));
-			RenderTrains.scheduleRender(dynamicResource.identifier, false, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(dynamicResource.identifier, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolder, offset);
 				IDrawing.drawTexture(graphicsHolder, Math.max(widthSteps - step, 0) * scale * pixelScale, 0, width, availableHeight, Math.max((float) (step - widthSteps) / imageSteps, 0), 0, Math.min((float) step / imageSteps, 1), 1, Direction.UP, ARGB_WHITE, GraphicsHolder.getDefaultLight());
 				graphicsHolder.pop();

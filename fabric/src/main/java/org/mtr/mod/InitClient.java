@@ -162,7 +162,7 @@ public final class InitClient {
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_BLACK, dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.EYE_CANDY, RenderEyeCandy::new);
 
-		REGISTRY_CLIENT.registerEntityRenderer(EntityTypes.RENDERING, RenderTrains::new);
+		REGISTRY_CLIENT.registerEntityRenderer(EntityTypes.RENDERING, MainRenderer::new);
 
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_20, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_20_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());

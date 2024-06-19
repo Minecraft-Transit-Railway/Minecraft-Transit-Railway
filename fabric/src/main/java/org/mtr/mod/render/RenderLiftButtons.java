@@ -108,14 +108,14 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 
 		// Render buttons
 		if (buttonStates[0]) {
-			RenderTrains.scheduleRender(BUTTON_TEXTURE, false, buttonStates[2] || lookingAtBottomHalf ? RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(BUTTON_TEXTURE, false, buttonStates[2] || lookingAtBottomHalf ? QueuedRenderLayer.LIGHT_TRANSLUCENT : QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				storedMatrixTransformations2.transform(graphicsHolder, offset);
 				IDrawing.drawTexture(graphicsHolder, -1.5F / 16, (buttonStates[1] ? 0.5F : 2.5F) / 16, 3F / 16, 3F / 16, 0, 0, 1, 1, facing, buttonStates[2] ? PRESSED_COLOR : lookingAtBottomHalf ? HOVER_COLOR : ARGB_GRAY, light);
 				graphicsHolder.pop();
 			});
 		}
 		if (buttonStates[1]) {
-			RenderTrains.scheduleRender(BUTTON_TEXTURE, false, buttonStates[3] || lookingAtTopHalf ? RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(BUTTON_TEXTURE, false, buttonStates[3] || lookingAtTopHalf ? QueuedRenderLayer.LIGHT_TRANSLUCENT : QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				storedMatrixTransformations2.transform(graphicsHolder, offset);
 				IDrawing.drawTexture(graphicsHolder, -1.5F / 16, (buttonStates[0] ? 4.5F : 2.5F) / 16, 3F / 16, 3F / 16, 0, 1, 1, 0, facing, buttonStates[3] ? PRESSED_COLOR : lookingAtTopHalf ? HOVER_COLOR : ARGB_GRAY, light);
 				graphicsHolder.pop();
@@ -134,7 +134,7 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 			});
 
 			// Render the black background
-			RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/black.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/black.png"), false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				storedMatrixTransformations3.transform(graphicsHolder, offset);
 				IDrawing.drawTexture(graphicsHolder, 0, -0.9375F, width, 0.40625F, Direction.UP, light);
 				graphicsHolder.pop();
@@ -153,7 +153,7 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 
 	public static void renderLiftObjectLink(StoredMatrixTransformations storedMatrixTransformations, World world, Vector3d position1, Vector3d position2, boolean holdingLinker) {
 		if (holdingLinker) {
-			RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.LINES, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(QueuedRenderLayer.LINES, (graphicsHolder, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolder, offset);
 				graphicsHolder.drawLineInWorld(
 						(float) position1.getXMapped(),

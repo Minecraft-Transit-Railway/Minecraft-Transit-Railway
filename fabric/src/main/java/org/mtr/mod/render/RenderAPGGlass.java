@@ -34,7 +34,7 @@ public class RenderAPGGlass extends RenderRouteBase<BlockAPGGlass.BlockEntity> {
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER && IBlock.getStatePropertySafe(state, SIDE_EXTENDED) != EnumSide.SINGLE) {
 			final boolean isLeft = isLeft(state);
 			final boolean isRight = isRight(state);
-			RenderTrains.scheduleRender(DynamicTextureCache.instance.getColorStrip(platformId).identifier, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(DynamicTextureCache.instance.getColorStrip(platformId).identifier, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolder, offset);
 				IDrawing.drawTexture(graphicsHolder, isLeft ? sidePadding : 0, COLOR_STRIP_START, 0, isRight ? 1 - sidePadding : 1, COLOR_STRIP_END, 0, facing, color, light);
 				IDrawing.drawTexture(graphicsHolder, isRight ? 1 - sidePadding : 1, COLOR_STRIP_START, 0.125F, isLeft ? sidePadding : 0, COLOR_STRIP_END, 0.125F, facing, color, light);
@@ -43,7 +43,7 @@ public class RenderAPGGlass extends RenderRouteBase<BlockAPGGlass.BlockEntity> {
 
 			final float width = leftBlocks + rightBlocks + 1 - sidePadding * 2;
 			final float height = 1 - topPadding - bottomPadding;
-			RenderTrains.scheduleRender(DynamicTextureCache.instance.getSingleRowStationName(platformId, width / height).identifier, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(DynamicTextureCache.instance.getSingleRowStationName(platformId, width / height).identifier, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolder, offset);
 				IDrawing.drawTexture(graphicsHolder, 1 - (rightBlocks == 0 ? sidePadding : 0), topPadding, 0.125F, leftBlocks == 0 ? sidePadding : 0, 1 - bottomPadding, 0.125F, (rightBlocks - (rightBlocks == 0 ? 0 : sidePadding)) / width, 0, (width - leftBlocks + (leftBlocks == 0 ? 0 : sidePadding)) / width, 1, facing, color, light);
 				graphicsHolder.pop();

@@ -14,7 +14,8 @@ import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.generated.resource.VehicleResourceSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
-import org.mtr.mod.render.RenderTrains;
+import org.mtr.mod.render.MainRenderer;
+import org.mtr.mod.render.QueuedRenderLayer;
 import org.mtr.mod.render.StoredMatrixTransformations;
 import org.mtr.mod.sound.BveVehicleSound;
 import org.mtr.mod.sound.BveVehicleSoundConfig;
@@ -282,7 +283,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 	private static void queue(Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, boolean noOpenDoorways) {
 		optimizedModels.forEach((partCondition, optimizedModel) -> {
 			if (matchesCondition(vehicle, partCondition, noOpenDoorways)) {
-				RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
+				MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
 					storedMatrixTransformations.transform(graphicsHolder, offset);
 					CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(optimizedModel, graphicsHolder, light);
 					graphicsHolder.pop();

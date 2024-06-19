@@ -86,7 +86,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 
 		if (renderBackground) {
 			final int newBackgroundColor = backgroundColor | ARGB_BLACK;
-			RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, RenderTrains.QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
+			MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolderNew, offset);
 				IDrawing.drawTexture(graphicsHolderNew, 0, 0, SMALL_OFFSET, 0.5F * (signIds.length), 0.5F, SMALL_OFFSET, facing, newBackgroundColor, GraphicsHolder.getDefaultLight());
 				graphicsHolderNew.pop();
@@ -107,7 +107,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 						entity.getSelectedIds(),
 						facing,
 						backgroundColor | ARGB_BLACK,
-						(textureId, x, y, size, flipTexture) -> RenderTrains.scheduleRender(textureId, true, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+						(textureId, x, y, size, flipTexture) -> MainRenderer.scheduleRender(textureId, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 							storedMatrixTransformations.transform(graphicsHolderNew, offset);
 							IDrawing.drawTexture(graphicsHolderNew, x, y, size, size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1, facing, -1, GraphicsHolder.getDefaultLight());
 							graphicsHolderNew.pop();
@@ -161,7 +161,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 				final StationExit stationExit = selectedExitsSorted.get(flipCustomText ? selectedExitsSorted.size() - i - 1 : i);
 				final float signOffset = (flipCustomText ? -1 : 1) * signSize * i - (flipCustomText ? signSize : 0);
 
-				RenderTrains.scheduleRender(DynamicTextureCache.instance.getExitSignLetter(stationExit.getName().substring(0, 1), stationExit.getName().substring(1), backgroundColor).identifier, true, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+				MainRenderer.scheduleRender(DynamicTextureCache.instance.getExitSignLetter(stationExit.getName().substring(0, 1), stationExit.getName().substring(1), backgroundColor).identifier, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 					storedMatrixTransformations.transform(graphicsHolderNew, offset);
 					graphicsHolderNew.translate(x + margin + (flipCustomText ? signSize : 0), y + margin, 0);
 					graphicsHolderNew.scale(Math.min(1, maxWidth / exitWidth), 1, 1);
@@ -221,7 +221,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 			for (final DynamicTextureCache.DynamicResource resourceLocationData : resourceLocationDataList) {
 				final float width = height * resourceLocationData.width / resourceLocationData.height;
 				final float finalXOffset = xOffset;
-				RenderTrains.scheduleRender(resourceLocationData.identifier, true, RenderTrains.QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
+				MainRenderer.scheduleRender(resourceLocationData.identifier, true, QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
 					storedMatrixTransformations2.transform(graphicsHolderNew, offset);
 					IDrawing.drawTexture(graphicsHolderNew, flipCustomText ? -finalXOffset - width : finalXOffset, margin, width, height, Direction.UP, GraphicsHolder.getDefaultLight());
 					graphicsHolderNew.pop();
@@ -244,7 +244,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 				final float bottomOffset = (i + 1) * height + extraMargin;
 				final float left = flipCustomText ? x - maxWidthLeft * size : x + margin;
 				final float right = flipCustomText ? x + size - margin : x + (maxWidthRight + 1) * size;
-				RenderTrains.scheduleRender(DynamicTextureCache.instance.getDirectionArrow(selectedIdsSorted.getLong(i), false, false, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, false, margin / size, (right - left) / (bottomOffset - topOffset), backgroundColor, ARGB_WHITE, backgroundColor).identifier, true, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+				MainRenderer.scheduleRender(DynamicTextureCache.instance.getDirectionArrow(selectedIdsSorted.getLong(i), false, false, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, false, margin / size, (right - left) / (bottomOffset - topOffset), backgroundColor, ARGB_WHITE, backgroundColor).identifier, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 					storedMatrixTransformations.transform(graphicsHolderNew, offset);
 					IDrawing.drawTexture(graphicsHolderNew, left, topOffset, 0, right, bottomOffset, 0, 0, 0, 1, 1, facing, -1, GraphicsHolder.getDefaultLight());
 					graphicsHolderNew.pop();
@@ -254,7 +254,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 			if (storedMatrixTransformations != null && isTransportSystemMap) {
 				final StoredMatrixTransformations storedMatrixTransformationsNew = storedMatrixTransformations.copy();
 				storedMatrixTransformationsNew.add(graphicsHolderNew -> graphicsHolderNew.translate(x, y, 0));
-				QrCodeHelper.INSTANCE.renderQrCode(storedMatrixTransformationsNew, RenderTrains.QueuedRenderLayer.LIGHT, signSize);
+				QrCodeHelper.INSTANCE.renderQrCode(storedMatrixTransformationsNew, QueuedRenderLayer.LIGHT, signSize);
 			} else {
 				drawTexture.drawTexture(sign.getTexture(), x + margin, y + margin, signSize, flipTexture);
 			}
@@ -287,7 +287,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 	private static void renderCustomText(String signText, StoredMatrixTransformations storedMatrixTransformations, Direction facing, float size, float start, boolean flipCustomText, float maxWidth, int backgroundColor) {
 		final DynamicTextureCache.DynamicResource dynamicResource = DynamicTextureCache.instance.getSignText(signText, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, (1 - BlockRailwaySign.SMALL_SIGN_PERCENTAGE) / 2, backgroundColor, ARGB_WHITE);
 		final float width = Math.min(size * dynamicResource.width / dynamicResource.height, maxWidth);
-		RenderTrains.scheduleRender(dynamicResource.identifier, true, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+		MainRenderer.scheduleRender(dynamicResource.identifier, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 			storedMatrixTransformations.transform(graphicsHolderNew, offset);
 			IDrawing.drawTexture(graphicsHolderNew, start - (flipCustomText ? width : 0), 0, 0, start + (flipCustomText ? 0 : width), size, 0, 0, 0, 1, 1, facing, -1, GraphicsHolder.getDefaultLight());
 			graphicsHolderNew.pop();

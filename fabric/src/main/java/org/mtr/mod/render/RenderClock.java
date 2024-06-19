@@ -32,7 +32,7 @@ public class RenderClock extends BlockEntityRenderer<BlockClock.BlockEntity> imp
 			storedMatrixTransformations.add(graphicsHolderNew -> graphicsHolderNew.rotateYDegrees(90));
 		}
 
-		RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, RenderTrains.QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
+		MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
 			storedMatrixTransformations.transform(graphicsHolderNew, offset);
 			final long time = WorldHelper.getTimeOfDay(world) + 6000;
 

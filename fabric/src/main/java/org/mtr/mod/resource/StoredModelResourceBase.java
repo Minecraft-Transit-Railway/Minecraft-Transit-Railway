@@ -7,7 +7,8 @@ import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.render.DynamicVehicleModel;
-import org.mtr.mod.render.RenderTrains;
+import org.mtr.mod.render.MainRenderer;
+import org.mtr.mod.render.QueuedRenderLayer;
 import org.mtr.mod.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
@@ -59,7 +60,7 @@ public interface StoredModelResourceBase {
 
 		if (OptimizedRenderer.hasOptimizedRendering()) {
 			if (optimizedModel != null) {
-				RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
+				MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
 					storedMatrixTransformations.transform(graphicsHolder, offset);
 					CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(optimizedModel, graphicsHolder, light);
 					graphicsHolder.pop();
