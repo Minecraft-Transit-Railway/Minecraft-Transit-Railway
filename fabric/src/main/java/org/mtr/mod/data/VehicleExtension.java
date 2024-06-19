@@ -74,7 +74,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		final String nextRouteDestination = vehicleExtraData.getNextRouteDestination();
 		final long thisRouteId = vehicleExtraData.getThisRouteId();
 
-		if (VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(id) != null) {
+		if (VehicleRidingMovement.isRiding(id)) {
 			// Render client action bar floating text
 			if (VehicleRidingMovement.showShiftProgressBar() && (!isCurrentlyManual || !isHoldingKey(clientPlayerEntity))) {
 				final double adjustedSpeed = getAdjustedSpeed();
@@ -208,7 +208,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 			if (currentIndex >= 0 && currentIndex < vehicleExtraData.immutablePath.size()) {
 				final int carNumber = reversed ? vehicleExtraData.immutableVehicleCars.size() - i - 1 : i;
 				if (railProgress - totalLength >= vehicleExtraData.immutablePath.get(currentIndex).getEndDistance()) {
-					persistentVehicleData.getOscillation(carNumber).startOscillation(speed * 50);
+					persistentVehicleData.getOscillation(carNumber).startOscillation(Math.sqrt(speed) * 5 * (Math.random() + 0.5));
 				}
 				totalLength += vehicleExtraData.immutableVehicleCars.get(carNumber).getLength();
 			}
