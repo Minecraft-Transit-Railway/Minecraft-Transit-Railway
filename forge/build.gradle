@@ -91,12 +91,13 @@ tasks.register("setupFiles") {
 
 build {
 	doLast {
-		buildTools.copyBuildFile()
+		buildTools.copyBuildFile(excludeAssets == "true")
 	}
 }
 
 shadowJar {
 	finalizedBy "reobfShadowJar"
+	exclude excludeAssets == "true" ? "assets" : "abc123"
 }
 
 reobf {

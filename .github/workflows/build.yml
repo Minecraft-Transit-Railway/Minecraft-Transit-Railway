@@ -26,6 +26,8 @@ jobs:
         run: ./gradlew forge:setupFiles -PminecraftVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
       - name: Build ${{ matrix.minecraft }}
         run: ./gradlew build -PminecraftVersion="${{ matrix.minecraft }}"
+      - name: Build ${{ matrix.minecraft }} (server)
+        run: ./gradlew build -PminecraftVersion="${{ matrix.minecraft }}" -PexcludeAssets=true
       - name: Capture release artifacts
         uses: actions/upload-artifact@main
         with:
