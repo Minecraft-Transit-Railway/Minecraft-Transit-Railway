@@ -294,21 +294,25 @@ public class RenderRails implements IGui {
 	}
 
 	private static void renderWithinRenderDistance(Rail rail, RenderRailWithBlockPos callback, double interval, float offsetRadius1, float offsetRadius2) {
-		final Entity camera = MinecraftClient.getInstance().getCameraEntityMapped();
-		if (camera != null) {
-			final Vector3i cameraBlockPos = new Vector3i(camera.getBlockPos().data);
-			final Vector3d cameraPosition = camera.getPos();
-			final int renderDistance = MinecraftClientHelper.getRenderDistance() * 16;
-			rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-				final BlockPos blockPos = Init.newBlockPos(x1, y1, z1);
-				if (blockPos.getManhattanDistance(cameraBlockPos) <= renderDistance) {
-					final Vector3d rotatedVector = new Vector3d(x1, y1, z1).subtract(cameraPosition).rotateY((float) Math.toRadians(EntityHelper.getYaw(camera))).rotateX((float) Math.toRadians(EntityHelper.getPitch(camera)));
+		final Camera camera = MinecraftClient.getInstance().getGameRendererMapped().getCamera();
+		final Vector3i cameraBlockPos = new Vector3i(camera.getBlockPos().data);
+		final Vector3d cameraPosition = camera.getPos();
+		final int renderDistance = MinecraftClientHelper.getRenderDistance() * 16;
+
+		rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+			final BlockPos blockPos = Init.newBlockPos(x1, y1, z1);
+			final int distance = blockPos.getManhattanDistance(cameraBlockPos);
+			if (distance <= renderDistance) {
+				if (distance < 32) {
+					callback.renderRail(blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2);
+				} else {
+					final Vector3d rotatedVector = new Vector3d(x1, y1, z1).subtract(cameraPosition).rotateY((float) Math.toRadians(camera.getYaw())).rotateX((float) Math.toRadians(camera.getPitch()));
 					if (rotatedVector.getZMapped() > 0) {
 						callback.renderRail(blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2);
 					}
 				}
-			}, interval, offsetRadius1, offsetRadius2);
-		}
+			}
+		}, interval, offsetRadius1, offsetRadius2);
 	}
 
 	private static void renderNode(BlockState blockState, BlockPos blockPos, BooleanSupplier shouldRender, int light) {

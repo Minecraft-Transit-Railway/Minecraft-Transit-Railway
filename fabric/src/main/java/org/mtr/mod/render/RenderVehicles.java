@@ -65,7 +65,7 @@ public class RenderVehicles implements IGui {
 					return () -> vehicle.persistentVehicleData.rayTracing[carNumber] = shouldRender;
 				});
 
-				if (vehicle.persistentVehicleData.rayTracing[carNumber] || VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(vehicle.getId()) != null) {
+				if (vehicle.persistentVehicleData.rayTracing[carNumber] || VehicleRidingMovement.isRiding(vehicle.getId())) {
 					CustomResourceLoader.getVehicleById(vehicle.getTransportMode(), vehicleProperties.vehicleCar.getVehicleId(), vehicleResource -> {
 
 						// Render each bogie of the car

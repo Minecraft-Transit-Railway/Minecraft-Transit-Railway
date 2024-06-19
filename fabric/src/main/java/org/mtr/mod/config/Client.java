@@ -2,6 +2,7 @@ package org.mtr.mod.config;
 
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
+import org.mtr.mod.Keys;
 import org.mtr.mod.generated.config.ClientSchema;
 
 public final class Client extends ClientSchema {
@@ -41,6 +42,10 @@ public final class Client extends ClientSchema {
 		return disableShadowsForShaders;
 	}
 
+	public boolean showBetaWarningScreen() {
+		return !Keys.MOD_VERSION.equals(betaWarningVersion);
+	}
+
 	public void toggleChatAnnouncements() {
 		chatAnnouncements = !chatAnnouncements;
 	}
@@ -67,5 +72,9 @@ public final class Client extends ClientSchema {
 
 	public void toggleDisableShadowsForShaders() {
 		disableShadowsForShaders = !disableShadowsForShaders;
+	}
+
+	public void hideBetaWarningScreen() {
+		betaWarningVersion = Keys.MOD_VERSION;
 	}
 }

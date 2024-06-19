@@ -23,6 +23,7 @@ import org.mtr.mod.entity.EntityRendering;
 import org.mtr.mod.item.ItemBlockClickingBase;
 import org.mtr.mod.packet.PacketRequestData;
 import org.mtr.mod.render.*;
+import org.mtr.mod.screen.BetaWarningScreen;
 import org.mtr.mod.servlet.ClientServlet;
 import org.mtr.mod.servlet.Tunnel;
 import org.mtr.mod.sound.LoopingSoundInstance;
@@ -353,6 +354,7 @@ public final class InitClient {
 			final long millisElapsed = currentMillis - lastMillis;
 			lastMillis = currentMillis;
 			gameMillis += millisElapsed;
+			BetaWarningScreen.handle();
 
 			final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 			if (clientWorld != null) {
