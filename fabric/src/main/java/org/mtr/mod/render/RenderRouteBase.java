@@ -48,43 +48,41 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.BlockEntityBase> ext
 
 		renderAdditionalUnmodified(storedMatrixTransformations.copy(), state, facing, light);
 
-		if (!RenderTrains.shouldNotRender(blockPos, null)) {
-			InitClient.findClosePlatform(blockPos.down(platformSearchYOffset), 5, platform -> {
-				final long platformId = platform.getId();
+		InitClient.findClosePlatform(blockPos.down(platformSearchYOffset), 5, platform -> {
+			final long platformId = platform.getId();
 
-				storedMatrixTransformations.add(graphicsHolderNew -> {
-					graphicsHolderNew.translate(0, 1, 0);
-					graphicsHolderNew.rotateZDegrees(180);
-					graphicsHolderNew.translate(-0.5, -getAdditionalOffset(state), z);
-				});
+			storedMatrixTransformations.add(graphicsHolderNew -> {
+				graphicsHolderNew.translate(0, 1, 0);
+				graphicsHolderNew.rotateZDegrees(180);
+				graphicsHolderNew.translate(-0.5, -getAdditionalOffset(state), z);
+			});
 
-				final int leftBlocks = getTextureNumber(world, blockPos, facing, true);
-				final int rightBlocks = getTextureNumber(world, blockPos, facing, false);
-				final int color = getShadingColor(facing, ARGB_WHITE);
-				final RenderType renderType = getRenderType(world, blockPos.offset(facing.rotateYCounterclockwise(), leftBlocks), state);
+			final int leftBlocks = getTextureNumber(world, blockPos, facing, true);
+			final int rightBlocks = getTextureNumber(world, blockPos, facing, false);
+			final int color = getShadingColor(facing, ARGB_WHITE);
+			final RenderType renderType = getRenderType(world, blockPos.offset(facing.rotateYCounterclockwise(), leftBlocks), state);
 
-				if ((renderType == RenderType.ARROW || renderType == RenderType.ROUTE) && IBlock.getStatePropertySafe(state, SIDE_EXTENDED) != EnumSide.SINGLE) {
-					final float width = leftBlocks + rightBlocks + 1 - sidePadding * 2;
-					final float height = 1 - topPadding - bottomPadding;
-					final int arrowDirection = IBlock.getStatePropertySafe(state, arrowDirectionProperty);
+			if ((renderType == RenderType.ARROW || renderType == RenderType.ROUTE) && IBlock.getStatePropertySafe(state, SIDE_EXTENDED) != EnumSide.SINGLE) {
+				final float width = leftBlocks + rightBlocks + 1 - sidePadding * 2;
+				final float height = 1 - topPadding - bottomPadding;
+				final int arrowDirection = IBlock.getStatePropertySafe(state, arrowDirectionProperty);
 
-					final Identifier identifier;
-					if (renderType == RenderType.ARROW) {
-						identifier = DynamicTextureCache.instance.getDirectionArrow(platformId, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.25F, width / height, ARGB_WHITE, ARGB_BLACK, transparentWhite ? ARGB_WHITE : 0).identifier;
-					} else {
-						identifier = DynamicTextureCache.instance.getRouteMap(platformId, false, arrowDirection == 2, width / height, transparentWhite).identifier;
-					}
-
-					RenderTrains.scheduleRender(identifier, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolderNew, offset) -> {
-						storedMatrixTransformations.transform(graphicsHolderNew, offset);
-						IDrawing.drawTexture(graphicsHolderNew, leftBlocks == 0 ? sidePadding : 0, topPadding, 0, 1 - (rightBlocks == 0 ? sidePadding : 0), 1 - bottomPadding, 0, (leftBlocks - (leftBlocks == 0 ? 0 : sidePadding)) / width, 0, (width - rightBlocks + (rightBlocks == 0 ? 0 : sidePadding)) / width, 1, facing.getOpposite(), color, light);
-						graphicsHolderNew.pop();
-					});
+				final Identifier identifier;
+				if (renderType == RenderType.ARROW) {
+					identifier = DynamicTextureCache.instance.getDirectionArrow(platformId, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.25F, width / height, ARGB_WHITE, ARGB_BLACK, transparentWhite ? ARGB_WHITE : 0).identifier;
+				} else {
+					identifier = DynamicTextureCache.instance.getRouteMap(platformId, false, arrowDirection == 2, width / height, transparentWhite).identifier;
 				}
 
-				renderAdditional(storedMatrixTransformations, platformId, state, leftBlocks, rightBlocks, facing.getOpposite(), color, light);
-			});
-		}
+				RenderTrains.scheduleRender(identifier, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolderNew, offset) -> {
+					storedMatrixTransformations.transform(graphicsHolderNew, offset);
+					IDrawing.drawTexture(graphicsHolderNew, leftBlocks == 0 ? sidePadding : 0, topPadding, 0, 1 - (rightBlocks == 0 ? sidePadding : 0), 1 - bottomPadding, 0, (leftBlocks - (leftBlocks == 0 ? 0 : sidePadding)) / width, 0, (width - rightBlocks + (rightBlocks == 0 ? 0 : sidePadding)) / width, 1, facing.getOpposite(), color, light);
+					graphicsHolderNew.pop();
+				});
+			}
+
+			renderAdditional(storedMatrixTransformations, platformId, state, leftBlocks, rightBlocks, facing.getOpposite(), color, light);
+		});
 	}
 
 	@Override

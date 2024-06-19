@@ -120,10 +120,6 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 	}
 
 	public static void drawSign(GraphicsHolder graphicsHolder, @Nullable StoredMatrixTransformations storedMatrixTransformations, BlockPos pos, String signId, float x, float y, float size, float maxWidthLeft, float maxWidthRight, LongAVLTreeSet selectedIds, Direction facing, int backgroundColor, DrawTexture drawTexture) {
-		if (RenderTrains.shouldNotRender(pos, facing)) {
-			return;
-		}
-
 		final SignResource sign = getSign(signId);
 		if (sign == null) {
 			return;
