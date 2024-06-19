@@ -64,8 +64,12 @@ tasks.register("setupFiles") {
 
 build {
 	doLast {
-		buildTools.copyBuildFile()
+		buildTools.copyBuildFile(excludeAssets == "true")
 	}
+}
+
+shadowJar {
+	exclude excludeAssets == "true" ? "assets" : "abc123"
 }
 
 remapJar {
