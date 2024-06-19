@@ -114,7 +114,7 @@ public class RenderVehicleHelper {
 					playerPosition.getYMapped(),
 					playerPosition.getZMapped() + HALF_PLAYER_WIDTH
 			) ? 0xFF00FF00 : color;
-			RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.LINES, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
+			MainRenderer.scheduleRender(QueuedRenderLayer.LINES, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
 				drawLine(graphicsHolder, corner1, corner2, newOffset, newColor);
 				drawLine(graphicsHolder, corner2, corner3, newOffset, newColor);
 				drawLine(graphicsHolder, corner3, corner4, newOffset, newColor);

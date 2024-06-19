@@ -28,13 +28,13 @@ public class RenderStationNameTiled<T extends BlockStationNameBase.BlockEntityBa
 		if (showLogo) {
 			final int propagateProperty = IBlock.getStatePropertySafe(world, pos, BlockStationNameEntrance.STYLE);
 			final float logoSize = propagateProperty % 2 == 0 ? 0.5F : 1;
-			RenderTrains.scheduleRender(DynamicTextureCache.instance.getStationNameEntrance(propagateProperty < 2 || propagateProperty >= 4 ? ARGB_WHITE : ARGB_BLACK, IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, stationName), totalLength / logoSize).identifier, false, RenderTrains.QueuedRenderLayer.INTERIOR, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(DynamicTextureCache.instance.getStationNameEntrance(propagateProperty < 2 || propagateProperty >= 4 ? ARGB_WHITE : ARGB_BLACK, IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, stationName), totalLength / logoSize).identifier, false, QueuedRenderLayer.INTERIOR, (graphicsHolder, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolder, offset);
 				IDrawing.drawTexture(graphicsHolder, -0.5F, -logoSize / 2, 1, logoSize, (float) (lengthLeft - 1) / totalLength, 0, (float) lengthLeft / totalLength, 1, facing, color, light);
 				graphicsHolder.pop();
 			});
 		} else {
-			RenderTrains.scheduleRender(DynamicTextureCache.instance.getStationName(stationName, totalLength).identifier, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(DynamicTextureCache.instance.getStationName(stationName, totalLength).identifier, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolder, offset);
 				IDrawing.drawTexture(graphicsHolder, -0.5F, -0.5F, 1, 1, (float) (lengthLeft - 1) / totalLength, 0, (float) lengthLeft / totalLength, 1, facing, color, light);
 				graphicsHolder.pop();

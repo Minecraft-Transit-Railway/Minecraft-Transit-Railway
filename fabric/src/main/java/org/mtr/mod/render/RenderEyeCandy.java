@@ -33,7 +33,7 @@ public class RenderEyeCandy extends BlockEntityRenderer<BlockEyeCandy.BlockEntit
 		final int newLight = blockEntity.getFullBrightness() ? GraphicsHolder.getDefaultLight() : light;
 
 		if (RenderRails.isHoldingRailRelated(clientPlayerEntity) && minecraftClient.getCurrentScreenMapped() == null) {
-			RenderTrains.scheduleRender(new Identifier(Init.MOD_ID_NTE, "textures/item/eye_candy.png"), false, RenderTrains.QueuedRenderLayer.INTERIOR, (graphicsHolderNew, offset) -> {
+			MainRenderer.scheduleRender(new Identifier(Init.MOD_ID_NTE, "textures/item/eye_candy.png"), false, QueuedRenderLayer.INTERIOR, (graphicsHolderNew, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolderNew, offset);
 				graphicsHolderNew.translate(0, 0.5, 0);
 				InitClient.transformToFacePlayer(graphicsHolderNew, blockEntity.getPos2().getX() + 0.5, blockEntity.getPos2().getY() + 0.5, blockEntity.getPos2().getZ() + 0.5);
