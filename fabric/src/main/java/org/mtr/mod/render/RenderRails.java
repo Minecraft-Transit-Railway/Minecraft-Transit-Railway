@@ -11,10 +11,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.EntityHelper;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.OptimizedRenderer;
-import org.mtr.mapping.mapper.PlayerHelper;
+import org.mtr.mapping.mapper.*;
 import org.mtr.mod.Init;
 import org.mtr.mod.Items;
 import org.mtr.mod.block.BlockNode;
@@ -45,7 +42,6 @@ public class RenderRails implements IGui {
 	private static final Identifier METAL_TEXTURE = new Identifier(Init.MOD_ID, "textures/block/metal.png");
 	private static final Identifier RAIL_PREVIEW_TEXTURE = new Identifier(Init.MOD_ID, "textures/block/rail_preview.png");
 	private static final Identifier RAIL_TEXTURE = new Identifier("textures/block/rail.png");
-	private static final Identifier WHITE_TEXTURE = new Identifier(Init.MOD_ID, "textures/block/white.png");
 	private static final Identifier WOOL_TEXTURE = new Identifier("textures/block/white_wool.png");
 	private static final Identifier ONE_WAY_RAIL_ARROW_TEXTURE = new Identifier(Init.MOD_ID, "textures/block/one_way_rail_arrow.png");
 	private static final int INVALID_NODE_CHECK_RADIUS = 16;
@@ -151,7 +147,7 @@ public class RenderRails implements IGui {
 					if (renderState.hasColor && !rail.isPlatform() && !rail.isSiding()) {
 						renderRailOneWayArrows(rail, 0.5F + SMALL_OFFSET);
 					}
-					RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.LINES, (graphicsHolder, offset) -> rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> graphicsHolder.drawLineInWorld(
+					RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.LINES, (graphicsHolder, offset) -> renderWithinRenderDistance(rail, (blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> graphicsHolder.drawLineInWorld(
 							(float) (x1 - offset.getXMapped()),
 							(float) (y1 - offset.getYMapped() + 0.5),
 							(float) (z1 - offset.getZMapped()),
@@ -171,21 +167,21 @@ public class RenderRails implements IGui {
 			}
 		});
 
-		// Render nodes
 		if (holdingRailRelated) {
+			// Render nodes
 			MinecraftClientData.getInstance().positionsToRail.keySet().forEach(position -> {
 				final BlockPos blockPos = Init.positionToBlockPos(position);
 				renderNode(clientWorld.getBlockState(blockPos), blockPos, () -> true, GraphicsHolder.getDefaultLight());
 			});
-		}
 
-		// Render nodes with the connected block state but isn't actually connected
-		for (int x = -INVALID_NODE_CHECK_RADIUS; x <= INVALID_NODE_CHECK_RADIUS; x++) {
-			for (int y = -INVALID_NODE_CHECK_RADIUS; y <= INVALID_NODE_CHECK_RADIUS; y++) {
-				for (int z = -INVALID_NODE_CHECK_RADIUS; z <= INVALID_NODE_CHECK_RADIUS; z++) {
-					final BlockPos blockPos = clientPlayerEntity.getBlockPos().add(x, y, z);
-					final BlockState blockState = clientWorld.getBlockState(blockPos);
-					renderNode(blockState, blockPos, () -> blockState.get(new Property<>(BlockNode.IS_CONNECTED.data)) && !MinecraftClientData.getInstance().positionsToRail.containsKey(Init.blockPosToPosition(blockPos)), RenderTrains.getFlashingLight());
+			// Render nodes with the connected block state but isn't actually connected
+			for (int x = -INVALID_NODE_CHECK_RADIUS; x <= INVALID_NODE_CHECK_RADIUS; x++) {
+				for (int y = -INVALID_NODE_CHECK_RADIUS; y <= INVALID_NODE_CHECK_RADIUS; y++) {
+					for (int z = -INVALID_NODE_CHECK_RADIUS; z <= INVALID_NODE_CHECK_RADIUS; z++) {
+						final BlockPos blockPos = clientPlayerEntity.getBlockPos().add(x, y, z);
+						final BlockState blockState = clientWorld.getBlockState(blockPos);
+						renderNode(blockState, blockPos, () -> blockState.get(new Property<>(BlockNode.IS_CONNECTED.data)) && !MinecraftClientData.getInstance().positionsToRail.containsKey(Init.blockPosToPosition(blockPos)), RenderTrains.getFlashingLight());
+					}
 				}
 			}
 		}
@@ -215,12 +211,10 @@ public class RenderRails implements IGui {
 
 		// Render one-way rail arrows
 		if (speedLimit1 == 0 || speedLimit2 == 0) {
-			rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-				RenderTrains.scheduleRender(ONE_WAY_RAIL_ARROW_TEXTURE, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
-					IDrawing.drawTexture(graphicsHolder, x1, y1 + yOffset + 0.125, z1, x2, y1 + yOffset + 0.125 + SMALL_OFFSET, z2, x3, y2 + yOffset + 0.125, z3, x4, y2 + yOffset + 0.125 + SMALL_OFFSET, z4, offset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, GraphicsHolder.getDefaultLight());
-					IDrawing.drawTexture(graphicsHolder, x2, y1 + yOffset + 0.125 + SMALL_OFFSET, z2, x1, y1 + yOffset + 0.125, z1, x4, y2 + yOffset + 0.125 + SMALL_OFFSET, z4, x3, y2 + yOffset + 0.125, z3, offset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, GraphicsHolder.getDefaultLight());
-				});
-			}, 1, -1, 1);
+			renderWithinRenderDistance(rail, (blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> RenderTrains.scheduleRender(ONE_WAY_RAIL_ARROW_TEXTURE, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+				IDrawing.drawTexture(graphicsHolder, x1, y1 + yOffset + 0.125, z1, x2, y1 + yOffset + 0.125 + SMALL_OFFSET, z2, x3, y2 + yOffset + 0.125, z3, x4, y2 + yOffset + 0.125 + SMALL_OFFSET, z4, offset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, GraphicsHolder.getDefaultLight());
+				IDrawing.drawTexture(graphicsHolder, x2, y1 + yOffset + 0.125 + SMALL_OFFSET, z2, x1, y1 + yOffset + 0.125, z1, x4, y2 + yOffset + 0.125 + SMALL_OFFSET, z4, x3, y2 + yOffset + 0.125, z3, offset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, GraphicsHolder.getDefaultLight());
+			}), 1, -1, 1);
 		}
 	}
 
@@ -243,8 +237,7 @@ public class RenderRails implements IGui {
 				renderType[0] = true;
 			} else {
 				final boolean flip = newStyle.endsWith("_2");
-				CustomResourceLoader.getRailById(RailResource.getIdWithoutDirection(newStyle), railResource -> rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-					final BlockPos blockPos = Init.newBlockPos(x1, y1, z1);
+				CustomResourceLoader.getRailById(RailResource.getIdWithoutDirection(newStyle), railResource -> renderWithinRenderDistance(rail, (blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 					final int light = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
 					final double differenceX = x3 - x1;
 					final double differenceZ = z3 - z1;
@@ -266,8 +259,7 @@ public class RenderRails implements IGui {
 		if (renderType[0] || renderState.hasColor) {
 			final int color = renderState.hasColor ? RailType.getRailColor(rail) : ARGB_WHITE;
 			final Identifier texture = renderType[1] && !renderType[0] ? IRON_BLOCK_TEXTURE : defaultTexture;
-			rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-				final BlockPos blockPos = Init.newBlockPos(x1, y1, z1);
+			renderWithinRenderDistance(rail, (blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 				final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F;
 				final int light = renderState == RenderState.FLASHING ? RenderTrains.getFlashingLight() : renderState == RenderState.COLORED ? GraphicsHolder.getDefaultLight() : LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
 				RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
@@ -291,14 +283,31 @@ public class RenderRails implements IGui {
 			final float u1 = width * i + 1 - width * colors.size() / 2;
 			final float u2 = u1 + width;
 
-			rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-				final BlockPos blockPos = Init.newBlockPos(x1, y1, z1);
+			renderWithinRenderDistance(rail, (blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 				final int light = shouldFlash ? RenderTrains.getFlashingLight() : LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
 				RenderTrains.scheduleRender(WOOL_TEXTURE, false, shouldFlash ? RenderTrains.QueuedRenderLayer.EXTERIOR : RenderTrains.QueuedRenderLayer.LIGHT, (graphicsHolder, offset) -> {
 					IDrawing.drawTexture(graphicsHolder, x1, y1 + 0.125, z1, x2, y1 + 0.125 + SMALL_OFFSET, z2, x3, y2 + 0.125, z3, x4, y2 + 0.125 + SMALL_OFFSET, z4, offset, u1, 0, u2, 1, Direction.UP, color, light);
 					IDrawing.drawTexture(graphicsHolder, x4, y2 + 0.125 + SMALL_OFFSET, z4, x3, y2 + 0.125, z3, x2, y1 + 0.125 + SMALL_OFFSET, z2, x1, y1 + 0.125, z1, offset, u1, 0, u2, 1, Direction.UP, color, light);
 				});
 			}, 1, u1 - 1, u2 - 1);
+		}
+	}
+
+	private static void renderWithinRenderDistance(Rail rail, RenderRailWithBlockPos callback, double interval, float offsetRadius1, float offsetRadius2) {
+		final Entity camera = MinecraftClient.getInstance().getCameraEntityMapped();
+		if (camera != null) {
+			final Vector3i cameraBlockPos = new Vector3i(camera.getBlockPos().data);
+			final Vector3d cameraPosition = camera.getPos();
+			final int renderDistance = MinecraftClientHelper.getRenderDistance() * 16;
+			rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+				final BlockPos blockPos = Init.newBlockPos(x1, y1, z1);
+				if (blockPos.getManhattanDistance(cameraBlockPos) <= renderDistance) {
+					final Vector3d rotatedVector = new Vector3d(x1, y1, z1).subtract(cameraPosition).rotateY((float) Math.toRadians(EntityHelper.getYaw(camera))).rotateX((float) Math.toRadians(EntityHelper.getPitch(camera)));
+					if (rotatedVector.getZMapped() > 0) {
+						callback.renderRail(blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2);
+					}
+				}
+			}, interval, offsetRadius1, offsetRadius2);
 		}
 	}
 
@@ -333,5 +342,10 @@ public class RenderRails implements IGui {
 		RenderState(boolean hasColor) {
 			this.hasColor = hasColor;
 		}
+	}
+
+	@FunctionalInterface
+	private interface RenderRailWithBlockPos {
+		void renderRail(BlockPos blockPos, double x1, double z1, double x2, double z2, double x3, double z3, double x4, double z4, double y1, double y2);
 	}
 }

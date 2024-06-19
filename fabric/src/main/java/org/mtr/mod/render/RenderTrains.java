@@ -6,7 +6,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.CustomResourceLoader;
@@ -153,11 +152,6 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.render(!Config.getClient().getHideTranslucentParts());
 	}
 
-	public static boolean shouldNotRender(BlockPos pos, @Nullable Direction facing) {
-		final Entity camera = MinecraftClient.getInstance().getCameraEntityMapped();
-		return shouldNotRender(camera == null ? null : camera.getPos(), pos, facing);
-	}
-
 	public static void scheduleRender(@Nullable Identifier identifier, boolean priority, QueuedRenderLayer queuedRenderLayer, BiConsumer<GraphicsHolder, Vector3d> callback) {
 		if (identifier != null) {
 			RENDERS.get(priority ? 1 : 0).get(queuedRenderLayer.ordinal()).computeIfAbsent(identifier, key -> new ObjectArrayList<>()).add(callback);
@@ -187,26 +181,6 @@ public class RenderTrains extends EntityRenderer<EntityRendering> implements IGu
 		final long millisElapsed = InitClient.getGameMillis() - lastRenderedMillis;
 		final long gameMillisElapsed = (long) (MinecraftClient.getInstance().getLastFrameDuration() * 50);
 		return Math.abs(gameMillisElapsed - millisElapsed) < 50 ? gameMillisElapsed : millisElapsed;
-	}
-
-	private static double maxDistanceXZ(Vector3d pos1, BlockPos pos2) {
-		return Math.max(Math.abs(pos1.getXMapped() - pos2.getX()), Math.abs(pos1.getZMapped() - pos2.getZ()));
-	}
-
-	private static boolean shouldNotRender(@Nullable Vector3d cameraPos, BlockPos pos, @Nullable Direction facing) {
-		final boolean playerFacingAway;
-		if (cameraPos == null || facing == null) {
-			playerFacingAway = false;
-		} else {
-			if (facing.getAxis() == Axis.X) {
-				final double playerXOffset = cameraPos.getXMapped() - pos.getX() - 0.5;
-				playerFacingAway = Math.signum(playerXOffset) == facing.getOffsetX() && Math.abs(playerXOffset) >= 0.5;
-			} else {
-				final double playerZOffset = cameraPos.getZMapped() - pos.getZ() - 0.5;
-				playerFacingAway = Math.signum(playerZOffset) == facing.getOffsetZ() && Math.abs(playerZOffset) >= 0.5;
-			}
-		}
-		return cameraPos == null || playerFacingAway || maxDistanceXZ(cameraPos, pos) > MinecraftClientHelper.getRenderDistance() * 16;
 	}
 
 	public enum QueuedRenderLayer {LIGHT, INTERIOR, EXTERIOR, LIGHT_TRANSLUCENT, INTERIOR_TRANSLUCENT, EXTERIOR_TRANSLUCENT, LINES, TEXT}
