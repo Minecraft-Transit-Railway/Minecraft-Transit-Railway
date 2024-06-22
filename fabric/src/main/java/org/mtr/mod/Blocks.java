@@ -69,6 +69,10 @@ public final class Blocks {
 		PLATFORM_NA_2_INDENTED = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_na_2_indented"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		PLATFORM_UK_1 = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_uk_1"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), false)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		PLATFORM_UK_1_INDENTED = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_uk_1_indented"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_slab"), () -> new Block(new BlockPlatformSlab(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_NA_1_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_na_1_slab"), () -> new Block(new BlockPlatformSlab(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_NA_2_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_na_2_slab"), () -> new Block(new BlockPlatformSlab(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_UK_1_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_uk_1_slab"), () -> new Block(new BlockPlatformSlab(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 
 		// Signs
 		RAILWAY_SIGN_2_EVEN = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "railway_sign_2_even"), () -> new Block(new BlockRailwaySign(2, false)), CreativeModeTabs.RAILWAY_FACILITIES);
@@ -289,6 +293,10 @@ public final class Blocks {
 	public static final BlockRegistryObject PLATFORM_NA_2_INDENTED;
 	public static final BlockRegistryObject PLATFORM_UK_1;
 	public static final BlockRegistryObject PLATFORM_UK_1_INDENTED;
+	public static final BlockRegistryObject PLATFORM_SLAB;
+	public static final BlockRegistryObject PLATFORM_NA_1_SLAB;
+	public static final BlockRegistryObject PLATFORM_NA_2_SLAB;
+	public static final BlockRegistryObject PLATFORM_UK_1_SLAB;
 	public static final BlockRegistryObject PSD_DOOR_1;
 	public static final BlockRegistryObject PSD_DOOR_2;
 	public static final BlockRegistryObject PSD_GLASS_1;

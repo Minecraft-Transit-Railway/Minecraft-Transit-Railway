@@ -13,6 +13,7 @@ import org.mtr.mod.Init;
 import org.mtr.mod.Items;
 import org.mtr.mod.block.BlockPSDAPGDoorBase;
 import org.mtr.mod.block.BlockPlatform;
+import org.mtr.mod.block.BlockPlatformSlab;
 import org.mtr.mod.client.VehicleRidingMovement;
 
 import javax.annotation.Nullable;
@@ -53,7 +54,7 @@ public class RenderVehicleHelper {
 					final BlockPos checkPos = Init.newBlockPos(checkX, checkY, checkZ);
 					final BlockState blockState = clientWorld.getBlockState(checkPos);
 					final Block block = blockState.getBlock();
-					if (block.data instanceof BlockPlatform) {
+					if (block.data instanceof BlockPlatform || block.data instanceof BlockPlatformSlab) {
 						canOpenDoors = true;
 					} else if (block.data instanceof BlockPSDAPGDoorBase && blockState.get(new Property<>(BlockPSDAPGDoorBase.UNLOCKED.data))) {
 						canOpenDoors = true;
