@@ -99,10 +99,16 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	) {
 		floors.addAll(this.floors);
 		doorways.addAll(this.doorways);
+
 		materialGroupsForPartConditionAndRenderStage.forEach((partCondition, materialGroupsForRenderStage) -> Data.put(materialGroupsForPartCondition, partCondition, materialGroupsForRenderStage.values(), ObjectArrayList::new));
 		materialGroupsForPartConditionAndRenderStageDoorsClosed.forEach((partCondition, materialGroupsForRenderStage) -> Data.put(materialGroupsForPartConditionDoorsClosed, partCondition, materialGroupsForRenderStage.values(), ObjectArrayList::new));
 		objModelsForPartConditionAndRenderStage.forEach((partCondition, objModelsForRenderStage) -> Data.put(objModelsForPartCondition, partCondition, flattenCollection(objModelsForRenderStage.values()), ObjectArrayList::new));
 		objModelsForPartConditionAndRenderStageDoorsClosed.forEach((partCondition, objModelsForRenderStage) -> Data.put(objModelsForPartConditionDoorsClosed, partCondition, flattenCollection(objModelsForRenderStage.values()), ObjectArrayList::new));
+
+		materialGroupsForPartConditionAndRenderStage.clear();
+		materialGroupsForPartConditionAndRenderStageDoorsClosed.clear();
+		objModelsForPartConditionAndRenderStage.clear();
+		objModelsForPartConditionAndRenderStageDoorsClosed.clear();
 	}
 
 	/**

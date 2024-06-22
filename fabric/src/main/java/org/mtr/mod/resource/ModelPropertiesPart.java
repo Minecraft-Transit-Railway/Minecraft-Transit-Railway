@@ -444,7 +444,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		private final boolean flipped;
 
 		private PartDetails(ObjectArrayList<ModelPartExtension> modelParts, @Nullable OptimizedModelWrapper optimizedModelDoor, Box box, double x, double y, double z, boolean flipped) {
-			this.modelParts = modelParts;
+			this.modelParts = OptimizedRenderer.hasOptimizedRendering() ? new ObjectArrayList<>() : modelParts;
 			this.optimizedModelDoor = optimizedModelDoor;
 			this.box = box;
 			this.x = x;
