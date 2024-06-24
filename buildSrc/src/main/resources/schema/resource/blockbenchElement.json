@@ -1,0 +1,61 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"name": {
+			"type": "string"
+		},
+		"from": {
+			"type": "array",
+			"items": {
+				"type": "number"
+			}
+		},
+		"to": {
+			"type": "array",
+			"items": {
+				"type": "number"
+			}
+		},
+		"inflate": {
+			"type": "number"
+		},
+		"shade": {
+			"type": "boolean",
+			"default": true
+		},
+		"mirror_uv": {
+			"type": "boolean",
+			"default": false
+		},
+		"rotation": {
+			"type": "array",
+			"items": {
+				"type": "number"
+			}
+		},
+		"origin": {
+			"type": "array",
+			"items": {
+				"type": "number"
+			}
+		},
+		"uv_offset": {
+			"type": "array",
+			"items": {
+				"type": "integer"
+			}
+		},
+		"uuid": {
+			"type": "string"
+		}
+	},
+	"required": [
+		"name",
+		"inflate",
+		"uuid"
+	]
+}

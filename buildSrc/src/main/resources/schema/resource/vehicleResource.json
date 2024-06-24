@@ -1,0 +1,132 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"id": {
+			"type": "string"
+		},
+		"name": {
+			"type": "string"
+		},
+		"color": {
+			"type": "string"
+		},
+		"transportMode": {
+			"$ref": "TransportMode"
+		},
+		"length": {
+			"type": "number",
+			"minimum": 0
+		},
+		"width": {
+			"type": "number",
+			"minimum": 0
+		},
+		"bogie1Position": {
+			"type": "number"
+		},
+		"bogie2Position": {
+			"type": "number"
+		},
+		"couplingPadding1": {
+			"type": "number",
+			"minimum": 0
+		},
+		"couplingPadding2": {
+			"type": "number",
+			"minimum": 0
+		},
+		"description": {
+			"type": "string"
+		},
+		"wikipediaArticle": {
+			"type": "string"
+		},
+		"tags": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"models": {
+			"type": "array",
+			"items": {
+				"$ref": "vehicleModel.json"
+			}
+		},
+		"bogie1Models": {
+			"type": "array",
+			"items": {
+				"$ref": "vehicleModel.json"
+			}
+		},
+		"bogie2Models": {
+			"type": "array",
+			"items": {
+				"$ref": "vehicleModel.json"
+			}
+		},
+		"hasGangway1": {
+			"type": "boolean"
+		},
+		"hasGangway2": {
+			"type": "boolean"
+		},
+		"hasBarrier1": {
+			"type": "boolean"
+		},
+		"hasBarrier2": {
+			"type": "boolean"
+		},
+		"bveSoundBaseResource": {
+			"type": "string"
+		},
+		"legacySpeedSoundBaseResource": {
+			"type": "string"
+		},
+		"legacySpeedSoundCount": {
+			"type": "integer",
+			"minimum": 1
+		},
+		"legacyUseAccelerationSoundsWhenCoasting": {
+			"type": "boolean"
+		},
+		"legacyConstantPlaybackSpeed": {
+			"type": "boolean"
+		},
+		"legacyDoorSoundBaseResource": {
+			"type": "string"
+		},
+		"legacyDoorCloseSoundTime": {
+			"type": "number"
+		}
+	},
+	"required": [
+		"id",
+		"name",
+		"color",
+		"transportMode",
+		"length",
+		"width",
+		"bogie1Position",
+		"bogie2Position",
+		"couplingPadding1",
+		"couplingPadding2",
+		"description",
+		"wikipediaArticle",
+		"hasGangway1",
+		"hasGangway2",
+		"hasBarrier1",
+		"hasBarrier2",
+		"bveSoundBaseResource",
+		"legacySpeedSoundBaseResource",
+		"legacySpeedSoundCount",
+		"legacyUseAccelerationSoundsWhenCoasting",
+		"legacyConstantPlaybackSpeed",
+		"legacyDoorSoundBaseResource",
+		"legacyDoorCloseSoundTime"
+	]
+}

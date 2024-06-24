@@ -1,146 +1,106 @@
 import org.apache.tools.ant.filters.ReplaceTokens
-import org.apache.tools.ant.taskdefs.condition.Os
+import org.mtr.mod.BuildTools
 
-loom {
-	forge {
-		mixinConfig "mtr.mixins.json"
+plugins {
+	id "net.minecraftforge.gradle" version "+"
+	id "org.spongepowered.mixin" version "+"
+}
+
+final BuildTools buildTools = new BuildTools(minecraftVersion, "forge", project)
+
+minecraft {
+	mappings channel: "official", version: minecraftVersion
+	accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
+	runs {
+		configureEach {
+			property "forge.logging.markers", "REGISTRIES"
+			property "forge.logging.console.level", "debug"
+		}
+		client {}
+		server { args "--nogui" }
 	}
 }
 
-architectury {
-	platformSetupLoomIde()
-	forge()
-}
-
-configurations {
-	common
-	shadowCommon
-	compileClasspath.extendsFrom common
-	runtimeClasspath.extendsFrom common
-	developmentForge.extendsFrom common
-}
+sourceSets.main.resources { srcDir "src/generated/resources" }
 
 dependencies {
-	forge "net.minecraftforge:forge:${rootProject.forge_version}"
-	modApi "${rootProject.architectury_id}:architectury-forge:${rootProject.architectury_data[0].split("\\+")[0]}"
-
-	common(project(path: ":common", configuration: "namedElements")) { transitive false }
-	shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+	minecraft "net.minecraftforge:forge:${minecraftVersion}-${buildTools.getForgeVersion()}"
+	annotationProcessor "org.spongepowered:mixin:+:processor"
+	shadowImplementation "org.mtr:Minecraft-Mappings-forge-${minecraftVersion}:0.0.1-dev"
 }
 
-processResources {
-	inputs.property "version", project.version
+mixin {
+	add sourceSets.main, "mtr.refmap.json"
+	config "mtr.mixins.json"
+	debug.verbose = true
+	debug.export = true
+}
 
-	filesMatching("META-INF/mods.toml") {
-		expand "version": project.version
+java {
+	toolchain {
+		languageVersion.set(JavaLanguageVersion.of(buildTools.javaLanguageVersion))
+	}
+	withSourcesJar()
+	withJavadocJar()
+}
+
+tasks.register("setupFiles") {
+	copy {
+		outputs.upToDateWhen { false }
+		from "src/main/mods.template.toml"
+		into "src/main/resources/META-INF"
+		filter(ReplaceTokens, tokens: ["minecraft": minecraftVersion, "version": version])
+		rename "(.+).template.toml", "\$1.toml"
+	}
+
+	delete fileTree("src/main/java/org/mtr/mod")
+	delete fileTree("src/main/java/org/mtr/legacy")
+	delete fileTree("src/main/resources/assets")
+	delete fileTree("src/main/resources/data")
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "../fabric/src/main/java/org/mtr/mod"
+		into "src/main/java/org/mtr/mod"
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "../fabric/src/main/java/org/mtr/legacy"
+		into "src/main/java/org/mtr/legacy"
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "../fabric/src/main/java/org/mtr/core"
+		into "src/main/java/org/mtr/core"
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "../fabric/src/main/resources/assets"
+		into "src/main/resources/assets"
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "../fabric/src/main/resources/data"
+		into "src/main/resources/data"
+	}
+}
+
+build {
+	doLast {
+		buildTools.copyBuildFile()
 	}
 }
 
 shadowJar {
-	exclude "fabric.mod.json"
-
-	configurations = [project.configurations.shadowCommon]
-	classifier "dev-shadow"
-	relocate "javax.servlet", "mtr.libraries.javax.servlet"
-	relocate "org.eclipse", "mtr.libraries.org.eclipse"
+	finalizedBy "reobfShadowJar"
 }
 
-remapJar {
-	input.set shadowJar.archiveFile
-	dependsOn shadowJar
-	classifier null
+reobf {
+	shadowJar {}
 }
 
-components.java {
-	withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-		skip()
-	}
-}
-
-task moveForgeBuilds() {
-	doLast {
-		delete fileTree("../build/release").matching {
-			include "**/${rootProject.variation_header}-forge*"
-		}
-		delete fileTree("../build/libs").matching {
-			include "**/${rootProject.variation_header}-forge*"
-		}
-		delete fileTree("../build/latest").matching {
-			include "**/${rootProject.variation_header}-forge*"
-		}
-		copy {
-			from "build/libs"
-			include "*${rootProject.mod_version}.jar"
-			into "../build/release"
-			rename "(.+)", "${rootProject.variation_header}-\$1"
-		}
-		if (rootProject.variation == "normal") {
-			copy {
-				from "build/libs"
-				into "../build/latest"
-				rename { fileName -> "MTR-${fileName.replace(rootProject.mod_version, "latest")}" }
-			}
-			copy {
-				from "build/libs"
-				include "*${rootProject.mod_version}-dev-shadow.jar"
-				into "../build/libs"
-				rename "(.+)", "MTR-\$1"
-			}
-		}
-	}
-}
-
-task testServer {
-	doLast {
-		if (rootProject.variation == "normal") {
-			copy {
-				from "../resources/eula.txt"
-				into "server"
-			}
-			copy {
-				from "../resources/server.properties"
-				into "server"
-				filter(ReplaceTokens, tokens: ["port": String.valueOf(25500 + new Random().nextInt(500))])
-			}
-			copy {
-				from "../build/latest"
-				into "server/mods"
-				include "MTR-forge-*-latest.jar"
-				rename "(.+)", "MTR.jar"
-			}
-			download {
-				src rootProject.architectury_data[1]
-				dest "forge/server/mods/architectury.jar"
-				overwrite true
-				retries - 1
-			}
-			download {
-				src "https://maven.minecraftforge.net/net/minecraftforge/forge/${rootProject.forge_version}/forge-${rootProject.forge_version}-installer.jar"
-				dest "forge/server/forge-installer.jar"
-				overwrite true
-				retries - 1
-			}
-			javaexec {
-				mainClass = "-jar"
-				args = ["forge-installer.jar", "--installServer"]
-				workingDir = "server"
-			}
-			if (!rootProject.forge_version.startsWith("1.16.5")) {
-				javaexec {
-					mainClass = "@libraries/net/minecraftforge/forge/${rootProject.forge_version}/${Os.isFamily(Os.FAMILY_WINDOWS) ? "win" : "unix"}_args.txt"
-					args = ["nogui"]
-					jvmArgs = ["-Xms4G", "-Xmx4G"]
-					workingDir = "server"
-				}
-			}
-		}
-	}
-}
-
-afterEvaluate {
-	for (def task in it.tasks) {
-		if (task == tasks.build) {
-			task.finalizedBy tasks.moveForgeBuilds
-		}
-	}
-}
+assemble.dependsOn shadowJar

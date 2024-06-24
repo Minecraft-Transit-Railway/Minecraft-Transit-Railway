@@ -1,0 +1,111 @@
+{
+	"parts": [
+		{
+			"names": [
+				"roof_end_light"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"roof_end",
+				"head"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"head_floor"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"head_exterior",
+				"roof_end_exterior"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"destination_display"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.5,
+			"displayYPadding": 0.5,
+			"displayColorCjk": "FF9900",
+			"displayColor": "FF0000",
+			"displayMaxLineHeight": 1,
+			"displayCjkSizeRatio": 2,
+			"displayOptions": [
+				"UPPER_CASE",
+				"SPACE_CJK",
+				"ALIGN_CENTER"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "回廠|Depot"
+		},
+		{
+			"names": [
+				"departure_index_display"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "DISPLAY",
+			"displayYPadding": 0.7,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"SEVEN_SEGMENT",
+				"ALIGN_CENTER"
+			],
+			"displayType": "DEPARTURE_INDEX"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		}
+	],
+	"modelYOffset": 1
+}

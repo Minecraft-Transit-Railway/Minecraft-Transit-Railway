@@ -1,0 +1,393 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window",
+			"positionsFlipped": [
+				{
+					"z": -48
+				},
+				{
+					"z": 48
+				}
+			]
+		},
+		{
+			"name": "windowFlipped",
+			"positions": [
+				{
+					"z": -48
+				},
+				{
+					"z": 48
+				}
+			]
+		},
+		{
+			"name": "windowPart",
+			"positions": [
+				{
+					"z": -64
+				},
+				{
+					"z": -32
+				},
+				{
+					"z": 32
+				},
+				{
+					"z": 64
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -64
+				},
+				{
+					"z": -32
+				},
+				{
+					"z": 32
+				},
+				{
+					"z": 64
+				}
+			]
+		},
+		{
+			"name": "doorMovement"
+		},
+		{
+			"name": "doorMovementFlipped",
+			"positionsFlipped": [
+				{
+					"z": -96
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 96
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positionsFlipped": [
+				{
+					"z": -96
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 96
+				}
+			]
+		},
+		{
+			"name": "doorFlipped",
+			"positions": [
+				{
+					"z": -96
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 96
+				}
+			]
+		},
+		{
+			"name": "doorOverlayWall1",
+			"positionsFlipped": [
+				{
+					"z": -82.1
+				},
+				{
+					"z": 13.9
+				},
+				{
+					"z": 109.9
+				}
+			]
+		},
+		{
+			"name": "doorOverlayWall2",
+			"positionsFlipped": [
+				{
+					"z": -109.9
+				},
+				{
+					"z": -13.9
+				},
+				{
+					"z": 82.1
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -128
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -128
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positions": [
+				{
+					"z": 128
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positionsFlipped": [
+				{
+					"z": 128
+				}
+			]
+		},
+		{
+			"name": "sideDisplay1",
+			"positionsFlipped": [
+				{
+					"z": 64
+				}
+			]
+		},
+		{
+			"name": "sideDisplay4",
+			"positionsFlipped": [
+				{
+					"z": 127
+				}
+			]
+		},
+		{
+			"name": "sideDisplay5",
+			"positionsFlipped": [
+				{
+					"z": 128
+				}
+			]
+		},
+		{
+			"name": "origin",
+			"positions": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "originFlipped"
+		},
+		{
+			"name": "vents",
+			"positions": [
+				{
+					"z": 0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "departureIndexBox1",
+			"positions": [
+				{
+					"x": 4,
+					"z": -128
+				}
+			]
+		},
+		{
+			"name": "departureIndexBox4",
+			"positions": [
+				{
+					"x": -6,
+					"y": -18,
+					"z": -126
+				}
+			]
+		},
+		{
+			"name": "departureIndexDisplay4",
+			"positions": [
+				{
+					"x": -6,
+					"y": -14.5,
+					"z": -126
+				}
+			]
+		},
+		{
+			"name": "seatPurple",
+			"positions": [
+				{
+					"x": -8.5,
+					"z": -136
+				},
+				{
+					"x": -15,
+					"z": -120
+				},
+				{
+					"x": 15,
+					"z": -120
+				},
+				{
+					"x": -8.5,
+					"z": -72
+				},
+				{
+					"x": -15,
+					"z": -56
+				},
+				{
+					"x": 15,
+					"z": -56
+				},
+				{
+					"x": -8.5,
+					"z": -40
+				},
+				{
+					"x": -15,
+					"z": -24
+				},
+				{
+					"x": 15,
+					"z": -24
+				},
+				{
+					"x": -8.5,
+					"z": 24
+				},
+				{
+					"x": -15,
+					"z": 40
+				},
+				{
+					"x": 15,
+					"z": 40
+				},
+				{
+					"x": -8.5,
+					"z": 56
+				},
+				{
+					"x": -15,
+					"z": 72
+				},
+				{
+					"x": 15,
+					"z": 72
+				},
+				{
+					"x": -8.5,
+					"z": 120
+				},
+				{
+					"x": -15,
+					"z": 136
+				},
+				{
+					"x": 15,
+					"z": 136
+				}
+			]
+		},
+		{
+			"name": "seatGreen",
+			"positions": [
+				{
+					"x": -15,
+					"z": -136
+				},
+				{
+					"x": 15,
+					"z": -136
+				},
+				{
+					"x": -8.5,
+					"z": -120
+				},
+				{
+					"x": -15,
+					"z": -72
+				},
+				{
+					"x": 15,
+					"z": -72
+				},
+				{
+					"x": -8.5,
+					"z": -56
+				},
+				{
+					"x": -15,
+					"z": -40
+				},
+				{
+					"x": 15,
+					"z": -40
+				},
+				{
+					"x": -8.5,
+					"z": -24
+				},
+				{
+					"x": -15,
+					"z": 24
+				},
+				{
+					"x": 15,
+					"z": 24
+				},
+				{
+					"x": -8.5,
+					"z": 40
+				},
+				{
+					"x": -15,
+					"z": 56
+				},
+				{
+					"x": 15,
+					"z": 56
+				},
+				{
+					"x": -8.5,
+					"z": 72
+				},
+				{
+					"x": -15,
+					"z": 120
+				},
+				{
+					"x": 15,
+					"z": 120
+				},
+				{
+					"x": -8.5,
+					"z": 136
+				}
+			]
+		}
+	]
+}

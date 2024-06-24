@@ -1,0 +1,160 @@
+{
+	"multipart": [
+		{
+			"when": {
+				"half": "lower",
+				"facing": "north"
+			},
+			"apply": {
+				"model": "mtr:block/lift_track_diagonal_bottom_1"
+			}
+		},
+		{
+			"when": {
+				"half": "lower",
+				"facing": "east"
+			},
+			"apply": {
+				"model": "mtr:block/lift_track_diagonal_bottom_1",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"half": "lower",
+				"facing": "south"
+			},
+			"apply": {
+				"model": "mtr:block/lift_track_diagonal_bottom_1",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"half": "lower",
+				"facing": "west"
+			},
+			"apply": {
+				"model": "mtr:block/lift_track_diagonal_bottom_1",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"half": "upper",
+				"facing": "north"
+			},
+			"apply": {
+				"model": "mtr:block/lift_track_diagonal_top_1"
+			}
+		},
+		{
+			"when": {
+				"half": "upper",
+				"facing": "east"
+			},
+			"apply": {
+				"model": "mtr:block/lift_track_diagonal_top_1",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"half": "upper",
+				"facing": "south"
+			},
+			"apply": {
+				"model": "mtr:block/lift_track_diagonal_top_1",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"half": "upper",
+				"facing": "west"
+			},
+			"apply": {
+				"model": "mtr:block/lift_track_diagonal_top_1",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"side": "left",
+				"facing": "north"
+			},
+			"apply": {
+				"model": "mtr:block/lift_track_diagonal_left_1"
+			}
+		},
+		{
+			"when": {
+				"side": "left",
+				"facing": "east"
+			},
+			"apply": {
+				"model": "mtr:block/lift_track_diagonal_left_1",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"side": "left",
+				"facing": "south"
+			},
+			"apply": {
+				"model": "mtr:block/lift_track_diagonal_left_1",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"side": "left",
+				"facing": "west"
+			},
+			"apply": {
+				"model": "mtr:block/lift_track_diagonal_left_1",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"side": "right",
+				"facing": "north"
+			},
+			"apply": {
+				"model": "mtr:block/lift_track_diagonal_right_1"
+			}
+		},
+		{
+			"when": {
+				"side": "right",
+				"facing": "east"
+			},
+			"apply": {
+				"model": "mtr:block/lift_track_diagonal_right_1",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"side": "right",
+				"facing": "south"
+			},
+			"apply": {
+				"model": "mtr:block/lift_track_diagonal_right_1",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"side": "right",
+				"facing": "west"
+			},
+			"apply": {
+				"model": "mtr:block/lift_track_diagonal_right_1",
+				"y": 270
+			}
+		}
+	]
+}

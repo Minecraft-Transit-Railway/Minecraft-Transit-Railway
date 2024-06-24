@@ -1,0 +1,43 @@
+{
+	"parts": [
+		{
+			"names": [
+				"roof_end_light"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"roof_end",
+				"end"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"end_floor"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"end_exterior",
+				"roof_end_exterior"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "EXTERIOR"
+		}
+	],
+	"modelYOffset": 1
+}

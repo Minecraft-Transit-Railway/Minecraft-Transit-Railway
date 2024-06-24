@@ -1,0 +1,123 @@
+{
+	"parts": [
+		{
+			"names": [
+				"roof_end_light_c1141a"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"roof_end_c1141a"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"head"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"head_floor"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"head_exterior"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"roof_end_exterior"
+			],
+			"positionDefinitions": [
+				"roofHead2"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"destination_display"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayColorCjk": "FFFF00",
+			"displayColor": "FF0000",
+			"displayMaxLineHeight": 2,
+			"displayCjkSizeRatio": 3,
+			"displayOptions": [
+				"UPPER_CASE",
+				"ALIGN_CENTER"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "回廠|Depot"
+		},
+		{
+			"names": [
+				"departure_index_display"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"ALIGN_CENTER"
+			],
+			"displayPadZeros": 3,
+			"displayType": "DEPARTURE_INDEX"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		}
+	],
+	"modelYOffset": 1
+}

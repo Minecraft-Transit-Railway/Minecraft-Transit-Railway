@@ -1,0 +1,245 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window",
+			"positions": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "windowFlipped",
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "sidePanelSp1900",
+			"positions": [
+				{
+					"z": -48
+				},
+				{
+					"z": -16
+				},
+				{
+					"z": 16
+				},
+				{
+					"z": 48
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -48
+				},
+				{
+					"z": -16
+				},
+				{
+					"z": 16
+				},
+				{
+					"z": 48
+				}
+			]
+		},
+		{
+			"name": "sidePanelC1141a",
+			"positions": [
+				{
+					"z": -48
+				},
+				{
+					"z": -12
+				},
+				{
+					"z": 12
+				},
+				{
+					"z": 48
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -48
+				},
+				{
+					"z": -12
+				},
+				{
+					"z": 12
+				},
+				{
+					"z": 48
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"z": -32
+				},
+				{
+					"z": 32
+				}
+			]
+		},
+		{
+			"name": "doorFlipped",
+			"positionsFlipped": [
+				{
+					"z": -32
+				},
+				{
+					"z": 32
+				}
+			]
+		},
+		{
+			"name": "doorOverlayWall1",
+			"positions": [
+				{
+					"z": -45.9
+				},
+				{
+					"z": 18.1
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -18.1
+				},
+				{
+					"z": 45.9
+				}
+			]
+		},
+		{
+			"name": "doorOverlayWall2",
+			"positions": [
+				{
+					"z": -18.1
+				},
+				{
+					"z": 45.9
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -45.9
+				},
+				{
+					"z": 18.1
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -64
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 64
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -64
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 64
+				}
+			]
+		},
+		{
+			"name": "headHandrail1",
+			"positions": [
+				{
+					"z": -58
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -58
+				}
+			]
+		},
+		{
+			"name": "headHandrail2",
+			"positions": [
+				{
+					"z": 58
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 58
+				}
+			]
+		},
+		{
+			"name": "roofHead1",
+			"positions": [
+				{
+					"z": -62
+				}
+			]
+		},
+		{
+			"name": "roofHead2",
+			"positionsFlipped": [
+				{
+					"z": 62
+				}
+			]
+		},
+		{
+			"name": "poleOdd",
+			"positions": [
+				{
+					"z": 32
+				}
+			]
+		},
+		{
+			"name": "poleEven",
+			"positions": [
+				{
+					"z": -32
+				}
+			]
+		},
+		{
+			"name": "doorLight",
+			"positions": [
+				{
+					"z": 0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		}
+	]
+}

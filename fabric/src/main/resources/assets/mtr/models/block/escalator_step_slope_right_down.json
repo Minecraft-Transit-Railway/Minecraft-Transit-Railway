@@ -1,0 +1,7 @@
+{
+	"parent": "mtr:block/escalator_step_slope_right_base",
+	"ambientocclusion": false,
+	"textures": {
+		"step": "mtr:block/escalator_down"
+	}
+}

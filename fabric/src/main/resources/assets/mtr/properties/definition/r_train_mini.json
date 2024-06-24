@@ -1,0 +1,72 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -64
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 64
+				}
+			]
+		},
+		{
+			"name": "roofLight1",
+			"positions": [
+				{
+					"z": -47
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -47
+				}
+			]
+		},
+		{
+			"name": "roofLight2",
+			"positions": [
+				{
+					"z": 47
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 47
+				}
+			]
+		},
+		{
+			"name": "sidePanel1",
+			"positions": [
+				{
+					"z": -55
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -55
+				}
+			]
+		},
+		{
+			"name": "sidePanel2",
+			"positions": [
+				{
+					"z": 55
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 55
+				}
+			]
+		}
+	]
+}

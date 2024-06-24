@@ -1,0 +1,11 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "mtr:pids_4"
+		}
+	],
+	"result": {
+		"item": "mtr:pids_single_arrival_1"
+	}
+}

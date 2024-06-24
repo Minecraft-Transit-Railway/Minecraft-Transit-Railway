@@ -1,0 +1,135 @@
+{
+	"parts": [
+		{
+			"names": [
+				"roof_end_light"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"roof_end"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"head"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"head_floor"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"head_exterior"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"end1",
+				"end1Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"roof_end_vents"
+			],
+			"positionDefinitions": [
+				"roofHead1"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"destination_display"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"type": "DISPLAY",
+			"displayColorCjk": "FF0000",
+			"displayColor": "FF9900",
+			"displayMaxLineHeight": 1.5,
+			"displayCjkSizeRatio": 2,
+			"displayOptions": [
+				"UPPER_CASE",
+				"ALIGN_LEFT_CJK",
+				"ALIGN_RIGHT"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "||East Rail"
+		},
+		{
+			"names": [
+				"departure_index_display"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"type": "DISPLAY",
+			"displayYPadding": 0.3,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"ALIGN_CENTER",
+				"SEVEN_SEGMENT"
+			],
+			"displayType": "DEPARTURE_INDEX"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		}
+	],
+	"modelYOffset": 1
+}
