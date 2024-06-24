@@ -14,6 +14,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
@@ -42,6 +43,7 @@ public class VehicleRidingClient {
 
 	private static final float VEHICLE_WALKING_SPEED_MULTIPLIER = 0.25F;
 	private static final int VEHICLE_PERCENTAGE_UPDATE_INTERVAL = 20;
+	private static final boolean DEBUG_SKIP_RENDER_TRAIN_AND_PLAYERS = false;
 
 	public VehicleRidingClient(Set<UUID> ridingEntities, ResourceLocation packetId) {
 		this.ridingEntities = ridingEntities;
@@ -49,6 +51,13 @@ public class VehicleRidingClient {
 	}
 
 	public Vec3 renderPlayerAndGetOffset() {
+		if (DEBUG_SKIP_RENDER_TRAIN_AND_PLAYERS) {
+			final Player player = Minecraft.getInstance().player;
+			if (player != null && ridingEntities.contains(player.getUUID())) {
+				return new Vec3(0, Integer.MIN_VALUE, 0);
+			}
+		}
+
 		final boolean noOffset = offset.isEmpty();
 		riderPositions.forEach((uuid, position) -> {
 			if (noOffset) {

@@ -135,9 +135,10 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final BlockPos pos1 = packet.readBlockPos();
 		final BlockPos pos2 = packet.readBlockPos();
 		final int maxArrivals = packet.readInt();
+		final int linesPerArrival = packet.readInt();
 		minecraftClient.execute(() -> {
 			if (!(minecraftClient.screen instanceof PIDSConfigScreen)) {
-				UtilitiesClient.setScreen(minecraftClient, new PIDSConfigScreen(pos1, pos2, maxArrivals));
+				UtilitiesClient.setScreen(minecraftClient, new PIDSConfigScreen(pos1, pos2, maxArrivals, linesPerArrival));
 			}
 		});
 	}
@@ -375,17 +376,21 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		RegistryClient.sendToServer(PACKET_ADD_BALANCE, packet);
 	}
 
-	public static void sendPIDSConfigC2S(BlockPos pos1, BlockPos pos2, String[] messages, boolean[] hideArrival, Set<Long> filterPlatformIds) {
+	public static void sendPIDSConfigC2S(BlockPos pos1, BlockPos pos2, String[] messages, boolean[] hideArrival, Set<Long> filterPlatformIds, int displayPage) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(pos1);
 		packet.writeBlockPos(pos2);
 		packet.writeInt(messages.length);
-		for (int i = 0; i < messages.length; i++) {
-			packet.writeUtf(messages[i]);
-			packet.writeBoolean(hideArrival[i]);
+		for (String message : messages) {
+			packet.writeUtf(message);
+		}
+		packet.writeInt(hideArrival.length);
+		for (boolean b : hideArrival) {
+			packet.writeBoolean(b);
 		}
 		packet.writeInt(filterPlatformIds.size());
 		filterPlatformIds.forEach(packet::writeLong);
+		packet.writeInt(displayPage);
 		RegistryClient.sendToServer(PACKET_PIDS_UPDATE, packet);
 	}
 

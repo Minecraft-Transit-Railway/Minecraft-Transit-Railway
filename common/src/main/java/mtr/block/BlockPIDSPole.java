@@ -23,7 +23,7 @@ public class BlockPIDSPole extends BlockPoleCheckBase {
 
 	@Override
 	protected boolean isBlock(Block block) {
-		return block instanceof BlockPIDSBase || block instanceof BlockPIDSPole;
+		return block instanceof BlockPIDSBaseHorizontal || block instanceof BlockPIDSPole;
 	}
 
 	@Override
