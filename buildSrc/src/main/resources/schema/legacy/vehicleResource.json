@@ -1,0 +1,72 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"base_train_type": {
+			"type": "string"
+		},
+		"name": {
+			"type": "string"
+		},
+		"color": {
+			"type": "string"
+		},
+		"model": {
+			"type": "string"
+		},
+		"model_properties": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		},
+		"wikipedia_article": {
+			"type": "string"
+		},
+		"texture_id": {
+			"type": "string"
+		},
+		"has_gangway_connection": {
+			"type": "boolean"
+		},
+		"gangway_connection_id": {
+			"type": "string"
+		},
+		"train_barrier_id": {
+			"type": "string"
+		},
+		"door_animation_type": {
+			"type": "string"
+		},
+		"rider_offset": {
+			"type": "number"
+		},
+		"bve_sound_base_id": {
+			"type": "string"
+		},
+		"speed_sound_count": {
+			"type": "integer"
+		},
+		"speed_sound_base_id": {
+			"type": "string"
+		},
+		"door_sound_base_id": {
+			"type": "string"
+		},
+		"door_close_sound_time": {
+			"type": "number"
+		},
+		"accel_sound_at_coast": {
+			"type": "boolean"
+		},
+		"const_playback_speed": {
+			"type": "boolean"
+		},
+		"flipV": {
+			"type": "boolean"
+		}
+	}
+}

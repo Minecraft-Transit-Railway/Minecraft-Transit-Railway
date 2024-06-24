@@ -1,0 +1,20 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "block/smooth_stone"
+	},
+	"elements": [
+		{
+			"from": [ 0, 0, 0 ],
+			"to": [ 16, 16, 1 ],
+			"faces": {
+				"down": { "texture": "#particle", "cullface": "down" },
+				"up": { "texture": "#particle", "cullface": "up" },
+				"east": { "texture": "#particle", "cullface": "east" },
+				"west": { "texture": "#particle", "cullface": "west" },
+				"north": { "texture": "#particle", "cullface": "north" },
+				"south": { "texture": "#particle" }
+			}
+		}
+	]
+}

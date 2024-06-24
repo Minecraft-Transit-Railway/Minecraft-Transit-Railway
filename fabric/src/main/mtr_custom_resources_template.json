@@ -1,0 +1,949 @@
+{
+	"vehicles": [
+		"@token@"
+	],
+	"signs": [
+		{
+			"id": "arrow_left",
+			"textureResource": "mtr:textures/block/sign/arrow.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "arrow_right",
+			"textureResource": "mtr:textures/block/sign/arrow.png",
+			"small": true,
+			"flipTexture": true
+		},
+		{
+			"id": "arrow_up",
+			"textureResource": "mtr:textures/block/sign/arrow_up.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "arrow_down",
+			"textureResource": "mtr:textures/block/sign/arrow_down.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "arrow_up_left",
+			"textureResource": "mtr:textures/block/sign/arrow_up_left.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "arrow_up_right",
+			"textureResource": "mtr:textures/block/sign/arrow_up_left.png",
+			"small": true,
+			"flipTexture": true
+		},
+		{
+			"id": "arrow_down_left",
+			"textureResource": "mtr:textures/block/sign/arrow_down_left.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "arrow_down_right",
+			"textureResource": "mtr:textures/block/sign/arrow_down_left.png",
+			"small": true,
+			"flipTexture": true
+		},
+		{
+			"id": "arrow_turn_back_left",
+			"textureResource": "mtr:textures/block/sign/arrow_turn_back.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "arrow_turn_back_right",
+			"textureResource": "mtr:textures/block/sign/arrow_turn_back.png",
+			"small": true,
+			"flipTexture": true
+		},
+		{
+			"id": "exit_1",
+			"textureResource": "mtr:textures/block/sign/exit_1.png",
+			"small": false,
+			"flipTexture": false
+		},
+		{
+			"id": "exit_2",
+			"textureResource": "mtr:textures/block/sign/exit_2.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "exit_3",
+			"textureResource": "mtr:textures/block/sign/exit_3.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "escalator",
+			"textureResource": "mtr:textures/block/sign/escalator.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "escalator_flipped",
+			"textureResource": "mtr:textures/block/sign/escalator.png",
+			"small": true,
+			"flipTexture": true
+		},
+		{
+			"id": "stairs_up",
+			"textureResource": "mtr:textures/block/sign/stairs_up.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "stairs_up_flipped",
+			"textureResource": "mtr:textures/block/sign/stairs_up.png",
+			"small": true,
+			"flipTexture": true
+		},
+		{
+			"id": "stairs_down_flipped",
+			"textureResource": "mtr:textures/block/sign/stairs_down.png",
+			"small": true,
+			"flipTexture": true
+		},
+		{
+			"id": "stairs_down",
+			"textureResource": "mtr:textures/block/sign/stairs_down.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "lift_1",
+			"textureResource": "mtr:textures/block/sign/lift_1.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "lift_2",
+			"textureResource": "mtr:textures/block/sign/lift_2.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "wheelchair",
+			"textureResource": "mtr:textures/block/sign/wheelchair.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "wheelchair_flipped",
+			"textureResource": "mtr:textures/block/sign/wheelchair.png",
+			"small": true,
+			"flipTexture": true
+		},
+		{
+			"id": "toilet",
+			"textureResource": "mtr:textures/block/sign/toilets.png",
+			"small": false,
+			"flipTexture": false
+		},
+		{
+			"id": "female",
+			"textureResource": "mtr:textures/block/sign/female.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "male",
+			"textureResource": "mtr:textures/block/sign/male.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "train",
+			"textureResource": "mtr:textures/block/sign/train.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "train_old",
+			"textureResource": "mtr:textures/block/sign/train_old.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "airport_express",
+			"textureResource": "mtr:textures/block/sign/airport_express.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "light_rail_1",
+			"textureResource": "mtr:textures/block/sign/light_rail_1.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "light_rail_2",
+			"textureResource": "mtr:textures/block/sign/light_rail_2.png",
+			"small": false,
+			"flipTexture": false
+		},
+		{
+			"id": "light_rail_3",
+			"textureResource": "mtr:textures/block/sign/light_rail_3.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "light_rail_4",
+			"textureResource": "mtr:textures/block/sign/light_rail_4.png",
+			"small": false,
+			"flipTexture": false
+		},
+		{
+			"id": "xrl_1",
+			"textureResource": "mtr:textures/block/sign/xrl_1.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "xrl_2",
+			"textureResource": "mtr:textures/block/sign/xrl_2.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "sp1900",
+			"textureResource": "mtr:textures/block/sign/sp1900.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "yellow_head_1",
+			"textureResource": "mtr:textures/block/sign/yellow_head_1.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "yellow_head_2",
+			"textureResource": "mtr:textures/block/sign/yellow_head_2.png",
+			"small": false,
+			"flipTexture": false
+		},
+		{
+			"id": "boat",
+			"textureResource": "mtr:textures/block/sign/boat.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "cable_car",
+			"textureResource": "mtr:textures/block/sign/cable_car.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "airplane",
+			"textureResource": "mtr:textures/block/sign/airplane.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "airplane_left",
+			"textureResource": "mtr:textures/block/sign/airplane_left.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "airplane_right",
+			"textureResource": "mtr:textures/block/sign/airplane_left.png",
+			"small": true,
+			"flipTexture": true
+		},
+		{
+			"id": "airplane_up_left",
+			"textureResource": "mtr:textures/block/sign/airplane_up_left.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "airplane_up_right",
+			"textureResource": "mtr:textures/block/sign/airplane_up_left.png",
+			"small": true,
+			"flipTexture": true
+		},
+		{
+			"id": "cross",
+			"textureResource": "mtr:textures/block/sign/cross.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "logo",
+			"textureResource": "mtr:textures/block/sign/logo.png",
+			"small": false,
+			"flipTexture": false
+		},
+		{
+			"id": "transport_system_map",
+			"textureResource": "mtr:textures/block/sign/qr_code.png",
+			"small": false,
+			"flipTexture": false
+		},
+		{
+			"id": "exit_letter",
+			"textureResource": "mtr:textures/block/sign/exit_letter.png",
+			"customText": "sign.mtr.exit_letter",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "exit_letter_flipped",
+			"textureResource": "mtr:textures/block/sign/exit_letter.png",
+			"customText": "sign.mtr.exit_letter",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "escalator_to_concourse_up",
+			"textureResource": "mtr:textures/block/sign/escalator.png",
+			"customText": "sign.mtr.escalator_to_concourse_up",
+			"small": true,
+			"flipTexture": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "escalator_to_concourse_up_flipped",
+			"textureResource": "mtr:textures/block/sign/escalator.png",
+			"customText": "sign.mtr.escalator_to_concourse_up",
+			"small": true,
+			"flipTexture": false,
+			"flipCustomText": true
+		},
+		{
+			"id": "escalator_to_concourse_down",
+			"textureResource": "mtr:textures/block/sign/escalator.png",
+			"customText": "sign.mtr.escalator_to_concourse_down",
+			"small": true,
+			"flipTexture": false,
+			"flipCustomText": false
+		},
+		{
+			"id": "escalator_to_concourse_down_flipped",
+			"textureResource": "mtr:textures/block/sign/escalator.png",
+			"customText": "sign.mtr.escalator_to_concourse_down",
+			"small": true,
+			"flipTexture": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "platform",
+			"textureResource": "mtr:textures/block/sign/platform.png",
+			"customText": "sign.mtr.platform",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "platform_flipped",
+			"textureResource": "mtr:textures/block/sign/platform.png",
+			"customText": "sign.mtr.platform",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "line",
+			"textureResource": "mtr:textures/block/sign/line.png",
+			"customText": "sign.mtr.line",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "line_flipped",
+			"textureResource": "mtr:textures/block/sign/line.png",
+			"customText": "sign.mtr.line",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "station",
+			"textureResource": "mtr:textures/block/sign/station.png",
+			"customText": "sign.mtr.station",
+			"small": false,
+			"flipCustomText": false
+		},
+		{
+			"id": "station_flipped",
+			"textureResource": "mtr:textures/block/sign/station.png",
+			"customText": "sign.mtr.station",
+			"small": false,
+			"flipCustomText": true
+		},
+		{
+			"id": "lift_1_text",
+			"textureResource": "mtr:textures/block/sign/lift_1.png",
+			"customText": "sign.mtr.lift",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "lift_1_text_flipped",
+			"textureResource": "mtr:textures/block/sign/lift_1.png",
+			"customText": "sign.mtr.lift",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "lift_2_text",
+			"textureResource": "mtr:textures/block/sign/lift_2.png",
+			"customText": "sign.mtr.lift",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "lift_2_text_flipped",
+			"textureResource": "mtr:textures/block/sign/lift_2.png",
+			"customText": "sign.mtr.lift",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "toilets",
+			"textureResource": "mtr:textures/block/sign/toilets.png",
+			"customText": "sign.mtr.toilets",
+			"small": false,
+			"flipCustomText": false
+		},
+		{
+			"id": "toilets_flipped",
+			"textureResource": "mtr:textures/block/sign/toilets.png",
+			"customText": "sign.mtr.toilets",
+			"small": false,
+			"flipCustomText": true
+		},
+		{
+			"id": "female_toilets",
+			"textureResource": "mtr:textures/block/sign/female.png",
+			"customText": "sign.mtr.female",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "female_toilets_flipped",
+			"textureResource": "mtr:textures/block/sign/female.png",
+			"customText": "sign.mtr.female",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "male_toilets",
+			"textureResource": "mtr:textures/block/sign/male.png",
+			"customText": "sign.mtr.male",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "male_toilets_flipped",
+			"textureResource": "mtr:textures/block/sign/male.png",
+			"customText": "sign.mtr.male",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "wheelchair_toilets",
+			"textureResource": "mtr:textures/block/sign/wheelchair.png",
+			"customText": "sign.mtr.toilets",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "wheelchair_toilets_flipped",
+			"textureResource": "mtr:textures/block/sign/wheelchair.png",
+			"customText": "sign.mtr.toilets",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "trains",
+			"textureResource": "mtr:textures/block/sign/train.png",
+			"customText": "sign.mtr.train",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "trains_flipped",
+			"textureResource": "mtr:textures/block/sign/train.png",
+			"customText": "sign.mtr.train",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "trains_old",
+			"textureResource": "mtr:textures/block/sign/train_old.png",
+			"customText": "sign.mtr.train",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "trains_old_flipped",
+			"textureResource": "mtr:textures/block/sign/train_old.png",
+			"customText": "sign.mtr.train",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "airport_express_trains",
+			"textureResource": "mtr:textures/block/sign/airport_express.png",
+			"customText": "sign.mtr.airport_express",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "airport_express_trains_flipped",
+			"textureResource": "mtr:textures/block/sign/airport_express.png",
+			"customText": "sign.mtr.airport_express",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "airport_express_trains_city",
+			"textureResource": "mtr:textures/block/sign/airport_express.png",
+			"customText": "sign.mtr.airport_express_city",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "airport_express_trains_city_flipped",
+			"textureResource": "mtr:textures/block/sign/airport_express.png",
+			"customText": "sign.mtr.airport_express_city",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "in_town_check_in",
+			"textureResource": "mtr:textures/block/sign/check_in.png",
+			"customText": "sign.mtr.in_town_check_in",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "in_town_check_in_flipped",
+			"textureResource": "mtr:textures/block/sign/check_in.png",
+			"customText": "sign.mtr.in_town_check_in",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "check_in_passengers",
+			"textureResource": "mtr:textures/block/sign/check_in.png",
+			"customText": "sign.mtr.check_in_passengers",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "check_in_passengers_flipped",
+			"textureResource": "mtr:textures/block/sign/check_in.png",
+			"customText": "sign.mtr.check_in_passengers",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "light_rail_1_trains",
+			"textureResource": "mtr:textures/block/sign/light_rail_1.png",
+			"customText": "sign.mtr.light_rail",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "light_rail_1_trains_flipped",
+			"textureResource": "mtr:textures/block/sign/light_rail_1.png",
+			"customText": "sign.mtr.light_rail",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "light_rail_2_trains",
+			"textureResource": "mtr:textures/block/sign/light_rail_2.png",
+			"customText": "sign.mtr.light_rail",
+			"small": false,
+			"flipCustomText": false
+		},
+		{
+			"id": "light_rail_2_trains_flipped",
+			"textureResource": "mtr:textures/block/sign/light_rail_2.png",
+			"customText": "sign.mtr.light_rail",
+			"small": false,
+			"flipCustomText": true
+		},
+		{
+			"id": "light_rail_3_trains",
+			"textureResource": "mtr:textures/block/sign/light_rail_3.png",
+			"customText": "sign.mtr.light_rail",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "light_rail_3_trains_flipped",
+			"textureResource": "mtr:textures/block/sign/light_rail_3.png",
+			"customText": "sign.mtr.light_rail",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "light_rail_4_trains",
+			"textureResource": "mtr:textures/block/sign/light_rail_4.png",
+			"customText": "sign.mtr.light_rail",
+			"small": false,
+			"flipCustomText": false
+		},
+		{
+			"id": "light_rail_4_trains_flipped",
+			"textureResource": "mtr:textures/block/sign/light_rail_4.png",
+			"customText": "sign.mtr.light_rail",
+			"small": false,
+			"flipCustomText": true
+		},
+		{
+			"id": "xrl_1_trains",
+			"textureResource": "mtr:textures/block/sign/xrl_1.png",
+			"customText": "sign.mtr.xrl",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "xrl_1_trains_flipped",
+			"textureResource": "mtr:textures/block/sign/xrl_1.png",
+			"customText": "sign.mtr.xrl",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "xrl_2_trains",
+			"textureResource": "mtr:textures/block/sign/xrl_2.png",
+			"customText": "sign.mtr.xrl",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "xrl_2_trains_flipped",
+			"textureResource": "mtr:textures/block/sign/xrl_2.png",
+			"customText": "sign.mtr.xrl",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "sp1900_trains",
+			"textureResource": "mtr:textures/block/sign/sp1900.png",
+			"customText": "sign.mtr.train",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "sp1900_trains_flipped",
+			"textureResource": "mtr:textures/block/sign/sp1900.png",
+			"customText": "sign.mtr.train",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "yellow_head_1_trains",
+			"textureResource": "mtr:textures/block/sign/yellow_head_1.png",
+			"customText": "sign.mtr.yellow_head",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "yellow_head_1_trains_flipped",
+			"textureResource": "mtr:textures/block/sign/yellow_head_1.png",
+			"customText": "sign.mtr.yellow_head",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "yellow_head_2_trains",
+			"textureResource": "mtr:textures/block/sign/yellow_head_2.png",
+			"customText": "sign.mtr.yellow_head",
+			"small": false,
+			"flipCustomText": false
+		},
+		{
+			"id": "yellow_head_2_trains_flipped",
+			"textureResource": "mtr:textures/block/sign/yellow_head_2.png",
+			"customText": "sign.mtr.yellow_head",
+			"small": false,
+			"flipCustomText": true
+		},
+		{
+			"id": "boat_boats",
+			"textureResource": "mtr:textures/block/sign/boat.png",
+			"customText": "sign.mtr.boat",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "boat_boats_flipped",
+			"textureResource": "mtr:textures/block/sign/boat.png",
+			"customText": "sign.mtr.boat",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "cable_car_cable_cars",
+			"textureResource": "mtr:textures/block/sign/cable_car.png",
+			"customText": "sign.mtr.cable_car",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "cable_car_cable_cars_flipped",
+			"textureResource": "mtr:textures/block/sign/cable_car.png",
+			"customText": "sign.mtr.cable_car",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "airport",
+			"textureResource": "mtr:textures/block/sign/airplane.png",
+			"customText": "sign.mtr.airport",
+			"small": true,
+			"flipTexture": false,
+			"flipCustomText": false
+		},
+		{
+			"id": "airport_flipped",
+			"textureResource": "mtr:textures/block/sign/airplane.png",
+			"customText": "sign.mtr.airport",
+			"small": true,
+			"flipTexture": false,
+			"flipCustomText": true
+		},
+		{
+			"id": "airport_left",
+			"textureResource": "mtr:textures/block/sign/airplane_left.png",
+			"customText": "sign.mtr.airport",
+			"small": true,
+			"flipTexture": false,
+			"flipCustomText": false
+		},
+		{
+			"id": "airport_right",
+			"textureResource": "mtr:textures/block/sign/airplane_left.png",
+			"customText": "sign.mtr.airport",
+			"small": true,
+			"flipTexture": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "airport_up_left",
+			"textureResource": "mtr:textures/block/sign/airplane_up_left.png",
+			"customText": "sign.mtr.airport",
+			"small": true,
+			"flipTexture": false,
+			"flipCustomText": false
+		},
+		{
+			"id": "airport_up_right",
+			"textureResource": "mtr:textures/block/sign/airplane_up_left.png",
+			"customText": "sign.mtr.airport",
+			"small": true,
+			"flipTexture": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "airport_arrivals",
+			"textureResource": "mtr:textures/block/sign/airplane_down_left.png",
+			"customText": "sign.mtr.airport_arrivals",
+			"small": true,
+			"flipTexture": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "airport_arrivals_flipped",
+			"textureResource": "mtr:textures/block/sign/airplane_down_left.png",
+			"customText": "sign.mtr.airport_arrivals",
+			"small": true,
+			"flipTexture": false,
+			"flipCustomText": true
+		},
+		{
+			"id": "airport_departures",
+			"textureResource": "mtr:textures/block/sign/airplane_up_left.png",
+			"customText": "sign.mtr.airport_departures",
+			"small": true,
+			"flipTexture": false,
+			"flipCustomText": false
+		},
+		{
+			"id": "airport_departures_flipped",
+			"textureResource": "mtr:textures/block/sign/airplane_up_left.png",
+			"customText": "sign.mtr.airport_departures",
+			"small": true,
+			"flipTexture": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "airport_transfer",
+			"textureResource": "mtr:textures/block/sign/airport_transfer.png",
+			"customText": "sign.mtr.airport_transfer",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "airport_transfer_flipped",
+			"textureResource": "mtr:textures/block/sign/airport_transfer.png",
+			"customText": "sign.mtr.airport_transfer",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "baggage_claim",
+			"textureResource": "mtr:textures/block/sign/baggage_claim.png",
+			"customText": "sign.mtr.baggage_claim",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "baggage_claim_flipped",
+			"textureResource": "mtr:textures/block/sign/baggage_claim.png",
+			"customText": "sign.mtr.baggage_claim",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "customer_service_centre",
+			"textureResource": "mtr:textures/block/sign/customer_service_centre.png",
+			"customText": "sign.mtr.customer_service_centre",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "customer_service_centre_flipped",
+			"textureResource": "mtr:textures/block/sign/customer_service_centre.png",
+			"customText": "sign.mtr.customer_service_centre",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "tickets",
+			"textureResource": "mtr:textures/block/sign/tickets.png",
+			"customText": "sign.mtr.tickets",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "tickets_flipped",
+			"textureResource": "mtr:textures/block/sign/tickets.png",
+			"customText": "sign.mtr.tickets",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "no_entry",
+			"textureResource": "mtr:textures/block/sign/cross.png",
+			"customText": "sign.mtr.cross",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "no_entry_flipped",
+			"textureResource": "mtr:textures/block/sign/cross.png",
+			"customText": "sign.mtr.cross",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "emergency_exit",
+			"textureResource": "mtr:textures/block/sign/emergency_exit.png",
+			"customText": "sign.mtr.emergency_exit",
+			"small": false,
+			"flipTexture": false,
+			"flipCustomText": false,
+			"backgroundColor": "00944F"
+		},
+		{
+			"id": "emergency_exit_flipped",
+			"textureResource": "mtr:textures/block/sign/emergency_exit.png",
+			"customText": "sign.mtr.emergency_exit",
+			"small": false,
+			"flipTexture": true,
+			"flipCustomText": true,
+			"backgroundColor": "00944F"
+		},
+		{
+			"id": "wifi",
+			"textureResource": "mtr:textures/block/sign/wifi.png",
+			"customText": "sign.mtr.wifi",
+			"small": true,
+			"flipTexture": false,
+			"flipCustomText": false,
+			"backgroundColor": "FA7B22"
+		},
+		{
+			"id": "wifi_flipped",
+			"textureResource": "mtr:textures/block/sign/wifi.png",
+			"customText": "sign.mtr.wifi",
+			"small": true,
+			"flipTexture": true,
+			"flipCustomText": true,
+			"backgroundColor": "FA7B22"
+		},
+		{
+			"id": "logo_text",
+			"textureResource": "mtr:textures/block/sign/logo.png",
+			"customText": "sign.mtr.logo",
+			"small": false,
+			"flipCustomText": false
+		},
+		{
+			"id": "logo_text_flipped",
+			"textureResource": "mtr:textures/block/sign/logo.png",
+			"customText": "sign.mtr.logo",
+			"small": false,
+			"flipCustomText": true
+		},
+		{
+			"id": "transport_system_map_text",
+			"textureResource": "mtr:textures/block/sign/qr_code.png",
+			"customText": "sign.mtr.transport_system_map",
+			"small": false,
+			"flipTexture": false
+		},
+		{
+			"id": "transport_system_map_text_flipped",
+			"textureResource": "mtr:textures/block/sign/qr_code.png",
+			"customText": "sign.mtr.transport_system_map",
+			"small": false,
+			"flipTexture": true
+		}
+	],
+	"rails": [
+		{
+			"id": "default_3d",
+			"name": "3D Rail",
+			"color": "A7A7A7",
+			"modelResource": "mtr:models/rail/rail.obj",
+			"repeatInterval": 0.5
+		},
+		{
+			"id": "default_3d_siding",
+			"name": "3D Siding Rail",
+			"color": "E5E533",
+			"modelResource": "mtr:models/rail/rail_siding.obj",
+			"repeatInterval": 0.5
+		}
+	],
+	"objects": [
+		{
+			"id": "teapot",
+			"name": "Utah Teapot (NTE)",
+			"color": "D0D0D0",
+			"modelResource": "mtr:models/object/teapot.obj",
+			"textureResource": "mtr:textures/block/metal.png",
+			"scale": {
+				"x": 0.15,
+				"y": 0.20,
+				"z": 0.15
+			}
+		}
+	]
+}

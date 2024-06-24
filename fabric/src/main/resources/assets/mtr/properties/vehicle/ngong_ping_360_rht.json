@@ -1,0 +1,66 @@
+{
+	"parts": [
+		{
+			"names": [
+				"body",
+				"wall_2",
+				"wall_3"
+			],
+			"positionDefinitions": [
+				"mainFlipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"wall_1"
+			],
+			"positionDefinitions": [
+				"main",
+				"mainFlipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"floor"
+			],
+			"positionDefinitions": [
+				"mainFlipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"door_left"
+			],
+			"positionDefinitions": [
+				"mainFlipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -9,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_right"
+			],
+			"positionDefinitions": [
+				"mainFlipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 9,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"doorway"
+			],
+			"positionDefinitions": [
+				"mainFlipped"
+			],
+			"type": "DOORWAY"
+		}
+	],
+	"modelYOffset": -5
+}

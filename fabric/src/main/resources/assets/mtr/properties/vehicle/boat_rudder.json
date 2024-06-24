@@ -1,0 +1,13 @@
+{
+	"parts": [
+		{
+			"names": [
+				"rudder"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "EXTERIOR"
+		}
+	]
+}

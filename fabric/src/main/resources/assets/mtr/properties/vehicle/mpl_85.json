@@ -1,0 +1,308 @@
+{
+	"parts": [
+		{
+			"names": [
+				"light_window"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"window"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_floor"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"window_exterior"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"light_door"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"door"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"seat_1"
+			],
+			"positionDefinitions": [
+				"seat1"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"seat_2"
+			],
+			"positionDefinitions": [
+				"seat2"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"seat_3"
+			],
+			"positionDefinitions": [
+				"seat3"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"middle_handrail"
+			],
+			"positionDefinitions": [
+				"middleHandrail"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"door_floor"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"type": "DOORWAY"
+		},
+		{
+			"names": [
+				"door_left"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "INTERIOR",
+			"doorXMultiplier": 1,
+			"doorZMultiplier": -16,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"door_right"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "INTERIOR",
+			"doorXMultiplier": 1,
+			"doorZMultiplier": 16,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"door_exterior"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"roof_door_exterior_1"
+			],
+			"positionDefinitions": [
+				"roofDoor1"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"roof_door_exterior_2"
+			],
+			"positionDefinitions": [
+				"roofDoor2"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"roof_door_exterior_3"
+			],
+			"positionDefinitions": [
+				"roofDoor3"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_left_exterior"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "EXTERIOR",
+			"doorXMultiplier": 1,
+			"doorZMultiplier": -16,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"door_right_exterior"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "EXTERIOR",
+			"doorXMultiplier": 1,
+			"doorZMultiplier": 16,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"head"
+			],
+			"positionDefinitions": [
+				"end1",
+				"end2"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"head_floor"
+			],
+			"positionDefinitions": [
+				"end1",
+				"end2"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"head_exterior"
+			],
+			"positionDefinitions": [
+				"end1",
+				"end2"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_light_on"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"condition": "DOORS_OPENED",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"door_light_off"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"condition": "DOORS_CLOSED",
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		}
+	],
+	"modelYOffset": 1
+}

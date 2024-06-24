@@ -1,0 +1,280 @@
+{
+	"parts": [
+		{
+			"names": [
+				"roof_light_sp1900"
+			],
+			"positionDefinitions": [
+				"window",
+				"windowFlipped",
+				"door",
+				"doorFlipped"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"window",
+				"roof_sp1900",
+				"top_handrail_sp1900"
+			],
+			"positionDefinitions": [
+				"window",
+				"windowFlipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_floor"
+			],
+			"positionDefinitions": [
+				"window",
+				"windowFlipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"side_panel_sp1900"
+			],
+			"positionDefinitions": [
+				"sidePanelSp1900"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"side_panel_sp1900_translucent"
+			],
+			"positionDefinitions": [
+				"sidePanelSp1900"
+			],
+			"renderStage": "INTERIOR_TRANSLUCENT"
+		},
+		{
+			"names": [
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"window",
+				"windowFlipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_exterior_1"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_exterior_2"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"roof_sp1900",
+				"door"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"door_floor"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped"
+			],
+			"type": "DOORWAY"
+		},
+		{
+			"names": [
+				"door_left"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_right"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_left"
+			],
+			"positionDefinitions": [
+				"doorFlipped"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_right"
+			],
+			"positionDefinitions": [
+				"doorFlipped"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"tv_pole"
+			],
+			"positionDefinitions": [
+				"poleOdd"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"pole"
+			],
+			"positionDefinitions": [
+				"poleEven"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_exterior_1"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_exterior_2"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_left_exterior_1"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_right_exterior_1"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_left_exterior_2"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_right_exterior_2"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_light_on"
+			],
+			"positionDefinitions": [
+				"doorLight"
+			],
+			"condition": "DOORS_OPENED",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"door_light_off"
+			],
+			"positionDefinitions": [
+				"doorLight"
+			],
+			"condition": "DOORS_CLOSED",
+			"renderStage": "EXTERIOR"
+		}
+	],
+	"modelYOffset": 1,
+	"gangwayInnerSideResource": "mtr:textures/gangway/sp1900_side.png",
+	"gangwayInnerTopResource": "mtr:textures/gangway/sp1900_roof.png",
+	"gangwayInnerBottomResource": "mtr:textures/gangway/sp1900_floor.png",
+	"gangwayOuterSideResource": "mtr:textures/gangway/sp1900_exterior.png",
+	"gangwayOuterTopResource": "mtr:textures/gangway/sp1900_exterior.png",
+	"gangwayOuterBottomResource": "mtr:textures/gangway/sp1900_exterior.png",
+	"gangwayWidth": 1.5,
+	"gangwayHeight": 2.25,
+	"gangwayYOffset": 1,
+	"gangwayZOffset": 0.5
+}

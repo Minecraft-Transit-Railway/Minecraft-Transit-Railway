@@ -1,0 +1,95 @@
+{
+	"parts": [
+		{
+			"names": [
+				"window_exterior_1"
+			],
+			"positionDefinitions": [
+				"window9",
+				"window1Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_exterior_2"
+			],
+			"positionDefinitions": [
+				"window8",
+				"window2Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_exterior_3"
+			],
+			"positionDefinitions": [
+				"window7",
+				"window3Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_exterior_4"
+			],
+			"positionDefinitions": [
+				"window6",
+				"window4Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_exterior_5"
+			],
+			"positionDefinitions": [
+				"window5",
+				"window5Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_exterior_6"
+			],
+			"positionDefinitions": [
+				"window4",
+				"window6Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_exterior_7"
+			],
+			"positionDefinitions": [
+				"window3",
+				"window7Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_exterior_8"
+			],
+			"positionDefinitions": [
+				"window2",
+				"window8Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_exterior_9"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window9Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		}
+	],
+	"modelYOffset": 1
+}

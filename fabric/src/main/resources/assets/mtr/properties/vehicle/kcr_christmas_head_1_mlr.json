@@ -1,0 +1,14 @@
+{
+	"parts": [
+		{
+			"names": [
+				"christmas_light_head_mlr"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"renderStage": "ALWAYS_ON_LIGHT"
+		}
+	],
+	"modelYOffset": 1
+}

@@ -1,0 +1,37 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"chatAnnouncements": {
+			"type": "boolean",
+			"default": true
+		},
+		"textToSpeechAnnouncements": {
+			"type": "boolean",
+			"default": true
+		},
+		"hideTranslucentParts": {
+			"type": "boolean"
+		},
+		"languageDisplay": {
+			"$ref": "LanguageDisplay"
+		},
+		"dynamicTextureResolution": {
+			"type": "integer",
+			"default": 2
+		},
+		"defaultRail3D": {
+			"type": "boolean",
+			"default": true
+		},
+		"disableShadowsForShaders": {
+			"type": "boolean"
+		},
+		"betaWarningVersion": {
+			"type": "string"
+		}
+	}
+}

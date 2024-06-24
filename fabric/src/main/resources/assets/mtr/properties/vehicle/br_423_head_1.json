@@ -1,0 +1,117 @@
+{
+	"parts": [
+		{
+			"names": [
+				"light_head"
+			],
+			"positionDefinitions": [
+				"window1"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"window_2_interior"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window1Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"head_interior"
+			],
+			"positionDefinitions": [
+				"window1"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_2_exterior"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window1Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"head_exterior"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"destination_display"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.4,
+			"displayYPadding": 0.8,
+			"displayColor": "FFFFFF",
+			"displayOptions": [
+				"ALIGN_CENTER",
+				"CYCLE_LANGUAGES"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "Nicht Einsteigen"
+		},
+		{
+			"names": [
+				"route_number_display"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.4,
+			"displayYPadding": 0.8,
+			"displayColor": "FFFFFF",
+			"displayOptions": [
+				"ALIGN_LEFT",
+				"CYCLE_LANGUAGES"
+			],
+			"displayType": "ROUTE_NUMBER"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		}
+	],
+	"modelYOffset": 1
+}

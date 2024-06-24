@@ -1,0 +1,63 @@
+{
+	"parts": [
+		{
+			"names": [
+				"roof_light"
+			],
+			"positionDefinitions": [
+				"roofLight2"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"roof_end",
+				"end",
+				"end_handrail"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"end_floor"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"side_panel"
+			],
+			"positionDefinitions": [
+				"sidePanel2"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"side_panel"
+			],
+			"positionDefinitions": [
+				"sidePanel2"
+			],
+			"renderStage": "INTERIOR_TRANSLUCENT"
+		},
+		{
+			"names": [
+				"end_exterior",
+				"roof_end_exterior",
+				"roof_vent"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"renderStage": "EXTERIOR"
+		}
+	],
+	"modelYOffset": 1
+}

@@ -1,0 +1,49 @@
+{
+	"parts": [
+		{
+			"names": [
+				"door_left"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "MLR"
+		},
+		{
+			"names": [
+				"door_right"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "MLR"
+		},
+		{
+			"names": [
+				"door_left"
+			],
+			"positionDefinitions": [
+				"doorFlipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "MLR"
+		},
+		{
+			"names": [
+				"door_right"
+			],
+			"positionDefinitions": [
+				"doorFlipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "MLR"
+		}
+	],
+	"modelYOffset": 1
+}

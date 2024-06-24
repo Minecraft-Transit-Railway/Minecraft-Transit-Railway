@@ -1,0 +1,490 @@
+{
+	"parts": [
+		{
+			"names": [
+				"roof_light"
+			],
+			"positionDefinitions": [
+				"windowPart",
+				"door",
+				"doorFlipped",
+				"end1",
+				"end1Flipped",
+				"end2",
+				"end2Flipped"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"window"
+			],
+			"positionDefinitions": [
+				"window",
+				"windowFlipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"seat_purple"
+			],
+			"positionDefinitions": [
+				"seatPurple"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"seat_green"
+			],
+			"positionDefinitions": [
+				"seatGreen"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_floor"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"windowPart",
+				"end1",
+				"end1Flipped",
+				"end2",
+				"end2Flipped",
+				"door",
+				"doorFlipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_exterior"
+			],
+			"positionDefinitions": [
+				"window",
+				"windowFlipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door",
+				"door_window",
+				"door_handrails_4",
+				"door_window_handrails_4"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"roof"
+			],
+			"positionDefinitions": [
+				"windowPart",
+				"door",
+				"doorFlipped",
+				"end1",
+				"end1Flipped",
+				"end2",
+				"end2Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"door_floor"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"type": "DOORWAY"
+		},
+		{
+			"names": [
+				"head_floor"
+			],
+			"positionDefinitions": [
+				"origin"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"head_floor"
+			],
+			"positionDefinitions": [
+				"originFlipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"end_floor"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"door_left"
+			],
+			"positionDefinitions": [
+				"doorMovement"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "BOUNCY_2"
+		},
+		{
+			"names": [
+				"door_right"
+			],
+			"positionDefinitions": [
+				"doorMovement"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "BOUNCY_2"
+		},
+		{
+			"names": [
+				"door_left"
+			],
+			"positionDefinitions": [
+				"doorMovementFlipped"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "BOUNCY_2"
+		},
+		{
+			"names": [
+				"door_right"
+			],
+			"positionDefinitions": [
+				"doorMovementFlipped"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "BOUNCY_2"
+		},
+		{
+			"names": [
+				"door_exterior",
+				"door_window_exterior"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_left_exterior"
+			],
+			"positionDefinitions": [
+				"doorMovement"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "BOUNCY_2"
+		},
+		{
+			"names": [
+				"door_right_exterior"
+			],
+			"positionDefinitions": [
+				"doorMovement"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "BOUNCY_2"
+		},
+		{
+			"names": [
+				"door_left_exterior"
+			],
+			"positionDefinitions": [
+				"doorMovementFlipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "BOUNCY_2"
+		},
+		{
+			"names": [
+				"door_right_exterior"
+			],
+			"positionDefinitions": [
+				"doorMovementFlipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "BOUNCY_2"
+		},
+		{
+			"names": [
+				"head"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"head_exterior",
+				"head_exterior_4"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"roof_end_exterior"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"end"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"end_exterior",
+				"roof_end_exterior"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"side_display"
+			],
+			"positionDefinitions": [
+				"sideDisplay4"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"vents_top"
+			],
+			"positionDefinitions": [
+				"vents"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"departure_index_box"
+			],
+			"positionDefinitions": [
+				"departureIndexBox4"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"front_destination_display_4"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.5,
+			"displayYPadding": 0.5,
+			"displayColor": "FF9900",
+			"displayMaxLineHeight": 1.5,
+			"displayCjkSizeRatio": 3,
+			"displayOptions": [
+				"UPPER_CASE",
+				"SPACE_CJK",
+				"ALIGN_CENTER"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "不載客|Not In Service"
+		},
+		{
+			"names": [
+				"front_route_number_display_4"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "DISPLAY",
+			"displayYPadding": 0.7,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"ALIGN_RIGHT"
+			],
+			"displayType": "ROUTE_NUMBER"
+		},
+		{
+			"names": [
+				"departure_index_display"
+			],
+			"positionDefinitions": [
+				"departureIndexDisplay4"
+			],
+			"type": "DISPLAY",
+			"displayYPadding": 0.2,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"ALIGN_CENTER"
+			],
+			"displayPadZeros": 3,
+			"displayType": "DEPARTURE_INDEX"
+		},
+		{
+			"names": [
+				"side_destination_display_interior"
+			],
+			"positionDefinitions": [
+				"sideDisplay4"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.4,
+			"displayYPadding": 0.4,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"UPPER_CASE",
+				"SPACE_CJK",
+				"SINGLE_LINE",
+				"ALIGN_CENTER"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "不載客|Not In Service"
+		},
+		{
+			"names": [
+				"side_route_number_display_interior"
+			],
+			"positionDefinitions": [
+				"sideDisplay4"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.4,
+			"displayYPadding": 0.4,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"ALIGN_LEFT"
+			],
+			"displayType": "ROUTE_NUMBER"
+		},
+		{
+			"names": [
+				"side_destination_display_exterior"
+			],
+			"positionDefinitions": [
+				"sideDisplay4"
+			],
+			"type": "DISPLAY",
+			"displayColor": "FF9900",
+			"displayMaxLineHeight": 1,
+			"displayCjkSizeRatio": 3,
+			"displayOptions": [
+				"UPPER_CASE",
+				"SPACE_CJK",
+				"ALIGN_CENTER"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "不載客|Not In Service"
+		},
+		{
+			"names": [
+				"side_route_number_display_exterior"
+			],
+			"positionDefinitions": [
+				"sideDisplay4"
+			],
+			"type": "DISPLAY",
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"ALIGN_RIGHT"
+			],
+			"displayType": "ROUTE_NUMBER"
+		},
+		{
+			"names": [
+				"end_route_number_display_1"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "DISPLAY",
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"ALIGN_CENTER"
+			],
+			"displayType": "ROUTE_NUMBER"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"renderStage": "ALWAYS_ON_LIGHT"
+		}
+	],
+	"modelYOffset": 1,
+	"gangwayInnerSideResource": "mtr:textures/gangway/m_train_side.png",
+	"gangwayInnerTopResource": "mtr:textures/gangway/m_train_roof.png",
+	"gangwayInnerBottomResource": "mtr:textures/gangway/m_train_floor.png",
+	"gangwayOuterSideResource": "mtr:textures/gangway/m_train_exterior.png",
+	"gangwayOuterTopResource": "mtr:textures/gangway/m_train_exterior.png",
+	"gangwayOuterBottomResource": "mtr:textures/gangway/m_train_exterior.png",
+	"gangwayWidth": 1.5,
+	"gangwayHeight": 2.25,
+	"gangwayYOffset": 1,
+	"gangwayZOffset": 0.5
+}

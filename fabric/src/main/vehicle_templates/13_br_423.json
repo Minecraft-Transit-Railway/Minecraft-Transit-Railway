@@ -1,0 +1,244 @@
+{
+	"replacements": {
+		"lengths": [
+			16
+		],
+		"id": [
+			"br_423"
+		]
+	},
+	"vehicles": [
+		{
+			"id": "br_423_trailer",
+			"name": "DB BR 423 (Trailer)",
+			"color": "E3010F",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "DBAG_Class_423",
+			"tags": [
+				"family:br_423",
+				"iso_3166:DE",
+				"doors:3",
+				"type:trailer"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
+					"textureResource": "mtr:textures/vehicle/br_423.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/br_423_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
+					"textureResource": "mtr:textures/vehicle/br_423.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/br_423_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
+					"textureResource": "mtr:textures/vehicle/br_423.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/br_423_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"legacySpeedSoundBaseResource": "br_423",
+			"legacySpeedSoundCount": 72,
+			"legacyDoorSoundBaseResource": "br_423",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "br_423_cab_1",
+			"name": "DB BR 423 (Forwards)",
+			"color": "E3010F",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 3,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "DBAG_Class_423",
+			"tags": [
+				"family:br_423",
+				"iso_3166:DE",
+				"doors:3",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
+					"textureResource": "mtr:textures/vehicle/br_423.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/br_423_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
+					"textureResource": "mtr:textures/vehicle/br_423.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/br_423_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
+					"textureResource": "mtr:textures/vehicle/br_423.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/br_423_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"legacySpeedSoundBaseResource": "br_423",
+			"legacySpeedSoundCount": 72,
+			"legacyDoorSoundBaseResource": "br_423",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "br_423_cab_2",
+			"name": "DB BR 423 (Backwards)",
+			"color": "E3010F",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 3,
+			"wikipediaArticle": "DBAG_Class_423",
+			"tags": [
+				"family:br_423",
+				"iso_3166:DE",
+				"doors:3",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
+					"textureResource": "mtr:textures/vehicle/br_423.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/br_423_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
+					"textureResource": "mtr:textures/vehicle/br_423.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/br_423_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
+					"textureResource": "mtr:textures/vehicle/br_423.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/br_423_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"legacySpeedSoundBaseResource": "br_423",
+			"legacySpeedSoundCount": 72,
+			"legacyDoorSoundBaseResource": "br_423",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "br_423_cab_3",
+			"name": "DB BR 423 (Double)",
+			"color": "E3010F",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 3,
+			"couplingPadding2": 3,
+			"wikipediaArticle": "DBAG_Class_423",
+			"tags": [
+				"family:br_423",
+				"iso_3166:DE",
+				"doors:3",
+				"type:cab_3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
+					"textureResource": "mtr:textures/vehicle/br_423.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/br_423_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
+					"textureResource": "mtr:textures/vehicle/br_423.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/br_423_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
+					"textureResource": "mtr:textures/vehicle/br_423.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/br_423_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"legacySpeedSoundBaseResource": "br_423",
+			"legacySpeedSoundCount": 72,
+			"legacyDoorSoundBaseResource": "br_423",
+			"legacyDoorCloseSoundTime": 0.5
+		}
+	]
+}

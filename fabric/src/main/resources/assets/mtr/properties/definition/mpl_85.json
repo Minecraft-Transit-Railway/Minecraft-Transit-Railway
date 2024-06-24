@@ -1,0 +1,244 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window",
+			"positions": [
+				{
+					"z": -130
+				},
+				{
+					"z": -62
+				},
+				{
+					"z": -34
+				},
+				{
+					"z": 34
+				},
+				{
+					"z": 62
+				},
+				{
+					"z": 130
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -130
+				},
+				{
+					"z": -62
+				},
+				{
+					"z": -34
+				},
+				{
+					"z": 34
+				},
+				{
+					"z": 62
+				},
+				{
+					"z": 130
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"z": -96
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 96
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -96
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 96
+				}
+			]
+		},
+		{
+			"name": "middleHandrail",
+			"positions": [
+				{
+					"z": -96
+				},
+				{
+					"z": -48
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 48
+				},
+				{
+					"z": 96
+				}
+			]
+		},
+		{
+			"name": "roofDoor1",
+			"positions": [
+				{
+					"z": -96
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -96
+				}
+			]
+		},
+		{
+			"name": "roofDoor2",
+			"positions": [
+				{
+					"z": 0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "roofDoor3",
+			"positions": [
+				{
+					"z": 96
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 96
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -156
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 156
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -156
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 156
+				}
+			]
+		},
+		{
+			"name": "seat1",
+			"positions": [
+				{
+					"z": -62
+				},
+				{
+					"z": 34
+				},
+				{
+					"z": 130
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -130
+				},
+				{
+					"z": -34
+				},
+				{
+					"z": 62
+				}
+			]
+		},
+		{
+			"name": "seat2",
+			"positions": [
+				{
+					"z": -130
+				},
+				{
+					"z": -34
+				},
+				{
+					"z": 62
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -62
+				},
+				{
+					"z": 34
+				},
+				{
+					"z": 130
+				}
+			]
+		},
+		{
+			"name": "seat3",
+			"positions": [
+				{
+					"z": -144
+				},
+				{
+					"z": -48
+				},
+				{
+					"z": 48
+				},
+				{
+					"z": 144
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -144
+				},
+				{
+					"z": -48
+				},
+				{
+					"z": 48
+				},
+				{
+					"z": 144
+				}
+			]
+		}
+	]
+}

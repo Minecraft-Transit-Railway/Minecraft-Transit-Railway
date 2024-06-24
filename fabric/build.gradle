@@ -1,131 +1,84 @@
 import org.apache.tools.ant.filters.ReplaceTokens
+import org.mtr.core.Generator
+import org.mtr.mod.BuildTools
 
-architectury {
-	platformSetupLoomIde()
-	fabric()
+plugins {
+	id "fabric-loom" version "+"
 }
 
-configurations {
-	common
-	shadowCommon
-	compileClasspath.extendsFrom common
-	runtimeClasspath.extendsFrom common
-	developmentFabric.extendsFrom common
+final BuildTools buildTools = new BuildTools(minecraftVersion, "fabric", project)
+
+loom {
+	accessWidenerPath = file("src/main/resources/mtr.accesswidener")
+	runConfigs.configureEach { ideConfigGenerated = true }
+	mixin { setDefaultRefmapName("mtr.refmap.json") }
 }
 
 dependencies {
-	modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version[1]}"
-	modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_data[0]}"
-	modApi "com.terraformersmc:modmenu:${rootProject.mod_menu_data[0]}"
-
-	common(project(path: ":common", configuration: "namedElements")) { transitive false }
-	shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
+	minecraft "com.mojang:minecraft:${minecraftVersion}"
+	mappings "net.fabricmc:yarn:${buildTools.getYarnVersion()}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${buildTools.getFabricVersion()}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${buildTools.getFabricApiVersion()}"
+	modApi "com.terraformersmc:modmenu:${buildTools.getModMenuVersion()}"
+	shadowImplementation "org.mtr:Minecraft-Mappings-fabric-${minecraftVersion}:0.0.1-dev"
+	testImplementation "org.junit.jupiter:junit-jupiter-api:+"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:+"
 }
 
-processResources {
-	inputs.property "version", project.version
+repositories {
+	maven { url = "https://maven.terraformersmc.com/" }
+}
 
-	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+java {
+	toolchain {
+		languageVersion.set(JavaLanguageVersion.of(buildTools.javaLanguageVersion))
+	}
+	withSourcesJar()
+	withJavadocJar()
+}
+
+tasks.register("setupFiles") {
+	copy {
+		outputs.upToDateWhen { false }
+		from "src/main/KeysTemplate.java"
+		into "src/main/java/org/mtr/mod"
+		filter(ReplaceTokens, tokens: ["key": patreonApiKey, "version": version + "+" + minecraftVersion, "server": testServer, "debug": debug])
+		rename "(.+)Template.java", "\$1.java"
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "src/main/fabric.mod.template.json"
+		into "src/main/resources"
+		filter(ReplaceTokens, tokens: ["minecraft": minecraftVersion, "version": version])
+		rename "(.+).template.json", "\$1.json"
+	}
+
+	buildTools.copyLootTables()
+	buildTools.copyFontDefinition()
+	buildTools.copyVehicleTemplates()
+	Generator.generate(project, "schema/config", "mod/generated/config", false, "mod.config")
+	Generator.generate(project, "schema/resource", "mod/generated/resource", false, "core.data", "mod.resource")
+	Generator.generate(project, "schema/legacy", "legacy/generated/resource", false)
+}
+
+build {
+	doLast {
+		buildTools.copyBuildFile(excludeAssets == "true")
 	}
 }
 
 shadowJar {
-	configurations = [project.configurations.shadowCommon]
-	classifier "dev-shadow"
-	relocate "javax.servlet", "mtr.libraries.javax.servlet"
-	relocate "org.eclipse", "mtr.libraries.org.eclipse"
+	exclude excludeAssets == "true" ? "assets" : "abc123"
 }
 
 remapJar {
-	input.set shadowJar.archiveFile
-	dependsOn shadowJar
-	classifier null
+	dependsOn(shadowJar)
+	mustRunAfter(shadowJar)
+	inputFile = file(shadowJar.archivePath)
 }
 
-components.java {
-	withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-		skip()
-	}
-}
-
-task moveFabricBuilds() {
-	doLast {
-		delete fileTree("../build/release").matching {
-			include "**/${rootProject.variation_header}-fabric*"
-		}
-		delete fileTree("../build/libs").matching {
-			include "**/${rootProject.variation_header}-fabric*"
-		}
-		delete fileTree("../build/latest").matching {
-			include "**/${rootProject.variation_header}-fabric*"
-		}
-		copy {
-			from "build/libs"
-			include "*${rootProject.mod_version}.jar"
-			into "../build/release"
-			rename "(.+)", "${rootProject.variation_header}-\$1"
-		}
-		if (rootProject.variation == "normal") {
-			copy {
-				from "build/libs"
-				into "../build/latest"
-				rename { fileName -> "MTR-${fileName.replace(rootProject.mod_version, "latest")}" }
-			}
-			copy {
-				from "build/libs"
-				include "*${rootProject.mod_version}-dev-shadow.jar"
-				into "../build/libs"
-				rename "(.+)", "MTR-\$1"
-			}
-		}
-	}
-}
-
-task testServer {
-	doLast {
-		if (rootProject.variation == "normal") {
-			copy {
-				from "../resources/eula.txt"
-				into "server"
-			}
-			copy {
-				from "../resources/server.properties"
-				into "server"
-				filter(ReplaceTokens, tokens: ["port": String.valueOf(25000 + new Random().nextInt(500))])
-			}
-			copy {
-				from "../build/latest"
-				into "server/mods"
-				include "MTR-fabric-*-latest.jar"
-				rename "(.+)", "MTR.jar"
-			}
-			download {
-				src rootProject.fabric_api_data[1]
-				dest "fabric/server/mods/fabric-api.jar"
-				overwrite true
-				retries - 1
-			}
-			download {
-				src "https://meta.fabricmc.net/v2/versions/loader/${rootProject.fabric_loader_version[0]}/${rootProject.fabric_loader_version[1]}/0.11.1/server/jar"
-				dest "fabric/server/fabric-server.jar"
-				overwrite true
-				retries - 1
-			}
-			javaexec {
-				mainClass = "-jar"
-				args = ["fabric-server.jar", "nogui"]
-				jvmArgs = ["-Xms4G", "-Xmx4G"]
-				workingDir = "server"
-			}
-		}
-	}
-}
-
-afterEvaluate {
-	for (def task in it.tasks) {
-		if (task == tasks.build) {
-			task.finalizedBy tasks.moveFabricBuilds
-		}
-	}
+test {
+	useJUnitPlatform()
+	testLogging { showStandardStreams = true }
 }

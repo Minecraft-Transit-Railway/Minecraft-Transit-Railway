@@ -1,0 +1,33 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"name": {
+			"type": "string"
+		},
+		"children": {
+			"type": "array",
+			"items": {
+				"$ref": "blockbenchOutline.json"
+			}
+		},
+		"rotation": {
+			"type": "array",
+			"items": {
+				"type": "number"
+			}
+		},
+		"origin": {
+			"type": "array",
+			"items": {
+				"type": "number"
+			}
+		}
+	},
+	"required": [
+		"name"
+	]
+}

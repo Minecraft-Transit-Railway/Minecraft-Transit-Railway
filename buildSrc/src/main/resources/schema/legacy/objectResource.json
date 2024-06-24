@@ -1,0 +1,21 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"name": {
+			"type": "string"
+		},
+		"model": {
+			"type": "string"
+		},
+		"textureId": {
+			"type": "string"
+		},
+		"flipV": {
+			"type": "boolean"
+		}
+	}
+}

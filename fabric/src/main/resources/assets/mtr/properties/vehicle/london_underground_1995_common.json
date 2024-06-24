@@ -1,0 +1,247 @@
+{
+	"parts": [
+		{
+			"names": [
+				"window_light"
+			],
+			"positionDefinitions": [
+				"window",
+				"windowEnd1",
+				"windowEnd2"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"window"
+			],
+			"positionDefinitions": [
+				"window",
+				"windowEnd1",
+				"windowEnd2"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"seat_wheelchair"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"seat"
+			],
+			"positionDefinitions": [
+				"windowEnd1",
+				"windowEnd2"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_floor"
+			],
+			"positionDefinitions": [
+				"window",
+				"windowEnd1",
+				"windowEnd2"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"seat_wheelchair_floor"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"side_panel"
+			],
+			"positionDefinitions": [
+				"sidePanel"
+			],
+			"renderStage": "INTERIOR_TRANSLUCENT"
+		},
+		{
+			"names": [
+				"window_exterior"
+			],
+			"positionDefinitions": [
+				"window",
+				"windowEnd1",
+				"windowEnd2"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"logo"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_left",
+				"door_right"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"door_left_floor",
+				"door_right_floor"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway_left",
+				"doorway_right"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped"
+			],
+			"type": "DOORWAY"
+		},
+		{
+			"names": [
+				"door_left_part"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": 12,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_right_part"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": -12,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_left_part"
+			],
+			"positionDefinitions": [
+				"doorFlipped"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": 12,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_right_part"
+			],
+			"positionDefinitions": [
+				"doorFlipped"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": -12,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_left_exterior",
+				"door_right_exterior"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_left_exterior_part"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 12,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_right_exterior_part"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -12,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_left_exterior_part"
+			],
+			"positionDefinitions": [
+				"doorFlipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 12,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_right_exterior_part"
+			],
+			"positionDefinitions": [
+				"doorFlipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -12,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_light_on"
+			],
+			"positionDefinitions": [
+				"doorLight"
+			],
+			"condition": "DOORS_OPENED",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"door_light_off"
+			],
+			"positionDefinitions": [
+				"doorLight"
+			],
+			"condition": "DOORS_CLOSED",
+			"renderStage": "EXTERIOR"
+		}
+	],
+	"modelYOffset": 1
+}

@@ -1,0 +1,113 @@
+{
+	"parts": [
+		{
+			"names": [
+				"window_light_head"
+			],
+			"positionDefinitions": [
+				"windowEnd2Flipped"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"head"
+			],
+			"positionDefinitions": [
+				"windowEnd2Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"seat"
+			],
+			"positionDefinitions": [
+				"seatHead2"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_floor"
+			],
+			"positionDefinitions": [
+				"seatHead2"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"head_exterior"
+			],
+			"positionDefinitions": [
+				"windowEnd2Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"destination_display"
+			],
+			"positionDefinitions": [
+				"windowEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayYPadding": 0.4,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"CYCLE_LANGUAGES",
+				"ALIGN_CENTER"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "Not in Service"
+		},
+		{
+			"names": [
+				"departure_index_display"
+			],
+			"positionDefinitions": [
+				"windowEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayYPadding": 0.4,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"ALIGN_CENTER"
+			],
+			"displayPadZeros": 3,
+			"displayType": "DEPARTURE_INDEX"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"windowEnd2Flipped"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"windowEnd2Flipped"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"windowEnd2Flipped"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		}
+	],
+	"modelYOffset": 1
+}

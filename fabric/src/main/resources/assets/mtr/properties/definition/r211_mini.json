@@ -1,0 +1,214 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window1",
+			"positions": [
+			]
+		},
+		{
+			"name": "window1Flipped",
+			"positionsFlipped": [
+			]
+		},
+		{
+			"name": "window2",
+			"positions": [
+				{
+					"z": 0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "window3",
+			"positions": [
+			]
+		},
+		{
+			"name": "window3Flipped",
+			"positionsFlipped": [
+			]
+		},
+		{
+			"name": "roofLight",
+			"positions": [
+				{
+					"z": -15
+				},
+				{
+					"z": 15
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -15
+				},
+				{
+					"z": 15
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+			],
+			"positionsFlipped": [
+			]
+		},
+		{
+			"name": "doorEnd1",
+			"positions": [
+				{
+					"z": -40
+				}
+			]
+		},
+		{
+			"name": "doorEnd1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -40
+				}
+			]
+		},
+		{
+			"name": "doorEnd2",
+			"positions": [
+				{
+					"z": 40
+				}
+			]
+		},
+		{
+			"name": "doorEnd2Flipped",
+			"positionsFlipped": [
+				{
+					"z": 40
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -64
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -64
+				}
+			]
+		},
+		{
+			"name": "end1Display",
+			"positions": [
+				{
+					"z": -56
+				}
+			]
+		},
+		{
+			"name": "end1Light",
+			"positions": [
+				{
+					"z": -48
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -48
+				}
+			]
+		},
+		{
+			"name": "head1Light",
+			"positions": [
+				{
+					"z": -44
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -44
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 64
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 64
+				}
+			]
+		},
+		{
+			"name": "end2Display",
+			"positionsFlipped": [
+				{
+					"z": 56
+				}
+			]
+		},
+		{
+			"name": "end2Light",
+			"positions": [
+				{
+					"z": 48
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 48
+				}
+			]
+		},
+		{
+			"name": "head2Light",
+			"positions": [
+				{
+					"z": 44
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 44
+				}
+			]
+		},
+		{
+			"name": "sidePanel",
+			"positions": [
+				{
+					"z": -24.1
+				},
+				{
+					"z": 24.1
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -24.1
+				},
+				{
+					"z": 24.1
+				}
+			]
+		}
+	]
+}
