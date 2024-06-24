@@ -1,4 +1,4 @@
-name: Build
+name: Crowdin
 on: [ workflow_dispatch ]
 
 jobs:
