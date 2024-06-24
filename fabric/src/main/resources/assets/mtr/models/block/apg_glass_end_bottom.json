@@ -1,0 +1,18 @@
+{
+	"textures": {
+		"frontbottom": "mtr:block/apg_glass_single_bottom",
+		"sidebottom": "mtr:block/psd_side_light"
+	},
+	"elements": [
+		{
+			"from": [ 0, 0, 14 ],
+			"to": [ 16, 16, 16.05 ],
+			"faces": {
+				"north": { "uv": [ 0, 0, 16, 16 ], "texture": "#frontbottom" },
+				"south": { "uv": [ 16, 0, 0, 16 ], "texture": "#frontbottom" },
+				"east": { "texture": "#sidebottom", "cullface": "east" },
+				"west": { "texture": "#sidebottom", "cullface": "west" }
+			}
+		}
+	]
+}

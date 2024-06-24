@@ -1,0 +1,29 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:block/escalator"
+	},
+	"elements": [
+		{
+			"from": [ -14, 5.5, 10.95 ],
+			"to": [ 8.7, 8.5, 16.05 ],
+			"rotation": { "angle": -45, "axis": "z", "origin": [ 0, -0.5, 0 ] },
+			"faces": {
+				"north": { "uv": [ 7.5, 4.125, 11.5, 5.125 ], "texture": "#particle" },
+				"south": { "uv": [ 7.5, 4.125, 11.5, 5.125 ], "texture": "#particle" },
+				"up": { "uv": [ 7.5, 0, 11.5, 4 ], "texture": "#particle" }
+			}
+		},
+		{
+			"from": [ -14, 19.5, 12 ],
+			"to": [ 8.7, 20.5, 15 ],
+			"rotation": { "angle": -45, "axis": "z", "origin": [ 0, -0.5, 0 ] },
+			"faces": {
+				"north": { "uv": [ 0, 0, 1.75, 1 ], "texture": "#particle" },
+				"south": { "uv": [ 0, 0, 1.75, 1 ], "texture": "#particle" },
+				"up": { "uv": [ 0, 0, 1.75, 2.25 ], "texture": "#particle" },
+				"down": { "uv": [ 0, 0, 1.75, 1 ], "texture": "#particle" }
+			}
+		}
+	]
+}

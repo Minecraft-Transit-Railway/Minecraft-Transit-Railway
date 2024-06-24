@@ -1,0 +1,61 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"names": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"positionDefinitions": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"condition": {
+			"$ref": "PartCondition"
+		},
+		"renderStage": {
+			"$ref": "RenderStage"
+		},
+		"type": {
+			"$ref": "PartType"
+		},
+		"displayXPadding": {
+			"type": "number",
+			"minimum": 0
+		},
+		"displayYPadding": {
+			"type": "number",
+			"minimum": 0
+		},
+		"displayScrollStyle": {
+			"$ref": "DisplayScrollStyle"
+		},
+		"doorXMultiplier": {
+			"type": "number"
+		},
+		"doorZMultiplier": {
+			"type": "number"
+		},
+		"doorAnimationType": {
+			"$ref": "DoorAnimationType"
+		}
+	},
+	"required": [
+		"condition",
+		"renderStage",
+		"type",
+		"displayXPadding",
+		"displayYPadding",
+		"displayScrollStyle",
+		"doorXMultiplier",
+		"doorZMultiplier",
+		"doorAnimationType"
+	]
+}

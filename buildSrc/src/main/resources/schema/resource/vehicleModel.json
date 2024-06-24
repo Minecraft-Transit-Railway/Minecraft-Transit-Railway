@@ -1,0 +1,27 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"modelResource": {
+			"type": "string"
+		},
+		"textureResource": {
+			"type": "string"
+		},
+		"modelPropertiesResource": {
+			"type": "string"
+		},
+		"positionDefinitionsResource": {
+			"type": "string"
+		}
+	},
+	"required": [
+		"modelResource",
+		"textureResource",
+		"modelPropertiesResource",
+		"positionDefinitionsResource"
+	]
+}

@@ -1,0 +1,14 @@
+{
+	"parts": [
+		{
+			"names": [
+				"bogie"
+			],
+			"positionDefinitions": [
+				"origin"
+			],
+			"renderStage": "EXTERIOR"
+		}
+	],
+	"modelYOffset": 1
+}

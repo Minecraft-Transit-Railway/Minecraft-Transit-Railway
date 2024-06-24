@@ -1,0 +1,95 @@
+{
+	"replacements": {
+		"lengths": [
+			2,
+			2,
+			2,
+			2,
+			2,
+			2,
+			2,
+			2,
+			2,
+			2
+		],
+		"tag": [
+			"left",
+			"right",
+			"left",
+			"right",
+			"left",
+			"right",
+			"left",
+			"right",
+			"left",
+			"right"
+		],
+		"id": [
+			"crystal",
+			"crystal",
+			"crystal_plus",
+			"crystal_plus",
+			"normal_red",
+			"normal_red",
+			"normal_orange",
+			"normal_orange",
+			"normal_light_blue",
+			"normal_light_blue"
+		],
+		"name": [
+			"Crystal Cabin (LHT)",
+			"Crystal Cabin (RHT)",
+			"Crystal+ (LHT)",
+			"Crystal+ (RHT)",
+			"Red (LHT)",
+			"Red (RHT)",
+			"Orange (LHT)",
+			"Orange (RHT)",
+			"Light Blue (LHT)",
+			"Light Blue (RHT)"
+		],
+		"door": [
+			"_lht",
+			"_rht",
+			"_lht",
+			"_rht",
+			"_lht",
+			"_rht",
+			"_lht",
+			"_rht",
+			"_lht",
+			"_rht"
+		]
+	},
+	"vehicles": [
+		{
+			"id": "ngong_ping_360_@id@@door@",
+			"name": "Ngong Ping 360 @name@",
+			"color": "062540",
+			"transportMode": "CABLE_CAR",
+			"width": 2,
+			"wikipediaArticle": "Ngong_Ping_360",
+			"tags": [
+				"family:ngong_ping_360",
+				"iso_3166:HK",
+				"doors:@tag@"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/ngong_ping_360.bbmodel",
+					"textureResource": "mtr:textures/vehicle/ngong_ping_360_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/ngong_ping_360@door@.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/cable_car_grip.bbmodel",
+					"textureResource": "mtr:textures/vehicle/cable_car_grip.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/cable_car_grip@door@.json",
+					"positionDefinitionsResource": "mtr:properties/definition/ngong_ping_360.json"
+				}
+			]
+		}
+	]
+}

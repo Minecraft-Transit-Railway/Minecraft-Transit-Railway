@@ -1,0 +1,22 @@
+{
+	"variants": {
+		"type=bottom,waterlogged=false": {
+			"model": "mtr:block/marble_blue_slab_bottom"
+		},
+		"type=double,waterlogged=false": {
+			"model": "mtr:block/marble_blue"
+		},
+		"type=top,waterlogged=false": {
+			"model": "mtr:block/marble_blue_slab_top"
+		},
+		"type=bottom,waterlogged=true": {
+			"model": "mtr:block/marble_blue_slab_bottom"
+		},
+		"type=double,waterlogged=true": {
+			"model": "mtr:block/marble_blue"
+		},
+		"type=top,waterlogged=true": {
+			"model": "mtr:block/marble_blue_slab_top"
+		}
+	}
+}

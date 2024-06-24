@@ -1,0 +1,70 @@
+package org.mtr.mod.screen;
+
+import org.mtr.mapping.holder.ClickableWidget;
+import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mapping.holder.Screen;
+import org.mtr.mapping.mapper.ButtonWidgetExtension;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.ScreenExtension;
+import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mod.Init;
+import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.data.IGui;
+
+public class DeleteConfirmationScreen extends ScreenExtension implements IGui {
+
+	private final Runnable deleteCallback;
+	private final String name;
+	private final DashboardScreen dashboardScreen;
+	private final ButtonWidgetExtension buttonYes;
+	private final ButtonWidgetExtension buttonNo;
+
+	private static final int BUTTON_WIDTH = 100;
+	private static final int BUTTON_HALF_PADDING = 10;
+
+	public DeleteConfirmationScreen(Runnable deleteCallback, String name, DashboardScreen dashboardScreen) {
+		super();
+
+		this.deleteCallback = deleteCallback;
+		this.name = name;
+		this.dashboardScreen = dashboardScreen;
+
+		buttonYes = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.yes"), button -> onYes());
+		buttonNo = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.no"), button -> onNo());
+	}
+
+	@Override
+	protected void init2() {
+		super.init2();
+		IDrawing.setPositionAndWidth(buttonYes, width / 2 - BUTTON_WIDTH - BUTTON_HALF_PADDING, height / 2, BUTTON_WIDTH);
+		IDrawing.setPositionAndWidth(buttonNo, width / 2 + BUTTON_HALF_PADDING, height / 2, BUTTON_WIDTH);
+		addChild(new ClickableWidget(buttonYes));
+		addChild(new ClickableWidget(buttonNo));
+	}
+
+	@Override
+	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
+		try {
+			renderBackground(graphicsHolder);
+			super.render(graphicsHolder, mouseX, mouseY, delta);
+			graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.delete_confirmation", IGui.formatStationName(name)), width / 2, height / 2 - SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
+		} catch (Exception e) {
+			Init.LOGGER.error("", e);
+		}
+	}
+
+	@Override
+	public void onClose2() {
+		super.onClose2();
+		MinecraftClient.getInstance().openScreen(new Screen(dashboardScreen));
+	}
+
+	private void onYes() {
+		deleteCallback.run();
+		onClose2();
+	}
+
+	private void onNo() {
+		onClose2();
+	}
+}

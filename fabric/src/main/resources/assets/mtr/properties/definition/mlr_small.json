@@ -1,0 +1,273 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window1",
+			"positions": [
+				{
+					"z": -64
+				},
+				{
+					"z": 64
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "window2",
+			"positions": [
+				{
+					"z": 0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -64
+				},
+				{
+					"z": 64
+				}
+			]
+		},
+		{
+			"name": "seat",
+			"positions": [
+				{
+					"z": -63.25
+				},
+				{
+					"z": -0.75
+				},
+				{
+					"z": 64.75
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -63.25
+				},
+				{
+					"z": -0.75
+				},
+				{
+					"z": 64.75
+				}
+			]
+		},
+		{
+			"name": "sidePanel",
+			"positions": [
+				{
+					"z": -113.75
+				},
+				{
+					"z": -78.25
+				},
+				{
+					"z": -48.25
+				},
+				{
+					"z": -15.75
+				},
+				{
+					"z": 14.25
+				},
+				{
+					"z": 49.75
+				},
+				{
+					"z": 79.75
+				},
+				{
+					"z": 113.75
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -113.75
+				},
+				{
+					"z": -78.25
+				},
+				{
+					"z": -48.25
+				},
+				{
+					"z": -15.75
+				},
+				{
+					"z": 14.25
+				},
+				{
+					"z": 49.75
+				},
+				{
+					"z": 79.75
+				},
+				{
+					"z": 113.75
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"z": -96
+				},
+				{
+					"z": -32
+				},
+				{
+					"z": 32
+				},
+				{
+					"z": 96
+				}
+			]
+		},
+		{
+			"name": "doorFlipped",
+			"positionsFlipped": [
+				{
+					"z": -96
+				},
+				{
+					"z": -32
+				},
+				{
+					"z": 32
+				},
+				{
+					"z": 96
+				}
+			]
+		},
+		{
+			"name": "doorOverlayWall1",
+			"positions": [
+				{
+					"z": -109.9
+				},
+				{
+					"z": -45.9
+				},
+				{
+					"z": 18.1
+				},
+				{
+					"z": 82.1
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -82.1
+				},
+				{
+					"z": -18.1
+				},
+				{
+					"z": 45.9
+				},
+				{
+					"z": 109.9
+				}
+			]
+		},
+		{
+			"name": "doorOverlayWall2",
+			"positions": [
+				{
+					"z": -82.1
+				},
+				{
+					"z": -18.1
+				},
+				{
+					"z": 45.9
+				},
+				{
+					"z": 109.9
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -109.9
+				},
+				{
+					"z": -45.9
+				},
+				{
+					"z": 18.1
+				},
+				{
+					"z": 82.1
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -128
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 128
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -128
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 128
+				}
+			]
+		},
+		{
+			"name": "roofHead1",
+			"positionsFlipped": [
+				{
+					"z": -126
+				}
+			]
+		},
+		{
+			"name": "roofHead2",
+			"positions": [
+				{
+					"z": 126
+				}
+			]
+		},
+		{
+			"name": "doorLight",
+			"positions": [
+				{
+					"z": 10
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 10
+				}
+			]
+		}
+	]
+}

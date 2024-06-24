@@ -1,0 +1,54 @@
+{
+	"parts": [
+		{
+			"names": [
+				"end_ael",
+				"end_door_ael"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"end_floor_ael"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"end_exterior_ael",
+				"roof_end_exterior"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_exterior_ael",
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"windowEnd1",
+				"windowEnd1Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"seat"
+			],
+			"positionDefinitions": [
+				"seatEnd1"
+			],
+			"renderStage": "INTERIOR"
+		}
+	],
+	"modelYOffset": 1
+}

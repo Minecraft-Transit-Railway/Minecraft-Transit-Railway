@@ -1,0 +1,37 @@
+package org.mtr.mod.block;
+
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.BlockHelper;
+import org.mtr.mapping.mapper.TextHelper;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+
+public class BlockStationColorPole extends BlockExtension {
+
+	private final boolean showTooltip;
+
+	public BlockStationColorPole(boolean showTooltip) {
+		super(BlockHelper.createBlockSettings(false));
+		this.showTooltip = showTooltip;
+	}
+
+	@Nonnull
+	@Override
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return getStationPoleShape();
+	}
+
+	@Override
+	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
+		if (showTooltip) {
+			tooltip.add(TextHelper.translatable("tooltip.mtr.station_color").formatted(TextFormatting.GRAY));
+		}
+	}
+
+	public static VoxelShape getStationPoleShape() {
+		return Block.createCuboidShape(6, 0, 6, 10, 16, 10);
+	}
+}
