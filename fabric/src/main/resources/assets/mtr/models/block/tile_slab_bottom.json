@@ -1,0 +1,8 @@
+{
+	"parent": "block/slab",
+	"textures": {
+		"bottom": "mtr:block/tile",
+		"top": "mtr:block/tile",
+		"side": "mtr:block/tile"
+	}
+}
