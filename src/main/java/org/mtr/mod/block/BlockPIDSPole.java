@@ -1,38 +1,36 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.mappings.Text;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mapping.tool.HolderBase;
+
+import javax.annotation.Nonnull;
+import java.util.List;
 
 public class BlockPIDSPole extends BlockPoleCheckBase {
 
-	public BlockPIDSPole(Properties settings) {
-		super(settings);
+	public BlockPIDSPole(BlockSettings blockSettings) {
+		super(blockSettings);
 	}
 
+	@Nonnull
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
-		return mtr.block.IBlock.getVoxelShapeByDirection(7.5, 0, 12.5, 8.5, 16, 13.5, IBlock.getStatePropertySafe(state, FACING));
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return IBlock.getVoxelShapeByDirection(7.5, 0, 12.5, 8.5, 16, 13.5, IBlock.getStatePropertySafe(state, FACING));
 	}
 
 	@Override
 	protected boolean isBlock(Block block) {
-		return block instanceof BlockPIDSBaseHorizontal || block instanceof BlockPIDSPole;
+		return block.data instanceof BlockPIDSBaseHorizontal || block.data instanceof BlockPIDSPole;
 	}
 
 	@Override
-	protected Component getTooltipBlockText() {
-		return Text.translatable("block.mtr.pids_1");
+	protected Text getTooltipBlockText() {
+		return new Text(TextHelper.translatable("block.mtr.pids_1").data);
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(FACING);
 	}
 }

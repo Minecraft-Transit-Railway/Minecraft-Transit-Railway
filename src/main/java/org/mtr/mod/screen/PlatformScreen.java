@@ -1,52 +1,56 @@
-package mtr.screen;
+package org.mtr.mod.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.data.Platform;
-import mtr.data.TransportMode;
-import mtr.mappings.Text;
-import mtr.mappings.UtilitiesClient;
-import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import org.mtr.core.data.Platform;
+import org.mtr.core.data.Station;
+import org.mtr.core.data.TransportMode;
+import org.mtr.core.servlet.IntegrationServlet;
+import org.mtr.mapping.holder.MutableText;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mapping.registry.RegistryClient;
+import org.mtr.mod.packet.PacketData;
 
-public class PlatformScreen extends SavedRailScreenBase<Platform> {
+public class PlatformScreen extends SavedRailScreenBase<Platform, Station> {
 
-	private static final Component DWELL_TIME_TEXT = Text.translatable("gui.mtr.dwell_time");
+	private static final MutableText DWELL_TIME_TEXT = TextHelper.translatable("gui.mtr.dwell_time");
 
 	public PlatformScreen(Platform savedRailBase, TransportMode transportMode, DashboardScreen dashboardScreen) {
 		super(savedRailBase, transportMode, dashboardScreen, DWELL_TIME_TEXT);
 	}
 
 	@Override
-	protected void init() {
-		super.init();
-		UtilitiesClient.setWidgetY(sliderDwellTimeMin, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING);
-		UtilitiesClient.setWidgetY(sliderDwellTimeSec, SQUARE_SIZE * 5 / 2 + TEXT_FIELD_PADDING);
+	protected void init2() {
+		super.init2();
+		sliderDwellTimeMin.setY2(SQUARE_SIZE * 2 + TEXT_FIELD_PADDING);
+		sliderDwellTimeMin.setValue((int) Math.floor(savedRailBase.getDwellTime() / 2F / SECONDS_PER_MINUTE));
+		sliderDwellTimeSec.setY2(SQUARE_SIZE * 5 / 2 + TEXT_FIELD_PADDING);
+		sliderDwellTimeSec.setValue((int) (savedRailBase.getDwellTime() % (SECONDS_PER_MINUTE * 2)));
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		super.render(matrices, mouseX, mouseY, delta);
+	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
+		super.render(graphicsHolder, mouseX, mouseY, delta);
 		if (showScheduleControls) {
-			font.draw(matrices, DWELL_TIME_TEXT, SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING + TEXT_PADDING, ARGB_WHITE);
+			graphicsHolder.drawText(DWELL_TIME_TEXT, SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
 		}
 	}
 
 	@Override
-	public void onClose() {
+	public void onClose2() {
 		final int minutes = sliderDwellTimeMin.getIntValue();
 		final float second = sliderDwellTimeSec.getIntValue() / 2F;
-		savedRailBase.setDwellTime((int) ((second + minutes * SECONDS_PER_MINUTE) * 2), packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_PLATFORM, packet));
-		super.onClose();
+		savedRailBase.setDwellTime((long) ((second + (long) minutes * SECONDS_PER_MINUTE) * 2));
+
+		RegistryClient.sendPacketToServer(PacketData.fromPlatforms(IntegrationServlet.Operation.UPDATE, ObjectSet.of(savedRailBase), platforms -> {
+
+		}));
+
+		super.onClose2();
 	}
 
 	@Override
 	protected String getNumberStringKey() {
 		return "gui.mtr.platform_number";
-	}
-
-	@Override
-	protected ResourceLocation getPacketIdentifier() {
-		return PACKET_UPDATE_PLATFORM;
 	}
 }

@@ -1,28 +1,23 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.mappings.Text;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mapping.tool.HolderBase;
+
+import javax.annotation.Nonnull;
+import java.util.List;
 
 public class BlockRailwaySignPole extends BlockPoleCheckBase {
 
-	public static final IntegerProperty TYPE = IntegerProperty.create("type", 0, 3);
+	public static final IntegerProperty TYPE = IntegerProperty.of("type", 0, 3);
 
-	public BlockRailwaySignPole(Properties settings) {
-		super(settings);
+	public BlockRailwaySignPole(BlockSettings blockSettings) {
+		super(blockSettings);
 	}
 
+	@Nonnull
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 		switch (IBlock.getStatePropertySafe(state, TYPE)) {
 			case 0:
@@ -34,7 +29,7 @@ public class BlockRailwaySignPole extends BlockPoleCheckBase {
 			case 3:
 				return IBlock.getVoxelShapeByDirection(2, 0, 7, 3.25, 16, 9, facing);
 			default:
-				return Shapes.block();
+				return VoxelShapes.fullCube();
 		}
 	}
 
@@ -42,26 +37,27 @@ public class BlockRailwaySignPole extends BlockPoleCheckBase {
 	protected BlockState placeWithState(BlockState stateBelow) {
 		final int type;
 		final Block block = stateBelow.getBlock();
-		if (block instanceof BlockRailwaySign) {
-			type = (((BlockRailwaySign) block).length + (((BlockRailwaySign) block).isOdd ? 2 : 0)) % 4;
+		if (block.data instanceof BlockRailwaySign) {
+			type = (((BlockRailwaySign) block.data).length + (((BlockRailwaySign) block.data).isOdd ? 2 : 0)) % 4;
 		} else {
 			type = IBlock.getStatePropertySafe(stateBelow, TYPE);
 		}
-		return super.placeWithState(stateBelow).setValue(TYPE, type);
+		return super.placeWithState(stateBelow).with(new Property<>(TYPE.data), type);
 	}
 
 	@Override
 	protected boolean isBlock(Block block) {
-		return (block instanceof BlockRailwaySign && ((BlockRailwaySign) block).length > 0) || block instanceof BlockRailwaySignPole;
+		return (block.data instanceof BlockRailwaySign && ((BlockRailwaySign) block.data).length > 0) || block.data instanceof BlockRailwaySignPole;
 	}
 
 	@Override
-	protected Component getTooltipBlockText() {
-		return Text.translatable("block.mtr.railway_sign");
+	protected Text getTooltipBlockText() {
+		return new Text(TextHelper.translatable("block.mtr.railway_sign").data);
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, TYPE);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(FACING);
+		properties.add(TYPE);
 	}
 }

@@ -1,23 +1,28 @@
-package mtr.client;
+package org.mtr.mod.client;
 
-import mtr.KeyMappings;
-import mtr.MTRClient;
-import mtr.data.*;
-import mtr.mappings.Text;
-import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.core.data.*;
+import org.mtr.core.tools.Position;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.registry.RegistryClient;
+import org.mtr.mod.KeyBindings;
+import org.mtr.mod.data.VehicleExtension;
+import org.mtr.mod.packet.PacketDriveTrain;
+import org.mtr.mod.screen.DashboardListItem;
 
 import java.util.*;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 
-public final class ClientData {
+public final class ClientData extends Data {
 
+	public final ObjectAVLTreeSet<VehicleExtension> vehicles = new ObjectAVLTreeSet<>();
+
+	public final ObjectAVLTreeSet<Rail> rails = new ObjectAVLTreeSet<>();
+	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
+
+	public static ClientData instance = new ClientData();
 	public static String DASHBOARD_SEARCH = "";
 	public static String ROUTES_PLATFORMS_SEARCH = "";
 	public static String ROUTES_PLATFORMS_SELECTED_SEARCH = "";
@@ -29,21 +34,6 @@ public final class ClientData {
 	private static boolean pressingBrake = false;
 	private static boolean pressingDoors = false;
 	private static float shiftHoldingTicks = 0;
-
-	public static final Set<Station> STATIONS = new HashSet<>();
-	public static final Set<Platform> PLATFORMS = new HashSet<>();
-	public static final Set<Siding> SIDINGS = new HashSet<>();
-	public static final Set<Route> ROUTES = new HashSet<>();
-	public static final Set<Depot> DEPOTS = new HashSet<>();
-	public static final Set<LiftClient> LIFTS = new HashSet<>();
-	public static final SignalBlocks SIGNAL_BLOCKS = new SignalBlocks();
-	public static final Map<UUID, Boolean> OCCUPIED_RAILS = new HashMap<>();
-	public static final Map<BlockPos, Map<BlockPos, Rail>> RAILS = new HashMap<>();
-	public static final Set<TrainClient> TRAINS = new HashSet<>();
-	public static final List<DataConverter> RAIL_ACTIONS = new ArrayList<>();
-	public static final Map<Long, Set<ScheduleEntry>> SCHEDULES_FOR_PLATFORM = new HashMap<>();
-
-	public static final ClientCache DATA_CACHE = new ClientCache(STATIONS, PLATFORMS, SIDINGS, ROUTES, DEPOTS, LIFTS);
 
 	private static final Map<UUID, Integer> PLAYER_RIDING_COOL_DOWN = new HashMap<>();
 
@@ -57,236 +47,31 @@ public final class ClientData {
 		});
 		playersToRemove.forEach(PLAYER_RIDING_COOL_DOWN::remove);
 
+		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+		final boolean tempPressingAccelerate = KeyBindings.TRAIN_ACCELERATE.isPressed();
+		final boolean tempPressingBrake = KeyBindings.TRAIN_BRAKE.isPressed();
+		final boolean tempPressingDoors = KeyBindings.TRAIN_TOGGLE_DOORS.isPressed();
 
-		final boolean tempPressingAccelerate = KeyMappings.TRAIN_ACCELERATE.isDown();
-		final boolean tempPressingBrake = KeyMappings.TRAIN_BRAKE.isDown();
-		final boolean tempPressingDoors = KeyMappings.TRAIN_TOGGLE_DOORS.isDown();
-		PacketTrainDataGuiClient.sendDriveTrainC2S(
-				tempPressingAccelerate && !pressingAccelerate,
-				tempPressingBrake && !pressingBrake,
-				tempPressingDoors && !pressingDoors
-		);
+		if (VehicleExtension.isHoldingKey(clientPlayerEntity) && (pressingAccelerate || pressingBrake || pressingDoors)) {
+			RegistryClient.sendPacketToServer(new PacketDriveTrain(
+					tempPressingAccelerate && !pressingAccelerate,
+					tempPressingBrake && !pressingBrake,
+					tempPressingDoors && !pressingDoors
+			));
+		}
+
 		pressingAccelerate = tempPressingAccelerate;
 		pressingBrake = tempPressingBrake;
 		pressingDoors = tempPressingDoors;
 
-		final Minecraft minecraftClient = Minecraft.getInstance();
-		final Player player = minecraftClient.player;
-		if (player != null) {
-			if (player.isShiftKeyDown()) {
-				shiftHoldingTicks += MTRClient.getLastFrameDuration();
+		if (clientPlayerEntity != null) {
+			if (clientPlayerEntity.isSneaking()) {
+				shiftHoldingTicks += minecraftClient.getLastFrameDuration();
 			} else {
 				shiftHoldingTicks = 0;
 			}
 		}
-	}
-
-	public static void writeRails(Minecraft client, FriendlyByteBuf packet) {
-		final Map<BlockPos, Map<BlockPos, Rail>> railsTemp = new HashMap<>();
-
-		final int railsCount = packet.readInt();
-		for (int i = 0; i < railsCount; i++) {
-			final BlockPos startPos = packet.readBlockPos();
-			final Map<BlockPos, Rail> railMap = new HashMap<>();
-			final int railCount = packet.readInt();
-			for (int j = 0; j < railCount; j++) {
-				railMap.put(packet.readBlockPos(), new Rail(packet));
-			}
-			railsTemp.put(startPos, railMap);
-		}
-
-		client.execute(() -> clearAndAddAll(RAILS, railsTemp));
-	}
-
-	public static void updateTrains(Minecraft client, FriendlyByteBuf packet) {
-		final Set<TrainClient> trainsToUpdate = new HashSet<>();
-
-		while (packet.isReadable()) {
-			trainsToUpdate.add(new TrainClient(packet));
-		}
-
-		client.execute(() -> trainsToUpdate.forEach(newTrain -> {
-			final TrainClient existingTrain = getTrainById(newTrain.id);
-			if (existingTrain == null) {
-				TRAINS.add(newTrain);
-			} else {
-				existingTrain.copyFromTrain(newTrain);
-			}
-		}));
-	}
-
-	public static void deleteTrains(Minecraft client, FriendlyByteBuf packet) {
-		final Set<Long> trainIdsToKeep = new HashSet<>();
-
-		final int trainsCount = packet.readInt();
-		for (int i = 0; i < trainsCount; i++) {
-			trainIdsToKeep.add(packet.readLong());
-		}
-
-		client.execute(() -> {
-			TRAINS.forEach(trainClient -> {
-				if (!trainIdsToKeep.contains(trainClient.id)) {
-					trainClient.isRemoved = true;
-				}
-			});
-			TRAINS.removeIf(trainClient -> trainClient.isRemoved);
-		});
-	}
-
-	public static void updateLifts(Minecraft client, FriendlyByteBuf packet) {
-		final Set<LiftClient> liftsToUpdate = new HashSet<>();
-
-		while (packet.isReadable()) {
-			liftsToUpdate.add(new LiftClient(packet));
-		}
-
-		client.execute(() -> liftsToUpdate.forEach(newLift -> {
-			final LiftClient existingLift = DATA_CACHE.liftsClientIdMap.get(newLift.id);
-			if (existingLift == null) {
-				LIFTS.add(newLift);
-				ClientData.DATA_CACHE.syncLiftIds();
-			} else {
-				existingLift.copyFromLift(newLift);
-			}
-		}));
-	}
-
-	public static void deleteLifts(Minecraft client, FriendlyByteBuf packet) {
-		final Set<Long> liftIdsToKeep = new HashSet<>();
-
-		final int liftsCount = packet.readInt();
-		for (int i = 0; i < liftsCount; i++) {
-			liftIdsToKeep.add(packet.readLong());
-		}
-
-		client.execute(() -> {
-			final Set<LiftClient> liftsToRemove = new HashSet<>();
-			LIFTS.forEach(lift -> {
-				if (!liftIdsToKeep.contains(lift.id)) {
-					liftsToRemove.add(lift);
-				}
-			});
-			liftsToRemove.forEach(LIFTS::remove);
-			ClientData.DATA_CACHE.syncLiftIds();
-		});
-	}
-
-	public static void updateTrainPassengers(Minecraft client, FriendlyByteBuf packet) {
-		final TrainClient train = getTrainById(packet.readLong());
-		final float percentageX = packet.readFloat();
-		final float percentageZ = packet.readFloat();
-		final UUID uuid = packet.readUUID();
-		if (train != null) {
-			client.execute(() -> train.startRidingClient(uuid, percentageX, percentageZ));
-		}
-	}
-
-	public static void updateTrainPassengerPosition(Minecraft client, FriendlyByteBuf packet) {
-		final TrainClient train = getTrainById(packet.readLong());
-		final float percentageX = packet.readFloat();
-		final float percentageZ = packet.readFloat();
-		final UUID uuid = packet.readUUID();
-		if (train != null) {
-			client.execute(() -> train.updateRiderPercentages(uuid, percentageX, percentageZ));
-		}
-	}
-
-	public static void updateLiftPassengers(Minecraft client, FriendlyByteBuf packet) {
-		final LiftClient lift = DATA_CACHE.liftsClientIdMap.get(packet.readLong());
-		final float percentageX = packet.readFloat();
-		final float percentageZ = packet.readFloat();
-		final UUID uuid = packet.readUUID();
-		if (lift != null) {
-			client.execute(() -> lift.startRidingClient(uuid, percentageX, percentageZ));
-		}
-	}
-
-	public static void updateLiftPassengerPosition(Minecraft client, FriendlyByteBuf packet) {
-		final LiftClient lift = DATA_CACHE.liftsClientIdMap.get(packet.readLong());
-		final float percentageX = packet.readFloat();
-		final float percentageZ = packet.readFloat();
-		final UUID uuid = packet.readUUID();
-		if (lift != null) {
-			client.execute(() -> lift.updateRiderPercentages(uuid, percentageX, percentageZ));
-		}
-	}
-
-	public static void updateRailActions(Minecraft client, FriendlyByteBuf packet) {
-		final List<DataConverter> railActions = new ArrayList<>();
-		final int actionCount = packet.readInt();
-		for (int i = 0; i < actionCount; i++) {
-			final long id = packet.readLong();
-			final String player = packet.readUtf();
-			final float length = packet.readFloat();
-			final String block = Text.translatable(packet.readUtf()).getString();
-			final String name = Text.translatable("gui.mtr." + packet.readUtf(), player, length, block).getString();
-			final int color = packet.readInt();
-			railActions.add(new DataConverter(id, name, color));
-		}
-		client.execute(() -> {
-			RAIL_ACTIONS.clear();
-			RAIL_ACTIONS.addAll(railActions);
-		});
-	}
-
-	public static void updateSchedule(Minecraft client, FriendlyByteBuf packet) {
-		final Map<Long, Set<ScheduleEntry>> tempSchedulesForPlatform = new HashMap<>();
-		final int platformCount = packet.readInt();
-		for (int i = 0; i < platformCount; i++) {
-			final long platformId = packet.readLong();
-			final int scheduleCount = packet.readInt();
-			for (int j = 0; j < scheduleCount; j++) {
-				if (!tempSchedulesForPlatform.containsKey(platformId)) {
-					tempSchedulesForPlatform.put(platformId, new HashSet<>());
-				}
-				tempSchedulesForPlatform.get(platformId).add(new ScheduleEntry(packet));
-			}
-		}
-
-		final Map<Long, Boolean> signalBlockStatus = new HashMap<>();
-		final int signalBlockCount = packet.readInt();
-		for (int i = 0; i < signalBlockCount; i++) {
-			signalBlockStatus.put(packet.readLong(), packet.readBoolean());
-		}
-
-		final Map<UUID, Boolean> occupiedRails = new HashMap<>();
-		final int occupiedRailsCount = packet.readInt();
-		for (int i = 0; i < occupiedRailsCount; i++) {
-			occupiedRails.put(packet.readUUID(), packet.readBoolean());
-		}
-
-		client.execute(() -> {
-			clearAndAddAll(SCHEDULES_FOR_PLATFORM, tempSchedulesForPlatform);
-			SIGNAL_BLOCKS.writeSignalBlockStatus(signalBlockStatus);
-			OCCUPIED_RAILS.clear();
-			OCCUPIED_RAILS.putAll(occupiedRails);
-		});
-	}
-
-	public static void receivePacket(FriendlyByteBuf packet) {
-		final FriendlyByteBuf packetCopy = new FriendlyByteBuf(packet.copy());
-		clearAndAddAll(STATIONS, deserializeData(packetCopy, Station::new));
-		clearAndAddAll(PLATFORMS, deserializeData(packetCopy, Platform::new));
-		clearAndAddAll(SIDINGS, deserializeData(packetCopy, Siding::new));
-		clearAndAddAll(ROUTES, deserializeData(packetCopy, Route::new));
-		clearAndAddAll(DEPOTS, deserializeData(packetCopy, Depot::new));
-		clearAndAddAll(LIFTS, deserializeData(packetCopy, LiftClient::new));
-		clearAndAddAll(SIGNAL_BLOCKS.signalBlocks, deserializeData(packetCopy, SignalBlocks.SignalBlock::new));
-
-		TRAINS.clear();
-		ClientData.DATA_CACHE.sync();
-		ClientData.DATA_CACHE.refreshDynamicResources();
-		SIGNAL_BLOCKS.writeCache();
-	}
-
-	public static <T extends NameColorDataBase> Set<T> getFilteredDataSet(TransportMode transportMode, Set<T> dataSet) {
-		final Set<T> returnData = new HashSet<>();
-		dataSet.forEach(data -> {
-			if (data.isTransportMode(transportMode)) {
-				returnData.add(data);
-			}
-		});
-		return returnData;
 	}
 
 	public static void updatePlayerRidingOffset(UUID uuid) {
@@ -298,50 +83,77 @@ public final class ClientData {
 	}
 
 	public static boolean hasPermission() {
-		final LocalPlayer player = Minecraft.getInstance().player;
+		final ClientPlayerEntity player = MinecraftClient.getInstance().getPlayerMapped();
 		if (player == null) {
 			return false;
 		}
-		final ClientPacketListener clientPacketListener = Minecraft.getInstance().getConnection();
-		if (clientPacketListener == null) {
+		final ClientPlayNetworkHandler clientPlayNetworkHandler = MinecraftClient.getInstance().getNetworkHandler();
+		if (clientPlayNetworkHandler == null) {
 			return false;
 		}
-		final PlayerInfo playerInfo = clientPacketListener.getPlayerInfo(player.getUUID());
-		if (playerInfo == null) {
+		final PlayerListEntry playerListEntry = clientPlayNetworkHandler.getPlayerListEntry(player.getUuid());
+		if (playerListEntry == null) {
 			return false;
 		}
-		return RailwayData.hasPermission(playerInfo.getGameMode());
+		final GameMode gameMode = playerListEntry.getGameMode();
+		return gameMode == GameMode.getCreativeMapped() || gameMode == GameMode.getSurvivalMapped();
 	}
 
 	public static float getShiftHoldingTicks() {
 		return shiftHoldingTicks;
 	}
 
-	private static <T extends SerializedDataBase> Set<T> deserializeData(FriendlyByteBuf packet, Function<FriendlyByteBuf, T> supplier) {
-		final Set<T> objects = new HashSet<>();
-		final int dataCount = packet.readInt();
-		for (int i = 0; i < dataCount; i++) {
-			objects.add(supplier.apply(packet));
+	public static Rail getRail(BlockPos blockPos1, BlockPos blockPos2) {
+		return tryGet(ClientData.instance.positionToRailConnections, new Position(blockPos1.getX(), blockPos1.getY(), blockPos1.getZ()), new Position(blockPos2.getX(), blockPos2.getY(), blockPos2.getZ()));
+	}
+
+	public static <T extends NameColorDataBase> ObjectAVLTreeSet<DashboardListItem> getFilteredDataSet(TransportMode transportMode, ObjectAVLTreeSet<T> dataSet) {
+		return convertDataSet(dataSet.stream().filter(data -> data.isTransportMode(transportMode)).collect(Collectors.toCollection(ObjectAVLTreeSet::new)));
+	}
+
+	public static <T extends NameColorDataBase> ObjectAVLTreeSet<DashboardListItem> convertDataSet(ObjectAVLTreeSet<T> dataSet) {
+		return new ObjectAVLTreeSet<>(dataSet.stream().map(DashboardListItem::new).collect(Collectors.toSet()));
+	}
+
+	public static <T extends AreaBase<T, U>, U extends SavedRailBase<U, T>> Object2ObjectAVLTreeMap<Position, ObjectArrayList<U>> getFlatPositionToSavedRails(ObjectAVLTreeSet<U> savedRails, TransportMode transportMode) {
+		final Object2ObjectAVLTreeMap<Position, ObjectArrayList<U>> map = new Object2ObjectAVLTreeMap<>();
+		savedRails.forEach(savedRail -> {
+			if (savedRail.isTransportMode(transportMode)) {
+				final Position position = savedRail.getMidPosition();
+				final Position newPosition = new Position(position.getX(), 0, position.getZ());
+				map.computeIfAbsent(newPosition, newSavedRails -> ObjectArrayList.of());
+				map.get(newPosition).add(savedRail);
+			}
+		});
+		map.forEach((position, newSavedRails) -> newSavedRails.sort((savedRail1, savedRail2) -> {
+			if (savedRail1.getId() == savedRail2.getId()) {
+				return 0;
+			} else {
+				final long y1 = savedRail1.getMidPosition().getY();
+				final long y2 = savedRail2.getMidPosition().getY();
+				return y1 == y2 ? savedRail1.getId() > savedRail2.getId() ? 1 : -1 : y1 > y2 ? 1 : -1;
+			}
+		}));
+		return map;
+	}
+
+	public static Platform getClosePlatform(BlockPos blockPos) {
+		return getClosePlatform(blockPos, 5, 2);
+	}
+
+	public static Platform getClosePlatform(BlockPos blockPos, int radius, int offsetY) {
+		for (int i = 1; i <= radius; i++) {
+			final int searchRadius = i;
+			final Position position = new Position(blockPos.getX(), blockPos.getY() + offsetY, blockPos.getZ());
+			final Platform platform = ClientData.instance.platforms.stream()
+					.filter(checkPlatform -> checkPlatform.closeTo(position, searchRadius))
+					.min(Comparator.comparingLong(checkPlatform -> checkPlatform.getMidPosition().distManhattan(position)))
+					.orElse(null);
+			if (platform != null) {
+				return platform;
+			}
 		}
-		return objects;
-	}
 
-	private static <U> void clearAndAddAll(Collection<U> target, Collection<U> source) {
-		target.clear();
-		target.addAll(source);
-	}
-
-	private static <U, V> void clearAndAddAll(Map<U, V> target, Map<U, V> source) {
-		target.clear();
-		target.putAll(source);
-	}
-
-	private static TrainClient getTrainById(long id) {
-		try {
-			return TRAINS.stream().filter(item -> item.id == id).findFirst().orElse(null);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+		return null;
 	}
 }

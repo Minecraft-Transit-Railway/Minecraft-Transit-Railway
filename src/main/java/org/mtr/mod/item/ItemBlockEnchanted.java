@@ -1,17 +1,18 @@
-package mtr.item;
+package org.mtr.mod.item;
 
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
+import org.mtr.mapping.holder.Block;
+import org.mtr.mapping.holder.ItemSettings;
+import org.mtr.mapping.holder.ItemStack;
+import org.mtr.mapping.mapper.BlockItemExtension;
 
-public class ItemBlockEnchanted extends BlockItem {
+public class ItemBlockEnchanted extends BlockItemExtension {
 
-	public ItemBlockEnchanted(Block block, Properties properties) {
-		super(block, properties);
+	public ItemBlockEnchanted(Block block, ItemSettings itemSettings) {
+		super(block, itemSettings);
 	}
 
 	@Override
-	public boolean isFoil(ItemStack itemStack) {
+	public boolean hasGlint2(ItemStack stack) {
 		return true;
 	}
 }

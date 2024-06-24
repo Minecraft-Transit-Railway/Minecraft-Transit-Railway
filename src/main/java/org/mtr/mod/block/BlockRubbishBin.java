@@ -1,70 +1,63 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.mappings.BlockDirectionalMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.DirectionHelper;
+import org.mtr.mapping.tool.HolderBase;
 
-public class BlockRubbishBin extends BlockDirectionalMapper {
+import javax.annotation.Nonnull;
+import java.util.List;
+
+public class BlockRubbishBin extends BlockExtension implements DirectionHelper {
 
 	public static final int MAX_LEVEL = 15;
-	public static final IntegerProperty FILLED = IntegerProperty.create("filled", 0, MAX_LEVEL);
+	public static final IntegerProperty FILLED = IntegerProperty.of("filled", 0, MAX_LEVEL);
 
-	public BlockRubbishBin(Properties settings) {
-		super(settings);
-		registerDefaultState(defaultBlockState().setValue(FILLED, 0));
+	public BlockRubbishBin(BlockSettings blockSettings) {
+		super(blockSettings);
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		return defaultBlockState().setValue(FACING, ctx.getHorizontalDirection());
+	public BlockState getPlacementState2(ItemPlacementContext ctx) {
+		return getDefaultState2().with(new Property<>(FACING.data), ctx.getPlayerFacing().data);
 	}
 
+	@Nonnull
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
-		return IBlock.getVoxelShapeByDirection(2, 0, 0, 14, 16, 4.5, state.getValue(FACING));
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return IBlock.getVoxelShapeByDirection(2, 0, 0, 14, 16, 4.5, Direction.convert(state.get(new Property<>(FACING.data))));
 	}
 
+	@Nonnull
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
-		return IBlock.checkHoldingBrush(world, player, () -> world.setBlockAndUpdate(pos, state.setValue(FILLED, 0)), () -> {
+	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		return IBlock.checkHoldingBrush(world, player, () -> world.setBlockState(pos, state.with(new Property<>(FILLED.data), 0)), () -> {
 			final int currentLevel = IBlock.getStatePropertySafe(state, FILLED);
-			if (!player.getMainHandItem().isEmpty() && currentLevel < MAX_LEVEL) {
-				world.setBlockAndUpdate(pos, state.setValue(FILLED, currentLevel + 1));
+			if (!player.getMainHandStack().isEmpty() && currentLevel < MAX_LEVEL) {
+				world.setBlockState(pos, state.with(new Property<>(FILLED.data), currentLevel + 1));
 				if (!player.isCreative()) {
-					player.getMainHandItem().shrink(1);
+					player.getMainHandStack().decrement(1);
 				}
 			}
 		});
 	}
 
 	@Override
-	public void randomTick(BlockState state, ServerLevel world, BlockPos pos) {
+	public void randomDisplayTick2(BlockState state, World world, BlockPos pos, Random random) {
 		final int newLevel = IBlock.getStatePropertySafe(state, FILLED) - 1;
 		if (newLevel >= 0) {
-			world.setBlockAndUpdate(pos, state.setValue(FILLED, newLevel));
+			world.setBlockState(pos, state.with(new Property<>(FILLED.data), newLevel));
 		}
 	}
 
 	@Override
-	public boolean isRandomlyTicking(BlockState blockState) {
+	public boolean hasRandomTicks2(BlockState state) {
 		return true;
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, FILLED);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(FACING);
+		properties.add(FILLED);
 	}
 }

@@ -1,104 +1,95 @@
-package mtr.screen;
+package org.mtr.mod.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.block.BlockArrivalProjectorBase;
-import mtr.client.IDrawing;
-import mtr.data.IGui;
-import mtr.mappings.ScreenMapper;
-import mtr.mappings.Text;
-import mtr.packet.IPacket;
-import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.registry.RegistryClient;
+import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.block.BlockArrivalProjectorBase;
+import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.data.IGui;
+import org.mtr.mod.packet.IPacket;
+import org.mtr.mod.packet.PacketUpdateArrivalProjectorConfig;
 
-import java.util.HashSet;
-import java.util.Set;
+public class ArrivalProjectorConfigScreen extends ScreenExtension implements IGui, IPacket {
 
-public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, IPacket {
-
-	private final BlockPos pos;
-	private final Set<Long> filterPlatformIds;
+	private final BlockPos blockPos;
+	private final LongAVLTreeSet filterPlatformIds;
 	private final int displayPage;
-	private final WidgetBetterCheckbox selectAllCheckbox;
-	private final WidgetBetterTextField displayPageInput;
-	private final Button filterButton;
+	private final CheckboxWidgetExtension selectAllCheckbox;
+	private final TextFieldWidgetExtension displayPageInput;
+	private final ButtonWidgetExtension filterButton;
 
-	public ArrivalProjectorConfigScreen(BlockPos pos) {
-		super(Text.literal(""));
-		this.pos = pos;
+	public ArrivalProjectorConfigScreen(BlockPos blockPos) {
+		super();
+		this.blockPos = blockPos;
 
-		final Level world = Minecraft.getInstance().level;
-		if (world == null) {
-			filterPlatformIds = new HashSet<>();
+		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
+		if (clientWorld == null) {
+			filterPlatformIds = new LongAVLTreeSet();
 			displayPage = 0;
 		} else {
-			final BlockEntity entity = world.getBlockEntity(pos);
-			if (entity instanceof BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) {
-				filterPlatformIds = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getPlatformIds();
-				displayPage = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getDisplayPage();
+			final BlockEntity blockEntity = clientWorld.getBlockEntity(blockPos);
+			if (blockEntity != null && blockEntity.data instanceof BlockArrivalProjectorBase.BlockEntityBase) {
+				filterPlatformIds = ((BlockArrivalProjectorBase.BlockEntityBase) blockEntity.data).getPlatformIds();
+				displayPage = ((BlockArrivalProjectorBase.BlockEntityBase) blockEntity.data).getDisplayPage();
 			} else {
-				filterPlatformIds = new HashSet<>();
+				filterPlatformIds = new LongAVLTreeSet();
 				displayPage = 0;
 			}
 		}
 
-		selectAllCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.select_all_platforms"), checked -> {
+		selectAllCheckbox = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
 		});
+		selectAllCheckbox.setMessage2(new Text(TextHelper.translatable("gui.mtr.select_all_platforms").data));
 
-		displayPageInput = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "1", 3);
+		displayPageInput = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 3, TextCase.DEFAULT, "\\D", "1");
 
-		filterButton = PIDSConfigScreen.getPlatformFilterButton(pos, selectAllCheckbox, filterPlatformIds, this);
+		filterButton = PIDSConfigScreen.getPlatformFilterButton(blockPos, selectAllCheckbox, filterPlatformIds, this);
 	}
 
 	@Override
-	protected void init() {
-		super.init();
+	protected void init2() {
+		super.init2();
 
 		IDrawing.setPositionAndWidth(selectAllCheckbox, SQUARE_SIZE, SQUARE_SIZE, PANEL_WIDTH);
 		selectAllCheckbox.setChecked(filterPlatformIds.isEmpty());
-		addDrawableChild(selectAllCheckbox);
+		addChild(new ClickableWidget(selectAllCheckbox));
 
 		IDrawing.setPositionAndWidth(filterButton, SQUARE_SIZE, SQUARE_SIZE * 3, PANEL_WIDTH / 2);
-		filterButton.setMessage(Text.translatable("selectWorld.edit"));
-		addDrawableChild(filterButton);
+		filterButton.setMessage2(new Text(TextHelper.translatable("selectWorld.edit").data));
+		addChild(new ClickableWidget(filterButton));
 
 		IDrawing.setPositionAndWidth(displayPageInput, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 5 + TEXT_FIELD_PADDING / 2, PANEL_WIDTH / 2 - TEXT_FIELD_PADDING);
-		displayPageInput.setValue(String.valueOf(displayPage + 1));
-		addDrawableChild(displayPageInput);
+		displayPageInput.setText2(String.valueOf(displayPage + 1));
+		addChild(new ClickableWidget(displayPageInput));
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		try {
-			renderBackground(matrices);
-			font.draw(matrices, Text.translatable("gui.mtr.filtered_platforms", selectAllCheckbox.selected() ? 0 : filterPlatformIds.size()), SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
-			font.draw(matrices, Text.translatable("gui.mtr.display_page"), SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE);
-			super.render(matrices, mouseX, mouseY, delta);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
+		renderBackground(graphicsHolder);
+		graphicsHolder.drawText(TextHelper.translatable("gui.mtr.filtered_platforms", selectAllCheckbox.isChecked2() ? 0 : filterPlatformIds.size()), SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+		graphicsHolder.drawText(TextHelper.translatable("gui.mtr.display_page"), SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+		super.render(graphicsHolder, mouseX, mouseY, delta);
 	}
 
 	@Override
-	public void onClose() {
-		if (selectAllCheckbox.selected()) {
+	public void onClose2() {
+		if (selectAllCheckbox.isChecked2()) {
 			filterPlatformIds.clear();
 		}
 		int displayPage = 0;
 		try {
-			displayPage = Math.max(0, Integer.parseInt(displayPageInput.getValue()) - 1);
+			displayPage = Math.max(0, Integer.parseInt(displayPageInput.getText2()) - 1);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		PacketTrainDataGuiClient.sendArrivalProjectorConfigC2S(pos, filterPlatformIds, displayPage);
-		super.onClose();
+		RegistryClient.sendPacketToServer(new PacketUpdateArrivalProjectorConfig(blockPos, filterPlatformIds, displayPage));
+		super.onClose2();
 	}
 
 	@Override
-	public boolean isPauseScreen() {
+	public boolean isPauseScreen2() {
 		return false;
 	}
 }

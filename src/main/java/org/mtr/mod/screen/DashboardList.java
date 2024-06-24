@@ -1,24 +1,24 @@
-package mtr.screen;
+package org.mtr.mod.screen;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import mtr.client.ClientData;
-import mtr.client.IDrawing;
-import mtr.data.IGui;
-import mtr.data.NameColorDataBase;
-import mtr.mappings.Text;
-import mtr.mappings.UtilitiesClient;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
+import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import org.mtr.init.MTR;
+import org.mtr.mapping.holder.ClickableWidget;
+import org.mtr.mapping.holder.Identifier;
+import org.mtr.mapping.holder.MathHelper;
+import org.mtr.mapping.holder.Screen;
+import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.data.IGui;
 
-import java.util.*;
-import java.util.function.BiConsumer;
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -29,24 +29,24 @@ public class DashboardList implements IGui {
 	public int width;
 	public int height;
 
-	private final WidgetBetterTextField textFieldSearch;
+	private final TextFieldWidgetExtension textFieldSearch;
 
-	private final ImageButton buttonPrevPage;
-	private final ImageButton buttonNextPage;
+	private final TexturedButtonWidgetExtension buttonPrevPage;
+	private final TexturedButtonWidgetExtension buttonNextPage;
 
-	private final ImageButton buttonFind;
-	private final ImageButton buttonDrawArea;
-	private final ImageButton buttonEdit;
-	private final ImageButton buttonUp;
-	private final ImageButton buttonDown;
-	private final ImageButton buttonAdd;
-	private final ImageButton buttonDelete;
+	private final TexturedButtonWidgetExtension buttonFind;
+	private final TexturedButtonWidgetExtension buttonDrawArea;
+	private final TexturedButtonWidgetExtension buttonEdit;
+	private final TexturedButtonWidgetExtension buttonUp;
+	private final TexturedButtonWidgetExtension buttonDown;
+	private final TexturedButtonWidgetExtension buttonAdd;
+	private final TexturedButtonWidgetExtension buttonDelete;
 
 	private final Supplier<String> getSearch;
 	private final Consumer<String> setSearch;
 
-	private List<NameColorDataBase> dataSorted = new ArrayList<>();
-	private final Map<Integer, NameColorDataBase> dataFiltered = new HashMap<>();
+	private ObjectArrayList<DashboardListItem> dataSorted = new ObjectArrayList<>();
+	private final Int2ObjectAVLTreeMap<DashboardListItem> dataFiltered = new Int2ObjectAVLTreeMap<>();
 	private int hoverIndex, page, totalPages;
 
 	private boolean hasFind;
@@ -58,38 +58,46 @@ public class DashboardList implements IGui {
 
 	private static final int TOP_OFFSET = SQUARE_SIZE + TEXT_FIELD_PADDING;
 
-	public <T> DashboardList(BiConsumer<NameColorDataBase, Integer> onFind, BiConsumer<NameColorDataBase, Integer> onDrawArea, BiConsumer<NameColorDataBase, Integer> onEdit, Runnable onSort, BiConsumer<NameColorDataBase, Integer> onAdd, BiConsumer<NameColorDataBase, Integer> onDelete, Supplier<List<T>> getList, Supplier<String> getSearch, Consumer<String> setSearch) {
+	public <T> DashboardList(@Nullable Callback onFind, @Nullable Callback onDrawArea, @Nullable Callback onEdit, @Nullable Runnable onSort, @Nullable Callback onAdd, @Nullable Callback onDelete, @Nullable Supplier<List<T>> getList, Supplier<String> getSearch, Consumer<String> setSearch) {
 		this(onFind, onDrawArea, onEdit, onSort, onAdd, onDelete, getList, getSearch, setSearch, true);
 	}
 
-	public <T> DashboardList(BiConsumer<NameColorDataBase, Integer> onFind, BiConsumer<NameColorDataBase, Integer> onDrawArea, BiConsumer<NameColorDataBase, Integer> onEdit, Runnable onSort, BiConsumer<NameColorDataBase, Integer> onAdd, BiConsumer<NameColorDataBase, Integer> onDelete, Supplier<List<T>> getList, Supplier<String> getSearch, Consumer<String> setSearch, boolean playSound) {
+	public <T> DashboardList(@Nullable Callback onFind, @Nullable Callback onDrawArea, @Nullable Callback onEdit, @Nullable Runnable onSort, @Nullable Callback onAdd, @Nullable Callback onDelete, @Nullable Supplier<List<T>> getList, Supplier<String> getSearch, Consumer<String> setSearch, boolean playSound) {
 		this.getSearch = getSearch;
 		this.setSearch = setSearch;
-		textFieldSearch = new WidgetBetterTextField(Text.translatable("gui.mtr.search").getString());
-		buttonPrevPage = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
-		buttonNextPage = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
-		buttonFind = new WidgetSilentImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_find.png"), 20, 40, button -> onClick(onFind), playSound);
-		buttonDrawArea = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_draw_area.png"), 20, 40, button -> onClick(onDrawArea));
-		buttonEdit = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_edit.png"), 20, 40, button -> onClick(onEdit));
-		buttonUp = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_up.png"), 20, 40, button -> {
-			onUp(getList);
-			onSort.run();
+		textFieldSearch = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 256, TextCase.DEFAULT, null, TextHelper.translatable("gui.mtr.search").getString());
+		buttonPrevPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier(MTR.MOD_ID, "textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
+		buttonNextPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier(MTR.MOD_ID, "textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
+		buttonFind = new WidgetSilentImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier(MTR.MOD_ID, "textures/gui/icon_find.png"), 20, 40, button -> onClick(onFind), playSound);
+		buttonDrawArea = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier(MTR.MOD_ID, "textures/gui/icon_draw_area.png"), 20, 40, button -> onClick(onDrawArea));
+		buttonEdit = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier(MTR.MOD_ID, "textures/gui/icon_edit.png"), 20, 40, button -> onClick(onEdit));
+		buttonUp = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier(MTR.MOD_ID, "textures/gui/icon_up.png"), 20, 40, button -> {
+			if (getList != null) {
+				onUp(getList);
+			}
+			if (onSort != null) {
+				onSort.run();
+			}
 		});
-		buttonDown = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_down.png"), 20, 40, button -> {
-			onDown(getList);
-			onSort.run();
+		buttonDown = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier(MTR.MOD_ID, "textures/gui/icon_down.png"), 20, 40, button -> {
+			if (getList != null) {
+				onDown(getList);
+			}
+			if (onSort != null) {
+				onSort.run();
+			}
 		});
-		buttonAdd = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_add.png"), 20, 40, button -> onClick(onAdd));
-		buttonDelete = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_delete.png"), 20, 40, button -> onClick(onDelete));
+		buttonAdd = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier(MTR.MOD_ID, "textures/gui/icon_add.png"), 20, 40, button -> onClick(onAdd));
+		buttonDelete = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier(MTR.MOD_ID, "textures/gui/icon_delete.png"), 20, 40, button -> onClick(onDelete));
 	}
 
-	public void init(Consumer<AbstractWidget> addDrawableChild) {
+	public void init(Consumer<ClickableWidget> addDrawableChild) {
 		IDrawing.setPositionAndWidth(buttonPrevPage, x, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(buttonNextPage, x + SQUARE_SIZE * 3, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(textFieldSearch, x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2, y + TEXT_FIELD_PADDING / 2, width - SQUARE_SIZE * 4 - TEXT_FIELD_PADDING);
 
-		textFieldSearch.setResponder(setSearch);
-		textFieldSearch.setValue(getSearch.get());
+		textFieldSearch.setChangedListener2(setSearch);
+		textFieldSearch.setText2(getSearch.get());
 
 		buttonFind.visible = false;
 		buttonDrawArea.visible = false;
@@ -99,27 +107,27 @@ public class DashboardList implements IGui {
 		buttonAdd.visible = false;
 		buttonDelete.visible = false;
 
-		addDrawableChild.accept(buttonPrevPage);
-		addDrawableChild.accept(buttonNextPage);
+		addDrawableChild.accept(new ClickableWidget(buttonPrevPage));
+		addDrawableChild.accept(new ClickableWidget(buttonNextPage));
 
-		addDrawableChild.accept(buttonFind);
-		addDrawableChild.accept(buttonDrawArea);
-		addDrawableChild.accept(buttonEdit);
-		addDrawableChild.accept(buttonUp);
-		addDrawableChild.accept(buttonDown);
-		addDrawableChild.accept(buttonAdd);
-		addDrawableChild.accept(buttonDelete);
+		addDrawableChild.accept(new ClickableWidget(buttonFind));
+		addDrawableChild.accept(new ClickableWidget(buttonDrawArea));
+		addDrawableChild.accept(new ClickableWidget(buttonEdit));
+		addDrawableChild.accept(new ClickableWidget(buttonUp));
+		addDrawableChild.accept(new ClickableWidget(buttonDown));
+		addDrawableChild.accept(new ClickableWidget(buttonAdd));
+		addDrawableChild.accept(new ClickableWidget(buttonDelete));
 
-		addDrawableChild.accept(textFieldSearch);
+		addDrawableChild.accept(new ClickableWidget(textFieldSearch));
 	}
 
 	public void tick() {
-		textFieldSearch.tick();
-		UtilitiesClient.setWidgetX(buttonPrevPage, x);
-		UtilitiesClient.setWidgetX(buttonNextPage, x + SQUARE_SIZE * 3);
-		UtilitiesClient.setWidgetX(textFieldSearch, x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2);
+		textFieldSearch.tick2();
+		buttonPrevPage.setX2(x);
+		buttonNextPage.setX2(x + SQUARE_SIZE * 3);
+		textFieldSearch.setX2(x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2);
 
-		final String text = textFieldSearch.getValue();
+		final String text = textFieldSearch.getText2();
 		dataFiltered.clear();
 		for (int i = 0; i < dataSorted.size(); i++) {
 			if (dataSorted.get(i).name.toLowerCase(Locale.ENGLISH).contains(text.toLowerCase(Locale.ENGLISH))) {
@@ -132,14 +140,14 @@ public class DashboardList implements IGui {
 		setPage(page);
 	}
 
-	public void setData(Set<? extends NameColorDataBase> dataSet, boolean hasFind, boolean hasDrawArea, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
-		List<? extends NameColorDataBase> dataList = new ArrayList<>(dataSet);
+	public void setData(ObjectSet<DashboardListItem> dataSet, boolean hasFind, boolean hasDrawArea, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
+		ObjectArrayList<DashboardListItem> dataList = new ObjectArrayList<>(dataSet);
 		Collections.sort(dataList);
 		setData(dataList, hasFind, hasDrawArea, hasEdit, hasSort, hasAdd, hasDelete);
 	}
 
-	public void setData(List<? extends NameColorDataBase> dataList, boolean hasFind, boolean hasDrawArea, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
-		dataSorted = new ArrayList<>(dataList);
+	public void setData(ObjectArrayList<DashboardListItem> dataList, boolean hasFind, boolean hasDrawArea, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
+		dataSorted = new ObjectArrayList<>(dataList);
 		this.hasFind = hasFind;
 		final boolean hasPermission = ClientData.hasPermission();
 		this.hasDrawArea = hasPermission && hasDrawArea;
@@ -149,34 +157,32 @@ public class DashboardList implements IGui {
 		this.hasDelete = hasPermission && hasDelete;
 	}
 
-	public void render(PoseStack matrices, Font textRenderer) {
-		Gui.drawCenteredString(matrices, textRenderer, String.format("%s/%s", page + 1, totalPages), x + SQUARE_SIZE * 2, y + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE);
+	public void render(GraphicsHolder graphicsHolder) {
+		graphicsHolder.drawCenteredText(String.format("%s/%s", page + 1, totalPages), x + SQUARE_SIZE * 2, y + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE);
 		final int itemsToShow = itemsToShow();
 		for (int i = 0; i < itemsToShow; i++) {
 			if (i + itemsToShow * page < dataFiltered.size()) {
 				final int drawY = SQUARE_SIZE * i + TEXT_PADDING + TOP_OFFSET;
-				final List<Integer> sortedKeys = new ArrayList<>(dataFiltered.keySet());
+				final IntArrayList sortedKeys = new IntArrayList(dataFiltered.keySet());
 				Collections.sort(sortedKeys);
-				final NameColorDataBase data = dataFiltered.get(sortedKeys.get(i + itemsToShow * page));
+				final DashboardListItem data = dataFiltered.get(sortedKeys.getInt(i + itemsToShow * page));
 
-				Tesselator tesselator = Tesselator.getInstance();
-				BufferBuilder buffer = tesselator.getBuilder();
-				UtilitiesClient.beginDrawingRectangle(buffer);
-				IDrawing.drawRectangle(buffer, x + TEXT_PADDING, y + drawY, x + TEXT_PADDING + TEXT_HEIGHT, y + drawY + TEXT_HEIGHT, ARGB_BLACK | data.color);
-				tesselator.end();
-				UtilitiesClient.finishDrawingRectangle();
+				final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
+				guiDrawing.beginDrawingRectangle();
+				guiDrawing.drawRectangle(x + TEXT_PADDING, y + drawY, x + TEXT_PADDING + TEXT_HEIGHT, y + drawY + TEXT_HEIGHT, ARGB_BLACK | data.color);
+				guiDrawing.finishDrawingRectangle();
 
 				final String drawString = IGui.formatStationName(data.name);
 				final int textStart = TEXT_PADDING * 2 + TEXT_HEIGHT;
-				final int textWidth = textRenderer.width(drawString);
+				final int textWidth = GraphicsHolder.getTextWidth(drawString);
 				final int availableSpace = width - textStart;
-				matrices.pushPose();
-				matrices.translate(x + textStart, 0, 0);
+				graphicsHolder.push();
+				graphicsHolder.translate(x + textStart, 0, 0);
 				if (textWidth > availableSpace) {
-					matrices.scale((float) availableSpace / textWidth, 1, 1);
+					graphicsHolder.scale((float) availableSpace / textWidth, 1, 1);
 				}
-				textRenderer.draw(matrices, drawString, 0, y + drawY, ARGB_WHITE);
-				matrices.popPose();
+				graphicsHolder.drawText(drawString, 0, y + drawY, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+				graphicsHolder.pop();
 			}
 		}
 	}
@@ -226,35 +232,35 @@ public class DashboardList implements IGui {
 	}
 
 	public void clearSearch() {
-		textFieldSearch.setValue("");
+		textFieldSearch.setText2("");
 	}
 
 	public int getHoverItemIndex() {
-		final List<Integer> sortedKeys = new ArrayList<>(dataFiltered.keySet());
+		final IntArrayList sortedKeys = new IntArrayList(dataFiltered.keySet());
 		Collections.sort(sortedKeys);
 		final int sortedIndex = hoverIndex + itemsToShow() * page;
 		if (sortedIndex >= 0 && sortedIndex < sortedKeys.size()) {
-			return sortedKeys.get(sortedIndex);
+			return sortedKeys.getInt(sortedIndex);
 		} else {
 			return -1;
 		}
 	}
 
 	private void setPage(int newPage) {
-		page = Mth.clamp(newPage, 0, totalPages - 1);
+		page = MathHelper.clamp(newPage, 0, totalPages - 1);
 		buttonPrevPage.visible = page > 0;
 		buttonNextPage.visible = page < totalPages - 1;
 	}
 
-	private void onClick(BiConsumer<NameColorDataBase, Integer> onClick) {
+	private void onClick(@Nullable Callback onClick) {
 		final int index = getHoverItemIndex();
-		if (index >= 0 && index < dataSorted.size()) {
+		if (index >= 0 && index < dataSorted.size() && onClick != null) {
 			onClick.accept(dataSorted.get(index), index);
 		}
 	}
 
 	private <T> void onUp(Supplier<List<T>> getList) {
-		if (textFieldSearch.getValue().isEmpty()) {
+		if (textFieldSearch.getText2().isEmpty()) {
 			final int index = hoverIndex + itemsToShow() * page;
 			final List<T> list = getList.get();
 			if (Screen.hasShiftDown()) {
@@ -269,7 +275,7 @@ public class DashboardList implements IGui {
 	}
 
 	private <T> void onDown(Supplier<List<T>> getList) {
-		if (textFieldSearch.getValue().isEmpty()) {
+		if (textFieldSearch.getText2().isEmpty()) {
 			final int index = hoverIndex + itemsToShow() * page;
 			final List<T> list = getList.get();
 			if (Screen.hasShiftDown()) {
@@ -285,5 +291,10 @@ public class DashboardList implements IGui {
 
 	private int itemsToShow() {
 		return (height - TOP_OFFSET) / SQUARE_SIZE;
+	}
+
+	@FunctionalInterface
+	public interface Callback {
+		void accept(DashboardListItem dashboardListItem, int index);
 	}
 }

@@ -1,84 +1,75 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.SoundEvents;
-import mtr.data.TicketSystem;
-import mtr.mappings.BlockDirectionalMapper;
-import mtr.mappings.Utilities;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.BlockHelper;
+import org.mtr.mapping.mapper.DirectionHelper;
+import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.SoundEvents;
+import org.mtr.mod.data.TicketSystem;
 
-public class BlockTicketBarrier extends BlockDirectionalMapper {
+import javax.annotation.Nonnull;
+import java.util.List;
+
+public class BlockTicketBarrier extends BlockExtension implements DirectionHelper {
 
 	private final boolean isEntrance;
 
-	public static final EnumProperty<TicketSystem.EnumTicketBarrierOpen> OPEN = EnumProperty.create("open", TicketSystem.EnumTicketBarrierOpen.class);
+	public static final EnumProperty<TicketSystem.EnumTicketBarrierOpen> OPEN = EnumProperty.of("open", TicketSystem.EnumTicketBarrierOpen.class);
 
 	public BlockTicketBarrier(boolean isEntrance) {
-		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 5).noOcclusion());
+		super(BlockHelper.createBlockSettings(true, blockState -> 5));
 		this.isEntrance = isEntrance;
 	}
 
 	@Override
-	public void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) {
-		if (!world.isClientSide && entity instanceof Player) {
+	public void onEntityCollision2(BlockState state, World world, BlockPos pos, Entity entity) {
+		if (!world.isClient() && PlayerEntity.isInstance(entity)) {
 			final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-			final Vec3 playerPosRotated = entity.position().subtract(pos.getX() + 0.5, 0, pos.getZ() + 0.5).yRot((float) Math.toRadians(facing.toYRot()));
-			final TicketSystem.EnumTicketBarrierOpen open = IBlock.getStatePropertySafe(state, OPEN);
+			final Vector3d playerPosRotated = entity.getPos().subtract(pos.getX() + 0.5, 0, pos.getZ() + 0.5).rotateY((float) Math.toRadians(facing.asRotation()));
+			final TicketSystem.EnumTicketBarrierOpen open = IBlock.getStatePropertySafe(state, new Property<>(OPEN.data));
 
-			if (open.isOpen() && playerPosRotated.z > 0) {
-				world.setBlockAndUpdate(pos, state.setValue(OPEN, TicketSystem.EnumTicketBarrierOpen.CLOSED));
-			} else if (!open.isOpen() && playerPosRotated.z < 0) {
-				final TicketSystem.EnumTicketBarrierOpen newOpen = TicketSystem.passThrough(world, pos, (Player) entity, isEntrance, !isEntrance, SoundEvents.TICKET_BARRIER, SoundEvents.TICKET_BARRIER_CONCESSIONARY, SoundEvents.TICKET_BARRIER, SoundEvents.TICKET_BARRIER_CONCESSIONARY, null, false);
-				world.setBlockAndUpdate(pos, state.setValue(OPEN, newOpen));
-				if (newOpen != TicketSystem.EnumTicketBarrierOpen.CLOSED && !world.getBlockTicks().hasScheduledTick(pos, this)) {
-					Utilities.scheduleBlockTick(world, pos, this, 40);
+			if (open.isOpen() && playerPosRotated.getZMapped() > 0) {
+				world.setBlockState(pos, state.with(new Property<>(OPEN.data), TicketSystem.EnumTicketBarrierOpen.CLOSED));
+			} else if (!open.isOpen() && playerPosRotated.getZMapped() < 0) {
+				final TicketSystem.EnumTicketBarrierOpen newOpen = TicketSystem.passThrough(world, pos, PlayerEntity.cast(entity), isEntrance, !isEntrance, SoundEvents.TICKET_BARRIER.get(), SoundEvents.TICKET_BARRIER_CONCESSIONARY.get(), SoundEvents.TICKET_BARRIER.get(), SoundEvents.TICKET_BARRIER_CONCESSIONARY.get(), null, false);
+				world.setBlockState(pos, state.with(new Property<>(OPEN.data), newOpen));
+				if (newOpen != TicketSystem.EnumTicketBarrierOpen.CLOSED && !hasScheduledTick(world, pos, new Block(this))) {
+					scheduleBlockTick(world, pos, new Block(this), 40);
 				}
 			}
 		}
 	}
 
 	@Override
-	public void tick(BlockState state, ServerLevel world, BlockPos pos) {
-		world.setBlockAndUpdate(pos, state.setValue(OPEN, TicketSystem.EnumTicketBarrierOpen.CLOSED));
+	public void scheduledTick2(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+		world.setBlockState(pos, state.with(new Property<>(OPEN.data), TicketSystem.EnumTicketBarrierOpen.CLOSED));
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		return defaultBlockState().setValue(FACING, ctx.getHorizontalDirection()).setValue(OPEN, TicketSystem.EnumTicketBarrierOpen.CLOSED);
+	public BlockState getPlacementState2(ItemPlacementContext ctx) {
+		return getDefaultState2().with(new Property<>(FACING.data), ctx.getPlayerFacing().data).with(new Property<>(OPEN.data), TicketSystem.EnumTicketBarrierOpen.CLOSED);
 	}
 
+	@Nonnull
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 		return IBlock.getVoxelShapeByDirection(12, 0, 0, 16, 15, 16, facing);
 	}
 
+	@Nonnull
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
+	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-		final TicketSystem.EnumTicketBarrierOpen open = IBlock.getStatePropertySafe(state, OPEN);
+		final TicketSystem.EnumTicketBarrierOpen open = IBlock.getStatePropertySafe(state, new Property<>(OPEN.data));
 		final VoxelShape base = IBlock.getVoxelShapeByDirection(15, 0, 0, 16, 24, 16, facing);
-		return open.isOpen() ? base : Shapes.or(IBlock.getVoxelShapeByDirection(0, 0, 7, 16, 24, 9, facing), base);
+		return open.isOpen() ? base : VoxelShapes.union(IBlock.getVoxelShapeByDirection(0, 0, 7, 16, 24, 9, facing), base);
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, OPEN);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(FACING);
+		properties.add(OPEN);
 	}
 }

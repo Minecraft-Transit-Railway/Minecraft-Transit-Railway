@@ -1,28 +1,22 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.mappings.BlockDirectionalMapper;
-import mtr.mappings.Text;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.DirectionHelper;
+import org.mtr.mapping.mapper.TextHelper;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class BlockPoleCheckBase extends BlockDirectionalMapper {
+public abstract class BlockPoleCheckBase extends BlockExtension implements DirectionHelper {
 
-	public BlockPoleCheckBase(Properties settings) {
-		super(settings);
+	public BlockPoleCheckBase(BlockSettings blockSettings) {
+		super(blockSettings);
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		BlockState stateBelow = ctx.getLevel().getBlockState(ctx.getClickedPos().below());
+	public BlockState getPlacementState2(ItemPlacementContext ctx) {
+		BlockState stateBelow = ctx.getWorld().getBlockState(ctx.getBlockPos().down());
 		if (isBlock(stateBelow.getBlock())) {
 			return placeWithState(stateBelow);
 		} else {
@@ -31,18 +25,18 @@ public abstract class BlockPoleCheckBase extends BlockDirectionalMapper {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack itemStack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
-		final String[] strings = Text.translatable("tooltip.mtr.pole_placement", getTooltipBlockText()).getString().split("\n");
+	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
+		final String[] strings = TextHelper.translatable("tooltip.mtr.pole_placement", getTooltipBlockText()).getString().split("\n");
 		for (final String string : strings) {
-			tooltip.add(Text.literal(string).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+			tooltip.add(TextHelper.literal(string).formatted(TextFormatting.GRAY));
 		}
 	}
 
 	protected BlockState placeWithState(BlockState stateBelow) {
-		return defaultBlockState().setValue(FACING, IBlock.getStatePropertySafe(stateBelow, FACING));
+		return getDefaultState2().with(new Property<>(FACING.data), IBlock.getStatePropertySafe(stateBelow, FACING).data);
 	}
 
 	protected abstract boolean isBlock(Block block);
 
-	protected abstract Component getTooltipBlockText();
+	protected abstract Text getTooltipBlockText();
 }

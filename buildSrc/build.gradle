@@ -1,0 +1,16 @@
+repositories {
+	mavenCentral()
+	maven { url "https://jitpack.io" }
+}
+
+dependencies {
+	implementation "com.google.code.gson:gson:+"
+	implementation "commons-io:commons-io:+"
+	implementation "com.github.jonafanho:Minecraft-Mod-API-Tools:master-SNAPSHOT"
+}
+
+java {
+	toolchain {
+		languageVersion.set(JavaLanguageVersion.of(8))
+	}
+}

@@ -1,7 +1,9 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.Items;
-import net.minecraft.world.item.Item;
+import org.mtr.mapping.holder.Item;
+import org.mtr.mod.Items;
+
+import javax.annotation.Nonnull;
 
 public class BlockPSDGlass extends BlockPSDAPGGlassBase {
 
@@ -12,8 +14,9 @@ public class BlockPSDGlass extends BlockPSDAPGGlassBase {
 		this.style = style;
 	}
 
+	@Nonnull
 	@Override
-	public Item asItem() {
+	public Item asItem2() {
 		return style == 0 ? Items.PSD_GLASS_1.get() : Items.PSD_GLASS_2.get();
 	}
 }

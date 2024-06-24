@@ -1,22 +1,22 @@
-package mtr.screen;
+package org.mtr.mod.screen;
 
-import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.resources.ResourceLocation;
+import org.mtr.mapping.holder.Identifier;
+import org.mtr.mapping.holder.SoundManager;
+import org.mtr.mapping.mapper.TexturedButtonWidgetExtension;
 
-public class WidgetSilentImageButton extends ImageButton {
+public class WidgetSilentImageButton extends TexturedButtonWidgetExtension {
 
 	private final boolean playSound;
 
-	public WidgetSilentImageButton(int x, int y, int width, int height, int u, int v, int hoveredVOffset, ResourceLocation texture, int textureWidth, int textureHeight, OnPress onPress, boolean playSound) {
+	public WidgetSilentImageButton(int x, int y, int width, int height, int u, int v, int hoveredVOffset, Identifier texture, int textureWidth, int textureHeight, org.mtr.mapping.holder.PressAction onPress, boolean playSound) {
 		super(x, y, width, height, u, v, hoveredVOffset, texture, textureWidth, textureHeight, onPress);
 		this.playSound = playSound;
 	}
 
 	@Override
-	public void playDownSound(SoundManager soundManager) {
+	public void playDownSound2(SoundManager soundManager) {
 		if (playSound) {
-			super.playDownSound(soundManager);
+			super.playDownSound2(soundManager);
 		}
 	}
 }

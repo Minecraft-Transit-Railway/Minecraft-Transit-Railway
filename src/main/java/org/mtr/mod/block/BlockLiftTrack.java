@@ -1,49 +1,45 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.mappings.BlockDirectionalMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.BlockHelper;
+import org.mtr.mapping.mapper.DirectionHelper;
+import org.mtr.mapping.tool.HolderBase;
 
-public class BlockLiftTrack extends BlockDirectionalMapper {
+import javax.annotation.Nonnull;
+import java.util.List;
+
+public class BlockLiftTrack extends BlockExtension implements DirectionHelper {
 
 	public BlockLiftTrack() {
-		super(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2));
+		super(BlockHelper.createBlockSettings(true));
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+	public BlockState getPlacementState2(ItemPlacementContext ctx) {
 		final Direction facing;
-		final Direction oppositeFace = ctx.getClickedFace().getOpposite();
-		if (oppositeFace.getStepY() == 0) {
+		final Direction oppositeFace = ctx.getSide().getOpposite();
+		if (oppositeFace.getOffsetY() == 0) {
 			facing = oppositeFace;
 		} else {
-			final BlockState state = ctx.getLevel().getBlockState(ctx.getClickedPos().relative(oppositeFace));
-			if (state.getBlock() instanceof BlockLiftTrack) {
+			final BlockState state = ctx.getWorld().getBlockState(ctx.getBlockPos().offset(oppositeFace));
+			if (state.getBlock().data instanceof BlockLiftTrack) {
 				facing = IBlock.getStatePropertySafe(state, FACING);
 			} else {
-				facing = ctx.getHorizontalDirection();
+				facing = ctx.getPlayerFacing();
 			}
 		}
-		return defaultBlockState().setValue(FACING, facing);
+		return getDefaultState2().with(new Property<>(FACING.data), facing.data);
 	}
 
+	@Nonnull
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext collisionContext) {
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return IBlock.getVoxelShapeByDirection(6, 0, 0, 10, 16, 1, IBlock.getStatePropertySafe(state, FACING));
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(FACING);
 	}
 }

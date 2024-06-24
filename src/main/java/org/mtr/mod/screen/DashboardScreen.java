@@ -1,29 +1,30 @@
-package mtr.screen;
+package org.mtr.mod.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.client.ClientData;
-import mtr.client.IDrawing;
-import mtr.data.*;
-import mtr.mappings.ScreenMapper;
-import mtr.mappings.Text;
-import mtr.mappings.UtilitiesClient;
-import mtr.packet.IPacket;
-import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.util.Tuple;
+import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import org.mtr.core.data.*;
+import org.mtr.core.servlet.IntegrationServlet;
+import org.mtr.core.tools.Position;
+import org.mtr.mapping.holder.ClickableWidget;
+import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mapping.holder.Screen;
+import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.registry.RegistryClient;
+import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.client.ClientData;
+import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.data.IGui;
+import org.mtr.mod.packet.IPacket;
+import org.mtr.mod.packet.PacketData;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
+public class DashboardScreen extends ScreenExtension implements IGui, IPacket {
 
 	private SelectedTab selectedTab;
-	private AreaBase editingArea;
+	private AreaBase<?, ?> editingArea;
 	private Route editingRoute;
 	private int editingRoutePlatformIndex;
 	private boolean isNew;
@@ -31,22 +32,22 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	private final TransportMode transportMode;
 	private final WidgetMap widgetMap;
 
-	private final Button buttonTabStations;
-	private final Button buttonTabRoutes;
-	private final Button buttonTabDepots;
-	private final Button buttonAddStation;
-	private final Button buttonAddRoute;
-	private final Button buttonAddDepot;
-	private final Button buttonDoneEditingStation;
-	private final Button buttonDoneEditingRoute;
-	private final Button buttonDoneEditingRouteDestination;
-	private final Button buttonZoomIn;
-	private final Button buttonZoomOut;
-	private final Button buttonRailActions;
-	private final Button buttonOptions;
+	private final ButtonWidgetExtension buttonTabStations;
+	private final ButtonWidgetExtension buttonTabRoutes;
+	private final ButtonWidgetExtension buttonTabDepots;
+	private final ButtonWidgetExtension buttonAddStation;
+	private final ButtonWidgetExtension buttonAddRoute;
+	private final ButtonWidgetExtension buttonAddDepot;
+	private final ButtonWidgetExtension buttonDoneEditingStation;
+	private final ButtonWidgetExtension buttonDoneEditingRoute;
+	private final ButtonWidgetExtension buttonDoneEditingRouteDestination;
+	private final ButtonWidgetExtension buttonZoomIn;
+	private final ButtonWidgetExtension buttonZoomOut;
+	private final ButtonWidgetExtension buttonRailActions;
+	private final ButtonWidgetExtension buttonOptions;
 
-	private final WidgetBetterTextField textFieldName;
-	private final WidgetBetterTextField textFieldCustomDestination;
+	private final TextFieldWidgetExtension textFieldName;
+	private final TextFieldWidgetExtension textFieldCustomDestination;
 	private final WidgetColorSelector colorSelector;
 
 	private final DashboardList dashboardList;
@@ -55,36 +56,28 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	private static final int COLOR_WIDTH = 48;
 
 	public DashboardScreen(TransportMode transportMode, boolean useTimeAndWindSync) {
-		super(Text.literal(""));
+		super();
 		this.transportMode = transportMode;
 
-		textFieldName = new WidgetBetterTextField(Text.translatable("gui.mtr.name").getString());
-		textFieldCustomDestination = new WidgetBetterTextField(Text.translatable("gui.mtr.custom_destination_suggestion").getString());
+		textFieldName = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 1024, TextCase.DEFAULT, null, TextHelper.translatable("gui.mtr.name").getString());
+		textFieldCustomDestination = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 1024, TextCase.DEFAULT, null, TextHelper.translatable("gui.mtr.custom_destination_suggestion").getString());
 		colorSelector = new WidgetColorSelector(this, true, this::toggleButtons);
-		widgetMap = new WidgetMap(transportMode, this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickAddPlatformToRoute, this::onClickEditSavedRail, colorSelector::isMouseOver);
+		widgetMap = new WidgetMap(transportMode, this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickAddPlatformToRoute, this::onClickEditSavedRail, colorSelector::isMouseOver2);
 
-		buttonTabStations = UtilitiesClient.newButton(Text.translatable("gui.mtr.stations"), button -> onSelectTab(SelectedTab.STATIONS));
-		buttonTabRoutes = UtilitiesClient.newButton(Text.translatable("gui.mtr.routes"), button -> onSelectTab(SelectedTab.ROUTES));
-		buttonTabDepots = UtilitiesClient.newButton(Text.translatable("gui.mtr.depots"), button -> onSelectTab(SelectedTab.DEPOTS));
+		buttonTabStations = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.stations"), button -> onSelectTab(SelectedTab.STATIONS));
+		buttonTabRoutes = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.routes"), button -> onSelectTab(SelectedTab.ROUTES));
+		buttonTabDepots = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.depots"), button -> onSelectTab(SelectedTab.DEPOTS));
 
-		buttonAddStation = UtilitiesClient.newButton(Text.translatable("gui.mtr.add_station"), button -> startEditingArea(new Station(), true));
-		buttonAddRoute = UtilitiesClient.newButton(Text.translatable("gui.mtr.add_route"), button -> startEditingRoute(new Route(transportMode), true));
-		buttonAddDepot = UtilitiesClient.newButton(Text.translatable("gui.mtr.add_depot"), button -> startEditingArea(new Depot(transportMode), true));
-		buttonDoneEditingStation = UtilitiesClient.newButton(Text.translatable("gui.done"), button -> onDoneEditingArea());
-		buttonDoneEditingRoute = UtilitiesClient.newButton(Text.translatable("gui.done"), button -> onDoneEditingRoute());
-		buttonDoneEditingRouteDestination = UtilitiesClient.newButton(Text.translatable("gui.done"), button -> onDoneEditingRouteDestination());
-		buttonZoomIn = UtilitiesClient.newButton(Text.literal("+"), button -> widgetMap.scale(1));
-		buttonZoomOut = UtilitiesClient.newButton(Text.literal("-"), button -> widgetMap.scale(-1));
-		buttonRailActions = UtilitiesClient.newButton(Text.translatable("gui.mtr.rail_actions_button"), button -> {
-			if (minecraft != null) {
-				UtilitiesClient.setScreen(minecraft, new RailActionsScreen());
-			}
-		});
-		buttonOptions = UtilitiesClient.newButton(Text.translatable("menu.options"), button -> {
-			if (minecraft != null) {
-				UtilitiesClient.setScreen(minecraft, new ConfigScreen(useTimeAndWindSync));
-			}
-		});
+		buttonAddStation = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_station"), button -> startEditingArea(new Station(ClientData.instance), true));
+		buttonAddRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_route"), button -> startEditingRoute(new Route(transportMode, ClientData.instance), true));
+		buttonAddDepot = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_depot"), button -> startEditingArea(new Depot(transportMode, ClientData.instance), true));
+		buttonDoneEditingStation = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> onDoneEditingArea());
+		buttonDoneEditingRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> onDoneEditingRoute());
+		buttonDoneEditingRouteDestination = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> onDoneEditingRouteDestination());
+		buttonZoomIn = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> widgetMap.scale(1));
+		buttonZoomOut = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> widgetMap.scale(-1));
+		buttonRailActions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.rail_actions_button"), button -> MinecraftClient.getInstance().openScreen(new Screen(new RailActionsScreen())));
+		buttonOptions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("menu.options"), button -> MinecraftClient.getInstance().openScreen(new Screen(new ConfigScreen(useTimeAndWindSync))));
 
 		dashboardList = new DashboardList(this::onFind, this::onDrawArea, this::onEdit, this::onSort, null, this::onDelete, this::getList, () -> ClientData.DASHBOARD_SEARCH, text -> ClientData.DASHBOARD_SEARCH = text);
 
@@ -92,8 +85,8 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	}
 
 	@Override
-	protected void init() {
-		super.init();
+	protected void init2() {
+		super.init2();
 
 		final int tabCount = 3;
 		final int bottomRowY = height - SQUARE_SIZE;
@@ -123,98 +116,95 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		dashboardList.width = PANEL_WIDTH;
 
 		toggleButtons();
-		dashboardList.init(this::addDrawableChild);
-		addWidget(widgetMap);
+		dashboardList.init(this::addChild);
+		addChild(new ClickableWidget(widgetMap));
 
-		addDrawableChild(buttonTabStations);
-		addDrawableChild(buttonTabRoutes);
-		addDrawableChild(buttonTabDepots);
-		addDrawableChild(buttonAddStation);
-		addDrawableChild(buttonAddRoute);
-		addDrawableChild(buttonAddDepot);
-		addDrawableChild(buttonDoneEditingStation);
-		addDrawableChild(buttonDoneEditingRoute);
-		addDrawableChild(buttonDoneEditingRouteDestination);
-		addDrawableChild(buttonZoomIn);
-		addDrawableChild(buttonZoomOut);
-		addDrawableChild(buttonRailActions);
-		addDrawableChild(buttonOptions);
+		addChild(new ClickableWidget(buttonTabStations));
+		addChild(new ClickableWidget(buttonTabRoutes));
+		addChild(new ClickableWidget(buttonTabDepots));
+		addChild(new ClickableWidget(buttonAddStation));
+		addChild(new ClickableWidget(buttonAddRoute));
+		addChild(new ClickableWidget(buttonAddDepot));
+		addChild(new ClickableWidget(buttonDoneEditingStation));
+		addChild(new ClickableWidget(buttonDoneEditingRoute));
+		addChild(new ClickableWidget(buttonDoneEditingRouteDestination));
+		addChild(new ClickableWidget(buttonZoomIn));
+		addChild(new ClickableWidget(buttonZoomOut));
+		addChild(new ClickableWidget(buttonRailActions));
+		addChild(new ClickableWidget(buttonOptions));
 
-		addDrawableChild(textFieldName);
-		addDrawableChild(textFieldCustomDestination);
-		addDrawableChild(colorSelector);
+		addChild(new ClickableWidget(textFieldName));
+		addChild(new ClickableWidget(textFieldCustomDestination));
+		addChild(new ClickableWidget(colorSelector));
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		try {
-			renderBackground(matrices);
-			widgetMap.render(matrices, mouseX, mouseY, delta);
-			matrices.pushPose();
-			matrices.translate(0, 0, 500);
-			Gui.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
-			dashboardList.render(matrices, font);
-			super.render(matrices, mouseX, mouseY, delta);
-			matrices.popPose();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
+		renderBackground(graphicsHolder);
+		widgetMap.render(graphicsHolder, mouseX, mouseY, delta);
+		graphicsHolder.push();
+		graphicsHolder.translate(0, 0, 500);
+		final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
+		guiDrawing.beginDrawingRectangle();
+		guiDrawing.drawRectangle(0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
+		guiDrawing.finishDrawingRectangle();
+		dashboardList.render(graphicsHolder);
+		super.render(graphicsHolder, mouseX, mouseY, delta);
+		graphicsHolder.pop();
 	}
 
 	@Override
-	public void mouseMoved(double mouseX, double mouseY) {
+	public void mouseMoved2(double mouseX, double mouseY) {
 		dashboardList.mouseMoved(mouseX, mouseY);
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
 		dashboardList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled(mouseX, mouseY, amount);
+		return super.mouseScrolled2(mouseX, mouseY, amount);
 	}
 
 	@Override
-	public void tick() {
-		textFieldName.tick();
-		textFieldCustomDestination.tick();
+	public void tick2() {
+		textFieldName.tick2();
+		textFieldCustomDestination.tick2();
 		dashboardList.tick();
 
 		try {
 			switch (selectedTab) {
 				case STATIONS:
 					if (editingArea == null) {
-						dashboardList.setData(ClientData.STATIONS, true, true, true, false, false, true);
+						dashboardList.setData(ClientData.convertDataSet(ClientData.instance.stations), true, true, true, false, false, true);
 					} else {
-						final Map<Long, Platform> platformData = ClientData.DATA_CACHE.requestStationIdToPlatforms(editingArea.id);
-						dashboardList.setData(platformData == null ? new ArrayList<>() : new ArrayList<>(platformData.values()), true, false, true, false, false, false);
+						dashboardList.setData(ClientData.convertDataSet(editingArea.savedRails), true, false, true, false, false, false);
 					}
 					break;
 				case ROUTES:
 					if (editingRoute == null) {
-						dashboardList.setData(ClientData.getFilteredDataSet(transportMode, ClientData.ROUTES), false, true, true, false, false, true);
+						dashboardList.setData(ClientData.getFilteredDataSet(transportMode, ClientData.instance.routes), false, true, true, false, false, true);
 					} else {
-						final List<DataConverter> routeData = editingRoute.platformIds.stream().map(platformId -> {
-							final Platform platform = ClientData.DATA_CACHE.platformIdMap.get(platformId.platformId);
+						final ObjectArrayList<DashboardListItem> routeData = editingRoute.getRoutePlatforms().stream().map(routePlatformData -> {
+							final Platform platform = routePlatformData.platform;
 							if (platform == null) {
 								return null;
 							} else {
-								final String customDestinationPrefix = platformId.customDestination.isEmpty() ? "" : Route.destinationIsReset(platformId.customDestination) ? "\"" : "*";
-								final Station station = ClientData.DATA_CACHE.platformIdToStation.get(platform.id);
+								final String customDestinationPrefix = routePlatformData.getCustomDestination().isEmpty() ? "" : Route.destinationIsReset(routePlatformData.getCustomDestination()) ? "\"" : "*";
+								final Station station = platform.area;
 								if (station != null) {
-									return new DataConverter(String.format("%s%s (%s)", customDestinationPrefix, station.name, platform.name), station.color);
+									return new DashboardListItem(0, String.format("%s%s (%s)", customDestinationPrefix, station.getName(), platform.getName()), station.getColor());
 								} else {
-									return new DataConverter(String.format("%s(%s)", customDestinationPrefix, platform.name), 0);
+									return new DashboardListItem(0, String.format("%s(%s)", customDestinationPrefix, platform.getName()), 0);
 								}
 							}
-						}).filter(Objects::nonNull).collect(Collectors.toList());
+						}).filter(Objects::nonNull).collect(Collectors.toCollection(ObjectArrayList::new));
 						dashboardList.setData(routeData, false, false, true, true, false, true);
 					}
 					break;
 				case DEPOTS:
 					if (editingArea == null) {
-						dashboardList.setData(ClientData.getFilteredDataSet(transportMode, ClientData.DEPOTS), true, true, true, false, false, true);
+						dashboardList.setData(ClientData.getFilteredDataSet(transportMode, ClientData.instance.depots), true, true, true, false, false, true);
 					} else {
-						final Map<Long, Siding> sidingData = ClientData.DATA_CACHE.requestDepotIdToSidings(editingArea.id);
-						dashboardList.setData(sidingData == null ? new ArrayList<>() : new ArrayList<>(sidingData.values()), true, false, true, false, false, false);
+						dashboardList.setData(ClientData.convertDataSet(editingArea.savedRails), true, false, true, false, false, false);
 					}
 					break;
 			}
@@ -224,7 +214,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	}
 
 	@Override
-	public boolean isPauseScreen() {
+	public boolean isPauseScreen2() {
 		return false;
 	}
 
@@ -237,131 +227,126 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		widgetMap.setShowStations(selectedTab != SelectedTab.DEPOTS);
 	}
 
-	private void onFind(NameColorDataBase data, int index) {
+	private void onFind(DashboardListItem dashboardListItem, int index) {
 		if (selectedTab == SelectedTab.STATIONS || selectedTab == SelectedTab.DEPOTS) {
-			if (editingArea == null && data instanceof AreaBase) {
-				final AreaBase area = (AreaBase) data;
-				if (AreaBase.nonNullCorners(area)) {
-					widgetMap.find(area.corner1.getA(), area.corner1.getB(), area.corner2.getA(), area.corner2.getB());
+			if (editingArea == null && dashboardListItem.data instanceof AreaBase) {
+				final AreaBase<?, ?> area = (AreaBase<?, ?>) dashboardListItem.data;
+				if (AreaBase.validCorners(area)) {
+					widgetMap.find(area.getCenter());
 				}
 			} else if (selectedTab == SelectedTab.STATIONS) {
-				final Platform platform = (Platform) data;
-				widgetMap.find(platform.getMidPos());
+				final Platform platform = (Platform) dashboardListItem.data;
+				widgetMap.find(platform.getMidPosition());
 			}
 		}
 	}
 
-	private void onDrawArea(NameColorDataBase data, int index) {
+	private void onDrawArea(DashboardListItem dashboardListItem, int index) {
 		switch (selectedTab) {
 			case STATIONS:
 			case DEPOTS:
-				if (editingArea == null && data instanceof AreaBase) {
-					startEditingArea((AreaBase) data, false);
+				if (editingArea == null && dashboardListItem.data instanceof AreaBase) {
+					startEditingArea((AreaBase<?, ?>) dashboardListItem.data, false);
 				}
 				break;
 			case ROUTES:
-				if (data instanceof Route) {
-					startEditingRoute((Route) data, false);
+				if (dashboardListItem.data instanceof Route) {
+					startEditingRoute((Route) dashboardListItem.data, false);
 				}
 				break;
 		}
 		dashboardList.clearSearch();
 	}
 
-	private void onEdit(NameColorDataBase data, int index) {
-		if (minecraft != null) {
-			switch (selectedTab) {
-				case STATIONS:
-					if (editingArea == null) {
-						if (data instanceof Station) {
-							UtilitiesClient.setScreen(minecraft, new EditStationScreen((Station) data, this));
-						}
-					} else {
-						if (data instanceof Platform) {
-							UtilitiesClient.setScreen(minecraft, new PlatformScreen((Platform) data, transportMode, this));
-						}
+	private void onEdit(DashboardListItem dashboardListItem, int index) {
+		switch (selectedTab) {
+			case STATIONS:
+				if (editingArea == null) {
+					if (dashboardListItem.data instanceof Station) {
+						MinecraftClient.getInstance().openScreen(new Screen(new EditStationScreen((Station) dashboardListItem.data, this)));
 					}
-					break;
-				case ROUTES:
-					if (editingRoute == null && data instanceof Route) {
-						UtilitiesClient.setScreen(minecraft, new EditRouteScreen((Route) data, this));
-					} else {
-						startEditingRouteDestination(index);
+				} else {
+					if (dashboardListItem.data instanceof Platform) {
+						MinecraftClient.getInstance().openScreen(new Screen(new PlatformScreen((Platform) dashboardListItem.data, transportMode, this)));
 					}
-					break;
-				case DEPOTS:
-					if (editingArea == null) {
-						if (data instanceof Depot) {
-							UtilitiesClient.setScreen(minecraft, new EditDepotScreen((Depot) data, transportMode, this));
-						}
-					} else {
-						if (data instanceof Siding) {
-							UtilitiesClient.setScreen(minecraft, new SidingScreen((Siding) data, transportMode, this));
-						}
+				}
+				break;
+			case ROUTES:
+				if (editingRoute == null && dashboardListItem.data instanceof Route) {
+					MinecraftClient.getInstance().openScreen(new Screen(new EditRouteScreen((Route) dashboardListItem.data, this)));
+				} else {
+					startEditingRouteDestination(index);
+				}
+				break;
+			case DEPOTS:
+				if (editingArea == null) {
+					if (dashboardListItem.data instanceof Depot) {
+						MinecraftClient.getInstance().openScreen(new Screen(new EditDepotScreen((Depot) dashboardListItem.data, transportMode, this)));
 					}
-					break;
-			}
+				} else {
+					if (dashboardListItem.data instanceof Siding) {
+						MinecraftClient.getInstance().openScreen(new Screen(new SidingScreen((Siding) dashboardListItem.data, transportMode, this)));
+					}
+				}
+				break;
 		}
 	}
 
 	private void onSort() {
 		if (selectedTab == SelectedTab.ROUTES && editingRoute != null) {
-			editingRoute.setPlatformIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
+			RegistryClient.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute), routes -> {
+				// TODO
+			}));
 		}
 	}
 
-	private void onDelete(NameColorDataBase data, int index) {
-		try {
-			switch (selectedTab) {
-				case STATIONS:
-					if (minecraft != null) {
-						final Station station = (Station) data;
-						UtilitiesClient.setScreen(minecraft, new DeleteConfirmationScreen(() -> {
-							PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_STATION, station.id);
-							ClientData.STATIONS.remove(station);
-						}, IGui.formatStationName(station.name), this));
+	private void onDelete(DashboardListItem dashboardListItem, int index) {
+		switch (selectedTab) {
+			case STATIONS:
+				if (dashboardListItem.data instanceof Station) {
+					final Station station = (Station) dashboardListItem.data;
+					MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> RegistryClient.sendPacketToServer(PacketData.fromStations(IntegrationServlet.Operation.UPDATE, ObjectSet.of((Station) editingArea), stations -> {
+						// TODO
+					})), IGui.formatStationName(station.getName()), this)));
+				}
+				break;
+			case ROUTES:
+				if (editingRoute == null) {
+					if (dashboardListItem.data instanceof Route) {
+						final Route route = (Route) dashboardListItem.data;
+						MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> RegistryClient.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.DELETE, ObjectSet.of(editingRoute), routes -> {
+							// TODO
+						})), IGui.formatStationName(route.getName()), this)));
 					}
-					break;
-				case ROUTES:
-					if (editingRoute == null) {
-						if (minecraft != null && data instanceof Route) {
-							final Route route = (Route) data;
-							UtilitiesClient.setScreen(minecraft, new DeleteConfirmationScreen(() -> {
-								PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_ROUTE, route.id);
-								ClientData.ROUTES.remove(route);
-							}, IGui.formatStationName(route.name), this));
-						}
-					} else {
-						editingRoute.platformIds.remove(index);
-						editingRoute.setPlatformIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
-					}
-					break;
-				case DEPOTS:
-					if (minecraft != null && data instanceof Depot) {
-						final Depot depot = (Depot) data;
-						UtilitiesClient.setScreen(minecraft, new DeleteConfirmationScreen(() -> {
-							PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_DEPOT, depot.id);
-							ClientData.DEPOTS.remove(depot);
-						}, IGui.formatStationName(depot.name), this));
-					}
-					break;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+				} else {
+					editingRoute.getRoutePlatforms().remove(index);
+					RegistryClient.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute), routes -> {
+						// TODO
+					}));
+				}
+				break;
+			case DEPOTS:
+				if (dashboardListItem.data instanceof Depot) {
+					final Depot depot = (Depot) dashboardListItem.data;
+					MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.DELETE, ObjectSet.of(depot), depots -> {
+						// TODO
+					})), IGui.formatStationName(depot.getName()), this)));
+				}
+				break;
 		}
 	}
 
-	private List<Route.RoutePlatform> getList() {
-		return editingRoute == null ? new ArrayList<>() : editingRoute.platformIds;
+	private ObjectArrayList<RoutePlatformData> getList() {
+		return editingRoute == null ? new ObjectArrayList<>() : editingRoute.getRoutePlatforms();
 	}
 
-	private void startEditingArea(AreaBase editingArea, boolean isNew) {
+	private void startEditingArea(AreaBase<?, ?> editingArea, boolean isNew) {
 		this.editingArea = editingArea;
 		editingRoute = null;
 		this.isNew = isNew;
 
-		textFieldName.setValue(editingArea.name);
-		colorSelector.setColor(editingArea.color);
+		textFieldName.setText2(editingArea.getName());
+		colorSelector.setColor(editingArea.getColor());
 
 		widgetMap.startEditingArea(editingArea);
 		toggleButtons();
@@ -373,8 +358,8 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		this.isNew = isNew;
 		editingRoutePlatformIndex = -1;
 
-		textFieldName.setValue(editingRoute.name);
-		colorSelector.setColor(editingRoute.color);
+		textFieldName.setText2(editingRoute.getName());
+		colorSelector.setColor(editingRoute.getColor());
 
 		widgetMap.startEditingRoute();
 		toggleButtons();
@@ -383,69 +368,73 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	private void startEditingRouteDestination(int index) {
 		editingRoutePlatformIndex = index;
 		if (isValidRoutePlatformIndex()) {
-			textFieldCustomDestination.setValue(editingRoute.platformIds.get(index).customDestination);
+			textFieldCustomDestination.setText2(editingRoute.getRoutePlatforms().get(index).getCustomDestination());
 		}
 		toggleButtons();
 	}
 
-	private void onDrawCorners(Tuple<Integer, Integer> corner1, Tuple<Integer, Integer> corner2) {
-		editingArea.corner1 = corner1;
-		editingArea.corner2 = corner2;
+	private void onDrawCorners(IntIntImmutablePair corner1, IntIntImmutablePair corner2) {
+		editingArea.setCorners(new Position(corner1.leftInt(), Long.MIN_VALUE, corner1.rightInt()), new Position(corner2.leftInt(), Long.MAX_VALUE, corner2.rightInt()));
 		toggleButtons();
 	}
 
 	private void onDrawCornersMouseRelease() {
-		editingArea.setCorners(packet -> PacketTrainDataGuiClient.sendUpdate(editingArea instanceof Station ? PACKET_UPDATE_STATION : PACKET_UPDATE_DEPOT, packet));
+		if (editingArea instanceof Station) {
+			RegistryClient.sendPacketToServer(PacketData.fromStations(IntegrationServlet.Operation.UPDATE, ObjectSet.of((Station) editingArea), stations -> {
+				// TODO
+			}));
+		} else if (editingArea instanceof Depot) {
+			RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.UPDATE, ObjectSet.of((Depot) editingArea), depots -> {
+				// TODO
+			}));
+		}
 	}
 
 	private void onClickAddPlatformToRoute(long platformId) {
-		editingRoute.platformIds.add(new Route.RoutePlatform(platformId));
-		editingRoute.setPlatformIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
+		editingRoute.getRoutePlatforms().add(new RoutePlatformData(platformId));
+		RegistryClient.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute), routes -> {
+			// TODO
+		}));
 	}
 
-	private void onClickEditSavedRail(SavedRailBase savedRail) {
+	private void onClickEditSavedRail(SavedRailBase<?, ?> savedRail) {
 		if (savedRail instanceof Platform) {
-			UtilitiesClient.setScreen(Minecraft.getInstance(), new PlatformScreen((Platform) savedRail, transportMode, this));
+			MinecraftClient.getInstance().openScreen(new Screen(new PlatformScreen((Platform) savedRail, transportMode, this)));
 		} else if (savedRail instanceof Siding) {
-			UtilitiesClient.setScreen(Minecraft.getInstance(), new SidingScreen((Siding) savedRail, transportMode, this));
+			MinecraftClient.getInstance().openScreen(new Screen(new SidingScreen((Siding) savedRail, transportMode, this)));
 		}
 	}
 
 	private void onDoneEditingArea() {
-		if (editingArea instanceof Station || editingArea instanceof Depot) {
-			final boolean isStation = editingArea instanceof Station;
-			if (isNew) {
-				if (isStation) {
-					ClientData.STATIONS.add((Station) editingArea);
-				} else {
-					ClientData.DEPOTS.add((Depot) editingArea);
-				}
-			}
-			editingArea.name = IGui.textOrUntitled(textFieldName.getValue());
-			editingArea.color = colorSelector.getColor();
-			editingArea.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(isStation ? PACKET_UPDATE_STATION : PACKET_UPDATE_DEPOT, packet));
+		editingArea.setName(IGui.textOrUntitled(textFieldName.getText2()));
+		editingArea.setColor(colorSelector.getColor());
+		if (editingArea instanceof Station) {
+			RegistryClient.sendPacketToServer(PacketData.fromStations(IntegrationServlet.Operation.UPDATE, ObjectSet.of((Station) editingArea), stations -> {
+				// TODO
+			}));
+		} else if (editingArea instanceof Depot) {
+			RegistryClient.sendPacketToServer(PacketData.fromDepots(IntegrationServlet.Operation.UPDATE, ObjectSet.of((Depot) editingArea), depots -> {
+				// TODO
+			}));
 		}
 		stopEditing();
 	}
 
 	private void onDoneEditingRoute() {
-		if (isNew) {
-			try {
-				ClientData.ROUTES.add(editingRoute);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		editingRoute.name = IGui.textOrUntitled(textFieldName.getValue());
-		editingRoute.color = colorSelector.getColor();
-		editingRoute.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
+		editingRoute.setName(IGui.textOrUntitled(textFieldName.getText2()));
+		editingRoute.setColor(colorSelector.getColor());
+		RegistryClient.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute), routes -> {
+			// TODO
+		}));
 		stopEditing();
 	}
 
 	private void onDoneEditingRouteDestination() {
 		if (isValidRoutePlatformIndex()) {
-			editingRoute.platformIds.get(editingRoutePlatformIndex).customDestination = textFieldCustomDestination.getValue();
-			editingRoute.setPlatformIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
+			editingRoute.getRoutePlatforms().get(editingRoutePlatformIndex).setCustomDestination(textFieldCustomDestination.getText2());
+			RegistryClient.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(editingRoute), routes -> {
+				// TODO
+			}));
 		}
 		startEditingRoute(editingRoute, isNew);
 	}
@@ -458,7 +447,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	}
 
 	private boolean isValidRoutePlatformIndex() {
-		return editingRoute != null && editingRoutePlatformIndex >= 0 && editingRoutePlatformIndex < editingRoute.platformIds.size();
+		return editingRoute != null && editingRoutePlatformIndex >= 0 && editingRoutePlatformIndex < editingRoute.getRoutePlatforms().size();
 	}
 
 	private void toggleButtons() {
@@ -469,7 +458,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		buttonAddRoute.visible = selectedTab == SelectedTab.ROUTES && editingRoute == null && hasPermission;
 		buttonAddDepot.visible = selectedTab == SelectedTab.DEPOTS && editingArea == null && hasPermission;
 		buttonDoneEditingStation.visible = (selectedTab == SelectedTab.STATIONS || selectedTab == SelectedTab.DEPOTS) && editingArea != null;
-		buttonDoneEditingStation.active = AreaBase.nonNullCorners(editingArea);
+		buttonDoneEditingStation.active = AreaBase.validCorners(editingArea);
 		buttonDoneEditingRoute.visible = selectedTab == SelectedTab.ROUTES && editingRoute != null && !showRouteDestinationFields;
 		buttonDoneEditingRouteDestination.visible = selectedTab == SelectedTab.ROUTES && editingRoute != null && showRouteDestinationFields;
 

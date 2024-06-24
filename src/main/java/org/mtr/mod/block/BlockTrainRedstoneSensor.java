@@ -1,13 +1,13 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.BlockEntityTypes;
-import mtr.mappings.BlockEntityMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import org.mtr.mapping.holder.BlockPos;
+import org.mtr.mapping.holder.BlockState;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.BlockEntityTypes;
 
-import java.util.Set;
+import java.util.List;
 
 public class BlockTrainRedstoneSensor extends BlockTrainPoweredSensorBase {
 
@@ -16,23 +16,23 @@ public class BlockTrainRedstoneSensor extends BlockTrainPoweredSensorBase {
 	}
 
 	@Override
-	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
-		return new TileEntityTrainRedstoneSensor(pos, state);
+	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new BlockEntity(blockPos, blockState);
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(POWERED);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(POWERED);
 	}
 
-	public static class TileEntityTrainRedstoneSensor extends TileEntityTrainSensorBase {
+	public static class BlockEntity extends BlockEntityBase {
 
-		public TileEntityTrainRedstoneSensor(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TRAIN_REDSTONE_SENSOR_TILE_ENTITY.get(), pos, state);
+		public BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.TRAIN_REDSTONE_SENSOR.get(), pos, state);
 		}
 
 		@Override
-		public void setData(Set<Long> filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String... strings) {
+		public void setData(LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String... strings) {
 			setData(filterRouteIds, stoppedOnly, movingOnly);
 		}
 	}

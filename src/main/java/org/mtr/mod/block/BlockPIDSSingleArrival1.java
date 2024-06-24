@@ -1,33 +1,32 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.BlockEntityTypes;
-import mtr.mappings.BlockEntityMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mod.BlockEntityTypes;
+
+import javax.annotation.Nonnull;
 
 public class BlockPIDSSingleArrival1 extends BlockPIDSBaseVertical {
+
+	@Nonnull
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, FACING));
 	}
 
 	@Override
-	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
-		return new TileEntityBlockPIDSSingleArrival1(pos, state);
+	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new BlockEntity(blockPos, blockState);
 	}
 
-	public static class TileEntityBlockPIDSSingleArrival1 extends BlockPIDSBaseVertical.TileEntityBlockPIDSBaseVertical {
+	public static class BlockEntity extends BlockEntityVerticalBase {
 
 		public static final int MAX_ARRIVALS = 1;
 		public static final int LINES_PER_ARRIVAL = 16;
 		private final BlockState state;
 
-		public TileEntityBlockPIDSSingleArrival1(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.PIDS_SINGLE_ARRIVAL_1_TILE_ENTITY.get(), pos, state);
+		public BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.PIDS_SINGLE_ARRIVAL_1.get(), pos, state);
 			this.state = state;
 		}
 

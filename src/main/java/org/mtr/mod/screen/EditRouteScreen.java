@@ -1,31 +1,32 @@
-package mtr.screen;
+package org.mtr.mod.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.client.ClientData;
-import mtr.client.IDrawing;
-import mtr.data.*;
-import mtr.mappings.Text;
-import mtr.mappings.UtilitiesClient;
-import mtr.packet.IPacket;
-import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.Component;
-
-import java.util.Locale;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import org.mtr.core.data.Route;
+import org.mtr.core.data.RouteType;
+import org.mtr.core.data.Station;
+import org.mtr.core.servlet.IntegrationServlet;
+import org.mtr.core.tools.Utilities;
+import org.mtr.mapping.holder.ClickableWidget;
+import org.mtr.mapping.holder.MutableText;
+import org.mtr.mapping.holder.Text;
+import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.registry.RegistryClient;
+import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.data.IGui;
+import org.mtr.mod.packet.IPacket;
+import org.mtr.mod.packet.PacketData;
 
 public class EditRouteScreen extends EditNameColorScreenBase<Route> implements IGui, IPacket {
 
-	private RouteType routeType;
+	private final MutableText lightRailRouteNumberText = TextHelper.translatable("gui.mtr.light_rail_route_number");
 
-	private final Component lightRailRouteNumberText = Text.translatable("gui.mtr.light_rail_route_number");
-
-	private final WidgetBetterTextField textFieldLightRailRouteNumber;
-	private final Button buttonRouteType;
-	private final WidgetBetterCheckbox buttonIsLightRailRoute;
-	private final WidgetBetterCheckbox buttonIsRouteHidden;
-	private final WidgetBetterCheckbox buttonDisableNextStationAnnouncements;
-	private final WidgetBetterCheckbox buttonIsClockwiseRoute;
-	private final WidgetBetterCheckbox buttonIsAntiClockwiseRoute;
+	private final TextFieldWidgetExtension textFieldLightRailRouteNumber;
+	private final ButtonWidgetExtension buttonRouteType;
+	private final CheckboxWidgetExtension buttonIsRouteHidden;
+	private final CheckboxWidgetExtension buttonDisableNextStationAnnouncements;
+	private final CheckboxWidgetExtension buttonIsClockwiseRoute;
+	private final CheckboxWidgetExtension buttonIsAntiClockwiseRoute;
 
 	private final boolean isCircular;
 
@@ -34,69 +35,69 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 	public EditRouteScreen(Route route, DashboardScreen dashboardScreen) {
 		super(route, dashboardScreen, "gui.mtr.route_name", "gui.mtr.route_color");
 
-		textFieldLightRailRouteNumber = new WidgetBetterTextField("");
-		buttonRouteType = UtilitiesClient.newButton(Text.translatable("gui.mtr.add_value"), button -> setRouteTypeText(data.transportMode, routeType.next()));
-		buttonIsLightRailRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.is_light_rail_route"), this::setIsLightRailRoute);
-		buttonIsRouteHidden = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.is_route_hidden"), this::setIsRouteHidden);
-		buttonDisableNextStationAnnouncements = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.disable_next_station_announcements"), this::setDisableNextStationAnnouncements);
-		buttonIsClockwiseRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.is_clockwise_route"), this::setIsClockwise);
-		buttonIsAntiClockwiseRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.is_anticlockwise_route"), this::setIsAntiClockwise);
+		textFieldLightRailRouteNumber = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 256, TextCase.DEFAULT, null, null);
+		buttonRouteType = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_value"), button -> setRouteType(route, route.getRouteType().next()));
+		buttonIsRouteHidden = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, this::setIsRouteHidden);
+		buttonIsRouteHidden.setMessage2(new Text(TextHelper.translatable("gui.mtr.is_route_hidden").data));
+		buttonDisableNextStationAnnouncements = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, this::setDisableNextStationAnnouncements);
+		buttonDisableNextStationAnnouncements.setMessage2(new Text(TextHelper.translatable("gui.mtr.disable_next_station_announcements").data));
+		buttonIsClockwiseRoute = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, this::setIsClockwise);
+		buttonIsClockwiseRoute.setMessage2(new Text(TextHelper.translatable("gui.mtr.is_clockwise_route").data));
+		buttonIsAntiClockwiseRoute = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, this::setIsAntiClockwise);
+		buttonIsAntiClockwiseRoute.setMessage2(new Text(TextHelper.translatable("gui.mtr.is_anticlockwise_route").data));
 
-		if (route.platformIds.size() > 0) {
-			final Station firstStation = ClientData.DATA_CACHE.platformIdToStation.get(route.getFirstPlatformId());
-			final Station lastStation = ClientData.DATA_CACHE.platformIdToStation.get(route.getLastPlatformId());
-			isCircular = firstStation != null && lastStation != null && firstStation.id == lastStation.id;
+		if (!route.getRoutePlatforms().isEmpty()) {
+			final Station firstStation = Utilities.getElement(route.getRoutePlatforms(), 0).platform.area;
+			final Station lastStation = Utilities.getElement(route.getRoutePlatforms(), -1).platform.area;
+			isCircular = firstStation != null && lastStation != null && firstStation.getId() == lastStation.getId();
 		} else {
 			isCircular = false;
 		}
 	}
 
 	@Override
-	protected void init() {
+	protected void init2() {
 		setPositionsAndInit(SQUARE_SIZE, width / 4 * 3 - SQUARE_SIZE, width - SQUARE_SIZE);
 
 		IDrawing.setPositionAndWidth(buttonRouteType, SQUARE_SIZE, SQUARE_SIZE * 3, CHECKBOX_WIDTH);
-		setRouteTypeText(data.transportMode, data.routeType);
+		setRouteType(data, data.getRouteType());
 
 		IDrawing.setPositionAndWidth(buttonIsRouteHidden, SQUARE_SIZE, SQUARE_SIZE * 4, CHECKBOX_WIDTH);
 		IDrawing.setPositionAndWidth(buttonDisableNextStationAnnouncements, SQUARE_SIZE, SQUARE_SIZE * 5, CHECKBOX_WIDTH);
-		IDrawing.setPositionAndWidth(buttonIsLightRailRoute, SQUARE_SIZE, SQUARE_SIZE * 6, CHECKBOX_WIDTH);
-		IDrawing.setPositionAndWidth(textFieldLightRailRouteNumber, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 8 + TEXT_FIELD_PADDING / 2, CHECKBOX_WIDTH - TEXT_FIELD_PADDING);
-		textFieldLightRailRouteNumber.setValue(data.lightRailRouteNumber);
+		IDrawing.setPositionAndWidth(textFieldLightRailRouteNumber, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 7 + TEXT_FIELD_PADDING / 2, CHECKBOX_WIDTH - TEXT_FIELD_PADDING);
+		textFieldLightRailRouteNumber.setText2(data.getRouteNumber());
 
-		IDrawing.setPositionAndWidth(buttonIsClockwiseRoute, SQUARE_SIZE, SQUARE_SIZE * 9 + TEXT_FIELD_PADDING, CHECKBOX_WIDTH);
-		IDrawing.setPositionAndWidth(buttonIsAntiClockwiseRoute, SQUARE_SIZE, SQUARE_SIZE * 10 + TEXT_FIELD_PADDING, CHECKBOX_WIDTH);
+		IDrawing.setPositionAndWidth(buttonIsClockwiseRoute, SQUARE_SIZE, SQUARE_SIZE * 8 + TEXT_FIELD_PADDING, CHECKBOX_WIDTH);
+		IDrawing.setPositionAndWidth(buttonIsAntiClockwiseRoute, SQUARE_SIZE, SQUARE_SIZE * 9 + TEXT_FIELD_PADDING, CHECKBOX_WIDTH);
 
-		if (data.transportMode.hasRouteTypeVariation) {
-			addDrawableChild(buttonRouteType);
+		if (data.getTransportMode().hasRouteTypeVariation) {
+			addChild(new ClickableWidget(buttonRouteType));
 		}
-		addDrawableChild(textFieldLightRailRouteNumber);
-		addDrawableChild(buttonIsLightRailRoute);
-		addDrawableChild(buttonIsRouteHidden);
-		addDrawableChild(buttonDisableNextStationAnnouncements);
+		addChild(new ClickableWidget(textFieldLightRailRouteNumber));
+		addChild(new ClickableWidget(buttonIsRouteHidden));
+		addChild(new ClickableWidget(buttonDisableNextStationAnnouncements));
 		if (isCircular) {
-			addDrawableChild(buttonIsClockwiseRoute);
-			addDrawableChild(buttonIsAntiClockwiseRoute);
+			addChild(new ClickableWidget(buttonIsClockwiseRoute));
+			addChild(new ClickableWidget(buttonIsAntiClockwiseRoute));
 		}
 
-		setIsLightRailRoute(data.isLightRailRoute);
-		setIsRouteHidden(data.isHidden);
-		setDisableNextStationAnnouncements(data.disableNextStationAnnouncements);
-		setIsClockwise(data.circularState == Route.CircularState.CLOCKWISE);
-		setIsAntiClockwise(data.circularState == Route.CircularState.ANTICLOCKWISE);
+		setIsRouteHidden(data.getHidden());
+		// TODO setDisableNextStationAnnouncements(data.disableNextStationAnnouncements);
+		setIsClockwise(data.getCircularState() == Route.CircularState.CLOCKWISE);
+		setIsAntiClockwise(data.getCircularState() == Route.CircularState.ANTICLOCKWISE);
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 		try {
-			renderBackground(matrices);
-			renderTextFields(matrices);
+			renderBackground(graphicsHolder);
+			renderTextFields(graphicsHolder);
 
 			if (textFieldLightRailRouteNumber.visible) {
-				drawString(matrices, font, lightRailRouteNumberText, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE);
+				graphicsHolder.drawText(lightRailRouteNumberText, SQUARE_SIZE, SQUARE_SIZE * 6 + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
 			}
 
-			super.render(matrices, mouseX, mouseY, delta);
+			super.render(graphicsHolder, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -106,29 +107,24 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 	protected void saveData() {
 		super.saveData();
 
-		data.routeType = routeType;
-		data.isLightRailRoute = buttonIsLightRailRoute.selected();
-		data.lightRailRouteNumber = textFieldLightRailRouteNumber.getValue();
-		data.isHidden = buttonIsRouteHidden.selected();
-		data.disableNextStationAnnouncements = buttonDisableNextStationAnnouncements.selected();
+		data.setRouteNumber(textFieldLightRailRouteNumber.getText2());
+		data.setHidden(buttonIsRouteHidden.isChecked2());
+		// TODO data.disableNextStationAnnouncements = buttonDisableNextStationAnnouncements.isChecked2();
 
 		if (isCircular) {
-			data.circularState = buttonIsClockwiseRoute.selected() ? Route.CircularState.CLOCKWISE : buttonIsAntiClockwiseRoute.selected() ? Route.CircularState.ANTICLOCKWISE : Route.CircularState.NONE;
+			data.setCircularState(buttonIsClockwiseRoute.isChecked2() ? Route.CircularState.CLOCKWISE : buttonIsAntiClockwiseRoute.isChecked2() ? Route.CircularState.ANTICLOCKWISE : Route.CircularState.NONE);
 		} else {
-			data.circularState = Route.CircularState.NONE;
+			data.setCircularState(Route.CircularState.NONE);
 		}
 
-		data.setExtraData(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
+		RegistryClient.sendPacketToServer(PacketData.fromRoutes(IntegrationServlet.Operation.UPDATE, ObjectSet.of(data), routes -> {
+
+		}));
 	}
 
-	private void setRouteTypeText(TransportMode transportMode, RouteType newRouteType) {
-		routeType = newRouteType;
-		buttonRouteType.setMessage(Text.translatable(String.format("gui.mtr.route_type_%s_%s", transportMode, routeType).toLowerCase(Locale.ENGLISH)));
-	}
-
-	private void setIsLightRailRoute(boolean isLightRailRoute) {
-		buttonIsLightRailRoute.setChecked(isLightRailRoute);
-		textFieldLightRailRouteNumber.visible = isLightRailRoute;
+	private void setRouteType(Route route, RouteType newRouteType) {
+		route.setRouteType(newRouteType);
+		buttonRouteType.setMessage2(new Text(TextHelper.translatable(route.getRouteTypeKey()).data));
 	}
 
 	private void setIsRouteHidden(boolean isRouteHidden) {

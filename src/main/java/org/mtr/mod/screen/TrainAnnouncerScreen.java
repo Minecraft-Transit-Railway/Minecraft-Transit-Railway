@@ -1,22 +1,14 @@
-package mtr.screen;
+package org.mtr.mod.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.block.BlockTrainAnnouncer;
-import mtr.data.DataConverter;
-import mtr.data.RailwayData;
-import mtr.mappings.RegistryUtilities;
-import mtr.mappings.Text;
-import mtr.mappings.UtilitiesClient;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import org.mtr.core.tools.Utilities;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.block.BlockTrainAnnouncer;
 
-import java.util.stream.Collectors;
+import java.util.Collections;
 
 public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 
@@ -28,17 +20,16 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 
 	public TrainAnnouncerScreen(BlockPos pos) {
 		super(pos, true,
-				new Tuple<>(new WidgetBetterTextField("", MAX_MESSAGE_LENGTH), Text.translatable("gui.mtr.announcement_message")),
-				new Tuple<>(new WidgetBetterTextField("", MAX_MESSAGE_LENGTH), Text.translatable("gui.mtr.sound_file"))
+				new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TextHelper.translatable("gui.mtr.announcement_message")),
+				new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TextHelper.translatable("gui.mtr.sound_file"))
 		);
 
-		minecraft = Minecraft.getInstance();
-		final ClientLevel world = minecraft.level;
-		if (world != null) {
-			final BlockEntity entity = world.getBlockEntity(pos);
-			if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer) {
-				initialMessage = ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).getMessage();
-				initialSoundIdString = ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).getSoundIdString();
+		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
+		if (clientWorld != null) {
+			final BlockEntity blockEntity = clientWorld.getBlockEntity(pos);
+			if (blockEntity != null && blockEntity.data instanceof BlockTrainAnnouncer.BlockEntity) {
+				initialMessage = ((BlockTrainAnnouncer.BlockEntity) blockEntity.data).getMessage();
+				initialSoundIdString = ((BlockTrainAnnouncer.BlockEntity) blockEntity.data).getSoundIdString();
 			} else {
 				initialMessage = "";
 				initialSoundIdString = "";
@@ -50,63 +41,70 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 
 		availableSoundsList = new DashboardList((data, color) -> {
 			final String soundIdString = data.name;
-			if (!soundIdString.isEmpty() && world != null && minecraft.player != null) {
-				world.playLocalSound(pos, RegistryUtilities.createSoundEvent(new ResourceLocation(soundIdString)), SoundSource.BLOCKS, 1000000, 1, false);
+			if (!soundIdString.isEmpty() && clientWorld != null && MinecraftClient.getInstance().getPlayerMapped() != null) {
+				clientWorld.playSoundAtBlockCenter(pos, AbstractSoundInstanceExtension.createSoundEvent(new Identifier(soundIdString)), SoundCategory.BLOCKS, 1000000, 1, false);
 			}
 		}, null, null, null, (data, color) -> {
-			textFields[1].setValue(data.name);
+			textFields[1].setText2(data.name);
 			setListVisibility(false);
 		}, null, null, () -> "", text -> {
 		}, false);
-		availableSoundsList.setData(Minecraft.getInstance().getSoundManager().getAvailableSounds().stream().map(soundId -> new DataConverter(soundId.toString(), ARGB_BACKGROUND)).sorted().collect(Collectors.toList()), true, false, false, false, true, false);
+
+		final ObjectArrayList<DashboardListItem> soundIds = new ObjectArrayList<>();
+		AbstractSoundInstanceExtension.iterateSoundIds(identifier -> soundIds.add(new DashboardListItem(0, identifier.toString(), ARGB_BACKGROUND)));
+		Collections.sort(soundIds);
+		availableSoundsList.setData(soundIds, true, false, false, false, true, false);
 	}
 
 	@Override
-	protected void init() {
-		super.init();
-		textFields[0].setValue(initialMessage);
-		textFields[1].setValue(initialSoundIdString);
+	protected void init2() {
+		super.init2();
+		textFields[0].setText2(initialMessage);
+		textFields[1].setText2(initialSoundIdString);
 
 		setListVisibility(false);
 		availableSoundsList.y = SQUARE_SIZE * 2 + TEXT_HEIGHT + TEXT_PADDING + TEXT_FIELD_PADDING;
 		availableSoundsList.height = height - availableSoundsList.y - SQUARE_SIZE;
 		availableSoundsList.width = width / 2 - SQUARE_SIZE;
-		availableSoundsList.init(this::addDrawableChild);
+		availableSoundsList.init(this::addChild);
 	}
 
 	@Override
-	public void tick() {
-		super.tick();
+	public void tick2() {
+		super.tick2();
 		availableSoundsList.tick();
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked2(double mouseX, double mouseY, int button) {
 		if (button == 0) {
-			if (RailwayData.isBetween(mouseX, UtilitiesClient.getWidgetX(textFields[1]), UtilitiesClient.getWidgetX(textFields[1]) + textFields[1].getWidth()) && RailwayData.isBetween(mouseY, UtilitiesClient.getWidgetY(textFields[1]), UtilitiesClient.getWidgetY(textFields[1]) + textFields[1].getHeight())) {
+			if (Utilities.isBetween(mouseX, textFields[1].getX2(), textFields[1].getX2() + textFields[1].getWidth2()) && Utilities.isBetween(mouseY, textFields[1].getY2(), textFields[1].getY2() + textFields[1].getHeight2())) {
 				setListVisibility(true);
-			} else if (!RailwayData.isBetween(mouseX, availableSoundsList.x, availableSoundsList.x + availableSoundsList.width) || !RailwayData.isBetween(mouseY, availableSoundsList.y, availableSoundsList.y + availableSoundsList.height)) {
+			} else if (!Utilities.isBetween(mouseX, availableSoundsList.x, availableSoundsList.x + availableSoundsList.width) || !Utilities.isBetween(mouseY, availableSoundsList.y, availableSoundsList.y + availableSoundsList.height)) {
 				setListVisibility(false);
 			}
 		}
-		return super.mouseClicked(mouseX, mouseY, button);
+		return super.mouseClicked2(mouseX, mouseY, button);
 	}
 
 	@Override
-	public void mouseMoved(double mouseX, double mouseY) {
+	public void mouseMoved2(double mouseX, double mouseY) {
 		availableSoundsList.mouseMoved(mouseX, mouseY);
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
 		availableSoundsList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled(mouseX, mouseY, amount);
+		return super.mouseScrolled2(mouseX, mouseY, amount);
 	}
 
 	@Override
-	protected void renderAdditional(PoseStack matrices) {
-		Gui.fill(matrices, availableSoundsList.x, availableSoundsList.y, availableSoundsList.x + availableSoundsList.width, availableSoundsList.y + availableSoundsList.height, ARGB_BACKGROUND);
-		availableSoundsList.render(matrices, font);
+	protected void renderAdditional(GraphicsHolder graphicsHolder) {
+		final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
+		guiDrawing.beginDrawingRectangle();
+		guiDrawing.drawRectangle(availableSoundsList.x, availableSoundsList.y, availableSoundsList.x + availableSoundsList.width, availableSoundsList.y + availableSoundsList.height, ARGB_BACKGROUND);
+		guiDrawing.finishDrawingRectangle();
+		availableSoundsList.render(graphicsHolder);
 	}
 
 	private void setListVisibility(boolean visible) {

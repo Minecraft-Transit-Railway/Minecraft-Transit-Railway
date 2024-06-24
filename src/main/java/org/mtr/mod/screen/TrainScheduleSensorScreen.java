@@ -1,12 +1,14 @@
-package mtr.screen;
+package org.mtr.mod.screen;
 
-import mtr.block.BlockTrainScheduleSensor;
-import mtr.mappings.Text;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import org.mtr.mapping.holder.BlockEntity;
+import org.mtr.mapping.holder.BlockPos;
+import org.mtr.mapping.holder.ClientWorld;
+import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mapping.mapper.TextFieldWidgetExtension;
+import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.block.BlockTrainScheduleSensor;
 
 public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 
@@ -16,28 +18,28 @@ public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 	private static final int DEFAULT_SECONDS = 10;
 
 	public TrainScheduleSensorScreen(BlockPos pos) {
-		super(pos, false, new Tuple<>(new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, "", MAX_SECONDS_LENGTH), Text.translatable("gui.mtr.train_schedule_sensor")));
+		super(pos, false, new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_SECONDS_LENGTH, TextCase.DEFAULT, "\\D", null), TextHelper.translatable("gui.mtr.train_schedule_sensor")));
 
-		final Level world = Minecraft.getInstance().level;
-		if (world == null) {
+		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
+		if (clientWorld == null) {
 			seconds = 0;
 		} else {
-			final BlockEntity entity = world.getBlockEntity(pos);
-			seconds = entity instanceof BlockTrainScheduleSensor.TileEntityTrainScheduleSensor ? ((BlockTrainScheduleSensor.TileEntityTrainScheduleSensor) entity).getSeconds() : DEFAULT_SECONDS;
+			final BlockEntity blockEntity = clientWorld.getBlockEntity(pos);
+			seconds = blockEntity != null && blockEntity.data instanceof BlockTrainScheduleSensor.BlockEntity ? ((BlockTrainScheduleSensor.BlockEntity) blockEntity.data).getSeconds() : DEFAULT_SECONDS;
 		}
 	}
 
 	@Override
-	protected void init() {
-		super.init();
-		textFields[0].setValue(String.valueOf(seconds));
+	protected void init2() {
+		super.init2();
+		textFields[0].setText2(String.valueOf(seconds));
 	}
 
 	@Override
 	protected int getNumber() {
 		int secondsParsed = 10;
 		try {
-			secondsParsed = Integer.parseInt(textFields[0].getValue());
+			secondsParsed = Integer.parseInt(textFields[0].getText2());
 		} catch (Exception ignored) {
 		}
 		return secondsParsed;

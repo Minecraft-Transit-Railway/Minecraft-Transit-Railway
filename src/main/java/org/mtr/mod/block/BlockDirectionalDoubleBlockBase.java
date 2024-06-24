@@ -1,77 +1,54 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.mappings.BlockDirectionalMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.material.PushReaction;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.DirectionHelper;
 
-public abstract class BlockDirectionalDoubleBlockBase extends BlockDirectionalMapper implements IBlock {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-	public BlockDirectionalDoubleBlockBase(Properties settings) {
-		super(settings);
+public abstract class BlockDirectionalDoubleBlockBase extends BlockExtension implements IBlock, DirectionHelper {
+
+	public BlockDirectionalDoubleBlockBase(BlockSettings blockSettings) {
+		super(blockSettings);
 	}
 
+	@Nonnull
 	@Override
-	public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
+	public BlockState getStateForNeighborUpdate2(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
 		final boolean isTop = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
-		if ((isTop && direction == Direction.DOWN || !isTop && direction == Direction.UP) && !newState.is(this)) {
-			return Blocks.AIR.defaultBlockState();
+		if ((isTop && direction == Direction.DOWN || !isTop && direction == Direction.UP) && !neighborState.isOf(new Block(this))) {
+			return Blocks.getAirMapped().getDefaultState();
 		} else {
 			return state;
 		}
 	}
 
 	@Override
-	public void setPlacedBy(Level world, BlockPos pos, BlockState state, LivingEntity livingEntity, ItemStack itemStack) {
-		if (!world.isClientSide) {
+	public void onPlaced2(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+		if (!world.isClient()) {
 			final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-			world.setBlock(pos.above(), getAdditionalState(pos, facing).setValue(FACING, facing).setValue(HALF, DoubleBlockHalf.UPPER), 3);
-			world.updateNeighborsAt(pos, Blocks.AIR);
-			state.updateNeighbourShapes(world, pos, 3);
+			world.setBlockState(pos.up(), getAdditionalState(pos, facing).with(new Property<>(FACING.data), facing.data).with(new Property<>(HALF.data), DoubleBlockHalf.UPPER), 3);
+			world.updateNeighbors(pos, Blocks.getAirMapped());
+			state.updateNeighbors(new WorldAccess(world.data), pos, 3);
 		}
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		final Direction facing = ctx.getHorizontalDirection();
-		return IBlock.isReplaceable(ctx, Direction.UP, 2) ? getAdditionalState(ctx.getClickedPos(), facing).setValue(FACING, facing).setValue(HALF, DoubleBlockHalf.LOWER) : null;
+	public BlockState getPlacementState2(ItemPlacementContext ctx) {
+		final Direction facing = ctx.getPlayerFacing();
+		return IBlock.isReplaceable(ctx, Direction.UP, 2) ? getAdditionalState(ctx.getBlockPos(), facing).with(new Property<>(FACING.data), facing.data).with(new Property<>(HALF.data), DoubleBlockHalf.LOWER) : null;
 	}
 
 	@Override
-	public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
-			IBlock.onBreakCreative(world, player, pos.below());
+			IBlock.onBreakCreative(world, player, pos.down());
 		}
-		super.playerWillDestroy(world, pos, state, player);
-	}
-
-	@Override
-	public BlockState rotate(BlockState state, Rotation rotation) {
-		return state;
-	}
-
-	@Override
-	public BlockState mirror(BlockState state, Mirror mirror) {
-		return state;
-	}
-
-	@Override
-	public PushReaction getPistonPushReaction(BlockState blockState) {
-		return PushReaction.BLOCK;
+		super.onBreak2(world, pos, state, player);
 	}
 
 	protected BlockState getAdditionalState(BlockPos pos, Direction facing) {
-		return defaultBlockState();
+		return getDefaultState2();
 	}
 }

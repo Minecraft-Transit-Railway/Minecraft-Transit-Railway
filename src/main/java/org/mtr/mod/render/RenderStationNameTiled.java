@@ -1,30 +1,26 @@
-package mtr.render;
+package org.mtr.mod.render;
 
-import mtr.block.BlockStationNameBase;
-import mtr.block.BlockStationNameEntrance;
-import mtr.block.IBlock;
-import mtr.client.ClientData;
-import mtr.client.IDrawing;
-import mtr.data.IGui;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
+import org.mtr.mapping.holder.*;
+import org.mtr.mod.block.BlockStationNameBase;
+import org.mtr.mod.block.BlockStationNameEntrance;
+import org.mtr.mod.block.IBlock;
+import org.mtr.mod.client.DynamicTextureCache;
+import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.data.IGui;
 
-public class RenderStationNameTiled<T extends BlockStationNameBase.TileEntityStationNameBase> extends RenderStationNameBase<T> {
+import javax.annotation.Nullable;
+
+public class RenderStationNameTiled<T extends BlockStationNameBase.BlockEntityBase> extends RenderStationNameBase<T> {
 
 	private final boolean showLogo;
 
-	public RenderStationNameTiled(BlockEntityRenderDispatcher dispatcher, boolean showLogo) {
+	public RenderStationNameTiled(BlockEntityRendererArgument dispatcher, boolean showLogo) {
 		super(dispatcher);
 		this.showLogo = showLogo;
 	}
 
 	@Override
-	protected void drawStationName(BlockGetter world, BlockPos pos, BlockState state, Direction facing, StoredMatrixTransformations storedMatrixTransformations, MultiBufferSource vertexConsumers, String stationName, int stationColor, int color, int light) {
+	protected void drawStationName(World world, BlockPos pos, BlockState state, Direction facing, StoredMatrixTransformations storedMatrixTransformations, String stationName, int stationColor, int color, int light) {
 		final int lengthLeft = getLength(world, pos, false);
 		final int lengthRight = getLength(world, pos, true);
 
@@ -32,21 +28,21 @@ public class RenderStationNameTiled<T extends BlockStationNameBase.TileEntitySta
 		if (showLogo) {
 			final int propagateProperty = IBlock.getStatePropertySafe(world, pos, BlockStationNameEntrance.STYLE);
 			final float logoSize = propagateProperty % 2 == 0 ? 0.5F : 1;
-			RenderTrains.scheduleRender(ClientData.DATA_CACHE.getStationNameEntrance(propagateProperty < 2 || propagateProperty >= 4 ? ARGB_WHITE : ARGB_BLACK, IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, stationName), totalLength / logoSize).resourceLocation, false, RenderTrains.QueuedRenderLayer.INTERIOR, (matrices, vertexConsumer) -> {
-				storedMatrixTransformations.transform(matrices);
-				IDrawing.drawTexture(matrices, vertexConsumer, -0.5F, -logoSize / 2, 1, logoSize, (float) (lengthLeft - 1) / totalLength, 0, (float) lengthLeft / totalLength, 1, facing, color, light);
-				matrices.popPose();
+			RenderTrains.scheduleRender(DynamicTextureCache.instance.getStationNameEntrance(propagateProperty < 2 || propagateProperty >= 4 ? ARGB_WHITE : ARGB_BLACK, IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, stationName), totalLength / logoSize).identifier, false, RenderTrains.QueuedRenderLayer.INTERIOR, graphicsHolder -> {
+				storedMatrixTransformations.transform(graphicsHolder);
+				IDrawing.drawTexture(graphicsHolder, -0.5F, -logoSize / 2, 1, logoSize, (float) (lengthLeft - 1) / totalLength, 0, (float) lengthLeft / totalLength, 1, facing, color, light);
+				graphicsHolder.pop();
 			});
 		} else {
-			RenderTrains.scheduleRender(ClientData.DATA_CACHE.getStationName(stationName, totalLength).resourceLocation, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matrices, vertexConsumer) -> {
-				storedMatrixTransformations.transform(matrices);
-				IDrawing.drawTexture(matrices, vertexConsumer, -0.5F, -0.5F, 1, 1, (float) (lengthLeft - 1) / totalLength, 0, (float) lengthLeft / totalLength, 1, facing, color, light);
-				matrices.popPose();
+			RenderTrains.scheduleRender(DynamicTextureCache.instance.getStationName(stationName, totalLength).identifier, false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
+				storedMatrixTransformations.transform(graphicsHolder);
+				IDrawing.drawTexture(graphicsHolder, -0.5F, -0.5F, 1, 1, (float) (lengthLeft - 1) / totalLength, 0, (float) lengthLeft / totalLength, 1, facing, color, light);
+				graphicsHolder.pop();
 			});
 		}
 	}
 
-	private int getLength(BlockGetter world, BlockPos pos, boolean lookRight) {
+	private int getLength(@Nullable World world, BlockPos pos, boolean lookRight) {
 		if (world == null) {
 			return 1;
 		}
@@ -55,8 +51,8 @@ public class RenderStationNameTiled<T extends BlockStationNameBase.TileEntitySta
 
 		int length = 1;
 		while (true) {
-			final Block checkBlock = world.getBlockState(pos.relative(lookRight ? facing.getClockWise() : facing.getCounterClockWise(), length)).getBlock();
-			if (checkBlock instanceof BlockStationNameBase && checkBlock == thisBlock) {
+			final Block checkBlock = world.getBlockState(pos.offset(lookRight ? facing.rotateYClockwise() : facing.rotateYCounterclockwise(), length)).getBlock();
+			if (checkBlock.data instanceof BlockStationNameBase && checkBlock == thisBlock) {
 				length++;
 			} else {
 				break;

@@ -1,39 +1,35 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.BlockEntityTypes;
-import mtr.mappings.BlockEntityMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mod.BlockEntityTypes;
+
+import javax.annotation.Nonnull;
 
 public class BlockStationNameTallBlock extends BlockStationNameTallBase {
 
+	@Nonnull
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
-		final Tuple<Integer, Integer> bounds = getBounds(state);
-		return Shapes.or(IBlock.getVoxelShapeByDirection(2, bounds.getA(), 5, 14, bounds.getB(), 11, IBlock.getStatePropertySafe(state, FACING)), BlockStationColorPole.getStationPoleShape());
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		final ImmutablePair<Integer, Integer> bounds = getBounds(state);
+		return VoxelShapes.union(IBlock.getVoxelShapeByDirection(2, bounds.getLeft(), 5, 14, bounds.getRight(), 11, IBlock.getStatePropertySafe(state, FACING)), BlockStationColorPole.getStationPoleShape());
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		return IBlock.isReplaceable(ctx, Direction.UP, 3) ? defaultBlockState().setValue(FACING, ctx.getHorizontalDirection()).setValue(METAL, true).setValue(THIRD, EnumThird.LOWER) : null;
+	public BlockState getPlacementState2(ItemPlacementContext ctx) {
+		return IBlock.isReplaceable(ctx, Direction.UP, 3) ? getDefaultState2().with(new Property<>(FACING.data), ctx.getPlayerFacing().data).with(new Property<>(METAL.data), true).with(new Property<>(THIRD.data), EnumThird.LOWER) : null;
 	}
 
 	@Override
-	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
-		return new TileEntityStationNameTallBlock(pos, state);
+	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new BlockEntity(blockPos, blockState);
 	}
 
-	public static class TileEntityStationNameTallBlock extends TileEntityStationNameTallBase {
+	public static class BlockEntity extends BlockEntityTallBase {
 
-		public TileEntityStationNameTallBlock(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.STATION_NAME_TALL_BLOCK_TILE_ENTITY.get(), pos, state, 0.6875F, false);
+		public BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.STATION_NAME_TALL_BLOCK.get(), pos, state, 0.6875F, false);
 		}
 	}
 }

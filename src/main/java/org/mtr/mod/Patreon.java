@@ -1,11 +1,11 @@
-package mtr;
+package org.mtr.mod;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import mtr.data.IGui;
-import mtr.data.RailType;
+import org.mtr.mod.data.IGui;
+import org.mtr.mod.data.RailType;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -51,7 +51,7 @@ public class Patreon implements Keys, IGui, Comparable<Patreon> {
 			jsonObjectData.getAsJsonArray("data").forEach(jsonElementData -> {
 				final JsonObject jsonObjectAttributes = jsonElementData.getAsJsonObject().getAsJsonObject("attributes");
 				final JsonArray jsonObjectTiers = jsonElementData.getAsJsonObject().getAsJsonObject("relationships").getAsJsonObject("currently_entitled_tiers").getAsJsonArray("data");
-				if (!jsonObjectAttributes.get("patron_status").isJsonNull() && jsonObjectAttributes.get("patron_status").getAsString().equals("active_patron") && jsonObjectTiers.size() > 0) {
+				if (!jsonObjectAttributes.get("patron_status").isJsonNull() && jsonObjectAttributes.get("patron_status").getAsString().equals("active_patron") && !jsonObjectTiers.isEmpty()) {
 					patreonList.add(new Patreon(jsonObjectAttributes, idMap.get(jsonObjectTiers.get(0).getAsJsonObject().get("id").getAsString())));
 				}
 			});
@@ -82,7 +82,7 @@ public class Patreon implements Keys, IGui, Comparable<Patreon> {
 	public static void openConnectionSafeJson(String url, Consumer<JsonElement> callback, String... requestProperties) {
 		openConnectionSafe(url, inputStream -> {
 			try (final InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-				callback.accept(new JsonParser().parse(inputStreamReader));
+				callback.accept(JsonParser.parseReader(inputStreamReader));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

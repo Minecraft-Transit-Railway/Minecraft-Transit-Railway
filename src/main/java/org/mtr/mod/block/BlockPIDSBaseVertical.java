@@ -1,70 +1,56 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.data.IPIDS;
-import mtr.mappings.EntityBlockMapper;
-import mtr.mappings.Text;
-import mtr.packet.PacketTrainDataGuiServer;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.phys.BlockHitResult;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.mapper.BlockHelper;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mapping.registry.Registry;
+import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.packet.PacketOpenPIDSConfigScreen;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class BlockPIDSBaseVertical extends BlockDirectionalDoubleBlockBase implements EntityBlockMapper, IPIDS {
+public abstract class BlockPIDSBaseVertical extends BlockDirectionalDoubleBlockBase implements BlockWithEntity {
 
 	public BlockPIDSBaseVertical() {
-		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 5));
+		super(BlockHelper.createBlockSettings(true, blockState -> 5));
 	}
 
+	@Nonnull
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
+	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		final boolean isUpper = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
 		return IBlock.checkHoldingBrush(world, player, () -> {
-			final BlockPos finalPos = isUpper ? pos : pos.relative(Direction.Axis.Y, 1);
+			final BlockPos finalPos = isUpper ? pos : pos.offset(Axis.Y, 1);
 			final BlockEntity entity1 = world.getBlockEntity(finalPos);
 
-			if (entity1 instanceof BlockPIDSBaseVertical.TileEntityBlockPIDSBaseVertical) {
-				((BlockPIDSBaseVertical.TileEntityBlockPIDSBaseVertical) entity1).syncData();
-				PacketTrainDataGuiServer.openPIDSConfigScreenS2C((ServerPlayer) player, finalPos, finalPos, ((BlockPIDSBaseVertical.TileEntityBlockPIDSBaseVertical) entity1).getMaxArrivals(), ((BlockPIDSBaseVertical.TileEntityBlockPIDSBaseVertical) entity1).getLinesPerArrival());
+			if (entity1 != null && entity1.data instanceof BlockEntityVerticalBase) {
+				((BlockEntityVerticalBase) entity1.data).markDirty2();
+				Registry.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenPIDSConfigScreen(finalPos, finalPos, ((BlockEntityVerticalBase) entity1.data).getMaxArrivals(), ((BlockEntityVerticalBase) entity1.data).getLinesPerArrival()));
 			}
 		});
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
-		final BlockEntity blockEntity = createBlockEntity(new BlockPos(0, 0, 0), null);
-		if (blockEntity instanceof TileEntityPIDS) {
-			tooltip.add(Text.translatable("tooltip.mtr.arrivals", ((TileEntityPIDS) blockEntity).getMaxArrivals()).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
+		final BlockEntityExtension blockEntity = createBlockEntity(new BlockPos(0, 0, 0), Blocks.getAirMapped().getDefaultState());
+		if (blockEntity instanceof BlockEntityPIDS) {
+			tooltip.add(TextHelper.translatable("tooltip.mtr.arrivals", ((BlockEntityPIDS) blockEntity).getMaxArrivals()).formatted(TextFormatting.GRAY));
 		}
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, HALF);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(FACING);
+		properties.add(HALF);
 	}
 
-	public abstract static class TileEntityBlockPIDSBaseVertical extends TileEntityPIDS {
+	public abstract static class BlockEntityVerticalBase extends BlockEntityPIDS {
 
-		public TileEntityBlockPIDSBaseVertical(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		public BlockEntityVerticalBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
 		}
 

@@ -1,61 +1,54 @@
-package mtr.render;
+package org.mtr.mod.render;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.block.BlockStationNameBase;
-import mtr.block.IBlock;
-import mtr.client.ClientData;
-import mtr.client.IDrawing;
-import mtr.data.IGui;
-import mtr.data.RailwayData;
-import mtr.data.Station;
-import mtr.mappings.BlockEntityRendererMapper;
-import mtr.mappings.Text;
-import mtr.mappings.UtilitiesClient;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.state.BlockState;
+import org.mtr.core.data.Station;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockEntityRenderer;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mod.InitClient;
+import org.mtr.mod.block.BlockStationNameBase;
+import org.mtr.mod.block.IBlock;
+import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.data.IGui;
 
-public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileEntityStationNameBase> extends BlockEntityRendererMapper<T> implements IGui, IDrawing {
+public abstract class RenderStationNameBase<T extends BlockStationNameBase.BlockEntityBase> extends BlockEntityRenderer<T> implements IGui, IDrawing {
 
-	public RenderStationNameBase(BlockEntityRenderDispatcher dispatcher) {
+	public RenderStationNameBase(BlockEntityRendererArgument dispatcher) {
 		super(dispatcher);
 	}
 
 	@Override
-	public void render(T entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
-		final BlockGetter world = entity.getLevel();
+	public void render(T entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
+		final World world = entity.getWorld2();
 		if (world == null) {
 			return;
 		}
 
-		final BlockPos pos = entity.getBlockPos();
+		final BlockPos pos = entity.getPos2();
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
 		final int color = RenderRouteBase.getShadingColor(facing, entity.getColor(state));
 
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
-		storedMatrixTransformations.add(matricesNew -> {
-			matricesNew.translate(0.5 + entity.getBlockPos().getX(), 0.5 + entity.yOffset + entity.getBlockPos().getY(), 0.5 + entity.getBlockPos().getZ());
-			UtilitiesClient.rotateYDegrees(matricesNew, -facing.toYRot());
-			UtilitiesClient.rotateZDegrees(matricesNew, 180);
+		storedMatrixTransformations.add(graphicsHolderNew -> {
+			graphicsHolderNew.translate(0.5 + entity.getPos2().getX(), 0.5 + entity.yOffset + entity.getPos2().getY(), 0.5 + entity.getPos2().getZ());
+			graphicsHolderNew.rotateYDegrees(-facing.asRotation());
+			graphicsHolderNew.rotateZDegrees(180);
 		});
 
-		final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
+		final Station station = InitClient.findStation(pos);
 		for (int i = 0; i < (entity.isDoubleSided ? 2 : 1); i++) {
 			final StoredMatrixTransformations storedMatrixTransformations2 = storedMatrixTransformations.copy();
 			final boolean shouldFlip = i == 1;
-			storedMatrixTransformations2.add(matricesNew -> {
+			storedMatrixTransformations2.add(graphicsHolderNew -> {
 				if (shouldFlip) {
-					UtilitiesClient.rotateYDegrees(matricesNew, 180);
+					graphicsHolderNew.rotateYDegrees(180);
 				}
-				matricesNew.translate(0, 0, 0.5 - entity.zOffset - SMALL_OFFSET);
+				graphicsHolderNew.translate(0, 0, 0.5 - entity.zOffset - SMALL_OFFSET);
 			});
-			drawStationName(world, pos, state, facing, storedMatrixTransformations2, vertexConsumers, station == null ? Text.translatable("gui.mtr.untitled").getString() : station.name, station == null ? 0 : station.color, color, light);
+			drawStationName(world, pos, state, facing, storedMatrixTransformations2, station == null ? TextHelper.translatable("gui.mtr.untitled").getString() : station.getName(), station == null ? 0 : station.getColor(), color, light);
 		}
 	}
 
-	protected abstract void drawStationName(BlockGetter world, BlockPos pos, BlockState state, Direction facing, StoredMatrixTransformations storedMatrixTransformations, MultiBufferSource vertexConsumers, String stationName, int stationColor, int color, int light);
+	protected abstract void drawStationName(World world, BlockPos pos, BlockState state, Direction facing, StoredMatrixTransformations storedMatrixTransformations, String stationName, int stationColor, int color, int light);
 }

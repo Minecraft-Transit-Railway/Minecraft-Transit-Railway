@@ -1,120 +1,93 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.data.IPIDS;
-import mtr.mappings.BlockDirectionalMapper;
-import mtr.mappings.EntityBlockMapper;
-import mtr.mappings.Text;
-import mtr.packet.PacketTrainDataGuiServer;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.phys.BlockHitResult;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.registry.Registry;
+import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.packet.PacketOpenPIDSConfigScreen;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class BlockPIDSBaseHorizontal extends BlockDirectionalMapper implements EntityBlockMapper, IPIDS {
+public abstract class BlockPIDSBaseHorizontal extends BlockExtension implements DirectionHelper, BlockWithEntity {
 
 	public BlockPIDSBaseHorizontal() {
-		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 5));
+		super(BlockHelper.createBlockSettings(true, blockState -> 5));
 	}
 
+	@Nonnull
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
+	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
-			final BlockPos otherPos = pos.relative(IBlock.getStatePropertySafe(state, FACING));
+			final BlockPos otherPos = pos.offset(IBlock.getStatePropertySafe(state, FACING));
 			final BlockEntity entity1 = world.getBlockEntity(pos);
 			final BlockEntity entity2 = world.getBlockEntity(otherPos);
 
-			if (entity1 instanceof TileEntityBlockPIDSBaseHorizontal && entity2 instanceof TileEntityBlockPIDSBaseHorizontal) {
-				((TileEntityBlockPIDSBaseHorizontal) entity1).syncData();
-				((TileEntityBlockPIDSBaseHorizontal) entity2).syncData();
-				PacketTrainDataGuiServer.openPIDSConfigScreenS2C((ServerPlayer) player, pos, otherPos, ((TileEntityBlockPIDSBaseHorizontal) entity1).getMaxArrivals(), ((TileEntityBlockPIDSBaseHorizontal) entity1).getLinesPerArrival());
+			if (entity1 != null && entity2 != null && entity1.data instanceof BlockEntityHorizontalBase && entity2.data instanceof BlockEntityHorizontalBase) {
+				((BlockEntityHorizontalBase) entity1.data).markDirty2();
+				((BlockEntityHorizontalBase) entity2.data).markDirty2();
+				Registry.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenPIDSConfigScreen(pos, otherPos, ((BlockEntityHorizontalBase) entity1.data).getMaxArrivals(), ((BlockEntityHorizontalBase) entity1.data).getLinesPerArrival()));
 			}
 		});
 	}
 
+	@Nonnull
 	@Override
-	public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
-		if (IBlock.getStatePropertySafe(state, FACING) == direction && !newState.is(this)) {
-			return Blocks.AIR.defaultBlockState();
+	public BlockState getStateForNeighborUpdate2(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+		if (IBlock.getStatePropertySafe(state, FACING) == direction && !neighborState.isOf(new Block(this))) {
+			return Blocks.getAirMapped().getDefaultState();
 		} else {
 			return state;
 		}
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		final Direction direction = ctx.getHorizontalDirection().getOpposite();
-		return IBlock.isReplaceable(ctx, direction, 2) ? defaultBlockState().setValue(FACING, direction) : null;
+	public BlockState getPlacementState2(ItemPlacementContext ctx) {
+		final Direction direction = ctx.getPlayerFacing().getOpposite();
+		return IBlock.isReplaceable(ctx, direction, 2) ? getDefaultState2().with(new Property<>(FACING.data), direction.data) : null;
 	}
 
 	@Override
-	public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 		if (facing == Direction.SOUTH || facing == Direction.WEST) {
-			IBlock.onBreakCreative(world, player, pos.relative(facing));
+			IBlock.onBreakCreative(world, player, pos.offset(facing));
 		}
-		super.playerWillDestroy(world, pos, state, player);
+		super.onBreak2(world, pos, state, player);
 	}
 
 	@Override
-	public void setPlacedBy(Level world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
-		if (!world.isClientSide) {
+	public void onPlaced2(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+		if (!world.isClient()) {
 			final Direction direction = IBlock.getStatePropertySafe(state, FACING);
-			world.setBlock(pos.relative(direction), defaultBlockState().setValue(FACING, direction.getOpposite()), 3);
-			world.updateNeighborsAt(pos, Blocks.AIR);
-			state.updateNeighbourShapes(world, pos, 3);
+			world.setBlockState(pos.offset(direction), getDefaultState2().with(new Property<>(FACING.data), direction.getOpposite().data), 3);
+			world.updateNeighbors(pos, Blocks.getAirMapped());
+			state.updateNeighbors(new WorldAccess(world.data), pos, 3);
 			final BlockEntity entity1 = world.getBlockEntity(pos);
-			final BlockEntity entity2 = world.getBlockEntity(pos.relative(direction));
-			if (entity1 instanceof TileEntityBlockPIDSBaseHorizontal && entity2 instanceof TileEntityBlockPIDSBaseHorizontal) {
-				System.arraycopy(((TileEntityBlockPIDSBaseHorizontal) entity1).messages, 0, ((TileEntityBlockPIDSBaseHorizontal) entity2).messages, 0, Math.min(((TileEntityBlockPIDSBaseHorizontal) entity1).messages.length, ((TileEntityBlockPIDSBaseHorizontal) entity2).messages.length));
+			final BlockEntity entity2 = world.getBlockEntity(pos.offset(direction));
+			if (entity1 != null && entity2 != null && entity1.data instanceof BlockEntityHorizontalBase && entity2.data instanceof BlockEntityHorizontalBase) {
+				System.arraycopy(((BlockEntityHorizontalBase) entity1.data).messages, 0, ((BlockEntityHorizontalBase) entity2.data).messages, 0, Math.min(((BlockEntityHorizontalBase) entity1.data).messages.length, ((BlockEntityHorizontalBase) entity2.data).messages.length));
 			}
 		}
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
-		final BlockEntity blockEntity = createBlockEntity(new BlockPos(0, 0, 0), null);
-		if (blockEntity instanceof TileEntityPIDS) {
-			tooltip.add(Text.translatable("tooltip.mtr.arrivals", ((TileEntityPIDS) blockEntity).getMaxArrivals()).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
+		final BlockEntityExtension blockEntity = createBlockEntity(new BlockPos(0, 0, 0), Blocks.getAirMapped().getDefaultState());
+		if (blockEntity instanceof BlockEntityPIDS) {
+			tooltip.add(TextHelper.translatable("tooltip.mtr.arrivals", ((BlockEntityPIDS) blockEntity).getMaxArrivals()).formatted(TextFormatting.GRAY));
 		}
 	}
 
 	@Override
-	public PushReaction getPistonPushReaction(BlockState blockState) {
-		return PushReaction.BLOCK;
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(FACING);
 	}
 
-	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING);
-	}
+	public abstract static class BlockEntityHorizontalBase extends BlockEntityPIDS {
 
-	public abstract static class TileEntityBlockPIDSBaseHorizontal extends TileEntityPIDS {
-
-		public TileEntityBlockPIDSBaseHorizontal(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		public BlockEntityHorizontalBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
 		}
 

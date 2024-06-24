@@ -1,22 +1,19 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.SlabType;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.SlabBlockExtension;
 
 public class BlockStationColorGlassSlab extends BlockStationColorSlab {
 
-	public BlockStationColorGlassSlab(Properties settings) {
-		super(settings);
+	public BlockStationColorGlassSlab() {
+		super();
 	}
 
 	@Override
-	public boolean skipRendering(BlockState state, BlockState neighborState, Direction direction) {
-		if (neighborState.getBlock() instanceof BlockStationColorGlassSlab) {
-			final SlabType slabType = IBlock.getStatePropertySafe(state, TYPE);
-			final SlabType neighborSlabType = IBlock.getStatePropertySafe(neighborState, TYPE);
+	public boolean isSideInvisible2(BlockState state, BlockState neighborState, Direction direction) {
+		if (neighborState.getBlock().data instanceof BlockStationColorGlassSlab) {
+			final SlabType slabType = SlabBlockExtension.getType(state);
+			final SlabType neighborSlabType = SlabBlockExtension.getType(neighborState);
 			if (direction.getAxis().isHorizontal()) {
 				return slabType == neighborSlabType;
 			} else {
@@ -26,20 +23,20 @@ public class BlockStationColorGlassSlab extends BlockStationColorSlab {
 					return slabType != SlabType.TOP && neighborSlabType != SlabType.BOTTOM;
 				}
 			}
-		} else if (neighborState.getBlock() instanceof BlockStationColorGlass) {
-			return IBlock.getStatePropertySafe(state, TYPE) == SlabType.DOUBLE;
+		} else if (neighborState.getBlock().data instanceof BlockStationColorGlass) {
+			return SlabBlockExtension.getType(state) == SlabType.DOUBLE;
 		} else {
-			return super.skipRendering(state, neighborState, direction);
+			return super.isSideInvisible2(state, neighborState, direction);
 		}
 	}
 
 	@Override
-	public float getShadeBrightness(BlockState state, BlockGetter world, BlockPos pos) {
+	public float getAmbientOcclusionLightLevel2(BlockState state, BlockView world, BlockPos pos) {
 		return 1;
 	}
 
 	@Override
-	public boolean propagatesSkylightDown(BlockState state, BlockGetter world, BlockPos pos) {
+	public boolean isTranslucent2(BlockState state, BlockView world, BlockPos pos) {
 		return true;
 	}
 }

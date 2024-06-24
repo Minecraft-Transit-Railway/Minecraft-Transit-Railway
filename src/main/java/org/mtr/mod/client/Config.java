@@ -1,11 +1,11 @@
-package mtr.client;
+package org.mtr.mod.client;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import mtr.Patreon;
-import mtr.data.RailwayData;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.Mth;
+import org.mtr.mapping.holder.MathHelper;
+import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mod.Patreon;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,7 +31,7 @@ public class Config {
 	public static final int TRACK_OFFSET_COUNT = 32;
 	public static final int DYNAMIC_RESOLUTION_COUNT = 8;
 	public static final int TRAIN_RENDER_DISTANCE_RATIO_COUNT = 16;
-	private static final Path CONFIG_FILE_PATH = Minecraft.getInstance().gameDirectory.toPath().resolve("config").resolve("mtr.json");
+	private static final Path CONFIG_FILE_PATH = MinecraftClient.getInstance().getRunDirectoryMapped().toPath().resolve("config").resolve("mtr.json");
 	private static final String USE_MTR_FONT_KEY = "use_mtr_font";
 	private static final String SHOW_ANNOUNCEMENT_MESSAGES = "show_announcement_messages";
 	private static final String HIDE_SPECIAL_RAIL_COLORS = "hide_special_rail_colors";
@@ -136,24 +136,24 @@ public class Config {
 	}
 
 	public static void setTrackTextureOffset(int value) {
-		trackTextureOffset = Mth.clamp(value, 0, TRACK_OFFSET_COUNT - 1);
+		trackTextureOffset = MathHelper.clamp(value, 0, TRACK_OFFSET_COUNT - 1);
 		writeToFile();
 	}
 
 	public static void setDynamicTextureResolution(int value) {
-		dynamicTextureResolution = Mth.clamp(value, 0, DYNAMIC_RESOLUTION_COUNT - 1);
+		dynamicTextureResolution = MathHelper.clamp(value, 0, DYNAMIC_RESOLUTION_COUNT - 1);
 		writeToFile();
 	}
 
 	public static void setTrainRenderDistanceRatio(int value) {
-		trainRenderDistanceRatio = Mth.clamp(value, 0, TRAIN_RENDER_DISTANCE_RATIO_COUNT - 1);
+		trainRenderDistanceRatio = MathHelper.clamp(value, 0, TRAIN_RENDER_DISTANCE_RATIO_COUNT - 1);
 		writeToFile();
 	}
 
 	public static void refreshProperties() {
 		System.out.println("Refreshed MTR mod config");
 		try {
-			final JsonObject jsonConfig = new JsonParser().parse(String.join("", Files.readAllLines(CONFIG_FILE_PATH))).getAsJsonObject();
+			final JsonObject jsonConfig = JsonParser.parseString(String.join("", Files.readAllLines(CONFIG_FILE_PATH))).getAsJsonObject();
 			try {
 				useMTRFont = jsonConfig.get(USE_MTR_FONT_KEY).getAsBoolean();
 			} catch (Exception ignored) {
@@ -183,15 +183,15 @@ public class Config {
 			} catch (Exception ignored) {
 			}
 			try {
-				trackTextureOffset = Mth.clamp(jsonConfig.get(TRACK_TEXTURE_OFFSET).getAsInt(), 0, TRACK_OFFSET_COUNT - 1);
+				trackTextureOffset = MathHelper.clamp(jsonConfig.get(TRACK_TEXTURE_OFFSET).getAsInt(), 0, TRACK_OFFSET_COUNT - 1);
 			} catch (Exception ignored) {
 			}
 			try {
-				dynamicTextureResolution = Mth.clamp(jsonConfig.get(DYNAMIC_TEXTURE_RESOLUTION).getAsInt(), 0, DYNAMIC_RESOLUTION_COUNT - 1);
+				dynamicTextureResolution = MathHelper.clamp(jsonConfig.get(DYNAMIC_TEXTURE_RESOLUTION).getAsInt(), 0, DYNAMIC_RESOLUTION_COUNT - 1);
 			} catch (Exception ignored) {
 			}
 			try {
-				trainRenderDistanceRatio = Mth.clamp(jsonConfig.get(TRAIN_RENDER_DISTANCE_RATIO).getAsInt(), 0, TRAIN_RENDER_DISTANCE_RATIO_COUNT - 1);
+				trainRenderDistanceRatio = MathHelper.clamp(jsonConfig.get(TRAIN_RENDER_DISTANCE_RATIO).getAsInt(), 0, TRAIN_RENDER_DISTANCE_RATIO_COUNT - 1);
 			} catch (Exception ignored) {
 			}
 		} catch (Exception e) {
@@ -215,7 +215,7 @@ public class Config {
 		jsonConfig.addProperty(TRAIN_RENDER_DISTANCE_RATIO, trainRenderDistanceRatio);
 
 		try {
-			Files.write(CONFIG_FILE_PATH, Collections.singleton(RailwayData.prettyPrint(jsonConfig)));
+			Files.write(CONFIG_FILE_PATH, Collections.singleton(new GsonBuilder().setPrettyPrinting().create().toJson(jsonConfig)));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

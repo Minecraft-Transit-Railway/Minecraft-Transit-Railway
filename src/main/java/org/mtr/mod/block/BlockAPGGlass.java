@@ -1,59 +1,57 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.BlockEntityTypes;
-import mtr.Items;
-import mtr.mappings.BlockEntityMapper;
-import mtr.mappings.EntityBlockMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.phys.BlockHitResult;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.BlockEntityTypes;
+import org.mtr.mod.Items;
 
-public class BlockAPGGlass extends BlockPSDAPGGlassBase implements EntityBlockMapper {
+import javax.annotation.Nonnull;
+import java.util.List;
 
-	public static final IntegerProperty ARROW_DIRECTION = IntegerProperty.create("propagate_property", 0, 3);
+public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockWithEntity {
 
+	public static final IntegerProperty ARROW_DIRECTION = IntegerProperty.of("propagate_property", 0, 3);
+
+	@Nonnull
 	@Override
-	public Item asItem() {
+	public Item asItem2() {
 		return Items.APG_GLASS.get();
 	}
 
+	@Nonnull
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
-		final double y = blockHitResult.getLocation().y;
+	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		final double y = hit.getPos().getYMapped();
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER && y - Math.floor(y) > 0.21875) {
 			return IBlock.checkHoldingBrush(world, player, () -> {
-				world.setBlockAndUpdate(pos, state.cycle(ARROW_DIRECTION));
-				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getClockWise(), ARROW_DIRECTION, 3);
-				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), ARROW_DIRECTION, 3);
+				world.setBlockState(pos, state.cycle(new Property<>(ARROW_DIRECTION.data)));
+				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise(), new Property<>(ARROW_DIRECTION.data), 3);
+				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise(), new Property<>(ARROW_DIRECTION.data), 3);
 			});
 		} else {
-			return super.use(state, world, pos, player, interactionHand, blockHitResult);
+			return super.onUse2(state, world, pos, player, hand, hit);
 		}
 	}
 
 	@Override
-	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
-		return new TileEntityAPGGlass(pos, state);
+	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new BlockEntity(blockPos, blockState);
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, HALF, SIDE_EXTENDED, ARROW_DIRECTION);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(FACING);
+		properties.add(HALF);
+		properties.add(SIDE_EXTENDED);
+		properties.add(ARROW_DIRECTION);
 	}
 
-	public static class TileEntityAPGGlass extends BlockPSDTop.TileEntityRouteBase {
+	public static class BlockEntity extends BlockPSDTop.BlockEntityBase {
 
-		public TileEntityAPGGlass(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.APG_GLASS_TILE_ENTITY.get(), pos, state);
+		public BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.APG_GLASS.get(), pos, state);
 		}
 	}
 }

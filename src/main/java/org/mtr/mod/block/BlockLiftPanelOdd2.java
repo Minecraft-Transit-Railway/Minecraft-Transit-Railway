@@ -1,12 +1,12 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.BlockEntityTypes;
-import mtr.mappings.BlockEntityMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
+import org.mtr.mapping.holder.BlockPos;
+import org.mtr.mapping.holder.BlockState;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.BlockEntityTypes;
+
+import java.util.List;
 
 public class BlockLiftPanelOdd2 extends BlockLiftPanelBase {
 
@@ -15,24 +15,21 @@ public class BlockLiftPanelOdd2 extends BlockLiftPanelBase {
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, ODD, SIDE);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(FACING);
+		properties.add(ODD);
+		properties.add(SIDE);
 	}
 
 	@Override
-	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
-		return new TileEntityLiftPanelOdd2(pos, state);
+	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new BlockEntity(blockPos, blockState);
 	}
 
-	@Override
-	public BlockEntityType<? extends BlockEntityMapper> getType() {
-		return BlockEntityTypes.LIFT_PANEL_ODD_2_TILE_ENTITY.get();
-	}
+	public static class BlockEntity extends BlockEntityBase {
 
-	public static class TileEntityLiftPanelOdd2 extends TileEntityLiftPanel1Base {
-
-		public TileEntityLiftPanelOdd2(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_PANEL_ODD_2_TILE_ENTITY.get(), pos, state, true);
+		public BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.LIFT_PANEL_ODD_2.get(), pos, state, true);
 		}
 	}
 }

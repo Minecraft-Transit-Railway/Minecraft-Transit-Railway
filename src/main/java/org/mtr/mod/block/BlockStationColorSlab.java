@@ -1,29 +1,28 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.mappings.Text;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.SlabBlock;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockHelper;
+import org.mtr.mapping.mapper.SlabBlockExtension;
+import org.mtr.mapping.mapper.TextHelper;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
-public class BlockStationColorSlab extends SlabBlock {
+public class BlockStationColorSlab extends SlabBlockExtension {
 
-	public BlockStationColorSlab(Properties settings) {
-		super(settings);
+	public BlockStationColorSlab() {
+		super(BlockHelper.createBlockSettings(false));
+	}
+
+	@Nonnull
+	@Override
+	public String getTranslationKey2() {
+		return super.getTranslationKey2().replace("block.mtr.station_color_", "block.minecraft.");
 	}
 
 	@Override
-	public String getDescriptionId() {
-		return super.getDescriptionId().replace("block.mtr.station_color_", "block.minecraft.");
-	}
-
-	@Override
-	public void appendHoverText(ItemStack itemStack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
-		tooltip.add(Text.translatable("tooltip.mtr.station_color").setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
+		tooltip.add(TextHelper.translatable("tooltip.mtr.station_color").formatted(TextFormatting.GRAY));
 	}
 }

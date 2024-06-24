@@ -1,16 +1,18 @@
-package mtr.client;
+package org.mtr.mod.client;
 
-import mtr.mappings.Text;
-import mtr.render.JonModelTrainRenderer;
-import mtr.render.TrainRendererBase;
-import mtr.sound.JonTrainSound;
-import mtr.sound.TrainSoundBase;
-import net.minecraft.network.chat.Component;
+import org.mtr.mapping.holder.MutableText;
+import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mod.render.LegacyVehicleRenderer;
+import org.mtr.mod.sound.LegacyVehicleSound;
+import org.mtr.mod.sound.LegacyVehicleSoundConfig;
+import org.mtr.mod.sound.VehicleSoundBase;
+
+import javax.annotation.Nullable;
 
 public class TrainProperties {
 
 	public final String baseTrainType;
-	public final Component name;
+	public final MutableText name;
 	public final String description;
 	public final String wikipediaArticle;
 	public final int color;
@@ -19,10 +21,10 @@ public class TrainProperties {
 	public final float bogiePosition;
 	public final boolean isJacobsBogie;
 	public final boolean hasGangwayConnection;
-	public final TrainRendererBase renderer;
-	public final TrainSoundBase sound;
+	public final LegacyVehicleRenderer legacyVehicleRenderer;
+	public final VehicleSoundBase vehicleSound;
 
-	public TrainProperties(String baseTrainType, Component name, String description, String wikipediaArticle, int color, float riderOffset, float riderOffsetDismounting, float bogiePosition, boolean isJacobsBogie, boolean hasGangwayConnection, TrainRendererBase renderer, TrainSoundBase sound) {
+	public TrainProperties(String baseTrainType, MutableText name, @Nullable String description, @Nullable String wikipediaArticle, int color, float riderOffset, float riderOffsetDismounting, float bogiePosition, boolean isJacobsBogie, boolean hasGangwayConnection, LegacyVehicleRenderer legacyVehicleRenderer, VehicleSoundBase vehicleSound) {
 		this.baseTrainType = baseTrainType;
 		this.name = name;
 		this.description = description;
@@ -33,15 +35,24 @@ public class TrainProperties {
 		this.bogiePosition = bogiePosition;
 		this.isJacobsBogie = isJacobsBogie;
 		this.hasGangwayConnection = hasGangwayConnection;
-		this.renderer = renderer;
-		this.sound = sound;
+		this.legacyVehicleRenderer = legacyVehicleRenderer;
+		this.vehicleSound = vehicleSound;
 	}
 
 	public static TrainProperties getBlankProperties() {
 		return new TrainProperties(
-				"", Text.translatable(""), null, null, 0, 0, 0, 0, false, false,
-				new JonModelTrainRenderer(null, "", "", ""),
-				new JonTrainSound("", new JonTrainSound.JonTrainSoundConfig(null, 0, 0.5F, false))
+				"",
+				TextHelper.translatable(""),
+				null,
+				null,
+				0,
+				0,
+				0,
+				0,
+				false,
+				false,
+				new LegacyVehicleRenderer(null, "", "", ""),
+				new LegacyVehicleSound("", new LegacyVehicleSoundConfig(null, 0, 0.5F, false))
 		);
 	}
 }

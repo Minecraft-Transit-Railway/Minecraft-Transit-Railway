@@ -1,32 +1,27 @@
-package mtr.render;
+package org.mtr.mod.render;
 
-import mtr.block.BlockStationNameTallBase;
-import mtr.block.IBlock;
-import mtr.client.ClientData;
-import mtr.client.IDrawing;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.state.BlockState;
+import org.mtr.mapping.holder.*;
+import org.mtr.mod.block.BlockStationNameTallBase;
+import org.mtr.mod.block.IBlock;
+import org.mtr.mod.client.DynamicTextureCache;
+import org.mtr.mod.client.IDrawing;
 
-public class RenderStationNameTall<T extends BlockStationNameTallBase.TileEntityStationNameTallBase> extends RenderStationNameBase<T> {
+public class RenderStationNameTall<T extends BlockStationNameTallBase.BlockEntityTallBase> extends RenderStationNameBase<T> {
 
 	private static final float WIDTH = 0.6875F;
 	private static final float HEIGHT = 1.5F;
 
-	public RenderStationNameTall(BlockEntityRenderDispatcher dispatcher) {
+	public RenderStationNameTall(BlockEntityRendererArgument dispatcher) {
 		super(dispatcher);
 	}
 
 	@Override
-	protected void drawStationName(BlockGetter world, BlockPos pos, BlockState state, Direction facing, StoredMatrixTransformations storedMatrixTransformations, MultiBufferSource vertexConsumers, String stationName, int stationColor, int color, int light) {
+	protected void drawStationName(World world, BlockPos pos, BlockState state, Direction facing, StoredMatrixTransformations storedMatrixTransformations, String stationName, int stationColor, int color, int light) {
 		if (IBlock.getStatePropertySafe(state, BlockStationNameTallBase.THIRD) == IBlock.EnumThird.MIDDLE) {
-			RenderTrains.scheduleRender(ClientData.DATA_CACHE.getTallStationName(color, stationName, stationColor, WIDTH / HEIGHT).resourceLocation, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matrices, vertexConsumer) -> {
-				storedMatrixTransformations.transform(matrices);
-				IDrawing.drawTexture(matrices, vertexConsumer, -WIDTH / 2, -HEIGHT / 2, WIDTH, HEIGHT, 0, 0, 1, 1, facing, ARGB_WHITE, light);
-				matrices.popPose();
+			RenderTrains.scheduleRender(DynamicTextureCache.instance.getTallStationName(color, stationName, stationColor, WIDTH / HEIGHT).identifier, false, RenderTrains.QueuedRenderLayer.EXTERIOR, graphicsHolder -> {
+				storedMatrixTransformations.transform(graphicsHolder);
+				IDrawing.drawTexture(graphicsHolder, -WIDTH / 2, -HEIGHT / 2, WIDTH, HEIGHT, 0, 0, 1, 1, facing, ARGB_WHITE, light);
+				graphicsHolder.pop();
 			});
 		}
 	}

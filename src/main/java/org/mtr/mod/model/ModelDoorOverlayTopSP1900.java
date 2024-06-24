@@ -1,48 +1,44 @@
-package mtr.model;
+package org.mtr.mod.model;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.mappings.ModelDataWrapper;
-import mtr.mappings.ModelMapper;
-import mtr.render.MoreRenderLayers;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.resources.ResourceLocation;
+import org.mtr.init.MTR;
+import org.mtr.mapping.holder.Identifier;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.ModelPartExtension;
+import org.mtr.mod.render.MoreRenderLayers;
 
 public class ModelDoorOverlayTopSP1900 extends ModelDoorOverlayTopBase {
 
-	private final ModelMapper bb_main;
-	private final ModelMapper outer_roof_2_r1;
-	private final ModelMapper outer_roof_1_r1;
+	private final ModelPartExtension bb_main;
+	private final ModelPartExtension outer_roof_2_r1;
+	private final ModelPartExtension outer_roof_1_r1;
 
-	private static final ResourceLocation TEXTURE_ID = new ResourceLocation("mtr:textures/block/sign/door_overlay_sp1900_top.png");
+	private static final Identifier TEXTURE_ID = new Identifier(MTR.MOD_ID, "textures/block/sign/door_overlay_sp1900_top.png");
 
 	public ModelDoorOverlayTopSP1900() {
-		final int textureWidth = 24;
-		final int textureHeight = 3;
+		super(24, 3);
 
-		final ModelDataWrapper modelDataWrapper = new ModelDataWrapper(this, textureWidth, textureHeight);
-
-		bb_main = new ModelMapper(modelDataWrapper);
-		bb_main.setPos(0, 24, 0);
+		bb_main = createModelPart();
+		bb_main.setPivot(0, 24, 0);
 
 
-		outer_roof_2_r1 = new ModelMapper(modelDataWrapper);
-		outer_roof_2_r1.setPos(-20, -14, 0);
+		outer_roof_2_r1 = createModelPart();
+		outer_roof_2_r1.setPivot(-20, -14, 0);
 		bb_main.addChild(outer_roof_2_r1);
 		ModelTrainBase.setRotationAngle(outer_roof_2_r1, 0, 3.1416F, 0.1107F);
-		outer_roof_2_r1.texOffs(0, -12).addBox(1.1F, -21, 0, 0, 3, 12, 0, false);
+		outer_roof_2_r1.setTextureUVOffset(0, -12).addCuboid(1.1F, -21, 0, 0, 3, 12, 0, false);
 
-		outer_roof_1_r1 = new ModelMapper(modelDataWrapper);
-		outer_roof_1_r1.setPos(-20, -14, 0);
+		outer_roof_1_r1 = createModelPart();
+		outer_roof_1_r1.setPivot(-20, -14, 0);
 		bb_main.addChild(outer_roof_1_r1);
 		ModelTrainBase.setRotationAngle(outer_roof_1_r1, 0, 0, 0.1107F);
-		outer_roof_1_r1.texOffs(0, -12).addBox(-1.1F, -21, 0, 0, 3, 12, 0, false);
+		outer_roof_1_r1.setTextureUVOffset(0, -12).addCuboid(-1.1F, -21, 0, 0, 3, 12, 0, false);
 
-		modelDataWrapper.setModelPart(textureWidth, textureHeight);
-		bb_main.setModelPart();
+		buildModel();
 	}
 
 	@Override
-	public void render(PoseStack matrices, MultiBufferSource vertexConsumers, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
-		ModelTrainBase.renderMirror(bb_main, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(TEXTURE_ID)), light, position);
+	public void renderNew(GraphicsHolder graphicsHolder, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
+		graphicsHolder.createVertexConsumer(MoreRenderLayers.getExterior(TEXTURE_ID));
+		ModelTrainBase.renderMirror(bb_main, graphicsHolder, light, position);
 	}
 }

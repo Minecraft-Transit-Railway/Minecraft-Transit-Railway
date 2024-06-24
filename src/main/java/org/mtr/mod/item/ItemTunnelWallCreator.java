@@ -1,20 +1,22 @@
-package mtr.item;
+package org.mtr.mod.item;
 
-import mtr.data.RailwayData;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
+import org.mtr.mapping.holder.*;
+import org.mtr.mod.Init;
 
 public class ItemTunnelWallCreator extends ItemNodeModifierSelectableBlockBase {
 
-	public ItemTunnelWallCreator(int height, int width) {
-		super(true, height, width);
+	public ItemTunnelWallCreator(int height, int width, ItemSettings itemSettings) {
+		super(true, height, width, itemSettings);
 	}
 
 	@Override
-	protected boolean onConnect(Player player, ItemStack stack, RailwayData railwayData, BlockPos posStart, BlockPos posEnd, int radius, int height) {
+	protected boolean onConnect(ServerPlayerEntity serverPlayerEntity, ItemStack stack, BlockPos posStart, BlockPos posEnd, int radius, int height) {
 		final BlockState state = getSavedState(stack);
-		return state == null || railwayData.railwayDataRailActionsModule.markRailForTunnelWall(player, posStart, posEnd, radius, height, state);
+		if (state == null) {
+			return true;
+		}
+		final boolean[] success = {false};
+		Init.getRailActionModule(serverPlayerEntity.getServerWorld(), railActionModule -> success[0] = railActionModule.markRailForTunnelWall(serverPlayerEntity, posStart, posEnd, radius, height, state));
+		return success[0];
 	}
 }

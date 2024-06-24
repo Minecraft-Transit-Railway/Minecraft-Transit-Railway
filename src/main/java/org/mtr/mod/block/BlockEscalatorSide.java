@@ -1,53 +1,48 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.tool.HolderBase;
+
+import javax.annotation.Nonnull;
+import java.util.List;
 
 public class BlockEscalatorSide extends BlockEscalatorBase {
 
+	@Nonnull
 	@Override
-	public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
-		if (direction == Direction.DOWN && !(world.getBlockState(pos.below()).getBlock() instanceof BlockEscalatorStep)) {
-			return Blocks.AIR.defaultBlockState();
+	public BlockState getStateForNeighborUpdate2(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+		if (direction == Direction.DOWN && !(world.getBlockState(pos.down()).getBlock().data instanceof BlockEscalatorStep)) {
+			return Blocks.getAirMapped().getDefaultState();
 		} else {
-			return super.updateShape(state, direction, newState, world, pos, posFrom);
+			return super.getStateForNeighborUpdate2(state, direction, neighborState, world, pos, neighborPos);
 		}
 	}
 
+	@Nonnull
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-		return Shapes.join(getShape(state, world, pos, context), super.getCollisionShape(state, world, pos, context), BooleanOp.AND);
+	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return VoxelShapes.union(getOutlineShape2(state, world, pos, context), super.getCollisionShape2(state, world, pos, context));
+	}
+
+	@Nonnull
+	@Override
+	public VoxelShape getCameraCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return VoxelShapes.empty();
 	}
 
 	@Override
-	public VoxelShape getVisualShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
-		return Shapes.empty();
-	}
-
-	@Override
-	public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
-		BlockPos offsetPos = pos.below();
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+		BlockPos offsetPos = pos.down();
 		if (IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT) {
-			offsetPos = offsetPos.relative(IBlock.getSideDirection(state));
+			offsetPos = offsetPos.offset(IBlock.getSideDirection(state));
 		}
 		IBlock.onBreakCreative(world, player, offsetPos);
-		super.playerWillDestroy(world, pos, state, player);
+		super.onBreak2(world, pos, state, player);
 	}
 
+	@Nonnull
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext collisionContext) {
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final EnumEscalatorOrientation orientation = getOrientation(world, pos, state);
 		final boolean isBottom = orientation == EnumEscalatorOrientation.LANDING_BOTTOM;
 		final boolean isTop = orientation == EnumEscalatorOrientation.LANDING_TOP;
@@ -56,7 +51,9 @@ public class BlockEscalatorSide extends BlockEscalatorBase {
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, ORIENTATION, SIDE);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(FACING);
+		properties.add(ORIENTATION);
+		properties.add(SIDE);
 	}
 }

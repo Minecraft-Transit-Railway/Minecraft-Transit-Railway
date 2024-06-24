@@ -1,83 +1,68 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.data.IPIDSRenderChild;
-import mtr.mappings.BlockDirectionalMapper;
-import mtr.mappings.BlockEntityClientSerializableMapper;
-import mtr.mappings.EntityBlockMapper;
-import mtr.packet.PacketTrainDataGuiServer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.registry.Registry;
+import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.data.IPIDSRenderChild;
+import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-public abstract class BlockArrivalProjectorBase extends BlockDirectionalMapper implements EntityBlockMapper {
+public abstract class BlockArrivalProjectorBase extends BlockExtension implements DirectionHelper, BlockWithEntity {
 
 	public BlockArrivalProjectorBase() {
-		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 5).noOcclusion());
+		super(BlockHelper.createBlockSettings(true, blockState -> 5));
 	}
 
+	@Nonnull
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
+	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			final BlockEntity entity = world.getBlockEntity(pos);
 
-			if (entity instanceof TileEntityArrivalProjectorBase) {
-				((TileEntityArrivalProjectorBase) entity).syncData();
-				PacketTrainDataGuiServer.openArrivalProjectorConfigScreenS2C((ServerPlayer) player, pos);
+			if (entity != null && entity.data instanceof BlockEntityBase) {
+				((BlockEntityBase) entity.data).markDirty2();
+				Registry.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(pos));
 			}
 		});
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		final Direction side = ctx.getClickedFace();
+	public BlockState getPlacementState2(ItemPlacementContext ctx) {
+		final Direction side = ctx.getSide();
 		if (side != Direction.UP && side != Direction.DOWN) {
-			return defaultBlockState().setValue(FACING, side.getOpposite());
+			return getDefaultState2().with(new Property<>(FACING.data), side.getOpposite().data);
 		} else {
 			return null;
 		}
 	}
 
+	@Nonnull
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, facing);
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(FACING);
 	}
 
-	public static class TileEntityArrivalProjectorBase extends BlockEntityClientSerializableMapper implements IPIDSRenderChild {
+	public static class BlockEntityBase extends BlockEntityExtension implements IPIDSRenderChild {
 
-		private final Set<Long> platformIds = new HashSet<>();
+		private final LongAVLTreeSet platformIds = new LongAVLTreeSet();
 		private int displayPage;
 
 		private static final String KEY_PLATFORM_IDS = "platform_ids";
 		private static final String KEY_DISPLAY_PAGE = "display_page";
 
-		public TileEntityArrivalProjectorBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		public BlockEntityBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
 		}
 
@@ -97,7 +82,7 @@ public abstract class BlockArrivalProjectorBase extends BlockDirectionalMapper i
 			compoundTag.putInt(KEY_DISPLAY_PAGE, displayPage);
 		}
 
-		public Set<Long> getPlatformIds() {
+		public LongAVLTreeSet getPlatformIds() {
 			return platformIds;
 		}
 
@@ -109,8 +94,7 @@ public abstract class BlockArrivalProjectorBase extends BlockDirectionalMapper i
 			this.platformIds.clear();
 			this.platformIds.addAll(platformIds);
 			this.displayPage = displayPage;
-			setChanged();
-			syncData();
+			markDirty2();
 		}
 	}
 }

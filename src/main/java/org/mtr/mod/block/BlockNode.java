@@ -1,99 +1,67 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.BlockEntityTypes;
-import mtr.data.RailAngle;
-import mtr.data.RailwayData;
-import mtr.data.TransportMode;
-import mtr.mappings.BlockDirectionalMapper;
-import mtr.mappings.BlockEntityMapper;
-import mtr.mappings.EntityBlockMapper;
-import mtr.mappings.Text;
-import mtr.packet.PacketTrainDataGuiServer;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.mtr.core.data.TransportMode;
+import org.mtr.core.tools.Angle;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.BlockEntityTypes;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
-public class BlockNode extends BlockDirectionalMapper {
+public class BlockNode extends BlockExtension implements DirectionHelper {
 
 	public final TransportMode transportMode;
 
-	public static final BooleanProperty FACING = BooleanProperty.create("facing");
-	public static final BooleanProperty IS_22_5 = BooleanProperty.create("is_22_5");
-	public static final BooleanProperty IS_45 = BooleanProperty.create("is_45");
-	public static final BooleanProperty IS_CONNECTED = BooleanProperty.create("is_connected");
+	public static final BooleanProperty FACING = BooleanProperty.of("facing");
+	public static final BooleanProperty IS_22_5 = BooleanProperty.of("is_22_5");
+	public static final BooleanProperty IS_45 = BooleanProperty.of("is_45");
+	public static final BooleanProperty IS_CONNECTED = BooleanProperty.of("is_connected");
 
 	public BlockNode(TransportMode transportMode) {
-		super(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).strength(2).noOcclusion());
+		super(BlockHelper.createBlockSettings(true));
 		this.transportMode = transportMode;
-		registerDefaultState(defaultBlockState().setValue(FACING, false).setValue(IS_22_5, false).setValue(IS_45, false));
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		final int quadrant = RailAngle.getQuadrant(ctx.getRotation(), true);
-		return defaultBlockState().setValue(FACING, quadrant % 8 >= 4).setValue(IS_45, quadrant % 4 >= 2).setValue(IS_22_5, quadrant % 2 >= 1).setValue(IS_CONNECTED, false);
+	public BlockState getPlacementState2(ItemPlacementContext ctx) {
+		final int quadrant = Angle.getQuadrant(ctx.getPlayerYaw(), true);
+		return getDefaultState2().with(new Property<>(FACING.data), quadrant % 8 >= 4).with(new Property<>(IS_45.data), quadrant % 4 >= 2).with(new Property<>(IS_22_5.data), quadrant % 2 >= 1).with(new Property<>(IS_CONNECTED.data), false);
 	}
 
 	@Override
-	public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
-		if (!world.isClientSide) {
-			final RailwayData railwayData = RailwayData.getInstance(world);
-			if (railwayData != null) {
-				railwayData.removeNode(player, pos, transportMode);
-				PacketTrainDataGuiServer.removeNodeS2C(world, pos);
-			}
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+		if (!world.isClient()) {
+			// TODO
 		}
 	}
 
+	@Nonnull
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
-		return IBlock.getStatePropertySafe(state, IS_CONNECTED) ? Block.box(0, 0, 0, 16, 1, 16) : Shapes.block();
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return IBlock.getStatePropertySafe(state, IS_CONNECTED) ? Block.createCuboidShape(0, 0, 0, 16, 1, 16) : VoxelShapes.fullCube();
+	}
+
+	@Nonnull
+	@Override
+	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return VoxelShapes.empty();
 	}
 
 	@Override
-	public VoxelShape getCollisionShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
-		return Shapes.empty();
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(FACING);
+		properties.add(IS_22_5);
+		properties.add(IS_45);
+		properties.add(IS_CONNECTED);
 	}
 
-	@Override
-	public PushReaction getPistonPushReaction(BlockState blockState) {
-		return PushReaction.BLOCK;
-	}
-
-	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, IS_22_5, IS_45, IS_CONNECTED);
-	}
-
-	public static void resetRailNode(Level world, BlockPos pos) {
+	public static void resetRailNode(World world, BlockPos pos) {
 		final BlockState state = world.getBlockState(pos);
-		if (state.getBlock() instanceof BlockNode) {
-			world.setBlockAndUpdate(pos, state.setValue(BlockNode.IS_CONNECTED, false));
+		if (state.getBlock().data instanceof BlockNode) {
+			world.setBlockState(pos, state.with(new Property<>(BlockNode.IS_CONNECTED.data), false));
 		}
 	}
 
@@ -101,37 +69,22 @@ public class BlockNode extends BlockDirectionalMapper {
 		return (IBlock.getStatePropertySafe(state, BlockNode.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(state, BlockNode.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockNode.IS_45) ? 45 : 0);
 	}
 
-	public static class BlockBoatNode extends BlockNode implements EntityBlockMapper {
+	public static class BlockBoatNode extends BlockNode implements BlockWithEntity {
 
 		public BlockBoatNode() {
 			super(TransportMode.BOAT);
 		}
 
 		@Override
-		public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
-			if (state.canSurvive(world, pos)) {
-				return state;
-			} else {
-				return Blocks.AIR.defaultBlockState();
-			}
-		}
-
-		@Override
-		public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
-			final BlockPos posBelow = pos.below();
-			return (world.getFluidState(posBelow).getType() != Fluids.EMPTY || world.getBlockState(posBelow).getMaterial() == Material.ICE) && world.getFluidState(pos).getType() == Fluids.EMPTY;
-		}
-
-		@Override
-		public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
-			return new TileEntityBoatNode(pos, state);
+		public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
+			return new BlockEntity(blockPos, blockState);
 		}
 	}
 
-	public static class TileEntityBoatNode extends BlockEntityMapper {
+	public static class BlockEntity extends BlockEntityExtension {
 
-		public TileEntityBoatNode(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.BOAT_NODE_TILE_ENTITY.get(), pos, state);
+		public BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.BOAT_NODE.get(), pos, state);
 		}
 	}
 
@@ -147,21 +100,22 @@ public class BlockNode extends BlockDirectionalMapper {
 		}
 
 		@Override
-		public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-			final int quadrant = RailAngle.getQuadrant(ctx.getRotation(), false);
-			return defaultBlockState().setValue(FACING, quadrant % 4 >= 2).setValue(IS_45, quadrant % 2 >= 1).setValue(IS_22_5, false).setValue(IS_CONNECTED, false);
+		public BlockState getPlacementState2(ItemPlacementContext ctx) {
+			final int quadrant = Angle.getQuadrant(ctx.getPlayerYaw(), false);
+			return getDefaultState2().with(new Property<>(FACING.data), quadrant % 4 >= 2).with(new Property<>(IS_45.data), quadrant % 2 >= 1).with(new Property<>(IS_22_5.data), false).with(new Property<>(IS_CONNECTED.data), false);
+		}
+
+		@Nonnull
+		@Override
+		public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+			return Block.createCuboidShape(0, upper ? 8 : 0, 0, 16, upper ? 16 : 8, 16);
 		}
 
 		@Override
-		public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
-			return Block.box(0, upper ? 8 : 0, 0, 16, upper ? 16 : 8, 16);
-		}
-
-		@Override
-		public void appendHoverText(ItemStack itemStack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
-			final String[] strings = Text.translatable("tooltip.mtr.cable_car_node" + (isStation ? "_station" : "")).getString().split("\n");
+		public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
+			final String[] strings = TextHelper.translatable("tooltip.mtr.cable_car_node" + (isStation ? "_station" : "")).getString().split("\n");
 			for (final String string : strings) {
-				tooltip.add(Text.literal(string).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+				tooltip.add(TextHelper.literal(string).formatted(TextFormatting.GRAY));
 			}
 		}
 	}

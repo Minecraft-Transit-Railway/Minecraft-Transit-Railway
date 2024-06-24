@@ -1,49 +1,51 @@
-package mtr.model;
+package org.mtr.mod.model;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import mtr.MTRClient;
-import mtr.client.DoorAnimationType;
-import mtr.client.ScrollingText;
-import mtr.data.*;
-import mtr.mappings.ModelMapper;
-import mtr.render.MoreRenderLayers;
-import mtr.render.RenderTrains;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.render.OverlayTexture;
+import org.mtr.core.data.InterchangeColorsForStationName;
+import org.mtr.core.data.NameColorDataBase;
+import org.mtr.mapping.holder.EntityAbstractMapping;
+import org.mtr.mapping.holder.Identifier;
+import org.mtr.mapping.mapper.EntityModelExtension;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.ModelPartExtension;
+import org.mtr.mod.InitClient;
+import org.mtr.mod.client.DoorAnimationType;
+import org.mtr.mod.client.ScrollingText;
+import org.mtr.mod.data.IGui;
+import org.mtr.mod.data.VehicleExtension;
+import org.mtr.mod.render.MoreRenderLayers;
+import org.mtr.mod.render.RenderTrains;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
-public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui {
+public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstractMapping> implements IGui {
 
 	public final DoorAnimationType doorAnimationType;
 	public final boolean renderDoorOverlay;
 
 	private final List<ScrollingText> tempScrollingTexts = new ArrayList<>();
 
-	public ModelTrainBase(DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+	public ModelTrainBase(int textureWidth, int textureHeight, DoorAnimationType doorAnimationType, boolean renderDoorOverlay) {
+		super(textureWidth, textureHeight);
 		this.doorAnimationType = doorAnimationType;
 		this.renderDoorOverlay = renderDoorOverlay;
 	}
 
 	@Override
-	public void setupAnim(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
+	public void setAngles2(EntityAbstractMapping entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
 	}
 
 	@Override
-	public final void renderToBuffer(PoseStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+	public final void render(GraphicsHolder graphicsHolder, int light, int overlay, float red, float green, float blue, float alpha) {
 	}
 
-	public final void render(PoseStack matrices, MultiBufferSource vertexConsumers, NameColorDataBase data, ResourceLocation texture, int light, float doorLeftValue, float doorRightValue, boolean opening, int currentCar, int trainCars, boolean head1IsFront, boolean lightsOn, boolean isTranslucent, boolean renderDetails, boolean atPlatform) {
+	public final void render(GraphicsHolder graphicsHolder, @Nullable NameColorDataBase data, Identifier texture, int light, float doorLeftValue, float doorRightValue, boolean opening, int currentCar, int trainCars, boolean head1IsFront, boolean lightsOn, boolean isTranslucent, boolean renderDetails, boolean atPlatform) {
 		final float doorLeftX = DoorAnimationType.getDoorAnimationX(doorAnimationType, doorLeftValue);
 		final float doorRightX = DoorAnimationType.getDoorAnimationX(doorAnimationType, doorRightValue);
 		final float doorLeftZ = DoorAnimationType.getDoorAnimationZ(doorAnimationType, getDoorMax(), getDoorDuration(), doorLeftValue, opening);
@@ -52,62 +54,72 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		final int lightOnInteriorLevel = lightsOn ? MAX_LIGHT_INTERIOR : light;
 		final int lightOnGlowingLevel = lightsOn ? MAX_LIGHT_GLOWING : light;
 
-		matrices.pushPose();
-		baseTransform(matrices);
+		graphicsHolder.push();
+		baseTransform(graphicsHolder);
 
 		if (isTranslucent) {
 			if (renderDetails) {
-				final RenderType renderLayerInteriorTranslucent = lightsOn ? MoreRenderLayers.getInteriorTranslucent(texture) : MoreRenderLayers.getExteriorTranslucent(texture);
-				render(matrices, vertexConsumers.getBuffer(renderLayerInteriorTranslucent), RenderStage.INTERIOR_TRANSLUCENT, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, true);
+				graphicsHolder.createVertexConsumer(lightsOn ? MoreRenderLayers.getInteriorTranslucent(texture) : MoreRenderLayers.getExteriorTranslucent(texture));
+				render(graphicsHolder, RenderStage.INTERIOR_TRANSLUCENT, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, true);
 			}
 		} else {
-			final RenderType renderLayerLight = lightsOn ? MoreRenderLayers.getLight(texture, false) : MoreRenderLayers.getExterior(texture);
-			final RenderType renderLayerInterior = lightsOn ? MoreRenderLayers.getInterior(texture) : MoreRenderLayers.getExterior(texture);
-			render(matrices, vertexConsumers.getBuffer(renderLayerLight), RenderStage.LIGHTS, lightOnGlowingLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
-			render(matrices, vertexConsumers.getBuffer(renderLayerInterior), RenderStage.INTERIOR, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
+			graphicsHolder.createVertexConsumer(lightsOn ? MoreRenderLayers.getLight(texture, false) : MoreRenderLayers.getExterior(texture));
+			render(graphicsHolder, RenderStage.LIGHTS, lightOnGlowingLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
+			graphicsHolder.createVertexConsumer(lightsOn ? MoreRenderLayers.getInterior(texture) : MoreRenderLayers.getExterior(texture));
+			render(graphicsHolder, RenderStage.INTERIOR, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
 
 			if (renderDetails) {
-				renderExtraDetails(matrices, vertexConsumers, light, lightOnInteriorLevel, lightsOn, doorLeftX, doorRightX, doorLeftZ, doorRightZ);
+				renderExtraDetails(graphicsHolder, light, lightOnInteriorLevel, lightsOn, doorLeftX, doorRightX, doorLeftZ, doorRightZ);
 			}
 
-			render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(texture)), RenderStage.EXTERIOR, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
-			render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(texture, true)), RenderStage.ALWAYS_ON_LIGHTS, MAX_LIGHT_GLOWING, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
+			graphicsHolder.createVertexConsumer(MoreRenderLayers.getExterior(texture));
+			render(graphicsHolder, RenderStage.EXTERIOR, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
+			graphicsHolder.createVertexConsumer(MoreRenderLayers.getLight(texture, true));
+			render(graphicsHolder, RenderStage.ALWAYS_ON_LIGHTS, MAX_LIGHT_GLOWING, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
 
 			if (renderDetails) {
-				final TrainClient train = data instanceof TrainClient ? (TrainClient) data : null;
-				final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-				final Route thisRoute = train == null ? null : train.getThisRoute();
-				final Route nextRoute = train == null ? null : train.getNextRoute();
-				final Station thisStation = train == null ? null : train.getThisStation();
-				final Station nextStation = train == null ? null : train.getNextStation();
-				final Station lastStation = train == null ? null : train.getLastStation();
-				renderTextDisplays(matrices, vertexConsumers, Minecraft.getInstance().font, immediate, thisRoute, nextRoute, thisStation, nextStation, lastStation, thisRoute == null ? null : thisRoute.getDestination(train.getCurrentStationIndex()), currentCar, trainCars, atPlatform, train == null ? tempScrollingTexts : train.scrollingTexts);
-				immediate.endBatch();
+				final VehicleExtension vehicle = data instanceof VehicleExtension ? (VehicleExtension) data : null;
+				if (vehicle != null) {
+					final String[] routeSplit = vehicle.vehicleExtraData.getThisRouteName().split("\\|\\|");
+					renderTextDisplays(
+							graphicsHolder,
+							vehicle.vehicleExtraData.getThisRouteColor(),
+							routeSplit[0],
+							routeSplit[1],
+							vehicle.vehicleExtraData.getThisStationName(),
+							vehicle.vehicleExtraData.getThisRouteDestination(),
+							vehicle.vehicleExtraData.getNextStationName(),
+							vehicle.vehicleExtraData::iterateInterchanges,
+							currentCar,
+							trainCars,
+							atPlatform,
+							vehicle.vehicleExtraData.getIsTerminating(),
+							vehicle.scrollingTexts);
+				}
 			}
 		}
 
-		matrices.popPose();
+		graphicsHolder.pop();
 	}
 
-	protected void renderExtraDetails(PoseStack matrices, MultiBufferSource vertexConsumers, int light, int lightOnInteriorLevel, boolean lightsOn, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
+	protected void renderExtraDetails(GraphicsHolder graphicsHolder, int light, int lightOnInteriorLevel, boolean lightsOn, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 	}
 
-	protected void renderTextDisplays(PoseStack matrices, MultiBufferSource vertexConsumers, Font font, MultiBufferSource.BufferSource immediate, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String customDestination, int car, int totalCars, boolean atPlatform, List<ScrollingText> scrollingTexts) {
+	protected void renderTextDisplays(GraphicsHolder graphicsHolder, int thisRouteColor, String thisRouteName, String thisRouteNumber, String thisStationName, String thisRouteDestination, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, int car, int totalCars, boolean atPlatform, boolean isTerminating, ObjectArrayList<ScrollingText> scrollingTexts) {
 	}
 
 	protected float getDoorDuration() {
 		return 0.5F;
 	}
 
-	protected void baseTransform(PoseStack matrices) {
+	protected void baseTransform(GraphicsHolder graphicsHolder) {
 	}
 
-	protected abstract void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails);
+	protected abstract void render(GraphicsHolder graphicsHolder, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails);
 
 	protected abstract int getDoorMax();
 
-	protected String getDestinationString(Station station, String customDestination, ModelSimpleTrainBase.TextSpacingType textSpacingType, boolean toUpperCase) {
-		final String text = customDestination == null ? station == null ? defaultDestinationString() : station.name : customDestination;
+	protected String getDestinationString(String text, ModelSimpleTrainBase.TextSpacingType textSpacingType, boolean toUpperCase) {
 		final String finalResult;
 
 		if (textSpacingType == ModelSimpleTrainBase.TextSpacingType.NORMAL) {
@@ -168,37 +180,37 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		return "";
 	}
 
-	protected static void setRotationAngle(ModelMapper bone, float x, float y, float z) {
-		bone.setRotationAngle(x, y, z);
+	protected static void setRotationAngle(ModelPartExtension bone, float x, float y, float z) {
+		bone.setRotation(x, y, z);
 	}
 
-	protected static void renderMirror(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float position) {
-		renderOnce(bone, matrices, vertices, light, position);
-		renderOnceFlipped(bone, matrices, vertices, light, position);
+	protected static void renderMirror(ModelPartExtension bone, GraphicsHolder graphicsHolder, int light, float position) {
+		renderOnce(bone, graphicsHolder, light, position);
+		renderOnceFlipped(bone, graphicsHolder, light, position);
 	}
 
-	protected static void renderOnce(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float position) {
-		bone.render(matrices, vertices, 0, position, 0, light, OverlayTexture.NO_OVERLAY);
+	protected static void renderOnce(ModelPartExtension bone, GraphicsHolder graphicsHolder, int light, float position) {
+		bone.render(graphicsHolder, 0, position, 0, light, OverlayTexture.DEFAULT_UV);
 	}
 
-	protected static void renderOnce(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
-		bone.render(matrices, vertices, positionX, positionZ, 0, light, OverlayTexture.NO_OVERLAY);
+	protected static void renderOnce(ModelPartExtension bone, GraphicsHolder graphicsHolder, int light, float positionX, float positionZ) {
+		bone.render(graphicsHolder, positionX, positionZ, 0, light, OverlayTexture.DEFAULT_UV);
 	}
 
-	protected static void renderOnce(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float positionX, float positionY, float positionZ) {
-		bone.render(matrices, vertices, positionX, positionY, positionZ, 0, light, OverlayTexture.NO_OVERLAY);
+	protected static void renderOnce(ModelPartExtension bone, GraphicsHolder graphicsHolder, int light, float positionX, float positionY, float positionZ) {
+		bone.render(graphicsHolder, positionX, positionY, positionZ, 0, light, OverlayTexture.DEFAULT_UV);
 	}
 
-	protected static void renderOnceFlipped(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float position) {
-		bone.render(matrices, vertices, 0, position, (float) Math.PI, light, OverlayTexture.NO_OVERLAY);
+	protected static void renderOnceFlipped(ModelPartExtension bone, GraphicsHolder graphicsHolder, int light, float position) {
+		bone.render(graphicsHolder, 0, position, (float) Math.PI, light, OverlayTexture.DEFAULT_UV);
 	}
 
-	protected static void renderOnceFlipped(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
-		bone.render(matrices, vertices, -positionX, positionZ, (float) Math.PI, light, OverlayTexture.NO_OVERLAY);
+	protected static void renderOnceFlipped(ModelPartExtension bone, GraphicsHolder graphicsHolder, int light, float positionX, float positionZ) {
+		bone.render(graphicsHolder, -positionX, positionZ, (float) Math.PI, light, OverlayTexture.DEFAULT_UV);
 	}
 
-	protected static void renderOnceFlipped(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float positionX, float positionY, float positionZ) {
-		bone.render(matrices, vertices, -positionX, positionY, positionZ, (float) Math.PI, light, OverlayTexture.NO_OVERLAY);
+	protected static void renderOnceFlipped(ModelPartExtension bone, GraphicsHolder graphicsHolder, int light, float positionX, float positionY, float positionZ) {
+		bone.render(graphicsHolder, -positionX, positionY, positionZ, (float) Math.PI, light, OverlayTexture.DEFAULT_UV);
 	}
 
 	protected static boolean isIndex(int index, int value, int[] array) {
@@ -208,48 +220,41 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 
 	protected static String getAlternatingString(String text) {
 		final String[] textSplit = text.split("\\|");
-		return textSplit[((int) Math.floor(MTRClient.getGameTick() / 30)) % textSplit.length];
+		return textSplit[((int) Math.floor(InitClient.getGameTick() / 30)) % textSplit.length];
 	}
 
-	protected static String getHongKongNextStationString(Station thisStation, Station nextStation, boolean atPlatform, boolean isKcr) {
-		if (atPlatform && thisStation != null) {
-			return thisStation.name;
-		} else if (!atPlatform && nextStation != null) {
-			return IGui.insertTranslation(isKcr ? "gui.mtr.next_station_cjk" : "gui.mtr.next_station_announcement_cjk", isKcr ? "gui.mtr.next_station" : "gui.mtr.next_station_announcement", 1, IGui.textOrUntitled(nextStation.name));
+	protected static String getHongKongNextStationString(String thisStationName, String nextStationName, boolean atPlatform, boolean isKcr) {
+		if (atPlatform) {
+			return thisStationName;
 		} else {
-			return "";
+			return IGui.insertTranslation(isKcr ? "gui.mtr.next_station_cjk" : "gui.mtr.next_station_announcement_cjk", isKcr ? "gui.mtr.next_station" : "gui.mtr.next_station_announcement", 1, IGui.textOrUntitled(nextStationName));
 		}
 	}
 
-	protected static String getLondonNextStationString(Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation, String destinationString, boolean atPlatform) {
-		final Station station = atPlatform ? thisStation : nextStation;
-		if (station == null || thisRoute == null) {
-			return "";
-		} else {
-			final List<String> messages = new ArrayList<>();
-			final boolean isTerminating = lastStation != null && station.id == lastStation.id && nextRoute == null;
+	protected static String getLondonNextStationString(String thisRouteName, String thisStationName, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, String destinationString, boolean atPlatform, boolean isTerminating) {
+		final String stationName = atPlatform ? thisStationName : nextStationName;
+		final List<String> messages = new ArrayList<>();
 
-			if (!isTerminating) {
-				messages.add(IGui.insertTranslation("gui.mtr.london_train_route_announcement_cjk", "gui.mtr.london_train_route_announcement", 2, IGui.textOrUntitled(thisRoute.name), IGui.textOrUntitled(destinationString)));
-			}
-
-			if (atPlatform) {
-				messages.add(IGui.insertTranslation("gui.mtr.london_train_this_station_announcement_cjk", "gui.mtr.london_train_this_station_announcement", 1, IGui.textOrUntitled(station.name)));
-			} else {
-				messages.add(IGui.insertTranslation("gui.mtr.london_train_next_station_announcement_cjk", "gui.mtr.london_train_next_station_announcement", 1, IGui.textOrUntitled(station.name)));
-			}
-
-			final String mergedInterchangeRoutes = RenderTrains.getInterchangeRouteNames(station, thisRoute, nextRoute);
-			if (!mergedInterchangeRoutes.isEmpty()) {
-				messages.add(IGui.insertTranslation("gui.mtr.london_train_interchange_announcement_cjk", "gui.mtr.london_train_interchange_announcement", 1, mergedInterchangeRoutes));
-			}
-
-			if (isTerminating) {
-				messages.add(IGui.insertTranslation("gui.mtr.london_train_terminating_announcement_cjk", "gui.mtr.london_train_terminating_announcement", 1, IGui.textOrUntitled(station.name)));
-			}
-
-			return IGui.formatStationName(IGui.mergeStations(messages, "", " "));
+		if (!isTerminating) {
+			messages.add(IGui.insertTranslation("gui.mtr.london_train_route_announcement_cjk", "gui.mtr.london_train_route_announcement", 2, IGui.textOrUntitled(thisRouteName), IGui.textOrUntitled(destinationString)));
 		}
+
+		if (atPlatform) {
+			messages.add(IGui.insertTranslation("gui.mtr.london_train_this_station_announcement_cjk", "gui.mtr.london_train_this_station_announcement", 1, IGui.textOrUntitled(stationName)));
+		} else {
+			messages.add(IGui.insertTranslation("gui.mtr.london_train_next_station_announcement_cjk", "gui.mtr.london_train_next_station_announcement", 1, IGui.textOrUntitled(stationName)));
+		}
+
+		final String mergedInterchangeRoutes = RenderTrains.getInterchangeRouteNames(getInterchanges);
+		if (!mergedInterchangeRoutes.isEmpty()) {
+			messages.add(IGui.insertTranslation("gui.mtr.london_train_interchange_announcement_cjk", "gui.mtr.london_train_interchange_announcement", 1, mergedInterchangeRoutes));
+		}
+
+		if (isTerminating) {
+			messages.add(IGui.insertTranslation("gui.mtr.london_train_terminating_announcement_cjk", "gui.mtr.london_train_terminating_announcement", 1, IGui.textOrUntitled(stationName)));
+		}
+
+		return IGui.formatStationName(IGui.mergeStations(messages, "", " "));
 	}
 
 	public enum RenderStage {LIGHTS, ALWAYS_ON_LIGHTS, INTERIOR, INTERIOR_TRANSLUCENT, EXTERIOR}

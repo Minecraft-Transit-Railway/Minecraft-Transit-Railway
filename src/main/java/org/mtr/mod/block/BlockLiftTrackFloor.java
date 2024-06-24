@@ -1,56 +1,43 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.BlockEntityTypes;
-import mtr.data.RailwayData;
-import mtr.mappings.BlockEntityClientSerializableMapper;
-import mtr.mappings.BlockEntityMapper;
-import mtr.mappings.EntityBlockMapper;
-import mtr.packet.PacketTrainDataGuiServer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.registry.Registry;
+import org.mtr.mod.BlockEntityTypes;
+import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
 
-public class BlockLiftTrackFloor extends BlockLiftTrack implements EntityBlockMapper {
+import javax.annotation.Nonnull;
+
+public class BlockLiftTrackFloor extends BlockLiftTrack implements BlockWithEntity {
 
 	public BlockLiftTrackFloor() {
 		super();
 	}
 
+	@Nonnull
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
+	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
-			final BlockEntity entity = world.getBlockEntity(pos);
-			if (entity instanceof TileEntityLiftTrackFloor) {
-				((TileEntityLiftTrackFloor) entity).syncData();
-				PacketTrainDataGuiServer.openLiftTrackFloorScreenS2C((ServerPlayer) player, pos);
+			final org.mtr.mapping.holder.BlockEntity entity = world.getBlockEntity(pos);
+			if (entity != null && entity.data instanceof BlockEntity) {
+				((BlockEntity) entity.data).markDirty2();
+				Registry.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(pos));
 			}
 		});
 	}
 
 	@Override
-	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
-		return new TileEntityLiftTrackFloor(pos, state);
+	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new BlockEntity(blockPos, blockState);
 	}
 
 	@Override
-	public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
-		if (!world.isClientSide) {
-			final RailwayData railwayData = RailwayData.getInstance(world);
-			if (railwayData != null) {
-				railwayData.removeLiftFloorTrack(pos);
-				PacketTrainDataGuiServer.removeLiftFloorTrackS2C(world, pos);
-			}
-		}
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+		// TODO
 	}
 
-	public static class TileEntityLiftTrackFloor extends BlockEntityClientSerializableMapper {
+	public static class BlockEntity extends BlockEntityExtension {
 
 		private String floorNumber = "1";
 		private String floorDescription = "";
@@ -60,8 +47,8 @@ public class BlockLiftTrackFloor extends BlockLiftTrack implements EntityBlockMa
 		private static final String KEY_FLOOR_DESCRIPTION = "floor_description";
 		private static final String KEY_SHOULD_DING = "should_ding";
 
-		public TileEntityLiftTrackFloor(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_TRACK_FLOOR_1_TILE_ENTITY.get(), pos, state);
+		public BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.LIFT_TRACK_FLOOR_1.get(), pos, state);
 		}
 
 		@Override
@@ -82,8 +69,7 @@ public class BlockLiftTrackFloor extends BlockLiftTrack implements EntityBlockMa
 			this.floorNumber = floorNumber;
 			this.floorDescription = floorDescription;
 			this.shouldDing = shouldDing;
-			setChanged();
-			syncData();
+			markDirty2();
 		}
 
 		public String getFloorNumber() {

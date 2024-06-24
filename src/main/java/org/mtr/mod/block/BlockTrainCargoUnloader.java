@@ -1,27 +1,26 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import mtr.BlockEntityTypes;
-import mtr.mappings.BlockEntityMapper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.state.BlockState;
-
-import java.util.Set;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import org.mtr.mapping.holder.BlockPos;
+import org.mtr.mapping.holder.BlockState;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mod.BlockEntityTypes;
 
 public class BlockTrainCargoUnloader extends BlockTrainSensorBase {
 
 	@Override
-	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
-		return new TileEntityTrainCargoUnloader(pos, state);
+	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new BlockEntity(blockPos, blockState);
 	}
 
-	public static class TileEntityTrainCargoUnloader extends TileEntityTrainSensorBase {
+	public static class BlockEntity extends BlockEntityBase {
 
-		public TileEntityTrainCargoUnloader(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TRAIN_CARGO_UNLOADER_TILE_ENTITY.get(), pos, state);
+		public BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.TRAIN_CARGO_UNLOADER.get(), pos, state);
 		}
 
 		@Override
-		public void setData(Set<Long> filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String... strings) {
+		public void setData(LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String... strings) {
 			setData(filterRouteIds, stoppedOnly, movingOnly);
 		}
 	}

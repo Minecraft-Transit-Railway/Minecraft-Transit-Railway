@@ -1,6 +1,8 @@
-package mtr.data;
+package org.mtr.mod.data;
 
-import mtr.mappings.Text;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.mapping.mapper.GuiDrawing;
+import org.mtr.mapping.mapper.TextHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +38,7 @@ public interface IGui {
 	}
 
 	static String textOrUntitled(String text) {
-		return text.isEmpty() ? Text.translatable("gui.mtr.untitled").getString() : text;
+		return text.isEmpty() ? TextHelper.translatable("gui.mtr.untitled").getString() : text;
 	}
 
 	static String formatVerticalChinese(String text) {
@@ -106,12 +108,12 @@ public interface IGui {
 			if (Arrays.stream(combinedArguments).allMatch(Objects::nonNull)) {
 				result.append("|");
 				if (overrideFirst == null) {
-					result.append(Text.translatable(keyCJK, (Object[]) combinedArguments).getString());
+					result.append(TextHelper.translatable(keyCJK, (Object[]) combinedArguments).getString());
 				} else {
 					final String[] newCombinedArguments = new String[expectedArguments + 1];
 					System.arraycopy(combinedArguments, 0, newCombinedArguments, 1, expectedArguments);
 					newCombinedArguments[0] = overrideFirst;
-					result.append(Text.translatable(keyCJK, (Object[]) newCombinedArguments).getString());
+					result.append(TextHelper.translatable(keyCJK, (Object[]) newCombinedArguments).getString());
 				}
 			}
 		});
@@ -119,12 +121,12 @@ public interface IGui {
 			if (Arrays.stream(combinedArguments).allMatch(Objects::nonNull)) {
 				result.append("|");
 				if (overrideFirst == null) {
-					result.append(Text.translatable(key, (Object[]) combinedArguments).getString());
+					result.append(TextHelper.translatable(key, (Object[]) combinedArguments).getString());
 				} else {
 					final String[] newCombinedArguments = new String[expectedArguments + 1];
 					System.arraycopy(combinedArguments, 0, newCombinedArguments, 1, expectedArguments);
 					newCombinedArguments[0] = overrideFirst;
-					result.append(Text.translatable(key, (Object[]) newCombinedArguments).getString());
+					result.append(TextHelper.translatable(key, (Object[]) newCombinedArguments).getString());
 				}
 			}
 		});
@@ -137,11 +139,11 @@ public interface IGui {
 	}
 
 	static String mergeStations(List<String> stations) {
-		return mergeStations(stations, Text.translatable("gui.mtr.separator_cjk").getString(), Text.translatable("gui.mtr.separator").getString());
+		return mergeStations(stations, TextHelper.translatable("gui.mtr.separator_cjk").getString(), TextHelper.translatable("gui.mtr.separator").getString());
 	}
 
-	static String mergeStationsWithCommas(List<String> stations) {
-		return mergeStations(stations, null, null);
+	static String mergeStationsWithCommas(ObjectArrayList<String> stationNames) {
+		return mergeStations(stationNames, null, null);
 	}
 
 	static String mergeStations(List<String> stations, String separatorCjk, String separator) {
@@ -197,10 +199,10 @@ public interface IGui {
 				if (i <= listSize - 2) {
 					if (separatorCjk == null) {
 						if (listSize > 2) {
-							stringBuilder.append(Text.translatable("gui.mtr.comma_cjk").getString());
+							stringBuilder.append(TextHelper.translatable("gui.mtr.comma_cjk").getString());
 						}
 						if (i == listSize - 2) {
-							stringBuilder.append(Text.translatable("gui.mtr.comma_last_cjk").getString());
+							stringBuilder.append(TextHelper.translatable("gui.mtr.comma_last_cjk").getString());
 						}
 					} else {
 						stringBuilder.append(separatorCjk);
@@ -220,10 +222,10 @@ public interface IGui {
 				if (i <= listSize - 2) {
 					if (separator == null) {
 						if (listSize > 2) {
-							stringBuilder.append(Text.translatable("gui.mtr.comma").getString());
+							stringBuilder.append(TextHelper.translatable("gui.mtr.comma").getString());
 						}
 						if (i == listSize - 2) {
-							stringBuilder.append(Text.translatable("gui.mtr.comma_last").getString());
+							stringBuilder.append(TextHelper.translatable("gui.mtr.comma_last").getString());
 						}
 					} else {
 						stringBuilder.append(separator);
@@ -272,6 +274,26 @@ public interface IGui {
 					unicodeBlock == Character.UnicodeBlock.TAI_XUAN_JING_SYMBOLS ||
 					unicodeBlock == Character.UnicodeBlock.IDEOGRAPHIC_DESCRIPTION_CHARACTERS;
 		});
+	}
+
+	static void drawTexture(GuiDrawing guiDrawing, int x, int y, int u, int v, int width, int height) {
+		drawTexture(guiDrawing, x, y, (float) u, (float) v, width, height, 256, 256);
+	}
+
+	static void drawTexture(GuiDrawing guiDrawing, int x, int y, float u, float v, int width, int height, int textureWidth, int textureHeight) {
+		drawTexture(guiDrawing, x, y, width, height, u, v, width, height, textureWidth, textureHeight);
+	}
+
+	static void drawTexture(GuiDrawing guiDrawing, int x, int y, int width, int height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
+		drawTexture(guiDrawing, x, y, x + width, y + height, regionWidth, regionHeight, u, v, textureWidth, textureHeight);
+	}
+
+	static void drawTexture(GuiDrawing guiDrawing, int x1, int y1, int x2, int y2, int regionWidth, int regionHeight, float u, float v, int textureWidth, int textureHeight) {
+		drawTexture(guiDrawing, x1, y1, x2, y2, u / textureWidth, v / textureHeight, (u + regionWidth) / textureWidth, (v + regionHeight) / textureHeight);
+	}
+
+	static void drawTexture(GuiDrawing guiDrawing, int x1, int y1, int x2, int y2, float u1, float v1, float u2, float v2) {
+		guiDrawing.drawTexture(x1, y1, x2, y2, u1, v1, u2, v2);
 	}
 
 	enum HorizontalAlignment {

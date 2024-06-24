@@ -1,10 +1,10 @@
-package mtr.packet;
+package org.mtr.mod.packet;
 
-import mtr.MTR;
-import mtr.data.AreaBase;
-import mtr.data.IGui;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Tuple;
+import org.mtr.core.data.AreaBase;
+import org.mtr.core.data.SavedRailBase;
+import org.mtr.core.tools.Position;
+import org.mtr.init.MTR;
+import org.mtr.mod.data.IGui;
 
 import java.awt.*;
 import java.io.IOException;
@@ -29,24 +29,24 @@ public interface IUpdateWebMap {
 	int ICON_SIZE = 24;
 
 	static void readResource(String path, Consumer<InputStream> callback) {
-		final InputStream inputStream = MTR.class.getResourceAsStream(path);
-		if (inputStream != null) {
-			callback.accept(inputStream);
-			try {
-				inputStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+		try (final InputStream inputStream = MTR.class.getResourceAsStream(path)) {
+			if (inputStream != null) {
+				callback.accept(inputStream);
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
-	static <T extends AreaBase> void iterateAreas(Set<T> areas, AreaCallback areaCallback) {
+	static <T extends AreaBase<T, U>, U extends SavedRailBase<U, T>> void iterateAreas(Set<T> areas, AreaCallback areaCallback) {
 		areas.forEach(area -> {
-			final Tuple<Integer, Integer> corner1 = area.corner1;
-			final Tuple<Integer, Integer> corner2 = area.corner2;
-			final BlockPos areaPos = area.getCenter();
-			if (corner1 != null && corner2 != null && areaPos != null) {
-				areaCallback.areaCallback(area.id + "_" + System.currentTimeMillis(), IGui.formatStationName(area.name), new Color(area.color), corner1.getA(), corner1.getB(), corner2.getA(), corner2.getB(), areaPos.getX(), areaPos.getZ());
+			final int x1 = (int) area.getMinX();
+			final int z1 = (int) area.getMinZ();
+			final int x2 = (int) area.getMaxX();
+			final int z2 = (int) area.getMaxZ();
+			final Position center = area.getCenter();
+			if (center != null) {
+				areaCallback.areaCallback(area.getHexId() + "_" + System.currentTimeMillis(), IGui.formatStationName(area.getName()), new Color(area.getColor()), x1, z1, x2, z2, (int) center.getX(), (int) center.getZ());
 			}
 		});
 	}

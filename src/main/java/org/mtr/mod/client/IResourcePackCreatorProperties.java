@@ -1,10 +1,10 @@
-package mtr.client;
+package org.mtr.mod.client;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import mtr.data.TransportMode;
-import mtr.model.ModelTrainBase;
+import org.mtr.core.data.TransportMode;
+import org.mtr.mod.model.ModelTrainBase;
 
 import java.util.ArrayList;
 import java.util.List;

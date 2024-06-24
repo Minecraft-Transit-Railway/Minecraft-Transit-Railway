@@ -1,25 +1,20 @@
-package mtr.item;
+package org.mtr.mod.item;
 
-import mtr.CreativeModeTabs;
-import mtr.packet.PacketTrainDataGuiServer;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.ItemExtension;
+import org.mtr.mapping.registry.Registry;
+import org.mtr.mod.packet.PacketOpenResourcePackCreatorScreen;
 
-public class ItemResourcePackCreator extends ItemWithCreativeTabBase {
+public class ItemResourcePackCreator extends ItemExtension {
 
-	public ItemResourcePackCreator() {
-		super(CreativeModeTabs.CORE);
+	public ItemResourcePackCreator(ItemSettings itemSettings) {
+		super(itemSettings);
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
-		if (!world.isClientSide()) {
-			PacketTrainDataGuiServer.openResourcePackCreatorScreenS2C((ServerPlayer) user);
+	public void useWithoutResult(World world, PlayerEntity user, Hand hand) {
+		if (!world.isClient()) {
+			Registry.sendPacketToClient(ServerPlayerEntity.cast(user), new PacketOpenResourcePackCreatorScreen());
 		}
-		return super.use(world, user, hand);
 	}
 }

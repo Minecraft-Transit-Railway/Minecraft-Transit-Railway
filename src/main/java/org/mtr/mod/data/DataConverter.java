@@ -1,20 +1,19 @@
-package mtr.data;
+package org.mtr.mod.data;
 
-public final class DataConverter extends NameColorDataBase {
+import org.mtr.core.data.NameColorDataBase;
+import org.mtr.core.data.TransportMode;
+import org.mtr.mod.client.ClientData;
+
+public class DataConverter extends NameColorDataBase {
 
 	public DataConverter(String name, int color) {
-		this.name = name;
-		this.color = color;
-	}
-
-	public DataConverter(long id, String name, int color) {
-		super(id);
+		super(TransportMode.TRAIN, ClientData.instance);
 		this.name = name;
 		this.color = color;
 	}
 
 	@Override
-	protected boolean hasTransportMode() {
+	public boolean isValid() {
 		return false;
 	}
 }

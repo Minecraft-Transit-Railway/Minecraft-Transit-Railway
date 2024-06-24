@@ -1,69 +1,48 @@
-package mtr.block;
+package org.mtr.mod.block;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.tool.HolderBase;
 
-public abstract class BlockStationNameWallBase extends BlockStationNameBase {
+import javax.annotation.Nonnull;
+import java.util.List;
 
-	public BlockStationNameWallBase(Properties settings) {
-		super(settings);
+public abstract class BlockStationNameWallBase extends BlockStationNameBase implements BlockWithEntity {
+
+	public BlockStationNameWallBase(BlockSettings blockSettings) {
+		super(blockSettings);
 	}
 
 	@Override
-	public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
-		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-		return world.getBlockState(pos.relative(facing)).isFaceSturdy(world, pos.relative(facing), facing.getOpposite());
-	}
-
-	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		final Direction side = ctx.getClickedFace();
+	public BlockState getPlacementState2(ItemPlacementContext ctx) {
+		final Direction side = ctx.getSide();
 		if (side != Direction.UP && side != Direction.DOWN) {
-			return defaultBlockState().setValue(FACING, side.getOpposite());
+			return getDefaultState2().with(new Property<>(FACING.data), side.getOpposite().data);
 		} else {
 			return null;
 		}
 	}
 
+	@Nonnull
 	@Override
-	public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
-		if (direction.getOpposite() == IBlock.getStatePropertySafe(state, FACING).getOpposite() && !state.canSurvive(world, pos)) {
-			return Blocks.AIR.defaultBlockState();
-		} else {
-			return state;
-		}
-	}
-
-	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
+	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, FACING));
 	}
 
+	@Nonnull
 	@Override
-	public VoxelShape getCollisionShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
-		return Shapes.empty();
+	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return VoxelShapes.empty();
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING);
+	public void addBlockProperties(List<HolderBase<?>> properties) {
+		properties.add(FACING);
 	}
 
-	public abstract static class TileEntityStationNameWallBase extends TileEntityStationNameBase {
+	public abstract static class BlockEntityWallBase extends BlockEntityBase {
 
-		public TileEntityStationNameWallBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		public BlockEntityWallBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state, 0, 0, false);
 		}
 	}

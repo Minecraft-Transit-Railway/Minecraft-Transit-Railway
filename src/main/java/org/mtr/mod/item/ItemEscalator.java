@@ -1,37 +1,35 @@
-package mtr.item;
+package org.mtr.mod.item;
 
-import mtr.Blocks;
-import mtr.CreativeModeTabs;
-import mtr.block.BlockEscalatorBase;
-import mtr.block.BlockEscalatorSide;
-import mtr.block.BlockEscalatorStep;
-import mtr.block.IBlock;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.ItemExtension;
+import org.mtr.mod.Blocks;
+import org.mtr.mod.block.BlockEscalatorBase;
+import org.mtr.mod.block.BlockEscalatorSide;
+import org.mtr.mod.block.BlockEscalatorStep;
+import org.mtr.mod.block.IBlock;
 
-public class ItemEscalator extends ItemWithCreativeTabBase implements IBlock {
+import javax.annotation.Nonnull;
 
-	public ItemEscalator() {
-		super(CreativeModeTabs.ESCALATORS_LIFTS);
+public class ItemEscalator extends ItemExtension implements IBlock {
+
+	public ItemEscalator(ItemSettings itemSettings) {
+		super(itemSettings);
 	}
 
+	@Nonnull
 	@Override
-	public InteractionResult useOn(UseOnContext context) {
+	public ActionResult useOnBlock2(ItemUsageContext context) {
 		if (ItemPSDAPGBase.blocksNotReplaceable(context, 2, 2, null)) {
-			return InteractionResult.FAIL;
+			return ActionResult.FAIL;
 		}
 
-		final Level world = context.getLevel();
-		Direction playerFacing = context.getHorizontalDirection();
-		BlockPos pos1 = context.getClickedPos().relative(context.getClickedFace());
-		BlockPos pos2 = pos1.relative(playerFacing.getClockWise());
+		final World world = context.getWorld();
+		Direction playerFacing = context.getPlayerFacing();
+		BlockPos pos1 = context.getBlockPos().offset(context.getSide());
+		BlockPos pos2 = pos1.offset(playerFacing.rotateYClockwise());
 
-		final BlockState frontState = world.getBlockState(pos1.relative(playerFacing));
-		if (frontState.getBlock() instanceof BlockEscalatorBase) {
+		final BlockState frontState = world.getBlockState(pos1.offset(playerFacing));
+		if (frontState.getBlock().data instanceof BlockEscalatorBase) {
 			if (IBlock.getStatePropertySafe(frontState, BlockEscalatorBase.FACING) == playerFacing.getOpposite()) {
 				playerFacing = playerFacing.getOpposite();
 				final BlockPos pos3 = pos1;
@@ -40,15 +38,15 @@ public class ItemEscalator extends ItemWithCreativeTabBase implements IBlock {
 			}
 		}
 
-		final BlockState stepState = Blocks.ESCALATOR_STEP.get().defaultBlockState().setValue(BlockEscalatorStep.FACING, playerFacing);
-		world.setBlockAndUpdate(pos1, stepState.setValue(SIDE, EnumSide.LEFT));
-		world.setBlockAndUpdate(pos2, stepState.setValue(SIDE, EnumSide.RIGHT));
+		final BlockState stepState = Blocks.ESCALATOR_STEP.get().getDefaultState().with(new Property<>(BlockEscalatorStep.FACING.data), playerFacing.data);
+		world.setBlockState(pos1, stepState.with(new Property<>(SIDE.data), EnumSide.LEFT));
+		world.setBlockState(pos2, stepState.with(new Property<>(SIDE.data), EnumSide.RIGHT));
 
-		final BlockState sideState = Blocks.ESCALATOR_SIDE.get().defaultBlockState().setValue(BlockEscalatorSide.FACING, playerFacing);
-		world.setBlockAndUpdate(pos1.above(), sideState.setValue(SIDE, EnumSide.LEFT));
-		world.setBlockAndUpdate(pos2.above(), sideState.setValue(SIDE, EnumSide.RIGHT));
+		final BlockState sideState = Blocks.ESCALATOR_SIDE.get().getDefaultState().with(new Property<>(BlockEscalatorSide.FACING.data), playerFacing.data);
+		world.setBlockState(pos1.up(), sideState.with(new Property<>(SIDE.data), EnumSide.LEFT));
+		world.setBlockState(pos2.up(), sideState.with(new Property<>(SIDE.data), EnumSide.RIGHT));
 
-		context.getItemInHand().shrink(1);
-		return InteractionResult.SUCCESS;
+		context.getStack().decrement(1);
+		return ActionResult.SUCCESS;
 	}
 }
