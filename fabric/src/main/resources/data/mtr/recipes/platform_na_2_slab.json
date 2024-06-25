@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"###"
+	],
+	"key": {
+		"#": {
+			"item": "mtr:platform_na_2"
+		}
+	},
+	"result": {
+		"item": "mtr:platform_na_2_slab",
+		"count": 6
+	}
+}

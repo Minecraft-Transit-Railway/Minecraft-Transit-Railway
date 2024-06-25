@@ -1,0 +1,14 @@
+{
+	"textures": {
+		"arrow": "mtr:block/platform_arrow"
+	},
+	"elements": [
+		{
+			"from": [ 0, 8.1, 0 ],
+			"to": [ 16, 8.1, 16 ],
+			"faces": {
+				"up": { "uv": [ 0, 0, 8, 16 ], "texture": "#arrow", "cullface": "up" }
+			}
+		}
+	]
+}
