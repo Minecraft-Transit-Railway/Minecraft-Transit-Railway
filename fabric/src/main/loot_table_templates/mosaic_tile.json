@@ -6,7 +6,7 @@
 			"entries": [
 				{
 					"type": "minecraft:item",
-					"name": "mtr:station_color_tile"
+					"name": "mtr:mosaic_tile"
 				}
 			],
 			"conditions": [

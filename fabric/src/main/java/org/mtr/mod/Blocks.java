@@ -130,6 +130,7 @@ public final class Blocks {
 		STATION_COLOR_GRAVEL = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_gravel"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		STATION_COLOR_IRON_BLOCK = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_iron_block"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		STATION_COLOR_METAL = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_metal"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_MOSAIC_TILE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_mosaic_tile"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		STATION_COLOR_PLANKS = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_planks"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		STATION_COLOR_POLISHED_ANDESITE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_polished_andesite"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		STATION_COLOR_POLISHED_DIORITE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_polished_diorite"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
@@ -164,6 +165,7 @@ public final class Blocks {
 		STATION_COLOR_GRAVEL_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_gravel_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		STATION_COLOR_IRON_BLOCK_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_iron_block_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		STATION_COLOR_METAL_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_metal_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_MOSAIC_TILE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_mosaic_tile_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		STATION_COLOR_PLANKS_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_planks_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		STATION_COLOR_POLISHED_ANDESITE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_polished_andesite_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		STATION_COLOR_POLISHED_DIORITE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_polished_diorite_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
@@ -222,6 +224,8 @@ public final class Blocks {
 		MARBLE_SANDY_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "marble_sandy_slab"), () -> new Block(new SlabBlockExtension(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		METAL = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "metal"), () -> new Block(new BlockExtension(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		METAL_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "metal_slab"), () -> new Block(new SlabBlockExtension(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		MOSAIC_TILE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "mosaic_tile"), () -> new Block(new BlockExtension(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		MOSAIC_TILE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "mosaic_tile_slab"), () -> new Block(new SlabBlockExtension(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		RUBBISH_BIN_1 = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "rubbish_bin_1"), () -> new Block(new BlockRubbishBin(BlockHelper.createBlockSettings(false))), CreativeModeTabs.RAILWAY_FACILITIES);
 		TACTILE_MAP = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "tactile_map"), () -> new Block(new BlockTactileMap(BlockHelper.createBlockSettings(false))), CreativeModeTabs.RAILWAY_FACILITIES);
 
@@ -275,6 +279,8 @@ public final class Blocks {
 	public static final BlockRegistryObject MARBLE_SANDY_SLAB;
 	public static final BlockRegistryObject METAL;
 	public static final BlockRegistryObject METAL_SLAB;
+	public static final BlockRegistryObject MOSAIC_TILE;
+	public static final BlockRegistryObject MOSAIC_TILE_SLAB;
 	public static final BlockRegistryObject PIDS_1;
 	public static final BlockRegistryObject PIDS_2;
 	public static final BlockRegistryObject PIDS_3;
@@ -361,6 +367,8 @@ public final class Blocks {
 	public static final BlockRegistryObject STATION_COLOR_IRON_BLOCK_SLAB;
 	public static final BlockRegistryObject STATION_COLOR_METAL;
 	public static final BlockRegistryObject STATION_COLOR_METAL_SLAB;
+	public static final BlockRegistryObject STATION_COLOR_MOSAIC_TILE;
+	public static final BlockRegistryObject STATION_COLOR_MOSAIC_TILE_SLAB;
 	public static final BlockRegistryObject STATION_COLOR_PLANKS;
 	public static final BlockRegistryObject STATION_COLOR_PLANKS_SLAB;
 	public static final BlockRegistryObject STATION_COLOR_POLE;

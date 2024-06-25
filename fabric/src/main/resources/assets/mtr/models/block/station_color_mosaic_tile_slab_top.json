@@ -1,0 +1,7 @@
+{
+	"parent": "mtr:block/station_color_slab_top_base",
+	"textures": {
+		"particle": "mtr:block/mosaic_tile",
+		"texture": "mtr:block/mosaic_tile"
+	}
+}

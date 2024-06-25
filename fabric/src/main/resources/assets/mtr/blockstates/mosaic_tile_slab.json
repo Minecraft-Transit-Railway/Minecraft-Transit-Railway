@@ -1,22 +1,22 @@
 {
 	"variants": {
 		"type=bottom,waterlogged=false": {
-			"model": "mtr:block/tile_slab_bottom"
+			"model": "mtr:block/mosaic_tile_slab_bottom"
 		},
 		"type=double,waterlogged=false": {
-			"model": "mtr:block/tile"
+			"model": "mtr:block/mosaic_tile"
 		},
 		"type=top,waterlogged=false": {
-			"model": "mtr:block/tile_slab_top"
+			"model": "mtr:block/mosaic_tile_slab_top"
 		},
 		"type=bottom,waterlogged=true": {
-			"model": "mtr:block/tile_slab_bottom"
+			"model": "mtr:block/mosaic_tile_slab_bottom"
 		},
 		"type=double,waterlogged=true": {
-			"model": "mtr:block/tile"
+			"model": "mtr:block/mosaic_tile"
 		},
 		"type=top,waterlogged=true": {
-			"model": "mtr:block/tile_slab_top"
+			"model": "mtr:block/mosaic_tile_slab_top"
 		}
 	}
 }

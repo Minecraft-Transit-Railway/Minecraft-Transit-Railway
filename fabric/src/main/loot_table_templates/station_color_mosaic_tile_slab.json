@@ -12,7 +12,7 @@
 							"conditions": [
 								{
 									"condition": "minecraft:block_state_property",
-									"block": "mtr:station_color_tile_slab",
+									"block": "mtr:station_color_mosaic_tile_slab",
 									"properties": {
 										"type": "double"
 									}
@@ -24,7 +24,7 @@
 							"function": "minecraft:explosion_decay"
 						}
 					],
-					"name": "mtr:station_color_tile_slab"
+					"name": "mtr:station_color_mosaic_tile_slab"
 				}
 			]
 		}
