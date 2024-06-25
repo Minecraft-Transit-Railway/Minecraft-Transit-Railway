@@ -68,15 +68,15 @@ public final class InitClient {
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.LOGO);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.PLATFORM);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.PLATFORM_INDENTED);
+		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.PLATFORM_SLAB);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.PLATFORM_NA_1);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.PLATFORM_NA_1_INDENTED);
+		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.PLATFORM_NA_1_SLAB);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.PLATFORM_NA_2);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.PLATFORM_NA_2_INDENTED);
+		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.PLATFORM_NA_2_SLAB);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.PLATFORM_UK_1);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.PLATFORM_UK_1_INDENTED);
-		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.PLATFORM_SLAB);
-		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.PLATFORM_NA_1_SLAB);
-		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.PLATFORM_NA_2_SLAB);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.PLATFORM_UK_1_SLAB);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.PSD_DOOR_1);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.PSD_GLASS_1);

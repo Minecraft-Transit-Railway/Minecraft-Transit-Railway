@@ -15,10 +15,9 @@ import org.mtr.mapping.mapper.*;
 import org.mtr.mod.Init;
 import org.mtr.mod.Items;
 import org.mtr.mod.block.BlockNode;
-import org.mtr.mod.block.BlockPlatform;
-import org.mtr.mod.block.BlockPlatformSlab;
 import org.mtr.mod.block.BlockSignalLightBase;
 import org.mtr.mod.block.BlockSignalSemaphoreBase;
+import org.mtr.mod.block.PlatformHelper;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
@@ -202,8 +201,7 @@ public class RenderRails implements IGui {
 						Block.getBlockFromItem(item).data instanceof BlockSignalLightBase ||
 						Block.getBlockFromItem(item).data instanceof BlockNode ||
 						Block.getBlockFromItem(item).data instanceof BlockSignalSemaphoreBase ||
-						Block.getBlockFromItem(item).data instanceof BlockPlatform ||
-						Block.getBlockFromItem(item).data instanceof BlockPlatformSlab
+						Block.getBlockFromItem(item).data instanceof PlatformHelper
 		);
 	}
 
