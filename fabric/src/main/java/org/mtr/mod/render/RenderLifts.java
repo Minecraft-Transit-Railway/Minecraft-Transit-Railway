@@ -62,7 +62,7 @@ public class RenderLifts implements IGui {
 					if (previousLiftFloor[0] != null) {
 						final Position position1 = liftFloor.getPosition();
 						final Position position2 = previousLiftFloor[0].getPosition();
-						RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.LINES, (graphicsHolder, offset) -> {
+						MainRenderer.scheduleRender(QueuedRenderLayer.LINES, (graphicsHolder, offset) -> {
 							final ObjectArrayList<Vector> trackPositions = ItemLiftRefresher.findPath(new World(clientWorld.data), position1, position2);
 							for (int i = 1; i < trackPositions.size(); i++) {
 								graphicsHolder.drawLineInWorld(
@@ -182,7 +182,7 @@ public class RenderLifts implements IGui {
 		});
 
 		if (!OptimizedRenderer.renderingShadows()) {
-			RenderTrains.WORKER_THREAD.scheduleLifts(occlusionCullingInstance -> {
+			MainRenderer.WORKER_THREAD.scheduleLifts(occlusionCullingInstance -> {
 				final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
 				cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
 				minecraftClient.execute(() -> tasks.forEach(Runnable::run));
@@ -194,14 +194,14 @@ public class RenderLifts implements IGui {
 		final ObjectObjectImmutablePair<LiftDirection, ObjectObjectImmutablePair<String, String>> liftDetails = getLiftDetails(world, lift, Init.positionToBlockPos(lift.getCurrentFloor().getPosition()));
 		final LiftDirection liftDirection = liftDetails.left();
 
-		RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
+		MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
 			storedMatrixTransformations.transform(graphicsHolder, offset);
 			IDrawing.drawStringWithFont(graphicsHolder, liftDetails.right().left(), IGui.HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM, 0, height, width, -1, 18 / width, LIFT_DISPLAY_COLOR, false, GraphicsHolder.getDefaultLight(), null);
 			graphicsHolder.pop();
 		});
 
 		if (liftDirection != LiftDirection.NONE) {
-			RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/sign/lift_arrow.png"), false, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/sign/lift_arrow.png"), false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolder, offset);
 				IDrawing.drawTexture(graphicsHolder, -width / 6, 0, width / 3, width / 3, 0, liftDirection == LiftDirection.UP ? 0 : 1, 1, liftDirection == LiftDirection.UP ? 1 : 0, Direction.UP, LIFT_DISPLAY_COLOR, GraphicsHolder.getDefaultLight());
 				graphicsHolder.pop();

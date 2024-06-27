@@ -41,10 +41,6 @@ public class RenderRouteSign<T extends BlockRouteSignBase.BlockEntityBase> exten
 		final BlockPos pos = entity.getPos2();
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
-		if (RenderTrains.shouldNotRender(pos, facing)) {
-			return;
-		}
-
 		final boolean isTop = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
 		final int arrowDirection = IBlock.getStatePropertySafe(state, BlockRouteSignBase.ARROW_DIRECTION);
 

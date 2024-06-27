@@ -20,7 +20,8 @@ import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.generated.resource.ModelPropertiesPartSchema;
-import org.mtr.mod.render.RenderTrains;
+import org.mtr.mod.render.MainRenderer;
+import org.mtr.mod.render.QueuedRenderLayer;
 import org.mtr.mod.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
@@ -155,19 +156,19 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		if (vehicle == null || VehicleResource.matchesCondition(vehicle, condition, openDoorways.isEmpty())) {
 			switch (type) {
 				case NORMAL:
-					final ObjectIntImmutablePair<RenderTrains.QueuedRenderLayer> renderProperties = getRenderProperties(renderStage, light, vehicle);
+					final ObjectIntImmutablePair<QueuedRenderLayer> renderProperties = getRenderProperties(renderStage, light, vehicle);
 					if (OptimizedRenderer.hasOptimizedRendering()) {
-						RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> renderNormal(storedMatrixTransformations, vehicle, renderProperties, openDoorways, light, graphicsHolder, offset));
+						MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> renderNormal(storedMatrixTransformations, vehicle, renderProperties, openDoorways, light, graphicsHolder, offset));
 					} else {
-						RenderTrains.scheduleRender(texture, false, renderProperties.left(), (graphicsHolder, offset) -> renderNormal(storedMatrixTransformations, vehicle, renderProperties, openDoorways, light, graphicsHolder, offset));
+						MainRenderer.scheduleRender(texture, false, renderProperties.left(), (graphicsHolder, offset) -> renderNormal(storedMatrixTransformations, vehicle, renderProperties, openDoorways, light, graphicsHolder, offset));
 					}
 					break;
 				case DISPLAY:
 					if (vehicle != null) {
 						if (displayOptions.contains(DisplayOption.SEVEN_SEGMENT.toString())) {
-							RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/sign/seven_segment.png"), true, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> renderDisplay(graphicsHolder, offset, storedMatrixTransformations, vehicle, true));
+							MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/sign/seven_segment.png"), true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> renderDisplay(graphicsHolder, offset, storedMatrixTransformations, vehicle, true));
 						} else {
-							RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> renderDisplay(graphicsHolder, offset, storedMatrixTransformations, vehicle, false));
+							MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> renderDisplay(graphicsHolder, offset, storedMatrixTransformations, vehicle, false));
 						}
 					}
 					break;
@@ -224,7 +225,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		return doorXMultiplier != 0 || doorZMultiplier != 0;
 	}
 
-	private void renderNormal(StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, ObjectIntImmutablePair<RenderTrains.QueuedRenderLayer> renderProperties, ObjectArrayList<Box> openDoorways, int light, GraphicsHolder graphicsHolder, Vector3d offset) {
+	private void renderNormal(StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, ObjectIntImmutablePair<QueuedRenderLayer> renderProperties, ObjectArrayList<Box> openDoorways, int light, GraphicsHolder graphicsHolder, Vector3d offset) {
 		storedMatrixTransformations.transform(graphicsHolder, offset);
 		partDetailsList.forEach(partDetails -> {
 			final boolean canOpenDoors = openDoorways.contains(partDetails.doorway);
@@ -376,27 +377,27 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		}
 	}
 
-	private static ObjectIntImmutablePair<RenderTrains.QueuedRenderLayer> getRenderProperties(RenderStage renderStage, int light, @Nullable VehicleExtension vehicle) {
+	private static ObjectIntImmutablePair<QueuedRenderLayer> getRenderProperties(RenderStage renderStage, int light, @Nullable VehicleExtension vehicle) {
 		if (renderStage == RenderStage.ALWAYS_ON_LIGHT) {
-			return new ObjectIntImmutablePair<>(RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, GraphicsHolder.getDefaultLight());
+			return new ObjectIntImmutablePair<>(QueuedRenderLayer.LIGHT_TRANSLUCENT, GraphicsHolder.getDefaultLight());
 		} else if (vehicle != null) {
 			if (vehicle.getIsOnRoute()) {
 				switch (renderStage) {
 					case LIGHT:
-						return new ObjectIntImmutablePair<>(RenderTrains.QueuedRenderLayer.LIGHT, GraphicsHolder.getDefaultLight());
+						return new ObjectIntImmutablePair<>(QueuedRenderLayer.LIGHT, GraphicsHolder.getDefaultLight());
 					case INTERIOR:
-						return new ObjectIntImmutablePair<>(RenderTrains.QueuedRenderLayer.INTERIOR, MAX_LIGHT_INTERIOR);
+						return new ObjectIntImmutablePair<>(QueuedRenderLayer.INTERIOR, MAX_LIGHT_INTERIOR);
 					case INTERIOR_TRANSLUCENT:
-						return new ObjectIntImmutablePair<>(RenderTrains.QueuedRenderLayer.INTERIOR_TRANSLUCENT, MAX_LIGHT_INTERIOR);
+						return new ObjectIntImmutablePair<>(QueuedRenderLayer.INTERIOR_TRANSLUCENT, MAX_LIGHT_INTERIOR);
 				}
 			} else {
 				if (renderStage == RenderStage.INTERIOR_TRANSLUCENT) {
-					return new ObjectIntImmutablePair<>(RenderTrains.QueuedRenderLayer.EXTERIOR_TRANSLUCENT, light);
+					return new ObjectIntImmutablePair<>(QueuedRenderLayer.EXTERIOR_TRANSLUCENT, light);
 				}
 			}
 		}
 
-		return new ObjectIntImmutablePair<>(RenderTrains.QueuedRenderLayer.EXTERIOR, light);
+		return new ObjectIntImmutablePair<>(QueuedRenderLayer.EXTERIOR, light);
 	}
 
 	private static Box addBox(Box box, double x, double y, double z, boolean flipped) {
@@ -443,7 +444,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		private final boolean flipped;
 
 		private PartDetails(ObjectArrayList<ModelPartExtension> modelParts, @Nullable OptimizedModelWrapper optimizedModelDoor, Box box, double x, double y, double z, boolean flipped) {
-			this.modelParts = modelParts;
+			this.modelParts = OptimizedRenderer.hasOptimizedRendering() ? new ObjectArrayList<>() : modelParts;
 			this.optimizedModelDoor = optimizedModelDoor;
 			this.box = box;
 			this.x = x;

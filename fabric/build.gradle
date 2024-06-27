@@ -21,6 +21,8 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${buildTools.getFabricApiVersion()}"
 	modApi "com.terraformersmc:modmenu:${buildTools.getModMenuVersion()}"
 	shadowImplementation "org.mtr:Minecraft-Mappings-fabric-${minecraftVersion}:0.0.1-dev"
+	testImplementation "org.junit.jupiter:junit-jupiter-api:+"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:+"
 }
 
 repositories {
@@ -62,12 +64,21 @@ tasks.register("setupFiles") {
 
 build {
 	doLast {
-		buildTools.copyBuildFile()
+		buildTools.copyBuildFile(excludeAssets == "true")
 	}
+}
+
+shadowJar {
+	exclude excludeAssets == "true" ? "assets" : "abc123"
 }
 
 remapJar {
 	dependsOn(shadowJar)
 	mustRunAfter(shadowJar)
 	inputFile = file(shadowJar.archivePath)
+}
+
+test {
+	useJUnitPlatform()
+	testLogging { showStandardStreams = true }
 }

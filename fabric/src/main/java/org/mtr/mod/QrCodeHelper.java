@@ -7,7 +7,8 @@ import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.render.RenderTrains;
+import org.mtr.mod.render.MainRenderer;
+import org.mtr.mod.render.QueuedRenderLayer;
 import org.mtr.mod.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
@@ -46,13 +47,13 @@ public final class QrCodeHelper implements IGui {
 		qrCode = QrCode.encodeText(url, QrCode.Ecc.MEDIUM);
 	}
 
-	public void renderQrCode(StoredMatrixTransformations storedMatrixTransformations, RenderTrains.QueuedRenderLayer queuedRenderLayer, float size) {
+	public void renderQrCode(StoredMatrixTransformations storedMatrixTransformations, QueuedRenderLayer queuedRenderLayer, float size) {
 		renderQrCode(qrCode, storedMatrixTransformations, queuedRenderLayer, size);
 	}
 
-	public static void renderQrCode(@Nullable QrCode qrCode, StoredMatrixTransformations storedMatrixTransformations, RenderTrains.QueuedRenderLayer queuedRenderLayer, float size) {
+	public static void renderQrCode(@Nullable QrCode qrCode, StoredMatrixTransformations storedMatrixTransformations, QueuedRenderLayer queuedRenderLayer, float size) {
 		final int padding = 4;
-		RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, queuedRenderLayer, (graphicsHolder, offset) -> {
+		MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, queuedRenderLayer, (graphicsHolder, offset) -> {
 			storedMatrixTransformations.transform(graphicsHolder, offset);
 
 			if (qrCode == null) {

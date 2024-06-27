@@ -20,7 +20,7 @@ public final class Items {
 		AIRPLANE_DASHBOARD = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "dashboard_4"), itemSettings -> new Item(new ItemDashboard(TransportMode.AIRPLANE, itemSettings)), CreativeModeTabs.CORE);
 
 		// Misc
-		DRIVER_KEY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "driver_key"), itemSettings -> new Item(new ItemExtension(itemSettings.maxCount(1))), CreativeModeTabs.CORE);
+		DRIVER_KEY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "driver_key"), itemSettings -> new Item(new ItemExtension(itemSettings.maxCount(1))));
 		BOAT_NODE = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "boat_node"), itemSettings -> new Item(new PlaceableOnWaterItemExtension(Blocks.BOAT_NODE.get(), itemSettings)), CreativeModeTabs.CORE);
 
 		// Doors

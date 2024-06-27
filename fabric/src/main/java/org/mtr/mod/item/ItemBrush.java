@@ -1,12 +1,13 @@
 package org.mtr.mod.item;
 
-import org.jetbrains.annotations.NotNull;
 import org.mtr.core.data.Rail;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ItemExtension;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.packet.PacketUpdateLastRailStyles;
+
+import javax.annotation.Nonnull;
 
 public class ItemBrush extends ItemExtension {
 
@@ -17,7 +18,7 @@ public class ItemBrush extends ItemExtension {
 	/**
 	 * Behaviour for shift-clicking on a block can't be defined in the {@link Block#onUse(BlockState, World, BlockPos, PlayerEntity, Hand, BlockHitResult)} method, so that behaviour is defined here instead.
 	 */
-	@NotNull
+	@Nonnull
 	@Override
 	public ActionResult useOnBlock2(ItemUsageContext context) {
 		final World world = context.getWorld();

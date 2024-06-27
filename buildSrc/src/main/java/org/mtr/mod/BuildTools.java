@@ -68,6 +68,9 @@ public class BuildTools {
 	}
 
 	public String getModMenuVersion() {
+		if (minecraftVersion.equals("1.20.4")) {
+			return "9.0.0"; // TODO latest version not working
+		}
 		final String modIdString = "modmenu";
 		return new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, ModLoader.FABRIC, "").get(0).fileName.split(".jar")[0].replace(modIdString + "-", "");
 	}
@@ -159,10 +162,10 @@ public class BuildTools {
 		);
 	}
 
-	public void copyBuildFile() throws IOException {
+	public void copyBuildFile(boolean excludeAssets) throws IOException {
 		final Path directory = path.getParent().resolve("build/release");
 		Files.createDirectories(directory);
-		Files.copy(path.resolve(String.format("build/libs/%s-%s%s.jar", loader, version, loader.equals("fabric") ? "" : "-all")), directory.resolve(String.format("MTR-%s-%s+%s.jar", loader, version, minecraftVersion)), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(path.resolve(String.format("build/libs/%s-%s%s.jar", loader, version, loader.equals("fabric") ? "" : "-all")), directory.resolve(String.format("MTR-%s-%s+%s%s.jar", loader, version, minecraftVersion, excludeAssets ? "-server" : "")), StandardCopyOption.REPLACE_EXISTING);
 	}
 
 	private static JsonElement getJson(String url) {

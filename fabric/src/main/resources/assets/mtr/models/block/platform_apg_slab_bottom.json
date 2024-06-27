@@ -1,0 +1,7 @@
+{
+	"parent": "mtr:block/platform_slab_bottom_base",
+	"textures": {
+		"main": "mtr:block/rock_2",
+		"top": "mtr:block/platform_hk_2"
+	}
+}

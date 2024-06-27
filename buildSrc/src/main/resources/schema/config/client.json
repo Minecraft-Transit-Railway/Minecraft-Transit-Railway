@@ -29,6 +29,9 @@
 		},
 		"disableShadowsForShaders": {
 			"type": "boolean"
+		},
+		"betaWarningVersion": {
+			"type": "string"
 		}
 	}
 }

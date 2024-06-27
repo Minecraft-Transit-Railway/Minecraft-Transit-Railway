@@ -14,7 +14,8 @@ import org.mtr.mod.client.DoorAnimationType;
 import org.mtr.mod.client.ScrollingText;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.VehicleExtension;
-import org.mtr.mod.render.RenderTrains;
+import org.mtr.mod.render.MainRenderer;
+import org.mtr.mod.render.QueuedRenderLayer;
 import org.mtr.mod.render.StoredMatrixTransformations;
 import org.mtr.mod.resource.RenderStage;
 
@@ -59,20 +60,20 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 
 		if (isTranslucent) {
 			if (renderDetails) {
-				RenderTrains.scheduleRender(texture, false, lightsOn ? RenderTrains.QueuedRenderLayer.INTERIOR_TRANSLUCENT : RenderTrains.QueuedRenderLayer.EXTERIOR_TRANSLUCENT, (graphicsHolder, offset) -> {
+				MainRenderer.scheduleRender(texture, false, lightsOn ? QueuedRenderLayer.INTERIOR_TRANSLUCENT : QueuedRenderLayer.EXTERIOR_TRANSLUCENT, (graphicsHolder, offset) -> {
 					storedMatrixTransformationsNew.transform(graphicsHolder, offset);
 					render(graphicsHolder, RenderStage.INTERIOR_TRANSLUCENT, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, true);
 					graphicsHolder.pop();
 				});
 			}
 		} else {
-			RenderTrains.scheduleRender(texture, false, lightsOn ? RenderTrains.QueuedRenderLayer.LIGHT : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(texture, false, lightsOn ? QueuedRenderLayer.LIGHT : QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				storedMatrixTransformationsNew.transform(graphicsHolder, offset);
 				render(graphicsHolder, RenderStage.LIGHT, lightOnGlowingLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
 				graphicsHolder.pop();
 			});
 
-			RenderTrains.scheduleRender(texture, false, lightsOn ? RenderTrains.QueuedRenderLayer.INTERIOR : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(texture, false, lightsOn ? QueuedRenderLayer.INTERIOR : QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				storedMatrixTransformationsNew.transform(graphicsHolder, offset);
 				render(graphicsHolder, RenderStage.INTERIOR, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
 				graphicsHolder.pop();
@@ -82,13 +83,13 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 				renderExtraDetails(storedMatrixTransformationsNew, light, lightOnInteriorLevel, lightsOn, doorLeftX, doorRightX, doorLeftZ, doorRightZ);
 			}
 
-			RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(texture, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				storedMatrixTransformationsNew.transform(graphicsHolder, offset);
 				render(graphicsHolder, RenderStage.EXTERIOR, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
 				graphicsHolder.pop();
 			});
 
-			RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(texture, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
 				storedMatrixTransformationsNew.transform(graphicsHolder, offset);
 				render(graphicsHolder, RenderStage.ALWAYS_ON_LIGHT, GraphicsHolder.getDefaultLight(), doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
 				graphicsHolder.pop();
@@ -200,7 +201,7 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 			messages.add(IGui.insertTranslation("gui.mtr.london_train_next_station_announcement_cjk", "gui.mtr.london_train_next_station_announcement", 1, IGui.textOrUntitled(stationName)));
 		}
 
-		final String mergedInterchangeRoutes = RenderTrains.getInterchangeRouteNames(getInterchanges);
+		final String mergedInterchangeRoutes = MainRenderer.getInterchangeRouteNames(getInterchanges);
 		if (!mergedInterchangeRoutes.isEmpty()) {
 			messages.add(IGui.insertTranslation("gui.mtr.london_train_interchange_announcement_cjk", "gui.mtr.london_train_interchange_announcement", 1, mergedInterchangeRoutes));
 		}

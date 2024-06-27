@@ -10,7 +10,7 @@ import org.mtr.mod.Init;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.config.LanguageDisplay;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.render.RenderTrains;
+import org.mtr.mod.render.MainRenderer;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -226,7 +226,7 @@ public class DynamicTextureCache implements IGui {
 			return defaultRenderingColor.dynamicResource;
 		}
 
-		RenderTrains.WORKER_THREAD.scheduleDynamicTextures(() -> {
+		MainRenderer.WORKER_THREAD.scheduleDynamicTextures(() -> {
 			while (font == null) {
 				ResourceManagerHelper.readResource(new Identifier(Init.MOD_ID, "font/noto-sans-semibold.ttf"), inputStream -> {
 					try {
@@ -306,7 +306,7 @@ public class DynamicTextureCache implements IGui {
 
 		private void remove() {
 			MinecraftClient.getInstance().getTextureManager().destroyTexture(identifier);
-			RenderTrains.cancelRender(identifier);
+			MainRenderer.cancelRender(identifier);
 		}
 	}
 

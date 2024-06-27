@@ -29,4 +29,8 @@ public final class CustomResources extends CustomResourcesSchema {
 	public void iterateRails(Consumer<RailResource> consumer) {
 		rails.forEach(consumer);
 	}
+
+	public void iterateObjects(Consumer<ObjectResource> consumer) {
+		objects.forEach(consumer);
+	}
 }

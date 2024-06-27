@@ -50,7 +50,7 @@ public class RailStyleSelectorScreen extends DashboardListSelectorScreen {
 		final ObjectArrayList<String> railStylesWithoutDirection = rail.getStyles().stream().map(RailResource::getIdWithoutDirection).collect(Collectors.toCollection(ObjectArrayList::new));
 		for (int i = 0; i < allRails.size(); i++) {
 			final RailResource railResource = allRails.get(i);
-			railsForList.add(new DashboardListItem(i, railResource.getName(), railResource.getColor()));
+			railsForList.add(new DashboardListItem(i, railResource.getName(), railResource.getColor() | ARGB_BLACK));
 			if (railStylesWithoutDirection.contains(railResource.getId())) {
 				selectedIds.add(i);
 			}

@@ -1,6 +1,5 @@
 package org.mtr.mod.block;
 
-import org.jetbrains.annotations.NotNull;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Angle;
@@ -37,7 +36,7 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 		this.transportMode = transportMode;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public ActionResult onUse2(BlockState blockState, World world, BlockPos blockPos, PlayerEntity playerEntity, Hand hand, BlockHitResult hit) {
 		if (world.isClient() && playerEntity.isHolding(Items.BRUSH.get())) {

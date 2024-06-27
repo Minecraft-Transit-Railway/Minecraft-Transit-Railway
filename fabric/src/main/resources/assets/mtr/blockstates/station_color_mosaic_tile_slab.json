@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"type=bottom": {
+			"model": "mtr:block/station_color_mosaic_tile_slab_bottom"
+		},
+		"type=double": {
+			"model": "mtr:block/station_color_mosaic_tile"
+		},
+		"type=top": {
+			"model": "mtr:block/station_color_mosaic_tile_slab_top"
+		}
+	}
+}

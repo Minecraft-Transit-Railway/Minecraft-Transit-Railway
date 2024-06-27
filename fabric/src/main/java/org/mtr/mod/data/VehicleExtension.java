@@ -9,6 +9,7 @@ import org.mtr.core.tool.Vector;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.SoundHelper;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
@@ -73,7 +74,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		final String nextRouteDestination = vehicleExtraData.getNextRouteDestination();
 		final long thisRouteId = vehicleExtraData.getThisRouteId();
 
-		if (VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(id) != null) {
+		if (VehicleRidingMovement.isRiding(id)) {
 			// Render client action bar floating text
 			if (VehicleRidingMovement.showShiftProgressBar() && (!isCurrentlyManual || !isHoldingKey(clientPlayerEntity))) {
 				final double adjustedSpeed = getAdjustedSpeed();
@@ -186,11 +187,13 @@ public class VehicleExtension extends Vehicle implements Utilities {
 					if (BlockTrainSensorBase.matchesFilter(new World(clientWorld.data), offsetBlockPos, thisRouteId, speed)) {
 						if (block.data instanceof BlockTrainRedstoneSensor && IBlock.getStatePropertySafe(blockState, BlockTrainRedstoneSensor.POWERED) < 2) {
 							InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketTurnOnBlockEntity(offsetBlockPos));
-						} else if (block.data instanceof BlockTrainAnnouncer) {
-							// TODO check if player is riding
+						} else if (block.data instanceof BlockTrainAnnouncer && VehicleRidingMovement.isRiding(id)) {
 							final BlockEntity blockEntity = clientWorld.getBlockEntity(offsetBlockPos);
 							if (blockEntity != null && blockEntity.data instanceof BlockTrainAnnouncer.BlockEntity) {
-								((BlockTrainAnnouncer.BlockEntity) blockEntity.data).announce(new PlayerEntity(clientPlayerEntity.data));
+								((BlockTrainAnnouncer.BlockEntity) blockEntity.data).announce(
+										message -> IDrawing.narrateOrAnnounce(message, ObjectArrayList.of(TextHelper.literal(message))),
+										soundId -> clientPlayerEntity.playSound(SoundHelper.createSoundEvent(new Identifier(soundId)), 1000, 1)
+								);
 							}
 						}
 					}
@@ -202,11 +205,13 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		double totalLength = 0;
 		for (int i = 0; i < vehicleExtraData.immutableVehicleCars.size(); i++) {
 			final int currentIndex = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, oldRailProgress - totalLength);
-			final int carNumber = reversed ? vehicleExtraData.immutableVehicleCars.size() - i - 1 : i;
-			if (railProgress - totalLength >= vehicleExtraData.immutablePath.get(currentIndex).getEndDistance()) {
-				persistentVehicleData.getOscillation(carNumber).startOscillation(speed * 50);
+			if (currentIndex >= 0 && currentIndex < vehicleExtraData.immutablePath.size()) {
+				final int carNumber = reversed ? vehicleExtraData.immutableVehicleCars.size() - i - 1 : i;
+				if (railProgress - totalLength >= vehicleExtraData.immutablePath.get(currentIndex).getEndDistance()) {
+					persistentVehicleData.getOscillation(carNumber).startOscillation(Math.sqrt(speed) * 5 * (Math.random() + 0.5));
+				}
+				totalLength += vehicleExtraData.immutableVehicleCars.get(carNumber).getLength();
 			}
-			totalLength += vehicleExtraData.immutableVehicleCars.get(carNumber).getLength();
 		}
 	}
 

@@ -12,7 +12,7 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.Init;
 import org.mtr.mod.Items;
 import org.mtr.mod.block.BlockPSDAPGDoorBase;
-import org.mtr.mod.block.BlockPlatform;
+import org.mtr.mod.block.PlatformHelper;
 import org.mtr.mod.client.VehicleRidingMovement;
 
 import javax.annotation.Nullable;
@@ -53,7 +53,7 @@ public class RenderVehicleHelper {
 					final BlockPos checkPos = Init.newBlockPos(checkX, checkY, checkZ);
 					final BlockState blockState = clientWorld.getBlockState(checkPos);
 					final Block block = blockState.getBlock();
-					if (block.data instanceof BlockPlatform) {
+					if (block.data instanceof PlatformHelper) {
 						canOpenDoors = true;
 					} else if (block.data instanceof BlockPSDAPGDoorBase && blockState.get(new Property<>(BlockPSDAPGDoorBase.UNLOCKED.data))) {
 						canOpenDoors = true;
@@ -114,7 +114,7 @@ public class RenderVehicleHelper {
 					playerPosition.getYMapped(),
 					playerPosition.getZMapped() + HALF_PLAYER_WIDTH
 			) ? 0xFF00FF00 : color;
-			RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.LINES, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
+			MainRenderer.scheduleRender(QueuedRenderLayer.LINES, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
 				drawLine(graphicsHolder, corner1, corner2, newOffset, newColor);
 				drawLine(graphicsHolder, corner2, corner3, newOffset, newColor);
 				drawLine(graphicsHolder, corner3, corner4, newOffset, newColor);
