@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class RenderVehicleHelper {
 
 	public static final float HALF_PLAYER_WIDTH = 0.3F;
-	private static final int CHECK_DOOR_RADIUS_XZ = 1;
+	private static final int CHECK_DOOR_RADIUS_XZ = 2;
 	private static final int CHECK_DOOR_RADIUS_Y = 2;
 	private static final double RIDE_STEP_THRESHOLD = 0.75;
 
