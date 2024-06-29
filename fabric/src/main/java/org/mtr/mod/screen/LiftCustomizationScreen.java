@@ -13,6 +13,7 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateData;
 
 import java.util.Locale;
@@ -101,9 +102,9 @@ public class LiftCustomizationScreen extends ScreenExtension implements IGui {
 			updateControls(true);
 		});
 
-		final MutableText doubleSidedText = TextHelper.translatable("gui.mtr.lift_is_double_sided");
-		final MutableText rotateAnticlockwiseText = TextHelper.translatable("gui.mtr.rotate_anticlockwise");
-		final MutableText rotateClockwiseText = TextHelper.translatable("gui.mtr.rotate_clockwise");
+		final MutableText doubleSidedText = TranslationProvider.GUI_MTR_LIFT_IS_DOUBLE_SIDED.getMutableText();
+		final MutableText rotateAnticlockwiseText = TranslationProvider.GUI_MTR_ROTATE_ANTICLOCKWISE.getMutableText();
+		final MutableText rotateClockwiseText = TranslationProvider.GUI_MTR_ROTATE_CLOCKWISE.getMutableText();
 		buttonIsDoubleSided = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
 			lift.setIsDoubleSided(checked);
 			updateControls(true);
@@ -176,12 +177,12 @@ public class LiftCustomizationScreen extends ScreenExtension implements IGui {
 		guiDrawing.drawRectangle(0, 0, width2, height, ARGB_BACKGROUND);
 		guiDrawing.finishDrawingRectangle();
 		super.render(graphicsHolder, mouseX, mouseY, delta);
-		graphicsHolder.drawCenteredText(TextHelper.translatable("tooltip.mtr.rail_action_height", lift.getHeight()), width2 / 2, TEXT_PADDING, ARGB_WHITE);
-		graphicsHolder.drawCenteredText(TextHelper.translatable("tooltip.mtr.rail_action_width", lift.getWidth()), width2 / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
-		graphicsHolder.drawCenteredText(TextHelper.translatable("tooltip.mtr.rail_action_depth", lift.getDepth()), width2 / 2, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
-		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.offset_x", lift.getOffsetX()), width2 / 2, SQUARE_SIZE * 3 + TEXT_PADDING, ARGB_WHITE);
-		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.offset_y", lift.getOffsetY()), width2 / 2, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE);
-		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.offset_z", lift.getOffsetZ()), width2 / 2, SQUARE_SIZE * 5 + TEXT_PADDING, ARGB_WHITE);
+		graphicsHolder.drawCenteredText(TranslationProvider.TOOLTIP_MTR_RAIL_ACTION_HEIGHT.getMutableText(lift.getHeight()), width2 / 2, TEXT_PADDING, ARGB_WHITE);
+		graphicsHolder.drawCenteredText(TranslationProvider.TOOLTIP_MTR_RAIL_ACTION_WIDTH.getMutableText(lift.getWidth()), width2 / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+		graphicsHolder.drawCenteredText(TranslationProvider.TOOLTIP_MTR_RAIL_ACTION_DEPTH.getMutableText(lift.getDepth()), width2 / 2, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
+		graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_OFFSET_X.getMutableText(lift.getOffsetX()), width2 / 2, SQUARE_SIZE * 3 + TEXT_PADDING, ARGB_WHITE);
+		graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_OFFSET_Y.getMutableText(lift.getOffsetY()), width2 / 2, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE);
+		graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_OFFSET_Z.getMutableText(lift.getOffsetZ()), width2 / 2, SQUARE_SIZE * 5 + TEXT_PADDING, ARGB_WHITE);
 	}
 
 	@Override
@@ -203,7 +204,7 @@ public class LiftCustomizationScreen extends ScreenExtension implements IGui {
 		buttonOffsetZMinus.active = lift.getOffsetZ() > -MAX_OFFSET;
 		buttonOffsetZAdd.active = lift.getOffsetZ() < MAX_OFFSET;
 		buttonIsDoubleSided.setChecked(lift.getIsDoubleSided());
-		buttonLiftStyle.setMessage2(new Text(TextHelper.translatable("gui.mtr.lift_style", TextHelper.translatable("gui.mtr.lift_style_" + lift.getStyle().toLowerCase(Locale.ENGLISH))).data));
+		buttonLiftStyle.setMessage2(TranslationProvider.GUI_MTR_LIFT_STYLE.getText(lift.getStyle().toUpperCase(Locale.ENGLISH)));
 
 		if (sendUpdate) {
 			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addLift(lift)));

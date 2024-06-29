@@ -2,8 +2,8 @@ package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -41,7 +41,7 @@ public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBl
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
 		final BlockEntityExtension blockEntity = createBlockEntity(new BlockPos(0, 0, 0), Blocks.getAirMapped().getDefaultState());
 		if (blockEntity instanceof BlockEntityBase) {
-			tooltip.add(TextHelper.translatable("tooltip.mtr.arrivals", maxArrivals).formatted(TextFormatting.GRAY));
+			tooltip.add(TranslationProvider.TOOLTIP_MTR_ARRIVALS.getMutableText(maxArrivals).formatted(TextFormatting.GRAY));
 		}
 	}
 

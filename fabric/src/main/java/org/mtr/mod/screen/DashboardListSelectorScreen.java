@@ -15,6 +15,7 @@ import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nullable;
 
@@ -85,8 +86,8 @@ public class DashboardListSelectorScreen extends ScreenExtension implements IGui
 	}
 
 	public void renderAdditional(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
-		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.available"), width / 2 - PANEL_WIDTH / 2 - SQUARE_SIZE, SQUARE_SIZE, ARGB_WHITE);
-		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.selected"), width / 2 + PANEL_WIDTH / 2 + SQUARE_SIZE, SQUARE_SIZE, ARGB_WHITE);
+		graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_AVAILABLE.getMutableText(), width / 2 - PANEL_WIDTH / 2 - SQUARE_SIZE, SQUARE_SIZE, ARGB_WHITE);
+		graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_SELECTED.getMutableText(), width / 2 + PANEL_WIDTH / 2 + SQUARE_SIZE, SQUARE_SIZE, ARGB_WHITE);
 	}
 
 	@Override

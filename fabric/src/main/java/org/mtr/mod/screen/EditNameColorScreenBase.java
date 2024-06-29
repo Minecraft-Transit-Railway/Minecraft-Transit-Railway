@@ -9,10 +9,10 @@ import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextFieldWidgetExtension;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 public abstract class EditNameColorScreenBase<T extends NameColorDataBase> extends ScreenExtension implements Utilities, IGui {
 
@@ -28,12 +28,12 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 	private final TextFieldWidgetExtension textFieldName;
 	private final WidgetColorSelector colorSelector;
 
-	public EditNameColorScreenBase(T data, DashboardScreen dashboardScreen, String nameKey, String colorKey) {
+	public EditNameColorScreenBase(T data, DashboardScreen dashboardScreen, TranslationProvider.TranslationHolder nameKey, TranslationProvider.TranslationHolder colorKey) {
 		super();
 		this.data = data;
 		this.dashboardScreen = dashboardScreen;
-		nameText = TextHelper.translatable(nameKey);
-		colorText = TextHelper.translatable(colorKey);
+		nameText = nameKey.getMutableText();
+		colorText = colorKey.getMutableText();
 
 		textFieldName = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 1024, TextCase.DEFAULT, null, null);
 		colorSelector = new WidgetColorSelector(this, true, () -> {

@@ -13,6 +13,7 @@ import org.mtr.mod.block.BlockTrainSensorBase;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateTrainSensorConfig;
 
 import java.util.stream.Collectors;
@@ -63,9 +64,9 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 		}
 
 		stoppedOnlyCheckbox = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> setChecked(checked, movingOnly));
-		stoppedOnlyCheckbox.setMessage2(new Text(TextHelper.translatable("gui.mtr.stopped_only").data));
+		stoppedOnlyCheckbox.setMessage2(TranslationProvider.GUI_MTR_STOPPED_ONLY.getText());
 		movingOnlyCheckbox = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> setChecked(stoppedOnly, checked));
-		movingOnlyCheckbox.setMessage2(new Text(TextHelper.translatable("gui.mtr.moving_only").data));
+		movingOnlyCheckbox.setMessage2(TranslationProvider.GUI_MTR_MOVING_ONLY.getText());
 
 		filterButton = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> {
 			final ObjectArrayList<DashboardListItem> routes = MinecraftClientData.getInstance().simplifiedRoutes.stream().map(simplifiedRoute -> new DashboardListItem(simplifiedRoute.getId(), simplifiedRoute.getName(), simplifiedRoute.getColor())).sorted().collect(Collectors.toCollection(ObjectArrayList::new));
@@ -113,8 +114,8 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 			for (int i = 0; i < textFieldCount; i++) {
 				graphicsHolder.drawText(textFieldLabels[i], SQUARE_SIZE + (width / 2 - SQUARE_SIZE) * i, SQUARE_SIZE, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			}
-			graphicsHolder.drawText(TextHelper.translatable("gui.mtr.filtered_routes", filterRouteIds.size()), SQUARE_SIZE, yStart + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-			graphicsHolder.drawText(TextHelper.translatable(filterRouteIds.isEmpty() ? "gui.mtr.filtered_routes_empty" : "gui.mtr.filtered_routes_condition"), SQUARE_SIZE, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+			graphicsHolder.drawText(TranslationProvider.GUI_MTR_FILTERED_ROUTES.getMutableText(filterRouteIds.size()), SQUARE_SIZE, yStart + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+			graphicsHolder.drawText((filterRouteIds.isEmpty() ? TranslationProvider.GUI_MTR_FILTERED_ROUTES_EMPTY : TranslationProvider.GUI_MTR_FILTERED_ROUTES_CONDITION).getMutableText(), SQUARE_SIZE, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			int i = 0;
 			for (final long routeId : filterRouteIds) {
 				final Route route = MinecraftClientData.getInstance().routeIdMap.get(routeId);

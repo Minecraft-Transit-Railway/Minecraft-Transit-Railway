@@ -10,6 +10,7 @@ import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 public class DeleteConfirmationScreen extends ScreenExtension implements IGui {
 
@@ -47,7 +48,7 @@ public class DeleteConfirmationScreen extends ScreenExtension implements IGui {
 		try {
 			renderBackground(graphicsHolder);
 			super.render(graphicsHolder, mouseX, mouseY, delta);
-			graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.delete_confirmation", IGui.formatStationName(name)), width / 2, height / 2 - SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
+			graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_DELETE_CONFIRMATION.getMutableText(IGui.formatStationName(name)), width / 2, height / 2 - SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
 		} catch (Exception e) {
 			Init.LOGGER.error("", e);
 		}

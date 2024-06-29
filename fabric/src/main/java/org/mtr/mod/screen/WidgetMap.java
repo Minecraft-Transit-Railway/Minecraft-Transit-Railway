@@ -11,11 +11,11 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ClickableWidgetExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.GuiDrawing;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -129,9 +129,9 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		guiDrawing.finishDrawingRectangle();
 
 		if (mapState == MapState.EDITING_AREA) {
-			graphicsHolder.drawText(TextHelper.translatable("gui.mtr.edit_area").getString(), getX2() + TEXT_PADDING, getY2() + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+			graphicsHolder.drawText(TranslationProvider.GUI_MTR_EDIT_AREA.getMutableText(), getX2() + TEXT_PADDING, getY2() + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		} else if (mapState == MapState.EDITING_ROUTE) {
-			graphicsHolder.drawText(TextHelper.translatable("gui.mtr.edit_route").getString(), getX2() + TEXT_PADDING, getY2() + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+			graphicsHolder.drawText(TranslationProvider.GUI_MTR_EDIT_ROUTE.getMutableText(), getX2() + TEXT_PADDING, getY2() + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		}
 
 		if (scale >= 8) {
@@ -146,7 +146,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 			for (final Station station : MinecraftClientData.getDashboardInstance().stations) {
 				if (canDrawAreaText(station)) {
 					final Position position = station.getCenter();
-					final String stationString = String.format("%s|(%s)", station.getName(), TextHelper.translatable("gui.mtr.zone_number", station.getZone1()).getString());
+					final String stationString = String.format("%s|(%s)", station.getName(), TranslationProvider.GUI_MTR_ZONE_NUMBER.getString(station.getZone1()));
 					drawFromWorldCoords(position.getX(), position.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(graphicsHolder, stationString, getX2() + x1.floatValue(), getY2() + y1.floatValue(), GraphicsHolder.getDefaultLight()));
 				}
 			}

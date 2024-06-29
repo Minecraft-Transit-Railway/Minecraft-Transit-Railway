@@ -63,7 +63,7 @@ public class RailAction {
 	}
 
 	public String getDescription() {
-		return TextHelper.translatable("gui.mtr." + railActionType.nameTranslation, playerName, Utilities.round(length, 1), state == null ? "" : TextHelper.translatable(state.getBlock().getTranslationKey()).getString()).getString();
+		return railActionType.nameTranslation.getString(playerName, Utilities.round(length, 1), state == null ? "" : TextHelper.translatable(state.getBlock().getTranslationKey()).getString());
 	}
 
 	public int getColor() {
@@ -159,7 +159,7 @@ public class RailAction {
 	private void showProgressMessage(float percentage) {
 		final PlayerEntity playerEntity = serverWorld.getPlayerByUuid(uuid);
 		if (playerEntity != null) {
-			playerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr." + railActionType.progressTranslation, percentage).data), true);
+			playerEntity.sendMessage(railActionType.progressTranslation.getText(percentage), true);
 		}
 	}
 

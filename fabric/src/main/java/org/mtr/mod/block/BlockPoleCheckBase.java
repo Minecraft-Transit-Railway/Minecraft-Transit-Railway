@@ -4,6 +4,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -26,7 +27,7 @@ public abstract class BlockPoleCheckBase extends BlockExtension implements Direc
 
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		final String[] strings = TextHelper.translatable("tooltip.mtr.pole_placement", getTooltipBlockText().data).getString().split("\n");
+		final String[] strings = TranslationProvider.TOOLTIP_MTR_POLE_PLACEMENT.getString(getTooltipBlockText().data).split("\n");
 		for (final String string : strings) {
 			tooltip.add(TextHelper.literal(string).formatted(TextFormatting.GRAY));
 		}

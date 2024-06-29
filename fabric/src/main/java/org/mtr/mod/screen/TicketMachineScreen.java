@@ -1,10 +1,14 @@
 package org.mtr.mod.screen;
 
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.mapper.ButtonWidgetExtension;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.PlayerHelper;
+import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketAddBalance;
 
 public class TicketMachineScreen extends ScreenExtension implements IGui {
@@ -20,13 +24,13 @@ public class TicketMachineScreen extends ScreenExtension implements IGui {
 
 		for (int i = 0; i < BUTTON_COUNT; i++) {
 			final int index = i;
-			buttons[i] = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_value"), button -> {
+			buttons[i] = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_ADD_VALUE.getMutableText(), button -> {
 				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketAddBalance(index));
 				MinecraftClient.getInstance().openScreen(null);
 			});
 		}
 
-		balanceText = TextHelper.translatable("gui.mtr.balance", balance);
+		balanceText = TranslationProvider.GUI_MTR_BALANCE.getMutableText(balance);
 	}
 
 	@Override
@@ -53,12 +57,12 @@ public class TicketMachineScreen extends ScreenExtension implements IGui {
 	@Override
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 		renderBackground(graphicsHolder);
-		final MutableText emeraldsText = TextHelper.translatable("gui.mtr.emeralds", getEmeraldCount());
+		final MutableText emeraldsText = TranslationProvider.GUI_MTR_EMERALDS.getMutableText(getEmeraldCount());
 		graphicsHolder.drawText(balanceText, TEXT_PADDING, TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		graphicsHolder.drawText(emeraldsText, width - TEXT_PADDING - GraphicsHolder.getTextWidth(emeraldsText), TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 
 		for (int i = 0; i < BUTTON_COUNT; i++) {
-			graphicsHolder.drawText(TextHelper.translatable("gui.mtr.add_balance_for_emeralds", PacketAddBalance.getAddAmount(i), (int) Math.pow(2, i)), TEXT_PADDING, (i + 1) * SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+			graphicsHolder.drawText(TranslationProvider.GUI_MTR_ADD_BALANCE_FOR_EMERALDS.getMutableText(PacketAddBalance.getAddAmount(i), (int) Math.pow(2, i)), TEXT_PADDING, (i + 1) * SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		}
 
 		super.render(graphicsHolder, mouseX, mouseY, delta);

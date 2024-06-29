@@ -9,9 +9,9 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePai
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.KeyBindings;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateVehicleRidingEntities;
 import org.mtr.mod.render.RenderVehicleHelper;
 import org.mtr.mod.render.RenderVehicleTransformationHelper;
@@ -273,7 +273,7 @@ public class VehicleRidingMovement {
 		if (shiftHoldingTicks > 0 && clientPlayerEntity != null) {
 			final int progressFilled = MathHelper.clamp((int) (shiftHoldingTicks * DISMOUNT_PROGRESS_BAR_LENGTH / SHIFT_ACTIVATE_TICKS), 0, DISMOUNT_PROGRESS_BAR_LENGTH);
 			final String progressBar = String.format("§6%s§7%s", StringUtils.repeat('|', progressFilled), StringUtils.repeat('|', DISMOUNT_PROGRESS_BAR_LENGTH - progressFilled));
-			clientPlayerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr.dismount_hold", minecraftClient.getOptionsMapped().getKeySneakMapped().getBoundKeyLocalizedText().getString(), progressBar).data), true);
+			clientPlayerEntity.sendMessage(TranslationProvider.GUI_MTR_DISMOUNT_HOLD.getText(InitClient.getShiftText(), progressBar), true);
 			return false;
 		} else {
 			return true;

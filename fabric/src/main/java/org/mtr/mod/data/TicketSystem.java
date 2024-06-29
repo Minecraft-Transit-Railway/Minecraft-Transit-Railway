@@ -12,6 +12,7 @@ import org.mtr.mapping.mapper.ScoreboardHelper;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -116,7 +117,7 @@ public class TicketSystem {
 
 		if (entered(entryZone1, entryZone2, entryZone3)) {
 			if (remindIfNoRecord) {
-				player.sendMessage(new Text(TextHelper.translatable("gui.mtr.already_entered").data), true);
+				player.sendMessage(TranslationProvider.GUI_MTR_ALREADY_ENTERED.getText(), true);
 				return false;
 			} else {
 				setPlayerScore(world, player, ENTRY_ZONE_1_OBJECTIVE, ENTRY_ZONE_1_TITLE, 0);
@@ -132,10 +133,10 @@ public class TicketSystem {
 			setPlayerScore(world, player, ENTRY_ZONE_1_OBJECTIVE, ENTRY_ZONE_1_TITLE, encodeZone((int) station.getZone1()));
 			setPlayerScore(world, player, ENTRY_ZONE_2_OBJECTIVE, ENTRY_ZONE_2_TITLE, encodeZone((int) station.getZone2()));
 			setPlayerScore(world, player, ENTRY_ZONE_3_OBJECTIVE, ENTRY_ZONE_3_TITLE, encodeZone((int) station.getZone3()));
-			player.sendMessage(new Text(TextHelper.translatable("gui.mtr.enter_barrier", formatStationName(station), balance).data), true);
+			player.sendMessage(TranslationProvider.GUI_MTR_ENTER_BARRIER.getText(formatStationName(station), balance), true);
 			return true;
 		} else {
-			player.sendMessage(new Text(TextHelper.translatable("gui.mtr.insufficient_balance", balance).data), true);
+			player.sendMessage(TranslationProvider.GUI_MTR_INSUFFICIENT_BALANCE.getText(balance), true);
 			return false;
 		}
 	}
@@ -147,7 +148,7 @@ public class TicketSystem {
 		final boolean entered = entered(entryZone1, entryZone2, entryZone3);
 
 		if (!entered && remindIfNoRecord) {
-			player.sendMessage(new Text(TextHelper.translatable("gui.mtr.already_exited").data), true);
+			player.sendMessage(TranslationProvider.GUI_MTR_ALREADY_EXITED.getText(), true);
 			return false;
 		} else {
 			final long fare = BASE_FARE + ZONE_FARE * (Math.abs(station.getZone1() - decodeZone(entryZone1)) + Math.abs(station.getZone2() - decodeZone(entryZone2)) + Math.abs(station.getZone3() - decodeZone(entryZone3)));
@@ -157,7 +158,7 @@ public class TicketSystem {
 			setPlayerScore(world, player, ENTRY_ZONE_3_OBJECTIVE, ENTRY_ZONE_3_TITLE, 0);
 			incrementPlayerScore(world, player, BALANCE_OBJECTIVE, BALANCE_OBJECTIVE_TITLE, (int) -finalFare);
 			final int balance = getPlayerScore(world, player, BALANCE_OBJECTIVE, BALANCE_OBJECTIVE_TITLE);
-			player.sendMessage(new Text(TextHelper.translatable("gui.mtr.exit_barrier", formatStationName(station), finalFare, balance).data), true);
+			player.sendMessage(TranslationProvider.GUI_MTR_EXIT_BARRIER.getText(formatStationName(station), finalFare, balance), true);
 			return true;
 		}
 	}

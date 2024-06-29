@@ -6,14 +6,14 @@ import org.mtr.core.data.TransportMode;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateData;
 
 public class PlatformScreen extends SavedRailScreenBase<Platform, Station> {
 
-	private static final MutableText DWELL_TIME_TEXT = TextHelper.translatable("gui.mtr.dwell_time");
+	private static final MutableText DWELL_TIME_TEXT = TranslationProvider.GUI_MTR_DWELL_TIME.getMutableText();
 
 	public PlatformScreen(Platform savedRailBase, TransportMode transportMode, DashboardScreen dashboardScreen) {
 		super(savedRailBase, transportMode, dashboardScreen, DWELL_TIME_TEXT);
@@ -48,7 +48,7 @@ public class PlatformScreen extends SavedRailScreenBase<Platform, Station> {
 	}
 
 	@Override
-	protected String getNumberStringKey() {
-		return "gui.mtr.platform_number";
+	protected TranslationProvider.TranslationHolder getNumberStringKey() {
+		return TranslationProvider.GUI_MTR_PLATFORM_NUMBER;
 	}
 }
