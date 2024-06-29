@@ -12,6 +12,7 @@ import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.Init;
 import org.mtr.mod.Items;
 import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.ClientPacketHelper;
 import org.mtr.mod.packet.PacketDeleteData;
 
@@ -123,7 +124,7 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 
 		@Override
 		public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-			final String[] strings = TextHelper.translatable("tooltip.mtr.cable_car_node" + (isStation ? "_station" : "")).getString().split("\n");
+			final String[] strings = (isStation ? TranslationProvider.TOOLTIP_MTR_CABLE_CAR_NODE_STATION : TranslationProvider.TOOLTIP_MTR_CABLE_CAR_NODE).getString().split("\n");
 			for (final String string : strings) {
 				tooltip.add(TextHelper.literal(string).formatted(TextFormatting.GRAY));
 			}

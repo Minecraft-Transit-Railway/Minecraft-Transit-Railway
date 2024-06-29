@@ -9,6 +9,7 @@ import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockTrainAnnouncer;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateTrainAnnouncerConfig;
 import org.mtr.mod.resource.CustomResourceTools;
 
@@ -24,8 +25,8 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 
 	public TrainAnnouncerScreen(BlockPos pos, BlockTrainAnnouncer.BlockEntity blockEntity) {
 		super(pos, true,
-				new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TextHelper.translatable("gui.mtr.announcement_message")),
-				new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TextHelper.translatable("gui.mtr.sound_file"))
+				new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TranslationProvider.GUI_MTR_ANNOUNCEMENT_MESSAGE.getMutableText()),
+				new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TranslationProvider.GUI_MTR_SOUND_FILE.getMutableText())
 		);
 
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();

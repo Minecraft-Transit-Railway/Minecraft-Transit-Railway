@@ -4,9 +4,9 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockWithEntity;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.BlockEntityTypes;
 import org.mtr.mod.Init;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketDeleteData;
 import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
 
@@ -53,7 +53,7 @@ public class BlockLiftTrackFloor extends BlockLiftTrackBase implements BlockWith
 
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		tooltip.add(TextHelper.translatable("tooltip.mtr.lift_track_floor").formatted(TextFormatting.GRAY));
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_LIFT_TRACK_FLOOR.getMutableText().formatted(TextFormatting.GRAY));
 	}
 
 	@Override

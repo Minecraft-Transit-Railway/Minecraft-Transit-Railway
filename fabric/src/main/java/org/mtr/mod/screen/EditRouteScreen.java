@@ -15,11 +15,12 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateData;
 
 public class EditRouteScreen extends EditNameColorScreenBase<Route> implements IGui {
 
-	private final MutableText lightRailRouteNumberText = TextHelper.translatable("gui.mtr.light_rail_route_number");
+	private final MutableText lightRailRouteNumberText = TranslationProvider.GUI_MTR_LIGHT_RAIL_ROUTE_NUMBER.getMutableText();
 
 	private final TextFieldWidgetExtension textFieldLightRailRouteNumber;
 	private final ButtonWidgetExtension buttonRouteType;
@@ -33,18 +34,18 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 	private static final int CHECKBOX_WIDTH = 160;
 
 	public EditRouteScreen(Route route, DashboardScreen dashboardScreen) {
-		super(route, dashboardScreen, "gui.mtr.route_name", "gui.mtr.route_color");
+		super(route, dashboardScreen, TranslationProvider.GUI_MTR_ROUTE_NAME, TranslationProvider.GUI_MTR_ROUTE_COLOR);
 
 		textFieldLightRailRouteNumber = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 256, TextCase.DEFAULT, null, null);
-		buttonRouteType = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_value"), button -> setRouteType(route, route.getRouteType().next()));
+		buttonRouteType = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_ADD_VALUE.getMutableText(), button -> setRouteType(route, route.getRouteType().next()));
 		buttonIsRouteHidden = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, this::setIsRouteHidden);
-		buttonIsRouteHidden.setMessage2(new Text(TextHelper.translatable("gui.mtr.is_route_hidden").data));
+		buttonIsRouteHidden.setMessage2(TranslationProvider.GUI_MTR_IS_ROUTE_HIDDEN.getText());
 		buttonDisableNextStationAnnouncements = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, this::setDisableNextStationAnnouncements);
-		buttonDisableNextStationAnnouncements.setMessage2(new Text(TextHelper.translatable("gui.mtr.disable_next_station_announcements").data));
+		buttonDisableNextStationAnnouncements.setMessage2(TranslationProvider.GUI_MTR_DISABLE_NEXT_STATION_ANNOUNCEMENTS.getText());
 		buttonIsClockwiseRoute = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, this::setIsClockwise);
-		buttonIsClockwiseRoute.setMessage2(new Text(TextHelper.translatable("gui.mtr.is_clockwise_route").data));
+		buttonIsClockwiseRoute.setMessage2(TranslationProvider.GUI_MTR_IS_CLOCKWISE_ROUTE.getText());
 		buttonIsAntiClockwiseRoute = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, this::setIsAntiClockwise);
-		buttonIsAntiClockwiseRoute.setMessage2(new Text(TextHelper.translatable("gui.mtr.is_anticlockwise_route").data));
+		buttonIsAntiClockwiseRoute.setMessage2(TranslationProvider.GUI_MTR_IS_ANTICLOCKWISE_ROUTE.getText());
 
 		if (!route.getRoutePlatforms().isEmpty()) {
 			final Station firstStation = Utilities.getElement(route.getRoutePlatforms(), 0).platform.area;
@@ -122,7 +123,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 
 	private void setRouteType(Route route, RouteType newRouteType) {
 		route.setRouteType(newRouteType);
-		buttonRouteType.setMessage2(new Text(TextHelper.translatable(route.getRouteTypeKey()).data));
+		buttonRouteType.setMessage2(getRouteTypeText(route));
 	}
 
 	private void setIsRouteHidden(boolean isRouteHidden) {
@@ -144,6 +145,18 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 		buttonIsAntiClockwiseRoute.setChecked(isAntiClockwise);
 		if (isAntiClockwise) {
 			buttonIsClockwiseRoute.setChecked(false);
+		}
+	}
+
+	private static Text getRouteTypeText(Route route) {
+		final RouteType routeType = route.getRouteType();
+		switch (route.getTransportMode()) {
+			case TRAIN:
+				return (routeType == RouteType.LIGHT_RAIL ? TranslationProvider.GUI_MTR_ROUTE_TYPE_TRAIN_LIGHT_RAIL : routeType == RouteType.HIGH_SPEED ? TranslationProvider.GUI_MTR_ROUTE_TYPE_TRAIN_HIGH_SPEED : TranslationProvider.GUI_MTR_ROUTE_TYPE_TRAIN_NORMAL).getText();
+			case BOAT:
+				return (routeType == RouteType.LIGHT_RAIL ? TranslationProvider.GUI_MTR_ROUTE_TYPE_BOAT_LIGHT_RAIL : routeType == RouteType.HIGH_SPEED ? TranslationProvider.GUI_MTR_ROUTE_TYPE_BOAT_HIGH_SPEED : TranslationProvider.GUI_MTR_ROUTE_TYPE_BOAT_NORMAL).getText();
+			default:
+				return new Text(TextHelper.literal("").data);
 		}
 	}
 }

@@ -4,8 +4,8 @@ import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ScreenExtension;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -26,7 +26,7 @@ public class FileUploaderScreen extends ScreenExtension implements IGui {
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 		renderBackground(graphicsHolder);
 		super.render(graphicsHolder, mouseX, mouseY, delta);
-		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.drag_file_to_upload"), width / 2, (height - TEXT_HEIGHT) / 2, ARGB_WHITE);
+		graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_DRAG_FILE_TO_UPLOAD.getMutableText(), width / 2, (height - TEXT_HEIGHT) / 2, ARGB_WHITE);
 	}
 
 	@Override

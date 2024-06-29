@@ -2,14 +2,17 @@ package org.mtr.mod.screen;
 
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
-import org.mtr.mapping.holder.*;
+import org.mtr.mapping.holder.BlockPos;
+import org.mtr.mapping.holder.ClickableWidget;
+import org.mtr.mapping.holder.ClientWorld;
+import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.mapper.CheckboxWidgetExtension;
 import org.mtr.mapping.mapper.TextFieldWidgetExtension;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockTrainScheduleSensor;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateTrainScheduleSensorConfig;
 
 public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
@@ -22,7 +25,7 @@ public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 	private static final int DEFAULT_SECONDS = 10;
 
 	public TrainScheduleSensorScreen(BlockPos pos, BlockTrainScheduleSensor.BlockEntity blockEntity) {
-		super(pos, false, new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_SECONDS_LENGTH, TextCase.DEFAULT, "[^\\d-]", null), TextHelper.translatable("gui.mtr.train_schedule_sensor")));
+		super(pos, false, new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_SECONDS_LENGTH, TextCase.DEFAULT, "[^\\d-]", null), TranslationProvider.GUI_MTR_TRAIN_SCHEDULE_SENSOR.getMutableText()));
 
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 		if (clientWorld == null) {
@@ -35,7 +38,7 @@ public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 
 		realtimeOnlyCheckbox = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
 		});
-		realtimeOnlyCheckbox.setMessage2(new Text(TextHelper.translatable("gui.mtr.realtime_only").data));
+		realtimeOnlyCheckbox.setMessage2(TranslationProvider.GUI_MTR_REALTIME_ONLY.getText());
 	}
 
 	@Override

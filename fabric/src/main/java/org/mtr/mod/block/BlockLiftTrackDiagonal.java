@@ -3,8 +3,8 @@ package org.mtr.mod.block;
 import org.mtr.core.tool.Vector;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,7 +43,7 @@ public class BlockLiftTrackDiagonal extends BlockLiftTrackBase implements IBlock
 
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		tooltip.add(TextHelper.translatable("tooltip.mtr.lift_track_diagonal").formatted(TextFormatting.GRAY));
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_LIFT_TRACK_DIAGONAL.getMutableText().formatted(TextFormatting.GRAY));
 	}
 
 	@Override

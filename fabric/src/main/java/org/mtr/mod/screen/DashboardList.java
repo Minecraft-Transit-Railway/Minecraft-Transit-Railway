@@ -8,11 +8,15 @@ import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MathHelper;
 import org.mtr.mapping.holder.Screen;
-import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.GuiDrawing;
+import org.mtr.mapping.mapper.TextFieldWidgetExtension;
+import org.mtr.mapping.mapper.TexturedButtonWidgetExtension;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -64,7 +68,7 @@ public class DashboardList implements IGui {
 	public <T> DashboardList(@Nullable Callback onFind, @Nullable Callback onDrawArea, @Nullable Callback onEdit, @Nullable Runnable onSort, @Nullable Callback onAdd, @Nullable Callback onDelete, @Nullable Supplier<List<T>> getList, Supplier<String> getSearch, Consumer<String> setSearch, boolean playSound) {
 		this.getSearch = getSearch;
 		this.setSearch = setSearch;
-		textFieldSearch = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 256, TextCase.DEFAULT, null, TextHelper.translatable("gui.mtr.search").getString());
+		textFieldSearch = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_SEARCH.getString());
 		buttonPrevPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_left.png"), new Identifier("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1));
 		buttonNextPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_right.png"), new Identifier("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1));
 		buttonFind = new WidgetSilentImageButton(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_find.png"), new Identifier("textures/gui/sprites/mtr/icon_find_highlighted.png"), button -> onClick(onFind), playSound);

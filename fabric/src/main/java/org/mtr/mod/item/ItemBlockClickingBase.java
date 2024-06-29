@@ -2,7 +2,7 @@ package org.mtr.mod.item;
 
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ItemExtension;
-import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,7 +46,7 @@ public abstract class ItemBlockClickingBase extends ItemExtension {
 		final CompoundTag compoundTag = stack.getOrCreateTag();
 		final long posLong = compoundTag.getLong(TAG_POS);
 		if (posLong != 0) {
-			tooltip.add(TextHelper.translatable("tooltip.mtr.selected_block", BlockPos.fromLong(posLong).toShortString()).formatted(TextFormatting.GOLD));
+			tooltip.add(TranslationProvider.TOOLTIP_MTR_SELECTED_BLOCK.getMutableText(BlockPos.fromLong(posLong).toShortString()).formatted(TextFormatting.GOLD));
 		}
 	}
 

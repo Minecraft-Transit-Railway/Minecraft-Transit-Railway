@@ -84,11 +84,17 @@ public class BuildTools {
 		final StringBuilder stringBuilder = new StringBuilder("package org.mtr.mod.generated.lang;import org.mtr.mapping.holder.MutableText;import org.mtr.mapping.holder.Text;import org.mtr.mapping.mapper.GraphicsHolder;import org.mtr.mapping.mapper.TextHelper;public interface TranslationProvider{\n");
 		JsonParser.parseString(FileUtils.readFileToString(path.resolve("src/main/resources/assets/mtr/lang/en_us.json").toFile(), StandardCharsets.UTF_8)).getAsJsonObject().entrySet().forEach(entry -> {
 			final String key = entry.getKey();
-			if (!key.startsWith("block.") && !key.startsWith("item.") && !key.startsWith("itemgroup.")) {
-				stringBuilder.append(String.format("TranslationHolder %s=new TranslationHolder(\"%s\");\n", key.replace(".", "_").toUpperCase(Locale.ENGLISH), key));
+			if (key.startsWith("block.") || key.startsWith("item.") || key.startsWith("itemGroup.")) {
+				stringBuilder.append("@SuppressWarnings(\"unused\")");
 			}
+			stringBuilder.append(String.format("TranslationHolder %s=new TranslationHolder(\"%s\");\n", key.replace(".", "_").toUpperCase(Locale.ENGLISH), key));
 		});
-		stringBuilder.append("class TranslationHolder{private final String key;private TranslationHolder(String key){this.key=key;}public MutableText getMutableText(Object...arguments){return TextHelper.translatable(key,arguments);}public Text getText(Object...arguments){return new Text(TextHelper.translatable(key,arguments).data);}public int width(Object...arguments){return GraphicsHolder.getTextWidth(getMutableText(arguments));}}}");
+		stringBuilder.append("class TranslationHolder{public final String key;private TranslationHolder(String key){this.key=key;}\n");
+		stringBuilder.append("public MutableText getMutableText(Object...arguments){return TextHelper.translatable(key,arguments);}\n");
+		stringBuilder.append("public Text getText(Object...arguments){return new Text(TextHelper.translatable(key,arguments).data);}\n");
+		stringBuilder.append("public String getString(Object...arguments){return getMutableText(arguments).getString();}\n");
+		stringBuilder.append("public int width(Object...arguments){return GraphicsHolder.getTextWidth(getMutableText(arguments));}\n");
+		stringBuilder.append("}}");
 		FileUtils.write(path.resolve("src/main/java/org/mtr/mod/generated/lang/TranslationProvider.java").toFile(), stringBuilder.toString(), StandardCharsets.UTF_8);
 	}
 
