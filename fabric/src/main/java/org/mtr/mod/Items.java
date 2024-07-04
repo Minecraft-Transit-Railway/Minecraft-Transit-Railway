@@ -162,8 +162,12 @@ public final class Items {
 	public static final ItemRegistryObject PSD_GLASS_2;
 	public static final ItemRegistryObject PSD_GLASS_END_1;
 	public static final ItemRegistryObject PSD_GLASS_END_2;
+	public static final ItemRegistryObject RAIL_CONNECTOR_100;
+	public static final ItemRegistryObject RAIL_CONNECTOR_100_ONE_WAY;
 	public static final ItemRegistryObject RAIL_CONNECTOR_120;
 	public static final ItemRegistryObject RAIL_CONNECTOR_120_ONE_WAY;
+	public static final ItemRegistryObject RAIL_CONNECTOR_140;
+	public static final ItemRegistryObject RAIL_CONNECTOR_140_ONE_WAY;
 	public static final ItemRegistryObject RAIL_CONNECTOR_160;
 	public static final ItemRegistryObject RAIL_CONNECTOR_160_ONE_WAY;
 	public static final ItemRegistryObject RAIL_CONNECTOR_20;
