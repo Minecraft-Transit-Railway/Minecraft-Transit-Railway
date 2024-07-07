@@ -1,42 +1,41 @@
 name: Suggestions
-description: Help improve MTR by providing ideas and the possibilities of new functionality!
+description: Help improve Minecraft Transit Railway by providing ideas and possibilities for new functionality!
 labels: [ "enhancement" ]
 body:
-    -   type: dropdown
-        attributes:
-            label: Suggestion Type
-            description: What is the category you are trying to suggest?
-            options:
-                - "Train simulation mechanics"
-                - "Train visual/audio effect"
-                - "Minecraft block/item"
-                - "User Experience"
-                - "Other"
-        validations:
-            required: true
-    -   type: textarea
-        attributes:
-            label: Suggestion
-            description: A brief description of your suggestion.
-        validations:
-            required: true
-    -   type: textarea
-        attributes:
-            label: Assets
-            description: |
-                If you are suggesting the addition of content in this mod, and you have a pre-made assets (e.g. Textures/Model) ready to be used, you can fill in here.  
-                **Please note that the assets must be permissively licensed and it's license permits the addition in our mod**
-        validations:
-            required: false
-    -   type: textarea
-        attributes:
-            label: Implementation Detail/References
-            description: If you have any ideas as to how exactly you want your suggestion to be implemented (Text, Screenshot or Video), you may fill it in here.
-        validations:
-            required: false
-    -   type: markdown
-        attributes:
-            value: |
-                Thank you for your suggestion! Note that depending on the situations and code-complexity, your suggestion may not always be implemented as-is.  
-                
-                Further discussion may be made in this issue.
+  - type: dropdown
+    attributes:
+      label: Suggestion Type
+      description: What category does your suggestion fall into?
+      options:
+        - "Train simulation mechanics"
+        - "Train visual/audio effects"
+        - "New blocks/items"
+        - "User experience"
+        - "Other"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Suggestion
+      description: A brief description of your suggestion.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Assets
+      description: |
+        If you are suggesting new content for this mod and have pre-made assets, such as textures or models, you can provide them here.  
+        **Please note that the assets must be permissively licensed and can be used in our mod.**
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Implementation Details and References
+      description: If you have any ideas about how exactly you want your suggestion to be implemented, such as a detailed description, screenshots, or videos, you can provide them here.
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your suggestion! Please note that depending on various factors and code complexity, your suggestion may not always be implemented as-is.
+        Further discussion may take place in this issue.
