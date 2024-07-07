@@ -58,8 +58,8 @@ Crowdin is a cloud-based platform for translators to contribute to a project. Wi
 To build the mod, run the following commands in the root directory of the project:
 
 ```gradle
-gradlew setupFiles -PminecraftVersion=<minecraft version>
-gradlew build -PminecraftVersion=<minecraft version>
+gradlew setupFiles -PminecraftVersion="<minecraft version>"
+gradlew build -PminecraftVersion="<minecraft version>"
 ```
 
 The mod jar file should be generated in the following directory:
