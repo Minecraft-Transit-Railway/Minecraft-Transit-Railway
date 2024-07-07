@@ -1,0 +1,118 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window",
+			"positions": [
+				{
+					"z": -64
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 64
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -64
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 64
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"z": -96
+				},
+				{
+					"z": -32
+				},
+				{
+					"z": 32
+				},
+				{
+					"z": 96
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -96
+				},
+				{
+					"z": -32
+				},
+				{
+					"z": 32
+				},
+				{
+					"z": 96
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -128
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 128
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -128
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 128
+				}
+			]
+		},
+		{
+			"name": "antler1",
+			"positions": [
+				{
+					"z": -158
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -158
+				}
+			]
+		},
+		{
+			"name": "antler2",
+			"positions": [
+				{
+					"z": 158
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 158
+				}
+			]
+		}
+	]
+}

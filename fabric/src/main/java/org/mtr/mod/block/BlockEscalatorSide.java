@@ -31,13 +31,13 @@ public class BlockEscalatorSide extends BlockEscalatorBase {
 	}
 
 	@Override
-	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		BlockPos offsetPos = pos.down();
 		if (IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT) {
 			offsetPos = offsetPos.offset(IBlock.getSideDirection(state));
 		}
 		IBlock.onBreakCreative(world, player, offsetPos);
-		super.onBreak3(world, pos, state, player);
+		super.onBreak2(world, pos, state, player);
 	}
 
 	@Nonnull

@@ -14,9 +14,7 @@ public class ModelLift1 extends ModelTrainBase {
 	private final ModelPartExtension main_edge_wall;
 	private final ModelPartExtension main_edge_ceiling;
 	private final ModelPartExtension main_corner;
-	private final ModelPartExtension handrail_bottom_r1;
 	private final ModelPartExtension main_corner_wall;
-	private final ModelPartExtension wall_r1;
 	private final ModelPartExtension main_corner_ceiling;
 	private final ModelPartExtension main_exterior;
 	private final ModelPartExtension main_exterior_ceiling;
@@ -37,11 +35,7 @@ public class ModelLift1 extends ModelTrainBase {
 	private final ModelPartExtension door_wall_exterior;
 	private final ModelPartExtension door_ceiling_exterior;
 	private final ModelPartExtension wall_patch;
-	private final ModelPartExtension wall_r2;
-	private final ModelPartExtension wall_r3;
 	private final ModelPartExtension wall_patch_wall;
-	private final ModelPartExtension wall_r4;
-	private final ModelPartExtension wall_r5;
 
 	private final int heightCount;
 	private final int heightOffset;
@@ -56,9 +50,6 @@ public class ModelLift1 extends ModelTrainBase {
 		this.width = width;
 		this.depth = depth;
 		this.isDoubleSided = isDoubleSided;
-
-		final int textureWidth = 128;
-		final int textureHeight = 128;
 
 		main = createModelPart();
 		main.setPivot(0, 24, 0);
@@ -91,9 +82,8 @@ public class ModelLift1 extends ModelTrainBase {
 		main_corner.setTextureUVOffset(27, 50).addCuboid(5, -2, -4, 3, 1, 1, 0, false);
 		main_corner.setTextureUVOffset(104, 68).addCuboid(2, -32, -3, 1, 32, 1, 0, false);
 
-		handrail_bottom_r1 = createModelPart();
+		final ModelPartExtension handrail_bottom_r1 = main_corner.addChild();
 		handrail_bottom_r1.setPivot(0, 0, 0);
-		main_corner.addChild(handrail_bottom_r1);
 		setRotationAngle(handrail_bottom_r1, 0, -1.5708F, 0);
 		handrail_bottom_r1.setTextureUVOffset(36, 50).addCuboid(-8, -2, -4, 3, 1, 1, 0, false);
 		handrail_bottom_r1.setTextureUVOffset(38, 52).addCuboid(-8, -13, -4, 3, 1, 1, 0, false);
@@ -104,9 +94,8 @@ public class ModelLift1 extends ModelTrainBase {
 		main_corner_wall.setTextureUVOffset(112, 62).addCuboid(3, -40, -3, 5, 8, 1, 0, false);
 		main_corner_wall.setTextureUVOffset(104, 68).addCuboid(2, -40, -3, 1, 8, 1, 0, false);
 
-		wall_r1 = createModelPart();
+		final ModelPartExtension wall_r1 = main_corner_wall.addChild();
 		wall_r1.setPivot(0, 0, 0);
-		main_corner_wall.addChild(wall_r1);
 		setRotationAngle(wall_r1, 0, -1.5708F, 0);
 		wall_r1.setTextureUVOffset(112, 62).addCuboid(-8, -40, -3, 5, 8, 1, 0, false);
 
@@ -153,13 +142,11 @@ public class ModelLift1 extends ModelTrainBase {
 		door.setTextureUVOffset(20, 101).addCuboid(-16, 0, 0, 32, 0, 8, 0, false);
 
 		door_left = createModelPart();
-		door_left.setPivot(0, 0, 0);
-		door.addChild(door_left);
+		door_left.setPivot(0, 24, 0);
 		door_left.setTextureUVOffset(52, 68).addCuboid(-12, -32, 6, 12, 32, 0, 0, false);
 
 		door_right = createModelPart();
-		door_right.setPivot(0, 0, 0);
-		door.addChild(door_right);
+		door_right.setPivot(0, 24, 0);
 		door_right.setTextureUVOffset(28, 68).addCuboid(0, -32, 6, 12, 32, 0, 0, false);
 
 		door_wall = createModelPart();
@@ -177,13 +164,11 @@ public class ModelLift1 extends ModelTrainBase {
 		door_exterior.setTextureUVOffset(28, 109).addCuboid(-16, 0, 0, 32, 1, 8, 0, false);
 
 		door_left_exterior = createModelPart();
-		door_left_exterior.setPivot(0, 0, 0);
-		door_exterior.addChild(door_left_exterior);
+		door_left_exterior.setPivot(0, 24, 0);
 		door_left_exterior.setTextureUVOffset(0, 50).addCuboid(-12, -32, 6, 12, 32, 2, 0, false);
 
 		door_right_exterior = createModelPart();
-		door_right_exterior.setPivot(0, 0, 0);
-		door_exterior.addChild(door_right_exterior);
+		door_right_exterior.setPivot(0, 24, 0);
 		door_right_exterior.setTextureUVOffset(48, 34).addCuboid(0, -32, 6, 12, 32, 2, 0, false);
 
 		door_wall_exterior = createModelPart();
@@ -198,17 +183,15 @@ public class ModelLift1 extends ModelTrainBase {
 		wall_patch.setPivot(0, 24, 0);
 
 
-		wall_r2 = createModelPart();
+		final ModelPartExtension wall_r2 = wall_patch.addChild();
 		wall_r2.setPivot(0, 0, 0);
-		wall_patch.addChild(wall_r2);
 		setRotationAngle(wall_r2, 0, -1.5708F, 0);
 		wall_r2.setTextureUVOffset(108, 95).addCuboid(0, -32, 13, 4, 32, 1, 0, false);
 		wall_r2.setTextureUVOffset(30, 50).addCuboid(0, -2, 12, 4, 1, 1, 0, false);
 		wall_r2.setTextureUVOffset(32, 52).addCuboid(0, -13, 12, 4, 1, 1, 0, false);
 
-		wall_r3 = createModelPart();
+		final ModelPartExtension wall_r3 = wall_patch.addChild();
 		wall_r3.setPivot(0, 0, 0);
-		wall_patch.addChild(wall_r3);
 		setRotationAngle(wall_r3, 0, 1.5708F, 0);
 		wall_r3.setTextureUVOffset(108, 95).addCuboid(-4, -32, 13, 4, 32, 1, 0, false);
 		wall_r3.setTextureUVOffset(30, 50).addCuboid(-4, -2, 12, 4, 1, 1, 0, false);
@@ -218,15 +201,13 @@ public class ModelLift1 extends ModelTrainBase {
 		wall_patch_wall.setPivot(0, 24, 0);
 
 
-		wall_r4 = createModelPart();
+		final ModelPartExtension wall_r4 = wall_patch_wall.addChild();
 		wall_r4.setPivot(0, 0, 0);
-		wall_patch_wall.addChild(wall_r4);
 		setRotationAngle(wall_r4, 0, -1.5708F, 0);
 		wall_r4.setTextureUVOffset(108, 95).addCuboid(0, -40, 13, 4, 8, 1, 0, false);
 
-		wall_r5 = createModelPart();
+		final ModelPartExtension wall_r5 = wall_patch_wall.addChild();
 		wall_r5.setPivot(0, 0, 0);
-		wall_patch_wall.addChild(wall_r5);
 		setRotationAngle(wall_r5, 0, 1.5708F, 0);
 		wall_r5.setTextureUVOffset(108, 95).addCuboid(-4, -40, 13, 4, 8, 1, 0, false);
 
@@ -347,15 +328,15 @@ public class ModelLift1 extends ModelTrainBase {
 			final ModelPartExtension mainEdgePiece = renderStage == RenderStage.INTERIOR ? main_edge : main_exterior_edge;
 			final ModelPartExtension mainEdgeCeilingPiece = renderStage == RenderStage.INTERIOR ? main_edge_ceiling : main_exterior_edge_ceiling;
 
-			doorLeftPiece.setOffset(-doorLeftZ, 0, 0);
-			doorRightPiece.setOffset(doorLeftZ, 0, 0);
+			ModelTrainBase.renderOnceFlipped(doorLeftPiece, graphicsHolder, light, -doorLeftZ, 8 - depth * 8);
+			ModelTrainBase.renderOnceFlipped(doorRightPiece, graphicsHolder, light, doorLeftZ, 8 - depth * 8);
 			ModelTrainBase.renderOnceFlipped(doorPiece, graphicsHolder, light, 8 - depth * 8);
 			renderWallOnceFlipped(doorWallPiece, graphicsHolder, 0, 8 - depth * 8, light);
 			ModelTrainBase.renderOnceFlipped(doorCeilingPiece, graphicsHolder, light, 0, heightOffset, 8 - depth * 8);
 
 			if (isDoubleSided) {
-				doorLeftPiece.setOffset(-doorRightZ, 0, 0);
-				doorRightPiece.setOffset(doorRightZ, 0, 0);
+				ModelTrainBase.renderOnce(doorLeftPiece, graphicsHolder, light, -doorRightZ, -8 + depth * 8);
+				ModelTrainBase.renderOnce(doorRightPiece, graphicsHolder, light, doorRightZ, -8 + depth * 8);
 				ModelTrainBase.renderOnce(doorPiece, graphicsHolder, light, -8 + depth * 8);
 				renderWallOnce(doorWallPiece, graphicsHolder, 0, -8 + depth * 8, light);
 				ModelTrainBase.renderOnce(doorCeilingPiece, graphicsHolder, light, 0, heightOffset, -8 + depth * 8);
@@ -393,6 +374,11 @@ public class ModelLift1 extends ModelTrainBase {
 				}
 			}
 		}
+	}
+
+	@Override
+	protected void baseTransform(GraphicsHolder graphicsHolder) {
+		graphicsHolder.translate(0, -1.5, 0);
 	}
 
 	@Override

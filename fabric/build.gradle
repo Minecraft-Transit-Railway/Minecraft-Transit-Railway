@@ -11,6 +11,7 @@ final BuildTools buildTools = new BuildTools(minecraftVersion, "fabric", project
 loom {
 	accessWidenerPath = file("src/main/resources/mtr.accesswidener")
 	runConfigs.configureEach { ideConfigGenerated = true }
+	mixin { setDefaultRefmapName("mtr.refmap.json") }
 }
 
 dependencies {
@@ -20,6 +21,8 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${buildTools.getFabricApiVersion()}"
 	modApi "com.terraformersmc:modmenu:${buildTools.getModMenuVersion()}"
 	shadowImplementation "org.mtr:Minecraft-Mappings-fabric-${minecraftVersion}:0.0.1-dev"
+	testImplementation "org.junit.jupiter:junit-jupiter-api:+"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:+"
 }
 
 repositories {
@@ -39,7 +42,7 @@ tasks.register("setupFiles") {
 		outputs.upToDateWhen { false }
 		from "src/main/KeysTemplate.java"
 		into "src/main/java/org/mtr/mod"
-		filter(ReplaceTokens, tokens: ["key": patreonApiKey, "version": minecraftVersion + "-" + version, "server": testServer])
+		filter(ReplaceTokens, tokens: ["key": patreonApiKey, "version": version + "+" + minecraftVersion, "server": testServer, "debug": debug])
 		rename "(.+)Template.java", "\$1.java"
 	}
 
@@ -47,25 +50,36 @@ tasks.register("setupFiles") {
 		outputs.upToDateWhen { false }
 		from "src/main/fabric.mod.template.json"
 		into "src/main/resources"
-		filter(ReplaceTokens, tokens: ["minecraft": minecraftVersion, "version": minecraftVersion + "-" + version])
+		filter(ReplaceTokens, tokens: ["minecraft": minecraftVersion, "version": version])
 		rename "(.+).template.json", "\$1.json"
 	}
 
+	buildTools.generateTranslations()
 	buildTools.copyLootTables()
 	buildTools.copyFontDefinition()
 	buildTools.copyVehicleTemplates()
+	Generator.generate(project, "schema/config", "mod/generated/config", false, "mod.config")
 	Generator.generate(project, "schema/resource", "mod/generated/resource", false, "core.data", "mod.resource")
 	Generator.generate(project, "schema/legacy", "legacy/generated/resource", false)
 }
 
 build {
 	doLast {
-		buildTools.copyBuildFile()
+		buildTools.copyBuildFile(excludeAssets == "true")
 	}
+}
+
+shadowJar {
+	exclude excludeAssets == "true" ? "assets" : "abc123"
 }
 
 remapJar {
 	dependsOn(shadowJar)
 	mustRunAfter(shadowJar)
 	inputFile = file(shadowJar.archivePath)
+}
+
+test {
+	useJUnitPlatform()
+	testLogging { showStandardStreams = true }
 }

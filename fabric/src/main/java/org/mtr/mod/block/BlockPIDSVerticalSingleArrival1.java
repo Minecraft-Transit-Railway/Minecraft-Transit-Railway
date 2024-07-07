@@ -31,17 +31,5 @@ public class BlockPIDSVerticalSingleArrival1 extends BlockPIDSVerticalBase {
 		public BlockEntity(BlockPos pos, BlockState state) {
 			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_VERTICAL_SINGLE_ARRIVAL_1.get(), pos, state);
 		}
-
-		@Override
-		public String defaultFormat(int line) {
-			// TODO
-			if (line == 0) {
-				return "@0-100L@$#FF9900$%destination1%";
-			} else if (line == 1) {
-				return "@0-100R@$#FF9900$%RAH1%:%RA0m1%:%RA0s1%";
-			} else {
-				return "";
-			}
-		}
 	}
 }

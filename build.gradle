@@ -16,15 +16,12 @@ subprojects {
 	}
 
 	dependencies {
-		shadowImplementation "com.github.jonafanho:Shadow-Libraries:master-SNAPSHOT"
+		shadowImplementation "org.mtr:Shadow-Libraries-net:0.0.1"
+		shadowImplementation "org.mtr:Shadow-Libraries-util:0.0.1"
 		shadowImplementation "org.mtr:Minecraft-Mappings-common:0.0.1"
 		shadowImplementation "org.mtr:Transport-Simulation-Core:0.0.1"
-		shadowImplementation "com.squareup.okhttp3:okhttp:+"
-		shadowImplementation "org.eclipse.jetty:jetty-server:9.+"
-		shadowImplementation "org.eclipse.jetty:jetty-servlet:9.+"
-		shadowImplementation "org.eclipse.jetty:jetty-util:9.+"
-		shadowImplementation "javax.servlet:javax.servlet-api:+"
 		shadowImplementation "com.logisticscraft:occlusionculling:+"
+		shadowImplementation "io.nayuki:qrcodegen:+"
 		compileOnly "com.google.code.findbugs:jsr305:+"
 		compileOnly "xyz.jpenilla:squaremap-api:+"
 		compileOnly "net.kyori:adventure-api:+"
@@ -33,16 +30,25 @@ subprojects {
 
 	repositories {
 		flatDir { dirs "../libs" }
-		maven { url "https://jitpack.io" }
 		maven { url "https://repo.codemc.org/repository/maven-public" }
 	}
 
 	shadowJar {
 		configurations = [project.configurations.shadowImplementation]
-		minimize { exclude(dependency("com.github.jonafanho.Shadow-Libraries:net:.*")) }
+		minimize {
+			exclude(dependency("org.mtr:Shadow-Libraries-net:.*"))
+			exclude(dependency("org.mtr:Minecraft-Mappings-common:.*"))
+			exclude(dependency("org.mtr:Minecraft-Mappings-fabric-${minecraftVersion}:.*"))
+			exclude(dependency("org.mtr:Minecraft-Mappings-forge-${minecraftVersion}:.*"))
+		}
 		relocate "com.logisticscraft", "org.mtr.libraries.com.logisticscraft"
-		relocate "org.eclipse", "org.mtr.libraries.org.eclipse"
-		relocate "javax.servlet", "org.mtr.libraries.javax.servlet"
+		relocate "de.javagl", "org.mtr.libraries.de.javagl"
+		relocate "io.nayuki", "org.mtr.libraries.io.nayuki"
+	}
+
+	tasks.withType(AbstractArchiveTask).configureEach {
+		preserveFileTimestamps = false
+		reproducibleFileOrder = true
 	}
 
 	tasks.withType(Javadoc).tap {

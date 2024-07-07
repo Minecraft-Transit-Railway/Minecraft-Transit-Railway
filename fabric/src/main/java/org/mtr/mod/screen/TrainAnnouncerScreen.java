@@ -1,48 +1,47 @@
 package org.mtr.mod.screen;
 
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.TextCase;
+import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockTrainAnnouncer;
+import org.mtr.mod.generated.lang.TranslationProvider;
+import org.mtr.mod.packet.PacketUpdateTrainAnnouncerConfig;
+import org.mtr.mod.resource.CustomResourceTools;
 
 import java.util.Collections;
 
 public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 
 	private final String initialMessage;
-	private final String initialSoundIdString;
+	private final String initialSoundId;
 	private final DashboardList availableSoundsList;
 
 	private static final int MAX_MESSAGE_LENGTH = 256;
 
-	public TrainAnnouncerScreen(BlockPos pos) {
+	public TrainAnnouncerScreen(BlockPos pos, BlockTrainAnnouncer.BlockEntity blockEntity) {
 		super(pos, true,
-				new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TextHelper.translatable("gui.mtr.announcement_message")),
-				new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TextHelper.translatable("gui.mtr.sound_file"))
+				new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TranslationProvider.GUI_MTR_ANNOUNCEMENT_MESSAGE.getMutableText()),
+				new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TranslationProvider.GUI_MTR_SOUND_FILE.getMutableText())
 		);
 
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 		if (clientWorld != null) {
-			final BlockEntity blockEntity = clientWorld.getBlockEntity(pos);
-			if (blockEntity != null && blockEntity.data instanceof BlockTrainAnnouncer.BlockEntity) {
-				initialMessage = ((BlockTrainAnnouncer.BlockEntity) blockEntity.data).getMessage();
-				initialSoundIdString = ((BlockTrainAnnouncer.BlockEntity) blockEntity.data).getSoundIdString();
-			} else {
-				initialMessage = "";
-				initialSoundIdString = "";
-			}
+			initialMessage = blockEntity.getMessage();
+			initialSoundId = blockEntity.getSoundId();
 		} else {
 			initialMessage = "";
-			initialSoundIdString = "";
+			initialSoundId = "";
 		}
 
 		availableSoundsList = new DashboardList((data, color) -> {
-			final String soundIdString = data.getName(true);
-			if (!soundIdString.isEmpty() && clientWorld != null && MinecraftClient.getInstance().getPlayerMapped() != null) {
-				clientWorld.playSoundAtBlockCenter(pos, AbstractSoundInstanceExtension.createSoundEvent(new Identifier(soundIdString)), SoundCategory.BLOCKS, 1000000, 1, false);
+			final String soundId = CustomResourceTools.formatIdentifierString(data.getName(true));
+			if (!soundId.isEmpty() && clientWorld != null && MinecraftClient.getInstance().getPlayerMapped() != null) {
+				clientWorld.playSoundAtBlockCenter(pos, SoundHelper.createSoundEvent(new Identifier(soundId)), SoundCategory.BLOCKS, 1000000, 1, false);
 			}
 		}, null, null, null, (data, color) -> {
 			textFields[1].setText2(data.getName(true));
@@ -51,7 +50,7 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 		}, false);
 
 		final ObjectArrayList<DashboardListItem> soundIds = new ObjectArrayList<>();
-		AbstractSoundInstanceExtension.iterateSoundIds(identifier -> soundIds.add(new DashboardListItem(0, identifier.toString(), ARGB_BACKGROUND)));
+		AbstractSoundInstanceExtension.iterateSoundIds(identifier -> soundIds.add(new DashboardListItem(0, identifier.data.toString(), ARGB_BACKGROUND)));
 		Collections.sort(soundIds);
 		availableSoundsList.setData(soundIds, true, false, false, false, true, false);
 	}
@@ -60,7 +59,7 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 	protected void init2() {
 		super.init2();
 		textFields[0].setText2(initialMessage);
-		textFields[1].setText2(initialSoundIdString);
+		textFields[1].setText2(initialSoundId);
 
 		setListVisibility(false);
 		availableSoundsList.y = SQUARE_SIZE * 2 + TEXT_HEIGHT + TEXT_PADDING + TEXT_FIELD_PADDING;
@@ -93,9 +92,9 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 	}
 
 	@Override
-	public boolean mouseScrolled3(double mouseX, double mouseY, double amount) {
+	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
 		availableSoundsList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled3(mouseX, mouseY, amount);
+		return super.mouseScrolled2(mouseX, mouseY, amount);
 	}
 
 	@Override
@@ -105,6 +104,11 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 		guiDrawing.drawRectangle(availableSoundsList.x, availableSoundsList.y, availableSoundsList.x + availableSoundsList.width, availableSoundsList.y + availableSoundsList.height, ARGB_BACKGROUND);
 		guiDrawing.finishDrawingRectangle();
 		availableSoundsList.render(graphicsHolder);
+	}
+
+	@Override
+	protected void sendUpdate(BlockPos blockPos, LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly) {
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateTrainAnnouncerConfig(blockPos, filterRouteIds, stoppedOnly, movingOnly, textFields[0].getText2(), textFields[1].getText2()));
 	}
 
 	private void setListVisibility(boolean visible) {

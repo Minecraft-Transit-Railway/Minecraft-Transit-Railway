@@ -6,6 +6,7 @@ import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.BlockEntityTypes;
 import org.mtr.mod.Init;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
 
 import javax.annotation.Nonnull;
@@ -62,7 +63,7 @@ public class BlockRailwaySign extends BlockExtension implements IBlock, Directio
 	}
 
 	@Override
-	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 
 		final BlockPos checkPos = findEndWithDirection(world, pos, facing, true);
@@ -70,7 +71,7 @@ public class BlockRailwaySign extends BlockExtension implements IBlock, Directio
 			IBlock.onBreakCreative(world, player, checkPos);
 		}
 
-		super.onBreak3(world, pos, state, player);
+		super.onBreak2(world, pos, state, player);
 	}
 
 	@Override
@@ -108,8 +109,8 @@ public class BlockRailwaySign extends BlockExtension implements IBlock, Directio
 
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		tooltip.add(TextHelper.translatable("tooltip.mtr.railway_sign_length", length).formatted(TextFormatting.GRAY));
-		tooltip.add(TextHelper.translatable(isOdd ? "tooltip.mtr.railway_sign_odd" : "tooltip.mtr.railway_sign_even").formatted(TextFormatting.GRAY));
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_LENGTH.getMutableText(length).formatted(TextFormatting.GRAY));
+		tooltip.add((isOdd ? TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_ODD : TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_EVEN).getMutableText().formatted(TextFormatting.GRAY));
 	}
 
 	@Nonnull

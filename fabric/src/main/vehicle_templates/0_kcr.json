@@ -1,0 +1,2090 @@
+{
+	"replacements": {
+		"lengths": [
+			25,
+			21,
+			13
+		],
+		"tag": [
+			"5",
+			"4",
+			"2"
+		],
+		"name": [
+			"Normal",
+			"Small",
+			"Mini"
+		],
+		"definition": [
+			"",
+			"_small",
+			"_mini"
+		]
+	},
+	"vehicles": [
+		{
+			"id": "sp1900@definition@_trailer",
+			"name": "SP1900 Trailer (@name@)",
+			"color": "003399",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "SP1900_EMU",
+			"tags": [
+				"family:sp1900",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:trailer"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"legacySpeedSoundBaseResource": "sp1900",
+			"legacySpeedSoundCount": 120,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "sp1900@definition@_cab_1",
+			"name": "SP1900 Cab (Forwards, @name@)",
+			"color": "003399",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 1,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "SP1900_EMU",
+			"tags": [
+				"family:sp1900",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"legacySpeedSoundBaseResource": "sp1900",
+			"legacySpeedSoundCount": 120,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "sp1900@definition@_cab_2",
+			"name": "SP1900 Cab (Backwards, @name@)",
+			"color": "003399",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "SP1900_EMU",
+			"tags": [
+				"family:sp1900",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"legacySpeedSoundBaseResource": "sp1900",
+			"legacySpeedSoundCount": 120,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "sp1900@definition@_cab_3",
+			"name": "SP1900 Cab (Double, @name@)",
+			"color": "003399",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 1,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "SP1900_EMU",
+			"tags": [
+				"family:sp1900",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"legacySpeedSoundBaseResource": "sp1900",
+			"legacySpeedSoundCount": 120,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "sp1900_christmas@definition@_trailer",
+			"name": "Christmas SP1900 Trailer (@name@)",
+			"color": "00873E",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "Christmas",
+			"tags": [
+				"family:sp1900",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:trailer"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"legacySpeedSoundBaseResource": "sp1900",
+			"legacySpeedSoundCount": 120,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "sp1900_christmas@definition@_cab_1",
+			"name": "Christmas SP1900 Cab (Forwards, @name@)",
+			"color": "00873E",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 1,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "Christmas",
+			"tags": [
+				"family:sp1900",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_1_sp1900.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"legacySpeedSoundBaseResource": "sp1900",
+			"legacySpeedSoundCount": 120,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "sp1900_christmas@definition@_cab_2",
+			"name": "Christmas SP1900 Cab (Backwards, @name@)",
+			"color": "00873E",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "Christmas",
+			"tags": [
+				"family:sp1900",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_2_sp1900.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"legacySpeedSoundBaseResource": "sp1900",
+			"legacySpeedSoundCount": 120,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "sp1900_christmas@definition@_cab_3",
+			"name": "Christmas SP1900 Cab (Double, @name@)",
+			"color": "00873E",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 1,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "Christmas",
+			"tags": [
+				"family:sp1900",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/sp1900.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_1_sp1900.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_2_sp1900.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"legacySpeedSoundBaseResource": "sp1900",
+			"legacySpeedSoundCount": 120,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "c1141a@definition@_trailer",
+			"name": "C1141A Trailer (@name@)",
+			"color": "B42249",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MTR_CRRC_Changchun_EMU",
+			"tags": [
+				"family:c1141a",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:trailer"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"legacySpeedSoundBaseResource": "c1141a",
+			"legacySpeedSoundCount": 96,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "c1141a@definition@_cab_1",
+			"name": "C1141A Cab (Forwards, @name@)",
+			"color": "B42249",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 1,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MTR_CRRC_Changchun_EMU",
+			"tags": [
+				"family:c1141a",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"legacySpeedSoundBaseResource": "c1141a",
+			"legacySpeedSoundCount": 96,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "c1141a@definition@_cab_2",
+			"name": "C1141A Cab (Backwards, @name@)",
+			"color": "B42249",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "MTR_CRRC_Changchun_EMU",
+			"tags": [
+				"family:c1141a",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"legacySpeedSoundBaseResource": "c1141a",
+			"legacySpeedSoundCount": 96,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "c1141a@definition@_cab_3",
+			"name": "C1141A Cab (Double, @name@)",
+			"color": "B42249",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 1,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "MTR_CRRC_Changchun_EMU",
+			"tags": [
+				"family:c1141a",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"legacySpeedSoundBaseResource": "c1141a",
+			"legacySpeedSoundCount": 96,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "c1141a_christmas@definition@_trailer",
+			"name": "Christmas C1141A Trailer (@name@)",
+			"color": "00873E",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "Christmas",
+			"tags": [
+				"family:c1141a",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:trailer"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"legacySpeedSoundBaseResource": "c1141a",
+			"legacySpeedSoundCount": 96,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "c1141a_christmas@definition@_cab_1",
+			"name": "Christmas C1141A Cab (Forwards, @name@)",
+			"color": "00873E",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 1,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "Christmas",
+			"tags": [
+				"family:c1141a",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_1_sp1900.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"legacySpeedSoundBaseResource": "c1141a",
+			"legacySpeedSoundCount": 96,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "c1141a_christmas@definition@_cab_2",
+			"name": "Christmas C1141A Cab (Backwards, @name@)",
+			"color": "00873E",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "Christmas",
+			"tags": [
+				"family:c1141a",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_2_sp1900.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"legacySpeedSoundBaseResource": "c1141a",
+			"legacySpeedSoundCount": 96,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "c1141a_christmas@definition@_cab_3",
+			"name": "Christmas C1141A Cab (Double, @name@)",
+			"color": "00873E",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 1,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "Christmas",
+			"tags": [
+				"family:c1141a",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/sp1900.bbmodel",
+					"textureResource": "mtr:textures/vehicle/c1141a.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/c1141a_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_1_sp1900.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_2_sp1900.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_sp1900.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_sp1900_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/sp1900_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/sp1900@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"legacySpeedSoundBaseResource": "c1141a",
+			"legacySpeedSoundCount": 96,
+			"legacyDoorSoundBaseResource": "sp1900",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "mlr@definition@_trailer",
+			"name": "MLR Trailer (@name@)",
+			"color": "6CB5E2",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MTR_Metro_Cammell_EMU_(AC)",
+			"tags": [
+				"family:mlr",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:trailer"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"hasBarrier1": true,
+			"hasBarrier2": true,
+			"legacySpeedSoundBaseResource": "mlr",
+			"legacySpeedSoundCount": 93,
+			"legacyUseAccelerationSoundsWhenCoasting": true,
+			"legacyDoorSoundBaseResource": "mlr",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "mlr@definition@_cab_1",
+			"name": "MLR Cab (Forwards, @name@)",
+			"color": "6CB5E2",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 1,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "MTR_Metro_Cammell_EMU_(AC)",
+			"tags": [
+				"family:mlr",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"hasBarrier1": false,
+			"hasBarrier2": true,
+			"legacySpeedSoundBaseResource": "mlr",
+			"legacySpeedSoundCount": 93,
+			"legacyUseAccelerationSoundsWhenCoasting": true,
+			"legacyDoorSoundBaseResource": "mlr",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "mlr@definition@_cab_2",
+			"name": "MLR Cab (Backwards, @name@)",
+			"color": "6CB5E2",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "MTR_Metro_Cammell_EMU_(AC)",
+			"tags": [
+				"family:mlr",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"hasBarrier1": true,
+			"hasBarrier2": false,
+			"legacySpeedSoundBaseResource": "mlr",
+			"legacySpeedSoundCount": 93,
+			"legacyUseAccelerationSoundsWhenCoasting": true,
+			"legacyDoorSoundBaseResource": "mlr",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "mlr@definition@_cab_3",
+			"name": "MLR Cab (Double, @name@)",
+			"color": "6CB5E2",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 1,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "MTR_Metro_Cammell_EMU_(AC)",
+			"tags": [
+				"family:mlr",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"hasBarrier1": false,
+			"hasBarrier2": false,
+			"legacySpeedSoundBaseResource": "mlr",
+			"legacySpeedSoundCount": 93,
+			"legacyUseAccelerationSoundsWhenCoasting": true,
+			"legacyDoorSoundBaseResource": "mlr",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "mlr_christmas@definition@_trailer",
+			"name": "Christmas MLR Trailer (@name@)",
+			"color": "00873E",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "Christmas",
+			"tags": [
+				"family:mlr",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:trailer"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"hasBarrier1": true,
+			"hasBarrier2": true,
+			"legacySpeedSoundBaseResource": "mlr",
+			"legacySpeedSoundCount": 93,
+			"legacyUseAccelerationSoundsWhenCoasting": true,
+			"legacyDoorSoundBaseResource": "mlr",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "mlr_christmas@definition@_cab_1",
+			"name": "Christmas MLR Cab (Forwards, @name@)",
+			"color": "00873E",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 1,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "Christmas",
+			"tags": [
+				"family:mlr",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_1_mlr.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"hasBarrier1": false,
+			"hasBarrier2": true,
+			"legacySpeedSoundBaseResource": "mlr",
+			"legacySpeedSoundCount": 93,
+			"legacyUseAccelerationSoundsWhenCoasting": true,
+			"legacyDoorSoundBaseResource": "mlr",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "mlr_christmas@definition@_cab_2",
+			"name": "Christmas MLR Cab (Backwards, @name@)",
+			"color": "00873E",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "Christmas",
+			"tags": [
+				"family:mlr",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_2_mlr.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"hasBarrier1": true,
+			"hasBarrier2": false,
+			"legacySpeedSoundBaseResource": "mlr",
+			"legacySpeedSoundCount": 93,
+			"legacyUseAccelerationSoundsWhenCoasting": true,
+			"legacyDoorSoundBaseResource": "mlr",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "mlr_christmas@definition@_cab_3",
+			"name": "Christmas MLR Cab (Double, @name@)",
+			"color": "00873E",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 1,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "Christmas",
+			"tags": [
+				"family:mlr",
+				"iso_3166:HK",
+				"doors:@tag@",
+				"type:cab_3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/mlr.bbmodel",
+					"textureResource": "mtr:textures/vehicle/mlr.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_1_mlr.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/kcr_christmas.bbmodel",
+					"textureResource": "mtr:textures/vehicle/kcr_christmas.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/kcr_christmas_head_2_mlr.json",
+					"positionDefinitionsResource": "mtr:properties/definition/kcr_christmas@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_left.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_left_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_right.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_right_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/door_overlay_top_mlr.bbmodel",
+					"textureResource": "mtr:textures/overlay/door_overlay_mlr_top.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/mlr_door_top_overlay.json",
+					"positionDefinitionsResource": "mtr:properties/definition/mlr@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"hasBarrier1": false,
+			"hasBarrier2": false,
+			"legacySpeedSoundBaseResource": "mlr",
+			"legacySpeedSoundCount": 93,
+			"legacyUseAccelerationSoundsWhenCoasting": true,
+			"legacyDoorSoundBaseResource": "mlr",
+			"legacyDoorCloseSoundTime": 0.5
+		}
+	]
+}

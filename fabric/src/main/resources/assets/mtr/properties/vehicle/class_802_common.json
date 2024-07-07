@@ -1,0 +1,136 @@
+{
+	"parts": [
+		{
+			"names": [
+				"window_light"
+			],
+			"positionDefinitions": [
+				"window4",
+				"window4Flipped",
+				"window5",
+				"window5Flipped",
+				"window6",
+				"window6Flipped"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"window"
+			],
+			"positionDefinitions": [
+				"window4",
+				"window4Flipped",
+				"window5",
+				"window5Flipped",
+				"window6",
+				"window6Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"window4",
+				"window4Flipped",
+				"window5",
+				"window5Flipped",
+				"window6",
+				"window6Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_floor"
+			],
+			"positionDefinitions": [
+				"window4",
+				"window4Flipped",
+				"window5",
+				"window5Flipped",
+				"window6",
+				"window6Flipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"bottom_end"
+			],
+			"positionDefinitions": [
+				"bottomEnd"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"bottom_middle"
+			],
+			"positionDefinitions": [
+				"window3",
+				"window3Flipped",
+				"window4",
+				"window4Flipped",
+				"window5",
+				"window5Flipped",
+				"window6",
+				"window6Flipped",
+				"window7",
+				"window7Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"seat"
+			],
+			"positionDefinitions": [
+				"seatCommon"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"door_light"
+			],
+			"positionDefinitions": [
+				"doorLight"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_light_on"
+			],
+			"positionDefinitions": [
+				"doorLight"
+			],
+			"condition": "DOORS_OPENED",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"door_light_off"
+			],
+			"positionDefinitions": [
+				"doorLight"
+			],
+			"condition": "DOORS_CLOSED",
+			"renderStage": "EXTERIOR"
+		}
+	],
+	"modelYOffset": 1,
+	"gangwayInnerSideResource": "mtr:textures/gangway/sp1900_side.png",
+	"gangwayInnerTopResource": "mtr:textures/gangway/sp1900_roof.png",
+	"gangwayInnerBottomResource": "mtr:textures/gangway/sp1900_floor.png",
+	"gangwayOuterSideResource": "mtr:textures/gangway/sp1900_exterior.png",
+	"gangwayOuterTopResource": "mtr:textures/gangway/sp1900_exterior.png",
+	"gangwayOuterBottomResource": "mtr:textures/gangway/sp1900_exterior.png",
+	"gangwayWidth": 1.5,
+	"gangwayHeight": 2.25,
+	"gangwayYOffset": 1,
+	"gangwayZOffset": 0.5
+}

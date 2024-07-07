@@ -1,13 +1,16 @@
 package org.mtr.mod.client;
 
+import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
+import org.mtr.mod.config.Config;
+import org.mtr.mod.config.LanguageDisplay;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.render.RenderTrains;
+import org.mtr.mod.render.MainRenderer;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -16,10 +19,10 @@ import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.net.URLEncoder;
 import java.text.AttributedString;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Random;
 import java.util.function.Supplier;
 
 public class DynamicTextureCache implements IGui {
@@ -42,7 +45,7 @@ public class DynamicTextureCache implements IGui {
 	public void reload() {
 		font = null;
 		fontCjk = null;
-		Init.LOGGER.info("Refreshing dynamic resources");
+		Init.LOGGER.debug("Refreshing dynamic resources");
 		dynamicResources.values().forEach(dynamicResource -> dynamicResource.needsRefresh = true);
 		generatingResources.clear();
 	}
@@ -120,10 +123,10 @@ public class DynamicTextureCache implements IGui {
 		final boolean oneRow = horizontalAlignment == null;
 		final String[] defaultTextSplit = IGui.textOrUntitled(text).split("\\|");
 		final String[] textSplit;
-		if (Config.languageOptions() == 0) {
+		if (Config.getClient().getLanguageDisplay() == LanguageDisplay.NORMAL) {
 			textSplit = defaultTextSplit;
 		} else {
-			final String[] tempTextSplit = Arrays.stream(IGui.textOrUntitled(text).split("\\|")).filter(textPart -> IGui.isCjk(textPart) == (Config.languageOptions() == 1)).toArray(String[]::new);
+			final String[] tempTextSplit = Arrays.stream(IGui.textOrUntitled(text).split("\\|")).filter(textPart -> IGui.isCjk(textPart) == (Config.getClient().getLanguageDisplay() == LanguageDisplay.CJK_ONLY)).toArray(String[]::new);
 			textSplit = tempTextSplit.length == 0 ? defaultTextSplit : tempTextSplit;
 		}
 		final AttributedString[] attributedStrings = new AttributedString[textSplit.length];
@@ -223,7 +226,7 @@ public class DynamicTextureCache implements IGui {
 			return defaultRenderingColor.dynamicResource;
 		}
 
-		if (RenderTrains.WORKER_THREAD.scheduleDynamicTextures(() -> {
+		MainRenderer.WORKER_THREAD.scheduleDynamicTextures(() -> {
 			while (font == null) {
 				ResourceManagerHelper.readResource(new Identifier(Init.MOD_ID, "font/noto-sans-semibold.ttf"), inputStream -> {
 					try {
@@ -253,28 +256,19 @@ public class DynamicTextureCache implements IGui {
 				}
 
 				final DynamicResource dynamicResourceNew;
-				if (nativeImage == null) {
-					dynamicResourceNew = defaultRenderingColor.dynamicResource;
-				} else {
+				if (nativeImage != null) {
 					final NativeImageBackedTexture nativeImageBackedTexture = new NativeImageBackedTexture(nativeImage);
-					String newKey = key;
-					try {
-						newKey = URLEncoder.encode(key, "UTF-8");
-					} catch (Exception e) {
-						Init.LOGGER.error("", e);
-					}
-					final Identifier identifier = new Identifier(Init.MOD_ID, "dynamic_texture_" + newKey.toLowerCase(Locale.ENGLISH).replaceAll("[^0-9a-z_]", "_"));
+					final Identifier identifier = new Identifier(Init.MOD_ID, "id_" + Utilities.numberToPaddedHexString(new Random().nextLong()).toLowerCase(Locale.ENGLISH));
 					MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, new AbstractTexture(nativeImageBackedTexture.data));
 					dynamicResourceNew = new DynamicResource(identifier, nativeImageBackedTexture);
+					dynamicResources.put(key, dynamicResourceNew);
 				}
 
-				dynamicResources.put(key, dynamicResourceNew);
 				generatingResources.remove(key);
 			});
-		})) {
-			RouteMapGenerator.setConstants();
-			generatingResources.add(key);
-		}
+		});
+		RouteMapGenerator.setConstants();
+		generatingResources.add(key);
 
 		if (dynamicResource == null) {
 			return defaultRenderingColor.dynamicResource;
@@ -311,10 +305,8 @@ public class DynamicTextureCache implements IGui {
 		}
 
 		private void remove() {
-			if (!identifier.equals(DEFAULT_BLACK_RESOURCE) && !identifier.equals(DEFAULT_WHITE_RESOURCE) && !identifier.equals(DEFAULT_TRANSPARENT_RESOURCE)) {
-				MinecraftClient.getInstance().getTextureManager().destroyTexture(identifier);
-				RenderTrains.cancelRender(identifier);
-			}
+			MinecraftClient.getInstance().getTextureManager().destroyTexture(identifier);
+			MainRenderer.cancelRender(identifier);
 		}
 	}
 

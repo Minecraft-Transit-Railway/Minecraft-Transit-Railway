@@ -5,7 +5,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mod.Init;
+import org.mtr.mod.config.Config;
 import org.mtr.mod.data.IGui;
 
 import javax.annotation.Nullable;
@@ -25,7 +25,7 @@ public interface IDrawing {
 	}
 
 	static void drawStringWithFont(GraphicsHolder graphicsHolder, String text, IGui.HorizontalAlignment horizontalAlignment, IGui.VerticalAlignment verticalAlignment, IGui.HorizontalAlignment xAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColorCjk, int textColor, float fontSizeRatio, boolean shadow, int light, @Nullable DrawingCallback drawingCallback) {
-		final Style style = Config.useMTRFont() ? Style.getEmptyMapped().withFont(new Identifier(Init.MOD_ID, "mtr")) : Style.getEmptyMapped();
+		final Style style = Style.getEmptyMapped(); // TODO custom font not working
 
 		while (text.contains("||")) {
 			text = text.replace("||", "|");
@@ -77,7 +77,7 @@ public interface IDrawing {
 
 			final float xOffset = horizontalAlignment.getOffset(xAlignment.getOffset(x * scaleX, totalWidth), GraphicsHolder.getTextWidth(orderedTexts.get(i)) * extraScale - totalWidth);
 
-			final float shade = light == IGui.MAX_LIGHT_GLOWING ? 1 : Math.min(LightmapTextureManager.getBlockLightCoordinates(light) / 16F * 0.1F + 0.7F, 1);
+			final float shade = light == GraphicsHolder.getDefaultLight() ? 1 : Math.min(LightmapTextureManager.getBlockLightCoordinates(light) / 16F * 0.1F + 0.7F, 1);
 			final int a = ((isCJK ? textColorCjk : textColor) >> 24) & 0xFF;
 			final int r = (int) ((((isCJK ? textColorCjk : textColor) >> 16) & 0xFF) * shade);
 			final int g = (int) ((((isCJK ? textColorCjk : textColor) >> 8) & 0xFF) * shade);
@@ -132,6 +132,31 @@ public interface IDrawing {
 		graphicsHolder.drawTextureInWorld(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, u1, v1, u2, v2, facing, color, light);
 	}
 
+	static void drawSevenSegment(GraphicsHolder graphicsHolder, String numberString, float availableSpace, float x, float y, float height, IGui.HorizontalAlignment horizontalAlignment, int color, int light) {
+		try {
+			drawSevenSegment(graphicsHolder, Integer.parseInt(numberString), availableSpace, x, y, height, horizontalAlignment, color, light);
+		} catch (Exception ignored) {
+		}
+	}
+
+	static void drawSevenSegment(GraphicsHolder graphicsHolder, int number, float availableSpace, float x, float y, float height, IGui.HorizontalAlignment horizontalAlignment, int color, int light) {
+		// Negatives and decimals are not supported right now
+		final float u = 0.25F;
+		final float v = 170F / 512;
+		final float paddingMultiplier = 1.2F;
+		final float digitWidth = height * u / v * paddingMultiplier;
+		final int digits = (int) Math.floor(availableSpace / digitWidth);
+		final float startX = horizontalAlignment.getOffset(x, digits * digitWidth - availableSpace);
+
+		for (int i = 0; i < digits; i++) {
+			final int digit = (number / (int) Math.pow(10, digits - i - 1)) % 10;
+			final float digitX = startX + digitWidth * i;
+			final float digitU = (digit % 4) * u;
+			final float digitV = Math.floorDiv(digit, 4) * v;
+			drawTexture(graphicsHolder, digitX + (paddingMultiplier - 1) * digitWidth / 2, y, digitWidth / paddingMultiplier, height, digitU, digitV, digitU + u, digitV + v, Direction.UP, color, light);
+		}
+	}
+
 	static void setPositionAndWidth(ButtonWidgetExtension widget, int x, int y, int widgetWidth) {
 		widget.setX2(x);
 		widget.setY2(y);
@@ -163,10 +188,10 @@ public interface IDrawing {
 	}
 
 	static void narrateOrAnnounce(String narrateMessage, ObjectArrayList<MutableText> chatMessages) {
-		if (Config.useTTSAnnouncements() && !narrateMessage.isEmpty()) {
+		if (Config.getClient().getTextToSpeechAnnouncements() && !narrateMessage.isEmpty()) {
 			Narrator.getNarrator().say(narrateMessage, true);
 		}
-		if (Config.showAnnouncementMessages() && !chatMessages.isEmpty()) {
+		if (Config.getClient().getChatAnnouncements() && !chatMessages.isEmpty()) {
 			final ClientPlayerEntity player = MinecraftClient.getInstance().getPlayerMapped();
 			if (player != null) {
 				chatMessages.forEach(chatMessage -> {

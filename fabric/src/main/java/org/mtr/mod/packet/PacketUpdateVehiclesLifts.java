@@ -38,9 +38,11 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 		final boolean hasUpdate1 = updateVehiclesOrLifts(minecraftClientData.vehicles, vehicleLiftResponse::iterateVehiclesToKeep, vehicleLiftResponse::iterateVehiclesToUpdate, vehicleUpdate -> vehicleUpdate.getVehicle().getId(), vehicleUpdate -> new VehicleExtension(vehicleUpdate, minecraftClientData));
 		final boolean hasUpdate2 = updateVehiclesOrLifts(minecraftClientData.lifts, vehicleLiftResponse::iterateLiftsToKeep, vehicleLiftResponse::iterateLiftsToUpdate, NameColorDataBase::getId, lift -> lift);
 
+		vehicleLiftResponse.iterateSignalBlockUpdates(signalBlockUpdate -> minecraftClientData.railIdToBlockedSignalColors.put(signalBlockUpdate.getRailId(), signalBlockUpdate.getBlockedColors()));
+
 		if (hasUpdate1 || hasUpdate2) {
 			if (hasUpdate1) {
-				minecraftClientData.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(minecraftClientData)));
+				minecraftClientData.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(minecraftClientData, vehicle.getTransportMode())));
 			}
 			minecraftClientData.sync();
 		}

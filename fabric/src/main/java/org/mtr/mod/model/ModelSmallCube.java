@@ -5,7 +5,8 @@ import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.EntityModelExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
-import org.mtr.mod.render.RenderTrains;
+import org.mtr.mod.render.MainRenderer;
+import org.mtr.mod.render.QueuedRenderLayer;
 import org.mtr.mod.render.StoredMatrixTransformations;
 
 public class ModelSmallCube extends EntityModelExtension<EntityAbstractMapping> {
@@ -25,7 +26,7 @@ public class ModelSmallCube extends EntityModelExtension<EntityAbstractMapping> 
 	}
 
 	public void render(StoredMatrixTransformations storedMatrixTransformations, int light) {
-		RenderTrains.scheduleRender(texture, false, RenderTrains.QueuedRenderLayer.LIGHT, (graphicsHolder, offset) -> {
+		MainRenderer.scheduleRender(texture, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 			storedMatrixTransformations.transform(graphicsHolder, offset);
 			ModelTrainBase.renderOnce(part, graphicsHolder, light, 0);
 			graphicsHolder.pop();

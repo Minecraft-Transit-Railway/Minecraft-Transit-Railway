@@ -10,9 +10,11 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -128,9 +130,9 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		guiDrawing.finishDrawingRectangle();
 
 		if (mapState == MapState.EDITING_AREA) {
-			graphicsHolder.drawText(TextHelper.translatable("gui.mtr.edit_area").getString(), getX2() + TEXT_PADDING, getY2() + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+			graphicsHolder.drawText(TranslationProvider.GUI_MTR_EDIT_AREA.getMutableText(), getX2() + TEXT_PADDING, getY2() + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		} else if (mapState == MapState.EDITING_ROUTE) {
-			graphicsHolder.drawText(TextHelper.translatable("gui.mtr.edit_route").getString(), getX2() + TEXT_PADDING, getY2() + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+			graphicsHolder.drawText(TranslationProvider.GUI_MTR_EDIT_ROUTE.getMutableText(), getX2() + TEXT_PADDING, getY2() + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		}
 
 		if (scale >= 8) {
@@ -175,7 +177,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 
 	private void drawMousePositionText(GraphicsHolder graphicsHolder, DoubleDoubleImmutablePair mouseWorldPos) {
 		final String mousePosText = String.format("(%.1f, %.1f)", mouseWorldPos.leftDouble(), mouseWorldPos.rightDouble());
-		graphicsHolder.drawText(mousePosText, getX2() + width - TEXT_PADDING - GraphicsHolder.getTextWidth(mousePosText), getY2() + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+		graphicsHolder.drawText(mousePosText, getX2() + width - TEXT_PADDING - GraphicsHolder.getTextWidth(mousePosText), getY2() + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 	}
 
 	@Override
@@ -226,7 +228,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 	}
 
 	@Override
-	public boolean mouseScrolled3(double mouseX, double mouseY, double amount) {
+	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
 		final double oldScale = scale;
 		if (oldScale > SCALE_LOWER_LIMIT && amount < 0) {
 			centerX -= (mouseX - getX2() - width / 2D) / scale;

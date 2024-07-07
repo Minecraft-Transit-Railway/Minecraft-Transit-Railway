@@ -65,14 +65,14 @@ public class WidgetShorterSlider extends SliderWidgetExtension implements IGui {
 
 	@Override
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
-		final boolean isHovered = isHovered2();
+		final boolean isHovered = isHovered();
 
 		final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
 		guiDrawing.beginDrawingTexture(new Identifier(String.format("textures/gui/sprites/widget/slider%s.png", isHovered ? "_highlighted" : "")));
 		IGui.drawTexture(guiDrawing, getX2(), getY2(), 0F, 0, width / 2, height / 2, 200, 20);
-		IGui.drawTexture(guiDrawing, getX2(), getY2() + height / 2, 0F, 20 - height / 2, width / 2, height / 2, 200, 20);
-		IGui.drawTexture(guiDrawing, getX2() + width / 2, getY2(), 200F - width / 2, 0, width / 2, height / 2, 200, 20);
-		IGui.drawTexture(guiDrawing, getX2() + width / 2, getY2() + height / 2, 200F - width / 2, 20 - height / 2, width / 2, height / 2, 200, 20);
+		IGui.drawTexture(guiDrawing, getX2(), getY2() + height / 2, 0F, 20 - height / 2F, width / 2, height / 2, 200, 20);
+		IGui.drawTexture(guiDrawing, getX2() + width / 2, getY2(), 200F - width / 2F, 0, width / 2, height / 2, 200, 20);
+		IGui.drawTexture(guiDrawing, getX2() + width / 2, getY2() + height / 2, 200F - width / 2F, 20 - height / 2F, width / 2, height / 2, 200, 20);
 		guiDrawing.finishDrawingTexture();
 
 		guiDrawing.beginDrawingTexture(new Identifier(String.format("textures/gui/sprites/widget/slider_handle%s.png", isHovered ? "_highlighted" : "")));
@@ -83,7 +83,7 @@ public class WidgetShorterSlider extends SliderWidgetExtension implements IGui {
 		IGui.drawTexture(guiDrawing, getX2() + xOffset + SLIDER_WIDTH / 2, getY2() + height / 2, 200F - SLIDER_WIDTH / 2F, 20 - height / 2F, SLIDER_WIDTH / 2, height / 2, 8, 20);
 		guiDrawing.finishDrawingTexture();
 
-		graphicsHolder.drawText(getMessage2().getString(), getX2() + width + TEXT_PADDING, getY2() + (height - TEXT_HEIGHT) / 2, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+		graphicsHolder.drawText(getMessage2().getString(), getX2() + width + TEXT_PADDING, getY2() + (height - TEXT_HEIGHT) / 2, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 
 		if (markerFrequency > 0) {
 			for (int i = 1; i <= maxValue / markerFrequency; i++) {

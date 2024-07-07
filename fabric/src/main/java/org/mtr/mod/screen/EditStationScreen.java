@@ -14,6 +14,7 @@ import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateData;
 
 import javax.annotation.Nullable;
@@ -27,9 +28,9 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	private int editingDestinationIndex;
 	private int clickDelay;
 
-	private final MutableText stationZoneText = TextHelper.translatable("gui.mtr.zone");
-	private final MutableText exitParentsText = TextHelper.translatable("gui.mtr.exit_parents");
-	private final MutableText exitDestinationsText = TextHelper.translatable("gui.mtr.exit_destinations");
+	private final MutableText stationZoneText = TranslationProvider.GUI_MTR_ZONE.getMutableText();
+	private final MutableText exitParentsText = TranslationProvider.GUI_MTR_EXIT_PARENTS.getMutableText();
+	private final MutableText exitDestinationsText = TranslationProvider.GUI_MTR_EXIT_DESTINATIONS.getMutableText();
 
 	private final TextFieldWidgetExtension textFieldZone;
 	private final TextFieldWidgetExtension textFieldExitParentLetter;
@@ -47,15 +48,15 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	private static final int EXIT_PANELS_START = SQUARE_SIZE * 3 + TEXT_FIELD_PADDING + TEXT_PADDING;
 
 	public EditStationScreen(Station station, DashboardScreen dashboardScreen) {
-		super(station, dashboardScreen, "gui.mtr.station_name", "gui.mtr.station_color");
+		super(station, dashboardScreen, TranslationProvider.GUI_MTR_STATION_NAME, TranslationProvider.GUI_MTR_STATION_COLOR);
 		textFieldZone = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, DashboardScreen.MAX_COLOR_ZONE_LENGTH, TextCase.DEFAULT, "[^-\\d]", null);
 		textFieldExitParentLetter = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 2, TextCase.UPPER, "[^A-Z]", "A");
 		textFieldExitParentNumber = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 2, TextCase.DEFAULT, "\\D", "1");
 		textFieldExitDestination = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 1024, TextCase.DEFAULT, null, null);
 
-		buttonAddExitParent = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_exit"), button -> checkClickDelay(() -> changeEditingExit(new StationExit(), -1)));
+		buttonAddExitParent = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_ADD_EXIT.getMutableText(), button -> checkClickDelay(() -> changeEditingExit(new StationExit(), -1)));
 		buttonDoneExitParent = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> checkClickDelay(this::onDoneExitParent));
-		buttonAddExitDestination = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_exit_destination"), button -> checkClickDelay(() -> changeEditingExit(editingExit, editingExit == null ? -1 : editingExit.getDestinations().size())));
+		buttonAddExitDestination = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_ADD_EXIT_DESTINATION.getMutableText(), button -> checkClickDelay(() -> changeEditingExit(editingExit, editingExit == null ? -1 : editingExit.getDestinations().size())));
 		buttonDoneExitDestination = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> checkClickDelay(this::onDoneExitDestination));
 
 		exitParentList = new DashboardList(null, null, this::onEditExitParent, null, null, this::onDeleteExitParent, null, () -> MinecraftClientData.EXIT_PARENTS_SEARCH, text -> MinecraftClientData.EXIT_PARENTS_SEARCH = text);
@@ -113,10 +114,10 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 			clickDelay--;
 		}
 
-		textFieldZone.tick3();
-		textFieldExitParentLetter.tick3();
-		textFieldExitParentNumber.tick3();
-		textFieldExitDestination.tick3();
+		textFieldZone.tick2();
+		textFieldExitParentLetter.tick2();
+		textFieldExitParentNumber.tick2();
+		textFieldExitDestination.tick2();
 
 		exitParentList.tick();
 		exitDestinationList.tick();
@@ -159,10 +160,10 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	}
 
 	@Override
-	public boolean mouseScrolled3(double mouseX, double mouseY, double amount) {
+	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
 		exitParentList.mouseScrolled(mouseX, mouseY, amount);
 		exitDestinationList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled3(mouseX, mouseY, amount);
+		return super.mouseScrolled2(mouseX, mouseY, amount);
 	}
 
 	@Override

@@ -1,0 +1,262 @@
+{
+	"parts": [
+		{
+			"names": [
+				"light_window"
+			],
+			"positionDefinitions": [
+				"windowEnd",
+				"windowMiddle"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"window"
+			],
+			"positionDefinitions": [
+				"windowEnd",
+				"windowMiddle"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_2_partial"
+			],
+			"positionDefinitions": [
+				"windowMiddle"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"side_seats"
+			],
+			"positionDefinitions": [
+				"windowEnd"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"side_seats_floor"
+			],
+			"positionDefinitions": [
+				"windowEnd"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"middle_seats"
+			],
+			"positionDefinitions": [
+				"windowMiddle"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"middle_seats_floor"
+			],
+			"positionDefinitions": [
+				"windowMiddle"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"side_panel"
+			],
+			"positionDefinitions": [
+				"sidePanel"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"side_panel_translucent"
+			],
+			"positionDefinitions": [
+				"sidePanel"
+			],
+			"renderStage": "INTERIOR_TRANSLUCENT"
+		},
+		{
+			"names": [
+				"window_exterior"
+			],
+			"positionDefinitions": [
+				"windowEnd",
+				"windowMiddle"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_exterior_2_partial",
+				"logo"
+			],
+			"positionDefinitions": [
+				"windowMiddle"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"light_door"
+			],
+			"positionDefinitions": [
+				"door1",
+				"door1Flipped",
+				"door2",
+				"door2Flipped"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"door"
+			],
+			"positionDefinitions": [
+				"door1",
+				"door1Flipped",
+				"door2",
+				"door2Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"door_floor"
+			],
+			"positionDefinitions": [
+				"door1",
+				"door1Flipped",
+				"door2",
+				"door2Flipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway"
+			],
+			"positionDefinitions": [
+				"door1",
+				"door1Flipped",
+				"door2",
+				"door2Flipped"
+			],
+			"type": "DOORWAY"
+		},
+		{
+			"names": [
+				"door_sliding_2"
+			],
+			"positionDefinitions": [
+				"door1"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": 17,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_sliding_1"
+			],
+			"positionDefinitions": [
+				"door2"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": -17,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_sliding_1"
+			],
+			"positionDefinitions": [
+				"door1Flipped"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": -17,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_sliding_2"
+			],
+			"positionDefinitions": [
+				"door2Flipped"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": 17,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_exterior"
+			],
+			"positionDefinitions": [
+				"door1",
+				"door1Flipped",
+				"door2",
+				"door2Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_sliding_exterior_2"
+			],
+			"positionDefinitions": [
+				"door1"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 17,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_sliding_exterior_1"
+			],
+			"positionDefinitions": [
+				"door2"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -17,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_sliding_exterior_1"
+			],
+			"positionDefinitions": [
+				"door1Flipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -17,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_sliding_exterior_2"
+			],
+			"positionDefinitions": [
+				"door2Flipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 17,
+			"doorAnimationType": "STANDARD"
+		}
+	],
+	"modelYOffset": 1,
+	"barrierInnerSideResource": "mtr:textures/barrier/london_underground_d78_exterior.png",
+	"barrierOuterSideResource": "mtr:textures/barrier/london_underground_d78_exterior.png",
+	"barrierWidth": 2.25,
+	"barrierHeight": 1.08,
+	"barrierYOffset": 1,
+	"barrierZOffset": 0.7
+}

@@ -1,9 +1,10 @@
 package org.mtr.mod.block;
 
+import org.mtr.core.tool.Vector;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,7 +43,18 @@ public class BlockLiftTrackDiagonal extends BlockLiftTrackBase implements IBlock
 
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		tooltip.add(TextHelper.translatable("tooltip.mtr.lift_track_diagonal").formatted(TextFormatting.GRAY));
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_LIFT_TRACK_DIAGONAL.getMutableText().formatted(TextFormatting.GRAY));
+	}
+
+	@Override
+	public Vector getCenterPoint(BlockPos blockPos, BlockState blockState) {
+		final Direction facing = IBlock.getStatePropertySafe(blockState, FACING);
+		final Direction newFacing = IBlock.getStatePropertySafe(blockState, SIDE) == EnumSide.RIGHT ? facing.rotateYClockwise() : facing.rotateYCounterclockwise();
+		return new Vector(
+				blockPos.getX() + 0.25 * newFacing.getOffsetX(),
+				blockPos.getY() + 0.25 * (IBlock.getStatePropertySafe(blockState, HALF) == DoubleBlockHalf.UPPER ? 1 : -1),
+				blockPos.getZ() + 0.25 * newFacing.getOffsetZ()
+		);
 	}
 
 	@Override

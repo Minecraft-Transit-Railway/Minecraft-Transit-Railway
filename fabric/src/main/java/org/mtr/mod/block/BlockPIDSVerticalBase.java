@@ -2,8 +2,8 @@ package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,16 +32,16 @@ public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBl
 	}
 
 	@Override
-	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		DoubleVerticalBlock.onBreak(world, pos, state, player);
-		super.onBreak3(world, pos, state, player);
+		super.onBreak2(world, pos, state, player);
 	}
 
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
 		final BlockEntityExtension blockEntity = createBlockEntity(new BlockPos(0, 0, 0), Blocks.getAirMapped().getDefaultState());
 		if (blockEntity instanceof BlockEntityBase) {
-			tooltip.add(TextHelper.translatable("tooltip.mtr.arrivals", maxArrivals).formatted(TextFormatting.GRAY));
+			tooltip.add(TranslationProvider.TOOLTIP_MTR_ARRIVALS.getMutableText(maxArrivals).formatted(TextFormatting.GRAY));
 		}
 	}
 
@@ -67,6 +67,26 @@ public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBl
 
 		public BlockEntityVerticalBase(int maxArrivals, BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(maxArrivals, BlockPIDSVerticalBase::canStoreData, BlockPIDSVerticalBase::getBlockPosWithData, type, pos, state);
+		}
+
+		@Override
+		public boolean showArrivalNumber() {
+			return false;
+		}
+
+		@Override
+		public boolean alternateLines() {
+			return true;
+		}
+
+		@Override
+		public int textColorArrived() {
+			return 0xFF9900;
+		}
+
+		@Override
+		public int textColor() {
+			return 0xFF9900;
 		}
 	}
 }

@@ -12,6 +12,7 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.PlayerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockLiftButtons;
+import org.mtr.mod.block.BlockLiftTrackFloor;
 import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
@@ -46,8 +47,7 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 		final Direction facing = IBlock.getStatePropertySafe(blockState, FACING);
 		final boolean holdingLinker = PlayerHelper.isHolding(PlayerEntity.cast(clientPlayerEntity), item -> item.data instanceof ItemLiftButtonsLinkModifier || Block.getBlockFromItem(item).data instanceof BlockLiftButtons);
 
-		final StoredMatrixTransformations storedMatrixTransformations1 = new StoredMatrixTransformations(true);
-		storedMatrixTransformations1.add(graphicsHolder -> graphicsHolder.translate(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5));
+		final StoredMatrixTransformations storedMatrixTransformations1 = new StoredMatrixTransformations(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5);
 
 		// Array order: has down button, has up button, pressed down button, pressed up button
 		final boolean[] buttonStates = {false, false, false, false};
@@ -55,13 +55,16 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 
 		blockEntity.forEachTrackPosition(trackPosition -> {
 			// Render track link if holding linker item
-			final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, FACING);
-			renderLiftObjectLink(
-					storedMatrixTransformations1, world,
-					new Vector3d(facing.getOffsetX() / 2F, 0.5, facing.getOffsetZ() / 2F),
-					new Vector3d(trackPosition.getX() - blockPos.getX() + trackFacing.getOffsetX() / 2F, trackPosition.getY() - blockPos.getY() + 0.5, trackPosition.getZ() - blockPos.getZ() + trackFacing.getOffsetZ() / 2F),
-					holdingLinker
-			);
+			if (world.getBlockState(trackPosition).getBlock().data instanceof BlockLiftTrackFloor) {
+				final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, FACING);
+				renderLiftObjectLink(
+						storedMatrixTransformations1, world,
+						new Vector3d(facing.getOffsetX() / 2F, 0.5, facing.getOffsetZ() / 2F),
+						new Vector3d(trackPosition.getX() - blockPos.getX() + trackFacing.getOffsetX() / 2F, trackPosition.getY() - blockPos.getY() + 0.5, trackPosition.getZ() - blockPos.getZ() + trackFacing.getOffsetZ() / 2F),
+						holdingLinker
+				);
+			}
+
 			// Figure out whether the up and down buttons should be rendered
 			BlockLiftButtons.hasButtonsClient(trackPosition, buttonStates, (floorIndex, lift) -> {
 				sortedPositionsAndLifts.add(new ObjectObjectImmutablePair<>(trackPosition, lift));
@@ -105,14 +108,14 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 
 		// Render buttons
 		if (buttonStates[0]) {
-			RenderTrains.scheduleRender(BUTTON_TEXTURE, false, buttonStates[2] || lookingAtBottomHalf ? RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(BUTTON_TEXTURE, false, buttonStates[2] || lookingAtBottomHalf ? QueuedRenderLayer.LIGHT_TRANSLUCENT : QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				storedMatrixTransformations2.transform(graphicsHolder, offset);
 				IDrawing.drawTexture(graphicsHolder, -1.5F / 16, (buttonStates[1] ? 0.5F : 2.5F) / 16, 3F / 16, 3F / 16, 0, 0, 1, 1, facing, buttonStates[2] ? PRESSED_COLOR : lookingAtBottomHalf ? HOVER_COLOR : ARGB_GRAY, light);
 				graphicsHolder.pop();
 			});
 		}
 		if (buttonStates[1]) {
-			RenderTrains.scheduleRender(BUTTON_TEXTURE, false, buttonStates[3] || lookingAtTopHalf ? RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT : RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(BUTTON_TEXTURE, false, buttonStates[3] || lookingAtTopHalf ? QueuedRenderLayer.LIGHT_TRANSLUCENT : QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				storedMatrixTransformations2.transform(graphicsHolder, offset);
 				IDrawing.drawTexture(graphicsHolder, -1.5F / 16, (buttonStates[0] ? 4.5F : 2.5F) / 16, 3F / 16, 3F / 16, 0, 1, 1, 0, facing, buttonStates[3] ? PRESSED_COLOR : lookingAtTopHalf ? HOVER_COLOR : ARGB_GRAY, light);
 				graphicsHolder.pop();
@@ -131,7 +134,7 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 			});
 
 			// Render the black background
-			RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/black.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/black.png"), false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				storedMatrixTransformations3.transform(graphicsHolder, offset);
 				IDrawing.drawTexture(graphicsHolder, 0, -0.9375F, width, 0.40625F, Direction.UP, light);
 				graphicsHolder.pop();
@@ -150,7 +153,7 @@ public class RenderLiftButtons extends BlockEntityRenderer<BlockLiftButtons.Bloc
 
 	public static void renderLiftObjectLink(StoredMatrixTransformations storedMatrixTransformations, World world, Vector3d position1, Vector3d position2, boolean holdingLinker) {
 		if (holdingLinker) {
-			RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.LINES, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(QueuedRenderLayer.LINES, (graphicsHolder, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolder, offset);
 				graphicsHolder.drawLineInWorld(
 						(float) position1.getXMapped(),

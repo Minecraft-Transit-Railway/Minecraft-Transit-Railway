@@ -30,7 +30,7 @@ public abstract class BlockTrainSensorBase extends BlockExtension implements Blo
 		});
 	}
 
-	public static boolean matchesFilter(World world, BlockPos pos, long routeId, float speed) {
+	public static boolean matchesFilter(World world, BlockPos pos, long routeId, double speed) {
 		final BlockEntity entity = world.getBlockEntity(pos);
 		return entity != null && entity.data instanceof BlockEntityBase && ((BlockEntityBase) entity.data).matchesFilter(routeId, speed);
 	}
@@ -65,7 +65,7 @@ public abstract class BlockTrainSensorBase extends BlockExtension implements Blo
 			compoundTag.putBoolean(KEY_MOVING_ONLY, movingOnly);
 		}
 
-		public boolean matchesFilter(long routeId, float speed) {
+		public boolean matchesFilter(long routeId, double speed) {
 			if (!filterRouteIds.isEmpty() && !filterRouteIds.contains(routeId)) {
 				return false;
 			} else {
@@ -85,14 +85,12 @@ public abstract class BlockTrainSensorBase extends BlockExtension implements Blo
 			return movingOnly;
 		}
 
-		protected void setData(LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly) {
+		public void setData(LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly) {
 			this.filterRouteIds.clear();
 			this.filterRouteIds.addAll(filterRouteIds);
 			this.stoppedOnly = stoppedOnly;
 			this.movingOnly = movingOnly;
 			markDirty2();
 		}
-
-		public abstract void setData(LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String... strings);
 	}
 }

@@ -9,9 +9,9 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePai
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.KeyBindings;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateVehicleRidingEntities;
 import org.mtr.mod.render.RenderVehicleHelper;
 import org.mtr.mod.render.RenderVehicleTransformationHelper;
@@ -93,7 +93,7 @@ public class VehicleRidingMovement {
 	 * Iterate through all open doorways and see if the player is intersecting any of them. If so, start riding the vehicle.
 	 */
 	public static void startRiding(ObjectArrayList<Box> openDoorways, long sidingId, long vehicleId, int carNumber, double x, double y, double z, double yaw) {
-		if (ridingVehicleId == 0 || ridingVehicleId == vehicleId) {
+		if (ridingVehicleId == 0 || isRiding(vehicleId)) {
 			for (final Box doorway : openDoorways) {
 				if (RenderVehicleHelper.boxContains(doorway, x, y, z)) {
 					ridingSidingId = sidingId;
@@ -129,15 +129,16 @@ public class VehicleRidingMovement {
 			return;
 		}
 
-		if (ridingVehicleId == vehicleId && ridingVehicleCarNumber == carNumber) {
+		if (isRiding(vehicleId) && ridingVehicleCarNumber == carNumber) {
 			ridingVehicleCoolDown = 0;
+			final double entityYawOld = EntityHelper.getYaw(new Entity(clientPlayerEntity.data));
 			final float speedMultiplier = millisElapsed * VEHICLE_WALKING_SPEED_MULTIPLIER * (clientPlayerEntity.isSprinting() ? 2 : 1);
 			// Calculate the relative motion inside vehicle (+Z towards back of vehicle, +/-X towards the left and right of the vehicle)
 			final Vector3d movement = renderVehicleTransformationHelper.transformBackwards(new Vector3d(
 					Math.abs(clientPlayerEntity.getSidewaysSpeedMapped()) > 0.5 ? Math.copySign(speedMultiplier, clientPlayerEntity.getSidewaysSpeedMapped()) : 0,
 					0,
 					Math.abs(clientPlayerEntity.getForwardSpeedMapped()) > 0.5 ? Math.copySign(speedMultiplier, clientPlayerEntity.getForwardSpeedMapped()) : 0
-			), (vector, pitch) -> vector, (vector, yaw) -> vector.rotateY((float) (yaw - Math.toRadians(EntityHelper.getYaw(new Entity(clientPlayerEntity.data))))), (vector, x, y, z) -> vector);
+			), (vector, pitch) -> vector, (vector, yaw) -> vector.rotateY((float) (yaw - Math.toRadians(entityYawOld))), (vector, x, y, z) -> vector);
 			final double movementX = movement.getXMapped();
 			final double movementZ = movement.getZMapped();
 
@@ -244,12 +245,11 @@ public class VehicleRidingMovement {
 					ridingPositionCache = new Vector3d(ridingVehicleX, ridingVehicleY, ridingVehicleZ);
 					final Vector3d newPlayerPosition = renderVehicleTransformationHelper.transformForwards(ridingPositionCache, Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
 					movePlayer(newPlayerPosition.getXMapped(), newPlayerPosition.getYMapped(), newPlayerPosition.getZMapped());
-					final Entity entity = new Entity(clientPlayerEntity.data);
-					EntityHelper.setYaw(entity, (float) Math.toDegrees(previousVehicleYaw - renderVehicleTransformationHelper.yaw) + EntityHelper.getYaw(entity));
+					EntityHelper.setYaw(new Entity(clientPlayerEntity.data), (float) (Math.toDegrees(previousVehicleYaw - renderVehicleTransformationHelper.yaw) + entityYawOld));
 				}
 			}
 
-			ridingYawDifference = Math.abs(renderVehicleTransformationHelper.yaw - previousVehicleYaw) > 0.001 ? renderVehicleTransformationHelper.yaw + Math.toRadians(EntityHelper.getYaw(new Entity(clientPlayerEntity.data))) : null;
+			ridingYawDifference = Math.abs(renderVehicleTransformationHelper.yaw - previousVehicleYaw) > 0.001 ? renderVehicleTransformationHelper.yaw + Math.toRadians(entityYawOld) : null;
 			previousVehicleYaw = renderVehicleTransformationHelper.yaw;
 		}
 	}
@@ -259,7 +259,11 @@ public class VehicleRidingMovement {
 	 */
 	@Nullable
 	public static IntObjectImmutablePair<ObjectObjectImmutablePair<Vector3d, Double>> getRidingVehicleCarNumberAndOffset(long vehicleId) {
-		return vehicleId == ridingVehicleId ? new IntObjectImmutablePair<>(ridingVehicleCarNumberCacheOld, new ObjectObjectImmutablePair<>(ridingPositionCacheOld, ridingYawDifferenceOld)) : null;
+		return isRiding(vehicleId) ? new IntObjectImmutablePair<>(ridingVehicleCarNumberCacheOld, new ObjectObjectImmutablePair<>(ridingPositionCacheOld, ridingYawDifferenceOld)) : null;
+	}
+
+	public static boolean isRiding(long vehicleId) {
+		return vehicleId == ridingVehicleId;
 	}
 
 	public static boolean showShiftProgressBar() {
@@ -269,7 +273,7 @@ public class VehicleRidingMovement {
 		if (shiftHoldingTicks > 0 && clientPlayerEntity != null) {
 			final int progressFilled = MathHelper.clamp((int) (shiftHoldingTicks * DISMOUNT_PROGRESS_BAR_LENGTH / SHIFT_ACTIVATE_TICKS), 0, DISMOUNT_PROGRESS_BAR_LENGTH);
 			final String progressBar = String.format("§6%s§7%s", StringUtils.repeat('|', progressFilled), StringUtils.repeat('|', DISMOUNT_PROGRESS_BAR_LENGTH - progressFilled));
-			clientPlayerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr.dismount_hold", minecraftClient.getOptionsMapped().getKeySneakMapped().getBoundKeyLocalizedText().getString(), progressBar).data), true);
+			clientPlayerEntity.sendMessage(TranslationProvider.GUI_MTR_DISMOUNT_HOLD.getText(InitClient.getShiftText(), progressBar), true);
 			return false;
 		} else {
 			return true;
@@ -289,14 +293,17 @@ public class VehicleRidingMovement {
 	 */
 	@Nullable
 	private static ObjectBooleanImmutablePair<Box> bestPosition(ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsOrDoorways, double x, double y, double z) {
-		return floorsOrDoorways.stream().filter(floorOrDoorway -> RenderVehicleHelper.boxContains(floorOrDoorway.left(), x, y, z)).max(Comparator.comparingDouble(floorOrDoorway -> floorOrDoorway.left().getMaxYMapped())).orElse(floorsOrDoorways.stream().min(Comparator.comparingDouble(floorOrDoorway -> {
-			final Box box = floorOrDoorway.left();
-			final double minX = box.getMinXMapped();
-			final double maxX = box.getMaxXMapped();
-			final double minZ = box.getMinZMapped();
-			final double maxZ = box.getMaxZMapped();
-			return (Utilities.isBetween(x, minX, maxX) ? 0 : Math.min(Math.abs(minX - x), Math.abs(maxX - x))) + (Utilities.isBetween(z, minZ, maxZ) ? 0 : Math.min(Math.abs(minZ - z), Math.abs(maxZ - z)));
-		})).orElse(null));
+		return floorsOrDoorways.stream()
+				.filter(floorOrDoorway -> RenderVehicleHelper.boxContains(floorOrDoorway.left(), x, y, z))
+				.max(Comparator.comparingDouble(floorOrDoorway -> floorOrDoorway.left().getMaxYMapped()))
+				.orElse(floorsOrDoorways.stream().filter(floorOrDoorway -> Math.abs(floorOrDoorway.left().getMaxYMapped() - ridingVehicleY) <= 1).min(Comparator.comparingDouble(floorOrDoorway -> {
+					final Box box = floorOrDoorway.left();
+					final double minX = box.getMinXMapped();
+					final double maxX = box.getMaxXMapped();
+					final double minZ = box.getMinZMapped();
+					final double maxZ = box.getMaxZMapped();
+					return (Utilities.isBetween(x, minX, maxX) ? 0 : Math.min(Math.abs(minX - x), Math.abs(maxX - x))) + (Utilities.isBetween(z, minZ, maxZ) ? 0 : Math.min(Math.abs(minZ - z), Math.abs(maxZ - z)));
+				})).orElse(null));
 	}
 
 	private static void clampPosition(ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsAndDoorways, double x, double z, ObjectArrayList<Vector3d> offsets) {

@@ -1,0 +1,51 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"id": {
+			"type": "string"
+		},
+		"name": {
+			"type": "string"
+		},
+		"color": {
+			"type": "string"
+		},
+		"modelResource": {
+			"type": "string"
+		},
+		"textureResource": {
+			"type": "string"
+		},
+		"flipTextureV": {
+			"type": "boolean"
+		},
+		"translation": {
+			"$ref": "partPosition.json"
+		},
+		"rotation": {
+			"$ref": "partPosition.json"
+		},
+		"scale": {
+			"$ref": "partPosition.json"
+		},
+		"mirror": {
+			"$ref": "modelMirror.json"
+		}
+	},
+	"required": [
+		"id",
+		"name",
+		"color",
+		"modelResource",
+		"textureResource",
+		"flipTextureV",
+		"translation",
+		"rotation",
+		"scale",
+		"mirror"
+	]
+}

@@ -1,0 +1,65 @@
+{
+	"parts": [
+		{
+			"names": [
+				"main"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"roof"
+			],
+			"positionDefinitions": [
+				"extra"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_1"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "EXTERIOR",
+			"doorXMultiplier": 1,
+			"doorZMultiplier": -16,
+			"doorAnimationType": "PLUG_SLOW"
+		},
+		{
+			"names": [
+				"door_2"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "EXTERIOR",
+			"doorXMultiplier": -1,
+			"doorZMultiplier": -16,
+			"doorAnimationType": "PLUG_SLOW"
+		},
+		{
+			"names": [
+				"floor"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway_1",
+				"doorway_2"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"type": "DOORWAY"
+		}
+	]
+}

@@ -1,0 +1,146 @@
+{
+	"parts": [
+		{
+			"names": [
+				"end_light"
+			],
+			"positionDefinitions": [
+				"window3Flipped"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"end"
+			],
+			"positionDefinitions": [
+				"window3Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"end_translucent"
+			],
+			"positionDefinitions": [
+				"window3Flipped"
+			],
+			"renderStage": "INTERIOR_TRANSLUCENT"
+		},
+		{
+			"names": [
+				"head_exterior"
+			],
+			"positionDefinitions": [
+				"window1Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"window2",
+				"window2Flipped",
+				"window3",
+				"window3Flipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"end_floor"
+			],
+			"positionDefinitions": [
+				"window3Flipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway_1",
+				"doorway_2"
+			],
+			"positionDefinitions": [
+				"window3Flipped"
+			],
+			"type": "DOORWAY"
+		},
+		{
+			"names": [
+				"door_1"
+			],
+			"positionDefinitions": [
+				"window3Flipped"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_2"
+			],
+			"positionDefinitions": [
+				"window3Flipped"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_exterior_end_1"
+			],
+			"positionDefinitions": [
+				"window3Flipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_exterior_end_2"
+			],
+			"positionDefinitions": [
+				"window3Flipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"window1Flipped"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"window1Flipped"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"window1Flipped"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		}
+	],
+	"modelYOffset": 1
+}

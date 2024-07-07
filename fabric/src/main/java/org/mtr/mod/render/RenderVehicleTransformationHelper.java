@@ -78,7 +78,7 @@ public class RenderVehicleTransformationHelper {
 	}
 
 	public StoredMatrixTransformations getStoredMatrixTransformations() {
-		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(!renderWithRespectToPlayerPosition);
+		final StoredMatrixTransformations storedMatrixTransformations = renderWithRespectToPlayerPosition ? new StoredMatrixTransformations() : new StoredMatrixTransformations(pivotPosition.x, pivotPosition.y, pivotPosition.z);
 		storedMatrixTransformations.add(this::transformGraphicsHolder);
 		return storedMatrixTransformations;
 	}
@@ -96,12 +96,6 @@ public class RenderVehicleTransformationHelper {
 		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
 		if (clientPlayerEntity == null) {
 			return;
-		}
-
-		if (renderWithRespectToPlayerPosition && camera.isThirdPerson()) {
-			// TODO third person not smooth
-			final Vector3d vector3d = clientPlayerEntity.getPos().subtract(camera.getPos());
-			graphicsHolder.translate(vector3d.getXMapped(), vector3d.getYMapped(), vector3d.getZMapped());
 		}
 
 		if (renderWithRespectToPlayerRotation) {

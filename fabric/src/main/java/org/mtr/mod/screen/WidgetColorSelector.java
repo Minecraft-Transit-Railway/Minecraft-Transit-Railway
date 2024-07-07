@@ -9,6 +9,7 @@ import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import java.awt.*;
 import java.util.Locale;
@@ -91,7 +92,7 @@ public class WidgetColorSelector extends ButtonWidgetExtension implements IGui {
 			textFieldRed = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 3, TextCase.DEFAULT, "\\D", TextHelper.literal(String.valueOf((oldColor >> 16) & 0xFF)).getString());
 			textFieldGreen = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 3, TextCase.DEFAULT, "\\D", TextHelper.literal(String.valueOf((oldColor >> 8) & 0xFF)).getString());
 			textFieldBlue = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 3, TextCase.DEFAULT, "\\D", TextHelper.literal(String.valueOf(oldColor & 0xFF)).getString());
-			buttonReset = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.reset_sign"), button -> {
+			buttonReset = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_RESET_SIGN.getMutableText(), button -> {
 				setHsb(oldColor, true);
 				button.setActiveMapped(false);
 			});
@@ -131,7 +132,7 @@ public class WidgetColorSelector extends ButtonWidgetExtension implements IGui {
 			final int mainWidth = getMainWidth();
 			final int mainHeight = getMainHeight();
 
-			graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.color"), SQUARE_SIZE * 4 + mainWidth + RIGHT_WIDTH / 2, SQUARE_SIZE, ARGB_WHITE);
+			graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_COLOR.getMutableText(), SQUARE_SIZE * 4 + mainWidth + RIGHT_WIDTH / 2, SQUARE_SIZE, ARGB_WHITE);
 			graphicsHolder.drawCenteredText("RGB", SQUARE_SIZE * 4 + mainWidth + RIGHT_WIDTH / 2, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING, ARGB_WHITE);
 
 			final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
@@ -166,10 +167,10 @@ public class WidgetColorSelector extends ButtonWidgetExtension implements IGui {
 
 		@Override
 		public void tick2() {
-			textFieldRed.tick3();
-			textFieldGreen.tick3();
-			textFieldBlue.tick3();
-			textFieldColor.tick3();
+			textFieldRed.tick2();
+			textFieldGreen.tick2();
+			textFieldBlue.tick2();
+			textFieldColor.tick2();
 		}
 
 		@Override

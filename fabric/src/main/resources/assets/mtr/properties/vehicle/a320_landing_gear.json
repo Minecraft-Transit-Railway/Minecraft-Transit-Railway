@@ -1,0 +1,14 @@
+{
+	"parts": [
+		{
+			"names": [
+				"landing_gear_front_wheel"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "EXTERIOR"
+		}
+	],
+	"modelYOffset": 3.5
+}

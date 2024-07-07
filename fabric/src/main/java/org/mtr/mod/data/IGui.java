@@ -2,8 +2,9 @@ package org.mtr.mod.data;
 
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.mapper.GuiDrawing;
-import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,14 +32,13 @@ public interface IGui {
 	int ARGB_BACKGROUND = 0xFF121212;
 
 	int MAX_LIGHT_INTERIOR = 0xF000B0; // LightmapTextureManager.pack(0xFF,0xFF); doesn't work with shaders
-	int MAX_LIGHT_GLOWING = 0xF000F0;
 
 	static String formatStationName(String name) {
 		return name.replace('|', ' ');
 	}
 
 	static String textOrUntitled(String text) {
-		return text.isEmpty() ? TextHelper.translatable("gui.mtr.untitled").getString() : text;
+		return text.isEmpty() ? TranslationProvider.GUI_MTR_UNTITLED.getString() : text;
 	}
 
 	static String formatVerticalChinese(String text) {
@@ -70,11 +70,11 @@ public interface IGui {
 		return newText;
 	}
 
-	static String insertTranslation(String keyCJK, String key, int expectedArguments, String... arguments) {
+	static String insertTranslation(TranslationProvider.TranslationHolder keyCJK, TranslationProvider.TranslationHolder key, int expectedArguments, String... arguments) {
 		return insertTranslation(keyCJK, key, null, expectedArguments, arguments);
 	}
 
-	static String insertTranslation(String keyCJK, String key, String overrideFirst, int expectedArguments, String... arguments) {
+	static String insertTranslation(TranslationProvider.TranslationHolder keyCJK, TranslationProvider.TranslationHolder key, @Nullable String overrideFirst, int expectedArguments, String... arguments) {
 		if (arguments.length < expectedArguments) {
 			return "";
 		}
@@ -108,12 +108,12 @@ public interface IGui {
 			if (Arrays.stream(combinedArguments).allMatch(Objects::nonNull)) {
 				result.append("|");
 				if (overrideFirst == null) {
-					result.append(TextHelper.translatable(keyCJK, (Object[]) combinedArguments).getString());
+					result.append(keyCJK.getString((Object[]) combinedArguments));
 				} else {
 					final String[] newCombinedArguments = new String[expectedArguments + 1];
 					System.arraycopy(combinedArguments, 0, newCombinedArguments, 1, expectedArguments);
 					newCombinedArguments[0] = overrideFirst;
-					result.append(TextHelper.translatable(keyCJK, (Object[]) newCombinedArguments).getString());
+					result.append(keyCJK.getString((Object[]) newCombinedArguments));
 				}
 			}
 		});
@@ -121,12 +121,12 @@ public interface IGui {
 			if (Arrays.stream(combinedArguments).allMatch(Objects::nonNull)) {
 				result.append("|");
 				if (overrideFirst == null) {
-					result.append(TextHelper.translatable(key, (Object[]) combinedArguments).getString());
+					result.append(key.getString((Object[]) combinedArguments));
 				} else {
 					final String[] newCombinedArguments = new String[expectedArguments + 1];
 					System.arraycopy(combinedArguments, 0, newCombinedArguments, 1, expectedArguments);
 					newCombinedArguments[0] = overrideFirst;
-					result.append(TextHelper.translatable(key, (Object[]) newCombinedArguments).getString());
+					result.append(key.getString((Object[]) newCombinedArguments));
 				}
 			}
 		});
@@ -139,14 +139,14 @@ public interface IGui {
 	}
 
 	static String mergeStations(List<String> stations) {
-		return mergeStations(stations, TextHelper.translatable("gui.mtr.separator_cjk").getString(), TextHelper.translatable("gui.mtr.separator").getString());
+		return mergeStations(stations, TranslationProvider.GUI_MTR_SEPARATOR_CJK.getString(), TranslationProvider.GUI_MTR_SEPARATOR.getString());
 	}
 
 	static String mergeStationsWithCommas(ObjectArrayList<String> stationNames) {
 		return mergeStations(stationNames, null, null);
 	}
 
-	static String mergeStations(List<String> stations, String separatorCjk, String separator) {
+	static String mergeStations(List<String> stations, @Nullable String separatorCjk, @Nullable String separator) {
 		final List<List<String>> combinedCJK = new ArrayList<>();
 		final List<List<String>> combined = new ArrayList<>();
 
@@ -199,10 +199,10 @@ public interface IGui {
 				if (i <= listSize - 2) {
 					if (separatorCjk == null) {
 						if (listSize > 2) {
-							stringBuilder.append(TextHelper.translatable("gui.mtr.comma_cjk").getString());
+							stringBuilder.append(TranslationProvider.GUI_MTR_COMMA_CJK.getString());
 						}
 						if (i == listSize - 2) {
-							stringBuilder.append(TextHelper.translatable("gui.mtr.comma_last_cjk").getString());
+							stringBuilder.append(TranslationProvider.GUI_MTR_COMMA_LAST_CJK.getString());
 						}
 					} else {
 						stringBuilder.append(separatorCjk);
@@ -222,10 +222,10 @@ public interface IGui {
 				if (i <= listSize - 2) {
 					if (separator == null) {
 						if (listSize > 2) {
-							stringBuilder.append(TextHelper.translatable("gui.mtr.comma").getString());
+							stringBuilder.append(TranslationProvider.GUI_MTR_COMMA.getString());
 						}
 						if (i == listSize - 2) {
-							stringBuilder.append(TextHelper.translatable("gui.mtr.comma_last").getString());
+							stringBuilder.append(TranslationProvider.GUI_MTR_COMMA_LAST.getString());
 						}
 					} else {
 						stringBuilder.append(separator);

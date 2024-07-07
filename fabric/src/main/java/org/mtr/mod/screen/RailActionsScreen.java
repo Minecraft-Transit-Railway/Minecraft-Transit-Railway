@@ -2,10 +2,10 @@ package org.mtr.mod.screen;
 
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ScreenExtension;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketDeleteRailAction;
 
 public class RailActionsScreen extends ScreenExtension implements IGui {
@@ -32,7 +32,7 @@ public class RailActionsScreen extends ScreenExtension implements IGui {
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 		renderBackground(graphicsHolder);
 		railActionsList.render(graphicsHolder);
-		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.rail_actions"), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+		graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_RAIL_ACTIONS.getMutableText(), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 		super.render(graphicsHolder, mouseX, mouseY, delta);
 	}
 
@@ -42,9 +42,9 @@ public class RailActionsScreen extends ScreenExtension implements IGui {
 	}
 
 	@Override
-	public boolean mouseScrolled3(double mouseX, double mouseY, double amount) {
+	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
 		railActionsList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled3(mouseX, mouseY, amount);
+		return super.mouseScrolled2(mouseX, mouseY, amount);
 	}
 
 	@Override

@@ -14,7 +14,9 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
+import org.mtr.mod.config.Config;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import java.util.Locale;
 import java.util.Random;
@@ -39,7 +41,7 @@ public class RouteMapGenerator implements IGui {
 	private static final int PIXEL_RESOLUTION = 24;
 
 	public static void setConstants() {
-		scale = (int) Math.pow(2, Config.dynamicTextureResolution() + 5);
+		scale = (int) Math.pow(2, Config.getClient().getDynamicTextureResolution() + 5);
 		lineSize = scale / 8;
 		lineSpacing = lineSize * 3 / 2;
 		fontSizeBig = lineSize * 2;
@@ -320,11 +322,11 @@ public class RouteMapGenerator implements IGui {
 				destinationString = destinationString.replace(TEMP_CIRCULAR_MARKER_CLOCKWISE, "").replace(TEMP_CIRCULAR_MARKER_ANTICLOCKWISE, "");
 				if (!destinationString.isEmpty()) {
 					if (isClockwise) {
-						destinationString = IGui.insertTranslation("gui.mtr.clockwise_via_cjk", "gui.mtr.clockwise_via", 1, destinationString);
+						destinationString = IGui.insertTranslation(TranslationProvider.GUI_MTR_CLOCKWISE_VIA_CJK, TranslationProvider.GUI_MTR_CLOCKWISE_VIA, 1, destinationString);
 					} else if (isAnticlockwise) {
-						destinationString = IGui.insertTranslation("gui.mtr.anticlockwise_via_cjk", "gui.mtr.anticlockwise_via", 1, destinationString);
+						destinationString = IGui.insertTranslation(TranslationProvider.GUI_MTR_ANTICLOCKWISE_VIA_CJK, TranslationProvider.GUI_MTR_ANTICLOCKWISE_VIA, 1, destinationString);
 					} else if (showToString) {
-						destinationString = IGui.insertTranslation("gui.mtr.to_cjk", "gui.mtr.to", 1, destinationString);
+						destinationString = IGui.insertTranslation(TranslationProvider.GUI_MTR_TO_CJK, TranslationProvider.GUI_MTR_TO, 1, destinationString);
 					}
 				}
 
@@ -549,7 +551,7 @@ public class RouteMapGenerator implements IGui {
 		final int row = totalStep / totalTime;
 		final float xOffset = (availableWidth - imageWidth * scale) / 2;
 		final float x = xOffset - Math.max(0, step - delayTime) * scale / slideTime;
-		IDrawing.drawTexture(graphicsHolder, Math.max(x, 0), 0, imageWidth * scale + Math.min(x, 0), availableHeight, Math.max(-x, 0) / imageWidth / scale, (float) row / rows, 1, (float) (row + 1) / rows, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
+		IDrawing.drawTexture(graphicsHolder, Math.max(x, 0), 0, imageWidth * scale + Math.min(x, 0), availableHeight, Math.max(-x, 0) / imageWidth / scale, (float) row / rows, 1, (float) (row + 1) / rows, Direction.UP, ARGB_WHITE, GraphicsHolder.getDefaultLight());
 	}
 
 	private static void setup(ObjectArrayList<Int2ObjectAVLTreeMap<StationPosition>> stationPositions, ObjectArrayList<LongArrayList> stationsIdLists, int[] colorIndices, float[] bounds, boolean passed, boolean reverse) {

@@ -1,6 +1,5 @@
 package org.mtr.mod.block;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.BlockState;
 import org.mtr.mapping.mapper.BlockEntityExtension;
@@ -20,11 +19,6 @@ public class BlockTrainCargoLoader extends BlockTrainSensorBase {
 
 		public BlockEntity(BlockPos pos, BlockState state) {
 			super(BlockEntityTypes.TRAIN_CARGO_LOADER.get(), pos, state);
-		}
-
-		@Override
-		public void setData(LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String... strings) {
-			setData(filterRouteIds, stoppedOnly, movingOnly);
 		}
 	}
 }

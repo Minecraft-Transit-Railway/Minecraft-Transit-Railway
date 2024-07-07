@@ -1,0 +1,16 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "main",
+			"positions": [
+				{}
+			]
+		},
+		{
+			"name": "extra",
+			"positions": [
+				{}
+			]
+		}
+	]
+}

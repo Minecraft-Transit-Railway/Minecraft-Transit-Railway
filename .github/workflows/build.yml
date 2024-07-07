@@ -1,12 +1,12 @@
 name: Build
-on: [ pull_request, push ]
+on: [ pull_request, push, workflow_dispatch ]
 
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
-        minecraft: [ 1.16.5, 1.17.1, 1.18.2, 1.19.4, 1.20.4 ]
+        minecraft: [ 1.16.5, 1.17.1, 1.18.2, 1.19.2, 1.19.4, 1.20.1, 1.20.4 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -26,27 +26,10 @@ jobs:
         run: ./gradlew forge:setupFiles -PminecraftVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
       - name: Build ${{ matrix.minecraft }}
         run: ./gradlew build -PminecraftVersion="${{ matrix.minecraft }}"
+      - name: Build ${{ matrix.minecraft }} (server)
+        run: ./gradlew build -PminecraftVersion="${{ matrix.minecraft }}" -PexcludeAssets=true
       - name: Capture release artifacts
         uses: actions/upload-artifact@main
         with:
           name: Fabric and Forge ${{ matrix.minecraft }}
           path: build/release/
-  crowdin:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@main
-      - name: Upload Translations to Crowdin
-        env:
-          MY_KEY: ${{ secrets.CROWDIN_API_KEY }}
-        if: ${{ env.MY_KEY != '' && github.ref == 'refs/heads/master' }}
-        uses: crowdin/github-action@master
-        with:
-          upload_sources: true
-          upload_translations: false
-          download_translations: false
-          push_translations: false
-          create_pull_request: false
-          project_id: '455212'
-          token: ${{ secrets.CROWDIN_API_KEY }}
-          config: 'crowdin.yml'

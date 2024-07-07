@@ -1,8 +1,8 @@
 package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,17 +43,17 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 	}
 
 	@Override
-	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 		if (facing == Direction.SOUTH || facing == Direction.WEST) {
 			IBlock.onBreakCreative(world, player, pos.offset(facing));
 		}
-		super.onBreak3(world, pos, state, player);
+		super.onBreak2(world, pos, state, player);
 	}
 
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		tooltip.add(TextHelper.translatable("tooltip.mtr.arrivals", maxArrivals).formatted(TextFormatting.GRAY));
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_ARRIVALS.getMutableText(maxArrivals).formatted(TextFormatting.GRAY));
 	}
 
 	@Override
@@ -78,6 +78,21 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 
 		public BlockEntityHorizontalBase(int maxArrivals, BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(maxArrivals, BlockPIDSHorizontalBase::canStoreData, BlockPIDSHorizontalBase::getBlockPosWithData, type, pos, state);
+		}
+
+		@Override
+		public boolean alternateLines() {
+			return false;
+		}
+
+		@Override
+		public int textColorArrived() {
+			return 0xFF9900;
+		}
+
+		@Override
+		public int textColor() {
+			return 0xFF9900;
 		}
 	}
 }

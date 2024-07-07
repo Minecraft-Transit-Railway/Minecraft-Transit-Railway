@@ -22,6 +22,7 @@ import org.mtr.mod.Patreon;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateData;
 import org.mtr.mod.resource.VehicleResource;
 
@@ -38,7 +39,7 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 
 	public VehicleSelectorScreen(@Nullable ScreenExtension previousScreen, Siding siding) {
 		super(previousScreen, getVehicleList(siding.getTransportMode()), getSelectedIds(siding), false, true);
-		buttonDuplicateVehicleCars = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.duplicate_vehicle_cars"), button -> {
+		buttonDuplicateVehicleCars = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_DUPLICATE_VEHICLE_CARS.getMutableText(), button -> {
 			final ObjectArrayList<VehicleCar> existingCars = new ObjectArrayList<>(siding.getVehicleCars());
 			while (true) {
 				final ObjectArrayList<VehicleCar> currentCars = new ObjectArrayList<>(siding.getVehicleCars());
@@ -70,14 +71,14 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 	@Override
 	public void renderAdditional(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 		final int spareSpace = Math.max(0, width - SQUARE_SIZE * 4 - PANEL_WIDTH * 2);
-		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.available"), SQUARE_SIZE * 2 + spareSpace + PANEL_WIDTH / 2, SQUARE_SIZE, ARGB_WHITE);
-		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.selected"), SQUARE_SIZE * 3 + spareSpace + PANEL_WIDTH * 3 / 2, SQUARE_SIZE, ARGB_WHITE);
+		graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_AVAILABLE.getMutableText(), SQUARE_SIZE * 2 + spareSpace + PANEL_WIDTH / 2, SQUARE_SIZE, ARGB_WHITE);
+		graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_SELECTED.getMutableText(), SQUARE_SIZE * 3 + spareSpace + PANEL_WIDTH * 3 / 2, SQUARE_SIZE, ARGB_WHITE);
 
 		final int index = availableList.getHoverItemIndex();
 		CustomResourceLoader.getVehicleByIndex(siding.getTransportMode(), index, vehicleResource -> {
 			int y = SQUARE_SIZE;
 			y = drawWrappedText(graphicsHolder, vehicleResource.getName(), y, ARGB_WHITE);
-			y = drawWrappedText(graphicsHolder, TextHelper.translatable("gui.mtr.vehicle_length", vehicleResource.getLength()), y, ARGB_WHITE);
+			y = drawWrappedText(graphicsHolder, TranslationProvider.GUI_MTR_VEHICLE_LENGTH.getMutableText(vehicleResource.getLength()), y, ARGB_WHITE);
 			final String description = vehicleResource.getDescription().getString();
 			if (!description.isEmpty()) {
 				for (final String text : description.split("[|\n]")) {
@@ -128,10 +129,10 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 		for (final OrderedText formattedCharSequence : splitText) {
 			final int nextY = newY + TEXT_HEIGHT + 2;
 			if (nextY > height - SQUARE_SIZE - TEXT_HEIGHT) {
-				graphicsHolder.drawText("...", SQUARE_SIZE, newY, color, false, MAX_LIGHT_GLOWING);
+				graphicsHolder.drawText("...", SQUARE_SIZE, newY, color, false, GraphicsHolder.getDefaultLight());
 				return height;
 			} else {
-				graphicsHolder.drawText(formattedCharSequence, SQUARE_SIZE, newY, color, false, MAX_LIGHT_GLOWING);
+				graphicsHolder.drawText(formattedCharSequence, SQUARE_SIZE, newY, color, false, GraphicsHolder.getDefaultLight());
 			}
 			newY = nextY;
 		}

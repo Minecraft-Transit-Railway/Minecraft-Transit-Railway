@@ -1,0 +1,547 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window1",
+			"positions": [
+				{
+					"z": -120
+				}
+			]
+		},
+		{
+			"name": "window1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -120
+				}
+			]
+		},
+		{
+			"name": "window2",
+			"positions": [
+				{
+					"z": -90
+				}
+			]
+		},
+		{
+			"name": "window2Flipped",
+			"positionsFlipped": [
+				{
+					"z": -90
+				}
+			]
+		},
+		{
+			"name": "window3",
+			"positions": [
+				{
+					"z": -60
+				}
+			]
+		},
+		{
+			"name": "window3Flipped",
+			"positionsFlipped": [
+				{
+					"z": -60
+				}
+			]
+		},
+		{
+			"name": "window4",
+			"positions": [
+				{
+					"z": -30
+				}
+			]
+		},
+		{
+			"name": "window4Flipped",
+			"positionsFlipped": [
+				{
+					"z": -30
+				}
+			]
+		},
+		{
+			"name": "window5",
+			"positions": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "window5Flipped",
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "window6",
+			"positions": [
+				{
+					"z": 30
+				}
+			]
+		},
+		{
+			"name": "window6Flipped",
+			"positionsFlipped": [
+				{
+					"z": 30
+				}
+			]
+		},
+		{
+			"name": "window7",
+			"positions": [
+				{
+					"z": 60
+				}
+			]
+		},
+		{
+			"name": "window7Flipped",
+			"positionsFlipped": [
+				{
+					"z": 60
+				}
+			]
+		},
+		{
+			"name": "window8",
+			"positions": [
+				{
+					"z": 90
+				}
+			]
+		},
+		{
+			"name": "window8Flipped",
+			"positionsFlipped": [
+				{
+					"z": 90
+				}
+			]
+		},
+		{
+			"name": "window9",
+			"positions": [
+				{
+					"z": 120
+				}
+			]
+		},
+		{
+			"name": "window9Flipped",
+			"positionsFlipped": [
+				{
+					"z": 120
+				}
+			]
+		},
+		{
+			"name": "bottomEnd",
+			"positions": [
+				{
+					"z": -82
+				},
+				{
+					"z": 82
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -82
+				},
+				{
+					"z": 82
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -150
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -150
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 150
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 150
+				}
+			]
+		},
+		{
+			"name": "roofEnd1",
+			"positions": [
+				{
+					"z": -180
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -180
+				}
+			]
+		},
+		{
+			"name": "roofEnd2",
+			"positions": [
+				{
+					"z": 180
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 180
+				}
+			]
+		},
+		{
+			"name": "seatCommon",
+			"positions": [
+				{
+					"x": -16,
+					"z": -5
+				},
+				{
+					"x": -8,
+					"z": -5
+				},
+				{
+					"x": 8,
+					"z": -5
+				},
+				{
+					"x": 16,
+					"z": -5
+				},
+				{
+					"x": -16,
+					"z": 10
+				},
+				{
+					"x": -8,
+					"z": 10
+				},
+				{
+					"x": 8,
+					"z": 10
+				},
+				{
+					"x": 16,
+					"z": 10
+				},
+				{
+					"x": -16,
+					"z": 25
+				},
+				{
+					"x": -8,
+					"z": 25
+				},
+				{
+					"x": 8,
+					"z": 25
+				},
+				{
+					"x": 16,
+					"z": 25
+				},
+				{
+					"x": -16,
+					"z": 40
+				},
+				{
+					"x": -8,
+					"z": 40
+				},
+				{
+					"x": 8,
+					"z": 40
+				},
+				{
+					"x": 16,
+					"z": 40
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": -16,
+					"z": -40
+				},
+				{
+					"x": -8,
+					"z": -40
+				},
+				{
+					"x": 8,
+					"z": -40
+				},
+				{
+					"x": 16,
+					"z": -40
+				},
+				{
+					"x": -16,
+					"z": -25
+				},
+				{
+					"x": -8,
+					"z": -25
+				},
+				{
+					"x": 8,
+					"z": -25
+				},
+				{
+					"x": 16,
+					"z": -25
+				}
+			]
+		},
+		{
+			"name": "seat1",
+			"positions": [
+				{
+					"x": -16,
+					"z": -125
+				},
+				{
+					"x": -8,
+					"z": -125
+				},
+				{
+					"x": 8,
+					"z": -125
+				},
+				{
+					"x": 16,
+					"z": -125
+				},
+				{
+					"x": -16,
+					"z": -110
+				},
+				{
+					"x": -8,
+					"z": -110
+				},
+				{
+					"x": 8,
+					"z": -110
+				},
+				{
+					"x": 16,
+					"z": -110
+				},
+				{
+					"x": -16,
+					"z": -95
+				},
+				{
+					"x": -8,
+					"z": -95
+				},
+				{
+					"x": 8,
+					"z": -95
+				},
+				{
+					"x": 16,
+					"z": -95
+				},
+				{
+					"x": -16,
+					"z": -80
+				},
+				{
+					"x": -8,
+					"z": -80
+				},
+				{
+					"x": 8,
+					"z": -80
+				},
+				{
+					"x": 16,
+					"z": -80
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": -16,
+					"z": -70
+				},
+				{
+					"x": -8,
+					"z": -70
+				},
+				{
+					"x": 8,
+					"z": -70
+				},
+				{
+					"x": 16,
+					"z": -70
+				},
+				{
+					"x": -16,
+					"z": -55
+				},
+				{
+					"x": -8,
+					"z": -55
+				},
+				{
+					"x": 8,
+					"z": -55
+				},
+				{
+					"x": 16,
+					"z": -55
+				}
+			]
+		},
+		{
+			"name": "seat2",
+			"positions": [
+				{
+					"x": -16,
+					"z": 55
+				},
+				{
+					"x": -8,
+					"z": 55
+				},
+				{
+					"x": 8,
+					"z": 55
+				},
+				{
+					"x": 16,
+					"z": 55
+				},
+				{
+					"x": -16,
+					"z": 70
+				},
+				{
+					"x": -8,
+					"z": 70
+				},
+				{
+					"x": 8,
+					"z": 70
+				},
+				{
+					"x": 16,
+					"z": 70
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": -16,
+					"z": 80
+				},
+				{
+					"x": -8,
+					"z": 80
+				},
+				{
+					"x": 8,
+					"z": 80
+				},
+				{
+					"x": 16,
+					"z": 80
+				},
+				{
+					"x": -16,
+					"z": 95
+				},
+				{
+					"x": -8,
+					"z": 95
+				},
+				{
+					"x": 8,
+					"z": 95
+				},
+				{
+					"x": 16,
+					"z": 95
+				},
+				{
+					"x": -16,
+					"z": 110
+				},
+				{
+					"x": -8,
+					"z": 110
+				},
+				{
+					"x": 8,
+					"z": 110
+				},
+				{
+					"x": 16,
+					"z": 110
+				},
+				{
+					"x": -16,
+					"z": 125
+				},
+				{
+					"x": -8,
+					"z": 125
+				},
+				{
+					"x": 8,
+					"z": 125
+				},
+				{
+					"x": 16,
+					"z": 125
+				}
+			]
+		},
+		{
+			"name": "doorLight",
+			"positions": [
+				{
+					"z": 0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		}
+	]
+}

@@ -16,12 +16,16 @@
 		},
 		"positionDefinitionsResource": {
 			"type": "string"
+		},
+		"flipTextureV": {
+			"type": "boolean"
 		}
 	},
 	"required": [
 		"modelResource",
 		"textureResource",
 		"modelPropertiesResource",
-		"positionDefinitionsResource"
+		"positionDefinitionsResource",
+		"flipTextureV"
 	]
 }

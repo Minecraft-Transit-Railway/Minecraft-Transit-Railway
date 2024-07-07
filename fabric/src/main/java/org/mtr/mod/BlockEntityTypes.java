@@ -4,6 +4,7 @@ import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.registry.BlockEntityTypeRegistryObject;
 import org.mtr.mod.block.*;
 
+@SuppressWarnings("unchecked")
 public final class BlockEntityTypes {
 
 	static {
@@ -12,7 +13,6 @@ public final class BlockEntityTypes {
 		ARRIVAL_PROJECTOR_1_LARGE = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "arrival_projector_1_large"), BlockArrivalProjector1Large.BlockEntity::new, Blocks.ARRIVAL_PROJECTOR_1_LARGE::get);
 		ARRIVAL_PROJECTOR_1_MEDIUM = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "arrival_projector_1_medium"), BlockArrivalProjector1Medium.BlockEntity::new, Blocks.ARRIVAL_PROJECTOR_1_MEDIUM::get);
 		ARRIVAL_PROJECTOR_1_SMALL = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "arrival_projector_1_small"), BlockArrivalProjector1Small.BlockEntity::new, Blocks.ARRIVAL_PROJECTOR_1_SMALL::get);
-		BOAT_NODE = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "boat_node"), BlockNode.BlockEntity::new, Blocks.BOAT_NODE::get);
 		CLOCK = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "clock"), BlockClock.BlockEntity::new, Blocks.CLOCK::get);
 		LIFT_BUTTONS_1 = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "lift_buttons_1"), BlockLiftButtons.BlockEntity::new, Blocks.LIFT_BUTTONS_1::get);
 		LIFT_DOOR_EVEN_1 = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "lift_door_1"), BlockLiftDoor.BlockEntity::new, Blocks.LIFT_DOOR_EVEN_1::get);
@@ -69,6 +69,7 @@ public final class BlockEntityTypes {
 		TRAIN_CARGO_UNLOADER = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "train_cargo_unloader"), BlockTrainCargoUnloader.BlockEntity::new, Blocks.TRAIN_CARGO_UNLOADER::get);
 		TRAIN_REDSTONE_SENSOR = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "train_redstone_sensor"), BlockTrainRedstoneSensor.BlockEntity::new, Blocks.TRAIN_REDSTONE_SENSOR::get);
 		TRAIN_SCHEDULE_SENSOR = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "train_schedule_sensor"), BlockTrainScheduleSensor.BlockEntity::new, Blocks.TRAIN_SCHEDULE_SENSOR::get);
+		EYE_CANDY = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID_NTE, "eye_candy"), BlockEyeCandy.BlockEntity::new, Blocks.EYE_CANDY::get);
 	}
 
 	public static final BlockEntityTypeRegistryObject<BlockAPGDoor.BlockEntity> APG_DOOR;
@@ -85,7 +86,6 @@ public final class BlockEntityTypes {
 	public static final BlockEntityTypeRegistryObject<BlockLiftPanelOdd1.BlockEntity> LIFT_PANEL_ODD_1;
 	public static final BlockEntityTypeRegistryObject<BlockLiftPanelOdd2.BlockEntity> LIFT_PANEL_ODD_2;
 	public static final BlockEntityTypeRegistryObject<BlockLiftTrackFloor.BlockEntity> LIFT_TRACK_FLOOR_1;
-	public static final BlockEntityTypeRegistryObject<BlockNode.BlockEntity> BOAT_NODE;
 	public static final BlockEntityTypeRegistryObject<BlockPIDSHorizontal1.BlockEntity> PIDS_HORIZONTAL_1;
 	public static final BlockEntityTypeRegistryObject<BlockPIDSHorizontal2.BlockEntity> PIDS_HORIZONTAL_2;
 	public static final BlockEntityTypeRegistryObject<BlockPIDSHorizontal3.BlockEntity> PIDS_HORIZONTAL_3;
@@ -133,6 +133,7 @@ public final class BlockEntityTypes {
 	public static final BlockEntityTypeRegistryObject<BlockTrainCargoUnloader.BlockEntity> TRAIN_CARGO_UNLOADER;
 	public static final BlockEntityTypeRegistryObject<BlockTrainRedstoneSensor.BlockEntity> TRAIN_REDSTONE_SENSOR;
 	public static final BlockEntityTypeRegistryObject<BlockTrainScheduleSensor.BlockEntity> TRAIN_SCHEDULE_SENSOR;
+	public static final BlockEntityTypeRegistryObject<BlockEyeCandy.BlockEntity> EYE_CANDY;
 
 	public static void init() {
 		Init.LOGGER.info("Registering Minecraft Transit Railway block entity types");

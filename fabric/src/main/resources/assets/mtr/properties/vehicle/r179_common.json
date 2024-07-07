@@ -1,0 +1,270 @@
+{
+	"parts": [
+		{
+			"names": [
+				"roof_window_light"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"window",
+				"roof_window",
+				"window_handrails"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"roof_handle"
+			],
+			"positionDefinitions": [
+				"roofHandle"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_display"
+			],
+			"positionDefinitions": [
+				"windowDisplay1",
+				"windowDisplay2Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"side_panel"
+			],
+			"positionDefinitions": [
+				"sidePanel"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_exterior",
+				"roof_exterior_window"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_floor"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"roof_door_light"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"door",
+				"roof_door"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"handrail_door_type_1"
+			],
+			"positionDefinitions": [
+				"doorEnd"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"handrail_door_type_2"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"door_floor"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd"
+			],
+			"type": "DOORWAY"
+		},
+		{
+			"names": [
+				"door_left"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": -12,
+			"doorAnimationType": "R179"
+		},
+		{
+			"names": [
+				"door_right"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": 12,
+			"doorAnimationType": "R179"
+		},
+		{
+			"names": [
+				"door_exterior",
+				"roof_exterior_door"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_left_exterior"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": -12,
+			"doorAnimationType": "R179"
+		},
+		{
+			"names": [
+				"door_right_exterior"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 12,
+			"doorAnimationType": "R179"
+		},
+		{
+			"names": [
+				"side_destination_display_1"
+			],
+			"positionDefinitions": [
+				"windowDisplay1"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0.8,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"ALIGN_CENTER",
+				"UPPER_CASE",
+				"CYCLE_LANGUAGES"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"side_route_number_display_1"
+			],
+			"positionDefinitions": [
+				"windowDisplay1"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"ALIGN_LEFT",
+				"UPPER_CASE",
+				"CYCLE_LANGUAGES"
+			],
+			"displayType": "ROUTE_NUMBER"
+		},
+		{
+			"names": [
+				"side_destination_display_2"
+			],
+			"positionDefinitions": [
+				"windowDisplay2"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0.8,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"ALIGN_CENTER",
+				"UPPER_CASE",
+				"CYCLE_LANGUAGES"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"side_route_number_display_2"
+			],
+			"positionDefinitions": [
+				"windowDisplay2"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"ALIGN_LEFT",
+				"UPPER_CASE",
+				"CYCLE_LANGUAGES"
+			],
+			"displayType": "ROUTE_NUMBER"
+		}
+	],
+	"modelYOffset": 1,
+	"barrierInnerSideResource": "mtr:textures/barrier/r179_exterior.png",
+	"barrierOuterSideResource": "mtr:textures/barrier/r179_exterior.png",
+	"barrierWidth": 2.6,
+	"barrierHeight": 1.25,
+	"barrierYOffset": 1,
+	"barrierZOffset": 0.4
+}

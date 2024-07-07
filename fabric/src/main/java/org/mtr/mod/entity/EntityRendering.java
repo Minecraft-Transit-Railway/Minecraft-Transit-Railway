@@ -9,20 +9,31 @@ import org.mtr.mod.EntityTypes;
 
 public class EntityRendering extends EntityExtension {
 
-	public final Vector3d offset;
-
 	public EntityRendering(EntityType<?> type, World world) {
 		super(type, world);
-		offset = Vector3d.getZeroMapped();
 	}
 
 	public EntityRendering(World world) {
 		super(EntityTypes.RENDERING.get(), world);
-		offset = MinecraftClient.getInstance().getGameRendererMapped().getCamera().getPos();
-		setPosition3(offset.getXMapped(), offset.getYMapped(), offset.getZMapped());
 	}
 
 	@Override
 	protected void initDataTracker2() {
+	}
+
+	@Override
+	public void tick2() {
+		update(true);
+	}
+
+	public void update() {
+		update(false);
+	}
+
+	private void update(boolean skipDistanceCheck) {
+		final Vector3d position = MinecraftClient.getInstance().getGameRendererMapped().getCamera().getPos();
+		if (skipDistanceCheck || position.squaredDistanceTo(getPos2()) > 1 || MinecraftClient.getInstance().isPaused()) {
+			setPosition2(position.getXMapped(), position.getYMapped(), position.getZMapped());
+		}
 	}
 }

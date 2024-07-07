@@ -12,10 +12,11 @@ import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockLiftButtons;
 import org.mtr.mod.block.BlockLiftPanelBase;
+import org.mtr.mod.block.BlockLiftTrackFloor;
 import org.mtr.mod.block.IBlock;
-import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.item.ItemLiftButtonsLinkModifier;
 
@@ -49,7 +50,7 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> exten
 		}
 
 		final BlockPos trackPosition = blockEntity.getTrackPosition();
-		if (trackPosition == null) {
+		if (trackPosition == null || !(world.getBlockState(trackPosition).getBlock().data instanceof BlockLiftTrackFloor)) {
 			return;
 		}
 
@@ -58,8 +59,7 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> exten
 		final Direction facing = IBlock.getStatePropertySafe(blockState, FACING);
 		final boolean holdingLinker = PlayerHelper.isHolding(PlayerEntity.cast(clientPlayerEntity), item -> item.data instanceof ItemLiftButtonsLinkModifier || Block.getBlockFromItem(item).data instanceof BlockLiftButtons);
 
-		final StoredMatrixTransformations storedMatrixTransformations1 = new StoredMatrixTransformations(true);
-		storedMatrixTransformations1.add(graphicsHolder -> graphicsHolder.translate(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5));
+		final StoredMatrixTransformations storedMatrixTransformations1 = new StoredMatrixTransformations(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5);
 
 		// Render track link if holding linker item
 		final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, FACING);
@@ -91,9 +91,9 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> exten
 			});
 
 			// Floor Number
-			RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
 				storedMatrixTransformations2.transform(graphicsHolder, offset);
-				IDrawing.drawStringWithFont(graphicsHolder, currentFloorNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, -0.47F, 0.1875F, 0.1875F, 1, ARGB_BLACK, false, MAX_LIGHT_GLOWING, null);
+				IDrawing.drawStringWithFont(graphicsHolder, currentFloorNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, -0.47F, 0.1875F, 0.1875F, 1, ARGB_BLACK, false, GraphicsHolder.getDefaultLight(), null);
 				graphicsHolder.pop();
 			});
 
@@ -118,10 +118,10 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> exten
 		if (liftDirection != LiftDirection.NONE) {
 			final float uv = (gameTick * ARROW_SPEED) % 1;
 			final int color = goingUp ? 0xFF00FF00 : 0xFFFF0000;
-			RenderTrains.scheduleRender(ARROW_TEXTURE, false, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(ARROW_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolder, offset);
-				IDrawing.drawTexture(graphicsHolder, -PANEL_WIDTH / 2 - arrowSize, y, arrowSize, arrowSize, 0, (goingUp ? 0 : 1) + uv, 1, (goingUp ? 1 : 0) + uv, Direction.UP, color, MAX_LIGHT_GLOWING);
-				IDrawing.drawTexture(graphicsHolder, PANEL_WIDTH / 2, y, arrowSize, arrowSize, 0, (goingUp ? 0 : 1) + uv, 1, (goingUp ? 1 : 0) + uv, Direction.UP, color, MAX_LIGHT_GLOWING);
+				IDrawing.drawTexture(graphicsHolder, -PANEL_WIDTH / 2 - arrowSize, y, arrowSize, arrowSize, 0, (goingUp ? 0 : 1) + uv, 1, (goingUp ? 1 : 0) + uv, Direction.UP, color, GraphicsHolder.getDefaultLight());
+				IDrawing.drawTexture(graphicsHolder, PANEL_WIDTH / 2, y, arrowSize, arrowSize, 0, (goingUp ? 0 : 1) + uv, 1, (goingUp ? 1 : 0) + uv, Direction.UP, color, GraphicsHolder.getDefaultLight());
 				graphicsHolder.pop();
 			});
 		}
@@ -137,9 +137,9 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> exten
 			}
 			final float uv = (goingUp ? -1 : 1) * uvOffset;
 			final String text = String.format("%s%s%s", floorNumber, noFloorNumber || noFloorDisplay ? "" : "|", floorDescription);
-			RenderTrains.scheduleRender(DynamicTextureCache.instance.getLiftPanelDisplay(text, 0xFFAA00).identifier, false, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(DynamicTextureCache.instance.getLiftPanelDisplay(text, 0xFFAA00).identifier, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolder, offset);
-				IDrawing.drawTexture(graphicsHolder, -PANEL_WIDTH / 2, y, PANEL_WIDTH, arrowSize, 0, uv, 1, lineHeight + uv, Direction.UP, ARGB_WHITE, MAX_LIGHT_GLOWING);
+				IDrawing.drawTexture(graphicsHolder, -PANEL_WIDTH / 2, y, PANEL_WIDTH, arrowSize, 0, uv, 1, lineHeight + uv, Direction.UP, ARGB_WHITE, GraphicsHolder.getDefaultLight());
 				graphicsHolder.pop();
 			});
 		}

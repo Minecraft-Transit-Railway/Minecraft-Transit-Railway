@@ -10,12 +10,13 @@ import org.mtr.mapping.mapper.*;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockTrainSensorBase;
-import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateTrainSensorConfig;
 
-import java.util.Collections;
+import java.util.stream.Collectors;
 
 public abstract class TrainSensorScreenBase extends ScreenExtension implements IGui {
 
@@ -63,13 +64,12 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 		}
 
 		stoppedOnlyCheckbox = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> setChecked(checked, movingOnly));
-		stoppedOnlyCheckbox.setMessage2(new Text(TextHelper.translatable("gui.mtr.stopped_only").data));
+		stoppedOnlyCheckbox.setMessage2(TranslationProvider.GUI_MTR_STOPPED_ONLY.getText());
 		movingOnlyCheckbox = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> setChecked(stoppedOnly, checked));
-		movingOnlyCheckbox.setMessage2(new Text(TextHelper.translatable("gui.mtr.moving_only").data));
+		movingOnlyCheckbox.setMessage2(TranslationProvider.GUI_MTR_MOVING_ONLY.getText());
 
 		filterButton = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> {
-			final ObjectArrayList<DashboardListItem> routes = new ObjectArrayList<>(MinecraftClientData.convertDataSet(MinecraftClientData.getInstance().routes));
-			Collections.sort(routes);
+			final ObjectArrayList<DashboardListItem> routes = MinecraftClientData.getInstance().simplifiedRoutes.stream().map(simplifiedRoute -> new DashboardListItem(simplifiedRoute.getId(), simplifiedRoute.getName(), simplifiedRoute.getColor())).sorted().collect(Collectors.toCollection(ObjectArrayList::new));
 			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this, new ObjectImmutableList<>(routes), filterRouteIds, false, false)));
 		});
 
@@ -103,7 +103,7 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 	@Override
 	public void tick2() {
 		for (final TextFieldWidgetExtension textField : textFields) {
-			textField.tick3();
+			textField.tick2();
 		}
 	}
 
@@ -112,15 +112,15 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 		try {
 			renderBackground(graphicsHolder);
 			for (int i = 0; i < textFieldCount; i++) {
-				graphicsHolder.drawText(textFieldLabels[i], SQUARE_SIZE + (width / 2 - SQUARE_SIZE) * i, SQUARE_SIZE, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+				graphicsHolder.drawText(textFieldLabels[i], SQUARE_SIZE + (width / 2 - SQUARE_SIZE) * i, SQUARE_SIZE, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			}
-			graphicsHolder.drawText(TextHelper.translatable("gui.mtr.filtered_routes", filterRouteIds.size()), SQUARE_SIZE, yStart + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
-			graphicsHolder.drawText(TextHelper.translatable(filterRouteIds.isEmpty() ? "gui.mtr.filtered_routes_empty" : "gui.mtr.filtered_routes_condition"), SQUARE_SIZE, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+			graphicsHolder.drawText(TranslationProvider.GUI_MTR_FILTERED_ROUTES.getMutableText(filterRouteIds.size()), SQUARE_SIZE, yStart + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+			graphicsHolder.drawText((filterRouteIds.isEmpty() ? TranslationProvider.GUI_MTR_FILTERED_ROUTES_EMPTY : TranslationProvider.GUI_MTR_FILTERED_ROUTES_CONDITION).getMutableText(), SQUARE_SIZE, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			int i = 0;
 			for (final long routeId : filterRouteIds) {
 				final Route route = MinecraftClientData.getInstance().routeIdMap.get(routeId);
 				if (route != null) {
-					graphicsHolder.drawText(TextHelper.literal(IGui.formatStationName(route.getName())), SQUARE_SIZE, yStart + SQUARE_SIZE * 3 + TEXT_PADDING + i, ARGB_WHITE, false, MAX_LIGHT_GLOWING);
+					graphicsHolder.drawText(TextHelper.literal(IGui.formatStationName(route.getName())), SQUARE_SIZE, yStart + SQUARE_SIZE * 3 + TEXT_PADDING + i, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 				}
 				i += TEXT_HEIGHT;
 			}
@@ -133,11 +133,7 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 
 	@Override
 	public void onClose2() {
-		final String[] strings = new String[textFieldCount];
-		for (int i = 0; i < textFieldCount; i++) {
-			strings[i] = textFields[i].getText2();
-		}
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateTrainSensorConfig(blockPos, filterRouteIds, stoppedOnly, movingOnly, getNumber(), strings));
+		sendUpdate(blockPos, filterRouteIds, stoppedOnly, movingOnly);
 		super.onClose2();
 	}
 
@@ -149,8 +145,8 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 	protected void renderAdditional(GraphicsHolder graphicsHolder) {
 	}
 
-	protected int getNumber() {
-		return 0;
+	protected void sendUpdate(BlockPos blockPos, LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly) {
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateTrainSensorConfig(blockPos, filterRouteIds, stoppedOnly, movingOnly));
 	}
 
 	private void setChecked(boolean newStoppedOnly, boolean newMovingOnly) {

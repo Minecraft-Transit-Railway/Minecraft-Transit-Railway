@@ -90,8 +90,8 @@
 				"doorEnd1Flipped"
 			],
 			"renderStage": "EXTERIOR",
-			"doorXMultiplier": 1,
-			"doorZMultiplier": -14,
+			"doorXMultiplier": -1,
+			"doorZMultiplier": 14,
 			"doorAnimationType": "PLUG_FAST"
 		},
 		{
@@ -102,8 +102,8 @@
 				"doorEnd1Flipped"
 			],
 			"renderStage": "EXTERIOR",
-			"doorXMultiplier": 1,
-			"doorZMultiplier": 14,
+			"doorXMultiplier": -1,
+			"doorZMultiplier": -14,
 			"doorAnimationType": "PLUG_FAST"
 		}
 	],

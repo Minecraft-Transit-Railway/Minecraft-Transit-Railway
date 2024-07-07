@@ -65,18 +65,18 @@ public class RenderDrivingOverlay implements IGui {
 		graphicsHolder.drawCenteredText("DO", (int) (startX + 165.5F), (int) (startY + 7.5F), speed == 0 && doorValue == 1 ? ARGB_WHITE : ARGB_GRAY);
 
 		final String speedText = Utilities.round(speed * 3.6F, 1) + " km/h";
-		graphicsHolder.drawText(speedText, startX - GraphicsHolder.getTextWidth(speedText) - TEXT_PADDING, (int) (window.getScaledHeight() - 14.5F), ARGB_WHITE, true, MAX_LIGHT_GLOWING);
+		graphicsHolder.drawText(speedText, startX - GraphicsHolder.getTextWidth(speedText) - TEXT_PADDING, (int) (window.getScaledHeight() - 14.5F), ARGB_WHITE, true, GraphicsHolder.getDefaultLight());
 		if (thisStation != null) {
-			graphicsHolder.drawText(thisStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 44.5F), ARGB_WHITE, true, MAX_LIGHT_GLOWING);
+			graphicsHolder.drawText(thisStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 44.5F), ARGB_WHITE, true, GraphicsHolder.getDefaultLight());
 		}
 		if (nextStation != null) {
-			graphicsHolder.drawText("> " + nextStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 34.5F), ARGB_WHITE, true, MAX_LIGHT_GLOWING);
+			graphicsHolder.drawText("> " + nextStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 34.5F), ARGB_WHITE, true, GraphicsHolder.getDefaultLight());
 		}
 		if (thisRoute != null) {
-			graphicsHolder.drawText(thisRoute, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 19.5F), ARGB_WHITE, true, MAX_LIGHT_GLOWING);
+			graphicsHolder.drawText(thisRoute, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 19.5F), ARGB_WHITE, true, GraphicsHolder.getDefaultLight());
 		}
 		if (lastStation != null) {
-			graphicsHolder.drawText("> " + lastStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 9.5F), ARGB_WHITE, true, MAX_LIGHT_GLOWING);
+			graphicsHolder.drawText("> " + lastStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 9.5F), ARGB_WHITE, true, GraphicsHolder.getDefaultLight());
 		}
 
 		RenderSystem.disableBlend();

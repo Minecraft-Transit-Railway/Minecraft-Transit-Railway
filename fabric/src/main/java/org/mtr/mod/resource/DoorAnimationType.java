@@ -22,12 +22,12 @@ public enum DoorAnimationType {
 		this.maxTime = maxTime;
 	}
 
-	public double getDoorAnimationX(double multiplier, double time) {
-		return multiplier == 0 ? 0 : Math.copySign(getDoorAnimationXAbsolute(Math.abs(multiplier), time), multiplier);
+	public double getDoorAnimationX(double multiplier, boolean flipped, double time) {
+		return multiplier == 0 ? 0 : Math.copySign(getDoorAnimationXAbsolute(Math.abs(multiplier), time), (flipped ? -1 : 1) * multiplier);
 	}
 
-	public double getDoorAnimationZ(double multiplier, double time, boolean opening) {
-		return multiplier == 0 ? 0 : Math.copySign(getDoorAnimationZAbsolute(Math.abs(multiplier), time, opening), multiplier);
+	public double getDoorAnimationZ(double multiplier, boolean flipped, double time, boolean opening) {
+		return multiplier == 0 ? 0 : Math.copySign(getDoorAnimationZAbsolute(Math.abs(multiplier), time, opening), (flipped ? -1 : 1) * multiplier);
 	}
 
 	private double getDoorAnimationXAbsolute(double multiplier, double time) {

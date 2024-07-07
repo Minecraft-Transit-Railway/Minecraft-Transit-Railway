@@ -4,44 +4,49 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.mtr.core.Main;
 import org.mtr.core.data.Position;
 import org.mtr.core.operation.GenerateOrClearByDepotName;
 import org.mtr.core.operation.SetTime;
 import org.mtr.core.servlet.Webserver;
-import org.mtr.core.tool.RequestHelper;
+import org.mtr.core.simulation.Simulator;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.org.eclipse.jetty.servlet.ServletHolder;
 import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.GameRule;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
 import org.mtr.mapping.mapper.WorldHelper;
 import org.mtr.mapping.registry.CommandBuilder;
-import org.mtr.mapping.registry.EventRegistry;
 import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.tool.DummyClass;
+import org.mtr.mod.config.Config;
+import org.mtr.mod.data.ArrivalsCacheServer;
 import org.mtr.mod.data.RailActionModule;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.*;
+import org.mtr.mod.servlet.Tunnel;
 import org.mtr.mod.servlet.VehicleLiftServlet;
 
 import javax.annotation.Nullable;
 import java.net.ServerSocket;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.function.Consumer;
 
 public final class Init implements Utilities {
 
 	private static Main main;
 	private static Webserver webserver;
+	private static Tunnel tunnel;
 	private static int serverPort;
 	private static Runnable sendWorldTimeUpdate;
+	private static boolean canSendWorldTimeUpdate = true;
 	private static int serverTick;
 
 	public static final String MOD_ID = "mtr";
+	public static final String MOD_ID_NTE = "mtrsteamloco";
 	public static final Logger LOGGER = LogManager.getLogger("MinecraftTransitRailway");
 	public static final Registry REGISTRY = new Registry();
 	public static final int SECONDS_PER_MC_HOUR = 50;
@@ -49,7 +54,6 @@ public final class Init implements Utilities {
 	private static final int MILLIS_PER_MC_DAY = SECONDS_PER_MC_HOUR * MILLIS_PER_SECOND * HOURS_PER_DAY;
 	private static final Object2ObjectArrayMap<ServerWorld, RailActionModule> RAIL_ACTION_MODULES = new Object2ObjectArrayMap<>();
 	private static final ObjectArrayList<String> WORLD_ID_LIST = new ObjectArrayList<>();
-	private static final RequestHelper REQUEST_HELPER = new RequestHelper(false);
 
 	public static void init() {
 		AsciiArt.print();
@@ -71,6 +75,7 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketDepotGenerate.class, PacketDepotGenerate::new);
 		REGISTRY.registerPacket(PacketDriveTrain.class, PacketDriveTrain::new);
 		REGISTRY.registerPacket(PacketFetchArrivals.class, PacketFetchArrivals::new);
+		REGISTRY.registerPacket(PacketForwardClientRequest.class, PacketForwardClientRequest::new);
 		REGISTRY.registerPacket(PacketOpenBlockEntityScreen.class, PacketOpenBlockEntityScreen::new);
 		REGISTRY.registerPacket(PacketOpenDashboardScreen.class, PacketOpenDashboardScreen::new);
 		REGISTRY.registerPacket(PacketOpenLiftCustomizationScreen.class, PacketOpenLiftCustomizationScreen::new);
@@ -78,10 +83,16 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketOpenTicketMachineScreen.class, PacketOpenTicketMachineScreen::new);
 		REGISTRY.registerPacket(PacketPressLiftButton.class, PacketPressLiftButton::new);
 		REGISTRY.registerPacket(PacketRequestData.class, PacketRequestData::new);
+		REGISTRY.registerPacket(PacketTurnOnBlockEntity.class, PacketTurnOnBlockEntity::new);
 		REGISTRY.registerPacket(PacketUpdateData.class, PacketUpdateData::new);
+		REGISTRY.registerPacket(PacketUpdateEyeCandyConfig.class, PacketUpdateEyeCandyConfig::new);
+		REGISTRY.registerPacket(PacketUpdateLastRailStyles.class, PacketUpdateLastRailStyles::new);
 		REGISTRY.registerPacket(PacketUpdateLiftTrackFloorConfig.class, PacketUpdateLiftTrackFloorConfig::new);
 		REGISTRY.registerPacket(PacketUpdatePIDSConfig.class, PacketUpdatePIDSConfig::new);
 		REGISTRY.registerPacket(PacketUpdateRailwaySignConfig.class, PacketUpdateRailwaySignConfig::new);
+		REGISTRY.registerPacket(PacketUpdateSignalConfig.class, PacketUpdateSignalConfig::new);
+		REGISTRY.registerPacket(PacketUpdateTrainAnnouncerConfig.class, PacketUpdateTrainAnnouncerConfig::new);
+		REGISTRY.registerPacket(PacketUpdateTrainScheduleSensorConfig.class, PacketUpdateTrainScheduleSensorConfig::new);
 		REGISTRY.registerPacket(PacketUpdateTrainSensorConfig.class, PacketUpdateTrainSensorConfig::new);
 		REGISTRY.registerPacket(PacketUpdateVehiclesLifts.class, PacketUpdateVehiclesLifts::new);
 		REGISTRY.registerPacket(PacketUpdateVehicleRidingEntities.class, PacketUpdateVehicleRidingEntities::new);
@@ -136,7 +147,7 @@ public final class Init implements Utilities {
 		}, "minecrafttransitrailway");
 
 		// Register events
-		EventRegistry.registerServerStarted(minecraftServer -> {
+		REGISTRY.eventRegistry.registerServerStarted(minecraftServer -> {
 			// Start up the backend
 			RAIL_ACTION_MODULES.clear();
 			WORLD_ID_LIST.clear();
@@ -145,8 +156,12 @@ public final class Init implements Utilities {
 				WORLD_ID_LIST.add(getWorldId(new World(serverWorld.data)));
 			});
 
-			final int defaultPort = getDefaultPortFromConfig(minecraftServer);
+			Config.init(minecraftServer.getRunDirectory());
+			final int defaultPort = Config.getServer().getWebserverPort();
 			serverPort = findFreePort(defaultPort);
+			tunnel = new Tunnel(minecraftServer.getRunDirectory(), defaultPort, () -> {
+			});
+
 			final int port = findFreePort(serverPort + 1);
 			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, port, WORLD_ID_LIST.toArray(new String[0]));
 			webserver = new Webserver(port);
@@ -154,15 +169,37 @@ public final class Init implements Utilities {
 			webserver.start();
 
 			serverTick = 0;
-			sendWorldTimeUpdate = () -> sendHttpRequest(
-					"operation/set-time",
-					null,
-					Utilities.getJsonObjectFromData(new SetTime((WorldHelper.getTimeOfDay(minecraftServer.getOverworld()) + 6000) * SECONDS_PER_MC_HOUR, MILLIS_PER_MC_DAY)).toString(),
-					null
-			);
+			sendWorldTimeUpdate = () -> {
+				if (canSendWorldTimeUpdate) {
+					canSendWorldTimeUpdate = false;
+					sendHttpRequest(
+							"operation/set-time",
+							null,
+							Utilities.getJsonObjectFromData(new SetTime(
+									(WorldHelper.getTimeOfDay(minecraftServer.getOverworld()) + 6000) * SECONDS_PER_MC_HOUR,
+									MILLIS_PER_MC_DAY,
+									GameRule.DO_DAYLIGHT_CYCLE.getBooleanGameRule(minecraftServer)
+							)).toString(),
+							response -> canSendWorldTimeUpdate = true
+					);
+				} else {
+					Main.LOGGER.error("Transport Simulation Core not responding; stopping Minecraft server!");
+					if (main != null) {
+						main.stop();
+					}
+					if (webserver != null) {
+						webserver.stop();
+					}
+					Main.LOGGER.error("Shutting down all threads");
+					System.exit(0);
+				}
+			};
 		});
 
-		EventRegistry.registerServerStopping(minecraftServer -> {
+		REGISTRY.eventRegistry.registerServerStopping(minecraftServer -> {
+			if (tunnel != null) {
+				tunnel.stop();
+			}
 			if (main != null) {
 				main.stop();
 			}
@@ -171,14 +208,15 @@ public final class Init implements Utilities {
 			}
 		});
 
-		EventRegistry.registerStartServerTick(() -> {
+		REGISTRY.eventRegistry.registerStartServerTick(() -> {
 			if (sendWorldTimeUpdate != null && serverTick % (SECONDS_PER_MC_HOUR * 10) == 0) {
 				sendWorldTimeUpdate.run();
 			}
+			ArrivalsCacheServer.tickAll();
 			serverTick++;
 		});
 
-		EventRegistry.registerEndWorldTick(serverWorld -> {
+		REGISTRY.eventRegistry.registerEndWorldTick(serverWorld -> {
 			final RailActionModule railActionModule = RAIL_ACTION_MODULES.get(serverWorld);
 			if (railActionModule != null) {
 				railActionModule.tick();
@@ -196,13 +234,12 @@ public final class Init implements Utilities {
 		}
 	}
 
+	public static void sendHttpRequest(String endpoint, @Nullable String content, @Nullable Consumer<String> consumer) {
+		Simulator.REQUEST_HELPER.sendRequest(String.format("http://localhost:%s%s", serverPort, endpoint), content, consumer);
+	}
+
 	public static void sendHttpRequest(String endpoint, @Nullable World world, String content, @Nullable Consumer<String> consumer) {
-		REQUEST_HELPER.sendPostRequest(String.format(
-				"http://localhost:%s/mtr/api/%s?%s",
-				serverPort,
-				endpoint,
-				world == null ? "dimensions=all" : "dimension=" + WORLD_ID_LIST.indexOf(getWorldId(world))
-		), content, consumer);
+		sendHttpRequest(String.format("/mtr/api/%s?%s", endpoint, world == null ? "dimensions=all" : "dimension=" + WORLD_ID_LIST.indexOf(getWorldId(world))), content, consumer);
 	}
 
 	public static BlockPos positionToBlockPos(Position position) {
@@ -221,28 +258,21 @@ public final class Init implements Utilities {
 		return chunkManager.getWorldChunk(blockPos.getX() / 16, blockPos.getZ() / 16) != null && world.isRegionLoaded(blockPos, blockPos);
 	}
 
-	private static int getDefaultPortFromConfig(MinecraftServer minecraftServer) {
-		final Path filePath = minecraftServer.getRunDirectory().toPath().resolve("config/mtr_webserver_port.txt");
-		final int defaultPort = 8888;
-
-		try {
-			return Integer.parseInt(FileUtils.readFileToString(filePath.toFile(), StandardCharsets.UTF_8));
-		} catch (Exception ignored) {
-			try {
-				Files.write(filePath, String.valueOf(defaultPort).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-			} catch (Exception e) {
-				LOGGER.error("", e);
-			}
-		}
-
-		return defaultPort;
+	public static String getWorldId(World world) {
+		final Identifier identifier = MinecraftServerHelper.getWorldId(world);
+		return String.format("%s/%s", identifier.getNamespace(), identifier.getPath());
 	}
 
-	private static int findFreePort(int startingPort) {
-		for (int i = Math.max(1025, startingPort); i <= 65535; i++) {
-			try (final ServerSocket serverSocket = new ServerSocket(i)) {
+	public static String getTunnelUrl() {
+		return tunnel.getTunnelUrl();
+	}
+
+	public static int findFreePort(int startingPort) {
+		for (int i = Math.max(1024, startingPort); i <= 65535; i++) {
+			// Start with port 80, then search from 1025 onwards
+			try (final ServerSocket serverSocket = new ServerSocket(i == 1024 ? 80 : i)) {
 				final int port = serverSocket.getLocalPort();
-				LOGGER.info("Found available port: " + port);
+				LOGGER.info("Found available port: {}", port);
 				return port;
 			} catch (Exception ignored) {
 			}
@@ -250,20 +280,15 @@ public final class Init implements Utilities {
 		return 0;
 	}
 
-	private static String getWorldId(World world) {
-		final Identifier identifier = MinecraftServerHelper.getWorldId(world);
-		return String.format("%s/%s", identifier.getNamespace(), identifier.getPath());
-	}
-
 	private static void generateOrClearDepotsFromCommand(CommandBuilder<?> commandBuilder, boolean isGenerate) {
 		commandBuilder.permissionLevel(2);
 		commandBuilder.executes(contextHandler -> {
-			contextHandler.sendSuccess(isGenerate ? "command.mtr.generate_all" : "command.mtr.clear_all", true);
+			contextHandler.sendSuccess((isGenerate ? TranslationProvider.COMMAND_MTR_GENERATE_ALL : TranslationProvider.COMMAND_MTR_CLEAR_ALL).key, true);
 			return generateOrClearDepotsFromCommand(contextHandler.getWorld(), "", isGenerate);
 		});
 		commandBuilder.then("name", StringArgumentType.greedyString(), innerCommandBuilder -> innerCommandBuilder.executes(contextHandler -> {
 			final String filter = contextHandler.getString("name");
-			contextHandler.sendSuccess(isGenerate ? "command.mtr.generate_filter" : "command.mtr.clear_filter", true, filter);
+			contextHandler.sendSuccess((isGenerate ? TranslationProvider.COMMAND_MTR_GENERATE_FILTER : TranslationProvider.COMMAND_MTR_CLEAR_FILTER).key, true, filter);
 			return generateOrClearDepotsFromCommand(contextHandler.getWorld(), filter, isGenerate);
 		}));
 	}

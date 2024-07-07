@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -68,12 +69,33 @@ public class BuildTools {
 	}
 
 	public String getModMenuVersion() {
+		if (minecraftVersion.equals("1.20.4")) {
+			return "9.0.0"; // TODO latest version not working
+		}
 		final String modIdString = "modmenu";
 		return new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, ModLoader.FABRIC, "").get(0).fileName.split(".jar")[0].replace(modIdString + "-", "");
 	}
 
 	public String getForgeVersion() {
 		return getJson("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json").getAsJsonObject().getAsJsonObject("promos").get(minecraftVersion + "-latest").getAsString();
+	}
+
+	public void generateTranslations() throws IOException {
+		final StringBuilder stringBuilder = new StringBuilder("package org.mtr.mod.generated.lang;import org.mtr.mapping.holder.MutableText;import org.mtr.mapping.holder.Text;import org.mtr.mapping.mapper.GraphicsHolder;import org.mtr.mapping.mapper.TextHelper;public interface TranslationProvider{\n");
+		JsonParser.parseString(FileUtils.readFileToString(path.resolve("src/main/resources/assets/mtr/lang/en_us.json").toFile(), StandardCharsets.UTF_8)).getAsJsonObject().entrySet().forEach(entry -> {
+			final String key = entry.getKey();
+			if (key.startsWith("block.") || key.startsWith("item.") || key.startsWith("entity.") || key.startsWith("itemGroup.")) {
+				stringBuilder.append("@SuppressWarnings(\"unused\")");
+			}
+			stringBuilder.append(String.format("TranslationHolder %s=new TranslationHolder(\"%s\");\n", key.replace(".", "_").toUpperCase(Locale.ENGLISH), key));
+		});
+		stringBuilder.append("class TranslationHolder{public final String key;private TranslationHolder(String key){this.key=key;}\n");
+		stringBuilder.append("public MutableText getMutableText(Object...arguments){return TextHelper.translatable(key,arguments);}\n");
+		stringBuilder.append("public Text getText(Object...arguments){return new Text(TextHelper.translatable(key,arguments).data);}\n");
+		stringBuilder.append("public String getString(Object...arguments){return getMutableText(arguments).getString();}\n");
+		stringBuilder.append("public int width(Object...arguments){return GraphicsHolder.getTextWidth(getMutableText(arguments));}\n");
+		stringBuilder.append("}}");
+		FileUtils.write(path.resolve("src/main/java/org/mtr/mod/generated/lang/TranslationProvider.java").toFile(), stringBuilder.toString(), StandardCharsets.UTF_8);
 	}
 
 	public void copyLootTables() throws IOException {
@@ -121,8 +143,24 @@ public class BuildTools {
 							final double length = replacementObject.getAsJsonArray("lengths").get(i).getAsDouble();
 							final String id = vehicleObject.get("id").getAsString();
 							vehicleObject.addProperty("length", length);
-							vehicleObject.addProperty("bogie1Position", length <= 4 || length <= 14 && id.contains("cab_3") ? 0 : (-length / 2 + (length <= 14 && (id.contains("trailer") || id.contains("cab_2")) ? 0 : 4)));
-							vehicleObject.addProperty("bogie2Position", length <= 4 || length <= 14 && id.contains("cab_3") ? 0 : (length / 2 - (length <= 14 && (id.contains("trailer") || id.contains("cab_1")) ? 0 : 4)));
+
+							if (replacementObject.toString().contains("boat_small") && replacementObject.toString().contains("boat_medium")) {
+								vehicleObject.addProperty("bogie1Position", -1);
+								vehicleObject.addProperty("bogie2Position", 1);
+							} else if (replacementObject.toString().contains("a320")) {
+								vehicleObject.addProperty("bogie1Position", -14.25);
+								vehicleObject.addProperty("bogie2Position", -2);
+							} else if (replacementObject.toString().contains("br_423")) {
+								vehicleObject.addProperty("bogie1Position", -6);
+								vehicleObject.addProperty("bogie2Position", 6);
+							} else if (length <= 4 || length <= 14 && id.contains("cab_3")) {
+								vehicleObject.addProperty("bogie1Position", 0);
+								vehicleObject.addProperty("bogie2Position", 0);
+							} else {
+								vehicleObject.addProperty("bogie1Position", -length / 2 + (length <= 14 && (id.contains("trailer") || id.contains("cab_2")) ? 0 : 4));
+								vehicleObject.addProperty("bogie2Position", length / 2 - (length <= 14 && (id.contains("trailer") || id.contains("cab_1")) ? 0 : 4));
+							}
+
 							String newFileString = vehicleObject.toString();
 							for (final Map.Entry<String, JsonElement> entry : replacementObject.entrySet()) {
 								newFileString = newFileString.replace(String.format("@%s@", entry.getKey()), entry.getValue().getAsJsonArray().get(i).getAsString());
@@ -143,10 +181,10 @@ public class BuildTools {
 		);
 	}
 
-	public void copyBuildFile() throws IOException {
+	public void copyBuildFile(boolean excludeAssets) throws IOException {
 		final Path directory = path.getParent().resolve("build/release");
 		Files.createDirectories(directory);
-		Files.copy(path.resolve(String.format("build/libs/%s-%s%s.jar", loader, version, loader.equals("fabric") ? "" : "-all")), directory.resolve(String.format("MTR-%s-%s-%s.jar", loader, minecraftVersion, version)), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(path.resolve(String.format("build/libs/%s-%s%s.jar", loader, version, loader.equals("fabric") ? "" : "-all")), directory.resolve(String.format("MTR-%s-%s+%s%s.jar", loader, version, minecraftVersion, excludeAssets ? "-server" : "")), StandardCopyOption.REPLACE_EXISTING);
 	}
 
 	private static JsonElement getJson(String url) {

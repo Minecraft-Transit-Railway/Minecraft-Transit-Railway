@@ -3,6 +3,7 @@ package org.mtr.mod.block;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mod.Items;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -66,7 +67,7 @@ public abstract class BlockLiftPanelBase extends BlockExtension implements IBloc
 	}
 
 	@Override
-	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		if (isOdd) {
 			TripleHorizontalBlock.onBreak(world, pos, state, player);
 		} else {
@@ -74,7 +75,7 @@ public abstract class BlockLiftPanelBase extends BlockExtension implements IBloc
 				IBlock.onBreakCreative(world, player, pos.offset(IBlock.getSideDirection(state)));
 			}
 		}
-		super.onBreak3(world, pos, state, player);
+		super.onBreak2(world, pos, state, player);
 	}
 
 	@Nonnull
@@ -89,7 +90,7 @@ public abstract class BlockLiftPanelBase extends BlockExtension implements IBloc
 
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		tooltip.add(TextHelper.translatable("tooltip.mtr.railway_sign_" + (isOdd ? "odd" : "even")).formatted(TextFormatting.GRAY));
+		tooltip.add((isOdd ? TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_ODD : TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_EVEN).getMutableText().formatted(TextFormatting.GRAY));
 	}
 
 	public abstract static class BlockEntityBase extends BlockEntityExtension {

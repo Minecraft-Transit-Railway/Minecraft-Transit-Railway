@@ -16,6 +16,18 @@
 			"items": {
 				"$ref": "signResource.json"
 			}
+		},
+		"rails": {
+			"type": "array",
+			"items": {
+				"$ref": "railResource.json"
+			}
+		},
+		"objects": {
+			"type": "array",
+			"items": {
+				"$ref": "objectResource.json"
+			}
 		}
 	}
 }

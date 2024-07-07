@@ -8,6 +8,7 @@ import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.mapper.SlabBlockExtension;
 import org.mtr.mapping.registry.BlockRegistryObject;
 import org.mtr.mod.block.*;
+import org.mtr.mod.item.ItemBlockEnchanted;
 
 
 public final class Blocks {
@@ -15,7 +16,7 @@ public final class Blocks {
 	static {
 		// Nodes
 		RAIL_NODE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "rail"), () -> new Block(new BlockNode(TransportMode.TRAIN)), CreativeModeTabs.CORE);
-		BOAT_NODE = Init.REGISTRY.registerBlock(new Identifier(Init.MOD_ID, "boat_node"), () -> new Block(new BlockNode.BlockBoatNode()));
+		BOAT_NODE = Init.REGISTRY.registerBlock(new Identifier(Init.MOD_ID, "boat_node"), () -> new Block(new BlockNode(TransportMode.BOAT)));
 		CABLE_CAR_NODE_LOWER = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "cable_car_node_lower"), () -> new Block(new BlockNode.BlockContinuousMovementNode(false, false)), CreativeModeTabs.CORE);
 		CABLE_CAR_NODE_UPPER = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "cable_car_node_upper"), () -> new Block(new BlockNode.BlockContinuousMovementNode(true, false)), CreativeModeTabs.CORE);
 		CABLE_CAR_NODE_STATION = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "cable_car_node_station"), () -> new Block(new BlockNode.BlockContinuousMovementNode(false, true)), CreativeModeTabs.CORE);
@@ -62,12 +63,16 @@ public final class Blocks {
 		// blocks
 		PLATFORM = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), false)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		PLATFORM_INDENTED = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_indented"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_slab"), () -> new Block(new BlockPlatformSlab(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		PLATFORM_NA_1 = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_na_1"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), false)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		PLATFORM_NA_1_INDENTED = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_na_1_indented"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_NA_1_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_na_1_slab"), () -> new Block(new BlockPlatformSlab(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		PLATFORM_NA_2 = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_na_2"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), false)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		PLATFORM_NA_2_INDENTED = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_na_2_indented"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_NA_2_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_na_2_slab"), () -> new Block(new BlockPlatformSlab(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		PLATFORM_UK_1 = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_uk_1"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), false)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		PLATFORM_UK_1_INDENTED = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_uk_1_indented"), () -> new Block(new BlockPlatform(BlockHelper.createBlockSettings(false), true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		PLATFORM_UK_1_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "platform_uk_1_slab"), () -> new Block(new BlockPlatformSlab(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 
 		// Signs
 		RAILWAY_SIGN_2_EVEN = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "railway_sign_2_even"), () -> new Block(new BlockRailwaySign(2, false)), CreativeModeTabs.RAILWAY_FACILITIES);
@@ -112,75 +117,77 @@ public final class Blocks {
 		STATION_NAME_WALL_BLACK = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_name_wall_black"), () -> new Block(new BlockStationNameWallBlack(BlockHelper.createBlockSettings(true))), CreativeModeTabs.RAILWAY_FACILITIES);
 
 		// Station blocks
-		STATION_COLOR_ANDESITE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_andesite"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_BEDROCK = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_bedrock"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_BIRCH_WOOD = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_birch_wood"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_BONE_BLOCK = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_bone_block"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_CHISELED_QUARTZ_BLOCK = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_chiseled_quartz_block"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_CHISELED_STONE_BRICKS = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_chiseled_stone_bricks"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_CLAY = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_clay"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_COAL_ORE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_coal_ore"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_COBBLESTONE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_cobblestone"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_CONCRETE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_concrete"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_CONCRETE_POWDER = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_concrete_powder"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_CRACKED_STONE_BRICKS = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_cracked_stone_bricks"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_DARK_PRISMARINE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_dark_prismarine"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_DIORITE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_diorite"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_GRAVEL = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_gravel"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_IRON_BLOCK = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_iron_block"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_METAL = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_metal"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_PLANKS = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_planks"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_POLISHED_ANDESITE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_polished_andesite"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_POLISHED_DIORITE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_polished_diorite"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_PURPUR_BLOCK = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_purpur_block"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_PURPUR_PILLAR = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_purpur_pillar"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_QUARTZ_BLOCK = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_quartz_block"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_QUARTZ_BRICKS = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_quartz_bricks"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_QUARTZ_PILLAR = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_quartz_pillar"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_SMOOTH_QUARTZ = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_smooth_quartz"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_SMOOTH_STONE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_smooth_stone"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_SNOW_BLOCK = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_snow_block"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_STAINED_GLASS = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_stained_glass"), () -> new Block(new BlockStationColorGlass()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_STONE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_stone"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_STONE_BRICKS = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_stone_bricks"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_WOOL = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_wool"), () -> new Block(new BlockStationColor()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_ANDESITE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_andesite"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_BEDROCK = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_bedrock"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_BIRCH_WOOD = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_birch_wood"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_BONE_BLOCK = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_bone_block"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_CHISELED_QUARTZ_BLOCK = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_chiseled_quartz_block"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_CHISELED_STONE_BRICKS = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_chiseled_stone_bricks"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_CLAY = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_clay"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_COAL_ORE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_coal_ore"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_COBBLESTONE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_cobblestone"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_CONCRETE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_concrete"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_CONCRETE_POWDER = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_concrete_powder"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_CRACKED_STONE_BRICKS = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_cracked_stone_bricks"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_DARK_PRISMARINE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_dark_prismarine"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_DIORITE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_diorite"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_GRAVEL = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_gravel"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_IRON_BLOCK = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_iron_block"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_METAL = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_metal"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_MOSAIC_TILE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_mosaic_tile"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_PLANKS = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_planks"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_POLISHED_ANDESITE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_polished_andesite"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_POLISHED_DIORITE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_polished_diorite"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_PURPUR_BLOCK = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_purpur_block"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_PURPUR_PILLAR = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_purpur_pillar"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_QUARTZ_BLOCK = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_quartz_block"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_QUARTZ_BRICKS = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_quartz_bricks"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_QUARTZ_PILLAR = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_quartz_pillar"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_SMOOTH_QUARTZ = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_smooth_quartz"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_SMOOTH_STONE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_smooth_stone"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_SNOW_BLOCK = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_snow_block"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_STAINED_GLASS = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_stained_glass"), () -> new Block(new BlockStationColorGlass()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_STONE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_stone"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_STONE_BRICKS = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_stone_bricks"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_WOOL = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_wool"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 
 		// Station slabs
-		STATION_COLOR_ANDESITE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_andesite_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_BEDROCK_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_bedrock_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_BIRCH_WOOD_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_birch_wood_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_BONE_BLOCK_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_bone_block_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_CHISELED_QUARTZ_BLOCK_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_chiseled_quartz_block_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_CHISELED_STONE_BRICKS_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_chiseled_stone_bricks_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_CLAY_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_clay_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_COAL_ORE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_coal_ore_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_COBBLESTONE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_cobblestone_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_CONCRETE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_concrete_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_CONCRETE_POWDER_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_concrete_powder_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_CRACKED_STONE_BRICKS_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_cracked_stone_bricks_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_DARK_PRISMARINE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_dark_prismarine_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_DIORITE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_diorite_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_GRAVEL_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_gravel_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_IRON_BLOCK_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_iron_block_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_METAL_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_metal_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_PLANKS_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_planks_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_POLISHED_ANDESITE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_polished_andesite_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_POLISHED_DIORITE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_polished_diorite_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_PURPUR_BLOCK_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_purpur_block_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_PURPUR_PILLAR_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_purpur_pillar_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_QUARTZ_BLOCK_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_quartz_block_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_QUARTZ_BRICKS_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_quartz_bricks_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_QUARTZ_PILLAR_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_quartz_pillar_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_SMOOTH_QUARTZ_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_smooth_quartz_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_SMOOTH_STONE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_smooth_stone_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_SNOW_BLOCK_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_snow_block_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_STAINED_GLASS_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_stained_glass_slab"), () -> new Block(new BlockStationColorGlassSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_STONE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_stone_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_STONE_BRICKS_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_stone_bricks_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
-		STATION_COLOR_WOOL_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_wool_slab"), () -> new Block(new BlockStationColorSlab()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_ANDESITE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_andesite_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_BEDROCK_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_bedrock_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_BIRCH_WOOD_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_birch_wood_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_BONE_BLOCK_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_bone_block_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_CHISELED_QUARTZ_BLOCK_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_chiseled_quartz_block_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_CHISELED_STONE_BRICKS_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_chiseled_stone_bricks_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_CLAY_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_clay_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_COAL_ORE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_coal_ore_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_COBBLESTONE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_cobblestone_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_CONCRETE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_concrete_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_CONCRETE_POWDER_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_concrete_powder_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_CRACKED_STONE_BRICKS_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_cracked_stone_bricks_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_DARK_PRISMARINE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_dark_prismarine_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_DIORITE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_diorite_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_GRAVEL_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_gravel_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_IRON_BLOCK_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_iron_block_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_METAL_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_metal_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_MOSAIC_TILE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_mosaic_tile_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_PLANKS_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_planks_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_POLISHED_ANDESITE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_polished_andesite_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_POLISHED_DIORITE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_polished_diorite_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_PURPUR_BLOCK_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_purpur_block_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_PURPUR_PILLAR_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_purpur_pillar_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_QUARTZ_BLOCK_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_quartz_block_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_QUARTZ_BRICKS_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_quartz_bricks_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_QUARTZ_PILLAR_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_quartz_pillar_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_SMOOTH_QUARTZ_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_smooth_quartz_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_SMOOTH_STONE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_smooth_stone_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_SNOW_BLOCK_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_snow_block_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_STAINED_GLASS_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_stained_glass_slab"), () -> new Block(new BlockStationColorGlassSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_STONE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_stone_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_STONE_BRICKS_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_stone_bricks_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_WOOL_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_color_wool_slab"), () -> new Block(new BlockStationColorSlab()), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 
 		// Station misc
-		STATION_COLOR_POLE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_pole"), () -> new Block(new BlockStationColorPole(true)), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		STATION_COLOR_POLE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_pole"), () -> new Block(new BlockStationColorPole(true)), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 
 		// machines
 		TICKET_BARRIER_ENTRANCE_1 = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "ticket_barrier_entrance_1"), () -> new Block(new BlockTicketBarrier(true)), CreativeModeTabs.RAILWAY_FACILITIES);
@@ -221,8 +228,13 @@ public final class Blocks {
 		MARBLE_SANDY_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "marble_sandy_slab"), () -> new Block(new SlabBlockExtension(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		METAL = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "metal"), () -> new Block(new BlockExtension(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		METAL_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "metal_slab"), () -> new Block(new SlabBlockExtension(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		MOSAIC_TILE = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "mosaic_tile"), () -> new Block(new BlockExtension(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
+		MOSAIC_TILE_SLAB = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "mosaic_tile_slab"), () -> new Block(new SlabBlockExtension(BlockHelper.createBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		RUBBISH_BIN_1 = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "rubbish_bin_1"), () -> new Block(new BlockRubbishBin(BlockHelper.createBlockSettings(false))), CreativeModeTabs.RAILWAY_FACILITIES);
 		TACTILE_MAP = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "tactile_map"), () -> new Block(new BlockTactileMap(BlockHelper.createBlockSettings(false))), CreativeModeTabs.RAILWAY_FACILITIES);
+
+		// NTE
+		EYE_CANDY = Init.REGISTRY.registerBlockWithBlockItem(new Identifier(Init.MOD_ID_NTE, "eye_candy"), () -> new Block(new BlockEyeCandy()), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 	}
 
 	public static final BlockRegistryObject AIRPLANE_NODE;
@@ -271,6 +283,8 @@ public final class Blocks {
 	public static final BlockRegistryObject MARBLE_SANDY_SLAB;
 	public static final BlockRegistryObject METAL;
 	public static final BlockRegistryObject METAL_SLAB;
+	public static final BlockRegistryObject MOSAIC_TILE;
+	public static final BlockRegistryObject MOSAIC_TILE_SLAB;
 	public static final BlockRegistryObject PIDS_1;
 	public static final BlockRegistryObject PIDS_2;
 	public static final BlockRegistryObject PIDS_3;
@@ -279,12 +293,16 @@ public final class Blocks {
 	public static final BlockRegistryObject PIDS_SINGLE_ARRIVAL_1;
 	public static final BlockRegistryObject PLATFORM;
 	public static final BlockRegistryObject PLATFORM_INDENTED;
+	public static final BlockRegistryObject PLATFORM_SLAB;
 	public static final BlockRegistryObject PLATFORM_NA_1;
 	public static final BlockRegistryObject PLATFORM_NA_1_INDENTED;
+	public static final BlockRegistryObject PLATFORM_NA_1_SLAB;
 	public static final BlockRegistryObject PLATFORM_NA_2;
 	public static final BlockRegistryObject PLATFORM_NA_2_INDENTED;
+	public static final BlockRegistryObject PLATFORM_NA_2_SLAB;
 	public static final BlockRegistryObject PLATFORM_UK_1;
 	public static final BlockRegistryObject PLATFORM_UK_1_INDENTED;
+	public static final BlockRegistryObject PLATFORM_UK_1_SLAB;
 	public static final BlockRegistryObject PSD_DOOR_1;
 	public static final BlockRegistryObject PSD_DOOR_2;
 	public static final BlockRegistryObject PSD_GLASS_1;
@@ -357,6 +375,8 @@ public final class Blocks {
 	public static final BlockRegistryObject STATION_COLOR_IRON_BLOCK_SLAB;
 	public static final BlockRegistryObject STATION_COLOR_METAL;
 	public static final BlockRegistryObject STATION_COLOR_METAL_SLAB;
+	public static final BlockRegistryObject STATION_COLOR_MOSAIC_TILE;
+	public static final BlockRegistryObject STATION_COLOR_MOSAIC_TILE_SLAB;
 	public static final BlockRegistryObject STATION_COLOR_PLANKS;
 	public static final BlockRegistryObject STATION_COLOR_PLANKS_SLAB;
 	public static final BlockRegistryObject STATION_COLOR_POLE;
@@ -408,6 +428,7 @@ public final class Blocks {
 	public static final BlockRegistryObject TRAIN_CARGO_UNLOADER;
 	public static final BlockRegistryObject TRAIN_REDSTONE_SENSOR;
 	public static final BlockRegistryObject TRAIN_SCHEDULE_SENSOR;
+	public static final BlockRegistryObject EYE_CANDY;
 
 	public static void init() {
 		Init.LOGGER.info("Registering Minecraft Transit Railway blocks");

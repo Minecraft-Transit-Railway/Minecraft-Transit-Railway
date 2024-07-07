@@ -54,7 +54,7 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 	}
 
 	@Override
-	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		switch (IBlock.getStatePropertySafe(state, THIRD)) {
 			case MIDDLE:
 				IBlock.onBreakCreative(world, player, pos.down());
@@ -63,7 +63,7 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 				IBlock.onBreakCreative(world, player, pos.down(2));
 				break;
 		}
-		super.onBreak3(world, pos, state, player);
+		super.onBreak2(world, pos, state, player);
 	}
 
 	@Override

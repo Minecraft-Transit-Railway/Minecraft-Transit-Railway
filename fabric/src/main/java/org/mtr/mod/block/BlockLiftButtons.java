@@ -12,6 +12,7 @@ import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.Items;
 import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketPressLiftButton;
 
 import javax.annotation.Nonnull;
@@ -33,7 +34,7 @@ public class BlockLiftButtons extends BlockExtension implements DirectionHelper,
 		final ActionResult result = IBlock.checkHoldingBrush(world, player, () -> {
 			final boolean unlocked = !IBlock.getStatePropertySafe(state, UNLOCKED);
 			world.setBlockState(pos, state.with(new Property<>(UNLOCKED.data), unlocked));
-			player.sendMessage(new Text((unlocked ? TextHelper.translatable("gui.mtr.lift_buttons_unlocked") : TextHelper.translatable("gui.mtr.lift_buttons_locked")).data), true);
+			player.sendMessage((unlocked ? TranslationProvider.GUI_MTR_LIFT_BUTTONS_UNLOCKED : TranslationProvider.GUI_MTR_LIFT_BUTTONS_LOCKED).getText(), true);
 		});
 
 		if (result == ActionResult.SUCCESS) {

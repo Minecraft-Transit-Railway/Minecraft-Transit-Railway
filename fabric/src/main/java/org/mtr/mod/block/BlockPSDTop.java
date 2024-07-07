@@ -5,6 +5,7 @@ import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.BlockEntityTypes;
 import org.mtr.mod.Items;
+import org.mtr.mod.item.ItemBrush;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -27,7 +28,7 @@ public class BlockPSDTop extends BlockExtension implements IBlock, DirectionHelp
 	@Override
 	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		return IBlock.checkHoldingItem(world, player, item -> {
-			if (item.data == Items.BRUSH.get().data) {
+			if (item.data instanceof ItemBrush) {
 				world.setBlockState(pos, state.cycle(new Property<>(ARROW_DIRECTION.data)));
 				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise(), new Property<>(ARROW_DIRECTION.data), 1);
 				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise(), new Property<>(ARROW_DIRECTION.data), 1);
@@ -59,18 +60,18 @@ public class BlockPSDTop extends BlockExtension implements IBlock, DirectionHelp
 
 	@Nonnull
 	@Override
-	public ItemStack getPickStack3(BlockView world, BlockPos pos, BlockState state) {
+	public ItemStack getPickStack2(BlockView world, BlockPos pos, BlockState state) {
 		return new ItemStack(new ItemConvertible(asItem2().data));
 	}
 
 	@Override
-	public void onBreak3(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		final Block blockDown = world.getBlockState(pos.down()).getBlock();
 		if (blockDown.data instanceof BlockPSDAPGBase) {
-			((BlockPSDAPGBase) blockDown.data).onBreak3(world, pos.down(), world.getBlockState(pos.down()), player);
+			((BlockPSDAPGBase) blockDown.data).onBreak2(world, pos.down(), world.getBlockState(pos.down()), player);
 			world.setBlockState(pos.down(), Blocks.getAirMapped().getDefaultState());
 		}
-		super.onBreak3(world, pos, state, player);
+		super.onBreak2(world, pos, state, player);
 	}
 
 	@Nonnull

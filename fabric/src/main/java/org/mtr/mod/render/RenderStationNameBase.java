@@ -7,12 +7,12 @@ import org.mtr.mapping.holder.Direction;
 import org.mtr.mapping.holder.World;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockStationNameBase;
 import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 public abstract class RenderStationNameBase<T extends BlockStationNameBase.BlockEntityBase> extends BlockEntityRenderer<T> implements IGui, IDrawing {
 
@@ -32,9 +32,8 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.Block
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
 		final int color = RenderRouteBase.getShadingColor(facing, entity.getColor(state));
 
-		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(true);
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(0.5 + pos.getX(), 0.5 + entity.yOffset + pos.getY(), 0.5 + pos.getZ());
 		storedMatrixTransformations.add(graphicsHolderNew -> {
-			graphicsHolderNew.translate(0.5 + pos.getX(), 0.5 + entity.yOffset + pos.getY(), 0.5 + pos.getZ());
 			graphicsHolderNew.rotateYDegrees(-facing.asRotation());
 			graphicsHolderNew.rotateZDegrees(180);
 		});
@@ -49,7 +48,7 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.Block
 				}
 				graphicsHolderNew.translate(0, 0, 0.5 - entity.zOffset - SMALL_OFFSET);
 			});
-			drawStationName(world, pos, state, facing, storedMatrixTransformations2, station == null ? TextHelper.translatable("gui.mtr.untitled").getString() : station.getName(), station == null ? 0 : station.getColor(), color, light);
+			drawStationName(world, pos, state, facing, storedMatrixTransformations2, station == null ? TranslationProvider.GUI_MTR_UNTITLED.getString() : station.getName(), station == null ? 0 : station.getColor(), color, light);
 		}
 	}
 

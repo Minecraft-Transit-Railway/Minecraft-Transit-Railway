@@ -25,4 +25,12 @@ public final class CustomResources extends CustomResourcesSchema {
 	public void iterateSigns(Consumer<SignResource> consumer) {
 		signs.forEach(consumer);
 	}
+
+	public void iterateRails(Consumer<RailResource> consumer) {
+		rails.forEach(consumer);
+	}
+
+	public void iterateObjects(Consumer<ObjectResource> consumer) {
+		objects.forEach(consumer);
+	}
 }
