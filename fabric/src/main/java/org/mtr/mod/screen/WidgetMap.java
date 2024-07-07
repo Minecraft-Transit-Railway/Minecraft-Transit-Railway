@@ -294,11 +294,15 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		this.showStations = showStations;
 	}
 
-	public void setOverlayMode(WorldMap.MapOverlayMode overlayMode) {
-		worldMap.setMapOverlayMode(overlayMode);
+	public void setMapOverlayMode(WorldMap.MapOverlayMode mapOverlayMode) {
+		worldMap.setMapOverlayMode(mapOverlayMode);
 		if (world != null) {
 			worldMap.updateMap(World.cast(world), player);
 		}
+	}
+
+	public boolean isMapOverlayMode(WorldMap.MapOverlayMode mapOverlayMode) {
+		return worldMap.isMapOverlayMode(mapOverlayMode);
 	}
 
 	public void onClose() {

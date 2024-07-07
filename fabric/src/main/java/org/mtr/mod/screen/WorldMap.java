@@ -22,8 +22,8 @@ public class WorldMap {
 	private static final double LIGHT_DIM_FACTOR = 4;
 
 	public WorldMap() {
-		this.updateMapTimer = -1;
-		this.mapOverlayMode = MapOverlayMode.TOP_VIEW;
+		updateMapTimer = -1;
+		mapOverlayMode = MapOverlayMode.TOP_VIEW;
 	}
 
 	public void tick(World world, ClientPlayerEntity player, float delta) {
@@ -114,7 +114,7 @@ public class WorldMap {
 
 						final NativeImage nativeImage = mapTexture.texture.getImage();
 						if (nativeImage != null) {
-							nativeImage.setPixelColor(k, l, convertColorABGR(divideColorRGB(world.getBlockState(finalPos).getBlock().getDefaultMapColor().getColorMapped(), mapOverlayMode == MapOverlayMode.TOP_VIEW ? 2 : 1 + ((15 - lightLevel) / LIGHT_DIM_FACTOR))));
+							nativeImage.setPixelColor(k, l, convertColorABGR(divideColorRGB(world.getBlockState(finalPos).getBlock().getDefaultMapColor().getColorMapped(), mapOverlayMode == MapOverlayMode.TOP_VIEW ? 1.5 : 1 + ((15 - lightLevel) / LIGHT_DIM_FACTOR))));
 						}
 					}
 				}
@@ -141,6 +141,10 @@ public class WorldMap {
 
 	public void setMapOverlayMode(MapOverlayMode overlayMode) {
 		this.mapOverlayMode = overlayMode;
+	}
+
+	public boolean isMapOverlayMode(MapOverlayMode mapOverlayMode) {
+		return this.mapOverlayMode == mapOverlayMode;
 	}
 
 	public void disposeImages() {

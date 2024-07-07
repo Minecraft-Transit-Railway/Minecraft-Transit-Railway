@@ -9,7 +9,7 @@ public class WidgetSilentImageButton extends TexturedButtonWidgetExtension {
 	private final boolean playSound;
 
 	public WidgetSilentImageButton(int x, int y, int width, int height, Identifier normalTexture, Identifier highlightedTexture, org.mtr.mapping.holder.PressAction onPress, boolean playSound) {
-		super(x, y, width, height, normalTexture, highlightedTexture, onPress);
+		super(x, y, width, height, normalTexture, highlightedTexture, normalTexture, onPress);
 		this.playSound = playSound;
 	}
 

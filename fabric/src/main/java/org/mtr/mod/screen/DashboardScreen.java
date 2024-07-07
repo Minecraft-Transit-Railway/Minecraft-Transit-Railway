@@ -80,8 +80,14 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		buttonDoneEditingRouteDestination = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> onDoneEditingRouteDestination());
 		buttonZoomIn = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> widgetMap.scale(1));
 		buttonZoomOut = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> widgetMap.scale(-1));
-		buttonMapTopView = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_map_top_view.png"), new Identifier("textures/gui/sprites/mtr/icon_map_top_view_highlighted.png"), button -> widgetMap.setOverlayMode(WorldMap.MapOverlayMode.TOP_VIEW));
-		buttonMapCurrentY = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_map_current_y.png"), new Identifier("textures/gui/sprites/mtr/icon_map_current_y_highlighted.png"), button -> widgetMap.setOverlayMode(WorldMap.MapOverlayMode.CURRENT_Y));
+		buttonMapTopView = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_map_top_view.png"), new Identifier("textures/gui/sprites/mtr/icon_map_top_view_highlighted.png"), new Identifier("textures/gui/sprites/mtr/icon_map_top_view_disabled.png"), button -> {
+			widgetMap.setMapOverlayMode(WorldMap.MapOverlayMode.TOP_VIEW);
+			toggleButtons();
+		});
+		buttonMapCurrentY = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_map_current_y.png"), new Identifier("textures/gui/sprites/mtr/icon_map_current_y_highlighted.png"), new Identifier("textures/gui/sprites/mtr/icon_map_current_y_disabled.png"), button -> {
+			widgetMap.setMapOverlayMode(WorldMap.MapOverlayMode.CURRENT_Y);
+			toggleButtons();
+		});
 		buttonRailActions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_RAIL_ACTIONS_BUTTON.getMutableText(), button -> MinecraftClient.getInstance().openScreen(new Screen(new RailActionsScreen())));
 		buttonOptions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("menu.options"), button -> MinecraftClient.getInstance().openScreen(new Screen(new ConfigScreen())));
 
@@ -454,6 +460,9 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		buttonDoneEditingStation.active = AreaBase.validCorners(editingArea);
 		buttonDoneEditingRoute.visible = selectedTab == SelectedTab.ROUTES && editingRoute != null && !showRouteDestinationFields;
 		buttonDoneEditingRouteDestination.visible = selectedTab == SelectedTab.ROUTES && editingRoute != null && showRouteDestinationFields;
+
+		buttonMapTopView.active = !widgetMap.isMapOverlayMode(WorldMap.MapOverlayMode.TOP_VIEW);
+		buttonMapCurrentY.active = !widgetMap.isMapOverlayMode(WorldMap.MapOverlayMode.CURRENT_Y);
 
 		final boolean showTextFields = ((selectedTab == SelectedTab.STATIONS || selectedTab == SelectedTab.DEPOTS) && editingArea != null) || (selectedTab == SelectedTab.ROUTES && editingRoute != null && !showRouteDestinationFields);
 		textFieldName.visible = showTextFields;
