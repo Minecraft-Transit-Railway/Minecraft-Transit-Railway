@@ -182,9 +182,7 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		try {
 			switch (selectedTab) {
 				case STATIONS:
-					if (editingArea 
-              
-              null) {
+					if (editingArea == null) {
 						dashboardList.setData(MinecraftClientData.convertDataSet(MinecraftClientData.getDashboardInstance().stations), true, true, true, false, false, true);
 					} else {
 						dashboardList.setData(MinecraftClientData.convertDataSet(editingArea.savedRails), true, false, true, false, false, false);

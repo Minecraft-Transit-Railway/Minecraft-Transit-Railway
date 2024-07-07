@@ -9,8 +9,9 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.*;
-import org.mtr.mod.Init;
+import org.mtr.mapping.mapper.ClickableWidgetExtension;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.GuiDrawing;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
@@ -22,6 +23,7 @@ import java.util.function.Consumer;
 
 
 public class WidgetMap extends ClickableWidgetExtension implements IGui {
+
 	private double scale;
 	private double centerX;
 	private double centerY;
@@ -40,10 +42,10 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 	private final WorldMap worldMap;
 	private final Object2ObjectAVLTreeMap<Position, ObjectArrayList<Platform>> flatPositionToPlatformMap;
 	private final Object2ObjectAVLTreeMap<Position, ObjectArrayList<Siding>> flatPositionToSidingMap;
+
 	private static final int ARGB_BLUE = 0xFF4285F4;
 	private static final int SCALE_UPPER_LIMIT = 64;
 	private static final double SCALE_LOWER_LIMIT = 1 / 128D;
-	private static final int CHUNK_SIZE = 16;
 
 	public WidgetMap(TransportMode transportMode, OnDrawCorners onDrawCorners, Runnable onDrawCornersMouseRelease, Consumer<Long> onClickAddPlatformToRoute, Consumer<SavedRailBase<?, ?>> onClickEditSavedRail, BiFunction<Double, Double, Boolean> isRestrictedMouseArea) {
 		super(0, 0, 0, 0);
@@ -85,16 +87,16 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		guiDrawing.drawRectangle(getX2(), getY2(), getX2() + width, getY2() + height, ARGB_BLACK);
 		guiDrawing.finishDrawingRectangle();
 
-		// World Map
-		if(world != null) {
+		// World map
+		if (world != null) {
 			worldMap.tick(World.cast(world), player, delta);
-
 			worldMap.forEachTile(mapImage -> {
-				int posX = mapImage.chunkX * CHUNK_SIZE;
-				int posZ = mapImage.chunkZ * CHUNK_SIZE;
-				boolean outOfView = (posX + WorldMap.CHUNK_SIZE) < topLeft.leftInt() || (posZ + WorldMap.CHUNK_SIZE) < (topLeft).rightInt() || posX > bottomRight.leftInt() || posZ > bottomRight.rightInt();
-				if(outOfView) return;
-				drawRectangleFromWorldCoords(guiDrawing, mapImage.textureId, posX, posZ, posX + CHUNK_SIZE, posZ + CHUNK_SIZE);
+				final int posX = mapImage.chunkX * WorldMap.CHUNK_SIZE;
+				final int posZ = mapImage.chunkZ * WorldMap.CHUNK_SIZE;
+				if (posX + WorldMap.CHUNK_SIZE < topLeft.leftInt() || posZ + WorldMap.CHUNK_SIZE < (topLeft).rightInt() || posX > bottomRight.leftInt() || posZ > bottomRight.rightInt()) {
+					return;
+				}
+				drawRectangleFromWorldCoords(guiDrawing, mapImage.textureId, posX, posZ, posX + WorldMap.CHUNK_SIZE, posZ + WorldMap.CHUNK_SIZE);
 			});
 		}
 
@@ -150,34 +152,6 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		}
 
 		drawMousePositionText(graphicsHolder, mouseWorldPos);
-	}
-
-	private void drawAreas(GraphicsHolder graphicsHolder, ObjectArraySet<? extends AreaBase<?, ?>> areas) {
-		for (final AreaBase<?, ?> area : areas) {
-			if (canDrawAreaText(area)) {
-				final Position position = area.getCenter();
-				final String additionalString;
-				if(area instanceof Station) {
-					additionalString = TextHelper.translatable("gui.mtr.zone_number", ((Station) area).getZone1()).getString();
-				} else {
-					additionalString = null;
-				}
-				drawFromWorldCoords(position.getX(), position.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(graphicsHolder, additionalString == null ? area.getName() : String.format("%s|(%s)", area.getName(), additionalString), getX2() + x1.floatValue(), getY2() + y1.floatValue(), MAX_LIGHT_GLOWING));
-			}
-		}
-	}
-
-	private void drawPlayerSymbol(GuiDrawing guiDrawing, ClientPlayerEntity player) {
-		drawFromWorldCoords(player.getX(), player.getZ(), (x1, y1) -> {
-			guiDrawing.drawRectangle(getX2() + Math.max(0, x1 - 2), getY2() + y1 - 3, getX2() + x1 + 2, getY2() + y1 + 3, ARGB_WHITE);
-			guiDrawing.drawRectangle(getX2() + Math.max(0, x1 - 3), getY2() + y1 - 2, getX2() + x1 + 3, getY2() + y1 + 2, ARGB_WHITE);
-			guiDrawing.drawRectangle(getX2() + Math.max(0, x1 - 2), getY2() + y1 - 2, getX2() + x1 + 2, getY2() + y1 + 2, ARGB_BLUE);
-		});
-	}
-
-	private void drawMousePositionText(GraphicsHolder graphicsHolder, DoubleDoubleImmutablePair mouseWorldPos) {
-		final String mousePosText = String.format("(%.1f, %.1f)", mouseWorldPos.leftDouble(), mouseWorldPos.rightDouble());
-		graphicsHolder.drawText(mousePosText, getX2() + width - TEXT_PADDING - GraphicsHolder.getTextWidth(mousePosText), getY2() + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 	}
 
 	@Override
@@ -247,6 +221,34 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		return mouseX >= getX2() && mouseY >= getY2() && mouseX < getX2() + width && mouseY < getY2() + height && !(mouseX >= getX2() + width - SQUARE_SIZE * 12 && mouseY >= getY2() + height - SQUARE_SIZE) && !isRestrictedMouseArea.apply(mouseX, mouseY);
 	}
 
+	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> void drawAreas(GraphicsHolder graphicsHolder, ObjectArraySet<U> areas) {
+		for (final U area : areas) {
+			if (canDrawAreaText(area)) {
+				final Position position = area.getCenter();
+				final String additionalString;
+				if (area instanceof Station) {
+					additionalString = TranslationProvider.GUI_MTR_ZONE_NUMBER.getString(((Station) area).getZone1());
+				} else {
+					additionalString = null;
+				}
+				drawFromWorldCoords(position.getX(), position.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(graphicsHolder, additionalString == null ? area.getName() : String.format("%s|(%s)", area.getName(), additionalString), getX2() + x1.floatValue(), getY2() + y1.floatValue(), GraphicsHolder.getDefaultLight()));
+			}
+		}
+	}
+
+	private void drawPlayerSymbol(GuiDrawing guiDrawing, ClientPlayerEntity player) {
+		drawFromWorldCoords(player.getX(), player.getZ(), (x1, y1) -> {
+			guiDrawing.drawRectangle(getX2() + Math.max(0, x1 - 2), getY2() + y1 - 3, getX2() + x1 + 2, getY2() + y1 + 3, ARGB_WHITE);
+			guiDrawing.drawRectangle(getX2() + Math.max(0, x1 - 3), getY2() + y1 - 2, getX2() + x1 + 3, getY2() + y1 + 2, ARGB_WHITE);
+			guiDrawing.drawRectangle(getX2() + Math.max(0, x1 - 2), getY2() + y1 - 2, getX2() + x1 + 2, getY2() + y1 + 2, ARGB_BLUE);
+		});
+	}
+
+	private void drawMousePositionText(GraphicsHolder graphicsHolder, DoubleDoubleImmutablePair mouseWorldPos) {
+		final String mousePosText = String.format("(%.1f, %.1f)", mouseWorldPos.leftDouble(), mouseWorldPos.rightDouble());
+		graphicsHolder.drawText(mousePosText, getX2() + width - TEXT_PADDING - GraphicsHolder.getTextWidth(mousePosText), getY2() + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+	}
+
 	// Implicit overrides, don't add @Override
 	public void setFocused2(boolean focused) {
 	}
@@ -294,7 +296,9 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 
 	public void setOverlayMode(WorldMap.MapOverlayMode overlayMode) {
 		worldMap.setMapOverlayMode(overlayMode);
-		if(world != null) worldMap.updateMap(World.cast(world), player);
+		if (world != null) {
+			worldMap.updateMap(World.cast(world), player);
+		}
 	}
 
 	public void onClose() {
@@ -353,14 +357,12 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		final double z1 = (posZ1 - centerY) * scale + height / 2D;
 		final double x2 = (posX2 - centerX) * scale + width / 2D;
 		final double z2 = (posZ2 - centerY) * scale + height / 2D;
-
-		final float uScale = x1 >= 0 ? 0 : 1F - (float)((x2 - 0) / (x2 - x1));
-
+		final float uScale = x1 >= 0 ? 0 : 1F - (float) ((x2 - 0) / (x2 - x1));
 		guiDrawing.drawTexture(getX2() + Math.max(0, x1), getY2() + z1, getX2() + x2, getY2() + z2, uScale, 0, 1, 1);
 		guiDrawing.finishDrawingTexture();
 	}
 
-	private boolean canDrawAreaText(AreaBase<?, ?> areaBase) {
+	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> boolean canDrawAreaText(U areaBase) {
 		return areaBase.getCenter() != null && scale >= 80F / Math.max(areaBase.getMaxX() - areaBase.getMinX(), areaBase.getMaxZ() - areaBase.getMinZ());
 	}
 
