@@ -6,6 +6,7 @@ import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.ClickableWidget;
+import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.*;
@@ -44,6 +45,8 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 	private final ButtonWidgetExtension buttonDoneEditingRouteDestination;
 	private final ButtonWidgetExtension buttonZoomIn;
 	private final ButtonWidgetExtension buttonZoomOut;
+	private final TexturedButtonWidgetExtension buttonMapTopView;
+	private final TexturedButtonWidgetExtension buttonMapCurrentY;
 	private final ButtonWidgetExtension buttonRailActions;
 	private final ButtonWidgetExtension buttonOptions;
 
@@ -77,6 +80,8 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		buttonDoneEditingRouteDestination = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> onDoneEditingRouteDestination());
 		buttonZoomIn = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> widgetMap.scale(1));
 		buttonZoomOut = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> widgetMap.scale(-1));
+		buttonMapTopView = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_map_top_view.png"), new Identifier("textures/gui/sprites/mtr/icon_map_top_view_highlighted.png"), button -> widgetMap.setOverlayMode(WorldMap.MapOverlayMode.TOP_VIEW));
+		buttonMapCurrentY = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_map_current_y.png"), new Identifier("textures/gui/sprites/mtr/icon_map_current_y_highlighted.png"), button -> widgetMap.setOverlayMode(WorldMap.MapOverlayMode.CURRENT_Y));
 		buttonRailActions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_RAIL_ACTIONS_BUTTON.getMutableText(), button -> MinecraftClient.getInstance().openScreen(new Screen(new RailActionsScreen())));
 		buttonOptions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("menu.options"), button -> MinecraftClient.getInstance().openScreen(new Screen(new ConfigScreen())));
 
@@ -105,6 +110,8 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		IDrawing.setPositionAndWidth(buttonDoneEditingRouteDestination, 0, bottomRowY, PANEL_WIDTH);
 		IDrawing.setPositionAndWidth(buttonZoomIn, width - SQUARE_SIZE * 2, bottomRowY, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(buttonZoomOut, width - SQUARE_SIZE, bottomRowY, SQUARE_SIZE);
+		IDrawing.setPositionAndWidth(buttonMapCurrentY, width - SQUARE_SIZE * 11, bottomRowY, SQUARE_SIZE);
+		IDrawing.setPositionAndWidth(buttonMapTopView, width - SQUARE_SIZE * 12, bottomRowY, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(buttonRailActions, width - SQUARE_SIZE * 10, bottomRowY, SQUARE_SIZE * 5);
 		IDrawing.setPositionAndWidth(buttonOptions, width - SQUARE_SIZE * 5, bottomRowY, SQUARE_SIZE * 3);
 
@@ -133,6 +140,8 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		addChild(new ClickableWidget(buttonZoomOut));
 		addChild(new ClickableWidget(buttonRailActions));
 		addChild(new ClickableWidget(buttonOptions));
+		addChild(new ClickableWidget(buttonMapTopView));
+		addChild(new ClickableWidget(buttonMapCurrentY));
 
 		addChild(new ClickableWidget(textFieldName));
 		addChild(new ClickableWidget(textFieldCustomDestination));
@@ -173,7 +182,9 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		try {
 			switch (selectedTab) {
 				case STATIONS:
-					if (editingArea == null) {
+					if (editingArea 
+              
+              null) {
 						dashboardList.setData(MinecraftClientData.convertDataSet(MinecraftClientData.getDashboardInstance().stations), true, true, true, false, false, true);
 					} else {
 						dashboardList.setData(MinecraftClientData.convertDataSet(editingArea.savedRails), true, false, true, false, false, false);
@@ -415,6 +426,12 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addRoute(editingRoute)));
 		}
 		startEditingRoute(editingRoute, isNew);
+	}
+
+	@Override
+	public void onClose2() {
+		widgetMap.onClose();
+		super.onClose2();
 	}
 
 	private void stopEditing() {
