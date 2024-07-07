@@ -45,7 +45,7 @@ body:
       description: Which mod loader were you using when you encountered the bug?
       options:
         - "Fabric"
-        - "Minecraft Forge"
+        - "Forge"
     validations:
       required: true
   - type: input
