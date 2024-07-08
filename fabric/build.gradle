@@ -54,6 +54,7 @@ tasks.register("setupFiles") {
 		rename "(.+).template.json", "\$1.json"
 	}
 
+	buildTools.generateTranslations()
 	buildTools.copyLootTables()
 	buildTools.copyFontDefinition()
 	buildTools.copyVehicleTemplates()

@@ -24,6 +24,7 @@ import org.mtr.mapping.tool.DummyClass;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.data.ArrivalsCacheServer;
 import org.mtr.mod.data.RailActionModule;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.*;
 import org.mtr.mod.servlet.Tunnel;
 import org.mtr.mod.servlet.VehicleLiftServlet;
@@ -282,12 +283,12 @@ public final class Init implements Utilities {
 	private static void generateOrClearDepotsFromCommand(CommandBuilder<?> commandBuilder, boolean isGenerate) {
 		commandBuilder.permissionLevel(2);
 		commandBuilder.executes(contextHandler -> {
-			contextHandler.sendSuccess(isGenerate ? "command.mtr.generate_all" : "command.mtr.clear_all", true);
+			contextHandler.sendSuccess((isGenerate ? TranslationProvider.COMMAND_MTR_GENERATE_ALL : TranslationProvider.COMMAND_MTR_CLEAR_ALL).key, true);
 			return generateOrClearDepotsFromCommand(contextHandler.getWorld(), "", isGenerate);
 		});
 		commandBuilder.then("name", StringArgumentType.greedyString(), innerCommandBuilder -> innerCommandBuilder.executes(contextHandler -> {
 			final String filter = contextHandler.getString("name");
-			contextHandler.sendSuccess(isGenerate ? "command.mtr.generate_filter" : "command.mtr.clear_filter", true, filter);
+			contextHandler.sendSuccess((isGenerate ? TranslationProvider.COMMAND_MTR_GENERATE_FILTER : TranslationProvider.COMMAND_MTR_CLEAR_FILTER).key, true, filter);
 			return generateOrClearDepotsFromCommand(contextHandler.getWorld(), filter, isGenerate);
 		}));
 	}

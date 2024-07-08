@@ -2,7 +2,7 @@ package org.mtr.mod.block;
 
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,7 +22,7 @@ public class BlockLiftTrackVertical extends BlockLiftTrackBase {
 
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		tooltip.add(TextHelper.translatable("tooltip.mtr.lift_track_vertical").formatted(TextFormatting.GRAY));
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_LIFT_TRACK_VERTICAL.getMutableText().formatted(TextFormatting.GRAY));
 	}
 
 	@Override

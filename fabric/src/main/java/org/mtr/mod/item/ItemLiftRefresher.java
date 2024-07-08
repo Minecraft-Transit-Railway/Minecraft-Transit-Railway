@@ -10,11 +10,11 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.mapper.ItemExtension;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockLiftTrackBase;
 import org.mtr.mod.block.BlockLiftTrackFloor;
 import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketOpenLiftCustomizationScreen;
 
 import javax.annotation.Nonnull;
@@ -40,7 +40,7 @@ public class ItemLiftRefresher extends ItemExtension implements DirectionHelper 
 
 			final ObjectArrayList<LiftFloor> liftFloors1 = new ObjectArrayList<>();
 			if (!findPath(world, blockPos, null, liftFloors1, new ObjectArrayList<>(), blacklistedBlockPos, true, false)) {
-				playerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr.lift_track_required").data), true);
+				playerEntity.sendMessage(TranslationProvider.GUI_MTR_LIFT_TRACK_REQUIRED.getText(), true);
 				return ActionResult.getFailMapped();
 			}
 

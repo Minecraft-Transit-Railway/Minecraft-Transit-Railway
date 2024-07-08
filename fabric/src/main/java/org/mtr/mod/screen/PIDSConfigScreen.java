@@ -15,6 +15,7 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockPIDSBase;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdatePIDSConfig;
 
 import java.util.Collections;
@@ -29,8 +30,8 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 	private final TextFieldWidgetExtension[] textFieldMessages;
 	private final CheckboxWidgetExtension[] buttonsHideArrival;
 	private final TextFieldWidgetExtension displayPageInput;
-	private final MutableText messageText = TextHelper.translatable("gui.mtr.pids_message");
-	private final MutableText hideArrivalText = TextHelper.translatable("gui.mtr.hide_arrival");
+	private final MutableText messageText = TranslationProvider.GUI_MTR_PIDS_MESSAGE.getMutableText();
+	private final MutableText hideArrivalText = TranslationProvider.GUI_MTR_HIDE_ARRIVAL.getMutableText();
 	private final CheckboxWidgetExtension selectAllCheckbox;
 	private final ButtonWidgetExtension filterButton;
 	private final TexturedButtonWidgetExtension buttonPrevPage;
@@ -55,7 +56,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 
 		selectAllCheckbox = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
 		});
-		selectAllCheckbox.setMessage2(new Text(TextHelper.translatable("gui.mtr.automatically_detect_nearby_platform").data));
+		selectAllCheckbox.setMessage2(TranslationProvider.GUI_MTR_AUTOMATICALLY_DETECT_NEARBY_PLATFORM.getText());
 
 		textFieldMessages = new TextFieldWidgetExtension[maxArrivals];
 		for (int i = 0; i < maxArrivals; i++) {
@@ -69,8 +70,8 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 			buttonsHideArrival[i].setMessage2(new Text(hideArrivalText.data));
 		}
 
-		buttonPrevPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_left.png"), new Identifier("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1));
-		buttonNextPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_right.png"), new Identifier("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1));
+		buttonPrevPage = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_left.png"), new Identifier("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1));
+		buttonNextPage = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_right.png"), new Identifier("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1));
 
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 		if (clientWorld == null) {
@@ -175,8 +176,8 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 	@Override
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
 		renderBackground(graphicsHolder);
-		graphicsHolder.drawText(TextHelper.translatable("gui.mtr.display_page"), SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-		graphicsHolder.drawText(TextHelper.translatable("gui.mtr.filtered_platforms", selectAllCheckbox.isChecked2() ? 0 : filterPlatformIds.size()), SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+		graphicsHolder.drawText(TranslationProvider.GUI_MTR_DISPLAY_PAGE.getMutableText(), SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+		graphicsHolder.drawText(TranslationProvider.GUI_MTR_FILTERED_PLATFORMS.getMutableText(selectAllCheckbox.isChecked2() ? 0 : filterPlatformIds.size()), SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		graphicsHolder.drawText(messageText, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		final int maxPages = getMaxPages();
 		if (maxPages > 1) {

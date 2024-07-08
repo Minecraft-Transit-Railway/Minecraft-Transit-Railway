@@ -1,8 +1,8 @@
 package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -52,7 +52,7 @@ public class BlockRailwaySignPole extends BlockPoleCheckBase {
 
 	@Override
 	protected Text getTooltipBlockText() {
-		return new Text(TextHelper.translatable("block.mtr.railway_sign").data);
+		return TranslationProvider.BLOCK_MTR_RAILWAY_SIGN.getText();
 	}
 
 	@Override

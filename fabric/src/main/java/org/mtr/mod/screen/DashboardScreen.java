@@ -6,6 +6,7 @@ import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.ClickableWidget;
+import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.*;
@@ -15,6 +16,7 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketDeleteData;
 import org.mtr.mod.packet.PacketUpdateData;
 
@@ -43,6 +45,8 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 	private final ButtonWidgetExtension buttonDoneEditingRouteDestination;
 	private final ButtonWidgetExtension buttonZoomIn;
 	private final ButtonWidgetExtension buttonZoomOut;
+	private final TexturedButtonWidgetExtension buttonMapTopView;
+	private final TexturedButtonWidgetExtension buttonMapCurrentY;
 	private final ButtonWidgetExtension buttonRailActions;
 	private final ButtonWidgetExtension buttonOptions;
 
@@ -59,24 +63,32 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		super();
 		this.transportMode = transportMode;
 
-		textFieldName = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 1024, TextCase.DEFAULT, null, TextHelper.translatable("gui.mtr.name").getString());
-		textFieldCustomDestination = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 1024, TextCase.DEFAULT, null, TextHelper.translatable("gui.mtr.custom_destination_suggestion").getString());
+		textFieldName = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 1024, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_NAME.getString());
+		textFieldCustomDestination = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 1024, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_CUSTOM_DESTINATION_SUGGESTION.getString());
 		colorSelector = new WidgetColorSelector(this, true, this::toggleButtons);
 		widgetMap = new WidgetMap(transportMode, this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickAddPlatformToRoute, this::onClickEditSavedRail, colorSelector::isMouseOver2);
 
-		buttonTabStations = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.stations"), button -> onSelectTab(SelectedTab.STATIONS));
-		buttonTabRoutes = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.routes"), button -> onSelectTab(SelectedTab.ROUTES));
-		buttonTabDepots = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.depots"), button -> onSelectTab(SelectedTab.DEPOTS));
+		buttonTabStations = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_STATIONS.getMutableText(), button -> onSelectTab(SelectedTab.STATIONS));
+		buttonTabRoutes = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_ROUTES.getMutableText(), button -> onSelectTab(SelectedTab.ROUTES));
+		buttonTabDepots = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_DEPOTS.getMutableText(), button -> onSelectTab(SelectedTab.DEPOTS));
 
-		buttonAddStation = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_station"), button -> startEditingArea(new Station(MinecraftClientData.getDashboardInstance()), true));
-		buttonAddRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_route"), button -> startEditingRoute(new Route(transportMode, MinecraftClientData.getDashboardInstance()), true));
-		buttonAddDepot = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.add_depot"), button -> startEditingArea(new Depot(transportMode, MinecraftClientData.getDashboardInstance()), true));
+		buttonAddStation = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_ADD_STATION.getMutableText(), button -> startEditingArea(new Station(MinecraftClientData.getDashboardInstance()), true));
+		buttonAddRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_ADD_ROUTE.getMutableText(), button -> startEditingRoute(new Route(transportMode, MinecraftClientData.getDashboardInstance()), true));
+		buttonAddDepot = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_ADD_DEPOT.getMutableText(), button -> startEditingArea(new Depot(transportMode, MinecraftClientData.getDashboardInstance()), true));
 		buttonDoneEditingStation = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> onDoneEditingArea());
 		buttonDoneEditingRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> onDoneEditingRoute());
 		buttonDoneEditingRouteDestination = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> onDoneEditingRouteDestination());
 		buttonZoomIn = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> widgetMap.scale(1));
 		buttonZoomOut = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-"), button -> widgetMap.scale(-1));
-		buttonRailActions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.rail_actions_button"), button -> MinecraftClient.getInstance().openScreen(new Screen(new RailActionsScreen())));
+		buttonMapTopView = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_map_top_view.png"), new Identifier("textures/gui/sprites/mtr/icon_map_top_view_highlighted.png"), new Identifier("textures/gui/sprites/mtr/icon_map_top_view_disabled.png"), button -> {
+			widgetMap.setMapOverlayMode(WorldMap.MapOverlayMode.TOP_VIEW);
+			toggleButtons();
+		});
+		buttonMapCurrentY = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_map_current_y.png"), new Identifier("textures/gui/sprites/mtr/icon_map_current_y_highlighted.png"), new Identifier("textures/gui/sprites/mtr/icon_map_current_y_disabled.png"), button -> {
+			widgetMap.setMapOverlayMode(WorldMap.MapOverlayMode.CURRENT_Y);
+			toggleButtons();
+		});
+		buttonRailActions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_RAIL_ACTIONS_BUTTON.getMutableText(), button -> MinecraftClient.getInstance().openScreen(new Screen(new RailActionsScreen())));
 		buttonOptions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("menu.options"), button -> MinecraftClient.getInstance().openScreen(new Screen(new ConfigScreen())));
 
 		dashboardList = new DashboardList(this::onFind, this::onDrawArea, this::onEdit, this::onSort, null, this::onDelete, this::getList, () -> MinecraftClientData.DASHBOARD_SEARCH, text -> MinecraftClientData.DASHBOARD_SEARCH = text);
@@ -104,6 +116,8 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		IDrawing.setPositionAndWidth(buttonDoneEditingRouteDestination, 0, bottomRowY, PANEL_WIDTH);
 		IDrawing.setPositionAndWidth(buttonZoomIn, width - SQUARE_SIZE * 2, bottomRowY, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(buttonZoomOut, width - SQUARE_SIZE, bottomRowY, SQUARE_SIZE);
+		IDrawing.setPositionAndWidth(buttonMapCurrentY, width - SQUARE_SIZE * 11, bottomRowY, SQUARE_SIZE);
+		IDrawing.setPositionAndWidth(buttonMapTopView, width - SQUARE_SIZE * 12, bottomRowY, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(buttonRailActions, width - SQUARE_SIZE * 10, bottomRowY, SQUARE_SIZE * 5);
 		IDrawing.setPositionAndWidth(buttonOptions, width - SQUARE_SIZE * 5, bottomRowY, SQUARE_SIZE * 3);
 
@@ -132,6 +146,8 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		addChild(new ClickableWidget(buttonZoomOut));
 		addChild(new ClickableWidget(buttonRailActions));
 		addChild(new ClickableWidget(buttonOptions));
+		addChild(new ClickableWidget(buttonMapTopView));
+		addChild(new ClickableWidget(buttonMapCurrentY));
 
 		addChild(new ClickableWidget(textFieldName));
 		addChild(new ClickableWidget(textFieldCustomDestination));
@@ -416,6 +432,12 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		startEditingRoute(editingRoute, isNew);
 	}
 
+	@Override
+	public void onClose2() {
+		widgetMap.onClose();
+		super.onClose2();
+	}
+
 	private void stopEditing() {
 		editingArea = null;
 		editingRoute = null;
@@ -438,6 +460,9 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		buttonDoneEditingStation.active = AreaBase.validCorners(editingArea);
 		buttonDoneEditingRoute.visible = selectedTab == SelectedTab.ROUTES && editingRoute != null && !showRouteDestinationFields;
 		buttonDoneEditingRouteDestination.visible = selectedTab == SelectedTab.ROUTES && editingRoute != null && showRouteDestinationFields;
+
+		buttonMapTopView.active = !widgetMap.isMapOverlayMode(WorldMap.MapOverlayMode.TOP_VIEW);
+		buttonMapCurrentY.active = !widgetMap.isMapOverlayMode(WorldMap.MapOverlayMode.CURRENT_Y);
 
 		final boolean showTextFields = ((selectedTab == SelectedTab.STATIONS || selectedTab == SelectedTab.DEPOTS) && editingArea != null) || (selectedTab == SelectedTab.ROUTES && editingRoute != null && !showRouteDestinationFields);
 		textFieldName.visible = showTextFields;

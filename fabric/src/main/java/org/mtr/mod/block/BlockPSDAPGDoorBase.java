@@ -4,9 +4,9 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockWithEntity;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -56,7 +56,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 					lockDoor(world, pos.up(y), scanState, !unlocked);
 				}
 			}
-			player.sendMessage(new Text((!unlocked ? TextHelper.translatable("gui.mtr.psd_apg_door_unlocked") : TextHelper.translatable("gui.mtr.psd_apg_door_locked")).data), true);
+			player.sendMessage((unlocked ? TranslationProvider.GUI_MTR_PSD_APG_DOOR_LOCKED : TranslationProvider.GUI_MTR_PSD_APG_DOOR_UNLOCKED).getText(), true);
 		});
 	}
 
@@ -65,7 +65,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		// The serverside collision shape is always empty, and the clientside collision shape is determined by the vehicle door positions the client sees
 		final BlockEntity entity = world.getBlockEntity(pos);
-		if (entity != null && entity.data instanceof BlockEntityBase && entity.getWorld().isClient() && ((BlockEntityBase) entity.data).getDoorValue() == 0) {
+		if (entity != null && entity.data instanceof BlockEntityBase && entity.getWorld() != null && entity.getWorld().isClient() && ((BlockEntityBase) entity.data).doorValue == 0) {
 			return super.getCollisionShape2(state, world, pos, context);
 		} else {
 			return VoxelShapes.empty();

@@ -21,11 +21,11 @@ import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.VehicleRidingMovement;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketTurnOnBlockEntity;
 import org.mtr.mod.resource.VehicleResource;
 
 import javax.annotation.Nullable;
-import java.util.Locale;
 
 public class VehicleExtension extends Vehicle implements Utilities {
 
@@ -79,22 +79,37 @@ public class VehicleExtension extends Vehicle implements Utilities {
 			if (VehicleRidingMovement.showShiftProgressBar() && (!isCurrentlyManual || !isHoldingKey(clientPlayerEntity))) {
 				final double adjustedSpeed = getAdjustedSpeed();
 				if (adjustedSpeed * MILLIS_PER_SECOND > 5 || thisRouteName.isEmpty() || thisStationName.isEmpty() || thisRouteDestination.isEmpty()) {
-					clientPlayerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr.vehicle_speed", Utilities.round(adjustedSpeed * MILLIS_PER_SECOND, 1), Utilities.round(adjustedSpeed * 3.6F * MILLIS_PER_SECOND, 1)).data), true);
+					clientPlayerEntity.sendMessage(TranslationProvider.GUI_MTR_VEHICLE_SPEED.getText(Utilities.round(adjustedSpeed * MILLIS_PER_SECOND, 1), Utilities.round(adjustedSpeed * 3.6F * MILLIS_PER_SECOND, 1)), true);
 				} else {
 					final MutableText text;
 					switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {
 						default:
-							text = getStationText(thisStationName, "this");
+							text = getStationText(thisStationName, TranslationProvider.GUI_MTR_THIS_STATION_CJK, TranslationProvider.GUI_MTR_THIS_STATION);
 							break;
 						case 1:
 							if (nextStationName.isEmpty()) {
-								text = getStationText(thisStationName, "this");
+								text = getStationText(thisStationName, TranslationProvider.GUI_MTR_THIS_STATION_CJK, TranslationProvider.GUI_MTR_THIS_STATION);
 							} else {
-								text = getStationText(nextStationName, "next");
+								text = getStationText(nextStationName, TranslationProvider.GUI_MTR_NEXT_STATION_CJK, TranslationProvider.GUI_MTR_NEXT_STATION);
 							}
 							break;
 						case 2:
-							text = getStationText(thisRouteDestination, "last_" + transportMode.toString().toLowerCase(Locale.ENGLISH));
+							switch (transportMode) {
+								case TRAIN:
+									text = getStationText(thisRouteDestination, TranslationProvider.GUI_MTR_LAST_TRAIN_STATION_CJK, TranslationProvider.GUI_MTR_LAST_TRAIN_STATION);
+									break;
+								case BOAT:
+									text = getStationText(thisRouteDestination, TranslationProvider.GUI_MTR_LAST_BOAT_STATION_CJK, TranslationProvider.GUI_MTR_LAST_BOAT_STATION);
+									break;
+								case CABLE_CAR:
+									text = getStationText(thisRouteDestination, TranslationProvider.GUI_MTR_LAST_CABLE_CAR_STATION_CJK, TranslationProvider.GUI_MTR_LAST_CABLE_CAR_STATION);
+									break;
+								case AIRPLANE:
+									text = getStationText(thisRouteDestination, TranslationProvider.GUI_MTR_LAST_AIRPLANE_STATION_CJK, TranslationProvider.GUI_MTR_LAST_AIRPLANE_STATION);
+									break;
+								default:
+									text = TextHelper.literal("");
+							}
 							break;
 					}
 					clientPlayerEntity.sendMessage(new Text(text.data), true);
@@ -107,7 +122,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 				final ObjectArrayList<MutableText> chatText = new ObjectArrayList<>();
 
 				if (!nextStationName.isEmpty()) {
-					final String nextStationFormatted = IGui.insertTranslation("gui.mtr.next_station_announcement_cjk", "gui.mtr.next_station_announcement", 1, nextStationName);
+					final String nextStationFormatted = IGui.insertTranslation(TranslationProvider.GUI_MTR_NEXT_STATION_ANNOUNCEMENT_CJK, TranslationProvider.GUI_MTR_NEXT_STATION_ANNOUNCEMENT, 1, nextStationName);
 					narrateText.add(nextStationFormatted);
 					chatText.add(TextHelper.literal(IGui.formatStationName(nextStationFormatted)));
 				}
@@ -130,7 +145,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 							final String routeNameFormatted = formatRouteName(routeName);
 							if (!routeName.isEmpty() && !visitedRouteNames.contains(routeNameFormatted) && (color != thisRouteColor || !routeNameFormatted.equals(thisRouteName)) && (color != nextRouteColor || !routeNameFormatted.equals(nextRouteName))) {
 								if (!isThisStation && !addedStationName[0]) {
-									chatTextOtherStations.add(TextHelper.literal(IGui.formatStationName(IGui.insertTranslation("gui.mtr.connecting_station_announcement_cjk", "gui.mtr.connecting_station_announcement", 1, stationName))));
+									chatTextOtherStations.add(TextHelper.literal(IGui.formatStationName(IGui.insertTranslation(TranslationProvider.GUI_MTR_CONNECTING_STATION_ANNOUNCEMENT_CJK, TranslationProvider.GUI_MTR_CONNECTING_STATION_ANNOUNCEMENT, 1, stationName))));
 								}
 
 								if (!globalVisitedRouteNames.contains(routeNameFormatted)) {
@@ -151,9 +166,9 @@ public class VehicleExtension extends Vehicle implements Utilities {
 
 					if (addedStationName[0]) {
 						if (isThisStation) {
-							narrateTextThisStation.add(IGui.insertTranslation("gui.mtr.interchange_announcement_cjk", "gui.mtr.interchange_announcement", 1, getInterchangeText(combinedRouteNames)));
+							narrateTextThisStation.add(IGui.insertTranslation(TranslationProvider.GUI_MTR_INTERCHANGE_ANNOUNCEMENT_CJK, TranslationProvider.GUI_MTR_INTERCHANGE_ANNOUNCEMENT, 1, getInterchangeText(combinedRouteNames)));
 						} else {
-							narrateTextOtherStations.add(IGui.insertTranslation("gui.mtr.connecting_station_part_cjk", "gui.mtr.connecting_station_part", 1, IGui.insertTranslation("gui.mtr.connecting_station_interchange_announcement_part_cjk", "gui.mtr.connecting_station_interchange_announcement_part", 2, getInterchangeText(combinedRouteNames), stationName)));
+							narrateTextOtherStations.add(IGui.insertTranslation(TranslationProvider.GUI_MTR_CONNECTING_STATION_PART_CJK, TranslationProvider.GUI_MTR_CONNECTING_STATION_PART, 1, IGui.insertTranslation(TranslationProvider.GUI_MTR_CONNECTING_STATION_INTERCHANGE_ANNOUNCEMENT_PART_CJK, TranslationProvider.GUI_MTR_CONNECTING_STATION_INTERCHANGE_ANNOUNCEMENT_PART, 2, getInterchangeText(combinedRouteNames), stationName)));
 						}
 					}
 				});
@@ -164,7 +179,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 				chatText.addAll(chatTextOtherStations);
 
 				if (!nextRouteName.isEmpty() && (nextRouteColor != thisRouteColor || !nextRouteName.equals(thisRouteName))) {
-					final String changeRouteText = IGui.insertTranslation("gui.mtr.next_route_train_announcement_cjk", "gui.mtr.next_route_train_announcement", 2, nextRouteName, nextRouteDestination);
+					final String changeRouteText = IGui.insertTranslation(TranslationProvider.GUI_MTR_NEXT_ROUTE_TRAIN_ANNOUNCEMENT_CJK, TranslationProvider.GUI_MTR_NEXT_ROUTE_TRAIN_ANNOUNCEMENT, 2, nextRouteName, nextRouteDestination);
 					chatText.add(TextHelper.append(
 							TextHelper.setStyle(TextHelper.literal("*"), Style.getEmptyMapped().withColor(TextColor.fromRgb(nextRouteColor))),
 							TextHelper.setStyle(TextHelper.literal(" " + IGui.formatStationName(changeRouteText)), Style.getEmptyMapped().withColor(TextFormatting.getWhiteMapped()))
@@ -227,8 +242,8 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		return clientPlayerEntity != null && clientPlayerEntity.isHolding(Items.DRIVER_KEY.get());
 	}
 
-	private static MutableText getStationText(String text, String textKey) {
-		return TextHelper.literal(text.isEmpty() ? "" : IGui.formatStationName(IGui.insertTranslation(String.format("gui.mtr.%s_station_cjk", textKey), String.format("gui.mtr.%s_station", textKey), 1, IGui.textOrUntitled(text))));
+	private static MutableText getStationText(String text, TranslationProvider.TranslationHolder keyCjk, TranslationProvider.TranslationHolder key) {
+		return TextHelper.literal(text.isEmpty() ? "" : IGui.formatStationName(IGui.insertTranslation(keyCjk, key, 1, IGui.textOrUntitled(text))));
 	}
 
 	private static String formatRouteName(String routeName) {
@@ -243,12 +258,12 @@ public class VehicleExtension extends Vehicle implements Utilities {
 				(IGui.isCjk(nameSplit) ? newNamesCjk : newNames).add(nameSplit);
 			}
 		});
-		final String combinedCjk = mergeNames(newNamesCjk, "gui.mtr.comma_cjk", "gui.mtr.comma_last_cjk");
-		final String combined = mergeNames(newNames, "gui.mtr.comma", "gui.mtr.comma_last");
+		final String combinedCjk = mergeNames(newNamesCjk, TranslationProvider.GUI_MTR_COMMA_CJK, TranslationProvider.GUI_MTR_COMMA_LAST_CJK);
+		final String combined = mergeNames(newNames, TranslationProvider.GUI_MTR_COMMA, TranslationProvider.GUI_MTR_COMMA_LAST);
 		return String.format("%s%s%s", combinedCjk, !combinedCjk.isEmpty() && !combined.isEmpty() ? "|" : "", combined);
 	}
 
-	private static String mergeNames(ObjectArrayList<String> names, String keyComma, String keyCommaLast) {
+	private static String mergeNames(ObjectArrayList<String> names, TranslationProvider.TranslationHolder keyComma, TranslationProvider.TranslationHolder keyCommaLast) {
 		if (names.isEmpty()) {
 			return "";
 		} else {
@@ -256,9 +271,9 @@ public class VehicleExtension extends Vehicle implements Utilities {
 			for (int i = 0; i < names.size(); i++) {
 				stringBuilder.append(names.get(i));
 				if (i <= names.size() - 3) {
-					stringBuilder.append(TextHelper.translatable(keyComma).getString());
+					stringBuilder.append(keyComma.getString());
 				} else if (i == names.size() - 2) {
-					stringBuilder.append(TextHelper.translatable(keyCommaLast).getString());
+					stringBuilder.append(keyCommaLast.getString());
 				}
 			}
 			return stringBuilder.toString();

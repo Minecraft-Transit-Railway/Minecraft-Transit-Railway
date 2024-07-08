@@ -3,7 +3,7 @@ package org.mtr.mod.block;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.mapper.SlabBlockExtension;
-import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,6 +27,6 @@ public class BlockStationColorSlab extends SlabBlockExtension {
 
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		tooltip.add(TextHelper.translatable("tooltip.mtr.station_color").formatted(TextFormatting.GRAY));
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_STATION_COLOR.getMutableText().formatted(TextFormatting.GRAY));
 	}
 }

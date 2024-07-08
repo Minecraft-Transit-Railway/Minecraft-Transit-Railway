@@ -12,6 +12,7 @@ import org.mtr.mod.block.BlockEyeCandy;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateEyeCandyConfig;
 import org.mtr.mod.resource.ObjectResource;
 
@@ -26,9 +27,9 @@ public class EyeCandyScreen extends ScreenExtension implements IGui {
 	private final TextFieldWidgetExtension textFieldRotateZ;
 	private final CheckboxWidgetExtension buttonFullBrightness;
 
-	private static final MutableText SELECT_MODEL_TEXT = TextHelper.translatable("gui.mtr.select_model");
-	private static final MutableText MODEL_TRANSLATION_TEXT = TextHelper.translatable("gui.mtr.model_translation");
-	private static final MutableText MODEL_ROTATION_TEXT = TextHelper.translatable("gui.mtr.model_rotation");
+	private static final MutableText SELECT_MODEL_TEXT = TranslationProvider.GUI_MTR_SELECT_MODEL.getMutableText();
+	private static final MutableText MODEL_TRANSLATION_TEXT = TranslationProvider.GUI_MTR_MODEL_TRANSLATION.getMutableText();
+	private static final MutableText MODEL_ROTATION_TEXT = TranslationProvider.GUI_MTR_MODEL_ROTATION.getMutableText();
 	private static final MutableText X_TEXT = TextHelper.literal("X");
 	private static final MutableText Y_TEXT = TextHelper.literal("Y");
 	private static final MutableText Z_TEXT = TextHelper.literal("Z");
@@ -69,7 +70,7 @@ public class EyeCandyScreen extends ScreenExtension implements IGui {
 		textFieldRotateZ = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.]", null);
 		textFieldRotateZ.setChangedListener2(text -> sendUpdate());
 		buttonFullBrightness = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> sendUpdate());
-		buttonFullBrightness.setMessage2(new Text(TextHelper.translatable("gui.mtr.model_full_brightness").data));
+		buttonFullBrightness.setMessage2(TranslationProvider.GUI_MTR_MODEL_FULL_BRIGHTNESS.getText());
 
 		xStart = Math.max(GraphicsHolder.getTextWidth(X_TEXT), Math.max(GraphicsHolder.getTextWidth(Y_TEXT), GraphicsHolder.getTextWidth(Z_TEXT)));
 	}

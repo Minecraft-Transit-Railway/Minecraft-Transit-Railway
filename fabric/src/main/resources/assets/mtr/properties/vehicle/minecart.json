@@ -1,0 +1,55 @@
+{
+	"parts": [
+		{
+			"names": [
+				"main"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"end"
+			],
+			"positionDefinitions": [
+				"main",
+				"mainFlipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door"
+			],
+			"positionDefinitions": [
+				"main",
+				"mainFlipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorXMultiplier": -2,
+			"doorZMultiplier": 12,
+			"doorAnimationType": "PLUG_SLOW"
+		},
+		{
+			"names": [
+				"floor"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway"
+			],
+			"positionDefinitions": [
+				"main",
+				"mainFlipped"
+			],
+			"type": "DOORWAY"
+		}
+	]
+}

@@ -1,15 +1,17 @@
 package org.mtr.mod.data;
 
-public enum RailActionType {
-	BRIDGE("percentage_complete_bridge", "rail_action_bridge", 0xFFCCCCCC),
-	TUNNEL("percentage_complete_tunnel", "rail_action_tunnel", 0xFF663300),
-	TUNNEL_WALL("percentage_complete_tunnel_wall", "rail_action_tunnel_wall", 0xFF666666);
+import org.mtr.mod.generated.lang.TranslationProvider;
 
-	public final String progressTranslation;
-	public final String nameTranslation;
+public enum RailActionType {
+	BRIDGE(TranslationProvider.GUI_MTR_PERCENTAGE_COMPLETE_BRIDGE, TranslationProvider.GUI_MTR_RAIL_ACTION_BRIDGE, 0xFFCCCCCC),
+	TUNNEL(TranslationProvider.GUI_MTR_PERCENTAGE_COMPLETE_TUNNEL, TranslationProvider.GUI_MTR_RAIL_ACTION_TUNNEL, 0xFF663300),
+	TUNNEL_WALL(TranslationProvider.GUI_MTR_PERCENTAGE_COMPLETE_TUNNEL_WALL, TranslationProvider.GUI_MTR_RAIL_ACTION_TUNNEL_WALL, 0xFF666666);
+
+	public final TranslationProvider.TranslationHolder progressTranslation;
+	public final TranslationProvider.TranslationHolder nameTranslation;
 	public final int color;
 
-	RailActionType(String progressTranslation, String nameTranslation, int color) {
+	RailActionType(TranslationProvider.TranslationHolder progressTranslation, TranslationProvider.TranslationHolder nameTranslation, int color) {
 		this.progressTranslation = progressTranslation;
 		this.nameTranslation = nameTranslation;
 		this.color = color;

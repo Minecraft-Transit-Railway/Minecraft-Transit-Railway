@@ -7,6 +7,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockNode;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -44,7 +45,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 					} else {
 						neighborState = state;
 					}
-					playerEntity.sendMessage(new Text(TextHelper.translatable("tooltip.mtr.selected_material", TextHelper.translatable(neighborState.getBlock().getTranslationKey()).getString()).data), true);
+					playerEntity.sendMessage(TranslationProvider.TOOLTIP_MTR_SELECTED_MATERIAL.getText(TextHelper.translatable(neighborState.getBlock().getTranslationKey()).getString()), true);
 					final CompoundTag compoundTag = context.getStack().getOrCreateTag();
 					compoundTag.putInt(TAG_BLOCK_ID, Block.getRawIdFromState(neighborState));
 					return ActionResult.SUCCESS;
@@ -58,17 +59,17 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable World world, List<MutableText> tooltip, TooltipContext options) {
 		if (height > 0) {
-			tooltip.add(TextHelper.translatable("tooltip.mtr.rail_action_height", height).formatted(TextFormatting.GRAY));
+			tooltip.add(TranslationProvider.TOOLTIP_MTR_RAIL_ACTION_HEIGHT.getMutableText(height).formatted(TextFormatting.GRAY));
 		}
-		tooltip.add(TextHelper.translatable("tooltip.mtr.rail_action_width", width).formatted(TextFormatting.GRAY));
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_RAIL_ACTION_WIDTH.getMutableText(width).formatted(TextFormatting.GRAY));
 
 		if (canSaveBlock) {
 			final BlockState state = getSavedState(stack);
-			final String[] textSplit = TextHelper.translatable(state.isAir() ? "tooltip.mtr.shift_right_click_to_select_material" : "tooltip.mtr.shift_right_click_to_clear", InitClient.getShiftText(), TextHelper.translatable(org.mtr.mod.Blocks.RAIL_NODE.get().getTranslationKey()).data).getString().split("\\|");
+			final String[] textSplit = (state.isAir() ? TranslationProvider.TOOLTIP_MTR_SHIFT_RIGHT_CLICK_TO_SELECT_MATERIAL : TranslationProvider.TOOLTIP_MTR_SHIFT_RIGHT_CLICK_TO_CLEAR).getString(InitClient.getShiftText(), TextHelper.translatable(org.mtr.mod.Blocks.RAIL_NODE.get().getTranslationKey()).data).split("\\|");
 			for (String text : textSplit) {
 				tooltip.add(TextHelper.literal(text).formatted(TextFormatting.GRAY).formatted(TextFormatting.ITALIC));
 			}
-			tooltip.add(TextHelper.translatable("tooltip.mtr.selected_material", TextHelper.translatable(state.getBlock().getTranslationKey()).getString()).formatted(TextFormatting.GREEN));
+			tooltip.add(TranslationProvider.TOOLTIP_MTR_SELECTED_MATERIAL.getMutableText(TextHelper.translatable(state.getBlock().getTranslationKey()).getString()).formatted(TextFormatting.GREEN));
 		}
 
 		super.addTooltips(stack, world, tooltip, options);

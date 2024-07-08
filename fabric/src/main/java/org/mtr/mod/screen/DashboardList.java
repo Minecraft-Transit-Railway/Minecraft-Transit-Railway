@@ -8,11 +8,15 @@ import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MathHelper;
 import org.mtr.mapping.holder.Screen;
-import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.GuiDrawing;
+import org.mtr.mapping.mapper.TextFieldWidgetExtension;
+import org.mtr.mapping.mapper.TexturedButtonWidgetExtension;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -64,13 +68,13 @@ public class DashboardList implements IGui {
 	public <T> DashboardList(@Nullable Callback onFind, @Nullable Callback onDrawArea, @Nullable Callback onEdit, @Nullable Runnable onSort, @Nullable Callback onAdd, @Nullable Callback onDelete, @Nullable Supplier<List<T>> getList, Supplier<String> getSearch, Consumer<String> setSearch, boolean playSound) {
 		this.getSearch = getSearch;
 		this.setSearch = setSearch;
-		textFieldSearch = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 256, TextCase.DEFAULT, null, TextHelper.translatable("gui.mtr.search").getString());
-		buttonPrevPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_left.png"), new Identifier("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1));
-		buttonNextPage = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_right.png"), new Identifier("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1));
+		textFieldSearch = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_SEARCH.getString());
+		buttonPrevPage = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_left.png"), new Identifier("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1));
+		buttonNextPage = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_right.png"), new Identifier("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1));
 		buttonFind = new WidgetSilentImageButton(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_find.png"), new Identifier("textures/gui/sprites/mtr/icon_find_highlighted.png"), button -> onClick(onFind), playSound);
-		buttonDrawArea = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_draw_area.png"), new Identifier("textures/gui/sprites/mtr/icon_draw_area_highlighted.png"), button -> onClick(onDrawArea));
-		buttonEdit = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_edit.png"), new Identifier("textures/gui/sprites/mtr/icon_edit_highlighted.png"), button -> onClick(onEdit));
-		buttonUp = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_up.png"), new Identifier("textures/gui/sprites/mtr/icon_up_highlighted.png"), button -> {
+		buttonDrawArea = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_draw_area.png"), new Identifier("textures/gui/sprites/mtr/icon_draw_area_highlighted.png"), button -> onClick(onDrawArea));
+		buttonEdit = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_edit.png"), new Identifier("textures/gui/sprites/mtr/icon_edit_highlighted.png"), button -> onClick(onEdit));
+		buttonUp = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_up.png"), new Identifier("textures/gui/sprites/mtr/icon_up_highlighted.png"), button -> {
 			if (getList != null) {
 				onUp(getList);
 			}
@@ -78,7 +82,7 @@ public class DashboardList implements IGui {
 				onSort.run();
 			}
 		});
-		buttonDown = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_down.png"), new Identifier("textures/gui/sprites/mtr/icon_down_highlighted.png"), button -> {
+		buttonDown = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_down.png"), new Identifier("textures/gui/sprites/mtr/icon_down_highlighted.png"), button -> {
 			if (getList != null) {
 				onDown(getList);
 			}
@@ -86,8 +90,8 @@ public class DashboardList implements IGui {
 				onSort.run();
 			}
 		});
-		buttonAdd = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_add.png"), new Identifier("textures/gui/sprites/mtr/icon_add_highlighted.png"), button -> onClick(onAdd));
-		buttonDelete = new TexturedButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_delete.png"), new Identifier("textures/gui/sprites/mtr/icon_delete_highlighted.png"), button -> onClick(onDelete));
+		buttonAdd = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_add.png"), new Identifier("textures/gui/sprites/mtr/icon_add_highlighted.png"), button -> onClick(onAdd));
+		buttonDelete = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_delete.png"), new Identifier("textures/gui/sprites/mtr/icon_delete_highlighted.png"), button -> onClick(onDelete));
 	}
 
 	public void init(Consumer<ClickableWidget> addDrawableChild) {
