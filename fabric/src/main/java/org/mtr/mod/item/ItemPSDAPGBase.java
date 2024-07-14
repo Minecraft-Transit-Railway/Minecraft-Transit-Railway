@@ -2,12 +2,12 @@ package org.mtr.mod.item;
 
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ItemExtension;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Blocks;
 import org.mtr.mod.block.BlockPSDAPGBase;
 import org.mtr.mod.block.BlockPSDTop;
 import org.mtr.mod.block.IBlock;
 import org.mtr.mod.block.TripleHorizontalBlock;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -63,7 +63,7 @@ public class ItemPSDAPGBase extends ItemExtension implements IBlock {
 
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable World world, List<MutableText> tooltip, TooltipContext options) {
-		tooltip.add(TextHelper.translatable(type.isLift ? type.isOdd ? "tooltip.mtr.railway_sign_odd" : "tooltip.mtr.railway_sign_even" : "tooltip.mtr." + item.asString2()).formatted(TextFormatting.GRAY));
+		tooltip.add((type.isLift ? type.isOdd ? TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_ODD : TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_EVEN : item.translationKey).getMutableText().formatted(TextFormatting.GRAY));
 	}
 
 	private BlockState getBlockStateFromItem() {
@@ -150,14 +150,16 @@ public class ItemPSDAPGBase extends ItemExtension implements IBlock {
 
 	public enum EnumPSDAPGItem implements StringIdentifiable {
 
-		PSD_APG_DOOR("psd_apg_door", true),
-		PSD_APG_GLASS("psd_apg_glass", false),
-		PSD_APG_GLASS_END("psd_apg_glass_end", false);
+		PSD_APG_DOOR(TranslationProvider.TOOLTIP_MTR_PSD_APG_DOOR, "psd_apg_door", true),
+		PSD_APG_GLASS(TranslationProvider.TOOLTIP_MTR_PSD_APG_GLASS, "psd_apg_glass", false),
+		PSD_APG_GLASS_END(TranslationProvider.TOOLTIP_MTR_PSD_APG_GLASS_END, "psd_apg_glass_end", false);
 
+		public final TranslationProvider.TranslationHolder translationKey;
 		private final String name;
 		private final boolean isDoor;
 
-		EnumPSDAPGItem(String name, boolean isDoor) {
+		EnumPSDAPGItem(TranslationProvider.TranslationHolder translationKey, String name, boolean isDoor) {
+			this.translationKey = translationKey;
 			this.name = name;
 			this.isDoor = isDoor;
 		}

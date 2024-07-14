@@ -13,7 +13,6 @@ import org.mtr.mapping.holder.World;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockArrivalProjectorBase;
 import org.mtr.mod.block.BlockPIDSBase;
@@ -21,6 +20,7 @@ import org.mtr.mod.block.BlockPIDSHorizontalBase;
 import org.mtr.mod.block.IBlock;
 import org.mtr.mod.data.ArrivalsCacheClient;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEntityRenderer<T> implements IGui, Utilities {
 
@@ -140,28 +140,28 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 				final long arrival = (arrivalResponse.getArrival() - ArrivalsCacheClient.INSTANCE.getMillisOffset() - System.currentTimeMillis()) / 1000;
 				final int color = arrival <= 0 ? entity.textColorArrived() : entity.textColor();
 				final String destination = destinationSplit[languageIndex];
-				final String translationSuffix = IGui.isCjk(destination) ? "_cjk" : "";
+				final boolean isCjk = IGui.isCjk(destination);
 				final String destinationFormatted;
 
 				switch (arrivalResponse.getCircularState()) {
 					case CLOCKWISE:
-						destinationFormatted = TextHelper.translatable("gui.mtr.clockwise_via" + translationSuffix, destination).getString();
+						destinationFormatted = (isCjk ? TranslationProvider.GUI_MTR_CLOCKWISE_VIA_CJK : TranslationProvider.GUI_MTR_CLOCKWISE_VIA).getString(destination);
 						break;
 					case ANTICLOCKWISE:
-						destinationFormatted = TextHelper.translatable("gui.mtr.anticlockwise_via" + translationSuffix, destination).getString();
+						destinationFormatted = (isCjk ? TranslationProvider.GUI_MTR_ANTICLOCKWISE_VIA_CJK : TranslationProvider.GUI_MTR_ANTICLOCKWISE_VIA).getString(destination);
 						break;
 					default:
 						destinationFormatted = destination;
 						break;
 				}
 
-				final String carLengthString = TextHelper.translatable("gui.mtr.arrival_car" + translationSuffix, arrivalResponse.getCarCount()).getString();
+				final String carLengthString = (isCjk ? TranslationProvider.GUI_MTR_ARRIVAL_CAR_CJK : TranslationProvider.GUI_MTR_ARRIVAL_CAR).getString(arrivalResponse.getCarCount());
 				final String arrivalString;
 
 				if (arrival >= 60) {
-					arrivalString = (arrivalResponse.getRealtime() ? "" : "*") + TextHelper.translatable("gui.mtr.arrival_min" + translationSuffix, arrival / 60).getString();
+					arrivalString = (arrivalResponse.getRealtime() ? "" : "*") + (isCjk ? TranslationProvider.GUI_MTR_ARRIVAL_MIN_CJK : TranslationProvider.GUI_MTR_ARRIVAL_MIN).getString(arrival / 60);
 				} else if (arrival > 0) {
-					arrivalString = (arrivalResponse.getRealtime() ? "" : "*") + TextHelper.translatable("gui.mtr.arrival_sec" + translationSuffix, arrival).getString();
+					arrivalString = (arrivalResponse.getRealtime() ? "" : "*") + (isCjk ? TranslationProvider.GUI_MTR_ARRIVAL_SEC_CJK : TranslationProvider.GUI_MTR_ARRIVAL_SEC).getString(arrival);
 				} else {
 					arrivalString = "";
 				}

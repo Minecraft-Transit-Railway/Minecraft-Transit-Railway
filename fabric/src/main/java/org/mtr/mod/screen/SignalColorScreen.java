@@ -8,6 +8,7 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockSignalBase;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.item.ItemSignalModifier;
 import org.mtr.mod.packet.PacketUpdateSignalConfig;
 import org.mtr.mod.render.RenderSignalBase;
@@ -52,7 +53,7 @@ public class SignalColorScreen extends ScreenExtension implements IGui {
 			}
 			setButtons();
 		});
-		checkBoxSelectAll.setMessage2(new Text(TextHelper.translatable("gui.mtr.select_all").data));
+		checkBoxSelectAll.setMessage2(TranslationProvider.GUI_MTR_SELECT_ALL.getText());
 
 		for (int i = 0; i < ItemSignalModifier.COLORS.length; i++) {
 			final int color = ItemSignalModifier.COLORS[i];

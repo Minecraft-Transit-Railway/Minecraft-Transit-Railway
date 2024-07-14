@@ -1,8 +1,8 @@
 package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -26,7 +26,7 @@ public class BlockPIDSPole extends BlockPoleCheckBase {
 
 	@Override
 	protected Text getTooltipBlockText() {
-		return new Text(TextHelper.translatable("block.mtr.pids_1").data);
+		return TranslationProvider.BLOCK_MTR_PIDS_1.getText();
 	}
 
 	@Override

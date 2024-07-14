@@ -7,10 +7,10 @@ import org.mtr.core.data.TwoPositionsBase;
 import org.mtr.core.tool.Angle;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.data.RailType;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketDeleteData;
 import org.mtr.mod.packet.PacketUpdateData;
 import org.mtr.mod.packet.PacketUpdateLastRailStyles;
@@ -39,7 +39,7 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable World world, List<MutableText> tooltip, TooltipContext options) {
 		if (isConnector && railType != null && railType.canAccelerate) {
-			tooltip.add(TextHelper.translatable("tooltip.mtr.rail_speed_limit", railType.speedLimit).formatted(TextFormatting.GRAY));
+			tooltip.add(TranslationProvider.TOOLTIP_MTR_RAIL_SPEED_LIMIT.getMutableText(railType.speedLimit).formatted(TextFormatting.GRAY));
 		}
 		super.addTooltips(stack, world, tooltip, options);
 	}
@@ -53,7 +53,7 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 				world.setBlockState(posEnd, stateEnd.with(new Property<>(BlockNode.IS_CONNECTED.data), true));
 				PacketUpdateData.sendDirectlyToServerRail(ServerWorld.cast(world), rail);
 			} else if (player != null) {
-				player.sendMessage(new Text(TextHelper.translatable("gui.mtr.invalid_orientation").data), true);
+				player.sendMessage(TranslationProvider.GUI_MTR_INVALID_ORIENTATION.getText(), true);
 			}
 		}
 	}

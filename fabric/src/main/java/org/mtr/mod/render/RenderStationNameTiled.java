@@ -7,6 +7,7 @@ import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nullable;
 
@@ -28,7 +29,7 @@ public class RenderStationNameTiled<T extends BlockStationNameBase.BlockEntityBa
 		if (showLogo) {
 			final int propagateProperty = IBlock.getStatePropertySafe(world, pos, BlockStationNameEntrance.STYLE);
 			final float logoSize = propagateProperty % 2 == 0 ? 0.5F : 1;
-			MainRenderer.scheduleRender(DynamicTextureCache.instance.getStationNameEntrance(propagateProperty < 2 || propagateProperty >= 4 ? ARGB_WHITE : ARGB_BLACK, IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, stationName), totalLength / logoSize).identifier, false, QueuedRenderLayer.INTERIOR, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(DynamicTextureCache.instance.getStationNameEntrance(propagateProperty < 2 || propagateProperty >= 4 ? ARGB_WHITE : ARGB_BLACK, IGui.insertTranslation(TranslationProvider.GUI_MTR_STATION_CJK, TranslationProvider.GUI_MTR_STATION, 1, stationName), totalLength / logoSize).identifier, false, QueuedRenderLayer.INTERIOR, (graphicsHolder, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolder, offset);
 				IDrawing.drawTexture(graphicsHolder, -0.5F, -logoSize / 2, 1, logoSize, (float) (lengthLeft - 1) / totalLength, 0, (float) lengthLeft / totalLength, 1, facing, color, light);
 				graphicsHolder.pop();

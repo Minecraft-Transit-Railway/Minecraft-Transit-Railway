@@ -1,0 +1,88 @@
+name: Bug Report
+description: Help improve Minecraft Transit Railway by reporting bugs.
+labels: [ "bug" ]
+body:
+  - type: checkboxes
+    attributes:
+      label: Before reporting, I have confirmed that
+      options:
+        - label: This bug does not appear to be reported on [GitHub Issues](https://github.com/Minecraft-Transit-Railway/Minecraft-Transit-Railway/issues?q=is%3Aissue) before.
+          required: true
+        - label: This bug still exists in the latest version of the Minecraft Transit Railway mod.
+          required: true
+        - label: I have tested this in the official version of Minecraft Transit Railway, not a modified, custom, or unofficial build.
+          required: true
+  - type: textarea
+    attributes:
+      label: Describe the Bug
+      description: |
+        A clear and concise description of what the bug is, and what you were expecting instead.  
+        You may use screenshots or videos to demonstrate the bug **in addition to your description.**
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Reproduction Steps
+      description: Please list the steps needed to recreate your bug.
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: In-game Log and Crash Report
+      description: |
+        In-game logs can be very useful to determine the causes of the bug.  
+        Whenever applicable, you should upload the in-game log here. It can be found in `.minecraft/logs/latest.log`.  
+        If the game has crashed, you should also upload the crash report here, located in the `.minecraft/crash-reports` folder.
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Mod Loader
+      description: Which mod loader were you using when you encountered the bug?
+      options:
+        - "Fabric"
+        - "Forge"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Minecraft Version
+      description: Which Minecraft version were you using when you encountered the bug?
+      placeholder: "1.20.4"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Minecraft Transit Railway Version
+      description: What version of the Minecraft Transit Railway mod were you using when you encountered the bug?
+      placeholder: "4.0.0"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Operating System
+      description: Please specify the operating system you are using that can recreate the bug (e.g., Windows 11, macOS Sonoma, Debian 12).
+      placeholder: "Windows 11"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: List of Mods or Modpack You Were Using
+      description: |
+        Please provide a list of the mods you were using when the bug occurred (e.g., a screenshot of the mod folder or a full list of mods in plain text).  
+        If you are using a modpack, it might be preferable to include the modpack name and link, along with any other additional mods you were using.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Extra Information
+      description: If you have any insights or noticed any other odd behaviors that may be causing this, please provide them here.
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: Thanks for reporting! Note that further inquiries may be made on this issue if necessary to identify the problem.

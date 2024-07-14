@@ -2,22 +2,23 @@ package org.mtr.mod;
 
 import org.lwjgl.glfw.GLFW;
 import org.mtr.mapping.holder.KeyBinding;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 public final class KeyBindings {
 
 	static {
-		LIFT_MENU = InitClient.REGISTRY_CLIENT.registerKeyBinding("key.mtr.lift_menu", GLFW.GLFW_KEY_Z, "category.mtr.keybinding");
-		TRAIN_ACCELERATE = InitClient.REGISTRY_CLIENT.registerKeyBinding("key.mtr.train_accelerate", GLFW.GLFW_KEY_UP, "category.mtr.keybinding");
-		TRAIN_BRAKE = InitClient.REGISTRY_CLIENT.registerKeyBinding("key.mtr.train_brake", GLFW.GLFW_KEY_DOWN, "category.mtr.keybinding");
-		TRAIN_TOGGLE_DOORS = InitClient.REGISTRY_CLIENT.registerKeyBinding("key.mtr.train_toggle_doors", GLFW.GLFW_KEY_LEFT, "category.mtr.keybinding");
-		DEBUG_1_NEGATIVE = InitClient.REGISTRY_CLIENT.registerKeyBinding("key.mtr.debug_1_negative", GLFW.GLFW_KEY_KP_4, "category.mtr.keybinding");
-		DEBUG_2_NEGATIVE = InitClient.REGISTRY_CLIENT.registerKeyBinding("key.mtr.debug_2_negative", GLFW.GLFW_KEY_KP_5, "category.mtr.keybinding");
-		DEBUG_3_NEGATIVE = InitClient.REGISTRY_CLIENT.registerKeyBinding("key.mtr.debug_3_negative", GLFW.GLFW_KEY_KP_6, "category.mtr.keybinding");
-		DEBUG_1_POSITIVE = InitClient.REGISTRY_CLIENT.registerKeyBinding("key.mtr.debug_1_positive", GLFW.GLFW_KEY_KP_7, "category.mtr.keybinding");
-		DEBUG_2_POSITIVE = InitClient.REGISTRY_CLIENT.registerKeyBinding("key.mtr.debug_2_positive", GLFW.GLFW_KEY_KP_8, "category.mtr.keybinding");
-		DEBUG_3_POSITIVE = InitClient.REGISTRY_CLIENT.registerKeyBinding("key.mtr.debug_3_positive", GLFW.GLFW_KEY_KP_9, "category.mtr.keybinding");
-		DEBUG_ROTATE_CATEGORY_NEGATIVE = InitClient.REGISTRY_CLIENT.registerKeyBinding("key.mtr.debug_cycle_negative", GLFW.GLFW_KEY_KP_SUBTRACT, "category.mtr.keybinding");
-		DEBUG_ROTATE_CATEGORY_POSITIVE = InitClient.REGISTRY_CLIENT.registerKeyBinding("key.mtr.debug_cycle_positive", GLFW.GLFW_KEY_KP_ADD, "category.mtr.keybinding");
+		LIFT_MENU = InitClient.REGISTRY_CLIENT.registerKeyBinding(TranslationProvider.KEY_MTR_LIFT_MENU.key, GLFW.GLFW_KEY_Z, TranslationProvider.CATEGORY_MTR_KEYBINDING.key);
+		TRAIN_ACCELERATE = InitClient.REGISTRY_CLIENT.registerKeyBinding(TranslationProvider.KEY_MTR_TRAIN_ACCELERATE.key, GLFW.GLFW_KEY_UP, TranslationProvider.CATEGORY_MTR_KEYBINDING.key);
+		TRAIN_BRAKE = InitClient.REGISTRY_CLIENT.registerKeyBinding(TranslationProvider.KEY_MTR_TRAIN_BRAKE.key, GLFW.GLFW_KEY_DOWN, TranslationProvider.CATEGORY_MTR_KEYBINDING.key);
+		TRAIN_TOGGLE_DOORS = InitClient.REGISTRY_CLIENT.registerKeyBinding(TranslationProvider.KEY_MTR_TRAIN_TOGGLE_DOORS.key, GLFW.GLFW_KEY_LEFT, TranslationProvider.CATEGORY_MTR_KEYBINDING.key);
+		DEBUG_1_NEGATIVE = InitClient.REGISTRY_CLIENT.registerKeyBinding(TranslationProvider.KEY_MTR_DEBUG_1_NEGATIVE.key, GLFW.GLFW_KEY_KP_4, TranslationProvider.CATEGORY_MTR_KEYBINDING.key);
+		DEBUG_2_NEGATIVE = InitClient.REGISTRY_CLIENT.registerKeyBinding(TranslationProvider.KEY_MTR_DEBUG_2_NEGATIVE.key, GLFW.GLFW_KEY_KP_5, TranslationProvider.CATEGORY_MTR_KEYBINDING.key);
+		DEBUG_3_NEGATIVE = InitClient.REGISTRY_CLIENT.registerKeyBinding(TranslationProvider.KEY_MTR_DEBUG_3_NEGATIVE.key, GLFW.GLFW_KEY_KP_6, TranslationProvider.CATEGORY_MTR_KEYBINDING.key);
+		DEBUG_1_POSITIVE = InitClient.REGISTRY_CLIENT.registerKeyBinding(TranslationProvider.KEY_MTR_DEBUG_1_POSITIVE.key, GLFW.GLFW_KEY_KP_7, TranslationProvider.CATEGORY_MTR_KEYBINDING.key);
+		DEBUG_2_POSITIVE = InitClient.REGISTRY_CLIENT.registerKeyBinding(TranslationProvider.KEY_MTR_DEBUG_2_POSITIVE.key, GLFW.GLFW_KEY_KP_8, TranslationProvider.CATEGORY_MTR_KEYBINDING.key);
+		DEBUG_3_POSITIVE = InitClient.REGISTRY_CLIENT.registerKeyBinding(TranslationProvider.KEY_MTR_DEBUG_3_POSITIVE.key, GLFW.GLFW_KEY_KP_9, TranslationProvider.CATEGORY_MTR_KEYBINDING.key);
+		DEBUG_ROTATE_CATEGORY_NEGATIVE = InitClient.REGISTRY_CLIENT.registerKeyBinding(TranslationProvider.KEY_MTR_DEBUG_CYCLE_NEGATIVE.key, GLFW.GLFW_KEY_KP_SUBTRACT, TranslationProvider.CATEGORY_MTR_KEYBINDING.key);
+		DEBUG_ROTATE_CATEGORY_POSITIVE = InitClient.REGISTRY_CLIENT.registerKeyBinding(TranslationProvider.KEY_MTR_DEBUG_CYCLE_POSITIVE.key, GLFW.GLFW_KEY_KP_ADD, TranslationProvider.CATEGORY_MTR_KEYBINDING.key);
 	}
 
 	public static final KeyBinding LIFT_MENU;

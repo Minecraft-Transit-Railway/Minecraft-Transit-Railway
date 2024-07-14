@@ -1,0 +1,38 @@
+{
+	"replacements": {
+		"lengths": [
+			2
+		],
+		"id": [
+			"flying_minecart"
+		]
+	},
+	"vehicles": [
+		{
+			"id": "minecart",
+			"name": "Flying Minecart",
+			"color": "666666",
+			"transportMode": "AIRPLANE",
+			"width": 1,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "Minecart",
+			"tags": [
+				"family:minecart",
+				"brand:minecraft"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/minecart.bbmodel",
+					"textureResource": "minecraft:textures/entity/minecart.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/minecart.json",
+					"positionDefinitionsResource": "mtr:properties/definition/minecart.json"
+				}
+			],
+			"bogie1Models": [
+			],
+			"bogie2Models": [
+			]
+		}
+	]
+}

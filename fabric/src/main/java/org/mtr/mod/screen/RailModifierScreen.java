@@ -11,6 +11,7 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateData;
 import org.mtr.mod.packet.PacketUpdateLastRailStyles;
 
@@ -34,9 +35,9 @@ public class RailModifierScreen extends ScreenExtension implements IGui {
 	private final ButtonWidgetExtension buttonPlus1;
 	private final ButtonWidgetExtension buttonPlus2;
 	private final TextFieldWidgetExtension textFieldRadius;
-	private final MutableText shapeText = TextHelper.translatable("gui.mtr.rail_shape");
-	private final MutableText styleText = TextHelper.translatable("gui.mtr.rail_styles");
-	private final MutableText radiusText = TextHelper.translatable("gui.mtr.rail_radius");
+	private final MutableText shapeText = TranslationProvider.GUI_MTR_RAIL_SHAPE.getMutableText();
+	private final MutableText styleText = TranslationProvider.GUI_MTR_RAIL_STYLES.getMutableText();
+	private final MutableText radiusText = TranslationProvider.GUI_MTR_RAIL_RADIUS.getMutableText();
 	private final int xStart;
 
 	public RailModifierScreen(String railId) {
@@ -55,7 +56,7 @@ public class RailModifierScreen extends ScreenExtension implements IGui {
 				MinecraftClient.getInstance().openScreen(new Screen(RailStyleSelectorScreen.create(rail)));
 			}
 		});
-		buttonStyleFlip = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.flip_styles"), button -> {
+		buttonStyleFlip = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_FLIP_STYLES.getMutableText(), button -> {
 			if (rail != null) {
 				final ObjectArrayList<String> styles = rail.getStyles().stream().map(style -> {
 					final boolean isForwards = style.endsWith("_1");
@@ -147,7 +148,7 @@ public class RailModifierScreen extends ScreenExtension implements IGui {
 	}
 
 	private void update(double newRadius, boolean sendPacket) {
-		buttonShape.setMessage2(new Text(TextHelper.translatable(shape == Rail.Shape.QUADRATIC ? "gui.mtr.rail_shape_quadratic" : "gui.mtr.rail_shape_two_radii").data));
+		buttonShape.setMessage2((shape == Rail.Shape.QUADRATIC ? TranslationProvider.GUI_MTR_RAIL_SHAPE_QUADRATIC : TranslationProvider.GUI_MTR_RAIL_SHAPE_TWO_RADII).getText());
 		radius = Utilities.clamp(Utilities.round(newRadius, 2), 0, maxRadius);
 		textFieldRadius.setX2((shape == Rail.Shape.QUADRATIC ? width : xStart + SQUARE_SIZE * 6) + TEXT_FIELD_PADDING / 2);
 		buttonMinus2.setVisibleMapped(shape != Rail.Shape.QUADRATIC);

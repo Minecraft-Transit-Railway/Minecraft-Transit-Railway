@@ -22,6 +22,7 @@ import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.resource.SignResource;
 import org.mtr.mod.screen.EditStationScreen;
 
@@ -272,7 +273,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 						signText = IGui.mergeStations(selectedIds.longStream()
 								.filter(MinecraftClientData.getInstance().stationIdMap::containsKey)
 								.sorted()
-								.mapToObj(stationId -> IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, MinecraftClientData.getInstance().stationIdMap.get(stationId).getName()))
+								.mapToObj(stationId -> IGui.insertTranslation(TranslationProvider.GUI_MTR_STATION_CJK, TranslationProvider.GUI_MTR_STATION, 1, MinecraftClientData.getInstance().stationIdMap.get(stationId).getName()))
 								.collect(Collectors.toList())
 						);
 					} else {

@@ -13,6 +13,7 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.RailType;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateData;
 
 public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements Icons {
@@ -27,14 +28,14 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 	private final CheckboxWidgetExtension buttonIsManual;
 	private final WidgetShorterSlider sliderMaxManualSpeed;
 
-	private static final MutableText SELECTED_TRAIN_TEXT = TextHelper.translatable("gui.mtr.selected_vehicle");
-	private static final MutableText MAX_TRAINS_TEXT = TextHelper.translatable("gui.mtr.max_vehicles");
-	private static final MutableText ACCELERATION_CONSTANT_TEXT = TextHelper.translatable("gui.mtr.acceleration");
-	private static final MutableText DECELERATION_CONSTANT_TEXT = TextHelper.translatable("gui.mtr.deceleration");
-	private static final MutableText DELAYED_VEHICLE_SPEED_INCREASE_PERCENTAGE_TEXT = TextHelper.translatable("gui.mtr.delayed_vehicle_speed_increase_percentage");
-	private static final MutableText DELAYED_VEHICLE_REDUCE_DWELL_TIME_PERCENTAGE_TEXT = TextHelper.translatable("gui.mtr.delayed_vehicle_reduce_dwell_time_percentage");
-	private static final MutableText MANUAL_TO_AUTOMATIC_TIME = TextHelper.translatable("gui.mtr.manual_to_automatic_time");
-	private static final MutableText MAX_MANUAL_SPEED = TextHelper.translatable("gui.mtr.max_manual_speed");
+	private static final MutableText SELECTED_TRAIN_TEXT = TranslationProvider.GUI_MTR_SELECTED_VEHICLE.getMutableText();
+	private static final MutableText MAX_TRAINS_TEXT = TranslationProvider.GUI_MTR_MAX_VEHICLES.getMutableText();
+	private static final MutableText ACCELERATION_CONSTANT_TEXT = TranslationProvider.GUI_MTR_ACCELERATION.getMutableText();
+	private static final MutableText DECELERATION_CONSTANT_TEXT = TranslationProvider.GUI_MTR_DECELERATION.getMutableText();
+	private static final MutableText DELAYED_VEHICLE_SPEED_INCREASE_PERCENTAGE_TEXT = TranslationProvider.GUI_MTR_DELAYED_VEHICLE_SPEED_INCREASE_PERCENTAGE.getMutableText();
+	private static final MutableText DELAYED_VEHICLE_REDUCE_DWELL_TIME_PERCENTAGE_TEXT = TranslationProvider.GUI_MTR_DELAYED_VEHICLE_REDUCE_DWELL_TIME_PERCENTAGE.getMutableText();
+	private static final MutableText MANUAL_TO_AUTOMATIC_TIME = TranslationProvider.GUI_MTR_MANUAL_TO_AUTOMATIC_TIME.getMutableText();
+	private static final MutableText MAX_MANUAL_SPEED = TranslationProvider.GUI_MTR_MAX_MANUAL_SPEED.getMutableText();
 	private static final int MAX_TRAINS_TEXT_LENGTH = 3;
 	private static final int MAX_TRAINS_WIDTH = 80;
 	private static final int SLIDER_SCALE = 1000 * 50 * 50;
@@ -56,7 +57,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 			}
 			setButtons();
 		});
-		buttonIsManual.setMessage2(new Text(TextHelper.translatable("gui.mtr.is_manual").data));
+		buttonIsManual.setMessage2(TranslationProvider.GUI_MTR_IS_MANUAL.getText());
 		sliderMaxManualSpeed = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, RailType.DIAMOND.ordinal(), SidingScreen::speedSliderFormatter, null);
 		buttonUnlimitedTrains = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
 			if (checked) {
@@ -69,7 +70,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 				textFieldMaxTrains.setText2("1");
 			}
 		});
-		buttonUnlimitedTrains.setMessage2(new Text(TextHelper.translatable("gui.mtr.unlimited_vehicles").data));
+		buttonUnlimitedTrains.setMessage2(TranslationProvider.GUI_MTR_UNLIMITED_VEHICLES.getText());
 	}
 
 	@Override
@@ -202,8 +203,8 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 	}
 
 	@Override
-	protected String getNumberStringKey() {
-		return "gui.mtr.siding_number";
+	protected TranslationProvider.TranslationHolder getNumberStringKey() {
+		return TranslationProvider.GUI_MTR_SIDING_NUMBER;
 	}
 
 	private void setButtons() {
@@ -223,7 +224,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 
 	private static String speedSliderFormatter(int value) {
 		final RailType railType = convertMaxManualSpeed(value);
-		return railType == null ? TextHelper.translatable("gui.mtr.unlimited").getString() : String.format("%s km/h", railType.speedLimit);
+		return railType == null ? TranslationProvider.GUI_MTR_UNLIMITED.getString() : String.format("%s km/h", railType.speedLimit);
 	}
 
 	private static RailType convertMaxManualSpeed(int maxManualSpeed) {

@@ -61,10 +61,7 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": true,
-			"legacySpeedSoundBaseResource": "br_423",
-			"legacySpeedSoundCount": 72,
-			"legacyDoorSoundBaseResource": "br_423",
-			"legacyDoorCloseSoundTime": 0.5
+			"bveSoundBaseResource": "br_423"
 		},
 		{
 			"id": "br_423_cab_1",
@@ -119,10 +116,7 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": true,
-			"legacySpeedSoundBaseResource": "br_423",
-			"legacySpeedSoundCount": 72,
-			"legacyDoorSoundBaseResource": "br_423",
-			"legacyDoorCloseSoundTime": 0.5
+			"bveSoundBaseResource": "br_423"
 		},
 		{
 			"id": "br_423_cab_2",
@@ -177,10 +171,7 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": false,
-			"legacySpeedSoundBaseResource": "br_423",
-			"legacySpeedSoundCount": 72,
-			"legacyDoorSoundBaseResource": "br_423",
-			"legacyDoorCloseSoundTime": 0.5
+			"bveSoundBaseResource": "br_423"
 		},
 		{
 			"id": "br_423_cab_3",
@@ -235,10 +226,7 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": false,
-			"legacySpeedSoundBaseResource": "br_423",
-			"legacySpeedSoundCount": 72,
-			"legacyDoorSoundBaseResource": "br_423",
-			"legacyDoorCloseSoundTime": 0.5
+			"bveSoundBaseResource": "br_423"
 		}
 	]
 }

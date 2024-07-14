@@ -20,6 +20,7 @@ import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.entity.EntityRendering;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.item.ItemBlockClickingBase;
 import org.mtr.mod.packet.PacketRequestData;
 import org.mtr.mod.render.*;
@@ -415,7 +416,7 @@ public final class InitClient {
 		BlockTactileMap.BlockEntity.onUse = blockPos -> {
 			final Station station = findStation(blockPos);
 			if (station != null) {
-				final String text = IGui.formatStationName(IGui.insertTranslation("gui.mtr.welcome_station_cjk", "gui.mtr.welcome_station", 1, IGui.textOrUntitled(station.getName())));
+				final String text = IGui.formatStationName(IGui.insertTranslation(TranslationProvider.GUI_MTR_WELCOME_STATION_CJK, TranslationProvider.GUI_MTR_WELCOME_STATION, 1, IGui.textOrUntitled(station.getName())));
 				IDrawing.narrateOrAnnounce(text, ObjectArrayList.of(TextHelper.literal(text)));
 			}
 		};

@@ -10,11 +10,11 @@ import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextFieldWidgetExtension;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> extends ScreenExtension implements IGui {
 
@@ -38,7 +38,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 		this.savedRailBase = savedRailBase;
 		showScheduleControls = !transportMode.continuousMovement;
 		this.dashboardScreen = dashboardScreen;
-		savedRailNumberText = TextHelper.translatable(getNumberStringKey());
+		savedRailNumberText = getNumberStringKey().getMutableText();
 
 		textFieldSavedRailNumber = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_SAVED_RAIL_NUMBER_LENGTH, TextCase.DEFAULT, null, "1");
 
@@ -48,8 +48,8 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 		}
 		textWidth = Math.max(GraphicsHolder.getTextWidth(savedRailNumberText), additionalTextWidths) + TEXT_PADDING;
 
-		sliderDwellTimeMin = new WidgetShorterSlider(0, 0, (int) Math.floor(MAX_DWELL_TIME / 2F / SECONDS_PER_MINUTE), value -> TextHelper.translatable("gui.mtr.arrival_min", value).getString(), null);
-		sliderDwellTimeSec = new WidgetShorterSlider(0, 0, SECONDS_PER_MINUTE * 2 - 1, 10, 2, value -> TextHelper.translatable("gui.mtr.arrival_sec", value / 2F).getString(), null);
+		sliderDwellTimeMin = new WidgetShorterSlider(0, 0, (int) Math.floor(MAX_DWELL_TIME / 2F / SECONDS_PER_MINUTE), TranslationProvider.GUI_MTR_ARRIVAL_MIN::getString, null);
+		sliderDwellTimeSec = new WidgetShorterSlider(0, 0, SECONDS_PER_MINUTE * 2 - 1, 10, 2, value -> TranslationProvider.GUI_MTR_ARRIVAL_SEC.getString(value / 2F), null);
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 		textFieldSavedRailNumber.setText2(savedRailBase.getName());
 		textFieldSavedRailNumber.setChangedListener2(text -> savedRailBase.setName(textFieldSavedRailNumber.getText2()));
 
-		final int sliderTextWidth = Math.max(GraphicsHolder.getTextWidth(TextHelper.translatable("gui.mtr.arrival_min", "88")), GraphicsHolder.getTextWidth(TextHelper.translatable("gui.mtr.arrival_sec", "88.8"))) + TEXT_PADDING;
+		final int sliderTextWidth = Math.max(GraphicsHolder.getTextWidth(TranslationProvider.GUI_MTR_ARRIVAL_MIN.getMutableText("88")), GraphicsHolder.getTextWidth(TranslationProvider.GUI_MTR_ARRIVAL_SEC.getString("88.8"))) + TEXT_PADDING;
 		sliderDwellTimeMin.setX2(SQUARE_SIZE + textWidth);
 		sliderDwellTimeMin.setHeight(SQUARE_SIZE / 2);
 		sliderDwellTimeMin.setWidth2(width - textWidth - SQUARE_SIZE * 2 - sliderTextWidth);
@@ -112,5 +112,5 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 		return false;
 	}
 
-	protected abstract String getNumberStringKey();
+	protected abstract TranslationProvider.TranslationHolder getNumberStringKey();
 }

@@ -12,9 +12,9 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockNode;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
@@ -93,7 +93,7 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 					final ObjectImmutableList<Rail> rails = Response.create(Utilities.parseJson(content)).getData(RailsResponse::new).getRails();
 					if (rails.isEmpty()) {
 						if (serverPlayerEntity != null) {
-							serverPlayerEntity.sendMessage(new Text(TextHelper.translatable("gui.mtr.rail_not_found_action").data), true);
+							serverPlayerEntity.sendMessage(TranslationProvider.GUI_MTR_RAIL_NOT_FOUND_ACTION.getText(), true);
 						}
 					} else {
 						consumer.accept(rails.get(0));

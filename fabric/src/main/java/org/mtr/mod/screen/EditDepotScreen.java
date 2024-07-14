@@ -7,7 +7,10 @@ import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import org.mtr.mapping.holder.*;
+import org.mtr.mapping.holder.ClickableWidget;
+import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mapping.holder.MutableText;
+import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.Init;
@@ -15,6 +18,7 @@ import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketDepotClear;
 import org.mtr.mod.packet.PacketDepotGenerate;
 import org.mtr.mod.packet.PacketUpdateData;
@@ -46,8 +50,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private final TextFieldWidgetExtension textFieldCruisingAltitude;
 	private final DashboardList departuresList;
 
-	private final MutableText cruisingAltitudeText = TextHelper.translatable("gui.mtr.cruising_altitude");
-
+	private final MutableText cruisingAltitudeText = TranslationProvider.GUI_MTR_CRUISING_ALTITUDE.getMutableText();
 	private static final int PANELS_START = SQUARE_SIZE * 2 + TEXT_FIELD_PADDING;
 	private static final int SLIDER_WIDTH = 64;
 	private static final int MAX_TRAINS_PER_HOUR = 5;
@@ -55,20 +58,19 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private static final int TRAIN_FREQUENCY_MULTIPLIER = 4;
 
 	public EditDepotScreen(Depot depot, TransportMode transportMode, DashboardScreen dashboardScreen) {
-		super(depot, dashboardScreen, "gui.mtr.depot_name", "gui.mtr.depot_color");
+		super(depot, dashboardScreen, TranslationProvider.GUI_MTR_DEPOT_NAME, TranslationProvider.GUI_MTR_DEPOT_COLOR);
 
 		sliderX = GraphicsHolder.getTextWidth(getTimeString(0)) + TEXT_PADDING * 2;
 		sliderWidthWithText = SLIDER_WIDTH + TEXT_PADDING + GraphicsHolder.getTextWidth(getSliderString(0));
 		rightPanelsX = sliderX + SLIDER_WIDTH + TEXT_PADDING * 2 + GraphicsHolder.getTextWidth(getSliderString(1));
 		showScheduleControls = !transportMode.continuousMovement;
 		showCruisingAltitude = transportMode == TransportMode.AIRPLANE;
-
-		buttonUseRealTime = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.schedule_mode_real_time_off"), button -> {
+		buttonUseRealTime = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_SCHEDULE_MODE_REAL_TIME_OFF.getMutableText(), button -> {
 			depot.setUseRealTime(!depot.getUseRealTime());
 			toggleRealTime();
 			saveData();
 		});
-		buttonReset = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.reset_sign"), button -> {
+		buttonReset = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_RESET_SIGN.getMutableText(), button -> {
 			for (int i = 0; i < HOURS_PER_DAY; i++) {
 				sliders[i].setValue(0);
 			}
@@ -95,20 +97,19 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			checkDeparture(textFieldDeparture.getText2(), true, false);
 			saveData();
 		});
-
-		buttonEditInstructions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.edit_instructions"), button -> {
+		buttonEditInstructions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_EDIT_INSTRUCTIONS.getMutableText(), button -> {
 			saveData();
 			final ObjectArrayList<DashboardListItem> routes = new ObjectArrayList<>(MinecraftClientData.getFilteredDataSet(transportMode, MinecraftClientData.getDashboardInstance().routes));
 			Collections.sort(routes);
 			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this, new ObjectImmutableList<>(routes), data.getRouteIds(), false, true)));
 		});
-		buttonGenerateRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.refresh_path"), button -> {
+		buttonGenerateRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_REFRESH_PATH.getMutableText(), button -> {
 			saveData();
 			final GenerateOrClearByDepotIds generateOrClearByDepotIds = new GenerateOrClearByDepotIds();
 			generateOrClearByDepotIds.addDepotId(depot.getId());
 			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotGenerate(generateOrClearByDepotIds));
 		});
-		buttonClearTrains = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.clear_vehicles"), button -> {
+		buttonClearTrains = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_CLEAR_VEHICLES.getMutableText(), button -> {
 			saveData();
 			final GenerateOrClearByDepotIds generateOrClearByDepotIds = new GenerateOrClearByDepotIds();
 			generateOrClearByDepotIds.addDepotId(depot.getId());
@@ -120,7 +121,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			generateOrClearByDepotIds.addDepotId(depot.getId());
 			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotGenerate(generateOrClearByDepotIds));
 		});
-		checkboxRepeatIndefinitely.setMessage2(new Text(TextHelper.translatable("gui.mtr.repeat_indefinitely").data));
+		checkboxRepeatIndefinitely.setMessage2(TranslationProvider.GUI_MTR_REPEAT_INDEFINITELY.getText());
 		textFieldCruisingAltitude = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 5, TextCase.DEFAULT, "[^-\\d]", String.valueOf(DEFAULT_CRUISING_ALTITUDE));
 	}
 
@@ -227,7 +228,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		if (showCruisingAltitude) {
 			graphicsHolder.drawText(cruisingAltitudeText, rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 2 + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		}
-		graphicsHolder.drawText(TextHelper.translatable("gui.mtr.sidings_in_depot", data.savedRails.size()), rightPanelsX + TEXT_PADDING, yStartRightPane, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+		graphicsHolder.drawText(TranslationProvider.GUI_MTR_SIDINGS_IN_DEPOT.getMutableText(data.savedRails.size()), rightPanelsX + TEXT_PADDING, yStartRightPane, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 
 		// Temporary workaround to get the latest depot path generation status
 		final Depot newDepot = MinecraftClientData.getDashboardInstance().depotIdMap.get(data.getId());
@@ -239,8 +240,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		}
 
 		if (showScheduleControls && !data.getUseRealTime()) {
-			graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.game_time"), sliderX / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
-			graphicsHolder.drawCenteredText(TextHelper.translatable("gui.mtr.vehicles_per_hour"), sliderX + sliderWidthWithText / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
+			graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_GAME_TIME.getMutableText(), sliderX / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
+			graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_VEHICLES_PER_HOUR.getMutableText(), sliderX + sliderWidthWithText / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
 		}
 	}
 
@@ -275,7 +276,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		departuresList.x = data.getUseRealTime() ? 0 : width;
 		textFieldDeparture.setX2(data.getUseRealTime() ? TEXT_FIELD_PADDING / 2 : width);
 		buttonAddDeparture.visible = data.getUseRealTime();
-		buttonUseRealTime.setMessage2(new Text(TextHelper.translatable(data.getUseRealTime() ? "gui.mtr.schedule_mode_real_time_on" : "gui.mtr.schedule_mode_real_time_off").data));
+		buttonUseRealTime.setMessage2((data.getUseRealTime() ? TranslationProvider.GUI_MTR_SCHEDULE_MODE_REAL_TIME_ON : TranslationProvider.GUI_MTR_SCHEDULE_MODE_REAL_TIME_OFF).getText());
 		updateList();
 	}
 
@@ -357,29 +358,25 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		}
 
 		final long timeDifference = System.currentTimeMillis() - lastGeneratedMillis;
-		final StringBuilder stringBuilder = new StringBuilder(TextHelper.translatable("gui.mtr.path_refresh_time", getTimeDifferenceString(timeDifference)).getString()).append("|").append(DateFormat.getDateTimeInstance().format(new Date(lastGeneratedMillis))).append("||");
+		final StringBuilder stringBuilder = new StringBuilder(TranslationProvider.GUI_MTR_PATH_REFRESH_TIME.getString(getTimeDifferenceString(timeDifference))).append("|").append(DateFormat.getDateTimeInstance().format(new Date(lastGeneratedMillis))).append("||");
 
 		switch (depot.getLastGeneratedStatus()) {
 			case SUCCESSFUL:
-				stringBuilder.append(TextHelper.translatable("gui.mtr.path_found").getString());
+				stringBuilder.append(TranslationProvider.GUI_MTR_PATH_FOUND.getString());
 				break;
 			case NO_SIDINGS:
-				stringBuilder.append(TextHelper.translatable("gui.mtr.path_not_generated_no_sidings").getString());
+				stringBuilder.append(TranslationProvider.GUI_MTR_PATH_NOT_GENERATED_NO_SIDINGS.getString());
 				break;
 			case TWO_PLATFORMS_REQUIRED:
-				stringBuilder.append(TextHelper.translatable("gui.mtr.path_not_generated_platforms").getString());
+				stringBuilder.append(TranslationProvider.GUI_MTR_PATH_NOT_GENERATED_PLATFORMS.getString());
 				break;
 		}
 
-		depot.getFailedPlatformIds((lastGeneratedFailedStartId, lastGeneratedFailedEndId) -> stringBuilder.append(TextHelper.translatable(
-				"gui.mtr.path_not_found_between",
+		depot.getFailedPlatformIds((lastGeneratedFailedStartId, lastGeneratedFailedEndId) -> stringBuilder.append(TranslationProvider.GUI_MTR_PATH_NOT_FOUND_BETWEEN.getString(
 				getRoute(depot, lastGeneratedFailedStartId, lastGeneratedFailedEndId),
 				getStation(lastGeneratedFailedStartId),
 				getStation(lastGeneratedFailedEndId)
-		).getString()), lastGeneratedFailedSidingCount -> stringBuilder.append("|").append(TextHelper.translatable(
-				"gui.mtr.path_not_found_sidings",
-				lastGeneratedFailedSidingCount
-		).getString()));
+		)), lastGeneratedFailedSidingCount -> stringBuilder.append("|").append(TranslationProvider.GUI_MTR_PATH_NOT_FOUND_SIDINGS.getString(lastGeneratedFailedSidingCount)));
 
 		return stringBuilder.toString();
 	}
@@ -389,9 +386,9 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		if (value == 0) {
 			headwayText = "";
 		} else {
-			headwayText = " (" + Utilities.round((float) TRAIN_FREQUENCY_MULTIPLIER * Init.SECONDS_PER_MC_HOUR / value, 1) + TextHelper.translatable("gui.mtr.s").getString() + ")";
+			headwayText = " (" + Utilities.round((float) TRAIN_FREQUENCY_MULTIPLIER * Init.SECONDS_PER_MC_HOUR / value, 1) + TranslationProvider.GUI_MTR_S.getString() + ")";
 		}
-		return value / (float) TRAIN_FREQUENCY_MULTIPLIER + TextHelper.translatable("gui.mtr.tph").getString() + headwayText;
+		return value / (float) TRAIN_FREQUENCY_MULTIPLIER + TranslationProvider.GUI_MTR_TPH.getString() + headwayText;
 	}
 
 	private static String getTimeString(int hour) {
@@ -402,13 +399,13 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private static String getTimeDifferenceString(long timeDifference) {
 		final MutableText mutableText;
 		if (timeDifference >= HOURS_PER_DAY * 60 * 60 * MILLIS_PER_SECOND) {
-			mutableText = TextHelper.translatable("gui.mtr.days", timeDifference / (HOURS_PER_DAY * 60 * 60 * MILLIS_PER_SECOND));
+			mutableText = TranslationProvider.GUI_MTR_DAYS.getMutableText(timeDifference / (HOURS_PER_DAY * 60 * 60 * MILLIS_PER_SECOND));
 		} else if (timeDifference >= 60 * 60 * MILLIS_PER_SECOND) {
-			mutableText = TextHelper.translatable("gui.mtr.hours", timeDifference / (60 * 60 * MILLIS_PER_SECOND));
+			mutableText = TranslationProvider.GUI_MTR_HOURS.getMutableText(timeDifference / (60 * 60 * MILLIS_PER_SECOND));
 		} else if (timeDifference >= 60 * MILLIS_PER_SECOND) {
-			mutableText = TextHelper.translatable("gui.mtr.minutes", timeDifference / (60 * MILLIS_PER_SECOND));
+			mutableText = TranslationProvider.GUI_MTR_MINUTES.getMutableText(timeDifference / (60 * MILLIS_PER_SECOND));
 		} else {
-			mutableText = TextHelper.translatable("gui.mtr.seconds", timeDifference / MILLIS_PER_SECOND);
+			mutableText = TranslationProvider.GUI_MTR_SECONDS.getMutableText(timeDifference / MILLIS_PER_SECOND);
 		}
 		return mutableText.getString();
 	}
