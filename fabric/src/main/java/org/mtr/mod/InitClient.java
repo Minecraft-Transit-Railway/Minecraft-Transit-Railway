@@ -182,6 +182,8 @@ public final class InitClient {
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_100_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_120, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_120_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
+		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_140, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
+		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_140_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_160, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_160_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_200, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
