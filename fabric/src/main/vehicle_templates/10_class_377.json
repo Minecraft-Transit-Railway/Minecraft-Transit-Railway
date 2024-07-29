@@ -7,7 +7,7 @@
 	"vehicles": [
 		{
 			"id": "class_377_southern_trailer",
-			"name": "Class 377 Trailer",
+			"name": "Class 377 Trailer (Southern)",
 			"color": "5AB565",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -60,14 +60,14 @@
 			"hasGangway2": true,
 			"hasBarrier1": false,
 			"hasBarrier2": false,
-			"legacySpeedSoundBaseResource": "class_377",
+			"legacySpeedSoundBaseResource": "class_377_southern",
 			"legacySpeedSoundCount": 51,
-			"legacyDoorSoundBaseResource": "class_377",
+			"legacyDoorSoundBaseResource": "class_377_southern",
 			"legacyDoorCloseSoundTime": 1
 		},
 		{
 			"id": "class_377_southern_cab_1",
-			"name": "Class 377 Cab (Forwards)",
+			"name": "Class 377 Cab (Southern, Forwards)",
 			"color": "5AB565",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -120,14 +120,14 @@
 			"hasGangway2": true,
 			"hasBarrier1": false,
 			"hasBarrier2": false,
-			"legacySpeedSoundBaseResource": "class_377",
+			"legacySpeedSoundBaseResource": "class_377_southern",
 			"legacySpeedSoundCount": 51,
-			"legacyDoorSoundBaseResource": "class_377",
+			"legacyDoorSoundBaseResource": "class_377_southern",
 			"legacyDoorCloseSoundTime": 1
 		},
 		{
 			"id": "class_377_southern_cab_2",
-			"name": "Class 377 Cab (Backwards)",
+			"name": "Class 377 Cab (Southern, Backwards)",
 			"color": "5AB565",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -180,14 +180,14 @@
 			"hasGangway2": false,
 			"hasBarrier1": false,
 			"hasBarrier2": false,
-			"legacySpeedSoundBaseResource": "class_377",
+			"legacySpeedSoundBaseResource": "class_377_southern",
 			"legacySpeedSoundCount": 51,
-			"legacyDoorSoundBaseResource": "class_377",
+			"legacyDoorSoundBaseResource": "class_377_southern",
 			"legacyDoorCloseSoundTime": 1
 		},
 		{
 			"id": "class_377_southern_cab_3",
-			"name": "Class 377 Cab (Double)",
+			"name": "Class 377 Cab (Southern, Double)",
 			"color": "5AB565",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -240,9 +240,9 @@
 			"hasGangway2": false,
 			"hasBarrier1": false,
 			"hasBarrier2": false,
-			"legacySpeedSoundBaseResource": "class_377",
+			"legacySpeedSoundBaseResource": "class_377_southern",
 			"legacySpeedSoundCount": 51,
-			"legacyDoorSoundBaseResource": "class_377",
+			"legacyDoorSoundBaseResource": "class_377_southern",
 			"legacyDoorCloseSoundTime": 1
 		}
 	]
