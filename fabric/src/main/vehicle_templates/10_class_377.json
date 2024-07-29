@@ -6,7 +6,7 @@
 	},
 	"vehicles": [
 		{
-			"id": "class_377_trailer",
+			"id": "class_377_southern_trailer",
 			"name": "Class 377 Trailer",
 			"color": "5AB565",
 			"transportMode": "TRAIN",
@@ -66,7 +66,7 @@
 			"legacyDoorCloseSoundTime": 1
 		},
 		{
-			"id": "class_377_cab_1",
+			"id": "class_377_southern_cab_1",
 			"name": "Class 377 Cab (Forwards)",
 			"color": "5AB565",
 			"transportMode": "TRAIN",
@@ -126,7 +126,7 @@
 			"legacyDoorCloseSoundTime": 1
 		},
 		{
-			"id": "class_377_cab_2",
+			"id": "class_377_southern_cab_2",
 			"name": "Class 377 Cab (Backwards)",
 			"color": "5AB565",
 			"transportMode": "TRAIN",
@@ -186,7 +186,7 @@
 			"legacyDoorCloseSoundTime": 1
 		},
 		{
-			"id": "class_377_cab_3",
+			"id": "class_377_southern_cab_3",
 			"name": "Class 377 Cab (Double)",
 			"color": "5AB565",
 			"transportMode": "TRAIN",
