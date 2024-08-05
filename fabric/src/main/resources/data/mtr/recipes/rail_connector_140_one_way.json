@@ -1,0 +1,22 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"BRB",
+		"BIB",
+		" R "
+	],
+	"key": {
+		"R": {
+			"tag": "minecraft:rails"
+		},
+		"I": {
+			"tag": "c:iron_ingots"
+		},
+		"B": {
+			"item": "minecraft:prismarine"
+		}
+	},
+	"result": {
+		"item": "mtr:rail_connector_140_one_way"
+	}
+}
