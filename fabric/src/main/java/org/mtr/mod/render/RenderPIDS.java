@@ -6,6 +6,7 @@ import org.mtr.core.operation.ArrivalsResponse;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
 import org.mtr.mapping.holder.*;
@@ -20,6 +21,7 @@ import org.mtr.mod.block.BlockPIDSHorizontalBase;
 import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.ArrivalsCache;
+import org.mtr.mod.data.ArrivalsCacheClient;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.render.pids.PIDSModule;
 import org.mtr.mod.render.pids.PIDSRenderController;
@@ -83,8 +85,8 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 
 	private void getArrivalsAndRender(PIDSRenderController controller, T entity, BlockPos blockPos, Direction facing, LongImmutableList platformIds) {
 		final int count = (entity.getDisplayPage() + 1) * controller.arrivals;
-		final ArrivalsResponse arrivalsResponse = ArrivalsCache.INSTANCE.requestArrivals(blockPos.asLong(), platformIds, count, count, false);
-		RenderTrains.scheduleRender(RenderTrains.QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
+		final ObjectArrayList<ArrivalResponse> arrivalsResponse = ArrivalsCacheClient.INSTANCE.requestArrivals(platformIds);
+		MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
 			render(controller, entity, blockPos, facing, arrivalsResponse, graphicsHolder, offset);
 			if (entity instanceof BlockPIDSHorizontalBase.BlockEntityHorizontalBase) {
 				render(controller, entity, blockPos.offset(facing), facing.getOpposite(), arrivalsResponse, graphicsHolder, offset);
@@ -92,10 +94,9 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 		});
 	}
 
-	private void render(PIDSRenderController controller, T entity, BlockPos blockPos, Direction facing, ArrivalsResponse arrivalsResponse, GraphicsHolder graphicsHolder, Vector3d offset) {
-		final ObjectImmutableList<ArrivalResponse> arrivalResponseList = arrivalsResponse.getArrivals();
+	private void render(PIDSRenderController controller, T entity, BlockPos blockPos, Direction facing, ObjectArrayList<ArrivalResponse> arrivalsResponse, GraphicsHolder graphicsHolder, Vector3d offset) {
 
-		// Scale the screen
+        // Scale the screen
 		graphicsHolder.push();
 		graphicsHolder.translate(blockPos.getX() - offset.getXMapped() + 0.5, blockPos.getY() - offset.getYMapped(), blockPos.getZ() - offset.getZMapped() + 0.5);
 		graphicsHolder.rotateYDegrees((rotate90 ? 90 : 0) - facing.asRotation());
@@ -108,8 +109,8 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 		int arrivalOffset = controller.arrivals * entity.getDisplayPage();
 
 		final ObjectList<ArrivalResponse> subList;
-		if (arrivalOffset < arrivalResponseList.size()) {
-			subList = arrivalResponseList.subList(arrivalOffset, Math.min(arrivalOffset + controller.arrivals, arrivalResponseList.size()));
+		if (arrivalOffset < arrivalsResponse.size()) {
+			subList = arrivalsResponse.subList(arrivalOffset, Math.min(arrivalOffset + controller.arrivals, arrivalsResponse.size()));
 		} else {
 			subList = new ObjectImmutableList<>(new ArrayList<>());
 		}
@@ -149,7 +150,7 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 			return;
 		}
 
-		RenderTrains.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, RenderTrains.QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
+		MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
 			graphicsHolderNew.push();
 			graphicsHolderNew.translate(blockPos.getX() - offset.getXMapped() + 0.5, blockPos.getY() - offset.getYMapped(), blockPos.getZ() - offset.getZMapped() + 0.5);
 			graphicsHolderNew.rotateYDegrees((rotate90 ? 90 : 0) - facing.asRotation());

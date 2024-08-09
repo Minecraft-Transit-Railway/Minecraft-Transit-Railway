@@ -1,6 +1,7 @@
 package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.render.pids.PIDSRenderController;
@@ -54,7 +55,7 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		tooltip.add(TranslationProvider.TOOLTIP_MTR_ARRIVALS.getMutableText(maxArrivals).formatted(TextFormatting.GRAY));
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_PIDS_TYPE.getMutableText(TextHelper.translatable(typeKey).getString()).formatted(TextFormatting.GRAY));
 	}
 
 	@Override

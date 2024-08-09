@@ -6,7 +6,6 @@ import org.mtr.mod.resource.PIDSData;
 import org.mtr.mod.resource.PIDSModulePos;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class PIDSRenderController {
     private final ArrayList<PIDSModule> modules;

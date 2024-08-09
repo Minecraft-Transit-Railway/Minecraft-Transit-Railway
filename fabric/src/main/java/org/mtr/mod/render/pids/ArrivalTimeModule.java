@@ -1,11 +1,10 @@
 package org.mtr.mod.render.pids;
 
-import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.core.serializer.ReaderBase;
+import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
-import org.mtr.mod.packet.PacketFetchArrivals;
+import org.mtr.mod.data.ArrivalsCacheClient;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -16,7 +15,6 @@ public class ArrivalTimeModule extends TextModule {
     private String secondTemplate = "%s sec";
     private String mixedTemplate = "%s:%s";
     private boolean showMixed = false;
-    private boolean detectTranslation = false;
 
     public ArrivalTimeModule(float x, float y, float width, float height, ReaderBase data) {
         super(x, y, width, height, data);
@@ -25,7 +23,6 @@ public class ArrivalTimeModule extends TextModule {
         data.unpackString("secText", (value) -> secondTemplate = value);
         data.unpackString("minText", (value) -> minuteTemplate = value);
         data.unpackString("mixText", (value) -> mixedTemplate = value);
-        data.unpackBoolean("legacyMode", (value) -> detectTranslation = value);
     }
 
     @Override
@@ -36,7 +33,7 @@ public class ArrivalTimeModule extends TextModule {
             return null;
         }
         //seconds until arrival
-        final long time = (arrivalResponse.getArrival() - PacketFetchArrivals.getMillisOffset() - System.currentTimeMillis()) / 1000;
+        final long time = (arrivalResponse.getArrival() - ArrivalsCacheClient.INSTANCE.getMillisOffset() - System.currentTimeMillis()) / 1000;
         if (time >= 60 && !showMixed) {
             final int minutes = (int) Math.floor((double) time / 60);
             text.add(String.valueOf(minutes));

@@ -1,5 +1,6 @@
 package org.mtr.mod.render.pids;
 
+import org.jetbrains.annotations.NotNull;
 import org.mtr.core.data.SimplifiedRoute;
 import org.mtr.core.data.SimplifiedRoutePlatform;
 import org.mtr.core.operation.ArrivalResponse;
@@ -50,17 +51,7 @@ public class StopsAtModule extends TextModule {
             return null;
         }
         if (this.scrollText) {
-            StringBuilder stopText = new StringBuilder();
-            for (int i = 0; i < stops.size(); i++) {
-                if (i != 0 && i == stops.size() - 1) {
-                    stopText.append("and ");
-                }
-                String stationName = stops.get(i).getStationName().split("\\|\\|")[0];
-                stopText.append(stationName.replaceAll("\\\\\\|", "^TEMP^").replaceAll("\\|", " ").replaceAll("\\^TEMP\\^", "|"));
-                if (i != stops.size() - 1) {
-                    stopText.append(", ");
-                }
-            }
+            StringBuilder stopText = getStopText(stops);
             text.add(stopText.toString());
         } else {
             int pages = (int) Math.ceil((double) stops.size() / stopIncrement);
@@ -83,6 +74,21 @@ public class StopsAtModule extends TextModule {
             text.add(stopSplit[stopIndex].replaceAll("\\^TEMP\\^", "|"));
         }
         return text;
+    }
+
+    private static @NotNull StringBuilder getStopText(ObjectArrayList<SimplifiedRoutePlatform> stops) {
+        StringBuilder stopText = new StringBuilder();
+        for (int i = 0; i < stops.size(); i++) {
+            if (i != 0 && i == stops.size() - 1) {
+                stopText.append("and ");
+            }
+            String stationName = stops.get(i).getStationName().split("\\|\\|")[0];
+            stopText.append(stationName.replaceAll("\\\\\\|", "^TEMP^").replaceAll("\\|", " ").replaceAll("\\^TEMP\\^", "|"));
+            if (i != stops.size() - 1) {
+                stopText.append(", ");
+            }
+        }
+        return stopText;
     }
 
     protected ObjectArrayList<SimplifiedRoutePlatform> getStops(ArrivalResponse arrival) {

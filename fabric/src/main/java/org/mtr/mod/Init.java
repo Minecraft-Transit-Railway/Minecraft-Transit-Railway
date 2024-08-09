@@ -240,7 +240,7 @@ public final class Init implements Utilities {
 			}
 		});
 
-		EventRegistry.registerPlayerJoin((minecraftServer, serverPlayerEntity) -> {
+		REGISTRY.eventRegistry.registerPlayerJoin((minecraftServer, serverPlayerEntity) -> {
 			// Send PIDS layout metadata to client
 			Init.pidsLayoutData.sendMetadata(serverPlayerEntity);
 		});

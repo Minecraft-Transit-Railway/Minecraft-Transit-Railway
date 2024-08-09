@@ -63,7 +63,7 @@ public class PIDSLayoutEditScreen extends ScreenExtension implements IGui {
     @Override
     public void tick2() {
         super.tick2();
-        dataInput.tick3();
+        dataInput.tick2();
         // check if text input has changed
         if (dataInput.getText2().equals(rawData)) {
             return;
