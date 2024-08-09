@@ -17,6 +17,7 @@ public final class PacketUpdatePIDSConfig extends PacketHandler {
 	private final boolean[] hideArrivalArray;
 	private final LongAVLTreeSet platformIds;
 	private final int displayPage;
+	private final String layout;
 
 	public PacketUpdatePIDSConfig(PacketBufferReceiver packetBufferReceiver) {
 		blockPos = BlockPos.fromLong(packetBufferReceiver.readLong());
@@ -39,14 +40,16 @@ public final class PacketUpdatePIDSConfig extends PacketHandler {
 		}
 
 		displayPage = packetBufferReceiver.readInt();
+		layout = packetBufferReceiver.readString();
 	}
 
-	public PacketUpdatePIDSConfig(BlockPos blockPos, String[] messages, boolean[] hideArrivalArray, LongAVLTreeSet platformIds, int displayPage) {
+	public PacketUpdatePIDSConfig(BlockPos blockPos, String[] messages, boolean[] hideArrivalArray, LongAVLTreeSet platformIds, int displayPage, String layout) {
 		this.blockPos = blockPos;
 		this.messages = messages;
 		this.hideArrivalArray = hideArrivalArray;
 		this.platformIds = platformIds;
 		this.displayPage = displayPage;
+		this.layout = layout;
 	}
 
 	@Override
@@ -65,13 +68,14 @@ public final class PacketUpdatePIDSConfig extends PacketHandler {
 		packetBufferSender.writeInt(platformIds.size());
 		platformIds.forEach(packetBufferSender::writeLong);
 		packetBufferSender.writeInt(displayPage);
+		packetBufferSender.writeString(layout);
 	}
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
 		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
 		if (entity != null && entity.data instanceof BlockPIDSBase.BlockEntityBase) {
-			((BlockPIDSBase.BlockEntityBase) entity.data).setData(messages, hideArrivalArray, platformIds, displayPage);
+			((BlockPIDSBase.BlockEntityBase) entity.data).setData(messages, hideArrivalArray, platformIds, displayPage, layout);
 		}
 	}
 }

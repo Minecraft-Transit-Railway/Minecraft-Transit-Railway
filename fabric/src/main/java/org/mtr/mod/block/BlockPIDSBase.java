@@ -5,6 +5,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mod.Init;
 import org.mtr.mod.packet.PacketOpenPIDSConfigScreen;
+import org.mtr.mod.render.pids.PIDSRenderController;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -14,15 +15,17 @@ import java.util.function.BiPredicate;
 public abstract class BlockPIDSBase extends BlockExtension implements DirectionHelper, BlockWithEntity {
 
 	public final int maxArrivals;
+	public final String typeKey;
 	public final BiPredicate<World, BlockPos> canStoreData;
 	public final BiFunction<World, BlockPos, BlockPos> getBlockPosWithData;
 
-	public BlockPIDSBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData) {
+	public BlockPIDSBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData, String typeKey) {
 		super(BlockHelper.createBlockSettings(true, blockState -> 5).nonOpaque());
 		this.maxArrivals = maxArrivals;
 		this.canStoreData = canStoreData;
 		this.getBlockPosWithData = getBlockPosWithData;
-	}
+		this.typeKey = typeKey;
+    }
 
 	@Nonnull
 	@Override
@@ -44,6 +47,7 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 		public final BiFunction<World, BlockPos, BlockPos> getBlockPosWithData;
 
 		private final String[] messages;
+		private String layout;
 		private final boolean[] hideArrivalArray;
 		private final LongAVLTreeSet platformIds = new LongAVLTreeSet();
 		private int displayPage;
@@ -52,13 +56,14 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 		private static final String KEY_PLATFORM_IDS = "platform_ids";
 		private static final String KEY_DISPLAY_PAGE = "display_page";
 
-		public BlockEntityBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData, BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		public BlockEntityBase(int maxArrivals, String defaultLayout, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData, BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
 			this.maxArrivals = maxArrivals;
 			this.canStoreData = canStoreData;
 			this.getBlockPosWithData = getBlockPosWithData;
 			messages = new String[maxArrivals];
-			for (int i = 0; i < maxArrivals; i++) {
+			layout = defaultLayout;
+            for (int i = 0; i < maxArrivals; i++) {
 				messages[i] = "";
 			}
 			hideArrivalArray = new boolean[maxArrivals];
@@ -78,6 +83,10 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 			}
 
 			displayPage = compoundTag.getInt(KEY_DISPLAY_PAGE);
+			String layoutRaw = compoundTag.getString("layout");
+			if (!layoutRaw.isEmpty()) {
+				layout = layoutRaw;
+			}
 		}
 
 		@Override
@@ -88,14 +97,16 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 			}
 			compoundTag.putLongArray(KEY_PLATFORM_IDS, new ArrayList<>(platformIds));
 			compoundTag.putInt(KEY_DISPLAY_PAGE, displayPage);
+			compoundTag.putString("layout", layout);
 		}
 
-		public void setData(String[] messages, boolean[] hideArrivalArray, LongAVLTreeSet platformIds, int displayPage) {
+		public void setData(String[] messages, boolean[] hideArrivalArray, LongAVLTreeSet platformIds, int displayPage, String layout) {
 			System.arraycopy(messages, 0, this.messages, 0, Math.min(messages.length, this.messages.length));
 			System.arraycopy(hideArrivalArray, 0, this.hideArrivalArray, 0, Math.min(hideArrivalArray.length, this.hideArrivalArray.length));
 			this.platformIds.clear();
 			this.platformIds.addAll(platformIds);
 			this.displayPage = displayPage;
+			this.layout = layout;
 			markDirty2();
 		}
 
@@ -124,6 +135,10 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 			} else {
 				return false;
 			}
+		}
+
+		public String getLayout() {
+			return layout;
 		}
 
 		public abstract boolean showArrivalNumber();

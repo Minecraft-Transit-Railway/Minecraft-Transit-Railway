@@ -17,12 +17,15 @@ import org.mtr.libraries.org.eclipse.jetty.servlet.ServletHolder;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.GameRule;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
+import org.mtr.mapping.mapper.PersistenceStateExtension;
 import org.mtr.mapping.mapper.WorldHelper;
 import org.mtr.mapping.registry.CommandBuilder;
 import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.tool.DummyClass;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.data.ArrivalsCacheServer;
+import org.mtr.mod.data.PIDSDefaultLayouts;
+import org.mtr.mod.data.PIDSLayoutData;
 import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.*;
@@ -44,6 +47,7 @@ public final class Init implements Utilities {
 	private static Runnable sendWorldTimeUpdate;
 	private static boolean canSendWorldTimeUpdate = true;
 	private static int serverTick;
+	public static PIDSLayoutData pidsLayoutData;
 
 	public static final String MOD_ID = "mtr";
 	public static final String MOD_ID_NTE = "mtrsteamloco";
@@ -80,6 +84,7 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketOpenDashboardScreen.class, PacketOpenDashboardScreen::new);
 		REGISTRY.registerPacket(PacketOpenLiftCustomizationScreen.class, PacketOpenLiftCustomizationScreen::new);
 		REGISTRY.registerPacket(PacketOpenPIDSConfigScreen.class, PacketOpenPIDSConfigScreen::new);
+		REGISTRY.registerPacket(PacketOpenPIDSDashboardScreen.class, PacketOpenPIDSDashboardScreen::new);
 		REGISTRY.registerPacket(PacketOpenTicketMachineScreen.class, PacketOpenTicketMachineScreen::new);
 		REGISTRY.registerPacket(PacketPressLiftButton.class, PacketPressLiftButton::new);
 		REGISTRY.registerPacket(PacketRequestData.class, PacketRequestData::new);
@@ -96,6 +101,12 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketUpdateTrainSensorConfig.class, PacketUpdateTrainSensorConfig::new);
 		REGISTRY.registerPacket(PacketUpdateVehiclesLifts.class, PacketUpdateVehiclesLifts::new);
 		REGISTRY.registerPacket(PacketUpdateVehicleRidingEntities.class, PacketUpdateVehicleRidingEntities::new);
+		REGISTRY.registerPacket(PacketGetPIDSLayoutData.class, PacketGetPIDSLayoutData::new);
+		REGISTRY.registerPacket(PacketSendPIDSLayoutData.class, PacketSendPIDSLayoutData::new);
+		REGISTRY.registerPacket(PacketSendPIDSLayoutFailed.class, PacketSendPIDSLayoutFailed::new);
+		REGISTRY.registerPacket(PacketSendPIDSMetadata.class, PacketSendPIDSMetadata::new);
+		REGISTRY.registerPacket(PacketUpdatePIDSLayout.class, PacketUpdatePIDSLayout::new);
+		REGISTRY.registerPacket(PacketUpdatePIDSMetadata.class, PacketUpdatePIDSMetadata::new);
 
 		// Register command
 		REGISTRY.registerCommand("mtr", commandBuilderMtr -> {
@@ -158,6 +169,12 @@ public final class Init implements Utilities {
 
 			Config.init(minecraftServer.getRunDirectory());
 			final int defaultPort = Config.getServer().getWebserverPort();
+			// Register PIDS data storage
+			pidsLayoutData = (PIDSLayoutData) PersistenceStateExtension.register(minecraftServer.getOverworld(), () -> new PIDSLayoutData("pids_layout_data"), MOD_ID);
+			pidsLayoutData.setDirty2(true);
+
+			// Add default layouts
+			PIDSDefaultLayouts.addDefaultLayouts(pidsLayoutData);
 			serverPort = findFreePort(defaultPort);
 			tunnel = new Tunnel(minecraftServer.getRunDirectory(), defaultPort, () -> {
 			});
@@ -221,6 +238,11 @@ public final class Init implements Utilities {
 			if (railActionModule != null) {
 				railActionModule.tick();
 			}
+		});
+
+		EventRegistry.registerPlayerJoin((minecraftServer, serverPlayerEntity) -> {
+			// Send PIDS layout metadata to client
+			Init.pidsLayoutData.sendMetadata(serverPlayerEntity);
 		});
 
 		// Finish registration

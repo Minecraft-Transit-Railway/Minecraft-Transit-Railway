@@ -37,7 +37,7 @@ public final class MinecraftClientData extends ClientData {
 	public static String DASHBOARD_SEARCH = "";
 	public static String ROUTES_PLATFORMS_SEARCH = "";
 	public static String ROUTES_PLATFORMS_SELECTED_SEARCH = "";
-	public static String TRAINS_SEARCH = "";
+	public static String PIDS_LAYOUT_SEARCH = "";
 	public static String EXIT_PARENTS_SEARCH = "";
 	public static String EXIT_DESTINATIONS_SEARCH = "";
 

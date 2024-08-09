@@ -1,0 +1,35 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"version": {
+			"constant": 1
+		},
+		"id": {
+			"type": "string"
+		},
+		"name": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		},
+		"author": {
+			"type": "string"
+		},
+		"modules": {
+			"type": "array",
+			"items": {
+				"$ref": "PIDSModule.json"
+			}
+		}
+	},
+	"required": [
+		"version",
+		"id",
+		"modules"
+	]
+}

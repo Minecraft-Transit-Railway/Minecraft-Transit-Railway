@@ -9,9 +9,10 @@ import javax.annotation.Nonnull;
 public class BlockPIDSVerticalSingleArrival1 extends BlockPIDSVerticalBase {
 
 	private static final int MAX_ARRIVALS = 16;
+	private static final String TYPE = "tooltip.mtr.pids_type_vertical";
 
 	public BlockPIDSVerticalSingleArrival1() {
-		super(MAX_ARRIVALS);
+		super(MAX_ARRIVALS, TYPE);
 	}
 
 	@Nonnull
@@ -29,7 +30,7 @@ public class BlockPIDSVerticalSingleArrival1 extends BlockPIDSVerticalBase {
 	public static class BlockEntity extends BlockEntityVerticalBase {
 
 		public BlockEntity(BlockPos pos, BlockState state) {
-			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_VERTICAL_SINGLE_ARRIVAL_1.get(), pos, state);
+			super(MAX_ARRIVALS, "base_single_a", BlockEntityTypes.PIDS_VERTICAL_SINGLE_ARRIVAL_1.get(), pos, state);
 		}
 	}
 }

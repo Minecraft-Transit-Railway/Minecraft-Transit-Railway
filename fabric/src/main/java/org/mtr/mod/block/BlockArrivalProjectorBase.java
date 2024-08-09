@@ -2,6 +2,7 @@ package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.render.pids.PIDSRenderController;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -14,7 +15,7 @@ public abstract class BlockArrivalProjectorBase extends BlockPIDSBase {
 	private static final BiFunction<World, BlockPos, BlockPos> GET_BLOCK_POS_WITH_DATA = (world, blockPos) -> blockPos;
 
 	public BlockArrivalProjectorBase(int maxArrivals) {
-		super(maxArrivals, CAN_STORE_DATA, GET_BLOCK_POS_WITH_DATA);
+		super(maxArrivals, CAN_STORE_DATA, GET_BLOCK_POS_WITH_DATA, "");
 	}
 
 	@Override
@@ -41,8 +42,8 @@ public abstract class BlockArrivalProjectorBase extends BlockPIDSBase {
 
 	public static abstract class BlockEntityArrivalProjectorBase extends BlockEntityBase {
 
-		public BlockEntityArrivalProjectorBase(int maxArrivals, BlockEntityType<?> type, BlockPos pos, BlockState state) {
-			super(maxArrivals, CAN_STORE_DATA, GET_BLOCK_POS_WITH_DATA, type, pos, state);
+		public BlockEntityArrivalProjectorBase(int maxArrivals, String defaultLayout, BlockEntityType<?> type, BlockPos pos, BlockState state) {
+			super(maxArrivals, defaultLayout, CAN_STORE_DATA, GET_BLOCK_POS_WITH_DATA, type, pos, state);
 		}
 
 		@Override

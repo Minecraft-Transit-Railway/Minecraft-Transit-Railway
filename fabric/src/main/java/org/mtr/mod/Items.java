@@ -18,6 +18,7 @@ public final class Items {
 		BOAT_DASHBOARD = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "dashboard_2"), itemSettings -> new Item(new ItemDashboard(TransportMode.BOAT, itemSettings)), CreativeModeTabs.CORE);
 		CABLE_CAR_DASHBOARD = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "dashboard_3"), itemSettings -> new Item(new ItemDashboard(TransportMode.CABLE_CAR, itemSettings)), CreativeModeTabs.CORE);
 		AIRPLANE_DASHBOARD = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "dashboard_4"), itemSettings -> new Item(new ItemDashboard(TransportMode.AIRPLANE, itemSettings)), CreativeModeTabs.CORE);
+		PIDS_DASHBOARD = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "dashboard_pids"), itemSettings -> new Item(new ItemPIDSDashboard(itemSettings)), CreativeModeTabs.CORE);
 
 		// Misc
 		DRIVER_KEY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "driver_key"), itemSettings -> new Item(new ItemExtension(itemSettings.maxCount(1))));
@@ -152,6 +153,7 @@ public final class Items {
 	public static final ItemRegistryObject LIFT_DOOR_1;
 	public static final ItemRegistryObject LIFT_DOOR_ODD_1;
 	public static final ItemRegistryObject LIFT_REFRESHER;
+	public static final ItemRegistryObject PIDS_DASHBOARD;
 	public static final ItemRegistryObject PSD_DOOR_1;
 	public static final ItemRegistryObject PSD_DOOR_2;
 	public static final ItemRegistryObject PSD_GLASS_1;

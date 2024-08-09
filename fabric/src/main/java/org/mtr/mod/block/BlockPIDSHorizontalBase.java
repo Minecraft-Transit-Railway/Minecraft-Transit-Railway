@@ -3,6 +3,7 @@ package org.mtr.mod.block;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.generated.lang.TranslationProvider;
+import org.mtr.mod.render.pids.PIDSRenderController;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -10,8 +11,8 @@ import java.util.List;
 
 public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 
-	public BlockPIDSHorizontalBase(int maxArrivals) {
-		super(maxArrivals, BlockPIDSHorizontalBase::canStoreData, BlockPIDSHorizontalBase::getBlockPosWithData);
+	public BlockPIDSHorizontalBase(int maxArrivals, String typeKey) {
+		super(maxArrivals, BlockPIDSHorizontalBase::canStoreData, BlockPIDSHorizontalBase::getBlockPosWithData, typeKey);
 	}
 
 
@@ -76,8 +77,8 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 
 	public abstract static class BlockEntityHorizontalBase extends BlockEntityBase {
 
-		public BlockEntityHorizontalBase(int maxArrivals, BlockEntityType<?> type, BlockPos pos, BlockState state) {
-			super(maxArrivals, BlockPIDSHorizontalBase::canStoreData, BlockPIDSHorizontalBase::getBlockPosWithData, type, pos, state);
+		public BlockEntityHorizontalBase(int maxArrivals, String defaultLayout, BlockEntityType<?> type, BlockPos pos, BlockState state) {
+			super(maxArrivals, defaultLayout, BlockPIDSHorizontalBase::canStoreData, BlockPIDSHorizontalBase::getBlockPosWithData, type, pos, state);
 		}
 
 		@Override

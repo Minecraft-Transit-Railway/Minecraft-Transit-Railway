@@ -4,6 +4,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.generated.lang.TranslationProvider;
+import org.mtr.mod.render.pids.PIDSRenderController;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -11,8 +12,8 @@ import java.util.List;
 
 public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBlock {
 
-	public BlockPIDSVerticalBase(int maxArrivals) {
-		super(maxArrivals, BlockPIDSVerticalBase::canStoreData, BlockPIDSVerticalBase::getBlockPosWithData);
+	public BlockPIDSVerticalBase(int maxArrivals, String typeKey) {
+		super(maxArrivals, BlockPIDSVerticalBase::canStoreData, BlockPIDSVerticalBase::getBlockPosWithData, typeKey);
 	}
 
 	@Nonnull
@@ -65,8 +66,8 @@ public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBl
 
 	public abstract static class BlockEntityVerticalBase extends BlockEntityBase {
 
-		public BlockEntityVerticalBase(int maxArrivals, BlockEntityType<?> type, BlockPos pos, BlockState state) {
-			super(maxArrivals, BlockPIDSVerticalBase::canStoreData, BlockPIDSVerticalBase::getBlockPosWithData, type, pos, state);
+		public BlockEntityVerticalBase(int maxArrivals, String defaultLayout, BlockEntityType<?> type, BlockPos pos, BlockState state) {
+			super(maxArrivals, defaultLayout, BlockPIDSVerticalBase::canStoreData, BlockPIDSVerticalBase::getBlockPosWithData, type, pos, state);
 		}
 
 		@Override
