@@ -358,7 +358,7 @@ public final class InitClient {
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerStartClientTick(() -> {
-			final long currentMillis = getGameMillis();
+			final long currentMillis = System.currentTimeMillis();
 			final long millisElapsed = currentMillis - lastMillis;
 			lastMillis = currentMillis;
 			gameMillis += millisElapsed;
@@ -379,7 +379,7 @@ public final class InitClient {
 			}
 
 			BlockTrainAnnouncer.DELAYED_TASKS.entrySet().removeIf(entry -> {
-				if (currentMillis >= entry.getKey()) {
+				if (gameMillis >= entry.getKey()) {
 					entry.getValue().run();
 					return true;
 				}
