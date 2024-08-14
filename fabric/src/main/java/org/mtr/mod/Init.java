@@ -163,7 +163,7 @@ public final class Init implements Utilities {
 			});
 
 			final int port = findFreePort(serverPort + 1);
-			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, port, WORLD_ID_LIST.toArray(new String[0]));
+			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, port, Config.getServer().getUseThreadedSimulation(), WORLD_ID_LIST.toArray(new String[0]));
 			webserver = new Webserver(port);
 			webserver.addServlet(new ServletHolder(new VehicleLiftServlet(minecraftServer)), "/vehicles-lifts");
 			webserver.start();
@@ -214,6 +214,9 @@ public final class Init implements Utilities {
 			}
 			ArrivalsCacheServer.tickAll();
 			serverTick++;
+			if (!Config.getServer().getUseThreadedSimulation()) {
+				main.manualTick();
+			}
 		});
 
 		REGISTRY.eventRegistry.registerEndWorldTick(serverWorld -> {
