@@ -184,14 +184,8 @@ public final class Init implements Utilities {
 					);
 				} else {
 					Main.LOGGER.error("Transport Simulation Core not responding; stopping Minecraft server!");
-					if (main != null) {
-						main.stop();
-					}
-					if (webserver != null) {
-						webserver.stop();
-					}
-					Main.LOGGER.error("Shutting down all threads");
-					System.exit(0);
+					minecraftServer.stop(false);
+					canSendWorldTimeUpdate = true; // In singleplayer, this gives the player opportunity to re-enter world.
 				}
 			};
 		});
