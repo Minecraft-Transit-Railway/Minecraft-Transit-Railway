@@ -29,6 +29,7 @@ import org.mtr.mod.screen.BetaWarningScreen;
 import org.mtr.mod.servlet.ClientServlet;
 import org.mtr.mod.servlet.Tunnel;
 import org.mtr.mod.sound.LoopingSoundInstance;
+import org.mtr.mod.sound.VehicleSoundBase;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
@@ -394,6 +395,7 @@ public final class InitClient {
 				movePlayer.run();
 				movePlayer = null;
 			}
+			VehicleSoundBase.playScheduledSounds();
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerChunkLoad((clientWorld, worldChunk) -> {
