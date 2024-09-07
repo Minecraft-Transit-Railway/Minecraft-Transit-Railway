@@ -200,6 +200,7 @@
 	"gui.mtr.custom_resources_train_barrier_id": "Train Barrier ID",
 	"gui.mtr.days": "%s day(s)",
 	"gui.mtr.deceleration": "Vehicle Deceleration",
+	"gui.mtr.delay": "Delay (in seconds)",
 	"gui.mtr.delayed_vehicle_reduce_dwell_time_percentage": "Reduce Dwell Time When Delayed",
 	"gui.mtr.delayed_vehicle_speed_increase_percentage": "Increase Speed When Delayed",
 	"gui.mtr.delete_confirmation": "Are you sure you want to delete %s?",
