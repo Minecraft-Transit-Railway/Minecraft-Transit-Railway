@@ -9,12 +9,14 @@ import org.mtr.core.tool.Vector;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.SoundHelper;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.Items;
-import org.mtr.mod.block.*;
+import org.mtr.mod.block.BlockTrainAnnouncer;
+import org.mtr.mod.block.BlockTrainRedstoneSensor;
+import org.mtr.mod.block.BlockTrainSensorBase;
+import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.VehicleRidingMovement;
@@ -23,8 +25,6 @@ import org.mtr.mod.packet.PacketTurnOnBlockEntity;
 import org.mtr.mod.resource.VehicleResource;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class VehicleExtension extends Vehicle implements Utilities {
 
@@ -204,11 +204,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 						} else if (block.data instanceof BlockTrainAnnouncer && VehicleRidingMovement.isRiding(id)) {
 							final BlockEntity blockEntity = clientWorld.getBlockEntity(offsetBlockPos);
 							if (blockEntity != null && blockEntity.data instanceof BlockTrainAnnouncer.BlockEntity) {
-								((BlockTrainAnnouncer.BlockEntity) blockEntity.data).announce(
-										message -> IDrawing.narrateOrAnnounce(message, ObjectArrayList.of(TextHelper.literal(message))),
-										soundId -> clientPlayerEntity.playSound(SoundHelper.createSoundEvent(new Identifier(soundId)), 1000, 1),
-										Double.parseDouble(((BlockTrainAnnouncer.BlockEntity) blockEntity.data).getDelay())
-								);
+								((BlockTrainAnnouncer.BlockEntity) blockEntity.data).announce();
 							}
 						}
 					}

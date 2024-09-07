@@ -19,17 +19,17 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 
 	private final String initialMessage;
 	private final String initialSoundId;
-	private final String initialDelay;
+	private final int initialDelay;
 	private final DashboardList availableSoundsList;
 
 	private static final int MAX_MESSAGE_LENGTH = 256;
-	private static final int MAX_DELAY_LENGTH = 5;
+	private static final int MAX_DELAY_LENGTH = 3;
 
 	public TrainAnnouncerScreen(BlockPos pos, BlockTrainAnnouncer.BlockEntity blockEntity) {
 		super(pos, true,
 				new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TranslationProvider.GUI_MTR_ANNOUNCEMENT_MESSAGE.getMutableText()),
 				new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TranslationProvider.GUI_MTR_SOUND_FILE.getMutableText()),
-				new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_DELAY_LENGTH, TextCase.DEFAULT, null, null), TranslationProvider.GUI_MTR_DELAY.getMutableText())
+				new ObjectObjectImmutablePair<>(new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_DELAY_LENGTH, TextCase.DEFAULT, "\\D", null), TranslationProvider.GUI_MTR_ANNOUNCEMENT_DELAY.getMutableText())
 		);
 
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
@@ -40,7 +40,7 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 		} else {
 			initialMessage = "";
 			initialSoundId = "";
-			initialDelay = "0";
+			initialDelay = 0;
 		}
 
 		availableSoundsList = new DashboardList((data, color) -> {
@@ -65,7 +65,7 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 		super.init2();
 		textFields[0].setText2(initialMessage);
 		textFields[1].setText2(initialSoundId);
-		textFields[2].setText2(initialDelay);
+		textFields[2].setText2(String.valueOf(initialDelay));
 
 		setListVisibility(false);
 		availableSoundsList.y = SQUARE_SIZE * 2 + TEXT_HEIGHT + TEXT_PADDING + TEXT_FIELD_PADDING;
@@ -114,7 +114,12 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 
 	@Override
 	protected void sendUpdate(BlockPos blockPos, LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly) {
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateTrainAnnouncerConfig(blockPos, filterRouteIds, stoppedOnly, movingOnly, textFields[0].getText2(), textFields[1].getText2(), textFields[2].getText2()));
+		int delay = 0;
+		try {
+			delay = Integer.parseInt(textFields[2].getText2());
+		} catch (Exception ignored) {
+		}
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateTrainAnnouncerConfig(blockPos, filterRouteIds, stoppedOnly, movingOnly, textFields[0].getText2(), textFields[1].getText2(), delay));
 	}
 
 	private void setListVisibility(boolean visible) {

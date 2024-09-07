@@ -13,16 +13,16 @@ public class PacketUpdateTrainAnnouncerConfig extends PacketUpdateTrainSensorCon
 
 	private final String message;
 	private final String soundId;
-	private final String delay;
+	private final int delay;
 
 	public PacketUpdateTrainAnnouncerConfig(PacketBufferReceiver packetBufferReceiver) {
 		super(packetBufferReceiver);
 		message = packetBufferReceiver.readString();
 		soundId = packetBufferReceiver.readString();
-		delay = packetBufferReceiver.readString();
+		delay = packetBufferReceiver.readInt();
 	}
 
-	public PacketUpdateTrainAnnouncerConfig(BlockPos blockPos, LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, String message, String soundId, String delay) {
+	public PacketUpdateTrainAnnouncerConfig(BlockPos blockPos, LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, String message, String soundId, int delay) {
 		super(blockPos, filterRouteIds, stoppedOnly, movingOnly);
 		this.message = message;
 		this.soundId = soundId;
@@ -34,7 +34,7 @@ public class PacketUpdateTrainAnnouncerConfig extends PacketUpdateTrainSensorCon
 		super.write(packetBufferSender);
 		packetBufferSender.writeString(message);
 		packetBufferSender.writeString(soundId);
-		packetBufferSender.writeString(delay);
+		packetBufferSender.writeInt(delay);
 	}
 
 	@Override

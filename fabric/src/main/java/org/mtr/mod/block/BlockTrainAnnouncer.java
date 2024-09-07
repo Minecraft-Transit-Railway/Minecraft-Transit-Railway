@@ -1,21 +1,22 @@
 package org.mtr.mod.block;
 
+import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.BlockState;
-import org.mtr.mapping.holder.CompoundTag;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.mapper.SoundHelper;
+import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.BlockEntityTypes;
-import org.mtr.mod.InitClient;
+import org.mtr.mod.client.IDrawing;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
 
 public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 
-	public static final Map<Long, Runnable> DELAYED_TASKS = new HashMap<>();
+	private static final Long2ObjectAVLTreeMap<ObjectArrayList<Runnable>> QUEUE = new Long2ObjectAVLTreeMap<>();
 
 	@Nonnull
 	@Override
@@ -23,13 +24,24 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 		return new BlockEntity(blockPos, blockState);
 	}
 
-	public static class BlockEntity extends BlockEntityBase {
+	public static void processQueue() {
+		final LongArrayList itemsToRemove = new LongArrayList();
+		final long currentMillis = System.currentTimeMillis();
+		QUEUE.forEach((time, tasks) -> {
+			if (time <= currentMillis) {
+				tasks.forEach(Runnable::run);
+				itemsToRemove.add(time.longValue());
+			}
+		});
+		itemsToRemove.forEach(QUEUE::remove);
+	}
+
+	public static class BlockEntity extends BlockEntityBase implements Utilities {
 
 		private String message = "";
 		private String soundId = "";
-		private String delay = "0";
+		private int delay;
 		private long lastAnnouncedMillis;
-		private long nextAnnouncementMillis;
 		private static final int ANNOUNCE_COOL_DOWN_MILLIS = 20000;
 		private static final String KEY_MESSAGE = "message";
 		private static final String KEY_SOUND_ID = "sound_id";
@@ -43,7 +55,7 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 		public void readCompoundTag(CompoundTag compoundTag) {
 			message = compoundTag.getString(KEY_MESSAGE);
 			soundId = compoundTag.getString(KEY_SOUND_ID);
-			delay = compoundTag.getString(KEY_DELAY);
+			delay = compoundTag.getInt(KEY_DELAY);
 			super.readCompoundTag(compoundTag);
 		}
 
@@ -51,15 +63,14 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 		public void writeCompoundTag(CompoundTag compoundTag) {
 			compoundTag.putString(KEY_MESSAGE, message);
 			compoundTag.putString(KEY_SOUND_ID, soundId);
-			compoundTag.putString(KEY_DELAY, delay);
+			compoundTag.putInt(KEY_DELAY, delay);
 			super.writeCompoundTag(compoundTag);
 		}
 
-		public void setData(LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, String message, String soundId, String delay) {
+		public void setData(LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, String message, String soundId, int delay) {
 			this.message = message;
 			this.soundId = soundId;
 			this.delay = delay;
-			this.nextAnnouncementMillis = System.currentTimeMillis() + getDelayInMillis(delay);
 			setData(filterRouteIds, stoppedOnly, movingOnly);
 		}
 
@@ -71,35 +82,28 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 			return soundId;
 		}
 
-		public String getDelay() {
+		public int getDelay() {
 			return delay;
 		}
 
-		private long getDelayInMillis(String delayStr) {
-			try {
-				int delayInt = Integer.parseInt(delayStr);
-				return delayInt * 1000L;
-			} catch (NumberFormatException e) {
-				return 0;
-			}
-		}
-
-		public void announce(Consumer<String> messageConsumer, Consumer<String> soundIdConsumer, double delayInSec) {
-			long gameMillisNow = InitClient.getGameMillis();
-			long delayMillis = (long) (delayInSec * 1000);
-			DELAYED_TASKS.put(gameMillisNow + delayMillis, () -> {
-				final long currentMillis = System.currentTimeMillis();
-				if (currentMillis >= nextAnnouncementMillis) {
-					if (!message.isEmpty()) {
-						messageConsumer.accept(message);
-					}
-					if (!soundId.isEmpty()) {
-						soundIdConsumer.accept(soundId);
-					}
-					lastAnnouncedMillis = currentMillis;
-					nextAnnouncementMillis = currentMillis + getDelayInMillis(delay);
+		public void announce() {
+			final long currentMillis = System.currentTimeMillis();
+			if (currentMillis - lastAnnouncedMillis >= ANNOUNCE_COOL_DOWN_MILLIS) {
+				final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
+				QUEUE.put(currentMillis + (long) delay * MILLIS_PER_SECOND, tasks);
+				if (!message.isEmpty()) {
+					tasks.add(() -> IDrawing.narrateOrAnnounce(message, ObjectArrayList.of(TextHelper.literal(message))));
 				}
-			});
+				if (!soundId.isEmpty()) {
+					tasks.add(() -> {
+						final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+						if (clientPlayerEntity != null) {
+							clientPlayerEntity.playSound(SoundHelper.createSoundEvent(new Identifier(soundId)), 1000, 1);
+						}
+					});
+				}
+				lastAnnouncedMillis = currentMillis;
+			}
 		}
 	}
 }

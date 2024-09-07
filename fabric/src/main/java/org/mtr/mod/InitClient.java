@@ -381,13 +381,7 @@ public final class InitClient {
 				}
 			}
 
-			BlockTrainAnnouncer.DELAYED_TASKS.entrySet().removeIf(entry -> {
-				if (gameMillis >= entry.getKey()) {
-					entry.getValue().run();
-					return true;
-				}
-				return false;
-			});
+			BlockTrainAnnouncer.processQueue();
 
 			// If player is moving, send a request every 0.5 seconds to the server to fetch any new nearby data
 			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
