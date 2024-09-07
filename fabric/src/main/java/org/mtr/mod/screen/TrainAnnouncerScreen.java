@@ -70,7 +70,7 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 		setListVisibility(false);
 		availableSoundsList.y = SQUARE_SIZE * 2 + TEXT_HEIGHT + TEXT_PADDING + TEXT_FIELD_PADDING;
 		availableSoundsList.height = height - availableSoundsList.y - SQUARE_SIZE;
-		availableSoundsList.width = width / 3 - SQUARE_SIZE;
+		availableSoundsList.width = (width - SQUARE_SIZE * 2) * 2 / 3;
 		availableSoundsList.init(this::addChild);
 	}
 
@@ -123,6 +123,6 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 	}
 
 	private void setListVisibility(boolean visible) {
-		availableSoundsList.x = visible ? width / 3 : width;
+		availableSoundsList.x = visible ? (width - SQUARE_SIZE * 2) / 3 + SQUARE_SIZE : width;
 	}
 }
