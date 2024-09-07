@@ -24,6 +24,7 @@ import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.item.ItemBlockClickingBase;
 import org.mtr.mod.packet.PacketRequestData;
 import org.mtr.mod.render.*;
+import org.mtr.mod.resource.CachedResource;
 import org.mtr.mod.screen.BetaWarningScreen;
 import org.mtr.mod.servlet.ClientServlet;
 import org.mtr.mod.servlet.Tunnel;
@@ -361,6 +362,7 @@ public final class InitClient {
 			final long millisElapsed = currentMillis - lastMillis;
 			lastMillis = currentMillis;
 			gameMillis += millisElapsed;
+			CachedResource.tick();
 			BetaWarningScreen.handle();
 
 			final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
