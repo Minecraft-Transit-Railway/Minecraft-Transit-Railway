@@ -44,12 +44,14 @@ public final class Init implements Utilities {
 	private static Runnable sendWorldTimeUpdate;
 	private static boolean canSendWorldTimeUpdate = true;
 	private static int serverTick;
+	private static long lastSavedMillis;
 
 	public static final String MOD_ID = "mtr";
 	public static final String MOD_ID_NTE = "mtrsteamloco";
 	public static final Logger LOGGER = LogManager.getLogger("MinecraftTransitRailway");
 	public static final Registry REGISTRY = new Registry();
 	public static final int SECONDS_PER_MC_HOUR = 50;
+	public static final int AUTOSAVE_INTERVAL = 30000;
 
 	private static final int MILLIS_PER_MC_DAY = SECONDS_PER_MC_HOUR * MILLIS_PER_SECOND * HOURS_PER_DAY;
 	private static final Object2ObjectArrayMap<ServerWorld, RailActionModule> RAIL_ACTION_MODULES = new Object2ObjectArrayMap<>();
@@ -163,12 +165,13 @@ public final class Init implements Utilities {
 			});
 
 			final int port = findFreePort(serverPort + 1);
-			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, port, WORLD_ID_LIST.toArray(new String[0]));
+			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, port, Config.getServer().getUseThreadedSimulation(), WORLD_ID_LIST.toArray(new String[0]));
 			webserver = new Webserver(port);
 			webserver.addServlet(new ServletHolder(new VehicleLiftServlet(minecraftServer)), "/vehicles-lifts");
 			webserver.start();
 
 			serverTick = 0;
+			lastSavedMillis = System.currentTimeMillis();
 			sendWorldTimeUpdate = () -> {
 				if (canSendWorldTimeUpdate) {
 					canSendWorldTimeUpdate = false;
@@ -206,8 +209,18 @@ public final class Init implements Utilities {
 			if (sendWorldTimeUpdate != null && serverTick % (SECONDS_PER_MC_HOUR * 10) == 0) {
 				sendWorldTimeUpdate.run();
 			}
+
 			ArrivalsCacheServer.tickAll();
 			serverTick++;
+			if (!Config.getServer().getUseThreadedSimulation()) {
+				main.manualTick();
+			}
+
+			final long currentMillis = System.currentTimeMillis();
+			if (currentMillis - lastSavedMillis > AUTOSAVE_INTERVAL) {
+				main.save();
+				lastSavedMillis = currentMillis;
+			}
 		});
 
 		REGISTRY.eventRegistry.registerEndWorldTick(serverWorld -> {

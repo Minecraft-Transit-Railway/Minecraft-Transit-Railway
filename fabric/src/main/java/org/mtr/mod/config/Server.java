@@ -14,7 +14,7 @@ public final class Server extends ServerSchema {
 		return (int) webserverPort;
 	}
 
-	public void setWebserverPort(int webserverPort) {
-		this.webserverPort = webserverPort;
+	public boolean getUseThreadedSimulation() {
+		return useThreadedSimulation;
 	}
 }

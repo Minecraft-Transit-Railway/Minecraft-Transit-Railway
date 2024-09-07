@@ -24,10 +24,12 @@ import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.item.ItemBlockClickingBase;
 import org.mtr.mod.packet.PacketRequestData;
 import org.mtr.mod.render.*;
+import org.mtr.mod.resource.CachedResource;
 import org.mtr.mod.screen.BetaWarningScreen;
 import org.mtr.mod.servlet.ClientServlet;
 import org.mtr.mod.servlet.Tunnel;
 import org.mtr.mod.sound.LoopingSoundInstance;
+import org.mtr.mod.sound.VehicleSoundBase;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
@@ -361,6 +363,7 @@ public final class InitClient {
 			final long millisElapsed = currentMillis - lastMillis;
 			lastMillis = currentMillis;
 			gameMillis += millisElapsed;
+			CachedResource.tick();
 			BetaWarningScreen.handle();
 
 			final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
@@ -392,6 +395,7 @@ public final class InitClient {
 				movePlayer.run();
 				movePlayer = null;
 			}
+			VehicleSoundBase.playScheduledSounds();
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerChunkLoad((clientWorld, worldChunk) -> {
