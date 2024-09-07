@@ -112,7 +112,7 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 		try {
 			renderBackground(graphicsHolder);
 			for (int i = 0; i < textFieldCount; i++) {
-				graphicsHolder.drawText(textFieldLabels[i], SQUARE_SIZE + (width / 2 - SQUARE_SIZE) * i, SQUARE_SIZE, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+				graphicsHolder.drawText(textFieldLabels[i], SQUARE_SIZE + ((width - SQUARE_SIZE * 2) / textFieldLabels.length) * i, SQUARE_SIZE, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			}
 			graphicsHolder.drawText(TranslationProvider.GUI_MTR_FILTERED_ROUTES.getMutableText(filterRouteIds.size()), SQUARE_SIZE, yStart + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			graphicsHolder.drawText((filterRouteIds.isEmpty() ? TranslationProvider.GUI_MTR_FILTERED_ROUTES_EMPTY : TranslationProvider.GUI_MTR_FILTERED_ROUTES_CONDITION).getMutableText(), SQUARE_SIZE, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());

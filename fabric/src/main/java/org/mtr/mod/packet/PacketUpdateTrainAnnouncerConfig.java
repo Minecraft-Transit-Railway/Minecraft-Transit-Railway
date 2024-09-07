@@ -13,17 +13,20 @@ public class PacketUpdateTrainAnnouncerConfig extends PacketUpdateTrainSensorCon
 
 	private final String message;
 	private final String soundId;
+	private final int delay;
 
 	public PacketUpdateTrainAnnouncerConfig(PacketBufferReceiver packetBufferReceiver) {
 		super(packetBufferReceiver);
 		message = packetBufferReceiver.readString();
 		soundId = packetBufferReceiver.readString();
+		delay = packetBufferReceiver.readInt();
 	}
 
-	public PacketUpdateTrainAnnouncerConfig(BlockPos blockPos, LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, String message, String soundId) {
+	public PacketUpdateTrainAnnouncerConfig(BlockPos blockPos, LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, String message, String soundId, int delay) {
 		super(blockPos, filterRouteIds, stoppedOnly, movingOnly);
 		this.message = message;
 		this.soundId = soundId;
+		this.delay = delay;
 	}
 
 	@Override
@@ -31,13 +34,14 @@ public class PacketUpdateTrainAnnouncerConfig extends PacketUpdateTrainSensorCon
 		super.write(packetBufferSender);
 		packetBufferSender.writeString(message);
 		packetBufferSender.writeString(soundId);
+		packetBufferSender.writeInt(delay);
 	}
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
 		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
 		if (entity != null && entity.data instanceof BlockTrainAnnouncer.BlockEntity) {
-			((BlockTrainAnnouncer.BlockEntity) entity.data).setData(filterRouteIds, stoppedOnly, movingOnly, message, soundId);
+			((BlockTrainAnnouncer.BlockEntity) entity.data).setData(filterRouteIds, stoppedOnly, movingOnly, message, soundId, delay);
 		}
 	}
 }

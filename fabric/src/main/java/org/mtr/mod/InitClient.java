@@ -13,6 +13,7 @@ import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.block.BlockTactileMap;
+import org.mtr.mod.block.BlockTrainAnnouncer;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.IDrawing;
@@ -379,6 +380,8 @@ public final class InitClient {
 					MinecraftClientHelper.addEntity(new EntityRendering(new World(clientWorld.data)));
 				}
 			}
+
+			BlockTrainAnnouncer.processQueue();
 
 			// If player is moving, send a request every 0.5 seconds to the server to fetch any new nearby data
 			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
