@@ -255,6 +255,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	}
 
 	private void onDeleteExitParent(DashboardListItem dashboardListItem, int index) {
+		data.getExits().remove(index);
 		changeEditingExit(null, -1);
 	}
 
