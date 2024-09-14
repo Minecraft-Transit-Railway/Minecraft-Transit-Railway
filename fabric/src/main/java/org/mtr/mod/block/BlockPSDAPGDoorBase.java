@@ -137,6 +137,9 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 		}
 
 		private boolean receivedRedstonePower(World world, BlockPos pos, BlockState state) {
+			final boolean doorUnlocked = IBlock.getStatePropertySafe(state, UNLOCKED);
+			if(!doorUnlocked) return false;
+
 			final DoubleBlockHalf half = IBlock.getStatePropertySafe(state, HALF);
 			final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 			final EnumSide side = IBlock.getStatePropertySafe(state, SIDE);
