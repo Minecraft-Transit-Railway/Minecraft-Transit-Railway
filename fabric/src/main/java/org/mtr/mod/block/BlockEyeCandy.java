@@ -24,6 +24,11 @@ public class BlockEyeCandy extends BlockExtension implements DirectionHelper, Bl
 	}
 
 	@Override
+	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return VoxelShapes.empty();
+	}
+
+	@Override
 	public void addBlockProperties(List<HolderBase<?>> properties) {
 		properties.add(FACING);
 	}

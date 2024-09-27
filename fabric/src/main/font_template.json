@@ -13,8 +13,6 @@
 			"size": 12.0,
 			"oversample": 16.0
 		},
-		{
-			"type": "@type@"
-		}
+		{ "type": "@type@" }
 	]
 }

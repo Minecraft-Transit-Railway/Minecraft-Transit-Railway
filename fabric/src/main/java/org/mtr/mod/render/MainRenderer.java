@@ -56,7 +56,7 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 
 	@Override
 	public void render(EntityRendering entityRendering, float yaw, float tickDelta, GraphicsHolder graphicsHolder, int i) {
-		render(graphicsHolder, entityRendering.getCameraPosVec2(MinecraftClient.getInstance().getTickDelta()));
+		render(graphicsHolder, entityRendering.getCameraPosVec2(tickDelta));
 	}
 
 	@Override

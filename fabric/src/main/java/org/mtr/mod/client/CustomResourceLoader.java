@@ -53,7 +53,7 @@ public class CustomResourceLoader {
 		RESOURCE_CACHE.clear();
 		VEHICLES.forEach((transportMode, vehicleResources) -> vehicleResources.clear());
 		VEHICLES_CACHE.forEach((transportMode, vehicleResourcesCache) -> vehicleResourcesCache.clear());
-		SIGNS.clear();
+		SIGNS.clear();	
 		SIGNS_CACHE.clear();
 		RAILS.clear();
 		RAILS_CACHE.clear();
