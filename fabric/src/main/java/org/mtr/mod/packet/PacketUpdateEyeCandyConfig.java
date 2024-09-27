@@ -59,8 +59,10 @@ public final class PacketUpdateEyeCandyConfig extends PacketHandler {
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		if(!Init.isChunkLoaded(serverPlayerEntity.getEntityWorld(), blockPos)) return;
-		
+		if (!Init.isChunkLoaded(serverPlayerEntity.getEntityWorld(), blockPos)) {
+			return;
+		}
+
 		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
 		if (entity != null && entity.data instanceof BlockEyeCandy.BlockEntity) {
 			((BlockEyeCandy.BlockEntity) entity.data).setData(modelId, translateX, translateY, translateZ, rotateX, rotateY, rotateZ, fullLight);

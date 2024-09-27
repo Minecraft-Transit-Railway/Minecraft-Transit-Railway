@@ -52,7 +52,9 @@ public final class PacketUpdateRailwaySignConfig extends PacketHandler {
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		if(!Init.isChunkLoaded(serverPlayerEntity.getEntityWorld(), blockPos)) return;
+		if (!Init.isChunkLoaded(serverPlayerEntity.getEntityWorld(), blockPos)) {
+			return;
+		}
 
 		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
 		if (entity != null) {

@@ -117,15 +117,11 @@ public class BuildTools {
 	}
 
 	public void copyFontDefinition() throws IOException {
-		String legacyFont = "legacy_unicode\",\"sizes\": \"minecraft:font/glyph_sizes.bin\",\"template\": \"minecraft:font/unicode_page_%s.png";
-		String modernFont = "reference\", \"id\": \"minecraft:include/space\"}, {\"type\": \"reference\", \"id\": \"minecraft:include/default\"}, {  \"type\": \"reference\", \"id\": \"minecraft:include/unifont";
-
+		final String legacyFont = "legacy_unicode\",\"sizes\":\"minecraft:font/glyph_sizes.bin\",\"template\":\"minecraft:font/unicode_page_%s.png";
+		final String modernFont = "reference\",\"id\":\"minecraft:include/space\"},{\"type\":\"reference\",\"id\":\"minecraft:include/default\"},{\"type\":\"reference\",\"id\":\"minecraft:include/unifont";
 		FileUtils.write(
 				path.resolve("src/main/resources/assets/mtr/font/mtr.json").toFile(),
-				FileUtils.readFileToString(path.resolve("src/main/font_template.json").toFile(), StandardCharsets.UTF_8).replace(
-						"@type@",
-						majorVersion >= 20 ? modernFont : legacyFont
-				),
+				FileUtils.readFileToString(path.resolve("src/main/font_template.json").toFile(), StandardCharsets.UTF_8).replace("@type@", majorVersion >= 20 ? modernFont : legacyFont),
 				StandardCharsets.UTF_8
 		);
 	}

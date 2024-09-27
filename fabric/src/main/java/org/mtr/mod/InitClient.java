@@ -381,7 +381,8 @@ public final class InitClient {
 					MinecraftClientHelper.addEntity(new EntityRendering(new World(clientWorld.data)));
 				}
 
-				if(lastClientWorld == null || !lastClientWorld.equals(clientWorld)) { // World or Dimension changed
+				// If world or dimension changed, reset the data
+				if (lastClientWorld == null || !lastClientWorld.equals(clientWorld)) {
 					lastClientWorld = clientWorld;
 					MinecraftClientData.reset();
 				}
@@ -398,8 +399,6 @@ public final class InitClient {
 				lastUpdatePacketMillis = -1;
 			}
 		});
-
-
 
 		REGISTRY_CLIENT.eventRegistryClient.registerEndClientTick(() -> {
 			if (movePlayer != null) {

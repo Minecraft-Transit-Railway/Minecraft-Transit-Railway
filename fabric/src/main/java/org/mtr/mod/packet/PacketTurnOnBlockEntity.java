@@ -29,7 +29,9 @@ public final class PacketTurnOnBlockEntity extends PacketHandler {
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
 		final World world = new World(serverPlayerEntity.getServerWorld().data);
-		if(!Init.isChunkLoaded(world, blockPos)) return;
+		if (!Init.isChunkLoaded(world, blockPos)) {
+			return;
+		}
 
 		final BlockState blockState = world.getBlockState(blockPos);
 		final Block block = blockState.getBlock();
