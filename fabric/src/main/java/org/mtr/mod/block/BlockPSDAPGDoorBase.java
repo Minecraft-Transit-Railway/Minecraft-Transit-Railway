@@ -65,7 +65,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		// The serverside collision shape is always empty, and the clientside collision shape is determined by the vehicle door positions the client sees
 		final BlockEntity entity = world.getBlockEntity(pos);
-		if (entity != null && entity.data instanceof BlockEntityBase && entity.getWorld() != null && entity.getWorld().isClient() && ((BlockEntityBase) entity.data).doorValue == 0) {
+		if (entity != null && entity.data instanceof BlockEntityBase && entity.getWorld() != null && entity.getWorld().isClient() && ((BlockEntityBase) entity.data).getDoorValue() == 0) {
 			return super.getCollisionShape2(state, world, pos, context);
 		} else {
 			return VoxelShapes.empty();
@@ -137,6 +137,10 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 		}
 
 		private boolean receivedRedstonePower(World world, BlockPos pos, BlockState state) {
+			if (!IBlock.getStatePropertySafe(state, UNLOCKED)) {
+				return false;
+			}
+
 			final DoubleBlockHalf half = IBlock.getStatePropertySafe(state, HALF);
 			final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 			final EnumSide side = IBlock.getStatePropertySafe(state, SIDE);

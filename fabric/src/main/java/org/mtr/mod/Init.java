@@ -261,8 +261,8 @@ public final class Init implements Utilities {
 		return new BlockPos(MathHelper.floor(x), MathHelper.floor(y), MathHelper.floor(z));
 	}
 
-	public static boolean isChunkLoaded(World world, ChunkManager chunkManager, BlockPos blockPos) {
-		return chunkManager.getWorldChunk(blockPos.getX() / 16, blockPos.getZ() / 16) != null && world.isRegionLoaded(blockPos, blockPos);
+	public static boolean isChunkLoaded(World world, BlockPos blockPos) {
+		return world.getChunkManager().getWorldChunk(blockPos.getX() / 16, blockPos.getZ() / 16) != null && world.isRegionLoaded(blockPos, blockPos);
 	}
 
 	public static String getWorldId(World world) {

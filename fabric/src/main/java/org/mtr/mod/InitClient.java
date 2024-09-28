@@ -45,6 +45,7 @@ public final class InitClient {
 	private static long lastPlayedTrainSoundsMillis = 0;
 	private static long lastUpdatePacketMillis = 0;
 	private static Runnable movePlayer;
+	private static ClientWorld lastClientWorld;
 
 	public static final RegistryClient REGISTRY_CLIENT = new RegistryClient(Init.REGISTRY);
 	public static final int MILLIS_PER_SPEED_SOUND = 200;
@@ -378,6 +379,12 @@ public final class InitClient {
 				});
 				if (shouldCreateEntity[0]) {
 					MinecraftClientHelper.addEntity(new EntityRendering(new World(clientWorld.data)));
+				}
+
+				// If world or dimension changed, reset the data
+				if (lastClientWorld == null || !lastClientWorld.equals(clientWorld)) {
+					lastClientWorld = clientWorld;
+					MinecraftClientData.reset();
 				}
 			}
 
