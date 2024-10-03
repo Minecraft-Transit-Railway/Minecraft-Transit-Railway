@@ -28,7 +28,6 @@ import org.mtr.mod.render.*;
 import org.mtr.mod.resource.CachedResource;
 import org.mtr.mod.screen.BetaWarningScreen;
 import org.mtr.mod.servlet.ClientServlet;
-import org.mtr.mod.servlet.Tunnel;
 import org.mtr.mod.sound.LoopingSoundInstance;
 import org.mtr.mod.sound.VehicleSoundBase;
 
@@ -39,7 +38,6 @@ import java.util.function.Consumer;
 public final class InitClient {
 
 	private static Webserver webserver;
-	private static Tunnel tunnel;
 	private static long lastMillis = 0;
 	private static long gameMillis = 0;
 	private static long lastPlayedTrainSoundsMillis = 0;
@@ -348,13 +346,9 @@ public final class InitClient {
 			webserver = new Webserver(port);
 			webserver.addServlet(new ServletHolder(new ClientServlet()), "/");
 			webserver.start();
-			tunnel = new Tunnel(MinecraftClient.getInstance().getRunDirectoryMapped(), port, () -> QrCodeHelper.INSTANCE.setClientTunnelUrl(port, tunnel.getTunnelUrl()));
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerClientDisconnect(() -> {
-			if (tunnel != null) {
-				tunnel.stop();
-			}
 			if (webserver != null) {
 				webserver.stop();
 			}
@@ -416,7 +410,6 @@ public final class InitClient {
 
 		REGISTRY_CLIENT.eventRegistryClient.registerResourceReloadEvent(CustomResourceLoader::reload);
 
-		Patreon.getPatreonList();
 		Config.init(MinecraftClient.getInstance().getRunDirectoryMapped());
 		ResourcePackHelper.fix();
 

@@ -17,8 +17,8 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Icons;
+import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
-import org.mtr.mod.Patreon;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
@@ -164,7 +164,7 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 	private static String fetchWikipediaArticle(String wikipediaArticle) {
 		final String result = WIKIPEDIA_ARTICLES.get(wikipediaArticle);
 		if (result == null) {
-			CompletableFuture.runAsync(() -> Patreon.openConnectionSafeJson("https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext&exintro&titles=" + wikipediaArticle, jsonElement -> {
+			CompletableFuture.runAsync(() -> Init.openConnectionSafeJson("https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext&exintro&titles=" + wikipediaArticle, jsonElement -> {
 				final JsonObject pagesObject = jsonElement.getAsJsonObject().getAsJsonObject("query").getAsJsonObject("pages");
 				pagesObject.entrySet().stream().findFirst().ifPresent(entry -> WIKIPEDIA_ARTICLES.put(wikipediaArticle, pagesObject.getAsJsonObject(entry.getKey()).get("extract").getAsString()));
 			}));
