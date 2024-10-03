@@ -8,12 +8,9 @@ import org.mtr.legacy.generated.resource.VehicleResourceSchema;
 import org.mtr.libraries.com.google.gson.JsonArray;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.resource.ModelProperties;
-import org.mtr.mod.resource.PositionDefinitions;
 import org.mtr.mod.resource.VehicleModel;
 import org.mtr.mod.resource.VehicleResource;
 
@@ -218,14 +215,14 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				final double x1 = width / 2 + 0.25;
 				final double x2 = width / 2 + 0.5;
 				final double z = length / 2 - 0.5;
-				final ObjectArraySet<Box> doorways = new ObjectArraySet<>();
+				final ObjectArrayList<Box> doorways = new ObjectArrayList<>();
 				for (double j = -z; j <= z + 0.001; j++) {
 					doorways.add(new Box(-x1, 1, j, -x2, 1, j + 1));
 					doorways.add(new Box(x1, 1, j, x2, 1, j + 1));
 				}
 				vehicleResources.add(new VehicleResource(
 						new JsonReader(baseObject),
-						modelObjects.stream().map(modelObject -> new VehicleModel(new JsonReader(modelObject), new ModelProperties(new JsonReader(modelPropertiesObject)), new PositionDefinitions(new JsonReader(positionDefinitionsObject)), id)).collect(Collectors.toCollection(ObjectArrayList::new)),
+						modelObjects.stream().map(modelObject -> new VehicleModel(new JsonReader(modelObject), new JsonReader(modelPropertiesObject), new JsonReader(positionDefinitionsObject), id)).collect(Collectors.toCollection(ObjectArrayList::new)),
 						new Box(-x1, 1, -z, x1, 1, z),
 						doorways
 				));

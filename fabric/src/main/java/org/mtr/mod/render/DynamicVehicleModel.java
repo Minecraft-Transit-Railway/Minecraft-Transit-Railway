@@ -90,8 +90,8 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	}
 
 	public void writeFloorsAndDoorways(
-			ObjectArraySet<Box> floors,
-			ObjectArraySet<Box> doorways,
+			ObjectArrayList<Box> floors,
+			ObjectArrayList<Box> doorways,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartCondition,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionDoorsClosed,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsForPartCondition,
