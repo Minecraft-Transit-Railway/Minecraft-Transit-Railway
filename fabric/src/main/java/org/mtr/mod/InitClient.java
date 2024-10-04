@@ -186,8 +186,12 @@ public final class InitClient {
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_160_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_200, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_200_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
+		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_250, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
+		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_250_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_300, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_300_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
+		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_400, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
+		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_400_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_PLATFORM, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_SIDING, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_TURN_BACK, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
