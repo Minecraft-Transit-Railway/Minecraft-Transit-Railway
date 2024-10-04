@@ -117,7 +117,7 @@ public class ConfigScreen extends ScreenExtension implements IGui {
 			int y = 0;
 			int x = 0;
 			int maxWidth = 0;
-			for (final Patreon patreon : Patreon.LIST) {
+			for (final Patreon patreon : Patreon.PATREON_LIST) {
 				if (!patreon.tierTitle.equals(tierTitle)) {
 					x += maxWidth + TEXT_PADDING;
 					y = 0;

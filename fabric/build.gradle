@@ -42,7 +42,7 @@ tasks.register("setupFiles") {
 		outputs.upToDateWhen { false }
 		from "src/main/KeysTemplate.java"
 		into "src/main/java/org/mtr/mod"
-		filter(ReplaceTokens, tokens: ["key": patreonApiKey, "version": version + "+" + minecraftVersion, "server": testServer, "debug": debug])
+		filter(ReplaceTokens, tokens: ["version": version + "+" + minecraftVersion, "server": testServer, "debug": debug])
 		rename "(.+)Template.java", "\$1.java"
 	}
 
@@ -58,6 +58,7 @@ tasks.register("setupFiles") {
 	buildTools.copyLootTables()
 	buildTools.copyFontDefinition()
 	buildTools.copyVehicleTemplates()
+	buildTools.getPatreonList(patreonApiKey)
 	Generator.generate(project, "schema/config", "mod/generated/config", false, "mod.config")
 	Generator.generate(project, "schema/resource", "mod/generated/resource", false, "core.data", "mod.resource")
 	Generator.generate(project, "schema/legacy", "legacy/generated/resource", false)

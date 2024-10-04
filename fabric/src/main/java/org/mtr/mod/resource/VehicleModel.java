@@ -20,17 +20,25 @@ public final class VehicleModel extends VehicleModelSchema {
 	public VehicleModel(ReaderBase readerBase) {
 		super(readerBase);
 		updateData(readerBase);
-		final ModelProperties[] modelProperties = {null};
-		CustomResourceLoader.readResource(CustomResourceTools.formatIdentifier(modelPropertiesResource, "json"), jsonElement -> modelProperties[0] = new ModelProperties(new JsonReader(jsonElement)));
-		final PositionDefinitions[] positionDefinitions = {null};
-		CustomResourceLoader.readResource(CustomResourceTools.formatIdentifier(positionDefinitionsResource, "json"), jsonElement -> positionDefinitions[0] = new PositionDefinitions(new JsonReader(jsonElement)));
-		cachedModel = new CachedResource<>(() -> createModel(modelProperties[0], positionDefinitions[0], modelPropertiesResource), MODEL_LIFESPAN);
+		final JsonReader[] modelPropertiesJsonReader = {null};
+		CustomResourceLoader.readResource(CustomResourceTools.formatIdentifier(modelPropertiesResource, "json"), jsonElement -> modelPropertiesJsonReader[0] = new JsonReader(jsonElement));
+		final JsonReader[] positionDefinitionsJsonReader = {null};
+		CustomResourceLoader.readResource(CustomResourceTools.formatIdentifier(positionDefinitionsResource, "json"), jsonElement -> positionDefinitionsJsonReader[0] = new JsonReader(jsonElement));
+		cachedModel = new CachedResource<>(() -> createModel(
+				modelPropertiesJsonReader[0] == null ? null : new ModelProperties(modelPropertiesJsonReader[0]),
+				positionDefinitionsJsonReader[0] == null ? null : new PositionDefinitions(positionDefinitionsJsonReader[0]),
+				modelPropertiesResource
+		), MODEL_LIFESPAN);
 	}
 
-	public VehicleModel(ReaderBase readerBase, @Nullable ModelProperties modelProperties, @Nullable PositionDefinitions positionDefinitions, String id) {
+	public VehicleModel(ReaderBase readerBase, @Nullable JsonReader modelPropertiesJsonReader, @Nullable JsonReader positionDefinitionsJsonReader, String id) {
 		super(readerBase);
 		updateData(readerBase);
-		cachedModel = new CachedResource<>(() -> createModel(modelProperties, positionDefinitions, id), MODEL_LIFESPAN);
+		cachedModel = new CachedResource<>(() -> createModel(
+				modelPropertiesJsonReader == null ? null : new ModelProperties(modelPropertiesJsonReader),
+				positionDefinitionsJsonReader == null ? null : new PositionDefinitions(positionDefinitionsJsonReader),
+				id
+		), MODEL_LIFESPAN);
 	}
 
 	@Nullable
