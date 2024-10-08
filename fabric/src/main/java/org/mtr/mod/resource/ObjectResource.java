@@ -11,29 +11,26 @@ import javax.annotation.Nullable;
 
 public final class ObjectResource extends ObjectResourceSchema implements StoredModelResourceBase {
 
-	@Nullable
-	private final OptimizedModelWrapper optimizedModel;
-	@Nullable
-	private final DynamicVehicleModel dynamicVehicleModel;
+	private final CachedResource<ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel>> cachedRailResource;
 
 	public ObjectResource(ReaderBase readerBase) {
 		super(readerBase);
 		updateData(readerBase);
-		final ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel> modelPair = load(modelResource, textureResource, flipTextureV, 0);
-		optimizedModel = modelPair.left();
-		dynamicVehicleModel = modelPair.right();
+		cachedRailResource = new CachedResource<>(() -> load(modelResource, textureResource, flipTextureV, 0), VehicleModel.MODEL_LIFESPAN);
 	}
 
 	@Override
 	@Nullable
 	public OptimizedModelWrapper getOptimizedModel() {
-		return optimizedModel;
+		final ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel> railResource = cachedRailResource.getData(false);
+		return railResource == null ? null : railResource.left();
 	}
 
 	@Override
 	@Nullable
 	public DynamicVehicleModel getDynamicVehicleModel() {
-		return dynamicVehicleModel;
+		final ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel> railResource = cachedRailResource.getData(false);
+		return railResource == null ? null : railResource.right();
 	}
 
 	@Override

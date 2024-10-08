@@ -160,6 +160,7 @@
 	"gui.mtr.add_value": "Add Value",
 	"gui.mtr.already_entered": "Station already entered",
 	"gui.mtr.already_exited": "No entry record found",
+	"gui.mtr.announcement_delay": "Delay (Seconds)",
 	"gui.mtr.announcement_message": "Announcement Message",
 	"gui.mtr.anonymous": "Anonymous",
 	"gui.mtr.anticlockwise_via": "Anticlockwise via %s",

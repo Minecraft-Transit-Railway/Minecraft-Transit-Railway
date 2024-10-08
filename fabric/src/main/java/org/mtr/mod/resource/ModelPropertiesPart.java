@@ -200,7 +200,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	/**
 	 * If this part is a door, find the closest doorway.
 	 */
-	void mapDoors(ObjectArraySet<Box> doorways) {
+	void mapDoors(ObjectArrayList<Box> doorways) {
 		if (isDoor()) {
 			partDetailsList.forEach(partDetails -> doorways.stream().min(Comparator.comparingDouble(checkDoorway -> getClosestDistance(
 					partDetails.box.getMinXMapped(),

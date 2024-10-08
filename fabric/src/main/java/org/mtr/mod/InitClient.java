@@ -13,6 +13,7 @@ import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.registry.RegistryClient;
 import org.mtr.mod.block.BlockTactileMap;
+import org.mtr.mod.block.BlockTrainAnnouncer;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.IDrawing;
@@ -25,10 +26,11 @@ import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.item.ItemBlockClickingBase;
 import org.mtr.mod.packet.PacketRequestData;
 import org.mtr.mod.render.*;
+import org.mtr.mod.resource.CachedResource;
 import org.mtr.mod.screen.BetaWarningScreen;
 import org.mtr.mod.servlet.ClientServlet;
-import org.mtr.mod.servlet.Tunnel;
 import org.mtr.mod.sound.LoopingSoundInstance;
+import org.mtr.mod.sound.VehicleSoundBase;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
@@ -37,12 +39,12 @@ import java.util.function.Consumer;
 public final class InitClient {
 
 	private static Webserver webserver;
-	private static Tunnel tunnel;
 	private static long lastMillis = 0;
 	private static long gameMillis = 0;
 	private static long lastPlayedTrainSoundsMillis = 0;
 	private static long lastUpdatePacketMillis = 0;
 	private static Runnable movePlayer;
+	private static ClientWorld lastClientWorld;
 	public static PIDSLayoutCache pidsLayoutCache = new PIDSLayoutCache();
 
 	public static final RegistryClient REGISTRY_CLIENT = new RegistryClient(Init.REGISTRY);
@@ -346,13 +348,9 @@ public final class InitClient {
 			webserver = new Webserver(port);
 			webserver.addServlet(new ServletHolder(new ClientServlet()), "/");
 			webserver.start();
-			tunnel = new Tunnel(MinecraftClient.getInstance().getRunDirectoryMapped(), port, () -> QrCodeHelper.INSTANCE.setClientTunnelUrl(port, tunnel.getTunnelUrl()));
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerClientDisconnect(() -> {
-			if (tunnel != null) {
-				tunnel.stop();
-			}
 			if (webserver != null) {
 				webserver.stop();
 			}
@@ -363,6 +361,7 @@ public final class InitClient {
 			final long millisElapsed = currentMillis - lastMillis;
 			lastMillis = currentMillis;
 			gameMillis += millisElapsed;
+			CachedResource.tick();
 			BetaWarningScreen.handle();
 
 			final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
@@ -377,7 +376,15 @@ public final class InitClient {
 				if (shouldCreateEntity[0]) {
 					MinecraftClientHelper.addEntity(new EntityRendering(new World(clientWorld.data)));
 				}
+
+				// If world or dimension changed, reset the data
+				if (lastClientWorld == null || !lastClientWorld.equals(clientWorld)) {
+					lastClientWorld = clientWorld;
+					MinecraftClientData.reset();
+				}
 			}
+
+			BlockTrainAnnouncer.processQueue();
 
 			// If player is moving, send a request every 0.5 seconds to the server to fetch any new nearby data
 			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
@@ -394,6 +401,7 @@ public final class InitClient {
 				movePlayer.run();
 				movePlayer = null;
 			}
+			VehicleSoundBase.playScheduledSounds();
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerChunkLoad((clientWorld, worldChunk) -> {
@@ -404,7 +412,6 @@ public final class InitClient {
 
 		REGISTRY_CLIENT.eventRegistryClient.registerResourceReloadEvent(CustomResourceLoader::reload);
 
-		Patreon.getPatreonList();
 		Config.init(MinecraftClient.getInstance().getRunDirectoryMapped());
 		ResourcePackHelper.fix();
 

@@ -7,6 +7,7 @@ import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mapping.tool.PacketBufferSender;
+import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockEyeCandy;
 
 import javax.annotation.Nullable;
@@ -58,6 +59,10 @@ public final class PacketUpdateEyeCandyConfig extends PacketHandler {
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
+		if (!Init.isChunkLoaded(serverPlayerEntity.getEntityWorld(), blockPos)) {
+			return;
+		}
+
 		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
 		if (entity != null && entity.data instanceof BlockEyeCandy.BlockEntity) {
 			((BlockEyeCandy.BlockEntity) entity.data).setData(modelId, translateX, translateY, translateZ, rotateX, rotateY, rotateZ, fullLight);

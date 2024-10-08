@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 import com.jonafanho.apitools.ModId;
 import com.jonafanho.apitools.ModLoader;
 import com.jonafanho.apitools.ModProvider;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -17,11 +18,14 @@ import org.mtr.mapping.mixin.CreateAccessWidener;
 import org.mtr.mapping.mixin.CreateClientWorldRenderingMixin;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -117,12 +121,11 @@ public class BuildTools {
 	}
 
 	public void copyFontDefinition() throws IOException {
+		final String legacyFont = "legacy_unicode\",\"sizes\":\"minecraft:font/glyph_sizes.bin\",\"template\":\"minecraft:font/unicode_page_%s.png";
+		final String modernFont = "reference\",\"id\":\"minecraft:include/space\"},{\"type\":\"reference\",\"id\":\"minecraft:include/default\"},{\"type\":\"reference\",\"id\":\"minecraft:include/unifont";
 		FileUtils.write(
 				path.resolve("src/main/resources/assets/mtr/font/mtr.json").toFile(),
-				FileUtils.readFileToString(path.resolve("src/main/font_template.json").toFile(), StandardCharsets.UTF_8).replace(
-						"@type@",
-						majorVersion >= 20 ? "reference\",\"id\":\"minecraft:include/default" : "legacy_unicode\",\"sizes\":\"minecraft:font/glyph_sizes.bin\",\"template\":\"minecraft:font/unicode_page_%s.png"
-				),
+				FileUtils.readFileToString(path.resolve("src/main/font_template.json").toFile(), StandardCharsets.UTF_8).replace("@type@", majorVersion >= 20 ? modernFont : legacyFont),
 				StandardCharsets.UTF_8
 		);
 	}
@@ -187,10 +190,50 @@ public class BuildTools {
 		Files.copy(path.resolve(String.format("build/libs/%s-%s%s.jar", loader, version, loader.equals("fabric") ? "" : "-all")), directory.resolve(String.format("MTR-%s-%s+%s%s.jar", loader, version, minecraftVersion, excludeAssets ? "-server" : "")), StandardCopyOption.REPLACE_EXISTING);
 	}
 
-	private static JsonElement getJson(String url) {
+	public void getPatreonList(String key) throws IOException {
+		final ObjectArrayList<Patreon> patreonList = new ObjectArrayList<>();
+		final StringBuilder stringBuilder = new StringBuilder("package org.mtr.mod;public class Patreon{public final String name;public final String tierTitle;public final int tierAmount;public final int tierColor;");
+		stringBuilder.append("private Patreon(String name,String tierTitle,int tierAmount,int tierColor){this.name=name;this.tierTitle=tierTitle;this.tierAmount=tierAmount;this.tierColor=tierColor;}public static Patreon[]PATREON_LIST={\n");
+
+		if (!key.isEmpty()) {
+			final JsonObject jsonObjectData = getJson("https://www.patreon.com/api/oauth2/v2/campaigns/7782318/members?include=currently_entitled_tiers&fields%5Bmember%5D=full_name,lifetime_support_cents,patron_status&fields%5Btier%5D=title,amount_cents&page%5Bcount%5D=" + Integer.MAX_VALUE, "Authorization", "Bearer " + key).getAsJsonObject();
+			final Object2ObjectAVLTreeMap<String, JsonObject> idMap = new Object2ObjectAVLTreeMap<>();
+			jsonObjectData.getAsJsonArray("included").forEach(jsonElementData -> {
+				final JsonObject jsonObject = jsonElementData.getAsJsonObject();
+				idMap.put(jsonObject.get("id").getAsString(), jsonObject.getAsJsonObject("attributes"));
+			});
+
+			jsonObjectData.getAsJsonArray("data").forEach(jsonElementData -> {
+				final JsonObject jsonObjectAttributes = jsonElementData.getAsJsonObject().getAsJsonObject("attributes");
+				final JsonArray jsonObjectTiers = jsonElementData.getAsJsonObject().getAsJsonObject("relationships").getAsJsonObject("currently_entitled_tiers").getAsJsonArray("data");
+				if (!jsonObjectAttributes.get("patron_status").isJsonNull() && jsonObjectAttributes.get("patron_status").getAsString().equals("active_patron") && !jsonObjectTiers.isEmpty()) {
+					patreonList.add(new Patreon(jsonObjectAttributes, idMap.get(jsonObjectTiers.get(0).getAsJsonObject().get("id").getAsString())));
+				}
+			});
+
+			Collections.sort(patreonList);
+		}
+
+		patreonList.forEach(patreon -> stringBuilder.append(String.format("new Patreon(\"%s\",\"%s\",%s,%s),\n", patreon.name, patreon.tierTitle, patreon.tierAmount, patreon.tierColor)));
+		stringBuilder.append("};}");
+		FileUtils.write(path.resolve("src/main/java/org/mtr/mod/Patreon.java").toFile(), stringBuilder, StandardCharsets.UTF_8);
+	}
+
+	private static JsonElement getJson(String url, String... requestProperties) {
 		for (int i = 0; i < 5; i++) {
 			try {
-				return JsonParser.parseString(IOUtils.toString(new URL(url), StandardCharsets.UTF_8));
+				final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+				connection.setUseCaches(false);
+
+				for (int j = 0; j < requestProperties.length / 2; j++) {
+					connection.setRequestProperty(requestProperties[2 * j], requestProperties[2 * j + 1]);
+				}
+
+				try (final InputStream inputStream = connection.getInputStream()) {
+					return JsonParser.parseString(IOUtils.toString(inputStream, StandardCharsets.UTF_8));
+				} catch (Exception e) {
+					LOGGER.error("", e);
+				}
 			} catch (Exception e) {
 				LOGGER.error("", e);
 			}
@@ -202,5 +245,48 @@ public class BuildTools {
 		}
 
 		return new JsonObject();
+	}
+
+	private static class Patreon implements Comparable<Patreon> {
+
+		private final String name;
+		private final String tierTitle;
+		private final int tierAmount;
+		private final int tierColor;
+		private final int totalAmount;
+
+		public Patreon(JsonObject jsonObjectPatron, JsonObject jsonObjectTiers) {
+			name = jsonObjectPatron.get("full_name").getAsString();
+			totalAmount = jsonObjectPatron.get("lifetime_support_cents").getAsInt();
+			tierTitle = jsonObjectTiers.get("title").getAsString();
+			tierAmount = jsonObjectTiers.get("amount_cents").getAsInt();
+
+			int color = 0xFFFFFF;
+			try {
+				color = RailType.valueOf(tierTitle.toUpperCase(Locale.ENGLISH)).color;
+			} catch (Exception ignored) {
+			}
+			tierColor = color;
+		}
+
+		@Override
+		public int compareTo(Patreon patreon) {
+			return patreon.tierAmount == tierAmount ? patreon.totalAmount - totalAmount : patreon.tierAmount - tierAmount;
+		}
+	}
+
+	private enum RailType {
+		WOODEN(0xFF8F7748),
+		STONE(0xFF707070),
+		IRON(0xFFA7A7A7),
+		DIAMOND(0xFF5CDBD5),
+		PLATFORM(0xFF993333),
+		SIDING(0xFFE5E533);
+
+		private final int color;
+
+		RailType(int color) {
+			this.color = color;
+		}
 	}
 }

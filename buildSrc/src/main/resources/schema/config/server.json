@@ -8,6 +8,9 @@
 		"webserverPort": {
 			"type": "integer",
 			"default": 8888
+		},
+		"useThreadedSimulation": {
+			"type": "boolean"
 		}
 	}
 }

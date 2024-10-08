@@ -11,6 +11,8 @@ import org.mtr.core.operation.SetTime;
 import org.mtr.core.servlet.Webserver;
 import org.mtr.core.simulation.Simulator;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.com.google.gson.JsonElement;
+import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.org.eclipse.jetty.servlet.ServletHolder;
@@ -29,11 +31,15 @@ import org.mtr.mod.data.PIDSLayoutData;
 import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.*;
-import org.mtr.mod.servlet.Tunnel;
 import org.mtr.mod.servlet.VehicleLiftServlet;
 
 import javax.annotation.Nullable;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.ServerSocket;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -42,11 +48,11 @@ public final class Init implements Utilities {
 
 	private static Main main;
 	private static Webserver webserver;
-	private static Tunnel tunnel;
 	private static int serverPort;
 	private static Runnable sendWorldTimeUpdate;
 	private static boolean canSendWorldTimeUpdate = true;
 	private static int serverTick;
+	private static long lastSavedMillis;
 	public static PIDSLayoutData pidsLayoutData;
 
 	public static final String MOD_ID = "mtr";
@@ -54,6 +60,7 @@ public final class Init implements Utilities {
 	public static final Logger LOGGER = LogManager.getLogger("MinecraftTransitRailway");
 	public static final Registry REGISTRY = new Registry();
 	public static final int SECONDS_PER_MC_HOUR = 50;
+	public static final int AUTOSAVE_INTERVAL = 30000;
 
 	private static final int MILLIS_PER_MC_DAY = SECONDS_PER_MC_HOUR * MILLIS_PER_SECOND * HOURS_PER_DAY;
 	private static final Object2ObjectArrayMap<ServerWorld, RailActionModule> RAIL_ACTION_MODULES = new Object2ObjectArrayMap<>();
@@ -176,16 +183,15 @@ public final class Init implements Utilities {
 			// Add default layouts
 			PIDSDefaultLayouts.addDefaultLayouts(pidsLayoutData);
 			serverPort = findFreePort(defaultPort);
-			tunnel = new Tunnel(minecraftServer.getRunDirectory(), defaultPort, () -> {
-			});
 
 			final int port = findFreePort(serverPort + 1);
-			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, port, WORLD_ID_LIST.toArray(new String[0]));
+			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, port, Config.getServer().getUseThreadedSimulation(), WORLD_ID_LIST.toArray(new String[0]));
 			webserver = new Webserver(port);
 			webserver.addServlet(new ServletHolder(new VehicleLiftServlet(minecraftServer)), "/vehicles-lifts");
 			webserver.start();
 
 			serverTick = 0;
+			lastSavedMillis = System.currentTimeMillis();
 			sendWorldTimeUpdate = () -> {
 				if (canSendWorldTimeUpdate) {
 					canSendWorldTimeUpdate = false;
@@ -201,22 +207,13 @@ public final class Init implements Utilities {
 					);
 				} else {
 					Main.LOGGER.error("Transport Simulation Core not responding; stopping Minecraft server!");
-					if (main != null) {
-						main.stop();
-					}
-					if (webserver != null) {
-						webserver.stop();
-					}
-					Main.LOGGER.error("Shutting down all threads");
-					System.exit(0);
+					minecraftServer.stop(false);
+					canSendWorldTimeUpdate = true; // In singleplayer, this gives the player opportunity to re-enter world.
 				}
 			};
 		});
 
 		REGISTRY.eventRegistry.registerServerStopping(minecraftServer -> {
-			if (tunnel != null) {
-				tunnel.stop();
-			}
 			if (main != null) {
 				main.stop();
 			}
@@ -229,8 +226,18 @@ public final class Init implements Utilities {
 			if (sendWorldTimeUpdate != null && serverTick % (SECONDS_PER_MC_HOUR * 10) == 0) {
 				sendWorldTimeUpdate.run();
 			}
+
 			ArrivalsCacheServer.tickAll();
 			serverTick++;
+			if (!Config.getServer().getUseThreadedSimulation()) {
+				main.manualTick();
+			}
+
+			final long currentMillis = System.currentTimeMillis();
+			if (currentMillis - lastSavedMillis > AUTOSAVE_INTERVAL) {
+				main.save();
+				lastSavedMillis = currentMillis;
+			}
 		});
 
 		REGISTRY.eventRegistry.registerEndWorldTick(serverWorld -> {
@@ -276,17 +283,13 @@ public final class Init implements Utilities {
 		return new BlockPos(MathHelper.floor(x), MathHelper.floor(y), MathHelper.floor(z));
 	}
 
-	public static boolean isChunkLoaded(World world, ChunkManager chunkManager, BlockPos blockPos) {
-		return chunkManager.getWorldChunk(blockPos.getX() / 16, blockPos.getZ() / 16) != null && world.isRegionLoaded(blockPos, blockPos);
+	public static boolean isChunkLoaded(World world, BlockPos blockPos) {
+		return world.getChunkManager().getWorldChunk(blockPos.getX() / 16, blockPos.getZ() / 16) != null && world.isRegionLoaded(blockPos, blockPos);
 	}
 
 	public static String getWorldId(World world) {
 		final Identifier identifier = MinecraftServerHelper.getWorldId(world);
 		return String.format("%s/%s", identifier.getNamespace(), identifier.getPath());
-	}
-
-	public static String getTunnelUrl() {
-		return tunnel.getTunnelUrl();
 	}
 
 	public static int findFreePort(int startingPort) {
@@ -300,6 +303,35 @@ public final class Init implements Utilities {
 			}
 		}
 		return 0;
+	}
+
+	public static void openConnectionSafe(String url, Consumer<InputStream> callback, String... requestProperties) {
+		try {
+			final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+			connection.setUseCaches(false);
+
+			for (int i = 0; i < requestProperties.length / 2; i++) {
+				connection.setRequestProperty(requestProperties[2 * i], requestProperties[2 * i + 1]);
+			}
+
+			try (final InputStream inputStream = connection.getInputStream()) {
+				callback.accept(inputStream);
+			} catch (Exception e) {
+				Init.LOGGER.error("", e);
+			}
+		} catch (Exception e) {
+			Init.LOGGER.error("", e);
+		}
+	}
+
+	public static void openConnectionSafeJson(String url, Consumer<JsonElement> callback, String... requestProperties) {
+		openConnectionSafe(url, inputStream -> {
+			try (final InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+				callback.accept(JsonParser.parseReader(inputStreamReader));
+			} catch (Exception e) {
+				Init.LOGGER.error("", e);
+			}
+		}, requestProperties);
 	}
 
 	private static void generateOrClearDepotsFromCommand(CommandBuilder<?> commandBuilder, boolean isGenerate) {

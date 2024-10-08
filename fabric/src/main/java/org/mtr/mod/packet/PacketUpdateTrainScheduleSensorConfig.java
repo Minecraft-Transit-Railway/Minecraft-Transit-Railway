@@ -7,6 +7,7 @@ import org.mtr.mapping.holder.MinecraftServer;
 import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mapping.tool.PacketBufferSender;
+import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockTrainScheduleSensor;
 
 public class PacketUpdateTrainScheduleSensorConfig extends PacketUpdateTrainSensorConfig {
@@ -35,6 +36,10 @@ public class PacketUpdateTrainScheduleSensorConfig extends PacketUpdateTrainSens
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
+		if (!Init.isChunkLoaded(serverPlayerEntity.getEntityWorld(), blockPos)) {
+			return;
+		}
+
 		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
 		if (entity != null && entity.data instanceof BlockTrainScheduleSensor.BlockEntity) {
 			((BlockTrainScheduleSensor.BlockEntity) entity.data).setData(filterRouteIds, stoppedOnly, movingOnly, seconds, realtimeOnly);
