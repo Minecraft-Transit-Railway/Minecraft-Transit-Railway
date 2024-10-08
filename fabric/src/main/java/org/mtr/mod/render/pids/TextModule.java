@@ -13,6 +13,7 @@ import org.mtr.mod.data.IGui;
 import org.mtr.mod.render.RenderPIDS;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class TextModule extends PIDSModule {
@@ -56,17 +57,16 @@ public class TextModule extends PIDSModule {
         if (textOverride != null) {
             text = textOverride;
         } else {
-            String[] getText = placeholders.toArray(String[]::new);
-            String[] texts = getText[0].split("\\|\\|")[0].replaceAll("\\\\\\|", "^TEMP^").split("\\|");
-            int textIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderPIDS.SWITCH_TEXT_TICKS) % texts.length;
-            getText[0] = texts[textIndex].replaceAll("\\^TEMP\\^", "|");
+            ArrayList<String> texts = (ArrayList<String>) List.of(placeholders.get(0).split("\\|\\|")[0].replaceAll("\\\\\\|", "^TEMP^").split("\\|"));
+            int textIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderPIDS.SWITCH_TEXT_TICKS) % texts.size();
+            placeholders.set(0, texts.get(textIndex).replaceAll("\\^TEMP\\^", "|"));
 
             String template = this.template.split("\\|\\|")[0];
-            String[] templates = template.replaceAll("\\\\\\|", "^TEMP^").split("\\|");
-            int templateIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderPIDS.SWITCH_TEXT_TICKS) % templates.length;
-            text = templates[templateIndex].replaceAll("\\^TEMP\\^", "|");
+            ArrayList<String> templates = (ArrayList<String>) List.of(template.replaceAll("\\\\\\|", "^TEMP^").split("\\|"));
+            int templateIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderPIDS.SWITCH_TEXT_TICKS) % templates.size();
+            text = templates.get(templateIndex).replaceAll("\\^TEMP\\^", "|");
             // Some workaround to prevent MisingFormatArgumentException
-            for (String t : getText) {
+            for (String t : placeholders) {
                 text = text.replaceFirst("%s", t);
             }
         }
