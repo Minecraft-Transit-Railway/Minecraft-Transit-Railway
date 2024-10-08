@@ -1,5 +1,6 @@
 package org.mtr.mod.data;
 
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.libraries.com.google.gson.JsonParser;
@@ -18,6 +19,7 @@ import java.util.Map;
 
 public class PIDSLayoutData extends PersistenceStateExtension {
     private final Map<String, PIDSLayoutEntry> pidsLayoutData = new HashMap<>();
+    private static final Logger LOGGER = Init.LOGGER;
 
     public PIDSLayoutData(String key) {
         super(key);
@@ -57,6 +59,7 @@ public class PIDSLayoutData extends PersistenceStateExtension {
      */
     public void setLayoutData(String key, String value) {
         pidsLayoutData.put(key, new PIDSLayoutEntry(value));
+        this.markDirty2();
     }
 
     public void removeLayout(String key) {
@@ -87,6 +90,7 @@ public class PIDSLayoutData extends PersistenceStateExtension {
         for (Map.Entry<String, PIDSLayoutEntry> entry : pidsLayoutData.entrySet()) {
             compoundTag.putString(entry.getKey(), entry.getValue().data);
         }
+        LOGGER.info("PIDSLayoutData: Saving PIDS layout data");
         return compoundTag;
     }
 
