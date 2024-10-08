@@ -62,9 +62,13 @@ public class TextModule extends PIDSModule {
             getText[0] = texts[textIndex].replaceAll("\\^TEMP\\^", "|");
 
             String template = this.template.split("\\|\\|")[0];
-            String[] templates = template.replaceAll("\\|", "^TEMP^").split("\\|");
+            String[] templates = template.replaceAll("\\\\\\|", "^TEMP^").split("\\|");
             int templateIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderPIDS.SWITCH_TEXT_TICKS) % templates.length;
-            text = String.format(templates[templateIndex].replaceAll("\\^TEMP\\^", "|"), (Object[]) getText);
+            text = templates[templateIndex].replaceAll("\\^TEMP\\^", "|");
+            // Some workaround to prevent MisingFormatArgumentException
+            for (String t : getText) {
+                text = text.replaceFirst("%s", t);
+            }
         }
 
         int color = this.color;
