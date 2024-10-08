@@ -57,14 +57,14 @@ public class TextModule extends PIDSModule {
         if (textOverride != null) {
             text = textOverride;
         } else {
-            List<String> texts = List.of(placeholders.get(0).split("\\|\\|")[0].replaceAll("\\\\\\|", "^TEMP^").split("\\|"));
-            int textIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderPIDS.SWITCH_TEXT_TICKS) % texts.size();
-            placeholders.set(0, texts.get(textIndex).replaceAll("\\^TEMP\\^", "|"));
+            String[] texts = placeholders.get(0).split("\\|\\|")[0].replaceAll("\\\\\\|", "^TEMP^").split("\\|");
+            int textIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderPIDS.SWITCH_TEXT_TICKS) % texts.length;
+            placeholders.set(0, texts[textIndex].replaceAll("\\^TEMP\\^", "|"));
 
             String template = this.template.split("\\|\\|")[0];
-            List<String> templates = List.of(template.replaceAll("\\\\\\|", "^TEMP^").split("\\|"));
-            int templateIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderPIDS.SWITCH_TEXT_TICKS) % templates.size();
-            text = templates.get(templateIndex).replaceAll("\\^TEMP\\^", "|");
+            String[] templates = template.replaceAll("\\\\\\|", "^TEMP^").split("\\|");
+            int templateIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderPIDS.SWITCH_TEXT_TICKS) % templates.length;
+            text = templates[templateIndex].replaceAll("\\^TEMP\\^", "|");
             // Some workaround to prevent MisingFormatArgumentException
             for (String t : placeholders) {
                 text = text.replaceFirst("%s", t);
