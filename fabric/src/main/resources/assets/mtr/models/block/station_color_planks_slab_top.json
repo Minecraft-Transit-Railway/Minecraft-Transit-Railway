@@ -1,7 +1,7 @@
 {
 	"parent": "mtr:block/station_color_slab_top_base",
 	"textures": {
-		"particle": "mtr:block/station_color_planks",
-		"texture": "mtr:block/station_color_planks"
+		"particle": "block/oak_planks",
+		"texture": "block/oak_planks"
 	}
 }
