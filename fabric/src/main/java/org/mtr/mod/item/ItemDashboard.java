@@ -50,6 +50,11 @@ public class ItemDashboard extends ItemExtension {
 			}
 		} else {
 			if (!world.isClient()) {
+				if(!user.isSneaking()){
+					PacketOpenDashboardScreen.sendDirectlyToServer(ServerWorld.cast(world), ServerPlayerEntity.cast(user), transportMode);
+					return;
+				}
+
 				Position playerPos = new Position((long) user.getX(), (long) user.getY(), (long) user.getZ());
 				String request = Utilities.getJsonObjectFromData(new DataRequest(user.getUuidAsString(), playerPos, 5)).toString();
 
