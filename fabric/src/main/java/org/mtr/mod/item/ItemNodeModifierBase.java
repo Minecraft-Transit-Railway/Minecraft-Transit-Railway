@@ -8,7 +8,6 @@ import org.mtr.core.operation.RailsRequest;
 import org.mtr.core.operation.RailsResponse;
 import org.mtr.core.tool.Angle;
 import org.mtr.core.tool.EnumHelper;
-import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
@@ -86,11 +85,11 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 
 	public static void getRail(World world, BlockPos blockPos1, BlockPos blockPos2, @Nullable ServerPlayerEntity serverPlayerEntity, Consumer<Rail> consumer) {
 		Init.sendHttpRequest(
-				"operation/rails",
+				"rails",
 				world,
-				Utilities.getJsonObjectFromData(new RailsRequest().addRailId(TwoPositionsBase.getHexId(Init.blockPosToPosition(blockPos1), Init.blockPosToPosition(blockPos2)))).toString(),
+				new RailsRequest().addRailId(TwoPositionsBase.getHexId(Init.blockPosToPosition(blockPos1), Init.blockPosToPosition(blockPos2))),
 				content -> {
-					final ObjectImmutableList<Rail> rails = Response.create(Utilities.parseJson(content)).getData(RailsResponse::new).getRails();
+					final ObjectImmutableList<Rail> rails = Response.create(content).getData(RailsResponse::new).getRails();
 					if (rails.isEmpty()) {
 						if (serverPlayerEntity != null) {
 							serverPlayerEntity.sendMessage(TranslationProvider.GUI_MTR_RAIL_NOT_FOUND_ACTION.getText(), true);

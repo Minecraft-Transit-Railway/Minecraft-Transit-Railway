@@ -4,7 +4,10 @@ import org.mtr.core.data.Position;
 import org.mtr.core.integration.Response;
 import org.mtr.core.operation.DeleteDataRequest;
 import org.mtr.core.operation.DeleteDataResponse;
+import org.mtr.core.serializer.JsonReader;
+import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mod.Init;
@@ -28,9 +31,9 @@ public final class PacketDeleteData extends PacketRequestResponseBase {
 	}
 
 	@Override
-	protected void runServerInbound(ServerWorld serverWorld, String content) {
+	protected void runServerInbound(ServerWorld serverWorld, JsonObject jsonObject) {
 		// Check if there are any rail nodes that need to be reset
-		Response.create(Utilities.parseJson(content)).getData(DeleteDataResponse::new).iterateRailNodePosition(railNodePosition -> BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(railNodePosition)));
+		Response.create(jsonObject).getData(DeleteDataResponse::new).iterateRailNodePosition(railNodePosition -> BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(railNodePosition)));
 	}
 
 	@Override
@@ -45,10 +48,15 @@ public final class PacketDeleteData extends PacketRequestResponseBase {
 		return new PacketDeleteData(content);
 	}
 
+	@Override
+	protected SerializedDataBase getDataInstance(JsonReader jsonReader) {
+		return new DeleteDataRequest(jsonReader);
+	}
+
 	@Nonnull
 	@Override
 	protected String getEndpoint() {
-		return "operation/delete-data";
+		return "delete-data";
 	}
 
 	@Override

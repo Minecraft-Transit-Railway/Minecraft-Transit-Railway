@@ -3,6 +3,10 @@ package org.mtr.mod.packet;
 import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.integration.Response;
 import org.mtr.core.operation.VehicleLiftResponse;
+import org.mtr.core.serializer.JsonReader;
+import org.mtr.core.serializer.ReaderBase;
+import org.mtr.core.serializer.SerializedDataBase;
+import org.mtr.core.serializer.WriterBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
@@ -51,6 +55,19 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 	@Override
 	protected PacketRequestResponseBase getInstance(String content) {
 		return new PacketUpdateVehiclesLifts(content);
+	}
+
+	@Override
+	protected SerializedDataBase getDataInstance(JsonReader jsonReader) {
+		return new SerializedDataBase() {
+			@Override
+			public void updateData(ReaderBase readerBase) {
+			}
+
+			@Override
+			public void serializeData(WriterBase writerBase) {
+			}
+		};
 	}
 
 	@Nonnull

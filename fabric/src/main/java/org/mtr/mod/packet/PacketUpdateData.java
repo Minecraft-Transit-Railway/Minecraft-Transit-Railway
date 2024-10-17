@@ -5,9 +5,13 @@ import org.mtr.core.data.SignalModification;
 import org.mtr.core.integration.Response;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.operation.UpdateDataResponse;
+import org.mtr.core.serializer.JsonReader;
+import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.ServerWorld;
+import org.mtr.mapping.mapper.MinecraftServerHelper;
 import org.mtr.mapping.tool.PacketBufferReceiver;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.MinecraftClientData;
 
@@ -37,10 +41,15 @@ public final class PacketUpdateData extends PacketRequestResponseBase {
 		return new PacketUpdateData(content);
 	}
 
+	@Override
+	protected SerializedDataBase getDataInstance(JsonReader jsonReader) {
+		return new UpdateDataRequest(jsonReader, new MinecraftClientData());
+	}
+
 	@Nonnull
 	@Override
 	protected String getEndpoint() {
-		return "operation/update-data";
+		return "update-data";
 	}
 
 	@Override
@@ -54,6 +63,10 @@ public final class PacketUpdateData extends PacketRequestResponseBase {
 
 	public static void sendDirectlyToServerSignalModification(ServerWorld serverWorld, SignalModification signalModification) {
 		new PacketUpdateData(new UpdateDataRequest(new MinecraftClientData()).addSignalModification(signalModification)).runServerOutbound(serverWorld, null);
+	}
+
+	public static void sendDirectlyToClientDepotUpdate(ServerWorld serverWorld, UpdateDataResponse updateDataResponse) {
+		MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntityNew -> Init.REGISTRY.sendPacketToClient(serverPlayerEntityNew, new PacketUpdateData(new Response(200, System.currentTimeMillis(), "", Utilities.getJsonObjectFromData(updateDataResponse)).getJson().toString())));
 	}
 
 	public static void update(Response response) {

@@ -1,7 +1,10 @@
 package org.mtr.mod.packet;
 
 import org.mtr.core.integration.Response;
+import org.mtr.core.serializer.JsonReader;
+import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.mapping.holder.MinecraftServer;
 import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.holder.ServerWorld;
@@ -48,19 +51,19 @@ public abstract class PacketRequestResponseBase extends PacketHandler {
 	}
 
 	protected void runServerOutbound(ServerWorld serverWorld, @Nullable ServerPlayerEntity serverPlayerEntity) {
-		Init.sendHttpRequest(getEndpoint(), new World(serverWorld.data), content, responseType() == ResponseType.NONE ? null : response -> {
+		Init.sendHttpRequest(getEndpoint(), new World(serverWorld.data), getDataInstance(new JsonReader(Utilities.parseJson(content))), responseType() == ResponseType.NONE ? null : response -> {
 			if (responseType() == ResponseType.PLAYER) {
 				if (serverPlayerEntity != null) {
-					Init.REGISTRY.sendPacketToClient(serverPlayerEntity, getInstance(response));
+					Init.REGISTRY.sendPacketToClient(serverPlayerEntity, getInstance(response.toString()));
 				}
 			} else {
-				MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntityNew -> Init.REGISTRY.sendPacketToClient(serverPlayerEntityNew, getInstance(response)));
+				MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntityNew -> Init.REGISTRY.sendPacketToClient(serverPlayerEntityNew, getInstance(response.toString())));
 			}
 			runServerInbound(serverWorld, response);
 		});
 	}
 
-	protected void runServerInbound(ServerWorld serverWorld, String content) {
+	protected void runServerInbound(ServerWorld serverWorld, JsonObject jsonObject) {
 	}
 
 	protected void runClientInbound(Response response) {
@@ -71,6 +74,8 @@ public abstract class PacketRequestResponseBase extends PacketHandler {
 	 * @return an instance of the packet (should be constructed using {@link #PacketRequestResponseBase(String)})
 	 */
 	protected abstract PacketRequestResponseBase getInstance(String content);
+
+	protected abstract SerializedDataBase getDataInstance(JsonReader jsonReader);
 
 	@Nonnull
 	protected abstract String getEndpoint();

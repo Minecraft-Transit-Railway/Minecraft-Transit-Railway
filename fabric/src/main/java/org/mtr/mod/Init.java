@@ -8,14 +8,14 @@ import org.mtr.core.Main;
 import org.mtr.core.data.Position;
 import org.mtr.core.operation.GenerateOrClearByDepotName;
 import org.mtr.core.operation.SetTime;
-import org.mtr.core.servlet.Webserver;
-import org.mtr.core.simulation.Simulator;
+import org.mtr.core.serializer.SerializedDataBase;
+import org.mtr.core.servlet.QueueObject;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonElement;
+import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.org.eclipse.jetty.servlet.ServletHolder;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.GameRule;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
@@ -28,7 +28,8 @@ import org.mtr.mod.data.ArrivalsCacheServer;
 import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.*;
-import org.mtr.mod.servlet.VehicleLiftServlet;
+import org.mtr.mod.servlet.OperationProcessor;
+import org.mtr.mod.servlet.RequestHelper;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -44,7 +45,6 @@ import java.util.function.Consumer;
 public final class Init implements Utilities {
 
 	private static Main main;
-	private static Webserver webserver;
 	private static int serverPort;
 	private static Runnable sendWorldTimeUpdate;
 	private static boolean canSendWorldTimeUpdate = true;
@@ -61,6 +61,7 @@ public final class Init implements Utilities {
 	private static final int MILLIS_PER_MC_DAY = SECONDS_PER_MC_HOUR * MILLIS_PER_SECOND * HOURS_PER_DAY;
 	private static final Object2ObjectArrayMap<ServerWorld, RailActionModule> RAIL_ACTION_MODULES = new Object2ObjectArrayMap<>();
 	private static final ObjectArrayList<String> WORLD_ID_LIST = new ObjectArrayList<>();
+	private static final RequestHelper REQUEST_HELPER = new RequestHelper();
 
 	public static void init() {
 		AsciiArt.print();
@@ -124,9 +125,6 @@ public final class Init implements Utilities {
 							if (main != null) {
 								main.stop();
 							}
-							if (webserver != null) {
-								webserver.stop();
-							}
 							contextHandler.sendSuccess(String.format("Restoring world backup from %s to %s...", backupDirectory, worldDirectory), true);
 							FileUtils.deleteDirectory(worldDirectory.toFile());
 							contextHandler.sendSuccess("Deleting world complete", true);
@@ -166,12 +164,7 @@ public final class Init implements Utilities {
 			Config.init(minecraftServer.getRunDirectory());
 			final int defaultPort = Config.getServer().getWebserverPort();
 			serverPort = findFreePort(defaultPort);
-
-			final int port = findFreePort(serverPort + 1);
-			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, port, Config.getServer().getUseThreadedSimulation(), WORLD_ID_LIST.toArray(new String[0]));
-			webserver = new Webserver(port);
-			webserver.addServlet(new ServletHolder(new VehicleLiftServlet(minecraftServer)), "/vehicles-lifts");
-			webserver.start();
+			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, Config.getServer().getUseThreadedSimulation(), WORLD_ID_LIST.toArray(new String[0]));
 
 			serverTick = 0;
 			lastSavedMillis = System.currentTimeMillis();
@@ -179,13 +172,13 @@ public final class Init implements Utilities {
 				if (canSendWorldTimeUpdate) {
 					canSendWorldTimeUpdate = false;
 					sendHttpRequest(
-							"operation/set-time",
+							"set-time",
 							null,
-							Utilities.getJsonObjectFromData(new SetTime(
+							new SetTime(
 									(WorldHelper.getTimeOfDay(minecraftServer.getOverworld()) + 6000) * SECONDS_PER_MC_HOUR,
 									MILLIS_PER_MC_DAY,
 									GameRule.DO_DAYLIGHT_CYCLE.getBooleanGameRule(minecraftServer)
-							)).toString(),
+							),
 							response -> canSendWorldTimeUpdate = true
 					);
 				} else {
@@ -200,9 +193,6 @@ public final class Init implements Utilities {
 			if (main != null) {
 				main.stop();
 			}
-			if (webserver != null) {
-				webserver.stop();
-			}
 		});
 
 		REGISTRY.eventRegistry.registerStartServerTick(() -> {
@@ -212,14 +202,17 @@ public final class Init implements Utilities {
 
 			ArrivalsCacheServer.tickAll();
 			serverTick++;
-			if (!Config.getServer().getUseThreadedSimulation()) {
-				main.manualTick();
-			}
 
-			final long currentMillis = System.currentTimeMillis();
-			if (currentMillis - lastSavedMillis > AUTOSAVE_INTERVAL) {
-				main.save();
-				lastSavedMillis = currentMillis;
+			if (main != null) {
+				if (!Config.getServer().getUseThreadedSimulation()) {
+					main.manualTick();
+				}
+
+				final long currentMillis = System.currentTimeMillis();
+				if (currentMillis - lastSavedMillis > AUTOSAVE_INTERVAL) {
+					main.save();
+					lastSavedMillis = currentMillis;
+				}
 			}
 		});
 
@@ -227,6 +220,11 @@ public final class Init implements Utilities {
 			final RailActionModule railActionModule = RAIL_ACTION_MODULES.get(serverWorld);
 			if (railActionModule != null) {
 				railActionModule.tick();
+			}
+
+			if (main != null) {
+				final String dimension = getWorldId(new World(serverWorld.data));
+				main.processMessagesS2C(WORLD_ID_LIST.indexOf(dimension), queueObject -> OperationProcessor.process(queueObject, serverWorld, dimension));
 			}
 		});
 
@@ -242,11 +240,13 @@ public final class Init implements Utilities {
 	}
 
 	public static void sendHttpRequest(String endpoint, @Nullable String content, @Nullable Consumer<String> consumer) {
-		Simulator.REQUEST_HELPER.sendRequest(String.format("http://localhost:%s%s", serverPort, endpoint), content, consumer);
+		REQUEST_HELPER.sendRequest(String.format("http://localhost:%s%s", serverPort, endpoint), content, consumer);
 	}
 
-	public static void sendHttpRequest(String endpoint, @Nullable World world, String content, @Nullable Consumer<String> consumer) {
-		sendHttpRequest(String.format("/mtr/api/%s?%s", endpoint, world == null ? "dimensions=all" : "dimension=" + WORLD_ID_LIST.indexOf(getWorldId(world))), content, consumer);
+	public static void sendHttpRequest(String endpoint, @Nullable World world, SerializedDataBase data, @Nullable Consumer<JsonObject> consumer) {
+		if (main != null) {
+			main.sendMessageC2S(world == null ? null : WORLD_ID_LIST.indexOf(getWorldId(world)), new QueueObject(endpoint, data, consumer));
+		}
 	}
 
 	public static BlockPos positionToBlockPos(Position position) {
@@ -328,7 +328,7 @@ public final class Init implements Utilities {
 	private static int generateOrClearDepotsFromCommand(World world, String filter, boolean isGenerate) {
 		final GenerateOrClearByDepotName generateByDepotName = new GenerateOrClearByDepotName();
 		generateByDepotName.setFilter(filter);
-		sendHttpRequest(isGenerate ? "operation/generate-by-depot-name" : "operation/clear-by-depot-name", world, Utilities.getJsonObjectFromData(generateByDepotName).toString(), null);
+		sendHttpRequest(isGenerate ? "generate-by-depot-name" : "clear-by-depot-name", world, generateByDepotName, null);
 		return 1;
 	}
 }

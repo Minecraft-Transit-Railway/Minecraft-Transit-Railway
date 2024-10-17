@@ -4,7 +4,6 @@ import org.mtr.core.data.Station;
 import org.mtr.core.integration.Response;
 import org.mtr.core.operation.NearbyAreasRequest;
 import org.mtr.core.operation.NearbyAreasResponse;
-import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ScoreboardCriteria;
@@ -33,11 +32,11 @@ public class TicketSystem {
 	private static final int EVASION_FINE = 500;
 
 	public static void passThrough(World world, BlockPos blockPos, PlayerEntity player, boolean isEntrance, boolean isExit, SoundEvent entrySound, SoundEvent entrySoundConcessionary, SoundEvent exitSound, SoundEvent exitSoundConcessionary, @Nullable SoundEvent failSound, boolean remindIfNoRecord, Consumer<EnumTicketBarrierOpen> callback) {
-		Init.sendHttpRequest("operation/nearby-stations", world, Utilities.getJsonObjectFromData(new NearbyAreasRequest<>(Init.blockPosToPosition(blockPos), 0)).toString(), content -> {
+		Init.sendHttpRequest("nearby-stations", world, new NearbyAreasRequest<>(Init.blockPosToPosition(blockPos), 0), content -> {
 			final MinecraftServer minecraftServer = world.getServer();
 			if (minecraftServer != null) {
 				minecraftServer.execute(() -> {
-					final ObjectImmutableList<Station> stations = Response.create(Utilities.parseJson(content)).getData(jsonReader -> new NearbyAreasResponse(jsonReader, new MinecraftClientData())).getStations();
+					final ObjectImmutableList<Station> stations = Response.create(content).getData(jsonReader -> new NearbyAreasResponse(jsonReader, new MinecraftClientData())).getStations();
 					if (stations.isEmpty()) {
 						callback.accept(EnumTicketBarrierOpen.CLOSED);
 					} else {

@@ -1,7 +1,8 @@
 package org.mtr.mod.packet;
 
-import org.mtr.core.integration.Response;
 import org.mtr.core.operation.GenerateOrClearByDepotIds;
+import org.mtr.core.serializer.JsonReader;
+import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 
@@ -22,23 +23,23 @@ public final class PacketDepotGenerate extends PacketRequestResponseBase {
 	}
 
 	@Override
-	protected void runClientInbound(Response response) {
-		PacketUpdateData.update(response);
+	protected PacketRequestResponseBase getInstance(String content) {
+		return new PacketDepotGenerate(content);
 	}
 
 	@Override
-	protected PacketRequestResponseBase getInstance(String content) {
-		return new PacketDepotGenerate(content);
+	protected SerializedDataBase getDataInstance(JsonReader jsonReader) {
+		return new GenerateOrClearByDepotIds(jsonReader);
 	}
 
 	@Nonnull
 	@Override
 	protected String getEndpoint() {
-		return "operation/generate-by-depot-ids";
+		return "generate-by-depot-ids";
 	}
 
 	@Override
 	protected ResponseType responseType() {
-		return ResponseType.ALL;
+		return ResponseType.NONE;
 	}
 }
