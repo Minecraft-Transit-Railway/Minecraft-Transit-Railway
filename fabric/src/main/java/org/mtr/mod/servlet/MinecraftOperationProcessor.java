@@ -3,6 +3,7 @@ package org.mtr.mod.servlet;
 import org.mtr.core.operation.PlayerPresentResponse;
 import org.mtr.core.operation.UpdateDataResponse;
 import org.mtr.core.operation.VehicleLiftResponse;
+import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.servlet.QueueObject;
 import org.mtr.mapping.holder.PlayerEntity;
 import org.mtr.mapping.holder.ServerPlayerEntity;
@@ -13,11 +14,11 @@ import org.mtr.mod.packet.PacketUpdateVehiclesLifts;
 
 import java.util.UUID;
 
-public final class OperationProcessor {
+public final class MinecraftOperationProcessor {
 
 	public static void process(QueueObject queueObject, ServerWorld serverWorld, String dimension) {
-		switch (queueObject.operation) {
-			case VEHICLES_LIFTS:
+		switch (queueObject.key) {
+			case OperationProcessor.VEHICLES_LIFTS:
 				if (queueObject.data instanceof VehicleLiftResponse) {
 					final PlayerEntity playerEntity = serverWorld.getPlayerByUuid(UUID.fromString(((VehicleLiftResponse) queueObject.data).getClientId()));
 					if (playerEntity == null) {
@@ -28,7 +29,7 @@ public final class OperationProcessor {
 					}
 				}
 				break;
-			case GENERATION_STATUS_UPDATE:
+			case OperationProcessor.GENERATION_STATUS_UPDATE:
 				if (queueObject.data instanceof UpdateDataResponse) {
 					PacketUpdateData.sendDirectlyToClientDepotUpdate(serverWorld, (UpdateDataResponse) queueObject.data);
 				}

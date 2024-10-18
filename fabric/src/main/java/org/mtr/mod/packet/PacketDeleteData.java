@@ -5,7 +5,7 @@ import org.mtr.core.operation.DeleteDataRequest;
 import org.mtr.core.operation.DeleteDataResponse;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
-import org.mtr.core.servlet.Operation;
+import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.mapping.holder.ServerWorld;
@@ -55,8 +55,8 @@ public final class PacketDeleteData extends PacketRequestResponseBase {
 
 	@Nonnull
 	@Override
-	protected Operation getOperation() {
-		return Operation.DELETE_DATA;
+	protected String getKey() {
+		return OperationProcessor.DELETE_DATA;
 	}
 
 	@Override

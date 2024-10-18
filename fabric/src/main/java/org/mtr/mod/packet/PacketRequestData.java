@@ -4,7 +4,7 @@ import org.mtr.core.operation.DataRequest;
 import org.mtr.core.operation.DataResponse;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
-import org.mtr.core.servlet.Operation;
+import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mod.client.MinecraftClientData;
@@ -42,8 +42,8 @@ public final class PacketRequestData extends PacketRequestResponseBase {
 
 	@Nonnull
 	@Override
-	protected Operation getOperation() {
-		return Operation.GET_DATA;
+	protected String getKey() {
+		return OperationProcessor.GET_DATA;
 	}
 
 	@Override

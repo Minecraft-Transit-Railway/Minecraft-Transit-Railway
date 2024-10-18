@@ -3,7 +3,7 @@ package org.mtr.mod.data;
 import org.mtr.core.data.Station;
 import org.mtr.core.operation.NearbyAreasRequest;
 import org.mtr.core.operation.NearbyAreasResponse;
-import org.mtr.core.servlet.Operation;
+import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ScoreboardCriteria;
@@ -31,7 +31,7 @@ public class TicketSystem {
 	private static final int EVASION_FINE = 500;
 
 	public static void passThrough(World world, BlockPos blockPos, PlayerEntity player, boolean isEntrance, boolean isExit, SoundEvent entrySound, SoundEvent entrySoundConcessionary, SoundEvent exitSound, SoundEvent exitSoundConcessionary, @Nullable SoundEvent failSound, boolean remindIfNoRecord, Consumer<EnumTicketBarrierOpen> callback) {
-		Init.sendMessageC2S(Operation.NEARBY_STATIONS, world.getServer(), world, new NearbyAreasRequest<>(Init.blockPosToPosition(blockPos), 0), nearbyAreasResponse -> {
+		Init.sendMessageC2S(OperationProcessor.NEARBY_STATIONS, world.getServer(), world, new NearbyAreasRequest<>(Init.blockPosToPosition(blockPos), 0), nearbyAreasResponse -> {
 			final ObjectImmutableList<Station> stations = nearbyAreasResponse.getStations();
 			if (stations.isEmpty()) {
 				callback.accept(EnumTicketBarrierOpen.CLOSED);

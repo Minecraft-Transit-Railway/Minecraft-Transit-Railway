@@ -3,7 +3,7 @@ package org.mtr.mod.packet;
 import org.mtr.core.operation.PressLift;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
-import org.mtr.core.servlet.Operation;
+import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 
@@ -35,8 +35,8 @@ public final class PacketPressLiftButton extends PacketRequestResponseBase {
 
 	@Nonnull
 	@Override
-	protected Operation getOperation() {
-		return Operation.PRESS_LIFT;
+	protected String getKey() {
+		return OperationProcessor.PRESS_LIFT;
 	}
 
 	@Override

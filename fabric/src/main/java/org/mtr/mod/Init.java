@@ -9,7 +9,7 @@ import org.mtr.core.data.Position;
 import org.mtr.core.operation.GenerateOrClearByDepotName;
 import org.mtr.core.operation.SetTime;
 import org.mtr.core.serializer.SerializedDataBase;
-import org.mtr.core.servlet.Operation;
+import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.servlet.QueueObject;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonElement;
@@ -28,7 +28,7 @@ import org.mtr.mod.data.ArrivalsCacheServer;
 import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.*;
-import org.mtr.mod.servlet.OperationProcessor;
+import org.mtr.mod.servlet.MinecraftOperationProcessor;
 import org.mtr.mod.servlet.RequestHelper;
 
 import javax.annotation.Nullable;
@@ -172,7 +172,7 @@ public final class Init implements Utilities {
 				if (canSendWorldTimeUpdate) {
 					canSendWorldTimeUpdate = false;
 					sendMessageC2S(
-							Operation.SET_TIME,
+							OperationProcessor.SET_TIME,
 							minecraftServer,
 							null,
 							new SetTime(
@@ -195,6 +195,7 @@ public final class Init implements Utilities {
 			if (main != null) {
 				main.stop();
 			}
+			serverPort = 0;
 		});
 
 		REGISTRY.eventRegistry.registerStartServerTick(() -> {
@@ -226,7 +227,7 @@ public final class Init implements Utilities {
 
 			if (main != null) {
 				final String dimension = getWorldId(new World(serverWorld.data));
-				main.processMessagesS2C(WORLD_ID_LIST.indexOf(dimension), queueObject -> OperationProcessor.process(queueObject, serverWorld, dimension));
+				main.processMessagesS2C(WORLD_ID_LIST.indexOf(dimension), queueObject -> MinecraftOperationProcessor.process(queueObject, serverWorld, dimension));
 			}
 		});
 
@@ -248,9 +249,9 @@ public final class Init implements Utilities {
 		return serverPort;
 	}
 
-	public static <T extends SerializedDataBase> void sendMessageC2S(Operation operation, @Nullable MinecraftServer minecraftServer, @Nullable World world, SerializedDataBase data, @Nullable Consumer<T> consumer, @Nullable Class<T> responseDataClass) {
+	public static <T extends SerializedDataBase> void sendMessageC2S(String key, @Nullable MinecraftServer minecraftServer, @Nullable World world, SerializedDataBase data, @Nullable Consumer<T> consumer, @Nullable Class<T> responseDataClass) {
 		if (main != null) {
-			main.sendMessageC2S(world == null ? null : WORLD_ID_LIST.indexOf(getWorldId(world)), new QueueObject(operation, data, consumer == null || minecraftServer == null ? null : responseData -> minecraftServer.execute(() -> consumer.accept(responseData)), responseDataClass));
+			main.sendMessageC2S(world == null ? null : WORLD_ID_LIST.indexOf(getWorldId(world)), new QueueObject(key, data, consumer == null || minecraftServer == null ? null : responseData -> minecraftServer.execute(() -> consumer.accept(responseData)), responseDataClass));
 		}
 	}
 
@@ -333,7 +334,7 @@ public final class Init implements Utilities {
 	private static int generateOrClearDepotsFromCommand(World world, String filter, boolean isGenerate) {
 		final GenerateOrClearByDepotName generateByDepotName = new GenerateOrClearByDepotName();
 		generateByDepotName.setFilter(filter);
-		sendMessageC2S(isGenerate ? Operation.GENERATE_BY_DEPOT_NAME : Operation.CLEAR_BY_DEPOT_NAME, world.getServer(), world, generateByDepotName, null, null);
+		sendMessageC2S(isGenerate ? OperationProcessor.GENERATE_BY_DEPOT_NAME : OperationProcessor.CLEAR_BY_DEPOT_NAME, world.getServer(), world, generateByDepotName, null, null);
 		return 1;
 	}
 }

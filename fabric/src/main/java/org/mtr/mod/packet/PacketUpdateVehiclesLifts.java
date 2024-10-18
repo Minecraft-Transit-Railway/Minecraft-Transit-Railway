@@ -6,7 +6,7 @@ import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.serializer.WriterBase;
-import org.mtr.core.servlet.Operation;
+import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -73,8 +73,8 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 
 	@Nonnull
 	@Override
-	protected Operation getOperation() {
-		return Operation.UPDATE_DATA;
+	protected String getKey() {
+		return OperationProcessor.UPDATE_DATA;
 	}
 
 	@Override

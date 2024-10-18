@@ -6,7 +6,7 @@ import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.operation.UpdateDataResponse;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
-import org.mtr.core.servlet.Operation;
+import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
@@ -48,8 +48,8 @@ public final class PacketUpdateData extends PacketRequestResponseBase {
 
 	@Nonnull
 	@Override
-	protected Operation getOperation() {
-		return Operation.UPDATE_DATA;
+	protected String getKey() {
+		return OperationProcessor.UPDATE_DATA;
 	}
 
 	@Override

@@ -2,7 +2,6 @@ package org.mtr.mod.packet;
 
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
-import org.mtr.core.servlet.Operation;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.mapping.holder.MinecraftServer;
@@ -51,7 +50,7 @@ public abstract class PacketRequestResponseBase extends PacketHandler {
 	}
 
 	protected void runServerOutbound(ServerWorld serverWorld, @Nullable ServerPlayerEntity serverPlayerEntity) {
-		Init.sendMessageC2S(getOperation(), serverWorld.getServer(), new World(serverWorld.data), getDataInstance(new JsonReader(Utilities.parseJson(content))), responseType() == ResponseType.NONE ? null : responseData -> {
+		Init.sendMessageC2S(getKey(), serverWorld.getServer(), new World(serverWorld.data), getDataInstance(new JsonReader(Utilities.parseJson(content))), responseType() == ResponseType.NONE ? null : responseData -> {
 			final JsonObject responseJson = Utilities.getJsonObjectFromData(responseData);
 			if (responseType() == ResponseType.PLAYER) {
 				if (serverPlayerEntity != null) {
@@ -79,7 +78,7 @@ public abstract class PacketRequestResponseBase extends PacketHandler {
 	protected abstract SerializedDataBase getDataInstance(JsonReader jsonReader);
 
 	@Nonnull
-	protected abstract Operation getOperation();
+	protected abstract String getKey();
 
 	/**
 	 * If a response is needed, override {@link #runClient()}.

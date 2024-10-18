@@ -6,7 +6,7 @@ import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.serializer.WriterBase;
-import org.mtr.core.servlet.Operation;
+import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.EnumHelper;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.mapping.holder.ServerPlayerEntity;
@@ -63,8 +63,8 @@ public final class PacketOpenDashboardScreen extends PacketRequestResponseBase {
 
 	@Nonnull
 	@Override
-	protected Operation getOperation() {
-		return Operation.LIST_DATA;
+	protected String getKey() {
+		return OperationProcessor.LIST_DATA;
 	}
 
 	@Override

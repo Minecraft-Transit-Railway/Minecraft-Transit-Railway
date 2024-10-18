@@ -5,7 +5,7 @@ import org.mtr.core.data.TransportMode;
 import org.mtr.core.data.TwoPositionsBase;
 import org.mtr.core.operation.RailsRequest;
 import org.mtr.core.operation.RailsResponse;
-import org.mtr.core.servlet.Operation;
+import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Angle;
 import org.mtr.core.tool.EnumHelper;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
@@ -85,7 +85,7 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 
 	public static void getRail(World world, BlockPos blockPos1, BlockPos blockPos2, @Nullable ServerPlayerEntity serverPlayerEntity, Consumer<Rail> consumer) {
 		Init.sendMessageC2S(
-				Operation.RAILS,
+				OperationProcessor.RAILS,
 				world.getServer(),
 				world,
 				new RailsRequest().addRailId(TwoPositionsBase.getHexId(Init.blockPosToPosition(blockPos1), Init.blockPosToPosition(blockPos2))),
