@@ -29,6 +29,7 @@ import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.*;
 import org.mtr.mod.servlet.OperationProcessor;
+import org.mtr.mod.servlet.RequestHelper;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -56,6 +57,7 @@ public final class Init implements Utilities {
 	public static final Registry REGISTRY = new Registry();
 	public static final int SECONDS_PER_MC_HOUR = 50;
 	public static final int AUTOSAVE_INTERVAL = 30000;
+	public static final RequestHelper REQUEST_HELPER = new RequestHelper();
 
 	private static final int MILLIS_PER_MC_DAY = SECONDS_PER_MC_HOUR * MILLIS_PER_SECOND * HOURS_PER_DAY;
 	private static final Object2ObjectArrayMap<ServerWorld, RailActionModule> RAIL_ACTION_MODULES = new Object2ObjectArrayMap<>();
