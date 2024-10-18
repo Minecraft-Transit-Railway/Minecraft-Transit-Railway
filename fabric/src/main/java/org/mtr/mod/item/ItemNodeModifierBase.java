@@ -3,9 +3,9 @@ package org.mtr.mod.item;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.data.TwoPositionsBase;
-import org.mtr.core.integration.Response;
 import org.mtr.core.operation.RailsRequest;
 import org.mtr.core.operation.RailsResponse;
+import org.mtr.core.servlet.Operation;
 import org.mtr.core.tool.Angle;
 import org.mtr.core.tool.EnumHelper;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
@@ -84,12 +84,13 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 	protected abstract void onRemove(World world, BlockPos posStart, BlockPos posEnd, @Nullable ServerPlayerEntity player);
 
 	public static void getRail(World world, BlockPos blockPos1, BlockPos blockPos2, @Nullable ServerPlayerEntity serverPlayerEntity, Consumer<Rail> consumer) {
-		Init.sendHttpRequest(
-				"rails",
+		Init.sendMessageC2S(
+				Operation.RAILS,
+				world.getServer(),
 				world,
 				new RailsRequest().addRailId(TwoPositionsBase.getHexId(Init.blockPosToPosition(blockPos1), Init.blockPosToPosition(blockPos2))),
-				content -> {
-					final ObjectImmutableList<Rail> rails = Response.create(content).getData(RailsResponse::new).getRails();
+				railsResponse -> {
+					final ObjectImmutableList<Rail> rails = railsResponse.getRails();
 					if (rails.isEmpty()) {
 						if (serverPlayerEntity != null) {
 							serverPlayerEntity.sendMessage(TranslationProvider.GUI_MTR_RAIL_NOT_FOUND_ACTION.getText(), true);
@@ -97,7 +98,8 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 					} else {
 						consumer.accept(rails.get(0));
 					}
-				}
+				},
+				RailsResponse.class
 		);
 	}
 

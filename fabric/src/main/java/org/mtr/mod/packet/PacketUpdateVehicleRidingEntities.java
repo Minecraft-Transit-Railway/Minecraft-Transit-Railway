@@ -4,6 +4,7 @@ import org.mtr.core.data.VehicleRidingEntity;
 import org.mtr.core.operation.UpdateVehicleRidingEntities;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
+import org.mtr.core.servlet.Operation;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.ClientPlayerEntity;
 import org.mtr.mapping.holder.MinecraftClient;
@@ -53,8 +54,8 @@ public final class PacketUpdateVehicleRidingEntities extends PacketRequestRespon
 
 	@Nonnull
 	@Override
-	protected String getEndpoint() {
-		return "update-riding-entities";
+	protected Operation getOperation() {
+		return Operation.UPDATE_RIDING_ENTITIES;
 	}
 
 	@Override

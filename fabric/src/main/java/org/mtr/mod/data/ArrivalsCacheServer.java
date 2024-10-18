@@ -1,9 +1,9 @@
 package org.mtr.mod.data;
 
-import org.mtr.core.integration.Response;
 import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.core.operation.ArrivalsRequest;
 import org.mtr.core.operation.ArrivalsResponse;
+import org.mtr.core.servlet.Operation;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
@@ -34,15 +34,16 @@ public final class ArrivalsCacheServer extends ArrivalsCache {
 
 	@Override
 	protected void requestArrivalsFromServer(LongAVLTreeSet platformIds, Consumer<ObjectList<ArrivalResponse>> callback) {
-		Init.sendHttpRequest(
-				"arrivals",
+		Init.sendMessageC2S(
+				Operation.ARRIVALS,
+				world.getServer(),
 				world,
 				new ArrivalsRequest(new LongImmutableList(platformIds), 10, -1),
-				content -> {
-					final Response response = Response.create(content);
-					millisOffset = response.getCurrentTime() - System.currentTimeMillis();
-					callback.accept(response.getData(ArrivalsResponse::new).getArrivals());
-				}
+				arrivalsResponse -> {
+					millisOffset = arrivalsResponse.getCurrentTime() - System.currentTimeMillis();
+					callback.accept(arrivalsResponse.getArrivals());
+				},
+				ArrivalsResponse.class
 		);
 	}
 

@@ -2,11 +2,11 @@ package org.mtr.mod.packet;
 
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.SignalModification;
-import org.mtr.core.integration.Response;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.operation.UpdateDataResponse;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
+import org.mtr.core.servlet.Operation;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
@@ -32,8 +32,8 @@ public final class PacketUpdateData extends PacketRequestResponseBase {
 	}
 
 	@Override
-	protected void runClientInbound(Response response) {
-		update(response);
+	protected void runClientInbound(JsonReader jsonReader) {
+		update(jsonReader);
 	}
 
 	@Override
@@ -48,8 +48,8 @@ public final class PacketUpdateData extends PacketRequestResponseBase {
 
 	@Nonnull
 	@Override
-	protected String getEndpoint() {
-		return "update-data";
+	protected Operation getOperation() {
+		return Operation.UPDATE_DATA;
 	}
 
 	@Override
@@ -66,13 +66,13 @@ public final class PacketUpdateData extends PacketRequestResponseBase {
 	}
 
 	public static void sendDirectlyToClientDepotUpdate(ServerWorld serverWorld, UpdateDataResponse updateDataResponse) {
-		MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntityNew -> Init.REGISTRY.sendPacketToClient(serverPlayerEntityNew, new PacketUpdateData(new Response(200, System.currentTimeMillis(), "", Utilities.getJsonObjectFromData(updateDataResponse)).getJson().toString())));
+		MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntityNew -> Init.REGISTRY.sendPacketToClient(serverPlayerEntityNew, new PacketUpdateData(Utilities.getJsonObjectFromData(updateDataResponse).toString())));
 	}
 
-	public static void update(Response response) {
+	private static void update(JsonReader jsonReader) {
 		final MinecraftClientData minecraftClientData = MinecraftClientData.getInstance();
-		response.getData(jsonReader -> new UpdateDataResponse(jsonReader, minecraftClientData)).write();
-		response.getData(jsonReader -> new UpdateDataResponse(jsonReader, MinecraftClientData.getDashboardInstance())).write();
+		new UpdateDataResponse(jsonReader, minecraftClientData).write();
+		new UpdateDataResponse(jsonReader, MinecraftClientData.getDashboardInstance()).write();
 		minecraftClientData.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(minecraftClientData, vehicle.getTransportMode())));
 		DynamicTextureCache.instance.reload();
 	}

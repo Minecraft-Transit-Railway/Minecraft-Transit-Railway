@@ -1,12 +1,13 @@
 package org.mtr.mod.packet;
 
 import org.mtr.core.data.NameColorDataBase;
-import org.mtr.core.integration.Response;
 import org.mtr.core.operation.VehicleLiftResponse;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.serializer.WriterBase;
+import org.mtr.core.servlet.Operation;
+import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
@@ -27,8 +28,8 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 		super(packetBufferReceiver);
 	}
 
-	public PacketUpdateVehiclesLifts(Response contentObject) {
-		super(contentObject.getJson().toString());
+	public PacketUpdateVehiclesLifts(VehicleLiftResponse vehicleLiftResponse) {
+		super(Utilities.getJsonObjectFromData(vehicleLiftResponse).toString());
 	}
 
 	private PacketUpdateVehiclesLifts(String content) {
@@ -36,9 +37,9 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 	}
 
 	@Override
-	protected void runClientInbound(Response response) {
+	protected void runClientInbound(JsonReader jsonReader) {
 		final MinecraftClientData minecraftClientData = MinecraftClientData.getInstance();
-		final VehicleLiftResponse vehicleLiftResponse = response.getData(jsonReader -> new VehicleLiftResponse(jsonReader, minecraftClientData));
+		final VehicleLiftResponse vehicleLiftResponse = new VehicleLiftResponse(jsonReader, minecraftClientData);
 		final boolean hasUpdate1 = updateVehiclesOrLifts(minecraftClientData.vehicles, vehicleLiftResponse::iterateVehiclesToKeep, vehicleLiftResponse::iterateVehiclesToUpdate, vehicleUpdate -> vehicleUpdate.getVehicle().getId(), vehicleUpdate -> new VehicleExtension(vehicleUpdate, minecraftClientData));
 		final boolean hasUpdate2 = updateVehiclesOrLifts(minecraftClientData.lifts, vehicleLiftResponse::iterateLiftsToKeep, vehicleLiftResponse::iterateLiftsToUpdate, NameColorDataBase::getId, lift -> lift);
 
@@ -72,8 +73,8 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 
 	@Nonnull
 	@Override
-	protected String getEndpoint() {
-		return "";
+	protected Operation getOperation() {
+		return Operation.UPDATE_DATA;
 	}
 
 	@Override

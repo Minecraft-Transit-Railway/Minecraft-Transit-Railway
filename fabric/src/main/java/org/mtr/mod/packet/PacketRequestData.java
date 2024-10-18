@@ -1,10 +1,10 @@
 package org.mtr.mod.packet;
 
-import org.mtr.core.integration.Response;
 import org.mtr.core.operation.DataRequest;
 import org.mtr.core.operation.DataResponse;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
+import org.mtr.core.servlet.Operation;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mod.client.MinecraftClientData;
@@ -26,8 +26,8 @@ public final class PacketRequestData extends PacketRequestResponseBase {
 	}
 
 	@Override
-	protected void runClientInbound(Response response) {
-		response.getData(jsonReader -> new DataResponse(jsonReader, MinecraftClientData.getInstance())).write();
+	protected void runClientInbound(JsonReader jsonReader) {
+		new DataResponse(jsonReader, MinecraftClientData.getInstance()).write();
 	}
 
 	@Override
@@ -42,8 +42,8 @@ public final class PacketRequestData extends PacketRequestResponseBase {
 
 	@Nonnull
 	@Override
-	protected String getEndpoint() {
-		return "get-data";
+	protected Operation getOperation() {
+		return Operation.GET_DATA;
 	}
 
 	@Override

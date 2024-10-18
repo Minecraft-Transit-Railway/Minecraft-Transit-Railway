@@ -1,11 +1,11 @@
 package org.mtr.mod.packet;
 
 import org.mtr.core.data.Position;
-import org.mtr.core.integration.Response;
 import org.mtr.core.operation.DeleteDataRequest;
 import org.mtr.core.operation.DeleteDataResponse;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
+import org.mtr.core.servlet.Operation;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.mapping.holder.ServerWorld;
@@ -33,12 +33,12 @@ public final class PacketDeleteData extends PacketRequestResponseBase {
 	@Override
 	protected void runServerInbound(ServerWorld serverWorld, JsonObject jsonObject) {
 		// Check if there are any rail nodes that need to be reset
-		Response.create(jsonObject).getData(DeleteDataResponse::new).iterateRailNodePosition(railNodePosition -> BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(railNodePosition)));
+		new DeleteDataResponse(new JsonReader(jsonObject)).iterateRailNodePosition(railNodePosition -> BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(railNodePosition)));
 	}
 
 	@Override
-	protected void runClientInbound(Response response) {
-		final DeleteDataResponse deleteDataResponse = response.getData(DeleteDataResponse::new);
+	protected void runClientInbound(JsonReader jsonReader) {
+		final DeleteDataResponse deleteDataResponse = new DeleteDataResponse(jsonReader);
 		deleteDataResponse.write(MinecraftClientData.getInstance());
 		deleteDataResponse.write(MinecraftClientData.getDashboardInstance());
 	}
@@ -55,8 +55,8 @@ public final class PacketDeleteData extends PacketRequestResponseBase {
 
 	@Nonnull
 	@Override
-	protected String getEndpoint() {
-		return "delete-data";
+	protected Operation getOperation() {
+		return Operation.DELETE_DATA;
 	}
 
 	@Override

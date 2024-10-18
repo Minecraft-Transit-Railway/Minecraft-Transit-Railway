@@ -9,10 +9,10 @@ import org.mtr.core.data.Position;
 import org.mtr.core.operation.GenerateOrClearByDepotName;
 import org.mtr.core.operation.SetTime;
 import org.mtr.core.serializer.SerializedDataBase;
+import org.mtr.core.servlet.Operation;
 import org.mtr.core.servlet.QueueObject;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonElement;
-import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -171,15 +171,17 @@ public final class Init implements Utilities {
 			sendWorldTimeUpdate = () -> {
 				if (canSendWorldTimeUpdate) {
 					canSendWorldTimeUpdate = false;
-					sendHttpRequest(
-							"set-time",
+					sendMessageC2S(
+							Operation.SET_TIME,
+							minecraftServer,
 							null,
 							new SetTime(
 									(WorldHelper.getTimeOfDay(minecraftServer.getOverworld()) + 6000) * SECONDS_PER_MC_HOUR,
 									MILLIS_PER_MC_DAY,
 									GameRule.DO_DAYLIGHT_CYCLE.getBooleanGameRule(minecraftServer)
 							),
-							response -> canSendWorldTimeUpdate = true
+							response -> canSendWorldTimeUpdate = true,
+							SerializedDataBase.class
 					);
 				} else {
 					Main.LOGGER.error("Transport Simulation Core not responding; stopping Minecraft server!");
@@ -243,9 +245,9 @@ public final class Init implements Utilities {
 		REQUEST_HELPER.sendRequest(String.format("http://localhost:%s%s", serverPort, endpoint), content, consumer);
 	}
 
-	public static void sendHttpRequest(String endpoint, @Nullable World world, SerializedDataBase data, @Nullable Consumer<JsonObject> consumer) {
+	public static <T extends SerializedDataBase> void sendMessageC2S(Operation operation, @Nullable MinecraftServer minecraftServer, @Nullable World world, SerializedDataBase data, @Nullable Consumer<T> consumer, @Nullable Class<T> responseDataClass) {
 		if (main != null) {
-			main.sendMessageC2S(world == null ? null : WORLD_ID_LIST.indexOf(getWorldId(world)), new QueueObject(endpoint, data, consumer));
+			main.sendMessageC2S(world == null ? null : WORLD_ID_LIST.indexOf(getWorldId(world)), new QueueObject(operation, data, consumer == null || minecraftServer == null ? null : responseData -> minecraftServer.execute(() -> consumer.accept(responseData)), responseDataClass));
 		}
 	}
 
@@ -328,7 +330,7 @@ public final class Init implements Utilities {
 	private static int generateOrClearDepotsFromCommand(World world, String filter, boolean isGenerate) {
 		final GenerateOrClearByDepotName generateByDepotName = new GenerateOrClearByDepotName();
 		generateByDepotName.setFilter(filter);
-		sendHttpRequest(isGenerate ? "generate-by-depot-name" : "clear-by-depot-name", world, generateByDepotName, null);
+		sendMessageC2S(isGenerate ? Operation.GENERATE_BY_DEPOT_NAME : Operation.CLEAR_BY_DEPOT_NAME, world.getServer(), world, generateByDepotName, null, null);
 		return 1;
 	}
 }
