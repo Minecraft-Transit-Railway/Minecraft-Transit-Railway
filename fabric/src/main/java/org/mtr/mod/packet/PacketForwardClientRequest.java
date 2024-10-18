@@ -7,6 +7,7 @@ import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mapping.tool.PacketBufferSender;
 import org.mtr.mod.Init;
+import org.mtr.mod.servlet.RequestHelper;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -19,6 +20,7 @@ public final class PacketForwardClientRequest extends PacketHandler {
 	private final long callbackId;
 
 	private static final Long2ObjectAVLTreeMap<Consumer<String>> CALLBACKS = new Long2ObjectAVLTreeMap<>();
+	private static final RequestHelper REQUEST_HELPER = new RequestHelper();
 
 	public PacketForwardClientRequest(PacketBufferReceiver packetBufferReceiver) {
 		endpoint = packetBufferReceiver.readString();
@@ -48,7 +50,11 @@ public final class PacketForwardClientRequest extends PacketHandler {
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		Init.sendHttpRequest(endpoint, content.isEmpty() ? null : content, response -> Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketForwardClientRequest(response, callbackId)));
+		REQUEST_HELPER.sendRequest(
+				String.format("http://localhost:%s%s", Init.getServerPort(), endpoint),
+				content.isEmpty() ? null : content,
+				response -> Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketForwardClientRequest(response, callbackId))
+		);
 	}
 
 	@Override

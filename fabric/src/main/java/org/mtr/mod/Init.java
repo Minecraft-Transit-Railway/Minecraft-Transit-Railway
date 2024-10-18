@@ -29,7 +29,6 @@ import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.*;
 import org.mtr.mod.servlet.OperationProcessor;
-import org.mtr.mod.servlet.RequestHelper;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -61,7 +60,6 @@ public final class Init implements Utilities {
 	private static final int MILLIS_PER_MC_DAY = SECONDS_PER_MC_HOUR * MILLIS_PER_SECOND * HOURS_PER_DAY;
 	private static final Object2ObjectArrayMap<ServerWorld, RailActionModule> RAIL_ACTION_MODULES = new Object2ObjectArrayMap<>();
 	private static final ObjectArrayList<String> WORLD_ID_LIST = new ObjectArrayList<>();
-	private static final RequestHelper REQUEST_HELPER = new RequestHelper();
 
 	public static void init() {
 		AsciiArt.print();
@@ -241,8 +239,11 @@ public final class Init implements Utilities {
 		}
 	}
 
-	public static void sendHttpRequest(String endpoint, @Nullable String content, @Nullable Consumer<String> consumer) {
-		REQUEST_HELPER.sendRequest(String.format("http://localhost:%s%s", serverPort, endpoint), content, consumer);
+	/**
+	 * @return the port of the webserver started by Transport Simulation Core, not the clientside webserver.
+	 */
+	public static int getServerPort() {
+		return serverPort;
 	}
 
 	public static <T extends SerializedDataBase> void sendMessageC2S(Operation operation, @Nullable MinecraftServer minecraftServer, @Nullable World world, SerializedDataBase data, @Nullable Consumer<T> consumer, @Nullable Class<T> responseDataClass) {
