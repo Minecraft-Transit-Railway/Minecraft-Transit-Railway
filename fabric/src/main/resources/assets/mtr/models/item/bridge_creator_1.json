@@ -1,0 +1,14 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "mtrsteamloco:item/bridge_creator_1"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "mtr:selected": 1
+      },
+      "model": "mtrsteamloco:item/bridge_creator_1_selected"
+    }
+  ]
+}
