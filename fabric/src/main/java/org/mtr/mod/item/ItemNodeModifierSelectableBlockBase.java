@@ -27,11 +27,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 		this.canSaveBlock = canSaveBlock;
 		this.height = height;
 		this.width = width;
-		if (width == 1) {
-			radius = 1;
-		} else {
-			radius = width / 2;
-		}
+		radius = width / 2;
 	}
 
 	@Nonnull
