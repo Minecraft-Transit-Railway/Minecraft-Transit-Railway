@@ -394,6 +394,8 @@
 	"gui.mtr.rail_shape_quadratic": "Quadratic",
 	"gui.mtr.rail_shape_two_radii": "Two Radii",
 	"gui.mtr.rail_styles": "Rail styles:",
+	"gui.mtr.rail_xyz_offset": "XYZ Offset",
+	"gui.mtr.rail_xz_length": "XZ Length",
 	"gui.mtr.realtime_only": "Realtime Arrivals Only",
 	"gui.mtr.refresh_path": "Refresh Path",
 	"gui.mtr.repeat_indefinitely": "Repeat Instructions Forever",
