@@ -89,12 +89,12 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 
 		@Override
 		public int textColorArrived() {
-			return 0xFF9900;
+			return 0xFFFFFF;
 		}
 
 		@Override
 		public int textColor() {
-			return 0xFF9900;
+			return 0xFFFFFF;
 		}
 	}
 }

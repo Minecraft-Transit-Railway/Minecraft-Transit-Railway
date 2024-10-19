@@ -83,12 +83,12 @@ public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBl
 
 		@Override
 		public int textColorArrived() {
-			return 0xFF9900;
+			return 0xFFFFFF;
 		}
 
 		@Override
 		public int textColor() {
-			return 0xFF9900;
+			return 0xFFFFFF;
 		}
 	}
 }

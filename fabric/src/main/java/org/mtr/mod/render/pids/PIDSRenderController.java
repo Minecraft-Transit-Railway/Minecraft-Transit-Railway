@@ -19,6 +19,9 @@ public class PIDSRenderController {
             if (module instanceof TextModule) {
                 maxArrival = Math.max(maxArrival, ((TextModule) module).getArrival());
             }
+            if (module instanceof LegacyModule) {
+                maxArrival = Math.max(maxArrival, ((LegacyModule) module).getSize());
+            }
         }
         this.arrivals = (int) (maxArrival + 1);
     }
@@ -68,6 +71,9 @@ public class PIDSRenderController {
                     break;
                 case "trainLength":
                     modules.add(new TrainLengthModule(x, y, w, h, module.getData()));
+                    break;
+                case "legacy":
+                    modules.add(new LegacyModule(x, y, w, h, module.getData()));
                     break;
             }
         }
