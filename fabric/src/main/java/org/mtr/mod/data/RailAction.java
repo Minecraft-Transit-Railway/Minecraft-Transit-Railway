@@ -137,7 +137,7 @@ public class RailAction {
 				final boolean wholeNumber = Math.floor(editPos.y) == Math.ceil(editPos.y);
 				if (includeMiddle || Math.abs(x) > radius - INCREMENT || radius == 0) {
 					for (int y = 0; y <= height; y++) {
-						if (y < height || !wholeNumber || radius == 0) {
+						if (y < height || !wholeNumber || (height == 0 && radius == 0)) {
 							consumer.accept(editPos.add(0, y, 0));
 						}
 					}
