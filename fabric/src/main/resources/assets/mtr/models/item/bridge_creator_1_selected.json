@@ -2,6 +2,6 @@
   "parent": "item/generated",
   "textures": {
     "layer0": "mtr:item/rail_action_selected",
-    "layer1": "mtrsteamloco:item/bridge_creator_1"
+    "layer1": "mtr:item/bridge_creator_1"
   }
 }
