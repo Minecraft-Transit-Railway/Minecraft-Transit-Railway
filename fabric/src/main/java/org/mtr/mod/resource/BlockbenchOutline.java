@@ -35,13 +35,13 @@ public final class BlockbenchOutline extends BlockbenchOutlineSchema {
 	}
 
 	public GroupTransformations add(GroupTransformations groupTransformations, @Nullable BlockbenchOutline previousBlockbenchOutline, String id) {
-		if (Math.abs(Utilities.getElement(rotation, 0, 0D)) > 1 || Math.abs(Utilities.getElement(rotation, 1, 0D)) > 1 || Math.abs(Utilities.getElement(rotation, 2, 0D)) > 1) {
+		if (previousBlockbenchOutline == null && (Math.abs(Utilities.getElement(rotation, 0, 0D)) > 1 || Math.abs(Utilities.getElement(rotation, 1, 0D)) > 1 || Math.abs(Utilities.getElement(rotation, 2, 0D)) > 1)) {
 			Init.LOGGER.warn("[{}] Skipping Blockbench outline rotation for element \"{}\"! {}", id, name, rotation);
 		}
 		return new GroupTransformations(groupTransformations, previousBlockbenchOutline == null ? origin : DoubleArrayList.of(
 				Utilities.getElement(origin, 0, 0D) - Utilities.getElement(previousBlockbenchOutline.origin, 0, 0D),
 				Utilities.getElement(origin, 1, 0D) - Utilities.getElement(previousBlockbenchOutline.origin, 1, 0D),
 				Utilities.getElement(origin, 2, 0D) - Utilities.getElement(previousBlockbenchOutline.origin, 2, 0D)
-		), DoubleArrayList.of(0, 0, 0));
+		), previousBlockbenchOutline == null ? DoubleArrayList.of(0, 0, 0) : rotation);
 	}
 }

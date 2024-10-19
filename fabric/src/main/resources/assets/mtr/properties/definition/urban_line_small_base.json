@@ -49,6 +49,48 @@
 			]
 		},
 		{
+			"name": "windowMiniEnd1",
+			"positions": [
+				{
+					"z": -80
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -80
+				}
+			]
+		},
+		{
+			"name": "windowMiniEnd2",
+			"positions": [
+				{
+					"z": 80
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 80
+				}
+			]
+		},
+		{
+			"name": "windowMiniHead1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -80
+				}
+			]
+		},
+		{
+			"name": "windowMiniHead2Flipped",
+			"positions": [
+				{
+					"z": 80
+				}
+			]
+		},
+		{
 			"name": "windowOdd",
 			"positions": [
 				{
@@ -165,7 +207,7 @@
 			]
 		},
 		{
-			"name": "doorOverlayWall1",
+			"name": "doorOverlayWall1a",
 			"positions": [
 				{
 					"z": -133.9
@@ -196,7 +238,7 @@
 			]
 		},
 		{
-			"name": "doorOverlayWall2",
+			"name": "doorOverlayWall2a",
 			"positions": [
 				{
 					"z": -106.1
@@ -223,6 +265,68 @@
 				},
 				{
 					"z": 106.1
+				}
+			]
+		},
+		{
+			"name": "doorOverlayWall1b",
+			"positions": [
+				{
+					"z": -132.9
+				},
+				{
+					"z": -52.9
+				},
+				{
+					"z": 27.1
+				},
+				{
+					"z": 107.1
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -107.1
+				},
+				{
+					"z": -27.1
+				},
+				{
+					"z": 52.9
+				},
+				{
+					"z": 132.9
+				}
+			]
+		},
+		{
+			"name": "doorOverlayWall2b",
+			"positions": [
+				{
+					"z": -107.1
+				},
+				{
+					"z": -27.1
+				},
+				{
+					"z": 52.9
+				},
+				{
+					"z": 132.9
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -132.9
+				},
+				{
+					"z": -52.9
+				},
+				{
+					"z": 27.1
+				},
+				{
+					"z": 107.1
 				}
 			]
 		},

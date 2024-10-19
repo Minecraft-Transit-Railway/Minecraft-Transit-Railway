@@ -61,7 +61,7 @@
 				"wall_2"
 			],
 			"positionDefinitions": [
-				"doorOverlayWall2"
+				"doorOverlayWall2b"
 			],
 			"renderStage": "INTERIOR"
 		}

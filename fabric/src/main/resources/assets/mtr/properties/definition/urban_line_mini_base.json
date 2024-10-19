@@ -43,6 +43,32 @@
 			]
 		},
 		{
+			"name": "windowMiniEnd1",
+			"positions": [
+			]
+		},
+		{
+			"name": "windowMiniEnd2",
+			"positionsFlipped": [
+			]
+		},
+		{
+			"name": "windowMiniHead1Flipped",
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "windowMiniHead2Flipped",
+			"positions": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
 			"name": "windowOdd",
 			"positions": [
 				{
@@ -112,7 +138,7 @@
 			]
 		},
 		{
-			"name": "doorOverlayWall1",
+			"name": "doorOverlayWall1a",
 			"positions": [
 				{
 					"z": -53.9
@@ -131,7 +157,7 @@
 			]
 		},
 		{
-			"name": "doorOverlayWall2",
+			"name": "doorOverlayWall2a",
 			"positions": [
 				{
 					"z": -26.1
@@ -146,6 +172,44 @@
 				},
 				{
 					"z": 26.1
+				}
+			]
+		},
+		{
+			"name": "doorOverlayWall1b",
+			"positions": [
+				{
+					"z": -52.9
+				},
+				{
+					"z": 27.1
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -27.1
+				},
+				{
+					"z": 52.9
+				}
+			]
+		},
+		{
+			"name": "doorOverlayWall2b",
+			"positions": [
+				{
+					"z": -27.1
+				},
+				{
+					"z": 52.9
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -52.9
+				},
+				{
+					"z": 27.1
 				}
 			]
 		},
