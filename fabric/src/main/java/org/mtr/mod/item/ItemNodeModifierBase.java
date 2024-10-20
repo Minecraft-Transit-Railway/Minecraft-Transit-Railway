@@ -3,12 +3,11 @@ package org.mtr.mod.item;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.data.TwoPositionsBase;
-import org.mtr.core.integration.Response;
 import org.mtr.core.operation.RailsRequest;
 import org.mtr.core.operation.RailsResponse;
+import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Angle;
 import org.mtr.core.tool.EnumHelper;
-import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
@@ -85,12 +84,13 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 	protected abstract void onRemove(World world, BlockPos posStart, BlockPos posEnd, @Nullable ServerPlayerEntity player);
 
 	public static void getRail(World world, BlockPos blockPos1, BlockPos blockPos2, @Nullable ServerPlayerEntity serverPlayerEntity, Consumer<Rail> consumer) {
-		Init.sendHttpRequest(
-				"operation/rails",
+		Init.sendMessageC2S(
+				OperationProcessor.RAILS,
+				world.getServer(),
 				world,
-				Utilities.getJsonObjectFromData(new RailsRequest().addRailId(TwoPositionsBase.getHexId(Init.blockPosToPosition(blockPos1), Init.blockPosToPosition(blockPos2)))).toString(),
-				content -> {
-					final ObjectImmutableList<Rail> rails = Response.create(Utilities.parseJson(content)).getData(RailsResponse::new).getRails();
+				new RailsRequest().addRailId(TwoPositionsBase.getHexId(Init.blockPosToPosition(blockPos1), Init.blockPosToPosition(blockPos2))),
+				railsResponse -> {
+					final ObjectImmutableList<Rail> rails = railsResponse.getRails();
 					if (rails.isEmpty()) {
 						if (serverPlayerEntity != null) {
 							serverPlayerEntity.sendMessage(TranslationProvider.GUI_MTR_RAIL_NOT_FOUND_ACTION.getText(), true);
@@ -98,7 +98,8 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 					} else {
 						consumer.accept(rails.get(0));
 					}
-				}
+				},
+				RailsResponse.class
 		);
 	}
 

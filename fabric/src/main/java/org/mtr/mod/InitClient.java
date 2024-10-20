@@ -38,6 +38,7 @@ import java.util.function.Consumer;
 public final class InitClient {
 
 	private static Webserver webserver;
+	private static int serverPort;
 	private static long lastMillis = 0;
 	private static long gameMillis = 0;
 	private static long lastPlayedTrainSoundsMillis = 0;
@@ -342,16 +343,23 @@ public final class InitClient {
 			DynamicTextureCache.instance.reload();
 
 			// Clientside webserver for locally hosting the online system map
-			final int port = Init.findFreePort(0);
-			webserver = new Webserver(port);
-			webserver.addServlet(new ServletHolder(new ClientServlet()), "/");
-			webserver.start();
+			// Only start clientside webserver if not in singleplayer
+			if (Init.getServerPort() == 0) {
+				serverPort = Init.findFreePort(0);
+				webserver = new Webserver(serverPort);
+				webserver.addServlet(new ServletHolder(new ClientServlet()), "/");
+				webserver.start();
+			} else {
+				serverPort = Init.getServerPort();
+			}
+			Init.LOGGER.info("Open the Transport System Map at http://localhost:{}", serverPort);
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerClientDisconnect(() -> {
 			if (webserver != null) {
 				webserver.stop();
 			}
+			serverPort = 0;
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerStartClientTick(() -> {
@@ -479,6 +487,13 @@ public final class InitClient {
 
 	public static long getGameMillis() {
 		return gameMillis;
+	}
+
+	/**
+	 * @return the port of the clientside webserver (multiplayer) or the webserver started by Transport Simulation Core (singleplayer).
+	 */
+	public static int getServerPort() {
+		return serverPort;
 	}
 
 	private static RegistryClient.ModelPredicateProvider checkItemPredicateTag() {
