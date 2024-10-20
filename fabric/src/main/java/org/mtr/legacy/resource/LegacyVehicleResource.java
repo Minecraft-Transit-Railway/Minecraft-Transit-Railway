@@ -291,8 +291,27 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				}
 
 				if (propertiesPartsObject.has("display")) {
-					// TODO
 					partsObject.addProperty("type", "DISPLAY");
+
+					final JsonObject displayObject = propertiesPartsObject.getAsJsonObject("display");
+					partsObject.addProperty("displayXPadding", tryGetNumber(displayObject, "x_padding"));
+					partsObject.addProperty("displayYPadding", tryGetNumber(displayObject, "y_padding"));
+					partsObject.addProperty("displayCjkSizeRatio", tryGetNumber(displayObject, "cjk_size_ratio"));
+					partsObject.addProperty("displayType", tryGet(displayObject, "type"));
+					partsObject.addProperty("displayColorCjk", tryGet(displayObject, "color_cjk"));
+					partsObject.addProperty("displayColor", tryGet(displayObject, "color"));
+
+					final JsonArray displayOptionsArray = new JsonArray();
+					partsObject.add("displayOptions", displayOptionsArray);
+					if (tryGetBoolean(displayObject, "should_scroll")) {
+						displayOptionsArray.add("SCROLL_NORMAL");
+					}
+					if (tryGetBoolean(displayObject, "force_upper_case")) {
+						displayOptionsArray.add("UPPER_CASE");
+					}
+					if (tryGetBoolean(displayObject, "force_single_line")) {
+						displayOptionsArray.add("SINGLE_LINE");
+					}
 				} else {
 					partsObject.addProperty("type", "NORMAL");
 				}
@@ -360,7 +379,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				positionDefinitionObject.add("positionsFlipped", reversed ? positionDefinitionPositionsArray : positionDefinitionPositionsFlippedArray);
 				positionDefinitionsArray.add(positionDefinitionObject);
 
-				final boolean mirror = propertiesPartsObject.has("mirror") && propertiesPartsObject.get("mirror").getAsBoolean();
+				final boolean mirror = tryGetBoolean(propertiesPartsObject, "mirror");
 				processPositions(propertiesPartsObject, "positions", reversed, mirror ? positionDefinitionPositionsFlippedArray : positionDefinitionPositionsArray);
 				processPositions(propertiesPartsObject, "positions_flipped", reversed, positionDefinitionPositionsFlippedArray);
 
@@ -392,6 +411,22 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 			return jsonObject.get(property).getAsString();
 		} catch (Exception ignored) {
 			return "";
+		}
+	}
+
+	private static double tryGetNumber(JsonObject jsonObject, String property) {
+		try {
+			return jsonObject.get(property).getAsDouble();
+		} catch (Exception ignored) {
+			return 0;
+		}
+	}
+
+	private static boolean tryGetBoolean(JsonObject jsonObject, String property) {
+		try {
+			return jsonObject.has(property) && jsonObject.get(property).getAsBoolean();
+		} catch (Exception ignored) {
+			return false;
 		}
 	}
 
