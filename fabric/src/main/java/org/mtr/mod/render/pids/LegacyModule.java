@@ -145,22 +145,22 @@ public class LegacyModule extends PIDSModule {
                         xPos += 1.3f * textScale;
                     }
 
-                    final float destinationWidth = width - (textPadding * 4) - 6.4f * textScale - (hasDifferentCarLengths || showPlatformNumber ? showPlatformNumber ? 2.4f * textScale : 4.4f * textScale : 0f) - (entity.showArrivalNumber() ? 1.3f * textScale : 0f);
+                    final float destinationWidth = width - (textPadding * 4) - 7.0f * textScale - (hasDifferentCarLengths || showPlatformNumber ? showPlatformNumber ? 2.6f * textScale : 4.5f * textScale : 0f) - (entity.showArrivalNumber() ? 1.3f * textScale : 0f);
                     RenderPIDS.renderText(graphicsHolder, destinationFormatted, xPos, layerY, textSize, color, destinationWidth, IGui.HorizontalAlignment.LEFT, layer);
                     //debug box
                     //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, destinationWidth, textSize, 0xFF00FF00, layer - 1);
-                    xPos += destinationWidth + 0.2f * textScale;
+                    xPos += destinationWidth + 0.4f * textScale;
 
                     if (showPlatformNumber) {
                         RenderPIDS.renderText(graphicsHolder, arrivalResponse.getPlatformName(), xPos, layerY, textSize, color, 2.2f * textScale, IGui.HorizontalAlignment.RIGHT, layer);
                         //debug box
                         //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, 2.2f * textScale, textSize, 0xFF0000FF, layer - 1);
-                        xPos += 2.4f * textScale;
+                        xPos += 2.6f * textScale;
                     } else if (hasDifferentCarLengths) {
                         RenderPIDS.renderText(graphicsHolder, carLengthString, xPos, layerY, textSize, 0xFF0000, 4.2f * textScale, IGui.HorizontalAlignment.RIGHT, layer);
                         //debug box
                         //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, 4.2f * textScale, textSize, 0xFFFFFF00, layer - 1);
-                        xPos += 4.4f * textScale;
+                        xPos += 4.5f * textScale;
                     }
 
                     RenderPIDS.renderText(graphicsHolder, arrivalString, xPos, layerY, textSize, color, x + width - xPos - textPadding * 2, IGui.HorizontalAlignment.RIGHT, layer);

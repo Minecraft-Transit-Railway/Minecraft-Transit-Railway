@@ -10,20 +10,24 @@ import java.util.ArrayList;
 public class PIDSRenderController {
     private final ArrayList<PIDSModule> modules;
     public final int arrivals;
+    public final boolean isLegacy;
 
     public PIDSRenderController(String layout) {
         this.modules = loadModules(layout);
         //loop through modules and find latest arrival number
         float maxArrival = 0;
+        boolean legacy = false;
         for (PIDSModule module : modules) {
             if (module instanceof TextModule) {
                 maxArrival = Math.max(maxArrival, ((TextModule) module).getArrival());
             }
             if (module instanceof LegacyModule) {
                 maxArrival = Math.max(maxArrival, ((LegacyModule) module).getSize());
+                legacy = true;
             }
         }
         this.arrivals = (int) (maxArrival + 1);
+        this.isLegacy = legacy;
     }
 
     public ArrayList<PIDSModule> getModules() {

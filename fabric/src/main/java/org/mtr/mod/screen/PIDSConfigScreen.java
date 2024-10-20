@@ -18,6 +18,7 @@ import org.mtr.mod.data.IGui;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.data.PIDSLayoutData;
 import org.mtr.mod.packet.PacketUpdatePIDSConfig;
+import org.mtr.mod.render.pids.PIDSRenderController;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +31,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 	private final BlockPos blockPos;
 	private final String[] messages;
 	private String layout;
+	private boolean isLegacy = false;
 	private final boolean[] hideArrivalArray;
 	private final TextFieldWidgetExtension[] textFieldMessages;
 	private final CheckboxWidgetExtension[] buttonsHideArrival;
@@ -107,6 +109,9 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 	@Override
 	protected void init2() {
 		super.init2();
+		PIDSRenderController renderer = InitClient.pidsLayoutCache.getController(layout);
+        isLegacy = renderer != null && renderer.isLegacy;
+
 		final int customMessageWidth = GraphicsHolder.getTextWidth(messageText) + SQUARE_SIZE + TEXT_PADDING;
 		final int textWidth = GraphicsHolder.getTextWidth(hideArrivalText) + SQUARE_SIZE + TEXT_PADDING * 2;
 
@@ -143,6 +148,11 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 			IDrawing.setPositionAndWidth(buttonHideArrival, width - SQUARE_SIZE - textWidth + TEXT_PADDING, y + TEXT_FIELD_PADDING / 2, textWidth);
 			buttonHideArrival.setChecked(hideArrivalArray[i]);
 			addChild(new ClickableWidget(buttonHideArrival));
+
+			if (!isLegacy) {
+				textFieldMessage.visible = false;
+				buttonHideArrival.visible = false;
+			}
 		}
 
 		setPage(0);
@@ -191,7 +201,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 		graphicsHolder.drawText(TranslationProvider.GUI_MTR_DISPLAY_PAGE.getMutableText(), SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		graphicsHolder.drawText(TranslationProvider.GUI_MTR_FILTERED_PLATFORMS.getMutableText(selectAllCheckbox.isChecked2() ? 0 : filterPlatformIds.size()), SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
         graphicsHolder.drawText(TextHelper.translatable("gui.mtr.display_layout", layout), SQUARE_SIZE * 11, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-		graphicsHolder.drawText(messageText, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+		if (isLegacy) graphicsHolder.drawText(messageText, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		final int maxPages = getMaxPages();
 		if (maxPages > 1) {
 			graphicsHolder.drawCenteredText(String.format("%s/%s", page + 1, maxPages), SQUARE_SIZE * 3 + GraphicsHolder.getTextWidth(messageText) + TEXT_PADDING, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE);
@@ -242,6 +252,8 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 			MinecraftClient.getInstance().openScreen(new Screen(new PIDSLayoutSelectorScreen((item) -> {
 				MinecraftClient.getInstance().openScreen(new Screen(thisScreen));
 				this.layout = item == null ? "" : item.id;
+				PIDSRenderController renderer = InitClient.pidsLayoutCache.getController(this.layout);
+				setLegacy(renderer != null && renderer.isLegacy);
 			})));
 		});
 	}
@@ -260,5 +272,13 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 			}
 		}).filter(Objects::nonNull).collect(Collectors.toList())), 0)));
 		return new ObjectImmutableList<>(platformsForList);
+	}
+
+	private void setLegacy(boolean legacy) {
+		isLegacy = legacy;
+		for (int i = 0; i < textFieldMessages.length; i++) {
+			textFieldMessages[i].visible = legacy;
+			buttonsHideArrival[i].visible = legacy;
+		}
 	}
 }
