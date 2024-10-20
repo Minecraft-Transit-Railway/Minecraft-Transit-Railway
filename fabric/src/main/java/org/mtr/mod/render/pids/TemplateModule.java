@@ -13,6 +13,7 @@ import org.mtr.mod.block.BlockPIDSBase;
 import org.mtr.mod.render.RenderPIDS;
 
 import java.time.ZonedDateTime;
+import java.util.regex.Matcher;
 
 public class TemplateModule extends TextModule {
     public final String type = "destination";
@@ -28,12 +29,11 @@ public class TemplateModule extends TextModule {
             return;
         }
 
-        String text = template
-            .replaceAll("\\$s", InitClient.findStation(blockPos).getName())
-            .replaceAll("\\$d", arrivalResponse.getDestination())
-            .replaceAll("\\$p", arrivalResponse.getPlatformName())
-            .replaceAll("\\$l", String.valueOf(arrivalResponse.getCarCount()))
-            .replaceAll("\\$n", arrivalResponse.getRouteName());
+        String text = useTemplate(template, "$s", InitClient.findStation(blockPos).getName());
+        text = useTemplate(text, "$d", arrivalResponse.getDestination());
+        text = useTemplate(text, "$p", arrivalResponse.getPlatformName());
+        text = useTemplate(text, "$l", String.valueOf(arrivalResponse.getCarCount()));
+        text = useTemplate(text, "$n", arrivalResponse.getRouteName());
 
         //Time Identifiers
         if (template.contains("$t")) {
@@ -45,6 +45,7 @@ public class TemplateModule extends TextModule {
             int hours = (int) Math.floor(time / 3600F);
             int hours12 = hours % 12;
             hours12 = hours12 == 0 ? 12 : hours12;
+            // These identifiers will never have | or ||, so the wrapper is skipped
             text = text
                 .replaceAll("\\$ts", String.format("%02d", seconds))
                 .replaceAll("\\$tm", String.format("%02d", minutes))
@@ -63,6 +64,7 @@ public class TemplateModule extends TextModule {
             int hours = (int) Math.floor(time / 3600F);
             int hours12 = hours % 12;
             hours12 = hours12 == 0 ? 12 : hours12;
+            // Same as above
             text = text
                 .replaceAll("\\$tgs", String.format("%02d", seconds))
                 .replaceAll("\\$tgm", String.format("%02d", minutes))
@@ -72,5 +74,15 @@ public class TemplateModule extends TextModule {
         }
 
         super.render(graphicsHolder, arrivals, renderPIDS, entity, blockPos, facing, text);
+    }
+
+    // Wrapper for identifier replacement that supports | and ||
+    private String useTemplate(String string, String template, String value) {
+        if (!string.contains(template)) return string;
+
+        String[] texts = value.split("\\|\\|")[0].replaceAll("\\\\\\|", "^TEMP^").split("\\|");
+        int textIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderPIDS.SWITCH_TEXT_TICKS) % texts.length;
+        String parseText = texts[textIndex].replaceAll("\\^TEMP\\^", "|");
+        return string.replaceAll(Matcher.quoteReplacement(template), parseText);
     }
 }
