@@ -26,6 +26,23 @@
 				"window6"
 			],
 			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"destination_display_1",
+				"destination_display_2"
+			],
+			"positionDefinitions": [
+				"window4Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.4,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"SCROLL_NORMAL"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "Not In Service"
 		}
 	],
 	"modelYOffset": 1

@@ -167,6 +167,12 @@
 				{
 					"modelResource": "mtr:models/vehicle/london_underground_1995.bbmodel",
 					"textureResource": "mtr:textures/vehicle/london_underground_@year@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_@year@_display.json",
+					"positionDefinitionsResource": "mtr:properties/definition/london_underground_1995@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/london_underground_1995.bbmodel",
+					"textureResource": "mtr:textures/vehicle/london_underground_@year@.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_1995_@end1@.json",
 					"positionDefinitionsResource": "mtr:properties/definition/london_underground_1995@definition@.json"
 				},

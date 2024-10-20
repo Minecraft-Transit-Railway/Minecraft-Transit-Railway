@@ -297,9 +297,11 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 					partsObject.addProperty("displayXPadding", tryGetNumber(displayObject, "x_padding"));
 					partsObject.addProperty("displayYPadding", tryGetNumber(displayObject, "y_padding"));
 					partsObject.addProperty("displayCjkSizeRatio", tryGetNumber(displayObject, "cjk_size_ratio"));
-					partsObject.addProperty("displayType", tryGet(displayObject, "type"));
 					partsObject.addProperty("displayColorCjk", tryGet(displayObject, "color_cjk"));
 					partsObject.addProperty("displayColor", tryGet(displayObject, "color"));
+
+					final String displayType = tryGet(displayObject, "type");
+					partsObject.addProperty("displayType", "NEXT_STATION_PLAIN".equals(displayType) ? "NEXT_STATION" : displayType);
 
 					final JsonArray displayOptionsArray = new JsonArray();
 					partsObject.add("displayOptions", displayOptionsArray);

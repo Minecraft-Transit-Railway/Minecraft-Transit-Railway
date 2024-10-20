@@ -14,7 +14,6 @@ import org.mtr.mod.client.DoorAnimationType;
 import org.mtr.mod.client.ScrollingText;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.VehicleExtension;
-import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.render.MainRenderer;
 import org.mtr.mod.render.QueuedRenderLayer;
 import org.mtr.mod.render.StoredMatrixTransformations;
@@ -178,40 +177,6 @@ public abstract class ModelTrainBase extends EntityModelExtension<EntityAbstract
 	protected static String getAlternatingString(String text) {
 		final String[] textSplit = text.split("\\|");
 		return textSplit[((int) Math.floor(InitClient.getGameTick() / 30)) % textSplit.length];
-	}
-
-	protected static String getHongKongNextStationString(String thisStationName, String nextStationName, boolean atPlatform, boolean isKcr) {
-		if (atPlatform) {
-			return thisStationName;
-		} else {
-			return IGui.insertTranslation(isKcr ? TranslationProvider.GUI_MTR_NEXT_STATION_CJK : TranslationProvider.GUI_MTR_NEXT_STATION_ANNOUNCEMENT_CJK, isKcr ? TranslationProvider.GUI_MTR_NEXT_STATION : TranslationProvider.GUI_MTR_NEXT_STATION_ANNOUNCEMENT, 1, IGui.textOrUntitled(nextStationName));
-		}
-	}
-
-	protected static String getLondonNextStationString(String thisRouteName, String thisStationName, String nextStationName, Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges, String destinationString, boolean atPlatform, boolean isTerminating) {
-		final String stationName = atPlatform ? thisStationName : nextStationName;
-		final List<String> messages = new ArrayList<>();
-
-		if (!isTerminating) {
-			messages.add(IGui.insertTranslation(TranslationProvider.GUI_MTR_LONDON_TRAIN_ROUTE_ANNOUNCEMENT_CJK, TranslationProvider.GUI_MTR_LONDON_TRAIN_ROUTE_ANNOUNCEMENT, 2, IGui.textOrUntitled(thisRouteName), IGui.textOrUntitled(destinationString)));
-		}
-
-		if (atPlatform) {
-			messages.add(IGui.insertTranslation(TranslationProvider.GUI_MTR_LONDON_TRAIN_THIS_STATION_ANNOUNCEMENT_CJK, TranslationProvider.GUI_MTR_LONDON_TRAIN_THIS_STATION_ANNOUNCEMENT, 1, IGui.textOrUntitled(stationName)));
-		} else {
-			messages.add(IGui.insertTranslation(TranslationProvider.GUI_MTR_LONDON_TRAIN_NEXT_STATION_ANNOUNCEMENT_CJK, TranslationProvider.GUI_MTR_LONDON_TRAIN_NEXT_STATION_ANNOUNCEMENT, 1, IGui.textOrUntitled(stationName)));
-		}
-
-		final String mergedInterchangeRoutes = MainRenderer.getInterchangeRouteNames(getInterchanges);
-		if (!mergedInterchangeRoutes.isEmpty()) {
-			messages.add(IGui.insertTranslation(TranslationProvider.GUI_MTR_LONDON_TRAIN_INTERCHANGE_ANNOUNCEMENT_CJK, TranslationProvider.GUI_MTR_LONDON_TRAIN_INTERCHANGE_ANNOUNCEMENT, 1, mergedInterchangeRoutes));
-		}
-
-		if (isTerminating) {
-			messages.add(IGui.insertTranslation(TranslationProvider.GUI_MTR_LONDON_TRAIN_TERMINATING_ANNOUNCEMENT_CJK, TranslationProvider.GUI_MTR_LONDON_TRAIN_TERMINATING_ANNOUNCEMENT, 1, IGui.textOrUntitled(stationName)));
-		}
-
-		return IGui.formatStationName(IGui.mergeStations(messages, "", " "));
 	}
 
 	protected enum TextSpacingType {NORMAL, SPACE_CJK, SPACE_CJK_FLIPPED, SPACE_CJK_LARGE, MLR_SPACING}
