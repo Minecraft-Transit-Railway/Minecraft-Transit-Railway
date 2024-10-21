@@ -1,5 +1,20 @@
 {
 	"custom_trains": {
+		"london_underground_s7": {
+			"name": "London Underground S7 Stock",
+			"description": "Model and texture by Navi (Pending 4.0.0 migration)",
+			"wikipedia_article": "London_Underground_S7_and_S8_Stock",
+			"color": "F64F1C",
+			"gangway_connection_id": "mtr:textures/gangway/london_underground_s7",
+			"train_barrier_id": "",
+			"door_animation_type": "STANDARD",
+			"render_door_overlay": false,
+			"rider_offset": 0,
+			"texture_id": "mtr:textures/vehicle/london_underground_s7",
+			"bve_sound_base_id": "london_underground_s7",
+			"model": "mtr:models/vehicle/london_underground_s7.bbmodel",
+			"model_properties": "mtr:properties/pending_migration/london_underground_s7.json"
+		},
 		"eidan_9000": {
 			"name": "Eidan 9000",
 			"description": "Model and texture by CinderaceOTS (Pending 4.0.0 migration)",

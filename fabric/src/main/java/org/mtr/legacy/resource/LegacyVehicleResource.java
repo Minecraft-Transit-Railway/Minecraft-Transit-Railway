@@ -299,6 +299,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 					partsObject.addProperty("displayCjkSizeRatio", tryGetNumber(displayObject, "cjk_size_ratio"));
 					partsObject.addProperty("displayColorCjk", tryGet(displayObject, "color_cjk"));
 					partsObject.addProperty("displayColor", tryGet(displayObject, "color"));
+					partsObject.addProperty("displayPadZeros", tryGetNumber(displayObject, "display_pad_zeros"));
 
 					final String displayType = tryGet(displayObject, "type");
 					partsObject.addProperty("displayType", "NEXT_STATION_PLAIN".equals(displayType) ? "NEXT_STATION" : displayType);
