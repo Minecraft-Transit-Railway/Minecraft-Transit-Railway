@@ -18385,5 +18385,61 @@
 				"attenuation_distance": 96
 			}
 		]
-	}
+	},
+	"minecart_doorcls": {
+        "sounds": [
+            {
+                "name": "mtr:minecart/doorcls",
+                "attenuation_distance": 32
+            }
+        ]
+    },
+    "minecart_dooropn": {
+        "sounds": [
+            {
+                "name": "mtr:minecart/dooropn",
+                "attenuation_distance": 32
+            }
+        ]
+    },
+    "minecart_loop": {
+        "sounds": [
+            {
+                "name": "mtr:minecart/loop",
+                "attenuation_distance": 32
+            }
+        ]
+    },
+    "minecart_motor4": {
+        "sounds": [
+            {
+                "name": "mtr:minecart/motor4",
+                "attenuation_distance": 32
+            }
+        ]
+    },
+    "minecart_motor3": {
+        "sounds": [
+            {
+                "name": "mtr:minecart/motor3",
+                "attenuation_distance": 32
+            }
+        ]
+    },
+    "minecart_point": {
+        "sounds": [
+            {
+                "name": "mtr:minecart/point",
+                "attenuation_distance": 32
+            }
+        ]
+    },
+    "minecart_run": {
+        "sounds": [
+            {
+                "name": "mtr:minecart/run",
+                "attenuation_distance": 32
+            }
+        ]
+    }
 }
