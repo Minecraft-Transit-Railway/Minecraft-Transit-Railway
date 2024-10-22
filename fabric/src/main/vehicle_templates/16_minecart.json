@@ -35,7 +35,8 @@
 			"bogie2Models": [
 			],
 			"hasGangway1": false,
-			"hasGangway2": false
+			"hasGangway2": false,
+			"bveSoundBaseResource": "minecart"
 		}
 	]
 }
