@@ -9,10 +9,7 @@ import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.OverlayTexture;
 import org.mtr.mapping.holder.Vector3d;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.ModelPartExtension;
-import org.mtr.mapping.mapper.OptimizedModel;
-import org.mtr.mapping.mapper.OptimizedRenderer;
+import org.mtr.mapping.mapper.*;
 import org.mtr.mod.Init;
 import org.mtr.mod.MutableBox;
 import org.mtr.mod.client.CustomResourceLoader;
@@ -288,7 +285,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 						graphicsHolder.push();
 						graphicsHolder.translate(Math.max(0, horizontalAlignment.getOffset(0, (float) (textWidth - availableTextWidth))), 0, 0);
 						graphicsHolder.scale((float) (widthScale * heightScale), (float) heightScale, 1);
-						graphicsHolder.drawText(textSplit[i], 0, 0, isCjk[i] ? displayColorCjkInt : displayColorInt, false, GraphicsHolder.getDefaultLight());
+						graphicsHolder.drawText(IDrawing.withMTRFont(TextHelper.literal(textSplit[i])), 0, 0, isCjk[i] ? displayColorCjkInt : displayColorInt, false, GraphicsHolder.getDefaultLight());
 						graphicsHolder.pop();
 					}
 
