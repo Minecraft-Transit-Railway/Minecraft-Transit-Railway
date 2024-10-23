@@ -131,7 +131,7 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 
 		toggleButtons();
 		dashboardList.init(this::addChild);
-		addChild(new ClickableWidget(widgetMap));
+		addSelectableChild(new ClickableWidget(widgetMap));
 
 		addChild(new ClickableWidget(buttonTabStations));
 		addChild(new ClickableWidget(buttonTabRoutes));
