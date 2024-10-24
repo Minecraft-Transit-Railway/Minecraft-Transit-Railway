@@ -37,16 +37,18 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		blockbenchModel.getElements().forEach(blockbenchElement -> uuidToBlockbenchElement.put(blockbenchElement.getUuid(), blockbenchElement));
 
 		final Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ModelPartExtension, MutableBox>> nameToPart = new Object2ObjectOpenHashMap<>();
-		final Object2ObjectOpenHashMap<String, ModelDisplayPart> nameToDisplayPart = new Object2ObjectOpenHashMap<>();
+		final Object2ObjectOpenHashMap<String, ObjectArrayList<ModelDisplayPart>> nameToDisplayParts = new Object2ObjectOpenHashMap<>();
 		blockbenchModel.getOutlines().forEach(blockbenchOutline -> {
 			final ObjectHolder<ModelPartExtension> parentModelPart = new ObjectHolder<>(this::createModelPart);
 			final MutableBox mutableBox = new MutableBox();
-			final ObjectHolder<ModelDisplayPart> modelDisplayPart = new ObjectHolder<>(ModelDisplayPart::new);
+			final ObjectArrayList<ModelDisplayPart> modelDisplayParts = new ObjectArrayList<>();
 
 			iterateChildren(blockbenchOutline, null, id, new GroupTransformations(), (uuid, groupTransformations) -> {
 				final BlockbenchElement blockbenchElement = uuidToBlockbenchElement.remove(uuid);
 				if (blockbenchElement != null) {
-					mutableBox.add(blockbenchElement.setModelPart(parentModelPart.createAndGet().addChild(), groupTransformations, modelDisplayPart.createAndGet(), (float) modelProperties.getModelYOffset()));
+					final ModelDisplayPart modelDisplayPart = new ModelDisplayPart();
+					modelDisplayParts.add(modelDisplayPart);
+					mutableBox.add(blockbenchElement.setModelPart(parentModelPart.createAndGet().addChild(), groupTransformations, modelDisplayPart, (float) modelProperties.getModelYOffset()));
 				}
 			});
 
@@ -54,8 +56,8 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 				nameToPart.put(blockbenchOutline.getName(), new ObjectObjectImmutablePair<>(parentModelPart.createAndGet(), mutableBox));
 			}
 
-			if (modelDisplayPart.exists()) {
-				nameToDisplayPart.put(blockbenchOutline.getName(), modelDisplayPart.createAndGet());
+			if (!modelDisplayParts.isEmpty()) {
+				nameToDisplayParts.put(blockbenchOutline.getName(), modelDisplayParts);
 			}
 		});
 
@@ -63,7 +65,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		modelProperties.addPartsIfEmpty(nameToPart.keySet());
 		this.texture = texture;
 		this.modelProperties = modelProperties;
-		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(texture, nameToPart, nameToDisplayPart, positionDefinitions, floors, doorways, materialGroupsForPartConditionAndRenderStage, materialGroupsForPartConditionAndRenderStageDoorsClosed));
+		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(texture, nameToPart, nameToDisplayParts, positionDefinitions, floors, doorways, materialGroupsForPartConditionAndRenderStage, materialGroupsForPartConditionAndRenderStageDoorsClosed));
 		testDoors(id);
 	}
 
@@ -85,8 +87,8 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	public void render(GraphicsHolder graphicsHolder, int light, int overlay, float red, float green, float blue, float alpha) {
 	}
 
-	public void render(StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, int light, ObjectArrayList<Box> openDoorways) {
-		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.render(texture, storedMatrixTransformations, vehicle, light, openDoorways));
+	public void render(StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker, int light, ObjectArrayList<Box> openDoorways) {
+		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.render(texture, storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, light, openDoorways));
 	}
 
 	public void writeFloorsAndDoorways(

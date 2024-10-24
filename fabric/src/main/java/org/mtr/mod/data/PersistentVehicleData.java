@@ -13,6 +13,8 @@ import org.mtr.mod.client.ScrollingText;
 import org.mtr.mod.resource.VehicleResource;
 import org.mtr.mod.sound.VehicleSoundBase;
 
+import java.util.function.Supplier;
+
 public final class PersistentVehicleData {
 
 	private double doorValue;
@@ -36,18 +38,12 @@ public final class PersistentVehicleData {
 		this.transportMode = transportMode;
 	}
 
-	public ObjectArrayList<ScrollingText> getScrollingText(int car) {
-		while (scrollingTexts.size() <= car) {
-			scrollingTexts.add(new ObjectArrayList<>());
-		}
-		return scrollingTexts.get(car);
+	public ObjectArrayList<ScrollingText> getScrollingText(int carNumber) {
+		return getElement(scrollingTexts, carNumber, ObjectArrayList::new);
 	}
 
-	public Oscillation getOscillation(int car) {
-		while (oscillations.size() <= car) {
-			oscillations.add(new Oscillation(transportMode));
-		}
-		return oscillations.get(car);
+	public Oscillation getOscillation(int carNumber) {
+		return getElement(oscillations, carNumber, () -> new Oscillation(transportMode));
 	}
 
 	public void tick(double railProgress, long millisElapsed, VehicleExtraData vehicleExtraData) {
@@ -84,9 +80,13 @@ public final class PersistentVehicleData {
 	}
 
 	private VehicleSoundBase getVehicleSoundBase(VehicleResource vehicleResource, int carNumber) {
-		while (vehicleSoundBaseList.size() <= carNumber) {
-			vehicleSoundBaseList.add(vehicleResource.createVehicleSoundBase.get());
+		return getElement(vehicleSoundBaseList, carNumber, vehicleResource.createVehicleSoundBase);
+	}
+
+	private static <T> T getElement(ObjectArrayList<T> list, int index, Supplier<T> supplier) {
+		while (list.size() <= index) {
+			list.add(supplier.get());
 		}
-		return vehicleSoundBaseList.get(carNumber);
+		return list.get(index);
 	}
 }

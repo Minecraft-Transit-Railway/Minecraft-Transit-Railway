@@ -27,6 +27,7 @@ public class CustomResourceLoader {
 
 	public static final OptimizedRendererWrapper OPTIMIZED_RENDERER_WRAPPER = new OptimizedRendererWrapper();
 	public static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
+	public static final String CUSTOM_RESOURCES_PENDING_MIGRATION_ID = "mtr_custom_resources_pending_migration";
 	public static final String DEFAULT_RAIL_ID = "default";
 	public static final String DEFAULT_RAIL_3D_ID = "default_3d";
 	public static final String DEFAULT_RAIL_3D_SIDING_ID = "default_3d_siding";
@@ -83,6 +84,17 @@ public class CustomResourceLoader {
 				customResources.iterateObjects(objectResource -> {
 					OBJECTS.add(objectResource);
 					OBJECTS_CACHE.put(objectResource.getId(), objectResource);
+				});
+			} catch (Exception e) {
+				Init.LOGGER.error("", e);
+			}
+		});
+
+		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_PENDING_MIGRATION_ID + ".json"), inputStream -> {
+			try {
+				CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject()).iterateVehicles(vehicleResource -> {
+					VEHICLES.get(vehicleResource.getTransportMode()).add(vehicleResource);
+					VEHICLES_CACHE.get(vehicleResource.getTransportMode()).put(vehicleResource.getId(), vehicleResource);
 				});
 			} catch (Exception e) {
 				Init.LOGGER.error("", e);

@@ -62,12 +62,15 @@
 			"1995 Stock Compressed Trailer",
 			"1995 Stock Compressed Cab (Forwards)",
 			"1995 Stock Compressed Cab (Backwards)",
+			"1995 Stock Compressed Cab (Double)",
 			"1996 Stock Trailer",
 			"1996 Stock Cab (Forwards)",
 			"1996 Stock Cab (Backwards)",
+			"1996 Stock Cab (Double)",
 			"1996 Stock Compressed Trailer",
 			"1996 Stock Compressed Cab (Forwards)",
-			"1996 Stock Compressed Cab (Backwards)"
+			"1996 Stock Compressed Cab (Backwards)",
+			"1996 Stock Compressed Cab (Double)"
 		],
 		"definition": [
 			"",
@@ -162,6 +165,12 @@
 					"modelResource": "mtr:models/vehicle/london_underground_1995.bbmodel",
 					"textureResource": "mtr:textures/vehicle/london_underground_@year@.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_1995_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/london_underground_1995@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/london_underground_1995.bbmodel",
+					"textureResource": "mtr:textures/vehicle/london_underground_@year@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_@year@_display.json",
 					"positionDefinitionsResource": "mtr:properties/definition/london_underground_1995@definition@.json"
 				},
 				{

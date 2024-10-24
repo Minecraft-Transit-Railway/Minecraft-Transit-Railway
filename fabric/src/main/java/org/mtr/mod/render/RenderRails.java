@@ -6,6 +6,7 @@ import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Angle;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -90,11 +91,13 @@ public class RenderRails implements IGui {
 						hoverRails.add(newRail);
 						railsToRender.remove(rail);
 						railsToRender.add(newRail);
-						renderRailStats(blockPos, null, newRail.railMath.getLength());
+						final DoubleDoubleImmutablePair railRadii = newRail.railMath.getHorizontalRadii();
+						renderRailStats(blockPos, null, newRail.railMath.getLength(), railRadii.leftDouble(), railRadii.rightDouble());
 					}
 				} else {
 					hoverRails.add(rail);
-					renderRailStats(blockPos, null, rail.railMath.getLength());
+					final DoubleDoubleImmutablePair railRadii = rail.railMath.getHorizontalRadii();
+					renderRailStats(blockPos, null, rail.railMath.getLength(), railRadii.leftDouble(), railRadii.rightDouble());
 				}
 			}
 		}
@@ -127,8 +130,9 @@ public class RenderRails implements IGui {
 							railsToRender.add(newRail);
 							hoverRails.add(newRail);
 							final double railLength = newRail.railMath.getLength();
-							renderRailStats(posStart, posEnd, railLength);
-							renderRailStats(posEnd, posStart, railLength);
+							final DoubleDoubleImmutablePair railRadii = newRail.railMath.getHorizontalRadii();
+							renderRailStats(posStart, posEnd, railLength, railRadii.leftDouble(), railRadii.rightDouble());
+							renderRailStats(posEnd, posStart, railLength, railRadii.rightDouble(), railRadii.leftDouble());
 						}
 					}
 				}
@@ -339,13 +343,32 @@ public class RenderRails implements IGui {
 		}
 	}
 
-	private static void renderRailStats(BlockPos renderPos, @Nullable BlockPos otherPos, double railLength) {
+	private static void renderRailStats(BlockPos renderPos, @Nullable BlockPos otherPos, double railLength, double closerRadius, double otherRadius) {
 		if (railLength > 0) {
 			final String textXYZOffsetLabel = otherPos == null ? null : TranslationProvider.GUI_MTR_RAIL_XYZ_OFFSET.getString();
 			final String textXYZOffset = otherPos == null ? null : String.format("(%s, %s, %s)", renderPos.getX() - otherPos.getX(), renderPos.getY() - otherPos.getY(), renderPos.getZ() - otherPos.getZ());
+
+			final String textXZRadiusLabel;
+			final String textXZRadius;
+			final double roundedCloserRadius = Utilities.round(closerRadius, 3);
+			final double roundedOtherRadius = Utilities.round(otherRadius, 3);
+			if (roundedCloserRadius == 0 || roundedOtherRadius == 0 || roundedCloserRadius == roundedOtherRadius) {
+				if (roundedCloserRadius == 0 && roundedOtherRadius == 0) {
+					textXZRadiusLabel = null;
+					textXZRadius = null;
+				} else {
+					textXZRadiusLabel = TranslationProvider.GUI_MTR_RAIL_XZ_RADIUS.getString();
+					textXZRadius = String.valueOf(roundedCloserRadius == 0 ? roundedOtherRadius : roundedCloserRadius);
+				}
+			} else {
+				textXZRadiusLabel = TranslationProvider.GUI_MTR_RAIL_XZ_RADII.getString();
+				textXZRadius = String.format("%s, %s", roundedCloserRadius, roundedOtherRadius);
+			}
+
 			final String textLengthLabel = TranslationProvider.GUI_MTR_RAIL_XZ_LENGTH.getString();
 			final String textLength = String.valueOf(Utilities.round(railLength, 3));
-			final double textOffset = otherPos == null ? 0.5 : 1.5;
+
+			final double textOffset = otherPos == null ? 0.5 : 1;
 
 			MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
 				graphicsHolder.push();
@@ -353,18 +376,28 @@ public class RenderRails implements IGui {
 				InitClient.transformToFacePlayer(graphicsHolder, renderPos.getX() + 0.5, renderPos.getY() + textOffset, renderPos.getZ() + 0.5);
 				graphicsHolder.rotateZDegrees(180);
 				graphicsHolder.scale(1 / 32F, 1 / 32F, -1 / 32F);
-				graphicsHolder.drawText(textLength, -GraphicsHolder.getTextWidth(textLength) / 2, -9, ARGB_WHITE, true, GraphicsHolder.getDefaultLight());
+				int line = 0;
 				if (otherPos != null) {
-					graphicsHolder.drawText(textXYZOffset, -GraphicsHolder.getTextWidth(textXYZOffset) / 2, 6, 0xFFDDDDDD, true, GraphicsHolder.getDefaultLight());
+					line = renderRailStat(graphicsHolder, textXYZOffsetLabel, textXYZOffset, line);
 				}
-				graphicsHolder.scale(0.5F, 0.5F, 0.5F);
-				graphicsHolder.drawText(textLengthLabel, -GraphicsHolder.getTextWidth(textLengthLabel) / 2, -28, ARGB_WHITE, true, GraphicsHolder.getDefaultLight());
-				if (otherPos != null) {
-					graphicsHolder.drawText(textXYZOffsetLabel, -GraphicsHolder.getTextWidth(textXYZOffsetLabel) / 2, 2, 0xFFDDDDDD, true, GraphicsHolder.getDefaultLight());
+				if (textXZRadius != null) {
+					line = renderRailStat(graphicsHolder, textXZRadiusLabel, textXZRadius, line);
 				}
+				renderRailStat(graphicsHolder, textLengthLabel, textLength, line);
 				graphicsHolder.pop();
 			});
 		}
+	}
+
+	private static int renderRailStat(GraphicsHolder graphicsHolder, String title, String data, int line) {
+		int newLine = line - 9;
+		graphicsHolder.drawText(data, -GraphicsHolder.getTextWidth(data) / 2, newLine, ARGB_WHITE, true, GraphicsHolder.getDefaultLight());
+		graphicsHolder.push();
+		graphicsHolder.scale(0.5F, 0.5F, 0.5F);
+		newLine -= 5;
+		graphicsHolder.drawText(title, -GraphicsHolder.getTextWidth(title) / 2, newLine * 2, ARGB_WHITE, true, GraphicsHolder.getDefaultLight());
+		graphicsHolder.pop();
+		return newLine - 1;
 	}
 
 	private static ItemStack getStackInHand() {

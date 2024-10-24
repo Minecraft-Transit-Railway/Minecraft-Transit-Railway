@@ -212,25 +212,12 @@ public final class VehicleResource extends VehicleResourceSchema {
 	}
 
 	public void iterateModels(ModelConsumer modelConsumer) {
-		for (int i = 0; i < models.size(); i++) {
-			final VehicleModel vehicleModel = models.get(i);
-			if (vehicleModel != null) {
-				final DynamicVehicleModel dynamicVehicleModel = vehicleModel.cachedModel.getData(false);
-				if (dynamicVehicleModel != null) {
-					modelConsumer.accept(i, dynamicVehicleModel);
-				}
-			}
-		}
+		iterateModels(models, modelConsumer);
 	}
 
-	public void iterateBogieModels(int bogieIndex, Consumer<DynamicVehicleModel> consumer) {
+	public void iterateBogieModels(int bogieIndex, ModelConsumer modelConsumer) {
 		if (Utilities.isBetween(bogieIndex, 0, 1)) {
-			(bogieIndex == 0 ? bogie1Models : bogie2Models).forEach(vehicleModel -> {
-				final DynamicVehicleModel dynamicVehicleModel = vehicleModel.cachedModel.getData(false);
-				if (dynamicVehicleModel != null) {
-					consumer.accept(dynamicVehicleModel);
-				}
-			});
+			iterateModels(bogieIndex == 0 ? bogie1Models : bogie2Models, modelConsumer);
 		}
 	}
 
@@ -264,6 +251,18 @@ public final class VehicleResource extends VehicleResourceSchema {
 				return vehicle.persistentVehicleData.getDoorValue() > 0 && !noOpenDoorways;
 			default:
 				return getChristmasLightState(partCondition);
+		}
+	}
+
+	private static void iterateModels(ObjectArrayList<VehicleModel> models, ModelConsumer modelConsumer) {
+		for (int i = 0; i < models.size(); i++) {
+			final VehicleModel vehicleModel = models.get(i);
+			if (vehicleModel != null) {
+				final DynamicVehicleModel dynamicVehicleModel = vehicleModel.cachedModel.getData(false);
+				if (dynamicVehicleModel != null) {
+					modelConsumer.accept(i, dynamicVehicleModel);
+				}
+			}
 		}
 	}
 
