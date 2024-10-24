@@ -38,6 +38,10 @@ public final class Client extends ClientSchema {
 		return defaultRail3D;
 	}
 
+	public boolean getUseMTRFont() {
+		return useMTRFont;
+	}
+
 	public boolean getDisableShadowsForShaders() {
 		return disableShadowsForShaders;
 	}
@@ -68,6 +72,10 @@ public final class Client extends ClientSchema {
 
 	public void toggleDefaultRail3D() {
 		defaultRail3D = !defaultRail3D;
+	}
+
+	public void toggleUseMTRFont() {
+		useMTRFont = !useMTRFont;
 	}
 
 	public void toggleDisableShadowsForShaders() {

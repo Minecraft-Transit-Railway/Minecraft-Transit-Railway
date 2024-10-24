@@ -55,6 +55,48 @@
 			]
 		},
 		{
+			"name": "windowMiniEnd1",
+			"positions": [
+				{
+					"z": -120
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -120
+				}
+			]
+		},
+		{
+			"name": "windowMiniEnd2",
+			"positions": [
+				{
+					"z": 120
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 120
+				}
+			]
+		},
+		{
+			"name": "windowMiniHead1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -120
+				}
+			]
+		},
+		{
+			"name": "windowMiniHead2Flipped",
+			"positions": [
+				{
+					"z": 120
+				}
+			]
+		},
+		{
 			"name": "windowOdd",
 			"positions": [
 				{
@@ -192,7 +234,7 @@
 			]
 		},
 		{
-			"name": "doorOverlayWall1",
+			"name": "doorOverlayWall1a",
 			"positions": [
 				{
 					"z": -173.9
@@ -229,7 +271,7 @@
 			]
 		},
 		{
-			"name": "doorOverlayWall2",
+			"name": "doorOverlayWall2a",
 			"positions": [
 				{
 					"z": -146.1
@@ -262,6 +304,80 @@
 				},
 				{
 					"z": 146.1
+				}
+			]
+		},
+		{
+			"name": "doorOverlayWall1b",
+			"positions": [
+				{
+					"z": -172.9
+				},
+				{
+					"z": -92.9
+				},
+				{
+					"z": -12.9
+				},
+				{
+					"z": 67.1
+				},
+				{
+					"z": 147.1
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -147.1
+				},
+				{
+					"z": -67.1
+				},
+				{
+					"z": 12.9
+				},
+				{
+					"z": 92.9
+				},
+				{
+					"z": 172.9
+				}
+			]
+		},
+		{
+			"name": "doorOverlayWall2b",
+			"positions": [
+				{
+					"z": -147.1
+				},
+				{
+					"z": -67.1
+				},
+				{
+					"z": 12.9
+				},
+				{
+					"z": 92.9
+				},
+				{
+					"z": 172.9
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -172.9
+				},
+				{
+					"z": -92.9
+				},
+				{
+					"z": -12.9
+				},
+				{
+					"z": 67.1
+				},
+				{
+					"z": 147.1
 				}
 			]
 		},

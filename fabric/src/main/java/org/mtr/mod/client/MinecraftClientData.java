@@ -73,7 +73,7 @@ public final class MinecraftClientData extends ClientData {
 	}
 
 	@Nullable
-	public Rail getFacingRail(boolean includeCableType) {
+	public ObjectObjectImmutablePair<Rail, BlockPos> getFacingRailAndBlockPos(boolean includeCableType) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
 		if (clientWorld == null) {
@@ -109,7 +109,7 @@ public final class MinecraftClientData extends ClientData {
 				}
 			});
 
-			return closestRail[0];
+			return closestRail[0] == null ? null : new ObjectObjectImmutablePair<>(closestRail[0], blockPos);
 		} else {
 			return null;
 		}

@@ -3,6 +3,7 @@ package org.mtr.mod.block;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Angle;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.BlockHelper;
@@ -41,11 +42,11 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 	@Override
 	public ActionResult onUse2(BlockState blockState, World world, BlockPos blockPos, PlayerEntity playerEntity, Hand hand, BlockHitResult hit) {
 		if (world.isClient() && playerEntity.isHolding(Items.BRUSH.get())) {
-			final Rail rail = MinecraftClientData.getInstance().getFacingRail(false);
-			if (rail == null) {
+			final ObjectObjectImmutablePair<Rail, BlockPos> railAndBlockPos = MinecraftClientData.getInstance().getFacingRailAndBlockPos(false);
+			if (railAndBlockPos == null) {
 				return ActionResult.FAIL;
 			} else {
-				ClientPacketHelper.openRailShapeModifierScreen(rail.getHexId());
+				ClientPacketHelper.openRailShapeModifierScreen(railAndBlockPos.left().getHexId());
 				return ActionResult.SUCCESS;
 			}
 		} else {

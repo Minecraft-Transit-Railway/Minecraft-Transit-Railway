@@ -1,7 +1,9 @@
 package org.mtr.mod.packet;
 
-import org.mtr.core.integration.Response;
+import org.mtr.core.serializer.JsonReader;
+import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.mapping.holder.MinecraftServer;
 import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.holder.ServerWorld;
@@ -44,26 +46,27 @@ public abstract class PacketRequestResponseBase extends PacketHandler {
 
 	@Override
 	public final void runClient() {
-		runClientInbound(Response.create(Utilities.parseJson(content)));
+		runClientInbound(new JsonReader(Utilities.parseJson(content)));
 	}
 
 	protected void runServerOutbound(ServerWorld serverWorld, @Nullable ServerPlayerEntity serverPlayerEntity) {
-		Init.sendHttpRequest(getEndpoint(), new World(serverWorld.data), content, responseType() == ResponseType.NONE ? null : response -> {
+		Init.sendMessageC2S(getKey(), serverWorld.getServer(), new World(serverWorld.data), getDataInstance(new JsonReader(Utilities.parseJson(content))), responseType() == ResponseType.NONE ? null : responseData -> {
+			final JsonObject responseJson = Utilities.getJsonObjectFromData(responseData);
 			if (responseType() == ResponseType.PLAYER) {
 				if (serverPlayerEntity != null) {
-					Init.REGISTRY.sendPacketToClient(serverPlayerEntity, getInstance(response));
+					Init.REGISTRY.sendPacketToClient(serverPlayerEntity, getInstance(responseJson.toString()));
 				}
 			} else {
-				MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntityNew -> Init.REGISTRY.sendPacketToClient(serverPlayerEntityNew, getInstance(response)));
+				MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntityNew -> Init.REGISTRY.sendPacketToClient(serverPlayerEntityNew, getInstance(responseJson.toString())));
 			}
-			runServerInbound(serverWorld, response);
-		});
+			runServerInbound(serverWorld, responseJson);
+		}, SerializedDataBase.class);
 	}
 
-	protected void runServerInbound(ServerWorld serverWorld, String content) {
+	protected void runServerInbound(ServerWorld serverWorld, JsonObject jsonObject) {
 	}
 
-	protected void runClientInbound(Response response) {
+	protected void runClientInbound(JsonReader jsonReader) {
 	}
 
 	/**
@@ -72,8 +75,10 @@ public abstract class PacketRequestResponseBase extends PacketHandler {
 	 */
 	protected abstract PacketRequestResponseBase getInstance(String content);
 
+	protected abstract SerializedDataBase getDataInstance(JsonReader jsonReader);
+
 	@Nonnull
-	protected abstract String getEndpoint();
+	protected abstract String getKey();
 
 	/**
 	 * If a response is needed, override {@link #runClient()}.

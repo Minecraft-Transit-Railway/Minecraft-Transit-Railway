@@ -39,6 +39,10 @@ public class StoredMatrixTransformations {
 		transformations.add(transformation);
 	}
 
+	public void add(StoredMatrixTransformations storedMatrixTransformations) {
+		transformations.addAll(storedMatrixTransformations.transformations);
+	}
+
 	public void transform(GraphicsHolder graphicsHolder, Vector3d offset) {
 		graphicsHolder.push();
 		if (useDefaultOffset) {

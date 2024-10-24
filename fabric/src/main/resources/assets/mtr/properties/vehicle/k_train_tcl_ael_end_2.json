@@ -5,8 +5,7 @@
 				"window_exterior"
 			],
 			"positionDefinitions": [
-				"windowEnd2",
-				"windowEnd2Flipped"
+				"windowMiniEnd2"
 			],
 			"renderStage": "EXTERIOR"
 		},
