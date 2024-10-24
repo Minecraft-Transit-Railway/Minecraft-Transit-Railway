@@ -163,7 +163,7 @@ public final class Init implements Utilities {
 
 			Config.init(minecraftServer.getRunDirectory());
 			final int defaultPort = Config.getServer().getWebserverPort();
-			serverPort = findFreePort(defaultPort);
+			serverPort = defaultPort <= 0 ? -1 : findFreePort(defaultPort);
 			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, Config.getServer().getUseThreadedSimulation(), WORLD_ID_LIST.toArray(new String[0]));
 
 			serverTick = 0;
@@ -244,6 +244,8 @@ public final class Init implements Utilities {
 
 	/**
 	 * @return the port of the webserver started by Transport Simulation Core, not the clientside webserver.
+	 * <br>{@code 0} means the integrated server is not running
+	 * <br>{@code -1} means the webserver is disabled
 	 */
 	public static int getServerPort() {
 		return serverPort;

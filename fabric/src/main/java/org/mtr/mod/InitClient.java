@@ -350,9 +350,13 @@ public final class InitClient {
 				webserver.addServlet(new ServletHolder(new ClientServlet()), "/");
 				webserver.start();
 			} else {
-				serverPort = Init.getServerPort();
+				serverPort = Math.max(Init.getServerPort(), 0);
 			}
-			Init.LOGGER.info("Open the Transport System Map at http://localhost:{}", serverPort);
+			if (serverPort > 0) {
+				Init.LOGGER.info("Open the Transport System Map at http://localhost:{}", serverPort);
+			} else {
+				Init.LOGGER.info("Transport System Map disabled");
+			}
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerClientDisconnect(() -> {
@@ -491,6 +495,7 @@ public final class InitClient {
 
 	/**
 	 * @return the port of the clientside webserver (multiplayer) or the webserver started by Transport Simulation Core (singleplayer).
+	 * <br>{@code 0} means the webserver is not running
 	 */
 	public static int getServerPort() {
 		return serverPort;
