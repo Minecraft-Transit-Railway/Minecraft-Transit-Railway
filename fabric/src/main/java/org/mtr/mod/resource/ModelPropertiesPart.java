@@ -63,7 +63,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	public void writeCache(
 			Identifier texture,
 			Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ModelPartExtension, MutableBox>> nameToPart,
-			Object2ObjectOpenHashMap<String, ModelDisplayPart> nameToDisplayPart,
+			Object2ObjectOpenHashMap<String, ObjectArrayList<ModelDisplayPart>> nameToDisplayParts,
 			PositionDefinitions positionDefinitionsObject,
 			ObjectArraySet<Box> floors,
 			ObjectArraySet<Box> doorways,
@@ -72,7 +72,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	) {
 		final ObjectArrayList<ModelPartExtension> modelParts = new ObjectArrayList<>();
 		final MutableBox mutableBox = new MutableBox();
-		final ObjectArrayList<ModelDisplayPart> modelDisplayParts = new ObjectArrayList<>();
+		final ObjectArrayList<ObjectArrayList<ModelDisplayPart>> modelDisplayParts = new ObjectArrayList<>();
 		final OptimizedModelWrapper optimizedModelDoor;
 
 		names.forEach(name -> {
@@ -82,9 +82,9 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				mutableBox.add(part.right());
 			}
 
-			final ModelDisplayPart modelDisplayPart = nameToDisplayPart.get(name);
-			if (modelDisplayPart != null) {
-				modelDisplayParts.add(modelDisplayPart);
+			final ObjectArrayList<ModelDisplayPart> displayParts = nameToDisplayParts.get(name);
+			if (displayParts != null) {
+				modelDisplayParts.add(displayParts);
 			}
 		});
 
@@ -268,7 +268,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				graphicsHolder.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
 				graphicsHolder.rotateYDegrees(displayPartDetails.flipped ? 180 : 0);
 
-				displayPartDetails.modelDisplayParts.forEach(displayPart -> {
+				displayPartDetails.modelDisplayParts.forEach(displayParts -> displayParts.forEach(displayPart -> {
 					displayPart.storedMatrixTransformations.transform(graphicsHolder, Vector3d.getZeroMapped());
 					graphicsHolder.translate(0, displayYPadding / 16, -SMALL_OFFSET);
 					IDrawing.drawSevenSegment(
@@ -281,7 +281,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 							ARGB_BLACK | displayColorInt, GraphicsHolder.getDefaultLight()
 					);
 					graphicsHolder.pop();
-				});
+				}));
 
 				graphicsHolder.pop();
 			});
@@ -301,7 +301,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				graphicsHolder.rotateYDegrees(displayPartDetails.flipped ? 180 : 0);
 			});
 
-			displayPartDetails.modelDisplayParts.forEach(displayPart -> {
+			displayPartDetails.modelDisplayParts.forEach(displayParts -> displayParts.forEach(displayPart -> {
 				final StoredMatrixTransformations storedMatrixTransformations2 = storedMatrixTransformations1.copy();
 				storedMatrixTransformations2.add(displayPart.storedMatrixTransformations);
 				storedMatrixTransformations2.add(graphicsHolder -> graphicsHolder.translate(displayXPadding / 16, displayYPadding / 16, -SMALL_OFFSET));
@@ -315,7 +315,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				scrollingTexts.get(scrollingDisplayIndexTracker[0]).changeImage(text.isEmpty() ? null : DynamicTextureCache.instance.getPixelatedText(text, ARGB_BLACK | displayColorInt, Integer.MAX_VALUE, displayCjkSizeRatio, height < 0.1));
 				scrollingTexts.get(scrollingDisplayIndexTracker[0]).scrollText(storedMatrixTransformations2);
 				scrollingDisplayIndexTracker[0]++;
-			});
+			}));
 		});
 	}
 
@@ -333,10 +333,11 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			storedMatrixTransformations.transform(graphicsHolder, offset);
 
 			displayPartDetailsList.forEach(displayPartDetails -> {
+				graphicsHolder.push();
 				graphicsHolder.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
 				graphicsHolder.rotateYDegrees(displayPartDetails.flipped ? 180 : 0);
 
-				displayPartDetails.modelDisplayParts.forEach(displayPart -> {
+				displayPartDetails.modelDisplayParts.forEach(displayParts -> displayParts.forEach(displayPart -> {
 					displayPart.storedMatrixTransformations.transform(graphicsHolder, Vector3d.getZeroMapped());
 					graphicsHolder.translate(displayXPadding / 16, displayYPadding / 16, -SMALL_OFFSET);
 
@@ -357,7 +358,9 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 					}
 
 					graphicsHolder.pop();
-				});
+				}));
+
+				graphicsHolder.pop();
 			});
 
 			graphicsHolder.pop();
@@ -535,13 +538,13 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 	private static class DisplayPartDetails {
 
-		private final ObjectArrayList<ModelDisplayPart> modelDisplayParts;
+		private final ObjectArrayList<ObjectArrayList<ModelDisplayPart>> modelDisplayParts;
 		private final double x;
 		private final double y;
 		private final double z;
 		private final boolean flipped;
 
-		private DisplayPartDetails(ObjectArrayList<ModelDisplayPart> modelDisplayParts, double x, double y, double z, boolean flipped) {
+		private DisplayPartDetails(ObjectArrayList<ObjectArrayList<ModelDisplayPart>> modelDisplayParts, double x, double y, double z, boolean flipped) {
 			this.modelDisplayParts = modelDisplayParts;
 			this.x = x / 16;
 			this.y = y / 16;

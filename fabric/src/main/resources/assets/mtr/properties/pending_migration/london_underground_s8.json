@@ -1243,37 +1243,7 @@
 			"blacklisted_cars": ""
 		},
 		{
-			"name": "display_interior_1",
-			"stage": "EXTERIOR",
-			"mirror": false,
-			"skip_rendering_if_too_far": false,
-			"door_offset": "NONE",
-			"render_condition": "ALL",
-			"positions": [
-				[
-					0,
-					-67
-				],
-				[
-					0,
-					67
-				]
-			],
-			"whitelisted_cars": "",
-			"blacklisted_cars": "",
-			"display": {
-				"x_padding": 0.2,
-				"cjk_size_ratio": 0,
-				"type": "NEXT_STATION_UK",
-				"color_cjk": "FF9900",
-				"color": "FF9900",
-				"should_scroll": true,
-				"force_upper_case": false,
-				"force_single_line": true
-			}
-		},
-		{
-			"name": "display_interior_2",
+			"name": "display_interior",
 			"stage": "EXTERIOR",
 			"mirror": false,
 			"skip_rendering_if_too_far": false,

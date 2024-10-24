@@ -62,12 +62,15 @@
 			"1995 Stock Compressed Trailer",
 			"1995 Stock Compressed Cab (Forwards)",
 			"1995 Stock Compressed Cab (Backwards)",
+			"1995 Stock Compressed Cab (Double)",
 			"1996 Stock Trailer",
 			"1996 Stock Cab (Forwards)",
 			"1996 Stock Cab (Backwards)",
+			"1996 Stock Cab (Double)",
 			"1996 Stock Compressed Trailer",
 			"1996 Stock Compressed Cab (Forwards)",
-			"1996 Stock Compressed Cab (Backwards)"
+			"1996 Stock Compressed Cab (Backwards)",
+			"1996 Stock Compressed Cab (Double)"
 		],
 		"definition": [
 			"",
