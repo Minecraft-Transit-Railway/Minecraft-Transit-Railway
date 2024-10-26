@@ -35,6 +35,7 @@ public class CustomResourceLoader {
 	private static final Object2ObjectAVLTreeMap<String, JsonElement> RESOURCE_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, ObjectArrayList<VehicleResource>> VEHICLES = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, Object2ObjectAVLTreeMap<String, VehicleResource>> VEHICLES_CACHE = new Object2ObjectAVLTreeMap<>();
+	private static final Object2ObjectAVLTreeMap<TransportMode, Object2ObjectAVLTreeMap<String, Object2ObjectAVLTreeMap<String, ObjectArrayList<String>>>> VEHICLES_TAGS = new Object2ObjectAVLTreeMap<>();
 	private static final ObjectArrayList<SignResource> SIGNS = new ObjectArrayList<>();
 	private static final Object2ObjectAVLTreeMap<String, SignResource> SIGNS_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final ObjectArrayList<RailResource> RAILS = new ObjectArrayList<>();
@@ -46,6 +47,7 @@ public class CustomResourceLoader {
 		for (final TransportMode transportMode : TransportMode.values()) {
 			VEHICLES.put(transportMode, new ObjectArrayList<>());
 			VEHICLES_CACHE.put(transportMode, new Object2ObjectAVLTreeMap<>());
+			VEHICLES_TAGS.put(transportMode, new Object2ObjectAVLTreeMap<>());
 		}
 	}
 
@@ -54,6 +56,7 @@ public class CustomResourceLoader {
 		RESOURCE_CACHE.clear();
 		VEHICLES.forEach((transportMode, vehicleResources) -> vehicleResources.clear());
 		VEHICLES_CACHE.forEach((transportMode, vehicleResourcesCache) -> vehicleResourcesCache.clear());
+		VEHICLES_TAGS.forEach((transportMode, vehicleResourcesCache) -> vehicleResourcesCache.clear());
 		SIGNS.clear();
 		SIGNS_CACHE.clear();
 		RAILS.clear();
@@ -72,6 +75,7 @@ public class CustomResourceLoader {
 				customResources.iterateVehicles(vehicleResource -> {
 					VEHICLES.get(vehicleResource.getTransportMode()).add(vehicleResource);
 					VEHICLES_CACHE.get(vehicleResource.getTransportMode()).put(vehicleResource.getId(), vehicleResource);
+					vehicleResource.collectTags(VEHICLES_TAGS.get(vehicleResource.getTransportMode()));
 				});
 				customResources.iterateSigns(signResource -> {
 					SIGNS.add(signResource);
@@ -95,6 +99,7 @@ public class CustomResourceLoader {
 				CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject()).iterateVehicles(vehicleResource -> {
 					VEHICLES.get(vehicleResource.getTransportMode()).add(vehicleResource);
 					VEHICLES_CACHE.get(vehicleResource.getTransportMode()).put(vehicleResource.getId(), vehicleResource);
+					vehicleResource.collectTags(VEHICLES_TAGS.get(vehicleResource.getTransportMode()));
 				});
 			} catch (Exception e) {
 				Init.LOGGER.error("", e);
@@ -136,6 +141,10 @@ public class CustomResourceLoader {
 		if (vehicleResource != null) {
 			ifPresent.accept(vehicleResource);
 		}
+	}
+
+	public static Object2ObjectAVLTreeMap<String, Object2ObjectAVLTreeMap<String, ObjectArrayList<String>>> getVehicleTags(TransportMode transportMode) {
+		return VEHICLES_TAGS.get(transportMode);
 	}
 
 	public static void getSignById(String signId, Consumer<SignResource> ifPresent) {
