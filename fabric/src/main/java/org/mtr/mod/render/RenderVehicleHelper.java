@@ -22,14 +22,15 @@ import java.util.stream.Collectors;
 public class RenderVehicleHelper {
 
 	public static final float HALF_PLAYER_WIDTH = 0.3F;
-	private static final int CHECK_DOOR_RADIUS_XZ = 2;
+	private static final int CHECK_DOOR_RADIUS_XZ_VEHICLE = 2;
+	private static final int CHECK_DOOR_RADIUS_XZ_LIFT = 1;
 	private static final int CHECK_DOOR_RADIUS_Y = 2;
 	private static final double RIDE_STEP_THRESHOLD = 0.75;
 
 	/**
 	 * @return whether the doorway is close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates
 	 */
-	public static boolean canOpenDoors(Box doorway, RenderVehicleTransformationHelper renderVehicleTransformationHelper, double doorValue) {
+	public static boolean canOpenDoors(Box doorway, RenderVehicleTransformationHelper renderVehicleTransformationHelper, double doorValue, boolean isLift) {
 		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 		if (clientWorld == null) {
 			return false;
@@ -45,11 +46,12 @@ public class RenderVehicleHelper {
 		final double maxY = Math.max(Math.max(doorwayPosition1.getYMapped(), doorwayPosition2.getYMapped()), Math.max(doorwayPosition3.getYMapped(), doorwayPosition4.getYMapped()));
 		final double minZ = Math.min(Math.min(doorwayPosition1.getZMapped(), doorwayPosition2.getZMapped()), Math.min(doorwayPosition3.getZMapped(), doorwayPosition4.getZMapped()));
 		final double maxZ = Math.max(Math.max(doorwayPosition1.getZMapped(), doorwayPosition2.getZMapped()), Math.max(doorwayPosition3.getZMapped(), doorwayPosition4.getZMapped()));
+		final int doroRadiusXZ = isLift ? CHECK_DOOR_RADIUS_XZ_LIFT : CHECK_DOOR_RADIUS_XZ_VEHICLE;
 		boolean canOpenDoors = false;
 
-		for (double checkX = minX - CHECK_DOOR_RADIUS_XZ; checkX <= maxX + CHECK_DOOR_RADIUS_XZ; checkX++) {
+		for (double checkX = minX - doroRadiusXZ; checkX <= maxX + doroRadiusXZ; checkX++) {
 			for (double checkY = minY - CHECK_DOOR_RADIUS_Y; checkY <= maxY + CHECK_DOOR_RADIUS_Y; checkY++) {
-				for (double checkZ = minZ - CHECK_DOOR_RADIUS_XZ; checkZ <= maxZ + CHECK_DOOR_RADIUS_XZ; checkZ++) {
+				for (double checkZ = minZ - doroRadiusXZ; checkZ <= maxZ + doroRadiusXZ; checkZ++) {
 					final BlockPos checkPos = Init.newBlockPos(checkX, checkY, checkZ);
 					final BlockState blockState = clientWorld.getBlockState(checkPos);
 					final Block block = blockState.getBlock();

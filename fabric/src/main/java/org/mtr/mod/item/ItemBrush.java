@@ -1,6 +1,7 @@
 package org.mtr.mod.item;
 
 import org.mtr.core.data.Rail;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ItemExtension;
 import org.mtr.mod.block.BlockNode;
@@ -24,9 +25,9 @@ public class ItemBrush extends ItemExtension {
 		final World world = context.getWorld();
 		final PlayerEntity playerEntity = context.getPlayer();
 		if (world.isClient() && playerEntity != null && world.getBlockState(context.getBlockPos()).getBlock().data instanceof BlockNode) {
-			final Rail rail = MinecraftClientData.getInstance().getFacingRail(false);
-			if (rail != null) {
-				return PacketUpdateLastRailStyles.CLIENT_CACHE.canApplyStylesToRail(playerEntity.getUuid(), rail, true) ? ActionResult.SUCCESS : ActionResult.FAIL;
+			final ObjectObjectImmutablePair<Rail, BlockPos> railAndBlockPos = MinecraftClientData.getInstance().getFacingRailAndBlockPos(false);
+			if (railAndBlockPos != null) {
+				return PacketUpdateLastRailStyles.CLIENT_CACHE.canApplyStylesToRail(playerEntity.getUuid(), railAndBlockPos.left(), true) ? ActionResult.SUCCESS : ActionResult.FAIL;
 			}
 		}
 		return super.useOnBlock2(context);

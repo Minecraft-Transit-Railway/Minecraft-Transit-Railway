@@ -1,8 +1,12 @@
 package org.mtr.mod.packet;
 
 import org.mtr.core.data.TransportMode;
-import org.mtr.core.integration.Response;
 import org.mtr.core.operation.ListDataResponse;
+import org.mtr.core.serializer.JsonReader;
+import org.mtr.core.serializer.ReaderBase;
+import org.mtr.core.serializer.SerializedDataBase;
+import org.mtr.core.serializer.WriterBase;
+import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.EnumHelper;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.mapping.holder.ServerPlayerEntity;
@@ -56,9 +60,9 @@ public final class PacketOpenDashboardScreen extends PacketRequestResponseBase {
 	}
 
 	@Override
-	protected void runClientInbound(Response response) {
-		response.getData(jsonReader -> new ListDataResponse(jsonReader, MinecraftClientData.getDashboardInstance())).write();
-		ClientPacketHelper.openDashboardScreen(transportMode, screen, id);
+	protected void runClientInbound(JsonReader jsonReader) {
+		new ListDataResponse(jsonReader, MinecraftClientData.getDashboardInstance()).write();
+		ClientPacketHelper.openDashboardScreen(transportMode);
 	}
 
 	@Override
@@ -66,10 +70,23 @@ public final class PacketOpenDashboardScreen extends PacketRequestResponseBase {
 		return new PacketOpenDashboardScreen(content, transportMode, screen, id);
 	}
 
+	@Override
+	protected SerializedDataBase getDataInstance(JsonReader jsonReader) {
+		return new SerializedDataBase() {
+			@Override
+			public void updateData(ReaderBase readerBase) {
+			}
+
+			@Override
+			public void serializeData(WriterBase writerBase) {
+			}
+		};
+	}
+
 	@Nonnull
 	@Override
-	protected String getEndpoint() {
-		return "operation/list-data";
+	protected String getKey() {
+		return OperationProcessor.LIST_DATA;
 	}
 
 	@Override

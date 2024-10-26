@@ -3,6 +3,7 @@ package org.mtr.mod.item;
 import org.mtr.core.data.Lift;
 import org.mtr.core.data.LiftFloor;
 import org.mtr.core.data.Position;
+import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
 import org.mtr.core.tool.Vector;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -140,6 +141,6 @@ public class ItemLiftRefresher extends ItemExtension implements DirectionHelper 
 		final Lift lift = new Lift(new MinecraftClientData());
 		lift.setFloors(liftFloors);
 		lift.setDimensions(3, 2, 2, 0, 0, 0);
-		Init.sendHttpRequest("operation/generate-by-lift", new World(serverWorld.data), Utilities.getJsonObjectFromData(lift).toString(), null);
+		Init.sendMessageC2S(OperationProcessor.GENERATE_BY_LIFT, serverWorld.getServer(), new World(serverWorld.data), lift, null, null);
 	}
 }

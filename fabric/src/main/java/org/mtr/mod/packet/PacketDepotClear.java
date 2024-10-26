@@ -1,6 +1,9 @@
 package org.mtr.mod.packet;
 
 import org.mtr.core.operation.GenerateOrClearByDepotIds;
+import org.mtr.core.serializer.JsonReader;
+import org.mtr.core.serializer.SerializedDataBase;
+import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 
@@ -25,10 +28,15 @@ public final class PacketDepotClear extends PacketRequestResponseBase {
 		return new PacketDepotClear(content);
 	}
 
+	@Override
+	protected SerializedDataBase getDataInstance(JsonReader jsonReader) {
+		return new GenerateOrClearByDepotIds(jsonReader);
+	}
+
 	@Nonnull
 	@Override
-	protected String getEndpoint() {
-		return "operation/clear-by-depot-ids";
+	protected String getKey() {
+		return OperationProcessor.CLEAR_BY_DEPOT_IDS;
 	}
 
 	@Override

@@ -13,17 +13,19 @@ import org.mtr.mod.client.ScrollingText;
 import org.mtr.mod.resource.VehicleResource;
 import org.mtr.mod.sound.VehicleSoundBase;
 
+import java.util.function.Supplier;
+
 public final class PersistentVehicleData {
 
 	private double doorValue;
 	private double oldDoorValue;
 	private double nextAnnouncementRailProgress;
 	private int doorCoolDown;
+	private VehicleSoundBase vehicleSoundBase;
 
 	public final boolean[] rayTracing;
 	public final double[] longestDimensions;
 	private final TransportMode transportMode;
-	private final ObjectArrayList<VehicleSoundBase> vehicleSoundBaseList = new ObjectArrayList<>();
 	private final ObjectArrayList<ObjectArrayList<ScrollingText>> scrollingTexts = new ObjectArrayList<>();
 	private final ObjectArrayList<Oscillation> oscillations = new ObjectArrayList<>();
 
@@ -36,18 +38,12 @@ public final class PersistentVehicleData {
 		this.transportMode = transportMode;
 	}
 
-	public ObjectArrayList<ScrollingText> getScrollingText(int car) {
-		while (scrollingTexts.size() <= car) {
-			scrollingTexts.add(new ObjectArrayList<>());
-		}
-		return scrollingTexts.get(car);
+	public ObjectArrayList<ScrollingText> getScrollingText(int carNumber) {
+		return getElement(scrollingTexts, carNumber, ObjectArrayList::new);
 	}
 
-	public Oscillation getOscillation(int car) {
-		while (oscillations.size() <= car) {
-			oscillations.add(new Oscillation(transportMode));
-		}
-		return oscillations.get(car);
+	public Oscillation getOscillation(int carNumber) {
+		return getElement(oscillations, carNumber, () -> new Oscillation(transportMode));
 	}
 
 	public void tick(double railProgress, long millisElapsed, VehicleExtraData vehicleExtraData) {
@@ -75,18 +71,24 @@ public final class PersistentVehicleData {
 		return oldRailProgress < nextAnnouncementRailProgress && railProgress >= nextAnnouncementRailProgress;
 	}
 
-	public void playMotorSound(VehicleResource vehicleResource, int carNumber, int bogieIndex, BlockPos bogiePosition, float speed, float speedChange, float acceleration, boolean isOnRoute) {
-		getVehicleSoundBase(vehicleResource, carNumber).playMotorSound(carNumber * 2 + bogieIndex, bogiePosition, speed, speedChange, acceleration, isOnRoute);
-	}
-
-	public void playDoorSound(VehicleResource vehicleResource, int carNumber, BlockPos vehiclePosition) {
-		getVehicleSoundBase(vehicleResource, carNumber).playDoorSound(vehiclePosition, doorValue, oldDoorValue);
-	}
-
-	private VehicleSoundBase getVehicleSoundBase(VehicleResource vehicleResource, int carNumber) {
-		while (vehicleSoundBaseList.size() <= carNumber) {
-			vehicleSoundBaseList.add(vehicleResource.createVehicleSoundBase.get());
+	public void playMotorSound(VehicleResource vehicleResource, BlockPos bogiePosition, float speed, float speedChange, float acceleration, boolean isOnRoute) {
+		if (vehicleSoundBase == null) {
+			vehicleSoundBase = vehicleResource.createVehicleSoundBase.get();
 		}
-		return vehicleSoundBaseList.get(carNumber);
+		vehicleSoundBase.playMotorSound(bogiePosition, speed, speedChange, acceleration, isOnRoute);
+	}
+
+	public void playDoorSound(VehicleResource vehicleResource, BlockPos vehiclePosition) {
+		if (vehicleSoundBase == null) {
+			vehicleSoundBase = vehicleResource.createVehicleSoundBase.get();
+		}
+		vehicleSoundBase.playDoorSound(vehiclePosition, doorValue, oldDoorValue);
+	}
+
+	private static <T> T getElement(ObjectArrayList<T> list, int index, Supplier<T> supplier) {
+		while (list.size() <= index) {
+			list.add(supplier.get());
+		}
+		return list.get(index);
 	}
 }
