@@ -135,9 +135,9 @@ public class RailAction {
 			for (double x = -radius; x <= radius; x += INCREMENT) {
 				final Vector editPos = pos1.add(vec3.multiply(x, 0, x));
 				final boolean wholeNumber = Math.floor(editPos.y) == Math.ceil(editPos.y);
-				if (includeMiddle || Math.abs(x) > radius - INCREMENT) {
+				if (includeMiddle || Math.abs(x) > radius - INCREMENT || radius == 0) {
 					for (int y = 0; y <= height; y++) {
-						if (y < height || !wholeNumber) {
+						if (y < height || !wholeNumber || (height == 0 && radius == 0)) {
 							consumer.accept(editPos.add(0, y, 0));
 						}
 					}
