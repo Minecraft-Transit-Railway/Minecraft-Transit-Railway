@@ -18,56 +18,49 @@ import org.mtr.mod.client.MinecraftClientData;
 import javax.annotation.Nonnull;
 
 public final class PacketOpenDashboardScreen extends PacketRequestResponseBase {
-	public enum ScreenType {
-		DEFAULT,
-		STATION,
-		DEPOT,
-		PLATFORM,
-		SIDING;
-	}
 
 	private final TransportMode transportMode;
-	private final ScreenType screen;
-	private final long id;
+	private final ScreenType screenType;
+	private final long dataId;
 
 	public PacketOpenDashboardScreen(PacketBufferReceiver packetBufferReceiver) {
 		super(packetBufferReceiver);
 		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packetBufferReceiver.readString());
-		screen = EnumHelper.valueOf(ScreenType.DEFAULT, packetBufferReceiver.readString());
-		id = packetBufferReceiver.readLong();
+		screenType = EnumHelper.valueOf(ScreenType.DEFAULT, packetBufferReceiver.readString());
+		dataId = packetBufferReceiver.readLong();
 	}
 
 	private PacketOpenDashboardScreen(String content, TransportMode transportMode) {
 		super(content);
 		this.transportMode = transportMode;
-		this.screen = ScreenType.DEFAULT;
-		this.id = 0;
+		this.screenType = ScreenType.DEFAULT;
+		this.dataId = 0;
 	}
 
-	private PacketOpenDashboardScreen(String content, TransportMode transportMode, ScreenType screenType, long id) {
+	private PacketOpenDashboardScreen(String content, TransportMode transportMode, ScreenType screenType, long dataId) {
 		super(content);
 		this.transportMode = transportMode;
-		this.screen = screenType;
-		this.id = id;
+		this.screenType = screenType;
+		this.dataId = dataId;
 	}
 
 	@Override
 	public void write(PacketBufferSender packetBufferSender) {
 		super.write(packetBufferSender);
 		packetBufferSender.writeString(transportMode.toString());
-		packetBufferSender.writeString(screen.toString());
-		packetBufferSender.writeLong(id);
+		packetBufferSender.writeString(screenType.toString());
+		packetBufferSender.writeLong(dataId);
 	}
 
 	@Override
 	protected void runClientInbound(JsonReader jsonReader) {
 		new ListDataResponse(jsonReader, MinecraftClientData.getDashboardInstance()).write();
-		ClientPacketHelper.openDashboardScreen(transportMode);
+		ClientPacketHelper.openDashboardScreen(transportMode, screenType, dataId);
 	}
 
 	@Override
 	protected PacketRequestResponseBase getInstance(String content) {
-		return new PacketOpenDashboardScreen(content, transportMode, screen, id);
+		return new PacketOpenDashboardScreen(content, transportMode, screenType, dataId);
 	}
 
 	@Override
@@ -101,4 +94,6 @@ public final class PacketOpenDashboardScreen extends PacketRequestResponseBase {
 	public static void sendDirectlyToServer(ServerWorld serverWorld, ServerPlayerEntity serverPlayerEntity, TransportMode transportMode, ScreenType screenType, long id) {
 		new PacketOpenDashboardScreen(new JsonObject().toString(), transportMode, screenType, id).runServerOutbound(serverWorld, serverPlayerEntity);
 	}
+
+	public enum ScreenType {DEFAULT, STATION, PLATFORM, DEPOT, SIDING}
 }
