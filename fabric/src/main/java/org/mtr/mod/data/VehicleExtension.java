@@ -28,7 +28,8 @@ import javax.annotation.Nullable;
 
 public class VehicleExtension extends Vehicle implements Utilities {
 
-	private double oldSpeed;
+	private double speedForSound;
+	private double oldSpeedForSound;
 
 	public final PersistentVehicleData persistentVehicleData;
 
@@ -41,6 +42,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		} else {
 			persistentVehicleData = tempPersistentVehicleData;
 		}
+		speedForSound = speed;
 	}
 
 	public void updateData(@Nullable JsonObject jsonObject) {
@@ -52,9 +54,16 @@ public class VehicleExtension extends Vehicle implements Utilities {
 
 	public void simulate(long millisElapsed) {
 		final double oldRailProgress = railProgress;
-		oldSpeed = speed;
+		oldSpeedForSound = speedForSound;
 		simulate(millisElapsed, null, null);
 		persistentVehicleData.tick(railProgress, millisElapsed, vehicleExtraData);
+
+		if (speed < speedForSound) {
+			speedForSound = speedForSound - Math.min(vehicleExtraData.getDeceleration() * 1.5, speedForSound - speed);
+		} else if (speed > speedForSound) {
+			speedForSound = speedForSound + Math.min(vehicleExtraData.getAcceleration() * 1.5, speed - speedForSound);
+		}
+
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
 		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
@@ -227,7 +236,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 	}
 
 	public void playMotorSound(VehicleResource vehicleResource, Vector bogiePosition) {
-		persistentVehicleData.playMotorSound(vehicleResource, Init.newBlockPos(bogiePosition.x, bogiePosition.y, bogiePosition.z), (float) speed, (float) (speed - oldSpeed), (float) vehicleExtraData.getAcceleration(), getIsOnRoute());
+		persistentVehicleData.playMotorSound(vehicleResource, Init.newBlockPos(bogiePosition.x, bogiePosition.y, bogiePosition.z), (float) speedForSound, (float) (speedForSound - oldSpeedForSound), (float) vehicleExtraData.getAcceleration(), getIsOnRoute());
 	}
 
 	public void playDoorSound(VehicleResource vehicleResource, Vector vehiclePosition) {
