@@ -29,7 +29,7 @@ import org.mtr.mod.resource.CachedResource;
 import org.mtr.mod.screen.BetaWarningScreen;
 import org.mtr.mod.servlet.ClientServlet;
 import org.mtr.mod.sound.LoopingSoundInstance;
-import org.mtr.mod.sound.VehicleSoundBase;
+import org.mtr.mod.sound.ScheduledSound;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
@@ -411,7 +411,7 @@ public final class InitClient {
 				movePlayer.run();
 				movePlayer = null;
 			}
-			VehicleSoundBase.playScheduledSounds();
+			ScheduledSound.playScheduledSounds();
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerChunkLoad((clientWorld, worldChunk) -> {

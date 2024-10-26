@@ -226,12 +226,12 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		}
 	}
 
-	public void playMotorSound(VehicleResource vehicleResource, int carNumber, int bogieIndex, Vector bogiePosition) {
-		persistentVehicleData.playMotorSound(vehicleResource, carNumber, bogieIndex, Init.newBlockPos(bogiePosition.x, bogiePosition.y, bogiePosition.z), (float) speed, (float) (speed - oldSpeed), (float) vehicleExtraData.getAcceleration(), getIsOnRoute());
+	public void playMotorSound(VehicleResource vehicleResource, Vector bogiePosition) {
+		persistentVehicleData.playMotorSound(vehicleResource, Init.newBlockPos(bogiePosition.x, bogiePosition.y, bogiePosition.z), (float) speed, (float) (speed - oldSpeed), (float) vehicleExtraData.getAcceleration(), getIsOnRoute());
 	}
 
-	public void playDoorSound(VehicleResource vehicleResource, int carNumber, Vector vehiclePosition) {
-		persistentVehicleData.playDoorSound(vehicleResource, carNumber, Init.newBlockPos(vehiclePosition.x, vehiclePosition.y, vehiclePosition.z));
+	public void playDoorSound(VehicleResource vehicleResource, Vector vehiclePosition) {
+		persistentVehicleData.playDoorSound(vehicleResource, Init.newBlockPos(vehiclePosition.x, vehiclePosition.y, vehiclePosition.z));
 	}
 
 	public static boolean isHoldingKey(@Nullable ClientPlayerEntity clientPlayerEntity) {

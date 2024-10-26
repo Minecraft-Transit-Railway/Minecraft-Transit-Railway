@@ -80,7 +80,7 @@ public class RenderVehicles implements IGui {
 							}
 
 							// Play motor sound
-							vehicle.playMotorSound(vehicleResource, carNumber, bogieIndex, renderVehicleTransformationHelperBogie.pivotPosition);
+							vehicle.playMotorSound(vehicleResource, renderVehicleTransformationHelperBogie.pivotPosition);
 						});
 
 						// Player position relative to the car
@@ -118,7 +118,7 @@ public class RenderVehicles implements IGui {
 
 						// Play door sound
 						if (!openDoorways.isEmpty()) {
-							vehicle.playDoorSound(vehicleResource, carNumber, renderVehicleTransformationHelperAbsolute.pivotPosition);
+							vehicle.playDoorSound(vehicleResource, renderVehicleTransformationHelperAbsolute.pivotPosition);
 						}
 
 						// Each car can have more than one model defined
