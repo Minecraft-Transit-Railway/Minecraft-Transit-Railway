@@ -18,23 +18,45 @@ import org.mtr.mod.client.MinecraftClientData;
 import javax.annotation.Nonnull;
 
 public final class PacketOpenDashboardScreen extends PacketRequestResponseBase {
+	public enum ScreenType {
+		DEFAULT,
+		STATION,
+		DEPOT,
+		PLATFORM,
+		SIDING;
+	}
 
 	private final TransportMode transportMode;
+	private final ScreenType screen;
+	private final long id;
 
 	public PacketOpenDashboardScreen(PacketBufferReceiver packetBufferReceiver) {
 		super(packetBufferReceiver);
 		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packetBufferReceiver.readString());
+		screen = EnumHelper.valueOf(ScreenType.DEFAULT, packetBufferReceiver.readString());
+		id = packetBufferReceiver.readLong();
 	}
 
 	private PacketOpenDashboardScreen(String content, TransportMode transportMode) {
 		super(content);
 		this.transportMode = transportMode;
+		this.screen = ScreenType.DEFAULT;
+		this.id = 0;
+	}
+
+	private PacketOpenDashboardScreen(String content, TransportMode transportMode, ScreenType screenType, long id) {
+		super(content);
+		this.transportMode = transportMode;
+		this.screen = screenType;
+		this.id = id;
 	}
 
 	@Override
 	public void write(PacketBufferSender packetBufferSender) {
 		super.write(packetBufferSender);
 		packetBufferSender.writeString(transportMode.toString());
+		packetBufferSender.writeString(screen.toString());
+		packetBufferSender.writeLong(id);
 	}
 
 	@Override
@@ -45,7 +67,7 @@ public final class PacketOpenDashboardScreen extends PacketRequestResponseBase {
 
 	@Override
 	protected PacketRequestResponseBase getInstance(String content) {
-		return new PacketOpenDashboardScreen(content, transportMode);
+		return new PacketOpenDashboardScreen(content, transportMode, screen, id);
 	}
 
 	@Override
@@ -74,5 +96,9 @@ public final class PacketOpenDashboardScreen extends PacketRequestResponseBase {
 
 	public static void sendDirectlyToServer(ServerWorld serverWorld, ServerPlayerEntity serverPlayerEntity, TransportMode transportMode) {
 		new PacketOpenDashboardScreen(new JsonObject().toString(), transportMode).runServerOutbound(serverWorld, serverPlayerEntity);
+	}
+
+	public static void sendDirectlyToServer(ServerWorld serverWorld, ServerPlayerEntity serverPlayerEntity, TransportMode transportMode, ScreenType screenType, long id) {
+		new PacketOpenDashboardScreen(new JsonObject().toString(), transportMode, screenType, id).runServerOutbound(serverWorld, serverPlayerEntity);
 	}
 }
