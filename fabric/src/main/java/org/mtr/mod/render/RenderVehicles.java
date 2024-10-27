@@ -78,10 +78,10 @@ public class RenderVehicles implements IGui {
 							} else {
 								vehicleResource.iterateBogieModels(bogieIndex, (modelIndex, model) -> RenderVehicleHelper.renderModel(renderVehicleTransformationHelperBogie, 0, storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, renderVehicleTransformationHelperBogie.light, new ObjectArrayList<>())));
 							}
-
-							// Play motor sound
-							vehicle.playMotorSound(vehicleResource, renderVehicleTransformationHelperBogie.pivotPosition);
 						});
+
+						// Play motor sound
+						vehicle.playMotorSound(vehicleResource, carNumber, renderVehicleTransformationHelperAbsolute.pivotPosition);
 
 						// Player position relative to the car
 						final Vector3d playerPosition = renderVehicleTransformationHelperAbsolute.transformBackwards(clientPlayerEntity.getPos(), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
@@ -118,7 +118,7 @@ public class RenderVehicles implements IGui {
 
 						// Play door sound
 						if (!openDoorways.isEmpty()) {
-							vehicle.playDoorSound(vehicleResource, renderVehicleTransformationHelperAbsolute.pivotPosition);
+							vehicle.playDoorSound(vehicleResource, carNumber, renderVehicleTransformationHelperAbsolute.pivotPosition);
 						}
 
 						// Each car can have more than one model defined
