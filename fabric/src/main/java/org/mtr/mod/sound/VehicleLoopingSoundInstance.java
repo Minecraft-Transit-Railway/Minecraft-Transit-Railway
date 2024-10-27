@@ -3,9 +3,13 @@ package org.mtr.mod.sound;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.MovingSoundInstanceExtension;
 
+import javax.annotation.Nullable;
+
 public class VehicleLoopingSoundInstance extends MovingSoundInstanceExtension {
 
 	private int coolDown;
+	@Nullable
+	private BlockPos closestPos;
 
 	public VehicleLoopingSoundInstance(SoundEvent event) {
 		super(event, SoundCategory.getBlocksMapped());
@@ -20,9 +24,16 @@ public class VehicleLoopingSoundInstance extends MovingSoundInstanceExtension {
 		setPitch(pitch == 0 ? 1 : pitch);
 		setVolume(volume);
 
-		setX(blockPos.getX());
-		setY(blockPos.getY());
-		setZ(blockPos.getZ());
+		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+		if (clientPlayerEntity != null) {
+			final BlockPos playerPos = clientPlayerEntity.getBlockPos();
+			if (playerPos.getManhattanDistance(new Vector3i(blockPos.data)) < (closestPos == null ? Integer.MAX_VALUE : playerPos.getManhattanDistance(new Vector3i(closestPos.data)))) {
+				setX(blockPos.getX());
+				setY(blockPos.getY());
+				setZ(blockPos.getZ());
+				closestPos = blockPos;
+			}
+		}
 
 		final SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
 		if (volume > 0 && !soundManager.isPlaying(new SoundInstance(this))) {
@@ -38,6 +49,7 @@ public class VehicleLoopingSoundInstance extends MovingSoundInstanceExtension {
 		} else {
 			coolDown--;
 		}
+		closestPos = null;
 	}
 
 	@Override

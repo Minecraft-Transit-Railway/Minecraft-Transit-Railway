@@ -21,11 +21,11 @@ public final class PersistentVehicleData {
 	private double oldDoorValue;
 	private double nextAnnouncementRailProgress;
 	private int doorCoolDown;
+	private VehicleSoundBase vehicleSoundBase;
 
 	public final boolean[] rayTracing;
 	public final double[] longestDimensions;
 	private final TransportMode transportMode;
-	private final ObjectArrayList<VehicleSoundBase> vehicleSoundBaseList = new ObjectArrayList<>();
 	private final ObjectArrayList<ObjectArrayList<ScrollingText>> scrollingTexts = new ObjectArrayList<>();
 	private final ObjectArrayList<Oscillation> oscillations = new ObjectArrayList<>();
 
@@ -71,16 +71,18 @@ public final class PersistentVehicleData {
 		return oldRailProgress < nextAnnouncementRailProgress && railProgress >= nextAnnouncementRailProgress;
 	}
 
-	public void playMotorSound(VehicleResource vehicleResource, int carNumber, int bogieIndex, BlockPos bogiePosition, float speed, float speedChange, float acceleration, boolean isOnRoute) {
-		getVehicleSoundBase(vehicleResource, carNumber).playMotorSound(carNumber * 2 + bogieIndex, bogiePosition, speed, speedChange, acceleration, isOnRoute);
+	public void playMotorSound(VehicleResource vehicleResource, BlockPos bogiePosition, float speed, float speedChange, float acceleration, boolean isOnRoute) {
+		if (vehicleSoundBase == null) {
+			vehicleSoundBase = vehicleResource.createVehicleSoundBase.get();
+		}
+		vehicleSoundBase.playMotorSound(bogiePosition, speed, speedChange, acceleration, isOnRoute);
 	}
 
-	public void playDoorSound(VehicleResource vehicleResource, int carNumber, BlockPos vehiclePosition) {
-		getVehicleSoundBase(vehicleResource, carNumber).playDoorSound(vehiclePosition, doorValue, oldDoorValue);
-	}
-
-	private VehicleSoundBase getVehicleSoundBase(VehicleResource vehicleResource, int carNumber) {
-		return getElement(vehicleSoundBaseList, carNumber, vehicleResource.createVehicleSoundBase);
+	public void playDoorSound(VehicleResource vehicleResource, BlockPos vehiclePosition) {
+		if (vehicleSoundBase == null) {
+			vehicleSoundBase = vehicleResource.createVehicleSoundBase.get();
+		}
+		vehicleSoundBase.playDoorSound(vehiclePosition, doorValue, oldDoorValue);
 	}
 
 	private static <T> T getElement(ObjectArrayList<T> list, int index, Supplier<T> supplier) {

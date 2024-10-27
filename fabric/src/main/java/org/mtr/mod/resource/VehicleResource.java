@@ -3,6 +3,7 @@ package org.mtr.mod.resource;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
@@ -252,6 +253,15 @@ public final class VehicleResource extends VehicleResourceSchema {
 			default:
 				return getChristmasLightState(partCondition);
 		}
+	}
+
+	public void collectTags(Object2ObjectAVLTreeMap<String, Object2ObjectAVLTreeMap<String, ObjectArrayList<String>>> tagMap) {
+		tags.forEach(tag -> {
+			final String[] tagSplit = tag.split(":");
+			if (tagSplit.length == 2) {
+				tagMap.computeIfAbsent(tagSplit[0], key -> new Object2ObjectAVLTreeMap<>()).computeIfAbsent(tagSplit[1], key -> new ObjectArrayList<>()).add(id);
+			}
+		});
 	}
 
 	private static void iterateModels(ObjectArrayList<VehicleModel> models, ModelConsumer modelConsumer) {
