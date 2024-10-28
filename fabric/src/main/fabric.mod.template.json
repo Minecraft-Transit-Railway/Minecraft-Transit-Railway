@@ -24,6 +24,9 @@
 		],
 		"modmenu": [
 			"org.mtr.init.ModMenuConfig"
+		],
+		"jade": [
+			"org.mtr.init.JadeConfig"
 		]
 	},
 	"mixins": [

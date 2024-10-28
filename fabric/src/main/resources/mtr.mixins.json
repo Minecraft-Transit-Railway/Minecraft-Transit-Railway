@@ -4,7 +4,9 @@
 	"package": "org.mtr.mixin",
 	"compatibilityLevel": "JAVA_8",
 	"refmap": "mtr.refmap.json",
-	"mixins": [],
+	"mixins": [
+		"PlayerTeleportationStateAccessor"
+	],
 	"client": [
 		"ClientWorldRenderingMixin"
 	],

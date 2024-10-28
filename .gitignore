@@ -44,6 +44,9 @@ fabric.mod.json
 mtr.accesswidener
 Keys.java
 Patreon.java
+JadeConfig.java
+WthitConfig.java
+wthit_plugins.json
 mtr_custom_resources.json
 **/font/mtr.json
 **/lang/*.json

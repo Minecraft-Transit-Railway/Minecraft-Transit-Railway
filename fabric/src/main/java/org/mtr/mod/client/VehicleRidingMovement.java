@@ -349,7 +349,7 @@ public class VehicleRidingMovement {
 	}
 
 	private static void sendUpdate(boolean dismount) {
-		if (ridingSidingId != 0 && ridingVehicleId != 0) {
+		if (ridingVehicleId != 0) {
 			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketUpdateVehicleRidingEntities.create(ridingSidingId, ridingVehicleId, dismount ? -1 : ridingVehicleCarNumber, ridingVehicleX, ridingVehicleY, ridingVehicleZ, isOnGangway));
 			sendPositionUpdateTime = 0;
 		}

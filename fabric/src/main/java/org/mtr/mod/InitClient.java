@@ -341,6 +341,7 @@ public final class InitClient {
 			DynamicTextureCache.instance = new DynamicTextureCache();
 			lastMillis = System.currentTimeMillis();
 			gameMillis = 0;
+			lastUpdatePacketMillis = 0;
 			DynamicTextureCache.instance.reload();
 
 			// Clientside webserver for locally hosting the online system map
