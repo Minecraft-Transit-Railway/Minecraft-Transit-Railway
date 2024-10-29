@@ -4,6 +4,7 @@ import org.mtr.core.data.Platform;
 import org.mtr.core.data.Position;
 import org.mtr.core.data.Station;
 import org.mtr.core.operation.DataRequest;
+import org.mtr.core.servlet.WebServlet;
 import org.mtr.core.servlet.Webserver;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.org.eclipse.jetty.servlet.ServletHolder;
@@ -21,6 +22,7 @@ import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.entity.EntityRendering;
+import org.mtr.mod.generated.WebserverResources;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.item.ItemBlockClickingBase;
 import org.mtr.mod.packet.PacketRequestData;
@@ -28,6 +30,7 @@ import org.mtr.mod.render.*;
 import org.mtr.mod.resource.CachedResource;
 import org.mtr.mod.screen.BetaWarningScreen;
 import org.mtr.mod.servlet.ClientServlet;
+import org.mtr.mod.servlet.ResourcePackCreatorServlet;
 import org.mtr.mod.sound.LoopingSoundInstance;
 import org.mtr.mod.sound.ScheduledSound;
 
@@ -49,6 +52,10 @@ public final class InitClient {
 	public static final RegistryClient REGISTRY_CLIENT = new RegistryClient(Init.REGISTRY);
 	public static final int MILLIS_PER_SPEED_SOUND = 200;
 	public static final LoopingSoundInstance TACTILE_MAP_SOUND_INSTANCE = new LoopingSoundInstance("tactile_map_music");
+
+	static {
+		Init.createWebserverSetup(InitClient::setupWebserver);
+	}
 
 	public static void init() {
 		KeyBindings.init();
@@ -350,6 +357,7 @@ public final class InitClient {
 				serverPort = Init.findFreePort(0);
 				webserver = new Webserver(serverPort);
 				webserver.addServlet(new ServletHolder(new ClientServlet()), "/");
+				setupWebserver(webserver);
 				webserver.start();
 			} else {
 				serverPort = Math.max(Init.getServerPort(), 0);
@@ -364,6 +372,7 @@ public final class InitClient {
 		REGISTRY_CLIENT.eventRegistryClient.registerClientDisconnect(() -> {
 			if (webserver != null) {
 				webserver.stop();
+				webserver = null;
 			}
 			serverPort = 0;
 		});
@@ -505,5 +514,10 @@ public final class InitClient {
 
 	private static RegistryClient.ModelPredicateProvider checkItemPredicateTag() {
 		return (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemBlockClickingBase.TAG_POS) ? 1 : 0;
+	}
+
+	private static void setupWebserver(Webserver webserver) {
+		webserver.addServlet(new ServletHolder(new WebServlet(WebserverResources::get, "/creator/")), "/creator/*");
+		webserver.addServlet(new ServletHolder(new ResourcePackCreatorServlet()), "/mtr/api/creator/*");
 	}
 }

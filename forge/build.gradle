@@ -29,11 +29,11 @@ dependencies {
 	shadowImplementation "org.mtr:Minecraft-Mappings-forge-${minecraftVersion}:0.0.1-dev"
 
 	if (buildTools.hasJadeSupport()) {
-		implementation fg.deobf("maven.modrinth:jade:${buildTools.getJadeVersion()}")
+		compileOnly fg.deobf("maven.modrinth:jade:${buildTools.getJadeVersion()}")
 	}
 
 	if (buildTools.hasWthitSupport()) {
-		implementation fg.deobf("mcp.mobius.waila:wthit-api:${buildTools.getWthitVersion()}")
+		compileOnly fg.deobf("mcp.mobius.waila:wthit-api:${buildTools.getWthitVersion()}")
 	}
 }
 

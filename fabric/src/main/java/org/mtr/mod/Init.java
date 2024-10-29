@@ -11,6 +11,7 @@ import org.mtr.core.operation.SetTime;
 import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.servlet.QueueObject;
+import org.mtr.core.servlet.Webserver;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonElement;
 import org.mtr.libraries.com.google.gson.JsonParser;
@@ -53,6 +54,7 @@ public final class Init implements Utilities {
 	private static boolean canSendWorldTimeUpdate = true;
 	private static int serverTick;
 	private static long lastSavedMillis;
+	private static Consumer<Webserver> webserverSetup;
 
 	public static final String MOD_ID = "mtr";
 	public static final String MOD_ID_NTE = "mtrsteamloco";
@@ -168,7 +170,7 @@ public final class Init implements Utilities {
 			Config.init(minecraftServer.getRunDirectory());
 			final int defaultPort = Config.getServer().getWebserverPort();
 			serverPort = defaultPort <= 0 ? -1 : findFreePort(defaultPort);
-			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, Config.getServer().getUseThreadedSimulation(), WORLD_ID_LIST.toArray(new String[0]));
+			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, Config.getServer().getUseThreadedSimulation(), webserverSetup, WORLD_ID_LIST.toArray(new String[0]));
 
 			serverTick = 0;
 			lastSavedMillis = System.currentTimeMillis();
@@ -337,6 +339,10 @@ public final class Init implements Utilities {
 				Init.LOGGER.error("", e);
 			}
 		}, requestProperties);
+	}
+
+	public static void createWebserverSetup(Consumer<Webserver> webserverSetup) {
+		Init.webserverSetup = webserverSetup;
 	}
 
 	private static void generateOrClearDepotsFromCommand(CommandBuilder<?> commandBuilder, boolean isGenerate) {

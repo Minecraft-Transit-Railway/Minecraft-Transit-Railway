@@ -33,7 +33,13 @@ public final class ClientServlet extends HttpServlet {
 		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketForwardClientRequest(
 				endpoint,
 				content,
-				response -> ServletBase.sendResponse(httpServletResponse, asyncContext, response, ServletBase.getMimeType(endpoint.equals("/") ? "html" : endpoint), HttpResponseStatus.OK)
+				(response, path) -> {
+					if (path.equals(endpoint)) {
+						ServletBase.sendResponse(httpServletResponse, asyncContext, response, ServletBase.getMimeType(endpoint.equals("/") ? "html" : endpoint), HttpResponseStatus.OK);
+					} else {
+						ServletBase.sendResponse(httpServletResponse, asyncContext, path, "", HttpResponseStatus.REDIRECT);
+					}
+				}
 		));
 	}
 }

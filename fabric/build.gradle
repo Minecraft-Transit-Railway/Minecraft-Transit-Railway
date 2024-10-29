@@ -26,11 +26,11 @@ dependencies {
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:+"
 
 	if (buildTools.hasJadeSupport()) {
-		modImplementation "maven.modrinth:jade:${buildTools.getJadeVersion()}"
+		modCompileOnly "maven.modrinth:jade:${buildTools.getJadeVersion()}"
 	}
 
 	if (buildTools.hasWthitSupport()) {
-		modImplementation "mcp.mobius.waila:wthit-api:${buildTools.getWthitVersion()}"
+		modCompileOnly "mcp.mobius.waila:wthit-api:${buildTools.getWthitVersion()}"
 	}
 }
 
