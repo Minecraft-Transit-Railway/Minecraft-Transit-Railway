@@ -1,5 +1,6 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.mtr.core.Generator
+import org.mtr.core.WebserverSetup
 import org.mtr.mod.BuildTools
 
 plugins {
@@ -92,6 +93,13 @@ tasks.register("setupFiles") {
 		delete fileTree("src/main/resources/wthit_plugins.json")
 	}
 
+	copy {
+		outputs.upToDateWhen { false }
+		from zipTree("../libs/Transport-Simulation-Core-Build-Tools.jar")
+		into "src/main/resources"
+		include "website/*.json", "website/src/styles.css"
+	}
+
 	buildTools.generateTranslations()
 	buildTools.copyLootTables()
 	buildTools.copyFontDefinition()
@@ -100,6 +108,7 @@ tasks.register("setupFiles") {
 	Generator.generate(project, "schema/config", "mod/generated/config", false, "mod.config")
 	Generator.generate(project, "schema/resource", "mod/generated/resource", false, "core.data", "mod.resource")
 	Generator.generate(project, "schema/legacy", "legacy/generated/resource", false)
+	WebserverSetup.setup(project.rootDir, "fabric/", "mod")
 }
 
 build {
