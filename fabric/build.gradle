@@ -93,13 +93,6 @@ tasks.register("setupFiles") {
 		delete fileTree("src/main/resources/wthit_plugins.json")
 	}
 
-	copy {
-		outputs.upToDateWhen { false }
-		from zipTree("../libs/Transport-Simulation-Core-Build-Tools.jar")
-		into "src/main/resources"
-		include "website/*.json", "website/src/styles.css"
-	}
-
 	buildTools.generateTranslations()
 	buildTools.copyLootTables()
 	buildTools.copyFontDefinition()

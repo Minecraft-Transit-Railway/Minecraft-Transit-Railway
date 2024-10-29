@@ -21,3 +21,12 @@ java {
 		languageVersion.set(JavaLanguageVersion.of(8))
 	}
 }
+
+tasks.register("setupFiles") {
+	copy {
+		outputs.upToDateWhen { false }
+		from zipTree("../libs/Transport-Simulation-Core-Build-Tools.jar")
+		into "src/main/resources"
+		include "website/*.json", "website/src/styles.css"
+	}
+}
