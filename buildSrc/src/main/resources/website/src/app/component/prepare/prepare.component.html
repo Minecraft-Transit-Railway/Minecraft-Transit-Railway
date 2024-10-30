@@ -1,0 +1,17 @@
+<div class="column gap">
+	<div class="row gap center">
+		@if (hasData()) {
+			<button mat-button color="warn" (click)="openResetDialog()">Reset Resource Pack Creator</button>
+		} @else {
+			<button mat-flat-button [disabled]="uploader.getFileName()" (click)="create()">
+				<mat-icon>add</mat-icon>
+				Create a New Resource Pack
+			</button>
+			<button mat-flat-button [disabled]="uploader.getFileName()" (click)="uploader.upload()">
+				<mat-icon>edit</mat-icon>
+				Edit an Existing Resource Pack
+			</button>
+		}
+	</div>
+	<app-uploader #uploader fileExtension=".zip" endpoint="upload" (uploaded)="upload($event)"/>
+</div>

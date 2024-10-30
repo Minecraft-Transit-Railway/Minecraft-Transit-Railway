@@ -1,1 +1,15 @@
-hello
+<mat-stepper class="wrapper" #stepper linear orientation="vertical">
+	<mat-step label="Prepare" [completed]="hasData()">
+		<ng-template matStepContent>
+			<app-prepare (nextStep)="stepper.next()"/>
+		</ng-template>
+	</mat-step>
+	<mat-step label="Design" [completed]="hasData()">
+		<ng-template matStepContent>
+		</ng-template>
+	</mat-step>
+	<mat-step label="Export" [completed]="false">
+		<ng-template matStepContent>
+		</ng-template>
+	</mat-step>
+</mat-stepper>

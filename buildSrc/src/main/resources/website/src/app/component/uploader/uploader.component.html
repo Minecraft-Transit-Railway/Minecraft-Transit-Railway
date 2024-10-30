@@ -1,0 +1,6 @@
+@if (getFileName()) {
+	<div class="row gap-small center">
+		<mat-spinner [diameter]="24"/>
+		<div>Uploading <b>{{ getFileName() }}</b></div>
+	</div>
+}

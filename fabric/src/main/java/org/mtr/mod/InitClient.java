@@ -7,6 +7,7 @@ import org.mtr.core.operation.DataRequest;
 import org.mtr.core.servlet.WebServlet;
 import org.mtr.core.servlet.Webserver;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.javax.servlet.MultipartConfigElement;
 import org.mtr.libraries.org.eclipse.jetty.servlet.ServletHolder;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.GraphicsHolder;
@@ -518,6 +519,8 @@ public final class InitClient {
 
 	private static void setupWebserver(Webserver webserver) {
 		webserver.addServlet(new ServletHolder(new WebServlet(WebserverResources::get, "/creator/")), "/creator/*");
-		webserver.addServlet(new ServletHolder(new ResourcePackCreatorServlet()), "/mtr/api/creator/*");
+		final ServletHolder resourcePackCreatorServletHolder = new ServletHolder(new ResourcePackCreatorServlet());
+		resourcePackCreatorServletHolder.getRegistration().setMultipartConfig(new MultipartConfigElement((String) null));
+		webserver.addServlet(resourcePackCreatorServletHolder, "/mtr/api/creator/*");
 	}
 }
