@@ -6,7 +6,7 @@ import {DataService} from "../../service/data.service";
 import {MatFormField, MatLabel} from "@angular/material/form-field";
 import {MatInput} from "@angular/material/input";
 import {UploaderComponent} from "../uploader/uploader.component";
-import {DataWrapper} from "../../entity/dataWrapper";
+import {ResourceWrapper} from "../../entity/generated/resourceWrapper";
 
 @Component({
 	selector: "app-prepare",
@@ -34,7 +34,7 @@ export class PrepareComponent {
 		setTimeout(() => this.nextStep.emit(), 0);
 	}
 
-	upload(data: DataWrapper) {
+	upload(data: ResourceWrapper) {
 		this.dataService.upload(data);
 		setTimeout(() => this.nextStep.emit(), 0);
 	}
