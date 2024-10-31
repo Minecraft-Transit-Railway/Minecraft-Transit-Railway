@@ -41,6 +41,7 @@ forge/src/main/resources/assets
 forge/src/main/resources/data
 forge/src/main/resources/META-INF
 **/website/*.json
+**/website/src/app/entity/generated
 **/website/src/styles.css
 **/website/.gitignore
 fabric.mod.json

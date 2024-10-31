@@ -4,6 +4,7 @@
 	"javaImplements": [
 		"SerializedDataBase"
 	],
+	"typeScriptEditable": true,
 	"properties": {
 		"id": {
 			"type": "string"
@@ -15,7 +16,8 @@
 			"type": "string"
 		},
 		"transportMode": {
-			"$ref": "TransportMode"
+			"$ref": "TransportMode",
+			"typeScriptEnum": "TRAIN|BOAT|CABLE_CAR|AIRPLANE"
 		},
 		"length": {
 			"type": "number",

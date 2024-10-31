@@ -1,0 +1,29 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"customResources": {
+			"$ref": "customResources.json"
+		},
+		"models": {
+			"type": "array",
+			"items": {
+				"$ref": "blockbenchModel.json"
+			}
+		},
+		"textures": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		}
+	},
+	"required": [
+		"customResources",
+		"models",
+		"textures"
+	]
+}

@@ -1,7 +1,10 @@
 <div class="column gap">
 	<div class="row gap center">
 		@if (hasData()) {
-			<button mat-button color="warn" (click)="openResetDialog()">Reset Resource Pack Creator</button>
+			<button mat-button (click)="openResetDialog()">
+				<mat-icon>undo</mat-icon>
+				Reset Resource Pack Creator
+			</button>
 		} @else {
 			<button mat-flat-button [disabled]="uploader.getFileName()" (click)="create()">
 				<mat-icon>add</mat-icon>

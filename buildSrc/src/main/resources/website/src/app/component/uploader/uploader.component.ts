@@ -54,6 +54,7 @@ export class UploaderComponent<T> {
 	}
 
 	public static getUrl(endpoint: string) {
-		return `${document.location.origin}${document.location.pathname}mtr/api/creator/${endpoint}`;
+		const pathName = document.location.pathname;
+		return `${document.location.origin}${pathName.substring(0, pathName.length - 8)}mtr/api/creator/${endpoint}`;
 	}
 }

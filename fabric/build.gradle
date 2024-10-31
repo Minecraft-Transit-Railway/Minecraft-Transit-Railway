@@ -46,6 +46,17 @@ java {
 	withJavadocJar()
 }
 
+tasks.register("setupWebsiteFiles") {
+	copy {
+		outputs.upToDateWhen { false }
+		from zipTree("../libs/Transport-Simulation-Core-Build-Tools.jar")
+		into "../buildSrc/src/main/resources"
+		include "website/*.json", "website/src/styles.css"
+	}
+
+	Generator.generateTypeScript(project, "schema/resource", "../buildSrc/src/main/resources/website/src/app/entity/generated")
+}
+
 tasks.register("setupFiles") {
 	copy {
 		outputs.upToDateWhen { false }
@@ -98,9 +109,9 @@ tasks.register("setupFiles") {
 	buildTools.copyFontDefinition()
 	buildTools.copyVehicleTemplates()
 	buildTools.getPatreonList(patreonApiKey)
-	Generator.generate(project, "schema/config", "mod/generated/config", false, "mod.config")
-	Generator.generate(project, "schema/resource", "mod/generated/resource", false, "core.data", "mod.resource")
-	Generator.generate(project, "schema/legacy", "legacy/generated/resource", false)
+	Generator.generateJava(project, "schema/config", "mod/generated/config", false, "mod.config")
+	Generator.generateJava(project, "schema/resource", "mod/generated/resource", false, "core.data", "mod.resource")
+	Generator.generateJava(project, "schema/legacy", "legacy/generated/resource", false)
 	WebserverSetup.setup(project.rootDir, "fabric/", "mod")
 }
 
