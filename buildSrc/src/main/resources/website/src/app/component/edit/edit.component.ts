@@ -14,7 +14,6 @@ import {MatSelectModule} from "@angular/material/select";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatRadioModule} from "@angular/material/radio";
 import {SoundComponent} from "../sound/sound.component";
-import {InfoComponent} from "../info/info.component";
 
 const CREATE_VEHICLE = () => new VehicleResource("my_vehicle", "My Custom Vehicle", Math.floor(Math.random() * 0xFFFFFF).toString(16).toUpperCase().padStart(6, "0"), "TRAIN", 25, 2, -8.5, 8.5, 0, 0, "This is my custom vehicle!", "", false, false, false, false, "a_train", "", 0, false, false, "", 0);
 
@@ -107,7 +106,6 @@ export class EditComponent {
 		MatIconModule,
 		MatTooltipModule,
 		SoundComponent,
-		InfoComponent,
 	],
 })
 export class PropertiesDialog {
