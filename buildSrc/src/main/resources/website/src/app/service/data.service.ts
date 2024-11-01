@@ -33,4 +33,9 @@ export class DataService {
 	public hasData() {
 		return !!this.resourceWrapper;
 	}
+
+	public static getUrl(endpoint: string) {
+		const pathName = document.location.pathname;
+		return `${document.location.origin}${pathName.substring(0, pathName.length - 8)}mtr/api/creator/${endpoint}`;
+	}
 }

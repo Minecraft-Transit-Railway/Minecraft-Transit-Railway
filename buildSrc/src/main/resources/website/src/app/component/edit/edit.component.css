@@ -1,0 +1,9 @@
+.padded {
+	box-sizing: border-box;
+	padding: 0.5em;
+}
+
+.vehicle-color {
+	border-left: 4px solid;
+	padding-left: 4px;
+}

@@ -407,6 +407,7 @@ public final class InitClient {
 			}
 
 			BlockTrainAnnouncer.processQueue();
+			ResourcePackCreatorServlet.tick(millisElapsed);
 
 			// If player is moving, send a request every 0.5 seconds to the server to fetch any new nearby data
 			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();

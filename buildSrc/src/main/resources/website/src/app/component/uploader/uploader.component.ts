@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import {HttpClient} from "@angular/common/http";
 import {catchError, EMPTY} from "rxjs";
+import {DataService} from "../../service/data.service";
 
 @Component({
 	selector: "app-uploader",
@@ -35,7 +36,7 @@ export class UploaderComponent<T> {
 					this.fileName = file.name;
 					const formData = new FormData();
 					formData.append("file", file);
-					this.httpClient.post<T>(UploaderComponent.getUrl(this.endpoint), formData).pipe(catchError(error => {
+					this.httpClient.post<T>(DataService.getUrl(this.endpoint), formData).pipe(catchError(error => {
 						this.fileName = undefined;
 						this.error = error;
 						return EMPTY;
@@ -51,10 +52,5 @@ export class UploaderComponent<T> {
 
 	getFileName() {
 		return this.fileName;
-	}
-
-	public static getUrl(endpoint: string) {
-		const pathName = document.location.pathname;
-		return `${document.location.origin}${pathName.substring(0, pathName.length - 8)}mtr/api/creator/${endpoint}`;
 	}
 }
