@@ -21,7 +21,7 @@ public class BlockPSDTop extends BlockExtension implements IBlock, DirectionHelp
 	public static final EnumProperty<EnumPersistent> PERSISTENT = EnumProperty.of("persistent", EnumPersistent.class);
 
 	public BlockPSDTop() {
-		super(BlockHelper.createBlockSettings(true));
+		super(BlockHelper.createBlockSettings(true).nonOpaque());
 	}
 
 	@Nonnull
