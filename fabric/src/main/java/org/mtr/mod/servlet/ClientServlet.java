@@ -7,6 +7,7 @@ import org.mtr.libraries.javax.servlet.AsyncContext;
 import org.mtr.libraries.javax.servlet.http.HttpServlet;
 import org.mtr.libraries.javax.servlet.http.HttpServletRequest;
 import org.mtr.libraries.javax.servlet.http.HttpServletResponse;
+import org.mtr.libraries.org.eclipse.jetty.server.Request;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.packet.PacketForwardClientRequest;
 
@@ -28,7 +29,7 @@ public final class ClientServlet extends HttpServlet {
 	private static void sendRequest(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @Nullable String content) {
 		final AsyncContext asyncContext = httpServletRequest.startAsync();
 		asyncContext.setTimeout(0);
-		final String endpoint = httpServletRequest.getServletPath();
+		final String endpoint = httpServletRequest instanceof Request ? ((Request) httpServletRequest).getOriginalURI() : httpServletRequest.getRequestURI();
 		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketForwardClientRequest(
 				endpoint,
 				content,

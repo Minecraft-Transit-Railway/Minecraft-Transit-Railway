@@ -37,8 +37,24 @@ public final class ClientPacketHelper {
 		});
 	}
 
-	public static void openDashboardScreen(TransportMode transportMode) {
-		openScreen(new DashboardScreen(transportMode), screenExtension -> screenExtension instanceof DashboardScreen);
+	public static void openDashboardScreen(TransportMode transportMode, PacketOpenDashboardScreen.ScreenType screenType, long id) {
+		switch (screenType) {
+			case STATION:
+				openScreen(new EditStationScreen(MinecraftClientData.getDashboardInstance().stationIdMap.get(id), new DashboardScreen(transportMode)), screenExtension -> screenExtension instanceof EditStationScreen);
+				break;
+			case DEPOT:
+				openScreen(new EditDepotScreen(MinecraftClientData.getDashboardInstance().depotIdMap.get(id), transportMode, new DashboardScreen(transportMode)), screenExtension -> screenExtension instanceof EditDepotScreen);
+				break;
+			case PLATFORM:
+				openScreen(new PlatformScreen(MinecraftClientData.getDashboardInstance().platformIdMap.get(id), transportMode, new DashboardScreen(transportMode)), screenExtension -> screenExtension instanceof PlatformScreen);
+				break;
+			case SIDING:
+				openScreen(new SidingScreen(MinecraftClientData.getDashboardInstance().sidingIdMap.get(id), transportMode, new DashboardScreen(transportMode)), screenExtension -> screenExtension instanceof SidingScreen);
+				break;
+			default:
+				openScreen(new DashboardScreen(transportMode), screenExtension -> screenExtension instanceof DashboardScreen);
+				break;
+		}
 	}
 
 	public static void openLiftCustomizationScreen(BlockPos blockPos) {

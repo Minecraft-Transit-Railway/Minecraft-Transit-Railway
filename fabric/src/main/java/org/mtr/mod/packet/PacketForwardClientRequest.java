@@ -48,7 +48,11 @@ public final class PacketForwardClientRequest extends PacketHandler {
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		Init.sendHttpRequest(endpoint, content.isEmpty() ? null : content, response -> Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketForwardClientRequest(response, callbackId)));
+		Init.REQUEST_HELPER.sendRequest(
+				String.format("http://localhost:%s%s", Init.getServerPort(), endpoint),
+				content.isEmpty() ? null : content,
+				response -> Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketForwardClientRequest(response, callbackId))
+		);
 	}
 
 	@Override

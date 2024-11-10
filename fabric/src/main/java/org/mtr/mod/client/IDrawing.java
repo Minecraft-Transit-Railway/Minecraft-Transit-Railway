@@ -5,6 +5,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
+import org.mtr.mod.Init;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.data.IGui;
 
@@ -25,7 +26,7 @@ public interface IDrawing {
 	}
 
 	static void drawStringWithFont(GraphicsHolder graphicsHolder, String text, IGui.HorizontalAlignment horizontalAlignment, IGui.VerticalAlignment verticalAlignment, IGui.HorizontalAlignment xAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColorCjk, int textColor, float fontSizeRatio, boolean shadow, int light, @Nullable DrawingCallback drawingCallback) {
-		final Style style = Style.getEmptyMapped(); // TODO custom font not working
+		final Style style = Config.getClient().getUseMTRFont() ? Style.getEmptyMapped().withFont(new Identifier(Init.MOD_ID, "mtr")) : Style.getEmptyMapped();
 
 		while (text.contains("||")) {
 			text = text.replace("||", "|");
@@ -201,6 +202,10 @@ public interface IDrawing {
 				});
 			}
 		}
+	}
+
+	static MutableText withMTRFont(MutableText text) {
+		return Config.getClient().getUseMTRFont() ? TextHelper.setStyle(text, Style.getEmptyMapped().withFont(new Identifier(Init.MOD_ID, "mtr"))) : text;
 	}
 
 	@FunctionalInterface

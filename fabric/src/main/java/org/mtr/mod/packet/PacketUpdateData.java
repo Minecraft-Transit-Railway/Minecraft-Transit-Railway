@@ -2,12 +2,16 @@ package org.mtr.mod.packet;
 
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.SignalModification;
-import org.mtr.core.integration.Response;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.operation.UpdateDataResponse;
+import org.mtr.core.serializer.JsonReader;
+import org.mtr.core.serializer.SerializedDataBase;
+import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.ServerWorld;
+import org.mtr.mapping.mapper.MinecraftServerHelper;
 import org.mtr.mapping.tool.PacketBufferReceiver;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.MinecraftClientData;
 
@@ -28,8 +32,8 @@ public final class PacketUpdateData extends PacketRequestResponseBase {
 	}
 
 	@Override
-	protected void runClientInbound(Response response) {
-		update(response);
+	protected void runClientInbound(JsonReader jsonReader) {
+		update(jsonReader);
 	}
 
 	@Override
@@ -37,10 +41,15 @@ public final class PacketUpdateData extends PacketRequestResponseBase {
 		return new PacketUpdateData(content);
 	}
 
+	@Override
+	protected SerializedDataBase getDataInstance(JsonReader jsonReader) {
+		return new UpdateDataRequest(jsonReader, new MinecraftClientData());
+	}
+
 	@Nonnull
 	@Override
-	protected String getEndpoint() {
-		return "operation/update-data";
+	protected String getKey() {
+		return OperationProcessor.UPDATE_DATA;
 	}
 
 	@Override
@@ -56,10 +65,14 @@ public final class PacketUpdateData extends PacketRequestResponseBase {
 		new PacketUpdateData(new UpdateDataRequest(new MinecraftClientData()).addSignalModification(signalModification)).runServerOutbound(serverWorld, null);
 	}
 
-	public static void update(Response response) {
+	public static void sendDirectlyToClientDepotUpdate(ServerWorld serverWorld, UpdateDataResponse updateDataResponse) {
+		MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntityNew -> Init.REGISTRY.sendPacketToClient(serverPlayerEntityNew, new PacketUpdateData(Utilities.getJsonObjectFromData(updateDataResponse).toString())));
+	}
+
+	private static void update(JsonReader jsonReader) {
 		final MinecraftClientData minecraftClientData = MinecraftClientData.getInstance();
-		response.getData(jsonReader -> new UpdateDataResponse(jsonReader, minecraftClientData)).write();
-		response.getData(jsonReader -> new UpdateDataResponse(jsonReader, MinecraftClientData.getDashboardInstance())).write();
+		new UpdateDataResponse(jsonReader, minecraftClientData).write();
+		new UpdateDataResponse(jsonReader, MinecraftClientData.getDashboardInstance()).write();
 		minecraftClientData.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(minecraftClientData, vehicle.getTransportMode())));
 		DynamicTextureCache.instance.reload();
 	}

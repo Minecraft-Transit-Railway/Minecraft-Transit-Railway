@@ -1,12 +1,11 @@
 package org.mtr.mod.sound;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mapping.holder.SoundEvent;
 
 import javax.annotation.Nullable;
 import java.util.Random;
-import java.util.function.Supplier;
 
 public class BveVehicleSound extends VehicleSoundBase {
 
@@ -22,8 +21,7 @@ public class BveVehicleSound extends VehicleSoundBase {
 	private boolean isCompressorActive;
 	private boolean isCompressorActiveLastElapsed;
 
-	private final ObjectArrayList<VehicleLoopingSoundHolder> vehicleLoopingSoundHolders = new ObjectArrayList<>();
-	private final Supplier<VehicleLoopingSoundHolder> createVehicleLoopingSoundHolder;
+	private final VehicleLoopingSoundHolder vehicleLoopingSoundHolder;
 
 	public BveVehicleSound(BveVehicleSoundConfig config) {
 		this.config = config;
@@ -32,34 +30,27 @@ public class BveVehicleSound extends VehicleSoundBase {
 		isCompressorActive = randomInt(0, 20) == 0; // Currently set to 1/20 at client-side load
 		isCompressorActiveLastElapsed = isCompressorActive;
 
-		createVehicleLoopingSoundHolder = () -> {
-			final VehicleLoopingSoundInstance[] soundLoopMotor = new VehicleLoopingSoundInstance[config.config.motor.length];
-			for (int i = 0; i < Math.min(config.config.motor.length, config.motorData.getSoundCount()); i++) {
-				if (config.config.motor[i] != null) {
-					soundLoopMotor[i] = new VehicleLoopingSoundInstance(config.config.motor[i]);
-				}
+		final VehicleLoopingSoundInstance[] soundLoopMotor = new VehicleLoopingSoundInstance[config.config.motor.length];
+		for (int i = 0; i < Math.min(config.config.motor.length, config.motorData.getSoundCount()); i++) {
+			if (config.config.motor[i] != null) {
+				soundLoopMotor[i] = new VehicleLoopingSoundInstance(config.config.motor[i]);
 			}
-			return new VehicleLoopingSoundHolder(
-					soundLoopMotor,
-					config.config.run[0] == null ? null : new VehicleLoopingSoundInstance(config.config.run[0]),
-					config.config.flange[0] == null ? null : new VehicleLoopingSoundInstance(config.config.flange[0]),
-					config.config.noise == null ? null : new VehicleLoopingSoundInstance(config.config.noise),
-					config.config.shoe == null ? null : new VehicleLoopingSoundInstance(config.config.shoe),
-					config.config.compressorLoop == null ? null : new VehicleLoopingSoundInstance(config.config.compressorLoop)
-			);
-		};
+		}
+		vehicleLoopingSoundHolder = new VehicleLoopingSoundHolder(
+				soundLoopMotor,
+				config.config.run[0] == null ? null : new VehicleLoopingSoundInstance(config.config.run[0]),
+				config.config.flange[0] == null ? null : new VehicleLoopingSoundInstance(config.config.flange[0]),
+				config.config.noise == null ? null : new VehicleLoopingSoundInstance(config.config.noise),
+				config.config.shoe == null ? null : new VehicleLoopingSoundInstance(config.config.shoe),
+				config.config.compressorLoop == null ? null : new VehicleLoopingSoundInstance(config.config.compressorLoop)
+		);
 	}
 
 	@Override
-	public void playMotorSound(int bogieIndex, BlockPos blockPos, float speed, float speedChange, float acceleration, boolean isOnRoute) {
+	public void playMotorSound(BlockPos blockPos, float speed, float speedChange, float acceleration, boolean isOnRoute) {
 		final float secondsElapsed = MinecraftClient.getInstance().getLastFrameDuration() / 20;
 		final float speedKilometersPerHour = speed * 3600;
 		final float speedMetersPerSecond = speed * 1000;
-
-		while (vehicleLoopingSoundHolders.size() <= bogieIndex) {
-			vehicleLoopingSoundHolders.add(createVehicleLoopingSoundHolder.get());
-		}
-		final VehicleLoopingSoundHolder vehicleLoopingSoundHolder = vehicleLoopingSoundHolders.get(bogieIndex);
 
 		// Rolling noise
 		if (vehicleLoopingSoundHolder.soundLoopRun != null) {
@@ -169,12 +160,16 @@ public class BveVehicleSound extends VehicleSoundBase {
 
 	@Override
 	protected void playDoorSound(BlockPos blockPos, boolean isOpen) {
-		playSoundInWorld(isOpen ? config.config.doorOpen : config.config.doorClose, blockPos, 2, 1);
+		ScheduledSound.schedule(blockPos, isOpen ? config.config.doorOpen : config.config.doorClose, 2, 1);
 	}
 
 	@Override
 	protected double getDoorCloseSoundTime() {
 		return config.config.doorCloseSoundLength;
+	}
+
+	private static void playSoundInWorld(@Nullable SoundEvent soundEvent, BlockPos blockPos) {
+		ScheduledSound.schedule(blockPos, soundEvent, 1, 1);
 	}
 
 	private static int randomInt(int minInclusive, int maxExclusive) {

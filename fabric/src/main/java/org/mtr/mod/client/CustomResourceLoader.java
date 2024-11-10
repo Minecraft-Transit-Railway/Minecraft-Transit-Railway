@@ -27,6 +27,7 @@ public class CustomResourceLoader {
 
 	public static final OptimizedRendererWrapper OPTIMIZED_RENDERER_WRAPPER = new OptimizedRendererWrapper();
 	public static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
+	public static final String CUSTOM_RESOURCES_PENDING_MIGRATION_ID = "mtr_custom_resources_pending_migration";
 	public static final String DEFAULT_RAIL_ID = "default";
 	public static final String DEFAULT_RAIL_3D_ID = "default_3d";
 	public static final String DEFAULT_RAIL_3D_SIDING_ID = "default_3d_siding";
@@ -34,6 +35,7 @@ public class CustomResourceLoader {
 	private static final Object2ObjectAVLTreeMap<String, JsonElement> RESOURCE_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, ObjectArrayList<VehicleResource>> VEHICLES = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, Object2ObjectAVLTreeMap<String, VehicleResource>> VEHICLES_CACHE = new Object2ObjectAVLTreeMap<>();
+	private static final Object2ObjectAVLTreeMap<TransportMode, Object2ObjectAVLTreeMap<String, Object2ObjectAVLTreeMap<String, ObjectArrayList<String>>>> VEHICLES_TAGS = new Object2ObjectAVLTreeMap<>();
 	private static final ObjectArrayList<SignResource> SIGNS = new ObjectArrayList<>();
 	private static final Object2ObjectAVLTreeMap<String, SignResource> SIGNS_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final ObjectArrayList<RailResource> RAILS = new ObjectArrayList<>();
@@ -45,6 +47,7 @@ public class CustomResourceLoader {
 		for (final TransportMode transportMode : TransportMode.values()) {
 			VEHICLES.put(transportMode, new ObjectArrayList<>());
 			VEHICLES_CACHE.put(transportMode, new Object2ObjectAVLTreeMap<>());
+			VEHICLES_TAGS.put(transportMode, new Object2ObjectAVLTreeMap<>());
 		}
 	}
 
@@ -53,6 +56,7 @@ public class CustomResourceLoader {
 		RESOURCE_CACHE.clear();
 		VEHICLES.forEach((transportMode, vehicleResources) -> vehicleResources.clear());
 		VEHICLES_CACHE.forEach((transportMode, vehicleResourcesCache) -> vehicleResourcesCache.clear());
+		VEHICLES_TAGS.forEach((transportMode, vehicleResourcesCache) -> vehicleResourcesCache.clear());
 		SIGNS.clear();
 		SIGNS_CACHE.clear();
 		RAILS.clear();
@@ -71,6 +75,7 @@ public class CustomResourceLoader {
 				customResources.iterateVehicles(vehicleResource -> {
 					VEHICLES.get(vehicleResource.getTransportMode()).add(vehicleResource);
 					VEHICLES_CACHE.get(vehicleResource.getTransportMode()).put(vehicleResource.getId(), vehicleResource);
+					vehicleResource.collectTags(VEHICLES_TAGS.get(vehicleResource.getTransportMode()));
 				});
 				customResources.iterateSigns(signResource -> {
 					SIGNS.add(signResource);
@@ -83,6 +88,18 @@ public class CustomResourceLoader {
 				customResources.iterateObjects(objectResource -> {
 					OBJECTS.add(objectResource);
 					OBJECTS_CACHE.put(objectResource.getId(), objectResource);
+				});
+			} catch (Exception e) {
+				Init.LOGGER.error("", e);
+			}
+		});
+
+		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_PENDING_MIGRATION_ID + ".json"), inputStream -> {
+			try {
+				CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject()).iterateVehicles(vehicleResource -> {
+					VEHICLES.get(vehicleResource.getTransportMode()).add(vehicleResource);
+					VEHICLES_CACHE.get(vehicleResource.getTransportMode()).put(vehicleResource.getId(), vehicleResource);
+					vehicleResource.collectTags(VEHICLES_TAGS.get(vehicleResource.getTransportMode()));
 				});
 			} catch (Exception e) {
 				Init.LOGGER.error("", e);
@@ -124,6 +141,10 @@ public class CustomResourceLoader {
 		if (vehicleResource != null) {
 			ifPresent.accept(vehicleResource);
 		}
+	}
+
+	public static Object2ObjectAVLTreeMap<String, Object2ObjectAVLTreeMap<String, ObjectArrayList<String>>> getVehicleTags(TransportMode transportMode) {
+		return VEHICLES_TAGS.get(transportMode);
 	}
 
 	public static void getSignById(String signId, Consumer<SignResource> ifPresent) {

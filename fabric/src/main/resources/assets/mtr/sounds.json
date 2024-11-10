@@ -711,6 +711,150 @@
 			}
 		]
 	},
+	"london_underground_s7_airzero": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_s7/airzero",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_s7_cp": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_s7/cp",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_s7_cpend": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_s7/cpend",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_s7_cpstart": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_s7/cpstart",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_s7_flange": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_s7/flange",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_s7_loop": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_s7/loop",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_s7_point": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_s7/point",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_s7_dooropn": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_s7/dooropn",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_s7_doorcls": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_s7/doorcls",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_s7_motor0": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_s7/motor0",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_s7_motor1": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_s7/motor1",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_s7_motor2": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_s7/motor2",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_s7_motor3": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_s7/motor3",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_s7_motor4": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_s7/motor4",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_s7_run": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_s7/run",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_s7_rub": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_s7/rub",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
 	"sp1900_door_open": {
 		"sounds": [
 			{
@@ -18239,6 +18383,62 @@
 				"name": "mtr:br_423/motor3",
 				"pitch": 1,
 				"attenuation_distance": 96
+			}
+		]
+	},
+	"minecart_doorcls": {
+		"sounds": [
+			{
+				"name": "mtr:minecart/doorcls",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"minecart_dooropn": {
+		"sounds": [
+			{
+				"name": "mtr:minecart/dooropn",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"minecart_loop": {
+		"sounds": [
+			{
+				"name": "mtr:minecart/loop",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"minecart_motor4": {
+		"sounds": [
+			{
+				"name": "mtr:minecart/motor4",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"minecart_motor3": {
+		"sounds": [
+			{
+				"name": "mtr:minecart/motor3",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"minecart_point": {
+		"sounds": [
+			{
+				"name": "mtr:minecart/point",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"minecart_run": {
+		"sounds": [
+			{
+				"name": "mtr:minecart/run",
+				"attenuation_distance": 32
 			}
 		]
 	}

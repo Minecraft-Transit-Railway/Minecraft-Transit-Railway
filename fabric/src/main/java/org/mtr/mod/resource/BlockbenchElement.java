@@ -27,7 +27,8 @@ public final class BlockbenchElement extends BlockbenchElementSchema {
 		final float rotationY = (float) Math.toRadians(-Utilities.getElement(rotation, 1, 0D));
 		final float rotationZ = (float) Math.toRadians(Utilities.getElement(rotation, 2, 0D));
 
-		final ModelPartExtension modelPart = new GroupTransformations(groupTransformations, origin, rotation).create(parentModelPart, modelYOffset);
+		final GroupTransformations newGroupTransformations = new GroupTransformations(groupTransformations, origin, rotation);
+		final ModelPartExtension modelPart = newGroupTransformations.create(parentModelPart, modelYOffset);
 		modelPart.setTextureUVOffset(Utilities.getElement(uv_offset, 0, 0L).intValue(), Utilities.getElement(uv_offset, 1, 0L).intValue());
 
 		final float x = -Utilities.getElement(to, 0, 0D).floatValue() - originX;
@@ -39,13 +40,8 @@ public final class BlockbenchElement extends BlockbenchElementSchema {
 
 		modelPart.addCuboid(x, y, z, sizeX, sizeY, sizeZ, (float) inflate, !shade || mirror_uv);
 
-		modelDisplayPart.storedMatrixTransformations.add(graphicsHolder -> {
-			graphicsHolder.translate(originX / 16, originY / 16, originZ / 16);
-			graphicsHolder.rotateZRadians(rotationZ);
-			graphicsHolder.rotateYRadians(rotationY);
-			graphicsHolder.rotateXRadians(rotationX);
-			graphicsHolder.translate(x / 16, y / 16, z / 16);
-		});
+		newGroupTransformations.create(modelDisplayPart.storedMatrixTransformations, modelYOffset);
+		modelDisplayPart.storedMatrixTransformations.add(graphicsHolder -> graphicsHolder.translate(x / 16, y / 16, z / 16));
 		modelDisplayPart.width = sizeX;
 		modelDisplayPart.height = sizeY;
 

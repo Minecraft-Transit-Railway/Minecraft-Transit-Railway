@@ -29,7 +29,7 @@ import org.mtr.mod.resource.CachedResource;
 import org.mtr.mod.screen.BetaWarningScreen;
 import org.mtr.mod.servlet.ClientServlet;
 import org.mtr.mod.sound.LoopingSoundInstance;
-import org.mtr.mod.sound.VehicleSoundBase;
+import org.mtr.mod.sound.ScheduledSound;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
@@ -38,6 +38,7 @@ import java.util.function.Consumer;
 public final class InitClient {
 
 	private static Webserver webserver;
+	private static int serverPort;
 	private static long lastMillis = 0;
 	private static long gameMillis = 0;
 	private static long lastPlayedTrainSoundsMillis = 0;
@@ -230,6 +231,7 @@ public final class InitClient {
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.SIGNAL_REMOVER_GREEN, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.SIGNAL_REMOVER_RED, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.SIGNAL_REMOVER_BLACK, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
+		REGISTRY_CLIENT.registerItemModelPredicate(Items.BRIDGE_CREATOR_1, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.BRIDGE_CREATOR_3, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.BRIDGE_CREATOR_5, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.BRIDGE_CREATOR_7, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
@@ -346,16 +348,27 @@ public final class InitClient {
 			DynamicTextureCache.instance.reload();
 
 			// Clientside webserver for locally hosting the online system map
-			final int port = Init.findFreePort(0);
-			webserver = new Webserver(port);
-			webserver.addServlet(new ServletHolder(new ClientServlet()), "/");
-			webserver.start();
+			// Only start clientside webserver if not in singleplayer
+			if (Init.getServerPort() == 0) {
+				serverPort = Init.findFreePort(0);
+				webserver = new Webserver(serverPort);
+				webserver.addServlet(new ServletHolder(new ClientServlet()), "/");
+				webserver.start();
+			} else {
+				serverPort = Math.max(Init.getServerPort(), 0);
+			}
+			if (serverPort > 0) {
+				Init.LOGGER.info("Open the Transport System Map at http://localhost:{}", serverPort);
+			} else {
+				Init.LOGGER.info("Transport System Map disabled");
+			}
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerClientDisconnect(() -> {
 			if (webserver != null) {
 				webserver.stop();
 			}
+			serverPort = 0;
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerStartClientTick(() -> {
@@ -403,7 +416,7 @@ public final class InitClient {
 				movePlayer.run();
 				movePlayer = null;
 			}
-			VehicleSoundBase.playScheduledSounds();
+			ScheduledSound.playScheduledSounds();
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerChunkLoad((clientWorld, worldChunk) -> {
@@ -483,6 +496,14 @@ public final class InitClient {
 
 	public static long getGameMillis() {
 		return gameMillis;
+	}
+
+	/**
+	 * @return the port of the clientside webserver (multiplayer) or the webserver started by Transport Simulation Core (singleplayer).
+	 * <br>{@code 0} means the webserver is not running
+	 */
+	public static int getServerPort() {
+		return serverPort;
 	}
 
 	private static RegistryClient.ModelPredicateProvider checkItemPredicateTag() {
