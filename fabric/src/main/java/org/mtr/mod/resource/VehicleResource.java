@@ -3,10 +3,7 @@ package org.mtr.mod.resource;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.TextHelper;
@@ -22,6 +19,7 @@ import org.mtr.mod.sound.BveVehicleSoundConfig;
 import org.mtr.mod.sound.LegacyVehicleSound;
 import org.mtr.mod.sound.VehicleSoundBase;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -86,8 +84,8 @@ public final class VehicleResource extends VehicleResourceSchema {
 			{true, true, true, true},
 	};
 
-	public VehicleResource(ReaderBase readerBase, @Nullable ObjectArrayList<VehicleModel> extraModels, @Nullable Box extraFloor, ObjectArrayList<Box> doorways) {
-		super(readerBase);
+	public VehicleResource(ReaderBase readerBase, @Nullable ObjectArrayList<VehicleModel> extraModels, @Nullable Box extraFloor, ObjectArrayList<Box> doorways, ResourceProvider resourceProvider) {
+		super(readerBase, resourceProvider);
 		updateData(readerBase);
 
 		if (extraModels != null) {
@@ -142,8 +140,34 @@ public final class VehicleResource extends VehicleResourceSchema {
 		}
 	}
 
+	public VehicleResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
+		this(readerBase, null, null, new ObjectArrayList<>(), resourceProvider);
+	}
+
+	/**
+	 * @deprecated for {@link VehicleWrapper} use only
+	 */
+	@Deprecated
 	public VehicleResource(ReaderBase readerBase) {
-		this(readerBase, null, null, new ObjectArrayList<>());
+		this(readerBase, null, null, new ObjectArrayList<>(), identifier -> "");
+	}
+
+	@Nonnull
+	@Override
+	protected ResourceProvider modelsResourceProviderParameter() {
+		return resourceProvider;
+	}
+
+	@Nonnull
+	@Override
+	protected ResourceProvider bogie1ModelsResourceProviderParameter() {
+		return resourceProvider;
+	}
+
+	@Nonnull
+	@Override
+	protected ResourceProvider bogie2ModelsResourceProviderParameter() {
+		return resourceProvider;
 	}
 
 	public void queue(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, ObjectArrayList<Box> openDoorways) {
@@ -222,6 +246,20 @@ public final class VehicleResource extends VehicleResourceSchema {
 		}
 	}
 
+	public void iterateModelsPropertiesAndDefinitions(Consumer<ModelPropertiesAndPositionDefinitionsWrapper> modelPropertiesAndPositionDefinitionsConsumer) {
+		iterateModels(models, modelPropertiesAndPositionDefinitionsConsumer);
+	}
+
+	public void iterateBogieModelsPropertiesAndDefinitions(int bogieIndex, Consumer<ModelPropertiesAndPositionDefinitionsWrapper> modelPropertiesAndPositionDefinitionsConsumer) {
+		if (Utilities.isBetween(bogieIndex, 0, 1)) {
+			iterateModels(bogieIndex == 0 ? bogie1Models : bogie2Models, modelPropertiesAndPositionDefinitionsConsumer);
+		}
+	}
+
+	public void writeMinecraftResource(ObjectArraySet<MinecraftResource> minecraftResources) {
+		models.forEach(vehicleModel -> minecraftResources.add(vehicleModel.getAsMinecraftResource()));
+	}
+
 	public boolean hasGangway1() {
 		return hasGangway1;
 	}
@@ -274,6 +312,10 @@ public final class VehicleResource extends VehicleResourceSchema {
 				}
 			}
 		}
+	}
+
+	private static void iterateModels(ObjectArrayList<VehicleModel> models, Consumer<ModelPropertiesAndPositionDefinitionsWrapper> modelPropertiesAndPositionDefinitionsConsumer) {
+		models.forEach(vehicleModel -> modelPropertiesAndPositionDefinitionsConsumer.accept(vehicleModel.getModelPropertiesAndPositionDefinitionsWrapper()));
 	}
 
 	private static boolean getChristmasLightState(PartCondition partCondition) {

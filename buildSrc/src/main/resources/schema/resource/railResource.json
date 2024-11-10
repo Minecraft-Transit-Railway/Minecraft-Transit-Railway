@@ -4,6 +4,9 @@
 	"javaImplements": [
 		"SerializedDataBase"
 	],
+	"javaConstructorFields": [
+		"resourceProvider"
+	],
 	"typeScriptEditable": true,
 	"properties": {
 		"id": {

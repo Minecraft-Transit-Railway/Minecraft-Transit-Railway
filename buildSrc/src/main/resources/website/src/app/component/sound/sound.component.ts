@@ -59,7 +59,7 @@ export class SoundComponent {
 
 	private send() {
 		if (this.canSend && this.previouslySentValue != this.sliderValue) {
-			this.httpClient.get<{ paused: boolean }>(DataService.getUrl(`play-sound?${this.parameters}&id=${this.soundId}&value=${this.sliderValue}`)).subscribe(({paused}) => this.isMinecraftPaused = paused);
+			this.httpClient.get<{ paused: boolean }>(DataService.getUrl(`operation/play-sound?${this.parameters}&id=${this.soundId}&value=${this.sliderValue}`)).subscribe(({paused}) => this.isMinecraftPaused = paused);
 			this.canSend = false;
 			this.previouslySentValue = this.sliderValue;
 			setTimeout(() => {

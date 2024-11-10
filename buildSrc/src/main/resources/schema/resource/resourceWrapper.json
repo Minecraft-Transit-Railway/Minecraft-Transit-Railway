@@ -5,25 +5,29 @@
 		"SerializedDataBase"
 	],
 	"properties": {
-		"customResources": {
-			"$ref": "customResources.json"
-		},
-		"models": {
+		"vehicles": {
 			"type": "array",
 			"items": {
-				"$ref": "blockbenchModel.json"
+				"$ref": "vehicleWrapper.json"
 			}
 		},
-		"textures": {
+		"modelResources": {
+			"type": "array",
+			"items": {
+				"$ref": "modelWrapper.json"
+			}
+		},
+		"textureResources": {
 			"type": "array",
 			"items": {
 				"type": "string"
 			}
+		},
+		"minecraftResources": {
+			"type": "array",
+			"items": {
+				"$ref": "minecraftResource.json"
+			}
 		}
-	},
-	"required": [
-		"customResources",
-		"models",
-		"textures"
-	]
+	}
 }

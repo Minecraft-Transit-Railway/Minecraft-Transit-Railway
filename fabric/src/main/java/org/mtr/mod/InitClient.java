@@ -31,7 +31,8 @@ import org.mtr.mod.render.*;
 import org.mtr.mod.resource.CachedResource;
 import org.mtr.mod.screen.BetaWarningScreen;
 import org.mtr.mod.servlet.ClientServlet;
-import org.mtr.mod.servlet.ResourcePackCreatorServlet;
+import org.mtr.mod.servlet.ResourcePackCreatorOperationServlet;
+import org.mtr.mod.servlet.ResourcePackCreatorUploadServlet;
 import org.mtr.mod.sound.LoopingSoundInstance;
 import org.mtr.mod.sound.ScheduledSound;
 
@@ -407,15 +408,15 @@ public final class InitClient {
 			}
 
 			BlockTrainAnnouncer.processQueue();
-			ResourcePackCreatorServlet.tick(millisElapsed);
+			ResourcePackCreatorOperationServlet.tick(millisElapsed);
 
 			// If player is moving, send a request every 0.5 seconds to the server to fetch any new nearby data
 			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
-			if (clientPlayerEntity != null && lastUpdatePacketMillis >= 0 && getGameMillis() - lastUpdatePacketMillis > 500) {
+			if (clientPlayerEntity != null && lastUpdatePacketMillis > 0 && getGameMillis() > lastUpdatePacketMillis) {
 				final DataRequest dataRequest = new DataRequest(clientPlayerEntity.getUuidAsString(), Init.blockPosToPosition(MinecraftClient.getInstance().getGameRendererMapped().getCamera().getBlockPos()), MinecraftClientHelper.getRenderDistance() * 16L);
 				dataRequest.writeExistingIds(MinecraftClientData.getInstance());
 				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketRequestData(dataRequest));
-				lastUpdatePacketMillis = -1;
+				lastUpdatePacketMillis = 0;
 			}
 		});
 
@@ -428,8 +429,8 @@ public final class InitClient {
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerChunkLoad((clientWorld, worldChunk) -> {
-			if (lastUpdatePacketMillis < 0) {
-				lastUpdatePacketMillis = getGameMillis();
+			if (lastUpdatePacketMillis == 0) {
+				lastUpdatePacketMillis = getGameMillis() + 500;
 			}
 		});
 
@@ -520,8 +521,9 @@ public final class InitClient {
 
 	private static void setupWebserver(Webserver webserver) {
 		webserver.addServlet(new ServletHolder(new WebServlet(WebserverResources::get, "/creator/")), "/creator/*");
-		final ServletHolder resourcePackCreatorServletHolder = new ServletHolder(new ResourcePackCreatorServlet());
-		resourcePackCreatorServletHolder.getRegistration().setMultipartConfig(new MultipartConfigElement((String) null));
-		webserver.addServlet(resourcePackCreatorServletHolder, "/mtr/api/creator/*");
+		webserver.addServlet(new ServletHolder(new ResourcePackCreatorOperationServlet()), "/mtr/api/creator/operation/*");
+		final ServletHolder resourcePackCreatorUploadServletHolder = new ServletHolder(new ResourcePackCreatorUploadServlet());
+		resourcePackCreatorUploadServletHolder.getRegistration().setMultipartConfig(new MultipartConfigElement((String) null));
+		webserver.addServlet(resourcePackCreatorUploadServletHolder, "/mtr/api/creator/upload/*");
 	}
 }

@@ -3,54 +3,99 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import {HttpClient} from "@angular/common/http";
 import {catchError, EMPTY} from "rxjs";
 import {DataService} from "../../service/data.service";
+import {MatIconModule} from "@angular/material/icon";
 
 @Component({
 	selector: "app-uploader",
 	standalone: true,
 	imports: [
 		MatProgressSpinnerModule,
+		MatIconModule,
 	],
 	templateUrl: "./uploader.component.html",
 	styleUrl: "./uploader.component.css",
 })
 export class UploaderComponent<T> {
-	@Input({required: true}) fileExtension = "";
+	@Input({required: true}) fileExtensions: string[] = [];
+	@Input({required: true}) allowMultiple = false;
 	@Input({required: true}) endpoint = "";
+	@Input() validation: (fileNames: string[][]) => string | undefined = () => undefined;
 	@Output() uploaded = new EventEmitter<T>();
-	private fileName?: string;
+	private fileNames?: string[];
 	private error?: string;
 
 	constructor(private readonly httpClient: HttpClient) {
 	}
 
 	upload() {
+		this.fileNames = undefined;
+		this.error = undefined;
 		const input = document.createElement("input");
 		input.type = "file";
-		input.accept = this.fileExtension;
+		input.accept = this.fileExtensions.map(fileExtension => `.${fileExtension}`).join(",");
+		input.multiple = this.allowMultiple;
 		input.onchange = () => {
-			this.fileName = undefined;
+			this.fileNames = undefined;
 			this.error = undefined;
-			if (input.files) {
-				const file = input.files[0];
-				if (file) {
-					this.fileName = file.name;
-					const formData = new FormData();
-					formData.append("file", file);
-					this.httpClient.post<T>(DataService.getUrl(this.endpoint), formData).pipe(catchError(error => {
-						this.fileName = undefined;
-						this.error = error;
-						return EMPTY;
-					})).subscribe(data => {
-						this.fileName = undefined;
-						this.uploaded.emit(data);
-					});
+
+			if (!input.files || input.files.length == 0) {
+				return;
+			}
+
+			const fileNames = [];
+			for (let i = 0; i < input.files.length; i++) {
+				const fileNameSplit = input.files[i].name.split(".");
+				if (fileNameSplit.length != 2) {
+					this.error = "Invalid file name!";
+					return;
+				} else if (this.fileExtensions.every(fileExtension => fileExtension.toLowerCase() !== fileNameSplit[1].toLowerCase())) {
+					this.error = "Invalid file type!";
+					return;
+				} else {
+					fileNames.push(fileNameSplit);
 				}
 			}
+
+			if (fileNames.length == 0) {
+				this.error = "No file selected!";
+				return;
+			}
+
+			this.error = this.validation(fileNames);
+			if (this.error) {
+				return;
+			}
+
+			this.fileNames = [];
+			fileNames.forEach(([fileName]) => {
+				if (!this.fileNames?.includes(fileName)) {
+					this.fileNames?.push(fileName);
+				}
+			});
+			this.fileNames.sort();
+
+			const formData = new FormData();
+			for (let i = 0; i < input.files.length; i++) {
+				formData.append("file", input.files[i]);
+			}
+
+			this.httpClient.post<T>(DataService.getUrl(this.endpoint), formData).pipe(catchError(() => {
+				this.fileNames = undefined;
+				this.error = "File upload failed!";
+				return EMPTY;
+			})).subscribe(data => {
+				this.fileNames = undefined;
+				this.uploaded.emit(data);
+			});
 		};
 		input.click();
 	}
 
-	getFileName() {
-		return this.fileName;
+	getFileNames() {
+		return this.fileNames;
+	}
+
+	getError() {
+		return this.error;
 	}
 }

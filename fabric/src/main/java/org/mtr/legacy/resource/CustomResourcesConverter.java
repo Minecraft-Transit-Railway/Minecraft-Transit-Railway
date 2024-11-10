@@ -14,12 +14,12 @@ import java.util.function.Consumer;
 
 public final class CustomResourcesConverter {
 
-	public static CustomResources convert(JsonObject jsonObject) {
+	public static CustomResources convert(JsonObject jsonObject, ResourceProvider resourceProvider) {
 		final boolean hasCustomTrains = jsonObject.getAsJsonObject().has("custom_trains");
 		final boolean hasCustomSigns = jsonObject.getAsJsonObject().has("custom_signs");
 
 		if (!hasCustomTrains && !hasCustomSigns) {
-			return new CustomResources(new JsonReader(jsonObject));
+			return new CustomResources(new JsonReader(jsonObject), resourceProvider);
 		}
 
 		final ObjectArrayList<VehicleResource> vehicleResources = new ObjectArrayList<>();
@@ -27,7 +27,7 @@ public final class CustomResourcesConverter {
 		if (hasCustomTrains) {
 			jsonObject.getAsJsonObject("custom_trains").entrySet().forEach(entry -> {
 				try {
-					new LegacyVehicleResource(new JsonReader(entry.getValue())).convert(vehicleResources, entry.getKey().toLowerCase(Locale.ENGLISH));
+					new LegacyVehicleResource(new JsonReader(entry.getValue())).convert(vehicleResources, entry.getKey().toLowerCase(Locale.ENGLISH), resourceProvider);
 				} catch (Exception e) {
 					Init.LOGGER.error("", e);
 				}
@@ -49,15 +49,15 @@ public final class CustomResourcesConverter {
 		return new CustomResources(vehicleResources, signResources);
 	}
 
-	public static void convertRails(Consumer<RailResource> callback) {
+	public static void convertRails(Consumer<RailResource> callback, ResourceProvider resourceProvider) {
 		ResourceManagerHelper.readDirectory("rails", (identifier, inputStream) -> {
 			if (identifier.getNamespace().equals(Init.MOD_ID_NTE) && identifier.getPath().endsWith(".json")) {
 				try {
 					final JsonObject jsonObject = Config.readResource(inputStream).getAsJsonObject();
 					if (jsonObject.has("model")) {
-						callback.accept(new LegacyRailResource(new JsonReader(jsonObject)).convert(FilenameUtils.getBaseName(identifier.getPath())));
+						callback.accept(new LegacyRailResource(new JsonReader(jsonObject)).convert(FilenameUtils.getBaseName(identifier.getPath()), resourceProvider));
 					} else {
-						jsonObject.entrySet().forEach(entry -> callback.accept(new LegacyRailResource(new JsonReader(entry.getValue())).convert(entry.getKey().toLowerCase(Locale.ENGLISH))));
+						jsonObject.entrySet().forEach(entry -> callback.accept(new LegacyRailResource(new JsonReader(entry.getValue())).convert(entry.getKey().toLowerCase(Locale.ENGLISH), resourceProvider)));
 					}
 				} catch (Exception e) {
 					Init.LOGGER.error("", e);
@@ -66,15 +66,15 @@ public final class CustomResourcesConverter {
 		});
 	}
 
-	public static void convertObjects(Consumer<ObjectResource> callback) {
+	public static void convertObjects(Consumer<ObjectResource> callback, ResourceProvider resourceProvider) {
 		ResourceManagerHelper.readDirectory("eyecandies", (identifier, inputStream) -> {
 			if (identifier.getNamespace().equals(Init.MOD_ID_NTE) && identifier.getPath().endsWith(".json")) {
 				try {
 					final JsonObject jsonObject = Config.readResource(inputStream).getAsJsonObject();
 					if (jsonObject.has("model")) {
-						callback.accept(new LegacyObjectResource(new JsonReader(jsonObject)).convert(FilenameUtils.getBaseName(identifier.getPath())));
+						callback.accept(new LegacyObjectResource(new JsonReader(jsonObject)).convert(FilenameUtils.getBaseName(identifier.getPath()), resourceProvider));
 					} else {
-						jsonObject.entrySet().forEach(entry -> callback.accept(new LegacyObjectResource(new JsonReader(entry.getValue())).convert(entry.getKey().toLowerCase(Locale.ENGLISH))));
+						jsonObject.entrySet().forEach(entry -> callback.accept(new LegacyObjectResource(new JsonReader(entry.getValue())).convert(entry.getKey().toLowerCase(Locale.ENGLISH), resourceProvider)));
 					}
 				} catch (Exception e) {
 					Init.LOGGER.error("", e);

@@ -6,15 +6,15 @@
 				Reset Resource Pack Creator
 			</button>
 		} @else {
-			<button mat-flat-button [disabled]="uploader.getFileName()" (click)="create()">
+			<button mat-flat-button [disabled]="uploader.getFileNames()" (click)="create()">
 				<mat-icon>add</mat-icon>
 				Create a New Resource Pack
 			</button>
-			<button mat-flat-button [disabled]="uploader.getFileName()" (click)="uploader.upload()">
+			<button mat-flat-button [disabled]="uploader.getFileNames()" (click)="uploader.upload()">
 				<mat-icon>edit</mat-icon>
 				Edit an Existing Resource Pack
 			</button>
 		}
 	</div>
-	<app-uploader #uploader fileExtension=".zip" endpoint="upload" (uploaded)="upload($event)"/>
+	<app-uploader #uploader [fileExtensions]="['zip']" [allowMultiple]="false" endpoint="upload/zip" (uploaded)="upload($event)"/>
 </div>

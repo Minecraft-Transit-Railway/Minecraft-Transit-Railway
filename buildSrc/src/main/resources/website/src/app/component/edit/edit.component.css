@@ -1,9 +1,13 @@
-.padded {
-	box-sizing: border-box;
-	padding: 0.5em;
-}
-
 .vehicle-color {
 	border-left: 4px solid;
 	padding-left: 4px;
+}
+
+.paragraph {
+	white-space: pre;
+	width: 2048em;
+}
+
+.no-wrap-button {
+	text-wrap: nowrap;
 }

@@ -13,10 +13,10 @@ public final class ObjectResource extends ObjectResourceSchema implements Stored
 
 	private final CachedResource<ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel>> cachedRailResource;
 
-	public ObjectResource(ReaderBase readerBase) {
-		super(readerBase);
+	public ObjectResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
+		super(readerBase, resourceProvider);
 		updateData(readerBase);
-		cachedRailResource = new CachedResource<>(() -> load(modelResource, textureResource, flipTextureV, 0), VehicleModel.MODEL_LIFESPAN);
+		cachedRailResource = new CachedResource<>(() -> load(modelResource, textureResource, flipTextureV, 0, resourceProvider), VehicleModel.MODEL_LIFESPAN);
 	}
 
 	@Override

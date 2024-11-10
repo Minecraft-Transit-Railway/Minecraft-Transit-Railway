@@ -30,7 +30,8 @@ export class PrepareComponent {
 	}
 
 	create() {
-		this.dataService.create();
+		this.dataService.upload(new ResourceWrapper());
+		this.dataService.update();
 		setTimeout(() => this.nextStep.emit(), 0);
 	}
 

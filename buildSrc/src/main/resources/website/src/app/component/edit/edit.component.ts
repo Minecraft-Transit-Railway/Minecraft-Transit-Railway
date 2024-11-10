@@ -14,6 +14,8 @@ import {MatSelectModule} from "@angular/material/select";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatRadioModule} from "@angular/material/radio";
 import {SoundComponent} from "../sound/sound.component";
+import {VehicleWrapper} from "../../entity/generated/vehicleWrapper";
+import {ResourceWrapper} from "../../entity/generated/resourceWrapper";
 
 const CREATE_VEHICLE = () => new VehicleResource("my_vehicle", "My Custom Vehicle", Math.floor(Math.random() * 0xFFFFFF).toString(16).toUpperCase().padStart(6, "0"), "TRAIN", 25, 2, -8.5, 8.5, 0, 0, "This is my custom vehicle!", "", false, false, false, false, "a_train", "", 0, false, false, "", 0);
 
@@ -42,8 +44,9 @@ export class EditComponent {
 
 	addVehicle(content: HTMLDivElement) {
 		const vehicles = this.dataService.vehicles();
-		vehicles.push(CREATE_VEHICLE());
+		vehicles.push(new VehicleWrapper(CREATE_VEHICLE()));
 		this.editAtIndex(vehicles.length - 1, content);
+		this.dataService.update();
 	}
 
 	moveVehicle(content: HTMLDivElement, movePositions: number) {
@@ -54,19 +57,22 @@ export class EditComponent {
 			vehicles.splice(this.editingIndex, 1);
 			vehicles.splice(newPosition, 0, vehicleResourceToMove);
 			this.editAtIndex(newPosition, content);
+			this.dataService.update();
 		}
 	}
 
 	duplicateVehicle() {
 		const vehicles = this.dataService.vehicles();
-		const newVehicleResource: VehicleResource = JSON.parse(JSON.stringify(vehicles[this.editingIndex]));
-		newVehicleResource.name = `${newVehicleResource.name} (Copy)`;
+		const newVehicleResource: VehicleWrapper = JSON.parse(JSON.stringify(vehicles[this.editingIndex]));
+		newVehicleResource.vehicleResource.name = `${newVehicleResource.vehicleResource.name} (Copy)`;
 		vehicles.splice(this.editingIndex + 1, 0, newVehicleResource);
+		this.dataService.update();
 	}
 
 	deleteVehicle() {
 		this.dataService.vehicles().splice(this.editingIndex, 1);
 		this.editAtIndex(-1);
+		this.dataService.update();
 	}
 
 	editDetails() {
@@ -87,6 +93,99 @@ export class EditComponent {
 
 	getIcon(transportMode: "TRAIN" | "BOAT" | "CABLE_CAR" | "AIRPLANE") {
 		return ICONS[transportMode];
+	}
+
+	manageModels() {
+		this.dialog.open(ManageDialog, {
+			data: {
+				title: "Models",
+				addText: "Add Model",
+				deleteText: "Delete Model",
+				fileExtensions: ["bbmodel", "obj", "mtl"],
+				listCustomSupplier: () => this.dataService.models().map(modelWrapper => modelWrapper.id),
+				listMinecraftSupplier: () => this.dataService.minecraftResources().map(minecraftResource => minecraftResource.modelResource),
+			},
+		});
+	}
+
+	manageTextures() {
+		this.dialog.open(ManageDialog, {
+			data: {
+				title: "Textures",
+				addText: "Add Texture",
+				deleteText: "Delete Texture",
+				fileExtensions: ["png"],
+				listCustomSupplier: () => this.dataService.textures(),
+				listMinecraftSupplier: () => this.dataService.minecraftResources().map(minecraftResource => minecraftResource.textureResource),
+			},
+		});
+	}
+}
+
+@Component({
+	selector: "dialog-manage",
+	templateUrl: "manage.dialog.html",
+	styleUrl: "edit.component.css",
+	standalone: true,
+	imports: [
+		MatDialogModule,
+		MatButtonModule,
+		MatIconModule,
+		UploaderComponent,
+		MatTooltipModule,
+		MatExpansionModule,
+	],
+})
+export class ManageDialog {
+	private readonly dialogRef = inject(MatDialogRef<PropertiesDialog>);
+	protected readonly data = inject<{ title: string, addText: string, deleteText: string, fileExtensions: string[], listCustomSupplier: () => string[], listMinecraftSupplier: () => string[] }>(MAT_DIALOG_DATA);
+	protected listCustomCount = 0;
+	protected idListCustomFlattened = "";
+	protected listMinecraftCount = 0;
+	protected idListMinecraftFlattened = "";
+
+	constructor(private readonly dataService: DataService) {
+		[this.listCustomCount, this.idListCustomFlattened] = ManageDialog.updateIdLists(this.data.listCustomSupplier);
+		[this.listMinecraftCount, this.idListMinecraftFlattened] = ManageDialog.updateIdLists(this.data.listMinecraftSupplier);
+	}
+
+	upload(data: ResourceWrapper) {
+		this.dataService.upload(data);
+		[this.listCustomCount, this.idListCustomFlattened] = ManageDialog.updateIdLists(this.data.listCustomSupplier);
+		[this.listMinecraftCount, this.idListMinecraftFlattened] = ManageDialog.updateIdLists(this.data.listMinecraftSupplier);
+	}
+
+	validateFiles(fileNames: string[][]) {
+		const matchingPairsObj: string[] = [];
+		const matchingPairsMtl: string[] = [];
+		fileNames.forEach(([fileName, fileExtension]) => {
+			if (fileExtension === "obj") {
+				matchingPairsObj.push(fileName);
+			} else if (fileExtension === "mtl") {
+				matchingPairsMtl.push(fileName);
+			}
+		});
+
+		if (JSON.stringify(matchingPairsObj.sort()) === JSON.stringify(matchingPairsMtl.sort())) {
+			return undefined;
+		} else {
+			return "Each OBJ file must be uploaded with an MTL file of the same name!";
+		}
+	}
+
+	onClose() {
+		this.dialogRef.close();
+	}
+
+	private static updateIdLists(listSupplier: () => string[]): [number, string] {
+		const idListMinecraft: string[] = [];
+		listSupplier().forEach(id => {
+			if (!idListMinecraft.includes(id)) {
+				idListMinecraft.push(id);
+			}
+		});
+		idListMinecraft.sort();
+		return [idListMinecraft.length, idListMinecraft.join("\n")];
 	}
 }
 
@@ -114,7 +213,7 @@ export class PropertiesDialog {
 	protected readonly formGroup;
 
 	constructor(private readonly dataService: DataService) {
-		const vehicle = dataService.vehicles()[this.editingIndex];
+		const vehicle = dataService.vehicles()[this.editingIndex].vehicleResource;
 		this.formGroup = new FormGroup({
 			id: new FormControl(vehicle.id),
 			name: new FormControl(vehicle.name),
@@ -146,7 +245,7 @@ export class PropertiesDialog {
 	}
 
 	onSave() {
-		const vehicle = this.dataService.vehicles()[this.editingIndex];
+		const vehicle = this.dataService.vehicles()[this.editingIndex].vehicleResource;
 		const newData = this.formGroup.getRawValue();
 		const defaultVehicle = CREATE_VEHICLE();
 		vehicle.id = newData.id ?? defaultVehicle.id;
@@ -172,6 +271,7 @@ export class PropertiesDialog {
 		vehicle.legacyConstantPlaybackSpeed = (newData.soundType === "bve" ? false : newData.legacyConstantPlaybackSpeed) ?? defaultVehicle.legacyConstantPlaybackSpeed;
 		vehicle.legacyDoorSoundBaseResource = (newData.soundType === "bve" ? "" : newData.legacyDoorSoundBaseResource) ?? defaultVehicle.legacyDoorSoundBaseResource;
 		vehicle.legacyDoorCloseSoundTime = Math.max(0, Math.min(1, (newData.soundType === "bve" ? 0 : newData.legacyDoorCloseSoundTime) ?? defaultVehicle.legacyDoorCloseSoundTime));
+		this.dataService.update();
 		this.dialogRef.close();
 	}
 

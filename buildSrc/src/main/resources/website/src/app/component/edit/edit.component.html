@@ -1,21 +1,29 @@
 <div class="column gap wrapper">
-	<div>
-		<button mat-button (click)="addVehicle(content)">
+	<div class="row gap-small center">
+		<button mat-flat-button (click)="addVehicle(content)">
 			<mat-icon>add</mat-icon>
 			Add Vehicle
 		</button>
+		<button mat-button (click)="manageModels()">
+			<mat-icon>library_books</mat-icon>
+			Manage Models
+		</button>
+		<button mat-button (click)="manageTextures()">
+			<mat-icon>photo_library</mat-icon>
+			Manage Textures
+		</button>
 	</div>
 
-	<div #content class="content padded">
+	<div #content class="content padding-top-bottom-small padding-sides-small">
 		@if (dataService.vehicles().length > 0) {
 			<mat-accordion displayMode="flat">
 				@for (vehicle of dataService.vehicles(); track $index) {
 					<mat-expansion-panel [expanded]="isEditingAtIndex($index)" (opened)="editAtIndex($index)">
 						<mat-expansion-panel-header>
-							<mat-panel-title class="row gap-small vehicle-color" [style.border-left-color]="'#' + vehicle.color">
-								<mat-icon>{{ getIcon(vehicle.transportMode) }}</mat-icon>
-								<b class="spacing">{{ vehicle.name }}</b>
-								<div>{{ vehicle.id }}</div>
+							<mat-panel-title class="row gap-small vehicle-color" [style.border-left-color]="'#' + vehicle.vehicleResource.color">
+								<mat-icon>{{ getIcon(vehicle.vehicleResource.transportMode) }}</mat-icon>
+								<b class="spacing">{{ vehicle.vehicleResource.name }}</b>
+								<div>{{ vehicle.vehicleResource.id }}</div>
 							</mat-panel-title>
 						</mat-expansion-panel-header>
 						<ng-template matExpansionPanelContent>

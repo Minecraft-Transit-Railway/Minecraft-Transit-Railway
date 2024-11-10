@@ -1,18 +1,31 @@
-<div class="outer wrapper">
-	<mat-stepper class="wrapper" #stepper linear>
-		<mat-step class="wrapper" label="Prepare" [completed]="hasData()">
-			<ng-template class="wrapper" matStepContent>
-				<app-prepare class="wrapper" (nextStep)="stepper.next()"/>
-			</ng-template>
-		</mat-step>
-		<mat-step class="wrapper" label="Design" [completed]="hasData()">
-			<ng-template class="wrapper" matStepContent>
-				<app-edit class="wrapper"/>
-			</ng-template>
-		</mat-step>
-		<mat-step label="Export" [completed]="false">
-			<ng-template matStepContent>
-			</ng-template>
-		</mat-step>
-	</mat-stepper>
-</div>
+@if (isLoading()) {
+	<div class="column center wrapper">
+		<div class="spacing"></div>
+		<mat-spinner class="middle-content"/>
+		<div class="spacing"></div>
+	</div>
+} @else {
+	<div class="outer wrapper">
+		<mat-stepper class="wrapper" #stepper linear>
+			<mat-step class="wrapper" label="Prepare" [completed]="hasData()">
+				<ng-template class="wrapper" matStepContent>
+					<app-prepare class="wrapper" (nextStep)="stepper.next()"/>
+				</ng-template>
+			</mat-step>
+			<mat-step class="wrapper" label="Design" [completed]="hasData()">
+				<ng-template class="wrapper" matStepContent>
+					<app-edit class="wrapper"/>
+				</ng-template>
+			</mat-step>
+			<mat-step class="wrapper" label="Preview" [completed]="hasData()">
+				<ng-template class="wrapper" matStepContent>
+					<app-preview class="wrapper"/>
+				</ng-template>
+			</mat-step>
+			<mat-step label="Export" [completed]="false">
+				<ng-template matStepContent>
+				</ng-template>
+			</mat-step>
+		</mat-stepper>
+	</div>
+}

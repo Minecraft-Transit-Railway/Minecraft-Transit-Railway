@@ -1,11 +1,12 @@
 package org.mtr.mod.client;
 
+import org.apache.commons.io.IOUtils;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Utilities;
 import org.mtr.legacy.resource.CustomResourcesConverter;
-import org.mtr.libraries.com.google.gson.JsonElement;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MinecraftClient;
@@ -15,8 +16,8 @@ import org.mtr.mod.Keys;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.resource.*;
 
-import javax.annotation.Nullable;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.function.Consumer;
@@ -26,13 +27,14 @@ public class CustomResourceLoader {
 	private static long TEST_DURATION;
 
 	public static final OptimizedRendererWrapper OPTIMIZED_RENDERER_WRAPPER = new OptimizedRendererWrapper();
+	public static final ObjectArraySet<MinecraftResource> MINECRAFT_RESOURCES = new ObjectArraySet<>();
 	public static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
 	public static final String CUSTOM_RESOURCES_PENDING_MIGRATION_ID = "mtr_custom_resources_pending_migration";
 	public static final String DEFAULT_RAIL_ID = "default";
 	public static final String DEFAULT_RAIL_3D_ID = "default_3d";
 	public static final String DEFAULT_RAIL_3D_SIDING_ID = "default_3d_siding";
 
-	private static final Object2ObjectAVLTreeMap<String, JsonElement> RESOURCE_CACHE = new Object2ObjectAVLTreeMap<>();
+	private static final Object2ObjectAVLTreeMap<String, String> RESOURCE_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, ObjectArrayList<VehicleResource>> VEHICLES = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, Object2ObjectAVLTreeMap<String, VehicleResource>> VEHICLES_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, Object2ObjectAVLTreeMap<String, Object2ObjectAVLTreeMap<String, ObjectArrayList<String>>>> VEHICLES_TAGS = new Object2ObjectAVLTreeMap<>();
@@ -53,6 +55,7 @@ public class CustomResourceLoader {
 
 	public static void reload() {
 		OPTIMIZED_RENDERER_WRAPPER.beginReload();
+		MINECRAFT_RESOURCES.clear();
 		RESOURCE_CACHE.clear();
 		VEHICLES.forEach((transportMode, vehicleResources) -> vehicleResources.clear());
 		VEHICLES_CACHE.forEach((transportMode, vehicleResourcesCache) -> vehicleResourcesCache.clear());
@@ -65,17 +68,18 @@ public class CustomResourceLoader {
 		OBJECTS_CACHE.clear();
 		TEST_DURATION = 0;
 
-		final RailResource defaultRailResource = new RailResource(DEFAULT_RAIL_ID, "Default");
+		final RailResource defaultRailResource = new RailResource(DEFAULT_RAIL_ID, "Default", CustomResourceLoader::readResource);
 		RAILS.add(defaultRailResource);
 		RAILS_CACHE.put(DEFAULT_RAIL_ID, defaultRailResource);
 
 		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_ID + ".json"), inputStream -> {
 			try {
-				final CustomResources customResources = CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject());
+				final CustomResources customResources = CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject(), CustomResourceLoader::readResource);
 				customResources.iterateVehicles(vehicleResource -> {
 					VEHICLES.get(vehicleResource.getTransportMode()).add(vehicleResource);
 					VEHICLES_CACHE.get(vehicleResource.getTransportMode()).put(vehicleResource.getId(), vehicleResource);
 					vehicleResource.collectTags(VEHICLES_TAGS.get(vehicleResource.getTransportMode()));
+					vehicleResource.writeMinecraftResource(MINECRAFT_RESOURCES);
 				});
 				customResources.iterateSigns(signResource -> {
 					SIGNS.add(signResource);
@@ -94,12 +98,14 @@ public class CustomResourceLoader {
 			}
 		});
 
+		// TODO temporary code for loading models pending migration
 		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_PENDING_MIGRATION_ID + ".json"), inputStream -> {
 			try {
-				CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject()).iterateVehicles(vehicleResource -> {
+				CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject(), CustomResourceLoader::readResource).iterateVehicles(vehicleResource -> {
 					VEHICLES.get(vehicleResource.getTransportMode()).add(vehicleResource);
 					VEHICLES_CACHE.get(vehicleResource.getTransportMode()).put(vehicleResource.getId(), vehicleResource);
 					vehicleResource.collectTags(VEHICLES_TAGS.get(vehicleResource.getTransportMode()));
+					vehicleResource.writeMinecraftResource(MINECRAFT_RESOURCES);
 				});
 			} catch (Exception e) {
 				Init.LOGGER.error("", e);
@@ -109,12 +115,12 @@ public class CustomResourceLoader {
 		CustomResourcesConverter.convertRails(railResource -> {
 			RAILS.add(railResource);
 			RAILS_CACHE.put(railResource.getId(), railResource);
-		});
+		}, CustomResourceLoader::readResource);
 
 		CustomResourcesConverter.convertObjects(objectResource -> {
 			OBJECTS.add(objectResource);
 			OBJECTS_CACHE.put(objectResource.getId(), objectResource);
-		});
+		}, CustomResourceLoader::readResource);
 
 		OPTIMIZED_RENDERER_WRAPPER.finishReload();
 		Init.LOGGER.info("Loaded {} vehicles and completed door movement validation in {} ms", VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum), TEST_DURATION / 1E6);
@@ -182,33 +188,30 @@ public class CustomResourceLoader {
 		}
 	}
 
-	public static void readResource(@Nullable Identifier identifier, Consumer<JsonElement> consumer) {
-		if (identifier != null) {
-			final String identifierString = identifier.data.toString();
-			final JsonElement jsonElement = RESOURCE_CACHE.get(identifierString);
-			if (jsonElement == null) {
-				if (Keys.DEBUG) {
-					try (final InputStream inputStream = Files.newInputStream(MinecraftClient.getInstance().getRunDirectoryMapped().toPath().resolve("../src/main/resources/assets").resolve(identifier.getNamespace()).resolve(identifier.getPath()), StandardOpenOption.READ)) {
-						final JsonElement newJsonElement = Config.readResource(inputStream);
-						consumer.accept(newJsonElement);
-						RESOURCE_CACHE.put(identifierString, newJsonElement);
-					} catch (Exception e) {
-						Init.LOGGER.error("", e);
-					}
-				} else {
-					ResourceManagerHelper.readResource(identifier, inputStream -> {
-						final JsonElement newJsonElement = Config.readResource(inputStream);
-						consumer.accept(newJsonElement);
-						RESOURCE_CACHE.put(identifierString, newJsonElement);
-					});
-				}
-			} else {
-				consumer.accept(jsonElement);
-			}
-		}
-	}
-
 	public static void incrementTestDuration(long duration) {
 		TEST_DURATION += duration;
+	}
+
+	private static String readResource(Identifier identifier) {
+		final String identifierString = identifier.data.toString();
+		final String cache = RESOURCE_CACHE.get(identifierString);
+		if (cache == null) {
+			if (Keys.DEBUG) {
+				try (final InputStream inputStream = Files.newInputStream(MinecraftClient.getInstance().getRunDirectoryMapped().toPath().resolve("../src/main/resources/assets").resolve(identifier.getNamespace()).resolve(identifier.getPath()), StandardOpenOption.READ)) {
+					final String content = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+					RESOURCE_CACHE.put(identifierString, content);
+					return content;
+				} catch (Exception e) {
+					Init.LOGGER.error("", e);
+					return "";
+				}
+			} else {
+				final String content = ResourceManagerHelper.readResource(identifier);
+				RESOURCE_CACHE.put(identifierString, content);
+				return content;
+			}
+		} else {
+			return cache;
+		}
 	}
 }
