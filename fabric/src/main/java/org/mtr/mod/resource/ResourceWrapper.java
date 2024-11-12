@@ -12,19 +12,23 @@ public final class ResourceWrapper extends ResourceWrapperSchema {
 			ObjectArrayList<VehicleWrapper> vehicles,
 			ObjectArrayList<ModelWrapper> modelResources,
 			ObjectArrayList<String> textureResources,
-			ObjectArrayList<MinecraftResource> minecraftResources
+			ObjectArrayList<MinecraftModelResource> minecraftModelResources,
+			ObjectArrayList<String> minecraftTextureResources
 	) {
 		this.vehicles.addAll(vehicles);
 		this.modelResources.addAll(modelResources);
 		this.textureResources.addAll(textureResources);
-		this.minecraftResources.addAll(minecraftResources);
+		this.minecraftModelResources.addAll(minecraftModelResources);
+		this.minecraftTextureResources.addAll(minecraftTextureResources);
 	}
 
-	public ResourceWrapper(JsonReader jsonReader, ObjectArrayList<MinecraftResource> minecraftResources) {
+	public ResourceWrapper(JsonReader jsonReader, ObjectArrayList<MinecraftModelResource> minecraftModelResources, ObjectArrayList<String> minecraftTextureResources) {
 		super(jsonReader);
 		updateData(jsonReader);
-		this.minecraftResources.clear();
-		this.minecraftResources.addAll(minecraftResources);
+		this.minecraftModelResources.clear();
+		this.minecraftModelResources.addAll(minecraftModelResources);
+		this.minecraftTextureResources.clear();
+		this.minecraftTextureResources.addAll(minecraftTextureResources);
 	}
 
 	public void iterateModelResources(Consumer<ModelWrapper> consumer) {

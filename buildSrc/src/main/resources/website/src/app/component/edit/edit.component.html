@@ -1,6 +1,6 @@
 <div class="column gap wrapper">
 	<div class="row gap-small center">
-		<button mat-flat-button (click)="addVehicle(content)">
+		<button mat-flat-button (click)="vehicleList.add()">
 			<mat-icon>add</mat-icon>
 			Add Vehicle
 		</button>
@@ -15,46 +15,54 @@
 	</div>
 
 	<div #content class="content padding-top-bottom-small padding-sides-small">
-		@if (dataService.vehicles().length > 0) {
-			<mat-accordion displayMode="flat">
-				@for (vehicle of dataService.vehicles(); track $index) {
-					<mat-expansion-panel [expanded]="isEditingAtIndex($index)" (opened)="editAtIndex($index)">
-						<mat-expansion-panel-header>
-							<mat-panel-title class="row gap-small vehicle-color" [style.border-left-color]="'#' + vehicle.vehicleResource.color">
-								<mat-icon>{{ getIcon(vehicle.vehicleResource.transportMode) }}</mat-icon>
-								<b class="spacing">{{ vehicle.vehicleResource.name }}</b>
-								<div>{{ vehicle.vehicleResource.id }}</div>
-							</mat-panel-title>
-						</mat-expansion-panel-header>
-						<ng-template matExpansionPanelContent>
-							<button mat-button (click)="editDetails()">
-								<mat-icon>edit</mat-icon>
-								Edit Properties
-							</button>
-						</ng-template>
-						<mat-action-row>
-							<button mat-icon-button (click)="moveVehicle(content, -2)" [disabled]="$index == 0" matTooltip="Move To Top">
-								<mat-icon>keyboard_double_arrow_up</mat-icon>
-							</button>
-							<button mat-icon-button (click)="moveVehicle(content, -1)" [disabled]="$index == 0" matTooltip="Move Up">
-								<mat-icon>keyboard_arrow_up</mat-icon>
-							</button>
-							<button mat-icon-button (click)="moveVehicle(content, 1)" [disabled]="$index == dataService.vehicles().length - 1" matTooltip="Move Down">
-								<mat-icon>keyboard_arrow_down</mat-icon>
-							</button>
-							<button mat-icon-button (click)="moveVehicle(content, 2)" [disabled]="$index == dataService.vehicles().length - 1" matTooltip="Move To Bottom">
-								<mat-icon>keyboard_double_arrow_down</mat-icon>
-							</button>
-							<button mat-icon-button (click)="duplicateVehicle()" matTooltip="Duplicate">
-								<mat-icon>content_copy</mat-icon>
-							</button>
-							<button mat-icon-button (click)="deleteVehicle()" matTooltip="Delete">
-								<mat-icon>delete</mat-icon>
-							</button>
-						</mat-action-row>
-					</mat-expansion-panel>
-				}
-			</mat-accordion>
-		}
+		<app-accordion #vehicleList [list]="dataService.vehicles()" [createInstance]="createVehicleResourceInstance" [headerTemplate]="vehicleHeaderTemplate" [contentTemplate]="vehicleContentTemplate" (changed)="dataService.update()" (positionChanged)="scroll($event, content)"/>
 	</div>
 </div>
+
+<ng-template #vehicleHeaderTemplate let-vehicle>
+	<mat-panel-title class="row gap-small vehicle-color" [style.border-left-color]="'#' + vehicle.vehicleResource.color">
+		<mat-icon>{{ vehicle.vehicleResource.transportMode | formatIcon }}</mat-icon>
+		<b class="spacing">{{ vehicle.vehicleResource.name }}</b>
+		<div>{{ vehicle.vehicleResource.id }}</div>
+	</mat-panel-title>
+</ng-template>
+
+<ng-template #vehicleContentTemplate let-vehicle>
+	<div class="column gap">
+		<div>
+			<button mat-button (click)="editDetails(vehicle)">
+				<mat-icon>edit</mat-icon>
+				Edit Vehicle Properties
+			</button>
+		</div>
+		<mat-accordion displayMode="flat" multi>
+			@for (models of getAllModels(vehicle); track $index) {
+				<mat-expansion-panel>
+					<mat-expansion-panel-header>
+						<mat-panel-title>Models:&nbsp;<b>{{ $index === 1 ? $count > 2 ? "Front Bogie" : "Bogie" : $index === 2 ? "Back Bogie" : "Main Vehicle" }}</b></mat-panel-title>
+					</mat-expansion-panel-header>
+					<div class="column gap">
+						<div>
+							<button mat-flat-button (click)="modelList.add()">
+								<mat-icon>add</mat-icon>
+								Add Model
+							</button>
+						</div>
+						<app-accordion #modelList [list]="models" [createInstance]="createVehicleModelInstance" [headerTemplate]="modelHeaderTemplate" [contentTemplate]="modelContentTemplate" (changed)="dataService.update()"/>
+					</div>
+				</mat-expansion-panel>
+			}
+		</mat-accordion>
+	</div>
+</ng-template>
+
+<ng-template #modelHeaderTemplate let-model>
+	<mat-panel-title>{{ [model.modelResource | formatFileName, model.modelPropertiesResource | formatFileName, model.textureResource | formatFileName] | formatStringList:" + " }}</mat-panel-title>
+</ng-template>
+
+<ng-template #modelContentTemplate let-model>
+	<button mat-button (click)="editModel(model)">
+		<mat-icon>edit</mat-icon>
+		Edit Model
+	</button>
+</ng-template>

@@ -1,0 +1,60 @@
+<h2 mat-dialog-title>Vehicle Model</h2>
+<mat-dialog-content class="wrapper">
+	<form class="column gap wrapper" [formGroup]="formGroup">
+		<mat-form-field subscriptSizing="dynamic">
+			<mat-label>Model Resource</mat-label>
+			<input matInput #modelInput formControlName="modelResource" [matAutocomplete]="modelAutocomplete" (input)="filterModels(modelInput.value)" (focus)="filterModels(modelInput.value)"/>
+			<mat-autocomplete requireSelection #modelAutocomplete>
+				@if (filteredCustomModelList.length > 0) {
+					<mat-optgroup label="Custom">
+						@for (model of filteredCustomModelList; track $index) {
+							<mat-option [value]="model">{{ model }}</mat-option>
+						}
+					</mat-optgroup>
+				}
+				@if (filteredMinecraftModelList.length > 0) {
+					<mat-optgroup label="Minecraft">
+						@for (model of filteredMinecraftModelList; track $index) {
+							<mat-option [value]="model">{{ model }}</mat-option>
+						}
+					</mat-optgroup>
+				}
+			</mat-autocomplete>
+		</mat-form-field>
+		<mat-form-field subscriptSizing="dynamic">
+			<mat-label>Texture Resource</mat-label>
+			<input matInput #textureInput formControlName="textureResource" [matAutocomplete]="textureAutocomplete" (input)="filterTextures(textureInput.value)" (focus)="filterTextures(textureInput.value)"/>
+			<mat-autocomplete requireSelection #textureAutocomplete>
+				@if (filteredCustomTextureList.length > 0) {
+					<mat-optgroup label="Custom">
+						@for (texture of filteredCustomTextureList; track $index) {
+							<mat-option [value]="texture">{{ texture }}</mat-option>
+						}
+					</mat-optgroup>
+				}
+				@if (filteredMinecraftTextureList.length > 0) {
+					<mat-optgroup label="Minecraft">
+						@for (texture of filteredMinecraftTextureList; track $index) {
+							<mat-option [value]="texture">{{ texture }}</mat-option>
+						}
+					</mat-optgroup>
+				}
+			</mat-autocomplete>
+		</mat-form-field>
+
+		<div class="row gap">
+			<div class="column gap-small parts content">
+				<mat-selection-list #modelPartsSelection [multiple]="false" hideSingleSelectionIndicator (selectionChange)="selectModelPart(modelPartsSelection.selectedOptions.selected)">
+					@for (modelPart of modelParts; track $index) {
+						<mat-list-option [value]="$index.toString()">{{ modelPart }}</mat-list-option>
+					}
+				</mat-selection-list>
+			</div>
+			<div class="column gap-small parts content"></div>
+		</div>
+	</form>
+</mat-dialog-content>
+<mat-dialog-actions>
+	<button mat-button (click)="onSave()" cdkFocusInitial>Save</button>
+	<button mat-button (click)="onCancel()">Cancel</button>
+</mat-dialog-actions>

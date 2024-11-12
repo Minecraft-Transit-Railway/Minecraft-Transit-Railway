@@ -27,7 +27,8 @@ public class CustomResourceLoader {
 	private static long TEST_DURATION;
 
 	public static final OptimizedRendererWrapper OPTIMIZED_RENDERER_WRAPPER = new OptimizedRendererWrapper();
-	public static final ObjectArraySet<MinecraftResource> MINECRAFT_RESOURCES = new ObjectArraySet<>();
+	public static final ObjectArraySet<MinecraftModelResource> MINECRAFT_MODEL_RESOURCES = new ObjectArraySet<>();
+	public static final ObjectArraySet<String> MINECRAFT_TEXTURE_RESOURCES = new ObjectArraySet<>();
 	public static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
 	public static final String CUSTOM_RESOURCES_PENDING_MIGRATION_ID = "mtr_custom_resources_pending_migration";
 	public static final String DEFAULT_RAIL_ID = "default";
@@ -55,7 +56,8 @@ public class CustomResourceLoader {
 
 	public static void reload() {
 		OPTIMIZED_RENDERER_WRAPPER.beginReload();
-		MINECRAFT_RESOURCES.clear();
+		MINECRAFT_MODEL_RESOURCES.clear();
+		MINECRAFT_TEXTURE_RESOURCES.clear();
 		RESOURCE_CACHE.clear();
 		VEHICLES.forEach((transportMode, vehicleResources) -> vehicleResources.clear());
 		VEHICLES_CACHE.forEach((transportMode, vehicleResourcesCache) -> vehicleResourcesCache.clear());
@@ -79,7 +81,7 @@ public class CustomResourceLoader {
 					VEHICLES.get(vehicleResource.getTransportMode()).add(vehicleResource);
 					VEHICLES_CACHE.get(vehicleResource.getTransportMode()).put(vehicleResource.getId(), vehicleResource);
 					vehicleResource.collectTags(VEHICLES_TAGS.get(vehicleResource.getTransportMode()));
-					vehicleResource.writeMinecraftResource(MINECRAFT_RESOURCES);
+					vehicleResource.writeMinecraftResource(MINECRAFT_MODEL_RESOURCES, MINECRAFT_TEXTURE_RESOURCES);
 				});
 				customResources.iterateSigns(signResource -> {
 					SIGNS.add(signResource);
@@ -105,7 +107,7 @@ public class CustomResourceLoader {
 					VEHICLES.get(vehicleResource.getTransportMode()).add(vehicleResource);
 					VEHICLES_CACHE.get(vehicleResource.getTransportMode()).put(vehicleResource.getId(), vehicleResource);
 					vehicleResource.collectTags(VEHICLES_TAGS.get(vehicleResource.getTransportMode()));
-					vehicleResource.writeMinecraftResource(MINECRAFT_RESOURCES);
+					vehicleResource.writeMinecraftResource(MINECRAFT_MODEL_RESOURCES, MINECRAFT_TEXTURE_RESOURCES);
 				});
 			} catch (Exception e) {
 				Init.LOGGER.error("", e);

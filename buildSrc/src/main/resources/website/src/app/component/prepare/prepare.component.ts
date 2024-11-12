@@ -50,13 +50,12 @@ export class PrepareComponent {
 }
 
 @Component({
-	selector: "dialog-reset",
-	templateUrl: "reset.dialog.html",
 	standalone: true,
 	imports: [
 		MatDialogModule,
 		MatButtonModule,
 	],
+	templateUrl: "reset.dialog.html",
 })
 export class ResetDialog {
 	private readonly dialogRef = inject(MatDialogRef<ResetDialog>);

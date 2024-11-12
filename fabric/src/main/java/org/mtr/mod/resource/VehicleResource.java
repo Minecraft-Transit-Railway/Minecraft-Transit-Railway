@@ -256,8 +256,19 @@ public final class VehicleResource extends VehicleResourceSchema {
 		}
 	}
 
-	public void writeMinecraftResource(ObjectArraySet<MinecraftResource> minecraftResources) {
-		models.forEach(vehicleModel -> minecraftResources.add(vehicleModel.getAsMinecraftResource()));
+	public void writeMinecraftResource(ObjectArraySet<MinecraftModelResource> minecraftModelResources, ObjectArraySet<String> minecraftTextureResources) {
+		models.forEach(vehicleModel -> {
+			minecraftModelResources.add(vehicleModel.getAsMinecraftResource());
+			minecraftTextureResources.add(vehicleModel.getTextureResource());
+		});
+		bogie1Models.forEach(vehicleModel -> {
+			minecraftModelResources.add(vehicleModel.getAsMinecraftResource());
+			minecraftTextureResources.add(vehicleModel.getTextureResource());
+		});
+		bogie2Models.forEach(vehicleModel -> {
+			minecraftModelResources.add(vehicleModel.getAsMinecraftResource());
+			minecraftTextureResources.add(vehicleModel.getTextureResource());
+		});
 	}
 
 	public boolean hasGangway1() {

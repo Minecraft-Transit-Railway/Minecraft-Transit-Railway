@@ -23,10 +23,16 @@
 				"type": "string"
 			}
 		},
-		"minecraftResources": {
+		"minecraftModelResources": {
 			"type": "array",
 			"items": {
-				"$ref": "minecraftResource.json"
+				"$ref": "minecraftModelResource.json"
+			}
+		},
+		"minecraftTextureResources": {
+			"type": "array",
+			"items": {
+				"type": "string"
 			}
 		}
 	}

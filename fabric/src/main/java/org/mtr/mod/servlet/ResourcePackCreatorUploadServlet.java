@@ -18,11 +18,8 @@ import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.resource.*;
 
-import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.Locale;
-import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -97,12 +94,12 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 					ZipEntry zipEntry;
 
 					while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-						final String name = zipEntry.getName();
+						final String name = formatMinecraftResourceName(zipEntry.getName());
 						Init.LOGGER.debug("Reading {}", name);
 						final byte[] bytes = IOUtils.toByteArray(zipInputStream);
 						final String content = new String(bytes);
 
-						if (name.equals(String.format("assets/%s/%s.json", Init.MOD_ID, CustomResourceLoader.CUSTOM_RESOURCES_ID))) {
+						if (name.equals(String.format("%s:%s.json", Init.MOD_ID, CustomResourceLoader.CUSTOM_RESOURCES_ID))) {
 							customResourcesObject = Utilities.parseJson(content);
 						} else if (name.endsWith(".png") || name.endsWith(".bbmodel") || name.endsWith(".obj") || name.endsWith(".mtl")) {
 							resourceUploadTasks.add(() -> uploadResource(name, bytes, content));
@@ -120,7 +117,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 					break;
 				}
 
-				final CustomResources customResources = CustomResourcesConverter.convert(customResourcesObject, identifier -> jsonCache.getOrDefault(String.format("assets/%s/%s", identifier.getNamespace(), identifier.getPath()), ResourceManagerHelper.readResource(identifier)));
+				final CustomResources customResources = CustomResourcesConverter.convert(customResourcesObject, identifier -> jsonCache.getOrDefault(identifier.data.toString(), ResourceManagerHelper.readResource(identifier)));
 				final ObjectArrayList<VehicleWrapper> vehicles = new ObjectArrayList<>();
 
 				customResources.iterateVehicles(vehicleResource -> {
@@ -133,7 +130,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 					vehicles.add(new VehicleWrapper(vehicleResource, modelPropertiesList, bogie1ModelPropertiesList, bogie2ModelPropertiesList));
 				});
 
-				AbstractResourcePackCreatorServlet.resourceWrapper = new ResourceWrapper(vehicles, new ObjectArrayList<>(), new ObjectArrayList<>(), new ObjectArrayList<>(CustomResourceLoader.MINECRAFT_RESOURCES));
+				AbstractResourcePackCreatorServlet.resourceWrapper = new ResourceWrapper(vehicles, new ObjectArrayList<>(), new ObjectArrayList<>(), new ObjectArrayList<>(CustomResourceLoader.MINECRAFT_MODEL_RESOURCES), new ObjectArrayList<>(CustomResourceLoader.MINECRAFT_TEXTURE_RESOURCES));
 				resourceUploadTasks.forEach(Runnable::run);
 				AbstractResourcePackCreatorServlet.returnStandardResponse(httpServletResponse, asyncContext);
 				return;
@@ -151,7 +148,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 				for (final Part part : httpServletRequest.getParts()) {
 					try (final InputStream inputStream = part.getInputStream()) {
 						final byte[] bytes = IOUtils.toByteArray(inputStream);
-						uploadResource(part.getSubmittedFileName(), bytes, new String(bytes));
+						uploadResource(String.format("%s:%s", Init.MOD_ID, part.getSubmittedFileName()), bytes, new String(bytes));
 					} catch (Exception e) {
 						Init.LOGGER.error("", e);
 					}
@@ -171,21 +168,19 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 			if (name.endsWith(".png")) {
 				AbstractResourcePackCreatorServlet.resourceWrapper.addTextureResource(name);
 				TEXTURES.put(name, bytes);
-				final Identifier identifier = formatMinecraftResourceName(name);
-				if (identifier != null) {
-					try {
-						final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(bytes.length);
-						byteBuffer.put(bytes);
-						byteBuffer.rewind();
-						final AbstractTexture abstractTexture = new AbstractTexture(new NativeImageBackedTexture(NativeImage.read(byteBuffer)).data);
-						final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-						minecraftClient.execute(() -> {
-							minecraftClient.getTextureManager().registerTexture(identifier, abstractTexture);
-							Init.LOGGER.info("Registered temporary texture [{}]", identifier.data.toString());
-						});
-					} catch (Exception e) {
-						Init.LOGGER.error("", e);
-					}
+				final Identifier identifier = new Identifier(name);
+				try {
+					final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(bytes.length);
+					byteBuffer.put(bytes);
+					byteBuffer.rewind();
+					final AbstractTexture abstractTexture = new AbstractTexture(new NativeImageBackedTexture(NativeImage.read(byteBuffer)).data);
+					final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+					minecraftClient.execute(() -> {
+						minecraftClient.getTextureManager().registerTexture(identifier, abstractTexture);
+						Init.LOGGER.info("Registered temporary texture [{}]", identifier.data.toString());
+					});
+				} catch (Exception e) {
+					Init.LOGGER.error("", e);
 				}
 			} else if (name.endsWith(".bbmodel")) {
 				final BlockbenchModel blockbenchModel = new BlockbenchModel(new JsonReader(Utilities.parseJson(content)));
@@ -202,22 +197,14 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 		}
 	}
 
-	@Nullable
-	private static Identifier formatMinecraftResourceName(String name) {
-		final String[] nameSplit1 = name.split("\\.");
-		if (nameSplit1.length < 2) {
-			return null;
+	private static String formatMinecraftResourceName(String name) {
+		final String[] nameSplit = name.split("/");
+		if (nameSplit.length >= 3) {
+			final String[] newNameSplit = new String[nameSplit.length - 2];
+			System.arraycopy(nameSplit, 2, newNameSplit, 0, newNameSplit.length);
+			return String.format("%s:%s", nameSplit[1], String.join("/", newNameSplit));
 		} else {
-			final String[] nameSplit2 = name.split("/");
-			if (nameSplit2.length >= 3) {
-				final String[] nameSplit3 = new String[nameSplit2.length - 2];
-				System.arraycopy(nameSplit2, 2, nameSplit3, 0, nameSplit3.length);
-				final Identifier identifier = new Identifier(Init.MOD_ID, String.format("resource_%s_%s.%s", nameSplit1[0].toLowerCase(Locale.ENGLISH).replaceAll("[^a-z0-9_]", "_"), Utilities.numberToPaddedHexString(new Random().nextLong()), nameSplit1[1]));
-				TEXTURE_ID_MAPPING.put(String.format("%s:%s", nameSplit2[1], String.join("/", nameSplit3)), identifier);
-				return identifier;
-			} else {
-				return null;
-			}
+			return "";
 		}
 	}
 }

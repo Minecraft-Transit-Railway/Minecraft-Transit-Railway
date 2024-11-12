@@ -366,8 +366,9 @@ public final class InitClient {
 			}
 			if (serverPort > 0) {
 				Init.LOGGER.info("Open the Transport System Map at http://localhost:{}", serverPort);
+				Init.LOGGER.info("Open the Resource Pack Creator at http://localhost:{}/creator/", serverPort);
 			} else {
-				Init.LOGGER.info("Transport System Map disabled");
+				Init.LOGGER.info("Transport System Map and Resource Pack Creator disabled");
 			}
 		});
 

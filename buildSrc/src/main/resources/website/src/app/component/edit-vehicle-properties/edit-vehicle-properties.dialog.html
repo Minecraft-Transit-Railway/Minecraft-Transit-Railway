@@ -1,7 +1,9 @@
 <h2 mat-dialog-title>Vehicle Properties</h2>
 <mat-dialog-content>
 	<form class="column gap" [formGroup]="formGroup">
+
 		<div>General</div>
+
 		<mat-form-field subscriptSizing="dynamic">
 			<mat-label>ID</mat-label>
 			<input matInput aria-label="ID" formControlName="id" autocomplete="off" spellcheck="false"/>
@@ -166,6 +168,6 @@
 	</form>
 </mat-dialog-content>
 <mat-dialog-actions>
-	<button mat-button (click)="onSave()">Save</button>
+	<button mat-button (click)="onSave()" cdkFocusInitial>Save</button>
 	<button mat-button (click)="onCancel()">Cancel</button>
 </mat-dialog-actions>

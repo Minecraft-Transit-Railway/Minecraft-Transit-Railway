@@ -40,8 +40,12 @@ public final class VehicleModel extends VehicleModelSchema {
 		return new ModelPropertiesAndPositionDefinitionsWrapper(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader));
 	}
 
-	public MinecraftResource getAsMinecraftResource() {
-		return new MinecraftResource(modelResource, modelPropertiesResource, textureResource);
+	public MinecraftModelResource getAsMinecraftResource() {
+		return new MinecraftModelResource(modelResource, modelPropertiesResource, positionDefinitionsResource);
+	}
+
+	public String getTextureResource() {
+		return textureResource;
 	}
 
 	@Nullable

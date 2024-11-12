@@ -2,12 +2,3 @@
 	border-left: 4px solid;
 	padding-left: 4px;
 }
-
-.paragraph {
-	white-space: pre;
-	width: 2048em;
-}
-
-.no-wrap-button {
-	text-wrap: nowrap;
-}
