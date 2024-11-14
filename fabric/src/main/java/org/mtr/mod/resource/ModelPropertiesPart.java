@@ -198,6 +198,27 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		}
 	}
 
+	void addToModelPropertiesPartWrapperMap(PositionDefinitions actualPositionDefinitions, ObjectArrayList<ModelPropertiesPartWrapper> parts) {
+		names.forEach(modelPartName -> positionDefinitions.forEach(positionDefinitionName -> actualPositionDefinitions.getPositionDefinition(positionDefinitionName, (positions, positionsFlipped) -> parts.add(new ModelPropertiesPartWrapper(
+				new PositionDefinition(modelPartName, positions, positionsFlipped),
+				condition,
+				renderStage,
+				type,
+				displayXPadding,
+				displayYPadding,
+				displayColorCjk,
+				displayColor,
+				displayMaxLineHeight,
+				displayCjkSizeRatio,
+				displayPadZeros,
+				displayType,
+				displayDefaultText,
+				doorXMultiplier,
+				doorZMultiplier,
+				doorAnimationType
+		)))));
+	}
+
 	/**
 	 * If this part is a door, find the closest doorway.
 	 */

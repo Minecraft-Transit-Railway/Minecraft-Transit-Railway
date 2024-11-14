@@ -7,7 +7,6 @@
 	"javaConstructorFields": [
 		"resourceProvider"
 	],
-	"typeScriptEditable": true,
 	"properties": {
 		"modelResource": {
 			"type": "string"

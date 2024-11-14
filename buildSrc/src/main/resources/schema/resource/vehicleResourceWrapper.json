@@ -4,9 +4,7 @@
 	"javaImplements": [
 		"SerializedDataBase"
 	],
-	"javaConstructorFields": [
-		"resourceProvider"
-	],
+	"typeScriptEditable": true,
 	"properties": {
 		"id": {
 			"type": "string"
@@ -58,28 +56,19 @@
 		"models": {
 			"type": "array",
 			"items": {
-				"$ref": "vehicleModel.json",
-				"parameters": [
-					"ResourceProvider"
-				]
+				"$ref": "vehicleModelWrapper.json"
 			}
 		},
 		"bogie1Models": {
 			"type": "array",
 			"items": {
-				"$ref": "vehicleModel.json",
-				"parameters": [
-					"ResourceProvider"
-				]
+				"$ref": "vehicleModelWrapper.json"
 			}
 		},
 		"bogie2Models": {
 			"type": "array",
 			"items": {
-				"$ref": "vehicleModel.json",
-				"parameters": [
-					"ResourceProvider"
-				]
+				"$ref": "vehicleModelWrapper.json"
 			}
 		},
 		"hasGangway1": {

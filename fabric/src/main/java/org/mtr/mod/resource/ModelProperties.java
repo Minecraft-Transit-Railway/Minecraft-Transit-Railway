@@ -1,6 +1,7 @@
 package org.mtr.mod.resource;
 
 import org.mtr.core.serializer.ReaderBase;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mod.generated.resource.ModelPropertiesSchema;
@@ -106,6 +107,38 @@ public final class ModelProperties extends ModelPropertiesSchema {
 
 	public double getBarrierZOffset() {
 		return barrierZOffset;
+	}
+
+	VehicleModelWrapper toVehicleModelWrapper(String modelResource, String textureResource, String modelPropertiesResource, String positionDefinitionsResource, boolean flipTextureV, ObjectArrayList<ModelPropertiesPartWrapper> parts) {
+		return new VehicleModelWrapper(
+				modelResource,
+				textureResource,
+				modelPropertiesResource,
+				positionDefinitionsResource,
+				flipTextureV,
+				parts,
+				modelYOffset,
+				gangwayInnerSideResource,
+				gangwayInnerTopResource,
+				gangwayInnerBottomResource,
+				gangwayOuterSideResource,
+				gangwayOuterTopResource,
+				gangwayOuterBottomResource,
+				gangwayWidth,
+				gangwayHeight,
+				gangwayYOffset,
+				gangwayZOffset,
+				barrierInnerSideResource,
+				barrierInnerTopResource,
+				barrierInnerBottomResource,
+				barrierOuterSideResource,
+				barrierOuterTopResource,
+				barrierOuterBottomResource,
+				barrierWidth,
+				barrierHeight,
+				barrierYOffset,
+				barrierZOffset
+		);
 	}
 
 	public void addPartsIfEmpty(ObjectSet<String> partNames) {

@@ -23,6 +23,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public final class VehicleResource extends VehicleResourceSchema {
 
@@ -144,14 +145,6 @@ public final class VehicleResource extends VehicleResourceSchema {
 		this(readerBase, null, null, new ObjectArrayList<>(), resourceProvider);
 	}
 
-	/**
-	 * @deprecated for {@link VehicleWrapper} use only
-	 */
-	@Deprecated
-	public VehicleResource(ReaderBase readerBase) {
-		this(readerBase, null, null, new ObjectArrayList<>(), identifier -> "");
-	}
-
 	@Nonnull
 	@Override
 	protected ResourceProvider modelsResourceProviderParameter() {
@@ -246,14 +239,36 @@ public final class VehicleResource extends VehicleResourceSchema {
 		}
 	}
 
-	public void iterateModelsPropertiesAndDefinitions(Consumer<ModelPropertiesAndPositionDefinitionsWrapper> modelPropertiesAndPositionDefinitionsConsumer) {
-		iterateModels(models, modelPropertiesAndPositionDefinitionsConsumer);
-	}
-
-	public void iterateBogieModelsPropertiesAndDefinitions(int bogieIndex, Consumer<ModelPropertiesAndPositionDefinitionsWrapper> modelPropertiesAndPositionDefinitionsConsumer) {
-		if (Utilities.isBetween(bogieIndex, 0, 1)) {
-			iterateModels(bogieIndex == 0 ? bogie1Models : bogie2Models, modelPropertiesAndPositionDefinitionsConsumer);
-		}
+	public VehicleResourceWrapper toVehicleResourceWrapper() {
+		return new VehicleResourceWrapper(
+				id,
+				name,
+				color,
+				transportMode,
+				length,
+				width,
+				bogie1Position,
+				bogie2Position,
+				couplingPadding1,
+				couplingPadding2,
+				description,
+				wikipediaArticle,
+				tags,
+				models.stream().map(VehicleModel::toVehicleModelWrapper).collect(Collectors.toCollection(ObjectArrayList::new)),
+				bogie1Models.stream().map(VehicleModel::toVehicleModelWrapper).collect(Collectors.toCollection(ObjectArrayList::new)),
+				bogie2Models.stream().map(VehicleModel::toVehicleModelWrapper).collect(Collectors.toCollection(ObjectArrayList::new)),
+				hasGangway1,
+				hasGangway2,
+				hasBarrier1,
+				hasBarrier2,
+				bveSoundBaseResource,
+				legacySpeedSoundBaseResource,
+				legacySpeedSoundCount,
+				legacyUseAccelerationSoundsWhenCoasting,
+				legacyConstantPlaybackSpeed,
+				legacyDoorSoundBaseResource,
+				legacyDoorCloseSoundTime
+		);
 	}
 
 	public void writeMinecraftResource(ObjectArraySet<MinecraftModelResource> minecraftModelResources, ObjectArraySet<String> minecraftTextureResources) {
@@ -323,10 +338,6 @@ public final class VehicleResource extends VehicleResourceSchema {
 				}
 			}
 		}
-	}
-
-	private static void iterateModels(ObjectArrayList<VehicleModel> models, Consumer<ModelPropertiesAndPositionDefinitionsWrapper> modelPropertiesAndPositionDefinitionsConsumer) {
-		models.forEach(vehicleModel -> modelPropertiesAndPositionDefinitionsConsumer.accept(vehicleModel.getModelPropertiesAndPositionDefinitionsWrapper()));
 	}
 
 	private static boolean getChristmasLightState(PartCondition partCondition) {

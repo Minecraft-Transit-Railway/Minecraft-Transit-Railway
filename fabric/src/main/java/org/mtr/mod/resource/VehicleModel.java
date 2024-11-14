@@ -5,6 +5,7 @@ import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mod.generated.resource.VehicleModelSchema;
@@ -36,16 +37,20 @@ public final class VehicleModel extends VehicleModelSchema {
 		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader), id), MODEL_LIFESPAN);
 	}
 
-	public ModelPropertiesAndPositionDefinitionsWrapper getModelPropertiesAndPositionDefinitionsWrapper() {
-		return new ModelPropertiesAndPositionDefinitionsWrapper(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader));
-	}
-
 	public MinecraftModelResource getAsMinecraftResource() {
 		return new MinecraftModelResource(modelResource, modelPropertiesResource, positionDefinitionsResource);
 	}
 
 	public String getTextureResource() {
 		return textureResource;
+	}
+
+	VehicleModelWrapper toVehicleModelWrapper() {
+		final ModelProperties modelProperties = new ModelProperties(modelPropertiesJsonReader);
+		final PositionDefinitions positionDefinitions = new PositionDefinitions(positionDefinitionsJsonReader);
+		final ObjectArrayList<ModelPropertiesPartWrapper> parts = new ObjectArrayList<>();
+		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.addToModelPropertiesPartWrapperMap(positionDefinitions, parts));
+		return modelProperties.toVehicleModelWrapper(modelResource, textureResource, modelPropertiesResource, positionDefinitionsResource, flipTextureV, parts);
 	}
 
 	@Nullable

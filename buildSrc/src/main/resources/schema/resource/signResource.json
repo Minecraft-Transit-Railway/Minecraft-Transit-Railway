@@ -4,7 +4,6 @@
 	"javaImplements": [
 		"SerializedDataBase"
 	],
-	"typeScriptEditable": true,
 	"properties": {
 		"id": {
 			"type": "string"

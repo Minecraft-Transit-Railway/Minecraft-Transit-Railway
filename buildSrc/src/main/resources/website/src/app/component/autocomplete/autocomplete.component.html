@@ -1,0 +1,17 @@
+<div [formGroup]="parentFormGroup">
+	<mat-form-field class="input" subscriptSizing="dynamic">
+		<mat-label>{{ label }}</mat-label>
+		<input matInput #input type="search" [formControlName]="childFormControlName" [matAutocomplete]="modelAutocomplete" (input)="filter(input.value)" (focus)="filter(input.value)" autocomplete="off" spellcheck="false"/>
+		<mat-autocomplete requireSelection #modelAutocomplete>
+			@for (group of filteredLists; track $index) {
+				@if (group.list.length > 0) {
+					<mat-optgroup [label]="group.label">
+						@for (item of group.list; track $index) {
+							<mat-option [value]="item">{{ item }}</mat-option>
+						}
+					</mat-optgroup>
+				}
+			}
+		</mat-autocomplete>
+	</mat-form-field>
+</div>

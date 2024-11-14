@@ -1,0 +1,27 @@
+<h2 mat-dialog-title>Model Parts</h2>
+<mat-dialog-content>
+	@if (modelParts.length > 0) {
+		<div class="column gap-small">
+			<div>Model Parts</div>
+			<div class="row gap">
+				<div class="column gap-small parts content">
+					<mat-nav-list>
+						@for (modelPart of modelParts; track $index) {
+							<mat-list-item [activated]="$index === selectedModelPartIndex" (click)="selectModelPart($index)">{{ modelPart }}</mat-list-item>
+						}
+					</mat-nav-list>
+				</div>
+				<div class="column gap-small parts content">
+					@if (selectedModelPartIndex >= 0) {
+
+					}
+				</div>
+			</div>
+		</div>
+	} @else {
+		<div class="parts"></div>
+	}
+</mat-dialog-content>
+<mat-dialog-actions>
+	<button mat-button (click)="onClose()">Close</button>
+</mat-dialog-actions>

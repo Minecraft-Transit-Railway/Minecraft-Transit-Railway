@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 public final class ResourceWrapper extends ResourceWrapperSchema {
 
 	public ResourceWrapper(
-			ObjectArrayList<VehicleWrapper> vehicles,
+			ObjectArrayList<VehicleResourceWrapper> vehicles,
 			ObjectArrayList<ModelWrapper> modelResources,
 			ObjectArrayList<String> textureResources,
 			ObjectArrayList<MinecraftModelResource> minecraftModelResources,

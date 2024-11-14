@@ -16,7 +16,10 @@ import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.resource.*;
+import org.mtr.mod.resource.BlockbenchModel;
+import org.mtr.mod.resource.ModelWrapper;
+import org.mtr.mod.resource.ResourceWrapper;
+import org.mtr.mod.resource.VehicleResourceWrapper;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -117,19 +120,8 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 					break;
 				}
 
-				final CustomResources customResources = CustomResourcesConverter.convert(customResourcesObject, identifier -> jsonCache.getOrDefault(identifier.data.toString(), ResourceManagerHelper.readResource(identifier)));
-				final ObjectArrayList<VehicleWrapper> vehicles = new ObjectArrayList<>();
-
-				customResources.iterateVehicles(vehicleResource -> {
-					final ObjectArrayList<ModelPropertiesAndPositionDefinitionsWrapper> modelPropertiesList = new ObjectArrayList<>();
-					vehicleResource.iterateModelsPropertiesAndDefinitions(modelPropertiesList::add);
-					final ObjectArrayList<ModelPropertiesAndPositionDefinitionsWrapper> bogie1ModelPropertiesList = new ObjectArrayList<>();
-					vehicleResource.iterateBogieModelsPropertiesAndDefinitions(0, bogie1ModelPropertiesList::add);
-					final ObjectArrayList<ModelPropertiesAndPositionDefinitionsWrapper> bogie2ModelPropertiesList = new ObjectArrayList<>();
-					vehicleResource.iterateBogieModelsPropertiesAndDefinitions(1, bogie2ModelPropertiesList::add);
-					vehicles.add(new VehicleWrapper(vehicleResource, modelPropertiesList, bogie1ModelPropertiesList, bogie2ModelPropertiesList));
-				});
-
+				final ObjectArrayList<VehicleResourceWrapper> vehicles = new ObjectArrayList<>();
+				CustomResourcesConverter.convert(customResourcesObject, identifier -> jsonCache.getOrDefault(identifier.data.toString(), ResourceManagerHelper.readResource(identifier))).iterateVehicles(vehicleResource -> vehicles.add(vehicleResource.toVehicleResourceWrapper()));
 				AbstractResourcePackCreatorServlet.resourceWrapper = new ResourceWrapper(vehicles, new ObjectArrayList<>(), new ObjectArrayList<>(), new ObjectArrayList<>(CustomResourceLoader.MINECRAFT_MODEL_RESOURCES), new ObjectArrayList<>(CustomResourceLoader.MINECRAFT_TEXTURE_RESOURCES));
 				resourceUploadTasks.forEach(Runnable::run);
 				AbstractResourcePackCreatorServlet.returnStandardResponse(httpServletResponse, asyncContext);

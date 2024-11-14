@@ -8,7 +8,7 @@
 		"vehicles": {
 			"type": "array",
 			"items": {
-				"$ref": "vehicleWrapper.json"
+				"$ref": "vehicleResourceWrapper.json"
 			}
 		},
 		"modelResources": {

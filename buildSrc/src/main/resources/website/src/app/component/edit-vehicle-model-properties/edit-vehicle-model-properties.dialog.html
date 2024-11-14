@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>Model Properties</h2>
+<mat-dialog-content>
+	<form class="column gap" [formGroup]="formGroup">
+		<app-autocomplete label="Model Resource" [parentFormGroup]="formGroup" childFormControlName="modelResource" [lists]="modelLists"/>
+		<app-autocomplete label="Texture Resource" [parentFormGroup]="formGroup" childFormControlName="textureResource" [lists]="textureLists"/>
+		<mat-checkbox formControlName="flipTextureV">Flip Texture V</mat-checkbox>
+		<div class="wide"></div>
+	</form>
+</mat-dialog-content>
+<mat-dialog-actions>
+	<button mat-button (click)="onSave()" cdkFocusInitial>Save</button>
+	<button mat-button (click)="onCancel()">Cancel</button>
+</mat-dialog-actions>

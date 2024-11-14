@@ -18,6 +18,12 @@ public final class PositionDefinition extends PositionDefinitionSchema {
 		positions.add(new PartPosition());
 	}
 
+	PositionDefinition(String name, ObjectArrayList<PartPosition> positions, ObjectArrayList<PartPosition> positionsFlipped) {
+		super(name);
+		this.positions.addAll(positions);
+		this.positionsFlipped.addAll(positionsFlipped);
+	}
+
 	public String getName() {
 		return name;
 	}
