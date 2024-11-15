@@ -274,15 +274,15 @@ public final class VehicleResource extends VehicleResourceSchema {
 	public void writeMinecraftResource(ObjectArraySet<MinecraftModelResource> minecraftModelResources, ObjectArraySet<String> minecraftTextureResources) {
 		models.forEach(vehicleModel -> {
 			minecraftModelResources.add(vehicleModel.getAsMinecraftResource());
-			minecraftTextureResources.add(vehicleModel.getTextureResource());
+			vehicleModel.addToTextureResource(minecraftTextureResources);
 		});
 		bogie1Models.forEach(vehicleModel -> {
 			minecraftModelResources.add(vehicleModel.getAsMinecraftResource());
-			minecraftTextureResources.add(vehicleModel.getTextureResource());
+			vehicleModel.addToTextureResource(minecraftTextureResources);
 		});
 		bogie2Models.forEach(vehicleModel -> {
 			minecraftModelResources.add(vehicleModel.getAsMinecraftResource());
-			minecraftTextureResources.add(vehicleModel.getTextureResource());
+			vehicleModel.addToTextureResource(minecraftTextureResources);
 		});
 	}
 

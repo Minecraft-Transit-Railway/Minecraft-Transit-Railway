@@ -27,8 +27,6 @@ public class CustomResourceLoader {
 	private static long TEST_DURATION;
 
 	public static final OptimizedRendererWrapper OPTIMIZED_RENDERER_WRAPPER = new OptimizedRendererWrapper();
-	public static final ObjectArraySet<MinecraftModelResource> MINECRAFT_MODEL_RESOURCES = new ObjectArraySet<>();
-	public static final ObjectArraySet<String> MINECRAFT_TEXTURE_RESOURCES = new ObjectArraySet<>();
 	public static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
 	public static final String CUSTOM_RESOURCES_PENDING_MIGRATION_ID = "mtr_custom_resources_pending_migration";
 	public static final String DEFAULT_RAIL_ID = "default";
@@ -45,6 +43,8 @@ public class CustomResourceLoader {
 	private static final Object2ObjectAVLTreeMap<String, RailResource> RAILS_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final ObjectArrayList<ObjectResource> OBJECTS = new ObjectArrayList<>();
 	private static final Object2ObjectAVLTreeMap<String, ObjectResource> OBJECTS_CACHE = new Object2ObjectAVLTreeMap<>();
+	private static final ObjectArraySet<MinecraftModelResource> MINECRAFT_MODEL_RESOURCES = new ObjectArraySet<>();
+	private static final ObjectArraySet<String> MINECRAFT_TEXTURE_RESOURCES = new ObjectArraySet<>();
 
 	static {
 		for (final TransportMode transportMode : TransportMode.values()) {
@@ -192,6 +192,14 @@ public class CustomResourceLoader {
 
 	public static void incrementTestDuration(long duration) {
 		TEST_DURATION += duration;
+	}
+
+	public static ObjectArrayList<MinecraftModelResource> getMinecraftModelResources() {
+		return new ObjectArrayList<>(MINECRAFT_MODEL_RESOURCES);
+	}
+
+	public static ObjectArrayList<String> getTextureResources() {
+		return new ObjectArrayList<>(MINECRAFT_TEXTURE_RESOURCES);
 	}
 
 	private static String readResource(Identifier identifier) {

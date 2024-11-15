@@ -1,9 +1,7 @@
 <h2 mat-dialog-title>Vehicle Properties</h2>
 <mat-dialog-content>
 	<form class="column gap" [formGroup]="formGroup">
-
 		<div>General</div>
-
 		<mat-form-field subscriptSizing="dynamic">
 			<mat-label>ID</mat-label>
 			<input matInput aria-label="ID" formControlName="id" autocomplete="off" spellcheck="false"/>
@@ -42,7 +40,6 @@
 		</div>
 
 		<div>Dimensions</div>
-
 		<div class="row gap">
 			<mat-form-field subscriptSizing="dynamic">
 				<mat-label>Length</mat-label>
@@ -55,7 +52,6 @@
 		</div>
 
 		<div>Bogies</div>
-
 		<div class="column gap-small">
 			<mat-checkbox #hasTwoBogies formControlName="hasTwoBogies">Has Two Bogies</mat-checkbox>
 			<div class="row gap center">
@@ -78,7 +74,6 @@
 		</div>
 
 		<div>Couplings</div>
-
 		<div class="row gap">
 			<div class="column gap">
 				<mat-form-field subscriptSizing="dynamic">
@@ -103,7 +98,6 @@
 		</div>
 
 		<div>Sound</div>
-
 		<mat-radio-group class="column" aria-label="Sound Type" formControlName="soundType">
 			<mat-radio-button value="bve" #bveSoundType>BVE Format</mat-radio-button>
 			<mat-radio-button value="legacy">Legacy Format</mat-radio-button>

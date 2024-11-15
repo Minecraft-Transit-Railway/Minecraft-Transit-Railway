@@ -6,6 +6,7 @@ import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mod.generated.resource.VehicleModelSchema;
@@ -41,8 +42,45 @@ public final class VehicleModel extends VehicleModelSchema {
 		return new MinecraftModelResource(modelResource, modelPropertiesResource, positionDefinitionsResource);
 	}
 
-	public String getTextureResource() {
-		return textureResource;
+	public void addToTextureResource(ObjectArraySet<String> textureResources) {
+		final ModelProperties modelProperties = new ModelProperties(modelPropertiesJsonReader);
+		if (modelProperties.gangwayInnerSideTexture != null) {
+			textureResources.add(modelProperties.gangwayInnerSideTexture.data.toString());
+		}
+		if (modelProperties.gangwayInnerTopTexture != null) {
+			textureResources.add(modelProperties.gangwayInnerTopTexture.data.toString());
+		}
+		if (modelProperties.gangwayInnerBottomTexture != null) {
+			textureResources.add(modelProperties.gangwayInnerBottomTexture.data.toString());
+		}
+		if (modelProperties.gangwayOuterSideTexture != null) {
+			textureResources.add(modelProperties.gangwayOuterSideTexture.data.toString());
+		}
+		if (modelProperties.gangwayOuterTopTexture != null) {
+			textureResources.add(modelProperties.gangwayOuterTopTexture.data.toString());
+		}
+		if (modelProperties.gangwayOuterBottomTexture != null) {
+			textureResources.add(modelProperties.gangwayOuterBottomTexture.data.toString());
+		}
+		if (modelProperties.barrierInnerSideTexture != null) {
+			textureResources.add(modelProperties.barrierInnerSideTexture.data.toString());
+		}
+		if (modelProperties.barrierInnerTopTexture != null) {
+			textureResources.add(modelProperties.barrierInnerTopTexture.data.toString());
+		}
+		if (modelProperties.barrierInnerBottomTexture != null) {
+			textureResources.add(modelProperties.barrierInnerBottomTexture.data.toString());
+		}
+		if (modelProperties.barrierOuterSideTexture != null) {
+			textureResources.add(modelProperties.barrierOuterSideTexture.data.toString());
+		}
+		if (modelProperties.barrierOuterTopTexture != null) {
+			textureResources.add(modelProperties.barrierOuterTopTexture.data.toString());
+		}
+		if (modelProperties.barrierOuterBottomTexture != null) {
+			textureResources.add(modelProperties.barrierOuterBottomTexture.data.toString());
+		}
+		textureResources.add(textureResource);
 	}
 
 	VehicleModelWrapper toVehicleModelWrapper() {

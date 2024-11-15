@@ -85,7 +85,7 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 
 	private static void update(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AsyncContext asyncContext) {
 		try {
-			AbstractResourcePackCreatorServlet.resourceWrapper = new ResourceWrapper(new JsonReader(JsonParser.parseReader(httpServletRequest.getReader())), new ObjectArrayList<>(CustomResourceLoader.MINECRAFT_MODEL_RESOURCES), new ObjectArrayList<>(CustomResourceLoader.MINECRAFT_TEXTURE_RESOURCES));
+			AbstractResourcePackCreatorServlet.resourceWrapper = new ResourceWrapper(new JsonReader(JsonParser.parseReader(httpServletRequest.getReader())), new ObjectArrayList<>(CustomResourceLoader.getMinecraftModelResources()), new ObjectArrayList<>(CustomResourceLoader.getTextureResources()));
 			returnStandardResponse(httpServletResponse, asyncContext);
 		} catch (Exception e) {
 			Init.LOGGER.error("", e);

@@ -57,12 +57,12 @@ export class EditComponent {
 		this.dialog.open(EditVehiclePropertiesDialog, {data: vehicleResource});
 	}
 
-	editModelProperties(model: VehicleModelWrapper) {
-		this.dialog.open(EditVehicleModelPropertiesDialog, {data: model});
+	editModelProperties(vehicleResource: VehicleResourceWrapper, model: VehicleModelWrapper) {
+		this.dialog.open(EditVehicleModelPropertiesDialog, {data: {vehicleResource, model}});
 	}
 
 	editModelParts(model: VehicleModelWrapper) {
-		this.dialog.open(EditVehicleModelPartsDialog, {data: model});
+		this.dialog.open(EditVehicleModelPartsDialog, {data: model, maxWidth: "90vw", maxHeight: "90vh"});
 	}
 
 	scroll(target: number, content: HTMLDivElement) {

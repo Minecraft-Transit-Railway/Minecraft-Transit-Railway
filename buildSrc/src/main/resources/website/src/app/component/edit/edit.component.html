@@ -54,21 +54,21 @@
 			}
 		</mat-accordion>
 	</div>
+
+	<ng-template #modelContentTemplate let-model>
+		<div class="row gap-small">
+			<button mat-button (click)="editModelProperties(vehicleResource, model)">
+				<mat-icon>edit</mat-icon>
+				Edit Model Properties
+			</button>
+			<button mat-button (click)="editModelParts(model)">
+				<mat-icon>edit</mat-icon>
+				Edit Model Parts
+			</button>
+		</div>
+	</ng-template>
 </ng-template>
 
 <ng-template #modelHeaderTemplate let-model>
 	<mat-panel-title>{{ [model.modelResource | formatFileName, model.modelPropertiesResource | formatFileName, model.textureResource | formatFileName] | formatStringList:" + " }}</mat-panel-title>
-</ng-template>
-
-<ng-template #modelContentTemplate let-model>
-	<div class="row gap-small">
-		<button mat-button (click)="editModelProperties(model)">
-			<mat-icon>edit</mat-icon>
-			Edit Model Properties
-		</button>
-		<button mat-button (click)="editModelParts(model)">
-			<mat-icon>edit</mat-icon>
-			Edit Model Parts
-		</button>
-	</div>
 </ng-template>

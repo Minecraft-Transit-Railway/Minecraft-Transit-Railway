@@ -122,7 +122,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 
 				final ObjectArrayList<VehicleResourceWrapper> vehicles = new ObjectArrayList<>();
 				CustomResourcesConverter.convert(customResourcesObject, identifier -> jsonCache.getOrDefault(identifier.data.toString(), ResourceManagerHelper.readResource(identifier))).iterateVehicles(vehicleResource -> vehicles.add(vehicleResource.toVehicleResourceWrapper()));
-				AbstractResourcePackCreatorServlet.resourceWrapper = new ResourceWrapper(vehicles, new ObjectArrayList<>(), new ObjectArrayList<>(), new ObjectArrayList<>(CustomResourceLoader.MINECRAFT_MODEL_RESOURCES), new ObjectArrayList<>(CustomResourceLoader.MINECRAFT_TEXTURE_RESOURCES));
+				AbstractResourcePackCreatorServlet.resourceWrapper = new ResourceWrapper(vehicles, new ObjectArrayList<>(), new ObjectArrayList<>(), CustomResourceLoader.getMinecraftModelResources(), CustomResourceLoader.getTextureResources());
 				resourceUploadTasks.forEach(Runnable::run);
 				AbstractResourcePackCreatorServlet.returnStandardResponse(httpServletResponse, asyncContext);
 				return;

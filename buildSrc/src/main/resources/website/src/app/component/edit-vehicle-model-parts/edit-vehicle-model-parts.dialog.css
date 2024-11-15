@@ -1,4 +1,11 @@
-.parts {
-	max-height: 24em;
+th {
+	font-weight: bold;
+}
+
+td {
+	white-space: pre;
+}
+
+.wide {
 	width: 2048em;
 }
