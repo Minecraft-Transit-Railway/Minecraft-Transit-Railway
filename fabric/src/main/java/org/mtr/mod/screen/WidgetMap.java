@@ -218,7 +218,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 
 	@Override
 	public boolean isMouseOver2(double mouseX, double mouseY) {
-		return mouseX >= getX2() && mouseY >= getY2() && mouseX < getX2() + width && mouseY < getY2() + height && !(mouseX >= getX2() + width - SQUARE_SIZE * 12 && mouseY >= getY2() + height - SQUARE_SIZE) && !isRestrictedMouseArea.apply(mouseX, mouseY);
+		return mouseX >= getX2() && mouseY >= getY2() && mouseX < getX2() + width && mouseY < getY2() + height && !isRestrictedMouseArea.apply(mouseX, mouseY);
 	}
 
 	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> void drawAreas(GraphicsHolder graphicsHolder, ObjectArraySet<U> areas) {

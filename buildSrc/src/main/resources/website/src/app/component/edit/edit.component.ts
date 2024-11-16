@@ -65,6 +65,10 @@ export class EditComponent {
 		this.dialog.open(EditVehicleModelPartsDialog, {data: model, maxWidth: "90vw", maxHeight: "90vh"});
 	}
 
+	canEditModelParts(model: VehicleModelWrapper) {
+		return this.dataService.minecraftModelResources().some(minecraftModel => model.modelResource === minecraftModel.modelResource);
+	}
+
 	scroll(target: number, content: HTMLDivElement) {
 		setTimeout(() => content.scrollTo({top: target, behavior: "smooth"}), content.scrollTop < target ? 200 : 0);
 	}

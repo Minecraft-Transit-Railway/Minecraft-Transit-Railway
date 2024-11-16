@@ -1,7 +1,10 @@
 package org.mtr.mod.resource;
 
 import org.mtr.core.serializer.JsonReader;
+import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mod.generated.resource.ResourceWrapperSchema;
 
 import java.util.function.Consumer;
@@ -31,12 +34,8 @@ public final class ResourceWrapper extends ResourceWrapperSchema {
 		this.minecraftTextureResources.addAll(minecraftTextureResources);
 	}
 
-	public void iterateModelResources(Consumer<ModelWrapper> consumer) {
-		modelResources.forEach(consumer);
-	}
-
-	public void iterateTextureResources(Consumer<String> consumer) {
-		textureResources.forEach(consumer);
+	public void iterateVehicles(Consumer<VehicleResourceWrapper> consumer) {
+		vehicles.forEach(consumer);
 	}
 
 	public void addModelResource(ModelWrapper modelResource) {
@@ -45,5 +44,17 @@ public final class ResourceWrapper extends ResourceWrapperSchema {
 
 	public void addTextureResource(String textureResource) {
 		textureResources.add(textureResource);
+	}
+
+	public void updateMinecraftPausedStatus() {
+		isMinecraftPaused = MinecraftClient.getInstance().isPaused();
+	}
+
+	public void clean() {
+		vehicles.forEach(VehicleResourceWrapper::clean);
+	}
+
+	public JsonObject flatten() {
+		return Utilities.getJsonObjectFromData(new ResourceWrapper(vehicles, new ObjectArrayList<>(), new ObjectArrayList<>(), new ObjectArrayList<>(), new ObjectArrayList<>()));
 	}
 }

@@ -34,6 +34,7 @@ run/
 generated/
 loot_tables/
 **/org/mtr/mixin/
+fabric/logs
 forge/src/main/java/org/mtr/core
 forge/src/main/java/org/mtr/legacy
 forge/src/main/java/org/mtr/mod

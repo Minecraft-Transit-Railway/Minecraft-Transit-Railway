@@ -5,6 +5,8 @@ import org.mtr.core.serializer.ReaderBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mod.generated.resource.VehicleResourceWrapperSchema;
 
+import java.util.stream.Collectors;
+
 public final class VehicleResourceWrapper extends VehicleResourceWrapperSchema {
 
 	VehicleResourceWrapper(
@@ -70,5 +72,42 @@ public final class VehicleResourceWrapper extends VehicleResourceWrapperSchema {
 	public VehicleResourceWrapper(ReaderBase readerBase) {
 		super(readerBase);
 		updateData(readerBase);
+	}
+
+	public VehicleResource toVehicleResource(ResourceProvider resourceProvider) {
+		return new VehicleResource(
+				id,
+				name,
+				color,
+				transportMode,
+				length,
+				width,
+				bogie1Position,
+				bogie2Position,
+				couplingPadding1,
+				couplingPadding2,
+				description,
+				wikipediaArticle,
+				tags,
+				models.stream().map(vehicleModelWrapper -> vehicleModelWrapper.toVehicleModel(resourceProvider)).collect(Collectors.toCollection(ObjectArrayList::new)),
+				bogie1Models.stream().map(vehicleModelWrapper -> vehicleModelWrapper.toVehicleModel(resourceProvider)).collect(Collectors.toCollection(ObjectArrayList::new)),
+				bogie2Models.stream().map(vehicleModelWrapper -> vehicleModelWrapper.toVehicleModel(resourceProvider)).collect(Collectors.toCollection(ObjectArrayList::new)),
+				hasGangway1,
+				hasGangway2,
+				hasBarrier1,
+				hasBarrier2,
+				bveSoundBaseResource,
+				legacySpeedSoundBaseResource,
+				legacySpeedSoundCount,
+				legacyUseAccelerationSoundsWhenCoasting,
+				legacyConstantPlaybackSpeed,
+				legacyDoorSoundBaseResource,
+				legacyDoorCloseSoundTime,
+				resourceProvider
+		);
+	}
+
+	void clean() {
+		models.forEach(VehicleModelWrapper::clean);
 	}
 }

@@ -1,7 +1,21 @@
-@if (isLoading()) {
+@if (getStatus() === "loading") {
 	<div class="column center wrapper">
 		<div class="spacing"></div>
 		<mat-spinner class="middle-content"/>
+		<div class="spacing"></div>
+	</div>
+} @else if (getStatus() === "error") {
+	<div class="column gap center wrapper">
+		<div class="spacing"></div>
+		<div class="column gap-small center">
+			<mat-icon class="warning-icon">warning</mat-icon>
+			<h2>Connection Failed</h2>
+			<div>Is your Minecraft world open?</div>
+		</div>
+		<button mat-button (click)="retry()">
+			<mat-icon>refresh</mat-icon>
+			Retry
+		</button>
 		<div class="spacing"></div>
 	</div>
 } @else {

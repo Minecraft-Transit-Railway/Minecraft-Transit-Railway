@@ -1,17 +1,15 @@
 import {Injectable} from "@angular/core";
 import {ResourceWrapper} from "../entity/generated/resourceWrapper";
 import {HttpClient} from "@angular/common/http";
+import {catchError, EMPTY, Observable} from "rxjs";
 
 @Injectable({providedIn: "root"})
 export class DataService {
 	private resourceWrapper?: ResourceWrapper;
-	private loading = true;
+	private status: "loading" | "ok" | "error" = "loading";
 
-	constructor(private httpClient: HttpClient) {
-		this.httpClient.get<ResourceWrapper>(DataService.getUrl("operation/refresh")).subscribe(data => {
-			this.resourceWrapper = data;
-			this.loading = false;
-		});
+	constructor(private readonly httpClient: HttpClient) {
+		this.sendGetRequest("operation/refresh");
 	}
 
 	public update() {
@@ -19,21 +17,29 @@ export class DataService {
 			const resourceWrapperCopy: ResourceWrapper = JSON.parse(JSON.stringify(this.resourceWrapper));
 			resourceWrapperCopy.minecraftModelResources.length = 0;
 			resourceWrapperCopy.minecraftTextureResources.length = 0;
-			this.httpClient.post<ResourceWrapper>(DataService.getUrl("operation/update"), resourceWrapperCopy, {headers: {"content-type": "text/plain"}}).subscribe(data => this.resourceWrapper = data);
+			this.sendPostRequest("operation/update", resourceWrapperCopy, "text/plain");
 		}
 	}
 
-	public upload(data: ResourceWrapper) {
-		this.resourceWrapper = data;
+	public create() {
+		this.resourceWrapper = new ResourceWrapper();
 	}
 
 	public reset() {
 		this.resourceWrapper = undefined;
-		this.httpClient.get(DataService.getUrl("upload/reset")).subscribe();
+		this.sendGetRequest("upload/reset");
 	}
 
-	public preview() {
-		this.httpClient.get(DataService.getUrl("operation/preview")).subscribe();
+	public preview(openDoors: boolean) {
+		this.sendGetRequest(`operation/preview?doors=${openDoors ? "open" : "close"}`);
+	}
+
+	public reload() {
+		this.sendGetRequest("operation/force-reload");
+	}
+
+	public resumeGame() {
+		this.sendGetRequest("operation/resume-game");
 	}
 
 	public vehicles() {
@@ -56,12 +62,37 @@ export class DataService {
 		return this.resourceWrapper?.minecraftTextureResources ?? [];
 	}
 
-	public isLoading() {
-		return this.loading;
+	public getStatus() {
+		return this.status;
 	}
 
 	public hasData() {
 		return !!this.resourceWrapper;
+	}
+
+	public isMinecraftPaused() {
+		return this.resourceWrapper?.isMinecraftPaused ?? true;
+	}
+
+	public sendGetRequest(endpoint: string, callback?: () => void) {
+		this.sendRequest(this.httpClient.get<ResourceWrapper>(DataService.getUrl(endpoint)), callback);
+	}
+
+	public sendPostRequest(endpoint: string, body: any, contentType?: string, callback?: () => void) {
+		this.sendRequest(this.httpClient.post<ResourceWrapper>(DataService.getUrl(endpoint), body, contentType ? {headers: {"content-type": contentType}} : undefined), callback);
+	}
+
+	private sendRequest(request: Observable<ResourceWrapper>, callback?: () => void) {
+		request.pipe(catchError(() => {
+			this.status = "error";
+			return EMPTY;
+		})).subscribe(data => {
+			this.status = "ok";
+			this.resourceWrapper = data;
+			if (callback) {
+				callback();
+			}
+		});
 	}
 
 	public static getUrl(endpoint: string) {

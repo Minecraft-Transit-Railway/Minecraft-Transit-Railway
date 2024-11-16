@@ -5,7 +5,7 @@ import org.mtr.mapping.mapper.MovingSoundInstanceExtension;
 
 public class VehicleLoopingSoundInstance extends MovingSoundInstanceExtension {
 
-	private int coolDown;
+	private int cooldown;
 	private static final int MAX_DISTANCE = 64;
 
 	public VehicleLoopingSoundInstance(SoundEvent event) {
@@ -17,7 +17,7 @@ public class VehicleLoopingSoundInstance extends MovingSoundInstanceExtension {
 	}
 
 	public void setData(float volume, float pitch, BlockPos blockPos) {
-		coolDown = 20;
+		cooldown = 20;
 		setPitch(pitch == 0 ? 1 : pitch);
 		setVolume(volume);
 
@@ -37,10 +37,10 @@ public class VehicleLoopingSoundInstance extends MovingSoundInstanceExtension {
 
 	@Override
 	public void tick2() {
-		if (coolDown == 0) {
+		if (cooldown == 0) {
 			setDone2();
 		} else {
-			coolDown--;
+			cooldown--;
 		}
 	}
 

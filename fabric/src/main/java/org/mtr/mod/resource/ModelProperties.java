@@ -69,6 +69,68 @@ public final class ModelProperties extends ModelPropertiesSchema {
 		barrierOuterBottomTexture = null;
 	}
 
+	ModelProperties(
+			ObjectArrayList<ModelPropertiesPart> parts,
+			double modelYOffset,
+			String gangwayInnerSideResource,
+			String gangwayInnerTopResource,
+			String gangwayInnerBottomResource,
+			String gangwayOuterSideResource,
+			String gangwayOuterTopResource,
+			String gangwayOuterBottomResource,
+			double gangwayWidth,
+			double gangwayHeight,
+			double gangwayYOffset,
+			double gangwayZOffset,
+			String barrierInnerSideResource,
+			String barrierInnerTopResource,
+			String barrierInnerBottomResource,
+			String barrierOuterSideResource,
+			String barrierOuterTopResource,
+			String barrierOuterBottomResource,
+			double barrierWidth,
+			double barrierHeight,
+			double barrierYOffset,
+			double barrierZOffset
+	) {
+		super(
+				modelYOffset,
+				gangwayInnerSideResource,
+				gangwayInnerTopResource,
+				gangwayInnerBottomResource,
+				gangwayOuterSideResource,
+				gangwayOuterTopResource,
+				gangwayOuterBottomResource,
+				gangwayWidth,
+				gangwayHeight,
+				gangwayYOffset,
+				gangwayZOffset,
+				barrierInnerSideResource,
+				barrierInnerTopResource,
+				barrierInnerBottomResource,
+				barrierOuterSideResource,
+				barrierOuterTopResource,
+				barrierOuterBottomResource,
+				barrierWidth,
+				barrierHeight,
+				barrierYOffset,
+				barrierZOffset
+		);
+		this.parts.addAll(parts);
+		gangwayInnerSideTexture = CustomResourceTools.formatIdentifier(gangwayInnerSideResource, "png");
+		gangwayInnerTopTexture = CustomResourceTools.formatIdentifier(gangwayInnerTopResource, "png");
+		gangwayInnerBottomTexture = CustomResourceTools.formatIdentifier(gangwayInnerBottomResource, "png");
+		gangwayOuterSideTexture = CustomResourceTools.formatIdentifier(gangwayOuterSideResource, "png");
+		gangwayOuterTopTexture = CustomResourceTools.formatIdentifier(gangwayOuterTopResource, "png");
+		gangwayOuterBottomTexture = CustomResourceTools.formatIdentifier(gangwayOuterBottomResource, "png");
+		barrierInnerSideTexture = CustomResourceTools.formatIdentifier(barrierInnerSideResource, "png");
+		barrierInnerTopTexture = CustomResourceTools.formatIdentifier(barrierInnerTopResource, "png");
+		barrierInnerBottomTexture = CustomResourceTools.formatIdentifier(barrierInnerBottomResource, "png");
+		barrierOuterSideTexture = CustomResourceTools.formatIdentifier(barrierOuterSideResource, "png");
+		barrierOuterTopTexture = CustomResourceTools.formatIdentifier(barrierOuterTopResource, "png");
+		barrierOuterBottomTexture = CustomResourceTools.formatIdentifier(barrierOuterBottomResource, "png");
+	}
+
 	public void iterateParts(Consumer<ModelPropertiesPart> consumer) {
 		parts.forEach(consumer);
 	}

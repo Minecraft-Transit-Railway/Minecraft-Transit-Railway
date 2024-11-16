@@ -43,6 +43,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -343,6 +344,10 @@ public final class Init implements Utilities {
 
 	public static void createWebserverSetup(Consumer<Webserver> webserverSetup) {
 		Init.webserverSetup = webserverSetup;
+	}
+
+	public static String randomString() {
+		return Integer.toHexString(new Random().nextInt());
 	}
 
 	private static void generateOrClearDepotsFromCommand(CommandBuilder<?> commandBuilder, boolean isGenerate) {

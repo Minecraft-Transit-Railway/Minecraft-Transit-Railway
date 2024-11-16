@@ -16,10 +16,7 @@ import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.resource.BlockbenchModel;
-import org.mtr.mod.resource.ModelWrapper;
-import org.mtr.mod.resource.ResourceWrapper;
-import org.mtr.mod.resource.VehicleResourceWrapper;
+import org.mtr.mod.resource.*;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -30,7 +27,6 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 
 	private static final Object2ObjectAVLTreeMap<String, String> MODELS = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<String, byte[]> TEXTURES = new Object2ObjectAVLTreeMap<>();
-	private static final Object2ObjectAVLTreeMap<String, Identifier> TEXTURE_ID_MAPPING = new Object2ObjectAVLTreeMap<>();
 
 	@Override
 	protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
@@ -40,10 +36,11 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 		switch (httpServletRequest.getPathInfo()) {
 			case "/reset":
 				reset();
-				AbstractResourcePackCreatorServlet.returnStandardResponse(httpServletResponse, asyncContext);
+				MinecraftClient.getInstance().execute(CustomResourceLoader::reload);
+				returnStandardResponse(httpServletResponse, asyncContext, true);
 				break;
 			default:
-				AbstractResourcePackCreatorServlet.returnErrorResponse(httpServletResponse, asyncContext);
+				returnErrorResponse(httpServletResponse, asyncContext);
 				break;
 		}
 	}
@@ -62,23 +59,25 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 				uploadResource(httpServletRequest, httpServletResponse, asyncContext);
 				break;
 			default:
-				AbstractResourcePackCreatorServlet.returnErrorResponse(httpServletResponse, asyncContext);
+				returnErrorResponse(httpServletResponse, asyncContext);
 				break;
 		}
 	}
 
+	static String getModel(String name) {
+		return MODELS.get(name);
+	}
+
 	private static void reset() {
-		final ObjectArrayList<Identifier> texturesToDestroy = new ObjectArrayList<>();
-		texturesToDestroy.addAll(TEXTURE_ID_MAPPING.values());
-		AbstractResourcePackCreatorServlet.resourceWrapper = null;
+		final ObjectArrayList<String> texturesToDestroy = new ObjectArrayList<>(TEXTURES.keySet());
+		resourceWrapper = null;
 		MODELS.clear();
 		TEXTURES.clear();
-		TEXTURE_ID_MAPPING.clear();
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		minecraftClient.execute(() -> texturesToDestroy.forEach(texture -> {
 			try {
-				minecraftClient.getTextureManager().destroyTexture(texture);
+				minecraftClient.getTextureManager().destroyTexture(new Identifier(texture));
 			} catch (Exception e) {
 				Init.LOGGER.error("", e);
 			}
@@ -92,12 +91,14 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 				JsonObject customResourcesObject = null;
 				final Object2ObjectAVLTreeMap<String, String> jsonCache = new Object2ObjectAVLTreeMap<>();
 				final ObjectArrayList<Runnable> resourceUploadTasks = new ObjectArrayList<>();
+				String lastNameRead = "";
 
 				try (final ZipInputStream zipInputStream = new ZipInputStream(part.getInputStream())) {
 					ZipEntry zipEntry;
 
 					while ((zipEntry = zipInputStream.getNextEntry()) != null) {
 						final String name = formatMinecraftResourceName(zipEntry.getName());
+						lastNameRead = name;
 						Init.LOGGER.debug("Reading {}", name);
 						final byte[] bytes = IOUtils.toByteArray(zipInputStream);
 						final String content = new String(bytes);
@@ -113,6 +114,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 						zipInputStream.closeEntry();
 					}
 				} catch (Exception e) {
+					Init.LOGGER.error("Processing {} failed; last successful file read was {}", part.getSubmittedFileName(), lastNameRead);
 					Init.LOGGER.error("", e);
 				}
 
@@ -122,20 +124,20 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 
 				final ObjectArrayList<VehicleResourceWrapper> vehicles = new ObjectArrayList<>();
 				CustomResourcesConverter.convert(customResourcesObject, identifier -> jsonCache.getOrDefault(identifier.data.toString(), ResourceManagerHelper.readResource(identifier))).iterateVehicles(vehicleResource -> vehicles.add(vehicleResource.toVehicleResourceWrapper()));
-				AbstractResourcePackCreatorServlet.resourceWrapper = new ResourceWrapper(vehicles, new ObjectArrayList<>(), new ObjectArrayList<>(), CustomResourceLoader.getMinecraftModelResources(), CustomResourceLoader.getTextureResources());
+				resourceWrapper = new ResourceWrapper(vehicles, new ObjectArrayList<>(), new ObjectArrayList<>(), CustomResourceLoader.getMinecraftModelResources(), CustomResourceLoader.getTextureResources());
 				resourceUploadTasks.forEach(Runnable::run);
-				AbstractResourcePackCreatorServlet.returnStandardResponse(httpServletResponse, asyncContext);
+				returnStandardResponse(httpServletResponse, asyncContext, true);
 				return;
 			}
 		} catch (Exception e) {
 			Init.LOGGER.error("", e);
 		}
 
-		AbstractResourcePackCreatorServlet.returnErrorResponse(httpServletResponse, asyncContext);
+		returnErrorResponse(httpServletResponse, asyncContext);
 	}
 
 	private static void uploadResource(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AsyncContext asyncContext) {
-		if (AbstractResourcePackCreatorServlet.resourceWrapper != null) {
+		if (resourceWrapper != null) {
 			try {
 				for (final Part part : httpServletRequest.getParts()) {
 					try (final InputStream inputStream = part.getInputStream()) {
@@ -145,23 +147,23 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 						Init.LOGGER.error("", e);
 					}
 				}
-				AbstractResourcePackCreatorServlet.returnStandardResponse(httpServletResponse, asyncContext);
+				returnStandardResponse(httpServletResponse, asyncContext, true);
 				return;
 			} catch (Exception e) {
 				Init.LOGGER.error("", e);
 			}
 		}
 
-		AbstractResourcePackCreatorServlet.returnErrorResponse(httpServletResponse, asyncContext);
+		returnErrorResponse(httpServletResponse, asyncContext);
 	}
 
 	private static void uploadResource(String name, byte[] bytes, String content) {
-		if (AbstractResourcePackCreatorServlet.resourceWrapper != null) {
+		if (resourceWrapper != null) {
 			if (name.endsWith(".png")) {
-				AbstractResourcePackCreatorServlet.resourceWrapper.addTextureResource(name);
+				resourceWrapper.addTextureResource(name);
 				TEXTURES.put(name, bytes);
-				final Identifier identifier = new Identifier(name);
 				try {
+					final Identifier identifier = new Identifier(name);
 					final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(bytes.length);
 					byteBuffer.put(bytes);
 					byteBuffer.rewind();
@@ -175,13 +177,15 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 					Init.LOGGER.error("", e);
 				}
 			} else if (name.endsWith(".bbmodel")) {
-				final BlockbenchModel blockbenchModel = new BlockbenchModel(new JsonReader(Utilities.parseJson(content)));
+				final String[] nameSplit = name.split("[^a-z0-9_]");
 				final ObjectArrayList<String> modelParts = new ObjectArrayList<>();
-				blockbenchModel.getOutlines().forEach(blockbenchOutline -> modelParts.add(blockbenchOutline.getName()));
-				AbstractResourcePackCreatorServlet.resourceWrapper.addModelResource(new ModelWrapper(name, modelParts));
-				MODELS.put(name, Utilities.getJsonObjectFromData(blockbenchModel).toString());
+				final JsonObject modelObject = Utilities.parseJson(content);
+				BlockbenchModelValidator.validate(modelObject, nameSplit[Math.max(0, nameSplit.length - 2)], null);
+				new BlockbenchModel(new JsonReader(modelObject)).getOutlines().forEach(blockbenchOutline -> modelParts.add(blockbenchOutline.getName()));
+				resourceWrapper.addModelResource(new ModelWrapper(name, modelParts));
+				MODELS.put(name, modelObject.toString());
 			} else if (name.endsWith(".obj")) {
-				AbstractResourcePackCreatorServlet.resourceWrapper.addModelResource(new ModelWrapper(name, new ObjectArrayList<>(OptimizedModel.ObjModel.loadModel(content, mtlString -> "", textureString -> new Identifier(""), null, true, false).keySet())));
+				resourceWrapper.addModelResource(new ModelWrapper(name, new ObjectArrayList<>(OptimizedModel.ObjModel.loadModel(content, mtlString -> "", textureString -> new Identifier(""), null, true, false).keySet())));
 				MODELS.put(name, content);
 			} else if (name.endsWith(".mtl")) {
 				MODELS.put(name, content);

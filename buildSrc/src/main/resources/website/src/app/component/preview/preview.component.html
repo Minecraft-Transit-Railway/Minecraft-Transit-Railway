@@ -1,8 +1,13 @@
 <div class="column gap">
-	<div>
-		<button mat-flat-button (click)="preview()">
-			<mat-icon>preview</mat-icon>
-			Preview
+	<mat-slide-toggle #toggle (change)="toggleDoors(toggle.checked)">Open Doors</mat-slide-toggle>
+	<div class="row gap-small center">
+		<button mat-button (click)="resumeGame()">
+			<mat-icon>hide_image</mat-icon>
+			Hide Minecraft Pause Screen
+		</button>
+		<button mat-button (click)="reload()">
+			<mat-icon>refresh</mat-icon>
+			Force Reload
 		</button>
 	</div>
 </div>

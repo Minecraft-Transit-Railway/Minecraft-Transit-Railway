@@ -4,10 +4,7 @@ import org.apache.commons.io.IOUtils;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Utilities;
 import org.mtr.legacy.resource.CustomResourcesConverter;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
@@ -35,7 +32,7 @@ public class CustomResourceLoader {
 
 	private static final Object2ObjectAVLTreeMap<String, String> RESOURCE_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, ObjectArrayList<VehicleResource>> VEHICLES = new Object2ObjectAVLTreeMap<>();
-	private static final Object2ObjectAVLTreeMap<TransportMode, Object2ObjectAVLTreeMap<String, VehicleResource>> VEHICLES_CACHE = new Object2ObjectAVLTreeMap<>();
+	private static final Object2ObjectAVLTreeMap<TransportMode, Object2ObjectAVLTreeMap<String, ObjectBooleanImmutablePair<VehicleResource>>> VEHICLES_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, Object2ObjectAVLTreeMap<String, Object2ObjectAVLTreeMap<String, ObjectArrayList<String>>>> VEHICLES_TAGS = new Object2ObjectAVLTreeMap<>();
 	private static final ObjectArrayList<SignResource> SIGNS = new ObjectArrayList<>();
 	private static final Object2ObjectAVLTreeMap<String, SignResource> SIGNS_CACHE = new Object2ObjectAVLTreeMap<>();
@@ -77,12 +74,7 @@ public class CustomResourceLoader {
 		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_ID + ".json"), inputStream -> {
 			try {
 				final CustomResources customResources = CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject(), CustomResourceLoader::readResource);
-				customResources.iterateVehicles(vehicleResource -> {
-					VEHICLES.get(vehicleResource.getTransportMode()).add(vehicleResource);
-					VEHICLES_CACHE.get(vehicleResource.getTransportMode()).put(vehicleResource.getId(), vehicleResource);
-					vehicleResource.collectTags(VEHICLES_TAGS.get(vehicleResource.getTransportMode()));
-					vehicleResource.writeMinecraftResource(MINECRAFT_MODEL_RESOURCES, MINECRAFT_TEXTURE_RESOURCES);
-				});
+				customResources.iterateVehicles(vehicleResource -> registerVehicle(vehicleResource, false));
 				customResources.iterateSigns(signResource -> {
 					SIGNS.add(signResource);
 					SIGNS_CACHE.put(signResource.getId(), signResource);
@@ -103,12 +95,7 @@ public class CustomResourceLoader {
 		// TODO temporary code for loading models pending migration
 		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_PENDING_MIGRATION_ID + ".json"), inputStream -> {
 			try {
-				CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject(), CustomResourceLoader::readResource).iterateVehicles(vehicleResource -> {
-					VEHICLES.get(vehicleResource.getTransportMode()).add(vehicleResource);
-					VEHICLES_CACHE.get(vehicleResource.getTransportMode()).put(vehicleResource.getId(), vehicleResource);
-					vehicleResource.collectTags(VEHICLES_TAGS.get(vehicleResource.getTransportMode()));
-					vehicleResource.writeMinecraftResource(MINECRAFT_MODEL_RESOURCES, MINECRAFT_TEXTURE_RESOURCES);
-				});
+				CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject(), CustomResourceLoader::readResource).iterateVehicles(vehicleResource -> registerVehicle(vehicleResource, false));
 			} catch (Exception e) {
 				Init.LOGGER.error("", e);
 			}
@@ -135,6 +122,30 @@ public class CustomResourceLoader {
 		VEHICLES.get(transportMode).forEach(consumer);
 	}
 
+	public static void clearCustomVehicles() {
+		for (final TransportMode transportMode : TransportMode.values()) {
+			final ObjectArrayList<String> vehicleIdsToRemove = new ObjectArrayList<>();
+			VEHICLES_CACHE.get(transportMode).values().forEach(vehicleResourceDetails -> {
+				if (vehicleResourceDetails.rightBoolean()) {
+					final VehicleResource vehicleResource = vehicleResourceDetails.left();
+					vehicleIdsToRemove.add(vehicleResource.getId());
+					VEHICLES.get(transportMode).remove(vehicleResource);
+					VEHICLES_TAGS.get(transportMode).remove(vehicleResource.getId());
+				}
+			});
+			vehicleIdsToRemove.forEach(vehicleId -> VEHICLES_CACHE.get(transportMode).remove(vehicleId));
+		}
+	}
+
+	/**
+	 * For registering preview vehicles from the Resource Pack Creator
+	 *
+	 * @param vehicleResource the vehicle to register
+	 */
+	public static void registerVehicle(VehicleResource vehicleResource) {
+		registerVehicle(vehicleResource, true);
+	}
+
 	public static void getVehicleByIndex(TransportMode transportMode, int index, Consumer<VehicleResource> ifPresent) {
 		if (index >= 0) {
 			final VehicleResource vehicleResource = Utilities.getElement(VEHICLES.get(transportMode), index);
@@ -144,10 +155,10 @@ public class CustomResourceLoader {
 		}
 	}
 
-	public static void getVehicleById(TransportMode transportMode, String vehicleId, Consumer<VehicleResource> ifPresent) {
-		final VehicleResource vehicleResource = VEHICLES_CACHE.get(transportMode).get(vehicleId);
-		if (vehicleResource != null) {
-			ifPresent.accept(vehicleResource);
+	public static void getVehicleById(TransportMode transportMode, String vehicleId, Consumer<ObjectBooleanImmutablePair<VehicleResource>> ifPresent) {
+		final ObjectBooleanImmutablePair<VehicleResource> vehicleResourceDetails = VEHICLES_CACHE.get(transportMode).get(vehicleId);
+		if (vehicleResourceDetails != null) {
+			ifPresent.accept(vehicleResourceDetails);
 		}
 	}
 
@@ -200,6 +211,15 @@ public class CustomResourceLoader {
 
 	public static ObjectArrayList<String> getTextureResources() {
 		return new ObjectArrayList<>(MINECRAFT_TEXTURE_RESOURCES);
+	}
+
+	private static void registerVehicle(VehicleResource vehicleResource, boolean fromResourcePackCreator) {
+		VEHICLES.get(vehicleResource.getTransportMode()).add(vehicleResource);
+		VEHICLES_CACHE.get(vehicleResource.getTransportMode()).put(vehicleResource.getId(), new ObjectBooleanImmutablePair<>(vehicleResource, fromResourcePackCreator));
+		vehicleResource.collectTags(VEHICLES_TAGS.get(vehicleResource.getTransportMode()));
+		if (!fromResourcePackCreator) {
+			vehicleResource.writeMinecraftResource(MINECRAFT_MODEL_RESOURCES, MINECRAFT_TEXTURE_RESOURCES);
+		}
 	}
 
 	private static String readResource(Identifier identifier) {

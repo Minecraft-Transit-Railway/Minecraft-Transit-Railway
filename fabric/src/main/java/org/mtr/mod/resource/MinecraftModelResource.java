@@ -14,6 +14,10 @@ public final class MinecraftModelResource extends MinecraftModelResourceSchema {
 		updateData(readerBase);
 	}
 
+	public boolean matchesModelResource(String modelResource) {
+		return this.modelResource.equals(modelResource);
+	}
+
 	@Override
 	public boolean equals(Object object) {
 		if (object instanceof MinecraftModelResource) {

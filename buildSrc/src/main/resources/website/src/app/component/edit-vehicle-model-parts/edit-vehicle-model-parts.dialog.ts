@@ -17,14 +17,14 @@ const MAIN_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPar
 	{id: "positions", title: "Positions", formatData: modelPropertiesPart => modelPropertiesPart.positionDefinition.positions.map(({x, y, z}) => `(${x}, ${y}, ${z})`).join("\n")},
 	{id: "positionsFlipped", title: "Flipped Positions", formatData: modelPropertiesPart => modelPropertiesPart.positionDefinition.positionsFlipped.map(({x, y, z}) => `(${x}, ${y}, ${z})`).join("\n")},
 	{id: "condition", title: "Condition", formatData: modelPropertiesPart => modelPropertiesPart.condition === "NORMAL" ? "" : modelPropertiesPart.condition},
-	{id: "renderStage", title: "Render Stage", formatData: modelPropertiesPart => modelPropertiesPart.renderStage},
+	{id: "renderStage", title: "Render Stage", formatData: modelPropertiesPart => modelPropertiesPart.type === "NORMAL" ? modelPropertiesPart.renderStage : ""},
 	{id: "type", title: "Type", formatData: modelPropertiesPart => modelPropertiesPart.type},
 ];
 
 const DOOR_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPart: ModelPropertiesPartWrapper) => string }[] = [
-	{id: "doorXMultiplier", title: "Door X Multiplier", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier > 0 || modelPropertiesPart.doorZMultiplier > 0 ? modelPropertiesPart.doorXMultiplier.toString() : ""},
-	{id: "doorZMultiplier", title: "Door Z Multiplier", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier > 0 || modelPropertiesPart.doorZMultiplier > 0 ? modelPropertiesPart.doorZMultiplier.toString() : ""},
-	{id: "doorAnimationType", title: "Door Animation", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier > 0 || modelPropertiesPart.doorZMultiplier > 0 ? modelPropertiesPart.doorAnimationType : ""},
+	{id: "doorXMultiplier", title: "Door X Multiplier", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier !== 0 || modelPropertiesPart.doorZMultiplier !== 0 ? modelPropertiesPart.doorXMultiplier.toString() : ""},
+	{id: "doorZMultiplier", title: "Door Z Multiplier", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier !== 0 || modelPropertiesPart.doorZMultiplier !== 0 ? modelPropertiesPart.doorZMultiplier.toString() : ""},
+	{id: "doorAnimationType", title: "Door Animation", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier !== 0 || modelPropertiesPart.doorZMultiplier !== 0 ? modelPropertiesPart.doorAnimationType : ""},
 ];
 
 const DISPLAY_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPart: ModelPropertiesPartWrapper) => string }[] = [
@@ -93,6 +93,7 @@ export class EditVehicleModelPartsDialog {
 		this.hasSeat = false;
 		this.hasDisplay = false;
 		let showDoorColumns = false;
+		let showDisplayColumns = false;
 		const newData = this.formGroup.getRawValue();
 		this.model.parts.forEach(modelPropertiesPart => {
 			if (this.modelPartNames.includes(modelPropertiesPart.positionDefinition.name)) {
@@ -105,18 +106,21 @@ export class EditVehicleModelPartsDialog {
 					if (modelPropertiesPart.doorXMultiplier > 0 || modelPropertiesPart.doorZMultiplier > 0) {
 						showDoorColumns = true;
 					}
-					if (isNormal) {
-						this.hasNormal = true;
-					}
-					if (isFloorOrDoorway) {
-						this.hasFloorOrDoorway = true;
-					}
-					if (isSeat) {
-						this.hasSeat = true;
-					}
 					if (isDisplay) {
-						this.hasDisplay = true;
+						showDisplayColumns = true;
 					}
+				}
+				if (isNormal) {
+					this.hasNormal = true;
+				}
+				if (isFloorOrDoorway) {
+					this.hasFloorOrDoorway = true;
+				}
+				if (isSeat) {
+					this.hasSeat = true;
+				}
+				if (isDisplay) {
+					this.hasDisplay = true;
 				}
 			}
 		});
@@ -126,7 +130,7 @@ export class EditVehicleModelPartsDialog {
 		if (showDoorColumns) {
 			DOOR_COLUMNS.forEach(({id}) => this.displayedColumnNames.push(id));
 		}
-		if (this.hasDisplay) {
+		if (showDisplayColumns) {
 			DISPLAY_COLUMNS.forEach(({id}) => this.displayedColumnNames.push(id));
 		}
 		this.displayedColumnNames.push("controls");
@@ -141,11 +145,13 @@ export class EditVehicleModelPartsDialog {
 	}
 
 	edit(modelPropertiesPart: ModelPropertiesPartWrapper) {
-		this.dialog.open(EditVehicleModelPartDialog, {data: modelPropertiesPart}).afterClosed().subscribe(() => this.filterData());
+		this.dialog.open(EditVehicleModelPartDialog, {data: {model: this.model, modelPropertiesPart}}).afterClosed().subscribe(() => this.filterData());
 	}
 
-	delete() {
-
+	delete(modelPropertiesPart: ModelPropertiesPartWrapper) {
+		modelPropertiesPart.positionDefinition.name = "";
+		this.filterData();
+		this.dataService.update();
 	}
 
 	onClose() {

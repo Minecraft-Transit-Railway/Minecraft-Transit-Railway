@@ -1,5 +1,4 @@
 import {Component, Input} from "@angular/core";
-import {HttpClient} from "@angular/common/http";
 import {MatButtonModule} from "@angular/material/button";
 import {MatIconModule} from "@angular/material/icon";
 import {MatSliderModule} from "@angular/material/slider";
@@ -27,9 +26,8 @@ export class SoundComponent {
 	private previouslySentValue = -1;
 	private canSend = true;
 	private playingTimeoutId?: number;
-	private isMinecraftPaused = false;
 
-	constructor(private readonly httpClient: HttpClient) {
+	constructor(private readonly dataService: DataService) {
 	}
 
 	playSound(valueString?: string) {
@@ -54,12 +52,12 @@ export class SoundComponent {
 	}
 
 	getIsMinecraftPaused() {
-		return this.isMinecraftPaused;
+		return this.dataService.isMinecraftPaused();
 	}
 
 	private send() {
 		if (this.canSend && this.previouslySentValue != this.sliderValue) {
-			this.httpClient.get<{ paused: boolean }>(DataService.getUrl(`operation/play-sound?${this.parameters}&id=${this.soundId}&value=${this.sliderValue}`)).subscribe(({paused}) => this.isMinecraftPaused = paused);
+			this.dataService.sendGetRequest(`operation/play-sound?${this.parameters}&id=${this.soundId}&value=${this.sliderValue}`);
 			this.canSend = false;
 			this.previouslySentValue = this.sliderValue;
 			setTimeout(() => {

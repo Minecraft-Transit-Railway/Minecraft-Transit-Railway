@@ -52,6 +52,50 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		displayColorCjkInt = 0;
 	}
 
+	ModelPropertiesPart(
+			ObjectArrayList<String> names,
+			ObjectArrayList<String> positionDefinitions,
+			PartCondition condition,
+			RenderStage renderStage,
+			PartType type,
+			double displayXPadding,
+			double displayYPadding,
+			String displayColorCjk,
+			String displayColor,
+			double displayMaxLineHeight,
+			double displayCjkSizeRatio,
+			ObjectArrayList<String> displayOptions,
+			double displayPadZeros,
+			DisplayType displayType,
+			String displayDefaultText,
+			double doorXMultiplier,
+			double doorZMultiplier,
+			DoorAnimationType doorAnimationType
+	) {
+		super(
+				condition,
+				renderStage,
+				type,
+				displayXPadding,
+				displayYPadding,
+				displayColorCjk,
+				displayColor,
+				displayMaxLineHeight,
+				displayCjkSizeRatio,
+				displayPadZeros,
+				displayType,
+				displayDefaultText,
+				doorXMultiplier,
+				doorZMultiplier,
+				doorAnimationType
+		);
+		this.names.addAll(names);
+		this.positionDefinitions.addAll(positionDefinitions);
+		this.displayOptions.addAll(displayOptions);
+		displayColorInt = parseColor(displayColor, 0xFF9900);
+		displayColorCjkInt = parseColor(displayColorCjk, displayColorInt);
+	}
+
 	/**
 	 * Maps each part name to the corresponding part and collects all floors, doors, and doorways for processing later.
 	 * Writes to the collective vehicle model parts (one with doors, one without doors).
@@ -210,6 +254,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				displayColor,
 				displayMaxLineHeight,
 				displayCjkSizeRatio,
+				displayOptions,
 				displayPadZeros,
 				displayType,
 				displayDefaultText,
@@ -253,7 +298,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			final boolean canOpenDoors = openDoorways.contains(partDetails.doorway);
 			final float x = (float) (partDetails.x + (vehicle == null ? 0 : doorAnimationType.getDoorAnimationX(doorXMultiplier, partDetails.flipped, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0)));
 			final float y = (float) partDetails.y;
-			final float z = (float) (partDetails.z + (vehicle == null ? 0 : doorAnimationType.getDoorAnimationZ(doorZMultiplier, partDetails.flipped, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0, vehicle.vehicleExtraData.getDoorMultiplier() > 0)));
+			final float z = (float) (partDetails.z + (vehicle == null ? 0 : doorAnimationType.getDoorAnimationZ(doorZMultiplier, partDetails.flipped, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0, vehicle.persistentVehicleData.getAdjustedDoorMultiplier(vehicle.vehicleExtraData) > 0)));
 
 			if (OptimizedRenderer.hasOptimizedRendering()) {
 				// If doors are open, only render the optimized door parts

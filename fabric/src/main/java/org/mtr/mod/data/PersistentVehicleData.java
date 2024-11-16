@@ -20,7 +20,8 @@ public final class PersistentVehicleData {
 	private double doorValue;
 	private double oldDoorValue;
 	private double nextAnnouncementRailProgress;
-	private int doorCoolDown;
+	private int doorCooldown;
+	private int overrideDoorMultiplier;
 
 	public final boolean[] rayTracing;
 	public final double[] longestDimensions;
@@ -48,12 +49,14 @@ public final class PersistentVehicleData {
 
 	public void tick(double railProgress, long millisElapsed, VehicleExtraData vehicleExtraData) {
 		oldDoorValue = doorValue;
-		doorValue = Utilities.clamp(doorValue + (double) (millisElapsed * vehicleExtraData.getDoorMultiplier()) / Vehicle.DOOR_MOVE_TIME, 0, 1);
+		doorValue = Utilities.clamp(doorValue + (double) (millisElapsed * getAdjustedDoorMultiplier(vehicleExtraData)) / Vehicle.DOOR_MOVE_TIME, 0, 1);
 		if (checkCanOpenDoors()) {
-			doorCoolDown--;
+			doorCooldown--;
+		} else {
+			overrideDoorMultiplier = 0;
 		}
 		if (doorValue > 0) {
-			doorCoolDown = 2;
+			doorCooldown = 2;
 			nextAnnouncementRailProgress = railProgress + vehicleExtraData.getTotalVehicleLength() * 1.5;
 		}
 		oscillations.forEach(oscillation -> oscillation.tick(millisElapsed));
@@ -64,7 +67,23 @@ public final class PersistentVehicleData {
 	}
 
 	public boolean checkCanOpenDoors() {
-		return doorCoolDown > 0;
+		return doorCooldown > 0;
+	}
+
+	/**
+	 * Get the actual door value, including any overridden value, for example when debugging a train from the Resource Pack Creator.
+	 */
+	public int getAdjustedDoorMultiplier(VehicleExtraData vehicleExtraData) {
+		return overrideDoorMultiplier != 0 ? overrideDoorMultiplier : vehicleExtraData.getDoorMultiplier();
+	}
+
+	/**
+	 * Override the door value, for example when debugging a train from the Resource Pack Creator. This must be called every tick.
+	 *
+	 * @param overrideDoorMultiplier {@code 1} for open and {@code -1} for close
+	 */
+	public void overrideDoorMultiplier(int overrideDoorMultiplier) {
+		this.overrideDoorMultiplier = overrideDoorMultiplier;
 	}
 
 	public boolean canAnnounce(double oldRailProgress, double railProgress) {

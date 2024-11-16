@@ -6,7 +6,6 @@ import {UploaderComponent} from "../uploader/uploader.component";
 import {MatTooltipModule} from "@angular/material/tooltip";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {DataService} from "../../service/data.service";
-import {ResourceWrapper} from "../../entity/generated/resourceWrapper";
 
 @Component({
 	standalone: true,
@@ -34,13 +33,12 @@ export class ManageResourcesDialog {
 		[this.listMinecraftCount, this.idListMinecraftFlattened] = ManageResourcesDialog.updateIdLists(this.data.listMinecraftSupplier);
 	}
 
-	upload(data: ResourceWrapper) {
-		this.dataService.upload(data);
+	upload() {
 		[this.listCustomCount, this.idListCustomFlattened] = ManageResourcesDialog.updateIdLists(this.data.listCustomSupplier);
 		[this.listMinecraftCount, this.idListMinecraftFlattened] = ManageResourcesDialog.updateIdLists(this.data.listMinecraftSupplier);
 	}
 
-	validateFiles(fileNames: string[][]) {
+	validateFiles(fileNames: [string, string][]) {
 		const matchingPairsObj: string[] = [];
 		const matchingPairsMtl: string[] = [];
 		fileNames.forEach(([fileName, fileExtension]) => {

@@ -3,10 +3,7 @@ import {MatButtonModule} from "@angular/material/button";
 import {MatIconModule} from "@angular/material/icon";
 import {MatDialog, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {DataService} from "../../service/data.service";
-import {MatFormField, MatLabel} from "@angular/material/form-field";
-import {MatInput} from "@angular/material/input";
 import {UploaderComponent} from "../uploader/uploader.component";
-import {ResourceWrapper} from "../../entity/generated/resourceWrapper";
 
 @Component({
 	selector: "app-prepare",
@@ -14,9 +11,6 @@ import {ResourceWrapper} from "../../entity/generated/resourceWrapper";
 	imports: [
 		MatButtonModule,
 		MatIconModule,
-		MatFormField,
-		MatInput,
-		MatLabel,
 		UploaderComponent,
 	],
 	templateUrl: "./prepare.component.html",
@@ -30,13 +24,12 @@ export class PrepareComponent {
 	}
 
 	create() {
-		this.dataService.upload(new ResourceWrapper());
+		this.dataService.create();
 		this.dataService.update();
 		setTimeout(() => this.nextStep.emit(), 0);
 	}
 
-	upload(data: ResourceWrapper) {
-		this.dataService.upload(data);
+	upload() {
 		setTimeout(() => this.nextStep.emit(), 0);
 	}
 

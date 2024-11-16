@@ -6,6 +6,8 @@ import {DataService} from "./service/data.service";
 import {EditComponent} from "./component/edit/edit.component";
 import {PreviewComponent} from "./component/preview/preview.component";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import {MatIconModule} from "@angular/material/icon";
+import {MatButtonModule} from "@angular/material/button";
 
 @Component({
 	selector: "app-root",
@@ -13,6 +15,8 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 	imports: [
 		MatStepperModule,
 		MatProgressSpinnerModule,
+		MatButtonModule,
+		MatIconModule,
 		PrepareComponent,
 		FormsModule,
 		EditComponent,
@@ -30,7 +34,11 @@ export class AppComponent {
 		return this.dataService.hasData();
 	}
 
-	isLoading() {
-		return this.dataService.isLoading();
+	getStatus() {
+		return this.dataService.getStatus();
+	}
+
+	retry() {
+		document.location.reload();
 	}
 }

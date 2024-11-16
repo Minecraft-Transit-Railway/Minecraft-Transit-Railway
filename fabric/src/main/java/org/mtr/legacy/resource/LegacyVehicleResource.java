@@ -11,6 +11,7 @@ import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.Identifier;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.resource.ResourceProvider;
 import org.mtr.mod.resource.VehicleModel;
@@ -18,7 +19,6 @@ import org.mtr.mod.resource.VehicleResource;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 public final class LegacyVehicleResource extends VehicleResourceSchema {
@@ -39,7 +39,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				} else {
 					newBaseTrainType = String.format("%s_%s", base_train_type, variation.key);
 				}
-				CustomResourceLoader.getVehicleById(transportMode, newBaseTrainType, vehicleResource -> baseVehicleResource[0] = vehicleResource);
+				CustomResourceLoader.getVehicleById(transportMode, newBaseTrainType, vehicleResourceDetails -> baseVehicleResource[0] = vehicleResourceDetails.left());
 				if (baseVehicleResource[0] != null) {
 					break;
 				}
@@ -372,7 +372,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				partsObject.addProperty("doorXMultiplier", doorXMultiplier);
 				partsObject.addProperty("doorZMultiplier", (isObj ? -1 : 1) * doorZMultiplier);
 
-				final String positionDefinitionName = "definition_" + Integer.toHexString(new Random().nextInt());
+				final String positionDefinitionName = "definition_" + Init.randomString();
 				final JsonArray positionDefinitionPositionsArray = new JsonArray();
 				final JsonArray positionDefinitionPositionsFlippedArray = new JsonArray();
 				final JsonObject positionDefinitionObject = new JsonObject();
@@ -463,7 +463,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 	}
 
 	private static String[] splitWithEmptyStrings(String string, char token) {
-		final String filler = Integer.toHexString(new Random().nextInt());
+		final String filler = Init.randomString();
 		final String[] firstSplit = string.replace(String.valueOf(token), String.format("%1$s%2$s%1$s", filler, token)).split(("\\") + token);
 		final String[] finalSplit = new String[firstSplit.length];
 		for (int i = 0; i < firstSplit.length; i++) {

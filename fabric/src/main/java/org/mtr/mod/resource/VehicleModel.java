@@ -38,6 +38,27 @@ public final class VehicleModel extends VehicleModelSchema {
 		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader), id), MODEL_LIFESPAN);
 	}
 
+	VehicleModel(
+			String modelResource,
+			String textureResource,
+			String modelPropertiesResource,
+			String positionDefinitionsResource,
+			boolean flipTextureV,
+			ResourceProvider resourceProvider
+	) {
+		super(
+				modelResource,
+				textureResource,
+				modelPropertiesResource,
+				positionDefinitionsResource,
+				flipTextureV,
+				resourceProvider
+		);
+		modelPropertiesJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelPropertiesResource, "json"))));
+		positionDefinitionsJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(positionDefinitionsResource, "json"))));
+		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader), modelPropertiesResource), MODEL_LIFESPAN);
+	}
+
 	public MinecraftModelResource getAsMinecraftResource() {
 		return new MinecraftModelResource(modelResource, modelPropertiesResource, positionDefinitionsResource);
 	}

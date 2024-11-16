@@ -1,13 +1,15 @@
 import {Component} from "@angular/core";
-import {MatButtonModule} from "@angular/material/button";
 import {MatIconModule} from "@angular/material/icon";
 import {DataService} from "../../service/data.service";
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {MatButtonModule} from "@angular/material/button";
 
 @Component({
 	selector: "app-preview",
 	standalone: true,
 	imports: [
 		MatButtonModule,
+		MatSlideToggleModule,
 		MatIconModule,
 	],
 	templateUrl: "./preview.component.html",
@@ -15,10 +17,18 @@ import {DataService} from "../../service/data.service";
 })
 export class PreviewComponent {
 
-	constructor(private dataService: DataService) {
+	constructor(private readonly dataService: DataService) {
 	}
 
-	preview() {
-		this.dataService.preview();
+	toggleDoors(openDoors: boolean) {
+		this.dataService.preview(openDoors);
+	}
+
+	resumeGame() {
+		this.dataService.resumeGame();
+	}
+
+	reload() {
+		this.dataService.reload();
 	}
 }

@@ -1,9 +1,6 @@
 package org.mtr.mod.servlet;
 
 import org.mtr.core.serializer.JsonReader;
-import org.mtr.core.servlet.HttpResponseStatus;
-import org.mtr.core.servlet.ServletBase;
-import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.com.google.gson.JsonParser;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.javax.servlet.AsyncContext;
@@ -11,9 +8,11 @@ import org.mtr.libraries.javax.servlet.http.HttpServletRequest;
 import org.mtr.libraries.javax.servlet.http.HttpServletResponse;
 import org.mtr.mapping.holder.ClientPlayerEntity;
 import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mapping.holder.Screen;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.resource.ResourceWrapper;
+import org.mtr.mod.screen.FakePauseScreen;
 import org.mtr.mod.sound.BveVehicleSound;
 import org.mtr.mod.sound.BveVehicleSoundConfig;
 import org.mtr.mod.sound.LegacyVehicleSound;
@@ -30,18 +29,31 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 	private static float speed;
 	private static float targetSpeed;
 	private static float acceleration;
+	private static int doorMultiplier = -1;
 
 	@Override
 	protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 		final AsyncContext asyncContext = httpServletRequest.startAsync();
 		asyncContext.setTimeout(0);
+		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 
 		switch (httpServletRequest.getPathInfo()) {
 			case "/refresh":
-				returnStandardResponse(httpServletResponse, asyncContext);
+				returnStandardResponse(httpServletResponse, asyncContext, false);
 				break;
 			case "/play-sound":
 				playSound(httpServletRequest, httpServletResponse, asyncContext);
+				break;
+			case "/preview":
+				preview(httpServletRequest, httpServletResponse, asyncContext);
+				break;
+			case "/force-reload":
+				minecraftClient.execute(CustomResourceLoader::reload);
+				returnStandardResponse(httpServletResponse, asyncContext, true);
+				break;
+			case "/resume-game":
+				minecraftClient.execute(() -> minecraftClient.openScreen(new Screen(new FakePauseScreen())));
+				returnStandardResponse(httpServletResponse, asyncContext, false);
 				break;
 			default:
 				returnErrorResponse(httpServletResponse, asyncContext);
@@ -83,10 +95,16 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 		}
 	}
 
+	public static int getDoorMultiplier() {
+		return doorMultiplier;
+	}
+
 	private static void update(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AsyncContext asyncContext) {
 		try {
-			AbstractResourcePackCreatorServlet.resourceWrapper = new ResourceWrapper(new JsonReader(JsonParser.parseReader(httpServletRequest.getReader())), new ObjectArrayList<>(CustomResourceLoader.getMinecraftModelResources()), new ObjectArrayList<>(CustomResourceLoader.getTextureResources()));
-			returnStandardResponse(httpServletResponse, asyncContext);
+			httpServletRequest.setCharacterEncoding("UTF-8");
+			resourceWrapper = new ResourceWrapper(new JsonReader(JsonParser.parseReader(httpServletRequest.getReader())), new ObjectArrayList<>(CustomResourceLoader.getMinecraftModelResources()), new ObjectArrayList<>(CustomResourceLoader.getTextureResources()));
+			resourceWrapper.clean();
+			returnStandardResponse(httpServletResponse, asyncContext, true);
 		} catch (Exception e) {
 			Init.LOGGER.error("", e);
 			returnErrorResponse(httpServletResponse, asyncContext);
@@ -144,9 +162,18 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 			}
 		});
 
-		final JsonObject jsonObject = new JsonObject();
-		jsonObject.addProperty("paused", minecraftClient.isPaused());
-		ServletBase.sendResponse(httpServletResponse, asyncContext, jsonObject.toString(), "", HttpResponseStatus.OK);
+		returnStandardResponse(httpServletResponse, asyncContext, false);
+	}
+
+	private static void preview(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AsyncContext asyncContext) {
+		final String doors = httpServletRequest.getParameter("doors");
+		if ("open".equals(doors)) {
+			doorMultiplier = 1;
+		} else if ("close".equals(doors)) {
+			doorMultiplier = -1;
+		}
+
+		returnStandardResponse(httpServletResponse, asyncContext, false);
 	}
 
 	private static int parseInt(@Nullable String value) {

@@ -24,7 +24,7 @@ public final class PositionDefinition extends PositionDefinitionSchema {
 		this.positionsFlipped.addAll(positionsFlipped);
 	}
 
-	public String getName() {
+	String getName() {
 		return name;
 	}
 

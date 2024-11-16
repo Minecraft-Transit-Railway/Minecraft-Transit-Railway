@@ -7,3 +7,9 @@
 	overflow: hidden;
 	height: 100%;
 }
+
+.warning-icon {
+	font-size: 96px;
+	width: 96px;
+	height: 96px;
+}
