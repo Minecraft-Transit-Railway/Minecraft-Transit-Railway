@@ -7,6 +7,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.generated.resource.VehicleResourceSchema;
@@ -85,7 +86,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 			{true, true, true, true},
 	};
 
-	public VehicleResource(ReaderBase readerBase, @Nullable ObjectArrayList<VehicleModel> extraModels, @Nullable Box extraFloor, ObjectArrayList<Box> doorways, ResourceProvider resourceProvider) {
+	public VehicleResource(ReaderBase readerBase, @Nullable ObjectArrayList<VehicleModel> extraModels, ResourceProvider resourceProvider) {
 		super(readerBase, resourceProvider);
 		updateData(readerBase);
 
@@ -93,12 +94,12 @@ public final class VehicleResource extends VehicleResourceSchema {
 			models.addAll(extraModels);
 		}
 
-		cachedVehicleResource = cachedVehicleResourceInitializer(extraFloor, doorways);
+		cachedVehicleResource = cachedVehicleResourceInitializer();
 		createVehicleSoundBase = createVehicleSoundBaseInitializer();
 	}
 
 	public VehicleResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
-		this(readerBase, null, null, new ObjectArrayList<>(), resourceProvider);
+		this(readerBase, null, resourceProvider);
 	}
 
 	VehicleResource(
@@ -122,6 +123,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 			boolean hasGangway2,
 			boolean hasBarrier1,
 			boolean hasBarrier2,
+			double legacyRiderOffset,
 			String bveSoundBaseResource,
 			String legacySpeedSoundBaseResource,
 			long legacySpeedSoundCount,
@@ -148,6 +150,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 				hasGangway2,
 				hasBarrier1,
 				hasBarrier2,
+				legacyRiderOffset,
 				bveSoundBaseResource,
 				legacySpeedSoundBaseResource,
 				legacySpeedSoundCount,
@@ -161,7 +164,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 		this.models.addAll(models);
 		this.bogie1Models.addAll(bogie1Models);
 		this.bogie2Models.addAll(bogie2Models);
-		this.cachedVehicleResource = cachedVehicleResourceInitializer(null, new ObjectArrayList<>());
+		this.cachedVehicleResource = cachedVehicleResourceInitializer();
 		this.createVehicleSoundBase = createVehicleSoundBaseInitializer();
 	}
 
@@ -281,6 +284,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 				hasGangway2,
 				hasBarrier1,
 				hasBarrier2,
+				legacyRiderOffset,
 				bveSoundBaseResource,
 				legacySpeedSoundBaseResource,
 				legacySpeedSoundCount,
@@ -348,7 +352,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 		});
 	}
 
-	private CachedResource<VehicleResourceCache> cachedVehicleResourceInitializer(@Nullable Box extraFloor, ObjectArrayList<Box> doorways) {
+	private CachedResource<VehicleResourceCache> cachedVehicleResourceInitializer() {
 		return new CachedResource<>(() -> {
 			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
 
@@ -362,13 +366,9 @@ public final class VehicleResource extends VehicleResourceSchema {
 			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsBogie1Model = new Object2ObjectOpenHashMap<>();
 			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsBogie2Model = new Object2ObjectOpenHashMap<>();
 
-			if (extraFloor != null) {
-				floors.add(extraFloor);
-			}
-
-			final ObjectArrayList<Box> newDoorways = new ObjectArrayList<>(doorways);
-			forEachNonNull(models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(floors, newDoorways, materialGroupsModel, materialGroupsModelDoorsClosed, objModelsModel, objModelsModelDoorsClosed));
-			forEachNonNull(models, dynamicVehicleModel -> dynamicVehicleModel.modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.mapDoors(newDoorways)));
+			final ObjectArrayList<Box> doorways = new ObjectArrayList<>();
+			forEachNonNull(models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(floors, doorways, materialGroupsModel, materialGroupsModelDoorsClosed, objModelsModel, objModelsModelDoorsClosed));
+			forEachNonNull(models, dynamicVehicleModel -> dynamicVehicleModel.modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.mapDoors(doorways)));
 			forEachNonNull(bogie1Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie1Model, new Object2ObjectOpenHashMap<>(), objModelsBogie1Model));
 			forEachNonNull(bogie2Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie2Model, new Object2ObjectOpenHashMap<>(), objModelsBogie2Model));
 
@@ -377,8 +377,21 @@ public final class VehicleResource extends VehicleResourceSchema {
 			final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie1 = writeToOptimizedModels(materialGroupsBogie1Model, objModelsBogie1Model);
 			final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie2 = writeToOptimizedModels(materialGroupsBogie2Model, objModelsBogie2Model);
 
+			if (floors.isEmpty() && doorways.isEmpty()) {
+				Init.LOGGER.info("[{}] No floors or doorways found in vehicle models", id);
+				final double x1 = width / 2 + 0.25;
+				final double x2 = width / 2 + 0.5;
+				final double y = 1 + legacyRiderOffset;
+				final double z = length / 2 - 0.5;
+				floors.add(new Box(-x1, y, -z, x1, y, z));
+				for (double j = -z; j <= z + 0.001; j++) {
+					doorways.add(new Box(-x1, y, j, -x2, y, j + 1));
+					doorways.add(new Box(x1, y, j, x2, y, j + 1));
+				}
+			}
+
 			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
-			return new VehicleResourceCache(new ObjectImmutableList<>(floors), new ObjectImmutableList<>(newDoorways), optimizedModels, optimizedModelsDoorsClosed, optimizedModelsBogie1, optimizedModelsBogie2);
+			return new VehicleResourceCache(new ObjectImmutableList<>(floors), new ObjectImmutableList<>(doorways), optimizedModels, optimizedModelsDoorsClosed, optimizedModelsBogie1, optimizedModelsBogie2);
 		}, VehicleModel.MODEL_LIFESPAN);
 	}
 

@@ -20,21 +20,20 @@ public abstract class AbstractResourcePackCreatorServlet extends HttpServlet {
 
 	@Nullable
 	protected static ResourceWrapper resourceWrapper;
-	private static JsonObject vehiclesFlattened = new JsonObject();
 
 	protected static void returnStandardResponse(HttpServletResponse httpServletResponse, AsyncContext asyncContext, boolean refreshVehicles) {
 		if (resourceWrapper == null) {
 			ServletBase.sendResponse(httpServletResponse, asyncContext, String.valueOf((Object) null), "", HttpResponseStatus.OK);
 		} else {
-			resourceWrapper.updateMinecraftPausedStatus();
+			resourceWrapper.updateMinecraftInfo();
 			ServletBase.sendResponse(httpServletResponse, asyncContext, Utilities.getJsonObjectFromData(resourceWrapper).toString(), "", HttpResponseStatus.OK);
 			if (refreshVehicles) {
-				vehiclesFlattened = resourceWrapper.flatten();
+				final JsonObject vehiclesFlattened = resourceWrapper.flatten();
 				CustomResourceLoader.clearCustomVehicles();
 				MinecraftClient.getInstance().execute(() -> new ResourceWrapper(new JsonReader(vehiclesFlattened), new ObjectArrayList<>(), new ObjectArrayList<>()).iterateVehicles(vehicleResourceWrapper -> CustomResourceLoader.registerVehicle(vehicleResourceWrapper.toVehicleResource(identifier -> {
 					final String modelString = ResourcePackCreatorUploadServlet.getModel(identifier.data.toString());
 					return modelString == null ? ResourceManagerHelper.readResource(identifier) : modelString;
-				}))));
+				}, null, null))));
 			}
 		}
 	}

@@ -46,8 +46,9 @@ public final class ResourceWrapper extends ResourceWrapperSchema {
 		textureResources.add(textureResource);
 	}
 
-	public void updateMinecraftPausedStatus() {
+	public void updateMinecraftInfo() {
 		isMinecraftPaused = MinecraftClient.getInstance().isPaused();
+		exportDirectory = MinecraftClient.getInstance().getRunDirectoryMapped().getAbsolutePath().replace("\\", "/") + "/resourcepacks";
 	}
 
 	public void clean() {

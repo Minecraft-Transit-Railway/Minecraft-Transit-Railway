@@ -37,6 +37,9 @@
 		},
 		"isMinecraftPaused": {
 			"type": "boolean"
+		},
+		"exportDirectory": {
+			"type": "string"
 		}
 	}
 }

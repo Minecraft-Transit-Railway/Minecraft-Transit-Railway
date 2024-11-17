@@ -1,20 +1,27 @@
-<div class="column gap">
-	<div class="row gap center">
+<div class="column gap wrapper">
+	<div class="column center wrapper">
+		<div class="spacing"></div>
 		@if (hasData()) {
-			<button mat-button (click)="openResetDialog()">
-				<mat-icon>undo</mat-icon>
-				Reset Resource Pack Creator
-			</button>
+			<app-large-tile [clickable]="true" icon="undo" (click)="openResetDialog()">
+				<h2>Reset Resource Pack Creator</h2>
+				<div>This will clear all progress and unsaved changes.</div>
+			</app-large-tile>
 		} @else {
-			<button mat-flat-button [disabled]="uploader.getFileNames()" (click)="create()">
-				<mat-icon>add</mat-icon>
-				Create a New Resource Pack
-			</button>
-			<button mat-flat-button [disabled]="uploader.getFileNames()" (click)="uploader.upload()">
-				<mat-icon>edit</mat-icon>
-				Edit an Existing Resource Pack
-			</button>
+			<div class="row gap center">
+				<app-large-tile [clickable]="true" icon="add" [disabled]="!!uploader.getFileNames()" (clicked)="create()">
+					<h2>Create New Resource Pack</h2>
+					<div>The sky's the limit!</div>
+				</app-large-tile>
+				<mat-divider class="divider" vertical/>
+				<app-large-tile [clickable]="true" icon="edit" [disabled]="!!uploader.getFileNames()" (clicked)="uploader.upload()">
+					<h2>Edit Existing Resource Pack</h2>
+					<div>Make it your own!</div>
+				</app-large-tile>
+			</div>
 		}
+		<div class="spacing"></div>
+		<div class="uploader">
+			<app-uploader #uploader [fileExtensions]="['zip']" [allowMultiple]="false" endpoint="upload/zip" (uploaded)="upload()"/>
+		</div>
 	</div>
-	<app-uploader #uploader [fileExtensions]="['zip']" [allowMultiple]="false" endpoint="upload/zip" (uploaded)="upload()"/>
 </div>

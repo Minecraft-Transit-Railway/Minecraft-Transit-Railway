@@ -42,6 +42,10 @@ export class DataService {
 		this.sendGetRequest("operation/resume-game");
 	}
 
+	public export(name: string, description: string) {
+		this.sendGetRequest(`upload/export?name=${encodeURIComponent(name)}&description=${encodeURIComponent(description)}`);
+	}
+
 	public vehicles() {
 		return this.resourceWrapper?.vehicles ?? [];
 	}
@@ -72,6 +76,10 @@ export class DataService {
 
 	public isMinecraftPaused() {
 		return this.resourceWrapper?.isMinecraftPaused ?? true;
+	}
+
+	public getExportDirectory() {
+		return this.resourceWrapper?.exportDirectory ?? "";
 	}
 
 	public sendGetRequest(endpoint: string, callback?: () => void) {

@@ -2,9 +2,11 @@ package org.mtr.mod.resource;
 
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.serializer.ReaderBase;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mod.generated.resource.VehicleResourceWrapperSchema;
 
+import javax.annotation.Nullable;
 import java.util.stream.Collectors;
 
 public final class VehicleResourceWrapper extends VehicleResourceWrapperSchema {
@@ -30,6 +32,7 @@ public final class VehicleResourceWrapper extends VehicleResourceWrapperSchema {
 			boolean hasGangway2,
 			boolean hasBarrier1,
 			boolean hasBarrier2,
+			double legacyRiderOffset,
 			String bveSoundBaseResource,
 			String legacySpeedSoundBaseResource,
 			long legacySpeedSoundCount,
@@ -55,6 +58,7 @@ public final class VehicleResourceWrapper extends VehicleResourceWrapperSchema {
 				hasGangway2,
 				hasBarrier1,
 				hasBarrier2,
+				legacyRiderOffset,
 				bveSoundBaseResource,
 				legacySpeedSoundBaseResource,
 				legacySpeedSoundCount,
@@ -74,7 +78,11 @@ public final class VehicleResourceWrapper extends VehicleResourceWrapperSchema {
 		updateData(readerBase);
 	}
 
-	public VehicleResource toVehicleResource(ResourceProvider resourceProvider) {
+	public VehicleResource toVehicleResource(
+			ResourceProvider resourceProvider,
+			@Nullable Object2ObjectArrayMap<String, ModelProperties> modelPropertiesMap,
+			@Nullable Object2ObjectArrayMap<String, PositionDefinitions> positionDefinitionsMap
+	) {
 		return new VehicleResource(
 				id,
 				name,
@@ -89,13 +97,14 @@ public final class VehicleResourceWrapper extends VehicleResourceWrapperSchema {
 				description,
 				wikipediaArticle,
 				tags,
-				models.stream().map(vehicleModelWrapper -> vehicleModelWrapper.toVehicleModel(resourceProvider)).collect(Collectors.toCollection(ObjectArrayList::new)),
-				bogie1Models.stream().map(vehicleModelWrapper -> vehicleModelWrapper.toVehicleModel(resourceProvider)).collect(Collectors.toCollection(ObjectArrayList::new)),
-				bogie2Models.stream().map(vehicleModelWrapper -> vehicleModelWrapper.toVehicleModel(resourceProvider)).collect(Collectors.toCollection(ObjectArrayList::new)),
+				models.stream().map(vehicleModelWrapper -> vehicleModelWrapper.toVehicleModel(resourceProvider, modelPropertiesMap, positionDefinitionsMap)).collect(Collectors.toCollection(ObjectArrayList::new)),
+				bogie1Models.stream().map(vehicleModelWrapper -> vehicleModelWrapper.toVehicleModel(resourceProvider, modelPropertiesMap, positionDefinitionsMap)).collect(Collectors.toCollection(ObjectArrayList::new)),
+				bogie2Models.stream().map(vehicleModelWrapper -> vehicleModelWrapper.toVehicleModel(resourceProvider, modelPropertiesMap, positionDefinitionsMap)).collect(Collectors.toCollection(ObjectArrayList::new)),
 				hasGangway1,
 				hasGangway2,
 				hasBarrier1,
 				hasBarrier2,
+				legacyRiderOffset,
 				bveSoundBaseResource,
 				legacySpeedSoundBaseResource,
 				legacySpeedSoundCount,

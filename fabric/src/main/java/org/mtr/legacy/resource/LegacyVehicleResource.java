@@ -9,7 +9,6 @@ import org.mtr.legacy.generated.resource.VehicleResourceSchema;
 import org.mtr.libraries.com.google.gson.JsonArray;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
@@ -106,6 +105,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				baseObject.addProperty("hasGangway2", (!gangway_connection_id.isEmpty() || has_gangway_connection) && (i & 0b10) == 0);
 				baseObject.addProperty("hasBarrier1", !train_barrier_id.isEmpty() && (i & 0b01) == 0);
 				baseObject.addProperty("hasBarrier2", !train_barrier_id.isEmpty() && (i & 0b10) == 0);
+				baseObject.addProperty("legacyRiderOffset", rider_offset);
 				baseObject.addProperty("bveSoundBaseResource", bve_sound_base_id);
 				baseObject.addProperty("legacySpeedSoundBaseResource", speed_sound_base_id);
 				baseObject.addProperty("legacySpeedSoundCount", speed_sound_count);
@@ -214,19 +214,9 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				final JsonObject positionDefinitionsObject = new JsonObject();
 				positionDefinitionsObject.add("positionDefinitions", positionDefinitionsArray);
 
-				final double x1 = width / 2 + 0.25;
-				final double x2 = width / 2 + 0.5;
-				final double z = length / 2 - 0.5;
-				final ObjectArrayList<Box> doorways = new ObjectArrayList<>();
-				for (double j = -z; j <= z + 0.001; j++) {
-					doorways.add(new Box(-x1, 1, j, -x2, 1, j + 1));
-					doorways.add(new Box(x1, 1, j, x2, 1, j + 1));
-				}
 				vehicleResources.add(new VehicleResource(
 						new JsonReader(baseObject),
 						modelObjects.stream().map(modelObject -> new VehicleModel(new JsonReader(modelObject), new JsonReader(modelPropertiesObject), new JsonReader(positionDefinitionsObject), id, resourceProvider)).collect(Collectors.toCollection(ObjectArrayList::new)),
-						new Box(-x1, 1, -z, x1, 1, z),
-						doorways,
 						resourceProvider
 				));
 			} else {

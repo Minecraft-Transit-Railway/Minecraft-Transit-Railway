@@ -43,7 +43,6 @@ export class EditVehicleModelPartDialog {
 	constructor(private readonly dataService: DataService) {
 		const {model, modelPropertiesPart} = this.data;
 		this.dataService.models().find(({id}) => id === model.modelResource)?.modelParts.forEach(name => this.modelPartNames.push(name));
-		console.log(modelPropertiesPart.displayOptions, modelPropertiesPart.displayOptions.includes("SINGLE_LINE"));
 		this.formGroup = new FormGroup({
 			name: new FormControl(modelPropertiesPart.positionDefinition.name),
 			positions: new FormControl(EditVehicleModelPartDialog.positionsToString(modelPropertiesPart.positionDefinition.positions)),
@@ -127,7 +126,6 @@ export class EditVehicleModelPartDialog {
 		modelPropertiesPart.doorZMultiplier = newData.doorZMultiplier ?? defaultModelPropertiesPart.doorZMultiplier;
 		modelPropertiesPart.doorAnimationType = newData.doorAnimationType ?? defaultModelPropertiesPart.doorAnimationType;
 		modelPropertiesPart.displayOptions.length = 0;
-		console.log(newData.displayOptionSingleLine, !!newData.displayOptionSingleLine);
 		if (newData.displayOptionSingleLine) {
 			modelPropertiesPart.displayOptions.push("SINGLE_LINE");
 		}

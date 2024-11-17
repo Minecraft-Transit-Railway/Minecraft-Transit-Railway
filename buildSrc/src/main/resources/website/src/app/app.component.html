@@ -7,15 +7,20 @@
 } @else if (getStatus() === "error") {
 	<div class="column gap center wrapper">
 		<div class="spacing"></div>
-		<div class="column gap-small center">
-			<mat-icon class="warning-icon">warning</mat-icon>
-			<h2>Connection Failed</h2>
-			<div>Is your Minecraft world open?</div>
-		</div>
-		<button mat-button (click)="retry()">
-			<mat-icon>refresh</mat-icon>
-			Retry
-		</button>
+		<app-large-tile [clickable]="false" icon="warning">
+			<div class="column gap center">
+				<div class="column gap-small center">
+					<h2>Connection Failed</h2>
+					<div>Is your Minecraft world open?</div>
+				</div>
+				<div>
+					<button mat-button (click)="retry()">
+						<mat-icon>refresh</mat-icon>
+						Retry
+					</button>
+				</div>
+			</div>
+		</app-large-tile>
 		<div class="spacing"></div>
 	</div>
 } @else {
@@ -37,7 +42,8 @@
 				</ng-template>
 			</mat-step>
 			<mat-step label="Export" [completed]="false">
-				<ng-template matStepContent>
+				<ng-template class="wrapper" matStepContent>
+					<app-export class="wrapper"/>
 				</ng-template>
 			</mat-step>
 		</mat-stepper>

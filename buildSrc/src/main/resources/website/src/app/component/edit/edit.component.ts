@@ -18,7 +18,7 @@ import {EditVehicleModelPartsDialog} from "../edit-vehicle-model-parts/edit-vehi
 import {VehicleResourceWrapper} from "../../entity/generated/vehicleResourceWrapper";
 import {VehicleModelWrapper} from "../../entity/generated/vehicleModelWrapper";
 
-export const CREATE_VEHICLE_RESOURCE = () => new VehicleResourceWrapper("my_vehicle", "My Custom Vehicle", Math.floor(Math.random() * 0xFFFFFF).toString(16).toUpperCase().padStart(6, "0"), "TRAIN", 25, 2, -8.5, 8.5, 0, 0, "This is my custom vehicle!", "", false, false, false, false, "a_train", "", 0, false, false, "", 0);
+export const CREATE_VEHICLE_RESOURCE = () => new VehicleResourceWrapper("my_vehicle", "My Custom Vehicle", Math.floor(Math.random() * 0xFFFFFF).toString(16).toUpperCase().padStart(6, "0"), "TRAIN", 25, 2, -8.5, 8.5, 0, 0, "This is my custom vehicle!", "", false, false, false, false, 0, "a_train", "", 0, false, false, "", 0);
 export const CREATE_MODEL = () => new VehicleModelWrapper("", "", "", "", true, 1, "", "", "", "", "", "", 1.5, 2.25, 1, 0.5, "", "", "", "", "", "", 2.25, 1, 1.25, 0.25);
 
 @Component({

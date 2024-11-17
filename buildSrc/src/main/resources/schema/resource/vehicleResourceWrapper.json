@@ -83,6 +83,9 @@
 		"hasBarrier2": {
 			"type": "boolean"
 		},
+		"legacyRiderOffset": {
+			"type": "number"
+		},
 		"bveSoundBaseResource": {
 			"type": "string"
 		},
@@ -123,6 +126,7 @@
 		"hasGangway2",
 		"hasBarrier1",
 		"hasBarrier2",
+		"legacyRiderOffset",
 		"bveSoundBaseResource",
 		"legacySpeedSoundBaseResource",
 		"legacySpeedSoundCount",

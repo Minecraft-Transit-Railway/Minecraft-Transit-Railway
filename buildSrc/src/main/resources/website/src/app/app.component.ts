@@ -8,6 +8,8 @@ import {PreviewComponent} from "./component/preview/preview.component";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import {MatIconModule} from "@angular/material/icon";
 import {MatButtonModule} from "@angular/material/button";
+import {ExportComponent} from "./component/export/export.component";
+import {LargeTileComponent} from "./component/large-button/large-tile.component";
 
 @Component({
 	selector: "app-root",
@@ -21,6 +23,8 @@ import {MatButtonModule} from "@angular/material/button";
 		FormsModule,
 		EditComponent,
 		PreviewComponent,
+		ExportComponent,
+		LargeTileComponent,
 	],
 	templateUrl: "./app.component.html",
 	styleUrls: ["./app.component.css"],

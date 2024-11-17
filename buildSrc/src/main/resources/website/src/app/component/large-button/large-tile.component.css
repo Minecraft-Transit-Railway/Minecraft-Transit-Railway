@@ -1,0 +1,25 @@
+.square {
+	border-radius: 20px;
+	color: var(--mat-select-placeholder-text-color);
+	text-align: center;
+	width: 400px;
+	height: 400px;
+}
+
+.large-icon {
+	font-size: 120px;
+	width: 120px;
+	height: 120px;
+}
+
+.clickable {
+	cursor: pointer;
+}
+
+.clickable:hover {
+	background-color: var(--mat-option-hover-state-layer-color);
+}
+
+.square.disabled {
+	color: var(--mdc-icon-button-disabled-icon-color);
+}
