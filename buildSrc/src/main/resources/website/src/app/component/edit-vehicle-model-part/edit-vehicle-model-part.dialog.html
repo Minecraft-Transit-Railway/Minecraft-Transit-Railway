@@ -43,6 +43,18 @@
 			<mat-label>Flipped Positions</mat-label>
 			<textarea matInput aria-label="Positions" cdkTextareaAutosize (focusout)="formatPositions()" formControlName="positionsFlipped" autocomplete="off"></textarea>
 		</mat-form-field>
+		@if (isNormal()) {
+			<mat-form-field subscriptSizing="dynamic">
+				<mat-label>Render Stage</mat-label>
+				<mat-select formControlName="renderStage">
+					<mat-option value="LIGHT">Light</mat-option>
+					<mat-option value="ALWAYS_ON_LIGHT">Light (Always On)</mat-option>
+					<mat-option value="INTERIOR">Interior</mat-option>
+					<mat-option value="INTERIOR_TRANSLUCENT">Interior (Translucent)</mat-option>
+					<mat-option value="EXTERIOR">Exterior</mat-option>
+				</mat-select>
+			</mat-form-field>
+		}
 
 		<div>Door Movement</div>
 		<div class="row gap">
@@ -135,6 +147,5 @@
 	</form>
 </mat-dialog-content>
 <mat-dialog-actions>
-	<button mat-button (click)="onSave()" cdkFocusInitial>Save</button>
-	<button mat-button (click)="onCancel()">Cancel</button>
+	<button mat-button (click)="onClose()" cdkFocusInitial>Close</button>
 </mat-dialog-actions>

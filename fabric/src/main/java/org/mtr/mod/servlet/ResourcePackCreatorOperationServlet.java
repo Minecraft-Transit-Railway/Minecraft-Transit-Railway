@@ -35,6 +35,7 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 	protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 		final AsyncContext asyncContext = httpServletRequest.startAsync();
 		asyncContext.setTimeout(0);
+		setEncoding(httpServletRequest, httpServletResponse);
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 
 		switch (httpServletRequest.getPathInfo()) {
@@ -65,6 +66,7 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 	protected void doPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 		final AsyncContext asyncContext = httpServletRequest.startAsync();
 		asyncContext.setTimeout(0);
+		setEncoding(httpServletRequest, httpServletResponse);
 
 		switch (httpServletRequest.getPathInfo()) {
 			case "/update":
@@ -101,7 +103,6 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 
 	private static void update(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AsyncContext asyncContext) {
 		try {
-			httpServletRequest.setCharacterEncoding("UTF-8");
 			resourceWrapper = new ResourceWrapper(new JsonReader(JsonParser.parseReader(httpServletRequest.getReader())), new ObjectArrayList<>(CustomResourceLoader.getMinecraftModelResources()), new ObjectArrayList<>(CustomResourceLoader.getTextureResources()));
 			resourceWrapper.clean();
 			returnStandardResponse(httpServletResponse, asyncContext, true);

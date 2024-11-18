@@ -12,12 +12,17 @@ export class DataService {
 		this.sendGetRequest("operation/refresh");
 	}
 
-	public update() {
+	public update(skipResourceWrapperSync = false) {
+		const tempResourceWrapper = this.resourceWrapper;
 		if (this.resourceWrapper) {
 			const resourceWrapperCopy: ResourceWrapper = JSON.parse(JSON.stringify(this.resourceWrapper));
 			resourceWrapperCopy.minecraftModelResources.length = 0;
 			resourceWrapperCopy.minecraftTextureResources.length = 0;
-			this.sendPostRequest("operation/update", resourceWrapperCopy, "text/plain");
+			this.sendPostRequest("operation/update", resourceWrapperCopy, "text/plain", () => {
+				if (skipResourceWrapperSync) {
+					this.resourceWrapper = tempResourceWrapper;
+				}
+			});
 		}
 	}
 

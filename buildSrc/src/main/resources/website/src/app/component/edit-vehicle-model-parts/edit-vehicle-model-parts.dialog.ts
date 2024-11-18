@@ -103,7 +103,7 @@ export class EditVehicleModelPartsDialog {
 				const isDisplay = modelPropertiesPart.type === "DISPLAY";
 				if (isNormal && newData.showNormalParts || isFloorOrDoorway && newData.showFloorsAndDoorways || isSeat && newData.showSeats || isDisplay && newData.showDisplays) {
 					this.dataSource.push(modelPropertiesPart);
-					if (modelPropertiesPart.doorXMultiplier > 0 || modelPropertiesPart.doorZMultiplier > 0) {
+					if (modelPropertiesPart.doorXMultiplier !== 0 || modelPropertiesPart.doorZMultiplier !== 0) {
 						showDoorColumns = true;
 					}
 					if (isDisplay) {
@@ -155,6 +155,7 @@ export class EditVehicleModelPartsDialog {
 	}
 
 	onClose() {
+		this.dataService.update();
 		this.dialogRef.close();
 	}
 }

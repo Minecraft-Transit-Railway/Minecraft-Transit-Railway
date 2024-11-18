@@ -40,6 +40,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 	protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 		final AsyncContext asyncContext = httpServletRequest.startAsync();
 		asyncContext.setTimeout(0);
+		setEncoding(httpServletRequest, httpServletResponse);
 
 		switch (httpServletRequest.getPathInfo()) {
 			case "/reset":
@@ -60,6 +61,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 	protected void doPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 		final AsyncContext asyncContext = httpServletRequest.startAsync();
 		asyncContext.setTimeout(0);
+		setEncoding(httpServletRequest, httpServletResponse);
 
 		switch (httpServletRequest.getPathInfo()) {
 			case "/zip":

@@ -43,6 +43,7 @@ export class EditVehicleModelPartDialog {
 	constructor(private readonly dataService: DataService) {
 		const {model, modelPropertiesPart} = this.data;
 		this.dataService.models().find(({id}) => id === model.modelResource)?.modelParts.forEach(name => this.modelPartNames.push(name));
+
 		this.formGroup = new FormGroup({
 			name: new FormControl(modelPropertiesPart.positionDefinition.name),
 			positions: new FormControl(EditVehicleModelPartDialog.positionsToString(modelPropertiesPart.positionDefinition.positions)),
@@ -76,6 +77,76 @@ export class EditVehicleModelPartDialog {
 			displayOptionAlignRight: new FormControl(modelPropertiesPart.displayOptions.includes("ALIGN_RIGHT")),
 			displayOptionCycleLanguages: new FormControl(modelPropertiesPart.displayOptions.includes("CYCLE_LANGUAGES")),
 		});
+
+		this.formGroup.valueChanges.subscribe(() => {
+			const newData = this.formGroup.getRawValue();
+			const defaultModelPropertiesPart = CREATE_MODEL_PROPERTIES_PART();
+			modelPropertiesPart.positionDefinition.name = newData.name ?? defaultModelPropertiesPart.positionDefinition.name;
+			modelPropertiesPart.positionDefinition.positions.length = 0;
+			if (newData.positions) {
+				EditVehicleModelPartDialog.stringToPositions(newData.positions).forEach(position => modelPropertiesPart.positionDefinition.positions.push(position));
+			}
+			modelPropertiesPart.positionDefinition.positionsFlipped.length = 0;
+			if (newData.positionsFlipped) {
+				EditVehicleModelPartDialog.stringToPositions(newData.positionsFlipped).forEach(position => modelPropertiesPart.positionDefinition.positionsFlipped.push(position));
+			}
+			modelPropertiesPart.condition = newData.condition ?? defaultModelPropertiesPart.condition;
+			modelPropertiesPart.renderStage = newData.renderStage ?? defaultModelPropertiesPart.renderStage;
+			modelPropertiesPart.type = newData.type ?? defaultModelPropertiesPart.type;
+			modelPropertiesPart.displayXPadding = newData.displayXPadding ?? defaultModelPropertiesPart.displayXPadding;
+			modelPropertiesPart.displayYPadding = newData.displayYPadding ?? defaultModelPropertiesPart.displayYPadding;
+			modelPropertiesPart.displayColorCjk = newData.displayColorCjk?.substring(1).toUpperCase() ?? defaultModelPropertiesPart.displayColorCjk;
+			modelPropertiesPart.displayColor = newData.displayColor?.substring(1).toUpperCase() ?? defaultModelPropertiesPart.displayColor;
+			modelPropertiesPart.displayMaxLineHeight = Math.max(0, newData.displayMaxLineHeight ?? defaultModelPropertiesPart.displayMaxLineHeight);
+			modelPropertiesPart.displayCjkSizeRatio = Math.max(0, newData.displayCjkSizeRatio ?? defaultModelPropertiesPart.displayCjkSizeRatio);
+			modelPropertiesPart.displayPadZeros = Math.max(0, Math.round(newData.displayPadZeros ?? defaultModelPropertiesPart.displayPadZeros));
+			modelPropertiesPart.displayType = newData.displayType ?? defaultModelPropertiesPart.displayType;
+			modelPropertiesPart.displayDefaultText = newData.displayDefaultText ?? defaultModelPropertiesPart.displayDefaultText;
+			modelPropertiesPart.doorXMultiplier = newData.doorXMultiplier ?? defaultModelPropertiesPart.doorXMultiplier;
+			modelPropertiesPart.doorZMultiplier = newData.doorZMultiplier ?? defaultModelPropertiesPart.doorZMultiplier;
+			modelPropertiesPart.doorAnimationType = newData.doorAnimationType ?? defaultModelPropertiesPart.doorAnimationType;
+			modelPropertiesPart.displayOptions.length = 0;
+			if (newData.displayOptionSingleLine) {
+				modelPropertiesPart.displayOptions.push("SINGLE_LINE");
+			}
+			if (newData.displayOptionUpperCase) {
+				modelPropertiesPart.displayOptions.push("UPPER_CASE");
+			}
+			if (newData.displayOptionSpaceCjk) {
+				modelPropertiesPart.displayOptions.push("SPACE_CJK");
+			}
+			if (newData.displayOptionScrollNormal) {
+				modelPropertiesPart.displayOptions.push("SCROLL_NORMAL");
+			}
+			if (newData.displayOptionScrollLightRail) {
+				modelPropertiesPart.displayOptions.push("SCROLL_LIGHT_RAIL");
+			}
+			if (newData.displayOptionSevenSegment) {
+				modelPropertiesPart.displayOptions.push("SEVEN_SEGMENT");
+			}
+			if (newData.displayOptionAlignLeftCjk) {
+				modelPropertiesPart.displayOptions.push("ALIGN_LEFT_CJK");
+			}
+			if (newData.displayOptionAlignCenterCjk) {
+				modelPropertiesPart.displayOptions.push("ALIGN_CENTER_CJK");
+			}
+			if (newData.displayOptionAlignRightCjk) {
+				modelPropertiesPart.displayOptions.push("ALIGN_RIGHT_CJK");
+			}
+			if (newData.displayOptionAlignLeft) {
+				modelPropertiesPart.displayOptions.push("ALIGN_LEFT");
+			}
+			if (newData.displayOptionAlignCenter) {
+				modelPropertiesPart.displayOptions.push("ALIGN_CENTER");
+			}
+			if (newData.displayOptionAlignRight) {
+				modelPropertiesPart.displayOptions.push("ALIGN_RIGHT");
+			}
+			if (newData.displayOptionCycleLanguages) {
+				modelPropertiesPart.displayOptions.push("CYCLE_LANGUAGES");
+			}
+			this.dataService.update(true);
+		});
 	}
 
 	hasDoorMultiplier() {
@@ -85,6 +156,10 @@ export class EditVehicleModelPartDialog {
 
 	isDisplay() {
 		return this.formGroup.getRawValue().type === "DISPLAY";
+	}
+
+	isNormal() {
+		return this.formGroup.getRawValue().type === "NORMAL";
 	}
 
 	formatPositions() {
@@ -97,79 +172,7 @@ export class EditVehicleModelPartDialog {
 		}
 	}
 
-	onSave() {
-		const {modelPropertiesPart} = this.data;
-		const newData = this.formGroup.getRawValue();
-		const defaultModelPropertiesPart = CREATE_MODEL_PROPERTIES_PART();
-		modelPropertiesPart.positionDefinition.name = newData.name ?? defaultModelPropertiesPart.positionDefinition.name;
-		modelPropertiesPart.positionDefinition.positions.length = 0;
-		if (newData.positions) {
-			EditVehicleModelPartDialog.stringToPositions(newData.positions).forEach(position => modelPropertiesPart.positionDefinition.positions.push(position));
-		}
-		modelPropertiesPart.positionDefinition.positionsFlipped.length = 0;
-		if (newData.positionsFlipped) {
-			EditVehicleModelPartDialog.stringToPositions(newData.positionsFlipped).forEach(position => modelPropertiesPart.positionDefinition.positionsFlipped.push(position));
-		}
-		modelPropertiesPart.condition = newData.condition ?? defaultModelPropertiesPart.condition;
-		modelPropertiesPart.renderStage = newData.renderStage ?? defaultModelPropertiesPart.renderStage;
-		modelPropertiesPart.type = newData.type ?? defaultModelPropertiesPart.type;
-		modelPropertiesPart.displayXPadding = newData.displayXPadding ?? defaultModelPropertiesPart.displayXPadding;
-		modelPropertiesPart.displayYPadding = newData.displayYPadding ?? defaultModelPropertiesPart.displayYPadding;
-		modelPropertiesPart.displayColorCjk = newData.displayColorCjk?.substring(1).toUpperCase() ?? defaultModelPropertiesPart.displayColorCjk;
-		modelPropertiesPart.displayColor = newData.displayColor?.substring(1).toUpperCase() ?? defaultModelPropertiesPart.displayColor;
-		modelPropertiesPart.displayMaxLineHeight = Math.max(0, newData.displayMaxLineHeight ?? defaultModelPropertiesPart.displayMaxLineHeight);
-		modelPropertiesPart.displayCjkSizeRatio = Math.max(0, newData.displayCjkSizeRatio ?? defaultModelPropertiesPart.displayCjkSizeRatio);
-		modelPropertiesPart.displayPadZeros = Math.max(0, Math.round(newData.displayPadZeros ?? defaultModelPropertiesPart.displayPadZeros));
-		modelPropertiesPart.displayType = newData.displayType ?? defaultModelPropertiesPart.displayType;
-		modelPropertiesPart.displayDefaultText = newData.displayDefaultText ?? defaultModelPropertiesPart.displayDefaultText;
-		modelPropertiesPart.doorXMultiplier = newData.doorXMultiplier ?? defaultModelPropertiesPart.doorXMultiplier;
-		modelPropertiesPart.doorZMultiplier = newData.doorZMultiplier ?? defaultModelPropertiesPart.doorZMultiplier;
-		modelPropertiesPart.doorAnimationType = newData.doorAnimationType ?? defaultModelPropertiesPart.doorAnimationType;
-		modelPropertiesPart.displayOptions.length = 0;
-		if (newData.displayOptionSingleLine) {
-			modelPropertiesPart.displayOptions.push("SINGLE_LINE");
-		}
-		if (newData.displayOptionUpperCase) {
-			modelPropertiesPart.displayOptions.push("UPPER_CASE");
-		}
-		if (newData.displayOptionSpaceCjk) {
-			modelPropertiesPart.displayOptions.push("SPACE_CJK");
-		}
-		if (newData.displayOptionScrollNormal) {
-			modelPropertiesPart.displayOptions.push("SCROLL_NORMAL");
-		}
-		if (newData.displayOptionScrollLightRail) {
-			modelPropertiesPart.displayOptions.push("SCROLL_LIGHT_RAIL");
-		}
-		if (newData.displayOptionSevenSegment) {
-			modelPropertiesPart.displayOptions.push("SEVEN_SEGMENT");
-		}
-		if (newData.displayOptionAlignLeftCjk) {
-			modelPropertiesPart.displayOptions.push("ALIGN_LEFT_CJK");
-		}
-		if (newData.displayOptionAlignCenterCjk) {
-			modelPropertiesPart.displayOptions.push("ALIGN_CENTER_CJK");
-		}
-		if (newData.displayOptionAlignRightCjk) {
-			modelPropertiesPart.displayOptions.push("ALIGN_RIGHT_CJK");
-		}
-		if (newData.displayOptionAlignLeft) {
-			modelPropertiesPart.displayOptions.push("ALIGN_LEFT");
-		}
-		if (newData.displayOptionAlignCenter) {
-			modelPropertiesPart.displayOptions.push("ALIGN_CENTER");
-		}
-		if (newData.displayOptionAlignRight) {
-			modelPropertiesPart.displayOptions.push("ALIGN_RIGHT");
-		}
-		if (newData.displayOptionCycleLanguages) {
-			modelPropertiesPart.displayOptions.push("CYCLE_LANGUAGES");
-		}
-		this.dataService.update();
-		this.dialogRef.close();
-	}
-
-	onCancel() {
+	onClose() {
 		this.dialogRef.close();
 	}
 
