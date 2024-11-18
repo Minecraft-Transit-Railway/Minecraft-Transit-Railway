@@ -1,0 +1,22 @@
+<div class="column gap center wrapper">
+	<div class="column gap fields">
+		<mat-form-field subscriptSizing="dynamic">
+			<mat-label>Name</mat-label>
+			<input matInput aria-label="Name" #name autocomplete="off"/>
+		</mat-form-field>
+		<mat-form-field subscriptSizing="dynamic">
+			<mat-label>Description</mat-label>
+			<textarea matInput aria-label="Description" cdkTextareaAutosize #description autocomplete="off"></textarea>
+		</mat-form-field>
+	</div>
+	<div class="spacing"></div>
+	<app-large-tile icon="ios_share" [clickable]="true" [disabled]="!name.value || !description.value" (clicked)="export(name.value, description.value)">
+		<h2>Export</h2>
+		<div>Share your creation with the world!</div>
+	</app-large-tile>
+	<div class="spacing"></div>
+	<div class="column gap-small center">
+		<div>Your Resource Pack will appear as a ZIP file in the following directory:</div>
+		<code>{{ getExportDirectory() }}</code>
+	</div>
+</div>

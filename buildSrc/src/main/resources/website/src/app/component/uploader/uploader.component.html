@@ -1,0 +1,12 @@
+@if (getFileNames()) {
+	<div class="row gap-small center">
+		<mat-spinner [diameter]="24"/>
+		<div>Uploading <b>{{ getFileNames()?.join(", ") }}</b></div>
+	</div>
+}
+@if (getError()) {
+	<div class="row gap-small center">
+		<mat-icon color="warn">warning</mat-icon>
+		<div>{{ getError() }}</div>
+	</div>
+}

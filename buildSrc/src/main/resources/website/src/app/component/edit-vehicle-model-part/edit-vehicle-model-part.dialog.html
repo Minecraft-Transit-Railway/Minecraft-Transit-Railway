@@ -1,0 +1,156 @@
+<h2 mat-dialog-title>Model Parts</h2>
+<mat-dialog-content>
+	<form class="column gap" [formGroup]="formGroup">
+		<div>General</div>
+		<mat-form-field subscriptSizing="dynamic">
+			<mat-label>Name</mat-label>
+			<mat-select formControlName="name">
+				@for (name of modelPartNames; track $index) {
+					<mat-option [value]="name">{{ name }}</mat-option>
+				}
+			</mat-select>
+		</mat-form-field>
+		<mat-form-field subscriptSizing="dynamic">
+			<mat-label>Condition</mat-label>
+			<mat-select formControlName="condition">
+				<mat-option value="NORMAL">Normal</mat-option>
+				<mat-option value="AT_DEPOT">At Depot</mat-option>
+				<mat-option value="ON_ROUTE_FORWARDS">On Route, Moving Forwards</mat-option>
+				<mat-option value="ON_ROUTE_BACKWARDS">On Route, Moving Backwards</mat-option>
+				<mat-option value="DOORS_CLOSED">Doors Closed</mat-option>
+				<mat-option value="DOORS_OPENED">Doors Opened</mat-option>
+				<mat-option value="CHRISTMAS_LIGHT_RED">Christmas Lights (Red)</mat-option>
+				<mat-option value="CHRISTMAS_LIGHT_YELLOW">Christmas Lights (Yellow)</mat-option>
+				<mat-option value="CHRISTMAS_LIGHT_GREEN">Christmas Lights (Green)</mat-option>
+				<mat-option value="CHRISTMAS_LIGHT_BLUE">Christmas Lights (Blue)</mat-option>
+			</mat-select>
+		</mat-form-field>
+		<mat-form-field subscriptSizing="dynamic">
+			<mat-label>Type</mat-label>
+			<mat-select formControlName="type">
+				<mat-option value="NORMAL">Normal</mat-option>
+				<mat-option value="DISPLAY">Display</mat-option>
+				<mat-option value="FLOOR">Floor</mat-option>
+				<mat-option value="DOORWAY">Doorway</mat-option>
+				<mat-option value="SEAT">Seat</mat-option>
+			</mat-select>
+		</mat-form-field>
+		<mat-form-field subscriptSizing="dynamic">
+			<mat-label>Positions</mat-label>
+			<textarea matInput aria-label="Positions" cdkTextareaAutosize (focusout)="formatPositions()" formControlName="positions" autocomplete="off"></textarea>
+		</mat-form-field>
+		<mat-form-field subscriptSizing="dynamic">
+			<mat-label>Flipped Positions</mat-label>
+			<textarea matInput aria-label="Positions" cdkTextareaAutosize (focusout)="formatPositions()" formControlName="positionsFlipped" autocomplete="off"></textarea>
+		</mat-form-field>
+		@if (isNormal()) {
+			<mat-form-field subscriptSizing="dynamic">
+				<mat-label>Render Stage</mat-label>
+				<mat-select formControlName="renderStage">
+					<mat-option value="LIGHT">Light</mat-option>
+					<mat-option value="ALWAYS_ON_LIGHT">Light (Always On)</mat-option>
+					<mat-option value="INTERIOR">Interior</mat-option>
+					<mat-option value="INTERIOR_TRANSLUCENT">Interior (Translucent)</mat-option>
+					<mat-option value="EXTERIOR">Exterior</mat-option>
+				</mat-select>
+			</mat-form-field>
+		}
+
+		<div>Door Movement</div>
+		<div class="row gap">
+			<mat-form-field subscriptSizing="dynamic">
+				<mat-label>Door X Multiplier</mat-label>
+				<input matInput type="number" aria-label="Door X Multiplier" formControlName="doorXMultiplier" step="1"/>
+			</mat-form-field>
+			<mat-form-field subscriptSizing="dynamic">
+				<mat-label>Door Z Multiplier</mat-label>
+				<input matInput type="number" aria-label="Door Z Multiplier" formControlName="doorZMultiplier" step="1"/>
+			</mat-form-field>
+		</div>
+		@if (hasDoorMultiplier()) {
+			<mat-form-field subscriptSizing="dynamic">
+				<mat-label>Door Animation Type</mat-label>
+				<mat-select formControlName="doorAnimationType">
+					<mat-option value="STANDARD">Standard</mat-option>
+					<mat-option value="STANDARD_SLOW">Standard Slow</mat-option>
+					<mat-option value="CONSTANT">Constant</mat-option>
+					<mat-option value="PLUG_FAST">Plug Fast</mat-option>
+					<mat-option value="PLUG_SLOW">Plug Slow</mat-option>
+					<mat-option value="BOUNCY_1">Bouncy (1)</mat-option>
+					<mat-option value="BOUNCY_2">Bouncy (2)</mat-option>
+					<mat-option value="MLR">MLR</mat-option>
+					<mat-option value="R179">R179</mat-option>
+					<mat-option value="R211">R211</mat-option>
+				</mat-select>
+			</mat-form-field>
+		}
+
+		@if (isDisplay()) {
+			<div>Display</div>
+			<mat-form-field subscriptSizing="dynamic">
+				<mat-label>Type</mat-label>
+				<mat-select formControlName="displayType">
+					<mat-option value="DESTINATION">Destination</mat-option>
+					<mat-option value="ROUTE_NUMBER">Route Number</mat-option>
+					<mat-option value="DEPARTURE_INDEX">Departure Index</mat-option>
+					<mat-option value="NEXT_STATION">Next Station</mat-option>
+					<mat-option value="NEXT_STATION_KCR">Next Station (KCR)</mat-option>
+					<mat-option value="NEXT_STATION_MTR">Next Station (MTR)</mat-option>
+					<mat-option value="NEXT_STATION_UK">Next Station (UK)</mat-option>
+				</mat-select>
+			</mat-form-field>
+			<div class="row gap">
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>X Padding</mat-label>
+					<input matInput type="number" aria-label="X Padding" formControlName="displayXPadding" step="0.1"/>
+				</mat-form-field>
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Y Padding</mat-label>
+					<input matInput type="number" aria-label="Y Padding" formControlName="displayYPadding" step="0.1"/>
+				</mat-form-field>
+			</div>
+			<div class="row gap">
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Colour (CJK Text)</mat-label>
+					<input matInput type="color" aria-label="Colour (CJK Text)" formControlName="displayColorCjk"/>
+				</mat-form-field>
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Colour (Non-CJK Text)</mat-label>
+					<input matInput type="color" aria-label="Colour (Non-CJK Text)" formControlName="displayColor"/>
+				</mat-form-field>
+			</div>
+			<mat-form-field subscriptSizing="dynamic">
+				<mat-label>Max Line Height</mat-label>
+				<input matInput type="number" aria-label="Max Line Height" formControlName="displayMaxLineHeight" min="0" step="0.1"/>
+			</mat-form-field>
+			<div class="row gap">
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>CJK Size Ratio</mat-label>
+					<input matInput type="number" aria-label="CJK Size Ratio" formControlName="displayCjkSizeRatio" min="0" step="0.5"/>
+				</mat-form-field>
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Pad Zeros (If Numeric)</mat-label>
+					<input matInput type="number" aria-label="Pad Zeros (If Numeric)" formControlName="displayPadZeros" min="0" step="1"/>
+				</mat-form-field>
+			</div>
+			<div class="column">
+				<mat-checkbox formControlName="displayOptionSingleLine">Single Line</mat-checkbox>
+				<mat-checkbox formControlName="displayOptionUpperCase">Convert to Upper Case</mat-checkbox>
+				<mat-checkbox formControlName="displayOptionSpaceCjk">Put Space for Short CJK Text</mat-checkbox>
+				<mat-checkbox formControlName="displayOptionScrollNormal">Scroll (Normal)</mat-checkbox>
+				<mat-checkbox formControlName="displayOptionScrollLightRail">Scroll (Light Rail)</mat-checkbox>
+				<mat-checkbox formControlName="displayOptionSevenSegment">Seven Segment (If Numeric)</mat-checkbox>
+				<mat-checkbox formControlName="displayOptionAlignLeftCjk">Align Left (CJK Text)</mat-checkbox>
+				<mat-checkbox formControlName="displayOptionAlignCenterCjk">Align Center (CJK Text)</mat-checkbox>
+				<mat-checkbox formControlName="displayOptionAlignRightCjk">Align Right (CJK Text)</mat-checkbox>
+				<mat-checkbox formControlName="displayOptionAlignLeft">Align Left (Non-CJK Text)</mat-checkbox>
+				<mat-checkbox formControlName="displayOptionAlignCenter">Align Center (Non-CJK Text)</mat-checkbox>
+				<mat-checkbox formControlName="displayOptionAlignRight">Align Right (Non-CJK Text)</mat-checkbox>
+				<mat-checkbox formControlName="displayOptionCycleLanguages">Cycle Languages</mat-checkbox>
+			</div>
+		}
+	</form>
+</mat-dialog-content>
+<mat-dialog-actions>
+	<button mat-button (click)="onClose()" cdkFocusInitial>Close</button>
+</mat-dialog-actions>

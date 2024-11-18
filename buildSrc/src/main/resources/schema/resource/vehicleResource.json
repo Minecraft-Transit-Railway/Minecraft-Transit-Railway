@@ -4,6 +4,9 @@
 	"javaImplements": [
 		"SerializedDataBase"
 	],
+	"javaConstructorFields": [
+		"resourceProvider"
+	],
 	"properties": {
 		"id": {
 			"type": "string"
@@ -15,7 +18,8 @@
 			"type": "string"
 		},
 		"transportMode": {
-			"$ref": "TransportMode"
+			"$ref": "TransportMode",
+			"typeScriptEnum": "TRAIN|BOAT|CABLE_CAR|AIRPLANE"
 		},
 		"length": {
 			"type": "number",
@@ -54,19 +58,28 @@
 		"models": {
 			"type": "array",
 			"items": {
-				"$ref": "vehicleModel.json"
+				"$ref": "vehicleModel.json",
+				"parameters": [
+					"ResourceProvider"
+				]
 			}
 		},
 		"bogie1Models": {
 			"type": "array",
 			"items": {
-				"$ref": "vehicleModel.json"
+				"$ref": "vehicleModel.json",
+				"parameters": [
+					"ResourceProvider"
+				]
 			}
 		},
 		"bogie2Models": {
 			"type": "array",
 			"items": {
-				"$ref": "vehicleModel.json"
+				"$ref": "vehicleModel.json",
+				"parameters": [
+					"ResourceProvider"
+				]
 			}
 		},
 		"hasGangway1": {
@@ -80,6 +93,9 @@
 		},
 		"hasBarrier2": {
 			"type": "boolean"
+		},
+		"legacyRiderOffset": {
+			"type": "number"
 		},
 		"bveSoundBaseResource": {
 			"type": "string"
@@ -121,6 +137,7 @@
 		"hasGangway2",
 		"hasBarrier1",
 		"hasBarrier2",
+		"legacyRiderOffset",
 		"bveSoundBaseResource",
 		"legacySpeedSoundBaseResource",
 		"legacySpeedSoundCount",

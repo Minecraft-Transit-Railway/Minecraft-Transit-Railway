@@ -1,0 +1,6 @@
+{
+	"mtr:plugin": {
+		"initializer": "org.mtr.init.WthitConfig",
+		"side": "*"
+	}
+}

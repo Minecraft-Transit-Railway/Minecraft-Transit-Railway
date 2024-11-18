@@ -1,0 +1,9 @@
+.outer.wrapper {
+	box-sizing: border-box;
+	padding: 2em;
+}
+
+::ng-deep .mat-horizontal-stepper-wrapper, ::ng-deep .mat-horizontal-content-container, ::ng-deep .mat-horizontal-stepper-content {
+	overflow: hidden;
+	height: 100%;
+}

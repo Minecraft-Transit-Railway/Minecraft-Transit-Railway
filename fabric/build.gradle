@@ -1,5 +1,6 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.mtr.core.Generator
+import org.mtr.core.WebserverSetup
 import org.mtr.mod.BuildTools
 
 plugins {
@@ -23,6 +24,14 @@ dependencies {
 	shadowImplementation "org.mtr:Minecraft-Mappings-fabric-${minecraftVersion}:0.0.1-dev"
 	testImplementation "org.junit.jupiter:junit-jupiter-api:+"
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:+"
+
+	if (buildTools.hasJadeSupport()) {
+		modCompileOnly "maven.modrinth:jade:${buildTools.getJadeVersion()}"
+	}
+
+	if (buildTools.hasWthitSupport()) {
+		modCompileOnly "mcp.mobius.waila:wthit-api:${buildTools.getWthitVersion()}"
+	}
 }
 
 repositories {
@@ -35,6 +44,17 @@ java {
 	}
 	withSourcesJar()
 	withJavadocJar()
+}
+
+tasks.register("setupWebsiteFiles") {
+	copy {
+		outputs.upToDateWhen { false }
+		from zipTree("../libs/Transport-Simulation-Core-Build-Tools.jar")
+		into "../buildSrc/src/main/resources"
+		include "website/*.json", "website/src/styles.css"
+	}
+
+	Generator.generateTypeScript(project, "schema/resource", "../buildSrc/src/main/resources/website/src/app/entity/generated")
 }
 
 tasks.register("setupFiles") {
@@ -54,14 +74,45 @@ tasks.register("setupFiles") {
 		rename "(.+).template.json", "\$1.json"
 	}
 
+	if (buildTools.hasJadeSupport()) {
+		copy {
+			outputs.upToDateWhen { false }
+			from "src/main/JadeConfigTemplate.java"
+			into "src/main/java/org/mtr/init"
+			rename "(.+)Template.java", "\$1.java"
+		}
+	} else {
+		delete fileTree("src/main/java/org/mtr/init/JadeConfig.java")
+	}
+
+	if (buildTools.hasWthitSupport()) {
+		copy {
+			outputs.upToDateWhen { false }
+			from "src/main/WthitConfigTemplate.java"
+			into "src/main/java/org/mtr/init"
+			rename "(.+)Template.java", "\$1.java"
+		}
+
+		copy {
+			outputs.upToDateWhen { false }
+			from "src/main/wthit_plugins_template.json"
+			into "src/main/resources"
+			rename "(.+)_template.json", "\$1.json"
+		}
+	} else {
+		delete fileTree("src/main/java/org/mtr/init/WthitConfig.java")
+		delete fileTree("src/main/resources/wthit_plugins.json")
+	}
+
 	buildTools.generateTranslations()
 	buildTools.copyLootTables()
 	buildTools.copyFontDefinition()
 	buildTools.copyVehicleTemplates()
 	buildTools.getPatreonList(patreonApiKey)
-	Generator.generate(project, "schema/config", "mod/generated/config", false, "mod.config")
-	Generator.generate(project, "schema/resource", "mod/generated/resource", false, "core.data", "mod.resource")
-	Generator.generate(project, "schema/legacy", "legacy/generated/resource", false)
+	Generator.generateJava(project, "schema/config", "mod/generated/config", false, "mod.config")
+	Generator.generateJava(project, "schema/resource", "mod/generated/resource", false, "core.data", "mod.resource")
+	Generator.generateJava(project, "schema/legacy", "legacy/generated/resource", false)
+	WebserverSetup.setup(project.rootDir, "fabric/", "mod")
 }
 
 build {

@@ -1,0 +1,167 @@
+<h2 mat-dialog-title>Vehicle Properties</h2>
+<mat-dialog-content>
+	<form class="column gap" [formGroup]="formGroup">
+		<div>General</div>
+		<mat-form-field subscriptSizing="dynamic">
+			<mat-label>ID</mat-label>
+			<input matInput aria-label="ID" formControlName="id" autocomplete="off" spellcheck="false"/>
+		</mat-form-field>
+		<mat-form-field subscriptSizing="dynamic">
+			<mat-label>Name</mat-label>
+			<input matInput aria-label="Name" formControlName="name" autocomplete="off"/>
+		</mat-form-field>
+		<div class="row gap">
+			<mat-form-field subscriptSizing="dynamic">
+				<mat-label>Colour</mat-label>
+				<input matInput type="color" aria-label="Colour" formControlName="color"/>
+			</mat-form-field>
+			<mat-form-field subscriptSizing="dynamic">
+				<mat-label>Transport Mode</mat-label>
+				<mat-select formControlName="transportMode">
+					<mat-option value="TRAIN">Train</mat-option>
+					<mat-option value="BOAT">Boat</mat-option>
+					<mat-option value="CABLE_CAR">Cable Car</mat-option>
+					<mat-option value="AIRPLANE">Airplane</mat-option>
+				</mat-select>
+			</mat-form-field>
+		</div>
+		<mat-form-field subscriptSizing="dynamic">
+			<mat-label>Description</mat-label>
+			<textarea matInput aria-label="Description" cdkTextareaAutosize formControlName="description" autocomplete="off"></textarea>
+		</mat-form-field>
+		<div class="row gap-small center">
+			<mat-form-field class="spacing" subscriptSizing="dynamic">
+				<mat-label>Wikipedia Article</mat-label>
+				<input matInput #wikipediaArticle aria-label="Wikipedia Article" (input)="formatWikipediaArticle(wikipediaArticle)" formControlName="wikipediaArticle" autocomplete="off" spellcheck="false"/>
+			</mat-form-field>
+			<button mat-icon-button (click)="testWikipediaLink(wikipediaArticle.value)" [disabled]="!wikipediaArticle.value" matTooltip="Test Wikipedia Link">
+				<mat-icon>open_in_new</mat-icon>
+			</button>
+		</div>
+
+		<div>Dimensions</div>
+		<div class="row gap">
+			<mat-form-field subscriptSizing="dynamic">
+				<mat-label>Length</mat-label>
+				<input matInput type="number" aria-label="Length" formControlName="length" min="0.5" step="0.5"/>
+			</mat-form-field>
+			<mat-form-field subscriptSizing="dynamic">
+				<mat-label>Width</mat-label>
+				<input matInput type="number" aria-label="Width" formControlName="width" min="0.5" step="0.5"/>
+			</mat-form-field>
+		</div>
+
+		<div>Bogies</div>
+		<div class="column gap-small">
+			<mat-checkbox #hasTwoBogies formControlName="hasTwoBogies">Has Two Bogies</mat-checkbox>
+			<div class="row gap center">
+				@if (hasTwoBogies.checked) {
+					<mat-form-field subscriptSizing="dynamic">
+						<mat-label>Front Bogie Position</mat-label>
+						<input matInput type="number" aria-label="Front Bogie Position" formControlName="bogie1Position" step="0.5"/>
+					</mat-form-field>
+					<mat-form-field subscriptSizing="dynamic">
+						<mat-label>Back Bogie Position</mat-label>
+						<input matInput type="number" aria-label="Back Bogie Position" formControlName="bogie2Position" step="0.5"/>
+					</mat-form-field>
+				} @else {
+					<mat-form-field subscriptSizing="dynamic">
+						<mat-label>Bogie Position</mat-label>
+						<input matInput type="number" aria-label="Bogie Position" formControlName="bogiePosition" step="0.5"/>
+					</mat-form-field>
+				}
+			</div>
+		</div>
+
+		<div>Couplings</div>
+		<div class="row gap">
+			<div class="column gap">
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Front Coupling Padding</mat-label>
+					<input matInput type="number" aria-label="Front Coupling Padding" formControlName="couplingPadding1" min="0" step="0.5"/>
+				</mat-form-field>
+				<div class="column">
+					<mat-checkbox formControlName="hasGangway1">Has Front Gangway</mat-checkbox>
+					<mat-checkbox formControlName="hasBarrier1">Has Front Barrier</mat-checkbox>
+				</div>
+			</div>
+			<div class="column gap">
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Back Coupling Padding</mat-label>
+					<input matInput type="number" aria-label="Back Coupling Padding" formControlName="couplingPadding2" min="0" step="0.5"/>
+				</mat-form-field>
+				<div class="column">
+					<mat-checkbox formControlName="hasGangway2">Has Back Gangway</mat-checkbox>
+					<mat-checkbox formControlName="hasBarrier2">Has Back Barrier</mat-checkbox>
+				</div>
+			</div>
+		</div>
+
+		<div>Sound</div>
+		<mat-radio-group class="column" aria-label="Sound Type" formControlName="soundType">
+			<mat-radio-button value="bve" #bveSoundType>BVE Format</mat-radio-button>
+			<mat-radio-button value="legacy">Legacy Format</mat-radio-button>
+		</mat-radio-group>
+		@if (bveSoundType.checked) {
+			<mat-form-field subscriptSizing="dynamic">
+				<mat-label>BVE Sound ID</mat-label>
+				<input matInput #bveSoundBaseResource aria-label="BVE Sound ID" (input)="sound.updateSound()" formControlName="bveSoundBaseResource" autocomplete="off" spellcheck="false"/>
+			</mat-form-field>
+			<div class="column">
+				<div class="row gap-small center">
+					<app-sound class="spacing" #sound buttonLabel="Test Motor Sound" [timeout]="5000" [soundId]="bveSoundBaseResource.value" [sliderMax]="300" sliderLabelSuffix="km/h" parameters="type=bve&mode=speed"/>
+					@if (sound.getIsMinecraftPaused()) {
+						<mat-icon color="warn" matTooltip="Unpause Minecraft to Hear Sounds">warning</mat-icon>
+					} @else {
+						<mat-icon/>
+					}
+				</div>
+				<div class="row gap-small">
+					<app-sound buttonLabel="Test Door Open Sound" [timeout]="1000" [soundId]="bveSoundBaseResource.value" parameters="type=bve&mode=door-open"/>
+					<app-sound buttonLabel="Test Door Close Sound" [timeout]="1000" [soundId]="bveSoundBaseResource.value" parameters="type=bve&mode=door-close"/>
+				</div>
+			</div>
+		} @else {
+			<div class="row gap">
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Motor Sound ID</mat-label>
+					<input matInput #legacySpeedSoundBaseResource aria-label="Motor Sound ID" (input)="sound.updateSound()" formControlName="legacySpeedSoundBaseResource" autocomplete="off" spellcheck="false"/>
+				</mat-form-field>
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Door Sound ID</mat-label>
+					<input matInput #legacyDoorSoundBaseResource aria-label="Door Sound ID" formControlName="legacyDoorSoundBaseResource" autocomplete="off" spellcheck="false"/>
+				</mat-form-field>
+			</div>
+			<div class="row gap">
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Motor Sound Count</mat-label>
+					<input matInput type="number" aria-label="Motor Sound Count" (input)="sound.updateSound()" formControlName="legacySpeedSoundCount" min="1"/>
+				</mat-form-field>
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Door Close Sound Duration</mat-label>
+					<input matInput type="number" aria-label="Door Close Sound Duration" formControlName="legacyDoorCloseSoundTime" min="0" max="1" step="0.1"/>
+				</mat-form-field>
+			</div>
+			<div class="column">
+				<mat-checkbox (change)="sound.updateSound()" formControlName="legacyUseAccelerationSoundsWhenCoasting">Use Acceleration Sounds When Coasting</mat-checkbox>
+				<mat-checkbox (change)="sound.updateSound()" formControlName="legacyConstantPlaybackSpeed">Constant Playback Speed</mat-checkbox>
+				<div class="row gap-small center">
+					<app-sound class="spacing" #sound buttonLabel="Test Motor Sound" [timeout]="5000" [soundId]="legacySpeedSoundBaseResource.value" [sliderMax]="300" sliderLabelSuffix="km/h" [parameters]="getLegacyParameters('speed')"/>
+					@if (sound.getIsMinecraftPaused()) {
+						<mat-icon color="warn" matTooltip="Unpause Minecraft to Hear Sounds">warning</mat-icon>
+					} @else {
+						<mat-icon/>
+					}
+				</div>
+				<div class="row gap-small">
+					<app-sound buttonLabel="Test Door Open Sound" [timeout]="1000" [soundId]="legacyDoorSoundBaseResource.value" [parameters]="getLegacyParameters('door-open')"/>
+					<app-sound buttonLabel="Test Door Close Sound" [timeout]="1000" [soundId]="legacyDoorSoundBaseResource.value" [parameters]="getLegacyParameters('door-close')"/>
+				</div>
+			</div>
+		}
+	</form>
+</mat-dialog-content>
+<mat-dialog-actions>
+	<button mat-button (click)="onSave()" cdkFocusInitial>Save</button>
+	<button mat-button (click)="onCancel()">Cancel</button>
+</mat-dialog-actions>

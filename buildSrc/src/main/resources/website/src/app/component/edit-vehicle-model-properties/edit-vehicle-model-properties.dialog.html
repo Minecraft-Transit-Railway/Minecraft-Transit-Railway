@@ -1,0 +1,75 @@
+<h2 mat-dialog-title>Model Properties</h2>
+<mat-dialog-content>
+	<form class="column gap" [formGroup]="formGroup">
+		<div>Main Resources</div>
+		<app-autocomplete label="Model Resource" [parentFormGroup]="formGroup" childFormControlName="modelResource" [lists]="modelLists"/>
+		<app-autocomplete label="Texture Resource" [parentFormGroup]="formGroup" childFormControlName="textureResource" [lists]="textureLists"/>
+		<div class="row gap center">
+			<mat-form-field subscriptSizing="dynamic">
+				<mat-label>Y Offset</mat-label>
+				<input matInput type="number" aria-label="Y Offset" formControlName="modelYOffset" step="0.5"/>
+			</mat-form-field>
+			<mat-checkbox formControlName="flipTextureV">Flip Texture V</mat-checkbox>
+		</div>
+
+		@if (hasGangway) {
+			<div>Gangways</div>
+			<app-autocomplete label="Inner Side Texture Resource" [parentFormGroup]="formGroup" childFormControlName="gangwayInnerSideResource" [lists]="textureLists"/>
+			<app-autocomplete label="Inner Top Texture Resource" [parentFormGroup]="formGroup" childFormControlName="gangwayInnerTopResource" [lists]="textureLists"/>
+			<app-autocomplete label="Inner Bottom Texture Resource" [parentFormGroup]="formGroup" childFormControlName="gangwayInnerBottomResource" [lists]="textureLists"/>
+			<app-autocomplete label="Outer Side Texture Resource" [parentFormGroup]="formGroup" childFormControlName="gangwayOuterSideResource" [lists]="textureLists"/>
+			<app-autocomplete label="Outer Top Texture Resource" [parentFormGroup]="formGroup" childFormControlName="gangwayOuterTopResource" [lists]="textureLists"/>
+			<app-autocomplete label="Outer Bottom Texture Resource" [parentFormGroup]="formGroup" childFormControlName="gangwayOuterBottomResource" [lists]="textureLists"/>
+			<div class="row gap">
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Width</mat-label>
+					<input matInput type="number" aria-label="Width" formControlName="gangwayWidth" step="0.1"/>
+				</mat-form-field>
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Height</mat-label>
+					<input matInput type="number" aria-label="Height" formControlName="gangwayHeight" step="0.1"/>
+				</mat-form-field>
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Y Offset</mat-label>
+					<input matInput type="number" aria-label="Y Offset" formControlName="gangwayYOffset" step="0.1"/>
+				</mat-form-field>
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Z Offset</mat-label>
+					<input matInput type="number" aria-label="Z Offset" formControlName="gangwayZOffset" step="0.1"/>
+				</mat-form-field>
+			</div>
+		}
+
+		@if (hasBarrier) {
+			<div>Barriers</div>
+			<app-autocomplete label="Inner Side Texture Resource" [parentFormGroup]="formGroup" childFormControlName="barrierInnerSideResource" [lists]="textureLists"/>
+			<app-autocomplete label="Inner Top Texture Resource" [parentFormGroup]="formGroup" childFormControlName="barrierInnerTopResource" [lists]="textureLists"/>
+			<app-autocomplete label="Inner Bottom Texture Resource" [parentFormGroup]="formGroup" childFormControlName="barrierInnerBottomResource" [lists]="textureLists"/>
+			<app-autocomplete label="Outer Side Texture Resource" [parentFormGroup]="formGroup" childFormControlName="barrierOuterSideResource" [lists]="textureLists"/>
+			<app-autocomplete label="Outer Top Texture Resource" [parentFormGroup]="formGroup" childFormControlName="barrierOuterTopResource" [lists]="textureLists"/>
+			<app-autocomplete label="Outer Bottom Texture Resource" [parentFormGroup]="formGroup" childFormControlName="barrierOuterBottomResource" [lists]="textureLists"/>
+			<div class="row gap">
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Width</mat-label>
+					<input matInput type="number" aria-label="Width" formControlName="barrierWidth" step="0.1"/>
+				</mat-form-field>
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Height</mat-label>
+					<input matInput type="number" aria-label="Height" formControlName="barrierHeight" step="0.1"/>
+				</mat-form-field>
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Y Offset</mat-label>
+					<input matInput type="number" aria-label="Y Offset" formControlName="barrierYOffset" step="0.1"/>
+				</mat-form-field>
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Z Offset</mat-label>
+					<input matInput type="number" aria-label="Z Offset" formControlName="barrierZOffset" step="0.1"/>
+				</mat-form-field>
+			</div>
+		}
+	</form>
+</mat-dialog-content>
+<mat-dialog-actions>
+	<button mat-button (click)="onSave()" cdkFocusInitial>Save</button>
+	<button mat-button (click)="onCancel()">Cancel</button>
+</mat-dialog-actions>

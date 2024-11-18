@@ -29,7 +29,7 @@ public class VehicleRidingMovement {
 	private static double ridingVehicleY;
 	private static double ridingVehicleZ;
 	private static boolean isOnGangway;
-	private static int ridingVehicleCoolDown;
+	private static int ridingVehicleCooldown;
 	private static float shiftHoldingTicks;
 
 	private static int ridingVehicleCarNumberCacheOld;
@@ -43,14 +43,14 @@ public class VehicleRidingMovement {
 	private static long sendPositionUpdateTime;
 
 	private static final float VEHICLE_WALKING_SPEED_MULTIPLIER = 0.005F;
-	private static final int RIDING_COOL_DOWN = 5;
+	private static final int RIDING_COOLDOWN = 5;
 	private static final int SEND_UPDATE_FREQUENCY = 1000;
 	private static final int SHIFT_ACTIVATE_TICKS = 30;
 	private static final int DISMOUNT_PROGRESS_BAR_LENGTH = 30;
 
 	public static void tick() {
-		if (ridingVehicleCoolDown < RIDING_COOL_DOWN && shiftHoldingTicks < SHIFT_ACTIVATE_TICKS) {
-			ridingVehicleCoolDown++;
+		if (ridingVehicleCooldown < RIDING_COOLDOWN && shiftHoldingTicks < SHIFT_ACTIVATE_TICKS) {
+			ridingVehicleCooldown++;
 		} else {
 			// If no vehicles are updating the player's position, dismount the player
 			sendUpdate(true);
@@ -130,7 +130,7 @@ public class VehicleRidingMovement {
 		}
 
 		if (isRiding(vehicleId) && ridingVehicleCarNumber == carNumber) {
-			ridingVehicleCoolDown = 0;
+			ridingVehicleCooldown = 0;
 			final double entityYawOld = EntityHelper.getYaw(new Entity(clientPlayerEntity.data));
 			final float speedMultiplier = millisElapsed * VEHICLE_WALKING_SPEED_MULTIPLIER * (clientPlayerEntity.isSprinting() ? 2 : 1);
 			// Calculate the relative motion inside vehicle (+Z towards back of vehicle, +/-X towards the left and right of the vehicle)
@@ -349,7 +349,7 @@ public class VehicleRidingMovement {
 	}
 
 	private static void sendUpdate(boolean dismount) {
-		if (ridingSidingId != 0 && ridingVehicleId != 0) {
+		if (ridingVehicleId != 0) {
 			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketUpdateVehicleRidingEntities.create(ridingSidingId, ridingVehicleId, dismount ? -1 : ridingVehicleCarNumber, ridingVehicleX, ridingVehicleY, ridingVehicleZ, isOnGangway));
 			sendPositionUpdateTime = 0;
 		}
