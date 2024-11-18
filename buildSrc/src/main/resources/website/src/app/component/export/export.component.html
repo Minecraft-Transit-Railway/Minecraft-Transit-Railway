@@ -10,7 +10,7 @@
 		</mat-form-field>
 	</div>
 	<div class="spacing"></div>
-	<app-large-tile icon="ios_share" [clickable]="true" [disabled]="!name.value || !description.value" (click)="export(name.value, description.value)">
+	<app-large-tile icon="ios_share" [clickable]="true" [disabled]="!name.value || !description.value" (clicked)="export(name.value, description.value)">
 		<h2>Export</h2>
 		<div>Share your creation with the world!</div>
 	</app-large-tile>

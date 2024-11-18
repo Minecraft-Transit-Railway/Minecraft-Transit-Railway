@@ -2,7 +2,7 @@
 	<div class="column center wrapper">
 		<div class="spacing"></div>
 		@if (hasData()) {
-			<app-large-tile [clickable]="true" icon="undo" (click)="openResetDialog()">
+			<app-large-tile [clickable]="true" icon="undo" (clicked)="openResetDialog()">
 				<h2>Reset Resource Pack Creator</h2>
 				<div>This will clear all progress and unsaved changes.</div>
 			</app-large-tile>
