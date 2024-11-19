@@ -4,6 +4,9 @@
 	"javaImplements": [
 		"SerializedDataBase"
 	],
+	"javaConstructorFields": [
+		"resourceProvider"
+	],
 	"properties": {
 		"modelResource": {
 			"type": "string"

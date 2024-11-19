@@ -8,6 +8,7 @@ import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.registry.PacketHandler;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mapping.tool.PacketBufferSender;
+import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockSignalBase;
 
 public final class PacketUpdateSignalConfig extends PacketHandler {
@@ -42,6 +43,10 @@ public final class PacketUpdateSignalConfig extends PacketHandler {
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
+		if (!Init.isChunkLoaded(serverPlayerEntity.getEntityWorld(), blockPos)) {
+			return;
+		}
+
 		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
 		if (entity != null && entity.data instanceof BlockSignalBase.BlockEntityBase) {
 			((BlockSignalBase.BlockEntityBase) entity.data).setData(signalColors, isBackSide);

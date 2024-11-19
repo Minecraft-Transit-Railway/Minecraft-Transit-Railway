@@ -56,7 +56,7 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 
 	@Override
 	public void render(EntityRendering entityRendering, float yaw, float tickDelta, GraphicsHolder graphicsHolder, int i) {
-		render(graphicsHolder, entityRendering.getCameraPosVec2(MinecraftClient.getInstance().getTickDelta()));
+		render(graphicsHolder, entityRendering.getCameraPosVec2(tickDelta));
 	}
 
 	@Override
@@ -164,6 +164,7 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 
 	public static void cancelRender(Identifier identifier) {
 		RENDERS.forEach(renderForPriority -> renderForPriority.forEach(renderForPriorityAndQueuedRenderLayer -> renderForPriorityAndQueuedRenderLayer.remove(identifier)));
+		CURRENT_RENDERS.forEach(renderForPriority -> renderForPriority.forEach(renderForPriorityAndQueuedRenderLayer -> renderForPriorityAndQueuedRenderLayer.remove(identifier)));
 	}
 
 	public static String getInterchangeRouteNames(Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges) {

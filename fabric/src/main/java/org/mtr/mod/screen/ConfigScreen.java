@@ -24,6 +24,7 @@ public class ConfigScreen extends ScreenExtension implements IGui {
 	private final ButtonWidgetExtension buttonLanguageOptions;
 	private final WidgetShorterSlider sliderDynamicTextureResolution;
 	private final ButtonWidgetExtension buttonDefaultRail3D;
+	private final ButtonWidgetExtension buttonUseMTRFont;
 	private final ButtonWidgetExtension buttonDisableShadowsForShaders;
 	private final ButtonWidgetExtension buttonSupportPatreon;
 
@@ -54,6 +55,10 @@ public class ConfigScreen extends ScreenExtension implements IGui {
 			client.toggleDefaultRail3D();
 			setButtonText(button, client.getDefaultRail3D());
 		});
+		buttonUseMTRFont = new ButtonWidgetExtension(0, 0, 0, BUTTON_HEIGHT, TextHelper.literal(""), button -> {
+			client.toggleUseMTRFont();
+			setButtonText(button, client.getUseMTRFont());
+		});
 		buttonDisableShadowsForShaders = new ButtonWidgetExtension(0, 0, 0, BUTTON_HEIGHT, TextHelper.literal(""), button -> {
 			client.toggleDisableShadowsForShaders();
 			setButtonText(button, client.getDisableShadowsForShaders());
@@ -72,12 +77,14 @@ public class ConfigScreen extends ScreenExtension implements IGui {
 		IDrawing.setPositionAndWidth(buttonLanguageOptions, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(sliderDynamicTextureResolution, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - GraphicsHolder.getTextWidth("100%"));
 		IDrawing.setPositionAndWidth(buttonDefaultRail3D, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
+		IDrawing.setPositionAndWidth(buttonUseMTRFont, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonDisableShadowsForShaders, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonSupportPatreon, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * i + SQUARE_SIZE, BUTTON_WIDTH);
 		setButtonText(new ButtonWidget(buttonShowAnnouncementMessages), client.getChatAnnouncements());
 		setButtonText(new ButtonWidget(buttonUseTTSAnnouncements), client.getTextToSpeechAnnouncements());
 		setButtonText(new ButtonWidget(buttonHideTranslucentParts), client.getHideTranslucentParts());
 		setButtonText(new ButtonWidget(buttonDefaultRail3D), client.getDefaultRail3D());
+		setButtonText(new ButtonWidget(buttonUseMTRFont), client.getUseMTRFont());
 		setButtonText(new ButtonWidget(buttonDisableShadowsForShaders), client.getDisableShadowsForShaders());
 		buttonLanguageOptions.setMessage2(client.getLanguageDisplay().translationKey.getText());
 		sliderDynamicTextureResolution.setHeight(BUTTON_HEIGHT);
@@ -91,6 +98,7 @@ public class ConfigScreen extends ScreenExtension implements IGui {
 		addChild(new ClickableWidget(buttonLanguageOptions));
 		addChild(new ClickableWidget(sliderDynamicTextureResolution));
 		addChild(new ClickableWidget(buttonDefaultRail3D));
+		addChild(new ClickableWidget(buttonUseMTRFont));
 		addChild(new ClickableWidget(buttonDisableShadowsForShaders));
 		addChild(new ClickableWidget(buttonSupportPatreon));
 	}
@@ -109,6 +117,7 @@ public class ConfigScreen extends ScreenExtension implements IGui {
 			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_LANGUAGE_OPTIONS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_DYNAMIC_TEXTURE_RESOLUTION.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_DEFAULT_RAIL_3D.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_USE_MTR_FONT.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_DISABLE_SHADOWS_FOR_SHADERS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_SUPPORT_PATREON.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 
@@ -117,7 +126,7 @@ public class ConfigScreen extends ScreenExtension implements IGui {
 			int y = 0;
 			int x = 0;
 			int maxWidth = 0;
-			for (final Patreon patreon : Patreon.LIST) {
+			for (final Patreon patreon : Patreon.PATREON_LIST) {
 				if (!patreon.tierTitle.equals(tierTitle)) {
 					x += maxWidth + TEXT_PADDING;
 					y = 0;

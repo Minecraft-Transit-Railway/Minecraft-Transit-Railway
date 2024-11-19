@@ -1,0 +1,12 @@
+<div class="row gap center">
+	<button mat-button (click)="playSound()" [disabled]="getIsPlaying() || !soundId">
+		<mat-icon>{{ getIsPlaying() ? "pending" : "volume_up" }}</mat-icon>
+		{{ buttonLabel }}
+	</button>
+	@if (sliderMax) {
+		<mat-slider class="spacing" [max]="sliderMax" [disabled]="!soundId">
+			<input matSliderThumb #slider [value]="sliderValue" (input)="playSound(slider.value)">
+		</mat-slider>
+		<div class="slider-label">{{ slider.value }} {{ sliderLabelSuffix }}</div>
+	}
+</div>

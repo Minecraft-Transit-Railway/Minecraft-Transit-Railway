@@ -9,7 +9,6 @@ import org.mtr.core.tool.Vector;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.SoundHelper;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
@@ -205,10 +204,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 						} else if (block.data instanceof BlockTrainAnnouncer && VehicleRidingMovement.isRiding(id)) {
 							final BlockEntity blockEntity = clientWorld.getBlockEntity(offsetBlockPos);
 							if (blockEntity != null && blockEntity.data instanceof BlockTrainAnnouncer.BlockEntity) {
-								((BlockTrainAnnouncer.BlockEntity) blockEntity.data).announce(
-										message -> IDrawing.narrateOrAnnounce(message, ObjectArrayList.of(TextHelper.literal(message))),
-										soundId -> clientPlayerEntity.playSound(SoundHelper.createSoundEvent(new Identifier(soundId)), 1000, 1)
-								);
+								((BlockTrainAnnouncer.BlockEntity) blockEntity.data).announce();
 							}
 						}
 					}
@@ -230,8 +226,8 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		}
 	}
 
-	public void playMotorSound(VehicleResource vehicleResource, int carNumber, int bogieIndex, Vector bogiePosition) {
-		persistentVehicleData.playMotorSound(vehicleResource, carNumber, bogieIndex, Init.newBlockPos(bogiePosition.x, bogiePosition.y, bogiePosition.z), (float) speed, (float) (speed - oldSpeed), (float) vehicleExtraData.getAcceleration(), getIsOnRoute());
+	public void playMotorSound(VehicleResource vehicleResource, int carNumber, Vector bogiePosition) {
+		persistentVehicleData.playMotorSound(vehicleResource, carNumber, Init.newBlockPos(bogiePosition.x, bogiePosition.y, bogiePosition.z), (float) speed, (float) (speed - oldSpeed), (float) vehicleExtraData.getAcceleration(), getIsOnRoute());
 	}
 
 	public void playDoorSound(VehicleResource vehicleResource, int carNumber, Vector vehiclePosition) {

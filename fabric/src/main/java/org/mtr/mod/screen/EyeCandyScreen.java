@@ -57,17 +57,17 @@ public class EyeCandyScreen extends ScreenExtension implements IGui {
 
 		buttonSelectModel = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> MinecraftClient.getInstance().openScreen(new Screen(new EyeCandyObjectSelectionScreen(this, new ObjectImmutableList<>(objectsForList), selectedModelIndices, this::sendUpdate))));
 		buttonSelectModel.setMessage2(new Text(TextHelper.translatable("selectWorld.edit").data));
-		textFieldTranslateX = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.]", null);
+		textFieldTranslateX = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
 		textFieldTranslateX.setChangedListener2(text -> sendUpdate());
-		textFieldTranslateY = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.]", null);
+		textFieldTranslateY = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
 		textFieldTranslateY.setChangedListener2(text -> sendUpdate());
-		textFieldTranslateZ = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.]", null);
+		textFieldTranslateZ = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
 		textFieldTranslateZ.setChangedListener2(text -> sendUpdate());
-		textFieldRotateX = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.]", null);
+		textFieldRotateX = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
 		textFieldRotateX.setChangedListener2(text -> sendUpdate());
-		textFieldRotateY = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.]", null);
+		textFieldRotateY = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
 		textFieldRotateY.setChangedListener2(text -> sendUpdate());
-		textFieldRotateZ = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.]", null);
+		textFieldRotateZ = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
 		textFieldRotateZ.setChangedListener2(text -> sendUpdate());
 		buttonFullBrightness = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> sendUpdate());
 		buttonFullBrightness.setMessage2(TranslationProvider.GUI_MTR_MODEL_FULL_BRIGHTNESS.getText());

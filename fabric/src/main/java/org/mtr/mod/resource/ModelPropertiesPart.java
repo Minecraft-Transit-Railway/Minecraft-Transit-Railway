@@ -9,14 +9,13 @@ import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.OverlayTexture;
 import org.mtr.mapping.holder.Vector3d;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.ModelPartExtension;
-import org.mtr.mapping.mapper.OptimizedModel;
-import org.mtr.mapping.mapper.OptimizedRenderer;
+import org.mtr.mapping.mapper.*;
 import org.mtr.mod.Init;
 import org.mtr.mod.MutableBox;
 import org.mtr.mod.client.CustomResourceLoader;
+import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.ScrollingText;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.generated.resource.ModelPropertiesPartSchema;
@@ -53,6 +52,50 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		displayColorCjkInt = 0;
 	}
 
+	ModelPropertiesPart(
+			ObjectArrayList<String> names,
+			ObjectArrayList<String> positionDefinitions,
+			PartCondition condition,
+			RenderStage renderStage,
+			PartType type,
+			double displayXPadding,
+			double displayYPadding,
+			String displayColorCjk,
+			String displayColor,
+			double displayMaxLineHeight,
+			double displayCjkSizeRatio,
+			ObjectArrayList<String> displayOptions,
+			double displayPadZeros,
+			DisplayType displayType,
+			String displayDefaultText,
+			double doorXMultiplier,
+			double doorZMultiplier,
+			DoorAnimationType doorAnimationType
+	) {
+		super(
+				condition,
+				renderStage,
+				type,
+				displayXPadding,
+				displayYPadding,
+				displayColorCjk,
+				displayColor,
+				displayMaxLineHeight,
+				displayCjkSizeRatio,
+				displayPadZeros,
+				displayType,
+				displayDefaultText,
+				doorXMultiplier,
+				doorZMultiplier,
+				doorAnimationType
+		);
+		this.names.addAll(names);
+		this.positionDefinitions.addAll(positionDefinitions);
+		this.displayOptions.addAll(displayOptions);
+		displayColorInt = parseColor(displayColor, 0xFF9900);
+		displayColorCjkInt = parseColor(displayColorCjk, displayColorInt);
+	}
+
 	/**
 	 * Maps each part name to the corresponding part and collects all floors, doors, and doorways for processing later.
 	 * Writes to the collective vehicle model parts (one with doors, one without doors).
@@ -61,7 +104,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	public void writeCache(
 			Identifier texture,
 			Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ModelPartExtension, MutableBox>> nameToPart,
-			Object2ObjectOpenHashMap<String, ModelDisplayPart> nameToDisplayPart,
+			Object2ObjectOpenHashMap<String, ObjectArrayList<ModelDisplayPart>> nameToDisplayParts,
 			PositionDefinitions positionDefinitionsObject,
 			ObjectArraySet<Box> floors,
 			ObjectArraySet<Box> doorways,
@@ -70,7 +113,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	) {
 		final ObjectArrayList<ModelPartExtension> modelParts = new ObjectArrayList<>();
 		final MutableBox mutableBox = new MutableBox();
-		final ObjectArrayList<ModelDisplayPart> modelDisplayParts = new ObjectArrayList<>();
+		final ObjectArrayList<ObjectArrayList<ModelDisplayPart>> modelDisplayParts = new ObjectArrayList<>();
 		final OptimizedModelWrapper optimizedModelDoor;
 
 		names.forEach(name -> {
@@ -80,9 +123,9 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				mutableBox.add(part.right());
 			}
 
-			final ModelDisplayPart modelDisplayPart = nameToDisplayPart.get(name);
-			if (modelDisplayPart != null) {
-				modelDisplayParts.add(modelDisplayPart);
+			final ObjectArrayList<ModelDisplayPart> displayParts = nameToDisplayParts.get(name);
+			if (displayParts != null) {
+				modelDisplayParts.add(displayParts);
 			}
 		});
 
@@ -152,7 +195,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		}));
 	}
 
-	public void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, int light, ObjectArrayList<Box> openDoorways) {
+	public void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker, int light, ObjectArrayList<Box> openDoorways) {
 		if (vehicle == null || VehicleResource.matchesCondition(vehicle, condition, openDoorways.isEmpty())) {
 			switch (type) {
 				case NORMAL:
@@ -166,9 +209,11 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				case DISPLAY:
 					if (vehicle != null) {
 						if (displayOptions.contains(DisplayOption.SEVEN_SEGMENT.toString())) {
-							MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/sign/seven_segment.png"), true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> renderDisplay(graphicsHolder, offset, storedMatrixTransformations, vehicle, true));
+							renderSevenSegmentDisplay(storedMatrixTransformations, vehicle);
+						} else if (displayOptions.contains(DisplayOption.SCROLL_NORMAL.toString()) || displayOptions.contains(DisplayOption.SCROLL_LIGHT_RAIL.toString())) {
+							renderScrollingDisplay(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker);
 						} else {
-							MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> renderDisplay(graphicsHolder, offset, storedMatrixTransformations, vehicle, false));
+							renderDisplay(storedMatrixTransformations, vehicle);
 						}
 					}
 					break;
@@ -197,10 +242,32 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		}
 	}
 
+	void addToModelPropertiesPartWrapperMap(PositionDefinitions actualPositionDefinitions, ObjectArrayList<ModelPropertiesPartWrapper> parts) {
+		names.forEach(modelPartName -> positionDefinitions.forEach(positionDefinitionName -> actualPositionDefinitions.getPositionDefinition(positionDefinitionName, (positions, positionsFlipped) -> parts.add(new ModelPropertiesPartWrapper(
+				new PositionDefinition(modelPartName, positions, positionsFlipped),
+				condition,
+				renderStage,
+				type,
+				displayXPadding,
+				displayYPadding,
+				displayColorCjk,
+				displayColor,
+				displayMaxLineHeight,
+				displayCjkSizeRatio,
+				displayOptions,
+				displayPadZeros,
+				displayType,
+				displayDefaultText,
+				doorXMultiplier,
+				doorZMultiplier,
+				doorAnimationType
+		)))));
+	}
+
 	/**
 	 * If this part is a door, find the closest doorway.
 	 */
-	void mapDoors(ObjectArraySet<Box> doorways) {
+	void mapDoors(ObjectArrayList<Box> doorways) {
 		if (isDoor()) {
 			partDetailsList.forEach(partDetails -> doorways.stream().min(Comparator.comparingDouble(checkDoorway -> getClosestDistance(
 					partDetails.box.getMinXMapped(),
@@ -231,7 +298,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			final boolean canOpenDoors = openDoorways.contains(partDetails.doorway);
 			final float x = (float) (partDetails.x + (vehicle == null ? 0 : doorAnimationType.getDoorAnimationX(doorXMultiplier, partDetails.flipped, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0)));
 			final float y = (float) partDetails.y;
-			final float z = (float) (partDetails.z + (vehicle == null ? 0 : doorAnimationType.getDoorAnimationZ(doorZMultiplier, partDetails.flipped, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0, vehicle.vehicleExtraData.getDoorMultiplier() > 0)));
+			final float z = (float) (partDetails.z + (vehicle == null ? 0 : doorAnimationType.getDoorAnimationZ(doorZMultiplier, partDetails.flipped, canOpenDoors ? vehicle.persistentVehicleData.getDoorValue() : 0, vehicle.persistentVehicleData.getAdjustedDoorMultiplier(vehicle.vehicleExtraData) > 0)));
 
 			if (OptimizedRenderer.hasOptimizedRendering()) {
 				// If doors are open, only render the optimized door parts
@@ -252,7 +319,70 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		graphicsHolder.pop();
 	}
 
-	private void renderDisplay(GraphicsHolder graphicsHolder, Vector3d offset, StoredMatrixTransformations storedMatrixTransformations, Vehicle vehicle, boolean isSevenSegment) {
+	private void renderSevenSegmentDisplay(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle) {
+		final String text = formatText(vehicle);
+		final HorizontalAlignment horizontalAlignment = getHorizontalAlignment(false);
+
+		MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/sign/seven_segment.png"), true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
+			storedMatrixTransformations.transform(graphicsHolder, offset);
+
+			displayPartDetailsList.forEach(displayPartDetails -> {
+				graphicsHolder.push();
+				graphicsHolder.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
+				graphicsHolder.rotateYDegrees(displayPartDetails.flipped ? 180 : 0);
+
+				displayPartDetails.modelDisplayParts.forEach(displayParts -> displayParts.forEach(displayPart -> {
+					displayPart.storedMatrixTransformations.transform(graphicsHolder, Vector3d.getZeroMapped());
+					graphicsHolder.translate(0, displayYPadding / 16, -SMALL_OFFSET);
+					IDrawing.drawSevenSegment(
+							graphicsHolder,
+							text,
+							(displayPart.width - (float) displayXPadding * 2) / 16,
+							0, 0,
+							(displayPart.height - (float) displayYPadding * 2) / 16,
+							horizontalAlignment,
+							ARGB_BLACK | displayColorInt, GraphicsHolder.getDefaultLight()
+					);
+					graphicsHolder.pop();
+				}));
+
+				graphicsHolder.pop();
+			});
+
+			graphicsHolder.pop();
+		});
+	}
+
+	private void renderScrollingDisplay(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker) {
+		final String text = formatText(vehicle);
+		final ObjectArrayList<ScrollingText> scrollingTexts = vehicle.persistentVehicleData.getScrollingText(carNumber);
+
+		displayPartDetailsList.forEach(displayPartDetails -> {
+			final StoredMatrixTransformations storedMatrixTransformations1 = storedMatrixTransformations.copy();
+			storedMatrixTransformations1.add(graphicsHolder -> {
+				graphicsHolder.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
+				graphicsHolder.rotateYDegrees(displayPartDetails.flipped ? 180 : 0);
+			});
+
+			displayPartDetails.modelDisplayParts.forEach(displayParts -> displayParts.forEach(displayPart -> {
+				final StoredMatrixTransformations storedMatrixTransformations2 = storedMatrixTransformations1.copy();
+				storedMatrixTransformations2.add(displayPart.storedMatrixTransformations);
+				storedMatrixTransformations2.add(graphicsHolder -> graphicsHolder.translate(displayXPadding / 16, displayYPadding / 16, -SMALL_OFFSET));
+				final double width = (displayPart.width - displayXPadding * 2) / 16F;
+				final double height = (displayPart.height - displayYPadding * 2) / 16F;
+
+				while (scrollingTexts.size() <= scrollingDisplayIndexTracker[0]) {
+					scrollingTexts.add(new ScrollingText(width, height, 4, height < 0.1));
+				}
+
+				scrollingTexts.get(scrollingDisplayIndexTracker[0]).changeImage(text.isEmpty() ? null : DynamicTextureCache.instance.getPixelatedText(text, ARGB_BLACK | displayColorInt, Integer.MAX_VALUE, displayCjkSizeRatio, height < 0.1));
+				scrollingTexts.get(scrollingDisplayIndexTracker[0]).scrollText(storedMatrixTransformations2);
+				scrollingDisplayIndexTracker[0]++;
+			}));
+		});
+	}
+
+	private void renderDisplay(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle) {
 		final String[] textSplit = formatText(vehicle).split("\\|");
 		final boolean[] isCjk = new boolean[textSplit.length];
 		double tempTotalHeight = 0;
@@ -261,26 +391,23 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			tempTotalHeight += isCjk[i] ? displayCjkSizeRatio <= 0 ? 1 : displayCjkSizeRatio : 1;
 		}
 		final double totalHeight = tempTotalHeight;
-		storedMatrixTransformations.transform(graphicsHolder, offset);
 
-		displayPartDetailsList.forEach(displayPartDetails -> {
-			graphicsHolder.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
-			if (displayPartDetails.flipped) {
-				graphicsHolder.rotateYDegrees(180);
-			}
+		MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
+			storedMatrixTransformations.transform(graphicsHolder, offset);
 
-			displayPartDetails.modelDisplayParts.forEach(displayPart -> {
-				displayPart.storedMatrixTransformations.transform(graphicsHolder, new Vector3d(0, 0, 0));
-				graphicsHolder.translate(isSevenSegment ? 0 : displayXPadding / 16, displayYPadding / 16, -SMALL_OFFSET);
+			displayPartDetailsList.forEach(displayPartDetails -> {
+				graphicsHolder.push();
+				graphicsHolder.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
+				graphicsHolder.rotateYDegrees(displayPartDetails.flipped ? 180 : 0);
 
-				for (int i = 0; i < textSplit.length; i++) {
-					final double lineHeight = isCjk[i] ? displayCjkSizeRatio <= 0 ? 1 : displayCjkSizeRatio : 1;
-					final double textHeight = Math.min((displayPart.height - displayYPadding * 2) * lineHeight / totalHeight, displayMaxLineHeight <= 0 ? Double.MAX_VALUE : displayMaxLineHeight * lineHeight) / 16;
-					final HorizontalAlignment horizontalAlignment = getHorizontalAlignment(isCjk[i]);
+				displayPartDetails.modelDisplayParts.forEach(displayParts -> displayParts.forEach(displayPart -> {
+					displayPart.storedMatrixTransformations.transform(graphicsHolder, Vector3d.getZeroMapped());
+					graphicsHolder.translate(displayXPadding / 16, displayYPadding / 16, -SMALL_OFFSET);
 
-					if (isSevenSegment) {
-						IDrawing.drawSevenSegment(graphicsHolder, textSplit[i], (displayPart.width - (float) displayXPadding * 2) / 16, 0, 0, (displayPart.height - (float) displayYPadding * 2) / 16, horizontalAlignment, ARGB_BLACK | displayColorInt, GraphicsHolder.getDefaultLight());
-					} else {
+					for (int i = 0; i < textSplit.length; i++) {
+						final double lineHeight = isCjk[i] ? displayCjkSizeRatio <= 0 ? 1 : displayCjkSizeRatio : 1;
+						final double textHeight = Math.min((displayPart.height - displayYPadding * 2) * lineHeight / totalHeight, displayMaxLineHeight <= 0 ? Double.MAX_VALUE : displayMaxLineHeight * lineHeight) / 16;
+						final HorizontalAlignment horizontalAlignment = getHorizontalAlignment(isCjk[i]);
 						final double heightScale = textHeight / (TEXT_HEIGHT + LINE_PADDING);
 						final double textWidth = GraphicsHolder.getTextWidth(textSplit[i]) * heightScale;
 						final double availableTextWidth = (displayPart.width - displayXPadding * 2) / 16;
@@ -288,18 +415,19 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 						graphicsHolder.push();
 						graphicsHolder.translate(Math.max(0, horizontalAlignment.getOffset(0, (float) (textWidth - availableTextWidth))), 0, 0);
 						graphicsHolder.scale((float) (widthScale * heightScale), (float) heightScale, 1);
-						graphicsHolder.drawText(textSplit[i], 0, 0, isCjk[i] ? displayColorCjkInt : displayColorInt, false, GraphicsHolder.getDefaultLight());
+						graphicsHolder.drawText(IDrawing.withMTRFont(TextHelper.literal(textSplit[i])), 0, 0, isCjk[i] ? displayColorCjkInt : displayColorInt, false, GraphicsHolder.getDefaultLight());
 						graphicsHolder.pop();
+						graphicsHolder.translate(0, textHeight, 0);
 					}
 
-					graphicsHolder.translate(0, textHeight, 0);
-				}
+					graphicsHolder.pop();
+				}));
 
 				graphicsHolder.pop();
 			});
-		});
 
-		graphicsHolder.pop();
+			graphicsHolder.pop();
+		});
 	}
 
 	private void addCube(Identifier texture, ObjectArrayList<ModelPartExtension> modelParts, Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStage, double x, double y, double z, boolean flipped) {
@@ -324,13 +452,20 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	}
 
 	private String formatText(Vehicle vehicle) {
+		final String destination = getOrDefault(vehicle.vehicleExtraData.getThisRouteDestination(), getOrDefault(vehicle.vehicleExtraData.getNextRouteDestination(), getOrDefault(vehicle.vehicleExtraData.getNextStationName(), vehicle.vehicleExtraData.getThisStationName())));
+		final String routeNumber = getOrDefault(vehicle.vehicleExtraData.getThisRouteNumber(), vehicle.vehicleExtraData.getThisRouteDestination(), vehicle.vehicleExtraData.getNextRouteNumber());
+		final String routeName = getOrDefault(routeNumber + " ", routeNumber, "") + getOrDefault(vehicle.vehicleExtraData.getThisRouteName(), vehicle.vehicleExtraData.getThisRouteDestination(), vehicle.vehicleExtraData.getNextRouteName());
+		final String thisStation = getOrDefault(vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getPreviousStationName());
+		final String nextStation = getOrDefault(vehicle.vehicleExtraData.getNextStationName(), vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getThisStationName());
+		final boolean doorsOpen = vehicle.vehicleExtraData.getDoorMultiplier() > 0;
+
 		final String text;
 		switch (displayType) {
 			case DESTINATION:
-				text = vehicle.getIsOnRoute() ? getOrDefault(vehicle.vehicleExtraData.getThisRouteDestination(), getOrDefault(vehicle.vehicleExtraData.getNextRouteDestination(), getOrDefault(vehicle.vehicleExtraData.getNextStationName(), getOrDefault(vehicle.vehicleExtraData.getThisStationName(), displayDefaultText)))) : displayDefaultText;
+				text = vehicle.getIsOnRoute() ? destination : displayDefaultText;
 				break;
 			case ROUTE_NUMBER:
-				text = vehicle.getIsOnRoute() ? getOrDefault(vehicle.vehicleExtraData.getThisRouteNumber(), vehicle.vehicleExtraData.getThisRouteDestination(), getOrDefault(vehicle.vehicleExtraData.getNextRouteNumber(), vehicle.vehicleExtraData.getNextRouteDestination(), displayDefaultText)) : displayDefaultText;
+				text = vehicle.getIsOnRoute() ? routeNumber : displayDefaultText;
 				break;
 			case DEPARTURE_INDEX:
 				if (vehicle.getIsOnRoute()) {
@@ -345,10 +480,20 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				}
 				break;
 			case NEXT_STATION:
-				text = vehicle.vehicleExtraData.getNextStationName();
+				text = vehicle.getIsOnRoute() ? doorsOpen ? thisStation : nextStation : displayDefaultText;
+				break;
+			case NEXT_STATION_KCR:
+				text = vehicle.getIsOnRoute() ? DisplayType.getHongKongNextStationString(thisStation, nextStation, doorsOpen, true) : displayDefaultText;
+				break;
+			case NEXT_STATION_MTR:
+				text = vehicle.getIsOnRoute() ? DisplayType.getHongKongNextStationString(thisStation, nextStation, doorsOpen, false) : displayDefaultText;
+				break;
+			case NEXT_STATION_UK:
+				text = vehicle.getIsOnRoute() ? DisplayType.getLondonNextStationString(routeName, thisStation, nextStation, vehicle.vehicleExtraData::iterateInterchanges, destination, doorsOpen, vehicle.vehicleExtraData.getIsTerminating()) : displayDefaultText;
 				break;
 			default:
 				text = "";
+				break;
 		}
 
 		String newText = text;
@@ -456,13 +601,13 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 	private static class DisplayPartDetails {
 
-		private final ObjectArrayList<ModelDisplayPart> modelDisplayParts;
+		private final ObjectArrayList<ObjectArrayList<ModelDisplayPart>> modelDisplayParts;
 		private final double x;
 		private final double y;
 		private final double z;
 		private final boolean flipped;
 
-		private DisplayPartDetails(ObjectArrayList<ModelDisplayPart> modelDisplayParts, double x, double y, double z, boolean flipped) {
+		private DisplayPartDetails(ObjectArrayList<ObjectArrayList<ModelDisplayPart>> modelDisplayParts, double x, double y, double z, boolean flipped) {
 			this.modelDisplayParts = modelDisplayParts;
 			this.x = x / 16;
 			this.y = y / 16;

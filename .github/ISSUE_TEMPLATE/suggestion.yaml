@@ -1,0 +1,41 @@
+name: Suggestion
+description: Help improve Minecraft Transit Railway by providing ideas and possibilities for new functionality!
+labels: [ "enhancement" ]
+body:
+  - type: dropdown
+    attributes:
+      label: Suggestion Type
+      description: What category does your suggestion fall into?
+      options:
+        - "Train simulation mechanics"
+        - "Train visual/audio effects"
+        - "New blocks/items"
+        - "User experience"
+        - "Other"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Suggestion
+      description: A brief description of your suggestion.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Assets
+      description: |
+        If you are suggesting new content for this mod and have pre-made assets, such as textures or models, you can provide them here.  
+        **Please note that the assets must be permissively licensed and can be used in our mod.**
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Implementation Details and References
+      description: If you have any ideas about how exactly you want your suggestion to be implemented, such as a detailed description, screenshots, or videos, you can provide them here.
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your suggestion! Please note that depending on various factors and code complexity, your suggestion may not always be implemented as-is.
+        Further discussion may take place in this issue.

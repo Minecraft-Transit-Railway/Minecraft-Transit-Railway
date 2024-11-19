@@ -3,13 +3,11 @@ package org.mtr.mod.resource;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.generated.resource.VehicleResourceSchema;
@@ -22,19 +20,16 @@ import org.mtr.mod.sound.BveVehicleSoundConfig;
 import org.mtr.mod.sound.LegacyVehicleSound;
 import org.mtr.mod.sound.VehicleSoundBase;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public final class VehicleResource extends VehicleResourceSchema {
 
-	public final ObjectImmutableList<Box> floors;
-	public final ObjectImmutableList<Box> doorways;
 	public final Supplier<VehicleSoundBase> createVehicleSoundBase;
-	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels;
-	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsDoorsClosed;
-	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie1;
-	private final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie2;
+	public final CachedResource<VehicleResourceCache> cachedVehicleResource;
 
 	private static final boolean[][] CHRISTMAS_LIGHT_STAGES = {
 			{true, false, false, false},
@@ -91,71 +86,121 @@ public final class VehicleResource extends VehicleResourceSchema {
 			{true, true, true, true},
 	};
 
-	public VehicleResource(ReaderBase readerBase, @Nullable ObjectArrayList<VehicleModel> extraModels, @Nullable Box extraFloor, ObjectArraySet<Box> doorways) {
-		super(readerBase);
+	public VehicleResource(ReaderBase readerBase, @Nullable ObjectArrayList<VehicleModel> extraModels, ResourceProvider resourceProvider) {
+		super(readerBase, resourceProvider);
 		updateData(readerBase);
-
-		final ObjectArraySet<Box> floors = new ObjectArraySet<>();
-		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsModel = new Object2ObjectOpenHashMap<>();
-		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
-		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsBogie1Model = new Object2ObjectOpenHashMap<>();
-		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsBogie2Model = new Object2ObjectOpenHashMap<>();
-		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsModel = new Object2ObjectOpenHashMap<>();
-		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
-		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsBogie1Model = new Object2ObjectOpenHashMap<>();
-		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsBogie2Model = new Object2ObjectOpenHashMap<>();
 
 		if (extraModels != null) {
 			models.addAll(extraModels);
 		}
-		if (extraFloor != null) {
-			floors.add(extraFloor);
-		}
 
-		forEachNonNull(models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(floors, doorways, materialGroupsModel, materialGroupsModelDoorsClosed, objModelsModel, objModelsModelDoorsClosed));
-		forEachNonNull(models, dynamicVehicleModel -> dynamicVehicleModel.modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.mapDoors(doorways)));
-		forEachNonNull(bogie1Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArraySet<>(), new ObjectArraySet<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie1Model, new Object2ObjectOpenHashMap<>(), objModelsBogie1Model));
-		forEachNonNull(bogie2Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArraySet<>(), new ObjectArraySet<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie2Model, new Object2ObjectOpenHashMap<>(), objModelsBogie2Model));
-
-		this.floors = new ObjectImmutableList<>(floors);
-		this.doorways = new ObjectImmutableList<>(doorways);
-
-		optimizedModels = writeToOptimizedModels(materialGroupsModel, objModelsModel);
-		optimizedModelsDoorsClosed = writeToOptimizedModels(materialGroupsModelDoorsClosed, objModelsModelDoorsClosed);
-		optimizedModelsBogie1 = writeToOptimizedModels(materialGroupsBogie1Model, objModelsBogie1Model);
-		optimizedModelsBogie2 = writeToOptimizedModels(materialGroupsBogie2Model, objModelsBogie2Model);
-
-		if (bveSoundBaseResource.isEmpty()) {
-			final LegacyVehicleSound legacyVehicleSound = new LegacyVehicleSound(
-					legacySpeedSoundBaseResource,
-					(int) legacySpeedSoundCount,
-					legacyUseAccelerationSoundsWhenCoasting,
-					legacyConstantPlaybackSpeed,
-					legacyDoorSoundBaseResource,
-					legacyDoorCloseSoundTime
-			);
-			createVehicleSoundBase = () -> legacyVehicleSound;
-		} else {
-			final BveVehicleSoundConfig bveVehicleSoundConfig = new BveVehicleSoundConfig(bveSoundBaseResource);
-			createVehicleSoundBase = () -> new BveVehicleSound(bveVehicleSoundConfig);
-		}
+		cachedVehicleResource = cachedVehicleResourceInitializer();
+		createVehicleSoundBase = createVehicleSoundBaseInitializer();
 	}
 
-	public VehicleResource(ReaderBase readerBase) {
-		this(readerBase, null, null, new ObjectArraySet<>());
+	public VehicleResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
+		this(readerBase, null, resourceProvider);
+	}
+
+	VehicleResource(
+			String id,
+			String name,
+			String color,
+			TransportMode transportMode,
+			double length,
+			double width,
+			double bogie1Position,
+			double bogie2Position,
+			double couplingPadding1,
+			double couplingPadding2,
+			String description,
+			String wikipediaArticle,
+			ObjectArrayList<String> tags,
+			ObjectArrayList<VehicleModel> models,
+			ObjectArrayList<VehicleModel> bogie1Models,
+			ObjectArrayList<VehicleModel> bogie2Models,
+			boolean hasGangway1,
+			boolean hasGangway2,
+			boolean hasBarrier1,
+			boolean hasBarrier2,
+			double legacyRiderOffset,
+			String bveSoundBaseResource,
+			String legacySpeedSoundBaseResource,
+			long legacySpeedSoundCount,
+			boolean legacyUseAccelerationSoundsWhenCoasting,
+			boolean legacyConstantPlaybackSpeed,
+			String legacyDoorSoundBaseResource,
+			double legacyDoorCloseSoundTime,
+			ResourceProvider resourceProvider
+	) {
+		super(
+				id,
+				name,
+				color,
+				transportMode,
+				length,
+				width,
+				bogie1Position,
+				bogie2Position,
+				couplingPadding1,
+				couplingPadding2,
+				description,
+				wikipediaArticle,
+				hasGangway1,
+				hasGangway2,
+				hasBarrier1,
+				hasBarrier2,
+				legacyRiderOffset,
+				bveSoundBaseResource,
+				legacySpeedSoundBaseResource,
+				legacySpeedSoundCount,
+				legacyUseAccelerationSoundsWhenCoasting,
+				legacyConstantPlaybackSpeed,
+				legacyDoorSoundBaseResource,
+				legacyDoorCloseSoundTime,
+				resourceProvider
+		);
+		this.tags.addAll(tags);
+		this.models.addAll(models);
+		this.bogie1Models.addAll(bogie1Models);
+		this.bogie2Models.addAll(bogie2Models);
+		this.cachedVehicleResource = cachedVehicleResourceInitializer();
+		this.createVehicleSoundBase = createVehicleSoundBaseInitializer();
+	}
+
+	@Nonnull
+	@Override
+	protected ResourceProvider modelsResourceProviderParameter() {
+		return resourceProvider;
+	}
+
+	@Nonnull
+	@Override
+	protected ResourceProvider bogie1ModelsResourceProviderParameter() {
+		return resourceProvider;
+	}
+
+	@Nonnull
+	@Override
+	protected ResourceProvider bogie2ModelsResourceProviderParameter() {
+		return resourceProvider;
 	}
 
 	public void queue(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, ObjectArrayList<Box> openDoorways) {
-		if (openDoorways.isEmpty()) {
-			queue(optimizedModelsDoorsClosed, storedMatrixTransformations, vehicle, light, true);
-		} else {
-			queue(optimizedModels, storedMatrixTransformations, vehicle, light, false);
+		final VehicleResourceCache vehicleResourceCache = cachedVehicleResource.getData(false);
+		if (vehicleResourceCache != null) {
+			if (openDoorways.isEmpty()) {
+				queue(vehicleResourceCache.optimizedModelsDoorsClosed, storedMatrixTransformations, vehicle, light, true);
+			} else {
+				queue(vehicleResourceCache.optimizedModels, storedMatrixTransformations, vehicle, light, false);
+			}
 		}
 	}
 
 	public void queueBogie(int bogieIndex, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light) {
-		if (Utilities.isBetween(bogieIndex, 0, 1)) {
-			queue(bogieIndex == 0 ? optimizedModelsBogie1 : optimizedModelsBogie2, storedMatrixTransformations, vehicle, light, true);
+		final VehicleResourceCache vehicleResourceCache = cachedVehicleResource.getData(false);
+		if (vehicleResourceCache != null && Utilities.isBetween(bogieIndex, 0, 1)) {
+			queue(bogieIndex == 0 ? vehicleResourceCache.optimizedModelsBogie1 : vehicleResourceCache.optimizedModelsBogie2, storedMatrixTransformations, vehicle, light, true);
 		}
 	}
 
@@ -208,22 +253,61 @@ public final class VehicleResource extends VehicleResourceSchema {
 	}
 
 	public void iterateModels(ModelConsumer modelConsumer) {
-		for (int i = 0; i < models.size(); i++) {
-			final VehicleModel vehicleModel = models.get(i);
-			if (vehicleModel != null && vehicleModel.model != null) {
-				modelConsumer.accept(i, vehicleModel.model);
-			}
+		iterateModels(models, modelConsumer);
+	}
+
+	public void iterateBogieModels(int bogieIndex, ModelConsumer modelConsumer) {
+		if (Utilities.isBetween(bogieIndex, 0, 1)) {
+			iterateModels(bogieIndex == 0 ? bogie1Models : bogie2Models, modelConsumer);
 		}
 	}
 
-	public void iterateBogieModels(int bogieIndex, Consumer<DynamicVehicleModel> consumer) {
-		if (Utilities.isBetween(bogieIndex, 0, 1)) {
-			(bogieIndex == 0 ? bogie1Models : bogie2Models).forEach(vehicleModel -> {
-				if (vehicleModel.model != null) {
-					consumer.accept(vehicleModel.model);
-				}
-			});
-		}
+	public VehicleResourceWrapper toVehicleResourceWrapper() {
+		return new VehicleResourceWrapper(
+				id,
+				name,
+				color,
+				transportMode,
+				length,
+				width,
+				bogie1Position,
+				bogie2Position,
+				couplingPadding1,
+				couplingPadding2,
+				description,
+				wikipediaArticle,
+				tags,
+				models.stream().map(VehicleModel::toVehicleModelWrapper).collect(Collectors.toCollection(ObjectArrayList::new)),
+				bogie1Models.stream().map(VehicleModel::toVehicleModelWrapper).collect(Collectors.toCollection(ObjectArrayList::new)),
+				bogie2Models.stream().map(VehicleModel::toVehicleModelWrapper).collect(Collectors.toCollection(ObjectArrayList::new)),
+				hasGangway1,
+				hasGangway2,
+				hasBarrier1,
+				hasBarrier2,
+				legacyRiderOffset,
+				bveSoundBaseResource,
+				legacySpeedSoundBaseResource,
+				legacySpeedSoundCount,
+				legacyUseAccelerationSoundsWhenCoasting,
+				legacyConstantPlaybackSpeed,
+				legacyDoorSoundBaseResource,
+				legacyDoorCloseSoundTime
+		);
+	}
+
+	public void writeMinecraftResource(ObjectArraySet<MinecraftModelResource> minecraftModelResources, ObjectArraySet<String> minecraftTextureResources) {
+		models.forEach(vehicleModel -> {
+			minecraftModelResources.add(vehicleModel.getAsMinecraftResource());
+			vehicleModel.addToTextureResource(minecraftTextureResources);
+		});
+		bogie1Models.forEach(vehicleModel -> {
+			minecraftModelResources.add(vehicleModel.getAsMinecraftResource());
+			vehicleModel.addToTextureResource(minecraftTextureResources);
+		});
+		bogie2Models.forEach(vehicleModel -> {
+			minecraftModelResources.add(vehicleModel.getAsMinecraftResource());
+			vehicleModel.addToTextureResource(minecraftTextureResources);
+		});
 	}
 
 	public boolean hasGangway1() {
@@ -256,6 +340,88 @@ public final class VehicleResource extends VehicleResourceSchema {
 				return vehicle.persistentVehicleData.getDoorValue() > 0 && !noOpenDoorways;
 			default:
 				return getChristmasLightState(partCondition);
+		}
+	}
+
+	public void collectTags(Object2ObjectAVLTreeMap<String, Object2ObjectAVLTreeMap<String, ObjectArrayList<String>>> tagMap) {
+		tags.forEach(tag -> {
+			final String[] tagSplit = tag.split(":");
+			if (tagSplit.length == 2) {
+				tagMap.computeIfAbsent(tagSplit[0], key -> new Object2ObjectAVLTreeMap<>()).computeIfAbsent(tagSplit[1], key -> new ObjectArrayList<>()).add(id);
+			}
+		});
+	}
+
+	private CachedResource<VehicleResourceCache> cachedVehicleResourceInitializer() {
+		return new CachedResource<>(() -> {
+			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
+
+			final ObjectArrayList<Box> floors = new ObjectArrayList<>();
+			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsModel = new Object2ObjectOpenHashMap<>();
+			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
+			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsBogie1Model = new Object2ObjectOpenHashMap<>();
+			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsBogie2Model = new Object2ObjectOpenHashMap<>();
+			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsModel = new Object2ObjectOpenHashMap<>();
+			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
+			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsBogie1Model = new Object2ObjectOpenHashMap<>();
+			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsBogie2Model = new Object2ObjectOpenHashMap<>();
+
+			final ObjectArrayList<Box> doorways = new ObjectArrayList<>();
+			forEachNonNull(models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(floors, doorways, materialGroupsModel, materialGroupsModelDoorsClosed, objModelsModel, objModelsModelDoorsClosed));
+
+			if (floors.isEmpty() && doorways.isEmpty()) {
+				Init.LOGGER.info("[{}] No floors or doorways found in vehicle models", id);
+				final double x1 = width / 2 + 0.25;
+				final double x2 = width / 2 + 0.5;
+				final double y = 1 + legacyRiderOffset;
+				final double z = length / 2 - 0.5;
+				floors.add(new Box(-x1, y, -z, x1, y, z));
+				for (double j = -z; j <= z + 0.001; j++) {
+					doorways.add(new Box(-x1, y, j, -x2, y, j + 1));
+					doorways.add(new Box(x1, y, j, x2, y, j + 1));
+				}
+			}
+
+			forEachNonNull(models, dynamicVehicleModel -> dynamicVehicleModel.modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.mapDoors(doorways)));
+			forEachNonNull(bogie1Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie1Model, new Object2ObjectOpenHashMap<>(), objModelsBogie1Model));
+			forEachNonNull(bogie2Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie2Model, new Object2ObjectOpenHashMap<>(), objModelsBogie2Model));
+
+			final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels = writeToOptimizedModels(materialGroupsModel, objModelsModel);
+			final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsDoorsClosed = writeToOptimizedModels(materialGroupsModelDoorsClosed, objModelsModelDoorsClosed);
+			final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie1 = writeToOptimizedModels(materialGroupsBogie1Model, objModelsBogie1Model);
+			final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie2 = writeToOptimizedModels(materialGroupsBogie2Model, objModelsBogie2Model);
+
+			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
+			return new VehicleResourceCache(new ObjectImmutableList<>(floors), new ObjectImmutableList<>(doorways), optimizedModels, optimizedModelsDoorsClosed, optimizedModelsBogie1, optimizedModelsBogie2);
+		}, VehicleModel.MODEL_LIFESPAN);
+	}
+
+	private Supplier<VehicleSoundBase> createVehicleSoundBaseInitializer() {
+		if (bveSoundBaseResource.isEmpty()) {
+			final LegacyVehicleSound legacyVehicleSound = new LegacyVehicleSound(
+					legacySpeedSoundBaseResource,
+					(int) legacySpeedSoundCount,
+					legacyUseAccelerationSoundsWhenCoasting,
+					legacyConstantPlaybackSpeed,
+					legacyDoorSoundBaseResource,
+					legacyDoorCloseSoundTime
+			);
+			return () -> legacyVehicleSound;
+		} else {
+			final BveVehicleSoundConfig bveVehicleSoundConfig = new BveVehicleSoundConfig(bveSoundBaseResource);
+			return () -> new BveVehicleSound(bveVehicleSoundConfig);
+		}
+	}
+
+	private static void iterateModels(ObjectArrayList<VehicleModel> models, ModelConsumer modelConsumer) {
+		for (int i = 0; i < models.size(); i++) {
+			final VehicleModel vehicleModel = models.get(i);
+			if (vehicleModel != null) {
+				final DynamicVehicleModel dynamicVehicleModel = vehicleModel.cachedModel.getData(false);
+				if (dynamicVehicleModel != null) {
+					modelConsumer.accept(i, dynamicVehicleModel);
+				}
+			}
 		}
 	}
 
@@ -314,8 +480,9 @@ public final class VehicleResource extends VehicleResourceSchema {
 
 	private static void forEachNonNull(ObjectArrayList<VehicleModel> models, Consumer<DynamicVehicleModel> consumer) {
 		models.forEach(vehicleModel -> {
-			if (vehicleModel.model != null) {
-				consumer.accept(vehicleModel.model);
+			final DynamicVehicleModel dynamicVehicleModel = vehicleModel.cachedModel.getData(true);
+			if (dynamicVehicleModel != null) {
+				consumer.accept(dynamicVehicleModel);
 			}
 		});
 	}

@@ -8,12 +8,16 @@ import org.mtr.core.Main;
 import org.mtr.core.data.Position;
 import org.mtr.core.operation.GenerateOrClearByDepotName;
 import org.mtr.core.operation.SetTime;
+import org.mtr.core.serializer.SerializedDataBase;
+import org.mtr.core.servlet.OperationProcessor;
+import org.mtr.core.servlet.QueueObject;
 import org.mtr.core.servlet.Webserver;
-import org.mtr.core.simulation.Simulator;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.com.google.gson.JsonElement;
+import org.mtr.libraries.com.google.gson.JsonParser;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.org.eclipse.jetty.servlet.ServletHolder;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.GameRule;
 import org.mtr.mapping.mapper.MinecraftServerHelper;
@@ -21,39 +25,50 @@ import org.mtr.mapping.mapper.WorldHelper;
 import org.mtr.mapping.registry.CommandBuilder;
 import org.mtr.mapping.registry.Registry;
 import org.mtr.mapping.tool.DummyClass;
+import org.mtr.mixin.PlayerTeleportationStateAccessor;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.data.ArrivalsCacheServer;
 import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.*;
-import org.mtr.mod.servlet.Tunnel;
-import org.mtr.mod.servlet.VehicleLiftServlet;
+import org.mtr.mod.servlet.MinecraftOperationProcessor;
+import org.mtr.mod.servlet.RequestHelper;
 
 import javax.annotation.Nullable;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.ServerSocket;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Random;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public final class Init implements Utilities {
 
 	private static Main main;
-	private static Webserver webserver;
-	private static Tunnel tunnel;
 	private static int serverPort;
 	private static Runnable sendWorldTimeUpdate;
 	private static boolean canSendWorldTimeUpdate = true;
 	private static int serverTick;
+	private static long lastSavedMillis;
+	private static Consumer<Webserver> webserverSetup;
 
 	public static final String MOD_ID = "mtr";
 	public static final String MOD_ID_NTE = "mtrsteamloco";
 	public static final Logger LOGGER = LogManager.getLogger("MinecraftTransitRailway");
 	public static final Registry REGISTRY = new Registry();
 	public static final int SECONDS_PER_MC_HOUR = 50;
+	public static final int AUTOSAVE_INTERVAL = 30000;
+	public static final RequestHelper REQUEST_HELPER = new RequestHelper();
 
 	private static final int MILLIS_PER_MC_DAY = SECONDS_PER_MC_HOUR * MILLIS_PER_SECOND * HOURS_PER_DAY;
 	private static final Object2ObjectArrayMap<ServerWorld, RailActionModule> RAIL_ACTION_MODULES = new Object2ObjectArrayMap<>();
 	private static final ObjectArrayList<String> WORLD_ID_LIST = new ObjectArrayList<>();
+	private static final Object2ObjectAVLTreeMap<UUID, Runnable> RIDING_PLAYERS = new Object2ObjectAVLTreeMap<>();
 
 	public static void init() {
 		AsciiArt.print();
@@ -117,9 +132,6 @@ public final class Init implements Utilities {
 							if (main != null) {
 								main.stop();
 							}
-							if (webserver != null) {
-								webserver.stop();
-							}
 							contextHandler.sendSuccess(String.format("Restoring world backup from %s to %s...", backupDirectory, worldDirectory), true);
 							FileUtils.deleteDirectory(worldDirectory.toFile());
 							contextHandler.sendSuccess("Deleting world complete", true);
@@ -158,62 +170,63 @@ public final class Init implements Utilities {
 
 			Config.init(minecraftServer.getRunDirectory());
 			final int defaultPort = Config.getServer().getWebserverPort();
-			serverPort = findFreePort(defaultPort);
-			tunnel = new Tunnel(minecraftServer.getRunDirectory(), defaultPort, () -> {
-			});
-
-			final int port = findFreePort(serverPort + 1);
-			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, port, WORLD_ID_LIST.toArray(new String[0]));
-			webserver = new Webserver(port);
-			webserver.addServlet(new ServletHolder(new VehicleLiftServlet(minecraftServer)), "/vehicles-lifts");
-			webserver.start();
+			serverPort = defaultPort <= 0 ? -1 : findFreePort(defaultPort);
+			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, Config.getServer().getUseThreadedSimulation(), webserverSetup, WORLD_ID_LIST.toArray(new String[0]));
 
 			serverTick = 0;
+			lastSavedMillis = System.currentTimeMillis();
 			sendWorldTimeUpdate = () -> {
 				if (canSendWorldTimeUpdate) {
 					canSendWorldTimeUpdate = false;
-					sendHttpRequest(
-							"operation/set-time",
+					sendMessageC2S(
+							OperationProcessor.SET_TIME,
+							minecraftServer,
 							null,
-							Utilities.getJsonObjectFromData(new SetTime(
+							new SetTime(
 									(WorldHelper.getTimeOfDay(minecraftServer.getOverworld()) + 6000) * SECONDS_PER_MC_HOUR,
 									MILLIS_PER_MC_DAY,
 									GameRule.DO_DAYLIGHT_CYCLE.getBooleanGameRule(minecraftServer)
-							)).toString(),
-							response -> canSendWorldTimeUpdate = true
+							),
+							response -> canSendWorldTimeUpdate = true,
+							SerializedDataBase.class
 					);
 				} else {
 					Main.LOGGER.error("Transport Simulation Core not responding; stopping Minecraft server!");
-					if (main != null) {
-						main.stop();
-					}
-					if (webserver != null) {
-						webserver.stop();
-					}
-					Main.LOGGER.error("Shutting down all threads");
-					System.exit(0);
+					minecraftServer.stop(false);
+					canSendWorldTimeUpdate = true; // In singleplayer, this gives the player opportunity to re-enter world.
 				}
 			};
 		});
 
 		REGISTRY.eventRegistry.registerServerStopping(minecraftServer -> {
-			if (tunnel != null) {
-				tunnel.stop();
-			}
 			if (main != null) {
 				main.stop();
 			}
-			if (webserver != null) {
-				webserver.stop();
-			}
+			serverPort = 0;
+			RIDING_PLAYERS.clear();
 		});
 
 		REGISTRY.eventRegistry.registerStartServerTick(() -> {
 			if (sendWorldTimeUpdate != null && serverTick % (SECONDS_PER_MC_HOUR * 10) == 0) {
 				sendWorldTimeUpdate.run();
 			}
+
 			ArrivalsCacheServer.tickAll();
 			serverTick++;
+
+			if (main != null) {
+				if (!Config.getServer().getUseThreadedSimulation()) {
+					main.manualTick();
+				}
+
+				final long currentMillis = System.currentTimeMillis();
+				if (currentMillis - lastSavedMillis > AUTOSAVE_INTERVAL) {
+					main.save();
+					lastSavedMillis = currentMillis;
+				}
+			}
+
+			RIDING_PLAYERS.values().forEach(Runnable::run);
 		});
 
 		REGISTRY.eventRegistry.registerEndWorldTick(serverWorld -> {
@@ -221,7 +234,15 @@ public final class Init implements Utilities {
 			if (railActionModule != null) {
 				railActionModule.tick();
 			}
+
+			if (main != null) {
+				final String dimension = getWorldId(new World(serverWorld.data));
+				main.processMessagesS2C(WORLD_ID_LIST.indexOf(dimension), queueObject -> MinecraftOperationProcessor.process(queueObject, serverWorld, dimension));
+			}
 		});
+
+		REGISTRY.eventRegistry.registerPlayerJoin((minecraftServer, serverPlayerEntity) -> updatePlayer(serverPlayerEntity, false));
+		REGISTRY.eventRegistry.registerPlayerDisconnect((minecraftServer, serverPlayerEntity) -> RIDING_PLAYERS.remove(serverPlayerEntity.getUuid()));
 
 		// Finish registration
 		REGISTRY.init();
@@ -234,12 +255,19 @@ public final class Init implements Utilities {
 		}
 	}
 
-	public static void sendHttpRequest(String endpoint, @Nullable String content, @Nullable Consumer<String> consumer) {
-		Simulator.REQUEST_HELPER.sendRequest(String.format("http://localhost:%s%s", serverPort, endpoint), content, consumer);
+	/**
+	 * @return the port of the webserver started by Transport Simulation Core, not the clientside webserver.
+	 * <br>{@code 0} means the integrated server is not running
+	 * <br>{@code -1} means the webserver is disabled
+	 */
+	public static int getServerPort() {
+		return serverPort;
 	}
 
-	public static void sendHttpRequest(String endpoint, @Nullable World world, String content, @Nullable Consumer<String> consumer) {
-		sendHttpRequest(String.format("/mtr/api/%s?%s", endpoint, world == null ? "dimensions=all" : "dimension=" + WORLD_ID_LIST.indexOf(getWorldId(world))), content, consumer);
+	public static <T extends SerializedDataBase> void sendMessageC2S(String key, @Nullable MinecraftServer minecraftServer, @Nullable World world, SerializedDataBase data, @Nullable Consumer<T> consumer, @Nullable Class<T> responseDataClass) {
+		if (main != null) {
+			main.sendMessageC2S(world == null ? null : WORLD_ID_LIST.indexOf(getWorldId(world)), new QueueObject(key, data, consumer == null || minecraftServer == null ? null : responseData -> minecraftServer.execute(() -> consumer.accept(responseData)), responseDataClass));
+		}
 	}
 
 	public static BlockPos positionToBlockPos(Position position) {
@@ -254,17 +282,22 @@ public final class Init implements Utilities {
 		return new BlockPos(MathHelper.floor(x), MathHelper.floor(y), MathHelper.floor(z));
 	}
 
-	public static boolean isChunkLoaded(World world, ChunkManager chunkManager, BlockPos blockPos) {
-		return chunkManager.getWorldChunk(blockPos.getX() / 16, blockPos.getZ() / 16) != null && world.isRegionLoaded(blockPos, blockPos);
+	public static boolean isChunkLoaded(World world, BlockPos blockPos) {
+		return world.getChunkManager().getWorldChunk(blockPos.getX() / 16, blockPos.getZ() / 16) != null && world.isRegionLoaded(blockPos, blockPos);
+	}
+
+	public static void updateRidingEntity(ServerPlayerEntity serverPlayerEntity, boolean dismount) {
+		if (dismount) {
+			RIDING_PLAYERS.remove(serverPlayerEntity.getUuid());
+			updatePlayer(serverPlayerEntity, false);
+		} else {
+			RIDING_PLAYERS.put(serverPlayerEntity.getUuid(), () -> updatePlayer(serverPlayerEntity, true));
+		}
 	}
 
 	public static String getWorldId(World world) {
 		final Identifier identifier = MinecraftServerHelper.getWorldId(world);
 		return String.format("%s/%s", identifier.getNamespace(), identifier.getPath());
-	}
-
-	public static String getTunnelUrl() {
-		return tunnel.getTunnelUrl();
 	}
 
 	public static int findFreePort(int startingPort) {
@@ -278,6 +311,43 @@ public final class Init implements Utilities {
 			}
 		}
 		return 0;
+	}
+
+	public static void openConnectionSafe(String url, Consumer<InputStream> callback, String... requestProperties) {
+		try {
+			final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+			connection.setUseCaches(false);
+
+			for (int i = 0; i < requestProperties.length / 2; i++) {
+				connection.setRequestProperty(requestProperties[2 * i], requestProperties[2 * i + 1]);
+			}
+
+			try (final InputStream inputStream = connection.getInputStream()) {
+				callback.accept(inputStream);
+			} catch (Exception e) {
+				Init.LOGGER.error("", e);
+			}
+		} catch (Exception e) {
+			Init.LOGGER.error("", e);
+		}
+	}
+
+	public static void openConnectionSafeJson(String url, Consumer<JsonElement> callback, String... requestProperties) {
+		openConnectionSafe(url, inputStream -> {
+			try (final InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+				callback.accept(JsonParser.parseReader(inputStreamReader));
+			} catch (Exception e) {
+				Init.LOGGER.error("", e);
+			}
+		}, requestProperties);
+	}
+
+	public static void createWebserverSetup(Consumer<Webserver> webserverSetup) {
+		Init.webserverSetup = webserverSetup;
+	}
+
+	public static String randomString() {
+		return Integer.toHexString(new Random().nextInt());
 	}
 
 	private static void generateOrClearDepotsFromCommand(CommandBuilder<?> commandBuilder, boolean isGenerate) {
@@ -296,7 +366,14 @@ public final class Init implements Utilities {
 	private static int generateOrClearDepotsFromCommand(World world, String filter, boolean isGenerate) {
 		final GenerateOrClearByDepotName generateByDepotName = new GenerateOrClearByDepotName();
 		generateByDepotName.setFilter(filter);
-		sendHttpRequest(isGenerate ? "operation/generate-by-depot-name" : "operation/clear-by-depot-name", world, Utilities.getJsonObjectFromData(generateByDepotName).toString(), null);
+		sendMessageC2S(isGenerate ? OperationProcessor.GENERATE_BY_DEPOT_NAME : OperationProcessor.CLEAR_BY_DEPOT_NAME, world.getServer(), world, generateByDepotName, null, null);
 		return 1;
+	}
+
+	private static void updatePlayer(ServerPlayerEntity serverPlayerEntity, boolean isRiding) {
+		serverPlayerEntity.setFallDistanceMapped(0);
+		serverPlayerEntity.setNoGravity(isRiding);
+		serverPlayerEntity.setNoClipMapped(isRiding);
+		((PlayerTeleportationStateAccessor) serverPlayerEntity.data).setInTeleportationState(isRiding);
 	}
 }

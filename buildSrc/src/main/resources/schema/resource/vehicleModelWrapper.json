@@ -1,0 +1,127 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"typeScriptEditable": true,
+	"properties": {
+		"modelResource": {
+			"type": "string"
+		},
+		"textureResource": {
+			"type": "string"
+		},
+		"minecraftModelPropertiesResource": {
+			"type": "string"
+		},
+		"minecraftPositionDefinitionsResource": {
+			"type": "string"
+		},
+		"flipTextureV": {
+			"type": "boolean"
+		},
+		"parts": {
+			"type": "array",
+			"items": {
+				"$ref": "modelPropertiesPartWrapper.json"
+			}
+		},
+		"modelYOffset": {
+			"type": "number"
+		},
+		"gangwayInnerSideResource": {
+			"type": "string"
+		},
+		"gangwayInnerTopResource": {
+			"type": "string"
+		},
+		"gangwayInnerBottomResource": {
+			"type": "string"
+		},
+		"gangwayOuterSideResource": {
+			"type": "string"
+		},
+		"gangwayOuterTopResource": {
+			"type": "string"
+		},
+		"gangwayOuterBottomResource": {
+			"type": "string"
+		},
+		"gangwayWidth": {
+			"type": "number",
+			"minimum": 0
+		},
+		"gangwayHeight": {
+			"type": "number",
+			"minimum": 0
+		},
+		"gangwayYOffset": {
+			"type": "number"
+		},
+		"gangwayZOffset": {
+			"type": "number"
+		},
+		"barrierInnerSideResource": {
+			"type": "string"
+		},
+		"barrierInnerTopResource": {
+			"type": "string"
+		},
+		"barrierInnerBottomResource": {
+			"type": "string"
+		},
+		"barrierOuterSideResource": {
+			"type": "string"
+		},
+		"barrierOuterTopResource": {
+			"type": "string"
+		},
+		"barrierOuterBottomResource": {
+			"type": "string"
+		},
+		"barrierWidth": {
+			"type": "number",
+			"minimum": 0
+		},
+		"barrierHeight": {
+			"type": "number",
+			"minimum": 0
+		},
+		"barrierYOffset": {
+			"type": "number"
+		},
+		"barrierZOffset": {
+			"type": "number"
+		}
+	},
+	"required": [
+		"modelResource",
+		"textureResource",
+		"minecraftModelPropertiesResource",
+		"minecraftPositionDefinitionsResource",
+		"flipTextureV",
+		"modelProperties",
+		"modelYOffset",
+		"gangwayInnerSideResource",
+		"gangwayInnerTopResource",
+		"gangwayInnerBottomResource",
+		"gangwayOuterSideResource",
+		"gangwayOuterTopResource",
+		"gangwayOuterBottomResource",
+		"gangwayWidth",
+		"gangwayHeight",
+		"gangwayYOffset",
+		"gangwayZOffset",
+		"barrierInnerSideResource",
+		"barrierInnerTopResource",
+		"barrierInnerBottomResource",
+		"barrierOuterSideResource",
+		"barrierOuterTopResource",
+		"barrierOuterBottomResource",
+		"barrierWidth",
+		"barrierHeight",
+		"barrierYOffset",
+		"barrierZOffset"
+	]
+}

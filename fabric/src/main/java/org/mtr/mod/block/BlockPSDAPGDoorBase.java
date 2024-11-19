@@ -65,7 +65,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		// The serverside collision shape is always empty, and the clientside collision shape is determined by the vehicle door positions the client sees
 		final BlockEntity entity = world.getBlockEntity(pos);
-		if (entity != null && entity.data instanceof BlockEntityBase && entity.getWorld() != null && entity.getWorld().isClient() && ((BlockEntityBase) entity.data).doorValue == 0) {
+		if (entity != null && entity.data instanceof BlockEntityBase && entity.getWorld() != null && entity.getWorld().isClient() && ((BlockEntityBase) entity.data).getDoorValue() == 0) {
 			return super.getCollisionShape2(state, world, pos, context);
 		} else {
 			return VoxelShapes.empty();
@@ -110,6 +110,8 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 	public static abstract class BlockEntityBase extends BlockEntityExtension implements IGui {
 
 		private double doorValue;
+		private double redstoneDoorValue;
+		private static final int REDSTONE_DETECT_DEPTH = 2;
 
 		public BlockEntityBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
@@ -120,7 +122,41 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 		}
 
 		public double getDoorValue() {
-			return doorValue;
+			return Math.max(doorValue, redstoneDoorValue);
+		}
+
+		public void updateRedstone(float tickDelta) {
+			final World world = getWorldMapped();
+			final double delta = (tickDelta / 20) / 2;
+
+			if (world != null && receivedRedstonePower(world, getPos2(), getCachedState2())) {
+				redstoneDoorValue = Utilities.clamp(redstoneDoorValue + delta, 0, 1);
+			} else {
+				redstoneDoorValue = Utilities.clamp(redstoneDoorValue - delta, 0, 1);
+			}
+		}
+
+		private boolean receivedRedstonePower(World world, BlockPos pos, BlockState state) {
+			if (!IBlock.getStatePropertySafe(state, UNLOCKED)) {
+				return false;
+			}
+
+			final DoubleBlockHalf half = IBlock.getStatePropertySafe(state, HALF);
+			final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+			final EnumSide side = IBlock.getStatePropertySafe(state, SIDE);
+			final Direction otherDirection = side == EnumSide.LEFT ? facing.rotateYClockwise() : facing.rotateYCounterclockwise();
+			final BlockPos platformPos = (half == DoubleBlockHalf.UPPER) ? pos.down(2) : pos.down(1);
+
+			for (int i = 0; i < REDSTONE_DETECT_DEPTH; i++) {
+				final BlockPos checkPos = platformPos.offset(Direction.DOWN, i + 1);
+				final boolean emit = world.isEmittingRedstonePower(checkPos, Direction.UP);
+				final boolean emitNearby = world.isEmittingRedstonePower(checkPos.offset(otherDirection), Direction.UP);
+				if (emit || emitNearby) {
+					return true;
+				}
+			}
+
+			return false;
 		}
 	}
 }

@@ -19,14 +19,14 @@ public class RenderDrivingOverlay implements IGui {
 	private static String nextStation;
 	private static String thisRoute;
 	private static String lastStation;
-	private static int coolDown;
+	private static int cooldown;
 
 	private static final int HOT_BAR_WIDTH = 182;
 	private static final int HOT_BAR_HEIGHT = 22;
 
 	public static void render(GraphicsHolder graphicsHolder) {
-		if (coolDown > 0) {
-			coolDown--;
+		if (cooldown > 0) {
+			cooldown--;
 		} else {
 			return;
 		}

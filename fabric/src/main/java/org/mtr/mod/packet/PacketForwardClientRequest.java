@@ -10,32 +10,36 @@ import org.mtr.mod.Init;
 
 import javax.annotation.Nullable;
 import java.util.Random;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public final class PacketForwardClientRequest extends PacketHandler {
 
 	private final String endpoint;
 	private final String content;
+	private final String path;
 	private final long callbackId;
 
-	private static final Long2ObjectAVLTreeMap<Consumer<String>> CALLBACKS = new Long2ObjectAVLTreeMap<>();
+	private static final Long2ObjectAVLTreeMap<BiConsumer<String, String>> CALLBACKS = new Long2ObjectAVLTreeMap<>();
 
 	public PacketForwardClientRequest(PacketBufferReceiver packetBufferReceiver) {
 		endpoint = packetBufferReceiver.readString();
 		content = packetBufferReceiver.readString();
+		path = packetBufferReceiver.readString();
 		callbackId = packetBufferReceiver.readLong();
 	}
 
-	public PacketForwardClientRequest(String endpoint, @Nullable String content, Consumer<String> callback) {
+	public PacketForwardClientRequest(String endpoint, @Nullable String content, BiConsumer<String, String> callback) {
 		this.endpoint = endpoint;
 		this.content = content == null ? "" : content;
+		path = "";
 		callbackId = new Random().nextLong();
 		CALLBACKS.put(callbackId, callback);
 	}
 
-	private PacketForwardClientRequest(@Nullable String content, long callbackId) {
+	private PacketForwardClientRequest(@Nullable String content, String path, long callbackId) {
 		endpoint = "";
 		this.content = content == null ? "" : content;
+		this.path = path;
 		this.callbackId = callbackId;
 	}
 
@@ -43,19 +47,24 @@ public final class PacketForwardClientRequest extends PacketHandler {
 	public void write(PacketBufferSender packetBufferSender) {
 		packetBufferSender.writeString(endpoint);
 		packetBufferSender.writeString(content);
+		packetBufferSender.writeString(path);
 		packetBufferSender.writeLong(callbackId);
 	}
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		Init.sendHttpRequest(endpoint, content.isEmpty() ? null : content, response -> Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketForwardClientRequest(response, callbackId)));
+		Init.REQUEST_HELPER.sendRequest(
+				String.format("http://localhost:%s%s", Init.getServerPort(), endpoint),
+				content.isEmpty() ? null : content,
+				(response, path) -> Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketForwardClientRequest(response, path, callbackId))
+		);
 	}
 
 	@Override
 	public void runClient() {
-		final Consumer<String> callback = CALLBACKS.remove(callbackId);
+		final BiConsumer<String, String> callback = CALLBACKS.remove(callbackId);
 		if (callback != null) {
-			callback.accept(content);
+			callback.accept(content, path);
 		}
 	}
 }

@@ -1,0 +1,38 @@
+@if (list.length > 0) {
+	<mat-accordion displayMode="flat">
+		@for (item of list; track $index) {
+			<mat-expansion-panel [expanded]="isEditingAtIndex($index)" (opened)="editAtIndex($index)">
+				<mat-expansion-panel-header>
+					@if (headerTemplate) {
+						<ng-container *ngTemplateOutlet="headerTemplate; context: {$implicit: item}"/>
+					}
+				</mat-expansion-panel-header>
+				<ng-template matExpansionPanelContent>
+					@if (contentTemplate) {
+						<ng-container *ngTemplateOutlet="contentTemplate; context: {$implicit: item}"/>
+					}
+				</ng-template>
+				<mat-action-row>
+					<button mat-icon-button (click)="move(-2)" [disabled]="$index == 0" matTooltip="Move To Top">
+						<mat-icon>keyboard_double_arrow_up</mat-icon>
+					</button>
+					<button mat-icon-button (click)="move(-1)" [disabled]="$index == 0" matTooltip="Move Up">
+						<mat-icon>keyboard_arrow_up</mat-icon>
+					</button>
+					<button mat-icon-button (click)="move(1)" [disabled]="$index == $count - 1" matTooltip="Move Down">
+						<mat-icon>keyboard_arrow_down</mat-icon>
+					</button>
+					<button mat-icon-button (click)="move(2)" [disabled]="$index == $count - 1" matTooltip="Move To Bottom">
+						<mat-icon>keyboard_double_arrow_down</mat-icon>
+					</button>
+					<button mat-icon-button (click)="duplicate()" matTooltip="Duplicate">
+						<mat-icon>content_copy</mat-icon>
+					</button>
+					<button mat-icon-button (click)="delete()" matTooltip="Delete">
+						<mat-icon>delete</mat-icon>
+					</button>
+				</mat-action-row>
+			</mat-expansion-panel>
+		}
+	</mat-accordion>
+}

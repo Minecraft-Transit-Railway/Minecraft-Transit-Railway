@@ -9,38 +9,34 @@ import javax.annotation.Nullable;
 
 public final class RailResource extends RailResourceSchema implements StoredModelResourceBase {
 
-	@Nullable
-	private final OptimizedModelWrapper optimizedModel;
-	@Nullable
-	private final DynamicVehicleModel dynamicVehicleModel;
+	private final CachedResource<ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel>> cachedRailResource;
 
-	public RailResource(ReaderBase readerBase) {
-		super(readerBase);
+	public RailResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
+		super(readerBase, resourceProvider);
 		updateData(readerBase);
-		final ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel> modelPair = load(modelResource, textureResource, flipTextureV, modelYOffset);
-		optimizedModel = modelPair.left();
-		dynamicVehicleModel = modelPair.right();
+		cachedRailResource = new CachedResource<>(() -> load(modelResource, textureResource, flipTextureV, modelYOffset, resourceProvider), VehicleModel.MODEL_LIFESPAN);
 	}
 
 	/**
 	 * Used to create the default rail
 	 */
-	public RailResource(String id, String name) {
-		super(id, name, "777777", "", "", false, 0, 0);
-		optimizedModel = null;
-		dynamicVehicleModel = null;
+	public RailResource(String id, String name, ResourceProvider resourceProvider) {
+		super(id, name, "777777", "", "", false, 0, 0, resourceProvider);
+		cachedRailResource = new CachedResource<>(() -> null, VehicleModel.MODEL_LIFESPAN);
 	}
 
 	@Override
 	@Nullable
 	public OptimizedModelWrapper getOptimizedModel() {
-		return optimizedModel;
+		final ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel> railResource = cachedRailResource.getData(false);
+		return railResource == null ? null : railResource.left();
 	}
 
 	@Override
 	@Nullable
 	public DynamicVehicleModel getDynamicVehicleModel() {
-		return dynamicVehicleModel;
+		final ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel> railResource = cachedRailResource.getData(false);
+		return railResource == null ? null : railResource.right();
 	}
 
 	public String getId() {

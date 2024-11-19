@@ -80,6 +80,21 @@
 				"end1"
 			],
 			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"next_station_display"
+			],
+			"positionDefinitions": [
+				"end1Display"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.2,
+			"displayColor": "FFFFFF",
+			"displayOptions": [
+				"SCROLL_NORMAL"
+			],
+			"displayType": "NEXT_STATION_KCR"
 		}
 	],
 	"modelYOffset": 1

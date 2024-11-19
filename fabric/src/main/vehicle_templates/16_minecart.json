@@ -1,0 +1,42 @@
+{
+	"replacements": {
+		"lengths": [
+			2
+		],
+		"id": [
+			"minecart"
+		]
+	},
+	"vehicles": [
+		{
+			"id": "minecart",
+			"name": "Minecart",
+			"color": "666666",
+			"transportMode": "TRAIN",
+			"width": 1,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "Minecart",
+			"tags": [
+				"family:minecart",
+				"doors:1",
+				"type:trailer"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/minecart.bbmodel",
+					"textureResource": "minecraft:textures/entity/minecart.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/minecart.json",
+					"positionDefinitionsResource": "mtr:properties/definition/minecart.json"
+				}
+			],
+			"bogie1Models": [
+			],
+			"bogie2Models": [
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"bveSoundBaseResource": "minecart"
+		}
+	]
+}

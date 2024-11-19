@@ -7,6 +7,7 @@ import org.mtr.legacy.generated.resource.ObjectResourceSchema;
 import org.mtr.libraries.com.google.gson.JsonArray;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.mod.resource.ObjectResource;
+import org.mtr.mod.resource.ResourceProvider;
 
 public final class LegacyObjectResource extends ObjectResourceSchema {
 
@@ -15,7 +16,7 @@ public final class LegacyObjectResource extends ObjectResourceSchema {
 		updateData(readerBase);
 	}
 
-	public ObjectResource convert(String id) {
+	public ObjectResource convert(String id, ResourceProvider resourceProvider) {
 		final JsonObject jsonObject = new JsonObject();
 		jsonObject.addProperty("id", id);
 		jsonObject.addProperty("name", name);
@@ -28,7 +29,7 @@ public final class LegacyObjectResource extends ObjectResourceSchema {
 		putArray1(baseObject, jsonObject, "rotation");
 		putArray1(baseObject, jsonObject, "scale");
 		putArray2(baseObject, jsonObject, "mirror");
-		return new ObjectResource(new JsonReader(jsonObject));
+		return new ObjectResource(new JsonReader(jsonObject), resourceProvider);
 	}
 
 	private static void putArray1(JsonObject baseObject, JsonObject newObject, String key) {

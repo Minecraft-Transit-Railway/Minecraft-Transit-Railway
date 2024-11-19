@@ -1,6 +1,9 @@
 package org.mtr.mod.packet;
 
 import org.mtr.core.operation.PressLift;
+import org.mtr.core.serializer.JsonReader;
+import org.mtr.core.serializer.SerializedDataBase;
+import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 
@@ -25,10 +28,15 @@ public final class PacketPressLiftButton extends PacketRequestResponseBase {
 		return new PacketPressLiftButton(content);
 	}
 
+	@Override
+	protected SerializedDataBase getDataInstance(JsonReader jsonReader) {
+		return new PressLift(jsonReader);
+	}
+
 	@Nonnull
 	@Override
-	protected String getEndpoint() {
-		return "operation/press-lift";
+	protected String getKey() {
+		return OperationProcessor.PRESS_LIFT;
 	}
 
 	@Override

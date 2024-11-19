@@ -1,0 +1,8 @@
+.paragraph {
+	white-space: pre;
+	width: 2048em;
+}
+
+.no-wrap-button {
+	text-wrap: nowrap;
+}

@@ -107,6 +107,54 @@
 				"end1Flipped"
 			],
 			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"destination_display_1"
+			],
+			"positionDefinitions": [
+				"window2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.5,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"SCROLL_NORMAL"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"destination_display_2"
+			],
+			"positionDefinitions": [
+				"window3Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.5,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"SCROLL_NORMAL"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"next_station_display"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.2,
+			"displayYPadding": 0.5,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"SCROLL_NORMAL"
+			],
+			"displayType": "NEXT_STATION_UK"
 		}
 	],
 	"modelYOffset": 1

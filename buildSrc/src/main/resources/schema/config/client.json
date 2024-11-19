@@ -27,6 +27,9 @@
 			"type": "boolean",
 			"default": true
 		},
+		"useMTRFont": {
+			"type": "boolean"
+		},
 		"disableShadowsForShaders": {
 			"type": "boolean"
 		},

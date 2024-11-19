@@ -75,6 +75,21 @@
 				"end1Flipped"
 			],
 			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"next_station_display_end"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"type": "DISPLAY",
+			"displayYPadding": 0.3,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"SCROLL_NORMAL"
+			],
+			"displayType": "NEXT_STATION_UK"
 		}
 	],
 	"modelYOffset": 1
