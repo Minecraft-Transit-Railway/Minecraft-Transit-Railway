@@ -1,6 +1,6 @@
 {
 	"parent": "block/leaves",
 	"textures": {
-		"all": "mtr:block/station_color_purpur_block"
+		"all": "block/purpur_block"
 	}
 }
