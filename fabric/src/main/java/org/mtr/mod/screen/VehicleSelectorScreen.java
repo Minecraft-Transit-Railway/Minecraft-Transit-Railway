@@ -14,7 +14,6 @@ import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.holder.OrderedText;
 import org.mtr.mapping.mapper.ButtonWidgetExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Icons;
 import org.mtr.mod.Init;
@@ -26,7 +25,6 @@ import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateData;
 import org.mtr.mod.resource.VehicleResource;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -37,8 +35,8 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 
 	private static final Object2ObjectAVLTreeMap<String, String> WIKIPEDIA_ARTICLES = new Object2ObjectAVLTreeMap<>();
 
-	public VehicleSelectorScreen(@Nullable ScreenExtension previousScreen, Siding siding) {
-		super(previousScreen, getVehicleList(siding.getTransportMode()), getSelectedIds(siding), false, true);
+	public VehicleSelectorScreen(Siding siding) {
+		super(getVehicleList(siding.getTransportMode()), getSelectedIds(siding), false, true);
 		buttonDuplicateVehicleCars = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_DUPLICATE_VEHICLE_CARS.getMutableText(), button -> {
 			final ObjectArrayList<VehicleCar> existingCars = new ObjectArrayList<>(siding.getVehicleCars());
 			while (true) {

@@ -17,7 +17,7 @@ import org.mtr.mod.packet.PacketUpdateLastRailStyles;
 
 import java.util.stream.Collectors;
 
-public class RailModifierScreen extends ScreenExtension implements IGui {
+public class RailModifierScreen extends MTRScreenBase implements IGui {
 
 	private Rail.Shape shape;
 	private double radius;

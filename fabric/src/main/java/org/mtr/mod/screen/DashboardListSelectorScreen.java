@@ -6,11 +6,8 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.ClickableWidget;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.ButtonWidgetExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
@@ -19,7 +16,7 @@ import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nullable;
 
-public class DashboardListSelectorScreen extends ScreenExtension implements IGui {
+public class DashboardListSelectorScreen extends MTRScreenBase implements IGui {
 
 	protected final ObjectImmutableList<DashboardListItem> allData;
 	protected final LongCollection selectedIds;
@@ -28,22 +25,16 @@ public class DashboardListSelectorScreen extends ScreenExtension implements IGui
 	protected final DashboardList selectedList;
 	protected final ButtonWidgetExtension buttonDone;
 
-	private final ScreenExtension previousScreen;
 	private final Runnable onClose;
 	private final boolean isSingleSelect;
 	private final boolean canRepeat;
 
+	public DashboardListSelectorScreen(ObjectImmutableList<DashboardListItem> allData, LongCollection selectedIds, boolean isSingleSelect, boolean canRepeat) {
+		this(null, allData, selectedIds, isSingleSelect, canRepeat);
+	}
+
 	public DashboardListSelectorScreen(@Nullable Runnable onClose, ObjectImmutableList<DashboardListItem> allData, LongCollection selectedIds, boolean isSingleSelect, boolean canRepeat) {
-		this(null, onClose, allData, selectedIds, isSingleSelect, canRepeat);
-	}
-
-	public DashboardListSelectorScreen(@Nullable ScreenExtension previousScreen, ObjectImmutableList<DashboardListItem> allData, LongCollection selectedIds, boolean isSingleSelect, boolean canRepeat) {
-		this(previousScreen, null, allData, selectedIds, isSingleSelect, canRepeat);
-	}
-
-	private DashboardListSelectorScreen(@Nullable ScreenExtension previousScreen, @Nullable Runnable onClose, ObjectImmutableList<DashboardListItem> allData, LongCollection selectedIds, boolean isSingleSelect, boolean canRepeat) {
 		super();
-		this.previousScreen = previousScreen;
 		this.onClose = onClose;
 		this.allData = allData;
 		this.selectedIds = selectedIds;
@@ -108,9 +99,6 @@ public class DashboardListSelectorScreen extends ScreenExtension implements IGui
 		super.onClose2();
 		if (onClose != null) {
 			onClose.run();
-		}
-		if (previousScreen != null) {
-			MinecraftClient.getInstance().openScreen(new Screen(previousScreen));
 		}
 	}
 

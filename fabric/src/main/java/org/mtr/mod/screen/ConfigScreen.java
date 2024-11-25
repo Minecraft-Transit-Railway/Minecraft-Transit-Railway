@@ -14,7 +14,7 @@ import org.mtr.mod.config.Config;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.generated.lang.TranslationProvider;
 
-public class ConfigScreen extends ScreenExtension implements IGui {
+public class ConfigScreen extends MTRScreenBase implements IGui {
 
 	private final Client client = Config.getClient();
 

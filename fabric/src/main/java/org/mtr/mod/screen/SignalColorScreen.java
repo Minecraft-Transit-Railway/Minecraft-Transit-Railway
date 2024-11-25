@@ -13,7 +13,7 @@ import org.mtr.mod.item.ItemSignalModifier;
 import org.mtr.mod.packet.PacketUpdateSignalConfig;
 import org.mtr.mod.render.RenderSignalBase;
 
-public class SignalColorScreen extends ScreenExtension implements IGui {
+public class SignalColorScreen extends MTRScreenBase implements IGui {
 
 	private final CheckboxWidgetExtension checkBoxSelectAll;
 	private final CheckboxWidgetExtension[] checkBoxes = new CheckboxWidgetExtension[ItemSignalModifier.COLORS.length];

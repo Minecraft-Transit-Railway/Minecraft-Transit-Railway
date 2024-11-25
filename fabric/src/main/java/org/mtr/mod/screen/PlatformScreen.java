@@ -15,8 +15,8 @@ public class PlatformScreen extends SavedRailScreenBase<Platform, Station> {
 
 	private static final MutableText DWELL_TIME_TEXT = TranslationProvider.GUI_MTR_DWELL_TIME.getMutableText();
 
-	public PlatformScreen(Platform savedRailBase, TransportMode transportMode, DashboardScreen dashboardScreen) {
-		super(savedRailBase, transportMode, dashboardScreen, DWELL_TIME_TEXT);
+	public PlatformScreen(Platform savedRailBase, TransportMode transportMode) {
+		super(savedRailBase, transportMode, DWELL_TIME_TEXT);
 	}
 
 	@Override

@@ -33,8 +33,8 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 
 	private static final int CHECKBOX_WIDTH = 160;
 
-	public EditRouteScreen(Route route, DashboardScreen dashboardScreen) {
-		super(route, dashboardScreen, TranslationProvider.GUI_MTR_ROUTE_NAME, TranslationProvider.GUI_MTR_ROUTE_COLOR);
+	public EditRouteScreen(Route route) {
+		super(route, TranslationProvider.GUI_MTR_ROUTE_NAME, TranslationProvider.GUI_MTR_ROUTE_COLOR);
 
 		textFieldLightRailRouteNumber = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 256, TextCase.DEFAULT, null, null);
 		buttonRouteType = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_ADD_VALUE.getMutableText(), button -> setRouteType(route, route.getRouteType().next()));
