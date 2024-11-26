@@ -50,6 +50,7 @@ public class RenderRails implements IGui {
 	private static final Identifier WOOL_TEXTURE = new Identifier("textures/block/white_wool.png");
 	private static final Identifier ONE_WAY_RAIL_ARROW_TEXTURE = new Identifier(Init.MOD_ID, "textures/block/one_way_rail_arrow.png");
 	private static final int INVALID_NODE_CHECK_RADIUS = 16;
+	private static final double LIGHT_REFERENCE_OFFSET = 0.1;
 	private static final ModelSmallCube MODEL_SMALL_CUBE = new ModelSmallCube(new Identifier(Init.MOD_ID, "textures/block/white.png"));
 
 	public static void render() {
@@ -316,7 +317,7 @@ public class RenderRails implements IGui {
 		final int renderDistance = MinecraftClientHelper.getRenderDistance() * 16;
 
 		rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-			final BlockPos blockPos = Init.newBlockPos(x1, y1, z1);
+			final BlockPos blockPos = Init.newBlockPos(x1, y1 + LIGHT_REFERENCE_OFFSET, z1);
 			final int distance = blockPos.getManhattanDistance(cameraBlockPos);
 			if (distance <= renderDistance) {
 				if (distance < 32) {
