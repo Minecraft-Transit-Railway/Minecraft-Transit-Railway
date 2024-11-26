@@ -33,7 +33,7 @@ public class BlockEyeCandy extends BlockExtension implements DirectionHelper, Bl
 	@NotNull
 	@Override
 	public VoxelShape getCullingShape2(BlockState state, BlockView world, BlockPos pos) {
-		// Prevents culling optimization mods from culling our see-through escalator side
+		// Prevents culling optimization mods from culling our fully transparent block
 		return VoxelShapes.empty();
 	}
 
