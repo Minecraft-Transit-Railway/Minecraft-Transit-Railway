@@ -4,29 +4,30 @@ import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.ScreenExtension;
 
+import javax.annotation.Nullable;
+
 public class MTRScreenBase extends ScreenExtension {
-    protected Screen previousScreen;
 
-    protected MTRScreenBase() {
-        super();
-    }
+	@Nullable
+	private final Screen previousScreen;
 
-    public MTRScreenBase withPreviousScreen(Screen screen) {
-        this.previousScreen = screen;
-        return this;
-    }
+	public MTRScreenBase(@Nullable ScreenExtension previousScreenExtension) {
+		super();
+		this.previousScreen = previousScreenExtension == null ? null : new Screen(previousScreenExtension);
+	}
 
-    public MTRScreenBase withPreviousScreen(ScreenExtension screenExtension) {
-        return withPreviousScreen(new Screen(screenExtension));
-    }
+	public MTRScreenBase(@Nullable Screen previousScreen) {
+		super();
+		this.previousScreen = previousScreen;
+	}
 
-    @Override
-    public void onClose2() {
-        super.onClose2();
-        if(previousScreen != null) {
-            MinecraftClient.getInstance().openScreen(previousScreen);
-        } else {
-            MinecraftClient.getInstance().openScreen(null);
-        }
-    }
+	public MTRScreenBase() {
+		this((ScreenExtension) null);
+	}
+
+	@Override
+	public void onClose2() {
+		super.onClose2();
+		MinecraftClient.getInstance().openScreen(previousScreen);
+	}
 }

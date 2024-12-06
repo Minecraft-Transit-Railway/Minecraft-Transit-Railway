@@ -1,6 +1,5 @@
 package org.mtr.mod.block;
 
-import org.jetbrains.annotations.NotNull;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.tool.HolderBase;
 
@@ -19,7 +18,7 @@ public class BlockEscalatorSide extends BlockEscalatorBase {
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public VoxelShape getCullingShape2(BlockState state, BlockView world, BlockPos pos) {
 		// Prevents culling optimization mods from culling our see-through escalator side

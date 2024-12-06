@@ -5,6 +5,7 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextFieldWidgetExtension;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.client.IDrawing;
@@ -24,8 +25,8 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 	private final TextFieldWidgetExtension textFieldName;
 	private final WidgetColorSelector colorSelector;
 
-	public EditNameColorScreenBase(T data, TranslationProvider.TranslationHolder nameKey, TranslationProvider.TranslationHolder colorKey) {
-		super();
+	public EditNameColorScreenBase(T data, TranslationProvider.TranslationHolder nameKey, TranslationProvider.TranslationHolder colorKey, ScreenExtension previousScreenExtension) {
+		super(previousScreenExtension);
 		this.data = data;
 		nameText = nameKey.getMutableText();
 		colorText = colorKey.getMutableText();

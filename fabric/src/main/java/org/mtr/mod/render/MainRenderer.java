@@ -175,7 +175,7 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 	}
 
 	public static int getFlashingLight() {
-		final int light = (int)Math.round(((Math.sin(Math.PI * 2 * (System.currentTimeMillis() % FLASHING_INTERVAL) / FLASHING_INTERVAL) + 1) / 2) * 0xF);
+		final int light = (int) Math.round(((Math.sin(Math.PI * 2 * (System.currentTimeMillis() % FLASHING_INTERVAL) / FLASHING_INTERVAL) + 1) / 2) * 0xF);
 		return LightmapTextureManager.pack(light, light);
 	}
 
@@ -183,9 +183,9 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 		int[] newColor = new int[1];
 		final double flashingProgress = ((Math.sin(Math.PI * 2 * (System.currentTimeMillis() % FLASHING_INTERVAL) / FLASHING_INTERVAL) + 1) / 2);
 		ColorHelper.unpackColor(color, (a, r, g, b) -> {
-			int newR = (int)(r * flashingProgress);
-			int newG = (int)(g * flashingProgress);
-			int newB = (int)(b * flashingProgress);
+			int newR = (int) (r * flashingProgress);
+			int newG = (int) (g * flashingProgress);
+			int newB = (int) (b * flashingProgress);
 
 			newColor[0] = (a << 24) | (newR << 16) | (newG << 8) | newB;
 		});

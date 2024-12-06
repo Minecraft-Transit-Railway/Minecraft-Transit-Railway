@@ -88,8 +88,8 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 			widgetMap.setMapOverlayMode(WorldMap.MapOverlayMode.CURRENT_Y);
 			toggleButtons();
 		});
-		buttonRailActions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_RAIL_ACTIONS_BUTTON.getMutableText(), button -> MinecraftClient.getInstance().openScreen(new Screen(new RailActionsScreen().withPreviousScreen(this))));
-		buttonOptions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("menu.options"), button -> MinecraftClient.getInstance().openScreen(new Screen(new ConfigScreen().withPreviousScreen(this))));
+		buttonRailActions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_RAIL_ACTIONS_BUTTON.getMutableText(), button -> MinecraftClient.getInstance().openScreen(new Screen(new RailActionsScreen(this))));
+		buttonOptions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("menu.options"), button -> MinecraftClient.getInstance().openScreen(new Screen(new ConfigScreen(new Screen(this)))));
 		buttonTransportSystemMap = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_TRANSPORT_SYSTEM_MAP.getMutableText(), button -> Util.getOperatingSystem().open(String.format("http://localhost:%s", InitClient.getServerPort())));
 		buttonResourcePackCreator = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_RESOURCE_PACK_CREATOR.getMutableText(), button -> Util.getOperatingSystem().open(String.format("http://localhost:%s/creator/", InitClient.getServerPort())));
 
@@ -284,17 +284,17 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 			case STATIONS:
 				if (editingArea == null) {
 					if (dashboardListItem.data instanceof Station) {
-						MinecraftClient.getInstance().openScreen(new Screen(new EditStationScreen((Station) dashboardListItem.data).withPreviousScreen(this)));
+						MinecraftClient.getInstance().openScreen(new Screen(new EditStationScreen((Station) dashboardListItem.data, this)));
 					}
 				} else {
 					if (dashboardListItem.data instanceof Platform) {
-						MinecraftClient.getInstance().openScreen(new Screen(new PlatformScreen((Platform) dashboardListItem.data, transportMode).withPreviousScreen(this)));
+						MinecraftClient.getInstance().openScreen(new Screen(new PlatformScreen((Platform) dashboardListItem.data, transportMode, this)));
 					}
 				}
 				break;
 			case ROUTES:
 				if (editingRoute == null && dashboardListItem.data instanceof Route) {
-					MinecraftClient.getInstance().openScreen(new Screen(new EditRouteScreen((Route) dashboardListItem.data).withPreviousScreen(this)));
+					MinecraftClient.getInstance().openScreen(new Screen(new EditRouteScreen((Route) dashboardListItem.data, this)));
 				} else {
 					startEditingRouteDestination(index);
 				}
@@ -302,11 +302,11 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 			case DEPOTS:
 				if (editingArea == null) {
 					if (dashboardListItem.data instanceof Depot) {
-						MinecraftClient.getInstance().openScreen(new Screen(new EditDepotScreen((Depot) dashboardListItem.data, transportMode).withPreviousScreen(this)));
+						MinecraftClient.getInstance().openScreen(new Screen(new EditDepotScreen((Depot) dashboardListItem.data, transportMode, this)));
 					}
 				} else {
 					if (dashboardListItem.data instanceof Siding) {
-						MinecraftClient.getInstance().openScreen(new Screen(new SidingScreen((Siding) dashboardListItem.data, transportMode).withPreviousScreen(this)));
+						MinecraftClient.getInstance().openScreen(new Screen(new SidingScreen((Siding) dashboardListItem.data, transportMode, this)));
 					}
 				}
 				break;
@@ -324,14 +324,14 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 			case STATIONS:
 				if (dashboardListItem.data instanceof Station) {
 					final Station station = (Station) dashboardListItem.data;
-					MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDeleteData(new DeleteDataRequest().addStationId(station.getId()))), IGui.formatStationName(station.getName())).withPreviousScreen(this)));
+					MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDeleteData(new DeleteDataRequest().addStationId(station.getId()))), IGui.formatStationName(station.getName()), this)));
 				}
 				break;
 			case ROUTES:
 				if (editingRoute == null) {
 					if (dashboardListItem.data instanceof Route) {
 						final Route route = (Route) dashboardListItem.data;
-						MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDeleteData(new DeleteDataRequest().addRouteId(route.getId()))), IGui.formatStationName(route.getName())).withPreviousScreen(this)));
+						MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDeleteData(new DeleteDataRequest().addRouteId(route.getId()))), IGui.formatStationName(route.getName()), this)));
 					}
 				} else {
 					editingRoute.getRoutePlatforms().remove(index);
@@ -341,7 +341,7 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 			case DEPOTS:
 				if (dashboardListItem.data instanceof Depot) {
 					final Depot depot = (Depot) dashboardListItem.data;
-					MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDeleteData(new DeleteDataRequest().addDepotId(depot.getId()))), IGui.formatStationName(depot.getName())).withPreviousScreen(this)));
+					MinecraftClient.getInstance().openScreen(new Screen(new DeleteConfirmationScreen(() -> InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDeleteData(new DeleteDataRequest().addDepotId(depot.getId()))), IGui.formatStationName(depot.getName()), this)));
 				}
 				break;
 		}
@@ -406,9 +406,9 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 
 	private void onClickEditSavedRail(SavedRailBase<?, ?> savedRail) {
 		if (savedRail instanceof Platform) {
-			MinecraftClient.getInstance().openScreen(new Screen(new PlatformScreen((Platform) savedRail, transportMode).withPreviousScreen(this)));
+			MinecraftClient.getInstance().openScreen(new Screen(new PlatformScreen((Platform) savedRail, transportMode, this)));
 		} else if (savedRail instanceof Siding) {
-			MinecraftClient.getInstance().openScreen(new Screen(new SidingScreen((Siding) savedRail, transportMode).withPreviousScreen(this)));
+			MinecraftClient.getInstance().openScreen(new Screen(new SidingScreen((Siding) savedRail, transportMode, this)));
 		}
 	}
 

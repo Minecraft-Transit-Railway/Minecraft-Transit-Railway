@@ -1,6 +1,7 @@
 package org.mtr.mod.screen;
 
 import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
@@ -11,8 +12,8 @@ public class RailActionsScreen extends MTRScreenBase implements IGui {
 
 	private final DashboardList railActionsList;
 
-	public RailActionsScreen() {
-		super();
+	public RailActionsScreen(ScreenExtension previousScreenExtension) {
+		super(previousScreenExtension);
 		railActionsList = new DashboardList(null, null, null, null, null, this::onDelete, null, () -> "", text -> {
 		});
 	}

@@ -3,6 +3,7 @@ package org.mtr.mod.screen;
 import org.mtr.mapping.holder.ClickableWidget;
 import org.mtr.mapping.mapper.ButtonWidgetExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.IDrawing;
@@ -19,8 +20,8 @@ public class DeleteConfirmationScreen extends MTRScreenBase implements IGui {
 	private static final int BUTTON_WIDTH = 100;
 	private static final int BUTTON_HALF_PADDING = 10;
 
-	public DeleteConfirmationScreen(Runnable deleteCallback, String name) {
-		super();
+	public DeleteConfirmationScreen(Runnable deleteCallback, String name, ScreenExtension previousScreenExtension) {
+		super(previousScreenExtension);
 
 		this.deleteCallback = deleteCallback;
 		this.name = name;

@@ -5,6 +5,7 @@ import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
@@ -17,12 +18,12 @@ public class PlatformScreen extends SavedRailScreenBase<Platform, Station> {
 	private static final MutableText ROUTE_STOPPING_TEXT = TranslationProvider.GUI_MTR_ROUTE_STOPPING.getMutableText();
 	private final ObjectOpenHashSet<Route> routes = new ObjectOpenHashSet<>();
 
-	public PlatformScreen(Platform savedRailBase, TransportMode transportMode) {
-		super(savedRailBase, transportMode, DWELL_TIME_TEXT);
+	public PlatformScreen(Platform savedRailBase, TransportMode transportMode, ScreenExtension previousScreenExtension) {
+		super(savedRailBase, transportMode, previousScreenExtension, DWELL_TIME_TEXT);
 
-		for(Route route : MinecraftClientData.getDashboardInstance().routes) {
-			for(RoutePlatformData routePlat : route.getRoutePlatforms()) {
-				if(routePlat.getPlatform().getId() == savedRailBase.getId()) {
+		for (Route route : MinecraftClientData.getDashboardInstance().routes) {
+			for (RoutePlatformData routePlat : route.getRoutePlatforms()) {
+				if (routePlat.getPlatform().getId() == savedRailBase.getId()) {
 					routes.add(route);
 				}
 			}
@@ -48,7 +49,7 @@ public class PlatformScreen extends SavedRailScreenBase<Platform, Station> {
 		// Draw route lists
 		graphicsHolder.drawText(ROUTE_STOPPING_TEXT, SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_FIELD_PADDING + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		int i = 0;
-		for(Route rts : routes) {
+		for (Route rts : routes) {
 			graphicsHolder.drawText(IGui.formatStationName(rts.getName()), SQUARE_SIZE + textWidth, (SQUARE_SIZE * 4) + (10 * i) + TEXT_FIELD_PADDING + TEXT_PADDING, ARGB_BLACK + rts.getColor(), false, GraphicsHolder.getDefaultLight());
 			i++;
 		}

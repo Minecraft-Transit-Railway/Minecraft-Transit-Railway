@@ -210,9 +210,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 				if (selectAllCheckbox.isChecked2()) {
 					filterPlatformIds.clear();
 				}
-				MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(() -> {
-					selectAllCheckbox.setChecked(filterPlatformIds.isEmpty());
-				}, new ObjectImmutableList<>(platformsForList), filterPlatformIds, false, false).withPreviousScreen(thisScreen)));
+				MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(() -> selectAllCheckbox.setChecked(filterPlatformIds.isEmpty()), new ObjectImmutableList<>(platformsForList), filterPlatformIds, false, false, thisScreen)));
 			}
 		});
 	}

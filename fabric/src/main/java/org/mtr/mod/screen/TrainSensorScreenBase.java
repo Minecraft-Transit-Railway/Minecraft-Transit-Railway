@@ -70,7 +70,7 @@ public abstract class TrainSensorScreenBase extends MTRScreenBase implements IGu
 
 		filterButton = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> {
 			final ObjectArrayList<DashboardListItem> routes = MinecraftClientData.getInstance().simplifiedRoutes.stream().map(simplifiedRoute -> new DashboardListItem(simplifiedRoute.getId(), simplifiedRoute.getName(), simplifiedRoute.getColor())).sorted().collect(Collectors.toCollection(ObjectArrayList::new));
-			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(new ObjectImmutableList<>(routes), filterRouteIds, false, false).withPreviousScreen(this)));
+			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(new ObjectImmutableList<>(routes), filterRouteIds, false, false, this)));
 		});
 
 		this.hasSpeedCheckboxes = hasSpeedCheckboxes;
