@@ -57,8 +57,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private static final int DEFAULT_CRUISING_ALTITUDE = 256;
 	private static final int TRAIN_FREQUENCY_MULTIPLIER = 4;
 
-	public EditDepotScreen(Depot depot, TransportMode transportMode, DashboardScreen dashboardScreen) {
-		super(depot, dashboardScreen, TranslationProvider.GUI_MTR_DEPOT_NAME, TranslationProvider.GUI_MTR_DEPOT_COLOR);
+	public EditDepotScreen(Depot depot, TransportMode transportMode, ScreenExtension previousScreenExtension) {
+		super(depot, TranslationProvider.GUI_MTR_DEPOT_NAME, TranslationProvider.GUI_MTR_DEPOT_COLOR, previousScreenExtension);
 
 		sliderX = GraphicsHolder.getTextWidth(getTimeString(0)) + TEXT_PADDING * 2;
 		sliderWidthWithText = SLIDER_WIDTH + TEXT_PADDING + GraphicsHolder.getTextWidth(getSliderString(0));
@@ -101,7 +101,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			saveData();
 			final ObjectArrayList<DashboardListItem> routes = new ObjectArrayList<>(MinecraftClientData.getFilteredDataSet(transportMode, MinecraftClientData.getDashboardInstance().routes));
 			Collections.sort(routes);
-			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this, new ObjectImmutableList<>(routes), data.getRouteIds(), false, true)));
+			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(new ObjectImmutableList<>(routes), data.getRouteIds(), false, true, this)));
 		});
 		buttonGenerateRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_REFRESH_PATH.getMutableText(), button -> {
 			saveData();

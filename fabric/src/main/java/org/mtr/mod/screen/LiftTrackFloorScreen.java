@@ -3,7 +3,6 @@ package org.mtr.mod.screen;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.CheckboxWidgetExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextFieldWidgetExtension;
 import org.mtr.mapping.tool.TextCase;
 import org.mtr.mod.InitClient;
@@ -13,7 +12,7 @@ import org.mtr.mod.data.IGui;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateLiftTrackFloorConfig;
 
-public class LiftTrackFloorScreen extends ScreenExtension implements IGui {
+public class LiftTrackFloorScreen extends MTRScreenBase implements IGui {
 
 	private final TextFieldWidgetExtension textFieldFloorNumber;
 	private final TextFieldWidgetExtension textFieldFloorDescription;

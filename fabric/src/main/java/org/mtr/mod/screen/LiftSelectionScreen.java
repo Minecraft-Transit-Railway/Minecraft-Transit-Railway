@@ -10,7 +10,6 @@ import org.mtr.mapping.holder.ClientWorld;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.World;
 import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.MinecraftClientData;
@@ -18,7 +17,7 @@ import org.mtr.mod.data.IGui;
 import org.mtr.mod.packet.PacketPressLiftButton;
 import org.mtr.mod.render.RenderLifts;
 
-public class LiftSelectionScreen extends ScreenExtension implements IGui {
+public class LiftSelectionScreen extends MTRScreenBase implements IGui {
 
 	private final DashboardList selectionList;
 	private final ObjectArrayList<BlockPos> floorLevels = new ObjectArrayList<>();

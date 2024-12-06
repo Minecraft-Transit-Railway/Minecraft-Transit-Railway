@@ -3,9 +3,7 @@ package org.mtr.mod.screen;
 import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.ClickableWidget;
-import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.MutableText;
-import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextFieldWidgetExtension;
@@ -14,24 +12,22 @@ import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.generated.lang.TranslationProvider;
 
-public abstract class EditNameColorScreenBase<T extends NameColorDataBase> extends ScreenExtension implements Utilities, IGui {
+public abstract class EditNameColorScreenBase<T extends NameColorDataBase> extends MTRScreenBase implements Utilities, IGui {
 
 	private int nameStart;
 	private int colorStart;
 	private int colorEnd;
 
 	protected final T data;
-	private final DashboardScreen dashboardScreen;
 	private final MutableText nameText;
 	private final MutableText colorText;
 
 	private final TextFieldWidgetExtension textFieldName;
 	private final WidgetColorSelector colorSelector;
 
-	public EditNameColorScreenBase(T data, DashboardScreen dashboardScreen, TranslationProvider.TranslationHolder nameKey, TranslationProvider.TranslationHolder colorKey) {
-		super();
+	public EditNameColorScreenBase(T data, TranslationProvider.TranslationHolder nameKey, TranslationProvider.TranslationHolder colorKey, ScreenExtension previousScreenExtension) {
+		super(previousScreenExtension);
 		this.data = data;
-		this.dashboardScreen = dashboardScreen;
 		nameText = nameKey.getMutableText();
 		colorText = colorKey.getMutableText();
 
@@ -48,7 +44,6 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 	@Override
 	public void onClose2() {
 		super.onClose2();
-		MinecraftClient.getInstance().openScreen(new Screen(dashboardScreen));
 		saveData();
 	}
 

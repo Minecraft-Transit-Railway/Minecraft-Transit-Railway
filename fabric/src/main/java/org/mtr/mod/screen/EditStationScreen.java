@@ -47,8 +47,8 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 
 	private static final int EXIT_PANELS_START = SQUARE_SIZE * 3 + TEXT_FIELD_PADDING + TEXT_PADDING;
 
-	public EditStationScreen(Station station, DashboardScreen dashboardScreen) {
-		super(station, dashboardScreen, TranslationProvider.GUI_MTR_STATION_NAME, TranslationProvider.GUI_MTR_STATION_COLOR);
+	public EditStationScreen(Station station, ScreenExtension previousScreenExtension) {
+		super(station, TranslationProvider.GUI_MTR_STATION_NAME, TranslationProvider.GUI_MTR_STATION_COLOR, previousScreenExtension);
 		textFieldZone = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, DashboardScreen.MAX_COLOR_ZONE_LENGTH, TextCase.DEFAULT, "[^-\\d]", null);
 		textFieldExitParentLetter = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 2, TextCase.UPPER, "[^A-Z]", "A");
 		textFieldExitParentNumber = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 2, TextCase.DEFAULT, "\\D", "1");

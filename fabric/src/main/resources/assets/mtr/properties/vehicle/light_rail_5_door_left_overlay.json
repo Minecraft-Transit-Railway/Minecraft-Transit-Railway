@@ -1,0 +1,58 @@
+{
+	"parts": [
+		{
+			"names": [
+				"door_right_overlay_interior"
+			],
+			"positionDefinitions": [
+				"doorMovement"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_left_overlay_exterior"
+			],
+			"positionDefinitions": [
+				"doorMovement"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_right_overlay_interior"
+			],
+			"positionDefinitions": [
+				"doorMovementFlipped"
+			],
+			"renderStage": "INTERIOR",
+			"doorZMultiplier": -14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_left_overlay_exterior"
+			],
+			"positionDefinitions": [
+				"doorMovementFlipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorZMultiplier": 14,
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"wall_1"
+			],
+			"positionDefinitions": [
+				"doorOverlayWall1"
+			],
+			"renderStage": "INTERIOR"
+		}
+	],
+	"modelYOffset": 1
+}

@@ -18,7 +18,7 @@ import org.mtr.mod.packet.PacketUpdateTrainSensorConfig;
 
 import java.util.stream.Collectors;
 
-public abstract class TrainSensorScreenBase extends ScreenExtension implements IGui {
+public abstract class TrainSensorScreenBase extends MTRScreenBase implements IGui {
 
 	private boolean stoppedOnly;
 	private boolean movingOnly;
@@ -70,7 +70,7 @@ public abstract class TrainSensorScreenBase extends ScreenExtension implements I
 
 		filterButton = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> {
 			final ObjectArrayList<DashboardListItem> routes = MinecraftClientData.getInstance().simplifiedRoutes.stream().map(simplifiedRoute -> new DashboardListItem(simplifiedRoute.getId(), simplifiedRoute.getName(), simplifiedRoute.getColor())).sorted().collect(Collectors.toCollection(ObjectArrayList::new));
-			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this, new ObjectImmutableList<>(routes), filterRouteIds, false, false)));
+			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(new ObjectImmutableList<>(routes), filterRouteIds, false, false, this)));
 		});
 
 		this.hasSpeedCheckboxes = hasSpeedCheckboxes;

@@ -23,8 +23,16 @@ public class BlockEyeCandy extends BlockExtension implements DirectionHelper, Bl
 		return getDefaultState2().with(new Property<>(FACING.data), ctx.getPlayerFacing().data);
 	}
 
+	@Nonnull
 	@Override
 	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return VoxelShapes.empty();
+	}
+
+	@Nonnull
+	@Override
+	public VoxelShape getCullingShape2(BlockState state, BlockView world, BlockPos pos) {
+		// Prevents culling optimization mods from culling our fully transparent block
 		return VoxelShapes.empty();
 	}
 
