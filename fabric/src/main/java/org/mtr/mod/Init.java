@@ -119,9 +119,9 @@ public final class Init implements Utilities {
 			// Clear depot(s) by name
 			commandBuilderMtr.then("clear", commandBuilderClear -> generateOrClearDepotsFromCommand(commandBuilderClear, false));
 			// Force copy a world backup from one folder another
-			commandBuilderMtr.then("forceCopyWorld", commandBuilderForceCopy -> {
-				commandBuilderForceCopy.permissionLevel(4);
-				commandBuilderForceCopy.then("worldDirectory", StringArgumentType.string(), innerCommandBuilder1 -> innerCommandBuilder1.then("backupDirectory", StringArgumentType.string(), innerCommandBuilder2 -> innerCommandBuilder2.executes(contextHandler -> {
+			commandBuilderMtr.then("restoreWorld", commandBuilderRestoreWorld -> {
+				commandBuilderRestoreWorld.permissionLevel(4);
+				commandBuilderRestoreWorld.then("worldDirectory", StringArgumentType.string(), innerCommandBuilder1 -> innerCommandBuilder1.then("backupDirectory", StringArgumentType.string(), innerCommandBuilder2 -> innerCommandBuilder2.executes(contextHandler -> {
 					final Path runPath = contextHandler.getServer().getRunDirectory().toPath();
 					final Path worldDirectory = runPath.resolve(contextHandler.getString("worldDirectory"));
 					final Path backupDirectory = runPath.resolve(contextHandler.getString("backupDirectory"));

@@ -80,10 +80,10 @@ public class BetaWarningScreen extends ScreenExtension implements IGui, Utilitie
 
 	@Override
 	public void onClose2() {
-		super.onClose2();
 		if (openTime >= FORCE_OPEN_DURATION) {
 			Config.getClient().hideBetaWarningScreen();
 			Config.save();
+			super.onClose2();
 		}
 	}
 

@@ -2,11 +2,10 @@ package org.mtr.mod.screen;
 
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.generated.lang.TranslationProvider;
 
-public class FakePauseScreen extends ScreenExtension implements IGui {
+public class FakePauseScreen extends MTRScreenBase implements IGui {
 
 	private long textCooldown;
 	private final String dismissPauseScreenText = TranslationProvider.GUI_MTR_DISMISS_PAUSE_SCREEN.getString();

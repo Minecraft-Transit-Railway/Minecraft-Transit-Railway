@@ -409,6 +409,7 @@
 	"gui.mtr.rotate_clockwise": "Rotate Clockwise",
 	"gui.mtr.route_color": "Route Colour",
 	"gui.mtr.route_name": "Route Name",
+	"gui.mtr.route_stopping": "Route Stopping",
 	"gui.mtr.route_type_boat_high_speed": "Type: Fast Ferry",
 	"gui.mtr.route_type_boat_light_rail": "Type: Cruise",
 	"gui.mtr.route_type_boat_normal": "Type: Ferry",

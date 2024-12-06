@@ -12,16 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.*;
 
-public abstract class GenericScreenBase<T extends SerializedDataBase> extends ScreenExtension implements IGui {
+public abstract class GenericScreenBase<T extends SerializedDataBase> extends MTRScreenBase implements IGui {
 
 	protected final T data;
 	protected final List<DataElementBase<?>> dataElements = new ArrayList<>();
-	private final GenericScreenBase<?> previousScreen;
 
-	public GenericScreenBase(T data, GenericScreenBase<?> previousScreen) {
+	public GenericScreenBase(T data) {
 		super();
 		this.data = data;
-		this.previousScreen = previousScreen;
 	}
 
 	@Override
@@ -43,11 +41,6 @@ public abstract class GenericScreenBase<T extends SerializedDataBase> extends Sc
 			dataElement.render(graphicsHolder, SQUARE_SIZE + TEXT_HEIGHT + TEXT_PADDING + offsetY);
 			offsetY += dataElement.getWidgetHeight();
 		}
-	}
-
-	@Override
-	public void onClose2() {
-		MinecraftClient.getInstance().openScreen(new Screen(previousScreen));
 	}
 
 	@Override
