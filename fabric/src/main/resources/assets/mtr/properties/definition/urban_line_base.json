@@ -55,6 +55,13 @@
 			]
 		},
 		{
+			"name": "windowMini",
+			"positions": [
+			],
+			"positionsFlipped": [
+			]
+		},
+		{
 			"name": "windowMiniEnd1",
 			"positions": [
 				{
