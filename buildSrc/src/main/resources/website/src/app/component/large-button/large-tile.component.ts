@@ -5,7 +5,6 @@ import {NgTemplateOutlet} from "@angular/common";
 
 @Component({
 	selector: "app-large-tile",
-	standalone: true,
 	imports: [
 		MatIconModule,
 		MatRippleModule,

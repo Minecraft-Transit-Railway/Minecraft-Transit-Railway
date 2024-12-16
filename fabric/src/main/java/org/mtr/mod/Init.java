@@ -37,6 +37,7 @@ import org.mtr.mod.servlet.RequestHelper;
 import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
 import java.net.HttpURLConnection;
 import java.net.ServerSocket;
 import java.net.URL;
@@ -71,6 +72,7 @@ public final class Init implements Utilities {
 	private static final Object2ObjectAVLTreeMap<UUID, Runnable> RIDING_PLAYERS = new Object2ObjectAVLTreeMap<>();
 
 	public static void init() {
+		LOGGER.info("Starting Minecraft with arguments:\n{}", String.join("\n", ManagementFactory.getRuntimeMXBean().getInputArguments()));
 		AsciiArt.print();
 		Blocks.init();
 		Items.init();

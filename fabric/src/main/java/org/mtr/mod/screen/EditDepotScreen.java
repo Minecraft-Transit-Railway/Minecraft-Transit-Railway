@@ -5,6 +5,7 @@ import org.mtr.core.data.*;
 import org.mtr.core.operation.GenerateOrClearByDepotIds;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2LongAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.ClickableWidget;
@@ -56,6 +57,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private static final int MAX_TRAINS_PER_HOUR = 5;
 	private static final int DEFAULT_CRUISING_ALTITUDE = 256;
 	private static final int TRAIN_FREQUENCY_MULTIPLIER = 4;
+	private static final Long2LongAVLTreeMap DEPOT_GENERATION_START_TIME = new Long2LongAVLTreeMap();
 
 	public EditDepotScreen(Depot depot, TransportMode transportMode, ScreenExtension previousScreenExtension) {
 		super(depot, TranslationProvider.GUI_MTR_DEPOT_NAME, TranslationProvider.GUI_MTR_DEPOT_COLOR, previousScreenExtension);
@@ -107,6 +109,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			saveData();
 			final GenerateOrClearByDepotIds generateOrClearByDepotIds = new GenerateOrClearByDepotIds();
 			generateOrClearByDepotIds.addDepotId(depot.getId());
+			DEPOT_GENERATION_START_TIME.put(depot.getId(), System.currentTimeMillis());
 			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotGenerate(generateOrClearByDepotIds));
 		});
 		buttonClearTrains = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_CLEAR_VEHICLES.getMutableText(), button -> {
@@ -352,13 +355,16 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 	private static String getSuccessfulSegmentsText(Depot depot) {
 		final long lastGeneratedMillis = depot.getLastGeneratedMillis();
-
 		if (lastGeneratedMillis == 0) {
 			return "";
 		}
 
-		final long timeDifference = System.currentTimeMillis() - lastGeneratedMillis;
-		final StringBuilder stringBuilder = new StringBuilder(TranslationProvider.GUI_MTR_PATH_REFRESH_TIME.getString(getTimeDifferenceString(timeDifference))).append("|").append(DateFormat.getDateTimeInstance().format(new Date(lastGeneratedMillis))).append("||");
+		final long generationStartTime = DEPOT_GENERATION_START_TIME.getOrDefault(depot.getId(), 0);
+		if (generationStartTime > lastGeneratedMillis) {
+			return TranslationProvider.GUI_MTR_PATH_GENERATING.getString(getTimeDifferenceString(System.currentTimeMillis() - generationStartTime));
+		}
+
+		final StringBuilder stringBuilder = new StringBuilder(TranslationProvider.GUI_MTR_PATH_REFRESH_TIME.getString(getTimeDifferenceString(System.currentTimeMillis() - lastGeneratedMillis))).append("|").append(DateFormat.getDateTimeInstance().format(new Date(lastGeneratedMillis))).append("||");
 
 		switch (depot.getLastGeneratedStatus()) {
 			case SUCCESSFUL:
@@ -398,14 +404,15 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 	private static String getTimeDifferenceString(long timeDifference) {
 		final MutableText mutableText;
-		if (timeDifference >= HOURS_PER_DAY * 60 * 60 * MILLIS_PER_SECOND) {
-			mutableText = TranslationProvider.GUI_MTR_DAYS.getMutableText(timeDifference / (HOURS_PER_DAY * 60 * 60 * MILLIS_PER_SECOND));
-		} else if (timeDifference >= 60 * 60 * MILLIS_PER_SECOND) {
-			mutableText = TranslationProvider.GUI_MTR_HOURS.getMutableText(timeDifference / (60 * 60 * MILLIS_PER_SECOND));
-		} else if (timeDifference >= 60 * MILLIS_PER_SECOND) {
-			mutableText = TranslationProvider.GUI_MTR_MINUTES.getMutableText(timeDifference / (60 * MILLIS_PER_SECOND));
+		final long newTimeDifference = Math.abs(timeDifference);
+		if (newTimeDifference >= HOURS_PER_DAY * 60 * 60 * MILLIS_PER_SECOND) {
+			mutableText = TranslationProvider.GUI_MTR_DAYS.getMutableText(newTimeDifference / (HOURS_PER_DAY * 60 * 60 * MILLIS_PER_SECOND));
+		} else if (newTimeDifference >= 60 * 60 * MILLIS_PER_SECOND) {
+			mutableText = TranslationProvider.GUI_MTR_HOURS.getMutableText(newTimeDifference / (60 * 60 * MILLIS_PER_SECOND));
+		} else if (newTimeDifference >= 60 * MILLIS_PER_SECOND) {
+			mutableText = TranslationProvider.GUI_MTR_MINUTES.getMutableText(newTimeDifference / (60 * MILLIS_PER_SECOND));
 		} else {
-			mutableText = TranslationProvider.GUI_MTR_SECONDS.getMutableText(timeDifference / MILLIS_PER_SECOND);
+			mutableText = TranslationProvider.GUI_MTR_SECONDS.getMutableText(newTimeDifference / MILLIS_PER_SECOND);
 		}
 		return mutableText.getString();
 	}

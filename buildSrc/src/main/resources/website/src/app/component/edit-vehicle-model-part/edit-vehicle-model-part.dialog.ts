@@ -4,19 +4,18 @@ import {MatButtonModule} from "@angular/material/button";
 import {MatTooltipModule} from "@angular/material/tooltip";
 import {DataService} from "../../service/data.service";
 import {MatIconModule} from "@angular/material/icon";
-import {ModelPropertiesPartWrapper} from "../../entity/generated/modelPropertiesPartWrapper";
+import {ModelPropertiesPartWrapperDTO} from "../../entity/generated/modelPropertiesPartWrapper";
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatFormField, MatLabel} from "@angular/material/form-field";
 import {MatInput} from "@angular/material/input";
 import {CREATE_MODEL_PROPERTIES_PART} from "../edit-vehicle-model-parts/edit-vehicle-model-parts.dialog";
 import {MatSelectModule} from "@angular/material/select";
 import {CdkTextareaAutosize} from "@angular/cdk/text-field";
-import {VehicleModelWrapper} from "../../entity/generated/vehicleModelWrapper";
-import {PartPosition} from "../../entity/generated/partPosition";
+import {VehicleModelWrapperDTO} from "../../entity/generated/vehicleModelWrapper";
+import {PartPositionDTO} from "../../entity/generated/partPosition";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 
 @Component({
-	standalone: true,
 	imports: [
 		MatDialogModule,
 		MatButtonModule,
@@ -36,7 +35,7 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
 })
 export class EditVehicleModelPartDialog {
 	private readonly dialogRef = inject(MatDialogRef<EditVehicleModelPartDialog>);
-	private readonly data = inject<{ model: VehicleModelWrapper, modelPropertiesPart: ModelPropertiesPartWrapper }>(MAT_DIALOG_DATA);
+	private readonly data = inject<{ model: VehicleModelWrapperDTO, modelPropertiesPart: ModelPropertiesPartWrapperDTO }>(MAT_DIALOG_DATA);
 	protected readonly modelPartNames: string[] = [];
 	protected readonly formGroup;
 
@@ -176,7 +175,7 @@ export class EditVehicleModelPartDialog {
 		this.dialogRef.close();
 	}
 
-	private static positionsToString(positions: PartPosition[]) {
+	private static positionsToString(positions: PartPositionDTO[]) {
 		return positions.map(position => `${position.x}, ${position.y}, ${position.z}`).join("\n");
 	}
 
@@ -186,12 +185,12 @@ export class EditVehicleModelPartDialog {
 				const coordinate = parseFloat(coordinateString.replace(/[^\d-.]/g, ""));
 				return Number.isNaN(coordinate) ? 0 : coordinate;
 			});
-			return new PartPosition(coordinates[0] ?? 0, coordinates[1] ?? 0, coordinates[2] ?? 0);
+			return new PartPositionDTO(coordinates[0] ?? 0, coordinates[1] ?? 0, coordinates[2] ?? 0);
 		});
 	}
 
 	private static formatPositions(positionsString: string) {
-		const positions: PartPosition[] = [];
+		const positions: PartPositionDTO[] = [];
 		EditVehicleModelPartDialog.stringToPositions(positionsString).forEach(position => positions.push(position));
 		return EditVehicleModelPartDialog.positionsToString(positions);
 	}

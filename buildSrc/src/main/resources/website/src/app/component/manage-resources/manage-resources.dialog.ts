@@ -8,7 +8,6 @@ import {MatExpansionModule} from "@angular/material/expansion";
 import {DataService} from "../../service/data.service";
 
 @Component({
-	standalone: true,
 	imports: [
 		MatDialogModule,
 		MatButtonModule,

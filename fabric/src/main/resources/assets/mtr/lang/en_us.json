@@ -365,6 +365,7 @@
 	"gui.mtr.part_stage_lights": "Lights",
 	"gui.mtr.part_whitelisted_cars": "Whitelisted Cars",
 	"gui.mtr.path_found": "Main path generated successfully",
+	"gui.mtr.path_generating": "Started path generation %s ago...",
 	"gui.mtr.path_not_found_between": "Path not found on|> %s|between|> %s|and|> %s|",
 	"gui.mtr.path_not_found_sidings": "%s siding(s) cannot connect to main path",
 	"gui.mtr.path_not_generated_no_sidings": "Path not generated|No sidings in depot!",

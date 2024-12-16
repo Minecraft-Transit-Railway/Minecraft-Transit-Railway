@@ -5,6 +5,7 @@ import org.mtr.libraries.com.google.gson.JsonArray;
 import org.mtr.libraries.com.google.gson.JsonElement;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.com.google.gson.JsonPrimitive;
+import org.mtr.mod.Init;
 
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
@@ -32,15 +33,19 @@ public final class BlockbenchModelValidator {
 		modelObject.addProperty("modded_entity_version", "Fabric 1.17+");
 		modelObject.remove("fabricOptions");
 
-		modelObject.getAsJsonArray("textures").forEach(textureElement -> {
-			final JsonObject textureObject = textureElement.getAsJsonObject();
-			textureObject.remove("path");
-			textureObject.remove("source");
-			if (assertTrue != null) {
-				final String relativePath = textureObject.get("relative_path").getAsString();
-				assertTrue.accept(relativePath.startsWith("../../textures/vehicle/") || relativePath.startsWith("../../textures/overlay/"), relativePath);
-			}
-		});
+		try {
+			modelObject.getAsJsonArray("textures").forEach(textureElement -> {
+				final JsonObject textureObject = textureElement.getAsJsonObject();
+				textureObject.remove("path");
+				textureObject.remove("source");
+				if (assertTrue != null) {
+					final String relativePath = textureObject.get("relative_path").getAsString();
+					assertTrue.accept(relativePath.startsWith("../../textures/vehicle/") || relativePath.startsWith("../../textures/overlay/"), relativePath);
+				}
+			});
+		} catch (Exception ignored) {
+			Init.LOGGER.warn("Failed to read textures from Blockbench model [{}]", id);
+		}
 	}
 
 	/**
