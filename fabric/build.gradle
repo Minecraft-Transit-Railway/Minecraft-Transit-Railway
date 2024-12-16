@@ -104,6 +104,7 @@ tasks.register("setupFiles") {
 		delete fileTree("src/main/resources/wthit_plugins.json")
 	}
 
+	buildTools.downloadTranslations(crowdinKey)
 	buildTools.generateTranslations()
 	buildTools.copyLootTables()
 	buildTools.copyFontDefinition()

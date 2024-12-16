@@ -1,5 +1,8 @@
 package org.mtr.mod;
 
+import com.crowdin.client.Client;
+import com.crowdin.client.core.model.Credentials;
+import com.crowdin.client.translations.model.CrowdinTranslationCreateProjectBuildForm;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -30,6 +33,8 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class BuildTools {
 
@@ -42,6 +47,7 @@ public class BuildTools {
 	private final int majorVersion;
 
 	private static final Logger LOGGER = LogManager.getLogger("Build");
+	private static final long CROWDIN_PROJECT_ID = 455212;
 
 	public BuildTools(String minecraftVersion, String loader, Project project) throws IOException {
 		this.minecraftVersion = minecraftVersion;
@@ -106,6 +112,33 @@ public class BuildTools {
 
 	public String getForgeVersion() {
 		return getJson("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json").getAsJsonObject().getAsJsonObject("promos").get(minecraftVersion + "-latest").getAsString();
+	}
+
+	public void downloadTranslations(String key) throws IOException, InterruptedException {
+		if (!key.isEmpty()) {
+			final CrowdinTranslationCreateProjectBuildForm crowdinTranslationCreateProjectBuildForm = new CrowdinTranslationCreateProjectBuildForm();
+			crowdinTranslationCreateProjectBuildForm.setSkipUntranslatedStrings(false);
+			crowdinTranslationCreateProjectBuildForm.setSkipUntranslatedFiles(false);
+			crowdinTranslationCreateProjectBuildForm.setExportApprovedOnly(false);
+
+			final Client client = new Client(new Credentials(key, null));
+			final long buildId = client.getTranslationsApi().buildProjectTranslation(CROWDIN_PROJECT_ID, crowdinTranslationCreateProjectBuildForm).getData().getId();
+
+			while (!client.getTranslationsApi().checkBuildStatus(CROWDIN_PROJECT_ID, buildId).getData().getStatus().equals("finished")) {
+				Thread.sleep(1000);
+			}
+
+			try (final InputStream inputStream = new URL(client.getTranslationsApi().downloadProjectTranslations(CROWDIN_PROJECT_ID, buildId).getData().getUrl()).openStream()) {
+				try (final ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
+					System.out.println(zipInputStream.available());
+					ZipEntry zipEntry;
+					while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+						FileUtils.write(path.resolve("src/main/resources/assets/mtr/lang").resolve(zipEntry.getName()).toFile(), IOUtils.toString(zipInputStream, StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+						zipInputStream.closeEntry();
+					}
+				}
+			}
+		}
 	}
 
 	public void generateTranslations() throws IOException {
