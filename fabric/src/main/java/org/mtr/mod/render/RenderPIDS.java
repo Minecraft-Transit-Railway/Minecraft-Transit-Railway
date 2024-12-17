@@ -117,7 +117,26 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 					renderCustomMessage = true;
 					languageIndex = languageTicks % customMessageSplit.length;
 				} else {
-					destinationSplit = arrivalResponse.getDestination().split("\\|");
+					final String[] tempDestinationSplit = arrivalResponse.getDestination().split("\\|");
+					if (arrivalResponse.getRouteNumber().isEmpty()) {
+						destinationSplit = tempDestinationSplit;
+					} else {
+						final String[] tempNumberSplit = arrivalResponse.getRouteNumber().split("\\|");
+						int destinationIndex = 0;
+						int numberIndex = 0;
+						final ObjectArrayList<String> newDestinations = new ObjectArrayList<>();
+						while (true) {
+							final String newDestination = String.format("%s %s", tempNumberSplit[numberIndex % tempNumberSplit.length], tempDestinationSplit[destinationIndex % tempDestinationSplit.length]);
+							if (newDestinations.contains(newDestination)) {
+								break;
+							} else {
+								newDestinations.add(newDestination);
+							}
+							destinationIndex++;
+							numberIndex++;
+						}
+						destinationSplit = newDestinations.toArray(new String[0]);
+					}
 					final int messageCount = destinationSplit.length + (customMessage.isEmpty() ? 0 : customMessageSplit.length);
 					renderCustomMessage = languageTicks % messageCount >= destinationSplit.length;
 					languageIndex = (languageTicks % messageCount) - (renderCustomMessage ? destinationSplit.length : 0);

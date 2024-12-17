@@ -15,7 +15,7 @@ import org.mtr.mod.packet.PacketUpdateData;
 public class PlatformScreen extends SavedRailScreenBase<Platform, Station> {
 
 	private static final MutableText DWELL_TIME_TEXT = TranslationProvider.GUI_MTR_DWELL_TIME.getMutableText();
-	private static final MutableText ROUTE_STOPPING_TEXT = TranslationProvider.GUI_MTR_ROUTE_STOPPING.getMutableText();
+	private static final MutableText ROUTES_AT_PLATFORM_TEXT = TranslationProvider.GUI_MTR_ROUTES_AT_PLATFORM.getMutableText();
 	private final ObjectOpenHashSet<Route> routes = new ObjectOpenHashSet<>();
 
 	public PlatformScreen(Platform savedRailBase, TransportMode transportMode, ScreenExtension previousScreenExtension) {
@@ -47,7 +47,7 @@ public class PlatformScreen extends SavedRailScreenBase<Platform, Station> {
 		}
 
 		// Draw route lists
-		graphicsHolder.drawText(ROUTE_STOPPING_TEXT, SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_FIELD_PADDING + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+		graphicsHolder.drawText(ROUTES_AT_PLATFORM_TEXT, SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_FIELD_PADDING + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		int i = 0;
 		for (Route rts : routes) {
 			graphicsHolder.drawText(IGui.formatStationName(rts.getName()), SQUARE_SIZE + textWidth, (SQUARE_SIZE * 4) + (10 * i) + TEXT_FIELD_PADDING + TEXT_PADDING, ARGB_BLACK + rts.getColor(), false, GraphicsHolder.getDefaultLight());
