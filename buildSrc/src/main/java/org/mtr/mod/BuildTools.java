@@ -132,7 +132,7 @@ public class BuildTools {
 				try (final ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
 					ZipEntry zipEntry;
 					while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-						FileUtils.write(path.resolve("src/main/resources/assets/mtr/lang").resolve(zipEntry.getName()).toFile(), IOUtils.toString(zipInputStream, StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+						FileUtils.write(path.resolve("src/main/resources/assets/mtr/lang").resolve(zipEntry.getName().toLowerCase(Locale.ENGLISH)).toFile(), IOUtils.toString(zipInputStream, StandardCharsets.UTF_8), StandardCharsets.UTF_8);
 						zipInputStream.closeEntry();
 					}
 				}
