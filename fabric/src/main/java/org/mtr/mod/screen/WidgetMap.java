@@ -231,7 +231,12 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 				} else {
 					additionalString = null;
 				}
-				drawFromWorldCoords(position.getX(), position.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(graphicsHolder, additionalString == null ? area.getName() : String.format("%s|(%s)", area.getName(), additionalString), getX2() + x1.floatValue(), getY2() + y1.floatValue(), GraphicsHolder.getDefaultLight()));
+				drawFromWorldCoords(position.getX(), position.getZ(), (x1, y1) -> {
+					graphicsHolder.push();
+					graphicsHolder.translate(getX2() + x1.floatValue(), getY2() + y1.floatValue(), 0);
+					IDrawing.drawStringWithFont(graphicsHolder, additionalString == null ? area.getName() : String.format("%s|(%s)", area.getName(), additionalString), 0, 0, GraphicsHolder.getDefaultLight());
+					graphicsHolder.pop();
+				});
 			}
 		}
 	}

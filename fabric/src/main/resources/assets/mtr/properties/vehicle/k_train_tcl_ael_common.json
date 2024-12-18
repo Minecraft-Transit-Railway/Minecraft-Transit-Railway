@@ -90,7 +90,8 @@
 			],
 			"positionDefinitions": [
 				"window",
-				"windowFlipped"
+				"windowFlipped",
+				"windowMini"
 			],
 			"renderStage": "EXTERIOR"
 		},

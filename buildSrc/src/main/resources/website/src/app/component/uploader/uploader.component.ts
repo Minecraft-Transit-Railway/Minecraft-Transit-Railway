@@ -5,7 +5,6 @@ import {MatIconModule} from "@angular/material/icon";
 
 @Component({
 	selector: "app-uploader",
-	standalone: true,
 	imports: [
 		MatProgressSpinnerModule,
 		MatIconModule,

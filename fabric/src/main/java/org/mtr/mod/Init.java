@@ -6,7 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mtr.core.Main;
 import org.mtr.core.data.Position;
-import org.mtr.core.operation.GenerateOrClearByDepotName;
+import org.mtr.core.operation.DepotOperationByName;
 import org.mtr.core.operation.SetTime;
 import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.servlet.OperationProcessor;
@@ -37,6 +37,7 @@ import org.mtr.mod.servlet.RequestHelper;
 import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
 import java.net.HttpURLConnection;
 import java.net.ServerSocket;
 import java.net.URL;
@@ -71,6 +72,7 @@ public final class Init implements Utilities {
 	private static final Object2ObjectAVLTreeMap<UUID, Runnable> RIDING_PLAYERS = new Object2ObjectAVLTreeMap<>();
 
 	public static void init() {
+		LOGGER.info("Starting Minecraft with arguments:\n{}", String.join("\n", ManagementFactory.getRuntimeMXBean().getInputArguments()));
 		AsciiArt.print();
 		Blocks.init();
 		Items.init();
@@ -87,6 +89,7 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketDeleteData.class, PacketDeleteData::new);
 		REGISTRY.registerPacket(PacketDeleteRailAction.class, PacketDeleteRailAction::new);
 		REGISTRY.registerPacket(PacketDepotClear.class, PacketDepotClear::new);
+		REGISTRY.registerPacket(PacketDepotInstantDeploy.class, PacketDepotInstantDeploy::new);
 		REGISTRY.registerPacket(PacketDepotGenerate.class, PacketDepotGenerate::new);
 		REGISTRY.registerPacket(PacketDriveTrain.class, PacketDriveTrain::new);
 		REGISTRY.registerPacket(PacketFetchArrivals.class, PacketFetchArrivals::new);
@@ -115,13 +118,15 @@ public final class Init implements Utilities {
 		// Register command
 		REGISTRY.registerCommand("mtr", commandBuilderMtr -> {
 			// Generate depot(s) by name
-			commandBuilderMtr.then("generate", commandBuilderGenerate -> generateOrClearDepotsFromCommand(commandBuilderGenerate, true));
+			commandBuilderMtr.then("generate", commandBuilderGenerate -> depotOperationFromCommand(commandBuilderGenerate, DepotOperation.GENERATE));
 			// Clear depot(s) by name
-			commandBuilderMtr.then("clear", commandBuilderClear -> generateOrClearDepotsFromCommand(commandBuilderClear, false));
+			commandBuilderMtr.then("clear", commandBuilderClear -> depotOperationFromCommand(commandBuilderClear, DepotOperation.CLEAR));
+			// Instant deploy depot(s) by name
+			commandBuilderMtr.then("instantDeploy", commandBuilderInstantDeploy -> depotOperationFromCommand(commandBuilderInstantDeploy, DepotOperation.INSTANT_DEPLOY));
 			// Force copy a world backup from one folder another
-			commandBuilderMtr.then("forceCopyWorld", commandBuilderForceCopy -> {
-				commandBuilderForceCopy.permissionLevel(4);
-				commandBuilderForceCopy.then("worldDirectory", StringArgumentType.string(), innerCommandBuilder1 -> innerCommandBuilder1.then("backupDirectory", StringArgumentType.string(), innerCommandBuilder2 -> innerCommandBuilder2.executes(contextHandler -> {
+			commandBuilderMtr.then("restoreWorld", commandBuilderRestoreWorld -> {
+				commandBuilderRestoreWorld.permissionLevel(4);
+				commandBuilderRestoreWorld.then("worldDirectory", StringArgumentType.string(), innerCommandBuilder1 -> innerCommandBuilder1.then("backupDirectory", StringArgumentType.string(), innerCommandBuilder2 -> innerCommandBuilder2.executes(contextHandler -> {
 					final Path runPath = contextHandler.getServer().getRunDirectory().toPath();
 					final Path worldDirectory = runPath.resolve(contextHandler.getString("worldDirectory"));
 					final Path backupDirectory = runPath.resolve(contextHandler.getString("backupDirectory"));
@@ -350,23 +355,23 @@ public final class Init implements Utilities {
 		return Integer.toHexString(new Random().nextInt());
 	}
 
-	private static void generateOrClearDepotsFromCommand(CommandBuilder<?> commandBuilder, boolean isGenerate) {
+	private static void depotOperationFromCommand(CommandBuilder<?> commandBuilder, DepotOperation depotOperation) {
 		commandBuilder.permissionLevel(2);
 		commandBuilder.executes(contextHandler -> {
-			contextHandler.sendSuccess((isGenerate ? TranslationProvider.COMMAND_MTR_GENERATE_ALL : TranslationProvider.COMMAND_MTR_CLEAR_ALL).key, true);
-			return generateOrClearDepotsFromCommand(contextHandler.getWorld(), "", isGenerate);
+			contextHandler.sendSuccess(depotOperation.translationHolderAll.key, true);
+			return depotOperationFromCommand(contextHandler.getWorld(), "", depotOperation);
 		});
 		commandBuilder.then("name", StringArgumentType.greedyString(), innerCommandBuilder -> innerCommandBuilder.executes(contextHandler -> {
 			final String filter = contextHandler.getString("name");
-			contextHandler.sendSuccess((isGenerate ? TranslationProvider.COMMAND_MTR_GENERATE_FILTER : TranslationProvider.COMMAND_MTR_CLEAR_FILTER).key, true, filter);
-			return generateOrClearDepotsFromCommand(contextHandler.getWorld(), filter, isGenerate);
+			contextHandler.sendSuccess(depotOperation.translationHolderName.key, true, filter);
+			return depotOperationFromCommand(contextHandler.getWorld(), filter, depotOperation);
 		}));
 	}
 
-	private static int generateOrClearDepotsFromCommand(World world, String filter, boolean isGenerate) {
-		final GenerateOrClearByDepotName generateByDepotName = new GenerateOrClearByDepotName();
-		generateByDepotName.setFilter(filter);
-		sendMessageC2S(isGenerate ? OperationProcessor.GENERATE_BY_DEPOT_NAME : OperationProcessor.CLEAR_BY_DEPOT_NAME, world.getServer(), world, generateByDepotName, null, null);
+	private static int depotOperationFromCommand(World world, String filter, DepotOperation depotOperation) {
+		final DepotOperationByName depotOperationByName = new DepotOperationByName();
+		depotOperationByName.setFilter(filter);
+		sendMessageC2S(depotOperation.operation, world.getServer(), world, depotOperationByName, null, null);
 		return 1;
 	}
 
@@ -375,5 +380,21 @@ public final class Init implements Utilities {
 		serverPlayerEntity.setNoGravity(isRiding);
 		serverPlayerEntity.setNoClipMapped(isRiding);
 		((PlayerTeleportationStateAccessor) serverPlayerEntity.data).setInTeleportationState(isRiding);
+	}
+
+	private enum DepotOperation {
+		GENERATE(TranslationProvider.COMMAND_MTR_GENERATE_ALL, TranslationProvider.COMMAND_MTR_GENERATE_FILTER, OperationProcessor.GENERATE_BY_DEPOT_NAME),
+		CLEAR(TranslationProvider.COMMAND_MTR_CLEAR_ALL, TranslationProvider.COMMAND_MTR_CLEAR_FILTER, OperationProcessor.CLEAR_BY_DEPOT_NAME),
+		INSTANT_DEPLOY(TranslationProvider.COMMAND_MTR_INSTANT_DEPLOY_ALL, TranslationProvider.COMMAND_MTR_INSTANT_DEPLOY_FILTER, OperationProcessor.INSTANT_DEPLOY_BY_DEPOT_NAME);
+
+		private final TranslationProvider.TranslationHolder translationHolderAll;
+		private final TranslationProvider.TranslationHolder translationHolderName;
+		private final String operation;
+
+		DepotOperation(TranslationProvider.TranslationHolder translationHolderAll, TranslationProvider.TranslationHolder translationHolderName, String operation) {
+			this.translationHolderAll = translationHolderAll;
+			this.translationHolderName = translationHolderName;
+			this.operation = operation;
+		}
 	}
 }

@@ -5,7 +5,6 @@ import {FormGroup, ReactiveFormsModule} from "@angular/forms";
 
 @Component({
 	selector: "app-autocomplete",
-	standalone: true,
 	imports: [
 		MatInputModule,
 		MatAutocompleteModule,

@@ -44,6 +44,7 @@ forge/src/main/resources/META-INF
 **/website/*.json
 **/website/src/app/entity/generated
 **/website/src/styles.css
+**/website/src/theme.scss
 **/website/.gitignore
 fabric.mod.json
 mtr.accesswidener

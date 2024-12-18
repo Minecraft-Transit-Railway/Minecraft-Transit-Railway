@@ -4,9 +4,7 @@ import org.mtr.core.data.AreaBase;
 import org.mtr.core.data.SavedRailBase;
 import org.mtr.core.data.TransportMode;
 import org.mtr.mapping.holder.ClickableWidget;
-import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.MutableText;
-import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextFieldWidgetExtension;
@@ -16,7 +14,7 @@ import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.generated.lang.TranslationProvider;
 
-public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> extends ScreenExtension implements IGui {
+public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> extends MTRScreenBase implements IGui {
 
 	protected final T savedRailBase;
 	protected final int textWidth;
@@ -24,7 +22,6 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 	protected final WidgetShorterSlider sliderDwellTimeMin;
 	protected final WidgetShorterSlider sliderDwellTimeSec;
 
-	private final DashboardScreen dashboardScreen;
 	private final TextFieldWidgetExtension textFieldSavedRailNumber;
 
 	private final MutableText savedRailNumberText;
@@ -33,11 +30,10 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 	private static final int MAX_DWELL_TIME = 1200;
 	private static final int MAX_SAVED_RAIL_NUMBER_LENGTH = 10;
 
-	public SavedRailScreenBase(T savedRailBase, TransportMode transportMode, DashboardScreen dashboardScreen, MutableText... additionalTexts) {
+	public SavedRailScreenBase(T savedRailBase, TransportMode transportMode, ScreenExtension previousScreenExtension, MutableText... additionalTexts) {
 		super();
 		this.savedRailBase = savedRailBase;
 		showScheduleControls = !transportMode.continuousMovement;
-		this.dashboardScreen = dashboardScreen;
 		savedRailNumberText = getNumberStringKey().getMutableText();
 
 		textFieldSavedRailNumber = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_SAVED_RAIL_NUMBER_LENGTH, TextCase.DEFAULT, null, "1");
@@ -99,12 +95,6 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 		} catch (Exception e) {
 			Init.LOGGER.error("", e);
 		}
-	}
-
-	@Override
-	public void onClose2() {
-		super.onClose2();
-		MinecraftClient.getInstance().openScreen(new Screen(dashboardScreen));
 	}
 
 	@Override

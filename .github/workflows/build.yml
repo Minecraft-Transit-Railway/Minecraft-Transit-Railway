@@ -31,9 +31,9 @@ jobs:
       - name: Build Angular
         run: npm run build --prefix buildSrc/src/main/resources/website
       - name: Setup Fabric files
-        run: ./gradlew fabric:setupFiles -PminecraftVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+        run: ./gradlew fabric:setupFiles -PminecraftVersion="${{ matrix.minecraft }}" -PcrowdinApiKey="${{ secrets.CROWDIN_API_KEY }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
       - name: Setup Forge files
-        run: ./gradlew forge:setupFiles -PminecraftVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+        run: ./gradlew forge:setupFiles -PminecraftVersion="${{ matrix.minecraft }}"
       - name: Build ${{ matrix.minecraft }}
         run: ./gradlew build -PminecraftVersion="${{ matrix.minecraft }}"
       - name: Build ${{ matrix.minecraft }} (server)

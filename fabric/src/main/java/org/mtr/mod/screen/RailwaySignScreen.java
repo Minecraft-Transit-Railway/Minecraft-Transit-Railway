@@ -166,7 +166,7 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 		addChild(new ClickableWidget(buttonNextPage));
 
 		if (!isRailwaySign) {
-			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this::onClose2, platformsForList, selectedIds, true, false)));
+			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this::onClose2, platformsForList, selectedIds, true, false, null)));
 		}
 	}
 
@@ -308,7 +308,7 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 			final boolean isLine = newSignId != null && (newSignId.equals("line") || newSignId.equals("line_flipped"));
 			final boolean isStation = newSignId != null && (newSignId.equals("station") || newSignId.equals("station_flipped"));
 			if ((isExitLetter || isPlatform || isLine || isStation)) {
-				MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this, new ObjectImmutableList<>(isExitLetter ? exitsForList : isPlatform ? platformsForList : isLine ? routesForList : stationsForList), selectedIds, false, false)));
+				MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(new ObjectImmutableList<>(isExitLetter ? exitsForList : isPlatform ? platformsForList : isLine ? routesForList : stationsForList), selectedIds, false, false, this)));
 			}
 		}
 	}

@@ -9,12 +9,11 @@ import {FormatStringListPipe} from "../../pipe/formatStringListPipe";
 import {FormatFileNamePipe} from "../../pipe/formatFileNamePipe";
 import {AutocompleteComponent} from "../autocomplete/autocomplete.component";
 import {MatCheckboxModule} from "@angular/material/checkbox";
-import {VehicleModelWrapper} from "../../entity/generated/vehicleModelWrapper";
+import {VehicleModelWrapperDTO} from "../../entity/generated/vehicleModelWrapper";
 import {CREATE_MODEL} from "../edit/edit.component";
-import {VehicleResourceWrapper} from "../../entity/generated/vehicleResourceWrapper";
+import {VehicleResourceWrapperDTO} from "../../entity/generated/vehicleResourceWrapper";
 
 @Component({
-	standalone: true,
 	imports: [
 		MatDialogModule,
 		MatButtonModule,
@@ -29,7 +28,7 @@ import {VehicleResourceWrapper} from "../../entity/generated/vehicleResourceWrap
 })
 export class EditVehicleModelPropertiesDialog {
 	private readonly dialogRef = inject(MatDialogRef<EditVehicleModelPropertiesDialog>);
-	private readonly data = inject<{ vehicleResource: VehicleResourceWrapper, model: VehicleModelWrapper }>(MAT_DIALOG_DATA);
+	private readonly data = inject<{ vehicleResource: VehicleResourceWrapperDTO, model: VehicleModelWrapperDTO }>(MAT_DIALOG_DATA);
 	private readonly customModelList: { [key: string]: number };
 	private readonly minecraftModelList: { [key: string]: number };
 	private readonly customTextureList: { [key: string]: number };

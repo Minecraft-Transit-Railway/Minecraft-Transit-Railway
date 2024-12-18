@@ -3,16 +3,16 @@ import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef} from "@angula
 import {MatButtonModule} from "@angular/material/button";
 import {MatTooltipModule} from "@angular/material/tooltip";
 import {DataService} from "../../service/data.service";
-import {VehicleModelWrapper} from "../../entity/generated/vehicleModelWrapper";
+import {VehicleModelWrapperDTO} from "../../entity/generated/vehicleModelWrapper";
 import {MatTable, MatTableModule} from "@angular/material/table";
-import {ModelPropertiesPartWrapper} from "../../entity/generated/modelPropertiesPartWrapper";
+import {ModelPropertiesPartWrapperDTO} from "../../entity/generated/modelPropertiesPartWrapper";
 import {MatIconModule} from "@angular/material/icon";
 import {MatCheckboxModule} from "@angular/material/checkbox";
-import {PositionDefinition} from "../../entity/generated/positionDefinition";
+import {PositionDefinitionDTO} from "../../entity/generated/positionDefinition";
 import {EditVehicleModelPartDialog} from "../edit-vehicle-model-part/edit-vehicle-model-part.dialog";
 import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 
-const MAIN_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPart: ModelPropertiesPartWrapper) => string }[] = [
+const MAIN_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => string }[] = [
 	{id: "positionDefinition", title: "Model Part", formatData: modelPropertiesPart => modelPropertiesPart.positionDefinition.name},
 	{id: "positions", title: "Positions", formatData: modelPropertiesPart => modelPropertiesPart.positionDefinition.positions.map(({x, y, z}) => `(${x}, ${y}, ${z})`).join("\n")},
 	{id: "positionsFlipped", title: "Flipped Positions", formatData: modelPropertiesPart => modelPropertiesPart.positionDefinition.positionsFlipped.map(({x, y, z}) => `(${x}, ${y}, ${z})`).join("\n")},
@@ -21,13 +21,13 @@ const MAIN_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPar
 	{id: "type", title: "Type", formatData: modelPropertiesPart => modelPropertiesPart.type},
 ];
 
-const DOOR_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPart: ModelPropertiesPartWrapper) => string }[] = [
+const DOOR_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => string }[] = [
 	{id: "doorXMultiplier", title: "Door X Multiplier", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier !== 0 || modelPropertiesPart.doorZMultiplier !== 0 ? modelPropertiesPart.doorXMultiplier.toString() : ""},
 	{id: "doorZMultiplier", title: "Door Z Multiplier", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier !== 0 || modelPropertiesPart.doorZMultiplier !== 0 ? modelPropertiesPart.doorZMultiplier.toString() : ""},
 	{id: "doorAnimationType", title: "Door Animation", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier !== 0 || modelPropertiesPart.doorZMultiplier !== 0 ? modelPropertiesPart.doorAnimationType : ""},
 ];
 
-const DISPLAY_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPart: ModelPropertiesPartWrapper) => string }[] = [
+const DISPLAY_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => string }[] = [
 	{id: "displayXPadding", title: "X Padding", formatData: modelPropertiesPart => modelPropertiesPart.type === "DISPLAY" ? modelPropertiesPart.displayXPadding.toString() : ""},
 	{id: "displayYPadding", title: "Y Padding", formatData: modelPropertiesPart => modelPropertiesPart.type === "DISPLAY" ? modelPropertiesPart.displayYPadding.toString() : ""},
 	{id: "displayColorCjk", title: "CJK Text Colour", formatData: modelPropertiesPart => modelPropertiesPart.type === "DISPLAY" ? modelPropertiesPart.displayColorCjk : ""},
@@ -39,15 +39,14 @@ const DISPLAY_COLUMNS: { id: string, title: string, formatData: (modelProperties
 	{id: "displayDefaultText", title: "Default Text", formatData: modelPropertiesPart => modelPropertiesPart.type === "DISPLAY" ? modelPropertiesPart.displayDefaultText : ""},
 ];
 
-export const CREATE_MODEL_PROPERTIES_PART = () => new ModelPropertiesPartWrapper(
-	new PositionDefinition(""),
+export const CREATE_MODEL_PROPERTIES_PART = () => new ModelPropertiesPartWrapperDTO(
+	new PositionDefinitionDTO(""),
 	"NORMAL", "EXTERIOR", "NORMAL",
 	0, 0, "FF9900", "FF9900", 1.5, 2, 0, "DESTINATION", "Not In Service",
 	0, 0, "STANDARD",
 );
 
 @Component({
-	standalone: true,
 	imports: [
 		MatDialogModule,
 		MatButtonModule,
@@ -61,14 +60,14 @@ export const CREATE_MODEL_PROPERTIES_PART = () => new ModelPropertiesPartWrapper
 	styleUrl: "edit-vehicle-model-parts.dialog.css",
 })
 export class EditVehicleModelPartsDialog {
-	@ViewChild(MatTable) table?: MatTable<ModelPropertiesPartWrapper>;
+	@ViewChild(MatTable) table?: MatTable<ModelPropertiesPartWrapperDTO>;
 	private readonly dialogRef = inject(MatDialogRef<EditVehicleModelPartsDialog>);
-	private readonly model = inject<VehicleModelWrapper>(MAT_DIALOG_DATA);
+	private readonly model = inject<VehicleModelWrapperDTO>(MAT_DIALOG_DATA);
 	private readonly dialog = inject(MatDialog);
 	protected readonly modelPartNames: string[] = [];
 	protected readonly allColumns = [...MAIN_COLUMNS, ...DOOR_COLUMNS, ...DISPLAY_COLUMNS];
 	protected readonly displayedColumnNames: string[] = [];
-	protected readonly dataSource: ModelPropertiesPartWrapper[] = [];
+	protected readonly dataSource: ModelPropertiesPartWrapperDTO[] = [];
 	protected readonly formGroup;
 	protected hasNormal = false;
 	protected hasFloorOrDoorway = false;
@@ -144,11 +143,11 @@ export class EditVehicleModelPartsDialog {
 		this.edit(modelPropertiesPart);
 	}
 
-	edit(modelPropertiesPart: ModelPropertiesPartWrapper) {
+	edit(modelPropertiesPart: ModelPropertiesPartWrapperDTO) {
 		this.dialog.open(EditVehicleModelPartDialog, {data: {model: this.model, modelPropertiesPart}}).afterClosed().subscribe(() => this.filterData());
 	}
 
-	delete(modelPropertiesPart: ModelPropertiesPartWrapper) {
+	delete(modelPropertiesPart: ModelPropertiesPartWrapperDTO) {
 		modelPropertiesPart.positionDefinition.name = "";
 		this.filterData();
 		this.dataService.update();

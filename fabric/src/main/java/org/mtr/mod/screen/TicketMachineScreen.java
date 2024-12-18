@@ -4,14 +4,13 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ButtonWidgetExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.PlayerHelper;
-import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketAddBalance;
 
-public class TicketMachineScreen extends ScreenExtension implements IGui {
+public class TicketMachineScreen extends MTRScreenBase implements IGui {
 
 	private final ButtonWidgetExtension[] buttons = new ButtonWidgetExtension[BUTTON_COUNT];
 	private final MutableText balanceText;

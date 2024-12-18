@@ -9,23 +9,23 @@ import org.mtr.mapping.tool.PacketBufferReceiver;
 
 import javax.annotation.Nonnull;
 
-public final class PacketDepotGenerate extends PacketRequestResponseBase {
+public final class PacketDepotInstantDeploy extends PacketRequestResponseBase {
 
-	public PacketDepotGenerate(PacketBufferReceiver packetBufferReceiver) {
+	public PacketDepotInstantDeploy(PacketBufferReceiver packetBufferReceiver) {
 		super(packetBufferReceiver);
 	}
 
-	public PacketDepotGenerate(DepotOperationByIds contentObject) {
+	public PacketDepotInstantDeploy(DepotOperationByIds contentObject) {
 		super(Utilities.getJsonObjectFromData(contentObject).toString());
 	}
 
-	private PacketDepotGenerate(String content) {
+	private PacketDepotInstantDeploy(String content) {
 		super(content);
 	}
 
 	@Override
 	protected PacketRequestResponseBase getInstance(String content) {
-		return new PacketDepotGenerate(content);
+		return new PacketDepotInstantDeploy(content);
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public final class PacketDepotGenerate extends PacketRequestResponseBase {
 	@Nonnull
 	@Override
 	protected String getKey() {
-		return OperationProcessor.GENERATE_BY_DEPOT_IDS;
+		return OperationProcessor.INSTANT_DEPLOY_BY_DEPOT_IDS;
 	}
 
 	@Override

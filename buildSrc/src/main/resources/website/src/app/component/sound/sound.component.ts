@@ -6,7 +6,6 @@ import {DataService} from "../../service/data.service";
 
 @Component({
 	selector: "app-sound",
-	standalone: true,
 	imports: [
 		MatButtonModule,
 		MatIconModule,

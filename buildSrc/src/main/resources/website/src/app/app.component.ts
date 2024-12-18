@@ -13,7 +13,6 @@ import {LargeTileComponent} from "./component/large-button/large-tile.component"
 
 @Component({
 	selector: "app-root",
-	standalone: true,
 	imports: [
 		MatStepperModule,
 		MatProgressSpinnerModule,
