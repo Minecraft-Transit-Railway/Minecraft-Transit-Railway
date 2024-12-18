@@ -95,7 +95,7 @@ public class RenderVehicles implements IGui {
 						final GangwayMovementPositions gangwayMovementPositions1 = new GangwayMovementPositions(renderVehicleTransformationHelperAbsolute, false);
 						final GangwayMovementPositions gangwayMovementPositions2 = new GangwayMovementPositions(renderVehicleTransformationHelperAbsolute, true);
 						// Vehicle resource cache
-						final VehicleResourceCache vehicleResourceCache = vehicleResource.cachedVehicleResource.getData(false);
+						final VehicleResourceCache vehicleResourceCache = vehicleResource.getCachedVehicleResource(carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size()).getData(false);
 						// Find open doorways (close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates)
 						final ObjectArrayList<Box> openDoorways;
 						if (vehicleResourceCache != null && fromResourcePackCreator) {
@@ -136,10 +136,10 @@ public class RenderVehicles implements IGui {
 						// Each car can have more than one model defined
 						RenderVehicleHelper.renderModel(renderVehicleTransformationHelperOffset, oscillationAmount, storedMatrixTransformations -> {
 							if (OptimizedRenderer.hasOptimizedRendering()) {
-								vehicleResource.queue(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperAbsolute.light, openDoorways);
+								vehicleResource.queue(storedMatrixTransformations, vehicle, carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), renderVehicleTransformationHelperAbsolute.light, openDoorways);
 							}
 
-							vehicleResource.iterateModels((modelIndex, model) -> {
+							vehicleResource.iterateModels(carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), (modelIndex, model) -> {
 								model.render(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, renderVehicleTransformationHelperAbsolute.light, openDoorways);
 
 								while (modelIndex >= previousGangwayPositionsList.size()) {
