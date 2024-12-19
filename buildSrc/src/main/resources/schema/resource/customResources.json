@@ -4,11 +4,17 @@
 	"javaImplements": [
 		"SerializedDataBase"
 	],
+	"javaConstructorFields": [
+		"resourceProvider"
+	],
 	"properties": {
 		"vehicles": {
 			"type": "array",
 			"items": {
-				"$ref": "vehicleResource.json"
+				"$ref": "vehicleResource.json",
+				"parameters": [
+					"ResourceProvider"
+				]
 			}
 		},
 		"signs": {
@@ -20,13 +26,19 @@
 		"rails": {
 			"type": "array",
 			"items": {
-				"$ref": "railResource.json"
+				"$ref": "railResource.json",
+				"parameters": [
+					"ResourceProvider"
+				]
 			}
 		},
 		"objects": {
 			"type": "array",
 			"items": {
-				"$ref": "objectResource.json"
+				"$ref": "objectResource.json",
+				"parameters": [
+					"ResourceProvider"
+				]
 			}
 		}
 	}

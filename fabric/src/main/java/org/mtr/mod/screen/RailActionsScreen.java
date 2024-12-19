@@ -8,12 +8,12 @@ import org.mtr.mod.data.IGui;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketDeleteRailAction;
 
-public class RailActionsScreen extends ScreenExtension implements IGui {
+public class RailActionsScreen extends MTRScreenBase implements IGui {
 
 	private final DashboardList railActionsList;
 
-	public RailActionsScreen() {
-		super();
+	public RailActionsScreen(ScreenExtension previousScreenExtension) {
+		super(previousScreenExtension);
 		railActionsList = new DashboardList(null, null, null, null, null, this::onDelete, null, () -> "", text -> {
 		});
 	}

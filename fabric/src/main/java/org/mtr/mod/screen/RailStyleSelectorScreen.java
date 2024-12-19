@@ -23,8 +23,7 @@ public class RailStyleSelectorScreen extends DashboardListSelectorScreen {
 	private final ObjectImmutableList<RailResource> allRails = CustomResourceLoader.getRails();
 
 	private RailStyleSelectorScreen(Rail rail, ObjectImmutableList<DashboardListItem> rails, LongArrayList selectedRailIndices) {
-		super(() -> {
-		}, rails, selectedRailIndices, false, false);
+		super(rails, selectedRailIndices, false, false, null);
 		this.rail = rail;
 	}
 

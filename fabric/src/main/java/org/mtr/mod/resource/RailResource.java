@@ -11,17 +11,17 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 
 	private final CachedResource<ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel>> cachedRailResource;
 
-	public RailResource(ReaderBase readerBase) {
-		super(readerBase);
+	public RailResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
+		super(readerBase, resourceProvider);
 		updateData(readerBase);
-		cachedRailResource = new CachedResource<>(() -> load(modelResource, textureResource, flipTextureV, modelYOffset), VehicleModel.MODEL_LIFESPAN);
+		cachedRailResource = new CachedResource<>(() -> load(modelResource, textureResource, flipTextureV, modelYOffset, resourceProvider), VehicleModel.MODEL_LIFESPAN);
 	}
 
 	/**
 	 * Used to create the default rail
 	 */
-	public RailResource(String id, String name) {
-		super(id, name, "777777", "", "", false, 0, 0);
+	public RailResource(String id, String name, ResourceProvider resourceProvider) {
+		super(id, name, "777777", "", "", false, 0, 0, resourceProvider);
 		cachedRailResource = new CachedResource<>(() -> null, VehicleModel.MODEL_LIFESPAN);
 	}
 

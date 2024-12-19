@@ -218,7 +218,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 
 	@Override
 	public boolean isMouseOver2(double mouseX, double mouseY) {
-		return mouseX >= getX2() && mouseY >= getY2() && mouseX < getX2() + width && mouseY < getY2() + height && !(mouseX >= getX2() + width - SQUARE_SIZE * 12 && mouseY >= getY2() + height - SQUARE_SIZE) && !isRestrictedMouseArea.apply(mouseX, mouseY);
+		return mouseX >= getX2() && mouseY >= getY2() && mouseX < getX2() + width && mouseY < getY2() + height && !isRestrictedMouseArea.apply(mouseX, mouseY);
 	}
 
 	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> void drawAreas(GraphicsHolder graphicsHolder, ObjectArraySet<U> areas) {
@@ -231,7 +231,12 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 				} else {
 					additionalString = null;
 				}
-				drawFromWorldCoords(position.getX(), position.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(graphicsHolder, additionalString == null ? area.getName() : String.format("%s|(%s)", area.getName(), additionalString), getX2() + x1.floatValue(), getY2() + y1.floatValue(), GraphicsHolder.getDefaultLight()));
+				drawFromWorldCoords(position.getX(), position.getZ(), (x1, y1) -> {
+					graphicsHolder.push();
+					graphicsHolder.translate(getX2() + x1.floatValue(), getY2() + y1.floatValue(), 0);
+					IDrawing.drawStringWithFont(graphicsHolder, additionalString == null ? area.getName() : String.format("%s|(%s)", area.getName(), additionalString), 0, 0, GraphicsHolder.getDefaultLight());
+					graphicsHolder.pop();
+				});
 			}
 		}
 	}

@@ -11,7 +11,9 @@ import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.*;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.resource.VehicleResource;
 import org.mtr.mod.resource.VehicleResourceCache;
+import org.mtr.mod.servlet.ResourcePackCreatorOperationServlet;
 
 import javax.annotation.Nullable;
 import java.util.function.Function;
@@ -67,7 +69,9 @@ public class RenderVehicles implements IGui {
 				});
 
 				if (vehicle.persistentVehicleData.rayTracing[carNumber] || VehicleRidingMovement.isRiding(vehicle.getId())) {
-					CustomResourceLoader.getVehicleById(vehicle.getTransportMode(), vehicleProperties.vehicleCar.getVehicleId(), vehicleResource -> {
+					CustomResourceLoader.getVehicleById(vehicle.getTransportMode(), vehicleProperties.vehicleCar.getVehicleId(), vehicleResourceDetails -> {
+						final VehicleResource vehicleResource = vehicleResourceDetails.left();
+						final boolean fromResourcePackCreator = vehicleResourceDetails.rightBoolean();
 						final int[] scrollingDisplayIndexTracker = {0};
 
 						// Render each bogie of the car
@@ -78,10 +82,10 @@ public class RenderVehicles implements IGui {
 							} else {
 								vehicleResource.iterateBogieModels(bogieIndex, (modelIndex, model) -> RenderVehicleHelper.renderModel(renderVehicleTransformationHelperBogie, 0, storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, renderVehicleTransformationHelperBogie.light, new ObjectArrayList<>())));
 							}
-
-							// Play motor sound
-							vehicle.playMotorSound(vehicleResource, renderVehicleTransformationHelperBogie.pivotPosition);
 						});
+
+						// Play motor sound
+						vehicle.playMotorSound(vehicleResource, carNumber, renderVehicleTransformationHelperAbsolute.pivotPosition);
 
 						// Player position relative to the car
 						final Vector3d playerPosition = renderVehicleTransformationHelperAbsolute.transformBackwards(clientPlayerEntity.getPos(), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
@@ -91,9 +95,17 @@ public class RenderVehicles implements IGui {
 						final GangwayMovementPositions gangwayMovementPositions1 = new GangwayMovementPositions(renderVehicleTransformationHelperAbsolute, false);
 						final GangwayMovementPositions gangwayMovementPositions2 = new GangwayMovementPositions(renderVehicleTransformationHelperAbsolute, true);
 						// Vehicle resource cache
-						final VehicleResourceCache vehicleResourceCache = vehicleResource.cachedVehicleResource.getData(false);
+						final VehicleResourceCache vehicleResourceCache = vehicleResource.getCachedVehicleResource(carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size()).getData(false);
 						// Find open doorways (close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates)
-						final ObjectArrayList<Box> openDoorways = !vehicle.getTransportMode().continuousMovement && vehicle.isMoving() || !vehicle.persistentVehicleData.checkCanOpenDoors() ? new ObjectArrayList<>() : vehicleResourceCache == null ? new ObjectArrayList<>() : vehicleResourceCache.doorways.stream().filter(doorway -> RenderVehicleHelper.canOpenDoors(doorway, renderVehicleTransformationHelperAbsolute, vehicle.persistentVehicleData.getDoorValue(), false)).collect(Collectors.toCollection(ObjectArrayList::new));
+						final ObjectArrayList<Box> openDoorways;
+						if (vehicleResourceCache != null && fromResourcePackCreator) {
+							openDoorways = vehicle.persistentVehicleData.checkCanOpenDoors() ? new ObjectArrayList<>(vehicleResourceCache.doorways) : new ObjectArrayList<>();
+							vehicle.persistentVehicleData.overrideDoorMultiplier(ResourcePackCreatorOperationServlet.getDoorMultiplier());
+						} else if (vehicleResourceCache == null || !vehicle.getTransportMode().continuousMovement && vehicle.isMoving() || !vehicle.persistentVehicleData.checkCanOpenDoors()) {
+							openDoorways = new ObjectArrayList<>();
+						} else {
+							openDoorways = vehicleResourceCache.doorways.stream().filter(doorway -> RenderVehicleHelper.canOpenDoors(doorway, renderVehicleTransformationHelperAbsolute, vehicle.persistentVehicleData.getDoorValue(), false)).collect(Collectors.toCollection(ObjectArrayList::new));
+						}
 						final double oscillationAmount = vehicle.persistentVehicleData.getOscillation(carNumber).getAmount();
 
 						if (canRide) {
@@ -118,16 +130,16 @@ public class RenderVehicles implements IGui {
 
 						// Play door sound
 						if (!openDoorways.isEmpty()) {
-							vehicle.playDoorSound(vehicleResource, renderVehicleTransformationHelperAbsolute.pivotPosition);
+							vehicle.playDoorSound(vehicleResource, carNumber, renderVehicleTransformationHelperAbsolute.pivotPosition);
 						}
 
 						// Each car can have more than one model defined
 						RenderVehicleHelper.renderModel(renderVehicleTransformationHelperOffset, oscillationAmount, storedMatrixTransformations -> {
 							if (OptimizedRenderer.hasOptimizedRendering()) {
-								vehicleResource.queue(storedMatrixTransformations, vehicle, renderVehicleTransformationHelperAbsolute.light, openDoorways);
+								vehicleResource.queue(storedMatrixTransformations, vehicle, carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), renderVehicleTransformationHelperAbsolute.light, openDoorways);
 							}
 
-							vehicleResource.iterateModels((modelIndex, model) -> {
+							vehicleResource.iterateModels(carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), (modelIndex, model) -> {
 								model.render(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, renderVehicleTransformationHelperAbsolute.light, openDoorways);
 
 								while (modelIndex >= previousGangwayPositionsList.size()) {

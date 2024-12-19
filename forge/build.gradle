@@ -27,6 +27,14 @@ dependencies {
 	minecraft "net.minecraftforge:forge:${minecraftVersion}-${buildTools.getForgeVersion()}"
 	annotationProcessor "org.spongepowered:mixin:+:processor"
 	shadowImplementation "org.mtr:Minecraft-Mappings-forge-${minecraftVersion}:0.0.1-dev"
+
+	if (buildTools.hasJadeSupport()) {
+		compileOnly fg.deobf("maven.modrinth:jade:${buildTools.getJadeVersion()}")
+	}
+
+	if (buildTools.hasWthitSupport()) {
+		compileOnly fg.deobf("mcp.mobius.waila:wthit-api:${buildTools.getWthitVersion()}")
+	}
 }
 
 mixin {
@@ -86,6 +94,36 @@ tasks.register("setupFiles") {
 		outputs.upToDateWhen { false }
 		from "../fabric/src/main/resources/data"
 		into "src/main/resources/data"
+	}
+
+	if (buildTools.hasJadeSupport()) {
+		copy {
+			outputs.upToDateWhen { false }
+			from "../fabric/src/main/JadeConfigTemplate.java"
+			into "src/main/java/org/mtr/init"
+			rename "(.+)Template.java", "\$1.java"
+		}
+	} else {
+		delete fileTree("src/main/java/org/mtr/init/JadeConfig.java")
+	}
+
+	if (buildTools.hasWthitSupport()) {
+		copy {
+			outputs.upToDateWhen { false }
+			from "../fabric/src/main/WthitConfigTemplate.java"
+			into "src/main/java/org/mtr/init"
+			rename "(.+)Template.java", "\$1.java"
+		}
+
+		copy {
+			outputs.upToDateWhen { false }
+			from "../fabric/src/main/wthit_plugins_template.json"
+			into "src/main/resources"
+			rename "(.+)_template.json", "\$1.json"
+		}
+	} else {
+		delete fileTree("src/main/java/org/mtr/init/WthitConfig.java")
+		delete fileTree("src/main/resources/wthit_plugins.json")
 	}
 }
 

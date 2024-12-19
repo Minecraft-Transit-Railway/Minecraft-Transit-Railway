@@ -1,0 +1,74 @@
+<div class="column gap wrapper">
+	<div class="row gap-small center">
+		<button mat-flat-button (click)="vehicleList.add()">
+			<mat-icon>add</mat-icon>
+			Add Vehicle
+		</button>
+		<button mat-button (click)="manageModels()">
+			<mat-icon>library_books</mat-icon>
+			Manage Models
+		</button>
+		<button mat-button (click)="manageTextures()">
+			<mat-icon>photo_library</mat-icon>
+			Manage Textures
+		</button>
+	</div>
+
+	<div #content class="content padding-top-bottom-small padding-sides-small">
+		<app-accordion #vehicleList [list]="dataService.vehicles()" [createInstance]="createVehicleResourceInstance" [headerTemplate]="vehicleHeaderTemplate" [contentTemplate]="vehicleContentTemplate" (changed)="dataService.update()" (positionChanged)="scroll($event, content)"/>
+	</div>
+</div>
+
+<ng-template #vehicleHeaderTemplate let-vehicleResource>
+	<mat-panel-title class="row gap-small vehicle-color" [style.border-left-color]="'#' + vehicleResource.color">
+		<mat-icon>{{ vehicleResource.transportMode | formatIcon }}</mat-icon>
+		<b class="spacing">{{ vehicleResource.name }}</b>
+		<div>{{ vehicleResource.id }}</div>
+	</mat-panel-title>
+</ng-template>
+
+<ng-template #vehicleContentTemplate let-vehicleResource>
+	<div class="column gap">
+		<div>
+			<button mat-button (click)="editDetails(vehicleResource)">
+				<mat-icon>edit</mat-icon>
+				Edit Vehicle Properties
+			</button>
+		</div>
+		<mat-accordion displayMode="flat" multi>
+			@for (modelsPropertiesAndDefinitions of getAllModelsPropertiesAndDefinitions(vehicleResource); track $index) {
+				<mat-expansion-panel>
+					<mat-expansion-panel-header>
+						<mat-panel-title>Models:&nbsp;<b>{{ $index === 1 ? $count > 2 ? "Front Bogie" : "Bogie" : $index === 2 ? "Back Bogie" : "Main Vehicle" }}</b></mat-panel-title>
+					</mat-expansion-panel-header>
+					<div class="column gap">
+						<div>
+							<button mat-flat-button (click)="modelList.add()">
+								<mat-icon>add</mat-icon>
+								Add Model
+							</button>
+						</div>
+						<app-accordion #modelList [list]="modelsPropertiesAndDefinitions" [createInstance]="createVehicleModelInstance" [headerTemplate]="modelHeaderTemplate" [contentTemplate]="modelContentTemplate" (changed)="dataService.update()"/>
+					</div>
+				</mat-expansion-panel>
+			}
+		</mat-accordion>
+	</div>
+
+	<ng-template #modelContentTemplate let-model>
+		<div class="row gap-small">
+			<button mat-button (click)="editModelProperties(vehicleResource, model)">
+				<mat-icon>edit</mat-icon>
+				Edit Model Properties
+			</button>
+			<button mat-button (click)="editModelParts(model)" [disabled]="canEditModelParts(model)">
+				<mat-icon>edit</mat-icon>
+				Edit Model Parts
+			</button>
+		</div>
+	</ng-template>
+</ng-template>
+
+<ng-template #modelHeaderTemplate let-model>
+	<mat-panel-title>{{ [model.modelResource | formatFileName, model.modelPropertiesResource | formatFileName, model.textureResource | formatFileName] | formatStringList:" + " }}</mat-panel-title>
+</ng-template>

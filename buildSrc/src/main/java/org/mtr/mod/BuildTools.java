@@ -1,5 +1,8 @@
 package org.mtr.mod;
 
+import com.crowdin.client.Client;
+import com.crowdin.client.core.model.Credentials;
+import com.crowdin.client.translations.model.CrowdinTranslationCreateProjectBuildForm;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -16,6 +19,7 @@ import org.apache.log4j.Logger;
 import org.gradle.api.Project;
 import org.mtr.mapping.mixin.CreateAccessWidener;
 import org.mtr.mapping.mixin.CreateClientWorldRenderingMixin;
+import org.mtr.mapping.mixin.CreatePlayerTeleportationStateAccessor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +33,8 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class BuildTools {
 
@@ -41,6 +47,7 @@ public class BuildTools {
 	private final int majorVersion;
 
 	private static final Logger LOGGER = LogManager.getLogger("Build");
+	private static final long CROWDIN_PROJECT_ID = 455212;
 
 	public BuildTools(String minecraftVersion, String loader, Project project) throws IOException {
 		this.minecraftVersion = minecraftVersion;
@@ -57,6 +64,7 @@ public class BuildTools {
 		final Path mixinPath = path.resolve("src/main/java/org/mtr/mixin");
 		Files.createDirectories(mixinPath);
 		CreateClientWorldRenderingMixin.create(minecraftVersion, loader, mixinPath, "org.mtr.mixin");
+		CreatePlayerTeleportationStateAccessor.create(minecraftVersion, loader, mixinPath, "org.mtr.mixin");
 	}
 
 	public String getFabricVersion() {
@@ -69,7 +77,29 @@ public class BuildTools {
 
 	public String getFabricApiVersion() {
 		final String modIdString = "fabric-api";
-		return new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, ModLoader.FABRIC, "").get(0).fileName.split(".jar")[0].replace(modIdString + "-", "");
+		return new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, ModLoader.FABRIC, "").get(0).fileName.split("\\.jar")[0].replace(modIdString + "-", "");
+	}
+
+	public boolean hasJadeSupport() {
+		return loader.equals("fabric") ? majorVersion >= 17 : majorVersion >= 19;
+	}
+
+	public String getJadeVersion() {
+		if (minecraftVersion.equals("1.19.4")) {
+			return loader.equals("fabric") ? "10.4.0" : "10.1.1"; // 1.19.4 version not working
+		}
+		final String modIdString = "jade";
+		final String[] fileNameSplit = new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, loader.equals("fabric") ? ModLoader.FABRIC : ModLoader.FORGE, "").get(0).fileName.split("-");
+		return fileNameSplit[fileNameSplit.length - 1].split("\\.jar")[0] + (minecraftVersion.equals("1.20.1") ? "+" + loader : "");
+	}
+
+	public boolean hasWthitSupport() {
+		return majorVersion >= 17;
+	}
+
+	public String getWthitVersion() {
+		final String modIdString = "wthit";
+		return new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, loader.equals("fabric") ? ModLoader.FABRIC : ModLoader.FORGE, "").get(0).fileName.split("\\.jar")[0].replace(modIdString + "-", "");
 	}
 
 	public String getModMenuVersion() {
@@ -77,11 +107,37 @@ public class BuildTools {
 			return "9.0.0"; // TODO latest version not working
 		}
 		final String modIdString = "modmenu";
-		return new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, ModLoader.FABRIC, "").get(0).fileName.split(".jar")[0].replace(modIdString + "-", "");
+		return new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, ModLoader.FABRIC, "").get(0).fileName.split("\\.jar")[0].replace(modIdString + "-", "");
 	}
 
 	public String getForgeVersion() {
 		return getJson("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json").getAsJsonObject().getAsJsonObject("promos").get(minecraftVersion + "-latest").getAsString();
+	}
+
+	public void downloadTranslations(String key) throws IOException, InterruptedException {
+		if (!key.isEmpty()) {
+			final CrowdinTranslationCreateProjectBuildForm crowdinTranslationCreateProjectBuildForm = new CrowdinTranslationCreateProjectBuildForm();
+			crowdinTranslationCreateProjectBuildForm.setSkipUntranslatedStrings(false);
+			crowdinTranslationCreateProjectBuildForm.setSkipUntranslatedFiles(false);
+			crowdinTranslationCreateProjectBuildForm.setExportApprovedOnly(false);
+
+			final Client client = new Client(new Credentials(key, null));
+			final long buildId = client.getTranslationsApi().buildProjectTranslation(CROWDIN_PROJECT_ID, crowdinTranslationCreateProjectBuildForm).getData().getId();
+
+			while (!client.getTranslationsApi().checkBuildStatus(CROWDIN_PROJECT_ID, buildId).getData().getStatus().equals("finished")) {
+				Thread.sleep(1000);
+			}
+
+			try (final InputStream inputStream = new URL(client.getTranslationsApi().downloadProjectTranslations(CROWDIN_PROJECT_ID, buildId).getData().getUrl()).openStream()) {
+				try (final ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
+					ZipEntry zipEntry;
+					while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+						FileUtils.write(path.resolve("src/main/resources/assets/mtr/lang").resolve(zipEntry.getName().toLowerCase(Locale.ENGLISH)).toFile(), IOUtils.toString(zipInputStream, StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+						zipInputStream.closeEntry();
+					}
+				}
+			}
+		}
 	}
 
 	public void generateTranslations() throws IOException {
@@ -196,20 +252,23 @@ public class BuildTools {
 		stringBuilder.append("private Patreon(String name,String tierTitle,int tierAmount,int tierColor){this.name=name;this.tierTitle=tierTitle;this.tierAmount=tierAmount;this.tierColor=tierColor;}public static Patreon[]PATREON_LIST={\n");
 
 		if (!key.isEmpty()) {
-			final JsonObject jsonObjectData = getJson("https://www.patreon.com/api/oauth2/v2/campaigns/7782318/members?include=currently_entitled_tiers&fields%5Bmember%5D=full_name,lifetime_support_cents,patron_status&fields%5Btier%5D=title,amount_cents&page%5Bcount%5D=" + Integer.MAX_VALUE, "Authorization", "Bearer " + key).getAsJsonObject();
-			final Object2ObjectAVLTreeMap<String, JsonObject> idMap = new Object2ObjectAVLTreeMap<>();
-			jsonObjectData.getAsJsonArray("included").forEach(jsonElementData -> {
-				final JsonObject jsonObject = jsonElementData.getAsJsonObject();
-				idMap.put(jsonObject.get("id").getAsString(), jsonObject.getAsJsonObject("attributes"));
-			});
+			try {
+				final JsonObject jsonObjectData = getJson("https://www.patreon.com/api/oauth2/v2/campaigns/7782318/members?include=currently_entitled_tiers&fields%5Bmember%5D=full_name,lifetime_support_cents,patron_status&fields%5Btier%5D=title,amount_cents&page%5Bcount%5D=" + Integer.MAX_VALUE, "Authorization", "Bearer " + key).getAsJsonObject();
+				final Object2ObjectAVLTreeMap<String, JsonObject> idMap = new Object2ObjectAVLTreeMap<>();
+				jsonObjectData.getAsJsonArray("included").forEach(jsonElementData -> {
+					final JsonObject jsonObject = jsonElementData.getAsJsonObject();
+					idMap.put(jsonObject.get("id").getAsString(), jsonObject.getAsJsonObject("attributes"));
+				});
 
-			jsonObjectData.getAsJsonArray("data").forEach(jsonElementData -> {
-				final JsonObject jsonObjectAttributes = jsonElementData.getAsJsonObject().getAsJsonObject("attributes");
-				final JsonArray jsonObjectTiers = jsonElementData.getAsJsonObject().getAsJsonObject("relationships").getAsJsonObject("currently_entitled_tiers").getAsJsonArray("data");
-				if (!jsonObjectAttributes.get("patron_status").isJsonNull() && jsonObjectAttributes.get("patron_status").getAsString().equals("active_patron") && !jsonObjectTiers.isEmpty()) {
-					patreonList.add(new Patreon(jsonObjectAttributes, idMap.get(jsonObjectTiers.get(0).getAsJsonObject().get("id").getAsString())));
-				}
-			});
+				jsonObjectData.getAsJsonArray("data").forEach(jsonElementData -> {
+					final JsonObject jsonObjectAttributes = jsonElementData.getAsJsonObject().getAsJsonObject("attributes");
+					final JsonArray jsonObjectTiers = jsonElementData.getAsJsonObject().getAsJsonObject("relationships").getAsJsonObject("currently_entitled_tiers").getAsJsonArray("data");
+					if (!jsonObjectAttributes.get("patron_status").isJsonNull() && jsonObjectAttributes.get("patron_status").getAsString().equals("active_patron") && !jsonObjectTiers.isEmpty()) {
+						patreonList.add(new Patreon(jsonObjectAttributes, idMap.get(jsonObjectTiers.get(0).getAsJsonObject().get("id").getAsString())));
+					}
+				});
+			} catch (Exception ignored) {
+			}
 
 			Collections.sort(patreonList);
 		}

@@ -1,0 +1,138 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"typeScriptEditable": true,
+	"properties": {
+		"id": {
+			"type": "string"
+		},
+		"name": {
+			"type": "string"
+		},
+		"color": {
+			"type": "string"
+		},
+		"transportMode": {
+			"$ref": "TransportMode",
+			"typeScriptEnum": "TRAIN|BOAT|CABLE_CAR|AIRPLANE"
+		},
+		"length": {
+			"type": "number",
+			"minimum": 0
+		},
+		"width": {
+			"type": "number",
+			"minimum": 0
+		},
+		"bogie1Position": {
+			"type": "number"
+		},
+		"bogie2Position": {
+			"type": "number"
+		},
+		"couplingPadding1": {
+			"type": "number",
+			"minimum": 0
+		},
+		"couplingPadding2": {
+			"type": "number",
+			"minimum": 0
+		},
+		"description": {
+			"type": "string"
+		},
+		"wikipediaArticle": {
+			"type": "string"
+		},
+		"tags": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"models": {
+			"type": "array",
+			"items": {
+				"$ref": "vehicleModelWrapper.json"
+			}
+		},
+		"bogie1Models": {
+			"type": "array",
+			"items": {
+				"$ref": "vehicleModelWrapper.json"
+			}
+		},
+		"bogie2Models": {
+			"type": "array",
+			"items": {
+				"$ref": "vehicleModelWrapper.json"
+			}
+		},
+		"hasGangway1": {
+			"type": "boolean"
+		},
+		"hasGangway2": {
+			"type": "boolean"
+		},
+		"hasBarrier1": {
+			"type": "boolean"
+		},
+		"hasBarrier2": {
+			"type": "boolean"
+		},
+		"legacyRiderOffset": {
+			"type": "number"
+		},
+		"bveSoundBaseResource": {
+			"type": "string"
+		},
+		"legacySpeedSoundBaseResource": {
+			"type": "string"
+		},
+		"legacySpeedSoundCount": {
+			"type": "integer",
+			"minimum": 1
+		},
+		"legacyUseAccelerationSoundsWhenCoasting": {
+			"type": "boolean"
+		},
+		"legacyConstantPlaybackSpeed": {
+			"type": "boolean"
+		},
+		"legacyDoorSoundBaseResource": {
+			"type": "string"
+		},
+		"legacyDoorCloseSoundTime": {
+			"type": "number"
+		}
+	},
+	"required": [
+		"id",
+		"name",
+		"color",
+		"transportMode",
+		"length",
+		"width",
+		"bogie1Position",
+		"bogie2Position",
+		"couplingPadding1",
+		"couplingPadding2",
+		"description",
+		"wikipediaArticle",
+		"hasGangway1",
+		"hasGangway2",
+		"hasBarrier1",
+		"hasBarrier2",
+		"legacyRiderOffset",
+		"bveSoundBaseResource",
+		"legacySpeedSoundBaseResource",
+		"legacySpeedSoundCount",
+		"legacyUseAccelerationSoundsWhenCoasting",
+		"legacyConstantPlaybackSpeed",
+		"legacyDoorSoundBaseResource",
+		"legacyDoorCloseSoundTime"
+	]
+}

@@ -1,0 +1,20 @@
+@if (disabled) {
+	<div class="column gap-small center square disabled">
+		<div *ngTemplateOutlet="content"></div>
+	</div>
+} @else if (clickable) {
+	<div class="column gap-small center square clickable" matRipple (click)="onClick()">
+		<div *ngTemplateOutlet="content"></div>
+	</div>
+} @else {
+	<div class="column gap-small center square">
+		<div *ngTemplateOutlet="content"></div>
+	</div>
+}
+
+<ng-template #content>
+	<div class="spacing"></div>
+	<mat-icon class="large-icon">{{ icon }}</mat-icon>
+	<ng-content/>
+	<div class="spacing"></div>
+</ng-template>

@@ -11,11 +11,15 @@ import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.ServerPlayerEntity;
 import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.tool.PacketBufferReceiver;
+import org.mtr.mapping.tool.PacketBufferSender;
+import org.mtr.mod.Init;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class PacketUpdateVehicleRidingEntities extends PacketRequestResponseBase implements Utilities {
+
+	private final boolean dismount;
 
 	public static PacketUpdateVehicleRidingEntities create(long sidingId, long vehicleId, int ridingCar, double x, double y, double z, boolean isOnGangway) {
 		final UpdateVehicleRidingEntities updateVehicleRidingEntities = new UpdateVehicleRidingEntities(sidingId, vehicleId);
@@ -23,28 +27,36 @@ public final class PacketUpdateVehicleRidingEntities extends PacketRequestRespon
 		if (clientPlayerEntity != null) {
 			updateVehicleRidingEntities.add(new VehicleRidingEntity(clientPlayerEntity.getUuid(), ridingCar, x, y, z, isOnGangway));
 		}
-		return new PacketUpdateVehicleRidingEntities(Utilities.getJsonObjectFromData(updateVehicleRidingEntities).toString());
+		return new PacketUpdateVehicleRidingEntities(Utilities.getJsonObjectFromData(updateVehicleRidingEntities).toString(), ridingCar < 0);
 	}
 
 	public PacketUpdateVehicleRidingEntities(PacketBufferReceiver packetBufferReceiver) {
 		super(packetBufferReceiver);
+		dismount = packetBufferReceiver.readBoolean();
 	}
 
-	private PacketUpdateVehicleRidingEntities(String content) {
+	private PacketUpdateVehicleRidingEntities(String content, boolean dismount) {
 		super(content);
+		this.dismount = dismount;
+	}
+
+	@Override
+	public void write(PacketBufferSender packetBufferSender) {
+		super.write(packetBufferSender);
+		packetBufferSender.writeBoolean(dismount);
 	}
 
 	@Override
 	protected void runServerOutbound(ServerWorld serverWorld, @Nullable ServerPlayerEntity serverPlayerEntity) {
 		super.runServerOutbound(serverWorld, serverPlayerEntity);
 		if (serverPlayerEntity != null) {
-			serverPlayerEntity.setFallDistanceMapped(0);
+			Init.updateRidingEntity(serverPlayerEntity, dismount);
 		}
 	}
 
 	@Override
 	protected PacketRequestResponseBase getInstance(String content) {
-		return new PacketUpdateVehicleRidingEntities(content);
+		return new PacketUpdateVehicleRidingEntities(content, dismount);
 	}
 
 	@Override

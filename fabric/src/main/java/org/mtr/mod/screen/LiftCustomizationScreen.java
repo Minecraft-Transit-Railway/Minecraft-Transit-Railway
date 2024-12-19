@@ -18,7 +18,7 @@ import org.mtr.mod.packet.PacketUpdateData;
 
 import java.util.Locale;
 
-public class LiftCustomizationScreen extends ScreenExtension implements IGui {
+public class LiftCustomizationScreen extends MTRScreenBase implements IGui {
 
 	private LiftStyle liftStyle;
 	private Direction liftDirection;

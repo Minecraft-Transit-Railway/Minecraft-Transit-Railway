@@ -5,6 +5,7 @@ import org.mtr.core.serializer.ReaderBase;
 import org.mtr.legacy.generated.resource.RailResourceSchema;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.mod.resource.RailResource;
+import org.mtr.mod.resource.ResourceProvider;
 
 public final class LegacyRailResource extends RailResourceSchema {
 
@@ -13,7 +14,7 @@ public final class LegacyRailResource extends RailResourceSchema {
 		updateData(readerBase);
 	}
 
-	public RailResource convert(String id) {
+	public RailResource convert(String id, ResourceProvider resourceProvider) {
 		final JsonObject jsonObject = new JsonObject();
 		jsonObject.addProperty("id", id);
 		jsonObject.addProperty("name", name);
@@ -23,6 +24,6 @@ public final class LegacyRailResource extends RailResourceSchema {
 		jsonObject.addProperty("flipTextureV", flipV);
 		jsonObject.addProperty("repeatInterval", repeatInterval);
 		jsonObject.addProperty("modelYOffset", yOffset);
-		return new RailResource(new JsonReader(jsonObject));
+		return new RailResource(new JsonReader(jsonObject), resourceProvider);
 	}
 }

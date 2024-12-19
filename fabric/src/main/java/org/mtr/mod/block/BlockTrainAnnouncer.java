@@ -42,7 +42,7 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 		private String soundId = "";
 		private int delay;
 		private long lastAnnouncedMillis;
-		private static final int ANNOUNCE_COOL_DOWN_MILLIS = 20000;
+		private static final int ANNOUNCE_COOLDOWN_MILLIS = 20000;
 		private static final String KEY_MESSAGE = "message";
 		private static final String KEY_SOUND_ID = "sound_id";
 		private static final String KEY_DELAY = "delay";
@@ -88,7 +88,7 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 
 		public void announce() {
 			final long currentMillis = System.currentTimeMillis();
-			if (currentMillis - lastAnnouncedMillis >= ANNOUNCE_COOL_DOWN_MILLIS) {
+			if (currentMillis - lastAnnouncedMillis >= ANNOUNCE_COOLDOWN_MILLIS) {
 				final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
 				QUEUE.put(currentMillis + (long) delay * MILLIS_PER_SECOND, tasks);
 				if (!message.isEmpty()) {

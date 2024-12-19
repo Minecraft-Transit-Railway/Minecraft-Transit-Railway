@@ -20,12 +20,13 @@ public final class PersistentVehicleData {
 	private double doorValue;
 	private double oldDoorValue;
 	private double nextAnnouncementRailProgress;
-	private int doorCoolDown;
-	private VehicleSoundBase vehicleSoundBase;
+	private int doorCooldown;
+	private int overrideDoorMultiplier;
 
 	public final boolean[] rayTracing;
 	public final double[] longestDimensions;
 	private final TransportMode transportMode;
+	private final ObjectArrayList<VehicleSoundBase> vehicleSoundBaseList = new ObjectArrayList<>();
 	private final ObjectArrayList<ObjectArrayList<ScrollingText>> scrollingTexts = new ObjectArrayList<>();
 	private final ObjectArrayList<Oscillation> oscillations = new ObjectArrayList<>();
 
@@ -48,12 +49,14 @@ public final class PersistentVehicleData {
 
 	public void tick(double railProgress, long millisElapsed, VehicleExtraData vehicleExtraData) {
 		oldDoorValue = doorValue;
-		doorValue = Utilities.clamp(doorValue + (double) (millisElapsed * vehicleExtraData.getDoorMultiplier()) / Vehicle.DOOR_MOVE_TIME, 0, 1);
+		doorValue = Utilities.clamp(doorValue + (double) (millisElapsed * getAdjustedDoorMultiplier(vehicleExtraData)) / Vehicle.DOOR_MOVE_TIME, 0, 1);
 		if (checkCanOpenDoors()) {
-			doorCoolDown--;
+			doorCooldown--;
+		} else {
+			overrideDoorMultiplier = 0;
 		}
 		if (doorValue > 0) {
-			doorCoolDown = 2;
+			doorCooldown = 2;
 			nextAnnouncementRailProgress = railProgress + vehicleExtraData.getTotalVehicleLength() * 1.5;
 		}
 		oscillations.forEach(oscillation -> oscillation.tick(millisElapsed));
@@ -64,25 +67,39 @@ public final class PersistentVehicleData {
 	}
 
 	public boolean checkCanOpenDoors() {
-		return doorCoolDown > 0;
+		return doorCooldown > 0;
+	}
+
+	/**
+	 * Get the actual door value, including any overridden value, for example when debugging a train from the Resource Pack Creator.
+	 */
+	public int getAdjustedDoorMultiplier(VehicleExtraData vehicleExtraData) {
+		return overrideDoorMultiplier != 0 ? overrideDoorMultiplier : vehicleExtraData.getDoorMultiplier();
+	}
+
+	/**
+	 * Override the door value, for example when debugging a train from the Resource Pack Creator. This must be called every tick.
+	 *
+	 * @param overrideDoorMultiplier {@code 1} for open and {@code -1} for close
+	 */
+	public void overrideDoorMultiplier(int overrideDoorMultiplier) {
+		this.overrideDoorMultiplier = overrideDoorMultiplier;
 	}
 
 	public boolean canAnnounce(double oldRailProgress, double railProgress) {
 		return oldRailProgress < nextAnnouncementRailProgress && railProgress >= nextAnnouncementRailProgress;
 	}
 
-	public void playMotorSound(VehicleResource vehicleResource, BlockPos bogiePosition, float speed, float speedChange, float acceleration, boolean isOnRoute) {
-		if (vehicleSoundBase == null) {
-			vehicleSoundBase = vehicleResource.createVehicleSoundBase.get();
-		}
-		vehicleSoundBase.playMotorSound(bogiePosition, speed, speedChange, acceleration, isOnRoute);
+	public void playMotorSound(VehicleResource vehicleResource, int carNumber, BlockPos bogiePosition, float speed, float speedChange, float acceleration, boolean isOnRoute) {
+		getVehicleSoundBase(vehicleResource, carNumber).playMotorSound(bogiePosition, speed, speedChange, acceleration, isOnRoute);
 	}
 
-	public void playDoorSound(VehicleResource vehicleResource, BlockPos vehiclePosition) {
-		if (vehicleSoundBase == null) {
-			vehicleSoundBase = vehicleResource.createVehicleSoundBase.get();
-		}
-		vehicleSoundBase.playDoorSound(vehiclePosition, doorValue, oldDoorValue);
+	public void playDoorSound(VehicleResource vehicleResource, int carNumber, BlockPos vehiclePosition) {
+		getVehicleSoundBase(vehicleResource, carNumber).playDoorSound(vehiclePosition, doorValue, oldDoorValue);
+	}
+
+	private VehicleSoundBase getVehicleSoundBase(VehicleResource vehicleResource, int carNumber) {
+		return getElement(vehicleSoundBaseList, carNumber, vehicleResource.createVehicleSoundBase);
 	}
 
 	private static <T> T getElement(ObjectArrayList<T> list, int index, Supplier<T> supplier) {

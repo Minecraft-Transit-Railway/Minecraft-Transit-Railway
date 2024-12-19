@@ -8,13 +8,13 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public final class RequestHelper {
 
 	private final OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(2, TimeUnit.SECONDS).writeTimeout(2, TimeUnit.SECONDS).readTimeout(2, TimeUnit.SECONDS).build();
 
-	public void sendRequest(String url, @Nullable String content, @Nullable Consumer<String> consumer) {
+	public void sendRequest(String url, @Nullable String content, @Nullable BiConsumer<String, String> callback) {
 		final Request.Builder requestBuilder = new Request.Builder().url(url);
 		final Request request;
 		if (content == null) {
@@ -35,8 +35,8 @@ public final class RequestHelper {
 			@Override
 			public void onResponse(Call call, Response response) {
 				try (final ResponseBody responseBody = response.body()) {
-					if (consumer != null) {
-						consumer.accept(responseBody.string());
+					if (callback != null) {
+						callback.accept(responseBody.string(), response.request().url().url().getFile());
 					}
 				} catch (IOException e) {
 					if (!(e instanceof InterruptedIOException)) {

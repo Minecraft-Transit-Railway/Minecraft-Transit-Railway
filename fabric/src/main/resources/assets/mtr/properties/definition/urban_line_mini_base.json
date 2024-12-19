@@ -43,6 +43,19 @@
 			]
 		},
 		{
+			"name": "windowMini",
+			"positions": [
+				{
+					"z": 0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
 			"name": "windowMiniEnd1",
 			"positions": [
 			]
