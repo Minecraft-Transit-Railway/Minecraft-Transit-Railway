@@ -52,7 +52,6 @@ public class CustomResourceLoader {
 	}
 
 	public static void reload() {
-		OPTIMIZED_RENDERER_WRAPPER.beginReload();
 		MINECRAFT_MODEL_RESOURCES.clear();
 		MINECRAFT_TEXTURE_RESOURCES.clear();
 		RESOURCE_CACHE.clear();
@@ -111,7 +110,6 @@ public class CustomResourceLoader {
 			OBJECTS_CACHE.put(objectResource.getId(), objectResource);
 		}, CustomResourceLoader::readResource);
 
-		OPTIMIZED_RENDERER_WRAPPER.finishReload();
 		Init.LOGGER.info("Loaded {} vehicles and completed door movement validation in {} ms", VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum), TEST_DURATION / 1E6);
 		Init.LOGGER.info("Loaded {} signs", SIGNS.size());
 		Init.LOGGER.info("Loaded {} rails", RAILS.size());

@@ -95,7 +95,7 @@ public class RenderVehicles implements IGui {
 						final GangwayMovementPositions gangwayMovementPositions1 = new GangwayMovementPositions(renderVehicleTransformationHelperAbsolute, false);
 						final GangwayMovementPositions gangwayMovementPositions2 = new GangwayMovementPositions(renderVehicleTransformationHelperAbsolute, true);
 						// Vehicle resource cache
-						final VehicleResourceCache vehicleResourceCache = vehicleResource.getCachedVehicleResource(carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size()).getData(false);
+						final VehicleResourceCache vehicleResourceCache = vehicleResource.getCachedVehicleResource(carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size());
 						// Find open doorways (close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates)
 						final ObjectArrayList<Box> openDoorways;
 						if (vehicleResourceCache != null && fromResourcePackCreator) {
