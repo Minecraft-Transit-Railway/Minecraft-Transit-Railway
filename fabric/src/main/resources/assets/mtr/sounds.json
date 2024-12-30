@@ -63,6 +63,15 @@
 			}
 		]
 	},
+	"eidan_9000_airzero": {
+		"sounds": [
+			{
+				"name": "mtr:eidan_9000/airzero",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
 	"eidan_9000_flange0": {
 		"sounds": [
 			{
@@ -157,15 +166,6 @@
 		"sounds": [
 			{
 				"name": "mtr:eidan_9000/run0",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"eidan_9000_rub": {
-		"sounds": [
-			{
-				"name": "mtr:eidan_9000/rub",
 				"pitch": 1,
 				"attenuation_distance": 32
 			}
