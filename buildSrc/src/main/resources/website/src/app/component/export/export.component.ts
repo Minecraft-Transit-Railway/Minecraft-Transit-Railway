@@ -8,7 +8,6 @@ import {LargeTileComponent} from "../large-button/large-tile.component";
 
 @Component({
 	selector: "app-export",
-	standalone: true,
 	imports: [
 		MatButtonModule,
 		MatInputModule,

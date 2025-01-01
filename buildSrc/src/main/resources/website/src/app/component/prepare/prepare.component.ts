@@ -9,7 +9,6 @@ import {MatDividerModule} from "@angular/material/divider";
 
 @Component({
 	selector: "app-prepare",
-	standalone: true,
 	imports: [
 		MatButtonModule,
 		MatIconModule,
@@ -47,7 +46,6 @@ export class PrepareComponent {
 }
 
 @Component({
-	standalone: true,
 	imports: [
 		MatDialogModule,
 		MatButtonModule,

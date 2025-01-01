@@ -15735,6 +15735,22 @@
 			}
 		]
 	},
+	"light_rail_5_door_open": {
+		"sounds": [
+			{
+				"name": "mtr:light_rail/door_open_4",
+				"pitch": 0.5
+			}
+		]
+	},
+	"light_rail_5_door_close": {
+		"sounds": [
+			{
+				"name": "mtr:light_rail/door_close_4",
+				"pitch": 0.5
+			}
+		]
+	},
 	"light_rail_aeg_acceleration_0a": {
 		"sounds": [
 			{

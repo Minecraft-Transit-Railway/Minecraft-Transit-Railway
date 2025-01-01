@@ -67,7 +67,6 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 						final boolean occupied = aspects.right().contains(signalColor);
 						final float x = xStart + j * 0.03125F;
 						final float width = 0.03125F / (filterColors.isEmpty() || filterColors.contains(signalColor) ? 1 : 8);
-						final int lightNew = occupied ? MainRenderer.getFlashingLight() : GraphicsHolder.getDefaultLight();
 						MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, occupied ? QueuedRenderLayer.EXTERIOR : QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
 							storedMatrixTransformationsNew.transform(graphicsHolderNew, offset);
 							IDrawing.drawTexture(
@@ -77,7 +76,7 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 									x + 0.03125F, colorIndicatorHeight, -0.15625F - width,
 									x, colorIndicatorHeight, -0.15625F - width,
 									0, 0, 1, 1,
-									Direction.UP, signalColor | ARGB_BLACK, lightNew
+									Direction.UP, MainRenderer.getFlashingColor(signalColor | ARGB_BLACK), GraphicsHolder.getDefaultLight()
 							);
 							graphicsHolderNew.pop();
 						});

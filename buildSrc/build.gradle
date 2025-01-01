@@ -4,6 +4,7 @@ repositories {
 
 dependencies {
 	implementation "com.google.code.gson:gson:+"
+	implementation "com.github.crowdin:crowdin-api-client-java:+"
 	implementation "it.unimi.dsi:fastutil:+"
 	implementation "commons-io:commons-io:+"
 	implementation "org.apache.httpcomponents:httpmime:+"
@@ -14,6 +15,7 @@ dependencies {
 
 repositories {
 	flatDir { dirs "../libs" }
+	maven { url "https://jitpack.io" }
 }
 
 java {

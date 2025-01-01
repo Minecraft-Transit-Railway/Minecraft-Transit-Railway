@@ -1,11 +1,11 @@
 import {Injectable} from "@angular/core";
-import {ResourceWrapper} from "../entity/generated/resourceWrapper";
+import {ResourceWrapperDTO} from "../entity/generated/resourceWrapper";
 import {HttpClient} from "@angular/common/http";
 import {catchError, EMPTY, Observable} from "rxjs";
 
 @Injectable({providedIn: "root"})
 export class DataService {
-	private resourceWrapper?: ResourceWrapper;
+	private resourceWrapperDTO?: ResourceWrapperDTO;
 	private status: "loading" | "ok" | "error" = "loading";
 
 	constructor(private readonly httpClient: HttpClient) {
@@ -13,25 +13,25 @@ export class DataService {
 	}
 
 	public update(skipResourceWrapperSync = false) {
-		const tempResourceWrapper = this.resourceWrapper;
-		if (this.resourceWrapper) {
-			const resourceWrapperCopy: ResourceWrapper = JSON.parse(JSON.stringify(this.resourceWrapper));
-			resourceWrapperCopy.minecraftModelResources.length = 0;
-			resourceWrapperCopy.minecraftTextureResources.length = 0;
-			this.sendPostRequest("operation/update", resourceWrapperCopy, "text/plain", () => {
+		const tempResourceWrapperDTO = this.resourceWrapperDTO;
+		if (this.resourceWrapperDTO) {
+			const resourceWrapperDTOCopy: ResourceWrapperDTO = JSON.parse(JSON.stringify(this.resourceWrapperDTO));
+			resourceWrapperDTOCopy.minecraftModelResources.length = 0;
+			resourceWrapperDTOCopy.minecraftTextureResources.length = 0;
+			this.sendPostRequest("operation/update", resourceWrapperDTOCopy, "text/plain", () => {
 				if (skipResourceWrapperSync) {
-					this.resourceWrapper = tempResourceWrapper;
+					this.resourceWrapperDTO = tempResourceWrapperDTO;
 				}
 			});
 		}
 	}
 
 	public create() {
-		this.resourceWrapper = new ResourceWrapper();
+		this.resourceWrapperDTO = new ResourceWrapperDTO();
 	}
 
 	public reset() {
-		this.resourceWrapper = undefined;
+		this.resourceWrapperDTO = undefined;
 		this.sendGetRequest("upload/reset");
 	}
 
@@ -52,23 +52,23 @@ export class DataService {
 	}
 
 	public vehicles() {
-		return this.resourceWrapper?.vehicles ?? [];
+		return this.resourceWrapperDTO?.vehicles ?? [];
 	}
 
 	public models() {
-		return this.resourceWrapper?.modelResources ?? [];
+		return this.resourceWrapperDTO?.modelResources ?? [];
 	}
 
 	public textures() {
-		return this.resourceWrapper?.textureResources ?? [];
+		return this.resourceWrapperDTO?.textureResources ?? [];
 	}
 
 	public minecraftModelResources() {
-		return this.resourceWrapper?.minecraftModelResources ?? [];
+		return this.resourceWrapperDTO?.minecraftModelResources ?? [];
 	}
 
 	public minecraftTextureResources() {
-		return this.resourceWrapper?.minecraftTextureResources ?? [];
+		return this.resourceWrapperDTO?.minecraftTextureResources ?? [];
 	}
 
 	public getStatus() {
@@ -76,32 +76,32 @@ export class DataService {
 	}
 
 	public hasData() {
-		return !!this.resourceWrapper;
+		return !!this.resourceWrapperDTO;
 	}
 
 	public isMinecraftPaused() {
-		return this.resourceWrapper?.isMinecraftPaused ?? true;
+		return this.resourceWrapperDTO?.isMinecraftPaused ?? true;
 	}
 
 	public getExportDirectory() {
-		return this.resourceWrapper?.exportDirectory ?? "";
+		return this.resourceWrapperDTO?.exportDirectory ?? "";
 	}
 
 	public sendGetRequest(endpoint: string, callback?: () => void) {
-		this.sendRequest(this.httpClient.get<ResourceWrapper>(DataService.getUrl(endpoint)), callback);
+		this.sendRequest(this.httpClient.get<ResourceWrapperDTO>(DataService.getUrl(endpoint)), callback);
 	}
 
 	public sendPostRequest(endpoint: string, body: any, contentType?: string, callback?: () => void) {
-		this.sendRequest(this.httpClient.post<ResourceWrapper>(DataService.getUrl(endpoint), body, contentType ? {headers: {"content-type": contentType}} : undefined), callback);
+		this.sendRequest(this.httpClient.post<ResourceWrapperDTO>(DataService.getUrl(endpoint), body, contentType ? {headers: {"content-type": contentType}} : undefined), callback);
 	}
 
-	private sendRequest(request: Observable<ResourceWrapper>, callback?: () => void) {
+	private sendRequest(request: Observable<ResourceWrapperDTO>, callback?: () => void) {
 		request.pipe(catchError(() => {
 			this.status = "error";
 			return EMPTY;
 		})).subscribe(data => {
 			this.status = "ok";
-			this.resourceWrapper = data;
+			this.resourceWrapperDTO = data;
 			if (callback) {
 				callback();
 			}

@@ -6,7 +6,6 @@ import {MatButtonModule} from "@angular/material/button";
 
 @Component({
 	selector: "app-preview",
-	standalone: true,
 	imports: [
 		MatButtonModule,
 		MatSlideToggleModule,

@@ -3,7 +3,10 @@ package org.mtr.mod.screen;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.mapper.CheckboxWidgetExtension;
+import org.mtr.mapping.mapper.EntityHelper;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.GuiDrawing;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockSignalBase;
 import org.mtr.mod.client.IDrawing;
@@ -13,7 +16,7 @@ import org.mtr.mod.item.ItemSignalModifier;
 import org.mtr.mod.packet.PacketUpdateSignalConfig;
 import org.mtr.mod.render.RenderSignalBase;
 
-public class SignalColorScreen extends ScreenExtension implements IGui {
+public class SignalColorScreen extends MTRScreenBase implements IGui {
 
 	private final CheckboxWidgetExtension checkBoxSelectAll;
 	private final CheckboxWidgetExtension[] checkBoxes = new CheckboxWidgetExtension[ItemSignalModifier.COLORS.length];

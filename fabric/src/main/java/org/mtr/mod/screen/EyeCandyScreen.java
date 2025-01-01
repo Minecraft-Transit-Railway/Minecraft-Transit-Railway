@@ -55,7 +55,7 @@ public class EyeCandyScreen extends ScreenExtension implements IGui {
 			}
 		}
 
-		buttonSelectModel = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> MinecraftClient.getInstance().openScreen(new Screen(new EyeCandyObjectSelectionScreen(this, new ObjectImmutableList<>(objectsForList), selectedModelIndices, this::sendUpdate))));
+		buttonSelectModel = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> MinecraftClient.getInstance().openScreen(new Screen(new EyeCandyObjectSelectionScreen(new ObjectImmutableList<>(objectsForList), selectedModelIndices, this::sendUpdate, this))));
 		buttonSelectModel.setMessage2(new Text(TextHelper.translatable("selectWorld.edit").data));
 		textFieldTranslateX = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
 		textFieldTranslateX.setChangedListener2(text -> sendUpdate());
