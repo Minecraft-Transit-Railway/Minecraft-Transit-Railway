@@ -12687,6 +12687,20 @@
 			}
 		]
 	},
+	"class_345_door_open": {
+		"sounds": [
+			{
+				"name": "mtr:class_345/door_open"
+			}
+		]
+	},
+	"class_345_door_close": {
+		"sounds": [
+			{
+				"name": "mtr:class_345/door_close"
+			}
+		]
+	},
 	"class_802_door_open": {
 		"sounds": [
 			{
