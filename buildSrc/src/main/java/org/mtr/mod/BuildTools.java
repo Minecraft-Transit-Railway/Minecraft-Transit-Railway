@@ -1,5 +1,8 @@
 package org.mtr.mod;
 
+import com.crowdin.client.Client;
+import com.crowdin.client.core.model.Credentials;
+import com.crowdin.client.translations.model.CrowdinTranslationCreateProjectBuildForm;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -11,14 +14,21 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.gradle.api.Project;
 import org.mtr.mapping.mixin.CreateAccessWidener;
 import org.mtr.mapping.mixin.CreateClientWorldRenderingMixin;
+import org.mtr.mapping.mixin.CreatePlayerTeleportationStateAccessor;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -29,6 +39,8 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class BuildTools {
 
@@ -41,6 +53,7 @@ public class BuildTools {
 	private final int majorVersion;
 
 	private static final Logger LOGGER = LogManager.getLogger("Build");
+	private static final long CROWDIN_PROJECT_ID = 455212;
 
 	public BuildTools(String minecraftVersion, String loader, Project project) throws IOException {
 		this.minecraftVersion = minecraftVersion;
@@ -57,6 +70,7 @@ public class BuildTools {
 		final Path mixinPath = path.resolve("src/main/java/org/mtr/mixin");
 		Files.createDirectories(mixinPath);
 		CreateClientWorldRenderingMixin.create(minecraftVersion, loader, mixinPath, "org.mtr.mixin");
+		CreatePlayerTeleportationStateAccessor.create(minecraftVersion, loader, mixinPath, "org.mtr.mixin");
 	}
 
 	public String getFabricVersion() {
@@ -69,7 +83,29 @@ public class BuildTools {
 
 	public String getFabricApiVersion() {
 		final String modIdString = "fabric-api";
-		return new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, ModLoader.FABRIC, "").get(0).fileName.split(".jar")[0].replace(modIdString + "-", "");
+		return new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, ModLoader.FABRIC, "").get(0).fileName.split("\\.jar")[0].replace(modIdString + "-", "");
+	}
+
+	public boolean hasJadeSupport() {
+		return loader.equals("fabric") ? majorVersion >= 17 : majorVersion >= 19;
+	}
+
+	public String getJadeVersion() {
+		if (minecraftVersion.equals("1.19.4")) {
+			return loader.equals("fabric") ? "10.4.0" : "10.1.1"; // 1.19.4 version not working
+		}
+		final String modIdString = "jade";
+		final String[] fileNameSplit = new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, loader.equals("fabric") ? ModLoader.FABRIC : ModLoader.FORGE, "").get(0).fileName.split("-");
+		return fileNameSplit[fileNameSplit.length - 1].split("\\.jar")[0] + (minecraftVersion.equals("1.20.1") ? "+" + loader : "");
+	}
+
+	public boolean hasWthitSupport() {
+		return majorVersion >= 17;
+	}
+
+	public String getWthitVersion() {
+		final String modIdString = "wthit";
+		return new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, loader.equals("fabric") ? ModLoader.FABRIC : ModLoader.FORGE, "").get(0).fileName.split("\\.jar")[0].replace(modIdString + "-", "");
 	}
 
 	public String getModMenuVersion() {
@@ -77,11 +113,80 @@ public class BuildTools {
 			return "9.0.0"; // TODO latest version not working
 		}
 		final String modIdString = "modmenu";
-		return new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, ModLoader.FABRIC, "").get(0).fileName.split(".jar")[0].replace(modIdString + "-", "");
+		return new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, ModLoader.FABRIC, "").get(0).fileName.split("\\.jar")[0].replace(modIdString + "-", "");
 	}
 
 	public String getForgeVersion() {
 		return getJson("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json").getAsJsonObject().getAsJsonObject("promos").get(minecraftVersion + "-latest").getAsString();
+	}
+
+	public void downloadTranslations(String crowdinKey, String geminiKey) throws IOException, InterruptedException {
+		if (!crowdinKey.isEmpty()) {
+			final CrowdinTranslationCreateProjectBuildForm crowdinTranslationCreateProjectBuildForm = new CrowdinTranslationCreateProjectBuildForm();
+			crowdinTranslationCreateProjectBuildForm.setSkipUntranslatedStrings(true);
+			crowdinTranslationCreateProjectBuildForm.setSkipUntranslatedFiles(false);
+			crowdinTranslationCreateProjectBuildForm.setExportApprovedOnly(false);
+
+			final Client client = new Client(new Credentials(crowdinKey, null));
+			final long buildId = client.getTranslationsApi().buildProjectTranslation(CROWDIN_PROJECT_ID, crowdinTranslationCreateProjectBuildForm).getData().getId();
+
+			while (!client.getTranslationsApi().checkBuildStatus(CROWDIN_PROJECT_ID, buildId).getData().getStatus().equals("finished")) {
+				Thread.sleep(1000);
+			}
+
+			final StringBuilder stringBuilderFiles = new StringBuilder();
+
+			try (final InputStream inputStream = new URL(client.getTranslationsApi().downloadProjectTranslations(CROWDIN_PROJECT_ID, buildId).getData().getUrl()).openStream()) {
+				try (final ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
+					ZipEntry zipEntry;
+					while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+						final String name = zipEntry.getName().toLowerCase(Locale.ENGLISH);
+						final byte[] content = IOUtils.toByteArray(zipInputStream);
+						stringBuilderFiles.append("\nFile name: ").append(name).append("\n").append(new String(content, StandardCharsets.UTF_8)).append("\n");
+						FileUtils.writeByteArrayToFile(path.resolve("src/main/resources/assets/mtr/lang").resolve(name).toFile(), content);
+						zipInputStream.closeEntry();
+					}
+				}
+			}
+
+			if (!geminiKey.isEmpty()) {
+				final String systemInstruction = "Analyze the provided translation files for only the specified problem. Don't raise issues beyond the specified problem. Cross-reference translations in all of the files to get an idea of what the actual translation should be, but ignore missing translations and don't report that as a problem. Respond with a markdown table, specifying the file where the problem occurred, the translation key(s), the translation, a rating, and suggestion(s) for fixing the problem. The rating should be on a scale from 1-5 indicating the severity of the problem, where 1 is low and 5 is severe. Sort the table first by the rating, most severe first, then by file names in alphabetical order, then by translation keys. Group problems by translation keys into one row where possible, for example if they have the same problem, so that your response is less than 8000 tokens. Here's an example:\n" +
+						"\n" +
+						"Example problem: Find incorrect translations.\n" +
+						"Example files:\n" +
+						"\n" +
+						"File name: en_us.json\n" +
+						"{\n" +
+						"\t\"gui.mtr.eat\": \"Poop\",\n" +
+						"\t\"gui.mtr.ice_cream\": \"Ice cream\"\n" +
+						"\t\"gui.mtr.banana\": \"Banana\"\n" +
+						"}\n" +
+						"\n" +
+						"File name: zh_hk.json\n" +
+						"{\n" +
+						"\t\"gui.mtr.eat\": \"吃\",\n" +
+						"\t\"gui.mtr.ice_cream\": \"麵包\"\n" +
+						"\t\"gui.mtr.banana\": \"蘋果\"\n" +
+						"}\n" +
+						"\n" +
+						"Example response:\n" +
+						"| File         | Translation Key(s)                    | Translation | Rating | Suggestion(s) |\n" +
+						"|--------------|---------------------------------------|-------------|--------|---------------|\n" +
+						"| `en_us.json` | `gui.mtr.eating`                      |             | 2      | `Eat`         |\n" +
+						"| `zh_hk.json` | `gui.mtr.banana`, `gui.mtr.ice_cream` |             | 5      | `香蕉`, `雪糕`    |\n";
+				final String content1 = "Problem: ";
+				final String content2 = String.format("\nFiles:\n%s\nResponse:", stringBuilderFiles);
+				final StringBuilder stringBuilderOutput = new StringBuilder();
+				stringBuilderOutput.append("# [Crowdin](https://crowdin.com/project/minecraft-transit-railway) Translation Analysis\n\n");
+				stringBuilderOutput.append("## Bad Words\n\n");
+				stringBuilderOutput.append(removeLastLine(getGemini(geminiKey, content1 + "Find swear words or offensive words." + content2, systemInstruction))).append("\n\n");
+				stringBuilderOutput.append("## Incorrect Translations\n\n");
+				stringBuilderOutput.append(removeLastLine(getGemini(geminiKey, content1 + "Find incorrect translations." + content2, systemInstruction))).append("\n\n");
+				stringBuilderOutput.append("## Grammar or Spelling Mistakes\n\n");
+				stringBuilderOutput.append(removeLastLine(getGemini(geminiKey, content1 + "Find grammatical or spelling mistakes." + content2, systemInstruction))).append("\n\n");
+				FileUtils.write(path.resolve("../build/translation/analysis.md").toFile(), stringBuilderOutput, StandardCharsets.UTF_8);
+			}
+		}
 	}
 
 	public void generateTranslations() throws IOException {
@@ -196,20 +301,23 @@ public class BuildTools {
 		stringBuilder.append("private Patreon(String name,String tierTitle,int tierAmount,int tierColor){this.name=name;this.tierTitle=tierTitle;this.tierAmount=tierAmount;this.tierColor=tierColor;}public static Patreon[]PATREON_LIST={\n");
 
 		if (!key.isEmpty()) {
-			final JsonObject jsonObjectData = getJson("https://www.patreon.com/api/oauth2/v2/campaigns/7782318/members?include=currently_entitled_tiers&fields%5Bmember%5D=full_name,lifetime_support_cents,patron_status&fields%5Btier%5D=title,amount_cents&page%5Bcount%5D=" + Integer.MAX_VALUE, "Authorization", "Bearer " + key).getAsJsonObject();
-			final Object2ObjectAVLTreeMap<String, JsonObject> idMap = new Object2ObjectAVLTreeMap<>();
-			jsonObjectData.getAsJsonArray("included").forEach(jsonElementData -> {
-				final JsonObject jsonObject = jsonElementData.getAsJsonObject();
-				idMap.put(jsonObject.get("id").getAsString(), jsonObject.getAsJsonObject("attributes"));
-			});
+			try {
+				final JsonObject jsonObjectData = getJson("https://www.patreon.com/api/oauth2/v2/campaigns/7782318/members?include=currently_entitled_tiers&fields%5Bmember%5D=full_name,lifetime_support_cents,patron_status&fields%5Btier%5D=title,amount_cents&page%5Bcount%5D=" + Integer.MAX_VALUE, "Authorization", "Bearer " + key).getAsJsonObject();
+				final Object2ObjectAVLTreeMap<String, JsonObject> idMap = new Object2ObjectAVLTreeMap<>();
+				jsonObjectData.getAsJsonArray("included").forEach(jsonElementData -> {
+					final JsonObject jsonObject = jsonElementData.getAsJsonObject();
+					idMap.put(jsonObject.get("id").getAsString(), jsonObject.getAsJsonObject("attributes"));
+				});
 
-			jsonObjectData.getAsJsonArray("data").forEach(jsonElementData -> {
-				final JsonObject jsonObjectAttributes = jsonElementData.getAsJsonObject().getAsJsonObject("attributes");
-				final JsonArray jsonObjectTiers = jsonElementData.getAsJsonObject().getAsJsonObject("relationships").getAsJsonObject("currently_entitled_tiers").getAsJsonArray("data");
-				if (!jsonObjectAttributes.get("patron_status").isJsonNull() && jsonObjectAttributes.get("patron_status").getAsString().equals("active_patron") && !jsonObjectTiers.isEmpty()) {
-					patreonList.add(new Patreon(jsonObjectAttributes, idMap.get(jsonObjectTiers.get(0).getAsJsonObject().get("id").getAsString())));
-				}
-			});
+				jsonObjectData.getAsJsonArray("data").forEach(jsonElementData -> {
+					final JsonObject jsonObjectAttributes = jsonElementData.getAsJsonObject().getAsJsonObject("attributes");
+					final JsonArray jsonObjectTiers = jsonElementData.getAsJsonObject().getAsJsonObject("relationships").getAsJsonObject("currently_entitled_tiers").getAsJsonArray("data");
+					if (!jsonObjectAttributes.get("patron_status").isJsonNull() && jsonObjectAttributes.get("patron_status").getAsString().equals("active_patron") && !jsonObjectTiers.isEmpty()) {
+						patreonList.add(new Patreon(jsonObjectAttributes, idMap.get(jsonObjectTiers.get(0).getAsJsonObject().get("id").getAsString())));
+					}
+				});
+			} catch (Exception ignored) {
+			}
 
 			Collections.sort(patreonList);
 		}
@@ -245,6 +353,42 @@ public class BuildTools {
 		}
 
 		return new JsonObject();
+	}
+
+	private static String getGemini(String key, String content, String systemInstruction) throws IOException {
+		final JsonObject contentPartObject = new JsonObject();
+		contentPartObject.addProperty("text", content);
+		final JsonArray contentPartsArray = new JsonArray();
+		contentPartsArray.add(contentPartObject);
+		final JsonObject contentObject = new JsonObject();
+		contentObject.add("parts", contentPartsArray);
+		final JsonArray contentsArray = new JsonArray();
+		contentsArray.add(contentObject);
+
+		final JsonObject systemInstructionPartObject = new JsonObject();
+		systemInstructionPartObject.addProperty("text", systemInstruction);
+		final JsonArray systemInstructionPartsArray = new JsonArray();
+		systemInstructionPartsArray.add(systemInstructionPartObject);
+		final JsonObject systemInstructionObject = new JsonObject();
+		systemInstructionObject.add("parts", systemInstructionPartsArray);
+
+		final JsonObject generationConfigObject = new JsonObject();
+		generationConfigObject.addProperty("temperature", 0);
+
+		final JsonObject mainObject = new JsonObject();
+		mainObject.add("contents", contentsArray);
+		mainObject.add("systemInstruction", systemInstructionObject);
+		mainObject.add("generationConfig", generationConfigObject);
+
+		final HttpPost httpPost = new HttpPost("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + key);
+		httpPost.setEntity(new StringEntity(mainObject.toString()));
+		try (final CloseableHttpClient closeableHttpClient = HttpClients.createDefault(); final CloseableHttpResponse response = closeableHttpClient.execute(httpPost)) {
+			return JsonParser.parseReader(new InputStreamReader(response.getEntity().getContent())).getAsJsonObject().getAsJsonArray("candidates").get(0).getAsJsonObject().getAsJsonObject("content").getAsJsonArray("parts").get(0).getAsJsonObject().get("text").getAsString();
+		}
+	}
+
+	private static String removeLastLine(String text) {
+		return text.substring(0, text.lastIndexOf("\n"));
 	}
 
 	private static class Patreon implements Comparable<Patreon> {

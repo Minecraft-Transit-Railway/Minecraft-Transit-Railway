@@ -2,9 +2,10 @@ package org.mtr.mod.screen;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mtr.core.data.*;
-import org.mtr.core.operation.GenerateOrClearByDepotIds;
+import org.mtr.core.operation.DepotOperationByIds;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2LongAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.ClickableWidget;
@@ -21,6 +22,7 @@ import org.mtr.mod.data.IGui;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketDepotClear;
 import org.mtr.mod.packet.PacketDepotGenerate;
+import org.mtr.mod.packet.PacketDepotInstantDeploy;
 import org.mtr.mod.packet.PacketUpdateData;
 
 import java.text.DateFormat;
@@ -44,6 +46,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private final ButtonWidgetExtension buttonAddDeparture;
 
 	private final ButtonWidgetExtension buttonEditInstructions;
+	private final ButtonWidgetExtension buttonInstantDeploy;
 	private final ButtonWidgetExtension buttonGenerateRoute;
 	private final ButtonWidgetExtension buttonClearTrains;
 	private final CheckboxWidgetExtension checkboxRepeatIndefinitely;
@@ -56,9 +59,10 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private static final int MAX_TRAINS_PER_HOUR = 5;
 	private static final int DEFAULT_CRUISING_ALTITUDE = 256;
 	private static final int TRAIN_FREQUENCY_MULTIPLIER = 4;
+	private static final Long2LongAVLTreeMap DEPOT_GENERATION_START_TIME = new Long2LongAVLTreeMap();
 
-	public EditDepotScreen(Depot depot, TransportMode transportMode, DashboardScreen dashboardScreen) {
-		super(depot, dashboardScreen, TranslationProvider.GUI_MTR_DEPOT_NAME, TranslationProvider.GUI_MTR_DEPOT_COLOR);
+	public EditDepotScreen(Depot depot, TransportMode transportMode, ScreenExtension previousScreenExtension) {
+		super(depot, TranslationProvider.GUI_MTR_DEPOT_NAME, TranslationProvider.GUI_MTR_DEPOT_COLOR, previousScreenExtension);
 
 		sliderX = GraphicsHolder.getTextWidth(getTimeString(0)) + TEXT_PADDING * 2;
 		sliderWidthWithText = SLIDER_WIDTH + TEXT_PADDING + GraphicsHolder.getTextWidth(getSliderString(0));
@@ -101,25 +105,32 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			saveData();
 			final ObjectArrayList<DashboardListItem> routes = new ObjectArrayList<>(MinecraftClientData.getFilteredDataSet(transportMode, MinecraftClientData.getDashboardInstance().routes));
 			Collections.sort(routes);
-			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(this, new ObjectImmutableList<>(routes), data.getRouteIds(), false, true)));
+			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(new ObjectImmutableList<>(routes), data.getRouteIds(), false, true, this)));
+		});
+		buttonInstantDeploy = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_INSTANT_DEPLOY.getMutableText(), button -> {
+			saveData();
+			final DepotOperationByIds depotOperationByIds = new DepotOperationByIds();
+			depotOperationByIds.addDepotId(depot.getId());
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotInstantDeploy(depotOperationByIds));
 		});
 		buttonGenerateRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_REFRESH_PATH.getMutableText(), button -> {
 			saveData();
-			final GenerateOrClearByDepotIds generateOrClearByDepotIds = new GenerateOrClearByDepotIds();
-			generateOrClearByDepotIds.addDepotId(depot.getId());
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotGenerate(generateOrClearByDepotIds));
+			final DepotOperationByIds depotOperationByIds = new DepotOperationByIds();
+			depotOperationByIds.addDepotId(depot.getId());
+			DEPOT_GENERATION_START_TIME.put(depot.getId(), System.currentTimeMillis());
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotGenerate(depotOperationByIds));
 		});
 		buttonClearTrains = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_CLEAR_VEHICLES.getMutableText(), button -> {
 			saveData();
-			final GenerateOrClearByDepotIds generateOrClearByDepotIds = new GenerateOrClearByDepotIds();
-			generateOrClearByDepotIds.addDepotId(depot.getId());
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotClear(generateOrClearByDepotIds));
+			final DepotOperationByIds depotOperationByIds = new DepotOperationByIds();
+			depotOperationByIds.addDepotId(depot.getId());
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotClear(depotOperationByIds));
 		});
 		checkboxRepeatIndefinitely = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, button -> {
 			saveData();
-			final GenerateOrClearByDepotIds generateOrClearByDepotIds = new GenerateOrClearByDepotIds();
-			generateOrClearByDepotIds.addDepotId(depot.getId());
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotGenerate(generateOrClearByDepotIds));
+			final DepotOperationByIds depotOperationByIds = new DepotOperationByIds();
+			depotOperationByIds.addDepotId(depot.getId());
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotGenerate(depotOperationByIds));
 		});
 		checkboxRepeatIndefinitely.setMessage2(TranslationProvider.GUI_MTR_REPEAT_INDEFINITELY.getText());
 		textFieldCruisingAltitude = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 5, TextCase.DEFAULT, "[^-\\d]", String.valueOf(DEFAULT_CRUISING_ALTITUDE));
@@ -131,13 +142,14 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 		final int buttonWidth = (width - rightPanelsX) / 2;
 		IDrawing.setPositionAndWidth(buttonEditInstructions, rightPanelsX, PANELS_START, buttonWidth * 2);
-		IDrawing.setPositionAndWidth(buttonGenerateRoute, rightPanelsX, PANELS_START + SQUARE_SIZE, buttonWidth * (showScheduleControls ? 1 : 2));
-		IDrawing.setPositionAndWidth(buttonClearTrains, rightPanelsX + buttonWidth, PANELS_START + SQUARE_SIZE, buttonWidth);
-		IDrawing.setPositionAndWidth(checkboxRepeatIndefinitely, rightPanelsX, PANELS_START + SQUARE_SIZE * 2 + (showCruisingAltitude ? SQUARE_SIZE + TEXT_FIELD_PADDING : 0), buttonWidth * 2);
+		IDrawing.setPositionAndWidth(buttonInstantDeploy, rightPanelsX, PANELS_START + SQUARE_SIZE, buttonWidth * 2);
+		IDrawing.setPositionAndWidth(buttonGenerateRoute, rightPanelsX, PANELS_START + SQUARE_SIZE * 2, buttonWidth * (showScheduleControls ? 1 : 2));
+		IDrawing.setPositionAndWidth(buttonClearTrains, rightPanelsX + buttonWidth, PANELS_START + SQUARE_SIZE * 2, buttonWidth);
+		IDrawing.setPositionAndWidth(checkboxRepeatIndefinitely, rightPanelsX, PANELS_START + SQUARE_SIZE * 3 + (showCruisingAltitude ? SQUARE_SIZE + TEXT_FIELD_PADDING : 0), buttonWidth * 2);
 		checkboxRepeatIndefinitely.setChecked(data.getRepeatInfinitely());
 
 		final int cruisingAltitudeTextWidth = GraphicsHolder.getTextWidth(cruisingAltitudeText) + TEXT_PADDING * 2;
-		IDrawing.setPositionAndWidth(textFieldCruisingAltitude, rightPanelsX + Math.min(cruisingAltitudeTextWidth, buttonWidth * 2 - SQUARE_SIZE * 3) + TEXT_FIELD_PADDING / 2, PANELS_START + SQUARE_SIZE * 2 + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 3 - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldCruisingAltitude, rightPanelsX + Math.min(cruisingAltitudeTextWidth, buttonWidth * 2 - SQUARE_SIZE * 3) + TEXT_FIELD_PADDING / 2, PANELS_START + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 3 - TEXT_FIELD_PADDING);
 		textFieldCruisingAltitude.setText2(String.valueOf(data.getCruisingAltitude()));
 
 		if (showScheduleControls) {
@@ -166,6 +178,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		buttonAddDeparture.active = false;
 
 		addChild(new ClickableWidget(buttonEditInstructions));
+		addChild(new ClickableWidget(buttonInstantDeploy));
 		addChild(new ClickableWidget(buttonGenerateRoute));
 		if (showScheduleControls) {
 			addChild(new ClickableWidget(buttonUseRealTime));
@@ -224,7 +237,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 		super.render(graphicsHolder, mouseX, mouseY, delta);
 
-		final int yStartRightPane = PANELS_START + SQUARE_SIZE * (checkboxRepeatIndefinitely.visible ? 3 : 2) + (showCruisingAltitude ? SQUARE_SIZE + TEXT_FIELD_PADDING : 0) + TEXT_PADDING;
+		final int yStartRightPane = PANELS_START + SQUARE_SIZE * (checkboxRepeatIndefinitely.visible ? 4 : 3) + (showCruisingAltitude ? SQUARE_SIZE + TEXT_FIELD_PADDING : 0) + TEXT_PADDING;
 		if (showCruisingAltitude) {
 			graphicsHolder.drawText(cruisingAltitudeText, rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 2 + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		}
@@ -352,13 +365,16 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 	private static String getSuccessfulSegmentsText(Depot depot) {
 		final long lastGeneratedMillis = depot.getLastGeneratedMillis();
-
 		if (lastGeneratedMillis == 0) {
 			return "";
 		}
 
-		final long timeDifference = System.currentTimeMillis() - lastGeneratedMillis;
-		final StringBuilder stringBuilder = new StringBuilder(TranslationProvider.GUI_MTR_PATH_REFRESH_TIME.getString(getTimeDifferenceString(timeDifference))).append("|").append(DateFormat.getDateTimeInstance().format(new Date(lastGeneratedMillis))).append("||");
+		final long generationStartTime = DEPOT_GENERATION_START_TIME.getOrDefault(depot.getId(), 0);
+		if (generationStartTime > lastGeneratedMillis) {
+			return TranslationProvider.GUI_MTR_PATH_GENERATING.getString(getTimeDifferenceString(System.currentTimeMillis() - generationStartTime));
+		}
+
+		final StringBuilder stringBuilder = new StringBuilder(TranslationProvider.GUI_MTR_PATH_REFRESH_TIME.getString(getTimeDifferenceString(System.currentTimeMillis() - lastGeneratedMillis))).append("|").append(DateFormat.getDateTimeInstance().format(new Date(lastGeneratedMillis))).append("||");
 
 		switch (depot.getLastGeneratedStatus()) {
 			case SUCCESSFUL:
@@ -398,14 +414,15 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 	private static String getTimeDifferenceString(long timeDifference) {
 		final MutableText mutableText;
-		if (timeDifference >= HOURS_PER_DAY * 60 * 60 * MILLIS_PER_SECOND) {
-			mutableText = TranslationProvider.GUI_MTR_DAYS.getMutableText(timeDifference / (HOURS_PER_DAY * 60 * 60 * MILLIS_PER_SECOND));
-		} else if (timeDifference >= 60 * 60 * MILLIS_PER_SECOND) {
-			mutableText = TranslationProvider.GUI_MTR_HOURS.getMutableText(timeDifference / (60 * 60 * MILLIS_PER_SECOND));
-		} else if (timeDifference >= 60 * MILLIS_PER_SECOND) {
-			mutableText = TranslationProvider.GUI_MTR_MINUTES.getMutableText(timeDifference / (60 * MILLIS_PER_SECOND));
+		final long newTimeDifference = Math.abs(timeDifference);
+		if (newTimeDifference >= HOURS_PER_DAY * 60 * 60 * MILLIS_PER_SECOND) {
+			mutableText = TranslationProvider.GUI_MTR_DAYS.getMutableText(newTimeDifference / (HOURS_PER_DAY * 60 * 60 * MILLIS_PER_SECOND));
+		} else if (newTimeDifference >= 60 * 60 * MILLIS_PER_SECOND) {
+			mutableText = TranslationProvider.GUI_MTR_HOURS.getMutableText(newTimeDifference / (60 * 60 * MILLIS_PER_SECOND));
+		} else if (newTimeDifference >= 60 * MILLIS_PER_SECOND) {
+			mutableText = TranslationProvider.GUI_MTR_MINUTES.getMutableText(newTimeDifference / (60 * MILLIS_PER_SECOND));
 		} else {
-			mutableText = TranslationProvider.GUI_MTR_SECONDS.getMutableText(timeDifference / MILLIS_PER_SECOND);
+			mutableText = TranslationProvider.GUI_MTR_SECONDS.getMutableText(newTimeDifference / MILLIS_PER_SECOND);
 		}
 		return mutableText.getString();
 	}

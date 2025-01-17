@@ -1,0 +1,92 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"typeScriptEditable": true,
+	"properties": {
+		"positionDefinition": {
+			"$ref": "positionDefinition.json"
+		},
+		"condition": {
+			"$ref": "PartCondition",
+			"typeScriptEnum": "NORMAL|AT_DEPOT|ON_ROUTE_FORWARDS|ON_ROUTE_BACKWARDS|DOORS_CLOSED|DOORS_OPENED|CHRISTMAS_LIGHT_RED|CHRISTMAS_LIGHT_YELLOW|CHRISTMAS_LIGHT_GREEN|CHRISTMAS_LIGHT_BLUE"
+		},
+		"renderStage": {
+			"$ref": "RenderStage",
+			"typeScriptEnum": "LIGHT|ALWAYS_ON_LIGHT|INTERIOR|INTERIOR_TRANSLUCENT|EXTERIOR"
+		},
+		"type": {
+			"$ref": "PartType",
+			"typeScriptEnum": "NORMAL|DISPLAY|FLOOR|DOORWAY|SEAT"
+		},
+		"displayXPadding": {
+			"type": "number",
+			"minimum": 0
+		},
+		"displayYPadding": {
+			"type": "number",
+			"minimum": 0
+		},
+		"displayColorCjk": {
+			"type": "string"
+		},
+		"displayColor": {
+			"type": "string"
+		},
+		"displayMaxLineHeight": {
+			"type": "number",
+			"minimum": 0
+		},
+		"displayCjkSizeRatio": {
+			"type": "number",
+			"minimum": 0
+		},
+		"displayOptions": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"displayPadZeros": {
+			"type": "number",
+			"minimum": 0
+		},
+		"displayType": {
+			"$ref": "DisplayType",
+			"typeScriptEnum": "DESTINATION|ROUTE_NUMBER|DEPARTURE_INDEX|NEXT_STATION|NEXT_STATION_KCR|NEXT_STATION_MTR|NEXT_STATION_UK"
+		},
+		"displayDefaultText": {
+			"type": "string"
+		},
+		"doorXMultiplier": {
+			"type": "number"
+		},
+		"doorZMultiplier": {
+			"type": "number"
+		},
+		"doorAnimationType": {
+			"$ref": "DoorAnimationType",
+			"typeScriptEnum": "STANDARD|STANDARD_SLOW|CONSTANT|PLUG_FAST|PLUG_SLOW|BOUNCY_1|BOUNCY_2|MLR|R179|R211"
+		}
+	},
+	"required": [
+		"positionDefinition",
+		"condition",
+		"renderStage",
+		"type",
+		"displayXPadding",
+		"displayYPadding",
+		"displayColorCjk",
+		"displayColor",
+		"displayMaxLineHeight",
+		"displayCjkSizeRatio",
+		"displayPadZeros",
+		"displayType",
+		"displayDefaultText",
+		"doorXMultiplier",
+		"doorZMultiplier",
+		"doorAnimationType"
+	]
+}

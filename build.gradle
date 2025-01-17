@@ -30,6 +30,8 @@ subprojects {
 	repositories {
 		flatDir { dirs "../libs" }
 		maven { url "https://repo.codemc.org/repository/maven-public" }
+		maven { url = "https://api.modrinth.com/maven/" }
+		maven { url = "https://maven4.bai.lol/" }
 	}
 
 	shadowJar {

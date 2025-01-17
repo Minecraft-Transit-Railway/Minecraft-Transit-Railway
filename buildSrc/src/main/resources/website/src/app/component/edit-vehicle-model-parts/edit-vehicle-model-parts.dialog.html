@@ -1,0 +1,50 @@
+<h2 mat-dialog-title>Model Parts</h2>
+<mat-dialog-content>
+	<table mat-table [dataSource]="dataSource">
+		@for (column of allColumns; track $index) {
+			<ng-container [matColumnDef]="column.id" [sticky]="$index === 0">
+				<th mat-header-cell *matHeaderCellDef>{{ column.title }}</th>
+				<td mat-cell *matCellDef="let modelPropertiesPart">{{ column.formatData(modelPropertiesPart) }}</td>
+			</ng-container>
+		}
+		<ng-container matColumnDef="controls" stickyEnd>
+			<th mat-header-cell *matHeaderCellDef></th>
+			<td mat-cell *matCellDef="let modelPropertiesPart">
+				<div class="row spacing gap-small">
+					<button mat-icon-button (click)="edit(modelPropertiesPart)" matTooltip="Edit">
+						<mat-icon>edit</mat-icon>
+					</button>
+					<button mat-icon-button (click)="delete(modelPropertiesPart)" matTooltip="Delete">
+						<mat-icon>delete</mat-icon>
+					</button>
+				</div>
+			</td>
+		</ng-container>
+		<tr mat-header-row *matHeaderRowDef="displayedColumnNames; sticky: true"></tr>
+		<tr mat-row *matRowDef="let row; columns: displayedColumnNames;"></tr>
+	</table>
+</mat-dialog-content>
+<mat-dialog-actions>
+	<form class="row gap center wide" [formGroup]="formGroup">
+		<div class="spacing"></div>
+		@if (hasNormal && (hasFloorOrDoorway || hasSeat || hasDisplay)) {
+			<mat-checkbox (change)="filterData()" formControlName="showNormalParts">Show Normal Parts</mat-checkbox>
+		}
+		@if (hasFloorOrDoorway && (hasNormal || hasSeat || hasDisplay)) {
+			<mat-checkbox (change)="filterData()" formControlName="showFloorsAndDoorways">Show Floors and Doorways</mat-checkbox>
+		}
+		@if (hasSeat && (hasNormal || hasFloorOrDoorway || hasDisplay)) {
+			<mat-checkbox (change)="filterData()" formControlName="showSeats">Show Seats</mat-checkbox>
+		}
+		@if (hasDisplay && (hasNormal || hasFloorOrDoorway || hasSeat)) {
+			<mat-checkbox (change)="filterData()" formControlName="showDisplays">Show Displays</mat-checkbox>
+		}
+		<div>
+			<button mat-flat-button (click)="add()">
+				<mat-icon>add</mat-icon>
+				Add
+			</button>
+			<button mat-button (click)="onClose()" cdkFocusInitial>Close</button>
+		</div>
+	</form>
+</mat-dialog-actions>

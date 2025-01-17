@@ -1,0 +1,45 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"javaImplements": [
+		"SerializedDataBase"
+	],
+	"properties": {
+		"vehicles": {
+			"type": "array",
+			"items": {
+				"$ref": "vehicleResourceWrapper.json"
+			}
+		},
+		"modelResources": {
+			"type": "array",
+			"items": {
+				"$ref": "modelWrapper.json"
+			}
+		},
+		"textureResources": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"minecraftModelResources": {
+			"type": "array",
+			"items": {
+				"$ref": "minecraftModelResource.json"
+			}
+		},
+		"minecraftTextureResources": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"isMinecraftPaused": {
+			"type": "boolean"
+		},
+		"exportDirectory": {
+			"type": "string"
+		}
+	}
+}

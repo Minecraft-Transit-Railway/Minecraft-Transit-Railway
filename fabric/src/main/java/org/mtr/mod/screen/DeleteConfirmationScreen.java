@@ -1,8 +1,6 @@
 package org.mtr.mod.screen;
 
 import org.mtr.mapping.holder.ClickableWidget;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.ButtonWidgetExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ScreenExtension;
@@ -12,26 +10,21 @@ import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.generated.lang.TranslationProvider;
 
-import javax.annotation.Nullable;
-
-public class DeleteConfirmationScreen extends ScreenExtension implements IGui {
+public class DeleteConfirmationScreen extends MTRScreenBase implements IGui {
 
 	private final Runnable deleteCallback;
 	private final String name;
-	private final DashboardScreen dashboardScreen;
 	private final ButtonWidgetExtension buttonYes;
 	private final ButtonWidgetExtension buttonNo;
 
 	private static final int BUTTON_WIDTH = 100;
 	private static final int BUTTON_HALF_PADDING = 10;
 
-	public DeleteConfirmationScreen(Runnable deleteCallback, String name, @Nullable DashboardScreen dashboardScreen) {
-		super();
+	public DeleteConfirmationScreen(Runnable deleteCallback, String name, ScreenExtension previousScreenExtension) {
+		super(previousScreenExtension);
 
 		this.deleteCallback = deleteCallback;
 		this.name = name;
-		this.dashboardScreen = dashboardScreen;
-
 		buttonYes = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.yes"), button -> onYes());
 		buttonNo = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.no"), button -> onNo());
 	}
@@ -53,14 +46,6 @@ public class DeleteConfirmationScreen extends ScreenExtension implements IGui {
 			graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_DELETE_CONFIRMATION.getMutableText(IGui.formatStationName(name)), width / 2, height / 2 - SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
 		} catch (Exception e) {
 			Init.LOGGER.error("", e);
-		}
-	}
-
-	@Override
-	public void onClose2() {
-		super.onClose2();
-		if (dashboardScreen != null) {
-			MinecraftClient.getInstance().openScreen(new Screen(dashboardScreen));
 		}
 	}
 

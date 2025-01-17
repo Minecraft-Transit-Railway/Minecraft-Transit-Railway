@@ -1,10 +1,10 @@
 package org.mtr.mod.screen;
 
-import org.mtr.mapping.holder.ButtonWidget;
-import org.mtr.mapping.holder.ClickableWidget;
-import org.mtr.mapping.holder.MutableText;
-import org.mtr.mapping.holder.Util;
-import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.ButtonWidgetExtension;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.OptimizedRenderer;
+import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.Patreon;
 import org.mtr.mod.client.DynamicTextureCache;
@@ -14,7 +14,9 @@ import org.mtr.mod.config.Config;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.generated.lang.TranslationProvider;
 
-public class ConfigScreen extends ScreenExtension implements IGui {
+import javax.annotation.Nullable;
+
+public class ConfigScreen extends MTRScreenBase implements IGui {
 
 	private final Client client = Config.getClient();
 
@@ -31,8 +33,8 @@ public class ConfigScreen extends ScreenExtension implements IGui {
 	private static final int BUTTON_WIDTH = 60;
 	private static final int BUTTON_HEIGHT = TEXT_HEIGHT + TEXT_PADDING;
 
-	public ConfigScreen() {
-		super();
+	public ConfigScreen(@Nullable Screen previousScreen) {
+		super(previousScreen);
 
 		buttonShowAnnouncementMessages = new ButtonWidgetExtension(0, 0, 0, BUTTON_HEIGHT, TextHelper.literal(""), button -> {
 			client.toggleChatAnnouncements();

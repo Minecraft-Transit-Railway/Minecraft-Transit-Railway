@@ -1,7 +1,6 @@
 package org.mtr.mod.client;
 
 import org.mtr.core.servlet.MessageQueue;
-import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2LongArrayMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -24,8 +23,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.text.AttributedString;
 import java.util.Arrays;
-import java.util.Locale;
-import java.util.Random;
 import java.util.function.Supplier;
 
 public class DynamicTextureCache implements IGui {
@@ -41,7 +38,7 @@ public class DynamicTextureCache implements IGui {
 	public static DynamicTextureCache instance = new DynamicTextureCache();
 
 	public static final float LINE_HEIGHT_MULTIPLIER = 1.25F;
-	private static final int COOL_DOWN_TIME = 10000; // Images not requested within the last 10 seconds will be unregistered
+	private static final int COOLDOWN_TIME = 10000; // Images not requested within the last 10 seconds will be unregistered
 	private static final Identifier DEFAULT_BLACK_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/black.png");
 	private static final Identifier DEFAULT_WHITE_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/white.png");
 	private static final Identifier DEFAULT_TRANSPARENT_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/transparent.png");
@@ -59,7 +56,7 @@ public class DynamicTextureCache implements IGui {
 		dynamicResources.forEach((checkKey, checkDynamicResource) -> {
 			if (checkDynamicResource.expiryTime < System.currentTimeMillis()) {
 				checkDynamicResource.remove();
-				deletedResources.put(checkDynamicResource.identifier, System.currentTimeMillis() + COOL_DOWN_TIME);
+				deletedResources.put(checkDynamicResource.identifier, System.currentTimeMillis() + COOLDOWN_TIME);
 				keysToRemove.add(checkKey);
 			}
 		});
@@ -226,7 +223,7 @@ public class DynamicTextureCache implements IGui {
 		final DynamicResource dynamicResource = dynamicResources.get(key);
 
 		if (dynamicResource != null && !dynamicResource.needsRefresh) {
-			dynamicResource.expiryTime = System.currentTimeMillis() + COOL_DOWN_TIME;
+			dynamicResource.expiryTime = System.currentTimeMillis() + COOLDOWN_TIME;
 			return dynamicResource;
 		}
 
@@ -261,13 +258,13 @@ public class DynamicTextureCache implements IGui {
 				final DynamicResource staticTextureProviderOld = dynamicResources.get(key);
 				if (staticTextureProviderOld != null) {
 					staticTextureProviderOld.remove();
-					deletedResources.put(staticTextureProviderOld.identifier, System.currentTimeMillis() + COOL_DOWN_TIME);
+					deletedResources.put(staticTextureProviderOld.identifier, System.currentTimeMillis() + COOLDOWN_TIME);
 				}
 
 				final DynamicResource dynamicResourceNew;
 				if (nativeImage != null) {
 					final NativeImageBackedTexture nativeImageBackedTexture = new NativeImageBackedTexture(nativeImage);
-					final Identifier identifier = new Identifier(Init.MOD_ID, "id_" + Utilities.numberToPaddedHexString(new Random().nextLong()).toLowerCase(Locale.ENGLISH));
+					final Identifier identifier = new Identifier(Init.MOD_ID, "id_" + Init.randomString());
 					MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, new AbstractTexture(nativeImageBackedTexture.data));
 					dynamicResourceNew = new DynamicResource(identifier, nativeImageBackedTexture);
 					dynamicResources.put(key, dynamicResourceNew);
@@ -282,7 +279,7 @@ public class DynamicTextureCache implements IGui {
 		if (dynamicResource == null) {
 			return defaultRenderingColor.dynamicResource;
 		} else {
-			dynamicResource.expiryTime = System.currentTimeMillis() + COOL_DOWN_TIME;
+			dynamicResource.expiryTime = System.currentTimeMillis() + COOLDOWN_TIME;
 			dynamicResource.needsRefresh = false;
 			return dynamicResource;
 		}

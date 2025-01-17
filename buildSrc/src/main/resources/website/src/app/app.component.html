@@ -1,0 +1,51 @@
+@if (getStatus() === "loading") {
+	<div class="column center wrapper">
+		<div class="spacing"></div>
+		<mat-spinner class="middle-content"/>
+		<div class="spacing"></div>
+	</div>
+} @else if (getStatus() === "error") {
+	<div class="column gap center wrapper">
+		<div class="spacing"></div>
+		<app-large-tile [clickable]="false" icon="warning">
+			<div class="column gap center">
+				<div class="column gap-small center">
+					<h2>Connection Failed</h2>
+					<div>Is your Minecraft world open?</div>
+				</div>
+				<div>
+					<button mat-button (click)="retry()">
+						<mat-icon>refresh</mat-icon>
+						Retry
+					</button>
+				</div>
+			</div>
+		</app-large-tile>
+		<div class="spacing"></div>
+	</div>
+} @else {
+	<div class="outer wrapper">
+		<mat-stepper class="wrapper" #stepper linear>
+			<mat-step class="wrapper" label="Prepare" [completed]="hasData()">
+				<ng-template class="wrapper" matStepContent>
+					<app-prepare class="wrapper" (nextStep)="stepper.next()"/>
+				</ng-template>
+			</mat-step>
+			<mat-step class="wrapper" label="Design" [completed]="hasData()">
+				<ng-template class="wrapper" matStepContent>
+					<app-edit class="wrapper"/>
+				</ng-template>
+			</mat-step>
+			<mat-step class="wrapper" label="Preview" [completed]="hasData()">
+				<ng-template class="wrapper" matStepContent>
+					<app-preview class="wrapper"/>
+				</ng-template>
+			</mat-step>
+			<mat-step label="Export" [completed]="false">
+				<ng-template class="wrapper" matStepContent>
+					<app-export class="wrapper"/>
+				</ng-template>
+			</mat-step>
+		</mat-stepper>
+	</div>
+}

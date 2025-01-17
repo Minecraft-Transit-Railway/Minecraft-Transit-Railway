@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+<mat-dialog-content>
+	<div class="padding-top-bottom-small">
+		<mat-accordion displayMode="flat">
+			<mat-expansion-panel [expanded]="listCustomCount > 0">
+				<mat-expansion-panel-header>
+					<mat-panel-title><b>Custom</b>&nbsp;({{ listCustomCount }})</mat-panel-title>
+				</mat-expansion-panel-header>
+				<div class="paragraph">{{ idListCustomFlattened }}</div>
+			</mat-expansion-panel>
+			<mat-expansion-panel [expanded]="listCustomCount === 0">
+				<mat-expansion-panel-header>
+					<mat-panel-title><b>Minecraft</b>&nbsp;({{ listMinecraftCount }})</mat-panel-title>
+				</mat-expansion-panel-header>
+				<div class="paragraph">{{ idListMinecraftFlattened }}</div>
+			</mat-expansion-panel>
+		</mat-accordion>
+	</div>
+</mat-dialog-content>
+<mat-dialog-actions>
+	<div class="row gap center">
+		<app-uploader #uploader [fileExtensions]="data.fileExtensions" [allowMultiple]="true" endpoint="upload/resources" [validation]="validateFiles" (uploaded)="upload()"/>
+		<div class="row center">
+			<button mat-flat-button class="no-wrap-button" (click)="uploader.upload()">
+				<mat-icon>add</mat-icon>
+				{{ data.addText }}
+			</button>
+			<button mat-button (click)="onClose()" cdkFocusInitial>Close</button>
+		</div>
+	</div>
+</mat-dialog-actions>

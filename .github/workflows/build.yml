@@ -20,10 +20,24 @@ jobs:
           distribution: 'zulu'
       - name: Make gradle wrapper executable
         run: chmod +x ./gradlew
+      - name: Setup website files
+        run: ./gradlew fabric:setupWebsiteFiles
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Setup Node packages
+        run: npm ci --prefix buildSrc/src/main/resources/website
+      - name: Build Angular
+        run: npm run build --prefix buildSrc/src/main/resources/website
       - name: Setup Fabric files
-        run: ./gradlew fabric:setupFiles -PminecraftVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+        if: ${{ matrix.minecraft != '1.20.4' }}
+        run: ./gradlew fabric:setupFiles -PminecraftVersion="${{ matrix.minecraft }}" -PcrowdinApiKey="${{ secrets.CROWDIN_API_KEY }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+      - name: Setup Fabric files
+        if: ${{ matrix.minecraft == '1.20.4' }}
+        run: ./gradlew fabric:setupFiles -PminecraftVersion="${{ matrix.minecraft }}" -PcrowdinApiKey="${{ secrets.CROWDIN_API_KEY }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}" -PgeminiApiKey="${{ secrets.GEMINI_API_KEY }}"
       - name: Setup Forge files
-        run: ./gradlew forge:setupFiles -PminecraftVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+        run: ./gradlew forge:setupFiles -PminecraftVersion="${{ matrix.minecraft }}"
       - name: Build ${{ matrix.minecraft }}
         run: ./gradlew build -PminecraftVersion="${{ matrix.minecraft }}"
       - name: Build ${{ matrix.minecraft }} (server)
@@ -33,3 +47,6 @@ jobs:
         with:
           name: Fabric and Forge ${{ matrix.minecraft }}
           path: build/release/
+      - name: Post Crowdin translation analysis
+        if: ${{ matrix.minecraft == '1.20.4' }}
+        run: cat build/translation/analysis.md >> $GITHUB_STEP_SUMMARY

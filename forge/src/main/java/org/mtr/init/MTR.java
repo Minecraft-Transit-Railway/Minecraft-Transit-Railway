@@ -7,7 +7,7 @@ import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 
 @Mod(Init.MOD_ID)
-public class MTR {
+public final class MTR {
 
 	public MTR() {
 		Init.init();

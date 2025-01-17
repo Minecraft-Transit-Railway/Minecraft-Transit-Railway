@@ -1,0 +1,369 @@
+{
+	"parts": [
+		{
+			"names": [
+				"window"
+			],
+			"positionDefinitions": [
+				"5b521719"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door"
+			],
+			"positionDefinitions": [
+				"f73303f9"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"window_1"
+			],
+			"positionDefinitions": [
+				"3f8b6ea"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"window_2"
+			],
+			"positionDefinitions": [
+				"f6e6006a"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"window_1_exterior"
+			],
+			"positionDefinitions": [
+				"4e762bee"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "NORMAL",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"window_2_exterior"
+			],
+			"positionDefinitions": [
+				"1b2b647a"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "NORMAL",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"roof"
+			],
+			"positionDefinitions": [
+				"2d146e26"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_left"
+			],
+			"positionDefinitions": [
+				"c28ef401"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL",
+			"doorXMultiplier": -1.0,
+			"doorZMultiplier": 12.0,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"door_right"
+			],
+			"positionDefinitions": [
+				"3d70bc63"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL",
+			"doorXMultiplier": -1.0,
+			"doorZMultiplier": -12.0,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"door_left_exterior"
+			],
+			"positionDefinitions": [
+				"fb0d1bc6"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "NORMAL",
+			"doorXMultiplier": -1.0,
+			"doorZMultiplier": 12.0,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"door_right_exterior"
+			],
+			"positionDefinitions": [
+				"6b9dec2a"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "NORMAL",
+			"doorXMultiplier": -1.0,
+			"doorZMultiplier": -12.0,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"end"
+			],
+			"positionDefinitions": [
+				"d530f4cd"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"light"
+			],
+			"positionDefinitions": [
+				"107f7f23"
+			],
+			"condition": "NORMAL",
+			"renderStage": "LIGHT",
+			"type": "NORMAL",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"light_end"
+			],
+			"positionDefinitions": [
+				"bee761c9"
+			],
+			"condition": "NORMAL",
+			"renderStage": "LIGHT",
+			"type": "NORMAL",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"seat_1"
+			],
+			"positionDefinitions": [
+				"974be279"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"seat_2"
+			],
+			"positionDefinitions": [
+				"16378614"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"side_panel"
+			],
+			"positionDefinitions": [
+				"61b84d67"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"side_panel_translucent"
+			],
+			"positionDefinitions": [
+				"3d38735f"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR_TRANSLUCENT",
+			"type": "NORMAL",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"interior_display_box"
+			],
+			"positionDefinitions": [
+				"243bc0f7"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"interior_display"
+			],
+			"positionDefinitions": [
+				"29c0d607"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "DISPLAY",
+			"displayXPadding": 0.4,
+			"displayYPadding": 0.6,
+			"displayColorCjk": "FFFFFF",
+			"displayColor": "FFFFFF",
+			"displayOptions": [
+				"SINGLE_LINE",
+				"SCROLL_NORMAL"
+			],
+			"displayPadZeros": 0.0,
+			"displayType": "NEXT_STATION_UK",
+			"displayDefaultText": "",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"side_display"
+			],
+			"positionDefinitions": [
+				"c01b90e7"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "DISPLAY",
+			"displayXPadding": 1.0,
+			"displayYPadding": 0.5,
+			"displayColorCjk": "FF9900",
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"SINGLE_LINE",
+				"SCROLL_NORMAL"
+			],
+			"displayPadZeros": 0.0,
+			"displayType": "DESTINATION",
+			"displayDefaultText": "Not In Service",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"window_floor"
+			],
+			"positionDefinitions": [
+				"801c4295"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "FLOOR",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"door_floor"
+			],
+			"positionDefinitions": [
+				"e2a0de60"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "FLOOR",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"doorway"
+			],
+			"positionDefinitions": [
+				"e5769ba0"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "DOORWAY",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"end_floor"
+			],
+			"positionDefinitions": [
+				"50ace699"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "FLOOR",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"seat_1_floor"
+			],
+			"positionDefinitions": [
+				"b4244a1b"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "FLOOR",
+			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"seat_2_floor"
+			],
+			"positionDefinitions": [
+				"b0db1192"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "FLOOR",
+			"doorAnimationType": "STANDARD"
+		}
+	],
+	"modelYOffset": 1.0,
+	"gangwayInnerSideResource": "mtr:textures/gangway/k_train_side.png",
+	"gangwayInnerTopResource": "mtr:textures/gangway/k_train_roof.png",
+	"gangwayInnerBottomResource": "mtr:textures/gangway/k_train_floor.png",
+	"gangwayOuterSideResource": "mtr:textures/gangway/k_train_side.png",
+	"gangwayOuterTopResource": "mtr:textures/gangway/sp1900_exterior.png",
+	"gangwayOuterBottomResource": "mtr:textures/gangway/sp1900_exterior.png",
+	"gangwayWidth": 1.5,
+	"gangwayHeight": 2.0,
+	"gangwayYOffset": 1.0,
+	"gangwayZOffset": 0.25
+}

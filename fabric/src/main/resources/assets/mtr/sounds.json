@@ -63,6 +63,114 @@
 			}
 		]
 	},
+	"eidan_9000_airzero": {
+		"sounds": [
+			{
+				"name": "mtr:eidan_9000/airzero",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"eidan_9000_flange0": {
+		"sounds": [
+			{
+				"name": "mtr:eidan_9000/flange0",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"eidan_9000_loop": {
+		"sounds": [
+			{
+				"name": "mtr:eidan_9000/loop",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"eidan_9000_point": {
+		"sounds": [
+			{
+				"name": "mtr:eidan_9000/point",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"eidan_9000_dooropn": {
+		"sounds": [
+			{
+				"name": "mtr:eidan_9000/dooropn",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"eidan_9000_doorcls": {
+		"sounds": [
+			{
+				"name": "mtr:eidan_9000/doorcls",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"eidan_9000_motor0": {
+		"sounds": [
+			{
+				"name": "mtr:eidan_9000/motor0",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"eidan_9000_motor1": {
+		"sounds": [
+			{
+				"name": "mtr:eidan_9000/motor1",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"eidan_9000_motor2": {
+		"sounds": [
+			{
+				"name": "mtr:eidan_9000/motor2",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"eidan_9000_motor3": {
+		"sounds": [
+			{
+				"name": "mtr:eidan_9000/motor3",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"eidan_9000_motor4": {
+		"sounds": [
+			{
+				"name": "mtr:eidan_9000/motor4",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"eidan_9000_run0": {
+		"sounds": [
+			{
+				"name": "mtr:eidan_9000/run0",
+				"pitch": 1,
+				"attenuation_distance": 32
+			}
+		]
+	},
 	"london_underground_d78_air": {
 		"sounds": [
 			{
@@ -12579,6 +12687,20 @@
 			}
 		]
 	},
+	"class_345_door_open": {
+		"sounds": [
+			{
+				"name": "mtr:class_345/door_open"
+			}
+		]
+	},
+	"class_345_door_close": {
+		"sounds": [
+			{
+				"name": "mtr:class_345/door_close"
+			}
+		]
+	},
 	"class_802_door_open": {
 		"sounds": [
 			{
@@ -15728,6 +15850,22 @@
 		]
 	},
 	"light_rail_4_door_close": {
+		"sounds": [
+			{
+				"name": "mtr:light_rail/door_close_4",
+				"pitch": 0.5
+			}
+		]
+	},
+	"light_rail_5_door_open": {
+		"sounds": [
+			{
+				"name": "mtr:light_rail/door_open_4",
+				"pitch": 0.5
+			}
+		]
+	},
+	"light_rail_5_door_close": {
 		"sounds": [
 			{
 				"name": "mtr:light_rail/door_close_4",

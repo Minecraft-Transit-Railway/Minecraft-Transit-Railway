@@ -20,6 +20,13 @@ public class BlockEscalatorSide extends BlockEscalatorBase {
 
 	@Nonnull
 	@Override
+	public VoxelShape getCullingShape2(BlockState state, BlockView world, BlockPos pos) {
+		// Prevents culling optimization mods from culling our see-through escalator side
+		return VoxelShapes.empty();
+	}
+
+	@Nonnull
+	@Override
 	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return VoxelShapes.combine(getOutlineShape2(state, world, pos, context), super.getCollisionShape2(state, world, pos, context), BooleanBiFunction.getAndMapped());
 	}
