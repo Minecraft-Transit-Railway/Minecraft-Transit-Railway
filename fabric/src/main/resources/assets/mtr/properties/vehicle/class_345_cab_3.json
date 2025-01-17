@@ -226,8 +226,6 @@
 			"displayYPadding": 0.6,
 			"displayColorCjk": "FFFFFF",
 			"displayColor": "FFFFFF",
-			"displayMaxLineHeight": 1.0,
-			"displayCjkSizeRatio": 2.0,
 			"displayOptions": [
 				"SINGLE_LINE",
 				"SCROLL_NORMAL"
@@ -251,8 +249,6 @@
 			"displayYPadding": 0.5,
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
-			"displayMaxLineHeight": 1.5,
-			"displayCjkSizeRatio": 2.0,
 			"displayOptions": [
 				"SINGLE_LINE",
 				"SCROLL_NORMAL"
@@ -273,14 +269,12 @@
 			"renderStage": "EXTERIOR",
 			"type": "DISPLAY",
 			"displayXPadding": 1.0,
-			"displayYPadding": 0.5,
+			"displayYPadding": 1.0,
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
-			"displayMaxLineHeight": 1.5,
-			"displayCjkSizeRatio": 2.0,
 			"displayOptions": [
-				"SINGLE_LINE",
-				"CYCLE_LANGUAGES"
+				"CYCLE_LANGUAGES",
+				"ALIGN_CENTER"
 			],
 			"displayPadZeros": 0.0,
 			"displayType": "DESTINATION",

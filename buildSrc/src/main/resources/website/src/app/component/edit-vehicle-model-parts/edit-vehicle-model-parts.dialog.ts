@@ -150,7 +150,7 @@ export class EditVehicleModelPartsDialog {
 	delete(modelPropertiesPart: ModelPropertiesPartWrapperDTO) {
 		modelPropertiesPart.positionDefinition.name = "";
 		this.filterData();
-		this.dataService.update();
+		this.dataService.update(true);
 	}
 
 	onClose() {

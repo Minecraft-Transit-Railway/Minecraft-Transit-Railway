@@ -250,8 +250,6 @@
 			"displayYPadding": 0.6,
 			"displayColorCjk": "FFFFFF",
 			"displayColor": "FFFFFF",
-			"displayMaxLineHeight": 1.0,
-			"displayCjkSizeRatio": 2.0,
 			"displayOptions": [
 				"SINGLE_LINE",
 				"SCROLL_NORMAL"
@@ -275,8 +273,6 @@
 			"displayYPadding": 0.5,
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
-			"displayMaxLineHeight": 1.0,
-			"displayCjkSizeRatio": 2.0,
 			"displayOptions": [
 				"SINGLE_LINE",
 				"SCROLL_NORMAL"

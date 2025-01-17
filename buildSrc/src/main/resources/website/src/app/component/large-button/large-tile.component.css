@@ -17,9 +17,9 @@
 }
 
 .clickable:hover {
-	background-color: var(--mat-option-hover-state-layer-color);
+	background-color: #7F7F7F22;
 }
 
 .square.disabled {
-	color: var(--mdc-icon-button-disabled-icon-color);
+	color: #7F7F7F7F;
 }
