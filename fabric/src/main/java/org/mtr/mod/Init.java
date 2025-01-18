@@ -352,7 +352,7 @@ public final class Init implements Utilities {
 	}
 
 	public static String randomString() {
-		return Integer.toHexString(new Random().nextInt());
+		return Long.toHexString(System.nanoTime());
 	}
 
 	private static void depotOperationFromCommand(CommandBuilder<?> commandBuilder, DepotOperation depotOperation) {
