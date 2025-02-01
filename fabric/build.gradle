@@ -23,6 +23,7 @@ dependencies {
 	modApi("com.terraformersmc:modmenu:${buildTools.getModMenuVersion()}") { exclude group: "net.fabricmc", module: "fabric-loader" }
 	shadowImplementation "org.mtr:Minecraft-Mappings-fabric-${minecraftVersion}:0.0.1-dev"
 	testImplementation "org.junit.jupiter:junit-jupiter-api:+"
+	testImplementation "org.junit.platform:junit-platform-launcher:+"
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:+"
 
 	if (buildTools.hasJadeSupport()) {
