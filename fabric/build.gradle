@@ -107,7 +107,8 @@ tasks.register("setupFiles") {
 
 	buildTools.downloadTranslations(crowdinApiKey, geminiApiKey)
 	buildTools.generateTranslations()
-	buildTools.copyLootTables()
+	buildTools.copyLootTables("mtr")
+	buildTools.copyLootTables("mtrsteamloco")
 	buildTools.copyFontDefinition()
 	buildTools.copyVehicleTemplates()
 	buildTools.getPatreonList(patreonApiKey)

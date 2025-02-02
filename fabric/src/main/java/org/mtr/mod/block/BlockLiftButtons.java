@@ -5,12 +5,14 @@ import org.mtr.core.data.LiftDirection;
 import org.mtr.core.operation.PressLift;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.tool.HolderBase;
-import org.mtr.mod.BlockEntityTypes;
-import org.mtr.mod.Init;
-import org.mtr.mod.InitClient;
+import org.mtr.mod.Blocks;
 import org.mtr.mod.Items;
+import org.mtr.mod.*;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketPressLiftButton;
@@ -25,7 +27,7 @@ public class BlockLiftButtons extends BlockExtension implements DirectionHelper,
 	public static final BooleanProperty UNLOCKED = BooleanProperty.of("unlocked");
 
 	public BlockLiftButtons() {
-		super(BlockHelper.createBlockSettings(true));
+		super(Blocks.createDefaultBlockSettings(true));
 	}
 
 	@Nonnull

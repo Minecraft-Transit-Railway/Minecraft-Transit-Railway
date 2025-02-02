@@ -207,10 +207,10 @@ public class BuildTools {
 		FileUtils.write(path.resolve("src/main/java/org/mtr/mod/generated/lang/TranslationProvider.java").toFile(), stringBuilder.toString(), StandardCharsets.UTF_8);
 	}
 
-	public void copyLootTables() throws IOException {
-		final Path directory = path.resolve("src/main/resources/data/mtr/loot_tables/blocks");
+	public void copyLootTables(String namespace) throws IOException {
+		final Path directory = path.resolve("src/main/resources/data").resolve(namespace).resolve("loot_tables/blocks");
 		Files.createDirectories(directory);
-		try (final Stream<Path> stream = Files.list(path.resolve("src/main/loot_table_templates"))) {
+		try (final Stream<Path> stream = Files.list(path.resolve("src/main/loot_table_templates").resolve(namespace))) {
 			stream.forEach(lootTablePath -> {
 				try {
 					FileUtils.write(

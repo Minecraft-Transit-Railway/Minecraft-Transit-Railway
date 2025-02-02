@@ -6,10 +6,10 @@ import org.mtr.core.tool.Angle;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.Blocks;
 import org.mtr.mod.Init;
 import org.mtr.mod.Items;
 import org.mtr.mod.client.MinecraftClientData;
@@ -34,7 +34,7 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 	private static final double SHAPE_PADDING = 0.1;
 
 	public BlockNode(TransportMode transportMode) {
-		super(BlockHelper.createBlockSettings(true).nonOpaque());
+		super(Blocks.createDefaultBlockSettings(true).nonOpaque());
 		this.transportMode = transportMode;
 	}
 

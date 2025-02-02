@@ -2,9 +2,9 @@ package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.Blocks;
 import org.mtr.mod.SoundEvents;
 import org.mtr.mod.data.TicketSystem;
 
@@ -18,7 +18,7 @@ public class BlockTicketBarrier extends BlockExtension implements DirectionHelpe
 	public static final EnumProperty<TicketSystem.EnumTicketBarrierOpen> OPEN = EnumProperty.of("open", TicketSystem.EnumTicketBarrierOpen.class);
 
 	public BlockTicketBarrier(boolean isEntrance) {
-		super(BlockHelper.createBlockSettings(true, blockState -> 5));
+		super(Blocks.createDefaultBlockSettings(true, blockState -> 5));
 		this.isEntrance = isEntrance;
 	}
 

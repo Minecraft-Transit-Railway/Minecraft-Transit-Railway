@@ -1,9 +1,13 @@
 package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.BlockEntityTypes;
+import org.mtr.mod.Blocks;
 import org.mtr.mod.Init;
 import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
 
@@ -14,7 +18,7 @@ import java.util.List;
 public class BlockEyeCandy extends BlockExtension implements DirectionHelper, BlockWithEntity {
 
 	public BlockEyeCandy() {
-		super(BlockHelper.createBlockSettings(true).strength(2).nonOpaque());
+		super(Blocks.createDefaultBlockSettings(true).nonOpaque());
 	}
 
 	@Nullable

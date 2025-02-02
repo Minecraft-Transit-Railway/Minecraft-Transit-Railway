@@ -4,9 +4,9 @@ import org.mtr.core.tool.Vector;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.Blocks;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.List;
 public abstract class BlockLiftTrackBase extends BlockExtension implements DirectionHelper {
 
 	public BlockLiftTrackBase() {
-		super(BlockHelper.createBlockSettings(true));
+		super(Blocks.createDefaultBlockSettings(true));
 	}
 
 	@Nonnull
