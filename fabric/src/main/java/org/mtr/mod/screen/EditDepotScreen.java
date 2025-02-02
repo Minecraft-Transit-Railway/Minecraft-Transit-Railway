@@ -149,7 +149,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		checkboxRepeatIndefinitely.setChecked(data.getRepeatInfinitely());
 
 		final int cruisingAltitudeTextWidth = GraphicsHolder.getTextWidth(cruisingAltitudeText) + TEXT_PADDING * 2;
-		IDrawing.setPositionAndWidth(textFieldCruisingAltitude, rightPanelsX + Math.min(cruisingAltitudeTextWidth, buttonWidth * 2 - SQUARE_SIZE * 3) + TEXT_FIELD_PADDING / 2, PANELS_START + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 3 - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldCruisingAltitude, rightPanelsX + Math.min(cruisingAltitudeTextWidth, buttonWidth * 2 - SQUARE_SIZE * 3) + TEXT_FIELD_PADDING / 2, PANELS_START + SQUARE_SIZE * 3 + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 3 - TEXT_FIELD_PADDING);
 		textFieldCruisingAltitude.setText2(String.valueOf(data.getCruisingAltitude()));
 
 		if (showScheduleControls) {
@@ -239,7 +239,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 		final int yStartRightPane = PANELS_START + SQUARE_SIZE * (checkboxRepeatIndefinitely.visible ? 4 : 3) + (showCruisingAltitude ? SQUARE_SIZE + TEXT_FIELD_PADDING : 0) + TEXT_PADDING;
 		if (showCruisingAltitude) {
-			graphicsHolder.drawText(cruisingAltitudeText, rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 2 + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+			graphicsHolder.drawText(cruisingAltitudeText, rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 3 + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 		}
 		graphicsHolder.drawText(TranslationProvider.GUI_MTR_SIDINGS_IN_DEPOT.getMutableText(data.savedRails.size()), rightPanelsX + TEXT_PADDING, yStartRightPane, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 
