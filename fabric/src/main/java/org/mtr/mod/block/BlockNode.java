@@ -9,7 +9,6 @@ import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.HolderBase;
-import org.mtr.mod.Blocks;
 import org.mtr.mod.Init;
 import org.mtr.mod.Items;
 import org.mtr.mod.client.MinecraftClientData;
@@ -34,7 +33,7 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 	private static final double SHAPE_PADDING = 0.1;
 
 	public BlockNode(TransportMode transportMode) {
-		super(Blocks.createDefaultBlockSettings(true).nonOpaque());
+		super(org.mtr.mod.Blocks.createDefaultBlockSettings(true).nonOpaque());
 		this.transportMode = transportMode;
 	}
 
@@ -59,7 +58,7 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 		final int quadrant = Angle.getQuadrant(ctx.getPlayerYaw(), true);
 		final BlockState state = getDefaultState2().with(new Property<>(FACING.data), quadrant % 8 >= 4).with(new Property<>(IS_45.data), quadrant % 4 >= 2).with(new Property<>(IS_22_5.data), quadrant % 2 == 1).with(new Property<>(IS_CONNECTED.data), false);
 
-		if(transportMode == TransportMode.BOAT) {
+		if (transportMode == TransportMode.BOAT) {
 			return canPlaceBoatNode(ctx) ? state : null;
 		} else {
 			return state;
