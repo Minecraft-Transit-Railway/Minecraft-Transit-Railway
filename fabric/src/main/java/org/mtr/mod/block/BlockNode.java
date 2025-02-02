@@ -57,7 +57,20 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 	@Override
 	public BlockState getPlacementState2(ItemPlacementContext ctx) {
 		final int quadrant = Angle.getQuadrant(ctx.getPlayerYaw(), true);
-		return getDefaultState2().with(new Property<>(FACING.data), quadrant % 8 >= 4).with(new Property<>(IS_45.data), quadrant % 4 >= 2).with(new Property<>(IS_22_5.data), quadrant % 2 == 1).with(new Property<>(IS_CONNECTED.data), false);
+		final BlockState state = getDefaultState2().with(new Property<>(FACING.data), quadrant % 8 >= 4).with(new Property<>(IS_45.data), quadrant % 4 >= 2).with(new Property<>(IS_22_5.data), quadrant % 2 == 1).with(new Property<>(IS_CONNECTED.data), false);
+
+		if(transportMode == TransportMode.BOAT) {
+			return canPlaceBoatNode(ctx) ? state : null;
+		} else {
+			return state;
+		}
+	}
+
+	private static boolean canPlaceBoatNode(ItemPlacementContext ctx) {
+		final World world = ctx.getWorld();
+		final BlockPos pos = ctx.getBlockPos();
+		final BlockPos posBelow = pos.down();
+		return (!world.getFluidState(posBelow).isEmpty() || world.getBlockState(posBelow).getBlock().equals(Blocks.getIceMapped())) && world.getFluidState(pos).isEmpty();
 	}
 
 	@Override
