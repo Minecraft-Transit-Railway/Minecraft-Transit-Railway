@@ -71,7 +71,7 @@ public class RenderVehicles implements IGui {
 				if (vehicle.persistentVehicleData.rayTracing[carNumber] || VehicleRidingMovement.isRiding(vehicle.getId())) {
 					CustomResourceLoader.getVehicleById(vehicle.getTransportMode(), vehicleProperties.vehicleCar.getVehicleId(), vehicleResourceDetails -> {
 						final VehicleResource vehicleResource = vehicleResourceDetails.left();
-						final boolean fromResourcePackCreator = vehicleResourceDetails.rightBoolean();
+						final boolean fromResourcePackCreator = vehicleResourceDetails.rightBoolean() && !vehicle.getIsOnRoute();
 						final int[] scrollingDisplayIndexTracker = {0};
 
 						// Render each bogie of the car
@@ -80,7 +80,7 @@ public class RenderVehicles implements IGui {
 							if (OptimizedRenderer.hasOptimizedRendering()) {
 								RenderVehicleHelper.renderModel(renderVehicleTransformationHelperBogie, 0, storedMatrixTransformations -> vehicleResource.queueBogie(bogieIndex, storedMatrixTransformations, vehicle, renderVehicleTransformationHelperBogie.light));
 							} else {
-								vehicleResource.iterateBogieModels(bogieIndex, (modelIndex, model) -> RenderVehicleHelper.renderModel(renderVehicleTransformationHelperBogie, 0, storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, renderVehicleTransformationHelperBogie.light, new ObjectArrayList<>())));
+								vehicleResource.iterateBogieModels(bogieIndex, (modelIndex, model) -> RenderVehicleHelper.renderModel(renderVehicleTransformationHelperBogie, 0, storedMatrixTransformations -> model.render(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, renderVehicleTransformationHelperBogie.light, new ObjectArrayList<>(), fromResourcePackCreator)));
 							}
 						});
 
@@ -140,7 +140,7 @@ public class RenderVehicles implements IGui {
 							}
 
 							vehicleResource.iterateModels(carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), (modelIndex, model) -> {
-								model.render(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, renderVehicleTransformationHelperAbsolute.light, openDoorways);
+								model.render(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, renderVehicleTransformationHelperAbsolute.light, openDoorways, fromResourcePackCreator);
 
 								while (modelIndex >= previousGangwayPositionsList.size()) {
 									previousGangwayPositionsList.add(new PreviousConnectionPositions());

@@ -199,7 +199,6 @@
 			"positionDefinitions": [
 				"cec0eb80"
 			],
-			"renderStage": "EXTERIOR",
 			"type": "DISPLAY",
 			"displayXPadding": 0.4,
 			"displayYPadding": 0.6,
@@ -219,7 +218,6 @@
 			"positionDefinitions": [
 				"838af83b"
 			],
-			"renderStage": "EXTERIOR",
 			"type": "DISPLAY",
 			"displayXPadding": 1.0,
 			"displayYPadding": 0.5,
@@ -239,7 +237,6 @@
 			"positionDefinitions": [
 				"67d6285f"
 			],
-			"renderStage": "EXTERIOR",
 			"type": "DISPLAY",
 			"displayXPadding": 1.0,
 			"displayYPadding": 1.0,

@@ -205,7 +205,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		}));
 	}
 
-	public void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker, int light, ObjectArrayList<Box> openDoorways) {
+	public void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker, int light, ObjectArrayList<Box> openDoorways, boolean fromResourcePackCreator) {
 		if (vehicle == null || VehicleResource.matchesCondition(vehicle, condition, openDoorways.isEmpty())) {
 			switch (type) {
 				case NORMAL:
@@ -218,12 +218,16 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 					break;
 				case DISPLAY:
 					if (vehicle != null) {
-						if (displayOptions.contains(DisplayOption.SEVEN_SEGMENT.toString())) {
-							renderSevenSegmentDisplay(storedMatrixTransformations, vehicle);
-						} else if (displayOptions.contains(DisplayOption.SCROLL_NORMAL.toString()) || displayOptions.contains(DisplayOption.SCROLL_LIGHT_RAIL.toString())) {
-							renderScrollingDisplay(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker);
+						if (displayType == DisplayType.ROUTE_COLOR || displayType == DisplayType.ROUTE_COLOR_ROUNDED) {
+							renderLineColor(storedMatrixTransformations, vehicle, fromResourcePackCreator);
 						} else {
-							renderDisplay(storedMatrixTransformations, vehicle);
+							if (displayOptions.contains(DisplayOption.SEVEN_SEGMENT.toString())) {
+								renderSevenSegmentDisplay(storedMatrixTransformations, vehicle);
+							} else if (displayOptions.contains(DisplayOption.SCROLL_NORMAL.toString()) || displayOptions.contains(DisplayOption.SCROLL_LIGHT_RAIL.toString())) {
+								renderScrollingDisplay(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker);
+							} else {
+								renderDisplay(storedMatrixTransformations, vehicle);
+							}
 						}
 					}
 					break;
@@ -353,11 +357,49 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		graphicsHolder.pop();
 	}
 
+	private void renderLineColor(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, boolean fromResourcePackCreator) {
+		final int color;
+		if (fromResourcePackCreator) {
+			color = ARGB_BLACK | rainbowColor();
+		} else {
+			color = getOrDefault(ARGB_BLACK | vehicle.vehicleExtraData.getThisRouteColor(), ARGB_BLACK | vehicle.vehicleExtraData.getNextRouteColor(), ARGB_BLACK | vehicle.vehicleExtraData.getPreviousRouteColor(), 0, vehicle);
+		}
+
+		MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, String.format("textures/block/%s.png", displayType == DisplayType.ROUTE_COLOR ? "white" : "sign/circle")), true, QueuedRenderLayer.LIGHT_2, (graphicsHolder, offset) -> {
+			storedMatrixTransformations.transform(graphicsHolder, offset);
+
+			displayPartDetailsList.forEach(displayPartDetails -> {
+				graphicsHolder.push();
+				graphicsHolder.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
+				graphicsHolder.rotateYDegrees(displayPartDetails.flipped ? 180 : 0);
+
+				displayPartDetails.modelDisplayParts.forEach(displayParts -> displayParts.forEach(displayPart -> {
+					displayPart.storedMatrixTransformations.transform(graphicsHolder, Vector3d.getZeroMapped());
+					graphicsHolder.translate(displayXPadding / 16, displayYPadding / 16, -SMALL_OFFSET);
+					IDrawing.drawTexture(
+							graphicsHolder,
+							0,
+							0,
+							(displayPart.width - (float) displayXPadding * 2) / 16,
+							(displayPart.height - (float) displayYPadding * 2) / 16,
+							0, 0, 1, 1, Direction.UP,
+							color, GraphicsHolder.getDefaultLight()
+					);
+					graphicsHolder.pop();
+				}));
+
+				graphicsHolder.pop();
+			});
+
+			graphicsHolder.pop();
+		});
+	}
+
 	private void renderSevenSegmentDisplay(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle) {
 		final String text = formatText(vehicle);
 		final HorizontalAlignment horizontalAlignment = getHorizontalAlignment(false);
 
-		MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/sign/seven_segment.png"), true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolder, offset) -> {
+		MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/sign/seven_segment.png"), true, QueuedRenderLayer.LIGHT_2, (graphicsHolder, offset) -> {
 			storedMatrixTransformations.transform(graphicsHolder, offset);
 
 			displayPartDetailsList.forEach(displayPartDetails -> {
@@ -488,9 +530,9 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	}
 
 	private String formatText(Vehicle vehicle) {
-		final String destination = getOrDefault(vehicle.vehicleExtraData.getThisRouteDestination(), getOrDefault(vehicle.vehicleExtraData.getNextRouteDestination(), getOrDefault(vehicle.vehicleExtraData.getNextStationName(), vehicle.vehicleExtraData.getThisStationName())));
-		final String routeNumber = getOrDefault(vehicle.vehicleExtraData.getThisRouteNumber(), vehicle.vehicleExtraData.getThisRouteDestination(), vehicle.vehicleExtraData.getNextRouteNumber());
-		final String routeName = getOrDefault(routeNumber + " ", routeNumber, "") + getOrDefault(vehicle.vehicleExtraData.getThisRouteName(), vehicle.vehicleExtraData.getThisRouteDestination(), vehicle.vehicleExtraData.getNextRouteName());
+		final String destination = getOrDefault(vehicle.vehicleExtraData.getThisRouteDestination(), vehicle.vehicleExtraData.getNextRouteDestination(), vehicle.vehicleExtraData.getPreviousRouteDestination(), displayDefaultText, vehicle);
+		final String routeNumber = getOrDefault(vehicle.vehicleExtraData.getThisRouteNumber(), vehicle.vehicleExtraData.getNextRouteNumber(), vehicle.vehicleExtraData.getPreviousRouteNumber(), displayDefaultText, vehicle);
+		final String routeName = getOrDefault(routeNumber + " ", routeNumber, "") + getOrDefault(vehicle.vehicleExtraData.getThisRouteName(), vehicle.vehicleExtraData.getNextRouteName(), vehicle.vehicleExtraData.getPreviousRouteName(), displayDefaultText, vehicle);
 		final String thisStation = getOrDefault(vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getPreviousStationName());
 		final String nextStation = getOrDefault(vehicle.vehicleExtraData.getNextStationName(), vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getThisStationName());
 		final boolean doorsOpen = vehicle.vehicleExtraData.getDoorMultiplier() > 0;
@@ -571,7 +613,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 	private static ObjectIntImmutablePair<QueuedRenderLayer> getRenderProperties(RenderStage renderStage, int light, @Nullable VehicleExtension vehicle) {
 		if (renderStage == RenderStage.ALWAYS_ON_LIGHT) {
-			return new ObjectIntImmutablePair<>(QueuedRenderLayer.LIGHT_TRANSLUCENT, GraphicsHolder.getDefaultLight());
+			return new ObjectIntImmutablePair<>(QueuedRenderLayer.LIGHT_2, GraphicsHolder.getDefaultLight());
 		} else if (vehicle != null) {
 			if (vehicle.getIsOnRoute()) {
 				switch (renderStage) {
@@ -616,12 +658,34 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		}
 	}
 
+	private static int rainbowColor() {
+		final long timeR = System.currentTimeMillis() % 3000;
+		final long timeG = (timeR + 1000) % 3000;
+		final long timeB = (timeR + 2000) % 3000;
+		int r = timeR < 2000 ? (int) Math.round(Math.sin(timeR * Math.PI / 2000) * 0xFF) : 0;
+		int g = timeG < 2000 ? (int) Math.round(Math.sin(timeG * Math.PI / 2000) * 0xFF) : 0;
+		int b = timeB < 2000 ? (int) Math.round(Math.sin(timeB * Math.PI / 2000) * 0xFF) : 0;
+		return (r << 16) + (g << 8) + b;
+	}
+
 	private static String getOrDefault(String checkText, String defaultText) {
 		return getOrDefault(checkText, checkText, defaultText);
 	}
 
-	private static String getOrDefault(String outputText, String checkText, String defaultText) {
-		return checkText.isEmpty() ? defaultText : outputText;
+	private static <T> T getOrDefault(T outputValue, String checkText, T defaultValue) {
+		return checkText.isEmpty() ? defaultValue : outputValue;
+	}
+
+	private static <T> T getOrDefault(T thisRouteData, T nextRouteData, T previousRouteData, T defaultValue, Vehicle vehicle) {
+		if (vehicle.vehicleExtraData.getThisRouteId() != 0) {
+			return thisRouteData;
+		} else if (vehicle.vehicleExtraData.getNextRouteId() != 0) {
+			return nextRouteData;
+		} else if (vehicle.vehicleExtraData.getPreviousRouteId() != 0) {
+			return previousRouteData;
+		} else {
+			return defaultValue;
+		}
 	}
 
 	private static class PartDetails {

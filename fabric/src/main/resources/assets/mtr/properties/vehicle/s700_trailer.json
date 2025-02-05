@@ -71,7 +71,6 @@
 			"positionDefinitions": [
 				"7db045ae"
 			],
-			"renderStage": "EXTERIOR",
 			"type": "DISPLAY",
 			"displayXPadding": 0.2,
 			"displayYPadding": 0.3,
@@ -80,10 +79,23 @@
 			"displayMaxLineHeight": 1.2,
 			"displayCjkSizeRatio": 1.0,
 			"displayOptions": [
+				"UPPER_CASE",
 				"CYCLE_LANGUAGES"
 			],
 			"displayType": "DESTINATION",
 			"displayDefaultText": "Sound Transit"
+		},
+		{
+			"names": [
+				"interior_route_color_display"
+			],
+			"positionDefinitions": [
+				"bcf3e741"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.3,
+			"displayYPadding": 0.3,
+			"displayType": "ROUTE_COLOR"
 		},
 		{
 			"names": [
@@ -92,7 +104,6 @@
 			"positionDefinitions": [
 				"bcf3e741"
 			],
-			"renderStage": "EXTERIOR",
 			"type": "DISPLAY",
 			"displayXPadding": 0.2,
 			"displayYPadding": 0.3,
@@ -101,10 +112,23 @@
 			"displayMaxLineHeight": 1.2,
 			"displayCjkSizeRatio": 1.0,
 			"displayOptions": [
+				"UPPER_CASE",
 				"CYCLE_LANGUAGES"
 			],
 			"displayType": "DESTINATION",
 			"displayDefaultText": "Sound Transit"
+		},
+		{
+			"names": [
+				"exterior_route_color_display"
+			],
+			"positionDefinitions": [
+				"bcf3e741"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.3,
+			"displayYPadding": 0.3,
+			"displayType": "ROUTE_COLOR"
 		}
 	],
 	"modelYOffset": 1.0,

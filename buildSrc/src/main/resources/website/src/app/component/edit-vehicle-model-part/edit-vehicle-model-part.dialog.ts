@@ -173,6 +173,15 @@ export class EditVehicleModelPartDialog {
 		return this.formGroup.getRawValue().type === "NORMAL";
 	}
 
+	isDepartureIndexDisplay() {
+		return this.isDisplay() && this.formGroup.getRawValue().displayType === "DEPARTURE_INDEX";
+	}
+
+	isRouteColorDisplay() {
+		const displayType = this.formGroup.getRawValue().displayType;
+		return this.isDisplay() && (displayType === "ROUTE_COLOR" || displayType === "ROUTE_COLOR_ROUNDED");
+	}
+
 	formatPositions() {
 		const newData = this.formGroup.getRawValue();
 		if (newData.positions) {
