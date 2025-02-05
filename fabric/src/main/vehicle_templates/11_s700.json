@@ -1,13 +1,22 @@
 {
 	"replacements": {
 		"lengths": [
+			0,
 			0
+		],
+		"id": [
+			"",
+			"_low_floor"
+		],
+		"name": [
+			"",
+			", Low Floor"
 		]
 	},
 	"vehicles": [
 		{
-			"id": "s700_sound_transit_1",
-			"name": "Sound Transit Siemens S700 (Front)",
+			"id": "s700@id@_sound_transit_1",
+			"name": "Sound Transit Siemens S700 (Front@name@)",
 			"color": "0091B3",
 			"transportMode": "TRAIN",
 			"length": 12.0,
@@ -24,8 +33,8 @@
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/s700.bbmodel",
-					"textureResource": "mtr:textures/vehicle/s700.bbmodel",
-					"modelPropertiesResource": "mtr:properties/vehicle/s700_cab_1.json",
+					"textureResource": "mtr:textures/vehicle/s700.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/s700@id@_cab_1.json",
 					"positionDefinitionsResource": "mtr:properties/definition/s700_cab_1.json"
 				}
 			],
@@ -46,8 +55,8 @@
 			"bveSoundBaseResource": "s700"
 		},
 		{
-			"id": "s700_sound_transit_2",
-			"name": "Sound Transit Siemens S700 (Middle)",
+			"id": "s700@id@_sound_transit_2",
+			"name": "Sound Transit Siemens S700 (Middle@name@)",
 			"color": "0091B3",
 			"transportMode": "TRAIN",
 			"length": 4.0,
@@ -64,8 +73,8 @@
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/s700.bbmodel",
-					"textureResource": "mtr:textures/vehicle/s700.bbmodel",
-					"modelPropertiesResource": "mtr:properties/vehicle/s700_trailer.json",
+					"textureResource": "mtr:textures/vehicle/s700.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/s700@id@_trailer.json",
 					"positionDefinitionsResource": "mtr:properties/definition/s700_trailer.json"
 				}
 			],
@@ -86,8 +95,8 @@
 			"bveSoundBaseResource": "s700"
 		},
 		{
-			"id": "s700_sound_transit_3",
-			"name": "Sound Transit Siemens S700 (Back)",
+			"id": "s700@id@_sound_transit_3",
+			"name": "Sound Transit Siemens S700 (Back@name@)",
 			"color": "0091B3",
 			"transportMode": "TRAIN",
 			"length": 12.0,
@@ -104,8 +113,8 @@
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/s700.bbmodel",
-					"textureResource": "mtr:textures/vehicle/s700.bbmodel",
-					"modelPropertiesResource": "mtr:properties/vehicle/s700_cab_2.json",
+					"textureResource": "mtr:textures/vehicle/s700.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/s700@id@_cab_2.json",
 					"positionDefinitionsResource": "mtr:properties/definition/s700_cab_2.json"
 				}
 			],
