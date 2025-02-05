@@ -25,6 +25,12 @@ const DOOR_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPar
 	{id: "doorXMultiplier", title: "Door X Multiplier", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier !== 0 || modelPropertiesPart.doorZMultiplier !== 0 ? modelPropertiesPart.doorXMultiplier.toString() : ""},
 	{id: "doorZMultiplier", title: "Door Z Multiplier", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier !== 0 || modelPropertiesPart.doorZMultiplier !== 0 ? modelPropertiesPart.doorZMultiplier.toString() : ""},
 	{id: "doorAnimationType", title: "Door Animation", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier !== 0 || modelPropertiesPart.doorZMultiplier !== 0 ? modelPropertiesPart.doorAnimationType : ""},
+	{id: "renderFromOpeningDoorTime", title: "From Opening Time", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier !== 0 || modelPropertiesPart.doorZMultiplier !== 0 ? modelPropertiesPart.renderFromOpeningDoorTime.toString() : ""},
+	{id: "renderUntilOpeningDoorTime", title: "Until Opening Time", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier !== 0 || modelPropertiesPart.doorZMultiplier !== 0 ? modelPropertiesPart.renderUntilOpeningDoorTime.toString() : ""},
+	{id: "renderFromClosingDoorTime", title: "From Closing Time", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier !== 0 || modelPropertiesPart.doorZMultiplier !== 0 ? modelPropertiesPart.renderFromClosingDoorTime.toString() : ""},
+	{id: "renderUntilClosingDoorTime", title: "Until Closing Time", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier !== 0 || modelPropertiesPart.doorZMultiplier !== 0 ? modelPropertiesPart.renderUntilClosingDoorTime.toString() : ""},
+	{id: "flashOnTime", title: "Flash On Time", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier !== 0 || modelPropertiesPart.doorZMultiplier !== 0 ? modelPropertiesPart.flashOnTime.toString() : ""},
+	{id: "flashOffTime", title: "Flash Off Time", formatData: modelPropertiesPart => modelPropertiesPart.doorXMultiplier !== 0 || modelPropertiesPart.doorZMultiplier !== 0 ? modelPropertiesPart.flashOffTime.toString() : ""},
 ];
 
 const DISPLAY_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => string }[] = [
@@ -43,7 +49,7 @@ export const CREATE_MODEL_PROPERTIES_PART = () => new ModelPropertiesPartWrapper
 	new PositionDefinitionDTO(""),
 	"NORMAL", "EXTERIOR", "NORMAL",
 	0, 0, "FF9900", "FF9900", 1.5, 2, 0, "DESTINATION", "Not In Service",
-	0, 0, "STANDARD",
+	0, 0, "STANDARD", 0, 0, 0, 0, 0, 0,
 );
 
 @Component({

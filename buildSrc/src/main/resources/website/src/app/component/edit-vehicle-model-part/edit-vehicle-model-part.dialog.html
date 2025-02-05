@@ -83,6 +83,36 @@
 					<mat-option value="R211">R211</mat-option>
 				</mat-select>
 			</mat-form-field>
+			<div class="row gap">
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>From Opening Time (ms)</mat-label>
+					<input matInput type="number" aria-label="From Opening Time (ms)" formControlName="renderFromOpeningDoorTime" min="0" step="100"/>
+				</mat-form-field>
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Until Opening Time (ms)</mat-label>
+					<input matInput type="number" aria-label="Until Opening Time (ms)" formControlName="renderUntilOpeningDoorTime" min="0" step="100"/>
+				</mat-form-field>
+			</div>
+			<div class="row gap">
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>From Closing Time (ms)</mat-label>
+					<input matInput type="number" aria-label="From Closing Time (ms)" formControlName="renderFromClosingDoorTime" min="0" step="100"/>
+				</mat-form-field>
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Until Closing Time (ms)</mat-label>
+					<input matInput type="number" aria-label="Until Closing Time (ms)" formControlName="renderUntilClosingDoorTime" min="0" step="100"/>
+				</mat-form-field>
+			</div>
+			<div class="row gap">
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Flash On Time (ms)</mat-label>
+					<input matInput type="number" aria-label="Flash On Time (ms)" formControlName="flashOnTime" min="0" step="100"/>
+				</mat-form-field>
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Flash Off Time (ms)</mat-label>
+					<input matInput type="number" aria-label="Flash Off Time (ms)" formControlName="flashOffTime" min="0" step="100"/>
+				</mat-form-field>
+			</div>
 		}
 
 		@if (isDisplay()) {
@@ -145,11 +175,11 @@
 				<mat-checkbox formControlName="displayOptionScrollLightRail">Scroll (Light Rail)</mat-checkbox>
 				<mat-checkbox formControlName="displayOptionSevenSegment">Seven Segment (If Numeric)</mat-checkbox>
 				<mat-checkbox formControlName="displayOptionAlignLeftCjk">Align Left (CJK Text)</mat-checkbox>
-				<mat-checkbox formControlName="displayOptionAlignCenterCjk">Align Center (CJK Text)</mat-checkbox>
 				<mat-checkbox formControlName="displayOptionAlignRightCjk">Align Right (CJK Text)</mat-checkbox>
 				<mat-checkbox formControlName="displayOptionAlignLeft">Align Left (Non-CJK Text)</mat-checkbox>
-				<mat-checkbox formControlName="displayOptionAlignCenter">Align Center (Non-CJK Text)</mat-checkbox>
 				<mat-checkbox formControlName="displayOptionAlignRight">Align Right (Non-CJK Text)</mat-checkbox>
+				<mat-checkbox formControlName="displayOptionAlignTop">Align Top</mat-checkbox>
+				<mat-checkbox formControlName="displayOptionAlignBottom">Align Bottom</mat-checkbox>
 				<mat-checkbox formControlName="displayOptionCycleLanguages">Cycle Languages</mat-checkbox>
 			</div>
 		}

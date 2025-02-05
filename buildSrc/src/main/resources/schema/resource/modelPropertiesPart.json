@@ -77,6 +77,30 @@
 		"doorAnimationType": {
 			"$ref": "DoorAnimationType",
 			"typeScriptEnum": "STANDARD|STANDARD_SLOW|CONSTANT|PLUG_FAST|PLUG_SLOW|BOUNCY_1|BOUNCY_2|MLR|R179|R211"
+		},
+		"renderFromOpeningDoorTime": {
+			"type": "integer",
+			"minimum": 0
+		},
+		"renderUntilOpeningDoorTime": {
+			"type": "integer",
+			"minimum": 0
+		},
+		"renderFromClosingDoorTime": {
+			"type": "integer",
+			"minimum": 0
+		},
+		"renderUntilClosingDoorTime": {
+			"type": "integer",
+			"minimum": 0
+		},
+		"flashOffTime": {
+			"type": "integer",
+			"minimum": 0
+		},
+		"flashOnTime": {
+			"type": "integer",
+			"minimum": 0
 		}
 	},
 	"required": [
@@ -94,6 +118,12 @@
 		"displayDefaultText",
 		"doorXMultiplier",
 		"doorZMultiplier",
-		"doorAnimationType"
+		"doorAnimationType",
+		"renderFromOpeningDoorTime",
+		"renderUntilOpeningDoorTime",
+		"renderFromClosingDoorTime",
+		"renderUntilClosingDoorTime",
+		"flashOffTime",
+		"flashOnTime"
 	]
 }

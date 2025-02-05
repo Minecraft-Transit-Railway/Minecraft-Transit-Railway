@@ -5,21 +5,18 @@ import org.mtr.core.tool.Utilities;
 
 public enum DoorAnimationType {
 
-	STANDARD(0.5),
-	STANDARD_SLOW(0.5),
-	CONSTANT(0.5),
-	PLUG_FAST(0.5),
-	PLUG_SLOW(2),
-	BOUNCY_1(0.5),
-	BOUNCY_2(0.5),
-	MLR(0.7),
-	R179(0.6),
-	R211(0.7);
+	STANDARD,
+	STANDARD_SLOW,
+	CONSTANT,
+	PLUG_FAST,
+	PLUG_SLOW,
+	BOUNCY_1,
+	BOUNCY_2,
+	MLR,
+	R179,
+	R211;
 
-	public final double maxTime;
-
-	DoorAnimationType(double maxTime) {
-		this.maxTime = maxTime;
+	DoorAnimationType() {
 	}
 
 	public double getDoorAnimationX(double multiplier, boolean flipped, double time) {
