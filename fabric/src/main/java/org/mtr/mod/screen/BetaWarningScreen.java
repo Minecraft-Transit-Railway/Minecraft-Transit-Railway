@@ -46,8 +46,8 @@ public class BetaWarningScreen extends ScreenExtension implements IGui, Utilitie
 
 		int i = SQUARE_SIZE * 2;
 		graphicsHolder.drawCenteredText("Please back up your worlds before continuing!", width / 2, i += TEXT_HEIGHT, System.currentTimeMillis() % 1000 < 500 ? 0xFFFF00 : 0xFF9900);
-		i = wrapAndRender(graphicsHolder, "- Manual driving still has NOT been implemented yet! Thank you for your patience.", i + SQUARE_SIZE);
-		i = wrapAndRender(graphicsHolder, "- If there are models from any resource packs that don't load properly, please send them to me on Discord and I will take a look.", i);
+		i = wrapAndRender(graphicsHolder, "- We are very close to the official release of 4.0.0. Please report any bugs you find!", i + SQUARE_SIZE);
+		i = wrapAndRender(graphicsHolder, "- Manual driving still has NOT been implemented yet!", i);
 		graphicsHolder.drawCenteredText("Thank you and enjoy :)", width / 2, i, ARGB_WHITE);
 
 		graphicsHolder.push();
