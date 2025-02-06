@@ -21,7 +21,7 @@
 			"transportMode": "TRAIN",
 			"length": 12.0,
 			"width": 2.0,
-			"bogie1Position": -3.0,
+			"bogie1Position": -2.75,
 			"bogie2Position": 4.0,
 			"wikipediaArticle": "Siemens_S700_and_S70",
 			"tags": [
@@ -40,8 +40,8 @@
 			],
 			"bogie1Models": [
 				{
-					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
-					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelResource": "mtr:models/vehicle/bogie_2.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_2.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
 					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
 				}
@@ -80,8 +80,8 @@
 			],
 			"bogie1Models": [
 				{
-					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
-					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelResource": "mtr:models/vehicle/bogie_2.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_2.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
 					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
 				}
@@ -102,7 +102,7 @@
 			"length": 12.0,
 			"width": 2.0,
 			"bogie1Position": -4.0,
-			"bogie2Position": 3.0,
+			"bogie2Position": 2.75,
 			"wikipediaArticle": "Siemens_S700_and_S70",
 			"tags": [
 				"family:s700",
@@ -121,8 +121,8 @@
 			"bogie1Models": [],
 			"bogie2Models": [
 				{
-					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
-					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelResource": "mtr:models/vehicle/bogie_2.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_2.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
 					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
 				}
