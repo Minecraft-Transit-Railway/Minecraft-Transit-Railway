@@ -1,13 +1,12 @@
 package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.tool.HolderBase;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class BlockCeiling extends BlockExtension {
+public class BlockCeiling extends BlockWaterloggable {
 
 	public static final BooleanProperty FACING = BooleanProperty.of("facing");
 
@@ -15,9 +14,10 @@ public class BlockCeiling extends BlockExtension {
 		super(blockSettings);
 	}
 
+	@Nonnull
 	@Override
-	public BlockState getPlacementState2(ItemPlacementContext ctx) {
-		return getDefaultState2().with(new Property<>(FACING.data), ctx.getPlayerFacing().getAxis() == Axis.X);
+	public BlockState getPlacementState2(ItemPlacementContext itemPlacementContext) {
+		return super.getPlacementState2(itemPlacementContext).with(new Property<>(FACING.data), itemPlacementContext.getPlayerFacing().getAxis() == Axis.X);
 	}
 
 	@Nonnull
@@ -28,6 +28,7 @@ public class BlockCeiling extends BlockExtension {
 
 	@Override
 	public void addBlockProperties(List<HolderBase<?>> properties) {
+		super.addBlockProperties(properties);
 		properties.add(FACING);
 	}
 }

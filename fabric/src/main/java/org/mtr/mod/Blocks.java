@@ -492,11 +492,11 @@ public final class Blocks {
 	}
 
 	public static BlockSettings createDefaultBlockSettings(boolean blockPiston) {
-		return BlockHelper.createBlockSettings(blockPiston).strength(3);
+		return BlockHelper.createBlockSettings(blockPiston, true).strength(3);
 	}
 
 	public static BlockSettings createDefaultBlockSettings(boolean blockPiston, ToIntFunction<BlockState> luminanceFunction) {
-		return BlockHelper.createBlockSettings(blockPiston, luminanceFunction).strength(3);
+		return BlockHelper.createBlockSettings(blockPiston, true, luminanceFunction).strength(3);
 	}
 
 	private static BlockRegistryObject registerBlock(Identifier identifier, Supplier<Block> supplier) {

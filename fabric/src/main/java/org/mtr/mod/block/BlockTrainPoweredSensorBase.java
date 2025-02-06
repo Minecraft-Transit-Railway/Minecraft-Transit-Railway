@@ -19,7 +19,7 @@ public abstract class BlockTrainPoweredSensorBase extends BlockTrainSensorBase {
 		final int oldPowered = IBlock.getStatePropertySafe(state, POWERED);
 		if (oldPowered > 0) {
 			world.setBlockState(pos, state.with(new Property<>(POWERED.data), oldPowered - 1));
-			if (!hasScheduledTick(World.cast(world), pos, new Block(this))) {
+			if (!hasScheduledBlockTick(World.cast(world), pos, new Block(this))) {
 				scheduleBlockTick(World.cast(world), pos, new Block(this), UPDATE_TICKS);
 			}
 		}
@@ -44,7 +44,7 @@ public abstract class BlockTrainPoweredSensorBase extends BlockTrainSensorBase {
 		final int oldPowered = IBlock.getStatePropertySafe(state, POWERED);
 		if (oldPowered < 2) {
 			world.setBlockState(pos, state.with(new Property<>(POWERED.data), 2));
-			if (oldPowered == 0 && !hasScheduledTick(world, pos, new Block(this))) {
+			if (oldPowered == 0 && !hasScheduledBlockTick(world, pos, new Block(this))) {
 				scheduleBlockTick(world, pos, new Block(this), UPDATE_TICKS);
 			}
 		}

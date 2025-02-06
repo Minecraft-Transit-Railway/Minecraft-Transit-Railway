@@ -5,7 +5,6 @@ import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Angle;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.HolderBase;
@@ -20,7 +19,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class BlockNode extends BlockExtension implements DirectionHelper {
+public class BlockNode extends BlockWaterloggable implements DirectionHelper, Waterloggable {
 
 	public final TransportMode transportMode;
 
@@ -53,27 +52,20 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 		}
 	}
 
+	@Nonnull
 	@Override
-	public BlockState getPlacementState2(ItemPlacementContext ctx) {
-		final int quadrant = Angle.getQuadrant(ctx.getPlayerYaw(), true);
-		final BlockState state = getDefaultState2().with(new Property<>(FACING.data), quadrant % 8 >= 4).with(new Property<>(IS_45.data), quadrant % 4 >= 2).with(new Property<>(IS_22_5.data), quadrant % 2 == 1).with(new Property<>(IS_CONNECTED.data), false);
-
-		if (transportMode == TransportMode.BOAT) {
-			return canPlaceBoatNode(ctx) ? state : null;
-		} else {
-			return state;
-		}
-	}
-
-	private static boolean canPlaceBoatNode(ItemPlacementContext ctx) {
-		final World world = ctx.getWorld();
-		final BlockPos pos = ctx.getBlockPos();
-		final BlockPos posBelow = pos.down();
-		return (!world.getFluidState(posBelow).isEmpty() || world.getBlockState(posBelow).getBlock().equals(Blocks.getIceMapped())) && world.getFluidState(pos).isEmpty();
+	public BlockState getPlacementState2(ItemPlacementContext itemPlacementContext) {
+		final int quadrant = Angle.getQuadrant(itemPlacementContext.getPlayerYaw(), true);
+		return super.getPlacementState2(itemPlacementContext)
+				.with(new Property<>(FACING.data), quadrant % 8 >= 4)
+				.with(new Property<>(IS_45.data), quadrant % 4 >= 2)
+				.with(new Property<>(IS_22_5.data), quadrant % 2 == 1)
+				.with(new Property<>(IS_CONNECTED.data), false);
 	}
 
 	@Override
 	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+		super.onBreak2(world, pos, state, player);
 		if (!world.isClient()) {
 			PacketDeleteData.sendDirectlyToServerRailNodePosition(ServerWorld.cast(world), Init.blockPosToPosition(pos));
 		}
@@ -93,6 +85,7 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 
 	@Override
 	public void addBlockProperties(List<HolderBase<?>> properties) {
+		super.addBlockProperties(properties);
 		properties.add(FACING);
 		properties.add(IS_22_5);
 		properties.add(IS_45);
@@ -129,10 +122,15 @@ public class BlockNode extends BlockExtension implements DirectionHelper {
 			this.isStation = isStation;
 		}
 
+		@Nonnull
 		@Override
-		public BlockState getPlacementState2(ItemPlacementContext ctx) {
-			final int quadrant = Angle.getQuadrant(ctx.getPlayerYaw(), false);
-			return getDefaultState2().with(new Property<>(FACING.data), quadrant % 4 >= 2).with(new Property<>(IS_45.data), quadrant % 2 == 1).with(new Property<>(IS_22_5.data), false).with(new Property<>(IS_CONNECTED.data), false);
+		public BlockState getPlacementState2(ItemPlacementContext itemPlacementContext) {
+			final int quadrant = Angle.getQuadrant(itemPlacementContext.getPlayerYaw(), false);
+			return super.getPlacementState2(itemPlacementContext)
+					.with(new Property<>(FACING.data), quadrant % 4 >= 2)
+					.with(new Property<>(IS_45.data), quadrant % 2 == 1)
+					.with(new Property<>(IS_22_5.data), false)
+					.with(new Property<>(IS_CONNECTED.data), false);
 		}
 
 		@Override

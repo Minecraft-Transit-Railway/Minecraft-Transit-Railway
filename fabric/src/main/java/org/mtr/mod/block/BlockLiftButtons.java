@@ -6,7 +6,6 @@ import org.mtr.core.operation.PressLift;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.BlockWithEntity;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.tool.HolderBase;
@@ -22,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class BlockLiftButtons extends BlockExtension implements DirectionHelper, BlockWithEntity {
+public class BlockLiftButtons extends BlockWaterloggable implements DirectionHelper, BlockWithEntity {
 
 	public static final BooleanProperty UNLOCKED = BooleanProperty.of("unlocked");
 
@@ -83,10 +82,11 @@ public class BlockLiftButtons extends BlockExtension implements DirectionHelper,
 		}
 	}
 
+	@Nonnull
 	@Override
-	public BlockState getPlacementState2(ItemPlacementContext ctx) {
-		final Direction facing = ctx.getPlayerFacing();
-		return getDefaultState2().with(new Property<>(FACING.data), facing.data);
+	public BlockState getPlacementState2(ItemPlacementContext itemPlacementContext) {
+		final Direction facing = itemPlacementContext.getPlayerFacing();
+		return super.getPlacementState2(itemPlacementContext).with(new Property<>(FACING.data), facing.data);
 	}
 
 	@Nonnull
@@ -103,6 +103,7 @@ public class BlockLiftButtons extends BlockExtension implements DirectionHelper,
 
 	@Override
 	public void addBlockProperties(List<HolderBase<?>> properties) {
+		super.addBlockProperties(properties);
 		properties.add(FACING);
 		properties.add(UNLOCKED);
 	}

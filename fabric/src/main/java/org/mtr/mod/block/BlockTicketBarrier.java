@@ -43,7 +43,7 @@ public class BlockTicketBarrier extends BlockExtension implements DirectionHelpe
 						false,
 						newOpen -> {
 							world.setBlockState(blockPosCopy, state.with(new Property<>(OPEN.data), newOpen));
-							if (newOpen != TicketSystem.EnumTicketBarrierOpen.CLOSED && !hasScheduledTick(world, blockPosCopy, new Block(this))) {
+							if (newOpen != TicketSystem.EnumTicketBarrierOpen.CLOSED && !hasScheduledBlockTick(world, blockPosCopy, new Block(this))) {
 								scheduleBlockTick(world, blockPosCopy, new Block(this), 40);
 							}
 						}
