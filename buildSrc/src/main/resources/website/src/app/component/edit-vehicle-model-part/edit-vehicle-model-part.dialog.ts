@@ -62,6 +62,12 @@ export class EditVehicleModelPartDialog {
 			doorXMultiplier: new FormControl(modelPropertiesPart.doorXMultiplier),
 			doorZMultiplier: new FormControl(modelPropertiesPart.doorZMultiplier),
 			doorAnimationType: new FormControl(modelPropertiesPart.doorAnimationType),
+			renderFromOpeningDoorTime: new FormControl(modelPropertiesPart.renderFromOpeningDoorTime),
+			renderUntilOpeningDoorTime: new FormControl(modelPropertiesPart.renderUntilOpeningDoorTime),
+			renderFromClosingDoorTime: new FormControl(modelPropertiesPart.renderFromClosingDoorTime),
+			renderUntilClosingDoorTime: new FormControl(modelPropertiesPart.renderUntilClosingDoorTime),
+			flashOnTime: new FormControl(modelPropertiesPart.flashOnTime),
+			flashOffTime: new FormControl(modelPropertiesPart.flashOffTime),
 			displayOptionSingleLine: new FormControl(modelPropertiesPart.displayOptions.includes("SINGLE_LINE")),
 			displayOptionUpperCase: new FormControl(modelPropertiesPart.displayOptions.includes("UPPER_CASE")),
 			displayOptionSpaceCjk: new FormControl(modelPropertiesPart.displayOptions.includes("SPACE_CJK")),
@@ -69,11 +75,11 @@ export class EditVehicleModelPartDialog {
 			displayOptionScrollLightRail: new FormControl(modelPropertiesPart.displayOptions.includes("SCROLL_LIGHT_RAIL")),
 			displayOptionSevenSegment: new FormControl(modelPropertiesPart.displayOptions.includes("SEVEN_SEGMENT")),
 			displayOptionAlignLeftCjk: new FormControl(modelPropertiesPart.displayOptions.includes("ALIGN_LEFT_CJK")),
-			displayOptionAlignCenterCjk: new FormControl(modelPropertiesPart.displayOptions.includes("ALIGN_CENTER_CJK")),
 			displayOptionAlignRightCjk: new FormControl(modelPropertiesPart.displayOptions.includes("ALIGN_RIGHT_CJK")),
 			displayOptionAlignLeft: new FormControl(modelPropertiesPart.displayOptions.includes("ALIGN_LEFT")),
-			displayOptionAlignCenter: new FormControl(modelPropertiesPart.displayOptions.includes("ALIGN_CENTER")),
 			displayOptionAlignRight: new FormControl(modelPropertiesPart.displayOptions.includes("ALIGN_RIGHT")),
+			displayOptionAlignTop: new FormControl(modelPropertiesPart.displayOptions.includes("ALIGN_TOP")),
+			displayOptionAlignBottom: new FormControl(modelPropertiesPart.displayOptions.includes("ALIGN_BOTTOM")),
 			displayOptionCycleLanguages: new FormControl(modelPropertiesPart.displayOptions.includes("CYCLE_LANGUAGES")),
 		});
 
@@ -104,6 +110,12 @@ export class EditVehicleModelPartDialog {
 			modelPropertiesPart.doorXMultiplier = newData.doorXMultiplier ?? defaultModelPropertiesPart.doorXMultiplier;
 			modelPropertiesPart.doorZMultiplier = newData.doorZMultiplier ?? defaultModelPropertiesPart.doorZMultiplier;
 			modelPropertiesPart.doorAnimationType = newData.doorAnimationType ?? defaultModelPropertiesPart.doorAnimationType;
+			modelPropertiesPart.renderFromOpeningDoorTime = newData.renderFromOpeningDoorTime ?? defaultModelPropertiesPart.renderFromOpeningDoorTime;
+			modelPropertiesPart.renderUntilOpeningDoorTime = newData.renderUntilOpeningDoorTime ?? defaultModelPropertiesPart.renderUntilOpeningDoorTime;
+			modelPropertiesPart.renderFromClosingDoorTime = newData.renderFromClosingDoorTime ?? defaultModelPropertiesPart.renderFromClosingDoorTime;
+			modelPropertiesPart.renderUntilClosingDoorTime = newData.renderUntilClosingDoorTime ?? defaultModelPropertiesPart.renderUntilClosingDoorTime;
+			modelPropertiesPart.flashOnTime = newData.flashOnTime ?? defaultModelPropertiesPart.flashOnTime;
+			modelPropertiesPart.flashOffTime = newData.flashOffTime ?? defaultModelPropertiesPart.flashOffTime;
 			modelPropertiesPart.displayOptions.length = 0;
 			if (newData.displayOptionSingleLine) {
 				modelPropertiesPart.displayOptions.push("SINGLE_LINE");
@@ -126,20 +138,20 @@ export class EditVehicleModelPartDialog {
 			if (newData.displayOptionAlignLeftCjk) {
 				modelPropertiesPart.displayOptions.push("ALIGN_LEFT_CJK");
 			}
-			if (newData.displayOptionAlignCenterCjk) {
-				modelPropertiesPart.displayOptions.push("ALIGN_CENTER_CJK");
-			}
 			if (newData.displayOptionAlignRightCjk) {
 				modelPropertiesPart.displayOptions.push("ALIGN_RIGHT_CJK");
 			}
 			if (newData.displayOptionAlignLeft) {
 				modelPropertiesPart.displayOptions.push("ALIGN_LEFT");
 			}
-			if (newData.displayOptionAlignCenter) {
-				modelPropertiesPart.displayOptions.push("ALIGN_CENTER");
-			}
 			if (newData.displayOptionAlignRight) {
 				modelPropertiesPart.displayOptions.push("ALIGN_RIGHT");
+			}
+			if (newData.displayOptionAlignTop) {
+				modelPropertiesPart.displayOptions.push("ALIGN_TOP");
+			}
+			if (newData.displayOptionAlignBottom) {
+				modelPropertiesPart.displayOptions.push("ALIGN_BOTTOM");
 			}
 			if (newData.displayOptionCycleLanguages) {
 				modelPropertiesPart.displayOptions.push("CYCLE_LANGUAGES");
@@ -159,6 +171,15 @@ export class EditVehicleModelPartDialog {
 
 	isNormal() {
 		return this.formGroup.getRawValue().type === "NORMAL";
+	}
+
+	isDepartureIndexDisplay() {
+		return this.isDisplay() && this.formGroup.getRawValue().displayType === "DEPARTURE_INDEX";
+	}
+
+	isRouteColorDisplay() {
+		const displayType = this.formGroup.getRawValue().displayType;
+		return this.isDisplay() && (displayType === "ROUTE_COLOR" || displayType === "ROUTE_COLOR_ROUNDED");
 	}
 
 	formatPositions() {

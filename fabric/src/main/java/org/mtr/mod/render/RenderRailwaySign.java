@@ -187,10 +187,12 @@ public class RenderRailwaySign<T extends BlockRailwaySign.BlockEntity> extends B
 			final ObjectArrayList<IntObjectImmutablePair<String>> selectedRoutesSorted = new ObjectArrayList<>();
 			final IntAVLTreeSet addedColors = new IntAVLTreeSet();
 			MinecraftClientData.getInstance().simplifiedRoutes.forEach(simplifiedRoute -> {
-				final int color = simplifiedRoute.getColor();
-				if (!addedColors.contains(color) && selectedIds.contains(color) && simplifiedRoute.getPlatforms().stream().anyMatch(simplifiedRoutePlatform -> platformIds.contains(simplifiedRoutePlatform.getPlatformId()))) {
-					selectedRoutesSorted.add(new IntObjectImmutablePair<>(color, simplifiedRoute.getName().split("\\|\\|")[0]));
-					addedColors.add(color);
+				if (!simplifiedRoute.getName().isEmpty()) {
+					final int color = simplifiedRoute.getColor();
+					if (!addedColors.contains(color) && selectedIds.contains(color) && simplifiedRoute.getPlatforms().stream().anyMatch(simplifiedRoutePlatform -> platformIds.contains(simplifiedRoutePlatform.getPlatformId()))) {
+						selectedRoutesSorted.add(new IntObjectImmutablePair<>(color, simplifiedRoute.getName().split("\\|\\|")[0]));
+						addedColors.add(color);
+					}
 				}
 			});
 

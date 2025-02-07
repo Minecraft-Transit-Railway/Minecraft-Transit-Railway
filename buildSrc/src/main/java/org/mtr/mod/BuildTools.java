@@ -207,10 +207,10 @@ public class BuildTools {
 		FileUtils.write(path.resolve("src/main/java/org/mtr/mod/generated/lang/TranslationProvider.java").toFile(), stringBuilder.toString(), StandardCharsets.UTF_8);
 	}
 
-	public void copyLootTables() throws IOException {
-		final Path directory = path.resolve("src/main/resources/data/mtr/loot_tables/blocks");
+	public void copyLootTables(String namespace) throws IOException {
+		final Path directory = path.resolve("src/main/resources/data").resolve(namespace).resolve("loot_tables/blocks");
 		Files.createDirectories(directory);
-		try (final Stream<Path> stream = Files.list(path.resolve("src/main/loot_table_templates"))) {
+		try (final Stream<Path> stream = Files.list(path.resolve("src/main/loot_table_templates").resolve(namespace))) {
 			stream.forEach(lootTablePath -> {
 				try {
 					FileUtils.write(
@@ -249,24 +249,26 @@ public class BuildTools {
 						for (int i = 0; i < variationCount; i++) {
 							final JsonObject vehicleObject = vehicleElement.getAsJsonObject();
 							final double length = replacementObject.getAsJsonArray("lengths").get(i).getAsDouble();
-							final String id = vehicleObject.get("id").getAsString();
-							vehicleObject.addProperty("length", length);
+							if (length > 0) {
+								final String id = vehicleObject.get("id").getAsString();
+								vehicleObject.addProperty("length", length);
 
-							if (replacementObject.toString().contains("boat_small") && replacementObject.toString().contains("boat_medium")) {
-								vehicleObject.addProperty("bogie1Position", -1);
-								vehicleObject.addProperty("bogie2Position", 1);
-							} else if (replacementObject.toString().contains("a320")) {
-								vehicleObject.addProperty("bogie1Position", -14.25);
-								vehicleObject.addProperty("bogie2Position", -2);
-							} else if (replacementObject.toString().contains("br_423")) {
-								vehicleObject.addProperty("bogie1Position", -6);
-								vehicleObject.addProperty("bogie2Position", 6);
-							} else if (length <= 4 || length <= 14 && id.contains("cab_3")) {
-								vehicleObject.addProperty("bogie1Position", 0);
-								vehicleObject.addProperty("bogie2Position", 0);
-							} else {
-								vehicleObject.addProperty("bogie1Position", -length / 2 + (length <= 14 && (id.contains("trailer") || id.contains("cab_2")) ? 0 : 4));
-								vehicleObject.addProperty("bogie2Position", length / 2 - (length <= 14 && (id.contains("trailer") || id.contains("cab_1")) ? 0 : 4));
+								if (replacementObject.toString().contains("boat_small") && replacementObject.toString().contains("boat_medium")) {
+									vehicleObject.addProperty("bogie1Position", -1);
+									vehicleObject.addProperty("bogie2Position", 1);
+								} else if (replacementObject.toString().contains("a320")) {
+									vehicleObject.addProperty("bogie1Position", -14.25);
+									vehicleObject.addProperty("bogie2Position", -2);
+								} else if (replacementObject.toString().contains("br_423")) {
+									vehicleObject.addProperty("bogie1Position", -6);
+									vehicleObject.addProperty("bogie2Position", 6);
+								} else if (length <= 4 || length <= 14 && id.contains("cab_3")) {
+									vehicleObject.addProperty("bogie1Position", 0);
+									vehicleObject.addProperty("bogie2Position", 0);
+								} else {
+									vehicleObject.addProperty("bogie1Position", -length / 2 + (length <= 14 && (id.contains("trailer") || id.contains("cab_2")) ? 0 : 4));
+									vehicleObject.addProperty("bogie2Position", length / 2 - (length <= 14 && (id.contains("trailer") || id.contains("cab_1")) ? 0 : 4));
+								}
 							}
 
 							String newFileString = vehicleObject.toString();

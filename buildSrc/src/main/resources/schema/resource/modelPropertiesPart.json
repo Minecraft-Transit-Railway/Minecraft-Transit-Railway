@@ -63,7 +63,7 @@
 		},
 		"displayType": {
 			"$ref": "DisplayType",
-			"typeScriptEnum": "DESTINATION|ROUTE_NUMBER|DEPARTURE_INDEX|NEXT_STATION|NEXT_STATION_KCR|NEXT_STATION_MTR|NEXT_STATION_UK"
+			"typeScriptEnum": "DESTINATION|ROUTE_NUMBER|DEPARTURE_INDEX|NEXT_STATION|NEXT_STATION_KCR|NEXT_STATION_MTR|NEXT_STATION_UK|ROUTE_COLOR|ROUTE_COLOR_ROUNDED"
 		},
 		"displayDefaultText": {
 			"type": "string"
@@ -76,7 +76,31 @@
 		},
 		"doorAnimationType": {
 			"$ref": "DoorAnimationType",
-			"typeScriptEnum": "STANDARD|STANDARD_SLOW|CONSTANT|PLUG_FAST|PLUG_SLOW|BOUNCY_1|BOUNCY_2|MLR|R179|R211"
+			"typeScriptEnum": "STANDARD|STANDARD_SLOW|CONSTANT|PLUG_FAST|PLUG_SLOW|PLUG_SLOW_2|PLUG_SLOW_3|BOUNCY_1|BOUNCY_2|MLR|R179|R211"
+		},
+		"renderFromOpeningDoorTime": {
+			"type": "integer",
+			"minimum": 0
+		},
+		"renderUntilOpeningDoorTime": {
+			"type": "integer",
+			"minimum": 0
+		},
+		"renderFromClosingDoorTime": {
+			"type": "integer",
+			"minimum": 0
+		},
+		"renderUntilClosingDoorTime": {
+			"type": "integer",
+			"minimum": 0
+		},
+		"flashOffTime": {
+			"type": "integer",
+			"minimum": 0
+		},
+		"flashOnTime": {
+			"type": "integer",
+			"minimum": 0
 		}
 	},
 	"required": [
@@ -94,6 +118,12 @@
 		"displayDefaultText",
 		"doorXMultiplier",
 		"doorZMultiplier",
-		"doorAnimationType"
+		"doorAnimationType",
+		"renderFromOpeningDoorTime",
+		"renderUntilOpeningDoorTime",
+		"renderFromClosingDoorTime",
+		"renderUntilClosingDoorTime",
+		"flashOffTime",
+		"flashOnTime"
 	]
 }

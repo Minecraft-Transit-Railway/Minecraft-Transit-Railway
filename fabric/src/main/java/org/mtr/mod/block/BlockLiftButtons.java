@@ -5,12 +5,13 @@ import org.mtr.core.data.LiftDirection;
 import org.mtr.core.operation.PressLift;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.tool.HolderBase;
-import org.mtr.mod.BlockEntityTypes;
-import org.mtr.mod.Init;
-import org.mtr.mod.InitClient;
+import org.mtr.mod.Blocks;
 import org.mtr.mod.Items;
+import org.mtr.mod.*;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketPressLiftButton;
@@ -20,12 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class BlockLiftButtons extends BlockExtension implements DirectionHelper, BlockWithEntity {
+public class BlockLiftButtons extends BlockWaterloggable implements DirectionHelper, BlockWithEntity {
 
 	public static final BooleanProperty UNLOCKED = BooleanProperty.of("unlocked");
 
 	public BlockLiftButtons() {
-		super(BlockHelper.createBlockSettings(true));
+		super(Blocks.createDefaultBlockSettings(true));
 	}
 
 	@Nonnull
@@ -81,10 +82,11 @@ public class BlockLiftButtons extends BlockExtension implements DirectionHelper,
 		}
 	}
 
+	@Nonnull
 	@Override
-	public BlockState getPlacementState2(ItemPlacementContext ctx) {
-		final Direction facing = ctx.getPlayerFacing();
-		return getDefaultState2().with(new Property<>(FACING.data), facing.data);
+	public BlockState getPlacementState2(ItemPlacementContext itemPlacementContext) {
+		final Direction facing = itemPlacementContext.getPlayerFacing();
+		return super.getPlacementState2(itemPlacementContext).with(new Property<>(FACING.data), facing.data);
 	}
 
 	@Nonnull
@@ -101,6 +103,7 @@ public class BlockLiftButtons extends BlockExtension implements DirectionHelper,
 
 	@Override
 	public void addBlockProperties(List<HolderBase<?>> properties) {
+		super.addBlockProperties(properties);
 		properties.add(FACING);
 		properties.add(UNLOCKED);
 	}

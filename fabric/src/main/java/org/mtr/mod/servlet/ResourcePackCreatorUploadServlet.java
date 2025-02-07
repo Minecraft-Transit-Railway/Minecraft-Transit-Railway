@@ -135,11 +135,14 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 					break;
 				}
 
-				final ObjectArrayList<VehicleResourceWrapper> vehicles = new ObjectArrayList<>();
-				CustomResourcesConverter.convert(customResourcesObject, identifier -> jsonCache.getOrDefault(identifier.data.toString(), ResourceManagerHelper.readResource(identifier))).iterateVehicles(vehicleResource -> vehicles.add(vehicleResource.toVehicleResourceWrapper()));
-				resourceWrapper = new ResourceWrapper(vehicles, new ObjectArrayList<>(), new ObjectArrayList<>(), CustomResourceLoader.getMinecraftModelResources(), CustomResourceLoader.getTextureResources());
-				resourceUploadTasks.forEach(Runnable::run);
-				returnStandardResponse(httpServletResponse, asyncContext, true);
+				final JsonObject newCustomResourcesObject = customResourcesObject;
+				MinecraftClient.getInstance().execute(() -> {
+					final ObjectArrayList<VehicleResourceWrapper> vehicles = new ObjectArrayList<>();
+					CustomResourcesConverter.convert(newCustomResourcesObject, identifier -> jsonCache.getOrDefault(identifier.data.toString(), ResourceManagerHelper.readResource(identifier))).iterateVehicles(vehicleResource -> vehicles.add(vehicleResource.toVehicleResourceWrapper()));
+					resourceWrapper = new ResourceWrapper(vehicles, new ObjectArrayList<>(), new ObjectArrayList<>(), CustomResourceLoader.getMinecraftModelResources(), CustomResourceLoader.getTextureResources());
+					resourceUploadTasks.forEach(Runnable::run);
+					returnStandardResponse(httpServletResponse, asyncContext, true);
+				});
 				return;
 			}
 		} catch (Exception e) {

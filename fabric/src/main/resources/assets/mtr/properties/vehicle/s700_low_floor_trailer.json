@@ -1,0 +1,145 @@
+{
+	"parts": [
+		{
+			"names": [
+				"window_exterior_4"
+			],
+			"positionDefinitions": [
+				"b20d0645"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_4"
+			],
+			"positionDefinitions": [
+				"9d6887a2"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"end"
+			],
+			"positionDefinitions": [
+				"f02c70a1"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"light"
+			],
+			"positionDefinitions": [
+				"2267a69"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"end_exterior"
+			],
+			"positionDefinitions": [
+				"7d74e4cc"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"seat_horizontal"
+			],
+			"positionDefinitions": [
+				"c89b5814"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_4_floor"
+			],
+			"positionDefinitions": [
+				"e8a9ea68"
+			],
+			"renderStage": "EXTERIOR",
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"interior_display_2"
+			],
+			"positionDefinitions": [
+				"7db045ae"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.2,
+			"displayYPadding": 0.3,
+			"displayColorCjk": "FF9900",
+			"displayColor": "FF9900",
+			"displayMaxLineHeight": 1.2,
+			"displayCjkSizeRatio": 1.0,
+			"displayOptions": [
+				"UPPER_CASE",
+				"CYCLE_LANGUAGES"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "Sound Transit"
+		},
+		{
+			"names": [
+				"interior_route_color_display"
+			],
+			"positionDefinitions": [
+				"bcf3e741"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.3,
+			"displayYPadding": 0.3,
+			"displayType": "ROUTE_COLOR"
+		},
+		{
+			"names": [
+				"exterior_display"
+			],
+			"positionDefinitions": [
+				"bcf3e741"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.2,
+			"displayYPadding": 0.3,
+			"displayColorCjk": "FF9900",
+			"displayColor": "FF9900",
+			"displayMaxLineHeight": 1.2,
+			"displayCjkSizeRatio": 1.0,
+			"displayOptions": [
+				"UPPER_CASE",
+				"CYCLE_LANGUAGES"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "Sound Transit"
+		},
+		{
+			"names": [
+				"exterior_route_color_display"
+			],
+			"positionDefinitions": [
+				"bcf3e741"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.3,
+			"displayYPadding": 0.3,
+			"displayType": "ROUTE_COLOR"
+		}
+	],
+	"modelYOffset": 0.5,
+	"gangwayInnerSideResource": "mtr:textures/gangway/sp1900_side.png",
+	"gangwayInnerTopResource": "mtr:textures/gangway/sp1900_roof.png",
+	"gangwayInnerBottomResource": "mtr:textures/gangway/sp1900_floor.png",
+	"gangwayOuterSideResource": "mtr:textures/gangway/sp1900_exterior.png",
+	"gangwayOuterTopResource": "mtr:textures/gangway/sp1900_exterior.png",
+	"gangwayOuterBottomResource": "mtr:textures/gangway/sp1900_exterior.png",
+	"gangwayWidth": 2.0,
+	"gangwayHeight": 2.25,
+	"gangwayYOffset": 0.5,
+	"gangwayZOffset": 0.375
+}

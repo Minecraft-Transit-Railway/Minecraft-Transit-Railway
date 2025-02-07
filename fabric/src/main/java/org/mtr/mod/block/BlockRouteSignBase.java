@@ -2,9 +2,9 @@ package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.mapper.BlockWithEntity;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.Blocks;
 import org.mtr.mod.Init;
 import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
 
@@ -16,7 +16,7 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 	public static final IntegerProperty ARROW_DIRECTION = IntegerProperty.of("propagate_property", 0, 3);
 
 	public BlockRouteSignBase() {
-		super(BlockHelper.createBlockSettings(true, blockState -> 15));
+		super(Blocks.createDefaultBlockSettings(true, blockState -> 15));
 	}
 
 	@Nonnull

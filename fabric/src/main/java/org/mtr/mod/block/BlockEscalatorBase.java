@@ -2,7 +2,6 @@ package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mod.Items;
 
@@ -13,7 +12,7 @@ public abstract class BlockEscalatorBase extends BlockExtension implements IBloc
 	public static final EnumProperty<EnumEscalatorOrientation> ORIENTATION = EnumProperty.of("orientation", EnumEscalatorOrientation.class);
 
 	protected BlockEscalatorBase() {
-		super(BlockHelper.createBlockSettings(true).nonOpaque());
+		super(org.mtr.mod.Blocks.createDefaultBlockSettings(true).nonOpaque());
 	}
 
 	@Nonnull

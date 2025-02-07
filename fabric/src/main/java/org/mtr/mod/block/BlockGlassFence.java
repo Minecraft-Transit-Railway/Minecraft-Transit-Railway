@@ -1,9 +1,9 @@
 package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.Blocks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -14,7 +14,7 @@ public class BlockGlassFence extends BlockDirectionalDoubleBlockBase {
 	public static final IntegerProperty NUMBER = IntegerProperty.of("number", 1, 7);
 
 	public BlockGlassFence() {
-		super(BlockHelper.createBlockSettings(true).nonOpaque());
+		super(Blocks.createDefaultBlockSettings(true).nonOpaque());
 	}
 
 	@Nonnull

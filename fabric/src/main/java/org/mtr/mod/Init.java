@@ -90,6 +90,7 @@ public final class Init implements Utilities {
 		REGISTRY.setupPackets(new Identifier(MOD_ID, "packet"));
 		REGISTRY.registerPacket(PacketAddBalance.class, PacketAddBalance::new);
 		REGISTRY.registerPacket(PacketBroadcastRailActions.class, PacketBroadcastRailActions::new);
+		REGISTRY.registerPacket(PacketCheckRouteIdHasDisabledAnnouncements.class, PacketCheckRouteIdHasDisabledAnnouncements::new);
 		REGISTRY.registerPacket(PacketDeleteData.class, PacketDeleteData::new);
 		REGISTRY.registerPacket(PacketDeleteRailAction.class, PacketDeleteRailAction::new);
 		REGISTRY.registerPacket(PacketDepotClear.class, PacketDepotClear::new);
@@ -106,6 +107,7 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketOpenTicketMachineScreen.class, PacketOpenTicketMachineScreen::new);
 		REGISTRY.registerPacket(PacketPressLiftButton.class, PacketPressLiftButton::new);
 		REGISTRY.registerPacket(PacketRequestData.class, PacketRequestData::new);
+		REGISTRY.registerPacket(PacketSetRouteIdHasDisabledAnnouncements.class, PacketSetRouteIdHasDisabledAnnouncements::new);
 		REGISTRY.registerPacket(PacketTurnOnBlockEntity.class, PacketTurnOnBlockEntity::new);
 		REGISTRY.registerPacket(PacketUpdateData.class, PacketUpdateData::new);
 		REGISTRY.registerPacket(PacketUpdateEyeCandyConfig.class, PacketUpdateEyeCandyConfig::new);

@@ -2,7 +2,7 @@ package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.BlockHelper;
+import org.mtr.mod.Blocks;
 import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
@@ -14,7 +14,7 @@ public class BlockStationColorPole extends BlockExtension {
 	private final boolean showTooltip;
 
 	public BlockStationColorPole(boolean showTooltip) {
-		super(BlockHelper.createBlockSettings(false));
+		super(Blocks.createDefaultBlockSettings(false));
 		this.showTooltip = showTooltip;
 	}
 

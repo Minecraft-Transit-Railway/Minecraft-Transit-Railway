@@ -2,7 +2,7 @@ package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.BlockHelper;
+import org.mtr.mod.Blocks;
 import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
@@ -12,7 +12,7 @@ import java.util.List;
 public class BlockStationColor extends BlockExtension {
 
 	public BlockStationColor() {
-		this(BlockHelper.createBlockSettings(false));
+		this(Blocks.createDefaultBlockSettings(false));
 	}
 
 	protected BlockStationColor(BlockSettings blockSettings) {

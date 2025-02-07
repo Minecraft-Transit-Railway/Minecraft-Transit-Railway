@@ -4,6 +4,7 @@ import com.logisticscraft.occlusionculling.util.Vec3d;
 import org.mtr.core.data.Position;
 import org.mtr.core.data.*;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.*;
@@ -30,6 +31,8 @@ public final class MinecraftClientData extends ClientData {
 	public final Object2ObjectArrayMap<String, RailWrapper> railWrapperList = new Object2ObjectArrayMap<>();
 	public final Object2ObjectAVLTreeMap<String, LongArrayList> railIdToBlockedSignalColors = new Object2ObjectAVLTreeMap<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
+
+	private final LongAVLTreeSet routeIdsWithDisabledAnnouncements = new LongAVLTreeSet();
 
 	private static MinecraftClientData instance = new MinecraftClientData();
 	private static MinecraftClientData dashboardInstance = new MinecraftClientData();
@@ -112,6 +115,18 @@ public final class MinecraftClientData extends ClientData {
 			return closestRail[0] == null ? null : new ObjectObjectImmutablePair<>(closestRail[0], blockPos);
 		} else {
 			return null;
+		}
+	}
+
+	public boolean getRouteIdHasDisabledAnnouncements(long routeId) {
+		return routeIdsWithDisabledAnnouncements.contains(routeId);
+	}
+
+	public void setRouteIdHasDisabledAnnouncements(long routeId, boolean isDisabled) {
+		if (isDisabled) {
+			routeIdsWithDisabledAnnouncements.add(routeId);
+		} else {
+			routeIdsWithDisabledAnnouncements.remove(routeId);
 		}
 	}
 

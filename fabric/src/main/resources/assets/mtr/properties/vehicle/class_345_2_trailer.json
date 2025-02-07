@@ -7,10 +7,7 @@
 			"positionDefinitions": [
 				"16e69fcc"
 			],
-			"condition": "NORMAL",
-			"renderStage": "INTERIOR",
-			"type": "NORMAL",
-			"doorAnimationType": "STANDARD"
+			"renderStage": "INTERIOR"
 		},
 		{
 			"names": [
@@ -19,10 +16,7 @@
 			"positionDefinitions": [
 				"b6d2b21a"
 			],
-			"condition": "NORMAL",
-			"renderStage": "INTERIOR",
-			"type": "NORMAL",
-			"doorAnimationType": "STANDARD"
+			"renderStage": "INTERIOR"
 		},
 		{
 			"names": [
@@ -31,10 +25,7 @@
 			"positionDefinitions": [
 				"d04bba43"
 			],
-			"condition": "NORMAL",
-			"renderStage": "INTERIOR",
-			"type": "NORMAL",
-			"doorAnimationType": "STANDARD"
+			"renderStage": "INTERIOR"
 		},
 		{
 			"names": [
@@ -43,10 +34,7 @@
 			"positionDefinitions": [
 				"ed5602d0"
 			],
-			"condition": "NORMAL",
-			"renderStage": "INTERIOR",
-			"type": "NORMAL",
-			"doorAnimationType": "STANDARD"
+			"renderStage": "INTERIOR"
 		},
 		{
 			"names": [
@@ -55,10 +43,7 @@
 			"positionDefinitions": [
 				"131a41c1"
 			],
-			"condition": "NORMAL",
-			"renderStage": "EXTERIOR",
-			"type": "NORMAL",
-			"doorAnimationType": "STANDARD"
+			"renderStage": "EXTERIOR"
 		},
 		{
 			"names": [
@@ -67,10 +52,7 @@
 			"positionDefinitions": [
 				"7d725a6c"
 			],
-			"condition": "NORMAL",
-			"renderStage": "EXTERIOR",
-			"type": "NORMAL",
-			"doorAnimationType": "STANDARD"
+			"renderStage": "EXTERIOR"
 		},
 		{
 			"names": [
@@ -79,10 +61,7 @@
 			"positionDefinitions": [
 				"fd66ba1a"
 			],
-			"condition": "NORMAL",
-			"renderStage": "INTERIOR",
-			"type": "NORMAL",
-			"doorAnimationType": "STANDARD"
+			"renderStage": "INTERIOR"
 		},
 		{
 			"names": [
@@ -91,9 +70,7 @@
 			"positionDefinitions": [
 				"4e58d077"
 			],
-			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
-			"type": "NORMAL",
 			"doorXMultiplier": -1.0,
 			"doorZMultiplier": 12.0,
 			"doorAnimationType": "PLUG_FAST"
@@ -105,9 +82,7 @@
 			"positionDefinitions": [
 				"781c5151"
 			],
-			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
-			"type": "NORMAL",
 			"doorXMultiplier": -1.0,
 			"doorZMultiplier": -12.0,
 			"doorAnimationType": "PLUG_FAST"
@@ -119,9 +94,7 @@
 			"positionDefinitions": [
 				"d258ae92"
 			],
-			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
-			"type": "NORMAL",
 			"doorXMultiplier": -1.0,
 			"doorZMultiplier": 12.0,
 			"doorAnimationType": "PLUG_FAST"
@@ -133,9 +106,7 @@
 			"positionDefinitions": [
 				"921e1496"
 			],
-			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
-			"type": "NORMAL",
 			"doorXMultiplier": -1.0,
 			"doorZMultiplier": -12.0,
 			"doorAnimationType": "PLUG_FAST"
@@ -147,10 +118,7 @@
 			"positionDefinitions": [
 				"36647e8c"
 			],
-			"condition": "NORMAL",
-			"renderStage": "INTERIOR",
-			"type": "NORMAL",
-			"doorAnimationType": "STANDARD"
+			"renderStage": "INTERIOR"
 		},
 		{
 			"names": [
@@ -159,10 +127,7 @@
 			"positionDefinitions": [
 				"655cf03c"
 			],
-			"condition": "NORMAL",
-			"renderStage": "LIGHT",
-			"type": "NORMAL",
-			"doorAnimationType": "STANDARD"
+			"renderStage": "LIGHT"
 		},
 		{
 			"names": [
@@ -171,10 +136,7 @@
 			"positionDefinitions": [
 				"1ec8b96b"
 			],
-			"condition": "NORMAL",
-			"renderStage": "LIGHT",
-			"type": "NORMAL",
-			"doorAnimationType": "STANDARD"
+			"renderStage": "LIGHT"
 		},
 		{
 			"names": [
@@ -183,10 +145,7 @@
 			"positionDefinitions": [
 				"493f7da"
 			],
-			"condition": "NORMAL",
-			"renderStage": "INTERIOR",
-			"type": "NORMAL",
-			"doorAnimationType": "STANDARD"
+			"renderStage": "INTERIOR"
 		},
 		{
 			"names": [
@@ -195,10 +154,7 @@
 			"positionDefinitions": [
 				"86e65a4f"
 			],
-			"condition": "NORMAL",
-			"renderStage": "INTERIOR",
-			"type": "NORMAL",
-			"doorAnimationType": "STANDARD"
+			"renderStage": "INTERIOR"
 		},
 		{
 			"names": [
@@ -207,10 +163,7 @@
 			"positionDefinitions": [
 				"a53dd059"
 			],
-			"condition": "NORMAL",
-			"renderStage": "INTERIOR_TRANSLUCENT",
-			"type": "NORMAL",
-			"doorAnimationType": "STANDARD"
+			"renderStage": "INTERIOR_TRANSLUCENT"
 		},
 		{
 			"names": [
@@ -219,10 +172,7 @@
 			"positionDefinitions": [
 				"1ced93aa"
 			],
-			"condition": "NORMAL",
-			"renderStage": "INTERIOR",
-			"type": "NORMAL",
-			"doorAnimationType": "STANDARD"
+			"renderStage": "INTERIOR"
 		},
 		{
 			"names": [
@@ -231,8 +181,6 @@
 			"positionDefinitions": [
 				"1b61d65f"
 			],
-			"condition": "NORMAL",
-			"renderStage": "EXTERIOR",
 			"type": "DISPLAY",
 			"displayXPadding": 0.4,
 			"displayYPadding": 0.6,
@@ -242,10 +190,8 @@
 				"SINGLE_LINE",
 				"SCROLL_NORMAL"
 			],
-			"displayPadZeros": 0.0,
 			"displayType": "NEXT_STATION_UK",
-			"displayDefaultText": "",
-			"doorAnimationType": "STANDARD"
+			"displayDefaultText": ""
 		},
 		{
 			"names": [
@@ -254,8 +200,6 @@
 			"positionDefinitions": [
 				"d6801571"
 			],
-			"condition": "NORMAL",
-			"renderStage": "EXTERIOR",
 			"type": "DISPLAY",
 			"displayXPadding": 1.0,
 			"displayYPadding": 0.5,
@@ -265,10 +209,8 @@
 				"SINGLE_LINE",
 				"SCROLL_NORMAL"
 			],
-			"displayPadZeros": 0.0,
 			"displayType": "DESTINATION",
-			"displayDefaultText": "Not In Service",
-			"doorAnimationType": "STANDARD"
+			"displayDefaultText": "Not In Service"
 		},
 		{
 			"names": [
@@ -277,10 +219,8 @@
 			"positionDefinitions": [
 				"c10b9103"
 			],
-			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
-			"type": "FLOOR",
-			"doorAnimationType": "STANDARD"
+			"type": "FLOOR"
 		},
 		{
 			"names": [
@@ -289,10 +229,8 @@
 			"positionDefinitions": [
 				"778e81b4"
 			],
-			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
-			"type": "FLOOR",
-			"doorAnimationType": "STANDARD"
+			"type": "FLOOR"
 		},
 		{
 			"names": [
@@ -301,10 +239,8 @@
 			"positionDefinitions": [
 				"7d4e78f"
 			],
-			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
-			"type": "DOORWAY",
-			"doorAnimationType": "STANDARD"
+			"type": "DOORWAY"
 		},
 		{
 			"names": [
@@ -313,10 +249,8 @@
 			"positionDefinitions": [
 				"bb7918b5"
 			],
-			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
-			"type": "FLOOR",
-			"doorAnimationType": "STANDARD"
+			"type": "FLOOR"
 		},
 		{
 			"names": [
@@ -325,10 +259,8 @@
 			"positionDefinitions": [
 				"1737fa00"
 			],
-			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
-			"type": "FLOOR",
-			"doorAnimationType": "STANDARD"
+			"type": "FLOOR"
 		}
 	],
 	"modelYOffset": 1.0,

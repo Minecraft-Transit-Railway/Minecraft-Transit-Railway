@@ -50,3 +50,4 @@ jobs:
       - name: Post Crowdin translation analysis
         if: ${{ matrix.minecraft == '1.20.4' }}
         run: cat build/translation/analysis.md >> $GITHUB_STEP_SUMMARY
+        continue-on-error: true
