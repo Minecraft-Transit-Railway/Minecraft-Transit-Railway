@@ -54,7 +54,7 @@
 			"legacyUseAccelerationSoundsWhenCoasting": false,
 			"legacyConstantPlaybackSpeed": false,
 			"legacyDoorSoundBaseResource": "class_345",
-			"legacyDoorCloseSoundTime": 0
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "class_345_2_trailer",
@@ -102,7 +102,7 @@
 			"legacyUseAccelerationSoundsWhenCoasting": false,
 			"legacyConstantPlaybackSpeed": false,
 			"legacyDoorSoundBaseResource": "class_345",
-			"legacyDoorCloseSoundTime": 0
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "class_345_cab_1",
@@ -150,7 +150,7 @@
 			"legacyUseAccelerationSoundsWhenCoasting": false,
 			"legacyConstantPlaybackSpeed": false,
 			"legacyDoorSoundBaseResource": "class_345",
-			"legacyDoorCloseSoundTime": 0
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "class_345_cab_2",
@@ -198,7 +198,7 @@
 			"legacyUseAccelerationSoundsWhenCoasting": false,
 			"legacyConstantPlaybackSpeed": false,
 			"legacyDoorSoundBaseResource": "class_345",
-			"legacyDoorCloseSoundTime": 0
+			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
 			"id": "class_345_cab_3",
@@ -246,7 +246,7 @@
 			"legacyUseAccelerationSoundsWhenCoasting": false,
 			"legacyConstantPlaybackSpeed": false,
 			"legacyDoorSoundBaseResource": "class_345",
-			"legacyDoorCloseSoundTime": 0
+			"legacyDoorCloseSoundTime": 0.5
 		}
 	]
 }
