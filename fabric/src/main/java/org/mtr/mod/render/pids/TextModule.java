@@ -10,10 +10,9 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockPIDSBase;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.render.RenderPIDS;
+import org.mtr.mod.render.RenderModularPIDS;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class TextModule extends PIDSModule {
@@ -43,11 +42,11 @@ public class TextModule extends PIDSModule {
     }
 
     @Override
-    public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing) {
+    public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderModularPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing) {
         render(graphicsHolder, arrivals, renderPIDS, entity, blockPos, facing, null);
     }
 
-    public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing, String textOverride) {
+    public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderModularPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing, String textOverride) {
         final float textPadding = height * 0.1f;
         ArrayList<String> placeholders = getText(arrivals);
         if (placeholders == null || placeholders.isEmpty()) {
@@ -58,12 +57,12 @@ public class TextModule extends PIDSModule {
             text = textOverride;
         } else {
             String[] texts = placeholders.get(0).split("\\|\\|")[0].replaceAll("\\\\\\|", "^TEMP^").split("\\|");
-            int textIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderPIDS.SWITCH_TEXT_TICKS) % texts.length;
+            int textIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderModularPIDS.SWITCH_TEXT_TICKS) % texts.length;
             placeholders.set(0, texts[textIndex].replaceAll("\\^TEMP\\^", "|"));
 
             String template = this.template.split("\\|\\|")[0];
             String[] templates = template.replaceAll("\\\\\\|", "^TEMP^").split("\\|");
-            int templateIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderPIDS.SWITCH_TEXT_TICKS) % templates.length;
+            int templateIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderModularPIDS.SWITCH_TEXT_TICKS) % templates.length;
             text = templates[templateIndex].replaceAll("\\^TEMP\\^", "|");
             // Some workaround to prevent MisingFormatArgumentException
             for (String t : placeholders) {
@@ -83,7 +82,7 @@ public class TextModule extends PIDSModule {
             }
         }
 
-        RenderPIDS.renderText(graphicsHolder, text, x + textPadding, y + textPadding, height - textPadding * 2, color, width - textPadding * 2, align, layer);
+        RenderModularPIDS.renderText(graphicsHolder, text, x + textPadding, y + textPadding, height - textPadding * 2, color, width - textPadding * 2, align, layer);
     }
 
     public int getArrival() {

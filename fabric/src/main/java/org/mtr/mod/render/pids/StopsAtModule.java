@@ -15,7 +15,7 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.block.BlockPIDSBase;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.render.RenderPIDS;
+import org.mtr.mod.render.RenderModularPIDS;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -59,7 +59,7 @@ public class StopsAtModule extends TextModule {
             if (MinecraftClient.getInstance().getWorldMapped() != null) {
                 time = MinecraftClient.getInstance().getWorldMapped().getTime();
             }
-            int currentPage = (int) Math.floor((double) time / RenderPIDS.SWITCH_TEXT_TICKS) % pages;
+            int currentPage = (int) Math.floor((double) time / RenderModularPIDS.SWITCH_TEXT_TICKS) % pages;
 
             if (this.showPage) {
                 text.add(String.valueOf(currentPage + 1));
@@ -70,7 +70,7 @@ public class StopsAtModule extends TextModule {
             // Translation handling
             String stopText = stops.get(stop + currentPage * stopIncrement).getStationName().split("\\|\\|")[0];
             String[] stopSplit = stopText.split("\\|");
-            int stopIndex = (int) Math.floor((double) time / RenderPIDS.SWITCH_TEXT_TICKS * pages) % stopSplit.length;
+            int stopIndex = (int) Math.floor((double) time / RenderModularPIDS.SWITCH_TEXT_TICKS * pages) % stopSplit.length;
             text.add(stopSplit[stopIndex].replaceAll("\\^TEMP\\^", "|"));
         }
         return text;
@@ -116,7 +116,7 @@ public class StopsAtModule extends TextModule {
     }
 
     @Override
-    public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing) {
+    public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderModularPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing) {
         if (this.scrollText) {
             final float textPadding = height * 0.1f;
             final float textSize = height - textPadding * 2;
@@ -134,12 +134,12 @@ public class StopsAtModule extends TextModule {
             String trimmedText = text;
             // trim text overflowing to the left
             while (x < this.x && !trimmedText.isEmpty()) {
-                int charLength = RenderPIDS.getCharWidth(trimmedText.charAt(0));
+                int charLength = RenderModularPIDS.getCharWidth(trimmedText.charAt(0));
                 x += charLength * scale;
                 trimmedText = trimmedText.substring(1);
             }
             // trim text overflowing to the right
-            int[] charWidths = RenderPIDS.getCharWidths(trimmedText);
+            int[] charWidths = RenderModularPIDS.getCharWidths(trimmedText);
             double currentRight = x + GraphicsHolder.getTextWidth(trimmedText) * scale;
             int rightBound = trimmedText.length();
             while (currentRight > this.x + this.width && rightBound > 0) {
@@ -147,7 +147,7 @@ public class StopsAtModule extends TextModule {
                 currentRight -= charWidths[rightBound] * scale;
             }
             trimmedText = trimmedText.substring(0, rightBound);
-            RenderPIDS.renderText(graphicsHolder, trimmedText, (float) x, this.y + textPadding, textSize, color, this.width * 2, IGui.HorizontalAlignment.LEFT, layer);
+            RenderModularPIDS.renderText(graphicsHolder, trimmedText, (float) x, this.y + textPadding, textSize, color, this.width * 2, IGui.HorizontalAlignment.LEFT, layer);
         } else {
             super.render(graphicsHolder, arrivals, renderPIDS, entity, blockPos, facing);
         }

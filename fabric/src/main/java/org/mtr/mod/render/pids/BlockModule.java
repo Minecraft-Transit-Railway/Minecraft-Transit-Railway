@@ -8,7 +8,7 @@ import org.mtr.mapping.holder.Direction;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockPIDSBase;
-import org.mtr.mod.render.RenderPIDS;
+import org.mtr.mod.render.RenderModularPIDS;
 
 public class BlockModule extends PIDSModule {
     public final String type = "block";
@@ -27,7 +27,7 @@ public class BlockModule extends PIDSModule {
     }
 
     @Override
-    public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing) {
+    public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderModularPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing) {
         int color = this.color;
         if (this.arrival < arrivals.size()) {
             ArrivalResponse arrival = arrivals.get(this.arrival);

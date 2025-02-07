@@ -10,7 +10,7 @@ import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockPIDSBase;
-import org.mtr.mod.render.RenderPIDS;
+import org.mtr.mod.render.RenderModularPIDS;
 
 import java.time.ZonedDateTime;
 import java.util.regex.Matcher;
@@ -23,7 +23,7 @@ public class TemplateModule extends TextModule {
     }
 
     @Override
-    public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing) {
+    public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderModularPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing) {
         ArrivalResponse arrivalResponse = Utilities.getElement(arrivals, arrival);
         if (arrivalResponse == null) {
             return;
@@ -81,7 +81,7 @@ public class TemplateModule extends TextModule {
         if (!string.contains(template)) return string;
 
         String[] texts = value.split("\\|\\|")[0].replaceAll("\\\\\\|", "^TEMP^").split("\\|");
-        int textIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderPIDS.SWITCH_TEXT_TICKS) % texts.length;
+        int textIndex = (int) Math.floor((double) MinecraftClient.getInstance().getWorldMapped().getTime() / RenderModularPIDS.SWITCH_TEXT_TICKS) % texts.length;
         String parseText = texts[textIndex].replaceAll("\\^TEMP\\^", "|");
         return string.replaceAll(Matcher.quoteReplacement(template), parseText);
     }

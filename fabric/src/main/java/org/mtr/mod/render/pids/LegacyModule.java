@@ -15,7 +15,7 @@ import org.mtr.mod.block.BlockPIDSBase;
 import org.mtr.mod.data.ArrivalsCacheClient;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.generated.lang.TranslationProvider;
-import org.mtr.mod.render.RenderPIDS;
+import org.mtr.mod.render.RenderModularPIDS;
 
 public class LegacyModule extends PIDSModule {
     public final String type = "legacy";
@@ -37,13 +37,13 @@ public class LegacyModule extends PIDSModule {
     }
 
     @Override
-    public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing) {
+    public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderModularPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing) {
         final float scale = 160 * maxArrivals / height * textPadding;
         final boolean hasDifferentCarLengths = hasDifferentCarLengths(arrivals);
         int arrivalIndex = 0;
 
         for (int i = 0; i < maxArrivals; i++) {
-            final int languageTicks = (int) Math.floor(InitClient.getGameTick()) / RenderPIDS.SWITCH_TEXT_TICKS;
+            final int languageTicks = (int) Math.floor(InitClient.getGameTick()) / RenderModularPIDS.SWITCH_TEXT_TICKS;
             final ArrivalResponse arrivalResponse;
             final String customMessage = entity.getMessage(i);
             final String[] destinationSplit;
@@ -86,7 +86,7 @@ public class LegacyModule extends PIDSModule {
             float textScale = textSize / 1.5f;
 
             if (renderCustomMessage) {
-                RenderPIDS.renderText(graphicsHolder, customMessageSplit[languageIndex], x + textPadding * 2, layerY, textSize, entity.textColor(), width - textPadding * 4, IGui.HorizontalAlignment.LEFT, layer);
+                RenderModularPIDS.renderText(graphicsHolder, customMessageSplit[languageIndex], x + textPadding * 2, layerY, textSize, entity.textColor(), width - textPadding * 4, IGui.HorizontalAlignment.LEFT, layer);
             } else {
                 final long arrival = (arrivalResponse.getArrival() - ArrivalsCacheClient.INSTANCE.getMillisOffset() - System.currentTimeMillis()) / 1000;
                 final int color = arrival <= 0 ? entity.textColorArrived() : entity.textColor();
@@ -121,17 +121,17 @@ public class LegacyModule extends PIDSModule {
 
                 if (entity.alternateLines()) {
                     if (i % 2 == 0) {
-                        RenderPIDS.renderText(graphicsHolder, destinationFormatted, xPos, layerY, textSize, color, width - textPadding * 4, IGui.HorizontalAlignment.LEFT, layer);
+                        RenderModularPIDS.renderText(graphicsHolder, destinationFormatted, xPos, layerY, textSize, color, width - textPadding * 4, IGui.HorizontalAlignment.LEFT, layer);
                         //debug box
                         //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, width - textPadding * 4, textSize, 0xFF00FF00, layer - 1);
                     } else {
                         if (hasDifferentCarLengths) {
-                            RenderPIDS.renderText(graphicsHolder, carLengthString, xPos, layerY, textSize, 0xFFFF0000, 6.4f * textScale, IGui.HorizontalAlignment.LEFT, layer);
+                            RenderModularPIDS.renderText(graphicsHolder, carLengthString, xPos, layerY, textSize, 0xFFFF0000, 6.4f * textScale, IGui.HorizontalAlignment.LEFT, layer);
                             //debug box
                             //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, 6.4f * textScale, textSize, 0xFFFFFF00, layer - 1);
                             xPos += 6.6f * textScale;
                         }
-                        RenderPIDS.renderText(graphicsHolder, arrivalString, xPos, layerY, textSize, color, x + width - textPadding * 2 - xPos, IGui.HorizontalAlignment.RIGHT, layer);
+                        RenderModularPIDS.renderText(graphicsHolder, arrivalString, xPos, layerY, textSize, color, x + width - textPadding * 2 - xPos, IGui.HorizontalAlignment.RIGHT, layer);
                         //debug box
                         //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, x + width - textPadding * 2 - xPos, textSize, 0xFF00FFFF, layer - 1);
                     }
@@ -139,31 +139,31 @@ public class LegacyModule extends PIDSModule {
                     final boolean showPlatformNumber = entity instanceof BlockArrivalProjectorBase.BlockEntityArrivalProjectorBase;
 
                     if (entity.showArrivalNumber()) {
-                        RenderPIDS.renderText(graphicsHolder, String.valueOf(arrivalIndex), xPos, layerY, textSize, color, 1.0f * textScale, IGui.HorizontalAlignment.LEFT, layer);
+                        RenderModularPIDS.renderText(graphicsHolder, String.valueOf(arrivalIndex), xPos, layerY, textSize, color, 1.0f * textScale, IGui.HorizontalAlignment.LEFT, layer);
                         //debug box
                         //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, 1.0f * textScale, textSize, 0xFFFF0000, layer - 1);
                         xPos += 1.3f * textScale;
                     }
 
                     final float destinationWidth = width - (textPadding * 4) - 7.0f * textScale - (hasDifferentCarLengths || showPlatformNumber ? showPlatformNumber ? 2.6f * textScale : 4.5f * textScale : 0f) - (entity.showArrivalNumber() ? 1.3f * textScale : 0f);
-                    RenderPIDS.renderText(graphicsHolder, destinationFormatted, xPos, layerY, textSize, color, destinationWidth, IGui.HorizontalAlignment.LEFT, layer);
+                    RenderModularPIDS.renderText(graphicsHolder, destinationFormatted, xPos, layerY, textSize, color, destinationWidth, IGui.HorizontalAlignment.LEFT, layer);
                     //debug box
                     //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, destinationWidth, textSize, 0xFF00FF00, layer - 1);
                     xPos += destinationWidth + 0.4f * textScale;
 
                     if (showPlatformNumber) {
-                        RenderPIDS.renderText(graphicsHolder, arrivalResponse.getPlatformName(), xPos, layerY, textSize, color, 2.2f * textScale, IGui.HorizontalAlignment.RIGHT, layer);
+                        RenderModularPIDS.renderText(graphicsHolder, arrivalResponse.getPlatformName(), xPos, layerY, textSize, color, 2.2f * textScale, IGui.HorizontalAlignment.RIGHT, layer);
                         //debug box
                         //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, 2.2f * textScale, textSize, 0xFF0000FF, layer - 1);
                         xPos += 2.6f * textScale;
                     } else if (hasDifferentCarLengths) {
-                        RenderPIDS.renderText(graphicsHolder, carLengthString, xPos, layerY, textSize, 0xFF0000, 4.2f * textScale, IGui.HorizontalAlignment.RIGHT, layer);
+                        RenderModularPIDS.renderText(graphicsHolder, carLengthString, xPos, layerY, textSize, 0xFF0000, 4.2f * textScale, IGui.HorizontalAlignment.RIGHT, layer);
                         //debug box
                         //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, 4.2f * textScale, textSize, 0xFFFFFF00, layer - 1);
                         xPos += 4.5f * textScale;
                     }
 
-                    RenderPIDS.renderText(graphicsHolder, arrivalString, xPos, layerY, textSize, color, x + width - xPos - textPadding * 2, IGui.HorizontalAlignment.RIGHT, layer);
+                    RenderModularPIDS.renderText(graphicsHolder, arrivalString, xPos, layerY, textSize, color, x + width - xPos - textPadding * 2, IGui.HorizontalAlignment.RIGHT, layer);
                     //debug box
                     //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, x + width - xPos - textPadding * 2, textSize, 0xFF00FFFF, layer - 1);
                 }
