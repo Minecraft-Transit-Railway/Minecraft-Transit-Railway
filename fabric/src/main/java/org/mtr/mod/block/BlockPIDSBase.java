@@ -23,7 +23,7 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 	public final BiPredicate<World, BlockPos> canStoreData;
 	public final BiFunction<World, BlockPos, BlockPos> getBlockPosWithData;
 
-	public BlockPIDSBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData) {
+	public BlockPIDSBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData, String typeKey) {
 		super(Blocks.createDefaultBlockSettings(true, blockState -> 5).nonOpaque());
 		this.maxArrivals = maxArrivals;
 		this.canStoreData = canStoreData;
