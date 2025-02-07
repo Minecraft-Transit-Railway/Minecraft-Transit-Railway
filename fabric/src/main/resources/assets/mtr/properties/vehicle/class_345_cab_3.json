@@ -1,0 +1,321 @@
+{
+	"parts": [
+		{
+			"names": [
+				"window"
+			],
+			"positionDefinitions": [
+				"35f0eadc"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"door"
+			],
+			"positionDefinitions": [
+				"2af6fe53"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_1"
+			],
+			"positionDefinitions": [
+				"f886b735"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_2"
+			],
+			"positionDefinitions": [
+				"c7f9e085"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_2_exterior"
+			],
+			"positionDefinitions": [
+				"fd8ab1d7"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"roof"
+			],
+			"positionDefinitions": [
+				"3b86dce4"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"door_left"
+			],
+			"positionDefinitions": [
+				"4a930052"
+			],
+			"renderStage": "INTERIOR",
+			"doorXMultiplier": -1.0,
+			"doorZMultiplier": 12.0,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"door_right"
+			],
+			"positionDefinitions": [
+				"d2cc4072"
+			],
+			"renderStage": "INTERIOR",
+			"doorXMultiplier": -1.0,
+			"doorZMultiplier": -12.0,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"door_left_exterior"
+			],
+			"positionDefinitions": [
+				"54692104"
+			],
+			"renderStage": "EXTERIOR",
+			"doorXMultiplier": -1.0,
+			"doorZMultiplier": 12.0,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"door_right_exterior"
+			],
+			"positionDefinitions": [
+				"62ccb409"
+			],
+			"renderStage": "EXTERIOR",
+			"doorXMultiplier": -1.0,
+			"doorZMultiplier": -12.0,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"light"
+			],
+			"positionDefinitions": [
+				"dbbba167"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"head"
+			],
+			"positionDefinitions": [
+				"bf3f0d22"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"head_exterior"
+			],
+			"positionDefinitions": [
+				"c5af371b"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"seat_2"
+			],
+			"positionDefinitions": [
+				"3f78b8a2"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"side_panel"
+			],
+			"positionDefinitions": [
+				"32c9fa4c"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"side_panel_translucent"
+			],
+			"positionDefinitions": [
+				"ab70c239"
+			],
+			"renderStage": "INTERIOR_TRANSLUCENT"
+		},
+		{
+			"names": [
+				"interior_display_box"
+			],
+			"positionDefinitions": [
+				"d009c99f"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"interior_display"
+			],
+			"positionDefinitions": [
+				"2fb8e35"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.4,
+			"displayYPadding": 0.6,
+			"displayColorCjk": "FFFFFF",
+			"displayColor": "FFFFFF",
+			"displayOptions": [
+				"SINGLE_LINE",
+				"SCROLL_NORMAL"
+			],
+			"displayType": "NEXT_STATION_UK",
+			"displayDefaultText": ""
+		},
+		{
+			"names": [
+				"side_display"
+			],
+			"positionDefinitions": [
+				"b801b276"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 1.0,
+			"displayYPadding": 0.5,
+			"displayColorCjk": "FF9900",
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"SINGLE_LINE",
+				"SCROLL_NORMAL"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"destination_display"
+			],
+			"positionDefinitions": [
+				"a86f1e4"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 1.0,
+			"displayYPadding": 1.0,
+			"displayColorCjk": "FF9900",
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"CYCLE_LANGUAGES",
+				"ALIGN_CENTER"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"window_floor"
+			],
+			"positionDefinitions": [
+				"6df847ad"
+			],
+			"renderStage": "EXTERIOR",
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"door_floor"
+			],
+			"positionDefinitions": [
+				"95a266d9"
+			],
+			"renderStage": "EXTERIOR",
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway"
+			],
+			"positionDefinitions": [
+				"7f702e35"
+			],
+			"renderStage": "EXTERIOR",
+			"type": "DOORWAY"
+		},
+		{
+			"names": [
+				"seat_2_floor"
+			],
+			"positionDefinitions": [
+				"9d74ed71"
+			],
+			"renderStage": "EXTERIOR",
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"d75db59f"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"25f38dc5"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"d7829000"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"ab86810b"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"f3cbd5eb"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		}
+	],
+	"modelYOffset": 1.0,
+	"gangwayWidth": 1.5,
+	"gangwayHeight": 2.0,
+	"gangwayYOffset": 1.0,
+	"gangwayZOffset": 0.25
+}

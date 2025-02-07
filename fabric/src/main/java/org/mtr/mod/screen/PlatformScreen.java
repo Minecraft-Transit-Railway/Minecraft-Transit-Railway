@@ -19,7 +19,7 @@ public class PlatformScreen extends SavedRailScreenBase<Platform, Station> {
 	private final ObjectOpenHashSet<Route> routes = new ObjectOpenHashSet<>();
 
 	public PlatformScreen(Platform savedRailBase, TransportMode transportMode, ScreenExtension previousScreenExtension) {
-		super(savedRailBase, transportMode, previousScreenExtension, DWELL_TIME_TEXT);
+		super(savedRailBase, transportMode, previousScreenExtension, DWELL_TIME_TEXT, ROUTES_AT_PLATFORM_TEXT);
 
 		for (Route route : MinecraftClientData.getDashboardInstance().routes) {
 			for (RoutePlatformData routePlat : route.getRoutePlatforms()) {

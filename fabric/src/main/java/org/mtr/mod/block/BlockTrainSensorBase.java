@@ -4,8 +4,8 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mod.Blocks;
 import org.mtr.mod.Init;
 import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
 
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 public abstract class BlockTrainSensorBase extends BlockExtension implements BlockWithEntity {
 
 	public BlockTrainSensorBase() {
-		super(BlockHelper.createBlockSettings(true));
+		super(Blocks.createDefaultBlockSettings(true));
 	}
 
 	@Nonnull

@@ -3,6 +3,7 @@ package org.mtr.mod.model;
 import org.mtr.mapping.holder.OverlayTexture;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ModelPartExtension;
+import org.mtr.mod.Keys;
 import org.mtr.mod.client.DoorAnimationType;
 import org.mtr.mod.resource.RenderStage;
 
@@ -378,7 +379,7 @@ public class ModelLift1 extends ModelTrainBase {
 
 	@Override
 	protected void baseTransform(GraphicsHolder graphicsHolder) {
-		graphicsHolder.translate(0, -1.5, 0);
+		graphicsHolder.translate(0, Keys.MOD_VERSION.endsWith("1.16.5") ? 0 : -1.5, 0); // 1.16.5 lift offset bug
 	}
 
 	@Override

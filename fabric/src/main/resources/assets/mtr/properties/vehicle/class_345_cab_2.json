@@ -1,0 +1,344 @@
+{
+	"parts": [
+		{
+			"names": [
+				"window"
+			],
+			"positionDefinitions": [
+				"98b1ad3c"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"door"
+			],
+			"positionDefinitions": [
+				"4c7e2842"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_1"
+			],
+			"positionDefinitions": [
+				"48221f8"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_2"
+			],
+			"positionDefinitions": [
+				"c23b9bde"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_1_exterior"
+			],
+			"positionDefinitions": [
+				"40a13ae5"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"window_2_exterior"
+			],
+			"positionDefinitions": [
+				"35211177"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"roof"
+			],
+			"positionDefinitions": [
+				"93ce1004"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"door_left"
+			],
+			"positionDefinitions": [
+				"7d00cdd8"
+			],
+			"renderStage": "INTERIOR",
+			"doorXMultiplier": -1.0,
+			"doorZMultiplier": 12.0,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"door_right"
+			],
+			"positionDefinitions": [
+				"d4729650"
+			],
+			"renderStage": "INTERIOR",
+			"doorXMultiplier": -1.0,
+			"doorZMultiplier": -12.0,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"door_left_exterior"
+			],
+			"positionDefinitions": [
+				"d7796ea2"
+			],
+			"renderStage": "EXTERIOR",
+			"doorXMultiplier": -1.0,
+			"doorZMultiplier": 12.0,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"door_right_exterior"
+			],
+			"positionDefinitions": [
+				"d90d77e1"
+			],
+			"renderStage": "EXTERIOR",
+			"doorXMultiplier": -1.0,
+			"doorZMultiplier": -12.0,
+			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"end"
+			],
+			"positionDefinitions": [
+				"6b8aff19"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"light"
+			],
+			"positionDefinitions": [
+				"5390e86b"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"light_end"
+			],
+			"positionDefinitions": [
+				"d8220e13"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"head"
+			],
+			"positionDefinitions": [
+				"e5305765"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"head_exterior"
+			],
+			"positionDefinitions": [
+				"adfc3852"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"seat_2"
+			],
+			"positionDefinitions": [
+				"98e10564"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"side_panel"
+			],
+			"positionDefinitions": [
+				"82230281"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"side_panel_translucent"
+			],
+			"positionDefinitions": [
+				"5ba53bc4"
+			],
+			"renderStage": "INTERIOR_TRANSLUCENT"
+		},
+		{
+			"names": [
+				"interior_display_box"
+			],
+			"positionDefinitions": [
+				"c22668b1"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"interior_display"
+			],
+			"positionDefinitions": [
+				"cec0eb80"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.4,
+			"displayYPadding": 0.6,
+			"displayColorCjk": "FFFFFF",
+			"displayColor": "FFFFFF",
+			"displayOptions": [
+				"SINGLE_LINE",
+				"SCROLL_NORMAL"
+			],
+			"displayType": "NEXT_STATION_UK",
+			"displayDefaultText": ""
+		},
+		{
+			"names": [
+				"side_display"
+			],
+			"positionDefinitions": [
+				"838af83b"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 1.0,
+			"displayYPadding": 0.5,
+			"displayColorCjk": "FF9900",
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"SINGLE_LINE",
+				"SCROLL_NORMAL"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"destination_display"
+			],
+			"positionDefinitions": [
+				"67d6285f"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 1.0,
+			"displayYPadding": 1.0,
+			"displayColorCjk": "FF9900",
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"CYCLE_LANGUAGES",
+				"ALIGN_CENTER"
+			],
+			"displayType": "DESTINATION",
+			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"window_floor"
+			],
+			"positionDefinitions": [
+				"af193e8e"
+			],
+			"renderStage": "EXTERIOR",
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"door_floor"
+			],
+			"positionDefinitions": [
+				"4716a3d0"
+			],
+			"renderStage": "EXTERIOR",
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway"
+			],
+			"positionDefinitions": [
+				"9d2b5628"
+			],
+			"renderStage": "EXTERIOR",
+			"type": "DOORWAY"
+		},
+		{
+			"names": [
+				"end_floor"
+			],
+			"positionDefinitions": [
+				"166ad910"
+			],
+			"renderStage": "EXTERIOR",
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"seat_2_floor"
+			],
+			"positionDefinitions": [
+				"8eed0172"
+			],
+			"renderStage": "EXTERIOR",
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"b5a05fd4"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"60b50099"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"tail_lights"
+			],
+			"positionDefinitions": [
+				"73cdc10e"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		}
+	],
+	"modelYOffset": 1.0,
+	"gangwayInnerSideResource": "mtr:textures/gangway/k_train_side.png",
+	"gangwayInnerTopResource": "mtr:textures/gangway/k_train_roof.png",
+	"gangwayInnerBottomResource": "mtr:textures/gangway/k_train_floor.png",
+	"gangwayOuterSideResource": "mtr:textures/gangway/k_train_side.png",
+	"gangwayOuterTopResource": "mtr:textures/gangway/sp1900_exterior.png",
+	"gangwayOuterBottomResource": "mtr:textures/gangway/sp1900_exterior.png",
+	"gangwayWidth": 1.5,
+	"gangwayHeight": 2.0,
+	"gangwayYOffset": 1.0,
+	"gangwayZOffset": 0.25
+}

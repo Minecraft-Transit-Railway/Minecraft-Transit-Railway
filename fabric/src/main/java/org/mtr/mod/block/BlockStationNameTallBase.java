@@ -2,7 +2,6 @@ package org.mtr.mod.block;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.tool.HolderBase;
 
 import javax.annotation.Nonnull;
@@ -14,7 +13,7 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 	public static final BooleanProperty METAL = BooleanProperty.of("metal");
 
 	public BlockStationNameTallBase() {
-		super(BlockHelper.createBlockSettings(true));
+		super(org.mtr.mod.Blocks.createDefaultBlockSettings(true));
 	}
 
 	@Nonnull

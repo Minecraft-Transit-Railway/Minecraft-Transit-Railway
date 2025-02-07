@@ -2,7 +2,11 @@ package org.mtr.mod.block;
 
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.mapper.DirectionHelper;
+import org.mtr.mod.Blocks;
 import org.mtr.mod.Init;
 import org.mtr.mod.packet.PacketOpenPIDSConfigScreen;
 
@@ -18,7 +22,7 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 	public final BiFunction<World, BlockPos, BlockPos> getBlockPosWithData;
 
 	public BlockPIDSBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData) {
-		super(BlockHelper.createBlockSettings(true, blockState -> 5).nonOpaque());
+		super(Blocks.createDefaultBlockSettings(true, blockState -> 5).nonOpaque());
 		this.maxArrivals = maxArrivals;
 		this.canStoreData = canStoreData;
 		this.getBlockPosWithData = getBlockPosWithData;

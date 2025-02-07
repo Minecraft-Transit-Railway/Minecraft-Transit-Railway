@@ -25,7 +25,13 @@ public final class ModelPropertiesPartWrapper extends ModelPropertiesPartWrapper
 			String displayDefaultText,
 			double doorXMultiplier,
 			double doorZMultiplier,
-			DoorAnimationType doorAnimationType
+			DoorAnimationType doorAnimationType,
+			long renderFromOpeningDoorTime,
+			long renderUntilOpeningDoorTime,
+			long renderFromClosingDoorTime,
+			long renderUntilClosingDoorTime,
+			long flashOnTime,
+			long flashOffTime
 	) {
 		super(
 				positionDefinition,
@@ -43,7 +49,13 @@ public final class ModelPropertiesPartWrapper extends ModelPropertiesPartWrapper
 				displayDefaultText,
 				doorXMultiplier,
 				doorZMultiplier,
-				doorAnimationType
+				doorAnimationType,
+				renderFromOpeningDoorTime,
+				renderUntilOpeningDoorTime,
+				renderFromClosingDoorTime,
+				renderUntilClosingDoorTime,
+				flashOnTime,
+				flashOffTime
 		);
 		this.displayOptions.addAll(displayOptions);
 	}
@@ -83,7 +95,13 @@ public final class ModelPropertiesPartWrapper extends ModelPropertiesPartWrapper
 				displayDefaultText,
 				doorXMultiplier,
 				doorZMultiplier,
-				doorAnimationType
+				doorAnimationType,
+				renderFromOpeningDoorTime,
+				renderUntilOpeningDoorTime,
+				renderFromClosingDoorTime,
+				renderUntilClosingDoorTime,
+				flashOnTime,
+				flashOffTime
 		), new PositionDefinition(name, positions, positionsFlipped));
 	}
 }

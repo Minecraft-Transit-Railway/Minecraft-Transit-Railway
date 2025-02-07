@@ -1,13 +1,13 @@
 package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.mapper.SlabBlockExtension;
+import org.mtr.mod.Blocks;
 
 public class BlockStationColorGlassSlab extends BlockStationColorSlab {
 
 	public BlockStationColorGlassSlab() {
-		super(BlockHelper.createBlockSettings(false).nonOpaque());
+		super(Blocks.createDefaultBlockSettings(false).nonOpaque());
 	}
 
 	@Override

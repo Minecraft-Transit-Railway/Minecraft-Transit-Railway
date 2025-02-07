@@ -1,0 +1,252 @@
+{
+	"replacements": {
+		"lengths": [
+			21
+		],
+		"id": [
+			"mpl_85"
+		]
+	},
+	"vehicles": [
+		{
+			"id": "class_345_1_trailer",
+			"name": "Class 345 (Seating 1, Trailer)",
+			"color": "7156A5",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"bogie1Position": -7.5,
+			"bogie2Position": 7.5,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "British_Rail_Class_345",
+			"tags": [],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/class_345.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_345.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_345_1_trailer.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_345_1_trailer.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"hasBarrier1": false,
+			"hasBarrier2": false,
+			"legacyRiderOffset": 0,
+			"legacySpeedSoundBaseResource": "class_377",
+			"legacySpeedSoundCount": 51,
+			"legacyUseAccelerationSoundsWhenCoasting": false,
+			"legacyConstantPlaybackSpeed": false,
+			"legacyDoorSoundBaseResource": "class_345",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "class_345_2_trailer",
+			"name": "Class 345 (Seating 2, Trailer)",
+			"color": "7156A5",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"bogie1Position": -7.5,
+			"bogie2Position": 7.5,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "British_Rail_Class_345",
+			"tags": [],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/class_345.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_345.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_345_2_trailer.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_345_2_trailer.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"hasBarrier1": false,
+			"hasBarrier2": false,
+			"legacyRiderOffset": 0,
+			"legacySpeedSoundBaseResource": "class_377",
+			"legacySpeedSoundCount": 51,
+			"legacyUseAccelerationSoundsWhenCoasting": false,
+			"legacyConstantPlaybackSpeed": false,
+			"legacyDoorSoundBaseResource": "class_345",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "class_345_cab_1",
+			"name": "Class 345 (Forwards)",
+			"color": "7156A5",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"bogie1Position": -7.5,
+			"bogie2Position": 7.5,
+			"couplingPadding1": 1,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "British_Rail_Class_345",
+			"tags": [],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/class_345.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_345.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_345_cab_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_345_cab_1.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"hasBarrier1": false,
+			"hasBarrier2": false,
+			"legacyRiderOffset": 0,
+			"legacySpeedSoundBaseResource": "class_377",
+			"legacySpeedSoundCount": 51,
+			"legacyUseAccelerationSoundsWhenCoasting": false,
+			"legacyConstantPlaybackSpeed": false,
+			"legacyDoorSoundBaseResource": "class_345",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "class_345_cab_2",
+			"name": "Class 345 (Backwards)",
+			"color": "7156A5",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"bogie1Position": -7.5,
+			"bogie2Position": 7.5,
+			"couplingPadding1": 0,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "British_Rail_Class_345",
+			"tags": [],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/class_345.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_345.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_345_cab_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_345_cab_2.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"hasBarrier1": false,
+			"hasBarrier2": false,
+			"legacyRiderOffset": 0,
+			"legacySpeedSoundBaseResource": "class_377",
+			"legacySpeedSoundCount": 51,
+			"legacyUseAccelerationSoundsWhenCoasting": false,
+			"legacyConstantPlaybackSpeed": false,
+			"legacyDoorSoundBaseResource": "class_345",
+			"legacyDoorCloseSoundTime": 0.5
+		},
+		{
+			"id": "class_345_cab_3",
+			"name": "Class 345 (Double)",
+			"color": "7156A5",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"bogie1Position": -7.5,
+			"bogie2Position": 7.5,
+			"couplingPadding1": 1,
+			"couplingPadding2": 1,
+			"wikipediaArticle": "British_Rail_Class_345",
+			"tags": [],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/class_345.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_345.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_345_cab_3.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_345_cab_3.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"hasBarrier1": false,
+			"hasBarrier2": false,
+			"legacyRiderOffset": 0,
+			"legacySpeedSoundBaseResource": "class_377",
+			"legacySpeedSoundCount": 51,
+			"legacyUseAccelerationSoundsWhenCoasting": false,
+			"legacyConstantPlaybackSpeed": false,
+			"legacyDoorSoundBaseResource": "class_345",
+			"legacyDoorCloseSoundTime": 0.5
+		}
+	]
+}
