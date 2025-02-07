@@ -264,13 +264,12 @@ public final class Init implements Utilities {
 			}
 		});
 
-		REGISTRY.eventRegistry.registerPlayerJoin((minecraftServer, serverPlayerEntity) -> updatePlayer(serverPlayerEntity, false));
-		REGISTRY.eventRegistry.registerPlayerDisconnect((minecraftServer, serverPlayerEntity) -> RIDING_PLAYERS.remove(serverPlayerEntity.getUuid()));
-
 		REGISTRY.eventRegistry.registerPlayerJoin((minecraftServer, serverPlayerEntity) -> {
+			updatePlayer(serverPlayerEntity, false);
 			// Send PIDS layout metadata to client
 			Init.pidsLayoutData.sendMetadata(serverPlayerEntity);
 		});
+		REGISTRY.eventRegistry.registerPlayerDisconnect((minecraftServer, serverPlayerEntity) -> RIDING_PLAYERS.remove(serverPlayerEntity.getUuid()));
 
 		// Finish registration
 		REGISTRY.init();
