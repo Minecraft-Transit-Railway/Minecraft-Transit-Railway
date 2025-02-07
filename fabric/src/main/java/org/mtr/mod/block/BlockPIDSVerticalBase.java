@@ -17,6 +17,10 @@ public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBl
 		super(maxArrivals, BlockPIDSVerticalBase::canStoreData, BlockPIDSVerticalBase::getBlockPosWithData, typeKey);
 	}
 
+	public BlockPIDSVerticalBase(int maxArrivals) {
+		this(maxArrivals, "");
+	}
+
 	@Nonnull
 	@Override
 	public BlockState getStateForNeighborUpdate2(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
@@ -41,6 +45,7 @@ public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBl
 
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
+		if (this.typeKey.isEmpty()) return;
 		final BlockEntityExtension blockEntity = createBlockEntity(new BlockPos(0, 0, 0), Blocks.getAirMapped().getDefaultState());
 		if (blockEntity instanceof BlockEntityBase) {
 			tooltip.add(TranslationProvider.TOOLTIP_MTR_PIDS_TYPE.getMutableText(TextHelper.translatable(typeKey).getString()).formatted(TextFormatting.GRAY));
@@ -69,6 +74,10 @@ public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBl
 
 		public BlockEntityVerticalBase(int maxArrivals, String defaultLayout, BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(maxArrivals, defaultLayout, BlockPIDSVerticalBase::canStoreData, BlockPIDSVerticalBase::getBlockPosWithData, type, pos, state);
+		}
+
+		public BlockEntityVerticalBase(int maxArrivals, BlockEntityType<?> type, BlockPos pos, BlockState state) {
+			this(maxArrivals, "", type, pos, state);
 		}
 
 		@Override

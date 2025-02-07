@@ -16,6 +16,10 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 		super(maxArrivals, BlockPIDSHorizontalBase::canStoreData, BlockPIDSHorizontalBase::getBlockPosWithData, typeKey);
 	}
 
+	public BlockPIDSHorizontalBase(int maxArrivals) {
+		this(maxArrivals, "");
+	}
+
 
 	@Nonnull
 	@Override
@@ -55,6 +59,7 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 
 	@Override
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
+		if (this.typeKey.isEmpty()) return;
 		tooltip.add(TranslationProvider.TOOLTIP_MTR_PIDS_TYPE.getMutableText(TextHelper.translatable(typeKey).getString()).formatted(TextFormatting.GRAY));
 	}
 
@@ -80,6 +85,10 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 
 		public BlockEntityHorizontalBase(int maxArrivals, String defaultLayout, BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(maxArrivals, defaultLayout, BlockPIDSHorizontalBase::canStoreData, BlockPIDSHorizontalBase::getBlockPosWithData, type, pos, state);
+		}
+
+		public BlockEntityHorizontalBase(int maxArrivals, BlockEntityType<?> type, BlockPos pos, BlockState state) {
+			this(maxArrivals, "", type, pos, state);
 		}
 
 		@Override
