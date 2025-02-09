@@ -8,6 +8,7 @@ import org.mtr.mod.generated.config.ClientSchema;
 public final class Client extends ClientSchema {
 
 	public static final int DYNAMIC_RESOLUTION_COUNT = 8;
+	public static final int TRAIN_OSCILLATION_COUNT = 15;
 
 	public Client(ReaderBase readerBase) {
 		super(readerBase);
@@ -32,6 +33,10 @@ public final class Client extends ClientSchema {
 
 	public int getDynamicTextureResolution() {
 		return (int) dynamicTextureResolution;
+	}
+
+	public double getVehicleOscillationMultiplier() {
+		return vehicleOscillationMultiplier;
 	}
 
 	public boolean getDefaultRail3D() {
@@ -68,6 +73,10 @@ public final class Client extends ClientSchema {
 
 	public void setDynamicTextureResolution(int dynamicTextureResolution) {
 		this.dynamicTextureResolution = Utilities.clamp(dynamicTextureResolution, 0, DYNAMIC_RESOLUTION_COUNT);
+	}
+
+	public void setVehicleOscillationMultiplier(double trainOscillationMultiplier) {
+		this.vehicleOscillationMultiplier = Utilities.clamp(trainOscillationMultiplier, 0, (TRAIN_OSCILLATION_COUNT / 10.0));
 	}
 
 	public void toggleDefaultRail3D() {
