@@ -19,6 +19,10 @@
 		"languageDisplay": {
 			"$ref": "LanguageDisplay"
 		},
+		"vehicleOscillationMultiplier": {
+			"type": "number",
+			"default": 1.0
+		},
 		"dynamicTextureResolution": {
 			"type": "integer",
 			"default": 2
