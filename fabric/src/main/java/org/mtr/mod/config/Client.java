@@ -51,6 +51,10 @@ public final class Client extends ClientSchema {
 		return disableShadowsForShaders;
 	}
 
+	public boolean matchesPreloadResourcePattern(String id) {
+		return id.replaceFirst(preloadResourcePattern, "").isEmpty();
+	}
+
 	public boolean showBetaWarningScreen() {
 		return !Keys.MOD_VERSION.equals(betaWarningVersion);
 	}

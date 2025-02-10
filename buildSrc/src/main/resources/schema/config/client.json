@@ -37,6 +37,9 @@
 		"disableShadowsForShaders": {
 			"type": "boolean"
 		},
+		"preloadResourcePattern": {
+			"type": "string"
+		},
 		"betaWarningVersion": {
 			"type": "string"
 		}

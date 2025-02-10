@@ -2,6 +2,8 @@ package org.mtr.mod.resource;
 
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import org.mtr.mod.Init;
+import org.mtr.mod.config.Config;
 import org.mtr.mod.generated.resource.RailResourceSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
 
@@ -14,7 +16,13 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 	public RailResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
 		super(readerBase, resourceProvider);
 		updateData(readerBase);
-		cachedRailResource = new CachedResource<>(() -> load(modelResource, textureResource, flipTextureV, modelYOffset, resourceProvider), VehicleModel.MODEL_LIFESPAN);
+		final boolean shouldPreload = Config.getClient().matchesPreloadResourcePattern(id);
+		cachedRailResource = new CachedResource<>(() -> load(modelResource, textureResource, flipTextureV, modelYOffset, resourceProvider), shouldPreload ? Integer.MAX_VALUE : VehicleModel.MODEL_LIFESPAN);
+		if (shouldPreload) {
+			final long startMillis = System.currentTimeMillis();
+			cachedRailResource.getData(true);
+			Init.LOGGER.info("[{}] Rail preload completed in {} ms", id, System.currentTimeMillis() - startMillis);
+		}
 	}
 
 	/**
@@ -22,7 +30,7 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 	 */
 	public RailResource(String id, String name, ResourceProvider resourceProvider) {
 		super(id, name, "777777", "", "", false, 0, 0, resourceProvider);
-		cachedRailResource = new CachedResource<>(() -> null, VehicleModel.MODEL_LIFESPAN);
+		cachedRailResource = new CachedResource<>(() -> null, Integer.MAX_VALUE);
 	}
 
 	@Override
