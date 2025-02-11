@@ -60,8 +60,8 @@ export class EditComponent {
 		this.dialog.open(EditVehicleModelPropertiesDialog, {data: {vehicleResource: vehicleResourceWrapperDTO, model: vehicleModelWrapperDTO}});
 	}
 
-	editModelParts(vehicleModelWrapperDTO: VehicleModelWrapperDTO) {
-		this.dialog.open(EditVehicleModelPartsDialog, {data: vehicleModelWrapperDTO, maxWidth: "90vw", maxHeight: "90vh"});
+	editModelParts(vehicleResourceWrapperDTO: VehicleResourceWrapperDTO, vehicleModelWrapperDTO: VehicleModelWrapperDTO) {
+		this.dialog.open(EditVehicleModelPartsDialog, {data: {vehicleResource: vehicleResourceWrapperDTO, model: vehicleModelWrapperDTO}, maxWidth: "90vw", maxHeight: "90vh"});
 	}
 
 	canEditModelParts(vehicleModelWrapperDTO: VehicleModelWrapperDTO) {

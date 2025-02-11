@@ -4,7 +4,6 @@ import org.mtr.core.serializer.ReaderBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectCollection;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.mapper.OptimizedModel;
-import org.mtr.mod.Init;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.generated.resource.ObjectResourceSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
@@ -13,18 +12,14 @@ import javax.annotation.Nullable;
 
 public final class ObjectResource extends ObjectResourceSchema implements StoredModelResourceBase {
 
+	public final boolean shouldPreload;
 	private final CachedResource<ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel>> cachedObjectResource;
 
 	public ObjectResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
 		super(readerBase, resourceProvider);
 		updateData(readerBase);
-		final boolean shouldPreload = Config.getClient().matchesPreloadResourcePattern(id);
+		shouldPreload = Config.getClient().matchesPreloadResourcePattern(id);
 		cachedObjectResource = new CachedResource<>(() -> load(modelResource, textureResource, flipTextureV, 0, resourceProvider), shouldPreload ? Integer.MAX_VALUE : VehicleModel.MODEL_LIFESPAN);
-		if (shouldPreload) {
-			final long startMillis = System.currentTimeMillis();
-			cachedObjectResource.getData(true);
-			Init.LOGGER.info("[{}] Object preload completed in {} ms", id, System.currentTimeMillis() - startMillis);
-		}
 	}
 
 	@Override
@@ -49,6 +44,11 @@ public final class ObjectResource extends ObjectResourceSchema implements Stored
 			objModel.applyScale(clampNumber(scale.getX()), clampNumber(scale.getY()), clampNumber(scale.getZ()));
 			objModel.applyMirror(mirror.getX(), mirror.getY(), mirror.getZ());
 		});
+	}
+
+	@Override
+	public void preload() {
+		cachedObjectResource.getData(true);
 	}
 
 	public String getId() {

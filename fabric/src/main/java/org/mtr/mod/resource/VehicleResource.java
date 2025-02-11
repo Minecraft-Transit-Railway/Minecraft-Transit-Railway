@@ -31,11 +31,11 @@ import java.util.stream.Collectors;
 public final class VehicleResource extends VehicleResourceSchema {
 
 	public final Supplier<VehicleSoundBase> createVehicleSoundBase;
+	public final boolean shouldPreload;
 	@Nullable
 	private final LegacyVehicleSupplier<ObjectArrayList<VehicleModel>> extraModelsSupplier;
 	private final Int2ObjectAVLTreeMap<Int2ObjectAVLTreeMap<ObjectArrayList<VehicleModel>>> allModels = new Int2ObjectAVLTreeMap<>();
 	private final Int2ObjectAVLTreeMap<Int2ObjectAVLTreeMap<CachedResource<CachedResource<CachedResource<VehicleResourceCacheHolder>>>>> cachedVehicleResource = new Int2ObjectAVLTreeMap<>();
-	private final boolean shouldPreload;
 
 	private static final boolean[][] CHRISTMAS_LIGHT_STAGES = {
 			{true, false, false, false},
@@ -98,7 +98,9 @@ public final class VehicleResource extends VehicleResourceSchema {
 		this.extraModelsSupplier = extraModelsSupplier;
 		createVehicleSoundBase = createVehicleSoundBaseInitializer();
 		shouldPreload = Config.getClient().matchesPreloadResourcePattern(id);
-		tryPreload();
+		if (shouldPreload) {
+			models.forEach(model -> model.shouldPreload = true);
+		}
 	}
 
 	public VehicleResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
@@ -170,7 +172,9 @@ public final class VehicleResource extends VehicleResourceSchema {
 		this.extraModelsSupplier = null;
 		createVehicleSoundBase = createVehicleSoundBaseInitializer();
 		shouldPreload = Config.getClient().matchesPreloadResourcePattern(id);
-		tryPreload();
+		if (shouldPreload) {
+			models.forEach(model -> model.shouldPreload = true);
+		}
 	}
 
 	@Nonnull
@@ -291,6 +295,9 @@ public final class VehicleResource extends VehicleResourceSchema {
 	}
 
 	public VehicleResourceWrapper toVehicleResourceWrapper() {
+		final int carNumber = id.endsWith("trailer") ? 1 : id.endsWith("cab_2") ? 2 : 0;
+		final int totalCars = id.endsWith("cab_3") ? 1 : 3;
+		getCachedVehicleResource(carNumber, totalCars, true);
 		return new VehicleResourceWrapper(
 				id,
 				name,
@@ -305,7 +312,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 				description,
 				wikipediaArticle,
 				tags,
-				models.stream().map(VehicleModel::toVehicleModelWrapper).collect(Collectors.toCollection(ObjectArrayList::new)),
+				getAllModels(carNumber, totalCars).stream().map(VehicleModel::toVehicleModelWrapper).collect(Collectors.toCollection(ObjectArrayList::new)),
 				bogie1Models.stream().map(VehicleModel::toVehicleModelWrapper).collect(Collectors.toCollection(ObjectArrayList::new)),
 				bogie2Models.stream().map(VehicleModel::toVehicleModelWrapper).collect(Collectors.toCollection(ObjectArrayList::new)),
 				hasGangway1,
@@ -472,15 +479,6 @@ public final class VehicleResource extends VehicleResourceSchema {
 		} else {
 			final BveVehicleSoundConfig bveVehicleSoundConfig = new BveVehicleSoundConfig(bveSoundBaseResource);
 			return () -> new BveVehicleSound(bveVehicleSoundConfig);
-		}
-	}
-
-	private void tryPreload() {
-		if (shouldPreload) {
-			models.forEach(model -> model.shouldPreload = true);
-			final long startMillis = System.currentTimeMillis();
-			getCachedVehicleResource(0, 0, true);
-			Init.LOGGER.info("[{}] Vehicle preload completed in {} ms", id, System.currentTimeMillis() - startMillis);
 		}
 	}
 

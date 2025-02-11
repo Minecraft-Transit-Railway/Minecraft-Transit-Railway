@@ -114,24 +114,65 @@ public class CustomResourceLoader {
 		Init.LOGGER.info("Loaded {} signs", SIGNS.size());
 		Init.LOGGER.info("Loaded {} rails", RAILS.size());
 		Init.LOGGER.info("Loaded {} objects", OBJECTS.size());
+
+		final long time1 = System.currentTimeMillis();
+
+		final int[] preloadedVehicleCount = {0};
+		VEHICLES.forEach((transportMode, vehicleResources) -> vehicleResources.forEach(vehicleResource -> {
+			if (vehicleResource.shouldPreload) {
+				vehicleResource.getCachedVehicleResource(0, 0, true);
+				preloadedVehicleCount[0]++;
+			}
+		}));
+
+		final long time2 = System.currentTimeMillis();
+		if (preloadedVehicleCount[0] > 0) {
+			Init.LOGGER.info("Preloaded {} vehicles in {} ms", preloadedVehicleCount[0], time2 - time1);
+		}
+
+		final int[] preloadedRailCount = {0};
+		RAILS.forEach(railResource -> {
+			if (railResource.shouldPreload) {
+				railResource.preload();
+				preloadedRailCount[0]++;
+			}
+		});
+
+		final long time3 = System.currentTimeMillis();
+		if (preloadedRailCount[0] > 0) {
+			Init.LOGGER.info("Preloaded {} rails in {} ms", preloadedRailCount[0], time3 - time2);
+		}
+
+		final int[] preloadedObjectCount = {0};
+		OBJECTS.forEach(objectResource -> {
+			if (objectResource.shouldPreload) {
+				objectResource.preload();
+				preloadedObjectCount[0]++;
+			}
+		});
+
+		final long time4 = System.currentTimeMillis();
+		if (preloadedObjectCount[0] > 0) {
+			Init.LOGGER.info("Preloaded {} objects in {} ms", preloadedObjectCount[0], time4 - time3);
+		}
 	}
 
 	public static void iterateVehicles(TransportMode transportMode, Consumer<VehicleResource> consumer) {
 		VEHICLES.get(transportMode).forEach(consumer);
 	}
 
-	public static void clearCustomVehicles() {
+	public static void clearCustomVehicles(String vehicleId) {
 		for (final TransportMode transportMode : TransportMode.values()) {
 			final ObjectArrayList<String> vehicleIdsToRemove = new ObjectArrayList<>();
 			VEHICLES_CACHE.get(transportMode).values().forEach(vehicleResourceDetails -> {
-				if (vehicleResourceDetails.rightBoolean()) {
-					final VehicleResource vehicleResource = vehicleResourceDetails.left();
+				final VehicleResource vehicleResource = vehicleResourceDetails.left();
+				if (vehicleResourceDetails.rightBoolean() && (vehicleId.isEmpty() || vehicleResource.getId().equals(vehicleId))) {
 					vehicleIdsToRemove.add(vehicleResource.getId());
 					VEHICLES.get(transportMode).remove(vehicleResource);
 					VEHICLES_TAGS.get(transportMode).remove(vehicleResource.getId());
 				}
 			});
-			vehicleIdsToRemove.forEach(vehicleId -> VEHICLES_CACHE.get(transportMode).remove(vehicleId));
+			vehicleIdsToRemove.forEach(checkVehicleId -> VEHICLES_CACHE.get(transportMode).remove(checkVehicleId));
 		}
 	}
 

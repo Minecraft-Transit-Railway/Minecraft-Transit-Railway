@@ -91,7 +91,7 @@ export class EditVehiclePropertiesDialog {
 		this.vehicleResourceWrapperDTO.legacyConstantPlaybackSpeed = (newData.soundType === "bve" ? false : newData.legacyConstantPlaybackSpeed) ?? defaultVehicleResource.legacyConstantPlaybackSpeed;
 		this.vehicleResourceWrapperDTO.legacyDoorSoundBaseResource = (newData.soundType === "bve" ? "" : newData.legacyDoorSoundBaseResource) ?? defaultVehicleResource.legacyDoorSoundBaseResource;
 		this.vehicleResourceWrapperDTO.legacyDoorCloseSoundTime = Math.max(0, Math.min(1, (newData.soundType === "bve" ? 0 : newData.legacyDoorCloseSoundTime) ?? defaultVehicleResource.legacyDoorCloseSoundTime));
-		this.dataService.update();
+		this.dataService.update(this.vehicleResourceWrapperDTO.id);
 		this.dialogRef.close();
 	}
 

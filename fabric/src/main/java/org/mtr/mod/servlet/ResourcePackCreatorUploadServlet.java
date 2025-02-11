@@ -13,18 +13,21 @@ import org.mtr.libraries.javax.servlet.AsyncContext;
 import org.mtr.libraries.javax.servlet.http.HttpServletRequest;
 import org.mtr.libraries.javax.servlet.http.HttpServletResponse;
 import org.mtr.libraries.javax.servlet.http.Part;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.OptimizedModel;
+import org.mtr.mapping.holder.Identifier;
+import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mapping.holder.Screen;
+import org.mtr.mapping.holder.Util;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.resource.*;
+import org.mtr.mod.screen.ReloadCustomResourcesScreen;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.zip.ZipEntry;
@@ -32,9 +35,6 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public final class ResourcePackCreatorUploadServlet extends AbstractResourcePackCreatorServlet {
-
-	private static final Object2ObjectAVLTreeMap<String, String> MODELS = new Object2ObjectAVLTreeMap<>();
-	private static final Object2ObjectAVLTreeMap<String, byte[]> TEXTURES = new Object2ObjectAVLTreeMap<>();
 
 	@Override
 	protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
@@ -45,8 +45,11 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 		switch (httpServletRequest.getPathInfo()) {
 			case "/reset":
 				reset();
-				MinecraftClient.getInstance().execute(CustomResourceLoader::reload);
-				returnStandardResponse(httpServletResponse, asyncContext, true);
+				final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+				minecraftClient.execute(() -> minecraftClient.openScreen(new Screen(new ReloadCustomResourcesScreen(() -> {
+					CustomResourceLoader.reload();
+					returnStandardResponse(httpServletResponse, asyncContext, null);
+				}))));
 				break;
 			case "/export":
 				export(httpServletRequest, httpServletResponse, asyncContext);
@@ -86,6 +89,12 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 		resourceWrapper = null;
 		MODELS.clear();
 		TEXTURES.clear();
+
+		try {
+			Files.deleteIfExists(getBackupFile());
+		} catch (Exception e) {
+			Init.LOGGER.error("", e);
+		}
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		minecraftClient.execute(() -> texturesToDestroy.forEach(texture -> {
@@ -136,13 +145,14 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 				}
 
 				final JsonObject newCustomResourcesObject = customResourcesObject;
-				MinecraftClient.getInstance().execute(() -> {
+				final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+				minecraftClient.execute(() -> minecraftClient.openScreen(new Screen(new ReloadCustomResourcesScreen(() -> {
 					final ObjectArrayList<VehicleResourceWrapper> vehicles = new ObjectArrayList<>();
 					CustomResourcesConverter.convert(newCustomResourcesObject, identifier -> jsonCache.getOrDefault(identifier.data.toString(), ResourceManagerHelper.readResource(identifier))).iterateVehicles(vehicleResource -> vehicles.add(vehicleResource.toVehicleResourceWrapper()));
 					resourceWrapper = new ResourceWrapper(vehicles, new ObjectArrayList<>(), new ObjectArrayList<>(), CustomResourceLoader.getMinecraftModelResources(), CustomResourceLoader.getTextureResources());
 					resourceUploadTasks.forEach(Runnable::run);
-					returnStandardResponse(httpServletResponse, asyncContext, true);
-				});
+					returnStandardResponse(httpServletResponse, asyncContext, "");
+				}))));
 				return;
 			}
 		} catch (Exception e) {
@@ -163,7 +173,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 						Init.LOGGER.error("", e);
 					}
 				}
-				returnStandardResponse(httpServletResponse, asyncContext, true);
+				returnStandardResponse(httpServletResponse, asyncContext, null);
 				return;
 			} catch (Exception e) {
 				Init.LOGGER.error("", e);
@@ -171,42 +181,6 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 		}
 
 		returnErrorResponse(httpServletResponse, asyncContext);
-	}
-
-	private static void uploadResource(String name, byte[] bytes, String content) {
-		if (resourceWrapper != null) {
-			if (name.endsWith(".png")) {
-				resourceWrapper.addTextureResource(name);
-				TEXTURES.put(name, bytes);
-				try {
-					final Identifier identifier = new Identifier(name);
-					final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(bytes.length);
-					byteBuffer.put(bytes);
-					byteBuffer.rewind();
-					final AbstractTexture abstractTexture = new AbstractTexture(new NativeImageBackedTexture(NativeImage.read(byteBuffer)).data);
-					final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-					minecraftClient.execute(() -> {
-						minecraftClient.getTextureManager().registerTexture(identifier, abstractTexture);
-						Init.LOGGER.info("Registered temporary texture [{}]", identifier.data.toString());
-					});
-				} catch (Exception e) {
-					Init.LOGGER.error("", e);
-				}
-			} else if (name.endsWith(".bbmodel")) {
-				final String[] nameSplit = name.split("[^a-z0-9_]");
-				final ObjectArrayList<String> modelParts = new ObjectArrayList<>();
-				final JsonObject modelObject = Utilities.parseJson(content);
-				BlockbenchModelValidator.validate(modelObject, nameSplit[Math.max(0, nameSplit.length - 2)], null);
-				new BlockbenchModel(new JsonReader(modelObject)).getOutlines().forEach(blockbenchOutline -> modelParts.add(blockbenchOutline.getName()));
-				resourceWrapper.addModelResource(new ModelWrapper(name, modelParts));
-				MODELS.put(name, modelObject.toString());
-			} else if (name.endsWith(".obj")) {
-				resourceWrapper.addModelResource(new ModelWrapper(name, new ObjectArrayList<>(OptimizedModel.ObjModel.loadModel(content, mtlString -> "", textureString -> new Identifier(""), null, true, false).keySet())));
-				MODELS.put(name, content);
-			} else if (name.endsWith(".mtl")) {
-				MODELS.put(name, content);
-			}
-		}
 	}
 
 	private static void export(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AsyncContext asyncContext) {
@@ -263,7 +237,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 				Util.getOperatingSystem().open(new File(resourcePackFolder));
 			});
 
-			returnStandardResponse(httpServletResponse, asyncContext, false);
+			returnStandardResponse(httpServletResponse, asyncContext, null);
 		} else {
 			returnErrorResponse(httpServletResponse, asyncContext);
 		}
