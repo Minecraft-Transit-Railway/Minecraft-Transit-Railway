@@ -39,13 +39,10 @@ public final class CachedResource<T> {
 	public static void tick() {
 		canFetchCache = true;
 		final long currentMillis = System.currentTimeMillis();
-		final ObjectArrayList<CachedResource<?>> cachedResourcesToRemove = new ObjectArrayList<>();
 		CACHED_RESOURCES.forEach(cachedResource -> {
 			if (currentMillis > cachedResource.expiry) {
 				cachedResource.data = null;
-				cachedResourcesToRemove.add(cachedResource);
 			}
 		});
-		CACHED_RESOURCES.removeAll(cachedResourcesToRemove);
 	}
 }
