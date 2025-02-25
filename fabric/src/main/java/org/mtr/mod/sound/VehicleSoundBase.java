@@ -15,6 +15,8 @@ public abstract class VehicleSoundBase {
 		}
 	}
 
+	public abstract void dispose();
+
 	protected abstract void playDoorSound(BlockPos blockPos, boolean isOpen);
 
 	protected abstract double getDoorCloseSoundTime();
