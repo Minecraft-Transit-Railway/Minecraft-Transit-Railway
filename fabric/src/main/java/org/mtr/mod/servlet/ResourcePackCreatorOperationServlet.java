@@ -88,7 +88,8 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 	}
 
 	public static void tick(long millisElapsed) {
-		if (System.currentTimeMillis() > motorSoundExpiry) {
+		if (System.currentTimeMillis() > motorSoundExpiry && vehicleSoundBase != null) {
+			vehicleSoundBase.dispose();
 			vehicleSoundBase = null;
 		}
 		if (vehicleSoundBase != null) {
