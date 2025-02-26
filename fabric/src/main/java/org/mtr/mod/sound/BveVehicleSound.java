@@ -217,14 +217,26 @@ public class BveVehicleSound extends VehicleSoundBase {
 		}
 
 		public void dispose() {
-			for(VehicleLoopingSoundInstance instance : soundLoopMotor) {
-				if(instance != null) instance.dispose();
+			for (VehicleLoopingSoundInstance instance : soundLoopMotor) {
+				if (instance != null) {
+					instance.dispose();
+				}
 			}
-			if(soundLoopRun != null) soundLoopRun.dispose();
-			if(soundLoopFlange != null) soundLoopFlange.dispose();
-			if(soundLoopNoise != null) soundLoopNoise.dispose();
-			if(soundLoopShoe != null) soundLoopShoe.dispose();
-			if(soundLoopCompressor != null) soundLoopCompressor.dispose();
+			if (soundLoopRun != null) {
+				soundLoopRun.dispose();
+			}
+			if (soundLoopFlange != null) {
+				soundLoopFlange.dispose();
+			}
+			if (soundLoopNoise != null) {
+				soundLoopNoise.dispose();
+			}
+			if (soundLoopShoe != null) {
+				soundLoopShoe.dispose();
+			}
+			if (soundLoopCompressor != null) {
+				soundLoopCompressor.dispose();
+			}
 		}
 	}
 }

@@ -42,7 +42,8 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 		final MinecraftClientData minecraftClientData = MinecraftClientData.getInstance();
 		final VehicleLiftResponse vehicleLiftResponse = new VehicleLiftResponse(jsonReader, minecraftClientData);
 		final boolean hasUpdate1 = updateVehiclesOrLifts(minecraftClientData.vehicles, vehicleLiftResponse::iterateVehiclesToKeep, vehicleLiftResponse::iterateVehiclesToUpdate, VehicleExtension::dispose, vehicleUpdate -> vehicleUpdate.getVehicle().getId(), vehicleUpdate -> new VehicleExtension(vehicleUpdate, minecraftClientData));
-		final boolean hasUpdate2 = updateVehiclesOrLifts(minecraftClientData.lifts, vehicleLiftResponse::iterateLiftsToKeep, vehicleLiftResponse::iterateLiftsToUpdate, (removedLift) -> {}, NameColorDataBase::getId, lift -> lift);
+		final boolean hasUpdate2 = updateVehiclesOrLifts(minecraftClientData.lifts, vehicleLiftResponse::iterateLiftsToKeep, vehicleLiftResponse::iterateLiftsToUpdate, (removedLift) -> {
+		}, NameColorDataBase::getId, lift -> lift);
 
 		vehicleLiftResponse.iterateSignalBlockUpdates(signalBlockUpdate -> minecraftClientData.railIdToBlockedSignalColors.put(signalBlockUpdate.getRailId(), signalBlockUpdate.getBlockedColors()));
 
@@ -98,7 +99,9 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 		final Long2ObjectOpenHashMap<T> removedItems = new Long2ObjectOpenHashMap<>();
 		final boolean itemRemoved = dataSet.removeIf(data -> {
 			boolean shouldBeRemoved = !keepIds.contains(data.getId());
-			if(shouldBeRemoved) removedItems.put(data.getId(), data);
+			if (shouldBeRemoved) {
+				removedItems.put(data.getId(), data);
+			}
 			return shouldBeRemoved || updateIds.contains(data.getId());
 		});
 		dataSetToUpdate.forEach(dataToUpdate -> dataSet.add(createInstance.apply(dataToUpdate)));

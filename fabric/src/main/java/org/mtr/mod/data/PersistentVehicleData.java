@@ -103,7 +103,7 @@ public final class PersistentVehicleData {
 	}
 
 	public void dispose() {
-		for(VehicleSoundBase sounds : vehicleSoundBaseList) {
+		for (VehicleSoundBase sounds : vehicleSoundBaseList) {
 			sounds.dispose();
 		}
 	}
