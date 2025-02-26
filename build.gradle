@@ -1,57 +1,70 @@
 plugins {
-	id "java"
-	id "com.github.johnrengelman.shadow" version "+" apply false
+	id "dev.architectury.loom" version "1.7-SNAPSHOT" apply false
+	id "architectury-plugin" version "3.4-SNAPSHOT"
+	id "com.github.johnrengelman.shadow" version "8.1.1" apply false
 }
 
-group "org.mtr.mod"
-version rootProject.properties.version
+architectury {
+	minecraft = project.minecraft_version
+}
+
+allprojects {
+	group = rootProject.maven_group
+	version = rootProject.mod_version
+}
 
 subprojects {
-	apply plugin: "java"
-	apply plugin: "com.github.johnrengelman.shadow"
+	apply plugin: "dev.architectury.loom"
+	apply plugin: "architectury-plugin"
+	apply plugin: "maven-publish"
 
-	configurations {
-		shadowImplementation
-		implementation.extendsFrom shadowImplementation
-	}
-
-	dependencies {
-		shadowImplementation "org.mtr:Shadow-Libraries-net:0.0.1"
-		shadowImplementation "org.mtr:Shadow-Libraries-util:0.0.1"
-		shadowImplementation "org.mtr:Minecraft-Mappings-common:0.0.1"
-		shadowImplementation "org.mtr:Transport-Simulation-Core:0.0.1"
-		shadowImplementation "com.logisticscraft:occlusionculling:+"
-		compileOnly "com.google.code.findbugs:jsr305:+"
-		compileOnly "xyz.jpenilla:squaremap-api:+"
-		compileOnly "net.kyori:adventure-api:+"
-		compileOnly "com.test:Dynmap:3.2.1"
+	base {
+		// Set up a suffixed format for the mod jar names, e.g. `example-fabric`.
+		archivesName = "$rootProject.archives_name-$project.name"
 	}
 
 	repositories {
 		flatDir { dirs "../libs" }
-		maven { url "https://repo.codemc.org/repository/maven-public" }
-		maven { url = "https://api.modrinth.com/maven/" }
-		maven { url = "https://maven4.bai.lol/" }
+		maven { url = "https://maven.terraformersmc.com/" }
 	}
 
-	shadowJar {
-		configurations = [project.configurations.shadowImplementation]
-		minimize {
-			exclude(dependency("org.mtr:Shadow-Libraries-net:.*"))
-			exclude(dependency("org.mtr:Minecraft-Mappings-common:.*"))
-			exclude(dependency("org.mtr:Minecraft-Mappings-fabric-${minecraftVersion}:.*"))
-			exclude(dependency("org.mtr:Minecraft-Mappings-forge-${minecraftVersion}:.*"))
+	dependencies {
+		minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
+		mappings loom.layered {
+			it.mappings("net.fabricmc:yarn:$rootProject.yarn_mappings:v2")
+			it.mappings("dev.architectury:yarn-mappings-patch-neoforge:$rootProject.yarn_mappings_patch_neoforge_version")
 		}
-		relocate "com.logisticscraft", "org.mtr.libraries.com.logisticscraft"
-		relocate "de.javagl", "org.mtr.libraries.de.javagl"
 	}
 
-	tasks.withType(AbstractArchiveTask).configureEach {
-		preserveFileTimestamps = false
-		reproducibleFileOrder = true
+	java {
+		// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+		// if it is present.
+		// If you remove this line, sources will not be generated.
+		withSourcesJar()
+
+		sourceCompatibility = JavaVersion.VERSION_21
+		targetCompatibility = JavaVersion.VERSION_21
 	}
 
-	tasks.withType(Javadoc).tap {
-		configureEach { javadoc.options.addStringOption("Xdoclint:none", "-quiet") }
+	tasks.withType(JavaCompile).configureEach {
+		it.options.release = 21
+	}
+
+	// Configure Maven publishing.
+	publishing {
+		publications {
+			mavenJava(MavenPublication) {
+				artifactId = base.archivesName.get()
+				from components.java
+			}
+		}
+
+		// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+		repositories {
+			// Add repositories to publish to here.
+			// Notice: This block does NOT have the same function as the block in the top level.
+			// The repositories here will be used for publishing your artifact, not for
+			// retrieving dependencies.
+		}
 	}
 }

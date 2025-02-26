@@ -1,0 +1,29 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+issueTrackerURL = "https://github.com/Minecraft-Transit-Railway/Minecraft-Transit-Railway/issues"
+license = "Insert License Here"
+
+[[mods]]
+modId = "mtr"
+version = "${version}"
+displayName = "Minecraft Transit Railway"
+authors = "Jonathan Ho"
+description = "A Minecraft mod that adds automated train systems into the game."
+logoFile = "icon.png"
+
+[[dependencies.mtr]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.4,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.mtr]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.4,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[mixins]]
+config = "mtr.mixins.json"

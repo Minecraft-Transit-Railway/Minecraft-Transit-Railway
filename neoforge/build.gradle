@@ -4,7 +4,7 @@ plugins {
 
 architectury {
 	platformSetupLoomIde()
-	fabric()
+	neoForge()
 }
 
 configurations {
@@ -14,7 +14,7 @@ configurations {
 	}
 	compileClasspath.extendsFrom common
 	runtimeClasspath.extendsFrom common
-	developmentFabric.extendsFrom common
+	developmentNeoForge.extendsFrom common
 
 	// Files in this configuration will be bundled into your mod using the Shadow plugin.
 	// Don"t use the `shadow` configuration from the plugin itself as it"s meant for excluding files.
@@ -24,18 +24,24 @@ configurations {
 	}
 }
 
+repositories {
+	maven {
+		name = "NeoForged"
+		url = "https://maven.neoforged.net/releases"
+	}
+}
+
 dependencies {
-	modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
-	modImplementation "com.terraformersmc:modmenu:${rootProject.modmenu_version}"
+	neoForge "net.neoforged:neoforge:$rootProject.neoforge_version"
+
 	common(project(path: ":common", configuration: "namedElements")) { transitive false }
-	shadowBundle project(path: ":common", configuration: "transformProductionFabric")
+	shadowBundle project(path: ":common", configuration: "transformProductionNeoForge")
 }
 
 processResources {
 	inputs.property "version", project.version
 
-	filesMatching("fabric.mod.json") {
+	filesMatching("META-INF/neoforge.mods.toml") {
 		expand version: project.version
 	}
 }
