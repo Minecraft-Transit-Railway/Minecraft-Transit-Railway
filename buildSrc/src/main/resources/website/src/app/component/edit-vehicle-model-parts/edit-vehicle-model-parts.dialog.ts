@@ -11,6 +11,7 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
 import {PositionDefinitionDTO} from "../../entity/generated/positionDefinition";
 import {EditVehicleModelPartDialog} from "../edit-vehicle-model-part/edit-vehicle-model-part.dialog";
 import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
+import {VehicleResourceWrapperDTO} from "../../entity/generated/vehicleResourceWrapper";
 
 const MAIN_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => string }[] = [
 	{id: "positionDefinition", title: "Model Part", formatData: modelPropertiesPart => modelPropertiesPart.positionDefinition.name},
@@ -75,7 +76,7 @@ export const CREATE_MODEL_PROPERTIES_PART = () => new ModelPropertiesPartWrapper
 export class EditVehicleModelPartsDialog {
 	@ViewChild(MatTable) table?: MatTable<ModelPropertiesPartWrapperDTO>;
 	private readonly dialogRef = inject(MatDialogRef<EditVehicleModelPartsDialog>);
-	private readonly model = inject<VehicleModelWrapperDTO>(MAT_DIALOG_DATA);
+	private readonly data = inject<{ vehicleResource: VehicleResourceWrapperDTO, model: VehicleModelWrapperDTO }>(MAT_DIALOG_DATA);
 	private readonly dialog = inject(MatDialog);
 	protected readonly modelPartNames: string[] = [];
 	protected readonly allColumns = [...MAIN_COLUMNS, ...DOOR_COLUMNS, ...DISPLAY_COLUMNS];
@@ -88,7 +89,7 @@ export class EditVehicleModelPartsDialog {
 	protected hasDisplay = false;
 
 	constructor(private readonly dataService: DataService) {
-		this.dataService.models().find(({id}) => id === this.model.modelResource)?.modelParts.forEach(name => this.modelPartNames.push(name));
+		this.dataService.models().find(({id}) => id === this.data.model.modelResource)?.modelParts.forEach(name => this.modelPartNames.push(name));
 		this.formGroup = new FormGroup({
 			showNormalParts: new FormControl(true),
 			showFloorsAndDoorways: new FormControl(true),
@@ -107,7 +108,7 @@ export class EditVehicleModelPartsDialog {
 		let showDoorColumns = false;
 		let showDisplayColumns = false;
 		const newData = this.formGroup.getRawValue();
-		this.model.parts.forEach(modelPropertiesPart => {
+		this.data.model.parts.forEach(modelPropertiesPart => {
 			if (this.modelPartNames.includes(modelPropertiesPart.positionDefinition.name)) {
 				const isNormal = modelPropertiesPart.type === "NORMAL";
 				const isFloorOrDoorway = modelPropertiesPart.type === "FLOOR" || modelPropertiesPart.type === "DOORWAY";
@@ -151,22 +152,22 @@ export class EditVehicleModelPartsDialog {
 
 	add() {
 		const modelPropertiesPart = CREATE_MODEL_PROPERTIES_PART();
-		this.model.parts.push(modelPropertiesPart);
+		this.data.model.parts.push(modelPropertiesPart);
 		this.edit(modelPropertiesPart);
 	}
 
 	edit(modelPropertiesPart: ModelPropertiesPartWrapperDTO) {
-		this.dialog.open(EditVehicleModelPartDialog, {data: {model: this.model, modelPropertiesPart}}).afterClosed().subscribe(() => this.filterData());
+		this.dialog.open(EditVehicleModelPartDialog, {data: {vehicleResource: this.data.vehicleResource, model: this.data.model, modelPropertiesPart}}).afterClosed().subscribe(() => this.filterData());
 	}
 
 	delete(modelPropertiesPart: ModelPropertiesPartWrapperDTO) {
 		modelPropertiesPart.positionDefinition.name = "";
 		this.filterData();
-		this.dataService.update(true);
+		this.dataService.update(this.data.vehicleResource.id, true);
 	}
 
 	onClose() {
-		this.dataService.update();
+		this.dataService.update(this.data.vehicleResource.id);
 		this.dialogRef.close();
 	}
 }

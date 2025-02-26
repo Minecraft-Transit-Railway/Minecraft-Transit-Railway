@@ -116,6 +116,10 @@ public final class VehicleResourceWrapper extends VehicleResourceWrapperSchema {
 		);
 	}
 
+	public String getId() {
+		return id;
+	}
+
 	void clean() {
 		models.forEach(VehicleModelWrapper::clean);
 	}

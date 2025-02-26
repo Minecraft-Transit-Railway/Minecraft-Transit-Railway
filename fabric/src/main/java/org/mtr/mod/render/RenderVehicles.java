@@ -10,6 +10,7 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.*;
+import org.mtr.mod.config.Config;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.resource.VehicleResource;
 import org.mtr.mod.resource.VehicleResourceCache;
@@ -95,7 +96,7 @@ public class RenderVehicles implements IGui {
 						final GangwayMovementPositions gangwayMovementPositions1 = new GangwayMovementPositions(renderVehicleTransformationHelperAbsolute, false);
 						final GangwayMovementPositions gangwayMovementPositions2 = new GangwayMovementPositions(renderVehicleTransformationHelperAbsolute, true);
 						// Vehicle resource cache
-						final VehicleResourceCache vehicleResourceCache = vehicleResource.getCachedVehicleResource(carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size());
+						final VehicleResourceCache vehicleResourceCache = vehicleResource.getCachedVehicleResource(carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), false);
 						// Find open doorways (close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates)
 						final ObjectArrayList<Box> openDoorways;
 						if (vehicleResourceCache != null && fromResourcePackCreator) {
@@ -106,7 +107,7 @@ public class RenderVehicles implements IGui {
 						} else {
 							openDoorways = vehicleResourceCache.doorways.stream().filter(doorway -> RenderVehicleHelper.canOpenDoors(doorway, renderVehicleTransformationHelperAbsolute, vehicle.persistentVehicleData.getDoorValue(), false)).collect(Collectors.toCollection(ObjectArrayList::new));
 						}
-						final double oscillationAmount = vehicle.persistentVehicleData.getOscillation(carNumber).getAmount();
+						final double oscillationAmount = vehicle.persistentVehicleData.getOscillation(carNumber).getAmount() * Config.getClient().getVehicleOscillationMultiplier();
 
 						if (canRide) {
 							if (vehicleResourceCache != null) {

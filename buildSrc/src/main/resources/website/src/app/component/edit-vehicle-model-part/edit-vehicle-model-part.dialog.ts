@@ -14,6 +14,7 @@ import {CdkTextareaAutosize} from "@angular/cdk/text-field";
 import {VehicleModelWrapperDTO} from "../../entity/generated/vehicleModelWrapper";
 import {PartPositionDTO} from "../../entity/generated/partPosition";
 import {MatCheckboxModule} from "@angular/material/checkbox";
+import {VehicleResourceWrapperDTO} from "../../entity/generated/vehicleResourceWrapper";
 
 @Component({
 	imports: [
@@ -35,7 +36,7 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
 })
 export class EditVehicleModelPartDialog {
 	private readonly dialogRef = inject(MatDialogRef<EditVehicleModelPartDialog>);
-	private readonly data = inject<{ model: VehicleModelWrapperDTO, modelPropertiesPart: ModelPropertiesPartWrapperDTO }>(MAT_DIALOG_DATA);
+	private readonly data = inject<{ vehicleResource: VehicleResourceWrapperDTO, model: VehicleModelWrapperDTO, modelPropertiesPart: ModelPropertiesPartWrapperDTO }>(MAT_DIALOG_DATA);
 	protected readonly modelPartNames: string[] = [];
 	protected readonly formGroup;
 
@@ -156,7 +157,7 @@ export class EditVehicleModelPartDialog {
 			if (newData.displayOptionCycleLanguages) {
 				modelPropertiesPart.displayOptions.push("CYCLE_LANGUAGES");
 			}
-			this.dataService.update(true);
+			this.dataService.update(this.data.vehicleResource.id, true);
 		});
 	}
 

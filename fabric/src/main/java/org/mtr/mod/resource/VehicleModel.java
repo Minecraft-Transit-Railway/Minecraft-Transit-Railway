@@ -17,6 +17,7 @@ import org.mtr.mod.render.DynamicVehicleModel;
 
 public final class VehicleModel extends VehicleModelSchema {
 
+	boolean shouldPreload = false;
 	final CachedResource<DynamicVehicleModel> cachedModel;
 	private final JsonReader modelPropertiesJsonReader;
 	private final JsonReader positionDefinitionsJsonReader;
@@ -28,7 +29,7 @@ public final class VehicleModel extends VehicleModelSchema {
 		updateData(readerBase);
 		modelPropertiesJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelPropertiesResource, "json"))));
 		positionDefinitionsJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(positionDefinitionsResource, "json"))));
-		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader), modelPropertiesResource), MODEL_LIFESPAN);
+		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader), modelPropertiesResource), shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
 		cachedModel.getData(true);
 	}
 
@@ -37,7 +38,7 @@ public final class VehicleModel extends VehicleModelSchema {
 		updateData(readerBase);
 		this.modelPropertiesJsonReader = modelPropertiesJsonReader;
 		this.positionDefinitionsJsonReader = positionDefinitionsJsonReader;
-		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader), id), MODEL_LIFESPAN);
+		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader), id), shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
 		cachedModel.getData(true);
 	}
 
@@ -59,7 +60,7 @@ public final class VehicleModel extends VehicleModelSchema {
 		);
 		modelPropertiesJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelPropertiesResource, "json"))));
 		positionDefinitionsJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(positionDefinitionsResource, "json"))));
-		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader), modelPropertiesResource), MODEL_LIFESPAN);
+		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader), modelPropertiesResource), shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
 		cachedModel.getData(true);
 	}
 

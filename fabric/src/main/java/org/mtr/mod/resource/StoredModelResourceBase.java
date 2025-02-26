@@ -87,6 +87,8 @@ public interface StoredModelResourceBase {
 	@Nullable
 	DynamicVehicleModel getDynamicVehicleModel();
 
+	void preload();
+
 	default void transform(ObjectCollection<OptimizedModel.ObjModel> values) {
 	}
 }

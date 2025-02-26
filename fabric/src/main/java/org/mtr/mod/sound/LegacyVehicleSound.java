@@ -57,6 +57,10 @@ public class LegacyVehicleSound extends VehicleSoundBase {
 	}
 
 	@Override
+	public void dispose() {
+	}
+
+	@Override
 	protected void playDoorSound(BlockPos blockPos, boolean isOpen) {
 		ScheduledSound.schedule(blockPos, SoundHelper.createSoundEvent(new Identifier(Init.MOD_ID, String.format("%s%s", legacyDoorSoundBaseResource, isOpen ? SOUND_DOOR_OPEN : SOUND_DOOR_CLOSE))), 2, 1);
 	}
