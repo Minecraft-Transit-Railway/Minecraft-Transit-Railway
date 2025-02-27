@@ -96,7 +96,7 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 				if (posX + WorldMap.CHUNK_SIZE < topLeft.leftInt() || posZ + WorldMap.CHUNK_SIZE < (topLeft).rightInt() || posX > bottomRight.leftInt() || posZ > bottomRight.rightInt()) {
 					return;
 				}
-				drawRectangleFromWorldCoords(guiDrawing, mapImage.textureId, posX, posZ, posX + WorldMap.CHUNK_SIZE, posZ + WorldMap.CHUNK_SIZE);
+				drawTextureFromWorldCoords(guiDrawing, mapImage.textureId, posX, posZ, posX + WorldMap.CHUNK_SIZE, posZ + WorldMap.CHUNK_SIZE);
 			});
 		}
 
@@ -357,10 +357,16 @@ public class WidgetMap extends ClickableWidgetExtension implements IGui {
 		final double z1 = (posZ1 - centerY) * scale + height / 2D;
 		final double x2 = (posX2 - centerX) * scale + width / 2D;
 		final double z2 = (posZ2 - centerY) * scale + height / 2D;
-		guiDrawing.drawRectangle(getX2() + Math.max(0, x1), getY2() + z1, getX2() + x2, getY2() + z2, color);
+
+		final double minX = Math.min(x1, x2);
+		final double maxX = Math.max(x1, x2);
+		final double minZ = Math.min(z1, z2);
+		final double maxZ = Math.max(z1, z2);
+
+		guiDrawing.drawRectangle(getX2() + Math.max(0, minX), getY2() + minZ, getX2() + maxX, getY2() + maxZ, color);
 	}
 
-	private void drawRectangleFromWorldCoords(GuiDrawing guiDrawing, Identifier texture, double posX1, double posZ1, double posX2, double posZ2) {
+	private void drawTextureFromWorldCoords(GuiDrawing guiDrawing, Identifier texture, double posX1, double posZ1, double posX2, double posZ2) {
 		guiDrawing.beginDrawingTexture(texture);
 		final double x1 = (posX1 - centerX) * scale + width / 2D;
 		final double z1 = (posZ1 - centerY) * scale + height / 2D;

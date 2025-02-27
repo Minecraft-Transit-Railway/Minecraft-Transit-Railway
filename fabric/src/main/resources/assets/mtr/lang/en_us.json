@@ -175,6 +175,7 @@
 	"gui.mtr.automatically_detect_nearby_platform": "Automatically detect nearby platform",
 	"gui.mtr.available": "Available",
 	"gui.mtr.balance": "Balance: $%s",
+	"gui.mtr.brand": "Minecraft Transit Railway",
 	"gui.mtr.calling_at": "Stops at: (%s/%s)",
 	"gui.mtr.calling_at_cjk": "停靠站：(%s/%s)",
 	"gui.mtr.clear_vehicles": "Clear Vehicles",
