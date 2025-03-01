@@ -43,7 +43,7 @@
 			"rider_offset": 0,
 			"model": "mtr:models/vehicle/eidan_9000.bbmodel",
 			"model_properties": "mtr:properties/pending_migration/eidan_9000.json",
-			"bve_sound_base_id": "london_underground_1996"
+			"bve_sound_base_id": "eidan_9000"
 		},
 		"eidan_9000_small": {
 			"name": "Eidan 9000 (Small)",
@@ -58,7 +58,7 @@
 			"rider_offset": 0,
 			"model": "mtr:models/vehicle/eidan_9000.bbmodel",
 			"model_properties": "mtr:properties/pending_migration/eidan_9000_small.json",
-			"bve_sound_base_id": "london_underground_1996"
+			"bve_sound_base_id": "eidan_9000"
 		},
 		"eidan_9000_mini": {
 			"name": "Eidan 9000 (Mini)",
@@ -73,7 +73,7 @@
 			"rider_offset": 0,
 			"model": "mtr:models/vehicle/eidan_9000.bbmodel",
 			"model_properties": "mtr:properties/pending_migration/eidan_9000_mini.json",
-			"bve_sound_base_id": "london_underground_1996"
+			"bve_sound_base_id": "eidan_9000"
 		}
 	}
 }

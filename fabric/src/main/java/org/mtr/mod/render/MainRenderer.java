@@ -123,6 +123,9 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 						case LIGHT_TRANSLUCENT:
 							renderLayer = MoreRenderLayers.getLight(key, true);
 							break;
+						case LIGHT_2:
+							renderLayer = MoreRenderLayers.getLight2(key);
+							break;
 						case INTERIOR:
 							renderLayer = MoreRenderLayers.getInterior(key);
 							break;

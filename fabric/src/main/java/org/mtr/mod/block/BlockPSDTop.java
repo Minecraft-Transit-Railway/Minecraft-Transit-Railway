@@ -1,7 +1,10 @@
 package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.BlockEntityTypes;
 import org.mtr.mod.Items;
@@ -21,7 +24,7 @@ public class BlockPSDTop extends BlockExtension implements IBlock, DirectionHelp
 	public static final EnumProperty<EnumPersistent> PERSISTENT = EnumProperty.of("persistent", EnumPersistent.class);
 
 	public BlockPSDTop() {
-		super(BlockHelper.createBlockSettings(true).nonOpaque());
+		super(org.mtr.mod.Blocks.createDefaultBlockSettings(true).nonOpaque());
 	}
 
 	@Nonnull

@@ -76,7 +76,7 @@ public interface StoredModelResourceBase {
 			}
 		} else {
 			if (dynamicVehicleModel != null) {
-				dynamicVehicleModel.render(storedMatrixTransformations, null, 0, new int[]{0}, light, new ObjectArrayList<>());
+				dynamicVehicleModel.render(storedMatrixTransformations, null, 0, new int[]{0}, light, new ObjectArrayList<>(), false);
 			}
 		}
 	}
@@ -86,6 +86,8 @@ public interface StoredModelResourceBase {
 
 	@Nullable
 	DynamicVehicleModel getDynamicVehicleModel();
+
+	void preload();
 
 	default void transform(ObjectCollection<OptimizedModel.ObjModel> values) {
 	}

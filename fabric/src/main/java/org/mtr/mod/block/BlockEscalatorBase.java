@@ -2,7 +2,6 @@ package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mod.Items;
 
@@ -13,7 +12,7 @@ public abstract class BlockEscalatorBase extends BlockExtension implements IBloc
 	public static final EnumProperty<EnumEscalatorOrientation> ORIENTATION = EnumProperty.of("orientation", EnumEscalatorOrientation.class);
 
 	protected BlockEscalatorBase() {
-		super(BlockHelper.createBlockSettings(true).nonOpaque());
+		super(org.mtr.mod.Blocks.createDefaultBlockSettings(true).nonOpaque());
 	}
 
 	@Nonnull
@@ -62,11 +61,11 @@ public abstract class BlockEscalatorBase extends BlockExtension implements IBloc
 		final BlockPos posAhead = pos.offset(facing);
 		final BlockPos posBehind = pos.offset(facing, -1);
 
-		final boolean isAhead = state.isOf(world.getBlockState(posAhead).getBlock());
-		final boolean isAheadUp = state.isOf(world.getBlockState(posAhead.up()).getBlock());
+		final boolean isAhead = isBlock(world, posAhead, state);
+		final boolean isAheadUp = isBlock(world, posAhead.up(), state);
 
-		final boolean isBehind = state.isOf(world.getBlockState(posBehind).getBlock());
-		final boolean isBehindDown = state.isOf(world.getBlockState(posBehind.down()).getBlock());
+		final boolean isBehind = isBlock(world, posBehind, state);
+		final boolean isBehindDown = isBlock(world, posBehind.down(), state);
 
 		if (isAhead && isBehind) {
 			return EnumEscalatorOrientation.FLAT;
@@ -86,6 +85,14 @@ public abstract class BlockEscalatorBase extends BlockExtension implements IBloc
 	private Direction getSideDirection(BlockState state) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 		return IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT ? facing.rotateYCounterclockwise() : facing.rotateYClockwise();
+	}
+
+	private static boolean isBlock(BlockView world, BlockPos blockPos, BlockState checkState) {
+		try {
+			return checkState.isOf(world.getBlockState(blockPos).getBlock());
+		} catch (Exception ignored) {
+			return false;
+		}
 	}
 
 	public enum EnumEscalatorOrientation implements StringIdentifiable {

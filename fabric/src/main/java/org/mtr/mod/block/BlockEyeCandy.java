@@ -1,9 +1,12 @@
 package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.BlockEntityTypes;
+import org.mtr.mod.Blocks;
 import org.mtr.mod.Init;
 import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
 
@@ -11,16 +14,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class BlockEyeCandy extends BlockExtension implements DirectionHelper, BlockWithEntity {
+public class BlockEyeCandy extends BlockWaterloggable implements DirectionHelper, BlockWithEntity {
 
 	public BlockEyeCandy() {
-		super(BlockHelper.createBlockSettings(true).strength(2).nonOpaque());
+		super(Blocks.createDefaultBlockSettings(true).nonOpaque());
 	}
 
-	@Nullable
+	@Nonnull
 	@Override
-	public BlockState getPlacementState2(ItemPlacementContext ctx) {
-		return getDefaultState2().with(new Property<>(FACING.data), ctx.getPlayerFacing().data);
+	public BlockState getPlacementState2(ItemPlacementContext itemPlacementContext) {
+		return super.getPlacementState2(itemPlacementContext).with(new Property<>(FACING.data), itemPlacementContext.getPlayerFacing().data);
 	}
 
 	@Nonnull
@@ -38,6 +41,7 @@ public class BlockEyeCandy extends BlockExtension implements DirectionHelper, Bl
 
 	@Override
 	public void addBlockProperties(List<HolderBase<?>> properties) {
+		super.addBlockProperties(properties);
 		properties.add(FACING);
 	}
 

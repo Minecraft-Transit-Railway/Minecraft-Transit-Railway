@@ -2,7 +2,10 @@ package org.mtr.mod.block;
 
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.BlockEntityTypes;
 import org.mtr.mod.Init;
@@ -24,7 +27,7 @@ public class BlockRailwaySign extends BlockExtension implements IBlock, Directio
 	public static final float SMALL_SIGN_PERCENTAGE = 0.75F;
 
 	public BlockRailwaySign(int length, boolean isOdd) {
-		super(BlockHelper.createBlockSettings(true, blockState -> 15));
+		super(org.mtr.mod.Blocks.createDefaultBlockSettings(true, blockState -> 15));
 		this.length = length;
 		this.isOdd = isOdd;
 	}

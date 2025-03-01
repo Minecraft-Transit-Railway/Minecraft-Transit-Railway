@@ -35,7 +35,7 @@ public final class PacketTurnOnBlockEntity extends PacketHandler {
 
 		final BlockState blockState = world.getBlockState(blockPos);
 		final Block block = blockState.getBlock();
-		if (block.data instanceof BlockTrainPoweredSensorBase && (IBlock.getStatePropertySafe(blockState, BlockTrainPoweredSensorBase.POWERED) <= 1 || !BlockExtension.hasScheduledTick(world, blockPos, block))) {
+		if (block.data instanceof BlockTrainPoweredSensorBase && (IBlock.getStatePropertySafe(blockState, BlockTrainPoweredSensorBase.POWERED) <= 1 || !BlockExtension.hasScheduledBlockTick(world, blockPos, block))) {
 			((BlockTrainPoweredSensorBase) block.data).power(world, blockState, blockPos);
 		}
 	}

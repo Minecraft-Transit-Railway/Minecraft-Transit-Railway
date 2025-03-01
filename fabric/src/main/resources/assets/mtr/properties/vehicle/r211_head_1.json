@@ -149,6 +149,16 @@
 		},
 		{
 			"names": [
+				"front_route_color_display"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "DISPLAY",
+			"displayType": "ROUTE_COLOR_ROUNDED"
+		},
+		{
+			"names": [
 				"next_station_display_head"
 			],
 			"positionDefinitions": [
