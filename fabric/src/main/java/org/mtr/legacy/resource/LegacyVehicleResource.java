@@ -85,9 +85,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				baseObject.addProperty("legacyConstantPlaybackSpeed", const_playback_speed);
 			}
 
-			if(door_close_sound_time > 0) {
-				baseObject.addProperty("legacyDoorCloseSoundTime", door_close_sound_time);
-			}
+			baseObject.addProperty("legacyDoorCloseSoundTime", door_close_sound_time == 0 ? 0.5 : door_close_sound_time); // MTR 3 defaults to 0.5s if not specified
 
 			if (baseVehicleResource[0] == null) {
 				final JsonObject propertiesObject = model_properties.isEmpty() ? null : Utilities.parseJson(resourceProvider.get(new Identifier(model_properties)));
