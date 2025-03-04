@@ -146,7 +146,9 @@ public class RenderVehicleHelper {
 								ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.transformBackwards(bogiePositions.left().add(cameraShake), (vector, pitch) -> vector, Vector::rotateY, Vector::add).add(-playerRelativePositionNew.getXMapped(), -playerRelativePositionNew.getYMapped() - playerYOffset, -playerRelativePositionNew.getZMapped()),
 								ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.transformBackwards(bogiePositions.right().add(cameraShake), (vector, pitch) -> vector, Vector::rotateY, Vector::add).add(-playerRelativePositionNew.getXMapped(), -playerRelativePositionNew.getYMapped() - playerYOffset, -playerRelativePositionNew.getZMapped())
 						));
-						averageAbsoluteBogiePositionsList.add(Vector.getAverage(bogiePositions.left(), bogiePositions.right()).add(cameraShake));
+						averageAbsoluteBogiePositionsList.add(
+								ridingVehicleProperties.renderVehicleTransformationHelperAbsolute.transformBackwards(Vector.getAverage(bogiePositions.left(), bogiePositions.right()).add(cameraShake), (vector, pitch) -> vector, Vector::rotateY, Vector::add).add(-playerRelativePositionNew.getXMapped(), -playerRelativePositionNew.getYMapped() - playerYOffset, -playerRelativePositionNew.getZMapped())
+						);
 					});
 
 					return new VehicleProperties(vehicleProperties.vehicleCar, bogiePositionsList, averageAbsoluteBogiePositionsList, vehicleProperties.renderVehicleTransformationHelperAbsolute, ridingVehicleProperties.renderVehicleTransformationHelperAbsolute, ridingVehicleCarNumberAndOffset.right().right());
