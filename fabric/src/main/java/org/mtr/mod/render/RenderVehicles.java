@@ -85,9 +85,6 @@ public class RenderVehicles implements IGui {
 							}
 						});
 
-						// Play motor sound
-						vehicle.playMotorSound(vehicleResource, carNumber, renderVehicleTransformationHelperAbsolute.pivotPosition);
-
 						// Player position relative to the car
 						final Vector3d playerPosition = renderVehicleTransformationHelperAbsolute.transformBackwards(clientPlayerEntity.getPos(), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
 						// A temporary list to store all floors and doorways
@@ -129,9 +126,14 @@ public class RenderVehicles implements IGui {
 							VehicleRidingMovement.startRiding(openDoorways, vehicle.vehicleExtraData.getSidingId(), vehicle.getId(), carNumber, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped(), renderVehicleTransformationHelperAbsolute.yaw);
 						}
 
-						// Play door sound
-						if (!openDoorways.isEmpty()) {
-							vehicle.playDoorSound(vehicleResource, carNumber, renderVehicleTransformationHelperAbsolute.pivotPosition);
+						// Play vehicle sounds
+						if (!OptimizedRenderer.renderingShadows()) {
+							vehicle.playMotorSound(vehicleResource, carNumber, renderVehicleTransformationHelperAbsolute.pivotPosition);
+
+							// Play door sounds
+							if(!openDoorways.isEmpty()) {
+								vehicle.playDoorSound(vehicleResource, carNumber, renderVehicleTransformationHelperAbsolute.pivotPosition);
+							}
 						}
 
 						// Each car can have more than one model defined
