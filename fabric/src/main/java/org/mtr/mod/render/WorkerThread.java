@@ -13,6 +13,9 @@ import org.mtr.mod.Init;
 
 import java.util.function.Consumer;
 
+/**
+ * A background thread to perform intensive rendering tasks (e.g. Occlusion culling, generate dynamic textures etc.)
+ */
 public final class WorkerThread extends CustomThread {
 
 	private static final int MAX_OCCLUSION_CHUNK_DISTANCE = 32;
@@ -26,6 +29,10 @@ public final class WorkerThread extends CustomThread {
 
 	@Override
 	protected void runTick() {
+		try {
+			Thread.sleep(10); // Give the CPU a little break
+		} catch (InterruptedException e) {}
+
 		if (!occlusionQueueVehicle.isEmpty() || !occlusionQueueLift.isEmpty() || !occlusionQueueRail.isEmpty()) {
 			updateInstance();
 			occlusionCullingInstance.resetCache();
