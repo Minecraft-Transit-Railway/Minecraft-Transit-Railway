@@ -1,36 +1,55 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.BlockWithEntity;
-import org.mtr.mapping.mapper.DirectionHelper;
-import org.mtr.mod.Items;
-import org.mtr.mod.generated.lang.TranslationProvider;
+import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.state.property.Properties;
+import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.tick.ScheduledTickView;
+import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.registry.Items;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class BlockLiftPanelBase extends BlockExtension implements IBlock, DirectionHelper, TripleHorizontalBlock, BlockWithEntity {
+public abstract class BlockLiftPanelBase extends Block implements IBlock, TripleHorizontalBlock, BlockEntityProvider {
 
 	private final boolean isOdd;
 	private final boolean isFlat;
 
-	public BlockLiftPanelBase(boolean isOdd, boolean isFlat) {
-		super(org.mtr.mod.Blocks.createDefaultBlockSettings(true, blockState -> 5));
+	public BlockLiftPanelBase(AbstractBlock.Settings settings, boolean isOdd, boolean isFlat) {
+		super(settings.luminance(blockState -> 5));
 		this.isOdd = isOdd;
 		this.isFlat = isFlat;
 	}
 
 	@Nonnull
 	@Override
-	public BlockState getStateForNeighborUpdate2(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
 		if (isOdd) {
-			return TripleHorizontalBlock.getStateForNeighborUpdate(state, direction, neighborState.isOf(new Block(this)), super.getStateForNeighborUpdate2(state, direction, neighborState, world, pos, neighborPos));
+			return TripleHorizontalBlock.getStateForNeighborUpdate(state, direction, neighborState.isOf(this), super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random));
 		} else {
-			if (IBlock.getSideDirection(state) == direction && !neighborState.isOf(new Block(this))) {
-				return Blocks.getAirMapped().getDefaultState();
+			if (IBlock.getSideDirection(state) == direction && !neighborState.isOf(this)) {
+				return Blocks.AIR.getDefaultState();
 			} else {
 				return state;
 			}
@@ -38,39 +57,39 @@ public abstract class BlockLiftPanelBase extends BlockExtension implements IBloc
 	}
 
 	@Override
-	public BlockState getPlacementState2(ItemPlacementContext ctx) {
-		final Direction direction = ctx.getPlayerFacing();
+	public BlockState getPlacementState(ItemPlacementContext ctx) {
+		final Direction direction = ctx.getHorizontalPlayerFacing();
 		if (isOdd) {
-			return TripleHorizontalBlock.getPlacementState(ctx, getDefaultState2());
+			return TripleHorizontalBlock.getPlacementState(ctx, getDefaultState());
 		} else {
-			return IBlock.isReplaceable(ctx, direction.rotateYClockwise(), 2) ? getDefaultState2().with(new Property<>(FACING.data), direction.data).with(new Property<>(SIDE.data), EnumSide.LEFT) : null;
+			return IBlock.isReplaceable(ctx, direction.rotateYClockwise(), 2) ? getDefaultState().with(Properties.FACING, direction).with(SIDE, EnumSide.LEFT) : null;
 		}
 	}
 
 	@Nonnull
 	@Override
-	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, isFlat ? 1 : 4, Direction.convert(state.get(new Property<>(FACING.data))));
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, isFlat ? 1 : 4, state.get(Properties.FACING));
 	}
 
 	@Override
-	public void onPlaced2(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+	public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
 		if (!world.isClient()) {
-			final Direction direction = IBlock.getStatePropertySafe(state, FACING);
+			final Direction direction = IBlock.getStatePropertySafe(state, Properties.FACING);
 
 			if (isOdd) {
-				TripleHorizontalBlock.onPlaced(world, pos, state, getDefaultState2());
+				TripleHorizontalBlock.onPlaced(world, pos, state, getDefaultState());
 			} else {
-				world.setBlockState(pos.offset(direction.rotateYClockwise()), getDefaultState2().with(new Property<>(FACING.data), direction.data).with(new Property<>(SIDE.data), EnumSide.RIGHT), 3);
+				world.setBlockState(pos.offset(direction.rotateYClockwise()), getDefaultState().with(Properties.FACING, direction).with(SIDE, EnumSide.RIGHT), 3);
 			}
 
-			world.updateNeighbors(pos, Blocks.getAirMapped());
-			state.updateNeighbors(new WorldAccess(world.data), pos, 3);
+			world.updateNeighbors(pos, Blocks.AIR);
+			state.updateNeighbors(world, pos, 3);
 		}
 	}
 
 	@Override
-	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		if (isOdd) {
 			TripleHorizontalBlock.onBreak(world, pos, state, player);
 		} else {
@@ -78,12 +97,12 @@ public abstract class BlockLiftPanelBase extends BlockExtension implements IBloc
 				IBlock.onBreakCreative(world, player, pos.offset(IBlock.getSideDirection(state)));
 			}
 		}
-		super.onBreak2(world, pos, state, player);
+		return super.onBreak(world, pos, state, player);
 	}
 
 	@Nonnull
 	@Override
-	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		if (world.isClient()) {
 			return ActionResult.SUCCESS;
 		} else {
@@ -92,11 +111,11 @@ public abstract class BlockLiftPanelBase extends BlockExtension implements IBloc
 	}
 
 	@Override
-	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		tooltip.add((isOdd ? TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_ODD : TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_EVEN).getMutableText().formatted(TextFormatting.GRAY));
+	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType options) {
+		tooltip.add((isOdd ? TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_ODD : TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_EVEN).getMutableText().formatted(Formatting.GRAY));
 	}
 
-	public abstract static class BlockEntityBase extends BlockEntityExtension {
+	public abstract static class BlockEntityBase extends BlockEntity {
 
 		private BlockPos trackPosition = null;
 		private static final String KEY_TRACK_FLOOR_POS = "track_floor_pos";
@@ -106,22 +125,22 @@ public abstract class BlockLiftPanelBase extends BlockExtension implements IBloc
 		}
 
 		@Override
-		public void readCompoundTag(CompoundTag compoundTag) {
-			final long data = compoundTag.getLong(KEY_TRACK_FLOOR_POS);
+		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+			final long data = nbt.getLong(KEY_TRACK_FLOOR_POS);
 			trackPosition = data == 0 ? null : BlockPos.fromLong(data);
-			super.readCompoundTag(compoundTag);
+			super.readNbt(nbt, registries);
 		}
 
 		@Override
-		public void writeCompoundTag(CompoundTag compoundTag) {
-			compoundTag.putLong(KEY_TRACK_FLOOR_POS, trackPosition == null ? 0 : trackPosition.asLong());
+		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+			nbt.putLong(KEY_TRACK_FLOOR_POS, trackPosition == null ? 0 : trackPosition.asLong());
 		}
 
 		public void registerFloor(World world, BlockPos pos, boolean isAdd) {
-			if (IBlock.getStatePropertySafe(world, getPos2(), SIDE) == EnumSide.RIGHT) {
-				final BlockEntity blockEntity = world.getBlockEntity(getPos2().offset(IBlock.getStatePropertySafe(world, getPos2(), FACING).rotateYCounterclockwise()));
-				if (blockEntity != null && blockEntity.data instanceof BlockLiftPanelBase.BlockEntityBase) {
-					((BlockEntityBase) blockEntity.data).registerFloor(world, pos, isAdd);
+			if (IBlock.getStatePropertySafe(world, getPos(), SIDE) == EnumSide.RIGHT) {
+				final BlockEntity blockEntity = world.getBlockEntity(getPos().offset(IBlock.getStatePropertySafe(world, getPos(), Properties.FACING).rotateYCounterclockwise()));
+				if (blockEntity instanceof BlockEntityBase) {
+					((BlockEntityBase) blockEntity).registerFloor(world, pos, isAdd);
 				}
 			} else {
 				if (isAdd) {
@@ -129,7 +148,7 @@ public abstract class BlockLiftPanelBase extends BlockExtension implements IBloc
 				} else {
 					trackPosition = null;
 				}
-				markDirty2();
+				markDirty();
 			}
 		}
 

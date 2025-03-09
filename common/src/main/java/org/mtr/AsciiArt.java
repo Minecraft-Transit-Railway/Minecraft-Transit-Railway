@@ -1,6 +1,6 @@
-package org.mtr.mod;
+package org.mtr;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.Random;
 
@@ -60,6 +60,6 @@ public final class AsciiArt {
 	}
 
 	public static void print() {
-		ART.get(new Random().nextInt(ART.size())).forEach(Init.LOGGER::info);
+		ART.get(new Random().nextInt(ART.size())).forEach(MTR.LOGGER::info);
 	}
 }

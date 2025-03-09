@@ -1,36 +1,38 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.BlockState;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.tool.HolderBase;
-import org.mtr.mod.BlockEntityTypes;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.registry.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 public class BlockLiftPanelEven2 extends BlockLiftPanelBase {
 
-	public BlockLiftPanelEven2() {
-		super(false, true);
+	public BlockLiftPanelEven2(AbstractBlock.Settings settings) {
+		super(settings, false, true);
 	}
 
 	@Override
-	public void addBlockProperties(List<HolderBase<?>> properties) {
-		properties.add(FACING);
-		properties.add(SIDE);
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(Properties.FACING);
+		builder.add(SIDE);
 	}
 
 	@Nonnull
 	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(blockPos, blockState);
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new LiftPanelEven2BlockEntity(blockPos, blockState);
 	}
 
-	public static class BlockEntity extends BlockEntityBase {
+	public static class LiftPanelEven2BlockEntity extends BlockEntityBase {
 
-		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_PANEL_EVEN_2.get(), pos, state, false);
+		public LiftPanelEven2BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.LIFT_PANEL_EVEN_2.createAndGet(), pos, state, false);
 		}
 	}
 }

@@ -1,10 +1,10 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.serializer.ReaderBase;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mod.generated.resource.VehicleResourceWrapperSchema;
+import org.mtr.generated.resource.VehicleResourceWrapperSchema;
 
 import javax.annotation.Nullable;
 import java.util.stream.Collectors;

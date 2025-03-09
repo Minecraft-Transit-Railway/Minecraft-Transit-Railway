@@ -1,40 +1,53 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
+import org.mtr.MTR;
+import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Lift;
 import org.mtr.core.data.LiftDirection;
 import org.mtr.core.operation.PressLift;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.mapper.BlockWithEntity;
-import org.mtr.mapping.mapper.DirectionHelper;
-import org.mtr.mapping.tool.HolderBase;
-import org.mtr.mod.Blocks;
-import org.mtr.mod.Items;
-import org.mtr.mod.*;
-import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.generated.lang.TranslationProvider;
-import org.mtr.mod.packet.PacketPressLiftButton;
+import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.packet.PacketPressLiftButton;
+import org.mtr.registry.BlockEntityTypes;
+import org.mtr.registry.Items;
+import org.mtr.registry.RegistryClient;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class BlockLiftButtons extends BlockWaterloggable implements DirectionHelper, BlockWithEntity {
+public class BlockLiftButtons extends BlockWaterloggable implements BlockEntityProvider {
 
 	public static final BooleanProperty UNLOCKED = BooleanProperty.of("unlocked");
 
-	public BlockLiftButtons() {
-		super(Blocks.createDefaultBlockSettings(true));
+	public BlockLiftButtons(AbstractBlock.Settings settings) {
+		super(settings);
 	}
 
 	@Nonnull
 	@Override
-	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		final ActionResult result = IBlock.checkHoldingBrush(world, player, () -> {
 			final boolean unlocked = !IBlock.getStatePropertySafe(state, UNLOCKED);
-			world.setBlockState(pos, state.with(new Property<>(UNLOCKED.data), unlocked));
+			world.setBlockState(pos, state.with(UNLOCKED, unlocked));
 			player.sendMessage((unlocked ? TranslationProvider.GUI_MTR_LIFT_BUTTONS_UNLOCKED : TranslationProvider.GUI_MTR_LIFT_BUTTONS_LOCKED).getText(), true);
 		});
 
@@ -45,16 +58,16 @@ public class BlockLiftButtons extends BlockWaterloggable implements DirectionHel
 				return ActionResult.PASS;
 			} else {
 				final boolean unlocked = IBlock.getStatePropertySafe(state, UNLOCKED);
-				final double hitY = MathHelper.fractionalPart(hit.getPos().getYMapped());
+				final double hitY = MathHelper.fractionalPart(hit.getPos().y);
 
 				if (unlocked && hitY < 0.5) {
 					// Special case: clientside button press
 					if (world.isClient()) {
-						final org.mtr.mapping.holder.BlockEntity blockEntity = world.getBlockEntity(pos);
-						if (blockEntity != null && blockEntity.data instanceof BlockEntity) {
+						final BlockEntity blockEntity = world.getBlockEntity(pos);
+						if (blockEntity instanceof LiftButtonsBlockEntity) {
 							// Array order: has down button, has up button
 							final boolean[] buttonStates = {false, false};
-							((BlockEntity) blockEntity.data).trackPositions.forEach(trackPosition -> BlockLiftButtons.hasButtonsClient(trackPosition, buttonStates, (floor, lift) -> {
+							((LiftButtonsBlockEntity) blockEntity).trackPositions.forEach(trackPosition -> BlockLiftButtons.hasButtonsClient(trackPosition, buttonStates, (floor, lift) -> {
 							}));
 
 							final LiftDirection liftDirection;
@@ -65,8 +78,8 @@ public class BlockLiftButtons extends BlockWaterloggable implements DirectionHel
 							}
 
 							final PressLift pressLift = new PressLift();
-							((BlockEntity) blockEntity.data).trackPositions.forEach(trackPosition -> pressLift.add(Init.blockPosToPosition(trackPosition), liftDirection));
-							InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketPressLiftButton(pressLift));
+							((LiftButtonsBlockEntity) blockEntity).trackPositions.forEach(trackPosition -> pressLift.add(MTR.blockPosToPosition(trackPosition), liftDirection));
+							RegistryClient.sendPacketToServer(new PacketPressLiftButton(pressLift));
 
 							return ActionResult.SUCCESS;
 						} else {
@@ -84,28 +97,28 @@ public class BlockLiftButtons extends BlockWaterloggable implements DirectionHel
 
 	@Nonnull
 	@Override
-	public BlockState getPlacementState2(ItemPlacementContext itemPlacementContext) {
-		final Direction facing = itemPlacementContext.getPlayerFacing();
-		return super.getPlacementState2(itemPlacementContext).with(new Property<>(FACING.data), facing.data);
+	public BlockState getPlacementState(ItemPlacementContext itemPlacementContext) {
+		final Direction facing = itemPlacementContext.getHorizontalPlayerFacing();
+		return super.getPlacementState(itemPlacementContext).with(Properties.FACING, facing);
 	}
 
 	@Nonnull
 	@Override
-	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getVoxelShapeByDirection(4, 0, 0, 12, 16, 1, IBlock.getStatePropertySafe(state, FACING));
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return IBlock.getVoxelShapeByDirection(4, 0, 0, 12, 16, 1, IBlock.getStatePropertySafe(state, Properties.FACING));
 	}
 
 	@Nonnull
 	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(blockPos, blockState);
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new LiftButtonsBlockEntity(blockPos, blockState);
 	}
 
 	@Override
-	public void addBlockProperties(List<HolderBase<?>> properties) {
-		super.addBlockProperties(properties);
-		properties.add(FACING);
-		properties.add(UNLOCKED);
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		super.appendProperties(builder);
+		builder.add(Properties.FACING);
+		builder.add(UNLOCKED);
 	}
 
 	/**
@@ -115,7 +128,7 @@ public class BlockLiftButtons extends BlockWaterloggable implements DirectionHel
 	 */
 	public static void hasButtonsClient(BlockPos trackPosition, boolean[] buttonStates, FloorLiftCallback callback) {
 		MinecraftClientData.getInstance().lifts.forEach(lift -> {
-			final int floorIndex = lift.getFloorIndex(Init.blockPosToPosition(trackPosition));
+			final int floorIndex = lift.getFloorIndex(MTR.blockPosToPosition(trackPosition));
 			if (floorIndex > 0) {
 				buttonStates[0] = true;
 			}
@@ -128,29 +141,29 @@ public class BlockLiftButtons extends BlockWaterloggable implements DirectionHel
 		});
 	}
 
-	public static class BlockEntity extends BlockEntityExtension {
+	public static class LiftButtonsBlockEntity extends BlockEntity {
 
 		private final ObjectOpenHashSet<BlockPos> trackPositions = new ObjectOpenHashSet<>();
 
 		private static final String KEY_TRACK_FLOOR_POS = "track_floor_pos";
 
-		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_BUTTONS_1.get(), pos, state);
+		public LiftButtonsBlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.LIFT_BUTTONS_1.createAndGet(), pos, state);
 		}
 
 		@Override
-		public void readCompoundTag(CompoundTag compoundTag) {
+		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
 			trackPositions.clear();
-			for (final long position : compoundTag.getLongArray(KEY_TRACK_FLOOR_POS)) {
+			for (final long position : nbt.getLongArray(KEY_TRACK_FLOOR_POS)) {
 				trackPositions.add(BlockPos.fromLong(position));
 			}
 		}
 
 		@Override
-		public void writeCompoundTag(CompoundTag compoundTag) {
+		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
 			final List<Long> trackPositionsList = new ArrayList<>();
 			trackPositions.forEach(position -> trackPositionsList.add(position.asLong()));
-			compoundTag.putLongArray(KEY_TRACK_FLOOR_POS, trackPositionsList);
+			nbt.putLongArray(KEY_TRACK_FLOOR_POS, trackPositionsList);
 		}
 
 		public void registerFloor(BlockPos pos, boolean isAdd) {
@@ -159,7 +172,7 @@ public class BlockLiftButtons extends BlockWaterloggable implements DirectionHel
 			} else {
 				trackPositions.remove(pos);
 			}
-			markDirty2();
+			markDirty();
 		}
 
 		public void forEachTrackPosition(Consumer<BlockPos> consumer) {

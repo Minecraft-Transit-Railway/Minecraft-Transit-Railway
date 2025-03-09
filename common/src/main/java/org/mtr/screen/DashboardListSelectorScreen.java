@@ -1,19 +1,19 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongCollection;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import org.mtr.mapping.holder.ClickableWidget;
-import org.mtr.mapping.mapper.ButtonWidgetExtension;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.ScreenExtension;
-import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.generated.lang.TranslationProvider;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongCollection;
+import it.unimi.dsi.fastutil.longs.LongList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.text.Text;
+import org.mtr.client.IDrawing;
+import org.mtr.client.MinecraftClientData;
+import org.mtr.data.IGui;
+import org.mtr.generated.lang.TranslationProvider;
 
 import javax.annotation.Nullable;
 
@@ -24,18 +24,18 @@ public class DashboardListSelectorScreen extends MTRScreenBase implements IGui {
 
 	protected final DashboardList availableList;
 	protected final DashboardList selectedList;
-	protected final ButtonWidgetExtension buttonDone;
+	protected final ButtonWidget buttonDone;
 
 	private final Runnable onClose;
 	private final boolean isSingleSelect;
 	private final boolean canRepeat;
 
-	public DashboardListSelectorScreen(ObjectImmutableList<DashboardListItem> allData, LongCollection selectedIds, boolean isSingleSelect, boolean canRepeat, @Nullable ScreenExtension previousScreenExtension) {
-		this(null, allData, selectedIds, isSingleSelect, canRepeat, previousScreenExtension);
+	public DashboardListSelectorScreen(ObjectImmutableList<DashboardListItem> allData, LongCollection selectedIds, boolean isSingleSelect, boolean canRepeat, @Nullable Screen previousScreen) {
+		this(null, allData, selectedIds, isSingleSelect, canRepeat, previousScreen);
 	}
 
-	public DashboardListSelectorScreen(@Nullable Runnable onClose, ObjectImmutableList<DashboardListItem> allData, LongCollection selectedIds, boolean isSingleSelect, boolean canRepeat, @Nullable ScreenExtension previousScreenExtension) {
-		super(previousScreenExtension);
+	public DashboardListSelectorScreen(@Nullable Runnable onClose, ObjectImmutableList<DashboardListItem> allData, LongCollection selectedIds, boolean isSingleSelect, boolean canRepeat, @Nullable Screen previousScreen) {
+		super(previousScreen);
 		this.onClose = onClose;
 		this.allData = allData;
 		this.selectedIds = selectedIds;
@@ -44,67 +44,67 @@ public class DashboardListSelectorScreen extends MTRScreenBase implements IGui {
 
 		availableList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> MinecraftClientData.ROUTES_PLATFORMS_SEARCH, text -> MinecraftClientData.ROUTES_PLATFORMS_SEARCH = text);
 		selectedList = new DashboardList(null, null, null, this::updateList, null, this::onDelete, () -> selectedIds instanceof LongList ? (LongList) selectedIds : new LongArrayList(), () -> MinecraftClientData.ROUTES_PLATFORMS_SELECTED_SEARCH, text -> MinecraftClientData.ROUTES_PLATFORMS_SELECTED_SEARCH = text);
-		buttonDone = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> onClose2());
+		buttonDone = ButtonWidget.builder(Text.translatable("gui.done"), button -> close()).build();
 	}
 
 	@Override
-	protected void init2() {
-		super.init2();
+	protected void init() {
+		super.init();
 		availableList.x = width / 2 - PANEL_WIDTH - SQUARE_SIZE;
 		selectedList.x = width / 2 + SQUARE_SIZE;
 		availableList.y = selectedList.y = SQUARE_SIZE * 2 - TEXT_PADDING;
 		availableList.height = selectedList.height = height - SQUARE_SIZE * 5 + TEXT_PADDING;
 		availableList.width = selectedList.width = PANEL_WIDTH;
-		availableList.init(this::addChild);
-		selectedList.init(this::addChild);
+		availableList.init(this::addSelectableChild);
+		selectedList.init(this::addSelectableChild);
 		IDrawing.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
-		addChild(new ClickableWidget(buttonDone));
+		addSelectableChild(buttonDone);
 		updateList();
 	}
 
 	@Override
-	public void tick2() {
+	public void tick() {
 		availableList.tick();
 		selectedList.tick();
 	}
 
 	@Override
-	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
-		renderBackground(graphicsHolder);
-		availableList.render(graphicsHolder);
-		selectedList.render(graphicsHolder, false);
-		super.render(graphicsHolder, mouseX, mouseY, delta);
-		renderAdditional(graphicsHolder, mouseX, mouseY, delta);
+	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+		renderBackground(context, mouseX, mouseY, delta);
+		availableList.render(context);
+		selectedList.render(context, false);
+		super.render(context, mouseX, mouseY, delta);
+		renderAdditional(context, mouseX, mouseY, delta);
 	}
 
-	public void renderAdditional(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
-		graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_AVAILABLE.getMutableText(), width / 2 - PANEL_WIDTH / 2 - SQUARE_SIZE, SQUARE_SIZE, ARGB_WHITE);
-		graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_SELECTED.getMutableText(), width / 2 + PANEL_WIDTH / 2 + SQUARE_SIZE, SQUARE_SIZE, ARGB_WHITE);
+	public void renderAdditional(DrawContext context, int mouseX, int mouseY, float delta) {
+		context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, TranslationProvider.GUI_MTR_AVAILABLE.getMutableText(), width / 2 - PANEL_WIDTH / 2 - SQUARE_SIZE, SQUARE_SIZE, ARGB_WHITE);
+		context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, TranslationProvider.GUI_MTR_SELECTED.getMutableText(), width / 2 + PANEL_WIDTH / 2 + SQUARE_SIZE, SQUARE_SIZE, ARGB_WHITE);
 	}
 
 	@Override
-	public void mouseMoved2(double mouseX, double mouseY) {
+	public void mouseMoved(double mouseX, double mouseY) {
 		availableList.mouseMoved(mouseX, mouseY);
 		selectedList.mouseMoved(mouseX, mouseY);
 	}
 
 	@Override
-	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
-		availableList.mouseScrolled(mouseX, mouseY, amount);
-		selectedList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled2(mouseX, mouseY, amount);
+	public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+		availableList.mouseScrolled(mouseX, mouseY, verticalAmount);
+		selectedList.mouseScrolled(mouseX, mouseY, verticalAmount);
+		return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
 	}
 
 	@Override
-	public void onClose2() {
-		super.onClose2();
+	public void close() {
+		super.close();
 		if (onClose != null) {
 			onClose.run();
 		}
 	}
 
 	@Override
-	public boolean isPauseScreen2() {
+	public boolean shouldPause() {
 		return false;
 	}
 

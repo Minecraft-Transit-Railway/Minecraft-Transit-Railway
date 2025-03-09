@@ -1,11 +1,11 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
+import com.google.gson.JsonObject;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.MinecraftClient;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mod.generated.resource.ResourceWrapperSchema;
+import org.mtr.generated.resource.ResourceWrapperSchema;
 
 import java.util.function.Consumer;
 
@@ -48,7 +48,7 @@ public final class ResourceWrapper extends ResourceWrapperSchema {
 
 	public void updateMinecraftInfo() {
 		isMinecraftPaused = MinecraftClient.getInstance().isPaused();
-		exportDirectory = MinecraftClient.getInstance().getRunDirectoryMapped().getAbsolutePath().replace("\\", "/") + "/resourcepacks";
+		exportDirectory = MinecraftClient.getInstance().runDirectory.getAbsolutePath().replace("\\", "/") + "/resourcepacks";
 	}
 
 	public void clean() {

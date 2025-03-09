@@ -1,61 +1,52 @@
-package org.mtr.mod.render;
+package org.mtr.render;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityRenderer;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mod.Blocks;
-import org.mtr.mod.Init;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.block.BlockEyeCandy;
-import org.mtr.mod.block.IBlock;
-import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.client.IDrawing;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import org.mtr.MTR;
+import org.mtr.MTRClient;
+import org.mtr.block.BlockEyeCandy;
+import org.mtr.block.IBlock;
+import org.mtr.client.CustomResourceLoader;
+import org.mtr.client.IDrawing;
+import org.mtr.data.IGui;
+import org.mtr.registry.Blocks;
 
-public class RenderEyeCandy extends BlockEntityRenderer<BlockEyeCandy.BlockEntity> {
-
-	public RenderEyeCandy(Argument dispatcher) {
-		super(dispatcher);
-	}
+public class RenderEyeCandy extends BlockEntityRendererExtension<BlockEyeCandy.EyeCandyBlockEntity> implements IGui {
 
 	@Override
-	public void render(BlockEyeCandy.BlockEntity blockEntity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
-		final World world = blockEntity.getWorld2();
-		if (world == null) {
-			return;
-		}
+	public void render(BlockEyeCandy.EyeCandyBlockEntity entity, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(0.5 + entity.getPos().getX(), entity.getPos().getY(), 0.5 + entity.getPos().getZ());
+		final int newLight = entity.getFullBrightness() ? DEFAULT_LIGHT : light;
 
-		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
-		if (clientPlayerEntity == null) {
-			return;
-		}
-
-		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(0.5 + blockEntity.getPos2().getX(), blockEntity.getPos2().getY(), 0.5 + blockEntity.getPos2().getZ());
-		final int newLight = blockEntity.getFullBrightness() ? GraphicsHolder.getDefaultLight() : light;
-
-		if ((RenderRails.isHoldingRailRelated(clientPlayerEntity) || clientPlayerEntity.isHolding(Blocks.EYE_CANDY.get().asItem())) && minecraftClient.getCurrentScreenMapped() == null) {
-			MainRenderer.scheduleRender(new Identifier(Init.MOD_ID_NTE, "textures/item/eye_candy.png"), false, QueuedRenderLayer.INTERIOR, (graphicsHolderNew, offset) -> {
-				storedMatrixTransformations.transform(graphicsHolderNew, offset);
-				graphicsHolderNew.translate(0, 0.5, 0);
-				InitClient.transformToFacePlayer(graphicsHolderNew, blockEntity.getPos2().getX() + 0.5, blockEntity.getPos2().getY() + 0.5, blockEntity.getPos2().getZ() + 0.5);
-				graphicsHolderNew.rotateZDegrees(180);
-				IDrawing.drawTexture(graphicsHolderNew, -0.5F, -0.5F, 1, 1, Direction.UP, GraphicsHolder.getDefaultLight());
-				graphicsHolderNew.pop();
+		if ((RenderRails.isHoldingRailRelated(player) || player.isHolding(Blocks.EYE_CANDY.createAndGet().asItem())) && MinecraftClient.getInstance().currentScreen == null) {
+			MainRenderer.scheduleRender(Identifier.of(MTR.MOD_ID, "textures/item/eye_candy.png"), false, QueuedRenderLayer.INTERIOR, (matrixStack, vertexConsumer, offset) -> {
+				storedMatrixTransformations.transform(matrixStack, offset);
+				matrixStack.translate(0, 0.5, 0);
+				MTRClient.transformToFacePlayer(matrixStack, entity.getPos().getX() + 0.5, entity.getPos().getY() + 0.5, entity.getPos().getZ() + 0.5);
+				IDrawing.rotateZDegrees(matrixStack, 180);
+				IDrawing.drawTexture(matrixStack, vertexConsumer, -0.5F, -0.5F, 1, 1, Direction.UP, DEFAULT_LIGHT);
+				matrixStack.pop();
 			});
 		}
 
-		final BlockPos blockPos = blockEntity.getPos2();
-		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, BlockEyeCandy.FACING);
-		final String modelId = blockEntity.getModelId();
+		final BlockPos blockPos = entity.getPos();
+		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, Properties.FACING);
+		final String modelId = entity.getModelId();
 		if (modelId != null) {
 			CustomResourceLoader.getObjectById(modelId, objectResource -> {
 				final StoredMatrixTransformations storedMatrixTransformationsNew = storedMatrixTransformations.copy();
-				storedMatrixTransformationsNew.add(graphicsHolderNew -> {
-					graphicsHolderNew.translate(blockEntity.getTranslateX(), blockEntity.getTranslateY(), blockEntity.getTranslateZ());
-					graphicsHolderNew.rotateYDegrees(180 - facing.asRotation());
-					graphicsHolderNew.rotateXDegrees(blockEntity.getRotateX() + 180);
-					graphicsHolderNew.rotateYDegrees(blockEntity.getRotateY());
-					graphicsHolderNew.rotateZDegrees(blockEntity.getRotateZ());
+				storedMatrixTransformationsNew.add(matrixStack -> {
+					matrixStack.translate(entity.getTranslateX(), entity.getTranslateY(), entity.getTranslateZ());
+					IDrawing.rotateYDegrees(matrixStack, 180 - facing.getPositiveHorizontalDegrees());
+					IDrawing.rotateXDegrees(matrixStack, entity.getRotateX() + 180);
+					IDrawing.rotateYDegrees(matrixStack, entity.getRotateY());
+					IDrawing.rotateZDegrees(matrixStack, entity.getRotateZ());
 				});
 				objectResource.render(storedMatrixTransformationsNew, newLight);
 			});
@@ -63,7 +54,7 @@ public class RenderEyeCandy extends BlockEntityRenderer<BlockEyeCandy.BlockEntit
 	}
 
 	@Override
-	public boolean isInRenderDistance(BlockEyeCandy.BlockEntity blockEntity, Vector3d position) {
+	public boolean isInRenderDistance(BlockEyeCandy.EyeCandyBlockEntity entity, Vec3d position) {
 		return true;
 	}
 }

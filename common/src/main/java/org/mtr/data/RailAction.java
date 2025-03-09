@@ -1,14 +1,19 @@
-package org.mtr.mod.data;
+package org.mtr.data;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.SlabBlock;
+import net.minecraft.block.enums.SlabType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.block.BlockNode;
 import org.mtr.core.data.Rail;
 import org.mtr.core.tool.Utilities;
 import org.mtr.core.tool.Vector;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.SlabBlockExtension;
-import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mod.Init;
-import org.mtr.mod.block.BlockNode;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -44,26 +49,21 @@ public class RailAction {
 		this.radius = radius;
 		this.height = height;
 		this.state = state;
-		isSlab = state != null && SlabBlock.isInstance(state.getBlock());
+		isSlab = state != null && state.getBlock() instanceof SlabBlock;
 		length = rail.railMath.getLength();
 		distance = 0;
 	}
 
 	public boolean build() {
-		switch (railActionType) {
-			case BRIDGE:
-				return createBridge();
-			case TUNNEL:
-				return createTunnel();
-			case TUNNEL_WALL:
-				return createTunnelWall();
-			default:
-				return true;
-		}
+		return switch (railActionType) {
+			case BRIDGE -> createBridge();
+			case TUNNEL -> createTunnel();
+			case TUNNEL_WALL -> createTunnelWall();
+		};
 	}
 
 	public String getDescription() {
-		return railActionType.nameTranslation.getString(playerName, Utilities.round(length, 1), state == null ? "" : TextHelper.translatable(state.getBlock().getTranslationKey()).getString());
+		return railActionType.nameTranslation.getString(playerName, Utilities.round(length, 1), state == null ? "" : Text.translatable(state.getBlock().getTranslationKey()).getString());
 	}
 
 	public int getColor() {
@@ -74,7 +74,7 @@ public class RailAction {
 		return create(true, vector -> {
 			final BlockPos blockPos = fromVector(vector);
 			if (!blacklistedPositions.contains(blockPos) && canPlace(serverWorld, blockPos)) {
-				serverWorld.setBlockState(blockPos, Blocks.getAirMapped().getDefaultState());
+				serverWorld.setBlockState(blockPos, Blocks.AIR.getDefaultState());
 				blacklistedPositions.add(blockPos);
 			}
 		});
@@ -101,11 +101,11 @@ public class RailAction {
 
 			if (isSlab && isTopHalf) {
 				placePos = blockPos;
-				placeState = state.with(new Property<>(SlabBlockExtension.TYPE), SlabType.BOTTOM.data);
+				placeState = state.with(SlabBlock.TYPE, SlabType.BOTTOM);
 				placeHalf = false;
 			} else {
 				placePos = blockPos.down();
-				placeState = isSlab ? state.with(new Property<>(SlabBlockExtension.TYPE), SlabType.TOP.data) : state;
+				placeState = isSlab ? state.with(SlabBlock.TYPE, SlabType.TOP) : state;
 				placeHalf = true;
 			}
 
@@ -115,7 +115,7 @@ public class RailAction {
 			}
 
 			if (placePos != blockPos && canPlace(serverWorld, blockPos)) {
-				serverWorld.setBlockState(blockPos, Blocks.getAirMapped().getDefaultState());
+				serverWorld.setBlockState(blockPos, Blocks.AIR.getDefaultState());
 			}
 			if (canPlace(serverWorld, placePos)) {
 				serverWorld.setBlockState(placePos, placeState);
@@ -130,10 +130,10 @@ public class RailAction {
 			final Vector pos1 = rail.railMath.getPosition(distance, false);
 			distance += INCREMENT;
 			final Vector pos2 = rail.railMath.getPosition(distance, false);
-			final Vector vec3 = new Vector(pos2.x - pos1.x, 0, pos2.z - pos1.z).normalize().rotateY((float) Math.PI / 2);
+			final Vector Vec3d = new Vector(pos2.x - pos1.x, 0, pos2.z - pos1.z).normalize().rotateY((float) Math.PI / 2);
 
 			for (double x = -radius; x <= radius; x += INCREMENT) {
-				final Vector editPos = pos1.add(vec3.multiply(x, 0, x));
+				final Vector editPos = pos1.add(Vec3d.multiply(x, 0, x));
 				final boolean wholeNumber = Math.floor(editPos.y) == Math.ceil(editPos.y);
 				if (includeMiddle || Math.abs(x) > radius - INCREMENT || radius == 0) {
 					for (int y = 0; y <= height; y++) {
@@ -164,7 +164,7 @@ public class RailAction {
 	}
 
 	private static boolean canPlace(ServerWorld serverWorld, BlockPos pos) {
-		return serverWorld.getBlockEntity(pos) == null && !(serverWorld.getBlockState(pos).getBlock().data instanceof BlockNode);
+		return serverWorld.getBlockEntity(pos) == null && !(serverWorld.getBlockState(pos).getBlock() instanceof BlockNode);
 	}
 
 	private static BlockPos getHalfPos(BlockPos pos, boolean isTopHalf) {
@@ -172,6 +172,6 @@ public class RailAction {
 	}
 
 	private static BlockPos fromVector(Vector vector) {
-		return Init.newBlockPos(vector.x, vector.y, vector.z);
+		return BlockPos.ofFloored(vector.x, vector.y, vector.z);
 	}
 }

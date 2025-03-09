@@ -1,27 +1,25 @@
-package org.mtr.mod.servlet;
+package org.mtr.servlet;
 
+import com.google.gson.JsonObject;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 import org.apache.commons.io.IOUtils;
+import org.mtr.MTR;
+import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
 import org.mtr.legacy.resource.CustomResourcesConverter;
-import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.javax.servlet.AsyncContext;
 import org.mtr.libraries.javax.servlet.http.HttpServletRequest;
 import org.mtr.libraries.javax.servlet.http.HttpServletResponse;
 import org.mtr.libraries.javax.servlet.http.Part;
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.holder.Screen;
-import org.mtr.mapping.holder.Util;
-import org.mtr.mapping.mapper.ResourceManagerHelper;
-import org.mtr.mod.Init;
-import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.resource.*;
-import org.mtr.mod.screen.ReloadCustomResourcesScreen;
+import org.mtr.resource.*;
+import org.mtr.screen.ReloadCustomResourcesScreen;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,10 +44,10 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 			case "/reset":
 				reset();
 				final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-				minecraftClient.execute(() -> minecraftClient.openScreen(new Screen(new ReloadCustomResourcesScreen(() -> {
+				minecraftClient.execute(() -> minecraftClient.setScreen(new ReloadCustomResourcesScreen(() -> {
 					CustomResourceLoader.reload();
 					returnStandardResponse(httpServletResponse, asyncContext, null);
-				}))));
+				})));
 				break;
 			case "/export":
 				export(httpServletRequest, httpServletResponse, asyncContext);
@@ -93,15 +91,15 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 		try {
 			Files.deleteIfExists(getBackupFile());
 		} catch (Exception e) {
-			Init.LOGGER.error("", e);
+			MTR.LOGGER.error("", e);
 		}
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		minecraftClient.execute(() -> texturesToDestroy.forEach(texture -> {
 			try {
-				minecraftClient.getTextureManager().destroyTexture(new Identifier(texture));
+				minecraftClient.getTextureManager().destroyTexture(Identifier.of(texture));
 			} catch (Exception e) {
-				Init.LOGGER.error("", e);
+				MTR.LOGGER.error("", e);
 			}
 		}));
 	}
@@ -109,7 +107,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 	private static void uploadZip(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AsyncContext asyncContext) {
 		try {
 			for (final Part part : httpServletRequest.getParts()) {
-				Init.LOGGER.info("Processing {} uploaded from the Resource Pack Creator", part.getSubmittedFileName());
+				MTR.LOGGER.info("Processing {} uploaded from the Resource Pack Creator", part.getSubmittedFileName());
 				JsonObject customResourcesObject = null;
 				final Object2ObjectAVLTreeMap<String, String> jsonCache = new Object2ObjectAVLTreeMap<>();
 				final ObjectArrayList<Runnable> resourceUploadTasks = new ObjectArrayList<>();
@@ -121,11 +119,11 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 					while ((zipEntry = zipInputStream.getNextEntry()) != null) {
 						final String name = pathToIdentifier(zipEntry.getName());
 						lastNameRead = name;
-						Init.LOGGER.debug("Reading {}", name);
+						MTR.LOGGER.debug("Reading {}", name);
 						final byte[] bytes = IOUtils.toByteArray(zipInputStream);
 						final String content = new String(bytes);
 
-						if (name.equals(String.format("%s:%s.json", Init.MOD_ID, CustomResourceLoader.CUSTOM_RESOURCES_ID))) {
+						if (name.equals(String.format("%s:%s.json", MTR.MOD_ID, CustomResourceLoader.CUSTOM_RESOURCES_ID))) {
 							customResourcesObject = Utilities.parseJson(content);
 						} else if (name.endsWith(".png") || name.endsWith(".bbmodel") || name.endsWith(".obj") || name.endsWith(".mtl")) {
 							resourceUploadTasks.add(() -> uploadResource(name, bytes, content));
@@ -136,8 +134,8 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 						zipInputStream.closeEntry();
 					}
 				} catch (Exception e) {
-					Init.LOGGER.error("Processing {} failed; last successful file read was {}", part.getSubmittedFileName(), lastNameRead);
-					Init.LOGGER.error("", e);
+					MTR.LOGGER.error("Processing {} failed; last successful file read was {}", part.getSubmittedFileName(), lastNameRead);
+					MTR.LOGGER.error("", e);
 				}
 
 				if (customResourcesObject == null) {
@@ -146,17 +144,17 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 
 				final JsonObject newCustomResourcesObject = customResourcesObject;
 				final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-				minecraftClient.execute(() -> minecraftClient.openScreen(new Screen(new ReloadCustomResourcesScreen(() -> {
+				minecraftClient.execute(() -> minecraftClient.setScreen(new ReloadCustomResourcesScreen(() -> {
 					final ObjectArrayList<VehicleResourceWrapper> vehicles = new ObjectArrayList<>();
-					CustomResourcesConverter.convert(newCustomResourcesObject, identifier -> jsonCache.getOrDefault(identifier.data.toString(), ResourceManagerHelper.readResource(identifier))).iterateVehicles(vehicleResource -> vehicles.add(vehicleResource.toVehicleResourceWrapper()));
+					CustomResourcesConverter.convert(newCustomResourcesObject, identifier -> jsonCache.getOrDefault(identifier.toString(), ResourceManagerHelper.readResource(identifier))).iterateVehicles(vehicleResource -> vehicles.add(vehicleResource.toVehicleResourceWrapper()));
 					resourceWrapper = new ResourceWrapper(vehicles, new ObjectArrayList<>(), new ObjectArrayList<>(), CustomResourceLoader.getMinecraftModelResources(), CustomResourceLoader.getTextureResources());
 					resourceUploadTasks.forEach(Runnable::run);
 					returnStandardResponse(httpServletResponse, asyncContext, "");
-				}))));
+				})));
 				return;
 			}
 		} catch (Exception e) {
-			Init.LOGGER.error("", e);
+			MTR.LOGGER.error("", e);
 		}
 
 		returnErrorResponse(httpServletResponse, asyncContext);
@@ -168,15 +166,15 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 				for (final Part part : httpServletRequest.getParts()) {
 					try (final InputStream inputStream = part.getInputStream()) {
 						final byte[] bytes = IOUtils.toByteArray(inputStream);
-						uploadResource(String.format("%s:%s", Init.MOD_ID, part.getSubmittedFileName()), bytes, new String(bytes));
+						uploadResource(String.format("%s:%s", MTR.MOD_ID, part.getSubmittedFileName()), bytes, new String(bytes));
 					} catch (Exception e) {
-						Init.LOGGER.error("", e);
+						MTR.LOGGER.error("", e);
 					}
 				}
 				returnStandardResponse(httpServletResponse, asyncContext, null);
 				return;
 			} catch (Exception e) {
-				Init.LOGGER.error("", e);
+				MTR.LOGGER.error("", e);
 			}
 		}
 
@@ -194,13 +192,13 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 				final Object2ObjectArrayMap<String, ModelProperties> modelPropertiesMap = new Object2ObjectArrayMap<>();
 				final Object2ObjectArrayMap<String, PositionDefinitions> positionDefinitionsMap = new Object2ObjectArrayMap<>();
 				new ResourceWrapper(new JsonReader(vehiclesFlattened), new ObjectArrayList<>(), new ObjectArrayList<>()).iterateVehicles(vehicleResourceWrapper -> vehicles.add(vehicleResourceWrapper.toVehicleResource(identifier -> {
-					final String modelString = ResourcePackCreatorUploadServlet.getModel(identifier.data.toString());
+					final String modelString = ResourcePackCreatorUploadServlet.getModel(identifier.toString());
 					return modelString == null ? ResourceManagerHelper.readResource(identifier) : modelString;
 				}, modelPropertiesMap, positionDefinitionsMap)));
 				final CustomResources customResources = new CustomResources(vehicles, new ObjectArrayList<>());
-				final String resourcePackFolder = String.format("%s/resourcepacks", MinecraftClient.getInstance().getRunDirectoryMapped());
+				final String resourcePackFolder = String.format("%s/resourcepacks", MinecraftClient.getInstance().runDirectory);
 				final String filePath = String.format("%s/%s-%s.zip", resourcePackFolder, name, DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now()));
-				Init.LOGGER.info("Exporting Resource Pack at {}", filePath);
+				MTR.LOGGER.info("Exporting Resource Pack at {}", filePath);
 
 				try (
 						final FileOutputStream fileOutputStream = new FileOutputStream(filePath);
@@ -211,7 +209,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 					writeToZipOutputStream(MODELS, zipOutputStream, modelString -> IOUtils.write(modelString, zipOutputStream, StandardCharsets.UTF_8));
 					writeToZipOutputStream(TEXTURES, zipOutputStream, textureBytes -> IOUtils.write(textureBytes, zipOutputStream));
 
-					zipOutputStream.putNextEntry(new ZipEntry(String.format("assets/%s/%s.json", Init.MOD_ID, CustomResourceLoader.CUSTOM_RESOURCES_ID)));
+					zipOutputStream.putNextEntry(new ZipEntry(String.format("assets/%s/%s.json", MTR.MOD_ID, CustomResourceLoader.CUSTOM_RESOURCES_ID)));
 					IOUtils.write(Utilities.getJsonObjectFromData(customResources).toString(), zipOutputStream, StandardCharsets.UTF_8);
 
 					zipOutputStream.putNextEntry(new ZipEntry("pack.mcmeta"));
@@ -222,16 +220,16 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 					packObject.add("pack", packInfoObject);
 					IOUtils.write(Utilities.prettyPrint(packObject), zipOutputStream, StandardCharsets.UTF_8);
 
-					ResourceManagerHelper.readResource(new Identifier(Init.MOD_ID, "textures/block/sign/logo_grayscale.png"), inputStream -> {
+					ResourceManagerHelper.readResource(Identifier.of(MTR.MOD_ID, "textures/block/sign/logo_grayscale.png"), inputStream -> {
 						try {
 							zipOutputStream.putNextEntry(new ZipEntry("pack.png"));
 							IOUtils.write(IOUtils.toByteArray(inputStream), zipOutputStream);
 						} catch (Exception e) {
-							Init.LOGGER.error("", e);
+							MTR.LOGGER.error("", e);
 						}
 					});
 				} catch (Exception e) {
-					Init.LOGGER.error("", e);
+					MTR.LOGGER.error("", e);
 				}
 
 				Util.getOperatingSystem().open(new File(resourcePackFolder));
@@ -249,7 +247,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 				zipOutputStream.putNextEntry(new ZipEntry(identifierToPath(name)));
 				writeData.accept(data);
 			} catch (Exception e) {
-				Init.LOGGER.error("", e);
+				MTR.LOGGER.error("", e);
 			}
 		});
 	}
@@ -270,8 +268,8 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 		if (stringSplit.length == 2) {
 			return String.format("assets/%s/%s", stringSplit[0], stringSplit[1]);
 		} else {
-			Init.LOGGER.error("Invalid identifier {}", identifierString);
-			return Init.randomString();
+			MTR.LOGGER.error("Invalid identifier {}", identifierString);
+			return MTR.randomString();
 		}
 	}
 

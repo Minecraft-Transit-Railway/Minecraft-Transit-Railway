@@ -1,4 +1,4 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
 import org.mtr.core.data.NameColorDataBase;
 

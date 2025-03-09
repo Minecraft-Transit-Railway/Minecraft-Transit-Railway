@@ -1,20 +1,28 @@
-package org.mtr.mod.render;
+package org.mtr.render;
 
 import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
-import com.logisticscraft.occlusionculling.util.Vec3d;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.LightType;
+import org.mtr.client.*;
+import org.mtr.config.Config;
 import org.mtr.core.tool.Vector;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.OptimizedRenderer;
-import org.mtr.mod.Init;
-import org.mtr.mod.client.*;
-import org.mtr.mod.config.Config;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.resource.VehicleResource;
-import org.mtr.mod.resource.VehicleResourceCache;
-import org.mtr.mod.servlet.ResourcePackCreatorOperationServlet;
+import org.mtr.data.IGui;
+import org.mtr.model.OptimizedRenderer;
+import org.mtr.resource.VehicleResource;
+import org.mtr.resource.VehicleResourceCache;
+import org.mtr.servlet.ResourcePackCreatorOperationServlet;
 
 import javax.annotation.Nullable;
 import java.util.function.Function;
@@ -22,17 +30,17 @@ import java.util.stream.Collectors;
 
 public class RenderVehicles implements IGui {
 
-	public static void render(long millisElapsed, Vector3d cameraShakeOffset) {
+	public static void render(long millisElapsed, Vec3d cameraShakeOffset) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
-		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+		final ClientWorld clientWorld = minecraftClient.world;
+		final ClientPlayerEntity clientPlayerEntity = minecraftClient.player;
 		if (clientWorld == null || clientPlayerEntity == null) {
 			return;
 		}
 
 		final ObjectArrayList<Function<OcclusionCullingInstance, Runnable>> cullingTasks = new ObjectArrayList<>();
-		final Vector3d cameraPosition = minecraftClient.getGameRendererMapped().getCamera().getPos();
-		final Vec3d camera = new Vec3d(cameraPosition.getXMapped(), cameraPosition.getYMapped(), cameraPosition.getZMapped());
+		final Vec3d cameraPosition = minecraftClient.gameRenderer.getCamera().getPos();
+		final com.logisticscraft.occlusionculling.util.Vec3d camera = new com.logisticscraft.occlusionculling.util.Vec3d(cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
 		// When riding a moving vehicle, the client movement is always out of sync with the vehicle rendering. This produces annoying shaking effects.
 		// Offsets are used to render the vehicle with respect to the player position rather than the absolute world position, eliminating shaking.
@@ -57,11 +65,11 @@ public class RenderVehicles implements IGui {
 
 				cullingTasks.add(occlusionCullingInstance -> {
 					final double longestDimension = vehicle.persistentVehicleData.longestDimensions[carNumber];
-					final boolean shouldRender = occlusionCullingInstance.isAABBVisible(new Vec3d(
+					final boolean shouldRender = occlusionCullingInstance.isAABBVisible(new com.logisticscraft.occlusionculling.util.Vec3d(
 							renderVehicleTransformationHelperAbsolute.pivotPosition.x - longestDimension,
 							renderVehicleTransformationHelperAbsolute.pivotPosition.y - 8,
 							renderVehicleTransformationHelperAbsolute.pivotPosition.z - longestDimension
-					), new Vec3d(
+					), new com.logisticscraft.occlusionculling.util.Vec3d(
 							renderVehicleTransformationHelperAbsolute.pivotPosition.x + longestDimension,
 							renderVehicleTransformationHelperAbsolute.pivotPosition.y + 8,
 							renderVehicleTransformationHelperAbsolute.pivotPosition.z + longestDimension
@@ -89,7 +97,7 @@ public class RenderVehicles implements IGui {
 						vehicle.playMotorSound(vehicleResource, carNumber, renderVehicleTransformationHelperAbsolute.pivotPosition);
 
 						// Player position relative to the car
-						final Vector3d playerPosition = renderVehicleTransformationHelperAbsolute.transformBackwards(clientPlayerEntity.getPos(), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+						final Vec3d playerPosition = renderVehicleTransformationHelperAbsolute.transformBackwards(clientPlayerEntity.getPos(), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
 						// A temporary list to store all floors and doorways
 						final ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsAndDoorways = new ObjectArrayList<>();
 						// Extra floors to be used to define where the gangways are
@@ -100,18 +108,18 @@ public class RenderVehicles implements IGui {
 						// Find open doorways (close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates)
 						final ObjectArrayList<Box> openDoorways;
 						if (vehicleResourceCache != null && fromResourcePackCreator) {
-							openDoorways = vehicle.persistentVehicleData.checkCanOpenDoors() ? new ObjectArrayList<>(vehicleResourceCache.doorways) : new ObjectArrayList<>();
+							openDoorways = vehicle.persistentVehicleData.checkCanOpenDoors() ? new ObjectArrayList<>(vehicleResourceCache.doorways()) : new ObjectArrayList<>();
 							vehicle.persistentVehicleData.overrideDoorMultiplier(ResourcePackCreatorOperationServlet.getDoorMultiplier());
 						} else if (vehicleResourceCache == null || !vehicle.getTransportMode().continuousMovement && vehicle.isMoving() || !vehicle.persistentVehicleData.checkCanOpenDoors()) {
 							openDoorways = new ObjectArrayList<>();
 						} else {
-							openDoorways = vehicleResourceCache.doorways.stream().filter(doorway -> RenderVehicleHelper.canOpenDoors(doorway, renderVehicleTransformationHelperAbsolute, vehicle.persistentVehicleData.getDoorValue(), false)).collect(Collectors.toCollection(ObjectArrayList::new));
+							openDoorways = vehicleResourceCache.doorways().stream().filter(doorway -> RenderVehicleHelper.canOpenDoors(doorway, renderVehicleTransformationHelperAbsolute, vehicle.persistentVehicleData.getDoorValue(), false)).collect(Collectors.toCollection(ObjectArrayList::new));
 						}
 						final double oscillationAmount = vehicle.persistentVehicleData.getOscillation(carNumber).getAmount() * Config.getClient().getVehicleOscillationMultiplier();
 
 						if (canRide) {
 							if (vehicleResourceCache != null) {
-								vehicleResourceCache.floors.forEach(floor -> {
+								vehicleResourceCache.floors().forEach(floor -> {
 									floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(floor, true));
 									RenderVehicleHelper.renderFloorOrDoorway(floor, ARGB_WHITE, playerPosition, renderVehicleTransformationHelperOffset);
 									// Find the floors with the lowest and highest Z values to be used to define where the gangways are
@@ -126,7 +134,7 @@ public class RenderVehicles implements IGui {
 							});
 
 							// Check and mount player
-							VehicleRidingMovement.startRiding(openDoorways, vehicle.vehicleExtraData.getSidingId(), vehicle.getId(), carNumber, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped(), renderVehicleTransformationHelperAbsolute.yaw);
+							VehicleRidingMovement.startRiding(openDoorways, vehicle.vehicleExtraData.getSidingId(), vehicle.getId(), carNumber, playerPosition.x, playerPosition.y, playerPosition.z, renderVehicleTransformationHelperAbsolute.yaw);
 						}
 
 						// Play door sound
@@ -247,7 +255,7 @@ public class RenderVehicles implements IGui {
 			RenderVehicleTransformationHelper renderVehicleTransformationHelper,
 			double vehicleLength, double width, double height, double yOffset, double zOffset, double oscillationAmount, boolean isOnRoute
 	) {
-		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
+		final ClientWorld clientWorld = MinecraftClient.getInstance().world;
 		if (clientWorld == null) {
 			return;
 		}
@@ -266,39 +274,39 @@ public class RenderVehicles implements IGui {
 			final Vector position7 = previousConnectionPositions.position3;
 			final Vector position8 = previousConnectionPositions.position4;
 
-			final BlockPos blockPosConnection = Init.newBlockPos(position1.x, position1.y + 1, position1.z);
-			final int lightConnection = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPosConnection), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPosConnection));
+			final BlockPos blockPosConnection = BlockPos.ofFloored(position1.x, position1.y + 1, position1.z);
+			final int lightConnection = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.BLOCK, blockPosConnection), clientWorld.getLightLevel(LightType.SKY, blockPosConnection));
 
-			MainRenderer.scheduleRender(outerSideTexture, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
+			MainRenderer.scheduleRender(outerSideTexture, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> renderVehicleTransformationHelper.render(matrixStack, offset, newOffset -> {
 				// Sides
-				drawTexture(graphicsHolder, position2, position7, position8, position1, newOffset, lightConnection);
-				drawTexture(graphicsHolder, position6, position3, position4, position5, newOffset, lightConnection);
+				drawTexture(matrixStack, vertexConsumer, position2, position7, position8, position1, newOffset, lightConnection);
+				drawTexture(matrixStack, vertexConsumer, position6, position3, position4, position5, newOffset, lightConnection);
 			}));
 
-			MainRenderer.scheduleRender(outerTopTexture, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
+			MainRenderer.scheduleRender(outerTopTexture, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> renderVehicleTransformationHelper.render(matrixStack, offset, newOffset -> {
 				// Top
-				drawTexture(graphicsHolder, position3, position6, position7, position2, newOffset, lightConnection);
+				drawTexture(matrixStack, vertexConsumer, position3, position6, position7, position2, newOffset, lightConnection);
 			}));
 
-			MainRenderer.scheduleRender(outerBottomTexture, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
+			MainRenderer.scheduleRender(outerBottomTexture, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> renderVehicleTransformationHelper.render(matrixStack, offset, newOffset -> {
 				// Bottom
-				drawTexture(graphicsHolder, position1, position8, position5, position4, newOffset, lightConnection);
+				drawTexture(matrixStack, vertexConsumer, position1, position8, position5, position4, newOffset, lightConnection);
 			}));
 
-			MainRenderer.scheduleRender(innerSideTexture, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
+			MainRenderer.scheduleRender(innerSideTexture, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> renderVehicleTransformationHelper.render(matrixStack, offset, newOffset -> {
 				// Sides
-				drawTexture(graphicsHolder, position7, position2, position1, position8, newOffset, canHaveLight && isOnRoute ? GraphicsHolder.getDefaultLight() : lightConnection);
-				drawTexture(graphicsHolder, position3, position6, position5, position4, newOffset, canHaveLight && isOnRoute ? GraphicsHolder.getDefaultLight() : lightConnection);
+				drawTexture(matrixStack, vertexConsumer, position7, position2, position1, position8, newOffset, canHaveLight && isOnRoute ? DEFAULT_LIGHT : lightConnection);
+				drawTexture(matrixStack, vertexConsumer, position3, position6, position5, position4, newOffset, canHaveLight && isOnRoute ? DEFAULT_LIGHT : lightConnection);
 			}));
 
-			MainRenderer.scheduleRender(innerTopTexture, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
+			MainRenderer.scheduleRender(innerTopTexture, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> renderVehicleTransformationHelper.render(matrixStack, offset, newOffset -> {
 				// Top
-				drawTexture(graphicsHolder, position6, position3, position2, position7, newOffset, canHaveLight && isOnRoute ? GraphicsHolder.getDefaultLight() : lightConnection);
+				drawTexture(matrixStack, vertexConsumer, position6, position3, position2, position7, newOffset, canHaveLight && isOnRoute ? DEFAULT_LIGHT : lightConnection);
 			}));
 
-			MainRenderer.scheduleRender(innerBottomTexture, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> renderVehicleTransformationHelper.render(graphicsHolder, offset, newOffset -> {
+			MainRenderer.scheduleRender(innerBottomTexture, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> renderVehicleTransformationHelper.render(matrixStack, offset, newOffset -> {
 				// Bottom
-				drawTexture(graphicsHolder, position8, position1, position4, position5, newOffset, canHaveLight && isOnRoute ? GraphicsHolder.getDefaultLight() : lightConnection);
+				drawTexture(matrixStack, vertexConsumer, position8, position1, position4, position5, newOffset, canHaveLight && isOnRoute ? DEFAULT_LIGHT : lightConnection);
 			}));
 		}
 
@@ -315,9 +323,9 @@ public class RenderVehicles implements IGui {
 		}
 	}
 
-	private static void drawTexture(GraphicsHolder graphicsHolder, Vector position1, Vector position2, Vector position3, Vector position4, Vector3d offset, int light) {
+	private static void drawTexture(MatrixStack matrixStack, VertexConsumer vertexConsumer, Vector position1, Vector position2, Vector position3, Vector position4, Vec3d offset, int light) {
 		IDrawing.drawTexture(
-				graphicsHolder,
+				matrixStack, vertexConsumer,
 				position1.x, position1.y, position1.z,
 				position2.x, position2.y, position2.z,
 				position3.x, position3.y, position3.z,

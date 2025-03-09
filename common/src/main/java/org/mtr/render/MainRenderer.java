@@ -1,29 +1,30 @@
-package org.mtr.mod.render;
+package org.mtr.render;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
+import org.mtr.MTRClient;
+import org.mtr.client.*;
+import org.mtr.config.Config;
 import org.mtr.core.data.InterchangeColorsForStationName;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.EntityRenderer;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.OptimizedRenderer;
-import org.mtr.mapping.tool.ColorHelper;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.client.DynamicTextureCache;
-import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.client.VehicleRidingMovement;
-import org.mtr.mod.config.Config;
-import org.mtr.mod.data.ArrivalsCacheClient;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.entity.EntityRendering;
+import org.mtr.data.ArrivalsCacheClient;
+import org.mtr.data.IGui;
+import org.mtr.model.OptimizedRenderer;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class MainRenderer extends EntityRenderer<EntityRendering> implements IGui {
+public class MainRenderer implements IGui {
 
 	private static long lastRenderedMillis;
 
@@ -32,14 +33,14 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 
 	private static final int FLASHING_INTERVAL = 1000;
 	private static final int TOTAL_RENDER_STAGES = 2;
-	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<BiConsumer<GraphicsHolder, Vector3d>>>>> RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
-	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<BiConsumer<GraphicsHolder, Vector3d>>>>> CURRENT_RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
+	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<ScheduledRender>>>> RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
+	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<ScheduledRender>>>> CURRENT_RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
 
 	static {
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
 			final int renderStageCount = QueuedRenderLayer.values().length;
-			final ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<BiConsumer<GraphicsHolder, Vector3d>>>> rendersList = new ObjectArrayList<>(renderStageCount);
-			final ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<BiConsumer<GraphicsHolder, Vector3d>>>> currentRendersList = new ObjectArrayList<>(renderStageCount);
+			final ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<ScheduledRender>>> rendersList = new ObjectArrayList<>(renderStageCount);
+			final ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<ScheduledRender>>> currentRendersList = new ObjectArrayList<>(renderStageCount);
 
 			for (int j = 0; j < renderStageCount; j++) {
 				rendersList.add(j, new Object2ObjectArrayMap<>());
@@ -51,27 +52,7 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 		}
 	}
 
-	public MainRenderer(Argument argument) {
-		super(argument);
-	}
-
-	@Override
-	public void render(EntityRendering entityRendering, float yaw, float tickDelta, GraphicsHolder graphicsHolder, int i) {
-		render(graphicsHolder, entityRendering.getCameraPosVec2(tickDelta));
-	}
-
-	@Override
-	public boolean shouldRender2(EntityRendering entity, Frustum frustum, double x, double y, double z) {
-		return true;
-	}
-
-	@Nonnull
-	@Override
-	public Identifier getTexture2(EntityRendering entityRendering) {
-		return new Identifier("");
-	}
-
-	public static void render(GraphicsHolder graphicsHolder, Vector3d offset) {
+	public static void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Vec3d offset) {
 		final long millisElapsed;
 		if (OptimizedRenderer.renderingShadows()) {
 			if (Config.getClient().getDisableShadowsForShaders()) {
@@ -82,7 +63,7 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 			millisElapsed = getMillisElapsed();
 			MinecraftClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
 			MinecraftClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
-			lastRenderedMillis = InitClient.getGameMillis();
+			lastRenderedMillis = MTRClient.getGameMillis();
 			WORKER_THREAD.start();
 			DynamicTextureCache.instance.tick();
 			// Tick the riding cool down (dismount player if they are no longer riding a vehicle) and store the player offset cache
@@ -91,14 +72,14 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 		}
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
-		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+		final ClientWorld clientWorld = minecraftClient.world;
+		final ClientPlayerEntity clientPlayerEntity = minecraftClient.player;
 
 		if (clientWorld == null || clientPlayerEntity == null) {
 			return;
 		}
 
-		final Vector3d cameraShakeOffset = clientPlayerEntity.getPos().subtract(offset);
+		final Vec3d cameraShakeOffset = clientPlayerEntity.getPos().subtract(offset);
 		RenderVehicles.render(millisElapsed, cameraShakeOffset);
 		RenderLifts.render(millisElapsed, cameraShakeOffset);
 		RenderRails.render();
@@ -115,40 +96,18 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 			for (int j = 0; j < QueuedRenderLayer.values().length; j++) {
 				final QueuedRenderLayer queuedRenderLayer = QueuedRenderLayer.values()[j];
 				CURRENT_RENDERS.get(i).get(j).forEach((key, value) -> {
-					final RenderLayer renderLayer;
-					switch (queuedRenderLayer) {
-						case LIGHT:
-							renderLayer = MoreRenderLayers.getLight(key, false);
-							break;
-						case LIGHT_TRANSLUCENT:
-							renderLayer = MoreRenderLayers.getLight(key, true);
-							break;
-						case LIGHT_2:
-							renderLayer = MoreRenderLayers.getLight2(key);
-							break;
-						case INTERIOR:
-							renderLayer = MoreRenderLayers.getInterior(key);
-							break;
-						case INTERIOR_TRANSLUCENT:
-							renderLayer = MoreRenderLayers.getInteriorTranslucent(key);
-							break;
-						case EXTERIOR:
-							renderLayer = MoreRenderLayers.getExterior(key);
-							break;
-						case EXTERIOR_TRANSLUCENT:
-							renderLayer = MoreRenderLayers.getExteriorTranslucent(key);
-							break;
-						case LINES:
-							renderLayer = RenderLayer.getLines();
-							break;
-						default:
-							renderLayer = null;
-							break;
-					}
-					if (renderLayer != null) {
-						graphicsHolder.createVertexConsumer(renderLayer);
-					}
-					value.forEach(renderer -> renderer.accept(graphicsHolder, offset));
+					final RenderLayer renderLayer = switch (queuedRenderLayer) {
+						case LIGHT -> MoreRenderLayers.getLight(key, false);
+						case LIGHT_TRANSLUCENT -> MoreRenderLayers.getLight(key, true);
+						case LIGHT_2 -> MoreRenderLayers.getLight2(key);
+						case INTERIOR -> MoreRenderLayers.getInterior(key);
+						case INTERIOR_TRANSLUCENT -> MoreRenderLayers.getInteriorTranslucent(key);
+						case EXTERIOR -> MoreRenderLayers.getExterior(key);
+						case EXTERIOR_TRANSLUCENT -> MoreRenderLayers.getExteriorTranslucent(key);
+						case LINES -> RenderLayer.getLines();
+						default -> null;
+					};
+					value.forEach(renderer -> renderer.accept(matrices, renderLayer == null ? null : vertexConsumers.getBuffer(renderLayer), offset));
 				});
 			}
 		}
@@ -156,14 +115,14 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.render(!Config.getClient().getHideTranslucentParts());
 	}
 
-	public static void scheduleRender(@Nullable Identifier identifier, boolean priority, QueuedRenderLayer queuedRenderLayer, BiConsumer<GraphicsHolder, Vector3d> callback) {
+	public static void scheduleRender(@Nullable Identifier identifier, boolean priority, QueuedRenderLayer queuedRenderLayer, ScheduledRender scheduledRender) {
 		if (identifier != null) {
-			RENDERS.get(priority ? 1 : 0).get(queuedRenderLayer.ordinal()).computeIfAbsent(identifier, key -> new ObjectArrayList<>()).add(callback);
+			RENDERS.get(priority ? 1 : 0).get(queuedRenderLayer.ordinal()).computeIfAbsent(identifier, key -> new ObjectArrayList<>()).add(scheduledRender);
 		}
 	}
 
-	public static void scheduleRender(QueuedRenderLayer queuedRenderLayer, BiConsumer<GraphicsHolder, Vector3d> callback) {
-		scheduleRender(new Identifier(""), false, queuedRenderLayer, callback);
+	public static void scheduleRender(QueuedRenderLayer queuedRenderLayer, ScheduledRender scheduledRender) {
+		scheduleRender(Identifier.of(""), false, queuedRenderLayer, scheduledRender);
 	}
 
 	public static void cancelRender(Identifier identifier) {
@@ -196,8 +155,13 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 	}
 
 	private static long getMillisElapsed() {
-		final long millisElapsed = InitClient.getGameMillis() - lastRenderedMillis;
-		final long gameMillisElapsed = (long) (MinecraftClient.getInstance().getLastFrameDuration() * 50);
+		final long millisElapsed = MTRClient.getGameMillis() - lastRenderedMillis;
+		final long gameMillisElapsed = (long) (MinecraftClient.getInstance().getRenderTickCounter().getLastFrameDuration() * 50);
 		return Math.abs(gameMillisElapsed - millisElapsed) < 50 ? gameMillisElapsed : millisElapsed;
+	}
+
+	@FunctionalInterface
+	public interface ScheduledRender {
+		void accept(MatrixStack matrixStack, VertexConsumer vertexConsumer, Vec3d offset);
 	}
 }

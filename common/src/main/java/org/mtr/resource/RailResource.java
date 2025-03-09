@@ -1,10 +1,10 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import org.mtr.config.Config;
 import org.mtr.core.serializer.ReaderBase;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
-import org.mtr.mod.config.Config;
-import org.mtr.mod.generated.resource.RailResourceSchema;
-import org.mtr.mod.render.DynamicVehicleModel;
+import org.mtr.generated.resource.RailResourceSchema;
+import org.mtr.render.DynamicVehicleModel;
 
 import javax.annotation.Nullable;
 

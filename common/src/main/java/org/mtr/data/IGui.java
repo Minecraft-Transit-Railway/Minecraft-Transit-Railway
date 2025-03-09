@@ -1,8 +1,8 @@
-package org.mtr.mod.data;
+package org.mtr.data;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.mapper.GuiDrawing;
-import org.mtr.mod.generated.lang.TranslationProvider;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.gui.widget.CheckboxWidget;
+import org.mtr.generated.lang.TranslationProvider;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -32,6 +32,7 @@ public interface IGui {
 	int ARGB_BACKGROUND = 0xFF121212;
 
 	int MAX_LIGHT_INTERIOR = 0xF000B0; // LightmapTextureManager.pack(0xFF,0xFF); doesn't work with shaders
+	int DEFAULT_LIGHT = 0xF000F0;
 
 	static String formatStationName(String name) {
 		return name.replace('|', ' ');
@@ -276,38 +277,21 @@ public interface IGui {
 		});
 	}
 
-	static void drawTexture(GuiDrawing guiDrawing, int x, int y, int u, int v, int width, int height) {
-		drawTexture(guiDrawing, x, y, (float) u, (float) v, width, height, 256, 256);
-	}
-
-	static void drawTexture(GuiDrawing guiDrawing, int x, int y, float u, float v, int width, int height, int textureWidth, int textureHeight) {
-		drawTexture(guiDrawing, x, y, width, height, u, v, width, height, textureWidth, textureHeight);
-	}
-
-	static void drawTexture(GuiDrawing guiDrawing, int x, int y, int width, int height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
-		drawTexture(guiDrawing, x, y, x + width, y + height, regionWidth, regionHeight, u, v, textureWidth, textureHeight);
-	}
-
-	static void drawTexture(GuiDrawing guiDrawing, int x1, int y1, int x2, int y2, int regionWidth, int regionHeight, float u, float v, int textureWidth, int textureHeight) {
-		drawTexture(guiDrawing, x1, y1, x2, y2, u / textureWidth, v / textureHeight, (u + regionWidth) / textureWidth, (v + regionHeight) / textureHeight);
-	}
-
-	static void drawTexture(GuiDrawing guiDrawing, int x1, int y1, int x2, int y2, float u1, float v1, float u2, float v2) {
-		guiDrawing.drawTexture(x1, y1, x2, y2, u1, v1, u2, v2);
+	static void setChecked(CheckboxWidget checkboxWidget, boolean value) {
+		if (checkboxWidget.isChecked() != value) {
+			checkboxWidget.onPress();
+		}
 	}
 
 	enum HorizontalAlignment {
 		LEFT, CENTER, RIGHT;
 
 		public float getOffset(float x, float width) {
-			switch (this) {
-				case CENTER:
-					return x - width / 2;
-				case RIGHT:
-					return x - width;
-				default:
-					return x;
-			}
+			return switch (this) {
+				case CENTER -> x - width / 2;
+				case RIGHT -> x - width;
+				default -> x;
+			};
 		}
 	}
 

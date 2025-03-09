@@ -1,87 +1,102 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.BlockWithEntity;
-import org.mtr.mapping.mapper.DirectionHelper;
-import org.mtr.mapping.tool.HolderBase;
-import org.mtr.mod.BlockEntityTypes;
-import org.mtr.mod.Items;
-import org.mtr.mod.item.ItemBrush;
+import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.EnumProperty;
+import net.minecraft.state.property.IntProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.tick.ScheduledTickView;
+import org.mtr.item.ItemBrush;
+import org.mtr.registry.BlockEntityTypes;
+import org.mtr.registry.Items;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
-public class BlockPSDTop extends BlockExtension implements IBlock, DirectionHelper, BlockWithEntity {
+public class BlockPSDTop extends Block implements IBlock, BlockEntityProvider {
 
 	private static final float PERSISTENT_OFFSET = 7.5F;
 	public static final float PERSISTENT_OFFSET_SMALL = PERSISTENT_OFFSET / 16;
 
 	public static final BooleanProperty AIR_LEFT = BooleanProperty.of("air_left");
 	public static final BooleanProperty AIR_RIGHT = BooleanProperty.of("air_right");
-	public static final IntegerProperty ARROW_DIRECTION = IntegerProperty.of("propagate_property", 0, 3);
+	public static final IntProperty ARROW_DIRECTION = IntProperty.of("propagate_property", 0, 3);
 	public static final EnumProperty<EnumPersistent> PERSISTENT = EnumProperty.of("persistent", EnumPersistent.class);
 
-	public BlockPSDTop() {
-		super(org.mtr.mod.Blocks.createDefaultBlockSettings(true).nonOpaque());
+	public BlockPSDTop(AbstractBlock.Settings settings) {
+		super(settings.nonOpaque());
 	}
 
 	@Nonnull
 	@Override
-	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingItem(world, player, item -> {
-			if (item.data instanceof ItemBrush) {
-				world.setBlockState(pos, state.cycle(new Property<>(ARROW_DIRECTION.data)));
-				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise(), new Property<>(ARROW_DIRECTION.data), 1);
-				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise(), new Property<>(ARROW_DIRECTION.data), 1);
+			if (item instanceof ItemBrush) {
+				world.setBlockState(pos, state.cycle(ARROW_DIRECTION));
+				propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.FACING).rotateYClockwise(), ARROW_DIRECTION, 1);
+				propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.FACING).rotateYCounterclockwise(), ARROW_DIRECTION, 1);
 			} else {
-				final boolean shouldBePersistent = IBlock.getStatePropertySafe(state, new Property<>(PERSISTENT.data)) == EnumPersistent.NONE;
+				final boolean shouldBePersistent = IBlock.getStatePropertySafe(state, PERSISTENT) == EnumPersistent.NONE;
 				setState(world, pos, shouldBePersistent);
-				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise(), offsetPos -> setState(world, offsetPos, shouldBePersistent), 1);
-				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise(), offsetPos -> setState(world, offsetPos, shouldBePersistent), 1);
+				propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.FACING).rotateYClockwise(), offsetPos -> setState(world, offsetPos, shouldBePersistent), 1);
+				propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.FACING).rotateYCounterclockwise(), offsetPos -> setState(world, offsetPos, shouldBePersistent), 1);
 			}
-		}, null, Items.BRUSH.get(), org.mtr.mapping.holder.Items.getShearsMapped());
+		}, null, Items.BRUSH.get(), net.minecraft.item.Items.SHEARS);
 	}
 
 	private void setState(World world, BlockPos pos, boolean shouldBePersistent) {
 		final Block blockBelow = world.getBlockState(pos.down()).getBlock();
-		if (blockBelow.data instanceof BlockPSDDoor || blockBelow.data instanceof BlockPSDGlass || blockBelow.data instanceof BlockPSDGlassEnd) {
+		if (blockBelow instanceof BlockPSDDoor || blockBelow instanceof BlockPSDGlass || blockBelow instanceof BlockPSDGlassEnd) {
 			if (shouldBePersistent) {
-				world.setBlockState(pos, world.getBlockState(pos).with(new Property<>(PERSISTENT.data), blockBelow.data instanceof BlockPSDDoor ? EnumPersistent.ARROW : blockBelow.data instanceof BlockPSDGlass ? EnumPersistent.ROUTE : EnumPersistent.BLANK));
+				world.setBlockState(pos, world.getBlockState(pos).with(PERSISTENT, blockBelow instanceof BlockPSDDoor ? EnumPersistent.ARROW : blockBelow instanceof BlockPSDGlass ? EnumPersistent.ROUTE : EnumPersistent.BLANK));
 			} else {
-				world.setBlockState(pos, world.getBlockState(pos).with(new Property<>(PERSISTENT.data), EnumPersistent.NONE));
+				world.setBlockState(pos, world.getBlockState(pos).with(PERSISTENT, EnumPersistent.NONE));
 			}
 		}
 	}
 
 	@Nonnull
 	@Override
-	public Item asItem2() {
-		return Items.PSD_GLASS_1.get();
+	public Item asItem() {
+		return Items.PSD_GLASS_1.createAndGet();
 	}
 
 	@Nonnull
 	@Override
-	public ItemStack getPickStack2(BlockView world, BlockPos pos, BlockState state) {
-		return new ItemStack(new ItemConvertible(asItem2().data));
+	protected ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state, boolean includeData) {
+		return new ItemStack(asItem());
 	}
 
 	@Override
-	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		final Block blockDown = world.getBlockState(pos.down()).getBlock();
-		if (blockDown.data instanceof BlockPSDAPGBase) {
-			((BlockPSDAPGBase) blockDown.data).onBreak2(world, pos.down(), world.getBlockState(pos.down()), player);
-			world.setBlockState(pos.down(), Blocks.getAirMapped().getDefaultState());
+		if (blockDown instanceof BlockPSDAPGBase) {
+			blockDown.onBreak(world, pos.down(), world.getBlockState(pos.down()), player);
+			world.setBlockState(pos.down(), Blocks.AIR.getDefaultState());
 		}
-		super.onBreak2(world, pos, state, player);
+		return super.onBreak(world, pos, state, player);
 	}
 
 	@Nonnull
 	@Override
-	public BlockState getStateForNeighborUpdate2(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
-		if (direction == Direction.DOWN && IBlock.getStatePropertySafe(state, new Property<>(PERSISTENT.data)) == EnumPersistent.NONE && !(neighborState.getBlock().data instanceof BlockPSDAPGBase)) {
-			return Blocks.getAirMapped().getDefaultState();
+	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
+		if (direction == Direction.DOWN && IBlock.getStatePropertySafe(state, PERSISTENT) == EnumPersistent.NONE && !(neighborState.getBlock() instanceof BlockPSDAPGBase)) {
+			return Blocks.AIR.getDefaultState();
 		} else {
 			return getActualState(world, pos);
 		}
@@ -89,8 +104,8 @@ public class BlockPSDTop extends BlockExtension implements IBlock, DirectionHelp
 
 	@Nonnull
 	@Override
-	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		final VoxelShape baseShape = IBlock.getVoxelShapeByDirection(0, IBlock.getStatePropertySafe(state, new Property<>(PERSISTENT.data)) == EnumPersistent.NONE ? 0 : PERSISTENT_OFFSET, 0, 16, 16, 6, IBlock.getStatePropertySafe(state, FACING));
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		final VoxelShape baseShape = IBlock.getVoxelShapeByDirection(0, IBlock.getStatePropertySafe(state, PERSISTENT) == EnumPersistent.NONE ? 0 : PERSISTENT_OFFSET, 0, 16, 16, 6, IBlock.getStatePropertySafe(state, Properties.FACING));
 		final boolean airLeft = IBlock.getStatePropertySafe(state, AIR_LEFT);
 		final boolean airRight = IBlock.getStatePropertySafe(state, AIR_RIGHT);
 		if (airLeft || airRight) {
@@ -102,65 +117,65 @@ public class BlockPSDTop extends BlockExtension implements IBlock, DirectionHelp
 
 	@Nonnull
 	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(blockPos, blockState);
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new PSDTopBlockEntity(blockPos, blockState);
 	}
 
 	@Override
-	public void addBlockProperties(List<HolderBase<?>> properties) {
-		properties.add(FACING);
-		properties.add(SIDE_EXTENDED);
-		properties.add(AIR_LEFT);
-		properties.add(AIR_RIGHT);
-		properties.add(ARROW_DIRECTION);
-		properties.add(PERSISTENT);
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(Properties.FACING);
+		builder.add(SIDE_EXTENDED);
+		builder.add(AIR_LEFT);
+		builder.add(AIR_RIGHT);
+		builder.add(ARROW_DIRECTION);
+		builder.add(PERSISTENT);
 	}
 
-	public static BlockState getActualState(WorldAccess world, BlockPos pos) {
+	public static BlockState getActualState(WorldView world, BlockPos pos) {
 		Direction facing = null;
 		EnumSide side = null;
 		boolean airLeft = false, airRight = false;
 
 		final BlockState stateBelow = world.getBlockState(pos.down());
 		final Block blockBelow = stateBelow.getBlock();
-		if (blockBelow.data instanceof BlockPSDGlass || blockBelow.data instanceof BlockPSDDoor || blockBelow.data instanceof BlockPSDGlassEnd) {
-			if (blockBelow.data instanceof BlockPSDDoor) {
+		if (blockBelow instanceof BlockPSDGlass || blockBelow instanceof BlockPSDDoor || blockBelow instanceof BlockPSDGlassEnd) {
+			if (blockBelow instanceof BlockPSDDoor) {
 				side = IBlock.getStatePropertySafe(stateBelow, SIDE);
 			} else {
 				side = IBlock.getStatePropertySafe(stateBelow, SIDE_EXTENDED);
 			}
 
-			if (blockBelow.data instanceof BlockPSDGlassEnd) {
-				if (IBlock.getStatePropertySafe(stateBelow, new Property<>(BlockPSDGlassEnd.TOUCHING_LEFT.data)) == BlockPSDGlassEnd.EnumPSDAPGGlassEndSide.AIR) {
+			if (blockBelow instanceof BlockPSDGlassEnd) {
+				if (IBlock.getStatePropertySafe(stateBelow, BlockPSDGlassEnd.TOUCHING_LEFT) == BlockPSDGlassEnd.EnumPSDAPGGlassEndSide.AIR) {
 					airLeft = true;
 				}
-				if (IBlock.getStatePropertySafe(stateBelow, new Property<>(BlockPSDGlassEnd.TOUCHING_RIGHT.data)) == BlockPSDGlassEnd.EnumPSDAPGGlassEndSide.AIR) {
+				if (IBlock.getStatePropertySafe(stateBelow, BlockPSDGlassEnd.TOUCHING_RIGHT) == BlockPSDGlassEnd.EnumPSDAPGGlassEndSide.AIR) {
 					airRight = true;
 				}
 			}
 
-			facing = IBlock.getStatePropertySafe(stateBelow, FACING);
+			facing = IBlock.getStatePropertySafe(stateBelow, Properties.FACING);
 		}
 
 		final BlockState oldState = world.getBlockState(pos);
-		BlockState neighborState = (oldState.getBlock().data instanceof BlockPSDTop ? oldState : org.mtr.mod.Blocks.PSD_TOP.get().getDefaultState()).with(new Property<>(AIR_LEFT.data), airLeft).with(new Property<>(AIR_RIGHT.data), airRight);
+		BlockState neighborState = (oldState.getBlock() instanceof BlockPSDTop ? oldState : org.mtr.registry.Blocks.PSD_TOP.createAndGet().getDefaultState()).with(AIR_LEFT, airLeft).with(AIR_RIGHT, airRight);
 		if (facing != null) {
-			neighborState = neighborState.with(new Property<>(FACING.data), facing.data);
+			neighborState = neighborState.with(Properties.FACING, facing);
 		}
 		if (side != null) {
-			neighborState = neighborState.with(new Property<>(SIDE_EXTENDED.data), side);
+			neighborState = neighborState.with(SIDE_EXTENDED, side);
 		}
 		return neighborState;
 	}
 
-	public static class BlockEntity extends BlockEntityBase {
+	public static class PSDTopBlockEntity extends BlockEntityBase {
 
-		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.PSD_TOP.get(), pos, state);
+		public PSDTopBlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.PSD_TOP.createAndGet(), pos, state);
 		}
 	}
 
-	public static class BlockEntityBase extends BlockEntityExtension {
+	public static class BlockEntityBase extends BlockEntity {
 
 		public BlockEntityBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
@@ -178,7 +193,7 @@ public class BlockPSDTop extends BlockExtension implements IBlock, DirectionHelp
 
 		@Nonnull
 		@Override
-		public String asString2() {
+		public String asString() {
 			return name;
 		}
 	}
@@ -194,7 +209,7 @@ public class BlockPSDTop extends BlockExtension implements IBlock, DirectionHelp
 
 		@Nonnull
 		@Override
-		public String asString2() {
+		public String asString() {
 			return name;
 		}
 	}

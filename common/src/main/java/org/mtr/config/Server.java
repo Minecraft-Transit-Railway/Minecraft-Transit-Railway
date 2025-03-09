@@ -1,7 +1,7 @@
-package org.mtr.mod.config;
+package org.mtr.config;
 
 import org.mtr.core.serializer.ReaderBase;
-import org.mtr.mod.generated.config.ServerSchema;
+import org.mtr.generated.config.ServerSchema;
 
 public final class Server extends ServerSchema {
 

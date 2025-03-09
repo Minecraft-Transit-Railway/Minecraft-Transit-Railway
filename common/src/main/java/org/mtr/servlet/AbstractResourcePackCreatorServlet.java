@@ -1,26 +1,26 @@
-package org.mtr.mod.servlet;
+package org.mtr.servlet;
 
+import com.google.gson.JsonObject;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.AbstractTexture;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.util.Identifier;
+import org.mtr.MTR;
+import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.servlet.HttpResponseStatus;
 import org.mtr.core.servlet.ServletBase;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.javax.servlet.AsyncContext;
 import org.mtr.libraries.javax.servlet.http.HttpServlet;
 import org.mtr.libraries.javax.servlet.http.HttpServletRequest;
 import org.mtr.libraries.javax.servlet.http.HttpServletResponse;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.OptimizedModel;
-import org.mtr.mapping.mapper.ResourceManagerHelper;
-import org.mtr.mod.Init;
-import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.resource.BlockbenchModel;
-import org.mtr.mod.resource.BlockbenchModelValidator;
-import org.mtr.mod.resource.ModelWrapper;
-import org.mtr.mod.resource.ResourceWrapper;
-import org.mtr.mod.screen.ReloadCustomResourcesScreen;
+import org.mtr.model.OptimizedModel;
+import org.mtr.resource.*;
+import org.mtr.screen.ReloadCustomResourcesScreen;
 
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
@@ -45,7 +45,7 @@ public abstract class AbstractResourcePackCreatorServlet extends HttpServlet {
 				final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 				minecraftClient.execute(() -> {
 					if (refreshVehicleId.isEmpty()) {
-						minecraftClient.openScreen(new Screen(new ReloadCustomResourcesScreen(() -> refreshVehicles(refreshVehicleId, vehiclesFlattened))));
+						minecraftClient.setScreen(new ReloadCustomResourcesScreen(() -> refreshVehicles(refreshVehicleId, vehiclesFlattened)));
 					} else {
 						refreshVehicles(refreshVehicleId, vehiclesFlattened);
 					}
@@ -64,18 +64,18 @@ public abstract class AbstractResourcePackCreatorServlet extends HttpServlet {
 				resourceWrapper.addTextureResource(name);
 				TEXTURES.put(name, bytes);
 				try {
-					final Identifier identifier = new Identifier(name);
+					final Identifier identifier = Identifier.of(name);
 					final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(bytes.length);
 					byteBuffer.put(bytes);
 					byteBuffer.rewind();
-					final AbstractTexture abstractTexture = new AbstractTexture(new NativeImageBackedTexture(NativeImage.read(byteBuffer)).data);
+					final AbstractTexture abstractTexture = new NativeImageBackedTexture(NativeImage.read(byteBuffer));
 					final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 					minecraftClient.execute(() -> {
 						minecraftClient.getTextureManager().registerTexture(identifier, abstractTexture);
-						Init.LOGGER.info("Registered temporary texture [{}]", identifier.data.toString());
+						MTR.LOGGER.info("Registered temporary texture [{}]", identifier.toString());
 					});
 				} catch (Exception e) {
-					Init.LOGGER.error("", e);
+					MTR.LOGGER.error("", e);
 				}
 			} else if (name.endsWith(".bbmodel")) {
 				final String[] nameSplit = name.split("[^a-z0-9_]");
@@ -86,7 +86,7 @@ public abstract class AbstractResourcePackCreatorServlet extends HttpServlet {
 				resourceWrapper.addModelResource(new ModelWrapper(name, modelParts));
 				MODELS.put(name, modelObject.toString());
 			} else if (name.endsWith(".obj")) {
-				resourceWrapper.addModelResource(new ModelWrapper(name, new ObjectArrayList<>(OptimizedModel.ObjModel.loadModel(content, mtlString -> "", textureString -> new Identifier(""), null, true, false).keySet())));
+				resourceWrapper.addModelResource(new ModelWrapper(name, new ObjectArrayList<>(OptimizedModel.ObjModel.loadModel(content, mtlString -> "", textureString -> Identifier.of(""), null, true, false).keySet())));
 				MODELS.put(name, content);
 			} else if (name.endsWith(".mtl")) {
 				MODELS.put(name, content);
@@ -95,7 +95,7 @@ public abstract class AbstractResourcePackCreatorServlet extends HttpServlet {
 	}
 
 	protected static Path getBackupFile() {
-		return MinecraftClient.getInstance().getRunDirectoryMapped().toPath().resolve("config/mtr-resource-pack-creator-backup.json");
+		return MinecraftClient.getInstance().runDirectory.toPath().resolve("config/mtr-resource-pack-creator-backup.json");
 	}
 
 	protected static void setEncoding(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
@@ -103,7 +103,7 @@ public abstract class AbstractResourcePackCreatorServlet extends HttpServlet {
 			httpServletRequest.setCharacterEncoding("UTF-8");
 			httpServletResponse.setCharacterEncoding("UTF-8");
 		} catch (Exception e) {
-			Init.LOGGER.error("", e);
+			MTR.LOGGER.error("", e);
 		}
 	}
 
@@ -112,7 +112,7 @@ public abstract class AbstractResourcePackCreatorServlet extends HttpServlet {
 		new ResourceWrapper(new JsonReader(vehiclesFlattened), new ObjectArrayList<>(), new ObjectArrayList<>()).iterateVehicles(vehicleResourceWrapper -> {
 			if (refreshVehicleId.isEmpty() || vehicleResourceWrapper.getId().equals(refreshVehicleId)) {
 				CustomResourceLoader.registerVehicle(vehicleResourceWrapper.toVehicleResource(identifier -> {
-					final String modelString = ResourcePackCreatorUploadServlet.getModel(identifier.data.toString());
+					final String modelString = ResourcePackCreatorUploadServlet.getModel(identifier.toString());
 					return modelString == null ? ResourceManagerHelper.readResource(identifier) : modelString;
 				}, null, null));
 			}

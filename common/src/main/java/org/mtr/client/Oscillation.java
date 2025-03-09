@@ -1,4 +1,4 @@
-package org.mtr.mod.client;
+package org.mtr.client;
 
 import org.mtr.core.data.TransportMode;
 

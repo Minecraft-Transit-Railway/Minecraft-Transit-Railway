@@ -9,7 +9,6 @@ dependencies {
 	implementation "commons-io:commons-io:+"
 	implementation "org.apache.httpcomponents:httpmime:+"
 	implementation "org.mtr:Minecraft-Mod-API-Tools:0.0.1"
-	implementation "org.mtr:Minecraft-Mappings-common:0.0.1"
 	implementation "org.mtr:Transport-Simulation-Core:Build-Tools"
 }
 

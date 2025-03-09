@@ -1,8 +1,8 @@
-package org.mtr.mod.sound;
+package org.mtr.sound;
 
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import org.apache.commons.lang3.StringUtils;
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.holder.MathHelper;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -17,7 +17,7 @@ public final class BveMotorData4 extends BveMotorDataBase { // 4 for BVE4 and Op
 			channels[i] = new Channel();
 		}
 
-		String textContent = BveVehicleSoundConfig.readResource(new Identifier(baseName + "/train.dat"));
+		String textContent = BveVehicleSoundConfig.readResource(Identifier.of(baseName + "/train.dat"));
 		String[] lines = textContent.split("[\\r\\n]+");
 		String section = "";
 		for (final String line : lines) {

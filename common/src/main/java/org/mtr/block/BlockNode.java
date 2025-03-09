@@ -1,25 +1,39 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import net.minecraft.block.*;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
+import org.mtr.MTR;
+import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Angle;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.DirectionHelper;
-import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mapping.tool.HolderBase;
-import org.mtr.mod.Init;
-import org.mtr.mod.Items;
-import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.generated.lang.TranslationProvider;
-import org.mtr.mod.packet.ClientPacketHelper;
-import org.mtr.mod.packet.PacketDeleteData;
+import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.packet.ClientPacketHelper;
+import org.mtr.packet.PacketDeleteData;
+import org.mtr.registry.Items;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
-public class BlockNode extends BlockWaterloggable implements DirectionHelper, Waterloggable {
+public class BlockNode extends BlockWaterloggable implements Waterloggable {
 
 	public final TransportMode transportMode;
 
@@ -31,15 +45,15 @@ public class BlockNode extends BlockWaterloggable implements DirectionHelper, Wa
 	// Allows for ghost rails to use the correct HitResult
 	private static final double SHAPE_PADDING = 0.1;
 
-	public BlockNode(TransportMode transportMode) {
-		super(org.mtr.mod.Blocks.createDefaultBlockSettings(true).nonOpaque());
+	public BlockNode(AbstractBlock.Settings settings, TransportMode transportMode) {
+		super(settings.nonOpaque());
 		this.transportMode = transportMode;
 	}
 
 	@Nonnull
 	@Override
-	public ActionResult onUse2(BlockState blockState, World world, BlockPos blockPos, PlayerEntity playerEntity, Hand hand, BlockHitResult hit) {
-		if (world.isClient() && playerEntity.isHolding(Items.BRUSH.get())) {
+	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+		if (world.isClient() && player.isHolding(Items.BRUSH.get())) {
 			final ObjectObjectImmutablePair<Rail, BlockPos> railAndBlockPos = MinecraftClientData.getInstance().getFacingRailAndBlockPos(false);
 			if (railAndBlockPos == null) {
 				return ActionResult.FAIL;
@@ -54,42 +68,42 @@ public class BlockNode extends BlockWaterloggable implements DirectionHelper, Wa
 
 	@Nonnull
 	@Override
-	public BlockState getPlacementState2(ItemPlacementContext itemPlacementContext) {
+	public BlockState getPlacementState(ItemPlacementContext itemPlacementContext) {
 		final int quadrant = Angle.getQuadrant(itemPlacementContext.getPlayerYaw(), true);
-		return super.getPlacementState2(itemPlacementContext)
-				.with(new Property<>(FACING.data), quadrant % 8 >= 4)
-				.with(new Property<>(IS_45.data), quadrant % 4 >= 2)
-				.with(new Property<>(IS_22_5.data), quadrant % 2 == 1)
-				.with(new Property<>(IS_CONNECTED.data), false);
+		return super.getPlacementState(itemPlacementContext)
+				.with(FACING, quadrant % 8 >= 4)
+				.with(IS_45, quadrant % 4 >= 2)
+				.with(IS_22_5, quadrant % 2 == 1)
+				.with(IS_CONNECTED, false);
 	}
 
 	@Override
-	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-		super.onBreak2(world, pos, state, player);
-		if (!world.isClient()) {
-			PacketDeleteData.sendDirectlyToServerRailNodePosition(ServerWorld.cast(world), Init.blockPosToPosition(pos));
+	public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+		if (world instanceof ServerWorld serverWorld) {
+			PacketDeleteData.sendDirectlyToServerRailNodePosition(serverWorld, MTR.blockPosToPosition(pos));
 		}
+		return super.onBreak(world, pos, state, player);
 	}
 
 	@Nonnull
 	@Override
-	public final VoxelShape getOutlineShape2(BlockState blockState, BlockView world, BlockPos pos, ShapeContext context) {
+	public final VoxelShape getOutlineShape(BlockState blockState, BlockView world, BlockPos pos, ShapeContext context) {
 		return Block.createCuboidShape(SHAPE_PADDING, getShapeY1(), SHAPE_PADDING, 16 - SHAPE_PADDING, getShapeY2(blockState), 16 - SHAPE_PADDING);
 	}
 
 	@Nonnull
 	@Override
-	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return VoxelShapes.empty();
 	}
 
 	@Override
-	public void addBlockProperties(List<HolderBase<?>> properties) {
-		super.addBlockProperties(properties);
-		properties.add(FACING);
-		properties.add(IS_22_5);
-		properties.add(IS_45);
-		properties.add(IS_CONNECTED);
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		super.appendProperties(builder);
+		builder.add(Properties.FACING);
+		builder.add(IS_22_5);
+		builder.add(IS_45);
+		builder.add(IS_CONNECTED);
 	}
 
 	double getShapeY1() {
@@ -102,8 +116,8 @@ public class BlockNode extends BlockWaterloggable implements DirectionHelper, Wa
 
 	public static void resetRailNode(ServerWorld serverWorld, BlockPos blockPos) {
 		final BlockState state = serverWorld.getBlockState(blockPos);
-		if (state.getBlock().data instanceof BlockNode) {
-			serverWorld.setBlockState(blockPos, state.with(new Property<>(BlockNode.IS_CONNECTED.data), false));
+		if (state.getBlock() instanceof BlockNode) {
+			serverWorld.setBlockState(blockPos, state.with(BlockNode.IS_CONNECTED, false));
 		}
 	}
 
@@ -116,28 +130,28 @@ public class BlockNode extends BlockWaterloggable implements DirectionHelper, Wa
 		public final boolean upper;
 		public final boolean isStation;
 
-		public BlockContinuousMovementNode(boolean upper, boolean isStation) {
-			super(TransportMode.CABLE_CAR);
+		public BlockContinuousMovementNode(AbstractBlock.Settings settings, boolean upper, boolean isStation) {
+			super(settings, TransportMode.CABLE_CAR);
 			this.upper = upper;
 			this.isStation = isStation;
 		}
 
 		@Nonnull
 		@Override
-		public BlockState getPlacementState2(ItemPlacementContext itemPlacementContext) {
+		public BlockState getPlacementState(ItemPlacementContext itemPlacementContext) {
 			final int quadrant = Angle.getQuadrant(itemPlacementContext.getPlayerYaw(), false);
-			return super.getPlacementState2(itemPlacementContext)
-					.with(new Property<>(FACING.data), quadrant % 4 >= 2)
-					.with(new Property<>(IS_45.data), quadrant % 2 == 1)
-					.with(new Property<>(IS_22_5.data), false)
-					.with(new Property<>(IS_CONNECTED.data), false);
+			return super.getPlacementState(itemPlacementContext)
+					.with(FACING, quadrant % 4 >= 2)
+					.with(IS_45, quadrant % 2 == 1)
+					.with(IS_22_5, false)
+					.with(IS_CONNECTED, false);
 		}
 
 		@Override
-		public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
+		public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType options) {
 			final String[] strings = (isStation ? TranslationProvider.TOOLTIP_MTR_CABLE_CAR_NODE_STATION : TranslationProvider.TOOLTIP_MTR_CABLE_CAR_NODE).getString().split("\n");
 			for (final String string : strings) {
-				tooltip.add(TextHelper.literal(string).formatted(TextFormatting.GRAY));
+				tooltip.add(Text.literal(string).formatted(Formatting.GRAY));
 			}
 		}
 

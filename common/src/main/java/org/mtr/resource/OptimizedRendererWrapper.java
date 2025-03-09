@@ -1,8 +1,8 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.OptimizedRenderer;
-import org.mtr.mod.data.IGui;
+import net.minecraft.client.util.math.MatrixStack;
+import org.mtr.data.IGui;
+import org.mtr.model.OptimizedRenderer;
 
 import javax.annotation.Nullable;
 
@@ -27,9 +27,9 @@ public final class OptimizedRendererWrapper implements IGui {
 		}
 	}
 
-	public void queue(OptimizedModelWrapper optimizedModel, GraphicsHolder graphicsHolder, int light) {
+	public void queue(OptimizedModelWrapper optimizedModel, MatrixStack matrixStack, int light) {
 		if (optimizedRenderer != null && optimizedModel.optimizedModel != null) {
-			optimizedRenderer.queue(optimizedModel.optimizedModel, graphicsHolder, ARGB_WHITE, light);
+			optimizedRenderer.queue(optimizedModel.optimizedModel, matrixStack, ARGB_WHITE, light);
 		}
 	}
 

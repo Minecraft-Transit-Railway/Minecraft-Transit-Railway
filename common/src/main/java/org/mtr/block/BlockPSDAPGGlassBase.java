@@ -1,16 +1,28 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.tool.HolderBase;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 public abstract class BlockPSDAPGGlassBase extends BlockPSDAPGBase {
 
+	public BlockPSDAPGGlassBase(AbstractBlock.Settings settings) {
+		super(settings);
+	}
+
 	@Nonnull
 	@Override
-	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			for (int y = -1; y <= 1; y++) {
 				final BlockState scanState = world.getBlockState(pos.up(y));
@@ -22,14 +34,14 @@ public abstract class BlockPSDAPGGlassBase extends BlockPSDAPGBase {
 	}
 
 	@Override
-	public void addBlockProperties(List<HolderBase<?>> properties) {
-		properties.add(FACING);
-		properties.add(HALF);
-		properties.add(SIDE_EXTENDED);
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(Properties.FACING);
+		builder.add(HALF);
+		builder.add(SIDE_EXTENDED);
 	}
 
 	private void connectGlass(World world, BlockPos pos, BlockState state) {
-		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
 
 		final BlockPos leftPos = pos.offset(facing.rotateYCounterclockwise());
 		final BlockState leftState = world.getBlockState(leftPos);
@@ -47,7 +59,7 @@ public abstract class BlockPSDAPGGlassBase extends BlockPSDAPGBase {
 				newLeftSide = side;
 			}
 
-			world.setBlockState(leftPos, leftState.with(new Property<>(SIDE_EXTENDED.data), newLeftSide));
+			world.setBlockState(leftPos, leftState.with(SIDE_EXTENDED, newLeftSide));
 		}
 
 		final BlockPos rightPos = pos.offset(facing.rotateYClockwise());
@@ -66,7 +78,7 @@ public abstract class BlockPSDAPGGlassBase extends BlockPSDAPGBase {
 				newRightSide = side;
 			}
 
-			world.setBlockState(rightPos, rightState.with(new Property<>(SIDE_EXTENDED.data), newRightSide));
+			world.setBlockState(rightPos, rightState.with(SIDE_EXTENDED, newRightSide));
 		}
 
 		EnumSide newSide;
@@ -80,6 +92,6 @@ public abstract class BlockPSDAPGGlassBase extends BlockPSDAPGBase {
 			newSide = EnumSide.SINGLE;
 		}
 
-		world.setBlockState(pos, state.with(new Property<>(SIDE_EXTENDED.data), newSide));
+		world.setBlockState(pos, state.with(SIDE_EXTENDED, newSide));
 	}
 }

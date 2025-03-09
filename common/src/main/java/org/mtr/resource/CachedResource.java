@@ -1,6 +1,6 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;

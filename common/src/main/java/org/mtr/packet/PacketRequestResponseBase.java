@@ -1,18 +1,14 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
+import com.google.gson.JsonObject;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import org.mtr.MTR;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.mapping.holder.MinecraftServer;
-import org.mtr.mapping.holder.ServerPlayerEntity;
-import org.mtr.mapping.holder.ServerWorld;
-import org.mtr.mapping.holder.World;
-import org.mtr.mapping.mapper.MinecraftServerHelper;
-import org.mtr.mapping.registry.PacketHandler;
-import org.mtr.mapping.tool.PacketBufferReceiver;
-import org.mtr.mapping.tool.PacketBufferSender;
-import org.mtr.mod.Init;
+import org.mtr.registry.Registry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,14 +46,14 @@ public abstract class PacketRequestResponseBase extends PacketHandler {
 	}
 
 	protected void runServerOutbound(ServerWorld serverWorld, @Nullable ServerPlayerEntity serverPlayerEntity) {
-		Init.sendMessageC2S(getKey(), serverWorld.getServer(), new World(serverWorld.data), getDataInstance(new JsonReader(Utilities.parseJson(content))), responseType() == ResponseType.NONE ? null : responseData -> {
+		MTR.sendMessageC2S(getKey(), serverWorld.getServer(), serverWorld, getDataInstance(new JsonReader(Utilities.parseJson(content))), responseType() == ResponseType.NONE ? null : responseData -> {
 			final JsonObject responseJson = Utilities.getJsonObjectFromData(responseData);
 			if (responseType() == ResponseType.PLAYER) {
 				if (serverPlayerEntity != null) {
-					Init.REGISTRY.sendPacketToClient(serverPlayerEntity, getInstance(responseJson.toString()));
+					Registry.sendPacketToClient(serverPlayerEntity, getInstance(responseJson.toString()));
 				}
 			} else {
-				MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntityNew -> Init.REGISTRY.sendPacketToClient(serverPlayerEntityNew, getInstance(responseJson.toString())));
+				serverWorld.getPlayers().forEach(serverPlayerEntityNew -> Registry.sendPacketToClient(serverPlayerEntityNew, getInstance(responseJson.toString())));
 			}
 			runServerInbound(serverWorld, responseJson);
 		}, SerializedDataBase.class);

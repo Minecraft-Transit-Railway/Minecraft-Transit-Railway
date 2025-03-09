@@ -1,9 +1,10 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.BlockState;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mod.BlockEntityTypes;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.registry.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
 
@@ -11,20 +12,20 @@ public class BlockArrivalProjector1Medium extends BlockArrivalProjectorBase {
 
 	private static final int MAX_ARRIVALS = 12;
 
-	public BlockArrivalProjector1Medium() {
-		super(MAX_ARRIVALS);
+	public BlockArrivalProjector1Medium(AbstractBlock.Settings settings) {
+		super(settings, MAX_ARRIVALS);
 	}
 
 	@Nonnull
 	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(blockPos, blockState);
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new ArrivalProjector1MediumBlockEntity(blockPos, blockState);
 	}
 
-	public static class BlockEntity extends BlockEntityArrivalProjectorBase {
+	public static class ArrivalProjector1MediumBlockEntity extends BlockEntityArrivalProjectorBase {
 
-		public BlockEntity(BlockPos pos, BlockState state) {
-			super(MAX_ARRIVALS, BlockEntityTypes.ARRIVAL_PROJECTOR_1_MEDIUM.get(), pos, state);
+		public ArrivalProjector1MediumBlockEntity(BlockPos pos, BlockState state) {
+			super(MAX_ARRIVALS, BlockEntityTypes.ARRIVAL_PROJECTOR_1_MEDIUM.createAndGet(), pos, state);
 		}
 	}
 }

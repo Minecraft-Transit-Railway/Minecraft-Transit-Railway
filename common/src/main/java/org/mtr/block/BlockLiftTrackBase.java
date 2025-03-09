@@ -1,31 +1,33 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import org.mtr.core.tool.Vector;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.DirectionHelper;
-import org.mtr.mapping.tool.HolderBase;
-import org.mtr.mod.Blocks;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
-public abstract class BlockLiftTrackBase extends BlockExtension implements DirectionHelper {
+public abstract class BlockLiftTrackBase extends Block {
 
-	public BlockLiftTrackBase() {
-		super(Blocks.createDefaultBlockSettings(true));
+	public BlockLiftTrackBase(AbstractBlock.Settings settings) {
+		super(settings);
 	}
 
 	@Nonnull
 	@Override
-	public BlockState getPlacementState2(ItemPlacementContext context) {
-		return getDefaultState2().with(new Property<>(FACING.data), getFacing(context).data);
+	public BlockState getPlacementState(ItemPlacementContext context) {
+		return getDefaultState().with(Properties.FACING, getFacing(context));
 	}
 
 	@Override
-	public void addBlockProperties(List<HolderBase<?>> properties) {
-		properties.add(FACING);
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(Properties.FACING);
 	}
 
 	public abstract ObjectArrayList<Direction> getConnectingDirections(BlockState blockState);
@@ -40,10 +42,10 @@ public abstract class BlockLiftTrackBase extends BlockExtension implements Direc
 			return oppositeFace;
 		} else {
 			final BlockState state = context.getWorld().getBlockState(context.getBlockPos().offset(oppositeFace));
-			if (state.getBlock().data instanceof BlockLiftTrackBase) {
-				return IBlock.getStatePropertySafe(state, FACING);
+			if (state.getBlock() instanceof BlockLiftTrackBase) {
+				return IBlock.getStatePropertySafe(state, Properties.FACING);
 			} else {
-				return context.getPlayerFacing();
+				return context.getHorizontalPlayerFacing();
 			}
 		}
 	}

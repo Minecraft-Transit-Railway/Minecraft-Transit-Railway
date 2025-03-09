@@ -1,18 +1,18 @@
-package org.mtr.mod.item;
+package org.mtr.item;
 
-import org.mtr.mapping.holder.Block;
-import org.mtr.mapping.holder.ItemSettings;
-import org.mtr.mapping.holder.ItemStack;
-import org.mtr.mapping.mapper.BlockItemExtension;
+import net.minecraft.block.Block;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
-public class ItemBlockEnchanted extends BlockItemExtension {
+public class ItemBlockEnchanted extends BlockItem {
 
-	public ItemBlockEnchanted(Block block, ItemSettings itemSettings) {
+	public ItemBlockEnchanted(Block block, Item.Settings itemSettings) {
 		super(block, itemSettings);
 	}
 
 	@Override
-	public boolean hasGlint2(ItemStack stack) {
+	public boolean hasGlint(ItemStack stack) {
 		return true;
 	}
 }

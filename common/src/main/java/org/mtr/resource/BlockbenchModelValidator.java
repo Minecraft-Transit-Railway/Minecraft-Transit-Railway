@@ -1,11 +1,11 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import org.mtr.MTR;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.com.google.gson.JsonArray;
-import org.mtr.libraries.com.google.gson.JsonElement;
-import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.libraries.com.google.gson.JsonPrimitive;
-import org.mtr.mod.Init;
 
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
@@ -44,7 +44,7 @@ public final class BlockbenchModelValidator {
 				}
 			});
 		} catch (Exception ignored) {
-			Init.LOGGER.warn("Failed to read textures from Blockbench model [{}]", id);
+			MTR.LOGGER.warn("Failed to read textures from Blockbench model [{}]", id);
 		}
 	}
 

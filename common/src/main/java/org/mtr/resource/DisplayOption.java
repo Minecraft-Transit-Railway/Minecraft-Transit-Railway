@@ -1,7 +1,7 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
 import org.mtr.core.tool.Utilities;
-import org.mtr.mod.data.IGui;
+import org.mtr.data.IGui;
 
 import javax.annotation.Nullable;
 import java.util.function.Function;

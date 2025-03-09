@@ -1,22 +1,21 @@
-package org.mtr.mod.render;
+package org.mtr.render;
 
+import net.minecraft.block.BlockState;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import org.mtr.MTRClient;
+import org.mtr.block.BlockRouteSignBase;
+import org.mtr.block.IBlock;
+import org.mtr.client.DynamicTextureCache;
+import org.mtr.client.IDrawing;
 import org.mtr.core.data.Platform;
 import org.mtr.core.data.Station;
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.BlockState;
-import org.mtr.mapping.holder.Direction;
-import org.mtr.mapping.holder.World;
-import org.mtr.mapping.mapper.BlockEntityRenderer;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.block.BlockRouteSignBase;
-import org.mtr.mod.block.BlockStationNameBase;
-import org.mtr.mod.block.IBlock;
-import org.mtr.mod.client.DynamicTextureCache;
-import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.data.IGui;
+import org.mtr.data.IGui;
 
-public class RenderRouteSign<T extends BlockRouteSignBase.BlockEntityBase> extends BlockEntityRenderer<T> implements IBlock, IGui {
+public class RenderRouteSign<T extends BlockRouteSignBase.BlockEntityBase> extends BlockEntityRendererExtension<T> implements IBlock, IGui {
 
 	private static final float SIDE = 2.5F / 16;
 	private static final float BOTTOM = 10.5F / 16;
@@ -27,24 +26,15 @@ public class RenderRouteSign<T extends BlockRouteSignBase.BlockEntityBase> exten
 	private static final float HEIGHT_TOP = TOP - MIDDLE;
 	private static final float TEXTURE_BREAK = MIDDLE / HEIGHT_BOTTOM;
 
-	public RenderRouteSign(Argument dispatcher) {
-		super(dispatcher);
-	}
-
 	@Override
-	public void render(T entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
-		final World world = entity.getWorld2();
-		if (world == null) {
-			return;
-		}
-
-		final BlockPos pos = entity.getPos2();
+	public void render(T entity, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
+		final BlockPos pos = entity.getPos();
 		final BlockState state = world.getBlockState(pos);
-		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
 		final boolean isTop = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
 		final int arrowDirection = IBlock.getStatePropertySafe(state, BlockRouteSignBase.ARROW_DIRECTION);
 
-		final Station station = InitClient.findStation(pos);
+		final Station station = MTRClient.findStation(pos);
 		if (station == null) {
 			return;
 		}
@@ -58,22 +48,37 @@ public class RenderRouteSign<T extends BlockRouteSignBase.BlockEntityBase> exten
 			return;
 		}
 
-		graphicsHolder.push();
-		graphicsHolder.translate(0.5, 0, 0.5);
-		graphicsHolder.rotateYDegrees(-facing.asRotation());
-		graphicsHolder.translate(-0.5, 0, 0.4375 - SMALL_OFFSET * 2);
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+		storedMatrixTransformations.add(matrixStack -> {
+			IDrawing.rotateYDegrees(matrixStack, -facing.getPositiveHorizontalDegrees());
+			matrixStack.translate(-0.5, 0, 0.4375 - SMALL_OFFSET * 2);
+		});
 
-		graphicsHolder.createVertexConsumer(MoreRenderLayers.getExterior(DynamicTextureCache.instance.getDirectionArrow(platform.getId(), (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.2F, WIDTH / HEIGHT_TOP, ARGB_BLACK, ARGB_WHITE, 0).identifier));
-		IDrawing.drawTexture(graphicsHolder, 1 - SIDE, TOP + (isTop ? 0 : 1), 0, SIDE, MIDDLE + (isTop ? 0 : 1), 0, 0, 0, 1, 1, facing.getOpposite(), -1, light);
+		MainRenderer.scheduleRender(
+				DynamicTextureCache.instance.getDirectionArrow(platform.getId(), (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.2F, WIDTH / HEIGHT_TOP, ARGB_BLACK, ARGB_WHITE, 0).identifier,
+				false,
+				QueuedRenderLayer.EXTERIOR,
+				(matrixStack, vertexConsumer, offset) -> {
+					storedMatrixTransformations.transform(matrixStack, offset);
+					IDrawing.drawTexture(matrixStack, vertexConsumer, 1 - SIDE, TOP + (isTop ? 0 : 1), 0, SIDE, MIDDLE + (isTop ? 0 : 1), 0, 0, 0, 1, 1, facing.getOpposite(), -1, light);
+					matrixStack.pop();
+				}
+		);
 
-		graphicsHolder.createVertexConsumer(MoreRenderLayers.getExterior(DynamicTextureCache.instance.getRouteMap(platform.getId(), true, false, HEIGHT_BOTTOM / WIDTH, false).identifier));
-		IDrawing.drawTexture(graphicsHolder, 1 - SIDE, MIDDLE + (isTop ? 0 : 1), 0, 1 - SIDE, isTop ? 0 : BOTTOM, 0, SIDE, isTop ? 0 : BOTTOM, 0, SIDE, MIDDLE + (isTop ? 0 : 1), 0, 0, 0, isTop ? TEXTURE_BREAK : 1, 1, facing.getOpposite(), -1, light);
-
-		graphicsHolder.pop();
+		MainRenderer.scheduleRender(
+				DynamicTextureCache.instance.getRouteMap(platform.getId(), true, false, HEIGHT_BOTTOM / WIDTH, false).identifier,
+				false,
+				QueuedRenderLayer.EXTERIOR,
+				(matrixStack, vertexConsumer, offset) -> {
+					storedMatrixTransformations.transform(matrixStack, offset);
+					IDrawing.drawTexture(matrixStack, vertexConsumer, 1 - SIDE, MIDDLE + (isTop ? 0 : 1), 0, 1 - SIDE, isTop ? 0 : BOTTOM, 0, SIDE, isTop ? 0 : BOTTOM, 0, SIDE, MIDDLE + (isTop ? 0 : 1), 0, 0, 0, isTop ? TEXTURE_BREAK : 1, 1, facing.getOpposite(), -1, light);
+					matrixStack.pop();
+				}
+		);
 	}
 
 	@Override
-	public boolean rendersOutsideBoundingBox2(T blockEntity) {
+	public boolean rendersOutsideBoundingBox(T blockEntity) {
 		return true;
 	}
 }

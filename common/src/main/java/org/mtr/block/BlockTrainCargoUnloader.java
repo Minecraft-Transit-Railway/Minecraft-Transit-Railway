@@ -1,24 +1,29 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.BlockState;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mod.BlockEntityTypes;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.registry.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
 
 public class BlockTrainCargoUnloader extends BlockTrainSensorBase {
 
-	@Nonnull
-	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(blockPos, blockState);
+	public BlockTrainCargoUnloader(AbstractBlock.Settings settings) {
+		super(settings);
 	}
 
-	public static class BlockEntity extends BlockEntityBase {
+	@Nonnull
+	@Override
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new TrainCargoUnloaderBlockEntity(blockPos, blockState);
+	}
 
-		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TRAIN_CARGO_UNLOADER.get(), pos, state);
+	public static class TrainCargoUnloaderBlockEntity extends BlockEntityBase {
+
+		public TrainCargoUnloaderBlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.TRAIN_CARGO_UNLOADER.createAndGet(), pos, state);
 		}
 	}
 }

@@ -1,22 +1,22 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
-import org.mtr.mapping.holder.ClickableWidget;
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.holder.MathHelper;
-import org.mtr.mapping.holder.Screen;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.GuiDrawing;
-import org.mtr.mapping.mapper.TextFieldWidgetExtension;
-import org.mtr.mapping.mapper.TexturedButtonWidgetExtension;
-import org.mtr.mapping.tool.TextCase;
-import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.generated.lang.TranslationProvider;
+import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.TexturedButtonWidget;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
+import org.mtr.client.IDrawing;
+import org.mtr.client.MinecraftClientData;
+import org.mtr.data.IGui;
+import org.mtr.generated.lang.TranslationProvider;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -32,18 +32,18 @@ public class DashboardList implements IGui {
 	public int width;
 	public int height;
 
-	private final TextFieldWidgetExtension textFieldSearch;
+	private final TextFieldWidget textFieldSearch;
 
-	private final TexturedButtonWidgetExtension buttonPrevPage;
-	private final TexturedButtonWidgetExtension buttonNextPage;
+	private final TexturedButtonWidget buttonPrevPage;
+	private final TexturedButtonWidget buttonNextPage;
 
-	private final TexturedButtonWidgetExtension buttonFind;
-	private final TexturedButtonWidgetExtension buttonDrawArea;
-	private final TexturedButtonWidgetExtension buttonEdit;
-	private final TexturedButtonWidgetExtension buttonUp;
-	private final TexturedButtonWidgetExtension buttonDown;
-	private final TexturedButtonWidgetExtension buttonAdd;
-	private final TexturedButtonWidgetExtension buttonDelete;
+	private final TexturedButtonWidget buttonFind;
+	private final TexturedButtonWidget buttonDrawArea;
+	private final TexturedButtonWidget buttonEdit;
+	private final TexturedButtonWidget buttonUp;
+	private final TexturedButtonWidget buttonDown;
+	private final TexturedButtonWidget buttonAdd;
+	private final TexturedButtonWidget buttonDelete;
 
 	private final Supplier<String> getSearch;
 	private final Consumer<String> setSearch;
@@ -68,39 +68,39 @@ public class DashboardList implements IGui {
 	public <T> DashboardList(@Nullable Callback onFind, @Nullable Callback onDrawArea, @Nullable Callback onEdit, @Nullable Runnable onSort, @Nullable Callback onAdd, @Nullable Callback onDelete, @Nullable Supplier<List<T>> getList, Supplier<String> getSearch, Consumer<String> setSearch, boolean playSound) {
 		this.getSearch = getSearch;
 		this.setSearch = setSearch;
-		textFieldSearch = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_SEARCH.getString());
-		buttonPrevPage = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_left.png"), new Identifier("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1));
-		buttonNextPage = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_right.png"), new Identifier("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1));
-		buttonFind = new WidgetSilentImageButton(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_find.png"), new Identifier("textures/gui/sprites/mtr/icon_find_highlighted.png"), button -> onClick(onFind), playSound);
-		buttonDrawArea = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_draw_area.png"), new Identifier("textures/gui/sprites/mtr/icon_draw_area_highlighted.png"), button -> onClick(onDrawArea));
-		buttonEdit = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_edit.png"), new Identifier("textures/gui/sprites/mtr/icon_edit_highlighted.png"), button -> onClick(onEdit));
-		buttonUp = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_up.png"), new Identifier("textures/gui/sprites/mtr/icon_up_highlighted.png"), button -> {
+		textFieldSearch = new WidgetBetterTextField(256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_SEARCH.getString());
+		buttonPrevPage = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_left.png"), Identifier.of("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1), true);
+		buttonNextPage = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_right.png"), Identifier.of("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1), true);
+		buttonFind = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_find.png"), Identifier.of("textures/gui/sprites/mtr/icon_find_highlighted.png"), button -> onClick(onFind), playSound);
+		buttonDrawArea = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_draw_area.png"), Identifier.of("textures/gui/sprites/mtr/icon_draw_area_highlighted.png"), button -> onClick(onDrawArea), true);
+		buttonEdit = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_edit.png"), Identifier.of("textures/gui/sprites/mtr/icon_edit_highlighted.png"), button -> onClick(onEdit), true);
+		buttonUp = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_up.png"), Identifier.of("textures/gui/sprites/mtr/icon_up_highlighted.png"), button -> {
 			if (getList != null) {
 				onUp(getList);
 			}
 			if (onSort != null) {
 				onSort.run();
 			}
-		});
-		buttonDown = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_down.png"), new Identifier("textures/gui/sprites/mtr/icon_down_highlighted.png"), button -> {
+		}, true);
+		buttonDown = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_down.png"), Identifier.of("textures/gui/sprites/mtr/icon_down_highlighted.png"), button -> {
 			if (getList != null) {
 				onDown(getList);
 			}
 			if (onSort != null) {
 				onSort.run();
 			}
-		});
-		buttonAdd = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_add.png"), new Identifier("textures/gui/sprites/mtr/icon_add_highlighted.png"), button -> onClick(onAdd));
-		buttonDelete = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_delete.png"), new Identifier("textures/gui/sprites/mtr/icon_delete_highlighted.png"), button -> onClick(onDelete));
+		}, true);
+		buttonAdd = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_add.png"), Identifier.of("textures/gui/sprites/mtr/icon_add_highlighted.png"), button -> onClick(onAdd), true);
+		buttonDelete = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_delete.png"), Identifier.of("textures/gui/sprites/mtr/icon_delete_highlighted.png"), button -> onClick(onDelete), true);
 	}
 
-	public void init(Consumer<ClickableWidget> addDrawableChild) {
+	public void init(Consumer<ClickableWidget> addSelectableChild) {
 		IDrawing.setPositionAndWidth(buttonPrevPage, x, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(buttonNextPage, x + SQUARE_SIZE * 3, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(textFieldSearch, x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2, y + TEXT_FIELD_PADDING / 2, width - SQUARE_SIZE * 4 - TEXT_FIELD_PADDING);
 
-		textFieldSearch.setChangedListener2(setSearch);
-		textFieldSearch.setText2(getSearch.get());
+		textFieldSearch.setChangedListener(setSearch);
+		textFieldSearch.setText(getSearch.get());
 
 		buttonFind.visible = false;
 		buttonDrawArea.visible = false;
@@ -110,27 +110,26 @@ public class DashboardList implements IGui {
 		buttonAdd.visible = false;
 		buttonDelete.visible = false;
 
-		addDrawableChild.accept(new ClickableWidget(buttonPrevPage));
-		addDrawableChild.accept(new ClickableWidget(buttonNextPage));
+		addSelectableChild.accept(buttonPrevPage);
+		addSelectableChild.accept(buttonNextPage);
 
-		addDrawableChild.accept(new ClickableWidget(buttonFind));
-		addDrawableChild.accept(new ClickableWidget(buttonDrawArea));
-		addDrawableChild.accept(new ClickableWidget(buttonEdit));
-		addDrawableChild.accept(new ClickableWidget(buttonUp));
-		addDrawableChild.accept(new ClickableWidget(buttonDown));
-		addDrawableChild.accept(new ClickableWidget(buttonAdd));
-		addDrawableChild.accept(new ClickableWidget(buttonDelete));
+		addSelectableChild.accept(buttonFind);
+		addSelectableChild.accept(buttonDrawArea);
+		addSelectableChild.accept(buttonEdit);
+		addSelectableChild.accept(buttonUp);
+		addSelectableChild.accept(buttonDown);
+		addSelectableChild.accept(buttonAdd);
+		addSelectableChild.accept(buttonDelete);
 
-		addDrawableChild.accept(new ClickableWidget(textFieldSearch));
+		addSelectableChild.accept(textFieldSearch);
 	}
 
 	public void tick() {
-		textFieldSearch.tick2();
-		buttonPrevPage.setX2(x);
-		buttonNextPage.setX2(x + SQUARE_SIZE * 3);
-		textFieldSearch.setX2(x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2);
+		buttonPrevPage.setX(x);
+		buttonNextPage.setX(x + SQUARE_SIZE * 3);
+		textFieldSearch.setX(x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2);
 
-		final String text = textFieldSearch.getText2();
+		final String text = textFieldSearch.getText();
 		dataFiltered.clear();
 		for (int i = 0; i < dataSorted.size(); i++) {
 			if (dataSorted.get(i).getName(true).toLowerCase(Locale.ENGLISH).contains(text.toLowerCase(Locale.ENGLISH))) {
@@ -160,12 +159,14 @@ public class DashboardList implements IGui {
 		this.hasDelete = hasPermission && hasDelete;
 	}
 
-	public void render(GraphicsHolder graphicsHolder) {
-		render(graphicsHolder, true);
+	public void render(DrawContext context) {
+		render(context, true);
 	}
 
-	public void render(GraphicsHolder graphicsHolder, boolean formatted) {
-		graphicsHolder.drawCenteredText(String.format("%s/%s", page + 1, totalPages), x + SQUARE_SIZE * 2, y + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE);
+	public void render(DrawContext context, boolean formatted) {
+		final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+		context.drawCenteredTextWithShadow(textRenderer, String.format("%s/%s", page + 1, totalPages), x + SQUARE_SIZE * 2, y + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE);
+
 		final int itemsToShow = itemsToShow();
 		for (int i = 0; i < itemsToShow; i++) {
 			if (i + itemsToShow * page < dataFiltered.size()) {
@@ -174,22 +175,19 @@ public class DashboardList implements IGui {
 				Collections.sort(sortedKeys);
 				final DashboardListItem data = dataFiltered.get(sortedKeys.getInt(i + itemsToShow * page));
 
-				final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
-				guiDrawing.beginDrawingRectangle();
-				guiDrawing.drawRectangle(x + TEXT_PADDING, y + drawY, x + TEXT_PADDING + TEXT_HEIGHT, y + drawY + TEXT_HEIGHT, ARGB_BLACK | data.getColor(formatted));
-				guiDrawing.finishDrawingRectangle();
+				context.fill(x + TEXT_PADDING, y + drawY, x + TEXT_PADDING + TEXT_HEIGHT, y + drawY + TEXT_HEIGHT, ARGB_BLACK | data.getColor(formatted));
 
 				final String drawString = IGui.formatStationName(data.getName(formatted));
 				final int textStart = TEXT_PADDING * 2 + TEXT_HEIGHT;
-				final int textWidth = GraphicsHolder.getTextWidth(drawString);
+				final int textWidth = textRenderer.getWidth(drawString);
 				final int availableSpace = width - textStart;
-				graphicsHolder.push();
-				graphicsHolder.translate(x + textStart, 0, 0);
+				context.getMatrices().push();
+				context.getMatrices().translate(x + textStart, 0, 0);
 				if (textWidth > availableSpace) {
-					graphicsHolder.scale((float) availableSpace / textWidth, 1, 1);
+					context.getMatrices().scale((float) availableSpace / textWidth, 1, 1);
 				}
-				graphicsHolder.drawText(drawString, 0, y + drawY, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-				graphicsHolder.pop();
+				context.drawText(textRenderer, drawString, 0, y + drawY, ARGB_WHITE, false);
+				context.getMatrices().pop();
 			}
 		}
 	}
@@ -239,7 +237,7 @@ public class DashboardList implements IGui {
 	}
 
 	public void clearSearch() {
-		textFieldSearch.setText2("");
+		textFieldSearch.setText("");
 	}
 
 	public int getHoverItemIndex() {
@@ -267,7 +265,7 @@ public class DashboardList implements IGui {
 	}
 
 	private <T> void onUp(Supplier<List<T>> getList) {
-		if (textFieldSearch.getText2().isEmpty()) {
+		if (textFieldSearch.getText().isEmpty()) {
 			final int index = hoverIndex + itemsToShow() * page;
 			final List<T> list = getList.get();
 			if (Screen.hasShiftDown()) {
@@ -282,7 +280,7 @@ public class DashboardList implements IGui {
 	}
 
 	private <T> void onDown(Supplier<List<T>> getList) {
-		if (textFieldSearch.getText2().isEmpty()) {
+		if (textFieldSearch.getText().isEmpty()) {
 			final int index = hoverIndex + itemsToShow() * page;
 			final List<T> list = getList.get();
 			if (Screen.hasShiftDown()) {

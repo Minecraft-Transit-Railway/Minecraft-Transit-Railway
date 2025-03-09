@@ -1,30 +1,40 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mod.BlockEntityTypes;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.BlockView;
+import org.mtr.registry.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
 
 public class BlockRouteSignWallMetal extends BlockRouteSignBase implements IBlock {
 
+	public BlockRouteSignWallMetal(AbstractBlock.Settings settings) {
+		super(settings);
+	}
+
 	@Nonnull
 	@Override
-	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final boolean isBottom = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.LOWER;
-		return IBlock.getVoxelShapeByDirection(2, isBottom ? 10 : 0, 0, 14, 16, 1, IBlock.getStatePropertySafe(state, FACING));
+		return IBlock.getVoxelShapeByDirection(2, isBottom ? 10 : 0, 0, 14, 16, 1, IBlock.getStatePropertySafe(state, Properties.FACING));
 	}
 
 	@Nonnull
 	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(blockPos, blockState);
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new RouteSignWallMetalBlockEntity(blockPos, blockState);
 	}
 
-	public static class BlockEntity extends BlockEntityBase {
+	public static class RouteSignWallMetalBlockEntity extends BlockEntityBase {
 
-		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.ROUTE_SIGN_WALL_METAL.get(), pos, state);
+		public RouteSignWallMetalBlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.ROUTE_SIGN_WALL_METAL.createAndGet(), pos, state);
 		}
 	}
 }

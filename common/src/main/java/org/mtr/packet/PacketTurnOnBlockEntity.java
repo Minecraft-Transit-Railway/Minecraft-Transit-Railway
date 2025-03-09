@@ -1,13 +1,14 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.registry.PacketHandler;
-import org.mtr.mapping.tool.PacketBufferReceiver;
-import org.mtr.mapping.tool.PacketBufferSender;
-import org.mtr.mod.Init;
-import org.mtr.mod.block.BlockTrainPoweredSensorBase;
-import org.mtr.mod.block.IBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import org.mtr.MTR;
+import org.mtr.block.BlockTrainPoweredSensorBase;
+import org.mtr.block.IBlock;
 
 public final class PacketTurnOnBlockEntity extends PacketHandler {
 
@@ -28,15 +29,15 @@ public final class PacketTurnOnBlockEntity extends PacketHandler {
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		final World world = new World(serverPlayerEntity.getServerWorld().data);
-		if (!Init.isChunkLoaded(world, blockPos)) {
+		final World world = serverPlayerEntity.getServerWorld();
+		if (!MTR.isChunkLoaded(world, blockPos)) {
 			return;
 		}
 
 		final BlockState blockState = world.getBlockState(blockPos);
 		final Block block = blockState.getBlock();
-		if (block.data instanceof BlockTrainPoweredSensorBase && (IBlock.getStatePropertySafe(blockState, BlockTrainPoweredSensorBase.POWERED) <= 1 || !BlockExtension.hasScheduledBlockTick(world, blockPos, block))) {
-			((BlockTrainPoweredSensorBase) block.data).power(world, blockState, blockPos);
+		if (block instanceof BlockTrainPoweredSensorBase && (IBlock.getStatePropertySafe(blockState, BlockTrainPoweredSensorBase.POWERED) <= 1 || !world.getBlockTickScheduler().isQueued(blockPos, block))) {
+			((BlockTrainPoweredSensorBase) block).power(world, blockState, blockPos);
 		}
 	}
 }

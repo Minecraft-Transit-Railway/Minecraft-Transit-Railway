@@ -1,10 +1,10 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.mtr.core.serializer.ReaderBase;
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.holder.MutableText;
-import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mod.generated.resource.SignResourceSchema;
+import org.mtr.generated.resource.SignResourceSchema;
 
 public final class SignResource extends SignResourceSchema {
 
@@ -29,7 +29,7 @@ public final class SignResource extends SignResourceSchema {
 	}
 
 	public MutableText getCustomText() {
-		return TextHelper.translatable(customText);
+		return Text.translatable(customText);
 	}
 
 	public boolean getFlipCustomText() {

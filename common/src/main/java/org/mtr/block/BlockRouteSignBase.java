@@ -1,50 +1,62 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.mapper.BlockWithEntity;
-import org.mtr.mapping.tool.HolderBase;
-import org.mtr.mod.Blocks;
-import org.mtr.mod.Init;
-import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.IntProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
+import org.mtr.packet.PacketOpenBlockEntityScreen;
+import org.mtr.registry.Registry;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
-public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase implements IBlock, BlockWithEntity {
+public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase implements IBlock, BlockEntityProvider {
 
-	public static final IntegerProperty ARROW_DIRECTION = IntegerProperty.of("propagate_property", 0, 3);
+	public static final IntProperty ARROW_DIRECTION = IntProperty.of("propagate_property", 0, 3);
 
-	public BlockRouteSignBase() {
-		super(Blocks.createDefaultBlockSettings(true, blockState -> 15));
+	public BlockRouteSignBase(AbstractBlock.Settings settings) {
+		super(settings.luminance(blockState -> 15));
 	}
 
 	@Nonnull
 	@Override
-	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		final double y = hit.getPos().getYMapped();
+	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+		final double y = hit.getPos().y;
 		final boolean isUpper = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			if (isUpper && y - Math.floor(y) > 0.8125) {
-				world.setBlockState(pos, state.cycle(new Property<>(ARROW_DIRECTION.data)));
-				propagate(world, pos, Direction.DOWN, new Property<>(ARROW_DIRECTION.data), 1);
+				world.setBlockState(pos, state.cycle(ARROW_DIRECTION));
+				propagate(world, pos, Direction.DOWN, ARROW_DIRECTION, 1);
 			} else {
 				final BlockEntity entity = world.getBlockEntity(pos.down(isUpper ? 1 : 0));
-				if (entity != null && entity.data instanceof BlockEntityBase) {
-					Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(entity.getPos()));
+				if (entity instanceof BlockEntityBase) {
+					Registry.sendPacketToClient((ServerPlayerEntity) player, new PacketOpenBlockEntityScreen(entity.getPos()));
 				}
 			}
 		});
 	}
 
 	@Override
-	public void addBlockProperties(List<HolderBase<?>> properties) {
-		properties.add(FACING);
-		properties.add(HALF);
-		properties.add(ARROW_DIRECTION);
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(Properties.FACING);
+		builder.add(HALF);
+		builder.add(ARROW_DIRECTION);
 	}
 
-	public static abstract class BlockEntityBase extends BlockEntityExtension {
+	public static abstract class BlockEntityBase extends BlockEntity {
 
 		private long platformId;
 		private static final String KEY_PLATFORM_ID = "platform_id";
@@ -54,18 +66,18 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 		}
 
 		@Override
-		public void readCompoundTag(CompoundTag compoundTag) {
-			platformId = compoundTag.getLong(KEY_PLATFORM_ID);
+		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+			platformId = nbt.getLong(KEY_PLATFORM_ID);
 		}
 
 		@Override
-		public void writeCompoundTag(CompoundTag compoundTag) {
-			compoundTag.putLong(KEY_PLATFORM_ID, platformId);
+		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+			nbt.putLong(KEY_PLATFORM_ID, platformId);
 		}
 
 		public void setPlatformId(long platformId) {
 			this.platformId = platformId;
-			markDirty2();
+			markDirty();
 		}
 
 		public long getPlatformId() {

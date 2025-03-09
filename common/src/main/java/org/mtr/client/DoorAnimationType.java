@@ -1,6 +1,7 @@
-package org.mtr.mod.client;
+package org.mtr.client;
 
-import org.mtr.mapping.holder.MathHelper;
+
+import net.minecraft.util.math.MathHelper;
 
 public enum DoorAnimationType {
 
@@ -22,14 +23,11 @@ public enum DoorAnimationType {
 	}
 
 	public static float getDoorAnimationX(DoorAnimationType doorAnimationType, float value) {
-		switch (doorAnimationType) {
-			case PLUG_FAST:
-				return value < 0.05 ? -value * 20 - 0.01F : -1.01F;
-			case PLUG_SLOW:
-				return smoothEnds(0.01F, 1.01F, 0, 0.1F, value);
-			default:
-				return 0;
-		}
+		return switch (doorAnimationType) {
+			case PLUG_FAST -> value < 0.05 ? -value * 20 - 0.01F : -1.01F;
+			case PLUG_SLOW -> smoothEnds(0.01F, 1.01F, 0, 0.1F, value);
+			default -> 0;
+		};
 	}
 
 	public static float getDoorAnimationZ(DoorAnimationType doorAnimationType, int doorMax, float duration, float value, boolean opening) {

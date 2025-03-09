@@ -1,27 +1,37 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.mapper.BlockWithEntity;
-import org.mtr.mapping.tool.HolderBase;
-import org.mtr.mod.BlockEntityTypes;
+import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
+import org.mtr.registry.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements BlockWithEntity {
+public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements BlockEntityProvider {
 
-	public BlockTactileMap(BlockSettings blockSettings) {
+	public BlockTactileMap(AbstractBlock.Settings blockSettings) {
 		super(blockSettings);
 	}
 
 	@Nonnull
 	@Override
-	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		if (world.isClient() && BlockEntity.onUse != null) {
-			BlockEntity.onUse.accept(pos);
+	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+		if (world.isClient() && TactileMapBlockEntity.onUse != null) {
+			TactileMapBlockEntity.onUse.accept(pos);
 			return ActionResult.SUCCESS;
 		} else {
 			return ActionResult.CONSUME;
@@ -30,8 +40,8 @@ public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements 
 
 	@Nonnull
 	@Override
-	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
 			return IBlock.getVoxelShapeByDirection(0, 0, 2, 16, 7, 14, facing);
 		} else {
@@ -41,38 +51,36 @@ public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements 
 
 	@Nonnull
 	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(blockPos, blockState);
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new TactileMapBlockEntity(blockPos, blockState);
 	}
 
 	@Override
-	public void addBlockProperties(List<HolderBase<?>> properties) {
-		properties.add(FACING);
-		properties.add(HALF);
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+		return type == BlockEntityTypes.TACTILE_MAP.get() && world.isClient && TactileMapBlockEntity.updateSoundSource != null ? (world1, pos, state1, blockEntity) -> TactileMapBlockEntity.updateSoundSource.accept(pos, false) : null;
 	}
 
-	public static class BlockEntity extends BlockEntityExtension {
+	@Override
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(Properties.FACING);
+		builder.add(HALF);
+	}
+
+	public static class TactileMapBlockEntity extends BlockEntity {
 
 		public static BiConsumer<BlockPos, Boolean> updateSoundSource = null;
 		public static Consumer<BlockPos> onUse = null;
 
-		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TACTILE_MAP.get(), pos, state);
+		public TactileMapBlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.TACTILE_MAP.createAndGet(), pos, state);
 		}
 
 		@Override
-		public void blockEntityTick() {
-			if (getWorld2() != null && getWorld2().isClient() && updateSoundSource != null) {
-				updateSoundSource.accept(getPos2(), false);
+		public void markRemoved() {
+			if (getWorld() != null && getWorld().isClient() && updateSoundSource != null) {
+				updateSoundSource.accept(getPos(), true);
 			}
-		}
-
-		@Override
-		public void markRemoved2() {
-			if (getWorld2() != null && getWorld2().isClient() && updateSoundSource != null) {
-				updateSoundSource.accept(getPos2(), true);
-			}
-			super.markRemoved2();
+			super.markRemoved();
 		}
 	}
 }

@@ -1,12 +1,13 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.InventoryHelper;
-import org.mtr.mapping.mapper.PlayerHelper;
-import org.mtr.mapping.registry.PacketHandler;
-import org.mtr.mapping.tool.PacketBufferReceiver;
-import org.mtr.mapping.tool.PacketBufferSender;
-import org.mtr.mod.data.TicketSystem;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.item.Items;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import org.mtr.data.TicketSystem;
 
 public final class PacketAddBalance extends PacketHandler {
 
@@ -30,9 +31,9 @@ public final class PacketAddBalance extends PacketHandler {
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
 		final ServerWorld serverWorld = serverPlayerEntity.getServerWorld();
-		TicketSystem.addBalance(new World(serverWorld.data), new PlayerEntity(serverPlayerEntity.data), getAddAmount(index));
-		InventoryHelper.remove(new Inventory(PlayerHelper.getPlayerInventory(new PlayerEntity(serverPlayerEntity.data)).data), itemStack -> itemStack.getItem().equals(Items.getEmeraldMapped()), (int) Math.pow(2, index), false);
-		serverWorld.playSound((PlayerEntity) null, serverPlayerEntity.getBlockPos(), SoundEvents.getEntityExperienceOrbPickupMapped(), SoundCategory.getBlocksMapped(), 1, 1);
+		TicketSystem.addBalance(serverWorld, serverPlayerEntity, getAddAmount(index));
+		Inventories.remove(serverPlayerEntity.getInventory(), itemStack -> itemStack.getItem().equals(Items.EMERALD), (int) Math.pow(2, index), false);
+		serverWorld.playSound(null, serverPlayerEntity.getBlockPos(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 1, 1);
 	}
 
 	public static int getAddAmount(int index) {

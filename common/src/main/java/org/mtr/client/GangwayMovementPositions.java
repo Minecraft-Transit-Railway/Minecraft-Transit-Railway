@@ -1,10 +1,10 @@
-package org.mtr.mod.client;
+package org.mtr.client;
 
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import org.mtr.core.tool.Utilities;
-import org.mtr.mapping.holder.Box;
-import org.mtr.mapping.holder.Vector3d;
-import org.mtr.mod.render.RenderVehicleHelper;
-import org.mtr.mod.render.RenderVehicleTransformationHelper;
+import org.mtr.render.RenderVehicleHelper;
+import org.mtr.render.RenderVehicleTransformationHelper;
 
 public class GangwayMovementPositions {
 
@@ -24,22 +24,22 @@ public class GangwayMovementPositions {
 
 	public void check(Box box) {
 		if (getMax) {
-			if (box.getMaxZMapped() > z) {
-				xMin = box.getMinXMapped();
+			if (box.maxZ > z) {
+				xMin = box.minX;
 				xMinClamped = xMin + RenderVehicleHelper.HALF_PLAYER_WIDTH;
-				xMax = box.getMaxXMapped();
+				xMax = box.maxX;
 				xMaxClamped = xMax - RenderVehicleHelper.HALF_PLAYER_WIDTH;
-				y = box.getMaxYMapped();
-				z = box.getMaxZMapped();
+				y = box.maxY;
+				z = box.maxZ;
 			}
 		} else {
-			if (box.getMinZMapped() < z) {
-				xMin = box.getMinXMapped();
+			if (box.minZ < z) {
+				xMin = box.minX;
 				xMinClamped = xMin + RenderVehicleHelper.HALF_PLAYER_WIDTH;
-				xMax = box.getMaxXMapped();
+				xMax = box.maxX;
 				xMaxClamped = xMax - RenderVehicleHelper.HALF_PLAYER_WIDTH;
-				y = box.getMaxYMapped();
-				z = box.getMinZMapped();
+				y = box.maxY;
+				z = box.minZ;
 			}
 		}
 	}
@@ -68,11 +68,11 @@ public class GangwayMovementPositions {
 		return z;
 	}
 
-	public Vector3d getMinWorldPosition() {
-		return renderVehicleTransformationHelper.transformForwards(new Vector3d(xMinClamped, y, z), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+	public Vec3d getMinWorldPosition() {
+		return renderVehicleTransformationHelper.transformForwards(new Vec3d(xMinClamped, y, z), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
 	}
 
-	public Vector3d getMaxWorldPosition() {
-		return renderVehicleTransformationHelper.transformForwards(new Vector3d(xMaxClamped, y, z), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+	public Vec3d getMaxWorldPosition() {
+		return renderVehicleTransformationHelper.transformForwards(new Vec3d(xMaxClamped, y, z), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
 	}
 }

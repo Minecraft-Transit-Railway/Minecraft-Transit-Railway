@@ -1,57 +1,51 @@
-package org.mtr.mod.render;
+package org.mtr.render;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityRenderer;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.WorldHelper;
-import org.mtr.mod.Init;
-import org.mtr.mod.block.BlockClock;
-import org.mtr.mod.block.IBlock;
-import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.data.IGui;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import org.mtr.MTR;
+import org.mtr.block.BlockClock;
+import org.mtr.block.IBlock;
+import org.mtr.client.IDrawing;
+import org.mtr.data.IGui;
 
-public class RenderClock extends BlockEntityRenderer<BlockClock.BlockEntity> implements IGui, IBlock {
-
-	public RenderClock(Argument dispatcher) {
-		super(dispatcher);
-	}
+public class RenderClock extends BlockEntityRendererExtension<BlockClock.ClockBlockEntity> implements IGui, IBlock {
 
 	@Override
-	public void render(BlockClock.BlockEntity entity, float v, GraphicsHolder graphicsHolder, int i, int i1) {
-		final World world = entity.getWorld2();
-		if (world == null) {
-			return;
-		}
-
-		final BlockPos pos = entity.getPos2();
+	public void render(BlockClock.ClockBlockEntity entity, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
+		final BlockPos pos = entity.getPos();
 		final BlockState state = world.getBlockState(pos);
 		final boolean rotated = IBlock.getStatePropertySafe(state, BlockClock.FACING);
 
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(pos.getX() + 0.5, pos.getY() + 0.3125, pos.getZ() + 0.5);
 		if (rotated) {
-			storedMatrixTransformations.add(graphicsHolderNew -> graphicsHolderNew.rotateYDegrees(90));
+			storedMatrixTransformations.add(matrixStack -> IDrawing.rotateYDegrees(matrixStack, 90));
 		}
 
-		MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
-			storedMatrixTransformations.transform(graphicsHolderNew, offset);
-			final long time = WorldHelper.getTimeOfDay(world) + 6000;
+		MainRenderer.scheduleRender(Identifier.of(MTR.MOD_ID, "textures/block/white.png"), false, QueuedRenderLayer.LIGHT, (matrixStack, vertexConsumer, offset) -> {
+			storedMatrixTransformations.transform(matrixStack, offset);
+			final long time = world.getTimeOfDay() + 6000;
 
-			drawHand(graphicsHolderNew, time * 360F / 12000, true);
-			drawHand(graphicsHolderNew, time * 360F / 1000, false);
+			drawHand(matrixStack, vertexConsumer, time * 360F / 12000, true);
+			drawHand(matrixStack, vertexConsumer, time * 360F / 1000, false);
 
-			graphicsHolderNew.rotateYDegrees(180);
-			drawHand(graphicsHolderNew, time * 360F / 12000, true);
-			drawHand(graphicsHolderNew, time * 360F / 1000, false);
+			IDrawing.rotateYDegrees(matrixStack, 180);
+			drawHand(matrixStack, vertexConsumer, time * 360F / 12000, true);
+			drawHand(matrixStack, vertexConsumer, time * 360F / 1000, false);
 
-			graphicsHolderNew.pop();
+			matrixStack.pop();
 		});
 	}
 
-	private static void drawHand(GraphicsHolder graphicsHolder, float rotation, boolean isHourHand) {
-		graphicsHolder.push();
-		graphicsHolder.rotateZDegrees(-rotation);
-		graphicsHolder.createVertexConsumer(MoreRenderLayers.getLight(new Identifier(Init.MOD_ID, "textures/block/white.png"), false));
-		IDrawing.drawTexture(graphicsHolder, -0.01F, isHourHand ? 0.15F : 0.24F, isHourHand ? 0.1F : 0.105F, 0.01F, -0.03F, isHourHand ? 0.1F : 0.105F, Direction.UP, ARGB_LIGHT_GRAY, MAX_LIGHT_INTERIOR);
-		graphicsHolder.pop();
+	private static void drawHand(MatrixStack matrixStack, VertexConsumer vertexConsumer, float rotation, boolean isHourHand) {
+		matrixStack.push();
+		IDrawing.rotateZDegrees(matrixStack, -rotation);
+		IDrawing.drawTexture(matrixStack, vertexConsumer, -0.01F, isHourHand ? 0.15F : 0.24F, isHourHand ? 0.1F : 0.105F, 0.01F, -0.03F, isHourHand ? 0.1F : 0.105F, Direction.UP, ARGB_LIGHT_GRAY, MAX_LIGHT_INTERIOR);
+		matrixStack.pop();
 	}
 }

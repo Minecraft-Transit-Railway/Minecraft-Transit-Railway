@@ -1,16 +1,15 @@
-package org.mtr.mod.config;
+package org.mtr.config;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.io.FileUtils;
+import org.mtr.MTR;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.com.google.gson.JsonElement;
-import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.libraries.com.google.gson.JsonParser;
-import org.mtr.mod.Init;
-import org.mtr.mod.generated.config.ConfigSchema;
+import org.mtr.generated.config.ConfigSchema;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -24,9 +23,9 @@ public final class Config extends ConfigSchema {
 	private static Config instance;
 	private static Path basePath;
 
-	public static void init(File baseFolder) {
+	public static void init(Path baseFolder) {
 		if (instance == null || basePath == null) {
-			basePath = baseFolder.toPath();
+			basePath = baseFolder;
 			try (final InputStream inputStream = Files.newInputStream(getConfigFilePath(), StandardOpenOption.READ)) {
 				instance = new Config(new JsonReader(readResource(inputStream)));
 			} catch (Exception ignored) {
@@ -45,7 +44,7 @@ public final class Config extends ConfigSchema {
 		try (final InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
 			return JsonParser.parseReader(inputStreamReader);
 		} catch (Exception e) {
-			Init.LOGGER.error("", e);
+			MTR.LOGGER.error("", e);
 			return new JsonObject();
 		}
 	}
@@ -62,7 +61,7 @@ public final class Config extends ConfigSchema {
 		try {
 			FileUtils.write(getConfigFilePath().toFile(), Utilities.prettyPrint(Utilities.getJsonObjectFromData(instance)), StandardCharsets.UTF_8);
 		} catch (Exception e) {
-			Init.LOGGER.error("", e);
+			MTR.LOGGER.error("", e);
 		}
 	}
 

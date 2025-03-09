@@ -1,21 +1,23 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import org.mtr.MTR;
+import org.mtr.client.IDrawing;
+import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Station;
 import org.mtr.core.data.StationExit;
 import org.mtr.core.operation.UpdateDataRequest;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import org.mtr.mapping.holder.ClickableWidget;
-import org.mtr.mapping.holder.MutableText;
-import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.tool.TextCase;
-import org.mtr.mod.Init;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.generated.lang.TranslationProvider;
-import org.mtr.mod.packet.PacketUpdateData;
+import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.packet.PacketUpdateData;
+import org.mtr.registry.RegistryClient;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -32,39 +34,39 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	private final MutableText exitParentsText = TranslationProvider.GUI_MTR_EXIT_PARENTS.getMutableText();
 	private final MutableText exitDestinationsText = TranslationProvider.GUI_MTR_EXIT_DESTINATIONS.getMutableText();
 
-	private final TextFieldWidgetExtension textFieldZone;
-	private final TextFieldWidgetExtension textFieldExitParentLetter;
-	private final TextFieldWidgetExtension textFieldExitParentNumber;
-	private final TextFieldWidgetExtension textFieldExitDestination;
+	private final WidgetBetterTextField textFieldZone;
+	private final WidgetBetterTextField textFieldExitParentLetter;
+	private final WidgetBetterTextField textFieldExitParentNumber;
+	private final WidgetBetterTextField textFieldExitDestination;
 
-	private final ButtonWidgetExtension buttonAddExitParent;
-	private final ButtonWidgetExtension buttonDoneExitParent;
-	private final ButtonWidgetExtension buttonAddExitDestination;
-	private final ButtonWidgetExtension buttonDoneExitDestination;
+	private final ButtonWidget buttonAddExitParent;
+	private final ButtonWidget buttonDoneExitParent;
+	private final ButtonWidget buttonAddExitDestination;
+	private final ButtonWidget buttonDoneExitDestination;
 
 	private final DashboardList exitParentList;
 	private final DashboardList exitDestinationList;
 
 	private static final int EXIT_PANELS_START = SQUARE_SIZE * 3 + TEXT_FIELD_PADDING + TEXT_PADDING;
 
-	public EditStationScreen(Station station, ScreenExtension previousScreenExtension) {
-		super(station, TranslationProvider.GUI_MTR_STATION_NAME, TranslationProvider.GUI_MTR_STATION_COLOR, previousScreenExtension);
-		textFieldZone = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, DashboardScreen.MAX_COLOR_ZONE_LENGTH, TextCase.DEFAULT, "[^-\\d]", null);
-		textFieldExitParentLetter = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 2, TextCase.UPPER, "[^A-Z]", "A");
-		textFieldExitParentNumber = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 2, TextCase.DEFAULT, "\\D", "1");
-		textFieldExitDestination = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 1024, TextCase.DEFAULT, null, null);
+	public EditStationScreen(Station station, Screen previousScreen) {
+		super(station, TranslationProvider.GUI_MTR_STATION_NAME, TranslationProvider.GUI_MTR_STATION_COLOR, previousScreen);
+		textFieldZone = new WidgetBetterTextField(DashboardScreen.MAX_COLOR_ZONE_LENGTH, TextCase.DEFAULT, "[^-\\d]", null);
+		textFieldExitParentLetter = new WidgetBetterTextField(2, TextCase.UPPER, "[^A-Z]", "A");
+		textFieldExitParentNumber = new WidgetBetterTextField(2, TextCase.DEFAULT, "\\D", "1");
+		textFieldExitDestination = new WidgetBetterTextField(1024, TextCase.DEFAULT, null, null);
 
-		buttonAddExitParent = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_ADD_EXIT.getMutableText(), button -> checkClickDelay(() -> changeEditingExit(new StationExit(), -1)));
-		buttonDoneExitParent = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> checkClickDelay(this::onDoneExitParent));
-		buttonAddExitDestination = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_ADD_EXIT_DESTINATION.getMutableText(), button -> checkClickDelay(() -> changeEditingExit(editingExit, editingExit == null ? -1 : editingExit.getDestinations().size())));
-		buttonDoneExitDestination = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.done"), button -> checkClickDelay(this::onDoneExitDestination));
+		buttonAddExitParent = ButtonWidget.builder(TranslationProvider.GUI_MTR_ADD_EXIT.getMutableText(), button -> checkClickDelay(() -> changeEditingExit(new StationExit(), -1))).build();
+		buttonDoneExitParent = ButtonWidget.builder(Text.translatable("gui.done"), button -> checkClickDelay(this::onDoneExitParent)).build();
+		buttonAddExitDestination = ButtonWidget.builder(TranslationProvider.GUI_MTR_ADD_EXIT_DESTINATION.getMutableText(), button -> checkClickDelay(() -> changeEditingExit(editingExit, editingExit == null ? -1 : editingExit.getDestinations().size()))).build();
+		buttonDoneExitDestination = ButtonWidget.builder(Text.translatable("gui.done"), button -> checkClickDelay(this::onDoneExitDestination)).build();
 
 		exitParentList = new DashboardList(null, null, this::onEditExitParent, null, null, this::onDeleteExitParent, null, () -> MinecraftClientData.EXIT_PARENTS_SEARCH, text -> MinecraftClientData.EXIT_PARENTS_SEARCH = text);
 		exitDestinationList = new DashboardList(null, null, this::onEditExitDestination, this::onSortExitDestination, null, this::onDeleteExitDestination, this::getExitDestinationList, () -> MinecraftClientData.EXIT_DESTINATIONS_SEARCH, text -> MinecraftClientData.EXIT_DESTINATIONS_SEARCH = text);
 	}
 
 	@Override
-	protected void init2() {
+	protected void init() {
 		setPositionsAndInit(0, width / 2, width / 4 * 3);
 
 		IDrawing.setPositionAndWidth(textFieldZone, width / 4 * 3 + TEXT_FIELD_PADDING / 2, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, width / 4 - TEXT_FIELD_PADDING);
@@ -79,7 +81,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		IDrawing.setPositionAndWidth(buttonAddExitDestination, width / 2, height - SQUARE_SIZE, width / 2);
 		IDrawing.setPositionAndWidth(buttonDoneExitDestination, width / 2, height - SQUARE_SIZE, width / 2);
 
-		textFieldZone.setText2(String.valueOf(data.getZone1()));
+		textFieldZone.setText(String.valueOf(data.getZone1()));
 
 		exitParentList.x = 0;
 		exitParentList.y = EXIT_PANELS_START;
@@ -91,33 +93,28 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		exitDestinationList.height = height - EXIT_PANELS_START - SQUARE_SIZE;
 		exitDestinationList.width = width / 2;
 
-		exitParentList.init(this::addChild);
-		exitDestinationList.init(this::addChild);
+		exitParentList.init(this::addSelectableChild);
+		exitDestinationList.init(this::addSelectableChild);
 
-		addChild(new ClickableWidget(textFieldZone));
-		addChild(new ClickableWidget(textFieldExitParentLetter));
-		addChild(new ClickableWidget(textFieldExitParentNumber));
-		addChild(new ClickableWidget(textFieldExitDestination));
-		addChild(new ClickableWidget(buttonAddExitParent));
-		addChild(new ClickableWidget(buttonDoneExitParent));
-		addChild(new ClickableWidget(buttonAddExitDestination));
-		addChild(new ClickableWidget(buttonDoneExitDestination));
+		addSelectableChild(textFieldZone);
+		addSelectableChild(textFieldExitParentLetter);
+		addSelectableChild(textFieldExitParentNumber);
+		addSelectableChild(textFieldExitDestination);
+		addSelectableChild(buttonAddExitParent);
+		addSelectableChild(buttonDoneExitParent);
+		addSelectableChild(buttonAddExitDestination);
+		addSelectableChild(buttonDoneExitDestination);
 
 		changeEditingExit(null, -1);
 	}
 
 	@Override
-	public void tick2() {
-		super.tick2();
+	public void tick() {
+		super.tick();
 
 		if (clickDelay > 0) {
 			clickDelay--;
 		}
-
-		textFieldZone.tick2();
-		textFieldExitParentLetter.tick2();
-		textFieldExitParentNumber.tick2();
-		textFieldExitDestination.tick2();
 
 		exitParentList.tick();
 		exitDestinationList.tick();
@@ -128,49 +125,46 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	}
 
 	@Override
-	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
+	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 		try {
-			renderBackground(graphicsHolder);
-			renderTextFields(graphicsHolder);
+			renderBackground(context, mouseX, mouseY, delta);
+			renderTextFields(context);
 
-			final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
-			guiDrawing.beginDrawingRectangle();
-			guiDrawing.drawRectangle(width / 2F, EXIT_PANELS_START - SQUARE_SIZE, width / 2F + 1, height, ARGB_WHITE_TRANSLUCENT);
-			guiDrawing.finishDrawingRectangle();
+			context.fill(width / 2, EXIT_PANELS_START - SQUARE_SIZE, width / 2 + 1, height, ARGB_WHITE_TRANSLUCENT);
 
-			exitParentList.render(graphicsHolder);
-			exitDestinationList.render(graphicsHolder);
+			exitParentList.render(context);
+			exitDestinationList.render(context);
 
-			graphicsHolder.drawCenteredText(stationZoneText, width / 8 * 7, TEXT_PADDING, ARGB_WHITE);
-			graphicsHolder.drawCenteredText(exitParentsText, width / 4, EXIT_PANELS_START - SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+			context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, stationZoneText, width / 8 * 7, TEXT_PADDING, ARGB_WHITE);
+			context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, exitParentsText, width / 4, EXIT_PANELS_START - SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 			if (parentExists()) {
-				graphicsHolder.drawCenteredText(exitDestinationsText, 3 * width / 4, EXIT_PANELS_START - SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+				context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, exitDestinationsText, 3 * width / 4, EXIT_PANELS_START - SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 			}
 
-			super.render(graphicsHolder, mouseX, mouseY, delta);
+			super.render(context, mouseX, mouseY, delta);
 		} catch (Exception e) {
-			Init.LOGGER.error("", e);
+			MTR.LOGGER.error("", e);
 		}
 	}
 
 	@Override
-	public void mouseMoved2(double mouseX, double mouseY) {
+	public void mouseMoved(double mouseX, double mouseY) {
 		exitParentList.mouseMoved(mouseX, mouseY);
 		exitDestinationList.mouseMoved(mouseX, mouseY);
 	}
 
 	@Override
-	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
-		exitParentList.mouseScrolled(mouseX, mouseY, amount);
-		exitDestinationList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled2(mouseX, mouseY, amount);
+	public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+		exitParentList.mouseScrolled(mouseX, mouseY, verticalAmount);
+		exitDestinationList.mouseScrolled(mouseX, mouseY, verticalAmount);
+		return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
 	}
 
 	@Override
 	protected void saveData() {
 		super.saveData();
 		try {
-			data.setZone1(Integer.parseInt(textFieldZone.getText2()));
+			data.setZone1(Integer.parseInt(textFieldZone.getText()));
 		} catch (Exception ignored) {
 			data.setZone1(0);
 		}
@@ -186,7 +180,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		});
 		exitsToRemove.forEach(data.getExits()::remove);
 
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addStation(data)));
+		RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addStation(data)));
 	}
 
 	private void changeEditingExit(@Nullable StationExit editingExit, int editingDestinationIndex) {
@@ -194,13 +188,13 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		this.editingDestinationIndex = parentExists() ? editingDestinationIndex : -1;
 
 		if (editingExit != null) {
-			textFieldExitParentLetter.setText2(editingExit.getName().toUpperCase(Locale.ENGLISH).replaceAll("[^A-Z]", ""));
-			textFieldExitParentNumber.setText2(editingExit.getName().replaceAll("\\D", ""));
+			textFieldExitParentLetter.setText(editingExit.getName().toUpperCase(Locale.ENGLISH).replaceAll("[^A-Z]", ""));
+			textFieldExitParentNumber.setText(editingExit.getName().replaceAll("\\D", ""));
 		}
 		if (editingExit != null && editingDestinationIndex >= 0 && editingDestinationIndex < editingExit.getDestinations().size()) {
-			textFieldExitDestination.setText2(editingExit.getDestinations().get(editingDestinationIndex));
+			textFieldExitDestination.setText(editingExit.getDestinations().get(editingDestinationIndex));
 		} else {
-			textFieldExitDestination.setText2("");
+			textFieldExitDestination.setText("");
 		}
 
 		textFieldExitParentLetter.visible = editingExit != null;
@@ -216,8 +210,8 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	}
 
 	private void onDoneExitParent() {
-		final String parentLetter = textFieldExitParentLetter.getText2();
-		final String parentNumber = textFieldExitParentNumber.getText2();
+		final String parentLetter = textFieldExitParentLetter.getText();
+		final String parentNumber = textFieldExitParentNumber.getText();
 		if (!parentLetter.isEmpty() && !parentNumber.isEmpty() && parentExists()) {
 			try {
 				final String exitName = parentLetter + Integer.parseInt(parentNumber);
@@ -231,14 +225,14 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 					}
 				}
 			} catch (Exception e) {
-				Init.LOGGER.error("", e);
+				MTR.LOGGER.error("", e);
 			}
 		}
 		changeEditingExit(null, -1);
 	}
 
 	private void onDoneExitDestination() {
-		final String destination = textFieldExitDestination.getText2();
+		final String destination = textFieldExitDestination.getText();
 		if (parentExists() && editingDestinationIndex >= 0 && !destination.isEmpty()) {
 			final ObjectArrayList<String> destinations = editingExit.getDestinations();
 			if (editingDestinationIndex < destinations.size()) {

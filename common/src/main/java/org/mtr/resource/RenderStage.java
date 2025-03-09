@@ -1,6 +1,6 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
-import org.mtr.mapping.mapper.OptimizedModel;
+import org.mtr.model.OptimizedModel;
 
 public enum RenderStage {
 	LIGHT(OptimizedModel.ShaderType.CUTOUT_GLOWING),

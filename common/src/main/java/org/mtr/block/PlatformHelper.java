@@ -1,39 +1,46 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.DirectionHelper;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.state.property.EnumProperty;
+import net.minecraft.state.property.IntProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.BlockView;
 
 import javax.annotation.Nonnull;
 
-public interface PlatformHelper extends DirectionHelper {
+public interface PlatformHelper {
 
 	EnumProperty<EnumDoorType> DOOR_TYPE = EnumProperty.of("door_type", EnumDoorType.class);
-	IntegerProperty SIDE = IntegerProperty.of("side", 0, 4);
+	IntProperty SIDE = IntProperty.of("side", 0, 4);
 
 	static BlockState getActualState(BlockView world, BlockPos pos, BlockState state) {
-		Direction facing = IBlock.getStatePropertySafe(state, FACING);
+		Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
 
 		final BlockState stateAbove = world.getBlockState(pos.up());
 		final Block blockAbove = stateAbove.getBlock();
 
 		EnumDoorType doorType;
-		if (blockAbove.data instanceof BlockPSDDoor || blockAbove.data instanceof BlockPSDGlass || blockAbove.data instanceof BlockPSDGlassEnd) {
+		if (blockAbove instanceof BlockPSDDoor || blockAbove instanceof BlockPSDGlass || blockAbove instanceof BlockPSDGlassEnd) {
 			doorType = EnumDoorType.PSD;
-			facing = IBlock.getStatePropertySafe(stateAbove, FACING);
-		} else if (blockAbove.data instanceof BlockAPGDoor || blockAbove.data instanceof BlockAPGGlass || blockAbove.data instanceof BlockAPGGlassEnd) {
+			facing = IBlock.getStatePropertySafe(stateAbove, Properties.FACING);
+		} else if (blockAbove instanceof BlockAPGDoor || blockAbove instanceof BlockAPGGlass || blockAbove instanceof BlockAPGGlassEnd) {
 			doorType = EnumDoorType.APG;
-			facing = IBlock.getStatePropertySafe(stateAbove, FACING);
+			facing = IBlock.getStatePropertySafe(stateAbove, Properties.FACING);
 		} else {
 			doorType = EnumDoorType.NONE;
 		}
 
-		final boolean aboveIsDoor = blockAbove.data instanceof BlockPSDAPGDoorBase;
+		final boolean aboveIsDoor = blockAbove instanceof BlockPSDAPGDoorBase;
 
 		final BlockState stateLeftAbove = world.getBlockState(pos.up().offset(facing.rotateYCounterclockwise()));
-		final boolean leftAboveIsDoor = stateLeftAbove.getBlock().data instanceof BlockPSDAPGDoorBase;
+		final boolean leftAboveIsDoor = stateLeftAbove.getBlock() instanceof BlockPSDAPGDoorBase;
 
 		final BlockState stateRightAbove = world.getBlockState(pos.up().offset(facing.rotateYClockwise()));
-		final boolean rightAboveIsDoor = stateRightAbove.getBlock().data instanceof BlockPSDAPGDoorBase;
+		final boolean rightAboveIsDoor = stateRightAbove.getBlock() instanceof BlockPSDAPGDoorBase;
 
 		final int side;
 		if (aboveIsDoor && rightAboveIsDoor) {
@@ -42,15 +49,15 @@ public interface PlatformHelper extends DirectionHelper {
 			side = 3;
 		} else if (rightAboveIsDoor) {
 			side = 1;
-			facing = IBlock.getStatePropertySafe(stateRightAbove, FACING);
+			facing = IBlock.getStatePropertySafe(stateRightAbove, Properties.FACING);
 		} else if (leftAboveIsDoor) {
 			side = 4;
-			facing = IBlock.getStatePropertySafe(stateLeftAbove, FACING);
+			facing = IBlock.getStatePropertySafe(stateLeftAbove, Properties.FACING);
 		} else {
 			side = 0;
 		}
 
-		return state.with(new Property<>(FACING.data), facing.data).with(new Property<>(DOOR_TYPE.data), doorType).with(new Property<>(SIDE.data), side);
+		return state.with(Properties.FACING, facing).with(DOOR_TYPE, doorType).with(SIDE, side);
 	}
 
 	enum EnumDoorType implements StringIdentifiable {
@@ -64,7 +71,7 @@ public interface PlatformHelper extends DirectionHelper {
 
 		@Nonnull
 		@Override
-		public String asString2() {
+		public String asString() {
 			return name;
 		}
 	}

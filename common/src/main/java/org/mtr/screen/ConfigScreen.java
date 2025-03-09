@@ -1,18 +1,21 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.ButtonWidgetExtension;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.OptimizedRenderer;
-import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mod.Init;
-import org.mtr.mod.Patreon;
-import org.mtr.mod.client.DynamicTextureCache;
-import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.config.Client;
-import org.mtr.mod.config.Config;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.generated.lang.TranslationProvider;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Util;
+import org.mtr.MTR;
+import org.mtr.Patreon;
+import org.mtr.client.DynamicTextureCache;
+import org.mtr.client.IDrawing;
+import org.mtr.config.Client;
+import org.mtr.config.Config;
+import org.mtr.data.IGui;
+import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.model.OptimizedRenderer;
 
 import javax.annotation.Nullable;
 
@@ -20,16 +23,16 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 
 	private final Client client = Config.getClient();
 
-	private final ButtonWidgetExtension buttonShowAnnouncementMessages;
-	private final ButtonWidgetExtension buttonUseTTSAnnouncements;
-	private final ButtonWidgetExtension buttonHideTranslucentParts;
-	private final ButtonWidgetExtension buttonLanguageOptions;
+	private final ButtonWidget buttonShowAnnouncementMessages;
+	private final ButtonWidget buttonUseTTSAnnouncements;
+	private final ButtonWidget buttonHideTranslucentParts;
+	private final ButtonWidget buttonLanguageOptions;
 	private final WidgetShorterSlider sliderDynamicTextureResolution;
 	private final WidgetShorterSlider sliderTrainOscillationMultiplier;
-	private final ButtonWidgetExtension buttonDefaultRail3D;
-	private final ButtonWidgetExtension buttonUseMTRFont;
-	private final ButtonWidgetExtension buttonDisableShadowsForShaders;
-	private final ButtonWidgetExtension buttonSupportPatreon;
+	private final ButtonWidget buttonDefaultRail3D;
+	private final ButtonWidget buttonUseMTRFont;
+	private final ButtonWidget buttonDisableShadowsForShaders;
+	private final ButtonWidget buttonSupportPatreon;
 
 	private static final int BUTTON_WIDTH = 60;
 	private static final int BUTTON_HEIGHT = TEXT_HEIGHT + TEXT_PADDING;
@@ -37,98 +40,98 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 	public ConfigScreen(@Nullable Screen previousScreen) {
 		super(previousScreen);
 
-		buttonShowAnnouncementMessages = new ButtonWidgetExtension(0, 0, 0, BUTTON_HEIGHT, TextHelper.literal(""), button -> {
+		buttonShowAnnouncementMessages = ButtonWidget.builder(Text.empty(), button -> {
 			client.toggleChatAnnouncements();
 			setButtonText(button, client.getChatAnnouncements());
-		});
-		buttonUseTTSAnnouncements = new ButtonWidgetExtension(0, 0, 0, BUTTON_HEIGHT, TextHelper.literal(""), button -> {
+		}).build();
+		buttonUseTTSAnnouncements = ButtonWidget.builder(Text.empty(), button -> {
 			client.toggleTextToSpeechAnnouncements();
 			setButtonText(button, client.getTextToSpeechAnnouncements());
-		});
-		buttonHideTranslucentParts = new ButtonWidgetExtension(0, 0, 0, BUTTON_HEIGHT, TextHelper.literal(""), button -> {
+		}).build();
+		buttonHideTranslucentParts = ButtonWidget.builder(Text.empty(), button -> {
 			client.toggleHideTranslucentParts();
 			setButtonText(button, client.getHideTranslucentParts());
-		});
-		buttonLanguageOptions = new ButtonWidgetExtension(0, 0, 0, BUTTON_HEIGHT, TextHelper.literal(""), button -> {
+		}).build();
+		buttonLanguageOptions = ButtonWidget.builder(Text.empty(), button -> {
 			client.cycleLanguageDisplay();
 			button.setMessage(client.getLanguageDisplay().translationKey.getText());
-		});
+		}).build();
 		sliderDynamicTextureResolution = new WidgetShorterSlider(0, 0, Client.DYNAMIC_RESOLUTION_COUNT - 1, String::valueOf, null);
 		sliderTrainOscillationMultiplier = new WidgetShorterSlider(0, 0, Client.TRAIN_OSCILLATION_COUNT, i -> (i * 10) + "%", null);
-		buttonDefaultRail3D = new ButtonWidgetExtension(0, 0, 0, BUTTON_HEIGHT, TextHelper.literal(""), button -> {
+		buttonDefaultRail3D = ButtonWidget.builder(Text.empty(), button -> {
 			client.toggleDefaultRail3D();
 			setButtonText(button, client.getDefaultRail3D());
-		});
-		buttonUseMTRFont = new ButtonWidgetExtension(0, 0, 0, BUTTON_HEIGHT, TextHelper.literal(""), button -> {
+		}).build();
+		buttonUseMTRFont = ButtonWidget.builder(Text.empty(), button -> {
 			client.toggleUseMTRFont();
 			setButtonText(button, client.getUseMTRFont());
-		});
-		buttonDisableShadowsForShaders = new ButtonWidgetExtension(0, 0, 0, BUTTON_HEIGHT, TextHelper.literal(""), button -> {
+		}).build();
+		buttonDisableShadowsForShaders = ButtonWidget.builder(Text.empty(), button -> {
 			client.toggleDisableShadowsForShaders();
 			setButtonText(button, client.getDisableShadowsForShaders());
-		});
-		buttonSupportPatreon = new ButtonWidgetExtension(0, 0, 0, BUTTON_HEIGHT, TextHelper.literal(""), button -> Util.getOperatingSystem().open("https://www.patreon.com/minecraft_transit_railway"));
+		}).build();
+		buttonSupportPatreon = ButtonWidget.builder(Text.empty(), button -> Util.getOperatingSystem().open("https://www.patreon.com/minecraft_transit_railway")).build();
 	}
 
 	@Override
-	protected void init2() {
-		super.init2();
+	protected void init() {
+		super.init();
 
 		int i = 1;
 		IDrawing.setPositionAndWidth(buttonShowAnnouncementMessages, width - SQUARE_SIZE - BUTTON_WIDTH, SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonUseTTSAnnouncements, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonHideTranslucentParts, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonLanguageOptions, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(sliderDynamicTextureResolution, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - GraphicsHolder.getTextWidth("100%"));
-		IDrawing.setPositionAndWidth(sliderTrainOscillationMultiplier, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - GraphicsHolder.getTextWidth("100%"));
+		IDrawing.setPositionAndWidth(sliderDynamicTextureResolution, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - textRenderer.getWidth("100%"));
+		IDrawing.setPositionAndWidth(sliderTrainOscillationMultiplier, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - textRenderer.getWidth("100%"));
 		IDrawing.setPositionAndWidth(buttonDefaultRail3D, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonUseMTRFont, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonDisableShadowsForShaders, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonSupportPatreon, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * i + SQUARE_SIZE, BUTTON_WIDTH);
-		setButtonText(new ButtonWidget(buttonShowAnnouncementMessages), client.getChatAnnouncements());
-		setButtonText(new ButtonWidget(buttonUseTTSAnnouncements), client.getTextToSpeechAnnouncements());
-		setButtonText(new ButtonWidget(buttonHideTranslucentParts), client.getHideTranslucentParts());
-		setButtonText(new ButtonWidget(buttonDefaultRail3D), client.getDefaultRail3D());
-		setButtonText(new ButtonWidget(buttonUseMTRFont), client.getUseMTRFont());
-		setButtonText(new ButtonWidget(buttonDisableShadowsForShaders), client.getDisableShadowsForShaders());
-		buttonLanguageOptions.setMessage2(client.getLanguageDisplay().translationKey.getText());
+		setButtonText(buttonShowAnnouncementMessages, client.getChatAnnouncements());
+		setButtonText(buttonUseTTSAnnouncements, client.getTextToSpeechAnnouncements());
+		setButtonText(buttonHideTranslucentParts, client.getHideTranslucentParts());
+		setButtonText(buttonDefaultRail3D, client.getDefaultRail3D());
+		setButtonText(buttonUseMTRFont, client.getUseMTRFont());
+		setButtonText(buttonDisableShadowsForShaders, client.getDisableShadowsForShaders());
+		buttonLanguageOptions.setMessage(client.getLanguageDisplay().translationKey.getText());
 		sliderDynamicTextureResolution.setHeight(BUTTON_HEIGHT);
 		sliderDynamicTextureResolution.setValue(client.getDynamicTextureResolution());
 		sliderTrainOscillationMultiplier.setHeight(BUTTON_HEIGHT);
-		sliderTrainOscillationMultiplier.setValue((int)(client.getVehicleOscillationMultiplier() * 10));
+		sliderTrainOscillationMultiplier.setValue((int) (client.getVehicleOscillationMultiplier() * 10));
 		buttonDefaultRail3D.active = OptimizedRenderer.hasOptimizedRendering();
-		buttonSupportPatreon.setMessage2(TranslationProvider.GUI_MTR_SUPPORT.getText());
+		buttonSupportPatreon.setMessage(TranslationProvider.GUI_MTR_SUPPORT.getText());
 
-		addChild(new ClickableWidget(buttonShowAnnouncementMessages));
-		addChild(new ClickableWidget(buttonUseTTSAnnouncements));
-		addChild(new ClickableWidget(buttonHideTranslucentParts));
-		addChild(new ClickableWidget(buttonLanguageOptions));
-		addChild(new ClickableWidget(sliderDynamicTextureResolution));
-		addChild(new ClickableWidget(sliderTrainOscillationMultiplier));
-		addChild(new ClickableWidget(buttonDefaultRail3D));
-		addChild(new ClickableWidget(buttonUseMTRFont));
-		addChild(new ClickableWidget(buttonDisableShadowsForShaders));
-		addChild(new ClickableWidget(buttonSupportPatreon));
+		addSelectableChild(buttonShowAnnouncementMessages);
+		addSelectableChild(buttonUseTTSAnnouncements);
+		addSelectableChild(buttonHideTranslucentParts);
+		addSelectableChild(buttonLanguageOptions);
+		addSelectableChild(sliderDynamicTextureResolution);
+		addSelectableChild(sliderTrainOscillationMultiplier);
+		addSelectableChild(buttonDefaultRail3D);
+		addSelectableChild(buttonUseMTRFont);
+		addSelectableChild(buttonDisableShadowsForShaders);
+		addSelectableChild(buttonSupportPatreon);
 	}
 
 	@Override
-	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
+	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 		try {
-			renderBackground(graphicsHolder);
-			graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_MTR_OPTIONS.getMutableText(), width / 2, TEXT_PADDING, ARGB_WHITE);
+			renderBackground(context, mouseX, mouseY, delta);
+			context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, TranslationProvider.GUI_MTR_MTR_OPTIONS.getMutableText(), width / 2, TEXT_PADDING, ARGB_WHITE);
 
 			final int yStart1 = SQUARE_SIZE + TEXT_PADDING / 2;
 			int i = 1;
-			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_SHOW_ANNOUNCEMENT_MESSAGES.getMutableText(), SQUARE_SIZE, yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_USE_TTS_ANNOUNCEMENTS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_HIDE_TRANSLUCENT_PARTS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_LANGUAGE_OPTIONS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_DYNAMIC_TEXTURE_RESOLUTION.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_VEHICLE_OSCILLATION_MULTIPLIER.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_DEFAULT_RAIL_3D.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_USE_MTR_FONT.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_DISABLE_SHADOWS_FOR_SHADERS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_SUPPORT_PATREON.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+			context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_SHOW_ANNOUNCEMENT_MESSAGES.getMutableText(), SQUARE_SIZE, yStart1, ARGB_WHITE, false);
+			context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_USE_TTS_ANNOUNCEMENTS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false);
+			context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_HIDE_TRANSLUCENT_PARTS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false);
+			context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_LANGUAGE_OPTIONS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false);
+			context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_DYNAMIC_TEXTURE_RESOLUTION.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false);
+			context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_VEHICLE_OSCILLATION_MULTIPLIER.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false);
+			context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_DEFAULT_RAIL_3D.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false);
+			context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_USE_MTR_FONT.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false);
+			context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_DISABLE_SHADOWS_FOR_SHADERS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false);
+			context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_SUPPORT_PATREON.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false);
 
 			final int yStart2 = BUTTON_HEIGHT * (i + 1) + yStart1;
 			String tierTitle = "";
@@ -139,9 +142,9 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 				if (!patreon.tierTitle.equals(tierTitle)) {
 					x += maxWidth + TEXT_PADDING;
 					y = 0;
-					final MutableText text = TextHelper.literal(patreon.tierTitle);
-					maxWidth = GraphicsHolder.getTextWidth(text);
-					graphicsHolder.drawText(text, SQUARE_SIZE - TEXT_PADDING + x, yStart2, patreon.tierColor, false, GraphicsHolder.getDefaultLight());
+					final String text = patreon.tierTitle;
+					maxWidth = textRenderer.getWidth(text);
+					context.drawText(textRenderer, text, SQUARE_SIZE - TEXT_PADDING + x, yStart2, patreon.tierColor, false);
 				} else if (y + yStart2 + TEXT_HEIGHT + SQUARE_SIZE > height) {
 					x += maxWidth + TEXT_PADDING;
 					y = 0;
@@ -149,21 +152,21 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 				}
 
 				tierTitle = patreon.tierTitle;
-				final MutableText text = patreon.tierAmount < 1000 ? TranslationProvider.OPTIONS_MTR_ANONYMOUS.getMutableText() : TextHelper.literal(patreon.name);
-				maxWidth = Math.max(maxWidth, GraphicsHolder.getTextWidth(text));
-				graphicsHolder.drawText(text, SQUARE_SIZE - TEXT_PADDING + x, yStart2 + y + TEXT_HEIGHT + TEXT_PADDING, ARGB_LIGHT_GRAY, false, GraphicsHolder.getDefaultLight());
+				final MutableText text = patreon.tierAmount < 1000 ? TranslationProvider.OPTIONS_MTR_ANONYMOUS.getMutableText() : Text.literal(patreon.name);
+				maxWidth = Math.max(maxWidth, textRenderer.getWidth(text));
+				context.drawText(textRenderer, text, SQUARE_SIZE - TEXT_PADDING + x, yStart2 + y + TEXT_HEIGHT + TEXT_PADDING, ARGB_LIGHT_GRAY, false);
 				y += TEXT_HEIGHT + 2;
 			}
 
-			super.render(graphicsHolder, mouseX, mouseY, delta);
+			super.render(context, mouseX, mouseY, delta);
 		} catch (Exception e) {
-			Init.LOGGER.error("", e);
+			MTR.LOGGER.error("", e);
 		}
 	}
 
 	@Override
-	public void onClose2() {
-		super.onClose2();
+	public void close() {
+		super.close();
 		client.setDynamicTextureResolution(sliderDynamicTextureResolution.getIntValue());
 		client.setVehicleOscillationMultiplier(sliderTrainOscillationMultiplier.getIntValue() / 10.0);
 		DynamicTextureCache.instance.reload();

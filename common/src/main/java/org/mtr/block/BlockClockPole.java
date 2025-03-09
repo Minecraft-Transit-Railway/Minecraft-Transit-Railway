@@ -1,19 +1,24 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockExtension;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.BlockView;
 
 import javax.annotation.Nonnull;
 
-public class BlockClockPole extends BlockExtension {
+public class BlockClockPole extends Block {
 
-	public BlockClockPole(BlockSettings blockSettings) {
+	public BlockClockPole(AbstractBlock.Settings blockSettings) {
 		super(blockSettings);
 	}
 
 	@Nonnull
 	@Override
-	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return Block.createCuboidShape(7.5, 0, 7.5, 8.5, 16, 8.5);
 	}
 }

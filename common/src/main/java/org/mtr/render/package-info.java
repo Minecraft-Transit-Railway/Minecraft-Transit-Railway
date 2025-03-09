@@ -1,4 +1,4 @@
 @ParametersAreNonnullByDefault
-package org.mtr.mod.render;
+package org.mtr.render;
 
 import javax.annotation.ParametersAreNonnullByDefault;

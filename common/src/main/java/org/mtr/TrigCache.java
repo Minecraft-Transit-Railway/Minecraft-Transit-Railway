@@ -1,6 +1,6 @@
-package org.mtr.mod;
+package org.mtr;
 
-import org.mtr.mapping.holder.MathHelper;
+import net.minecraft.util.math.MathHelper;
 
 public class TrigCache {
 

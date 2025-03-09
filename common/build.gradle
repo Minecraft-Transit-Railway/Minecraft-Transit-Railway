@@ -1,11 +1,84 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+import org.mtr.BuildTools
+import org.mtr.core.Generator
+import org.mtr.core.WebserverSetup
+
+final BuildTools buildTools = new BuildTools(minecraft_version, "fabric", project)
+
 architectury {
-	common rootProject.enabled_platforms.split(",")
+	common enabled_platforms.split(",")
 }
 
 dependencies {
 	// We depend on Fabric Loader here to use the Fabric @Environment annotations,
 	// which get remapped to the correct annotations on each platform.
 	// Do NOT use other classes from Fabric Loader.
-	modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+	modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
+	modImplementation "dev.architectury:architectury:$architectury_api_version"
+	implementation "org.mtr:Shadow-Libraries-net:0.0.1"
+	implementation "org.mtr:Shadow-Libraries-util:0.0.1"
 	implementation "org.mtr:Transport-Simulation-Core:0.0.1"
+	implementation "com.logisticscraft:occlusionculling:+"
+	compileOnly "xyz.jpenilla:squaremap-api:+"
+	compileOnly "com.test:Dynmap:3.2.1"
+	testImplementation "org.junit.jupiter:junit-jupiter-api:+"
+	testImplementation "org.junit.platform:junit-platform-launcher:+"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:+"
+}
+
+tasks.register("setupFiles") {
+	copy {
+		outputs.upToDateWhen { false }
+		from "src/main/KeysTemplate.java"
+		into "src/main/java/org/mtr"
+		filter(ReplaceTokens, tokens: ["version": "$mod_version+$minecraft_version".toString(), "debug": debug.toString()])
+		rename "(.+)Template.java", "\$1.java"
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "src/main/fabric.mod.template.json"
+		into "src/main/resources"
+		filter(ReplaceTokens, tokens: ["minecraft": minecraft_version, "version": mod_version])
+		rename "(.+).template.json", "\$1.json"
+	}
+
+	if (buildTools.hasJadeSupport()) {
+		copy {
+			outputs.upToDateWhen { false }
+			from "src/main/JadeConfigTemplate.java"
+			into "src/main/java/org/mtr/init"
+			rename "(.+)Template.java", "\$1.java"
+		}
+	} else {
+		delete fileTree("src/main/java/org/mtr/init/JadeConfig.java")
+	}
+
+	if (buildTools.hasWthitSupport()) {
+		copy {
+			outputs.upToDateWhen { false }
+			from "src/main/WthitConfigTemplate.java"
+			into "src/main/java/org/mtr/init"
+			rename "(.+)Template.java", "\$1.java"
+		}
+
+		copy {
+			outputs.upToDateWhen { false }
+			from "src/main/wthit_plugins_template.json"
+			into "src/main/resources"
+			rename "(.+)_template.json", "\$1.json"
+		}
+	} else {
+		delete fileTree("src/main/java/org/mtr/init/WthitConfig.java")
+		delete fileTree("src/main/resources/wthit_plugins.json")
+	}
+
+	buildTools.downloadTranslations(crowdin_api_key, gemini_api_key)
+	buildTools.generateTranslations()
+	buildTools.copyVehicleTemplates()
+	buildTools.getPatreonList(patreon_api_key)
+	Generator.generateJava(project, "schema/config", "generated/config", false, "config")
+	Generator.generateJava(project, "schema/resource", "generated/resource", false, "core.data", "resource")
+	Generator.generateJava(project, "schema/legacy", "legacy/generated/resource", false)
+	WebserverSetup.setup(project.rootDir, "common/", "")
 }

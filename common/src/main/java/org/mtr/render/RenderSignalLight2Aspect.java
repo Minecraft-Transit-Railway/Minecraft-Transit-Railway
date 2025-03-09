@@ -1,30 +1,30 @@
-package org.mtr.mod.render;
+package org.mtr.render;
 
-import org.mtr.mapping.holder.Direction;
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mod.Init;
-import org.mtr.mod.block.BlockSignalBase;
-import org.mtr.mod.client.IDrawing;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
+import org.mtr.MTR;
+import org.mtr.block.BlockSignalBase;
+import org.mtr.client.IDrawing;
 
 public class RenderSignalLight2Aspect<T extends BlockSignalBase.BlockEntityBase> extends RenderSignalBase<T> {
 
 	private final boolean redOnTop;
 	private final int proceedColor;
 
-	public RenderSignalLight2Aspect(Argument dispatcher, boolean redOnTop, int proceedColor) {
-		super(dispatcher, 12, 2);
+	public RenderSignalLight2Aspect(boolean redOnTop, int proceedColor) {
+		super(12, 2);
 		this.redOnTop = redOnTop;
 		this.proceedColor = proceedColor;
 	}
 
 	@Override
-	protected void render(StoredMatrixTransformations storedMatrixTransformations, T entity, float tickDelta, int occupiedAspect, boolean isBackSide) {
+	protected void render(StoredMatrixTransformations storedMatrixTransformations, T entity, ClientWorld world, float tickDelta, int light, int occupiedAspect, boolean isBackSide) {
 		final float y = occupiedAspect > 0 == redOnTop ? 0.4375F : 0.0625F;
-		MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, QueuedRenderLayer.LIGHT, (graphicsHolder, offset) -> {
-			storedMatrixTransformations.transform(graphicsHolder, offset);
-			IDrawing.drawTexture(graphicsHolder, -0.125F, y, -0.19375F, 0.125F, y + 0.25F, -0.19375F, Direction.UP, occupiedAspect > 0 ? 0xFFFF0000 : proceedColor, GraphicsHolder.getDefaultLight());
-			graphicsHolder.pop();
+		MainRenderer.scheduleRender(Identifier.of(MTR.MOD_ID, "textures/block/white.png"), false, QueuedRenderLayer.LIGHT, (matrixStack, vertexConsumer, offset) -> {
+			storedMatrixTransformations.transform(matrixStack, offset);
+			IDrawing.drawTexture(matrixStack, vertexConsumer, -0.125F, y, -0.19375F, 0.125F, y + 0.25F, -0.19375F, Direction.UP, occupiedAspect > 0 ? 0xFFFF0000 : proceedColor, DEFAULT_LIGHT);
+			matrixStack.pop();
 		});
 	}
 }

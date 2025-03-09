@@ -1,20 +1,24 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.SlabBlockExtension;
-import org.mtr.mod.Blocks;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.SlabBlock;
+import net.minecraft.block.enums.SlabType;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.BlockView;
 
 public class BlockStationColorGlassSlab extends BlockStationColorSlab {
 
-	public BlockStationColorGlassSlab() {
-		super(Blocks.createDefaultBlockSettings(false).nonOpaque());
+	public BlockStationColorGlassSlab(AbstractBlock.Settings settings) {
+		super(settings.nonOpaque());
 	}
 
 	@Override
-	public boolean isSideInvisible2(BlockState state, BlockState neighborState, Direction direction) {
-		if (neighborState.getBlock().data instanceof BlockStationColorGlassSlab) {
-			final SlabType slabType = SlabBlockExtension.getType(state);
-			final SlabType neighborSlabType = SlabBlockExtension.getType(neighborState);
+	public boolean isSideInvisible(BlockState state, BlockState neighborState, Direction direction) {
+		if (neighborState.getBlock() instanceof BlockStationColorGlassSlab) {
+			final SlabType slabType = state.get(SlabBlock.TYPE);
+			final SlabType neighborSlabType = neighborState.get(SlabBlock.TYPE);
 			if (direction.getAxis().isHorizontal()) {
 				return slabType == neighborSlabType;
 			} else {
@@ -24,20 +28,20 @@ public class BlockStationColorGlassSlab extends BlockStationColorSlab {
 					return slabType != SlabType.TOP && neighborSlabType != SlabType.BOTTOM;
 				}
 			}
-		} else if (neighborState.getBlock().data instanceof BlockStationColorGlass) {
-			return SlabBlockExtension.getType(state) == SlabType.DOUBLE;
+		} else if (neighborState.getBlock() instanceof BlockStationColorGlass) {
+			return state.get(SlabBlock.TYPE) == SlabType.DOUBLE;
 		} else {
-			return super.isSideInvisible2(state, neighborState, direction);
+			return super.isSideInvisible(state, neighborState, direction);
 		}
 	}
 
 	@Override
-	public float getAmbientOcclusionLightLevel2(BlockState state, BlockView world, BlockPos pos) {
+	public float getAmbientOcclusionLightLevel(BlockState state, BlockView world, BlockPos pos) {
 		return 1;
 	}
 
 	@Override
-	public boolean isTranslucent2(BlockState state, BlockView world, BlockPos pos) {
+	public boolean isTransparent(BlockState state) {
 		return true;
 	}
 }

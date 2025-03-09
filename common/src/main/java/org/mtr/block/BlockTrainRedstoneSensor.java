@@ -1,28 +1,29 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.BlockState;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mod.BlockEntityTypes;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.registry.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
 
 public class BlockTrainRedstoneSensor extends BlockTrainPoweredSensorBase {
 
-	public BlockTrainRedstoneSensor() {
-		super();
+	public BlockTrainRedstoneSensor(AbstractBlock.Settings settings) {
+		super(settings);
 	}
 
 	@Nonnull
 	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(blockPos, blockState);
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new TrainRedstoneSensorBlockEntity(blockPos, blockState);
 	}
 
-	public static class BlockEntity extends BlockEntityBase {
+	public static class TrainRedstoneSensorBlockEntity extends BlockEntityBase {
 
-		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TRAIN_REDSTONE_SENSOR.get(), pos, state);
+		public TrainRedstoneSensorBlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.TRAIN_REDSTONE_SENSOR.createAndGet(), pos, state);
 		}
 	}
 }

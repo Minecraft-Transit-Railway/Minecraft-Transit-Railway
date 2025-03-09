@@ -1,25 +1,37 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
+import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import org.mtr.MTR;
+import org.mtr.client.CustomResourceLoader;
+import org.mtr.client.DynamicTextureCache;
+import org.mtr.client.IDrawing;
+import org.mtr.client.ScrollingText;
 import org.mtr.core.data.Data;
 import org.mtr.core.data.Vehicle;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.EnumHelper;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.*;
-import org.mtr.mod.Init;
-import org.mtr.mod.MutableBox;
-import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.client.DynamicTextureCache;
-import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.client.ScrollingText;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.data.VehicleExtension;
-import org.mtr.mod.generated.resource.ModelPropertiesPartSchema;
-import org.mtr.mod.render.MainRenderer;
-import org.mtr.mod.render.QueuedRenderLayer;
-import org.mtr.mod.render.StoredMatrixTransformations;
+import org.mtr.data.IGui;
+import org.mtr.data.VehicleExtension;
+import org.mtr.generated.resource.ModelPropertiesPartSchema;
+import org.mtr.model.MutableBox;
+import org.mtr.model.OptimizedModel;
+import org.mtr.model.OptimizedRenderer;
+import org.mtr.render.MainRenderer;
+import org.mtr.render.QueuedRenderLayer;
+import org.mtr.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
@@ -113,7 +125,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	 */
 	public void writeCache(
 			Identifier texture,
-			Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ModelPartExtension, MutableBox>> nameToPart,
+			Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ModelPart, MutableBox>> nameToPart,
 			Object2ObjectOpenHashMap<String, ObjectArrayList<ModelDisplayPart>> nameToDisplayParts,
 			PositionDefinitions positionDefinitionsObject,
 			ObjectArraySet<Box> floors,
@@ -121,13 +133,13 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStage,
 			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStageDoorsClosed
 	) {
-		final ObjectArrayList<ModelPartExtension> modelParts = new ObjectArrayList<>();
+		final ObjectArrayList<ModelPart> modelParts = new ObjectArrayList<>();
 		final MutableBox mutableBox = new MutableBox();
 		final ObjectArrayList<ObjectArrayList<ModelDisplayPart>> modelDisplayParts = new ObjectArrayList<>();
 		final OptimizedModelWrapper optimizedModelDoor;
 
 		names.forEach(name -> {
-			final ObjectObjectImmutablePair<ModelPartExtension, MutableBox> part = nameToPart.get(name);
+			final ObjectObjectImmutablePair<ModelPart, MutableBox> part = nameToPart.get(name);
 			if (part != null) {
 				modelParts.add(part.left());
 				mutableBox.add(part.right());
@@ -211,9 +223,9 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				case NORMAL:
 					final ObjectIntImmutablePair<QueuedRenderLayer> renderProperties = getRenderProperties(renderStage, light, vehicle);
 					if (OptimizedRenderer.hasOptimizedRendering()) {
-						MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> renderNormal(storedMatrixTransformations, vehicle, renderProperties, openDoorways, light, graphicsHolder, offset));
+						MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (matrixStack, vertexConsumer, offset) -> renderNormal(storedMatrixTransformations, vehicle, renderProperties, openDoorways, light, matrixStack, vertexConsumer, offset));
 					} else {
-						MainRenderer.scheduleRender(texture, false, renderProperties.left(), (graphicsHolder, offset) -> renderNormal(storedMatrixTransformations, vehicle, renderProperties, openDoorways, light, graphicsHolder, offset));
+						MainRenderer.scheduleRender(texture, false, renderProperties.left(), (matrixStack, vertexConsumer, offset) -> renderNormal(storedMatrixTransformations, vehicle, renderProperties, openDoorways, light, matrixStack, vertexConsumer, offset));
 					}
 					break;
 				case DISPLAY:
@@ -241,16 +253,16 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				final double x = doorAnimationType.getDoorAnimationX(doorXMultiplier, partDetails.flipped, time) / 16;
 				final double z = doorAnimationType.getDoorAnimationZ(doorZMultiplier, partDetails.flipped, time, true) / 16;
 				final Box box = partDetails.box;
-				final float xOffset = box.getMinXMapped() == box.getMaxXMapped() ? 0.1F : 0;
-				final float yOffset = box.getMinYMapped() == box.getMaxYMapped() ? 0.1F : 0;
-				final float zOffset = box.getMinZMapped() == box.getMaxZMapped() ? 0.1F : 0;
+				final float xOffset = box.minX == box.maxX ? 0.1F : 0;
+				final float yOffset = box.minY == box.maxY ? 0.1F : 0;
+				final float zOffset = box.minZ == box.maxZ ? 0.1F : 0;
 				boxes.add(new Box(
-						box.getMinXMapped() - xOffset + x,
-						box.getMinYMapped() - yOffset,
-						box.getMinZMapped() - zOffset + z,
-						box.getMaxXMapped() + xOffset + x,
-						box.getMaxYMapped() + yOffset,
-						box.getMaxZMapped() + zOffset + z
+						box.minX - xOffset + x,
+						box.minY - yOffset,
+						box.minZ - zOffset + z,
+						box.maxX + xOffset + x,
+						box.maxY + yOffset,
+						box.maxZ + zOffset + z
 				));
 			});
 		}
@@ -290,20 +302,20 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	void mapDoors(ObjectArrayList<Box> doorways) {
 		if (isDoor()) {
 			partDetailsList.forEach(partDetails -> doorways.stream().min(Comparator.comparingDouble(checkDoorway -> getClosestDistance(
-					partDetails.box.getMinXMapped(),
-					partDetails.box.getMaxXMapped(),
-					checkDoorway.getMinXMapped(),
-					checkDoorway.getMaxXMapped()
+					partDetails.box.minX,
+					partDetails.box.maxX,
+					checkDoorway.minX,
+					checkDoorway.maxX
 			) + getClosestDistance(
-					partDetails.box.getMinYMapped(),
-					partDetails.box.getMaxYMapped(),
-					checkDoorway.getMinYMapped(),
-					checkDoorway.getMaxYMapped()
+					partDetails.box.minY,
+					partDetails.box.maxY,
+					checkDoorway.minY,
+					checkDoorway.maxY
 			) + getClosestDistance(
-					partDetails.box.getMinZMapped(),
-					partDetails.box.getMaxZMapped(),
-					checkDoorway.getMinZMapped(),
-					checkDoorway.getMaxZMapped()
+					partDetails.box.minZ,
+					partDetails.box.maxZ,
+					checkDoorway.minZ,
+					checkDoorway.maxZ
 			))).ifPresent(closestDoorway -> partDetails.doorway = closestDoorway));
 		}
 	}
@@ -312,8 +324,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		return doorXMultiplier != 0 || doorZMultiplier != 0;
 	}
 
-	private void renderNormal(StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, ObjectIntImmutablePair<QueuedRenderLayer> renderProperties, ObjectArrayList<Box> openDoorways, int light, GraphicsHolder graphicsHolder, Vector3d offset) {
-		storedMatrixTransformations.transform(graphicsHolder, offset);
+	private void renderNormal(StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, ObjectIntImmutablePair<QueuedRenderLayer> renderProperties, ObjectArrayList<Box> openDoorways, int light, MatrixStack matrixStack, VertexConsumer vertexConsumer, Vec3d offset) {
+		storedMatrixTransformations.transform(matrixStack, offset);
 		final boolean flashOn = flashOnTime + flashOffTime == 0 || (System.currentTimeMillis() % (flashOnTime + flashOffTime)) > flashOffTime;
 		partDetailsList.forEach(partDetails -> {
 			final float x;
@@ -342,19 +354,23 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				// If doors are open, only render the optimized door parts
 				// Otherwise, the main model already includes closed doors
 				if (!openDoorways.isEmpty() && partDetails.optimizedModelDoor != null) {
-					graphicsHolder.push();
-					graphicsHolder.translate(x / 16, y / 16, z / 16);
+					matrixStack.push();
+					matrixStack.translate(x / 16, y / 16, z / 16);
 					if (partDetails.flipped) {
-						graphicsHolder.rotateYDegrees(180);
+						IDrawing.rotateYDegrees(matrixStack, 180);
 					}
-					CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(partDetails.optimizedModelDoor, graphicsHolder, light);
-					graphicsHolder.pop();
+					CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(partDetails.optimizedModelDoor, matrixStack, light);
+					matrixStack.pop();
 				}
 			} else {
-				partDetails.modelParts.forEach(modelPart -> modelPart.render(graphicsHolder, x, y, z, partDetails.flipped ? (float) Math.PI : 0, renderProperties.rightInt(), OverlayTexture.getDefaultUvMapped()));
+				partDetails.modelParts.forEach(modelPart -> {
+					modelPart.setPivot(x, y, z);
+					modelPart.yaw = partDetails.flipped ? (float) Math.PI : 0;
+					modelPart.render(matrixStack, vertexConsumer, renderProperties.rightInt(), OverlayTexture.DEFAULT_UV);
+				});
 			}
 		});
-		graphicsHolder.pop();
+		matrixStack.pop();
 	}
 
 	private void renderLineColor(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, boolean fromResourcePackCreator) {
@@ -365,33 +381,34 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			color = getOrDefault(ARGB_BLACK | vehicle.vehicleExtraData.getThisRouteColor(), ARGB_BLACK | vehicle.vehicleExtraData.getNextRouteColor(), ARGB_BLACK | vehicle.vehicleExtraData.getPreviousRouteColor(), 0, vehicle);
 		}
 
-		MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, String.format("textures/block/%s.png", displayType == DisplayType.ROUTE_COLOR ? "white" : "sign/circle")), true, QueuedRenderLayer.LIGHT_2, (graphicsHolder, offset) -> {
-			storedMatrixTransformations.transform(graphicsHolder, offset);
+		MainRenderer.scheduleRender(Identifier.of(MTR.MOD_ID, String.format("textures/block/%s.png", displayType == DisplayType.ROUTE_COLOR ? "white" : "sign/circle")), true, QueuedRenderLayer.LIGHT_2, (matrixStack, vertexConsumer, offset) -> {
+			storedMatrixTransformations.transform(matrixStack, offset);
 
 			displayPartDetailsList.forEach(displayPartDetails -> {
-				graphicsHolder.push();
-				graphicsHolder.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
-				graphicsHolder.rotateYDegrees(displayPartDetails.flipped ? 180 : 0);
+				matrixStack.push();
+				matrixStack.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
+				IDrawing.rotateYDegrees(matrixStack, displayPartDetails.flipped ? 180 : 0);
 
 				displayPartDetails.modelDisplayParts.forEach(displayParts -> displayParts.forEach(displayPart -> {
-					displayPart.storedMatrixTransformations.transform(graphicsHolder, Vector3d.getZeroMapped());
-					graphicsHolder.translate(displayXPadding / 16, displayYPadding / 16, -SMALL_OFFSET);
+					displayPart.storedMatrixTransformations.transform(matrixStack, Vec3d.ZERO);
+					matrixStack.translate(displayXPadding / 16, displayYPadding / 16, -SMALL_OFFSET);
 					IDrawing.drawTexture(
-							graphicsHolder,
+							matrixStack,
+							vertexConsumer,
 							0,
 							0,
 							(displayPart.width - (float) displayXPadding * 2) / 16,
 							(displayPart.height - (float) displayYPadding * 2) / 16,
 							0, 0, 1, 1, Direction.UP,
-							color, GraphicsHolder.getDefaultLight()
+							color, DEFAULT_LIGHT
 					);
-					graphicsHolder.pop();
+					matrixStack.pop();
 				}));
 
-				graphicsHolder.pop();
+				matrixStack.pop();
 			});
 
-			graphicsHolder.pop();
+			matrixStack.pop();
 		});
 	}
 
@@ -399,33 +416,34 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		final String text = formatText(vehicle);
 		final HorizontalAlignment horizontalAlignment = getHorizontalAlignment(false);
 
-		MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/sign/seven_segment.png"), true, QueuedRenderLayer.LIGHT_2, (graphicsHolder, offset) -> {
-			storedMatrixTransformations.transform(graphicsHolder, offset);
+		MainRenderer.scheduleRender(Identifier.of(MTR.MOD_ID, "textures/block/sign/seven_segment.png"), true, QueuedRenderLayer.LIGHT_2, (matrixStack, vertexConsumer, offset) -> {
+			storedMatrixTransformations.transform(matrixStack, offset);
 
 			displayPartDetailsList.forEach(displayPartDetails -> {
-				graphicsHolder.push();
-				graphicsHolder.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
-				graphicsHolder.rotateYDegrees(displayPartDetails.flipped ? 180 : 0);
+				matrixStack.push();
+				matrixStack.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
+				IDrawing.rotateYDegrees(matrixStack, displayPartDetails.flipped ? 180 : 0);
 
 				displayPartDetails.modelDisplayParts.forEach(displayParts -> displayParts.forEach(displayPart -> {
-					displayPart.storedMatrixTransformations.transform(graphicsHolder, Vector3d.getZeroMapped());
-					graphicsHolder.translate(0, displayYPadding / 16, -SMALL_OFFSET);
+					displayPart.storedMatrixTransformations.transform(matrixStack, Vec3d.ZERO);
+					matrixStack.translate(0, displayYPadding / 16, -SMALL_OFFSET);
 					IDrawing.drawSevenSegment(
-							graphicsHolder,
+							matrixStack,
+							vertexConsumer,
 							text,
 							(displayPart.width - (float) displayXPadding * 2) / 16,
 							0, 0,
 							(displayPart.height - (float) displayYPadding * 2) / 16,
 							horizontalAlignment,
-							ARGB_BLACK | displayColorInt, GraphicsHolder.getDefaultLight()
+							ARGB_BLACK | displayColorInt, DEFAULT_LIGHT
 					);
-					graphicsHolder.pop();
+					matrixStack.pop();
 				}));
 
-				graphicsHolder.pop();
+				matrixStack.pop();
 			});
 
-			graphicsHolder.pop();
+			matrixStack.pop();
 		});
 	}
 
@@ -435,15 +453,15 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 		displayPartDetailsList.forEach(displayPartDetails -> {
 			final StoredMatrixTransformations storedMatrixTransformations1 = storedMatrixTransformations.copy();
-			storedMatrixTransformations1.add(graphicsHolder -> {
-				graphicsHolder.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
-				graphicsHolder.rotateYDegrees(displayPartDetails.flipped ? 180 : 0);
+			storedMatrixTransformations1.add(matrixStack -> {
+				matrixStack.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
+				IDrawing.rotateYDegrees(matrixStack, displayPartDetails.flipped ? 180 : 0);
 			});
 
 			displayPartDetails.modelDisplayParts.forEach(displayParts -> displayParts.forEach(displayPart -> {
 				final StoredMatrixTransformations storedMatrixTransformations2 = storedMatrixTransformations1.copy();
 				storedMatrixTransformations2.add(displayPart.storedMatrixTransformations);
-				storedMatrixTransformations2.add(graphicsHolder -> graphicsHolder.translate(displayXPadding / 16, displayYPadding / 16, -SMALL_OFFSET));
+				storedMatrixTransformations2.add(matrixStack -> matrixStack.translate(displayXPadding / 16, displayYPadding / 16, -SMALL_OFFSET));
 				final double width = (displayPart.width - displayXPadding * 2) / 16F;
 				final double height = (displayPart.height - displayYPadding * 2) / 16F;
 
@@ -459,6 +477,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	}
 
 	private void renderDisplay(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle) {
+		final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 		final String[] textSplit = formatText(vehicle).split("\\|");
 		final boolean[] isCjk = new boolean[textSplit.length];
 		final double[] textHeightScale = new double[textSplit.length];
@@ -470,45 +489,45 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		}
 		final double rawTextHeight = tempTotalHeight;
 
-		MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
-			storedMatrixTransformations.transform(graphicsHolder, offset);
+		MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (matrixStack, vertexConsumer, offset) -> {
+			storedMatrixTransformations.transform(matrixStack, offset);
 
 			displayPartDetailsList.forEach(displayPartDetails -> {
-				graphicsHolder.push();
-				graphicsHolder.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
-				graphicsHolder.rotateYDegrees(displayPartDetails.flipped ? 180 : 0);
+				matrixStack.push();
+				matrixStack.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
+				IDrawing.rotateYDegrees(matrixStack, displayPartDetails.flipped ? 180 : 0);
 
 				displayPartDetails.modelDisplayParts.forEach(displayParts -> displayParts.forEach(displayPart -> {
-					displayPart.storedMatrixTransformations.transform(graphicsHolder, Vector3d.getZeroMapped());
+					displayPart.storedMatrixTransformations.transform(matrixStack, Vec3d.ZERO);
 					final double totalTextHeight = Math.min(displayPart.height - displayYPadding * 2, displayMaxLineHeight <= 0 ? Double.MAX_VALUE : displayMaxLineHeight * rawTextHeight) / 16;
 					final double textScale = totalTextHeight / rawTextHeight / (TEXT_HEIGHT + LINE_PADDING);
-					graphicsHolder.translate(displayXPadding / 16, displayYPadding / 16 + Math.max(0, getVerticalAlignment().getOffset(0, (float) (totalTextHeight - (displayPart.height - displayYPadding * 2) / 16))), -SMALL_OFFSET);
+					matrixStack.translate(displayXPadding / 16, displayYPadding / 16 + Math.max(0, getVerticalAlignment().getOffset(0, (float) (totalTextHeight - (displayPart.height - displayYPadding * 2) / 16))), -SMALL_OFFSET);
 
 					for (int i = 0; i < textSplit.length; i++) {
 						final double availableTextWidth = (displayPart.width - displayXPadding * 2) / 16;
 						final double newTextScale = textHeightScale[i] * textScale;
-						final MutableText mutableText = IDrawing.withMTRFont(TextHelper.literal(textSplit[i]));
-						final double textWidth = GraphicsHolder.getTextWidth(mutableText) * newTextScale;
+						final MutableText mutableText = IDrawing.withMTRFont(Text.literal(textSplit[i]));
+						final double textWidth = textRenderer.getWidth(mutableText) * newTextScale;
 						final HorizontalAlignment horizontalAlignment = getHorizontalAlignment(isCjk[i]);
-						graphicsHolder.push();
-						graphicsHolder.translate(Math.max(0, horizontalAlignment.getOffset(0, (float) (textWidth - availableTextWidth))), 0, 0);
-						graphicsHolder.scale((float) (Math.min(1, availableTextWidth / textWidth) * newTextScale), (float) newTextScale, 1);
-						graphicsHolder.drawText(mutableText, 0, 0, isCjk[i] ? displayColorCjkInt : displayColorInt, false, GraphicsHolder.getDefaultLight());
-						graphicsHolder.pop();
-						graphicsHolder.translate(0, newTextScale * (TEXT_HEIGHT + LINE_PADDING), 0);
+						matrixStack.push();
+						matrixStack.translate(Math.max(0, horizontalAlignment.getOffset(0, (float) (textWidth - availableTextWidth))), 0, 0);
+						matrixStack.scale((float) (Math.min(1, availableTextWidth / textWidth) * newTextScale), (float) newTextScale, 1);
+//						textRenderer.draw(mutableText, 0, 0, isCjk[i] ? displayColorCjkInt : displayColorInt, false, DEFAULT_LIGHT);
+						matrixStack.pop();
+						matrixStack.translate(0, newTextScale * (TEXT_HEIGHT + LINE_PADDING), 0);
 					}
 
-					graphicsHolder.pop();
+					matrixStack.pop();
 				}));
 
-				graphicsHolder.pop();
+				matrixStack.pop();
 			});
 
-			graphicsHolder.pop();
+			matrixStack.pop();
 		});
 	}
 
-	private void addCube(Identifier texture, ObjectArrayList<ModelPartExtension> modelParts, Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStage, double x, double y, double z, boolean flipped) {
+	private void addCube(Identifier texture, ObjectArrayList<ModelPart> modelParts, Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStage, double x, double y, double z, boolean flipped) {
 		modelParts.forEach(modelPart -> Data.put(materialGroupsForPartConditionAndRenderStage, condition, renderStage, oldValue -> {
 			final OptimizedModelWrapper.MaterialGroupWrapper materialGroup = oldValue == null ? new OptimizedModelWrapper.MaterialGroupWrapper(renderStage.shaderType, texture) : oldValue;
 			materialGroup.addCube(modelPart, (x + doorAnimationType.getDoorAnimationX(doorXMultiplier, flipped, 0)) / 16, y / 16, (z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, flipped, 0, false)) / 16, flipped, MAX_LIGHT_INTERIOR);
@@ -613,12 +632,12 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 	private static ObjectIntImmutablePair<QueuedRenderLayer> getRenderProperties(RenderStage renderStage, int light, @Nullable VehicleExtension vehicle) {
 		if (renderStage == RenderStage.ALWAYS_ON_LIGHT) {
-			return new ObjectIntImmutablePair<>(QueuedRenderLayer.LIGHT_2, GraphicsHolder.getDefaultLight());
+			return new ObjectIntImmutablePair<>(QueuedRenderLayer.LIGHT_2, DEFAULT_LIGHT);
 		} else if (vehicle != null) {
 			if (vehicle.getIsOnRoute()) {
 				switch (renderStage) {
 					case LIGHT:
-						return new ObjectIntImmutablePair<>(QueuedRenderLayer.LIGHT, GraphicsHolder.getDefaultLight());
+						return new ObjectIntImmutablePair<>(QueuedRenderLayer.LIGHT, DEFAULT_LIGHT);
 					case INTERIOR:
 						return new ObjectIntImmutablePair<>(QueuedRenderLayer.INTERIOR, MAX_LIGHT_INTERIOR);
 					case INTERIOR_TRANSLUCENT:
@@ -636,8 +655,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 	private static Box addBox(Box box, double x, double y, double z, boolean flipped) {
 		return new Box(
-				(flipped ? -1 : 1) * box.getMinXMapped() + x / 16, box.getMinYMapped() + y / 16, (flipped ? 1 : -1) * box.getMinZMapped() + z / 16,
-				(flipped ? -1 : 1) * box.getMaxXMapped() + x / 16, box.getMaxYMapped() + y / 16, (flipped ? 1 : -1) * box.getMaxZMapped() + z / 16
+				(flipped ? -1 : 1) * box.minX + x / 16, box.minY + y / 16, (flipped ? 1 : -1) * box.minZ + z / 16,
+				(flipped ? -1 : 1) * box.maxX + x / 16, box.maxY + y / 16, (flipped ? 1 : -1) * box.maxZ + z / 16
 		);
 	}
 
@@ -691,7 +710,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	private static class PartDetails {
 
 		private Box doorway;
-		private final ObjectArrayList<ModelPartExtension> modelParts;
+		private final ObjectArrayList<ModelPart> modelParts;
 		private final OptimizedModelWrapper optimizedModelDoor;
 		private final Box box;
 		private final double x;
@@ -699,7 +718,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		private final double z;
 		private final boolean flipped;
 
-		private PartDetails(ObjectArrayList<ModelPartExtension> modelParts, @Nullable OptimizedModelWrapper optimizedModelDoor, Box box, double x, double y, double z, boolean flipped) {
+		private PartDetails(ObjectArrayList<ModelPart> modelParts, @Nullable OptimizedModelWrapper optimizedModelDoor, Box box, double x, double y, double z, boolean flipped) {
 			this.modelParts = OptimizedRenderer.hasOptimizedRendering() ? new ObjectArrayList<>() : modelParts;
 			this.optimizedModelDoor = optimizedModelDoor;
 			this.box = box;

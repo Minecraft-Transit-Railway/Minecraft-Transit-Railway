@@ -1,47 +1,52 @@
-package org.mtr.mod.sound;
+package org.mtr.sound;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.MovingSoundInstanceExtension;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.sound.MovingSoundInstance;
+import net.minecraft.client.sound.SoundManager;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.random.LocalRandom;
 
-public class VehicleLoopingSoundInstance extends MovingSoundInstanceExtension {
+public class VehicleLoopingSoundInstance extends MovingSoundInstance {
 
 	public VehicleLoopingSoundInstance(SoundEvent event) {
-		super(event, SoundCategory.getBlocksMapped());
-		setIsRepeatableMapped(true);
-		setRepeatDelay(0);
-		setVolume(0);
-		setPitch(1);
+		super(event, SoundCategory.BLOCKS, new LocalRandom(0));
+		repeat = true;
+		repeatDelay = 0;
+		volume = 0;
+		pitch = 1;
 	}
 
 	public void setData(float volume, float pitch, BlockPos blockPos) {
-		setPitch(pitch == 0 ? 1 : pitch);
-		setVolume(volume);
-		setX(blockPos.getX());
-		setY(blockPos.getY());
-		setZ(blockPos.getZ());
+		this.pitch = pitch == 0 ? 1 : pitch;
+		this.volume = volume;
+		x = blockPos.getX();
+		y = blockPos.getY();
+		z = blockPos.getZ();
 
 		final SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
-		if (volume > 0 && !soundManager.isPlaying(new SoundInstance(this))) {
-			setIsRepeatableMapped(true);
-			soundManager.play(new SoundInstance(this));
+		if (volume > 0 && !soundManager.isPlaying(this)) {
+			repeat = true;
+			soundManager.play(this);
 		}
 	}
 
 	@Override
-	public void tick2() {
+	public void tick() {
 	}
 
 	@Override
-	public boolean shouldAlwaysPlay2() {
+	public boolean shouldAlwaysPlay() {
 		return true;
 	}
 
 	@Override
-	public boolean canPlay2() {
+	public boolean canPlay() {
 		return true;
 	}
 
 	public void dispose() {
-		setDone2();
+		setDone();
 	}
 }

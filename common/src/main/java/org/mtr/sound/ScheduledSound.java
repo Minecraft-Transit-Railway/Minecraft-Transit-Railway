@@ -1,7 +1,12 @@
-package org.mtr.mod.sound;
+package org.mtr.sound;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import org.mtr.mapping.holder.*;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nullable;
 
@@ -22,18 +27,18 @@ public final class ScheduledSound {
 	}
 
 	private void play() {
-		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
+		final ClientWorld clientWorld = MinecraftClient.getInstance().world;
 		if (clientWorld != null) {
-			SCHEDULED_SOUNDS.values().forEach(scheduledSound -> clientWorld.playSoundAtBlockCenter(blockPos, soundEvent, SoundCategory.getBlocksMapped(), gain, pitch, false));
+			SCHEDULED_SOUNDS.values().forEach(scheduledSound -> clientWorld.playSoundAtBlockCenter(blockPos, soundEvent, SoundCategory.BLOCKS, gain, pitch, false));
 		}
 	}
 
 	public static void schedule(BlockPos blockPos, @Nullable SoundEvent soundEvent, float gain, float pitch) {
-		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().player;
 		if (soundEvent != null && clientPlayerEntity != null) {
-			final String currentKey = String.format("%s_%s_%s", soundEvent.getId().data.toString(), gain, pitch);
+			final String currentKey = String.format("%s_%s_%s", soundEvent.id().toString(), gain, pitch);
 			final ScheduledSound scheduledSound = SCHEDULED_SOUNDS.computeIfAbsent(currentKey, key -> new ScheduledSound(blockPos, soundEvent, gain, pitch));
-			final Vector3i clientPos = new Vector3i(clientPlayerEntity.getBlockPos().data);
+			final BlockPos clientPos = clientPlayerEntity.getBlockPos();
 			if (blockPos.getManhattanDistance(clientPos) < scheduledSound.blockPos.getManhattanDistance(clientPos)) {
 				scheduledSound.blockPos = blockPos;
 			}

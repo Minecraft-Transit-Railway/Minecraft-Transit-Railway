@@ -1,39 +1,56 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
+import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.tick.ScheduledTickView;
 import org.mtr.core.tool.Utilities;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.mapper.BlockWithEntity;
-import org.mtr.mapping.tool.HolderBase;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.generated.lang.TranslationProvider;
+import org.mtr.data.IGui;
+import org.mtr.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
-public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements BlockWithEntity {
+public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements BlockEntityProvider {
 
 	public static final BooleanProperty END = BooleanProperty.of("end");
 	public static final BooleanProperty UNLOCKED = BooleanProperty.of("unlocked");
 
+	public BlockPSDAPGDoorBase(AbstractBlock.Settings settings) {
+		super(settings);
+	}
+
 	@Nonnull
 	@Override
-	public BlockState getStateForNeighborUpdate2(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
-		if (IBlock.getSideDirection(state) == direction && !neighborState.isOf(new Block(this))) {
-			return Blocks.getAirMapped().getDefaultState();
+	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
+		if (IBlock.getSideDirection(state) == direction && !neighborState.isOf(this)) {
+			return Blocks.AIR.getDefaultState();
 		} else {
-			final BlockState superState = super.getStateForNeighborUpdate2(state, direction, neighborState, world, pos, neighborPos);
-			if (superState.getBlock().equals(Blocks.getAirMapped())) {
+			final BlockState superState = super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
+			if (superState.getBlock().equals(Blocks.AIR)) {
 				return superState;
 			} else {
-				final boolean end = world.getBlockState(pos.offset(IBlock.getSideDirection(state).getOpposite())).getBlock().data instanceof BlockPSDAPGGlassEndBase;
-				return superState.with(new Property<>(END.data), end);
+				final boolean end = world.getBlockState(pos.offset(IBlock.getSideDirection(state).getOpposite())).getBlock() instanceof BlockPSDAPGGlassEndBase;
+				return superState.with(END, end);
 			}
 		}
 	}
 
 	@Override
-	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		BlockPos offsetPos = pos;
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
 			offsetPos = offsetPos.down();
@@ -42,12 +59,12 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 			offsetPos = offsetPos.offset(IBlock.getSideDirection(state));
 		}
 		IBlock.onBreakCreative(world, player, offsetPos);
-		super.onBreak2(world, pos, state, player);
+		return super.onBreak(world, pos, state, player);
 	}
 
 	@Nonnull
 	@Override
-	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			final boolean unlocked = IBlock.getStatePropertySafe(state, UNLOCKED);
 			for (int y = -1; y <= 1; y++) {
@@ -62,11 +79,11 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 
 	@Nonnull
 	@Override
-	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		// The serverside collision shape is always empty, and the clientside collision shape is determined by the vehicle door positions the client sees
 		final BlockEntity entity = world.getBlockEntity(pos);
-		if (entity != null && entity.data instanceof BlockEntityBase && entity.getWorld() != null && entity.getWorld().isClient() && ((BlockEntityBase) entity.data).getDoorValue() == 0) {
-			return super.getCollisionShape2(state, world, pos, context);
+		if (entity instanceof BlockEntityBase && entity.getWorld() != null && entity.getWorld().isClient() && ((BlockEntityBase) entity).getDoorValue() == 0) {
+			return super.getCollisionShape(state, world, pos, context);
 		} else {
 			return VoxelShapes.empty();
 		}
@@ -74,40 +91,40 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 
 	@Nonnull
 	@Override
-	public BlockRenderType getRenderType2(BlockState state) {
-		return BlockRenderType.getEntityblockAnimatedMapped();
+	public BlockRenderType getRenderType(BlockState state) {
+		return BlockRenderType.MODEL;
 	}
 
 	@Override
-	public void addBlockProperties(List<HolderBase<?>> properties) {
-		properties.add(END);
-		properties.add(FACING);
-		properties.add(HALF);
-		properties.add(SIDE);
-		properties.add(UNLOCKED);
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(END);
+		builder.add(Properties.FACING);
+		builder.add(HALF);
+		builder.add(SIDE);
+		builder.add(UNLOCKED);
 	}
 
 	private static void lockDoor(World world, BlockPos pos, BlockState state, boolean unlocked) {
-		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
 		final BlockPos leftPos = pos.offset(facing.rotateYCounterclockwise());
 		final BlockPos rightPos = pos.offset(facing.rotateYClockwise());
 		final BlockState leftState = world.getBlockState(leftPos);
 		final BlockState rightState = world.getBlockState(rightPos);
 
 		if (leftState.isOf(state.getBlock())) {
-			final BlockState toggled = leftState.with(new Property<>(UNLOCKED.data), unlocked);
+			final BlockState toggled = leftState.with(UNLOCKED, unlocked);
 			world.setBlockState(leftPos, toggled);
 		}
 
 		if (rightState.isOf(state.getBlock())) {
-			final BlockState toggled = rightState.with(new Property<>(UNLOCKED.data), unlocked);
+			final BlockState toggled = rightState.with(UNLOCKED, unlocked);
 			world.setBlockState(rightPos, toggled);
 		}
 
-		world.setBlockState(pos, state.with(new Property<>(UNLOCKED.data), unlocked));
+		world.setBlockState(pos, state.with(UNLOCKED, unlocked));
 	}
 
-	public static abstract class BlockEntityBase extends BlockEntityExtension implements IGui {
+	public static abstract class BlockEntityBase extends BlockEntity implements IGui {
 
 		private double doorValue;
 		private double redstoneDoorValue;
@@ -126,10 +143,10 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 		}
 
 		public void updateRedstone(float tickDelta) {
-			final World world = getWorldMapped();
+			final World world = getWorld();
 			final double delta = (tickDelta / 20) / 2;
 
-			if (world != null && receivedRedstonePower(world, getPos2(), getCachedState2())) {
+			if (world != null && receivedRedstonePower(world, getPos(), getCachedState())) {
 				redstoneDoorValue = Utilities.clamp(redstoneDoorValue + delta, 0, 1);
 			} else {
 				redstoneDoorValue = Utilities.clamp(redstoneDoorValue - delta, 0, 1);
@@ -142,7 +159,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 			}
 
 			final DoubleBlockHalf half = IBlock.getStatePropertySafe(state, HALF);
-			final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+			final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
 			final EnumSide side = IBlock.getStatePropertySafe(state, SIDE);
 			final Direction otherDirection = side == EnumSide.LEFT ? facing.rotateYClockwise() : facing.rotateYCounterclockwise();
 			final BlockPos platformPos = (half == DoubleBlockHalf.UPPER) ? pos.down(2) : pos.down(1);

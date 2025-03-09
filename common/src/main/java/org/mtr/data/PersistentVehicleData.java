@@ -1,17 +1,17 @@
-package org.mtr.mod.data;
+package org.mtr.data;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.client.Oscillation;
+import org.mtr.client.ScrollingText;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.data.Vehicle;
 import org.mtr.core.data.VehicleCar;
 import org.mtr.core.data.VehicleExtraData;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mod.client.Oscillation;
-import org.mtr.mod.client.ScrollingText;
-import org.mtr.mod.resource.VehicleResource;
-import org.mtr.mod.sound.VehicleSoundBase;
+import org.mtr.resource.VehicleResource;
+import org.mtr.sound.VehicleSoundBase;
 
 import java.util.function.Supplier;
 

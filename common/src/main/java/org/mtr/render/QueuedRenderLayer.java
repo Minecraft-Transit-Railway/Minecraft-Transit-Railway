@@ -1,3 +1,3 @@
-package org.mtr.mod.render;
+package org.mtr.render;
 
 public enum QueuedRenderLayer {LIGHT, INTERIOR, EXTERIOR, LIGHT_TRANSLUCENT, INTERIOR_TRANSLUCENT, EXTERIOR_TRANSLUCENT, LIGHT_2, LINES, TEXT}

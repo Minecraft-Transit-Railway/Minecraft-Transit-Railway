@@ -1,4 +1,4 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
 public enum PartCondition {
 	NORMAL, AT_DEPOT,

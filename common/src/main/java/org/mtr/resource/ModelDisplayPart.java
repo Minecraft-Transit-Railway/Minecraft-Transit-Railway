@@ -1,6 +1,6 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
-import org.mtr.mod.render.StoredMatrixTransformations;
+import org.mtr.render.StoredMatrixTransformations;
 
 public final class ModelDisplayPart {
 

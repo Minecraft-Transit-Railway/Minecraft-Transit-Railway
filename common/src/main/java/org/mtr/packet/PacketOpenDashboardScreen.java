@@ -1,5 +1,9 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
+import com.google.gson.JsonObject;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.operation.ListDataResponse;
 import org.mtr.core.serializer.JsonReader;
@@ -8,12 +12,6 @@ import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.serializer.WriterBase;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.EnumHelper;
-import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.mapping.holder.ServerPlayerEntity;
-import org.mtr.mapping.holder.ServerWorld;
-import org.mtr.mapping.tool.PacketBufferReceiver;
-import org.mtr.mapping.tool.PacketBufferSender;
-import org.mtr.mod.client.MinecraftClientData;
 
 import javax.annotation.Nonnull;
 

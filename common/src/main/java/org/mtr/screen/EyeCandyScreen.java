@@ -1,47 +1,51 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.CheckboxWidget;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.block.BlockEyeCandy;
+import org.mtr.client.CustomResourceLoader;
+import org.mtr.client.IDrawing;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.tool.TextCase;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.block.BlockEyeCandy;
-import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.generated.lang.TranslationProvider;
-import org.mtr.mod.packet.PacketUpdateEyeCandyConfig;
-import org.mtr.mod.resource.ObjectResource;
+import org.mtr.data.IGui;
+import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.packet.PacketUpdateEyeCandyConfig;
+import org.mtr.registry.RegistryClient;
+import org.mtr.resource.ObjectResource;
 
-public class EyeCandyScreen extends ScreenExtension implements IGui {
+public class EyeCandyScreen extends MTRScreenBase implements IGui {
 
-	private final ButtonWidgetExtension buttonSelectModel;
-	private final TextFieldWidgetExtension textFieldTranslateX;
-	private final TextFieldWidgetExtension textFieldTranslateY;
-	private final TextFieldWidgetExtension textFieldTranslateZ;
-	private final TextFieldWidgetExtension textFieldRotateX;
-	private final TextFieldWidgetExtension textFieldRotateY;
-	private final TextFieldWidgetExtension textFieldRotateZ;
-	private final CheckboxWidgetExtension buttonFullBrightness;
+	private final ButtonWidget buttonSelectModel;
+	private final WidgetBetterTextField textFieldTranslateX;
+	private final WidgetBetterTextField textFieldTranslateY;
+	private final WidgetBetterTextField textFieldTranslateZ;
+	private final WidgetBetterTextField textFieldRotateX;
+	private final WidgetBetterTextField textFieldRotateY;
+	private final WidgetBetterTextField textFieldRotateZ;
+	private final CheckboxWidget buttonFullBrightness;
 
 	private static final MutableText SELECT_MODEL_TEXT = TranslationProvider.GUI_MTR_SELECT_MODEL.getMutableText();
 	private static final MutableText MODEL_TRANSLATION_TEXT = TranslationProvider.GUI_MTR_MODEL_TRANSLATION.getMutableText();
 	private static final MutableText MODEL_ROTATION_TEXT = TranslationProvider.GUI_MTR_MODEL_ROTATION.getMutableText();
-	private static final MutableText X_TEXT = TextHelper.literal("X");
-	private static final MutableText Y_TEXT = TextHelper.literal("Y");
-	private static final MutableText Z_TEXT = TextHelper.literal("Z");
+	private static final MutableText X_TEXT = Text.literal("X");
+	private static final MutableText Y_TEXT = Text.literal("Y");
+	private static final MutableText Z_TEXT = Text.literal("Z");
 	private static final int MAX_NUMBER_TEXT_LENGTH = 10;
 
 	private final BlockPos blockPos;
-	private final BlockEyeCandy.BlockEntity blockEntity;
+	private final BlockEyeCandy.EyeCandyBlockEntity blockEntity;
 	private final ObjectImmutableList<ObjectResource> loadedObjects = CustomResourceLoader.getObjects();
 	private final LongArrayList selectedModelIndices = new LongArrayList();
 	private final int xStart;
 
-	public EyeCandyScreen(BlockPos blockPos, BlockEyeCandy.BlockEntity blockEntity) {
+	public EyeCandyScreen(BlockPos blockPos, BlockEyeCandy.EyeCandyBlockEntity blockEntity) {
 		super();
 		this.blockPos = blockPos;
 		this.blockEntity = blockEntity;
@@ -55,31 +59,29 @@ public class EyeCandyScreen extends ScreenExtension implements IGui {
 			}
 		}
 
-		buttonSelectModel = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> MinecraftClient.getInstance().openScreen(new Screen(new EyeCandyObjectSelectionScreen(new ObjectImmutableList<>(objectsForList), selectedModelIndices, this::sendUpdate, this))));
-		buttonSelectModel.setMessage2(new Text(TextHelper.translatable("selectWorld.edit").data));
-		textFieldTranslateX = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
-		textFieldTranslateX.setChangedListener2(text -> sendUpdate());
-		textFieldTranslateY = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
-		textFieldTranslateY.setChangedListener2(text -> sendUpdate());
-		textFieldTranslateZ = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
-		textFieldTranslateZ.setChangedListener2(text -> sendUpdate());
-		textFieldRotateX = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
-		textFieldRotateX.setChangedListener2(text -> sendUpdate());
-		textFieldRotateY = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
-		textFieldRotateY.setChangedListener2(text -> sendUpdate());
-		textFieldRotateZ = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
-		textFieldRotateZ.setChangedListener2(text -> sendUpdate());
-		buttonFullBrightness = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> sendUpdate());
-		buttonFullBrightness.setMessage2(TranslationProvider.GUI_MTR_MODEL_FULL_BRIGHTNESS.getText());
+		buttonSelectModel = ButtonWidget.builder(Text.translatable("selectWorld.edit"), button -> MinecraftClient.getInstance().setScreen(new EyeCandyObjectSelectionScreen(new ObjectImmutableList<>(objectsForList), selectedModelIndices, this::sendUpdate, this))).build();
+		textFieldTranslateX = new WidgetBetterTextField(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
+		textFieldTranslateX.setChangedListener(text -> sendUpdate());
+		textFieldTranslateY = new WidgetBetterTextField(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
+		textFieldTranslateY.setChangedListener(text -> sendUpdate());
+		textFieldTranslateZ = new WidgetBetterTextField(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
+		textFieldTranslateZ.setChangedListener(text -> sendUpdate());
+		textFieldRotateX = new WidgetBetterTextField(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
+		textFieldRotateX.setChangedListener(text -> sendUpdate());
+		textFieldRotateY = new WidgetBetterTextField(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
+		textFieldRotateY.setChangedListener(text -> sendUpdate());
+		textFieldRotateZ = new WidgetBetterTextField(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
+		textFieldRotateZ.setChangedListener(text -> sendUpdate());
+		buttonFullBrightness = CheckboxWidget.builder(TranslationProvider.GUI_MTR_MODEL_FULL_BRIGHTNESS.getText(), textRenderer).callback((checkboxWidget, checked) -> sendUpdate()).build();
 
-		xStart = Math.max(GraphicsHolder.getTextWidth(X_TEXT), Math.max(GraphicsHolder.getTextWidth(Y_TEXT), GraphicsHolder.getTextWidth(Z_TEXT)));
+		xStart = Math.max(textRenderer.getWidth(X_TEXT), Math.max(textRenderer.getWidth(Y_TEXT), textRenderer.getWidth(Z_TEXT)));
 	}
 
 	@Override
-	protected void init2() {
-		super.init2();
+	protected void init() {
+		super.init();
 
-		IDrawing.setPositionAndWidth(buttonSelectModel, SQUARE_SIZE + GraphicsHolder.getTextWidth(SELECT_MODEL_TEXT) + TEXT_PADDING, SQUARE_SIZE, SQUARE_SIZE * 3);
+		IDrawing.setPositionAndWidth(buttonSelectModel, SQUARE_SIZE + textRenderer.getWidth(SELECT_MODEL_TEXT) + TEXT_PADDING, SQUARE_SIZE, SQUARE_SIZE * 3);
 		IDrawing.setPositionAndWidth(textFieldTranslateX, SQUARE_SIZE + xStart + TEXT_PADDING, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 4);
 		IDrawing.setPositionAndWidth(textFieldTranslateY, SQUARE_SIZE + xStart + TEXT_PADDING, SQUARE_SIZE * 4 + TEXT_FIELD_PADDING * 3 / 2, SQUARE_SIZE * 4);
 		IDrawing.setPositionAndWidth(textFieldTranslateZ, SQUARE_SIZE + xStart + TEXT_PADDING, SQUARE_SIZE * 5 + TEXT_FIELD_PADDING * 5 / 2, SQUARE_SIZE * 4);
@@ -88,66 +90,55 @@ public class EyeCandyScreen extends ScreenExtension implements IGui {
 		IDrawing.setPositionAndWidth(textFieldRotateZ, width / 2 + xStart + TEXT_PADDING, SQUARE_SIZE * 5 + TEXT_FIELD_PADDING * 5 / 2, SQUARE_SIZE * 4);
 		IDrawing.setPositionAndWidth(buttonFullBrightness, width / 2, SQUARE_SIZE, width);
 
-		textFieldTranslateX.setText2(String.valueOf(blockEntity.getTranslateX()));
-		textFieldTranslateY.setText2(String.valueOf(blockEntity.getTranslateY()));
-		textFieldTranslateZ.setText2(String.valueOf(blockEntity.getTranslateZ()));
-		textFieldRotateX.setText2(String.valueOf(blockEntity.getRotateX()));
-		textFieldRotateY.setText2(String.valueOf(blockEntity.getRotateY()));
-		textFieldRotateZ.setText2(String.valueOf(blockEntity.getRotateZ()));
-		buttonFullBrightness.setChecked(blockEntity.getFullBrightness());
+		textFieldTranslateX.setText(String.valueOf(blockEntity.getTranslateX()));
+		textFieldTranslateY.setText(String.valueOf(blockEntity.getTranslateY()));
+		textFieldTranslateZ.setText(String.valueOf(blockEntity.getTranslateZ()));
+		textFieldRotateX.setText(String.valueOf(blockEntity.getRotateX()));
+		textFieldRotateY.setText(String.valueOf(blockEntity.getRotateY()));
+		textFieldRotateZ.setText(String.valueOf(blockEntity.getRotateZ()));
+		IGui.setChecked(buttonFullBrightness, blockEntity.getFullBrightness());
 
-		addChild(new ClickableWidget(buttonSelectModel));
-		addChild(new ClickableWidget(textFieldTranslateX));
-		addChild(new ClickableWidget(textFieldTranslateY));
-		addChild(new ClickableWidget(textFieldTranslateZ));
-		addChild(new ClickableWidget(textFieldRotateX));
-		addChild(new ClickableWidget(textFieldRotateY));
-		addChild(new ClickableWidget(textFieldRotateZ));
-		addChild(new ClickableWidget(buttonFullBrightness));
+		addSelectableChild(buttonSelectModel);
+		addSelectableChild(textFieldTranslateX);
+		addSelectableChild(textFieldTranslateY);
+		addSelectableChild(textFieldTranslateZ);
+		addSelectableChild(textFieldRotateX);
+		addSelectableChild(textFieldRotateY);
+		addSelectableChild(textFieldRotateZ);
+		addSelectableChild(buttonFullBrightness);
 	}
 
 	@Override
-	public void tick2() {
-		super.tick2();
-		textFieldTranslateX.tick2();
-		textFieldTranslateY.tick2();
-		textFieldTranslateZ.tick2();
-		textFieldRotateX.tick2();
-		textFieldRotateY.tick2();
-		textFieldRotateZ.tick2();
+	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+		renderBackground(context, mouseX, mouseY, delta);
+		super.render(context, mouseX, mouseY, delta);
+		context.drawText(textRenderer, SELECT_MODEL_TEXT, SQUARE_SIZE, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE, false);
+		context.drawText(textRenderer, MODEL_TRANSLATION_TEXT, SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE, false);
+		context.drawText(textRenderer, X_TEXT, SQUARE_SIZE, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING / 2 + TEXT_PADDING, ARGB_WHITE, false);
+		context.drawText(textRenderer, Y_TEXT, SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_FIELD_PADDING * 3 / 2 + TEXT_PADDING, ARGB_WHITE, false);
+		context.drawText(textRenderer, Z_TEXT, SQUARE_SIZE, SQUARE_SIZE * 5 + TEXT_FIELD_PADDING * 5 / 2 + TEXT_PADDING, ARGB_WHITE, false);
+		context.drawText(textRenderer, MODEL_ROTATION_TEXT, width / 2, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE, false);
+		context.drawText(textRenderer, X_TEXT, width / 2, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING / 2 + TEXT_PADDING, ARGB_WHITE, false);
+		context.drawText(textRenderer, Y_TEXT, width / 2, SQUARE_SIZE * 4 + TEXT_FIELD_PADDING * 3 / 2 + TEXT_PADDING, ARGB_WHITE, false);
+		context.drawText(textRenderer, Z_TEXT, width / 2, SQUARE_SIZE * 5 + TEXT_FIELD_PADDING * 5 / 2 + TEXT_PADDING, ARGB_WHITE, false);
 	}
 
 	@Override
-	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
-		renderBackground(graphicsHolder);
-		super.render(graphicsHolder, mouseX, mouseY, delta);
-		graphicsHolder.drawText(SELECT_MODEL_TEXT, SQUARE_SIZE, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-		graphicsHolder.drawText(MODEL_TRANSLATION_TEXT, SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-		graphicsHolder.drawText(X_TEXT, SQUARE_SIZE, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING / 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-		graphicsHolder.drawText(Y_TEXT, SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_FIELD_PADDING * 3 / 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-		graphicsHolder.drawText(Z_TEXT, SQUARE_SIZE, SQUARE_SIZE * 5 + TEXT_FIELD_PADDING * 5 / 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-		graphicsHolder.drawText(MODEL_ROTATION_TEXT, width / 2, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-		graphicsHolder.drawText(X_TEXT, width / 2, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING / 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-		graphicsHolder.drawText(Y_TEXT, width / 2, SQUARE_SIZE * 4 + TEXT_FIELD_PADDING * 3 / 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-		graphicsHolder.drawText(Z_TEXT, width / 2, SQUARE_SIZE * 5 + TEXT_FIELD_PADDING * 5 / 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-	}
-
-	@Override
-	public boolean isPauseScreen2() {
+	public boolean shouldPause() {
 		return false;
 	}
 
 	private void sendUpdate() {
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateEyeCandyConfig(
+		RegistryClient.sendPacketToServer(new PacketUpdateEyeCandyConfig(
 				blockPos,
 				selectedModelIndices.isEmpty() ? null : Utilities.getElement(loadedObjects, (int) selectedModelIndices.getLong(0)).getId(),
-				parse(textFieldTranslateX.getText2()),
-				parse(textFieldTranslateY.getText2()),
-				parse(textFieldTranslateZ.getText2()),
-				parse(textFieldRotateX.getText2()),
-				parse(textFieldRotateY.getText2()),
-				parse(textFieldRotateZ.getText2()),
-				buttonFullBrightness.isChecked2()
+				parse(textFieldTranslateX.getText()),
+				parse(textFieldTranslateY.getText()),
+				parse(textFieldTranslateZ.getText()),
+				parse(textFieldRotateX.getText()),
+				parse(textFieldRotateY.getText()),
+				parse(textFieldRotateZ.getText()),
+				buttonFullBrightness.isChecked()
 		));
 	}
 

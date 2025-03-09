@@ -1,13 +1,13 @@
-package org.mtr.mod;
+package org.mtr;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import net.minecraft.client.MinecraftClient;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.libraries.com.google.gson.JsonParser;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.mapper.ResourceManagerHelper;
-import org.mtr.mod.client.CustomResourceLoader;
+import org.mtr.resource.ResourceManagerHelper;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -32,7 +32,7 @@ public final class ResourcePackHelper {
 	public static void fix() {
 		final long startTime = System.currentTimeMillis();
 
-		try (final Stream<Path> stream = Files.list(MinecraftClient.getInstance().getRunDirectoryMapped().toPath().resolve("resourcepacks"))) {
+		try (final Stream<Path> stream = Files.list(MinecraftClient.getInstance().runDirectory.toPath().resolve("resourcepacks"))) {
 			stream.forEach(path -> {
 				try {
 					if (Files.isDirectory(path)) {
@@ -56,7 +56,7 @@ public final class ResourcePackHelper {
 										try (final InputStream inputStream = zipFile.getInputStream(entry)) {
 											newPackContent[0] = modifyPackFile(IOUtils.toString(inputStream, StandardCharsets.UTF_8));
 										} catch (Exception e) {
-											Init.LOGGER.error("", e);
+											MTR.LOGGER.error("", e);
 										}
 									} else if (entry.getName().equals(CUSTOM_RESOURCES_FILE) || entry.getName().equals(NTE_FOLDER)) {
 										isValidResourcePack[0] = true;
@@ -75,14 +75,14 @@ public final class ResourcePackHelper {
 						}
 					}
 				} catch (Exception e) {
-					Init.LOGGER.error("", e);
+					MTR.LOGGER.error("", e);
 				}
 			});
 		} catch (Exception e) {
-			Init.LOGGER.error("", e);
+			MTR.LOGGER.error("", e);
 		}
 
-		Init.LOGGER.info("Resource pack version check completed in {} ms", System.currentTimeMillis() - startTime);
+		MTR.LOGGER.info("Resource pack version check completed in {} ms", System.currentTimeMillis() - startTime);
 	}
 
 	@Nullable
@@ -92,7 +92,7 @@ public final class ResourcePackHelper {
 			jsonObject.getAsJsonObject("pack").addProperty("pack_format", PACK_VERSION);
 			return Utilities.prettyPrint(jsonObject).getBytes(StandardCharsets.UTF_8);
 		} catch (Exception e) {
-			Init.LOGGER.error("", e);
+			MTR.LOGGER.error("", e);
 			return null;
 		}
 	}

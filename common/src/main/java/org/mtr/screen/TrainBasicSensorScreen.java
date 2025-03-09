@@ -1,6 +1,6 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
-import org.mtr.mapping.holder.BlockPos;
+import net.minecraft.util.math.BlockPos;
 
 public class TrainBasicSensorScreen extends TrainSensorScreenBase {
 

@@ -1,6 +1,6 @@
-package org.mtr.mod.data;
+package org.mtr.data;
 
-import org.mtr.mod.generated.lang.TranslationProvider;
+import org.mtr.generated.lang.TranslationProvider;
 
 public enum RailActionType {
 	BRIDGE(TranslationProvider.GUI_MTR_PERCENTAGE_COMPLETE_BRIDGE, TranslationProvider.GUI_MTR_RAIL_ACTION_BRIDGE, 0xFFCCCCCC),

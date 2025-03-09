@@ -1,43 +1,38 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.CheckboxWidgetExtension;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.TextFieldWidgetExtension;
-import org.mtr.mapping.tool.TextCase;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.block.BlockLiftTrackFloor;
-import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.generated.lang.TranslationProvider;
-import org.mtr.mod.packet.PacketUpdateLiftTrackFloorConfig;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.widget.CheckboxWidget;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.text.MutableText;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.block.BlockLiftTrackFloor;
+import org.mtr.client.IDrawing;
+import org.mtr.data.IGui;
+import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.packet.PacketUpdateLiftTrackFloorConfig;
+import org.mtr.registry.RegistryClient;
 
 public class LiftTrackFloorScreen extends MTRScreenBase implements IGui {
 
-	private final TextFieldWidgetExtension textFieldFloorNumber;
-	private final TextFieldWidgetExtension textFieldFloorDescription;
-	private final CheckboxWidgetExtension checkboxShouldDing;
+	private final WidgetBetterTextField textFieldFloorNumber;
+	private final WidgetBetterTextField textFieldFloorDescription;
+	private final CheckboxWidget checkboxShouldDing;
 
 	private final BlockPos blockPos;
 	private final String initialFloorNumber;
 	private final String initialFloorDescription;
-	private final boolean initialShouldDing;
 	private final int textWidth;
 	private static final MutableText TEXT_FLOOR_NUMBER = TranslationProvider.GUI_MTR_LIFT_FLOOR_NUMBER.getMutableText();
 	private static final MutableText TEXT_FLOOR_DESCRIPTION = TranslationProvider.GUI_MTR_LIFT_FLOOR_DESCRIPTION.getMutableText();
 	private static final int TEXT_FIELD_WIDTH = 240;
 
-	public LiftTrackFloorScreen(BlockPos blockPos, BlockLiftTrackFloor.BlockEntity blockEntity) {
+	public LiftTrackFloorScreen(BlockPos blockPos, BlockLiftTrackFloor.LiftTrackFloorBlockEntity blockEntity) {
 		super();
 		this.blockPos = blockPos;
 
-		textFieldFloorNumber = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 8, TextCase.DEFAULT, null, "1");
-		textFieldFloorDescription = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 256, TextCase.DEFAULT, null, "Concourse");
-		checkboxShouldDing = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
-		});
-		checkboxShouldDing.setMessage2(TranslationProvider.GUI_MTR_LIFT_SHOULD_DING.getText());
-
-		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
+		final ClientWorld clientWorld = MinecraftClient.getInstance().world;
+		final boolean initialShouldDing;
 		if (clientWorld == null) {
 			initialFloorNumber = "1";
 			initialFloorDescription = "";
@@ -48,12 +43,17 @@ public class LiftTrackFloorScreen extends MTRScreenBase implements IGui {
 			initialShouldDing = blockEntity.getShouldDing();
 		}
 
-		textWidth = Math.max(GraphicsHolder.getTextWidth(TEXT_FLOOR_NUMBER), GraphicsHolder.getTextWidth(TEXT_FLOOR_DESCRIPTION));
+		textFieldFloorNumber = new WidgetBetterTextField(8, TextCase.DEFAULT, null, "1");
+		textFieldFloorDescription = new WidgetBetterTextField(256, TextCase.DEFAULT, null, "Concourse");
+		checkboxShouldDing = CheckboxWidget.builder(TranslationProvider.GUI_MTR_LIFT_SHOULD_DING.getText(), textRenderer).checked(initialShouldDing).callback((checkBoxWidget, checked) -> {
+		}).build();
+
+		textWidth = Math.max(textRenderer.getWidth(TEXT_FLOOR_NUMBER), textRenderer.getWidth(TEXT_FLOOR_DESCRIPTION));
 	}
 
 	@Override
-	protected void init2() {
-		super.init2();
+	protected void init() {
+		super.init();
 
 		final int startX = (width - textWidth - TEXT_PADDING - TEXT_FIELD_WIDTH) / 2;
 		final int startY = (height - SQUARE_SIZE * 3 - TEXT_FIELD_PADDING * 2) / 2;
@@ -61,39 +61,32 @@ public class LiftTrackFloorScreen extends MTRScreenBase implements IGui {
 		IDrawing.setPositionAndWidth(textFieldFloorDescription, startX + textWidth + TEXT_PADDING + TEXT_FIELD_PADDING / 2, startY + SQUARE_SIZE + TEXT_FIELD_PADDING * 3 / 2, TEXT_FIELD_WIDTH - TEXT_FIELD_PADDING);
 		IDrawing.setPositionAndWidth(checkboxShouldDing, startX, startY + SQUARE_SIZE * 2 + TEXT_FIELD_PADDING * 2, TEXT_FIELD_WIDTH);
 
-		textFieldFloorNumber.setText2(initialFloorNumber);
-		textFieldFloorDescription.setText2(initialFloorDescription);
-		checkboxShouldDing.setChecked(initialShouldDing);
+		textFieldFloorNumber.setText(initialFloorNumber);
+		textFieldFloorDescription.setText(initialFloorDescription);
 
-		addChild(new ClickableWidget(textFieldFloorNumber));
-		addChild(new ClickableWidget(textFieldFloorDescription));
-		addChild(new ClickableWidget(checkboxShouldDing));
+		addSelectableChild(textFieldFloorNumber);
+		addSelectableChild(textFieldFloorDescription);
+		addSelectableChild(checkboxShouldDing);
 	}
 
 	@Override
-	public void tick2() {
-		textFieldFloorNumber.tick2();
-		textFieldFloorDescription.tick2();
-	}
-
-	@Override
-	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
-		renderBackground(graphicsHolder);
+	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+		renderBackground(context, mouseX, mouseY, delta);
 		final int startX = (width - textWidth - TEXT_PADDING - TEXT_FIELD_WIDTH) / 2;
 		final int startY = (height - SQUARE_SIZE * 3 - TEXT_FIELD_PADDING * 2) / 2;
-		graphicsHolder.drawText(TEXT_FLOOR_NUMBER, startX, startY + TEXT_FIELD_PADDING / 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-		graphicsHolder.drawText(TEXT_FLOOR_DESCRIPTION, startX, startY + SQUARE_SIZE + TEXT_FIELD_PADDING * 3 / 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-		super.render(graphicsHolder, mouseX, mouseY, delta);
+		context.drawText(textRenderer, TEXT_FLOOR_NUMBER, startX, startY + TEXT_FIELD_PADDING / 2 + TEXT_PADDING, ARGB_WHITE, false);
+		context.drawText(textRenderer, TEXT_FLOOR_DESCRIPTION, startX, startY + SQUARE_SIZE + TEXT_FIELD_PADDING * 3 / 2 + TEXT_PADDING, ARGB_WHITE, false);
+		super.render(context, mouseX, mouseY, delta);
 	}
 
 	@Override
-	public void onClose2() {
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateLiftTrackFloorConfig(blockPos, textFieldFloorNumber.getText2(), textFieldFloorDescription.getText2(), checkboxShouldDing.isChecked2()));
-		super.onClose2();
+	public void close() {
+		RegistryClient.sendPacketToServer(new PacketUpdateLiftTrackFloorConfig(blockPos, textFieldFloorNumber.getText(), textFieldFloorDescription.getText(), checkboxShouldDing.isChecked()));
+		super.close();
 	}
 
 	@Override
-	public boolean isPauseScreen2() {
+	public boolean shouldPause() {
 		return false;
 	}
 }

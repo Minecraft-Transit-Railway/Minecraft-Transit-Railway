@@ -1,40 +1,50 @@
-package org.mtr.mod.item;
+package org.mtr.item;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemUsageContext;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
+import org.mtr.MTR;
+import org.mtr.block.BlockLiftTrackBase;
+import org.mtr.block.BlockLiftTrackFloor;
+import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Lift;
 import org.mtr.core.data.LiftFloor;
 import org.mtr.core.data.Position;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
 import org.mtr.core.tool.Vector;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.DirectionHelper;
-import org.mtr.mapping.mapper.ItemExtension;
-import org.mtr.mod.Init;
-import org.mtr.mod.block.BlockLiftTrackBase;
-import org.mtr.mod.block.BlockLiftTrackFloor;
-import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.generated.lang.TranslationProvider;
-import org.mtr.mod.packet.PacketOpenLiftCustomizationScreen;
+import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.packet.PacketOpenLiftCustomizationScreen;
+import org.mtr.registry.Registry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ItemLiftRefresher extends ItemExtension implements DirectionHelper {
+public class ItemLiftRefresher extends Item {
 
-	public ItemLiftRefresher(ItemSettings itemSettings) {
-		super(itemSettings.maxCount(1));
+	public ItemLiftRefresher(Item.Settings settings) {
+		super(settings.maxCount(1));
 	}
 
 	@Nonnull
 	@Override
-	public ActionResult useOnBlock2(ItemUsageContext context) {
+	public ActionResult useOnBlock(ItemUsageContext context) {
 		final World world = context.getWorld();
 		final PlayerEntity playerEntity = context.getPlayer();
 
 		if (world.isClient() || playerEntity == null) {
-			return super.useOnBlock2(context);
+			return super.useOnBlock(context);
 		} else {
 			final BlockPos blockPos = context.getBlockPos();
 			final ObjectOpenHashSet<BlockPos> blacklistedBlockPos = new ObjectOpenHashSet<>();
@@ -42,7 +52,7 @@ public class ItemLiftRefresher extends ItemExtension implements DirectionHelper 
 			final ObjectArrayList<LiftFloor> liftFloors1 = new ObjectArrayList<>();
 			if (!findPath(world, blockPos, null, liftFloors1, new ObjectArrayList<>(), blacklistedBlockPos, true, false)) {
 				playerEntity.sendMessage(TranslationProvider.GUI_MTR_LIFT_TRACK_REQUIRED.getText(), true);
-				return ActionResult.getFailMapped();
+				return ActionResult.FAIL;
 			}
 
 			blacklistedBlockPos.remove(blockPos);
@@ -50,16 +60,16 @@ public class ItemLiftRefresher extends ItemExtension implements DirectionHelper 
 			findPath(world, blockPos, null, liftFloors2, new ObjectArrayList<>(), blacklistedBlockPos, false, false);
 
 			if (liftFloors1.isEmpty() && liftFloors2.isEmpty()) {
-				return ActionResult.getFailMapped();
+				return ActionResult.FAIL;
 			}
 
 			final ObjectArrayList<LiftFloor> liftFloors = new ObjectArrayList<>();
 			liftFloors.addAll(reverseList(liftFloors1));
 			liftFloors.addAll(liftFloors2);
 			final boolean needsReverse = Utilities.getElement(liftFloors, -1).getPosition().getY() < Utilities.getElement(liftFloors, 0).getPosition().getY();
-			sendUpdate(ServerWorld.cast(world), needsReverse ? reverseList(liftFloors) : liftFloors);
-			Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(playerEntity), new PacketOpenLiftCustomizationScreen(Init.positionToBlockPos(liftFloors.get(0).getPosition())));
-			return ActionResult.getSuccessMapped();
+			sendUpdate((ServerWorld) world, needsReverse ? reverseList(liftFloors) : liftFloors);
+			Registry.sendPacketToClient((ServerPlayerEntity) playerEntity, new PacketOpenLiftCustomizationScreen(MTR.positionToBlockPos(liftFloors.get(0).getPosition())));
+			return ActionResult.SUCCESS;
 		}
 	}
 
@@ -68,7 +78,7 @@ public class ItemLiftRefresher extends ItemExtension implements DirectionHelper 
 	 */
 	public static ObjectArrayList<Vector> findPath(World world, Position startPosition, Position endPosition) {
 		final ObjectOpenHashSet<BlockPos> blacklistedBlockPos = new ObjectOpenHashSet<>();
-		final BlockPos startBlockPos = Init.positionToBlockPos(startPosition);
+		final BlockPos startBlockPos = MTR.positionToBlockPos(startPosition);
 
 		for (int i = 0; i < 2; i++) {
 			final ObjectArrayList<LiftFloor> liftFloors = new ObjectArrayList<>();
@@ -96,23 +106,23 @@ public class ItemLiftRefresher extends ItemExtension implements DirectionHelper 
 		final BlockState blockState = world.getBlockState(blockPos);
 		final Block block = blockState.getBlock();
 
-		if (!(block.data instanceof BlockLiftTrackBase)) {
+		if (!(block instanceof BlockLiftTrackBase)) {
 			return false;
 		}
 
-		final ObjectArrayList<Direction> connectingDirections = ((BlockLiftTrackBase) (block.data)).getConnectingDirections(blockState);
+		final ObjectArrayList<Direction> connectingDirections = ((BlockLiftTrackBase) (block)).getConnectingDirections(blockState);
 
 		if (direction != null && !connectingDirections.contains(direction.getOpposite())) {
 			return false;
 		}
 
-		liftTrackPositions.add(((BlockLiftTrackBase) block.data).getCenterPoint(blockPos, blockState));
+		liftTrackPositions.add(((BlockLiftTrackBase) block).getCenterPoint(blockPos, blockState));
 		final BlockEntity blockEntity = world.getBlockEntity(blockPos);
-		if (addFirstFloor && blockEntity != null && blockEntity.data instanceof BlockLiftTrackFloor.BlockEntity) {
+		if (addFirstFloor && blockEntity != null && blockEntity instanceof BlockLiftTrackFloor.LiftTrackFloorBlockEntity) {
 			liftFloors.add(new LiftFloor(
-					Init.blockPosToPosition(blockPos),
-					((BlockLiftTrackFloor.BlockEntity) (blockEntity.data)).getFloorNumber(),
-					((BlockLiftTrackFloor.BlockEntity) (blockEntity.data)).getFloorDescription()
+					MTR.blockPosToPosition(blockPos),
+					((BlockLiftTrackFloor.LiftTrackFloorBlockEntity) (blockEntity)).getFloorNumber(),
+					((BlockLiftTrackFloor.LiftTrackFloorBlockEntity) (blockEntity)).getFloorDescription()
 			));
 
 			if (findOneFloorOnly) {
@@ -141,6 +151,6 @@ public class ItemLiftRefresher extends ItemExtension implements DirectionHelper 
 		final Lift lift = new Lift(new MinecraftClientData());
 		lift.setFloors(liftFloors);
 		lift.setDimensions(3, 2, 2, 0, 0, 0);
-		Init.sendMessageC2S(OperationProcessor.GENERATE_BY_LIFT, serverWorld.getServer(), new World(serverWorld.data), lift, null, null);
+		MTR.sendMessageC2S(OperationProcessor.GENERATE_BY_LIFT, serverWorld.getServer(), serverWorld, lift, null, null);
 	}
 }

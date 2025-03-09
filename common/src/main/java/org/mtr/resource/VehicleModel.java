@@ -1,19 +1,19 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
+import com.google.gson.JsonObject;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.StringUtils;
+import org.mtr.MTR;
+import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.mapper.OptimizedModel;
-import org.mtr.mod.Init;
-import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.generated.resource.VehicleModelSchema;
-import org.mtr.mod.render.DynamicVehicleModel;
+import org.mtr.generated.resource.VehicleModelSchema;
+import org.mtr.model.OptimizedModel;
+import org.mtr.render.DynamicVehicleModel;
 
 public final class VehicleModel extends VehicleModelSchema {
 
@@ -71,40 +71,40 @@ public final class VehicleModel extends VehicleModelSchema {
 	public void addToTextureResource(ObjectArraySet<String> textureResources) {
 		final ModelProperties modelProperties = new ModelProperties(modelPropertiesJsonReader);
 		if (modelProperties.gangwayInnerSideTexture != null) {
-			textureResources.add(modelProperties.gangwayInnerSideTexture.data.toString());
+			textureResources.add(modelProperties.gangwayInnerSideTexture.toString());
 		}
 		if (modelProperties.gangwayInnerTopTexture != null) {
-			textureResources.add(modelProperties.gangwayInnerTopTexture.data.toString());
+			textureResources.add(modelProperties.gangwayInnerTopTexture.toString());
 		}
 		if (modelProperties.gangwayInnerBottomTexture != null) {
-			textureResources.add(modelProperties.gangwayInnerBottomTexture.data.toString());
+			textureResources.add(modelProperties.gangwayInnerBottomTexture.toString());
 		}
 		if (modelProperties.gangwayOuterSideTexture != null) {
-			textureResources.add(modelProperties.gangwayOuterSideTexture.data.toString());
+			textureResources.add(modelProperties.gangwayOuterSideTexture.toString());
 		}
 		if (modelProperties.gangwayOuterTopTexture != null) {
-			textureResources.add(modelProperties.gangwayOuterTopTexture.data.toString());
+			textureResources.add(modelProperties.gangwayOuterTopTexture.toString());
 		}
 		if (modelProperties.gangwayOuterBottomTexture != null) {
-			textureResources.add(modelProperties.gangwayOuterBottomTexture.data.toString());
+			textureResources.add(modelProperties.gangwayOuterBottomTexture.toString());
 		}
 		if (modelProperties.barrierInnerSideTexture != null) {
-			textureResources.add(modelProperties.barrierInnerSideTexture.data.toString());
+			textureResources.add(modelProperties.barrierInnerSideTexture.toString());
 		}
 		if (modelProperties.barrierInnerTopTexture != null) {
-			textureResources.add(modelProperties.barrierInnerTopTexture.data.toString());
+			textureResources.add(modelProperties.barrierInnerTopTexture.toString());
 		}
 		if (modelProperties.barrierInnerBottomTexture != null) {
-			textureResources.add(modelProperties.barrierInnerBottomTexture.data.toString());
+			textureResources.add(modelProperties.barrierInnerBottomTexture.toString());
 		}
 		if (modelProperties.barrierOuterSideTexture != null) {
-			textureResources.add(modelProperties.barrierOuterSideTexture.data.toString());
+			textureResources.add(modelProperties.barrierOuterSideTexture.toString());
 		}
 		if (modelProperties.barrierOuterTopTexture != null) {
-			textureResources.add(modelProperties.barrierOuterTopTexture.data.toString());
+			textureResources.add(modelProperties.barrierOuterTopTexture.toString());
 		}
 		if (modelProperties.barrierOuterBottomTexture != null) {
-			textureResources.add(modelProperties.barrierOuterBottomTexture.data.toString());
+			textureResources.add(modelProperties.barrierOuterBottomTexture.toString());
 		}
 		textureResources.add(textureResource);
 	}
@@ -142,7 +142,7 @@ public final class VehicleModel extends VehicleModelSchema {
 			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
 			return dynamicVehicleModel;
 		} else {
-			Init.LOGGER.error("[{}] Invalid model!", textureId.data.toString());
+			MTR.LOGGER.error("[{}] Invalid model!", textureId.toString());
 			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
 			final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(
 					new BlockbenchModel(new JsonReader(new JsonObject())),

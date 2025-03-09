@@ -1,16 +1,22 @@
-package org.mtr.mod.data;
+package org.mtr.data;
 
+import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.scoreboard.ScoreHolder;
+import net.minecraft.scoreboard.ScoreboardCriterion;
+import net.minecraft.scoreboard.ScoreboardObjective;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.Text;
+import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import org.mtr.MTR;
 import org.mtr.core.data.Station;
 import org.mtr.core.operation.NearbyAreasRequest;
 import org.mtr.core.operation.NearbyAreasResponse;
 import org.mtr.core.servlet.OperationProcessor;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.ScoreboardCriteria;
-import org.mtr.mapping.mapper.ScoreboardHelper;
-import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mod.Init;
-import org.mtr.mod.generated.lang.TranslationProvider;
+import org.mtr.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,7 +37,7 @@ public class TicketSystem {
 	private static final int EVASION_FINE = 500;
 
 	public static void passThrough(World world, BlockPos blockPos, PlayerEntity player, boolean isEntrance, boolean isExit, SoundEvent entrySound, SoundEvent entrySoundConcessionary, SoundEvent exitSound, SoundEvent exitSoundConcessionary, @Nullable SoundEvent failSound, boolean remindIfNoRecord, Consumer<EnumTicketBarrierOpen> callback) {
-		Init.sendMessageC2S(OperationProcessor.NEARBY_STATIONS, world.getServer(), world, new NearbyAreasRequest<>(Init.blockPosToPosition(blockPos), 0), nearbyAreasResponse -> {
+		MTR.sendMessageC2S(OperationProcessor.NEARBY_STATIONS, world.getServer(), world, new NearbyAreasRequest<>(MTR.blockPosToPosition(blockPos), 0), nearbyAreasResponse -> {
 			final ObjectImmutableList<Station> stations = nearbyAreasResponse.getStations();
 			if (stations.isEmpty()) {
 				callback.accept(EnumTicketBarrierOpen.CLOSED);
@@ -57,9 +63,9 @@ public class TicketSystem {
 				}
 
 				if (canOpen) {
-					world.playSound((PlayerEntity) null, blockPos, isConcessionary(player) ? (isEntering ? entrySoundConcessionary : exitSoundConcessionary) : (isEntering ? entrySound : exitSound), SoundCategory.BLOCKS, 1, 1);
+					world.playSound(null, blockPos, isConcessionary(player) ? (isEntering ? entrySoundConcessionary : exitSoundConcessionary) : (isEntering ? entrySound : exitSound), SoundCategory.BLOCKS, 1, 1);
 				} else if (failSound != null) {
-					world.playSound((PlayerEntity) null, blockPos, failSound, SoundCategory.BLOCKS, 1, 1);
+					world.playSound(null, blockPos, failSound, SoundCategory.BLOCKS, 1, 1);
 				}
 
 				callback.accept(canOpen ? isConcessionary(player) ? EnumTicketBarrierOpen.OPEN_CONCESSIONARY : EnumTicketBarrierOpen.OPEN : EnumTicketBarrierOpen.CLOSED);
@@ -77,30 +83,30 @@ public class TicketSystem {
 
 	private static int getPlayerScore(World world, PlayerEntity player, String objective, String title) {
 		final ScoreboardObjective scoreboardObjective = getOrCreateScoreboardObjective(world, objective, title);
-		return scoreboardObjective == null ? 0 : ScoreboardHelper.getPlayerScore(world.getScoreboard(), player.getGameProfile().getName(), scoreboardObjective);
+		return scoreboardObjective == null ? 0 : world.getScoreboard().getOrCreateScore(ScoreHolder.fromName(player.getGameProfile().getName()), scoreboardObjective).getScore();
 	}
 
 	private static void setPlayerScore(World world, PlayerEntity player, String objective, String title, int value) {
 		final ScoreboardObjective scoreboardObjective = getOrCreateScoreboardObjective(world, objective, title);
 		if (scoreboardObjective != null) {
-			ScoreboardHelper.setPlayerScore(world.getScoreboard(), player.getGameProfile().getName(), scoreboardObjective, value);
+			world.getScoreboard().getOrCreateScore(ScoreHolder.fromName(player.getGameProfile().getName()), scoreboardObjective).setScore(value);
 		}
 	}
 
 	private static void incrementPlayerScore(World world, PlayerEntity player, String objective, String title, int value) {
 		final ScoreboardObjective scoreboardObjective = getOrCreateScoreboardObjective(world, objective, title);
 		if (scoreboardObjective != null) {
-			ScoreboardHelper.incrementPlayerScore(world.getScoreboard(), player.getGameProfile().getName(), scoreboardObjective, value);
+			world.getScoreboard().getOrCreateScore(ScoreHolder.fromName(player.getGameProfile().getName()), scoreboardObjective).incrementScore(value);
 		}
 	}
 
 	@Nullable
 	private static ScoreboardObjective getOrCreateScoreboardObjective(World world, String objective, String title) {
 		try {
-			return ScoreboardHelper.addObjective(world.getScoreboard(), objective, ScoreboardCriteria.DUMMY, new Text(TextHelper.literal(title).data), ScoreboardCriterionRenderType.INTEGER);
+			return world.getScoreboard().addObjective(objective, ScoreboardCriterion.DUMMY, Text.literal(title), ScoreboardCriterion.RenderType.INTEGER, false, null);
 		} catch (Exception ignored) {
 		}
-		return ScoreboardHelper.getScoreboardObjective(world.getScoreboard(), objective);
+		return world.getScoreboard().getNullableObjective(objective);
 	}
 
 	private static boolean onEnter(World world, Station station, PlayerEntity player, boolean remindIfNoRecord) {
@@ -187,7 +193,7 @@ public class TicketSystem {
 
 		@Nonnull
 		@Override
-		public String asString2() {
+		public String asString() {
 			return name;
 		}
 	}

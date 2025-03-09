@@ -5,12 +5,12 @@ plugins {
 }
 
 architectury {
-	minecraft = project.minecraft_version
+	minecraft = minecraft_version
 }
 
 allprojects {
-	group = rootProject.maven_group
-	version = rootProject.mod_version
+	group = maven_group
+	version = mod_version
 }
 
 subprojects {
@@ -20,20 +20,22 @@ subprojects {
 
 	base {
 		// Set up a suffixed format for the mod jar names, e.g. `example-fabric`.
-		archivesName = "$rootProject.archives_name-$project.name"
+		archivesName = "$archives_name-$project.name"
 	}
 
 	repositories {
 		flatDir { dirs "../libs" }
+		maven { url "https://repo.codemc.org/repository/maven-public" }
 		maven { url = "https://maven.terraformersmc.com/" }
 	}
 
 	dependencies {
-		minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
+		minecraft "net.minecraft:minecraft:$minecraft_version"
 		mappings loom.layered {
-			it.mappings("net.fabricmc:yarn:$rootProject.yarn_mappings:v2")
-			it.mappings("dev.architectury:yarn-mappings-patch-neoforge:$rootProject.yarn_mappings_patch_neoforge_version")
+			it.mappings("net.fabricmc:yarn:$yarn_mappings:v2")
+			it.mappings("dev.architectury:yarn-mappings-patch-neoforge:$yarn_mappings_patch_neoforge_version")
 		}
+		implementation "com.google.code.findbugs:jsr305:+"
 	}
 
 	java {

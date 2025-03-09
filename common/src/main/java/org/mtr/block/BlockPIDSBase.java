@@ -1,28 +1,36 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.BlockWithEntity;
-import org.mtr.mapping.mapper.DirectionHelper;
-import org.mtr.mod.Blocks;
-import org.mtr.mod.Init;
-import org.mtr.mod.packet.PacketOpenPIDSConfigScreen;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import org.mtr.packet.PacketOpenPIDSConfigScreen;
+import org.mtr.registry.Registry;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 
-public abstract class BlockPIDSBase extends BlockExtension implements DirectionHelper, BlockWithEntity {
+public abstract class BlockPIDSBase extends Block implements BlockEntityProvider {
 
 	public final int maxArrivals;
 	public final BiPredicate<World, BlockPos> canStoreData;
 	public final BiFunction<World, BlockPos, BlockPos> getBlockPosWithData;
 
-	public BlockPIDSBase(int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData) {
-		super(Blocks.createDefaultBlockSettings(true, blockState -> 5).nonOpaque());
+	public BlockPIDSBase(AbstractBlock.Settings settings, int maxArrivals, BiPredicate<World, BlockPos> canStoreData, BiFunction<World, BlockPos, BlockPos> getBlockPosWithData) {
+		super(settings.luminance(blockState -> 5).nonOpaque());
 		this.maxArrivals = maxArrivals;
 		this.canStoreData = canStoreData;
 		this.getBlockPosWithData = getBlockPosWithData;
@@ -30,18 +38,18 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 
 	@Nonnull
 	@Override
-	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			final BlockPos newBlockPos = getBlockPosWithData.apply(world, pos);
 			final BlockEntity entity = world.getBlockEntity(newBlockPos);
-			if (entity != null && entity.data instanceof BlockEntityBase) {
-				((BlockEntityBase) entity.data).markDirty2();
-				Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenPIDSConfigScreen(newBlockPos, ((BlockEntityBase) entity.data).maxArrivals));
+			if (entity instanceof BlockEntityBase blockEntityBase) {
+				entity.markDirty();
+				Registry.sendPacketToClient((ServerPlayerEntity) player, new PacketOpenPIDSConfigScreen(newBlockPos, blockEntityBase.maxArrivals));
 			}
 		});
 	}
 
-	public static abstract class BlockEntityBase extends BlockEntityExtension {
+	public static abstract class BlockEntityBase extends BlockEntity {
 
 		public final int maxArrivals;
 		public final BiPredicate<World, BlockPos> canStoreData;
@@ -69,29 +77,29 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 		}
 
 		@Override
-		public void readCompoundTag(CompoundTag compoundTag) {
+		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
 			for (int i = 0; i < maxArrivals; i++) {
-				messages[i] = compoundTag.getString(KEY_MESSAGE + i);
-				hideArrivalArray[i] = compoundTag.getBoolean(KEY_HIDE_ARRIVAL + i);
+				messages[i] = nbt.getString(KEY_MESSAGE + i);
+				hideArrivalArray[i] = nbt.getBoolean(KEY_HIDE_ARRIVAL + i);
 			}
 
 			platformIds.clear();
-			final long[] platformIdsArray = compoundTag.getLongArray(KEY_PLATFORM_IDS);
+			final long[] platformIdsArray = nbt.getLongArray(KEY_PLATFORM_IDS);
 			for (final long platformId : platformIdsArray) {
 				platformIds.add(platformId);
 			}
 
-			displayPage = compoundTag.getInt(KEY_DISPLAY_PAGE);
+			displayPage = nbt.getInt(KEY_DISPLAY_PAGE);
 		}
 
 		@Override
-		public void writeCompoundTag(CompoundTag compoundTag) {
+		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
 			for (int i = 0; i < maxArrivals; i++) {
-				compoundTag.putString(KEY_MESSAGE + i, messages[i] == null ? "" : messages[i]);
-				compoundTag.putBoolean(KEY_HIDE_ARRIVAL + i, hideArrivalArray[i]);
+				nbt.putString(KEY_MESSAGE + i, messages[i] == null ? "" : messages[i]);
+				nbt.putBoolean(KEY_HIDE_ARRIVAL + i, hideArrivalArray[i]);
 			}
-			compoundTag.putLongArray(KEY_PLATFORM_IDS, new ArrayList<>(platformIds));
-			compoundTag.putInt(KEY_DISPLAY_PAGE, displayPage);
+			nbt.putLongArray(KEY_PLATFORM_IDS, new ArrayList<>(platformIds));
+			nbt.putInt(KEY_DISPLAY_PAGE, displayPage);
 		}
 
 		public void setData(String[] messages, boolean[] hideArrivalArray, LongAVLTreeSet platformIds, int displayPage) {
@@ -100,7 +108,7 @@ public abstract class BlockPIDSBase extends BlockExtension implements DirectionH
 			this.platformIds.clear();
 			this.platformIds.addAll(platformIds);
 			this.displayPage = displayPage;
-			markDirty2();
+			markDirty();
 		}
 
 		public int getDisplayPage() {

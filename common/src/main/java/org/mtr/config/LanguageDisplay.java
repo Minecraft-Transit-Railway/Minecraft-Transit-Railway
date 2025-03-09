@@ -1,6 +1,6 @@
-package org.mtr.mod.config;
+package org.mtr.config;
 
-import org.mtr.mod.generated.lang.TranslationProvider;
+import org.mtr.generated.lang.TranslationProvider;
 
 public enum LanguageDisplay {
 	NORMAL(TranslationProvider.OPTIONS_MTR_LANGUAGE_OPTIONS_NORMAL),

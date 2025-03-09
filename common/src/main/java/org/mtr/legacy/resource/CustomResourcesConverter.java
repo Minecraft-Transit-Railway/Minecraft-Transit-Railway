@@ -1,13 +1,12 @@
 package org.mtr.legacy.resource;
 
+import com.google.gson.JsonObject;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.io.FilenameUtils;
+import org.mtr.MTR;
+import org.mtr.config.Config;
 import org.mtr.core.serializer.JsonReader;
-import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.mapper.ResourceManagerHelper;
-import org.mtr.mod.Init;
-import org.mtr.mod.config.Config;
-import org.mtr.mod.resource.*;
+import org.mtr.resource.*;
 
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -29,7 +28,7 @@ public final class CustomResourcesConverter {
 				try {
 					new LegacyVehicleResource(new JsonReader(entry.getValue())).convert(vehicleResources, entry.getKey().toLowerCase(Locale.ENGLISH), resourceProvider);
 				} catch (Exception e) {
-					Init.LOGGER.error("", e);
+					MTR.LOGGER.error("", e);
 				}
 			});
 		}
@@ -41,7 +40,7 @@ public final class CustomResourcesConverter {
 				try {
 					new LegacySignResource(new JsonReader(entry.getValue())).convert(signResources, entry.getKey());
 				} catch (Exception e) {
-					Init.LOGGER.error("", e);
+					MTR.LOGGER.error("", e);
 				}
 			});
 		}
@@ -51,7 +50,7 @@ public final class CustomResourcesConverter {
 
 	public static void convertRails(Consumer<RailResource> callback, ResourceProvider resourceProvider) {
 		ResourceManagerHelper.readDirectory("rails", (identifier, inputStream) -> {
-			if (identifier.getNamespace().equals(Init.MOD_ID_NTE) && identifier.getPath().endsWith(".json")) {
+			if (identifier.getNamespace().equals(MTR.MOD_ID_NTE) && identifier.getPath().endsWith(".json")) {
 				try {
 					final JsonObject jsonObject = Config.readResource(inputStream).getAsJsonObject();
 					if (jsonObject.has("model")) {
@@ -60,7 +59,7 @@ public final class CustomResourcesConverter {
 						jsonObject.entrySet().forEach(entry -> callback.accept(new LegacyRailResource(new JsonReader(entry.getValue())).convert(entry.getKey().toLowerCase(Locale.ENGLISH), resourceProvider)));
 					}
 				} catch (Exception e) {
-					Init.LOGGER.error("", e);
+					MTR.LOGGER.error("", e);
 				}
 			}
 		});
@@ -68,7 +67,7 @@ public final class CustomResourcesConverter {
 
 	public static void convertObjects(Consumer<ObjectResource> callback, ResourceProvider resourceProvider) {
 		ResourceManagerHelper.readDirectory("eyecandies", (identifier, inputStream) -> {
-			if (identifier.getNamespace().equals(Init.MOD_ID_NTE) && identifier.getPath().endsWith(".json")) {
+			if (identifier.getNamespace().equals(MTR.MOD_ID_NTE) && identifier.getPath().endsWith(".json")) {
 				try {
 					final JsonObject jsonObject = Config.readResource(inputStream).getAsJsonObject();
 					if (jsonObject.has("model")) {
@@ -77,7 +76,7 @@ public final class CustomResourcesConverter {
 						jsonObject.entrySet().forEach(entry -> callback.accept(new LegacyObjectResource(new JsonReader(entry.getValue())).convert(entry.getKey().toLowerCase(Locale.ENGLISH), resourceProvider)));
 					}
 				} catch (Exception e) {
-					Init.LOGGER.error("", e);
+					MTR.LOGGER.error("", e);
 				}
 			}
 		});

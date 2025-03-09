@@ -1,23 +1,23 @@
-package org.mtr.mod.item;
+package org.mtr.item;
 
+import net.minecraft.block.BlockState;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
+import org.mtr.MTR;
 import org.mtr.core.data.Rail;
-import org.mtr.mapping.holder.BlockState;
-import org.mtr.mapping.holder.ItemSettings;
-import org.mtr.mapping.holder.ItemStack;
-import org.mtr.mapping.holder.ServerPlayerEntity;
-import org.mtr.mod.Init;
 
 public class ItemBridgeCreator extends ItemNodeModifierSelectableBlockBase {
 
-	public ItemBridgeCreator(int width, ItemSettings itemSettings) {
-		super(true, 0, width, itemSettings);
+	public ItemBridgeCreator(int width, Item.Settings settings) {
+		super(true, 0, width, settings);
 	}
 
 	@Override
 	protected void onConnect(Rail rail, ServerPlayerEntity serverPlayerEntity, ItemStack itemStack, int radius, int height) {
 		final BlockState blockState = getSavedState(itemStack);
 		if (blockState != null) {
-			Init.getRailActionModule(serverPlayerEntity.getServerWorld(), railActionModule -> railActionModule.markRailForBridge(rail, serverPlayerEntity, radius, blockState));
+			MTR.getRailActionModule(serverPlayerEntity.getServerWorld(), railActionModule -> railActionModule.markRailForBridge(rail, serverPlayerEntity, radius, blockState));
 		}
 	}
 }

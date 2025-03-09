@@ -1,30 +1,37 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.BlockWithEntity;
-import org.mtr.mapping.mapper.DirectionHelper;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.generated.lang.TranslationProvider;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.state.property.IntProperty;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.data.IGui;
+import org.mtr.generated.lang.TranslationProvider;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class BlockStationNameBase extends BlockExtension implements DirectionHelper, BlockWithEntity {
+public abstract class BlockStationNameBase extends Block implements BlockEntityProvider {
 
-	public static final IntegerProperty COLOR = IntegerProperty.of("color", 0, 2);
+	public static final IntProperty COLOR = IntProperty.of("color", 0, 2);
 
-	protected BlockStationNameBase(BlockSettings blockSettings) {
+	protected BlockStationNameBase(AbstractBlock.Settings blockSettings) {
 		super(blockSettings.nonOpaque());
 	}
 
 	@Override
-	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		tooltip.add(TranslationProvider.TOOLTIP_MTR_STATION_COLOR_NAME.getMutableText().formatted(TextFormatting.GRAY));
+	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType options) {
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_STATION_COLOR_NAME.getMutableText().formatted(Formatting.GRAY));
 	}
 
-	public abstract static class BlockEntityBase extends BlockEntityExtension implements IGui {
+	public abstract static class BlockEntityBase extends BlockEntity implements IGui {
 
 		public final float yOffset;
 		public final float zOffset;

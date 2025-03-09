@@ -1,10 +1,14 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.model.ModelPartBuilder;
+import net.minecraft.client.model.ModelPartData;
+import net.minecraft.client.model.ModelTransform;
+import org.mtr.MTR;
+import org.mtr.client.IDrawing;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.mapper.ModelPartExtension;
-import org.mtr.mod.render.StoredMatrixTransformations;
+import org.mtr.render.StoredMatrixTransformations;
 
 public final class GroupTransformations {
 
@@ -25,19 +29,24 @@ public final class GroupTransformations {
 		));
 	}
 
-	public ModelPartExtension create(ModelPartExtension rootModelPart, float modelYOffset) {
-		ModelPartExtension modelPart = rootModelPart;
+	public ModelPartData create(ModelPartData rootModelPart, int textureX, int textureY, float modelYOffset) {
+		ModelPartData modelPart = rootModelPart;
 		float combinedPivotX = 0;
 		float combinedPivotY = 0;
 		float combinedPivotZ = 0;
 		float offset = modelYOffset * 16;
 		for (final GroupTransformation groupTransformation : groupTransformationList) {
-			modelPart.setPivot(groupTransformation.pivotX - combinedPivotX, groupTransformation.pivotY - combinedPivotY - offset, groupTransformation.pivotZ - combinedPivotZ);
-			modelPart.setRotation(groupTransformation.rotateX, groupTransformation.rotateY, groupTransformation.rotateZ);
+			modelPart = modelPart.addChild(MTR.randomString(), ModelPartBuilder.create().uv(textureX, textureY), ModelTransform.of(
+					groupTransformation.pivotX - combinedPivotX,
+					groupTransformation.pivotY - combinedPivotY - offset,
+					groupTransformation.pivotZ - combinedPivotZ,
+					groupTransformation.rotateX,
+					groupTransformation.rotateY,
+					groupTransformation.rotateZ
+			));
 			combinedPivotX += groupTransformation.pivotX;
 			combinedPivotY += groupTransformation.pivotY;
 			combinedPivotZ += groupTransformation.pivotZ;
-			modelPart = modelPart.addChild();
 			offset = 0;
 		}
 		return modelPart;
@@ -52,11 +61,11 @@ public final class GroupTransformations {
 			float newCombinedPivotX = (groupTransformation.pivotX - combinedPivotX) / 16;
 			float newCombinedPivotY = (groupTransformation.pivotY - combinedPivotY - offset) / 16;
 			float newCombinedPivotZ = (groupTransformation.pivotZ - combinedPivotZ) / 16;
-			storedMatrixTransformations.add(graphicsHolder -> {
-				graphicsHolder.translate(newCombinedPivotX, newCombinedPivotY, newCombinedPivotZ);
-				graphicsHolder.rotateZRadians(groupTransformation.rotateZ);
-				graphicsHolder.rotateYRadians(groupTransformation.rotateY);
-				graphicsHolder.rotateXRadians(groupTransformation.rotateX);
+			storedMatrixTransformations.add(matrixStack -> {
+				matrixStack.translate(newCombinedPivotX, newCombinedPivotY, newCombinedPivotZ);
+				IDrawing.rotateZRadians(matrixStack, groupTransformation.rotateZ);
+				IDrawing.rotateYRadians(matrixStack, groupTransformation.rotateY);
+				IDrawing.rotateXRadians(matrixStack, groupTransformation.rotateX);
 			});
 			combinedPivotX += groupTransformation.pivotX;
 			combinedPivotY += groupTransformation.pivotY;

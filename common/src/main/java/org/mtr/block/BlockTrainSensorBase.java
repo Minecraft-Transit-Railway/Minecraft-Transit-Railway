@@ -1,41 +1,50 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.BlockWithEntity;
-import org.mtr.mod.Blocks;
-import org.mtr.mod.Init;
-import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import org.mtr.packet.PacketOpenBlockEntityScreen;
+import org.mtr.registry.Registry;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 
-public abstract class BlockTrainSensorBase extends BlockExtension implements BlockWithEntity {
+public abstract class BlockTrainSensorBase extends Block implements BlockEntityProvider {
 
-	public BlockTrainSensorBase() {
-		super(Blocks.createDefaultBlockSettings(true));
+	public BlockTrainSensorBase(AbstractBlock.Settings settings) {
+		super(settings);
 	}
 
 	@Nonnull
 	@Override
-	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			final BlockEntity entity = world.getBlockEntity(pos);
-			if (entity != null && entity.data instanceof BlockEntityBase) {
-				((BlockEntityBase) entity.data).markDirty2();
-				Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(pos));
+			if (entity instanceof BlockEntityBase) {
+				entity.markDirty();
+				Registry.sendPacketToClient((ServerPlayerEntity) player, new PacketOpenBlockEntityScreen(pos));
 			}
 		});
 	}
 
 	public static boolean matchesFilter(World world, BlockPos pos, long routeId, double speed) {
 		final BlockEntity entity = world.getBlockEntity(pos);
-		return entity != null && entity.data instanceof BlockEntityBase && ((BlockEntityBase) entity.data).matchesFilter(routeId, speed);
+		return entity instanceof BlockEntityBase && ((BlockEntityBase) entity).matchesFilter(routeId, speed);
 	}
 
-	public abstract static class BlockEntityBase extends BlockEntityExtension {
+	public abstract static class BlockEntityBase extends BlockEntity {
 
 		private boolean stoppedOnly;
 		private boolean movingOnly;
@@ -49,20 +58,20 @@ public abstract class BlockTrainSensorBase extends BlockExtension implements Blo
 		}
 
 		@Override
-		public void readCompoundTag(CompoundTag compoundTag) {
-			final long[] routeIdsArray = compoundTag.getLongArray(KEY_ROUTE_IDS);
+		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+			final long[] routeIdsArray = nbt.getLongArray(KEY_ROUTE_IDS);
 			for (final long routeId : routeIdsArray) {
 				filterRouteIds.add(routeId);
 			}
-			stoppedOnly = compoundTag.getBoolean(KEY_STOPPED_ONLY);
-			movingOnly = compoundTag.getBoolean(KEY_MOVING_ONLY);
+			stoppedOnly = nbt.getBoolean(KEY_STOPPED_ONLY);
+			movingOnly = nbt.getBoolean(KEY_MOVING_ONLY);
 		}
 
 		@Override
-		public void writeCompoundTag(CompoundTag compoundTag) {
-			compoundTag.putLongArray(KEY_ROUTE_IDS, new ArrayList<>(filterRouteIds));
-			compoundTag.putBoolean(KEY_STOPPED_ONLY, stoppedOnly);
-			compoundTag.putBoolean(KEY_MOVING_ONLY, movingOnly);
+		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+			nbt.putLongArray(KEY_ROUTE_IDS, new ArrayList<>(filterRouteIds));
+			nbt.putBoolean(KEY_STOPPED_ONLY, stoppedOnly);
+			nbt.putBoolean(KEY_MOVING_ONLY, movingOnly);
 		}
 
 		public boolean matchesFilter(long routeId, double speed) {
@@ -90,7 +99,7 @@ public abstract class BlockTrainSensorBase extends BlockExtension implements Blo
 			this.filterRouteIds.addAll(filterRouteIds);
 			this.stoppedOnly = stoppedOnly;
 			this.movingOnly = movingOnly;
-			markDirty2();
+			markDirty();
 		}
 	}
 }

@@ -1,5 +1,8 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
+import net.minecraft.server.world.ServerWorld;
+import org.mtr.client.DynamicTextureCache;
+import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.SignalModification;
 import org.mtr.core.operation.UpdateDataRequest;
@@ -8,12 +11,7 @@ import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
-import org.mtr.mapping.holder.ServerWorld;
-import org.mtr.mapping.mapper.MinecraftServerHelper;
-import org.mtr.mapping.tool.PacketBufferReceiver;
-import org.mtr.mod.Init;
-import org.mtr.mod.client.DynamicTextureCache;
-import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.registry.Registry;
 
 import javax.annotation.Nonnull;
 
@@ -66,7 +64,7 @@ public final class PacketUpdateData extends PacketRequestResponseBase {
 	}
 
 	public static void sendDirectlyToClientDepotUpdate(ServerWorld serverWorld, UpdateDataResponse updateDataResponse) {
-		MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntityNew -> Init.REGISTRY.sendPacketToClient(serverPlayerEntityNew, new PacketUpdateData(Utilities.getJsonObjectFromData(updateDataResponse).toString())));
+		serverWorld.getPlayers().forEach(serverPlayerEntityNew -> Registry.sendPacketToClient(serverPlayerEntityNew, new PacketUpdateData(Utilities.getJsonObjectFromData(updateDataResponse).toString())));
 	}
 
 	private static void update(JsonReader jsonReader) {

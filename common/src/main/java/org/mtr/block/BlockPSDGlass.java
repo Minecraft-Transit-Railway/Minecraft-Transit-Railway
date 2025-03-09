@@ -1,7 +1,8 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.Item;
-import org.mtr.mod.Items;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.item.Item;
+import org.mtr.registry.Items;
 
 import javax.annotation.Nonnull;
 
@@ -9,14 +10,14 @@ public class BlockPSDGlass extends BlockPSDAPGGlassBase {
 
 	private final int style;
 
-	public BlockPSDGlass(int style) {
-		super();
+	public BlockPSDGlass(AbstractBlock.Settings settings, int style) {
+		super(settings);
 		this.style = style;
 	}
 
 	@Nonnull
 	@Override
-	public Item asItem2() {
-		return style == 0 ? Items.PSD_GLASS_1.get() : Items.PSD_GLASS_2.get();
+	public Item asItem() {
+		return style == 0 ? Items.PSD_GLASS_1.createAndGet() : Items.PSD_GLASS_2.createAndGet();
 	}
 }

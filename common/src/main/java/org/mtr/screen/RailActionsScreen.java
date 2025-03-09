@@ -1,64 +1,65 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.ScreenExtension;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.generated.lang.TranslationProvider;
-import org.mtr.mod.packet.PacketDeleteRailAction;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import org.mtr.client.MinecraftClientData;
+import org.mtr.data.IGui;
+import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.packet.PacketDeleteRailAction;
+import org.mtr.registry.RegistryClient;
 
 public class RailActionsScreen extends MTRScreenBase implements IGui {
 
 	private final DashboardList railActionsList;
 
-	public RailActionsScreen(ScreenExtension previousScreenExtension) {
-		super(previousScreenExtension);
+	public RailActionsScreen(Screen previousScreen) {
+		super(previousScreen);
 		railActionsList = new DashboardList(null, null, null, null, null, this::onDelete, null, () -> "", text -> {
 		});
 	}
 
 	@Override
-	protected void init2() {
-		super.init2();
+	protected void init() {
+		super.init();
 		railActionsList.x = SQUARE_SIZE;
 		railActionsList.y = SQUARE_SIZE * 2;
 		railActionsList.width = width - SQUARE_SIZE * 2;
 		railActionsList.height = height - SQUARE_SIZE * 2;
-		railActionsList.init(this::addChild);
+		railActionsList.init(this::addSelectableChild);
 	}
 
 	@Override
-	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
-		renderBackground(graphicsHolder);
-		railActionsList.render(graphicsHolder);
-		graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_RAIL_ACTIONS.getMutableText(), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
-		super.render(graphicsHolder, mouseX, mouseY, delta);
+	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+		renderBackground(context, mouseX, mouseY, delta);
+		railActionsList.render(context);
+		context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, TranslationProvider.GUI_MTR_RAIL_ACTIONS.getMutableText(), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+		super.render(context, mouseX, mouseY, delta);
 	}
 
 	@Override
-	public void mouseMoved2(double mouseX, double mouseY) {
+	public void mouseMoved(double mouseX, double mouseY) {
 		railActionsList.mouseMoved(mouseX, mouseY);
 	}
 
 	@Override
-	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
-		railActionsList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled2(mouseX, mouseY, amount);
+	public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+		railActionsList.mouseScrolled(mouseX, mouseY, verticalAmount);
+		return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
 	}
 
 	@Override
-	public void tick2() {
+	public void tick() {
 		railActionsList.tick();
 		railActionsList.setData(MinecraftClientData.getInstance().railActions, false, false, false, false, false, true);
 	}
 
 	@Override
-	public boolean isPauseScreen2() {
+	public boolean shouldPause() {
 		return false;
 	}
 
 	private void onDelete(DashboardListItem dashboardListItem, int index) {
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDeleteRailAction(dashboardListItem.id));
+		RegistryClient.sendPacketToServer(new PacketDeleteRailAction(dashboardListItem.id));
 	}
 }

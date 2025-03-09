@@ -1,22 +1,27 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.DirectionHelper;
-import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mod.generated.lang.TranslationProvider;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.state.property.Properties;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import org.mtr.generated.lang.TranslationProvider;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class BlockPoleCheckBase extends BlockExtension implements DirectionHelper {
+public abstract class BlockPoleCheckBase extends Block {
 
-	public BlockPoleCheckBase(BlockSettings blockSettings) {
+	public BlockPoleCheckBase(AbstractBlock.Settings blockSettings) {
 		super(blockSettings);
 	}
 
 	@Override
-	public BlockState getPlacementState2(ItemPlacementContext ctx) {
+	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		BlockState stateBelow = ctx.getWorld().getBlockState(ctx.getBlockPos().down());
 		if (isBlock(stateBelow.getBlock())) {
 			return placeWithState(stateBelow);
@@ -26,15 +31,15 @@ public abstract class BlockPoleCheckBase extends BlockExtension implements Direc
 	}
 
 	@Override
-	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		final String[] strings = TranslationProvider.TOOLTIP_MTR_POLE_PLACEMENT.getString(getTooltipBlockText().data).split("\n");
+	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType options) {
+		final String[] strings = TranslationProvider.TOOLTIP_MTR_POLE_PLACEMENT.getString(getTooltipBlockText()).split("\n");
 		for (final String string : strings) {
-			tooltip.add(TextHelper.literal(string).formatted(TextFormatting.GRAY));
+			tooltip.add(Text.literal(string).formatted(Formatting.GRAY));
 		}
 	}
 
 	protected BlockState placeWithState(BlockState stateBelow) {
-		return getDefaultState2().with(new Property<>(FACING.data), IBlock.getStatePropertySafe(stateBelow, FACING).data);
+		return getDefaultState().with(Properties.FACING, IBlock.getStatePropertySafe(stateBelow, Properties.FACING));
 	}
 
 	protected abstract boolean isBlock(Block block);

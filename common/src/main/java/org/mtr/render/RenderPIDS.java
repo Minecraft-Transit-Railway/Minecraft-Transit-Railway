@@ -1,28 +1,32 @@
-package org.mtr.mod.render;
+package org.mtr.render;
 
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongCollection;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import org.mtr.MTRClient;
+import org.mtr.block.BlockArrivalProjectorBase;
+import org.mtr.block.BlockPIDSBase;
+import org.mtr.block.BlockPIDSHorizontalBase;
+import org.mtr.block.IBlock;
+import org.mtr.client.IDrawing;
 import org.mtr.core.data.Station;
 import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongCollection;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.Direction;
-import org.mtr.mapping.holder.Vector3d;
-import org.mtr.mapping.holder.World;
-import org.mtr.mapping.mapper.BlockEntityRenderer;
-import org.mtr.mapping.mapper.DirectionHelper;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.block.BlockArrivalProjectorBase;
-import org.mtr.mod.block.BlockPIDSBase;
-import org.mtr.mod.block.BlockPIDSHorizontalBase;
-import org.mtr.mod.block.IBlock;
-import org.mtr.mod.data.ArrivalsCacheClient;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.generated.lang.TranslationProvider;
+import org.mtr.data.ArrivalsCacheClient;
+import org.mtr.data.IGui;
+import org.mtr.generated.lang.TranslationProvider;
 
-public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEntityRenderer<T> implements IGui, Utilities {
+public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEntityRendererExtension<T> implements IGui, Utilities {
 
 	private final float startX;
 	private final float startY;
@@ -34,8 +38,7 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 
 	public static final int SWITCH_LANGUAGE_TICKS = 60;
 
-	public RenderPIDS(Argument dispatcher, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, float textPadding) {
-		super(dispatcher);
+	public RenderPIDS(float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, float textPadding) {
 		this.startX = startX;
 		this.startY = startY;
 		this.startZ = startZ;
@@ -46,28 +49,23 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 	}
 
 	@Override
-	public void render(T entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
-		final World world = entity.getWorld2();
-		if (world == null) {
-			return;
-		}
-
-		final BlockPos blockPos = entity.getPos2();
+	public void render(T entity, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
+		final BlockPos blockPos = entity.getPos();
 		if (!entity.canStoreData.test(world, blockPos)) {
 			return;
 		}
 
-		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, DirectionHelper.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, Properties.FACING);
 
 		if (entity.getPlatformIds().isEmpty()) {
 			final LongArrayList platformIds = new LongArrayList();
 			if (entity instanceof BlockArrivalProjectorBase.BlockEntityArrivalProjectorBase) {
-				final Station station = InitClient.findStation(blockPos);
+				final Station station = MTRClient.findStation(blockPos);
 				if (station != null) {
 					station.savedRails.forEach(platform -> platformIds.add(platform.getId()));
 				}
 			} else {
-				InitClient.findClosePlatform(entity.getPos2().down(4), 5, platform -> platformIds.add(platform.getId()));
+				MTRClient.findClosePlatform(entity.getPos().down(4), 5, platform -> platformIds.add(platform.getId()));
 			}
 			getArrivalsAndRender(entity, blockPos, facing, platformIds);
 		} else {
@@ -77,21 +75,21 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 
 	private void getArrivalsAndRender(T entity, BlockPos blockPos, Direction facing, LongCollection platformIds) {
 		final ObjectArrayList<ArrivalResponse> arrivalResponseList = ArrivalsCacheClient.INSTANCE.requestArrivals(platformIds);
-		MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
-			render(entity, blockPos, facing, arrivalResponseList, graphicsHolder, offset);
+		MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (matrixStack, vertexConsumer, offset) -> {
+			render(entity, blockPos, facing, arrivalResponseList, matrixStack, vertexConsumer, offset);
 			if (entity instanceof BlockPIDSHorizontalBase.BlockEntityHorizontalBase) {
-				render(entity, blockPos.offset(facing), facing.getOpposite(), arrivalResponseList, graphicsHolder, offset);
+				render(entity, blockPos.offset(facing), facing.getOpposite(), arrivalResponseList, matrixStack, vertexConsumer, offset);
 			}
 		});
 	}
 
-	private void render(T entity, BlockPos blockPos, Direction facing, ObjectArrayList<ArrivalResponse> arrivalResponseList, GraphicsHolder graphicsHolder, Vector3d offset) {
+	private void render(T entity, BlockPos blockPos, Direction facing, ObjectArrayList<ArrivalResponse> arrivalResponseList, MatrixStack matrixStack, VertexConsumer vertexConsumer, Vec3d offset) {
 		final float scale = 160 * entity.maxArrivals / maxHeight * textPadding;
 		final boolean hasDifferentCarLengths = hasDifferentCarLengths(arrivalResponseList);
 		int arrivalIndex = entity.getDisplayPage() * entity.maxArrivals;
 
 		for (int i = 0; i < entity.maxArrivals; i++) {
-			final int languageTicks = (int) Math.floor(InitClient.getGameTick()) / SWITCH_LANGUAGE_TICKS;
+			final int languageTicks = (int) Math.floor(MTRClient.getGameTick()) / SWITCH_LANGUAGE_TICKS;
 			final ArrivalResponse arrivalResponse;
 			final String customMessage = entity.getMessage(i);
 			final String[] destinationSplit;
@@ -146,33 +144,25 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 				}
 			}
 
-			graphicsHolder.push();
-			graphicsHolder.translate(blockPos.getX() - offset.getXMapped() + 0.5, blockPos.getY() - offset.getYMapped(), blockPos.getZ() - offset.getZMapped() + 0.5);
-			graphicsHolder.rotateYDegrees((rotate90 ? 90 : 0) - facing.asRotation());
-			graphicsHolder.rotateZDegrees(180);
-			graphicsHolder.translate((startX - 8) / 16, -startY / 16 + i * maxHeight / entity.maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
-			graphicsHolder.scale(1 / scale, 1 / scale, 1 / scale);
+			matrixStack.push();
+			matrixStack.translate(blockPos.getX() - offset.x + 0.5, blockPos.getY() - offset.y, blockPos.getZ() - offset.z + 0.5);
+			IDrawing.rotateYDegrees(matrixStack, (rotate90 ? 90 : 0) - facing.getPositiveHorizontalDegrees());
+			IDrawing.rotateZDegrees(matrixStack, 180);
+			matrixStack.translate((startX - 8) / 16, -startY / 16 + i * maxHeight / entity.maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
+			matrixStack.scale(1 / scale, 1 / scale, 1 / scale);
 
 			if (renderCustomMessage) {
-				renderText(graphicsHolder, customMessageSplit[languageIndex], entity.textColor(), maxWidth * scale / 16, false);
+				renderText(matrixStack, vertexConsumer, customMessageSplit[languageIndex], entity.textColor(), maxWidth * scale / 16, false);
 			} else {
 				final long arrival = (arrivalResponse.getArrival() - ArrivalsCacheClient.INSTANCE.getMillisOffset() - System.currentTimeMillis()) / 1000;
 				final int color = arrival <= 0 ? entity.textColorArrived() : entity.textColor();
 				final String destination = destinationSplit[languageIndex];
 				final boolean isCjk = IGui.isCjk(destination);
-				final String destinationFormatted;
-
-				switch (arrivalResponse.getCircularState()) {
-					case CLOCKWISE:
-						destinationFormatted = (isCjk ? TranslationProvider.GUI_MTR_CLOCKWISE_VIA_CJK : TranslationProvider.GUI_MTR_CLOCKWISE_VIA).getString(destination);
-						break;
-					case ANTICLOCKWISE:
-						destinationFormatted = (isCjk ? TranslationProvider.GUI_MTR_ANTICLOCKWISE_VIA_CJK : TranslationProvider.GUI_MTR_ANTICLOCKWISE_VIA).getString(destination);
-						break;
-					default:
-						destinationFormatted = destination;
-						break;
-				}
+				final String destinationFormatted = switch (arrivalResponse.getCircularState()) {
+					case CLOCKWISE -> (isCjk ? TranslationProvider.GUI_MTR_CLOCKWISE_VIA_CJK : TranslationProvider.GUI_MTR_CLOCKWISE_VIA).getString(destination);
+					case ANTICLOCKWISE -> (isCjk ? TranslationProvider.GUI_MTR_ANTICLOCKWISE_VIA_CJK : TranslationProvider.GUI_MTR_ANTICLOCKWISE_VIA).getString(destination);
+					default -> destination;
+				};
 
 				final String carLengthString = (isCjk ? TranslationProvider.GUI_MTR_ARRIVAL_CAR_CJK : TranslationProvider.GUI_MTR_ARRIVAL_CAR).getString(arrivalResponse.getCarCount());
 				final String arrivalString;
@@ -187,52 +177,53 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 
 				if (entity.alternateLines()) {
 					if (i % 2 == 0) {
-						renderText(graphicsHolder, destinationFormatted, color, maxWidth * scale / 16, false);
+						renderText(matrixStack, vertexConsumer, destinationFormatted, color, maxWidth * scale / 16, false);
 					} else {
 						if (hasDifferentCarLengths) {
-							renderText(graphicsHolder, carLengthString, 0xFF0000, 32, false);
-							graphicsHolder.translate(32, 0, 0);
+							renderText(matrixStack, vertexConsumer, carLengthString, 0xFF0000, 32, false);
+							matrixStack.translate(32, 0, 0);
 						}
-						renderText(graphicsHolder, arrivalString, color, maxWidth * scale / 16 - (hasDifferentCarLengths ? 32 : 0), true);
+						renderText(matrixStack, vertexConsumer, arrivalString, color, maxWidth * scale / 16 - (hasDifferentCarLengths ? 32 : 0), true);
 					}
 				} else {
 					final boolean showPlatformNumber = entity instanceof BlockArrivalProjectorBase.BlockEntityArrivalProjectorBase;
 
 					if (entity.showArrivalNumber()) {
-						renderText(graphicsHolder, String.valueOf(arrivalIndex), color, 12, false);
-						graphicsHolder.translate(12, 0, 0);
+						renderText(matrixStack, vertexConsumer, String.valueOf(arrivalIndex), color, 12, false);
+						matrixStack.translate(12, 0, 0);
 					}
 
 					final float destinationWidth = maxWidth * scale / 16 - 40 - (hasDifferentCarLengths || showPlatformNumber ? showPlatformNumber ? 16 : 32 : 0) - (entity.showArrivalNumber() ? 12 : 0);
-					renderText(graphicsHolder, destinationFormatted, color, destinationWidth, false);
-					graphicsHolder.translate(destinationWidth, 0, 0);
+					renderText(matrixStack, vertexConsumer, destinationFormatted, color, destinationWidth, false);
+					matrixStack.translate(destinationWidth, 0, 0);
 
 					if (hasDifferentCarLengths || showPlatformNumber) {
 						if (showPlatformNumber) {
-							renderText(graphicsHolder, arrivalResponse.getPlatformName(), color, 16, false);
-							graphicsHolder.translate(16, 0, 0);
+							renderText(matrixStack, vertexConsumer, arrivalResponse.getPlatformName(), color, 16, false);
+							matrixStack.translate(16, 0, 0);
 						} else {
-							renderText(graphicsHolder, carLengthString, 0xFF0000, 32, false);
-							graphicsHolder.translate(32, 0, 0);
+							renderText(matrixStack, vertexConsumer, carLengthString, 0xFF0000, 32, false);
+							matrixStack.translate(32, 0, 0);
 						}
 					}
 
-					renderText(graphicsHolder, arrivalString, color, 40, true);
+					renderText(matrixStack, vertexConsumer, arrivalString, color, 40, true);
 				}
 			}
 
-			graphicsHolder.pop();
+			matrixStack.pop();
 		}
 	}
 
-	private static void renderText(GraphicsHolder graphicsHolder, String text, int color, float availableWidth, boolean rightAlign) {
-		graphicsHolder.push();
-		final int textWidth = GraphicsHolder.getTextWidth(text);
+	private static void renderText(MatrixStack matrixStack, VertexConsumer vertexConsumer, String text, int color, float availableWidth, boolean rightAlign) {
+		matrixStack.push();
+		final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+		final int textWidth = textRenderer.getWidth(text);
 		if (availableWidth < textWidth) {
-			graphicsHolder.scale(textWidth == 0 ? 1 : availableWidth / textWidth, 1, 1);
+			matrixStack.scale(textWidth == 0 ? 1 : availableWidth / textWidth, 1, 1);
 		}
-		graphicsHolder.drawText(text, rightAlign ? Math.max(0, (int) availableWidth - textWidth) : 0, 0, color | ARGB_BLACK, false, GraphicsHolder.getDefaultLight());
-		graphicsHolder.pop();
+//		textRenderer.drawText(textRenderer, text, rightAlign ? Math.max(0, (int) availableWidth - textWidth) : 0, 0, color | ARGB_BLACK, false, DEFAULT_LIGHT);
+		matrixStack.pop();
 	}
 
 	private static boolean hasDifferentCarLengths(ObjectArrayList<ArrivalResponse> arrivalResponseList) {

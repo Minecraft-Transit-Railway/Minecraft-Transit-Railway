@@ -1,7 +1,7 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
 import org.mtr.core.serializer.ReaderBase;
-import org.mtr.mod.generated.resource.ModelMirrorSchema;
+import org.mtr.generated.resource.ModelMirrorSchema;
 
 public final class ModelMirror extends ModelMirrorSchema {
 

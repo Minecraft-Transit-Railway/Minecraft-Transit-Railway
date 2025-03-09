@@ -1,4 +1,4 @@
-package org.mtr.mod.sound;
+package org.mtr.sound;
 
 public abstract class BveMotorDataBase {
 

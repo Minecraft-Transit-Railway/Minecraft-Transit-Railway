@@ -1,12 +1,10 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
-import org.mtr.mapping.holder.MinecraftServer;
-import org.mtr.mapping.holder.ServerPlayerEntity;
-import org.mtr.mapping.registry.PacketHandler;
-import org.mtr.mapping.tool.PacketBufferReceiver;
-import org.mtr.mapping.tool.PacketBufferSender;
-import org.mtr.mod.Init;
+import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import org.mtr.MTR;
+import org.mtr.registry.Registry;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -53,10 +51,10 @@ public final class PacketForwardClientRequest extends PacketHandler {
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		Init.REQUEST_HELPER.sendRequest(
-				String.format("http://localhost:%s%s", Init.getServerPort(), endpoint),
+		MTR.REQUEST_HELPER.sendRequest(
+				String.format("http://localhost:%s%s", MTR.getServerPort(), endpoint),
 				content.isEmpty() ? null : content,
-				(response, path) -> Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketForwardClientRequest(response, path, callbackId))
+				(response, path) -> Registry.sendPacketToClient(serverPlayerEntity, new PacketForwardClientRequest(response, path, callbackId))
 		);
 	}
 

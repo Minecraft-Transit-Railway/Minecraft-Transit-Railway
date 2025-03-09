@@ -1,14 +1,14 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import net.minecraft.util.Identifier;
+import org.mtr.MTR;
+import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mod.Init;
-import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.generated.resource.VehicleModelWrapperSchema;
+import org.mtr.generated.resource.VehicleModelWrapperSchema;
 
 import javax.annotation.Nullable;
 
@@ -93,7 +93,7 @@ public final class VehicleModelWrapper extends VehicleModelWrapperSchema {
 		});
 
 		final boolean isMinecraftResource = CustomResourceLoader.getMinecraftModelResources().stream().anyMatch(minecraftModelResource -> minecraftModelResource.matchesModelResource(modelResource));
-		final String modelPropertiesResource = isMinecraftResource ? minecraftModelPropertiesResource : new Identifier(Init.MOD_ID, String.format("properties_%s.json", Init.randomString())).data.toString();
+		final String modelPropertiesResource = isMinecraftResource ? minecraftModelPropertiesResource : Identifier.of(MTR.MOD_ID, String.format("properties_%s.json", MTR.randomString())).toString();
 		final ModelProperties modelProperties = new ModelProperties(
 				modelPropertiesPartList,
 				modelYOffset,
@@ -118,7 +118,7 @@ public final class VehicleModelWrapper extends VehicleModelWrapperSchema {
 				barrierYOffset,
 				barrierZOffset
 		);
-		final String positionDefinitionsResource = isMinecraftResource ? minecraftPositionDefinitionsResource : new Identifier(Init.MOD_ID, String.format("definition_%s.json", Init.randomString())).data.toString();
+		final String positionDefinitionsResource = isMinecraftResource ? minecraftPositionDefinitionsResource : Identifier.of(MTR.MOD_ID, String.format("definition_%s.json", MTR.randomString())).toString();
 		final PositionDefinitions positionDefinitions = new PositionDefinitions(positionDefinitionList);
 
 		if (!isMinecraftResource && modelPropertiesMap != null && positionDefinitionsMap != null) {
@@ -133,7 +133,7 @@ public final class VehicleModelWrapper extends VehicleModelWrapperSchema {
 				positionDefinitionsResource,
 				flipTextureV,
 				identifier -> {
-					final String identifierString = identifier.data.toString();
+					final String identifierString = identifier.toString();
 					if (!isMinecraftResource) {
 						if (identifierString.equals(modelPropertiesResource)) {
 							return Utilities.getJsonObjectFromData(modelProperties).toString();

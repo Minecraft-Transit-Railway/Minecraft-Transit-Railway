@@ -1,17 +1,17 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
+import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.StringUtils;
+import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.mapper.OptimizedModel;
-import org.mtr.mapping.mapper.OptimizedRenderer;
-import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.render.DynamicVehicleModel;
-import org.mtr.mod.render.MainRenderer;
-import org.mtr.mod.render.QueuedRenderLayer;
-import org.mtr.mod.render.StoredMatrixTransformations;
+import org.mtr.model.OptimizedModel;
+import org.mtr.model.OptimizedRenderer;
+import org.mtr.render.DynamicVehicleModel;
+import org.mtr.render.MainRenderer;
+import org.mtr.render.QueuedRenderLayer;
+import org.mtr.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
 
@@ -68,10 +68,10 @@ public interface StoredModelResourceBase {
 
 		if (OptimizedRenderer.hasOptimizedRendering()) {
 			if (optimizedModel != null) {
-				MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
-					storedMatrixTransformations.transform(graphicsHolder, offset);
-					CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(optimizedModel, graphicsHolder, light);
-					graphicsHolder.pop();
+				MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (matrixStack, vertexConsumer, offset) -> {
+					storedMatrixTransformations.transform(matrixStack, offset);
+					CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(optimizedModel, matrixStack, light);
+					matrixStack.pop();
 				});
 			}
 		} else {

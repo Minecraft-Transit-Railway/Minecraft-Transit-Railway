@@ -1,15 +1,13 @@
-package org.mtr.mod.render;
+package org.mtr.render;
 
 import com.logisticscraft.occlusionculling.DataProvider;
 import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.BlockView;
-import org.mtr.mapping.holder.ClientWorld;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.mapper.MinecraftClientHelper;
-import org.mtr.mod.CustomThread;
-import org.mtr.mod.Init;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.CustomThread;
+import org.mtr.MTR;
 
 import java.util.function.Consumer;
 
@@ -63,7 +61,7 @@ public final class WorkerThread extends CustomThread {
 	}
 
 	private void updateInstance() {
-		final int newRenderDistance = MinecraftClientHelper.getRenderDistance();
+		final int newRenderDistance = (int) MinecraftClient.getInstance().worldRenderer.getViewDistance();
 		if (renderDistance != newRenderDistance) {
 			renderDistance = newRenderDistance;
 			occlusionCullingInstance = new OcclusionCullingInstance(renderDistance * 16, new CullingDataProvider());
@@ -78,7 +76,7 @@ public final class WorkerThread extends CustomThread {
 					consumer.accept(task);
 				}
 			} catch (Exception e) {
-				Init.LOGGER.error("", e);
+				MTR.LOGGER.error("", e);
 			}
 		}
 	}
@@ -90,14 +88,14 @@ public final class WorkerThread extends CustomThread {
 
 		@Override
 		public boolean prepareChunk(int chunkX, int chunkZ) {
-			clientWorld = minecraftClient.getWorldMapped();
+			clientWorld = minecraftClient.world;
 			return clientWorld != null;
 		}
 
 		@Override
 		public boolean isOpaqueFullCube(int x, int y, int z) {
 			final BlockPos blockPos = new BlockPos(x, y, z);
-			return clientWorld != null && clientWorld.getBlockState(blockPos).isOpaqueFullCube(new BlockView(clientWorld.data), blockPos);
+			return clientWorld != null && clientWorld.getBlockState(blockPos).isOpaqueFullCube();
 		}
 
 		@Override

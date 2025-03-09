@@ -1,16 +1,13 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.mapping.holder.BlockEntity;
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.MinecraftServer;
-import org.mtr.mapping.holder.ServerPlayerEntity;
-import org.mtr.mapping.registry.PacketHandler;
-import org.mtr.mapping.tool.PacketBufferReceiver;
-import org.mtr.mapping.tool.PacketBufferSender;
-import org.mtr.mod.Init;
-import org.mtr.mod.block.BlockRailwaySign;
-import org.mtr.mod.block.BlockRouteSignBase;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.MTR;
+import org.mtr.block.BlockRailwaySign;
+import org.mtr.block.BlockRouteSignBase;
 
 public final class PacketUpdateRailwaySignConfig extends PacketHandler {
 
@@ -52,20 +49,20 @@ public final class PacketUpdateRailwaySignConfig extends PacketHandler {
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		if (!Init.isChunkLoaded(serverPlayerEntity.getEntityWorld(), blockPos)) {
+		if (!MTR.isChunkLoaded(serverPlayerEntity.getEntityWorld(), blockPos)) {
 			return;
 		}
 
 		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
 		if (entity != null) {
-			if (entity.data instanceof BlockRailwaySign.BlockEntity) {
-				((BlockRailwaySign.BlockEntity) entity.data).setData(selectedIds, signIds);
-			} else if (entity.data instanceof BlockRouteSignBase.BlockEntityBase) {
+			if (entity instanceof BlockRailwaySign.RailwaySignBlockEntity) {
+				((BlockRailwaySign.RailwaySignBlockEntity) entity).setData(selectedIds, signIds);
+			} else if (entity instanceof BlockRouteSignBase.BlockEntityBase) {
 				final long platformId = selectedIds.isEmpty() ? 0 : (long) selectedIds.toArray()[0];
-				((BlockRouteSignBase.BlockEntityBase) entity.data).setPlatformId(platformId);
+				((BlockRouteSignBase.BlockEntityBase) entity).setPlatformId(platformId);
 				final BlockEntity entityAbove = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos.up());
-				if (entityAbove != null && entityAbove.data instanceof BlockRouteSignBase.BlockEntityBase) {
-					((BlockRouteSignBase.BlockEntityBase) entityAbove.data).setPlatformId(platformId);
+				if (entityAbove instanceof BlockRouteSignBase.BlockEntityBase) {
+					((BlockRouteSignBase.BlockEntityBase) entityAbove).setPlatformId(platformId);
 				}
 			}
 		}

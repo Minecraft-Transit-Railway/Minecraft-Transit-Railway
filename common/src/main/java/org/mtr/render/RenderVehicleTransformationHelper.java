@@ -1,13 +1,19 @@
-package org.mtr.mod.render;
+package org.mtr.render;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.LightType;
+import org.mtr.client.IDrawing;
 import org.mtr.core.tool.Utilities;
 import org.mtr.core.tool.Vector;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.EntityHelper;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mod.Init;
 
 import java.util.function.Consumer;
 
@@ -83,38 +89,38 @@ public class RenderVehicleTransformationHelper {
 		return storedMatrixTransformations;
 	}
 
-	public void render(GraphicsHolder graphicsHolder, Vector3d offset, Consumer<Vector3d> newConsumer) {
-		graphicsHolder.push();
-		transformGraphicsHolder(graphicsHolder);
-		newConsumer.accept(renderWithRespectToPlayerPosition ? Vector3d.getZeroMapped() : offset);
-		graphicsHolder.pop();
+	public void render(MatrixStack matrixStack, Vec3d offset, Consumer<Vec3d> newConsumer) {
+		matrixStack.push();
+		transformGraphicsHolder(matrixStack);
+		newConsumer.accept(renderWithRespectToPlayerPosition ? Vec3d.ZERO : offset);
+		matrixStack.pop();
 	}
 
-	private void transformGraphicsHolder(GraphicsHolder graphicsHolder) {
+	private void transformGraphicsHolder(MatrixStack matrixStack) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final Camera camera = minecraftClient.getGameRendererMapped().getCamera();
-		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+		final Camera camera = minecraftClient.gameRenderer.getCamera();
+		final ClientPlayerEntity clientPlayerEntity = minecraftClient.player;
 		if (clientPlayerEntity == null) {
 			return;
 		}
 
 		if (renderWithRespectToPlayerRotation) {
-			graphicsHolder.rotateYDegrees(-camera.getYaw());
-			if (camera.isThirdPerson() && Math.abs(EntityHelper.getYaw(new Entity(clientPlayerEntity.data)) - camera.getYaw()) > 90) {
-				graphicsHolder.rotateYDegrees(180);
+			IDrawing.rotateYDegrees(matrixStack, -camera.getYaw());
+			if (camera.isThirdPerson() && Math.abs(clientPlayerEntity.getYaw() - camera.getYaw()) > 90) {
+				IDrawing.rotateYDegrees(matrixStack, 180);
 			}
 		}
 
-		graphicsHolder.rotateYRadians((float) ridingYawDifference);
+		IDrawing.rotateYRadians(matrixStack, (float) ridingYawDifference);
 	}
 
 	private static int getLight(Vector pivotPosition) {
-		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
+		final ClientWorld clientWorld = MinecraftClient.getInstance().world;
 		if (clientWorld == null) {
 			return 0;
 		} else {
-			final BlockPos blockPos = Init.newBlockPos(pivotPosition.x, pivotPosition.y + 1, pivotPosition.z);
-			return LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPos), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPos));
+			final BlockPos blockPos = BlockPos.ofFloored(pivotPosition.x, pivotPosition.y + 1, pivotPosition.z);
+			return LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.BLOCK, blockPos), clientWorld.getLightLevel(LightType.SKY, blockPos));
 		}
 	}
 

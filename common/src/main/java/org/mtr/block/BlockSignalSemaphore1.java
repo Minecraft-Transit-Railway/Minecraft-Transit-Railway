@@ -1,29 +1,29 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.BlockSettings;
-import org.mtr.mapping.holder.BlockState;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mod.BlockEntityTypes;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.registry.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
 
 public class BlockSignalSemaphore1 extends BlockSignalSemaphoreBase {
 
-	public BlockSignalSemaphore1(BlockSettings blockSettings) {
+	public BlockSignalSemaphore1(AbstractBlock.Settings blockSettings) {
 		super(blockSettings);
 	}
 
 	@Nonnull
 	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(blockPos, blockState);
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new SignalSemaphore1BlockEntity(blockPos, blockState);
 	}
 
-	public static class BlockEntity extends BlockEntityBase {
+	public static class SignalSemaphore1BlockEntity extends BlockEntityBase {
 
-		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.SIGNAL_SEMAPHORE_1.get(), false, pos, state);
+		public SignalSemaphore1BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.SIGNAL_SEMAPHORE_1.createAndGet(), false, pos, state);
 		}
 	}
 }

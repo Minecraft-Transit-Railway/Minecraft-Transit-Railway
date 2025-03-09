@@ -1,39 +1,37 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.BlockRenderType;
-import org.mtr.mapping.holder.BlockState;
-import org.mtr.mapping.holder.Item;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mod.BlockEntityTypes;
-import org.mtr.mod.Items;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.item.Item;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.registry.BlockEntityTypes;
+import org.mtr.registry.Items;
 
 import javax.annotation.Nonnull;
 
 public class BlockLiftDoor extends BlockPSDAPGDoorBase {
 
-	@Nonnull
-	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(blockPos, blockState);
+	public BlockLiftDoor(AbstractBlock.Settings settings) {
+		super(settings);
 	}
 
 	@Nonnull
 	@Override
-	public BlockRenderType getRenderType2(BlockState state) {
-		return BlockRenderType.getModelMapped();
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new LiftDoorBlockEntity(blockPos, blockState);
 	}
 
 	@Nonnull
 	@Override
-	public Item asItem2() {
-		return Items.LIFT_DOOR_1.get();
+	public Item asItem() {
+		return Items.LIFT_DOOR_1.createAndGet();
 	}
 
-	public static class BlockEntity extends BlockEntityBase {
+	public static class LiftDoorBlockEntity extends BlockEntityBase {
 
-		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_DOOR_EVEN_1.get(), pos, state);
+		public LiftDoorBlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.LIFT_DOOR_EVEN_1.createAndGet(), pos, state);
 		}
 	}
 }

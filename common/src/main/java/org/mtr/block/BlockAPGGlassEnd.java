@@ -1,15 +1,20 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.Item;
-import org.mtr.mod.Items;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.item.Item;
+import org.mtr.registry.Items;
 
 import javax.annotation.Nonnull;
 
 public class BlockAPGGlassEnd extends BlockPSDAPGGlassEndBase {
 
+	public BlockAPGGlassEnd(AbstractBlock.Settings settings) {
+		super(settings);
+	}
+
 	@Nonnull
 	@Override
-	public Item asItem2() {
-		return Items.APG_GLASS_END.get();
+	public Item asItem() {
+		return Items.APG_GLASS_END.createAndGet();
 	}
 }

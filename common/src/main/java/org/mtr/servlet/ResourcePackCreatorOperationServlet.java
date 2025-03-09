@@ -1,23 +1,22 @@
-package org.mtr.mod.servlet;
+package org.mtr.servlet;
 
+import com.google.gson.JsonParser;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import org.mtr.MTR;
+import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.serializer.JsonReader;
-import org.mtr.libraries.com.google.gson.JsonParser;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.javax.servlet.AsyncContext;
 import org.mtr.libraries.javax.servlet.http.HttpServletRequest;
 import org.mtr.libraries.javax.servlet.http.HttpServletResponse;
-import org.mtr.mapping.holder.ClientPlayerEntity;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.holder.Screen;
-import org.mtr.mod.Init;
-import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.resource.ResourceWrapper;
-import org.mtr.mod.screen.FakePauseScreen;
-import org.mtr.mod.screen.ReloadCustomResourcesScreen;
-import org.mtr.mod.sound.BveVehicleSound;
-import org.mtr.mod.sound.BveVehicleSoundConfig;
-import org.mtr.mod.sound.LegacyVehicleSound;
-import org.mtr.mod.sound.VehicleSoundBase;
+import org.mtr.resource.ResourceWrapper;
+import org.mtr.screen.FakePauseScreen;
+import org.mtr.screen.ReloadCustomResourcesScreen;
+import org.mtr.sound.BveVehicleSound;
+import org.mtr.sound.BveVehicleSoundConfig;
+import org.mtr.sound.LegacyVehicleSound;
+import org.mtr.sound.VehicleSoundBase;
 
 import javax.annotation.Nullable;
 import java.nio.file.Files;
@@ -56,13 +55,13 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 				preview(httpServletRequest, httpServletResponse, asyncContext);
 				break;
 			case "/force-reload":
-				minecraftClient.execute(() -> minecraftClient.openScreen(new Screen(new ReloadCustomResourcesScreen(() -> {
+				minecraftClient.execute(() -> minecraftClient.setScreen(new ReloadCustomResourcesScreen(() -> {
 					CustomResourceLoader.reload();
 					returnStandardResponse(httpServletResponse, asyncContext, "");
-				}))));
+				})));
 				break;
 			case "/resume-game":
-				minecraftClient.execute(() -> minecraftClient.openScreen(new Screen(new FakePauseScreen())));
+				minecraftClient.execute(() -> minecraftClient.setScreen(new FakePauseScreen()));
 				returnStandardResponse(httpServletResponse, asyncContext, null);
 				break;
 			default:
@@ -93,7 +92,7 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 			vehicleSoundBase = null;
 		}
 		if (vehicleSoundBase != null) {
-			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().player;
 			if (clientPlayerEntity != null) {
 				final float oldSpeed = speed;
 				final float speedChange = millisElapsed * acceleration;
@@ -118,7 +117,7 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 			// TODO save backup
 			returnStandardResponse(httpServletResponse, asyncContext, httpServletRequest.getParameter("id"));
 		} catch (Exception e) {
-			Init.LOGGER.error("", e);
+			MTR.LOGGER.error("", e);
 			returnErrorResponse(httpServletResponse, asyncContext);
 		}
 	}
@@ -139,7 +138,7 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		minecraftClient.execute(() -> {
-			final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+			final ClientPlayerEntity clientPlayerEntity = minecraftClient.player;
 			if (clientPlayerEntity != null) {
 				final VehicleSoundBase tempVehicleSoundBase;
 				switch (type.toLowerCase(Locale.ENGLISH)) {

@@ -1,29 +1,30 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
+import it.unimi.dsi.fastutil.longs.Long2LongAVLTreeMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.CheckboxWidget;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 import org.apache.commons.lang3.StringUtils;
+import org.mtr.MTR;
+import org.mtr.client.IDrawing;
+import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.*;
 import org.mtr.core.operation.DepotOperationByIds;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2LongAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import org.mtr.mapping.holder.ClickableWidget;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.holder.MutableText;
-import org.mtr.mapping.holder.Screen;
-import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.tool.TextCase;
-import org.mtr.mod.Init;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.generated.lang.TranslationProvider;
-import org.mtr.mod.packet.PacketDepotClear;
-import org.mtr.mod.packet.PacketDepotGenerate;
-import org.mtr.mod.packet.PacketDepotInstantDeploy;
-import org.mtr.mod.packet.PacketUpdateData;
+import org.mtr.data.IGui;
+import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.packet.PacketDepotClear;
+import org.mtr.packet.PacketDepotGenerate;
+import org.mtr.packet.PacketDepotInstantDeploy;
+import org.mtr.packet.PacketUpdateData;
+import org.mtr.registry.RegistryClient;
 
 import java.text.DateFormat;
 import java.util.Calendar;
@@ -39,18 +40,18 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private final boolean showScheduleControls;
 	private final boolean showCruisingAltitude;
 
-	private final ButtonWidgetExtension buttonUseRealTime;
-	private final ButtonWidgetExtension buttonReset;
+	private final ButtonWidget buttonUseRealTime;
+	private final ButtonWidget buttonReset;
 	private final WidgetShorterSlider[] sliders = new WidgetShorterSlider[HOURS_PER_DAY];
-	private final TextFieldWidgetExtension textFieldDeparture;
-	private final ButtonWidgetExtension buttonAddDeparture;
+	private final WidgetBetterTextField textFieldDeparture;
+	private final ButtonWidget buttonAddDeparture;
 
-	private final ButtonWidgetExtension buttonEditInstructions;
-	private final ButtonWidgetExtension buttonInstantDeploy;
-	private final ButtonWidgetExtension buttonGenerateRoute;
-	private final ButtonWidgetExtension buttonClearTrains;
-	private final CheckboxWidgetExtension checkboxRepeatIndefinitely;
-	private final TextFieldWidgetExtension textFieldCruisingAltitude;
+	private final ButtonWidget buttonEditInstructions;
+	private final ButtonWidget buttonInstantDeploy;
+	private final ButtonWidget buttonGenerateRoute;
+	private final ButtonWidget buttonClearTrains;
+	private final CheckboxWidget checkboxRepeatIndefinitely;
+	private final WidgetBetterTextField textFieldCruisingAltitude;
 	private final DashboardList departuresList;
 
 	private final MutableText cruisingAltitudeText = TranslationProvider.GUI_MTR_CRUISING_ALTITUDE.getMutableText();
@@ -61,27 +62,27 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private static final int TRAIN_FREQUENCY_MULTIPLIER = 4;
 	private static final Long2LongAVLTreeMap DEPOT_GENERATION_START_TIME = new Long2LongAVLTreeMap();
 
-	public EditDepotScreen(Depot depot, TransportMode transportMode, ScreenExtension previousScreenExtension) {
-		super(depot, TranslationProvider.GUI_MTR_DEPOT_NAME, TranslationProvider.GUI_MTR_DEPOT_COLOR, previousScreenExtension);
+	public EditDepotScreen(Depot depot, TransportMode transportMode, Screen previousScreen) {
+		super(depot, TranslationProvider.GUI_MTR_DEPOT_NAME, TranslationProvider.GUI_MTR_DEPOT_COLOR, previousScreen);
 
-		sliderX = GraphicsHolder.getTextWidth(getTimeString(0)) + TEXT_PADDING * 2;
-		sliderWidthWithText = SLIDER_WIDTH + TEXT_PADDING + GraphicsHolder.getTextWidth(getSliderString(0));
-		rightPanelsX = sliderX + SLIDER_WIDTH + TEXT_PADDING * 2 + GraphicsHolder.getTextWidth(getSliderString(1));
+		sliderX = textRenderer.getWidth(getTimeString(0)) + TEXT_PADDING * 2;
+		sliderWidthWithText = SLIDER_WIDTH + TEXT_PADDING + textRenderer.getWidth(getSliderString(0));
+		rightPanelsX = sliderX + SLIDER_WIDTH + TEXT_PADDING * 2 + textRenderer.getWidth(getSliderString(1));
 		showScheduleControls = !transportMode.continuousMovement;
 		showCruisingAltitude = transportMode == TransportMode.AIRPLANE;
-		buttonUseRealTime = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_SCHEDULE_MODE_REAL_TIME_OFF.getMutableText(), button -> {
+		buttonUseRealTime = ButtonWidget.builder(TranslationProvider.GUI_MTR_SCHEDULE_MODE_REAL_TIME_OFF.getMutableText(), button -> {
 			depot.setUseRealTime(!depot.getUseRealTime());
 			toggleRealTime();
 			saveData();
-		});
-		buttonReset = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_RESET_SIGN.getMutableText(), button -> {
+		}).build();
+		buttonReset = ButtonWidget.builder(TranslationProvider.GUI_MTR_RESET_SIGN.getMutableText(), button -> {
 			for (int i = 0; i < HOURS_PER_DAY; i++) {
 				sliders[i].setValue(0);
 			}
 			data.getRealTimeDepartures().clear();
 			updateList();
 			saveData();
-		});
+		}).build();
 
 		for (int i = 0; i < HOURS_PER_DAY; i++) {
 			final int currentIndex = i;
@@ -96,48 +97,47 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		departuresList = new DashboardList(null, null, null, null, null, this::onDeleteDeparture, null, () -> "", text -> {
 		});
 
-		textFieldDeparture = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 25, TextCase.DEFAULT, "[^\\d:+* ]", "07:10:00 + 10 * 00:03:00");
-		buttonAddDeparture = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+"), button -> {
-			checkDeparture(textFieldDeparture.getText2(), true, false);
+		textFieldDeparture = new WidgetBetterTextField(25, TextCase.DEFAULT, "[^\\d:+* ]", "07:10:00 + 10 * 00:03:00");
+		buttonAddDeparture = ButtonWidget.builder(Text.literal("+"), button -> {
+			checkDeparture(textFieldDeparture.getText(), true, false);
 			saveData();
-		});
-		buttonEditInstructions = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_EDIT_INSTRUCTIONS.getMutableText(), button -> {
+		}).build();
+		buttonEditInstructions = ButtonWidget.builder(TranslationProvider.GUI_MTR_EDIT_INSTRUCTIONS.getMutableText(), button -> {
 			saveData();
 			final ObjectArrayList<DashboardListItem> routes = new ObjectArrayList<>(MinecraftClientData.getFilteredDataSet(transportMode, MinecraftClientData.getDashboardInstance().routes));
 			Collections.sort(routes);
-			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(new ObjectImmutableList<>(routes), data.getRouteIds(), false, true, this)));
-		});
-		buttonInstantDeploy = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_INSTANT_DEPLOY.getMutableText(), button -> {
+			MinecraftClient.getInstance().setScreen(new DashboardListSelectorScreen(new ObjectImmutableList<>(routes), data.getRouteIds(), false, true, this));
+		}).build();
+		buttonInstantDeploy = ButtonWidget.builder(TranslationProvider.GUI_MTR_INSTANT_DEPLOY.getMutableText(), button -> {
 			saveData();
 			final DepotOperationByIds depotOperationByIds = new DepotOperationByIds();
 			depotOperationByIds.addDepotId(depot.getId());
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotInstantDeploy(depotOperationByIds));
-		});
-		buttonGenerateRoute = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_REFRESH_PATH.getMutableText(), button -> {
+			RegistryClient.sendPacketToServer(new PacketDepotInstantDeploy(depotOperationByIds));
+		}).build();
+		buttonGenerateRoute = ButtonWidget.builder(TranslationProvider.GUI_MTR_REFRESH_PATH.getMutableText(), button -> {
 			saveData();
 			final DepotOperationByIds depotOperationByIds = new DepotOperationByIds();
 			depotOperationByIds.addDepotId(depot.getId());
 			DEPOT_GENERATION_START_TIME.put(depot.getId(), System.currentTimeMillis());
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotGenerate(depotOperationByIds));
-		});
-		buttonClearTrains = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_CLEAR_VEHICLES.getMutableText(), button -> {
+			RegistryClient.sendPacketToServer(new PacketDepotGenerate(depotOperationByIds));
+		}).build();
+		buttonClearTrains = ButtonWidget.builder(TranslationProvider.GUI_MTR_CLEAR_VEHICLES.getMutableText(), button -> {
 			saveData();
 			final DepotOperationByIds depotOperationByIds = new DepotOperationByIds();
 			depotOperationByIds.addDepotId(depot.getId());
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotClear(depotOperationByIds));
-		});
-		checkboxRepeatIndefinitely = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, button -> {
+			RegistryClient.sendPacketToServer(new PacketDepotClear(depotOperationByIds));
+		}).build();
+		checkboxRepeatIndefinitely = CheckboxWidget.builder(TranslationProvider.GUI_MTR_REPEAT_INDEFINITELY.getText(), textRenderer).checked(data.getRepeatInfinitely()).callback((checkboxWidget, checked) -> {
 			saveData();
 			final DepotOperationByIds depotOperationByIds = new DepotOperationByIds();
 			depotOperationByIds.addDepotId(depot.getId());
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDepotGenerate(depotOperationByIds));
-		});
-		checkboxRepeatIndefinitely.setMessage2(TranslationProvider.GUI_MTR_REPEAT_INDEFINITELY.getText());
-		textFieldCruisingAltitude = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 5, TextCase.DEFAULT, "[^-\\d]", String.valueOf(DEFAULT_CRUISING_ALTITUDE));
+			RegistryClient.sendPacketToServer(new PacketDepotGenerate(depotOperationByIds));
+		}).build();
+		textFieldCruisingAltitude = new WidgetBetterTextField(5, TextCase.DEFAULT, "[^-\\d]", String.valueOf(DEFAULT_CRUISING_ALTITUDE));
 	}
 
 	@Override
-	protected void init2() {
+	protected void init() {
 		setPositionsAndInit(rightPanelsX, width / 4 * 3, width);
 
 		final int buttonWidth = (width - rightPanelsX) / 2;
@@ -146,15 +146,14 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		IDrawing.setPositionAndWidth(buttonGenerateRoute, rightPanelsX, PANELS_START + SQUARE_SIZE * 2, buttonWidth * (showScheduleControls ? 1 : 2));
 		IDrawing.setPositionAndWidth(buttonClearTrains, rightPanelsX + buttonWidth, PANELS_START + SQUARE_SIZE * 2, buttonWidth);
 		IDrawing.setPositionAndWidth(checkboxRepeatIndefinitely, rightPanelsX, PANELS_START + SQUARE_SIZE * 3 + (showCruisingAltitude ? SQUARE_SIZE + TEXT_FIELD_PADDING : 0), buttonWidth * 2);
-		checkboxRepeatIndefinitely.setChecked(data.getRepeatInfinitely());
 
-		final int cruisingAltitudeTextWidth = GraphicsHolder.getTextWidth(cruisingAltitudeText) + TEXT_PADDING * 2;
+		final int cruisingAltitudeTextWidth = textRenderer.getWidth(cruisingAltitudeText) + TEXT_PADDING * 2;
 		IDrawing.setPositionAndWidth(textFieldCruisingAltitude, rightPanelsX + Math.min(cruisingAltitudeTextWidth, buttonWidth * 2 - SQUARE_SIZE * 3) + TEXT_FIELD_PADDING / 2, PANELS_START + SQUARE_SIZE * 3 + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 3 - TEXT_FIELD_PADDING);
-		textFieldCruisingAltitude.setText2(String.valueOf(data.getCruisingAltitude()));
+		textFieldCruisingAltitude.setText(String.valueOf(data.getCruisingAltitude()));
 
 		if (showScheduleControls) {
 			for (WidgetShorterSlider slider : sliders) {
-				addChild(new ClickableWidget(slider));
+				addSelectableChild(slider);
 			}
 		}
 		for (int i = 0; i < HOURS_PER_DAY; i++) {
@@ -168,37 +167,35 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		departuresList.y = SQUARE_SIZE;
 		departuresList.height = height - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING;
 		departuresList.width = leftWidth;
-		departuresList.init(this::addChild);
+		departuresList.init(this::addSelectableChild);
 
 		IDrawing.setPositionAndWidth(textFieldDeparture, TEXT_FIELD_PADDING / 2, height - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, leftWidth - TEXT_FIELD_PADDING - SQUARE_SIZE);
-		addChild(new ClickableWidget(textFieldDeparture));
-		textFieldDeparture.setChangedListener2(text -> buttonAddDeparture.active = checkDeparture(text, false, false));
+		addSelectableChild(textFieldDeparture);
+		textFieldDeparture.setChangedListener(text -> buttonAddDeparture.active = checkDeparture(text, false, false));
 		IDrawing.setPositionAndWidth(buttonAddDeparture, leftWidth - SQUARE_SIZE, height - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
-		addChild(new ClickableWidget(buttonAddDeparture));
+		addSelectableChild(buttonAddDeparture);
 		buttonAddDeparture.active = false;
 
-		addChild(new ClickableWidget(buttonEditInstructions));
-		addChild(new ClickableWidget(buttonInstantDeploy));
-		addChild(new ClickableWidget(buttonGenerateRoute));
+		addSelectableChild(buttonEditInstructions);
+		addSelectableChild(buttonInstantDeploy);
+		addSelectableChild(buttonGenerateRoute);
 		if (showScheduleControls) {
-			addChild(new ClickableWidget(buttonUseRealTime));
-			addChild(new ClickableWidget(buttonReset));
-			addChild(new ClickableWidget(buttonClearTrains));
-			addChild(new ClickableWidget(checkboxRepeatIndefinitely));
+			addSelectableChild(buttonUseRealTime);
+			addSelectableChild(buttonReset);
+			addSelectableChild(buttonClearTrains);
+			addSelectableChild(checkboxRepeatIndefinitely);
 		}
 		if (showCruisingAltitude) {
-			addChild(new ClickableWidget(textFieldCruisingAltitude));
+			addSelectableChild(textFieldCruisingAltitude);
 		}
 
 		toggleRealTime();
 	}
 
 	@Override
-	public void tick2() {
-		super.tick2();
+	public void tick() {
+		super.tick();
 		departuresList.tick();
-		textFieldDeparture.tick2();
-		textFieldCruisingAltitude.tick2();
 
 		for (int i = 0; i < HOURS_PER_DAY; i++) {
 			data.setFrequency(i, sliders[i].getIntValue());
@@ -214,72 +211,69 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	}
 
 	@Override
-	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
-		renderBackground(graphicsHolder);
-		final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
-		guiDrawing.beginDrawingRectangle();
-		guiDrawing.drawRectangle(rightPanelsX - 1, 0, rightPanelsX, height, ARGB_WHITE_TRANSLUCENT);
-		guiDrawing.finishDrawingRectangle();
-		renderTextFields(graphicsHolder);
+	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+		renderBackground(context, mouseX, mouseY, delta);
+		context.fill(rightPanelsX - 1, 0, rightPanelsX, height, ARGB_WHITE_TRANSLUCENT);
+		renderTextFields(context);
 
 		if (showScheduleControls && data.getUseRealTime()) {
-			departuresList.render(graphicsHolder);
+			departuresList.render(context);
 		}
 
 		final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE * 2) / HOURS_PER_DAY);
 		for (int i = 0; i < HOURS_PER_DAY; i++) {
 			if (showScheduleControls && !data.getUseRealTime()) {
-				graphicsHolder.drawText(getTimeString(i), TEXT_PADDING, SQUARE_SIZE * 2 + lineHeight * i + (int) ((lineHeight - TEXT_HEIGHT) / 2F), ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+				context.drawText(textRenderer, getTimeString(i), TEXT_PADDING, SQUARE_SIZE * 2 + lineHeight * i + (int) ((lineHeight - TEXT_HEIGHT) / 2F), ARGB_WHITE, false);
 			}
-			sliders[i].setY2(SQUARE_SIZE * 2 + lineHeight * i);
+			sliders[i].setY(SQUARE_SIZE * 2 + lineHeight * i);
 			sliders[i].setHeight(lineHeight);
 		}
 
-		super.render(graphicsHolder, mouseX, mouseY, delta);
+		super.render(context, mouseX, mouseY, delta);
 
 		final int yStartRightPane = PANELS_START + SQUARE_SIZE * (checkboxRepeatIndefinitely.visible ? 4 : 3) + (showCruisingAltitude ? SQUARE_SIZE + TEXT_FIELD_PADDING : 0) + TEXT_PADDING;
 		if (showCruisingAltitude) {
-			graphicsHolder.drawText(cruisingAltitudeText, rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 3 + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+			context.drawText(textRenderer, cruisingAltitudeText, rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 3 + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE, false);
 		}
-		graphicsHolder.drawText(TranslationProvider.GUI_MTR_SIDINGS_IN_DEPOT.getMutableText(data.savedRails.size()), rightPanelsX + TEXT_PADDING, yStartRightPane, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+		context.drawText(textRenderer, TranslationProvider.GUI_MTR_SIDINGS_IN_DEPOT.getMutableText(data.savedRails.size()), rightPanelsX + TEXT_PADDING, yStartRightPane, ARGB_WHITE, false);
 
 		// Temporary workaround to get the latest depot path generation status
 		final Depot newDepot = MinecraftClientData.getDashboardInstance().depotIdMap.get(data.getId());
 		if (newDepot != null) {
 			final String[] stringSplit = getSuccessfulSegmentsText(newDepot).split("\\|");
 			for (int i = 0; i < stringSplit.length; i++) {
-				graphicsHolder.drawText(stringSplit[i], rightPanelsX + TEXT_PADDING, yStartRightPane + SQUARE_SIZE * 2 + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+				context.drawText(textRenderer, stringSplit[i], rightPanelsX + TEXT_PADDING, yStartRightPane + SQUARE_SIZE * 2 + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE, false);
 			}
 		}
 
 		if (showScheduleControls && !data.getUseRealTime()) {
-			graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_GAME_TIME.getMutableText(), sliderX / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
-			graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_VEHICLES_PER_HOUR.getMutableText(), sliderX + sliderWidthWithText / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
+			context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, TranslationProvider.GUI_MTR_GAME_TIME.getMutableText(), sliderX / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
+			context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, TranslationProvider.GUI_MTR_VEHICLES_PER_HOUR.getMutableText(), sliderX + sliderWidthWithText / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
 		}
 	}
 
 	@Override
-	public void mouseMoved2(double mouseX, double mouseY) {
+	public void mouseMoved(double mouseX, double mouseY) {
 		departuresList.mouseMoved(mouseX, mouseY);
 	}
 
 	@Override
-	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
-		departuresList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled2(mouseX, mouseY, amount);
+	public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+		departuresList.mouseScrolled(mouseX, mouseY, verticalAmount);
+		return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
 	}
 
 	@Override
 	protected void saveData() {
 		super.saveData();
-		data.setRepeatInfinitely(checkboxRepeatIndefinitely.visible && checkboxRepeatIndefinitely.isChecked2());
+		data.setRepeatInfinitely(checkboxRepeatIndefinitely.visible && checkboxRepeatIndefinitely.isChecked());
 		try {
-			data.setCruisingAltitude(Integer.parseInt(textFieldCruisingAltitude.getText2()));
+			data.setCruisingAltitude(Integer.parseInt(textFieldCruisingAltitude.getText()));
 		} catch (Exception e) {
-			Init.LOGGER.error("", e);
+			MTR.LOGGER.error("", e);
 			data.setCruisingAltitude(DEFAULT_CRUISING_ALTITUDE);
 		}
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addDepot(data)));
+		RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addDepot(data)));
 	}
 
 	private void toggleRealTime() {
@@ -287,9 +281,9 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			slider.visible = !data.getUseRealTime();
 		}
 		departuresList.x = data.getUseRealTime() ? 0 : width;
-		textFieldDeparture.setX2(data.getUseRealTime() ? TEXT_FIELD_PADDING / 2 : width);
+		textFieldDeparture.setX(data.getUseRealTime() ? TEXT_FIELD_PADDING / 2 : width);
 		buttonAddDeparture.visible = data.getUseRealTime();
-		buttonUseRealTime.setMessage2((data.getUseRealTime() ? TranslationProvider.GUI_MTR_SCHEDULE_MODE_REAL_TIME_ON : TranslationProvider.GUI_MTR_SCHEDULE_MODE_REAL_TIME_OFF).getText());
+		buttonUseRealTime.setMessage((data.getUseRealTime() ? TranslationProvider.GUI_MTR_SCHEDULE_MODE_REAL_TIME_ON : TranslationProvider.GUI_MTR_SCHEDULE_MODE_REAL_TIME_OFF).getText());
 		updateList();
 	}
 
@@ -402,7 +396,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		if (value == 0) {
 			headwayText = "";
 		} else {
-			headwayText = " (" + Utilities.round((float) TRAIN_FREQUENCY_MULTIPLIER * Init.SECONDS_PER_MC_HOUR / value, 1) + TranslationProvider.GUI_MTR_S.getString() + ")";
+			headwayText = " (" + Utilities.round((float) TRAIN_FREQUENCY_MULTIPLIER * MTR.SECONDS_PER_MC_HOUR / value, 1) + TranslationProvider.GUI_MTR_S.getString() + ")";
 		}
 		return value / (float) TRAIN_FREQUENCY_MULTIPLIER + TranslationProvider.GUI_MTR_TPH.getString() + headwayText;
 	}

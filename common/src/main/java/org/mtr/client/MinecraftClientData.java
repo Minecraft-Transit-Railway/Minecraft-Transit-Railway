@@ -1,22 +1,27 @@
-package org.mtr.mod.client;
+package org.mtr.client;
 
-import com.logisticscraft.occlusionculling.util.Vec3d;
-import org.mtr.core.data.Position;
+import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameMode;
+import org.mtr.MTR;
+import org.mtr.block.BlockNode;
 import org.mtr.core.data.*;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.EntityHelper;
-import org.mtr.mod.Init;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.KeyBindings;
-import org.mtr.mod.block.BlockNode;
-import org.mtr.mod.data.PersistentVehicleData;
-import org.mtr.mod.data.VehicleExtension;
-import org.mtr.mod.packet.PacketDriveTrain;
-import org.mtr.mod.screen.DashboardListItem;
+import org.mtr.data.PersistentVehicleData;
+import org.mtr.data.VehicleExtension;
+import org.mtr.packet.PacketDriveTrain;
+import org.mtr.registry.KeyBindings;
+import org.mtr.registry.RegistryClient;
+import org.mtr.screen.DashboardListItem;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -78,30 +83,30 @@ public final class MinecraftClientData extends ClientData {
 	@Nullable
 	public ObjectObjectImmutablePair<Rail, BlockPos> getFacingRailAndBlockPos(boolean includeCableType) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
+		final ClientWorld clientWorld = minecraftClient.world;
 		if (clientWorld == null) {
 			return null;
 		}
 
-		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+		final ClientPlayerEntity clientPlayerEntity = minecraftClient.player;
 		if (clientPlayerEntity == null) {
 			return null;
 		}
 
-		final HitResult hitResult = minecraftClient.getCrosshairTargetMapped();
+		final HitResult hitResult = minecraftClient.crosshairTarget;
 		if (hitResult == null) {
 			return null;
 		}
 
-		final Vector3d hitPos = hitResult.getPos();
-		final BlockPos blockPos = Init.newBlockPos(hitPos.getXMapped(), hitPos.getYMapped(), hitPos.getZMapped());
+		final Vec3d hitPos = hitResult.getPos();
+		final BlockPos blockPos = BlockPos.ofFloored(hitPos.x, hitPos.y, hitPos.z);
 
-		if (clientWorld.getBlockState(blockPos).getBlock().data instanceof BlockNode) {
-			final float playerAngle = EntityHelper.getYaw(new Entity(clientPlayerEntity.data)) + 90;
+		if (clientWorld.getBlockState(blockPos).getBlock() instanceof BlockNode) {
+			final float playerAngle = clientPlayerEntity.getYaw() + 90;
 			final Rail[] closestRail = {null};
 			final double[] closestAngle = {720};
 
-			positionsToRail.getOrDefault(Init.blockPosToPosition(blockPos), new Object2ObjectOpenHashMap<>()).forEach((endPosition, rail) -> {
+			positionsToRail.getOrDefault(MTR.blockPosToPosition(blockPos), new Object2ObjectOpenHashMap<>()).forEach((endPosition, rail) -> {
 				if (includeCableType || rail.railMath.getShape() != Rail.Shape.CABLE) {
 					final double angle = Math.abs(Math.toDegrees(Math.atan2(endPosition.getZ() - blockPos.getZ(), endPosition.getX() - blockPos.getX())) - playerAngle) % 360;
 					final double clampedAngle = angle > 180 ? 360 - angle : angle;
@@ -145,13 +150,13 @@ public final class MinecraftClientData extends ClientData {
 
 	public static void tick() {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+		final ClientPlayerEntity clientPlayerEntity = minecraftClient.player;
 		final boolean tempPressingAccelerate = KeyBindings.TRAIN_ACCELERATE.isPressed();
 		final boolean tempPressingBrake = KeyBindings.TRAIN_BRAKE.isPressed();
 		final boolean tempPressingDoors = KeyBindings.TRAIN_TOGGLE_DOORS.isPressed();
 
 		if (VehicleExtension.isHoldingKey(clientPlayerEntity) && (pressingAccelerate || pressingBrake || pressingDoors)) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDriveTrain(
+			RegistryClient.sendPacketToServer(new PacketDriveTrain(
 					tempPressingAccelerate && !pressingAccelerate,
 					tempPressingBrake && !pressingBrake,
 					tempPressingDoors && !pressingDoors
@@ -164,7 +169,7 @@ public final class MinecraftClientData extends ClientData {
 	}
 
 	public static boolean hasPermission() {
-		final ClientPlayerEntity player = MinecraftClient.getInstance().getPlayerMapped();
+		final ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		if (player == null) {
 			return false;
 		}
@@ -177,7 +182,7 @@ public final class MinecraftClientData extends ClientData {
 			return false;
 		}
 		final GameMode gameMode = playerListEntry.getGameMode();
-		return gameMode == GameMode.getCreativeMapped() || gameMode == GameMode.getSurvivalMapped();
+		return gameMode == GameMode.CREATIVE || gameMode == GameMode.SURVIVAL;
 	}
 
 	@Nullable
@@ -248,19 +253,19 @@ public final class MinecraftClientData extends ClientData {
 
 		public boolean shouldRender;
 		public final String hexId;
-		public final Vec3d startVector;
-		public final Vec3d endVector;
+		public final com.logisticscraft.occlusionculling.util.Vec3d startVector;
+		public final com.logisticscraft.occlusionculling.util.Vec3d endVector;
 		private Rail rail;
 
 		private RailWrapper(Rail rail, String hexId, Position startPosition, Position endPosition) {
 			this.rail = rail;
 			this.hexId = hexId;
-			startVector = new Vec3d(
+			startVector = new com.logisticscraft.occlusionculling.util.Vec3d(
 					Math.min(startPosition.getX(), endPosition.getX()),
 					Math.min(startPosition.getY(), endPosition.getY()),
 					Math.min(startPosition.getZ(), endPosition.getZ())
 			);
-			endVector = new Vec3d(
+			endVector = new com.logisticscraft.occlusionculling.util.Vec3d(
 					Math.max(startPosition.getX(), endPosition.getX()),
 					Math.max(startPosition.getY(), endPosition.getY()),
 					Math.max(startPosition.getZ(), endPosition.getZ())

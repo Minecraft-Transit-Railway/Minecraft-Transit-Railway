@@ -1,9 +1,9 @@
-package org.mtr.mod.config;
+package org.mtr.config;
 
+import org.mtr.Keys;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
-import org.mtr.mod.Keys;
-import org.mtr.mod.generated.config.ClientSchema;
+import org.mtr.generated.config.ClientSchema;
 
 public final class Client extends ClientSchema {
 

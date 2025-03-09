@@ -1,4 +1,4 @@
-package org.mtr.mod.servlet;
+package org.mtr.servlet;
 
 
 import org.mtr.core.Main;

@@ -1,11 +1,10 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
 import org.mtr.core.operation.DepotOperationByIds;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
-import org.mtr.mapping.tool.PacketBufferReceiver;
 
 import javax.annotation.Nonnull;
 

@@ -1,10 +1,10 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import org.mtr.MTR;
 import org.mtr.core.serializer.ReaderBase;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
-import org.mtr.mod.Init;
-import org.mtr.mod.generated.resource.ModelPropertiesPartWrapperSchema;
+import org.mtr.generated.resource.ModelPropertiesPartWrapperSchema;
 
 public final class ModelPropertiesPartWrapper extends ModelPropertiesPartWrapperSchema {
 
@@ -70,7 +70,7 @@ public final class ModelPropertiesPartWrapper extends ModelPropertiesPartWrapper
 	}
 
 	ObjectObjectImmutablePair<ModelPropertiesPart, PositionDefinition> toModelPropertiesPartAndPositionDefinition() {
-		final String name = Init.randomString();
+		final String name = MTR.randomString();
 		final ObjectArrayList<PartPosition> positions = new ObjectArrayList<>();
 		final ObjectArrayList<PartPosition> positionsFlipped = new ObjectArrayList<>();
 		positionDefinition.getPositionLists((partPositions, partPositionsFlipped) -> {

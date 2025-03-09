@@ -1,18 +1,21 @@
-package org.mtr.mod.client;
+package org.mtr.client;
 
+import it.unimi.dsi.fastutil.objects.Object2LongArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.util.Identifier;
+import org.mtr.MTR;
+import org.mtr.config.Config;
+import org.mtr.config.LanguageDisplay;
 import org.mtr.core.servlet.MessageQueue;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2LongArrayMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.ResourceManagerHelper;
-import org.mtr.mod.Init;
-import org.mtr.mod.config.Config;
-import org.mtr.mod.config.LanguageDisplay;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.render.MainRenderer;
-import org.mtr.mod.render.MoreRenderLayers;
+import org.mtr.data.IGui;
+import org.mtr.render.MainRenderer;
+import org.mtr.render.MoreRenderLayers;
+import org.mtr.resource.ResourceManagerHelper;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -39,14 +42,14 @@ public class DynamicTextureCache implements IGui {
 
 	public static final float LINE_HEIGHT_MULTIPLIER = 1.25F;
 	private static final int COOLDOWN_TIME = 10000; // Images not requested within the last 10 seconds will be unregistered
-	private static final Identifier DEFAULT_BLACK_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/black.png");
-	private static final Identifier DEFAULT_WHITE_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/white.png");
-	private static final Identifier DEFAULT_TRANSPARENT_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/transparent.png");
+	private static final Identifier DEFAULT_BLACK_RESOURCE = Identifier.of(MTR.MOD_ID, "textures/block/black.png");
+	private static final Identifier DEFAULT_WHITE_RESOURCE = Identifier.of(MTR.MOD_ID, "textures/block/white.png");
+	private static final Identifier DEFAULT_TRANSPARENT_RESOURCE = Identifier.of(MTR.MOD_ID, "textures/block/transparent.png");
 
 	public void reload() {
 		font = null;
 		fontCjk = null;
-		Init.LOGGER.debug("Refreshing dynamic resources; {} textures in memory; {} textures queued to be destroyed", dynamicResources.size(), deletedResources.size());
+		MTR.LOGGER.debug("Refreshing dynamic resources; {} textures in memory; {} textures queued to be destroyed", dynamicResources.size(), deletedResources.size());
 		dynamicResources.values().forEach(dynamicResource -> dynamicResource.needsRefresh = true);
 		generatingResources.clear();
 	}
@@ -233,21 +236,21 @@ public class DynamicTextureCache implements IGui {
 
 		MainRenderer.WORKER_THREAD.scheduleDynamicTextures(() -> {
 			while (font == null) {
-				ResourceManagerHelper.readResource(new Identifier(Init.MOD_ID, "font/noto-sans-semibold.ttf"), inputStream -> {
+				ResourceManagerHelper.readResource(Identifier.of(MTR.MOD_ID, "font/noto-sans-semibold.ttf"), inputStream -> {
 					try {
 						font = Font.createFont(Font.TRUETYPE_FONT, inputStream);
 					} catch (Exception e) {
-						Init.LOGGER.error("", e);
+						MTR.LOGGER.error("", e);
 					}
 				});
 			}
 
 			while (fontCjk == null) {
-				ResourceManagerHelper.readResource(new Identifier(Init.MOD_ID, "font/noto-serif-cjk-tc-semibold.ttf"), inputStream -> {
+				ResourceManagerHelper.readResource(Identifier.of(MTR.MOD_ID, "font/noto-serif-cjk-tc-semibold.ttf"), inputStream -> {
 					try {
 						fontCjk = Font.createFont(Font.TRUETYPE_FONT, inputStream);
 					} catch (Exception e) {
-						Init.LOGGER.error("", e);
+						MTR.LOGGER.error("", e);
 					}
 				});
 			}
@@ -264,8 +267,8 @@ public class DynamicTextureCache implements IGui {
 				final DynamicResource dynamicResourceNew;
 				if (nativeImage != null) {
 					final NativeImageBackedTexture nativeImageBackedTexture = new NativeImageBackedTexture(nativeImage);
-					final Identifier identifier = new Identifier(Init.MOD_ID, "id_" + Init.randomString());
-					MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, new AbstractTexture(nativeImageBackedTexture.data));
+					final Identifier identifier = Identifier.of(MTR.MOD_ID, "id_" + MTR.randomString());
+					MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, nativeImageBackedTexture);
 					dynamicResourceNew = new DynamicResource(identifier, nativeImageBackedTexture);
 					dynamicResources.put(key, dynamicResourceNew);
 				}

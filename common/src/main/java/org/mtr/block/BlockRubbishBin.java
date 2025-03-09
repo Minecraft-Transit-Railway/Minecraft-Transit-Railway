@@ -1,40 +1,51 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.DirectionHelper;
-import org.mtr.mapping.tool.HolderBase;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.IntProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
-public class BlockRubbishBin extends BlockExtension implements DirectionHelper {
+public class BlockRubbishBin extends Block {
 
 	public static final int MAX_LEVEL = 15;
-	public static final IntegerProperty FILLED = IntegerProperty.of("filled", 0, MAX_LEVEL);
+	public static final IntProperty FILLED = IntProperty.of("filled", 0, MAX_LEVEL);
 
-	public BlockRubbishBin(BlockSettings blockSettings) {
+	public BlockRubbishBin(AbstractBlock.Settings blockSettings) {
 		super(blockSettings);
 	}
 
 	@Override
-	public BlockState getPlacementState2(ItemPlacementContext ctx) {
-		return getDefaultState2().with(new Property<>(FACING.data), ctx.getPlayerFacing().data);
+	public BlockState getPlacementState(ItemPlacementContext ctx) {
+		return getDefaultState().with(Properties.FACING, ctx.getHorizontalPlayerFacing());
 	}
 
 	@Nonnull
 	@Override
-	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getVoxelShapeByDirection(2, 0, 0, 14, 16, 4.5, Direction.convert(state.get(new Property<>(FACING.data))));
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return IBlock.getVoxelShapeByDirection(2, 0, 0, 14, 16, 4.5, state.get(Properties.FACING));
 	}
 
 	@Nonnull
 	@Override
-	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		return IBlock.checkHoldingBrush(world, player, () -> world.setBlockState(pos, state.with(new Property<>(FILLED.data), 0)), () -> {
+	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+		return IBlock.checkHoldingBrush(world, player, () -> world.setBlockState(pos, state.with(FILLED, 0)), () -> {
 			final int currentLevel = IBlock.getStatePropertySafe(state, FILLED);
 			if (!player.getMainHandStack().isEmpty() && currentLevel < MAX_LEVEL) {
-				world.setBlockState(pos, state.with(new Property<>(FILLED.data), currentLevel + 1));
+				world.setBlockState(pos, state.with(FILLED, currentLevel + 1));
 				if (!player.isCreative()) {
 					player.getMainHandStack().decrement(1);
 				}
@@ -43,21 +54,21 @@ public class BlockRubbishBin extends BlockExtension implements DirectionHelper {
 	}
 
 	@Override
-	public void randomDisplayTick2(BlockState state, World world, BlockPos pos, Random random) {
+	public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
 		final int newLevel = IBlock.getStatePropertySafe(state, FILLED) - 1;
 		if (newLevel >= 0) {
-			world.setBlockState(pos, state.with(new Property<>(FILLED.data), newLevel));
+			world.setBlockState(pos, state.with(FILLED, newLevel));
 		}
 	}
 
 	@Override
-	public boolean hasRandomTicks2(BlockState state) {
+	public boolean hasRandomTicks(BlockState state) {
 		return true;
 	}
 
 	@Override
-	public void addBlockProperties(List<HolderBase<?>> properties) {
-		properties.add(FACING);
-		properties.add(FILLED);
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(Properties.FACING);
+		builder.add(FILLED);
 	}
 }

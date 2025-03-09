@@ -1,17 +1,16 @@
-package org.mtr.mod.data;
+package org.mtr.data;
 
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import it.unimi.dsi.fastutil.longs.LongImmutableList;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.World;
+import org.mtr.MTR;
 import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.core.operation.ArrivalsRequest;
 import org.mtr.core.operation.ArrivalsResponse;
 import org.mtr.core.servlet.OperationProcessor;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongImmutableList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
-import org.mtr.mapping.holder.ServerWorld;
-import org.mtr.mapping.holder.World;
-import org.mtr.mapping.mapper.MinecraftServerHelper;
-import org.mtr.mod.Init;
 
 import java.util.function.Consumer;
 
@@ -34,7 +33,7 @@ public final class ArrivalsCacheServer extends ArrivalsCache {
 
 	@Override
 	protected void requestArrivalsFromServer(LongAVLTreeSet platformIds, Consumer<ObjectList<ArrivalResponse>> callback) {
-		Init.sendMessageC2S(
+		MTR.sendMessageC2S(
 				OperationProcessor.ARRIVALS,
 				world.getServer(),
 				world,
@@ -48,8 +47,7 @@ public final class ArrivalsCacheServer extends ArrivalsCache {
 	}
 
 	public static ArrivalsCacheServer getInstance(ServerWorld serverWorld) {
-		final World world = new World(serverWorld.data);
-		return INSTANCES.computeIfAbsent(MinecraftServerHelper.getWorldId(world).data.toString(), worldId -> new ArrivalsCacheServer(world));
+		return INSTANCES.computeIfAbsent(serverWorld.getRegistryKey().getValue().toString(), worldId -> new ArrivalsCacheServer(serverWorld));
 	}
 
 	public static void tickAll() {

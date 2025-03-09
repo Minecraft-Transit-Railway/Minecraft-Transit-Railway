@@ -1,22 +1,19 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import org.mtr.client.CustomResourceLoader;
+import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.EnumHelper;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
-import org.mtr.mapping.holder.MinecraftServer;
-import org.mtr.mapping.holder.ServerPlayerEntity;
-import org.mtr.mapping.registry.PacketHandler;
-import org.mtr.mapping.tool.PacketBufferReceiver;
-import org.mtr.mapping.tool.PacketBufferSender;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.registry.RegistryClient;
 
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -74,7 +71,7 @@ public final class PacketUpdateLastRailStyles extends PacketHandler {
 				return false;
 			} else {
 				if (modifyRail) {
-					InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(getRailWithLastStyles(uuid, rail))));
+					RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(getRailWithLastStyles(uuid, rail))));
 				}
 				return true;
 			}

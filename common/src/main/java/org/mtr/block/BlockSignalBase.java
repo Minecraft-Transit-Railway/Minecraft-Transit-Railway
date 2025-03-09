@@ -1,59 +1,72 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
+import it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.EnumProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 import org.mtr.core.tool.Angle;
-import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.BlockWithEntity;
-import org.mtr.mapping.mapper.DirectionHelper;
-import org.mtr.mapping.tool.HolderBase;
-import org.mtr.mod.Init;
-import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
+import org.mtr.packet.PacketOpenBlockEntityScreen;
+import org.mtr.registry.Registry;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.List;
 
-public abstract class BlockSignalBase extends BlockExtension implements DirectionHelper, BlockWithEntity {
+public abstract class BlockSignalBase extends Block implements BlockEntityProvider {
 
 	public static final EnumProperty<EnumBooleanInverted> IS_22_5 = EnumProperty.of("is_22_5", EnumBooleanInverted.class);
 	public static final EnumProperty<EnumBooleanInverted> IS_45 = EnumProperty.of("is_45", EnumBooleanInverted.class);
 
-	public BlockSignalBase(BlockSettings blockSettings) {
+	public BlockSignalBase(AbstractBlock.Settings blockSettings) {
 		super(blockSettings);
 	}
 
 	@Nonnull
 	@Override
-	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			final BlockEntity entity = world.getBlockEntity(pos);
-			if (entity != null && entity.data instanceof BlockEntityBase) {
-				((BlockEntityBase) entity.data).markDirty2();
-				Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(pos));
+			if (entity instanceof BlockEntityBase) {
+				entity.markDirty();
+				Registry.sendPacketToClient((ServerPlayerEntity) player, new PacketOpenBlockEntityScreen(pos));
 			}
 		});
 	}
 
 	@Override
-	public BlockState getPlacementState2(ItemPlacementContext ctx) {
+	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final int quadrant = Angle.getQuadrant(ctx.getPlayerYaw(), true);
-		return getDefaultState2().with(new Property<>(FACING.data), Direction.fromHorizontal(quadrant / 4).data).with(new Property<>(IS_45.data), EnumBooleanInverted.fromBoolean(quadrant % 4 >= 2)).with(new Property<>(IS_22_5.data), EnumBooleanInverted.fromBoolean(quadrant % 2 == 1));
+		return getDefaultState().with(Properties.FACING, Direction.fromHorizontalDegrees(quadrant / 4F)).with(IS_45, EnumBooleanInverted.fromBoolean(quadrant % 4 >= 2)).with(IS_22_5, EnumBooleanInverted.fromBoolean(quadrant % 2 == 1));
 	}
 
 	@Override
-	public void addBlockProperties(List<HolderBase<?>> properties) {
-		properties.add(FACING);
-		properties.add(IS_22_5);
-		properties.add(IS_45);
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(Properties.FACING);
+		builder.add(IS_22_5);
+		builder.add(IS_45);
 	}
 
 	public static float getAngle(BlockState state) {
-		return IBlock.getStatePropertySafe(state, DirectionHelper.FACING).asRotation() + (IBlock.getStatePropertySafe(state, BlockSignalBase.IS_22_5).booleanValue ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockSignalBase.IS_45).booleanValue ? 45 : 0);
+		return IBlock.getStatePropertySafe(state, Properties.FACING).getPositiveHorizontalDegrees() + (IBlock.getStatePropertySafe(state, BlockSignalBase.IS_22_5).booleanValue ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockSignalBase.IS_45).booleanValue ? 45 : 0);
 	}
 
-	public static abstract class BlockEntityBase extends BlockEntityExtension {
+	public static abstract class BlockEntityBase extends BlockEntity {
 
 		public final boolean isDoubleSided;
 
@@ -68,29 +81,29 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 		}
 
 		@Override
-		public void readCompoundTag(CompoundTag compoundTag) {
+		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
 			signalColors1.clear();
-			for (final int color : compoundTag.getIntArray(KEY_SIGNAL_COLORS_1)) {
+			for (final int color : nbt.getIntArray(KEY_SIGNAL_COLORS_1)) {
 				signalColors1.add(color);
 			}
 			signalColors2.clear();
-			for (final int color : compoundTag.getIntArray(KEY_SIGNAL_COLORS_2)) {
+			for (final int color : nbt.getIntArray(KEY_SIGNAL_COLORS_2)) {
 				signalColors2.add(color);
 			}
-			super.readCompoundTag(compoundTag);
+			super.readNbt(nbt, registries);
 		}
 
 		@Override
-		public void writeCompoundTag(CompoundTag compoundTag) {
-			compoundTag.putIntArray(KEY_SIGNAL_COLORS_1, new ArrayList<>(signalColors1));
-			compoundTag.putIntArray(KEY_SIGNAL_COLORS_2, new ArrayList<>(signalColors2));
-			super.writeCompoundTag(compoundTag);
+		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+			nbt.putIntArray(KEY_SIGNAL_COLORS_1, new ArrayList<>(signalColors1));
+			nbt.putIntArray(KEY_SIGNAL_COLORS_2, new ArrayList<>(signalColors2));
+			super.writeNbt(nbt, registries);
 		}
 
 		public void setData(IntAVLTreeSet signalColors, boolean isBackSide) {
 			getSignalColors(isBackSide).clear();
 			getSignalColors(isBackSide).addAll(signalColors);
-			markDirty2();
+			markDirty();
 		}
 
 		public IntAVLTreeSet getSignalColors(boolean isBackSide) {
@@ -109,7 +122,7 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 
 		@Nonnull
 		@Override
-		public String asString2() {
+		public String asString() {
 			return String.valueOf(booleanValue);
 		}
 

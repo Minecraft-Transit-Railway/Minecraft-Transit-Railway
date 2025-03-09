@@ -1,9 +1,9 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.generated.lang.TranslationProvider;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import org.mtr.data.IGui;
+import org.mtr.generated.lang.TranslationProvider;
 
 public class ReloadCustomResourcesScreen extends MTRScreenBase implements IGui {
 
@@ -17,23 +17,23 @@ public class ReloadCustomResourcesScreen extends MTRScreenBase implements IGui {
 	}
 
 	@Override
-	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
-		renderBackground(graphicsHolder);
-		graphicsHolder.drawCenteredText(resourceReloadingInProgressText, width / 2, height / 2 - TEXT_HEIGHT / 2, ARGB_WHITE);
-		super.render(graphicsHolder, mouseX, mouseY, delta);
+	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+		renderBackground(context, mouseX, mouseY, delta);
+		context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, resourceReloadingInProgressText, width / 2, height / 2 - TEXT_HEIGHT / 2, ARGB_WHITE);
+		super.render(context, mouseX, mouseY, delta);
 
 		if (i > 10) {
 			i = -1;
 			task.run();
 		} else if (i < 0) {
-			MinecraftClient.getInstance().openScreen(null);
+			MinecraftClient.getInstance().setScreen(null);
 		} else {
 			i++;
 		}
 	}
 
 	@Override
-	public boolean isPauseScreen2() {
+	public boolean shouldPause() {
 		return false;
 	}
 }

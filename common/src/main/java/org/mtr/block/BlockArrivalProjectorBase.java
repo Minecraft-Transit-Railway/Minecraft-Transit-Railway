@@ -1,10 +1,20 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.tool.HolderBase;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 
@@ -13,15 +23,15 @@ public abstract class BlockArrivalProjectorBase extends BlockPIDSBase {
 	private static final BiPredicate<World, BlockPos> CAN_STORE_DATA = (world, blockPos) -> true;
 	private static final BiFunction<World, BlockPos, BlockPos> GET_BLOCK_POS_WITH_DATA = (world, blockPos) -> blockPos;
 
-	public BlockArrivalProjectorBase(int maxArrivals) {
-		super(maxArrivals, CAN_STORE_DATA, GET_BLOCK_POS_WITH_DATA);
+	public BlockArrivalProjectorBase(AbstractBlock.Settings settings, int maxArrivals) {
+		super(settings, maxArrivals, CAN_STORE_DATA, GET_BLOCK_POS_WITH_DATA);
 	}
 
 	@Override
-	public BlockState getPlacementState2(ItemPlacementContext ctx) {
+	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final Direction side = ctx.getSide();
 		if (side != Direction.UP && side != Direction.DOWN) {
-			return getDefaultState2().with(new Property<>(FACING.data), side.getOpposite().data);
+			return getDefaultState().with(Properties.FACING, side.getOpposite());
 		} else {
 			return null;
 		}
@@ -29,14 +39,14 @@ public abstract class BlockArrivalProjectorBase extends BlockPIDSBase {
 
 	@Nonnull
 	@Override
-	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
 		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, facing);
 	}
 
 	@Override
-	public void addBlockProperties(List<HolderBase<?>> properties) {
-		properties.add(FACING);
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(Properties.FACING);
 	}
 
 	public static abstract class BlockEntityArrivalProjectorBase extends BlockEntityBase {

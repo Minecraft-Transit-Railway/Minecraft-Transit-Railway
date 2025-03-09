@@ -1,13 +1,16 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.MTR;
+import org.mtr.block.*;
+import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Lift;
 import org.mtr.core.data.TransportMode;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.ScreenExtension;
-import org.mtr.mod.Init;
-import org.mtr.mod.block.*;
-import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.screen.*;
+import org.mtr.screen.*;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -19,20 +22,20 @@ public final class ClientPacketHelper {
 
 	public static void openBlockEntityScreen(BlockPos blockPos) {
 		getBlockEntity(blockPos, blockEntity -> {
-			if (blockEntity.data instanceof BlockTrainAnnouncer.BlockEntity) {
-				openScreen(new TrainAnnouncerScreen(blockPos, (BlockTrainAnnouncer.BlockEntity) blockEntity.data), screenExtension -> screenExtension instanceof TrainAnnouncerScreen);
-			} else if (blockEntity.data instanceof BlockTrainScheduleSensor.BlockEntity) {
-				openScreen(new TrainScheduleSensorScreen(blockPos, (BlockTrainScheduleSensor.BlockEntity) blockEntity.data), screenExtension -> screenExtension instanceof TrainScheduleSensorScreen);
-			} else if (blockEntity.data instanceof BlockTrainSensorBase.BlockEntityBase) {
+			if (blockEntity instanceof BlockTrainAnnouncer.TrainAnnouncerBlockEntity) {
+				openScreen(new TrainAnnouncerScreen(blockPos, (BlockTrainAnnouncer.TrainAnnouncerBlockEntity) blockEntity), screenExtension -> screenExtension instanceof TrainAnnouncerScreen);
+			} else if (blockEntity instanceof BlockTrainScheduleSensor.TrainScheduleSensorBlockEntity) {
+				openScreen(new TrainScheduleSensorScreen(blockPos, (BlockTrainScheduleSensor.TrainScheduleSensorBlockEntity) blockEntity), screenExtension -> screenExtension instanceof TrainScheduleSensorScreen);
+			} else if (blockEntity instanceof BlockTrainSensorBase.BlockEntityBase) {
 				openScreen(new TrainBasicSensorScreen(blockPos), screenExtension -> screenExtension instanceof TrainBasicSensorScreen);
-			} else if (blockEntity.data instanceof BlockRailwaySign.BlockEntity || blockEntity.data instanceof BlockRouteSignBase.BlockEntityBase) {
+			} else if (blockEntity instanceof BlockRailwaySign.RailwaySignBlockEntity || blockEntity instanceof BlockRouteSignBase.BlockEntityBase) {
 				openScreen(new RailwaySignScreen(blockPos), screenExtension -> screenExtension instanceof RailwaySignScreen);
-			} else if (blockEntity.data instanceof BlockLiftTrackFloor.BlockEntity) {
-				openScreen(new LiftTrackFloorScreen(blockPos, (BlockLiftTrackFloor.BlockEntity) blockEntity.data), screenExtension -> screenExtension instanceof LiftTrackFloorScreen);
-			} else if (blockEntity.data instanceof BlockSignalBase.BlockEntityBase) {
-				openScreen(new SignalColorScreen(blockPos, (BlockSignalBase.BlockEntityBase) blockEntity.data), screenExtension -> screenExtension instanceof SignalColorScreen);
-			} else if (blockEntity.data instanceof BlockEyeCandy.BlockEntity) {
-				openScreen(new EyeCandyScreen(blockPos, (BlockEyeCandy.BlockEntity) blockEntity.data), screenExtension -> screenExtension instanceof EyeCandyScreen);
+			} else if (blockEntity instanceof BlockLiftTrackFloor.LiftTrackFloorBlockEntity) {
+				openScreen(new LiftTrackFloorScreen(blockPos, (BlockLiftTrackFloor.LiftTrackFloorBlockEntity) blockEntity), screenExtension -> screenExtension instanceof LiftTrackFloorScreen);
+			} else if (blockEntity instanceof BlockSignalBase.BlockEntityBase) {
+				openScreen(new SignalColorScreen(blockPos, (BlockSignalBase.BlockEntityBase) blockEntity), screenExtension -> screenExtension instanceof SignalColorScreen);
+			} else if (blockEntity instanceof BlockEyeCandy.EyeCandyBlockEntity) {
+				openScreen(new EyeCandyScreen(blockPos, (BlockEyeCandy.EyeCandyBlockEntity) blockEntity), screenExtension -> screenExtension instanceof EyeCandyScreen);
 			}
 		});
 	}
@@ -59,8 +62,8 @@ public final class ClientPacketHelper {
 
 	public static void openLiftCustomizationScreen(BlockPos blockPos) {
 		for (final Lift lift : MinecraftClientData.getInstance().lifts) {
-			if (lift.getFloorIndex(Init.blockPosToPosition(blockPos)) >= 0) {
-				MinecraftClient.getInstance().openScreen(new Screen(new LiftCustomizationScreen(lift)));
+			if (lift.getFloorIndex(MTR.blockPosToPosition(blockPos)) >= 0) {
+				MinecraftClient.getInstance().setScreen(new LiftCustomizationScreen(lift));
 				break;
 			}
 		}
@@ -68,7 +71,7 @@ public final class ClientPacketHelper {
 
 	public static void openPIDSConfigScreen(BlockPos blockPos, int maxArrivals) {
 		getBlockEntity(blockPos, blockEntity -> {
-			if (blockEntity.data instanceof BlockPIDSBase.BlockEntityBase) {
+			if (blockEntity instanceof BlockPIDSBase.BlockEntityBase) {
 				openScreen(new PIDSConfigScreen(blockPos, maxArrivals), screenExtension -> screenExtension instanceof PIDSConfigScreen);
 			}
 		});
@@ -82,16 +85,16 @@ public final class ClientPacketHelper {
 		openScreen(new TicketMachineScreen(balance), screenExtension -> screenExtension instanceof TicketMachineScreen);
 	}
 
-	private static void openScreen(ScreenExtension screenExtension, Predicate<ScreenExtension> isInstance) {
+	private static void openScreen(Screen screenExtension, Predicate<Screen> isInstance) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final Screen screen = minecraftClient.getCurrentScreenMapped();
-		if (screen == null || screen.data instanceof ScreenExtension && !isInstance.test((ScreenExtension) screen.data)) {
-			minecraftClient.openScreen(new Screen(screenExtension));
+		final Screen screen = minecraftClient.currentScreen;
+		if (screen == null || !isInstance.test(screen)) {
+			minecraftClient.setScreen(screenExtension);
 		}
 	}
 
 	private static void getBlockEntity(BlockPos blockPos, Consumer<BlockEntity> consumer) {
-		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
+		final ClientWorld clientWorld = MinecraftClient.getInstance().world;
 		if (clientWorld != null) {
 			final BlockEntity blockEntity = clientWorld.getBlockEntity(blockPos);
 			if (blockEntity != null) {

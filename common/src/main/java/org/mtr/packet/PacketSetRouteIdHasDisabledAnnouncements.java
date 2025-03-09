@@ -1,13 +1,11 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
-import org.mtr.mapping.holder.MinecraftServer;
-import org.mtr.mapping.holder.ServerPlayerEntity;
-import org.mtr.mapping.mapper.PersistenceStateExtension;
-import org.mtr.mapping.registry.PacketHandler;
-import org.mtr.mapping.tool.PacketBufferReceiver;
-import org.mtr.mapping.tool.PacketBufferSender;
-import org.mtr.mod.Init;
-import org.mtr.mod.data.PersistentStateData;
+import net.minecraft.datafixer.DataFixTypes;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.PersistentState;
+import org.mtr.MTR;
+import org.mtr.data.PersistentStateData;
 
 public final class PacketSetRouteIdHasDisabledAnnouncements extends PacketHandler {
 
@@ -32,7 +30,7 @@ public final class PacketSetRouteIdHasDisabledAnnouncements extends PacketHandle
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		final PersistentStateData persistentStateData = (PersistentStateData) PersistenceStateExtension.register(serverPlayerEntity.getServerWorld(), PersistentStateData::new, Init.MOD_ID);
+		final PersistentStateData persistentStateData = serverPlayerEntity.getServerWorld().getPersistentStateManager().getOrCreate(new PersistentState.Type<>(PersistentStateData::new, (nbt, wrapperLookup) -> new PersistentStateData(nbt), DataFixTypes.LEVEL), MTR.MOD_ID);
 		persistentStateData.setRouteIdHasDisabledAnnouncements(routeId, isDisabled);
 	}
 }

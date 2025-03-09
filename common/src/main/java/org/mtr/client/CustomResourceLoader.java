@@ -1,17 +1,16 @@
-package org.mtr.mod.client;
+package org.mtr.client;
 
+import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;
+import org.mtr.Keys;
+import org.mtr.MTR;
+import org.mtr.config.Config;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Utilities;
 import org.mtr.legacy.resource.CustomResourcesConverter;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.mapper.ResourceManagerHelper;
-import org.mtr.mod.Init;
-import org.mtr.mod.Keys;
-import org.mtr.mod.config.Config;
-import org.mtr.mod.resource.*;
+import org.mtr.resource.*;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -70,7 +69,7 @@ public class CustomResourceLoader {
 		RAILS.add(defaultRailResource);
 		RAILS_CACHE.put(DEFAULT_RAIL_ID, defaultRailResource);
 
-		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_ID + ".json"), inputStream -> {
+		ResourceManagerHelper.readAllResources(Identifier.of(MTR.MOD_ID, CUSTOM_RESOURCES_ID + ".json"), inputStream -> {
 			try {
 				final CustomResources customResources = CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject(), CustomResourceLoader::readResource);
 				customResources.iterateVehicles(vehicleResource -> registerVehicle(vehicleResource, false));
@@ -87,16 +86,16 @@ public class CustomResourceLoader {
 					OBJECTS_CACHE.put(objectResource.getId(), objectResource);
 				});
 			} catch (Exception e) {
-				Init.LOGGER.error("", e);
+				MTR.LOGGER.error("", e);
 			}
 		});
 
 		// TODO temporary code for loading models pending migration
-		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_PENDING_MIGRATION_ID + ".json"), inputStream -> {
+		ResourceManagerHelper.readAllResources(Identifier.of(MTR.MOD_ID, CUSTOM_RESOURCES_PENDING_MIGRATION_ID + ".json"), inputStream -> {
 			try {
 				CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject(), CustomResourceLoader::readResource).iterateVehicles(vehicleResource -> registerVehicle(vehicleResource, false));
 			} catch (Exception e) {
-				Init.LOGGER.error("", e);
+				MTR.LOGGER.error("", e);
 			}
 		});
 
@@ -110,10 +109,10 @@ public class CustomResourceLoader {
 			OBJECTS_CACHE.put(objectResource.getId(), objectResource);
 		}, CustomResourceLoader::readResource);
 
-		Init.LOGGER.info("Loaded {} vehicles and completed door movement validation in {} ms", VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum), TEST_DURATION / 1E6);
-		Init.LOGGER.info("Loaded {} signs", SIGNS.size());
-		Init.LOGGER.info("Loaded {} rails", RAILS.size());
-		Init.LOGGER.info("Loaded {} objects", OBJECTS.size());
+		MTR.LOGGER.info("Loaded {} vehicles and completed door movement validation in {} ms", VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum), TEST_DURATION / 1E6);
+		MTR.LOGGER.info("Loaded {} signs", SIGNS.size());
+		MTR.LOGGER.info("Loaded {} rails", RAILS.size());
+		MTR.LOGGER.info("Loaded {} objects", OBJECTS.size());
 
 		final long time1 = System.currentTimeMillis();
 
@@ -127,7 +126,7 @@ public class CustomResourceLoader {
 
 		final long time2 = System.currentTimeMillis();
 		if (preloadedVehicleCount[0] > 0) {
-			Init.LOGGER.info("Preloaded {} vehicles in {} ms", preloadedVehicleCount[0], time2 - time1);
+			MTR.LOGGER.info("Preloaded {} vehicles in {} ms", preloadedVehicleCount[0], time2 - time1);
 		}
 
 		final int[] preloadedRailCount = {0};
@@ -140,7 +139,7 @@ public class CustomResourceLoader {
 
 		final long time3 = System.currentTimeMillis();
 		if (preloadedRailCount[0] > 0) {
-			Init.LOGGER.info("Preloaded {} rails in {} ms", preloadedRailCount[0], time3 - time2);
+			MTR.LOGGER.info("Preloaded {} rails in {} ms", preloadedRailCount[0], time3 - time2);
 		}
 
 		final int[] preloadedObjectCount = {0};
@@ -153,7 +152,7 @@ public class CustomResourceLoader {
 
 		final long time4 = System.currentTimeMillis();
 		if (preloadedObjectCount[0] > 0) {
-			Init.LOGGER.info("Preloaded {} objects in {} ms", preloadedObjectCount[0], time4 - time3);
+			MTR.LOGGER.info("Preloaded {} objects in {} ms", preloadedObjectCount[0], time4 - time3);
 		}
 	}
 
@@ -262,16 +261,16 @@ public class CustomResourceLoader {
 	}
 
 	private static String readResource(Identifier identifier) {
-		final String identifierString = identifier.data.toString();
+		final String identifierString = identifier.toString();
 		final String cache = RESOURCE_CACHE.get(identifierString);
 		if (cache == null) {
 			if (Keys.DEBUG) {
-				try (final InputStream inputStream = Files.newInputStream(MinecraftClient.getInstance().getRunDirectoryMapped().toPath().resolve("../src/main/resources/assets").resolve(identifier.getNamespace()).resolve(identifier.getPath()), StandardOpenOption.READ)) {
+				try (final InputStream inputStream = Files.newInputStream(MinecraftClient.getInstance().runDirectory.toPath().resolve("../src/main/resources/assets").resolve(identifier.getNamespace()).resolve(identifier.getPath()), StandardOpenOption.READ)) {
 					final String content = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
 					RESOURCE_CACHE.put(identifierString, content);
 					return content;
 				} catch (Exception e) {
-					Init.LOGGER.error("", e);
+					MTR.LOGGER.error("", e);
 					return "";
 				}
 			} else {

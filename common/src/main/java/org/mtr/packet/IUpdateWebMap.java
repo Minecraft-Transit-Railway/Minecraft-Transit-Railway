@@ -1,11 +1,10 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
+import org.mtr.MTR;
 import org.mtr.core.data.AreaBase;
 import org.mtr.core.data.Position;
 import org.mtr.core.data.SavedRailBase;
-import org.mtr.init.MTR;
-import org.mtr.mod.Init;
-import org.mtr.mod.data.IGui;
+import org.mtr.data.IGui;
 
 import java.awt.*;
 import java.io.IOException;
@@ -35,7 +34,7 @@ public interface IUpdateWebMap {
 				callback.accept(inputStream);
 			}
 		} catch (IOException e) {
-			Init.LOGGER.error("", e);
+			MTR.LOGGER.error("", e);
 		}
 	}
 

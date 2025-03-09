@@ -1,20 +1,20 @@
 package org.mtr.legacy.resource;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.util.Identifier;
+import org.mtr.MTR;
+import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.JsonWriter;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.legacy.generated.resource.VehicleResourceSchema;
-import org.mtr.libraries.com.google.gson.JsonArray;
-import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mod.Init;
-import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.resource.ResourceProvider;
-import org.mtr.mod.resource.VehicleModel;
-import org.mtr.mod.resource.VehicleResource;
+import org.mtr.resource.ResourceProvider;
+import org.mtr.resource.VehicleModel;
+import org.mtr.resource.VehicleResource;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
@@ -62,7 +62,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 			}
 
 			if (baseVehicleResource[0] == null) {
-				final JsonObject propertiesObject = model_properties.isEmpty() ? null : Utilities.parseJson(resourceProvider.get(new Identifier(model_properties)));
+				final JsonObject propertiesObject = model_properties.isEmpty() ? null : Utilities.parseJson(resourceProvider.get(Identifier.of(model_properties)));
 				if (propertiesObject == null) {
 					continue;
 				}
@@ -362,7 +362,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				partsObject.addProperty("doorXMultiplier", doorXMultiplier);
 				partsObject.addProperty("doorZMultiplier", (isObj ? -1 : 1) * doorZMultiplier);
 
-				final String positionDefinitionName = "definition_" + Init.randomString();
+				final String positionDefinitionName = "definition_" + MTR.randomString();
 				final JsonArray positionDefinitionPositionsArray = new JsonArray();
 				final JsonArray positionDefinitionPositionsFlippedArray = new JsonArray();
 				final JsonObject positionDefinitionObject = new JsonObject();
@@ -452,7 +452,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 	}
 
 	private static String[] splitWithEmptyStrings(String string, char token) {
-		final String filler = Init.randomString();
+		final String filler = MTR.randomString();
 		final String[] firstSplit = string.replace(String.valueOf(token), String.format("%1$s%2$s%1$s", filler, token)).split(("\\") + token);
 		final String[] finalSplit = new String[firstSplit.length];
 		for (int i = 0; i < firstSplit.length; i++) {

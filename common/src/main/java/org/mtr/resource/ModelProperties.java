@@ -1,10 +1,10 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import net.minecraft.util.Identifier;
 import org.mtr.core.serializer.ReaderBase;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mod.generated.resource.ModelPropertiesSchema;
+import org.mtr.generated.resource.ModelPropertiesSchema;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;

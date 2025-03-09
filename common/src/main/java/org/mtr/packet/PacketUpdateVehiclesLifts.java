@@ -1,5 +1,11 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import org.mtr.client.MinecraftClientData;
+import org.mtr.client.VehicleRidingMovement;
 import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.operation.VehicleLiftResponse;
 import org.mtr.core.serializer.JsonReader;
@@ -8,14 +14,7 @@ import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.serializer.WriterBase;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import org.mtr.mapping.tool.PacketBufferReceiver;
-import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.client.VehicleRidingMovement;
-import org.mtr.mod.data.VehicleExtension;
+import org.mtr.data.VehicleExtension;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;

@@ -1,29 +1,29 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.BlockSettings;
-import org.mtr.mapping.holder.BlockState;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mod.BlockEntityTypes;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.registry.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
 
 public class BlockSignalLight2Aspect1 extends BlockSignalLightBase {
 
-	public BlockSignalLight2Aspect1(BlockSettings blockSettings) {
+	public BlockSignalLight2Aspect1(AbstractBlock.Settings blockSettings) {
 		super(blockSettings, 2, 14);
 	}
 
 	@Nonnull
 	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(blockPos, blockState);
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new SignalLight2Aspect1BlockEntity(blockPos, blockState);
 	}
 
-	public static class BlockEntity extends BlockSignalBase.BlockEntityBase {
+	public static class SignalLight2Aspect1BlockEntity extends BlockSignalBase.BlockEntityBase {
 
-		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.SIGNAL_LIGHT_2_ASPECT_1.get(), false, pos, state);
+		public SignalLight2Aspect1BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.SIGNAL_LIGHT_2_ASPECT_1.createAndGet(), false, pos, state);
 		}
 	}
 }

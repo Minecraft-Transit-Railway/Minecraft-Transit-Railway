@@ -1,13 +1,28 @@
-package org.mtr.mod.item;
+package org.mtr.item;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUsageContext;
+import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import org.mtr.MTRClient;
+import org.mtr.block.BlockNode;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Angle;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.block.BlockNode;
-import org.mtr.mod.generated.lang.TranslationProvider;
+import org.mtr.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,8 +37,8 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 
 	private static final String TAG_BLOCK_ID = "block_id";
 
-	public ItemNodeModifierSelectableBlockBase(boolean canSaveBlock, int height, int width, ItemSettings itemSettings) {
-		super(true, false, false, true, itemSettings);
+	public ItemNodeModifierSelectableBlockBase(boolean canSaveBlock, int height, int width, Item.Settings settings) {
+		super(true, false, false, true, settings);
 		this.canSaveBlock = canSaveBlock;
 		this.height = height;
 		this.width = width;
@@ -32,7 +47,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 
 	@Nonnull
 	@Override
-	public ActionResult useOnBlock2(ItemUsageContext context) {
+	public ActionResult useOnBlock(ItemUsageContext context) {
 		if (canSaveBlock) {
 			final World world = context.getWorld();
 			if (!world.isClient()) {
@@ -40,39 +55,38 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 				if (playerEntity != null && playerEntity.isSneaking()) {
 					final BlockState state = world.getBlockState(context.getBlockPos());
 					final BlockState neighborState;
-					if (state.getBlock().data instanceof BlockNode) {
-						neighborState = Blocks.getAirMapped().getDefaultState();
+					if (state.getBlock() instanceof BlockNode) {
+						neighborState = Blocks.AIR.getDefaultState();
 					} else {
 						neighborState = state;
 					}
-					playerEntity.sendMessage(TranslationProvider.TOOLTIP_MTR_SELECTED_MATERIAL.getText(TextHelper.translatable(neighborState.getBlock().getTranslationKey()).getString()), true);
-					final CompoundTag compoundTag = context.getStack().getOrCreateTag();
-					compoundTag.putInt(TAG_BLOCK_ID, Block.getRawIdFromState(neighborState));
+					playerEntity.sendMessage(TranslationProvider.TOOLTIP_MTR_SELECTED_MATERIAL.getText(Text.translatable(neighborState.getBlock().getTranslationKey()).getString()), true);
+					NbtComponent.set(DataComponentTypes.CUSTOM_DATA, context.getStack(), nbtCompound -> nbtCompound.putInt(TAG_BLOCK_ID, Block.getRawIdFromState(neighborState)));
 					return ActionResult.SUCCESS;
 				}
 			}
 		}
 
-		return super.useOnBlock2(context);
+		return super.useOnBlock(context);
 	}
 
 	@Override
-	public void addTooltips(ItemStack stack, @Nullable World world, List<MutableText> tooltip, TooltipContext options) {
+	public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
 		if (height > 0) {
-			tooltip.add(TranslationProvider.TOOLTIP_MTR_RAIL_ACTION_HEIGHT.getMutableText(height).formatted(TextFormatting.GRAY));
+			tooltip.add(TranslationProvider.TOOLTIP_MTR_RAIL_ACTION_HEIGHT.getMutableText(height).formatted(Formatting.GRAY));
 		}
-		tooltip.add(TranslationProvider.TOOLTIP_MTR_RAIL_ACTION_WIDTH.getMutableText(width).formatted(TextFormatting.GRAY));
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_RAIL_ACTION_WIDTH.getMutableText(width).formatted(Formatting.GRAY));
 
 		if (canSaveBlock) {
 			final BlockState state = getSavedState(stack);
-			final String[] textSplit = (state.isAir() ? TranslationProvider.TOOLTIP_MTR_SHIFT_RIGHT_CLICK_TO_SELECT_MATERIAL : TranslationProvider.TOOLTIP_MTR_SHIFT_RIGHT_CLICK_TO_CLEAR).getString(InitClient.getShiftText(), TextHelper.translatable(org.mtr.mod.Blocks.RAIL_NODE.get().getTranslationKey()).data).split("\\|");
+			final String[] textSplit = (state.isAir() ? TranslationProvider.TOOLTIP_MTR_SHIFT_RIGHT_CLICK_TO_SELECT_MATERIAL : TranslationProvider.TOOLTIP_MTR_SHIFT_RIGHT_CLICK_TO_CLEAR).getString(MTRClient.getShiftText(), Text.translatable(org.mtr.registry.Blocks.RAIL_NODE.createAndGet().getTranslationKey())).split("\\|");
 			for (String text : textSplit) {
-				tooltip.add(TextHelper.literal(text).formatted(TextFormatting.GRAY).formatted(TextFormatting.ITALIC));
+				tooltip.add(Text.literal(text).formatted(Formatting.GRAY).formatted(Formatting.ITALIC));
 			}
-			tooltip.add(TranslationProvider.TOOLTIP_MTR_SELECTED_MATERIAL.getMutableText(TextHelper.translatable(state.getBlock().getTranslationKey()).getString()).formatted(TextFormatting.GREEN));
+			tooltip.add(TranslationProvider.TOOLTIP_MTR_SELECTED_MATERIAL.getMutableText(Text.translatable(state.getBlock().getTranslationKey()).getString()).formatted(Formatting.GREEN));
 		}
 
-		super.addTooltips(stack, world, tooltip, options);
+		super.appendTooltip(stack, context, tooltip, type);
 	}
 
 	@Override
@@ -87,12 +101,15 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	}
 
 	protected BlockState getSavedState(ItemStack stack) {
-		final CompoundTag tag = stack.getOrCreateTag();
-		if (tag.contains(TAG_BLOCK_ID)) {
-			return Block.getStateFromRawId(tag.getInt(TAG_BLOCK_ID));
-		} else {
-			return Blocks.getAirMapped().getDefaultState();
+		final NbtComponent nbtComponent = stack.get(DataComponentTypes.CUSTOM_DATA);
+		if (nbtComponent != null) {
+			final NbtCompound nbtCompound = nbtComponent.copyNbt();
+			if (nbtCompound.contains(TAG_BLOCK_ID)) {
+				return Block.getStateFromRawId(nbtCompound.getInt(TAG_BLOCK_ID));
+			}
 		}
+
+		return Blocks.AIR.getDefaultState();
 	}
 
 	protected abstract void onConnect(Rail rail, ServerPlayerEntity serverPlayerEntity, ItemStack itemStack, int radius, int height);

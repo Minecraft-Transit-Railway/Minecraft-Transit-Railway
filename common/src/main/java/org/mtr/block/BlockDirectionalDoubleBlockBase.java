@@ -1,41 +1,52 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.DirectionHelper;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.tick.ScheduledTickView;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class BlockDirectionalDoubleBlockBase extends BlockExtension implements IBlock, DirectionHelper {
+public abstract class BlockDirectionalDoubleBlockBase extends Block implements IBlock {
 
-	public BlockDirectionalDoubleBlockBase(BlockSettings blockSettings) {
+	public BlockDirectionalDoubleBlockBase(AbstractBlock.Settings blockSettings) {
 		super(blockSettings);
 	}
 
 	@Nonnull
 	@Override
-	public BlockState getStateForNeighborUpdate2(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
-		return DoubleVerticalBlock.getStateForNeighborUpdate(state, direction, neighborState.isOf(new Block(this)), super.getStateForNeighborUpdate2(state, direction, neighborState, world, pos, neighborPos));
+	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
+		return DoubleVerticalBlock.getStateForNeighborUpdate(state, direction, neighborState.isOf(this), super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random));
 	}
 
 	@Override
-	public void onPlaced2(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
-		DoubleVerticalBlock.onPlaced(world, pos, state, getAdditionalState(pos, IBlock.getStatePropertySafe(state, FACING)));
+	public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+		DoubleVerticalBlock.onPlaced(world, pos, state, getAdditionalState(pos, IBlock.getStatePropertySafe(state, Properties.FACING)));
 	}
 
 	@Override
-	public BlockState getPlacementState2(ItemPlacementContext ctx) {
-		return DoubleVerticalBlock.getPlacementState(ctx, getAdditionalState(ctx.getBlockPos(), ctx.getPlayerFacing()));
+	public BlockState getPlacementState(ItemPlacementContext ctx) {
+		return DoubleVerticalBlock.getPlacementState(ctx, getAdditionalState(ctx.getBlockPos(), ctx.getHorizontalPlayerFacing()));
 	}
 
 	@Override
-	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		DoubleVerticalBlock.onBreak(world, pos, state, player);
-		super.onBreak2(world, pos, state, player);
+		return super.onBreak(world, pos, state, player);
 	}
 
 	protected BlockState getAdditionalState(BlockPos pos, Direction facing) {
-		return getDefaultState2();
+		return getDefaultState();
 	}
 }

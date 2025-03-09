@@ -1,19 +1,20 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.holder.Screen;
-import org.mtr.mapping.holder.Text;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.GuiDrawing;
-import org.mtr.mapping.mapper.SliderWidgetExtension;
-import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mod.data.IGui;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.SliderWidget;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import org.mtr.data.IGui;
 
 import javax.annotation.Nullable;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 
-public class WidgetShorterSlider extends SliderWidgetExtension implements IGui {
+public class WidgetShorterSlider extends SliderWidget implements IGui {
 
 	private final int maxValue;
 	private final int markerFrequency;
@@ -24,8 +25,13 @@ public class WidgetShorterSlider extends SliderWidgetExtension implements IGui {
 	private static final int SLIDER_WIDTH = 6;
 	private static final int TICK_HEIGHT = SQUARE_SIZE / 2;
 
+	private static final Identifier TEXTURE = Identifier.ofVanilla("widget/slider");
+	private static final Identifier HIGHLIGHTED_TEXTURE = Identifier.ofVanilla("widget/slider_highlighted");
+	private static final Identifier HANDLE_TEXTURE = Identifier.ofVanilla("widget/slider_handle");
+	private static final Identifier HANDLE_HIGHLIGHTED_TEXTURE = Identifier.ofVanilla("widget/slider_handle_highlighted");
+
 	public WidgetShorterSlider(int x, int width, int maxValue, int markerFrequency, int markerDisplayedRatio, IntFunction<String> setMessage, @Nullable IntConsumer shiftClickAction) {
-		super(x, 0, width, 0);
+		super(x, 0, width, 0, Text.empty(), 0);
 		this.maxValue = Math.max(maxValue, 1);
 		this.setMessage = setMessage;
 		this.shiftClickAction = shiftClickAction;
@@ -38,69 +44,62 @@ public class WidgetShorterSlider extends SliderWidgetExtension implements IGui {
 	}
 
 	@Override
-	public void onClick2(double d, double e) {
-		super.onClick2(d, e);
+	public void onClick(double d, double e) {
+		super.onClick(d, e);
 		checkShiftClick();
 	}
 
 	@Override
-	public void setWidth2(int width) {
-		super.setWidth2(Math.min(width, 380));
+	public void setWidth(int width) {
+		super.setWidth(Math.min(width, 380));
 	}
 
 	@Override
-	protected void updateMessage2() {
-		setMessage2(new Text(TextHelper.literal(setMessage.apply(getIntValue())).data));
+	protected void updateMessage() {
+		setMessage(Text.literal(setMessage.apply(getIntValue())));
 	}
 
 	@Override
-	protected void onDrag2(double d, double e, double f, double g) {
-		super.onDrag2(d, e, f, g);
+	protected void onDrag(double d, double e, double f, double g) {
+		super.onDrag(d, e, f, g);
 		checkShiftClick();
 	}
 
 	@Override
-	protected void applyValue2() {
+	protected void applyValue() {
 	}
 
 	@Override
-	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
-		final boolean isHovered = isHovered();
+	public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+		final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
-		final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
-		guiDrawing.beginDrawingTexture(new Identifier(String.format("textures/gui/sprites/widget/slider%s.png", isHovered ? "_highlighted" : "")));
-		IGui.drawTexture(guiDrawing, getX2(), getY2(), 0F, 0, width / 2, height / 2, 200, 20);
-		IGui.drawTexture(guiDrawing, getX2(), getY2() + height / 2, 0F, 20 - height / 2F, width / 2, height / 2, 200, 20);
-		IGui.drawTexture(guiDrawing, getX2() + width / 2, getY2(), 200F - width / 2F, 0, width / 2, height / 2, 200, 20);
-		IGui.drawTexture(guiDrawing, getX2() + width / 2, getY2() + height / 2, 200F - width / 2F, 20 - height / 2F, width / 2, height / 2, 200, 20);
-		guiDrawing.finishDrawingTexture();
+		context.drawGuiTexture(RenderLayer::getGuiTextured, getTexture(), getX(), getY(), 0, 0, width / 2, height / 2, 200, 20);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, getTexture(), getX(), getY() + height / 2, 0, 20 - height / 2, width / 2, height / 2, 200, 20);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, getTexture(), getX() + width / 2, getY(), 200 - width / 2, 0, width / 2, height / 2, 200, 20);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, getTexture(), getX() + width / 2, getY() + height / 2, 200 - width / 2, 20 - height / 2, width / 2, height / 2, 200, 20);
 
-		guiDrawing.beginDrawingTexture(new Identifier(String.format("textures/gui/sprites/widget/slider_handle%s.png", isHovered ? "_highlighted" : "")));
 		final int xOffset = (width - SLIDER_WIDTH) * getIntValue() / maxValue;
-		IGui.drawTexture(guiDrawing, getX2() + xOffset, getY2(), 0F, 0, SLIDER_WIDTH / 2, height / 2, 8, 20);
-		IGui.drawTexture(guiDrawing, getX2() + xOffset, getY2() + height / 2, 0, 20 - height / 2F, SLIDER_WIDTH / 2, height / 2, 8, 20);
-		IGui.drawTexture(guiDrawing, getX2() + xOffset + SLIDER_WIDTH / 2, getY2(), 200F - SLIDER_WIDTH / 2F, 0, SLIDER_WIDTH / 2, height / 2, 8, 20);
-		IGui.drawTexture(guiDrawing, getX2() + xOffset + SLIDER_WIDTH / 2, getY2() + height / 2, 200F - SLIDER_WIDTH / 2F, 20 - height / 2F, SLIDER_WIDTH / 2, height / 2, 8, 20);
-		guiDrawing.finishDrawingTexture();
+		context.drawGuiTexture(RenderLayer::getGuiTextured, getHandleTexture(), getX() + xOffset, getY(), 0, 0, SLIDER_WIDTH / 2, height / 2, 8, 20);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, getHandleTexture(), getX() + xOffset, getY() + height / 2, 0, 20 - height / 2, SLIDER_WIDTH / 2, height / 2, 8, 20);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, getHandleTexture(), getX() + xOffset + SLIDER_WIDTH / 2, getY(), 200 - SLIDER_WIDTH / 2, 0, SLIDER_WIDTH / 2, height / 2, 8, 20);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, getHandleTexture(), getX() + xOffset + SLIDER_WIDTH / 2, getY() + height / 2, 200 - SLIDER_WIDTH / 2, 20 - height / 2, SLIDER_WIDTH / 2, height / 2, 8, 20);
 
-		graphicsHolder.drawText(getMessage2().getString(), getX2() + width + TEXT_PADDING, getY2() + (height - TEXT_HEIGHT) / 2, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+		context.drawText(textRenderer, getMessage().getString(), getX() + width + TEXT_PADDING, getY() + (height - TEXT_HEIGHT) / 2, ARGB_WHITE, false);
 
 		if (markerFrequency > 0) {
 			for (int i = 1; i <= maxValue / markerFrequency; i++) {
 				final int xOffset1 = (width - SLIDER_WIDTH) * i * markerFrequency / maxValue;
-				final int x = getX2() + xOffset1 + SLIDER_WIDTH / 3;
-				final int y = getY2() + height;
-				guiDrawing.beginDrawingRectangle();
-				guiDrawing.drawRectangle(x, y, x + 2, y + TICK_HEIGHT, ARGB_GRAY);
-				guiDrawing.finishDrawingRectangle();
-				graphicsHolder.drawCenteredText(String.valueOf(i * markerFrequency / markerDisplayedRatio), getX2() + xOffset1 + SLIDER_WIDTH / 2, getY2() + height + TICK_HEIGHT + 2, ARGB_WHITE);
+				final int x = getX() + xOffset1 + SLIDER_WIDTH / 3;
+				final int y = getY() + height;
+				context.fill(x, y, x + 2, y + TICK_HEIGHT, ARGB_GRAY);
+				context.drawCenteredTextWithShadow(textRenderer, String.valueOf(i * markerFrequency / markerDisplayedRatio), getX() + xOffset1 + SLIDER_WIDTH / 2, getY() + height + TICK_HEIGHT + 2, ARGB_WHITE);
 			}
 		}
 	}
 
 	public void setValue(int valueInt) {
 		value = (double) valueInt / maxValue;
-		updateMessage2();
+		updateMessage();
 	}
 
 	public int getIntValue() {
@@ -111,5 +110,13 @@ public class WidgetShorterSlider extends SliderWidgetExtension implements IGui {
 		if (shiftClickAction != null && Screen.hasShiftDown()) {
 			shiftClickAction.accept(getIntValue());
 		}
+	}
+
+	private Identifier getTexture() {
+		return this.isNarratable() && this.isFocused() ? HIGHLIGHTED_TEXTURE : TEXTURE;
+	}
+
+	private Identifier getHandleTexture() {
+		return !this.isNarratable() || !this.hovered ? HANDLE_TEXTURE : HANDLE_HIGHLIGHTED_TEXTURE;
 	}
 }

@@ -1,26 +1,26 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.math.Box;
+import org.mtr.MTR;
+import org.mtr.client.CustomResourceLoader;
+import org.mtr.config.Config;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
-import org.mtr.mapping.holder.Box;
-import org.mtr.mapping.holder.MutableText;
-import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mod.Init;
-import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.config.Config;
-import org.mtr.mod.data.VehicleExtension;
-import org.mtr.mod.generated.resource.VehicleResourceSchema;
-import org.mtr.mod.render.DynamicVehicleModel;
-import org.mtr.mod.render.MainRenderer;
-import org.mtr.mod.render.QueuedRenderLayer;
-import org.mtr.mod.render.StoredMatrixTransformations;
-import org.mtr.mod.sound.BveVehicleSound;
-import org.mtr.mod.sound.BveVehicleSoundConfig;
-import org.mtr.mod.sound.LegacyVehicleSound;
-import org.mtr.mod.sound.VehicleSoundBase;
+import org.mtr.data.VehicleExtension;
+import org.mtr.generated.resource.VehicleResourceSchema;
+import org.mtr.render.DynamicVehicleModel;
+import org.mtr.render.MainRenderer;
+import org.mtr.render.QueuedRenderLayer;
+import org.mtr.render.StoredMatrixTransformations;
+import org.mtr.sound.BveVehicleSound;
+import org.mtr.sound.BveVehicleSoundConfig;
+import org.mtr.sound.LegacyVehicleSound;
+import org.mtr.sound.VehicleSoundBase;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -222,9 +222,9 @@ public final class VehicleResource extends VehicleResourceSchema {
 		final VehicleResourceCache vehicleResourceCache = getCachedVehicleResource(carNumber, totalCars, false);
 		if (vehicleResourceCache != null) {
 			if (openDoorways.isEmpty()) {
-				queue(vehicleResourceCache.optimizedModelsDoorsClosed, storedMatrixTransformations, vehicle, light, true);
+				queue(vehicleResourceCache.optimizedModelsDoorsClosed(), storedMatrixTransformations, vehicle, light, true);
 			} else {
-				queue(vehicleResourceCache.optimizedModels, storedMatrixTransformations, vehicle, light, false);
+				queue(vehicleResourceCache.optimizedModels(), storedMatrixTransformations, vehicle, light, false);
 			}
 		}
 	}
@@ -232,7 +232,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 	public void queueBogie(int bogieIndex, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light) {
 		final VehicleResourceCache vehicleResourceCache = getCachedVehicleResource(0, 1, false);
 		if (vehicleResourceCache != null && Utilities.isBetween(bogieIndex, 0, 1)) {
-			queue(bogieIndex == 0 ? vehicleResourceCache.optimizedModelsBogie1 : vehicleResourceCache.optimizedModelsBogie2, storedMatrixTransformations, vehicle, light, true);
+			queue(bogieIndex == 0 ? vehicleResourceCache.optimizedModelsBogie1() : vehicleResourceCache.optimizedModelsBogie2(), storedMatrixTransformations, vehicle, light, true);
 		}
 	}
 
@@ -241,7 +241,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 	}
 
 	public MutableText getName() {
-		return TextHelper.translatable(name);
+		return Text.translatable(name);
 	}
 
 	public int getColor() {
@@ -277,7 +277,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 	}
 
 	public MutableText getDescription() {
-		return TextHelper.translatable(description);
+		return Text.translatable(description);
 	}
 
 	public String getWikipediaArticle() {
@@ -370,20 +370,14 @@ public final class VehicleResource extends VehicleResourceSchema {
 	}
 
 	public static boolean matchesCondition(VehicleExtension vehicle, PartCondition partCondition, boolean noOpenDoorways) {
-		switch (partCondition) {
-			case AT_DEPOT:
-				return !vehicle.getIsOnRoute();
-			case ON_ROUTE_FORWARDS:
-				return vehicle.getIsOnRoute() && !vehicle.getReversed();
-			case ON_ROUTE_BACKWARDS:
-				return vehicle.getIsOnRoute() && vehicle.getReversed();
-			case DOORS_CLOSED:
-				return vehicle.persistentVehicleData.getDoorValue() == 0 || noOpenDoorways;
-			case DOORS_OPENED:
-				return vehicle.persistentVehicleData.getDoorValue() > 0 && !noOpenDoorways;
-			default:
-				return getChristmasLightState(partCondition);
-		}
+		return switch (partCondition) {
+			case AT_DEPOT -> !vehicle.getIsOnRoute();
+			case ON_ROUTE_FORWARDS -> vehicle.getIsOnRoute() && !vehicle.getReversed();
+			case ON_ROUTE_BACKWARDS -> vehicle.getIsOnRoute() && vehicle.getReversed();
+			case DOORS_CLOSED -> vehicle.persistentVehicleData.getDoorValue() == 0 || noOpenDoorways;
+			case DOORS_OPENED -> vehicle.persistentVehicleData.getDoorValue() > 0 && !noOpenDoorways;
+			default -> getChristmasLightState(partCondition);
+		};
 	}
 
 	public void collectTags(Object2ObjectAVLTreeMap<String, Object2ObjectAVLTreeMap<String, ObjectArrayList<String>>> tagMap) {
@@ -407,7 +401,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 				allModelsList.addAll(extraModelsSupplier.apply(carNumber, totalCars));
 				final long endMillis = System.currentTimeMillis();
 				if (endMillis - startMillis >= 100) {
-					Init.LOGGER.warn("[{}] Model loading took {} ms, which is longer than usual!", id, endMillis - startMillis);
+					MTR.LOGGER.warn("[{}] Model loading took {} ms, which is longer than usual!", id, endMillis - startMillis);
 				}
 			}
 
@@ -438,7 +432,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 				forEachNonNull(allModelsList, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(floors, doorways, materialGroupsModel, materialGroupsModelDoorsClosed, objModelsModel, objModelsModelDoorsClosed), force);
 
 				if (floors.isEmpty() && doorways.isEmpty()) {
-					Init.LOGGER.info("[{}] No floors or doorways found in vehicle models", id);
+					MTR.LOGGER.info("[{}] No floors or doorways found in vehicle models", id);
 					final double x1 = width / 2 + 0.25;
 					final double x2 = width / 2 + 0.5;
 					final double y = 1 + legacyRiderOffset;
@@ -518,10 +512,10 @@ public final class VehicleResource extends VehicleResourceSchema {
 	private static void queue(Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, boolean noOpenDoorways) {
 		optimizedModels.forEach((partCondition, optimizedModel) -> {
 			if (matchesCondition(vehicle, partCondition, noOpenDoorways)) {
-				MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
-					storedMatrixTransformations.transform(graphicsHolder, offset);
-					CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(optimizedModel, graphicsHolder, light);
-					graphicsHolder.pop();
+				MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (matrixStack, vertexConsumer, offset) -> {
+					storedMatrixTransformations.transform(matrixStack, offset);
+					CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(optimizedModel, matrixStack, light);
+					matrixStack.pop();
 				});
 			}
 		});
@@ -561,29 +555,14 @@ public final class VehicleResource extends VehicleResourceSchema {
 		});
 	}
 
-	private static class VehicleResourceCacheHolder {
-
-		private final ObjectImmutableList<Box> floors;
-		private final ObjectImmutableList<Box> doorways;
-		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModels;
-		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsDoorsClosed;
-		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie1;
-		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie2;
-
-		private VehicleResourceCacheHolder(
-				ObjectImmutableList<Box> floors, ObjectImmutableList<Box> doorways,
-				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModels,
-				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsDoorsClosed,
-				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie1,
-				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie2
-		) {
-			this.floors = floors;
-			this.doorways = doorways;
-			this.optimizedModels = optimizedModels;
-			this.optimizedModelsDoorsClosed = optimizedModelsDoorsClosed;
-			this.optimizedModelsBogie1 = optimizedModelsBogie1;
-			this.optimizedModelsBogie2 = optimizedModelsBogie2;
-		}
+	private record VehicleResourceCacheHolder(
+			ObjectImmutableList<Box> floors,
+			ObjectImmutableList<Box> doorways,
+			CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModels,
+			CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsDoorsClosed,
+			CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie1,
+			CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie2
+	) {
 	}
 
 	@FunctionalInterface

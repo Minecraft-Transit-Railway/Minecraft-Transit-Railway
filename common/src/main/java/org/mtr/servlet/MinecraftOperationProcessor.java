@@ -1,16 +1,16 @@
-package org.mtr.mod.servlet;
+package org.mtr.servlet;
 
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import org.mtr.core.operation.PlayerPresentResponse;
 import org.mtr.core.operation.UpdateDataResponse;
 import org.mtr.core.operation.VehicleLiftResponse;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.servlet.QueueObject;
-import org.mtr.mapping.holder.PlayerEntity;
-import org.mtr.mapping.holder.ServerPlayerEntity;
-import org.mtr.mapping.holder.ServerWorld;
-import org.mtr.mod.Init;
-import org.mtr.mod.packet.PacketUpdateData;
-import org.mtr.mod.packet.PacketUpdateVehiclesLifts;
+import org.mtr.packet.PacketUpdateData;
+import org.mtr.packet.PacketUpdateVehiclesLifts;
+import org.mtr.registry.Registry;
 
 import java.util.UUID;
 
@@ -24,7 +24,7 @@ public final class MinecraftOperationProcessor {
 					if (playerEntity == null) {
 						queueObject.runCallback(new PlayerPresentResponse(""));
 					} else {
-						Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(playerEntity), new PacketUpdateVehiclesLifts((VehicleLiftResponse) queueObject.data));
+						Registry.sendPacketToClient((ServerPlayerEntity) playerEntity, new PacketUpdateVehiclesLifts((VehicleLiftResponse) queueObject.data));
 						queueObject.runCallback(new PlayerPresentResponse(dimension));
 					}
 				}

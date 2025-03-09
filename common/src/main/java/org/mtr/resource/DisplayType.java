@@ -1,9 +1,9 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
 import org.mtr.core.data.InterchangeColorsForStationName;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.generated.lang.TranslationProvider;
-import org.mtr.mod.render.MainRenderer;
+import org.mtr.data.IGui;
+import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.render.MainRenderer;
 
 import java.util.ArrayList;
 import java.util.List;

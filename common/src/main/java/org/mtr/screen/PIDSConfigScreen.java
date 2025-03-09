@@ -1,41 +1,51 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.CheckboxWidget;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import org.mtr.MTR;
+import org.mtr.MTRClient;
+import org.mtr.block.BlockPIDSBase;
+import org.mtr.client.IDrawing;
 import org.mtr.core.data.Platform;
 import org.mtr.core.data.RoutePlatformData;
 import org.mtr.core.data.Station;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.tool.TextCase;
-import org.mtr.mod.Init;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.block.BlockPIDSBase;
-import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.generated.lang.TranslationProvider;
-import org.mtr.mod.packet.PacketUpdatePIDSConfig;
+import org.mtr.data.IGui;
+import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.packet.PacketUpdatePIDSConfig;
+import org.mtr.registry.RegistryClient;
 
 import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class PIDSConfigScreen extends ScreenExtension implements IGui {
+public class PIDSConfigScreen extends MTRScreenBase implements IGui {
 
 	private final BlockPos blockPos;
 	private final String[] messages;
 	private final boolean[] hideArrivalArray;
-	private final TextFieldWidgetExtension[] textFieldMessages;
-	private final CheckboxWidgetExtension[] buttonsHideArrival;
-	private final TextFieldWidgetExtension displayPageInput;
+	private final WidgetBetterTextField[] textFieldMessages;
+	private final CheckboxWidget[] buttonsHideArrival;
+	private final WidgetBetterTextField displayPageInput;
 	private final MutableText messageText = TranslationProvider.GUI_MTR_PIDS_MESSAGE.getMutableText();
 	private final MutableText hideArrivalText = TranslationProvider.GUI_MTR_HIDE_ARRIVAL.getMutableText();
-	private final CheckboxWidgetExtension selectAllCheckbox;
-	private final ButtonWidgetExtension filterButton;
-	private final TexturedButtonWidgetExtension buttonPrevPage;
-	private final TexturedButtonWidgetExtension buttonNextPage;
+	private final CheckboxWidget selectAllCheckbox;
+	private final ButtonWidget filterButton;
+	private final WidgetBetterTexturedButton buttonPrevPage;
+	private final WidgetBetterTexturedButton buttonNextPage;
 	private final LongAVLTreeSet filterPlatformIds;
 	private final int displayPage;
 	private final int maxArrivals;
@@ -54,83 +64,79 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 		}
 		hideArrivalArray = new boolean[maxArrivals];
 
-		selectAllCheckbox = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
-		});
-		selectAllCheckbox.setMessage2(TranslationProvider.GUI_MTR_AUTOMATICALLY_DETECT_NEARBY_PLATFORM.getText());
-
-		textFieldMessages = new TextFieldWidgetExtension[maxArrivals];
-		for (int i = 0; i < maxArrivals; i++) {
-			textFieldMessages[i] = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, "");
-		}
-
-		buttonsHideArrival = new CheckboxWidgetExtension[maxArrivals];
-		for (int i = 0; i < maxArrivals; i++) {
-			buttonsHideArrival[i] = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
-			});
-			buttonsHideArrival[i].setMessage2(new Text(hideArrivalText.data));
-		}
-
-		buttonPrevPage = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_left.png"), new Identifier("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1));
-		buttonNextPage = TexturedButtonWidgetHelper.create(0, 0, 0, SQUARE_SIZE, new Identifier("textures/gui/sprites/mtr/icon_right.png"), new Identifier("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1));
-
-		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
+		final ClientWorld clientWorld = MinecraftClient.getInstance().world;
 		if (clientWorld == null) {
 			filterPlatformIds = new LongAVLTreeSet();
 			displayPage = 0;
 		} else {
 			final BlockEntity blockEntity = clientWorld.getBlockEntity(blockPos);
-			if (blockEntity != null && blockEntity.data instanceof BlockPIDSBase.BlockEntityBase) {
-				filterPlatformIds = ((BlockPIDSBase.BlockEntityBase) blockEntity.data).getPlatformIds();
+			if (blockEntity instanceof BlockPIDSBase.BlockEntityBase) {
+				filterPlatformIds = ((BlockPIDSBase.BlockEntityBase) blockEntity).getPlatformIds();
 				for (int i = 0; i < maxArrivals; i++) {
-					messages[i] = ((BlockPIDSBase.BlockEntityBase) blockEntity.data).getMessage(i);
-					hideArrivalArray[i] = ((BlockPIDSBase.BlockEntityBase) blockEntity.data).getHideArrival(i);
+					messages[i] = ((BlockPIDSBase.BlockEntityBase) blockEntity).getMessage(i);
+					hideArrivalArray[i] = ((BlockPIDSBase.BlockEntityBase) blockEntity).getHideArrival(i);
 				}
-				displayPage = ((BlockPIDSBase.BlockEntityBase) blockEntity.data).getDisplayPage();
+				displayPage = ((BlockPIDSBase.BlockEntityBase) blockEntity).getDisplayPage();
 			} else {
 				filterPlatformIds = new LongAVLTreeSet();
 				displayPage = 0;
 			}
 		}
 
+		selectAllCheckbox = CheckboxWidget.builder(TranslationProvider.GUI_MTR_AUTOMATICALLY_DETECT_NEARBY_PLATFORM.getText(), textRenderer).checked(filterPlatformIds.isEmpty()).callback((checkboxWidget, checked) -> {
+		}).build();
+
+		textFieldMessages = new WidgetBetterTextField[maxArrivals];
+		for (int i = 0; i < maxArrivals; i++) {
+			textFieldMessages[i] = new WidgetBetterTextField(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, "");
+		}
+
+		buttonsHideArrival = new CheckboxWidget[maxArrivals];
+		for (int i = 0; i < maxArrivals; i++) {
+			buttonsHideArrival[i] = CheckboxWidget.builder(hideArrivalText, textRenderer).callback((checkboxWidget, checked) -> {
+			}).build();
+		}
+
+		buttonPrevPage = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_left.png"), Identifier.of("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1), true);
+		buttonNextPage = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_right.png"), Identifier.of("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1), true);
+
 		filterButton = getPlatformFilterButton(blockPos, selectAllCheckbox, filterPlatformIds, this);
-		displayPageInput = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 3, TextCase.DEFAULT, "\\D", "1");
+		displayPageInput = new WidgetBetterTextField(3, TextCase.DEFAULT, "\\D", "1");
 	}
 
 	@Override
-	protected void init2() {
-		super.init2();
-		final int customMessageWidth = GraphicsHolder.getTextWidth(messageText) + SQUARE_SIZE + TEXT_PADDING;
-		final int textWidth = GraphicsHolder.getTextWidth(hideArrivalText) + SQUARE_SIZE + TEXT_PADDING * 2;
+	protected void init() {
+		super.init();
+		final int customMessageWidth = textRenderer.getWidth(messageText) + SQUARE_SIZE + TEXT_PADDING;
+		final int textWidth = textRenderer.getWidth(hideArrivalText) + SQUARE_SIZE + TEXT_PADDING * 2;
 
 		IDrawing.setPositionAndWidth(selectAllCheckbox, SQUARE_SIZE, SQUARE_SIZE, PANEL_WIDTH);
-		selectAllCheckbox.setChecked(filterPlatformIds.isEmpty());
-		addChild(new ClickableWidget(selectAllCheckbox));
+		addSelectableChild(selectAllCheckbox);
 
 		IDrawing.setPositionAndWidth(filterButton, SQUARE_SIZE, SQUARE_SIZE * 3, PANEL_WIDTH / 2);
-		filterButton.setMessage2(new Text(TextHelper.translatable("selectWorld.edit").data));
-		addChild(new ClickableWidget(filterButton));
+		addSelectableChild(filterButton);
 
 		IDrawing.setPositionAndWidth(displayPageInput, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 5 + TEXT_FIELD_PADDING / 2, PANEL_WIDTH / 2 - TEXT_FIELD_PADDING);
-		displayPageInput.setText2(String.valueOf(displayPage + 1));
-		addChild(new ClickableWidget(displayPageInput));
+		displayPageInput.setText(String.valueOf(displayPage + 1));
+		addSelectableChild(displayPageInput);
 
 		IDrawing.setPositionAndWidth(buttonPrevPage, customMessageWidth, SQUARE_SIZE * 7, SQUARE_SIZE);
-		addChild(new ClickableWidget(buttonPrevPage));
+		addSelectableChild(buttonPrevPage);
 
 		IDrawing.setPositionAndWidth(buttonNextPage, customMessageWidth + SQUARE_SIZE * 3, SQUARE_SIZE * 7, SQUARE_SIZE);
-		addChild(new ClickableWidget(buttonNextPage));
+		addSelectableChild(buttonNextPage);
 
 		for (int i = 0; i < textFieldMessages.length; i++) {
-			final TextFieldWidgetExtension textFieldMessage = textFieldMessages[i];
+			final WidgetBetterTextField textFieldMessage = textFieldMessages[i];
 			final int y = TEXT_FIELDS_Y_OFFSET + (SQUARE_SIZE + TEXT_FIELD_PADDING) * (i % getMaxArrivalsPerPage());
 			IDrawing.setPositionAndWidth(textFieldMessage, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, y, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING - textWidth);
-			textFieldMessage.setText2(messages[i]);
-			addChild(new ClickableWidget(textFieldMessage));
+			textFieldMessage.setText(messages[i]);
+			addSelectableChild(textFieldMessage);
 
-			final CheckboxWidgetExtension buttonHideArrival = buttonsHideArrival[i];
+			final CheckboxWidget buttonHideArrival = buttonsHideArrival[i];
 			IDrawing.setPositionAndWidth(buttonHideArrival, width - SQUARE_SIZE - textWidth + TEXT_PADDING, y + TEXT_FIELD_PADDING / 2, textWidth);
-			buttonHideArrival.setChecked(hideArrivalArray[i]);
-			addChild(new ClickableWidget(buttonHideArrival));
+			IGui.setChecked(buttonHideArrival, hideArrivalArray[i]);
+			addSelectableChild(buttonHideArrival);
 		}
 
 		setPage(0);
@@ -151,46 +157,39 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 	}
 
 	@Override
-	public void tick2() {
-		for (final TextFieldWidgetExtension textFieldMessage : textFieldMessages) {
-			textFieldMessage.tick2();
-		}
-	}
-
-	@Override
-	public void onClose2() {
+	public void close() {
 		for (int i = 0; i < textFieldMessages.length; i++) {
-			messages[i] = textFieldMessages[i].getText2();
-			hideArrivalArray[i] = buttonsHideArrival[i].isChecked2();
+			messages[i] = textFieldMessages[i].getText();
+			hideArrivalArray[i] = buttonsHideArrival[i].isChecked();
 		}
-		if (selectAllCheckbox.isChecked2()) {
+		if (selectAllCheckbox.isChecked()) {
 			filterPlatformIds.clear();
 		}
 		int displayPage = 0;
 		try {
-			displayPage = Math.max(0, Integer.parseInt(displayPageInput.getText2()) - 1);
+			displayPage = Math.max(0, Integer.parseInt(displayPageInput.getText()) - 1);
 		} catch (Exception e) {
-			Init.LOGGER.error("", e);
+			MTR.LOGGER.error("", e);
 		}
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdatePIDSConfig(blockPos, messages, hideArrivalArray, filterPlatformIds, displayPage));
-		super.onClose2();
+		RegistryClient.sendPacketToServer(new PacketUpdatePIDSConfig(blockPos, messages, hideArrivalArray, filterPlatformIds, displayPage));
+		super.close();
 	}
 
 	@Override
-	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
-		renderBackground(graphicsHolder);
-		graphicsHolder.drawText(TranslationProvider.GUI_MTR_DISPLAY_PAGE.getMutableText(), SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-		graphicsHolder.drawText(TranslationProvider.GUI_MTR_FILTERED_PLATFORMS.getMutableText(selectAllCheckbox.isChecked2() ? 0 : filterPlatformIds.size()), SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-		graphicsHolder.drawText(messageText, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+		renderBackground(context, mouseX, mouseY, delta);
+		context.drawText(textRenderer, TranslationProvider.GUI_MTR_DISPLAY_PAGE.getMutableText(), SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE, false);
+		context.drawText(textRenderer, TranslationProvider.GUI_MTR_FILTERED_PLATFORMS.getMutableText(selectAllCheckbox.isChecked() ? 0 : filterPlatformIds.size()), SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE, false);
+		context.drawText(textRenderer, messageText, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE, false);
 		final int maxPages = getMaxPages();
 		if (maxPages > 1) {
-			graphicsHolder.drawCenteredText(String.format("%s/%s", page + 1, maxPages), SQUARE_SIZE * 3 + GraphicsHolder.getTextWidth(messageText) + TEXT_PADDING, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE);
+			context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, String.format("%s/%s", page + 1, maxPages), SQUARE_SIZE * 3 + textRenderer.getWidth(messageText) + TEXT_PADDING, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE);
 		}
-		super.render(graphicsHolder, mouseX, mouseY, delta);
+		super.render(context, mouseX, mouseY, delta);
 	}
 
 	@Override
-	public boolean isPauseScreen2() {
+	public boolean shouldPause() {
 		return false;
 	}
 
@@ -202,17 +201,17 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 		return (int) Math.ceil((float) maxArrivals / getMaxArrivalsPerPage());
 	}
 
-	public static ButtonWidgetExtension getPlatformFilterButton(BlockPos blockPos, CheckboxWidgetExtension selectAllCheckbox, LongAVLTreeSet filterPlatformIds, ScreenExtension thisScreen) {
-		return new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> {
-			final Station station = InitClient.findStation(blockPos);
+	public static ButtonWidget getPlatformFilterButton(BlockPos blockPos, CheckboxWidget selectAllCheckbox, LongAVLTreeSet filterPlatformIds, Screen thisScreen) {
+		return ButtonWidget.builder(Text.translatable("selectWorld.edit"), button -> {
+			final Station station = MTRClient.findStation(blockPos);
 			if (station != null) {
 				final ObjectImmutableList<DashboardListItem> platformsForList = getPlatformsForList(station);
-				if (selectAllCheckbox.isChecked2()) {
+				if (selectAllCheckbox.isChecked()) {
 					filterPlatformIds.clear();
 				}
-				MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(() -> selectAllCheckbox.setChecked(filterPlatformIds.isEmpty()), new ObjectImmutableList<>(platformsForList), filterPlatformIds, false, false, thisScreen)));
+				MinecraftClient.getInstance().setScreen(new DashboardListSelectorScreen(() -> IGui.setChecked(selectAllCheckbox, filterPlatformIds.isEmpty()), new ObjectImmutableList<>(platformsForList), filterPlatformIds, false, false, thisScreen));
 			}
-		});
+		}).build();
 	}
 
 	public static ObjectImmutableList<DashboardListItem> getPlatformsForList(Station station) {

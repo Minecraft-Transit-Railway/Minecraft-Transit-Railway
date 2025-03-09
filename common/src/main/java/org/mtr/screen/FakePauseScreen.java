@@ -1,44 +1,44 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.generated.lang.TranslationProvider;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import org.mtr.data.IGui;
+import org.mtr.generated.lang.TranslationProvider;
 
 public class FakePauseScreen extends MTRScreenBase implements IGui {
 
 	private long textCooldown;
 	private final String dismissPauseScreenText = TranslationProvider.GUI_MTR_DISMISS_PAUSE_SCREEN.getString();
-	private final int textWidth = GraphicsHolder.getTextWidth(dismissPauseScreenText);
+	private final int textWidth = textRenderer.getWidth(dismissPauseScreenText);
 
 	@Override
-	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
+	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 		if (System.currentTimeMillis() < textCooldown) {
-			graphicsHolder.push();
+			context.getMatrices().push();
 			final float newWidth = textWidth + TEXT_PADDING * 2F;
 			final float newHeight = TEXT_HEIGHT + TEXT_PADDING * 2F;
-			graphicsHolder.translate(width / 2F - newWidth / 2F, height / 2F - newHeight / 2F, 0);
-			graphicsHolder.scale(newWidth / width, newHeight / height, 1);
-			renderBackground(graphicsHolder);
-			graphicsHolder.pop();
-			graphicsHolder.drawCenteredText(dismissPauseScreenText, width / 2, height / 2 - TEXT_HEIGHT / 2, ARGB_WHITE);
+			context.getMatrices().translate(width / 2F - newWidth / 2F, height / 2F - newHeight / 2F, 0);
+			context.getMatrices().scale(newWidth / width, newHeight / height, 1);
+			renderBackground(context, mouseX, mouseY, delta);
+			context.getMatrices().pop();
+			context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, dismissPauseScreenText, width / 2, height / 2 - TEXT_HEIGHT / 2, ARGB_WHITE);
 		}
-		super.render(graphicsHolder, mouseX, mouseY, delta);
+		super.render(context, mouseX, mouseY, delta);
 	}
 
 	@Override
-	public boolean mouseClicked2(double mouseX, double mouseY, int button) {
-		MinecraftClient.getInstance().openScreen(null);
-		return super.mouseClicked2(mouseX, mouseY, button);
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		MinecraftClient.getInstance().setScreen(null);
+		return super.mouseClicked(mouseX, mouseY, button);
 	}
 
 	@Override
-	public void mouseMoved2(double mouseX, double mouseY) {
+	public void mouseMoved(double mouseX, double mouseY) {
 		textCooldown = System.currentTimeMillis() + 1000;
 	}
 
 	@Override
-	public boolean isPauseScreen2() {
+	public boolean shouldPause() {
 		return false;
 	}
 }

@@ -1,60 +1,68 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.tool.HolderBase;
-import org.mtr.mod.BlockEntityTypes;
-import org.mtr.mod.Items;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.tick.ScheduledTickView;
+import org.mtr.registry.BlockEntityTypes;
+import org.mtr.registry.Items;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 public class BlockLiftDoorOdd extends BlockPSDAPGDoorBase implements TripleHorizontalBlock {
 
+	public BlockLiftDoorOdd(AbstractBlock.Settings settings) {
+		super(settings);
+	}
+
 	@Nonnull
 	@Override
-	public BlockState getStateForNeighborUpdate2(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
-		return TripleHorizontalBlock.getStateForNeighborUpdate(state, direction, neighborState.isOf(new Block(this)), super.getStateForNeighborUpdate2(state, direction, neighborState, world, pos, neighborPos));
+	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
+		return TripleHorizontalBlock.getStateForNeighborUpdate(state, direction, neighborState.isOf(this), super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random));
 	}
 
 	@Override
-	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		TripleHorizontalBlock.onBreak(world, pos.down(IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER ? 1 : 0), state, player);
-		super.onBreak2(world, pos, state, player);
+		return super.onBreak(world, pos, state, player);
 	}
 
 	@Nonnull
 	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(blockPos, blockState);
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new LiftDoorOddBlockEntity(blockPos, blockState);
 	}
 
 	@Nonnull
 	@Override
-	public BlockRenderType getRenderType2(BlockState state) {
-		return BlockRenderType.getModelMapped();
-	}
-
-	@Nonnull
-	@Override
-	public Item asItem2() {
-		return Items.LIFT_DOOR_ODD_1.get();
+	public Item asItem() {
+		return Items.LIFT_DOOR_ODD_1.createAndGet();
 	}
 
 	@Override
-	public void addBlockProperties(List<HolderBase<?>> properties) {
-		properties.add(END);
-		properties.add(FACING);
-		properties.add(HALF);
-		properties.add(CENTER);
-		properties.add(SIDE);
-		properties.add(UNLOCKED);
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(END);
+		builder.add(Properties.FACING);
+		builder.add(HALF);
+		builder.add(CENTER);
+		builder.add(SIDE);
+		builder.add(UNLOCKED);
 	}
 
-	public static class BlockEntity extends BlockEntityBase {
+	public static class LiftDoorOddBlockEntity extends BlockEntityBase {
 
-		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_DOOR_ODD_1.get(), pos, state);
+		public LiftDoorOddBlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.LIFT_DOOR_ODD_1.createAndGet(), pos, state);
 		}
 	}
 }

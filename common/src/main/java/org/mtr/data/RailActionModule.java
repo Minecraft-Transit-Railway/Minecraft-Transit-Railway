@@ -1,13 +1,12 @@
-package org.mtr.mod.data;
+package org.mtr.data;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.block.BlockState;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import org.mtr.core.data.Rail;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.holder.BlockState;
-import org.mtr.mapping.holder.ServerPlayerEntity;
-import org.mtr.mapping.holder.ServerWorld;
-import org.mtr.mapping.mapper.MinecraftServerHelper;
-import org.mtr.mod.Init;
-import org.mtr.mod.packet.PacketBroadcastRailActions;
+import org.mtr.packet.PacketBroadcastRailActions;
+import org.mtr.registry.Registry;
 
 public class RailActionModule {
 
@@ -45,6 +44,6 @@ public class RailActionModule {
 	}
 
 	private void broadcastUpdate() {
-		MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntity -> Init.REGISTRY.sendPacketToClient(serverPlayerEntity, new PacketBroadcastRailActions(railActions)));
+		serverWorld.getPlayers().forEach(serverPlayerEntity -> Registry.sendPacketToClient(serverPlayerEntity, new PacketBroadcastRailActions(railActions)));
 	}
 }

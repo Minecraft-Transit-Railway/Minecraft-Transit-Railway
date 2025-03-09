@@ -1,8 +1,14 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mod.BlockEntityTypes;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.BlockView;
+import org.mtr.registry.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
 
@@ -10,26 +16,26 @@ public class BlockPIDSVerticalSingleArrival1 extends BlockPIDSVerticalBase {
 
 	private static final int MAX_ARRIVALS = 16;
 
-	public BlockPIDSVerticalSingleArrival1() {
-		super(MAX_ARRIVALS);
+	public BlockPIDSVerticalSingleArrival1(AbstractBlock.Settings settings) {
+		super(settings, MAX_ARRIVALS);
 	}
 
 	@Nonnull
 	@Override
-	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, FACING));
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, Properties.FACING));
 	}
 
 	@Nonnull
 	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(blockPos, blockState);
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new PIDSVerticalSingleArrival1BlockEntity(blockPos, blockState);
 	}
 
-	public static class BlockEntity extends BlockEntityVerticalBase {
+	public static class PIDSVerticalSingleArrival1BlockEntity extends BlockEntityVerticalBase {
 
-		public BlockEntity(BlockPos pos, BlockState state) {
-			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_VERTICAL_SINGLE_ARRIVAL_1.get(), pos, state);
+		public PIDSVerticalSingleArrival1BlockEntity(BlockPos pos, BlockState state) {
+			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_VERTICAL_SINGLE_ARRIVAL_1.createAndGet(), pos, state);
 		}
 	}
 }

@@ -1,16 +1,23 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.client.IDrawing;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.mapper.SoundHelper;
-import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mod.BlockEntityTypes;
-import org.mtr.mod.client.IDrawing;
+import org.mtr.registry.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
 
@@ -18,10 +25,14 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 
 	private static final Long2ObjectAVLTreeMap<ObjectArrayList<Runnable>> QUEUE = new Long2ObjectAVLTreeMap<>();
 
+	public BlockTrainAnnouncer(AbstractBlock.Settings settings) {
+		super(settings);
+	}
+
 	@Nonnull
 	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(blockPos, blockState);
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new TrainAnnouncerBlockEntity(blockPos, blockState);
 	}
 
 	public static void processQueue() {
@@ -36,7 +47,7 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 		itemsToRemove.forEach(QUEUE::remove);
 	}
 
-	public static class BlockEntity extends BlockEntityBase implements Utilities {
+	public static class TrainAnnouncerBlockEntity extends BlockEntityBase implements Utilities {
 
 		private String message = "";
 		private String soundId = "";
@@ -47,24 +58,24 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 		private static final String KEY_SOUND_ID = "sound_id";
 		private static final String KEY_DELAY = "delay";
 
-		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TRAIN_ANNOUNCER.get(), pos, state);
+		public TrainAnnouncerBlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.TRAIN_ANNOUNCER.createAndGet(), pos, state);
 		}
 
 		@Override
-		public void readCompoundTag(CompoundTag compoundTag) {
-			message = compoundTag.getString(KEY_MESSAGE);
-			soundId = compoundTag.getString(KEY_SOUND_ID);
-			delay = compoundTag.getInt(KEY_DELAY);
-			super.readCompoundTag(compoundTag);
+		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+			message = nbt.getString(KEY_MESSAGE);
+			soundId = nbt.getString(KEY_SOUND_ID);
+			delay = nbt.getInt(KEY_DELAY);
+			super.readNbt(nbt, registries);
 		}
 
 		@Override
-		public void writeCompoundTag(CompoundTag compoundTag) {
-			compoundTag.putString(KEY_MESSAGE, message);
-			compoundTag.putString(KEY_SOUND_ID, soundId);
-			compoundTag.putInt(KEY_DELAY, delay);
-			super.writeCompoundTag(compoundTag);
+		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+			nbt.putString(KEY_MESSAGE, message);
+			nbt.putString(KEY_SOUND_ID, soundId);
+			nbt.putInt(KEY_DELAY, delay);
+			super.writeNbt(nbt, registries);
 		}
 
 		public void setData(LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, String message, String soundId, int delay) {
@@ -92,13 +103,13 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 				final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
 				QUEUE.put(currentMillis + (long) delay * MILLIS_PER_SECOND, tasks);
 				if (!message.isEmpty()) {
-					tasks.add(() -> IDrawing.narrateOrAnnounce(message, ObjectArrayList.of(TextHelper.literal(message))));
+					tasks.add(() -> IDrawing.narrateOrAnnounce(message, ObjectArrayList.of(Text.literal(message))));
 				}
 				if (!soundId.isEmpty()) {
 					tasks.add(() -> {
-						final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+						final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().player;
 						if (clientPlayerEntity != null) {
-							clientPlayerEntity.playSound(SoundHelper.createSoundEvent(new Identifier(soundId)), 1000, 1);
+							clientPlayerEntity.playSound(SoundEvent.of(Identifier.of(soundId)), 1000, 1);
 						}
 					});
 				}

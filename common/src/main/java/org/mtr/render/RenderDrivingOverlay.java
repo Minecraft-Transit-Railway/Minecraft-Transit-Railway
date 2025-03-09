@@ -1,14 +1,15 @@
-package org.mtr.mod.render;
+package org.mtr.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.util.Window;
+import net.minecraft.util.Identifier;
 import org.mtr.core.tool.Utilities;
-import org.mtr.mapping.holder.ClientPlayerEntity;
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.holder.Window;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.GuiDrawing;
-import org.mtr.mod.data.IGui;
+import org.mtr.data.IGui;
 
 public class RenderDrivingOverlay implements IGui {
 
@@ -24,7 +25,7 @@ public class RenderDrivingOverlay implements IGui {
 	private static final int HOT_BAR_WIDTH = 182;
 	private static final int HOT_BAR_HEIGHT = 22;
 
-	public static void render(GraphicsHolder graphicsHolder) {
+	public static void render(DrawContext context) {
 		if (cooldown > 0) {
 			cooldown--;
 		} else {
@@ -32,54 +33,52 @@ public class RenderDrivingOverlay implements IGui {
 		}
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+		final ClientPlayerEntity clientPlayerEntity = minecraftClient.player;
 		final Window window = minecraftClient.getWindow();
 		if (clientPlayerEntity == null) {
 			return;
 		}
 
-		graphicsHolder.push();
-		final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
-		guiDrawing.beginDrawingTexture(new Identifier("textures/gui/widgets.png"));
+		context.getMatrices().push();
+		final Identifier widgetsTexture = Identifier.of("textures/gui/widgets.png");
 		final int startX = (window.getScaledWidth() - HOT_BAR_WIDTH) / 2;
 		final int startY = window.getScaledHeight() - (clientPlayerEntity.isCreative() ? 47 : 63);
 
-		IGui.drawTexture(guiDrawing, startX, startY, 0F, 0, 61, HOT_BAR_HEIGHT, 256, 256);
-		IGui.drawTexture(guiDrawing, startX + 61, startY, 141F, 0, 41, HOT_BAR_HEIGHT, 256, 256);
-		IGui.drawTexture(guiDrawing, startX + 120, startY, 0F, 0, 21, HOT_BAR_HEIGHT, 256, 256);
-		IGui.drawTexture(guiDrawing, startX + 141, startY, 141F, 0, 41, HOT_BAR_HEIGHT, 256, 256);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, widgetsTexture, startX, startY, 0, 0, 61, HOT_BAR_HEIGHT, 256, 256);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, widgetsTexture, startX + 61, startY, 141, 0, 41, HOT_BAR_HEIGHT, 256, 256);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, widgetsTexture, startX + 120, startY, 0, 0, 21, HOT_BAR_HEIGHT, 256, 256);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, widgetsTexture, startX + 141, startY, 141, 0, 41, HOT_BAR_HEIGHT, 256, 256);
 
-		IGui.drawTexture(guiDrawing, startX + 39 + Math.max(accelerationSign, -2) * 20, startY - 1, 0F, 22, 24, 24, 256, 256);
-		IGui.drawTexture(guiDrawing, startX + (doorValue > 0 ? doorValue < 1 ? 139 : 159 : 119), startY - 1, 0F, 22, 24, 24, 256, 256);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, widgetsTexture, startX + 39 + Math.max(accelerationSign, -2) * 20, startY - 1, 0, 22, 24, 24, 256, 256);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, widgetsTexture, startX + (doorValue > 0 ? doorValue < 1 ? 139 : 159 : 119), startY - 1, 0, 22, 24, 24, 256, 256);
 
-		guiDrawing.finishDrawingTexture();
+		context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, "B2", (int) (startX + 5.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == -2 ? ARGB_WHITE : ARGB_GRAY);
+		context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, "B1", (int) (startX + 25.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == -1 ? ARGB_WHITE : ARGB_GRAY);
+		context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, "N", (int) (startX + 48.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == 0 ? ARGB_WHITE : ARGB_GRAY);
+		context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, "P1", (int) (startX + 65.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == 1 ? ARGB_WHITE : ARGB_GRAY);
+		context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, "P2", (int) (startX + 85.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == 2 ? ARGB_WHITE : ARGB_GRAY);
 
-		graphicsHolder.drawCenteredText("B2", (int) (startX + 5.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == -2 ? ARGB_WHITE : ARGB_GRAY);
-		graphicsHolder.drawCenteredText("B1", (int) (startX + 25.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == -1 ? ARGB_WHITE : ARGB_GRAY);
-		graphicsHolder.drawCenteredText("N", (int) (startX + 48.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == 0 ? ARGB_WHITE : ARGB_GRAY);
-		graphicsHolder.drawCenteredText("P1", (int) (startX + 65.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == 1 ? ARGB_WHITE : ARGB_GRAY);
-		graphicsHolder.drawCenteredText("P2", (int) (startX + 85.5F), (int) (startY + 7.5F), doorValue == 0 && accelerationSign == 2 ? ARGB_WHITE : ARGB_GRAY);
-
-		graphicsHolder.drawCenteredText("DC", (int) (startX + 125.5F), (int) (startY + 7.5F), speed == 0 && doorValue == 0 ? ARGB_WHITE : ARGB_GRAY);
-		graphicsHolder.drawCenteredText(String.valueOf(Math.round(doorValue * 10) / 10F), (int) (startX + 144.5F), (int) (startY + 7.5F), doorValue > 0 && doorValue < 1 ? ARGB_WHITE : ARGB_GRAY);
-		graphicsHolder.drawCenteredText("DO", (int) (startX + 165.5F), (int) (startY + 7.5F), speed == 0 && doorValue == 1 ? ARGB_WHITE : ARGB_GRAY);
+		context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, "DC", (int) (startX + 125.5F), (int) (startY + 7.5F), speed == 0 && doorValue == 0 ? ARGB_WHITE : ARGB_GRAY);
+		context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, String.valueOf(Math.round(doorValue * 10) / 10F), (int) (startX + 144.5F), (int) (startY + 7.5F), doorValue > 0 && doorValue < 1 ? ARGB_WHITE : ARGB_GRAY);
+		context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, "DO", (int) (startX + 165.5F), (int) (startY + 7.5F), speed == 0 && doorValue == 1 ? ARGB_WHITE : ARGB_GRAY);
 
 		final String speedText = Utilities.round(speed * 3.6F, 1) + " km/h";
-		graphicsHolder.drawText(speedText, startX - GraphicsHolder.getTextWidth(speedText) - TEXT_PADDING, (int) (window.getScaledHeight() - 14.5F), ARGB_WHITE, true, GraphicsHolder.getDefaultLight());
+		final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+		context.drawText(textRenderer, speedText, startX - textRenderer.getWidth(speedText) - TEXT_PADDING, (int) (window.getScaledHeight() - 14.5F), ARGB_WHITE, true);
 		if (thisStation != null) {
-			graphicsHolder.drawText(thisStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 44.5F), ARGB_WHITE, true, GraphicsHolder.getDefaultLight());
+			context.drawText(textRenderer, thisStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 44.5F), ARGB_WHITE, true);
 		}
 		if (nextStation != null) {
-			graphicsHolder.drawText("> " + nextStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 34.5F), ARGB_WHITE, true, GraphicsHolder.getDefaultLight());
+			context.drawText(textRenderer, "> " + nextStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 34.5F), ARGB_WHITE, true);
 		}
 		if (thisRoute != null) {
-			graphicsHolder.drawText(thisRoute, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 19.5F), ARGB_WHITE, true, GraphicsHolder.getDefaultLight());
+			context.drawText(textRenderer, thisRoute, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 19.5F), ARGB_WHITE, true);
 		}
 		if (lastStation != null) {
-			graphicsHolder.drawText("> " + lastStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 9.5F), ARGB_WHITE, true, GraphicsHolder.getDefaultLight());
+			context.drawText(textRenderer, "> " + lastStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, (int) (window.getScaledHeight() - 9.5F), ARGB_WHITE, true);
 		}
 
 		RenderSystem.disableBlend();
-		graphicsHolder.pop();
+		context.getMatrices().pop();
 	}
 }

@@ -1,12 +1,11 @@
-package org.mtr.mod.client;
+package org.mtr.client;
 
-import org.mtr.mapping.holder.Direction;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.render.MainRenderer;
-import org.mtr.mod.render.QueuedRenderLayer;
-import org.mtr.mod.render.StoredMatrixTransformations;
+import net.minecraft.util.math.Direction;
+import org.mtr.MTRClient;
+import org.mtr.data.IGui;
+import org.mtr.render.MainRenderer;
+import org.mtr.render.QueuedRenderLayer;
+import org.mtr.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
 
@@ -30,7 +29,7 @@ public class ScrollingText implements IGui {
 	public void changeImage(@Nullable DynamicTextureCache.DynamicResource dynamicResource) {
 		if (this.dynamicResource != dynamicResource) {
 			this.dynamicResource = dynamicResource;
-			ticksOffset = InitClient.getGameTick();
+			ticksOffset = MTRClient.getGameTick();
 		}
 	}
 
@@ -41,12 +40,12 @@ public class ScrollingText implements IGui {
 			final int widthSteps = (int) Math.floor(availableWidth / scale / pixelScale);
 			final int imageSteps = dynamicResource.width / pixelScale;
 			final int totalSteps = widthSteps + imageSteps;
-			final int step = Math.round((InitClient.getGameTick() - ticksOffset) * scrollSpeed) % totalSteps;
+			final int step = Math.round((MTRClient.getGameTick() - ticksOffset) * scrollSpeed) % totalSteps;
 			final double width = Math.min(Math.min(availableWidth, dynamicResource.width * scale), Math.min(step * pixelScale * scale, (totalSteps - step) * pixelScale * scale));
-			MainRenderer.scheduleRender(dynamicResource.identifier, true, QueuedRenderLayer.LIGHT_2, (graphicsHolder, offset) -> {
-				storedMatrixTransformations.transform(graphicsHolder, offset);
-				IDrawing.drawTexture(graphicsHolder, (float) (Math.max(widthSteps - step, 0) * scale * pixelScale), 0, (float) width, (float) availableHeight, Math.max((float) (step - widthSteps) / imageSteps, 0), 0, Math.min((float) step / imageSteps, 1), 1, Direction.UP, ARGB_WHITE, GraphicsHolder.getDefaultLight());
-				graphicsHolder.pop();
+			MainRenderer.scheduleRender(dynamicResource.identifier, true, QueuedRenderLayer.LIGHT_2, (matrixStack, vertexConsumer, offset) -> {
+				storedMatrixTransformations.transform(matrixStack, offset);
+				IDrawing.drawTexture(matrixStack, vertexConsumer, (float) (Math.max(widthSteps - step, 0) * scale * pixelScale), 0, (float) width, (float) availableHeight, Math.max((float) (step - widthSteps) / imageSteps, 0), 0, Math.min((float) step / imageSteps, 1), 1, Direction.UP, ARGB_WHITE, DEFAULT_LIGHT);
+				matrixStack.pop();
 			});
 		}
 	}

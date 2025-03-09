@@ -1,32 +1,24 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mod.Blocks;
-import org.mtr.mod.generated.lang.TranslationProvider;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import org.mtr.generated.lang.TranslationProvider;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
-public class BlockStationColor extends BlockExtension {
+public class BlockStationColor extends Block {
 
-	public BlockStationColor() {
-		this(Blocks.createDefaultBlockSettings(false));
-	}
-
-	protected BlockStationColor(BlockSettings blockSettings) {
-		super(blockSettings);
-	}
-
-	@Nonnull
-	@Override
-	public String getTranslationKey2() {
-		return super.getTranslationKey2().replace("block.mtr.station_color_", "block.minecraft.");
+	public BlockStationColor(AbstractBlock.Settings settings) {
+		super(settings);
 	}
 
 	@Override
-	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		tooltip.add(TranslationProvider.TOOLTIP_MTR_STATION_COLOR.getMutableText().formatted(TextFormatting.GRAY));
+	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType options) {
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_STATION_COLOR.getMutableText().formatted(Formatting.GRAY));
 	}
 }

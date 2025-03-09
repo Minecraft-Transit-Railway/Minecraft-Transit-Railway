@@ -1,7 +1,7 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
 import org.mtr.core.serializer.ReaderBase;
-import org.mtr.mod.generated.resource.BlockbenchResolutionSchema;
+import org.mtr.generated.resource.BlockbenchResolutionSchema;
 
 public final class BlockbenchResolution extends BlockbenchResolutionSchema {
 

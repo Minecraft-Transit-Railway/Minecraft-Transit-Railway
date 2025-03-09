@@ -1,11 +1,8 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
-import org.mtr.mapping.holder.MinecraftServer;
-import org.mtr.mapping.holder.ServerPlayerEntity;
-import org.mtr.mapping.registry.PacketHandler;
-import org.mtr.mapping.tool.PacketBufferReceiver;
-import org.mtr.mapping.tool.PacketBufferSender;
-import org.mtr.mod.Init;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import org.mtr.MTR;
 
 public final class PacketDeleteRailAction extends PacketHandler {
 
@@ -26,6 +23,6 @@ public final class PacketDeleteRailAction extends PacketHandler {
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		Init.getRailActionModule(serverPlayerEntity.getServerWorld(), railActionModule -> railActionModule.removeRailAction(id));
+		MTR.getRailActionModule(serverPlayerEntity.getServerWorld(), railActionModule -> railActionModule.removeRailAction(id));
 	}
 }

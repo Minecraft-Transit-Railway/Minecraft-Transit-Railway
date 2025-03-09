@@ -1,19 +1,19 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import org.mtr.client.CustomResourceLoader;
+import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Rail;
 import org.mtr.core.operation.UpdateDataRequest;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import org.mtr.mapping.holder.ClientPlayerEntity;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.packet.PacketUpdateData;
-import org.mtr.mod.packet.PacketUpdateLastRailStyles;
-import org.mtr.mod.resource.RailResource;
+import org.mtr.packet.PacketUpdateData;
+import org.mtr.packet.PacketUpdateLastRailStyles;
+import org.mtr.registry.RegistryClient;
+import org.mtr.resource.RailResource;
 
 import java.util.stream.Collectors;
 
@@ -28,18 +28,18 @@ public class RailStyleSelectorScreen extends DashboardListSelectorScreen {
 	}
 
 	@Override
-	public void onClose2() {
-		super.onClose2();
-		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+	public void close() {
+		super.close();
+		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().player;
 		if (clientPlayerEntity != null) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateLastRailStyles(clientPlayerEntity.getUuid(), rail.getTransportMode(), getStyles()));
+			RegistryClient.sendPacketToServer(new PacketUpdateLastRailStyles(clientPlayerEntity.getUuid(), rail.getTransportMode(), getStyles()));
 		}
 	}
 
 	@Override
 	protected void updateList() {
 		super.updateList();
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(Rail.copy(rail, getStyles()))));
+		RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(Rail.copy(rail, getStyles()))));
 	}
 
 	public static RailStyleSelectorScreen create(Rail rail) {

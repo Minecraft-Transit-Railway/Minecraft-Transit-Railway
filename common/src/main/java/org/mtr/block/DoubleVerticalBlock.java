@@ -1,18 +1,24 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.DirectionHelper;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public interface DoubleVerticalBlock extends IBlock, DirectionHelper {
+public interface DoubleVerticalBlock extends IBlock {
 
 	@Nonnull
 	static BlockState getStateForNeighborUpdate(BlockState blockState, Direction direction, boolean isThis, BlockState defaultBlockState) {
 		final boolean isTop = IBlock.getStatePropertySafe(blockState, HALF) == DoubleBlockHalf.UPPER;
 		if ((isTop && direction == Direction.DOWN || !isTop && direction == Direction.UP) && !isThis) {
-			return Blocks.getAirMapped().getDefaultState();
+			return Blocks.AIR.getDefaultState();
 		} else {
 			return defaultBlockState;
 		}
@@ -20,17 +26,17 @@ public interface DoubleVerticalBlock extends IBlock, DirectionHelper {
 
 	static void onPlaced(World world, BlockPos blockPos, BlockState blockState, BlockState defaultPlacementState) {
 		if (!world.isClient()) {
-			final Direction direction = IBlock.getStatePropertySafe(blockState, FACING);
-			world.setBlockState(blockPos.up(), defaultPlacementState.with(new Property<>(FACING.data), direction.data).with(new Property<>(HALF.data), DoubleBlockHalf.UPPER), 3);
-			world.updateNeighbors(blockPos, Blocks.getAirMapped());
-			blockState.updateNeighbors(new WorldAccess(world.data), blockPos, 3);
+			final Direction direction = IBlock.getStatePropertySafe(blockState, Properties.FACING);
+			world.setBlockState(blockPos.up(), defaultPlacementState.with(Properties.FACING, direction).with(HALF, DoubleBlockHalf.UPPER), 3);
+			world.updateNeighbors(blockPos, Blocks.AIR);
+			blockState.updateNeighbors(world, blockPos, 3);
 		}
 	}
 
 	@Nullable
 	static BlockState getPlacementState(ItemPlacementContext itemPlacementContext, BlockState defaultPlacementState) {
-		final Direction direction = itemPlacementContext.getPlayerFacing();
-		return IBlock.isReplaceable(itemPlacementContext, Direction.UP, 2) ? defaultPlacementState.with(new Property<>(FACING.data), direction.data).with(new Property<>(HALF.data), DoubleBlockHalf.LOWER) : null;
+		final Direction direction = itemPlacementContext.getHorizontalPlayerFacing();
+		return IBlock.isReplaceable(itemPlacementContext, Direction.UP, 2) ? defaultPlacementState.with(Properties.FACING, direction).with(HALF, DoubleBlockHalf.LOWER) : null;
 	}
 
 	static void onBreak(World world, BlockPos blockPos, BlockState blockState, PlayerEntity playerEntity) {

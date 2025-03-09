@@ -1,26 +1,38 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.TextHelper;
-import org.mtr.mapping.tool.HolderBase;
-import org.mtr.mod.Blocks;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.IntProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class BlockGlassFence extends BlockDirectionalDoubleBlockBase {
 
-	public static final IntegerProperty NUMBER = IntegerProperty.of("number", 1, 7);
+	public static final IntProperty NUMBER = IntProperty.of("number", 1, 7);
 
-	public BlockGlassFence() {
-		super(Blocks.createDefaultBlockSettings(true).nonOpaque());
+	public BlockGlassFence(AbstractBlock.Settings settings) {
+		super(settings.nonOpaque());
 	}
 
 	@Nonnull
 	@Override
-	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
 			return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 3, 3, facing);
 		} else {
@@ -30,32 +42,32 @@ public class BlockGlassFence extends BlockDirectionalDoubleBlockBase {
 
 	@Nonnull
 	@Override
-	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-		return VoxelShapes.union(getOutlineShape2(state, world, pos, context), IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 8, 3, facing));
+	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+		return VoxelShapes.union(getOutlineShape(state, world, pos, context), IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 8, 3, facing));
 	}
 
 	@Nonnull
 	@Override
-	public VoxelShape getCameraCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	protected VoxelShape getCameraCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return VoxelShapes.empty();
 	}
 
 	@Override
-	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		tooltip.add(TextHelper.translatable("tooltip." + stack.getItem().getTranslationKey()).formatted(TextFormatting.GRAY));
+	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType options) {
+		tooltip.add(Text.translatable("tooltip." + stack.getItem().getTranslationKey()).formatted(Formatting.GRAY));
 	}
 
 	@Override
-	public void addBlockProperties(List<HolderBase<?>> properties) {
-		properties.add(FACING);
-		properties.add(HALF);
-		properties.add(NUMBER);
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(Properties.FACING);
+		builder.add(HALF);
+		builder.add(NUMBER);
 	}
 
 	@Override
 	protected BlockState getAdditionalState(BlockPos pos, Direction facing) {
-		return getDefaultState2().with(new Property<>(NUMBER.data), getNumber(pos, facing));
+		return getDefaultState().with(NUMBER, getNumber(pos, facing));
 	}
 
 	private static int getNumber(BlockPos pos, Direction facing) {

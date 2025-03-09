@@ -1,7 +1,7 @@
-package org.mtr.mod.sound;
+package org.mtr.sound;
 
+import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.StringUtils;
-import org.mtr.mapping.holder.Identifier;
 
 import java.util.*;
 
@@ -14,10 +14,10 @@ public class BveMotorData5 extends BveMotorDataBase { // 5 for BVE5 and BVE6
 	private final int soundCount;
 
 	public BveMotorData5(String baseName) {
-		powerVolume = new FloatSplines(BveVehicleSoundConfig.readResource(new Identifier(baseName + "/powervol.csv")));
-		powerFrequency = new FloatSplines(BveVehicleSoundConfig.readResource(new Identifier(baseName + "/powerfreq.csv")));
-		brakeVolume = new FloatSplines(BveVehicleSoundConfig.readResource(new Identifier(baseName + "/brakevol.csv")));
-		brakeFrequency = new FloatSplines(BveVehicleSoundConfig.readResource(new Identifier(baseName + "/brakefreq.csv")));
+		powerVolume = new FloatSplines(BveVehicleSoundConfig.readResource(Identifier.of(baseName + "/powervol.csv")));
+		powerFrequency = new FloatSplines(BveVehicleSoundConfig.readResource(Identifier.of(baseName + "/powerfreq.csv")));
+		brakeVolume = new FloatSplines(BveVehicleSoundConfig.readResource(Identifier.of(baseName + "/brakevol.csv")));
+		brakeFrequency = new FloatSplines(BveVehicleSoundConfig.readResource(Identifier.of(baseName + "/brakefreq.csv")));
 		soundCount = Math.max(
 				Math.max(powerVolume.data.size(), powerFrequency.data.size()),
 				Math.max(brakeVolume.data.size(), brakeFrequency.data.size())

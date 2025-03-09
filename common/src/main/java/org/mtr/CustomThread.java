@@ -1,4 +1,4 @@
-package org.mtr.mod;
+package org.mtr;
 
 public abstract class CustomThread extends Thread {
 
@@ -18,7 +18,7 @@ public abstract class CustomThread extends Thread {
 			try {
 				runTick();
 			} catch (Exception e) {
-				Init.LOGGER.error("", e);
+				MTR.LOGGER.error("", e);
 			}
 		}
 	}

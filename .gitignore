@@ -32,6 +32,7 @@ bin/
 
 run/
 generated/
+.architectury-transformer/
 **/website/*.json
 **/website/src/app/entity/generated
 **/website/src/styles.css

@@ -1,4 +1,4 @@
 @ParametersAreNonnullByDefault
-package org.mtr.mod.sound;
+package org.mtr.sound;
 
 import javax.annotation.ParametersAreNonnullByDefault;

@@ -1,12 +1,9 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.registry.PacketHandler;
-import org.mtr.mapping.tool.PacketBufferReceiver;
-import org.mtr.mapping.tool.PacketBufferSender;
-import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.data.RailAction;
-import org.mtr.mod.screen.DashboardListItem;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.client.MinecraftClientData;
+import org.mtr.data.RailAction;
+import org.mtr.screen.DashboardListItem;
 
 public final class PacketBroadcastRailActions extends PacketHandler {
 

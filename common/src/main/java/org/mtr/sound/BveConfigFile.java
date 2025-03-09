@@ -1,9 +1,8 @@
-package org.mtr.mod.sound;
+package org.mtr.sound;
 
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.StringUtils;
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.holder.SoundEvent;
-import org.mtr.mapping.mapper.SoundHelper;
 
 import java.util.Locale;
 
@@ -95,7 +94,7 @@ public class BveConfigFile {
 					continue;
 				}
 
-				final SoundEvent valueAsSoundEvent = SoundHelper.createSoundEvent(new Identifier(config.audioBaseName + value));
+				final SoundEvent valueAsSoundEvent = SoundEvent.of(Identifier.of(config.audioBaseName + value));
 				switch (section) {
 					case "mtr":
 						switch (key) {

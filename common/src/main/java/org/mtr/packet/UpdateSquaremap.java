@@ -1,13 +1,12 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import net.minecraft.world.World;
+import org.mtr.MTR;
+import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.AreaBase;
 import org.mtr.core.data.SavedRailBase;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import org.mtr.mapping.holder.World;
-import org.mtr.mapping.mapper.MinecraftServerHelper;
-import org.mtr.mod.Init;
-import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.data.IGui;
+import org.mtr.data.IGui;
 import xyz.jpenilla.squaremap.api.*;
 import xyz.jpenilla.squaremap.api.marker.Marker;
 import xyz.jpenilla.squaremap.api.marker.MarkerOptions;
@@ -25,18 +24,18 @@ public class UpdateSquaremap implements IGui, IUpdateWebMap {
 				try {
 					iconRegistry.register(Key.of(STATION_ICON_KEY), ImageIO.read(inputStream));
 				} catch (IOException e) {
-					Init.LOGGER.error("", e);
+					MTR.LOGGER.error("", e);
 				}
 			});
 			IUpdateWebMap.readResource(DEPOT_ICON_PATH, inputStream -> {
 				try {
 					iconRegistry.register(Key.of(DEPOT_ICON_KEY), ImageIO.read(inputStream));
 				} catch (IOException e) {
-					Init.LOGGER.error("", e);
+					MTR.LOGGER.error("", e);
 				}
 			});
 		} catch (Exception e) {
-			Init.LOGGER.error("", e);
+			MTR.LOGGER.error("", e);
 		}
 	}
 
@@ -46,12 +45,12 @@ public class UpdateSquaremap implements IGui, IUpdateWebMap {
 			updateSquaremap(world, MinecraftClientData.getInstance().depots, MARKER_SET_DEPOTS_ID, MARKER_SET_DEPOTS_TITLE, MARKER_SET_DEPOT_AREAS_ID, MARKER_SET_DEPOT_AREAS_TITLE, DEPOT_ICON_KEY);
 		} catch (IllegalStateException ignored) {
 		} catch (Exception e) {
-			Init.LOGGER.error("", e);
+			MTR.LOGGER.error("", e);
 		}
 	}
 
 	private static <T extends AreaBase<T, U>, U extends SavedRailBase<U, T>> void updateSquaremap(World world, ObjectArraySet<T> areas, String areasId, String areasTitle, String areaAreasId, String areaAreasTitle, String iconKey) {
-		final MapWorld mapWorld = SquaremapProvider.get().getWorldIfEnabled(WorldIdentifier.parse(MinecraftServerHelper.getWorldId(world).toString())).orElse(null);
+		final MapWorld mapWorld = SquaremapProvider.get().getWorldIfEnabled(WorldIdentifier.parse(world.getRegistryKey().getValue().toString())).orElse(null);
 		if (mapWorld == null) {
 			return;
 		}

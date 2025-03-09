@@ -1,33 +1,28 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.holder.Screen;
-import org.mtr.mapping.mapper.ScreenExtension;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.text.Text;
 
 import javax.annotation.Nullable;
 
-public class MTRScreenBase extends ScreenExtension {
+public class MTRScreenBase extends Screen {
 
 	@Nullable
 	private final Screen previousScreen;
 
-	public MTRScreenBase(@Nullable ScreenExtension previousScreenExtension) {
-		super();
-		this.previousScreen = previousScreenExtension == null ? null : new Screen(previousScreenExtension);
-	}
-
 	public MTRScreenBase(@Nullable Screen previousScreen) {
-		super();
+		super(Text.empty());
 		this.previousScreen = previousScreen;
 	}
 
 	public MTRScreenBase() {
-		this((ScreenExtension) null);
+		this(null);
 	}
 
 	@Override
-	public void onClose2() {
-		super.onClose2();
-		MinecraftClient.getInstance().openScreen(previousScreen);
+	public void close() {
+		super.close();
+		MinecraftClient.getInstance().setScreen(previousScreen);
 	}
 }

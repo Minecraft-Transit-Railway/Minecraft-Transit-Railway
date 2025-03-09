@@ -1,43 +1,57 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockExtension;
-import org.mtr.mapping.mapper.DirectionHelper;
-import org.mtr.mod.Items;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.state.property.EnumProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.tick.ScheduledTickView;
+import org.mtr.registry.Items;
 
 import javax.annotation.Nonnull;
 
-public abstract class BlockEscalatorBase extends BlockExtension implements IBlock, DirectionHelper {
+public abstract class BlockEscalatorBase extends Block implements IBlock {
 
 	public static final EnumProperty<EnumEscalatorOrientation> ORIENTATION = EnumProperty.of("orientation", EnumEscalatorOrientation.class);
 
-	protected BlockEscalatorBase() {
-		super(org.mtr.mod.Blocks.createDefaultBlockSettings(true).nonOpaque());
+	public BlockEscalatorBase(AbstractBlock.Settings settings) {
+		super(settings.nonOpaque());
 	}
 
 	@Nonnull
 	@Override
-	public BlockState getStateForNeighborUpdate2(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
-		if (getSideDirection(state) == direction && !neighborState.isOf(new Block(this))) {
-			return Blocks.getAirMapped().getDefaultState();
+	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
+		if (getSideDirection(state) == direction && !neighborState.isOf(this)) {
+			return net.minecraft.block.Blocks.AIR.getDefaultState();
 		} else {
-			return state.with(new Property<>(ORIENTATION.data), getOrientation(BlockView.cast(world), pos, state));
+			return state.with(ORIENTATION, getOrientation(world, pos, state));
 		}
 	}
 
 	@Nonnull
 	@Override
-	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return super.getOutlineShape2(state, world, pos, context);
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return super.getOutlineShape(state, world, pos, context);
 	}
 
 	@Nonnull
 	@Override
-	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final EnumEscalatorOrientation orientation = getOrientation(world, pos, state);
 
 		if (orientation == EnumEscalatorOrientation.SLOPE || orientation == EnumEscalatorOrientation.TRANSITION_TOP) {
-			return VoxelShapes.union(Block.createCuboidShape(0, 0, 0, 16, 8, 16), IBlock.getVoxelShapeByDirection(0, 8, 0, 16, 15, 8, IBlock.getStatePropertySafe(state, FACING)));
+			return VoxelShapes.union(Block.createCuboidShape(0, 0, 0, 16, 8, 16), IBlock.getVoxelShapeByDirection(0, 8, 0, 16, 15, 8, IBlock.getStatePropertySafe(state, Properties.FACING)));
 		} else {
 			return VoxelShapes.fullCube();
 		}
@@ -45,18 +59,17 @@ public abstract class BlockEscalatorBase extends BlockExtension implements IBloc
 
 	@Nonnull
 	@Override
-	public Item asItem2() {
-		return Items.ESCALATOR.get();
+	public Item asItem() {
+		return Items.ESCALATOR.createAndGet();
 	}
 
-	@Nonnull
 	@Override
-	public ItemStack getPickStack2(BlockView world, BlockPos pos, BlockState state) {
-		return new ItemStack(new ItemConvertible(asItem2().data));
+	protected ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state, boolean includeData) {
+		return new ItemStack(asItem());
 	}
 
 	protected final EnumEscalatorOrientation getOrientation(BlockView world, BlockPos pos, BlockState state) {
-		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
 
 		final BlockPos posAhead = pos.offset(facing);
 		final BlockPos posBehind = pos.offset(facing, -1);
@@ -83,7 +96,7 @@ public abstract class BlockEscalatorBase extends BlockExtension implements IBloc
 	}
 
 	private Direction getSideDirection(BlockState state) {
-		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
 		return IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT ? facing.rotateYCounterclockwise() : facing.rotateYClockwise();
 	}
 
@@ -106,7 +119,7 @@ public abstract class BlockEscalatorBase extends BlockExtension implements IBloc
 
 		@Nonnull
 		@Override
-		public String asString2() {
+		public String asString() {
 			return name;
 		}
 	}

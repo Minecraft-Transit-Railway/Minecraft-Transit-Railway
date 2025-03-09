@@ -1,4 +1,4 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
 
 import org.mtr.core.tool.Utilities;
@@ -30,16 +30,11 @@ public enum DoorAnimationType {
 	}
 
 	private double getDoorAnimationXAbsolute(double multiplier, double time) {
-		switch (this) {
-			case PLUG_FAST:
-			case PLUG_SLOW_2:
-			case PLUG_SLOW_3:
-				return time < 0.05 ? time * 20 * multiplier + 0.05 : multiplier + 0.05;
-			case PLUG_SLOW:
-				return smoothEnds(0.05, multiplier + 0.05, 0, 0.1, time);
-			default:
-				return 0;
-		}
+		return switch (this) {
+			case PLUG_FAST, PLUG_SLOW_2, PLUG_SLOW_3 -> time < 0.05 ? time * 20 * multiplier + 0.05 : multiplier + 0.05;
+			case PLUG_SLOW -> smoothEnds(0.05, multiplier + 0.05, 0, 0.1, time);
+			default -> 0;
+		};
 	}
 
 	private double getDoorAnimationZAbsolute(double doorMax, double time, boolean opening) {

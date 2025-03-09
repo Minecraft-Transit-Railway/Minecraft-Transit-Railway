@@ -1,5 +1,10 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
+import com.google.gson.JsonObject;
+import net.minecraft.server.world.ServerWorld;
+import org.mtr.MTR;
+import org.mtr.block.BlockNode;
+import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Position;
 import org.mtr.core.operation.DeleteDataRequest;
 import org.mtr.core.operation.DeleteDataResponse;
@@ -7,12 +12,6 @@ import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.mapping.holder.ServerWorld;
-import org.mtr.mapping.tool.PacketBufferReceiver;
-import org.mtr.mod.Init;
-import org.mtr.mod.block.BlockNode;
-import org.mtr.mod.client.MinecraftClientData;
 
 import javax.annotation.Nonnull;
 
@@ -33,7 +32,7 @@ public final class PacketDeleteData extends PacketRequestResponseBase {
 	@Override
 	protected void runServerInbound(ServerWorld serverWorld, JsonObject jsonObject) {
 		// Check if there are any rail nodes that need to be reset
-		new DeleteDataResponse(new JsonReader(jsonObject)).iterateRailNodePosition(railNodePosition -> BlockNode.resetRailNode(serverWorld, Init.positionToBlockPos(railNodePosition)));
+		new DeleteDataResponse(new JsonReader(jsonObject)).iterateRailNodePosition(railNodePosition -> BlockNode.resetRailNode(serverWorld, MTR.positionToBlockPos(railNodePosition)));
 	}
 
 	@Override

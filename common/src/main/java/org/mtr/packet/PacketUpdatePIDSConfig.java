@@ -1,15 +1,12 @@
-package org.mtr.mod.packet;
+package org.mtr.packet;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.mapping.holder.BlockEntity;
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.MinecraftServer;
-import org.mtr.mapping.holder.ServerPlayerEntity;
-import org.mtr.mapping.registry.PacketHandler;
-import org.mtr.mapping.tool.PacketBufferReceiver;
-import org.mtr.mapping.tool.PacketBufferSender;
-import org.mtr.mod.Init;
-import org.mtr.mod.block.BlockPIDSBase;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.MTR;
+import org.mtr.block.BlockPIDSBase;
 
 public final class PacketUpdatePIDSConfig extends PacketHandler {
 
@@ -70,13 +67,13 @@ public final class PacketUpdatePIDSConfig extends PacketHandler {
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		if (!Init.isChunkLoaded(serverPlayerEntity.getEntityWorld(), blockPos)) {
+		if (!MTR.isChunkLoaded(serverPlayerEntity.getEntityWorld(), blockPos)) {
 			return;
 		}
 
 		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
-		if (entity != null && entity.data instanceof BlockPIDSBase.BlockEntityBase) {
-			((BlockPIDSBase.BlockEntityBase) entity.data).setData(messages, hideArrivalArray, platformIds, displayPage);
+		if (entity instanceof BlockPIDSBase.BlockEntityBase) {
+			((BlockPIDSBase.BlockEntityBase) entity).setData(messages, hideArrivalArray, platformIds, displayPage);
 		}
 	}
 }

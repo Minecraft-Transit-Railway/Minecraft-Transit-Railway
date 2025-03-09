@@ -1,9 +1,9 @@
-package org.mtr.mod.sound;
+package org.mtr.sound;
 
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.holder.SoundEvent;
-import org.mtr.mod.InitClient;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.MTRClient;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -49,11 +49,11 @@ public class BveVehicleSound extends VehicleSoundBase {
 
 	@Override
 	public void playMotorSound(BlockPos blockPos, float speed, float speedChange, float acceleration, boolean isOnRoute) {
-		if (!InitClient.canPlaySound()) {
+		if (!MTRClient.canPlaySound()) {
 			return;
 		}
 
-		final float secondsElapsed = MinecraftClient.getInstance().getLastFrameDuration() / 20;
+		final float secondsElapsed = MinecraftClient.getInstance().getRenderTickCounter().getLastFrameDuration() / 20;
 		final float speedKilometersPerHour = speed * 3600;
 		final float speedMetersPerSecond = speed * 1000;
 
@@ -186,35 +186,7 @@ public class BveVehicleSound extends VehicleSoundBase {
 		return new Random().nextInt(maxExclusive - minInclusive) + minInclusive;
 	}
 
-	private static class VehicleLoopingSoundHolder {
-
-		private final VehicleLoopingSoundInstance[] soundLoopMotor;
-		@Nullable
-		private final VehicleLoopingSoundInstance soundLoopRun;
-		@Nullable
-		private final VehicleLoopingSoundInstance soundLoopFlange;
-		@Nullable
-		private final VehicleLoopingSoundInstance soundLoopNoise;
-		@Nullable
-		private final VehicleLoopingSoundInstance soundLoopShoe;
-		@Nullable
-		private final VehicleLoopingSoundInstance soundLoopCompressor;
-
-		private VehicleLoopingSoundHolder(
-				VehicleLoopingSoundInstance[] soundLoopMotor,
-				@Nullable VehicleLoopingSoundInstance soundLoopRun,
-				@Nullable VehicleLoopingSoundInstance soundLoopFlange,
-				@Nullable VehicleLoopingSoundInstance soundLoopNoise,
-				@Nullable VehicleLoopingSoundInstance soundLoopShoe,
-				@Nullable VehicleLoopingSoundInstance soundLoopCompressor
-		) {
-			this.soundLoopMotor = soundLoopMotor;
-			this.soundLoopRun = soundLoopRun;
-			this.soundLoopFlange = soundLoopFlange;
-			this.soundLoopNoise = soundLoopNoise;
-			this.soundLoopShoe = soundLoopShoe;
-			this.soundLoopCompressor = soundLoopCompressor;
-		}
+	private record VehicleLoopingSoundHolder(VehicleLoopingSoundInstance[] soundLoopMotor, @Nullable VehicleLoopingSoundInstance soundLoopRun, @Nullable VehicleLoopingSoundInstance soundLoopFlange, @Nullable VehicleLoopingSoundInstance soundLoopNoise, @Nullable VehicleLoopingSoundInstance soundLoopShoe, @Nullable VehicleLoopingSoundInstance soundLoopCompressor) {
 
 		public void dispose() {
 			for (VehicleLoopingSoundInstance instance : soundLoopMotor) {

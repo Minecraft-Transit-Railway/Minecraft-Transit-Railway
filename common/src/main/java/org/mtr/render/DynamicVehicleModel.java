@@ -1,25 +1,25 @@
-package org.mtr.mod.render;
+package org.mtr.render;
 
+import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.client.model.ModelData;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.model.ModelPartData;
+import net.minecraft.client.model.TexturedModelData;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Box;
+import org.mtr.MTR;
+import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.data.Data;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
-import org.mtr.mapping.holder.Box;
-import org.mtr.mapping.holder.EntityAbstractMapping;
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.mapper.EntityModelExtension;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.ModelPartExtension;
-import org.mtr.mapping.mapper.OptimizedModel;
-import org.mtr.mod.Init;
-import org.mtr.mod.MutableBox;
-import org.mtr.mod.ObjectHolder;
-import org.mtr.mod.client.CustomResourceLoader;
-import org.mtr.mod.data.VehicleExtension;
-import org.mtr.mod.resource.*;
+import org.mtr.data.VehicleExtension;
+import org.mtr.model.MutableBox;
+import org.mtr.model.OptimizedModel;
+import org.mtr.registry.ObjectHolder;
+import org.mtr.resource.*;
 
 import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
 
-public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstractMapping> {
+public final class DynamicVehicleModel {
 
 	public final ModelProperties modelProperties;
 	private final Identifier texture;
@@ -31,15 +31,15 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStageDoorsClosed = new Object2ObjectOpenHashMap<>();
 
 	public DynamicVehicleModel(BlockbenchModel blockbenchModel, Identifier texture, ModelProperties modelProperties, PositionDefinitions positionDefinitions, String id) {
-		super(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight());
+		final ModelData modelData = new ModelData();
 
 		final Object2ObjectOpenHashMap<String, BlockbenchElement> uuidToBlockbenchElement = new Object2ObjectOpenHashMap<>();
 		blockbenchModel.getElements().forEach(blockbenchElement -> uuidToBlockbenchElement.put(blockbenchElement.getUuid(), blockbenchElement));
 
-		final Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ModelPartExtension, MutableBox>> nameToPart = new Object2ObjectOpenHashMap<>();
+		final Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ModelPart, MutableBox>> nameToPart = new Object2ObjectOpenHashMap<>();
 		final Object2ObjectOpenHashMap<String, ObjectArrayList<ModelDisplayPart>> nameToDisplayParts = new Object2ObjectOpenHashMap<>();
 		blockbenchModel.getOutlines().forEach(blockbenchOutline -> {
-			final ObjectHolder<ModelPartExtension> parentModelPart = new ObjectHolder<>(this::createModelPart);
+			final ObjectHolder<ModelPartData> parentModelPart = new ObjectHolder<>(modelData::getRoot);
 			final MutableBox mutableBox = new MutableBox();
 			final ObjectArrayList<ModelDisplayPart> modelDisplayParts = new ObjectArrayList<>();
 
@@ -48,12 +48,12 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 				if (blockbenchElement != null) {
 					final ModelDisplayPart modelDisplayPart = new ModelDisplayPart();
 					modelDisplayParts.add(modelDisplayPart);
-					mutableBox.add(blockbenchElement.setModelPart(parentModelPart.createAndGet().addChild(), groupTransformations, modelDisplayPart, (float) modelProperties.getModelYOffset()));
+					mutableBox.add(blockbenchElement.setModelPart(parentModelPart.createAndGet().addChild(MTR.randomString()), groupTransformations, modelDisplayPart, (float) modelProperties.getModelYOffset()));
 				}
 			});
 
 			if (parentModelPart.exists()) {
-				nameToPart.put(blockbenchOutline.getName(), new ObjectObjectImmutablePair<>(parentModelPart.createAndGet(), mutableBox));
+				nameToPart.put(blockbenchOutline.getName(), new ObjectObjectImmutablePair<>(parentModelPart.createAndGet().createPart(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight()), mutableBox));
 			}
 
 			if (!modelDisplayParts.isEmpty()) {
@@ -61,7 +61,8 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 			}
 		});
 
-		buildModel();
+		TexturedModelData.of(modelData, blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight()).createModel();
+
 		modelProperties.addPartsIfEmpty(nameToPart.keySet());
 		this.texture = texture;
 		this.modelProperties = modelProperties;
@@ -70,21 +71,11 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	}
 
 	public DynamicVehicleModel(Object2ObjectAVLTreeMap<String, OptimizedModel.ObjModel> nameToObjModels, Identifier texture, ModelProperties modelProperties, PositionDefinitions positionDefinitions, String id) {
-		super(0, 0);
-		buildModel();
 		modelProperties.addPartsIfEmpty(nameToObjModels.keySet());
 		this.texture = texture;
 		this.modelProperties = modelProperties;
 		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(nameToObjModels, positionDefinitions, objModelsForPartConditionAndRenderStage, objModelsForPartConditionAndRenderStageDoorsClosed, modelProperties.getModelYOffset()));
 		testDoors(id);
-	}
-
-	@Override
-	public void setAngles2(EntityAbstractMapping entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
-	}
-
-	@Override
-	public void render(GraphicsHolder graphicsHolder, int light, int overlay, float red, float green, float blue, float alpha) {
 	}
 
 	public void render(StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker, int light, ObjectArrayList<Box> openDoorways, boolean fromResourcePackCreator) {
@@ -133,7 +124,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 				if (!boxesList.get(0).get(i).intersects(boxesList.get(0).get(j))) {
 					for (int k = 1; k <= slices; k++) {
 						if (boxesList.get(k).get(i).intersects(boxesList.get(k).get(j))) {
-							Init.LOGGER.warn("Vehicle doors overlapping! Door X and Z multipliers were probably set incorrectly ({})", id);
+							MTR.LOGGER.warn("Vehicle doors overlapping! Door X and Z multipliers were probably set incorrectly ({})", id);
 							return;
 						}
 					}

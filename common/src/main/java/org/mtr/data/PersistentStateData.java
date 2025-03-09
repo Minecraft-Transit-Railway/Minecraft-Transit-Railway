@@ -1,39 +1,35 @@
-package org.mtr.mod.data;
+package org.mtr.data;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.mapping.holder.CompoundTag;
-import org.mtr.mapping.mapper.PersistenceStateExtension;
-import org.mtr.mod.Init;
-
-import javax.annotation.Nonnull;
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.world.PersistentState;
 
 /**
  * This class is for storing extra world data that is not stored in Transport Simulation Core.
  * For example, "Disable Next Station Announcements" is a Minecraft-only setting which isn't tracked by Transport Simulation Core.
  */
-public final class PersistentStateData extends PersistenceStateExtension {
+public final class PersistentStateData extends PersistentState {
 
 	private final LongAVLTreeSet routeIdsWithDisabledAnnouncements = new LongAVLTreeSet();
 
 	private static final String KEY_DATA = "route_ids_with_disabled_announcements";
 
 	public PersistentStateData() {
-		super(Init.MOD_ID);
+		super();
 	}
 
-	@Override
-	public void readNbt(CompoundTag compoundTag) {
-		routeIdsWithDisabledAnnouncements.clear();
-		for (final long routeId : compoundTag.getLongArray(KEY_DATA)) {
+	public PersistentStateData(NbtCompound nbt) {
+		super();
+		for (final long routeId : nbt.getLongArray(KEY_DATA)) {
 			routeIdsWithDisabledAnnouncements.add(routeId);
 		}
 	}
 
-	@Nonnull
 	@Override
-	public CompoundTag writeNbt2(CompoundTag compoundTag) {
-		compoundTag.putLongArray(KEY_DATA, routeIdsWithDisabledAnnouncements.toLongArray());
-		return compoundTag;
+	public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+		nbt.putLongArray(KEY_DATA, routeIdsWithDisabledAnnouncements.toLongArray());
+		return nbt;
 	}
 
 	public boolean getRouteIdHasDisabledAnnouncements(long routeId) {
@@ -46,6 +42,6 @@ public final class PersistentStateData extends PersistenceStateExtension {
 		} else {
 			routeIdsWithDisabledAnnouncements.remove(routeId);
 		}
-		markDirty2();
+		markDirty();
 	}
 }

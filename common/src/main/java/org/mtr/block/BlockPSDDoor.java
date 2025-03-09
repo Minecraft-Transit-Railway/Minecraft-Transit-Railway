@@ -1,11 +1,12 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.BlockState;
-import org.mtr.mapping.holder.Item;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mod.BlockEntityTypes;
-import org.mtr.mod.Items;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.item.Item;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.registry.BlockEntityTypes;
+import org.mtr.registry.Items;
 
 import javax.annotation.Nonnull;
 
@@ -13,27 +14,27 @@ public class BlockPSDDoor extends BlockPSDAPGDoorBase {
 
 	private final int style;
 
-	public BlockPSDDoor(int style) {
-		super();
+	public BlockPSDDoor(AbstractBlock.Settings settings, int style) {
+		super(settings);
 		this.style = style;
 	}
 
 	@Nonnull
 	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(style, blockPos, blockState);
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new PSDDoorBlockEntity(style, blockPos, blockState);
 	}
 
 	@Nonnull
 	@Override
-	public Item asItem2() {
-		return style == 0 ? Items.PSD_DOOR_1.get() : Items.PSD_DOOR_2.get();
+	public Item asItem() {
+		return style == 0 ? Items.PSD_DOOR_1.createAndGet() : Items.PSD_DOOR_2.createAndGet();
 	}
 
-	public static class BlockEntity extends BlockEntityBase {
+	public static class PSDDoorBlockEntity extends BlockEntityBase {
 
-		public BlockEntity(int style, BlockPos pos, BlockState state) {
-			super(style == 0 ? BlockEntityTypes.PSD_DOOR_1.get() : BlockEntityTypes.PSD_DOOR_2.get(), pos, state);
+		public PSDDoorBlockEntity(int style, BlockPos pos, BlockState state) {
+			super(style == 0 ? BlockEntityTypes.PSD_DOOR_1.createAndGet() : BlockEntityTypes.PSD_DOOR_2.createAndGet(), pos, state);
 		}
 	}
 }

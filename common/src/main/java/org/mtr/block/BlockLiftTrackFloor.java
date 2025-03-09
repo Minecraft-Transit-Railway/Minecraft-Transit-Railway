@@ -1,68 +1,89 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.mapper.BlockWithEntity;
-import org.mtr.mod.BlockEntityTypes;
-import org.mtr.mod.Init;
-import org.mtr.mod.generated.lang.TranslationProvider;
-import org.mtr.mod.packet.PacketDeleteData;
-import org.mtr.mod.packet.PacketOpenBlockEntityScreen;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.Properties;
+import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
+import org.mtr.MTR;
+import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.packet.PacketDeleteData;
+import org.mtr.packet.PacketOpenBlockEntityScreen;
+import org.mtr.registry.BlockEntityTypes;
+import org.mtr.registry.Registry;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
-public class BlockLiftTrackFloor extends BlockLiftTrackBase implements BlockWithEntity {
+public class BlockLiftTrackFloor extends BlockLiftTrackBase implements BlockEntityProvider {
 
-	public BlockLiftTrackFloor() {
-		super();
+	public BlockLiftTrackFloor(AbstractBlock.Settings settings) {
+		super(settings);
 	}
 
 	@Nonnull
 	@Override
-	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
-			final org.mtr.mapping.holder.BlockEntity entity = world.getBlockEntity(pos);
-			if (entity != null && entity.data instanceof BlockEntity) {
-				((BlockEntity) entity.data).markDirty2();
-				Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(pos));
+			final BlockEntity entity = world.getBlockEntity(pos);
+			if (entity instanceof BlockEntity) {
+				entity.markDirty();
+				Registry.sendPacketToClient((ServerPlayerEntity) player, new PacketOpenBlockEntityScreen(pos));
 			}
 		});
 	}
 
 	@Nonnull
 	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(blockPos, blockState);
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new LiftTrackFloorBlockEntity(blockPos, blockState);
 	}
 
 	@Override
-	public void onBreak2(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-		if (!world.isClient()) {
-			PacketDeleteData.sendDirectlyToServerLiftFloorPosition(ServerWorld.cast(world), Init.blockPosToPosition(pos));
+	public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+		if (world instanceof ServerWorld serverWorld) {
+			PacketDeleteData.sendDirectlyToServerLiftFloorPosition(serverWorld, MTR.blockPosToPosition(pos));
 		}
+		return super.onBreak(world, pos, state, player);
 	}
 
 	@Nonnull
 	@Override
-	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, FACING));
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, Properties.FACING));
 	}
 
 	@Override
-	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-		tooltip.add(TranslationProvider.TOOLTIP_MTR_LIFT_TRACK_FLOOR.getMutableText().formatted(TextFormatting.GRAY));
+	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType options) {
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_LIFT_TRACK_FLOOR.getMutableText().formatted(Formatting.GRAY));
 	}
 
 	@Override
 	public ObjectArrayList<Direction> getConnectingDirections(BlockState blockState) {
-		final Direction facing = IBlock.getStatePropertySafe(blockState, FACING);
+		final Direction facing = IBlock.getStatePropertySafe(blockState, Properties.FACING);
 		return ObjectArrayList.of(Direction.UP, Direction.DOWN, facing.rotateYClockwise(), facing.rotateYCounterclockwise());
 	}
 
-	public static class BlockEntity extends BlockEntityExtension {
+	public static class LiftTrackFloorBlockEntity extends BlockEntity {
 
 		private String floorNumber = "1";
 		private String floorDescription = "";
@@ -72,29 +93,29 @@ public class BlockLiftTrackFloor extends BlockLiftTrackBase implements BlockWith
 		private static final String KEY_FLOOR_DESCRIPTION = "floor_description";
 		private static final String KEY_SHOULD_DING = "should_ding";
 
-		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_TRACK_FLOOR_1.get(), pos, state);
+		public LiftTrackFloorBlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.LIFT_TRACK_FLOOR_1.createAndGet(), pos, state);
 		}
 
 		@Override
-		public void readCompoundTag(CompoundTag compoundTag) {
-			floorNumber = compoundTag.getString(KEY_FLOOR_NUMBER);
-			floorDescription = compoundTag.getString(KEY_FLOOR_DESCRIPTION);
-			shouldDing = compoundTag.getBoolean(KEY_SHOULD_DING);
+		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+			floorNumber = nbt.getString(KEY_FLOOR_NUMBER);
+			floorDescription = nbt.getString(KEY_FLOOR_DESCRIPTION);
+			shouldDing = nbt.getBoolean(KEY_SHOULD_DING);
 		}
 
 		@Override
-		public void writeCompoundTag(CompoundTag compoundTag) {
-			compoundTag.putString(KEY_FLOOR_NUMBER, floorNumber);
-			compoundTag.putString(KEY_FLOOR_DESCRIPTION, floorDescription);
-			compoundTag.putBoolean(KEY_SHOULD_DING, shouldDing);
+		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+			nbt.putString(KEY_FLOOR_NUMBER, floorNumber);
+			nbt.putString(KEY_FLOOR_DESCRIPTION, floorDescription);
+			nbt.putBoolean(KEY_SHOULD_DING, shouldDing);
 		}
 
 		public void setData(String floorNumber, String floorDescription, boolean shouldDing) {
 			this.floorNumber = floorNumber;
 			this.floorDescription = floorDescription;
 			this.shouldDing = shouldDing;
-			markDirty2();
+			markDirty();
 		}
 
 		public String getFloorNumber() {

@@ -1,29 +1,29 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.BlockSettings;
-import org.mtr.mapping.holder.BlockState;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mod.BlockEntityTypes;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.registry.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
 
 public class BlockStationNameWallGray extends BlockStationNameWallBase {
 
-	public BlockStationNameWallGray(BlockSettings blockSettings) {
+	public BlockStationNameWallGray(AbstractBlock.Settings blockSettings) {
 		super(blockSettings);
 	}
 
 	@Nonnull
 	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(blockPos, blockState);
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new StationNameWallGrayBlockEntity(blockPos, blockState);
 	}
 
-	public static class BlockEntity extends BlockEntityWallBase {
+	public static class StationNameWallGrayBlockEntity extends BlockEntityWallBase {
 
-		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.STATION_NAME_WALL_GRAY.get(), pos, state);
+		public StationNameWallGrayBlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.STATION_NAME_WALL_GRAY.createAndGet(), pos, state);
 		}
 
 		@Override

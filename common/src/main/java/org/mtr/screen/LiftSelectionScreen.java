@@ -1,21 +1,20 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.math.BlockPos;
+import org.mtr.MTR;
+import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Lift;
 import org.mtr.core.data.LiftDirection;
 import org.mtr.core.operation.PressLift;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.ClientWorld;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.holder.World;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mod.Init;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.PacketPressLiftButton;
-import org.mtr.mod.render.RenderLifts;
+import org.mtr.data.IGui;
+import org.mtr.packet.PacketPressLiftButton;
+import org.mtr.registry.RegistryClient;
+import org.mtr.render.RenderLifts;
 
 public class LiftSelectionScreen extends MTRScreenBase implements IGui {
 
@@ -28,12 +27,12 @@ public class LiftSelectionScreen extends MTRScreenBase implements IGui {
 		super();
 		this.liftId = liftId;
 		final Lift lift = MinecraftClientData.getLift(liftId);
-		final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
+		final ClientWorld clientWorld = MinecraftClient.getInstance().world;
 		if (lift != null && clientWorld != null) {
 			lift.iterateFloors(floor -> {
-				final BlockPos blockPos = Init.positionToBlockPos(floor.getPosition());
+				final BlockPos blockPos = MTR.positionToBlockPos(floor.getPosition());
 				floorLevels.add(blockPos);
-				final ObjectObjectImmutablePair<LiftDirection, ObjectObjectImmutablePair<String, String>> liftDetails = RenderLifts.getLiftDetails(new World(clientWorld.data), lift, blockPos);
+				final ObjectObjectImmutablePair<LiftDirection, ObjectObjectImmutablePair<String, String>> liftDetails = RenderLifts.getLiftDetails(clientWorld, lift, blockPos);
 				floorDescriptions.add(String.format(
 						"%s %s",
 						liftDetails.right().left(),
@@ -46,20 +45,20 @@ public class LiftSelectionScreen extends MTRScreenBase implements IGui {
 	}
 
 	@Override
-	protected void init2() {
-		super.init2();
+	protected void init() {
+		super.init();
 		selectionList.x = width / 2 - PANEL_WIDTH;
 		selectionList.y = SQUARE_SIZE;
 		selectionList.width = PANEL_WIDTH * 2;
 		selectionList.height = height - SQUARE_SIZE * 2;
-		selectionList.init(this::addChild);
+		selectionList.init(this::addSelectableChild);
 	}
 
 	@Override
-	public void tick2() {
+	public void tick() {
 		final Lift lift = MinecraftClientData.getLift(liftId);
 		if (lift == null) {
-			onClose2();
+			close();
 		} else {
 			selectionList.tick();
 			final ObjectArrayList<DashboardListItem> list = new ObjectArrayList<>();
@@ -68,7 +67,7 @@ public class LiftSelectionScreen extends MTRScreenBase implements IGui {
 				list.add(new DashboardListItem(
 						blockPos.asLong(),
 						floorDescriptions.get(i),
-						lift.hasInstruction(lift.getFloorIndex(Init.blockPosToPosition(blockPos))).contains(LiftDirection.NONE) ? 0xFFFF0000 : ARGB_BLACK
+						lift.hasInstruction(lift.getFloorIndex(MTR.blockPosToPosition(blockPos))).contains(LiftDirection.NONE) ? 0xFFFF0000 : ARGB_BLACK
 				));
 			}
 			selectionList.setData(list, true, false, false, false, false, false);
@@ -76,32 +75,32 @@ public class LiftSelectionScreen extends MTRScreenBase implements IGui {
 	}
 
 	@Override
-	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
-		renderBackground(graphicsHolder);
-		selectionList.render(graphicsHolder);
-		super.render(graphicsHolder, mouseX, mouseY, delta);
+	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+		renderBackground(context, mouseX, mouseY, delta);
+		selectionList.render(context);
+		super.render(context, mouseX, mouseY, delta);
 	}
 
 	@Override
-	public void mouseMoved2(double mouseX, double mouseY) {
+	public void mouseMoved(double mouseX, double mouseY) {
 		selectionList.mouseMoved(mouseX, mouseY);
 	}
 
 	@Override
-	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
-		selectionList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled2(mouseX, mouseY, amount);
+	public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+		selectionList.mouseScrolled(mouseX, mouseY, verticalAmount);
+		return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
 	}
 
 	@Override
-	public boolean isPauseScreen2() {
+	public boolean shouldPause() {
 		return false;
 	}
 
 	private void onPress(DashboardListItem dashboardListItem, int index) {
 		final PressLift pressLift = new PressLift();
-		pressLift.add(Init.blockPosToPosition(floorLevels.get(floorLevels.size() - index - 1)), LiftDirection.NONE);
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketPressLiftButton(pressLift));
-		onClose2();
+		pressLift.add(MTR.blockPosToPosition(floorLevels.get(floorLevels.size() - index - 1)), LiftDirection.NONE);
+		RegistryClient.sendPacketToServer(new PacketPressLiftButton(pressLift));
+		close();
 	}
 }

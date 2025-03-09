@@ -1,36 +1,50 @@
-package org.mtr.mod.block;
+package org.mtr.block;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockEntityExtension;
-import org.mtr.mapping.tool.HolderBase;
-import org.mtr.mod.BlockEntityTypes;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.IntProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
+import org.mtr.registry.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 public class BlockStationNameEntrance extends BlockStationNameBase implements IBlock {
 
-	public static final IntegerProperty STYLE = IntegerProperty.of("propagate_property", 0, 5);
+	public static final IntProperty STYLE = IntProperty.of("propagate_property", 0, 5);
 
-	public BlockStationNameEntrance(BlockSettings blockSettings) {
+	public BlockStationNameEntrance(AbstractBlock.Settings blockSettings) {
 		super(blockSettings);
 	}
 
 	@Nonnull
 	@Override
-	public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
-			world.setBlockState(pos, state.cycle(new Property<>(STYLE.data)));
-			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise(), new Property<>(STYLE.data), 1);
-			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise(), new Property<>(STYLE.data), 1);
+			world.setBlockState(pos, state.cycle(STYLE));
+			propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.FACING).rotateYClockwise(), STYLE, 1);
+			propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.FACING).rotateYCounterclockwise(), STYLE, 1);
 		});
 	}
 
 	@Override
-	public BlockState getPlacementState2(ItemPlacementContext ctx) {
+	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final Direction side = ctx.getSide();
 		if (side != Direction.UP && side != Direction.DOWN) {
-			return getDefaultState2().with(new Property<>(FACING.data), side.getOpposite().data);
+			return getDefaultState().with(Properties.FACING, side.getOpposite());
 		} else {
 			return null;
 		}
@@ -38,33 +52,33 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IB
 
 	@Nonnull
 	@Override
-	public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final boolean tall = IBlock.getStatePropertySafe(state, STYLE) % 2 == 1;
-		return IBlock.getVoxelShapeByDirection(0, tall ? 0 : 4, 0, 16, tall ? 16 : 12, 1, IBlock.getStatePropertySafe(state, FACING));
+		return IBlock.getVoxelShapeByDirection(0, tall ? 0 : 4, 0, 16, tall ? 16 : 12, 1, IBlock.getStatePropertySafe(state, Properties.FACING));
 	}
 
 	@Nonnull
 	@Override
-	public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return VoxelShapes.empty();
 	}
 
 	@Nonnull
 	@Override
-	public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return new BlockEntity(blockPos, blockState);
+	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return new StationNameEntranceBlockEntity(blockPos, blockState);
 	}
 
 	@Override
-	public void addBlockProperties(List<HolderBase<?>> properties) {
-		properties.add(FACING);
-		properties.add(STYLE);
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(Properties.FACING);
+		builder.add(STYLE);
 	}
 
-	public static class BlockEntity extends BlockEntityBase {
+	public static class StationNameEntranceBlockEntity extends BlockEntityBase {
 
-		public BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.STATION_NAME_ENTRANCE.get(), pos, state, 0, 0.00625F, false);
+		public StationNameEntranceBlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.STATION_NAME_ENTRANCE.createAndGet(), pos, state, 0, 0.00625F, false);
 		}
 
 		@Override

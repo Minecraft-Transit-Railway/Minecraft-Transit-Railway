@@ -1,5 +1,6 @@
-package org.mtr.mod.servlet;
+package org.mtr.servlet;
 
+import net.minecraft.client.MinecraftClient;
 import org.apache.commons.io.IOUtils;
 import org.mtr.core.servlet.HttpResponseStatus;
 import org.mtr.core.servlet.ServletBase;
@@ -8,9 +9,8 @@ import org.mtr.libraries.javax.servlet.http.HttpServlet;
 import org.mtr.libraries.javax.servlet.http.HttpServletRequest;
 import org.mtr.libraries.javax.servlet.http.HttpServletResponse;
 import org.mtr.libraries.org.eclipse.jetty.server.Request;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.packet.PacketForwardClientRequest;
+import org.mtr.packet.PacketForwardClientRequest;
+import org.mtr.registry.RegistryClient;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -31,7 +31,7 @@ public final class ClientServlet extends HttpServlet {
 		final AsyncContext asyncContext = httpServletRequest.startAsync();
 		asyncContext.setTimeout(0);
 		final String endpoint = httpServletRequest instanceof Request ? ((Request) httpServletRequest).getOriginalURI() : httpServletRequest.getRequestURI();
-		MinecraftClient.getInstance().execute(() -> InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketForwardClientRequest(
+		MinecraftClient.getInstance().execute(() -> RegistryClient.sendPacketToServer(new PacketForwardClientRequest(
 				endpoint,
 				content,
 				(response, path) -> {

@@ -1,7 +1,7 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
 import org.mtr.core.serializer.ReaderBase;
-import org.mtr.mod.generated.resource.PartPositionSchema;
+import org.mtr.generated.resource.PartPositionSchema;
 
 public final class PartPosition extends PartPositionSchema {
 

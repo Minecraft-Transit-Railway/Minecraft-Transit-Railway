@@ -1,6 +1,6 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
-import org.mtr.mapping.holder.Identifier;
+import net.minecraft.util.Identifier;
 
 import javax.annotation.Nonnull;
 

@@ -1,19 +1,22 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import org.mtr.client.IDrawing;
+import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Rail;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.*;
-import org.mtr.mapping.tool.TextCase;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.data.IGui;
-import org.mtr.mod.generated.lang.TranslationProvider;
-import org.mtr.mod.packet.PacketUpdateData;
-import org.mtr.mod.packet.PacketUpdateLastRailStyles;
+import org.mtr.data.IGui;
+import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.packet.PacketUpdateData;
+import org.mtr.packet.PacketUpdateLastRailStyles;
+import org.mtr.registry.RegistryClient;
 
 import java.util.stream.Collectors;
 
@@ -25,16 +28,16 @@ public class RailModifierScreen extends MTRScreenBase implements IGui {
 
 	private final Rail rail;
 	private final double maxRadius;
-	private final ButtonWidgetExtension buttonShape;
-	private final ButtonWidgetExtension buttonStyle;
-	private final ButtonWidgetExtension buttonStyleFlip;
-	private final ButtonWidgetExtension buttonMinus2;
-	private final ButtonWidgetExtension buttonMinus1;
-	private final ButtonWidgetExtension buttonMinus0;
-	private final ButtonWidgetExtension buttonPlus0;
-	private final ButtonWidgetExtension buttonPlus1;
-	private final ButtonWidgetExtension buttonPlus2;
-	private final TextFieldWidgetExtension textFieldRadius;
+	private final ButtonWidget buttonShape;
+	private final ButtonWidget buttonStyle;
+	private final ButtonWidget buttonStyleFlip;
+	private final ButtonWidget buttonMinus2;
+	private final ButtonWidget buttonMinus1;
+	private final ButtonWidget buttonMinus0;
+	private final ButtonWidget buttonPlus0;
+	private final ButtonWidget buttonPlus1;
+	private final ButtonWidget buttonPlus2;
+	private final WidgetBetterTextField textFieldRadius;
 	private final MutableText shapeText = TranslationProvider.GUI_MTR_RAIL_SHAPE.getMutableText();
 	private final MutableText styleText = TranslationProvider.GUI_MTR_RAIL_STYLES.getMutableText();
 	private final MutableText radiusText = TranslationProvider.GUI_MTR_RAIL_RADIUS.getMutableText();
@@ -47,16 +50,16 @@ public class RailModifierScreen extends MTRScreenBase implements IGui {
 		radius = rail == null ? 0 : rail.railMath.getVerticalRadius();
 		maxRadius = rail == null ? 0 : rail.railMath.getMaxVerticalRadius();
 
-		buttonShape = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal(""), button -> {
+		buttonShape = ButtonWidget.builder(Text.empty(), button -> {
 			shape = shape == Rail.Shape.QUADRATIC ? Rail.Shape.TWO_RADII : Rail.Shape.QUADRATIC;
 			update(radius, true);
-		});
-		buttonStyle = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("selectWorld.edit"), button -> {
+		}).build();
+		buttonStyle = ButtonWidget.builder(Text.translatable("selectWorld.edit"), button -> {
 			if (rail != null) {
-				MinecraftClient.getInstance().openScreen(new Screen(RailStyleSelectorScreen.create(rail)));
+				MinecraftClient.getInstance().setScreen(RailStyleSelectorScreen.create(rail));
 			}
-		});
-		buttonStyleFlip = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TranslationProvider.GUI_MTR_FLIP_STYLES.getMutableText(), button -> {
+		}).build();
+		buttonStyleFlip = ButtonWidget.builder(TranslationProvider.GUI_MTR_FLIP_STYLES.getMutableText(), button -> {
 			if (rail != null) {
 				final ObjectArrayList<String> styles = rail.getStyles().stream().map(style -> {
 					final boolean isForwards = style.endsWith("_1");
@@ -67,28 +70,28 @@ public class RailModifierScreen extends MTRScreenBase implements IGui {
 						return style;
 					}
 				}).collect(Collectors.toCollection(ObjectArrayList::new));
-				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(Rail.copy(rail, styles))));
-				final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+				RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(Rail.copy(rail, styles))));
+				final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().player;
 				if (clientPlayerEntity != null) {
-					InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateLastRailStyles(clientPlayerEntity.getUuid(), rail.getTransportMode(), styles));
+					RegistryClient.sendPacketToServer(new PacketUpdateLastRailStyles(clientPlayerEntity.getUuid(), rail.getTransportMode(), styles));
 				}
-				MinecraftClient.getInstance().openScreen(null);
+				MinecraftClient.getInstance().setScreen(null);
 			}
-		});
-		buttonMinus2 = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-10"), button -> update(radius - 10, true));
-		buttonMinus1 = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-1"), button -> update(radius - 1, true));
-		buttonMinus0 = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("-0.1"), button -> update(radius - 0.1, true));
-		buttonPlus0 = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+0.1"), button -> update(radius + 0.1, true));
-		buttonPlus1 = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+1"), button -> update(radius + 1, true));
-		buttonPlus2 = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.literal("+10"), button -> update(radius + 10, true));
-		textFieldRadius = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, 256, TextCase.DEFAULT, "[^\\d\\.]", "0");
-		xStart = Math.max(GraphicsHolder.getTextWidth(shapeText), GraphicsHolder.getTextWidth(radiusText)) + TEXT_PADDING * 2;
-		buttonsWidth = SQUARE_SIZE * 12 + GraphicsHolder.getTextWidth(styleText) + TEXT_PADDING * 2;
+		}).build();
+		buttonMinus2 = ButtonWidget.builder(Text.literal("-10"), button -> update(radius - 10, true)).build();
+		buttonMinus1 = ButtonWidget.builder(Text.literal("-1"), button -> update(radius - 1, true)).build();
+		buttonMinus0 = ButtonWidget.builder(Text.literal("-0.1"), button -> update(radius - 0.1, true)).build();
+		buttonPlus0 = ButtonWidget.builder(Text.literal("+0.1"), button -> update(radius + 0.1, true)).build();
+		buttonPlus1 = ButtonWidget.builder(Text.literal("+1"), button -> update(radius + 1, true)).build();
+		buttonPlus2 = ButtonWidget.builder(Text.literal("+10"), button -> update(radius + 10, true)).build();
+		textFieldRadius = new WidgetBetterTextField(256, TextCase.DEFAULT, "[^\\d\\.]", "0");
+		xStart = Math.max(textRenderer.getWidth(shapeText), textRenderer.getWidth(radiusText)) + TEXT_PADDING * 2;
+		buttonsWidth = SQUARE_SIZE * 12 + textRenderer.getWidth(styleText) + TEXT_PADDING * 2;
 	}
 
 	@Override
-	protected void init2() {
-		super.init2();
+	protected void init() {
+		super.init();
 
 		IDrawing.setPositionAndWidth(buttonShape, xStart, 0, SQUARE_SIZE * 6);
 		IDrawing.setPositionAndWidth(buttonStyle, xStart + buttonsWidth - SQUARE_SIZE * 6, 0, SQUARE_SIZE * 3);
@@ -101,19 +104,19 @@ public class RailModifierScreen extends MTRScreenBase implements IGui {
 		IDrawing.setPositionAndWidth(buttonPlus2, xStart + buttonsWidth - SQUARE_SIZE * 2, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2);
 		IDrawing.setPositionAndWidth(textFieldRadius, 0, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, buttonsWidth - SQUARE_SIZE * 12 - TEXT_FIELD_PADDING);
 
-		addChild(new ClickableWidget(buttonShape));
-		addChild(new ClickableWidget(buttonStyle));
-		addChild(new ClickableWidget(buttonStyleFlip));
-		addChild(new ClickableWidget(buttonMinus2));
-		addChild(new ClickableWidget(buttonMinus1));
-		addChild(new ClickableWidget(buttonMinus0));
-		addChild(new ClickableWidget(buttonPlus0));
-		addChild(new ClickableWidget(buttonPlus1));
-		addChild(new ClickableWidget(buttonPlus2));
-		addChild(new ClickableWidget(textFieldRadius));
+		addSelectableChild(buttonShape);
+		addSelectableChild(buttonStyle);
+		addSelectableChild(buttonStyleFlip);
+		addSelectableChild(buttonMinus2);
+		addSelectableChild(buttonMinus1);
+		addSelectableChild(buttonMinus0);
+		addSelectableChild(buttonPlus0);
+		addSelectableChild(buttonPlus1);
+		addSelectableChild(buttonPlus2);
+		addSelectableChild(textFieldRadius);
 
-		textFieldRadius.setText2(String.valueOf(radius));
-		textFieldRadius.setChangedListener2(text -> {
+		textFieldRadius.setText(String.valueOf(radius));
+		textFieldRadius.setChangedListener(text -> {
 			try {
 				update(Double.parseDouble(text), true);
 			} catch (Exception ignored) {
@@ -123,55 +126,46 @@ public class RailModifierScreen extends MTRScreenBase implements IGui {
 	}
 
 	@Override
-	public void tick2() {
-		super.tick2();
-		textFieldRadius.tick2();
-	}
-
-	@Override
-	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
-		final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
-		guiDrawing.beginDrawingRectangle();
-		guiDrawing.drawRectangle(0, 0, width, shape == Rail.Shape.QUADRATIC ? SQUARE_SIZE : SQUARE_SIZE * 2 + TEXT_FIELD_PADDING, ARGB_BACKGROUND);
-		guiDrawing.finishDrawingRectangle();
-		super.render(graphicsHolder, mouseX, mouseY, delta);
-		graphicsHolder.drawText(shapeText, TEXT_PADDING, TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-		graphicsHolder.drawText(styleText, xStart + SQUARE_SIZE * 6 + TEXT_PADDING, TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+		context.fill(0, 0, width, shape == Rail.Shape.QUADRATIC ? SQUARE_SIZE : SQUARE_SIZE * 2 + TEXT_FIELD_PADDING, ARGB_BACKGROUND);
+		super.render(context, mouseX, mouseY, delta);
+		context.drawText(textRenderer, shapeText, TEXT_PADDING, TEXT_PADDING, ARGB_WHITE, false);
+		context.drawText(textRenderer, styleText, xStart + SQUARE_SIZE * 6 + TEXT_PADDING, TEXT_PADDING, ARGB_WHITE, false);
 		if (shape != Rail.Shape.QUADRATIC) {
-			graphicsHolder.drawText(radiusText, TEXT_PADDING, SQUARE_SIZE + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+			context.drawText(textRenderer, radiusText, TEXT_PADDING, SQUARE_SIZE + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE, false);
 		}
 	}
 
 	@Override
-	public boolean isPauseScreen2() {
+	public boolean shouldPause() {
 		return false;
 	}
 
 	private void update(double newRadius, boolean sendPacket) {
-		buttonShape.setMessage2((shape == Rail.Shape.QUADRATIC ? TranslationProvider.GUI_MTR_RAIL_SHAPE_QUADRATIC : TranslationProvider.GUI_MTR_RAIL_SHAPE_TWO_RADII).getText());
+		buttonShape.setMessage((shape == Rail.Shape.QUADRATIC ? TranslationProvider.GUI_MTR_RAIL_SHAPE_QUADRATIC : TranslationProvider.GUI_MTR_RAIL_SHAPE_TWO_RADII).getText());
 		radius = Utilities.clamp(Utilities.round(newRadius, 2), 0, maxRadius);
-		textFieldRadius.setX2((shape == Rail.Shape.QUADRATIC ? width : xStart + SQUARE_SIZE * 6) + TEXT_FIELD_PADDING / 2);
-		buttonMinus2.setVisibleMapped(shape != Rail.Shape.QUADRATIC);
-		buttonMinus1.setVisibleMapped(shape != Rail.Shape.QUADRATIC);
-		buttonMinus0.setVisibleMapped(shape != Rail.Shape.QUADRATIC);
-		buttonPlus0.setVisibleMapped(shape != Rail.Shape.QUADRATIC);
-		buttonPlus1.setVisibleMapped(shape != Rail.Shape.QUADRATIC);
-		buttonPlus2.setVisibleMapped(shape != Rail.Shape.QUADRATIC);
-		buttonMinus2.setActiveMapped(radius > 0);
-		buttonMinus1.setActiveMapped(radius > 0);
-		buttonMinus0.setActiveMapped(radius > 0);
-		buttonPlus0.setActiveMapped(radius < maxRadius);
-		buttonPlus1.setActiveMapped(radius < maxRadius);
-		buttonPlus2.setActiveMapped(radius < maxRadius);
+		textFieldRadius.setX((shape == Rail.Shape.QUADRATIC ? width : xStart + SQUARE_SIZE * 6) + TEXT_FIELD_PADDING / 2);
+		buttonMinus2.visible = shape != Rail.Shape.QUADRATIC;
+		buttonMinus1.visible = shape != Rail.Shape.QUADRATIC;
+		buttonMinus0.visible = shape != Rail.Shape.QUADRATIC;
+		buttonPlus0.visible = shape != Rail.Shape.QUADRATIC;
+		buttonPlus1.visible = shape != Rail.Shape.QUADRATIC;
+		buttonPlus2.visible = shape != Rail.Shape.QUADRATIC;
+		buttonMinus2.active = radius > 0;
+		buttonMinus1.active = radius > 0;
+		buttonMinus0.active = radius > 0;
+		buttonPlus0.active = radius < maxRadius;
+		buttonPlus1.active = radius < maxRadius;
+		buttonPlus2.active = radius < maxRadius;
 
 		try {
-			if (Double.parseDouble(textFieldRadius.getText2()) != radius) {
-				textFieldRadius.setText2(String.valueOf(radius));
+			if (Double.parseDouble(textFieldRadius.getText()) != radius) {
+				textFieldRadius.setText(String.valueOf(radius));
 			}
 		} catch (Exception ignored) {
 		}
 		if (sendPacket) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(Rail.copy(rail, shape, radius))));
+			RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(Rail.copy(rail, shape, radius))));
 		}
 	}
 }

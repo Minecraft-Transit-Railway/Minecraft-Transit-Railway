@@ -1,15 +1,15 @@
-package org.mtr.mod.render;
+package org.mtr.render;
 
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.holder.Vector3d;
-import org.mtr.mapping.mapper.GraphicsHolder;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.function.Consumer;
 
 public class StoredMatrixTransformations {
 
 	public final boolean useDefaultOffset;
-	private final ObjectArrayList<Consumer<GraphicsHolder>> transformations = new ObjectArrayList<>();
+	private final ObjectArrayList<Consumer<MatrixStack>> transformations = new ObjectArrayList<>();
 	private final double initialTranslateX;
 	private final double initialTranslateY;
 	private final double initialTranslateZ;
@@ -35,7 +35,7 @@ public class StoredMatrixTransformations {
 		this.initialTranslateZ = initialTranslateZ;
 	}
 
-	public void add(Consumer<GraphicsHolder> transformation) {
+	public void add(Consumer<MatrixStack> transformation) {
 		transformations.add(transformation);
 	}
 
@@ -43,12 +43,12 @@ public class StoredMatrixTransformations {
 		transformations.addAll(storedMatrixTransformations.transformations);
 	}
 
-	public void transform(GraphicsHolder graphicsHolder, Vector3d offset) {
-		graphicsHolder.push();
+	public void transform(MatrixStack matrixStack, Vec3d offset) {
+		matrixStack.push();
 		if (useDefaultOffset) {
-			graphicsHolder.translate(initialTranslateX - offset.getXMapped(), initialTranslateY - offset.getYMapped(), initialTranslateZ - offset.getZMapped());
+			matrixStack.translate(initialTranslateX - offset.x, initialTranslateY - offset.y, initialTranslateZ - offset.z);
 		}
-		transformations.forEach(transformation -> transformation.accept(graphicsHolder));
+		transformations.forEach(transformation -> transformation.accept(matrixStack));
 	}
 
 	public StoredMatrixTransformations copy() {

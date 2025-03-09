@@ -1,10 +1,18 @@
-package org.mtr.mod.screen;
+package org.mtr.screen;
 
+import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.MinecraftClientHelper;
-import org.mtr.mod.Init;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.Heightmap;
+import net.minecraft.world.LightType;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.ChunkManager;
+import org.mtr.MTR;
 
 import java.util.function.Consumer;
 
@@ -29,7 +37,7 @@ public class WorldMap {
 	public void tick(World world, ClientPlayerEntity player, float delta) {
 		if (updateMapTimer == -1 || updateMapTimer >= UPDATE_FREQUENCY) {
 			updateMapTimer = 0;
-			updateMap(World.cast(world), player);
+			updateMap(world, player);
 		}
 
 		for (final MapImage mapImage : new Object2ObjectOpenHashMap<>(mapImages).values()) {
@@ -51,7 +59,7 @@ public class WorldMap {
 	}
 
 	public void updateMap(World world, ClientPlayerEntity player) {
-		final int radius = MinecraftClientHelper.getRenderDistance() + 1;
+		final int radius = (int) MinecraftClient.getInstance().worldRenderer.getViewDistance() + 1;
 		final ChunkManager chunkManager = world.getChunkManager();
 
 		for (int i = -radius; i < radius + 1; i++) {
@@ -82,7 +90,7 @@ public class WorldMap {
 						final int blockX = chunkXStart + k;
 						final int blockZ = chunkZStart + l;
 						// The Y position of the highest block in this coordinates
-						final int topY = world.getTopY(HeightMapType.getMotionBlockingMapped(), blockX, blockZ) - 1;
+						final int topY = world.getTopY(Heightmap.Type.MOTION_BLOCKING, blockX, blockZ) - 1;
 						final int blockY;
 						if (mapOverlayMode == MapOverlayMode.TOP_VIEW) {
 							blockY = topY;
@@ -92,7 +100,7 @@ public class WorldMap {
 							if (currentY != topY) {
 								// Find lowest Y level so it can be projected
 								while (true) {
-									if (currentY < -64 || !world.getBlockState(Init.newBlockPos(blockX, currentY, blockZ)).isAir()) {
+									if (currentY < -64 || !world.getBlockState(new BlockPos(blockX, currentY, blockZ)).isAir()) {
 										break;
 									} else {
 										currentY--;
@@ -103,18 +111,18 @@ public class WorldMap {
 							blockY = currentY;
 						}
 
-						final BlockPos finalPos = Init.newBlockPos(blockX, blockY, blockZ);
+						final BlockPos finalPos = new BlockPos(blockX, blockY, blockZ);
 						final int lightLevel;
 						if (mapOverlayMode.calculateLight) {
 							final BlockPos lightReferencePos = finalPos.up();
-							lightLevel = Math.max(world.getLightLevel(LightType.getBlockMapped(), lightReferencePos), world.getLightLevel(LightType.getSkyMapped(), lightReferencePos));
+							lightLevel = Math.max(world.getLightLevel(LightType.BLOCK, lightReferencePos), world.getLightLevel(LightType.SKY, lightReferencePos));
 						} else {
 							lightLevel = 15;
 						}
 
 						final NativeImage nativeImage = mapTexture.texture.getImage();
 						if (nativeImage != null) {
-							nativeImage.setPixelColor(k, l, convertColorABGR(divideColorRGB(world.getBlockState(finalPos).getBlock().getDefaultMapColor().getColorMapped(), mapOverlayMode == MapOverlayMode.TOP_VIEW ? 1.5 : 1 + ((15 - lightLevel) / LIGHT_DIM_FACTOR))));
+							nativeImage.setColorArgb(k, l, convertColorABGR(divideColorRGB(world.getBlockState(finalPos).getBlock().getDefaultMapColor().color, mapOverlayMode == MapOverlayMode.TOP_VIEW ? 1.5 : 1 + ((15 - lightLevel) / LIGHT_DIM_FACTOR))));
 						}
 					}
 				}
@@ -163,7 +171,8 @@ public class WorldMap {
 		private boolean disposed;
 
 		private MapImage(int chunkX, int chunkZ, NativeImageBackedTexture texture) {
-			this.textureId = MinecraftClient.getInstance().getTextureManager().registerDynamicTexture("mtr_dashboard_map", texture);
+			textureId = Identifier.of(MTR.MOD_ID, "dashboard_map");
+			MinecraftClient.getInstance().getTextureManager().registerTexture(textureId, texture);
 			this.texture = texture;
 			this.chunkX = chunkX;
 			this.chunkZ = chunkZ;

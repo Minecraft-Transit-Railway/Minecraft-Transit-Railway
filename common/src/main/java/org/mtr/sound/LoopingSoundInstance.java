@@ -1,18 +1,24 @@
-package org.mtr.mod.sound;
+package org.mtr.sound;
 
-import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.AbstractSoundInstanceExtension;
-import org.mtr.mapping.mapper.SoundHelper;
-import org.mtr.mapping.mapper.TickableSoundInstanceExtension;
-import org.mtr.mod.Init;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.sound.AbstractSoundInstance;
+import net.minecraft.client.sound.SoundManager;
+import net.minecraft.client.sound.TickableSoundInstance;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.random.LocalRandom;
+import org.mtr.MTR;
 
-public class LoopingSoundInstance extends AbstractSoundInstanceExtension implements TickableSoundInstanceExtension {
+public class LoopingSoundInstance extends AbstractSoundInstance implements TickableSoundInstance {
 
 	private static final int MAX_DISTANCE = 32;
 
 	public LoopingSoundInstance(String soundId) {
-		super(SoundHelper.createSoundEvent(new Identifier(Init.MOD_ID, soundId)), SoundCategory.getBlocksMapped());
-		setIsRepeatableMapped(true);
+		super(SoundEvent.of(Identifier.of(MTR.MOD_ID, soundId)), SoundCategory.BLOCKS, new LocalRandom(0));
+		repeat = true;
 	}
 
 	@Override
@@ -21,37 +27,37 @@ public class LoopingSoundInstance extends AbstractSoundInstanceExtension impleme
 	}
 
 	@Override
-	public void tick2() {
+	public void tick() {
 	}
 
 	public void setPos(BlockPos blockPos, boolean isRemoved) {
 		if (isRemoved) {
-			if (getXMapped() == blockPos.getX() && getYMapped() == blockPos.getY() && getZMapped() == blockPos.getZ()) {
-				setXMapped(0);
-				setYMapped(Integer.MAX_VALUE);
-				setZMapped(0);
+			if (x == blockPos.getX() && y == blockPos.getY() && z == blockPos.getZ()) {
+				x = 0;
+				y = Integer.MAX_VALUE;
+				z = 0;
 			}
 		} else {
-			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().player;
 			if (clientPlayerEntity == null) {
 				return;
 			}
 
 			final BlockPos playerPos = clientPlayerEntity.getBlockPos();
-			final int distance = playerPos.getManhattanDistance(new Vector3i(blockPos.data));
+			final int distance = playerPos.getManhattanDistance(blockPos);
 
 			if (distance <= MAX_DISTANCE) {
-				final int currentDistance = playerPos.getManhattanDistance(new Vector3i(MathHelper.floor(getXMapped()), MathHelper.floor(getYMapped()), MathHelper.floor(getZMapped())));
+				final int currentDistance = playerPos.getManhattanDistance(BlockPos.ofFloored(x, y, z));
 
 				if (distance < currentDistance) {
-					setXMapped(blockPos.getX());
-					setYMapped(blockPos.getY());
-					setZMapped(blockPos.getZ());
+					x = blockPos.getX();
+					y = blockPos.getY();
+					z = blockPos.getZ();
 				}
 
 				final SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
-				if (!soundManager.isPlaying(new SoundInstance(this))) {
-					soundManager.play(new SoundInstance(this));
+				if (!soundManager.isPlaying(this)) {
+					soundManager.play(this);
 				}
 			}
 		}

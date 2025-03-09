@@ -1,8 +1,8 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
+import net.minecraft.util.Identifier;
+import org.mtr.MTR;
 import org.mtr.core.serializer.SerializedDataBase;
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mod.Init;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -17,13 +17,13 @@ public interface CustomResourceTools extends SerializedDataBase {
 		if (newIdentifierString.isEmpty()) {
 			return null;
 		} else {
-			return new Identifier(String.format("%s.%s", newIdentifierString.split("\\.")[0], extension));
+			return Identifier.of(String.format("%s.%s", newIdentifierString.split("\\.")[0], extension));
 		}
 	}
 
 	static Identifier formatIdentifierWithDefault(String identifierString, String extension) {
 		final Identifier identifier = formatIdentifier(identifierString, extension);
-		return identifier == null ? new Identifier(Init.MOD_ID, "textures/block/transparent.png") : identifier;
+		return identifier == null ? Identifier.of(MTR.MOD_ID, "textures/block/transparent.png") : identifier;
 	}
 
 	static String formatIdentifierString(String text) {

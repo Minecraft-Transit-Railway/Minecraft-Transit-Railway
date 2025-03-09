@@ -1,7 +1,7 @@
-package org.mtr.mod.resource;
+package org.mtr.resource;
 
 import org.mtr.core.serializer.ReaderBase;
-import org.mtr.mod.generated.resource.MinecraftModelResourceSchema;
+import org.mtr.generated.resource.MinecraftModelResourceSchema;
 
 public final class MinecraftModelResource extends MinecraftModelResourceSchema {
 
@@ -20,8 +20,7 @@ public final class MinecraftModelResource extends MinecraftModelResourceSchema {
 
 	@Override
 	public boolean equals(Object object) {
-		if (object instanceof MinecraftModelResource) {
-			final MinecraftModelResource minecraftModelResource = (MinecraftModelResource) object;
+		if (object instanceof MinecraftModelResource minecraftModelResource) {
 			return modelResource.equals(minecraftModelResource.modelResource) && modelPropertiesResource.equals(minecraftModelResource.modelPropertiesResource) && positionDefinitionsResource.equals(minecraftModelResource.positionDefinitionsResource);
 		} else {
 			return false;
