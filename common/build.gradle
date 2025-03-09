@@ -26,6 +26,17 @@ dependencies {
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:+"
 }
 
+tasks.register("setupWebsiteFiles") {
+	copy {
+		outputs.upToDateWhen { false }
+		from zipTree("../libs/Transport-Simulation-Core-Build-Tools.jar")
+		into "../buildSrc/src/main/resources"
+		include "website/*.json", "website/src/styles.css", "website/src/theme.scss"
+	}
+
+	Generator.generateTypeScript(project, "schema/resource", "../buildSrc/src/main/resources/website/src/app/entity/generated")
+}
+
 tasks.register("setupFiles") {
 	copy {
 		outputs.upToDateWhen { false }

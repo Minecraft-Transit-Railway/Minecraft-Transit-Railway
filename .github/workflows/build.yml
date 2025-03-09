@@ -17,7 +17,7 @@ jobs:
       - name: Make gradle wrapper executable
         run: chmod +x ./gradlew
       - name: Setup website files
-        run: ./gradlew fabric:setupWebsiteFiles
+        run: ./gradlew common:setupWebsiteFiles
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -30,11 +30,6 @@ jobs:
         run: ./gradlew common:setupFiles -Pcrowdin_api_key="${{ secrets.CROWDIN_API_KEY }}" -Ppatreon_api_key="${{ secrets.PATREON_API_KEY }}"
       - name: Build mod
         run: ./gradlew build
-      - name: Capture release artifacts
-        uses: actions/upload-artifact@main
-        with:
-          name: Fabric and NeoForge
-          path: build/release/
       - name: Post Crowdin translation analysis
         run: cat build/translation/analysis.md >> $GITHUB_STEP_SUMMARY
         continue-on-error: true
