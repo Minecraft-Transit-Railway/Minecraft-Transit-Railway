@@ -15,7 +15,7 @@
 		}
 	],
 	"result": {
-		"item": "mtr:escalator",
+		"id": "mtr:escalator",
 		"count": 8
 	}
 }

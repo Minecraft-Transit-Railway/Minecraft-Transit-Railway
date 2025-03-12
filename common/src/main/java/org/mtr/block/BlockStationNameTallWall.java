@@ -25,14 +25,14 @@ public class BlockStationNameTallWall extends BlockStationNameTallBase {
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final IntIntImmutablePair bounds = getBounds(state);
-		return IBlock.getVoxelShapeByDirection(2, bounds.leftInt(), 0, 14, bounds.rightInt(), 0.5, IBlock.getStatePropertySafe(state, Properties.FACING));
+		return IBlock.getVoxelShapeByDirection(2, bounds.leftInt(), 0, 14, bounds.rightInt(), 0.5, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING));
 	}
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final Direction blockSide = ctx.getSide();
 		final Direction facing = blockSide == Direction.UP || blockSide == Direction.DOWN ? ctx.getHorizontalPlayerFacing() : blockSide.getOpposite();
-		return IBlock.isReplaceable(ctx, Direction.UP, 3) ? getDefaultState().with(Properties.FACING, facing).with(METAL, true).with(THIRD, EnumThird.LOWER) : null;
+		return IBlock.isReplaceable(ctx, Direction.UP, 3) ? getDefaultState().with(Properties.HORIZONTAL_FACING, facing).with(METAL, true).with(THIRD, EnumThird.LOWER) : null;
 	}
 
 	@Nonnull

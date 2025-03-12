@@ -44,7 +44,7 @@ public class TicketMachineScreen extends MTRScreenBase implements IGui {
 		}
 
 		for (final ButtonWidget button : buttons) {
-			addSelectableChild(button);
+			addDrawableChild(button);
 		}
 	}
 

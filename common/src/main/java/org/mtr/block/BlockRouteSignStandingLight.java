@@ -24,7 +24,7 @@ public class BlockRouteSignStandingLight extends BlockRouteSignBase implements I
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final boolean isLower = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.LOWER;
-		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 		final VoxelShape main = IBlock.getVoxelShapeByDirection(2, isLower ? 10 : 0, 0, 14, 16, 1, facing);
 		final VoxelShape leg1 = IBlock.getVoxelShapeByDirection(1.5, 0, 0, 2, 16, 1, facing);
 		final VoxelShape leg2 = IBlock.getVoxelShapeByDirection(14, 0, 0, 14.5, 16, 1, facing);

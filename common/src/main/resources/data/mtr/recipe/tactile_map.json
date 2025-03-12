@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:tactile_map",
+		"id": "mtr:tactile_map",
 		"count": 1
 	}
 }

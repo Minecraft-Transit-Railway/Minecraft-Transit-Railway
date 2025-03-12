@@ -30,13 +30,13 @@ public class BlockRubbishBin extends Block {
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		return getDefaultState().with(Properties.FACING, ctx.getHorizontalPlayerFacing());
+		return getDefaultState().with(Properties.HORIZONTAL_FACING, ctx.getHorizontalPlayerFacing());
 	}
 
 	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getVoxelShapeByDirection(2, 0, 0, 14, 16, 4.5, state.get(Properties.FACING));
+		return IBlock.getVoxelShapeByDirection(2, 0, 0, 14, 16, 4.5, state.get(Properties.HORIZONTAL_FACING));
 	}
 
 	@Nonnull
@@ -68,7 +68,7 @@ public class BlockRubbishBin extends Block {
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(FILLED);
 	}
 }

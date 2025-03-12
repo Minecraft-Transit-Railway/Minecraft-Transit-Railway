@@ -30,7 +30,7 @@ public class RenderRouteSign<T extends BlockRouteSignBase.BlockEntityBase> exten
 	public void render(T entity, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
 		final BlockPos pos = entity.getPos();
 		final BlockState state = world.getBlockState(pos);
-		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 		final boolean isTop = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
 		final int arrowDirection = IBlock.getStatePropertySafe(state, BlockRouteSignBase.ARROW_DIRECTION);
 

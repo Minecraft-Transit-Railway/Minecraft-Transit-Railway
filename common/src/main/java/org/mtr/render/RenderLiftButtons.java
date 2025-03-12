@@ -37,7 +37,7 @@ public class RenderLiftButtons extends BlockEntityRendererExtension<BlockLiftBut
 	public void render(BlockLiftButtons.LiftButtonsBlockEntity blockEntity, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
 		final BlockPos blockPos = blockEntity.getPos();
 		final BlockState blockState = world.getBlockState(blockPos);
-		final Direction facing = IBlock.getStatePropertySafe(blockState, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(blockState, Properties.HORIZONTAL_FACING);
 		final boolean holdingLinker = player.isHolding(itemStack -> itemStack.getItem() instanceof ItemLiftButtonsLinkModifier || Block.getBlockFromItem(itemStack.getItem()) instanceof BlockLiftButtons);
 
 		final StoredMatrixTransformations storedMatrixTransformations1 = new StoredMatrixTransformations(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5);
@@ -49,7 +49,7 @@ public class RenderLiftButtons extends BlockEntityRendererExtension<BlockLiftBut
 		blockEntity.forEachTrackPosition(trackPosition -> {
 			// Render track link if holding linker item
 			if (world.getBlockState(trackPosition).getBlock() instanceof BlockLiftTrackFloor) {
-				final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, Properties.FACING);
+				final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, Properties.HORIZONTAL_FACING);
 				renderLiftObjectLink(
 						storedMatrixTransformations1,
 						new Vec3d(facing.getOffsetX() / 2F, 0.5, facing.getOffsetZ() / 2F),

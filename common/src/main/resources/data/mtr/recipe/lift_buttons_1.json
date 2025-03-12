@@ -13,7 +13,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:lift_buttons_1",
+		"id": "mtr:lift_buttons_1",
 		"count": 8
 	}
 }

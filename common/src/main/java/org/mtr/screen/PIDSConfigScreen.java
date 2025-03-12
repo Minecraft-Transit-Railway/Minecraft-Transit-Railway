@@ -111,32 +111,32 @@ public class PIDSConfigScreen extends MTRScreenBase implements IGui {
 		final int textWidth = textRenderer.getWidth(hideArrivalText) + SQUARE_SIZE + TEXT_PADDING * 2;
 
 		IDrawing.setPositionAndWidth(selectAllCheckbox, SQUARE_SIZE, SQUARE_SIZE, PANEL_WIDTH);
-		addSelectableChild(selectAllCheckbox);
+		addDrawableChild(selectAllCheckbox);
 
 		IDrawing.setPositionAndWidth(filterButton, SQUARE_SIZE, SQUARE_SIZE * 3, PANEL_WIDTH / 2);
-		addSelectableChild(filterButton);
+		addDrawableChild(filterButton);
 
 		IDrawing.setPositionAndWidth(displayPageInput, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 5 + TEXT_FIELD_PADDING / 2, PANEL_WIDTH / 2 - TEXT_FIELD_PADDING);
 		displayPageInput.setText(String.valueOf(displayPage + 1));
-		addSelectableChild(displayPageInput);
+		addDrawableChild(displayPageInput);
 
 		IDrawing.setPositionAndWidth(buttonPrevPage, customMessageWidth, SQUARE_SIZE * 7, SQUARE_SIZE);
-		addSelectableChild(buttonPrevPage);
+		addDrawableChild(buttonPrevPage);
 
 		IDrawing.setPositionAndWidth(buttonNextPage, customMessageWidth + SQUARE_SIZE * 3, SQUARE_SIZE * 7, SQUARE_SIZE);
-		addSelectableChild(buttonNextPage);
+		addDrawableChild(buttonNextPage);
 
 		for (int i = 0; i < textFieldMessages.length; i++) {
 			final WidgetBetterTextField textFieldMessage = textFieldMessages[i];
 			final int y = TEXT_FIELDS_Y_OFFSET + (SQUARE_SIZE + TEXT_FIELD_PADDING) * (i % getMaxArrivalsPerPage());
 			IDrawing.setPositionAndWidth(textFieldMessage, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, y, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING - textWidth);
 			textFieldMessage.setText(messages[i]);
-			addSelectableChild(textFieldMessage);
+			addDrawableChild(textFieldMessage);
 
 			final CheckboxWidget buttonHideArrival = buttonsHideArrival[i];
 			IDrawing.setPositionAndWidth(buttonHideArrival, width - SQUARE_SIZE - textWidth + TEXT_PADDING, y + TEXT_FIELD_PADDING / 2, textWidth);
 			IGui.setChecked(buttonHideArrival, hideArrivalArray[i]);
-			addSelectableChild(buttonHideArrival);
+			addDrawableChild(buttonHideArrival);
 		}
 
 		setPage(0);

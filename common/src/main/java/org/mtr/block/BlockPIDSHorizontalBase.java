@@ -37,7 +37,7 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 	@Nonnull
 	@Override
 	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
-		if (IBlock.getStatePropertySafe(state, Properties.FACING) == direction && !neighborState.isOf(this)) {
+		if (IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING) == direction && !neighborState.isOf(this)) {
 			return Blocks.AIR.getDefaultState();
 		} else {
 			return state;
@@ -47,8 +47,8 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 	@Override
 	public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
 		if (!world.isClient()) {
-			final Direction direction = IBlock.getStatePropertySafe(state, Properties.FACING);
-			world.setBlockState(pos.offset(direction), getDefaultState().with(Properties.FACING, direction.getOpposite()), 3);
+			final Direction direction = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
+			world.setBlockState(pos.offset(direction), getDefaultState().with(Properties.HORIZONTAL_FACING, direction.getOpposite()), 3);
 			world.updateNeighbors(pos, Blocks.AIR);
 			state.updateNeighbors(world, pos, 3);
 			// TODO copy NBT when copying block
@@ -58,12 +58,12 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final Direction direction = ctx.getHorizontalPlayerFacing().getOpposite();
-		return IBlock.isReplaceable(ctx, direction, 2) ? getDefaultState().with(Properties.FACING, direction) : null;
+		return IBlock.isReplaceable(ctx, direction, 2) ? getDefaultState().with(Properties.HORIZONTAL_FACING, direction) : null;
 	}
 
 	@Override
 	public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 		if (facing == Direction.SOUTH || facing == Direction.WEST) {
 			IBlock.onBreakCreative(world, player, pos.offset(facing));
 		}
@@ -77,11 +77,11 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 	}
 
 	private static boolean canStoreData(World world, BlockPos blockPos) {
-		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, Properties.HORIZONTAL_FACING);
 		return facing == Direction.NORTH || facing == Direction.EAST;
 	}
 
@@ -89,7 +89,7 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 		if (canStoreData(world, blockPos)) {
 			return blockPos;
 		} else {
-			return blockPos.offset(IBlock.getStatePropertySafe(world, blockPos, Properties.FACING));
+			return blockPos.offset(IBlock.getStatePropertySafe(world, blockPos, Properties.HORIZONTAL_FACING));
 		}
 	}
 

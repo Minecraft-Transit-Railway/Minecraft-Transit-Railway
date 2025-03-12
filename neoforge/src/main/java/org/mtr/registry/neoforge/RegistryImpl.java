@@ -1,6 +1,6 @@
 package org.mtr.registry.neoforge;
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.CommandDispatcher;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -19,12 +19,12 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -41,14 +41,17 @@ import org.mtr.packet.PacketHandler;
 import org.mtr.registry.ObjectHolder;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class RegistryImpl {
 
 	private static final Object2ObjectOpenHashMap<String, ObjectArrayList<Supplier<ItemConvertible>>> ITEM_GROUP_ENTRIES = new Object2ObjectOpenHashMap<>();
+
+	public static void init() {
+	}
 
 	public static ObjectHolder<Block> registerBlock(String registryName, Function<AbstractBlock.Settings, Block> factory) {
 		return new ObjectHolder<>(MTRNeoForge.BLOCKS.register(registryName, identifier -> factory.apply(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, identifier)))));
@@ -71,18 +74,16 @@ public final class RegistryImpl {
 	}
 
 	public static String registerItemGroup(String registryName, Supplier<ItemStack> iconSupplier) {
-		MTRNeoForge.ITEM_GROUPS.register(registryName, () -> ItemGroup.builder().icon(iconSupplier).entries((displayContext, entries) -> ITEM_GROUP_ENTRIES.getOrDefault(registryName, new ObjectArrayList<>()).forEach(itemSupplier -> entries.add(itemSupplier.get()))).build());
+		MTRNeoForge.ITEM_GROUPS.register(registryName, () -> ItemGroup.builder().icon(iconSupplier).displayName(Text.literal("itemGroup." + registryName)).entries((displayContext, entries) -> ITEM_GROUP_ENTRIES.getOrDefault(registryName, new ObjectArrayList<>()).forEach(itemSupplier -> entries.add(itemSupplier.get()))).build());
 		return registryName;
 	}
 
-	@SafeVarargs
-	public static void registerCommands(LiteralArgumentBuilder<ServerCommandSource>... commands) {
-		MainEventBus.COMMANDS.addAll(Arrays.asList(commands));
+	public static void registerCommands(Consumer<CommandDispatcher<ServerCommandSource>> consumer) {
+		MainEventBus.commandConsumer = consumer;
 	}
 
 	public static void setupPackets() {
-		final CustomPayload.Id<CustomPacket> id = new CustomPayload.Id<>(ModEventBus.PACKETS_IDENTIFIER);
-		ModEventBus.PAYLOAD_HANDLERS.add(payloadRegistrar -> payloadRegistrar.playToServer(id, PacketCodec.of(CustomPacket::encode, registryByteBuf -> new CustomPacket(id, registryByteBuf)), new DirectionalPayloadHandler<>((customPacket, context) -> {
+		ModEventBus.PAYLOAD_HANDLERS.add(payloadRegistrar -> payloadRegistrar.playToServer(MTR.PACKETS_IDENTIFIER, PacketCodec.of(CustomPacket::encode, registryByteBuf -> new CustomPacket(MTR.PACKETS_IDENTIFIER, registryByteBuf)), new DirectionalPayloadHandler<>((customPacket, context) -> {
 		}, (customPacket, context) -> {
 			final PlayerEntity player = context.player();
 			if (player instanceof ServerPlayerEntity) {
@@ -101,11 +102,10 @@ public final class RegistryImpl {
 	}
 
 	public static <T extends PacketHandler> void sendPacketToClient(ServerPlayerEntity serverPlayerEntity, T data) {
-		final CustomPayload.Id<CustomPacket> id = new CustomPayload.Id<>(ModEventBus.PACKETS_IDENTIFIER);
 		final PacketBufferSender packetBufferSender = new PacketBufferSender(Unpooled::buffer);
 		packetBufferSender.writeString(data.getClass().getName());
 		data.write(packetBufferSender);
-		packetBufferSender.send(byteBuf -> PacketDistributor.sendToPlayer(serverPlayerEntity, new CustomPacket(id, byteBuf instanceof PacketByteBuf ? (PacketByteBuf) byteBuf : new PacketByteBuf(byteBuf))), serverPlayerEntity.server::execute);
+		packetBufferSender.send(byteBuf -> PacketDistributor.sendToPlayer(serverPlayerEntity, new CustomPacket(MTR.PACKETS_IDENTIFIER, byteBuf instanceof PacketByteBuf ? (PacketByteBuf) byteBuf : new PacketByteBuf(byteBuf))), serverPlayerEntity.server::execute);
 	}
 
 	public static ObjectHolder<SoundEvent> registerSoundEvent(String registryName, Supplier<SoundEvent> supplier) {

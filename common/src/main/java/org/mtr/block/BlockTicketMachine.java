@@ -39,14 +39,14 @@ public class BlockTicketMachine extends BlockDirectionalDoubleBlockBase {
 	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 		final int height = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER ? 14 : 16;
 		return IBlock.getVoxelShapeByDirection(0, 0, 2, 16, height, 14, facing);
 	}
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(HALF);
 	}
 }

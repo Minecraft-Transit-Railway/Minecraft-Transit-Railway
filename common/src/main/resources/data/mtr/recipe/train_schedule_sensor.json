@@ -24,7 +24,7 @@
 		}
 	],
 	"result": {
-		"item": "mtr:train_schedule_sensor",
+		"id": "mtr:train_schedule_sensor",
 		"count": 3
 	}
 }

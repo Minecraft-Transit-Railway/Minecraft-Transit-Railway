@@ -5,11 +5,11 @@
 	],
 	"key": {
 		"B": {
-			"item": "mtr:metal"
+			"id": "mtr:metal"
 		}
 	},
 	"result": {
-		"item": "mtr:metal_slab",
+		"id": "mtr:metal_slab",
 		"count": 6
 	}
 }

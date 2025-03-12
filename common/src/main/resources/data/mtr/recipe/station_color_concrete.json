@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_concrete",
+		"id": "mtr:station_color_concrete",
 		"count": 8
 	}
 }

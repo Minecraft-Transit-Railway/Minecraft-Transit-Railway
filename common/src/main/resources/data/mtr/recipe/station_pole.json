@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:station_pole",
+		"id": "mtr:station_pole",
 		"count": 8
 	}
 }

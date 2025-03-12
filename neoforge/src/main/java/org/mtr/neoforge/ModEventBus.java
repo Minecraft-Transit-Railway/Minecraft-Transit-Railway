@@ -2,7 +2,6 @@ package org.mtr.neoforge;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.util.Identifier;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -18,7 +17,6 @@ import java.util.function.Function;
 public final class ModEventBus {
 
 	public static final Object2ObjectOpenHashMap<String, Function<PacketBufferReceiver, ? extends PacketHandler>> PACKETS = new Object2ObjectOpenHashMap<>();
-	public static final Identifier PACKETS_IDENTIFIER = Identifier.of(MTR.MOD_ID, "packet");
 	public static final ObjectArrayList<Consumer<PayloadRegistrar>> PAYLOAD_HANDLERS = new ObjectArrayList<>();
 	private static final String PROTOCOL_VERSION = "1";
 

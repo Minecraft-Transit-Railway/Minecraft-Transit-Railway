@@ -2,10 +2,10 @@
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
 		{
-			"item": "mtr:ticket_processor_enquiry"
+			"id": "mtr:ticket_processor_enquiry"
 		}
 	],
 	"result": {
-		"item": "mtr:ticket_processor"
+		"id": "mtr:ticket_processor"
 	}
 }

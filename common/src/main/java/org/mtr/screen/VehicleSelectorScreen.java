@@ -64,7 +64,7 @@ public class VehicleSelectorScreen extends DashboardListSelectorScreen implement
 		selectedList.x = SQUARE_SIZE * 3 + spareSpace + PANEL_WIDTH;
 		IDrawing.setPositionAndWidth(buttonDone, SQUARE_SIZE * 2 + spareSpace, height - SQUARE_SIZE * 2, PANEL_WIDTH);
 		IDrawing.setPositionAndWidth(buttonDuplicateVehicleCars, SQUARE_SIZE * 3 + spareSpace + PANEL_WIDTH, height - SQUARE_SIZE * 2, PANEL_WIDTH);
-		addSelectableChild(buttonDuplicateVehicleCars);
+		addDrawableChild(buttonDuplicateVehicleCars);
 	}
 
 	@Override

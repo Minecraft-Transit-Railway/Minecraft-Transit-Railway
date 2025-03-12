@@ -28,7 +28,7 @@ public class BlockLiftTrackVertical extends BlockLiftTrackBase {
 	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getVoxelShapeByDirection(6, 0, 0, 10, 16, 1, IBlock.getStatePropertySafe(state, Properties.FACING));
+		return IBlock.getVoxelShapeByDirection(6, 0, 0, 10, 16, 1, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING));
 	}
 
 	@Override

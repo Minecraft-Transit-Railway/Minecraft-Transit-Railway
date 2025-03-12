@@ -112,7 +112,7 @@ public interface IBlock {
 	}
 
 	static Direction getSideDirection(BlockState state) {
-		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 		return IBlock.getStatePropertySafe(state, SIDE) == EnumSide.LEFT ? facing.rotateYClockwise() : facing.rotateYCounterclockwise();
 	}
 

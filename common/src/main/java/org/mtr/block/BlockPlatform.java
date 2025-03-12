@@ -35,14 +35,14 @@ public class BlockPlatform extends Block implements PlatformHelper {
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		return getDefaultState().with(Properties.FACING, ctx.getHorizontalPlayerFacing());
+		return getDefaultState().with(Properties.HORIZONTAL_FACING, ctx.getHorizontalPlayerFacing());
 	}
 
 	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		if (isIndented) {
-			final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+			final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 			return VoxelShapes.union(IBlock.getVoxelShapeByDirection(0, 0, 6, 16, 13, 16, facing), Block.createCuboidShape(0, 13, 0, 16, 16, 16));
 		} else {
 			return super.getOutlineShape(state, world, pos, context);
@@ -51,7 +51,7 @@ public class BlockPlatform extends Block implements PlatformHelper {
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(DOOR_TYPE);
 		builder.add(SIDE);
 	}

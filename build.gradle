@@ -1,5 +1,5 @@
 plugins {
-	id "dev.architectury.loom" version "1.7-SNAPSHOT" apply false
+	id "dev.architectury.loom" version "1.9-SNAPSHOT" apply false
 	id "architectury-plugin" version "3.4-SNAPSHOT"
 	id "com.github.johnrengelman.shadow" version "8.1.1" apply false
 }
@@ -36,6 +36,10 @@ subprojects {
 			it.mappings("dev.architectury:yarn-mappings-patch-neoforge:$yarn_mappings_patch_neoforge_version")
 		}
 		implementation "com.google.code.findbugs:jsr305:+"
+		implementation "org.mtr:Shadow-Libraries-net:0.0.1"
+		implementation "org.mtr:Shadow-Libraries-util:0.0.1"
+		implementation "org.mtr:Transport-Simulation-Core:0.0.1"
+		implementation "com.logisticscraft:occlusionculling:+"
 	}
 
 	java {

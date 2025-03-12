@@ -21,7 +21,7 @@
 		}
 	],
 	"result": {
-		"item": "mtr:glass_fence_shm",
+		"id": "mtr:glass_fence_shm",
 		"count": 4
 	}
 }

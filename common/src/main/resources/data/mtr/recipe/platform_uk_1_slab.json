@@ -5,11 +5,11 @@
 	],
 	"key": {
 		"#": {
-			"item": "mtr:platform_uk_1"
+			"id": "mtr:platform_uk_1"
 		}
 	},
 	"result": {
-		"item": "mtr:platform_uk_1_slab",
+		"id": "mtr:platform_uk_1_slab",
 		"count": 6
 	}
 }

@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:clock_pole",
+		"id": "mtr:clock_pole",
 		"count": 8
 	}
 }

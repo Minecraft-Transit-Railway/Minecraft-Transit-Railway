@@ -50,7 +50,7 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> exten
 
 		final BlockPos blockPos = entity.getPos();
 		final BlockState blockState = world.getBlockState(blockPos);
-		final Direction facing = IBlock.getStatePropertySafe(blockState, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(blockState, Properties.HORIZONTAL_FACING);
 		final boolean holdingLinker = player.isHolding(itemStack -> {
 			final Item item = itemStack.getItem();
 			return item instanceof ItemLiftButtonsLinkModifier || Block.getBlockFromItem(item) instanceof BlockLiftButtons;
@@ -59,7 +59,7 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> exten
 		final StoredMatrixTransformations storedMatrixTransformations1 = new StoredMatrixTransformations(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5);
 
 		// Render track link if holding linker item
-		final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, Properties.FACING);
+		final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, Properties.HORIZONTAL_FACING);
 		RenderLiftButtons.renderLiftObjectLink(
 				storedMatrixTransformations1,
 				new Vec3d(facing.getOffsetX() / 2F + facing.rotateYClockwise().getOffsetX() * (isOdd ? 1 : 0.5), 0.5, facing.getOffsetZ() / 2F + facing.rotateYClockwise().getOffsetZ() * (isOdd ? 1 : 0.5)),

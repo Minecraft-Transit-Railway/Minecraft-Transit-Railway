@@ -84,9 +84,9 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 	@Override
 	public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
 		if (!world.isClient()) {
-			final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
-			world.setBlockState(pos.up(), getDefaultState().with(Properties.FACING, facing).with(METAL, true).with(THIRD, EnumThird.MIDDLE), 3);
-			world.setBlockState(pos.up(2), getDefaultState().with(Properties.FACING, facing).with(METAL, true).with(THIRD, EnumThird.UPPER), 3);
+			final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
+			world.setBlockState(pos.up(), getDefaultState().with(Properties.HORIZONTAL_FACING, facing).with(METAL, true).with(THIRD, EnumThird.MIDDLE), 3);
+			world.setBlockState(pos.up(2), getDefaultState().with(Properties.HORIZONTAL_FACING, facing).with(METAL, true).with(THIRD, EnumThird.UPPER), 3);
 			world.updateNeighbors(pos, Blocks.AIR);
 			state.updateNeighbors(world, pos, 3);
 		}
@@ -95,7 +95,7 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		builder.add(COLOR);
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(METAL);
 		builder.add(THIRD);
 	}

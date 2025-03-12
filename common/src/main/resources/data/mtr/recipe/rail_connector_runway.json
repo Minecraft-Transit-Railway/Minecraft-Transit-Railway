@@ -17,6 +17,6 @@
 		}
 	},
 	"result": {
-		"item": "mtr:rail_connector_runway"
+		"id": "mtr:rail_connector_runway"
 	}
 }

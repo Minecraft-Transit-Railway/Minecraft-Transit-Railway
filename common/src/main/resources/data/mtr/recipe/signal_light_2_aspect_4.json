@@ -24,7 +24,7 @@
 		}
 	],
 	"result": {
-		"item": "mtr:signal_light_4",
+		"id": "mtr:signal_light_4",
 		"count": 2
 	}
 }

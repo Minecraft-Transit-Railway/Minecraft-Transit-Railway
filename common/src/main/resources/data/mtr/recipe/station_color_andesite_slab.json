@@ -5,11 +5,11 @@
 	],
 	"key": {
 		"B": {
-			"item": "mtr:station_color_andesite"
+			"id": "mtr:station_color_andesite"
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_andesite_slab",
+		"id": "mtr:station_color_andesite_slab",
 		"count": 6
 	}
 }

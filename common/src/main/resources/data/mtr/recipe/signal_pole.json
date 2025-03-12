@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:signal_pole",
+		"id": "mtr:signal_pole",
 		"count": 8
 	}
 }

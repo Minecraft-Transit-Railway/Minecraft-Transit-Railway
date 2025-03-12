@@ -9,7 +9,7 @@
 		}
 	],
 	"result": {
-		"item": "mtr:metal",
+		"id": "mtr:metal",
 		"count": 2
 	}
 }

@@ -17,7 +17,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:boat_node",
+		"id": "mtr:boat_node",
 		"count": 32
 	}
 }

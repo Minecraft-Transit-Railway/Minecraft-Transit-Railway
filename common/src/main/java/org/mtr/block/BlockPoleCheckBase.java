@@ -39,7 +39,7 @@ public abstract class BlockPoleCheckBase extends Block {
 	}
 
 	protected BlockState placeWithState(BlockState stateBelow) {
-		return getDefaultState().with(Properties.FACING, IBlock.getStatePropertySafe(stateBelow, Properties.FACING));
+		return getDefaultState().with(Properties.HORIZONTAL_FACING, IBlock.getStatePropertySafe(stateBelow, Properties.HORIZONTAL_FACING));
 	}
 
 	protected abstract boolean isBlock(Block block);

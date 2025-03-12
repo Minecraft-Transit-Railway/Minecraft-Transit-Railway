@@ -12,6 +12,6 @@
 		}
 	],
 	"result": {
-		"item": "mtr:station_name_wall"
+		"id": "mtr:station_name_wall"
 	}
 }

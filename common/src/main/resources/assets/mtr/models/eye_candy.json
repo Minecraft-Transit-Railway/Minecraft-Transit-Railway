@@ -1,6 +1,6 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "mtrsteamloco:item/eye_candy"
+		"layer0": "mtr:item/eye_candy"
 	}
 }

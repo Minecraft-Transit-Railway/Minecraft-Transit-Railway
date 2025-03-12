@@ -35,13 +35,13 @@ public abstract class BlockPSDAPGGlassBase extends BlockPSDAPGBase {
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(HALF);
 		builder.add(SIDE_EXTENDED);
 	}
 
 	private void connectGlass(World world, BlockPos pos, BlockState state) {
-		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 
 		final BlockPos leftPos = pos.offset(facing.rotateYCounterclockwise());
 		final BlockState leftState = world.getBlockState(leftPos);

@@ -2,10 +2,10 @@
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
 		{
-			"item": "mtr:pids_3"
+			"id": "mtr:pids_3"
 		}
 	],
 	"result": {
-		"item": "mtr:pids_4"
+		"id": "mtr:pids_4"
 	}
 }

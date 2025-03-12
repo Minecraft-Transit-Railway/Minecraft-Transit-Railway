@@ -98,14 +98,14 @@ public class EyeCandyScreen extends MTRScreenBase implements IGui {
 		textFieldRotateZ.setText(String.valueOf(blockEntity.getRotateZ()));
 		IGui.setChecked(buttonFullBrightness, blockEntity.getFullBrightness());
 
-		addSelectableChild(buttonSelectModel);
-		addSelectableChild(textFieldTranslateX);
-		addSelectableChild(textFieldTranslateY);
-		addSelectableChild(textFieldTranslateZ);
-		addSelectableChild(textFieldRotateX);
-		addSelectableChild(textFieldRotateY);
-		addSelectableChild(textFieldRotateZ);
-		addSelectableChild(buttonFullBrightness);
+		addDrawableChild(buttonSelectModel);
+		addDrawableChild(textFieldTranslateX);
+		addDrawableChild(textFieldTranslateY);
+		addDrawableChild(textFieldTranslateZ);
+		addDrawableChild(textFieldRotateX);
+		addDrawableChild(textFieldRotateY);
+		addDrawableChild(textFieldRotateZ);
+		addDrawableChild(buttonFullBrightness);
 	}
 
 	@Override

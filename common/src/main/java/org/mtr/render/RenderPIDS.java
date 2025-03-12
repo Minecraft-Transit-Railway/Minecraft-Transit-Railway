@@ -55,7 +55,7 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 			return;
 		}
 
-		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, Properties.HORIZONTAL_FACING);
 
 		if (entity.getPlatformIds().isEmpty()) {
 			final LongArrayList platformIds = new LongArrayList();

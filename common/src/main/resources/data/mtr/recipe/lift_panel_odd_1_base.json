@@ -17,7 +17,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:lift_panel_odd_1",
+		"id": "mtr:lift_panel_odd_1",
 		"count": 4
 	}
 }

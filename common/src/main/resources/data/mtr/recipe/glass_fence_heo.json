@@ -21,7 +21,7 @@
 		}
 	],
 	"result": {
-		"item": "mtr:glass_fence_heo",
+		"id": "mtr:glass_fence_heo",
 		"count": 4
 	}
 }

@@ -14,6 +14,6 @@
 		}
 	},
 	"result": {
-		"item": "mtr:lift_buttons_link_remover"
+		"id": "mtr:lift_buttons_link_remover"
 	}
 }

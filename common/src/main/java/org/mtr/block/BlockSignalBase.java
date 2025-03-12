@@ -52,18 +52,18 @@ public abstract class BlockSignalBase extends Block implements BlockEntityProvid
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final int quadrant = Angle.getQuadrant(ctx.getPlayerYaw(), true);
-		return getDefaultState().with(Properties.FACING, Direction.fromHorizontalDegrees(quadrant / 4F)).with(IS_45, EnumBooleanInverted.fromBoolean(quadrant % 4 >= 2)).with(IS_22_5, EnumBooleanInverted.fromBoolean(quadrant % 2 == 1));
+		return getDefaultState().with(Properties.HORIZONTAL_FACING, Direction.fromHorizontalDegrees(quadrant / 4F)).with(IS_45, EnumBooleanInverted.fromBoolean(quadrant % 4 >= 2)).with(IS_22_5, EnumBooleanInverted.fromBoolean(quadrant % 2 == 1));
 	}
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(IS_22_5);
 		builder.add(IS_45);
 	}
 
 	public static float getAngle(BlockState state) {
-		return IBlock.getStatePropertySafe(state, Properties.FACING).getPositiveHorizontalDegrees() + (IBlock.getStatePropertySafe(state, BlockSignalBase.IS_22_5).booleanValue ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockSignalBase.IS_45).booleanValue ? 45 : 0);
+		return IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING).getPositiveHorizontalDegrees() + (IBlock.getStatePropertySafe(state, BlockSignalBase.IS_22_5).booleanValue ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockSignalBase.IS_45).booleanValue ? 45 : 0);
 	}
 
 	public static abstract class BlockEntityBase extends BlockEntity {

@@ -24,7 +24,7 @@
 		}
 	],
 	"result": {
-		"item": "mtr:platform_indented",
+		"id": "mtr:platform_indented",
 		"count": 6
 	}
 }

@@ -62,25 +62,25 @@ public abstract class BlockLiftPanelBase extends Block implements IBlock, Triple
 		if (isOdd) {
 			return TripleHorizontalBlock.getPlacementState(ctx, getDefaultState());
 		} else {
-			return IBlock.isReplaceable(ctx, direction.rotateYClockwise(), 2) ? getDefaultState().with(Properties.FACING, direction).with(SIDE, EnumSide.LEFT) : null;
+			return IBlock.isReplaceable(ctx, direction.rotateYClockwise(), 2) ? getDefaultState().with(Properties.HORIZONTAL_FACING, direction).with(SIDE, EnumSide.LEFT) : null;
 		}
 	}
 
 	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, isFlat ? 1 : 4, state.get(Properties.FACING));
+		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, isFlat ? 1 : 4, state.get(Properties.HORIZONTAL_FACING));
 	}
 
 	@Override
 	public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
 		if (!world.isClient()) {
-			final Direction direction = IBlock.getStatePropertySafe(state, Properties.FACING);
+			final Direction direction = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 
 			if (isOdd) {
 				TripleHorizontalBlock.onPlaced(world, pos, state, getDefaultState());
 			} else {
-				world.setBlockState(pos.offset(direction.rotateYClockwise()), getDefaultState().with(Properties.FACING, direction).with(SIDE, EnumSide.RIGHT), 3);
+				world.setBlockState(pos.offset(direction.rotateYClockwise()), getDefaultState().with(Properties.HORIZONTAL_FACING, direction).with(SIDE, EnumSide.RIGHT), 3);
 			}
 
 			world.updateNeighbors(pos, Blocks.AIR);
@@ -138,7 +138,7 @@ public abstract class BlockLiftPanelBase extends Block implements IBlock, Triple
 
 		public void registerFloor(World world, BlockPos pos, boolean isAdd) {
 			if (IBlock.getStatePropertySafe(world, getPos(), SIDE) == EnumSide.RIGHT) {
-				final BlockEntity blockEntity = world.getBlockEntity(getPos().offset(IBlock.getStatePropertySafe(world, getPos(), Properties.FACING).rotateYCounterclockwise()));
+				final BlockEntity blockEntity = world.getBlockEntity(getPos().offset(IBlock.getStatePropertySafe(world, getPos(), Properties.HORIZONTAL_FACING).rotateYCounterclockwise()));
 				if (blockEntity instanceof BlockEntityBase) {
 					((BlockEntityBase) blockEntity).registerFloor(world, pos, isAdd);
 				}

@@ -5,11 +5,11 @@
 	],
 	"key": {
 		"B": {
-			"item": "mtr:marble_sandy"
+			"id": "mtr:marble_sandy"
 		}
 	},
 	"result": {
-		"item": "mtr:marble_sandy_slab",
+		"id": "mtr:marble_sandy_slab",
 		"count": 6
 	}
 }

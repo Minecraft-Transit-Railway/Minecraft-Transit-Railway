@@ -14,11 +14,6 @@ dependencies {
 	// which get remapped to the correct annotations on each platform.
 	// Do NOT use other classes from Fabric Loader.
 	modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
-	modImplementation "dev.architectury:architectury:$architectury_api_version"
-	implementation "org.mtr:Shadow-Libraries-net:0.0.1"
-	implementation "org.mtr:Shadow-Libraries-util:0.0.1"
-	implementation "org.mtr:Transport-Simulation-Core:0.0.1"
-	implementation "com.logisticscraft:occlusionculling:+"
 	compileOnly "xyz.jpenilla:squaremap-api:+"
 	compileOnly "com.test:Dynmap:3.2.1"
 	testImplementation "org.junit.jupiter:junit-jupiter-api:+"

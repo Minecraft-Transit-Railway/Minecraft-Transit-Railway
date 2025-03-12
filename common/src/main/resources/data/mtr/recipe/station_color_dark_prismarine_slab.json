@@ -5,11 +5,11 @@
 	],
 	"key": {
 		"B": {
-			"item": "mtr:station_color_dark_prismarine"
+			"id": "mtr:station_color_dark_prismarine"
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_dark_prismarine_slab",
+		"id": "mtr:station_color_dark_prismarine_slab",
 		"count": 6
 	}
 }

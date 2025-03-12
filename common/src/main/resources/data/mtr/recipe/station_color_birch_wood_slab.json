@@ -5,11 +5,11 @@
 	],
 	"key": {
 		"B": {
-			"item": "mtr:station_color_birch_wood"
+			"id": "mtr:station_color_birch_wood"
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_birch_wood_slab",
+		"id": "mtr:station_color_birch_wood_slab",
 		"count": 6
 	}
 }

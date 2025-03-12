@@ -1,6 +1,6 @@
 package org.mtr.registry.fabric;
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.CommandDispatcher;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -22,7 +22,6 @@ import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -30,6 +29,7 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -43,12 +43,18 @@ import org.mtr.registry.ObjectHolder;
 
 import javax.annotation.Nullable;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class RegistryImpl {
 
 	private static final Object2ObjectOpenHashMap<String, ObjectArrayList<Supplier<ItemConvertible>>> ITEM_GROUP_ENTRIES = new Object2ObjectOpenHashMap<>();
+	private static final ObjectArrayList<Runnable> OBJECTS_TO_REGISTER = new ObjectArrayList<>();
+
+	public static void init() {
+		OBJECTS_TO_REGISTER.forEach(Runnable::run);
+	}
 
 	public static ObjectHolder<Block> registerBlock(String registryName, Function<AbstractBlock.Settings, Block> factory) {
 		return register(Registries.BLOCK, RegistryKeys.BLOCK, registryName, dataRegistryKey -> factory.apply(AbstractBlock.Settings.create().registryKey(dataRegistryKey)));
@@ -71,7 +77,7 @@ public final class RegistryImpl {
 	}
 
 	public static String registerItemGroup(String registryName, Supplier<ItemStack> iconSupplier) {
-		register(Registries.ITEM_GROUP, RegistryKeys.ITEM_GROUP, registryName, dataRegistryKey -> FabricItemGroup.builder().icon(iconSupplier).entries((displayContext, entries) -> ITEM_GROUP_ENTRIES.getOrDefault(registryName, new ObjectArrayList<>()).forEach(itemSupplier -> entries.add(itemSupplier.get()))).build());
+		register(Registries.ITEM_GROUP, RegistryKeys.ITEM_GROUP, registryName, dataRegistryKey -> FabricItemGroup.builder().icon(iconSupplier).displayName(Text.literal("itemGroup." + registryName)).entries((displayContext, entries) -> ITEM_GROUP_ENTRIES.getOrDefault(registryName, new ObjectArrayList<>()).forEach(itemSupplier -> entries.add(itemSupplier.get()))).build());
 		return registryName;
 	}
 
@@ -79,19 +85,14 @@ public final class RegistryImpl {
 		return register(Registries.SOUND_EVENT, RegistryKeys.SOUND_EVENT, registryName, dataRegistryKey -> supplier.get());
 	}
 
-	@SafeVarargs
-	public static void registerCommands(LiteralArgumentBuilder<ServerCommandSource>... commands) {
-		CommandRegistrationCallback.EVENT.register((dispatcher, commandRegistryAccess, environment) -> {
-			for (LiteralArgumentBuilder<ServerCommandSource> command : commands) {
-				dispatcher.register(command);
-			}
-		});
+	public static void registerCommands(Consumer<CommandDispatcher<ServerCommandSource>> consumer) {
+		CommandRegistrationCallback.EVENT.register((dispatcher, commandRegistryAccess, environment) -> consumer.accept(dispatcher));
 	}
 
 	public static void setupPackets() {
-		final CustomPayload.Id<CustomPacket> id = new CustomPayload.Id<>(MTRFabric.PACKETS_IDENTIFIER);
-		PayloadTypeRegistry.playS2C().register(id, PacketCodec.of(CustomPacket::encode, registryByteBuf -> new CustomPacket(id, registryByteBuf)));
-		ServerPlayNetworking.registerGlobalReceiver(id, (customPacket, context) -> PacketBufferReceiver.receive(customPacket.packetByteBuf(), packetBufferReceiver -> {
+		PayloadTypeRegistry.playS2C().register(MTR.PACKETS_IDENTIFIER, PacketCodec.of(CustomPacket::encode, registryByteBuf -> new CustomPacket(MTR.PACKETS_IDENTIFIER, registryByteBuf)));
+		PayloadTypeRegistry.playC2S().register(MTR.PACKETS_IDENTIFIER, PacketCodec.of(CustomPacket::encode, registryByteBuf -> new CustomPacket(MTR.PACKETS_IDENTIFIER, registryByteBuf)));
+		ServerPlayNetworking.registerGlobalReceiver(MTR.PACKETS_IDENTIFIER, (customPacket, context) -> PacketBufferReceiver.receive(customPacket.packetByteBuf(), packetBufferReceiver -> {
 			final Function<PacketBufferReceiver, ? extends PacketHandler> getInstance = MTRFabric.PACKETS.get(packetBufferReceiver.readString());
 			if (getInstance != null) {
 				getInstance.apply(packetBufferReceiver).runServer(context.server(), context.player());
@@ -104,16 +105,16 @@ public final class RegistryImpl {
 	}
 
 	public static <T extends PacketHandler> void sendPacketToClient(ServerPlayerEntity serverPlayerEntity, T data) {
-		final CustomPayload.Id<CustomPacket> id = new CustomPayload.Id<>(MTRFabric.PACKETS_IDENTIFIER);
 		final PacketBufferSender packetBufferSender = new PacketBufferSender(PacketByteBufs::create);
 		packetBufferSender.writeString(data.getClass().getName());
 		data.write(packetBufferSender);
-		packetBufferSender.send(byteBuf -> ServerPlayNetworking.send(serverPlayerEntity, new CustomPacket(id, byteBuf instanceof PacketByteBuf ? (PacketByteBuf) byteBuf : new PacketByteBuf(byteBuf))), serverPlayerEntity.server::execute);
+		packetBufferSender.send(byteBuf -> ServerPlayNetworking.send(serverPlayerEntity, new CustomPacket(MTR.PACKETS_IDENTIFIER, byteBuf instanceof PacketByteBuf ? (PacketByteBuf) byteBuf : new PacketByteBuf(byteBuf))), serverPlayerEntity.server::execute);
 	}
 
 	private static <T extends U, U> ObjectHolder<T> register(Registry<U> registry, RegistryKey<Registry<U>> registryKey, String registryName, Function<RegistryKey<U>, T> factory) {
 		final RegistryKey<U> dataRegistryKey = RegistryKey.of(registryKey, Identifier.of(MTR.MOD_ID, registryName));
-		final T data = Registry.register(registry, dataRegistryKey, factory.apply(dataRegistryKey));
-		return new ObjectHolder<>(() -> data);
+		final ObjectHolder<T> objectHolder = new ObjectHolder<>(() -> Registry.register(registry, dataRegistryKey, factory.apply(dataRegistryKey)));
+		OBJECTS_TO_REGISTER.add(objectHolder::createAndGet);
+		return objectHolder;
 	}
 }

@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_diorite",
+		"id": "mtr:station_color_diorite",
 		"count": 8
 	}
 }

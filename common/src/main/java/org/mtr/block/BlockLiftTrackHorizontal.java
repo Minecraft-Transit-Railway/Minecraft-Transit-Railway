@@ -28,7 +28,7 @@ public class BlockLiftTrackHorizontal extends BlockLiftTrackBase {
 	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getVoxelShapeByDirection(0, 6, 0, 16, 10, 1, IBlock.getStatePropertySafe(state, Properties.FACING));
+		return IBlock.getVoxelShapeByDirection(0, 6, 0, 16, 10, 1, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING));
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public class BlockLiftTrackHorizontal extends BlockLiftTrackBase {
 
 	@Override
 	public ObjectArrayList<Direction> getConnectingDirections(BlockState blockState) {
-		final Direction facing = IBlock.getStatePropertySafe(blockState, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(blockState, Properties.HORIZONTAL_FACING);
 		return ObjectArrayList.of(facing.rotateYClockwise(), facing.rotateYCounterclockwise());
 	}
 }

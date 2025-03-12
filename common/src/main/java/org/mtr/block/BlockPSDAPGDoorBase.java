@@ -98,14 +98,14 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		builder.add(END);
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(HALF);
 		builder.add(SIDE);
 		builder.add(UNLOCKED);
 	}
 
 	private static void lockDoor(World world, BlockPos pos, BlockState state, boolean unlocked) {
-		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 		final BlockPos leftPos = pos.offset(facing.rotateYCounterclockwise());
 		final BlockPos rightPos = pos.offset(facing.rotateYClockwise());
 		final BlockState leftState = world.getBlockState(leftPos);
@@ -159,7 +159,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 			}
 
 			final DoubleBlockHalf half = IBlock.getStatePropertySafe(state, HALF);
-			final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+			final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 			final EnumSide side = IBlock.getStatePropertySafe(state, SIDE);
 			final Direction otherDirection = side == EnumSide.LEFT ? facing.rotateYClockwise() : facing.rotateYCounterclockwise();
 			final BlockPos platformPos = (half == DoubleBlockHalf.UPPER) ? pos.down(2) : pos.down(1);

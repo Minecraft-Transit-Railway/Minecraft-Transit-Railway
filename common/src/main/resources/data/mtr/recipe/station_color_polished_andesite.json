@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_polished_andesite",
+		"id": "mtr:station_color_polished_andesite",
 		"count": 8
 	}
 }

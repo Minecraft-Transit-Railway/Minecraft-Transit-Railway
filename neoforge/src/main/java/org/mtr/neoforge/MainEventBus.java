@@ -1,7 +1,6 @@
 package org.mtr.neoforge;
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
@@ -39,7 +38,7 @@ public final class MainEventBus {
 	public static BiConsumer<MinecraftServer, ServerPlayerEntity> playerDisconnectRunnable = null;
 	public static BiConsumer<ServerWorld, WorldChunk> chunkLoadConsumer = null;
 	public static BiConsumer<ServerWorld, WorldChunk> chunkUnloadConsumer = null;
-	public static final ObjectArrayList<LiteralArgumentBuilder<ServerCommandSource>> COMMANDS = new ObjectArrayList<>();
+	public static Consumer<CommandDispatcher<ServerCommandSource>> commandConsumer = null;
 
 	@SubscribeEvent
 	public static void serverStarting(ServerStartingEvent event) {
@@ -128,6 +127,8 @@ public final class MainEventBus {
 
 	@SubscribeEvent
 	public static void registerCommands(RegisterCommandsEvent event) {
-		COMMANDS.forEach(event.getDispatcher()::register);
+		if (commandConsumer != null) {
+			commandConsumer.accept(event.getDispatcher());
+		}
 	}
 }

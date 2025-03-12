@@ -17,6 +17,6 @@
 		}
 	},
 	"result": {
-		"item": "mtr:rail_remover"
+		"id": "mtr:rail_remover"
 	}
 }

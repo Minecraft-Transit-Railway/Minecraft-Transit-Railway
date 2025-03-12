@@ -79,10 +79,10 @@ public class SignalColorScreen extends MTRScreenBase implements IGui {
 		IDrawing.setPositionAndWidth(checkBoxSelectAll, SQUARE_SIZE, SQUARE_SIZE, width - SQUARE_SIZE * 2);
 		iterateGrid((x, y, index) -> {
 			IDrawing.setPositionAndWidth(checkBoxes[index], SQUARE_SIZE + x * SQUARE_SIZE * 2, SQUARE_SIZE * 3 + y * SQUARE_SIZE, SQUARE_SIZE * 2);
-			addSelectableChild(checkBoxes[index]);
+			addDrawableChild(checkBoxes[index]);
 		});
 
-		addSelectableChild(checkBoxSelectAll);
+		addDrawableChild(checkBoxSelectAll);
 		setButtons();
 	}
 

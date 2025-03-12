@@ -152,22 +152,22 @@ public class LiftCustomizationScreen extends MTRScreenBase implements IGui {
 		IDrawing.setPositionAndWidth(buttonRotateAnticlockwise, 0, SQUARE_SIZE * 9, width2);
 		IDrawing.setPositionAndWidth(buttonRotateClockwise, 0, SQUARE_SIZE * 10, width2);
 
-		addSelectableChild(buttonHeightMinus);
-		addSelectableChild(buttonHeightAdd);
-		addSelectableChild(buttonWidthMinus);
-		addSelectableChild(buttonWidthAdd);
-		addSelectableChild(buttonDepthMinus);
-		addSelectableChild(buttonDepthAdd);
-		addSelectableChild(buttonOffsetXMinus);
-		addSelectableChild(buttonOffsetXAdd);
-		addSelectableChild(buttonOffsetYMinus);
-		addSelectableChild(buttonOffsetYAdd);
-		addSelectableChild(buttonOffsetZMinus);
-		addSelectableChild(buttonOffsetZAdd);
-		addSelectableChild(buttonIsDoubleSided);
-//		addSelectableChild(buttonLiftStyle);
-		addSelectableChild(buttonRotateAnticlockwise);
-		addSelectableChild(buttonRotateClockwise);
+		addDrawableChild(buttonHeightMinus);
+		addDrawableChild(buttonHeightAdd);
+		addDrawableChild(buttonWidthMinus);
+		addDrawableChild(buttonWidthAdd);
+		addDrawableChild(buttonDepthMinus);
+		addDrawableChild(buttonDepthAdd);
+		addDrawableChild(buttonOffsetXMinus);
+		addDrawableChild(buttonOffsetXAdd);
+		addDrawableChild(buttonOffsetYMinus);
+		addDrawableChild(buttonOffsetYAdd);
+		addDrawableChild(buttonOffsetZMinus);
+		addDrawableChild(buttonOffsetZAdd);
+		addDrawableChild(buttonIsDoubleSided);
+//		addDrawableChild(buttonLiftStyle);
+		addDrawableChild(buttonRotateAnticlockwise);
+		addDrawableChild(buttonRotateClockwise);
 		updateControls(false);
 	}
 

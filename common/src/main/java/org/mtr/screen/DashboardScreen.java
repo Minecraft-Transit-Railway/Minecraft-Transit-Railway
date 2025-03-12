@@ -137,30 +137,30 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 		dashboardList.width = PANEL_WIDTH;
 
 		toggleButtons();
-		dashboardList.init(this::addSelectableChild);
-		addSelectableChild(widgetMap);
+		dashboardList.init(this::addDrawableChild);
+		addDrawableChild(widgetMap);
 
-		addSelectableChild(buttonTabStations);
-		addSelectableChild(buttonTabRoutes);
-		addSelectableChild(buttonTabDepots);
-		addSelectableChild(buttonAddStation);
-		addSelectableChild(buttonAddRoute);
-		addSelectableChild(buttonAddDepot);
-		addSelectableChild(buttonDoneEditingStation);
-		addSelectableChild(buttonDoneEditingRoute);
-		addSelectableChild(buttonDoneEditingRouteDestination);
-		addSelectableChild(buttonZoomIn);
-		addSelectableChild(buttonZoomOut);
-		addSelectableChild(buttonRailActions);
-		addSelectableChild(buttonOptions);
-		addSelectableChild(buttonTransportSystemMap);
-		addSelectableChild(buttonResourcePackCreator);
-		addSelectableChild(buttonMapTopView);
-		addSelectableChild(buttonMapCurrentY);
+		addDrawableChild(buttonTabStations);
+		addDrawableChild(buttonTabRoutes);
+		addDrawableChild(buttonTabDepots);
+		addDrawableChild(buttonAddStation);
+		addDrawableChild(buttonAddRoute);
+		addDrawableChild(buttonAddDepot);
+		addDrawableChild(buttonDoneEditingStation);
+		addDrawableChild(buttonDoneEditingRoute);
+		addDrawableChild(buttonDoneEditingRouteDestination);
+		addDrawableChild(buttonZoomIn);
+		addDrawableChild(buttonZoomOut);
+		addDrawableChild(buttonRailActions);
+		addDrawableChild(buttonOptions);
+		addDrawableChild(buttonTransportSystemMap);
+		addDrawableChild(buttonResourcePackCreator);
+		addDrawableChild(buttonMapTopView);
+		addDrawableChild(buttonMapCurrentY);
 
-		addSelectableChild(textFieldName);
-		addSelectableChild(textFieldCustomDestination);
-		addSelectableChild(colorSelector);
+		addDrawableChild(textFieldName);
+		addDrawableChild(textFieldCustomDestination);
+		addDrawableChild(colorSelector);
 	}
 
 	@Override

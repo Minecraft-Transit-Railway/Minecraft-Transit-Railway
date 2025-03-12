@@ -21,7 +21,7 @@
 		}
 	],
 	"result": {
-		"item": "mtr:signal_light_3_aspect_1",
+		"id": "mtr:signal_light_3_aspect_1",
 		"count": 2
 	}
 }

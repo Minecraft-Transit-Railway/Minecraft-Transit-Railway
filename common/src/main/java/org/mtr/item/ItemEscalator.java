@@ -34,7 +34,7 @@ public class ItemEscalator extends Item implements IBlock {
 
 		final BlockState frontState = world.getBlockState(pos1.offset(playerFacing));
 		if (frontState.getBlock() instanceof BlockEscalatorBase) {
-			if (IBlock.getStatePropertySafe(frontState, Properties.FACING) == playerFacing.getOpposite()) {
+			if (IBlock.getStatePropertySafe(frontState, Properties.HORIZONTAL_FACING) == playerFacing.getOpposite()) {
 				playerFacing = playerFacing.getOpposite();
 				final BlockPos pos3 = pos1;
 				pos1 = pos2;
@@ -42,11 +42,11 @@ public class ItemEscalator extends Item implements IBlock {
 			}
 		}
 
-		final BlockState stepState = Blocks.ESCALATOR_STEP.createAndGet().getDefaultState().with(Properties.FACING, playerFacing);
+		final BlockState stepState = Blocks.ESCALATOR_STEP.createAndGet().getDefaultState().with(Properties.HORIZONTAL_FACING, playerFacing);
 		world.setBlockState(pos1, stepState.with(SIDE, EnumSide.LEFT));
 		world.setBlockState(pos2, stepState.with(SIDE, EnumSide.RIGHT));
 
-		final BlockState sideState = Blocks.ESCALATOR_SIDE.createAndGet().getDefaultState().with(Properties.FACING, playerFacing);
+		final BlockState sideState = Blocks.ESCALATOR_SIDE.createAndGet().getDefaultState().with(Properties.HORIZONTAL_FACING, playerFacing);
 		world.setBlockState(pos1.up(), sideState.with(SIDE, EnumSide.LEFT));
 		world.setBlockState(pos2.up(), sideState.with(SIDE, EnumSide.RIGHT));
 

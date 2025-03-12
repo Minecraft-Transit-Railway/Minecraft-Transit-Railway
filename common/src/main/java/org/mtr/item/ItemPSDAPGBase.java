@@ -51,7 +51,7 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 			final BlockPos newPos = pos.offset(playerFacing.rotateYClockwise(), x);
 
 			for (int y = 0; y < 2; y++) {
-				final BlockState state = getBlockStateFromItem().with(Properties.FACING, playerFacing).with(HALF, y == 1 ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER);
+				final BlockState state = getBlockStateFromItem().with(Properties.HORIZONTAL_FACING, playerFacing).with(HALF, y == 1 ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER);
 				if (item.isDoor) {
 					BlockState neighborState = state.with(SIDE, x == 0 ? EnumSide.LEFT : EnumSide.RIGHT);
 					if (type.isOdd) {

@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:route_sign_standing_light",
+		"id": "mtr:route_sign_standing_light",
 		"count": 8
 	}
 }

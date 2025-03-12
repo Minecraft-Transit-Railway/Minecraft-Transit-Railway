@@ -17,6 +17,6 @@
 		}
 	},
 	"result": {
-		"item": "mtr:rail_connector_40_one_way"
+		"id": "mtr:rail_connector_40_one_way"
 	}
 }

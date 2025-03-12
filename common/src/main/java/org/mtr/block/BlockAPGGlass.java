@@ -40,8 +40,8 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityPr
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER && y - Math.floor(y) > 0.21875) {
 			return IBlock.checkHoldingBrush(world, player, () -> {
 				world.setBlockState(pos, state.cycle(ARROW_DIRECTION));
-				propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.FACING).rotateYClockwise(), ARROW_DIRECTION, 3);
-				propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.FACING).rotateYCounterclockwise(), ARROW_DIRECTION, 3);
+				propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING).rotateYClockwise(), ARROW_DIRECTION, 3);
+				propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING).rotateYCounterclockwise(), ARROW_DIRECTION, 3);
 			});
 		} else {
 			return super.onUse(state, world, pos, player, hit);
@@ -56,7 +56,7 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityPr
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(HALF);
 		builder.add(SIDE_EXTENDED);
 		builder.add(ARROW_DIRECTION);

@@ -16,7 +16,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:lift_panel_even_1",
+		"id": "mtr:lift_panel_even_1",
 		"count": 4
 	}
 }

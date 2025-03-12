@@ -26,7 +26,7 @@ public abstract class BlockSignalSemaphoreBase extends BlockSignalBase {
 		if (IBlock.getStatePropertySafe(state, IS_22_5).booleanValue || IBlock.getStatePropertySafe(state, IS_45).booleanValue) {
 			return VoxelShapes.union(Block.createCuboidShape(3, 4, 3, 13, 8, 13), poleShape);
 		} else {
-			return VoxelShapes.union(IBlock.getVoxelShapeByDirection(4, 4, 5, 12, 8, 11, IBlock.getStatePropertySafe(state, Properties.FACING)), poleShape);
+			return VoxelShapes.union(IBlock.getVoxelShapeByDirection(4, 4, 5, 12, 8, 11, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING)), poleShape);
 		}
 	}
 

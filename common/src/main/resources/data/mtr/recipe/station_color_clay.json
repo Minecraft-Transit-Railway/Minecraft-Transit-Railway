@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_clay",
+		"id": "mtr:station_color_clay",
 		"count": 8
 	}
 }

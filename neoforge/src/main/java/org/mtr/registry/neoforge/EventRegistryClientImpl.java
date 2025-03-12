@@ -9,7 +9,7 @@ import org.mtr.neoforge.ModEventBusClient;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class EventRegistryClientImpl {
+public final class EventRegistryClientImpl {
 
 	public static void registerStartClientTick(Runnable runnable) {
 		MainEventBusClient.startClientTickRunnable = runnable;

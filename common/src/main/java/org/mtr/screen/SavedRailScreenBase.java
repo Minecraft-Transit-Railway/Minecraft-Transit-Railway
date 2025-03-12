@@ -62,10 +62,10 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 		sliderDwellTimeSec.setHeight(SQUARE_SIZE / 2);
 		sliderDwellTimeSec.setWidth(width - textWidth - SQUARE_SIZE * 2 - sliderTextWidth);
 
-		addSelectableChild(textFieldSavedRailNumber);
+		addDrawableChild(textFieldSavedRailNumber);
 		if (showScheduleControls) {
-			addSelectableChild(sliderDwellTimeMin);
-			addSelectableChild(sliderDwellTimeSec);
+			addDrawableChild(sliderDwellTimeMin);
+			addDrawableChild(sliderDwellTimeSec);
 		}
 	}
 

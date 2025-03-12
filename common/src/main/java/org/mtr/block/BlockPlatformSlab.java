@@ -31,13 +31,13 @@ public class BlockPlatformSlab extends SlabBlock implements PlatformHelper {
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final BlockState slabState = super.getPlacementState(ctx);
-		return (slabState == null ? getDefaultState() : slabState).with(Properties.FACING, ctx.getHorizontalPlayerFacing());
+		return (slabState == null ? getDefaultState() : slabState).with(Properties.HORIZONTAL_FACING, ctx.getHorizontalPlayerFacing());
 	}
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		super.appendProperties(builder);
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(DOOR_TYPE);
 		builder.add(SIDE);
 	}

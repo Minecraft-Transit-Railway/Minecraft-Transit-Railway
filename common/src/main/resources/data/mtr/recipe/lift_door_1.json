@@ -18,7 +18,7 @@
 		}
 	],
 	"result": {
-		"item": "mtr:lift_door_1",
+		"id": "mtr:lift_door_1",
 		"count": 8
 	}
 }

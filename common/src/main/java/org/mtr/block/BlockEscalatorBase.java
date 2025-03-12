@@ -51,7 +51,7 @@ public abstract class BlockEscalatorBase extends Block implements IBlock {
 		final EnumEscalatorOrientation orientation = getOrientation(world, pos, state);
 
 		if (orientation == EnumEscalatorOrientation.SLOPE || orientation == EnumEscalatorOrientation.TRANSITION_TOP) {
-			return VoxelShapes.union(Block.createCuboidShape(0, 0, 0, 16, 8, 16), IBlock.getVoxelShapeByDirection(0, 8, 0, 16, 15, 8, IBlock.getStatePropertySafe(state, Properties.FACING)));
+			return VoxelShapes.union(Block.createCuboidShape(0, 0, 0, 16, 8, 16), IBlock.getVoxelShapeByDirection(0, 8, 0, 16, 15, 8, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING)));
 		} else {
 			return VoxelShapes.fullCube();
 		}
@@ -69,7 +69,7 @@ public abstract class BlockEscalatorBase extends Block implements IBlock {
 	}
 
 	protected final EnumEscalatorOrientation getOrientation(BlockView world, BlockPos pos, BlockState state) {
-		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 
 		final BlockPos posAhead = pos.offset(facing);
 		final BlockPos posBehind = pos.offset(facing, -1);
@@ -96,7 +96,7 @@ public abstract class BlockEscalatorBase extends Block implements IBlock {
 	}
 
 	private Direction getSideDirection(BlockState state) {
-		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 		return IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT ? facing.rotateYCounterclockwise() : facing.rotateYClockwise();
 	}
 

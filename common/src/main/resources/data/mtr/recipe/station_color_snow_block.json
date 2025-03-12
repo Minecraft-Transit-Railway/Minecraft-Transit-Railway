@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_snow_block",
+		"id": "mtr:station_color_snow_block",
 		"count": 8
 	}
 }

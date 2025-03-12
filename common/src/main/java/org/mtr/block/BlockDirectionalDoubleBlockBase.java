@@ -32,7 +32,7 @@ public abstract class BlockDirectionalDoubleBlockBase extends Block implements I
 
 	@Override
 	public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
-		DoubleVerticalBlock.onPlaced(world, pos, state, getAdditionalState(pos, IBlock.getStatePropertySafe(state, Properties.FACING)));
+		DoubleVerticalBlock.onPlaced(world, pos, state, getAdditionalState(pos, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING)));
 	}
 
 	@Override

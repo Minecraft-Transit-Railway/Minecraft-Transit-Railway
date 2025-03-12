@@ -99,13 +99,13 @@ public class BlockLiftButtons extends BlockWaterloggable implements BlockEntityP
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext itemPlacementContext) {
 		final Direction facing = itemPlacementContext.getHorizontalPlayerFacing();
-		return super.getPlacementState(itemPlacementContext).with(Properties.FACING, facing);
+		return super.getPlacementState(itemPlacementContext).with(Properties.HORIZONTAL_FACING, facing);
 	}
 
 	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getVoxelShapeByDirection(4, 0, 0, 12, 16, 1, IBlock.getStatePropertySafe(state, Properties.FACING));
+		return IBlock.getVoxelShapeByDirection(4, 0, 0, 12, 16, 1, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING));
 	}
 
 	@Nonnull
@@ -117,7 +117,7 @@ public class BlockLiftButtons extends BlockWaterloggable implements BlockEntityP
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		super.appendProperties(builder);
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(UNLOCKED);
 	}
 

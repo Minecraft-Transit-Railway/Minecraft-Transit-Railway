@@ -24,7 +24,7 @@
 		}
 	],
 	"result": {
-		"item": "mtr:train_cargo_loader",
+		"id": "mtr:train_cargo_loader",
 		"count": 3
 	}
 }

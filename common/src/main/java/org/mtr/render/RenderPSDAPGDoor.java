@@ -53,7 +53,7 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.BlockEntityBase> ext
 		entity.updateRedstone(MinecraftClient.getInstance().getRenderTickCounter().getLastFrameDuration());
 
 		final BlockPos blockPos = entity.getPos();
-		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, Properties.HORIZONTAL_FACING);
 		final boolean side = IBlock.getStatePropertySafe(world, blockPos, BlockPSDAPGDoorBase.SIDE) == EnumSide.RIGHT;
 		final boolean half = IBlock.getStatePropertySafe(world, blockPos, BlockPSDAPGDoorBase.HALF) == DoubleBlockHalf.UPPER;
 		final boolean end = IBlock.getStatePropertySafe(world, blockPos, BlockPSDAPGDoorBase.END);

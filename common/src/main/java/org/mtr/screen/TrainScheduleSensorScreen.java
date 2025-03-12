@@ -42,7 +42,7 @@ public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 		super.init();
 		textFields[0].setText(String.valueOf(seconds));
 		IDrawing.setPositionAndWidth(realtimeOnlyCheckbox, SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_HEIGHT + TEXT_PADDING + TEXT_FIELD_PADDING, PANEL_WIDTH);
-		addSelectableChild(realtimeOnlyCheckbox);
+		addDrawableChild(realtimeOnlyCheckbox);
 	}
 
 	@Override

@@ -94,7 +94,7 @@ public class DashboardList implements IGui {
 		buttonDelete = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_delete.png"), Identifier.of("textures/gui/sprites/mtr/icon_delete_highlighted.png"), button -> onClick(onDelete), true);
 	}
 
-	public void init(Consumer<ClickableWidget> addSelectableChild) {
+	public void init(Consumer<ClickableWidget> addDrawableChild) {
 		IDrawing.setPositionAndWidth(buttonPrevPage, x, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(buttonNextPage, x + SQUARE_SIZE * 3, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(textFieldSearch, x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2, y + TEXT_FIELD_PADDING / 2, width - SQUARE_SIZE * 4 - TEXT_FIELD_PADDING);
@@ -110,18 +110,18 @@ public class DashboardList implements IGui {
 		buttonAdd.visible = false;
 		buttonDelete.visible = false;
 
-		addSelectableChild.accept(buttonPrevPage);
-		addSelectableChild.accept(buttonNextPage);
+		addDrawableChild.accept(buttonPrevPage);
+		addDrawableChild.accept(buttonNextPage);
 
-		addSelectableChild.accept(buttonFind);
-		addSelectableChild.accept(buttonDrawArea);
-		addSelectableChild.accept(buttonEdit);
-		addSelectableChild.accept(buttonUp);
-		addSelectableChild.accept(buttonDown);
-		addSelectableChild.accept(buttonAdd);
-		addSelectableChild.accept(buttonDelete);
+		addDrawableChild.accept(buttonFind);
+		addDrawableChild.accept(buttonDrawArea);
+		addDrawableChild.accept(buttonEdit);
+		addDrawableChild.accept(buttonUp);
+		addDrawableChild.accept(buttonDown);
+		addDrawableChild.accept(buttonAdd);
+		addDrawableChild.accept(buttonDelete);
 
-		addSelectableChild.accept(textFieldSearch);
+		addDrawableChild.accept(textFieldSearch);
 	}
 
 	public void tick() {

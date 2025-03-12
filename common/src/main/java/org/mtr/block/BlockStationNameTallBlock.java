@@ -26,12 +26,12 @@ public class BlockStationNameTallBlock extends BlockStationNameTallBase {
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final IntIntImmutablePair bounds = getBounds(state);
-		return VoxelShapes.union(IBlock.getVoxelShapeByDirection(2, bounds.leftInt(), 5, 14, bounds.rightInt(), 11, IBlock.getStatePropertySafe(state, Properties.FACING)), BlockStationColorPole.getStationPoleShape());
+		return VoxelShapes.union(IBlock.getVoxelShapeByDirection(2, bounds.leftInt(), 5, 14, bounds.rightInt(), 11, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING)), BlockStationColorPole.getStationPoleShape());
 	}
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		return IBlock.isReplaceable(ctx, Direction.UP, 3) ? getDefaultState().with(Properties.FACING, ctx.getHorizontalPlayerFacing()).with(METAL, true).with(THIRD, EnumThird.LOWER) : null;
+		return IBlock.isReplaceable(ctx, Direction.UP, 3) ? getDefaultState().with(Properties.HORIZONTAL_FACING, ctx.getHorizontalPlayerFacing()).with(METAL, true).with(THIRD, EnumThird.LOWER) : null;
 	}
 
 	@Nonnull

@@ -5,11 +5,11 @@
 	],
 	"key": {
 		"B": {
-			"item": "mtr:station_color_bone_block"
+			"id": "mtr:station_color_bone_block"
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_bone_block_slab",
+		"id": "mtr:station_color_bone_block_slab",
 		"count": 6
 	}
 }

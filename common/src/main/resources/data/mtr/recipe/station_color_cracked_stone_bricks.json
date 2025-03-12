@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_cracked_stone_bricks",
+		"id": "mtr:station_color_cracked_stone_bricks",
 		"count": 8
 	}
 }

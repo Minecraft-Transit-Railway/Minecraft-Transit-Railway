@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_smooth_stone",
+		"id": "mtr:station_color_smooth_stone",
 		"count": 8
 	}
 }

@@ -23,7 +23,7 @@ public abstract class BlockStationNameWallBase extends BlockStationNameBase impl
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final Direction side = ctx.getSide();
 		if (side != Direction.UP && side != Direction.DOWN) {
-			return getDefaultState().with(Properties.FACING, side.getOpposite());
+			return getDefaultState().with(Properties.HORIZONTAL_FACING, side.getOpposite());
 		} else {
 			return null;
 		}
@@ -32,7 +32,7 @@ public abstract class BlockStationNameWallBase extends BlockStationNameBase impl
 	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, Properties.FACING));
+		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING));
 	}
 
 	@Nonnull
@@ -43,7 +43,7 @@ public abstract class BlockStationNameWallBase extends BlockStationNameBase impl
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 	}
 
 	public abstract static class BlockEntityWallBase extends BlockEntityBase {

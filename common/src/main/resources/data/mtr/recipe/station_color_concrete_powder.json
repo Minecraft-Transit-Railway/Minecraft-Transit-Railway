@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_concrete_powder",
+		"id": "mtr:station_color_concrete_powder",
 		"count": 8
 	}
 }

@@ -32,7 +32,7 @@ public class BlockEyeCandy extends BlockWaterloggable implements BlockEntityProv
 	@Nonnull
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext itemPlacementContext) {
-		return super.getPlacementState(itemPlacementContext).with(Properties.FACING, itemPlacementContext.getHorizontalPlayerFacing());
+		return super.getPlacementState(itemPlacementContext).with(Properties.HORIZONTAL_FACING, itemPlacementContext.getHorizontalPlayerFacing());
 	}
 
 	@Nonnull
@@ -51,7 +51,7 @@ public class BlockEyeCandy extends BlockWaterloggable implements BlockEntityProv
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		super.appendProperties(builder);
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 	}
 
 	@Nonnull

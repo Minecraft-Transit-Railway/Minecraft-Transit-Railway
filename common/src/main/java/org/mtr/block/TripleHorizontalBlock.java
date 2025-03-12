@@ -39,9 +39,9 @@ public interface TripleHorizontalBlock extends IBlock {
 
 	static void onPlaced(World world, BlockPos blockPos, BlockState blockState, BlockState defaultPlacementState) {
 		if (!world.isClient()) {
-			final Direction direction = IBlock.getStatePropertySafe(blockState, Properties.FACING);
+			final Direction direction = IBlock.getStatePropertySafe(blockState, Properties.HORIZONTAL_FACING);
 			final Direction rotatedDirection = direction.rotateYClockwise();
-			final BlockState newBlockState = defaultPlacementState.with(Properties.FACING, direction).with(SIDE, EnumSide.RIGHT);
+			final BlockState newBlockState = defaultPlacementState.with(Properties.HORIZONTAL_FACING, direction).with(SIDE, EnumSide.RIGHT);
 
 			world.setBlockState(blockPos.offset(rotatedDirection), newBlockState.with(CENTER, true), 3);
 			world.updateNeighbors(blockPos, Blocks.AIR);
@@ -56,7 +56,7 @@ public interface TripleHorizontalBlock extends IBlock {
 	@Nullable
 	static BlockState getPlacementState(ItemPlacementContext itemPlacementContext, BlockState defaultPlacementState) {
 		final Direction direction = itemPlacementContext.getHorizontalPlayerFacing();
-		return IBlock.isReplaceable(itemPlacementContext, direction.rotateYClockwise(), 3) ? defaultPlacementState.with(Properties.FACING, direction).with(SIDE, EnumSide.LEFT).with(CENTER, false) : null;
+		return IBlock.isReplaceable(itemPlacementContext, direction.rotateYClockwise(), 3) ? defaultPlacementState.with(Properties.HORIZONTAL_FACING, direction).with(SIDE, EnumSide.LEFT).with(CENTER, false) : null;
 	}
 
 	static void onBreak(World world, BlockPos blockPos, BlockState blockState, PlayerEntity playerEntity) {

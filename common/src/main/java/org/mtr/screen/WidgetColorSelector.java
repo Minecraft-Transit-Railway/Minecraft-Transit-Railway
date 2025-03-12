@@ -115,11 +115,11 @@ public class WidgetColorSelector extends ButtonWidget implements IGui {
 			textFieldGreen.setChangedListener(text -> textCallback(text, 8));
 			textFieldBlue.setChangedListener(text -> textCallback(text, 0));
 
-			addSelectableChild(textFieldColor);
-			addSelectableChild(textFieldRed);
-			addSelectableChild(textFieldGreen);
-			addSelectableChild(textFieldBlue);
-			addSelectableChild(buttonReset);
+			addDrawableChild(textFieldColor);
+			addDrawableChild(textFieldRed);
+			addDrawableChild(textFieldGreen);
+			addDrawableChild(textFieldBlue);
+			addDrawableChild(buttonReset);
 		}
 
 		@Override

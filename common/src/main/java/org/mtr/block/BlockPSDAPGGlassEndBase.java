@@ -32,7 +32,7 @@ public abstract class BlockPSDAPGGlassEndBase extends BlockPSDAPGGlassBase {
 		if (superState.getBlock().equals(Blocks.AIR)) {
 			return superState;
 		} else {
-			final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+			final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 			final EnumPSDAPGGlassEndSide touchingLeft = getSideEnd(world, pos, facing.rotateYCounterclockwise());
 			final EnumPSDAPGGlassEndSide touchingRight = getSideEnd(world, pos, facing.rotateYClockwise());
 			return superState.with(TOUCHING_LEFT, touchingLeft).with(TOUCHING_RIGHT, touchingRight);
@@ -51,7 +51,7 @@ public abstract class BlockPSDAPGGlassEndBase extends BlockPSDAPGGlassBase {
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(HALF);
 		builder.add(SIDE_EXTENDED);
 		builder.add(TOUCHING_LEFT);
@@ -70,7 +70,7 @@ public abstract class BlockPSDAPGGlassEndBase extends BlockPSDAPGGlassBase {
 	}
 
 	public static VoxelShape getEndOutlineShape(VoxelShape baseShape, BlockState state, int height, int thickness, boolean leftAir, boolean rightAir) {
-		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 
 		if (facing == Direction.NORTH && leftAir || facing == Direction.SOUTH && rightAir) {
 			baseShape = VoxelShapes.union(baseShape, Block.createCuboidShape(0, 0, 0, thickness, height, 16));

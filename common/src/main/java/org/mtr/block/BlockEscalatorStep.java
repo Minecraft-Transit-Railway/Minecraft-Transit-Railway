@@ -62,7 +62,7 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 	@Override
 	protected void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
 		super.onEntityCollision(state, world, pos, entity);
-		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 		final boolean direction = IBlock.getStatePropertySafe(state, DIRECTION);
 		final float speed = 0.1F;
 
@@ -92,7 +92,7 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			final boolean direction = IBlock.getStatePropertySafe(state, DIRECTION);
 			final boolean running = IBlock.getStatePropertySafe(state, STATUS);
-			final Direction blockFacing = IBlock.getStatePropertySafe(state, Properties.FACING);
+			final Direction blockFacing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 			final boolean newDirection;
 			final boolean newRunning;
 
@@ -124,7 +124,7 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(DIRECTION);
 		builder.add(ORIENTATION);
 		builder.add(SIDE);

@@ -17,6 +17,6 @@
 		}
 	},
 	"result": {
-		"item": "mtr:clock"
+		"id": "mtr:clock"
 	}
 }

@@ -31,7 +31,7 @@ public abstract class BlockArrivalProjectorBase extends BlockPIDSBase {
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final Direction side = ctx.getSide();
 		if (side != Direction.UP && side != Direction.DOWN) {
-			return getDefaultState().with(Properties.FACING, side.getOpposite());
+			return getDefaultState().with(Properties.HORIZONTAL_FACING, side.getOpposite());
 		} else {
 			return null;
 		}
@@ -40,13 +40,13 @@ public abstract class BlockArrivalProjectorBase extends BlockPIDSBase {
 	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, facing);
 	}
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 	}
 
 	public static abstract class BlockEntityArrivalProjectorBase extends BlockEntityBase {

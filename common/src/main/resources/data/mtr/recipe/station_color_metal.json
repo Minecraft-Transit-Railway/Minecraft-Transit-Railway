@@ -7,14 +7,14 @@
 	],
 	"key": {
 		"B": {
-			"item": "mtr:metal"
+			"id": "mtr:metal"
 		},
 		"D": {
 			"tag": "c:dyes"
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_metal",
+		"id": "mtr:station_color_metal",
 		"count": 8
 	}
 }

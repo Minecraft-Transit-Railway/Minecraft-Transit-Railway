@@ -104,16 +104,16 @@ public class RailModifierScreen extends MTRScreenBase implements IGui {
 		IDrawing.setPositionAndWidth(buttonPlus2, xStart + buttonsWidth - SQUARE_SIZE * 2, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2);
 		IDrawing.setPositionAndWidth(textFieldRadius, 0, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, buttonsWidth - SQUARE_SIZE * 12 - TEXT_FIELD_PADDING);
 
-		addSelectableChild(buttonShape);
-		addSelectableChild(buttonStyle);
-		addSelectableChild(buttonStyleFlip);
-		addSelectableChild(buttonMinus2);
-		addSelectableChild(buttonMinus1);
-		addSelectableChild(buttonMinus0);
-		addSelectableChild(buttonPlus0);
-		addSelectableChild(buttonPlus1);
-		addSelectableChild(buttonPlus2);
-		addSelectableChild(textFieldRadius);
+		addDrawableChild(buttonShape);
+		addDrawableChild(buttonStyle);
+		addDrawableChild(buttonStyleFlip);
+		addDrawableChild(buttonMinus2);
+		addDrawableChild(buttonMinus1);
+		addDrawableChild(buttonMinus0);
+		addDrawableChild(buttonPlus0);
+		addDrawableChild(buttonPlus1);
+		addDrawableChild(buttonPlus2);
+		addDrawableChild(textFieldRadius);
 
 		textFieldRadius.setText(String.valueOf(radius));
 		textFieldRadius.setChangedListener(text -> {

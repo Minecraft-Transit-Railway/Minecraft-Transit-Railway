@@ -51,7 +51,7 @@ public class LiftSelectionScreen extends MTRScreenBase implements IGui {
 		selectionList.y = SQUARE_SIZE;
 		selectionList.width = PANEL_WIDTH * 2;
 		selectionList.height = height - SQUARE_SIZE * 2;
-		selectionList.init(this::addSelectableChild);
+		selectionList.init(this::addDrawableChild);
 	}
 
 	@Override

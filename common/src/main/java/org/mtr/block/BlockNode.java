@@ -10,7 +10,6 @@ import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
@@ -100,7 +99,7 @@ public class BlockNode extends BlockWaterloggable implements Waterloggable {
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		super.appendProperties(builder);
-		builder.add(Properties.FACING);
+		builder.add(FACING);
 		builder.add(IS_22_5);
 		builder.add(IS_45);
 		builder.add(IS_CONNECTED);
@@ -122,7 +121,7 @@ public class BlockNode extends BlockWaterloggable implements Waterloggable {
 	}
 
 	public static float getAngle(BlockState state) {
-		return (IBlock.getStatePropertySafe(state, BlockNode.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(state, BlockNode.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockNode.IS_45) ? 45 : 0);
+		return (IBlock.getStatePropertySafe(state, FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(state, BlockNode.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockNode.IS_45) ? 45 : 0);
 	}
 
 	public static class BlockContinuousMovementNode extends BlockNode {

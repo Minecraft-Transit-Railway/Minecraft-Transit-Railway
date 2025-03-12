@@ -26,7 +26,7 @@ public class RailActionsScreen extends MTRScreenBase implements IGui {
 		railActionsList.y = SQUARE_SIZE * 2;
 		railActionsList.width = width - SQUARE_SIZE * 2;
 		railActionsList.height = height - SQUARE_SIZE * 2;
-		railActionsList.init(this::addSelectableChild);
+		railActionsList.init(this::addDrawableChild);
 	}
 
 	@Override

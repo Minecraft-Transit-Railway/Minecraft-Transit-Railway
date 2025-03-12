@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_gravel",
+		"id": "mtr:station_color_gravel",
 		"count": 8
 	}
 }

@@ -2,7 +2,7 @@
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
 		{
-			"item": "mtr:signal_pole"
+			"id": "mtr:signal_pole"
 		},
 		{
 			"tag": "c:wood_sticks"
@@ -27,7 +27,7 @@
 		}
 	],
 	"result": {
-		"item": "mtr:signal_semaphore_2",
+		"id": "mtr:signal_semaphore_2",
 		"count": 2
 	}
 }

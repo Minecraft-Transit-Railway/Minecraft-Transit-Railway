@@ -12,6 +12,6 @@
 		}
 	],
 	"result": {
-		"item": "mtr:signal_connector_light_blue"
+		"id": "mtr:signal_connector_light_blue"
 	}
 }

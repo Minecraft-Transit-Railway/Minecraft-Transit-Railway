@@ -20,7 +20,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:ticket_machine",
+		"id": "mtr:ticket_machine",
 		"count": 4
 	}
 }

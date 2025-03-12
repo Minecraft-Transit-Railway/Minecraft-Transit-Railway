@@ -5,11 +5,11 @@
 	],
 	"key": {
 		"B": {
-			"item": "mtr:station_color_concrete_powder"
+			"id": "mtr:station_color_concrete_powder"
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_concrete_powder_slab",
+		"id": "mtr:station_color_concrete_powder_slab",
 		"count": 6
 	}
 }

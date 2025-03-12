@@ -8,7 +8,6 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import org.mtr.MTR;
 import org.mtr.client.IDrawing;
 import org.mtr.config.Config;
 import org.mtr.core.tool.Utilities;
@@ -35,13 +34,12 @@ public class BetaWarningScreen extends MTRScreenBase implements IGui, Utilities 
 		super.init();
 		IDrawing.setPositionAndWidth(buttonPatreon, width / 2 - SQUARE_SIZE / 2 - BUTTON_WIDTH, height - SQUARE_SIZE * 2, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonYouTube, width / 2 + SQUARE_SIZE / 2, height - SQUARE_SIZE * 2, BUTTON_WIDTH);
-		addSelectableChild(buttonPatreon);
-		addSelectableChild(buttonYouTube);
+		addDrawableChild(buttonPatreon);
+		addDrawableChild(buttonYouTube);
 	}
 
 	@Override
 	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-		renderBackground(context, mouseX, mouseY, delta);
 		super.render(context, mouseX, mouseY, delta);
 
 		context.getMatrices().push();
@@ -63,9 +61,9 @@ public class BetaWarningScreen extends MTRScreenBase implements IGui, Utilities 
 		context.drawCenteredTextWithShadow(textRenderer, openTime < FORCE_OPEN_DURATION ? String.format("Please read the above carefully to continue! (%s)", (FORCE_OPEN_DURATION - openTime) / MILLIS_PER_SECOND) : "Press ESC to continue", 0, 0, ARGB_WHITE);
 		context.getMatrices().pop();
 
-		context.drawGuiTexture(RenderLayer::getGuiTextured, Identifier.of(MTR.MOD_ID, "textures/gui/patreon.png"), width / 2 - BUTTON_WIDTH / 2 - SQUARE_SIZE, height - SQUARE_SIZE * 3 - TEXT_PADDING, SQUARE_SIZE, SQUARE_SIZE);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, Identifier.of("mtr/patreon"), width / 2 - BUTTON_WIDTH / 2 - SQUARE_SIZE, height - SQUARE_SIZE * 3 - TEXT_PADDING, SQUARE_SIZE, SQUARE_SIZE);
 		final int youTubeIconPadding = Math.round(SQUARE_SIZE * (90F / 64 - 1) / 2);
-		context.drawGuiTexture(RenderLayer::getGuiTextured, Identifier.of(MTR.MOD_ID, "textures/gui/youtube.png"), width / 2 + BUTTON_WIDTH / 2 - youTubeIconPadding, height - SQUARE_SIZE * 3 - TEXT_PADDING, SQUARE_SIZE, SQUARE_SIZE);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, Identifier.of("mtr/youtube"), width / 2 + BUTTON_WIDTH / 2 - youTubeIconPadding, height - SQUARE_SIZE * 3 - TEXT_PADDING, SQUARE_SIZE, SQUARE_SIZE);
 	}
 
 	@Override

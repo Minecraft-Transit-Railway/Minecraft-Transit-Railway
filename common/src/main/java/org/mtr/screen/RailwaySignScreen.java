@@ -146,7 +146,7 @@ public class RailwaySignScreen extends MTRScreenBase implements IGui {
 
 		for (int i = 0; i < buttonsEdit.length; i++) {
 			IDrawing.setPositionAndWidth(buttonsEdit[i], (width - SIGN_SIZE * length) / 2 + i * SIGN_SIZE, SIGN_SIZE, SIGN_SIZE);
-			addSelectableChild(buttonsEdit[i]);
+			addDrawableChild(buttonsEdit[i]);
 		}
 
 		columns = Math.max((width - SIGN_BUTTON_SIZE * 3) / (SIGN_BUTTON_SIZE * 8) * 2, 1);
@@ -158,7 +158,7 @@ public class RailwaySignScreen extends MTRScreenBase implements IGui {
 		totalPages = loopSigns((index, x, y, isBig) -> {
 			IDrawing.setPositionAndWidth(buttonsSelection[index], (isBig ? xOffsetBig : xOffsetSmall) + x, BUTTON_Y_START + y, isBig ? SIGN_BUTTON_SIZE * 3 : SIGN_BUTTON_SIZE);
 			buttonsSelection[index].visible = false;
-			addSelectableChild(buttonsSelection[index]);
+			addDrawableChild(buttonsSelection[index]);
 		}, true);
 
 		final int buttonClearX = (width - PANEL_WIDTH - SQUARE_SIZE * 4) / 2;
@@ -166,14 +166,14 @@ public class RailwaySignScreen extends MTRScreenBase implements IGui {
 
 		IDrawing.setPositionAndWidth(buttonClear, buttonClearX, buttonY, PANEL_WIDTH);
 		buttonClear.visible = false;
-		addSelectableChild(buttonClear);
+		addDrawableChild(buttonClear);
 
 		IDrawing.setPositionAndWidth(buttonPrevPage, buttonClearX + PANEL_WIDTH, buttonY, SQUARE_SIZE);
 		buttonPrevPage.visible = false;
-		addSelectableChild(buttonPrevPage);
+		addDrawableChild(buttonPrevPage);
 		IDrawing.setPositionAndWidth(buttonNextPage, buttonClearX + PANEL_WIDTH + SQUARE_SIZE * 3, buttonY, SQUARE_SIZE);
 		buttonNextPage.visible = false;
-		addSelectableChild(buttonNextPage);
+		addDrawableChild(buttonNextPage);
 
 		if (!isRailwaySign) {
 			MinecraftClient.getInstance().setScreen(new DashboardListSelectorScreen(this::close, platformsForList, selectedIds, true, false, null));

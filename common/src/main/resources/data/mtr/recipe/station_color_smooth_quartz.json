@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_smooth_quartz",
+		"id": "mtr:station_color_smooth_quartz",
 		"count": 8
 	}
 }

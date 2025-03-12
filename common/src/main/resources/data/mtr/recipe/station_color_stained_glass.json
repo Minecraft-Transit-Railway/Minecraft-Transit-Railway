@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_stained_glass",
+		"id": "mtr:station_color_stained_glass",
 		"count": 8
 	}
 }

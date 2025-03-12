@@ -83,7 +83,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 		IDrawing.setPositionAndWidth(buttonSelectTrain, SQUARE_SIZE + textWidth, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING, width - textWidth - SQUARE_SIZE * 2);
 		IDrawing.setPositionAndWidth(buttonUnlimitedTrains, SQUARE_SIZE + textWidth + MAX_TRAINS_WIDTH + TEXT_FIELD_PADDING * 3 / 2, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING * 3 / 2, width - textWidth - SQUARE_SIZE * 2);
 
-		addSelectableChild(buttonSelectTrain);
+		addDrawableChild(buttonSelectTrain);
 
 		IDrawing.setPositionAndWidth(textFieldMaxTrains, SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING * 3 / 2, MAX_TRAINS_WIDTH - TEXT_FIELD_PADDING);
 		textFieldMaxTrains.setText(savedRailBase.getIsUnlimited() ? "" : String.valueOf(savedRailBase.getMaxVehicles()));
@@ -126,14 +126,14 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 		sliderDwellTimeSec.setY(SQUARE_SIZE * 21 / 2 + TEXT_FIELD_PADDING * 2);
 
 		if (showScheduleControls) {
-			addSelectableChild(buttonUnlimitedTrains);
-			addSelectableChild(textFieldMaxTrains);
-			addSelectableChild(sliderAccelerationConstant);
-			addSelectableChild(sliderDecelerationConstant);
-			addSelectableChild(sliderDelayedVehicleSpeedIncreasePercentage);
-			addSelectableChild(sliderDelayedVehicleReduceDwellTimePercentage);
-			addSelectableChild(buttonIsManual);
-			addSelectableChild(sliderMaxManualSpeed);
+			addDrawableChild(buttonUnlimitedTrains);
+			addDrawableChild(textFieldMaxTrains);
+			addDrawableChild(sliderAccelerationConstant);
+			addDrawableChild(sliderDecelerationConstant);
+			addDrawableChild(sliderDelayedVehicleSpeedIncreasePercentage);
+			addDrawableChild(sliderDelayedVehicleReduceDwellTimePercentage);
+			addDrawableChild(buttonIsManual);
+			addDrawableChild(sliderMaxManualSpeed);
 		}
 
 		setButtons();

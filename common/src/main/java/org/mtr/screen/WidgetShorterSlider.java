@@ -22,7 +22,7 @@ public class WidgetShorterSlider extends SliderWidget implements IGui {
 	private final IntFunction<String> setMessage;
 	private final IntConsumer shiftClickAction;
 
-	private static final int SLIDER_WIDTH = 6;
+	private static final int SLIDER_WIDTH = 8;
 	private static final int TICK_HEIGHT = SQUARE_SIZE / 2;
 
 	private static final Identifier TEXTURE = Identifier.ofVanilla("widget/slider");
@@ -73,16 +73,16 @@ public class WidgetShorterSlider extends SliderWidget implements IGui {
 	public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
 		final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
-		context.drawGuiTexture(RenderLayer::getGuiTextured, getTexture(), getX(), getY(), 0, 0, width / 2, height / 2, 200, 20);
-		context.drawGuiTexture(RenderLayer::getGuiTextured, getTexture(), getX(), getY() + height / 2, 0, 20 - height / 2, width / 2, height / 2, 200, 20);
-		context.drawGuiTexture(RenderLayer::getGuiTextured, getTexture(), getX() + width / 2, getY(), 200 - width / 2, 0, width / 2, height / 2, 200, 20);
-		context.drawGuiTexture(RenderLayer::getGuiTextured, getTexture(), getX() + width / 2, getY() + height / 2, 200 - width / 2, 20 - height / 2, width / 2, height / 2, 200, 20);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, getTexture(), 200, 20, 0, 0, getX(), getY(), width / 2, height / 2);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, getTexture(), 200, 20, 0, 20 - height / 2, getX(), getY() + height / 2, width / 2, height / 2);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, getTexture(), 200, 20, 200 - width / 2, 0, getX() + width / 2, getY(), width / 2, height / 2);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, getTexture(), 200, 20, 200 - width / 2, 20 - height / 2, getX() + width / 2, getY() + height / 2, width / 2, height / 2);
 
 		final int xOffset = (width - SLIDER_WIDTH) * getIntValue() / maxValue;
-		context.drawGuiTexture(RenderLayer::getGuiTextured, getHandleTexture(), getX() + xOffset, getY(), 0, 0, SLIDER_WIDTH / 2, height / 2, 8, 20);
-		context.drawGuiTexture(RenderLayer::getGuiTextured, getHandleTexture(), getX() + xOffset, getY() + height / 2, 0, 20 - height / 2, SLIDER_WIDTH / 2, height / 2, 8, 20);
-		context.drawGuiTexture(RenderLayer::getGuiTextured, getHandleTexture(), getX() + xOffset + SLIDER_WIDTH / 2, getY(), 200 - SLIDER_WIDTH / 2, 0, SLIDER_WIDTH / 2, height / 2, 8, 20);
-		context.drawGuiTexture(RenderLayer::getGuiTextured, getHandleTexture(), getX() + xOffset + SLIDER_WIDTH / 2, getY() + height / 2, 200 - SLIDER_WIDTH / 2, 20 - height / 2, SLIDER_WIDTH / 2, height / 2, 8, 20);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, getHandleTexture(), 8, 20, 0, 0, getX() + xOffset, getY(), SLIDER_WIDTH / 2, height / 2);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, getHandleTexture(), 8, 20, 0, 20 - height / 2, getX() + xOffset, getY() + height / 2, SLIDER_WIDTH / 2, height / 2);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, getHandleTexture(), 8, 20, 8 - SLIDER_WIDTH / 2, 0, getX() + xOffset + SLIDER_WIDTH / 2, getY(), SLIDER_WIDTH / 2, height / 2);
+		context.drawGuiTexture(RenderLayer::getGuiTextured, getHandleTexture(), 8, 20, 8 - SLIDER_WIDTH / 2, 20 - height / 2, getX() + xOffset + SLIDER_WIDTH / 2, getY() + height / 2, SLIDER_WIDTH / 2, height / 2);
 
 		context.drawText(textRenderer, getMessage().getString(), getX() + width + TEXT_PADDING, getY() + (height - TEXT_HEIGHT) / 2, ARGB_WHITE, false);
 

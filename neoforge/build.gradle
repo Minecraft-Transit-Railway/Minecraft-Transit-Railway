@@ -33,7 +33,10 @@ repositories {
 
 dependencies {
 	neoForge "net.neoforged:neoforge:$neoforge_version"
-
+	include "org.mtr:Shadow-Libraries-net:0.0.1"
+	include "org.mtr:Shadow-Libraries-util:0.0.1"
+	include "org.mtr:Transport-Simulation-Core:0.0.1"
+	include "com.logisticscraft:occlusionculling:+"
 	common(project(path: ":common", configuration: "namedElements")) { transitive false }
 	shadowBundle project(path: ":common", configuration: "transformProductionNeoForge")
 }

@@ -27,7 +27,7 @@
 		}
 	],
 	"result": {
-		"item": "mtr:platform",
+		"id": "mtr:platform",
 		"count": 6
 	}
 }

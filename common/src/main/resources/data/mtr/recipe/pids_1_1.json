@@ -17,7 +17,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:pids_1",
+		"id": "mtr:pids_1",
 		"count": 8
 	}
 }

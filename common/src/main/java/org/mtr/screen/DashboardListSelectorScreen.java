@@ -55,10 +55,10 @@ public class DashboardListSelectorScreen extends MTRScreenBase implements IGui {
 		availableList.y = selectedList.y = SQUARE_SIZE * 2 - TEXT_PADDING;
 		availableList.height = selectedList.height = height - SQUARE_SIZE * 5 + TEXT_PADDING;
 		availableList.width = selectedList.width = PANEL_WIDTH;
-		availableList.init(this::addSelectableChild);
-		selectedList.init(this::addSelectableChild);
+		availableList.init(this::addDrawableChild);
+		selectedList.init(this::addDrawableChild);
 		IDrawing.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
-		addSelectableChild(buttonDone);
+		addDrawableChild(buttonDone);
 		updateList();
 	}
 

@@ -5,11 +5,11 @@
 	],
 	"key": {
 		"B": {
-			"item": "mtr:station_color_planks"
+			"id": "mtr:station_color_planks"
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_planks_slab",
+		"id": "mtr:station_color_planks_slab",
 		"count": 6
 	}
 }

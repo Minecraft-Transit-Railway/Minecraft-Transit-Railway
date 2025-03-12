@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_dark_prismarine",
+		"id": "mtr:station_color_dark_prismarine",
 		"count": 8
 	}
 }

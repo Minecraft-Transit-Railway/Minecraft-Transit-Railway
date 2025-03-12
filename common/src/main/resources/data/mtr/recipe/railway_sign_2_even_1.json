@@ -20,7 +20,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:railway_sign_2_even",
+		"id": "mtr:railway_sign_2_even",
 		"count": 32
 	}
 }

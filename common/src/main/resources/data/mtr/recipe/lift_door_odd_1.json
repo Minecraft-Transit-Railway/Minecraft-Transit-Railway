@@ -21,7 +21,7 @@
 		}
 	],
 	"result": {
-		"item": "mtr:lift_door_odd_1",
+		"id": "mtr:lift_door_odd_1",
 		"count": 8
 	}
 }

@@ -5,11 +5,11 @@
 	],
 	"key": {
 		"B": {
-			"item": "mtr:station_color_stained_glass"
+			"id": "mtr:station_color_stained_glass"
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_stained_glass_slab",
+		"id": "mtr:station_color_stained_glass_slab",
 		"count": 6
 	}
 }

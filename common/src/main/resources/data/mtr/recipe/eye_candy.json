@@ -10,7 +10,7 @@
 			"item": "minecraft:ender_eye"
 		},
 		"B": {
-			"item": "mtr:brush"
+			"id": "mtr:brush"
 		}
 	},
 	"result": {

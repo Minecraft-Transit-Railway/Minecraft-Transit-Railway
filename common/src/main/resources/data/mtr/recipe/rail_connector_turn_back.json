@@ -17,6 +17,6 @@
 		}
 	},
 	"result": {
-		"item": "mtr:rail_connector_turn_back"
+		"id": "mtr:rail_connector_turn_back"
 	}
 }

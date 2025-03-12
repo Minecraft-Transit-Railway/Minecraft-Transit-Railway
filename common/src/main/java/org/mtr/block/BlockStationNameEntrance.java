@@ -35,8 +35,8 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IB
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			world.setBlockState(pos, state.cycle(STYLE));
-			propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.FACING).rotateYClockwise(), STYLE, 1);
-			propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.FACING).rotateYCounterclockwise(), STYLE, 1);
+			propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING).rotateYClockwise(), STYLE, 1);
+			propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING).rotateYCounterclockwise(), STYLE, 1);
 		});
 	}
 
@@ -44,7 +44,7 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IB
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final Direction side = ctx.getSide();
 		if (side != Direction.UP && side != Direction.DOWN) {
-			return getDefaultState().with(Properties.FACING, side.getOpposite());
+			return getDefaultState().with(Properties.HORIZONTAL_FACING, side.getOpposite());
 		} else {
 			return null;
 		}
@@ -54,7 +54,7 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IB
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final boolean tall = IBlock.getStatePropertySafe(state, STYLE) % 2 == 1;
-		return IBlock.getVoxelShapeByDirection(0, tall ? 0 : 4, 0, 16, tall ? 16 : 12, 1, IBlock.getStatePropertySafe(state, Properties.FACING));
+		return IBlock.getVoxelShapeByDirection(0, tall ? 0 : 4, 0, 16, tall ? 16 : 12, 1, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING));
 	}
 
 	@Nonnull
@@ -71,7 +71,7 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IB
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(STYLE);
 	}
 

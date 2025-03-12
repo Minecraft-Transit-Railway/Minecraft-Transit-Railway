@@ -46,7 +46,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.RailwaySignBlockEntity
 		if (entity.getSignIds().length != block.length) {
 			return;
 		}
-		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 		final String[] signIds = entity.getSignIds();
 
 		boolean renderBackground = false;

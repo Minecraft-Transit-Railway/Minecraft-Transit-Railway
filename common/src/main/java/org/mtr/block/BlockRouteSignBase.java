@@ -51,7 +51,7 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(HALF);
 		builder.add(ARROW_DIRECTION);
 	}

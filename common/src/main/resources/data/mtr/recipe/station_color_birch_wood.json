@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_birch_wood",
+		"id": "mtr:station_color_birch_wood",
 		"count": 8
 	}
 }

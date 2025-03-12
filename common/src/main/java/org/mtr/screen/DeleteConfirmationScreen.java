@@ -34,8 +34,8 @@ public class DeleteConfirmationScreen extends MTRScreenBase implements IGui {
 		super.init();
 		IDrawing.setPositionAndWidth(buttonYes, width / 2 - BUTTON_WIDTH - BUTTON_HALF_PADDING, height / 2, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonNo, width / 2 + BUTTON_HALF_PADDING, height / 2, BUTTON_WIDTH);
-		addSelectableChild(buttonYes);
-		addSelectableChild(buttonNo);
+		addDrawableChild(buttonYes);
+		addDrawableChild(buttonNo);
 	}
 
 	@Override

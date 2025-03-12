@@ -48,13 +48,13 @@ public class BlockPSDTop extends Block implements IBlock, BlockEntityProvider {
 		return IBlock.checkHoldingItem(world, player, item -> {
 			if (item instanceof ItemBrush) {
 				world.setBlockState(pos, state.cycle(ARROW_DIRECTION));
-				propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.FACING).rotateYClockwise(), ARROW_DIRECTION, 1);
-				propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.FACING).rotateYCounterclockwise(), ARROW_DIRECTION, 1);
+				propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING).rotateYClockwise(), ARROW_DIRECTION, 1);
+				propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING).rotateYCounterclockwise(), ARROW_DIRECTION, 1);
 			} else {
 				final boolean shouldBePersistent = IBlock.getStatePropertySafe(state, PERSISTENT) == EnumPersistent.NONE;
 				setState(world, pos, shouldBePersistent);
-				propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.FACING).rotateYClockwise(), offsetPos -> setState(world, offsetPos, shouldBePersistent), 1);
-				propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.FACING).rotateYCounterclockwise(), offsetPos -> setState(world, offsetPos, shouldBePersistent), 1);
+				propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING).rotateYClockwise(), offsetPos -> setState(world, offsetPos, shouldBePersistent), 1);
+				propagate(world, pos, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING).rotateYCounterclockwise(), offsetPos -> setState(world, offsetPos, shouldBePersistent), 1);
 			}
 		}, null, Items.BRUSH.get(), net.minecraft.item.Items.SHEARS);
 	}
@@ -105,7 +105,7 @@ public class BlockPSDTop extends Block implements IBlock, BlockEntityProvider {
 	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		final VoxelShape baseShape = IBlock.getVoxelShapeByDirection(0, IBlock.getStatePropertySafe(state, PERSISTENT) == EnumPersistent.NONE ? 0 : PERSISTENT_OFFSET, 0, 16, 16, 6, IBlock.getStatePropertySafe(state, Properties.FACING));
+		final VoxelShape baseShape = IBlock.getVoxelShapeByDirection(0, IBlock.getStatePropertySafe(state, PERSISTENT) == EnumPersistent.NONE ? 0 : PERSISTENT_OFFSET, 0, 16, 16, 6, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING));
 		final boolean airLeft = IBlock.getStatePropertySafe(state, AIR_LEFT);
 		final boolean airRight = IBlock.getStatePropertySafe(state, AIR_RIGHT);
 		if (airLeft || airRight) {
@@ -123,7 +123,7 @@ public class BlockPSDTop extends Block implements IBlock, BlockEntityProvider {
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(SIDE_EXTENDED);
 		builder.add(AIR_LEFT);
 		builder.add(AIR_RIGHT);
@@ -154,13 +154,13 @@ public class BlockPSDTop extends Block implements IBlock, BlockEntityProvider {
 				}
 			}
 
-			facing = IBlock.getStatePropertySafe(stateBelow, Properties.FACING);
+			facing = IBlock.getStatePropertySafe(stateBelow, Properties.HORIZONTAL_FACING);
 		}
 
 		final BlockState oldState = world.getBlockState(pos);
 		BlockState neighborState = (oldState.getBlock() instanceof BlockPSDTop ? oldState : org.mtr.registry.Blocks.PSD_TOP.createAndGet().getDefaultState()).with(AIR_LEFT, airLeft).with(AIR_RIGHT, airRight);
 		if (facing != null) {
-			neighborState = neighborState.with(Properties.FACING, facing);
+			neighborState = neighborState.with(Properties.HORIZONTAL_FACING, facing);
 		}
 		if (side != null) {
 			neighborState = neighborState.with(SIDE_EXTENDED, side);

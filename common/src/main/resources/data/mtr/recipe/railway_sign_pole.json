@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:railway_sign_pole",
+		"id": "mtr:railway_sign_pole",
 		"count": 16
 	}
 }

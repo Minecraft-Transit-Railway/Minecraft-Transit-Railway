@@ -64,9 +64,9 @@ public class LiftTrackFloorScreen extends MTRScreenBase implements IGui {
 		textFieldFloorNumber.setText(initialFloorNumber);
 		textFieldFloorDescription.setText(initialFloorDescription);
 
-		addSelectableChild(textFieldFloorNumber);
-		addSelectableChild(textFieldFloorDescription);
-		addSelectableChild(checkboxShouldDing);
+		addDrawableChild(textFieldFloorNumber);
+		addDrawableChild(textFieldFloorDescription);
+		addDrawableChild(checkboxShouldDing);
 	}
 
 	@Override

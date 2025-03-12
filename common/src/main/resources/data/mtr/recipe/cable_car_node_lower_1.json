@@ -17,7 +17,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:cable_car_node_lower",
+		"id": "mtr:cable_car_node_lower",
 		"count": 32
 	}
 }

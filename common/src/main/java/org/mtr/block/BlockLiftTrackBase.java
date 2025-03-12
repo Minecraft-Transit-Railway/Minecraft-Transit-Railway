@@ -22,12 +22,12 @@ public abstract class BlockLiftTrackBase extends Block {
 	@Nonnull
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext context) {
-		return getDefaultState().with(Properties.FACING, getFacing(context));
+		return getDefaultState().with(Properties.HORIZONTAL_FACING, getFacing(context));
 	}
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 	}
 
 	public abstract ObjectArrayList<Direction> getConnectingDirections(BlockState blockState);
@@ -43,7 +43,7 @@ public abstract class BlockLiftTrackBase extends Block {
 		} else {
 			final BlockState state = context.getWorld().getBlockState(context.getBlockPos().offset(oppositeFace));
 			if (state.getBlock() instanceof BlockLiftTrackBase) {
-				return IBlock.getStatePropertySafe(state, Properties.FACING);
+				return IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 			} else {
 				return context.getHorizontalPlayerFacing();
 			}

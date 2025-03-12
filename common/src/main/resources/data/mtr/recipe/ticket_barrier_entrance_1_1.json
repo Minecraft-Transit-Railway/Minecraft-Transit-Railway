@@ -16,7 +16,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:ticket_barrier_entrance_1",
+		"id": "mtr:ticket_barrier_entrance_1",
 		"count": 32
 	}
 }

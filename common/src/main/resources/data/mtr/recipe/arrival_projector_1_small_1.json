@@ -17,7 +17,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:arrival_projector_1_small",
+		"id": "mtr:arrival_projector_1_small",
 		"count": 8
 	}
 }

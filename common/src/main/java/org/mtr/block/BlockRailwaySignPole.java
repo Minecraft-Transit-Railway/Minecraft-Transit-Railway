@@ -28,7 +28,7 @@ public class BlockRailwaySignPole extends BlockPoleCheckBase {
 	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		final Direction facing = IBlock.getStatePropertySafe(state, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 		return switch (IBlock.getStatePropertySafe(state, TYPE)) {
 			case 0 -> IBlock.getVoxelShapeByDirection(14, 0, 7, 15.25, 16, 9, facing);
 			case 1 -> IBlock.getVoxelShapeByDirection(10, 0, 7, 11.25, 16, 9, facing);
@@ -62,7 +62,7 @@ public class BlockRailwaySignPole extends BlockPoleCheckBase {
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(TYPE);
 	}
 }

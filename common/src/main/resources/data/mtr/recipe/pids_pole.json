@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:pids_pole",
+		"id": "mtr:pids_pole",
 		"count": 16
 	}
 }

@@ -36,7 +36,7 @@ public class RenderEyeCandy extends BlockEntityRendererExtension<BlockEyeCandy.E
 		}
 
 		final BlockPos blockPos = entity.getPos();
-		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, Properties.HORIZONTAL_FACING);
 		final String modelId = entity.getModelId();
 		if (modelId != null) {
 			CustomResourceLoader.getObjectById(modelId, objectResource -> {

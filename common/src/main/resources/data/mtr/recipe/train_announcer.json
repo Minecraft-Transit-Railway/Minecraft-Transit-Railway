@@ -24,7 +24,7 @@
 		}
 	],
 	"result": {
-		"item": "mtr:train_announcer",
+		"id": "mtr:train_announcer",
 		"count": 3
 	}
 }

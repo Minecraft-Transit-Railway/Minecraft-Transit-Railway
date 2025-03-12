@@ -58,8 +58,8 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		textFieldName.setText(data.getName());
 		colorSelector.setColor(data.getColor());
 
-		addSelectableChild(textFieldName);
-		addSelectableChild(colorSelector);
+		addDrawableChild(textFieldName);
+		addDrawableChild(colorSelector);
 	}
 
 	protected void renderTextFields(DrawContext context) {

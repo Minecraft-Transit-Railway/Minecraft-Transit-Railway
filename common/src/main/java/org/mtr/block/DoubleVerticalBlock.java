@@ -26,8 +26,8 @@ public interface DoubleVerticalBlock extends IBlock {
 
 	static void onPlaced(World world, BlockPos blockPos, BlockState blockState, BlockState defaultPlacementState) {
 		if (!world.isClient()) {
-			final Direction direction = IBlock.getStatePropertySafe(blockState, Properties.FACING);
-			world.setBlockState(blockPos.up(), defaultPlacementState.with(Properties.FACING, direction).with(HALF, DoubleBlockHalf.UPPER), 3);
+			final Direction direction = IBlock.getStatePropertySafe(blockState, Properties.HORIZONTAL_FACING);
+			world.setBlockState(blockPos.up(), defaultPlacementState.with(Properties.HORIZONTAL_FACING, direction).with(HALF, DoubleBlockHalf.UPPER), 3);
 			world.updateNeighbors(blockPos, Blocks.AIR);
 			blockState.updateNeighbors(world, blockPos, 3);
 		}
@@ -36,7 +36,7 @@ public interface DoubleVerticalBlock extends IBlock {
 	@Nullable
 	static BlockState getPlacementState(ItemPlacementContext itemPlacementContext, BlockState defaultPlacementState) {
 		final Direction direction = itemPlacementContext.getHorizontalPlayerFacing();
-		return IBlock.isReplaceable(itemPlacementContext, Direction.UP, 2) ? defaultPlacementState.with(Properties.FACING, direction).with(HALF, DoubleBlockHalf.LOWER) : null;
+		return IBlock.isReplaceable(itemPlacementContext, Direction.UP, 2) ? defaultPlacementState.with(Properties.HORIZONTAL_FACING, direction).with(HALF, DoubleBlockHalf.LOWER) : null;
 	}
 
 	static void onBreak(World world, BlockPos blockPos, BlockState blockState, PlayerEntity playerEntity) {

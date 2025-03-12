@@ -17,7 +17,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:ticket_processor",
+		"id": "mtr:ticket_processor",
 		"count": 32
 	}
 }

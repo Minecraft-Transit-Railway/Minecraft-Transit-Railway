@@ -5,11 +5,11 @@
 	],
 	"key": {
 		"B": {
-			"item": "mtr:station_color_polished_diorite"
+			"id": "mtr:station_color_polished_diorite"
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_polished_diorite_slab",
+		"id": "mtr:station_color_polished_diorite_slab",
 		"count": 6
 	}
 }

@@ -153,7 +153,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 		if (showScheduleControls) {
 			for (WidgetShorterSlider slider : sliders) {
-				addSelectableChild(slider);
+				addDrawableChild(slider);
 			}
 		}
 		for (int i = 0; i < HOURS_PER_DAY; i++) {
@@ -167,26 +167,26 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		departuresList.y = SQUARE_SIZE;
 		departuresList.height = height - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING;
 		departuresList.width = leftWidth;
-		departuresList.init(this::addSelectableChild);
+		departuresList.init(this::addDrawableChild);
 
 		IDrawing.setPositionAndWidth(textFieldDeparture, TEXT_FIELD_PADDING / 2, height - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, leftWidth - TEXT_FIELD_PADDING - SQUARE_SIZE);
-		addSelectableChild(textFieldDeparture);
+		addDrawableChild(textFieldDeparture);
 		textFieldDeparture.setChangedListener(text -> buttonAddDeparture.active = checkDeparture(text, false, false));
 		IDrawing.setPositionAndWidth(buttonAddDeparture, leftWidth - SQUARE_SIZE, height - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
-		addSelectableChild(buttonAddDeparture);
+		addDrawableChild(buttonAddDeparture);
 		buttonAddDeparture.active = false;
 
-		addSelectableChild(buttonEditInstructions);
-		addSelectableChild(buttonInstantDeploy);
-		addSelectableChild(buttonGenerateRoute);
+		addDrawableChild(buttonEditInstructions);
+		addDrawableChild(buttonInstantDeploy);
+		addDrawableChild(buttonGenerateRoute);
 		if (showScheduleControls) {
-			addSelectableChild(buttonUseRealTime);
-			addSelectableChild(buttonReset);
-			addSelectableChild(buttonClearTrains);
-			addSelectableChild(checkboxRepeatIndefinitely);
+			addDrawableChild(buttonUseRealTime);
+			addDrawableChild(buttonReset);
+			addDrawableChild(buttonClearTrains);
+			addDrawableChild(checkboxRepeatIndefinitely);
 		}
 		if (showCruisingAltitude) {
-			addSelectableChild(textFieldCruisingAltitude);
+			addDrawableChild(textFieldCruisingAltitude);
 		}
 
 		toggleRealTime();

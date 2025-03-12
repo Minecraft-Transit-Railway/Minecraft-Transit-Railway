@@ -2,10 +2,10 @@
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
 		{
-			"item": "mtr:ticket_barrier_entrance_1"
+			"id": "mtr:ticket_barrier_entrance_1"
 		}
 	],
 	"result": {
-		"item": "mtr:ticket_barrier_exit_1"
+		"id": "mtr:ticket_barrier_exit_1"
 	}
 }

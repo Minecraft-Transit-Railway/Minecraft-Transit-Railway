@@ -20,6 +20,6 @@
 		}
 	},
 	"result": {
-		"item": "mtr:dashboard"
+		"id": "mtr:dashboard"
 	}
 }

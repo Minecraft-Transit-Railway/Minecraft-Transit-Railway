@@ -51,7 +51,7 @@ public class RenderStationNameTiled<T extends BlockStationNameBase.BlockEntityBa
 		if (world == null) {
 			return 1;
 		}
-		final Direction facing = IBlock.getStatePropertySafe(world, pos, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(world, pos, Properties.HORIZONTAL_FACING);
 		final Block thisBlock = world.getBlockState(pos).getBlock();
 
 		int length = 1;

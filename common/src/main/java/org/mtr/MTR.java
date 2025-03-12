@@ -8,6 +8,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -67,6 +68,7 @@ public final class MTR {
 
 	public static final String MOD_ID = "mtr";
 	public static final String MOD_ID_NTE = "mtrsteamloco";
+	public static final CustomPayload.Id<CustomPacket> PACKETS_IDENTIFIER = new CustomPayload.Id<>(Identifier.of(MOD_ID, "packet"));
 	public static final Logger LOGGER = LogManager.getLogger("MinecraftTransitRailway");
 	public static final int SECONDS_PER_MC_HOUR = 50;
 	public static final int AUTOSAVE_INTERVAL = 30000;
@@ -85,6 +87,8 @@ public final class MTR {
 		BlockEntityTypes.init();
 		ItemGroups.init();
 		SoundEvents.init();
+
+		Registry.init();
 
 		// Register packets
 		Registry.setupPackets();
@@ -121,50 +125,54 @@ public final class MTR {
 		Registry.registerPacket(PacketUpdateVehiclesLifts.class, PacketUpdateVehiclesLifts::new);
 		Registry.registerPacket(PacketUpdateVehicleRidingEntities.class, PacketUpdateVehicleRidingEntities::new);
 
-		// Register command
-		Registry.registerCommands(CommandManager.literal("mtr")
-				// Generate depot(s) by name
-				.then(depotOperationFromCommand(CommandManager.literal("generate"), DepotOperation.GENERATE))
-				// Clear depot(s) by name
-				.then(depotOperationFromCommand(CommandManager.literal("clear"), DepotOperation.CLEAR))
-				// Instant deploy depot(s) by name
-				.then(depotOperationFromCommand(CommandManager.literal("instantDeploy"), DepotOperation.INSTANT_DEPLOY))
-				// Force copy a world backup from one folder another
-				.then(CommandManager.literal("restoreWorld").requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4)).then(CommandManager.argument("worldDirectory", StringArgumentType.string()).then(CommandManager.argument("backupDirectory", StringArgumentType.string()).executes(contextHandler -> {
-					final Path runPath = contextHandler.getSource().getServer().getRunDirectory();
-					final Path worldDirectory = runPath.resolve(StringArgumentType.getString(contextHandler, "worldDirectory"));
-					final Path backupDirectory = runPath.resolve(StringArgumentType.getString(contextHandler, "backupDirectory"));
-					final boolean worldDirectoryExists = Files.isDirectory(worldDirectory);
-					final boolean backupDirectoryExists = Files.isDirectory(backupDirectory);
-					if (worldDirectoryExists && backupDirectoryExists) {
-						try {
-							if (main != null) {
-								main.stop();
-							}
-							contextHandler.getSource().sendFeedback(() -> Text.literal(String.format("Restoring world backup from %s to %s...", backupDirectory, worldDirectory)), true);
-							FileUtils.deleteDirectory(worldDirectory.toFile());
-							contextHandler.getSource().sendFeedback(() -> Text.literal("Deleting world complete"), true);
-							FileUtils.copyDirectory(backupDirectory.toFile(), worldDirectory.toFile());
-							contextHandler.getSource().sendFeedback(() -> Text.literal("Restoring world backup complete"), true);
-							System.exit(0);
-							return 1;
-						} catch (Exception e) {
-							contextHandler.getSource().sendError(Text.literal("Restoring world backup failed"));
-							LOGGER.error("", e);
-							return -1;
-						}
-					} else {
-						if (backupDirectoryExists) {
-							contextHandler.getSource().sendError(Text.literal("World directory not found"));
-						} else if (worldDirectoryExists) {
-							contextHandler.getSource().sendError(Text.literal("Backup directory not found"));
-						} else {
-							contextHandler.getSource().sendError(Text.literal("Directories not found"));
-						}
-						return -1;
-					}
-				}))))
-				.redirect(CommandManager.literal("minecraftTransitRailway").build()));
+		// Register commands
+		Registry.registerCommands(dispatcher ->
+				{
+					final LiteralCommandNode<ServerCommandSource> command = dispatcher.register(CommandManager.literal("mtr")
+							// Generate depot(s) by name
+							.then(depotOperationFromCommand(CommandManager.literal("generate"), DepotOperation.GENERATE))
+							// Clear depot(s) by name
+							.then(depotOperationFromCommand(CommandManager.literal("clear"), DepotOperation.CLEAR))
+							// Instant deploy depot(s) by name
+							.then(depotOperationFromCommand(CommandManager.literal("instantDeploy"), DepotOperation.INSTANT_DEPLOY))
+							// Force copy a world backup from one folder another
+							.then(CommandManager.literal("restoreWorld").requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4)).then(CommandManager.argument("worldDirectory", StringArgumentType.string()).then(CommandManager.argument("backupDirectory", StringArgumentType.string()).executes(contextHandler -> {
+								final Path runPath = contextHandler.getSource().getServer().getRunDirectory();
+								final Path worldDirectory = runPath.resolve(StringArgumentType.getString(contextHandler, "worldDirectory"));
+								final Path backupDirectory = runPath.resolve(StringArgumentType.getString(contextHandler, "backupDirectory"));
+								final boolean worldDirectoryExists = Files.isDirectory(worldDirectory);
+								final boolean backupDirectoryExists = Files.isDirectory(backupDirectory);
+								if (worldDirectoryExists && backupDirectoryExists) {
+									try {
+										if (main != null) {
+											main.stop();
+										}
+										contextHandler.getSource().sendFeedback(() -> Text.literal(String.format("Restoring world backup from %s to %s...", backupDirectory, worldDirectory)), true);
+										FileUtils.deleteDirectory(worldDirectory.toFile());
+										contextHandler.getSource().sendFeedback(() -> Text.literal("Deleting world complete"), true);
+										FileUtils.copyDirectory(backupDirectory.toFile(), worldDirectory.toFile());
+										contextHandler.getSource().sendFeedback(() -> Text.literal("Restoring world backup complete"), true);
+										System.exit(0);
+										return 1;
+									} catch (Exception e) {
+										contextHandler.getSource().sendError(Text.literal("Restoring world backup failed"));
+										LOGGER.error("", e);
+										return -1;
+									}
+								} else {
+									if (backupDirectoryExists) {
+										contextHandler.getSource().sendError(Text.literal("World directory not found"));
+									} else if (worldDirectoryExists) {
+										contextHandler.getSource().sendError(Text.literal("Backup directory not found"));
+									} else {
+										contextHandler.getSource().sendError(Text.literal("Directories not found"));
+									}
+									return -1;
+								}
+							})))));
+					dispatcher.register(CommandManager.literal("minecraftTransitRailway").redirect(command));
+				}
+		);
 
 		// Register events
 		EventRegistry.registerServerStarted(minecraftServer -> {

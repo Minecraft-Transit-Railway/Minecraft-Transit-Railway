@@ -1,6 +1,6 @@
 package org.mtr.registry;
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.CommandDispatcher;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
@@ -21,10 +21,16 @@ import org.mtr.packet.PacketHandler;
 
 import javax.annotation.Nullable;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class Registry {
+
+	@ExpectPlatform
+	public static void init() {
+		throw new AssertionError();
+	}
 
 	@ExpectPlatform
 	public static ObjectHolder<Block> registerBlock(String registryName, Function<AbstractBlock.Settings, Block> factory) {
@@ -57,8 +63,7 @@ public final class Registry {
 	}
 
 	@ExpectPlatform
-	@SafeVarargs
-	public static void registerCommands(LiteralArgumentBuilder<ServerCommandSource>... commands) {
+	public static void registerCommands(Consumer<CommandDispatcher<ServerCommandSource>> consumer) {
 		throw new AssertionError();
 	}
 

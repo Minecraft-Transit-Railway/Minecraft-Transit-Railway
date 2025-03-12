@@ -13,6 +13,6 @@
 		}
 	},
 	"result": {
-		"item": "mtr:lift_refresher"
+		"id": "mtr:lift_refresher"
 	}
 }

@@ -15,8 +15,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import org.mtr.MTR;
@@ -34,8 +32,6 @@ import java.util.Arrays;
 import java.util.function.Function;
 
 public final class RegistryClientImpl {
-
-	private static final Identifier PACKETS_IDENTIFIER = Identifier.of(MTR.MOD_ID, "packet");
 
 	public static <T extends BlockEntity, U extends T> void registerBlockEntityRenderer(ObjectHolder<BlockEntityType<U>> blockEntityType, BlockEntityRendererFactory<T> factory) {
 		ModEventBusClient.BLOCK_ENTITY_RENDERERS.add(event -> event.registerBlockEntityRenderer(blockEntityType.createAndGet(), factory));
@@ -59,8 +55,7 @@ public final class RegistryClientImpl {
 	}
 
 	public static void setupPackets() {
-		final CustomPayload.Id<CustomPacket> id = new CustomPayload.Id<>(PACKETS_IDENTIFIER);
-		ModEventBus.PAYLOAD_HANDLERS.add(payloadRegistrar -> payloadRegistrar.playToClient(id, PacketCodec.of(CustomPacket::encode, registryByteBuf -> new CustomPacket(id, registryByteBuf)), new DirectionalPayloadHandler<>((customPacket, context) -> PacketBufferReceiver.receive(customPacket.packetByteBuf(), packetBufferReceiver -> {
+		ModEventBus.PAYLOAD_HANDLERS.add(payloadRegistrar -> payloadRegistrar.playToClient(MTR.PACKETS_IDENTIFIER, PacketCodec.of(CustomPacket::encode, registryByteBuf -> new CustomPacket(MTR.PACKETS_IDENTIFIER, registryByteBuf)), new DirectionalPayloadHandler<>((customPacket, context) -> PacketBufferReceiver.receive(customPacket.packetByteBuf(), packetBufferReceiver -> {
 			final Function<PacketBufferReceiver, ? extends PacketHandler> getInstance = ModEventBus.PACKETS.get(packetBufferReceiver.readString());
 			if (getInstance != null) {
 				getInstance.apply(packetBufferReceiver).runClient();
@@ -70,11 +65,10 @@ public final class RegistryClientImpl {
 	}
 
 	public static <T extends PacketHandler> void sendPacketToServer(T data) {
-		final CustomPayload.Id<CustomPacket> id = new CustomPayload.Id<>(ModEventBus.PACKETS_IDENTIFIER);
 		final PacketBufferSender packetBufferSender = new PacketBufferSender(Unpooled::buffer);
 		packetBufferSender.writeString(data.getClass().getName());
 		data.write(packetBufferSender);
-		packetBufferSender.send(byteBuf -> PacketDistributor.sendToServer(new CustomPacket(id, byteBuf instanceof PacketByteBuf ? (PacketByteBuf) byteBuf : new PacketByteBuf(byteBuf))), MinecraftClient.getInstance()::execute);
+		packetBufferSender.send(byteBuf -> PacketDistributor.sendToServer(new CustomPacket(MTR.PACKETS_IDENTIFIER, byteBuf instanceof PacketByteBuf ? (PacketByteBuf) byteBuf : new PacketByteBuf(byteBuf))), MinecraftClient.getInstance()::execute);
 	}
 
 	public static void registerWorldRenderEvent(MTRClient.WorldRenderCallback worldRenderCallback) {

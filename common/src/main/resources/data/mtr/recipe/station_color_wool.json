@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_wool",
+		"id": "mtr:station_color_wool",
 		"count": 8
 	}
 }

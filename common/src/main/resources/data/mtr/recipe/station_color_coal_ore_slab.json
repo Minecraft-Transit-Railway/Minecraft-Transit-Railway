@@ -5,11 +5,11 @@
 	],
 	"key": {
 		"B": {
-			"item": "mtr:station_color_coal_ore"
+			"id": "mtr:station_color_coal_ore"
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_coal_ore_slab",
+		"id": "mtr:station_color_coal_ore_slab",
 		"count": 6
 	}
 }

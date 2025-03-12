@@ -69,7 +69,7 @@ public class BlockLiftTrackFloor extends BlockLiftTrackBase implements BlockEnti
 	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, Properties.FACING));
+		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING));
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class BlockLiftTrackFloor extends BlockLiftTrackBase implements BlockEnti
 
 	@Override
 	public ObjectArrayList<Direction> getConnectingDirections(BlockState blockState) {
-		final Direction facing = IBlock.getStatePropertySafe(blockState, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(blockState, Properties.HORIZONTAL_FACING);
 		return ObjectArrayList.of(Direction.UP, Direction.DOWN, facing.rotateYClockwise(), facing.rotateYCounterclockwise());
 	}
 

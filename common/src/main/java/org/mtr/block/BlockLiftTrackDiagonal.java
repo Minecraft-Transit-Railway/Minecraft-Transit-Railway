@@ -45,14 +45,14 @@ public class BlockLiftTrackDiagonal extends BlockLiftTrackBase implements IBlock
 		final boolean isUpper = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
 		final boolean isRight = IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT;
 		return VoxelShapes.union(
-				IBlock.getVoxelShapeByDirection(6, isUpper ? 6 : 0, 0, 10, isUpper ? 16 : 10, 1, IBlock.getStatePropertySafe(state, Properties.FACING)),
-				IBlock.getVoxelShapeByDirection(isRight ? 6 : 0, 6, 0, isRight ? 16 : 10, 10, 1, IBlock.getStatePropertySafe(state, Properties.FACING))
+				IBlock.getVoxelShapeByDirection(6, isUpper ? 6 : 0, 0, 10, isUpper ? 16 : 10, 1, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING)),
+				IBlock.getVoxelShapeByDirection(isRight ? 6 : 0, 6, 0, isRight ? 16 : 10, 10, 1, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING))
 		);
 	}
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(HALF);
 		builder.add(SIDE);
 	}
@@ -64,7 +64,7 @@ public class BlockLiftTrackDiagonal extends BlockLiftTrackBase implements IBlock
 
 	@Override
 	public Vector getCenterPoint(BlockPos blockPos, BlockState blockState) {
-		final Direction facing = IBlock.getStatePropertySafe(blockState, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(blockState, Properties.HORIZONTAL_FACING);
 		final Direction newFacing = IBlock.getStatePropertySafe(blockState, SIDE) == EnumSide.RIGHT ? facing.rotateYClockwise() : facing.rotateYCounterclockwise();
 		return new Vector(
 				blockPos.getX() + 0.25 * newFacing.getOffsetX(),
@@ -75,7 +75,7 @@ public class BlockLiftTrackDiagonal extends BlockLiftTrackBase implements IBlock
 
 	@Override
 	public ObjectArrayList<Direction> getConnectingDirections(BlockState blockState) {
-		final Direction facing = IBlock.getStatePropertySafe(blockState, Properties.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(blockState, Properties.HORIZONTAL_FACING);
 		return ObjectArrayList.of(
 				IBlock.getStatePropertySafe(blockState, HALF) == DoubleBlockHalf.UPPER ? Direction.UP : Direction.DOWN,
 				IBlock.getStatePropertySafe(blockState, SIDE) == EnumSide.RIGHT ? facing.rotateYClockwise() : facing.rotateYCounterclockwise()

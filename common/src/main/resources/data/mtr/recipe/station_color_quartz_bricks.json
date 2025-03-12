@@ -14,7 +14,7 @@
 		}
 	},
 	"result": {
-		"item": "mtr:station_color_quartz_bricks",
+		"id": "mtr:station_color_quartz_bricks",
 		"count": 8
 	}
 }

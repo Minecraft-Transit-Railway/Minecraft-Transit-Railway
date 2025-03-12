@@ -66,7 +66,7 @@ public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBl
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(Properties.FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 		builder.add(HALF);
 	}
 

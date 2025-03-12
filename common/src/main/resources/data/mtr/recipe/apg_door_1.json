@@ -15,7 +15,7 @@
 		}
 	],
 	"result": {
-		"item": "mtr:apg_door",
+		"id": "mtr:apg_door",
 		"count": 8
 	}
 }
