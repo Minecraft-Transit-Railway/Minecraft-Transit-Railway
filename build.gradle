@@ -40,6 +40,8 @@ subprojects {
 		implementation "org.mtr:Shadow-Libraries-util:0.0.1"
 		implementation "org.mtr:Transport-Simulation-Core:0.0.1"
 		implementation "com.logisticscraft:occlusionculling:+"
+		implementation "xyz.jpenilla:squaremap-api:+"
+		implementation "com.test:Dynmap:3.2.1"
 	}
 
 	java {

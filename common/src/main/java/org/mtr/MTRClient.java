@@ -24,6 +24,7 @@ import org.mtr.core.operation.DataRequest;
 import org.mtr.core.servlet.WebServlet;
 import org.mtr.core.servlet.Webserver;
 import org.mtr.data.IGui;
+import org.mtr.font.FontGroups;
 import org.mtr.generated.WebserverResources;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.javax.servlet.MultipartConfigElement;
@@ -336,7 +337,10 @@ public final class MTRClient {
 			}
 		});
 
-		EventRegistryClient.registerResourceReloadEvent(CustomResourceLoader::reload);
+		EventRegistryClient.registerResourceReloadEvent(() -> {
+			FontGroups.reload();
+			CustomResourceLoader.reload();
+		});
 		EventRegistryClient.registerWorldRenderEvent(MainRenderer::render);
 
 		Config.init(MinecraftClient.getInstance().runDirectory.toPath());

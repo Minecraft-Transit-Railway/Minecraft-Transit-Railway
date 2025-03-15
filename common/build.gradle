@@ -14,8 +14,6 @@ dependencies {
 	// which get remapped to the correct annotations on each platform.
 	// Do NOT use other classes from Fabric Loader.
 	modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
-	compileOnly "xyz.jpenilla:squaremap-api:+"
-	compileOnly "com.test:Dynmap:3.2.1"
 	testImplementation "org.junit.jupiter:junit-jupiter-api:+"
 	testImplementation "org.junit.platform:junit-platform-launcher:+"
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:+"

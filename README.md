@@ -70,7 +70,10 @@ The mod jar file should be generated in the following directory:
 
 ## License
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT). All [Noto fonts](http://www.google.com/get/noto/), bundled with this mod, are licensed under the [Open Font License](http://scripts.sil.org/OFL).
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT). All fonts bundled with this mod are licensed under the [Open Font License](https://openfontlicense.org/).
+
+- [Noto](https://fonts.google.com/noto)
+- [正風毛筆字體](https://github.com/max32002/masafont)
 
 ## Questions? Comments? Complaints?
 
