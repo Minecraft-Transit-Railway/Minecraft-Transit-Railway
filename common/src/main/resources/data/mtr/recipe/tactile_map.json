@@ -6,12 +6,8 @@
 		"DDD"
 	],
 	"key": {
-		"B": {
-			"item": "minecraft:jukebox"
-		},
-		"D": {
-			"tag": "c:iron_ingots"
-		}
+		"B": "minecraft:jukebox",
+		"D": "#c:iron_ingots"
 	},
 	"result": {
 		"id": "mtr:tactile_map",

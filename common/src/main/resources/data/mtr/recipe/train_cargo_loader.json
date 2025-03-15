@@ -1,27 +1,13 @@
 {
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
-		{
-			"item": "minecraft:hopper"
-		},
-		{
-			"item": "minecraft:piston"
-		},
-		{
-			"tag": "c:redstone_dusts"
-		},
-		{
-			"item": "minecraft:smooth_stone"
-		},
-		{
-			"item": "minecraft:smooth_stone"
-		},
-		{
-			"item": "minecraft:smooth_stone"
-		},
-		{
-			"tag": "c:nodes"
-		}
+		"minecraft:hopper",
+		"minecraft:piston",
+		"#c:redstone_dusts",
+		"minecraft:smooth_stone",
+		"minecraft:smooth_stone",
+		"minecraft:smooth_stone",
+		"#c:nodes"
 	],
 	"result": {
 		"id": "mtr:train_cargo_loader",

@@ -6,12 +6,8 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"item": "minecraft:chiseled_quartz_block"
-		},
-		"D": {
-			"tag": "c:dyes"
-		}
+		"B": "minecraft:chiseled_quartz_block",
+		"D": "#c:dyes"
 	},
 	"result": {
 		"id": "mtr:station_color_chiseled_quartz_block",

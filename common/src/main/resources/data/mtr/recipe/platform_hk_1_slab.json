@@ -4,9 +4,7 @@
 		"###"
 	],
 	"key": {
-		"#": {
-			"id": "mtr:platform"
-		}
+		"#": "mtr:platform"
 	},
 	"result": {
 		"id": "mtr:platform_slab",

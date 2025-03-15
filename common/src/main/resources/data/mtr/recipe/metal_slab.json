@@ -4,9 +4,7 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"id": "mtr:metal"
-		}
+		"B": "mtr:metal"
 	},
 	"result": {
 		"id": "mtr:metal_slab",

@@ -13,8 +13,8 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import org.mtr.MTR;
@@ -22,7 +22,7 @@ import org.mtr.MTRClient;
 import org.mtr.neoforge.MainEventBusClient;
 import org.mtr.neoforge.ModEventBus;
 import org.mtr.neoforge.ModEventBusClient;
-import org.mtr.packet.CustomPacket;
+import org.mtr.packet.CustomPacketS2C;
 import org.mtr.packet.PacketBufferReceiver;
 import org.mtr.packet.PacketBufferSender;
 import org.mtr.packet.PacketHandler;
@@ -55,12 +55,12 @@ public final class RegistryClientImpl {
 	}
 
 	public static void setupPackets() {
-		ModEventBus.PAYLOAD_HANDLERS.add(payloadRegistrar -> payloadRegistrar.playToClient(MTR.PACKETS_IDENTIFIER, PacketCodec.of(CustomPacket::encode, registryByteBuf -> new CustomPacket(MTR.PACKETS_IDENTIFIER, registryByteBuf)), new DirectionalPayloadHandler<>((customPacket, context) -> PacketBufferReceiver.receive(customPacket.packetByteBuf(), packetBufferReceiver -> {
+		ModEventBus.PAYLOAD_HANDLERS.add(payloadRegistrar -> payloadRegistrar.playToClient(MTR.PACKET_IDENTIFIER_S2C, PacketCodec.tuple(PacketCodecs.BYTE_ARRAY, CustomPacketS2C::buffer, CustomPacketS2C::new), new DirectionalPayloadHandler<>((customPacketS2C, context) -> PacketBufferReceiver.receive(Unpooled.copiedBuffer(customPacketS2C.buffer()), packetBufferReceiver -> {
 			final Function<PacketBufferReceiver, ? extends PacketHandler> getInstance = ModEventBus.PACKETS.get(packetBufferReceiver.readString());
 			if (getInstance != null) {
 				getInstance.apply(packetBufferReceiver).runClient();
 			}
-		}, MinecraftClient.getInstance()::execute), (customPacket, context) -> {
+		}, MinecraftClient.getInstance()::execute), (customPacketS2C, context) -> {
 		})));
 	}
 
@@ -68,7 +68,7 @@ public final class RegistryClientImpl {
 		final PacketBufferSender packetBufferSender = new PacketBufferSender(Unpooled::buffer);
 		packetBufferSender.writeString(data.getClass().getName());
 		data.write(packetBufferSender);
-		packetBufferSender.send(byteBuf -> PacketDistributor.sendToServer(new CustomPacket(MTR.PACKETS_IDENTIFIER, byteBuf instanceof PacketByteBuf ? (PacketByteBuf) byteBuf : new PacketByteBuf(byteBuf))), MinecraftClient.getInstance()::execute);
+		packetBufferSender.send(byteBuf -> PacketDistributor.sendToServer(new CustomPacketS2C(byteBuf.array())), MinecraftClient.getInstance()::execute);
 	}
 
 	public static void registerWorldRenderEvent(MTRClient.WorldRenderCallback worldRenderCallback) {

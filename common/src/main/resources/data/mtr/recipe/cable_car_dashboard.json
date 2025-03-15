@@ -6,18 +6,10 @@
 		"III"
 	],
 	"key": {
-		"I": {
-			"item": "minecraft:string"
-		},
-		"R": {
-			"tag": "c:redstone_dusts"
-		},
-		"G": {
-			"item": "minecraft:glass_pane"
-		},
-		"L": {
-			"tag": "c:glowstone_dusts"
-		}
+		"I": "minecraft:string",
+		"R": "#c:redstone_dusts",
+		"G": "minecraft:glass_pane",
+		"L": "#c:glowstone_dusts"
 	},
 	"result": {
 		"id": "mtr:dashboard_3"

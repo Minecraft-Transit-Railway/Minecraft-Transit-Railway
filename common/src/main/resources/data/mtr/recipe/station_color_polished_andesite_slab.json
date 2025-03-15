@@ -4,9 +4,7 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"id": "mtr:station_color_polished_andesite"
-		}
+		"B": "mtr:station_color_polished_andesite"
 	},
 	"result": {
 		"id": "mtr:station_color_polished_andesite_slab",

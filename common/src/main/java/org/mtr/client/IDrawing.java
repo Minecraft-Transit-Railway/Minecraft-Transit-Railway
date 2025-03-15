@@ -8,6 +8,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
@@ -26,6 +27,7 @@ import org.mtr.config.Config;
 import org.mtr.data.IGui;
 
 import javax.annotation.Nullable;
+import java.awt.*;
 
 public interface IDrawing {
 
@@ -132,7 +134,7 @@ public interface IDrawing {
 	}
 
 	static void drawTexture(MatrixStack matrixStack, VertexConsumer vertexConsumer, float x1, float y1, float z1, float x2, float y2, float z2, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
-		drawTexture(matrixStack, vertexConsumer, x1, y2, z1, x2, y2, z2, x2, y1, z2, x1, y1, z1, u1, v1, u2, v2, facing, color, light);
+		drawTexture(matrixStack, vertexConsumer, x1, y1, z1, x1, y2, z1, x2, y2, z2, x2, y1, z2, u1, v1, u2, v2, facing, color, light);
 	}
 
 	static void drawTexture(MatrixStack matrixStack, VertexConsumer vertexConsumer, double x1, double y1, double z1, double x2, double y2, double z2, double x3, double y3, double z3, double x4, double y4, double z4, Vec3d playerOffset, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
@@ -147,21 +149,20 @@ public interface IDrawing {
 	}
 
 	static void drawTexture(MatrixStack matrixStack, VertexConsumer vertexConsumer, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
-		final Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
-		vertexConsumer.vertex(matrix4f, x1, y1, z1).texture(u1, v1).color(color).light(light);
-		vertexConsumer.vertex(matrix4f, x2, y2, z2).texture(u1, v2).color(color).light(light);
-		vertexConsumer.vertex(matrix4f, x3, y3, z3).texture(u2, v2).color(color).light(light);
-		vertexConsumer.vertex(matrix4f, x4, y4, z4).texture(u2, v1).color(color).light(light);
+		vertexConsumer.vertex(x1, y1, z1, color, u1, v1, OverlayTexture.DEFAULT_UV, light, 0, 1, 0);
+		vertexConsumer.vertex(x2, y2, z2, color, u1, v2, OverlayTexture.DEFAULT_UV, light, 0, 1, 0);
+		vertexConsumer.vertex(x3, y3, z3, color, u2, v2, OverlayTexture.DEFAULT_UV, light, 0, 1, 0);
+		vertexConsumer.vertex(x4, y4, z4, color, u2, v1, OverlayTexture.DEFAULT_UV, light, 0, 1, 0);
 	}
 
 	static void drawLineInWorld(MatrixStack matrixStack, VertexConsumer vertexConsumer, float x1, float y1, float z1, float x2, float y2, float z2, int color) {
-		ColorHelper.unpackColor(color, (a, r, g, b) -> {
+		if (new Color(color, true).getAlpha() > 0) {
 			final MatrixStack.Entry entry = matrixStack.peek();
 			final Matrix4f matrix4f = entry.getPositionMatrix();
 
-			vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, a).normal(entry, 0, 1, 0);
-			vertexConsumer.vertex(matrix4f, x2, y2, z2).color(r, g, b, a).normal(entry, 0, 1, 0);
-		});
+			vertexConsumer.vertex(matrix4f, x1, y1, z1).color(color).normal(entry, 0, 1, 0);
+			vertexConsumer.vertex(matrix4f, x2, y2, z2).color(color).normal(entry, 0, 1, 0);
+		}
 	}
 
 	static void drawSevenSegment(MatrixStack matrixStack, VertexConsumer vertexConsumer, String numberString, float availableSpace, float x, float y, float height, IGui.HorizontalAlignment horizontalAlignment, int color, int light) {

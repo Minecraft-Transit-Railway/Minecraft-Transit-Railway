@@ -6,12 +6,8 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"item": "minecraft:diorite"
-		},
-		"D": {
-			"tag": "c:dyes"
-		}
+		"B": "minecraft:diorite",
+		"D": "#c:dyes"
 	},
 	"result": {
 		"id": "mtr:station_color_diorite",

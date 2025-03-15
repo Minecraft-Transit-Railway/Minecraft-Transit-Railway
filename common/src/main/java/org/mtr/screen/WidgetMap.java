@@ -12,16 +12,21 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import org.joml.Matrix4f;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.*;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.map.MapTileProvider;
 
+import javax.annotation.Nullable;
+import java.awt.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -42,9 +47,9 @@ public class WidgetMap extends ClickableWidget implements IGui {
 	private final Consumer<Long> onClickAddPlatformToRoute;
 	private final Consumer<SavedRailBase<?, ?>> onClickEditSavedRail;
 	private final BiFunction<Double, Double, Boolean> isRestrictedMouseArea;
-	private final ClientWorld world;
 	private final ClientPlayerEntity player;
-	private final WorldMap worldMap;
+	@Nullable
+	private final MapTileProvider mapTileProvider;
 	private final Object2ObjectAVLTreeMap<Position, ObjectArrayList<Platform>> flatPositionToPlatformMap;
 	private final Object2ObjectAVLTreeMap<Position, ObjectArrayList<Siding>> flatPositionToSidingMap;
 
@@ -62,7 +67,7 @@ public class WidgetMap extends ClickableWidget implements IGui {
 		this.isRestrictedMouseArea = isRestrictedMouseArea;
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		world = minecraftClient.world;
+		final ClientWorld world = minecraftClient.world;
 		player = minecraftClient.player;
 		if (player == null) {
 			centerX = 0;
@@ -73,7 +78,7 @@ public class WidgetMap extends ClickableWidget implements IGui {
 		}
 
 		scale = 1;
-		worldMap = new WorldMap();
+		mapTileProvider = world == null ? null : new MapTileProvider(world, MapTileProvider.MapType.SATELLITE);
 		setShowStations(true);
 
 		flatPositionToPlatformMap = MinecraftClientData.getFlatPositionToSavedRails(MinecraftClientData.getDashboardInstance().platforms, transportMode);
@@ -83,49 +88,86 @@ public class WidgetMap extends ClickableWidget implements IGui {
 	@Override
 	protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
 		final DoubleDoubleImmutablePair mouseWorldPos = coordsToWorldPos((double) mouseX - getX(), mouseY - getY());
-		final IntIntImmutablePair topLeft = coordsToWorldPos(0, 0);
-		final IntIntImmutablePair bottomRight = coordsToWorldPos(width, height);
+		final Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
+		final VertexConsumer vertexConsumer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui());
 
 		// Background
 		context.fill(getX(), getY(), getX() + width, getY() + height, ARGB_BLACK);
 
 		// World map
-		if (world != null) {
-			worldMap.tick(world, player, delta);
-			worldMap.forEachTile(mapImage -> {
-				final int posX = mapImage.chunkX * WorldMap.CHUNK_SIZE;
-				final int posZ = mapImage.chunkZ * WorldMap.CHUNK_SIZE;
-				if (posX + WorldMap.CHUNK_SIZE < topLeft.leftInt() || posZ + WorldMap.CHUNK_SIZE < (topLeft).rightInt() || posX > bottomRight.leftInt() || posZ > bottomRight.rightInt()) {
-					return;
+		if (mapTileProvider != null) {
+			final double tileSize = scale * MapTileProvider.TILE_SIZE;
+			final DoubleDoubleImmutablePair topLeftWorldCoords = coordsToWorldPos(0D, 0D);
+			final double offsetX = (topLeftWorldCoords.leftDouble() - Math.floor(topLeftWorldCoords.leftDouble() / MapTileProvider.TILE_SIZE) * MapTileProvider.TILE_SIZE) * scale;
+			final double offsetY = (topLeftWorldCoords.rightDouble() - Math.floor(topLeftWorldCoords.rightDouble() / MapTileProvider.TILE_SIZE) * MapTileProvider.TILE_SIZE) * scale;
+
+			for (double x = 0; x < width + tileSize; x += tileSize) {
+				for (double y = 0; y < height + tileSize; y += tileSize) {
+					final DoubleDoubleImmutablePair worldCoords = coordsToWorldPos(x, y);
+					final byte[] tile = mapTileProvider.getTile(BlockPos.ofFloored(worldCoords.leftDouble(), player.getY(), worldCoords.rightDouble()));
+
+					if (tile != null) {
+						int pixelOffsetX = 0;
+						int pixelOffsetY = 0;
+
+						for (int i = 0; i < tile.length; i += 5) {
+							final Color color = new Color(
+									tile[i + 1] & 0xFF,
+									tile[i + 2] & 0xFF,
+									tile[i + 3] & 0xFF,
+									tile[i] & 0xFF
+							);
+							int count = (tile[i + 4] & 0xFF) + 1;
+
+							while (count > 0) {
+								final int length = Math.min(MapTileProvider.TILE_SIZE - pixelOffsetX, count);
+
+								if (color.getAlpha() > 0) {
+									final double x1 = getX() + x - offsetX + pixelOffsetX * scale;
+									final double x2 = x1 + length * scale;
+									final double y1 = getY() + y - offsetY + pixelOffsetY * scale;
+									final double y2 = y1 + scale;
+									draw(matrix4f, vertexConsumer, x1, y1, x2, y2, color.getRGB());
+								}
+
+								pixelOffsetX += length;
+								count -= length;
+
+								if (pixelOffsetX == MapTileProvider.TILE_SIZE) {
+									pixelOffsetX = 0;
+									pixelOffsetY++;
+								}
+							}
+						}
+					}
 				}
-				drawRectangleFromWorldCoords(context, mapImage.textureId, posX, posZ, posX + WorldMap.CHUNK_SIZE, posZ + WorldMap.CHUNK_SIZE);
-			});
+			}
 		}
 
 		if (showStations) {
-			flatPositionToPlatformMap.forEach((position, platforms) -> drawRectangleFromWorldCoords(context, position.getX(), position.getZ(), position.getX() + 1, position.getZ() + 1, ARGB_WHITE));
+			flatPositionToPlatformMap.forEach((position, platforms) -> drawRectangleFromWorldCoords(matrix4f, vertexConsumer, position.getX(), position.getZ(), position.getX() + 1, position.getZ() + 1, ARGB_WHITE));
 			for (final Station station : MinecraftClientData.getDashboardInstance().stations) {
 				if (AreaBase.validCorners(station)) {
-					drawRectangleFromWorldCoords(context, station.getMinX(), station.getMinZ(), station.getMaxX(), station.getMaxZ(), ARGB_BLACK_TRANSLUCENT + station.getColor());
+					drawRectangleFromWorldCoords(matrix4f, vertexConsumer, station.getMinX(), station.getMinZ(), station.getMaxX(), station.getMaxZ(), ARGB_BLACK_TRANSLUCENT + station.getColor());
 				}
 			}
-			mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(context, x1, z1, x2, z2, ARGB_WHITE), true);
+			mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(matrix4f, vertexConsumer, x1, z1, x2, z2, ARGB_WHITE), true);
 		} else {
-			flatPositionToSidingMap.forEach((position, sidings) -> drawRectangleFromWorldCoords(context, position.getX(), position.getZ(), position.getX() + 1, position.getZ() + 1, ARGB_WHITE));
+			flatPositionToSidingMap.forEach((position, sidings) -> drawRectangleFromWorldCoords(matrix4f, vertexConsumer, position.getX(), position.getZ(), position.getX() + 1, position.getZ() + 1, ARGB_WHITE));
 			for (final Depot depot : MinecraftClientData.getDashboardInstance().depots) {
 				if (depot.isTransportMode(transportMode) && AreaBase.validCorners(depot)) {
-					drawRectangleFromWorldCoords(context, depot.getMinX(), depot.getMinZ(), depot.getMaxX(), depot.getMaxZ(), ARGB_BLACK_TRANSLUCENT + depot.getColor());
+					drawRectangleFromWorldCoords(matrix4f, vertexConsumer, depot.getMinX(), depot.getMinZ(), depot.getMaxX(), depot.getMaxZ(), ARGB_BLACK_TRANSLUCENT + depot.getColor());
 				}
 			}
-			mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(context, x1, z1, x2, z2, ARGB_WHITE), false);
+			mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(matrix4f, vertexConsumer, x1, z1, x2, z2, ARGB_WHITE), false);
 		}
 
 		if (mapState == MapState.EDITING_AREA && drawArea1 != null && drawArea2 != null) {
-			drawRectangleFromWorldCoords(context, drawArea1, drawArea2, ARGB_WHITE_TRANSLUCENT);
+			drawRectangleFromWorldCoords(matrix4f, vertexConsumer, drawArea1, drawArea2, ARGB_WHITE_TRANSLUCENT);
 		}
 
 		if (player != null) {
-			drawPlayerSymbol(context, player);
+			drawPlayerSymbol(matrix4f, vertexConsumer, player);
 		}
 
 		final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
@@ -221,6 +263,15 @@ public class WidgetMap extends ClickableWidget implements IGui {
 	}
 
 	@Override
+	public void setFocused(boolean focused) {
+	}
+
+	@Override
+	public boolean isFocused() {
+		return false;
+	}
+
+	@Override
 	protected void appendClickableNarrations(NarrationMessageBuilder builder) {
 	}
 
@@ -244,11 +295,11 @@ public class WidgetMap extends ClickableWidget implements IGui {
 		}
 	}
 
-	private void drawPlayerSymbol(DrawContext context, ClientPlayerEntity player) {
+	private void drawPlayerSymbol(Matrix4f matrix4f, VertexConsumer vertexConsumer, ClientPlayerEntity player) {
 		drawFromWorldCoords(player.getX(), player.getZ(), (x1, y1) -> {
-			context.fill(getX() + (int) Math.max(0, x1 - 2), getY() + y1.intValue() - 3, getX() + x1.intValue() + 2, getY() + y1.intValue() + 3, ARGB_WHITE);
-			context.fill(getX() + (int) Math.max(0, x1 - 3), getY() + y1.intValue() - 2, getX() + x1.intValue() + 3, getY() + y1.intValue() + 2, ARGB_WHITE);
-			context.fill(getX() + (int) Math.max(0, x1 - 2), getY() + y1.intValue() - 2, getX() + x1.intValue() + 2, getY() + y1.intValue() + 2, ARGB_BLUE);
+			draw(matrix4f, vertexConsumer, getX() + x1 - 2, getY() + y1 - 3, getX() + x1 + 2, getY() + y1 + 3, ARGB_WHITE);
+			draw(matrix4f, vertexConsumer, getX() + x1 - 3, getY() + y1 - 2, getX() + x1 + 3, getY() + y1 + 2, ARGB_WHITE);
+			draw(matrix4f, vertexConsumer, getX() + x1 - 2, getY() + y1 - 2, getX() + x1 + 2, getY() + y1 + 2, ARGB_BLUE);
 		});
 	}
 
@@ -258,13 +309,17 @@ public class WidgetMap extends ClickableWidget implements IGui {
 		context.drawText(textRenderer, mousePosText, getX() + width - TEXT_PADDING - textRenderer.getWidth(mousePosText), getY() + TEXT_PADDING, ARGB_WHITE, false);
 	}
 
-	// Implicit overrides, don't add @Override
-	public void setFocused2(boolean focused) {
-	}
-
-	// Implicit overrides, don't add @Override
-	public boolean isFocused2() {
-		return false;
+	private void draw(Matrix4f matrix4f, VertexConsumer vertexConsumer, double x1, double y1, double x2, double y2, int color) {
+		if (Utilities.isIntersecting(x1, x2, getX(), getX() + width) && Utilities.isIntersecting(y1, y2, getY(), getY() + height)) {
+			final float newX1 = (float) Math.max(x1, getX());
+			final float newY1 = (float) Math.max(y1, getY());
+			final float newX2 = (float) Math.min(x2, getX() + width);
+			final float newY2 = (float) Math.min(y2, getY() + height);
+			vertexConsumer.vertex(matrix4f, newX1, newY1, 0).color(color);
+			vertexConsumer.vertex(matrix4f, newX1, newY2, 0).color(color);
+			vertexConsumer.vertex(matrix4f, newX2, newY2, 0).color(color);
+			vertexConsumer.vertex(matrix4f, newX2, newY1, 0).color(color);
+		}
 	}
 
 	public void setPositionAndSize(int x, int y, int width, int height) {
@@ -304,28 +359,22 @@ public class WidgetMap extends ClickableWidget implements IGui {
 	}
 
 	public void setMapOverlayMode(WorldMap.MapOverlayMode mapOverlayMode) {
-		worldMap.setMapOverlayMode(mapOverlayMode);
-		if (world != null) {
-			worldMap.updateMap(world, player);
-		}
+		// TODO
 	}
 
 	public boolean isMapOverlayMode(WorldMap.MapOverlayMode mapOverlayMode) {
-		return worldMap.isMapOverlayMode(mapOverlayMode);
-	}
-
-	public void onClose() {
-		worldMap.disposeImages();
+		// TODO
+		return true;
 	}
 
 	private void mouseOnSavedRail(DoubleDoubleImmutablePair mouseWorldPos, MouseOnSavedRailCallback mouseOnSavedRailCallback, boolean isPlatform) {
 		(isPlatform ? flatPositionToPlatformMap : flatPositionToSidingMap).forEach((position, savedRails) -> {
 			final int savedRailCount = savedRails.size();
 			for (int i = 0; i < savedRailCount; i++) {
-				final double left = position.getX();
-				final double right = position.getX() + 1;
-				final double top = position.getZ() + (double) i / savedRailCount;
-				final double bottom = position.getZ() + (i + 1D) / savedRailCount;
+				final long left = position.getX();
+				final long right = position.getX() + 1;
+				final long top = position.getZ();
+				final long bottom = position.getZ() + 1;
 				if (Utilities.isBetween(mouseWorldPos.leftDouble(), left, right) && Utilities.isBetween(mouseWorldPos.rightDouble(), top, bottom)) {
 					mouseOnSavedRailCallback.mouseOnSavedRailCallback(savedRails.get(i), left, top, right, bottom);
 				}
@@ -352,24 +401,19 @@ public class WidgetMap extends ClickableWidget implements IGui {
 		}
 	}
 
-	private void drawRectangleFromWorldCoords(DrawContext context, IntIntImmutablePair corner1, IntIntImmutablePair corner2, int color) {
-		drawRectangleFromWorldCoords(context, corner1.leftInt(), corner1.rightInt(), corner2.leftInt(), corner2.rightInt(), color);
+	private void drawRectangleFromWorldCoords(Matrix4f matrix4f, VertexConsumer vertexConsumer, IntIntImmutablePair corner1, IntIntImmutablePair corner2, int color) {
+		drawRectangleFromWorldCoords(matrix4f, vertexConsumer, corner1.leftInt(), corner1.rightInt(), corner2.leftInt(), corner2.rightInt(), color);
 	}
 
-	private void drawRectangleFromWorldCoords(DrawContext context, double posX1, double posZ1, double posX2, double posZ2, int color) {
-		final double x1 = (posX1 - centerX) * scale + width / 2D;
-		final double z1 = (posZ1 - centerY) * scale + height / 2D;
-		final double x2 = (posX2 - centerX) * scale + width / 2D;
-		final double z2 = (posZ2 - centerY) * scale + height / 2D;
-		context.fill(getX() + (int) Math.max(0, x1), getY() + (int) z1, getX() + (int) x2, getY() + (int) z2, color);
-	}
-
-	private void drawRectangleFromWorldCoords(DrawContext context, Identifier texture, double posX1, double posZ1, double posX2, double posZ2) {
-		final double x1 = (posX1 - centerX) * scale + width / 2D;
-		final double z1 = (posZ1 - centerY) * scale + height / 2D;
-		final double x2 = (posX2 - centerX) * scale + width / 2D;
-		final double z2 = (posZ2 - centerY) * scale + height / 2D;
-		context.drawGuiTexture(RenderLayer::getGuiTextured, texture, getX() + (int) x1, getY() + (int) z1, (int) (x2 - x1), (int) (z2 - z1));
+	private void drawRectangleFromWorldCoords(Matrix4f matrix4f, VertexConsumer vertexConsumer, long posX1, long posZ1, long posX2, long posZ2, int color) {
+		draw(
+				matrix4f, vertexConsumer,
+				getX() + (Math.min(posX1, posX2) - centerX) * scale + width / 2D,
+				getY() + (Math.min(posZ1, posZ2) - centerY) * scale + height / 2D,
+				getX() + (Math.max(posX1, posX2) + 1 - centerX) * scale + width / 2D,
+				getY() + (Math.max(posZ1, posZ2) + 1 - centerY) * scale + height / 2D,
+				color
+		);
 	}
 
 	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> boolean canDrawAreaText(U areaBase) {
@@ -391,7 +435,7 @@ public class WidgetMap extends ClickableWidget implements IGui {
 
 	@FunctionalInterface
 	private interface MouseOnSavedRailCallback {
-		void mouseOnSavedRailCallback(SavedRailBase<?, ?> savedRail, double x1, double z1, double x2, double z2);
+		void mouseOnSavedRailCallback(SavedRailBase<?, ?> savedRail, long x1, long z1, long x2, long z2);
 	}
 
 	private enum MapState {DEFAULT, EDITING_AREA, EDITING_ROUTE}

@@ -1,11 +1,11 @@
 package org.mtr.registry.fabric;
 
+import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -18,10 +18,9 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.network.PacketByteBuf;
 import org.mtr.MTR;
 import org.mtr.fabric.MTRFabric;
-import org.mtr.packet.CustomPacket;
+import org.mtr.packet.CustomPacketC2S;
 import org.mtr.packet.PacketBufferReceiver;
 import org.mtr.packet.PacketBufferSender;
 import org.mtr.packet.PacketHandler;
@@ -54,18 +53,18 @@ public final class RegistryClientImpl {
 	}
 
 	public static void setupPackets() {
-		ClientPlayNetworking.registerGlobalReceiver(MTR.PACKETS_IDENTIFIER, (customPacket, context) -> PacketBufferReceiver.receive(customPacket.packetByteBuf(), packetBufferReceiver -> {
+		ClientPlayNetworking.registerGlobalReceiver(MTR.PACKET_IDENTIFIER_S2C, (customPacketS2C, context) -> PacketBufferReceiver.receive(Unpooled.copiedBuffer(customPacketS2C.buffer()), packetBufferReceiver -> {
 			final Function<PacketBufferReceiver, ? extends PacketHandler> getInstance = MTRFabric.PACKETS.get(packetBufferReceiver.readString());
 			if (getInstance != null) {
 				getInstance.apply(packetBufferReceiver).runClient();
 			}
-		}, context.client()::execute));
+		}, MinecraftClient.getInstance()::execute));
 	}
 
 	public static <T extends PacketHandler> void sendPacketToServer(T data) {
-		final PacketBufferSender packetBufferSender = new PacketBufferSender(PacketByteBufs::create);
+		final PacketBufferSender packetBufferSender = new PacketBufferSender(Unpooled::buffer);
 		packetBufferSender.writeString(data.getClass().getName());
 		data.write(packetBufferSender);
-		packetBufferSender.send(byteBuf -> ClientPlayNetworking.send(new CustomPacket(MTR.PACKETS_IDENTIFIER, byteBuf instanceof PacketByteBuf ? (PacketByteBuf) byteBuf : new PacketByteBuf(byteBuf))), MinecraftClient.getInstance()::execute);
+		packetBufferSender.send(byteBuf -> ClientPlayNetworking.send(new CustomPacketC2S(byteBuf.array())), MinecraftClient.getInstance()::execute);
 	}
 }

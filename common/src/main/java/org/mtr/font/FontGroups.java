@@ -1,7 +1,8 @@
 package org.mtr.font;
 
 import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.render.VertexConsumer;
+import org.joml.Matrix4f;
 
 public final class FontGroups {
 
@@ -16,21 +17,21 @@ public final class FontGroups {
 		calligraphy = new FontGroup(ObjectImmutableList.of(new FontProvider("masa-font-bold.ttf")));
 	}
 
-	public static void renderMTR(MatrixStack matrixStack, String text, int color, int light) {
+	public static void renderMTR(Matrix4f matrix4f, VertexConsumer vertexConsumer, String text, int color, int light) {
 		if (mtr != null) {
-			mtr.render(matrixStack, text, color, light);
+			mtr.render(matrix4f, vertexConsumer, text, color, light);
 		}
 	}
 
-	public static void renderKCR(MatrixStack matrixStack, String text, int color, int light) {
+	public static void renderKCR(Matrix4f matrix4f, VertexConsumer vertexConsumer, String text, int color, int light) {
 		if (kcr != null) {
-			kcr.render(matrixStack, text, color, light);
+			kcr.render(matrix4f, vertexConsumer, text, color, light);
 		}
 	}
 
-	public static void renderCalligraphy(MatrixStack matrixStack, String text, int color, int light) {
+	public static void renderCalligraphy(Matrix4f matrix4f, VertexConsumer vertexConsumer, String text, int color, int light) {
 		if (calligraphy != null) {
-			calligraphy.render(matrixStack, text, color, light);
+			calligraphy.render(matrix4f, vertexConsumer, text, color, light);
 		}
 	}
 }

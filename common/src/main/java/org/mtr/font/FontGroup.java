@@ -1,12 +1,8 @@
 package org.mtr.font;
 
+import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
 
 import javax.annotation.Nullable;
@@ -21,49 +17,72 @@ public final class FontGroup {
 		this.fontProviders = fontProviders;
 	}
 
-	public void render(MatrixStack matrixStack, String text, int color, int light) {
-		final float[] x = {0};
+	public void render(Matrix4f matrix4f, VertexConsumer vertexConsumer, String text, int color, int light) {
+		final int[] x = {0};
 		text.chars().forEach(c -> {
 			boolean notRendered = true;
 			for (final FontProvider fontProvider : fontProviders) {
-				final ObjectObjectImmutablePair<Identifier, FontProvider.GlyphCoordinates> textureAndGlyphCoordinates = fontProvider.render((char) c);
-				if (textureAndGlyphCoordinates != null) {
-					x[0] += render(textureAndGlyphCoordinates, matrixStack, x[0], color, light);
+				final IntObjectImmutablePair<byte[]> renderData = fontProvider.render((char) c);
+				if (renderData != null) {
+					x[0] += render(renderData, matrix4f, vertexConsumer, x[0], color, light);
 					notRendered = false;
 					break;
 				}
 			}
 			if (notRendered) {
-				x[0] += render(FALLBACK.render((char) c), matrixStack, x[0], color, light);
+				x[0] += render(FALLBACK.render((char) c), matrix4f, vertexConsumer, x[0], color, light);
 			}
 		});
 	}
 
-	private static float render(@Nullable ObjectObjectImmutablePair<Identifier, FontProvider.GlyphCoordinates> textureAndGlyphCoordinates, MatrixStack matrixStack, float x, int color, int light) {
-		if (textureAndGlyphCoordinates == null) {
+	private static int render(@Nullable IntObjectImmutablePair<byte[]> renderData, Matrix4f matrix4f, VertexConsumer vertexConsumer, int x, int color, int light) {
+		if (renderData == null) {
 			return 0;
 		} else {
-			int scale = 16;
-			final VertexConsumer vertexConsumer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getText(textureAndGlyphCoordinates.left()));
-			final FontProvider.GlyphCoordinates glyphCoordinates = textureAndGlyphCoordinates.right();
-			final Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
+			final float scale = 1F / FontProvider.FONT_SIZE * 8;
+			int index = renderData.leftInt();
+			final byte[] data = renderData.right();
+			final int width = data[index++] & 0xFF;
+			final int height = data[index++] & 0xFF;
+			final int xOffset = data[index++];
+			final int yOffset = data[index++];
+			final int advance = data[index++] & 0xFF;
 
-			final float u1 = glyphCoordinates.u1();
-			final float v1 = glyphCoordinates.v1();
-			final float u2 = glyphCoordinates.u2();
-			final float v2 = glyphCoordinates.v2();
+			int pixelOffsetX = 0;
+			int pixelOffsetY = 0;
+			int processedPixels = 0;
 
-			final float x1 = (x - glyphCoordinates.xOffset()) * scale;
-			final float y1 = (1 - glyphCoordinates.yOffset()) * scale;
-			final float x2 = x1 + glyphCoordinates.width() * scale;
-			final float y2 = y1 + glyphCoordinates.height() * scale;
+			while (processedPixels < width * height) {
+				final int alpha = data[index++] & 0xFF;
+				int count = (data[index++] & 0xFF) + 1;
+				processedPixels += count;
 
-			vertexConsumer.vertex(matrix4f, x1, y2, 0).texture(u1, v2).color(color).light(light);
-			vertexConsumer.vertex(matrix4f, x2, y2, 0).texture(u2, v2).color(color).light(light);
-			vertexConsumer.vertex(matrix4f, x2, y1, 0).texture(u2, v1).color(color).light(light);
-			vertexConsumer.vertex(matrix4f, x1, y1, 0).texture(u1, v1).color(color).light(light);
+				while (count > 0) {
+					final int length = Math.min(width - pixelOffsetX, count);
 
-			return glyphCoordinates.xAdvance();
+					if (alpha > 0) {
+						final float x1 = (x + pixelOffsetX - xOffset) * scale;
+						final float x2 = x1 + length * scale;
+						final float y1 = (pixelOffsetY + FontProvider.FONT_SIZE - yOffset) * scale;
+						final float y2 = y1 + scale;
+						final int newColor = (alpha << 24) + (color & 0xFFFFFF);
+						vertexConsumer.vertex(matrix4f, x1, y1, 0).color(newColor).light(light);
+						vertexConsumer.vertex(matrix4f, x1, y2, 0).color(newColor).light(light);
+						vertexConsumer.vertex(matrix4f, x2, y2, 0).color(newColor).light(light);
+						vertexConsumer.vertex(matrix4f, x2, y1, 0).color(newColor).light(light);
+					}
+
+					pixelOffsetX += length;
+					count -= length;
+
+					if (pixelOffsetX == width) {
+						pixelOffsetX = 0;
+						pixelOffsetY++;
+					}
+				}
+			}
+
+			return advance;
 		}
 	}
 }

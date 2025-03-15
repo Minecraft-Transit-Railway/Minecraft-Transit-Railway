@@ -67,8 +67,8 @@ public final class MTR {
 	private static Consumer<Webserver> webserverSetup;
 
 	public static final String MOD_ID = "mtr";
-	public static final String MOD_ID_NTE = "mtrsteamloco";
-	public static final CustomPayload.Id<CustomPacket> PACKETS_IDENTIFIER = new CustomPayload.Id<>(Identifier.of(MOD_ID, "packet"));
+	public static final CustomPayload.Id<CustomPacketS2C> PACKET_IDENTIFIER_S2C = new CustomPayload.Id<>(Identifier.of(MOD_ID, "packet_s2c"));
+	public static final CustomPayload.Id<CustomPacketC2S> PACKET_IDENTIFIER_C2S = new CustomPayload.Id<>(Identifier.of(MOD_ID, "packet_c2s"));
 	public static final Logger LOGGER = LogManager.getLogger("MinecraftTransitRailway");
 	public static final int SECONDS_PER_MC_HOUR = 50;
 	public static final int AUTOSAVE_INTERVAL = 30000;

@@ -6,12 +6,8 @@
 		"I"
 	],
 	"key": {
-		"R": {
-			"tag": "c:redstone_dusts"
-		},
-		"I": {
-			"item": "minecraft:iron_bars"
-		}
+		"R": "#c:redstone_dusts",
+		"I": "minecraft:iron_bars"
 	},
 	"result": {
 		"id": "mtr:lift_buttons_link_connector"

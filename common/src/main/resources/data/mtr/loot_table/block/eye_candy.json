@@ -6,7 +6,7 @@
 			"entries": [
 				{
 					"type": "minecraft:item",
-					"name": "mtrsteamloco:eye_candy"
+					"name": "mtr:eye_candy"
 				}
 			],
 			"conditions": [

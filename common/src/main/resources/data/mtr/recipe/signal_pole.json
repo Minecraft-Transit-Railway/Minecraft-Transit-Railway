@@ -6,12 +6,8 @@
 		"BIB"
 	],
 	"key": {
-		"B": {
-			"tag": "minecraft:fences"
-		},
-		"I": {
-			"tag": "c:iron_ingots"
-		}
+		"B": "#minecraft:fences",
+		"I": "#c:iron_ingots"
 	},
 	"result": {
 		"id": "mtr:signal_pole",

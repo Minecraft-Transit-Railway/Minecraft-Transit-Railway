@@ -1,12 +1,8 @@
 {
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
-		{
-			"id": "mtr:lift_panel_even_2"
-		},
-		{
-			"id": "mtr:lift_panel_even_2"
-		}
+		"mtr:lift_panel_even_2",
+		"mtr:lift_panel_even_2"
 	],
 	"result": {
 		"id": "mtr:lift_panel_even_1"

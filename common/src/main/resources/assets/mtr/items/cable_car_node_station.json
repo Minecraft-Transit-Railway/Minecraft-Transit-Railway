@@ -1,0 +1,6 @@
+{
+	"model": {
+		"type": "minecraft:model",
+		"model": "mtr:item/cable_car_node_station"
+	}
+}

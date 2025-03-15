@@ -13,7 +13,10 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.mtr.MTRClient;
-import org.mtr.client.*;
+import org.mtr.client.CustomResourceLoader;
+import org.mtr.client.DynamicTextureCache;
+import org.mtr.client.MinecraftClientData;
+import org.mtr.client.VehicleRidingMovement;
 import org.mtr.config.Config;
 import org.mtr.core.data.InterchangeColorsForStationName;
 import org.mtr.data.ArrivalsCacheClient;
@@ -21,6 +24,7 @@ import org.mtr.data.IGui;
 import org.mtr.model.OptimizedRenderer;
 
 import javax.annotation.Nullable;
+import java.awt.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -142,16 +146,13 @@ public class MainRenderer implements IGui {
 	}
 
 	public static int getFlashingColor(int color) {
-		int[] newColor = new int[1];
 		final double flashingProgress = ((Math.sin(Math.PI * 2 * (System.currentTimeMillis() % FLASHING_INTERVAL) / FLASHING_INTERVAL) + 1) / 2);
-		ColorHelper.unpackColor(color, (a, r, g, b) -> {
-			int newR = (int) (r * flashingProgress);
-			int newG = (int) (g * flashingProgress);
-			int newB = (int) (b * flashingProgress);
-
-			newColor[0] = (a << 24) | (newR << 16) | (newG << 8) | newB;
-		});
-		return newColor[0];
+		final Color oldColor = new Color(color);
+		return new Color(
+				(int) (oldColor.getRed() * flashingProgress),
+				(int) (oldColor.getGreen() * flashingProgress),
+				(int) (oldColor.getBlue() * flashingProgress)
+		).getRGB();
 	}
 
 	private static long getMillisElapsed() {

@@ -6,15 +6,9 @@
 		" R "
 	],
 	"key": {
-		"R": {
-			"tag": "minecraft:rails"
-		},
-		"I": {
-			"tag": "c:iron_ingots"
-		},
-		"B": {
-			"item": "minecraft:blaze_rod"
-		}
+		"R": "#minecraft:rails",
+		"I": "#c:iron_ingots",
+		"B": "minecraft:blaze_rod"
 	},
 	"result": {
 		"id": "mtr:rail_connector_160_one_way"

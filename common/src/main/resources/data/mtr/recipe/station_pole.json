@@ -6,12 +6,8 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"tag": "minecraft:fences"
-		},
-		"D": {
-			"tag": "c:dyes"
-		}
+		"B": "#minecraft:fences",
+		"D": "#c:dyes"
 	},
 	"result": {
 		"id": "mtr:station_pole",

@@ -43,7 +43,7 @@ public class WidgetColorSelector extends ButtonWidget implements IGui {
 
 	@Override
 	protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-		super.render(context, mouseX, mouseY, delta);
+		super.renderWidget(context, mouseX, mouseY, delta);
 		if (visible) {
 			final int margin = hasMargin ? 1 : 0;
 			context.fill(getX() - margin, getY() - margin, getX() + width + margin, getY() + height + margin, ARGB_BLACK | color);

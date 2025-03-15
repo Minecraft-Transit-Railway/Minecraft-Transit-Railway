@@ -6,15 +6,9 @@
 		"SSS"
 	],
 	"key": {
-		"I": {
-			"tag": "c:iron_ingots"
-		},
-		"B": {
-			"tag": "c:iron_blocks"
-		},
-		"S": {
-			"item": "minecraft:string"
-		}
+		"I": "#c:iron_ingots",
+		"B": "#c:iron_blocks",
+		"S": "minecraft:string"
 	},
 	"result": {
 		"id": "mtr:cable_car_node_lower",

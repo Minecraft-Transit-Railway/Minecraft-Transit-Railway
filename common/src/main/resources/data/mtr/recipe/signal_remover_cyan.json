@@ -1,15 +1,9 @@
 {
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
-		{
-			"tag": "minecraft:rails"
-		},
-		{
-			"tag": "c:cyan_dyes"
-		},
-		{
-			"item": "minecraft:lava_bucket"
-		}
+		"#minecraft:rails",
+		"#c:cyan_dyes",
+		"minecraft:lava_bucket"
 	],
 	"result": {
 		"id": "mtr:signal_remover_cyan"

@@ -6,12 +6,8 @@
 		"III"
 	],
 	"key": {
-		"S": {
-			"item": "minecraft:stone"
-		},
-		"I": {
-			"tag": "c:iron_ingots"
-		}
+		"S": "minecraft:stone",
+		"I": "#c:iron_ingots"
 	},
 	"result": {
 		"id": "mtr:rubbish_bin_1"

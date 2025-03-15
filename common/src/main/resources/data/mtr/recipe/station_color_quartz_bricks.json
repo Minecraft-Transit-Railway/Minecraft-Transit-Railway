@@ -6,12 +6,8 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"item": "minecraft:quartz_bricks"
-		},
-		"D": {
-			"tag": "c:dyes"
-		}
+		"B": "minecraft:quartz_bricks",
+		"D": "#c:dyes"
 	},
 	"result": {
 		"id": "mtr:station_color_quartz_bricks",

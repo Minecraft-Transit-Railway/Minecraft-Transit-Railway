@@ -6,12 +6,8 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"id": "mtr:metal"
-		},
-		"D": {
-			"tag": "c:dyes"
-		}
+		"B": "mtr:metal",
+		"D": "#c:dyes"
 	},
 	"result": {
 		"id": "mtr:station_color_metal",

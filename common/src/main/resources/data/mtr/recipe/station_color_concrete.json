@@ -6,12 +6,8 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"tag": "c:concretes"
-		},
-		"D": {
-			"tag": "c:dyes"
-		}
+		"B": "#c:concretes",
+		"D": "#c:dyes"
 	},
 	"result": {
 		"id": "mtr:station_color_concrete",

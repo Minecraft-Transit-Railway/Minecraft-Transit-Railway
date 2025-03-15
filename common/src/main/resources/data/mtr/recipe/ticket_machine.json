@@ -6,18 +6,10 @@
 		"SRS"
 	],
 	"key": {
-		"I": {
-			"tag": "c:iron_ingots"
-		},
-		"G": {
-			"tag": "c:glowstone_dusts"
-		},
-		"S": {
-			"item": "minecraft:stone"
-		},
-		"R": {
-			"tag": "c:redstone_dusts"
-		}
+		"I": "#c:iron_ingots",
+		"G": "#c:glowstone_dusts",
+		"S": "minecraft:stone",
+		"R": "#c:redstone_dusts"
 	},
 	"result": {
 		"id": "mtr:ticket_machine",

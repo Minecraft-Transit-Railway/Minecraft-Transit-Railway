@@ -6,12 +6,8 @@
 		"I"
 	],
 	"key": {
-		"L": {
-			"item": "minecraft:lava_bucket"
-		},
-		"I": {
-			"item": "minecraft:iron_bars"
-		}
+		"L": "minecraft:lava_bucket",
+		"I": "minecraft:iron_bars"
 	},
 	"result": {
 		"id": "mtr:lift_buttons_link_remover"

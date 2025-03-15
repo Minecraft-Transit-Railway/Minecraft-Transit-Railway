@@ -8,18 +8,25 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.packet.PacketOpenPIDSConfigScreen;
 import org.mtr.registry.Registry;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 
@@ -47,6 +54,11 @@ public abstract class BlockPIDSBase extends Block implements BlockEntityProvider
 				Registry.sendPacketToClient((ServerPlayerEntity) player, new PacketOpenPIDSConfigScreen(newBlockPos, blockEntityBase.maxArrivals));
 			}
 		});
+	}
+
+	@Override
+	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType options) {
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_ARRIVALS.getMutableText(maxArrivals).formatted(Formatting.GRAY));
 	}
 
 	public static abstract class BlockEntityBase extends BlockEntity {

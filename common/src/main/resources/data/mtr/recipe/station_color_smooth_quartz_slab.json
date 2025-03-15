@@ -4,9 +4,7 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"id": "mtr:station_color_smooth_quartz"
-		}
+		"B": "mtr:station_color_smooth_quartz"
 	},
 	"result": {
 		"id": "mtr:station_color_smooth_quartz_slab",

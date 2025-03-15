@@ -1,27 +1,13 @@
 {
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
-		{
-			"item": "minecraft:blackstone"
-		},
-		{
-			"tag": "c:green_dyes"
-		},
-		{
-			"tag": "c:green_dyes"
-		},
-		{
-			"tag": "c:red_dyes"
-		},
-		{
-			"tag": "c:red_dyes"
-		},
-		{
-			"tag": "c:redstone_dusts"
-		},
-		{
-			"tag": "c:glowstone_dusts"
-		}
+		"minecraft:blackstone",
+		"#c:green_dyes",
+		"#c:green_dyes",
+		"#c:red_dyes",
+		"#c:red_dyes",
+		"#c:redstone_dusts",
+		"#c:glowstone_dusts"
 	],
 	"result": {
 		"id": "mtr:signal_light_4",

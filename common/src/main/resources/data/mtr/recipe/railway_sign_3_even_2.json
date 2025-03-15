@@ -1,9 +1,7 @@
 {
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
-		{
-			"id": "mtr:railway_sign_3_odd"
-		}
+		"mtr:railway_sign_3_odd"
 	],
 	"result": {
 		"id": "mtr:railway_sign_3_even"

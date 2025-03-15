@@ -6,15 +6,9 @@
 		"LLL"
 	],
 	"key": {
-		"I": {
-			"tag": "c:iron_ingots"
-		},
-		"B": {
-			"tag": "c:iron_blocks"
-		},
-		"L": {
-			"tag": "minecraft:logs"
-		}
+		"I": "#c:iron_ingots",
+		"B": "#c:iron_blocks",
+		"L": "#minecraft:logs"
 	},
 	"result": {
 		"id": "mtr:rail",

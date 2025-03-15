@@ -1,24 +1,12 @@
 {
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
-		{
-			"item": "minecraft:orange_stained_glass_pane"
-		},
-		{
-			"item": "minecraft:orange_stained_glass_pane"
-		},
-		{
-			"item": "minecraft:orange_stained_glass_pane"
-		},
-		{
-			"item": "minecraft:orange_stained_glass_pane"
-		},
-		{
-			"item": "minecraft:orange_stained_glass_pane"
-		},
-		{
-			"item": "minecraft:iron_bars"
-		}
+		"minecraft:orange_stained_glass_pane",
+		"minecraft:orange_stained_glass_pane",
+		"minecraft:orange_stained_glass_pane",
+		"minecraft:orange_stained_glass_pane",
+		"minecraft:orange_stained_glass_pane",
+		"minecraft:iron_bars"
 	],
 	"result": {
 		"id": "mtr:glass_fence_cio",

@@ -5,12 +5,8 @@
 		" P "
 	],
 	"key": {
-		"I": {
-			"tag": "c:iron_ingots"
-		},
-		"P": {
-			"item": "minecraft:piston"
-		}
+		"I": "#c:iron_ingots",
+		"P": "minecraft:piston"
 	},
 	"result": {
 		"id": "mtr:lift_refresher"

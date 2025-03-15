@@ -5,15 +5,9 @@
 		"BB"
 	],
 	"key": {
-		"R": {
-			"tag": "c:redstone_dusts"
-		},
-		"G": {
-			"tag": "c:glowstone_dusts"
-		},
-		"B": {
-			"tag": "c:iron_blocks"
-		}
+		"R": "#c:redstone_dusts",
+		"G": "#c:glowstone_dusts",
+		"B": "#c:iron_blocks"
 	},
 	"result": {
 		"id": "mtr:ticket_barrier_entrance_1",

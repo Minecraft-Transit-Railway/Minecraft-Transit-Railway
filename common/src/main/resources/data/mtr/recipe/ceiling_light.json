@@ -1,9 +1,7 @@
 {
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
-		{
-			"id": "mtr:ceiling"
-		}
+		"mtr:ceiling"
 	],
 	"result": {
 		"id": "mtr:ceiling_light"

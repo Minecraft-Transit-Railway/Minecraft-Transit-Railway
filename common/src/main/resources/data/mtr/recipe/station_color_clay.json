@@ -6,12 +6,8 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"item": "minecraft:clay"
-		},
-		"D": {
-			"tag": "c:dyes"
-		}
+		"B": "minecraft:clay",
+		"D": "#c:dyes"
 	},
 	"result": {
 		"id": "mtr:station_color_clay",

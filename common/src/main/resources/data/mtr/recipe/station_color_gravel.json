@@ -6,12 +6,8 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"item": "minecraft:gravel"
-		},
-		"D": {
-			"tag": "c:dyes"
-		}
+		"B": "minecraft:gravel",
+		"D": "#c:dyes"
 	},
 	"result": {
 		"id": "mtr:station_color_gravel",

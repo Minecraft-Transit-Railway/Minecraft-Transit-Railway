@@ -165,13 +165,10 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 
 	@Override
 	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-		widgetMap.render(context, mouseX, mouseY, delta);
-		context.getMatrices().push();
-		context.getMatrices().translate(0, 0, 500);
-		context.fill(0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
-		dashboardList.render(context);
 		super.render(context, mouseX, mouseY, delta);
-		context.getMatrices().pop();
+		widgetMap.render(context, mouseX, mouseY, delta);
+//		context.fill(0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
+		dashboardList.render(context);
 	}
 
 	@Override
@@ -431,12 +428,6 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 			RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addRoute(editingRoute)));
 		}
 		startEditingRoute(editingRoute, isNew);
-	}
-
-	@Override
-	public void close() {
-		widgetMap.onClose();
-		super.close();
 	}
 
 	private void stopEditing() {

@@ -1,15 +1,9 @@
 {
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
-		{
-			"tag": "minecraft:rails"
-		},
-		{
-			"tag": "c:lime_dyes"
-		},
-		{
-			"tag": "c:redstone_dusts"
-		}
+		"#minecraft:rails",
+		"#c:lime_dyes",
+		"#c:redstone_dusts"
 	],
 	"result": {
 		"id": "mtr:signal_connector_lime"

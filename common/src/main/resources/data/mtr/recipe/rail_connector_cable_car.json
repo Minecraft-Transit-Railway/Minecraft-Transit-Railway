@@ -6,15 +6,9 @@
 		" R "
 	],
 	"key": {
-		"R": {
-			"tag": "minecraft:rails"
-		},
-		"I": {
-			"tag": "c:iron_ingots"
-		},
-		"B": {
-			"item": "minecraft:string"
-		}
+		"R": "#minecraft:rails",
+		"I": "#c:iron_ingots",
+		"B": "minecraft:string"
 	},
 	"result": {
 		"id": "mtr:rail_connector_cable_car"

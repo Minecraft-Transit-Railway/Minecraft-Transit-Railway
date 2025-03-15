@@ -4,9 +4,7 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"id": "mtr:marble_sandy"
-		}
+		"B": "mtr:marble_sandy"
 	},
 	"result": {
 		"id": "mtr:marble_sandy_slab",

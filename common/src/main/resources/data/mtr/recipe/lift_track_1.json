@@ -5,12 +5,8 @@
 		"ILI"
 	],
 	"key": {
-		"I": {
-			"tag": "c:iron_ingots"
-		},
-		"L": {
-			"item": "minecraft:ladder"
-		}
+		"I": "#c:iron_ingots",
+		"L": "minecraft:ladder"
 	},
 	"result": {
 		"id": "mtr:lift_track_1",

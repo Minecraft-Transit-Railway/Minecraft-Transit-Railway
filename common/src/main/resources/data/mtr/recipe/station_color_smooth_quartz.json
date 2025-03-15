@@ -6,12 +6,8 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"item": "minecraft:smooth_quartz"
-		},
-		"D": {
-			"tag": "c:dyes"
-		}
+		"B": "minecraft:smooth_quartz",
+		"D": "#c:dyes"
 	},
 	"result": {
 		"id": "mtr:station_color_smooth_quartz",

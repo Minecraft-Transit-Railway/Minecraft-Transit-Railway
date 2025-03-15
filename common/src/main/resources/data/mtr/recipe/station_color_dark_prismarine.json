@@ -6,12 +6,8 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"item": "minecraft:dark_prismarine"
-		},
-		"D": {
-			"tag": "c:dyes"
-		}
+		"B": "minecraft:dark_prismarine",
+		"D": "#c:dyes"
 	},
 	"result": {
 		"id": "mtr:station_color_dark_prismarine",

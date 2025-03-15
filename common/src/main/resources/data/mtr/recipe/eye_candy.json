@@ -6,15 +6,11 @@
 		" E "
 	],
 	"key": {
-		"E": {
-			"item": "minecraft:ender_eye"
-		},
-		"B": {
-			"id": "mtr:brush"
-		}
+		"E": "minecraft:ender_eye",
+		"B": "mtr:brush"
 	},
 	"result": {
-		"item": "mtrsteamloco:eye_candy",
+		"id": "mtr:eye_candy",
 		"count": 4
 	}
 }

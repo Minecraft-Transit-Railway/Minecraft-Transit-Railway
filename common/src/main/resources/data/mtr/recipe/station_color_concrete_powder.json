@@ -6,12 +6,8 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"tag": "c:concrete_powders"
-		},
-		"D": {
-			"tag": "c:dyes"
-		}
+		"B": "#c:concrete_powders",
+		"D": "#c:dyes"
 	},
 	"result": {
 		"id": "mtr:station_color_concrete_powder",

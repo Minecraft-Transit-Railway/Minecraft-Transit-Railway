@@ -6,12 +6,8 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"item": "minecraft:coal_ore"
-		},
-		"D": {
-			"tag": "c:dyes"
-		}
+		"B": "minecraft:coal_ore",
+		"D": "#c:dyes"
 	},
 	"result": {
 		"id": "mtr:station_color_coal_ore",

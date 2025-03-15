@@ -6,12 +6,8 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"tag": "minecraft:planks"
-		},
-		"D": {
-			"tag": "c:dyes"
-		}
+		"B": "#minecraft:planks",
+		"D": "#c:dyes"
 	},
 	"result": {
 		"id": "mtr:station_color_planks",

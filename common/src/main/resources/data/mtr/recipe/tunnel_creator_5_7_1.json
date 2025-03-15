@@ -4,12 +4,9 @@
 		"TT"
 	],
 	"key": {
-		"T": {
-			"id": "mtr:tunnel_creator_5_5"
-		}
+		"T": "mtr:tunnel_creator_5_5"
 	},
 	"result": {
-		"id": "mtr:tunnel_creator_5_7",
-		"count": 2
+		"id": "mtr:tunnel_creator_5_7"
 	}
 }

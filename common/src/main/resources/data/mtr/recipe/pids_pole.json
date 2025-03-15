@@ -6,12 +6,8 @@
 		"III"
 	],
 	"key": {
-		"B": {
-			"item": "minecraft:iron_bars"
-		},
-		"I": {
-			"tag": "c:iron_ingots"
-		}
+		"B": "minecraft:iron_bars",
+		"I": "#c:iron_ingots"
 	},
 	"result": {
 		"id": "mtr:pids_pole",

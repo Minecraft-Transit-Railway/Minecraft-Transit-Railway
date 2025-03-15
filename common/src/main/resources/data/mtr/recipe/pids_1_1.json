@@ -6,15 +6,9 @@
 		"III"
 	],
 	"key": {
-		"I": {
-			"tag": "c:iron_ingots"
-		},
-		"G": {
-			"tag": "c:glowstone_dusts"
-		},
-		"C": {
-			"item": "minecraft:clock"
-		}
+		"I": "#c:iron_ingots",
+		"G": "#c:glowstone_dusts",
+		"C": "minecraft:clock"
 	},
 	"result": {
 		"id": "mtr:pids_1",

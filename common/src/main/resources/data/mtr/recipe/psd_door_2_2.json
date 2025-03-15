@@ -1,12 +1,8 @@
 {
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
-		{
-			"id": "mtr:psd_door"
-		},
-		{
-			"id": "mtr:psd_door"
-		}
+		"mtr:psd_door",
+		"mtr:psd_door"
 	],
 	"result": {
 		"id": "mtr:psd_door_2",

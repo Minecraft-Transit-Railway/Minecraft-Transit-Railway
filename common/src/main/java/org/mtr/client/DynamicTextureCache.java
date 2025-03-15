@@ -19,6 +19,7 @@ import org.mtr.resource.ResourceManagerHelper;
 
 import javax.annotation.Nullable;
 import java.awt.*;
+import java.awt.Color;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;

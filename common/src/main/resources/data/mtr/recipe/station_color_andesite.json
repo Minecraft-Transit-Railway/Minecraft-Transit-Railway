@@ -6,12 +6,8 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"item": "minecraft:andesite"
-		},
-		"D": {
-			"tag": "c:dyes"
-		}
+		"B": "minecraft:andesite",
+		"D": "#c:dyes"
 	},
 	"result": {
 		"id": "mtr:station_color_andesite",

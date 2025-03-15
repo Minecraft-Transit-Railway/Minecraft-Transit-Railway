@@ -13,6 +13,8 @@ import java.util.function.Consumer;
 
 public final class CustomResourcesConverter {
 
+	private static final String MOD_ID_NTE = "mtrsteamloco";
+
 	public static CustomResources convert(JsonObject jsonObject, ResourceProvider resourceProvider) {
 		final boolean hasCustomTrains = jsonObject.getAsJsonObject().has("custom_trains");
 		final boolean hasCustomSigns = jsonObject.getAsJsonObject().has("custom_signs");
@@ -50,7 +52,7 @@ public final class CustomResourcesConverter {
 
 	public static void convertRails(Consumer<RailResource> callback, ResourceProvider resourceProvider) {
 		ResourceManagerHelper.readDirectory("rails", (identifier, inputStream) -> {
-			if (identifier.getNamespace().equals(MTR.MOD_ID_NTE) && identifier.getPath().endsWith(".json")) {
+			if (identifier.getNamespace().equals(MOD_ID_NTE) && identifier.getPath().endsWith(".json")) {
 				try {
 					final JsonObject jsonObject = Config.readResource(inputStream).getAsJsonObject();
 					if (jsonObject.has("model")) {
@@ -67,7 +69,7 @@ public final class CustomResourcesConverter {
 
 	public static void convertObjects(Consumer<ObjectResource> callback, ResourceProvider resourceProvider) {
 		ResourceManagerHelper.readDirectory("eyecandies", (identifier, inputStream) -> {
-			if (identifier.getNamespace().equals(MTR.MOD_ID_NTE) && identifier.getPath().endsWith(".json")) {
+			if (identifier.getNamespace().equals(MOD_ID_NTE) && identifier.getPath().endsWith(".json")) {
 				try {
 					final JsonObject jsonObject = Config.readResource(inputStream).getAsJsonObject();
 					if (jsonObject.has("model")) {

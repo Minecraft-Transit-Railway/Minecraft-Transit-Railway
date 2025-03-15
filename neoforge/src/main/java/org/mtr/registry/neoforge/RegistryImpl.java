@@ -17,8 +17,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.command.ServerCommandSource;
@@ -34,10 +34,7 @@ import org.mtr.MTR;
 import org.mtr.neoforge.MTRNeoForge;
 import org.mtr.neoforge.MainEventBus;
 import org.mtr.neoforge.ModEventBus;
-import org.mtr.packet.CustomPacket;
-import org.mtr.packet.PacketBufferReceiver;
-import org.mtr.packet.PacketBufferSender;
-import org.mtr.packet.PacketHandler;
+import org.mtr.packet.*;
 import org.mtr.registry.ObjectHolder;
 
 import javax.annotation.Nullable;
@@ -74,7 +71,7 @@ public final class RegistryImpl {
 	}
 
 	public static String registerItemGroup(String registryName, Supplier<ItemStack> iconSupplier) {
-		MTRNeoForge.ITEM_GROUPS.register(registryName, () -> ItemGroup.builder().icon(iconSupplier).displayName(Text.literal("itemGroup." + registryName)).entries((displayContext, entries) -> ITEM_GROUP_ENTRIES.getOrDefault(registryName, new ObjectArrayList<>()).forEach(itemSupplier -> entries.add(itemSupplier.get()))).build());
+		MTRNeoForge.ITEM_GROUPS.register(registryName, () -> ItemGroup.builder().icon(iconSupplier).displayName(Text.translatable(String.format("itemGroup.%s.%s", MTR.MOD_ID, registryName))).entries((displayContext, entries) -> ITEM_GROUP_ENTRIES.getOrDefault(registryName, new ObjectArrayList<>()).forEach(itemSupplier -> entries.add(itemSupplier.get()))).build());
 		return registryName;
 	}
 
@@ -83,11 +80,11 @@ public final class RegistryImpl {
 	}
 
 	public static void setupPackets() {
-		ModEventBus.PAYLOAD_HANDLERS.add(payloadRegistrar -> payloadRegistrar.playToServer(MTR.PACKETS_IDENTIFIER, PacketCodec.of(CustomPacket::encode, registryByteBuf -> new CustomPacket(MTR.PACKETS_IDENTIFIER, registryByteBuf)), new DirectionalPayloadHandler<>((customPacket, context) -> {
-		}, (customPacket, context) -> {
+		ModEventBus.PAYLOAD_HANDLERS.add(payloadRegistrar -> payloadRegistrar.playToServer(MTR.PACKET_IDENTIFIER_C2S, PacketCodec.tuple(PacketCodecs.BYTE_ARRAY, CustomPacketC2S::buffer, CustomPacketC2S::new), new DirectionalPayloadHandler<>((customPacketC2S, context) -> {
+		}, (customPacketC2S, context) -> {
 			final PlayerEntity player = context.player();
 			if (player instanceof ServerPlayerEntity) {
-				PacketBufferReceiver.receive(customPacket.packetByteBuf(), packetBufferReceiver -> {
+				PacketBufferReceiver.receive(Unpooled.copiedBuffer(customPacketC2S.buffer()), packetBufferReceiver -> {
 					final Function<PacketBufferReceiver, ? extends PacketHandler> getInstance = ModEventBus.PACKETS.get(packetBufferReceiver.readString());
 					if (getInstance != null) {
 						getInstance.apply(packetBufferReceiver).runServer(((ServerPlayerEntity) player).server, (ServerPlayerEntity) player);
@@ -105,7 +102,7 @@ public final class RegistryImpl {
 		final PacketBufferSender packetBufferSender = new PacketBufferSender(Unpooled::buffer);
 		packetBufferSender.writeString(data.getClass().getName());
 		data.write(packetBufferSender);
-		packetBufferSender.send(byteBuf -> PacketDistributor.sendToPlayer(serverPlayerEntity, new CustomPacket(MTR.PACKETS_IDENTIFIER, byteBuf instanceof PacketByteBuf ? (PacketByteBuf) byteBuf : new PacketByteBuf(byteBuf))), serverPlayerEntity.server::execute);
+		packetBufferSender.send(byteBuf -> PacketDistributor.sendToPlayer(serverPlayerEntity, new CustomPacketS2C(byteBuf.array())), serverPlayerEntity.server::execute);
 	}
 
 	public static ObjectHolder<SoundEvent> registerSoundEvent(String registryName, Supplier<SoundEvent> supplier) {

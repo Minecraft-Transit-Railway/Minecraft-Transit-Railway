@@ -1,0 +1,6 @@
+{
+	"model": {
+		"type": "minecraft:model",
+		"model": "mtr:item/train_schedule_sensor"
+	}
+}

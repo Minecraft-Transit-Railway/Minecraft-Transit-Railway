@@ -6,18 +6,10 @@
 		"SSS"
 	],
 	"key": {
-		"I": {
-			"tag": "c:iron_ingots"
-		},
-		"G": {
-			"tag": "c:glowstone_dusts"
-		},
-		"B": {
-			"tag": "c:iron_blocks"
-		},
-		"S": {
-			"tag": "minecraft:signs"
-		}
+		"I": "#c:iron_ingots",
+		"G": "#c:glowstone_dusts",
+		"B": "#c:iron_blocks",
+		"S": "#minecraft:signs"
 	},
 	"result": {
 		"id": "mtr:railway_sign_2_even",

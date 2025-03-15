@@ -4,9 +4,7 @@
 		"BBB"
 	],
 	"key": {
-		"B": {
-			"id": "mtr:station_color_cracked_stone_bricks"
-		}
+		"B": "mtr:station_color_cracked_stone_bricks"
 	},
 	"result": {
 		"id": "mtr:station_color_cracked_stone_bricks_slab",

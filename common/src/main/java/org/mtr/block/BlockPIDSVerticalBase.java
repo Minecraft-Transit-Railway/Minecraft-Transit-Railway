@@ -3,30 +3,22 @@ package org.mtr.block;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
-import org.mtr.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 
 public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBlock {
 
@@ -54,14 +46,6 @@ public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBl
 	public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		DoubleVerticalBlock.onBreak(world, pos, state, player);
 		return super.onBreak(world, pos, state, player);
-	}
-
-	@Override
-	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType options) {
-		final BlockEntity blockEntity = createBlockEntity(new BlockPos(0, 0, 0), Blocks.AIR.getDefaultState());
-		if (blockEntity instanceof BlockEntityBase) {
-			tooltip.add(TranslationProvider.TOOLTIP_MTR_ARRIVALS.getMutableText(maxArrivals).formatted(Formatting.GRAY));
-		}
 	}
 
 	@Override
