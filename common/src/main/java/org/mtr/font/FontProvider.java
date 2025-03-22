@@ -1,5 +1,6 @@
 package org.mtr.font;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
@@ -11,41 +12,64 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Locale;
 
-public final class FontProvider extends CachedFileProvider<FontResource> {
+public final class FontProvider extends CachedFileProvider<FontResourceBase> {
 
 	@Nullable
 	private final Font font;
+	@Nullable
+	private final Int2ObjectOpenHashMap<byte[]> charBitmap;
 
 	public static final int TEXTURE_CHAR_COUNT = 256;
 	public static final int FONT_SIZE = 32;
 
-	public FontProvider(@Nullable String fontFile) {
-		super(MinecraftClient.getInstance().runDirectory.toPath().resolve("config/cache/font").resolve(fontFile == null ? "fallback" : "font_" + fontFile.toLowerCase(Locale.ENGLISH).replaceAll("[^a-z0-9_-]", "_")));
+	public FontProvider(@Nullable Identifier fontFileIdentifier) {
+		super(MinecraftClient.getInstance().runDirectory.toPath().resolve("config/cache/font").resolve(fontFileIdentifier == null ? "fallback" : fontFileIdentifier.getPath().toLowerCase(Locale.ENGLISH).replaceAll("[^a-z0-9_-]", "_")));
 
 		// Read font file from assets/mtr/font (including from resource packs)
 		final Font[] tempFont = {null};
-		if (fontFile != null) {
-			final Identifier fontFileIdentifier = Identifier.of(MTR.MOD_ID, "font/" + fontFile);
-			ResourceManagerHelper.readResource(fontFileIdentifier, inputStream -> {
-				try {
-					tempFont[0] = Font.createFont(Font.PLAIN, inputStream);
-				} catch (Exception e) {
-					MTR.LOGGER.error("", e);
-				}
-			});
+		final Int2ObjectOpenHashMap<byte[]> tempCharBitmap = new Int2ObjectOpenHashMap<>();
+		if (fontFileIdentifier != null) {
+			final String[] fileSplit = fontFileIdentifier.getPath().split("\\.");
+			final String extension = fileSplit[fileSplit.length - 1].toLowerCase(Locale.ENGLISH);
+
+			if (extension.equals("json")) {
+				// Read file as a Minecraft font JSON
+				MinecraftFontResource.parseMinecraftFontProviders(fontFileIdentifier, tempCharBitmap);
+			} else {
+				// Read file directly as a font file
+				ResourceManagerHelper.readResource(fontFileIdentifier, inputStream -> {
+					try {
+						tempFont[0] = Font.createFont(Font.PLAIN, inputStream);
+					} catch (Exception e) {
+						MTR.LOGGER.error("", e);
+					}
+				});
+			}
 		}
+
 		font = tempFont[0];
+		charBitmap = tempCharBitmap.isEmpty() ? null : tempCharBitmap;
 	}
 
 	@Nullable
-	public IntObjectImmutablePair<byte[]> render(char c) {
-		final int textureIndex = c / TEXTURE_CHAR_COUNT;
-		final byte[] data = get(textureIndex, cacheDirectory -> new FontResource(font, textureIndex, cacheDirectory.resolve(String.valueOf(textureIndex))));
+	public IntObjectImmutablePair<byte[]> render(int character) {
+		final int textureIndex = character / TEXTURE_CHAR_COUNT;
+		final byte[] data = get(textureIndex, cacheDirectory -> {
+			if (charBitmap == null) {
+				return new FileFontResource(font, textureIndex, cacheDirectory.resolve(String.valueOf(textureIndex)));
+			} else {
+				return new MinecraftFontResource(charBitmap, textureIndex, cacheDirectory.resolve(String.valueOf(textureIndex)));
+			}
+		});
 		if (data == null) {
 			return null;
 		} else {
-			final int index = FontResource.getInt(data, (c - textureIndex * TEXTURE_CHAR_COUNT) * 4);
+			final int index = FileFontResource.getInt(data, (character - textureIndex * TEXTURE_CHAR_COUNT) * 4);
 			return index == 0 ? null : new IntObjectImmutablePair<>(index, data);
 		}
+	}
+
+	public boolean isFileFont() {
+		return charBitmap == null;
 	}
 }
