@@ -20,6 +20,8 @@ public abstract class CachedFileProvider<T extends CachedFileResource> {
 	private final Path cacheDirectory;
 	private final Long2ObjectAVLTreeMap<T> dataMap = new Long2ObjectAVLTreeMap<>();
 
+	private static long nextCreationTime;
+
 	public CachedFileProvider(Path cacheDirectory) {
 		this.cacheDirectory = cacheDirectory;
 		try {
@@ -40,7 +42,27 @@ public abstract class CachedFileProvider<T extends CachedFileResource> {
 	}
 
 	@Nullable
-	protected final byte[] get(long key, Function<Path, T> createInstance) {
-		return dataMap.computeIfAbsent(key, newKey -> createInstance.apply(cacheDirectory)).get();
+	protected final T get(long key, Function<Path, T> createInstance) {
+		final T data = dataMap.get(key);
+		final long currentTime = System.currentTimeMillis();
+		if (currentTime < nextCreationTime) {
+			if (data == null) {
+				return null;
+			} else {
+				data.get();
+				return data;
+			}
+		} else {
+			if (data == null) {
+				nextCreationTime = currentTime + 100;
+				final T newData = createInstance.apply(cacheDirectory);
+				dataMap.put(key, newData);
+				newData.get();
+				return newData;
+			} else {
+				data.get();
+				return data;
+			}
+		}
 	}
 }

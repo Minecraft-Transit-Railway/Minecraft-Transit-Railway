@@ -26,6 +26,8 @@ public abstract class CachedFileResource {
 	protected final Path path;
 	private final int lifespan;
 
+	private static long nextGenerationTime;
+
 	protected CachedFileResource(Path path, int lifespan) {
 		this.path = path;
 		this.lifespan = lifespan;
@@ -35,6 +37,7 @@ public abstract class CachedFileResource {
 		if (Files.exists(path)) {
 			try {
 				data = Files.readAllBytes(path);
+				dataUpdated(data);
 				regenerateTimeout = currentTime + lifespan + getRandomTimeoutOffset();
 			} catch (Exception e) {
 				MTR.LOGGER.error("", e);
@@ -43,16 +46,15 @@ public abstract class CachedFileResource {
 	}
 
 	/**
-	 * @return the data or {@code null} if the data wasn't generated
+	 * Generate the data as necessary. If generation fails or is queued, the data can still be null.
 	 */
-	@Nullable
-	public final byte[] get() {
+	public final void get() {
 		final long currentTime = System.currentTimeMillis();
 		fetchTimeout = currentTime + lifespan + getRandomTimeoutOffset();
-		if (currentTime > regenerateTimeout) {
+		if (currentTime > regenerateTimeout && currentTime > nextGenerationTime) {
 			generateAndWrite(data);
+			nextGenerationTime = currentTime + 100;
 		}
-		return data;
 	}
 
 	/**
@@ -71,11 +73,19 @@ public abstract class CachedFileResource {
 	@Nullable
 	protected abstract byte[] generate(@Nullable byte[] oldData);
 
+	/**
+	 * Called whenever the data has been updated (loaded from a file or regenerated).
+	 *
+	 * @param data the new data
+	 */
+	protected abstract void dataUpdated(@Nullable byte[] data);
+
 	private void generateAndWrite(@Nullable byte[] oldData) {
 		final byte[] newData = generate(oldData);
 
 		if (newData != oldData) {
 			data = newData;
+			dataUpdated(data);
 			try {
 				if (data == null) {
 					Files.deleteIfExists(path);

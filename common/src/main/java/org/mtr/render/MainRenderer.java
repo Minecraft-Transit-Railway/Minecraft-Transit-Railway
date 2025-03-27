@@ -161,6 +161,13 @@ public class MainRenderer implements IGui {
 		return Math.abs(gameMillisElapsed - millisElapsed) < 50 ? gameMillisElapsed : millisElapsed;
 	}
 
+	private static void draw2(VertexConsumer vertexConsumer, double x1, double y1, double x2, double y2, int color) {
+		vertexConsumer.vertex((float) x1, (float) y1, 0).color(color);
+		vertexConsumer.vertex((float) x1, (float) y2, 0).color(color);
+		vertexConsumer.vertex((float) x2, (float) y2, 0).color(color);
+		vertexConsumer.vertex((float) x2, (float) y1, 0).color(color);
+	}
+
 	@FunctionalInterface
 	public interface ScheduledRender {
 		void accept(MatrixStack matrixStack, VertexConsumer vertexConsumer, Vec3d offset);

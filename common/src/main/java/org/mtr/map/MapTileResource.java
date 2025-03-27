@@ -6,6 +6,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.MapColor;
+import net.minecraft.client.gl.VertexBuffer;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.Heightmap;
@@ -19,6 +22,9 @@ import java.awt.*;
 import java.nio.file.Path;
 
 public final class MapTileResource extends CachedFileResource {
+
+	@Nullable
+	private VertexBuffer vertexBuffer;
 
 	private final World world;
 	private final MapTileProvider.MapType mapType;
@@ -92,10 +98,11 @@ public final class MapTileResource extends CachedFileResource {
 					previousY = blockY;
 
 					// If there is no elevation data of the row above, don't draw
-					if (elevationShadow == 0) {
+					if (elevationShadow == 0 && (z < 0 || imageConverter.hasPixel(x, z))) {
 						continue;
 					}
 
+					final float newElevationShadow = elevationShadow == 0 ? 0.9F : elevationShadow;
 					final BlockPos finalPos = new BlockPos(blockX, blockY, blockZ);
 
 					// Figure out light level
@@ -109,9 +116,9 @@ public final class MapTileResource extends CachedFileResource {
 
 					// Blend and draw pixel
 					final Color color = getBlockColor(finalPos);
-					final int r = Math.round(color.getRed() * elevationShadow * lightLevel);
-					final int g = Math.round(color.getGreen() * elevationShadow * lightLevel);
-					final int b = Math.round(color.getBlue() * elevationShadow * lightLevel);
+					final int r = Math.round(color.getRed() * newElevationShadow * lightLevel);
+					final int g = Math.round(color.getGreen() * newElevationShadow * lightLevel);
+					final int b = Math.round(color.getBlue() * newElevationShadow * lightLevel);
 					imageConverter.setPixel(x, z, new Color(r, g, b).getRGB());
 				} else {
 					previousY = null;
@@ -120,6 +127,71 @@ public final class MapTileResource extends CachedFileResource {
 		}
 
 		return imageConverter.modified ? imageConverter.convert() : oldData;
+	}
+
+	@Override
+	protected void dataUpdated(@Nullable byte[] data) {
+		if (data == null) {
+			this.vertexBuffer = null;
+		} else {
+			final boolean[] noVertices = {true};
+
+			final VertexBuffer vertexBuffer = VertexBuffer.createAndUpload(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR, vertexConsumer -> {
+				int pixelOffsetX = 0;
+				int pixelOffsetY = 0;
+
+				for (int i = 0; i < data.length; i += 5) {
+					final Color color = new Color(
+							data[i + 1] & 0xFF,
+							data[i + 2] & 0xFF,
+							data[i + 3] & 0xFF,
+							data[i] & 0xFF
+					);
+					int count = (data[i + 4] & 0xFF) + 1;
+
+					while (count > 0) {
+						final int length = Math.min(MapTileProvider.TILE_SIZE - pixelOffsetX, count);
+
+						if (color.getAlpha() > 0) {
+							final int x2 = pixelOffsetX + length;
+							final int y2 = pixelOffsetY + 1;
+							vertexConsumer.vertex(pixelOffsetX, pixelOffsetY, 0).color(color.getRGB());
+							vertexConsumer.vertex(pixelOffsetX, y2, 0).color(color.getRGB());
+							vertexConsumer.vertex(x2, y2, 0).color(color.getRGB());
+							vertexConsumer.vertex(x2, pixelOffsetY, 0).color(color.getRGB());
+							noVertices[0] = false;
+						}
+
+						pixelOffsetX += length;
+						count -= length;
+
+						if (pixelOffsetX == MapTileProvider.TILE_SIZE) {
+							pixelOffsetX = 0;
+							pixelOffsetY++;
+						}
+					}
+				}
+
+				if (noVertices[0]) {
+					vertexConsumer.vertex(0, 0, 0).color(0);
+					vertexConsumer.vertex(0, 1, 0).color(0);
+					vertexConsumer.vertex(1, 1, 0).color(0);
+					vertexConsumer.vertex(1, 0, 0).color(0);
+				}
+			});
+
+			if (noVertices[0]) {
+				vertexBuffer.close();
+				this.vertexBuffer = null;
+			} else {
+				this.vertexBuffer = vertexBuffer;
+			}
+		}
+	}
+
+	@Nullable
+	public VertexBuffer getVertexBuffer() {
+		return vertexBuffer;
 	}
 
 	/**
@@ -190,6 +262,11 @@ public final class MapTileResource extends CachedFileResource {
 					}
 				}
 			}
+		}
+
+		private boolean hasPixel(int x, int y) {
+			final int index = x + y * MapTileProvider.TILE_SIZE;
+			return pixels[index] != 0;
 		}
 
 		private void setPixel(int x, int y, int color) {

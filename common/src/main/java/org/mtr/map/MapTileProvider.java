@@ -1,8 +1,10 @@
 package org.mtr.map;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.mtr.MTR;
 import org.mtr.cache.CachedFileProvider;
 
 import javax.annotation.Nullable;
@@ -20,22 +22,23 @@ public final class MapTileProvider extends CachedFileProvider<MapTileResource> {
 
 	public static final int TILE_SIZE = 256;
 
-	public MapTileProvider(World world, MapType mapType) {
-		super(MinecraftClient.getInstance().runDirectory.toPath().resolve("config/cache/map"));
+	public MapTileProvider(World world, String uniqueWorldId, MapType mapType) {
+		super(MinecraftClient.getInstance().runDirectory.toPath().resolve("config/cache/map").resolve(uniqueWorldId).resolve(MTR.getWorldId(world)));
 		this.world = world;
 		this.mapType = mapType;
 	}
 
 	@Nullable
-	public byte[] getTile(BlockPos blockPos) {
+	public VertexBuffer getTile(BlockPos blockPos) {
 		final int chunkX = Math.floorDiv(blockPos.getX(), TILE_SIZE);
 		final int y = mapType == MapType.DYNAMIC ? blockPos.getY() : 0;
 		final int chunkZ = Math.floorDiv(blockPos.getZ(), TILE_SIZE);
-		return get(new BlockPos(chunkX, y, chunkZ).asLong(), cacheDirectory -> new MapTileResource(
+		final MapTileResource mapTileResource = get(new BlockPos(chunkX, y, chunkZ).asLong(), cacheDirectory -> new MapTileResource(
 				world, mapType,
 				chunkX, y, chunkZ,
 				cacheDirectory.resolve(String.format("%s_%s_%s_%s", mapType.toString().toLowerCase(Locale.ENGLISH), chunkX, y, chunkZ))
 		));
+		return mapTileResource == null ? null : mapTileResource.getVertexBuffer();
 	}
 
 	public enum MapType {TERRAIN, ELEVATION, SATELLITE, DYNAMIC}

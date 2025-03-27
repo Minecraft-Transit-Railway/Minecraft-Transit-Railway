@@ -103,6 +103,7 @@ public final class MTR {
 		Registry.registerPacket(PacketDriveTrain.class, PacketDriveTrain::new);
 		Registry.registerPacket(PacketFetchArrivals.class, PacketFetchArrivals::new);
 		Registry.registerPacket(PacketForwardClientRequest.class, PacketForwardClientRequest::new);
+		Registry.registerPacket(PacketGetUniqueWorldId.class, PacketGetUniqueWorldId::new);
 		Registry.registerPacket(PacketOpenBlockEntityScreen.class, PacketOpenBlockEntityScreen::new);
 		Registry.registerPacket(PacketOpenDashboardScreen.class, PacketOpenDashboardScreen::new);
 		Registry.registerPacket(PacketOpenLiftCustomizationScreen.class, PacketOpenLiftCustomizationScreen::new);

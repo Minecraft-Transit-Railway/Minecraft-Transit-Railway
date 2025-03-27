@@ -29,6 +29,8 @@ import org.mtr.generated.WebserverResources;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.javax.servlet.MultipartConfigElement;
 import org.mtr.libraries.org.eclipse.jetty.servlet.ServletHolder;
+import org.mtr.map.MapTileProvider;
+import org.mtr.packet.PacketGetUniqueWorldId;
 import org.mtr.packet.PacketRequestData;
 import org.mtr.registry.*;
 import org.mtr.render.*;
@@ -46,14 +48,19 @@ import java.util.function.Consumer;
 
 public final class MTRClient {
 
+	@Nullable
 	private static Webserver webserver;
 	private static int serverPort;
 	private static long lastMillis = 0;
 	private static long gameMillis = 0;
 	private static long lastPlayedTrainSoundsMillis = 0;
 	private static long lastUpdatePacketMillis = 0;
+	@Nullable
 	private static Runnable movePlayer;
+	@Nullable
 	private static ClientWorld lastClientWorld;
+	@Nullable
+	private static MapTileProvider mapTileProvider;
 
 	public static final int MILLIS_PER_SPEED_SOUND = 200;
 	public static final LoopingSoundInstance TACTILE_MAP_SOUND_INSTANCE = new LoopingSoundInstance("tactile_map_music");
@@ -303,11 +310,16 @@ public final class MTRClient {
 			CachedResource.tick();
 			BetaWarningScreen.handle();
 
+			if (mapTileProvider != null) {
+				mapTileProvider.tick();
+			}
+
 			final ClientWorld clientWorld = MinecraftClient.getInstance().world;
 			// If world or dimension changed, reset the data
 			if (clientWorld != null && (lastClientWorld == null || !lastClientWorld.equals(clientWorld))) {
 				lastClientWorld = clientWorld;
 				MinecraftClientData.reset();
+				RegistryClient.sendPacketToServer(new PacketGetUniqueWorldId());
 			}
 
 			BlockTrainAnnouncer.processQueue();
@@ -334,6 +346,9 @@ public final class MTRClient {
 		EventRegistryClient.registerChunkLoad((clientWorld, worldChunk) -> {
 			if (lastUpdatePacketMillis == 0) {
 				lastUpdatePacketMillis = getGameMillis() + 500;
+			}
+			if (mapTileProvider != null) {
+				mapTileProvider.getTile(worldChunk.getPos().getStartPos());
 			}
 		});
 
@@ -417,6 +432,18 @@ public final class MTRClient {
 	 */
 	public static int getServerPort() {
 		return serverPort;
+	}
+
+	public static void processUniqueWorldId(String uniqueWorldId) {
+		final ClientWorld clientWorld = MinecraftClient.getInstance().world;
+		if (clientWorld != null) {
+			mapTileProvider = new MapTileProvider(clientWorld, uniqueWorldId, MapTileProvider.MapType.SATELLITE);
+		}
+	}
+
+	@Nullable
+	public static MapTileProvider getMapTileProvider() {
+		return mapTileProvider;
 	}
 
 	private static void setupWebserver(Webserver webserver) {

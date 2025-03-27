@@ -21,27 +21,27 @@ public final class FontGroups {
 		calligraphy = new FontGroup(ObjectImmutableList.of(new FontProvider(Identifier.of(MTR.MOD_ID, "font/masa-font-bold.ttf"))));
 	}
 
-	public static void renderMinecraft(Matrix4f matrix4f, VertexConsumer vertexConsumer, String text, int color, int light) {
+	public static void renderMinecraft(Matrix4f matrix4f, VertexConsumer vertexConsumer, String text, FontRenderOptions fontRenderOptions) {
 		if (minecraft != null) {
-			minecraft.render(matrix4f, vertexConsumer, text, color, light);
+			minecraft.render(matrix4f, vertexConsumer, text, fontRenderOptions);
 		}
 	}
 
-	public static void renderMTR(Matrix4f matrix4f, VertexConsumer vertexConsumer, String text, int color, int light) {
+	public static void renderMTR(Matrix4f matrix4f, VertexConsumer vertexConsumer, String text, FontRenderOptions fontRenderOptions) {
 		if (mtr != null) {
-			mtr.render(matrix4f, vertexConsumer, text, color, light);
+			mtr.render(matrix4f, vertexConsumer, text, fontRenderOptions);
 		}
 	}
 
-	public static void renderKCR(Matrix4f matrix4f, VertexConsumer vertexConsumer, String text, int color, int light) {
+	public static void renderKCR(Matrix4f matrix4f, VertexConsumer vertexConsumer, String text, FontRenderOptions fontRenderOptions) {
 		if (kcr != null) {
-			kcr.render(matrix4f, vertexConsumer, text, color, light);
+			kcr.render(matrix4f, vertexConsumer, text, fontRenderOptions);
 		}
 	}
 
-	public static void renderCalligraphy(Matrix4f matrix4f, VertexConsumer vertexConsumer, String text, int color, int light) {
+	public static void renderCalligraphy(Matrix4f matrix4f, VertexConsumer vertexConsumer, String text, FontRenderOptions fontRenderOptions) {
 		if (calligraphy != null) {
-			calligraphy.render(matrix4f, vertexConsumer, text, color, light);
+			calligraphy.render(matrix4f, vertexConsumer, text, fontRenderOptions);
 		}
 	}
 }

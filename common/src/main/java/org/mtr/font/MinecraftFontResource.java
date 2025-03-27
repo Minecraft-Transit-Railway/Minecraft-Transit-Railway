@@ -25,7 +25,7 @@ public final class MinecraftFontResource extends FontResourceBase {
 	private final Int2ObjectOpenHashMap<byte[]> charBitmap;
 
 	private static final int MINECRAFT_FONT_SIZE = 8;
-	private static final int MINECRAFT_FONT_SCALE = FontProvider.FONT_SIZE / MINECRAFT_FONT_SIZE;
+	private static final int MINECRAFT_FONT_SCALE = FONT_SIZE / MINECRAFT_FONT_SIZE;
 
 	public MinecraftFontResource(Int2ObjectOpenHashMap<byte[]> charBitmap, int textureIndex, Path path) {
 		super(textureIndex, path);
@@ -35,17 +35,17 @@ public final class MinecraftFontResource extends FontResourceBase {
 	@Nullable
 	@Override
 	protected byte[] generate(@Nullable byte[] oldData) {
-		final ByteArrayList byteArrayList1 = new ByteArrayList(FontProvider.TEXTURE_CHAR_COUNT * 4);
+		final ByteArrayList byteArrayList1 = new ByteArrayList(TEXTURE_CHAR_COUNT * 4);
 		final ByteArrayList byteArrayList2 = new ByteArrayList();
 		boolean modified = false;
 
-		for (int i = 0; i < FontProvider.TEXTURE_CHAR_COUNT; i++) {
-			final byte[] pixels = charBitmap.get(FontProvider.TEXTURE_CHAR_COUNT * textureIndex + i);
+		for (int i = 0; i < TEXTURE_CHAR_COUNT; i++) {
+			final byte[] pixels = charBitmap.get(TEXTURE_CHAR_COUNT * textureIndex + i);
 
 			if (pixels == null) {
 				writeInt(byteArrayList1, 0);
 			} else {
-				writeInt(byteArrayList1, byteArrayList2.size() + FontProvider.TEXTURE_CHAR_COUNT * 4);
+				writeInt(byteArrayList1, byteArrayList2.size() + TEXTURE_CHAR_COUNT * 4);
 				for (final byte pixel : pixels) {
 					byteArrayList2.add(pixel);
 				}

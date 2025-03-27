@@ -1,7 +1,8 @@
 plugins {
-	id "dev.architectury.loom" version "1.9-SNAPSHOT" apply false
+	id "dev.architectury.loom" version "1.10-SNAPSHOT" apply false
 	id "architectury-plugin" version "3.4-SNAPSHOT"
 	id "com.github.johnrengelman.shadow" version "8.1.1" apply false
+	id "io.freefair.lombok" version "8.13.1" apply false
 }
 
 architectury {
@@ -17,6 +18,7 @@ subprojects {
 	apply plugin: "dev.architectury.loom"
 	apply plugin: "architectury-plugin"
 	apply plugin: "maven-publish"
+	apply plugin: "io.freefair.lombok"
 
 	base {
 		// Set up a suffixed format for the mod jar names, e.g. `example-fabric`.

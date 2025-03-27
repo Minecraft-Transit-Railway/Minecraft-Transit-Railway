@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.world.PersistentState;
+import org.mtr.MTR;
 
 /**
  * This class is for storing extra world data that is not stored in Transport Simulation Core.
@@ -11,25 +12,35 @@ import net.minecraft.world.PersistentState;
  */
 public final class PersistentStateData extends PersistentState {
 
+	private final String uniqueWorldId;
 	private final LongAVLTreeSet routeIdsWithDisabledAnnouncements = new LongAVLTreeSet();
 
-	private static final String KEY_DATA = "route_ids_with_disabled_announcements";
+	private static final String KEY_UNIQUE_WORLD_ID = "unique_world_id";
+	private static final String KEY_ROUTE_IDS_WITH_DISABLED_ANNOUNCEMENTS = "route_ids_with_disabled_announcements";
 
 	public PersistentStateData() {
 		super();
+		uniqueWorldId = MTR.randomString();
 	}
 
 	public PersistentStateData(NbtCompound nbt) {
 		super();
-		for (final long routeId : nbt.getLongArray(KEY_DATA)) {
+		final String tempUniqueWorldId = nbt.getString(KEY_UNIQUE_WORLD_ID);
+		uniqueWorldId = tempUniqueWorldId.isEmpty() ? MTR.randomString() : tempUniqueWorldId;
+		for (final long routeId : nbt.getLongArray(KEY_ROUTE_IDS_WITH_DISABLED_ANNOUNCEMENTS)) {
 			routeIdsWithDisabledAnnouncements.add(routeId);
 		}
 	}
 
 	@Override
 	public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-		nbt.putLongArray(KEY_DATA, routeIdsWithDisabledAnnouncements.toLongArray());
+		nbt.putString(KEY_UNIQUE_WORLD_ID, uniqueWorldId);
+		nbt.putLongArray(KEY_ROUTE_IDS_WITH_DISABLED_ANNOUNCEMENTS, routeIdsWithDisabledAnnouncements.toLongArray());
 		return nbt;
+	}
+
+	public String getUniqueWorldId() {
+		return uniqueWorldId;
 	}
 
 	public boolean getRouteIdHasDisabledAnnouncements(long routeId) {

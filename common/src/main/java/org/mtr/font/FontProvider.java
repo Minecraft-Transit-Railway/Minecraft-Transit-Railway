@@ -19,9 +19,6 @@ public final class FontProvider extends CachedFileProvider<FontResourceBase> {
 	@Nullable
 	private final Int2ObjectOpenHashMap<byte[]> charBitmap;
 
-	public static final int TEXTURE_CHAR_COUNT = 256;
-	public static final int FONT_SIZE = 32;
-
 	public FontProvider(@Nullable Identifier fontFileIdentifier) {
 		super(MinecraftClient.getInstance().runDirectory.toPath().resolve("config/cache/font").resolve(fontFileIdentifier == null ? "fallback" : fontFileIdentifier.getPath().toLowerCase(Locale.ENGLISH).replaceAll("[^a-z0-9_-]", "_")));
 
@@ -53,19 +50,19 @@ public final class FontProvider extends CachedFileProvider<FontResourceBase> {
 
 	@Nullable
 	public IntObjectImmutablePair<byte[]> render(int character) {
-		final int textureIndex = character / TEXTURE_CHAR_COUNT;
-		final byte[] data = get(textureIndex, cacheDirectory -> {
+		final int textureIndex = character / FontResourceBase.TEXTURE_CHAR_COUNT;
+		final FontResourceBase fontResourceBase = get(textureIndex, cacheDirectory -> {
 			if (charBitmap == null) {
 				return new FileFontResource(font, textureIndex, cacheDirectory.resolve(String.valueOf(textureIndex)));
 			} else {
 				return new MinecraftFontResource(charBitmap, textureIndex, cacheDirectory.resolve(String.valueOf(textureIndex)));
 			}
 		});
-		if (data == null) {
+		if (fontResourceBase == null || fontResourceBase.getData() == null) {
 			return null;
 		} else {
-			final int index = FileFontResource.getInt(data, (character - textureIndex * TEXTURE_CHAR_COUNT) * 4);
-			return index == 0 ? null : new IntObjectImmutablePair<>(index, data);
+			final int index = FileFontResource.getInt(fontResourceBase.getData(), (character - textureIndex * FontResourceBase.TEXTURE_CHAR_COUNT) * 4);
+			return index == 0 ? null : new IntObjectImmutablePair<>(index, fontResourceBase.getData());
 		}
 	}
 

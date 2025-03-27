@@ -21,13 +21,13 @@ public final class FileFontResource extends FontResourceBase {
 
 	@Override
 	protected byte[] generate(@Nullable byte[] oldData) {
-		final ByteArrayList byteArrayList1 = new ByteArrayList(FontProvider.TEXTURE_CHAR_COUNT * 4);
+		final ByteArrayList byteArrayList1 = new ByteArrayList(TEXTURE_CHAR_COUNT * 4);
 		final ByteArrayList byteArrayList2 = new ByteArrayList();
-		final Font derivedPreferredFont = preferredFont == null ? null : preferredFont.deriveFont(Font.PLAIN, FontProvider.FONT_SIZE);
+		final Font derivedPreferredFont = preferredFont == null ? null : preferredFont.deriveFont(Font.PLAIN, FONT_SIZE);
 		boolean modified = false;
 
-		for (int i = 0; i < FontProvider.TEXTURE_CHAR_COUNT; i++) {
-			final int character = FontProvider.TEXTURE_CHAR_COUNT * textureIndex + i;
+		for (int i = 0; i < TEXTURE_CHAR_COUNT; i++) {
+			final int character = TEXTURE_CHAR_COUNT * textureIndex + i;
 			final Font font = getFont(derivedPreferredFont, character);
 
 			if (font != null && font.canDisplay(character)) {
@@ -38,7 +38,7 @@ public final class FileFontResource extends FontResourceBase {
 				final int glyphWidth = (int) Math.ceil(bounds.getWidth());
 				final int glyphHeight = (int) Math.ceil(bounds.getHeight());
 
-				writeInt(byteArrayList1, byteArrayList2.size() + FontProvider.TEXTURE_CHAR_COUNT * 4);
+				writeInt(byteArrayList1, byteArrayList2.size() + TEXTURE_CHAR_COUNT * 4);
 				final int advance = dummyGraphics.getFontMetrics(font).charWidth(character);
 				modified = true;
 
@@ -82,7 +82,7 @@ public final class FileFontResource extends FontResourceBase {
 		if (preferredFont == null) {
 			for (final Font testFont : GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts()) {
 				if (testFont.canDisplay(character)) {
-					return testFont.deriveFont(Font.PLAIN, FontProvider.FONT_SIZE);
+					return testFont.deriveFont(Font.PLAIN, FONT_SIZE);
 				}
 			}
 			return null;
