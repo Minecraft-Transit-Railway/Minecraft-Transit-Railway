@@ -102,6 +102,12 @@ public final class PersistentVehicleData {
 		return getElement(vehicleSoundBaseList, carNumber, vehicleResource.createVehicleSoundBase);
 	}
 
+	public void dispose() {
+		for (VehicleSoundBase sounds : vehicleSoundBaseList) {
+			sounds.dispose();
+		}
+	}
+
 	private static <T> T getElement(ObjectArrayList<T> list, int index, Supplier<T> supplier) {
 		while (list.size() <= index) {
 			list.add(supplier.get());

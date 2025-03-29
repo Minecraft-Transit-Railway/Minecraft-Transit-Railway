@@ -1,8 +1,8 @@
 package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.mapper.SlabBlockExtension;
+import org.mtr.mod.Blocks;
 import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
@@ -12,7 +12,7 @@ import java.util.List;
 public class BlockStationColorSlab extends SlabBlockExtension {
 
 	public BlockStationColorSlab() {
-		this(BlockHelper.createBlockSettings(false));
+		this(Blocks.createDefaultBlockSettings(false));
 	}
 
 	protected BlockStationColorSlab(BlockSettings blockSettings) {

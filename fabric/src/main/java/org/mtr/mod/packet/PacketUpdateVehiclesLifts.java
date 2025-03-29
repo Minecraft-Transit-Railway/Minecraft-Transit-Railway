@@ -8,6 +8,7 @@ import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.serializer.WriterBase;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
@@ -40,8 +41,9 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 	protected void runClientInbound(JsonReader jsonReader) {
 		final MinecraftClientData minecraftClientData = MinecraftClientData.getInstance();
 		final VehicleLiftResponse vehicleLiftResponse = new VehicleLiftResponse(jsonReader, minecraftClientData);
-		final boolean hasUpdate1 = updateVehiclesOrLifts(minecraftClientData.vehicles, vehicleLiftResponse::iterateVehiclesToKeep, vehicleLiftResponse::iterateVehiclesToUpdate, vehicleUpdate -> vehicleUpdate.getVehicle().getId(), vehicleUpdate -> new VehicleExtension(vehicleUpdate, minecraftClientData));
-		final boolean hasUpdate2 = updateVehiclesOrLifts(minecraftClientData.lifts, vehicleLiftResponse::iterateLiftsToKeep, vehicleLiftResponse::iterateLiftsToUpdate, NameColorDataBase::getId, lift -> lift);
+		final boolean hasUpdate1 = updateVehiclesOrLifts(minecraftClientData.vehicles, vehicleLiftResponse::iterateVehiclesToKeep, vehicleLiftResponse::iterateVehiclesToUpdate, VehicleExtension::dispose, vehicleUpdate -> vehicleUpdate.getVehicle().getId(), vehicleUpdate -> new VehicleExtension(vehicleUpdate, minecraftClientData));
+		final boolean hasUpdate2 = updateVehiclesOrLifts(minecraftClientData.lifts, vehicleLiftResponse::iterateLiftsToKeep, vehicleLiftResponse::iterateLiftsToUpdate, (removedLift) -> {
+		}, NameColorDataBase::getId, lift -> lift);
 
 		vehicleLiftResponse.iterateSignalBlockUpdates(signalBlockUpdate -> minecraftClientData.railIdToBlockedSignalColors.put(signalBlockUpdate.getRailId(), signalBlockUpdate.getBlockedColors()));
 
@@ -82,7 +84,7 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 		return PacketRequestResponseBase.ResponseType.NONE;
 	}
 
-	private static <T extends NameColorDataBase, U> boolean updateVehiclesOrLifts(ObjectArraySet<T> dataSet, Consumer<LongConsumer> iterateKeep, Consumer<Consumer<U>> iterateUpdate, ToLongFunction<U> getId, Function<U, T> createInstance) {
+	private static <T extends NameColorDataBase, U> boolean updateVehiclesOrLifts(ObjectArraySet<T> dataSet, Consumer<LongConsumer> iterateKeep, Consumer<Consumer<U>> iterateUpdate, Consumer<T> onRemove, ToLongFunction<U> getId, Function<U, T> createInstance) {
 		final LongAVLTreeSet keepIds = new LongAVLTreeSet();
 		iterateKeep.accept(keepIds::add);
 		VehicleRidingMovement.writeVehicleId(keepIds);
@@ -94,8 +96,18 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 			updateIds.add(getId.applyAsLong(dataToUpdate));
 		});
 
-		final boolean removedItems = dataSet.removeIf(data -> !keepIds.contains(data.getId()) || updateIds.contains(data.getId()));
+		final Long2ObjectOpenHashMap<T> removedItems = new Long2ObjectOpenHashMap<>();
+		final boolean itemRemoved = dataSet.removeIf(data -> {
+			boolean shouldBeRemoved = !keepIds.contains(data.getId());
+			if (shouldBeRemoved) {
+				removedItems.put(data.getId(), data);
+			}
+			return shouldBeRemoved || updateIds.contains(data.getId());
+		});
 		dataSetToUpdate.forEach(dataToUpdate -> dataSet.add(createInstance.apply(dataToUpdate)));
-		return !dataSetToUpdate.isEmpty() || removedItems;
+		dataSet.forEach(e -> removedItems.remove(e.getId()));
+		removedItems.values().forEach(onRemove);
+
+		return !dataSetToUpdate.isEmpty() || itemRemoved;
 	}
 }

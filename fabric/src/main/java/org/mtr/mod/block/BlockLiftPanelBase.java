@@ -1,7 +1,10 @@
 package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mod.Items;
 import org.mtr.mod.generated.lang.TranslationProvider;
 
@@ -15,7 +18,7 @@ public abstract class BlockLiftPanelBase extends BlockExtension implements IBloc
 	private final boolean isFlat;
 
 	public BlockLiftPanelBase(boolean isOdd, boolean isFlat) {
-		super(BlockHelper.createBlockSettings(true, blockState -> 5));
+		super(org.mtr.mod.Blocks.createDefaultBlockSettings(true, blockState -> 5));
 		this.isOdd = isOdd;
 		this.isFlat = isFlat;
 	}

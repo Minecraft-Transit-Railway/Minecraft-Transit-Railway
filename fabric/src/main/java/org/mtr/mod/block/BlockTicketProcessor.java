@@ -1,8 +1,8 @@
 package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockHelper;
 import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.Blocks;
 import org.mtr.mod.SoundEvents;
 import org.mtr.mod.data.TicketSystem;
 
@@ -18,7 +18,7 @@ public class BlockTicketProcessor extends BlockDirectionalDoubleBlockBase {
 	public static final EnumProperty<EnumTicketProcessorLights> LIGHTS = EnumProperty.of("lights", EnumTicketProcessorLights.class);
 
 	public BlockTicketProcessor(boolean hasLight, boolean canEnter, boolean canExit) {
-		super(BlockHelper.createBlockSettings(true, blockState -> 5));
+		super(Blocks.createDefaultBlockSettings(true, blockState -> 5));
 		this.hasLight = hasLight;
 		this.canEnter = canEnter;
 		this.canExit = canExit;

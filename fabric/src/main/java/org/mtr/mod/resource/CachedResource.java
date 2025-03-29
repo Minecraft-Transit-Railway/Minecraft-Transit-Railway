@@ -27,7 +27,7 @@ public final class CachedResource<T> {
 	public T getData(boolean force) {
 		if (force || canFetchCache) {
 			final long currentMillis = System.currentTimeMillis();
-			if (currentMillis > expiry) {
+			if (data == null || currentMillis > expiry) {
 				data = dataSupplier.get();
 				canFetchCache = false;
 			}

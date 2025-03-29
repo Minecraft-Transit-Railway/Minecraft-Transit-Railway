@@ -17,4 +17,8 @@ public final class Server extends ServerSchema {
 	public boolean getUseThreadedSimulation() {
 		return useThreadedSimulation;
 	}
+
+	public boolean getUseThreadedFileLoading() {
+		return useThreadedFileLoading;
+	}
 }

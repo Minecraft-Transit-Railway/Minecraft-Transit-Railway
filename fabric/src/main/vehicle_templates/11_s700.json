@@ -1,0 +1,138 @@
+{
+	"replacements": {
+		"lengths": [
+			0,
+			0
+		],
+		"id": [
+			"",
+			"_low_floor"
+		],
+		"name": [
+			"",
+			", Low Floor"
+		]
+	},
+	"vehicles": [
+		{
+			"id": "s700@id@_sound_transit_1",
+			"name": "Sound Transit Siemens S700 (Front@name@)",
+			"color": "0091B3",
+			"transportMode": "TRAIN",
+			"length": 12.0,
+			"width": 2.0,
+			"bogie1Position": -2.75,
+			"bogie2Position": 4.0,
+			"wikipediaArticle": "Siemens_S700_and_S70",
+			"tags": [
+				"family:s700",
+				"iso_3166:US",
+				"doors:2",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/s700.bbmodel",
+					"textureResource": "mtr:textures/vehicle/s700.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/s700@id@_cab_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/s700_cab_1.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_2.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_2.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"hasBarrier1": false,
+			"hasBarrier2": false,
+			"legacyRiderOffset": 0.0,
+			"bveSoundBaseResource": "s700"
+		},
+		{
+			"id": "s700@id@_sound_transit_2",
+			"name": "Sound Transit Siemens S700 (Middle@name@)",
+			"color": "0091B3",
+			"transportMode": "TRAIN",
+			"length": 4.0,
+			"width": 2.0,
+			"bogie1Position": 0.0,
+			"bogie2Position": 0.0,
+			"wikipediaArticle": "Siemens_S700_and_S70",
+			"tags": [
+				"family:s700",
+				"iso_3166:US",
+				"doors:0",
+				"type:trailer"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/s700.bbmodel",
+					"textureResource": "mtr:textures/vehicle/s700.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/s700@id@_trailer.json",
+					"positionDefinitionsResource": "mtr:properties/definition/s700_trailer.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_2.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_2.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"hasBarrier1": false,
+			"hasBarrier2": false,
+			"legacyRiderOffset": 0.0,
+			"bveSoundBaseResource": "s700"
+		},
+		{
+			"id": "s700@id@_sound_transit_3",
+			"name": "Sound Transit Siemens S700 (Back@name@)",
+			"color": "0091B3",
+			"transportMode": "TRAIN",
+			"length": 12.0,
+			"width": 2.0,
+			"bogie1Position": -4.0,
+			"bogie2Position": 2.75,
+			"wikipediaArticle": "Siemens_S700_and_S70",
+			"tags": [
+				"family:s700",
+				"iso_3166:US",
+				"doors:2",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/s700.bbmodel",
+					"textureResource": "mtr:textures/vehicle/s700.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/s700@id@_cab_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/s700_cab_2.json"
+				}
+			],
+			"bogie1Models": [],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_2.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_2.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"hasBarrier1": false,
+			"hasBarrier2": false,
+			"legacyRiderOffset": 0.0,
+			"bveSoundBaseResource": "s700"
+		}
+	]
+}

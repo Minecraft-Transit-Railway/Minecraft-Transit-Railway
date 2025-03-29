@@ -14,16 +14,17 @@ public class BlockCeilingAuto extends BlockCeiling {
 		super(blockSettings);
 	}
 
+	@Nonnull
 	@Override
-	public BlockState getPlacementState2(ItemPlacementContext ctx) {
-		final boolean facing = ctx.getPlayerFacing().getAxis() == Axis.X;
-		return getDefaultState2().with(new Property<>(FACING.data), facing).with(new Property<>(LIGHT.data), hasLight(facing, ctx.getBlockPos()));
+	public BlockState getPlacementState2(ItemPlacementContext itemPlacementContext) {
+		final boolean facing = itemPlacementContext.getPlayerFacing().getAxis() == Axis.X;
+		return super.getPlacementState2(itemPlacementContext).with(new Property<>(FACING.data), facing).with(new Property<>(LIGHT.data), hasLight(facing, itemPlacementContext.getBlockPos()));
 	}
 
 	@Nonnull
 	@Override
 	public BlockState getStateForNeighborUpdate2(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
-		return state.with(new Property<>(LIGHT.data), hasLight(IBlock.getStatePropertySafe(state, FACING), pos));
+		return super.getStateForNeighborUpdate2(state, direction, neighborState, world, pos, neighborPos).with(new Property<>(LIGHT.data), hasLight(IBlock.getStatePropertySafe(state, FACING), pos));
 	}
 
 	@Override
@@ -41,7 +42,7 @@ public class BlockCeilingAuto extends BlockCeiling {
 
 	@Override
 	public void addBlockProperties(List<HolderBase<?>> properties) {
-		properties.add(FACING);
+		super.addBlockProperties(properties);
 		properties.add(LIGHT);
 	}
 

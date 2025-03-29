@@ -5,21 +5,20 @@ import org.mtr.core.tool.Utilities;
 
 public enum DoorAnimationType {
 
-	STANDARD(0.5),
-	STANDARD_SLOW(0.5),
-	CONSTANT(0.5),
-	PLUG_FAST(0.5),
-	PLUG_SLOW(2),
-	BOUNCY_1(0.5),
-	BOUNCY_2(0.5),
-	MLR(0.7),
-	R179(0.6),
-	R211(0.7);
+	STANDARD,
+	STANDARD_SLOW,
+	CONSTANT,
+	PLUG_FAST,
+	PLUG_SLOW,
+	PLUG_SLOW_2,
+	PLUG_SLOW_3,
+	BOUNCY_1,
+	BOUNCY_2,
+	MLR,
+	R179,
+	R211;
 
-	public final double maxTime;
-
-	DoorAnimationType(double maxTime) {
-		this.maxTime = maxTime;
+	DoorAnimationType() {
 	}
 
 	public double getDoorAnimationX(double multiplier, boolean flipped, double time) {
@@ -33,6 +32,8 @@ public enum DoorAnimationType {
 	private double getDoorAnimationXAbsolute(double multiplier, double time) {
 		switch (this) {
 			case PLUG_FAST:
+			case PLUG_SLOW_2:
+			case PLUG_SLOW_3:
 				return time < 0.05 ? time * 20 * multiplier + 0.05 : multiplier + 0.05;
 			case PLUG_SLOW:
 				return smoothEnds(0.05, multiplier + 0.05, 0, 0.1, time);
@@ -59,6 +60,10 @@ public enum DoorAnimationType {
 						return 2;
 					}
 				}
+			case PLUG_SLOW_2:
+				return smoothEnds(-doorMax, doorMax, -0.75, 0.75, time);
+			case PLUG_SLOW_3:
+				return smoothEnds(-doorMax, doorMax, -1, 1, time);
 			case BOUNCY_1:
 				if (opening) {
 					if (time > 0.4) {

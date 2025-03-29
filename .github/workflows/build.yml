@@ -31,7 +31,11 @@ jobs:
       - name: Build Angular
         run: npm run build --prefix buildSrc/src/main/resources/website
       - name: Setup Fabric files
+        if: ${{ matrix.minecraft != '1.20.4' }}
         run: ./gradlew fabric:setupFiles -PminecraftVersion="${{ matrix.minecraft }}" -PcrowdinApiKey="${{ secrets.CROWDIN_API_KEY }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+      - name: Setup Fabric files
+        if: ${{ matrix.minecraft == '1.20.4' }}
+        run: ./gradlew fabric:setupFiles -PminecraftVersion="${{ matrix.minecraft }}" -PcrowdinApiKey="${{ secrets.CROWDIN_API_KEY }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}" -PgeminiApiKey="${{ secrets.GEMINI_API_KEY }}"
       - name: Setup Forge files
         run: ./gradlew forge:setupFiles -PminecraftVersion="${{ matrix.minecraft }}"
       - name: Build ${{ matrix.minecraft }}
@@ -43,3 +47,7 @@ jobs:
         with:
           name: Fabric and Forge ${{ matrix.minecraft }}
           path: build/release/
+      - name: Post Crowdin translation analysis
+        if: ${{ matrix.minecraft == '1.20.4' }}
+        run: cat build/translation/analysis.md >> $GITHUB_STEP_SUMMARY
+        continue-on-error: true

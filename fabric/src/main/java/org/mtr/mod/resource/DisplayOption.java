@@ -20,11 +20,12 @@ public enum DisplayOption {
 	}),
 	SCROLL_NORMAL(null), SCROLL_LIGHT_RAIL(null),
 	SEVEN_SEGMENT(text -> text.replaceAll("\\D", "")),
-	ALIGN_LEFT_CJK(null), ALIGN_CENTER_CJK(null), ALIGN_RIGHT_CJK(null),
-	ALIGN_LEFT(null), ALIGN_CENTER(null), ALIGN_RIGHT(null),
+	ALIGN_LEFT_CJK(null), ALIGN_RIGHT_CJK(null),
+	ALIGN_LEFT(null), ALIGN_RIGHT(null),
+	ALIGN_TOP(null), ALIGN_BOTTOM(null),
 	CYCLE_LANGUAGES(text -> {
 		final String[] textSplit = text.split("\\|");
-		return textSplit[(int) ((System.currentTimeMillis() / 1000) % textSplit.length)];
+		return textSplit.length == 0 ? "" : textSplit[(int) ((System.currentTimeMillis() / 1000) % textSplit.length)];
 	});
 
 	@Nullable

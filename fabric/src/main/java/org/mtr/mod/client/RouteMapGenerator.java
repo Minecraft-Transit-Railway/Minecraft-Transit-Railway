@@ -72,7 +72,7 @@ public class RouteMapGenerator implements IGui {
 			final IntArrayList colors = getRouteStream(platformId, (simplifiedRoute, currentStationIndex) -> {
 			});
 			if (colors.isEmpty()) {
-				return null;
+				return new NativeImage(NativeImageFormat.getAbgrMapped(), 1, 1, false);
 			}
 			final NativeImage nativeImage = new NativeImage(NativeImageFormat.getAbgrMapped(), 1, colors.size(), false);
 			for (int i = 0; i < colors.size(); i++) {
@@ -532,6 +532,8 @@ public class RouteMapGenerator implements IGui {
 				}
 
 				return nativeImage;
+			} else {
+				return new NativeImage(NativeImageFormat.getAbgrMapped(), 1, 1, false);
 			}
 		} catch (Exception e) {
 			Init.LOGGER.error("", e);
@@ -621,7 +623,7 @@ public class RouteMapGenerator implements IGui {
 	private static IntArrayList getRouteStream(long platformId, BiConsumer<SimplifiedRoute, Integer> nonTerminatingCallback) {
 		final IntArrayList colors = new IntArrayList();
 		final IntArrayList terminatingColors = new IntArrayList();
-		MinecraftClientData.getInstance().simplifiedRoutes.stream().filter(simplifiedRoute -> simplifiedRoute.getPlatformIndex(platformId) >= 0).sorted().forEach(simplifiedRoute -> {
+		MinecraftClientData.getInstance().simplifiedRoutes.stream().filter(simplifiedRoute -> simplifiedRoute.getPlatformIndex(platformId) >= 0 && !simplifiedRoute.getName().isEmpty()).sorted().forEach(simplifiedRoute -> {
 			final int currentStationIndex = simplifiedRoute.getPlatformIndex(platformId);
 			if (currentStationIndex < simplifiedRoute.getPlatforms().size() - 1) {
 				nonTerminatingCallback.accept(simplifiedRoute, currentStationIndex);

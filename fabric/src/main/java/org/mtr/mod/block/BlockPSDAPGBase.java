@@ -1,14 +1,14 @@
 package org.mtr.mod.block;
 
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.BlockHelper;
+import org.mtr.mod.Blocks;
 
 import javax.annotation.Nonnull;
 
 public abstract class BlockPSDAPGBase extends BlockDirectionalDoubleBlockBase {
 
 	public BlockPSDAPGBase() {
-		super(BlockHelper.createBlockSettings(true).nonOpaque());
+		super(Blocks.createDefaultBlockSettings(true).nonOpaque());
 	}
 
 	@Nonnull
