@@ -6,7 +6,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import org.mtr.MTR;
 import org.mtr.MTRClient;
@@ -46,8 +45,6 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 	private final ButtonWidget buttonDoneEditingRouteDestination;
 	private final ButtonWidget buttonZoomIn;
 	private final ButtonWidget buttonZoomOut;
-	private final WidgetBetterTexturedButton buttonMapTopView;
-	private final WidgetBetterTexturedButton buttonMapCurrentY;
 	private final ButtonWidget buttonRailActions;
 	private final ButtonWidget buttonOptions;
 	private final ButtonWidget buttonTransportSystemMap;
@@ -69,7 +66,7 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 		textFieldName = new WidgetBetterTextField(1024, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_NAME.getString());
 		textFieldCustomDestination = new WidgetBetterTextField(1024, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_CUSTOM_DESTINATION_SUGGESTION.getString());
 		colorSelector = new WidgetColorSelector(this, true, this::toggleButtons);
-		widgetMap = new WidgetMap(transportMode, this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickAddPlatformToRoute, this::onClickEditSavedRail, colorSelector::isMouseOver);
+		widgetMap = new WidgetMap(transportMode, this::onDrawCorners, this::onDrawCornersMouseRelease);
 
 		buttonTabStations = ButtonWidget.builder(TranslationProvider.GUI_MTR_STATIONS.getMutableText(), button -> onSelectTab(SelectedTab.STATIONS)).build();
 		buttonTabRoutes = ButtonWidget.builder(TranslationProvider.GUI_MTR_ROUTES.getMutableText(), button -> onSelectTab(SelectedTab.ROUTES)).build();
@@ -83,14 +80,6 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 		buttonDoneEditingRouteDestination = ButtonWidget.builder(Text.translatable("gui.done"), button -> onDoneEditingRouteDestination()).build();
 		buttonZoomIn = ButtonWidget.builder(Text.literal("+"), button -> widgetMap.scale(1)).build();
 		buttonZoomOut = ButtonWidget.builder(Text.literal("-"), button -> widgetMap.scale(-1)).build();
-		buttonMapTopView = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_map_top_view.png"), Identifier.of("textures/gui/sprites/mtr/icon_map_top_view_highlighted.png"), Identifier.of("textures/gui/sprites/mtr/icon_map_top_view_disabled.png"), button -> {
-			widgetMap.setMapOverlayMode(WorldMap.MapOverlayMode.TOP_VIEW);
-			toggleButtons();
-		}, true);
-		buttonMapCurrentY = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_map_current_y.png"), Identifier.of("textures/gui/sprites/mtr/icon_map_current_y_highlighted.png"), Identifier.of("textures/gui/sprites/mtr/icon_map_current_y_disabled.png"), button -> {
-			widgetMap.setMapOverlayMode(WorldMap.MapOverlayMode.CURRENT_Y);
-			toggleButtons();
-		}, true);
 		buttonRailActions = ButtonWidget.builder(TranslationProvider.GUI_MTR_RAIL_ACTIONS_BUTTON.getMutableText(), button -> MinecraftClient.getInstance().setScreen(new RailActionsScreen(this))).build();
 		buttonOptions = ButtonWidget.builder(Text.translatable("menu.options"), button -> MinecraftClient.getInstance().setScreen(new ConfigScreen(this))).build();
 		buttonTransportSystemMap = ButtonWidget.builder(TranslationProvider.GUI_MTR_TRANSPORT_SYSTEM_MAP.getMutableText(), button -> Util.getOperatingSystem().open(String.format("http://localhost:%s", MTRClient.getServerPort()))).build();
@@ -121,8 +110,6 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 		IDrawing.setPositionAndWidth(buttonDoneEditingRouteDestination, 0, bottomRowY, PANEL_WIDTH);
 		IDrawing.setPositionAndWidth(buttonZoomIn, width - SQUARE_SIZE * 2, bottomRowY - SQUARE_SIZE, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(buttonZoomOut, width - SQUARE_SIZE, bottomRowY - SQUARE_SIZE, SQUARE_SIZE);
-		IDrawing.setPositionAndWidth(buttonMapCurrentY, width - SQUARE_SIZE * 2, bottomRowY, SQUARE_SIZE);
-		IDrawing.setPositionAndWidth(buttonMapTopView, width - SQUARE_SIZE, bottomRowY, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(buttonRailActions, width - SQUARE_SIZE * 7, bottomRowY - SQUARE_SIZE, SQUARE_SIZE * 5);
 		IDrawing.setPositionAndWidth(buttonOptions, width - SQUARE_SIZE * 7, bottomRowY, SQUARE_SIZE * 5);
 		IDrawing.setPositionAndWidth(buttonTransportSystemMap, PANEL_WIDTH, bottomRowY - SQUARE_SIZE, width - SQUARE_SIZE * 7 - PANEL_WIDTH);
@@ -155,8 +142,6 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 		addDrawableChild(buttonOptions);
 		addDrawableChild(buttonTransportSystemMap);
 		addDrawableChild(buttonResourcePackCreator);
-		addDrawableChild(buttonMapTopView);
-		addDrawableChild(buttonMapCurrentY);
 
 		addDrawableChild(textFieldName);
 		addDrawableChild(textFieldCustomDestination);
@@ -240,7 +225,7 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 		buttonTabRoutes.active = tab != SelectedTab.ROUTES;
 		buttonTabDepots.active = tab != SelectedTab.DEPOTS;
 		stopEditing();
-		widgetMap.setShowStations(selectedTab != SelectedTab.DEPOTS);
+//		widgetMap.setShowStations(selectedTab != SelectedTab.DEPOTS);
 	}
 
 	private void onFind(DashboardListItem dashboardListItem, int index) {
@@ -351,7 +336,7 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 		textFieldName.setText(editingArea.getName());
 		colorSelector.setColor(editingArea.getColor());
 
-		widgetMap.startEditingArea(editingArea);
+		widgetMap.startEditingArea();
 		toggleButtons();
 	}
 
@@ -452,9 +437,6 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 		buttonDoneEditingStation.active = AreaBase.validCorners(editingArea);
 		buttonDoneEditingRoute.visible = selectedTab == SelectedTab.ROUTES && editingRoute != null && !showRouteDestinationFields;
 		buttonDoneEditingRouteDestination.visible = selectedTab == SelectedTab.ROUTES && editingRoute != null && showRouteDestinationFields;
-
-		buttonMapTopView.active = !widgetMap.isMapOverlayMode(WorldMap.MapOverlayMode.TOP_VIEW);
-		buttonMapCurrentY.active = !widgetMap.isMapOverlayMode(WorldMap.MapOverlayMode.CURRENT_Y);
 
 		final boolean showTextFields = ((selectedTab == SelectedTab.STATIONS || selectedTab == SelectedTab.DEPOTS) && editingArea != null) || (selectedTab == SelectedTab.ROUTES && editingRoute != null && !showRouteDestinationFields);
 		textFieldName.visible = showTextFields;

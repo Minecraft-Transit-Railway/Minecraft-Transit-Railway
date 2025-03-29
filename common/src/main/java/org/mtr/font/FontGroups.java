@@ -1,10 +1,13 @@
 package org.mtr.font;
 
+import it.unimi.dsi.fastutil.floats.FloatFloatImmutablePair;
 import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
 import org.mtr.MTR;
+
+import javax.annotation.Nullable;
 
 public final class FontGroups {
 
@@ -21,27 +24,35 @@ public final class FontGroups {
 		calligraphy = new FontGroup(ObjectImmutableList.of(new FontProvider(Identifier.of(MTR.MOD_ID, "font/masa-font-bold.ttf"))));
 	}
 
-	public static void renderMinecraft(Matrix4f matrix4f, VertexConsumer vertexConsumer, String text, FontRenderOptions fontRenderOptions) {
-		if (minecraft != null) {
-			minecraft.render(matrix4f, vertexConsumer, text, fontRenderOptions);
+	public static FloatFloatImmutablePair renderMinecraft(@Nullable Matrix4f matrix4f, @Nullable VertexConsumer vertexConsumer, String text, FontRenderOptions fontRenderOptions) {
+		if (minecraft == null) {
+			return new FloatFloatImmutablePair(0, 0);
+		} else {
+			return minecraft.render(matrix4f, vertexConsumer, text, fontRenderOptions);
 		}
 	}
 
-	public static void renderMTR(Matrix4f matrix4f, VertexConsumer vertexConsumer, String text, FontRenderOptions fontRenderOptions) {
-		if (mtr != null) {
-			mtr.render(matrix4f, vertexConsumer, text, fontRenderOptions);
+	public static FloatFloatImmutablePair renderMTR(@Nullable Matrix4f matrix4f, @Nullable VertexConsumer vertexConsumer, String text, FontRenderOptions fontRenderOptions) {
+		if (mtr == null) {
+			return new FloatFloatImmutablePair(0, 0);
+		} else {
+			return mtr.render(matrix4f, vertexConsumer, text, fontRenderOptions);
 		}
 	}
 
-	public static void renderKCR(Matrix4f matrix4f, VertexConsumer vertexConsumer, String text, FontRenderOptions fontRenderOptions) {
-		if (kcr != null) {
-			kcr.render(matrix4f, vertexConsumer, text, fontRenderOptions);
+	public static FloatFloatImmutablePair renderKCR(@Nullable Matrix4f matrix4f, @Nullable VertexConsumer vertexConsumer, String text, FontRenderOptions fontRenderOptions) {
+		if (kcr == null) {
+			return new FloatFloatImmutablePair(0, 0);
+		} else {
+			return kcr.render(matrix4f, vertexConsumer, text, fontRenderOptions);
 		}
 	}
 
-	public static void renderCalligraphy(Matrix4f matrix4f, VertexConsumer vertexConsumer, String text, FontRenderOptions fontRenderOptions) {
-		if (calligraphy != null) {
-			calligraphy.render(matrix4f, vertexConsumer, text, fontRenderOptions);
+	public static FloatFloatImmutablePair renderCalligraphy(@Nullable Matrix4f matrix4f, @Nullable VertexConsumer vertexConsumer, String text, FontRenderOptions fontRenderOptions) {
+		if (calligraphy == null) {
+			return new FloatFloatImmutablePair(0, 0);
+		} else {
+			return calligraphy.render(matrix4f, vertexConsumer, text, fontRenderOptions);
 		}
 	}
 }

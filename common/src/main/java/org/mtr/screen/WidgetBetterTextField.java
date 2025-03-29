@@ -2,16 +2,14 @@ package org.mtr.screen;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import org.mtr.core.tool.Utilities;
-import org.mtr.data.IGui;
 
 import javax.annotation.Nullable;
 import javax.annotation.RegEx;
 import java.util.function.Consumer;
 
-public class WidgetBetterTextField extends TextFieldWidget implements IGui {
+public final class WidgetBetterTextField extends TextFieldWidget {
 
 	private final int maxLength;
 	private final TextCase textCase;
@@ -22,23 +20,21 @@ public class WidgetBetterTextField extends TextFieldWidget implements IGui {
 		this("", maxLength, textCase, filter, suggestion);
 	}
 
-	public WidgetBetterTextField(String message, int maxLength, TextCase textCase, @RegEx @Nullable String filter, @Nullable String suggestion) {
-		this(Text.literal(message), maxLength, textCase, filter, suggestion);
-	}
-
-	public WidgetBetterTextField(MutableText text, int maxLength, TextCase textCase, @RegEx @Nullable String filter, @Nullable String suggestion) {
-		super(MinecraftClient.getInstance().textRenderer, 0, 0, 0, SQUARE_SIZE, text);
+	public WidgetBetterTextField(String text, int maxLength, TextCase textCase, @RegEx @Nullable String filter, @Nullable String suggestion) {
+		super(MinecraftClient.getInstance().textRenderer, 0, 0, 0, 8, Text.literal(""));
 		this.maxLength = maxLength;
 		this.textCase = textCase;
 		this.filter = filter;
 		this.suggestion = suggestion;
+		setText(text);
+		setDrawsBackground(false);
 		setChangedListener(value -> {
 		});
 		setMaxLength(0);
 	}
 
 	@Override
-	public final void setChangedListener(Consumer<String> changedListener) {
+	public void setChangedListener(Consumer<String> changedListener) {
 		super.setChangedListener(text -> {
 			final String newText;
 			if (filter == null || filter.isEmpty()) {
@@ -68,7 +64,7 @@ public class WidgetBetterTextField extends TextFieldWidget implements IGui {
 	}
 
 	@Override
-	public final void setMaxLength(int maxLength) {
+	public void setMaxLength(int maxLength) {
 		super.setMaxLength(Integer.MAX_VALUE);
 	}
 

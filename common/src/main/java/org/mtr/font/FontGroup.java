@@ -1,5 +1,6 @@
 package org.mtr.font;
 
+import it.unimi.dsi.fastutil.floats.FloatFloatImmutablePair;
 import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.client.render.VertexConsumer;
@@ -20,7 +21,7 @@ public final class FontGroup {
 		this.fontProviders = fontProviders;
 	}
 
-	public void render(Matrix4f matrix4f, VertexConsumer vertexConsumer, String text, FontRenderOptions fontRenderOptions) {
+	public FloatFloatImmutablePair render(@Nullable Matrix4f matrix4f, @Nullable VertexConsumer vertexConsumer, String text, FontRenderOptions fontRenderOptions) {
 		// Split lines
 		final String[] lines;
 		switch (fontRenderOptions.getLineBreak()) {
@@ -44,16 +45,29 @@ public final class FontGroup {
 			totalLineHeight += rawLineHeights[i];
 		}
 
-		// Render text with scaling
-		final float yScale = Math.min(1, fontRenderOptions.getVerticalSpace() / totalLineHeight);
-		final float x = fontRenderOptions.getHorizontalPositioning().getOffset(fontRenderOptions.getHorizontalSpace());
-		float y = fontRenderOptions.getVerticalPositioning().getOffset(fontRenderOptions.getVerticalSpace()) + fontRenderOptions.getVerticalTextAlignment().getOffset(totalLineHeight * yScale - fontRenderOptions.getVerticalSpace());
-		for (int i = 0; i < lines.length; i++) {
-			final float xScale = fontRenderOptions.getTextOverflow() == FontRenderOptions.TextOverflow.COMPRESS ? Math.min(yScale, Math.min(1, fontRenderOptions.getHorizontalSpace() / rawLineWidths[i])) : yScale;
-			final float horizontalOffset = fontRenderOptions.getHorizontalTextAlignment().getOffset(rawLineWidths[i] * xScale - fontRenderOptions.getHorizontalSpace());
-			renderRaw(matrix4f, vertexConsumer, lines[i], x + horizontalOffset, y + yScale, xScale * fontSize[i], yScale * fontSize[i], fontRenderOptions.getColor(), fontRenderOptions.getLight());
-			y += rawLineHeights[i] * yScale;
+		if (matrix4f != null && vertexConsumer != null) {
+			// Calculate scale
+			final float yScale;
+			if (fontRenderOptions.getTextOverflow() == FontRenderOptions.TextOverflow.SCALE) {
+				yScale = Math.min(1, Math.min(fontRenderOptions.getVerticalSpace() / totalLineHeight, fontRenderOptions.getHorizontalSpace() / maxLineWidth));
+			} else {
+				yScale = Math.min(1, fontRenderOptions.getVerticalSpace() / totalLineHeight);
+			}
+
+			// Calculate stating position
+			final float x = fontRenderOptions.getHorizontalPositioning().getOffset(fontRenderOptions.getHorizontalSpace());
+			float y = fontRenderOptions.getVerticalPositioning().getOffset(fontRenderOptions.getVerticalSpace()) + fontRenderOptions.getVerticalTextAlignment().getOffset(totalLineHeight * yScale - fontRenderOptions.getVerticalSpace());
+
+			// Render text
+			for (int i = 0; i < lines.length; i++) {
+				final float xScale = fontRenderOptions.getTextOverflow() == FontRenderOptions.TextOverflow.COMPRESS ? Math.min(yScale, Math.min(1, fontRenderOptions.getHorizontalSpace() / rawLineWidths[i])) : yScale;
+				final float horizontalOffset = fontRenderOptions.getHorizontalTextAlignment().getOffset(rawLineWidths[i] * xScale - fontRenderOptions.getHorizontalSpace());
+				renderRaw(matrix4f, vertexConsumer, lines[i], x + horizontalOffset, y, xScale * fontSize[i], yScale * fontSize[i], fontRenderOptions.getColor(), fontRenderOptions.getLight());
+				y += rawLineHeights[i] * yScale;
+			}
 		}
+
+		return new FloatFloatImmutablePair(Math.min(maxLineWidth, fontRenderOptions.getHorizontalSpace()), Math.min(totalLineHeight, fontRenderOptions.getVerticalSpace()));
 	}
 
 	private float[] renderRaw(@Nullable Matrix4f matrix4f, @Nullable VertexConsumer vertexConsumer, String text, float x, float y, float xScale, float yScale, int color, int light) {

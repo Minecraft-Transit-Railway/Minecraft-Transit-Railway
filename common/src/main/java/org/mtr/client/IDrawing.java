@@ -1,5 +1,6 @@
 package org.mtr.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.text2speech.Narrator;
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -238,6 +239,17 @@ public interface IDrawing {
 
 	static MutableText withMTRFont(MutableText text) {
 		return Config.getClient().getUseMTRFont() ? text.setStyle(Style.EMPTY.withFont(Identifier.of(MTR.MOD_ID, "mtr"))) : text;
+	}
+
+	static void changeShaderColor(Color color, Runnable callback) {
+		final float[] oldColor = RenderSystem.getShaderColor();
+		final float r = oldColor[0];
+		final float g = oldColor[1];
+		final float b = oldColor[2];
+		final float a = oldColor[3];
+		RenderSystem.setShaderColor((float) color.getRed() / 0xFF, (float) color.getGreen() / 0xFF, (float) color.getBlue() / 0xFF, (float) color.getAlpha() / 0xFF);
+		callback.run();
+		RenderSystem.setShaderColor(r, g, b, a);
 	}
 
 	@FunctionalInterface

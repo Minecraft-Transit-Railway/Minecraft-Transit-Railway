@@ -12,28 +12,64 @@ import org.mtr.data.IGui;
 @AllArgsConstructor
 public final class FontRenderOptions {
 
+	/**
+	 * Colour of the text (including alpha)
+	 */
 	@Builder.Default
 	private int color = IGui.ARGB_WHITE;
+	/**
+	 * Brightness of the text
+	 */
 	@Builder.Default
 	private int light = IGui.DEFAULT_LIGHT;
+	/**
+	 * The vertical size (in pixels) the text should be rendered, excluding descent
+	 */
 	@Builder.Default
 	private float maxFontSize = 8;
+	/**
+	 * If true, CJK text will be rendered twice the {@code maxFontSize}
+	 */
 	@Builder.Default
 	private boolean cjkScaling = false;
+	/**
+	 * How much total horizontal space the text is given (unlimited space for non-positive values)
+	 */
 	@Builder.Default
 	private float horizontalSpace = 0;
+	/**
+	 * How much total vertical space the text is given (unlimited space for non-positive values)
+	 */
 	@Builder.Default
 	private float verticalSpace = 0;
+	/**
+	 * Where the total text space should be positioned horizontally
+	 */
 	@Builder.Default
 	private Alignment horizontalPositioning = Alignment.START;
+	/**
+	 * Where the total text space should be positioned vertically
+	 */
 	@Builder.Default
 	private Alignment verticalPositioning = Alignment.START;
+	/**
+	 * Where the text should be positioned horizontally inside the space provided
+	 */
 	@Builder.Default
 	private Alignment horizontalTextAlignment = Alignment.START;
+	/**
+	 * Where the text should be positioned vertically inside the space provided
+	 */
 	@Builder.Default
 	private Alignment verticalTextAlignment = Alignment.START;
+	/**
+	 * Overflow behaviour for if the text doesn't fit inside the space provided
+	 */
 	@Builder.Default
-	private TextOverflow textOverflow = TextOverflow.CROP;
+	private TextOverflow textOverflow = TextOverflow.NONE;
+	/**
+	 * Line break behaviour (lines are split based on the {@code |} character)
+	 */
 	@Builder.Default
 	private LineBreak lineBreak = LineBreak.SPLIT;
 
@@ -59,7 +95,37 @@ public final class FontRenderOptions {
 		}
 	}
 
-	public enum TextOverflow {CROP, COMPRESS, SCROLL}
+	public enum TextOverflow {
+		/**
+		 * No overflow; the text is allowed to run off the edge
+		 */
+		NONE,
+		/**
+		 * The text will be compressed horizontally to fit the space
+		 */
+		COMPRESS,
+		/**
+		 * The text will be rendered smaller (affecting vertical size) to avoid any horizontal overflow
+		 */
+		SCALE,
+		/**
+		 * (not implemented yet)
+		 */
+		SCROLL
+	}
 
-	public enum LineBreak {SPLIT, FORCE_ONE_LINE, ALTERNATE}
+	public enum LineBreak {
+		/**
+		 * Split text into lines based on the {@code |} character
+		 */
+		SPLIT,
+		/**
+		 * Don't split text; the {@code |} character will be replaced with a space
+		 */
+		FORCE_ONE_LINE,
+		/**
+		 * (not implemented yet)
+		 */
+		ALTERNATE
+	}
 }
