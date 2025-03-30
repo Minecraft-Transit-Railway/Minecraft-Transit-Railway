@@ -38,6 +38,15 @@
 		},
 		{
 			"names": [
+				"cab_floor"
+			],
+			"positionDefinitions": [
+				"window1Flipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
 				"roof_exterior"
 			],
 			"positionDefinitions": [
