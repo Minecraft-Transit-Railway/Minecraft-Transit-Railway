@@ -23,7 +23,9 @@ public class EntityRendering extends EntityExtension {
 
 	@Override
 	public void tick2() {
-		update(true);
+		if (getEntityWorld2().getIsClientMapped()) {
+			update(true);
+		}
 	}
 
 	public void update() {
