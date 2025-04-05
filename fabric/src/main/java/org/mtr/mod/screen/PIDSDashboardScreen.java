@@ -47,11 +47,11 @@ public class PIDSDashboardScreen extends ScreenExtension implements IGui {
     @Override
     protected void init2() {
         super.init2();
-        final int spareSpace = Math.max(0, width - SQUARE_SIZE * 4 - PANEL_WIDTH * 3);
+        final int spareSpace = Math.max(0, width - SQUARE_SIZE * 4 - PANEL_WIDTH * 2);
         layoutList.x = SQUARE_SIZE * 3 + spareSpace + PANEL_WIDTH;
         layoutList.y = SQUARE_SIZE * 2 - TEXT_PADDING;
         layoutList.height = height - SQUARE_SIZE * 5 + TEXT_PADDING;
-        layoutList.width = PANEL_WIDTH * 2;
+        layoutList.width = PANEL_WIDTH;
         layoutList.init(this::addChild);
 
         IDrawing.setPositionAndWidth(newLayoutButton, SQUARE_SIZE * 3 + spareSpace + PANEL_WIDTH, height - SQUARE_SIZE - TEXT_FIELD_PADDING, PANEL_WIDTH * 2);
