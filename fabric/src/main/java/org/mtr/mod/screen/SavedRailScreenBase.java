@@ -31,7 +31,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 	private static final int MAX_SAVED_RAIL_NUMBER_LENGTH = 10;
 
 	public SavedRailScreenBase(T savedRailBase, TransportMode transportMode, ScreenExtension previousScreenExtension, MutableText... additionalTexts) {
-		super();
+		super(previousScreenExtension);
 		this.savedRailBase = savedRailBase;
 		showScheduleControls = !transportMode.continuousMovement;
 		savedRailNumberText = getNumberStringKey().getMutableText();

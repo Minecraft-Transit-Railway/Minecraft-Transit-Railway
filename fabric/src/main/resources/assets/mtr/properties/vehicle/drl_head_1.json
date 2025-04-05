@@ -31,6 +31,15 @@
 		},
 		{
 			"names": [
+				"cab_floor"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
 				"headlights"
 			],
 			"positionDefinitions": [

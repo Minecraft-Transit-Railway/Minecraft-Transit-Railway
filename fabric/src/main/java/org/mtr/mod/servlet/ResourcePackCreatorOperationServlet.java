@@ -13,12 +13,14 @@ import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.resource.ResourceWrapper;
 import org.mtr.mod.screen.FakePauseScreen;
+import org.mtr.mod.screen.ReloadCustomResourcesScreen;
 import org.mtr.mod.sound.BveVehicleSound;
 import org.mtr.mod.sound.BveVehicleSoundConfig;
 import org.mtr.mod.sound.LegacyVehicleSound;
 import org.mtr.mod.sound.VehicleSoundBase;
 
 import javax.annotation.Nullable;
+import java.nio.file.Files;
 import java.util.Locale;
 
 public final class ResourcePackCreatorOperationServlet extends AbstractResourcePackCreatorServlet {
@@ -40,7 +42,12 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 
 		switch (httpServletRequest.getPathInfo()) {
 			case "/refresh":
-				returnStandardResponse(httpServletResponse, asyncContext, false);
+				if (resourceWrapper == null && Files.exists(getBackupFile())) {
+					// TODO load backup
+					returnStandardResponse(httpServletResponse, asyncContext, null);
+				} else {
+					returnStandardResponse(httpServletResponse, asyncContext, null);
+				}
 				break;
 			case "/play-sound":
 				playSound(httpServletRequest, httpServletResponse, asyncContext);
@@ -49,12 +56,14 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 				preview(httpServletRequest, httpServletResponse, asyncContext);
 				break;
 			case "/force-reload":
-				minecraftClient.execute(CustomResourceLoader::reload);
-				returnStandardResponse(httpServletResponse, asyncContext, true);
+				minecraftClient.execute(() -> minecraftClient.openScreen(new Screen(new ReloadCustomResourcesScreen(() -> {
+					CustomResourceLoader.reload();
+					returnStandardResponse(httpServletResponse, asyncContext, "");
+				}))));
 				break;
 			case "/resume-game":
 				minecraftClient.execute(() -> minecraftClient.openScreen(new Screen(new FakePauseScreen())));
-				returnStandardResponse(httpServletResponse, asyncContext, false);
+				returnStandardResponse(httpServletResponse, asyncContext, null);
 				break;
 			default:
 				returnErrorResponse(httpServletResponse, asyncContext);
@@ -79,7 +88,8 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 	}
 
 	public static void tick(long millisElapsed) {
-		if (System.currentTimeMillis() > motorSoundExpiry) {
+		if (System.currentTimeMillis() > motorSoundExpiry && vehicleSoundBase != null) {
+			vehicleSoundBase.dispose();
 			vehicleSoundBase = null;
 		}
 		if (vehicleSoundBase != null) {
@@ -105,7 +115,8 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 		try {
 			resourceWrapper = new ResourceWrapper(new JsonReader(JsonParser.parseReader(httpServletRequest.getReader())), new ObjectArrayList<>(CustomResourceLoader.getMinecraftModelResources()), new ObjectArrayList<>(CustomResourceLoader.getTextureResources()));
 			resourceWrapper.clean();
-			returnStandardResponse(httpServletResponse, asyncContext, true);
+			// TODO save backup
+			returnStandardResponse(httpServletResponse, asyncContext, httpServletRequest.getParameter("id"));
 		} catch (Exception e) {
 			Init.LOGGER.error("", e);
 			returnErrorResponse(httpServletResponse, asyncContext);
@@ -163,7 +174,7 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 			}
 		});
 
-		returnStandardResponse(httpServletResponse, asyncContext, false);
+		returnStandardResponse(httpServletResponse, asyncContext, null);
 	}
 
 	private static void preview(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AsyncContext asyncContext) {
@@ -174,7 +185,7 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 			doorMultiplier = -1;
 		}
 
-		returnStandardResponse(httpServletResponse, asyncContext, false);
+		returnStandardResponse(httpServletResponse, asyncContext, null);
 	}
 
 	private static int parseInt(@Nullable String value) {

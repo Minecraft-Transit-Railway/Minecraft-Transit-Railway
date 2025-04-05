@@ -10,6 +10,7 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.*;
+import org.mtr.mod.config.Config;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.resource.VehicleResource;
 import org.mtr.mod.resource.VehicleResourceCache;
@@ -84,9 +85,6 @@ public class RenderVehicles implements IGui {
 							}
 						});
 
-						// Play motor sound
-						vehicle.playMotorSound(vehicleResource, carNumber, renderVehicleTransformationHelperAbsolute.pivotPosition);
-
 						// Player position relative to the car
 						final Vector3d playerPosition = renderVehicleTransformationHelperAbsolute.transformBackwards(clientPlayerEntity.getPos(), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
 						// A temporary list to store all floors and doorways
@@ -95,7 +93,7 @@ public class RenderVehicles implements IGui {
 						final GangwayMovementPositions gangwayMovementPositions1 = new GangwayMovementPositions(renderVehicleTransformationHelperAbsolute, false);
 						final GangwayMovementPositions gangwayMovementPositions2 = new GangwayMovementPositions(renderVehicleTransformationHelperAbsolute, true);
 						// Vehicle resource cache
-						final VehicleResourceCache vehicleResourceCache = vehicleResource.getCachedVehicleResource(carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size());
+						final VehicleResourceCache vehicleResourceCache = vehicleResource.getCachedVehicleResource(carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), false);
 						// Find open doorways (close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates)
 						final ObjectArrayList<Box> openDoorways;
 						if (vehicleResourceCache != null && fromResourcePackCreator) {
@@ -106,7 +104,7 @@ public class RenderVehicles implements IGui {
 						} else {
 							openDoorways = vehicleResourceCache.doorways.stream().filter(doorway -> RenderVehicleHelper.canOpenDoors(doorway, renderVehicleTransformationHelperAbsolute, vehicle.persistentVehicleData.getDoorValue(), false)).collect(Collectors.toCollection(ObjectArrayList::new));
 						}
-						final double oscillationAmount = vehicle.persistentVehicleData.getOscillation(carNumber).getAmount();
+						final double oscillationAmount = vehicle.persistentVehicleData.getOscillation(carNumber).getAmount() * Config.getClient().getVehicleOscillationMultiplier();
 
 						if (canRide) {
 							if (vehicleResourceCache != null) {
@@ -128,9 +126,14 @@ public class RenderVehicles implements IGui {
 							VehicleRidingMovement.startRiding(openDoorways, vehicle.vehicleExtraData.getSidingId(), vehicle.getId(), carNumber, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped(), renderVehicleTransformationHelperAbsolute.yaw);
 						}
 
-						// Play door sound
-						if (!openDoorways.isEmpty()) {
-							vehicle.playDoorSound(vehicleResource, carNumber, renderVehicleTransformationHelperAbsolute.pivotPosition);
+						// Play vehicle sounds
+						if (!OptimizedRenderer.renderingShadows()) {
+							vehicle.playMotorSound(vehicleResource, carNumber, renderVehicleTransformationHelperAbsolute.pivotPosition);
+
+							// Play door sounds
+							if(!openDoorways.isEmpty()) {
+								vehicle.playDoorSound(vehicleResource, carNumber, renderVehicleTransformationHelperAbsolute.pivotPosition);
+							}
 						}
 
 						// Each car can have more than one model defined

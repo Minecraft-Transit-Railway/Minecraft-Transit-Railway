@@ -17,7 +17,9 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class CustomResourceLoader {
 
@@ -110,28 +112,74 @@ public class CustomResourceLoader {
 			OBJECTS_CACHE.put(objectResource.getId(), objectResource);
 		}, CustomResourceLoader::readResource);
 
+		VEHICLES.forEach((transportMode, vehicleResources) -> validateDataset("Vehicle", vehicleResources, VehicleResource::getId));
+		validateDataset("Sign", SIGNS, SignResource::getId);
+		validateDataset("Rail", RAILS, RailResource::getId);
+		validateDataset("Object", OBJECTS, ObjectResource::getId);
+
 		Init.LOGGER.info("Loaded {} vehicles and completed door movement validation in {} ms", VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum), TEST_DURATION / 1E6);
 		Init.LOGGER.info("Loaded {} signs", SIGNS.size());
 		Init.LOGGER.info("Loaded {} rails", RAILS.size());
 		Init.LOGGER.info("Loaded {} objects", OBJECTS.size());
+
+		final long time1 = System.currentTimeMillis();
+
+		final int[] preloadedVehicleCount = {0};
+		VEHICLES.forEach((transportMode, vehicleResources) -> vehicleResources.forEach(vehicleResource -> {
+			if (vehicleResource.shouldPreload) {
+				vehicleResource.getCachedVehicleResource(0, 0, true);
+				preloadedVehicleCount[0]++;
+			}
+		}));
+
+		final long time2 = System.currentTimeMillis();
+		if (preloadedVehicleCount[0] > 0) {
+			Init.LOGGER.info("Preloaded {} vehicles in {} ms", preloadedVehicleCount[0], time2 - time1);
+		}
+
+		final int[] preloadedRailCount = {0};
+		RAILS.forEach(railResource -> {
+			if (railResource.shouldPreload) {
+				railResource.preload();
+				preloadedRailCount[0]++;
+			}
+		});
+
+		final long time3 = System.currentTimeMillis();
+		if (preloadedRailCount[0] > 0) {
+			Init.LOGGER.info("Preloaded {} rails in {} ms", preloadedRailCount[0], time3 - time2);
+		}
+
+		final int[] preloadedObjectCount = {0};
+		OBJECTS.forEach(objectResource -> {
+			if (objectResource.shouldPreload) {
+				objectResource.preload();
+				preloadedObjectCount[0]++;
+			}
+		});
+
+		final long time4 = System.currentTimeMillis();
+		if (preloadedObjectCount[0] > 0) {
+			Init.LOGGER.info("Preloaded {} objects in {} ms", preloadedObjectCount[0], time4 - time3);
+		}
 	}
 
 	public static void iterateVehicles(TransportMode transportMode, Consumer<VehicleResource> consumer) {
 		VEHICLES.get(transportMode).forEach(consumer);
 	}
 
-	public static void clearCustomVehicles() {
+	public static void clearCustomVehicles(String vehicleId) {
 		for (final TransportMode transportMode : TransportMode.values()) {
 			final ObjectArrayList<String> vehicleIdsToRemove = new ObjectArrayList<>();
 			VEHICLES_CACHE.get(transportMode).values().forEach(vehicleResourceDetails -> {
-				if (vehicleResourceDetails.rightBoolean()) {
-					final VehicleResource vehicleResource = vehicleResourceDetails.left();
+				final VehicleResource vehicleResource = vehicleResourceDetails.left();
+				if (vehicleResourceDetails.rightBoolean() && (vehicleId.isEmpty() || vehicleResource.getId().equals(vehicleId))) {
 					vehicleIdsToRemove.add(vehicleResource.getId());
 					VEHICLES.get(transportMode).remove(vehicleResource);
 					VEHICLES_TAGS.get(transportMode).remove(vehicleResource.getId());
 				}
 			});
-			vehicleIdsToRemove.forEach(vehicleId -> VEHICLES_CACHE.get(transportMode).remove(vehicleId));
+			vehicleIdsToRemove.forEach(checkVehicleId -> VEHICLES_CACHE.get(transportMode).remove(checkVehicleId));
 		}
 	}
 
@@ -142,6 +190,21 @@ public class CustomResourceLoader {
 	 */
 	public static void registerVehicle(VehicleResource vehicleResource) {
 		registerVehicle(vehicleResource, true);
+	}
+
+	/**
+	 * Validate and report any abnormality of the loaded resources (e.g. Duplicated ids)
+	 */
+	private static <T> void validateDataset(String dataSetName, List<T> dataSet, Function<T, String> getId) {
+		ObjectOpenHashSet<String> addedIds = new ObjectOpenHashSet<>();
+		for(T data : dataSet) {
+			String id = getId.apply(data);
+			if(addedIds.contains(id)) {
+				Init.LOGGER.warn("MTR {} resource contains duplicated id {}!", dataSetName, id);
+			} else {
+				addedIds.add(id);
+			}
+		}
 	}
 
 	public static void getVehicleByIndex(TransportMode transportMode, int index, Consumer<VehicleResource> ifPresent) {

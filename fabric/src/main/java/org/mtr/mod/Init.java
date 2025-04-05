@@ -196,7 +196,7 @@ public final class Init implements Utilities {
 			PIDSDefaultLayouts.addDefaultLayouts(pidsLayoutData);
 
 			serverPort = defaultPort <= 0 ? -1 : findFreePort(defaultPort);
-			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, Config.getServer().getUseThreadedSimulation(), webserverSetup, WORLD_ID_LIST.toArray(new String[0]));
+			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, Config.getServer().getUseThreadedSimulation(), Config.getServer().getUseThreadedFileLoading(), webserverSetup, WORLD_ID_LIST.toArray(new String[0]));
 
 			serverTick = 0;
 			lastSavedMillis = System.currentTimeMillis();

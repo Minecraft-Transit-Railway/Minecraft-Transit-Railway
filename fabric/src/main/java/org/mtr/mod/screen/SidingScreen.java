@@ -57,7 +57,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 			}
 			setButtons();
 		});
-		buttonIsManual.setMessage2(TranslationProvider.GUI_MTR_IS_MANUAL.getText());
+		buttonIsManual.setMessage2(new Text(TextHelper.literal("Disable Siding").data));
 		sliderMaxManualSpeed = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, RailType.DIAMOND.ordinal(), SidingScreen::speedSliderFormatter, null);
 		buttonUnlimitedTrains = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
 			if (checked) {
@@ -155,7 +155,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 			graphicsHolder.drawText(DECELERATION_CONSTANT_TEXT, SQUARE_SIZE, SQUARE_SIZE * 5 + TEXT_FIELD_PADDING * 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			graphicsHolder.drawText(DELAYED_VEHICLE_SPEED_INCREASE_PERCENTAGE_TEXT, SQUARE_SIZE, SQUARE_SIZE * 6 + TEXT_FIELD_PADDING * 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			graphicsHolder.drawText(DELAYED_VEHICLE_REDUCE_DWELL_TIME_PERCENTAGE_TEXT, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_FIELD_PADDING * 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
-			if (buttonIsManual.isChecked2()) {
+			if (buttonIsManual.isChecked2() && false) { // TODO temporarily hide manual controls
 				graphicsHolder.drawText(MAX_MANUAL_SPEED, SQUARE_SIZE, SQUARE_SIZE * 9 + TEXT_FIELD_PADDING * 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 				graphicsHolder.drawText(MANUAL_TO_AUTOMATIC_TIME, SQUARE_SIZE, SQUARE_SIZE * 10 + TEXT_FIELD_PADDING * 2 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			}
@@ -208,9 +208,10 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 	}
 
 	private void setButtons() {
-		sliderMaxManualSpeed.visible = buttonIsManual.isChecked2();
-		sliderDwellTimeMin.visible = buttonIsManual.isChecked2();
-		sliderDwellTimeSec.visible = buttonIsManual.isChecked2();
+		// TODO temporarily hide manual controls
+		sliderMaxManualSpeed.visible = buttonIsManual.isChecked2() && false;
+		sliderDwellTimeMin.visible = buttonIsManual.isChecked2() && false;
+		sliderDwellTimeSec.visible = buttonIsManual.isChecked2() && false;
 	}
 
 	private static String accelerationSliderFormatter(int value) {

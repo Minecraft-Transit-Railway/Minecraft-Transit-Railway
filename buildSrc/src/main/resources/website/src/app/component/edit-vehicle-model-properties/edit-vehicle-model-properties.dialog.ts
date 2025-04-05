@@ -204,7 +204,7 @@ export class EditVehicleModelPropertiesDialog {
 		model.barrierHeight = newData.barrierHeight ?? defaultModel.barrierHeight;
 		model.barrierYOffset = newData.barrierYOffset ?? defaultModel.barrierYOffset;
 		model.barrierZOffset = newData.barrierZOffset ?? defaultModel.barrierZOffset;
-		this.dataService.update();
+		this.dataService.update(this.data.vehicleResource.id);
 		this.dialogRef.close();
 	}
 

@@ -47,6 +47,15 @@
 		},
 		{
 			"names": [
+				"cab_floor"
+			],
+			"positionDefinitions": [
+				"windowEnd2Flipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
 				"destination_display"
 			],
 			"positionDefinitions": [

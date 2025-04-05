@@ -280,4 +280,11 @@ public class VehicleExtension extends Vehicle implements Utilities {
 			return stringBuilder.toString();
 		}
 	}
+
+	/**
+	 * Dispose the vehicle and execute the associated clean-up work, such as stopping vehicle sounds.
+	 */
+	public void dispose() {
+		persistentVehicleData.dispose();
+	}
 }

@@ -440,7 +440,6 @@ public final class InitClient {
 		REGISTRY_CLIENT.eventRegistryClient.registerResourceReloadEvent(CustomResourceLoader::reload);
 
 		Config.init(MinecraftClient.getInstance().getRunDirectoryMapped());
-		ResourcePackHelper.fix();
 
 		BlockTactileMap.BlockEntity.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
 		BlockTactileMap.BlockEntity.onUse = blockPos -> {

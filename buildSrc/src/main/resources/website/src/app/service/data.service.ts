@@ -12,13 +12,13 @@ export class DataService {
 		this.sendGetRequest("operation/refresh");
 	}
 
-	public update(skipResourceWrapperSync = false) {
+	public update(id?: string, skipResourceWrapperSync = false) {
 		const tempResourceWrapperDTO = this.resourceWrapperDTO;
 		if (this.resourceWrapperDTO) {
 			const resourceWrapperDTOCopy: ResourceWrapperDTO = JSON.parse(JSON.stringify(this.resourceWrapperDTO));
 			resourceWrapperDTOCopy.minecraftModelResources.length = 0;
 			resourceWrapperDTOCopy.minecraftTextureResources.length = 0;
-			this.sendPostRequest("operation/update", resourceWrapperDTOCopy, "text/plain", () => {
+			this.sendPostRequest(`operation/update?${id ? `id=${id}` : ""}`, resourceWrapperDTOCopy, "text/plain", () => {
 				if (skipResourceWrapperSync) {
 					this.resourceWrapperDTO = tempResourceWrapperDTO;
 				}

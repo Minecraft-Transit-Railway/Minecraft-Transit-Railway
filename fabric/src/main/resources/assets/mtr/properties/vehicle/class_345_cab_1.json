@@ -158,6 +158,15 @@
 		},
 		{
 			"names": [
+				"cab_floor"
+			],
+			"positionDefinitions": [
+				"6c1b8698"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
 				"seat_2"
 			],
 			"positionDefinitions": [

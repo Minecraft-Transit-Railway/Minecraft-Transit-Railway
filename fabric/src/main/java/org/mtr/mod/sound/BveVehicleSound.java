@@ -169,6 +169,11 @@ public class BveVehicleSound extends VehicleSoundBase {
 	}
 
 	@Override
+	public void dispose() {
+		vehicleLoopingSoundHolder.dispose();
+	}
+
+	@Override
 	protected double getDoorCloseSoundTime() {
 		return config.config.doorCloseSoundLength;
 	}
@@ -209,6 +214,29 @@ public class BveVehicleSound extends VehicleSoundBase {
 			this.soundLoopNoise = soundLoopNoise;
 			this.soundLoopShoe = soundLoopShoe;
 			this.soundLoopCompressor = soundLoopCompressor;
+		}
+
+		public void dispose() {
+			for (VehicleLoopingSoundInstance instance : soundLoopMotor) {
+				if (instance != null) {
+					instance.dispose();
+				}
+			}
+			if (soundLoopRun != null) {
+				soundLoopRun.dispose();
+			}
+			if (soundLoopFlange != null) {
+				soundLoopFlange.dispose();
+			}
+			if (soundLoopNoise != null) {
+				soundLoopNoise.dispose();
+			}
+			if (soundLoopShoe != null) {
+				soundLoopShoe.dispose();
+			}
+			if (soundLoopCompressor != null) {
+				soundLoopCompressor.dispose();
+			}
 		}
 	}
 }

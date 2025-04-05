@@ -30,6 +30,15 @@
 		},
 		{
 			"names": [
+				"cab_floor"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
 				"head_exterior",
 				"roof_head_exterior",
 				"roof_vent"

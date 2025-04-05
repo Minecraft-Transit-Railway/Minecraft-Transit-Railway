@@ -105,7 +105,7 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		final int tabCount = 3;
 		final int bottomRowY = height - SQUARE_SIZE;
 
-		widgetMap.setPositionAndSize(PANEL_WIDTH, 0, width - PANEL_WIDTH, height - SQUARE_SIZE * 2);
+		widgetMap.setPositionAndSize(PANEL_WIDTH, 0, width - PANEL_WIDTH, height);
 
 		IDrawing.setPositionAndWidth(buttonTabStations, 0, 0, PANEL_WIDTH / tabCount);
 		IDrawing.setPositionAndWidth(buttonTabRoutes, PANEL_WIDTH / tabCount, 0, PANEL_WIDTH / tabCount);
@@ -135,7 +135,7 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 
 		toggleButtons();
 		dashboardList.init(this::addChild);
-		addSelectableChild(new ClickableWidget(widgetMap));
+
 
 		addChild(new ClickableWidget(buttonTabStations));
 		addChild(new ClickableWidget(buttonTabRoutes));
@@ -158,6 +158,8 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 		addChild(new ClickableWidget(textFieldName));
 		addChild(new ClickableWidget(textFieldCustomDestination));
 		addChild(new ClickableWidget(colorSelector));
+
+		addSelectableChild(new ClickableWidget(widgetMap));
 	}
 
 	@Override
@@ -177,6 +179,7 @@ public class DashboardScreen extends ScreenExtension implements IGui {
 	@Override
 	public void mouseMoved2(double mouseX, double mouseY) {
 		dashboardList.mouseMoved(mouseX, mouseY);
+		super.mouseMoved2(mouseX, mouseY);
 	}
 
 	@Override
