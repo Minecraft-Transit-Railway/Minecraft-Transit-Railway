@@ -7,6 +7,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.ComponentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
@@ -64,6 +65,11 @@ public final class Registry {
 
 	@ExpectPlatform
 	public static void registerCommands(Consumer<CommandDispatcher<ServerCommandSource>> consumer) {
+		throw new AssertionError();
+	}
+
+	@ExpectPlatform
+	public static <T> ObjectHolder<ComponentType<T>> registerDataComponentType(String registryName, Supplier<ComponentType<T>> supplier) {
 		throw new AssertionError();
 	}
 

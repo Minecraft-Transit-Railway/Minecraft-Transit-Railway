@@ -1,6 +1,7 @@
 package org.mtr.packet;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 
 import java.util.function.Consumer;
@@ -56,6 +57,11 @@ public final class PacketBufferReceiver {
 		final char[] characters = new char[stringLength];
 		for (int i = 0; i < stringLength; i++) {
 			characters[i] = readChar();
+			// For some reason, when switching between packet chunks while reading a string, there can be a null character at the end of the first chunk
+			if (characters[i] == 0 && readIndex + 1 < byteBufArray.length && byteBufArray[readIndex].readableBytes() == 0) {
+				i--;
+				readIndex++;
+			}
 		}
 		return new String(characters);
 	}
@@ -77,13 +83,13 @@ public final class PacketBufferReceiver {
 		}
 	}
 
-	public static void receive(ByteBuf byteBuf, Consumer<PacketBufferReceiver> onComplete, Consumer<Runnable> scheduler) {
-		final ByteBuf byteBufCopy = byteBuf.copy();
+	public static void receive(byte[] bytes, Consumer<PacketBufferReceiver> onComplete, Consumer<Runnable> scheduler) {
 		scheduler.accept(() -> {
-			final long id = byteBufCopy.readLong();
-			final int index = byteBufCopy.readInt();
-			final int count = byteBufCopy.readInt();
-			if (RECEIVED_PACKETS.computeIfAbsent(id, key -> new PacketBufferReceiver(count, onComplete)).receive(index, byteBufCopy)) {
+			final ByteBuf byteBuf = Unpooled.copiedBuffer(bytes);
+			final long id = byteBuf.readLong();
+			final int index = byteBuf.readInt();
+			final int count = byteBuf.readInt();
+			if (RECEIVED_PACKETS.computeIfAbsent(id, key -> new PacketBufferReceiver(count, onComplete)).receive(index, byteBuf)) {
 				RECEIVED_PACKETS.remove(id);
 			}
 		});

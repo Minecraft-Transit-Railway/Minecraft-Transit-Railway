@@ -84,7 +84,7 @@ public class RenderVehicleHelper {
 		final StoredMatrixTransformations storedMatrixTransformations = renderVehicleTransformationHelper.getStoredMatrixTransformations();
 		storedMatrixTransformations.add(matrixStack -> {
 			renderVehicleTransformationHelper.transformBackwards(new Object(), (object, pitch) -> {
-				IDrawing.rotateXRadians(matrixStack, (float) (Math.PI - pitch)); // Blockbench exports models upside down
+				IDrawing.rotateXRadians(matrixStack, -pitch);
 				return new Object();
 			}, (object, yaw) -> {
 				IDrawing.rotateYRadians(matrixStack, (float) (Math.PI - yaw));

@@ -1,22 +1,23 @@
 package org.mtr.resource;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import org.mtr.MTR;
-import org.mtr.client.CustomResourceLoader;
 import org.mtr.config.Config;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.VehicleExtension;
 import org.mtr.generated.resource.VehicleResourceSchema;
-import org.mtr.render.DynamicVehicleModel;
-import org.mtr.render.MainRenderer;
-import org.mtr.render.QueuedRenderLayer;
-import org.mtr.render.StoredMatrixTransformations;
+import org.mtr.model.NewOptimizedModel;
+import org.mtr.model.NewOptimizedModelGroup;
+import org.mtr.render.*;
 import org.mtr.sound.BveVehicleSound;
 import org.mtr.sound.BveVehicleSoundConfig;
 import org.mtr.sound.LegacyVehicleSound;
@@ -205,10 +206,10 @@ public final class VehicleResource extends VehicleResourceSchema {
 			if (data2 != null) {
 				final VehicleResourceCacheHolder data3 = data2.getData(force);
 				if (data3 != null) {
-					final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels = data3.optimizedModels.getData(force);
-					final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsDoorsClosed = data3.optimizedModelsDoorsClosed.getData(force);
-					final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie1 = data3.optimizedModelsBogie1.getData(force);
-					final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie2 = data3.optimizedModelsBogie2.getData(force);
+					final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> optimizedModels = data3.optimizedModels.getData(force);
+					final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> optimizedModelsDoorsClosed = data3.optimizedModelsDoorsClosed.getData(force);
+					final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> optimizedModelsBogie1 = data3.optimizedModelsBogie1.getData(force);
+					final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> optimizedModelsBogie2 = data3.optimizedModelsBogie2.getData(force);
 					if (optimizedModels != null && optimizedModelsDoorsClosed != null && optimizedModelsBogie1 != null && optimizedModelsBogie2 != null) {
 						return new VehicleResourceCache(data3.floors, data3.doorways, optimizedModels, optimizedModelsDoorsClosed, optimizedModelsBogie1, optimizedModelsBogie2);
 					}
@@ -419,10 +420,10 @@ public final class VehicleResource extends VehicleResourceSchema {
 				}
 
 				final ObjectArrayList<Box> floors = new ObjectArrayList<>();
-				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsModel = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsBogie1Model = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsBogie2Model = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsModel = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsBogie1Model = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsBogie2Model = new Object2ObjectOpenHashMap<>();
 				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsModel = new Object2ObjectOpenHashMap<>();
 				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
 				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsBogie1Model = new Object2ObjectOpenHashMap<>();
@@ -449,10 +450,10 @@ public final class VehicleResource extends VehicleResourceSchema {
 				forEachNonNull(bogie2Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie2Model, new Object2ObjectOpenHashMap<>(), objModelsBogie2Model), force);
 
 				return new CachedResource<>(() -> {
-					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModels = writeToOptimizedModels(materialGroupsModel, objModelsModel, modelLifespan);
-					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsDoorsClosed = writeToOptimizedModels(materialGroupsModelDoorsClosed, objModelsModelDoorsClosed, modelLifespan);
-					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie1 = writeToOptimizedModels(materialGroupsBogie1Model, objModelsBogie1Model, modelLifespan);
-					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie2 = writeToOptimizedModels(materialGroupsBogie2Model, objModelsBogie2Model, modelLifespan);
+					final CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> optimizedModels = writeToOptimizedModels(materialGroupsModel, objModelsModel, modelLifespan);
+					final CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> optimizedModelsDoorsClosed = writeToOptimizedModels(materialGroupsModelDoorsClosed, objModelsModelDoorsClosed, modelLifespan);
+					final CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> optimizedModelsBogie1 = writeToOptimizedModels(materialGroupsBogie1Model, objModelsBogie1Model, modelLifespan);
+					final CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> optimizedModelsBogie2 = writeToOptimizedModels(materialGroupsBogie2Model, objModelsBogie2Model, modelLifespan);
 					return new VehicleResourceCacheHolder(new ObjectImmutableList<>(floors), new ObjectImmutableList<>(doorways), optimizedModels, optimizedModelsDoorsClosed, optimizedModelsBogie1, optimizedModelsBogie2);
 				}, modelLifespan);
 			}, modelLifespan);
@@ -509,39 +510,59 @@ public final class VehicleResource extends VehicleResourceSchema {
 		return CHRISTMAS_LIGHT_STAGES[(int) ((System.currentTimeMillis() / 500) % CHRISTMAS_LIGHT_STAGES.length)][index];
 	}
 
-	private static void queue(Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, boolean noOpenDoorways) {
+	private static void queue(Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> optimizedModels, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, boolean noOpenDoorways) {
 		optimizedModels.forEach((partCondition, optimizedModel) -> {
 			if (matchesCondition(vehicle, partCondition, noOpenDoorways)) {
-				MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (matrixStack, vertexConsumer, offset) -> {
-					storedMatrixTransformations.transform(matrixStack, offset);
-					CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(optimizedModel, matrixStack, light);
-					matrixStack.pop();
-				});
+				optimizedModel.forEach((renderStage, newOptimizedModels) -> newOptimizedModels.forEach(newOptimizedModel -> {
+					final Identifier texture = newOptimizedModel.texture;
+					final RenderLayer renderLayer = switch (renderStage.queuedRenderLayer) {
+						case LIGHT -> MoreRenderLayers.getLight(texture, false);
+						case LIGHT_TRANSLUCENT -> MoreRenderLayers.getLight(texture, true);
+						case LIGHT_2 -> MoreRenderLayers.getLight2(texture);
+						case INTERIOR -> MoreRenderLayers.getInterior(texture);
+						case INTERIOR_TRANSLUCENT -> MoreRenderLayers.getInteriorTranslucent(texture);
+						case EXTERIOR -> MoreRenderLayers.getExterior(texture);
+						case EXTERIOR_TRANSLUCENT -> MoreRenderLayers.getExteriorTranslucent(texture);
+						case LINES -> RenderLayer.getLines();
+						default -> null;
+					};
+					MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (matrixStack, vertexConsumer, offset) -> {
+						if (renderLayer != null) {
+							renderLayer.startDrawing();
+							storedMatrixTransformations.transform(matrixStack, offset);
+							newOptimizedModel.render(matrixStack.peek().getPositionMatrix(), RenderSystem.getShader());
+							matrixStack.pop();
+							renderLayer.endDrawing();
+						}
+					});
+				}));
 			}
 		});
 	}
 
-	private static CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> writeToOptimizedModels(
-			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsModel,
+	private static CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> writeToOptimizedModels(
+			Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsModel,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsModel,
 			int modelLifespan
 	) {
 		return new CachedResource<>(() -> {
-			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
-			final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels = new Object2ObjectOpenHashMap<>();
+//			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
+			final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> optimizedModels = new Object2ObjectOpenHashMap<>();
+			materialGroupsModel.forEach((partCondition, newOptimizedModelGroup) -> optimizedModels.put(partCondition, newOptimizedModelGroup.build()));
 
-			for (final PartCondition partCondition : PartCondition.values()) {
-				final OptimizedModelWrapper optimizedModel1;
-				final ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper> materialGroups = materialGroupsModel.get(partCondition);
-				optimizedModel1 = materialGroups == null ? null : OptimizedModelWrapper.fromMaterialGroups(materialGroups);
+			// TODO merge OBJ and blockbench
+//			for (final PartCondition partCondition : PartCondition.values()) {
+//				final OptimizedModelWrapper optimizedModel1;
+//				final ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper> materialGroups = materialGroupsModel.get(partCondition);
+//				optimizedModel1 = materialGroups == null ? null : OptimizedModelWrapper.fromMaterialGroups(materialGroups);
+//
+//				final OptimizedModelWrapper optimizedModel2;
+//				final ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> objModels = objModelsModel.get(partCondition);
+//				optimizedModel2 = objModels == null ? null : OptimizedModelWrapper.fromObjModels(objModels);
+//				optimizedModels.put(partCondition, new OptimizedModelWrapper(optimizedModel1, optimizedModel2));
+//			}
 
-				final OptimizedModelWrapper optimizedModel2;
-				final ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> objModels = objModelsModel.get(partCondition);
-				optimizedModel2 = objModels == null ? null : OptimizedModelWrapper.fromObjModels(objModels);
-				optimizedModels.put(partCondition, new OptimizedModelWrapper(optimizedModel1, optimizedModel2));
-			}
-
-			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
+//			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
 			return optimizedModels;
 		}, modelLifespan);
 	}
@@ -558,10 +579,10 @@ public final class VehicleResource extends VehicleResourceSchema {
 	private record VehicleResourceCacheHolder(
 			ObjectImmutableList<Box> floors,
 			ObjectImmutableList<Box> doorways,
-			CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModels,
-			CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsDoorsClosed,
-			CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie1,
-			CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie2
+			CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> optimizedModels,
+			CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> optimizedModelsDoorsClosed,
+			CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> optimizedModelsBogie1,
+			CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> optimizedModelsBogie2
 	) {
 	}
 

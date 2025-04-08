@@ -8,7 +8,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -23,6 +22,7 @@ import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Angle;
 import org.mtr.core.tool.EnumHelper;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.registry.DataComponentTypes;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
@@ -34,8 +34,6 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 	public final boolean forAirplaneNode;
 	protected final boolean isConnector;
 
-	private static final String TAG_TRANSPORT_MODE = "transport_mode";
-
 	public ItemNodeModifierBase(boolean forNonContinuousMovementNode, boolean forContinuousMovementNode, boolean forAirplaneNode, boolean isConnector, Item.Settings settings) {
 		super(settings);
 		this.forNonContinuousMovementNode = forNonContinuousMovementNode;
@@ -45,12 +43,12 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 	}
 
 	@Override
-	protected void onStartClick(ItemUsageContext context, NbtCompound nbtCompound) {
-		nbtCompound.putString(TAG_TRANSPORT_MODE, ((BlockNode) context.getWorld().getBlockState(context.getBlockPos()).getBlock()).transportMode.toString());
+	protected void onStartClick(ItemUsageContext context) {
+		context.getStack().set(DataComponentTypes.TRANSPORT_MODE.createAndGet(), ((BlockNode) context.getWorld().getBlockState(context.getBlockPos()).getBlock()).transportMode.toString());
 	}
 
 	@Override
-	protected void onEndClick(ItemUsageContext context, BlockPos posEnd, NbtCompound nbtCompound) {
+	protected void onEndClick(ItemUsageContext context, BlockPos posEnd) {
 		final World world = context.getWorld();
 		final BlockPos posStart = context.getBlockPos();
 		final BlockState stateStart = world.getBlockState(posStart);
@@ -58,7 +56,7 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 		final BlockState stateEnd = world.getBlockState(posEnd);
 		final PlayerEntity player = context.getPlayer();
 
-		if (player instanceof ServerPlayerEntity && stateEnd.getBlock() instanceof BlockNode && ((BlockNode) blockStart).transportMode.toString().equals(nbtCompound.getString(TAG_TRANSPORT_MODE))) {
+		if (player instanceof ServerPlayerEntity && stateEnd.getBlock() instanceof BlockNode && ((BlockNode) blockStart).transportMode.toString().equals(context.getStack().get(DataComponentTypes.TRANSPORT_MODE.createAndGet()))) {
 			if (isConnector) {
 				if (!posStart.equals(posEnd)) {
 					final ObjectObjectImmutablePair<Angle, Angle> angles = Rail.getAngles(MTR.blockPosToPosition(posStart), BlockNode.getAngle(stateStart), MTR.blockPosToPosition(posEnd), BlockNode.getAngle(stateEnd));
@@ -69,7 +67,7 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 			}
 		}
 
-		nbtCompound.remove(TAG_TRANSPORT_MODE);
+		context.getStack().remove(DataComponentTypes.TRANSPORT_MODE.createAndGet());
 	}
 
 	@Override
@@ -111,7 +109,7 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 		);
 	}
 
-	public static TransportMode getTransportMode(NbtCompound nbtCompound) {
-		return EnumHelper.valueOf(TransportMode.TRAIN, nbtCompound.getString(TAG_TRANSPORT_MODE));
+	public static TransportMode getTransportMode(ItemStack itemStack) {
+		return EnumHelper.valueOf(TransportMode.TRAIN, itemStack.get(DataComponentTypes.TRANSPORT_MODE.createAndGet()));
 	}
 }

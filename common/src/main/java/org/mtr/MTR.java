@@ -87,6 +87,7 @@ public final class MTR {
 		BlockEntityTypes.init();
 		ItemGroups.init();
 		SoundEvents.init();
+		DataComponentTypes.init();
 
 		Registry.init();
 

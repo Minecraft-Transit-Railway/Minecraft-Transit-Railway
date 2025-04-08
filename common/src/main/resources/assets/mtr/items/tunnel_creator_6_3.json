@@ -1,6 +1,15 @@
 {
 	"model": {
-		"type": "minecraft:model",
-		"model": "mtr:item/tunnel_creator_6_3"
+		"type": "minecraft:condition",
+		"property": "minecraft:has_component",
+		"component": "mtr:start_pos",
+		"on_true": {
+			"type": "minecraft:model",
+			"model": "mtr:item/tunnel_creator_6_3_selected"
+		},
+		"on_false": {
+			"type": "minecraft:model",
+			"model": "mtr:item/tunnel_creator_6_3"
+		}
 	}
 }

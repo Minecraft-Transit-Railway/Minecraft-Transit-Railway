@@ -25,7 +25,6 @@ import org.mtr.core.tool.Angle;
 import org.mtr.core.tool.Vector;
 import org.mtr.data.IGui;
 import org.mtr.item.ItemLiftRefresher;
-import org.mtr.model.OptimizedRenderer;
 import org.mtr.registry.Items;
 
 import java.util.function.Function;
@@ -191,13 +190,11 @@ public class RenderLifts implements IGui {
 			}
 		});
 
-		if (!OptimizedRenderer.renderingShadows()) {
-			MainRenderer.WORKER_THREAD.scheduleLifts(occlusionCullingInstance -> {
-				final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
-				cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
-				minecraftClient.execute(() -> tasks.forEach(Runnable::run));
-			});
-		}
+		MainRenderer.WORKER_THREAD.scheduleLifts(occlusionCullingInstance -> {
+			final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
+			cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
+			minecraftClient.execute(() -> tasks.forEach(Runnable::run));
+		});
 	}
 
 	public static void renderLiftDisplay(StoredMatrixTransformations storedMatrixTransformations, World world, Lift lift, float width, float height) {

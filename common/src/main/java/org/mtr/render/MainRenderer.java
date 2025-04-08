@@ -21,7 +21,6 @@ import org.mtr.config.Config;
 import org.mtr.core.data.InterchangeColorsForStationName;
 import org.mtr.data.ArrivalsCacheClient;
 import org.mtr.data.IGui;
-import org.mtr.model.OptimizedRenderer;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -57,23 +56,15 @@ public class MainRenderer implements IGui {
 	}
 
 	public static void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Vec3d offset) {
-		final long millisElapsed;
-		if (OptimizedRenderer.renderingShadows()) {
-			if (Config.getClient().getDisableShadowsForShaders()) {
-				return;
-			}
-			millisElapsed = 0;
-		} else {
-			millisElapsed = getMillisElapsed();
-			MinecraftClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
-			MinecraftClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
-			lastRenderedMillis = MTRClient.getGameMillis();
-			WORKER_THREAD.start();
-			DynamicTextureCache.instance.tick();
-			// Tick the riding cool down (dismount player if they are no longer riding a vehicle) and store the player offset cache
-			VehicleRidingMovement.tick();
-			ArrivalsCacheClient.INSTANCE.tick();
-		}
+		final long millisElapsed = getMillisElapsed();
+		MinecraftClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
+		MinecraftClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
+		lastRenderedMillis = MTRClient.getGameMillis();
+		WORKER_THREAD.start();
+		DynamicTextureCache.instance.tick();
+		// Tick the riding cool down (dismount player if they are no longer riding a vehicle) and store the player offset cache
+		VehicleRidingMovement.tick();
+		ArrivalsCacheClient.INSTANCE.tick();
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientWorld clientWorld = minecraftClient.world;

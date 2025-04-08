@@ -1,7 +1,6 @@
 package org.mtr.registry.neoforge;
 
 import com.mojang.brigadier.CommandDispatcher;
-import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.block.AbstractBlock;
@@ -9,6 +8,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.ComponentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
@@ -75,8 +75,16 @@ public final class RegistryImpl {
 		return registryName;
 	}
 
+	public static ObjectHolder<SoundEvent> registerSoundEvent(String registryName, Supplier<SoundEvent> supplier) {
+		return new ObjectHolder<>(MTRNeoForge.SOUND_EVENTS.register(registryName, supplier));
+	}
+
 	public static void registerCommands(Consumer<CommandDispatcher<ServerCommandSource>> consumer) {
 		MainEventBus.commandConsumer = consumer;
+	}
+
+	public static <T> ObjectHolder<ComponentType<T>> registerDataComponentType(String registryName, Supplier<ComponentType<T>> supplier) {
+		return new ObjectHolder<>(MTRNeoForge.DATA_COMPONENT_TYPES.register(registryName, supplier));
 	}
 
 	public static void setupPackets() {
@@ -84,7 +92,7 @@ public final class RegistryImpl {
 		}, (customPacketC2S, context) -> {
 			final PlayerEntity player = context.player();
 			if (player instanceof ServerPlayerEntity) {
-				PacketBufferReceiver.receive(Unpooled.copiedBuffer(customPacketC2S.buffer()), packetBufferReceiver -> {
+				PacketBufferReceiver.receive(customPacketC2S.buffer(), packetBufferReceiver -> {
 					final Function<PacketBufferReceiver, ? extends PacketHandler> getInstance = ModEventBus.PACKETS.get(packetBufferReceiver.readString());
 					if (getInstance != null) {
 						getInstance.apply(packetBufferReceiver).runServer(((ServerPlayerEntity) player).server, (ServerPlayerEntity) player);
@@ -99,13 +107,9 @@ public final class RegistryImpl {
 	}
 
 	public static <T extends PacketHandler> void sendPacketToClient(ServerPlayerEntity serverPlayerEntity, T data) {
-		final PacketBufferSender packetBufferSender = new PacketBufferSender(Unpooled::buffer);
+		final PacketBufferSender packetBufferSender = new PacketBufferSender();
 		packetBufferSender.writeString(data.getClass().getName());
 		data.write(packetBufferSender);
-		packetBufferSender.send(byteBuf -> PacketDistributor.sendToPlayer(serverPlayerEntity, new CustomPacketS2C(byteBuf.array())), serverPlayerEntity.server::execute);
-	}
-
-	public static ObjectHolder<SoundEvent> registerSoundEvent(String registryName, Supplier<SoundEvent> supplier) {
-		return new ObjectHolder<>(MTRNeoForge.SOUND_EVENTS.register(registryName, supplier));
+		packetBufferSender.send(bytes -> PacketDistributor.sendToPlayer(serverPlayerEntity, new CustomPacketS2C(bytes)), serverPlayerEntity.server::execute);
 	}
 }

@@ -2,62 +2,84 @@ package org.mtr.render;
 
 import com.logisticscraft.occlusionculling.DataProvider;
 import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
-import org.mtr.CustomThread;
 import org.mtr.MTR;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-public final class WorkerThread extends CustomThread {
+public final class WorkerThread {
 
 	private int renderDistance;
 	private OcclusionCullingInstance occlusionCullingInstance;
-	private final ObjectArrayList<Consumer<OcclusionCullingInstance>> occlusionQueue1 = new ObjectArrayList<>();
-	private final ObjectArrayList<Consumer<OcclusionCullingInstance>> occlusionQueue2 = new ObjectArrayList<>();
-	private final ObjectArrayList<Consumer<OcclusionCullingInstance>> occlusionQueue3 = new ObjectArrayList<>();
-	private final ObjectArrayList<Runnable> queue = new ObjectArrayList<>();
+	private boolean canStart = true;
+	private int runCooldown;
 
-	@Override
-	protected void runTick() {
-		if (!occlusionQueue1.isEmpty() || !occlusionQueue2.isEmpty() || !occlusionQueue3.isEmpty()) {
-			updateInstance();
-			occlusionCullingInstance.resetCache();
-			run(occlusionQueue1, task -> task.accept(occlusionCullingInstance));
-			run(occlusionQueue2, task -> task.accept(occlusionCullingInstance));
-			run(occlusionQueue3, task -> task.accept(occlusionCullingInstance));
+	private final AtomicReference<Consumer<OcclusionCullingInstance>> occlusionQueue1 = new AtomicReference<>();
+	private final AtomicReference<Consumer<OcclusionCullingInstance>> occlusionQueue2 = new AtomicReference<>();
+	private final AtomicReference<Consumer<OcclusionCullingInstance>> occlusionQueue3 = new AtomicReference<>();
+	private final AtomicReference<Runnable> queue = new AtomicReference<>();
+	private final ExecutorService worker = Executors.newVirtualThreadPerTaskExecutor();
+
+	private static final int COOLDOWN = 100;
+
+	public void start() {
+		if (canStart && isRunning()) {
+			canStart = false;
+			worker.submit(() -> {
+				while (isRunning()) {
+					if (occlusionQueue1.get() != null || occlusionQueue2.get() != null || occlusionQueue3.get() != null) {
+						updateInstance();
+						occlusionCullingInstance.resetCache();
+						run(occlusionQueue1, task -> task.accept(occlusionCullingInstance));
+						run(occlusionQueue2, task -> task.accept(occlusionCullingInstance));
+						run(occlusionQueue3, task -> task.accept(occlusionCullingInstance));
+					}
+
+					run(queue, Runnable::run);
+
+					try {
+						Thread.sleep(1);
+					} catch (InterruptedException e) {
+						MTR.LOGGER.debug("", e);
+					}
+
+					runCooldown = 0;
+				}
+			});
 		}
 
-		run(queue, Runnable::run);
+		if (runCooldown == COOLDOWN) {
+			canStart = true;
+			runCooldown = 0;
+			MTR.LOGGER.info("Restarting worker thread");
+		} else {
+			runCooldown++;
+		}
 	}
 
-	@Override
-	protected boolean isRunning() {
-		return MinecraftClient.getInstance().isRunning();
+	public void shutdown() {
+		worker.shutdownNow();
 	}
 
 	public void scheduleVehicles(Consumer<OcclusionCullingInstance> consumer) {
-		if (occlusionQueue1.size() < 2) {
-			occlusionQueue1.add(consumer);
-		}
+		occlusionQueue1.set(consumer);
 	}
 
 	public void scheduleLifts(Consumer<OcclusionCullingInstance> consumer) {
-		if (occlusionQueue2.size() < 2) {
-			occlusionQueue2.add(consumer);
-		}
+		occlusionQueue2.set(consumer);
 	}
 
 	public void scheduleRails(Consumer<OcclusionCullingInstance> consumer) {
-		if (occlusionQueue3.size() < 2) {
-			occlusionQueue3.add(consumer);
-		}
+		occlusionQueue3.set(consumer);
 	}
 
 	public void scheduleDynamicTextures(Runnable runnable) {
-		queue.add(runnable);
+		queue.set(runnable);
 	}
 
 	private void updateInstance() {
@@ -68,16 +90,18 @@ public final class WorkerThread extends CustomThread {
 		}
 	}
 
-	private static <T> void run(ObjectArrayList<T> queue, Consumer<T> consumer) {
-		if (!queue.isEmpty()) {
-			try {
-				final T task = queue.remove(0);
-				if (task != null) {
-					consumer.accept(task);
-				}
-			} catch (Exception e) {
-				MTR.LOGGER.error("", e);
+	private static boolean isRunning() {
+		return MinecraftClient.getInstance().isRunning();
+	}
+
+	private static <T> void run(AtomicReference<T> nextTask, Consumer<T> consumer) {
+		try {
+			final T task = nextTask.getAndSet(null);
+			if (task != null) {
+				consumer.accept(task);
 			}
+		} catch (Exception e) {
+			MTR.LOGGER.error("", e);
 		}
 	}
 

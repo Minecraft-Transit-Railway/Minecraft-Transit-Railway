@@ -12,7 +12,7 @@ public final class OptimizedRendererWrapper implements IGui {
 	private final OptimizedRenderer optimizedRenderer;
 
 	public OptimizedRendererWrapper() {
-		this.optimizedRenderer = OptimizedRenderer.hasOptimizedRendering() ? new OptimizedRenderer() : null;
+		this.optimizedRenderer = true ? new OptimizedRenderer() : null;
 	}
 
 	public void beginReload() {

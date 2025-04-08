@@ -1,0 +1,33 @@
+package org.mtr.model;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gl.ShaderProgram;
+import net.minecraft.client.gl.VertexBuffer;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.util.Identifier;
+import org.joml.Matrix4f;
+
+import javax.annotation.Nullable;
+import java.util.function.Consumer;
+
+public final class NewOptimizedModel {
+
+	public final Identifier texture;
+	@Nullable
+	private final VertexBuffer vertexBuffer;
+
+	public NewOptimizedModel(Identifier texture, @Nullable Consumer<VertexConsumer> callback) {
+		this.vertexBuffer = callback == null ? null : VertexBuffer.createAndUpload(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, callback);
+		this.texture = texture;
+	}
+
+	public void render(Matrix4f matrix4f, @Nullable ShaderProgram shaderProgram) {
+		if (vertexBuffer != null) {
+			vertexBuffer.bind();
+			vertexBuffer.draw(new Matrix4f(RenderSystem.getModelViewMatrix()).mul(matrix4f), RenderSystem.getProjectionMatrix(), shaderProgram);
+			VertexBuffer.unbind();
+		}
+	}
+}

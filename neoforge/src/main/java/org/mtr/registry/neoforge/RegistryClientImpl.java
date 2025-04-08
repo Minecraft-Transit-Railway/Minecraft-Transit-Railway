@@ -1,6 +1,5 @@
 package org.mtr.registry.neoforge;
 
-import io.netty.buffer.Unpooled;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -55,7 +54,7 @@ public final class RegistryClientImpl {
 	}
 
 	public static void setupPackets() {
-		ModEventBus.PAYLOAD_HANDLERS.add(payloadRegistrar -> payloadRegistrar.playToClient(MTR.PACKET_IDENTIFIER_S2C, PacketCodec.tuple(PacketCodecs.BYTE_ARRAY, CustomPacketS2C::buffer, CustomPacketS2C::new), new DirectionalPayloadHandler<>((customPacketS2C, context) -> PacketBufferReceiver.receive(Unpooled.copiedBuffer(customPacketS2C.buffer()), packetBufferReceiver -> {
+		ModEventBus.PAYLOAD_HANDLERS.add(payloadRegistrar -> payloadRegistrar.playToClient(MTR.PACKET_IDENTIFIER_S2C, PacketCodec.tuple(PacketCodecs.BYTE_ARRAY, CustomPacketS2C::buffer, CustomPacketS2C::new), new DirectionalPayloadHandler<>((customPacketS2C, context) -> PacketBufferReceiver.receive(customPacketS2C.buffer(), packetBufferReceiver -> {
 			final Function<PacketBufferReceiver, ? extends PacketHandler> getInstance = ModEventBus.PACKETS.get(packetBufferReceiver.readString());
 			if (getInstance != null) {
 				getInstance.apply(packetBufferReceiver).runClient();
@@ -65,10 +64,10 @@ public final class RegistryClientImpl {
 	}
 
 	public static <T extends PacketHandler> void sendPacketToServer(T data) {
-		final PacketBufferSender packetBufferSender = new PacketBufferSender(Unpooled::buffer);
+		final PacketBufferSender packetBufferSender = new PacketBufferSender();
 		packetBufferSender.writeString(data.getClass().getName());
 		data.write(packetBufferSender);
-		packetBufferSender.send(byteBuf -> PacketDistributor.sendToServer(new CustomPacketS2C(byteBuf.array())), MinecraftClient.getInstance()::execute);
+		packetBufferSender.send(bytes -> PacketDistributor.sendToServer(new CustomPacketS2C(bytes)), MinecraftClient.getInstance()::execute);
 	}
 
 	public static void registerWorldRenderEvent(MTRClient.WorldRenderCallback worldRenderCallback) {

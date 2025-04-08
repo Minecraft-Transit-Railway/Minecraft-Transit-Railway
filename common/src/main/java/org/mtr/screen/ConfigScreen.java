@@ -13,7 +13,6 @@ import org.mtr.config.Client;
 import org.mtr.config.Config;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
-import org.mtr.model.OptimizedRenderer;
 
 import javax.annotation.Nullable;
 
@@ -108,7 +107,7 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 		sliderDynamicTextureResolution.setValue(client.getDynamicTextureResolution());
 		sliderTrainOscillationMultiplier.setHeight(BUTTON_HEIGHT);
 		sliderTrainOscillationMultiplier.setValue((int) (client.getVehicleOscillationMultiplier() * 10));
-		buttonDefaultRail3D.active = OptimizedRenderer.hasOptimizedRendering();
+		buttonDefaultRail3D.active = true;
 		buttonSupportPatreon.setMessage(TranslationProvider.GUI_MTR_SUPPORT.getText());
 
 		addDrawableChild(buttonShowAnnouncementMessages);

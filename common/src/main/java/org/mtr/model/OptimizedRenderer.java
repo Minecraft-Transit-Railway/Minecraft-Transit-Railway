@@ -2,7 +2,6 @@ package org.mtr.model;
 
 import net.minecraft.client.util.math.MatrixStack;
 import org.mtr.model.render.batch.BatchManager;
-import org.mtr.model.render.shader.ModShaderHandler;
 import org.mtr.model.render.shader.ShaderManager;
 import org.mtr.model.render.tool.GlStateTracker;
 import org.mtr.model.render.tool.Utilities;
@@ -32,16 +31,5 @@ public final class OptimizedRenderer {
 			batchManager.drawAll(shaderManager, renderTranslucent);
 			GlStateTracker.restore();
 		}
-	}
-
-	public static boolean renderingShadows() {
-		return ModShaderHandler.renderingShadows();
-	}
-
-	/**
-	 * @return {@code true} for 1.17+, {@code false} otherwise
-	 */
-	public static boolean hasOptimizedRendering() {
-		return true;
 	}
 }

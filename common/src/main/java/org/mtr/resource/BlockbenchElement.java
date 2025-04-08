@@ -30,14 +30,11 @@ public final class BlockbenchElement extends BlockbenchElementSchema {
 		final float rotationX = (float) Math.toRadians(-Utilities.getElement(rotation, 0, 0D));
 		final float rotationY = (float) Math.toRadians(-Utilities.getElement(rotation, 1, 0D));
 		final float rotationZ = (float) Math.toRadians(Utilities.getElement(rotation, 2, 0D));
+		final int textureX = Utilities.getElement(uv_offset, 0, 0L).intValue();
+		final int textureY = Utilities.getElement(uv_offset, 1, 0L).intValue();
 
 		final GroupTransformations newGroupTransformations = new GroupTransformations(groupTransformations, origin, rotation);
-		final ModelPartData modelPartData = newGroupTransformations.create(
-				parentModelPart,
-				Utilities.getElement(uv_offset, 0, 0L).intValue(),
-				Utilities.getElement(uv_offset, 1, 0L).intValue(),
-				modelYOffset
-		);
+		final ModelPartData modelPartData = newGroupTransformations.create(parentModelPart, textureX, textureY, modelYOffset);
 
 		final float x = -Utilities.getElement(to, 0, 0D).floatValue() - originX;
 		final float y = -Utilities.getElement(to, 1, 0D).floatValue() - originY - modelYOffset * 16;
@@ -46,7 +43,7 @@ public final class BlockbenchElement extends BlockbenchElementSchema {
 		final int sizeY = (int) Math.round(Utilities.getElement(to, 1, 0D) - Utilities.getElement(from, 1, 0D));
 		final int sizeZ = (int) Math.round(Utilities.getElement(to, 2, 0D) - Utilities.getElement(from, 2, 0D));
 
-		modelPartData.addChild(MTR.randomString(), ModelPartBuilder.create().cuboid(x, y, z, sizeX, sizeY, sizeZ, new Dilation((float) inflate)).mirrored(!shade || mirror_uv), ModelTransform.NONE);
+		modelPartData.addChild(MTR.randomString(), ModelPartBuilder.create().uv(textureX, textureY).mirrored(!shade || mirror_uv).cuboid(x, y, z, sizeX, sizeY, sizeZ, new Dilation((float) inflate)), ModelTransform.NONE);
 
 		newGroupTransformations.create(modelDisplayPart.storedMatrixTransformations, modelYOffset);
 		modelDisplayPart.storedMatrixTransformations.add(matrixStack -> matrixStack.translate(x / 16, y / 16, z / 16));

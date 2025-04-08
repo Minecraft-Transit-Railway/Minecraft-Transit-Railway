@@ -4,7 +4,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.mtr.block.BlockLiftButtons;
@@ -21,11 +20,11 @@ public class ItemLiftButtonsLinkModifier extends ItemBlockClickingBase {
 	}
 
 	@Override
-	protected void onStartClick(ItemUsageContext context, NbtCompound nbtCompound) {
+	protected void onStartClick(ItemUsageContext context) {
 	}
 
 	@Override
-	protected void onEndClick(ItemUsageContext context, BlockPos posEnd, NbtCompound nbtCompound) {
+	protected void onEndClick(ItemUsageContext context, BlockPos posEnd) {
 		final World world = context.getWorld();
 		final BlockPos posStart = context.getBlockPos();
 		connect(world, posStart, posEnd, isConnector);

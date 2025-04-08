@@ -4,7 +4,6 @@ import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.model.ModelData;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelPartData;
-import net.minecraft.client.model.TexturedModelData;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import org.mtr.MTR;
@@ -12,8 +11,8 @@ import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.data.Data;
 import org.mtr.data.VehicleExtension;
 import org.mtr.model.MutableBox;
+import org.mtr.model.NewOptimizedModelGroup;
 import org.mtr.model.OptimizedModel;
-import org.mtr.registry.ObjectHolder;
 import org.mtr.resource.*;
 
 import javax.annotation.Nullable;
@@ -25,21 +24,19 @@ public final class DynamicVehicleModel {
 	private final Identifier texture;
 	private final ObjectArraySet<Box> floors = new ObjectArraySet<>();
 	private final ObjectArraySet<Box> doorways = new ObjectArraySet<>();
-	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStage = new Object2ObjectOpenHashMap<>();
-	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStageDoorsClosed = new Object2ObjectOpenHashMap<>();
+	private final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsForPartConditionAndRenderStage = new Object2ObjectOpenHashMap<>();
+	private final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsForPartConditionAndRenderStageDoorsClosed = new Object2ObjectOpenHashMap<>();
 	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStage = new Object2ObjectOpenHashMap<>();
 	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStageDoorsClosed = new Object2ObjectOpenHashMap<>();
 
 	public DynamicVehicleModel(BlockbenchModel blockbenchModel, Identifier texture, ModelProperties modelProperties, PositionDefinitions positionDefinitions, String id) {
-		final ModelData modelData = new ModelData();
-
 		final Object2ObjectOpenHashMap<String, BlockbenchElement> uuidToBlockbenchElement = new Object2ObjectOpenHashMap<>();
 		blockbenchModel.getElements().forEach(blockbenchElement -> uuidToBlockbenchElement.put(blockbenchElement.getUuid(), blockbenchElement));
 
 		final Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ModelPart, MutableBox>> nameToPart = new Object2ObjectOpenHashMap<>();
 		final Object2ObjectOpenHashMap<String, ObjectArrayList<ModelDisplayPart>> nameToDisplayParts = new Object2ObjectOpenHashMap<>();
 		blockbenchModel.getOutlines().forEach(blockbenchOutline -> {
-			final ObjectHolder<ModelPartData> parentModelPart = new ObjectHolder<>(modelData::getRoot);
+			final ModelPartData modelPartData = new ModelData().getRoot();
 			final MutableBox mutableBox = new MutableBox();
 			final ObjectArrayList<ModelDisplayPart> modelDisplayParts = new ObjectArrayList<>();
 
@@ -48,20 +45,16 @@ public final class DynamicVehicleModel {
 				if (blockbenchElement != null) {
 					final ModelDisplayPart modelDisplayPart = new ModelDisplayPart();
 					modelDisplayParts.add(modelDisplayPart);
-					mutableBox.add(blockbenchElement.setModelPart(parentModelPart.createAndGet().addChild(MTR.randomString()), groupTransformations, modelDisplayPart, (float) modelProperties.getModelYOffset()));
+					mutableBox.add(blockbenchElement.setModelPart(modelPartData.addChild(MTR.randomString()), groupTransformations, modelDisplayPart, (float) modelProperties.getModelYOffset()));
 				}
 			});
 
-			if (parentModelPart.exists()) {
-				nameToPart.put(blockbenchOutline.getName(), new ObjectObjectImmutablePair<>(parentModelPart.createAndGet().createPart(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight()), mutableBox));
-			}
+			nameToPart.put(blockbenchOutline.getName(), new ObjectObjectImmutablePair<>(modelPartData.createPart(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight()), mutableBox));
 
 			if (!modelDisplayParts.isEmpty()) {
 				nameToDisplayParts.put(blockbenchOutline.getName(), modelDisplayParts);
 			}
 		});
-
-		TexturedModelData.of(modelData, blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight()).createModel();
 
 		modelProperties.addPartsIfEmpty(nameToPart.keySet());
 		this.texture = texture;
@@ -85,16 +78,30 @@ public final class DynamicVehicleModel {
 	public void writeFloorsAndDoorways(
 			ObjectArrayList<Box> floors,
 			ObjectArrayList<Box> doorways,
-			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartCondition,
-			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionDoorsClosed,
+			Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsForPartCondition,
+			Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsForPartConditionDoorsClosed,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsForPartCondition,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsForPartConditionDoorsClosed
 	) {
 		floors.addAll(this.floors);
 		doorways.addAll(this.doorways);
 
-		materialGroupsForPartConditionAndRenderStage.forEach((partCondition, materialGroupsForRenderStage) -> Data.put(materialGroupsForPartCondition, partCondition, materialGroupsForRenderStage.values(), ObjectArrayList::new));
-		materialGroupsForPartConditionAndRenderStageDoorsClosed.forEach((partCondition, materialGroupsForRenderStage) -> Data.put(materialGroupsForPartConditionDoorsClosed, partCondition, materialGroupsForRenderStage.values(), ObjectArrayList::new));
+		materialGroupsForPartConditionAndRenderStage.forEach((partCondition, newOptimizedModelGroup) -> {
+			final NewOptimizedModelGroup existingNewOptimizedModelGroup = materialGroupsForPartCondition.get(partCondition);
+			if (existingNewOptimizedModelGroup == null) {
+				materialGroupsForPartCondition.put(partCondition, newOptimizedModelGroup);
+			} else {
+				existingNewOptimizedModelGroup.merge(newOptimizedModelGroup);
+			}
+		});
+		materialGroupsForPartConditionAndRenderStageDoorsClosed.forEach((partCondition, newOptimizedModelGroup) -> {
+			final NewOptimizedModelGroup existingNewOptimizedModelGroup = materialGroupsForPartConditionDoorsClosed.get(partCondition);
+			if (existingNewOptimizedModelGroup == null) {
+				materialGroupsForPartConditionDoorsClosed.put(partCondition, newOptimizedModelGroup);
+			} else {
+				existingNewOptimizedModelGroup.merge(newOptimizedModelGroup);
+			}
+		});
 		objModelsForPartConditionAndRenderStage.forEach((partCondition, objModelsForRenderStage) -> Data.put(objModelsForPartCondition, partCondition, flattenCollection(objModelsForRenderStage.values()), ObjectArrayList::new));
 		objModelsForPartConditionAndRenderStageDoorsClosed.forEach((partCondition, objModelsForRenderStage) -> Data.put(objModelsForPartConditionDoorsClosed, partCondition, flattenCollection(objModelsForRenderStage.values()), ObjectArrayList::new));
 

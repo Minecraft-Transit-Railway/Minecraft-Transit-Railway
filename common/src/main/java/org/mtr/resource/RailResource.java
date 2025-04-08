@@ -1,9 +1,12 @@
 package org.mtr.resource;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.config.Config;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.generated.resource.RailResourceSchema;
+import org.mtr.model.NewOptimizedModel;
 import org.mtr.render.DynamicVehicleModel;
 
 import javax.annotation.Nullable;
@@ -11,7 +14,7 @@ import javax.annotation.Nullable;
 public final class RailResource extends RailResourceSchema implements StoredModelResourceBase {
 
 	public final boolean shouldPreload;
-	private final CachedResource<ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel>> cachedRailResource;
+	private final CachedResource<ObjectObjectImmutablePair<Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>, DynamicVehicleModel>> cachedRailResource;
 
 	public RailResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
 		super(readerBase, resourceProvider);
@@ -31,15 +34,15 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 
 	@Override
 	@Nullable
-	public OptimizedModelWrapper getOptimizedModel() {
-		final ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel> railResource = cachedRailResource.getData(false);
+	public Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>> getOptimizedModel() {
+		final ObjectObjectImmutablePair<Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>, DynamicVehicleModel> railResource = cachedRailResource.getData(false);
 		return railResource == null ? null : railResource.left();
 	}
 
 	@Override
 	@Nullable
 	public DynamicVehicleModel getDynamicVehicleModel() {
-		final ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel> railResource = cachedRailResource.getData(false);
+		final ObjectObjectImmutablePair<Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>, DynamicVehicleModel> railResource = cachedRailResource.getData(false);
 		return railResource == null ? null : railResource.right();
 	}
 

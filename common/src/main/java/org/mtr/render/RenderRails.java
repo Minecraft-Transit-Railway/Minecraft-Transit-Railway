@@ -17,11 +17,8 @@ import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
@@ -45,12 +42,11 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.data.RailType;
 import org.mtr.generated.lang.TranslationProvider;
-import org.mtr.item.ItemBlockClickingBase;
 import org.mtr.item.ItemBrush;
 import org.mtr.item.ItemNodeModifierBase;
 import org.mtr.item.ItemRailModifier;
-import org.mtr.model.OptimizedRenderer;
 import org.mtr.packet.PacketUpdateLastRailStyles;
+import org.mtr.registry.DataComponentTypes;
 import org.mtr.registry.Items;
 import org.mtr.resource.RailResource;
 
@@ -86,15 +82,7 @@ public class RenderRails implements IGui {
 
 		// Finding visible rails
 		final ObjectArrayList<Rail> railsToRender = new ObjectArrayList<>();
-		MinecraftClientData.getInstance().railWrapperList.values().forEach(railWrapper -> {
-			cullingTasks.add(occlusionCullingInstance -> {
-				final boolean shouldRender = occlusionCullingInstance.isAABBVisible(railWrapper.startVector, railWrapper.endVector, camera);
-				return () -> railWrapper.shouldRender = shouldRender;
-			});
-			if (railWrapper.shouldRender) {
-				railsToRender.add(railWrapper.getRail());
-			}
-		});
+		MinecraftClientData.getInstance().railWrapperList.values().forEach(railWrapper -> railsToRender.add(railWrapper.getRail()));
 
 		// Ghost rails (when holding brush)
 		final ObjectArraySet<Rail> hoverRails = new ObjectArraySet<>();
@@ -128,11 +116,9 @@ public class RenderRails implements IGui {
 			if (hitResult != null) {
 				final Vec3d hitPos = hitResult.getPos();
 				final BlockPos posStart = BlockPos.ofFloored(hitPos.x, hitPos.y, hitPos.z);
-				final NbtComponent nbtComponent = itemStack.get(DataComponentTypes.CUSTOM_DATA);
-				final NbtCompound nbtCompound = nbtComponent == null ? null : nbtComponent.copyNbt();
+				final BlockPos posEnd = itemStack.get(DataComponentTypes.START_POS.createAndGet());
 
-				if (nbtCompound != null && nbtCompound.contains(ItemBlockClickingBase.TAG_POS)) {
-					final BlockPos posEnd = BlockPos.fromLong(nbtCompound.getLong(ItemBlockClickingBase.TAG_POS));
+				if (posEnd != null) {
 					final BlockState blockStateEnd = clientWorld.getBlockState(posEnd);
 
 					if (blockStateEnd.getBlock() instanceof BlockNode) {
@@ -143,7 +129,7 @@ public class RenderRails implements IGui {
 								MTR.blockPosToPosition(posEnd), angleEnd
 						);
 
-						final Rail rail = ((ItemRailModifier) item).createRail(clientPlayerEntity.getUuid(), ItemNodeModifierBase.getTransportMode(nbtCompound), blockStateStart, blockStateEnd, posStart, posEnd, angles.left(), angles.right());
+						final Rail rail = ((ItemRailModifier) item).createRail(clientPlayerEntity.getUuid(), ItemNodeModifierBase.getTransportMode(itemStack), blockStateStart, blockStateEnd, posStart, posEnd, angles.left(), angles.right());
 						if (rail != null) {
 							final Rail newRail = PacketUpdateLastRailStyles.CLIENT_CACHE.getRailWithLastStyles(clientPlayerEntity.getUuid(), rail);
 							railsToRender.add(newRail);
@@ -222,14 +208,6 @@ public class RenderRails implements IGui {
 				}
 			}
 		}
-
-		if (!OptimizedRenderer.renderingShadows()) {
-			MainRenderer.WORKER_THREAD.scheduleRails(occlusionCullingInstance -> {
-				final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
-				cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
-				minecraftClient.execute(() -> tasks.forEach(Runnable::run));
-			});
-		}
 	}
 
 	public static boolean isHoldingRailRelated(ClientPlayerEntity clientPlayerEntity) {
@@ -265,7 +243,7 @@ public class RenderRails implements IGui {
 		final boolean[] renderType = {false, false}; // render default rail, rendered something
 		for (final String style : rail.getStyles()) {
 			final String newStyle;
-			if (OptimizedRenderer.hasOptimizedRendering() && Config.getClient().getDefaultRail3D() && rail.getTransportMode() == TransportMode.TRAIN) {
+			if (Config.getClient().getDefaultRail3D() && rail.getTransportMode() == TransportMode.TRAIN) {
 				newStyle = style.equals(CustomResourceLoader.DEFAULT_RAIL_ID) ? rail.isSiding() ? CustomResourceLoader.DEFAULT_RAIL_3D_SIDING_ID : CustomResourceLoader.DEFAULT_RAIL_3D_ID : style;
 			} else {
 				newStyle = style;

@@ -1,24 +1,22 @@
 package org.mtr.packet;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.Random;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public final class PacketBufferSender {
 
 	private int capacity;
 	private ByteBuf currentByteBuf;
 	private final ObjectArrayList<ByteBuf> byteBufObjects = new ObjectArrayList<>();
-	private final Supplier<ByteBuf> createInstance;
 
 	private static final int HEADER_BYTES = 8 + 4 + 4;
 	private static final int MAX_PACKET_BYTES = 0x7FFF - HEADER_BYTES;
 
-	public PacketBufferSender(Supplier<ByteBuf> createInstance) {
-		this.createInstance = createInstance;
+	public PacketBufferSender() {
 		create();
 	}
 
@@ -60,19 +58,18 @@ public final class PacketBufferSender {
 		}
 	}
 
-	public void send(Consumer<ByteBuf> consumer, Consumer<Runnable> scheduler) {
+	public void send(Consumer<byte[]> consumer, Consumer<Runnable> scheduler) {
 		byteBufObjects.add(currentByteBuf);
 		final long id = new Random().nextLong();
 		final ObjectArrayList<Runnable> queue = new ObjectArrayList<>();
 		for (int i = 0; i < byteBufObjects.size(); i++) {
 			final ByteBuf byteBuf = byteBufObjects.get(i);
-			final int writerIndex = byteBuf.writerIndex();
-			byteBuf.resetWriterIndex();
+			byteBuf.writerIndex(0);
 			byteBuf.writeLong(id);
 			byteBuf.writeInt(i);
 			byteBuf.writeInt(byteBufObjects.size());
-			byteBuf.writerIndex(writerIndex);
-			queue.add(() -> consumer.accept(byteBuf));
+			final byte[] bytes = byteBuf.array();
+			queue.add(() -> consumer.accept(bytes));
 		}
 		schedule(queue, scheduler);
 	}
@@ -87,7 +84,7 @@ public final class PacketBufferSender {
 	}
 
 	private void create() {
-		currentByteBuf = createInstance.get();
+		currentByteBuf = Unpooled.buffer();
 		currentByteBuf.writeLong(0);
 		currentByteBuf.writeInt(0);
 		currentByteBuf.writeInt(0);

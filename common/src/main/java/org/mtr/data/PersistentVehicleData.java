@@ -23,7 +23,6 @@ public final class PersistentVehicleData {
 	private int doorCooldown;
 	private int overrideDoorMultiplier;
 
-	public final boolean[] rayTracing;
 	public final double[] longestDimensions;
 	private final TransportMode transportMode;
 	private final ObjectArrayList<VehicleSoundBase> vehicleSoundBaseList = new ObjectArrayList<>();
@@ -31,7 +30,6 @@ public final class PersistentVehicleData {
 	private final ObjectArrayList<Oscillation> oscillations = new ObjectArrayList<>();
 
 	public PersistentVehicleData(ObjectImmutableList<VehicleCar> immutableVehicleCars, TransportMode transportMode) {
-		rayTracing = new boolean[immutableVehicleCars.size()];
 		longestDimensions = new double[immutableVehicleCars.size()];
 		for (int i = 0; i < immutableVehicleCars.size(); i++) {
 			longestDimensions[i] = Math.max(immutableVehicleCars.get(i).getLength(), immutableVehicleCars.get(i).getWidth());

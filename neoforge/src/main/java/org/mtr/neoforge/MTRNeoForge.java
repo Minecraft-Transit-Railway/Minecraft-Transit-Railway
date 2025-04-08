@@ -2,6 +2,7 @@ package org.mtr.neoforge;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.ComponentType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -21,6 +22,7 @@ public final class MTRNeoForge {
 	public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(Registries.ENTITY_TYPE, MTR.MOD_ID);
 	public static final DeferredRegister<ItemGroup> ITEM_GROUPS = DeferredRegister.create(Registries.ITEM_GROUP, MTR.MOD_ID);
 	public static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(Registries.SOUND_EVENT, MTR.MOD_ID);
+	public static final DeferredRegister<ComponentType<?>> DATA_COMPONENT_TYPES = DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, MTR.MOD_ID);
 
 	public MTRNeoForge(IEventBus eventBus) {
 		MTR.init();
@@ -29,5 +31,6 @@ public final class MTRNeoForge {
 		ENTITY_TYPES.register(eventBus);
 		ITEM_GROUPS.register(eventBus);
 		SOUND_EVENTS.register(eventBus);
+		DATA_COMPONENT_TYPES.register(eventBus);
 	}
 }

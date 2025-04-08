@@ -1,7 +1,6 @@
 package org.mtr.registry.fabric;
 
 import com.mojang.brigadier.CommandDispatcher;
-import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -14,6 +13,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.ComponentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
@@ -86,10 +86,14 @@ public final class RegistryImpl {
 		CommandRegistrationCallback.EVENT.register((dispatcher, commandRegistryAccess, environment) -> consumer.accept(dispatcher));
 	}
 
+	public static <T> ObjectHolder<ComponentType<T>> registerDataComponentType(String registryName, Supplier<ComponentType<T>> supplier) {
+		return register(Registries.DATA_COMPONENT_TYPE, RegistryKeys.DATA_COMPONENT_TYPE, registryName, dataRegistryKey -> supplier.get());
+	}
+
 	public static void setupPackets() {
 		PayloadTypeRegistry.playS2C().register(MTR.PACKET_IDENTIFIER_S2C, PacketCodec.tuple(PacketCodecs.BYTE_ARRAY, CustomPacketS2C::buffer, CustomPacketS2C::new));
 		PayloadTypeRegistry.playC2S().register(MTR.PACKET_IDENTIFIER_C2S, PacketCodec.tuple(PacketCodecs.BYTE_ARRAY, CustomPacketC2S::buffer, CustomPacketC2S::new));
-		ServerPlayNetworking.registerGlobalReceiver(MTR.PACKET_IDENTIFIER_C2S, (customPacketC2S, context) -> PacketBufferReceiver.receive(Unpooled.copiedBuffer(customPacketC2S.buffer()), packetBufferReceiver -> {
+		ServerPlayNetworking.registerGlobalReceiver(MTR.PACKET_IDENTIFIER_C2S, (customPacketC2S, context) -> PacketBufferReceiver.receive(customPacketC2S.buffer(), packetBufferReceiver -> {
 			final Function<PacketBufferReceiver, ? extends PacketHandler> getInstance = MTRFabric.PACKETS.get(packetBufferReceiver.readString());
 			if (getInstance != null) {
 				getInstance.apply(packetBufferReceiver).runServer(context.player().server, context.player());
@@ -102,10 +106,10 @@ public final class RegistryImpl {
 	}
 
 	public static <T extends PacketHandler> void sendPacketToClient(ServerPlayerEntity serverPlayerEntity, T data) {
-		final PacketBufferSender packetBufferSender = new PacketBufferSender(Unpooled::buffer);
+		final PacketBufferSender packetBufferSender = new PacketBufferSender();
 		packetBufferSender.writeString(data.getClass().getName());
 		data.write(packetBufferSender);
-		packetBufferSender.send(byteBuf -> ServerPlayNetworking.send(serverPlayerEntity, new CustomPacketS2C(byteBuf.array())), serverPlayerEntity.server::execute);
+		packetBufferSender.send(bytes -> ServerPlayNetworking.send(serverPlayerEntity, new CustomPacketS2C(bytes)), serverPlayerEntity.server::execute);
 	}
 
 	private static <T extends U, U> ObjectHolder<T> register(Registry<U> registry, RegistryKey<Registry<U>> registryKey, String registryName, Function<RegistryKey<U>, T> factory) {

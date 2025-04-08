@@ -3,14 +3,11 @@ package org.mtr.item;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -23,6 +20,7 @@ import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Angle;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.registry.DataComponentTypes;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -61,7 +59,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 						neighborState = state;
 					}
 					playerEntity.sendMessage(TranslationProvider.TOOLTIP_MTR_SELECTED_MATERIAL.getText(Text.translatable(neighborState.getBlock().getTranslationKey()).getString()), true);
-					NbtComponent.set(DataComponentTypes.CUSTOM_DATA, context.getStack(), nbtCompound -> nbtCompound.putInt(TAG_BLOCK_ID, Block.getRawIdFromState(neighborState)));
+					context.getStack().set(DataComponentTypes.BLOCK_ID.createAndGet(), Block.getRawIdFromState(neighborState));
 					return ActionResult.SUCCESS;
 				}
 			}
@@ -101,15 +99,8 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	}
 
 	protected BlockState getSavedState(ItemStack stack) {
-		final NbtComponent nbtComponent = stack.get(DataComponentTypes.CUSTOM_DATA);
-		if (nbtComponent != null) {
-			final NbtCompound nbtCompound = nbtComponent.copyNbt();
-			if (nbtCompound.contains(TAG_BLOCK_ID)) {
-				return Block.getStateFromRawId(nbtCompound.getInt(TAG_BLOCK_ID));
-			}
-		}
-
-		return Blocks.AIR.getDefaultState();
+		final Integer blockId = stack.get(DataComponentTypes.BLOCK_ID.createAndGet());
+		return blockId == null ? Blocks.AIR.getDefaultState() : Block.getStateFromRawId(blockId);
 	}
 
 	protected abstract void onConnect(Rail rail, ServerPlayerEntity serverPlayerEntity, ItemStack itemStack, int radius, int height);

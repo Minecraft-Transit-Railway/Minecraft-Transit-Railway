@@ -1,6 +1,5 @@
 package org.mtr.registry.fabric;
 
-import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -53,7 +52,7 @@ public final class RegistryClientImpl {
 	}
 
 	public static void setupPackets() {
-		ClientPlayNetworking.registerGlobalReceiver(MTR.PACKET_IDENTIFIER_S2C, (customPacketS2C, context) -> PacketBufferReceiver.receive(Unpooled.copiedBuffer(customPacketS2C.buffer()), packetBufferReceiver -> {
+		ClientPlayNetworking.registerGlobalReceiver(MTR.PACKET_IDENTIFIER_S2C, (customPacketS2C, context) -> PacketBufferReceiver.receive(customPacketS2C.buffer(), packetBufferReceiver -> {
 			final Function<PacketBufferReceiver, ? extends PacketHandler> getInstance = MTRFabric.PACKETS.get(packetBufferReceiver.readString());
 			if (getInstance != null) {
 				getInstance.apply(packetBufferReceiver).runClient();
@@ -62,9 +61,9 @@ public final class RegistryClientImpl {
 	}
 
 	public static <T extends PacketHandler> void sendPacketToServer(T data) {
-		final PacketBufferSender packetBufferSender = new PacketBufferSender(Unpooled::buffer);
+		final PacketBufferSender packetBufferSender = new PacketBufferSender();
 		packetBufferSender.writeString(data.getClass().getName());
 		data.write(packetBufferSender);
-		packetBufferSender.send(byteBuf -> ClientPlayNetworking.send(new CustomPacketC2S(byteBuf.array())), MinecraftClient.getInstance()::execute);
+		packetBufferSender.send(bytes -> ClientPlayNetworking.send(new CustomPacketC2S(bytes)), MinecraftClient.getInstance()::execute);
 	}
 }

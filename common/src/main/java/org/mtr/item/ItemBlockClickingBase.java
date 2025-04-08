@@ -1,24 +1,20 @@
 package org.mtr.item;
 
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.registry.DataComponentTypes;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
 public abstract class ItemBlockClickingBase extends Item {
-
-	public static final String TAG_POS = "pos";
 
 	public ItemBlockClickingBase(Item.Settings settings) {
 		super(settings.maxCount(1));
@@ -29,21 +25,16 @@ public abstract class ItemBlockClickingBase extends Item {
 	public ActionResult useOnBlock(ItemUsageContext context) {
 		if (!context.getWorld().isClient()) {
 			if (clickCondition(context)) {
-				final NbtComponent nbtComponent = context.getStack().get(DataComponentTypes.CUSTOM_DATA);
-				final NbtCompound nbtCompound;
+				final BlockPos startPos = context.getStack().get(DataComponentTypes.START_POS.createAndGet());
 
-				if (nbtComponent == null) {
-					nbtCompound = NbtComponent.DEFAULT.copyNbt();
-					nbtCompound.putLong(TAG_POS, context.getBlockPos().asLong());
-					onStartClick(context, nbtCompound);
+				if (startPos == null) {
+					context.getStack().set(DataComponentTypes.START_POS.createAndGet(), context.getBlockPos());
+					onStartClick(context);
 				} else {
-					nbtCompound = nbtComponent.copyNbt();
-					final BlockPos posEnd = BlockPos.fromLong(nbtCompound.getLong(TAG_POS));
-					onEndClick(context, posEnd, nbtCompound);
-					nbtCompound.remove(TAG_POS);
+					onEndClick(context, startPos);
+					context.getStack().remove(DataComponentTypes.START_POS.createAndGet());
 				}
 
-				context.getStack().set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbtCompound));
 				return ActionResult.SUCCESS;
 			} else {
 				return ActionResult.FAIL;
@@ -55,15 +46,15 @@ public abstract class ItemBlockClickingBase extends Item {
 
 	@Override
 	public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-		final NbtComponent nbtComponent = stack.get(DataComponentTypes.CUSTOM_DATA);
-		if (nbtComponent != null) {
-			tooltip.add(TranslationProvider.TOOLTIP_MTR_SELECTED_BLOCK.getMutableText(BlockPos.fromLong(nbtComponent.copyNbt().getLong(TAG_POS)).toShortString()).formatted(Formatting.GOLD));
+		final BlockPos blockPos = stack.get(DataComponentTypes.START_POS.createAndGet());
+		if (blockPos != null) {
+			tooltip.add(TranslationProvider.TOOLTIP_MTR_SELECTED_BLOCK.getMutableText(blockPos.toShortString()).formatted(Formatting.GOLD));
 		}
 	}
 
-	protected abstract void onStartClick(ItemUsageContext context, NbtCompound nbtCompound);
+	protected abstract void onStartClick(ItemUsageContext context);
 
-	protected abstract void onEndClick(ItemUsageContext context, BlockPos posEnd, NbtCompound nbtCompound);
+	protected abstract void onEndClick(ItemUsageContext context, BlockPos posEnd);
 
 	protected abstract boolean clickCondition(ItemUsageContext context);
 }

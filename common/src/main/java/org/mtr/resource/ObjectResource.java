@@ -1,10 +1,13 @@
 package org.mtr.resource;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectCollection;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.config.Config;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.generated.resource.ObjectResourceSchema;
+import org.mtr.model.NewOptimizedModel;
 import org.mtr.model.OptimizedModel;
 import org.mtr.render.DynamicVehicleModel;
 
@@ -13,7 +16,7 @@ import javax.annotation.Nullable;
 public final class ObjectResource extends ObjectResourceSchema implements StoredModelResourceBase {
 
 	public final boolean shouldPreload;
-	private final CachedResource<ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel>> cachedObjectResource;
+	private final CachedResource<ObjectObjectImmutablePair<Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>, DynamicVehicleModel>> cachedObjectResource;
 
 	public ObjectResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
 		super(readerBase, resourceProvider);
@@ -24,15 +27,15 @@ public final class ObjectResource extends ObjectResourceSchema implements Stored
 
 	@Override
 	@Nullable
-	public OptimizedModelWrapper getOptimizedModel() {
-		final ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel> railResource = cachedObjectResource.getData(false);
+	public Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>> getOptimizedModel() {
+		final ObjectObjectImmutablePair<Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>, DynamicVehicleModel> railResource = cachedObjectResource.getData(false);
 		return railResource == null ? null : railResource.left();
 	}
 
 	@Override
 	@Nullable
 	public DynamicVehicleModel getDynamicVehicleModel() {
-		final ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel> railResource = cachedObjectResource.getData(false);
+		final ObjectObjectImmutablePair<Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>, DynamicVehicleModel> railResource = cachedObjectResource.getData(false);
 		return railResource == null ? null : railResource.right();
 	}
 
