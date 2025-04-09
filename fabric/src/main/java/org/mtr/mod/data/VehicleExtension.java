@@ -223,9 +223,17 @@ public class VehicleExtension extends Vehicle implements Utilities {
 			final int currentIndex = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, oldRailProgress - totalLength);
 			if (currentIndex >= 0 && currentIndex < vehicleExtraData.immutablePath.size()) {
 				final int carNumber = reversed ? vehicleExtraData.immutableVehicleCars.size() - i - 1 : i;
-				if (railProgress - totalLength >= vehicleExtraData.immutablePath.get(currentIndex).getEndDistance()) {
-					persistentVehicleData.getOscillation(carNumber).startOscillation(Math.sqrt(speed) * 5 * (Math.random() + 0.5));
+
+				// When moving
+				if (speed * MILLIS_PER_SECOND > 5 && Math.random() < 0.01) {
+					persistentVehicleData.getOscillation(carNumber).startOscillation(Math.sqrt(speed) * Math.random());
 				}
+
+				// When passing node
+				if (railProgress - totalLength >= vehicleExtraData.immutablePath.get(currentIndex).getEndDistance()) {
+					persistentVehicleData.getOscillation(carNumber).startOscillation(Math.sqrt(speed) * 2 * (Math.random() + 0.5));
+				}
+
 				totalLength += vehicleExtraData.immutableVehicleCars.get(carNumber).getLength();
 			}
 		}

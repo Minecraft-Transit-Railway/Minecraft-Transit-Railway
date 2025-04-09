@@ -1,8 +1,8 @@
 package org.mtr.mod.client;
 
 import com.logisticscraft.occlusionculling.util.Vec3d;
-import org.mtr.core.data.Position;
 import org.mtr.core.data.*;
+import org.mtr.core.data.Position;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -68,7 +68,7 @@ public final class MinecraftClientData extends ClientData {
 			final String hexId = rail.getHexId();
 			final RailWrapper railWrapper = railWrapperList.get(hexId);
 			if (railWrapper == null) {
-				railWrapperList.put(hexId, new RailWrapper(rail, hexId, startPosition, endPosition));
+				railWrapperList.put(hexId, new RailWrapper(rail, hexId));
 			} else {
 				railWrapper.rail = rail;
 			}
@@ -252,19 +252,11 @@ public final class MinecraftClientData extends ClientData {
 		public final Vec3d endVector;
 		private Rail rail;
 
-		private RailWrapper(Rail rail, String hexId, Position startPosition, Position endPosition) {
+		private RailWrapper(Rail rail, String hexId) {
 			this.rail = rail;
 			this.hexId = hexId;
-			startVector = new Vec3d(
-					Math.min(startPosition.getX(), endPosition.getX()),
-					Math.min(startPosition.getY(), endPosition.getY()),
-					Math.min(startPosition.getZ(), endPosition.getZ())
-			);
-			endVector = new Vec3d(
-					Math.max(startPosition.getX(), endPosition.getX()),
-					Math.max(startPosition.getY(), endPosition.getY()),
-					Math.max(startPosition.getZ(), endPosition.getZ())
-			);
+			startVector = new Vec3d(rail.railMath.minX, rail.railMath.minY, rail.railMath.minZ);
+			endVector = new Vec3d(rail.railMath.maxX, rail.railMath.maxY, rail.railMath.maxZ);
 		}
 
 		public Rail getRail() {
