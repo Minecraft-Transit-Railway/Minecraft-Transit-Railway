@@ -29,9 +29,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
@@ -283,6 +281,48 @@ public final class BuildTools {
 		FileUtils.write(path.resolve("src/main/java/org/mtr/Patreon.java").toFile(), stringBuilder, StandardCharsets.UTF_8);
 	}
 
+	public void setupObjLibrary() {
+		final Path libraryPath = path.resolve("src/main/java/de/javagl/obj");
+		try {
+			FileUtils.copyURLToFile(new URL("https://github.com/javagl/Obj/archive/refs/heads/master.zip"), libraryPath.resolve("master.zip").toFile());
+			try (final ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(libraryPath.resolve("master.zip")))) {
+				ZipEntry zipEntry = zipInputStream.getNextEntry();
+				while (zipEntry != null) {
+					final Path zipPath = Paths.get(zipEntry.getName());
+					if (!zipEntry.isDirectory() && zipPath.startsWith("Obj-master/src/main/java/de/javagl/obj")) {
+						final String fileName = zipPath.getFileName().toString();
+						final String content = IOUtils.toString(zipInputStream, StandardCharsets.UTF_8);
+						final String newContent;
+						switch (fileName) {
+							case "DefaultObj.java":
+								newContent = appendAfter(
+										content,
+										"startedGroupNames.put(face, nextActiveGroupNames);", "startedMaterialGroupNames.put(face, activeMaterialGroupName);"
+								);
+								break;
+							case "ObjReader.java":
+								newContent = appendAfter(
+										content,
+										"ObjFaceParser objFaceParser = new ObjFaceParser();", "String groupOrObject = \"\";",
+										"case \"g\":", "case \"o\": if (!groupOrObject.equals(identifier) && !groupOrObject.isEmpty()) break;",
+										"output.setActiveGroupNames(Arrays.asList(groupNames));", "groupOrObject = identifier;"
+								);
+								break;
+							default:
+								newContent = content;
+								break;
+						}
+						Files.write(libraryPath.resolve(fileName), newContent.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+					}
+					zipEntry = zipInputStream.getNextEntry();
+				}
+				zipInputStream.closeEntry();
+			}
+		} catch (Exception e) {
+			LOGGER.error("", e);
+		}
+	}
+
 	private static JsonElement getJson(String url, String... requestProperties) {
 		for (int i = 0; i < 5; i++) {
 			try {
@@ -341,6 +381,14 @@ public final class BuildTools {
 		try (final CloseableHttpClient closeableHttpClient = HttpClients.createDefault(); final CloseableHttpResponse response = closeableHttpClient.execute(httpPost)) {
 			return JsonParser.parseReader(new InputStreamReader(response.getEntity().getContent())).getAsJsonObject().getAsJsonArray("candidates").get(0).getAsJsonObject().getAsJsonObject("content").getAsJsonArray("parts").get(0).getAsJsonObject().get("text").getAsString();
 		}
+	}
+
+	private static String appendAfter(String string, String... replacements) {
+		String newString = string;
+		for (int i = 1; i < replacements.length; i += 2) {
+			newString = newString.replace(replacements[i - 1], replacements[i - 1] + replacements[i]);
+		}
+		return newString;
 	}
 
 	private static String removeLastLine(String text) {

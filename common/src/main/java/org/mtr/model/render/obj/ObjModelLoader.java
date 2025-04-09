@@ -200,5 +200,10 @@ public final class ObjModelLoader {
 		public float get(int index) {
 			return 0;
 		}
+
+		@Override
+		public int getDimensions() {
+			return 0;
+		}
 	}
 }

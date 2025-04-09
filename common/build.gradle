@@ -81,6 +81,7 @@ tasks.register("setupFiles") {
 	buildTools.generateTranslations()
 	buildTools.copyVehicleTemplates()
 	buildTools.getPatreonList(patreon_api_key)
+	buildTools.setupObjLibrary()
 	Generator.generateJava(project, "schema/config", "generated/config", false, "config")
 	Generator.generateJava(project, "schema/resource", "generated/resource", false, "core.data", "resource")
 	Generator.generateJava(project, "schema/legacy", "legacy/generated/resource", false)

@@ -33,6 +33,7 @@ bin/
 run/
 generated/
 .architectury-transformer/
+**/de/javagl/obj/
 **/website/*.json
 **/website/src/app/entity/generated
 **/website/src/styles.css
