@@ -7,7 +7,6 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.OptimizedRenderer;
-import org.mtr.mapping.tool.ColorHelper;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.DynamicTextureCache;
@@ -20,6 +19,7 @@ import org.mtr.mod.entity.EntityRendering;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.awt.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -80,6 +80,7 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 			millisElapsed = 0;
 		} else {
 			millisElapsed = getMillisElapsed();
+			MinecraftClientData.getInstance().blockedRailIds.clear();
 			MinecraftClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
 			MinecraftClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
 			lastRenderedMillis = InitClient.getGameMillis();
@@ -182,17 +183,14 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 		return LightmapTextureManager.pack(light, light);
 	}
 
-	public static int getFlashingColor(int color) {
-		int[] newColor = new int[1];
+	public static int getFlashingColor(int color, int multiplier) {
 		final double flashingProgress = ((Math.sin(Math.PI * 2 * (System.currentTimeMillis() % FLASHING_INTERVAL) / FLASHING_INTERVAL) + 1) / 2);
-		ColorHelper.unpackColor(color, (a, r, g, b) -> {
-			int newR = (int) (r * flashingProgress);
-			int newG = (int) (g * flashingProgress);
-			int newB = (int) (b * flashingProgress);
-
-			newColor[0] = (a << 24) | (newR << 16) | (newG << 8) | newB;
-		});
-		return newColor[0];
+		final Color oldColor = new Color(color);
+		return new Color(
+				(int) (oldColor.getRed() * Math.min(1, flashingProgress * multiplier)),
+				(int) (oldColor.getGreen() * Math.min(1, flashingProgress * multiplier)),
+				(int) (oldColor.getBlue() * Math.min(1, flashingProgress * multiplier))
+		).getRGB();
 	}
 
 	private static long getMillisElapsed() {

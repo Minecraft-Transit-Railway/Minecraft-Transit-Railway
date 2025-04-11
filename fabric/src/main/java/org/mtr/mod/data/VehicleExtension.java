@@ -1,6 +1,7 @@
 package org.mtr.mod.data;
 
 import org.mtr.core.data.Data;
+import org.mtr.core.data.PathData;
 import org.mtr.core.data.Vehicle;
 import org.mtr.core.operation.VehicleUpdate;
 import org.mtr.core.serializer.JsonReader;
@@ -235,6 +236,22 @@ public class VehicleExtension extends Vehicle implements Utilities {
 				}
 
 				totalLength += vehicleExtraData.immutableVehicleCars.get(carNumber).getLength();
+			}
+		}
+
+		// Write signals
+		final double padding = 0.5 * speed * speed / vehicleExtraData.getDeceleration() + transportMode.stoppingSpace;
+		final int headIndexPadded = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, railProgress + padding);
+		final int headIndex = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, railProgress);
+		final int endIndex = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, railProgress - totalLength);
+		final int endIndexPadded = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, railProgress - totalLength - padding);
+		for (int i = Math.max(0, endIndexPadded); i <= Math.min(vehicleExtraData.immutablePath.size() - 1, headIndexPadded); i++) {
+			final PathData pathData = vehicleExtraData.immutablePath.get(i);
+			if (i > endIndexPadded && i <= headIndex) {
+				MinecraftClientData.getInstance().blockedRailIds.add(pathData.getHexId(false));
+			}
+			if (i < headIndexPadded && i >= endIndex) {
+				MinecraftClientData.getInstance().blockedRailIds.add(pathData.getHexId(true));
 			}
 		}
 	}
