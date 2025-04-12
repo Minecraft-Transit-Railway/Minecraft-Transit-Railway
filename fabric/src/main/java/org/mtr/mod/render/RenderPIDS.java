@@ -46,7 +46,7 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 	}
 
 	@Override
-	public void render(T entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
+	public final void render(T entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
 		final World world = entity.getWorld2();
 		if (world == null) {
 			return;
@@ -73,6 +73,10 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 		} else {
 			getArrivalsAndRender(entity, blockPos, facing, entity.getPlatformIds());
 		}
+	}
+
+	public void renderText(GraphicsHolder graphicsHolder, String text, int x, int y, int color) {
+		graphicsHolder.drawText(text, x, y, color, false, GraphicsHolder.getDefaultLight());
 	}
 
 	private void getArrivalsAndRender(T entity, BlockPos blockPos, Direction facing, LongCollection platformIds) {
@@ -225,13 +229,13 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 		}
 	}
 
-	private static void renderText(GraphicsHolder graphicsHolder, String text, int color, float availableWidth, boolean rightAlign) {
+	private void renderText(GraphicsHolder graphicsHolder, String text, int color, float availableWidth, boolean rightAlign) {
 		graphicsHolder.push();
 		final int textWidth = GraphicsHolder.getTextWidth(text);
 		if (availableWidth < textWidth) {
 			graphicsHolder.scale(textWidth == 0 ? 1 : availableWidth / textWidth, 1, 1);
 		}
-		graphicsHolder.drawText(text, rightAlign ? Math.max(0, (int) availableWidth - textWidth) : 0, 0, color | ARGB_BLACK, false, GraphicsHolder.getDefaultLight());
+		renderText(graphicsHolder, text, rightAlign ? Math.max(0, (int) availableWidth - textWidth) : 0, 0, color | ARGB_BLACK);
 		graphicsHolder.pop();
 	}
 

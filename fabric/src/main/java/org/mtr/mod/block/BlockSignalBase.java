@@ -58,7 +58,8 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 
 	public static abstract class BlockEntityBase extends BlockEntityExtension {
 
-		private long lastOccupiedTime;
+		private long lastOccupiedTime1;
+		private long lastOccupiedTime2;
 		public final boolean isDoubleSided;
 
 		private final IntAVLTreeSet signalColors1 = new IntAVLTreeSet();
@@ -101,13 +102,17 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 			return isBackSide ? signalColors2 : signalColors1;
 		}
 
-		public int getActualAspect(boolean occupied) {
+		public int getActualAspect(boolean occupied, boolean isBackSide) {
 			final long currentTime = System.currentTimeMillis();
 			if (occupied) {
-				lastOccupiedTime = currentTime;
+				if (isBackSide) {
+					lastOccupiedTime2 = currentTime;
+				} else {
+					lastOccupiedTime1 = currentTime;
+				}
 				return 1;
 			} else {
-				final long difference = currentTime - lastOccupiedTime;
+				final long difference = currentTime - (isBackSide ? lastOccupiedTime2 : lastOccupiedTime1);
 				if (difference >= COOLDOWN_2) {
 					return 0;
 				} else if (difference >= COOLDOWN_1) {

@@ -86,7 +86,7 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 
 				// If filters are empty, render all signal states, including node states
 				// If filters are not empty, only render the signal state of the selected colors, even if the colors don't exist
-				render(storedMatrixTransformationsNew, entity, tickDelta, entity.getActualAspect(filterColors.isEmpty() && aspectState.nodeBlocked || aspectState.occupiedColors.intStream().anyMatch(color -> filterColors.isEmpty() || filterColors.contains(color))), isBackSide);
+				render(storedMatrixTransformationsNew, entity, tickDelta, entity.getActualAspect(filterColors.isEmpty() && aspectState.nodeBlocked || aspectState.occupiedColors.intStream().anyMatch(color -> filterColors.isEmpty() || filterColors.contains(color)), isBackSide), isBackSide);
 			}
 		}
 	}
