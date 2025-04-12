@@ -1,32 +1,40 @@
 package org.mtr.model.render.obj;
 
 import de.javagl.obj.*;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joml.Vector3f;
 import org.mtr.MTR;
+import org.mtr.model.NewOptimizedModelGroup;
 import org.mtr.model.OptimizedModel;
 import org.mtr.model.render.batch.MaterialProperties;
 import org.mtr.model.render.model.Face;
 import org.mtr.model.render.model.RawMesh;
 import org.mtr.model.render.vertex.Vertex;
+import org.mtr.resource.RenderStage;
 
 import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class ObjModelLoader {
 
-	public static Map<String, List<RawMesh>> loadModel(String objString, Function<String, String> mtlResolver, Function<String, Identifier> textureResolver, AtlasManager atlasManager, boolean splitModel) {
-		final Map<String, List<RawMesh>> result = new HashMap<>();
+	public static Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ObjectArrayList<RawMesh>, NewOptimizedModelGroup>> loadModel(String objString, Function<String, String> mtlResolver, Function<String, Identifier> textureResolver, AtlasManager atlasManager, boolean splitModel, boolean flipTextureV) {
+		final Object2ObjectOpenHashMap<String, ObjectObjectImmutablePair<ObjectArrayList<RawMesh>, NewOptimizedModelGroup>> result = new Object2ObjectOpenHashMap<>();
 
 		try {
 			final Obj sourceObj = ObjReader.read(IOUtils.toInputStream(objString, StandardCharsets.UTF_8));
 
-			final Map<String, Mtl> materials = new HashMap<>();
+			final Object2ObjectOpenHashMap<String, Mtl> materials = new Object2ObjectOpenHashMap<>();
 			sourceObj.getMtlFileNames().forEach(mtlFileName -> {
 				try {
 					MtlReader.read(IOUtils.toInputStream(mtlResolver.apply(mtlFileName.replace("\\\\", "/").replace("\\", "/")), StandardCharsets.UTF_8)).forEach(mtl -> materials.put(mtl.getName(), mtl));
@@ -36,9 +44,9 @@ public final class ObjModelLoader {
 			});
 
 			if (splitModel) {
-				ObjSplitting.splitByGroups(sourceObj).forEach((key, obj) -> result.put(key, loadModel(obj, materials, textureResolver, atlasManager)));
+				ObjSplitting.splitByGroups(sourceObj).forEach((key, obj) -> result.put(key, loadModel(obj, materials, textureResolver, atlasManager, flipTextureV)));
 			} else {
-				result.put("", loadModel(sourceObj, materials, textureResolver, atlasManager));
+				result.put("", loadModel(sourceObj, materials, textureResolver, atlasManager, flipTextureV));
 			}
 		} catch (Exception e) {
 			MTR.LOGGER.error("", e);
@@ -47,15 +55,18 @@ public final class ObjModelLoader {
 		return result;
 	}
 
-	private static List<RawMesh> loadModel(Obj sourceObj, Map<String, Mtl> materials, Function<String, Identifier> textureResolver, AtlasManager atlasManager) {
-		final List<RawMesh> rawMeshes = new ArrayList<>();
+	private static ObjectObjectImmutablePair<ObjectArrayList<RawMesh>, NewOptimizedModelGroup> loadModel(Obj sourceObj, Object2ObjectOpenHashMap<String, Mtl> materials, Function<String, Identifier> textureResolver, AtlasManager atlasManager, boolean flipTextureV) {
+		final ObjectArrayList<RawMesh> rawMeshes = new ObjectArrayList<>();
+		final NewOptimizedModelGroup newOptimizedModelGroup = new NewOptimizedModelGroup();
 
 		ObjSplitting.splitByMaterialGroups(sourceObj).forEach((key, obj) -> {
 			if (obj.getNumFaces() > 0) {
-				final Map<String, String> materialOptions = splitMaterialOptions(key);
+				final Object2ObjectOpenHashMap<String, String> materialOptions = splitMaterialOptions(key);
 				final String materialGroupName = materialOptions.get("");
 				final OptimizedModel.ShaderType shaderType = legacyMapping(materialOptions.getOrDefault("#", ""));
-				final boolean flipTextureV = materialOptions.getOrDefault("flipv", "0").equals("1");
+				final boolean newFlipTextureV = flipTextureV || materialOptions.getOrDefault("flipv", "0").equals("1");
+				System.out.println(newFlipTextureV);
+				System.out.println(key);
 				final String texture;
 				final Integer color;
 
@@ -79,7 +90,9 @@ public final class ObjModelLoader {
 				}
 
 				final Obj renderObjMesh = ObjUtils.convertToRenderable(obj);
-				final RawMesh mesh = new RawMesh(new MaterialProperties(shaderType, textureResolver.apply(texture.replace("\\\\", "/").replace("\\", "/")), color));
+				final Identifier textureId = textureResolver.apply(texture.replace("\\\\", "/").replace("\\", "/"));
+				final RawMesh mesh = new RawMesh(new MaterialProperties(shaderType, textureId, color));
+				final ObjectArrayList<Consumer<VertexConsumer>> modifications = new ObjectArrayList<>();
 
 				for (int i = 0; i < renderObjMesh.getNumVertices(); i++) {
 					final FloatTuple pos = renderObjMesh.getVertex(i);
@@ -99,14 +112,23 @@ public final class ObjModelLoader {
 					seVertex.position = new Vector3f(pos.getX(), pos.getY(), pos.getZ());
 					seVertex.normal = new Vector3f(normal.getX(), normal.getY(), normal.getZ());
 					seVertex.u = uv.getX();
-					seVertex.v = flipTextureV ? 1 - uv.getY() : uv.getY();
+					seVertex.v = newFlipTextureV ? 1 - uv.getY() : uv.getY();
 					mesh.vertices.add(seVertex);
 				}
 
 				for (int i = 0; i < renderObjMesh.getNumFaces(); i++) {
 					final ObjFace face = renderObjMesh.getFace(i);
+					modifications.add(vertexConsumer -> {
+						writeVertex(renderObjMesh, face, 0, newFlipTextureV, vertexConsumer);
+						writeVertex(renderObjMesh, face, 1, newFlipTextureV, vertexConsumer);
+						writeVertex(renderObjMesh, face, 2, newFlipTextureV, vertexConsumer);
+					});
 					mesh.faces.add(new Face(new int[]{face.getVertexIndex(0), face.getVertexIndex(1), face.getVertexIndex(2)}));
 				}
+
+				newOptimizedModelGroup.add(Arrays.stream(RenderStage.values()).filter(a -> a.shaderType == shaderType).findFirst().orElse(RenderStage.EXTERIOR), textureId, vertexConsumer -> {
+					modifications.forEach(modification -> modification.accept(vertexConsumer));
+				});
 
 				atlasManager.applyToMesh(mesh);
 				mesh.validateVertexIndex();
@@ -114,11 +136,20 @@ public final class ObjModelLoader {
 			}
 		});
 
-		return rawMeshes;
+		return new ObjectObjectImmutablePair<>(rawMeshes, newOptimizedModelGroup);
 	}
 
-	private static Map<String, String> splitMaterialOptions(String source) {
-		final Map<String, String> result = new HashMap<>();
+	private static void writeVertex(Obj obj, ObjFace face, int faceVertexIndex, boolean flipTextureV, VertexConsumer vertexConsumer) {
+		final FloatTuple vertex = obj.getVertex(face.getVertexIndex(faceVertexIndex));
+		vertexConsumer.vertex(vertex.getX(), vertex.getY(), vertex.getZ());
+		final FloatTuple uv = obj.getTexCoord(face.getTexCoordIndex(faceVertexIndex));
+		vertexConsumer.texture(uv.getX(), flipTextureV ? 1 - uv.getY() : uv.getY());
+		final FloatTuple normal = obj.getNormal(face.getNormalIndex(faceVertexIndex));
+		vertexConsumer.normal(normal.getX(), normal.getY(), normal.getZ());
+	}
+
+	private static Object2ObjectOpenHashMap<String, String> splitMaterialOptions(String source) {
+		final Object2ObjectOpenHashMap<String, String> result = new Object2ObjectOpenHashMap<>();
 		final String[] majorParts = source.split("#", 2);
 		result.put("", majorParts[0]);
 		if (majorParts.length > 1) {

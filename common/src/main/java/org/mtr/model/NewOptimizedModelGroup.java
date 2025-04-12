@@ -3,6 +3,7 @@ package org.mtr.model;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexFormat;
 import net.minecraft.util.Identifier;
 import org.mtr.resource.RenderStage;
 
@@ -22,13 +23,13 @@ public final class NewOptimizedModelGroup {
 		consumer.accept(vertexBuildersForRenderStage.get(renderStage).computeIfAbsent(texture, key -> new StoredVertexConsumer()));
 	}
 
-	public Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>> build() {
+	public Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>> build(VertexFormat.DrawMode drawMode) {
 		final Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>> newOptimizedModels = new Object2ObjectOpenHashMap<>(RenderStage.values().length);
-		vertexBuildersForRenderStage.forEach((renderStage, storedVertexConsumerForTexture) -> storedVertexConsumerForTexture.forEach((texture, storedVertexConsumer) -> newOptimizedModels.computeIfAbsent(renderStage, key -> new ObjectArrayList<>()).add(new NewOptimizedModel(texture, storedVertexConsumer.isEmpty() ? null : storedVertexConsumer::apply))));
+		vertexBuildersForRenderStage.forEach((renderStage, storedVertexConsumerForTexture) -> storedVertexConsumerForTexture.forEach((texture, storedVertexConsumer) -> newOptimizedModels.computeIfAbsent(renderStage, key -> new ObjectArrayList<>()).add(new NewOptimizedModel(texture, drawMode, storedVertexConsumer.isEmpty() ? null : storedVertexConsumer::apply))));
 		return newOptimizedModels;
 	}
 
-	public void merge(NewOptimizedModelGroup newOptimizedModelGroup) {
-		newOptimizedModelGroup.vertexBuildersForRenderStage.forEach((renderStage, storedVertexConsumerForTexture) -> storedVertexConsumerForTexture.forEach((texture, storedVertexConsumer) -> vertexBuildersForRenderStage.get(renderStage).computeIfAbsent(texture, key -> new StoredVertexConsumer()).add(storedVertexConsumer)));
+	public void merge(NewOptimizedModelGroup newOptimizedModelGroup, double x, double y, double z, boolean flip) {
+		newOptimizedModelGroup.vertexBuildersForRenderStage.forEach((renderStage, storedVertexConsumerForTexture) -> storedVertexConsumerForTexture.forEach((texture, storedVertexConsumer) -> vertexBuildersForRenderStage.get(renderStage).computeIfAbsent(texture, key -> new StoredVertexConsumer()).add(storedVertexConsumer, x, y, z, flip)));
 	}
 }

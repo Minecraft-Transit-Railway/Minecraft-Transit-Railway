@@ -18,8 +18,8 @@ public final class NewOptimizedModel {
 	@Nullable
 	private final VertexBuffer vertexBuffer;
 
-	public NewOptimizedModel(Identifier texture, @Nullable Consumer<VertexConsumer> callback) {
-		this.vertexBuffer = callback == null ? null : VertexBuffer.createAndUpload(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, callback);
+	public NewOptimizedModel(Identifier texture, VertexFormat.DrawMode drawMode, @Nullable Consumer<VertexConsumer> callback) {
+		this.vertexBuffer = callback == null ? null : VertexBuffer.createAndUpload(drawMode, VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, callback);
 		this.texture = texture;
 	}
 

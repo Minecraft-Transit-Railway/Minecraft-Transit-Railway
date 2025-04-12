@@ -19,7 +19,6 @@ import org.mtr.client.CustomResourceLoader;
 import org.mtr.client.DynamicTextureCache;
 import org.mtr.client.IDrawing;
 import org.mtr.client.ScrollingText;
-import org.mtr.core.data.Data;
 import org.mtr.core.data.Vehicle;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.EnumHelper;
@@ -187,8 +186,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	public void writeCache(
 			Map<String, OptimizedModel.ObjModel> nameToObjModels,
 			PositionDefinitions positionDefinitionsObject,
-			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStage,
-			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStageDoorsClosed,
+			Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> objModelsForPartConditionAndRenderStage,
+			Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> objModelsForPartConditionAndRenderStageDoorsClosed,
 			double modelYOffset
 	) {
 		final ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> objModels = new ObjectArrayList<>();
@@ -530,15 +529,10 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 	private void addObjModelPosition(
 			ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> objModels,
-			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStage,
+			Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> objModelsForPartConditionAndRenderStage,
 			double x, double y, double z, boolean flipped, double modelYOffset
 	) {
-		objModels.forEach(objModel -> Data.put(objModelsForPartConditionAndRenderStage, condition, renderStage, oldValue -> {
-			final ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> newObjModels = oldValue == null ? new ObjectArrayList<>() : oldValue;
-			objModel.addTransformation(renderStage.shaderType, (x + doorAnimationType.getDoorAnimationX(doorXMultiplier, flipped, 0)) / 16, y / 16 - modelYOffset, (z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, flipped, 0, false)) / 16, flipped);
-			newObjModels.add(objModel);
-			return newObjModels;
-		}, Object2ObjectOpenHashMap::new));
+		objModels.forEach(objModel -> objModelsForPartConditionAndRenderStage.computeIfAbsent(condition, key -> new NewOptimizedModelGroup()).merge(objModel.objModel.newOptimizedModelGroup, (x + doorAnimationType.getDoorAnimationX(doorXMultiplier, flipped, 0)) / 16, y / 16 + modelYOffset, (z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, flipped, 0, false)) / 16, flipped));
 	}
 
 	private String formatText(Vehicle vehicle) {

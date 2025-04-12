@@ -64,10 +64,19 @@ public final class StoredVertexConsumer implements VertexConsumer {
 		}
 	}
 
-	public void add(StoredVertexConsumer storedVertexConsumer) {
-		vertexEntries.addAll(storedVertexConsumer.vertexEntries);
+	public void add(StoredVertexConsumer storedVertexConsumer, double x, double y, double z, boolean flip) {
+		final int multiplier = flip ? -1 : 1;
+		storedVertexConsumer.vertexEntries.forEach(vertexEntry -> vertexEntries.add(new Vector3f(
+				(float) (vertexEntry.x * multiplier + x),
+				(float) (vertexEntry.y * multiplier + y),
+				(float) (vertexEntry.z * multiplier + z)
+		)));
 		textureEntries.addAll(storedVertexConsumer.textureEntries);
-		normalEntries.addAll(storedVertexConsumer.normalEntries);
+		storedVertexConsumer.normalEntries.forEach(normalEntry -> normalEntries.add(new Vector3f(
+				normalEntry.x * multiplier,
+				normalEntry.y * multiplier,
+				normalEntry.z * multiplier
+		)));
 	}
 
 	public boolean isEmpty() {

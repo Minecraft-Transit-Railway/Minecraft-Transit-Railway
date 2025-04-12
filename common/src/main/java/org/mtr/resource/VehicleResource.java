@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexFormat;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -424,10 +425,10 @@ public final class VehicleResource extends VehicleResourceSchema {
 				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
 				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsBogie1Model = new Object2ObjectOpenHashMap<>();
 				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsBogie2Model = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsModel = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsBogie1Model = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsBogie2Model = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> objModelsModel = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> objModelsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> objModelsBogie1Model = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> objModelsBogie2Model = new Object2ObjectOpenHashMap<>();
 
 				final ObjectArrayList<Box> doorways = new ObjectArrayList<>();
 				forEachNonNull(allModelsList, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(floors, doorways, materialGroupsModel, materialGroupsModelDoorsClosed, objModelsModel, objModelsModelDoorsClosed), force);
@@ -542,13 +543,14 @@ public final class VehicleResource extends VehicleResourceSchema {
 
 	private static CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> writeToOptimizedModels(
 			Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsModel,
-			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsModel,
+			Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> objModelsModel,
 			int modelLifespan
 	) {
 		return new CachedResource<>(() -> {
 //			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
 			final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> optimizedModels = new Object2ObjectOpenHashMap<>();
-			materialGroupsModel.forEach((partCondition, newOptimizedModelGroup) -> optimizedModels.put(partCondition, newOptimizedModelGroup.build()));
+			materialGroupsModel.forEach((partCondition, newOptimizedModelGroup) -> optimizedModels.put(partCondition, newOptimizedModelGroup.build(VertexFormat.DrawMode.QUADS)));
+			objModelsModel.forEach((partCondition, newOptimizedModelGroup) -> optimizedModels.put(partCondition, newOptimizedModelGroup.build(VertexFormat.DrawMode.TRIANGLES)));
 
 			// TODO merge OBJ and blockbench
 //			for (final PartCondition partCondition : PartCondition.values()) {

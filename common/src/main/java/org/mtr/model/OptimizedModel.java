@@ -1,5 +1,6 @@
 package org.mtr.model;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.util.math.MatrixStack;
@@ -18,7 +19,9 @@ import org.mtr.model.render.vertex.VertexAttributeSource;
 import org.mtr.model.render.vertex.VertexAttributeType;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -96,6 +99,7 @@ public final class OptimizedModel {
 
 	public static final class ObjModel {
 
+		public final NewOptimizedModelGroup newOptimizedModelGroup;
 		private final float minX;
 		private final float minY;
 		private final float minZ;
@@ -106,10 +110,11 @@ public final class OptimizedModel {
 		private final RawModel rawModel = new RawModel();
 
 		private ObjModel(
-				List<RawMesh> rawMeshes, boolean flipTextureV,
+				NewOptimizedModelGroup newOptimizedModelGroup, List<RawMesh> rawMeshes, boolean flipTextureV,
 				float minX, float minY, float minZ,
 				float maxX, float maxY, float maxZ
 		) {
+			this.newOptimizedModelGroup = newOptimizedModelGroup;
 			if (flipTextureV) {
 				rawMeshes.forEach(rawMesh -> rawMesh.applyUVMirror(false, true));
 			}
@@ -122,15 +127,15 @@ public final class OptimizedModel {
 			this.rawMeshes = rawMeshes;
 		}
 
-		public static Map<String, ObjModel> loadModel(String objString, Function<String, String> mtlResolver, Function<String, Identifier> textureResolver, @Nullable Identifier atlasIndex, boolean splitModel, boolean flipTextureV) {
+		public static Object2ObjectAVLTreeMap<String, ObjModel> loadModel(String objString, Function<String, String> mtlResolver, Function<String, Identifier> textureResolver, @Nullable Identifier atlasIndex, boolean splitModel, boolean flipTextureV) {
 			if (atlasIndex != null) {
 				ATLAS_MANAGER.load(atlasIndex);
 			}
 
-			final Map<String, ObjModel> objModels = new HashMap<>();
-			ObjModelLoader.loadModel(objString, mtlResolver, textureResolver, ATLAS_MANAGER, splitModel).forEach((key, rawMeshes) -> {
+			final Object2ObjectAVLTreeMap<String, ObjModel> objModels = new Object2ObjectAVLTreeMap<>();
+			ObjModelLoader.loadModel(objString, mtlResolver, textureResolver, ATLAS_MANAGER, splitModel, flipTextureV).forEach((key, rawMeshes) -> {
 				final float[] bounds = {Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE};
-				rawMeshes.forEach(rawMesh -> {
+				rawMeshes.left().forEach(rawMesh -> {
 					rawMesh.applyRotation(new Vector3f(1, 0, 0), 180);
 					rawMesh.vertices.forEach(vertex -> {
 						final float x = vertex.position.x;
@@ -144,7 +149,7 @@ public final class OptimizedModel {
 						bounds[5] = Math.max(bounds[5], z);
 					});
 				});
-				objModels.put(key, new ObjModel(rawMeshes, flipTextureV, bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]));
+				objModels.put(key, new ObjModel(rawMeshes.right(), rawMeshes.left(), flipTextureV, bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]));
 			});
 
 			return objModels;
