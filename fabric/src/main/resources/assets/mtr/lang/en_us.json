@@ -318,6 +318,7 @@
 	"gui.mtr.percentage_complete_bridge": "Building Bridge (%s%%)",
 	"gui.mtr.percentage_complete_tunnel": "Building Tunnel (%s%%)",
 	"gui.mtr.percentage_complete_tunnel_wall": "Building Tunnel Wall (%s%%)",
+	"gui.mtr.pids_editor": "Open Online Editor",
 	"gui.mtr.pids_message": "Custom PIDS Message",
 	"gui.mtr.platform": "Platform %s",
 	"gui.mtr.platform_abbreviated": "Plat. %s",

@@ -54,7 +54,7 @@ public class PIDSDashboardScreen extends ScreenExtension implements IGui {
         layoutList.width = PANEL_WIDTH;
         layoutList.init(this::addChild);
 
-        IDrawing.setPositionAndWidth(newLayoutButton, SQUARE_SIZE * 3 + spareSpace + PANEL_WIDTH, height - SQUARE_SIZE - TEXT_FIELD_PADDING, PANEL_WIDTH * 2);
+        IDrawing.setPositionAndWidth(newLayoutButton, SQUARE_SIZE * 3 + spareSpace + PANEL_WIDTH, height - SQUARE_SIZE - TEXT_FIELD_PADDING, PANEL_WIDTH);
         newLayoutButton.setMessage2(new Text(TextHelper.translatable("gui.mtr.new_layout").data));
         addChild(new ClickableWidget(newLayoutButton));
 

@@ -20,12 +20,16 @@ public class PIDSLayoutEditScreen extends ScreenExtension implements IGui {
     private PIDSData data = null;
     private boolean invalidJSON = false;
     private final TextFieldWidgetExtension dataInput;
+    private final ButtonWidgetExtension openEditor;
     private final ButtonWidgetExtension confirmButton;
     private static final int MAX_ID_LENGTH = 256;
 
     public PIDSLayoutEditScreen(String rawData) {
         this.rawData = rawData;
         this.dataInput = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_ID_LENGTH, TextCase.LOWER, null, "");
+        this.openEditor = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.pids_editor"), button -> {
+            Util.getOperatingSystem().open("https://pids.epicpuppy.dev");
+        });
         this.confirmButton = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, TextHelper.translatable("gui.mtr.confirm"), button -> {
             if (invalidJSON || data == null) return;
             InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdatePIDSLayout(data.getID(), this.dataInput.getText2()));
@@ -51,9 +55,13 @@ public class PIDSLayoutEditScreen extends ScreenExtension implements IGui {
     protected void init2() {
         super.init2();
 
-        IDrawing.setPositionAndWidth(dataInput, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING / 2, PANEL_WIDTH - TEXT_FIELD_PADDING);
+        IDrawing.setPositionAndWidth(dataInput, SQUARE_SIZE, SQUARE_SIZE * 2, PANEL_WIDTH);
         dataInput.setText2(rawData);
         addChild(new ClickableWidget(dataInput));
+
+        IDrawing.setPositionAndWidth(openEditor, SQUARE_SIZE * 2 + PANEL_WIDTH, SQUARE_SIZE * 2, PANEL_WIDTH);
+        openEditor.setMessage2(new Text(TextHelper.translatable("gui.mtr.pids_editor").data));
+        addChild(new ClickableWidget(openEditor));
 
         IDrawing.setPositionAndWidth(confirmButton, SQUARE_SIZE, height - SQUARE_SIZE * 2, PANEL_WIDTH);
         confirmButton.setMessage2(new Text(TextHelper.translatable("gui.mtr.save_layout").data));
@@ -89,7 +97,7 @@ public class PIDSLayoutEditScreen extends ScreenExtension implements IGui {
             graphicsHolder.drawText(TextHelper.translatable("gui.mtr.invalid_json").formatted(TextFormatting.RED), SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
         } else {
             PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata metadata = new PIDSLayoutData.PIDSLayoutEntry.PIDSLayoutMetadata(data.getID(), data.getName(), data.getDescription(), data.getAuthor(), data.getModules().size(), new PIDSRenderController(rawData).arrivals);
-            int y = SQUARE_SIZE * 4;
+            int y = SQUARE_SIZE * 3 + TEXT_FIELD_PADDING * 2;
             y = drawWrappedText(graphicsHolder, TextHelper.literal(metadata.name), y, ARGB_WHITE);
             y = drawWrappedText(graphicsHolder, TextHelper.translatable("gui.mtr.layout_author", metadata.author.isEmpty() ? TextHelper.translatable("gui.mtr.anonymous").getString() : metadata.author), y, ARGB_WHITE);
             y = drawWrappedText(graphicsHolder, TextHelper.translatable("gui.mtr.layout_arrivals", metadata.arrivalCount), y, ARGB_WHITE);
@@ -97,7 +105,7 @@ public class PIDSLayoutEditScreen extends ScreenExtension implements IGui {
             y = drawWrappedText(graphicsHolder, TextHelper.literal(metadata.description), y, ARGB_LIGHT_GRAY);
             // check to see if id already exists
             if (data != null && InitClient.pidsLayoutCache.getMetadata().stream().anyMatch(m -> m.id.equals(data.getID()))) {
-                graphicsHolder.drawText(TextHelper.translatable("gui.mtr.id_already_exists").formatted(TextFormatting.YELLOW), SQUARE_SIZE, height - SQUARE_SIZE * 4, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+                graphicsHolder.drawText(TextHelper.translatable("gui.mtr.id_already_exists").formatted(TextFormatting.YELLOW), SQUARE_SIZE + PANEL_WIDTH + TEXT_FIELD_PADDING, height - SQUARE_SIZE * 2 + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
             }
         }
         super.render(graphicsHolder, mouseX, mouseY, delta);
