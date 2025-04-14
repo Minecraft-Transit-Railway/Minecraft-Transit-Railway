@@ -23,11 +23,17 @@ public final class NewOptimizedModel {
 		this.texture = texture;
 	}
 
-	public void render(Matrix4f matrix4f, @Nullable ShaderProgram shaderProgram) {
+	public void render(Matrix4f matrix4f, float lightMultiplier, @Nullable ShaderProgram shaderProgram) {
+		if (vertexBuffer != null) {
+			RenderSystem.setShaderColor(lightMultiplier, lightMultiplier, lightMultiplier, 1);
+			vertexBuffer.draw(new Matrix4f(RenderSystem.getModelViewMatrix()).mul(matrix4f), RenderSystem.getProjectionMatrix(), shaderProgram);
+			RenderSystem.setShaderColor(1, 1, 1, 1);
+		}
+	}
+
+	public void begin() {
 		if (vertexBuffer != null) {
 			vertexBuffer.bind();
-			vertexBuffer.draw(new Matrix4f(RenderSystem.getModelViewMatrix()).mul(matrix4f), RenderSystem.getProjectionMatrix(), shaderProgram);
-			VertexBuffer.unbind();
 		}
 	}
 }

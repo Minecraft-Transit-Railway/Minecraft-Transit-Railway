@@ -18,7 +18,7 @@ import org.mtr.libraries.javax.servlet.AsyncContext;
 import org.mtr.libraries.javax.servlet.http.HttpServlet;
 import org.mtr.libraries.javax.servlet.http.HttpServletRequest;
 import org.mtr.libraries.javax.servlet.http.HttpServletResponse;
-import org.mtr.model.OptimizedModel;
+import org.mtr.model.ObjModelLoader;
 import org.mtr.resource.*;
 import org.mtr.screen.ReloadCustomResourcesScreen;
 
@@ -86,7 +86,7 @@ public abstract class AbstractResourcePackCreatorServlet extends HttpServlet {
 				resourceWrapper.addModelResource(new ModelWrapper(name, modelParts));
 				MODELS.put(name, modelObject.toString());
 			} else if (name.endsWith(".obj")) {
-				resourceWrapper.addModelResource(new ModelWrapper(name, new ObjectArrayList<>(OptimizedModel.ObjModel.loadModel(content, mtlString -> "", textureString -> Identifier.of(""), null, true, false).keySet())));
+				resourceWrapper.addModelResource(new ModelWrapper(name, new ObjectArrayList<>(ObjModelLoader.loadModel(content, mtlString -> "", textureString -> Identifier.of(""), true, false).keySet())));
 				MODELS.put(name, content);
 			} else if (name.endsWith(".mtl")) {
 				MODELS.put(name, content);

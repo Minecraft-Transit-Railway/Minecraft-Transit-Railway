@@ -4,7 +4,6 @@ import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.MutableText;
@@ -12,10 +11,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import org.mtr.MTR;
-import org.mtr.client.CustomResourceLoader;
 import org.mtr.client.DynamicTextureCache;
 import org.mtr.client.IDrawing;
 import org.mtr.client.ScrollingText;
@@ -28,15 +25,13 @@ import org.mtr.data.VehicleExtension;
 import org.mtr.generated.resource.ModelPropertiesPartSchema;
 import org.mtr.model.MutableBox;
 import org.mtr.model.NewOptimizedModelGroup;
-import org.mtr.model.OptimizedModel;
+import org.mtr.model.StoredVertexData;
 import org.mtr.render.MainRenderer;
 import org.mtr.render.QueuedRenderLayer;
 import org.mtr.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
-import java.util.Map;
-import java.util.function.Supplier;
 
 public final class ModelPropertiesPart extends ModelPropertiesPartSchema implements IGui {
 
@@ -136,7 +131,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		final ObjectArrayList<ModelPart> modelParts = new ObjectArrayList<>();
 		final MutableBox mutableBox = new MutableBox();
 		final ObjectArrayList<ObjectArrayList<ModelDisplayPart>> modelDisplayParts = new ObjectArrayList<>();
-		final OptimizedModelWrapper optimizedModelDoor;
+//		final OptimizedModelWrapper optimizedModelDoor;
 
 		names.forEach(name -> {
 			final ObjectObjectImmutablePair<ModelPart, MutableBox> part = nameToPart.get(name);
@@ -151,13 +146,13 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			}
 		});
 
-		if (isDoor()) {
-			final OptimizedModelWrapper.MaterialGroupWrapper materialGroup = new OptimizedModelWrapper.MaterialGroupWrapper(renderStage.shaderType, texture);
-			modelParts.forEach(modelPart -> materialGroup.addCube(modelPart, 0, 0, 0, false, MAX_LIGHT_INTERIOR));
-			optimizedModelDoor = OptimizedModelWrapper.fromMaterialGroups(ObjectArrayList.of(materialGroup));
-		} else {
-			optimizedModelDoor = null;
-		}
+//		if (isDoor()) {
+//			final OptimizedModelWrapper.MaterialGroupWrapper materialGroup = new OptimizedModelWrapper.MaterialGroupWrapper(renderStage.shaderType, texture);
+//			modelParts.forEach(modelPart -> materialGroup.addCube(modelPart, 0, 0, 0, false, MAX_LIGHT_INTERIOR));
+//			optimizedModelDoor = OptimizedModelWrapper.fromMaterialGroups(ObjectArrayList.of(materialGroup));
+//		} else {
+//		optimizedModelDoor = null;
+//		}
 
 		positionDefinitions.forEach(positionDefinitionName -> positionDefinitionsObject.getPositionDefinition(positionDefinitionName, (positions, positionsFlipped) -> {
 			switch (type) {
@@ -167,7 +162,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 							addCube(texture, modelParts, materialGroupsForPartConditionAndRenderStage, x, y, z, flipped);
 						}
 						addCube(texture, modelParts, materialGroupsForPartConditionAndRenderStageDoorsClosed, x, y, z, flipped);
-						partDetailsList.add(new PartDetails(optimizedModelDoor, addBox(mutableBox.get(), x, y, z, flipped), x, y, z, flipped));
+//						partDetailsList.add(new PartDetails(optimizedModelDoor, addBox(mutableBox.get(), x, y, z, flipped), x, y, z, flipped));
 					});
 					break;
 				case DISPLAY:
@@ -184,25 +179,26 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	}
 
 	public void writeCache(
-			Map<String, OptimizedModel.ObjModel> nameToObjModels,
+			Object2ObjectOpenHashMap<String, NewOptimizedModelGroup> nameToObjModels,
 			PositionDefinitions positionDefinitionsObject,
 			Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> objModelsForPartConditionAndRenderStage,
 			Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> objModelsForPartConditionAndRenderStageDoorsClosed,
 			double modelYOffset
 	) {
-		final ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> objModels = new ObjectArrayList<>();
+		final ObjectArrayList<NewOptimizedModelGroup> objModels = new ObjectArrayList<>();
 		final MutableBox mutableBox = new MutableBox();
-		final Supplier<OptimizedModelWrapper> optimizedModelDoor;
+//		final Supplier<OptimizedModelWrapper> optimizedModelDoor;
 
 		names.forEach(name -> {
-			final OptimizedModel.ObjModel objModel = nameToObjModels.get(name);
+			final NewOptimizedModelGroup objModel = nameToObjModels.get(name);
 			if (objModel != null) {
-				objModels.add(new OptimizedModelWrapper.ObjModelWrapper(objModel));
-				mutableBox.add(new Box(-objModel.getMinX(), -objModel.getMinY(), -objModel.getMinZ(), -objModel.getMaxX(), -objModel.getMaxY(), -objModel.getMaxZ()));
+				objModels.add(objModel);
+				// TODO
+				// mutableBox.add(new Box(-objModel.getMinX(), -objModel.getMinY(), -objModel.getMinZ(), -objModel.getMaxX(), -objModel.getMaxY(), -objModel.getMaxZ()));
 			}
 		});
 
-		optimizedModelDoor = () -> isDoor() ? OptimizedModelWrapper.fromObjModels(objModels) : null;
+//		optimizedModelDoor = () -> isDoor() ? null : null; // TODO
 
 		positionDefinitions.forEach(positionDefinitionName -> positionDefinitionsObject.getPositionDefinition(positionDefinitionName, (positions, positionsFlipped) -> {
 			if (type == PartType.NORMAL) {
@@ -211,7 +207,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 						addObjModelPosition(objModels, objModelsForPartConditionAndRenderStage, x, y, z, flipped, modelYOffset);
 					}
 					addObjModelPosition(objModels, objModelsForPartConditionAndRenderStageDoorsClosed, x, y, z, flipped, modelYOffset);
-					partDetailsList.add(new PartDetails(optimizedModelDoor.get(), addBox(mutableBox.get(), x, y, z, flipped), x, y, z, flipped));
+					partDetailsList.add(new PartDetails(addBox(mutableBox.get(), x, y, z, flipped), x, y, z, flipped));
 				});
 			}
 		}));
@@ -348,13 +344,13 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 			// If doors are open, only render the optimized door parts
 			// Otherwise, the main model already includes closed doors
-			if (!openDoorways.isEmpty() && partDetails.optimizedModelDoor != null) {
+			if (!openDoorways.isEmpty()) {
 				matrixStack.push();
 				matrixStack.translate(x / 16, y / 16, z / 16);
 				if (partDetails.flipped) {
 					IDrawing.rotateYDegrees(matrixStack, 180);
 				}
-				CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(partDetails.optimizedModelDoor, matrixStack, light);
+//				CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(partDetails.optimizedModelDoor, matrixStack, light);
 				matrixStack.pop();
 			}
 		});
@@ -516,23 +512,25 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	}
 
 	private void addCube(Identifier texture, ObjectArrayList<ModelPart> modelParts, Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsForPartConditionAndRenderStage, double x, double y, double z, boolean flipped) {
-		modelParts.forEach(modelPart -> materialGroupsForPartConditionAndRenderStage.computeIfAbsent(condition, key -> new NewOptimizedModelGroup()).add(renderStage, texture, vertexConsumer -> {
-			final MatrixStack matrixStack = new MatrixStack();
-			IDrawing.rotateXDegrees(matrixStack, 180); // Blockbench exports models upside down
-			matrixStack.translate((x + doorAnimationType.getDoorAnimationX(doorXMultiplier, flipped, 0)) / 16, y / 16, (z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, flipped, 0, false)) / 16);
-			if (flipped) {
-				matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
-			}
-			modelPart.render(matrixStack, vertexConsumer, MAX_LIGHT_INTERIOR, OverlayTexture.DEFAULT_UV);
-		}));
+		modelParts.forEach(modelPart -> materialGroupsForPartConditionAndRenderStage
+				.computeIfAbsent(condition, key -> new NewOptimizedModelGroup())
+				.add(renderStage, texture, storedVertexDataList -> StoredVertexData.write(
+						modelPart,
+						(x + doorAnimationType.getDoorAnimationX(doorXMultiplier, flipped, 0)) / 16,
+						y / 16,
+						(z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, flipped, 0, false)) / 16,
+						flipped,
+						storedVertexDataList
+				))
+		);
 	}
 
 	private void addObjModelPosition(
-			ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> objModels,
+			ObjectArrayList<NewOptimizedModelGroup> objModels,
 			Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> objModelsForPartConditionAndRenderStage,
 			double x, double y, double z, boolean flipped, double modelYOffset
 	) {
-		objModels.forEach(objModel -> objModelsForPartConditionAndRenderStage.computeIfAbsent(condition, key -> new NewOptimizedModelGroup()).merge(objModel.objModel.newOptimizedModelGroup, (x + doorAnimationType.getDoorAnimationX(doorXMultiplier, flipped, 0)) / 16, y / 16 + modelYOffset, (z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, flipped, 0, false)) / 16, flipped));
+		objModels.forEach(objModel -> objModelsForPartConditionAndRenderStage.computeIfAbsent(condition, key -> new NewOptimizedModelGroup()).merge(objModel, (x + doorAnimationType.getDoorAnimationX(doorXMultiplier, flipped, 0)) / 16, y / 16 + modelYOffset, (z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, flipped, 0, false)) / 16, flipped));
 	}
 
 	private String formatText(Vehicle vehicle) {
@@ -697,15 +695,14 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	private static class PartDetails {
 
 		private Box doorway;
-		private final OptimizedModelWrapper optimizedModelDoor;
+		//		private final OptimizedModelWrapper optimizedModelDoor;
 		private final Box box;
 		private final double x;
 		private final double y;
 		private final double z;
 		private final boolean flipped;
 
-		private PartDetails(@Nullable OptimizedModelWrapper optimizedModelDoor, Box box, double x, double y, double z, boolean flipped) {
-			this.optimizedModelDoor = optimizedModelDoor;
+		private PartDetails(Box box, double x, double y, double z, boolean flipped) {
 			this.box = box;
 			this.x = x;
 			this.y = y;

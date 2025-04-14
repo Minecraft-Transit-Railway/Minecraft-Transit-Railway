@@ -22,7 +22,6 @@ public class CustomResourceLoader {
 
 	private static long TEST_DURATION;
 
-	public static final OptimizedRendererWrapper OPTIMIZED_RENDERER_WRAPPER = new OptimizedRendererWrapper();
 	public static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
 	public static final String CUSTOM_RESOURCES_PENDING_MIGRATION_ID = "mtr_custom_resources_pending_migration";
 	public static final String DEFAULT_RAIL_ID = "default";

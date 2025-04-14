@@ -1,18 +1,16 @@
 package org.mtr.resource;
 
 import com.google.gson.JsonObject;
-import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.StringUtils;
 import org.mtr.MTR;
-import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.resource.VehicleModelSchema;
-import org.mtr.model.OptimizedModel;
+import org.mtr.model.ObjModelLoader;
 import org.mtr.render.DynamicVehicleModel;
 
 public final class VehicleModel extends VehicleModelSchema {
@@ -119,38 +117,29 @@ public final class VehicleModel extends VehicleModelSchema {
 		final Identifier textureId = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
 
 		if (modelResource.endsWith(".bbmodel")) {
-			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
-			final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(
+			return new DynamicVehicleModel(
 					new BlockbenchModel(new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "bbmodel"))))),
 					textureId,
 					modelProperties,
 					positionDefinitions,
 					id
 			);
-			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
-			return dynamicVehicleModel;
 		} else if (modelResource.endsWith(".obj")) {
-			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
-			final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(new Object2ObjectAVLTreeMap<>(OptimizedModel.ObjModel.loadModel(
+			return new DynamicVehicleModel(ObjModelLoader.loadModel(
 					resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
 					mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
 					textureString -> StringUtils.isEmpty(textureString) ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
-					null, true, flipTextureV
-			)), textureId, modelProperties, positionDefinitions, id);
-			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
-			return dynamicVehicleModel;
+					true, flipTextureV
+			), textureId, modelProperties, positionDefinitions, id);
 		} else {
 			MTR.LOGGER.error("[{}] Invalid model!", textureId.toString());
-			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
-			final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(
+			return new DynamicVehicleModel(
 					new BlockbenchModel(new JsonReader(new JsonObject())),
 					textureId,
 					modelProperties,
 					positionDefinitions,
 					id
 			);
-			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
-			return dynamicVehicleModel;
 		}
 	}
 }

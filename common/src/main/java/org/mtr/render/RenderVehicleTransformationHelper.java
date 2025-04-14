@@ -5,12 +5,10 @@ import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.LightType;
 import org.mtr.client.IDrawing;
 import org.mtr.core.tool.Utilities;
 import org.mtr.core.tool.Vector;
@@ -119,8 +117,7 @@ public class RenderVehicleTransformationHelper {
 		if (clientWorld == null) {
 			return 0;
 		} else {
-			final BlockPos blockPos = BlockPos.ofFloored(pivotPosition.x, pivotPosition.y + 1, pivotPosition.z);
-			return LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.BLOCK, blockPos), clientWorld.getLightLevel(LightType.SKY, blockPos));
+			return clientWorld.getLightLevel(BlockPos.ofFloored(pivotPosition.x, pivotPosition.y + 1, pivotPosition.z));
 		}
 	}
 

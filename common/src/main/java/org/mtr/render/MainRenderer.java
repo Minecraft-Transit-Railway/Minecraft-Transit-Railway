@@ -1,7 +1,10 @@
 package org.mtr.render;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectIntImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -13,14 +16,14 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.mtr.MTRClient;
-import org.mtr.client.CustomResourceLoader;
 import org.mtr.client.DynamicTextureCache;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.client.VehicleRidingMovement;
-import org.mtr.config.Config;
 import org.mtr.core.data.InterchangeColorsForStationName;
 import org.mtr.data.ArrivalsCacheClient;
 import org.mtr.data.IGui;
+import org.mtr.model.NewOptimizedModel;
+import org.mtr.resource.RenderStage;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -38,6 +41,8 @@ public class MainRenderer implements IGui {
 	private static final int TOTAL_RENDER_STAGES = 2;
 	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<ScheduledRender>>>> RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
 	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<ScheduledRender>>>> CURRENT_RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
+	private static final Object2ObjectOpenHashMap<NewOptimizedModel, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<ObjectIntImmutablePair<StoredMatrixTransformations>>>> MODEL_RENDERS = new Object2ObjectOpenHashMap<>();
+	private static final Object2ObjectOpenHashMap<NewOptimizedModel, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<ObjectIntImmutablePair<StoredMatrixTransformations>>>> MODEL_RENDERS_TRANSLUCENT = new Object2ObjectOpenHashMap<>();
 
 	static {
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
@@ -55,8 +60,10 @@ public class MainRenderer implements IGui {
 		}
 	}
 
-	public static void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Vec3d offset) {
+	public static void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumers, Vec3d offset) {
 		final long millisElapsed = getMillisElapsed();
+		MODEL_RENDERS.clear();
+		MODEL_RENDERS_TRANSLUCENT.clear();
 		MinecraftClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
 		MinecraftClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
 		lastRenderedMillis = MTRClient.getGameMillis();
@@ -78,6 +85,31 @@ public class MainRenderer implements IGui {
 		RenderVehicles.render(millisElapsed, cameraShakeOffset);
 		RenderLifts.render(millisElapsed, cameraShakeOffset);
 		RenderRails.render();
+
+		MODEL_RENDERS.forEach((newOptimizedModel, modelsForRenderStage) -> modelsForRenderStage.forEach((renderStage, renderDetails) -> {
+			final Identifier texture = newOptimizedModel.texture;
+			final RenderLayer renderLayer = switch (renderStage.queuedRenderLayer) {
+				case LIGHT -> MoreRenderLayers.getLight(texture, false);
+				case LIGHT_TRANSLUCENT -> MoreRenderLayers.getLight(texture, true);
+				case LIGHT_2 -> MoreRenderLayers.getLight2(texture);
+				case INTERIOR -> MoreRenderLayers.getInterior(texture);
+				case INTERIOR_TRANSLUCENT -> MoreRenderLayers.getInteriorTranslucent(texture);
+				case EXTERIOR -> MoreRenderLayers.getExterior(texture);
+				case EXTERIOR_TRANSLUCENT -> MoreRenderLayers.getExteriorTranslucent(texture);
+				case LINES -> RenderLayer.getLines();
+				default -> null;
+			};
+			if (renderLayer != null) {
+				renderLayer.startDrawing();
+				newOptimizedModel.begin();
+				renderDetails.forEach(renderDetailsEntry -> {
+					renderDetailsEntry.left().transform(matrixStack, offset);
+					newOptimizedModel.render(matrixStack.peek().getPositionMatrix(), renderStage.isFullBrightness ? 1 : (float) renderDetailsEntry.rightInt() / 0xF, RenderSystem.getShader());
+					matrixStack.pop();
+				});
+				renderLayer.endDrawing();
+			}
+		}));
 
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
 			for (int j = 0; j < QueuedRenderLayer.values().length; j++) {
@@ -102,12 +134,18 @@ public class MainRenderer implements IGui {
 						case LINES -> RenderLayer.getLines();
 						default -> null;
 					};
-					value.forEach(renderer -> renderer.accept(matrices, renderLayer == null ? null : vertexConsumers.getBuffer(renderLayer), offset));
+					value.forEach(renderer -> renderer.accept(matrixStack, renderLayer == null ? null : vertexConsumers.getBuffer(renderLayer), offset));
 				});
 			}
 		}
+	}
 
-		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.render(!Config.getClient().getHideTranslucentParts());
+	public static void renderModel(Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>> models, StoredMatrixTransformations storedMatrixTransformations, int light) {
+		models.forEach((renderStage, newOptimizedModels) -> newOptimizedModels.forEach(newOptimizedModel -> (renderStage.isTranslucent ? MODEL_RENDERS_TRANSLUCENT : MODEL_RENDERS)
+				.computeIfAbsent(newOptimizedModel, key -> new Object2ObjectOpenHashMap<>())
+				.computeIfAbsent(renderStage, key -> new ObjectArrayList<>())
+				.add(new ObjectIntImmutablePair<>(storedMatrixTransformations, light))
+		));
 	}
 
 	public static void scheduleRender(@Nullable Identifier identifier, boolean priority, QueuedRenderLayer queuedRenderLayer, ScheduledRender scheduledRender) {

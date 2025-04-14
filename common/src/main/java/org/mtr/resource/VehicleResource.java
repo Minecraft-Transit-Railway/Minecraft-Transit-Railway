@@ -1,13 +1,10 @@
 package org.mtr.resource;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.*;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import org.mtr.MTR;
 import org.mtr.config.Config;
@@ -18,7 +15,9 @@ import org.mtr.data.VehicleExtension;
 import org.mtr.generated.resource.VehicleResourceSchema;
 import org.mtr.model.NewOptimizedModel;
 import org.mtr.model.NewOptimizedModelGroup;
-import org.mtr.render.*;
+import org.mtr.render.DynamicVehicleModel;
+import org.mtr.render.MainRenderer;
+import org.mtr.render.StoredMatrixTransformations;
 import org.mtr.sound.BveVehicleSound;
 import org.mtr.sound.BveVehicleSoundConfig;
 import org.mtr.sound.LegacyVehicleSound;
@@ -512,31 +511,9 @@ public final class VehicleResource extends VehicleResourceSchema {
 	}
 
 	private static void queue(Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> optimizedModels, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, boolean noOpenDoorways) {
-		optimizedModels.forEach((partCondition, optimizedModel) -> {
+		optimizedModels.forEach((partCondition, models) -> {
 			if (matchesCondition(vehicle, partCondition, noOpenDoorways)) {
-				optimizedModel.forEach((renderStage, newOptimizedModels) -> newOptimizedModels.forEach(newOptimizedModel -> {
-					final Identifier texture = newOptimizedModel.texture;
-					final RenderLayer renderLayer = switch (renderStage.queuedRenderLayer) {
-						case LIGHT -> MoreRenderLayers.getLight(texture, false);
-						case LIGHT_TRANSLUCENT -> MoreRenderLayers.getLight(texture, true);
-						case LIGHT_2 -> MoreRenderLayers.getLight2(texture);
-						case INTERIOR -> MoreRenderLayers.getInterior(texture);
-						case INTERIOR_TRANSLUCENT -> MoreRenderLayers.getInteriorTranslucent(texture);
-						case EXTERIOR -> MoreRenderLayers.getExterior(texture);
-						case EXTERIOR_TRANSLUCENT -> MoreRenderLayers.getExteriorTranslucent(texture);
-						case LINES -> RenderLayer.getLines();
-						default -> null;
-					};
-					MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (matrixStack, vertexConsumer, offset) -> {
-						if (renderLayer != null) {
-							renderLayer.startDrawing();
-							storedMatrixTransformations.transform(matrixStack, offset);
-							newOptimizedModel.render(matrixStack.peek().getPositionMatrix(), RenderSystem.getShader());
-							matrixStack.pop();
-							renderLayer.endDrawing();
-						}
-					});
-				}));
+				MainRenderer.renderModel(models, storedMatrixTransformations, light);
 			}
 		});
 	}

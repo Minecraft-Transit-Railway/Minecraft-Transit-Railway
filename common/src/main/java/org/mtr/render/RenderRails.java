@@ -254,7 +254,7 @@ public class RenderRails implements IGui {
 			} else {
 				final boolean flip = newStyle.endsWith("_2");
 				CustomResourceLoader.getRailById(RailResource.getIdWithoutDirection(newStyle), railResource -> renderWithinRenderDistance(rail, (blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-					final int light = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.BLOCK, blockPos), clientWorld.getLightLevel(LightType.SKY, blockPos));
+					final int light = clientWorld.getLightLevel(blockPos);
 					final double differenceX = x3 - x1;
 					final double differenceZ = z3 - z1;
 					final double yaw = Math.atan2(differenceZ, differenceX);

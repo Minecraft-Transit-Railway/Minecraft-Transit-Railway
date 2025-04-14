@@ -11,7 +11,6 @@ import org.mtr.client.CustomResourceLoader;
 import org.mtr.data.VehicleExtension;
 import org.mtr.model.MutableBox;
 import org.mtr.model.NewOptimizedModelGroup;
-import org.mtr.model.OptimizedModel;
 import org.mtr.resource.*;
 
 import javax.annotation.Nullable;
@@ -62,7 +61,7 @@ public final class DynamicVehicleModel {
 		testDoors(id);
 	}
 
-	public DynamicVehicleModel(Object2ObjectAVLTreeMap<String, OptimizedModel.ObjModel> nameToObjModels, Identifier texture, ModelProperties modelProperties, PositionDefinitions positionDefinitions, String id) {
+	public DynamicVehicleModel(Object2ObjectOpenHashMap<String, NewOptimizedModelGroup> nameToObjModels, Identifier texture, ModelProperties modelProperties, PositionDefinitions positionDefinitions, String id) {
 		modelProperties.addPartsIfEmpty(nameToObjModels.keySet());
 		this.texture = texture;
 		this.modelProperties = modelProperties;

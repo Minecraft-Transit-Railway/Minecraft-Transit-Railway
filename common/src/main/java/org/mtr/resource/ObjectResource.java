@@ -2,21 +2,19 @@ package org.mtr.resource;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectCollection;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import org.mtr.client.IDrawing;
 import org.mtr.config.Config;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.generated.resource.ObjectResourceSchema;
 import org.mtr.model.NewOptimizedModel;
-import org.mtr.model.OptimizedModel;
-import org.mtr.render.DynamicVehicleModel;
+import org.mtr.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
 
 public final class ObjectResource extends ObjectResourceSchema implements StoredModelResourceBase {
 
 	public final boolean shouldPreload;
-	private final CachedResource<ObjectObjectImmutablePair<Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>, DynamicVehicleModel>> cachedObjectResource;
+	private final CachedResource<Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> cachedObjectResource;
 
 	public ObjectResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
 		super(readerBase, resourceProvider);
@@ -28,25 +26,22 @@ public final class ObjectResource extends ObjectResourceSchema implements Stored
 	@Override
 	@Nullable
 	public Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>> getOptimizedModel() {
-		final ObjectObjectImmutablePair<Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>, DynamicVehicleModel> railResource = cachedObjectResource.getData(false);
-		return railResource == null ? null : railResource.left();
+		return cachedObjectResource.getData(false);
 	}
 
 	@Override
-	@Nullable
-	public DynamicVehicleModel getDynamicVehicleModel() {
-		final ObjectObjectImmutablePair<Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>, DynamicVehicleModel> railResource = cachedObjectResource.getData(false);
-		return railResource == null ? null : railResource.right();
-	}
-
-	@Override
-	public void transform(ObjectCollection<OptimizedModel.ObjModel> values) {
-		values.forEach(objModel -> {
-			objModel.applyTranslation(translation.getX(), translation.getY(), translation.getZ());
-			objModel.applyRotation(rotation.getX(), rotation.getY(), rotation.getZ());
-			objModel.applyScale(clampNumber(scale.getX()), clampNumber(scale.getY()), clampNumber(scale.getZ()));
-			objModel.applyMirror(mirror.getX(), mirror.getY(), mirror.getZ());
-		});
+	public void render(StoredMatrixTransformations storedMatrixTransformations, int light) {
+		final StoredMatrixTransformations newStoredMatrixTransformations = storedMatrixTransformations.copy();
+		newStoredMatrixTransformations.add(matrixStack -> {
+					matrixStack.translate(translation.getX(), translation.getY(), translation.getZ());
+					IDrawing.rotateXDegrees(matrixStack, (float) rotation.getX());
+					IDrawing.rotateYDegrees(matrixStack, (float) rotation.getY());
+					IDrawing.rotateZDegrees(matrixStack, (float) rotation.getZ());
+					matrixStack.scale(clampNumber(scale.getX()), clampNumber(scale.getY()), clampNumber(scale.getZ()));
+//					matrixStack.mirror(mirror.getX(), mirror.getY(), mirror.getZ());
+				}
+		);
+		StoredModelResourceBase.super.render(newStoredMatrixTransformations, light);
 	}
 
 	@Override
@@ -66,7 +61,7 @@ public final class ObjectResource extends ObjectResourceSchema implements Stored
 		return CustomResourceTools.colorStringToInt(color);
 	}
 
-	private static double clampNumber(double value) {
-		return value <= 0 ? 1 : value;
+	private static float clampNumber(double value) {
+		return value <= 0 ? 1 : (float) value;
 	}
 }

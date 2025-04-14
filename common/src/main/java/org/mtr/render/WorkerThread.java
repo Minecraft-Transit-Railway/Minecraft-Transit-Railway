@@ -56,7 +56,7 @@ public final class WorkerThread {
 		if (runCooldown == COOLDOWN) {
 			canStart = true;
 			runCooldown = 0;
-			MTR.LOGGER.info("Restarting worker thread");
+			MTR.LOGGER.debug("Restarting worker thread");
 		} else {
 			runCooldown++;
 		}
