@@ -45,12 +45,12 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
         this.textPadding = textPadding;
     }
 
-    @Override
-    public void render(T entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
-        final World world = entity.getWorld2();
-        if (world == null) {
-            return;
-        }
+	@Override
+	public final void render(T entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
+		final World world = entity.getWorld2();
+		if (world == null) {
+			return;
+		}
 
         final BlockPos blockPos = entity.getPos2();
         if (!entity.canStoreData.test(world, blockPos)) {
@@ -75,15 +75,29 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
         }
     }
 
-    private void getArrivalsAndRender(T entity, BlockPos blockPos, Direction facing, LongCollection platformIds) {
-        final ObjectArrayList<ArrivalResponse> arrivalResponseList = ArrivalsCacheClient.INSTANCE.requestArrivals(platformIds);
-        MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
-            render(entity, blockPos, facing, arrivalResponseList, graphicsHolder, offset);
-            if (entity instanceof BlockPIDSHorizontalBase.BlockEntityHorizontalBase) {
-                render(entity, blockPos.offset(facing), facing.getOpposite(), arrivalResponseList, graphicsHolder, offset);
-            }
-        });
-    }
+	public void renderText(GraphicsHolder graphicsHolder, String text, int x, int y, int color) {
+		graphicsHolder.drawText(text, x, y, color, false, GraphicsHolder.getDefaultLight());
+	}
+
+	public String getArrivalString(long arrival, boolean isRealtime, boolean isCjk) {
+		if (arrival >= 60) {
+			return (isRealtime ? "" : "*") + (isCjk ? TranslationProvider.GUI_MTR_ARRIVAL_MIN_CJK : TranslationProvider.GUI_MTR_ARRIVAL_MIN).getString(arrival / 60);
+		} else if (arrival > 0) {
+			return (isRealtime ? "" : "*") + (isCjk ? TranslationProvider.GUI_MTR_ARRIVAL_SEC_CJK : TranslationProvider.GUI_MTR_ARRIVAL_SEC).getString(arrival);
+		} else {
+			return "";
+		}
+	}
+
+	private void getArrivalsAndRender(T entity, BlockPos blockPos, Direction facing, LongCollection platformIds) {
+		final ObjectArrayList<ArrivalResponse> arrivalResponseList = ArrivalsCacheClient.INSTANCE.requestArrivals(platformIds);
+		MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
+			render(entity, blockPos, facing, arrivalResponseList, graphicsHolder, offset);
+			if (entity instanceof BlockPIDSHorizontalBase.BlockEntityHorizontalBase) {
+				render(entity, blockPos.offset(facing), facing.getOpposite(), arrivalResponseList, graphicsHolder, offset);
+			}
+		});
+	}
 
     private void render(T entity, BlockPos blockPos, Direction facing, ObjectArrayList<ArrivalResponse> arrivalResponseList, GraphicsHolder graphicsHolder, Vector3d offset) {
         final float scale = 160 * entity.maxArrivals / maxHeight * textPadding;
@@ -174,16 +188,8 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
                         break;
                 }
 
-                final String carLengthString = (isCjk ? TranslationProvider.GUI_MTR_ARRIVAL_CAR_CJK : TranslationProvider.GUI_MTR_ARRIVAL_CAR).getString(arrivalResponse.getCarCount());
-                final String arrivalString;
-
-                if (arrival >= 60) {
-                    arrivalString = (arrivalResponse.getRealtime() ? "" : "*") + (isCjk ? TranslationProvider.GUI_MTR_ARRIVAL_MIN_CJK : TranslationProvider.GUI_MTR_ARRIVAL_MIN).getString(arrival / 60);
-                } else if (arrival > 0) {
-                    arrivalString = (arrivalResponse.getRealtime() ? "" : "*") + (isCjk ? TranslationProvider.GUI_MTR_ARRIVAL_SEC_CJK : TranslationProvider.GUI_MTR_ARRIVAL_SEC).getString(arrival);
-                } else {
-                    arrivalString = "";
-                }
+				final String carLengthString = (isCjk ? TranslationProvider.GUI_MTR_ARRIVAL_CAR_CJK : TranslationProvider.GUI_MTR_ARRIVAL_CAR).getString(arrivalResponse.getCarCount());
+				final String arrivalString = getArrivalString(arrival, arrivalResponse.getRealtime(), isCjk);
 
                 if (entity.alternateLines()) {
                     if (i % 2 == 0) {
@@ -225,15 +231,15 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
         }
     }
 
-    private static void renderText(GraphicsHolder graphicsHolder, String text, int color, float availableWidth, boolean rightAlign) {
-        graphicsHolder.push();
-        final int textWidth = GraphicsHolder.getTextWidth(text);
-        if (availableWidth < textWidth) {
-            graphicsHolder.scale(textWidth == 0 ? 1 : availableWidth / textWidth, 1, 1);
-        }
-        graphicsHolder.drawText(text, rightAlign ? Math.max(0, (int) availableWidth - textWidth) : 0, 0, color | ARGB_BLACK, false, GraphicsHolder.getDefaultLight());
-        graphicsHolder.pop();
-    }
+	private void renderText(GraphicsHolder graphicsHolder, String text, int color, float availableWidth, boolean rightAlign) {
+		graphicsHolder.push();
+		final int textWidth = GraphicsHolder.getTextWidth(text);
+		if (availableWidth < textWidth) {
+			graphicsHolder.scale(textWidth == 0 ? 1 : availableWidth / textWidth, 1, 1);
+		}
+		renderText(graphicsHolder, text, rightAlign ? Math.max(0, (int) availableWidth - textWidth) : 0, 0, color | ARGB_BLACK);
+		graphicsHolder.pop();
+	}
 
     private static boolean hasDifferentCarLengths(ObjectArrayList<ArrivalResponse> arrivalResponseList) {
         int carCount = 0;

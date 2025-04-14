@@ -45,7 +45,10 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 		final boolean hasUpdate2 = updateVehiclesOrLifts(minecraftClientData.lifts, vehicleLiftResponse::iterateLiftsToKeep, vehicleLiftResponse::iterateLiftsToUpdate, (removedLift) -> {
 		}, NameColorDataBase::getId, lift -> lift);
 
-		vehicleLiftResponse.iterateSignalBlockUpdates(signalBlockUpdate -> minecraftClientData.railIdToBlockedSignalColors.put(signalBlockUpdate.getRailId(), signalBlockUpdate.getBlockedColors()));
+		vehicleLiftResponse.iterateSignalBlockUpdates(signalBlockUpdate -> {
+			minecraftClientData.railIdToPreBlockedSignalColors.put(signalBlockUpdate.getRailId(), signalBlockUpdate.getPreBlockedSignalColors());
+			minecraftClientData.railIdToCurrentlyBlockedSignalColors.put(signalBlockUpdate.getRailId(), signalBlockUpdate.getCurrentlyBlockedSignalColors());
+		});
 
 		if (hasUpdate1 || hasUpdate2) {
 			if (hasUpdate1) {

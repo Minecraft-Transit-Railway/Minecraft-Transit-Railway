@@ -20,6 +20,9 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 	public static final EnumProperty<EnumBooleanInverted> IS_22_5 = EnumProperty.of("is_22_5", EnumBooleanInverted.class);
 	public static final EnumProperty<EnumBooleanInverted> IS_45 = EnumProperty.of("is_45", EnumBooleanInverted.class);
 
+	private static final int COOLDOWN_1 = 2000;
+	private static final int COOLDOWN_2 = COOLDOWN_1 + 2000;
+
 	public BlockSignalBase(BlockSettings blockSettings) {
 		super(blockSettings);
 	}
@@ -55,6 +58,8 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 
 	public static abstract class BlockEntityBase extends BlockEntityExtension {
 
+		private long lastOccupiedTime1;
+		private long lastOccupiedTime2;
 		public final boolean isDoubleSided;
 
 		private final IntAVLTreeSet signalColors1 = new IntAVLTreeSet();
@@ -95,6 +100,27 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 
 		public IntAVLTreeSet getSignalColors(boolean isBackSide) {
 			return isBackSide ? signalColors2 : signalColors1;
+		}
+
+		public int getActualAspect(boolean occupied, boolean isBackSide) {
+			final long currentTime = System.currentTimeMillis();
+			if (occupied) {
+				if (isBackSide) {
+					lastOccupiedTime2 = currentTime;
+				} else {
+					lastOccupiedTime1 = currentTime;
+				}
+				return 1;
+			} else {
+				final long difference = currentTime - (isBackSide ? lastOccupiedTime2 : lastOccupiedTime1);
+				if (difference >= COOLDOWN_2) {
+					return 0;
+				} else if (difference >= COOLDOWN_1) {
+					return 3;
+				} else {
+					return 2;
+				}
+			}
 		}
 	}
 
