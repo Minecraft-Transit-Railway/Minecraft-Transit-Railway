@@ -4,6 +4,7 @@ import org.apache.logging.log4j.Logger;
 import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.Direction;
@@ -38,11 +39,11 @@ public class LegacyModule extends PIDSModule {
 
     @Override
     public void render(GraphicsHolder graphicsHolder, ObjectList<ArrivalResponse> arrivals, RenderModularPIDS renderPIDS, BlockPIDSBase.BlockEntityBase entity, BlockPos blockPos, Direction facing) {
-        final float scale = 160 * maxArrivals / height * textPadding;
+        final float scale = 160 * entity.maxArrivals / height * textPadding;
         final boolean hasDifferentCarLengths = hasDifferentCarLengths(arrivals);
-        int arrivalIndex = 0;
+        int arrivalIndex = entity.getDisplayPage() * entity.maxArrivals;
 
-        for (int i = 0; i < maxArrivals; i++) {
+        for (int i = 0; i < entity.maxArrivals; i++) {
             final int languageTicks = (int) Math.floor(InitClient.getGameTick()) / RenderModularPIDS.SWITCH_TEXT_TICKS;
             final ArrivalResponse arrivalResponse;
             final String customMessage = entity.getMessage(i);
@@ -69,7 +70,26 @@ public class LegacyModule extends PIDSModule {
                     renderCustomMessage = true;
                     languageIndex = languageTicks % customMessageSplit.length;
                 } else {
-                    destinationSplit = arrivalResponse.getDestination().split("\\|");
+                    final String[] tempDestinationSplit = arrivalResponse.getDestination().split("\\|");
+                    if (arrivalResponse.getRouteNumber().isEmpty()) {
+                        destinationSplit = tempDestinationSplit;
+                    } else {
+                        final String[] tempNumberSplit = arrivalResponse.getRouteNumber().split("\\|");
+                        int destinationIndex = 0;
+                        int numberIndex = 0;
+                        final ObjectArrayList<String> newDestinations = new ObjectArrayList<>();
+                        while (true) {
+                            final String newDestination = String.format("%s %s", tempNumberSplit[numberIndex % tempNumberSplit.length], tempDestinationSplit[destinationIndex % tempDestinationSplit.length]);
+                            if (newDestinations.contains(newDestination)) {
+                                break;
+                            } else {
+                                newDestinations.add(newDestination);
+                            }
+                            destinationIndex++;
+                            numberIndex++;
+                        }
+                        destinationSplit = newDestinations.toArray(new String[0]);
+                    }
                     final int messageCount = destinationSplit.length + (customMessage.isEmpty() ? 0 : customMessageSplit.length);
                     renderCustomMessage = languageTicks % messageCount >= destinationSplit.length;
                     languageIndex = (languageTicks % messageCount) - (renderCustomMessage ? destinationSplit.length : 0);
@@ -78,8 +98,6 @@ public class LegacyModule extends PIDSModule {
                     }
                 }
             }
-
-            //graphicsHolder.translate((startX - 8) / 16, -startY / 16 + i * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
 
             float layerY = y + i * (height - textPadding * 2) / maxArrivals + textPadding * 2;
             float textSize = (height - textPadding * 2) / maxArrivals - textPadding * 2;
@@ -107,67 +125,57 @@ public class LegacyModule extends PIDSModule {
                 }
 
                 final String carLengthString = (isCjk ? TranslationProvider.GUI_MTR_ARRIVAL_CAR_CJK : TranslationProvider.GUI_MTR_ARRIVAL_CAR).getString(arrivalResponse.getCarCount());
-                final String arrivalString;
-
-                if (arrival >= 60) {
-                    arrivalString = (arrivalResponse.getRealtime() ? "" : "*") + (isCjk ? TranslationProvider.GUI_MTR_ARRIVAL_MIN_CJK : TranslationProvider.GUI_MTR_ARRIVAL_MIN).getString(arrival / 60);
-                } else if (arrival > 0) {
-                    arrivalString = (arrivalResponse.getRealtime() ? "" : "*") + (isCjk ? TranslationProvider.GUI_MTR_ARRIVAL_SEC_CJK : TranslationProvider.GUI_MTR_ARRIVAL_SEC).getString(arrival);
-                } else {
-                    arrivalString = "";
-                }
+                final String arrivalString = getArrivalString(arrival, arrivalResponse.getRealtime(), isCjk);
 
                 float xPos = x + textPadding * 2;
 
                 if (entity.alternateLines()) {
                     if (i % 2 == 0) {
                         RenderModularPIDS.renderText(graphicsHolder, destinationFormatted, xPos, layerY, textSize, color, width - textPadding * 4, IGui.HorizontalAlignment.LEFT, layer);
-                        //debug box
-                        //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, width - textPadding * 4, textSize, 0xFF00FF00, layer - 1);
                     } else {
                         if (hasDifferentCarLengths) {
                             RenderModularPIDS.renderText(graphicsHolder, carLengthString, xPos, layerY, textSize, 0xFFFF0000, 6.4f * textScale, IGui.HorizontalAlignment.LEFT, layer);
-                            //debug box
-                            //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, 6.4f * textScale, textSize, 0xFFFFFF00, layer - 1);
                             xPos += 6.6f * textScale;
                         }
                         RenderModularPIDS.renderText(graphicsHolder, arrivalString, xPos, layerY, textSize, color, x + width - textPadding * 2 - xPos, IGui.HorizontalAlignment.RIGHT, layer);
-                        //debug box
-                        //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, x + width - textPadding * 2 - xPos, textSize, 0xFF00FFFF, layer - 1);
                     }
                 } else {
                     final boolean showPlatformNumber = entity instanceof BlockArrivalProjectorBase.BlockEntityArrivalProjectorBase;
 
                     if (entity.showArrivalNumber()) {
                         RenderModularPIDS.renderText(graphicsHolder, String.valueOf(arrivalIndex), xPos, layerY, textSize, color, 1.0f * textScale, IGui.HorizontalAlignment.LEFT, layer);
-                        //debug box
-                        //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, 1.0f * textScale, textSize, 0xFFFF0000, layer - 1);
                         xPos += 1.3f * textScale;
                     }
 
-                    final float destinationWidth = width - (textPadding * 4) - 7.0f * textScale - (hasDifferentCarLengths || showPlatformNumber ? showPlatformNumber ? 2.6f * textScale : 4.5f * textScale : 0f) - (entity.showArrivalNumber() ? 1.3f * textScale : 0f);
+                    final float destinationWidth = width * scale / 16 - 40 - (hasDifferentCarLengths || showPlatformNumber ? showPlatformNumber ? 16 : 32 : 0) - (entity.showArrivalNumber() ? 12 : 0);
                     RenderModularPIDS.renderText(graphicsHolder, destinationFormatted, xPos, layerY, textSize, color, destinationWidth, IGui.HorizontalAlignment.LEFT, layer);
-                    //debug box
-                    //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, destinationWidth, textSize, 0xFF00FF00, layer - 1);
                     xPos += destinationWidth + 0.4f * textScale;
 
-                    if (showPlatformNumber) {
-                        RenderModularPIDS.renderText(graphicsHolder, arrivalResponse.getPlatformName(), xPos, layerY, textSize, color, 2.2f * textScale, IGui.HorizontalAlignment.RIGHT, layer);
-                        //debug box
-                        //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, 2.2f * textScale, textSize, 0xFF0000FF, layer - 1);
-                        xPos += 2.6f * textScale;
-                    } else if (hasDifferentCarLengths) {
-                        RenderModularPIDS.renderText(graphicsHolder, carLengthString, xPos, layerY, textSize, 0xFF0000, 4.2f * textScale, IGui.HorizontalAlignment.RIGHT, layer);
-                        //debug box
-                        //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, 4.2f * textScale, textSize, 0xFFFFFF00, layer - 1);
-                        xPos += 4.5f * textScale;
+                    if (hasDifferentCarLengths || showPlatformNumber) {
+                        if (showPlatformNumber) {
+                            RenderModularPIDS.renderText(graphicsHolder, arrivalResponse.getPlatformName(), xPos, layerY, textSize, color, 2.2f * textScale, IGui.HorizontalAlignment.RIGHT, layer);
+                            xPos += 2.6f * textScale;
+                        } else {
+                            RenderModularPIDS.renderText(graphicsHolder, carLengthString, xPos, layerY, textSize, 0xFF0000, 4.2f * textScale, IGui.HorizontalAlignment.RIGHT, layer);
+                            xPos += 4.5f * textScale;
+                        }
                     }
 
                     RenderModularPIDS.renderText(graphicsHolder, arrivalString, xPos, layerY, textSize, color, x + width - xPos - textPadding * 2, IGui.HorizontalAlignment.RIGHT, layer);
-                    //debug box
-                    //renderPIDS.renderRect(entity, blockPos, facing, xPos, layerY, x + width - xPos - textPadding * 2, textSize, 0xFF00FFFF, layer - 1);
                 }
             }
+
+            graphicsHolder.pop();
+        }
+    }
+
+    public String getArrivalString(long arrival, boolean isRealtime, boolean isCjk) {
+        if (arrival >= 60) {
+            return (isRealtime ? "" : "*") + (isCjk ? TranslationProvider.GUI_MTR_ARRIVAL_MIN_CJK : TranslationProvider.GUI_MTR_ARRIVAL_MIN).getString(arrival / 60);
+        } else if (arrival > 0) {
+            return (isRealtime ? "" : "*") + (isCjk ? TranslationProvider.GUI_MTR_ARRIVAL_SEC_CJK : TranslationProvider.GUI_MTR_ARRIVAL_SEC).getString(arrival);
+        } else {
+            return "";
         }
     }
 
