@@ -64,6 +64,9 @@ public class PIDSRenderController {
                 case "lineName":
                     modules.add(new LineNameModule(x, y, w, h, module.getData()));
                     break;
+                case "lineNumber":
+                    modules.add(new LineNumberModule(x, y, w, h, module.getData()));
+                    break;
                 case "text":
                     modules.add(new TextModule(x, y, w, h, module.getData()));
                     break;
