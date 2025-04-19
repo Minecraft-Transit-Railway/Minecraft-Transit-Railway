@@ -3,6 +3,7 @@ package org.mtr.model;
 import de.javagl.obj.*;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.render.VertexFormat;
 import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -15,59 +16,58 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.function.Function;
 
-public final class ObjModelLoader {
+public final class ObjModelLoader extends ModelLoaderBase {
 
-	public static Object2ObjectOpenHashMap<String, NewOptimizedModelGroup> loadModel(String objString, Function<String, String> mtlResolver, Function<String, Identifier> textureResolver, boolean splitModel, boolean flipTextureV) {
-		final Object2ObjectOpenHashMap<String, NewOptimizedModelGroup> result = new Object2ObjectOpenHashMap<>();
+	public ObjModelLoader(Identifier defaultTexture) {
+		super(defaultTexture, VertexFormat.DrawMode.TRIANGLES);
+	}
 
+	public void loadModel(String objString, Function<String, String> mtlResolver, Function<String, Identifier> textureResolver, boolean splitModel, boolean flipTextureV) {
 		try {
 			final Obj sourceObj = ObjReader.read(IOUtils.toInputStream(objString, StandardCharsets.UTF_8));
 			final Object2ObjectOpenHashMap<String, Mtl> materials = new Object2ObjectOpenHashMap<>();
 			sourceObj.getMtlFileNames().forEach(mtlFileName -> {
 				try {
-					MtlReader.read(IOUtils.toInputStream(mtlResolver.apply(mtlFileName.replace("\\\\", "/").replace("\\", "/")), StandardCharsets.UTF_8)).forEach(mtl -> materials.put(mtl.getName(), mtl));
+					MtlReader.read(IOUtils.toInputStream(mtlResolver.apply(formatFilePath(mtlFileName)), StandardCharsets.UTF_8)).forEach(mtl -> materials.put(mtl.getName(), mtl));
 				} catch (Exception e) {
 					MTR.LOGGER.error("", e);
 				}
 			});
 
 			if (splitModel) {
-				ObjSplitting.splitByGroups(sourceObj).forEach((key, obj) -> result.put(key, loadModel(obj, materials, textureResolver, flipTextureV)));
+				ObjSplitting.splitByGroups(sourceObj).forEach((key, obj) -> addModel(key, loadModel(obj, materials, textureResolver, flipTextureV)));
 			} else {
-				result.put("", loadModel(sourceObj, materials, textureResolver, flipTextureV));
+				addModel("", loadModel(sourceObj, materials, textureResolver, flipTextureV));
 			}
 		} catch (Exception e) {
 			MTR.LOGGER.error("", e);
 		}
-
-		return result;
 	}
 
-	private static NewOptimizedModelGroup loadModel(Obj sourceObj, Object2ObjectOpenHashMap<String, Mtl> materials, Function<String, Identifier> textureResolver, boolean flipTextureV) {
+	private NewOptimizedModelGroup loadModel(Obj sourceObj, Object2ObjectOpenHashMap<String, Mtl> materials, Function<String, Identifier> textureResolver, boolean flipTextureV) {
 		final NewOptimizedModelGroup newOptimizedModelGroup = new NewOptimizedModelGroup();
 
 		ObjSplitting.splitByMaterialGroups(sourceObj).forEach((key, obj) -> {
 			if (obj.getNumFaces() > 0) {
 				final Object2ObjectOpenHashMap<String, String> materialOptions = splitMaterialOptions(key);
 				final String materialGroupName = materialOptions.get("");
-				final RenderStage renderStage = legacyMapping(materialOptions.getOrDefault("#", ""));
 				final boolean newFlipTextureV = flipTextureV || materialOptions.getOrDefault("flipv", "0").equals("1");
-				final String texture;
+				final Identifier texture;
 				final Color color;
 
 				if (!materials.isEmpty()) {
-					final Mtl objMaterial = materials.getOrDefault(key, null);
+					final Mtl objMaterial = materials.get(key);
 					if (objMaterial == null) {
-						texture = "";
+						texture = null;
 						color = null;
 					} else {
 						if (StringUtils.isEmpty(objMaterial.getMapKd())) {
-							texture = "";
+							texture = null;
 						} else {
-							texture = objMaterial.getMapKd();
+							texture = textureResolver.apply(formatFilePath(objMaterial.getMapKd()));
 						}
 						final FloatTuple kd = objMaterial.getKd();
-						color = kd == null ? new Color(0xFF, 0xFF, 0xFF, 0xFF) : new Color(
+						color = kd == null ? null : new Color(
 								kd.getX(),
 								kd.getY(),
 								kd.getZ(),
@@ -75,8 +75,8 @@ public final class ObjModelLoader {
 						);
 					}
 				} else {
-					texture = materialGroupName.equals("_") ? "" : materialGroupName;
-					color = new Color(0xFF, 0xFF, 0xFF, 0xFF);
+					texture = materialGroupName.equals("_") ? null : textureResolver.apply(formatFilePath(materialGroupName));
+					color = null;
 				}
 
 				final Obj renderObjMesh = ObjUtils.convertToRenderable(obj);
@@ -90,9 +90,10 @@ public final class ObjModelLoader {
 				}
 
 				newOptimizedModelGroup.add(
-						renderStage,
-						texture.isEmpty() && color != null ? Identifier.of(MTR.MOD_ID, "textures/block/white.png") : textureResolver.apply(texture.replace("\\\\", "/").replace("\\", "/")),
-						storedVertexDataList -> storedVertexDataList.addAll(modifications)
+						getRenderStage(materialOptions.get("#")),
+						texture == null && color != null ? Identifier.of(MTR.MOD_ID, "textures/block/white.png") : texture == null ? defaultTexture : texture,
+						storedVertexDataList -> storedVertexDataList.addAll(modifications),
+						null
 				);
 			}
 		});
@@ -131,13 +132,22 @@ public final class ObjModelLoader {
 		return result;
 	}
 
-	private static RenderStage legacyMapping(String type) {
-		return switch (type.toLowerCase(Locale.ENGLISH)) {
-			case "light" -> RenderStage.LIGHT;
-			case "always_on_light" -> RenderStage.ALWAYS_ON_LIGHT;
-			case "interior" -> RenderStage.INTERIOR;
-			case "interior_translucent" -> RenderStage.INTERIOR_TRANSLUCENT;
-			default -> RenderStage.EXTERIOR;
-		};
+	private static String formatFilePath(String path) {
+		return path.replace("\\\\", "/").replace("\\", "/");
+	}
+
+	@Nullable
+	private static RenderStage getRenderStage(@Nullable String type) {
+		if (type == null) {
+			return null;
+		} else {
+			return switch (type.toLowerCase(Locale.ENGLISH)) {
+				case "light" -> RenderStage.LIGHT;
+				case "always_on_light" -> RenderStage.ALWAYS_ON_LIGHT;
+				case "interior" -> RenderStage.INTERIOR;
+				case "interior_translucent" -> RenderStage.INTERIOR_TRANSLUCENT;
+				default -> null;
+			};
+		}
 	}
 }

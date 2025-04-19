@@ -22,10 +22,10 @@ public final class BlockbenchElement extends BlockbenchElementSchema {
 		return uuid;
 	}
 
-	public Box setModelPart(ModelPartData parentModelPart, GroupTransformations groupTransformations, ModelDisplayPart modelDisplayPart, float modelYOffset) {
+	public Box setModelPart(ModelPartData parentModelPart, GroupTransformations groupTransformations, ModelDisplayPart modelDisplayPart) {
 		// Add model Y offset when creating the model parts
 		final float originX = -Utilities.getElement(origin, 0, 0D).floatValue();
-		final float originY = -Utilities.getElement(origin, 1, 0D).floatValue() - modelYOffset * 16;
+		final float originY = -Utilities.getElement(origin, 1, 0D).floatValue();
 		final float originZ = Utilities.getElement(origin, 2, 0D).floatValue();
 		final float rotationX = (float) Math.toRadians(-Utilities.getElement(rotation, 0, 0D));
 		final float rotationY = (float) Math.toRadians(-Utilities.getElement(rotation, 1, 0D));
@@ -34,10 +34,10 @@ public final class BlockbenchElement extends BlockbenchElementSchema {
 		final int textureY = Utilities.getElement(uv_offset, 1, 0L).intValue();
 
 		final GroupTransformations newGroupTransformations = new GroupTransformations(groupTransformations, origin, rotation);
-		final ModelPartData modelPartData = newGroupTransformations.create(parentModelPart, textureX, textureY, modelYOffset);
+		final ModelPartData modelPartData = newGroupTransformations.create(parentModelPart, textureX, textureY);
 
 		final float x = -Utilities.getElement(to, 0, 0D).floatValue() - originX;
-		final float y = -Utilities.getElement(to, 1, 0D).floatValue() - originY - modelYOffset * 16;
+		final float y = -Utilities.getElement(to, 1, 0D).floatValue() - originY;
 		final float z = Utilities.getElement(from, 2, 0D).floatValue() - originZ;
 		final int sizeX = (int) Math.round(Utilities.getElement(to, 0, 0D) - Utilities.getElement(from, 0, 0D));
 		final int sizeY = (int) Math.round(Utilities.getElement(to, 1, 0D) - Utilities.getElement(from, 1, 0D));
@@ -45,7 +45,7 @@ public final class BlockbenchElement extends BlockbenchElementSchema {
 
 		modelPartData.addChild(MTR.randomString(), ModelPartBuilder.create().uv(textureX, textureY).mirrored(!shade || mirror_uv).cuboid(x, y, z, sizeX, sizeY, sizeZ, new Dilation((float) inflate)), ModelTransform.NONE);
 
-		newGroupTransformations.create(modelDisplayPart.storedMatrixTransformations, modelYOffset);
+		newGroupTransformations.create(modelDisplayPart.storedMatrixTransformations);
 		modelDisplayPart.storedMatrixTransformations.add(matrixStack -> matrixStack.translate(x / 16, y / 16, z / 16));
 		modelDisplayPart.width = sizeX;
 		modelDisplayPart.height = sizeY;

@@ -29,16 +29,15 @@ public final class GroupTransformations {
 		));
 	}
 
-	public ModelPartData create(ModelPartData rootModelPart, int textureX, int textureY, float modelYOffset) {
+	public ModelPartData create(ModelPartData rootModelPart, int textureX, int textureY) {
 		ModelPartData modelPart = rootModelPart;
 		float combinedPivotX = 0;
 		float combinedPivotY = 0;
 		float combinedPivotZ = 0;
-		float offset = modelYOffset * 16;
 		for (final GroupTransformation groupTransformation : groupTransformationList) {
 			modelPart = modelPart.addChild(MTR.randomString(), ModelPartBuilder.create().uv(textureX, textureY), ModelTransform.of(
 					groupTransformation.pivotX - combinedPivotX,
-					groupTransformation.pivotY - combinedPivotY - offset,
+					groupTransformation.pivotY - combinedPivotY,
 					groupTransformation.pivotZ - combinedPivotZ,
 					groupTransformation.rotateX,
 					groupTransformation.rotateY,
@@ -47,19 +46,17 @@ public final class GroupTransformations {
 			combinedPivotX += groupTransformation.pivotX;
 			combinedPivotY += groupTransformation.pivotY;
 			combinedPivotZ += groupTransformation.pivotZ;
-			offset = 0;
 		}
 		return modelPart;
 	}
 
-	public void create(StoredMatrixTransformations storedMatrixTransformations, float modelYOffset) {
+	public void create(StoredMatrixTransformations storedMatrixTransformations) {
 		float combinedPivotX = 0;
 		float combinedPivotY = 0;
 		float combinedPivotZ = 0;
-		float offset = modelYOffset * 16;
 		for (final GroupTransformation groupTransformation : groupTransformationList) {
 			float newCombinedPivotX = (groupTransformation.pivotX - combinedPivotX) / 16;
-			float newCombinedPivotY = (groupTransformation.pivotY - combinedPivotY - offset) / 16;
+			float newCombinedPivotY = (groupTransformation.pivotY - combinedPivotY) / 16;
 			float newCombinedPivotZ = (groupTransformation.pivotZ - combinedPivotZ) / 16;
 			storedMatrixTransformations.add(matrixStack -> {
 				matrixStack.translate(newCombinedPivotX, newCombinedPivotY, newCombinedPivotZ);
@@ -70,26 +67,9 @@ public final class GroupTransformations {
 			combinedPivotX += groupTransformation.pivotX;
 			combinedPivotY += groupTransformation.pivotY;
 			combinedPivotZ += groupTransformation.pivotZ;
-			offset = 0;
 		}
 	}
 
-	private static class GroupTransformation {
-
-		private final float pivotX;
-		private final float pivotY;
-		private final float pivotZ;
-		private final float rotateX;
-		private final float rotateY;
-		private final float rotateZ;
-
-		private GroupTransformation(float pivotX, float pivotY, float pivotZ, float rotateX, float rotateY, float rotateZ) {
-			this.pivotX = pivotX;
-			this.pivotY = pivotY;
-			this.pivotZ = pivotZ;
-			this.rotateX = rotateX;
-			this.rotateY = rotateY;
-			this.rotateZ = rotateZ;
-		}
+	private record GroupTransformation(float pivotX, float pivotY, float pivotZ, float rotateX, float rotateY, float rotateZ) {
 	}
 }

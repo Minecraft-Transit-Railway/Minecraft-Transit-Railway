@@ -2,7 +2,6 @@ package org.mtr.resource;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.MTR;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.resource.BlockbenchOutlineSchema;
@@ -34,10 +33,7 @@ public final class BlockbenchOutline extends BlockbenchOutlineSchema {
 		return name;
 	}
 
-	public GroupTransformations add(GroupTransformations groupTransformations, @Nullable BlockbenchOutline previousBlockbenchOutline, String id) {
-		if (previousBlockbenchOutline == null && (Math.abs(Utilities.getElement(rotation, 0, 0D)) > 1 || Math.abs(Utilities.getElement(rotation, 1, 0D)) > 1 || Math.abs(Utilities.getElement(rotation, 2, 0D)) > 1)) {
-			MTR.LOGGER.warn("[{}] Skipping Blockbench outline rotation for element \"{}\"! {}", id, name, rotation);
-		}
+	public GroupTransformations add(GroupTransformations groupTransformations, @Nullable BlockbenchOutline previousBlockbenchOutline) {
 		return new GroupTransformations(groupTransformations, previousBlockbenchOutline == null ? origin : DoubleArrayList.of(
 				Utilities.getElement(origin, 0, 0D) - Utilities.getElement(previousBlockbenchOutline.origin, 0, 0D),
 				Utilities.getElement(origin, 1, 0D) - Utilities.getElement(previousBlockbenchOutline.origin, 1, 0D),

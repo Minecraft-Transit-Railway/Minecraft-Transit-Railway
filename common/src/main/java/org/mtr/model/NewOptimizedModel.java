@@ -25,9 +25,14 @@ public final class NewOptimizedModel {
 
 	public void render(Matrix4f matrix4f, float lightMultiplier, @Nullable ShaderProgram shaderProgram) {
 		if (vertexBuffer != null) {
+			final float[] shaderColor = RenderSystem.getShaderColor();
+			final float r = shaderColor[0];
+			final float g = shaderColor[1];
+			final float b = shaderColor[2];
+			final float a = shaderColor[3];
 			RenderSystem.setShaderColor(lightMultiplier, lightMultiplier, lightMultiplier, 1);
 			vertexBuffer.draw(new Matrix4f(RenderSystem.getModelViewMatrix()).mul(matrix4f), RenderSystem.getProjectionMatrix(), shaderProgram);
-			RenderSystem.setShaderColor(1, 1, 1, 1);
+			RenderSystem.setShaderColor(r, g, b, a);
 		}
 	}
 

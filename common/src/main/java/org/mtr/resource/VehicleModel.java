@@ -10,13 +10,14 @@ import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.resource.VehicleModelSchema;
+import org.mtr.model.BlockbenchModelLoader;
+import org.mtr.model.BuiltVehicleModelHolder;
 import org.mtr.model.ObjModelLoader;
-import org.mtr.render.DynamicVehicleModel;
 
 public final class VehicleModel extends VehicleModelSchema {
 
 	boolean shouldPreload = false;
-	final CachedResource<DynamicVehicleModel> cachedModel;
+	final CachedResource<BuiltVehicleModelHolder> cachedModel;
 	private final JsonReader modelPropertiesJsonReader;
 	private final JsonReader positionDefinitionsJsonReader;
 
@@ -27,7 +28,7 @@ public final class VehicleModel extends VehicleModelSchema {
 		updateData(readerBase);
 		modelPropertiesJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelPropertiesResource, "json"))));
 		positionDefinitionsJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(positionDefinitionsResource, "json"))));
-		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader), modelPropertiesResource), shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
+		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader)), shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
 	}
 
 	public VehicleModel(ReaderBase readerBase, JsonReader modelPropertiesJsonReader, JsonReader positionDefinitionsJsonReader, String id, ResourceProvider resourceProvider) {
@@ -35,7 +36,7 @@ public final class VehicleModel extends VehicleModelSchema {
 		updateData(readerBase);
 		this.modelPropertiesJsonReader = modelPropertiesJsonReader;
 		this.positionDefinitionsJsonReader = positionDefinitionsJsonReader;
-		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader), id), shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
+		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader)), shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
 	}
 
 	VehicleModel(
@@ -56,7 +57,7 @@ public final class VehicleModel extends VehicleModelSchema {
 		);
 		modelPropertiesJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelPropertiesResource, "json"))));
 		positionDefinitionsJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(positionDefinitionsResource, "json"))));
-		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader), modelPropertiesResource), shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
+		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader)), shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
 		cachedModel.getData(true);
 	}
 
@@ -113,33 +114,26 @@ public final class VehicleModel extends VehicleModelSchema {
 		return modelProperties.toVehicleModelWrapper(modelResource, textureResource, modelPropertiesResource, positionDefinitionsResource, flipTextureV, parts);
 	}
 
-	private DynamicVehicleModel createModel(ModelProperties modelProperties, PositionDefinitions positionDefinitions, String id) {
-		final Identifier textureId = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
-
+	private BuiltVehicleModelHolder createModel(ModelProperties modelProperties, PositionDefinitions positionDefinitions) {
+		final Identifier texture = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
 		if (modelResource.endsWith(".bbmodel")) {
-			return new DynamicVehicleModel(
-					new BlockbenchModel(new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "bbmodel"))))),
-					textureId,
-					modelProperties,
-					positionDefinitions,
-					id
-			);
+			final BlockbenchModelLoader blockbenchModelLoader = new BlockbenchModelLoader(texture);
+			blockbenchModelLoader.loadModel(new BlockbenchModel(new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "bbmodel"))))));
+			return blockbenchModelLoader.build(modelProperties, positionDefinitions);
 		} else if (modelResource.endsWith(".obj")) {
-			return new DynamicVehicleModel(ObjModelLoader.loadModel(
+			final ObjModelLoader objModelLoader = new ObjModelLoader(texture);
+			objModelLoader.loadModel(
 					resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
 					mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
-					textureString -> StringUtils.isEmpty(textureString) ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
+					textureString -> StringUtils.isEmpty(textureString) ? texture : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
 					true, flipTextureV
-			), textureId, modelProperties, positionDefinitions, id);
-		} else {
-			MTR.LOGGER.error("[{}] Invalid model!", textureId.toString());
-			return new DynamicVehicleModel(
-					new BlockbenchModel(new JsonReader(new JsonObject())),
-					textureId,
-					modelProperties,
-					positionDefinitions,
-					id
 			);
+			return objModelLoader.build(modelProperties, positionDefinitions);
+		} else {
+			MTR.LOGGER.error("[{}] Invalid model!", texture.toString());
+			final BlockbenchModelLoader blockbenchModelLoader = new BlockbenchModelLoader(texture);
+			blockbenchModelLoader.loadModel(new BlockbenchModel(new JsonReader(new JsonObject())));
+			return blockbenchModelLoader.build(modelProperties, positionDefinitions);
 		}
 	}
 }

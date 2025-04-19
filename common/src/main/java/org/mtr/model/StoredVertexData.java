@@ -28,7 +28,7 @@ public record StoredVertexData(
 		);
 	}
 
-	public static void write(ModelPart modelPart, double translateX, double translateY, double translateZ, boolean flip, ObjectArrayList<StoredVertexData> storedVertexDataList) {
+	public static void write(ModelPart modelPart, ObjectArrayList<StoredVertexData> storedVertexDataList) {
 		final StoredVertexConsumer storedVertexConsumer = new StoredVertexConsumer();
 		modelPart.render(new MatrixStack(), storedVertexConsumer, IGui.MAX_LIGHT_INTERIOR, OverlayTexture.DEFAULT_UV);
 		for (int i = 0; i < storedVertexConsumer.vertexEntries.size(); i++) {
@@ -42,7 +42,7 @@ public record StoredVertexData(
 					storedVertexConsumer.normalEntries.get(i).x,
 					-storedVertexConsumer.normalEntries.get(i).y,
 					-storedVertexConsumer.normalEntries.get(i).z
-			).modify(translateX, translateY, -translateZ, flip));
+			));
 		}
 	}
 

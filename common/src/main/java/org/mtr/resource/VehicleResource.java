@@ -1,8 +1,10 @@
 package org.mtr.resource;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
-import it.unimi.dsi.fastutil.objects.*;
-import net.minecraft.client.render.VertexFormat;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Box;
@@ -13,10 +15,7 @@ import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.VehicleExtension;
 import org.mtr.generated.resource.VehicleResourceSchema;
-import org.mtr.model.NewOptimizedModel;
-import org.mtr.model.NewOptimizedModelGroup;
-import org.mtr.render.DynamicVehicleModel;
-import org.mtr.render.MainRenderer;
+import org.mtr.model.BuiltVehicleModelHolder;
 import org.mtr.render.StoredMatrixTransformations;
 import org.mtr.sound.BveVehicleSound;
 import org.mtr.sound.BveVehicleSoundConfig;
@@ -25,7 +24,6 @@ import org.mtr.sound.VehicleSoundBase;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -36,62 +34,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 	@Nullable
 	private final LegacyVehicleSupplier<ObjectArrayList<VehicleModel>> extraModelsSupplier;
 	private final Int2ObjectAVLTreeMap<Int2ObjectAVLTreeMap<ObjectArrayList<VehicleModel>>> allModels = new Int2ObjectAVLTreeMap<>();
-	private final Int2ObjectAVLTreeMap<Int2ObjectAVLTreeMap<CachedResource<CachedResource<CachedResource<VehicleResourceCacheHolder>>>>> cachedVehicleResource = new Int2ObjectAVLTreeMap<>();
-
-	private static final boolean[][] CHRISTMAS_LIGHT_STAGES = {
-			{true, false, false, false},
-			{false, true, false, false},
-			{false, false, true, false},
-			{false, false, false, true},
-			{true, false, false, false},
-			{false, true, false, false},
-			{false, false, true, false},
-			{false, false, false, true},
-
-			{true, true, false, false},
-			{false, true, true, false},
-			{false, false, true, true},
-			{true, false, false, true},
-			{true, true, false, false},
-			{false, true, true, false},
-			{false, false, true, true},
-			{true, false, false, true},
-
-			{true, false, true, false},
-			{false, true, false, true},
-			{true, false, true, false},
-			{false, true, false, true},
-			{true, false, true, false},
-			{false, true, false, true},
-			{true, false, true, false},
-			{false, true, false, true},
-
-			{true, false, false, false},
-			{true, true, false, false},
-			{true, true, true, false},
-			{true, true, true, true},
-			{false, true, false, false},
-			{false, true, true, false},
-			{false, true, true, true},
-			{true, true, true, true},
-			{false, false, true, false},
-			{false, false, true, true},
-			{true, false, true, true},
-			{true, true, true, true},
-			{false, false, false, true},
-			{true, false, false, true},
-			{true, true, false, true},
-			{true, true, true, true},
-
-			{false, false, false, false},
-			{true, true, true, true},
-			{true, true, true, true},
-			{true, true, true, true},
-			{false, false, false, false},
-			{true, true, true, true},
-			{true, true, true, true},
-			{true, true, true, true},
-	};
+	private final Int2ObjectAVLTreeMap<Int2ObjectAVLTreeMap<CachedResource<CachedResource<CachedResource<VehicleResourceCache>>>>> cachedVehicleResource = new Int2ObjectAVLTreeMap<>();
 
 	public VehicleResource(ReaderBase readerBase, @Nullable LegacyVehicleSupplier<ObjectArrayList<VehicleModel>> extraModelsSupplier, ResourceProvider resourceProvider) {
 		super(readerBase, resourceProvider);
@@ -200,40 +143,20 @@ public final class VehicleResource extends VehicleResourceSchema {
 	public VehicleResourceCache getCachedVehicleResource(int carNumber, int totalCars, boolean force) {
 		final int newCarNumber = extraModelsSupplier == null ? 0 : carNumber;
 		final int newTotalCars = extraModelsSupplier == null ? 0 : totalCars;
-		final CachedResource<CachedResource<VehicleResourceCacheHolder>> data1 = cachedVehicleResource.computeIfAbsent(newCarNumber, key -> new Int2ObjectAVLTreeMap<>()).computeIfAbsent(newTotalCars, key -> cachedVehicleResourceInitializer(newCarNumber, newTotalCars, force)).getData(force);
+		final CachedResource<CachedResource<VehicleResourceCache>> data1 = cachedVehicleResource.computeIfAbsent(newCarNumber, key -> new Int2ObjectAVLTreeMap<>()).computeIfAbsent(newTotalCars, key -> cachedVehicleResourceInitializer(newCarNumber, newTotalCars, force)).getData(force);
 		if (data1 != null) {
-			final CachedResource<VehicleResourceCacheHolder> data2 = data1.getData(force);
+			final CachedResource<VehicleResourceCache> data2 = data1.getData(force);
 			if (data2 != null) {
-				final VehicleResourceCacheHolder data3 = data2.getData(force);
-				if (data3 != null) {
-					final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> optimizedModels = data3.optimizedModels.getData(force);
-					final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> optimizedModelsDoorsClosed = data3.optimizedModelsDoorsClosed.getData(force);
-					final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> optimizedModelsBogie1 = data3.optimizedModelsBogie1.getData(force);
-					final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> optimizedModelsBogie2 = data3.optimizedModelsBogie2.getData(force);
-					if (optimizedModels != null && optimizedModelsDoorsClosed != null && optimizedModelsBogie1 != null && optimizedModelsBogie2 != null) {
-						return new VehicleResourceCache(data3.floors, data3.doorways, optimizedModels, optimizedModelsDoorsClosed, optimizedModelsBogie1, optimizedModelsBogie2);
-					}
-				}
+				return data2.getData(force);
 			}
 		}
 		return null;
 	}
 
-	public void queue(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int carNumber, int totalCars, int light, ObjectArrayList<Box> openDoorways) {
-		final VehicleResourceCache vehicleResourceCache = getCachedVehicleResource(carNumber, totalCars, false);
-		if (vehicleResourceCache != null) {
-			if (openDoorways.isEmpty()) {
-				queue(vehicleResourceCache.optimizedModelsDoorsClosed(), storedMatrixTransformations, vehicle, light, true);
-			} else {
-				queue(vehicleResourceCache.optimizedModels(), storedMatrixTransformations, vehicle, light, false);
-			}
-		}
-	}
-
 	public void queueBogie(int bogieIndex, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light) {
 		final VehicleResourceCache vehicleResourceCache = getCachedVehicleResource(0, 1, false);
 		if (vehicleResourceCache != null && Utilities.isBetween(bogieIndex, 0, 1)) {
-			queue(bogieIndex == 0 ? vehicleResourceCache.optimizedModelsBogie1() : vehicleResourceCache.optimizedModelsBogie2(), storedMatrixTransformations, vehicle, light, true);
+			(bogieIndex == 0 ? vehicleResourceCache.builtBogie1Models() : vehicleResourceCache.builtBogie2Models()).forEach(builtVehicleModelHolder -> builtVehicleModelHolder.render(storedMatrixTransformations, vehicle, 0, new int[0], light, new ObjectArrayList<>(), false));
 		}
 	}
 
@@ -370,17 +293,6 @@ public final class VehicleResource extends VehicleResourceSchema {
 		}
 	}
 
-	public static boolean matchesCondition(VehicleExtension vehicle, PartCondition partCondition, boolean noOpenDoorways) {
-		return switch (partCondition) {
-			case AT_DEPOT -> !vehicle.getIsOnRoute();
-			case ON_ROUTE_FORWARDS -> vehicle.getIsOnRoute() && !vehicle.getReversed();
-			case ON_ROUTE_BACKWARDS -> vehicle.getIsOnRoute() && vehicle.getReversed();
-			case DOORS_CLOSED -> vehicle.persistentVehicleData.getDoorValue() == 0 || noOpenDoorways;
-			case DOORS_OPENED -> vehicle.persistentVehicleData.getDoorValue() > 0 && !noOpenDoorways;
-			default -> getChristmasLightState(partCondition);
-		};
-	}
-
 	public void collectTags(Object2ObjectAVLTreeMap<String, Object2ObjectAVLTreeMap<String, ObjectArrayList<String>>> tagMap) {
 		tags.forEach(tag -> {
 			final String[] tagSplit = tag.split(":");
@@ -390,7 +302,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 		});
 	}
 
-	private CachedResource<CachedResource<CachedResource<VehicleResourceCacheHolder>>> cachedVehicleResourceInitializer(int carNumber, int totalCars, boolean force) {
+	private CachedResource<CachedResource<CachedResource<VehicleResourceCache>>> cachedVehicleResourceInitializer(int carNumber, int totalCars, boolean force) {
 		final int modelLifespan = shouldPreload ? Integer.MAX_VALUE : VehicleModel.MODEL_LIFESPAN;
 		return new CachedResource<>(() -> {
 			final ObjectArrayList<VehicleModel> allModelsList = allModels.computeIfAbsent(carNumber, key -> new Int2ObjectAVLTreeMap<>()).computeIfAbsent(totalCars, key -> new ObjectArrayList<>());
@@ -406,31 +318,45 @@ public final class VehicleResource extends VehicleResourceSchema {
 				}
 			}
 
-			final ObjectArrayList<VehicleModel> modelsToInitialize = new ObjectArrayList<>();
-			modelsToInitialize.addAll(allModelsList);
-			modelsToInitialize.addAll(bogie1Models);
-			modelsToInitialize.addAll(bogie2Models);
-
 			return new CachedResource<>(() -> {
-				for (final VehicleModel vehicleModel : modelsToInitialize) {
-					final DynamicVehicleModel dynamicVehicleModel = vehicleModel.cachedModel.getData(force);
-					if (dynamicVehicleModel == null) {
+				final ObjectArrayList<BuiltVehicleModelHolder> builtModels = new ObjectArrayList<>();
+				final ObjectArrayList<Box> floors = new ObjectArrayList<>();
+				final ObjectArrayList<Box> doorways = new ObjectArrayList<>();
+				for (final VehicleModel vehicleModel : models) {
+					final BuiltVehicleModelHolder builtVehicleModelHolder = vehicleModel.cachedModel.getData(force);
+					if (builtVehicleModelHolder == null) {
 						return null;
+					} else {
+						builtModels.add(builtVehicleModelHolder);
+						floors.addAll(builtVehicleModelHolder.floors);
+						doorways.addAll(builtVehicleModelHolder.doorways);
 					}
 				}
 
-				final ObjectArrayList<Box> floors = new ObjectArrayList<>();
-				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsModel = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsBogie1Model = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsBogie2Model = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> objModelsModel = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> objModelsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> objModelsBogie1Model = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> objModelsBogie2Model = new Object2ObjectOpenHashMap<>();
+				// TODO don't rebuild shared models, e.g. bogies
+				final ObjectArrayList<BuiltVehicleModelHolder> builtBogie1Models = new ObjectArrayList<>();
+				for (final VehicleModel vehicleModel : bogie1Models) {
+					final BuiltVehicleModelHolder builtVehicleModelHolder = vehicleModel.cachedModel.getData(force);
+					if (builtVehicleModelHolder == null) {
+						return null;
+					} else {
+						builtModels.add(builtVehicleModelHolder);
+					}
+				}
 
-				final ObjectArrayList<Box> doorways = new ObjectArrayList<>();
-				forEachNonNull(allModelsList, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(floors, doorways, materialGroupsModel, materialGroupsModelDoorsClosed, objModelsModel, objModelsModelDoorsClosed), force);
+				final ObjectArrayList<BuiltVehicleModelHolder> builtBogie2Models = new ObjectArrayList<>();
+				for (final VehicleModel vehicleModel : bogie2Models) {
+					final BuiltVehicleModelHolder builtVehicleModelHolder = vehicleModel.cachedModel.getData(force);
+					if (builtVehicleModelHolder == null) {
+						return null;
+					} else {
+						builtModels.add(builtVehicleModelHolder);
+					}
+				}
+
+				if (builtModels.isEmpty()) {
+					return null;
+				}
 
 				if (floors.isEmpty() && doorways.isEmpty()) {
 					MTR.LOGGER.info("[{}] No floors or doorways found in vehicle models", id);
@@ -438,24 +364,14 @@ public final class VehicleResource extends VehicleResourceSchema {
 					final double x2 = width / 2 + 0.5;
 					final double y = 1 + legacyRiderOffset;
 					final double z = length / 2 - 0.5;
-					floors.add(new Box(-x1, y, -z, x1, y, z));
+					builtModels.getFirst().floors.add(new Box(-x1, y, -z, x1, y, z));
 					for (double j = -z; j <= z + 0.001; j++) {
-						doorways.add(new Box(-x1, y, j, -x2, y, j + 1));
-						doorways.add(new Box(x1, y, j, x2, y, j + 1));
+						builtModels.getFirst().doorways.add(new Box(-x1, y, j, -x2, y, j + 1));
+						builtModels.getFirst().doorways.add(new Box(x1, y, j, x2, y, j + 1));
 					}
 				}
 
-				forEachNonNull(allModelsList, dynamicVehicleModel -> dynamicVehicleModel.modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.mapDoors(doorways)), force);
-				forEachNonNull(bogie1Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie1Model, new Object2ObjectOpenHashMap<>(), objModelsBogie1Model), force);
-				forEachNonNull(bogie2Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie2Model, new Object2ObjectOpenHashMap<>(), objModelsBogie2Model), force);
-
-				return new CachedResource<>(() -> {
-					final CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> optimizedModels = writeToOptimizedModels(materialGroupsModel, objModelsModel, modelLifespan);
-					final CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> optimizedModelsDoorsClosed = writeToOptimizedModels(materialGroupsModelDoorsClosed, objModelsModelDoorsClosed, modelLifespan);
-					final CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> optimizedModelsBogie1 = writeToOptimizedModels(materialGroupsBogie1Model, objModelsBogie1Model, modelLifespan);
-					final CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> optimizedModelsBogie2 = writeToOptimizedModels(materialGroupsBogie2Model, objModelsBogie2Model, modelLifespan);
-					return new VehicleResourceCacheHolder(new ObjectImmutableList<>(floors), new ObjectImmutableList<>(doorways), optimizedModels, optimizedModelsDoorsClosed, optimizedModelsBogie1, optimizedModelsBogie2);
-				}, modelLifespan);
+				return new CachedResource<>(() -> new VehicleResourceCache(builtModels, builtBogie1Models, builtBogie2Models, new ObjectImmutableList<>(floors), new ObjectImmutableList<>(doorways)), modelLifespan);
 			}, modelLifespan);
 		}, modelLifespan);
 	}
@@ -481,93 +397,17 @@ public final class VehicleResource extends VehicleResourceSchema {
 		for (int i = 0; i < models.size(); i++) {
 			final VehicleModel vehicleModel = models.get(i);
 			if (vehicleModel != null) {
-				final DynamicVehicleModel dynamicVehicleModel = vehicleModel.cachedModel.getData(false);
-				if (dynamicVehicleModel != null) {
-					modelConsumer.accept(i, dynamicVehicleModel);
+				final BuiltVehicleModelHolder builtVehicleModelHolder = vehicleModel.cachedModel.getData(false);
+				if (builtVehicleModelHolder != null) {
+					modelConsumer.accept(i, builtVehicleModelHolder);
 				}
 			}
 		}
 	}
 
-	private static boolean getChristmasLightState(PartCondition partCondition) {
-		final int index;
-		switch (partCondition) {
-			case CHRISTMAS_LIGHT_RED:
-				index = 0;
-				break;
-			case CHRISTMAS_LIGHT_YELLOW:
-				index = 1;
-				break;
-			case CHRISTMAS_LIGHT_GREEN:
-				index = 2;
-				break;
-			case CHRISTMAS_LIGHT_BLUE:
-				index = 3;
-				break;
-			default:
-				return true;
-		}
-		return CHRISTMAS_LIGHT_STAGES[(int) ((System.currentTimeMillis() / 500) % CHRISTMAS_LIGHT_STAGES.length)][index];
-	}
-
-	private static void queue(Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> optimizedModels, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, boolean noOpenDoorways) {
-		optimizedModels.forEach((partCondition, models) -> {
-			if (matchesCondition(vehicle, partCondition, noOpenDoorways)) {
-				MainRenderer.renderModel(models, storedMatrixTransformations, light);
-			}
-		});
-	}
-
-	private static CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> writeToOptimizedModels(
-			Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> materialGroupsModel,
-			Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> objModelsModel,
-			int modelLifespan
-	) {
-		return new CachedResource<>(() -> {
-//			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
-			final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> optimizedModels = new Object2ObjectOpenHashMap<>();
-			materialGroupsModel.forEach((partCondition, newOptimizedModelGroup) -> optimizedModels.put(partCondition, newOptimizedModelGroup.build(VertexFormat.DrawMode.QUADS)));
-			objModelsModel.forEach((partCondition, newOptimizedModelGroup) -> optimizedModels.put(partCondition, newOptimizedModelGroup.build(VertexFormat.DrawMode.TRIANGLES)));
-
-			// TODO merge OBJ and blockbench
-//			for (final PartCondition partCondition : PartCondition.values()) {
-//				final OptimizedModelWrapper optimizedModel1;
-//				final ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper> materialGroups = materialGroupsModel.get(partCondition);
-//				optimizedModel1 = materialGroups == null ? null : OptimizedModelWrapper.fromMaterialGroups(materialGroups);
-//
-//				final OptimizedModelWrapper optimizedModel2;
-//				final ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> objModels = objModelsModel.get(partCondition);
-//				optimizedModel2 = objModels == null ? null : OptimizedModelWrapper.fromObjModels(objModels);
-//				optimizedModels.put(partCondition, new OptimizedModelWrapper(optimizedModel1, optimizedModel2));
-//			}
-
-//			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
-			return optimizedModels;
-		}, modelLifespan);
-	}
-
-	private static void forEachNonNull(ObjectArrayList<VehicleModel> models, Consumer<DynamicVehicleModel> consumer, boolean force) {
-		models.forEach(vehicleModel -> {
-			final DynamicVehicleModel dynamicVehicleModel = vehicleModel.cachedModel.getData(force);
-			if (dynamicVehicleModel != null) {
-				consumer.accept(dynamicVehicleModel);
-			}
-		});
-	}
-
-	private record VehicleResourceCacheHolder(
-			ObjectImmutableList<Box> floors,
-			ObjectImmutableList<Box> doorways,
-			CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> optimizedModels,
-			CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> optimizedModelsDoorsClosed,
-			CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> optimizedModelsBogie1,
-			CachedResource<Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>>> optimizedModelsBogie2
-	) {
-	}
-
 	@FunctionalInterface
 	public interface ModelConsumer {
-		void accept(int index, DynamicVehicleModel dynamicVehicleModel);
+		void accept(int index, BuiltVehicleModelHolder builtVehicleModelHolder);
 	}
 
 	@FunctionalInterface

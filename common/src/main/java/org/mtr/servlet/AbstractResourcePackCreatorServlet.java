@@ -86,7 +86,9 @@ public abstract class AbstractResourcePackCreatorServlet extends HttpServlet {
 				resourceWrapper.addModelResource(new ModelWrapper(name, modelParts));
 				MODELS.put(name, modelObject.toString());
 			} else if (name.endsWith(".obj")) {
-				resourceWrapper.addModelResource(new ModelWrapper(name, new ObjectArrayList<>(ObjModelLoader.loadModel(content, mtlString -> "", textureString -> Identifier.of(""), true, false).keySet())));
+				final ObjModelLoader objModelLoader = new ObjModelLoader(Identifier.of(""));
+				objModelLoader.loadModel(content, mtlString -> "", textureString -> Identifier.of(""), true, false);
+				resourceWrapper.addModelResource(new ModelWrapper(name, objModelLoader.getNames()));
 				MODELS.put(name, content);
 			} else if (name.endsWith(".mtl")) {
 				MODELS.put(name, content);
