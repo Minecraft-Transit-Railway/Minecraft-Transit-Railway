@@ -28,9 +28,26 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IB
 
 	@Override
 	public BlockState getPlacementState2(ItemPlacementContext ctx) {
+		final BlockPos pos = ctx.getBlockPos();
 		final Direction side = ctx.getSide();
+		final Direction facing = side.getOpposite();
+
 		if (side != Direction.UP && side != Direction.DOWN) {
-			return getDefaultState2().with(new Property<>(FACING.data), side.getOpposite().data);
+			final BlockState leftState = ctx.getWorld().getBlockState(pos.offset(facing.rotateYCounterclockwise()));
+			final BlockState rightState = ctx.getWorld().getBlockState(pos.offset(facing.rotateYClockwise()));
+
+			final int nearbyStyle;
+			if(leftState.getBlock().data instanceof BlockStationNameEntrance) {
+				nearbyStyle = IBlock.getStatePropertySafe(leftState, new Property<>(STYLE.data));
+			} else if(rightState.getBlock().data instanceof BlockStationNameEntrance) {
+				nearbyStyle = IBlock.getStatePropertySafe(rightState, new Property<>(STYLE.data));
+			} else {
+				nearbyStyle = 0;
+			}
+
+			return getDefaultState2()
+					.with(new Property<>(FACING.data), facing.data)
+					.with(new Property<>(STYLE.data), nearbyStyle);
 		} else {
 			return null;
 		}
