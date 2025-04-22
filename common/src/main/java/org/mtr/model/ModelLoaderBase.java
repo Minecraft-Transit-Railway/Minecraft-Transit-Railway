@@ -1,10 +1,13 @@
 package org.mtr.model;
 
+import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
+import org.mtr.render.StoredMatrixTransformations;
 import org.mtr.resource.*;
 
 import java.util.Comparator;
@@ -15,7 +18,7 @@ public abstract class ModelLoaderBase {
 	private final VertexFormat.DrawMode drawMode;
 
 	private final Object2ObjectOpenHashMap<String, NewOptimizedModelGroup> nameToNewOptimizedModelGroup = new Object2ObjectOpenHashMap<>();
-	private final Object2ObjectOpenHashMap<String, ObjectArrayList<ModelDisplayPart>> nameToModelDisplayParts = new Object2ObjectOpenHashMap<>();
+	private final Object2ObjectOpenHashMap<String, ObjectArrayList<ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>>> nameToRawModelDisplayParts = new Object2ObjectOpenHashMap<>();
 
 	public ModelLoaderBase(Identifier defaultTexture, VertexFormat.DrawMode drawMode) {
 		this.defaultTexture = defaultTexture;
@@ -28,7 +31,7 @@ public abstract class ModelLoaderBase {
 		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<ModelDisplayPart>> displays = new Object2ObjectOpenHashMap<>();
 		final ObjectArrayList<Box> floors = new ObjectArrayList<>();
 		final ObjectArrayList<Box> doorways = new ObjectArrayList<>();
-		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(nameToNewOptimizedModelGroup, nameToModelDisplayParts, positionDefinitions, rawModels, rawDoorModelDetailsList, displays, floors, doorways, modelProperties.getModelYOffset()));
+		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(nameToNewOptimizedModelGroup, nameToRawModelDisplayParts, positionDefinitions, rawModels, rawDoorModelDetailsList, displays, floors, doorways, modelProperties.getModelYOffset()));
 		return new BuiltVehicleModelHolder(modelProperties, build(rawModels), mapDoors(rawDoorModelDetailsList, doorways), displays, floors, doorways);
 	}
 
@@ -46,8 +49,8 @@ public abstract class ModelLoaderBase {
 		nameToNewOptimizedModelGroup.put(name, newOptimizedModelGroup);
 	}
 
-	protected final void addModelDisplayParts(String name, ObjectArrayList<ModelDisplayPart> modelDisplayParts) {
-		nameToModelDisplayParts.put(name, modelDisplayParts);
+	protected final void addModelDisplayParts(String name, ObjectArrayList<ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>> modelDisplayParts) {
+		nameToRawModelDisplayParts.put(name, modelDisplayParts);
 	}
 
 	private Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> build(Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> rawModels) {

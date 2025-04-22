@@ -18,20 +18,25 @@ public final class FontRenderOptions {
 	@Builder.Default
 	private int color = IGui.ARGB_WHITE;
 	/**
+	 * Colour of the CJK text (including alpha)
+	 */
+	@Builder.Default
+	private int cjkColor = 0;
+	/**
 	 * Brightness of the text
 	 */
 	@Builder.Default
 	private int light = IGui.DEFAULT_LIGHT;
 	/**
-	 * The vertical size (in pixels) the text should be rendered, excluding descent
+	 * The vertical size (in pixels) non-CJK text should be rendered, excluding descent
 	 */
 	@Builder.Default
 	private float maxFontSize = 8;
 	/**
-	 * If true, CJK text will be rendered twice the {@code maxFontSize}
+	 * How many times bigger the CJK text will be rendered
 	 */
 	@Builder.Default
-	private boolean cjkScaling = false;
+	private float cjkScaling = 1;
 	/**
 	 * How much total horizontal space the text is given (unlimited space for non-positive values)
 	 */
@@ -120,7 +125,7 @@ public final class FontRenderOptions {
 		 */
 		SPLIT,
 		/**
-		 * Don't split text; the {@code |} character will be replaced with a space
+		 * Don't split the text; the {@code |} character will be replaced with a space
 		 */
 		FORCE_ONE_LINE,
 		/**

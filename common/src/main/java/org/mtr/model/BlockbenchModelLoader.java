@@ -1,13 +1,20 @@
 package org.mtr.model;
 
+import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.model.ModelData;
 import net.minecraft.client.model.ModelPartData;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Box;
 import org.mtr.MTR;
-import org.mtr.resource.*;
+import org.mtr.render.StoredMatrixTransformations;
+import org.mtr.resource.BlockbenchElement;
+import org.mtr.resource.BlockbenchModel;
+import org.mtr.resource.BlockbenchOutline;
+import org.mtr.resource.GroupTransformations;
 
 import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
@@ -26,22 +33,22 @@ public final class BlockbenchModelLoader extends ModelLoaderBase {
 			final ModelPartData modelPartData = new ModelData().getRoot();
 			final NewOptimizedModelGroup newOptimizedModelGroup = new NewOptimizedModelGroup();
 			final MutableBox mutableBox = new MutableBox();
-			final ObjectArrayList<ModelDisplayPart> modelDisplayParts = new ObjectArrayList<>();
+			final ObjectArrayList<ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>> rawModelDisplayParts = new ObjectArrayList<>();
 
 			iterateChildren(blockbenchOutline, null, new GroupTransformations(), (uuid, groupTransformations) -> {
 				final BlockbenchElement blockbenchElement = uuidToBlockbenchElement.remove(uuid);
 				if (blockbenchElement != null) {
-					final ModelDisplayPart modelDisplayPart = new ModelDisplayPart();
-					modelDisplayParts.add(modelDisplayPart);
-					mutableBox.add(blockbenchElement.setModelPart(modelPartData.addChild(MTR.randomString()), groupTransformations, modelDisplayPart));
+					final ObjectObjectImmutablePair<Box, ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>> modelPartDetails = blockbenchElement.setModelPart(modelPartData.addChild(MTR.randomString()), groupTransformations);
+					mutableBox.add(modelPartDetails.left());
+					rawModelDisplayParts.add(modelPartDetails.right());
 				}
 			});
 
 			newOptimizedModelGroup.add(null, defaultTexture, storedVertexDataList -> StoredVertexData.write(modelPartData.createPart(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight()), storedVertexDataList), mutableBox.getAll());
 			addModel(blockbenchOutline.getName(), newOptimizedModelGroup);
 
-			if (!modelDisplayParts.isEmpty()) {
-				addModelDisplayParts(blockbenchOutline.getName(), modelDisplayParts);
+			if (!rawModelDisplayParts.isEmpty()) {
+				addModelDisplayParts(blockbenchOutline.getName(), rawModelDisplayParts);
 			}
 		});
 	}

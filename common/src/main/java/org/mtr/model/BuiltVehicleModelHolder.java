@@ -53,11 +53,11 @@ public final class BuiltVehicleModelHolder {
 			});
 		});
 
-		modelProperties.iterateParts(modelPropertiesPart -> displays.forEach((partCondition, modelDisplayPart) -> {
+		displays.forEach((partCondition, modelDisplayParts) -> {
 			if (matchesCondition(vehicle, partCondition, noOpenDoorways)) {
-				modelPropertiesPart.renderDisplay(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, fromResourcePackCreator);
+				modelDisplayParts.forEach(modelDisplayPart -> modelDisplayPart.render(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, fromResourcePackCreator));
 			}
-		}));
+		});
 	}
 
 	private static boolean matchesCondition(VehicleExtension vehicle, PartCondition partCondition, boolean noOpenDoorways) {

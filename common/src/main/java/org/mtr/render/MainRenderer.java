@@ -101,7 +101,7 @@ public class MainRenderer implements IGui {
 			};
 			if (renderLayer != null) {
 				renderLayer.startDrawing();
-				newOptimizedModel.begin();
+				newOptimizedModel.begin(RenderSystem.getShader());
 				renderDetails.forEach(renderDetailsEntry -> {
 					renderDetailsEntry.left().transform(matrixStack, offset);
 					newOptimizedModel.render(matrixStack.peek().getPositionMatrix(), renderStage.isFullBrightness ? 1 : (float) renderDetailsEntry.rightInt() / 0xF, RenderSystem.getShader());

@@ -1,15 +1,15 @@
 package org.mtr.resource;
 
+import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import org.mtr.MTR;
 import org.mtr.client.DynamicTextureCache;
@@ -21,6 +21,8 @@ import org.mtr.core.tool.EnumHelper;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.data.VehicleExtension;
+import org.mtr.font.FontGroups;
+import org.mtr.font.FontRenderOptions;
 import org.mtr.generated.resource.ModelPropertiesPartSchema;
 import org.mtr.model.NewOptimizedModelGroup;
 import org.mtr.render.MainRenderer;
@@ -29,7 +31,7 @@ import org.mtr.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
 
-public final class ModelPropertiesPart extends ModelPropertiesPartSchema implements IGui {
+public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 
 	private final ObjectArrayList<PartDetails> partDetailsList = new ObjectArrayList<>();
 	private final ObjectArrayList<DisplayPartDetails> displayPartDetailsList = new ObjectArrayList<>();
@@ -116,7 +118,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	 */
 	public void writeCache(
 			Object2ObjectOpenHashMap<String, NewOptimizedModelGroup> nameToNewOptimizedModelGroup,
-			Object2ObjectOpenHashMap<String, ObjectArrayList<ModelDisplayPart>> nameToModelDisplayParts,
+			Object2ObjectOpenHashMap<String, ObjectArrayList<ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>>> nameToRawModelDisplayParts,
 			PositionDefinitions positionDefinitionsObject,
 			Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> rawModels,
 			ObjectArrayList<RawDoorModelDetails> rawDoorModelDetailsList,
@@ -127,6 +129,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	) {
 		final ObjectArrayList<NewOptimizedModelGroup> newOptimizedModelGroups = new ObjectArrayList<>();
 		final ObjectArrayList<Box> boxes = new ObjectArrayList<>();
+		final ObjectArrayList<ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>> rawModelDisplayPartsList = new ObjectArrayList<>();
 
 		names.forEach(name -> {
 			final NewOptimizedModelGroup newOptimizedModelGroup = nameToNewOptimizedModelGroup.get(name);
@@ -135,9 +138,9 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				boxes.addAll(newOptimizedModelGroup.boxes);
 			}
 
-			final ObjectArrayList<ModelDisplayPart> displayParts = nameToModelDisplayParts.get(name);
-			if (displayParts != null) {
-				displayParts.forEach(displayPart -> displays.computeIfAbsent(condition, key -> new ObjectArrayList<>()).add(displayPart));
+			final ObjectArrayList<ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>> rawModelDisplayParts = nameToRawModelDisplayParts.get(name);
+			if (rawModelDisplayParts != null) {
+				rawModelDisplayPartsList.addAll(rawModelDisplayParts);
 			}
 		});
 
@@ -165,22 +168,26 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				case DOORWAY:
 					iteratePositions(positions, positionsFlipped, (x, y, z, flipped) -> boxes.forEach(box -> doorways.add(addBox(box, x, y + modelYOffset, z, flipped))));
 					break;
+				case DISPLAY:
+					iteratePositions(positions, positionsFlipped, (x, y, z, flipped) -> rawModelDisplayPartsList.forEach(rawModelDisplayPart -> displays
+							.computeIfAbsent(condition, key -> new ObjectArrayList<>())
+							.add(new ModelDisplayPart(this, rawModelDisplayPart.left(), rawModelDisplayPart.right().leftInt(), rawModelDisplayPart.right().rightInt(), x, -y + modelYOffset, -z, flipped))
+					));
+					break;
 			}
 		}));
 	}
 
-	public void renderDisplay(StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker, boolean fromResourcePackCreator) {
-		if (vehicle != null) {
-			if (displayType == DisplayType.ROUTE_COLOR || displayType == DisplayType.ROUTE_COLOR_ROUNDED) {
-				renderLineColor(storedMatrixTransformations, vehicle, fromResourcePackCreator);
+	public void renderDisplay(StoredMatrixTransformations storedMatrixTransformations, ModelDisplayPart modelDisplayPart, VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker, boolean fromResourcePackCreator) {
+		if (displayType == DisplayType.ROUTE_COLOR || displayType == DisplayType.ROUTE_COLOR_ROUNDED) {
+			renderLineColor(storedMatrixTransformations, modelDisplayPart, vehicle, fromResourcePackCreator);
+		} else {
+			if (displayOptions.contains(DisplayOption.SEVEN_SEGMENT.toString())) {
+				renderSevenSegmentDisplay(storedMatrixTransformations, modelDisplayPart, vehicle);
+			} else if (displayOptions.contains(DisplayOption.SCROLL_NORMAL.toString()) || displayOptions.contains(DisplayOption.SCROLL_LIGHT_RAIL.toString())) {
+				renderScrollingDisplay(storedMatrixTransformations, modelDisplayPart, vehicle, carNumber, scrollingDisplayIndexTracker);
 			} else {
-				if (displayOptions.contains(DisplayOption.SEVEN_SEGMENT.toString())) {
-					renderSevenSegmentDisplay(storedMatrixTransformations, vehicle);
-				} else if (displayOptions.contains(DisplayOption.SCROLL_NORMAL.toString()) || displayOptions.contains(DisplayOption.SCROLL_LIGHT_RAIL.toString())) {
-					renderScrollingDisplay(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker);
-				} else {
-					renderStandardDisplay(storedMatrixTransformations, vehicle);
-				}
+				renderStandardDisplay(storedMatrixTransformations, modelDisplayPart, vehicle);
 			}
 		}
 	}
@@ -261,158 +268,127 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		return doorXMultiplier != 0 || doorZMultiplier != 0;
 	}
 
-	private void renderLineColor(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, boolean fromResourcePackCreator) {
+	private void renderLineColor(StoredMatrixTransformations storedMatrixTransformations, ModelDisplayPart modelDisplayPart, VehicleExtension vehicle, boolean fromResourcePackCreator) {
 		final int color;
 		if (fromResourcePackCreator) {
-			color = ARGB_BLACK | rainbowColor();
+			color = IGui.ARGB_BLACK | rainbowColor();
 		} else {
-			color = getOrDefault(ARGB_BLACK | vehicle.vehicleExtraData.getThisRouteColor(), ARGB_BLACK | vehicle.vehicleExtraData.getNextRouteColor(), ARGB_BLACK | vehicle.vehicleExtraData.getPreviousRouteColor(), 0, vehicle);
+			color = getOrDefault(IGui.ARGB_BLACK | vehicle.vehicleExtraData.getThisRouteColor(), IGui.ARGB_BLACK | vehicle.vehicleExtraData.getNextRouteColor(), IGui.ARGB_BLACK | vehicle.vehicleExtraData.getPreviousRouteColor(), 0, vehicle);
 		}
 
-		MainRenderer.scheduleRender(Identifier.of(MTR.MOD_ID, String.format("textures/block/%s.png", displayType == DisplayType.ROUTE_COLOR ? "white" : "sign/circle")), true, QueuedRenderLayer.LIGHT_2, (matrixStack, vertexConsumer, offset) -> {
-			storedMatrixTransformations.transform(matrixStack, offset);
+		if (color != 0) {
+			MainRenderer.scheduleRender(Identifier.of(MTR.MOD_ID, String.format("textures/block/%s.png", displayType == DisplayType.ROUTE_COLOR ? "white" : "sign/circle")), true, QueuedRenderLayer.INTERIOR, (matrixStack, vertexConsumer, offset) -> {
+				storedMatrixTransformations.transform(matrixStack, offset);
+				matrixStack.translate(modelDisplayPart.x, modelDisplayPart.y, modelDisplayPart.z);
+				IDrawing.rotateYDegrees(matrixStack, modelDisplayPart.flipped ? 180 : 0);
+				IDrawing.rotateXDegrees(matrixStack, 180);
+				modelDisplayPart.storedMatrixTransformations.transform(matrixStack, Vec3d.ZERO);
+				matrixStack.translate(0, 0, -IGui.SMALL_OFFSET);
 
-			displayPartDetailsList.forEach(displayPartDetails -> {
-				matrixStack.push();
-				matrixStack.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
-				IDrawing.rotateYDegrees(matrixStack, displayPartDetails.flipped ? 180 : 0);
-
-				displayPartDetails.modelDisplayParts.forEach(displayParts -> displayParts.forEach(displayPart -> {
-					displayPart.storedMatrixTransformations.transform(matrixStack, Vec3d.ZERO);
-					matrixStack.translate(displayXPadding / 16, displayYPadding / 16, -SMALL_OFFSET);
-					IDrawing.drawTexture(
-							matrixStack,
-							vertexConsumer,
-							0,
-							0,
-							(displayPart.width - (float) displayXPadding * 2) / 16,
-							(displayPart.height - (float) displayYPadding * 2) / 16,
-							0, 0, 1, 1, Direction.UP,
-							color, DEFAULT_LIGHT
-					);
-					matrixStack.pop();
-				}));
+				final float x1 = (float) displayXPadding / 16;
+				final float y1 = (float) displayYPadding / 16;
+				final float x2 = (modelDisplayPart.width - (float) displayXPadding) / 16;
+				final float y2 = (modelDisplayPart.height - (float) displayYPadding) / 16;
+				vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x1, y1, 0).color(color).texture(0, 0).overlay(OverlayTexture.DEFAULT_UV).light(IGui.DEFAULT_LIGHT).normal(0, 1, 0);
+				vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x1, y2, 0).color(color).texture(0, 1).overlay(OverlayTexture.DEFAULT_UV).light(IGui.DEFAULT_LIGHT).normal(0, 1, 0);
+				vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x2, y2, 0).color(color).texture(1, 1).overlay(OverlayTexture.DEFAULT_UV).light(IGui.DEFAULT_LIGHT).normal(0, 1, 0);
+				vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x2, y1, 0).color(color).texture(1, 0).overlay(OverlayTexture.DEFAULT_UV).light(IGui.DEFAULT_LIGHT).normal(0, 1, 0);
 
 				matrixStack.pop();
-			});
-
-			matrixStack.pop();
-		});
-	}
-
-	private void renderSevenSegmentDisplay(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle) {
-		final String text = formatText(vehicle);
-		final HorizontalAlignment horizontalAlignment = getHorizontalAlignment(false);
-
-		MainRenderer.scheduleRender(Identifier.of(MTR.MOD_ID, "textures/block/sign/seven_segment.png"), true, QueuedRenderLayer.LIGHT_2, (matrixStack, vertexConsumer, offset) -> {
-			storedMatrixTransformations.transform(matrixStack, offset);
-
-			displayPartDetailsList.forEach(displayPartDetails -> {
-				matrixStack.push();
-				matrixStack.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
-				IDrawing.rotateYDegrees(matrixStack, displayPartDetails.flipped ? 180 : 0);
-
-				displayPartDetails.modelDisplayParts.forEach(displayParts -> displayParts.forEach(displayPart -> {
-					displayPart.storedMatrixTransformations.transform(matrixStack, Vec3d.ZERO);
-					matrixStack.translate(0, displayYPadding / 16, -SMALL_OFFSET);
-					IDrawing.drawSevenSegment(
-							matrixStack,
-							vertexConsumer,
-							text,
-							(displayPart.width - (float) displayXPadding * 2) / 16,
-							0, 0,
-							(displayPart.height - (float) displayYPadding * 2) / 16,
-							horizontalAlignment,
-							ARGB_BLACK | displayColorInt, DEFAULT_LIGHT
-					);
-					matrixStack.pop();
-				}));
-
 				matrixStack.pop();
 			});
-
-			matrixStack.pop();
-		});
+		}
 	}
 
-	private void renderScrollingDisplay(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker) {
+	private void renderSevenSegmentDisplay(StoredMatrixTransformations storedMatrixTransformations, ModelDisplayPart modelDisplayPart, VehicleExtension vehicle) {
 		final String text = formatText(vehicle);
+
+		if (!text.isEmpty()) {
+			final FontRenderOptions.Alignment horizontalAlignment = getHorizontalAlignment(false);
+			MainRenderer.scheduleRender(Identifier.of(MTR.MOD_ID, "textures/block/sign/seven_segment.png"), true, QueuedRenderLayer.LIGHT_2, (matrixStack, vertexConsumer, offset) -> {
+				storedMatrixTransformations.transform(matrixStack, offset);
+				matrixStack.translate(modelDisplayPart.x, modelDisplayPart.y, modelDisplayPart.z);
+				IDrawing.rotateYDegrees(matrixStack, modelDisplayPart.flipped ? 180 : 0);
+				IDrawing.rotateXDegrees(matrixStack, 180);
+				modelDisplayPart.storedMatrixTransformations.transform(matrixStack, Vec3d.ZERO);
+				matrixStack.translate(0, displayYPadding / 16, -IGui.SMALL_OFFSET);
+
+				IDrawing.drawSevenSegment(
+						matrixStack,
+						vertexConsumer,
+						text,
+						(modelDisplayPart.width - (float) displayXPadding * 2) / 16,
+						0, 0,
+						(modelDisplayPart.height - (float) displayYPadding * 2) / 16,
+						horizontalAlignment,
+						IGui.ARGB_BLACK | displayColorInt, IGui.DEFAULT_LIGHT
+				);
+
+				matrixStack.pop();
+				matrixStack.pop();
+			});
+		}
+	}
+
+	private void renderScrollingDisplay(StoredMatrixTransformations storedMatrixTransformations, ModelDisplayPart modelDisplayPart, VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker) {
+		final String text = formatText(vehicle) + "aklwjfeowijfoaiwlje";
 		final ObjectArrayList<ScrollingText> scrollingTexts = vehicle.persistentVehicleData.getScrollingText(carNumber);
 
-		displayPartDetailsList.forEach(displayPartDetails -> {
-			final StoredMatrixTransformations storedMatrixTransformations1 = storedMatrixTransformations.copy();
-			storedMatrixTransformations1.add(matrixStack -> {
-				matrixStack.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
-				IDrawing.rotateYDegrees(matrixStack, displayPartDetails.flipped ? 180 : 0);
-			});
+		final double width = (modelDisplayPart.width - displayXPadding * 2) / 16F;
+		final double height = (modelDisplayPart.height - displayYPadding * 2) / 16F;
 
-			displayPartDetails.modelDisplayParts.forEach(displayParts -> displayParts.forEach(displayPart -> {
-				final StoredMatrixTransformations storedMatrixTransformations2 = storedMatrixTransformations1.copy();
-				storedMatrixTransformations2.add(displayPart.storedMatrixTransformations);
-				storedMatrixTransformations2.add(matrixStack -> matrixStack.translate(displayXPadding / 16, displayYPadding / 16, -SMALL_OFFSET));
-				final double width = (displayPart.width - displayXPadding * 2) / 16F;
-				final double height = (displayPart.height - displayYPadding * 2) / 16F;
-
-				while (scrollingTexts.size() <= scrollingDisplayIndexTracker[0]) {
-					scrollingTexts.add(new ScrollingText(width, height, 4, height < 0.1));
-				}
-
-				scrollingTexts.get(scrollingDisplayIndexTracker[0]).changeImage(text.isEmpty() ? null : DynamicTextureCache.instance.getPixelatedText(text, ARGB_BLACK | displayColorInt, Integer.MAX_VALUE, displayCjkSizeRatio, height < 0.1));
-				scrollingTexts.get(scrollingDisplayIndexTracker[0]).scrollText(storedMatrixTransformations2);
-				scrollingDisplayIndexTracker[0]++;
-			}));
-		});
-	}
-
-	private void renderStandardDisplay(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle) {
-		final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-		final String[] textSplit = formatText(vehicle).split("\\|");
-		final boolean[] isCjk = new boolean[textSplit.length];
-		final double[] textHeightScale = new double[textSplit.length];
-		double tempTotalHeight = 0;
-		for (int i = 0; i < textSplit.length; i++) {
-			isCjk[i] = IGui.isCjk(textSplit[i]);
-			textHeightScale[i] = isCjk[i] ? displayCjkSizeRatio <= 0 ? 1 : displayCjkSizeRatio : 1;
-			tempTotalHeight += textHeightScale[i];
+		while (scrollingTexts.size() <= scrollingDisplayIndexTracker[0]) {
+			scrollingTexts.add(new ScrollingText(width, height, 4, height < 0.1));
 		}
-		final double rawTextHeight = tempTotalHeight;
 
-		MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (matrixStack, vertexConsumer, offset) -> {
-			storedMatrixTransformations.transform(matrixStack, offset);
+		final ScrollingText scrollingText = scrollingTexts.get(scrollingDisplayIndexTracker[0]);
+		scrollingText.changeImage(text.isEmpty() ? null : DynamicTextureCache.instance.getPixelatedText(text, IGui.ARGB_BLACK | displayColorInt, Integer.MAX_VALUE, displayCjkSizeRatio, height < 0.1));
 
-			displayPartDetailsList.forEach(displayPartDetails -> {
-				matrixStack.push();
-				matrixStack.translate(displayPartDetails.x, displayPartDetails.y, displayPartDetails.z);
-				IDrawing.rotateYDegrees(matrixStack, displayPartDetails.flipped ? 180 : 0);
-
-				displayPartDetails.modelDisplayParts.forEach(displayParts -> displayParts.forEach(displayPart -> {
-					displayPart.storedMatrixTransformations.transform(matrixStack, Vec3d.ZERO);
-					final double totalTextHeight = Math.min(displayPart.height - displayYPadding * 2, displayMaxLineHeight <= 0 ? Double.MAX_VALUE : displayMaxLineHeight * rawTextHeight) / 16;
-					final double textScale = totalTextHeight / rawTextHeight / (TEXT_HEIGHT + LINE_PADDING);
-					matrixStack.translate(displayXPadding / 16, displayYPadding / 16 + Math.max(0, getVerticalAlignment().getOffset(0, (float) (totalTextHeight - (displayPart.height - displayYPadding * 2) / 16))), -SMALL_OFFSET);
-
-					for (int i = 0; i < textSplit.length; i++) {
-						final double availableTextWidth = (displayPart.width - displayXPadding * 2) / 16;
-						final double newTextScale = textHeightScale[i] * textScale;
-						final MutableText mutableText = IDrawing.withMTRFont(Text.literal(textSplit[i]));
-						final double textWidth = textRenderer.getWidth(mutableText) * newTextScale;
-						final HorizontalAlignment horizontalAlignment = getHorizontalAlignment(isCjk[i]);
-						matrixStack.push();
-						matrixStack.translate(Math.max(0, horizontalAlignment.getOffset(0, (float) (textWidth - availableTextWidth))), 0, 0);
-						matrixStack.scale((float) (Math.min(1, availableTextWidth / textWidth) * newTextScale), (float) newTextScale, 1);
-//						textRenderer.draw(mutableText, 0, 0, isCjk[i] ? displayColorCjkInt : displayColorInt, false, DEFAULT_LIGHT);
-						matrixStack.pop();
-						matrixStack.translate(0, newTextScale * (TEXT_HEIGHT + LINE_PADDING), 0);
-					}
-
-					matrixStack.pop();
-				}));
-
+		if (scrollingText.getTextureId() != null) {
+			MainRenderer.scheduleRender(scrollingText.getTextureId(), true, QueuedRenderLayer.LIGHT_2, (matrixStack, vertexConsumer, offset) -> {
+				storedMatrixTransformations.transform(matrixStack, offset);
+				matrixStack.translate(modelDisplayPart.x, modelDisplayPart.y, modelDisplayPart.z);
+				IDrawing.rotateYDegrees(matrixStack, modelDisplayPart.flipped ? 180 : 0);
+				IDrawing.rotateXDegrees(matrixStack, 180);
+				modelDisplayPart.storedMatrixTransformations.transform(matrixStack, Vec3d.ZERO);
+				matrixStack.translate(displayXPadding / 16, displayYPadding / 16, -IGui.SMALL_OFFSET);
+				scrollingText.scrollText(matrixStack, vertexConsumer);
+				matrixStack.pop();
 				matrixStack.pop();
 			});
+		}
 
-			matrixStack.pop();
-		});
+		scrollingDisplayIndexTracker[0]++;
+	}
+
+	private void renderStandardDisplay(StoredMatrixTransformations storedMatrixTransformations, ModelDisplayPart modelDisplayPart, VehicleExtension vehicle) {
+		final String text = formatText(vehicle);
+
+		if (!text.isEmpty()) {
+			MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (matrixStack, vertexConsumer, offset) -> {
+				storedMatrixTransformations.transform(matrixStack, offset);
+				matrixStack.translate(modelDisplayPart.x, modelDisplayPart.y, modelDisplayPart.z);
+				IDrawing.rotateYDegrees(matrixStack, modelDisplayPart.flipped ? 180 : 0);
+				IDrawing.rotateXDegrees(matrixStack, 180);
+				modelDisplayPart.storedMatrixTransformations.transform(matrixStack, Vec3d.ZERO);
+				matrixStack.translate(displayXPadding / 16, displayYPadding / 16, -IGui.SMALL_OFFSET);
+
+				FontGroups.renderMTR(matrixStack.peek().getPositionMatrix(), MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()), text, FontRenderOptions.builder()
+						.color(IGui.ARGB_BLACK | displayColorInt)
+						.cjkColor(IGui.ARGB_BLACK | displayColorCjkInt)
+						.cjkScaling((float) displayCjkSizeRatio)
+						.maxFontSize((float) displayMaxLineHeight)
+						.horizontalSpace((float) (modelDisplayPart.width - displayXPadding * 2) / 16)
+						.horizontalTextAlignment(getHorizontalAlignment(true))
+						.verticalSpace((float) (modelDisplayPart.height - displayYPadding * 2) / 16)
+						.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
+						.build()
+				);
+
+				matrixStack.pop();
+				matrixStack.pop();
+			});
+		}
 	}
 
 	private void mergeNewOptimizedModelGroups(ObjectArrayList<NewOptimizedModelGroup> newOptimizedModelGroups, Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> partConditionToNewOptimizedModelGroup, double x, double y, double z, boolean flipped) {
@@ -444,7 +420,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 					}
 					text = stringBuilder.toString();
 				} else {
-					text = displayDefaultText;
+					text = "0123";//displayDefaultText;
 				}
 				break;
 			case NEXT_STATION:
@@ -471,33 +447,33 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		return newText;
 	}
 
-	private HorizontalAlignment getHorizontalAlignment(boolean isCjk) {
+	private FontRenderOptions.Alignment getHorizontalAlignment(boolean isCjk) {
 		if (isCjk) {
 			if (displayOptions.contains(DisplayOption.ALIGN_LEFT_CJK.toString())) {
-				return HorizontalAlignment.LEFT;
+				return FontRenderOptions.Alignment.START;
 			} else if (displayOptions.contains(DisplayOption.ALIGN_RIGHT_CJK.toString())) {
-				return HorizontalAlignment.RIGHT;
+				return FontRenderOptions.Alignment.END;
 			} else {
-				return HorizontalAlignment.CENTER;
+				return FontRenderOptions.Alignment.CENTER;
 			}
 		} else {
 			if (displayOptions.contains(DisplayOption.ALIGN_LEFT.toString())) {
-				return HorizontalAlignment.LEFT;
+				return FontRenderOptions.Alignment.START;
 			} else if (displayOptions.contains(DisplayOption.ALIGN_RIGHT.toString())) {
-				return HorizontalAlignment.RIGHT;
+				return FontRenderOptions.Alignment.END;
 			} else {
-				return HorizontalAlignment.CENTER;
+				return FontRenderOptions.Alignment.CENTER;
 			}
 		}
 	}
 
-	private VerticalAlignment getVerticalAlignment() {
+	private IGui.VerticalAlignment getVerticalAlignment() {
 		if (displayOptions.contains(DisplayOption.ALIGN_TOP.toString())) {
-			return VerticalAlignment.TOP;
+			return IGui.VerticalAlignment.TOP;
 		} else if (displayOptions.contains(DisplayOption.ALIGN_BOTTOM.toString())) {
-			return VerticalAlignment.BOTTOM;
+			return IGui.VerticalAlignment.BOTTOM;
 		} else {
-			return VerticalAlignment.CENTER;
+			return IGui.VerticalAlignment.CENTER;
 		}
 	}
 

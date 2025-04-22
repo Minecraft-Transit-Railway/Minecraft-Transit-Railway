@@ -1,15 +1,15 @@
 package org.mtr.client;
 
-import net.minecraft.util.math.Direction;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import org.mtr.MTRClient;
 import org.mtr.data.IGui;
-import org.mtr.render.MainRenderer;
-import org.mtr.render.QueuedRenderLayer;
-import org.mtr.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
 
-public class ScrollingText implements IGui {
+public class ScrollingText {
 
 	private float ticksOffset;
 	private DynamicTextureCache.DynamicResource dynamicResource;
@@ -33,7 +33,12 @@ public class ScrollingText implements IGui {
 		}
 	}
 
-	public void scrollText(StoredMatrixTransformations storedMatrixTransformations) {
+	@Nullable
+	public Identifier getTextureId() {
+		return dynamicResource.identifier;
+	}
+
+	public void scrollText(MatrixStack matrixStack, VertexConsumer vertexConsumer) {
 		if (dynamicResource != null) {
 			final int pixelScale = isFullPixel ? 1 : RouteMapGenerator.PIXEL_SCALE;
 			final double scale = availableHeight / dynamicResource.height;
@@ -42,11 +47,14 @@ public class ScrollingText implements IGui {
 			final int totalSteps = widthSteps + imageSteps;
 			final int step = Math.round((MTRClient.getGameTick() - ticksOffset) * scrollSpeed) % totalSteps;
 			final double width = Math.min(Math.min(availableWidth, dynamicResource.width * scale), Math.min(step * pixelScale * scale, (totalSteps - step) * pixelScale * scale));
-			MainRenderer.scheduleRender(dynamicResource.identifier, true, QueuedRenderLayer.LIGHT_2, (matrixStack, vertexConsumer, offset) -> {
-				storedMatrixTransformations.transform(matrixStack, offset);
-				IDrawing.drawTexture(matrixStack, vertexConsumer, (float) (Math.max(widthSteps - step, 0) * scale * pixelScale), 0, (float) width, (float) availableHeight, Math.max((float) (step - widthSteps) / imageSteps, 0), 0, Math.min((float) step / imageSteps, 1), 1, Direction.UP, ARGB_WHITE, DEFAULT_LIGHT);
-				matrixStack.pop();
-			});
+			final float x1 = (float) (Math.max(widthSteps - step, 0) * scale * pixelScale);
+			final float x2 = x1 + (float) width;
+			final float u1 = Math.max((float) (step - widthSteps) / imageSteps, 0);
+			final float u2 = Math.min((float) step / imageSteps, 1);
+			vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x1, 0, 0).color(IGui.ARGB_WHITE).texture(u1, 0).overlay(OverlayTexture.DEFAULT_UV).light(IGui.DEFAULT_LIGHT).normal(0, 1, 0);
+			vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x1, (float) availableHeight, 0).color(IGui.ARGB_WHITE).texture(u1, 1).overlay(OverlayTexture.DEFAULT_UV).light(IGui.DEFAULT_LIGHT).normal(0, 1, 0);
+			vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x2, (float) availableHeight, 0).color(IGui.ARGB_WHITE).texture(u2, 1).overlay(OverlayTexture.DEFAULT_UV).light(IGui.DEFAULT_LIGHT).normal(0, 1, 0);
+			vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x2, 0, 0).color(IGui.ARGB_WHITE).texture(u2, 0).overlay(OverlayTexture.DEFAULT_UV).light(IGui.DEFAULT_LIGHT).normal(0, 1, 0);
 		}
 	}
 }

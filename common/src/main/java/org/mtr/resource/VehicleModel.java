@@ -16,8 +16,7 @@ import org.mtr.model.ObjModelLoader;
 
 public final class VehicleModel extends VehicleModelSchema {
 
-	boolean shouldPreload = false;
-	final CachedResource<BuiltVehicleModelHolder> cachedModel;
+	final BuiltVehicleModelHolder builtVehicleModelHolder;
 	private final JsonReader modelPropertiesJsonReader;
 	private final JsonReader positionDefinitionsJsonReader;
 
@@ -28,15 +27,15 @@ public final class VehicleModel extends VehicleModelSchema {
 		updateData(readerBase);
 		modelPropertiesJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelPropertiesResource, "json"))));
 		positionDefinitionsJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(positionDefinitionsResource, "json"))));
-		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader)), shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
+		builtVehicleModelHolder = createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader));
 	}
 
-	public VehicleModel(ReaderBase readerBase, JsonReader modelPropertiesJsonReader, JsonReader positionDefinitionsJsonReader, String id, ResourceProvider resourceProvider) {
+	public VehicleModel(ReaderBase readerBase, JsonReader modelPropertiesJsonReader, JsonReader positionDefinitionsJsonReader, ResourceProvider resourceProvider) {
 		super(readerBase, resourceProvider);
 		updateData(readerBase);
 		this.modelPropertiesJsonReader = modelPropertiesJsonReader;
 		this.positionDefinitionsJsonReader = positionDefinitionsJsonReader;
-		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader)), shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
+		builtVehicleModelHolder = createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader));
 	}
 
 	VehicleModel(
@@ -57,8 +56,7 @@ public final class VehicleModel extends VehicleModelSchema {
 		);
 		modelPropertiesJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelPropertiesResource, "json"))));
 		positionDefinitionsJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(positionDefinitionsResource, "json"))));
-		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader)), shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
-		cachedModel.getData(true);
+		builtVehicleModelHolder = createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader));
 	}
 
 	public MinecraftModelResource getAsMinecraftResource() {

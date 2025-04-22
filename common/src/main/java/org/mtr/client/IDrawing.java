@@ -26,6 +26,7 @@ import org.joml.Matrix4f;
 import org.mtr.MTR;
 import org.mtr.config.Config;
 import org.mtr.data.IGui;
+import org.mtr.font.FontRenderOptions;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -166,28 +167,33 @@ public interface IDrawing {
 		}
 	}
 
-	static void drawSevenSegment(MatrixStack matrixStack, VertexConsumer vertexConsumer, String numberString, float availableSpace, float x, float y, float height, IGui.HorizontalAlignment horizontalAlignment, int color, int light) {
+	static void drawSevenSegment(MatrixStack matrixStack, VertexConsumer vertexConsumer, String numberString, float availableSpace, float x, float y, float height, FontRenderOptions.Alignment horizontalAlignment, int color, int light) {
 		try {
 			drawSevenSegment(matrixStack, vertexConsumer, Integer.parseInt(numberString), availableSpace, x, y, height, horizontalAlignment, color, light);
 		} catch (Exception ignored) {
 		}
 	}
 
-	static void drawSevenSegment(MatrixStack matrixStack, VertexConsumer vertexConsumer, int number, float availableSpace, float x, float y, float height, IGui.HorizontalAlignment horizontalAlignment, int color, int light) {
+	static void drawSevenSegment(MatrixStack matrixStack, VertexConsumer vertexConsumer, int number, float availableSpace, float x, float y, float height, FontRenderOptions.Alignment horizontalAlignment, int color, int light) {
 		// Negatives and decimals are not supported right now
 		final float u = 0.25F;
 		final float v = 170F / 512;
 		final float paddingMultiplier = 1.2F;
 		final float digitWidth = height * u / v * paddingMultiplier;
 		final int digits = (int) Math.floor(availableSpace / digitWidth);
-		final float startX = horizontalAlignment.getOffset(x, digits * digitWidth - availableSpace);
+		final float startX = x + horizontalAlignment.getOffset(digits * digitWidth - availableSpace);
 
 		for (int i = 0; i < digits; i++) {
 			final int digit = (number / (int) Math.pow(10, digits - i - 1)) % 10;
 			final float digitX = startX + digitWidth * i;
 			final float digitU = (digit % 4) * u;
 			final float digitV = Math.floorDiv(digit, 4) * v;
-			drawTexture(matrixStack, vertexConsumer, digitX + (paddingMultiplier - 1) * digitWidth / 2, y, digitWidth / paddingMultiplier, height, digitU, digitV, digitU + u, digitV + v, Direction.UP, color, light);
+			final float x1 = digitX + (paddingMultiplier - 1) * digitWidth / 2;
+			final float x2 = x1 + digitWidth / paddingMultiplier;
+			vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x1, y, 0).color(color).texture(digitU, digitV).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(0, 1, 0);
+			vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x1, y + height, 0).color(color).texture(digitU, digitV + v).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(0, 1, 0);
+			vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x2, y + height, 0).color(color).texture(digitU + u, digitV + v).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(0, 1, 0);
+			vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x2, y, 0).color(color).texture(digitU + u, digitV).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(0, 1, 0);
 		}
 	}
 

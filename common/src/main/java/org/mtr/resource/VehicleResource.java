@@ -42,9 +42,6 @@ public final class VehicleResource extends VehicleResourceSchema {
 		this.extraModelsSupplier = extraModelsSupplier;
 		createVehicleSoundBase = createVehicleSoundBaseInitializer();
 		shouldPreload = Config.getClient().matchesPreloadResourcePattern(id);
-		if (shouldPreload) {
-			models.forEach(model -> model.shouldPreload = true);
-		}
 	}
 
 	public VehicleResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
@@ -116,9 +113,6 @@ public final class VehicleResource extends VehicleResourceSchema {
 		this.extraModelsSupplier = null;
 		createVehicleSoundBase = createVehicleSoundBaseInitializer();
 		shouldPreload = Config.getClient().matchesPreloadResourcePattern(id);
-		if (shouldPreload) {
-			models.forEach(model -> model.shouldPreload = true);
-		}
 	}
 
 	@Nonnull
@@ -322,41 +316,18 @@ public final class VehicleResource extends VehicleResourceSchema {
 				final ObjectArrayList<BuiltVehicleModelHolder> builtModels = new ObjectArrayList<>();
 				final ObjectArrayList<Box> floors = new ObjectArrayList<>();
 				final ObjectArrayList<Box> doorways = new ObjectArrayList<>();
-				for (final VehicleModel vehicleModel : models) {
-					final BuiltVehicleModelHolder builtVehicleModelHolder = vehicleModel.cachedModel.getData(force);
-					if (builtVehicleModelHolder == null) {
-						return null;
-					} else {
-						builtModels.add(builtVehicleModelHolder);
-						floors.addAll(builtVehicleModelHolder.floors);
-						doorways.addAll(builtVehicleModelHolder.doorways);
-					}
-				}
+				allModelsList.forEach(vehicleModel -> {
+					builtModels.add(vehicleModel.builtVehicleModelHolder);
+					floors.addAll(vehicleModel.builtVehicleModelHolder.floors);
+					doorways.addAll(vehicleModel.builtVehicleModelHolder.doorways);
+				});
 
 				// TODO don't rebuild shared models, e.g. bogies
 				final ObjectArrayList<BuiltVehicleModelHolder> builtBogie1Models = new ObjectArrayList<>();
-				for (final VehicleModel vehicleModel : bogie1Models) {
-					final BuiltVehicleModelHolder builtVehicleModelHolder = vehicleModel.cachedModel.getData(force);
-					if (builtVehicleModelHolder == null) {
-						return null;
-					} else {
-						builtModels.add(builtVehicleModelHolder);
-					}
-				}
+				bogie1Models.forEach(vehicleModel -> builtBogie1Models.add(vehicleModel.builtVehicleModelHolder));
 
 				final ObjectArrayList<BuiltVehicleModelHolder> builtBogie2Models = new ObjectArrayList<>();
-				for (final VehicleModel vehicleModel : bogie2Models) {
-					final BuiltVehicleModelHolder builtVehicleModelHolder = vehicleModel.cachedModel.getData(force);
-					if (builtVehicleModelHolder == null) {
-						return null;
-					} else {
-						builtModels.add(builtVehicleModelHolder);
-					}
-				}
-
-				if (builtModels.isEmpty()) {
-					return null;
-				}
+				bogie2Models.forEach(vehicleModel -> builtBogie2Models.add(vehicleModel.builtVehicleModelHolder));
 
 				if (floors.isEmpty() && doorways.isEmpty()) {
 					MTR.LOGGER.info("[{}] No floors or doorways found in vehicle models", id);
@@ -397,10 +368,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 		for (int i = 0; i < models.size(); i++) {
 			final VehicleModel vehicleModel = models.get(i);
 			if (vehicleModel != null) {
-				final BuiltVehicleModelHolder builtVehicleModelHolder = vehicleModel.cachedModel.getData(false);
-				if (builtVehicleModelHolder != null) {
-					modelConsumer.accept(i, builtVehicleModelHolder);
-				}
+				modelConsumer.accept(i, vehicleModel.builtVehicleModelHolder);
 			}
 		}
 	}

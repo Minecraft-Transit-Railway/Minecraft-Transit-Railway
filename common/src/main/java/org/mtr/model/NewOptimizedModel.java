@@ -1,6 +1,7 @@
 package org.mtr.model;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.VertexConsumer;
@@ -17,28 +18,33 @@ public final class NewOptimizedModel {
 	public final Identifier texture;
 	@Nullable
 	private final VertexBuffer vertexBuffer;
+	private final VertexFormat.DrawMode drawMode;
 
 	public NewOptimizedModel(Identifier texture, VertexFormat.DrawMode drawMode, @Nullable Consumer<VertexConsumer> callback) {
 		this.vertexBuffer = callback == null ? null : VertexBuffer.createAndUpload(drawMode, VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, callback);
 		this.texture = texture;
+		this.drawMode = drawMode;
 	}
 
 	public void render(Matrix4f matrix4f, float lightMultiplier, @Nullable ShaderProgram shaderProgram) {
-		if (vertexBuffer != null) {
-			final float[] shaderColor = RenderSystem.getShaderColor();
-			final float r = shaderColor[0];
-			final float g = shaderColor[1];
-			final float b = shaderColor[2];
-			final float a = shaderColor[3];
-			RenderSystem.setShaderColor(lightMultiplier, lightMultiplier, lightMultiplier, 1);
-			vertexBuffer.draw(new Matrix4f(RenderSystem.getModelViewMatrix()).mul(matrix4f), RenderSystem.getProjectionMatrix(), shaderProgram);
-			RenderSystem.setShaderColor(r, g, b, a);
+		if (vertexBuffer != null && shaderProgram != null) {
+			if (shaderProgram.modelViewMat != null) {
+				shaderProgram.modelViewMat.set(new Matrix4f(RenderSystem.getModelViewMatrix()).mul(matrix4f));
+				shaderProgram.modelViewMat.upload();
+			}
+			if (shaderProgram.colorModulator != null) {
+				shaderProgram.colorModulator.set(new float[]{lightMultiplier, lightMultiplier, lightMultiplier, 1});
+				shaderProgram.colorModulator.upload();
+			}
+			vertexBuffer.draw();
 		}
 	}
 
-	public void begin() {
-		if (vertexBuffer != null) {
+	public void begin(@Nullable ShaderProgram shaderProgram) {
+		if (vertexBuffer != null && shaderProgram != null) {
 			vertexBuffer.bind();
+			shaderProgram.initializeUniforms(drawMode, RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), MinecraftClient.getInstance().getWindow());
+			shaderProgram.bind();
 		}
 	}
 }

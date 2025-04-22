@@ -34,10 +34,15 @@ public final class FontGroup {
 		final float[] rawLineWidths = new float[lines.length];
 		final float[] rawLineHeights = new float[lines.length];
 		final float[] fontSize = new float[lines.length];
+		final int[] colors = new int[lines.length];
 		float maxLineWidth = 0;
 		float totalLineHeight = 0;
+		final boolean hasCjkColor = fontRenderOptions.getCjkColor() != 0 && fontRenderOptions.getCjkColor() != fontRenderOptions.getColor();
+		final boolean shouldCheckCjk = matrix4f != null && vertexConsumer != null && (hasCjkColor || fontRenderOptions.getCjkScaling() != 1);
 		for (int i = 0; i < lines.length; i++) {
-			fontSize[i] = (fontRenderOptions.isCjkScaling() && IGui.isCjk(lines[i]) ? 2 : 1) * fontRenderOptions.getMaxFontSize();
+			final boolean isCjk = shouldCheckCjk && IGui.isCjk(lines[i]);
+			fontSize[i] = (isCjk ? fontRenderOptions.getCjkScaling() : 1) * fontRenderOptions.getMaxFontSize();
+			colors[i] = hasCjkColor && isCjk ? fontRenderOptions.getCjkColor() : fontRenderOptions.getColor();
 			final float[] dimensions = renderRaw(null, null, lines[i], 0, 0, fontSize[i], fontSize[i], 0, 0);
 			rawLineWidths[i] = dimensions[0];
 			rawLineHeights[i] = dimensions[1];
@@ -62,7 +67,7 @@ public final class FontGroup {
 			for (int i = 0; i < lines.length; i++) {
 				final float xScale = fontRenderOptions.getTextOverflow() == FontRenderOptions.TextOverflow.COMPRESS ? Math.min(yScale, Math.min(1, fontRenderOptions.getHorizontalSpace() / rawLineWidths[i])) : yScale;
 				final float horizontalOffset = fontRenderOptions.getHorizontalTextAlignment().getOffset(rawLineWidths[i] * xScale - fontRenderOptions.getHorizontalSpace());
-				renderRaw(matrix4f, vertexConsumer, lines[i], x + horizontalOffset, y, xScale * fontSize[i], yScale * fontSize[i], fontRenderOptions.getColor(), fontRenderOptions.getLight());
+				renderRaw(matrix4f, vertexConsumer, lines[i], x + horizontalOffset, y, xScale * fontSize[i], yScale * fontSize[i], colors[i], fontRenderOptions.getLight());
 				y += rawLineHeights[i] * yScale;
 			}
 		}

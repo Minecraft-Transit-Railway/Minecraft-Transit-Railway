@@ -214,7 +214,7 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 
 							final JsonObject positionDefinitionsObject = new JsonObject();
 							positionDefinitionsObject.add("positionDefinitions", positionDefinitionsArray);
-							return modelObjects.stream().map(modelObject -> new VehicleModel(new JsonReader(modelObject), new JsonReader(modelPropertiesObject), new JsonReader(positionDefinitionsObject), id, resourceProvider)).collect(Collectors.toCollection(ObjectArrayList::new));
+							return modelObjects.stream().map(modelObject -> new VehicleModel(new JsonReader(modelObject), new JsonReader(modelPropertiesObject), new JsonReader(positionDefinitionsObject), resourceProvider)).collect(Collectors.toCollection(ObjectArrayList::new));
 						},
 						resourceProvider
 				));
