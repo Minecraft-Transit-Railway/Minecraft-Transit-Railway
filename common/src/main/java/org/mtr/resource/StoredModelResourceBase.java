@@ -25,7 +25,7 @@ public interface StoredModelResourceBase {
 		if (isBlockbench) {
 			final BlockbenchModelLoader blockbenchModelLoader = new BlockbenchModelLoader(defaultTexture);
 			blockbenchModelLoader.loadModel(new BlockbenchModel(new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "bbmodel"))))));
-			models = blockbenchModelLoader.build();
+			models = blockbenchModelLoader.get();
 		} else if (isObj) {
 			final ObjModelLoader objModelLoader = new ObjModelLoader(defaultTexture);
 			objModelLoader.loadModel(
@@ -35,7 +35,7 @@ public interface StoredModelResourceBase {
 					true, flipTextureV
 			);
 			// TODO transform object if needed
-			models = objModelLoader.build();
+			models = objModelLoader.get();
 		} else {
 			models = null;
 		}
@@ -53,5 +53,7 @@ public interface StoredModelResourceBase {
 	@Nullable
 	Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>> getOptimizedModel();
 
-	void preload();
+	default void preload() {
+		// TODO
+	}
 }

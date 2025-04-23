@@ -30,6 +30,7 @@ import org.mtr.render.QueuedRenderLayer;
 import org.mtr.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 
@@ -117,8 +118,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 	 * If this part is a door, create an optimized model to be rendered later.
 	 */
 	public void writeCache(
-			Object2ObjectOpenHashMap<String, NewOptimizedModelGroup> nameToNewOptimizedModelGroup,
-			Object2ObjectOpenHashMap<String, ObjectArrayList<ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>>> nameToRawModelDisplayParts,
+			ConcurrentHashMap<String, NewOptimizedModelGroup> nameToNewOptimizedModelGroup,
+			ConcurrentHashMap<String, ObjectArrayList<ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>>> nameToRawModelDisplayParts,
 			PositionDefinitions positionDefinitionsObject,
 			Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> rawModels,
 			ObjectArrayList<RawDoorModelDetails> rawDoorModelDetailsList,
@@ -331,7 +332,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 	}
 
 	private void renderScrollingDisplay(StoredMatrixTransformations storedMatrixTransformations, ModelDisplayPart modelDisplayPart, VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker) {
-		final String text = formatText(vehicle) + "aklwjfeowijfoaiwlje";
+		final String text = formatText(vehicle);
 		final ObjectArrayList<ScrollingText> scrollingTexts = vehicle.persistentVehicleData.getScrollingText(carNumber);
 
 		final double width = (modelDisplayPart.width - displayXPadding * 2) / 16F;
@@ -420,7 +421,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 					}
 					text = stringBuilder.toString();
 				} else {
-					text = "0123";//displayDefaultText;
+					text = displayDefaultText;
 				}
 				break;
 			case NEXT_STATION:

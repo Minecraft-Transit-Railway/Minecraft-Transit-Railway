@@ -12,13 +12,17 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.generated.resource.VehicleModelSchema;
 import org.mtr.model.BlockbenchModelLoader;
 import org.mtr.model.BuiltVehicleModelHolder;
+import org.mtr.model.ModelLoaderBase;
 import org.mtr.model.ObjModelLoader;
+
+import java.util.function.Supplier;
 
 public final class VehicleModel extends VehicleModelSchema {
 
-	final BuiltVehicleModelHolder builtVehicleModelHolder;
+	final Supplier<BuiltVehicleModelHolder> builtVehicleModelHolderSupplier;
 	private final JsonReader modelPropertiesJsonReader;
 	private final JsonReader positionDefinitionsJsonReader;
+	private final ModelLoaderBase modelLoaderBase;
 
 	public static final int MODEL_LIFESPAN = 60000;
 
@@ -27,7 +31,8 @@ public final class VehicleModel extends VehicleModelSchema {
 		updateData(readerBase);
 		modelPropertiesJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelPropertiesResource, "json"))));
 		positionDefinitionsJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(positionDefinitionsResource, "json"))));
-		builtVehicleModelHolder = createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader));
+		modelLoaderBase = getModelLoaderBase(modelResource, textureResource, resourceProvider, flipTextureV);
+		builtVehicleModelHolderSupplier = createModelSupplier(modelPropertiesJsonReader, positionDefinitionsJsonReader);
 	}
 
 	public VehicleModel(ReaderBase readerBase, JsonReader modelPropertiesJsonReader, JsonReader positionDefinitionsJsonReader, ResourceProvider resourceProvider) {
@@ -35,7 +40,8 @@ public final class VehicleModel extends VehicleModelSchema {
 		updateData(readerBase);
 		this.modelPropertiesJsonReader = modelPropertiesJsonReader;
 		this.positionDefinitionsJsonReader = positionDefinitionsJsonReader;
-		builtVehicleModelHolder = createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader));
+		modelLoaderBase = getModelLoaderBase(modelResource, textureResource, resourceProvider, flipTextureV);
+		builtVehicleModelHolderSupplier = createModelSupplier(modelPropertiesJsonReader, positionDefinitionsJsonReader);
 	}
 
 	VehicleModel(
@@ -56,7 +62,12 @@ public final class VehicleModel extends VehicleModelSchema {
 		);
 		modelPropertiesJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelPropertiesResource, "json"))));
 		positionDefinitionsJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(positionDefinitionsResource, "json"))));
-		builtVehicleModelHolder = createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader));
+		modelLoaderBase = getModelLoaderBase(modelResource, textureResource, resourceProvider, flipTextureV);
+		builtVehicleModelHolderSupplier = createModelSupplier(modelPropertiesJsonReader, positionDefinitionsJsonReader);
+	}
+
+	public void reset() {
+		modelLoaderBase.reset();
 	}
 
 	public MinecraftModelResource getAsMinecraftResource() {
@@ -112,12 +123,20 @@ public final class VehicleModel extends VehicleModelSchema {
 		return modelProperties.toVehicleModelWrapper(modelResource, textureResource, modelPropertiesResource, positionDefinitionsResource, flipTextureV, parts);
 	}
 
-	private BuiltVehicleModelHolder createModel(ModelProperties modelProperties, PositionDefinitions positionDefinitions) {
+	private Supplier<BuiltVehicleModelHolder> createModelSupplier(JsonReader modelPropertiesJsonReader, JsonReader positionDefinitionsJsonReader) {
+		final ModelProperties modelProperties = new ModelProperties(modelPropertiesJsonReader);
+		final PositionDefinitions positionDefinitions = new PositionDefinitions(positionDefinitionsJsonReader);
+		return () -> modelLoaderBase.get(modelProperties, positionDefinitions);
+	}
+
+	public static ModelLoaderBase getModelLoaderBase(String modelResource, String textureResource, ResourceProvider resourceProvider, boolean flipTextureV) {
 		final Identifier texture = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
+		final ModelLoaderBase modelLoaderBase;
+
 		if (modelResource.endsWith(".bbmodel")) {
 			final BlockbenchModelLoader blockbenchModelLoader = new BlockbenchModelLoader(texture);
 			blockbenchModelLoader.loadModel(new BlockbenchModel(new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "bbmodel"))))));
-			return blockbenchModelLoader.build(modelProperties, positionDefinitions);
+			modelLoaderBase = blockbenchModelLoader;
 		} else if (modelResource.endsWith(".obj")) {
 			final ObjModelLoader objModelLoader = new ObjModelLoader(texture);
 			objModelLoader.loadModel(
@@ -126,12 +145,15 @@ public final class VehicleModel extends VehicleModelSchema {
 					textureString -> StringUtils.isEmpty(textureString) ? texture : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
 					true, flipTextureV
 			);
-			return objModelLoader.build(modelProperties, positionDefinitions);
+			// TODO transform object if needed
+			modelLoaderBase = objModelLoader;
 		} else {
 			MTR.LOGGER.error("[{}] Invalid model!", texture.toString());
 			final BlockbenchModelLoader blockbenchModelLoader = new BlockbenchModelLoader(texture);
 			blockbenchModelLoader.loadModel(new BlockbenchModel(new JsonReader(new JsonObject())));
-			return blockbenchModelLoader.build(modelProperties, positionDefinitions);
+			modelLoaderBase = blockbenchModelLoader;
 		}
+
+		return modelLoaderBase;
 	}
 }

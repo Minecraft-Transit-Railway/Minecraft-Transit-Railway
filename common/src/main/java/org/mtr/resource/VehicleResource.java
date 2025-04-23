@@ -34,7 +34,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 	@Nullable
 	private final LegacyVehicleSupplier<ObjectArrayList<VehicleModel>> extraModelsSupplier;
 	private final Int2ObjectAVLTreeMap<Int2ObjectAVLTreeMap<ObjectArrayList<VehicleModel>>> allModels = new Int2ObjectAVLTreeMap<>();
-	private final Int2ObjectAVLTreeMap<Int2ObjectAVLTreeMap<CachedResource<CachedResource<CachedResource<VehicleResourceCache>>>>> cachedVehicleResource = new Int2ObjectAVLTreeMap<>();
+	private final Int2ObjectAVLTreeMap<Int2ObjectAVLTreeMap<VehicleResourceCache>> vehicleResourceCacheByCarNumberAndTotalCars = new Int2ObjectAVLTreeMap<>();
 
 	public VehicleResource(ReaderBase readerBase, @Nullable LegacyVehicleSupplier<ObjectArrayList<VehicleModel>> extraModelsSupplier, ResourceProvider resourceProvider) {
 		super(readerBase, resourceProvider);
@@ -134,21 +134,26 @@ public final class VehicleResource extends VehicleResourceSchema {
 	}
 
 	@Nullable
-	public VehicleResourceCache getCachedVehicleResource(int carNumber, int totalCars, boolean force) {
+	public VehicleResourceCache getCachedVehicleResource(int carNumber, int totalCars) {
 		final int newCarNumber = extraModelsSupplier == null ? 0 : carNumber;
 		final int newTotalCars = extraModelsSupplier == null ? 0 : totalCars;
-		final CachedResource<CachedResource<VehicleResourceCache>> data1 = cachedVehicleResource.computeIfAbsent(newCarNumber, key -> new Int2ObjectAVLTreeMap<>()).computeIfAbsent(newTotalCars, key -> cachedVehicleResourceInitializer(newCarNumber, newTotalCars, force)).getData(force);
-		if (data1 != null) {
-			final CachedResource<VehicleResourceCache> data2 = data1.getData(force);
-			if (data2 != null) {
-				return data2.getData(force);
+		final Int2ObjectAVLTreeMap<VehicleResourceCache> totalCarsToVehicleResourceCache = vehicleResourceCacheByCarNumberAndTotalCars.computeIfAbsent(newCarNumber, key -> new Int2ObjectAVLTreeMap<>());
+		final VehicleResourceCache vehicleResourceCache = totalCarsToVehicleResourceCache.get(newTotalCars);
+		if (vehicleResourceCache == null) {
+			final VehicleResourceCache newVehicleResourceCache = vehicleResourceCacheInitializer(newCarNumber, newTotalCars);
+			if (newVehicleResourceCache == null) {
+				return null;
+			} else {
+				totalCarsToVehicleResourceCache.put(newTotalCars, newVehicleResourceCache);
+				return newVehicleResourceCache;
 			}
+		} else {
+			return vehicleResourceCache;
 		}
-		return null;
 	}
 
 	public void queueBogie(int bogieIndex, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light) {
-		final VehicleResourceCache vehicleResourceCache = getCachedVehicleResource(0, 1, false);
+		final VehicleResourceCache vehicleResourceCache = getCachedVehicleResource(0, 1);
 		if (vehicleResourceCache != null && Utilities.isBetween(bogieIndex, 0, 1)) {
 			(bogieIndex == 0 ? vehicleResourceCache.builtBogie1Models() : vehicleResourceCache.builtBogie2Models()).forEach(builtVehicleModelHolder -> builtVehicleModelHolder.render(storedMatrixTransformations, vehicle, 0, new int[0], light, new ObjectArrayList<>(), false));
 		}
@@ -202,20 +207,10 @@ public final class VehicleResource extends VehicleResourceSchema {
 		return wikipediaArticle;
 	}
 
-	public void iterateModels(int carNumber, int totalCars, ModelConsumer modelConsumer) {
-		iterateModels(getAllModels(carNumber, totalCars), modelConsumer);
-	}
-
-	public void iterateBogieModels(int bogieIndex, ModelConsumer modelConsumer) {
-		if (Utilities.isBetween(bogieIndex, 0, 1)) {
-			iterateModels(bogieIndex == 0 ? bogie1Models : bogie2Models, modelConsumer);
-		}
-	}
-
 	public VehicleResourceWrapper toVehicleResourceWrapper() {
 		final int carNumber = id.endsWith("trailer") ? 1 : id.endsWith("cab_2") ? 2 : 0;
 		final int totalCars = id.endsWith("cab_3") ? 1 : 3;
-		getCachedVehicleResource(carNumber, totalCars, true);
+		getCachedVehicleResource(carNumber, totalCars);
 		return new VehicleResourceWrapper(
 				id,
 				name,
@@ -296,55 +291,71 @@ public final class VehicleResource extends VehicleResourceSchema {
 		});
 	}
 
-	private CachedResource<CachedResource<CachedResource<VehicleResourceCache>>> cachedVehicleResourceInitializer(int carNumber, int totalCars, boolean force) {
-		final int modelLifespan = shouldPreload ? Integer.MAX_VALUE : VehicleModel.MODEL_LIFESPAN;
-		return new CachedResource<>(() -> {
-			final ObjectArrayList<VehicleModel> allModelsList = allModels.computeIfAbsent(carNumber, key -> new Int2ObjectAVLTreeMap<>()).computeIfAbsent(totalCars, key -> new ObjectArrayList<>());
-			allModelsList.clear();
-			allModelsList.addAll(models);
-
+	@Nullable
+	private VehicleResourceCache vehicleResourceCacheInitializer(int carNumber, int totalCars) {
+		final ObjectArrayList<VehicleModel> allModelsList = allModels.computeIfAbsent(carNumber, key -> new Int2ObjectAVLTreeMap<>()).computeIfAbsent(totalCars, key -> {
+			final ObjectArrayList<VehicleModel> vehicleModels = new ObjectArrayList<>();
+			vehicleModels.addAll(models);
 			if (extraModelsSupplier != null) {
 				final long startMillis = System.currentTimeMillis();
-				allModelsList.addAll(extraModelsSupplier.apply(carNumber, totalCars));
+				vehicleModels.addAll(extraModelsSupplier.apply(carNumber, totalCars));
 				final long endMillis = System.currentTimeMillis();
 				if (endMillis - startMillis >= 100) {
 					MTR.LOGGER.warn("[{}] Model loading took {} ms, which is longer than usual!", id, endMillis - startMillis);
 				}
 			}
+			return vehicleModels;
+		});
 
-			return new CachedResource<>(() -> {
-				final ObjectArrayList<BuiltVehicleModelHolder> builtModels = new ObjectArrayList<>();
-				final ObjectArrayList<Box> floors = new ObjectArrayList<>();
-				final ObjectArrayList<Box> doorways = new ObjectArrayList<>();
-				allModelsList.forEach(vehicleModel -> {
-					builtModels.add(vehicleModel.builtVehicleModelHolder);
-					floors.addAll(vehicleModel.builtVehicleModelHolder.floors);
-					doorways.addAll(vehicleModel.builtVehicleModelHolder.doorways);
-				});
+		final ObjectArrayList<BuiltVehicleModelHolder> builtModels = new ObjectArrayList<>();
+		final ObjectArrayList<Box> floors = new ObjectArrayList<>();
+		final ObjectArrayList<Box> doorways = new ObjectArrayList<>();
+		for (final VehicleModel vehicleModel : allModelsList) {
+			final BuiltVehicleModelHolder builtVehicleModelHolder = vehicleModel.builtVehicleModelHolderSupplier.get();
+			if (builtVehicleModelHolder == null) {
+				return null;
+			} else {
+				builtModels.add(builtVehicleModelHolder);
+				floors.addAll(builtVehicleModelHolder.floors);
+				doorways.addAll(builtVehicleModelHolder.doorways);
+			}
+		}
 
-				// TODO don't rebuild shared models, e.g. bogies
-				final ObjectArrayList<BuiltVehicleModelHolder> builtBogie1Models = new ObjectArrayList<>();
-				bogie1Models.forEach(vehicleModel -> builtBogie1Models.add(vehicleModel.builtVehicleModelHolder));
+		// TODO don't rebuild shared models, e.g. bogies
+		final ObjectArrayList<BuiltVehicleModelHolder> builtBogie1Models = new ObjectArrayList<>();
+		for (final VehicleModel vehicleModel : bogie1Models) {
+			final BuiltVehicleModelHolder builtVehicleModelHolder = vehicleModel.builtVehicleModelHolderSupplier.get();
+			if (builtVehicleModelHolder == null) {
+				return null;
+			} else {
+				builtBogie1Models.add(builtVehicleModelHolder);
+			}
+		}
 
-				final ObjectArrayList<BuiltVehicleModelHolder> builtBogie2Models = new ObjectArrayList<>();
-				bogie2Models.forEach(vehicleModel -> builtBogie2Models.add(vehicleModel.builtVehicleModelHolder));
+		final ObjectArrayList<BuiltVehicleModelHolder> builtBogie2Models = new ObjectArrayList<>();
+		for (final VehicleModel vehicleModel : bogie2Models) {
+			final BuiltVehicleModelHolder builtVehicleModelHolder = vehicleModel.builtVehicleModelHolderSupplier.get();
+			if (builtVehicleModelHolder == null) {
+				return null;
+			} else {
+				builtBogie2Models.add(builtVehicleModelHolder);
+			}
+		}
 
-				if (floors.isEmpty() && doorways.isEmpty()) {
-					MTR.LOGGER.info("[{}] No floors or doorways found in vehicle models", id);
-					final double x1 = width / 2 + 0.25;
-					final double x2 = width / 2 + 0.5;
-					final double y = 1 + legacyRiderOffset;
-					final double z = length / 2 - 0.5;
-					builtModels.getFirst().floors.add(new Box(-x1, y, -z, x1, y, z));
-					for (double j = -z; j <= z + 0.001; j++) {
-						builtModels.getFirst().doorways.add(new Box(-x1, y, j, -x2, y, j + 1));
-						builtModels.getFirst().doorways.add(new Box(x1, y, j, x2, y, j + 1));
-					}
-				}
+		if (floors.isEmpty() && doorways.isEmpty()) {
+			MTR.LOGGER.info("[{}] No floors or doorways found in vehicle models", id);
+			final double x1 = width / 2 + 0.25;
+			final double x2 = width / 2 + 0.5;
+			final double y = 1 + legacyRiderOffset;
+			final double z = length / 2 - 0.5;
+			builtModels.getFirst().floors.add(new Box(-x1, y, -z, x1, y, z));
+			for (double j = -z; j <= z + 0.001; j++) {
+				builtModels.getFirst().doorways.add(new Box(-x1, y, j, -x2, y, j + 1));
+				builtModels.getFirst().doorways.add(new Box(x1, y, j, x2, y, j + 1));
+			}
+		}
 
-				return new CachedResource<>(() -> new VehicleResourceCache(builtModels, builtBogie1Models, builtBogie2Models, new ObjectImmutableList<>(floors), new ObjectImmutableList<>(doorways)), modelLifespan);
-			}, modelLifespan);
-		}, modelLifespan);
+		return new VehicleResourceCache(builtModels, builtBogie1Models, builtBogie2Models, new ObjectImmutableList<>(floors), new ObjectImmutableList<>(doorways));
 	}
 
 	private Supplier<VehicleSoundBase> createVehicleSoundBaseInitializer() {
@@ -362,20 +373,6 @@ public final class VehicleResource extends VehicleResourceSchema {
 			final BveVehicleSoundConfig bveVehicleSoundConfig = new BveVehicleSoundConfig(bveSoundBaseResource);
 			return () -> new BveVehicleSound(bveVehicleSoundConfig);
 		}
-	}
-
-	private static void iterateModels(ObjectArrayList<VehicleModel> models, ModelConsumer modelConsumer) {
-		for (int i = 0; i < models.size(); i++) {
-			final VehicleModel vehicleModel = models.get(i);
-			if (vehicleModel != null) {
-				modelConsumer.accept(i, vehicleModel.builtVehicleModelHolder);
-			}
-		}
-	}
-
-	@FunctionalInterface
-	public interface ModelConsumer {
-		void accept(int index, BuiltVehicleModelHolder builtVehicleModelHolder);
 	}
 
 	@FunctionalInterface

@@ -12,4 +12,15 @@ public record VehicleResourceCache(
 		ObjectImmutableList<Box> floors,
 		ObjectImmutableList<Box> doorways
 ) {
+
+	public void iterateModels(ModelConsumer modelConsumer) {
+		for (int i = 0; i < builtModels.size(); i++) {
+			modelConsumer.accept(i, builtModels.get(i));
+		}
+	}
+
+	@FunctionalInterface
+	public interface ModelConsumer {
+		void accept(int index, BuiltVehicleModelHolder builtVehicleModelHolder);
+	}
 }

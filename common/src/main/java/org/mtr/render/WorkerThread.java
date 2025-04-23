@@ -19,11 +19,11 @@ public final class WorkerThread {
 	private boolean canStart = true;
 	private int runCooldown;
 
+	public final ExecutorService worker = Executors.newVirtualThreadPerTaskExecutor();
 	private final AtomicReference<Consumer<OcclusionCullingInstance>> occlusionQueue1 = new AtomicReference<>();
 	private final AtomicReference<Consumer<OcclusionCullingInstance>> occlusionQueue2 = new AtomicReference<>();
 	private final AtomicReference<Consumer<OcclusionCullingInstance>> occlusionQueue3 = new AtomicReference<>();
 	private final AtomicReference<Runnable> queue = new AtomicReference<>();
-	private final ExecutorService worker = Executors.newVirtualThreadPerTaskExecutor();
 
 	private static final int COOLDOWN = 100;
 

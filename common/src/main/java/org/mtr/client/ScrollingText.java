@@ -35,7 +35,7 @@ public class ScrollingText {
 
 	@Nullable
 	public Identifier getTextureId() {
-		return dynamicResource.identifier;
+		return dynamicResource == null ? null : dynamicResource.identifier;
 	}
 
 	public void scrollText(MatrixStack matrixStack, VertexConsumer vertexConsumer) {

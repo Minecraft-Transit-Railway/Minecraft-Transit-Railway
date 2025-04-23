@@ -10,35 +10,70 @@ import net.minecraft.util.math.Box;
 import org.mtr.render.StoredMatrixTransformations;
 import org.mtr.resource.*;
 
+import javax.annotation.Nullable;
 import java.util.Comparator;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class ModelLoaderBase {
+
+	private boolean modelLoaded = false;
+	@Nullable
+	private BuiltVehicleModelHolder builtModel1;
+	@Nullable
+	private Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>> builtModel2;
 
 	protected final Identifier defaultTexture;
 	private final VertexFormat.DrawMode drawMode;
 
-	private final Object2ObjectOpenHashMap<String, NewOptimizedModelGroup> nameToNewOptimizedModelGroup = new Object2ObjectOpenHashMap<>();
-	private final Object2ObjectOpenHashMap<String, ObjectArrayList<ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>>> nameToRawModelDisplayParts = new Object2ObjectOpenHashMap<>();
+	private final ConcurrentHashMap<String, NewOptimizedModelGroup> nameToNewOptimizedModelGroup = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<String, ObjectArrayList<ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>>> nameToRawModelDisplayParts = new ConcurrentHashMap<>();
 
-	public ModelLoaderBase(Identifier defaultTexture, VertexFormat.DrawMode drawMode) {
+	protected ModelLoaderBase(Identifier defaultTexture, VertexFormat.DrawMode drawMode) {
 		this.defaultTexture = defaultTexture;
 		this.drawMode = drawMode;
 	}
 
-	public final BuiltVehicleModelHolder build(ModelProperties modelProperties, PositionDefinitions positionDefinitions) {
-		final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> rawModels = new Object2ObjectOpenHashMap<>();
-		final ObjectArrayList<ModelPropertiesPart.RawDoorModelDetails> rawDoorModelDetailsList = new ObjectArrayList<>();
-		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<ModelDisplayPart>> displays = new Object2ObjectOpenHashMap<>();
-		final ObjectArrayList<Box> floors = new ObjectArrayList<>();
-		final ObjectArrayList<Box> doorways = new ObjectArrayList<>();
-		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(nameToNewOptimizedModelGroup, nameToRawModelDisplayParts, positionDefinitions, rawModels, rawDoorModelDetailsList, displays, floors, doorways, modelProperties.getModelYOffset()));
-		return new BuiltVehicleModelHolder(modelProperties, build(rawModels), mapDoors(rawDoorModelDetailsList, doorways), displays, floors, doorways);
+	/**
+	 * Get the model, building it if necessary. This is generally used for vehicles.
+	 *
+	 * @return a {@link BuiltVehicleModelHolder} object, including door mappings, floors, and doorways
+	 */
+	@Nullable
+	public final BuiltVehicleModelHolder get(ModelProperties modelProperties, PositionDefinitions positionDefinitions) {
+		if (modelLoaded && builtModel1 == null) {
+			final Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> rawModels = new Object2ObjectOpenHashMap<>();
+			final ObjectArrayList<ModelPropertiesPart.RawDoorModelDetails> rawDoorModelDetailsList = new ObjectArrayList<>();
+			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<ModelDisplayPart>> displays = new Object2ObjectOpenHashMap<>();
+			final ObjectArrayList<Box> floors = new ObjectArrayList<>();
+			final ObjectArrayList<Box> doorways = new ObjectArrayList<>();
+			modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(nameToNewOptimizedModelGroup, nameToRawModelDisplayParts, positionDefinitions, rawModels, rawDoorModelDetailsList, displays, floors, doorways, modelProperties.getModelYOffset()));
+			builtModel1 = new BuiltVehicleModelHolder(modelProperties, get(rawModels), mapDoors(rawDoorModelDetailsList, doorways), displays, floors, doorways);
+		}
+		return builtModel1;
 	}
 
-	public final Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>> build() {
-		final NewOptimizedModelGroup newOptimizedModelGroupCombined = new NewOptimizedModelGroup();
-		nameToNewOptimizedModelGroup.values().forEach(newOptimizedModelGroup -> newOptimizedModelGroupCombined.merge(newOptimizedModelGroup, RenderStage.EXTERIOR, 0, 0, 0, false));
-		return newOptimizedModelGroupCombined.build(drawMode);
+	/**
+	 * Get the model, building it if necessary. This is generally used for rails and other objects.
+	 *
+	 * @return a representation of {@link NewOptimizedModel} objects
+	 */
+	@Nullable
+	public final Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>> get() {
+		if (modelLoaded && builtModel2 == null) {
+			final NewOptimizedModelGroup newOptimizedModelGroupCombined = new NewOptimizedModelGroup();
+			nameToNewOptimizedModelGroup.values().forEach(newOptimizedModelGroup -> newOptimizedModelGroupCombined.merge(newOptimizedModelGroup, RenderStage.EXTERIOR, 0, 0, 0, false));
+			builtModel2 = newOptimizedModelGroupCombined.build(drawMode);
+		}
+		return builtModel2;
+	}
+
+	/**
+	 * Reset the model build status, for example, during resource reload.
+	 */
+	public final void reset() {
+		modelLoaded = false;
+		builtModel1 = null;
+		builtModel2 = null;
 	}
 
 	public final ObjectArrayList<String> getNames() {
@@ -53,7 +88,15 @@ public abstract class ModelLoaderBase {
 		nameToRawModelDisplayParts.put(name, modelDisplayParts);
 	}
 
-	private Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> build(Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> rawModels) {
+	protected final void setModelLoaded() {
+		modelLoaded = true;
+	}
+
+	protected final boolean canLoadModel() {
+		return !modelLoaded;
+	}
+
+	private Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> get(Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> rawModels) {
 		final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> models = new Object2ObjectOpenHashMap<>();
 		rawModels.forEach((partCondition, newOptimizedModelGroup) -> models.put(partCondition, newOptimizedModelGroup.build(drawMode)));
 		return models;

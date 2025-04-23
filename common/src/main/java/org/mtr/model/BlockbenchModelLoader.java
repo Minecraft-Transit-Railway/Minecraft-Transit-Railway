@@ -10,6 +10,7 @@ import net.minecraft.client.render.VertexFormat;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import org.mtr.MTR;
+import org.mtr.render.MainRenderer;
 import org.mtr.render.StoredMatrixTransformations;
 import org.mtr.resource.BlockbenchElement;
 import org.mtr.resource.BlockbenchModel;
@@ -26,31 +27,37 @@ public final class BlockbenchModelLoader extends ModelLoaderBase {
 	}
 
 	public void loadModel(BlockbenchModel blockbenchModel) {
-		final Object2ObjectOpenHashMap<String, BlockbenchElement> uuidToBlockbenchElement = new Object2ObjectOpenHashMap<>();
-		blockbenchModel.getElements().forEach(blockbenchElement -> uuidToBlockbenchElement.put(blockbenchElement.getUuid(), blockbenchElement));
+		if (canLoadModel()) {
+			MainRenderer.WORKER_THREAD.worker.submit(() -> {
+				final Object2ObjectOpenHashMap<String, BlockbenchElement> uuidToBlockbenchElement = new Object2ObjectOpenHashMap<>();
+				blockbenchModel.getElements().forEach(blockbenchElement -> uuidToBlockbenchElement.put(blockbenchElement.getUuid(), blockbenchElement));
 
-		blockbenchModel.getOutlines().forEach(blockbenchOutline -> {
-			final ModelPartData modelPartData = new ModelData().getRoot();
-			final NewOptimizedModelGroup newOptimizedModelGroup = new NewOptimizedModelGroup();
-			final MutableBox mutableBox = new MutableBox();
-			final ObjectArrayList<ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>> rawModelDisplayParts = new ObjectArrayList<>();
+				blockbenchModel.getOutlines().forEach(blockbenchOutline -> {
+					final ModelPartData modelPartData = new ModelData().getRoot();
+					final NewOptimizedModelGroup newOptimizedModelGroup = new NewOptimizedModelGroup();
+					final MutableBox mutableBox = new MutableBox();
+					final ObjectArrayList<ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>> rawModelDisplayParts = new ObjectArrayList<>();
 
-			iterateChildren(blockbenchOutline, null, new GroupTransformations(), (uuid, groupTransformations) -> {
-				final BlockbenchElement blockbenchElement = uuidToBlockbenchElement.remove(uuid);
-				if (blockbenchElement != null) {
-					final ObjectObjectImmutablePair<Box, ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>> modelPartDetails = blockbenchElement.setModelPart(modelPartData.addChild(MTR.randomString()), groupTransformations);
-					mutableBox.add(modelPartDetails.left());
-					rawModelDisplayParts.add(modelPartDetails.right());
-				}
+					iterateChildren(blockbenchOutline, null, new GroupTransformations(), (uuid, groupTransformations) -> {
+						final BlockbenchElement blockbenchElement = uuidToBlockbenchElement.remove(uuid);
+						if (blockbenchElement != null) {
+							final ObjectObjectImmutablePair<Box, ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>> modelPartDetails = blockbenchElement.setModelPart(modelPartData.addChild(MTR.randomString()), groupTransformations);
+							mutableBox.add(modelPartDetails.left());
+							rawModelDisplayParts.add(modelPartDetails.right());
+						}
+					});
+
+					newOptimizedModelGroup.add(null, defaultTexture, storedVertexDataList -> StoredVertexData.write(modelPartData.createPart(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight()), storedVertexDataList), mutableBox.getAll());
+					addModel(blockbenchOutline.getName(), newOptimizedModelGroup);
+
+					if (!rawModelDisplayParts.isEmpty()) {
+						addModelDisplayParts(blockbenchOutline.getName(), rawModelDisplayParts);
+					}
+				});
+
+				setModelLoaded();
 			});
-
-			newOptimizedModelGroup.add(null, defaultTexture, storedVertexDataList -> StoredVertexData.write(modelPartData.createPart(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight()), storedVertexDataList), mutableBox.getAll());
-			addModel(blockbenchOutline.getName(), newOptimizedModelGroup);
-
-			if (!rawModelDisplayParts.isEmpty()) {
-				addModelDisplayParts(blockbenchOutline.getName(), rawModelDisplayParts);
-			}
-		});
+		}
 	}
 
 	private static void iterateChildren(BlockbenchOutline blockbenchOutline, @Nullable BlockbenchOutline previousBlockbenchOutline, GroupTransformations groupTransformations, BiConsumer<String, GroupTransformations> consumer) {

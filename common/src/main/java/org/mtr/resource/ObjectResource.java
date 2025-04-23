@@ -6,27 +6,31 @@ import org.mtr.client.IDrawing;
 import org.mtr.config.Config;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.generated.resource.ObjectResourceSchema;
+import org.mtr.model.ModelLoaderBase;
 import org.mtr.model.NewOptimizedModel;
 import org.mtr.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public final class ObjectResource extends ObjectResourceSchema implements StoredModelResourceBase {
 
 	public final boolean shouldPreload;
-	private final CachedResource<Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> cachedObjectResource;
+	private final ModelLoaderBase modelLoaderBase;
+	private final Supplier<Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> modelSupplier;
 
 	public ObjectResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
 		super(readerBase, resourceProvider);
 		updateData(readerBase);
 		shouldPreload = Config.getClient().matchesPreloadResourcePattern(id);
-		cachedObjectResource = new CachedResource<>(() -> load(modelResource, textureResource, flipTextureV, 0, resourceProvider), shouldPreload ? Integer.MAX_VALUE : VehicleModel.MODEL_LIFESPAN);
+		modelLoaderBase = VehicleModel.getModelLoaderBase(modelResource, textureResource, resourceProvider, flipTextureV);
+		modelSupplier = modelLoaderBase::get;
 	}
 
 	@Override
 	@Nullable
 	public Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>> getOptimizedModel() {
-		return cachedObjectResource.getData(false);
+		return modelSupplier.get();
 	}
 
 	@Override
@@ -42,11 +46,6 @@ public final class ObjectResource extends ObjectResourceSchema implements Stored
 				}
 		);
 		StoredModelResourceBase.super.render(newStoredMatrixTransformations, light);
-	}
-
-	@Override
-	public void preload() {
-		cachedObjectResource.getData(true);
 	}
 
 	public String getId() {

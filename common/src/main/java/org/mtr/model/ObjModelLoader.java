@@ -8,6 +8,7 @@ import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mtr.MTR;
+import org.mtr.render.MainRenderer;
 import org.mtr.resource.RenderStage;
 
 import javax.annotation.Nullable;
@@ -23,24 +24,30 @@ public final class ObjModelLoader extends ModelLoaderBase {
 	}
 
 	public void loadModel(String objString, Function<String, String> mtlResolver, Function<String, Identifier> textureResolver, boolean splitModel, boolean flipTextureV) {
-		try {
-			final Obj sourceObj = ObjReader.read(IOUtils.toInputStream(objString, StandardCharsets.UTF_8));
-			final Object2ObjectOpenHashMap<String, Mtl> materials = new Object2ObjectOpenHashMap<>();
-			sourceObj.getMtlFileNames().forEach(mtlFileName -> {
+		if (canLoadModel()) {
+			MainRenderer.WORKER_THREAD.worker.submit(() -> {
 				try {
-					MtlReader.read(IOUtils.toInputStream(mtlResolver.apply(formatFilePath(mtlFileName)), StandardCharsets.UTF_8)).forEach(mtl -> materials.put(mtl.getName(), mtl));
+					final Obj sourceObj = ObjReader.read(IOUtils.toInputStream(objString, StandardCharsets.UTF_8));
+					final Object2ObjectOpenHashMap<String, Mtl> materials = new Object2ObjectOpenHashMap<>();
+					sourceObj.getMtlFileNames().forEach(mtlFileName -> {
+						try {
+							MtlReader.read(IOUtils.toInputStream(mtlResolver.apply(formatFilePath(mtlFileName)), StandardCharsets.UTF_8)).forEach(mtl -> materials.put(mtl.getName(), mtl));
+						} catch (Exception e) {
+							MTR.LOGGER.error("", e);
+						}
+					});
+
+					if (splitModel) {
+						ObjSplitting.splitByGroups(sourceObj).forEach((key, obj) -> addModel(key, loadModel(obj, materials, textureResolver, flipTextureV)));
+					} else {
+						addModel("", loadModel(sourceObj, materials, textureResolver, flipTextureV));
+					}
+
+					setModelLoaded();
 				} catch (Exception e) {
 					MTR.LOGGER.error("", e);
 				}
 			});
-
-			if (splitModel) {
-				ObjSplitting.splitByGroups(sourceObj).forEach((key, obj) -> addModel(key, loadModel(obj, materials, textureResolver, flipTextureV)));
-			} else {
-				addModel("", loadModel(sourceObj, materials, textureResolver, flipTextureV));
-			}
-		} catch (Exception e) {
-			MTR.LOGGER.error("", e);
 		}
 	}
 

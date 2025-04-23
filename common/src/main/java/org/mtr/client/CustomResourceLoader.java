@@ -118,7 +118,7 @@ public class CustomResourceLoader {
 		final int[] preloadedVehicleCount = {0};
 		VEHICLES.forEach((transportMode, vehicleResources) -> vehicleResources.forEach(vehicleResource -> {
 			if (vehicleResource.shouldPreload) {
-				vehicleResource.getCachedVehicleResource(0, 0, true);
+				vehicleResource.getCachedVehicleResource(0, 0);
 				preloadedVehicleCount[0]++;
 			}
 		}));
