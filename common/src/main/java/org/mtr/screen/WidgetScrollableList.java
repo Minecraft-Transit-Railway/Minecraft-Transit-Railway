@@ -5,10 +5,11 @@ import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import org.mtr.font.FontGroups;
 import org.mtr.font.FontRenderOptions;
+import org.mtr.tool.Drawing;
 
 import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
@@ -48,7 +49,7 @@ public final class WidgetScrollableList<T> extends WidgetScrollablePanel {
 	) {
 		int maxTextWidth = 0;
 		for (final T data : dataList) {
-			maxTextWidth = Math.max(maxTextWidth, (int) Math.ceil(FontGroups.renderMTR(null, null, nameProvider.apply(data), FontRenderOptions.builder().maxFontSize(FONT_SIZE).verticalSpace(LINE_SIZE).build()).leftFloat()));
+			maxTextWidth = Math.max(maxTextWidth, (int) Math.ceil(FontGroups.renderMTR(null, nameProvider.apply(data), FontRenderOptions.builder().maxFontSize(FONT_SIZE).verticalSpace(LINE_SIZE).build()).leftFloat()));
 		}
 
 		final int rawWidth = iconWidth + PADDING * 2 + maxTextWidth + LINE_SIZE * actions.size() + SCROLLBAR_WIDTH;
@@ -98,8 +99,10 @@ public final class WidgetScrollableList<T> extends WidgetScrollablePanel {
 	protected void render(DrawContext context, int mouseX, int mouseY) {
 		clickAction = null;
 		final double startY = y1 - getScrollY();
-		context.getMatrices().push();
-		context.getMatrices().translate(x1, startY, 0);
+		final MatrixStack matrixStack = context.getMatrices();
+		final Drawing drawing = new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
+		matrixStack.push();
+		matrixStack.translate(x1, startY, 0);
 
 		for (int i = 0; i < dataList.size(); i++) {
 			final T data = dataList.get(i);
@@ -128,25 +131,21 @@ public final class WidgetScrollableList<T> extends WidgetScrollablePanel {
 			drawIcon.accept(context, data);
 
 			// Draw text
-			context.getMatrices().push();
-			context.getMatrices().translate(iconWidth + PADDING, 0, 0);
-			final VertexConsumer vertexConsumer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui());
-			FontGroups.renderMTR(
-					context.getMatrices().peek().getPositionMatrix(), vertexConsumer,
-					nameProvider.apply(data),
-					FontRenderOptions.builder()
-							.maxFontSize(FONT_SIZE)
-							.horizontalSpace(x2 - x1 - iconWidth - PADDING * 2 - LINE_SIZE * actions.size() - getScrollbarWidth())
-							.verticalSpace(LINE_SIZE)
-							.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
-							.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
-							.build()
+			matrixStack.push();
+			matrixStack.translate(iconWidth + PADDING, 0, 0);
+			FontGroups.renderMTR(drawing, nameProvider.apply(data), FontRenderOptions.builder()
+					.maxFontSize(FONT_SIZE)
+					.horizontalSpace(x2 - x1 - iconWidth - PADDING * 2 - LINE_SIZE * actions.size() - getScrollbarWidth())
+					.verticalSpace(LINE_SIZE)
+					.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
+					.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
+					.build()
 			);
-			context.getMatrices().pop();
-			context.getMatrices().translate(0, LINE_SIZE, 0);
+			matrixStack.pop();
+			matrixStack.translate(0, LINE_SIZE, 0);
 		}
 
-		context.getMatrices().pop();
+		matrixStack.pop();
 	}
 
 	@Override

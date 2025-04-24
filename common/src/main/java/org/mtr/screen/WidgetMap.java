@@ -14,7 +14,7 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -29,6 +29,7 @@ import org.mtr.data.IGui;
 import org.mtr.font.FontGroups;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.map.MapTileProvider;
+import org.mtr.tool.Drawing;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -155,27 +156,23 @@ public final class WidgetMap extends ClickableWidget {
 			RenderLayer.getGui().endDrawing();
 		}
 
+		final MatrixStack matrixStack = context.getMatrices();
+
 		// Player position indicator
 		if (player != null) {
 			drawFromWorldCoords(player.getX(), player.getZ(), PLAYER_ARROW_SIZE / 2F, PLAYER_ARROW_SIZE / 2F, (x, y) -> {
-				context.getMatrices().push();
-				context.getMatrices().translate(getX() + x, getY() + y, 5);
-				IDrawing.rotateZDegrees(context.getMatrices(), player.getYaw() + 180);
-				final Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
-				final VertexConsumer vertexConsumer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(Identifier.of("textures/gui/sprites/mtr/dashboard_player_arrow.png")));
-				final float x1 = -PLAYER_ARROW_SIZE / 2F;
-				final float y1 = -PLAYER_ARROW_SIZE / 2F;
-				final float x2 = x1 + PLAYER_ARROW_SIZE;
-				final float y2 = y1 + PLAYER_ARROW_SIZE;
-				vertexConsumer.vertex(matrix4f, x1, y1, 0).texture(0, 0).color(IGui.ARGB_WHITE);
-				vertexConsumer.vertex(matrix4f, x1, y2, 0).texture(0, 1).color(IGui.ARGB_WHITE);
-				vertexConsumer.vertex(matrix4f, x2, y2, 0).texture(1, 1).color(IGui.ARGB_WHITE);
-				vertexConsumer.vertex(matrix4f, x2, y1, 0).texture(1, 0).color(IGui.ARGB_WHITE);
-				context.getMatrices().pop();
+				matrixStack.push();
+				matrixStack.translate(getX() + x, getY() + y, 5);
+				IDrawing.rotateZDegrees(matrixStack, player.getYaw() + 180);
+				new Drawing(
+						matrixStack,
+						MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(Identifier.of("textures/gui/sprites/mtr/dashboard_player_arrow.png")))
+				).setVerticesWH(-PLAYER_ARROW_SIZE / 2F, -PLAYER_ARROW_SIZE / 2F, PLAYER_ARROW_SIZE, PLAYER_ARROW_SIZE).setUv().draw();
+				matrixStack.pop();
 			});
 		}
 
-		final VertexConsumer vertexConsumer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui());
+		final Drawing drawing = new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui())).setGuiBoundsWH(getX(), getY(), width, height);
 		hoverStations.clear();
 		hoverPlatforms.clear();
 		hoverDepots.clear();
@@ -183,40 +180,39 @@ public final class WidgetMap extends ClickableWidget {
 
 		// Platforms and sidings
 		if (showStations) {
-			drawSavedRails(context, vertexConsumer, flatPositionToPlatformsMap, widgetScrollableList == null && (mapState == MapState.DEFAULT || mapState == MapState.EDITING_ROUTE) ? hoverPlatforms : null, mouseX, mouseY);
+			drawSavedRails(matrixStack, drawing, flatPositionToPlatformsMap, widgetScrollableList == null && (mapState == MapState.DEFAULT || mapState == MapState.EDITING_ROUTE) ? hoverPlatforms : null, mouseX, mouseY);
 		}
 		if (showDepots) {
-			drawSavedRails(context, vertexConsumer, flatPositionToSidingsMap, widgetScrollableList == null && mapState == MapState.DEFAULT ? hoverSidings : null, mouseX, mouseY);
+			drawSavedRails(matrixStack, drawing, flatPositionToSidingsMap, widgetScrollableList == null && mapState == MapState.DEFAULT ? hoverSidings : null, mouseX, mouseY);
 		}
 
 		// Stations and depots
 		final boolean canHoverAreas = widgetScrollableList == null && mapState == MapState.DEFAULT && hoverPlatforms.isEmpty() && hoverSidings.isEmpty();
 		if (showStations) {
-			drawAreas(context, vertexConsumer, MinecraftClientData.getDashboardInstance().stations, canHoverAreas ? hoverStations : null, mouseX, mouseY);
+			drawAreas(matrixStack, drawing, MinecraftClientData.getDashboardInstance().stations, canHoverAreas ? hoverStations : null, mouseX, mouseY);
 		}
 		if (showDepots) {
-			drawAreas(context, vertexConsumer, MinecraftClientData.getDashboardInstance().depots, canHoverAreas ? hoverDepots : null, mouseX, mouseY);
+			drawAreas(matrixStack, drawing, MinecraftClientData.getDashboardInstance().depots, canHoverAreas ? hoverDepots : null, mouseX, mouseY);
 		}
 
 		// Editing rectangle
 		if (mapState == MapState.EDITING_AREA && drawArea1 != null && drawArea2 != null) {
 			drawFromWorldCoords(Math.min(drawArea1.leftInt(), drawArea2.leftInt()), Math.min(drawArea1.rightInt(), drawArea2.rightInt()), 0, 0, (x1, y1) ->
 					drawFromWorldCoords(Math.max(drawArea1.leftInt(), drawArea2.leftInt()) + 1, Math.max(drawArea1.rightInt(), drawArea2.rightInt()) + 1, 0, 0, (x2, y2) ->
-							draw(context.getMatrices().peek().getPositionMatrix(), vertexConsumer, getX() + x1, getY() + y1, getX() + x2, getY() + y2, 2, IGui.ARGB_WHITE_TRANSLUCENT)
+							drawing.setVertices(getX() + x1, getY() + y1, getX() + x2, getY() + y2, 2).setColor(IGui.ARGB_WHITE_TRANSLUCENT).draw()
 					)
 			);
 		}
 
 		// Hover popup
 		if (widgetScrollableList != null) {
-			final Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
-			draw(matrix4f, vertexConsumer, widgetScrollableList.x1, widgetScrollableList.y1, widgetScrollableList.x2, widgetScrollableList.y2, 6, IGui.ARGB_BLACK);
-			drawShadow(matrix4f, vertexConsumer, widgetScrollableList.x1, widgetScrollableList.y1, widgetScrollableList.x2, widgetScrollableList.y2, 2, HOVER_WINDOW_SHADOW_RADIUS);
+			drawing.setVertices(widgetScrollableList.x1, widgetScrollableList.y1, widgetScrollableList.x2, widgetScrollableList.y2, 6).setColor(IGui.ARGB_BLACK).draw();
+			drawShadow(drawing, widgetScrollableList.x1, widgetScrollableList.y1, widgetScrollableList.x2, widgetScrollableList.y2, 2, HOVER_WINDOW_SHADOW_RADIUS);
 
-			context.getMatrices().push();
-			context.getMatrices().translate(0, 0, 6);
+			matrixStack.push();
+			matrixStack.translate(0, 0, 6);
 			widgetScrollableList.renderWidget(context, mouseX, mouseY, delta);
-			context.getMatrices().pop();
+			matrixStack.pop();
 
 			if (!Utilities.isBetween(mouseX, widgetScrollableList.x1, widgetScrollableList.x2) || !Utilities.isBetween(mouseY, widgetScrollableList.y1, widgetScrollableList.y2)) {
 				widgetScrollableList = null;
@@ -379,7 +375,7 @@ public final class WidgetMap extends ClickableWidget {
 		this.showDepots = showDepots;
 	}
 
-	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> void drawAreas(DrawContext context, VertexConsumer vertexConsumer, ObjectArraySet<U> areas, @Nullable ObjectArrayList<U> hoverDataList, int mouseX, int mouseY) {
+	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> void drawAreas(MatrixStack matrixStack, Drawing drawing, ObjectArraySet<U> areas, @Nullable ObjectArrayList<U> hoverDataList, int mouseX, int mouseY) {
 		areas.forEach(area -> {
 			if (area.isTransportMode(transportMode) && AreaBase.validCorners(area)) {
 				final double areaWidth = (area.getMaxX() + 1 - area.getMinX()) * scale;
@@ -391,7 +387,6 @@ public final class WidgetMap extends ClickableWidget {
 					final double x2 = x1 + areaWidth;
 					final double y1 = getY() + y - areaHeight / 2;
 					final double y2 = y1 + areaHeight;
-					final Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
 
 					// Check for hover
 					final double borderSize;
@@ -404,48 +399,42 @@ public final class WidgetMap extends ClickableWidget {
 
 					// Draw area
 					final Color color = new Color(area.getColor());
-					final Color newColor = new Color((int) (0.8 * color.getRed()), (int) (0.8 * color.getGreen()), (int) (0.8 * color.getBlue()), 0x66);
-					draw(matrix4f, vertexConsumer, x1, y1, x2, y2, 2, newColor.getRGB());
-					drawShadow(matrix4f, vertexConsumer, x1, y1, x2, y2, 2, shadowRadius);
+					drawing.setVertices(x1, y1, x2, y2, 2).setColorARGB(0x66, (int) (0.8 * color.getRed()), (int) (0.8 * color.getGreen()), (int) (0.8 * color.getBlue())).draw();
+					drawShadow(drawing, x1, y1, x2, y2, 2, shadowRadius);
 
 					// Draw border
-					draw(matrix4f, vertexConsumer, x1, y1, x1 + borderSize, y2, 2, IGui.ARGB_BLACK + area.getColor());
-					draw(matrix4f, vertexConsumer, x2 - borderSize, y1, x2, y2, 2, IGui.ARGB_BLACK + area.getColor());
-					draw(matrix4f, vertexConsumer, x1, y1, x2, y1 + borderSize, 2, IGui.ARGB_BLACK + area.getColor());
-					draw(matrix4f, vertexConsumer, x1, y2 - borderSize, x2, y2, 2, IGui.ARGB_BLACK + area.getColor());
+					drawing.setVertices(x1, y1, x1 + borderSize, y2, 2).setColor(IGui.ARGB_BLACK | area.getColor()).draw();
+					drawing.setVertices(x2 - borderSize, y1, x2, y2, 2).setColor(IGui.ARGB_BLACK | area.getColor()).draw();
+					drawing.setVertices(x1, y1, x2, y1 + borderSize, 2).setColor(IGui.ARGB_BLACK | area.getColor()).draw();
+					drawing.setVertices(x1, y2 - borderSize, x2, y2, 2).setColor(IGui.ARGB_BLACK | area.getColor()).draw();
 
 					// Draw overlay text
 					final double clampedAreaWidth = areaWidth - Math.max(0, getX() - x1) - Math.max(0, x2 - getX() - width) - AREA_NAME_PADDING * 2;
 					final double clampedAreaHeight = areaHeight - Math.max(0, getY() - y1) - Math.max(0, y2 - getY() - height) - AREA_NAME_PADDING * 2;
 					if (clampedAreaWidth > 0 && clampedAreaHeight > 0) {
-						context.getMatrices().push();
-						context.getMatrices().translate(Math.max(getX(), x1) + AREA_NAME_PADDING, Math.max(getY(), y1) + AREA_NAME_PADDING, 4);
-						FontGroups.renderMTR(
-								context.getMatrices().peek().getPositionMatrix(),
-								vertexConsumer,
-								area.getName(),
-								FontRenderOptions.builder()
-										.horizontalSpace((float) clampedAreaWidth)
-										.verticalSpace((float) clampedAreaHeight)
-										.lineBreak(FontRenderOptions.LineBreak.FORCE_ONE_LINE)
-										.textOverflow(FontRenderOptions.TextOverflow.SCALE)
-										.maxFontSize(4)
-										.build()
+						matrixStack.push();
+						matrixStack.translate(Math.max(getX(), x1) + AREA_NAME_PADDING, Math.max(getY(), y1) + AREA_NAME_PADDING, 4);
+						FontGroups.renderMTR(drawing, area.getName(), FontRenderOptions.builder()
+								.horizontalSpace((float) clampedAreaWidth)
+								.verticalSpace((float) clampedAreaHeight)
+								.lineBreak(FontRenderOptions.LineBreak.FORCE_ONE_LINE)
+								.textOverflow(FontRenderOptions.TextOverflow.SCALE)
+								.maxFontSize(4)
+								.build()
 						);
-						context.getMatrices().pop();
+						matrixStack.pop();
 					}
 				});
 			}
 		});
 	}
 
-	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> void drawSavedRails(DrawContext context, VertexConsumer vertexConsumer, Object2ObjectAVLTreeMap<Position, ObjectArrayList<T>> flatPositionToSavedRailsMap, @Nullable ObjectArrayList<T> hoverDataList, int mouseX, int mouseY) {
+	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> void drawSavedRails(MatrixStack matrixStack, Drawing drawing, Object2ObjectAVLTreeMap<Position, ObjectArrayList<T>> flatPositionToSavedRailsMap, @Nullable ObjectArrayList<T> hoverDataList, int mouseX, int mouseY) {
 		flatPositionToSavedRailsMap.forEach((position, savedRails) -> drawFromWorldCoords(position.getX() + 0.5, position.getZ() + 0.5, scale / 2, scale / 2, (x, y) -> {
 			final double x1 = getX() + x - scale / 2;
 			final double y1 = getY() + y - scale / 2;
 			final double x2 = x1 + scale;
 			final double y2 = y1 + scale;
-			final Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
 
 			// Check for hover
 			if (hoverDataList != null && hoverDataList.isEmpty() && Utilities.isBetween(mouseX, x1, x2) && Utilities.isBetween(mouseY, y1, y2)) {
@@ -453,54 +442,37 @@ public final class WidgetMap extends ClickableWidget {
 			}
 
 			// Draw saved rail
-			draw(matrix4f, vertexConsumer, x1, y1, x2, y2, 3, IGui.ARGB_WHITE);
-			drawShadow(matrix4f, vertexConsumer, x1, y1, x2, y2, 2, SAVED_RAIL_SHADOW_RADIUS * scale);
+			drawing.setVertices(x1, y1, x2, y2, 3).setColor(IGui.ARGB_WHITE).draw();
+			drawShadow(drawing, x1, y1, x2, y2, 2, SAVED_RAIL_SHADOW_RADIUS * scale);
 
 			// Draw overlay text
 			if (scale > SAVED_RAIL_NAME_PADDING * 2) {
-				context.getMatrices().push();
-				context.getMatrices().translate(x1 + SAVED_RAIL_NAME_PADDING, y1 + SAVED_RAIL_NAME_PADDING, 4);
-				FontGroups.renderMTR(
-						context.getMatrices().peek().getPositionMatrix(),
-						vertexConsumer,
-						savedRails.stream().map(NameColorDataBase::getName).collect(Collectors.joining("|")),
-						FontRenderOptions.builder()
-								.horizontalSpace((float) scale - SAVED_RAIL_NAME_PADDING * 2)
-								.verticalSpace((float) scale - SAVED_RAIL_NAME_PADDING * 2)
-								.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)
-								.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
-								.textOverflow(FontRenderOptions.TextOverflow.SCALE)
-								.color(IGui.ARGB_BLACK)
-								.maxFontSize(4)
-								.build()
+				matrixStack.push();
+				matrixStack.translate(x1 + SAVED_RAIL_NAME_PADDING, y1 + SAVED_RAIL_NAME_PADDING, 4);
+				FontGroups.renderMTR(drawing, savedRails.stream().map(NameColorDataBase::getName).collect(Collectors.joining("|")), FontRenderOptions.builder()
+						.horizontalSpace((float) scale - SAVED_RAIL_NAME_PADDING * 2)
+						.verticalSpace((float) scale - SAVED_RAIL_NAME_PADDING * 2)
+						.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)
+						.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
+						.textOverflow(FontRenderOptions.TextOverflow.SCALE)
+						.color(IGui.ARGB_BLACK)
+						.maxFontSize(4)
+						.build()
 				);
-				context.getMatrices().pop();
+				matrixStack.pop();
 			}
 		}));
 	}
 
-	private void draw(Matrix4f matrix4f, VertexConsumer vertexConsumer, double x1, double y1, double x2, double y2, int z, int color) {
-		draw(matrix4f, vertexConsumer, x1, y1, x1, y2, x2, y2, x2, y1, z, color, color, color, color);
-	}
-
-	private void draw(Matrix4f matrix4f, VertexConsumer vertexConsumer, double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, int z, int color1, int color2, int color3, int color4) {
-		if (Utilities.isIntersecting(Math.min(Math.min(x1, x2), Math.min(x3, x4)), Math.max(Math.max(x1, x2), Math.max(x3, x4)), getX(), getX() + width) && Utilities.isIntersecting(Math.min(Math.min(y1, y2), Math.min(y3, y4)), Math.max(Math.max(y1, y2), Math.max(y3, y4)), getY(), getY() + height)) {
-			vertexConsumer.vertex(matrix4f, (float) x1, (float) y1, z).color(color1);
-			vertexConsumer.vertex(matrix4f, (float) x2, (float) y2, z).color(color2);
-			vertexConsumer.vertex(matrix4f, (float) x3, (float) y3, z).color(color3);
-			vertexConsumer.vertex(matrix4f, (float) x4, (float) y4, z).color(color4);
-		}
-	}
-
-	private void drawShadow(Matrix4f matrix4f, VertexConsumer vertexConsumer, double x1, double y1, double x2, double y2, int z, double shadowRadius) {
+	private void drawShadow(Drawing drawing, double x1, double y1, double x2, double y2, int z, double shadowRadius) {
 		final double r1 = shadowRadius > 0 ? shadowRadius : 0;
 		final double r2 = shadowRadius < 0 ? -shadowRadius : 0;
 		final int color1 = shadowRadius > 0 ? SHADOW_COLOR : 0;
 		final int color2 = shadowRadius < 0 ? SHADOW_COLOR : 0;
-		draw(matrix4f, vertexConsumer, x1 - r1, y1 - r1, x1 - r1, y2 + r1, x1 + r2, y2 - r2, x1 + r2, y1 + r2, z, color2, color2, color1, color1);
-		draw(matrix4f, vertexConsumer, x2 - r2, y1 + r2, x2 - r2, y2 - r2, x2 + r1, y2 + r1, x2 + r1, y1 - r1, z, color1, color1, color2, color2);
-		draw(matrix4f, vertexConsumer, x1 - r1, y1 - r1, x1 + r2, y1 + r2, x2 - r2, y1 + r2, x2 + r1, y1 - r1, z, color2, color1, color1, color2);
-		draw(matrix4f, vertexConsumer, x1 + r2, y2 - r2, x1 - r1, y2 + r1, x2 + r1, y2 + r1, x2 - r2, y2 - r2, z, color1, color2, color2, color1);
+		drawing.setVertices(x1 - r1, y1 - r1, z, x1 - r1, y2 + r1, z, x1 + r2, y2 - r2, z, x1 + r2, y1 + r2, z).setColor(color2, color2, color1, color1).draw();
+		drawing.setVertices(x2 - r2, y1 + r2, z, x2 - r2, y2 - r2, z, x2 + r1, y2 + r1, z, x2 + r1, y1 - r1, z).setColor(color1, color1, color2, color2).draw();
+		drawing.setVertices(x1 - r1, y1 - r1, z, x1 + r2, y1 + r2, z, x2 - r2, y1 + r2, z, x2 + r1, y1 - r1, z).setColor(color2, color1, color1, color2).draw();
+		drawing.setVertices(x1 + r2, y2 - r2, z, x1 - r1, y2 + r1, z, x2 + r1, y2 + r1, z, x2 - r2, y2 - r2, z).setColor(color1, color2, color2, color1).draw();
 	}
 
 	private IntIntImmutablePair coordsToWorldPos(int mouseX, int mouseY) {

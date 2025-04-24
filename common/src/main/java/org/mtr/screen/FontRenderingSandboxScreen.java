@@ -5,14 +5,13 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.text.Text;
-import org.joml.Matrix4f;
 import org.mtr.MTR;
 import org.mtr.client.IDrawing;
 import org.mtr.data.IGui;
 import org.mtr.font.FontGroups;
 import org.mtr.font.FontRenderOptions;
+import org.mtr.tool.Drawing;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -63,12 +62,11 @@ public final class FontRenderingSandboxScreen extends MTRScreenBase {
 		final int boxY = (int) fontRenderOptions.getVerticalPositioning().getOffset(fontRenderOptions.getVerticalSpace());
 		context.fill(boxX, boxY, boxX + (int) fontRenderOptions.getHorizontalSpace(), boxY + (int) fontRenderOptions.getVerticalSpace(), IGui.ARGB_BLACK);
 
-		final Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
-		final VertexConsumer vertexConsumer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui());
+		final Drawing drawing = new Drawing(context.getMatrices(), MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
 		if (checkboxWidget.isChecked()) {
-			FontGroups.renderMTR(matrix4f, vertexConsumer, textFieldWidget.getText(), fontRenderOptions);
+			FontGroups.renderMTR(drawing, textFieldWidget.getText(), fontRenderOptions);
 		} else {
-			FontGroups.renderMinecraft(matrix4f, vertexConsumer, textFieldWidget.getText(), fontRenderOptions);
+			FontGroups.renderMinecraft(drawing, textFieldWidget.getText(), fontRenderOptions);
 		}
 
 		context.getMatrices().pop();

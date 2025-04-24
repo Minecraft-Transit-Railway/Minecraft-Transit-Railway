@@ -16,6 +16,7 @@ import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeEffects;
 import org.mtr.cache.CachedFileResource;
+import org.mtr.tool.Drawing;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -137,6 +138,7 @@ public final class MapTileResource extends CachedFileResource {
 			final boolean[] noVertices = {true};
 
 			final VertexBuffer vertexBuffer = VertexBuffer.createAndUpload(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR, vertexConsumer -> {
+				final Drawing drawing = new Drawing(vertexConsumer);
 				int pixelOffsetX = 0;
 				int pixelOffsetY = 0;
 
@@ -153,12 +155,7 @@ public final class MapTileResource extends CachedFileResource {
 						final int length = Math.min(MapTileProvider.TILE_SIZE - pixelOffsetX, count);
 
 						if (color.getAlpha() > 0) {
-							final int x2 = pixelOffsetX + length;
-							final int y2 = pixelOffsetY + 1;
-							vertexConsumer.vertex(pixelOffsetX, pixelOffsetY, 0).color(color.getRGB());
-							vertexConsumer.vertex(pixelOffsetX, y2, 0).color(color.getRGB());
-							vertexConsumer.vertex(x2, y2, 0).color(color.getRGB());
-							vertexConsumer.vertex(x2, pixelOffsetY, 0).color(color.getRGB());
+							drawing.setVerticesWH(pixelOffsetX, pixelOffsetY, length, 1).setColor(color).draw();
 							noVertices[0] = false;
 						}
 
@@ -173,10 +170,7 @@ public final class MapTileResource extends CachedFileResource {
 				}
 
 				if (noVertices[0]) {
-					vertexConsumer.vertex(0, 0, 0).color(0);
-					vertexConsumer.vertex(0, 1, 0).color(0);
-					vertexConsumer.vertex(1, 1, 0).color(0);
-					vertexConsumer.vertex(1, 0, 0).color(0);
+					drawing.setVertices(0, 0, 1, 1).setColor(0).draw();
 				}
 			});
 

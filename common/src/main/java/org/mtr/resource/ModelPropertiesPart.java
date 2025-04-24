@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
@@ -28,6 +27,7 @@ import org.mtr.model.NewOptimizedModelGroup;
 import org.mtr.render.MainRenderer;
 import org.mtr.render.QueuedRenderLayer;
 import org.mtr.render.StoredMatrixTransformations;
+import org.mtr.tool.Drawing;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -286,14 +286,12 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 				modelDisplayPart.storedMatrixTransformations.transform(matrixStack, Vec3d.ZERO);
 				matrixStack.translate(0, 0, -IGui.SMALL_OFFSET);
 
-				final float x1 = (float) displayXPadding / 16;
-				final float y1 = (float) displayYPadding / 16;
-				final float x2 = (modelDisplayPart.width - (float) displayXPadding) / 16;
-				final float y2 = (modelDisplayPart.height - (float) displayYPadding) / 16;
-				vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x1, y1, 0).color(color).texture(0, 0).overlay(OverlayTexture.DEFAULT_UV).light(IGui.DEFAULT_LIGHT).normal(0, 1, 0);
-				vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x1, y2, 0).color(color).texture(0, 1).overlay(OverlayTexture.DEFAULT_UV).light(IGui.DEFAULT_LIGHT).normal(0, 1, 0);
-				vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x2, y2, 0).color(color).texture(1, 1).overlay(OverlayTexture.DEFAULT_UV).light(IGui.DEFAULT_LIGHT).normal(0, 1, 0);
-				vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x2, y1, 0).color(color).texture(1, 0).overlay(OverlayTexture.DEFAULT_UV).light(IGui.DEFAULT_LIGHT).normal(0, 1, 0);
+				new Drawing(matrixStack, vertexConsumer).setVertices(
+						displayXPadding / 16,
+						displayYPadding / 16,
+						(modelDisplayPart.width - displayXPadding) / 16,
+						(modelDisplayPart.height - displayYPadding) / 16
+				).setColor(color).setLight().setUv().draw();
 
 				matrixStack.pop();
 				matrixStack.pop();
@@ -374,7 +372,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 				modelDisplayPart.storedMatrixTransformations.transform(matrixStack, Vec3d.ZERO);
 				matrixStack.translate(displayXPadding / 16, displayYPadding / 16, -IGui.SMALL_OFFSET);
 
-				FontGroups.renderMTR(matrixStack.peek().getPositionMatrix(), MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()), text, FontRenderOptions.builder()
+				FontGroups.renderMTR(new Drawing(matrixStack.peek().getPositionMatrix(), MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui())), text, FontRenderOptions.builder()
 						.color(IGui.ARGB_BLACK | displayColorInt)
 						.cjkColor(IGui.ARGB_BLACK | displayColorCjkInt)
 						.cjkScaling((float) displayCjkSizeRatio)

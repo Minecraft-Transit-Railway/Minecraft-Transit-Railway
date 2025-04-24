@@ -30,7 +30,7 @@ import java.awt.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class MainRenderer implements IGui {
+public class MainRenderer {
 
 	private static long lastRenderedMillis;
 
@@ -86,30 +86,8 @@ public class MainRenderer implements IGui {
 		RenderLifts.render(millisElapsed, cameraShakeOffset);
 		RenderRails.render();
 
-		MODEL_RENDERS.forEach((newOptimizedModel, modelsForRenderStage) -> modelsForRenderStage.forEach((renderStage, renderDetails) -> {
-			final Identifier texture = newOptimizedModel.texture;
-			final RenderLayer renderLayer = switch (renderStage.queuedRenderLayer) {
-				case LIGHT -> MoreRenderLayers.getLight(texture, false);
-				case LIGHT_TRANSLUCENT -> MoreRenderLayers.getLight(texture, true);
-				case LIGHT_2 -> MoreRenderLayers.getLight2(texture);
-				case INTERIOR -> MoreRenderLayers.getInterior(texture);
-				case INTERIOR_TRANSLUCENT -> MoreRenderLayers.getInteriorTranslucent(texture);
-				case EXTERIOR -> MoreRenderLayers.getExterior(texture);
-				case EXTERIOR_TRANSLUCENT -> MoreRenderLayers.getExteriorTranslucent(texture);
-				case LINES -> RenderLayer.getLines();
-				default -> null;
-			};
-			if (renderLayer != null) {
-				renderLayer.startDrawing();
-				newOptimizedModel.begin(RenderSystem.getShader());
-				renderDetails.forEach(renderDetailsEntry -> {
-					renderDetailsEntry.left().transform(matrixStack, offset);
-					newOptimizedModel.render(matrixStack.peek().getPositionMatrix(), renderStage.isFullBrightness ? 1 : (float) renderDetailsEntry.rightInt() / 0xF, RenderSystem.getShader());
-					matrixStack.pop();
-				});
-				renderLayer.endDrawing();
-			}
-		}));
+		renderModel(matrixStack, MODEL_RENDERS, offset);
+		renderModel(matrixStack, MODEL_RENDERS_TRANSLUCENT, offset);
 
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
 			for (int j = 0; j < QueuedRenderLayer.values().length; j++) {
@@ -184,17 +162,33 @@ public class MainRenderer implements IGui {
 		).getRGB();
 	}
 
+	private static void renderModel(MatrixStack matrixStack, Object2ObjectOpenHashMap<NewOptimizedModel, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<ObjectIntImmutablePair<StoredMatrixTransformations>>>> modelRenders, Vec3d offset) {
+		modelRenders.forEach((newOptimizedModel, modelsForRenderStage) -> modelsForRenderStage.forEach((renderStage, renderDetails) -> {
+			final Identifier texture = newOptimizedModel.texture;
+			final RenderLayer renderLayer = switch (renderStage) {
+				case LIGHT -> MoreRenderLayers.getLight(texture, false);
+				case ALWAYS_ON_LIGHT -> MoreRenderLayers.getLight(texture, true);
+				case INTERIOR -> MoreRenderLayers.getInterior(texture);
+				case INTERIOR_TRANSLUCENT -> MoreRenderLayers.getInteriorTranslucent(texture);
+				case EXTERIOR -> MoreRenderLayers.getExterior(texture);
+			};
+			if (renderLayer != null) {
+				renderLayer.startDrawing();
+				newOptimizedModel.begin(RenderSystem.getShader());
+				renderDetails.forEach(renderDetailsEntry -> {
+					renderDetailsEntry.left().transform(matrixStack, offset);
+					newOptimizedModel.render(matrixStack.peek().getPositionMatrix(), renderStage.isFullBrightness ? 1 : (float) renderDetailsEntry.rightInt() / 0xF, RenderSystem.getShader());
+					matrixStack.pop();
+				});
+				renderLayer.endDrawing();
+			}
+		}));
+	}
+
 	private static long getMillisElapsed() {
 		final long millisElapsed = MTRClient.getGameMillis() - lastRenderedMillis;
 		final long gameMillisElapsed = (long) (MinecraftClient.getInstance().getRenderTickCounter().getLastFrameDuration() * 50);
 		return Math.abs(gameMillisElapsed - millisElapsed) < 50 ? gameMillisElapsed : millisElapsed;
-	}
-
-	private static void draw2(VertexConsumer vertexConsumer, double x1, double y1, double x2, double y2, int color) {
-		vertexConsumer.vertex((float) x1, (float) y1, 0).color(color);
-		vertexConsumer.vertex((float) x1, (float) y2, 0).color(color);
-		vertexConsumer.vertex((float) x2, (float) y2, 0).color(color);
-		vertexConsumer.vertex((float) x2, (float) y1, 0).color(color);
 	}
 
 	@FunctionalInterface
