@@ -21,18 +21,20 @@ import org.mtr.data.RailType;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.packet.PacketUpdateData;
 import org.mtr.registry.RegistryClient;
+import org.mtr.widget.BetterTextFieldWidget;
+import org.mtr.widget.ShorterSliderWidget;
 
 public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements Icons {
 
 	private final ButtonWidget buttonSelectTrain;
 	private final CheckboxWidget buttonUnlimitedTrains;
-	private final WidgetBetterTextField textFieldMaxTrains;
-	private final WidgetShorterSlider sliderAccelerationConstant;
-	private final WidgetShorterSlider sliderDecelerationConstant;
-	private final WidgetShorterSlider sliderDelayedVehicleSpeedIncreasePercentage;
-	private final WidgetShorterSlider sliderDelayedVehicleReduceDwellTimePercentage;
+	private final BetterTextFieldWidget textFieldMaxTrains;
+	private final ShorterSliderWidget sliderAccelerationConstant;
+	private final ShorterSliderWidget sliderDecelerationConstant;
+	private final ShorterSliderWidget sliderDelayedVehicleSpeedIncreasePercentage;
+	private final ShorterSliderWidget sliderDelayedVehicleReduceDwellTimePercentage;
 	private final CheckboxWidget buttonIsManual;
-	private final WidgetShorterSlider sliderMaxManualSpeed;
+	private final ShorterSliderWidget sliderMaxManualSpeed;
 
 	private static final MutableText SELECTED_TRAIN_TEXT = TranslationProvider.GUI_MTR_SELECTED_VEHICLE.getMutableText();
 	private static final MutableText MAX_TRAINS_TEXT = TranslationProvider.GUI_MTR_MAX_VEHICLES.getMutableText();
@@ -51,18 +53,18 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 	public SidingScreen(Siding siding, TransportMode transportMode, Screen previousScreen) {
 		super(siding, transportMode, previousScreen, SELECTED_TRAIN_TEXT, MAX_TRAINS_TEXT, ACCELERATION_CONSTANT_TEXT, DECELERATION_CONSTANT_TEXT, DELAYED_VEHICLE_SPEED_INCREASE_PERCENTAGE_TEXT, DELAYED_VEHICLE_REDUCE_DWELL_TIME_PERCENTAGE_TEXT, MANUAL_TO_AUTOMATIC_TIME, MAX_MANUAL_SPEED);
 		buttonSelectTrain = ButtonWidget.builder(Text.translatable("selectWorld.edit"), button -> MinecraftClient.getInstance().setScreen(new VehicleSelectorScreen(savedRailBase, this))).build();
-		textFieldMaxTrains = new WidgetBetterTextField(MAX_TRAINS_TEXT_LENGTH, TextCase.DEFAULT, "\\D", null);
-		sliderAccelerationConstant = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, (int) Math.round((Siding.MAX_ACCELERATION - Siding.MIN_ACCELERATION) * SLIDER_SCALE), SidingScreen::accelerationSliderFormatter, null);
-		sliderDecelerationConstant = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, (int) Math.round((Siding.MAX_ACCELERATION - Siding.MIN_ACCELERATION) * SLIDER_SCALE), SidingScreen::accelerationSliderFormatter, null);
-		sliderDelayedVehicleSpeedIncreasePercentage = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, 100, SidingScreen::percentageFormatter, null);
-		sliderDelayedVehicleReduceDwellTimePercentage = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, 100, SidingScreen::percentageFormatter, null);
+		textFieldMaxTrains = new BetterTextFieldWidget(MAX_TRAINS_TEXT_LENGTH, TextCase.DEFAULT, "\\D", null);
+		sliderAccelerationConstant = new ShorterSliderWidget(0, MAX_TRAINS_WIDTH, (int) Math.round((Siding.MAX_ACCELERATION - Siding.MIN_ACCELERATION) * SLIDER_SCALE), SidingScreen::accelerationSliderFormatter, null);
+		sliderDecelerationConstant = new ShorterSliderWidget(0, MAX_TRAINS_WIDTH, (int) Math.round((Siding.MAX_ACCELERATION - Siding.MIN_ACCELERATION) * SLIDER_SCALE), SidingScreen::accelerationSliderFormatter, null);
+		sliderDelayedVehicleSpeedIncreasePercentage = new ShorterSliderWidget(0, MAX_TRAINS_WIDTH, 100, SidingScreen::percentageFormatter, null);
+		sliderDelayedVehicleReduceDwellTimePercentage = new ShorterSliderWidget(0, MAX_TRAINS_WIDTH, 100, SidingScreen::percentageFormatter, null);
 		buttonIsManual = CheckboxWidget.builder(TranslationProvider.GUI_MTR_IS_MANUAL.getText(), textRenderer).checked(savedRailBase.getIsManual()).callback((checkboxWidget, checked) -> {
 			if (checked && !textFieldMaxTrains.getText().equals("1")) {
 				textFieldMaxTrains.setText("1");
 			}
 			setButtons();
 		}).build();
-		sliderMaxManualSpeed = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, RailType.DIAMOND.ordinal(), SidingScreen::speedSliderFormatter, null);
+		sliderMaxManualSpeed = new ShorterSliderWidget(0, MAX_TRAINS_WIDTH, RailType.DIAMOND.ordinal(), SidingScreen::speedSliderFormatter, null);
 		buttonUnlimitedTrains = CheckboxWidget.builder(TranslationProvider.GUI_MTR_UNLIMITED_VEHICLES.getText(), textRenderer).checked(savedRailBase.getIsUnlimited()).callback((checkboxWidget, checked) -> {
 			if (checked) {
 				IGui.setChecked(buttonIsManual, false);

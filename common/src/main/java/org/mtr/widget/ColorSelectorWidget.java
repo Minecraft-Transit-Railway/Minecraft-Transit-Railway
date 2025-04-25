@@ -1,4 +1,4 @@
-package org.mtr.screen;
+package org.mtr.widget;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -10,13 +10,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.mtr.client.IDrawing;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.screen.MTRScreenBase;
+import org.mtr.screen.TextCase;
 
 import java.awt.*;
 import java.util.Locale;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class WidgetColorSelector extends ButtonWidget implements IGui {
+public final class ColorSelectorWidget extends ButtonWidget implements IGui {
 
 	private int color;
 	private final Screen screen;
@@ -24,7 +26,7 @@ public class WidgetColorSelector extends ButtonWidget implements IGui {
 	private final Runnable callback;
 
 
-	public WidgetColorSelector(Screen screen, boolean hasMargin, Runnable callback) {
+	public ColorSelectorWidget(Screen screen, boolean hasMargin, Runnable callback) {
 		super(0, 0, 0, SQUARE_SIZE, Text.empty(), button -> {
 		}, DEFAULT_NARRATION_SUPPLIER);
 		this.screen = screen;
@@ -74,10 +76,10 @@ public class WidgetColorSelector extends ButtonWidget implements IGui {
 
 		private final int oldColor;
 		private final Consumer<Integer> colorCallback;
-		private final WidgetBetterTextField textFieldColor;
-		private final WidgetBetterTextField textFieldRed;
-		private final WidgetBetterTextField textFieldGreen;
-		private final WidgetBetterTextField textFieldBlue;
+		private final BetterTextFieldWidget textFieldColor;
+		private final BetterTextFieldWidget textFieldRed;
+		private final BetterTextFieldWidget textFieldGreen;
+		private final BetterTextFieldWidget textFieldBlue;
 		private final ButtonWidget buttonReset;
 
 		private static final int RIGHT_WIDTH = 60;
@@ -86,10 +88,10 @@ public class WidgetColorSelector extends ButtonWidget implements IGui {
 			super();
 			this.oldColor = oldColor;
 			this.colorCallback = colorCallback;
-			textFieldColor = new WidgetBetterTextField(6, TextCase.UPPER, "[^\\dA-F]", Text.literal(Integer.toHexString(oldColor).toUpperCase(Locale.ENGLISH)).getString());
-			textFieldRed = new WidgetBetterTextField(3, TextCase.DEFAULT, "\\D", Text.literal(String.valueOf((oldColor >> 16) & 0xFF)).getString());
-			textFieldGreen = new WidgetBetterTextField(3, TextCase.DEFAULT, "\\D", Text.literal(String.valueOf((oldColor >> 8) & 0xFF)).getString());
-			textFieldBlue = new WidgetBetterTextField(3, TextCase.DEFAULT, "\\D", Text.literal(String.valueOf(oldColor & 0xFF)).getString());
+			textFieldColor = new BetterTextFieldWidget(6, TextCase.UPPER, "[^\\dA-F]", Text.literal(Integer.toHexString(oldColor).toUpperCase(Locale.ENGLISH)).getString());
+			textFieldRed = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", Text.literal(String.valueOf((oldColor >> 16) & 0xFF)).getString());
+			textFieldGreen = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", Text.literal(String.valueOf((oldColor >> 8) & 0xFF)).getString());
+			textFieldBlue = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", Text.literal(String.valueOf(oldColor & 0xFF)).getString());
 			buttonReset = ButtonWidget.builder(TranslationProvider.GUI_MTR_RESET_SIGN.getMutableText(), button -> {
 				setHsb(oldColor, true);
 				button.active = false;

@@ -1,26 +1,27 @@
-package org.mtr.screen;
+package org.mtr.widget;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 import org.mtr.core.tool.Utilities;
+import org.mtr.screen.TextCase;
 
 import javax.annotation.Nullable;
 import javax.annotation.RegEx;
 import java.util.function.Consumer;
 
-public final class WidgetBetterTextField extends TextFieldWidget {
+public final class BetterTextFieldWidget extends TextFieldWidget {
 
 	private final int maxLength;
 	private final TextCase textCase;
 	private final String filter;
 	private final String suggestion;
 
-	public WidgetBetterTextField(int maxLength, TextCase textCase, @RegEx @Nullable String filter, @Nullable String suggestion) {
+	public BetterTextFieldWidget(int maxLength, TextCase textCase, @RegEx @Nullable String filter, @Nullable String suggestion) {
 		this("", maxLength, textCase, filter, suggestion);
 	}
 
-	public WidgetBetterTextField(String text, int maxLength, TextCase textCase, @RegEx @Nullable String filter, @Nullable String suggestion) {
+	public BetterTextFieldWidget(String text, int maxLength, TextCase textCase, @RegEx @Nullable String filter, @Nullable String suggestion) {
 		super(MinecraftClient.getInstance().textRenderer, 0, 0, 0, 8, Text.literal(""));
 		this.maxLength = maxLength;
 		this.textCase = textCase;

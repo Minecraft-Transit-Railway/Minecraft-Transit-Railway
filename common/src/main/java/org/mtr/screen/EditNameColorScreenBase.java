@@ -9,6 +9,8 @@ import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.widget.BetterTextFieldWidget;
+import org.mtr.widget.ColorSelectorWidget;
 
 public abstract class EditNameColorScreenBase<T extends NameColorDataBase> extends MTRScreenBase implements Utilities, IGui {
 
@@ -20,8 +22,8 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 	private final MutableText nameText;
 	private final MutableText colorText;
 
-	private final WidgetBetterTextField textFieldName;
-	private final WidgetColorSelector colorSelector;
+	private final BetterTextFieldWidget textFieldName;
+	private final ColorSelectorWidget colorSelector;
 
 	public EditNameColorScreenBase(T data, TranslationProvider.TranslationHolder nameKey, TranslationProvider.TranslationHolder colorKey, Screen previousScreen) {
 		super(previousScreen);
@@ -29,8 +31,8 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		nameText = nameKey.getMutableText();
 		colorText = colorKey.getMutableText();
 
-		textFieldName = new WidgetBetterTextField(1024, TextCase.DEFAULT, null, null);
-		colorSelector = new WidgetColorSelector(this, true, () -> {
+		textFieldName = new BetterTextFieldWidget(1024, TextCase.DEFAULT, null, null);
+		colorSelector = new ColorSelectorWidget(this, true, () -> {
 		});
 	}
 

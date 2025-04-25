@@ -12,6 +12,7 @@ import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 import org.mtr.MTR;
 import org.mtr.resource.ResourceManagerHelper;
+import org.mtr.tool.GuiHelper;
 
 import javax.annotation.Nullable;
 import java.io.InputStreamReader;
@@ -24,8 +25,7 @@ public final class MinecraftFontResource extends FontResourceBase {
 
 	private final Int2ObjectOpenHashMap<byte[]> charBitmap;
 
-	private static final int MINECRAFT_FONT_SIZE = 8;
-	private static final int MINECRAFT_FONT_SCALE = FONT_SIZE / MINECRAFT_FONT_SIZE;
+	private static final int MINECRAFT_FONT_SCALE = FONT_SIZE / GuiHelper.MINECRAFT_FONT_SIZE;
 
 	public MinecraftFontResource(Int2ObjectOpenHashMap<byte[]> charBitmap, int textureIndex, Path path) {
 		super(textureIndex, path);
@@ -96,7 +96,7 @@ public final class MinecraftFontResource extends FontResourceBase {
 			charsPerRow[0] = Math.max(charsPerRow[0], charsRow.codePointCount(0, charsRow.length()));
 		});
 
-		final int rawHeight = providerObject.has("height") ? providerObject.get("height").getAsInt() : MINECRAFT_FONT_SIZE;
+		final int rawHeight = providerObject.has("height") ? providerObject.get("height").getAsInt() : GuiHelper.MINECRAFT_FONT_SIZE;
 		final int ascent = providerObject.get("ascent").getAsInt();
 
 		// Read the font bitmap

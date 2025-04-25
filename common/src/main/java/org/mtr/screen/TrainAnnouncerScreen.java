@@ -16,6 +16,7 @@ import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.packet.PacketUpdateTrainAnnouncerConfig;
 import org.mtr.registry.RegistryClient;
 import org.mtr.resource.CustomResourceTools;
+import org.mtr.widget.BetterTextFieldWidget;
 
 import java.util.Collections;
 
@@ -31,9 +32,9 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 
 	public TrainAnnouncerScreen(BlockPos pos, BlockTrainAnnouncer.TrainAnnouncerBlockEntity blockEntity) {
 		super(pos, true,
-				new ObjectObjectImmutablePair<>(new WidgetBetterTextField(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TranslationProvider.GUI_MTR_ANNOUNCEMENT_MESSAGE.getMutableText()),
-				new ObjectObjectImmutablePair<>(new WidgetBetterTextField(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TranslationProvider.GUI_MTR_SOUND_FILE.getMutableText()),
-				new ObjectObjectImmutablePair<>(new WidgetBetterTextField(MAX_DELAY_LENGTH, TextCase.DEFAULT, "\\D", null), TranslationProvider.GUI_MTR_ANNOUNCEMENT_DELAY.getMutableText())
+				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TranslationProvider.GUI_MTR_ANNOUNCEMENT_MESSAGE.getMutableText()),
+				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TranslationProvider.GUI_MTR_SOUND_FILE.getMutableText()),
+				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_DELAY_LENGTH, TextCase.DEFAULT, "\\D", null), TranslationProvider.GUI_MTR_ANNOUNCEMENT_DELAY.getMutableText())
 		);
 
 		final ClientWorld clientWorld = MinecraftClient.getInstance().world;

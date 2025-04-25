@@ -13,6 +13,7 @@ import org.mtr.config.Client;
 import org.mtr.config.Config;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.widget.ShorterSliderWidget;
 
 import javax.annotation.Nullable;
 
@@ -24,8 +25,8 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 	private final ButtonWidget buttonUseTTSAnnouncements;
 	private final ButtonWidget buttonHideTranslucentParts;
 	private final ButtonWidget buttonLanguageOptions;
-	private final WidgetShorterSlider sliderDynamicTextureResolution;
-	private final WidgetShorterSlider sliderTrainOscillationMultiplier;
+	private final ShorterSliderWidget sliderDynamicTextureResolution;
+	private final ShorterSliderWidget sliderTrainOscillationMultiplier;
 	private final ButtonWidget buttonDefaultRail3D;
 	private final ButtonWidget buttonUseMTRFont;
 	private final ButtonWidget buttonDisableShadowsForShaders;
@@ -53,8 +54,8 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 			client.cycleLanguageDisplay();
 			button.setMessage(client.getLanguageDisplay().translationKey.getText());
 		}).build();
-		sliderDynamicTextureResolution = new WidgetShorterSlider(0, 0, Client.DYNAMIC_RESOLUTION_COUNT - 1, String::valueOf, null);
-		sliderTrainOscillationMultiplier = new WidgetShorterSlider(0, 0, Client.TRAIN_OSCILLATION_COUNT, i -> (i * 10) + "%", null);
+		sliderDynamicTextureResolution = new ShorterSliderWidget(0, 0, Client.DYNAMIC_RESOLUTION_COUNT - 1, String::valueOf, null);
+		sliderTrainOscillationMultiplier = new ShorterSliderWidget(0, 0, Client.TRAIN_OSCILLATION_COUNT, i -> (i * 10) + "%", null);
 		buttonDefaultRail3D = ButtonWidget.builder(Text.empty(), button -> {
 			client.toggleDefaultRail3D();
 			setButtonText(button, client.getDefaultRail3D());

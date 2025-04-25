@@ -10,16 +10,18 @@ import org.mtr.core.data.SavedRailBase;
 import org.mtr.core.data.TransportMode;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.widget.BetterTextFieldWidget;
+import org.mtr.widget.ShorterSliderWidget;
 
 public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> extends MTRScreenBase implements IGui {
 
 	protected final T savedRailBase;
 	protected final int textWidth;
 	protected final boolean showScheduleControls;
-	protected final WidgetShorterSlider sliderDwellTimeMin;
-	protected final WidgetShorterSlider sliderDwellTimeSec;
+	protected final ShorterSliderWidget sliderDwellTimeMin;
+	protected final ShorterSliderWidget sliderDwellTimeSec;
 
-	private final WidgetBetterTextField textFieldSavedRailNumber;
+	private final BetterTextFieldWidget textFieldSavedRailNumber;
 
 	private final MutableText savedRailNumberText;
 
@@ -33,7 +35,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 		showScheduleControls = !transportMode.continuousMovement;
 		savedRailNumberText = getNumberStringKey().getMutableText();
 
-		textFieldSavedRailNumber = new WidgetBetterTextField(MAX_SAVED_RAIL_NUMBER_LENGTH, TextCase.DEFAULT, null, "1");
+		textFieldSavedRailNumber = new BetterTextFieldWidget(MAX_SAVED_RAIL_NUMBER_LENGTH, TextCase.DEFAULT, null, "1");
 
 		int additionalTextWidths = 0;
 		for (final MutableText additionalText : additionalTexts) {
@@ -41,8 +43,8 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 		}
 		textWidth = Math.max(textRenderer.getWidth(savedRailNumberText), additionalTextWidths) + TEXT_PADDING;
 
-		sliderDwellTimeMin = new WidgetShorterSlider(0, 0, (int) Math.floor(MAX_DWELL_TIME / 2F / SECONDS_PER_MINUTE), TranslationProvider.GUI_MTR_ARRIVAL_MIN::getString, null);
-		sliderDwellTimeSec = new WidgetShorterSlider(0, 0, SECONDS_PER_MINUTE * 2 - 1, 10, 2, value -> TranslationProvider.GUI_MTR_ARRIVAL_SEC.getString(value / 2F), null);
+		sliderDwellTimeMin = new ShorterSliderWidget(0, 0, (int) Math.floor(MAX_DWELL_TIME / 2F / SECONDS_PER_MINUTE), TranslationProvider.GUI_MTR_ARRIVAL_MIN::getString, null);
+		sliderDwellTimeSec = new ShorterSliderWidget(0, 0, SECONDS_PER_MINUTE * 2 - 1, 10, 2, value -> TranslationProvider.GUI_MTR_ARRIVAL_SEC.getString(value / 2F), null);
 	}
 
 	@Override

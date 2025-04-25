@@ -27,6 +27,8 @@ import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.packet.PacketUpdatePIDSConfig;
 import org.mtr.registry.RegistryClient;
+import org.mtr.widget.BetterTextFieldWidget;
+import org.mtr.widget.BetterTexturedButtonWidget;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -37,15 +39,15 @@ public class PIDSConfigScreen extends MTRScreenBase implements IGui {
 	private final BlockPos blockPos;
 	private final String[] messages;
 	private final boolean[] hideArrivalArray;
-	private final WidgetBetterTextField[] textFieldMessages;
+	private final BetterTextFieldWidget[] textFieldMessages;
 	private final CheckboxWidget[] buttonsHideArrival;
-	private final WidgetBetterTextField displayPageInput;
+	private final BetterTextFieldWidget displayPageInput;
 	private final MutableText messageText = TranslationProvider.GUI_MTR_PIDS_MESSAGE.getMutableText();
 	private final MutableText hideArrivalText = TranslationProvider.GUI_MTR_HIDE_ARRIVAL.getMutableText();
 	private final CheckboxWidget selectAllCheckbox;
 	private final ButtonWidget filterButton;
-	private final WidgetBetterTexturedButton buttonPrevPage;
-	private final WidgetBetterTexturedButton buttonNextPage;
+	private final BetterTexturedButtonWidget buttonPrevPage;
+	private final BetterTexturedButtonWidget buttonNextPage;
 	private final LongAVLTreeSet filterPlatformIds;
 	private final int displayPage;
 	private final int maxArrivals;
@@ -86,9 +88,9 @@ public class PIDSConfigScreen extends MTRScreenBase implements IGui {
 		selectAllCheckbox = CheckboxWidget.builder(TranslationProvider.GUI_MTR_AUTOMATICALLY_DETECT_NEARBY_PLATFORM.getText(), textRenderer).checked(filterPlatformIds.isEmpty()).callback((checkboxWidget, checked) -> {
 		}).build();
 
-		textFieldMessages = new WidgetBetterTextField[maxArrivals];
+		textFieldMessages = new BetterTextFieldWidget[maxArrivals];
 		for (int i = 0; i < maxArrivals; i++) {
-			textFieldMessages[i] = new WidgetBetterTextField(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, "");
+			textFieldMessages[i] = new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, "");
 		}
 
 		buttonsHideArrival = new CheckboxWidget[maxArrivals];
@@ -97,11 +99,11 @@ public class PIDSConfigScreen extends MTRScreenBase implements IGui {
 			}).build();
 		}
 
-		buttonPrevPage = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_left.png"), Identifier.of("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1), true);
-		buttonNextPage = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_right.png"), Identifier.of("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1), true);
+		buttonPrevPage = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_left.png"), Identifier.of("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1), true);
+		buttonNextPage = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_right.png"), Identifier.of("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1), true);
 
 		filterButton = getPlatformFilterButton(blockPos, selectAllCheckbox, filterPlatformIds, this);
-		displayPageInput = new WidgetBetterTextField(3, TextCase.DEFAULT, "\\D", "1");
+		displayPageInput = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", "1");
 	}
 
 	@Override
@@ -127,7 +129,7 @@ public class PIDSConfigScreen extends MTRScreenBase implements IGui {
 		addDrawableChild(buttonNextPage);
 
 		for (int i = 0; i < textFieldMessages.length; i++) {
-			final WidgetBetterTextField textFieldMessage = textFieldMessages[i];
+			final BetterTextFieldWidget textFieldMessage = textFieldMessages[i];
 			final int y = TEXT_FIELDS_Y_OFFSET + (SQUARE_SIZE + TEXT_FIELD_PADDING) * (i % getMaxArrivalsPerPage());
 			IDrawing.setPositionAndWidth(textFieldMessage, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, y, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING - textWidth);
 			textFieldMessage.setText(messages[i]);

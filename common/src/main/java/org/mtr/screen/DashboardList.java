@@ -17,6 +17,8 @@ import org.mtr.client.IDrawing;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.widget.BetterTextFieldWidget;
+import org.mtr.widget.BetterTexturedButtonWidget;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -68,13 +70,13 @@ public class DashboardList implements IGui {
 	public <T> DashboardList(@Nullable Callback onFind, @Nullable Callback onDrawArea, @Nullable Callback onEdit, @Nullable Runnable onSort, @Nullable Callback onAdd, @Nullable Callback onDelete, @Nullable Supplier<List<T>> getList, Supplier<String> getSearch, Consumer<String> setSearch, boolean playSound) {
 		this.getSearch = getSearch;
 		this.setSearch = setSearch;
-		textFieldSearch = new WidgetBetterTextField(256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_SEARCH.getString());
-		buttonPrevPage = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_left.png"), Identifier.of("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1), true);
-		buttonNextPage = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_right.png"), Identifier.of("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1), true);
-		buttonFind = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_find.png"), Identifier.of("textures/gui/sprites/mtr/icon_find_highlighted.png"), button -> onClick(onFind), playSound);
-		buttonDrawArea = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_draw_area.png"), Identifier.of("textures/gui/sprites/mtr/icon_draw_area_highlighted.png"), button -> onClick(onDrawArea), true);
-		buttonEdit = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_edit.png"), Identifier.of("textures/gui/sprites/mtr/icon_edit_highlighted.png"), button -> onClick(onEdit), true);
-		buttonUp = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_up.png"), Identifier.of("textures/gui/sprites/mtr/icon_up_highlighted.png"), button -> {
+		textFieldSearch = new BetterTextFieldWidget(256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_SEARCH.getString());
+		buttonPrevPage = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_left.png"), Identifier.of("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1), true);
+		buttonNextPage = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_right.png"), Identifier.of("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1), true);
+		buttonFind = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_find.png"), Identifier.of("textures/gui/sprites/mtr/icon_find_highlighted.png"), button -> onClick(onFind), playSound);
+		buttonDrawArea = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_draw_area.png"), Identifier.of("textures/gui/sprites/mtr/icon_draw_area_highlighted.png"), button -> onClick(onDrawArea), true);
+		buttonEdit = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_edit.png"), Identifier.of("textures/gui/sprites/mtr/icon_edit_highlighted.png"), button -> onClick(onEdit), true);
+		buttonUp = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_up.png"), Identifier.of("textures/gui/sprites/mtr/icon_up_highlighted.png"), button -> {
 			if (getList != null) {
 				onUp(getList);
 			}
@@ -82,7 +84,7 @@ public class DashboardList implements IGui {
 				onSort.run();
 			}
 		}, true);
-		buttonDown = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_down.png"), Identifier.of("textures/gui/sprites/mtr/icon_down_highlighted.png"), button -> {
+		buttonDown = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_down.png"), Identifier.of("textures/gui/sprites/mtr/icon_down_highlighted.png"), button -> {
 			if (getList != null) {
 				onDown(getList);
 			}
@@ -90,8 +92,8 @@ public class DashboardList implements IGui {
 				onSort.run();
 			}
 		}, true);
-		buttonAdd = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_add.png"), Identifier.of("textures/gui/sprites/mtr/icon_add_highlighted.png"), button -> onClick(onAdd), true);
-		buttonDelete = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_delete.png"), Identifier.of("textures/gui/sprites/mtr/icon_delete_highlighted.png"), button -> onClick(onDelete), true);
+		buttonAdd = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_add.png"), Identifier.of("textures/gui/sprites/mtr/icon_add_highlighted.png"), button -> onClick(onAdd), true);
+		buttonDelete = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_delete.png"), Identifier.of("textures/gui/sprites/mtr/icon_delete_highlighted.png"), button -> onClick(onDelete), true);
 	}
 
 	public void init(Consumer<ClickableWidget> addDrawableChild) {

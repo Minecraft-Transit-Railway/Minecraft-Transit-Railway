@@ -1,4 +1,4 @@
-package org.mtr.screen;
+package org.mtr.widget;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 
-public class WidgetShorterSlider extends SliderWidget implements IGui {
+public class ShorterSliderWidget extends SliderWidget implements IGui {
 
 	private final int maxValue;
 	private final int markerFrequency;
@@ -30,7 +30,7 @@ public class WidgetShorterSlider extends SliderWidget implements IGui {
 	private static final Identifier HANDLE_TEXTURE = Identifier.ofVanilla("widget/slider_handle");
 	private static final Identifier HANDLE_HIGHLIGHTED_TEXTURE = Identifier.ofVanilla("widget/slider_handle_highlighted");
 
-	public WidgetShorterSlider(int x, int width, int maxValue, int markerFrequency, int markerDisplayedRatio, IntFunction<String> setMessage, @Nullable IntConsumer shiftClickAction) {
+	public ShorterSliderWidget(int x, int width, int maxValue, int markerFrequency, int markerDisplayedRatio, IntFunction<String> setMessage, @Nullable IntConsumer shiftClickAction) {
 		super(x, 0, width, 0, Text.empty(), 0);
 		this.maxValue = Math.max(maxValue, 1);
 		this.setMessage = setMessage;
@@ -39,7 +39,7 @@ public class WidgetShorterSlider extends SliderWidget implements IGui {
 		this.markerDisplayedRatio = markerDisplayedRatio;
 	}
 
-	public WidgetShorterSlider(int x, int width, int maxValue, IntFunction<String> setMessage, @Nullable IntConsumer shiftClickAction) {
+	public ShorterSliderWidget(int x, int width, int maxValue, IntFunction<String> setMessage, @Nullable IntConsumer shiftClickAction) {
 		this(x, width, maxValue, 0, 0, setMessage, shiftClickAction);
 	}
 

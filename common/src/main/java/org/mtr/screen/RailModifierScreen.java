@@ -17,6 +17,7 @@ import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.packet.PacketUpdateData;
 import org.mtr.packet.PacketUpdateLastRailStyles;
 import org.mtr.registry.RegistryClient;
+import org.mtr.widget.BetterTextFieldWidget;
 
 import java.util.stream.Collectors;
 
@@ -37,7 +38,7 @@ public class RailModifierScreen extends MTRScreenBase implements IGui {
 	private final ButtonWidget buttonPlus0;
 	private final ButtonWidget buttonPlus1;
 	private final ButtonWidget buttonPlus2;
-	private final WidgetBetterTextField textFieldRadius;
+	private final BetterTextFieldWidget textFieldRadius;
 	private final MutableText shapeText = TranslationProvider.GUI_MTR_RAIL_SHAPE.getMutableText();
 	private final MutableText styleText = TranslationProvider.GUI_MTR_RAIL_STYLES.getMutableText();
 	private final MutableText radiusText = TranslationProvider.GUI_MTR_RAIL_RADIUS.getMutableText();
@@ -84,7 +85,7 @@ public class RailModifierScreen extends MTRScreenBase implements IGui {
 		buttonPlus0 = ButtonWidget.builder(Text.literal("+0.1"), button -> update(radius + 0.1, true)).build();
 		buttonPlus1 = ButtonWidget.builder(Text.literal("+1"), button -> update(radius + 1, true)).build();
 		buttonPlus2 = ButtonWidget.builder(Text.literal("+10"), button -> update(radius + 10, true)).build();
-		textFieldRadius = new WidgetBetterTextField(256, TextCase.DEFAULT, "[^\\d\\.]", "0");
+		textFieldRadius = new BetterTextFieldWidget(256, TextCase.DEFAULT, "[^\\d\\.]", "0");
 		xStart = Math.max(textRenderer.getWidth(shapeText), textRenderer.getWidth(radiusText)) + TEXT_PADDING * 2;
 		buttonsWidth = SQUARE_SIZE * 12 + textRenderer.getWidth(styleText) + TEXT_PADDING * 2;
 	}

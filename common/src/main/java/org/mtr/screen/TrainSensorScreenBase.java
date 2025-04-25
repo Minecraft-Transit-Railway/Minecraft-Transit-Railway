@@ -22,6 +22,7 @@ import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.packet.PacketUpdateTrainSensorConfig;
 import org.mtr.registry.RegistryClient;
+import org.mtr.widget.BetterTextFieldWidget;
 
 import java.util.stream.Collectors;
 
@@ -31,7 +32,7 @@ public abstract class TrainSensorScreenBase extends MTRScreenBase implements IGu
 	private boolean movingOnly;
 
 	protected final BlockPos blockPos;
-	protected final WidgetBetterTextField[] textFields;
+	protected final BetterTextFieldWidget[] textFields;
 
 	private final LongAVLTreeSet filterRouteIds;
 	private final int textFieldCount;
@@ -43,12 +44,12 @@ public abstract class TrainSensorScreenBase extends MTRScreenBase implements IGu
 	private final int yStart;
 
 	@SafeVarargs
-	public TrainSensorScreenBase(BlockPos blockPos, boolean hasSpeedCheckboxes, ObjectObjectImmutablePair<WidgetBetterTextField, MutableText>... textFieldsAndLabels) {
+	public TrainSensorScreenBase(BlockPos blockPos, boolean hasSpeedCheckboxes, ObjectObjectImmutablePair<BetterTextFieldWidget, MutableText>... textFieldsAndLabels) {
 		super();
 		this.blockPos = blockPos;
 
 		textFieldCount = textFieldsAndLabels.length;
-		textFields = new WidgetBetterTextField[textFieldCount];
+		textFields = new BetterTextFieldWidget[textFieldCount];
 		textFieldLabels = new MutableText[textFieldCount];
 
 		for (int i = 0; i < textFieldCount; i++) {

@@ -11,6 +11,7 @@ import org.mtr.client.IDrawing;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.packet.PacketUpdateTrainScheduleSensorConfig;
 import org.mtr.registry.RegistryClient;
+import org.mtr.widget.BetterTextFieldWidget;
 
 public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 
@@ -21,7 +22,7 @@ public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 	private static final int DEFAULT_SECONDS = 10;
 
 	public TrainScheduleSensorScreen(BlockPos pos, BlockTrainScheduleSensor.TrainScheduleSensorBlockEntity blockEntity) {
-		super(pos, false, new ObjectObjectImmutablePair<>(new WidgetBetterTextField(MAX_SECONDS_LENGTH, TextCase.DEFAULT, "[^\\d-]", null), TranslationProvider.GUI_MTR_TRAIN_SCHEDULE_SENSOR.getMutableText()));
+		super(pos, false, new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_SECONDS_LENGTH, TextCase.DEFAULT, "[^\\d-]", null), TranslationProvider.GUI_MTR_TRAIN_SCHEDULE_SENSOR.getMutableText()));
 
 		final ClientWorld clientWorld = MinecraftClient.getInstance().world;
 		final boolean realtimeOnly;

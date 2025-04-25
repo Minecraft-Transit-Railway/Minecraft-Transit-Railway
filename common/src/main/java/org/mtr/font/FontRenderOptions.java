@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.mtr.data.IGui;
+import org.mtr.tool.GuiHelper;
 
 @Getter
 @Builder
@@ -16,7 +17,7 @@ public final class FontRenderOptions {
 	 * Colour of the text (including alpha)
 	 */
 	@Builder.Default
-	private int color = IGui.ARGB_WHITE;
+	private int color = GuiHelper.WHITE_COLOR;
 	/**
 	 * Colour of the CJK text (including alpha)
 	 */
@@ -31,7 +32,7 @@ public final class FontRenderOptions {
 	 * The vertical size (in pixels) non-CJK text should be rendered, excluding descent
 	 */
 	@Builder.Default
-	private float maxFontSize = 8;
+	private float maxFontSize = GuiHelper.MINECRAFT_FONT_SIZE;
 	/**
 	 * How many times bigger the CJK text will be rendered
 	 */

@@ -26,7 +26,12 @@ public final class PersistentStateData extends PersistentState {
 	public PersistentStateData(NbtCompound nbt) {
 		super();
 		final String tempUniqueWorldId = nbt.getString(KEY_UNIQUE_WORLD_ID);
-		uniqueWorldId = tempUniqueWorldId.isEmpty() ? MTR.randomString() : tempUniqueWorldId;
+		if (tempUniqueWorldId.isEmpty()) {
+			uniqueWorldId = MTR.randomString();
+			markDirty();
+		} else {
+			uniqueWorldId = tempUniqueWorldId;
+		}
 		for (final long routeId : nbt.getLongArray(KEY_ROUTE_IDS_WITH_DISABLED_ANNOUNCEMENTS)) {
 			routeIdsWithDisabledAnnouncements.add(routeId);
 		}

@@ -19,16 +19,17 @@ import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.packet.PacketUpdateEyeCandyConfig;
 import org.mtr.registry.RegistryClient;
 import org.mtr.resource.ObjectResource;
+import org.mtr.widget.BetterTextFieldWidget;
 
 public class EyeCandyScreen extends MTRScreenBase implements IGui {
 
 	private final ButtonWidget buttonSelectModel;
-	private final WidgetBetterTextField textFieldTranslateX;
-	private final WidgetBetterTextField textFieldTranslateY;
-	private final WidgetBetterTextField textFieldTranslateZ;
-	private final WidgetBetterTextField textFieldRotateX;
-	private final WidgetBetterTextField textFieldRotateY;
-	private final WidgetBetterTextField textFieldRotateZ;
+	private final BetterTextFieldWidget textFieldTranslateX;
+	private final BetterTextFieldWidget textFieldTranslateY;
+	private final BetterTextFieldWidget textFieldTranslateZ;
+	private final BetterTextFieldWidget textFieldRotateX;
+	private final BetterTextFieldWidget textFieldRotateY;
+	private final BetterTextFieldWidget textFieldRotateZ;
 	private final CheckboxWidget buttonFullBrightness;
 
 	private static final MutableText SELECT_MODEL_TEXT = TranslationProvider.GUI_MTR_SELECT_MODEL.getMutableText();
@@ -60,17 +61,17 @@ public class EyeCandyScreen extends MTRScreenBase implements IGui {
 		}
 
 		buttonSelectModel = ButtonWidget.builder(Text.translatable("selectWorld.edit"), button -> MinecraftClient.getInstance().setScreen(new EyeCandyObjectSelectionScreen(new ObjectImmutableList<>(objectsForList), selectedModelIndices, this::sendUpdate, this))).build();
-		textFieldTranslateX = new WidgetBetterTextField(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
+		textFieldTranslateX = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
 		textFieldTranslateX.setChangedListener(text -> sendUpdate());
-		textFieldTranslateY = new WidgetBetterTextField(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
+		textFieldTranslateY = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
 		textFieldTranslateY.setChangedListener(text -> sendUpdate());
-		textFieldTranslateZ = new WidgetBetterTextField(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
+		textFieldTranslateZ = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
 		textFieldTranslateZ.setChangedListener(text -> sendUpdate());
-		textFieldRotateX = new WidgetBetterTextField(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
+		textFieldRotateX = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
 		textFieldRotateX.setChangedListener(text -> sendUpdate());
-		textFieldRotateY = new WidgetBetterTextField(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
+		textFieldRotateY = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
 		textFieldRotateY.setChangedListener(text -> sendUpdate());
-		textFieldRotateZ = new WidgetBetterTextField(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
+		textFieldRotateZ = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null);
 		textFieldRotateZ.setChangedListener(text -> sendUpdate());
 		buttonFullBrightness = CheckboxWidget.builder(TranslationProvider.GUI_MTR_MODEL_FULL_BRIGHTNESS.getText(), textRenderer).callback((checkboxWidget, checked) -> sendUpdate()).build();
 

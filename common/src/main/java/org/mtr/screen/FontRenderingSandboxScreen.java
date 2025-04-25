@@ -12,6 +12,7 @@ import org.mtr.data.IGui;
 import org.mtr.font.FontGroups;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.tool.Drawing;
+import org.mtr.widget.BetterTextFieldWidget;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -22,7 +23,7 @@ public final class FontRenderingSandboxScreen extends MTRScreenBase {
 	private long readTime = 0;
 	private FontRenderOptions fontRenderOptions = FontRenderOptions.builder().horizontalSpace(200).verticalSpace(100).horizontalPositioning(FontRenderOptions.Alignment.CENTER).verticalPositioning(FontRenderOptions.Alignment.CENTER).build();
 
-	private final WidgetBetterTextField textFieldWidget = new WidgetBetterTextField(DEFAULT_TEXT, Integer.MAX_VALUE, TextCase.DEFAULT, null, DEFAULT_TEXT);
+	private final BetterTextFieldWidget textFieldWidget = new BetterTextFieldWidget(DEFAULT_TEXT, Integer.MAX_VALUE, TextCase.DEFAULT, null, DEFAULT_TEXT);
 	private final CheckboxWidget checkboxWidget;
 	private final Path fontRenderOptionsPath = MinecraftClient.getInstance().runDirectory.toPath().resolve("config/cache/mtr_font_rendering_sandbox.json");
 

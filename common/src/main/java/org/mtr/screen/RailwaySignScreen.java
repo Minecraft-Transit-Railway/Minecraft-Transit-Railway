@@ -29,6 +29,7 @@ import org.mtr.packet.PacketUpdateRailwaySignConfig;
 import org.mtr.registry.RegistryClient;
 import org.mtr.render.RenderRailwaySign;
 import org.mtr.resource.SignResource;
+import org.mtr.widget.BetterTexturedButtonWidget;
 
 import javax.annotation.Nullable;
 
@@ -54,8 +55,8 @@ public class RailwaySignScreen extends MTRScreenBase implements IGui {
 	private final ButtonWidget[] buttonsEdit;
 	private final ButtonWidget[] buttonsSelection;
 	private final ButtonWidget buttonClear;
-	private final WidgetBetterTexturedButton buttonPrevPage;
-	private final WidgetBetterTexturedButton buttonNextPage;
+	private final BetterTexturedButtonWidget buttonPrevPage;
+	private final BetterTexturedButtonWidget buttonNextPage;
 
 	private static final int SIGN_SIZE = 32;
 	private static final int SIGN_BUTTON_SIZE = 16;
@@ -136,8 +137,8 @@ public class RailwaySignScreen extends MTRScreenBase implements IGui {
 		}
 
 		buttonClear = ButtonWidget.builder(TranslationProvider.GUI_MTR_RESET_SIGN.getMutableText(), button -> setNewSignId(null)).build();
-		buttonPrevPage = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_left.png"), Identifier.of("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1), true);
-		buttonNextPage = new WidgetBetterTexturedButton(Identifier.of("textures/gui/sprites/mtr/icon_right.png"), Identifier.of("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1), true);
+		buttonPrevPage = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_left.png"), Identifier.of("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1), true);
+		buttonNextPage = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_right.png"), Identifier.of("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1), true);
 	}
 
 	@Override

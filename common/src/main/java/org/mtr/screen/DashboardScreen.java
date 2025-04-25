@@ -5,6 +5,8 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import org.mtr.MTR;
@@ -19,6 +21,12 @@ import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.packet.PacketDeleteData;
 import org.mtr.packet.PacketUpdateData;
 import org.mtr.registry.RegistryClient;
+import org.mtr.tool.Drawing;
+import org.mtr.tool.GuiHelper;
+import org.mtr.widget.BetterTextFieldWidget;
+import org.mtr.widget.ColorSelectorWidget;
+import org.mtr.widget.MapWidget;
+import org.mtr.widget.TabButtonWidget;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -32,11 +40,11 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 	private boolean isNew;
 
 	private final TransportMode transportMode;
-	private final WidgetMap widgetMap;
+	private final MapWidget mapWidget;
 
-	private final ButtonWidget buttonTabStations;
-	private final ButtonWidget buttonTabRoutes;
-	private final ButtonWidget buttonTabDepots;
+	private final TabButtonWidget tabButtonStations;
+	private final TabButtonWidget tabButtonRoutes;
+	private final TabButtonWidget tabButtonDepots;
 	private final ButtonWidget buttonAddStation;
 	private final ButtonWidget buttonAddRoute;
 	private final ButtonWidget buttonAddDepot;
@@ -50,9 +58,9 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 	private final ButtonWidget buttonTransportSystemMap;
 	private final ButtonWidget buttonResourcePackCreator;
 
-	private final WidgetBetterTextField textFieldName;
-	private final WidgetBetterTextField textFieldCustomDestination;
-	private final WidgetColorSelector colorSelector;
+	private final BetterTextFieldWidget textFieldName;
+	private final BetterTextFieldWidget textFieldCustomDestination;
+	private final ColorSelectorWidget colorSelector;
 
 	private final DashboardList dashboardList;
 
@@ -63,14 +71,14 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 		super();
 		this.transportMode = transportMode;
 
-		textFieldName = new WidgetBetterTextField(1024, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_NAME.getString());
-		textFieldCustomDestination = new WidgetBetterTextField(1024, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_CUSTOM_DESTINATION_SUGGESTION.getString());
-		colorSelector = new WidgetColorSelector(this, true, this::toggleButtons);
-		widgetMap = new WidgetMap(transportMode, this::onDrawCorners, this::onDrawCornersMouseRelease);
+		textFieldName = new BetterTextFieldWidget(1024, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_NAME.getString());
+		textFieldCustomDestination = new BetterTextFieldWidget(1024, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_CUSTOM_DESTINATION_SUGGESTION.getString());
+		colorSelector = new ColorSelectorWidget(this, true, this::toggleButtons);
+		mapWidget = new MapWidget(transportMode, this::onDrawCorners, this::onDrawCornersMouseRelease);
 
-		buttonTabStations = ButtonWidget.builder(TranslationProvider.GUI_MTR_STATIONS.getMutableText(), button -> onSelectTab(SelectedTab.STATIONS)).build();
-		buttonTabRoutes = ButtonWidget.builder(TranslationProvider.GUI_MTR_ROUTES.getMutableText(), button -> onSelectTab(SelectedTab.ROUTES)).build();
-		buttonTabDepots = ButtonWidget.builder(TranslationProvider.GUI_MTR_DEPOTS.getMutableText(), button -> onSelectTab(SelectedTab.DEPOTS)).build();
+		tabButtonStations = new TabButtonWidget(TranslationProvider.GUI_MTR_STATIONS.getMutableText(), -1, () -> onSelectTab(SelectedTab.STATIONS));
+		tabButtonRoutes = new TabButtonWidget(TranslationProvider.GUI_MTR_ROUTES.getMutableText(), -1, () -> onSelectTab(SelectedTab.ROUTES));
+		tabButtonDepots = new TabButtonWidget(TranslationProvider.GUI_MTR_DEPOTS.getMutableText(), -1, () -> onSelectTab(SelectedTab.DEPOTS));
 
 		buttonAddStation = ButtonWidget.builder(TranslationProvider.GUI_MTR_ADD_STATION.getMutableText(), button -> startEditingArea(new Station(MinecraftClientData.getDashboardInstance()), true)).build();
 		buttonAddRoute = ButtonWidget.builder(TranslationProvider.GUI_MTR_ADD_ROUTE.getMutableText(), button -> startEditingRoute(new Route(transportMode, MinecraftClientData.getDashboardInstance()), true)).build();
@@ -78,8 +86,8 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 		buttonDoneEditingStation = ButtonWidget.builder(Text.translatable("gui.done"), button -> onDoneEditingArea()).build();
 		buttonDoneEditingRoute = ButtonWidget.builder(Text.translatable("gui.done"), button -> onDoneEditingRoute()).build();
 		buttonDoneEditingRouteDestination = ButtonWidget.builder(Text.translatable("gui.done"), button -> onDoneEditingRouteDestination()).build();
-		buttonZoomIn = ButtonWidget.builder(Text.literal("+"), button -> widgetMap.scale(1)).build();
-		buttonZoomOut = ButtonWidget.builder(Text.literal("-"), button -> widgetMap.scale(-1)).build();
+		buttonZoomIn = ButtonWidget.builder(Text.literal("+"), button -> mapWidget.scale(1)).build();
+		buttonZoomOut = ButtonWidget.builder(Text.literal("-"), button -> mapWidget.scale(-1)).build();
 		buttonRailActions = ButtonWidget.builder(TranslationProvider.GUI_MTR_RAIL_ACTIONS_BUTTON.getMutableText(), button -> MinecraftClient.getInstance().setScreen(new RailActionsScreen(this))).build();
 		buttonOptions = ButtonWidget.builder(Text.translatable("menu.options"), button -> MinecraftClient.getInstance().setScreen(new ConfigScreen(this))).build();
 		buttonTransportSystemMap = ButtonWidget.builder(TranslationProvider.GUI_MTR_TRANSPORT_SYSTEM_MAP.getMutableText(), button -> Util.getOperatingSystem().open(String.format("http://localhost:%s", MTRClient.getServerPort()))).build();
@@ -97,11 +105,6 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 		final int tabCount = 3;
 		final int bottomRowY = height - SQUARE_SIZE;
 
-		widgetMap.setPositionAndSize(PANEL_WIDTH, 0, width - PANEL_WIDTH, height - SQUARE_SIZE * 2);
-
-		IDrawing.setPositionAndWidth(buttonTabStations, 0, 0, PANEL_WIDTH / tabCount);
-		IDrawing.setPositionAndWidth(buttonTabRoutes, PANEL_WIDTH / tabCount, 0, PANEL_WIDTH / tabCount);
-		IDrawing.setPositionAndWidth(buttonTabDepots, 2 * PANEL_WIDTH / tabCount, 0, PANEL_WIDTH / tabCount);
 		IDrawing.setPositionAndWidth(buttonAddStation, 0, bottomRowY, PANEL_WIDTH);
 		IDrawing.setPositionAndWidth(buttonAddRoute, 0, bottomRowY, PANEL_WIDTH);
 		IDrawing.setPositionAndWidth(buttonAddDepot, 0, bottomRowY, PANEL_WIDTH);
@@ -125,11 +128,11 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 
 		toggleButtons();
 		dashboardList.init(this::addDrawableChild);
-		addDrawableChild(widgetMap);
+		addDrawableChild(mapWidget);
 
-		addDrawableChild(buttonTabStations);
-		addDrawableChild(buttonTabRoutes);
-		addDrawableChild(buttonTabDepots);
+		addDrawableChild(tabButtonStations);
+		addDrawableChild(tabButtonRoutes);
+		addDrawableChild(tabButtonDepots);
 		addDrawableChild(buttonAddStation);
 		addDrawableChild(buttonAddRoute);
 		addDrawableChild(buttonAddDepot);
@@ -151,8 +154,12 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 	@Override
 	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 		super.render(context, mouseX, mouseY, delta);
-		widgetMap.render(context, mouseX, mouseY, delta);
-//		context.fill(0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
+		mapWidget.render(context, mouseX, mouseY, delta);
+
+		final MatrixStack matrixStack = context.getMatrices();
+		final Drawing drawing = new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
+		drawing.setVertices(tabButtonStations.getWidth() + tabButtonRoutes.getWidth() + tabButtonDepots.getWidth(), 0, getPanelWidth(), GuiHelper.DEFAULT_LINE_SIZE).setColor(GuiHelper.BLACK_COLOR).draw();
+		drawing.setVerticesWH(0, GuiHelper.DEFAULT_LINE_SIZE, getPanelWidth(), height).setColor(GuiHelper.BACKGROUND_COLOR).draw();
 		dashboardList.render(context);
 	}
 
@@ -169,6 +176,10 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 
 	@Override
 	public void tick() {
+		tabButtonRoutes.setX(tabButtonStations.getWidth());
+		tabButtonDepots.setX(tabButtonStations.getWidth() + tabButtonRoutes.getWidth());
+		mapWidget.setPositionAndSize(getPanelWidth(), 0, width - getPanelWidth(), height - SQUARE_SIZE * 2);
+
 		dashboardList.tick();
 
 		try {
@@ -219,25 +230,24 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 		return false;
 	}
 
-	private void onSelectTab(SelectedTab tab) {
-		selectedTab = tab;
-		buttonTabStations.active = tab != SelectedTab.STATIONS;
-		buttonTabRoutes.active = tab != SelectedTab.ROUTES;
-		buttonTabDepots.active = tab != SelectedTab.DEPOTS;
+	private void onSelectTab(SelectedTab selectedTab) {
+		this.selectedTab = selectedTab;
+		tabButtonStations.select(selectedTab == SelectedTab.STATIONS);
+		tabButtonRoutes.select(selectedTab == SelectedTab.ROUTES);
+		tabButtonDepots.select(selectedTab == SelectedTab.DEPOTS);
 		stopEditing();
-//		widgetMap.setShowStations(selectedTab != SelectedTab.DEPOTS);
+		mapWidget.setShowStations(selectedTab != SelectedTab.DEPOTS);
 	}
 
 	private void onFind(DashboardListItem dashboardListItem, int index) {
 		if (selectedTab == SelectedTab.STATIONS || selectedTab == SelectedTab.DEPOTS) {
-			if (editingArea == null && dashboardListItem.data instanceof AreaBase) {
-				final AreaBase<?, ?> area = (AreaBase<?, ?>) dashboardListItem.data;
+			if (editingArea == null && dashboardListItem.data instanceof AreaBase<?, ?> area) {
 				if (AreaBase.validCorners(area)) {
-					widgetMap.find(area.getCenter());
+					mapWidget.find(area.getCenter());
 				}
 			} else if (selectedTab == SelectedTab.STATIONS) {
 				final Platform platform = (Platform) dashboardListItem.data;
-				widgetMap.find(platform.getMidPosition());
+				mapWidget.find(platform.getMidPosition());
 			}
 		}
 	}
@@ -336,7 +346,7 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 		textFieldName.setText(editingArea.getName());
 		colorSelector.setColor(editingArea.getColor());
 
-		widgetMap.startEditingArea();
+		mapWidget.startEditingArea();
 		toggleButtons();
 	}
 
@@ -349,7 +359,7 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 		textFieldName.setText(editingRoute.getName());
 		colorSelector.setColor(editingRoute.getColor());
 
-		widgetMap.startEditingRoute();
+		mapWidget.startEditingRoute();
 		toggleButtons();
 	}
 
@@ -418,7 +428,7 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 	private void stopEditing() {
 		editingArea = null;
 		editingRoute = null;
-		widgetMap.stopEditing();
+		mapWidget.stopEditing();
 		toggleButtons();
 	}
 
@@ -443,6 +453,10 @@ public class DashboardScreen extends MTRScreenBase implements IGui {
 		textFieldCustomDestination.visible = showRouteDestinationFields;
 		colorSelector.visible = showTextFields;
 		dashboardList.height = height - SQUARE_SIZE * 2 - (showTextFields || showRouteDestinationFields ? SQUARE_SIZE + TEXT_FIELD_PADDING : 0);
+	}
+
+	private int getPanelWidth() {
+		return Math.max(PANEL_WIDTH, tabButtonStations.getWidth() + tabButtonRoutes.getWidth() + tabButtonDepots.getWidth());
 	}
 
 	private enum SelectedTab {STATIONS, ROUTES, DEPOTS}

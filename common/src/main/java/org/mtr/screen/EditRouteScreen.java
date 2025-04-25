@@ -20,12 +20,13 @@ import org.mtr.packet.PacketCheckRouteIdHasDisabledAnnouncements;
 import org.mtr.packet.PacketSetRouteIdHasDisabledAnnouncements;
 import org.mtr.packet.PacketUpdateData;
 import org.mtr.registry.RegistryClient;
+import org.mtr.widget.BetterTextFieldWidget;
 
 public class EditRouteScreen extends EditNameColorScreenBase<Route> implements IGui {
 
 	private final MutableText lightRailRouteNumberText = TranslationProvider.GUI_MTR_LIGHT_RAIL_ROUTE_NUMBER.getMutableText();
 
-	private final WidgetBetterTextField textFieldLightRailRouteNumber;
+	private final BetterTextFieldWidget textFieldLightRailRouteNumber;
 	private final ButtonWidget buttonRouteType;
 	private final CheckboxWidget buttonIsRouteHidden;
 	private final CheckboxWidget buttonDisableNextStationAnnouncements;
@@ -39,7 +40,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 	public EditRouteScreen(Route route, Screen previousScreen) {
 		super(route, TranslationProvider.GUI_MTR_ROUTE_NAME, TranslationProvider.GUI_MTR_ROUTE_COLOR, previousScreen);
 
-		textFieldLightRailRouteNumber = new WidgetBetterTextField(256, TextCase.DEFAULT, null, null);
+		textFieldLightRailRouteNumber = new BetterTextFieldWidget(256, TextCase.DEFAULT, null, null);
 		buttonRouteType = ButtonWidget.builder(TranslationProvider.GUI_MTR_ADD_VALUE.getMutableText(), button -> setRouteType(route, route.getRouteType().next())).build();
 		buttonIsRouteHidden = CheckboxWidget.builder(TranslationProvider.GUI_MTR_IS_ROUTE_HIDDEN.getText(), textRenderer).callback((checkboxWidget, checked) -> setIsRouteHidden(checked)).build();
 		buttonDisableNextStationAnnouncements = CheckboxWidget.builder(TranslationProvider.GUI_MTR_DISABLE_NEXT_STATION_ANNOUNCEMENTS.getText(), textRenderer).callback((checkboxWidget, checked) -> setDisableNextStationAnnouncements(checked)).build();

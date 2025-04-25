@@ -49,29 +49,28 @@ public final class FontGroup {
 			totalLineHeight += rawLineHeights[i];
 		}
 
-		if (drawing != null) {
-			// Calculate scale
-			final float yScale;
-			if (fontRenderOptions.getTextOverflow() == FontRenderOptions.TextOverflow.SCALE) {
-				yScale = Math.min(1, Math.min(fontRenderOptions.getVerticalSpace() / totalLineHeight, fontRenderOptions.getHorizontalSpace() / maxLineWidth));
-			} else {
-				yScale = Math.min(1, fontRenderOptions.getVerticalSpace() / totalLineHeight);
-			}
-
-			// Calculate stating position
-			final float x = fontRenderOptions.getHorizontalPositioning().getOffset(fontRenderOptions.getHorizontalSpace());
-			float y = fontRenderOptions.getVerticalPositioning().getOffset(fontRenderOptions.getVerticalSpace()) + fontRenderOptions.getVerticalTextAlignment().getOffset(totalLineHeight * yScale - fontRenderOptions.getVerticalSpace());
-
-			// Render text
-			for (int i = 0; i < lines.length; i++) {
-				final float xScale = fontRenderOptions.getTextOverflow() == FontRenderOptions.TextOverflow.COMPRESS ? Math.min(yScale, Math.min(1, fontRenderOptions.getHorizontalSpace() / rawLineWidths[i])) : yScale;
-				final float horizontalOffset = fontRenderOptions.getHorizontalTextAlignment().getOffset(rawLineWidths[i] * xScale - fontRenderOptions.getHorizontalSpace());
-				renderRaw(drawing, lines[i], x + horizontalOffset, y, xScale * fontSize[i], yScale * fontSize[i], colors[i], fontRenderOptions.getLight());
-				y += rawLineHeights[i] * yScale;
-			}
+		// Calculate scale
+		final float yScale;
+		if (fontRenderOptions.getTextOverflow() == FontRenderOptions.TextOverflow.SCALE) {
+			yScale = Math.min(1, Math.min(fontRenderOptions.getVerticalSpace() / totalLineHeight, fontRenderOptions.getHorizontalSpace() / maxLineWidth));
+		} else {
+			yScale = Math.min(1, fontRenderOptions.getVerticalSpace() / totalLineHeight);
 		}
 
-		return new FloatFloatImmutablePair(Math.min(maxLineWidth, fontRenderOptions.getHorizontalSpace()), Math.min(totalLineHeight, fontRenderOptions.getVerticalSpace()));
+		// Calculate stating position
+		final float x = fontRenderOptions.getHorizontalPositioning().getOffset(fontRenderOptions.getHorizontalSpace());
+		float y = fontRenderOptions.getVerticalPositioning().getOffset(fontRenderOptions.getVerticalSpace()) + fontRenderOptions.getVerticalTextAlignment().getOffset(totalLineHeight * yScale - fontRenderOptions.getVerticalSpace());
+		float totalWidth = 0;
+
+		// Render text
+		for (int i = 0; i < lines.length; i++) {
+			final float xScale = fontRenderOptions.getTextOverflow() == FontRenderOptions.TextOverflow.COMPRESS ? Math.min(yScale, Math.min(1, fontRenderOptions.getHorizontalSpace() / rawLineWidths[i])) : yScale;
+			final float horizontalOffset = fontRenderOptions.getHorizontalTextAlignment().getOffset(rawLineWidths[i] * xScale - fontRenderOptions.getHorizontalSpace());
+			totalWidth = Math.max(totalWidth, renderRaw(drawing, lines[i], x + horizontalOffset, y, xScale * fontSize[i], yScale * fontSize[i], colors[i], fontRenderOptions.getLight())[0]);
+			y += rawLineHeights[i] * yScale;
+		}
+
+		return new FloatFloatImmutablePair(totalWidth, y);
 	}
 
 	private float[] renderRaw(@Nullable Drawing drawing, String text, float x, float y, float xScale, float yScale, int color, int light) {

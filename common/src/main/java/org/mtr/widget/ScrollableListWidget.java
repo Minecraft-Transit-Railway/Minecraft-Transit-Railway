@@ -1,4 +1,4 @@
-package org.mtr.screen;
+package org.mtr.widget;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
@@ -10,13 +10,14 @@ import net.minecraft.util.Identifier;
 import org.mtr.font.FontGroups;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.tool.Drawing;
+import org.mtr.tool.GuiHelper;
 
 import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public final class WidgetScrollableList<T> extends WidgetScrollablePanel {
+public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 
 	@Nullable
 	private Runnable clickAction;
@@ -32,15 +33,12 @@ public final class WidgetScrollableList<T> extends WidgetScrollablePanel {
 	private final BiConsumer<DrawContext, T> drawIcon;
 	private final int iconWidth;
 
-	public static final int FONT_SIZE = 8;
-	public static final int PADDING = 4;
-	public static final int LINE_SIZE = FONT_SIZE + PADDING * 2;
-	public static final int HOVER_COLOR = 0xFF444444;
+	private static final int DELETE_COLOR = 0xFFCC0000;
 
 	/**
 	 * Creates a scrollable list with bounds based on the desired centre point, the render bounds, number of data elements, and the width of the longest text.
 	 */
-	public static <T> WidgetScrollableList<T> createFlexible(
+	public static <T> ScrollableListWidget<T> createFlexible(
 			ObjectArrayList<T> dataList,
 			ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<T>>> actions,
 			Function<T, String> nameProvider,
@@ -49,12 +47,12 @@ public final class WidgetScrollableList<T> extends WidgetScrollablePanel {
 	) {
 		int maxTextWidth = 0;
 		for (final T data : dataList) {
-			maxTextWidth = Math.max(maxTextWidth, (int) Math.ceil(FontGroups.renderMTR(null, nameProvider.apply(data), FontRenderOptions.builder().maxFontSize(FONT_SIZE).verticalSpace(LINE_SIZE).build()).leftFloat()));
+			maxTextWidth = Math.max(maxTextWidth, (int) Math.ceil(FontGroups.renderMTR(null, nameProvider.apply(data), FontRenderOptions.builder().maxFontSize(GuiHelper.MINECRAFT_FONT_SIZE).verticalSpace(GuiHelper.DEFAULT_LINE_SIZE).build()).leftFloat()));
 		}
 
-		final int rawWidth = iconWidth + PADDING * 2 + maxTextWidth + LINE_SIZE * actions.size() + SCROLLBAR_WIDTH;
-		final int rawHeight = LINE_SIZE * dataList.size();
-		return new WidgetScrollableList<>(
+		final int rawWidth = iconWidth + GuiHelper.DEFAULT_PADDING * 2 + maxTextWidth + GuiHelper.DEFAULT_LINE_SIZE * actions.size() + SCROLLBAR_WIDTH;
+		final int rawHeight = GuiHelper.DEFAULT_LINE_SIZE * dataList.size();
+		return new ScrollableListWidget<>(
 				dataList, actions, nameProvider, drawIcon, iconWidth,
 				Math.max(minX, Math.min(centerX - Math.floorDiv(rawWidth, 2), maxX - rawWidth)),
 				Math.max(minY, Math.min(centerY - Math.floorDiv(rawHeight, 2), maxY - rawHeight)),
@@ -66,17 +64,17 @@ public final class WidgetScrollableList<T> extends WidgetScrollablePanel {
 	/**
 	 * Creates a scrollable list with fixed dimensions.
 	 */
-	public static <T> WidgetScrollableList<T> createFixed(
+	public static <T> ScrollableListWidget<T> createFixed(
 			ObjectArrayList<T> dataList,
 			ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<T>>> actions,
 			Function<T, String> nameProvider,
 			BiConsumer<DrawContext, T> drawIcon, int iconWidth,
 			int x, int y, int width, int height
 	) {
-		return new WidgetScrollableList<>(dataList, actions, nameProvider, drawIcon, iconWidth, x, y, x + width, y + height);
+		return new ScrollableListWidget<>(dataList, actions, nameProvider, drawIcon, iconWidth, x, y, x + width, y + height);
 	}
 
-	private WidgetScrollableList(
+	private ScrollableListWidget(
 			ObjectArrayList<T> dataList,
 			ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<T>>> actions,
 			Function<T, String> nameProvider,
@@ -108,21 +106,21 @@ public final class WidgetScrollableList<T> extends WidgetScrollablePanel {
 			final T data = dataList.get(i);
 
 			// Detect hovering
-			if (mouseY >= startY + LINE_SIZE * i && mouseY < startY + LINE_SIZE * (i + 1) && mouseX >= x1 && mouseX < x2 - getScrollbarWidth()) {
+			if (mouseY >= startY + GuiHelper.DEFAULT_LINE_SIZE * i && mouseY < startY + GuiHelper.DEFAULT_LINE_SIZE * (i + 1) && mouseX >= x1 && mouseX < x2 - getScrollbarWidth()) {
 				int leftBound = x1;
 				for (int j = 0; j < actions.size(); j++) {
-					final int rightBound = x2 - LINE_SIZE * (actions.size() - j - 1) - getScrollbarWidth();
+					final int rightBound = x2 - GuiHelper.DEFAULT_LINE_SIZE * (actions.size() - j - 1) - getScrollbarWidth();
 					final ObjectObjectImmutablePair<Identifier, Consumer<T>> action = actions.get(j);
 					final Identifier identifier = action.left();
 
 					// Draw hover highlight
 					if (mouseX >= leftBound && mouseX < rightBound) {
-						context.fill(leftBound - x1, 0, rightBound - x1, LINE_SIZE, identifier.getPath().endsWith("icon_delete") ? 0xFFCC0000 : HOVER_COLOR);
+						context.fill(leftBound - x1, 0, rightBound - x1, GuiHelper.DEFAULT_LINE_SIZE, identifier.getPath().endsWith("icon_delete") ? DELETE_COLOR : GuiHelper.HOVER_COLOR);
 						clickAction = () -> action.right().accept(data);
 					}
 
 					// Draw action button
-					context.drawGuiTexture(RenderLayer::getGuiTextured, identifier, rightBound - x1 - LINE_SIZE, 0, LINE_SIZE, LINE_SIZE);
+					context.drawGuiTexture(RenderLayer::getGuiTextured, identifier, rightBound - x1 - GuiHelper.DEFAULT_LINE_SIZE, 0, GuiHelper.DEFAULT_LINE_SIZE, GuiHelper.DEFAULT_LINE_SIZE);
 					leftBound = rightBound;
 				}
 			}
@@ -132,17 +130,17 @@ public final class WidgetScrollableList<T> extends WidgetScrollablePanel {
 
 			// Draw text
 			matrixStack.push();
-			matrixStack.translate(iconWidth + PADDING, 0, 0);
+			matrixStack.translate(iconWidth + GuiHelper.DEFAULT_PADDING, 0, 0);
 			FontGroups.renderMTR(drawing, nameProvider.apply(data), FontRenderOptions.builder()
-					.maxFontSize(FONT_SIZE)
-					.horizontalSpace(x2 - x1 - iconWidth - PADDING * 2 - LINE_SIZE * actions.size() - getScrollbarWidth())
-					.verticalSpace(LINE_SIZE)
+					.maxFontSize(GuiHelper.MINECRAFT_FONT_SIZE)
+					.horizontalSpace(x2 - x1 - iconWidth - GuiHelper.DEFAULT_PADDING * 2 - GuiHelper.DEFAULT_LINE_SIZE * actions.size() - getScrollbarWidth())
+					.verticalSpace(GuiHelper.DEFAULT_LINE_SIZE)
 					.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
 					.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
 					.build()
 			);
 			matrixStack.pop();
-			matrixStack.translate(0, LINE_SIZE, 0);
+			matrixStack.translate(0, GuiHelper.DEFAULT_LINE_SIZE, 0);
 		}
 
 		matrixStack.pop();
@@ -160,11 +158,11 @@ public final class WidgetScrollableList<T> extends WidgetScrollablePanel {
 
 	@Override
 	protected double getDeltaYPerScroll() {
-		return LINE_SIZE;
+		return GuiHelper.DEFAULT_LINE_SIZE;
 	}
 
 	@Override
 	protected int getContentsHeightWithPadding() {
-		return LINE_SIZE * dataList.size();
+		return GuiHelper.DEFAULT_LINE_SIZE * dataList.size();
 	}
 }

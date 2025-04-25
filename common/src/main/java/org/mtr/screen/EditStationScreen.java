@@ -18,6 +18,7 @@ import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.packet.PacketUpdateData;
 import org.mtr.registry.RegistryClient;
+import org.mtr.widget.BetterTextFieldWidget;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -34,10 +35,10 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	private final MutableText exitParentsText = TranslationProvider.GUI_MTR_EXIT_PARENTS.getMutableText();
 	private final MutableText exitDestinationsText = TranslationProvider.GUI_MTR_EXIT_DESTINATIONS.getMutableText();
 
-	private final WidgetBetterTextField textFieldZone;
-	private final WidgetBetterTextField textFieldExitParentLetter;
-	private final WidgetBetterTextField textFieldExitParentNumber;
-	private final WidgetBetterTextField textFieldExitDestination;
+	private final BetterTextFieldWidget textFieldZone;
+	private final BetterTextFieldWidget textFieldExitParentLetter;
+	private final BetterTextFieldWidget textFieldExitParentNumber;
+	private final BetterTextFieldWidget textFieldExitDestination;
 
 	private final ButtonWidget buttonAddExitParent;
 	private final ButtonWidget buttonDoneExitParent;
@@ -51,10 +52,10 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 
 	public EditStationScreen(Station station, Screen previousScreen) {
 		super(station, TranslationProvider.GUI_MTR_STATION_NAME, TranslationProvider.GUI_MTR_STATION_COLOR, previousScreen);
-		textFieldZone = new WidgetBetterTextField(DashboardScreen.MAX_COLOR_ZONE_LENGTH, TextCase.DEFAULT, "[^-\\d]", null);
-		textFieldExitParentLetter = new WidgetBetterTextField(2, TextCase.UPPER, "[^A-Z]", "A");
-		textFieldExitParentNumber = new WidgetBetterTextField(2, TextCase.DEFAULT, "\\D", "1");
-		textFieldExitDestination = new WidgetBetterTextField(1024, TextCase.DEFAULT, null, null);
+		textFieldZone = new BetterTextFieldWidget(DashboardScreen.MAX_COLOR_ZONE_LENGTH, TextCase.DEFAULT, "[^-\\d]", null);
+		textFieldExitParentLetter = new BetterTextFieldWidget(2, TextCase.UPPER, "[^A-Z]", "A");
+		textFieldExitParentNumber = new BetterTextFieldWidget(2, TextCase.DEFAULT, "\\D", "1");
+		textFieldExitDestination = new BetterTextFieldWidget(1024, TextCase.DEFAULT, null, null);
 
 		buttonAddExitParent = ButtonWidget.builder(TranslationProvider.GUI_MTR_ADD_EXIT.getMutableText(), button -> checkClickDelay(() -> changeEditingExit(new StationExit(), -1))).build();
 		buttonDoneExitParent = ButtonWidget.builder(Text.translatable("gui.done"), button -> checkClickDelay(this::onDoneExitParent)).build();

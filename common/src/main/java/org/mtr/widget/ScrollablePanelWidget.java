@@ -1,17 +1,15 @@
-package org.mtr.screen;
+package org.mtr.widget;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ScrollableWidget;
 import net.minecraft.text.Text;
 import org.mtr.core.tool.Utilities;
+import org.mtr.tool.GuiHelper;
 
-public abstract class WidgetScrollablePanel extends ScrollableWidget {
+public abstract class ScrollablePanelWidget extends ScrollableWidget {
 
-	private static final int SCROLL_BAR_COLOR = 0xFF444444;
-	private static final int SCROLL_BAR_HOVER_COLOR = 0xFF888888;
-
-	public WidgetScrollablePanel(int x, int y, int width, int height) {
+	public ScrollablePanelWidget(int x, int y, int width, int height) {
 		super(x, y, width, height, Text.literal(""));
 	}
 
@@ -37,7 +35,7 @@ public abstract class WidgetScrollablePanel extends ScrollableWidget {
 	}
 
 	/**
-	 * Do not call this directly! Use {@link WidgetScrollablePanel#mouseClicked} instead.
+	 * Do not call this directly! Use {@link ScrollablePanelWidget#mouseClicked} instead.
 	 */
 	protected boolean mouseClickedNew(double mouseX, double mouseY, int button) {
 		return super.mouseClicked(mouseX, mouseY, button);
@@ -48,7 +46,7 @@ public abstract class WidgetScrollablePanel extends ScrollableWidget {
 	}
 
 	/**
-	 * Do not call this directly! Use {@link WidgetScrollablePanel#renderWidget} instead.
+	 * Do not call this directly! Use {@link ScrollablePanelWidget#renderWidget} instead.
 	 */
 	protected abstract void render(DrawContext context, int mouseX, int mouseY);
 
@@ -58,7 +56,7 @@ public abstract class WidgetScrollablePanel extends ScrollableWidget {
 			final int y1 = getScrollbarThumbY();
 			final int x2 = x1 + SCROLLBAR_WIDTH;
 			final int y2 = y1 + getScrollbarThumbHeight();
-			context.fill(x1 + 1, y1 + 1, x2 - 1, y2 - 1, Utilities.isBetween(mouseX, x1, x2) && Utilities.isBetween(mouseY, y1, y2) ? SCROLL_BAR_HOVER_COLOR : SCROLL_BAR_COLOR);
+			context.fill(x1 + 1, y1 + 1, x2 - 1, y2 - 1, Utilities.isBetween(mouseX, x1, x2) && Utilities.isBetween(mouseY, y1, y2) ? GuiHelper.SCROLL_BAR_HOVER_COLOR : GuiHelper.SCROLL_BAR_COLOR);
 		}
 	}
 

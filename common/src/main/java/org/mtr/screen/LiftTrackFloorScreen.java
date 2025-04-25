@@ -12,11 +12,12 @@ import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.packet.PacketUpdateLiftTrackFloorConfig;
 import org.mtr.registry.RegistryClient;
+import org.mtr.widget.BetterTextFieldWidget;
 
 public class LiftTrackFloorScreen extends MTRScreenBase implements IGui {
 
-	private final WidgetBetterTextField textFieldFloorNumber;
-	private final WidgetBetterTextField textFieldFloorDescription;
+	private final BetterTextFieldWidget textFieldFloorNumber;
+	private final BetterTextFieldWidget textFieldFloorDescription;
 	private final CheckboxWidget checkboxShouldDing;
 
 	private final BlockPos blockPos;
@@ -43,8 +44,8 @@ public class LiftTrackFloorScreen extends MTRScreenBase implements IGui {
 			initialShouldDing = blockEntity.getShouldDing();
 		}
 
-		textFieldFloorNumber = new WidgetBetterTextField(8, TextCase.DEFAULT, null, "1");
-		textFieldFloorDescription = new WidgetBetterTextField(256, TextCase.DEFAULT, null, "Concourse");
+		textFieldFloorNumber = new BetterTextFieldWidget(8, TextCase.DEFAULT, null, "1");
+		textFieldFloorDescription = new BetterTextFieldWidget(256, TextCase.DEFAULT, null, "Concourse");
 		checkboxShouldDing = CheckboxWidget.builder(TranslationProvider.GUI_MTR_LIFT_SHOULD_DING.getText(), textRenderer).checked(initialShouldDing).callback((checkBoxWidget, checked) -> {
 		}).build();
 

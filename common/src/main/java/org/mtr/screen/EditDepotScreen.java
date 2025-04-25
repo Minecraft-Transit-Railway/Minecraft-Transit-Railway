@@ -25,6 +25,8 @@ import org.mtr.packet.PacketDepotGenerate;
 import org.mtr.packet.PacketDepotInstantDeploy;
 import org.mtr.packet.PacketUpdateData;
 import org.mtr.registry.RegistryClient;
+import org.mtr.widget.BetterTextFieldWidget;
+import org.mtr.widget.ShorterSliderWidget;
 
 import java.text.DateFormat;
 import java.util.Calendar;
@@ -42,8 +44,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 	private final ButtonWidget buttonUseRealTime;
 	private final ButtonWidget buttonReset;
-	private final WidgetShorterSlider[] sliders = new WidgetShorterSlider[HOURS_PER_DAY];
-	private final WidgetBetterTextField textFieldDeparture;
+	private final ShorterSliderWidget[] sliders = new ShorterSliderWidget[HOURS_PER_DAY];
+	private final BetterTextFieldWidget textFieldDeparture;
 	private final ButtonWidget buttonAddDeparture;
 
 	private final ButtonWidget buttonEditInstructions;
@@ -51,7 +53,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private final ButtonWidget buttonGenerateRoute;
 	private final ButtonWidget buttonClearTrains;
 	private final CheckboxWidget checkboxRepeatIndefinitely;
-	private final WidgetBetterTextField textFieldCruisingAltitude;
+	private final BetterTextFieldWidget textFieldCruisingAltitude;
 	private final DashboardList departuresList;
 
 	private final MutableText cruisingAltitudeText = TranslationProvider.GUI_MTR_CRUISING_ALTITUDE.getMutableText();
@@ -86,7 +88,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 		for (int i = 0; i < HOURS_PER_DAY; i++) {
 			final int currentIndex = i;
-			sliders[currentIndex] = new WidgetShorterSlider(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, EditDepotScreen::getSliderString, value -> {
+			sliders[currentIndex] = new ShorterSliderWidget(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, EditDepotScreen::getSliderString, value -> {
 				for (int j = 0; j < HOURS_PER_DAY; j++) {
 					if (j != currentIndex) {
 						sliders[j].setValue(value);
@@ -97,7 +99,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		departuresList = new DashboardList(null, null, null, null, null, this::onDeleteDeparture, null, () -> "", text -> {
 		});
 
-		textFieldDeparture = new WidgetBetterTextField(25, TextCase.DEFAULT, "[^\\d:+* ]", "07:10:00 + 10 * 00:03:00");
+		textFieldDeparture = new BetterTextFieldWidget(25, TextCase.DEFAULT, "[^\\d:+* ]", "07:10:00 + 10 * 00:03:00");
 		buttonAddDeparture = ButtonWidget.builder(Text.literal("+"), button -> {
 			checkDeparture(textFieldDeparture.getText(), true, false);
 			saveData();
@@ -133,7 +135,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			depotOperationByIds.addDepotId(depot.getId());
 			RegistryClient.sendPacketToServer(new PacketDepotGenerate(depotOperationByIds));
 		}).build();
-		textFieldCruisingAltitude = new WidgetBetterTextField(5, TextCase.DEFAULT, "[^-\\d]", String.valueOf(DEFAULT_CRUISING_ALTITUDE));
+		textFieldCruisingAltitude = new BetterTextFieldWidget(5, TextCase.DEFAULT, "[^-\\d]", String.valueOf(DEFAULT_CRUISING_ALTITUDE));
 	}
 
 	@Override
@@ -152,7 +154,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		textFieldCruisingAltitude.setText(String.valueOf(data.getCruisingAltitude()));
 
 		if (showScheduleControls) {
-			for (WidgetShorterSlider slider : sliders) {
+			for (ShorterSliderWidget slider : sliders) {
 				addDrawableChild(slider);
 			}
 		}
@@ -277,7 +279,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	}
 
 	private void toggleRealTime() {
-		for (final WidgetShorterSlider slider : sliders) {
+		for (final ShorterSliderWidget slider : sliders) {
 			slider.visible = !data.getUseRealTime();
 		}
 		departuresList.x = data.getUseRealTime() ? 0 : width;
