@@ -1,5 +1,6 @@
 package org.mtr.widget;
 
+import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.util.Identifier;
@@ -8,6 +9,11 @@ import org.mtr.tool.Drawing;
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
+/**
+ * A representation of an entry for the {@link ScrollableListWidget}.
+ *
+ * @param <T> the data type of the child objects
+ */
 public final class ListItem<T> {
 
 	private boolean expanded;
@@ -16,27 +22,36 @@ public final class ListItem<T> {
 	public final int iconWidth;
 	public final String text;
 	@Nullable
+	private final String parentKey;
+	@Nullable
 	private final ObjectArrayList<ListItem<T>> children;
 	@Nullable
 	private final T data;
 	@Nullable
 	private final ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<T>>> actions;
 
-	public static <T> ListItem<T> createParent(DrawIcon drawIcon, int iconWidth, String text, ObjectArrayList<ListItem<T>> children) {
-		return new ListItem<>(drawIcon, iconWidth, text, children, null, null);
+	public static <T> ListItem<T> createParent(DrawIcon drawIcon, int iconWidth, String text, String key, ObjectArrayList<ListItem<T>> children) {
+		return new ListItem<>(drawIcon, iconWidth, text, key, children, null, null);
 	}
 
 	public static <T> ListItem<T> createChild(DrawIcon drawIcon, int iconWidth, String text, T data, ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<T>>> actions) {
-		return new ListItem<>(drawIcon, iconWidth, text, null, data, actions);
+		return new ListItem<>(drawIcon, iconWidth, text, null, null, data, actions);
 	}
 
-	private ListItem(DrawIcon drawIcon, int iconWidth, String text, @Nullable ObjectArrayList<ListItem<T>> children, @Nullable T data, @Nullable ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<T>>> actions) {
+	private ListItem(DrawIcon drawIcon, int iconWidth, String text, @Nullable String parentKey, @Nullable ObjectArrayList<ListItem<T>> children, @Nullable T data, @Nullable ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<T>>> actions) {
 		this.drawIcon = drawIcon;
 		this.iconWidth = iconWidth;
 		this.text = text;
+		this.parentKey = parentKey;
 		this.children = children;
 		this.data = data;
 		this.actions = actions;
+	}
+
+	public void addChild(ListItem<T> child) {
+		if (children != null) {
+			children.add(child);
+		}
 	}
 
 	public boolean isParent() {
@@ -64,30 +79,42 @@ public final class ListItem<T> {
 		}
 	}
 
-	public static <T> void iterateData(ObjectArrayList<ListItem<T>> dataList, ListItemConsumer<T> consumer) {
-		iterateData(dataList, consumer, 0, 0);
+	public static <T> void overwriteList(ObjectArrayList<ListItem<T>> currentDataList, ObjectArrayList<ListItem<T>> newDataList) {
+		final ObjectAVLTreeSet<String> expandedKeys = new ObjectAVLTreeSet<>();
+		currentDataList.forEach(listItem -> {
+			if (listItem.parentKey != null && listItem.expanded) {
+				expandedKeys.add(listItem.parentKey);
+			}
+		});
+		currentDataList.clear();
+		newDataList.forEach(listItem -> {
+			listItem.expanded = expandedKeys.contains(listItem.parentKey);
+			currentDataList.add(listItem);
+		});
 	}
 
-	private static <T> void iterateData(ObjectArrayList<ListItem<T>> dataList, ListItemConsumer<T> consumer, int index, int level) {
-		int newIndex = index;
+	public static <T> void iterateData(ObjectArrayList<ListItem<T>> dataList, ListItemConsumer<T> consumer) {
+		iterateData(dataList, consumer, new int[]{0}, 0);
+	}
 
+	private static <T> void iterateData(ObjectArrayList<ListItem<T>> dataList, ListItemConsumer<T> consumer, int[] index, int level) {
 		for (final ListItem<T> listItem : dataList) {
 			if (listItem.isParent()) {
-				if (consumer.accept(newIndex, level, listItem)) {
+				if (consumer.accept(index[0], level, listItem)) {
 					return;
 				}
 
-				newIndex++;
+				index[0]++;
 
 				if (listItem.expanded && listItem.children != null) {
-					iterateData(listItem.children, consumer, newIndex, level + 1);
+					iterateData(listItem.children, consumer, index, level + 1);
 				}
 			} else {
-				if (consumer.accept(newIndex, level, listItem)) {
+				if (consumer.accept(index[0], level, listItem)) {
 					return;
 				}
 
-				newIndex++;
+				index[0]++;
 			}
 		}
 	}

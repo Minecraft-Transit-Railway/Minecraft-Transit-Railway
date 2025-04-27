@@ -20,7 +20,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ColorHelper;
-import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix4f;
 import org.mtr.MTRClient;
 import org.mtr.client.IDrawing;
@@ -33,6 +32,7 @@ import org.mtr.font.FontGroups;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.map.MapTileProvider;
 import org.mtr.tool.Drawing;
+import org.mtr.tool.GuiAnimation;
 import org.mtr.tool.GuiHelper;
 
 import javax.annotation.Nullable;
@@ -43,9 +43,6 @@ import java.util.stream.Collectors;
 
 public final class MapWidget extends ClickableWidget {
 
-	private double scale;
-	private double centerX;
-	private double centerY;
 	@Nullable
 	private IntIntImmutablePair drawArea1, drawArea2;
 	private MapState mapState;
@@ -68,6 +65,10 @@ public final class MapWidget extends ClickableWidget {
 	private final ObjectArraySet<Depot> hoverDepots = new ObjectArraySet<>();
 	private final ObjectArraySet<Siding> hoverSidings = new ObjectArraySet<>();
 
+	private final GuiAnimation guiAnimationX = new GuiAnimation(ANIMATION_DURATION);
+	private final GuiAnimation guiAnimationY = new GuiAnimation(ANIMATION_DURATION);
+	private final GuiAnimation guiAnimationScale = new GuiAnimation(ANIMATION_DURATION);
+
 	private static final int PLAYER_ARROW_SIZE = 6;
 	private static final int SCALE_UPPER_LIMIT = 64;
 	private static final double SCALE_LOWER_LIMIT = 1 / 128D;
@@ -77,6 +78,7 @@ public final class MapWidget extends ClickableWidget {
 	private static final int SAVED_RAIL_SHADOW_RADIUS = 1;
 	private static final int HOVER_WINDOW_SHADOW_RADIUS = 8;
 	private static final float DARKEN_MAP = 0.8F;
+	private static final int ANIMATION_DURATION = 1000;
 
 	public MapWidget(TransportMode transportMode, BiConsumer<NameColorDataBase, DeleteDataRequest> onDeleteArea, BiConsumer<IntIntImmutablePair, IntIntImmutablePair> onDrawCorners, Runnable onDrawCornersMouseRelease) {
 		super(0, 0, 0, 0, Text.empty());
@@ -87,14 +89,14 @@ public final class MapWidget extends ClickableWidget {
 
 		player = MinecraftClient.getInstance().player;
 		if (player == null) {
-			centerX = 0;
-			centerY = 0;
+			guiAnimationX.setValue(0);
+			guiAnimationY.setValue(0);
 		} else {
-			centerX = player.getX();
-			centerY = player.getZ();
+			guiAnimationX.setValue(player.getX());
+			guiAnimationY.setValue(player.getZ());
 		}
 
-		scale = 1;
+		guiAnimationScale.setValue(1);
 		setShowStations(true);
 
 		flatPositionToPlatformsMap = MinecraftClientData.getFlatPositionToSavedRails(MinecraftClientData.getDashboardInstance().platforms, transportMode);
@@ -118,11 +120,14 @@ public final class MapWidget extends ClickableWidget {
 		final int newMouseX = active ? mouseX : -1;
 		final int newMouseY = active ? mouseY : -1;
 		context.enableScissor(getX(), getY(), getX() + width, getY() + height);
+		guiAnimationX.tick();
+		guiAnimationY.tick();
+		guiAnimationScale.tick();
 
 		// World map
 		final MapTileProvider mapTileProvider = MTRClient.getMapTileProvider();
 		if (mapTileProvider != null) {
-			final double tileSize = scale * MapTileProvider.TILE_SIZE;
+			final double tileSize = guiAnimationScale.getCurrentValue() * MapTileProvider.TILE_SIZE;
 			final DoubleDoubleImmutablePair topLeftWorldCoords = coordsToWorldPos(0D, 0D);
 			final float offsetX = clampTileSize(topLeftWorldCoords.leftDouble()) - (float) topLeftWorldCoords.leftDouble();
 			final float offsetY = clampTileSize(topLeftWorldCoords.rightDouble()) - (float) topLeftWorldCoords.rightDouble();
@@ -150,7 +155,7 @@ public final class MapWidget extends ClickableWidget {
 						IDrawing.changeShaderColor(new Color(newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, 1), () -> {
 							vertexBuffer.bind();
 							vertexBuffer.draw(
-									new Matrix4f(RenderSystem.getModelViewMatrix()).translate(newX, newY, 0).scale((float) scale, (float) scale, 1).translate(offsetX, offsetY, 1),
+									new Matrix4f(RenderSystem.getModelViewMatrix()).translate(newX, newY, 0).scale((float) guiAnimationScale.getCurrentValue(), (float) guiAnimationScale.getCurrentValue(), 1).translate(offsetX, offsetY, 1),
 									RenderSystem.getProjectionMatrix(),
 									RenderSystem.getShader()
 							);
@@ -186,19 +191,19 @@ public final class MapWidget extends ClickableWidget {
 
 		// Platforms and sidings
 		if (showStations) {
-			drawSavedRails(matrixStack, drawing, flatPositionToPlatformsMap, popupDetails == null && (mapState == MapState.DEFAULT || mapState == MapState.EDITING_ROUTE) ? hoverPlatforms : null, newMouseX, newMouseY);
+			drawSavedRails(drawing, flatPositionToPlatformsMap, popupDetails == null && (mapState == MapState.DEFAULT || mapState == MapState.EDITING_ROUTE) ? hoverPlatforms : null, newMouseX, newMouseY);
 		}
 		if (showDepots) {
-			drawSavedRails(matrixStack, drawing, flatPositionToSidingsMap, popupDetails == null && mapState == MapState.DEFAULT ? hoverSidings : null, newMouseX, newMouseY);
+			drawSavedRails(drawing, flatPositionToSidingsMap, popupDetails == null && mapState == MapState.DEFAULT ? hoverSidings : null, newMouseX, newMouseY);
 		}
 
 		// Stations and depots
 		final boolean canHoverAreas = popupDetails == null && mapState == MapState.DEFAULT && hoverPlatforms.isEmpty() && hoverSidings.isEmpty();
 		if (showStations) {
-			drawAreas(matrixStack, drawing, MinecraftClientData.getDashboardInstance().stations, canHoverAreas ? hoverStations : null, newMouseX, newMouseY);
+			drawAreas(drawing, MinecraftClientData.getDashboardInstance().stations, canHoverAreas ? hoverStations : null, newMouseX, newMouseY);
 		}
 		if (showDepots) {
-			drawAreas(matrixStack, drawing, MinecraftClientData.getDashboardInstance().depots, canHoverAreas ? hoverDepots : null, newMouseX, newMouseY);
+			drawAreas(drawing, MinecraftClientData.getDashboardInstance().depots, canHoverAreas ? hoverDepots : null, newMouseX, newMouseY);
 		}
 
 		// Editing rectangle
@@ -250,8 +255,8 @@ public final class MapWidget extends ClickableWidget {
 				drawArea2 = coordsToWorldPos((int) Math.round(mouseX - getX()), (int) Math.round(mouseY - getY()));
 				onDrawCorners.accept(drawArea1, drawArea2);
 			} else {
-				centerX -= deltaX / scale;
-				centerY -= deltaY / scale;
+				guiAnimationX.setValue(guiAnimationX.getCurrentValue() - deltaX / guiAnimationScale.getCurrentValue());
+				guiAnimationY.setValue(guiAnimationY.getCurrentValue() - deltaY / guiAnimationScale.getCurrentValue());
 			}
 		} else {
 			popupDetails.left().mouseDragged(mouseX, mouseY, 0, deltaX, deltaY);
@@ -314,15 +319,15 @@ public final class MapWidget extends ClickableWidget {
 	public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
 		if (active) {
 			if (popupDetails == null) {
-				final double oldScale = scale;
+				final double oldScale = guiAnimationScale.getCurrentValue();
 				if (oldScale > SCALE_LOWER_LIMIT && verticalAmount < 0) {
-					centerX -= (mouseX - getX() - width / 2D) / scale;
-					centerY -= (mouseY - getY() - height / 2D) / scale;
+					guiAnimationX.setValue(guiAnimationX.getCurrentValue() - (mouseX - getX() - width / 2D) / guiAnimationScale.getCurrentValue());
+					guiAnimationY.setValue(guiAnimationY.getCurrentValue() - (mouseY - getY() - height / 2D) / guiAnimationScale.getCurrentValue());
 				}
 				scale(verticalAmount);
 				if (oldScale < SCALE_UPPER_LIMIT && verticalAmount > 0) {
-					centerX += (mouseX - getX() - width / 2D) / scale;
-					centerY += (mouseY - getY() - height / 2D) / scale;
+					guiAnimationX.setValue(guiAnimationX.getCurrentValue() + (mouseX - getX() - width / 2D) / guiAnimationScale.getCurrentValue());
+					guiAnimationY.setValue(guiAnimationY.getCurrentValue() + (mouseY - getY() - height / 2D) / guiAnimationScale.getCurrentValue());
 				}
 			} else {
 				popupDetails.left().mouseScrolled(mouseX, mouseY, 0, verticalAmount);
@@ -353,14 +358,15 @@ public final class MapWidget extends ClickableWidget {
 	}
 
 	public void scale(double amount) {
-		scale *= Math.pow(2, amount);
-		scale = MathHelper.clamp(scale, SCALE_LOWER_LIMIT, SCALE_UPPER_LIMIT);
+		guiAnimationScale.setValue(Utilities.clamp(guiAnimationScale.getCurrentValue() * Math.pow(2, amount), SCALE_LOWER_LIMIT, SCALE_UPPER_LIMIT));
 	}
 
-	public void find(Position position) {
-		centerX = position.getX();
-		centerY = position.getZ();
-		scale = Math.max(8, scale);
+	public <T extends AreaBase<T, U>, U extends SavedRailBase<U, T>> void find(T savedArea) {
+		guiAnimationX.animate((savedArea.getMinX() + savedArea.getMaxX() + 1) / 2F);
+		guiAnimationY.animate((savedArea.getMinZ() + savedArea.getMaxZ() + 1) / 2F);
+		final double scaleX = Math.max(1F, width - GuiHelper.DEFAULT_LINE_SIZE) / (savedArea.getMaxX() - savedArea.getMinX() + 1);
+		final double scaleY = Math.max(1F, height - GuiHelper.DEFAULT_LINE_SIZE) / (savedArea.getMaxZ() - savedArea.getMinZ() + 1);
+		guiAnimationScale.animate(Utilities.clamp(Math.min(scaleX, scaleY), SCALE_LOWER_LIMIT, SCALE_UPPER_LIMIT));
 	}
 
 	public void startEditingArea() {
@@ -382,12 +388,12 @@ public final class MapWidget extends ClickableWidget {
 		this.showDepots = !showStations;
 	}
 
-	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> void drawAreas(MatrixStack matrixStack, Drawing drawing, ObjectArraySet<U> areas, @Nullable ObjectArraySet<U> hoverDataList, int mouseX, int mouseY) {
+	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> void drawAreas(Drawing drawing, ObjectArraySet<U> areas, @Nullable ObjectArraySet<U> hoverDataList, int mouseX, int mouseY) {
 		areas.forEach(area -> {
 			if (area.isTransportMode(transportMode) && AreaBase.validCorners(area)) {
-				final double areaWidth = (area.getMaxX() + 1 - area.getMinX()) * scale;
-				final double areaHeight = (area.getMaxZ() + 1 - area.getMinZ()) * scale;
-				final double shadowRadius = AREA_SHADOW_RADIUS * scale;
+				final double areaWidth = (area.getMaxX() + 1 - area.getMinX()) * guiAnimationScale.getCurrentValue();
+				final double areaHeight = (area.getMaxZ() + 1 - area.getMinZ()) * guiAnimationScale.getCurrentValue();
+				final double shadowRadius = AREA_SHADOW_RADIUS * guiAnimationScale.getCurrentValue();
 
 				drawFromWorldCoords((area.getMinX() + area.getMaxX() + 1) / 2F, (area.getMinZ() + area.getMaxZ() + 1) / 2F, areaWidth / 2 + shadowRadius, areaHeight / 2 + shadowRadius, (x, y) -> {
 					final double x1 = getX() + x - areaWidth / 2;
@@ -435,12 +441,12 @@ public final class MapWidget extends ClickableWidget {
 		});
 	}
 
-	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> void drawSavedRails(MatrixStack matrixStack, Drawing drawing, Object2ObjectAVLTreeMap<Position, ObjectArrayList<T>> flatPositionToSavedRailsMap, @Nullable ObjectArraySet<T> hoverDataList, int mouseX, int mouseY) {
-		flatPositionToSavedRailsMap.forEach((position, savedRails) -> drawFromWorldCoords(position.getX() + 0.5, position.getZ() + 0.5, scale / 2, scale / 2, (x, y) -> {
-			final double x1 = getX() + x - scale / 2;
-			final double y1 = getY() + y - scale / 2;
-			final double x2 = x1 + scale;
-			final double y2 = y1 + scale;
+	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> void drawSavedRails(Drawing drawing, Object2ObjectAVLTreeMap<Position, ObjectArrayList<T>> flatPositionToSavedRailsMap, @Nullable ObjectArraySet<T> hoverDataList, int mouseX, int mouseY) {
+		flatPositionToSavedRailsMap.forEach((position, savedRails) -> drawFromWorldCoords(position.getX() + 0.5, position.getZ() + 0.5, guiAnimationScale.getCurrentValue() / 2, guiAnimationScale.getCurrentValue() / 2, (x, y) -> {
+			final double x1 = getX() + x - guiAnimationScale.getCurrentValue() / 2;
+			final double y1 = getY() + y - guiAnimationScale.getCurrentValue() / 2;
+			final double x2 = x1 + guiAnimationScale.getCurrentValue();
+			final double y2 = y1 + guiAnimationScale.getCurrentValue();
 
 			// Check for hover
 			if (hoverDataList != null && hoverDataList.isEmpty() && Utilities.isBetween(mouseX, x1, x2 - 1) && Utilities.isBetween(mouseY, y1, y2 - 1)) {
@@ -449,13 +455,13 @@ public final class MapWidget extends ClickableWidget {
 
 			// Draw saved rail
 			drawing.setVertices(x1, y1, x2, y2, 3).setColor(IGui.ARGB_WHITE).draw();
-			GuiHelper.drawShadow(drawing, x1, y1, x2, y2, 2, SAVED_RAIL_SHADOW_RADIUS * scale, 1);
+			GuiHelper.drawShadow(drawing, x1, y1, x2, y2, 2, SAVED_RAIL_SHADOW_RADIUS * guiAnimationScale.getCurrentValue(), 1);
 
 			// Draw overlay text
-			if (scale > SAVED_RAIL_NAME_PADDING * 2) {
+			if (guiAnimationScale.getCurrentValue() > SAVED_RAIL_NAME_PADDING * 2) {
 				FontGroups.renderMTR(drawing, savedRails.stream().map(NameColorDataBase::getName).collect(Collectors.joining("|")), FontRenderOptions.builder()
-						.horizontalSpace((float) scale - SAVED_RAIL_NAME_PADDING * 2)
-						.verticalSpace((float) scale - SAVED_RAIL_NAME_PADDING * 2)
+						.horizontalSpace((float) guiAnimationScale.getCurrentValue() - SAVED_RAIL_NAME_PADDING * 2)
+						.verticalSpace((float) guiAnimationScale.getCurrentValue() - SAVED_RAIL_NAME_PADDING * 2)
 						.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)
 						.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
 						.offsetX((float) x1 + SAVED_RAIL_NAME_PADDING)
@@ -482,14 +488,14 @@ public final class MapWidget extends ClickableWidget {
 	}
 
 	private DoubleDoubleImmutablePair coordsToWorldPos(double mouseX, double mouseY) {
-		final double left = (mouseX - width / 2D) / scale + centerX;
-		final double right = (mouseY - height / 2D) / scale + centerY;
+		final double left = (mouseX - width / 2D) / guiAnimationScale.getCurrentValue() + guiAnimationX.getCurrentValue();
+		final double right = (mouseY - height / 2D) / guiAnimationScale.getCurrentValue() + guiAnimationY.getCurrentValue();
 		return new DoubleDoubleImmutablePair(left, right);
 	}
 
 	private void drawFromWorldCoords(double worldX, double worldZ, double xPadding, double yPadding, BiConsumer<Double, Double> callback) {
-		final double coordsX = (worldX - centerX) * scale + width / 2D;
-		final double coordsY = (worldZ - centerY) * scale + height / 2D;
+		final double coordsX = (worldX - guiAnimationX.getCurrentValue()) * guiAnimationScale.getCurrentValue() + width / 2D;
+		final double coordsY = (worldZ - guiAnimationY.getCurrentValue()) * guiAnimationScale.getCurrentValue() + height / 2D;
 		if (Utilities.isBetween(coordsX, -xPadding, width + xPadding) && Utilities.isBetween(coordsY, -yPadding, height + yPadding)) {
 			callback.accept(coordsX, coordsY);
 		}

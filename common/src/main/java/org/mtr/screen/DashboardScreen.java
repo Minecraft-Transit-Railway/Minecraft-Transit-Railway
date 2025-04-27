@@ -23,7 +23,6 @@ import org.mtr.registry.RegistryClient;
 import org.mtr.tool.GuiHelper;
 import org.mtr.widget.*;
 
-import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -179,15 +178,16 @@ public final class DashboardScreen extends MTRScreenBase {
 
 		switch (tickCount % 3) {
 			case 0 -> ScrollableListWidget.setAreas(stationsListWidget, MinecraftClientData.getDashboardInstance().stations, ObjectArrayList.of(
+					new ObjectObjectImmutablePair<>(Identifier.of("textures/gui/sprites/mtr/icon_find.png"), mapWidget::find),
 					new ObjectObjectImmutablePair<>(Identifier.of("textures/gui/sprites/mtr/icon_edit.png"), station -> System.out.println("editing " + station.getName())),
 					new ObjectObjectImmutablePair<>(Identifier.of("textures/gui/sprites/mtr/icon_delete.png"), station -> onDelete(station, new DeleteDataRequest().addStationId(station.getId())))
 			));
-			case 1 -> {
-				final ObjectArrayList<Route> routes = new ObjectArrayList<>(MinecraftClientData.getDashboardInstance().routes);
-				Collections.sort(routes);
-//				routesListWidget.setData(routes);
-			}
+			case 1 -> ScrollableListWidget.setRoutes(routesListWidget, MinecraftClientData.getDashboardInstance().routes, ObjectArrayList.of(
+					new ObjectObjectImmutablePair<>(Identifier.of("textures/gui/sprites/mtr/icon_edit.png"), route -> System.out.println("editing " + route.getName())),
+					new ObjectObjectImmutablePair<>(Identifier.of("textures/gui/sprites/mtr/icon_delete.png"), route -> onDelete(route, new DeleteDataRequest().addRouteId(route.getId())))
+			));
 			case 2 -> ScrollableListWidget.setAreas(depotsListWidget, MinecraftClientData.getDashboardInstance().depots, ObjectArrayList.of(
+					new ObjectObjectImmutablePair<>(Identifier.of("textures/gui/sprites/mtr/icon_find.png"), mapWidget::find),
 					new ObjectObjectImmutablePair<>(Identifier.of("textures/gui/sprites/mtr/icon_edit.png"), depot -> System.out.println("editing " + depot.getName())),
 					new ObjectObjectImmutablePair<>(Identifier.of("textures/gui/sprites/mtr/icon_delete.png"), depot -> onDelete(depot, new DeleteDataRequest().addDepotId(depot.getId())))
 			));
@@ -240,19 +240,6 @@ public final class DashboardScreen extends MTRScreenBase {
 	@Override
 	public boolean shouldPause() {
 		return false;
-	}
-
-	private void onFind(DashboardListItem dashboardListItem, int index) {
-		if (selectedTab == SelectedTab.STATIONS || selectedTab == SelectedTab.DEPOTS) {
-			if (editingArea == null && dashboardListItem.data instanceof AreaBase<?, ?> area) {
-				if (AreaBase.validCorners(area)) {
-					mapWidget.find(area.getCenter());
-				}
-			} else if (selectedTab == SelectedTab.STATIONS) {
-				final Platform platform = (Platform) dashboardListItem.data;
-				mapWidget.find(platform.getMidPosition());
-			}
-		}
 	}
 
 	private void onDrawArea(DashboardListItem dashboardListItem, int index) {

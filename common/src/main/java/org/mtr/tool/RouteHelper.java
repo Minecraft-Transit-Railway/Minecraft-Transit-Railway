@@ -62,7 +62,6 @@ public final class RouteHelper {
 		if (destinations.isEmpty()) {
 			return new ObjectObjectImmutablePair<>(colors, "");
 		} else {
-
 			String destinationString = IGui.mergeStations(destinations);
 			final boolean isClockwise = destinationString.startsWith(TEMP_CIRCULAR_MARKER_CLOCKWISE);
 			final boolean isAnticlockwise = destinationString.startsWith(TEMP_CIRCULAR_MARKER_ANTICLOCKWISE);

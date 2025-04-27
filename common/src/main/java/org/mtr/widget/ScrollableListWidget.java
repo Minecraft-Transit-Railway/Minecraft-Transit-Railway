@@ -16,6 +16,7 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.font.FontGroups;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.tool.DataHelper;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 import org.mtr.tool.RouteHelper;
@@ -58,26 +59,41 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 
 				// Detect hovering
 				if (isMouseOver) {
-					listItem.iterateActions((actionIndex, identifier, callback) -> {
-						final int leftBound = endX - GuiHelper.DEFAULT_LINE_SIZE * (listItem.actionCount() - actionIndex);
-						final int rightBound = leftBound + GuiHelper.DEFAULT_LINE_SIZE;
-
+					if (listItem.isParent()) {
 						// Draw hover highlight
-						if (Utilities.isBetween(mouseX, actionIndex == 0 ? getX() : leftBound, rightBound - 1)) {
-							drawing.setVerticesWH(leftBound, startY, GuiHelper.DEFAULT_LINE_SIZE, GuiHelper.DEFAULT_LINE_SIZE).setColor(identifier.getPath().endsWith("icon_delete.png") ? DELETE_COLOR : GuiHelper.HOVER_COLOR).draw();
-							if (actionIndex == 0) {
-								drawing.setVertices(Math.max(getX(), leftBound - GuiHelper.DEFAULT_LINE_SIZE), startY, leftBound, startY + GuiHelper.DEFAULT_LINE_SIZE).setColor(GuiHelper.BACKGROUND_COLOR, GuiHelper.BACKGROUND_COLOR, GuiHelper.HOVER_COLOR, GuiHelper.HOVER_COLOR).draw();
-							}
-							clickAction = callback;
-						}
+						final int leftBound = endX - GuiHelper.DEFAULT_LINE_SIZE;
+						drawing.setVerticesWH(leftBound, startY, GuiHelper.DEFAULT_LINE_SIZE, GuiHelper.DEFAULT_LINE_SIZE).setColor(GuiHelper.HOVER_COLOR).draw();
+						drawing.setVertices(Math.max(getX(), leftBound - GuiHelper.DEFAULT_LINE_SIZE), startY, leftBound, startY + GuiHelper.DEFAULT_LINE_SIZE).setColor(GuiHelper.BACKGROUND_COLOR, GuiHelper.BACKGROUND_COLOR, GuiHelper.HOVER_COLOR, GuiHelper.HOVER_COLOR).draw();
+						clickAction = listItem::toggle;
 
 						// Draw the action button
-						deferredRenders.add(() -> new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(identifier)))
+						deferredRenders.add(() -> new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(Identifier.of(listItem.isExpanded() ? "textures/gui/sprites/mtr/icon_chevron_up.png" : "textures/gui/sprites/mtr/icon_chevron_down.png"))))
 								.setVerticesWH(leftBound, startY, GuiHelper.DEFAULT_LINE_SIZE, GuiHelper.DEFAULT_LINE_SIZE)
 								.setUv()
 								.draw()
 						);
-					});
+					} else {
+						listItem.iterateActions((actionIndex, identifier, callback) -> {
+							final int leftBound = endX - GuiHelper.DEFAULT_LINE_SIZE * (listItem.actionCount() - actionIndex);
+							final int rightBound = leftBound + GuiHelper.DEFAULT_LINE_SIZE;
+
+							// Draw hover highlight
+							if (Utilities.isBetween(mouseX, actionIndex == 0 ? getX() : leftBound, rightBound - 1)) {
+								drawing.setVerticesWH(leftBound, startY, GuiHelper.DEFAULT_LINE_SIZE, GuiHelper.DEFAULT_LINE_SIZE).setColor(identifier.getPath().endsWith("icon_delete.png") ? DELETE_COLOR : GuiHelper.HOVER_COLOR).draw();
+								if (actionIndex == 0) {
+									drawing.setVertices(Math.max(getX(), leftBound - GuiHelper.DEFAULT_LINE_SIZE), startY, leftBound, startY + GuiHelper.DEFAULT_LINE_SIZE).setColor(GuiHelper.BACKGROUND_COLOR, GuiHelper.BACKGROUND_COLOR, GuiHelper.HOVER_COLOR, GuiHelper.HOVER_COLOR).draw();
+								}
+								clickAction = callback;
+							}
+
+							// Draw the action button
+							deferredRenders.add(() -> new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(identifier)))
+									.setVerticesWH(leftBound, startY, GuiHelper.DEFAULT_LINE_SIZE, GuiHelper.DEFAULT_LINE_SIZE)
+									.setUv()
+									.draw()
+							);
+						});
+					}
 				}
 
 				// Draw icon
@@ -117,8 +133,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 	}
 
 	public void setData(ObjectArrayList<ListItem<T>> dataList) {
-		this.dataList.clear();
-		this.dataList.addAll(dataList);
+		ListItem.overwriteList(this.dataList, dataList);
 		initDimensions();
 	}
 
@@ -159,6 +174,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		final ObjectArrayList<T> sortedAreas = new ObjectArrayList<>(areas);
 		Collections.sort(sortedAreas);
 		final ObjectArrayList<ListItem<T>> dataList = new ObjectArrayList<>();
+
 		sortedAreas.forEach(area -> dataList.add(ListItem.createChild(
 				(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(ColorHelper.fullAlpha(area.getColor())).draw(),
 				GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
@@ -166,6 +182,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 				area,
 				actions
 		)));
+
 		scrollableListWidget.setData(dataList);
 	}
 
@@ -173,6 +190,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		final ObjectArrayList<U> sortedSavedRails = new ObjectArrayList<>(savedRails);
 		Collections.sort(sortedSavedRails);
 		final ObjectArrayList<ListItem<U>> dataList = new ObjectArrayList<>();
+
 		sortedSavedRails.forEach(savedRail -> {
 			final IntArrayList colors;
 			final String text;
@@ -222,6 +240,40 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 					actions
 			));
 		});
+
 		scrollableListWidget.setData(dataList);
+	}
+
+	public static void setRoutes(ScrollableListWidget<Route> scrollableListWidget, ObjectArraySet<Route> routes, ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<Route>>> actions) {
+		final ObjectArrayList<Route> sortedRoutes = new ObjectArrayList<>(routes);
+		Collections.sort(sortedRoutes);
+		final ObjectArrayList<ListItem<Route>> groupedRoutes = new ObjectArrayList<>();
+		String lastKey = null;
+
+		for (final Route route : sortedRoutes) {
+			final String[] routeNameSplit = route.getName().split("\\|\\|");
+			final String routeKey = route.getColor() + "_" + routeNameSplit[0];
+			final ListItem<Route> lastListItem = Utilities.getElement(groupedRoutes, -1);
+			final ListItem<Route> currentListItem;
+
+			if (lastListItem == null || !routeKey.equals(lastKey)) {
+				currentListItem = ListItem.createParent(
+						(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(ColorHelper.fullAlpha(route.getColor())).draw(),
+						GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
+						Utilities.formatName(routeNameSplit[0]),
+						routeKey,
+						new ObjectArrayList<>()
+				);
+				groupedRoutes.add(currentListItem);
+			} else {
+				currentListItem = lastListItem;
+			}
+
+			currentListItem.addChild(ListItem.createChild((drawing, x, y) -> {
+			}, GuiHelper.MINECRAFT_FONT_SIZE, DataHelper.getNameOrUntitled(routeNameSplit.length > 1 ? routeNameSplit[1] : ""), route, actions));
+			lastKey = routeKey;
+		}
+
+		scrollableListWidget.setData(groupedRoutes);
 	}
 }

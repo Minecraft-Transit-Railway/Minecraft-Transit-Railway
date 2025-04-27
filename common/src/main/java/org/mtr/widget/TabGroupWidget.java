@@ -9,6 +9,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import org.mtr.core.tool.Utilities;
 import org.mtr.tool.Drawing;
+import org.mtr.tool.GuiAnimation;
 import org.mtr.tool.GuiHelper;
 
 import java.util.function.IntConsumer;
@@ -18,16 +19,13 @@ public final class TabGroupWidget extends ClickableWidget {
 	private int selectedIndex = -1;
 	private int mouseOverIndex = -1;
 
-	private double animationStart1, animationStart2;
-	private double animationCurrent1, animationCurrent2;
-	private int animationTarget1, animationTarget2;
-	private long animationStartMillis;
-
 	private final IntConsumer onChangeTab;
 	private final Text[] messages;
 	private final int[] rawTextWidths;
 	private final int[] scaledTextWidths;
 	private final int totalWidgetWidth;
+	private final GuiAnimation guiAnimation1 = new GuiAnimation(ANIMATION_DURATION);
+	private final GuiAnimation guiAnimation2 = new GuiAnimation(ANIMATION_DURATION);
 
 	private static final int ANIMATION_DURATION = 200;
 
@@ -74,7 +72,7 @@ public final class TabGroupWidget extends ClickableWidget {
 			// Set the selected tab indicator position (1)
 			final boolean isSelected = i == selectedIndex;
 			if (isSelected) {
-				animationTarget1 = x;
+				guiAnimation1.animate(x);
 			}
 
 			// Render text (z = 2)
@@ -87,7 +85,7 @@ public final class TabGroupWidget extends ClickableWidget {
 
 			// Set the selected tab indicator position (2)
 			if (isSelected) {
-				animationTarget2 = x;
+				guiAnimation2.animate(x);
 			}
 		}
 
@@ -96,23 +94,11 @@ public final class TabGroupWidget extends ClickableWidget {
 		context.fill(getX(), getY() + height - 1, getX() + width, getY() + height, GuiHelper.BACKGROUND_ACCENT_COLOR);
 
 		// Handle animation
-		if (Math.abs(animationTarget1 - animationCurrent1) < 0.01 && Math.abs(animationTarget2 - animationCurrent2) < 0.01) {
-			animationStartMillis = 0;
-		} else {
-			final long currentMillis = System.currentTimeMillis();
-			if (animationStartMillis == 0) {
-				animationStartMillis = currentMillis;
-				animationStart1 = animationCurrent1;
-				animationStart2 = animationCurrent2;
-			} else {
-				final double progress = Math.sin(Math.PI / 2 * Utilities.clamp((double) (currentMillis - animationStartMillis) / ANIMATION_DURATION, 0, 1));
-				animationCurrent1 = animationStart1 + progress * (animationTarget1 - animationStart1);
-				animationCurrent2 = animationStart2 + progress * (animationTarget2 - animationStart2);
-			}
-		}
+		guiAnimation1.tick();
+		guiAnimation2.tick();
 
 		// Draw selected tab indicator (z = 1)
-		new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui())).setVertices(animationCurrent1, getY() + height - 1, animationCurrent2, getY() + height, 1).setColor(GuiHelper.WHITE_COLOR).draw();
+		new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui())).setVertices(guiAnimation1.getCurrentValue(), getY() + height - 1, guiAnimation2.getCurrentValue(), getY() + height, 1).setColor(GuiHelper.WHITE_COLOR).draw();
 	}
 
 	@Override
