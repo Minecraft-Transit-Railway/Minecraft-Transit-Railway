@@ -69,6 +69,21 @@ public final class FontRenderOptions {
 	@Builder.Default
 	private Alignment verticalTextAlignment = Alignment.START;
 	/**
+	 * Extra X offset to be applied
+	 */
+	@Builder.Default
+	private float offsetX = 0;
+	/**
+	 * Extra Y offset to be applied
+	 */
+	@Builder.Default
+	private float offsetY = 0;
+	/**
+	 * Extra Z offset to be applied
+	 */
+	@Builder.Default
+	private float offsetZ = 0;
+	/**
 	 * Overflow behaviour for if the text doesn't fit inside the space provided
 	 */
 	@Builder.Default

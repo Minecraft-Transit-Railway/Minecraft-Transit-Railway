@@ -4,10 +4,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectIntImmutablePair;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.util.math.MatrixStack;
@@ -19,11 +16,10 @@ import org.mtr.config.Config;
 import org.mtr.core.data.*;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
-import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.resource.ResourceManagerHelper;
+import org.mtr.tool.RouteHelper;
 
 import java.util.Locale;
-import java.util.function.BiConsumer;
 
 public class RouteMapGenerator implements IGui {
 
@@ -39,8 +35,6 @@ public class RouteMapGenerator implements IGui {
 	private static final String EXIT_RESOURCE = "textures/block/sign/exit_letter_blank.png";
 	private static final String ARROW_RESOURCE = "textures/block/sign/arrow.png";
 	private static final String CIRCLE_RESOURCE = "textures/block/sign/circle.png";
-	private static final String TEMP_CIRCULAR_MARKER_CLOCKWISE = String.format("temp_circular_marker_%s_clockwise", MTR.randomString());
-	private static final String TEMP_CIRCULAR_MARKER_ANTICLOCKWISE = String.format("temp_circular_marker_%s_anticlockwise", MTR.randomString());
 	private static final int PIXEL_RESOLUTION = 24;
 
 	public static void setConstants() {
@@ -73,7 +67,7 @@ public class RouteMapGenerator implements IGui {
 
 	public static NativeImage generateColorStrip(long platformId) {
 		try {
-			final IntArrayList colors = getRouteStream(platformId, (simplifiedRoute, currentStationIndex) -> {
+			final IntArrayList colors = RouteHelper.getRouteStream(platformId, false, (simplifiedRoute, currentStationIndex) -> {
 			});
 			if (colors.isEmpty()) {
 				return new NativeImage(NativeImage.Format.RGBA, 1, 1, false);
@@ -284,16 +278,10 @@ public class RouteMapGenerator implements IGui {
 		}
 
 		try {
-			final ObjectArrayList<String> destinations = new ObjectArrayList<>();
-			final IntArrayList colors = getRouteStream(platformId, (simplifiedRoute, currentStationIndex) -> {
-				final String tempMarker = switch (simplifiedRoute.getCircularState()) {
-					case CLOCKWISE -> TEMP_CIRCULAR_MARKER_CLOCKWISE;
-					case ANTICLOCKWISE -> TEMP_CIRCULAR_MARKER_ANTICLOCKWISE;
-					default -> "";
-				};
-				destinations.add(tempMarker + simplifiedRoute.getPlatforms().get(currentStationIndex).getDestination());
-			});
-			final boolean isTerminating = destinations.isEmpty();
+			final ObjectObjectImmutablePair<IntArrayList, String> colorsAndDestinationString = RouteHelper.getRouteColorsAndDestinationString(platformId, false, showToString);
+			final IntArrayList colors = colorsAndDestinationString.left();
+			final String destinationString = colorsAndDestinationString.right();
+			final boolean isTerminating = destinationString.isEmpty();
 
 			final boolean leftToRight = horizontalAlignment == HorizontalAlignment.CENTER ? hasLeft || !hasRight : horizontalAlignment != HorizontalAlignment.RIGHT;
 			final int height = scale;
@@ -313,19 +301,7 @@ public class RouteMapGenerator implements IGui {
 			if (isTerminating) {
 				circleX = (int) horizontalAlignment.getOffset(0, tileSize - width);
 			} else {
-				String destinationString = IGui.mergeStations(destinations);
-				final boolean isClockwise = destinationString.startsWith(TEMP_CIRCULAR_MARKER_CLOCKWISE);
-				final boolean isAnticlockwise = destinationString.startsWith(TEMP_CIRCULAR_MARKER_ANTICLOCKWISE);
-				destinationString = destinationString.replace(TEMP_CIRCULAR_MARKER_CLOCKWISE, "").replace(TEMP_CIRCULAR_MARKER_ANTICLOCKWISE, "");
-				if (!destinationString.isEmpty()) {
-					if (isClockwise) {
-						destinationString = IGui.insertTranslation(TranslationProvider.GUI_MTR_CLOCKWISE_VIA_CJK, TranslationProvider.GUI_MTR_CLOCKWISE_VIA, 1, destinationString);
-					} else if (isAnticlockwise) {
-						destinationString = IGui.insertTranslation(TranslationProvider.GUI_MTR_ANTICLOCKWISE_VIA_CJK, TranslationProvider.GUI_MTR_ANTICLOCKWISE_VIA, 1, destinationString);
-					} else if (showToString) {
-						destinationString = IGui.insertTranslation(TranslationProvider.GUI_MTR_TO_CJK, TranslationProvider.GUI_MTR_TO, 1, destinationString);
-					}
-				}
+
 
 				final int tilePadding = tileSize / 4;
 				final int leftSize = ((hasLeft ? 1 : 0) + (leftToRight ? 1 : 0)) * (tileSize + tilePadding);
@@ -376,7 +352,7 @@ public class RouteMapGenerator implements IGui {
 
 		try {
 			final ObjectArrayList<ObjectIntImmutablePair<SimplifiedRoute>> routeDetails = new ObjectArrayList<>();
-			getRouteStream(platformId, (simplifiedRoute, currentStationIndex) -> routeDetails.add(new ObjectIntImmutablePair<>(simplifiedRoute, currentStationIndex)));
+			RouteHelper.getRouteStream(platformId, false, (simplifiedRoute, currentStationIndex) -> routeDetails.add(new ObjectIntImmutablePair<>(simplifiedRoute, currentStationIndex)));
 			final int routeCount = routeDetails.size();
 
 			if (routeCount > 0) {
@@ -616,28 +592,6 @@ public class RouteMapGenerator implements IGui {
 
 	private static float getLineOffset(int routeIndex, int[] colorIndices) {
 		return (float) lineSpacing / scale * (colorIndices[routeIndex] - colorIndices[colorIndices.length - 1] / 2F);
-	}
-
-	private static IntArrayList getRouteStream(long platformId, BiConsumer<SimplifiedRoute, Integer> nonTerminatingCallback) {
-		final IntArrayList colors = new IntArrayList();
-		final IntArrayList terminatingColors = new IntArrayList();
-		MinecraftClientData.getInstance().simplifiedRoutes.stream().filter(simplifiedRoute -> simplifiedRoute.getPlatformIndex(platformId) >= 0 && !simplifiedRoute.getName().isEmpty()).sorted().forEach(simplifiedRoute -> {
-			final int currentStationIndex = simplifiedRoute.getPlatformIndex(platformId);
-			if (currentStationIndex < simplifiedRoute.getPlatforms().size() - 1) {
-				nonTerminatingCallback.accept(simplifiedRoute, currentStationIndex);
-				if (!colors.contains(simplifiedRoute.getColor())) {
-					colors.add(simplifiedRoute.getColor());
-				}
-			} else {
-				if (!terminatingColors.contains(simplifiedRoute.getColor())) {
-					terminatingColors.add(simplifiedRoute.getColor());
-				}
-			}
-		});
-		if (colors.isEmpty()) {
-			colors.addAll(terminatingColors);
-		}
-		return colors;
 	}
 
 	private static String getStationName(long platformId) {

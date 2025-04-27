@@ -10,24 +10,27 @@ import org.mtr.tool.GuiHelper;
 public abstract class ScrollablePanelWidget extends ScrollableWidget {
 
 	public ScrollablePanelWidget(int x, int y, int width, int height) {
-		super(x, y, width, height, Text.literal(""));
+		super(x, y, width, height, Text.empty());
 	}
 
 	@Override
-	public final boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (checkScrollbarDragged(mouseX, mouseY, button)) {
-			return true;
-		} else {
-			return mouseClickedNew(mouseX, mouseY, button);
+	public final void onClick(double mouseX, double mouseY) {
+		if (!checkScrollbarDragged(mouseX, mouseY, 0)) {
+			onClickNew(mouseX, mouseY);
 		}
 	}
 
 	@Override
 	protected final void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
 		context.enableScissor(getX(), getY(), getX() + width, getY() + height);
-		render(context, mouseX, mouseY);
+		render(context, active ? mouseX : -1, active ? mouseY : -1);
 		context.disableScissor();
-		drawScrollbar(context, mouseX, mouseY);
+		drawScrollbar(context, active ? mouseX : -1, active ? mouseY : -1);
+	}
+
+	@Override
+	protected final boolean isValidClickButton(int button) {
+		return active && super.isValidClickButton(button);
 	}
 
 	@Override
@@ -35,10 +38,10 @@ public abstract class ScrollablePanelWidget extends ScrollableWidget {
 	}
 
 	/**
-	 * Do not call this directly! Use {@link ScrollablePanelWidget#mouseClicked} instead.
+	 * Do not call this directly! Use {@link ScrollablePanelWidget#onClick} instead.
 	 */
-	protected boolean mouseClickedNew(double mouseX, double mouseY, int button) {
-		return super.mouseClicked(mouseX, mouseY, button);
+	protected void onClickNew(double mouseX, double mouseY) {
+		super.onClick(mouseX, mouseY);
 	}
 
 	protected final int getScrollbarWidth() {
@@ -56,7 +59,7 @@ public abstract class ScrollablePanelWidget extends ScrollableWidget {
 			final int y1 = getScrollbarThumbY();
 			final int x2 = x1 + SCROLLBAR_WIDTH;
 			final int y2 = y1 + getScrollbarThumbHeight();
-			context.fill(x1 + 1, y1 + 1, x2 - 1, y2 - 1, Utilities.isBetween(mouseX, x1, x2) && Utilities.isBetween(mouseY, y1, y2) ? GuiHelper.SCROLL_BAR_HOVER_COLOR : GuiHelper.SCROLL_BAR_COLOR);
+			context.fill(x1 + 1, y1 + 1, x2 - 1, y2 - 1, Utilities.isBetween(mouseX, x1, x2 - 1) && Utilities.isBetween(mouseY, y1, y2 - 1) ? GuiHelper.SCROLL_BAR_HOVER_COLOR : GuiHelper.SCROLL_BAR_COLOR);
 		}
 	}
 

@@ -42,7 +42,7 @@ public final class FontGroup {
 			final boolean isCjk = shouldCheckCjk && IGui.isCjk(lines[i]);
 			fontSize[i] = (isCjk ? fontRenderOptions.getCjkScaling() : 1) * fontRenderOptions.getMaxFontSize();
 			colors[i] = hasCjkColor && isCjk ? fontRenderOptions.getCjkColor() : fontRenderOptions.getColor();
-			final float[] dimensions = renderRaw(null, lines[i], 0, 0, fontSize[i], fontSize[i], 0, 0);
+			final float[] dimensions = renderRaw(null, lines[i], 0, 0, 0, fontSize[i], fontSize[i], 0, 0);
 			rawLineWidths[i] = dimensions[0];
 			rawLineHeights[i] = dimensions[1];
 			maxLineWidth = Math.max(maxLineWidth, rawLineWidths[i]);
@@ -66,33 +66,41 @@ public final class FontGroup {
 		for (int i = 0; i < lines.length; i++) {
 			final float xScale = fontRenderOptions.getTextOverflow() == FontRenderOptions.TextOverflow.COMPRESS ? Math.min(yScale, Math.min(1, fontRenderOptions.getHorizontalSpace() / rawLineWidths[i])) : yScale;
 			final float horizontalOffset = fontRenderOptions.getHorizontalTextAlignment().getOffset(rawLineWidths[i] * xScale - fontRenderOptions.getHorizontalSpace());
-			totalWidth = Math.max(totalWidth, renderRaw(drawing, lines[i], x + horizontalOffset, y, xScale * fontSize[i], yScale * fontSize[i], colors[i], fontRenderOptions.getLight())[0]);
+			totalWidth = Math.max(totalWidth, renderRaw(
+					drawing, lines[i],
+					x + fontRenderOptions.getOffsetX() + horizontalOffset,
+					y + fontRenderOptions.getOffsetY(),
+					fontRenderOptions.getOffsetZ(),
+					xScale * fontSize[i],
+					yScale * fontSize[i],
+					colors[i], fontRenderOptions.getLight()
+			)[0]);
 			y += rawLineHeights[i] * yScale;
 		}
 
 		return new FloatFloatImmutablePair(totalWidth, y);
 	}
 
-	private float[] renderRaw(@Nullable Drawing drawing, String text, float x, float y, float xScale, float yScale, int color, int light) {
+	private float[] renderRaw(@Nullable Drawing drawing, String text, float x, float y, float z, float xScale, float yScale, int color, int light) {
 		final float[] xOffset = {0};
 		text.codePoints().forEach(character -> {
 			boolean notRendered = true;
 			for (final FontProvider fontProvider : fontProviders) {
 				final IntObjectImmutablePair<byte[]> renderData = fontProvider.render(character);
 				if (renderData != null) {
-					xOffset[0] += render(renderData, fontProvider.isFileFont(), drawing, x + xOffset[0], y, xScale, yScale, color, light);
+					xOffset[0] += render(renderData, fontProvider.isFileFont(), drawing, x + xOffset[0], y, z, xScale, yScale, color, light);
 					notRendered = false;
 					break;
 				}
 			}
 			if (notRendered) {
-				xOffset[0] += render(FALLBACK.render(character), true, drawing, x + xOffset[0], y, xScale, yScale, color, light);
+				xOffset[0] += render(FALLBACK.render(character), true, drawing, x + xOffset[0], y, z, xScale, yScale, color, light);
 			}
 		});
 		return new float[]{xOffset[0], yScale * (1 + LINE_SPACING)};
 	}
 
-	private static float render(@Nullable IntObjectImmutablePair<byte[]> renderData, boolean isFileFont, @Nullable Drawing drawing, float x, float y, float xScale, float yScale, int color, int light) {
+	private static float render(@Nullable IntObjectImmutablePair<byte[]> renderData, boolean isFileFont, @Nullable Drawing drawing, float x, float y, float z, float xScale, float yScale, int color, int light) {
 		if (renderData == null) {
 			return 0;
 		} else {
@@ -124,7 +132,8 @@ public final class FontGroup {
 								x + (pixelOffsetX * additionalScale - (isFileFont ? additionalScaleOrXOffset : 0)) * newXScale,
 								y + (pixelOffsetY * additionalScale + FontResourceBase.FONT_SIZE - yOffset) * newYScale,
 								length * newXScale * additionalScale,
-								newYScale * additionalScale
+								newYScale * additionalScale,
+								z
 						).setColorARGB(alpha * inputColor.getAlpha() / 0xFF, inputColor.getRed(), inputColor.getGreen(), inputColor.getBlue()).setLight(light).draw();
 
 						pixelOffsetX += length;

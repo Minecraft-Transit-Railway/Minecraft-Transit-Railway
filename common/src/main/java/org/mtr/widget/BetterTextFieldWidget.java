@@ -5,6 +5,7 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 import org.mtr.core.tool.Utilities;
 import org.mtr.screen.TextCase;
+import org.mtr.tool.GuiHelper;
 
 import javax.annotation.Nullable;
 import javax.annotation.RegEx;
@@ -14,7 +15,9 @@ public final class BetterTextFieldWidget extends TextFieldWidget {
 
 	private final int maxLength;
 	private final TextCase textCase;
+	@Nullable
 	private final String filter;
+	@Nullable
 	private final String suggestion;
 
 	public BetterTextFieldWidget(int maxLength, TextCase textCase, @RegEx @Nullable String filter, @Nullable String suggestion) {
@@ -22,7 +25,7 @@ public final class BetterTextFieldWidget extends TextFieldWidget {
 	}
 
 	public BetterTextFieldWidget(String text, int maxLength, TextCase textCase, @RegEx @Nullable String filter, @Nullable String suggestion) {
-		super(MinecraftClient.getInstance().textRenderer, 0, 0, 0, 8, Text.literal(""));
+		super(MinecraftClient.getInstance().textRenderer, 0, 0, 0, GuiHelper.MINECRAFT_FONT_SIZE, Text.empty());
 		this.maxLength = maxLength;
 		this.textCase = textCase;
 		this.filter = filter;
@@ -53,13 +56,17 @@ public final class BetterTextFieldWidget extends TextFieldWidget {
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (isVisible() && Utilities.isBetween(mouseX, getX(), getX() + width) && Utilities.isBetween(mouseY, getY(), getY() + height)) {
-			if (button == 1) {
-				setText("");
+		if (active) {
+			if (isVisible() && Utilities.isBetween(mouseX, getX(), getX() + width) && Utilities.isBetween(mouseY, getY(), getY() + height)) {
+				if (button == 1) {
+					setText("");
+				}
+				return super.mouseClicked(mouseX, mouseY, 0);
+			} else {
+				setFocused(false);
+				return false;
 			}
-			return super.mouseClicked(mouseX, mouseY, 0);
 		} else {
-			setFocused(false);
 			return false;
 		}
 	}
