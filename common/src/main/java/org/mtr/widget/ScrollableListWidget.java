@@ -29,6 +29,8 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 
 	@Nullable
 	private Runnable clickAction;
+	@Nullable
+	private String filter;
 	private int minWidth, minHeight;
 	private int maxWidth, maxHeight;
 	private int rawHeight;
@@ -49,13 +51,14 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		final Drawing drawing = new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
 		final ObjectArrayList<Runnable> deferredRenders = new ObjectArrayList<>();
 
-		ListItem.iterateData(dataList, (dataIndex, level, listItem) -> {
+		ListItem.iterateData(dataList, filter, (dataIndex, level, listItem) -> {
 			final int startX = getX() + level * GuiHelper.DEFAULT_PADDING;
 			final int endX = getX() + width - getScrollbarWidth();
 			final double startY = getY() - getScrollY() + GuiHelper.DEFAULT_LINE_SIZE * dataIndex;
 
 			if (startY + GuiHelper.DEFAULT_LINE_SIZE > getY()) {
-				final boolean isMouseOver = Utilities.isBetween(mouseY, startY, startY + GuiHelper.DEFAULT_LINE_SIZE - 1) && Utilities.isBetween(mouseX, getX(), endX - 1);
+				final double startYBottomLine = startY + GuiHelper.DEFAULT_LINE_SIZE - 1;
+				final boolean isMouseOver = Utilities.isBetween(mouseY, startY, startYBottomLine) && Utilities.isBetween(mouseX, getX(), endX - 1);
 
 				// Detect hovering
 				if (isMouseOver) {
@@ -145,6 +148,19 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		initDimensions();
 	}
 
+	public void setFilter(@Nullable String filter) {
+		ListItem.expandByFilter(dataList, filter);
+		this.filter = filter;
+	}
+
+	public void toggleExpansion() {
+		ListItem.expandAll(dataList, !canCollapse());
+	}
+
+	public boolean canCollapse() {
+		return dataList.stream().anyMatch(ListItem::isExpanded);
+	}
+
 	private FontRenderOptions.FontRenderOptionsBuilder initDimensions() {
 		final FontRenderOptions.FontRenderOptionsBuilder fontRenderOptionsBuilder = FontRenderOptions.builder()
 				.maxFontSize(GuiHelper.MINECRAFT_FONT_SIZE)
@@ -156,7 +172,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		final int[] count = {0};
 		final int[] maxLineWidth = {0};
 
-		ListItem.iterateData(dataList, (index, level, listItem) -> {
+		ListItem.iterateData(dataList, null, (index, level, listItem) -> {
 			if (!fixedWidth && maxLineWidth[0] < maxWidth) {
 				maxLineWidth[0] = Math.max(maxLineWidth[0], (level + 2) * GuiHelper.DEFAULT_PADDING + listItem.iconWidth + (int) Math.ceil(FontGroups.renderMTR(null, listItem.text, fontRenderOptionsBuilder.build()).leftFloat()) + listItem.actionCount() * GuiHelper.DEFAULT_LINE_SIZE + getScrollbarWidth());
 			}

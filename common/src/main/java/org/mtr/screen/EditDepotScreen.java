@@ -99,7 +99,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		departuresList = new DashboardList(null, null, null, null, null, this::onDeleteDeparture, null, () -> "", text -> {
 		});
 
-		textFieldDeparture = new BetterTextFieldWidget(25, TextCase.DEFAULT, "[^\\d:+* ]", "07:10:00 + 10 * 00:03:00");
+		textFieldDeparture = new BetterTextFieldWidget(25, TextCase.DEFAULT, "[^\\d:+* ]", "07:10:00 + 10 * 00:03:00", this::textFieldDepartureCallback);
 		buttonAddDeparture = ButtonWidget.builder(Text.literal("+"), button -> {
 			checkDeparture(textFieldDeparture.getText(), true, false);
 			saveData();
@@ -135,7 +135,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			depotOperationByIds.addDepotId(depot.getId());
 			RegistryClient.sendPacketToServer(new PacketDepotGenerate(depotOperationByIds));
 		}).build();
-		textFieldCruisingAltitude = new BetterTextFieldWidget(5, TextCase.DEFAULT, "[^-\\d]", String.valueOf(DEFAULT_CRUISING_ALTITUDE));
+		textFieldCruisingAltitude = new BetterTextFieldWidget(5, TextCase.DEFAULT, "[^-\\d]", String.valueOf(DEFAULT_CRUISING_ALTITUDE), text -> {
+		});
 	}
 
 	@Override
@@ -173,7 +174,6 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 		IDrawing.setPositionAndWidth(textFieldDeparture, TEXT_FIELD_PADDING / 2, height - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, leftWidth - TEXT_FIELD_PADDING - SQUARE_SIZE);
 		addDrawableChild(textFieldDeparture);
-		textFieldDeparture.setChangedListener(text -> buttonAddDeparture.active = checkDeparture(text, false, false));
 		IDrawing.setPositionAndWidth(buttonAddDeparture, leftWidth - SQUARE_SIZE, height - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
 		addDrawableChild(buttonAddDeparture);
 		buttonAddDeparture.active = false;
@@ -276,6 +276,10 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			data.setCruisingAltitude(DEFAULT_CRUISING_ALTITUDE);
 		}
 		RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addDepot(data)));
+	}
+
+	private void textFieldDepartureCallback(String text) {
+		buttonAddDeparture.active = checkDeparture(text, false, false);
 	}
 
 	private void toggleRealTime() {

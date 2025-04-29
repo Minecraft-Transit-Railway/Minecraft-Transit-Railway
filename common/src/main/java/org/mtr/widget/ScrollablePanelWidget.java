@@ -30,7 +30,7 @@ public abstract class ScrollablePanelWidget extends ScrollableWidget {
 
 	@Override
 	protected final boolean isValidClickButton(int button) {
-		return active && super.isValidClickButton(button);
+		return active && visible && super.isValidClickButton(button);
 	}
 
 	@Override

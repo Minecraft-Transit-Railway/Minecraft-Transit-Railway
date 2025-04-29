@@ -22,7 +22,8 @@ public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 	private static final int DEFAULT_SECONDS = 10;
 
 	public TrainScheduleSensorScreen(BlockPos pos, BlockTrainScheduleSensor.TrainScheduleSensorBlockEntity blockEntity) {
-		super(pos, false, new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_SECONDS_LENGTH, TextCase.DEFAULT, "[^\\d-]", null), TranslationProvider.GUI_MTR_TRAIN_SCHEDULE_SENSOR.getMutableText()));
+		super(pos, false, new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_SECONDS_LENGTH, TextCase.DEFAULT, "[^\\d-]", null, text -> {
+		}), TranslationProvider.GUI_MTR_TRAIN_SCHEDULE_SENSOR.getMutableText()));
 
 		final ClientWorld clientWorld = MinecraftClient.getInstance().world;
 		final boolean realtimeOnly;

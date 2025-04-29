@@ -90,7 +90,8 @@ public class PIDSConfigScreen extends MTRScreenBase implements IGui {
 
 		textFieldMessages = new BetterTextFieldWidget[maxArrivals];
 		for (int i = 0; i < maxArrivals; i++) {
-			textFieldMessages[i] = new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, "");
+			textFieldMessages[i] = new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, "", text -> {
+			});
 		}
 
 		buttonsHideArrival = new CheckboxWidget[maxArrivals];
@@ -103,7 +104,8 @@ public class PIDSConfigScreen extends MTRScreenBase implements IGui {
 		buttonNextPage = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_right.png"), Identifier.of("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1), true);
 
 		filterButton = getPlatformFilterButton(blockPos, selectAllCheckbox, filterPlatformIds, this);
-		displayPageInput = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", "1");
+		displayPageInput = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", "1", text -> {
+		});
 	}
 
 	@Override

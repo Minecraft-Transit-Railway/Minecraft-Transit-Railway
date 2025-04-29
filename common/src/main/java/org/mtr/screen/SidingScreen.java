@@ -53,7 +53,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 	public SidingScreen(Siding siding, TransportMode transportMode, Screen previousScreen) {
 		super(siding, transportMode, previousScreen, SELECTED_TRAIN_TEXT, MAX_TRAINS_TEXT, ACCELERATION_CONSTANT_TEXT, DECELERATION_CONSTANT_TEXT, DELAYED_VEHICLE_SPEED_INCREASE_PERCENTAGE_TEXT, DELAYED_VEHICLE_REDUCE_DWELL_TIME_PERCENTAGE_TEXT, MANUAL_TO_AUTOMATIC_TIME, MAX_MANUAL_SPEED);
 		buttonSelectTrain = ButtonWidget.builder(Text.translatable("selectWorld.edit"), button -> MinecraftClient.getInstance().setScreen(new VehicleSelectorScreen(savedRailBase, this))).build();
-		textFieldMaxTrains = new BetterTextFieldWidget(MAX_TRAINS_TEXT_LENGTH, TextCase.DEFAULT, "\\D", null);
+		textFieldMaxTrains = new BetterTextFieldWidget(MAX_TRAINS_TEXT_LENGTH, TextCase.DEFAULT, "\\D", null, this::textFieldMaxTrainsCallback);
 		sliderAccelerationConstant = new ShorterSliderWidget(0, MAX_TRAINS_WIDTH, (int) Math.round((Siding.MAX_ACCELERATION - Siding.MIN_ACCELERATION) * SLIDER_SCALE), SidingScreen::accelerationSliderFormatter, null);
 		sliderDecelerationConstant = new ShorterSliderWidget(0, MAX_TRAINS_WIDTH, (int) Math.round((Siding.MAX_ACCELERATION - Siding.MIN_ACCELERATION) * SLIDER_SCALE), SidingScreen::accelerationSliderFormatter, null);
 		sliderDelayedVehicleSpeedIncreasePercentage = new ShorterSliderWidget(0, MAX_TRAINS_WIDTH, 100, SidingScreen::percentageFormatter, null);
@@ -89,13 +89,6 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 
 		IDrawing.setPositionAndWidth(textFieldMaxTrains, SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING * 3 / 2, MAX_TRAINS_WIDTH - TEXT_FIELD_PADDING);
 		textFieldMaxTrains.setText(savedRailBase.getIsUnlimited() ? "" : String.valueOf(savedRailBase.getMaxVehicles()));
-		textFieldMaxTrains.setChangedListener(text -> {
-			IGui.setChecked(buttonUnlimitedTrains, text.isEmpty());
-			if (!text.equals("1")) {
-				IGui.setChecked(buttonIsManual, false);
-				setButtons();
-			}
-		});
 
 		sliderAccelerationConstant.setX(SQUARE_SIZE + textWidth);
 		sliderAccelerationConstant.setY(SQUARE_SIZE * 4 + TEXT_FIELD_PADDING * 2);
@@ -201,6 +194,14 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 	@Override
 	protected TranslationProvider.TranslationHolder getNumberStringKey() {
 		return TranslationProvider.GUI_MTR_SIDING_NUMBER;
+	}
+
+	private void textFieldMaxTrainsCallback(String text) {
+		IGui.setChecked(buttonUnlimitedTrains, text.isEmpty());
+		if (!text.equals("1")) {
+			IGui.setChecked(buttonIsManual, false);
+			setButtons();
+		}
 	}
 
 	private void setButtons() {

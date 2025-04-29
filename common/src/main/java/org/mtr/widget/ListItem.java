@@ -7,6 +7,7 @@ import net.minecraft.util.Identifier;
 import org.mtr.tool.Drawing;
 
 import javax.annotation.Nullable;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
@@ -21,6 +22,7 @@ public final class ListItem<T> {
 	public final DrawIcon drawIcon;
 	public final int iconWidth;
 	public final String text;
+	private final String textLowerCase;
 	@Nullable
 	private final String parentKey;
 	@Nullable
@@ -42,6 +44,7 @@ public final class ListItem<T> {
 		this.drawIcon = drawIcon;
 		this.iconWidth = iconWidth;
 		this.text = text;
+		this.textLowerCase = text.toLowerCase(Locale.ENGLISH);
 		this.parentKey = parentKey;
 		this.children = children;
 		this.data = data;
@@ -79,6 +82,33 @@ public final class ListItem<T> {
 		}
 	}
 
+	private boolean matchesFilter(@Nullable String filter, boolean updateExpanded) {
+		if (filter == null || filter.isEmpty()) {
+			if (updateExpanded) {
+				expanded = false;
+			}
+			return true;
+		} else {
+			final boolean thisMatch = textLowerCase.contains(filter.toLowerCase(Locale.ENGLISH));
+			if (isParent()) {
+				final boolean childrenMatch = children != null && children.stream().anyMatch(listItem -> listItem.matchesFilter(filter, false));
+				if (updateExpanded && childrenMatch) {
+					expanded = true;
+				}
+				return childrenMatch || thisMatch;
+			} else {
+				return thisMatch;
+			}
+		}
+	}
+
+	/**
+	 * Helper method to overwrite a new data list to an existing list, keeping expanded states.
+	 *
+	 * @param currentDataList the list to be modified
+	 * @param newDataList     the list of new data
+	 * @param <T>             the data type of the list
+	 */
 	public static <T> void overwriteList(ObjectArrayList<ListItem<T>> currentDataList, ObjectArrayList<ListItem<T>> newDataList) {
 		final ObjectAVLTreeSet<String> expandedKeys = new ObjectAVLTreeSet<>();
 		currentDataList.forEach(listItem -> {
@@ -93,27 +123,62 @@ public final class ListItem<T> {
 		});
 	}
 
-	public static <T> void iterateData(ObjectArrayList<ListItem<T>> dataList, ListItemConsumer<T> consumer) {
-		iterateData(dataList, consumer, new int[]{0}, 0);
+	/**
+	 * Helper method to expand or collapse all entries.
+	 */
+	public static <T> void expandAll(ObjectArrayList<ListItem<T>> dataList, boolean expanded) {
+		dataList.forEach(listItem -> {
+			if (listItem.children != null) {
+				expandAll(listItem.children, expanded);
+			}
+			listItem.expanded = expanded;
+		});
 	}
 
-	private static <T> void iterateData(ObjectArrayList<ListItem<T>> dataList, ListItemConsumer<T> consumer, int[] index, int level) {
+	/**
+	 * Helper method to expand or collapse all entries based on the filter term.
+	 */
+	public static <T> void expandByFilter(ObjectArrayList<ListItem<T>> dataList, @Nullable String filter) {
+		dataList.forEach(listItem -> {
+			if (listItem.children != null) {
+				expandByFilter(listItem.children, filter);
+			}
+			listItem.matchesFilter(filter, true);
+		});
+	}
+
+	/**
+	 * Helper method to iterate through all the entries in a data list. If an item is not expanded or is filtered out, it will not be traversed.
+	 * When a filter is set, expansion states will be locked accordingly.
+	 *
+	 * @param dataList the input list
+	 * @param filter   optional text to filter out entries and lock expansion states or {@code null} to not filter and keep expansion states as-is
+	 * @param consumer the callback method
+	 * @param <T>      the data type of the list
+	 */
+	public static <T> void iterateData(ObjectArrayList<ListItem<T>> dataList, @Nullable String filter, ListItemConsumer<T> consumer) {
+		iterateData(dataList, filter, consumer, new int[]{0}, 0);
+	}
+
+	private static <T> void iterateData(ObjectArrayList<ListItem<T>> dataList, @Nullable String filter, ListItemConsumer<T> consumer, int[] index, int level) {
 		for (final ListItem<T> listItem : dataList) {
 			if (listItem.isParent()) {
-				if (consumer.accept(index[0], level, listItem)) {
-					return;
-				}
+				final boolean matchesFilter = listItem.matchesFilter(filter, false);
 
-				index[0]++;
+				if (matchesFilter) {
+					if (consumer.accept(index[0], level, listItem)) {
+						return;
+					}
+					index[0]++;
+				}
 
 				if (listItem.expanded && listItem.children != null) {
-					iterateData(listItem.children, consumer, index, level + 1);
+					iterateData(listItem.children, matchesFilter ? null : filter, consumer, index, level + 1);
 				}
-			} else {
+			} else if (listItem.matchesFilter(filter, false)) {
 				if (consumer.accept(index[0], level, listItem)) {
 					return;
 				}
-
 				index[0]++;
 			}
 		}

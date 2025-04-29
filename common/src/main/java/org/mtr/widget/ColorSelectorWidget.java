@@ -88,10 +88,10 @@ public final class ColorSelectorWidget extends ButtonWidget implements IGui {
 			super();
 			this.oldColor = oldColor;
 			this.colorCallback = colorCallback;
-			textFieldColor = new BetterTextFieldWidget(6, TextCase.UPPER, "[^\\dA-F]", Text.literal(Integer.toHexString(oldColor).toUpperCase(Locale.ENGLISH)).getString());
-			textFieldRed = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", Text.literal(String.valueOf((oldColor >> 16) & 0xFF)).getString());
-			textFieldGreen = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", Text.literal(String.valueOf((oldColor >> 8) & 0xFF)).getString());
-			textFieldBlue = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", Text.literal(String.valueOf(oldColor & 0xFF)).getString());
+			textFieldColor = new BetterTextFieldWidget(6, TextCase.UPPER, "[^\\dA-F]", Text.literal(Integer.toHexString(oldColor).toUpperCase(Locale.ENGLISH)).getString(), text -> textCallback(text, -1));
+			textFieldRed = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", Text.literal(String.valueOf((oldColor >> 16) & 0xFF)).getString(), text -> textCallback(text, 16));
+			textFieldGreen = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", Text.literal(String.valueOf((oldColor >> 8) & 0xFF)).getString(), text -> textCallback(text, 8));
+			textFieldBlue = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", Text.literal(String.valueOf(oldColor & 0xFF)).getString(), text -> textCallback(text, 0));
 			buttonReset = ButtonWidget.builder(TranslationProvider.GUI_MTR_RESET_SIGN.getMutableText(), button -> {
 				setHsb(oldColor, true);
 				button.active = false;
@@ -111,11 +111,6 @@ public final class ColorSelectorWidget extends ButtonWidget implements IGui {
 			IDrawing.setPositionAndWidth(buttonReset, startX, getMainHeight(), RIGHT_WIDTH);
 
 			setHsb(oldColor, true);
-
-			textFieldColor.setChangedListener(text -> textCallback(text, -1));
-			textFieldRed.setChangedListener(text -> textCallback(text, 16));
-			textFieldGreen.setChangedListener(text -> textCallback(text, 8));
-			textFieldBlue.setChangedListener(text -> textCallback(text, 0));
 
 			addDrawableChild(textFieldColor);
 			addDrawableChild(textFieldRed);

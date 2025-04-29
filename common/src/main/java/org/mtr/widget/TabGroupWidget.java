@@ -58,47 +58,46 @@ public final class TabGroupWidget extends ClickableWidget {
 	protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
 		setWidth(totalWidgetWidth);
 		final MatrixStack matrixStack = context.getMatrices();
-		int x = getX();
-		mouseOverIndex = -1;
-
-		// Render tab
-		for (int i = 0; i < messages.length; i++) {
-			// Calculate mouse hover and draw the hover background (z = 1)
-			if (active && Utilities.isBetween(mouseX, x, x + GuiHelper.DEFAULT_PADDING * 2 + scaledTextWidths[i] - 1) && Utilities.isBetween(mouseY, getY(), getY() + height - 1)) {
-				mouseOverIndex = i;
-				context.fill(x, getY(), x + GuiHelper.DEFAULT_PADDING * 2 + scaledTextWidths[i], getY() + getHeight(), 1, GuiHelper.HOVER_COLOR);
-			}
-
-			// Set the selected tab indicator position (1)
-			final boolean isSelected = i == selectedIndex;
-			if (isSelected) {
-				guiAnimation1.animate(x);
-			}
-
-			// Render text (z = 2)
-			x += GuiHelper.DEFAULT_PADDING;
-			matrixStack.push();
-			matrixStack.translate(x + (scaledTextWidths[i] - rawTextWidths[i]) / 2F, getY() + GuiHelper.DEFAULT_PADDING, 2);
-			context.drawText(MinecraftClient.getInstance().textRenderer, messages[i], 0, 0, isSelected ? GuiHelper.WHITE_COLOR : GuiHelper.LIGHT_GRAY_COLOR, false);
-			matrixStack.pop();
-			x += scaledTextWidths[i] + GuiHelper.DEFAULT_PADDING;
-
-			// Set the selected tab indicator position (2)
-			if (isSelected) {
-				guiAnimation2.animate(x);
-			}
-		}
-
-		// Draw widget background (z = 0)
-		context.fill(getX(), getY(), getX() + width, getY() + height - 1, GuiHelper.BACKGROUND_COLOR);
-		context.fill(getX(), getY() + height - 1, getX() + width, getY() + height, GuiHelper.BACKGROUND_ACCENT_COLOR);
+		final Drawing drawing = new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
 
 		// Handle animation
 		guiAnimation1.tick();
 		guiAnimation2.tick();
 
-		// Draw selected tab indicator (z = 1)
-		new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui())).setVertices(guiAnimation1.getCurrentValue(), getY() + height - 1, guiAnimation2.getCurrentValue(), getY() + height, 1).setColor(GuiHelper.WHITE_COLOR).draw();
+		// Draw the widget background
+		drawing.setVerticesWH(getX(), getY(), width, height).setColor(GuiHelper.BACKGROUND_COLOR).draw();
+		drawing.setVerticesWH(getX(), getY() + height - 1, width, 1).setColor(GuiHelper.BACKGROUND_ACCENT_COLOR).draw();
+
+		// Draw the selected tab indicator
+		drawing.setVertices(getX() + guiAnimation1.getCurrentValue(), getY() + height - 1, getX() + guiAnimation2.getCurrentValue(), getY() + height).setColor(GuiHelper.WHITE_COLOR).draw();
+
+		int x = getX();
+		mouseOverIndex = -1;
+
+		// Render tab
+		for (int i = 0; i < messages.length; i++) {
+			// Calculate mouse hover and draw the hover background
+			if (active && Utilities.isBetween(mouseX, x, x + GuiHelper.DEFAULT_PADDING * 2 + scaledTextWidths[i] - 1) && Utilities.isBetween(mouseY, getY(), getY() + height - 1)) {
+				mouseOverIndex = i;
+				drawing.setVerticesWH(x, getY(), GuiHelper.DEFAULT_PADDING * 2 + scaledTextWidths[i], getHeight()).setColor(GuiHelper.HOVER_COLOR);
+			}
+
+			// Set the selected tab indicator position (1)
+			final boolean isSelected = i == selectedIndex;
+			if (isSelected) {
+				guiAnimation1.animate(x - getX());
+			}
+
+			// Render text
+			x += GuiHelper.DEFAULT_PADDING;
+			GuiHelper.drawText(context, messages[i], x + (scaledTextWidths[i] - rawTextWidths[i]) / 2F, getY() + GuiHelper.DEFAULT_PADDING, 0, isSelected ? GuiHelper.WHITE_COLOR : GuiHelper.LIGHT_GRAY_COLOR);
+			x += scaledTextWidths[i] + GuiHelper.DEFAULT_PADDING;
+
+			// Set the selected tab indicator position (2)
+			if (isSelected) {
+				guiAnimation2.animate(x - getX());
+			}
+		}
 	}
 
 	@Override
@@ -108,7 +107,7 @@ public final class TabGroupWidget extends ClickableWidget {
 
 	@Override
 	protected boolean isValidClickButton(int button) {
-		return active && super.isValidClickButton(button);
+		return active && visible && super.isValidClickButton(button);
 	}
 
 	@Override

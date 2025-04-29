@@ -175,10 +175,10 @@ public final class MapWidget extends ClickableWidget {
 				matrixStack.push();
 				matrixStack.translate(getX() + x, getY() + y, 5);
 				IDrawing.rotateZDegrees(matrixStack, player.getYaw() + 180);
-				new Drawing(
-						matrixStack,
-						MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(Identifier.of("textures/gui/sprites/mtr/dashboard_player_arrow.png")))
-				).setVerticesWH(-PLAYER_ARROW_SIZE / 2F, -PLAYER_ARROW_SIZE / 2F, PLAYER_ARROW_SIZE, PLAYER_ARROW_SIZE).setUv().draw();
+				new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(Identifier.of("textures/gui/sprites/mtr/dashboard_player_arrow.png"))))
+						.setVerticesWH(-PLAYER_ARROW_SIZE / 2F, -PLAYER_ARROW_SIZE / 2F, PLAYER_ARROW_SIZE, PLAYER_ARROW_SIZE)
+						.setUv()
+						.draw();
 				matrixStack.pop();
 			});
 		}
@@ -317,7 +317,7 @@ public final class MapWidget extends ClickableWidget {
 
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-		if (active) {
+		if (active && visible) {
 			if (popupDetails == null) {
 				final double oldScale = guiAnimationScale.getCurrentValue();
 				if (oldScale > SCALE_LOWER_LIMIT && verticalAmount < 0) {
@@ -350,7 +350,7 @@ public final class MapWidget extends ClickableWidget {
 
 	@Override
 	protected boolean isValidClickButton(int button) {
-		return active && super.isValidClickButton(button);
+		return active && visible && super.isValidClickButton(button);
 	}
 
 	@Override

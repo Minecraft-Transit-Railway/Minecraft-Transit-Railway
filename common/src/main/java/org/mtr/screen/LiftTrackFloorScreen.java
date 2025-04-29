@@ -44,8 +44,10 @@ public class LiftTrackFloorScreen extends MTRScreenBase implements IGui {
 			initialShouldDing = blockEntity.getShouldDing();
 		}
 
-		textFieldFloorNumber = new BetterTextFieldWidget(8, TextCase.DEFAULT, null, "1");
-		textFieldFloorDescription = new BetterTextFieldWidget(256, TextCase.DEFAULT, null, "Concourse");
+		textFieldFloorNumber = new BetterTextFieldWidget(8, TextCase.DEFAULT, null, "1", text -> {
+		});
+		textFieldFloorDescription = new BetterTextFieldWidget(256, TextCase.DEFAULT, null, "Concourse", text -> {
+		});
 		checkboxShouldDing = CheckboxWidget.builder(TranslationProvider.GUI_MTR_LIFT_SHOULD_DING.getText(), textRenderer).checked(initialShouldDing).callback((checkBoxWidget, checked) -> {
 		}).build();
 

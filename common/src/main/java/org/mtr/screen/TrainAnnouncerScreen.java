@@ -32,9 +32,12 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 
 	public TrainAnnouncerScreen(BlockPos pos, BlockTrainAnnouncer.TrainAnnouncerBlockEntity blockEntity) {
 		super(pos, true,
-				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TranslationProvider.GUI_MTR_ANNOUNCEMENT_MESSAGE.getMutableText()),
-				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null), TranslationProvider.GUI_MTR_SOUND_FILE.getMutableText()),
-				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_DELAY_LENGTH, TextCase.DEFAULT, "\\D", null), TranslationProvider.GUI_MTR_ANNOUNCEMENT_DELAY.getMutableText())
+				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null, text -> {
+				}), TranslationProvider.GUI_MTR_ANNOUNCEMENT_MESSAGE.getMutableText()),
+				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null, text -> {
+				}), TranslationProvider.GUI_MTR_SOUND_FILE.getMutableText()),
+				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_DELAY_LENGTH, TextCase.DEFAULT, "\\D", null, text -> {
+				}), TranslationProvider.GUI_MTR_ANNOUNCEMENT_DELAY.getMutableText())
 		);
 
 		final ClientWorld clientWorld = MinecraftClient.getInstance().world;

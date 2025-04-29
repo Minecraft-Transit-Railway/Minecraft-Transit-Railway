@@ -85,7 +85,12 @@ public class RailModifierScreen extends MTRScreenBase implements IGui {
 		buttonPlus0 = ButtonWidget.builder(Text.literal("+0.1"), button -> update(radius + 0.1, true)).build();
 		buttonPlus1 = ButtonWidget.builder(Text.literal("+1"), button -> update(radius + 1, true)).build();
 		buttonPlus2 = ButtonWidget.builder(Text.literal("+10"), button -> update(radius + 10, true)).build();
-		textFieldRadius = new BetterTextFieldWidget(256, TextCase.DEFAULT, "[^\\d\\.]", "0");
+		textFieldRadius = new BetterTextFieldWidget(256, TextCase.DEFAULT, "[^\\d\\.]", "0", text -> {
+			try {
+				update(Double.parseDouble(text), true);
+			} catch (Exception ignored) {
+			}
+		});
 		xStart = Math.max(textRenderer.getWidth(shapeText), textRenderer.getWidth(radiusText)) + TEXT_PADDING * 2;
 		buttonsWidth = SQUARE_SIZE * 12 + textRenderer.getWidth(styleText) + TEXT_PADDING * 2;
 	}
@@ -117,12 +122,6 @@ public class RailModifierScreen extends MTRScreenBase implements IGui {
 		addDrawableChild(textFieldRadius);
 
 		textFieldRadius.setText(String.valueOf(radius));
-		textFieldRadius.setChangedListener(text -> {
-			try {
-				update(Double.parseDouble(text), true);
-			} catch (Exception ignored) {
-			}
-		});
 		update(radius, false);
 	}
 

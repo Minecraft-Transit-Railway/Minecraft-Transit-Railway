@@ -31,7 +31,8 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		nameText = nameKey.getMutableText();
 		colorText = colorKey.getMutableText();
 
-		textFieldName = new BetterTextFieldWidget(1024, TextCase.DEFAULT, null, null);
+		textFieldName = new BetterTextFieldWidget(data.getName(), 1024, TextCase.DEFAULT, null, null, text -> {
+		});
 		colorSelector = new ColorSelectorWidget(this, true, () -> {
 		});
 	}
@@ -57,7 +58,6 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		IDrawing.setPositionAndWidth(textFieldName, nameStart + TEXT_FIELD_PADDING / 2, yStart, colorStart - nameStart - TEXT_FIELD_PADDING);
 		IDrawing.setPositionAndWidth(colorSelector, colorStart + TEXT_FIELD_PADDING / 2, yStart, colorEnd - colorStart - TEXT_FIELD_PADDING);
 
-		textFieldName.setText(data.getName());
 		colorSelector.setColor(data.getColor());
 
 		addDrawableChild(textFieldName);

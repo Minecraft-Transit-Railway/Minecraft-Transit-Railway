@@ -2,8 +2,15 @@ package org.mtr.tool;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import org.mtr.core.tool.Utilities;
+
+import javax.annotation.Nullable;
 
 public final class GuiHelper {
 
@@ -18,6 +25,7 @@ public final class GuiHelper {
 	 */
 	public static final int HOVER_COLOR = 0xFF444444;
 	public static final int SCROLL_BAR_COLOR = HOVER_COLOR;
+	public static final int TEXT_SELECTION_COLOR = 0xFF666666;
 	public static final int SCROLL_BAR_HOVER_COLOR = 0xFF888888;
 	public static final int LIGHT_GRAY_COLOR = 0xFFAAAAAA;
 	public static final int WHITE_COLOR = 0xFFFFFFFF;
@@ -29,6 +37,13 @@ public final class GuiHelper {
 	 * The standard line size for consistent GUI design. This can be used for both the line height and square button sizes.
 	 */
 	public static final int DEFAULT_LINE_SIZE = MINECRAFT_FONT_SIZE + DEFAULT_PADDING * 2;
+
+	public static final Identifier ADD_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_add.png");
+	public static final Identifier COLLAPSE_ALL_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_collapse_all.png");
+	public static final Identifier EDIT_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_edit.png");
+	public static final Identifier EXPAND_ALL_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_expand_all.png");
+	public static final Identifier FIND_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_find.png");
+	public static final Identifier DELETE_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_delete.png");
 
 	private static final int SHADOW_COLOR_DARK = 0x11000000;
 	private static final int SHADOW_COLOR_LIGHT = 0x11FFFFFF;
@@ -138,6 +153,34 @@ public final class GuiHelper {
 
 	public static void drawShadowWH(Drawing drawing, int x, int y, int width, int height, int z, double shadowRadius, int intensity) {
 		drawShadow(drawing, x, y, x + width, y + height, z, shadowRadius, intensity);
+	}
+
+	/**
+	 * Draws text (in a GUI) with the Minecraft font from double coordinates. No shadow is drawn.
+	 */
+	public static void drawText(DrawContext context, @Nullable String text, double x, double y, double z, int color) {
+		drawText(context, text, null, x, y, z, color);
+	}
+
+	/**
+	 * Draws text (in a GUI) with the Minecraft font from double coordinates. No shadow is drawn.
+	 */
+	public static void drawText(DrawContext context, @Nullable Text text, double x, double y, double z, int color) {
+		drawText(context, null, text, x, y, z, color);
+	}
+
+	private static void drawText(DrawContext context, @Nullable String text1, @Nullable Text text2, double x, double y, double z, int color) {
+		if ((text1 != null || text2 != null) && ColorHelper.getAlpha(color) != 0) {
+			final MatrixStack matrixStack = context.getMatrices();
+			matrixStack.push();
+			matrixStack.translate(x, y, z);
+			if (text1 != null) {
+				context.drawText(MinecraftClient.getInstance().textRenderer, text1, 0, 0, color, false);
+			} else {
+				context.drawText(MinecraftClient.getInstance().textRenderer, text2, 0, 0, color, false);
+			}
+			matrixStack.pop();
+		}
 	}
 
 	private static class CirclePart {

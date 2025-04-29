@@ -52,10 +52,14 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 
 	public EditStationScreen(Station station, Screen previousScreen) {
 		super(station, TranslationProvider.GUI_MTR_STATION_NAME, TranslationProvider.GUI_MTR_STATION_COLOR, previousScreen);
-		textFieldZone = new BetterTextFieldWidget(DashboardScreen.MAX_COLOR_ZONE_LENGTH, TextCase.DEFAULT, "[^-\\d]", null);
-		textFieldExitParentLetter = new BetterTextFieldWidget(2, TextCase.UPPER, "[^A-Z]", "A");
-		textFieldExitParentNumber = new BetterTextFieldWidget(2, TextCase.DEFAULT, "\\D", "1");
-		textFieldExitDestination = new BetterTextFieldWidget(1024, TextCase.DEFAULT, null, null);
+		textFieldZone = new BetterTextFieldWidget(DashboardScreen.MAX_COLOR_ZONE_LENGTH, TextCase.DEFAULT, "[^-\\d]", null, text -> {
+		});
+		textFieldExitParentLetter = new BetterTextFieldWidget(2, TextCase.UPPER, "[^A-Z]", "A", text -> {
+		});
+		textFieldExitParentNumber = new BetterTextFieldWidget(2, TextCase.DEFAULT, "\\D", "1", text -> {
+		});
+		textFieldExitDestination = new BetterTextFieldWidget(1024, TextCase.DEFAULT, null, null, text -> {
+		});
 
 		buttonAddExitParent = ButtonWidget.builder(TranslationProvider.GUI_MTR_ADD_EXIT.getMutableText(), button -> checkClickDelay(() -> changeEditingExit(new StationExit(), -1))).build();
 		buttonDoneExitParent = ButtonWidget.builder(Text.translatable("gui.done"), button -> checkClickDelay(this::onDoneExitParent)).build();

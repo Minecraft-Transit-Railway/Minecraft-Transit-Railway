@@ -35,7 +35,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 		showScheduleControls = !transportMode.continuousMovement;
 		savedRailNumberText = getNumberStringKey().getMutableText();
 
-		textFieldSavedRailNumber = new BetterTextFieldWidget(MAX_SAVED_RAIL_NUMBER_LENGTH, TextCase.DEFAULT, null, "1");
+		textFieldSavedRailNumber = new BetterTextFieldWidget(MAX_SAVED_RAIL_NUMBER_LENGTH, TextCase.DEFAULT, null, "1", savedRailBase::setName);
 
 		int additionalTextWidths = 0;
 		for (final MutableText additionalText : additionalTexts) {
@@ -53,7 +53,6 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 
 		IDrawing.setPositionAndWidth(textFieldSavedRailNumber, SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, width - textWidth - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING);
 		textFieldSavedRailNumber.setText(savedRailBase.getName());
-		textFieldSavedRailNumber.setChangedListener(text -> savedRailBase.setName(textFieldSavedRailNumber.getText()));
 
 		final int sliderTextWidth = Math.max(textRenderer.getWidth(TranslationProvider.GUI_MTR_ARRIVAL_MIN.getMutableText("88")), textRenderer.getWidth(TranslationProvider.GUI_MTR_ARRIVAL_SEC.getString("88.8"))) + TEXT_PADDING;
 		sliderDwellTimeMin.setX(SQUARE_SIZE + textWidth);

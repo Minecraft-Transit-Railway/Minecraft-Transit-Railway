@@ -2,40 +2,77 @@ package org.mtr.widget;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
-import org.mtr.core.tool.Utilities;
-import org.mtr.font.FontGroups;
-import org.mtr.font.FontRenderOptions;
+import net.minecraft.util.Identifier;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 
-public final class BetterButtonWidget extends ButtonWidget {
+import javax.annotation.Nullable;
 
-	private final boolean dynamicWidth;
+public final class BetterButtonWidget extends ClickableWidget {
 
-	public BetterButtonWidget(Text message, int width, Runnable onPress) {
-		super(0, 0, Math.max(0, width), GuiHelper.DEFAULT_LINE_SIZE, message, button -> onPress.run(), DEFAULT_NARRATION_SUPPLIER);
-		dynamicWidth = width <= 0;
+	@Nullable
+	private final Identifier icon;
+	@Nullable
+	private final String text;
+	private final int textWidth;
+	private final int fixedWidth;
+	private final Runnable onPress;
+
+	public BetterButtonWidget(@Nullable Identifier icon, @Nullable String text, int width, Runnable onPress) {
+		super(0, 0, 0, GuiHelper.DEFAULT_LINE_SIZE, Text.empty());
+		this.icon = icon;
+		this.text = text;
+		textWidth = text == null ? 0 : MinecraftClient.getInstance().textRenderer.getWidth(text);
+		fixedWidth = width;
+		this.onPress = onPress;
+		setDimensions();
 	}
 
+	@Override
 	protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-		final Drawing drawing = new Drawing(context.getMatrices(), MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
-		drawing.setVerticesWH(getX(), getY(), getWidth(), getHeight()).setColor(Utilities.isBetween(mouseX, getX(), getX() + width) && Utilities.isBetween(mouseY, getY(), getY() + height) ? GuiHelper.HOVER_COLOR : GuiHelper.BACKGROUND_COLOR).draw();
-		final float textWidth = FontGroups.renderMinecraft(drawing, getMessage().getString(), FontRenderOptions.builder()
-				.horizontalSpace(dynamicWidth ? 0 : width - GuiHelper.DEFAULT_PADDING * 2)
-				.verticalSpace(height - GuiHelper.DEFAULT_PADDING * 2)
-				.horizontalTextAlignment(dynamicWidth ? FontRenderOptions.Alignment.START : FontRenderOptions.Alignment.CENTER)
-				.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
-				.offsetX(getX() + GuiHelper.DEFAULT_PADDING)
-				.offsetY(getY() + GuiHelper.DEFAULT_PADDING)
-				.lineBreak(FontRenderOptions.LineBreak.FORCE_ONE_LINE)
-				.textOverflow(dynamicWidth ? FontRenderOptions.TextOverflow.NONE : FontRenderOptions.TextOverflow.COMPRESS)
-				.build()
-		).leftFloat();
-		if (dynamicWidth) {
-			setWidth((int) Math.ceil(textWidth) + GuiHelper.DEFAULT_PADDING * 2);
+		setDimensions();
+		final MatrixStack matrixStack = context.getMatrices();
+		final int middlePadding = icon != null && text != null ? GuiHelper.DEFAULT_PADDING : 0;
+		final int iconAndTextWidth = getIconWidth() + middlePadding + textWidth;
+
+		// Draw background
+		new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()))
+				.setVerticesWH(getX(), getY(), width, height)
+				.setColor(isMouseOver(mouseX, mouseY) ? GuiHelper.HOVER_COLOR : GuiHelper.BACKGROUND_COLOR)
+				.draw();
+
+		// Draw icon
+		if (icon != null) {
+			new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(icon)))
+					.setVerticesWH(getX() + (width - iconAndTextWidth) / 2F, getY(), GuiHelper.DEFAULT_LINE_SIZE, GuiHelper.DEFAULT_LINE_SIZE)
+					.setUv()
+					.draw();
 		}
+
+		// Draw text
+		GuiHelper.drawText(context, text, getX() + (width - iconAndTextWidth) / 2F + getIconWidth() + middlePadding, getY() + GuiHelper.DEFAULT_PADDING, 0, GuiHelper.WHITE_COLOR);
+	}
+
+	@Override
+	public void onClick(double mouseX, double mouseY) {
+		onPress.run();
+	}
+
+	@Override
+	protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+	}
+
+	private void setDimensions() {
+		setWidth(fixedWidth <= 0 ? getIconWidth() + (text == null ? 0 : textWidth + GuiHelper.DEFAULT_PADDING * 2) : fixedWidth);
+		setHeight(GuiHelper.DEFAULT_LINE_SIZE);
+	}
+
+	private int getIconWidth() {
+		return icon == null ? 0 : GuiHelper.DEFAULT_LINE_SIZE;
 	}
 }

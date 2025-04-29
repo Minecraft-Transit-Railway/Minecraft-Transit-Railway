@@ -40,7 +40,8 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 	public EditRouteScreen(Route route, Screen previousScreen) {
 		super(route, TranslationProvider.GUI_MTR_ROUTE_NAME, TranslationProvider.GUI_MTR_ROUTE_COLOR, previousScreen);
 
-		textFieldLightRailRouteNumber = new BetterTextFieldWidget(256, TextCase.DEFAULT, null, null);
+		textFieldLightRailRouteNumber = new BetterTextFieldWidget(256, TextCase.DEFAULT, null, null, text -> {
+		});
 		buttonRouteType = ButtonWidget.builder(TranslationProvider.GUI_MTR_ADD_VALUE.getMutableText(), button -> setRouteType(route, route.getRouteType().next())).build();
 		buttonIsRouteHidden = CheckboxWidget.builder(TranslationProvider.GUI_MTR_IS_ROUTE_HIDDEN.getText(), textRenderer).callback((checkboxWidget, checked) -> setIsRouteHidden(checked)).build();
 		buttonDisableNextStationAnnouncements = CheckboxWidget.builder(TranslationProvider.GUI_MTR_DISABLE_NEXT_STATION_ANNOUNCEMENTS.getText(), textRenderer).callback((checkboxWidget, checked) -> setDisableNextStationAnnouncements(checked)).build();
