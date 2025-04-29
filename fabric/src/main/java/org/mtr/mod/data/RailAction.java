@@ -15,6 +15,9 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+/**
+ * Represent an action that runs along a rail. (e.g. One made by Tunnel Creator/Bridge Creator)
+ */
 public class RailAction {
 
 	private double distance;
@@ -32,7 +35,7 @@ public class RailAction {
 	private final boolean isSlab;
 	private final ObjectOpenHashSet<BlockPos> blacklistedPositions = new ObjectOpenHashSet<>();
 
-	private static final double INCREMENT = 0.01;
+	private static final double INCREMENT = 0.1;
 
 	public RailAction(ServerWorld serverWorld, ServerPlayerEntity serverPlayerEntity, RailActionType railActionType, Rail rail, int radius, int height, @Nullable BlockState state) {
 		id = new Random().nextLong();
@@ -49,6 +52,18 @@ public class RailAction {
 		distance = 0;
 	}
 
+	public String getDescription() {
+		return railActionType.nameTranslation.getString(playerName, Utilities.round(length, 1), state == null ? "" : TextHelper.translatable(state.getBlock().getTranslationKey()).getString());
+	}
+
+	public int getColor() {
+		return railActionType.color;
+	}
+
+	/**
+	 * Perform build action, should be called continuously/every tick.
+	 * @return Whether the rail action is completed
+	 */
 	public boolean build() {
 		switch (railActionType) {
 			case BRIDGE:
@@ -60,14 +75,6 @@ public class RailAction {
 			default:
 				return true;
 		}
-	}
-
-	public String getDescription() {
-		return railActionType.nameTranslation.getString(playerName, Utilities.round(length, 1), state == null ? "" : TextHelper.translatable(state.getBlock().getTranslationKey()).getString());
-	}
-
-	public int getColor() {
-		return railActionType.color;
 	}
 
 	private boolean createTunnel() {
@@ -147,16 +154,16 @@ public class RailAction {
 			}
 
 			if (length - distance < INCREMENT) {
-				showProgressMessage(100);
+				sendProgressMessage(100);
 				return true;
 			}
 		}
 
-		showProgressMessage((float) Utilities.round(100 * distance / length, 1));
+		sendProgressMessage((float) Utilities.round(100 * distance / length, 1));
 		return false;
 	}
 
-	private void showProgressMessage(float percentage) {
+	private void sendProgressMessage(float percentage) {
 		final PlayerEntity playerEntity = serverWorld.getPlayerByUuid(uuid);
 		if (playerEntity != null) {
 			playerEntity.sendMessage(railActionType.progressTranslation.getText(percentage), true);

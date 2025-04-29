@@ -17,7 +17,9 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class CustomResourceLoader {
 
@@ -110,6 +112,11 @@ public class CustomResourceLoader {
 			OBJECTS_CACHE.put(objectResource.getId(), objectResource);
 		}, CustomResourceLoader::readResource);
 
+		VEHICLES.forEach((transportMode, vehicleResources) -> validateDataset("Vehicle", vehicleResources, VehicleResource::getId));
+		validateDataset("Sign", SIGNS, SignResource::getId);
+		validateDataset("Rail", RAILS, RailResource::getId);
+		validateDataset("Object", OBJECTS, ObjectResource::getId);
+
 		Init.LOGGER.info("Loaded {} vehicles and completed door movement validation in {} ms", VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum), TEST_DURATION / 1E6);
 		Init.LOGGER.info("Loaded {} signs", SIGNS.size());
 		Init.LOGGER.info("Loaded {} rails", RAILS.size());
@@ -183,6 +190,21 @@ public class CustomResourceLoader {
 	 */
 	public static void registerVehicle(VehicleResource vehicleResource) {
 		registerVehicle(vehicleResource, true);
+	}
+
+	/**
+	 * Validate and report any abnormality of the loaded resources (e.g. Duplicated ids)
+	 */
+	private static <T> void validateDataset(String dataSetName, List<T> dataSet, Function<T, String> getId) {
+		ObjectOpenHashSet<String> addedIds = new ObjectOpenHashSet<>();
+		for(T data : dataSet) {
+			String id = getId.apply(data);
+			if(addedIds.contains(id)) {
+				Init.LOGGER.warn("MTR {} resource contains duplicated id {}!", dataSetName, id);
+			} else {
+				addedIds.add(id);
+			}
+		}
 	}
 
 	public static void getVehicleByIndex(TransportMode transportMode, int index, Consumer<VehicleResource> ifPresent) {

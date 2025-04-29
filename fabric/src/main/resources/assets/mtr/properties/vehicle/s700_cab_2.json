@@ -304,6 +304,16 @@
 		},
 		{
 			"names": [
+				"cab_floor"
+			],
+			"positionDefinitions": [
+				"6a78034c"
+			],
+			"renderStage": "EXTERIOR",
+			"type": "FLOOR"
+		},
+		{
+			"names": [
 				"door_floor"
 			],
 			"positionDefinitions": [

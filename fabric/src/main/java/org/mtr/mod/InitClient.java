@@ -39,6 +39,7 @@ import org.mtr.mod.sound.ScheduledSound;
 import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public final class InitClient {
 
@@ -438,7 +439,6 @@ public final class InitClient {
 		REGISTRY_CLIENT.eventRegistryClient.registerResourceReloadEvent(CustomResourceLoader::reload);
 
 		Config.init(MinecraftClient.getInstance().getRunDirectoryMapped());
-		ResourcePackHelper.fix();
 
 		BlockTactileMap.BlockEntity.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
 		BlockTactileMap.BlockEntity.onUse = blockPos -> {
@@ -521,10 +521,17 @@ public final class InitClient {
 	}
 
 	private static void setupWebserver(Webserver webserver) {
-		webserver.addServlet(new ServletHolder(new WebServlet(WebserverResources::get, "/creator/")), "/creator/*");
+		webserver.addServlet(new ServletHolder(new ResourcePackCretorWebServlet(WebserverResources::get, "/creator/")), "/creator/*");
 		webserver.addServlet(new ServletHolder(new ResourcePackCreatorOperationServlet()), "/mtr/api/creator/operation/*");
 		final ServletHolder resourcePackCreatorUploadServletHolder = new ServletHolder(new ResourcePackCreatorUploadServlet());
 		resourcePackCreatorUploadServletHolder.getRegistration().setMultipartConfig(new MultipartConfigElement((String) null));
 		webserver.addServlet(resourcePackCreatorUploadServletHolder, "/mtr/api/creator/upload/*");
+	}
+
+	private static class ResourcePackCretorWebServlet extends WebServlet {
+
+		public ResourcePackCretorWebServlet(Function<String, String> contentProvider, String expectedPath) {
+			super(contentProvider, expectedPath);
+		}
 	}
 }

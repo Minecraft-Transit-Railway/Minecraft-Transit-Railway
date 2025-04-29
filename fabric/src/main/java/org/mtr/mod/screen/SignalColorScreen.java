@@ -45,7 +45,8 @@ public class SignalColorScreen extends MTRScreenBase implements IGui {
 			}
 
 			signalColors = blockEntity.getSignalColors(isBackSide);
-			detectedColors.addAll(RenderSignalBase.getAspects(blockPos, angle + (isBackSide ? 180 : 0) + 90).left());
+			final RenderSignalBase.AspectState aspectState = RenderSignalBase.getAspectState(blockPos, angle + (isBackSide ? 180 : 0) + 90);
+			detectedColors.addAll(aspectState == null ? new IntAVLTreeSet() : aspectState.detectedColors);
 		}
 
 		checkBoxSelectAll = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {

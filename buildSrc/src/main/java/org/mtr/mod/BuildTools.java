@@ -78,6 +78,9 @@ public class BuildTools {
 	}
 
 	public String getYarnVersion() {
+		if (minecraftVersion.equals("1.20.1")) {
+			return "1.20.1+build.10"; // 1.20.1 version not working
+		}
 		return getJson("https://meta.fabricmc.net/v2/versions/yarn/" + minecraftVersion).getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString();
 	}
 

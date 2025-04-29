@@ -39,7 +39,7 @@ public class RenderSignalSemaphore<T extends BlockSignalSemaphoreBase.BlockEntit
 		}
 
 		final float newAngle;
-		if (occupiedAspect > 0) {
+		if (occupiedAspect == 1) {
 			newAngle = Math.max(0, angle - SPEED * tickDelta);
 		} else {
 			newAngle = Math.min(ANGLE, angle + SPEED * tickDelta);
