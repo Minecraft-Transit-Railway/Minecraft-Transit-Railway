@@ -21,7 +21,7 @@ import org.mtr.registry.RegistryClient;
 import org.mtr.resource.ObjectResource;
 import org.mtr.widget.BetterTextFieldWidget;
 
-public class EyeCandyScreen extends MTRScreenBase implements IGui {
+public class EyeCandyScreen extends ScreenBase implements IGui {
 
 	private final ButtonWidget buttonSelectModel;
 	private final BetterTextFieldWidget textFieldTranslateX;

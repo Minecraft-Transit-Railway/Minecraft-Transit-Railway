@@ -26,7 +26,7 @@ import org.mtr.widget.BetterTextFieldWidget;
 
 import java.util.stream.Collectors;
 
-public abstract class TrainSensorScreenBase extends MTRScreenBase implements IGui {
+public abstract class TrainSensorScreenBase extends ScreenBase implements IGui {
 
 	private boolean stoppedOnly;
 	private boolean movingOnly;

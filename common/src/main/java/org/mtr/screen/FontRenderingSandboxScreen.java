@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public final class FontRenderingSandboxScreen extends MTRScreenBase {
+public final class FontRenderingSandboxScreen extends ScreenBase {
 
 	private long readTime = 0;
 	private FontRenderOptions fontRenderOptions = FontRenderOptions.builder().horizontalSpace(200).verticalSpace(100).horizontalPositioning(FontRenderOptions.Alignment.CENTER).verticalPositioning(FontRenderOptions.Alignment.CENTER).build();

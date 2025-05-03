@@ -20,7 +20,7 @@ import org.mtr.registry.RegistryClient;
 
 import java.util.Locale;
 
-public class LiftCustomizationScreen extends MTRScreenBase implements IGui {
+public class LiftCustomizationScreen extends ScreenBase implements IGui {
 
 	private LiftStyle liftStyle;
 	private Direction liftDirection;

@@ -26,6 +26,7 @@ public final class GuiHelper {
 	public static final int HOVER_COLOR = 0xFF444444;
 	public static final int SCROLL_BAR_COLOR = HOVER_COLOR;
 	public static final int TEXT_SELECTION_COLOR = 0xFF666666;
+	public static final int DISABLED_TEXT_COLOR = 0xFF777777;
 	public static final int SCROLL_BAR_HOVER_COLOR = 0xFF888888;
 	public static final int LIGHT_GRAY_COLOR = 0xFFAAAAAA;
 	public static final int WHITE_COLOR = 0xFFFFFFFF;
@@ -37,12 +38,25 @@ public final class GuiHelper {
 	 * The standard line size for consistent GUI design. This can be used for both the line height and square button sizes.
 	 */
 	public static final int DEFAULT_LINE_SIZE = MINECRAFT_FONT_SIZE + DEFAULT_PADDING * 2;
+	public static final int DEFAULT_ICON_SIZE = DEFAULT_LINE_SIZE - DEFAULT_PADDING;
 
 	public static final Identifier ADD_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_add.png");
-	public static final Identifier COLLAPSE_ALL_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_collapse_all.png");
 	public static final Identifier EDIT_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_edit.png");
+	public static final Identifier UP_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_up.png");
+	public static final Identifier DOWN_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_down.png");
+	public static final Identifier CHEVRON_UP_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_chevron_up.png");
+	public static final Identifier CHEVRON_DOWN_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_chevron_down.png");
 	public static final Identifier EXPAND_ALL_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_expand_all.png");
+	public static final Identifier COLLAPSE_ALL_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_collapse_all.png");
+	public static final Identifier ZOOM_IN_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_zoom_in.png");
+	public static final Identifier ZOOM_OUT_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_zoom_out.png");
 	public static final Identifier FIND_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_find.png");
+	public static final Identifier DONE_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_done.png");
+	public static final Identifier COLOR_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_color.png");
+	public static final Identifier SELECT_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_select.png");
+	public static final Identifier MAP_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_map.png");
+	public static final Identifier EDITOR_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_editor.png");
+	public static final Identifier SETTINGS_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_settings.png");
 	public static final Identifier DELETE_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_delete.png");
 
 	private static final int SHADOW_COLOR_DARK = 0x11000000;

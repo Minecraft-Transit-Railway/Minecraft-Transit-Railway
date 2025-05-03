@@ -10,9 +10,8 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.widget.BetterTextFieldWidget;
-import org.mtr.widget.ColorSelectorWidget;
 
-public abstract class EditNameColorScreenBase<T extends NameColorDataBase> extends MTRScreenBase implements Utilities, IGui {
+public abstract class EditNameColorScreenBase<T extends NameColorDataBase> extends ScreenBase implements Utilities, IGui {
 
 	private int nameStart;
 	private int colorStart;
@@ -23,7 +22,7 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 	private final MutableText colorText;
 
 	private final BetterTextFieldWidget textFieldName;
-	private final ColorSelectorWidget colorSelector;
+//	private final ColorSelectorWidget colorSelector;
 
 	public EditNameColorScreenBase(T data, TranslationProvider.TranslationHolder nameKey, TranslationProvider.TranslationHolder colorKey, Screen previousScreen) {
 		super(previousScreen);
@@ -33,8 +32,8 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 
 		textFieldName = new BetterTextFieldWidget(data.getName(), 1024, TextCase.DEFAULT, null, null, text -> {
 		});
-		colorSelector = new ColorSelectorWidget(this, true, () -> {
-		});
+//		colorSelector = new ColorSelectorWidget(this, true, () -> {
+//		});
 	}
 
 	@Override
@@ -56,12 +55,12 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		super.init();
 		final int yStart = SQUARE_SIZE + TEXT_FIELD_PADDING / 2;
 		IDrawing.setPositionAndWidth(textFieldName, nameStart + TEXT_FIELD_PADDING / 2, yStart, colorStart - nameStart - TEXT_FIELD_PADDING);
-		IDrawing.setPositionAndWidth(colorSelector, colorStart + TEXT_FIELD_PADDING / 2, yStart, colorEnd - colorStart - TEXT_FIELD_PADDING);
+//		IDrawing.setPositionAndWidth(colorSelector, colorStart + TEXT_FIELD_PADDING / 2, yStart, colorEnd - colorStart - TEXT_FIELD_PADDING);
 
-		colorSelector.setColor(data.getColor());
+//		colorSelector.setColor(data.getColor());
 
 		addDrawableChild(textFieldName);
-		addDrawableChild(colorSelector);
+//		addDrawableChild(colorSelector);
 	}
 
 	protected void renderTextFields(DrawContext context) {
@@ -71,6 +70,6 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 
 	protected void saveData() {
 		data.setName(textFieldName.getText());
-		data.setColor(colorSelector.getColor());
+//		data.setColor(colorSelector.getColor());
 	}
 }

@@ -34,7 +34,7 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class PIDSConfigScreen extends MTRScreenBase implements IGui {
+public class PIDSConfigScreen extends ScreenBase implements IGui {
 
 	private final BlockPos blockPos;
 	private final String[] messages;

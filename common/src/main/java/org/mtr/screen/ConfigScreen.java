@@ -17,7 +17,7 @@ import org.mtr.widget.ShorterSliderWidget;
 
 import javax.annotation.Nullable;
 
-public class ConfigScreen extends MTRScreenBase implements IGui {
+public class ConfigScreen extends ScreenBase implements IGui {
 
 	private final Client client = Config.getClient();
 

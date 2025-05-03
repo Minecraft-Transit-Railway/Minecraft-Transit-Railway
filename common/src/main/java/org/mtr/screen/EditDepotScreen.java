@@ -77,7 +77,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			toggleRealTime();
 			saveData();
 		}).build();
-		buttonReset = ButtonWidget.builder(TranslationProvider.GUI_MTR_RESET_SIGN.getMutableText(), button -> {
+		buttonReset = ButtonWidget.builder(TranslationProvider.GUI_MTR_RESET.getMutableText(), button -> {
 			for (int i = 0; i < HOURS_PER_DAY; i++) {
 				sliders[i].setValue(0);
 			}

@@ -21,7 +21,7 @@ import org.mtr.widget.BetterTextFieldWidget;
 
 import java.util.stream.Collectors;
 
-public class RailModifierScreen extends MTRScreenBase implements IGui {
+public class RailModifierScreen extends ScreenBase implements IGui {
 
 	private Rail.Shape shape;
 	private double radius;

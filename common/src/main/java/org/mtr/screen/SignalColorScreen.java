@@ -18,7 +18,7 @@ import org.mtr.packet.PacketUpdateSignalConfig;
 import org.mtr.registry.RegistryClient;
 import org.mtr.render.RenderSignalBase;
 
-public class SignalColorScreen extends MTRScreenBase implements IGui {
+public class SignalColorScreen extends ScreenBase implements IGui {
 
 	private final CheckboxWidget checkBoxSelectAll;
 	private final CheckboxWidget[] checkBoxes = new CheckboxWidget[ItemSignalModifier.COLORS.length];

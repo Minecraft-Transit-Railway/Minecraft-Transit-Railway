@@ -5,7 +5,7 @@ import net.minecraft.client.gui.DrawContext;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
 
-public class ReloadCustomResourcesScreen extends MTRScreenBase implements IGui {
+public class ReloadCustomResourcesScreen extends ScreenBase implements IGui {
 
 	int i = 0;
 

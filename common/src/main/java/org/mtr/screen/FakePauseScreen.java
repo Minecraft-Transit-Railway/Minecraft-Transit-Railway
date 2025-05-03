@@ -5,7 +5,7 @@ import net.minecraft.client.gui.DrawContext;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
 
-public class FakePauseScreen extends MTRScreenBase implements IGui {
+public class FakePauseScreen extends ScreenBase implements IGui {
 
 	private long textCooldown;
 	private final String dismissPauseScreenText = TranslationProvider.GUI_MTR_DISMISS_PAUSE_SCREEN.getString();

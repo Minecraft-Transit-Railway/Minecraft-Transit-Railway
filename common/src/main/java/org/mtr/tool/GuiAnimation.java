@@ -13,23 +13,18 @@ public final class GuiAnimation {
 	@Getter
 	private double currentValue;
 	private double targetValue;
-	private final int duration;
-
-	/**
-	 * @param duration the duration (in milliseconds) of the animation
-	 */
-	public GuiAnimation(int duration) {
-		this.duration = duration;
-	}
+	private int duration;
 
 	/**
 	 * Start an animation.
 	 *
 	 * @param targetValue the value to animate to
+	 * @param duration    the duration (in milliseconds) of the animation
 	 */
-	public void animate(double targetValue) {
+	public void animate(double targetValue, int duration) {
 		if (this.targetValue != targetValue) {
 			this.targetValue = targetValue;
+			this.duration = duration;
 			startMillis = 0;
 		}
 	}
@@ -56,7 +51,7 @@ public final class GuiAnimation {
 				startMillis = currentMillis;
 				startValue = currentValue;
 			} else {
-				final double progress = Math.sin(Math.PI / 2 * Utilities.clamp((double) (currentMillis - startMillis) / duration, 0, 1));
+				final double progress = Math.sin(Math.PI / 2 * Utilities.clamp((double) (currentMillis - startMillis) / Math.max(1, duration), 0, 1));
 				currentValue = startValue + progress * (targetValue - startValue);
 			}
 		}

@@ -16,7 +16,7 @@ import org.mtr.packet.PacketPressLiftButton;
 import org.mtr.registry.RegistryClient;
 import org.mtr.render.RenderLifts;
 
-public class LiftSelectionScreen extends MTRScreenBase implements IGui {
+public class LiftSelectionScreen extends ScreenBase implements IGui {
 
 	private final DashboardList selectionList;
 	private final ObjectArrayList<BlockPos> floorLevels = new ObjectArrayList<>();

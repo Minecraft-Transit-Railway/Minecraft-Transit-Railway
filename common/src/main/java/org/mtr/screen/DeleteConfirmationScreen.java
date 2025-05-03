@@ -10,7 +10,7 @@ import org.mtr.client.IDrawing;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
 
-public class DeleteConfirmationScreen extends MTRScreenBase implements IGui {
+public class DeleteConfirmationScreen extends ScreenBase implements IGui {
 
 	private final Runnable deleteCallback;
 	private final String name;

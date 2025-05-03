@@ -9,7 +9,7 @@ import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.packet.PacketDeleteRailAction;
 import org.mtr.registry.RegistryClient;
 
-public class RailActionsScreen extends MTRScreenBase implements IGui {
+public class RailActionsScreen extends ScreenBase implements IGui {
 
 	private final DashboardList railActionsList;
 

@@ -13,7 +13,7 @@ import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.widget.BetterTextFieldWidget;
 import org.mtr.widget.ShorterSliderWidget;
 
-public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> extends MTRScreenBase implements IGui {
+public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> extends ScreenBase implements IGui {
 
 	protected final T savedRailBase;
 	protected final int textWidth;

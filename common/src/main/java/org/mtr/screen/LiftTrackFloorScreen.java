@@ -14,7 +14,7 @@ import org.mtr.packet.PacketUpdateLiftTrackFloorConfig;
 import org.mtr.registry.RegistryClient;
 import org.mtr.widget.BetterTextFieldWidget;
 
-public class LiftTrackFloorScreen extends MTRScreenBase implements IGui {
+public class LiftTrackFloorScreen extends ScreenBase implements IGui {
 
 	private final BetterTextFieldWidget textFieldFloorNumber;
 	private final BetterTextFieldWidget textFieldFloorDescription;

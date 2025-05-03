@@ -11,12 +11,10 @@ import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ColorHelper;
@@ -38,23 +36,28 @@ import org.mtr.tool.GuiHelper;
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 
-public final class MapWidget extends ClickableWidget {
+public final class MapWidget extends ClickableWidgetBase {
 
 	@Nullable
-	private IntIntImmutablePair drawArea1, drawArea2;
-	private MapState mapState;
+	private AreaBase<?, ?> editingArea;
+	@Nullable
+	private Route editingRoute;
+	private double lastClickedX;
+	private double lastClickedY;
+
 	private boolean showStations;
 	private boolean showDepots;
 	@Nullable
 	private ObjectObjectImmutablePair<ScrollableListWidget<?>, IntIntImmutablePair> popupDetails;
 
 	private final TransportMode transportMode;
-	private final BiConsumer<NameColorDataBase, DeleteDataRequest> onDeleteArea;
-	private final BiConsumer<IntIntImmutablePair, IntIntImmutablePair> onDrawCorners;
-	private final Runnable onDrawCornersMouseRelease;
+	private final boolean hasPermission = MinecraftClientData.hasPermission();
+	private final Consumer<AreaBase<?, ?>> onStartEditingArea;
+	private final BiConsumer<NameColorDataBase, DeleteDataRequest> onDeleteData;
 	private final ClientPlayerEntity player;
 	private final Object2ObjectAVLTreeMap<Position, ObjectArrayList<Platform>> flatPositionToPlatformsMap;
 	private final Object2ObjectAVLTreeMap<Position, ObjectArrayList<Siding>> flatPositionToSidingsMap;
@@ -65,9 +68,9 @@ public final class MapWidget extends ClickableWidget {
 	private final ObjectArraySet<Depot> hoverDepots = new ObjectArraySet<>();
 	private final ObjectArraySet<Siding> hoverSidings = new ObjectArraySet<>();
 
-	private final GuiAnimation guiAnimationX = new GuiAnimation(ANIMATION_DURATION);
-	private final GuiAnimation guiAnimationY = new GuiAnimation(ANIMATION_DURATION);
-	private final GuiAnimation guiAnimationScale = new GuiAnimation(ANIMATION_DURATION);
+	private final GuiAnimation guiAnimationX = new GuiAnimation();
+	private final GuiAnimation guiAnimationY = new GuiAnimation();
+	private final GuiAnimation guiAnimationScale = new GuiAnimation();
 
 	private static final int PLAYER_ARROW_SIZE = 6;
 	private static final int SCALE_UPPER_LIMIT = 64;
@@ -79,13 +82,12 @@ public final class MapWidget extends ClickableWidget {
 	private static final int HOVER_WINDOW_SHADOW_RADIUS = 8;
 	private static final float DARKEN_MAP = 0.8F;
 	private static final int ANIMATION_DURATION = 1000;
+	private static final int ANIMATION_DURATION_FAST = 200;
 
-	public MapWidget(TransportMode transportMode, BiConsumer<NameColorDataBase, DeleteDataRequest> onDeleteArea, BiConsumer<IntIntImmutablePair, IntIntImmutablePair> onDrawCorners, Runnable onDrawCornersMouseRelease) {
-		super(0, 0, 0, 0, Text.empty());
+	public MapWidget(TransportMode transportMode, Consumer<AreaBase<?, ?>> onStartEditingArea, BiConsumer<NameColorDataBase, DeleteDataRequest> onDeleteData) {
 		this.transportMode = transportMode;
-		this.onDeleteArea = onDeleteArea;
-		this.onDrawCorners = onDrawCorners;
-		this.onDrawCornersMouseRelease = onDrawCornersMouseRelease;
+		this.onStartEditingArea = onStartEditingArea;
+		this.onDeleteData = onDeleteData;
 
 		player = MinecraftClient.getInstance().player;
 		if (player == null) {
@@ -191,28 +193,27 @@ public final class MapWidget extends ClickableWidget {
 
 		// Platforms and sidings
 		if (showStations) {
-			drawSavedRails(drawing, flatPositionToPlatformsMap, popupDetails == null && (mapState == MapState.DEFAULT || mapState == MapState.EDITING_ROUTE) ? hoverPlatforms : null, newMouseX, newMouseY);
+			drawSavedRails(drawing, flatPositionToPlatformsMap, popupDetails == null && editingArea == null ? hoverPlatforms : null, newMouseX, newMouseY);
 		}
 		if (showDepots) {
-			drawSavedRails(drawing, flatPositionToSidingsMap, popupDetails == null && mapState == MapState.DEFAULT ? hoverSidings : null, newMouseX, newMouseY);
+			drawSavedRails(drawing, flatPositionToSidingsMap, popupDetails == null && editingArea == null && editingRoute == null ? hoverSidings : null, newMouseX, newMouseY);
 		}
 
 		// Stations and depots
-		final boolean canHoverAreas = popupDetails == null && mapState == MapState.DEFAULT && hoverPlatforms.isEmpty() && hoverSidings.isEmpty();
+		final boolean canHoverAreas = popupDetails == null && editingArea == null && editingRoute == null && hoverPlatforms.isEmpty() && hoverSidings.isEmpty();
 		if (showStations) {
-			drawAreas(drawing, MinecraftClientData.getDashboardInstance().stations, canHoverAreas ? hoverStations : null, newMouseX, newMouseY);
+			final ObjectArraySet<Station> stations = new ObjectArraySet<>(MinecraftClientData.getDashboardInstance().stations);
+			if (editingArea != null && editingArea instanceof Station) {
+				stations.add((Station) editingArea);
+			}
+			drawAreas(drawing, stations, canHoverAreas ? hoverStations : null, newMouseX, newMouseY);
 		}
 		if (showDepots) {
-			drawAreas(drawing, MinecraftClientData.getDashboardInstance().depots, canHoverAreas ? hoverDepots : null, newMouseX, newMouseY);
-		}
-
-		// Editing rectangle
-		if (mapState == MapState.EDITING_AREA && drawArea1 != null && drawArea2 != null) {
-			drawFromWorldCoords(Math.min(drawArea1.leftInt(), drawArea2.leftInt()), Math.min(drawArea1.rightInt(), drawArea2.rightInt()), 0, 0, (x1, y1) ->
-					drawFromWorldCoords(Math.max(drawArea1.leftInt(), drawArea2.leftInt()) + 1, Math.max(drawArea1.rightInt(), drawArea2.rightInt()) + 1, 0, 0, (x2, y2) ->
-							drawing.setVertices(getX() + x1, getY() + y1, getX() + x2, getY() + y2, 2).setColor(IGui.ARGB_WHITE_TRANSLUCENT).draw()
-					)
-			);
+			final ObjectArraySet<Depot> depots = new ObjectArraySet<>(MinecraftClientData.getDashboardInstance().depots);
+			if (editingArea != null && editingArea instanceof Depot) {
+				depots.add((Depot) editingArea);
+			}
+			drawAreas(drawing, depots, canHoverAreas ? hoverDepots : null, newMouseX, newMouseY);
 		}
 
 		// Hover popup
@@ -251,12 +252,16 @@ public final class MapWidget extends ClickableWidget {
 	@Override
 	protected void onDrag(double mouseX, double mouseY, double deltaX, double deltaY) {
 		if (popupDetails == null) {
-			if (mapState == MapState.EDITING_AREA) {
-				drawArea2 = coordsToWorldPos((int) Math.round(mouseX - getX()), (int) Math.round(mouseY - getY()));
-				onDrawCorners.accept(drawArea1, drawArea2);
-			} else {
+			if (editingArea == null) {
 				guiAnimationX.setValue(guiAnimationX.getCurrentValue() - deltaX / guiAnimationScale.getCurrentValue());
 				guiAnimationY.setValue(guiAnimationY.getCurrentValue() - deltaY / guiAnimationScale.getCurrentValue());
+			} else {
+				final DoubleDoubleImmutablePair worldPos1 = coordsToWorldPos(lastClickedX - getX(), lastClickedY - getY());
+				final DoubleDoubleImmutablePair worldPos2 = coordsToWorldPos(mouseX - getX(), mouseY - getY());
+				editingArea.setCorners(
+						new Position((int) Math.floor(worldPos1.leftDouble()), Long.MIN_VALUE, (int) Math.floor(worldPos1.rightDouble())),
+						new Position((int) Math.floor(worldPos2.leftDouble()), Long.MAX_VALUE, (int) Math.floor(worldPos2.rightDouble()))
+				);
 			}
 		} else {
 			popupDetails.left().mouseDragged(mouseX, mouseY, 0, deltaX, deltaY);
@@ -265,38 +270,48 @@ public final class MapWidget extends ClickableWidget {
 
 	@Override
 	public void onRelease(double mouseX, double mouseY) {
-		if (mapState == MapState.EDITING_AREA) {
-			onDrawCornersMouseRelease.run();
-			drawArea1 = null;
-			drawArea2 = null;
-		}
-
 		if (popupDetails == null) {
-			if (!hoverStations.isEmpty()) {
-				final ScrollableListWidget<Station> scrollableListWidget = createPopup(mouseX, mouseY);
-				ScrollableListWidget.setAreas(scrollableListWidget, hoverStations, ObjectArrayList.of(
-						new ObjectObjectImmutablePair<>(Identifier.of("textures/gui/sprites/mtr/icon_edit.png"), station -> System.out.println("editing " + station.getName())),
-						new ObjectObjectImmutablePair<>(Identifier.of("textures/gui/sprites/mtr/icon_delete.png"), station -> onDeleteArea.accept(station, new DeleteDataRequest().addStationId(station.getId())))
-				));
-			}
-			if (!hoverPlatforms.isEmpty()) {
-				final ScrollableListWidget<Platform> scrollableListWidget = createPopup(mouseX, mouseY);
-				ScrollableListWidget.setSavedRails(scrollableListWidget, hoverPlatforms, ObjectArrayList.of(
-						new ObjectObjectImmutablePair<>(Identifier.of("textures/gui/sprites/mtr/icon_edit.png"), platform -> System.out.println("editing " + platform.getName()))
-				));
-			}
-			if (!hoverDepots.isEmpty()) {
-				final ScrollableListWidget<Depot> scrollableListWidget = createPopup(mouseX, mouseY);
-				ScrollableListWidget.setAreas(scrollableListWidget, hoverDepots, ObjectArrayList.of(
-						new ObjectObjectImmutablePair<>(Identifier.of("textures/gui/sprites/mtr/icon_edit.png"), depot -> System.out.println("editing " + depot.getName())),
-						new ObjectObjectImmutablePair<>(Identifier.of("textures/gui/sprites/mtr/icon_delete.png"), depot -> onDeleteArea.accept(depot, new DeleteDataRequest().addDepotId(depot.getId())))
-				));
-			}
-			if (!hoverSidings.isEmpty()) {
-				final ScrollableListWidget<Siding> scrollableListWidget = createPopup(mouseX, mouseY);
-				ScrollableListWidget.setSavedRails(scrollableListWidget, hoverSidings, ObjectArrayList.of(
-						new ObjectObjectImmutablePair<>(Identifier.of("textures/gui/sprites/mtr/icon_edit.png"), siding -> System.out.println("editing " + siding.getName()))
-				));
+			if (Math.abs(lastClickedX - mouseX) < 1 && Math.abs(lastClickedY - mouseY) < 1) {
+				if (!hoverStations.isEmpty()) {
+					final ScrollableListWidget<Station> scrollableListWidget = createPopup(mouseX, mouseY);
+					ScrollableListWidget.setAreas(scrollableListWidget, hoverStations, null, hasPermission ? ObjectArrayList.of(
+							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, onStartEditingArea::accept),
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, station -> System.out.println("editing " + station.getName())),
+							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, station -> onDeleteData.accept(station, new DeleteDataRequest().addStationId(station.getId())))
+					) : new ObjectArrayList<>());
+				}
+				if (!hoverPlatforms.isEmpty()) {
+					final ScrollableListWidget<Platform> scrollableListWidget = createPopup(mouseX, mouseY);
+					ScrollableListWidget.setSavedRails(scrollableListWidget, hoverPlatforms, hasPermission ? editingRoute == null ? new ObjectArrayList<>() : ObjectArrayList.of(
+							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, platform -> {
+								if (editingRoute != null) {
+									final RoutePlatformData routePlatformData = new RoutePlatformData(platform.getId());
+									if (Screen.hasShiftDown()) {
+										editingRoute.getRoutePlatforms().addFirst(routePlatformData);
+									} else {
+										editingRoute.getRoutePlatforms().add(routePlatformData);
+									}
+									routePlatformData.writePlatformCache(editingRoute, MinecraftClientData.getDashboardInstance().platformIdMap);
+								}
+							})
+					) : ObjectArrayList.of(
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, platform -> System.out.println("editing " + platform.getName()))
+					));
+				}
+				if (!hoverDepots.isEmpty()) {
+					final ScrollableListWidget<Depot> scrollableListWidget = createPopup(mouseX, mouseY);
+					ScrollableListWidget.setAreas(scrollableListWidget, hoverDepots, null, hasPermission ? ObjectArrayList.of(
+							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, onStartEditingArea::accept),
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, depot -> System.out.println("editing " + depot.getName())),
+							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, depot -> onDeleteData.accept(depot, new DeleteDataRequest().addDepotId(depot.getId())))
+					) : new ObjectArrayList<>());
+				}
+				if (!hoverSidings.isEmpty()) {
+					final ScrollableListWidget<Siding> scrollableListWidget = createPopup(mouseX, mouseY);
+					ScrollableListWidget.setSavedRails(scrollableListWidget, hoverSidings, hasPermission ? ObjectArrayList.of(
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, siding -> System.out.println("editing " + siding.getName()))
+					) : new ObjectArrayList<>());
+				}
 			}
 		} else {
 			popupDetails.left().onRelease(mouseX, mouseY);
@@ -305,12 +320,10 @@ public final class MapWidget extends ClickableWidget {
 
 	@Override
 	public void onClick(double mouseX, double mouseY) {
-		if (popupDetails == null) {
-			if (isMouseOver(mouseX, mouseY) && MinecraftClientData.hasPermission() && mapState == MapState.EDITING_AREA) {
-				drawArea1 = coordsToWorldPos((int) (mouseX - getX()), (int) (mouseY - getY()));
-				drawArea2 = null;
-			}
-		} else {
+		lastClickedX = mouseX;
+		lastClickedY = mouseY;
+
+		if (popupDetails != null) {
 			popupDetails.left().onClick(mouseX, mouseY);
 		}
 	}
@@ -324,7 +337,7 @@ public final class MapWidget extends ClickableWidget {
 					guiAnimationX.setValue(guiAnimationX.getCurrentValue() - (mouseX - getX() - width / 2D) / guiAnimationScale.getCurrentValue());
 					guiAnimationY.setValue(guiAnimationY.getCurrentValue() - (mouseY - getY() - height / 2D) / guiAnimationScale.getCurrentValue());
 				}
-				scale(verticalAmount);
+				scale(verticalAmount, true);
 				if (oldScale < SCALE_UPPER_LIMIT && verticalAmount > 0) {
 					guiAnimationX.setValue(guiAnimationX.getCurrentValue() + (mouseX - getX() - width / 2D) / guiAnimationScale.getCurrentValue());
 					guiAnimationY.setValue(guiAnimationY.getCurrentValue() + (mouseY - getY() - height / 2D) / guiAnimationScale.getCurrentValue());
@@ -353,39 +366,43 @@ public final class MapWidget extends ClickableWidget {
 		return active && visible && super.isValidClickButton(button);
 	}
 
-	@Override
-	protected void appendClickableNarrations(NarrationMessageBuilder builder) {
-	}
-
 	public void scale(double amount) {
-		guiAnimationScale.setValue(Utilities.clamp(guiAnimationScale.getCurrentValue() * Math.pow(2, amount), SCALE_LOWER_LIMIT, SCALE_UPPER_LIMIT));
+		scale(amount, false);
 	}
 
 	public <T extends AreaBase<T, U>, U extends SavedRailBase<U, T>> void find(T savedArea) {
-		guiAnimationX.animate((savedArea.getMinX() + savedArea.getMaxX() + 1) / 2F);
-		guiAnimationY.animate((savedArea.getMinZ() + savedArea.getMaxZ() + 1) / 2F);
+		guiAnimationX.animate((savedArea.getMinX() + savedArea.getMaxX() + 1) / 2F, ANIMATION_DURATION);
+		guiAnimationY.animate((savedArea.getMinZ() + savedArea.getMaxZ() + 1) / 2F, ANIMATION_DURATION);
 		final double scaleX = Math.max(1F, width - GuiHelper.DEFAULT_LINE_SIZE) / (savedArea.getMaxX() - savedArea.getMinX() + 1);
 		final double scaleY = Math.max(1F, height - GuiHelper.DEFAULT_LINE_SIZE) / (savedArea.getMaxZ() - savedArea.getMinZ() + 1);
-		guiAnimationScale.animate(Utilities.clamp(Math.min(scaleX, scaleY), SCALE_LOWER_LIMIT, SCALE_UPPER_LIMIT));
+		guiAnimationScale.animate(Utilities.clamp(Math.min(scaleX, scaleY), SCALE_LOWER_LIMIT, SCALE_UPPER_LIMIT), ANIMATION_DURATION);
 	}
 
-	public void startEditingArea() {
-		mapState = MapState.EDITING_AREA;
-		drawArea1 = null;
-		drawArea2 = null;
+	public void startEditingArea(AreaBase<?, ?> editingArea) {
+		this.editingArea = editingArea;
 	}
 
-	public void startEditingRoute() {
-		mapState = MapState.EDITING_ROUTE;
+	public void startEditingRoute(Route editingRoute) {
+		this.editingRoute = editingRoute;
 	}
 
 	public void stopEditing() {
-		mapState = MapState.DEFAULT;
+		editingArea = null;
+		editingRoute = null;
 	}
 
 	public void setShowStations(boolean showStations) {
 		this.showStations = showStations;
 		this.showDepots = !showStations;
+	}
+
+	private void scale(double amount, boolean instant) {
+		final double scale = Utilities.clamp(guiAnimationScale.getCurrentValue() * Math.pow(2, amount), SCALE_LOWER_LIMIT, SCALE_UPPER_LIMIT);
+		if (instant) {
+			guiAnimationScale.setValue(scale);
+		} else {
+			guiAnimationScale.animate(scale, ANIMATION_DURATION_FAST);
+		}
 	}
 
 	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> void drawAreas(Drawing drawing, ObjectArraySet<U> areas, @Nullable ObjectArraySet<U> hoverDataList, int mouseX, int mouseY) {
@@ -403,11 +420,14 @@ public final class MapWidget extends ClickableWidget {
 
 					// Check for hover
 					final double borderSize;
-					if (hoverDataList != null && Utilities.isBetween(mouseX, x1, x2 - 1) && Utilities.isBetween(mouseY, y1, y2 - 1)) {
+					final double minBorderSize = 1 / Math.min(2, MinecraftClient.getInstance().getWindow().getScaleFactor());
+					if (editingArea != null && area.getId() == editingArea.getId()) {
+						borderSize = minBorderSize + (AREA_NAME_PADDING - minBorderSize) * (Math.sin(Math.PI * System.currentTimeMillis() / 1000) + 1) / 2;
+					} else if (hoverDataList != null && Utilities.isBetween(mouseX, x1, x2 - 1) && Utilities.isBetween(mouseY, y1, y2 - 1)) {
 						hoverDataList.add(area);
 						borderSize = AREA_NAME_PADDING / 2F;
 					} else {
-						borderSize = 1 / Math.min(2, MinecraftClient.getInstance().getWindow().getScaleFactor());
+						borderSize = minBorderSize;
 					}
 
 					// Draw area
@@ -482,11 +502,6 @@ public final class MapWidget extends ClickableWidget {
 		return scrollableListWidget;
 	}
 
-	private IntIntImmutablePair coordsToWorldPos(int mouseX, int mouseY) {
-		final DoubleDoubleImmutablePair worldPos = coordsToWorldPos((double) mouseX, mouseY);
-		return new IntIntImmutablePair((int) Math.floor(worldPos.leftDouble()), (int) Math.floor(worldPos.rightDouble()));
-	}
-
 	private DoubleDoubleImmutablePair coordsToWorldPos(double mouseX, double mouseY) {
 		final double left = (mouseX - width / 2D) / guiAnimationScale.getCurrentValue() + guiAnimationX.getCurrentValue();
 		final double right = (mouseY - height / 2D) / guiAnimationScale.getCurrentValue() + guiAnimationY.getCurrentValue();
@@ -504,6 +519,4 @@ public final class MapWidget extends ClickableWidget {
 	private static int clampTileSize(double value) {
 		return (int) Math.floor(value / MapTileProvider.TILE_SIZE) * MapTileProvider.TILE_SIZE;
 	}
-
-	private enum MapState {DEFAULT, EDITING_AREA, EDITING_ROUTE}
 }

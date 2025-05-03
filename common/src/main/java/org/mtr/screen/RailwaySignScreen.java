@@ -33,7 +33,7 @@ import org.mtr.widget.BetterTexturedButtonWidget;
 
 import javax.annotation.Nullable;
 
-public class RailwaySignScreen extends MTRScreenBase implements IGui {
+public class RailwaySignScreen extends ScreenBase implements IGui {
 
 	private int editingIndex;
 	private int page;
@@ -136,7 +136,7 @@ public class RailwaySignScreen extends MTRScreenBase implements IGui {
 			buttonsSelection[i] = ButtonWidget.builder(Text.empty(), button -> setNewSignId(allSignIds.get(index))).build();
 		}
 
-		buttonClear = ButtonWidget.builder(TranslationProvider.GUI_MTR_RESET_SIGN.getMutableText(), button -> setNewSignId(null)).build();
+		buttonClear = ButtonWidget.builder(TranslationProvider.GUI_MTR_RESET.getMutableText(), button -> setNewSignId(null)).build();
 		buttonPrevPage = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_left.png"), Identifier.of("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1), true);
 		buttonNextPage = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_right.png"), Identifier.of("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1), true);
 	}

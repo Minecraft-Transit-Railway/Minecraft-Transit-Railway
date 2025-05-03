@@ -17,7 +17,7 @@ import org.mtr.generated.lang.TranslationProvider;
 
 import javax.annotation.Nullable;
 
-public class DashboardListSelectorScreen extends MTRScreenBase implements IGui {
+public class DashboardListSelectorScreen extends ScreenBase implements IGui {
 
 	protected final ObjectImmutableList<DashboardListItem> allData;
 	protected final LongCollection selectedIds;

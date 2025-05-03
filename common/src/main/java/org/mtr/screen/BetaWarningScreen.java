@@ -13,7 +13,7 @@ import org.mtr.config.Config;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 
-public class BetaWarningScreen extends MTRScreenBase implements IGui, Utilities {
+public class BetaWarningScreen extends ScreenBase implements IGui, Utilities {
 
 	private final ButtonWidget buttonPatreon;
 	private final ButtonWidget buttonYouTube;

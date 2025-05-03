@@ -13,7 +13,7 @@ import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.packet.PacketAddBalance;
 import org.mtr.registry.RegistryClient;
 
-public class TicketMachineScreen extends MTRScreenBase implements IGui {
+public class TicketMachineScreen extends ScreenBase implements IGui {
 
 	private final ButtonWidget[] buttons = new ButtonWidget[BUTTON_COUNT];
 	private final MutableText balanceText;

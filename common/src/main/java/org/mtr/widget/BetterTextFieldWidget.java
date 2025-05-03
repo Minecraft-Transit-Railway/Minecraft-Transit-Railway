@@ -3,8 +3,6 @@ package org.mtr.widget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -19,7 +17,7 @@ import javax.annotation.Nullable;
 import javax.annotation.RegEx;
 import java.util.function.Consumer;
 
-public final class BetterTextFieldWidget extends ClickableWidget {
+public final class BetterTextFieldWidget extends ClickableWidgetBase {
 
 	int lastCursorPosition;
 	long lastCursorChangeTime;
@@ -32,8 +30,8 @@ public final class BetterTextFieldWidget extends ClickableWidget {
 	private final Consumer<String> callback;
 	private final TextFieldWidget textFieldWidget = new TextFieldWidget(MinecraftClient.getInstance().textRenderer, 0, 0, 0, 0, Text.empty());
 
-	private final GuiAnimation guiAnimationLabelY = new GuiAnimation(ANIMATION_DURATION);
-	private final GuiAnimation guiAnimationLabelScale = new GuiAnimation(ANIMATION_DURATION);
+	private final GuiAnimation guiAnimationLabelY = new GuiAnimation();
+	private final GuiAnimation guiAnimationLabelScale = new GuiAnimation();
 
 	private static final int MAIN_TEXT_START = GuiHelper.DEFAULT_LINE_SIZE - 2 - GuiHelper.MINECRAFT_FONT_SIZE;
 	private static final int LABEL_TEXT_START = 1;
@@ -47,13 +45,13 @@ public final class BetterTextFieldWidget extends ClickableWidget {
 	}
 
 	public BetterTextFieldWidget(String text, int maxLength, TextCase textCase, @RegEx @Nullable String filter, String label, Consumer<String> callback) {
-		super(0, 0, 0, GuiHelper.DEFAULT_LINE_SIZE, Text.empty());
 		this.maxLength = maxLength;
 		this.textCase = textCase;
 		this.filter = filter;
 		this.label = label;
 		this.callback = callback;
-		setText(text);
+		setHeight(GuiHelper.DEFAULT_LINE_SIZE);
+		setText(getText(), text, true);
 	}
 
 	@Override
@@ -107,11 +105,11 @@ public final class BetterTextFieldWidget extends ClickableWidget {
 		guiAnimationLabelY.tick();
 		guiAnimationLabelScale.tick();
 		if (!isFocused() && text.isEmpty()) {
-			guiAnimationLabelY.animate((height - GuiHelper.MINECRAFT_FONT_SIZE) / 2F - LABEL_TEXT_START);
-			guiAnimationLabelScale.animate(0.5);
+			guiAnimationLabelY.animate((height - GuiHelper.MINECRAFT_FONT_SIZE) / 2F - LABEL_TEXT_START, ANIMATION_DURATION);
+			guiAnimationLabelScale.animate(0.5, ANIMATION_DURATION);
 		} else {
-			guiAnimationLabelY.animate(0);
-			guiAnimationLabelScale.animate(0);
+			guiAnimationLabelY.animate(0, ANIMATION_DURATION);
+			guiAnimationLabelScale.animate(0, ANIMATION_DURATION);
 		}
 
 		// Draw label
@@ -136,7 +134,7 @@ public final class BetterTextFieldWidget extends ClickableWidget {
 			final String oldText = getText();
 			refreshTextFieldWidget();
 			final boolean result = textFieldWidget.keyPressed(keyCode, scanCode, modifiers);
-			setText(oldText, getText());
+			setText(oldText, getText(), true);
 			return result;
 		} else {
 			return false;
@@ -149,7 +147,7 @@ public final class BetterTextFieldWidget extends ClickableWidget {
 			final String oldText = getText();
 			refreshTextFieldWidget();
 			final boolean result = textFieldWidget.charTyped(chr, modifiers);
-			setText(oldText, getText());
+			setText(oldText, getText(), true);
 			return result;
 		} else {
 			return false;
@@ -168,7 +166,7 @@ public final class BetterTextFieldWidget extends ClickableWidget {
 			if (isMouseOver(mouseX, mouseY)) {
 				setFocused(true);
 				if (button == 1) {
-					setText("");
+					setText(getText(), "", true);
 					return true;
 				} else {
 					return super.mouseClicked(mouseX, mouseY, button);
@@ -187,19 +185,15 @@ public final class BetterTextFieldWidget extends ClickableWidget {
 		lastCursorPosition = -1;
 	}
 
-	@Override
-	protected void appendClickableNarrations(NarrationMessageBuilder builder) {
-	}
-
 	public String getText() {
 		return textFieldWidget.getText();
 	}
 
 	public void setText(String text) {
-		setText(getText(), text);
+		setText(getText(), text, false);
 	}
 
-	private void setText(String oldText, String text) {
+	private void setText(String oldText, String text, boolean sendCallback) {
 		final String tempText = getText();
 		final String newText;
 
@@ -214,7 +208,7 @@ public final class BetterTextFieldWidget extends ClickableWidget {
 			textFieldWidget.setText(newText);
 		}
 
-		if (!oldText.equals(newText)) {
+		if (sendCallback && !oldText.equals(newText)) {
 			callback.accept(newText);
 		}
 	}

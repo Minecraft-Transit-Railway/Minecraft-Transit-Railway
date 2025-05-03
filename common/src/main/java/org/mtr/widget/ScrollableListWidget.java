@@ -3,6 +3,7 @@ package org.mtr.widget;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import it.unimi.dsi.fastutil.objects.ObjectIntImmutablePair;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -70,8 +71,8 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 						clickAction = listItem::toggle;
 
 						// Draw the action button
-						deferredRenders.add(() -> new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(Identifier.of(listItem.isExpanded() ? "textures/gui/sprites/mtr/icon_chevron_up.png" : "textures/gui/sprites/mtr/icon_chevron_down.png"))))
-								.setVerticesWH(leftBound, startY, GuiHelper.DEFAULT_LINE_SIZE, GuiHelper.DEFAULT_LINE_SIZE)
+						deferredRenders.add(() -> new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(listItem.isExpanded() ? GuiHelper.CHEVRON_UP_TEXTURE_ID : GuiHelper.CHEVRON_DOWN_TEXTURE_ID)))
+								.setVerticesWH(leftBound + GuiHelper.DEFAULT_PADDING / 2F, startY + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_ICON_SIZE, GuiHelper.DEFAULT_ICON_SIZE)
 								.setUv()
 								.draw()
 						);
@@ -91,7 +92,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 
 							// Draw the action button
 							deferredRenders.add(() -> new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(identifier)))
-									.setVerticesWH(leftBound, startY, GuiHelper.DEFAULT_LINE_SIZE, GuiHelper.DEFAULT_LINE_SIZE)
+									.setVerticesWH(leftBound + GuiHelper.DEFAULT_PADDING / 2F, startY + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_ICON_SIZE, GuiHelper.DEFAULT_ICON_SIZE)
 									.setUv()
 									.draw()
 							);
@@ -186,8 +187,13 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		return fontRenderOptionsBuilder;
 	}
 
-	public static <T extends AreaBase<T, U>, U extends SavedRailBase<U, T>> void setAreas(ScrollableListWidget<T> scrollableListWidget, ObjectArraySet<T> areas, ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<T>>> actions) {
-		final ObjectArrayList<T> sortedAreas = new ObjectArrayList<>(areas);
+	public static <T extends AreaBase<T, U>, U extends SavedRailBase<U, T>> void setAreas(ScrollableListWidget<T> scrollableListWidget, ObjectArraySet<T> areas, @Nullable TransportMode transportMode, ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<T>>> actions) {
+		final ObjectArrayList<T> sortedAreas = new ObjectArrayList<>();
+		areas.forEach(route -> {
+			if (transportMode == null || route.isTransportMode(transportMode)) {
+				sortedAreas.add(route);
+			}
+		});
 		Collections.sort(sortedAreas);
 		final ObjectArrayList<ListItem<T>> dataList = new ObjectArrayList<>();
 
@@ -237,18 +243,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 			dataList.add(ListItem.createChild(
 					(drawing, x, y) -> {
 						GuiHelper.drawCircle(drawing, x + GuiHelper.DEFAULT_PADDING / 2F, y + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING, 32, colors);
-						FontGroups.renderMTR(drawing, Utilities.formatName(savedRail.getName()), FontRenderOptions.builder()
-								.horizontalPositioning(FontRenderOptions.Alignment.CENTER)
-								.verticalPositioning(FontRenderOptions.Alignment.CENTER)
-								.horizontalSpace(GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT)
-								.verticalSpace(GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT)
-								.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)
-								.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
-								.offsetX((float) x + GuiHelper.DEFAULT_LINE_SIZE / 2F)
-								.offsetY((float) y + GuiHelper.DEFAULT_LINE_SIZE / 2F)
-								.textOverflow(FontRenderOptions.TextOverflow.SCALE)
-								.build()
-						);
+						drawPlatformNumber(drawing, x, y, savedRail.getName());
 					},
 					GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING / 2,
 					text,
@@ -260,8 +255,13 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		scrollableListWidget.setData(dataList);
 	}
 
-	public static void setRoutes(ScrollableListWidget<Route> scrollableListWidget, ObjectArraySet<Route> routes, ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<Route>>> actions) {
-		final ObjectArrayList<Route> sortedRoutes = new ObjectArrayList<>(routes);
+	public static void setRoutes(ScrollableListWidget<Route> scrollableListWidget, ObjectArraySet<Route> routes, @Nullable TransportMode transportMode, ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<Route>>> actions) {
+		final ObjectArrayList<Route> sortedRoutes = new ObjectArrayList<>();
+		routes.forEach(route -> {
+			if (transportMode == null || route.isTransportMode(transportMode)) {
+				sortedRoutes.add(route);
+			}
+		});
 		Collections.sort(sortedRoutes);
 		final ObjectArrayList<ListItem<Route>> groupedRoutes = new ObjectArrayList<>();
 		String lastKey = null;
@@ -291,5 +291,45 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		}
 
 		scrollableListWidget.setData(groupedRoutes);
+	}
+
+	public static void setRoutePlatforms(ScrollableListWidget<ObjectIntImmutablePair<RoutePlatformData>> scrollableListWidget, ObjectArrayList<RoutePlatformData> routePlatforms, ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<ObjectIntImmutablePair<RoutePlatformData>>>> actions) {
+		final ObjectArrayList<ListItem<ObjectIntImmutablePair<RoutePlatformData>>> dataList = new ObjectArrayList<>();
+
+		for (int i = 0; i < routePlatforms.size(); i++) {
+			final RoutePlatformData routePlatformData = routePlatforms.get(i);
+			final Platform platform = routePlatformData.getPlatform();
+			final int stationColor = platform.area == null ? GuiHelper.BLACK_COLOR : ColorHelper.fullAlpha(platform.area.getColor());
+			final String customDestinationPrefix = routePlatformData.getCustomDestination().isEmpty() ? "" : Route.destinationIsReset(routePlatformData.getCustomDestination()) ? "\"" : "*";
+			final String stationName = platform.area == null ? "" : Utilities.formatName(platform.area.getName());
+
+			dataList.add(ListItem.createChild(
+					(drawing, x, y) -> {
+						drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING / 2F, y + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING).setColor(stationColor).draw();
+						drawPlatformNumber(drawing, x, y, platform.getName());
+					},
+					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
+					customDestinationPrefix + stationName,
+					new ObjectIntImmutablePair<>(routePlatformData, i),
+					actions
+			));
+		}
+
+		scrollableListWidget.setData(dataList);
+	}
+
+	private static void drawPlatformNumber(Drawing drawing, double x, double y, String name) {
+		FontGroups.renderMTR(drawing, Utilities.formatName(name), FontRenderOptions.builder()
+				.horizontalPositioning(FontRenderOptions.Alignment.CENTER)
+				.verticalPositioning(FontRenderOptions.Alignment.CENTER)
+				.horizontalSpace(GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT)
+				.verticalSpace(GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT)
+				.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)
+				.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
+				.offsetX((float) x + GuiHelper.DEFAULT_LINE_SIZE / 2F)
+				.offsetY((float) y + GuiHelper.DEFAULT_LINE_SIZE / 2F)
+				.textOverflow(FontRenderOptions.TextOverflow.SCALE)
+				.build()
+		);
 	}
 }

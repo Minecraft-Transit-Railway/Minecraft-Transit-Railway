@@ -2,241 +2,241 @@ package org.mtr.widget;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.ColorHelper;
 import org.apache.commons.lang3.StringUtils;
-import org.mtr.client.IDrawing;
-import org.mtr.data.IGui;
+import org.mtr.core.tool.Utilities;
 import org.mtr.generated.lang.TranslationProvider;
-import org.mtr.screen.MTRScreenBase;
 import org.mtr.screen.TextCase;
+import org.mtr.tool.Drawing;
+import org.mtr.tool.GuiHelper;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Locale;
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
-public final class ColorSelectorWidget extends ButtonWidget implements IGui {
+public final class ColorSelectorWidget extends PopupWidgetBase {
 
-	private int color;
-	private final Screen screen;
-	private final boolean hasMargin;
-	private final Runnable callback;
+	private float hue;
+	private float saturation;
+	private float brightness;
+	private MouseZone hoverMouseZone = MouseZone.NONE;
+	private MouseZone draggingMouseZone = MouseZone.NONE;
 
+	private Color oldColor;
+	private IntConsumer colorCallback;
 
-	public ColorSelectorWidget(Screen screen, boolean hasMargin, Runnable callback) {
-		super(0, 0, 0, SQUARE_SIZE, Text.empty(), button -> {
-		}, DEFAULT_NARRATION_SUPPLIER);
-		this.screen = screen;
-		this.hasMargin = hasMargin;
-		this.callback = callback;
+	private final Runnable onDismiss;
+	private final BetterTextFieldWidget colorTextField;
+	private final BetterTextFieldWidget redTextField;
+	private final BetterTextFieldWidget greenTextField;
+	private final BetterTextFieldWidget blueTextField;
+
+	private static final int CONTROLS_SIZE = 60;
+
+	public ColorSelectorWidget(int minWidth, Runnable onDismiss, Runnable applyBlur) {
+		super(Math.max(minWidth, GuiHelper.DEFAULT_PADDING * 3 + GuiHelper.DEFAULT_LINE_SIZE + CONTROLS_SIZE), applyBlur, Text.translatable("selectWorld.edit.save").getString(), TranslationProvider.GUI_MTR_COLOR_RANDOM.getString(), TranslationProvider.GUI_MTR_RESET.getString(), TranslationProvider.GUI_MTR_CLOSE.getString());
+		this.onDismiss = onDismiss;
+		colorTextField = new BetterTextFieldWidget(6, TextCase.UPPER, "[^\\dA-F]", TranslationProvider.GUI_MTR_COLOR.getString(), text -> textCallback(text, 16, (existingColor, component) -> setColor(new Color(component))));
+		redTextField = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", TranslationProvider.GUI_MTR_COLOR_RED.getString(), text -> textCallback(text, 10, (existingColor, component) -> setColor(component, existingColor.getGreen(), existingColor.getBlue())));
+		greenTextField = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", TranslationProvider.GUI_MTR_COLOR_GREEN.getString(), text -> textCallback(text, 10, (existingColor, component) -> setColor(existingColor.getRed(), component, existingColor.getBlue())));
+		blueTextField = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", TranslationProvider.GUI_MTR_COLOR_BLUE.getString(), text -> textCallback(text, 10, (existingColor, component) -> setColor(existingColor.getRed(), existingColor.getGreen(), component)));
 	}
 
 	@Override
-	public void onPress() {
-		MinecraftClient.getInstance().setScreen(new ColorSelectorScreen(color, color -> {
-			MinecraftClient.getInstance().setScreen(screen);
-			setColor(color);
-			callback.run();
-		}));
+	public void init(Consumer<ClickableWidgetBase> addDrawableChild) {
+		super.init(addDrawableChild);
+		addDrawableChild.accept(colorTextField);
+		addDrawableChild.accept(redTextField);
+		addDrawableChild.accept(greenTextField);
+		addDrawableChild.accept(blueTextField);
 	}
 
 	@Override
-	protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-		super.renderWidget(context, mouseX, mouseY, delta);
-		if (visible) {
-			final int margin = hasMargin ? 1 : 0;
-			context.fill(getX() - margin, getY() - margin, getX() + width + margin, getY() + height + margin, ARGB_BLACK | color);
+	protected void render(DrawContext context, int mouseX, int mouseY) {
+		visible = colorCallback != null;
+
+		final int controlsX = getX() + width - GuiHelper.DEFAULT_PADDING - CONTROLS_SIZE;
+		colorTextField.setPosition(controlsX, getY() + GuiHelper.DEFAULT_PADDING);
+		colorTextField.setWidth(CONTROLS_SIZE);
+		redTextField.setPosition(controlsX, getY() + GuiHelper.DEFAULT_PADDING * 2 + GuiHelper.DEFAULT_LINE_SIZE);
+		redTextField.setWidth(CONTROLS_SIZE);
+		greenTextField.setPosition(controlsX, getY() + GuiHelper.DEFAULT_PADDING * 3 + GuiHelper.DEFAULT_LINE_SIZE * 2);
+		greenTextField.setWidth(CONTROLS_SIZE);
+		blueTextField.setPosition(controlsX, getY() + GuiHelper.DEFAULT_PADDING * 4 + GuiHelper.DEFAULT_LINE_SIZE * 3);
+		blueTextField.setWidth(CONTROLS_SIZE);
+
+		final Drawing drawing = new Drawing(context.getMatrices(), MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
+		final int mainHeight = height - GuiHelper.DEFAULT_PADDING * 2 - GuiHelper.DEFAULT_LINE_SIZE;
+		final int mainWidth = width - GuiHelper.DEFAULT_PADDING * 4 - GuiHelper.DEFAULT_LINE_SIZE - CONTROLS_SIZE;
+		hoverMouseZone = MouseZone.NONE;
+
+		// Draw the selected colour
+		drawing.setVerticesWH(controlsX, getY() + GuiHelper.DEFAULT_PADDING * 5 + GuiHelper.DEFAULT_LINE_SIZE * 4, CONTROLS_SIZE, CONTROLS_SIZE).setColor(ColorHelper.fullAlpha(Color.HSBtoRGB(hue, saturation, brightness))).draw();
+
+		// Draw hue bar
+		final int hueBarX = controlsX - GuiHelper.DEFAULT_PADDING - GuiHelper.DEFAULT_LINE_SIZE;
+		for (int drawHue = 0; drawHue < mainHeight; drawHue++) {
+			final float currentHue = (float) drawHue / (mainHeight - 1);
+
+			final int hueBarStartY = getY() + GuiHelper.DEFAULT_PADDING;
+			final int hueBarY = hueBarStartY + drawHue;
+
+			drawing.setVerticesWH(hueBarX, hueBarY, GuiHelper.DEFAULT_LINE_SIZE, 1).setColor(ColorHelper.fullAlpha(Color.HSBtoRGB(currentHue, 1, 1))).draw();
+
+			final boolean isDragging = draggingMouseZone == MouseZone.HUE && Math.clamp(mouseY, hueBarStartY, hueBarStartY + mainHeight - 1) == hueBarY;
+			final boolean isOver = mouseY == hueBarY && Utilities.isBetween(mouseX, hueBarX, hueBarX + GuiHelper.DEFAULT_LINE_SIZE - 1);
+			if (isDragging || isOver) {
+				if (isDragging) {
+					hue = currentHue;
+					updateTextFields();
+				}
+				hoverMouseZone = MouseZone.HUE;
+			}
+		}
+
+		// Draw saturation and brightness rectangle
+		for (int drawSaturation = 0; drawSaturation < mainWidth; drawSaturation++) {
+			for (int drawBrightness = 0; drawBrightness < mainHeight; drawBrightness++) {
+				final float currentSaturation = (float) drawSaturation / (mainWidth - 1);
+				final float currentBrightness = (float) drawBrightness / (mainHeight - 1);
+
+				final int saturationRectangleStartX = getX() + GuiHelper.DEFAULT_PADDING;
+				final int saturationRectangleX = saturationRectangleStartX + drawSaturation;
+
+				final int brightnessRectangleStartY = getY() + GuiHelper.DEFAULT_PADDING;
+				final int brightnessRectangleY = getY() + height - GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING - drawBrightness - 1;
+
+				drawing.setVerticesWH(saturationRectangleX, brightnessRectangleY, 1, 1).setColor(ColorHelper.fullAlpha(Color.HSBtoRGB(hue, currentSaturation, currentBrightness))).draw();
+
+				final boolean isDragging = draggingMouseZone == MouseZone.SATURATION_BRIGHTNESS && Math.clamp(mouseX, saturationRectangleStartX, saturationRectangleStartX + mainWidth - 1) == saturationRectangleX && Math.clamp(mouseY, brightnessRectangleStartY, brightnessRectangleStartY + mainHeight - 1) == brightnessRectangleY;
+				final boolean isOver = mouseX == saturationRectangleX && mouseY == brightnessRectangleY;
+				if (isDragging || isOver) {
+					if (isDragging) {
+						saturation = currentSaturation;
+						brightness = currentBrightness;
+						updateTextFields();
+					}
+					hoverMouseZone = MouseZone.SATURATION_BRIGHTNESS;
+				}
+			}
+		}
+
+		final double selectedHuePosition = getY() + GuiHelper.DEFAULT_PADDING + hue * (mainHeight - 1);
+		final double selectedSaturationPosition = getX() + GuiHelper.DEFAULT_PADDING + saturation * (mainWidth - 1);
+		final double selectedBrightnessPosition = getY() + height - GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING - brightness * (mainHeight - 1) - 1;
+
+		// Draw hue selector
+		drawing.setVerticesWH(hueBarX, selectedHuePosition - 1, GuiHelper.DEFAULT_LINE_SIZE, 3).setColor(GuiHelper.BACKGROUND_COLOR).draw();
+		drawing.setVerticesWH(hueBarX, selectedHuePosition, GuiHelper.DEFAULT_LINE_SIZE, 1).setColor(GuiHelper.WHITE_COLOR).draw();
+
+		// Draw saturation and brightness selector
+		drawing.setVerticesWH(selectedSaturationPosition - 1, selectedBrightnessPosition, 3, 1).setColor(GuiHelper.BACKGROUND_COLOR).draw();
+		drawing.setVerticesWH(selectedSaturationPosition, selectedBrightnessPosition - 1, 1, 3).setColor(GuiHelper.BACKGROUND_COLOR).draw();
+		drawing.setVerticesWH(selectedSaturationPosition, selectedBrightnessPosition, 1, 1).setColor(GuiHelper.WHITE_COLOR).draw();
+
+		// Render text fields
+		colorTextField.renderWidget(context, mouseX, mouseY, 0);
+		redTextField.renderWidget(context, mouseX, mouseY, 0);
+		greenTextField.renderWidget(context, mouseX, mouseY, 0);
+		blueTextField.renderWidget(context, mouseX, mouseY, 0);
+	}
+
+	@Override
+	public void onClick(double mouseX, double mouseY) {
+		draggingMouseZone = hoverMouseZone;
+	}
+
+	@Override
+	public void onRelease(double mouseX, double mouseY) {
+		draggingMouseZone = MouseZone.NONE;
+	}
+
+	@Override
+	protected void onClickAction(int index) {
+		switch (index) {
+			case 0 -> {
+				if (colorCallback != null) {
+					colorCallback.accept(ColorHelper.zeroAlpha(new Color(Color.HSBtoRGB(hue, saturation, brightness)).getRGB()));
+				}
+				setColorCallbackInternal(null);
+			}
+			case 1 -> setColor(new Random().nextInt(0xFF), new Random().nextInt(0xFF), new Random().nextInt(0xFF));
+			case 2 -> setColor(oldColor);
+			case 3 -> setColorCallbackInternal(null);
 		}
 	}
 
-
-	public int getColor() {
-		return color;
+	@Override
+	protected void setWidgetHeight() {
+		setHeight(GuiHelper.DEFAULT_PADDING * 6 + GuiHelper.DEFAULT_LINE_SIZE * 5 + CONTROLS_SIZE);
 	}
 
-	public void setColor(int newColor) {
-		final int clampedColor;
-		if ((newColor & RGB_WHITE) == 0) {
-			clampedColor = (new Random()).nextInt(RGB_WHITE + 1);
+	public void setColorCallback(IntConsumer colorCallback, int oldColorRGB) {
+		setColorCallbackInternal(colorCallback);
+		oldColor = new Color(ColorHelper.zeroAlpha(oldColorRGB), true);
+		setColor(oldColor);
+	}
+
+	private void setColorCallbackInternal(@Nullable IntConsumer colorCallback) {
+		if (colorCallback == null) {
+			onDismiss.run();
+			this.colorCallback = null;
 		} else {
-			clampedColor = newColor & RGB_WHITE;
-		}
-		color = clampedColor;
-	}
-
-	private static class ColorSelectorScreen extends MTRScreenBase {
-
-		private float hue;
-		private float saturation;
-		private float brightness;
-		private DraggingState draggingState = DraggingState.NONE;
-
-		private final int oldColor;
-		private final Consumer<Integer> colorCallback;
-		private final BetterTextFieldWidget textFieldColor;
-		private final BetterTextFieldWidget textFieldRed;
-		private final BetterTextFieldWidget textFieldGreen;
-		private final BetterTextFieldWidget textFieldBlue;
-		private final ButtonWidget buttonReset;
-
-		private static final int RIGHT_WIDTH = 60;
-
-		private ColorSelectorScreen(int oldColor, Consumer<Integer> colorCallback) {
-			super();
-			this.oldColor = oldColor;
 			this.colorCallback = colorCallback;
-			textFieldColor = new BetterTextFieldWidget(6, TextCase.UPPER, "[^\\dA-F]", Text.literal(Integer.toHexString(oldColor).toUpperCase(Locale.ENGLISH)).getString(), text -> textCallback(text, -1));
-			textFieldRed = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", Text.literal(String.valueOf((oldColor >> 16) & 0xFF)).getString(), text -> textCallback(text, 16));
-			textFieldGreen = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", Text.literal(String.valueOf((oldColor >> 8) & 0xFF)).getString(), text -> textCallback(text, 8));
-			textFieldBlue = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", Text.literal(String.valueOf(oldColor & 0xFF)).getString(), text -> textCallback(text, 0));
-			buttonReset = ButtonWidget.builder(TranslationProvider.GUI_MTR_RESET_SIGN.getMutableText(), button -> {
-				setHsb(oldColor, true);
-				button.active = false;
-			}).build();
 		}
+		visible = this.colorCallback != null;
+	}
 
-		@Override
-		protected void init() {
-			super.init();
+	private void setColor(Color color) {
+		setColor(color.getRed(), color.getGreen(), color.getBlue());
+	}
 
-			final int startX = SQUARE_SIZE * 4 + getMainWidth();
-			final int startY = SQUARE_SIZE + TEXT_HEIGHT + TEXT_PADDING + TEXT_FIELD_PADDING / 2;
-			IDrawing.setPositionAndWidth(textFieldColor, startX + TEXT_FIELD_PADDING / 2, startY, RIGHT_WIDTH - TEXT_FIELD_PADDING);
-			IDrawing.setPositionAndWidth(textFieldRed, startX + TEXT_FIELD_PADDING / 2, startY + SQUARE_SIZE * 2 + TEXT_FIELD_PADDING, RIGHT_WIDTH - TEXT_FIELD_PADDING);
-			IDrawing.setPositionAndWidth(textFieldGreen, startX + TEXT_FIELD_PADDING / 2, startY + SQUARE_SIZE * 3 + TEXT_FIELD_PADDING * 2, RIGHT_WIDTH - TEXT_FIELD_PADDING);
-			IDrawing.setPositionAndWidth(textFieldBlue, startX + TEXT_FIELD_PADDING / 2, startY + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING * 3, RIGHT_WIDTH - TEXT_FIELD_PADDING);
-			IDrawing.setPositionAndWidth(buttonReset, startX, getMainHeight(), RIGHT_WIDTH);
+	private void setColor(int red, int green, int blue) {
+		final float[] hsb = Color.RGBtoHSB(red, green, blue, null);
+		hue = hsb[0];
+		saturation = hsb[1];
+		brightness = hsb[2];
+		updateTextFields();
+	}
 
-			setHsb(oldColor, true);
+	private void updateTextFields() {
+		final Color color = new Color(ColorHelper.zeroAlpha(Color.HSBtoRGB(hue, saturation, brightness)), true);
+		setTextField(colorTextField, color.getRGB(), 16);
+		setTextField(redTextField, color.getRed(), 10);
+		setTextField(greenTextField, color.getGreen(), 10);
+		setTextField(blueTextField, color.getBlue(), 10);
+		buttonGroup.buttons[2].active = color.getRGB() != oldColor.getRGB();
+	}
 
-			addDrawableChild(textFieldColor);
-			addDrawableChild(textFieldRed);
-			addDrawableChild(textFieldGreen);
-			addDrawableChild(textFieldBlue);
-			addDrawableChild(buttonReset);
-		}
-
-		@Override
-		public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-			renderBackground(context, mouseX, mouseY, delta);
-			super.render(context, mouseX, mouseY, delta);
-
-			final int mainWidth = getMainWidth();
-			final int mainHeight = getMainHeight();
-
-			context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, TranslationProvider.GUI_MTR_COLOR.getMutableText(), SQUARE_SIZE * 4 + mainWidth + RIGHT_WIDTH / 2, SQUARE_SIZE, ARGB_WHITE);
-			context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, "RGB", SQUARE_SIZE * 4 + mainWidth + RIGHT_WIDTH / 2, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING, ARGB_WHITE);
-
-			final int selectedColor = Color.HSBtoRGB(hue, saturation, brightness);
-			context.fill(SQUARE_SIZE * 4 + mainWidth + 1, SQUARE_SIZE * 7 + TEXT_FIELD_PADDING * 4 + 1, SQUARE_SIZE * 4 + mainWidth + RIGHT_WIDTH - 1, mainHeight - 1, selectedColor);
-
-			for (int drawHue = 0; drawHue < mainHeight; drawHue++) {
-				final int color = Color.HSBtoRGB((float) drawHue / (mainHeight - 1), 1, 1);
-				context.fill(SQUARE_SIZE * 2 + mainWidth, SQUARE_SIZE + drawHue, SQUARE_SIZE * 3 + mainWidth, SQUARE_SIZE + drawHue + 1, color);
-			}
-
-			for (int drawSaturation = 0; drawSaturation < mainWidth; drawSaturation++) {
-				for (int drawBrightness = 0; drawBrightness < mainHeight; drawBrightness++) {
-					final int color = Color.HSBtoRGB(hue, (float) drawSaturation / (mainWidth - 1), (float) drawBrightness / (mainHeight - 1));
-					context.fill(SQUARE_SIZE + drawSaturation, SQUARE_SIZE + mainHeight - drawBrightness - 1, SQUARE_SIZE + drawSaturation + 1, SQUARE_SIZE + mainHeight - drawBrightness, color);
-				}
-			}
-
-			final int selectedHueInt = Math.round(hue * (mainHeight - 1));
-			final int selectedSaturationInt = Math.round(saturation * (mainWidth - 1));
-			final int selectedBrightnessInt = Math.round(brightness * (mainHeight - 1));
-			context.fill(SQUARE_SIZE * 2 + mainWidth, SQUARE_SIZE + selectedHueInt - 1, SQUARE_SIZE * 3 + mainWidth, SQUARE_SIZE + selectedHueInt + 2, ARGB_BLACK);
-			context.fill(SQUARE_SIZE * 2 + mainWidth, SQUARE_SIZE + selectedHueInt, SQUARE_SIZE * 3 + mainWidth, SQUARE_SIZE + selectedHueInt + 1, ARGB_WHITE);
-			context.fill(SQUARE_SIZE + selectedSaturationInt - 1, SQUARE_SIZE + mainHeight - selectedBrightnessInt - 1, SQUARE_SIZE + selectedSaturationInt + 2, SQUARE_SIZE + mainHeight - selectedBrightnessInt, ARGB_BLACK);
-			context.fill(SQUARE_SIZE + selectedSaturationInt, SQUARE_SIZE + mainHeight - selectedBrightnessInt - 2, SQUARE_SIZE + selectedSaturationInt + 1, SQUARE_SIZE + mainHeight - selectedBrightnessInt + 1, ARGB_BLACK);
-			context.fill(SQUARE_SIZE + selectedSaturationInt, SQUARE_SIZE + mainHeight - selectedBrightnessInt - 1, SQUARE_SIZE + selectedSaturationInt + 1, SQUARE_SIZE + mainHeight - selectedBrightnessInt, ARGB_WHITE);
-		}
-
-		@Override
-		public void close() {
-			colorCallback.accept(Color.HSBtoRGB(hue, saturation, brightness) & RGB_WHITE);
-		}
-
-		@Override
-		public boolean mouseClicked(double mouseX, double mouseY, int button) {
-			final int mainWidth = getMainWidth();
-			final int mainHeight = getMainHeight();
-			draggingState = DraggingState.NONE;
-			if (mouseY >= SQUARE_SIZE && mouseY < SQUARE_SIZE + mainHeight) {
-				if (mouseX >= SQUARE_SIZE && mouseX < SQUARE_SIZE + mainWidth) {
-					draggingState = DraggingState.SATURATION_BRIGHTNESS;
-				} else if (mouseX >= SQUARE_SIZE * 2 + mainWidth && mouseX < SQUARE_SIZE * 3 + mainWidth) {
-					draggingState = DraggingState.HUE;
-				}
-			}
-			selectColor(mouseX, mouseY);
-			return super.mouseClicked(mouseX, mouseY, button);
-		}
-
-		@Override
-		public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-			selectColor(mouseX, mouseY);
-			return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
-		}
-
-		private void selectColor(double mouseX, double mouseY) {
-			final int mainWidth = getMainWidth();
-			final int mainHeight = getMainHeight();
-			switch (draggingState) {
-				case SATURATION_BRIGHTNESS:
-					saturation = (float) MathHelper.clamp((mouseX - SQUARE_SIZE) / mainWidth, 0, 1);
-					brightness = 1 - (float) MathHelper.clamp((mouseY - SQUARE_SIZE) / mainHeight, 0, 1);
-					setColorText(Color.HSBtoRGB(hue, saturation, brightness), true);
-					break;
-				case HUE:
-					hue = (float) MathHelper.clamp((mouseY - SQUARE_SIZE) / mainHeight, 0, 1);
-					setColorText(Color.HSBtoRGB(hue, saturation, brightness), true);
-					break;
-			}
-		}
-
-		private void setHsb(int color, boolean padZero) {
-			final float[] hsb = Color.RGBtoHSB((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, null);
-			hue = hsb[0];
-			saturation = hsb[1];
-			brightness = hsb[2];
-			setColorText(color, padZero);
-		}
-
-		private void setColorText(int color, boolean padZero) {
-			final String colorString = Integer.toHexString(color & RGB_WHITE).toUpperCase(Locale.ENGLISH);
-			textFieldColor.setText(padZero ? StringUtils.leftPad(colorString, 6, "0") : colorString);
-			textFieldRed.setText(String.valueOf((color >> 16) & 0xFF));
-			textFieldGreen.setText(String.valueOf((color >> 8) & 0xFF));
-			textFieldBlue.setText(String.valueOf(color & 0xFF));
-			buttonReset.active = (color & RGB_WHITE) != oldColor;
-		}
-
-		private void textCallback(String text, int shift) {
-			try {
-				final boolean isHex = shift < 0;
-				final int compare = Integer.parseInt(text, isHex ? 16 : 10);
-				final int currentColor = Color.HSBtoRGB(hue, saturation, brightness) & RGB_WHITE;
-				if ((isHex ? currentColor : ((currentColor >> shift) & 0xFF)) != compare) {
-					setHsb(isHex ? compare : (currentColor & ~(0xFF << shift)) + (compare << shift), !isHex);
-				}
-			} catch (Exception ignored) {
-			}
-		}
-
-		private int getMainWidth() {
-			return width - SQUARE_SIZE * 5 - RIGHT_WIDTH;
-		}
-
-		private int getMainHeight() {
-			return height - SQUARE_SIZE * 2;
+	private void textCallback(String text, int base, ColorCallback colorCallback) {
+		try {
+			final int value = Integer.parseInt(text, base);
+			colorCallback.accept(new Color(ColorHelper.zeroAlpha(Color.HSBtoRGB(hue, saturation, brightness))), base == 10 ? Math.clamp(value, 0, 0xFF) : value);
+		} catch (Exception ignored) {
 		}
 	}
 
-	private enum DraggingState {
+	private static void setTextField(BetterTextFieldWidget textField, int value, int base) {
+		try {
+			if (Integer.parseInt(textField.getText(), base) == value) {
+				return;
+			}
+		} catch (Exception ignored) {
+		}
+		textField.setText(base == 10 ? String.valueOf(value) : StringUtils.leftPad(Integer.toHexString(value).toUpperCase(Locale.ENGLISH), 6, "0"));
+	}
+
+	private enum MouseZone {
 		NONE, SATURATION_BRIGHTNESS, HUE
+	}
+
+	@FunctionalInterface
+	private interface ColorCallback {
+		void accept(Color existingColor, int component);
 	}
 }
