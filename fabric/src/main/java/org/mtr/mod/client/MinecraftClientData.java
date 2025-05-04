@@ -10,12 +10,9 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mod.Init;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.KeyBindings;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.data.PersistentVehicleData;
 import org.mtr.mod.data.VehicleExtension;
-import org.mtr.mod.packet.PacketDriveTrain;
 import org.mtr.mod.screen.DashboardListItem;
 
 import javax.annotation.Nullable;
@@ -143,26 +140,6 @@ public final class MinecraftClientData extends ClientData {
 	public static void reset() {
 		MinecraftClientData.instance = new MinecraftClientData();
 		MinecraftClientData.dashboardInstance = new MinecraftClientData();
-	}
-
-	public static void tick() {
-		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
-		final boolean tempPressingAccelerate = KeyBindings.TRAIN_ACCELERATE.isPressed();
-		final boolean tempPressingBrake = KeyBindings.TRAIN_BRAKE.isPressed();
-		final boolean tempPressingDoors = KeyBindings.TRAIN_TOGGLE_DOORS.isPressed();
-
-		if (VehicleExtension.isHoldingKey(clientPlayerEntity) && (pressingAccelerate || pressingBrake || pressingDoors)) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDriveTrain(
-					tempPressingAccelerate && !pressingAccelerate,
-					tempPressingBrake && !pressingBrake,
-					tempPressingDoors && !pressingDoors
-			));
-		}
-
-		pressingAccelerate = tempPressingAccelerate;
-		pressingBrake = tempPressingBrake;
-		pressingDoors = tempPressingDoors;
 	}
 
 	public static boolean hasPermission() {

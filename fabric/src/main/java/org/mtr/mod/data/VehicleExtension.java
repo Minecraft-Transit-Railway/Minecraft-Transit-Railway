@@ -8,12 +8,13 @@ import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
 import org.mtr.core.tool.Vector;
 import org.mtr.libraries.com.google.gson.JsonObject;
+import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleObjectImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
-import org.mtr.mod.Items;
 import org.mtr.mod.block.BlockTrainAnnouncer;
 import org.mtr.mod.block.BlockTrainRedstoneSensor;
 import org.mtr.mod.block.BlockTrainSensorBase;
@@ -24,6 +25,7 @@ import org.mtr.mod.client.VehicleRidingMovement;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketCheckRouteIdHasDisabledAnnouncements;
 import org.mtr.mod.packet.PacketTurnOnBlockEntity;
+import org.mtr.mod.render.DrivingGuiRenderer;
 import org.mtr.mod.resource.VehicleResource;
 
 import javax.annotation.Nullable;
@@ -31,6 +33,9 @@ import javax.annotation.Nullable;
 public class VehicleExtension extends Vehicle implements Utilities {
 
 	private double oldSpeed;
+	private int speedLimitKilometersPerHour;
+	@Nullable
+	private DoubleObjectImmutablePair<DoubleDoubleImmutablePair> platformStoppingDetails;
 
 	public final PersistentVehicleData persistentVehicleData;
 
@@ -76,8 +81,10 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		final long thisRouteId = vehicleExtraData.getThisRouteId();
 
 		if (VehicleRidingMovement.isRiding(id)) {
+			final boolean isDriving = vehicleExtraData.getIsCurrentlyManual() && VehicleRidingMovement.isHoldingDriverKey();
+
 			// Render client action bar floating text
-			if (VehicleRidingMovement.showShiftProgressBar() && (!isCurrentlyManual || !isHoldingKey(clientPlayerEntity))) {
+			if (VehicleRidingMovement.showShiftProgressBar() && !isDriving) {
 				final double adjustedSpeed = getAdjustedSpeed();
 				if (adjustedSpeed * MILLIS_PER_SECOND > 5 || thisRouteName.isEmpty() || thisStationName.isEmpty() || thisRouteDestination.isEmpty()) {
 					clientPlayerEntity.sendMessage(TranslationProvider.GUI_MTR_VEHICLE_SPEED.getText(Utilities.round(adjustedSpeed * MILLIS_PER_SECOND, 1), Utilities.round(adjustedSpeed * 3.6F * MILLIS_PER_SECOND, 1)), true);
@@ -194,6 +201,10 @@ public class VehicleExtension extends Vehicle implements Utilities {
 					}
 				}));
 			}
+
+			if (isDriving) {
+				DrivingGuiRenderer.setVehicle(this);
+			}
 		}
 
 		// Check for sensors
@@ -254,6 +265,22 @@ public class VehicleExtension extends Vehicle implements Utilities {
 				MinecraftClientData.getInstance().blockedRailIds.add(pathData.getHexId(true));
 			}
 		}
+
+		// Write speed limit
+		final PathData pathDataHead = Utilities.getElement(vehicleExtraData.immutablePath, headIndex);
+		if (pathDataHead != null && pathDataHead.canAccelerate()) {
+			speedLimitKilometersPerHour = (int) pathDataHead.getSpeedLimitKilometersPerHour();
+		}
+
+		// Write platform stopping position
+		final PathData pathDataEnd = Utilities.getElement(vehicleExtraData.immutablePath, endIndex);
+		if (pathDataHead != null && pathDataEnd != null && (pathDataHead.getDwellTime() > 0 || pathDataEnd.getDwellTime() > 0) && headIndex < vehicleExtraData.immutablePath.size() - 1) {
+			final double platformLength = pathDataHead.getDwellTime() > 0 ? pathDataHead.getRailLength() : pathDataEnd.getRailLength();
+			final double target = pathDataHead.getDwellTime() > 0 ? pathDataHead.getEndDistance() : pathDataEnd.getEndDistance();
+			platformStoppingDetails = new DoubleObjectImmutablePair<>(target - railProgress, new DoubleDoubleImmutablePair(platformLength, totalLength));
+		} else {
+			platformStoppingDetails = null;
+		}
 	}
 
 	public void playMotorSound(VehicleResource vehicleResource, int carNumber, Vector bogiePosition) {
@@ -264,8 +291,13 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		persistentVehicleData.playDoorSound(vehicleResource, carNumber, Init.newBlockPos(vehiclePosition.x, vehiclePosition.y, vehiclePosition.z));
 	}
 
-	public static boolean isHoldingKey(@Nullable ClientPlayerEntity clientPlayerEntity) {
-		return clientPlayerEntity != null && clientPlayerEntity.isHolding(Items.DRIVER_KEY.get());
+	public int getSpeedLimitKilometersPerHour() {
+		return speedLimitKilometersPerHour;
+	}
+
+	@Nullable
+	public DoubleObjectImmutablePair<DoubleDoubleImmutablePair> getPlatformStoppingDetails() {
+		return platformStoppingDetails;
 	}
 
 	private static MutableText getStationText(String text, TranslationProvider.TranslationHolder keyCjk, TranslationProvider.TranslationHolder key) {

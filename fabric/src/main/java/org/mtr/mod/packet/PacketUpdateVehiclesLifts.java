@@ -14,7 +14,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.client.VehicleRidingMovement;
 import org.mtr.mod.data.VehicleExtension;
 
 import javax.annotation.Nonnull;
@@ -90,7 +89,6 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 	private static <T extends NameColorDataBase, U> boolean updateVehiclesOrLifts(ObjectArraySet<T> dataSet, Consumer<LongConsumer> iterateKeep, Consumer<Consumer<U>> iterateUpdate, Consumer<T> onRemove, ToLongFunction<U> getId, Function<U, T> createInstance) {
 		final LongAVLTreeSet keepIds = new LongAVLTreeSet();
 		iterateKeep.accept(keepIds::add);
-		VehicleRidingMovement.writeVehicleId(keepIds);
 
 		final LongAVLTreeSet updateIds = new LongAVLTreeSet();
 		final ObjectArrayList<U> dataSetToUpdate = new ObjectArrayList<>();

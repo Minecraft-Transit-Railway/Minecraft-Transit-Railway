@@ -107,9 +107,14 @@ public class RenderVehicles implements IGui {
 						final double oscillationAmount = vehicle.persistentVehicleData.getOscillation(carNumber).getAmount() * Config.getClient().getVehicleOscillationMultiplier();
 
 						if (canRide) {
+							final ObjectArrayList<Box> openFloorsAndDoorways = new ObjectArrayList<>();
+
 							if (vehicleResourceCache != null) {
 								vehicleResourceCache.floors.forEach(floor -> {
 									floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(floor, true));
+									if (VehicleRidingMovement.isHoldingDriverKey() && !VehicleRidingMovement.isRiding(vehicle.getId())) {
+										openFloorsAndDoorways.add(floor);
+									}
 									RenderVehicleHelper.renderFloorOrDoorway(floor, ARGB_WHITE, playerPosition, renderVehicleTransformationHelperOffset);
 									// Find the floors with the lowest and highest Z values to be used to define where the gangways are
 									gangwayMovementPositions1.check(floor);
@@ -119,11 +124,12 @@ public class RenderVehicles implements IGui {
 
 							openDoorways.forEach(doorway -> {
 								floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(doorway, false));
+								openFloorsAndDoorways.add(doorway);
 								RenderVehicleHelper.renderFloorOrDoorway(doorway, 0xFFFF0000, playerPosition, renderVehicleTransformationHelperOffset);
 							});
 
 							// Check and mount player
-							VehicleRidingMovement.startRiding(openDoorways, vehicle.vehicleExtraData.getSidingId(), vehicle.getId(), carNumber, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped(), renderVehicleTransformationHelperAbsolute.yaw);
+							VehicleRidingMovement.startRiding(openFloorsAndDoorways, vehicle.vehicleExtraData.getSidingId(), vehicle.getId(), carNumber, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped(), renderVehicleTransformationHelperAbsolute.yaw);
 						}
 
 						// Play vehicle sounds
@@ -131,7 +137,7 @@ public class RenderVehicles implements IGui {
 							vehicle.playMotorSound(vehicleResource, carNumber, renderVehicleTransformationHelperAbsolute.pivotPosition);
 
 							// Play door sounds
-							if(!openDoorways.isEmpty()) {
+							if (!openDoorways.isEmpty()) {
 								vehicle.playDoorSound(vehicleResource, carNumber, renderVehicleTransformationHelperAbsolute.pivotPosition);
 							}
 						}

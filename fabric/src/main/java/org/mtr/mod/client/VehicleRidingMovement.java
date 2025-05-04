@@ -3,13 +3,13 @@ package org.mtr.mod.client;
 import org.apache.commons.lang3.StringUtils;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
-import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mod.InitClient;
+import org.mtr.mod.Items;
 import org.mtr.mod.KeyBindings;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateVehicleRidingEntities;
@@ -39,8 +39,13 @@ public class VehicleRidingMovement {
 	private static Double ridingYawDifference;
 	private static double previousVehicleYaw;
 
-	// Cool down for sending player position to simulator
+	// Cooldown for sending player position to simulator
 	private static long sendPositionUpdateTime;
+
+	private static boolean isHoldingDriverKey = false;
+	private static int pressingAccelerateTicks = 0;
+	private static int pressingBrakeTicks = 0;
+	private static int pressingDoorsTicks = 0;
 
 	private static final float VEHICLE_WALKING_SPEED_MULTIPLIER = 0.005F;
 	private static final int RIDING_COOLDOWN = 5;
@@ -49,6 +54,10 @@ public class VehicleRidingMovement {
 	private static final int DISMOUNT_PROGRESS_BAR_LENGTH = 30;
 
 	public static void tick() {
+		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+		final boolean isHoldingDriverKeyNew = clientPlayerEntity != null && clientPlayerEntity.isHolding(Items.DRIVER_KEY.get());
+
 		if (ridingVehicleCooldown < RIDING_COOLDOWN && shiftHoldingTicks < SHIFT_ACTIVATE_TICKS) {
 			ridingVehicleCooldown++;
 		} else {
@@ -64,15 +73,18 @@ public class VehicleRidingMovement {
 			ridingYawDifferenceOld = ridingYawDifference;
 		}
 
-		if (sendPositionUpdateTime > 0 && sendPositionUpdateTime <= System.currentTimeMillis()) {
+		pressingAccelerateTicks = KeyBindings.TRAIN_ACCELERATE.isPressed() ? pressingAccelerateTicks + 1 : 0;
+		pressingBrakeTicks = KeyBindings.TRAIN_BRAKE.isPressed() ? pressingBrakeTicks + 1 : 0;
+		pressingDoorsTicks = KeyBindings.TRAIN_TOGGLE_DOORS.isPressed() ? pressingDoorsTicks + 1 : 0;
+
+		if (sendPositionUpdateTime > 0 && sendPositionUpdateTime <= System.currentTimeMillis() || isHoldingDriverKeyNew != isHoldingDriverKey || pressingAccelerateTicks == 1 || pressingBrakeTicks == 1 || pressingDoorsTicks == 1) {
+			isHoldingDriverKey = isHoldingDriverKeyNew;
 			sendUpdate(false);
 		}
 
 		if (ridingVehicleId == 0) {
 			shiftHoldingTicks = 0;
 		} else {
-			final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-
 			if (KeyBindings.LIFT_MENU.isPressed()) {
 				final Screen currentScreen = minecraftClient.getCurrentScreenMapped();
 				if (MinecraftClientData.getLift(ridingVehicleId) != null && (currentScreen == null || !(currentScreen.data instanceof LiftSelectionScreen))) {
@@ -80,7 +92,6 @@ public class VehicleRidingMovement {
 				}
 			}
 
-			final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
 			if (clientPlayerEntity != null && clientPlayerEntity.isSneaking()) {
 				shiftHoldingTicks += minecraftClient.getLastFrameDuration();
 			} else {
@@ -90,12 +101,12 @@ public class VehicleRidingMovement {
 	}
 
 	/**
-	 * Iterate through all open doorways and see if the player is intersecting any of them. If so, start riding the vehicle.
+	 * Iterate through all open floors and doorways and see if the player is intersecting any of them. If so, start riding the vehicle.
 	 */
-	public static void startRiding(ObjectArrayList<Box> openDoorways, long sidingId, long vehicleId, int carNumber, double x, double y, double z, double yaw) {
+	public static void startRiding(ObjectArrayList<Box> openFloorsAndDoorways, long sidingId, long vehicleId, int carNumber, double x, double y, double z, double yaw) {
 		if (ridingVehicleId == 0 || isRiding(vehicleId)) {
-			for (final Box doorway : openDoorways) {
-				if (RenderVehicleHelper.boxContains(doorway, x, y, z)) {
+			for (final Box floorOrDoorway : openFloorsAndDoorways) {
+				if (RenderVehicleHelper.boxContains(floorOrDoorway, x, y, z)) {
 					ridingSidingId = sidingId;
 					ridingVehicleId = vehicleId;
 					ridingVehicleCarNumber = carNumber;
@@ -280,10 +291,8 @@ public class VehicleRidingMovement {
 		}
 	}
 
-	public static void writeVehicleId(LongAVLTreeSet keepVehicleIds) {
-		if (ridingVehicleId != 0) {
-			keepVehicleIds.add(ridingVehicleId);
-		}
+	public static boolean isHoldingDriverKey() {
+		return isHoldingDriverKey;
 	}
 
 	/**
@@ -350,7 +359,7 @@ public class VehicleRidingMovement {
 
 	private static void sendUpdate(boolean dismount) {
 		if (ridingVehicleId != 0) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketUpdateVehicleRidingEntities.create(ridingSidingId, ridingVehicleId, dismount ? -1 : ridingVehicleCarNumber, ridingVehicleX, ridingVehicleY, ridingVehicleZ, isOnGangway));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketUpdateVehicleRidingEntities.create(ridingSidingId, ridingVehicleId, dismount ? -1 : ridingVehicleCarNumber, ridingVehicleX, ridingVehicleY, ridingVehicleZ, isOnGangway, isHoldingDriverKey, pressingAccelerateTicks == 1, pressingBrakeTicks == 1, pressingDoorsTicks == 1));
 			sendPositionUpdateTime = 0;
 		}
 	}

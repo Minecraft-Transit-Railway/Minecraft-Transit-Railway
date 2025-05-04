@@ -8,6 +8,7 @@ import org.mtr.mapping.mapper.EntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.InitClient;
+import org.mtr.mod.KeyBindings;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.MinecraftClientData;
@@ -16,6 +17,7 @@ import org.mtr.mod.config.Config;
 import org.mtr.mod.data.ArrivalsCacheClient;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.entity.EntityRendering;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -72,6 +74,14 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 	}
 
 	public static void render(GraphicsHolder graphicsHolder, Vector3d offset) {
+		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
+		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
+
+		if (clientWorld == null || clientPlayerEntity == null) {
+			return;
+		}
+
 		final long millisElapsed;
 		if (OptimizedRenderer.renderingShadows()) {
 			if (Config.getClient().getDisableShadowsForShaders()) {
@@ -82,21 +92,18 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 			millisElapsed = getMillisElapsed();
 			MinecraftClientData.getInstance().blockedRailIds.clear();
 			MinecraftClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
-			MinecraftClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
+			MinecraftClientData.getInstance().lifts.forEach(lift -> {
+				lift.tick(millisElapsed);
+				if (VehicleRidingMovement.isRiding(lift.getId()) && VehicleRidingMovement.showShiftProgressBar()) {
+					clientPlayerEntity.sendMessage(TranslationProvider.GUI_MTR_PRESS_TO_SELECT_FLOOR.getText(KeyBindings.LIFT_MENU.getBoundKeyLocalizedText().getString()), true);
+				}
+			});
 			lastRenderedMillis = InitClient.getGameMillis();
 			WORKER_THREAD.start();
 			DynamicTextureCache.instance.tick();
 			// Tick the riding cool down (dismount player if they are no longer riding a vehicle) and store the player offset cache
 			VehicleRidingMovement.tick();
 			ArrivalsCacheClient.INSTANCE.tick();
-		}
-
-		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
-		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
-
-		if (clientWorld == null || clientPlayerEntity == null) {
-			return;
 		}
 
 		final Vector3d cameraShakeOffset = clientPlayerEntity.getPos().subtract(offset);
