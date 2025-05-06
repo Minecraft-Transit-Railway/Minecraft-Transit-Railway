@@ -1,1 +1,48 @@
-{"positionDefinitions":[{"name":"ea51c99f","positions":[],"positionsFlipped":[{"x":0.0,"y":0.0,"z":148.0}]},{"name":"e685f51e","positions":[],"positionsFlipped":[{"x":0.0,"y":0.0,"z":148.0}]},{"name":"74971258","positions":[],"positionsFlipped":[{"x":0.0,"y":0.0,"z":148.0}]},{"name":"1e42d5f3","positions":[],"positionsFlipped":[{"x":0.0,"y":0.0,"z":148.0}]}]}
+{
+	"positionDefinitions": [
+		{
+			"name": "ea51c99f",
+			"positions": [],
+			"positionsFlipped": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 148
+				}
+			]
+		},
+		{
+			"name": "e685f51e",
+			"positions": [],
+			"positionsFlipped": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 148
+				}
+			]
+		},
+		{
+			"name": "74971258",
+			"positions": [],
+			"positionsFlipped": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 148
+				}
+			]
+		},
+		{
+			"name": "1e42d5f3",
+			"positions": [],
+			"positionsFlipped": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 148
+				}
+			]
+		}
+	]
+}
