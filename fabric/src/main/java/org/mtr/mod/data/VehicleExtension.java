@@ -85,9 +85,8 @@ public class VehicleExtension extends Vehicle implements Utilities {
 
 			// Render client action bar floating text
 			if (VehicleRidingMovement.showShiftProgressBar() && !isDriving) {
-				final double adjustedSpeed = getAdjustedSpeed();
-				if (adjustedSpeed * MILLIS_PER_SECOND > 5 || thisRouteName.isEmpty() || thisStationName.isEmpty() || thisRouteDestination.isEmpty()) {
-					clientPlayerEntity.sendMessage(TranslationProvider.GUI_MTR_VEHICLE_SPEED.getText(Utilities.round(adjustedSpeed * MILLIS_PER_SECOND, 1), Utilities.round(adjustedSpeed * 3.6F * MILLIS_PER_SECOND, 1)), true);
+				if (speed * MILLIS_PER_SECOND > 5 || thisRouteName.isEmpty() || thisStationName.isEmpty() || thisRouteDestination.isEmpty()) {
+					clientPlayerEntity.sendMessage(TranslationProvider.GUI_MTR_VEHICLE_SPEED.getText(Utilities.round(speed * MILLIS_PER_SECOND, 1), Utilities.round(speed * 3.6F * MILLIS_PER_SECOND, 1)), true);
 				} else {
 					final MutableText text;
 					switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {
@@ -202,9 +201,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 				}));
 			}
 
-			if (isDriving) {
-				DrivingGuiRenderer.setVehicle(this);
-			}
+			DrivingGuiRenderer.setVehicle(this);
 		}
 
 		// Check for sensors
@@ -254,8 +251,8 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		final double padding = 0.5 * speed * speed / vehicleExtraData.getDeceleration() + transportMode.stoppingSpace;
 		final int headIndexPadded = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, railProgress + padding);
 		final int headIndex = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, railProgress);
-		final int endIndex = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, railProgress - totalLength);
-		final int endIndexPadded = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, railProgress - totalLength - padding);
+		final int endIndex = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, railProgress - vehicleExtraData.getTotalVehicleLength());
+		final int endIndexPadded = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, railProgress - vehicleExtraData.getTotalVehicleLength() - padding);
 		for (int i = Math.max(0, endIndexPadded); i <= Math.min(vehicleExtraData.immutablePath.size() - 1, headIndexPadded); i++) {
 			final PathData pathData = vehicleExtraData.immutablePath.get(i);
 			if (i > endIndexPadded && i <= headIndex) {
@@ -268,18 +265,31 @@ public class VehicleExtension extends Vehicle implements Utilities {
 
 		// Write speed limit
 		final PathData pathDataHead = Utilities.getElement(vehicleExtraData.immutablePath, headIndex);
-		if (pathDataHead != null && pathDataHead.canAccelerate()) {
+		if (pathDataHead != null) {
 			speedLimitKilometersPerHour = (int) pathDataHead.getSpeedLimitKilometersPerHour();
 		}
 
 		// Write platform stopping position
-		final PathData pathDataEnd = Utilities.getElement(vehicleExtraData.immutablePath, endIndex);
-		if (pathDataHead != null && pathDataEnd != null && (pathDataHead.getDwellTime() > 0 || pathDataEnd.getDwellTime() > 0) && headIndex < vehicleExtraData.immutablePath.size() - 1) {
-			final double platformLength = pathDataHead.getDwellTime() > 0 ? pathDataHead.getRailLength() : pathDataEnd.getRailLength();
-			final double target = pathDataHead.getDwellTime() > 0 ? pathDataHead.getEndDistance() : pathDataEnd.getEndDistance();
-			platformStoppingDetails = new DoubleObjectImmutablePair<>(target - railProgress, new DoubleDoubleImmutablePair(platformLength, totalLength));
-		} else {
-			platformStoppingDetails = null;
+		platformStoppingDetails = null;
+		PathData previousPathData = null;
+		for (int i = Math.min(vehicleExtraData.immutablePath.size() - 1, headIndex + 1); i >= 0; i--) {
+			final PathData pathData = vehicleExtraData.immutablePath.get(i);
+
+			if (i <= headIndex) {
+				if (pathData.getEndDistance() <= railProgress - vehicleExtraData.getTotalVehicleLength() || pathData.getSavedRailBaseId() == vehicleExtraData.getSidingId()) {
+					break;
+				}
+
+				if (pathData.getDwellTime() > 0) {
+					platformStoppingDetails = new DoubleObjectImmutablePair<>(
+							pathData.getEndDistance() - railProgress,
+							new DoubleDoubleImmutablePair(pathData.getRailLength(), previousPathData != null && previousPathData.isOppositeRail(pathData) ? 0 : vehicleExtraData.getTotalVehicleLength())
+					);
+					break;
+				}
+			}
+
+			previousPathData = pathData;
 		}
 	}
 
@@ -293,6 +303,14 @@ public class VehicleExtension extends Vehicle implements Utilities {
 
 	public int getSpeedLimitKilometersPerHour() {
 		return speedLimitKilometersPerHour;
+	}
+
+	public double getSpeed() {
+		return speed;
+	}
+
+	public boolean isVehiclePastSafeStoppingDistance() {
+		return railProgress + 0.5 * speed * speed / vehicleExtraData.getDeceleration() * POWER_LEVEL_RATIO >= vehicleExtraData.getStoppingPoint();
 	}
 
 	@Nullable

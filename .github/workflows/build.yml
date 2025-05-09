@@ -42,11 +42,11 @@ jobs:
         run: ./gradlew build -PminecraftVersion="${{ matrix.minecraft }}"
       - name: Build ${{ matrix.minecraft }} (server)
         run: ./gradlew build -PminecraftVersion="${{ matrix.minecraft }}" -PexcludeAssets=true
-      - name: Capture release artifacts
-        uses: actions/upload-artifact@main
-        with:
-          name: Fabric and Forge ${{ matrix.minecraft }}
-          path: build/release/
+      # - name: Capture release artifacts
+      #   uses: actions/upload-artifact@main
+      #   with:
+      #     name: Fabric and Forge ${{ matrix.minecraft }}
+      #     path: build/release/
       - name: Post Crowdin translation analysis
         if: ${{ matrix.minecraft == '1.20.4' }}
         run: cat build/translation/analysis.md >> $GITHUB_STEP_SUMMARY

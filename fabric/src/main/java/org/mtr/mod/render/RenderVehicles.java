@@ -102,7 +102,7 @@ public class RenderVehicles implements IGui {
 						} else if (vehicleResourceCache == null || !vehicle.getTransportMode().continuousMovement && vehicle.isMoving() || !vehicle.persistentVehicleData.checkCanOpenDoors()) {
 							openDoorways = new ObjectArrayList<>();
 						} else {
-							openDoorways = vehicleResourceCache.doorways.stream().filter(doorway -> RenderVehicleHelper.canOpenDoors(doorway, renderVehicleTransformationHelperAbsolute, vehicle.persistentVehicleData.getDoorValue(), false)).collect(Collectors.toCollection(ObjectArrayList::new));
+							openDoorways = vehicleResourceCache.doorways.stream().filter(doorway -> RenderVehicleHelper.canOpenDoors(doorway, renderVehicleTransformationHelperAbsolute, vehicle.persistentVehicleData.getDoorValue())).collect(Collectors.toCollection(ObjectArrayList::new));
 						}
 						final double oscillationAmount = vehicle.persistentVehicleData.getOscillation(carNumber).getAmount() * Config.getClient().getVehicleOscillationMultiplier();
 

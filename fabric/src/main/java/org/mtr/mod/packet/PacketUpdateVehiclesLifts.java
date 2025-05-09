@@ -1,6 +1,7 @@
 package org.mtr.mod.packet;
 
 import org.mtr.core.data.NameColorDataBase;
+import org.mtr.core.data.PathData;
 import org.mtr.core.operation.VehicleLiftResponse;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
@@ -51,7 +52,7 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 
 		if (hasUpdate1 || hasUpdate2) {
 			if (hasUpdate1) {
-				minecraftClientData.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(new MinecraftClientData())));
+				minecraftClientData.vehicles.forEach(vehicle -> PathData.writePathCache(vehicle.vehicleExtraData.immutablePath, new MinecraftClientData(), vehicle.getTransportMode()));
 			}
 			minecraftClientData.sync();
 		}

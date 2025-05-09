@@ -2,8 +2,8 @@ package org.mtr.mod.render;
 
 import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
 import com.logisticscraft.occlusionculling.util.Vec3d;
-import org.mtr.core.data.Position;
 import org.mtr.core.data.*;
+import org.mtr.core.data.Position;
 import org.mtr.core.tool.Angle;
 import org.mtr.core.tool.Vector;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -115,8 +115,8 @@ public class RenderLifts implements IGui {
 				final boolean doorway1Open;
 				final boolean doorway2Open;
 				if (lift.hasCoolDown()) {
-					doorway1Open = RenderVehicleHelper.canOpenDoors(doorway1, renderVehicleTransformationHelperAbsolute, Math.min(lift.getDoorValue(), LIFT_DOOR_VALUE) / 2, true);
-					doorway2Open = lift.getIsDoubleSided() && RenderVehicleHelper.canOpenDoors(doorway2, renderVehicleTransformationHelperAbsolute, Math.min(lift.getDoorValue(), LIFT_DOOR_VALUE) / 2, true);
+					doorway1Open = RenderVehicleHelper.canOpenDoors(doorway1, renderVehicleTransformationHelperAbsolute, Math.min(lift.getDoorValue(), LIFT_DOOR_VALUE) / 2);
+					doorway2Open = lift.getIsDoubleSided() && RenderVehicleHelper.canOpenDoors(doorway2, renderVehicleTransformationHelperAbsolute, Math.min(lift.getDoorValue(), LIFT_DOOR_VALUE) / 2);
 					if (doorway1Open) {
 						openDoorways.add(doorway1);
 					}
