@@ -126,6 +126,7 @@ public final class Blocks {
 		STATION_NAME_TALL_BLOCK = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_name_tall_block"), () -> new Block(new BlockStationNameTallBlock()), CreativeModeTabs.RAILWAY_FACILITIES);
 		STATION_NAME_TALL_BLOCK_DOUBLE_SIDED = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_name_tall_block_double_sided"), () -> new Block(new BlockStationNameTallBlockDoubleSided()), CreativeModeTabs.RAILWAY_FACILITIES);
 		STATION_NAME_TALL_WALL = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_name_tall_wall"), () -> new Block(new BlockStationNameTallWall()), CreativeModeTabs.RAILWAY_FACILITIES);
+		STATION_NAME_TALL_STANDING = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_name_tall_standing"), () -> new Block(new BlockStationNameTallStanding()), CreativeModeTabs.RAILWAY_FACILITIES);
 		STATION_NAME_WALL_WHITE = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_name_wall"), () -> new Block(new BlockStationNameWallWhite(createDefaultBlockSettings(true))), CreativeModeTabs.RAILWAY_FACILITIES);
 		STATION_NAME_WALL_GRAY = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_name_wall_gray"), () -> new Block(new BlockStationNameWallGray(createDefaultBlockSettings(true))), CreativeModeTabs.RAILWAY_FACILITIES);
 		STATION_NAME_WALL_BLACK = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_name_wall_black"), () -> new Block(new BlockStationNameWallBlack(createDefaultBlockSettings(true))), CreativeModeTabs.RAILWAY_FACILITIES);
@@ -426,6 +427,7 @@ public final class Blocks {
 	public static final BlockRegistryObject STATION_NAME_TALL_BLOCK;
 	public static final BlockRegistryObject STATION_NAME_TALL_BLOCK_DOUBLE_SIDED;
 	public static final BlockRegistryObject STATION_NAME_TALL_WALL;
+	public static final BlockRegistryObject STATION_NAME_TALL_STANDING;
 	public static final BlockRegistryObject STATION_NAME_WALL_BLACK;
 	public static final BlockRegistryObject STATION_NAME_WALL_GRAY;
 	public static final BlockRegistryObject STATION_NAME_WALL_WHITE;

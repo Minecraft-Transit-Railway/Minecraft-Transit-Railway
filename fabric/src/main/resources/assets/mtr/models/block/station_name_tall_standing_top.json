@@ -1,0 +1,44 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"1": "mtr:block/metal",
+		"particle": "mtr:block/station_name_tall"
+	},
+	"elements": [
+		{
+			"from": [2, 0, 0.5],
+			"to": [14, 6, 1],
+			"faces": {
+				"north": {"uv": [2, 10, 14, 16], "texture": "#particle", "tintindex": 0},
+				"east": {"uv": [15.5, 10, 16, 16], "texture": "#particle", "tintindex": 0},
+				"south": {"uv": [2, 10, 14, 16], "texture": "#particle", "tintindex": 0},
+				"west": {"uv": [0, 10, 0.5, 16], "texture": "#particle", "tintindex": 0},
+				"up": {"uv": [2, 0, 14, 0.5], "texture": "#particle", "tintindex": 0}
+			}
+		},
+		{
+			"from": [1, 0, 0],
+			"to": [2, 6, 1],
+			"faces": {
+				"north": {"uv": [13, 9, 14, 16], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [14.5, 9, 15.5, 16], "texture": "#1"},
+				"south": {"uv": [2, 9, 3, 15], "texture": "#1"},
+				"west": {"uv": [8.5, 4, 9.5, 10], "texture": "#1"},
+				"up": {"uv": [1, 0.5, 2, 1.5], "texture": "#1"},
+				"down": {"uv": [6, 12.5, 7, 13.5], "texture": "#1", "cullface": "down"}
+			}
+		},
+		{
+			"from": [14, 0, 0],
+			"to": [15, 6, 1],
+			"faces": {
+				"north": {"uv": [2, 8, 3, 16], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [8.5, 7, 9.5, 15], "texture": "#1"},
+				"south": {"uv": [11, 7, 12, 15], "texture": "#1"},
+				"west": {"uv": [0.5, 11, 1.5, 16], "texture": "#1"},
+				"up": {"uv": [14, 1.5, 15, 2.5], "texture": "#1"},
+				"down": {"uv": [14, 14.5, 15, 15.5], "texture": "#1", "cullface": "down"}
+			}
+		}
+	]
+}

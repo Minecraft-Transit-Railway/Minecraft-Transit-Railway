@@ -60,6 +60,7 @@ public final class BlockEntityTypes {
 		STATION_NAME_TALL_BLOCK = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "station_name_tall_block"), BlockStationNameTallBlock.BlockEntity::new, Blocks.STATION_NAME_TALL_BLOCK::get);
 		STATION_NAME_TALL_BLOCK_DOUBLE_SIDED = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "station_name_tall_block_double_sided"), BlockStationNameTallBlockDoubleSided.BlockEntity::new, Blocks.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED::get);
 		STATION_NAME_TALL_WALL = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "station_name_tall_wall"), BlockStationNameTallWall.BlockEntity::new, Blocks.STATION_NAME_TALL_WALL::get);
+		STATION_NAME_TALL_STANDING = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "station_name_tall_standing"), BlockStationNameTallStanding.BlockEntity::new, Blocks.STATION_NAME_TALL_STANDING::get);
 		STATION_NAME_WALL_BLACK = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "station_name_wall_black"), BlockStationNameWallBlack.BlockEntity::new, Blocks.STATION_NAME_WALL_BLACK::get);
 		STATION_NAME_WALL_GRAY = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "station_name_wall_gray"), BlockStationNameWallGray.BlockEntity::new, Blocks.STATION_NAME_WALL_GRAY::get);
 		STATION_NAME_WALL_WHITE = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "station_name_wall"), BlockStationNameWallWhite.BlockEntity::new, Blocks.STATION_NAME_WALL_WHITE::get);
@@ -122,6 +123,7 @@ public final class BlockEntityTypes {
 	public static final BlockEntityTypeRegistryObject<BlockSignalSemaphore2.BlockEntity> SIGNAL_SEMAPHORE_2;
 	public static final BlockEntityTypeRegistryObject<BlockStationNameEntrance.BlockEntity> STATION_NAME_ENTRANCE;
 	public static final BlockEntityTypeRegistryObject<BlockStationNameTallBlock.BlockEntity> STATION_NAME_TALL_BLOCK;
+	public static final BlockEntityTypeRegistryObject<BlockStationNameTallStanding.BlockEntity> STATION_NAME_TALL_STANDING;
 	public static final BlockEntityTypeRegistryObject<BlockStationNameTallBlockDoubleSided.BlockEntity> STATION_NAME_TALL_BLOCK_DOUBLE_SIDED;
 	public static final BlockEntityTypeRegistryObject<BlockStationNameTallWall.BlockEntity> STATION_NAME_TALL_WALL;
 	public static final BlockEntityTypeRegistryObject<BlockStationNameWallBlack.BlockEntity> STATION_NAME_WALL_BLACK;
