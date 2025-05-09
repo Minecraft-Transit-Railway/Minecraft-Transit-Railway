@@ -622,7 +622,7 @@
 			"displayMaxLineHeight": 1.5,
 			"displayCjkSizeRatio": 2,
 			"displayOptions": [],
-			"displayPadZeros": 0,
+			"displayPadZeros": 3,
 			"displayType": "DEPARTURE_INDEX",
 			"displayDefaultText": "",
 			"doorXMultiplier": 0,
