@@ -5,13 +5,10 @@ import org.mtr.core.data.VehicleExtraData;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleObjectImmutablePair;
-import org.mtr.mapping.holder.Direction;
-import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.Window;
 import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mod.Init;
-import org.mtr.mod.client.IDrawing;
+import org.mtr.mapping.mapper.GuiDrawing;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.RailType;
 import org.mtr.mod.data.VehicleExtension;
@@ -50,79 +47,81 @@ public final class DrivingGuiRenderer {
 	private static final int ORANGE_COLOR = 0xFFFF9900;
 
 	public static void render(GraphicsHolder graphicsHolder) {
-		if (vehicle != null) {
+		if (vehicle != null && MinecraftClient.getInstance().getCurrentScreenMapped() == null) {
 			final VehicleExtraData vehicleExtraData = vehicle.vehicleExtraData;
 			final Window window = MinecraftClient.getInstance().getWindow();
 			final int speedometerX = window.getScaledWidth() - TOOL_SIZE - EDGE_PADDING;
 			final int speedometerY = window.getScaledHeight() - TOOL_SIZE - EDGE_PADDING;
 			final int radius = TOOL_SIZE / 2;
 
+			GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
 			graphicsHolder.push();
 			graphicsHolder.translate(speedometerX + radius, speedometerY + radius, 0);
-			graphicsHolder.createVertexConsumer(MoreRenderLayers.getLight(new Identifier(Init.MOD_ID, "textures/block/white.png"), false));
 
 			// Render speedometer background
 			graphicsHolder.push();
 			for (int i = 0; i < 180; i += SPEEDOMETER_CIRCLE_INTERVAL) {
-				IDrawing.drawTexture(
-						graphicsHolder,
-						-radius, -(float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2, -2,
-						radius, (float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2, -2,
-						Direction.NORTH, 0xFF666666, GraphicsHolder.getDefaultLight()
+				guiDrawing.beginDrawingRectangle();
+				guiDrawing.drawRectangle(
+						-radius, -(float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2,
+						radius, (float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2,
+						0xFF666666
 				);
-				IDrawing.drawTexture(
-						graphicsHolder,
-						-radius + 1, -(float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2, -1,
-						radius - 1, (float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2, -1,
-						Direction.NORTH, 0xFF111111, GraphicsHolder.getDefaultLight()
+				guiDrawing.drawRectangle(
+						-radius + 1, -(float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2,
+						radius - 1, (float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2,
+						0xFF111111
 				);
+				guiDrawing.finishDrawingRectangle();
 				graphicsHolder.rotateZDegrees(SPEEDOMETER_CIRCLE_INTERVAL);
 			}
 			graphicsHolder.pop();
 
-			// Draw ATS
+			// Draw ATS background
 			graphicsHolder.push();
 			graphicsHolder.translate(0, radius - 2 - ATS_RADIUS_1, 0);
 			graphicsHolder.rotateZDegrees(ATS_INTERVAL * 2.5F);
 			for (float i = 0; i < ATS_SLICES; i++) {
-				IDrawing.drawTexture(
-						graphicsHolder,
-						-ATS_RADIUS_1, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_1, -1,
-						ATS_RADIUS_1, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_1, -1,
-						Direction.NORTH, 0xFF1A1A1A, GraphicsHolder.getDefaultLight()
+				guiDrawing.beginDrawingRectangle();
+				guiDrawing.drawRectangle(
+						-ATS_RADIUS_1, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_1,
+						ATS_RADIUS_1, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_1,
+						0xFF1A1A1A
 				);
+				guiDrawing.finishDrawingRectangle();
+				graphicsHolder.rotateZDegrees(ATS_INTERVAL);
+			}
+
+			// Draw ATS petals
+			for (float i = 0; i < ATS_SLICES; i++) {
+				guiDrawing.beginDrawingRectangle();
 				if (i % 8 < 4) {
 					if (vehicle.isVehiclePastSafeStoppingDistance()) {
-						IDrawing.drawTexture(
-								graphicsHolder,
-								-ATS_RADIUS_2, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_2, 0,
-								-ATS_RADIUS_2, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_2, 0,
-								-ATS_RADIUS_3, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_3, 0,
-								-ATS_RADIUS_3, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_3, 0,
-								0, 0, 1, 1,
-								Direction.NORTH, ORANGE_COLOR, GraphicsHolder.getDefaultLight()
+						guiDrawing.drawRectangle(
+								-ATS_RADIUS_2, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_2,
+								-ATS_RADIUS_2, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_2,
+								-ATS_RADIUS_3, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_3,
+								-ATS_RADIUS_3, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_3,
+								ORANGE_COLOR
 						);
-						IDrawing.drawTexture(
-								graphicsHolder,
-								-ATS_RADIUS_3, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_3, 0,
-								-ATS_RADIUS_3, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_3, 0,
-								-ATS_RADIUS_4, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_4, 0,
-								-ATS_RADIUS_4, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_4, 0,
-								0, 0, 1, 1,
-								Direction.NORTH, IGui.ARGB_WHITE, GraphicsHolder.getDefaultLight()
+						guiDrawing.drawRectangle(
+								-ATS_RADIUS_3, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_3,
+								-ATS_RADIUS_3, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_3,
+								-ATS_RADIUS_4, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_4,
+								-ATS_RADIUS_4, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_4,
+								IGui.ARGB_WHITE
 						);
 					} else {
-						IDrawing.drawTexture(
-								graphicsHolder,
-								-ATS_RADIUS_2, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_2, 0,
-								-ATS_RADIUS_2, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_2, 0,
-								-ATS_RADIUS_4, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_4, 0,
-								-ATS_RADIUS_4, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_4, 0,
-								0, 0, 1, 1,
-								Direction.NORTH, 0xFF222222, GraphicsHolder.getDefaultLight()
+						guiDrawing.drawRectangle(
+								-ATS_RADIUS_2, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_2,
+								-ATS_RADIUS_2, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_2,
+								-ATS_RADIUS_4, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_4,
+								-ATS_RADIUS_4, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_4,
+								0xFF222222
 						);
 					}
 				}
+				guiDrawing.finishDrawingRectangle();
 				graphicsHolder.rotateZDegrees(ATS_INTERVAL);
 			}
 			graphicsHolder.pop();
@@ -132,30 +131,15 @@ public final class DrivingGuiRenderer {
 			final int maxSpeedKilometersPerHour = vehicleExtraData.getIsManualAllowed() ? (int) Math.round(vehicleExtraData.getMaxManualSpeed() * 3600) : RailType.DIAMOND.speedLimit;
 			graphicsHolder.rotateZDegrees(SPEEDOMETER_START_ANGLE);
 			for (int i = 0; i <= maxSpeedKilometersPerHour; i += SPEEDOMETER_TICK_INTERVAL) {
-				IDrawing.drawTexture(
-						graphicsHolder,
-						-radius + 2, -0.5F, 0,
-						-radius + (i % 20 == 0 ? 10 : i % 10 == 0 ? 8 : 4), 0.5F, 0,
-						Direction.NORTH,
-						vehicle.getSpeedLimitKilometersPerHour() > 0 && i == Math.min(vehicle.getSpeedLimitKilometersPerHour(), maxSpeedKilometersPerHour) ? 0xFF00FF00 : IGui.ARGB_WHITE,
-						GraphicsHolder.getDefaultLight()
+				guiDrawing.beginDrawingRectangle();
+				guiDrawing.drawRectangle(
+						-radius + 2, -0.5F,
+						-radius + (i % 20 == 0 ? 10 : i % 10 == 0 ? 8 : 4), 0.5F,
+						vehicle.getSpeedLimitKilometersPerHour() > 0 && i == Math.min(vehicle.getSpeedLimitKilometersPerHour(), maxSpeedKilometersPerHour) ? 0xFF00FF00 : IGui.ARGB_WHITE
 				);
+				guiDrawing.finishDrawingRectangle();
 				graphicsHolder.rotateZDegrees((float) SPEEDOMETER_TICK_INTERVAL * SPEEDOMETER_SPAN / maxSpeedKilometersPerHour);
 			}
-			graphicsHolder.pop();
-
-			// Draw speedometer needle
-			graphicsHolder.push();
-			final double speedKilometersPerHour = vehicle.getSpeed() * 3600;
-			graphicsHolder.rotateZDegrees(SPEEDOMETER_START_ANGLE + (float) speedKilometersPerHour * SPEEDOMETER_SPAN / maxSpeedKilometersPerHour);
-			IDrawing.drawTexture(
-					graphicsHolder,
-					-radius + 4, -0.5F, 1,
-					0, 0.5F, 1,
-					Direction.NORTH,
-					0xFFFF0000,
-					GraphicsHolder.getDefaultLight()
-			);
 			graphicsHolder.pop();
 
 			// Draw speedometer labels
@@ -203,11 +187,24 @@ public final class DrivingGuiRenderer {
 			// Draw digital speed
 			graphicsHolder.push();
 			graphicsHolder.translate(0, TOOL_SIZE * 0.1F, 0);
+			final double speedKilometersPerHour = vehicle.getSpeed() * 3600;
 			final int speedColor = vehicle.getSpeedLimitKilometersPerHour() > 0 && speedKilometersPerHour > vehicle.getSpeedLimitKilometersPerHour() ? ORANGE_COLOR : IGui.ARGB_WHITE;
 			drawCenteredText(graphicsHolder, String.valueOf(Utilities.round(speedKilometersPerHour, 1)), speedColor);
 			graphicsHolder.translate(0, SMALL_LINE_SPACING, 0);
 			graphicsHolder.scale(0.5F, 0.5F, 1);
 			drawCenteredText(graphicsHolder, "km/h", speedColor);
+			graphicsHolder.pop();
+
+			// Draw speedometer needle
+			graphicsHolder.push();
+			graphicsHolder.rotateZDegrees(SPEEDOMETER_START_ANGLE + (float) speedKilometersPerHour * SPEEDOMETER_SPAN / maxSpeedKilometersPerHour);
+			guiDrawing.beginDrawingRectangle();
+			guiDrawing.drawRectangle(
+					-radius + 4, -0.5F,
+					0, 0.5F,
+					0xFFFF0000
+			);
+			guiDrawing.finishDrawingRectangle();
 			graphicsHolder.pop();
 
 			graphicsHolder.pop();
@@ -222,10 +219,11 @@ public final class DrivingGuiRenderer {
 				final double targetY = vehicleLength / (platformLength + vehicleLength) * (TOOL_SIZE - 1);
 				final double positionY = (vehicleLength + platformStoppingDetails.leftDouble()) / (platformLength + vehicleLength) * (TOOL_SIZE - 1);
 
-				graphicsHolder.createVertexConsumer(MoreRenderLayers.getLight(new Identifier(Init.MOD_ID, "textures/block/white.png"), false));
-				IDrawing.drawTexture(graphicsHolder, platformIndicatorX, platformIndicatorY, 0, platformIndicatorX + PLATFORM_BAR_SIZE, platformIndicatorY + TOOL_SIZE, 0, Direction.NORTH, BLUE_COLOR, 0);
-				IDrawing.drawTexture(graphicsHolder, platformIndicatorX, platformIndicatorY + (float) targetY, 0, platformIndicatorX + PLATFORM_BAR_SIZE, platformIndicatorY + (float) targetY + 1, 0, Direction.NORTH, 0xFF001F4D, 0);
-				IDrawing.drawTexture(graphicsHolder, platformIndicatorX, platformIndicatorY + (float) positionY, 0, platformIndicatorX + PLATFORM_BAR_SIZE, platformIndicatorY + (float) positionY + 1, 0, Direction.NORTH, 0xFFFF0000, 0);
+				guiDrawing.beginDrawingRectangle();
+				guiDrawing.drawRectangle(platformIndicatorX, platformIndicatorY, platformIndicatorX + PLATFORM_BAR_SIZE, platformIndicatorY + TOOL_SIZE, BLUE_COLOR);
+				guiDrawing.drawRectangle(platformIndicatorX, platformIndicatorY + (float) targetY, platformIndicatorX + PLATFORM_BAR_SIZE, platformIndicatorY + (float) targetY + 1, 0xFF001F4D);
+				guiDrawing.drawRectangle(platformIndicatorX, platformIndicatorY + (float) positionY, platformIndicatorX + PLATFORM_BAR_SIZE, platformIndicatorY + (float) positionY + 1, 0xFFFF0000);
+				guiDrawing.finishDrawingRectangle();
 
 				final String text = Utilities.round(platformStoppingDetails.leftDouble(), 1) + " m";
 				final int textWidth = GraphicsHolder.getTextWidth(text);

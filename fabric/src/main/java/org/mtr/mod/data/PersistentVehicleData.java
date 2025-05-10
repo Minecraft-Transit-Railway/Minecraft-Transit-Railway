@@ -5,11 +5,13 @@ import org.mtr.core.data.Vehicle;
 import org.mtr.core.data.VehicleCar;
 import org.mtr.core.data.VehicleExtraData;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mod.client.Oscillation;
 import org.mtr.mod.client.ScrollingText;
+import org.mtr.mod.resource.DoorAnimationType;
 import org.mtr.mod.resource.VehicleResource;
 import org.mtr.mod.sound.VehicleSoundBase;
 
@@ -29,6 +31,7 @@ public final class PersistentVehicleData {
 	private final ObjectArrayList<VehicleSoundBase> vehicleSoundBaseList = new ObjectArrayList<>();
 	private final ObjectArrayList<ObjectArrayList<ScrollingText>> scrollingTexts = new ObjectArrayList<>();
 	private final ObjectArrayList<Oscillation> oscillations = new ObjectArrayList<>();
+	private final Object2ObjectOpenHashMap<String, DoorMovementInterpolation> doorMovementInterpolations = new Object2ObjectOpenHashMap<>();
 
 	public PersistentVehicleData(ObjectImmutableList<VehicleCar> immutableVehicleCars, TransportMode transportMode) {
 		rayTracing = new boolean[immutableVehicleCars.size()];
@@ -64,6 +67,22 @@ public final class PersistentVehicleData {
 
 	public double getDoorValue() {
 		return doorValue;
+	}
+
+	public float getInterpolatedDoorValue(DoorAnimationType doorAnimationType, double doorZMultiplier, boolean flipped, boolean opening) {
+		final String key = doorZMultiplier + "_" + doorAnimationType + "_" + flipped;
+		final DoorMovementInterpolation doorMovementInterpolation = doorMovementInterpolations.get(key);
+		final float value = (float) doorAnimationType.getDoorAnimationZ(doorZMultiplier, flipped, doorValue, opening);
+
+		if (doorMovementInterpolation == null) {
+			final DoorMovementInterpolation newDoorMovementInterpolation = new DoorMovementInterpolation();
+			newDoorMovementInterpolation.setValue(value, opening);
+			doorMovementInterpolations.put(key, newDoorMovementInterpolation);
+			return newDoorMovementInterpolation.getValue();
+		} else {
+			doorMovementInterpolation.setValue(value, opening);
+			return doorMovementInterpolation.getValue();
+		}
 	}
 
 	public boolean checkCanOpenDoors() {
@@ -113,5 +132,34 @@ public final class PersistentVehicleData {
 			list.add(supplier.get());
 		}
 		return list.get(index);
+	}
+
+	private static class DoorMovementInterpolation {
+
+		private long startMillis;
+		private float oldValue;
+		private float latestValue;
+		private boolean opening;
+
+		private static final int DURATION = 500;
+
+		private void setValue(float value, boolean opening) {
+			if (this.opening != opening && oldValue != value) {
+				oldValue = getValue();
+				startMillis = System.currentTimeMillis();
+			}
+			latestValue = value;
+			this.opening = opening;
+		}
+
+		private float getValue() {
+			final long difference = System.currentTimeMillis() - startMillis;
+			if (difference < DURATION) {
+				return (1 - (float) difference / DURATION) * oldValue + (float) difference / DURATION * latestValue;
+			} else {
+				oldValue = latestValue;
+				return latestValue;
+			}
+		}
 	}
 }

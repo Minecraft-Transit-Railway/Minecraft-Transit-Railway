@@ -324,7 +324,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				x = (float) partDetails.x;
 				z = (float) partDetails.z;
 			} else {
-				final double doorValue = openDoorways.contains(partDetails.doorway) ? vehicle.persistentVehicleData.getDoorValue() : 0;
+				final boolean canOpen = openDoorways.contains(partDetails.doorway);
+				final double doorValue = canOpen ? vehicle.persistentVehicleData.getDoorValue() : 0;
 				final boolean opening = vehicle.persistentVehicleData.getAdjustedDoorMultiplier(vehicle.vehicleExtraData) > 0;
 				final boolean shouldRender;
 
@@ -335,7 +336,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				}
 
 				x = shouldRender ? (float) (partDetails.x + doorAnimationType.getDoorAnimationX(doorXMultiplier, partDetails.flipped, doorValue)) : Integer.MAX_VALUE;
-				z = shouldRender ? (float) (partDetails.z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, partDetails.flipped, doorValue, opening)) : Integer.MAX_VALUE;
+				z = shouldRender ? (float) (partDetails.z + (canOpen ? vehicle.persistentVehicleData.getInterpolatedDoorValue(doorAnimationType, doorZMultiplier, partDetails.flipped, opening) : 0)) : Integer.MAX_VALUE;
 			}
 
 			if (OptimizedRenderer.hasOptimizedRendering()) {
