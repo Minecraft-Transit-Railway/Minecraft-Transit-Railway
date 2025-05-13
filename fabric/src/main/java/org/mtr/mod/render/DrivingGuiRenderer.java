@@ -47,9 +47,10 @@ public final class DrivingGuiRenderer {
 	private static final int ORANGE_COLOR = 0xFFFF9900;
 
 	public static void render(GraphicsHolder graphicsHolder) {
-		if (vehicle != null && MinecraftClient.getInstance().getCurrentScreenMapped() == null) {
+		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+		if (vehicle != null && (minecraftClient.getCurrentScreenMapped() == null || minecraftClient.getCurrentScreenMapped().getTitle().data.toString().contains("chat_screen.title"))) {
 			final VehicleExtraData vehicleExtraData = vehicle.vehicleExtraData;
-			final Window window = MinecraftClient.getInstance().getWindow();
+			final Window window = minecraftClient.getWindow();
 			final int speedometerX = window.getScaledWidth() - TOOL_SIZE - EDGE_PADDING;
 			final int speedometerY = window.getScaledHeight() - TOOL_SIZE - EDGE_PADDING;
 			final int radius = TOOL_SIZE / 2;

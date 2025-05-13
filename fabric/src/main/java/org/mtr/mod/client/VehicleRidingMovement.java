@@ -13,8 +13,8 @@ import org.mtr.mod.Items;
 import org.mtr.mod.KeyBindings;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateVehicleRidingEntities;
+import org.mtr.mod.render.PositionAndRotation;
 import org.mtr.mod.render.RenderVehicleHelper;
-import org.mtr.mod.render.RenderVehicleTransformationHelper;
 import org.mtr.mod.screen.LiftSelectionScreen;
 
 import javax.annotation.Nullable;
@@ -35,7 +35,6 @@ public class VehicleRidingMovement {
 	private static int ridingVehicleCarNumberCacheOld;
 	private static Vector3d ridingPositionCacheOld;
 	private static Vector3d ridingPositionCache;
-	private static Double ridingYawDifferenceOld;
 	private static Double ridingYawDifference;
 	private static double previousVehicleYaw;
 
@@ -70,7 +69,6 @@ public class VehicleRidingMovement {
 		if (ridingPositionCache != null) {
 			ridingVehicleCarNumberCacheOld = ridingVehicleCarNumber;
 			ridingPositionCacheOld = ridingPositionCache;
-			ridingYawDifferenceOld = ridingYawDifference;
 		}
 
 		pressingAccelerateTicks = KeyBindings.TRAIN_ACCELERATE.isPressed() ? pressingAccelerateTicks + 1 : 0;
@@ -116,7 +114,6 @@ public class VehicleRidingMovement {
 					isOnGangway = false;
 					ridingPositionCacheOld = null;
 					ridingPositionCache = null;
-					ridingYawDifferenceOld = null;
 					ridingYawDifference = null;
 					previousVehicleYaw = yaw;
 					if (ridingVehicleId == 0) {
@@ -133,7 +130,7 @@ public class VehicleRidingMovement {
 			@Nullable GangwayMovementPositions previousCarGangwayMovementPositions,
 			@Nullable GangwayMovementPositions thisCarGangwayMovementPositions1,
 			@Nullable GangwayMovementPositions thisCarGangwayMovementPositions2,
-			RenderVehicleTransformationHelper renderVehicleTransformationHelper
+			PositionAndRotation positionAndRotation
 	) {
 		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
 		if (clientPlayerEntity == null) {
@@ -145,7 +142,7 @@ public class VehicleRidingMovement {
 			final double entityYawOld = EntityHelper.getYaw(new Entity(clientPlayerEntity.data));
 			final float speedMultiplier = millisElapsed * VEHICLE_WALKING_SPEED_MULTIPLIER * (clientPlayerEntity.isSprinting() ? 2 : 1);
 			// Calculate the relative motion inside vehicle (+Z towards back of vehicle, +/-X towards the left and right of the vehicle)
-			final Vector3d movement = renderVehicleTransformationHelper.transformBackwards(new Vector3d(
+			final Vector3d movement = positionAndRotation.transformBackwards(new Vector3d(
 					Math.abs(clientPlayerEntity.getSidewaysSpeedMapped()) > 0.5 ? Math.copySign(speedMultiplier, clientPlayerEntity.getSidewaysSpeedMapped()) : 0,
 					0,
 					Math.abs(clientPlayerEntity.getForwardSpeedMapped()) > 0.5 ? Math.copySign(speedMultiplier, clientPlayerEntity.getForwardSpeedMapped()) : 0
@@ -203,7 +200,7 @@ public class VehicleRidingMovement {
 						);
 
 						// ridingPositionCache should always store the relative position of the player with respect to the riding car, even when the player is on a gangway
-						ridingPositionCache = renderVehicleTransformationHelper.transformBackwards(new Vector3d(positionX, positionY, positionZ), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+						ridingPositionCache = positionAndRotation.transformBackwards(new Vector3d(positionX, positionY, positionZ), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
 						movePlayer(positionX, positionY, positionZ);
 					}
 				}
@@ -254,14 +251,14 @@ public class VehicleRidingMovement {
 					}
 
 					ridingPositionCache = new Vector3d(ridingVehicleX, ridingVehicleY, ridingVehicleZ);
-					final Vector3d newPlayerPosition = renderVehicleTransformationHelper.transformForwards(ridingPositionCache, Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+					final Vector3d newPlayerPosition = positionAndRotation.transformForwards(ridingPositionCache, Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
 					movePlayer(newPlayerPosition.getXMapped(), newPlayerPosition.getYMapped(), newPlayerPosition.getZMapped());
-					EntityHelper.setYaw(new Entity(clientPlayerEntity.data), (float) (Math.toDegrees(previousVehicleYaw - renderVehicleTransformationHelper.yaw) + entityYawOld));
+					EntityHelper.setYaw(new Entity(clientPlayerEntity.data), (float) (Math.toDegrees(previousVehicleYaw - positionAndRotation.yaw) + entityYawOld));
 				}
 			}
 
-			ridingYawDifference = Math.abs(renderVehicleTransformationHelper.yaw - previousVehicleYaw) > 0.001 ? renderVehicleTransformationHelper.yaw + Math.toRadians(entityYawOld) : null;
-			previousVehicleYaw = renderVehicleTransformationHelper.yaw;
+			ridingYawDifference = Math.abs(positionAndRotation.yaw - previousVehicleYaw) > 0.001 ? previousVehicleYaw + Math.toRadians(entityYawOld) : null;
+			previousVehicleYaw = positionAndRotation.yaw;
 		}
 	}
 
@@ -270,7 +267,7 @@ public class VehicleRidingMovement {
 	 */
 	@Nullable
 	public static IntObjectImmutablePair<ObjectObjectImmutablePair<Vector3d, Double>> getRidingVehicleCarNumberAndOffset(long vehicleId) {
-		return isRiding(vehicleId) ? new IntObjectImmutablePair<>(ridingVehicleCarNumberCacheOld, new ObjectObjectImmutablePair<>(ridingPositionCacheOld, ridingYawDifferenceOld)) : null;
+		return isRiding(vehicleId) ? new IntObjectImmutablePair<>(ridingVehicleCarNumberCacheOld, new ObjectObjectImmutablePair<>(ridingPositionCacheOld, ridingYawDifference)) : null;
 	}
 
 	public static boolean isRiding(long vehicleId) {
