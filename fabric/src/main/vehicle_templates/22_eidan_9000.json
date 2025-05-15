@@ -53,22 +53,22 @@
 				{
 					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
 					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000@definition@_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@_common.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
 					"flipTextureV": true
 				},
 				{
 					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
 					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_end@definition@_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@_end_1.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
 					"flipTextureV": true
 				},
 				{
 					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
 					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000@definition@_end_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/eidan@definition@_9000_end_2.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
 					"flipTextureV": true
 				}
 			],
@@ -123,22 +123,22 @@
 				{
 					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
 					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000@definition@_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@_common.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
 					"flipTextureV": true
 				},
 				{
 					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
 					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000@definition@_head_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@_head_1.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
 					"flipTextureV": true
 				},
 					{
 					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
 					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000@definition@_end_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@_end_2.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
 					"flipTextureV": true
 				}
 			],
@@ -193,22 +193,22 @@
 				{
 					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
 					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000@definition@_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@_common.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
 					"flipTextureV": true
 				},
 				{
 					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
 					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000@definition@_head_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@_head_2.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
 					"flipTextureV": true
 				},
 				{
 					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
 					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000@definition@_end_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@_end_1.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
 					"flipTextureV": true
 				}
 			],
@@ -263,22 +263,22 @@
 				{
 					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
 					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000@definition@_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@_common.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
 					"flipTextureV": true
 				},
 				{
 					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
 					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000@definition@_head_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@_head_1.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
 					"flipTextureV": true
 				},
 				{
 					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
 					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000@definition@_head_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@_head_2.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
 					"flipTextureV": true
 				}
 			],
