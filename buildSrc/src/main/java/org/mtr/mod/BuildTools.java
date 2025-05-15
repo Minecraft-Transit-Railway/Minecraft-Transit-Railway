@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import org.gradle.api.Project;
 import org.mtr.mapping.mixin.CreateAccessWidener;
 import org.mtr.mapping.mixin.CreateClientWorldRenderingMixin;
+import org.mtr.mapping.mixin.CreatePlayerRendererOffsetMixin;
 import org.mtr.mapping.mixin.CreatePlayerTeleportationStateAccessor;
 
 import java.io.IOException;
@@ -71,6 +72,7 @@ public class BuildTools {
 		Files.createDirectories(mixinPath);
 		CreateClientWorldRenderingMixin.create(minecraftVersion, loader, mixinPath, "org.mtr.mixin");
 		CreatePlayerTeleportationStateAccessor.create(minecraftVersion, loader, mixinPath, "org.mtr.mixin");
+		CreatePlayerRendererOffsetMixin.create(minecraftVersion, loader, mixinPath, "org.mtr.mixin");
 	}
 
 	public String getFabricVersion() {

@@ -13,9 +13,11 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.VehicleExtension;
+import org.mtr.mod.render.RenderVehicles;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
@@ -52,7 +54,12 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 
 		if (hasUpdate1 || hasUpdate2) {
 			if (hasUpdate1) {
-				minecraftClientData.vehicles.forEach(vehicle -> PathData.writePathCache(vehicle.vehicleExtraData.immutablePath, new MinecraftClientData(), vehicle.getTransportMode()));
+				EntityHelper.HIDDEN_PLAYERS.clear();
+				minecraftClientData.vehicles.forEach(vehicle -> {
+					PathData.writePathCache(vehicle.vehicleExtraData.immutablePath, new MinecraftClientData(), vehicle.getTransportMode());
+					vehicle.vehicleExtraData.iterateRidingEntities(vehicleRidingEntity -> EntityHelper.HIDDEN_PLAYERS.add(vehicleRidingEntity.uuid));
+				});
+				RenderVehicles.RIDING_PLAYER_INTERPOLATIONS.removeIf(ridingPlayerInterpolation -> EntityHelper.HIDDEN_PLAYERS.stream().noneMatch(uuid -> uuid.equals(ridingPlayerInterpolation.uuid)));
 			}
 			minecraftClientData.sync();
 		}

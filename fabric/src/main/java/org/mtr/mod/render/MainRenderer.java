@@ -29,7 +29,6 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 
 	private static long lastRenderedMillis;
 
-	public static final int PLAYER_RENDER_OFFSET = 1000;
 	public static final WorkerThread WORKER_THREAD = new WorkerThread();
 
 	private static final int FLASHING_INTERVAL = 1000;

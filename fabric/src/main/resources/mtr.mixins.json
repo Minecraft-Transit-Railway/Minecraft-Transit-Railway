@@ -8,7 +8,8 @@
 		"PlayerTeleportationStateAccessor"
 	],
 	"client": [
-		"ClientWorldRenderingMixin"
+		"ClientWorldRenderingMixin",
+		"PlayerRendererOffsetMixin"
 	],
 	"server": [],
 	"injectors": {

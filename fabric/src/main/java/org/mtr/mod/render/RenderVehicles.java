@@ -15,15 +15,19 @@ import org.mtr.mod.Init;
 import org.mtr.mod.client.*;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.resource.Interpolation;
 import org.mtr.mod.resource.VehicleResource;
 import org.mtr.mod.resource.VehicleResourceCache;
 import org.mtr.mod.servlet.ResourcePackCreatorOperationServlet;
 
 import javax.annotation.Nullable;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class RenderVehicles implements IGui {
+
+	public static final ObjectArrayList<RidingPlayerInterpolation> RIDING_PLAYER_INTERPOLATIONS = new ObjectArrayList<>();
 
 	public static void render(long millisElapsed, Vector3d cameraShakeOffset) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
@@ -63,15 +67,18 @@ public class RenderVehicles implements IGui {
 
 			// Riding offset
 			final IntObjectImmutablePair<ObjectObjectImmutablePair<Vector3d, Double>> ridingVehicleCarNumberAndOffset = VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(vehicle.getId());
+			final int ridingCarNumber;
 			final PositionAndRotation ridingCarPositionAndRotation;
 			final Vector3d offsetVector;
 			final Double offsetRotation;
 			if (ridingVehicleCarNumberAndOffset == null) {
+				ridingCarNumber = -1;
 				ridingCarPositionAndRotation = null;
 				offsetVector = null;
 				offsetRotation = null;
 			} else {
-				ridingCarPositionAndRotation = vehiclePropertiesList.get(ridingVehicleCarNumberAndOffset.leftInt()).right().right();
+				ridingCarNumber = ridingVehicleCarNumberAndOffset.leftInt();
+				ridingCarPositionAndRotation = vehiclePropertiesList.get(ridingCarNumber).right().right();
 				offsetVector = ridingVehicleCarNumberAndOffset.right().left();
 				offsetRotation = ridingVehicleCarNumberAndOffset.right().right();
 			}
@@ -99,27 +106,27 @@ public class RenderVehicles implements IGui {
 						final int[] scrollingDisplayIndexTracker = {0};
 
 						// Riding offset
-						final PositionAndRotation absoluteVehicleCarPositionAndRotationAbsolute = vehicleCarDetails.right().right();
-						final PositionAndRotation renderingVehicleCarPositionAndRotationRender = getRenderPositionAndRotation(offsetVector, offsetRotation, ridingCarPositionAndRotation, absoluteVehicleCarPositionAndRotationAbsolute, cameraShakeOffset);
+						final PositionAndRotation absoluteVehicleCarPositionAndRotation = vehicleCarDetails.right().right();
+						final PositionAndRotation vehicleCarRenderingPositionAndRotation = getRenderPositionAndRotation(offsetVector, offsetRotation, ridingCarPositionAndRotation, absoluteVehicleCarPositionAndRotation, cameraShakeOffset);
 
 						// Render each bogie of the car
 						iterateWithIndex(vehicleCarDetails.right().left(), (bogieIndex, absoluteBogiePositionAndRotation) -> {
-							final PositionAndRotation bogiePositionAndRotationRender = getRenderPositionAndRotation(offsetVector, offsetRotation, ridingCarPositionAndRotation, absoluteBogiePositionAndRotation, cameraShakeOffset);
-							final StoredMatrixTransformations storedMatrixTransformations = getStoredMatrixTransformations(offsetVector == null, bogiePositionAndRotationRender, 0);
+							final PositionAndRotation bogieRenderingPositionAndRotation = getRenderPositionAndRotation(offsetVector, offsetRotation, ridingCarPositionAndRotation, absoluteBogiePositionAndRotation, cameraShakeOffset);
+							final StoredMatrixTransformations storedMatrixTransformations = getStoredMatrixTransformations(offsetVector == null, bogieRenderingPositionAndRotation, 0);
 							if (OptimizedRenderer.hasOptimizedRendering()) {
-								vehicleResource.queueBogie(bogieIndex, storedMatrixTransformations, vehicle, absoluteVehicleCarPositionAndRotationAbsolute.light);
+								vehicleResource.queueBogie(bogieIndex, storedMatrixTransformations, vehicle, absoluteVehicleCarPositionAndRotation.light);
 							} else {
-								vehicleResource.iterateBogieModels(bogieIndex, (modelIndex, model) -> model.render(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, absoluteVehicleCarPositionAndRotationAbsolute.light, new ObjectArrayList<>(), fromResourcePackCreator));
+								vehicleResource.iterateBogieModels(bogieIndex, (modelIndex, model) -> model.render(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, absoluteVehicleCarPositionAndRotation.light, new ObjectArrayList<>(), fromResourcePackCreator));
 							}
 						});
 
 						// Player position relative to the car
-						final Vector3d playerPosition = absoluteVehicleCarPositionAndRotationAbsolute.transformBackwards(clientPlayerEntity.getPos(), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+						final Vector3d playerPosition = absoluteVehicleCarPositionAndRotation.transformBackwards(clientPlayerEntity.getPos(), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
 						// A temporary list to store all floors and doorways
 						final ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsAndDoorways = new ObjectArrayList<>();
 						// Extra floors to be used to define where the gangways are
-						final GangwayMovementPositions gangwayMovementPositions1 = new GangwayMovementPositions(absoluteVehicleCarPositionAndRotationAbsolute, false);
-						final GangwayMovementPositions gangwayMovementPositions2 = new GangwayMovementPositions(absoluteVehicleCarPositionAndRotationAbsolute, true);
+						final GangwayMovementPositions gangwayMovementPositions1 = new GangwayMovementPositions(absoluteVehicleCarPositionAndRotation, false);
+						final GangwayMovementPositions gangwayMovementPositions2 = new GangwayMovementPositions(absoluteVehicleCarPositionAndRotation, true);
 						// Vehicle resource cache
 						final VehicleResourceCache vehicleResourceCache = vehicleResource.getCachedVehicleResource(carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), false);
 						// Find open doorways (close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates)
@@ -130,7 +137,7 @@ public class RenderVehicles implements IGui {
 						} else if (vehicleResourceCache == null || !vehicle.getTransportMode().continuousMovement && vehicle.isMoving() || !vehicle.persistentVehicleData.checkCanOpenDoors()) {
 							openDoorways = new ObjectArrayList<>();
 						} else {
-							openDoorways = vehicleResourceCache.doorways.stream().filter(doorway -> RenderVehicleHelper.canOpenDoors(doorway, absoluteVehicleCarPositionAndRotationAbsolute, vehicle.persistentVehicleData.getDoorValue())).collect(Collectors.toCollection(ObjectArrayList::new));
+							openDoorways = vehicleResourceCache.doorways.stream().filter(doorway -> RenderVehicleHelper.canOpenDoors(doorway, absoluteVehicleCarPositionAndRotation, vehicle.persistentVehicleData.getDoorValue())).collect(Collectors.toCollection(ObjectArrayList::new));
 						}
 						final double oscillationAmount = vehicle.persistentVehicleData.getOscillation(carNumber).getAmount() * Config.getClient().getVehicleOscillationMultiplier();
 
@@ -143,7 +150,7 @@ public class RenderVehicles implements IGui {
 									if (VehicleRidingMovement.isHoldingDriverKey() && !VehicleRidingMovement.isRiding(vehicle.getId())) {
 										openFloorsAndDoorways.add(floor);
 									}
-									RenderVehicleHelper.renderFloorOrDoorway(floor, ARGB_WHITE, playerPosition, renderingVehicleCarPositionAndRotationRender, offsetVector == null);
+									RenderVehicleHelper.renderFloorOrDoorway(floor, ARGB_WHITE, playerPosition, vehicleCarRenderingPositionAndRotation, offsetVector == null);
 									// Find the floors with the lowest and highest Z values to be used to define where the gangways are
 									gangwayMovementPositions1.check(floor);
 									gangwayMovementPositions2.check(floor);
@@ -153,31 +160,31 @@ public class RenderVehicles implements IGui {
 							openDoorways.forEach(doorway -> {
 								floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(doorway, false));
 								openFloorsAndDoorways.add(doorway);
-								RenderVehicleHelper.renderFloorOrDoorway(doorway, 0xFFFF0000, playerPosition, renderingVehicleCarPositionAndRotationRender, offsetVector == null);
+								RenderVehicleHelper.renderFloorOrDoorway(doorway, 0xFFFF0000, playerPosition, vehicleCarRenderingPositionAndRotation, offsetVector == null);
 							});
 
 							// Check and mount player
-							VehicleRidingMovement.startRiding(openFloorsAndDoorways, vehicle.vehicleExtraData.getSidingId(), vehicle.getId(), carNumber, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped(), absoluteVehicleCarPositionAndRotationAbsolute.yaw);
+							VehicleRidingMovement.startRiding(openFloorsAndDoorways, vehicle.vehicleExtraData.getSidingId(), vehicle.getId(), carNumber, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped(), absoluteVehicleCarPositionAndRotation.yaw);
 						}
 
 						// Play vehicle sounds
 						if (!OptimizedRenderer.renderingShadows()) {
-							vehicle.playMotorSound(vehicleResource, carNumber, absoluteVehicleCarPositionAndRotationAbsolute.position);
+							vehicle.playMotorSound(vehicleResource, carNumber, absoluteVehicleCarPositionAndRotation.position);
 
 							// Play door sounds
 							if (!openDoorways.isEmpty()) {
-								vehicle.playDoorSound(vehicleResource, carNumber, absoluteVehicleCarPositionAndRotationAbsolute.position);
+								vehicle.playDoorSound(vehicleResource, carNumber, absoluteVehicleCarPositionAndRotation.position);
 							}
 						}
 
 						// Each car can have more than one model defined
-						final StoredMatrixTransformations storedMatrixTransformations = getStoredMatrixTransformations(offsetVector == null, renderingVehicleCarPositionAndRotationRender, oscillationAmount);
+						final StoredMatrixTransformations storedMatrixTransformations = getStoredMatrixTransformations(offsetVector == null, vehicleCarRenderingPositionAndRotation, oscillationAmount);
 						if (OptimizedRenderer.hasOptimizedRendering()) {
-							vehicleResource.queue(storedMatrixTransformations, vehicle, carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), absoluteVehicleCarPositionAndRotationAbsolute.light, openDoorways);
+							vehicleResource.queue(storedMatrixTransformations, vehicle, carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), absoluteVehicleCarPositionAndRotation.light, openDoorways);
 						}
 
 						vehicleResource.iterateModels(carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), (modelIndex, model) -> {
-							model.render(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, absoluteVehicleCarPositionAndRotationAbsolute.light, openDoorways, fromResourcePackCreator);
+							model.render(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, absoluteVehicleCarPositionAndRotation.light, openDoorways, fromResourcePackCreator);
 
 							while (modelIndex >= previousGangwayPositionsList.size()) {
 								previousGangwayPositionsList.add(new PreviousConnectionPositions());
@@ -199,7 +206,7 @@ public class RenderVehicles implements IGui {
 									model.modelProperties.gangwayOuterSideTexture,
 									model.modelProperties.gangwayOuterTopTexture,
 									model.modelProperties.gangwayOuterBottomTexture,
-									renderingVehicleCarPositionAndRotationRender,
+									vehicleCarRenderingPositionAndRotation,
 									offsetVector == null,
 									vehicleCarDetails.left().getLength(),
 									model.modelProperties.getGangwayWidth(),
@@ -222,7 +229,7 @@ public class RenderVehicles implements IGui {
 									model.modelProperties.barrierOuterSideTexture,
 									model.modelProperties.barrierOuterTopTexture,
 									model.modelProperties.barrierOuterBottomTexture,
-									renderingVehicleCarPositionAndRotationRender,
+									vehicleCarRenderingPositionAndRotation,
 									offsetVector == null,
 									vehicleCarDetails.left().getLength(),
 									model.modelProperties.getBarrierWidth(),
@@ -235,16 +242,54 @@ public class RenderVehicles implements IGui {
 						});
 
 						// If the vehicle has gangways, add extra floors to define where the gangways are
+						final Box gangwayConnectionFloor1 = gangwayMovementPositions1.getBox();
 						if (vehicleResource.hasGangway1()) {
-							final Box gangwayConnectionFloor1 = gangwayMovementPositions1.getBox();
-							RenderVehicleHelper.renderFloorOrDoorway(gangwayConnectionFloor1, 0xFF0000FF, playerPosition, renderingVehicleCarPositionAndRotationRender, offsetVector == null);
+							RenderVehicleHelper.renderFloorOrDoorway(gangwayConnectionFloor1, 0xFF0000FF, playerPosition, vehicleCarRenderingPositionAndRotation, offsetVector == null);
 							floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(gangwayConnectionFloor1, true));
 						}
+						final Box gangwayConnectionFloor2 = gangwayMovementPositions2.getBox();
 						if (vehicleResource.hasGangway2()) {
-							final Box gangwayConnectionFloor2 = gangwayMovementPositions2.getBox();
-							RenderVehicleHelper.renderFloorOrDoorway(gangwayConnectionFloor2, 0xFF0000FF, playerPosition, renderingVehicleCarPositionAndRotationRender, offsetVector == null);
+							RenderVehicleHelper.renderFloorOrDoorway(gangwayConnectionFloor2, 0xFF0000FF, playerPosition, vehicleCarRenderingPositionAndRotation, offsetVector == null);
 							floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(gangwayConnectionFloor2, true));
 						}
+
+						// Render the current riding player
+						if (ridingCarNumber == carNumber && offsetVector != null && minecraftClient.getGameRendererMapped().getCamera().isThirdPerson()) {
+							renderPlayer(new Entity(clientPlayerEntity.data), -1, 0, 0, offsetVector, offsetVector, offsetRotation, absoluteVehicleCarPositionAndRotation, absoluteVehicleCarPositionAndRotation, cameraShakeOffset);
+						}
+
+						// Render other players on this vehicle
+						vehicle.vehicleExtraData.iterateRidingEntities(vehicleRidingEntity -> {
+							final boolean isOnBackGangway = vehicleRidingEntity.getIsOnGangway() && vehicleRidingEntity.getZ() < 0.5;
+
+							if (vehicleRidingEntity.getRidingCar() - (isOnBackGangway ? 1 : 0) == carNumber && !vehicleRidingEntity.uuid.equals(clientPlayerEntity.getUuid())) {
+								final PlayerEntity ridingPlayer = clientWorld.getPlayerByUuid(vehicleRidingEntity.uuid);
+
+								if (ridingPlayer != null) {
+									double playerRidingX;
+									double playerRidingY;
+									double playerRidingZ;
+
+									if (vehicleRidingEntity.getIsOnGangway()) {
+										if (isOnBackGangway) {
+											playerRidingX = getPositionFromPercentage(vehicleRidingEntity.getX(), gangwayConnectionFloor2.getMinXMapped() + RenderVehicleHelper.HALF_PLAYER_WIDTH, gangwayConnectionFloor2.getMaxXMapped() - RenderVehicleHelper.HALF_PLAYER_WIDTH);
+											playerRidingY = getPositionFromPercentage(vehicleRidingEntity.getY(), gangwayConnectionFloor2.getMinYMapped(), gangwayConnectionFloor2.getMaxYMapped());
+											playerRidingZ = getPositionFromPercentage(vehicleRidingEntity.getZ(), gangwayConnectionFloor2.getMinZMapped() + (gangwayConnectionFloor2.getMaxZMapped() - gangwayConnectionFloor2.getMinZMapped()) / 2, gangwayConnectionFloor2.getMaxZMapped());
+										} else {
+											playerRidingX = getPositionFromPercentage(vehicleRidingEntity.getX(), gangwayConnectionFloor1.getMinXMapped() + RenderVehicleHelper.HALF_PLAYER_WIDTH, gangwayConnectionFloor1.getMaxXMapped() - RenderVehicleHelper.HALF_PLAYER_WIDTH);
+											playerRidingY = getPositionFromPercentage(vehicleRidingEntity.getY(), gangwayConnectionFloor1.getMinYMapped(), gangwayConnectionFloor1.getMaxYMapped());
+											playerRidingZ = getPositionFromPercentage(vehicleRidingEntity.getZ(), gangwayConnectionFloor1.getMinZMapped(), gangwayConnectionFloor1.getMaxZMapped() - (gangwayConnectionFloor1.getMaxZMapped() - gangwayConnectionFloor1.getMinZMapped()) / 2);
+										}
+									} else {
+										playerRidingX = vehicleRidingEntity.getX();
+										playerRidingY = vehicleRidingEntity.getY();
+										playerRidingZ = vehicleRidingEntity.getZ();
+									}
+
+									renderPlayer(new Entity(ridingPlayer.data), carNumber, gangwayConnectionFloor1.getMinZMapped(), gangwayConnectionFloor2.getMaxZMapped(), new Vector3d(playerRidingX, playerRidingY, playerRidingZ), offsetVector, offsetRotation, absoluteVehicleCarPositionAndRotation, ridingCarPositionAndRotation, cameraShakeOffset);
+								}
+							}
+						});
 
 						if (canRide) {
 							// Main logic for player movement inside the car
@@ -254,7 +299,7 @@ public class RenderVehicles implements IGui {
 									vehicleResource.hasGangway1() ? previousGangwayMovementPositions.gangwayMovementPositions : null,
 									vehicleResource.hasGangway1() ? gangwayMovementPositions1 : null,
 									vehicleResource.hasGangway2() ? gangwayMovementPositions2 : null,
-									absoluteVehicleCarPositionAndRotationAbsolute
+									absoluteVehicleCarPositionAndRotation
 							);
 						}
 
@@ -334,6 +379,83 @@ public class RenderVehicles implements IGui {
 		});
 
 		return storedMatrixTransformations;
+	}
+
+	/**
+	 * Renders a player riding the vehicle.
+	 *
+	 * @param entity                       the entity to be rendered
+	 * @param ridingCar                    the car the entity is riding in (don't interpolate if the riding car number has changed) or -1 to disable interpolation altogether
+	 * @param minZ                         the min Z value of the car, used for when the entity just came from a gangway
+	 * @param maxZ                         the max Z value of the car, used for when the entity just came from a gangway
+	 * @param playerOffsetVector           the player offset from the centre of the player's riding car
+	 * @param offsetVector                 if riding, the riding position relative to the centre of the riding car
+	 * @param offsetRotation               if riding, the riding rotation relative to the angle of the riding car
+	 * @param playerCarPositionAndRotation the {@link PositionAndRotation} of the car being ridden by the entity being rendered
+	 * @param ridingCarPositionAndRotation the {@link PositionAndRotation} of the car being ridden in
+	 * @param cameraShakeOffset            additional camera shake
+	 */
+	public static void renderPlayer(Entity entity, int ridingCar, double minZ, double maxZ, Vector3d playerOffsetVector, @Nullable Vector3d offsetVector, @Nullable Double offsetRotation, PositionAndRotation playerCarPositionAndRotation, @Nullable PositionAndRotation ridingCarPositionAndRotation, Vector3d cameraShakeOffset) {
+		Vector interpolatedPosition = null;
+
+		for (final RidingPlayerInterpolation ridingPlayerInterpolation : RIDING_PLAYER_INTERPOLATIONS) {
+			if (ridingPlayerInterpolation.uuid.equals(entity.getUuid())) {
+				// Interpolate movement
+				if (ridingCar >= 0 && ridingPlayerInterpolation.ridingCar == ridingCar) {
+					ridingPlayerInterpolation.interpolationX.setValue(playerOffsetVector.getXMapped(), ridingPlayerInterpolation.previousX != playerOffsetVector.getXMapped());
+					ridingPlayerInterpolation.interpolationY.setValue(playerOffsetVector.getYMapped(), ridingPlayerInterpolation.previousY != playerOffsetVector.getYMapped());
+					ridingPlayerInterpolation.interpolationZ.setValue(playerOffsetVector.getZMapped(), ridingPlayerInterpolation.previousZ != playerOffsetVector.getZMapped());
+				} else {
+					ridingPlayerInterpolation.interpolationX.setValueDirect(playerOffsetVector.getXMapped());
+					ridingPlayerInterpolation.interpolationY.setValueDirect(playerOffsetVector.getYMapped());
+					if (ridingCar >= 0) {
+						// Entity came from a gangway
+						ridingPlayerInterpolation.interpolationZ.setValueDirect(ridingCar > ridingPlayerInterpolation.ridingCar ? minZ : maxZ);
+						ridingPlayerInterpolation.interpolationZ.setValue(playerOffsetVector.getZMapped(), true);
+					} else {
+						ridingPlayerInterpolation.interpolationZ.setValueDirect(playerOffsetVector.getZMapped());
+					}
+				}
+				ridingPlayerInterpolation.ridingCar = ridingCar;
+				ridingPlayerInterpolation.previousX = playerOffsetVector.getXMapped();
+				ridingPlayerInterpolation.previousY = playerOffsetVector.getYMapped();
+				ridingPlayerInterpolation.previousZ = playerOffsetVector.getZMapped();
+				interpolatedPosition = new Vector(ridingPlayerInterpolation.interpolationX.getValue(), ridingPlayerInterpolation.interpolationY.getValue(), ridingPlayerInterpolation.interpolationZ.getValue());
+				break;
+			}
+		}
+
+		if (interpolatedPosition == null) {
+			// If the player is not found in RIDING_PLAYER_INTERPOLATIONS
+			interpolatedPosition = new Vector(playerOffsetVector.getXMapped(), playerOffsetVector.getYMapped(), playerOffsetVector.getZMapped());
+			final RidingPlayerInterpolation ridingPlayerInterpolation = new RidingPlayerInterpolation(entity.getUuid());
+			RIDING_PLAYER_INTERPOLATIONS.add(ridingPlayerInterpolation);
+			ridingPlayerInterpolation.interpolationX.setValueDirect(playerOffsetVector.getXMapped());
+			ridingPlayerInterpolation.interpolationY.setValueDirect(playerOffsetVector.getYMapped());
+			ridingPlayerInterpolation.interpolationZ.setValueDirect(playerOffsetVector.getZMapped());
+			ridingPlayerInterpolation.ridingCar = ridingCar;
+			ridingPlayerInterpolation.previousX = playerOffsetVector.getXMapped();
+			ridingPlayerInterpolation.previousY = playerOffsetVector.getYMapped();
+			ridingPlayerInterpolation.previousZ = playerOffsetVector.getZMapped();
+		}
+
+		// Transform position
+		final PositionAndRotation playerRenderingPositionAndRotation = getRenderPositionAndRotation(
+				offsetVector, offsetRotation,
+				ridingCarPositionAndRotation,
+				new PositionAndRotation(playerCarPositionAndRotation.position.add(interpolatedPosition.rotateX(playerCarPositionAndRotation.pitch).rotateY(playerCarPositionAndRotation.yaw)), 0, 0),
+				cameraShakeOffset
+		);
+		final StoredMatrixTransformations storedMatrixTransformations = getStoredMatrixTransformations(offsetVector == null, playerRenderingPositionAndRotation, 0);
+
+		// Render player
+		MainRenderer.scheduleRender(QueuedRenderLayer.INTERIOR, (graphicsHolder, offset) -> {
+			storedMatrixTransformations.transform(graphicsHolder, offset);
+			graphicsHolder.rotateXDegrees(180);
+			graphicsHolder.rotateYDegrees(180);
+			graphicsHolder.renderEntity(entity, 0, 1000, 0, 0, 0, GraphicsHolder.getDefaultLight());
+			graphicsHolder.pop();
+		});
 	}
 
 	private static void renderConnection(
@@ -430,6 +552,30 @@ public class RenderVehicles implements IGui {
 	private static <T> void iterateWithIndex(ObjectArrayList<T> list, IndexedConsumer<T> indexedConsumer) {
 		for (int i = 0; i < list.size(); i++) {
 			indexedConsumer.accept(i, list.get(i));
+		}
+	}
+
+	private static double getPositionFromPercentage(double percentage, double min, double max) {
+		return min + Math.max(0, max - min) * percentage;
+	}
+
+	public static class RidingPlayerInterpolation {
+
+		private int ridingCar;
+		private double previousX;
+		private double previousY;
+		private double previousZ;
+
+		public final UUID uuid;
+		private final Interpolation interpolationX;
+		private final Interpolation interpolationY;
+		private final Interpolation interpolationZ;
+
+		public RidingPlayerInterpolation(UUID uuid) {
+			this.uuid = uuid;
+			interpolationX = new Interpolation(VehicleRidingMovement.SEND_UPDATE_FREQUENCY);
+			interpolationY = new Interpolation(VehicleRidingMovement.SEND_UPDATE_FREQUENCY);
+			interpolationZ = new Interpolation(VehicleRidingMovement.SEND_UPDATE_FREQUENCY);
 		}
 	}
 

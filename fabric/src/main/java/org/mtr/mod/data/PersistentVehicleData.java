@@ -12,6 +12,7 @@ import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mod.client.Oscillation;
 import org.mtr.mod.client.ScrollingText;
 import org.mtr.mod.resource.DoorAnimationType;
+import org.mtr.mod.resource.Interpolation;
 import org.mtr.mod.resource.VehicleResource;
 import org.mtr.mod.sound.VehicleSoundBase;
 
@@ -72,16 +73,14 @@ public final class PersistentVehicleData {
 	public float getInterpolatedDoorValue(DoorAnimationType doorAnimationType, double doorZMultiplier, boolean flipped, boolean opening) {
 		final String key = doorZMultiplier + "_" + doorAnimationType + "_" + flipped;
 		final DoorMovementInterpolation doorMovementInterpolation = doorMovementInterpolations.get(key);
-		final float value = (float) doorAnimationType.getDoorAnimationZ(doorZMultiplier, flipped, doorValue, opening);
+		final double value = doorAnimationType.getDoorAnimationZ(doorZMultiplier, flipped, doorValue, opening);
 
 		if (doorMovementInterpolation == null) {
 			final DoorMovementInterpolation newDoorMovementInterpolation = new DoorMovementInterpolation();
-			newDoorMovementInterpolation.setValue(value, opening);
 			doorMovementInterpolations.put(key, newDoorMovementInterpolation);
-			return newDoorMovementInterpolation.getValue();
+			return newDoorMovementInterpolation.setAndGet(value, opening);
 		} else {
-			doorMovementInterpolation.setValue(value, opening);
-			return doorMovementInterpolation.getValue();
+			return doorMovementInterpolation.setAndGet(value, opening);
 		}
 	}
 
@@ -136,30 +135,17 @@ public final class PersistentVehicleData {
 
 	private static class DoorMovementInterpolation {
 
-		private long startMillis;
-		private float oldValue;
-		private float latestValue;
 		private boolean opening;
+		private final Interpolation interpolation;
 
-		private static final int DURATION = 500;
-
-		private void setValue(float value, boolean opening) {
-			if (this.opening != opening && oldValue != value) {
-				oldValue = getValue();
-				startMillis = System.currentTimeMillis();
-			}
-			latestValue = value;
-			this.opening = opening;
+		private DoorMovementInterpolation() {
+			this.interpolation = new Interpolation(500);
 		}
 
-		private float getValue() {
-			final long difference = System.currentTimeMillis() - startMillis;
-			if (difference < DURATION) {
-				return (1 - (float) difference / DURATION) * oldValue + (float) difference / DURATION * latestValue;
-			} else {
-				oldValue = latestValue;
-				return latestValue;
-			}
+		private float setAndGet(double value, boolean opening) {
+			interpolation.setValue(value, this.opening != opening);
+			this.opening = opening;
+			return (float) interpolation.getValue();
 		}
 	}
 }

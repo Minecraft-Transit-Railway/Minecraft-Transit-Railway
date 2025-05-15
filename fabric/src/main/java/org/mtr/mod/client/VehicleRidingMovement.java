@@ -46,9 +46,9 @@ public class VehicleRidingMovement {
 	private static int pressingBrakeTicks = 0;
 	private static int pressingDoorsTicks = 0;
 
+	public static final int SEND_UPDATE_FREQUENCY = 1000;
 	private static final float VEHICLE_WALKING_SPEED_MULTIPLIER = 0.005F;
 	private static final int RIDING_COOLDOWN = 5;
-	private static final int SEND_UPDATE_FREQUENCY = 1000;
 	private static final int SHIFT_ACTIVATE_TICKS = 30;
 	private static final int DISMOUNT_PROGRESS_BAR_LENGTH = 30;
 
