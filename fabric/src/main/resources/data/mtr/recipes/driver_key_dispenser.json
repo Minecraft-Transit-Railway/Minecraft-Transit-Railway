@@ -9,9 +9,12 @@
 		},
 		{
 			"item": "minecraft:chain"
+		},
+		{
+			"item": "minecraft:dispenser"
 		}
 	],
 	"result": {
-		"item": "mtr:driver_key"
+		"item": "mtr:driver_key_dispenser"
 	}
 }

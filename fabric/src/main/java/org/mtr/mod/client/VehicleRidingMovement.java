@@ -9,9 +9,10 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mod.InitClient;
-import org.mtr.mod.Items;
 import org.mtr.mod.KeyBindings;
 import org.mtr.mod.generated.lang.TranslationProvider;
+import org.mtr.mod.item.ItemDepotDriverKey;
+import org.mtr.mod.item.ItemDriverKey;
 import org.mtr.mod.packet.PacketUpdateVehicleRidingEntities;
 import org.mtr.mod.render.PositionAndRotation;
 import org.mtr.mod.render.RenderVehicleHelper;
@@ -22,6 +23,7 @@ import java.util.Comparator;
 
 public class VehicleRidingMovement {
 
+	private static long ridingDepotId;
 	private static long ridingSidingId;
 	private static long ridingVehicleId;
 	private static int ridingVehicleCarNumber;
@@ -54,14 +56,14 @@ public class VehicleRidingMovement {
 
 	public static void tick() {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
-		final boolean isHoldingDriverKeyNew = clientPlayerEntity != null && clientPlayerEntity.isHolding(Items.DRIVER_KEY.get());
+		final ItemDriverKey driverKey = getValidHoldingKey(ridingDepotId);
 
 		if (ridingVehicleCooldown < RIDING_COOLDOWN && shiftHoldingTicks < SHIFT_ACTIVATE_TICKS) {
 			ridingVehicleCooldown++;
 		} else {
 			// If no vehicles are updating the player's position, dismount the player
 			sendUpdate(true);
+			ridingDepotId = 0;
 			ridingSidingId = 0;
 			ridingVehicleId = 0;
 		}
@@ -71,9 +73,10 @@ public class VehicleRidingMovement {
 			ridingPositionCacheOld = ridingPositionCache;
 		}
 
-		pressingAccelerateTicks = KeyBindings.TRAIN_ACCELERATE.isPressed() ? pressingAccelerateTicks + 1 : 0;
-		pressingBrakeTicks = KeyBindings.TRAIN_BRAKE.isPressed() ? pressingBrakeTicks + 1 : 0;
-		pressingDoorsTicks = KeyBindings.TRAIN_TOGGLE_DOORS.isPressed() ? pressingDoorsTicks + 1 : 0;
+		final boolean isHoldingDriverKeyNew = driverKey != null;
+		pressingAccelerateTicks = isHoldingDriverKeyNew && driverKey.canDrive && KeyBindings.TRAIN_ACCELERATE.isPressed() ? pressingAccelerateTicks + 1 : 0;
+		pressingBrakeTicks = isHoldingDriverKeyNew && driverKey.canDrive && KeyBindings.TRAIN_BRAKE.isPressed() ? pressingBrakeTicks + 1 : 0;
+		pressingDoorsTicks = isHoldingDriverKeyNew && driverKey.canOpenDoors && KeyBindings.TRAIN_TOGGLE_DOORS.isPressed() ? pressingDoorsTicks + 1 : 0;
 
 		if (sendPositionUpdateTime > 0 && sendPositionUpdateTime <= System.currentTimeMillis() || isHoldingDriverKeyNew != isHoldingDriverKey || pressingAccelerateTicks == 1 || pressingBrakeTicks == 1 || pressingDoorsTicks == 1) {
 			isHoldingDriverKey = isHoldingDriverKeyNew;
@@ -90,6 +93,7 @@ public class VehicleRidingMovement {
 				}
 			}
 
+			final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
 			if (clientPlayerEntity != null && clientPlayerEntity.isSneaking()) {
 				shiftHoldingTicks += minecraftClient.getLastFrameDuration();
 			} else {
@@ -101,10 +105,11 @@ public class VehicleRidingMovement {
 	/**
 	 * Iterate through all open floors and doorways and see if the player is intersecting any of them. If so, start riding the vehicle.
 	 */
-	public static void startRiding(ObjectArrayList<Box> openFloorsAndDoorways, long sidingId, long vehicleId, int carNumber, double x, double y, double z, double yaw) {
+	public static void startRiding(ObjectArrayList<Box> openFloorsAndDoorways, long depotId, long sidingId, long vehicleId, int carNumber, double x, double y, double z, double yaw) {
 		if (ridingVehicleId == 0 || isRiding(vehicleId)) {
 			for (final Box floorOrDoorway : openFloorsAndDoorways) {
 				if (RenderVehicleHelper.boxContains(floorOrDoorway, x, y, z)) {
+					ridingDepotId = depotId;
 					ridingSidingId = sidingId;
 					ridingVehicleId = vehicleId;
 					ridingVehicleCarNumber = carNumber;
@@ -159,6 +164,7 @@ public class VehicleRidingMovement {
 				if (thisCarGangwayMovementPositions1 == null || previousCarGangwayMovementPositions == null) {
 					// Dismount player
 					sendUpdate(true);
+					ridingDepotId = 0;
 					ridingSidingId = 0;
 					ridingVehicleId = 0;
 				} else {
@@ -229,6 +235,7 @@ public class VehicleRidingMovement {
 					if (offsets.isEmpty()) {
 						// Player is not standing on any floor, dismount player
 						sendUpdate(true);
+						ridingDepotId = 0;
 						ridingSidingId = 0;
 						ridingVehicleId = 0;
 					} else {
@@ -274,6 +281,30 @@ public class VehicleRidingMovement {
 		return vehicleId == ridingVehicleId;
 	}
 
+	/**
+	 * @param depotId the {@link org.mtr.core.data.Depot} ID
+	 * @return the driver key item that is valid for the depot ID (either a matching key or the {@link org.mtr.mod.item.ItemCreativeDriverKey})
+	 */
+	@Nullable
+	public static ItemDriverKey getValidHoldingKey(long depotId) {
+		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+		if (clientPlayerEntity != null) {
+			final ItemStack itemStack1 = clientPlayerEntity.getMainHandStack();
+			final Item item1 = itemStack1.getItem();
+			if (item1.data instanceof ItemDriverKey) {
+				return ItemDepotDriverKey.isCreativeDriverKeyOrMatchesDepot(itemStack1, depotId) ? (ItemDriverKey) item1.data : null;
+			}
+
+			final ItemStack itemStack2 = clientPlayerEntity.getOffHandStack();
+			final Item item2 = itemStack2.getItem();
+			if (item2.data instanceof ItemDriverKey) {
+				return ItemDepotDriverKey.isCreativeDriverKeyOrMatchesDepot(itemStack2, depotId) ? (ItemDriverKey) item2.data : null;
+			}
+		}
+
+		return null;
+	}
+
 	public static boolean showShiftProgressBar() {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
@@ -286,10 +317,6 @@ public class VehicleRidingMovement {
 		} else {
 			return true;
 		}
-	}
-
-	public static boolean isHoldingDriverKey() {
-		return isHoldingDriverKey;
 	}
 
 	/**

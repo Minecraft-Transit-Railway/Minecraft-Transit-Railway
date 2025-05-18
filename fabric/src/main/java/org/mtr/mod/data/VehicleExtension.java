@@ -81,10 +81,8 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		final long thisRouteId = vehicleExtraData.getThisRouteId();
 
 		if (VehicleRidingMovement.isRiding(id)) {
-			final boolean isDriving = vehicleExtraData.getIsCurrentlyManual() && VehicleRidingMovement.isHoldingDriverKey();
-
 			// Render client action bar floating text
-			if (VehicleRidingMovement.showShiftProgressBar() && !isDriving) {
+			if (VehicleRidingMovement.showShiftProgressBar()) {
 				if (speed * MILLIS_PER_SECOND > 5 || thisRouteName.isEmpty() || thisStationName.isEmpty() || thisRouteDestination.isEmpty()) {
 					clientPlayerEntity.sendMessage(TranslationProvider.GUI_MTR_VEHICLE_SPEED.getText(Utilities.round(speed * MILLIS_PER_SECOND, 1), Utilities.round(speed * 3.6F * MILLIS_PER_SECOND, 1)), true);
 				} else {

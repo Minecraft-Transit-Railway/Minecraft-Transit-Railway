@@ -3,7 +3,6 @@ package org.mtr.mod;
 import org.mtr.core.data.TransportMode;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.Item;
-import org.mtr.mapping.mapper.ItemExtension;
 import org.mtr.mapping.mapper.PlaceableOnWaterItemExtension;
 import org.mtr.mapping.registry.ItemRegistryObject;
 import org.mtr.mod.data.RailType;
@@ -20,7 +19,10 @@ public final class Items {
 		AIRPLANE_DASHBOARD = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "dashboard_4"), itemSettings -> new Item(new ItemDashboard(TransportMode.AIRPLANE, itemSettings)), CreativeModeTabs.CORE);
 
 		// Misc
-		DRIVER_KEY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "driver_key"), itemSettings -> new Item(new ItemExtension(itemSettings.maxCount(1))), CreativeModeTabs.CORE);
+		BASIC_DRIVER_KEY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "basic_driver_key"), itemSettings -> new Item(new ItemDepotDriverKey(itemSettings.maxCount(1), true, false, false, 0xB6B6B6)));
+		ADVANCED_DRIVER_KEY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "advanced_driver_key"), itemSettings -> new Item(new ItemDepotDriverKey(itemSettings.maxCount(1), true, true, false, 0xFFB6B6)));
+		GUARD_KEY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "guard_key"), itemSettings -> new Item(new ItemDepotDriverKey(itemSettings.maxCount(1), false, true, false, 0xB6FFB6)));
+		CREATIVE_DRIVER_KEY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "creative_driver_key"), itemSettings -> new Item(new ItemCreativeDriverKey(itemSettings.maxCount(1))), CreativeModeTabs.CORE);
 		BOAT_NODE = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "boat_node"), itemSettings -> new Item(new PlaceableOnWaterItemExtension(Blocks.BOAT_NODE.get(), itemSettings)), CreativeModeTabs.CORE);
 
 		// Doors
@@ -147,7 +149,10 @@ public final class Items {
 	public static final ItemRegistryObject BRIDGE_CREATOR_7;
 	public static final ItemRegistryObject BRIDGE_CREATOR_9;
 	public static final ItemRegistryObject CABLE_CAR_DASHBOARD;
-	public static final ItemRegistryObject DRIVER_KEY;
+	public static final ItemRegistryObject GUARD_KEY;
+	public static final ItemRegistryObject BASIC_DRIVER_KEY;
+	public static final ItemRegistryObject ADVANCED_DRIVER_KEY;
+	public static final ItemRegistryObject CREATIVE_DRIVER_KEY;
 	public static final ItemRegistryObject ESCALATOR;
 	public static final ItemRegistryObject LIFT_BUTTONS_LINK_CONNECTOR;
 	public static final ItemRegistryObject LIFT_BUTTONS_LINK_REMOVER;

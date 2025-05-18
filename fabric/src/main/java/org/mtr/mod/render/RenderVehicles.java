@@ -15,6 +15,7 @@ import org.mtr.mod.Init;
 import org.mtr.mod.client.*;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.item.ItemDriverKey;
 import org.mtr.mod.resource.Interpolation;
 import org.mtr.mod.resource.VehicleResource;
 import org.mtr.mod.resource.VehicleResourceCache;
@@ -147,8 +148,11 @@ public class RenderVehicles implements IGui {
 							if (vehicleResourceCache != null) {
 								vehicleResourceCache.floors.forEach(floor -> {
 									floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(floor, true));
-									if (VehicleRidingMovement.isHoldingDriverKey() && !VehicleRidingMovement.isRiding(vehicle.getId())) {
-										openFloorsAndDoorways.add(floor);
+									if (!VehicleRidingMovement.isRiding(vehicle.getId())) {
+										final ItemDriverKey driverKey = VehicleRidingMovement.getValidHoldingKey(vehicle.vehicleExtraData.getDepotId());
+										if (driverKey != null && (driverKey.canBoardAnyVehicle || vehicle.vehicleExtraData.getIsManualAllowed())) {
+											openFloorsAndDoorways.add(floor);
+										}
 									}
 									RenderVehicleHelper.renderFloorOrDoorway(floor, ARGB_WHITE, playerPosition, vehicleCarRenderingPositionAndRotation, offsetVector == null);
 									// Find the floors with the lowest and highest Z values to be used to define where the gangways are
@@ -164,7 +168,7 @@ public class RenderVehicles implements IGui {
 							});
 
 							// Check and mount player
-							VehicleRidingMovement.startRiding(openFloorsAndDoorways, vehicle.vehicleExtraData.getSidingId(), vehicle.getId(), carNumber, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped(), absoluteVehicleCarPositionAndRotation.yaw);
+							VehicleRidingMovement.startRiding(openFloorsAndDoorways, vehicle.vehicleExtraData.getDepotId(), vehicle.vehicleExtraData.getSidingId(), vehicle.getId(), carNumber, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped(), absoluteVehicleCarPositionAndRotation.yaw);
 						}
 
 						// Play vehicle sounds

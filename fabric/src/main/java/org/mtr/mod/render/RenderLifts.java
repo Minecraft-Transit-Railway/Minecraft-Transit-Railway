@@ -145,7 +145,7 @@ public class RenderLifts implements IGui {
 					// Player position relative to the car
 					final Vector3d playerPosition = absolutePositionAndRotation.transformBackwards(clientPlayerEntity.getPos(), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
 					// Check and mount player
-					VehicleRidingMovement.startRiding(openDoorways, 0, lift.getId(), 0, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped(), absolutePositionAndRotation.yaw);
+					VehicleRidingMovement.startRiding(openDoorways, 0, 0, lift.getId(), 0, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped(), absolutePositionAndRotation.yaw);
 
 					final Box floor = new Box(-lift.getWidth() / 2 + LIFT_FLOOR_PADDING, 0, -lift.getDepth() / 2 + LIFT_FLOOR_PADDING, lift.getWidth() / 2 - LIFT_FLOOR_PADDING, 0, lift.getDepth() / 2 - LIFT_FLOOR_PADDING);
 					floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(floor, true));

@@ -1,5 +1,6 @@
 package org.mtr.mod;
 
+import org.mtr.core.data.Depot;
 import org.mtr.core.data.Platform;
 import org.mtr.core.data.Position;
 import org.mtr.core.data.Station;
@@ -26,6 +27,7 @@ import org.mtr.mod.entity.EntityRendering;
 import org.mtr.mod.generated.WebserverResources;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.item.ItemBlockClickingBase;
+import org.mtr.mod.item.ItemDriverKey;
 import org.mtr.mod.packet.PacketRequestData;
 import org.mtr.mod.render.*;
 import org.mtr.mod.resource.CachedResource;
@@ -136,6 +138,7 @@ public final class InitClient {
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_MEDIUM, dispatcher -> new RenderPIDS<>(dispatcher, -15, 15, 16, 30, 46, false, 1));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_LARGE, dispatcher -> new RenderPIDS<>(dispatcher, -15, 15, 16, 46, 46, false, 1));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.CLOCK, RenderClock::new);
+		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.DRIVER_KEY_DISPENSER, RenderDriverKeyDispenser::new);
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.PSD_DOOR_1, dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 0));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.PSD_DOOR_2, dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 1));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.PSD_TOP, RenderPSDTop::new);
@@ -344,6 +347,11 @@ public final class InitClient {
 				Blocks.STATION_NAME_TALL_WALL
 		);
 
+		REGISTRY_CLIENT.registerItemColors((itemStack, tintIndex) -> {
+			final Item item = itemStack.getItem();
+			return item.data instanceof ItemDriverKey ? ((ItemDriverKey) item.data).color : IGui.RGB_WHITE;
+		}, Items.BASIC_DRIVER_KEY, Items.ADVANCED_DRIVER_KEY, Items.GUARD_KEY);
+
 		REGISTRY_CLIENT.setupPackets(new Identifier(Init.MOD_ID, "packet"));
 
 		REGISTRY_CLIENT.eventRegistryClient.registerClientJoin(() -> {
@@ -483,6 +491,17 @@ public final class InitClient {
 	public static void findClosePlatform(BlockPos blockPos, int radius, Consumer<Platform> consumer) {
 		final Position position = Init.blockPosToPosition(blockPos);
 		MinecraftClientData.getInstance().platforms.stream().filter(platform -> platform.closeTo(Init.blockPosToPosition(blockPos), radius)).min(Comparator.comparingDouble(platform -> platform.getApproximateClosestDistance(position, MinecraftClientData.getInstance()))).ifPresent(consumer);
+	}
+
+	@Nullable
+	public static Depot findDepot(BlockPos blockPos) {
+		final Position position = Init.blockPosToPosition(blockPos);
+		for (final Depot depot : MinecraftClientData.getInstance().depots) {
+			if (depot.inArea(position)) {
+				return depot;
+			}
+		}
+		return null;
 	}
 
 	public static void transformToFacePlayer(GraphicsHolder graphicsHolder, double x, double y, double z) {
