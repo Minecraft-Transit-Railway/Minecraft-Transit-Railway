@@ -11,19 +11,23 @@ import org.mtr.mod.client.IDrawing;
 
 public class RenderStationNameTall<T extends BlockStationNameTallBase.BlockEntityTallBase> extends RenderStationNameBase<T> {
 
-	private static final float WIDTH = 0.6875F;
-	private static final float HEIGHT = 1.5F;
+	private final float width;
+	private final float height;
+	private final float offsetY;
 
-	public RenderStationNameTall(Argument dispatcher) {
+	public RenderStationNameTall(Argument dispatcher, float width, float height, float offsetY) {
 		super(dispatcher);
+		this.width = width;
+		this.height = height;
+		this.offsetY = offsetY;
 	}
 
 	@Override
 	protected void drawStationName(World world, BlockPos pos, BlockState state, Direction facing, StoredMatrixTransformations storedMatrixTransformations, String stationName, int stationColor, int color, int light) {
 		if (IBlock.getStatePropertySafe(state, BlockStationNameTallBase.THIRD) == IBlock.EnumThird.MIDDLE) {
-			MainRenderer.scheduleRender(DynamicTextureCache.instance.getTallStationName(color, stationName, stationColor, WIDTH / HEIGHT).identifier, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
+			MainRenderer.scheduleRender(DynamicTextureCache.instance.getTallStationName(color, stationName, stationColor, width / height).identifier, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolder, offset);
-				IDrawing.drawTexture(graphicsHolder, -WIDTH / 2, -HEIGHT / 2, WIDTH, HEIGHT, 0, 0, 1, 1, facing, ARGB_WHITE, light);
+				IDrawing.drawTexture(graphicsHolder, -width / 2, (-height / 2) - offsetY, width, height, 0, 0, 1, 1, facing, ARGB_WHITE, light);
 				graphicsHolder.pop();
 			});
 		}
