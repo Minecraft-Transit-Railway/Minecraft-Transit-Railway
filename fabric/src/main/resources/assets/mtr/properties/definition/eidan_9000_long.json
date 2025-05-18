@@ -1,0 +1,202 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window",
+			"positions": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 120
+				},
+				{
+					"x": 0,
+					"y": 0,
+					"z": 40
+				},
+				{
+					"x": 0,
+					"y": 0,
+					"z": -40
+				},
+				{
+					"x": 0,
+					"y": 0,
+					"z": -120
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 120
+				},
+				{
+					"x": 0,
+					"y": 0,
+					"z": 40
+				},
+				{
+					"x": 0,
+					"y": 0,
+					"z": -40
+				},
+				{
+					"x": 0,
+					"y": 0,
+					"z": -120
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 160
+				},
+				{
+					"x": 0,
+					"y": 0,
+					"z": 80
+				},
+				{
+					"x": 0,
+					"y": 0,
+					"z": 0
+				},
+				{
+					"x": 0,
+					"y": 0,
+					"z": -80
+				},
+				{
+					"x": 0,
+					"y": 0,
+					"z": -160
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 160
+				},
+				{
+					"x": 0,
+					"y": 0,
+					"z": 80
+				},
+				{
+					"x": 0,
+					"y": 0,
+					"z": 0
+				},
+				{
+					"x": 0,
+					"y": 0,
+					"z": -80
+				},
+				{
+					"x": 0,
+					"y": 0,
+					"z": -160
+				}
+			]
+		},
+		{
+			"name": "aircon",
+			"positions": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 120
+				},
+				{
+					"x": 0,
+					"y": 0,
+					"z": -120
+				}
+			],
+			"positionsFlipped": []
+		},
+		{
+			"name": "side_led",
+			"positions": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": -120
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 120
+				}
+			]
+		},
+		{
+			"name": "side_doorlight",
+			"positions": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 120
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": -120
+				}
+			]
+		},
+		{
+			"name": "end_forward",
+			"positions": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": -188
+				}
+			],
+			"positionsFlipped": []
+		},
+		{
+			"name": "end_backward",
+			"positions": [],
+			"positionsFlipped": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 188
+				}
+			]
+		},
+		{
+			"name": "cab_forward",
+			"positions": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": -186
+				}
+			],
+			"positionsFlipped": []
+		},
+		{
+			"name": "cab_backward",
+			"positions": [],
+			"positionsFlipped": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 186
+				}
+			]
+		}
+	]
+}
