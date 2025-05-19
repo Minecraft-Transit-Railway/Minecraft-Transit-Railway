@@ -1,15 +1,14 @@
 {
-		"replacements": {
+	"replacements": {
 		"lengths": [
 			25,
 			20,
 			10
 		],
 		"bogie1Position": [
-			-9.3,			
+			-9.3,
 			-6.8,
 			-2.6
-
 		],
 		"bogie2Position": [
 			9.3,
@@ -35,7 +34,7 @@
 	"vehicles": [
 		{
 			"id": "eidan_9000@definition@_trailer",
-			"name": "Eidan 9000 (@name@)",
+			"name": "Eidan 9000 Trailer (@name@)",
 			"color": "00AC9B",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -95,17 +94,11 @@
 			"hasBarrier1": false,
 			"hasBarrier2": false,
 			"legacyRiderOffset": 0,
-			"bveSoundBaseResource": "eidan_9000",
-			"legacySpeedSoundBaseResource": "",
-			"legacySpeedSoundCount": 1,
-			"legacyUseAccelerationSoundsWhenCoasting": false,
-			"legacyConstantPlaybackSpeed": false,
-			"legacyDoorSoundBaseResource": "",
-			"legacyDoorCloseSoundTime": 0
+			"bveSoundBaseResource": "eidan_9000"
 		},
 		{
 			"id": "eidan_9000@definition@_cab_1",
-			"name": "Eidan 9000 (Cab Forward, @name@)",
+			"name": "Eidan 9000 Cab (Forwards, @name@)",
 			"color": "00AC9B",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -134,7 +127,7 @@
 					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
 					"flipTextureV": true
 				},
-					{
+				{
 					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
 					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_end_2.json",
@@ -165,17 +158,11 @@
 			"hasBarrier1": false,
 			"hasBarrier2": false,
 			"legacyRiderOffset": 0,
-			"bveSoundBaseResource": "eidan_9000",
-			"legacySpeedSoundBaseResource": "",
-			"legacySpeedSoundCount": 1,
-			"legacyUseAccelerationSoundsWhenCoasting": false,
-			"legacyConstantPlaybackSpeed": false,
-			"legacyDoorSoundBaseResource": "",
-			"legacyDoorCloseSoundTime": 0
+			"bveSoundBaseResource": "eidan_9000"
 		},
 		{
 			"id": "eidan_9000@definition@_cab_2",
-			"name": "Eidan 9000 (Cab Backward, @name@)",
+			"name": "Eidan 9000 Cab (Backwards, @name@)",
 			"color": "00AC9B",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -235,17 +222,11 @@
 			"hasBarrier1": false,
 			"hasBarrier2": false,
 			"legacyRiderOffset": 0,
-			"bveSoundBaseResource": "eidan_9000",
-			"legacySpeedSoundBaseResource": "",
-			"legacySpeedSoundCount": 1,
-			"legacyUseAccelerationSoundsWhenCoasting": false,
-			"legacyConstantPlaybackSpeed": false,
-			"legacyDoorSoundBaseResource": "",
-			"legacyDoorCloseSoundTime": 0
+			"bveSoundBaseResource": "eidan_9000"
 		},
 		{
 			"id": "eidan_9000@definition@_cab_3",
-			"name": "Eidan 9000 (Double,@name@)",
+			"name": "Eidan 9000 Cab (Double, @name@)",
 			"color": "00AC9B",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -305,13 +286,7 @@
 			"hasBarrier1": false,
 			"hasBarrier2": false,
 			"legacyRiderOffset": 0,
-			"bveSoundBaseResource": "eidan_9000",
-			"legacySpeedSoundBaseResource": "",
-			"legacySpeedSoundCount": 1,
-			"legacyUseAccelerationSoundsWhenCoasting": false,
-			"legacyConstantPlaybackSpeed": false,
-			"legacyDoorSoundBaseResource": "",
-			"legacyDoorCloseSoundTime": 0
+			"bveSoundBaseResource": "eidan_9000"
 		}
 	]
 }

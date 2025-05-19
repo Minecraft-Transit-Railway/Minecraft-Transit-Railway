@@ -123,6 +123,17 @@
 		},
 		{
 			"names": [
+				"taillight"
+			],
+			"positionDefinitions": [
+				"cab_forward"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "ALWAYS_ON_LIGHT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
 				"maskl"
 			],
 			"positionDefinitions": [
