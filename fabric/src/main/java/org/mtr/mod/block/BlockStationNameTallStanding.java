@@ -30,9 +30,7 @@ public class BlockStationNameTallStanding extends BlockStationNameTallBase {
 
 	@Override
 	public BlockState getPlacementState2(ItemPlacementContext ctx) {
-		final Direction blockSide = ctx.getSide();
-		final Direction facing = blockSide == Direction.UP || blockSide == Direction.DOWN ? ctx.getPlayerFacing() : blockSide.getOpposite();
-		return IBlock.isReplaceable(ctx, Direction.UP, 3) ? getDefaultState2().with(new Property<>(FACING.data), facing.data).with(new Property<>(METAL.data), true).with(new Property<>(THIRD.data), EnumThird.LOWER) : null;
+		return IBlock.isReplaceable(ctx, Direction.UP, 3) ? getDefaultState2().with(new Property<>(FACING.data), ctx.getPlayerFacing().data).with(new Property<>(METAL.data), true).with(new Property<>(THIRD.data), EnumThird.LOWER) : null;
 	}
 
 	@Nonnull
