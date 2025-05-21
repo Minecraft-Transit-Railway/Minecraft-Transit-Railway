@@ -93,7 +93,7 @@
 				"head_driver"
 			],
 			"positionDefinitions": [
-				"8b527750"
+				"cab_backward"
 			],
 			"condition": "AT_DEPOT",
 			"renderStage": "EXTERIOR",
