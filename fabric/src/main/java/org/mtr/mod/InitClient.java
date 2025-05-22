@@ -66,6 +66,7 @@ public final class InitClient {
 
 	public static void init() {
 		KeyBindings.init();
+		Init.writeFromClient();
 
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.APG_DOOR);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.APG_GLASS);

@@ -21,4 +21,8 @@ public final class Server extends ServerSchema {
 	public boolean getUseThreadedFileLoading() {
 		return useThreadedFileLoading;
 	}
+
+	public boolean forceShutDownStrayThreads() {
+		return forceShutDownStrayThreads;
+	}
 }
