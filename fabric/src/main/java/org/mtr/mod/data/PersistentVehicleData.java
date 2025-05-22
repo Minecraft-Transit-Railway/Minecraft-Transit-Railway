@@ -70,18 +70,21 @@ public final class PersistentVehicleData {
 		return doorValue;
 	}
 
-	public float getInterpolatedDoorValue(DoorAnimationType doorAnimationType, double doorZMultiplier, boolean flipped, boolean opening) {
+	public float getInterpolatedDoorValue(DoorAnimationType doorAnimationType, double doorZMultiplier, boolean flipped, double doorOverrideValue, boolean opening) {
 		final String key = doorZMultiplier + "_" + doorAnimationType + "_" + flipped;
 		final DoorMovementInterpolation doorMovementInterpolation = doorMovementInterpolations.get(key);
 		final double value = doorAnimationType.getDoorAnimationZ(doorZMultiplier, flipped, doorValue, opening);
-
+		final float interpolatedDoorValue;
 		if (doorMovementInterpolation == null) {
 			final DoorMovementInterpolation newDoorMovementInterpolation = new DoorMovementInterpolation();
 			doorMovementInterpolations.put(key, newDoorMovementInterpolation);
-			return newDoorMovementInterpolation.setAndGet(value, opening);
+			interpolatedDoorValue = newDoorMovementInterpolation.setAndGet(value, opening);
 		} else {
-			return doorMovementInterpolation.setAndGet(value, opening);
+			interpolatedDoorValue = doorMovementInterpolation.setAndGet(value, opening);
 		}
+
+		final float newDoorOverrideValue = (float) (doorOverrideValue * doorZMultiplier) * (flipped ? -1 : 1);
+		return Math.abs(newDoorOverrideValue) > Math.abs(interpolatedDoorValue) ? newDoorOverrideValue : interpolatedDoorValue;
 	}
 
 	public boolean checkCanOpenDoors() {

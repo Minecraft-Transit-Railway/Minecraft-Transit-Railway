@@ -48,6 +48,7 @@ public class VehicleRidingMovement {
 	private static int pressingBrakeTicks = 0;
 	private static int pressingDoorsTicks = 0;
 	private static int pressingAtoTicks = 0;
+	private static int doorOverrideTicks;
 
 	public static final int SEND_UPDATE_FREQUENCY = 1000;
 	private static final float VEHICLE_WALKING_SPEED_MULTIPLIER = 0.005F;
@@ -80,9 +81,13 @@ public class VehicleRidingMovement {
 		pressingDoorsTicks = isHoldingDriverKeyNew && driverKey.canOpenDoors && KeyBindings.TRAIN_TOGGLE_DOORS.isPressed() ? pressingDoorsTicks + 1 : 0;
 		pressingAtoTicks = isHoldingDriverKeyNew && driverKey.canDrive && KeyBindings.TRAIN_TOGGLE_DOORS.isPressed() ? pressingAtoTicks + 1 : 0;
 
-		if (sendPositionUpdateTime > 0 && sendPositionUpdateTime <= System.currentTimeMillis() || isHoldingDriverKeyNew != isHoldingDriverKey || pressingAccelerateTicks == 1 || pressingBrakeTicks == 1 || pressingDoorsTicks == 1 || pressingAtoTicks == 1) {
+		if (sendPositionUpdateTime > 0 && sendPositionUpdateTime <= System.currentTimeMillis() || isHoldingDriverKeyNew != isHoldingDriverKey || pressingAccelerateTicks == 1 || pressingBrakeTicks == 1 || pressingDoorsTicks == 1 || pressingAtoTicks == 1 || doorOverrideTicks == 1) {
 			isHoldingDriverKey = isHoldingDriverKeyNew;
 			sendUpdate(false);
+		}
+
+		if (doorOverrideTicks > 0) {
+			doorOverrideTicks--;
 		}
 
 		if (ridingVehicleId == 0) {
@@ -283,6 +288,14 @@ public class VehicleRidingMovement {
 		return vehicleId == ridingVehicleId;
 	}
 
+	public static void overrideDoors() {
+		final double oldDoorOverrideTicks = doorOverrideTicks;
+		doorOverrideTicks = 2;
+		if (oldDoorOverrideTicks == 0) {
+			sendUpdate(false);
+		}
+	}
+
 	/**
 	 * @param depotId the {@link org.mtr.core.data.Depot} ID
 	 * @return the driver key item that is valid for the depot ID (either a matching key or the {@link org.mtr.mod.item.ItemCreativeDriverKey})
@@ -385,7 +398,7 @@ public class VehicleRidingMovement {
 
 	private static void sendUpdate(boolean dismount) {
 		if (ridingVehicleId != 0) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketUpdateVehicleRidingEntities.create(ridingSidingId, ridingVehicleId, dismount ? -1 : ridingVehicleCarNumber, ridingVehicleX, ridingVehicleY, ridingVehicleZ, isOnGangway, isHoldingDriverKey, pressingAccelerateTicks == 1, pressingBrakeTicks == 1, pressingDoorsTicks == 1, pressingAtoTicks == 1));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(PacketUpdateVehicleRidingEntities.create(ridingSidingId, ridingVehicleId, dismount ? -1 : ridingVehicleCarNumber, ridingVehicleX, ridingVehicleY, ridingVehicleZ, isOnGangway, isHoldingDriverKey, pressingAccelerateTicks == 1, pressingBrakeTicks == 1, pressingDoorsTicks == 1, pressingAtoTicks == 1, doorOverrideTicks > 1));
 			sendPositionUpdateTime = 0;
 		}
 	}

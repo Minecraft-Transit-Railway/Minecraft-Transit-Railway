@@ -218,10 +218,10 @@ public final class VehicleResource extends VehicleResourceSchema {
 		return null;
 	}
 
-	public void queue(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int carNumber, int totalCars, int light, ObjectArrayList<Box> openDoorways) {
+	public void queue(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int carNumber, int totalCars, int light, boolean noOpenDoorways) {
 		final VehicleResourceCache vehicleResourceCache = getCachedVehicleResource(carNumber, totalCars, false);
 		if (vehicleResourceCache != null) {
-			if (openDoorways.isEmpty()) {
+			if (noOpenDoorways) {
 				queue(vehicleResourceCache.optimizedModelsDoorsClosed, storedMatrixTransformations, vehicle, light, true);
 			} else {
 				queue(vehicleResourceCache.optimizedModels, storedMatrixTransformations, vehicle, light, false);
@@ -378,9 +378,9 @@ public final class VehicleResource extends VehicleResourceSchema {
 			case ON_ROUTE_BACKWARDS:
 				return vehicle.getIsOnRoute() && vehicle.getReversed();
 			case DOORS_CLOSED:
-				return vehicle.persistentVehicleData.getDoorValue() == 0 || noOpenDoorways;
+				return vehicle.persistentVehicleData.getDoorValue() == 0 && noOpenDoorways;
 			case DOORS_OPENED:
-				return vehicle.persistentVehicleData.getDoorValue() > 0 && !noOpenDoorways;
+				return vehicle.persistentVehicleData.getDoorValue() > 0 || !noOpenDoorways;
 			default:
 				return getChristmasLightState(partCondition);
 		}

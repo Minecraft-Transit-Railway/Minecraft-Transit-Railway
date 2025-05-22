@@ -7,6 +7,7 @@ import org.mtr.core.tool.Vector;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectDoubleImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.GraphicsHolder;
@@ -123,7 +124,7 @@ public class RenderVehicles implements IGui {
 
 						// Player position relative to the car
 						final Vector3d playerPosition = absoluteVehicleCarPositionAndRotation.transformBackwards(clientPlayerEntity.getPos(), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
-						// A temporary list to store all floors and doorways
+						// A temporary list to store all floors and doorways for player movement
 						final ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsAndDoorways = new ObjectArrayList<>();
 						// Extra floors to be used to define where the gangways are
 						final GangwayMovementPositions gangwayMovementPositions1 = new GangwayMovementPositions(absoluteVehicleCarPositionAndRotation, false);
@@ -131,14 +132,41 @@ public class RenderVehicles implements IGui {
 						// Vehicle resource cache
 						final VehicleResourceCache vehicleResourceCache = vehicleResource.getCachedVehicleResource(carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), false);
 						// Find open doorways (close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates)
-						final ObjectArrayList<Box> openDoorways;
+						final ObjectArrayList<ObjectDoubleImmutablePair<Box>> openDoorways;
 						if (vehicleResourceCache != null && fromResourcePackCreator) {
-							openDoorways = vehicle.persistentVehicleData.checkCanOpenDoors() ? new ObjectArrayList<>(vehicleResourceCache.doorways) : new ObjectArrayList<>();
+							openDoorways = vehicle.persistentVehicleData.checkCanOpenDoors() ? vehicleResourceCache.doorways.stream().map(doorway -> new ObjectDoubleImmutablePair<>(doorway, 0)).collect(Collectors.toCollection(ObjectArrayList::new)) : new ObjectArrayList<>();
 							vehicle.persistentVehicleData.overrideDoorMultiplier(ResourcePackCreatorOperationServlet.getDoorMultiplier());
-						} else if (vehicleResourceCache == null || !vehicle.getTransportMode().continuousMovement && vehicle.isMoving() || !vehicle.persistentVehicleData.checkCanOpenDoors()) {
+						} else if (vehicleResourceCache == null || !vehicle.getTransportMode().continuousMovement && vehicle.isMoving()) {
 							openDoorways = new ObjectArrayList<>();
 						} else {
-							openDoorways = vehicleResourceCache.doorways.stream().filter(doorway -> RenderVehicleHelper.canOpenDoors(doorway, absoluteVehicleCarPositionAndRotation, vehicle.persistentVehicleData.getDoorValue())).collect(Collectors.toCollection(ObjectArrayList::new));
+							final ObjectArrayList<Vector3d> doorHoldingPlayerOffsetPositions = new ObjectArrayList<>();
+							// Check if this player is holding doors
+							if (ridingCarNumber == carNumber && offsetVector != null) {
+								doorHoldingPlayerOffsetPositions.add(offsetVector);
+							}
+							// Check if other players are holding doors
+							vehicle.vehicleExtraData.iterateRidingEntities(vehicleRidingEntity -> {
+								if (vehicleRidingEntity.getRidingCar() == carNumber && !vehicleRidingEntity.uuid.equals(clientPlayerEntity.getUuid())) {
+									doorHoldingPlayerOffsetPositions.add(new Vector3d(vehicleRidingEntity.getX(), vehicleRidingEntity.getY(), vehicleRidingEntity.getZ()));
+								}
+							});
+							openDoorways = new ObjectArrayList<>();
+							vehicleResourceCache.doorways.forEach(doorway -> {
+								final double[] doorBlockedAmount = {0};
+								doorHoldingPlayerOffsetPositions.forEach(doorHoldingPlayerOffset -> {
+									final double thisDoorBlockedAmount = RenderVehicleHelper.getDoorBlockedAmount(doorway, doorHoldingPlayerOffset.getXMapped(), doorHoldingPlayerOffset.getYMapped(), doorHoldingPlayerOffset.getZMapped());
+									if (thisDoorBlockedAmount > 0 && doorHoldingPlayerOffset == offsetVector) {
+										VehicleRidingMovement.overrideDoors();
+									}
+									if (thisDoorBlockedAmount > doorBlockedAmount[0]) {
+										doorBlockedAmount[0] = thisDoorBlockedAmount;
+									}
+								});
+								final boolean canOpenDoors = RenderVehicleHelper.canOpenDoors(doorway, absoluteVehicleCarPositionAndRotation, Math.max(doorBlockedAmount[0], vehicle.persistentVehicleData.getDoorValue() * 2));
+								if (doorBlockedAmount[0] > 0 || vehicle.persistentVehicleData.checkCanOpenDoors() && canOpenDoors) {
+									openDoorways.add(new ObjectDoubleImmutablePair<>(doorway, doorBlockedAmount[0]));
+								}
+							});
 						}
 						final double oscillationAmount = vehicle.persistentVehicleData.getOscillation(carNumber).getAmount() * Config.getClient().getVehicleOscillationMultiplier();
 
@@ -161,7 +189,8 @@ public class RenderVehicles implements IGui {
 								});
 							}
 
-							openDoorways.forEach(doorway -> {
+							openDoorways.forEach(openDoorway -> {
+								final Box doorway = openDoorway.left();
 								floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(doorway, false));
 								openFloorsAndDoorways.add(doorway);
 								RenderVehicleHelper.renderFloorOrDoorway(doorway, 0xFFFF0000, playerPosition, vehicleCarRenderingPositionAndRotation, offsetVector == null);
@@ -184,7 +213,7 @@ public class RenderVehicles implements IGui {
 						// Each car can have more than one model defined
 						final StoredMatrixTransformations storedMatrixTransformations = getStoredMatrixTransformations(offsetVector == null, vehicleCarRenderingPositionAndRotation, oscillationAmount);
 						if (OptimizedRenderer.hasOptimizedRendering()) {
-							vehicleResource.queue(storedMatrixTransformations, vehicle, carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), absoluteVehicleCarPositionAndRotation.light, openDoorways);
+							vehicleResource.queue(storedMatrixTransformations, vehicle, carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), absoluteVehicleCarPositionAndRotation.light, openDoorways.isEmpty());
 						}
 
 						vehicleResource.iterateModels(carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), (modelIndex, model) -> {
