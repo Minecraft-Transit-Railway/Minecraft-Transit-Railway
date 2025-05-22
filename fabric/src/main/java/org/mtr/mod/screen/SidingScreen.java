@@ -41,7 +41,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 	private static final MutableText MAX_MANUAL_SPEED = TranslationProvider.GUI_MTR_MAX_MANUAL_SPEED.getMutableText();
 	private static final int MAX_TRAINS_TEXT_LENGTH = 3;
 	private static final int MAX_TRAINS_WIDTH = 80;
-	private static final int SLIDER_SCALE = 1000 * 50 * 50;
+	private static final int SLIDER_SCALE = 1000 * 50 * 50 * 4;
 	private static final float ACCELERATION_UNIT_CONVERSION_1 = 1000 * 1000; // m/ms^2 to m/s^2
 	private static final float ACCELERATION_UNIT_CONVERSION_2 = ACCELERATION_UNIT_CONVERSION_1 * 3.6F; // m/ms^2 to km/h/s
 
