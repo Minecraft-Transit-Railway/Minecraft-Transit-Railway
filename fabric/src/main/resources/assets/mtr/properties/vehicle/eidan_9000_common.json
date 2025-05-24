@@ -185,7 +185,7 @@
 				"roof_door_light"
 			],
 			"positionDefinitions": [
-				"window"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "LIGHT",
