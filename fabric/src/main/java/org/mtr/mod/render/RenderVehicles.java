@@ -612,7 +612,7 @@ public class RenderVehicles implements IGui {
 		}
 	}
 
-	private static class PreviousConnectionPositions {
+	public static class PreviousConnectionPositions {
 
 		private Vector position1;
 		private Vector position2;
