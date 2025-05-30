@@ -521,6 +521,7 @@
 	"key.mtr.train_accelerate": "Accelerate Vehicle",
 	"key.mtr.train_brake": "Brake Vehicle",
 	"key.mtr.train_toggle_doors": "Toggle Doors",
+	"lift.mtr.default_lift": "Default Lift",
 	"options.mtr.anonymous": "Anonymous",
 	"options.mtr.default_rail_3d": "Render default rails in 3D",
 	"options.mtr.disable_shadows_for_shaders": "Disable shadows when using shaders",
