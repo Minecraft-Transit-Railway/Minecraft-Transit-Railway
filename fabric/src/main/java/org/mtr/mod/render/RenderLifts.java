@@ -17,6 +17,7 @@ import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.Init;
 import org.mtr.mod.Items;
 import org.mtr.mod.block.BlockLiftTrackFloor;
+import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.client.VehicleRidingMovement;
@@ -24,13 +25,14 @@ import org.mtr.mod.data.IGui;
 import org.mtr.mod.item.ItemLiftRefresher;
 import org.mtr.mod.model.ModelLift1;
 import org.mtr.mod.model.ModelSmallCube;
+import org.mtr.mod.resource.LiftResource;
 
+import javax.annotation.Nullable;
 import java.util.function.Function;
 
 public class RenderLifts implements IGui {
 
 	private static final int LIFT_DISPLAY_COLOR = 0xFFFF0000;
-	private static final Identifier LIFT_TEXTURE = new Identifier(Init.MOD_ID, "textures/vehicle/lift_1.png");
 	private static final ModelSmallCube MODEL_SMALL_CUBE = new ModelSmallCube(new Identifier("textures/block/redstone_block.png"));
 	private static final float LIFT_DOOR_VALUE = 0.75F;
 	private static final float LIFT_FLOOR_PADDING = 0.25F;
@@ -52,6 +54,11 @@ public class RenderLifts implements IGui {
 
 		MinecraftClientData.getInstance().liftWrapperList.values().forEach(liftWrapper -> {
 			final Lift lift = liftWrapper.getLift();
+			LiftResource liftResource = getLift(lift.getStyle());
+			if (liftResource == null) {
+				liftResource = getLift(CustomResourceLoader.DEFAULT_LIFT_ID);
+			}
+			final Identifier LIFT_TEXTURE = liftResource.getTexture();
 
 			if (isHoldingRefresher) {
 				// Render lift path for debugging
@@ -245,5 +252,15 @@ public class RenderLifts implements IGui {
 				position.y + lift.getOffsetY(),
 				position.z + lift.getOffsetZ()
 		), -Math.PI / 2 - lift.getAngle().angleRadians, 0);
+	}
+
+	public static LiftResource getLift(@Nullable String liftId) {
+		if (liftId == null) {
+			return null;
+		} else {
+			final LiftResource[] liftResource = {null};
+			CustomResourceLoader.getLiftById(liftId, newLiftResource -> liftResource[0] = newLiftResource);
+			return liftResource[0];
+		}
 	}
 }

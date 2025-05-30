@@ -2,8 +2,10 @@ package org.mtr.mod.client;
 
 import org.apache.commons.io.IOUtils;
 import org.mtr.core.data.TransportMode;
+import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
 import org.mtr.legacy.resource.CustomResourcesConverter;
+import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MinecraftClient;
@@ -31,6 +33,7 @@ public class CustomResourceLoader {
 	public static final String DEFAULT_RAIL_ID = "default";
 	public static final String DEFAULT_RAIL_3D_ID = "default_3d";
 	public static final String DEFAULT_RAIL_3D_SIDING_ID = "default_3d_siding";
+	public static final String DEFAULT_LIFT_ID = "default_lift";
 
 	private static final Object2ObjectAVLTreeMap<String, String> RESOURCE_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, ObjectArrayList<VehicleResource>> VEHICLES = new Object2ObjectAVLTreeMap<>();
@@ -44,6 +47,8 @@ public class CustomResourceLoader {
 	private static final Object2ObjectAVLTreeMap<String, ObjectResource> OBJECTS_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final ObjectArraySet<MinecraftModelResource> MINECRAFT_MODEL_RESOURCES = new ObjectArraySet<>();
 	private static final ObjectArraySet<String> MINECRAFT_TEXTURE_RESOURCES = new ObjectArraySet<>();
+	private static final ObjectArrayList<LiftResource> LIFTS = new ObjectArrayList<>();
+	private static final Object2ObjectAVLTreeMap<String, LiftResource> LIFTS_CACHE = new Object2ObjectAVLTreeMap<>();
 
 	static {
 		for (final TransportMode transportMode : TransportMode.values()) {
@@ -66,6 +71,8 @@ public class CustomResourceLoader {
 		RAILS_CACHE.clear();
 		OBJECTS.clear();
 		OBJECTS_CACHE.clear();
+		RAILS.clear();
+		RAILS_CACHE.clear();
 		TEST_DURATION = 0;
 
 		final RailResource defaultRailResource = new RailResource(DEFAULT_RAIL_ID, "Default", CustomResourceLoader::readResource);
@@ -102,6 +109,20 @@ public class CustomResourceLoader {
 			}
 		});
 
+		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_ID + ".json"), inputStream -> {
+			try {
+				final JsonObject jsonObject = Config.readResource(inputStream).getAsJsonObject();
+
+				jsonObject.getAsJsonArray("lifts").forEach(entry -> {
+					LiftResource liftResource = new LiftResource(new JsonReader(entry.getAsJsonObject()));
+					LIFTS.add(liftResource);
+					LIFTS_CACHE.put(liftResource.getId(), liftResource);
+				});
+			} catch (Exception e) {
+				Init.LOGGER.error("", e);
+			}
+		});
+
 		CustomResourcesConverter.convertRails(railResource -> {
 			RAILS.add(railResource);
 			RAILS_CACHE.put(railResource.getId(), railResource);
@@ -116,11 +137,13 @@ public class CustomResourceLoader {
 		validateDataset("Sign", SIGNS, SignResource::getId);
 		validateDataset("Rail", RAILS, RailResource::getId);
 		validateDataset("Object", OBJECTS, ObjectResource::getId);
+		validateDataset("Lift", LIFTS, LiftResource::getId);
 
 		Init.LOGGER.info("Loaded {} vehicles and completed door movement validation in {} ms", VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum), TEST_DURATION / 1E6);
 		Init.LOGGER.info("Loaded {} signs", SIGNS.size());
 		Init.LOGGER.info("Loaded {} rails", RAILS.size());
 		Init.LOGGER.info("Loaded {} objects", OBJECTS.size());
+		Init.LOGGER.info("Loaded {} lifts", LIFTS.size());
 
 		final long time1 = System.currentTimeMillis();
 
@@ -244,6 +267,10 @@ public class CustomResourceLoader {
 		return new ObjectImmutableList<>(RAILS);
 	}
 
+	public static ObjectImmutableList<LiftResource> getLifts() {
+		return new ObjectImmutableList<>(LIFTS);
+	}
+
 	public static void getRailById(String railId, Consumer<RailResource> ifPresent) {
 		final RailResource railResource = RAILS_CACHE.get(railId);
 		if (railResource != null) {
@@ -259,6 +286,13 @@ public class CustomResourceLoader {
 		final ObjectResource objectResource = OBJECTS_CACHE.get(objectId);
 		if (objectResource != null) {
 			ifPresent.accept(objectResource);
+		}
+	}
+
+	public static void getLiftById(String liftId, Consumer<LiftResource> ifPresent) {
+		final LiftResource liftResource = LIFTS_CACHE.get(liftId);
+		if (liftResource != null) {
+			ifPresent.accept(liftResource);
 		}
 	}
 
