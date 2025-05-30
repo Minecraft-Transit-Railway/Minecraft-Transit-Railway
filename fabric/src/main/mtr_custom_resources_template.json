@@ -925,5 +925,12 @@
 				"z": 0.15
 			}
 		}
+	],
+	"lifts": [
+		{
+			"id": "default_lift",
+			"textureResource": "mtr:textures/vehicle/lift_1.png",
+			"name": "lift.mtr.default_lift"
+		}
 	]
 }
