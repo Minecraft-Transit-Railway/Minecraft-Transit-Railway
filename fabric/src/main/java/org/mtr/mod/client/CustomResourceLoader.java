@@ -2,10 +2,8 @@ package org.mtr.mod.client;
 
 import org.apache.commons.io.IOUtils;
 import org.mtr.core.data.TransportMode;
-import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
 import org.mtr.legacy.resource.CustomResourcesConverter;
-import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MinecraftClient;
@@ -33,7 +31,7 @@ public class CustomResourceLoader {
 	public static final String DEFAULT_RAIL_ID = "default";
 	public static final String DEFAULT_RAIL_3D_ID = "default_3d";
 	public static final String DEFAULT_RAIL_3D_SIDING_ID = "default_3d_siding";
-	public static final String DEFAULT_LIFT_ID = "default_lift";
+	public static final String DEFAULT_LIFT_TRANSPARENT_ID = "default_transparent";
 
 	private static final Object2ObjectAVLTreeMap<String, String> RESOURCE_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, ObjectArrayList<VehicleResource>> VEHICLES = new Object2ObjectAVLTreeMap<>();
@@ -71,8 +69,8 @@ public class CustomResourceLoader {
 		RAILS_CACHE.clear();
 		OBJECTS.clear();
 		OBJECTS_CACHE.clear();
-		RAILS.clear();
-		RAILS_CACHE.clear();
+		LIFTS.clear();
+		LIFTS_CACHE.clear();
 		TEST_DURATION = 0;
 
 		final RailResource defaultRailResource = new RailResource(DEFAULT_RAIL_ID, "Default", CustomResourceLoader::readResource);
@@ -95,6 +93,10 @@ public class CustomResourceLoader {
 					OBJECTS.add(objectResource);
 					OBJECTS_CACHE.put(objectResource.getId(), objectResource);
 				});
+				customResources.iterateLifts(liftResource -> {
+					LIFTS.add(liftResource);
+					LIFTS_CACHE.put(liftResource.getId(), liftResource);
+				});
 			} catch (Exception e) {
 				Init.LOGGER.error("", e);
 			}
@@ -104,20 +106,6 @@ public class CustomResourceLoader {
 		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_PENDING_MIGRATION_ID + ".json"), inputStream -> {
 			try {
 				CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject(), CustomResourceLoader::readResource).iterateVehicles(vehicleResource -> registerVehicle(vehicleResource, false));
-			} catch (Exception e) {
-				Init.LOGGER.error("", e);
-			}
-		});
-
-		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_ID + ".json"), inputStream -> {
-			try {
-				final JsonObject jsonObject = Config.readResource(inputStream).getAsJsonObject();
-
-				jsonObject.getAsJsonArray("lifts").forEach(entry -> {
-					LiftResource liftResource = new LiftResource(new JsonReader(entry.getAsJsonObject()));
-					LIFTS.add(liftResource);
-					LIFTS_CACHE.put(liftResource.getId(), liftResource);
-				});
 			} catch (Exception e) {
 				Init.LOGGER.error("", e);
 			}
@@ -220,9 +208,9 @@ public class CustomResourceLoader {
 	 */
 	private static <T> void validateDataset(String dataSetName, List<T> dataSet, Function<T, String> getId) {
 		ObjectOpenHashSet<String> addedIds = new ObjectOpenHashSet<>();
-		for(T data : dataSet) {
+		for (T data : dataSet) {
 			String id = getId.apply(data);
-			if(addedIds.contains(id)) {
+			if (addedIds.contains(id)) {
 				Init.LOGGER.warn("MTR {} resource contains duplicated id {}!", dataSetName, id);
 			} else {
 				addedIds.add(id);
@@ -267,10 +255,6 @@ public class CustomResourceLoader {
 		return new ObjectImmutableList<>(RAILS);
 	}
 
-	public static ObjectImmutableList<LiftResource> getLifts() {
-		return new ObjectImmutableList<>(LIFTS);
-	}
-
 	public static void getRailById(String railId, Consumer<RailResource> ifPresent) {
 		final RailResource railResource = RAILS_CACHE.get(railId);
 		if (railResource != null) {
@@ -287,6 +271,10 @@ public class CustomResourceLoader {
 		if (objectResource != null) {
 			ifPresent.accept(objectResource);
 		}
+	}
+
+	public static ObjectImmutableList<LiftResource> getLifts() {
+		return new ObjectImmutableList<>(LIFTS);
 	}
 
 	public static void getLiftById(String liftId, Consumer<LiftResource> ifPresent) {

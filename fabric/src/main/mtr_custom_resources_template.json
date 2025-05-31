@@ -899,14 +899,14 @@
 	"rails": [
 		{
 			"id": "default_3d",
-			"name": "3D Rail",
+			"name": "rail.mtr.default_3d",
 			"color": "A7A7A7",
 			"modelResource": "mtr:models/rail/rail.obj",
 			"repeatInterval": 0.5
 		},
 		{
 			"id": "default_3d_siding",
-			"name": "3D Siding Rail",
+			"name": "rail.mtr.default_3d_siding",
 			"color": "E5E533",
 			"modelResource": "mtr:models/rail/rail_siding.obj",
 			"repeatInterval": 0.5
@@ -915,7 +915,7 @@
 	"objects": [
 		{
 			"id": "teapot",
-			"name": "Utah Teapot (NTE)",
+			"name": "object.mtr.teapot",
 			"color": "D0D0D0",
 			"modelResource": "mtr:models/object/teapot.obj",
 			"textureResource": "mtr:textures/block/metal.png",
@@ -928,9 +928,10 @@
 	],
 	"lifts": [
 		{
-			"id": "default_lift",
-			"textureResource": "mtr:textures/vehicle/lift_1.png",
-			"name": "lift.mtr.default_lift"
+			"id": "default_transparent",
+			"name": "lift.mtr.default_transparent",
+			"color": "CCCCCC",
+			"textureResource": "mtr:textures/vehicle/lift_1.png"
 		}
 	]
 }

@@ -142,7 +142,7 @@ public class ItemLiftRefresher extends ItemExtension implements DirectionHelper 
 		final Lift lift = new Lift(new MinecraftClientData());
 		lift.setFloors(liftFloors);
 		lift.setDimensions(3, 2, 2, 0, 0, 0);
-		lift.setStyle(CustomResourceLoader.DEFAULT_LIFT_ID);
+		lift.setStyle(CustomResourceLoader.DEFAULT_LIFT_TRANSPARENT_ID);
 		Init.sendMessageC2S(OperationProcessor.GENERATE_BY_LIFT, serverWorld.getServer(), new World(serverWorld.data), lift, null, null);
 	}
 }

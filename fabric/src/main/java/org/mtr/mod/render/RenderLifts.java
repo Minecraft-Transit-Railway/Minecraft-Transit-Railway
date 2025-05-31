@@ -54,11 +54,6 @@ public class RenderLifts implements IGui {
 
 		MinecraftClientData.getInstance().liftWrapperList.values().forEach(liftWrapper -> {
 			final Lift lift = liftWrapper.getLift();
-			LiftResource liftResource = getLift(lift.getStyle());
-			if (liftResource == null) {
-				liftResource = getLift(CustomResourceLoader.DEFAULT_LIFT_ID);
-			}
-			final Identifier LIFT_TEXTURE = liftResource.getTexture();
 
 			if (isHoldingRefresher) {
 				// Render lift path for debugging
@@ -169,7 +164,7 @@ public class RenderLifts implements IGui {
 				new ModelLift1((int) Math.round(lift.getHeight() * 2), (int) Math.round(lift.getWidth()), (int) Math.round(lift.getDepth()), lift.getIsDoubleSided()).render(
 						storedMatrixTransformations,
 						null,
-						LIFT_TEXTURE,
+						getLiftResource(lift.getStyle()).getTexture(),
 						absolutePositionAndRotation.light,
 						doorway1Open ? lift.getDoorValue() / LIFT_DOOR_VALUE : 0, doorway2Open ? lift.getDoorValue() / LIFT_DOOR_VALUE : 0, false,
 						0, 1, true, true, false, true, false
@@ -245,6 +240,20 @@ public class RenderLifts implements IGui {
 		return new ObjectObjectImmutablePair<>(lift.getDirection(), new ObjectObjectImmutablePair<>(floorNumber, floorDescription));
 	}
 
+	public static LiftResource getLiftResource(@Nullable String liftId) {
+		final LiftResource liftResource;
+
+		if (liftId == null) {
+			liftResource = null;
+		} else {
+			final LiftResource[] tempLiftResource = {null};
+			CustomResourceLoader.getLiftById(liftId, newLiftResource -> tempLiftResource[0] = newLiftResource);
+			liftResource = tempLiftResource[0];
+		}
+
+		return liftResource == null ? CustomResourceLoader.getLifts().get(0) : liftResource;
+	}
+
 	private static PositionAndRotation getLiftPositionAndRotation(ClientWorld clientWorld, Lift lift) {
 		final Vector position = lift.getPosition((floorPosition1, floorPosition2) -> ItemLiftRefresher.findPath(new World(clientWorld.data), floorPosition1, floorPosition2));
 		return new PositionAndRotation(new Vector(
@@ -252,15 +261,5 @@ public class RenderLifts implements IGui {
 				position.y + lift.getOffsetY(),
 				position.z + lift.getOffsetZ()
 		), -Math.PI / 2 - lift.getAngle().angleRadians, 0);
-	}
-
-	public static LiftResource getLift(@Nullable String liftId) {
-		if (liftId == null) {
-			return null;
-		} else {
-			final LiftResource[] liftResource = {null};
-			CustomResourceLoader.getLiftById(liftId, newLiftResource -> liftResource[0] = newLiftResource);
-			return liftResource[0];
-		}
 	}
 }

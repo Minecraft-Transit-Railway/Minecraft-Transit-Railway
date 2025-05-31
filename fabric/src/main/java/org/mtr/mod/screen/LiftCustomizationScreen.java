@@ -103,9 +103,7 @@ public class LiftCustomizationScreen extends MTRScreenBase implements IGui {
 			updateControls(true);
 		});
 		buttonIsDoubleSided.setMessage2(new Text(doubleSidedText.data));
-		buttonLiftStyle = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> {
-            MinecraftClient.getInstance().openScreen(new Screen(LiftStyleSelectorScreen.create(lift)));
-        });
+		buttonLiftStyle = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> MinecraftClient.getInstance().openScreen(new Screen(LiftStyleSelectorScreen.create(lift, this))));
 		buttonRotateAnticlockwise = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, rotateAnticlockwiseText, button -> {
 			liftDirection = liftDirection.rotateYCounterclockwise();
 			lift.setAngle(Angle.fromAngle(liftDirection.asRotation()));
@@ -195,7 +193,7 @@ public class LiftCustomizationScreen extends MTRScreenBase implements IGui {
 		buttonOffsetZMinus.active = lift.getOffsetZ() > -MAX_OFFSET;
 		buttonOffsetZAdd.active = lift.getOffsetZ() < MAX_OFFSET;
 		buttonIsDoubleSided.setChecked(lift.getIsDoubleSided());
-		buttonLiftStyle.setMessage2(Text.of(RenderLifts.getLift(lift.getStyle()).getName().getString()));
+		buttonLiftStyle.setMessage2(TranslationProvider.GUI_MTR_LIFT_STYLE.getText(RenderLifts.getLiftResource(lift.getStyle()).getName()));
 
 		if (sendUpdate) {
 			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addLift(lift)));
