@@ -126,6 +126,7 @@ public final class Blocks {
 		STATION_NAME_TALL_BLOCK = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_name_tall_block"), () -> new Block(new BlockStationNameTallBlock()), CreativeModeTabs.RAILWAY_FACILITIES);
 		STATION_NAME_TALL_BLOCK_DOUBLE_SIDED = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_name_tall_block_double_sided"), () -> new Block(new BlockStationNameTallBlockDoubleSided()), CreativeModeTabs.RAILWAY_FACILITIES);
 		STATION_NAME_TALL_WALL = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_name_tall_wall"), () -> new Block(new BlockStationNameTallWall()), CreativeModeTabs.RAILWAY_FACILITIES);
+		STATION_NAME_TALL_STANDING = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_name_tall_standing"), () -> new Block(new BlockStationNameTallStanding()), CreativeModeTabs.RAILWAY_FACILITIES);
 		STATION_NAME_WALL_WHITE = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_name_wall"), () -> new Block(new BlockStationNameWallWhite(createDefaultBlockSettings(true))), CreativeModeTabs.RAILWAY_FACILITIES);
 		STATION_NAME_WALL_GRAY = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_name_wall_gray"), () -> new Block(new BlockStationNameWallGray(createDefaultBlockSettings(true))), CreativeModeTabs.RAILWAY_FACILITIES);
 		STATION_NAME_WALL_BLACK = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_name_wall_black"), () -> new Block(new BlockStationNameWallBlack(createDefaultBlockSettings(true))), CreativeModeTabs.RAILWAY_FACILITIES);
@@ -235,6 +236,7 @@ public final class Blocks {
 		GLASS_FENCE_STW = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "glass_fence_stw"), () -> new Block(new BlockGlassFence()), CreativeModeTabs.RAILWAY_FACILITIES);
 		GLASS_FENCE_TSH = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "glass_fence_tsh"), () -> new Block(new BlockGlassFence()), CreativeModeTabs.RAILWAY_FACILITIES);
 		GLASS_FENCE_WKS = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "glass_fence_wks"), () -> new Block(new BlockGlassFence()), CreativeModeTabs.RAILWAY_FACILITIES);
+		DRIVER_KEY_DISPENSER = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "driver_key_dispenser"), () -> new Block(new BlockDriverKeyDispenser(createDefaultBlockSettings(true))), CreativeModeTabs.CORE);
 		LOGO = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "logo"), () -> new Block(new BlockExtension(createDefaultBlockSettings(false, blockState -> 10))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		MARBLE_BLUE = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "marble_blue"), () -> new Block(new BlockExtension(createDefaultBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
 		MARBLE_BLUE_SLAB = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "marble_blue_slab"), () -> new Block(new SlabBlockExtension(createDefaultBlockSettings(false))), CreativeModeTabs.STATION_BUILDING_BLOCKS);
@@ -267,6 +269,7 @@ public final class Blocks {
 	public static final BlockRegistryObject CEILING_NO_LIGHT;
 	public static final BlockRegistryObject CLOCK;
 	public static final BlockRegistryObject CLOCK_POLE;
+	public static final BlockRegistryObject DRIVER_KEY_DISPENSER;
 	public static final BlockRegistryObject ESCALATOR_SIDE;
 	public static final BlockRegistryObject ESCALATOR_STEP;
 	public static final BlockRegistryObject GLASS_FENCE_CIO;
@@ -426,6 +429,7 @@ public final class Blocks {
 	public static final BlockRegistryObject STATION_NAME_TALL_BLOCK;
 	public static final BlockRegistryObject STATION_NAME_TALL_BLOCK_DOUBLE_SIDED;
 	public static final BlockRegistryObject STATION_NAME_TALL_WALL;
+	public static final BlockRegistryObject STATION_NAME_TALL_STANDING;
 	public static final BlockRegistryObject STATION_NAME_WALL_BLACK;
 	public static final BlockRegistryObject STATION_NAME_WALL_GRAY;
 	public static final BlockRegistryObject STATION_NAME_WALL_WHITE;

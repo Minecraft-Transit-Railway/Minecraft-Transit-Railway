@@ -1,0 +1,19 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"   ",
+		"SNS",
+		"S S"
+	],
+	"key": {
+		"N": {
+			"item": "mtr:station_name_tall_wall"
+		},
+		"S": {
+			"item": "minecraft:stick"
+		}
+	},
+	"result": {
+		"item": "mtr:station_name_tall_standing"
+	}
+}

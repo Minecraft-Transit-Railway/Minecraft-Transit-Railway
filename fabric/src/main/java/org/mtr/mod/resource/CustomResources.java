@@ -62,4 +62,8 @@ public final class CustomResources extends CustomResourcesSchema {
 	public void iterateObjects(Consumer<ObjectResource> consumer) {
 		objects.forEach(consumer);
 	}
+
+	public void iterateLifts(Consumer<LiftResource> consumer) {
+		lifts.forEach(consumer);
+	}
 }

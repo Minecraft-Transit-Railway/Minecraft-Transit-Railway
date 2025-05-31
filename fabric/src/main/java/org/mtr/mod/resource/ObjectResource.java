@@ -4,6 +4,7 @@ import org.mtr.core.serializer.ReaderBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectCollection;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.mapper.OptimizedModel;
+import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.generated.resource.ObjectResourceSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
@@ -56,7 +57,7 @@ public final class ObjectResource extends ObjectResourceSchema implements Stored
 	}
 
 	public String getName() {
-		return name;
+		return TextHelper.translatable(name).getString();
 	}
 
 	public int getColor() {

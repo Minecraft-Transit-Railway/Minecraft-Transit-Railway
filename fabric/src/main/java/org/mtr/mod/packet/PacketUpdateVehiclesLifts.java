@@ -1,6 +1,7 @@
 package org.mtr.mod.packet;
 
 import org.mtr.core.data.NameColorDataBase;
+import org.mtr.core.data.PathData;
 import org.mtr.core.operation.VehicleLiftResponse;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
@@ -12,10 +13,11 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mapping.tool.PacketBufferReceiver;
 import org.mtr.mod.client.MinecraftClientData;
-import org.mtr.mod.client.VehicleRidingMovement;
 import org.mtr.mod.data.VehicleExtension;
+import org.mtr.mod.render.RenderVehicles;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
@@ -52,7 +54,12 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 
 		if (hasUpdate1 || hasUpdate2) {
 			if (hasUpdate1) {
-				minecraftClientData.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(new MinecraftClientData())));
+				EntityHelper.HIDDEN_PLAYERS.clear();
+				minecraftClientData.vehicles.forEach(vehicle -> {
+					PathData.writePathCache(vehicle.vehicleExtraData.immutablePath, new MinecraftClientData(), vehicle.getTransportMode());
+					vehicle.vehicleExtraData.iterateRidingEntities(vehicleRidingEntity -> EntityHelper.HIDDEN_PLAYERS.add(vehicleRidingEntity.uuid));
+				});
+				RenderVehicles.RIDING_PLAYER_INTERPOLATIONS.removeIf(ridingPlayerInterpolation -> EntityHelper.HIDDEN_PLAYERS.stream().noneMatch(uuid -> uuid.equals(ridingPlayerInterpolation.uuid)));
 			}
 			minecraftClientData.sync();
 		}
@@ -90,7 +97,6 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 	private static <T extends NameColorDataBase, U> boolean updateVehiclesOrLifts(ObjectArraySet<T> dataSet, Consumer<LongConsumer> iterateKeep, Consumer<Consumer<U>> iterateUpdate, Consumer<T> onRemove, ToLongFunction<U> getId, Function<U, T> createInstance) {
 		final LongAVLTreeSet keepIds = new LongAVLTreeSet();
 		iterateKeep.accept(keepIds::add);
-		VehicleRidingMovement.writeVehicleId(keepIds);
 
 		final LongAVLTreeSet updateIds = new LongAVLTreeSet();
 		final ObjectArrayList<U> dataSetToUpdate = new ObjectArrayList<>();

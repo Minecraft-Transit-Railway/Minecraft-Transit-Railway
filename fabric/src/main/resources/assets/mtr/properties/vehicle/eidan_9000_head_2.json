@@ -1,0 +1,281 @@
+{
+	"parts": [
+		{
+			"names": [
+				"head"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"head_exterior"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"head_floor"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"roof_head_light"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "LIGHT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"roof_head_light"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "EXTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"roof_head_light"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "EXTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"head_driver"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"head_driver"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "EXTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"head_driver"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "EXTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"headlight"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"taillight"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"taillight"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "ALWAYS_ON_LIGHT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"maskl"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"maskd"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"maskdr"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "EXTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"tr1"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "INTERIOR_TRANSLUCENT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"tr2"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "INTERIOR_TRANSLUCENT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"tr1"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "INTERIOR_TRANSLUCENT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"tr2"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "INTERIOR_TRANSLUCENT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"head_display"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0.6,
+			"displayColorCjk": "FF9900",
+			"displayColor": "FF9900",
+			"displayMaxLineHeight": 1.5,
+			"displayCjkSizeRatio": 2,
+			"displayOptions": [
+				"UPPER_CASE",
+				"SPACE_CJK"
+			],
+			"displayPadZeros": 0,
+			"displayType": "DESTINATION",
+			"displayDefaultText": "回送|Not In Service"
+		},
+		{
+			"names": [
+				"head_display2"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0.5,
+			"displayColorCjk": "FF0000",
+			"displayColor": "FF0000",
+			"displayMaxLineHeight": 1.5,
+			"displayCjkSizeRatio": 2,
+			"displayOptions": [
+				"UPPER_CASE"
+			],
+			"displayPadZeros": 0,
+			"displayType": "ROUTE_NUMBER",
+			"displayDefaultText": ""
+		},
+		{
+			"names": [
+				"head_index"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0,
+			"displayColorCjk": "FF9900",
+			"displayColor": "FF9900",
+			"displayMaxLineHeight": 1.5,
+			"displayCjkSizeRatio": 2,
+			"displayOptions": [],
+			"displayPadZeros": 3,
+			"displayType": "DEPARTURE_INDEX"
+		}
+	],
+	"modelYOffset": 1
+}

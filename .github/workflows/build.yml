@@ -8,6 +8,8 @@ jobs:
       matrix:
         minecraft: [ 1.16.5, 1.17.1, 1.18.2, 1.19.2, 1.19.4, 1.20.1, 1.20.4 ]
     runs-on: ubuntu-latest
+    env:
+      BUILD_ARTIFACTS: ${{ secrets.BUILD_ARTIFACTS }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@main
@@ -43,6 +45,7 @@ jobs:
       - name: Build ${{ matrix.minecraft }} (server)
         run: ./gradlew build -PminecraftVersion="${{ matrix.minecraft }}" -PexcludeAssets=true
       - name: Capture release artifacts
+        if: env.BUILD_ARTIFACTS == 'true'
         uses: actions/upload-artifact@main
         with:
           name: Fabric and Forge ${{ matrix.minecraft }}

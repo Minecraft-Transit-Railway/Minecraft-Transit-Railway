@@ -3,8 +3,8 @@ package org.mtr.mod.client;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.Vector3d;
+import org.mtr.mod.render.PositionAndRotation;
 import org.mtr.mod.render.RenderVehicleHelper;
-import org.mtr.mod.render.RenderVehicleTransformationHelper;
 
 public class GangwayMovementPositions {
 
@@ -14,11 +14,11 @@ public class GangwayMovementPositions {
 	private double xMaxClamped;
 	private double y;
 	private double z;
-	private final RenderVehicleTransformationHelper renderVehicleTransformationHelper;
+	private final PositionAndRotation positionAndRotation;
 	private final boolean getMax;
 
-	public GangwayMovementPositions(RenderVehicleTransformationHelper renderVehicleTransformationHelper, boolean getMax) {
-		this.renderVehicleTransformationHelper = renderVehicleTransformationHelper;
+	public GangwayMovementPositions(PositionAndRotation positionAndRotation, boolean getMax) {
+		this.positionAndRotation = positionAndRotation;
 		this.getMax = getMax;
 	}
 
@@ -69,10 +69,10 @@ public class GangwayMovementPositions {
 	}
 
 	public Vector3d getMinWorldPosition() {
-		return renderVehicleTransformationHelper.transformForwards(new Vector3d(xMinClamped, y, z), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+		return positionAndRotation.transformForwards(new Vector3d(xMinClamped, y, z), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
 	}
 
 	public Vector3d getMaxWorldPosition() {
-		return renderVehicleTransformationHelper.transformForwards(new Vector3d(xMaxClamped, y, z), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+		return positionAndRotation.transformForwards(new Vector3d(xMaxClamped, y, z), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
 	}
 }

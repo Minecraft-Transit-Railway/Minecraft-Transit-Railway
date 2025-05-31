@@ -1,5 +1,6 @@
 package org.mtr.mod.block;
 
+import org.mtr.core.data.Vehicle;
 import org.mtr.core.tool.Utilities;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
@@ -7,8 +8,10 @@ import org.mtr.mapping.mapper.BlockWithEntity;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.generated.lang.TranslationProvider;
+import org.mtr.mod.render.RenderVehicleHelper;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements BlockWithEntity {
@@ -72,6 +75,55 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 		}
 	}
 
+	@Override
+	public void onEntityCollision2(BlockState state, World world, BlockPos pos, Entity entity) {
+		if (world.isClient() && PlayerEntity.isInstance(entity)) {
+			final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+			final boolean inDoorHitbox;
+
+			// TODO don't hard code these bounds
+			switch (facing) {
+				case NORTH:
+					inDoorHitbox = entity.getZ() + RenderVehicleHelper.HALF_PLAYER_WIDTH > pos.getZ() + 0.01 && entity.getZ() - RenderVehicleHelper.HALF_PLAYER_WIDTH < pos.getZ() + 0.24;
+					break;
+				case EAST:
+					inDoorHitbox = entity.getX() + RenderVehicleHelper.HALF_PLAYER_WIDTH > pos.getX() + 1 - 0.24 && entity.getX() - RenderVehicleHelper.HALF_PLAYER_WIDTH < pos.getX() + 1 - 0.01;
+					break;
+				case SOUTH:
+					inDoorHitbox = entity.getZ() + RenderVehicleHelper.HALF_PLAYER_WIDTH > pos.getZ() + 1 - 0.24 && entity.getZ() - RenderVehicleHelper.HALF_PLAYER_WIDTH < pos.getZ() + 1 - 0.01;
+					break;
+				case WEST:
+					inDoorHitbox = entity.getX() + RenderVehicleHelper.HALF_PLAYER_WIDTH > pos.getX() + 0.01 && entity.getX() - RenderVehicleHelper.HALF_PLAYER_WIDTH < pos.getX() + 0.24;
+					break;
+				default:
+					inDoorHitbox = false;
+			}
+
+			if (inDoorHitbox) {
+				final boolean southWest = facing == Direction.SOUTH || facing == Direction.WEST;
+				final boolean side = IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT;
+				final double doorBlockedAmount;
+
+				switch (facing) {
+					case NORTH:
+					case SOUTH:
+						doorBlockedAmount = Utilities.isBetween(entity.getX(), pos.getX(), pos.getX() + 1) ? ((side == southWest) ? pos.getX() + 1 - entity.getX() : entity.getX() - pos.getX()) + RenderVehicleHelper.HALF_PLAYER_WIDTH : 0;
+						break;
+					case EAST:
+					case WEST:
+						doorBlockedAmount = Utilities.isBetween(entity.getZ(), pos.getZ(), pos.getZ() + 1) ? ((side == southWest) ? pos.getZ() + 1 - entity.getZ() : entity.getZ() - pos.getZ()) + RenderVehicleHelper.HALF_PLAYER_WIDTH : 0;
+						break;
+					default:
+						doorBlockedAmount = 0;
+				}
+
+				if (doorBlockedAmount > 0) {
+					// TODO
+				}
+			}
+		}
+	}
+
 	@Nonnull
 	@Override
 	public BlockRenderType getRenderType2(BlockState state) {
@@ -107,48 +159,81 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 		world.setBlockState(pos, state.with(new Property<>(UNLOCKED.data), unlocked));
 	}
 
+	@Nullable
+	private static BlockEntityBase getBottomBlockEntity(@Nullable World world, BlockPos pos) {
+		final BlockEntity blockEntity = world == null ? null : world.getBlockEntity(pos.down(IBlock.getStatePropertySafe(world.getBlockState(pos), HALF) == DoubleBlockHalf.UPPER ? 1 : 0));
+		return blockEntity != null && blockEntity.data instanceof BlockEntityBase ? (BlockEntityBase) blockEntity.data : null;
+	}
+
 	public static abstract class BlockEntityBase extends BlockEntityExtension implements IGui {
 
 		private double doorValue;
-		private double redstoneDoorValue;
-		private static final int REDSTONE_DETECT_DEPTH = 2;
+		private double doorOverrideValue;
+		private int doorTarget;
+
+		private static final int REDSTONE_DETECT_DEPTH = 3;
 
 		public BlockEntityBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
 		}
 
-		public void open(double vehicleDoorValue) {
-			doorValue = Utilities.clamp(vehicleDoorValue * 2, 0, 1);
-		}
-
-		public double getDoorValue() {
-			return Math.max(doorValue, redstoneDoorValue);
-		}
-
-		public void updateRedstone(float tickDelta) {
-			final World world = getWorldMapped();
-			final double delta = (tickDelta / 20) / 2;
-
-			if (world != null && receivedRedstonePower(world, getPos2(), getCachedState2())) {
-				redstoneDoorValue = Utilities.clamp(redstoneDoorValue + delta, 0, 1);
-			} else {
-				redstoneDoorValue = Utilities.clamp(redstoneDoorValue - delta, 0, 1);
+		public void setDoorValue(double vehicleDoorValue) {
+			final BlockEntityBase blockEntityBase = getBottomBlockEntity(getWorld2(), getPos2());
+			if (blockEntityBase != null) {
+				blockEntityBase.doorValue = Utilities.clamp(vehicleDoorValue, 0, 1);
+				blockEntityBase.doorTarget = 1;
 			}
 		}
 
-		private boolean receivedRedstonePower(World world, BlockPos pos, BlockState state) {
+		public double getDoorValue() {
+			final BlockState state = getCachedState2();
+			final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+			final Direction otherDirection = IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT ? facing.rotateYCounterclockwise() : facing.rotateYClockwise();
+			final BlockEntityBase blockEntityBase1 = getBottomBlockEntity(getWorld2(), getPos2());
+			final BlockEntityBase blockEntityBase2 = getBottomBlockEntity(getWorld2(), getPos2().offset(otherDirection));
+			return Math.max(blockEntityBase1 == null ? 0 : blockEntityBase1.doorValue, blockEntityBase2 == null ? 0 : blockEntityBase2.doorValue);
+		}
+
+		public void tick(float tickDelta) {
+			final World world = getWorld2();
+			if (world == null) {
+				return;
+			}
+
+			// Only tick the bottom blocks
+			if (IBlock.getStatePropertySafe(getCachedState2(), HALF) == DoubleBlockHalf.UPPER) {
+				return;
+			}
+
+			if (receivedRedstonePower(world, getPos2(), getCachedState2())) {
+				doorTarget = 2;
+			}
+
+			final double millisElapsed = tickDelta * 20;
+
+			if (doorTarget == 2) {
+				doorValue = Math.min(1, doorValue + millisElapsed / Vehicle.DOOR_MOVE_TIME * 2);
+			}
+
+			if (doorTarget >= 0) {
+				doorTarget--;
+			} else {
+				doorValue = Math.max(doorOverrideValue, doorValue - millisElapsed / Vehicle.DOOR_MOVE_TIME * 2);
+			}
+
+			doorOverrideValue = 0;
+		}
+
+		private static boolean receivedRedstonePower(World world, BlockPos pos, BlockState state) {
 			if (!IBlock.getStatePropertySafe(state, UNLOCKED)) {
 				return false;
 			}
 
-			final DoubleBlockHalf half = IBlock.getStatePropertySafe(state, HALF);
 			final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-			final EnumSide side = IBlock.getStatePropertySafe(state, SIDE);
-			final Direction otherDirection = side == EnumSide.LEFT ? facing.rotateYClockwise() : facing.rotateYCounterclockwise();
-			final BlockPos platformPos = (half == DoubleBlockHalf.UPPER) ? pos.down(2) : pos.down(1);
+			final Direction otherDirection = IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT ? facing.rotateYCounterclockwise() : facing.rotateYClockwise();
 
-			for (int i = 0; i < REDSTONE_DETECT_DEPTH; i++) {
-				final BlockPos checkPos = platformPos.offset(Direction.DOWN, i + 1);
+			for (int i = 2; i <= REDSTONE_DETECT_DEPTH; i++) {
+				final BlockPos checkPos = pos.down(i);
 				final boolean emit = world.isEmittingRedstonePower(checkPos, Direction.UP);
 				final boolean emitNearby = world.isEmittingRedstonePower(checkPos.offset(otherDirection), Direction.UP);
 				if (emit || emitNearby) {

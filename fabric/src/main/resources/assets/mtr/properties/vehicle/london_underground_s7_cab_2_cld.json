@@ -1,0 +1,38 @@
+{
+	"parts": [
+		{
+			"names": [
+				"window_cld"
+			],
+			"positionDefinitions": [
+				"82f947cd"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"door_cld"
+			],
+			"positionDefinitions": [
+				"2bd8e162"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"head_end_cld"
+			],
+			"positionDefinitions": [
+				"2e0db5e2"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL"
+		}
+	],
+	"modelYOffset": 1.0
+}

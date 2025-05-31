@@ -14,6 +14,7 @@ import org.mtr.mapping.mapper.ItemExtension;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockLiftTrackBase;
 import org.mtr.mod.block.BlockLiftTrackFloor;
+import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketOpenLiftCustomizationScreen;
@@ -141,6 +142,7 @@ public class ItemLiftRefresher extends ItemExtension implements DirectionHelper 
 		final Lift lift = new Lift(new MinecraftClientData());
 		lift.setFloors(liftFloors);
 		lift.setDimensions(3, 2, 2, 0, 0, 0);
+		lift.setStyle(CustomResourceLoader.DEFAULT_LIFT_TRANSPARENT_ID);
 		Init.sendMessageC2S(OperationProcessor.GENERATE_BY_LIFT, serverWorld.getServer(), new World(serverWorld.data), lift, null, null);
 	}
 }

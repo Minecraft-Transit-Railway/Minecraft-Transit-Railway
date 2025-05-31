@@ -31,6 +31,8 @@ public final class ClientPacketHelper {
 				openScreen(new LiftTrackFloorScreen(blockPos, (BlockLiftTrackFloor.BlockEntity) blockEntity.data), screenExtension -> screenExtension instanceof LiftTrackFloorScreen);
 			} else if (blockEntity.data instanceof BlockSignalBase.BlockEntityBase) {
 				openScreen(new SignalColorScreen(blockPos, (BlockSignalBase.BlockEntityBase) blockEntity.data), screenExtension -> screenExtension instanceof SignalColorScreen);
+			} else if (blockEntity.data instanceof BlockDriverKeyDispenser.BlockEntity) {
+				openScreen(new DriverKeyDispenserScreen(blockPos, (BlockDriverKeyDispenser.BlockEntity) blockEntity.data), screenExtension -> screenExtension instanceof DriverKeyDispenserScreen);
 			} else if (blockEntity.data instanceof BlockEyeCandy.BlockEntity) {
 				openScreen(new EyeCandyScreen(blockPos, (BlockEyeCandy.BlockEntity) blockEntity.data), screenExtension -> screenExtension instanceof EyeCandyScreen);
 			}
