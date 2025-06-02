@@ -82,6 +82,11 @@ public class BveVehicleSound extends VehicleSoundBase {
 			}
 		}
 
+		// Clamp to a minimum volume whenever the inverter/motor is active
+		if (motorCurrentOutput != 0) {
+			motorCurrentOutput = Math.signum(motorCurrentOutput) * (0.3f + Math.abs(motorCurrentOutput) * (1 - 0.3f));
+		}
+
 		// Simulation of main reservoir air compressor
 		if (mrPress <= config.config.mrPressMin) {
 			isCompressorActive = true;
