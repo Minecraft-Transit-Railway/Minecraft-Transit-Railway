@@ -17,7 +17,7 @@ public class BveVehicleSound extends VehicleSoundBase {
 	private float motorCurrentOutput = 0;
 	private float motorBreakerTimer = -1;
 
-	private int mrPress;
+	private float mrPress;
 	private boolean isCompressorActive;
 	private boolean isCompressorActiveLastElapsed;
 
