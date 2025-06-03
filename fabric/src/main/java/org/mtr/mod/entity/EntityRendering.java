@@ -28,7 +28,7 @@ public class EntityRendering extends EntityExtension {
 			update(true);
 		} else {
 			kill2();
-			Init.LOGGER.warn("[MTR] Killed MTR rendering entity at {}, {}, {} as it should not exist on server-side!", getPos2().getXMapped(), getPos2().getYMapped(), getPos2().getZMapped());
+			Init.LOGGER.warn("Killed rendering entity at {}, {}, {} as it should not exist on the server!", getPos2().getXMapped(), getPos2().getYMapped(), getPos2().getZMapped());
 		}
 	}
 

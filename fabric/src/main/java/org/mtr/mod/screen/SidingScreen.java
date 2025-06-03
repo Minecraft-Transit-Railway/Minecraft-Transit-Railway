@@ -16,8 +16,6 @@ import org.mtr.mod.data.RailType;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateData;
 
-import javax.annotation.Nullable;
-
 public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements Icons {
 
 	private final ButtonWidgetExtension buttonSelectTrain;
@@ -215,10 +213,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 		savedRailBase.setDelayedVehicleReduceDwellTimePercentage(sliderDelayedVehicleReduceDwellTimePercentage.getIntValue());
 		savedRailBase.setEarlyVehicleIncreaseDwellTime(buttonEarlyVehicleIncreaseDwellTime.isChecked2());
 
-		final RailType railType = convertMaxManualSpeed(sliderMaxManualSpeed.getIntValue());
-		if (railType != null) {
-			savedRailBase.setMaxManualSpeed(Utilities.kilometersPerHourToMetersPerMillisecond(railType.speedLimit));
-		}
+		savedRailBase.setMaxManualSpeed(Utilities.kilometersPerHourToMetersPerMillisecond(convertMaxManualSpeed(sliderMaxManualSpeed.getIntValue()).speedLimit));
 		savedRailBase.setManualToAutomaticTime(sliderDwellTimeMin.getIntValue() * SECONDS_PER_MINUTE * Utilities.MILLIS_PER_SECOND + sliderDwellTimeSec.getIntValue() * Utilities.MILLIS_PER_SECOND / 2);
 
 		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addSiding(savedRailBase)));
@@ -248,15 +243,14 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 
 	private static String speedSliderFormatter(int value) {
 		final RailType railType = convertMaxManualSpeed(value);
-		return railType == null ? TranslationProvider.GUI_MTR_UNLIMITED.getString() : String.format("%s km/h", railType.speedLimit);
+		return String.format("%s km/h", railType.speedLimit);
 	}
 
-	@Nullable
 	private static RailType convertMaxManualSpeed(int maxManualSpeed) {
 		if (maxManualSpeed >= 0 && maxManualSpeed <= RailType.DIAMOND.ordinal()) {
 			return RailType.values()[maxManualSpeed];
 		} else {
-			return null;
+			return RailType.DIAMOND;
 		}
 	}
 }

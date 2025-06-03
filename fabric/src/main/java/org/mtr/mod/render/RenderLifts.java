@@ -130,7 +130,7 @@ public class RenderLifts implements IGui {
 				final boolean doorway1Open;
 				final boolean doorway2Open;
 				if (lift.hasCoolDown()) {
-					doorway1Open = RenderVehicleHelper.canOpenDoors(doorway1, absolutePositionAndRotation, Math.min(lift.getDoorValue(), LIFT_DOOR_VALUE) / 2);
+					doorway1Open = RenderVehicleHelper.canOpenDoors(doorway1, absolutePositionAndRotation, Math.min(lift.getDoorValue(), LIFT_DOOR_VALUE));
 					doorway2Open = lift.getIsDoubleSided() && RenderVehicleHelper.canOpenDoors(doorway2, absolutePositionAndRotation, Math.min(lift.getDoorValue(), LIFT_DOOR_VALUE));
 					if (doorway1Open) {
 						openDoorways.add(doorway1);
