@@ -4,7 +4,7 @@ repositories {
 
 dependencies {
 	implementation "com.google.code.gson:gson:+"
-	implementation "com.github.crowdin:crowdin-api-client-java:+"
+	implementation "com.github.crowdin:crowdin-api-client-java:1.26.1"
 	implementation "it.unimi.dsi:fastutil:+"
 	implementation "commons-io:commons-io:+"
 	implementation "org.apache.httpcomponents:httpmime:+"
