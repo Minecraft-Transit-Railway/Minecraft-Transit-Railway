@@ -1,7 +1,6 @@
 package org.mtr.mod.screen;
 
 import org.mtr.core.data.Platform;
-import org.mtr.core.data.RoutePlatformData;
 import org.mtr.core.data.Station;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
@@ -14,12 +13,12 @@ import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockPIDSBase;
 import org.mtr.mod.client.IDrawing;
+import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdatePIDSConfig;
 
 import java.util.Collections;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class PIDSConfigScreen extends ScreenExtension implements IGui {
@@ -207,7 +206,7 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 			final Station station = InitClient.findStation(blockPos);
 
 			final ObjectImmutableList<DashboardListItem> platformsForList;
-			if(station != null) {
+			if (station != null) {
 				platformsForList = getPlatformsForList(new ObjectArrayList<>(station.savedRails));
 			} else {
 				ObjectArrayList<Platform> nearbyPlatforms = new ObjectArrayList<>();
@@ -226,15 +225,12 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 	public static ObjectImmutableList<DashboardListItem> getPlatformsForList(ObjectArrayList<Platform> platforms) {
 		final ObjectArrayList<DashboardListItem> platformsForList = new ObjectArrayList<>();
 		Collections.sort(platforms);
-		platforms.forEach(platform -> platformsForList.add(new DashboardListItem(platform.getId(), platform.getName() + " " + IGui.mergeStations(platform.routes.stream().map(route -> {
-			final RoutePlatformData lastRoutePlatformData = Utilities.getElement(route.getRoutePlatforms(), -1);
-			if (lastRoutePlatformData == null) {
-				return null;
-			} else {
-				final Station lastStation = lastRoutePlatformData.platform.area;
-				return lastStation == null ? null : lastStation.getName();
-			}
-		}).filter(Objects::nonNull).collect(Collectors.toList())), 0)));
+		platforms.forEach(platform -> platformsForList.add(new DashboardListItem(platform.getId(), platform.getName() + " " + IGui.mergeStations(MinecraftClientData.getInstance().simplifiedRoutes
+				.stream()
+				.filter(simplifiedRoute -> simplifiedRoute.getPlatformIndex(platform.getId()) >= 0)
+				.map(simplifiedRoute -> Utilities.getElement(simplifiedRoute.getPlatforms(), -1).getStationName())
+				.collect(Collectors.toList())
+		), 0)));
 		return new ObjectImmutableList<>(platformsForList);
 	}
 }
