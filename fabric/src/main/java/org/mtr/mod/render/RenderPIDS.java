@@ -205,8 +205,10 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 					} else if (i == 3) {
 						final SimplifiedRoute simplifiedRoute = MinecraftClientData.getInstance().simplifiedRouteIdMap.get(arrivalResponse.getRouteId());
 						final ObjectArrayList<SimplifiedRoutePlatform> stations = new ObjectArrayList<>();
-						for (int j = simplifiedRoute.getPlatformIndex(arrivalResponse.getPlatformId()) + 1; j < simplifiedRoute.getPlatforms().size(); j++) {
-							stations.add(simplifiedRoute.getPlatforms().get(j));
+						if (simplifiedRoute != null) {
+							for (int j = simplifiedRoute.getPlatformIndex(arrivalResponse.getPlatformId()) + 1; j < simplifiedRoute.getPlatforms().size(); j++) {
+								stations.add(simplifiedRoute.getPlatforms().get(j));
+							}
 						}
 
 						final ObjectArrayList<String> lines = new ObjectArrayList<>();
