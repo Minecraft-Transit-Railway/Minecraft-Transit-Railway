@@ -245,10 +245,8 @@ public class CustomResourceLoader {
 		}
 	}
 
-	public static ObjectArrayList<String> getSortedSignIds() {
-		final ObjectArrayList<String> signIds = new ObjectArrayList<>(SIGNS_CACHE.keySet());
-		signIds.sort(String::compareTo);
-		return signIds;
+	public static ObjectArrayList<String> getSignIds() {
+		return new ObjectArrayList<>(SIGNS_CACHE.keySet());
 	}
 
 	public static ObjectImmutableList<RailResource> getRails() {
