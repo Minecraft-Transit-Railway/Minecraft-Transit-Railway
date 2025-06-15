@@ -20,6 +20,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class CustomResourceLoader {
 
@@ -73,6 +74,8 @@ public class CustomResourceLoader {
 		LIFTS_CACHE.clear();
 		TEST_DURATION = 0;
 
+		final ObjectArrayList<SignResource> defaultSigns = new ObjectArrayList<>();
+
 		final RailResource defaultRailResource = new RailResource(DEFAULT_RAIL_ID, "Default", CustomResourceLoader::readResource);
 		RAILS.add(defaultRailResource);
 		RAILS_CACHE.put(DEFAULT_RAIL_ID, defaultRailResource);
@@ -82,8 +85,12 @@ public class CustomResourceLoader {
 				final CustomResources customResources = CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject(), CustomResourceLoader::readResource);
 				customResources.iterateVehicles(vehicleResource -> registerVehicle(vehicleResource, false));
 				customResources.iterateSigns(signResource -> {
-					SIGNS.add(signResource);
-					SIGNS_CACHE.put(signResource.getId(), signResource);
+					if (signResource.isDefault) {
+						defaultSigns.add(signResource);
+					} else {
+						SIGNS.add(signResource);
+						SIGNS_CACHE.put(signResource.signId, signResource);
+					}
 				});
 				customResources.iterateRails(railResource -> {
 					RAILS.add(railResource);
@@ -111,6 +118,9 @@ public class CustomResourceLoader {
 			}
 		});
 
+		SIGNS.addAll(0, defaultSigns);
+		defaultSigns.forEach(signResource -> SIGNS_CACHE.put(signResource.signId, signResource));
+
 		CustomResourcesConverter.convertRails(railResource -> {
 			RAILS.add(railResource);
 			RAILS_CACHE.put(railResource.getId(), railResource);
@@ -122,7 +132,7 @@ public class CustomResourceLoader {
 		}, CustomResourceLoader::readResource);
 
 		VEHICLES.forEach((transportMode, vehicleResources) -> validateDataset("Vehicle", vehicleResources, VehicleResource::getId));
-		validateDataset("Sign", SIGNS, SignResource::getId);
+		validateDataset("Sign", SIGNS, signResource -> signResource.signId);
 		validateDataset("Rail", RAILS, RailResource::getId);
 		validateDataset("Object", OBJECTS, ObjectResource::getId);
 		validateDataset("Lift", LIFTS, LiftResource::getId);
@@ -246,7 +256,7 @@ public class CustomResourceLoader {
 	}
 
 	public static ObjectArrayList<String> getSignIds() {
-		return new ObjectArrayList<>(SIGNS_CACHE.keySet());
+		return SIGNS.stream().map(signResource -> signResource.signId).collect(Collectors.toCollection(ObjectArrayList::new));
 	}
 
 	public static ObjectImmutableList<RailResource> getRails() {
