@@ -12,6 +12,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public final class OptimizedModelWrapper {
+	/** Used as a fallback texture if a face does not have a texture */
+	public static final Identifier WHITE_TEXTURE = new Identifier("minecraft:textures/misc/white.png");
 
 	@Nullable
 	final OptimizedModel optimizedModel;
