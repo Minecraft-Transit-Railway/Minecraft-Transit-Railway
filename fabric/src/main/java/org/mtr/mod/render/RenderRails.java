@@ -260,7 +260,7 @@ public class RenderRails implements IGui {
 					final double differenceZ = z3 - z1;
 					final double yaw = Math.atan2(differenceZ, differenceX);
 					final double pitch = Math.atan2(y2 - y1, Math.sqrt(differenceX * differenceX + differenceZ * differenceZ));
-					final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations((x1 + x3) / 2, (y1 + y2) / 2 + railResource.getModelYOffset(), (z1 + z3) / 2);
+					final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations((x1 + x3) / 2, (y1 + y2) / 2, (z1 + z3) / 2);
 					storedMatrixTransformations.add(graphicsHolder -> {
 						graphicsHolder.rotateYRadians((float) (Math.PI / 2 - yaw + (flip ? Math.PI : 0)));
 						graphicsHolder.rotateXRadians((float) (Math.PI - pitch * (flip ? -1 : 1)));
