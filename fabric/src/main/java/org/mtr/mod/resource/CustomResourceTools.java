@@ -27,11 +27,11 @@ public interface CustomResourceTools extends SerializedDataBase {
 	}
 
 	static String formatIdentifierString(String text) {
-		return Arrays.stream(text.toLowerCase(Locale.ROOT).split(":")).map(textPart -> textPart.replaceAll("[^a-z0-9/._-]", "_")).collect(Collectors.joining(":"));
+		return Arrays.stream(text.toLowerCase(Locale.ENGLISH).split(":")).map(textPart -> textPart.replaceAll("[^a-z0-9/._-]", "_")).collect(Collectors.joining(":"));
 	}
 
 	static Identifier getResourceFromSamePath(String basePath, String resource, String extension) {
-		if(resource.contains(":")) { // Assume it is already an identifier
+		if (resource.contains(":")) { // Assume it is already an identifier
 			return formatIdentifierWithDefault(resource, extension);
 		} else {
 			final String[] resourceSplit = basePath.split("/");
