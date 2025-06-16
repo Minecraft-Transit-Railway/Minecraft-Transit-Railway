@@ -18,7 +18,7 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 		super(readerBase, resourceProvider);
 		updateData(readerBase);
 		shouldPreload = Config.getClient().matchesPreloadResourcePattern(id);
-		cachedRailResource = new CachedResource<>(() -> load(modelResource, textureResource, flipTextureV, modelYOffset, resourceProvider), shouldPreload ? Integer.MAX_VALUE : VehicleModel.MODEL_LIFESPAN);
+		cachedRailResource = new CachedResource<>(() -> load(modelResource, textureResource, flipTextureV, 0, resourceProvider), shouldPreload ? Integer.MAX_VALUE : VehicleModel.MODEL_LIFESPAN);
 	}
 
 	/**
