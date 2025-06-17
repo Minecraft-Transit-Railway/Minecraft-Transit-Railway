@@ -255,7 +255,7 @@ public class CustomResourceLoader {
 		}
 	}
 
-	public static ObjectArrayList<String> getSignIds() {
+	public static ObjectArrayList<String> getSortedSignIds() {
 		return SIGNS.stream().map(signResource -> signResource.signId).collect(Collectors.toCollection(ObjectArrayList::new));
 	}
 

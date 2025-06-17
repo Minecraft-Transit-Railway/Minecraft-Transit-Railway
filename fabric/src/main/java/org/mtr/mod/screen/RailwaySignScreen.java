@@ -57,7 +57,7 @@ public class RailwaySignScreen extends ScreenExtension implements IGui {
 		this.signPos = signPos;
 		final ClientWorld world = MinecraftClient.getInstance().getWorldMapped();
 
-		allSignIds.addAll(CustomResourceLoader.getSignIds());
+		allSignIds.addAll(CustomResourceLoader.getSortedSignIds());
 
 		final Station station = InitClient.findStation(signPos);
 		if (station == null) {
