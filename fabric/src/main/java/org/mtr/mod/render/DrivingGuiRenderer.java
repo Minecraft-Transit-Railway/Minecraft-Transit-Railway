@@ -9,6 +9,7 @@ import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.Window;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.GuiDrawing;
+import org.mtr.mod.client.VehicleRidingMovement;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.RailType;
 import org.mtr.mod.data.VehicleExtension;
@@ -48,7 +49,7 @@ public final class DrivingGuiRenderer {
 
 	public static void render(GraphicsHolder graphicsHolder) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		if (vehicle != null && (minecraftClient.getCurrentScreenMapped() == null || minecraftClient.getCurrentScreenMapped().getTitle().data.toString().contains("chat_screen.title"))) {
+		if (vehicle != null && (minecraftClient.getCurrentScreenMapped() == null || minecraftClient.getCurrentScreenMapped().getTitle().data.toString().contains("chat_screen.title")) && VehicleRidingMovement.getValidHoldingKey(vehicle.vehicleExtraData.getDepotId()) != null) {
 			final VehicleExtraData vehicleExtraData = vehicle.vehicleExtraData;
 			final Window window = minecraftClient.getWindow();
 			final int speedometerX = window.getScaledWidth() - TOOL_SIZE - EDGE_PADDING;

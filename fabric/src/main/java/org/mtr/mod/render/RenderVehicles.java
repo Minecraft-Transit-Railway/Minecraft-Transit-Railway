@@ -3,6 +3,7 @@ package org.mtr.mod.render;
 import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
 import com.logisticscraft.occlusionculling.util.Vec3d;
 import org.mtr.core.data.VehicleCar;
+import org.mtr.core.tool.Utilities;
 import org.mtr.core.tool.Vector;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -10,6 +11,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePai
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectDoubleImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.Init;
@@ -82,7 +84,8 @@ public class RenderVehicles implements IGui {
 				ridingCarNumber = ridingVehicleCarNumberAndOffset.leftInt();
 				ridingCarPositionAndRotation = vehiclePropertiesList.get(ridingCarNumber).right().right();
 				offsetVector = ridingVehicleCarNumberAndOffset.right().left();
-				offsetRotation = ridingVehicleCarNumberAndOffset.right().right();
+				final Double tempOffsetRotation = ridingVehicleCarNumberAndOffset.right().right();
+				offsetRotation = tempOffsetRotation == null ? null : tempOffsetRotation + (Math.abs(Utilities.circularDifference(Math.round(EntityHelper.getYaw(new Entity(clientPlayerEntity.data))), Math.round(minecraftClient.getGameRendererMapped().getCamera().getYaw()), 360)) > 90 ? Math.PI : 0);
 			}
 
 			// Iterate all cars of a vehicle
