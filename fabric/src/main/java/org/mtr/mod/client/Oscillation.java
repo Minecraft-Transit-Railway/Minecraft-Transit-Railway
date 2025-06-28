@@ -12,7 +12,8 @@ public class Oscillation {
 
 	private static final long PERIOD = 1000;
 	private static final double PERIOD_MULTIPLIER = 2 * Math.PI / PERIOD;
-	private static final double DAMPING = 2000;
+	private static final double DAMPING_1 = 5000;
+	private static final double DAMPING_2 = 2000;
 
 	public Oscillation(TransportMode transportMode) {
 		// No oscillation for airplanes
@@ -21,18 +22,15 @@ public class Oscillation {
 
 	public void tick(long millisElapsed) {
 		if (enabled) {
-			final long oldTime = time;
 			time += millisElapsed;
-
-			if (scheduledAmplitude > 0 && (oldTime == 0 || oldTime % PERIOD > time % PERIOD)) {
-				amplitude = scheduledAmplitude;
-				scheduledAmplitude = 0;
-			}
 
 			amount = amplitude * Math.sin(PERIOD_MULTIPLIER * time);
 
-			if (amplitude > 0.01) {
-				amplitude /= Math.exp(millisElapsed / DAMPING);
+			if (amplitude < scheduledAmplitude) {
+				amplitude = Math.min(scheduledAmplitude, amplitude + millisElapsed / DAMPING_1);
+			} else if (amplitude > 0.01) {
+				amplitude /= Math.exp(millisElapsed / DAMPING_2);
+				scheduledAmplitude = 0;
 			} else {
 				amplitude = 0;
 				time = 0;
@@ -42,6 +40,7 @@ public class Oscillation {
 
 	public void startOscillation(double magnitude) {
 		scheduledAmplitude = magnitude;
+		amplitude = Math.max(amplitude, 0.01);
 	}
 
 	public double getAmount() {

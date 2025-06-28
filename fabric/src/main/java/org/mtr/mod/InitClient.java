@@ -1,5 +1,6 @@
 package org.mtr.mod;
 
+import org.mtr.core.data.Depot;
 import org.mtr.core.data.Platform;
 import org.mtr.core.data.Position;
 import org.mtr.core.data.Station;
@@ -14,6 +15,8 @@ import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.MinecraftClientHelper;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.registry.RegistryClient;
+import org.mtr.mod.block.BlockStationNameTallBase;
+import org.mtr.mod.block.BlockStationNameTallStanding;
 import org.mtr.mod.block.BlockTactileMap;
 import org.mtr.mod.block.BlockTrainAnnouncer;
 import org.mtr.mod.client.CustomResourceLoader;
@@ -26,6 +29,7 @@ import org.mtr.mod.entity.EntityRendering;
 import org.mtr.mod.generated.WebserverResources;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.item.ItemBlockClickingBase;
+import org.mtr.mod.item.ItemDriverKey;
 import org.mtr.mod.packet.PacketRequestData;
 import org.mtr.mod.render.*;
 import org.mtr.mod.resource.CachedResource;
@@ -39,6 +43,7 @@ import org.mtr.mod.sound.ScheduledSound;
 import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public final class InitClient {
 
@@ -61,6 +66,7 @@ public final class InitClient {
 
 	public static void init() {
 		KeyBindings.init();
+		Init.writeFromClient();
 
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.APG_DOOR);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.APG_GLASS);
@@ -103,6 +109,7 @@ public final class InitClient {
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.STATION_NAME_TALL_BLOCK);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.STATION_NAME_TALL_WALL);
+		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.STATION_NAME_TALL_STANDING);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.TICKET_BARRIER_ENTRANCE_1);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.TICKET_BARRIER_EXIT_1);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.TICKET_MACHINE);
@@ -135,6 +142,7 @@ public final class InitClient {
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_MEDIUM, dispatcher -> new RenderPIDS<>(dispatcher, -15, 15, 16, 30, 46, false, 1));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_LARGE, dispatcher -> new RenderPIDS<>(dispatcher, -15, 15, 16, 46, 46, false, 1));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.CLOCK, RenderClock::new);
+		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.DRIVER_KEY_DISPENSER, RenderDriverKeyDispenser::new);
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.PSD_DOOR_1, dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 0));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.PSD_DOOR_2, dispatcher -> new RenderPSDAPGDoor<>(dispatcher, 1));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.PSD_TOP, RenderPSDTop::new);
@@ -172,9 +180,10 @@ public final class InitClient {
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.SIGNAL_SEMAPHORE_1, RenderSignalSemaphore::new);
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.SIGNAL_SEMAPHORE_2, RenderSignalSemaphore::new);
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_ENTRANCE, dispatcher -> new RenderStationNameTiled<>(dispatcher, true));
-		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_BLOCK, RenderStationNameTall::new);
-		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED, RenderStationNameTall::new);
-		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_WALL, RenderStationNameTall::new);
+		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_BLOCK, dispatcher -> new RenderStationNameTall<>(dispatcher, BlockStationNameTallBase.WIDTH, BlockStationNameTallBase.HEIGHT, 0));
+		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED, dispatcher -> new RenderStationNameTall<>(dispatcher, BlockStationNameTallBase.WIDTH, BlockStationNameTallBase.HEIGHT, 0));
+		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_WALL, dispatcher -> new RenderStationNameTall<>(dispatcher, BlockStationNameTallBase.WIDTH, BlockStationNameTallBase.HEIGHT, 0));
+		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_STANDING, dispatcher -> new RenderStationNameTall<>(dispatcher, BlockStationNameTallStanding.WIDTH, BlockStationNameTallStanding.HEIGHT, BlockStationNameTallStanding.OFFSET_Y));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_WHITE, dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_GRAY, dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
 		REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_BLACK, dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
@@ -190,8 +199,12 @@ public final class InitClient {
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_60_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_80, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_80_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
+		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_100, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
+		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_100_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());		
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_120, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_120_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
+		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_140, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
+		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_140_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_160, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_160_ONE_WAY, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
 		REGISTRY_CLIENT.registerItemModelPredicate(Items.RAIL_CONNECTOR_200, new Identifier(Init.MOD_ID, "selected"), checkItemPredicateTag());
@@ -344,8 +357,14 @@ public final class InitClient {
 				Blocks.STATION_COLOR_POLE,
 				Blocks.STATION_NAME_TALL_BLOCK,
 				Blocks.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED,
-				Blocks.STATION_NAME_TALL_WALL
+				Blocks.STATION_NAME_TALL_WALL,
+				Blocks.STATION_NAME_TALL_STANDING
 		);
+
+		REGISTRY_CLIENT.registerItemColors((itemStack, tintIndex) -> {
+			final Item item = itemStack.getItem();
+			return item.data instanceof ItemDriverKey ? ((ItemDriverKey) item.data).color : IGui.RGB_WHITE;
+		}, Items.BASIC_DRIVER_KEY, Items.ADVANCED_DRIVER_KEY, Items.GUARD_KEY);
 
 		REGISTRY_CLIENT.setupPackets(new Identifier(Init.MOD_ID, "packet"));
 
@@ -418,7 +437,7 @@ public final class InitClient {
 			// If player is moving, send a request every 0.5 seconds to the server to fetch any new nearby data
 			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
 			if (clientPlayerEntity != null && lastUpdatePacketMillis > 0 && getGameMillis() > lastUpdatePacketMillis) {
-				final DataRequest dataRequest = new DataRequest(clientPlayerEntity.getUuidAsString(), Init.blockPosToPosition(MinecraftClient.getInstance().getGameRendererMapped().getCamera().getBlockPos()), MinecraftClientHelper.getRenderDistance() * 16L);
+				final DataRequest dataRequest = new DataRequest(clientPlayerEntity.getUuid(), Init.blockPosToPosition(MinecraftClient.getInstance().getGameRendererMapped().getCamera().getBlockPos()), MinecraftClientHelper.getRenderDistance() * 16L);
 				dataRequest.writeExistingIds(MinecraftClientData.getInstance());
 				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketRequestData(dataRequest));
 				lastUpdatePacketMillis = 0;
@@ -441,8 +460,9 @@ public final class InitClient {
 
 		REGISTRY_CLIENT.eventRegistryClient.registerResourceReloadEvent(CustomResourceLoader::reload);
 
+		REGISTRY_CLIENT.eventRegistryClient.registerGuiRendering(DrivingGuiRenderer::render);
+
 		Config.init(MinecraftClient.getInstance().getRunDirectoryMapped());
-		ResourcePackHelper.fix();
 
 		BlockTactileMap.BlockEntity.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
 		BlockTactileMap.BlockEntity.onUse = blockPos -> {
@@ -487,6 +507,17 @@ public final class InitClient {
 		MinecraftClientData.getInstance().platforms.stream().filter(platform -> platform.closeTo(Init.blockPosToPosition(blockPos), radius)).min(Comparator.comparingDouble(platform -> platform.getApproximateClosestDistance(position, MinecraftClientData.getInstance()))).ifPresent(consumer);
 	}
 
+	@Nullable
+	public static Depot findDepot(BlockPos blockPos) {
+		final Position position = Init.blockPosToPosition(blockPos);
+		for (final Depot depot : MinecraftClientData.getInstance().depots) {
+			if (depot.inArea(position)) {
+				return depot;
+			}
+		}
+		return null;
+	}
+
 	public static void transformToFacePlayer(GraphicsHolder graphicsHolder, double x, double y, double z) {
 		final Vector3d cameraPosition = MinecraftClient.getInstance().getGameRendererMapped().getCamera().getPos();
 		final double differenceX = cameraPosition.getXMapped() - x;
@@ -525,10 +556,17 @@ public final class InitClient {
 	}
 
 	private static void setupWebserver(Webserver webserver) {
-		webserver.addServlet(new ServletHolder(new WebServlet(WebserverResources::get, "/creator/")), "/creator/*");
+		webserver.addServlet(new ServletHolder(new ResourcePackCretorWebServlet(WebserverResources::get, "/creator/")), "/creator/*");
 		webserver.addServlet(new ServletHolder(new ResourcePackCreatorOperationServlet()), "/mtr/api/creator/operation/*");
 		final ServletHolder resourcePackCreatorUploadServletHolder = new ServletHolder(new ResourcePackCreatorUploadServlet());
 		resourcePackCreatorUploadServletHolder.getRegistration().setMultipartConfig(new MultipartConfigElement((String) null));
 		webserver.addServlet(resourcePackCreatorUploadServletHolder, "/mtr/api/creator/upload/*");
+	}
+
+	private static class ResourcePackCretorWebServlet extends WebServlet {
+
+		public ResourcePackCretorWebServlet(Function<String, String> contentProvider, String expectedPath) {
+			super(contentProvider, expectedPath);
+		}
 	}
 }

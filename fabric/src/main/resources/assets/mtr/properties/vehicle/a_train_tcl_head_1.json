@@ -30,6 +30,15 @@
 		},
 		{
 			"names": [
+				"cab_floor_tcl"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
 				"head_exterior",
 				"roof_end_exterior"
 			],

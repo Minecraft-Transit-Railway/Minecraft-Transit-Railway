@@ -16,12 +16,12 @@ public final class OptimizedModelWrapper {
 	@Nullable
 	final OptimizedModel optimizedModel;
 
-	public static OptimizedModelWrapper fromMaterialGroups(ObjectArrayList<MaterialGroupWrapper> materialGroupList) {
-		return new OptimizedModelWrapper(OptimizedRenderer.hasOptimizedRendering() ? OptimizedModel.fromMaterialGroups(materialGroupList.stream().map(materialGroup -> materialGroup.materialGroup).filter(Objects::nonNull).collect(Collectors.toList())) : null);
+	public static OptimizedModelWrapper fromMaterialGroups(@Nullable ObjectArrayList<MaterialGroupWrapper> materialGroupList) {
+		return new OptimizedModelWrapper(OptimizedRenderer.hasOptimizedRendering() && materialGroupList != null ? OptimizedModel.fromMaterialGroups(materialGroupList.stream().map(materialGroup -> materialGroup.materialGroup).filter(Objects::nonNull).collect(Collectors.toList())) : null);
 	}
 
-	public static OptimizedModelWrapper fromObjModels(ObjectArrayList<ObjModelWrapper> objModels) {
-		return new OptimizedModelWrapper(OptimizedRenderer.hasOptimizedRendering() ? OptimizedModel.fromObjModels(objModels.stream().map(objModel -> objModel.objModel).filter(Objects::nonNull).collect(Collectors.toList())) : null);
+	public static OptimizedModelWrapper fromObjModels(@Nullable ObjectArrayList<ObjModelWrapper> objModels) {
+		return new OptimizedModelWrapper(OptimizedRenderer.hasOptimizedRendering() && objModels != null ? OptimizedModel.fromObjModels(objModels.stream().map(objModel -> objModel.objModel).filter(Objects::nonNull).collect(Collectors.toList())) : null);
 	}
 
 	private OptimizedModelWrapper(@Nullable OptimizedModel optimizedModel) {

@@ -274,7 +274,7 @@ public class RenderRails implements IGui {
 
 		// Render default rail or coloured rail
 		if (renderType[0] || renderState.hasColor) {
-			int color = renderState.hasColor ? renderState == RenderState.FLASHING ? MainRenderer.getFlashingColor(RailType.getRailColor(rail)) : RailType.getRailColor(rail) : ARGB_WHITE;
+			final int color = renderState.hasColor ? renderState == RenderState.FLASHING ? MainRenderer.getFlashingColor(RailType.getRailColor(rail), 1) : RailType.getRailColor(rail) : ARGB_WHITE;
 
 			final Identifier texture = renderType[1] && !renderType[0] ? IRON_BLOCK_TEXTURE : defaultTexture;
 			renderWithinRenderDistance(rail, (blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
@@ -292,12 +292,15 @@ public class RenderRails implements IGui {
 		final IntArrayList colors = new IntArrayList(rail.getSignalColors());
 		Collections.sort(colors);
 		final float width = 1F / 16;
-		final LongArrayList blockedSignalColors = MinecraftClientData.getInstance().railIdToBlockedSignalColors.getOrDefault(rail.getHexId(), new LongArrayList());
+		final LongArrayList preBlockedSignalColors = MinecraftClientData.getInstance().railIdToPreBlockedSignalColors.getOrDefault(rail.getHexId(), new LongArrayList());
+		final LongArrayList currentlyBlockedSignalColors = MinecraftClientData.getInstance().railIdToCurrentlyBlockedSignalColors.getOrDefault(rail.getHexId(), new LongArrayList());
 
 		for (int i = 0; i < colors.size(); i++) {
 			final int rawColor = colors.getInt(i);
-			final boolean shouldFlash = blockedSignalColors.contains(rawColor);
-			final int color = shouldFlash ? MainRenderer.getFlashingColor(ARGB_BLACK | rawColor) : ARGB_BLACK | rawColor;
+			final boolean preBlocked = preBlockedSignalColors.contains(rawColor);
+			final boolean currentlyBlocked = currentlyBlockedSignalColors.contains(rawColor);
+			final boolean shouldFlash = preBlocked || currentlyBlocked;
+			final int color = shouldFlash ? MainRenderer.getFlashingColor(rawColor, currentlyBlocked ? 1 : 4) : ARGB_BLACK | rawColor;
 			final float u1 = width * i + 1 - width * colors.size() / 2;
 			final float u2 = u1 + width;
 

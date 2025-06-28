@@ -3,7 +3,6 @@ package org.mtr.mod;
 import org.mtr.core.data.TransportMode;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.Item;
-import org.mtr.mapping.mapper.ItemExtension;
 import org.mtr.mapping.mapper.PlaceableOnWaterItemExtension;
 import org.mtr.mapping.registry.ItemRegistryObject;
 import org.mtr.mod.data.RailType;
@@ -20,7 +19,10 @@ public final class Items {
 		AIRPLANE_DASHBOARD = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "dashboard_4"), itemSettings -> new Item(new ItemDashboard(TransportMode.AIRPLANE, itemSettings)), CreativeModeTabs.CORE);
 
 		// Misc
-		DRIVER_KEY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "driver_key"), itemSettings -> new Item(new ItemExtension(itemSettings.maxCount(1))));
+		BASIC_DRIVER_KEY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "basic_driver_key"), itemSettings -> new Item(new ItemDepotDriverKey(itemSettings.maxCount(1), true, false, false, 0xB6B6B6)));
+		ADVANCED_DRIVER_KEY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "advanced_driver_key"), itemSettings -> new Item(new ItemDepotDriverKey(itemSettings.maxCount(1), true, true, false, 0xFFB6B6)));
+		GUARD_KEY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "guard_key"), itemSettings -> new Item(new ItemDepotDriverKey(itemSettings.maxCount(1), false, true, false, 0xB6FFB6)));
+		CREATIVE_DRIVER_KEY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "creative_driver_key"), itemSettings -> new Item(new ItemCreativeDriverKey(itemSettings.maxCount(1))), CreativeModeTabs.CORE);
 		BOAT_NODE = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "boat_node"), itemSettings -> new Item(new PlaceableOnWaterItemExtension(Blocks.BOAT_NODE.get(), itemSettings)), CreativeModeTabs.CORE);
 
 		// Doors
@@ -51,8 +53,12 @@ public final class Items {
 		RAIL_CONNECTOR_60_ONE_WAY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_60_one_way"), itemSettings -> new Item(new ItemRailModifier(true, false, true, true, RailType.EMERALD, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_80 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_80"), itemSettings -> new Item(new ItemRailModifier(true, false, true, false, RailType.IRON, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_80_ONE_WAY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_80_one_way"), itemSettings -> new Item(new ItemRailModifier(true, false, true, true, RailType.IRON, itemSettings)), CreativeModeTabs.CORE);
+		RAIL_CONNECTOR_100 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_100"), itemSettings -> new Item(new ItemRailModifier(true, false, true, false, RailType.BRICKS, itemSettings)), CreativeModeTabs.CORE);
+		RAIL_CONNECTOR_100_ONE_WAY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_100_one_way"), itemSettings -> new Item(new ItemRailModifier(true, false, true, true, RailType.BRICKS, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_120 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_120"), itemSettings -> new Item(new ItemRailModifier(true, false, true, false, RailType.OBSIDIAN, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_120_ONE_WAY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_120_one_way"), itemSettings -> new Item(new ItemRailModifier(true, false, true, true, RailType.OBSIDIAN, itemSettings)), CreativeModeTabs.CORE);
+		RAIL_CONNECTOR_140 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_140"), itemSettings -> new Item(new ItemRailModifier(true, false, true, false, RailType.PRISMARINE, itemSettings)), CreativeModeTabs.CORE);
+		RAIL_CONNECTOR_140_ONE_WAY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_140_one_way"), itemSettings -> new Item(new ItemRailModifier(true, false, true, true, RailType.PRISMARINE, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_160 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_160"), itemSettings -> new Item(new ItemRailModifier(true, false, true, false, RailType.BLAZE, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_160_ONE_WAY = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_160_one_way"), itemSettings -> new Item(new ItemRailModifier(true, false, true, true, RailType.BLAZE, itemSettings)), CreativeModeTabs.CORE);
 		RAIL_CONNECTOR_200 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "rail_connector_200"), itemSettings -> new Item(new ItemRailModifier(true, false, true, false, RailType.QUARTZ, itemSettings)), CreativeModeTabs.CORE);
@@ -151,7 +157,10 @@ public final class Items {
 	public static final ItemRegistryObject BRIDGE_CREATOR_7;
 	public static final ItemRegistryObject BRIDGE_CREATOR_9;
 	public static final ItemRegistryObject CABLE_CAR_DASHBOARD;
-	public static final ItemRegistryObject DRIVER_KEY;
+	public static final ItemRegistryObject GUARD_KEY;
+	public static final ItemRegistryObject BASIC_DRIVER_KEY;
+	public static final ItemRegistryObject ADVANCED_DRIVER_KEY;
+	public static final ItemRegistryObject CREATIVE_DRIVER_KEY;
 	public static final ItemRegistryObject ESCALATOR;
 	public static final ItemRegistryObject LIFT_BUTTONS_LINK_CONNECTOR;
 	public static final ItemRegistryObject LIFT_BUTTONS_LINK_REMOVER;
@@ -164,8 +173,12 @@ public final class Items {
 	public static final ItemRegistryObject PSD_GLASS_2;
 	public static final ItemRegistryObject PSD_GLASS_END_1;
 	public static final ItemRegistryObject PSD_GLASS_END_2;
+	public static final ItemRegistryObject RAIL_CONNECTOR_100;
+	public static final ItemRegistryObject RAIL_CONNECTOR_100_ONE_WAY;
 	public static final ItemRegistryObject RAIL_CONNECTOR_120;
 	public static final ItemRegistryObject RAIL_CONNECTOR_120_ONE_WAY;
+	public static final ItemRegistryObject RAIL_CONNECTOR_140;
+	public static final ItemRegistryObject RAIL_CONNECTOR_140_ONE_WAY;
 	public static final ItemRegistryObject RAIL_CONNECTOR_160;
 	public static final ItemRegistryObject RAIL_CONNECTOR_160_ONE_WAY;
 	public static final ItemRegistryObject RAIL_CONNECTOR_20;

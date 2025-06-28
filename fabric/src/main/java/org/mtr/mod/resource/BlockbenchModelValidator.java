@@ -30,7 +30,7 @@ public final class BlockbenchModelValidator {
 
 		modelObject.addProperty("name", id);
 		modelObject.addProperty("model_identifier", id);
-		modelObject.addProperty("modded_entity_version", "Fabric 1.17+");
+		modelObject.addProperty("modded_entity_version", "1.17_yarn");
 		modelObject.remove("fabricOptions");
 
 		try {

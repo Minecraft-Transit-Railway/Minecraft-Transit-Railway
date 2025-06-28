@@ -54,6 +54,7 @@ public final class Init implements Utilities {
 	private static int serverPort;
 	private static Runnable sendWorldTimeUpdate;
 	private static boolean canSendWorldTimeUpdate = true;
+	private static boolean isDedicatedServer = true;
 	private static int serverTick;
 	private static long lastSavedMillis;
 	private static Consumer<Webserver> webserverSetup;
@@ -95,6 +96,7 @@ public final class Init implements Utilities {
 		REGISTRY.registerPacket(PacketDriveTrain.class, PacketDriveTrain::new);
 		REGISTRY.registerPacket(PacketFetchArrivals.class, PacketFetchArrivals::new);
 		REGISTRY.registerPacket(PacketForwardClientRequest.class, PacketForwardClientRequest::new);
+		REGISTRY.registerPacket(PacketUpdateKeyDispenserConfig.class, PacketUpdateKeyDispenserConfig::new);
 		REGISTRY.registerPacket(PacketOpenBlockEntityScreen.class, PacketOpenBlockEntityScreen::new);
 		REGISTRY.registerPacket(PacketOpenDashboardScreen.class, PacketOpenDashboardScreen::new);
 		REGISTRY.registerPacket(PacketOpenLiftCustomizationScreen.class, PacketOpenLiftCustomizationScreen::new);
@@ -203,6 +205,11 @@ public final class Init implements Utilities {
 					canSendWorldTimeUpdate = true; // In singleplayer, this gives the player opportunity to re-enter world.
 				}
 			};
+
+			Init.LOGGER.info("Starting server as a {} server", isDedicatedServer ? "dedicated" : "non-dedicated");
+			if (isDedicatedServer && Config.getServer().forceShutDownStrayThreads()) {
+				StrayThreadManager.register(minecraftServer);
+			}
 		});
 
 		REGISTRY.eventRegistry.registerServerStopping(minecraftServer -> {
@@ -347,6 +354,10 @@ public final class Init implements Utilities {
 				Init.LOGGER.error("", e);
 			}
 		}, requestProperties);
+	}
+
+	public static void writeFromClient() {
+		isDedicatedServer = false;
 	}
 
 	public static void createWebserverSetup(Consumer<Webserver> webserverSetup) {

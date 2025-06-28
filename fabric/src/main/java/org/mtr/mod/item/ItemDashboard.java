@@ -1,7 +1,7 @@
 package org.mtr.mod.item;
 
-import org.mtr.core.data.Position;
 import org.mtr.core.data.*;
+import org.mtr.core.data.Position;
 import org.mtr.core.operation.DataRequest;
 import org.mtr.core.operation.DataResponse;
 import org.mtr.core.serializer.JsonReader;
@@ -39,7 +39,7 @@ public class ItemDashboard extends ItemExtension {
 			if (!world.isClient()) {
 				if (user.isSneaking()) {
 					final Position playerPosition = Init.blockPosToPosition(user.getBlockPos());
-					Init.sendMessageC2S(OperationProcessor.GET_DATA, world.getServer(), world, new DataRequest(user.getUuidAsString(), playerPosition, SEARCH_RADIUS), dataResponse -> {
+					Init.sendMessageC2S(OperationProcessor.GET_DATA, world.getServer(), world, new DataRequest(user.getUuid(), playerPosition, SEARCH_RADIUS), dataResponse -> {
 						final ClientData tempClientData = new ClientData();
 						new DataResponse(new JsonReader(Utilities.getJsonObjectFromData(dataResponse)), tempClientData).write();
 						final Station station = findNearbyArea(playerPosition, tempClientData.stations);

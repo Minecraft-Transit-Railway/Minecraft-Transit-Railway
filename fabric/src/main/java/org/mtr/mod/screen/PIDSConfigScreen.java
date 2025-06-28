@@ -205,19 +205,26 @@ public class PIDSConfigScreen extends ScreenExtension implements IGui {
 	public static ButtonWidgetExtension getPlatformFilterButton(BlockPos blockPos, CheckboxWidgetExtension selectAllCheckbox, LongAVLTreeSet filterPlatformIds, ScreenExtension thisScreen) {
 		return new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> {
 			final Station station = InitClient.findStation(blockPos);
-			if (station != null) {
-				final ObjectImmutableList<DashboardListItem> platformsForList = getPlatformsForList(station);
-				if (selectAllCheckbox.isChecked2()) {
-					filterPlatformIds.clear();
-				}
-				MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(() -> selectAllCheckbox.setChecked(filterPlatformIds.isEmpty()), new ObjectImmutableList<>(platformsForList), filterPlatformIds, false, false, thisScreen)));
+
+			final ObjectImmutableList<DashboardListItem> platformsForList;
+			if(station != null) {
+				platformsForList = getPlatformsForList(new ObjectArrayList<>(station.savedRails));
+			} else {
+				ObjectArrayList<Platform> nearbyPlatforms = new ObjectArrayList<>();
+				InitClient.findClosePlatform(blockPos.down(4), 5, nearbyPlatforms::add);
+				platformsForList = getPlatformsForList(nearbyPlatforms);
 			}
+
+			if (selectAllCheckbox.isChecked2()) {
+				filterPlatformIds.clear();
+			}
+
+			MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(() -> selectAllCheckbox.setChecked(filterPlatformIds.isEmpty()), new ObjectImmutableList<>(platformsForList), filterPlatformIds, false, false, thisScreen)));
 		});
 	}
 
-	public static ObjectImmutableList<DashboardListItem> getPlatformsForList(Station station) {
+	public static ObjectImmutableList<DashboardListItem> getPlatformsForList(ObjectArrayList<Platform> platforms) {
 		final ObjectArrayList<DashboardListItem> platformsForList = new ObjectArrayList<>();
-		final ObjectArrayList<Platform> platforms = new ObjectArrayList<>(station.savedRails);
 		Collections.sort(platforms);
 		platforms.forEach(platform -> platformsForList.add(new DashboardListItem(platform.getId(), platform.getName() + " " + IGui.mergeStations(platform.routes.stream().map(route -> {
 			final RoutePlatformData lastRoutePlatformData = Utilities.getElement(route.getRoutePlatforms(), -1);

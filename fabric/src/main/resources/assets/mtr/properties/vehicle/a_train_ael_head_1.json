@@ -11,6 +11,15 @@
 		},
 		{
 			"names": [
+				"cab_floor_ael"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
 				"head_exterior",
 				"roof_end_exterior",
 				"window_exterior_end_ael"

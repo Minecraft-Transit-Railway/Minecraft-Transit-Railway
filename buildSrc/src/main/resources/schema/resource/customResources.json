@@ -40,6 +40,12 @@
 					"ResourceProvider"
 				]
 			}
+		},
+		"lifts": {
+			"type": "array",
+			"items": {
+				"$ref": "liftResource.json"
+			}
 		}
 	}
 }

@@ -53,9 +53,9 @@ public class RenderEyeCandy extends BlockEntityRenderer<BlockEyeCandy.BlockEntit
 				storedMatrixTransformationsNew.add(graphicsHolderNew -> {
 					graphicsHolderNew.translate(blockEntity.getTranslateX(), blockEntity.getTranslateY(), blockEntity.getTranslateZ());
 					graphicsHolderNew.rotateYDegrees(180 - facing.asRotation());
-					graphicsHolderNew.rotateXDegrees(blockEntity.getRotateX() + 180);
-					graphicsHolderNew.rotateYDegrees(blockEntity.getRotateY());
-					graphicsHolderNew.rotateZDegrees(blockEntity.getRotateZ());
+					graphicsHolderNew.rotateXRadians(blockEntity.getRotateX() + (float) Math.PI);
+					graphicsHolderNew.rotateYRadians(blockEntity.getRotateY());
+					graphicsHolderNew.rotateZRadians(blockEntity.getRotateZ());
 				});
 				objectResource.render(storedMatrixTransformationsNew, newLight);
 			});

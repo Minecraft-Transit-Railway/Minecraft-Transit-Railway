@@ -131,6 +131,15 @@
 		},
 		{
 			"names": [
+				"cab_floor"
+			],
+			"positionDefinitions": [
+				"c5af371b"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
 				"seat_2"
 			],
 			"positionDefinitions": [

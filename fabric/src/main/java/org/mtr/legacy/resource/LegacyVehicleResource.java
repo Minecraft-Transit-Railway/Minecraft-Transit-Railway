@@ -61,6 +61,32 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				baseObject.addProperty("wikipediaArticle", wikipedia_article);
 			}
 
+			if(!bve_sound_base_id.isEmpty()) {
+				baseObject.addProperty("bveSoundBaseResource", bve_sound_base_id);
+			}
+
+			if(!speed_sound_base_id.isEmpty()) {
+				baseObject.addProperty("legacySpeedSoundBaseResource", speed_sound_base_id);
+			}
+
+			if(!door_sound_base_id.isEmpty()) {
+				baseObject.addProperty("legacyDoorSoundBaseResource", door_sound_base_id);
+			}
+
+			if(speed_sound_count != 0) {
+				baseObject.addProperty("legacySpeedSoundCount", speed_sound_count);
+			}
+
+			if(accel_sound_at_coast) {
+				baseObject.addProperty("legacyUseAccelerationSoundsWhenCoasting", accel_sound_at_coast);
+			}
+
+			if(const_playback_speed) {
+				baseObject.addProperty("legacyConstantPlaybackSpeed", const_playback_speed);
+			}
+
+			baseObject.addProperty("legacyDoorCloseSoundTime", door_close_sound_time == 0 ? 0.5 : door_close_sound_time); // MTR 3 defaults to 0.5s if not specified
+
 			if (baseVehicleResource[0] == null) {
 				final JsonObject propertiesObject = model_properties.isEmpty() ? null : Utilities.parseJson(resourceProvider.get(new Identifier(model_properties)));
 				if (propertiesObject == null) {
@@ -106,14 +132,6 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				baseObject.addProperty("hasBarrier1", !train_barrier_id.isEmpty() && (i & 0b01) == 0);
 				baseObject.addProperty("hasBarrier2", !train_barrier_id.isEmpty() && (i & 0b10) == 0);
 				baseObject.addProperty("legacyRiderOffset", rider_offset);
-				baseObject.addProperty("bveSoundBaseResource", bve_sound_base_id);
-				baseObject.addProperty("legacySpeedSoundBaseResource", speed_sound_base_id);
-				baseObject.addProperty("legacySpeedSoundCount", speed_sound_count);
-				baseObject.addProperty("legacyUseAccelerationSoundsWhenCoasting", accel_sound_at_coast);
-				baseObject.addProperty("legacyConstantPlaybackSpeed", const_playback_speed);
-				baseObject.addProperty("legacyDoorSoundBaseResource", door_sound_base_id);
-				baseObject.addProperty("legacyDoorCloseSoundTime", door_close_sound_time);
-				baseObject.addProperty("legacyDoorCloseSoundTime", door_close_sound_time);
 
 				final double finalDoorMax = doorMax;
 				vehicleResources.add(new VehicleResource(

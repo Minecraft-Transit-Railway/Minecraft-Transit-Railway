@@ -1,8 +1,8 @@
 package org.mtr.mod.client;
 
 import com.logisticscraft.occlusionculling.util.Vec3d;
-import org.mtr.core.data.Position;
 import org.mtr.core.data.*;
+import org.mtr.core.data.Position;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -10,12 +10,9 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mod.Init;
-import org.mtr.mod.InitClient;
-import org.mtr.mod.KeyBindings;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.data.PersistentVehicleData;
 import org.mtr.mod.data.VehicleExtension;
-import org.mtr.mod.packet.PacketDriveTrain;
 import org.mtr.mod.screen.DashboardListItem;
 
 import javax.annotation.Nullable;
@@ -29,7 +26,9 @@ public final class MinecraftClientData extends ClientData {
 	public final Long2ObjectAVLTreeMap<PersistentVehicleData> vehicleIdToPersistentVehicleData = new Long2ObjectAVLTreeMap<>();
 	public final Long2ObjectAVLTreeMap<LiftWrapper> liftWrapperList = new Long2ObjectAVLTreeMap<>();
 	public final Object2ObjectArrayMap<String, RailWrapper> railWrapperList = new Object2ObjectArrayMap<>();
-	public final Object2ObjectAVLTreeMap<String, LongArrayList> railIdToBlockedSignalColors = new Object2ObjectAVLTreeMap<>();
+	public final Object2ObjectAVLTreeMap<String, LongArrayList> railIdToPreBlockedSignalColors = new Object2ObjectAVLTreeMap<>();
+	public final Object2ObjectAVLTreeMap<String, LongArrayList> railIdToCurrentlyBlockedSignalColors = new Object2ObjectAVLTreeMap<>();
+	public final ObjectArraySet<String> blockedRailIds = new ObjectArraySet<>();
 	public final ObjectArrayList<DashboardListItem> railActions = new ObjectArrayList<>();
 
 	private final LongAVLTreeSet routeIdsWithDisabledAnnouncements = new LongAVLTreeSet();
@@ -68,7 +67,7 @@ public final class MinecraftClientData extends ClientData {
 			final String hexId = rail.getHexId();
 			final RailWrapper railWrapper = railWrapperList.get(hexId);
 			if (railWrapper == null) {
-				railWrapperList.put(hexId, new RailWrapper(rail, hexId, startPosition, endPosition));
+				railWrapperList.put(hexId, new RailWrapper(rail, hexId));
 			} else {
 				railWrapper.rail = rail;
 			}
@@ -141,26 +140,6 @@ public final class MinecraftClientData extends ClientData {
 	public static void reset() {
 		MinecraftClientData.instance = new MinecraftClientData();
 		MinecraftClientData.dashboardInstance = new MinecraftClientData();
-	}
-
-	public static void tick() {
-		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
-		final boolean tempPressingAccelerate = KeyBindings.TRAIN_ACCELERATE.isPressed();
-		final boolean tempPressingBrake = KeyBindings.TRAIN_BRAKE.isPressed();
-		final boolean tempPressingDoors = KeyBindings.TRAIN_TOGGLE_DOORS.isPressed();
-
-		if (VehicleExtension.isHoldingKey(clientPlayerEntity) && (pressingAccelerate || pressingBrake || pressingDoors)) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketDriveTrain(
-					tempPressingAccelerate && !pressingAccelerate,
-					tempPressingBrake && !pressingBrake,
-					tempPressingDoors && !pressingDoors
-			));
-		}
-
-		pressingAccelerate = tempPressingAccelerate;
-		pressingBrake = tempPressingBrake;
-		pressingDoors = tempPressingDoors;
 	}
 
 	public static boolean hasPermission() {
@@ -252,19 +231,11 @@ public final class MinecraftClientData extends ClientData {
 		public final Vec3d endVector;
 		private Rail rail;
 
-		private RailWrapper(Rail rail, String hexId, Position startPosition, Position endPosition) {
+		private RailWrapper(Rail rail, String hexId) {
 			this.rail = rail;
 			this.hexId = hexId;
-			startVector = new Vec3d(
-					Math.min(startPosition.getX(), endPosition.getX()),
-					Math.min(startPosition.getY(), endPosition.getY()),
-					Math.min(startPosition.getZ(), endPosition.getZ())
-			);
-			endVector = new Vec3d(
-					Math.max(startPosition.getX(), endPosition.getX()),
-					Math.max(startPosition.getY(), endPosition.getY()),
-					Math.max(startPosition.getZ(), endPosition.getZ())
-			);
+			startVector = new Vec3d(rail.railMath.minX, rail.railMath.minY, rail.railMath.minZ);
+			endVector = new Vec3d(rail.railMath.maxX, rail.railMath.maxY, rail.railMath.maxZ);
 		}
 
 		public Rail getRail() {

@@ -20,10 +20,10 @@ public class RenderSignalLight2Aspect<T extends BlockSignalBase.BlockEntityBase>
 
 	@Override
 	protected void render(StoredMatrixTransformations storedMatrixTransformations, T entity, float tickDelta, int occupiedAspect, boolean isBackSide) {
-		final float y = occupiedAspect > 0 == redOnTop ? 0.4375F : 0.0625F;
+		final float y = (occupiedAspect == 1) == redOnTop ? 0.4375F : 0.0625F;
 		MainRenderer.scheduleRender(new Identifier(Init.MOD_ID, "textures/block/white.png"), false, QueuedRenderLayer.LIGHT, (graphicsHolder, offset) -> {
 			storedMatrixTransformations.transform(graphicsHolder, offset);
-			IDrawing.drawTexture(graphicsHolder, -0.125F, y, -0.19375F, 0.125F, y + 0.25F, -0.19375F, Direction.UP, occupiedAspect > 0 ? 0xFFFF0000 : proceedColor, GraphicsHolder.getDefaultLight());
+			IDrawing.drawTexture(graphicsHolder, -0.125F, y, -0.19375F, 0.125F, y + 0.25F, -0.19375F, Direction.UP, occupiedAspect == 1 ? 0xFFFF0000 : proceedColor, GraphicsHolder.getDefaultLight());
 			graphicsHolder.pop();
 		});
 	}

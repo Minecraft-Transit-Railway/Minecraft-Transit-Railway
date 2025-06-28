@@ -59,13 +59,13 @@
 				{
 					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
 					"textureResource": "mtr:textures/overlay/door_overlay_r_train_left.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/s_train_door_left_overlay.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/r_train_door_left_overlay.json",
 					"positionDefinitionsResource": "mtr:properties/definition/urban_line@definition@_base.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
 					"textureResource": "mtr:textures/overlay/door_overlay_r_train_right.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/s_train_door_right_overlay.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/r_train_door_right_overlay.json",
 					"positionDefinitionsResource": "mtr:properties/definition/urban_line@definition@_base.json"
 				},
 				{
@@ -137,13 +137,13 @@
 				{
 					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
 					"textureResource": "mtr:textures/overlay/door_overlay_r_train_left.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/s_train_door_left_overlay.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/r_train_door_left_overlay.json",
 					"positionDefinitionsResource": "mtr:properties/definition/urban_line@definition@_base.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
 					"textureResource": "mtr:textures/overlay/door_overlay_r_train_right.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/s_train_door_right_overlay.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/r_train_door_right_overlay.json",
 					"positionDefinitionsResource": "mtr:properties/definition/urban_line@definition@_base.json"
 				},
 				{
@@ -215,13 +215,13 @@
 				{
 					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
 					"textureResource": "mtr:textures/overlay/door_overlay_r_train_left.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/s_train_door_left_overlay.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/r_train_door_left_overlay.json",
 					"positionDefinitionsResource": "mtr:properties/definition/urban_line@definition@_base.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
 					"textureResource": "mtr:textures/overlay/door_overlay_r_train_right.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/s_train_door_right_overlay.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/r_train_door_right_overlay.json",
 					"positionDefinitionsResource": "mtr:properties/definition/urban_line@definition@_base.json"
 				},
 				{
@@ -293,13 +293,13 @@
 				{
 					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
 					"textureResource": "mtr:textures/overlay/door_overlay_r_train_left.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/s_train_door_left_overlay.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/r_train_door_left_overlay.json",
 					"positionDefinitionsResource": "mtr:properties/definition/urban_line@definition@_base.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/door_overlay.bbmodel",
 					"textureResource": "mtr:textures/overlay/door_overlay_r_train_right.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/s_train_door_right_overlay.json",
+					"modelPropertiesResource": "mtr:properties/vehicle/r_train_door_right_overlay.json",
 					"positionDefinitionsResource": "mtr:properties/definition/urban_line@definition@_base.json"
 				},
 				{

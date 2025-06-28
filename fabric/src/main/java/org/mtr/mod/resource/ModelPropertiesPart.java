@@ -205,7 +205,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		}));
 	}
 
-	public void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker, int light, ObjectArrayList<Box> openDoorways, boolean fromResourcePackCreator) {
+	public void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker, int light, ObjectArrayList<ObjectDoubleImmutablePair<Box>> openDoorways, boolean fromResourcePackCreator) {
 		if (vehicle == null || VehicleResource.matchesCondition(vehicle, condition, openDoorways.isEmpty())) {
 			switch (type) {
 				case NORMAL:
@@ -312,7 +312,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		return doorXMultiplier != 0 || doorZMultiplier != 0;
 	}
 
-	private void renderNormal(StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, ObjectIntImmutablePair<QueuedRenderLayer> renderProperties, ObjectArrayList<Box> openDoorways, int light, GraphicsHolder graphicsHolder, Vector3d offset) {
+	private void renderNormal(StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, ObjectIntImmutablePair<QueuedRenderLayer> renderProperties, ObjectArrayList<ObjectDoubleImmutablePair<Box>> openDoorways, int light, GraphicsHolder graphicsHolder, Vector3d offset) {
 		storedMatrixTransformations.transform(graphicsHolder, offset);
 		final boolean flashOn = flashOnTime + flashOffTime == 0 || (System.currentTimeMillis() % (flashOnTime + flashOffTime)) > flashOffTime;
 		partDetailsList.forEach(partDetails -> {
@@ -324,7 +324,17 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				x = (float) partDetails.x;
 				z = (float) partDetails.z;
 			} else {
-				final double doorValue = openDoorways.contains(partDetails.doorway) ? vehicle.persistentVehicleData.getDoorValue() : 0;
+				double doorOverrideValue = 0;
+				boolean canOpen = false;
+				for (final ObjectDoubleImmutablePair<Box> openDoorway : openDoorways) {
+					if (openDoorway.left().equals(partDetails.doorway)) {
+						doorOverrideValue = openDoorway.rightDouble();
+						canOpen = true;
+						break;
+					}
+				}
+
+				final double doorValue = canOpen ? vehicle.persistentVehicleData.getDoorValue() : 0;
 				final boolean opening = vehicle.persistentVehicleData.getAdjustedDoorMultiplier(vehicle.vehicleExtraData) > 0;
 				final boolean shouldRender;
 
@@ -334,8 +344,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 					shouldRender = renderFromClosingDoorTime == 0 && renderUntilClosingDoorTime == 0 || Utilities.isBetween(Math.abs(doorValue) * Vehicle.DOOR_MOVE_TIME, renderFromClosingDoorTime, renderUntilClosingDoorTime);
 				}
 
-				x = shouldRender ? (float) (partDetails.x + doorAnimationType.getDoorAnimationX(doorXMultiplier, partDetails.flipped, doorValue)) : Integer.MAX_VALUE;
-				z = shouldRender ? (float) (partDetails.z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, partDetails.flipped, doorValue, opening)) : Integer.MAX_VALUE;
+				x = shouldRender ? (float) (partDetails.x + doorAnimationType.getDoorAnimationX(doorXMultiplier, partDetails.flipped, Math.max(doorValue, doorOverrideValue))) : Integer.MAX_VALUE;
+				z = shouldRender ? (float) (partDetails.z + (canOpen ? vehicle.persistentVehicleData.getInterpolatedDoorValue(doorAnimationType, doorZMultiplier, partDetails.flipped, doorOverrideValue, opening) : 0)) : Integer.MAX_VALUE;
 			}
 
 			if (OptimizedRenderer.hasOptimizedRendering()) {
@@ -690,6 +700,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 	private static class PartDetails {
 
+		@Nullable
 		private Box doorway;
 		private final ObjectArrayList<ModelPartExtension> modelParts;
 		private final OptimizedModelWrapper optimizedModelDoor;
