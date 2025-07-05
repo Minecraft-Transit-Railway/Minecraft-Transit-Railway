@@ -41,7 +41,7 @@ public abstract class BlockPIDSVerticalBase extends BlockPIDSBase implements IBl
 	public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
 		final BlockEntityExtension blockEntity = createBlockEntity(new BlockPos(0, 0, 0), Blocks.getAirMapped().getDefaultState());
 		if (blockEntity instanceof BlockEntityBase) {
-			tooltip.add(TranslationProvider.TOOLTIP_MTR_ARRIVALS.getMutableText(maxArrivals).formatted(TextFormatting.GRAY));
+			tooltip.add(TranslationProvider.TOOLTIP_MTR_ARRIVALS.getMutableText(maxArrivals / 2).formatted(TextFormatting.GRAY));
 		}
 	}
 

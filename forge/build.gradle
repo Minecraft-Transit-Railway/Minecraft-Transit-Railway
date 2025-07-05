@@ -2,7 +2,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 import org.mtr.mod.BuildTools
 
 plugins {
-	id "net.minecraftforge.gradle" version "+"
+	id "net.minecraftforge.gradle" version "6.+"
 	id "org.spongepowered.mixin" version "+"
 }
 

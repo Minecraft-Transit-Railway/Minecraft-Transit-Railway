@@ -16,8 +16,6 @@ import org.mtr.mod.data.RailType;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.PacketUpdateData;
 
-import javax.annotation.Nullable;
-
 public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements Icons {
 
 	private final ButtonWidgetExtension buttonSelectTrain;
@@ -50,10 +48,10 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 		buttonSelectTrain = new ButtonWidgetExtension(0, 0, 0, SQUARE_SIZE, button -> MinecraftClient.getInstance().openScreen(new Screen(new VehicleSelectorScreen(savedRailBase, this))));
 		buttonSelectTrain.setMessage2(new Text(TextHelper.translatable("selectWorld.edit").data));
 		textFieldMaxTrains = new TextFieldWidgetExtension(0, 0, 0, SQUARE_SIZE, MAX_TRAINS_TEXT_LENGTH, TextCase.DEFAULT, "\\D", null);
-		sliderAccelerationConstant = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, (int) Math.round((Siding.MAX_ACCELERATION - Siding.MIN_ACCELERATION) * SLIDER_SCALE), SidingScreen::accelerationSliderFormatter, null);
-		sliderDecelerationConstant = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, (int) Math.round((Siding.MAX_ACCELERATION - Siding.MIN_ACCELERATION) * SLIDER_SCALE), SidingScreen::accelerationSliderFormatter, null);
-		sliderDelayedVehicleSpeedIncreasePercentage = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, 100, SidingScreen::percentageFormatter, null);
-		sliderDelayedVehicleReduceDwellTimePercentage = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, 100, SidingScreen::percentageFormatter, null);
+		sliderAccelerationConstant = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH * 2, (int) Math.round((Siding.MAX_ACCELERATION - Siding.MIN_ACCELERATION) * SLIDER_SCALE), SidingScreen::accelerationSliderFormatter, null);
+		sliderDecelerationConstant = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH * 2, (int) Math.round((Siding.MAX_ACCELERATION - Siding.MIN_ACCELERATION) * SLIDER_SCALE), SidingScreen::accelerationSliderFormatter, null);
+		sliderDelayedVehicleSpeedIncreasePercentage = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH * 2, 100, SidingScreen::percentageFormatter, null);
+		sliderDelayedVehicleReduceDwellTimePercentage = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH * 2, 100, SidingScreen::percentageFormatter, null);
 		buttonEarlyVehicleIncreaseDwellTime = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
 		});
 		buttonEarlyVehicleIncreaseDwellTime.setMessage2(TranslationProvider.GUI_MTR_EARLY_VEHICLE_INCREASE_DWELL_TIME.getText());
@@ -64,7 +62,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 			setButtons();
 		});
 		buttonIsManual.setMessage2(TranslationProvider.GUI_MTR_IS_MANUAL.getText());
-		sliderMaxManualSpeed = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, RailType.DIAMOND.ordinal(), SidingScreen::speedSliderFormatter, null);
+		sliderMaxManualSpeed = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH * 2, RailType.DIAMOND.ordinal(), SidingScreen::speedSliderFormatter, null);
 		buttonUnlimitedTrains = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
 			if (checked) {
 				buttonIsManual.setChecked(false);
@@ -84,14 +82,14 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 		super.init2();
 
 		IDrawing.setPositionAndWidth(buttonSelectTrain, SQUARE_SIZE + textWidth, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING, width - textWidth - SQUARE_SIZE * 2);
-		IDrawing.setPositionAndWidth(buttonUnlimitedTrains, SQUARE_SIZE + textWidth + MAX_TRAINS_WIDTH + TEXT_FIELD_PADDING * 3 / 2, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING * 3 / 2, width - textWidth - SQUARE_SIZE * 2);
+		IDrawing.setPositionAndWidth(buttonUnlimitedTrains, SQUARE_SIZE + textWidth + MAX_TRAINS_WIDTH / 2 + TEXT_FIELD_PADDING * 3 / 2, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING * 3 / 2, width - textWidth - SQUARE_SIZE * 2);
 
 		addChild(new ClickableWidget(buttonSelectTrain));
 
 		buttonIsManual.setChecked(savedRailBase.getIsManual());
 		buttonUnlimitedTrains.setChecked(savedRailBase.getIsUnlimited());
 
-		IDrawing.setPositionAndWidth(textFieldMaxTrains, SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING * 3 / 2, MAX_TRAINS_WIDTH - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldMaxTrains, SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING * 3 / 2, MAX_TRAINS_WIDTH / 2 - TEXT_FIELD_PADDING);
 		textFieldMaxTrains.setText2(savedRailBase.getIsUnlimited() ? "" : String.valueOf(savedRailBase.getMaxVehicles()));
 		textFieldMaxTrains.setChangedListener2(text -> {
 			buttonUnlimitedTrains.setChecked(text.isEmpty());
@@ -215,10 +213,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 		savedRailBase.setDelayedVehicleReduceDwellTimePercentage(sliderDelayedVehicleReduceDwellTimePercentage.getIntValue());
 		savedRailBase.setEarlyVehicleIncreaseDwellTime(buttonEarlyVehicleIncreaseDwellTime.isChecked2());
 
-		final RailType railType = convertMaxManualSpeed(sliderMaxManualSpeed.getIntValue());
-		if (railType != null) {
-			savedRailBase.setMaxManualSpeed(Utilities.kilometersPerHourToMetersPerMillisecond(railType.speedLimit));
-		}
+		savedRailBase.setMaxManualSpeed(Utilities.kilometersPerHourToMetersPerMillisecond(convertMaxManualSpeed(sliderMaxManualSpeed.getIntValue()).speedLimit));
 		savedRailBase.setManualToAutomaticTime(sliderDwellTimeMin.getIntValue() * SECONDS_PER_MINUTE * Utilities.MILLIS_PER_SECOND + sliderDwellTimeSec.getIntValue() * Utilities.MILLIS_PER_SECOND / 2);
 
 		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addSiding(savedRailBase)));
@@ -248,15 +243,14 @@ public class SidingScreen extends SavedRailScreenBase<Siding, Depot> implements 
 
 	private static String speedSliderFormatter(int value) {
 		final RailType railType = convertMaxManualSpeed(value);
-		return railType == null ? TranslationProvider.GUI_MTR_UNLIMITED.getString() : String.format("%s km/h", railType.speedLimit);
+		return String.format("%s km/h", railType.speedLimit);
 	}
 
-	@Nullable
 	private static RailType convertMaxManualSpeed(int maxManualSpeed) {
 		if (maxManualSpeed >= 0 && maxManualSpeed <= RailType.DIAMOND.ordinal()) {
 			return RailType.values()[maxManualSpeed];
 		} else {
-			return null;
+			return RailType.DIAMOND;
 		}
 	}
 }

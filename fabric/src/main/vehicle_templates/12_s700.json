@@ -11,6 +11,10 @@
 		"name": [
 			"",
 			", Low Floor"
+		],
+		"bogie": [
+			"1",
+			"2"
 		]
 	},
 	"vehicles": [
@@ -40,8 +44,8 @@
 			],
 			"bogie1Models": [
 				{
-					"modelResource": "mtr:models/vehicle/bogie_2.bbmodel",
-					"textureResource": "mtr:textures/vehicle/bogie_2.png",
+					"modelResource": "mtr:models/vehicle/bogie_@bogie@.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_@bogie@.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
 					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
 				}
@@ -80,8 +84,8 @@
 			],
 			"bogie1Models": [
 				{
-					"modelResource": "mtr:models/vehicle/bogie_2.bbmodel",
-					"textureResource": "mtr:textures/vehicle/bogie_2.png",
+					"modelResource": "mtr:models/vehicle/bogie_@bogie@.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_@bogie@.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
 					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
 				}
@@ -121,8 +125,8 @@
 			"bogie1Models": [],
 			"bogie2Models": [
 				{
-					"modelResource": "mtr:models/vehicle/bogie_2.bbmodel",
-					"textureResource": "mtr:textures/vehicle/bogie_2.png",
+					"modelResource": "mtr:models/vehicle/bogie_@bogie@.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_@bogie@.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
 					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
 				}
