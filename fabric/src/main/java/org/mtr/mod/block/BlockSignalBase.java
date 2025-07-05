@@ -19,6 +19,7 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 
 	public static final EnumProperty<EnumBooleanInverted> IS_22_5 = EnumProperty.of("is_22_5", EnumBooleanInverted.class);
 	public static final EnumProperty<EnumBooleanInverted> IS_45 = EnumProperty.of("is_45", EnumBooleanInverted.class);
+	public static final IntegerProperty POWER = IntegerProperty.of("power", 0, 15);
 
 	private static final int COOLDOWN_1 = 2000;
 	private static final int COOLDOWN_2 = COOLDOWN_1 + 2000;
@@ -46,10 +47,28 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 	}
 
 	@Override
+	public boolean emitsRedstonePower2(BlockState blockState) {
+		return true;
+	}
+
+	@Override
+	public int getWeakRedstonePower2(BlockState state, BlockView world, BlockPos pos, Direction direction) {
+		return IBlock.getStatePropertySafe(state, POWER);
+	}
+
+	@Override
 	public void addBlockProperties(List<HolderBase<?>> properties) {
 		properties.add(FACING);
 		properties.add(IS_22_5);
 		properties.add(IS_45);
+		properties.add(POWER);
+	}
+
+	public void power(World world, BlockState state, BlockPos pos, int level) {
+		final int oldPowered = IBlock.getStatePropertySafe(state, POWER);
+		if (oldPowered != level) {
+			world.setBlockState(pos, state.with(new Property<>(POWER.data), level));
+		}
 	}
 
 	public static float getAngle(BlockState state) {
@@ -60,6 +79,7 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 
 		private long lastOccupiedTime1;
 		private long lastOccupiedTime2;
+		private int oldRedstoneLevel;
 		public final boolean isDoubleSided;
 
 		private final IntAVLTreeSet signalColors1 = new IntAVLTreeSet();
@@ -120,6 +140,15 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 				} else {
 					return 2;
 				}
+			}
+		}
+
+		public boolean sendUpdate(int redstoneLevel) {
+			if (oldRedstoneLevel != redstoneLevel) {
+				oldRedstoneLevel = redstoneLevel;
+				return true;
+			} else {
+				return false;
 			}
 		}
 	}

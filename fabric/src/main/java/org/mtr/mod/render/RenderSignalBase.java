@@ -11,10 +11,14 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.Init;
-import org.mtr.mod.block.*;
+import org.mtr.mod.InitClient;
+import org.mtr.mod.block.BlockNode;
+import org.mtr.mod.block.BlockSignalBase;
+import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.packet.PacketTurnOnBlockEntity;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -44,12 +48,13 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 
 		final BlockPos pos = entity.getPos2();
 		final BlockState state = world.getBlockState(pos);
-		if (!(state.getBlock().data instanceof BlockSignalLightBase || state.getBlock().data instanceof BlockSignalSemaphoreBase)) {
+		if (!(state.getBlock().data instanceof BlockSignalBase)) {
 			return;
 		}
 
 		final float angle = BlockSignalBase.getAngle(state);
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(0.5 + entity.getPos2().getX(), entity.getPos2().getY(), 0.5 + entity.getPos2().getZ());
+		int redstoneLevel = 0;
 
 		for (int i = 0; i < (entity.isDoubleSided ? 2 : 1); i++) {
 			final float newAngle = angle + i * 180;
@@ -86,8 +91,17 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 
 				// If filters are empty, render all signal states, including node states
 				// If filters are not empty, only render the signal state of the selected colors, even if the colors don't exist
-				render(storedMatrixTransformationsNew, entity, tickDelta, entity.getActualAspect(filterColors.isEmpty() && aspectState.nodeBlocked || aspectState.occupiedColors.intStream().anyMatch(color -> filterColors.isEmpty() || filterColors.contains(color)), isBackSide), isBackSide);
+				final int occupiedAspect = entity.getActualAspect(filterColors.isEmpty() && aspectState.nodeBlocked || aspectState.occupiedColors.intStream().anyMatch(color -> filterColors.isEmpty() || filterColors.contains(color)), isBackSide);
+				render(storedMatrixTransformationsNew, entity, tickDelta, occupiedAspect, isBackSide);
+
+				if (occupiedAspect > 0 && occupiedAspect < aspects) {
+					redstoneLevel = Math.max(redstoneLevel, (4 - occupiedAspect) * 5);
+				}
 			}
+		}
+
+		if (entity.sendUpdate(redstoneLevel)) {
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketTurnOnBlockEntity(entity.getPos2(), redstoneLevel));
 		}
 	}
 
@@ -131,7 +145,7 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 		BlockPos closestPos = null;
 		for (int z = -4; z <= 4; z++) {
 			for (int x = -4; x <= 4; x++) {
-				for (int y = -5; y <= 0; y++) {
+				for (int y = -5; y <= 5; y++) {
 					final BlockPos checkPos = pos.up(y).offset(facing.rotateYClockwise(), x).offset(facing, z);
 					final BlockState checkState = world.getBlockState(checkPos);
 					final int distance = checkPos.getManhattanDistance(new Vector3i(pos.data));
