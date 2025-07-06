@@ -1,199 +1,212 @@
-<h2 mat-dialog-title>Model Parts</h2>
+<h2 mat-dialog-title>{{ 'model.edit_parts.title' | translate }}</h2>
 <mat-dialog-content>
-	<form class="column gap" [formGroup]="formGroup">
-		<div>General</div>
-		<mat-form-field subscriptSizing="dynamic">
-			<mat-label>Name</mat-label>
-			<mat-select formControlName="name">
-				@for (name of modelPartNames; track $index) {
-					<mat-option [value]="name">{{ name }}</mat-option>
-				}
-			</mat-select>
-		</mat-form-field>
-		<mat-form-field subscriptSizing="dynamic">
-			<mat-label>Condition</mat-label>
-			<mat-select formControlName="condition">
-				<mat-option value="NORMAL">Normal</mat-option>
-				<mat-option value="AT_DEPOT">At Depot</mat-option>
-				<mat-option value="ON_ROUTE_FORWARDS">On Route, Moving Forwards</mat-option>
-				<mat-option value="ON_ROUTE_BACKWARDS">On Route, Moving Backwards</mat-option>
-				<mat-option value="DOORS_CLOSED">Doors Closed</mat-option>
-				<mat-option value="DOORS_OPENED">Doors Opened</mat-option>
-				<mat-option value="CHRISTMAS_LIGHT_RED">Christmas Lights (Red)</mat-option>
-				<mat-option value="CHRISTMAS_LIGHT_YELLOW">Christmas Lights (Yellow)</mat-option>
-				<mat-option value="CHRISTMAS_LIGHT_GREEN">Christmas Lights (Green)</mat-option>
-				<mat-option value="CHRISTMAS_LIGHT_BLUE">Christmas Lights (Blue)</mat-option>
-			</mat-select>
-		</mat-form-field>
-		<mat-form-field subscriptSizing="dynamic">
-			<mat-label>Type</mat-label>
-			<mat-select formControlName="type">
-				<mat-option value="NORMAL">Normal</mat-option>
-				<mat-option value="DISPLAY">Display</mat-option>
-				<mat-option value="FLOOR">Floor</mat-option>
-				<mat-option value="DOORWAY">Doorway</mat-option>
-				<mat-option value="SEAT">Seat</mat-option>
-			</mat-select>
-		</mat-form-field>
-		<mat-form-field subscriptSizing="dynamic">
-			<mat-label>Positions</mat-label>
-			<textarea matInput aria-label="Positions" cdkTextareaAutosize (focusout)="formatPositions()" formControlName="positions" autocomplete="off"></textarea>
-		</mat-form-field>
-		<mat-form-field subscriptSizing="dynamic">
-			<mat-label>Flipped Positions</mat-label>
-			<textarea matInput aria-label="Positions" cdkTextareaAutosize (focusout)="formatPositions()" formControlName="positionsFlipped" autocomplete="off"></textarea>
-		</mat-form-field>
-		@if (isNormal()) {
-			<mat-form-field subscriptSizing="dynamic">
-				<mat-label>Render Stage</mat-label>
-				<mat-select formControlName="renderStage">
-					<mat-option value="LIGHT">Light</mat-option>
-					<mat-option value="ALWAYS_ON_LIGHT">Light (Always On)</mat-option>
-					<mat-option value="INTERIOR">Interior</mat-option>
-					<mat-option value="INTERIOR_TRANSLUCENT">Interior (Translucent)</mat-option>
-					<mat-option value="EXTERIOR">Exterior</mat-option>
-				</mat-select>
-			</mat-form-field>
-		}
+    <form class="column gap" [formGroup]="formGroup">
+        <div>General</div>
+        <mat-form-field subscriptSizing="dynamic">
+            <mat-label>{{ 'model.edit_parts.name' | translate }}</mat-label>
+            <mat-select formControlName="name">
+                @for (name of modelPartNames; track $index) {
+                    <mat-option [value]="name">{{ name }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field subscriptSizing="dynamic">
+            <mat-label>{{ 'model.edit_parts.conditions.title' | translate }}</mat-label>
+            <mat-select formControlName="condition">
+                <mat-option value="NORMAL">{{ 'model.edit_parts.conditions.normal' | translate }}</mat-option>
+                <mat-option value="AT_DEPOT">{{ 'model.edit_parts.conditions.at_depot' | translate }}</mat-option>
+                <mat-option value="ON_ROUTE_FORWARDS">{{ 'model.edit_parts.conditions.on_route_forwards' | translate }}</mat-option>
+                <mat-option value="ON_ROUTE_BACKWARDS">{{ 'model.edit_parts.conditions.on_route_backwards' | translate }}</mat-option>
+                <mat-option value="DOORS_CLOSED">{{ 'model.edit_parts.conditions.doors_closed' | translate }}</mat-option>
+                <mat-option value="DOORS_OPENED">{{ 'model.edit_parts.conditions.doors_opened' | translate }}</mat-option>
+                <mat-option value="CHRISTMAS_LIGHT_RED">{{ 'model.edit_parts.conditions.christmas_light_red' | translate }}</mat-option>
+                <mat-option value="CHRISTMAS_LIGHT_YELLOW">{{ 'model.edit_parts.conditions.christmas_light_yellow' | translate }}</mat-option>
+                <mat-option value="CHRISTMAS_LIGHT_GREEN">{{ 'model.edit_parts.conditions.christmas_light_green' | translate }}</mat-option>
+                <mat-option value="CHRISTMAS_LIGHT_BLUE">{{ 'model.edit_parts.conditions.christmas_light_blue' | translate }}</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field subscriptSizing="dynamic">
+            <mat-label>{{ 'model.edit_parts.types.title' | translate }}</mat-label>
+            <mat-select formControlName="type">
+                <mat-option value="NORMAL">{{ 'model.edit_parts.types.normal' | translate }}</mat-option>
+                <mat-option value="DISPLAY">{{ 'model.edit_parts.types.display' | translate }}</mat-option>
+                <mat-option value="FLOOR">{{ 'model.edit_parts.types.floor' | translate }}</mat-option>
+                <mat-option value="DOORWAY">{{ 'model.edit_parts.types.doorway' | translate }}</mat-option>
+                <mat-option value="SEAT">{{ 'model.edit_parts.types.seat' | translate }}</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field subscriptSizing="dynamic">
+            <mat-label>{{ 'model.edit_parts.positions' | translate }}</mat-label>
+            <textarea matInput attr.aria-label="{{ 'model.edit_parts.positions' | translate }}" cdkTextareaAutosize (focusout)="formatPositions()"
+                      formControlName="positions" autocomplete="off"></textarea>
+        </mat-form-field>
+        <mat-form-field subscriptSizing="dynamic">
+            <mat-label>{{ 'model.edit_parts.flipped_positions' | translate }}</mat-label>
+            <textarea matInput attr.aria-label="{{ 'model.edit_parts.flipped_positions' | translate }}" cdkTextareaAutosize (focusout)="formatPositions()"
+                      formControlName="positionsFlipped" autocomplete="off"></textarea>
+        </mat-form-field>
+        @if (isNormal()) {
+            <mat-form-field subscriptSizing="dynamic">
+                <mat-label>{{ 'model.edit_parts.render_stages.title' | translate }}</mat-label>
+                <mat-select formControlName="renderStage">
+                    <mat-option value="LIGHT">{{ 'model.edit_parts.render_stages.light' | translate }}</mat-option>
+                    <mat-option value="ALWAYS_ON_LIGHT">{{ 'model.edit_parts.render_stages.always_on_light' | translate }}</mat-option>
+                    <mat-option value="INTERIOR">{{ 'model.edit_parts.render_stages.interior' | translate }}</mat-option>
+                    <mat-option value="INTERIOR_TRANSLUCENT">{{ 'model.edit_parts.render_stages.interior_translucent' | translate }}</mat-option>
+                    <mat-option value="EXTERIOR">{{ 'model.edit_parts.render_stages.exterior' | translate }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        }
 
-		<div>Door Movement</div>
-		<div class="row gap">
-			<mat-form-field subscriptSizing="dynamic">
-				<mat-label>Door X Multiplier</mat-label>
-				<input matInput type="number" aria-label="Door X Multiplier" formControlName="doorXMultiplier" step="1"/>
-			</mat-form-field>
-			<mat-form-field subscriptSizing="dynamic">
-				<mat-label>Door Z Multiplier</mat-label>
-				<input matInput type="number" aria-label="Door Z Multiplier" formControlName="doorZMultiplier" step="1"/>
-			</mat-form-field>
-		</div>
-		@if (hasDoorMultiplier()) {
-			<mat-form-field subscriptSizing="dynamic">
-				<mat-label>Door Animation Type</mat-label>
-				<mat-select formControlName="doorAnimationType">
-					<mat-option value="STANDARD">Standard</mat-option>
-					<mat-option value="STANDARD_SLOW">Standard Slow</mat-option>
-					<mat-option value="CONSTANT">Constant</mat-option>
-					<mat-option value="PLUG_FAST">Plug Fast</mat-option>
-					<mat-option value="PLUG_SLOW">Plug Slow (1)</mat-option>
-					<mat-option value="PLUG_SLOW_2">Plug Slow (2)</mat-option>
-					<mat-option value="PLUG_SLOW_3">Plug Slow (3)</mat-option>
-					<mat-option value="BOUNCY_1">Bouncy (1)</mat-option>
-					<mat-option value="BOUNCY_2">Bouncy (2)</mat-option>
-					<mat-option value="MLR">MLR</mat-option>
-					<mat-option value="R179">R179</mat-option>
-					<mat-option value="R211">R211</mat-option>
-				</mat-select>
-			</mat-form-field>
-			<div class="row gap">
-				<mat-form-field subscriptSizing="dynamic">
-					<mat-label>From Opening Time (ms)</mat-label>
-					<input matInput type="number" aria-label="From Opening Time (ms)" formControlName="renderFromOpeningDoorTime" min="0" step="100"/>
-				</mat-form-field>
-				<mat-form-field subscriptSizing="dynamic">
-					<mat-label>Until Opening Time (ms)</mat-label>
-					<input matInput type="number" aria-label="Until Opening Time (ms)" formControlName="renderUntilOpeningDoorTime" min="0" step="100"/>
-				</mat-form-field>
-			</div>
-			<div class="row gap">
-				<mat-form-field subscriptSizing="dynamic">
-					<mat-label>From Closing Time (ms)</mat-label>
-					<input matInput type="number" aria-label="From Closing Time (ms)" formControlName="renderFromClosingDoorTime" min="0" step="100"/>
-				</mat-form-field>
-				<mat-form-field subscriptSizing="dynamic">
-					<mat-label>Until Closing Time (ms)</mat-label>
-					<input matInput type="number" aria-label="Until Closing Time (ms)" formControlName="renderUntilClosingDoorTime" min="0" step="100"/>
-				</mat-form-field>
-			</div>
-			<div class="row gap">
-				<mat-form-field subscriptSizing="dynamic">
-					<mat-label>Flash On Time (ms)</mat-label>
-					<input matInput type="number" aria-label="Flash On Time (ms)" formControlName="flashOnTime" min="0" step="100"/>
-				</mat-form-field>
-				<mat-form-field subscriptSizing="dynamic">
-					<mat-label>Flash Off Time (ms)</mat-label>
-					<input matInput type="number" aria-label="Flash Off Time (ms)" formControlName="flashOffTime" min="0" step="100"/>
-				</mat-form-field>
-			</div>
-		}
+        <div>{{ 'model.edit_parts.door_movement.title' | translate }}</div>
+        <div class="row gap">
+            <mat-form-field subscriptSizing="dynamic">
+                <mat-label>{{ 'model.edit_parts.door_movement.door_x_multiplier' | translate }}</mat-label>
+                <input matInput type="number" attr.aria-label="{{ 'model.edit_parts.door_movement.door_x_multiplier' | translate }}" formControlName="doorXMultiplier"
+                       step="1"/>
+            </mat-form-field>
+            <mat-form-field subscriptSizing="dynamic">
+                <mat-label>{{ 'model.edit_parts.door_movement.door_z_multiplier' | translate }}</mat-label>
+                <input matInput type="number" attr.aria-label="{{ 'model.edit_parts.door_movement.door_z_multiplier' | translate }}" formControlName="doorZMultiplier"
+                       step="1"/>
+            </mat-form-field>
+        </div>
+        @if (hasDoorMultiplier()) {
+            <mat-form-field subscriptSizing="dynamic">
+                <mat-label>{{ 'model.edit_parts.door_animation_types.title' | translate }}</mat-label>
+                <mat-select formControlName="doorAnimationType">
+                    <mat-option value="STANDARD">{{ 'model.edit_parts.door_animation_types.standard' | translate }}</mat-option>
+                    <mat-option value="STANDARD_SLOW">{{ 'model.edit_parts.door_animation_types.standard_slow' | translate }}</mat-option>
+                    <mat-option value="CONSTANT">{{ 'model.edit_parts.door_animation_types.constant' | translate }}</mat-option>
+                    <mat-option value="PLUG_FAST">{{ 'model.edit_parts.door_animation_types.plug_fast' | translate }}</mat-option>
+                    <mat-option value="PLUG_SLOW">{{ 'model.edit_parts.door_animation_types.plug_slow_1' | translate }}</mat-option>
+                    <mat-option value="PLUG_SLOW_2">{{ 'model.edit_parts.door_animation_types.plug_slow_2' | translate }}</mat-option>
+                    <mat-option value="PLUG_SLOW_3">{{ 'model.edit_parts.door_animation_types.plug_slow_3' | translate }}</mat-option>
+                    <mat-option value="BOUNCY_1">{{ 'model.edit_parts.door_animation_types.bouncy_1' | translate }}</mat-option>
+                    <mat-option value="BOUNCY_2">{{ 'model.edit_parts.door_animation_types.bouncy_2' | translate }}</mat-option>
+                    <mat-option value="MLR">{{ 'model.edit_parts.door_animation_types.mlr' | translate }}</mat-option>
+                    <mat-option value="R179">{{ 'model.edit_parts.door_animation_types.r179' | translate }}</mat-option>
+                    <mat-option value="R211">{{ 'model.edit_parts.door_animation_types.r211' | translate }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <div class="row gap">
+                <mat-form-field subscriptSizing="dynamic">
+                    <mat-label>{{ 'model.edit_parts.door_movement.from_opening_time' | translate }} (ms)</mat-label>
+                    <input matInput type="number" attr.aria-label="{{ 'model.edit_parts.door_movement.from_opening_time' | translate }} (ms)"
+                           formControlName="renderFromOpeningDoorTime" min="0" step="100"/>
+                </mat-form-field>
+                <mat-form-field subscriptSizing="dynamic">
+                    <mat-label>{{ 'model.edit_parts.door_movement.until_opening_time' | translate }} (ms)</mat-label>
+                    <input matInput type="number" attr.aria-label="{{ 'model.edit_parts.door_movement.until_opening_time' | translate }} (ms)"
+                           formControlName="renderUntilOpeningDoorTime" min="0" step="100"/>
+                </mat-form-field>
+            </div>
+            <div class="row gap">
+                <mat-form-field subscriptSizing="dynamic">
+                    <mat-label>{{ 'model.edit_parts.door_movement.from_closing_time' | translate }} (ms)</mat-label>
+                    <input matInput type="number" attr.aria-label="{{ 'model.edit_parts.door_movement.from_closing_time' | translate }} (ms)"
+                           formControlName="renderFromClosingDoorTime" min="0" step="100"/>
+                </mat-form-field>
+                <mat-form-field subscriptSizing="dynamic">
+                    <mat-label>{{ 'model.edit_parts.door_movement.until_closing_time' | translate }} (ms)</mat-label>
+                    <input matInput type="number" attr.aria-label="{{ 'model.edit_parts.door_movement.until_closing_time' | translate }} (ms)"
+                           formControlName="renderUntilClosingDoorTime" min="0" step="100"/>
+                </mat-form-field>
+            </div>
+            <div class="row gap">
+                <mat-form-field subscriptSizing="dynamic">
+                    <mat-label>{{ 'model.edit_parts.door_movement.flash_on_time' | translate }} (ms)</mat-label>
+                    <input matInput type="number" attr.aria-label="{{ 'model.edit_parts.door_movement.flash_on_time' | translate }} (ms)" formControlName="flashOnTime" min="0"
+                           step="100"/>
+                </mat-form-field>
+                <mat-form-field subscriptSizing="dynamic">
+                    <mat-label>{{ 'model.edit_parts.door_movement.flash_off_time' | translate }} (ms)</mat-label>
+                    <input matInput type="number" attr.aria-label="{{ 'model.edit_parts.door_movement.flash_off_time' | translate }} (ms)" formControlName="flashOffTime"
+                           min="0" step="100"/>
+                </mat-form-field>
+            </div>
+        }
 
-		@if (isDisplay()) {
-			<div>Display</div>
-			<mat-form-field subscriptSizing="dynamic">
-				<mat-label>Type</mat-label>
-				<mat-select formControlName="displayType">
-					<mat-option value="DESTINATION">Destination</mat-option>
-					<mat-option value="ROUTE_NUMBER">Route Number</mat-option>
-					<mat-option value="DEPARTURE_INDEX">Departure Index</mat-option>
-					<mat-option value="NEXT_STATION">Next Station</mat-option>
-					<mat-option value="NEXT_STATION_KCR">Next Station (KCR)</mat-option>
-					<mat-option value="NEXT_STATION_MTR">Next Station (MTR)</mat-option>
-					<mat-option value="NEXT_STATION_UK">Next Station (UK)</mat-option>
-					<mat-option value="ROUTE_COLOR">Route Colour (Square)</mat-option>
-					<mat-option value="ROUTE_COLOR_ROUNDED">Route Colour (Rounded)</mat-option>
-				</mat-select>
-			</mat-form-field>
-			@if (!isRouteColorDisplay()) {
-				<mat-form-field subscriptSizing="dynamic">
-					<mat-label>Default Text</mat-label>
-					<input matInput aria-label="Default Text" formControlName="displayDefaultText" autocomplete="off"/>
-				</mat-form-field>
-			}
-			<div class="row gap">
-				<mat-form-field subscriptSizing="dynamic">
-					<mat-label>X Padding</mat-label>
-					<input matInput type="number" aria-label="X Padding" formControlName="displayXPadding" step="0.1"/>
-				</mat-form-field>
-				<mat-form-field subscriptSizing="dynamic">
-					<mat-label>Y Padding</mat-label>
-					<input matInput type="number" aria-label="Y Padding" formControlName="displayYPadding" step="0.1"/>
-				</mat-form-field>
-			</div>
-			@if (!isRouteColorDisplay()) {
-				<div class="row gap">
-					<mat-form-field subscriptSizing="dynamic">
-						<mat-label>Colour (CJK Text)</mat-label>
-						<input matInput type="color" aria-label="Colour (CJK Text)" formControlName="displayColorCjk"/>
-					</mat-form-field>
-					<mat-form-field subscriptSizing="dynamic">
-						<mat-label>Colour (Non-CJK Text)</mat-label>
-						<input matInput type="color" aria-label="Colour (Non-CJK Text)" formControlName="displayColor"/>
-					</mat-form-field>
-				</div>
-				<mat-form-field subscriptSizing="dynamic">
-					<mat-label>Max Line Height</mat-label>
-					<input matInput type="number" aria-label="Max Line Height" formControlName="displayMaxLineHeight" min="0" step="0.1"/>
-				</mat-form-field>
-				@if (isDepartureIndexDisplay()) {
-					<mat-form-field subscriptSizing="dynamic">
-						<mat-label>Pad Zeros</mat-label>
-						<input matInput type="number" aria-label="Pad Zeros" formControlName="displayPadZeros" min="0" step="1"/>
-					</mat-form-field>
-				} @else {
-					<mat-form-field subscriptSizing="dynamic">
-						<mat-label>CJK Size Ratio</mat-label>
-						<input matInput type="number" aria-label="CJK Size Ratio" formControlName="displayCjkSizeRatio" min="0" step="0.5"/>
-					</mat-form-field>
-				}
-				<div class="column">
-					<mat-checkbox formControlName="displayOptionSingleLine">Single Line</mat-checkbox>
-					<mat-checkbox formControlName="displayOptionUpperCase">Convert to Upper Case</mat-checkbox>
-					<mat-checkbox formControlName="displayOptionSpaceCjk">Put Space for Short CJK Text</mat-checkbox>
-					<mat-checkbox formControlName="displayOptionScrollNormal">Scroll (Normal)</mat-checkbox>
-					<mat-checkbox formControlName="displayOptionScrollLightRail">Scroll (Light Rail)</mat-checkbox>
-					<mat-checkbox formControlName="displayOptionSevenSegment">Seven Segment (If Numeric)</mat-checkbox>
-					<mat-checkbox formControlName="displayOptionAlignLeftCjk">Align Left (CJK Text)</mat-checkbox>
-					<mat-checkbox formControlName="displayOptionAlignRightCjk">Align Right (CJK Text)</mat-checkbox>
-					<mat-checkbox formControlName="displayOptionAlignLeft">Align Left (Non-CJK Text)</mat-checkbox>
-					<mat-checkbox formControlName="displayOptionAlignRight">Align Right (Non-CJK Text)</mat-checkbox>
-					<mat-checkbox formControlName="displayOptionAlignTop">Align Top</mat-checkbox>
-					<mat-checkbox formControlName="displayOptionAlignBottom">Align Bottom</mat-checkbox>
-					<mat-checkbox formControlName="displayOptionCycleLanguages">Cycle Languages</mat-checkbox>
-				</div>
-			}
-		}
-	</form>
+        @if (isDisplay()) {
+            <div>{{ 'model.edit_parts.display.title' | translate }}</div>
+            <mat-form-field subscriptSizing="dynamic">
+                <mat-label>{{ 'model.edit_parts.display.types.title' | translate }}</mat-label>
+                <mat-select formControlName="displayType">
+                    <mat-option value="DESTINATION">{{ 'model.edit_parts.display.types.destination' | translate }}</mat-option>
+                    <mat-option value="ROUTE_NUMBER">{{ 'model.edit_parts.display.types.route_number' | translate }}</mat-option>
+                    <mat-option value="DEPARTURE_INDEX">{{ 'model.edit_parts.display.types.departure_index' | translate }}</mat-option>
+                    <mat-option value="NEXT_STATION">{{ 'model.edit_parts.display.types.next_station' | translate }}</mat-option>
+                    <mat-option value="NEXT_STATION_KCR">{{ 'model.edit_parts.display.types.next_station_kcr' | translate }}</mat-option>
+                    <mat-option value="NEXT_STATION_MTR">{{ 'model.edit_parts.display.types.next_station_mtr' | translate }}</mat-option>
+                    <mat-option value="NEXT_STATION_UK">{{ 'model.edit_parts.display.types.next_station_uk' | translate }}</mat-option>
+                    <mat-option value="ROUTE_COLOR">{{ 'model.edit_parts.display.types.route_color' | translate }}</mat-option>
+                    <mat-option value="ROUTE_COLOR_ROUNDED">{{ 'model.edit_parts.display.types.route_color_rounded' | translate }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            @if (!isRouteColorDisplay()) {
+                <mat-form-field subscriptSizing="dynamic">
+                    <mat-label>{{ 'model.edit_parts.display.default_text' | translate }}</mat-label>
+                    <input matInput attr.aria-label="{{ 'model.edit_parts.display.default_text' | translate }}" formControlName="displayDefaultText" autocomplete="off"/>
+                </mat-form-field>
+            }
+            <div class="row gap">
+                <mat-form-field subscriptSizing="dynamic">
+                    <mat-label>{{ 'model.edit_parts.display.x_padding' | translate }}</mat-label>
+                    <input matInput type="number" attr.aria-label="{{ 'model.edit_parts.display.x_padding' | translate }}" formControlName="displayXPadding" step="0.1"/>
+                </mat-form-field>
+                <mat-form-field subscriptSizing="dynamic">
+                    <mat-label>{{ 'model.edit_parts.display.y_padding' | translate }}</mat-label>
+                    <input matInput type="number" attr.aria-label="{{ 'model.edit_parts.display.y_padding' | translate }}" formControlName="displayYPadding" step="0.1"/>
+                </mat-form-field>
+            </div>
+            @if (!isRouteColorDisplay()) {
+                <div class="row gap">
+                    <mat-form-field subscriptSizing="dynamic">
+                        <mat-label>{{ 'model.edit_parts.display.color_cjk_text' | translate }}</mat-label>
+                        <input matInput type="color" attr.aria-label="{{ 'model.edit_parts.display.color_cjk_text' | translate }}" formControlName="displayColorCjk"/>
+                    </mat-form-field>
+                    <mat-form-field subscriptSizing="dynamic">
+                        <mat-label>{{ 'model.edit_parts.display.color_non_cjk_text' | translate }}</mat-label>
+                        <input matInput type="color" attr.aria-label="{{ 'model.edit_parts.display.color_non_cjk_text' | translate }}" formControlName="displayColor"/>
+                    </mat-form-field>
+                </div>
+                <mat-form-field subscriptSizing="dynamic">
+                    <mat-label>{{ 'model.edit_parts.display.max_line_height' | translate }}</mat-label>
+                    <input matInput type="number" attr.aria-label="{{ 'model.edit_parts.display.max_line_height' | translate }}" formControlName="displayMaxLineHeight"
+                           min="0" step="0.1"/>
+                </mat-form-field>
+                @if (isDepartureIndexDisplay()) {
+                    <mat-form-field subscriptSizing="dynamic">
+                        <mat-label>{{ 'model.edit_parts.display.pad_zeros' | translate }}</mat-label>
+                        <input matInput type="number" attr.aria-label="{{ 'model.edit_parts.display.pad_zeros' | translate }}" formControlName="displayPadZeros" min="0"
+                               step="1"/>
+                    </mat-form-field>
+                } @else {
+                    <mat-form-field subscriptSizing="dynamic">
+                        <mat-label>{{ 'model.edit_parts.display.cjk_size_ratio' | translate }}</mat-label>
+                        <input matInput type="number" attr.aria-label="{{ 'model.edit_parts.display.cjk_size_ratio' | translate }}" formControlName="displayCjkSizeRatio"
+                               min="0" step="0.5"/>
+                    </mat-form-field>
+                }
+                <div class="column">
+                    <mat-checkbox formControlName="displayOptionSingleLine">{{ 'model.edit_parts.display.options.single_line' | translate }}</mat-checkbox>
+                    <mat-checkbox formControlName="displayOptionUpperCase">{{ 'model.edit_parts.display.options.convert_to_upper_case' | translate }}</mat-checkbox>
+                    <mat-checkbox formControlName="displayOptionSpaceCjk">{{ 'model.edit_parts.display.options.put_space_for_short_cjk_text' | translate }}</mat-checkbox>
+                    <mat-checkbox formControlName="displayOptionScrollNormal">{{ 'model.edit_parts.display.options.scroll_normal' | translate }}</mat-checkbox>
+                    <mat-checkbox formControlName="displayOptionScrollLightRail">{{ 'model.edit_parts.display.options.scroll_light_rail' | translate }}</mat-checkbox>
+                    <mat-checkbox formControlName="displayOptionSevenSegment">{{ 'model.edit_parts.display.options.seven_segment' | translate }}</mat-checkbox>
+                    <mat-checkbox formControlName="displayOptionAlignLeftCjk">{{ 'model.edit_parts.display.options.align_left_cjk_text' | translate }}</mat-checkbox>
+                    <mat-checkbox formControlName="displayOptionAlignRightCjk">{{ 'model.edit_parts.display.options.align_right_cjk_text' | translate }}</mat-checkbox>
+                    <mat-checkbox formControlName="displayOptionAlignLeft">{{ 'model.edit_parts.display.options.align_left_non_cjk_text' | translate }}</mat-checkbox>
+                    <mat-checkbox formControlName="displayOptionAlignRight">{{ 'model.edit_parts.display.options.align_right_non_cjk_text' | translate }}</mat-checkbox>
+                    <mat-checkbox formControlName="displayOptionAlignTop">{{ 'model.edit_parts.display.options.align_top' | translate }}</mat-checkbox>
+                    <mat-checkbox formControlName="displayOptionAlignBottom">{{ 'model.edit_parts.display.options.align_bottom' | translate }}</mat-checkbox>
+                    <mat-checkbox formControlName="displayOptionCycleLanguages">{{ 'model.edit_parts.display.options.cycle_languages' | translate }}</mat-checkbox>
+                </div>
+            }
+        }
+    </form>
 </mat-dialog-content>
 <mat-dialog-actions>
-	<button mat-button (click)="onClose()" cdkFocusInitial>Close</button>
+    <button mat-button (click)="onClose()" cdkFocusInitial>{{ 'components.close' | translate }}</button>
 </mat-dialog-actions>

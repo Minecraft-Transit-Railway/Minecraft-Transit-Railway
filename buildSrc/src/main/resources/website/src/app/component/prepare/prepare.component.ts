@@ -6,6 +6,7 @@ import {DataService} from "../../service/data.service";
 import {UploaderComponent} from "../uploader/uploader.component";
 import {LargeTileComponent} from "../large-button/large-tile.component";
 import {MatDividerModule} from "@angular/material/divider";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
 	selector: "app-prepare",
@@ -15,6 +16,7 @@ import {MatDividerModule} from "@angular/material/divider";
 		UploaderComponent,
 		LargeTileComponent,
 		MatDividerModule,
+		TranslatePipe,
 	],
 	templateUrl: "./prepare.component.html",
 	styleUrl: "./prepare.component.css",
@@ -49,6 +51,7 @@ export class PrepareComponent {
 	imports: [
 		MatDialogModule,
 		MatButtonModule,
+		TranslatePipe,
 	],
 	templateUrl: "reset.dialog.html",
 })

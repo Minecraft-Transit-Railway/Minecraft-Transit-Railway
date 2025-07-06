@@ -1,13 +1,15 @@
 <div class="column gap">
-	<mat-slide-toggle #toggle (change)="toggleDoors(toggle.checked)">Open Doors</mat-slide-toggle>
-	<div class="row gap-small center">
-		<button mat-button (click)="resumeGame()">
-			<mat-icon>hide_image</mat-icon>
-			Hide Minecraft Pause Screen
-		</button>
-		<button mat-button (click)="reload()">
-			<mat-icon>refresh</mat-icon>
-			Force Reload
-		</button>
-	</div>
+    <mat-slide-toggle #toggle (change)="toggleDoors(toggle.checked)">
+        {{ 'preview.open_doors' | translate }}
+    </mat-slide-toggle>
+    <div class="row gap-small center">
+        <button mat-button (click)="resumeGame()">
+            <mat-icon>hide_image</mat-icon>
+            {{ 'preview.hide_pause_screen' | translate }}
+        </button>
+        <button mat-button (click)="reload()">
+            <mat-icon>refresh</mat-icon>
+            {{ 'preview.force_reload' | translate }}
+        </button>
+    </div>
 </div>

@@ -3,14 +3,16 @@ import {MatIconModule} from "@angular/material/icon";
 import {DataService} from "../../service/data.service";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatButtonModule} from "@angular/material/button";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
 	selector: "app-preview",
-	imports: [
-		MatButtonModule,
-		MatSlideToggleModule,
-		MatIconModule,
-	],
+    imports: [
+        MatButtonModule,
+        MatSlideToggleModule,
+        MatIconModule,
+        TranslatePipe,
+    ],
 	templateUrl: "./preview.component.html",
 	styleUrl: "./preview.component.css",
 })

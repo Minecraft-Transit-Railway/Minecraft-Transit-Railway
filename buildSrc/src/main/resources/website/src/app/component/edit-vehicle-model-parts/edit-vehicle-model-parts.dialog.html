@@ -1,9 +1,9 @@
-<h2 mat-dialog-title>Model Parts</h2>
+<h2 mat-dialog-title>{{ 'model.edit_parts.title' | translate }}</h2>
 <mat-dialog-content>
 	<table mat-table [dataSource]="dataSource">
 		@for (column of allColumns; track $index) {
 			<ng-container [matColumnDef]="column.id" [sticky]="$index === 0">
-				<th mat-header-cell *matHeaderCellDef>{{ column.title }}</th>
+				<th mat-header-cell *matHeaderCellDef>{{ column.title | translate }}</th>
 				<td mat-cell *matCellDef="let modelPropertiesPart">{{ column.formatData(modelPropertiesPart) }}</td>
 			</ng-container>
 		}
@@ -11,10 +11,10 @@
 			<th mat-header-cell *matHeaderCellDef></th>
 			<td mat-cell *matCellDef="let modelPropertiesPart">
 				<div class="row spacing gap-small">
-					<button mat-icon-button (click)="edit(modelPropertiesPart)" matTooltip="Edit">
+					<button mat-icon-button (click)="edit(modelPropertiesPart)" matTooltip="{{ 'components.edit' | translate }}">
 						<mat-icon>edit</mat-icon>
 					</button>
-					<button mat-icon-button (click)="delete(modelPropertiesPart)" matTooltip="Delete">
+					<button mat-icon-button (click)="delete(modelPropertiesPart)" matTooltip="{{ 'components.delete' | translate }}">
 						<mat-icon>delete</mat-icon>
 					</button>
 				</div>
@@ -28,23 +28,23 @@
 	<form class="row gap center wide" [formGroup]="formGroup">
 		<div class="spacing"></div>
 		@if (hasNormal && (hasFloorOrDoorway || hasSeat || hasDisplay)) {
-			<mat-checkbox (change)="filterData()" formControlName="showNormalParts">Show Normal Parts</mat-checkbox>
+			<mat-checkbox (change)="filterData()" formControlName="showNormalParts">{{ 'model.edit_parts.show_normal_parts' | translate }}</mat-checkbox>
 		}
 		@if (hasFloorOrDoorway && (hasNormal || hasSeat || hasDisplay)) {
-			<mat-checkbox (change)="filterData()" formControlName="showFloorsAndDoorways">Show Floors and Doorways</mat-checkbox>
+			<mat-checkbox (change)="filterData()" formControlName="showFloorsAndDoorways">{{ 'model.edit_parts.show_floors_and_doorways' | translate }}</mat-checkbox>
 		}
 		@if (hasSeat && (hasNormal || hasFloorOrDoorway || hasDisplay)) {
-			<mat-checkbox (change)="filterData()" formControlName="showSeats">Show Seats</mat-checkbox>
+			<mat-checkbox (change)="filterData()" formControlName="showSeats">{{ 'model.edit_parts.show_seats' | translate }}</mat-checkbox>
 		}
 		@if (hasDisplay && (hasNormal || hasFloorOrDoorway || hasSeat)) {
-			<mat-checkbox (change)="filterData()" formControlName="showDisplays">Show Displays</mat-checkbox>
+			<mat-checkbox (change)="filterData()" formControlName="showDisplays">{{ 'model.edit_parts.show_displays' | translate }}</mat-checkbox>
 		}
 		<div>
 			<button mat-flat-button (click)="add()">
 				<mat-icon>add</mat-icon>
-				Add
+                {{ 'model.edit_parts.add' | translate }}
 			</button>
-			<button mat-button (click)="onClose()" cdkFocusInitial>Close</button>
+			<button mat-button (click)="onClose()" cdkFocusInitial>{{ 'components.close' | translate }}</button>
 		</div>
 	</form>
 </mat-dialog-actions>

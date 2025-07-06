@@ -15,6 +15,7 @@ import {VehicleModelWrapperDTO} from "../../entity/generated/vehicleModelWrapper
 import {PartPositionDTO} from "../../entity/generated/partPosition";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {VehicleResourceWrapperDTO} from "../../entity/generated/vehicleResourceWrapper";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
 	imports: [
@@ -30,6 +31,7 @@ import {VehicleResourceWrapperDTO} from "../../entity/generated/vehicleResourceW
 		MatSelectModule,
 		MatCheckboxModule,
 		CdkTextareaAutosize,
+		TranslatePipe,
 	],
 	templateUrl: "edit-vehicle-model-part.dialog.html",
 	styleUrl: "edit-vehicle-model-part.dialog.css",
