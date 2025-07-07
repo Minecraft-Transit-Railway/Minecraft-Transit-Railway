@@ -1,9 +1,6 @@
 package org.mtr.mod.data;
 
-import org.mtr.core.data.TransportMode;
-import org.mtr.core.data.Vehicle;
-import org.mtr.core.data.VehicleCar;
-import org.mtr.core.data.VehicleExtraData;
+import org.mtr.core.data.*;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -20,6 +17,9 @@ import java.util.function.Supplier;
 
 public final class PersistentVehicleData {
 
+	private double railProgressCache;
+	private boolean reversedCache;
+	private double railProgressAdjustment;
 	private double doorValue;
 	private double oldDoorValue;
 	private double nextAnnouncementRailProgress;
@@ -43,6 +43,23 @@ public final class PersistentVehicleData {
 		this.transportMode = transportMode;
 	}
 
+	/**
+	 * Captures the rail progress difference of an incoming vehicle update.
+	 *
+	 * @param newRailProgress the rail progress coming from the server
+	 * @param newReversed     the reversed state coming from the server
+	 * @return the old rail progress before the update
+	 */
+	public double adjustRailProgress(double newRailProgress, boolean newReversed) {
+		if (newReversed == reversedCache) {
+			railProgressAdjustment = newRailProgress - railProgressCache;
+			return railProgressCache;
+		} else {
+			railProgressAdjustment = 0;
+			return newRailProgress;
+		}
+	}
+
 	public ObjectArrayList<ScrollingText> getScrollingText(int carNumber) {
 		return getElement(scrollingTexts, carNumber, ObjectArrayList::new);
 	}
@@ -51,7 +68,18 @@ public final class PersistentVehicleData {
 		return getElement(oscillations, carNumber, () -> new Oscillation(transportMode));
 	}
 
-	public void tick(double railProgress, long millisElapsed, VehicleExtraData vehicleExtraData) {
+	/**
+	 * Adjust rail progress, process door value, and animate oscillation.
+	 *
+	 * @return the adjusted rail progress
+	 */
+	public double tick(double railProgress, boolean reversed, long millisElapsed, VehicleExtraData vehicleExtraData) {
+		final double currentAdjustment = Math.min(railProgressAdjustment, railProgressAdjustment * millisElapsed / Depot.MILLIS_PER_SECOND);
+		final double adjustedRailProgress = railProgress + currentAdjustment;
+		railProgressCache = adjustedRailProgress;
+		reversedCache = reversed;
+		railProgressAdjustment -= currentAdjustment;
+
 		oldDoorValue = doorValue;
 		doorValue = Utilities.clamp(doorValue + (double) (millisElapsed * getAdjustedDoorMultiplier(vehicleExtraData)) / Vehicle.DOOR_MOVE_TIME, 0, 1);
 		if (checkCanOpenDoors()) {
@@ -61,9 +89,11 @@ public final class PersistentVehicleData {
 		}
 		if (doorValue > 0) {
 			doorCooldown = 2;
-			nextAnnouncementRailProgress = railProgress + vehicleExtraData.getTotalVehicleLength() * 1.5;
+			nextAnnouncementRailProgress = adjustedRailProgress + vehicleExtraData.getTotalVehicleLength() * 1.5;
 		}
+
 		oscillations.forEach(oscillation -> oscillation.tick(millisElapsed));
+		return adjustedRailProgress;
 	}
 
 	public double getDoorValue() {
@@ -107,8 +137,8 @@ public final class PersistentVehicleData {
 		this.overrideDoorMultiplier = overrideDoorMultiplier;
 	}
 
-	public boolean canAnnounce(double oldRailProgress, double railProgress) {
-		return oldRailProgress < nextAnnouncementRailProgress && railProgress >= nextAnnouncementRailProgress;
+	public boolean canAnnounce(double oldRailProgress) {
+		return oldRailProgress < nextAnnouncementRailProgress && railProgressCache >= nextAnnouncementRailProgress;
 	}
 
 	public void playMotorSound(VehicleResource vehicleResource, int carNumber, BlockPos bogiePosition, float speed, float speedChange, float acceleration, boolean isOnRoute) {

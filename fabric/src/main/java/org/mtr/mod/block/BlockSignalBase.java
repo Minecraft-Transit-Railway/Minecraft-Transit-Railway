@@ -80,10 +80,13 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 		private long lastOccupiedTime1;
 		private long lastOccupiedTime2;
 		private int oldRedstoneLevel;
+		private boolean outputRedstone;
 		public final boolean isDoubleSided;
 
 		private final IntAVLTreeSet signalColors1 = new IntAVLTreeSet();
 		private final IntAVLTreeSet signalColors2 = new IntAVLTreeSet();
+
+		private static final String KEY_OUTPUT_REDSTONE = "output_redstone";
 		private static final String KEY_SIGNAL_COLORS_1 = "signal_colors_1";
 		private static final String KEY_SIGNAL_COLORS_2 = "signal_colors_2";
 
@@ -94,6 +97,7 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 
 		@Override
 		public void readCompoundTag(CompoundTag compoundTag) {
+			outputRedstone = compoundTag.getBoolean(KEY_OUTPUT_REDSTONE);
 			signalColors1.clear();
 			for (final int color : compoundTag.getIntArray(KEY_SIGNAL_COLORS_1)) {
 				signalColors1.add(color);
@@ -107,15 +111,21 @@ public abstract class BlockSignalBase extends BlockExtension implements Directio
 
 		@Override
 		public void writeCompoundTag(CompoundTag compoundTag) {
+			compoundTag.putBoolean(KEY_OUTPUT_REDSTONE, outputRedstone);
 			compoundTag.putIntArray(KEY_SIGNAL_COLORS_1, new ArrayList<>(signalColors1));
 			compoundTag.putIntArray(KEY_SIGNAL_COLORS_2, new ArrayList<>(signalColors2));
 			super.writeCompoundTag(compoundTag);
 		}
 
-		public void setData(IntAVLTreeSet signalColors, boolean isBackSide) {
+		public void setData(boolean outputRedstone, IntAVLTreeSet signalColors, boolean isBackSide) {
+			this.outputRedstone = outputRedstone;
 			getSignalColors(isBackSide).clear();
 			getSignalColors(isBackSide).addAll(signalColors);
 			markDirty2();
+		}
+
+		public boolean getOutputRedstone() {
+			return outputRedstone;
 		}
 
 		public IntAVLTreeSet getSignalColors(boolean isBackSide) {

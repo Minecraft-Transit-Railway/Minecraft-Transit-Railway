@@ -101,7 +101,7 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 		}
 
 		if (entity.sendUpdate(redstoneLevel)) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketTurnOnBlockEntity(entity.getPos2(), redstoneLevel));
+			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketTurnOnBlockEntity(entity.getPos2(), entity.getOutputRedstone() ? redstoneLevel : 0));
 		}
 	}
 

@@ -47,6 +47,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 			MinecraftClientData.getInstance().vehicleIdToPersistentVehicleData.put(getId(), persistentVehicleData);
 		} else {
 			persistentVehicleData = tempPersistentVehicleData;
+			this.railProgress = persistentVehicleData.adjustRailProgress(railProgress, reversed);
 		}
 	}
 
@@ -61,7 +62,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		final double oldRailProgress = railProgress;
 		oldSpeed = speed;
 		simulate(millisElapsed, null, null);
-		persistentVehicleData.tick(railProgress, millisElapsed, vehicleExtraData);
+		railProgress = persistentVehicleData.tick(railProgress, reversed, millisElapsed, vehicleExtraData);
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
 		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
@@ -122,7 +123,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 			}
 
 			// TODO chat announcements (next station, route number, etc.)
-			if (persistentVehicleData.canAnnounce(oldRailProgress, railProgress)) {
+			if (persistentVehicleData.canAnnounce(oldRailProgress)) {
 				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketCheckRouteIdHasDisabledAnnouncements(thisRouteId, routeIdHasDisabledAnnouncements -> {
 					if (!routeIdHasDisabledAnnouncements) {
 						final ObjectArrayList<String> narrateText = new ObjectArrayList<>();
