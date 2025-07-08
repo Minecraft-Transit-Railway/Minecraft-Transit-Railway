@@ -10,6 +10,7 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatButtonModule} from "@angular/material/button";
 import {ExportComponent} from "./component/export/export.component";
 import {LargeTileComponent} from "./component/large-button/large-tile.component";
+import {TranslatePipe, TranslateService} from "@ngx-translate/core";
 
 @Component({
 	selector: "app-root",
@@ -24,13 +25,16 @@ import {LargeTileComponent} from "./component/large-button/large-tile.component"
 		PreviewComponent,
 		ExportComponent,
 		LargeTileComponent,
+		TranslatePipe,
 	],
 	templateUrl: "./app.component.html",
 	styleUrls: ["./app.component.css"],
 })
 export class AppComponent {
 
-	constructor(private dataService: DataService) {
+	constructor(private dataService: DataService, private translate: TranslateService) {
+		translate.setDefaultLang('en');
+		translate.use(translate.getBrowserCultureLang() ?? 'en');
 	}
 
 	hasData() {

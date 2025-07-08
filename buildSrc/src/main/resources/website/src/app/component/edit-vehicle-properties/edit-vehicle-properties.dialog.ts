@@ -12,6 +12,7 @@ import {SoundComponent} from "../sound/sound.component";
 import {DataService} from "../../service/data.service";
 import {CREATE_VEHICLE_RESOURCE} from "../edit/edit.component";
 import {VehicleResourceWrapperDTO} from "../../entity/generated/vehicleResourceWrapper";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
 	imports: [
@@ -25,6 +26,7 @@ import {VehicleResourceWrapperDTO} from "../../entity/generated/vehicleResourceW
 		MatIconModule,
 		MatTooltipModule,
 		SoundComponent,
+		TranslatePipe,
 	],
 	templateUrl: "edit-vehicle-properties.dialog.html",
 	styleUrl: "edit-vehicle-properties.dialog.css",

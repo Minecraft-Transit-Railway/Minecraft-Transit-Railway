@@ -12,14 +12,15 @@ import {PositionDefinitionDTO} from "../../entity/generated/positionDefinition";
 import {EditVehicleModelPartDialog} from "../edit-vehicle-model-part/edit-vehicle-model-part.dialog";
 import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {VehicleResourceWrapperDTO} from "../../entity/generated/vehicleResourceWrapper";
+import {TranslatePipe} from "@ngx-translate/core";
 
 const MAIN_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => string }[] = [
-	{id: "positionDefinition", title: "Model Part", formatData: modelPropertiesPart => modelPropertiesPart.positionDefinition.name},
-	{id: "positions", title: "Positions", formatData: modelPropertiesPart => modelPropertiesPart.positionDefinition.positions.map(({x, y, z}) => `(${x}, ${y}, ${z})`).join("\n")},
-	{id: "positionsFlipped", title: "Flipped Positions", formatData: modelPropertiesPart => modelPropertiesPart.positionDefinition.positionsFlipped.map(({x, y, z}) => `(${x}, ${y}, ${z})`).join("\n")},
-	{id: "condition", title: "Condition", formatData: modelPropertiesPart => modelPropertiesPart.condition === "NORMAL" ? "" : modelPropertiesPart.condition},
-	{id: "renderStage", title: "Render Stage", formatData: modelPropertiesPart => modelPropertiesPart.type === "NORMAL" ? modelPropertiesPart.renderStage : ""},
-	{id: "type", title: "Type", formatData: modelPropertiesPart => modelPropertiesPart.type},
+	{id: "positionDefinition", title: "model.edit_parts.model_part", formatData: modelPropertiesPart => modelPropertiesPart.positionDefinition.name},
+	{id: "positions", title: "model.edit_parts.positions", formatData: modelPropertiesPart => modelPropertiesPart.positionDefinition.positions.map(({x, y, z}) => `(${x}, ${y}, ${z})`).join("\n")},
+	{id: "positionsFlipped", title: "model.edit_parts.flipped_positions", formatData: modelPropertiesPart => modelPropertiesPart.positionDefinition.positionsFlipped.map(({x, y, z}) => `(${x}, ${y}, ${z})`).join("\n")},
+	{id: "condition", title: "model.edit_parts.conditions.title", formatData: modelPropertiesPart => modelPropertiesPart.condition === "NORMAL" ? "" : modelPropertiesPart.condition},
+	{id: "renderStage", title: "model.edit_parts.render_stages.title", formatData: modelPropertiesPart => modelPropertiesPart.type === "NORMAL" ? modelPropertiesPart.renderStage : ""},
+	{id: "type", title: "model.edit_parts.types.title", formatData: modelPropertiesPart => modelPropertiesPart.type},
 ];
 
 const hasDoorMultiplier = (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => modelPropertiesPart.doorXMultiplier !== 0 || modelPropertiesPart.doorZMultiplier !== 0;
@@ -27,30 +28,30 @@ const hasOpeningDoorTime = (modelPropertiesPart: ModelPropertiesPartWrapperDTO) 
 const hasClosingDoorTime = (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => modelPropertiesPart.renderFromClosingDoorTime !== 0 || modelPropertiesPart.renderUntilClosingDoorTime !== 0;
 const hasFlashTime = (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => modelPropertiesPart.flashOnTime !== 0 || modelPropertiesPart.flashOffTime !== 0;
 const DOOR_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => string }[] = [
-	{id: "doorXMultiplier", title: "Door X Multiplier", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) ? modelPropertiesPart.doorXMultiplier.toString() : ""},
-	{id: "doorZMultiplier", title: "Door Z Multiplier", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) ? modelPropertiesPart.doorZMultiplier.toString() : ""},
-	{id: "doorAnimationType", title: "Door Animation", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) ? modelPropertiesPart.doorAnimationType : ""},
-	{id: "renderFromOpeningDoorTime", title: "From Opening Time", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) && hasOpeningDoorTime(modelPropertiesPart) ? modelPropertiesPart.renderFromOpeningDoorTime.toString() : ""},
-	{id: "renderUntilOpeningDoorTime", title: "Until Opening Time", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) && hasOpeningDoorTime(modelPropertiesPart) ? modelPropertiesPart.renderUntilOpeningDoorTime.toString() : ""},
-	{id: "renderFromClosingDoorTime", title: "From Closing Time", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) && hasClosingDoorTime(modelPropertiesPart) ? modelPropertiesPart.renderFromClosingDoorTime.toString() : ""},
-	{id: "renderUntilClosingDoorTime", title: "Until Closing Time", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) && hasClosingDoorTime(modelPropertiesPart) ? modelPropertiesPart.renderUntilClosingDoorTime.toString() : ""},
-	{id: "flashOnTime", title: "Flash On Time", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) && hasFlashTime(modelPropertiesPart) ? modelPropertiesPart.flashOnTime.toString() : ""},
-	{id: "flashOffTime", title: "Flash Off Time", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) && hasFlashTime(modelPropertiesPart) ? modelPropertiesPart.flashOffTime.toString() : ""},
+	{id: "doorXMultiplier", title: "model.edit_parts.door_movement.door_x_multiplier", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) ? modelPropertiesPart.doorXMultiplier.toString() : ""},
+	{id: "doorZMultiplier", title: "model.edit_parts.door_movement.door_z_multiplier", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) ? modelPropertiesPart.doorZMultiplier.toString() : ""},
+	{id: "doorAnimationType", title: "model.edit_parts.door_animation", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) ? modelPropertiesPart.doorAnimationType : ""},
+	{id: "renderFromOpeningDoorTime", title: "model.edit_parts.door_movement.from_opening_time", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) && hasOpeningDoorTime(modelPropertiesPart) ? modelPropertiesPart.renderFromOpeningDoorTime.toString() : ""},
+	{id: "renderUntilOpeningDoorTime", title: "model.edit_parts.door_movement.until_opening_time", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) && hasOpeningDoorTime(modelPropertiesPart) ? modelPropertiesPart.renderUntilOpeningDoorTime.toString() : ""},
+	{id: "renderFromClosingDoorTime", title: "model.edit_parts.door_movement.from_closing_time", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) && hasClosingDoorTime(modelPropertiesPart) ? modelPropertiesPart.renderFromClosingDoorTime.toString() : ""},
+	{id: "renderUntilClosingDoorTime", title: "model.edit_parts.door_movement.until_closing_time", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) && hasClosingDoorTime(modelPropertiesPart) ? modelPropertiesPart.renderUntilClosingDoorTime.toString() : ""},
+	{id: "flashOnTime", title: "model.edit_parts.door_movement.flash_on_time", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) && hasFlashTime(modelPropertiesPart) ? modelPropertiesPart.flashOnTime.toString() : ""},
+	{id: "flashOffTime", title: "model.edit_parts.door_movement.flash_off_time", formatData: modelPropertiesPart => hasDoorMultiplier(modelPropertiesPart) && hasFlashTime(modelPropertiesPart) ? modelPropertiesPart.flashOffTime.toString() : ""},
 ];
 
 const isDisplay = (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => modelPropertiesPart.type === "DISPLAY";
 const isRouteColorDisplay = (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => modelPropertiesPart.displayType === "ROUTE_COLOR" || modelPropertiesPart.displayType === "ROUTE_COLOR_ROUNDED";
 const isDepartureIndexDisplay = (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => modelPropertiesPart.displayType === "DEPARTURE_INDEX";
 const DISPLAY_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => string }[] = [
-	{id: "displayXPadding", title: "X Padding", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) ? modelPropertiesPart.displayXPadding.toString() : ""},
-	{id: "displayYPadding", title: "Y Padding", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) ? modelPropertiesPart.displayYPadding.toString() : ""},
-	{id: "displayColorCjk", title: "CJK Text Colour", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) && !isRouteColorDisplay(modelPropertiesPart) ? modelPropertiesPart.displayColorCjk : ""},
-	{id: "displayColor", title: "Text Colour", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) && !isRouteColorDisplay(modelPropertiesPart) ? modelPropertiesPart.displayColor : ""},
-	{id: "displayMaxLineHeight", title: "Max Line Height", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) && !isRouteColorDisplay(modelPropertiesPart) ? modelPropertiesPart.displayMaxLineHeight.toString() : ""},
-	{id: "displayCjkSizeRatio", title: "CJK Size Ratio", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) && !isDepartureIndexDisplay(modelPropertiesPart) ? modelPropertiesPart.displayCjkSizeRatio.toString() : ""},
-	{id: "displayPadZeros", title: "Pad Zeros", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) && isDepartureIndexDisplay(modelPropertiesPart) ? modelPropertiesPart.displayPadZeros.toString() : ""},
-	{id: "displayType", title: "Type", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) ? modelPropertiesPart.displayType : ""},
-	{id: "displayDefaultText", title: "Default Text", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) && !isRouteColorDisplay(modelPropertiesPart) ? modelPropertiesPart.displayDefaultText : ""},
+	{id: "displayXPadding", title: "model.edit_parts.display.x_padding", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) ? modelPropertiesPart.displayXPadding.toString() : ""},
+	{id: "displayYPadding", title: "model.edit_parts.display.y_padding", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) ? modelPropertiesPart.displayYPadding.toString() : ""},
+	{id: "displayColorCjk", title: "model.edit_parts.display.cjk_text_color", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) && !isRouteColorDisplay(modelPropertiesPart) ? modelPropertiesPart.displayColorCjk : ""},
+	{id: "displayColor", title: "model.edit_parts.display.text_color", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) && !isRouteColorDisplay(modelPropertiesPart) ? modelPropertiesPart.displayColor : ""},
+	{id: "displayMaxLineHeight", title: "model.edit_parts.display.max_line_height", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) && !isRouteColorDisplay(modelPropertiesPart) ? modelPropertiesPart.displayMaxLineHeight.toString() : ""},
+	{id: "displayCjkSizeRatio", title: "model.edit_parts.display.cjk_size_ratio", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) && !isDepartureIndexDisplay(modelPropertiesPart) ? modelPropertiesPart.displayCjkSizeRatio.toString() : ""},
+	{id: "displayPadZeros", title: "model.edit_parts.display.pad_zero", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) && isDepartureIndexDisplay(modelPropertiesPart) ? modelPropertiesPart.displayPadZeros.toString() : ""},
+	{id: "displayType", title: "model.edit_parts.display.types.title", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) ? modelPropertiesPart.displayType : ""},
+	{id: "displayDefaultText", title: "model.edit_parts.display.default_text", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) && !isRouteColorDisplay(modelPropertiesPart) ? modelPropertiesPart.displayDefaultText : ""},
 ];
 
 export const CREATE_MODEL_PROPERTIES_PART = () => new ModelPropertiesPartWrapperDTO(
@@ -69,6 +70,7 @@ export const CREATE_MODEL_PROPERTIES_PART = () => new ModelPropertiesPartWrapper
 		MatCheckboxModule,
 		MatTooltipModule,
 		ReactiveFormsModule,
+		TranslatePipe,
 	],
 	templateUrl: "edit-vehicle-model-parts.dialog.html",
 	styleUrl: "edit-vehicle-model-parts.dialog.css",

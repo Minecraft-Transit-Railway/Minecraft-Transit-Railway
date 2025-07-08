@@ -4,6 +4,7 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {MatTooltip} from "@angular/material/tooltip";
 import {NgTemplateOutlet} from "@angular/common";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
 	selector: "app-accordion",
@@ -13,6 +14,7 @@ import {NgTemplateOutlet} from "@angular/common";
 		MatExpansionModule,
 		MatTooltip,
 		NgTemplateOutlet,
+		TranslatePipe,
 	],
 	templateUrl: "./accordion.component.html",
 	styleUrl: "./accordion.component.css",

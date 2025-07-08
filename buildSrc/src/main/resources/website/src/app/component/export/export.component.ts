@@ -5,16 +5,18 @@ import {MatButtonModule} from "@angular/material/button";
 import {MatInputModule} from "@angular/material/input";
 import {ReactiveFormsModule} from "@angular/forms";
 import {LargeTileComponent} from "../large-button/large-tile.component";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
 	selector: "app-export",
-	imports: [
-		MatButtonModule,
-		MatInputModule,
-		MatIconModule,
-		ReactiveFormsModule,
-		LargeTileComponent,
-	],
+    imports: [
+        MatButtonModule,
+        MatInputModule,
+        MatIconModule,
+        ReactiveFormsModule,
+        LargeTileComponent,
+        TranslatePipe,
+    ],
 	templateUrl: "./export.component.html",
 	styleUrl: "./export.component.css",
 })

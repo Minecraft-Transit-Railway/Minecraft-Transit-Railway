@@ -12,6 +12,7 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
 import {VehicleModelWrapperDTO} from "../../entity/generated/vehicleModelWrapper";
 import {CREATE_MODEL} from "../edit/edit.component";
 import {VehicleResourceWrapperDTO} from "../../entity/generated/vehicleResourceWrapper";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
 	imports: [
@@ -22,6 +23,7 @@ import {VehicleResourceWrapperDTO} from "../../entity/generated/vehicleResourceW
 		MatIconModule,
 		AutocompleteComponent,
 		MatCheckboxModule,
+		TranslatePipe,
 	],
 	templateUrl: "edit-vehicle-model-properties.dialog.html",
 	styleUrl: "edit-vehicle-model-properties.dialog.css",

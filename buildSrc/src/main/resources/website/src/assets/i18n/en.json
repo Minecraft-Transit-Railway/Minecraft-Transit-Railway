@@ -1,0 +1,262 @@
+{
+    "home": {
+        "connection_failed": "Connection Failed",
+        "is_minecraft_open": "Is your Minecraft world open?"
+    },
+    "prepare": {
+        "title": "Prepare",
+        "reset": "Reset Resource Pack Creator",
+        "reset_confirm": "Reset Resource Pack Creator?",
+        "clear_all": "This will clear all progress and unsaved changes.",
+        "create": "Create New Resource Pack",
+        "sky_is_the_limit": "The sky's the limit!",
+        "edit": "Edit Existing Resource Pack",
+        "make_it_your_own": "Make it your own!",
+        "uploading": "Uploading {{file}}",
+        "invalid_file_name": "Invalid file name!",
+        "invalid_file_type": "Invalid file type!",
+        "no_file_selected": "No file selected!"
+    },
+    "design": {
+        "title": "Design",
+        "resources_custom": "Custom",
+        "add_vehicle": "Add Vehicle",
+        "add_model": "Add Model",
+        "delete_model": "Delete Model",
+        "manage_models": "Manage Models",
+        "manage_textures": "Manage Textures",
+        "models": "Models",
+        "textures": "Textures",
+        "add_texture": "Add Texture",
+        "delete_texture": "Delete Texture",
+        "obj_with_mtl": "Each OBJ file must be uploaded with an MTL file of the same name!"
+    },
+    "preview": {
+        "title": "Preview",
+        "open_doors": "Open Doors",
+        "hide_pause_screen": "Hide Minecraft Pause Screen",
+        "force_reload": "Force Reload"
+    },
+    "export": {
+        "title": "Export",
+        "name": "Name",
+        "description": "Description",
+        "share": "Share your creation with the world!",
+        "finished": "Your Resource Pack will appear as a ZIP file in the following directory:"
+    },
+    "model": {
+        "panel_title": "Models: {{model}}",
+        "front_bogie": "Front Bogie",
+        "bogie": "Bogie",
+        "back_bogie": "Back Bogie",
+        "main_vehicle": "Main Vehicle",
+        "edit_vehicle_properties": "Edit Vehicle Properties",
+        "edit_model_properties": "Edit Model Properties",
+        "edit_model_parts": "Edit Model Parts",
+        "edit_parts": {
+            "title": "Model Parts",
+            "model_part": "Model Part",
+            "general": "General",
+            "name": "Name",
+            "positions": "Positions",
+            "flipped_positions": "Flipped Positions",
+            "add": "Add",
+            "show_normal_parts": "Show Normal Parts",
+            "show_floors_and_doorways": "Show Floors and Doorways",
+            "show_seats": "Show Seats",
+            "show_displays": "Show Displays",
+            "door_animation": "Door Animation",
+            "conditions": {
+                "title": "Condition",
+                "normal": "Normal",
+                "at_depot": "At Depot",
+                "on_route_forwards": "On Route, Moving Forwards",
+                "on_route_backwards": "On Route, Moving Backwards",
+                "doors_closed": "Doors Closed",
+                "doors_opened": "Doors Opened",
+                "christmas_light_red": "Christmas Lights (Red)",
+                "christmas_light_yellow": "Christmas Lights (Yellow)",
+                "christmas_light_green": "Christmas Lights (Green)",
+                "christmas_light_blue": "Christmas Lights (Blue)"
+            },
+            "types": {
+                "title": "Type",
+                "normal": "Normal",
+                "display": "Display",
+                "floor": "Floor",
+                "doorway": "Doorway",
+                "seat": "Seat"
+            },
+            "render_stages": {
+                "title": "Render Stage",
+                "light": "Light",
+                "always_on_light": "Light (Always On)",
+                "interior": "Interior",
+                "interior_translucent": "Interior (Translucent)",
+                "exterior": "Exterior"
+            },
+            "door_movement": {
+                "title": "Door Movement",
+                "door_x_multiplier": "Door X Multiplier",
+                "door_z_multiplier": "Door Z Multiplier",
+                "from_opening_time": "From Opening Time",
+                "until_opening_time": "Until Opening Time",
+                "from_closing_time": "From Closing Time",
+                "until_closing_time": "Until Closing Time",
+                "flash_on_time": "Flash On Time",
+                "flash_off_time": "Flash Off Time"
+            },
+            "door_animation_types": {
+                "title": "Door Animation Type",
+                "standard": "Standard",
+                "standard_slow": "Standard Slow",
+                "constant": "Constant",
+                "plug_fast": "Plug Fast",
+                "plug_slow_1": "Plug Slow (1)",
+                "plug_slow_2": "Plug Slow (2)",
+                "plug_slow_3": "Plug Slow (3)",
+                "bouncy_1": "Bouncy (1)",
+                "bouncy_2": "Bouncy (2)",
+                "mlr": "MLR",
+                "r179": "R179",
+                "r211": "R211"
+            },
+            "display": {
+                "title": "Display",
+                "default_text": "Default Text",
+                "x_padding": "X Padding",
+                "y_padding": "Y Padding",
+                "cjk_text_color": "CJK Text Colour",
+                "text_color": "Text Colour",
+                "color_cjk_text": "Colour (CJK Text)",
+                "color_non_cjk_text": "Colour (Non-CJK Text)",
+                "max_line_height": "Max Line Height",
+                "pad_zeros": "Pad Zeros",
+                "cjk_size_ratio": "CJK Size Ratio",
+                "types": {
+                    "title": "Type",
+                    "destination": "Destination",
+                    "route_number": "Route Number",
+                    "departure_index": "Departure Index",
+                    "next_station": "Next Station",
+                    "next_station_kcr": "Next Station (KCR)",
+                    "next_station_mtr": "Next Station (MTR)",
+                    "next_station_uk": "Next Station (UK)",
+                    "route_color": "Route Colour (Square)",
+                    "route_color_rounded": "Route Colour (Rounded)"
+                },
+                "options": {
+                    "single_line": "Single Line",
+                    "convert_to_upper_case": "Convert to Upper Case",
+                    "put_space_for_short_cjk_text": "Put Space for Short CJK Text",
+                    "scroll_normal": "Scroll (Normal)",
+                    "scroll_light_rail": "Scroll (Light Rail)",
+                    "seven_segment": "Seven Segment (If Numeric)",
+                    "align_left_cjk_text": "Align Left (CJK Text)",
+                    "align_right_cjk_text": "Align Right (CJK Text)",
+                    "align_left_non_cjk_text": "Align Left (Non-CJK Text)",
+                    "align_right_non_cjk_text": "Align Right (Non-CJK Text)",
+                    "align_top": "Align Top",
+                    "align_bottom": "Align Bottom",
+                    "cycle_languages": "Cycle Languages"
+                }
+            }
+        },
+        "edit_properties": {
+            "model_properties": "Model Properties",
+            "main_resources": "Main Resources",
+            "model_resource": "Model Resource",
+            "texture_resource": "Texture Resource",
+            "y_offset": "Y Offset",
+            "z_offset": "Z Offset",
+            "flip_texture_v": "Flip Texture V",
+            "inner_side_texture_resource": "Inner Side Texture Resource",
+            "inner_top_texture_resource": "Inner Top Texture Resource",
+            "inner_bottom_texture_resource": "Inner Bottom Texture Resource",
+            "outer_side_texture_resource": "Outer Side Texture Resource",
+            "outer_top_texture_resource": "Outer Top Texture Resource",
+            "outer_bottom_texture_resource": "Outer Bottom Texture Resource",
+            "width": "Width",
+            "height": "Height",
+            "gangways": "Gangways",
+            "barriers": "Barriers"
+        }
+    },
+    "vehicle_properties": {
+        "title": "Vehicle Properties",
+        "general": "General",
+        "id": "ID",
+        "name": "Name",
+        "color": "Colour",
+        "description": "Description",
+        "wikipedia_article": "Wikipedia Article",
+        "test_wikipedia_link": "Test Wikipedia Link",
+        "transport_modes": {
+            "title": "Transport Mode",
+            "train": "Train",
+            "boat": "Boat",
+            "cable_car": "Cable Car",
+            "airplane": "Airplane"
+        },
+        "dimension": {
+            "title": "Dimensions",
+            "length": "Length",
+            "width": "Width"
+        },
+        "bogies": {
+            "title": "Bogies",
+            "has_two_bogies": "Has Two Bogies",
+            "front_bogie_position": "Front Bogie Position",
+            "back_bogie_position": "Back Bogie Position",
+            "bogie_position": "Bogie Position"
+        },
+        "couplings": {
+            "title": "Couplings",
+            "front_coupling_padding": "Front Coupling Padding",
+            "has_front_gangway": "Has Front Gangway",
+            "has_front_barrier": "Has Front Barrier",
+            "back_coupling_padding": "Back Coupling Padding",
+            "has_back_gangway": "Has Back Gangway",
+            "has_back_barrier": "Has Back Barrier"
+        },
+        "sound": {
+            "title": "Sound",
+            "sound_type": "Sound Type",
+            "test_motor_sound": "Test Motor Sound",
+            "unpause_minecraft": "Unpause Minecraft to Hear Sounds",
+            "test_door_open_sound": "Test Door Open Sound",
+            "test_door_close_sound": "Test Door Close Sound",
+            "bve": {
+                "format": "BVE Format",
+                "sound_id": "BVE Sound ID"
+            },
+            "legacy": {
+                "format": "Legacy Format",
+                "motor_sound_id": "Motor Sound ID",
+                "door_sound_id": "Door Sound ID",
+                "motor_sound_count": "Motor Sound Count",
+                "door_close_sound_duration": "Door Close Sound Duration",
+                "use_acceleration_sound": "Use Acceleration Sounds When Coasting",
+                "constant_playback_speed": "Constant Playback Speed"
+            }
+        }
+    },
+    "accordion": {
+        "move_to_top": "Move To Top",
+        "move_up": "Move Up",
+        "move_down": "Move Down",
+        "move_to_bottom": "Move To Bottom",
+        "duplicate": "Duplicate",
+        "delete": "Delete"
+    },
+    "components": {
+        "retry": "Retry",
+        "yes": "Yes",
+        "no": "No",
+        "close": "Close",
+        "edit": "Edit",
+        "delete": "Delete",
+        "save": "Save",
+        "cancel": "Cancel"
+    }
+}
