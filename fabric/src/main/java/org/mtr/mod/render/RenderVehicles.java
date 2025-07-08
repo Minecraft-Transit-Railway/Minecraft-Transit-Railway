@@ -58,7 +58,7 @@ public class RenderVehicles implements IGui {
 			final PreviousGangwayMovementPositions previousGangwayMovementPositions = new PreviousGangwayMovementPositions();
 
 			// Calculating vehicle transformations in advance
-			final ObjectArrayList<ObjectObjectImmutablePair<VehicleCar, ObjectObjectImmutablePair<ObjectArrayList<PositionAndRotation>, PositionAndRotation>>> vehiclePropertiesList = vehicle.getVehicleCarsAndPositions()
+			final ObjectArrayList<ObjectObjectImmutablePair<VehicleCar, ObjectObjectImmutablePair<ObjectArrayList<PositionAndRotation>, PositionAndRotation>>> vehiclePropertiesList = vehicle.getSmoothedVehicleCarsAndPositions(millisElapsed)
 					.stream()
 					.map(vehicleCarAndPosition -> {
 						final ObjectArrayList<PositionAndRotation> bogiePositions = vehicleCarAndPosition.right()

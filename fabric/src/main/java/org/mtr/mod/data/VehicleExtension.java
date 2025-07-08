@@ -1,8 +1,6 @@
 package org.mtr.mod.data;
 
-import org.mtr.core.data.Data;
-import org.mtr.core.data.PathData;
-import org.mtr.core.data.Vehicle;
+import org.mtr.core.data.*;
 import org.mtr.core.operation.VehicleUpdate;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
@@ -11,6 +9,7 @@ import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleObjectImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
@@ -47,7 +46,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 			MinecraftClientData.getInstance().vehicleIdToPersistentVehicleData.put(getId(), persistentVehicleData);
 		} else {
 			persistentVehicleData = tempPersistentVehicleData;
-			this.railProgress = persistentVehicleData.adjustRailProgress(railProgress, reversed);
+			persistentVehicleData.update(railProgress, vehicleExtraData.getTotalVehicleLength());
 		}
 	}
 
@@ -62,7 +61,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		final double oldRailProgress = railProgress;
 		oldSpeed = speed;
 		simulate(millisElapsed, null, null);
-		railProgress = persistentVehicleData.tick(railProgress, reversed, millisElapsed, vehicleExtraData);
+		persistentVehicleData.tick(railProgress, millisElapsed, vehicleExtraData);
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientWorld clientWorld = minecraftClient.getWorldMapped();
 		final ClientPlayerEntity clientPlayerEntity = minecraftClient.getPlayerMapped();
@@ -123,7 +122,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 			}
 
 			// TODO chat announcements (next station, route number, etc.)
-			if (persistentVehicleData.canAnnounce(oldRailProgress)) {
+			if (persistentVehicleData.canAnnounce(oldRailProgress, railProgress)) {
 				InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketCheckRouteIdHasDisabledAnnouncements(thisRouteId, routeIdHasDisabledAnnouncements -> {
 					if (!routeIdHasDisabledAnnouncements) {
 						final ObjectArrayList<String> narrateText = new ObjectArrayList<>();
@@ -290,6 +289,14 @@ public class VehicleExtension extends Vehicle implements Utilities {
 
 			previousPathData = pathData;
 		}
+	}
+
+	public ObjectArrayList<ObjectObjectImmutablePair<VehicleCar, ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>>>> getSmoothedVehicleCarsAndPositions(long millisElapsed) {
+		final double oldRailProgress = railProgress;
+		railProgress = persistentVehicleData.getSmoothedRailProgress(railProgress, persistentVehicleData.getDoorValue() > 0 ? 0 : millisElapsed * (speed == 0 ? 1F / Depot.MILLIS_PER_SECOND : speed / 10));
+		final ObjectArrayList<ObjectObjectImmutablePair<VehicleCar, ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>>>> vehicleCarsAndPositions = getVehicleCarsAndPositions();
+		railProgress = oldRailProgress;
+		return vehicleCarsAndPositions;
 	}
 
 	public void playMotorSound(VehicleResource vehicleResource, int carNumber, Vector bogiePosition) {
