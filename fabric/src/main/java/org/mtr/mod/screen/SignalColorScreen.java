@@ -18,6 +18,7 @@ import org.mtr.mod.render.RenderSignalBase;
 
 public class SignalColorScreen extends MTRScreenBase implements IGui {
 
+	private final CheckboxWidgetExtension checkBoxAcceptRedstone;
 	private final CheckboxWidgetExtension checkBoxOutputRedstone;
 	private final CheckboxWidgetExtension checkBoxSelectAll;
 	private final CheckboxWidgetExtension[] checkBoxes = new CheckboxWidgetExtension[ItemSignalModifier.COLORS.length];
@@ -45,13 +46,16 @@ public class SignalColorScreen extends MTRScreenBase implements IGui {
 				isBackSide = blockEntity.isDoubleSided && Math.abs(Utilities.circularDifference(Math.round(EntityHelper.getYaw(new Entity(clientPlayerEntity.data))), Math.round(angle), 360)) > 90;
 			}
 
-			signalColors = blockEntity.getSignalColors(isBackSide);
+			signalColors = new IntAVLTreeSet(blockEntity.getSignalColors(isBackSide));
 			final RenderSignalBase.AspectState aspectState = RenderSignalBase.getAspectState(blockPos, angle + (isBackSide ? 180 : 0) + 90);
 			detectedColors.addAll(aspectState == null ? new IntAVLTreeSet() : aspectState.detectedColors);
 		}
 
-		checkBoxOutputRedstone = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {
-		});
+		checkBoxAcceptRedstone = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> toggleRedstoneCheckboxes1());
+		checkBoxAcceptRedstone.setMessage2(TranslationProvider.GUI_MTR_ACCEPT_REDSTONE.getText());
+		checkBoxAcceptRedstone.setChecked(blockEntity.getAcceptRedstone());
+
+		checkBoxOutputRedstone = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> toggleRedstoneCheckboxes2());
 		checkBoxOutputRedstone.setMessage2(TranslationProvider.GUI_MTR_OUTPUT_REDSTONE.getText());
 		checkBoxOutputRedstone.setChecked(blockEntity.getOutputRedstone());
 
@@ -82,13 +86,15 @@ public class SignalColorScreen extends MTRScreenBase implements IGui {
 	protected void init2() {
 		super.init2();
 
-		IDrawing.setPositionAndWidth(checkBoxOutputRedstone, SQUARE_SIZE, SQUARE_SIZE, width - SQUARE_SIZE * 2);
-		IDrawing.setPositionAndWidth(checkBoxSelectAll, SQUARE_SIZE, SQUARE_SIZE * 2, width - SQUARE_SIZE * 2);
+		IDrawing.setPositionAndWidth(checkBoxAcceptRedstone, SQUARE_SIZE, SQUARE_SIZE, width - SQUARE_SIZE * 2);
+		IDrawing.setPositionAndWidth(checkBoxOutputRedstone, SQUARE_SIZE, SQUARE_SIZE * 2, width - SQUARE_SIZE * 2);
+		IDrawing.setPositionAndWidth(checkBoxSelectAll, SQUARE_SIZE, SQUARE_SIZE * 3, width - SQUARE_SIZE * 2);
 		iterateGrid((x, y, index) -> {
 			IDrawing.setPositionAndWidth(checkBoxes[index], SQUARE_SIZE + x * SQUARE_SIZE * 2, SQUARE_SIZE * 4 + y * SQUARE_SIZE, SQUARE_SIZE * 2);
 			addChild(new ClickableWidget(checkBoxes[index]));
 		});
 
+		addChild(new ClickableWidget(checkBoxAcceptRedstone));
 		addChild(new ClickableWidget(checkBoxOutputRedstone));
 		addChild(new ClickableWidget(checkBoxSelectAll));
 		setButtons();
@@ -103,14 +109,14 @@ public class SignalColorScreen extends MTRScreenBase implements IGui {
 		guiDrawing.beginDrawingRectangle();
 		iterateGrid((x, y, index) -> {
 			final int color = ItemSignalModifier.COLORS[index];
-			guiDrawing.drawRectangle(SQUARE_SIZE * 2 + x * SQUARE_SIZE * 2, SQUARE_SIZE * 4 + y * SQUARE_SIZE, SQUARE_SIZE * 2 + x * SQUARE_SIZE * 2 + SQUARE_SIZE / (detectedColors.contains(color) ? 1 : 8F), SQUARE_SIZE * 4 + y * SQUARE_SIZE, color | ARGB_BLACK);
+			guiDrawing.drawRectangle(SQUARE_SIZE * 2 + x * SQUARE_SIZE * 2, SQUARE_SIZE * 4 + y * SQUARE_SIZE, SQUARE_SIZE * 2 + x * SQUARE_SIZE * 2 + SQUARE_SIZE / (detectedColors.contains(color) ? 1 : 8F), SQUARE_SIZE * 5 + y * SQUARE_SIZE, color | ARGB_BLACK);
 		});
 		guiDrawing.finishDrawingRectangle();
 	}
 
 	@Override
 	public void onClose2() {
-		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateSignalConfig(blockPos, checkBoxOutputRedstone.isChecked2(), signalColors, isBackSide));
+		InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateSignalConfig(blockPos, checkBoxAcceptRedstone.isChecked2(), checkBoxOutputRedstone.isChecked2(), signalColors, isBackSide));
 		super.onClose2();
 	}
 
@@ -124,6 +130,18 @@ public class SignalColorScreen extends MTRScreenBase implements IGui {
 			setChecked(checkBoxes[i], signalColors.contains(ItemSignalModifier.COLORS[i]));
 		}
 		setChecked(checkBoxSelectAll, signalColors.isEmpty());
+	}
+
+	private void toggleRedstoneCheckboxes1() {
+		if (checkBoxAcceptRedstone.isChecked2()) {
+			setChecked(checkBoxOutputRedstone, false);
+		}
+	}
+
+	private void toggleRedstoneCheckboxes2() {
+		if (checkBoxOutputRedstone.isChecked2()) {
+			setChecked(checkBoxAcceptRedstone, false);
+		}
 	}
 
 	private static void setChecked(CheckboxWidgetExtension checkboxWidgetExtension, boolean checked) {

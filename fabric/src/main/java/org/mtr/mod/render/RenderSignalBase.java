@@ -7,18 +7,17 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.Init;
-import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.block.BlockSignalBase;
 import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
-import org.mtr.mod.packet.PacketTurnOnBlockEntity;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -55,6 +54,8 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 		final float angle = BlockSignalBase.getAngle(state);
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(0.5 + entity.getPos2().getX(), entity.getPos2().getY(), 0.5 + entity.getPos2().getZ());
 		int redstoneLevel = 0;
+		final ObjectArrayList<String> railIds1 = new ObjectArrayList<>();
+		final ObjectArrayList<String> railIds2 = new ObjectArrayList<>();
 
 		for (int i = 0; i < (entity.isDoubleSided ? 2 : 1); i++) {
 			final float newAngle = angle + i * 180;
@@ -97,12 +98,12 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 				if (occupiedAspect > 0 && occupiedAspect < aspects) {
 					redstoneLevel = Math.max(redstoneLevel, (4 - occupiedAspect) * 5);
 				}
+
+				(isBackSide ? railIds2 : railIds1).addAll(aspectState.railIds);
 			}
 		}
 
-		if (entity.sendUpdate(redstoneLevel)) {
-			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketTurnOnBlockEntity(entity.getPos2(), entity.getOutputRedstone() ? redstoneLevel : 0));
-		}
+		entity.checkForRedstoneUpdate(redstoneLevel, railIds1, railIds2);
 	}
 
 	protected abstract void render(StoredMatrixTransformations storedMatrixTransformations, T entity, float tickDelta, int occupiedAspect, boolean isBackSide);
@@ -123,20 +124,23 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 		final IntArrayList detectedColors = new IntArrayList();
 		final IntAVLTreeSet occupiedColors = new IntAVLTreeSet();
 		final boolean[] blocked = {false};
+		final ObjectArrayList<String> railIds = new ObjectArrayList<>();
 		final Position startPosition = Init.blockPosToPosition(startPos);
 
 		minecraftClientData.positionsToRail.getOrDefault(startPosition, new Object2ObjectOpenHashMap<>()).forEach((endPosition, rail) -> {
 			if (Math.abs(Utilities.circularDifference(Math.round(Math.toDegrees(Math.atan2(endPosition.getZ() - startPos.getZ(), endPosition.getX() - startPos.getX()))), Math.round(angle), 360)) < 90) {
 				rail.getSignalColors().forEach(detectedColors::add);
-				minecraftClientData.railIdToCurrentlyBlockedSignalColors.getOrDefault(rail.getHexId(), new LongArrayList()).forEach(color -> occupiedColors.add((int) color));
+				final String railId = rail.getHexId();
+				minecraftClientData.railIdToCurrentlyBlockedSignalColors.getOrDefault(railId, new LongArrayList()).forEach(color -> occupiedColors.add((int) color));
 				if (minecraftClientData.blockedRailIds.contains(TwoPositionsBase.getHexIdRaw(startPosition, endPosition))) {
 					blocked[0] = true;
 				}
+				railIds.add(railId);
 			}
 		});
 
 		Collections.sort(detectedColors);
-		return new AspectState(detectedColors, occupiedColors, blocked[0]);
+		return new AspectState(detectedColors, occupiedColors, blocked[0], railIds);
 	}
 
 	@Nullable
@@ -164,11 +168,13 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 		public final IntArrayList detectedColors;
 		private final IntAVLTreeSet occupiedColors;
 		private final boolean nodeBlocked;
+		private final ObjectArrayList<String> railIds;
 
-		private AspectState(IntArrayList detectedColors, IntAVLTreeSet occupiedColors, boolean nodeBlocked) {
+		private AspectState(IntArrayList detectedColors, IntAVLTreeSet occupiedColors, boolean nodeBlocked, ObjectArrayList<String> railIds) {
 			this.detectedColors = detectedColors;
 			this.occupiedColors = occupiedColors;
 			this.nodeBlocked = nodeBlocked;
+			this.railIds = railIds;
 		}
 	}
 }
