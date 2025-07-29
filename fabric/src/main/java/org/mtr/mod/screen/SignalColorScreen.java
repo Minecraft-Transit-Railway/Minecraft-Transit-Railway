@@ -3,10 +3,7 @@ package org.mtr.mod.screen;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.CheckboxWidgetExtension;
-import org.mtr.mapping.mapper.EntityHelper;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.GuiDrawing;
+import org.mtr.mapping.mapper.*;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.block.BlockSignalBase;
 import org.mtr.mod.client.IDrawing;
@@ -52,11 +49,11 @@ public class SignalColorScreen extends MTRScreenBase implements IGui {
 		}
 
 		checkBoxAcceptRedstone = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> toggleRedstoneCheckboxes1());
-		checkBoxAcceptRedstone.setMessage2(TranslationProvider.GUI_MTR_ACCEPT_REDSTONE.getText());
+		checkBoxAcceptRedstone.setMessage2(new Text(TextHelper.literal(TranslationProvider.GUI_MTR_ACCEPT_REDSTONE.getString() + " (BETA)").data));
 		checkBoxAcceptRedstone.setChecked(blockEntity.getAcceptRedstone());
 
 		checkBoxOutputRedstone = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> toggleRedstoneCheckboxes2());
-		checkBoxOutputRedstone.setMessage2(TranslationProvider.GUI_MTR_OUTPUT_REDSTONE.getText());
+		checkBoxOutputRedstone.setMessage2(new Text(TextHelper.literal(TranslationProvider.GUI_MTR_OUTPUT_REDSTONE.getString() + " (BETA)").data));
 		checkBoxOutputRedstone.setChecked(blockEntity.getOutputRedstone());
 
 		checkBoxSelectAll = new CheckboxWidgetExtension(0, 0, 0, SQUARE_SIZE, true, checked -> {

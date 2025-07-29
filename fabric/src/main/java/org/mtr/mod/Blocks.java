@@ -215,8 +215,8 @@ public final class Blocks {
 
 		// Sensors
 		TRAIN_ANNOUNCER = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "train_announcer"), () -> new Block(new BlockTrainAnnouncer()), CreativeModeTabs.RAILWAY_FACILITIES);
-		TRAIN_CARGO_LOADER = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "train_cargo_loader"), () -> new Block(new BlockTrainCargoLoader()), CreativeModeTabs.RAILWAY_FACILITIES);
-		TRAIN_CARGO_UNLOADER = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "train_cargo_unloader"), () -> new Block(new BlockTrainCargoUnloader()), CreativeModeTabs.RAILWAY_FACILITIES);
+		TRAIN_CARGO_LOADER = registerBlock(new Identifier(Init.MOD_ID, "train_cargo_loader"), () -> new Block(new BlockTrainCargoLoader()));
+		TRAIN_CARGO_UNLOADER = registerBlock(new Identifier(Init.MOD_ID, "train_cargo_unloader"), () -> new Block(new BlockTrainCargoUnloader()));
 		TRAIN_REDSTONE_SENSOR = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "train_sensor"), () -> new Block(new BlockTrainRedstoneSensor()), CreativeModeTabs.RAILWAY_FACILITIES);
 		TRAIN_SCHEDULE_SENSOR = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "train_schedule_sensor"), () -> new Block(new BlockTrainScheduleSensor()), CreativeModeTabs.RAILWAY_FACILITIES);
 
