@@ -17,7 +17,7 @@ public class BveVehicleSound extends VehicleSoundBase {
 	private float motorCurrentOutput = 0;
 	private float motorBreakerTimer = -1;
 
-	private int mrPress;
+	private float mrPress;
 	private boolean isCompressorActive;
 	private boolean isCompressorActiveLastElapsed;
 
@@ -80,6 +80,11 @@ public class BveVehicleSound extends VehicleSoundBase {
 				motorBreakerTimer = -1;
 				motorCurrentOutput = motorTarget;
 			}
+		}
+
+		// Clamp to a minimum volume whenever the inverter/motor is active
+		if (motorCurrentOutput != 0) {
+			motorCurrentOutput = Math.signum(motorCurrentOutput) * (0.3f + Math.abs(motorCurrentOutput) * (1 - 0.3f));
 		}
 
 		// Simulation of main reservoir air compressor

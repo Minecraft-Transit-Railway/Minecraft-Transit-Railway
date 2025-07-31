@@ -9,15 +9,16 @@ import org.mtr.mod.generated.resource.SignResourceSchema;
 public final class SignResource extends SignResourceSchema {
 
 	public final boolean hasCustomText;
+	// Default signs (the ones bundled with Minecraft Transit Railway) have IDs starting with "!"
+	public final boolean isDefault;
+	public final String signId;
 
 	public SignResource(ReaderBase readerBase) {
 		super(readerBase);
 		updateData(readerBase);
 		hasCustomText = !customText.isEmpty();
-	}
-
-	public String getId() {
-		return id;
+		isDefault = id.startsWith("!");
+		signId = isDefault ? id.substring(1) : id;
 	}
 
 	public Identifier getTexture() {

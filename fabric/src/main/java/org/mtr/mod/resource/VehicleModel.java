@@ -133,7 +133,7 @@ public final class VehicleModel extends VehicleModelSchema {
 			final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(new Object2ObjectAVLTreeMap<>(OptimizedModel.ObjModel.loadModel(
 					resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
 					mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
-					textureString -> StringUtils.isEmpty(textureString) ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
+					textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
 					null, true, flipTextureV
 			)), textureId, modelProperties, positionDefinitions, id);
 			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();

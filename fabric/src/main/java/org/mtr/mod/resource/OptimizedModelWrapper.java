@@ -6,12 +6,17 @@ import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.ModelPartExtension;
 import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.mapper.OptimizedRenderer;
+import org.mtr.mod.Init;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public final class OptimizedModelWrapper {
+	/**
+	 * Used as a fallback texture if a face does not have a texture
+	 */
+	public static final Identifier WHITE_TEXTURE = new Identifier(Init.MOD_ID, "textures/block/white.png");
 
 	@Nullable
 	final OptimizedModel optimizedModel;

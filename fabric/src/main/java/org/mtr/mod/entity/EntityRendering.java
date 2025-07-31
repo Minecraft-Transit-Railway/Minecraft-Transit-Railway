@@ -6,6 +6,7 @@ import org.mtr.mapping.holder.Vector3d;
 import org.mtr.mapping.holder.World;
 import org.mtr.mapping.mapper.EntityExtension;
 import org.mtr.mod.EntityTypes;
+import org.mtr.mod.Init;
 
 public class EntityRendering extends EntityExtension {
 
@@ -25,6 +26,9 @@ public class EntityRendering extends EntityExtension {
 	public void tick2() {
 		if (getEntityWorld2().getIsClientMapped()) {
 			update(true);
+		} else {
+			kill2();
+			Init.LOGGER.warn("Killed rendering entity at {}, {}, {} as it should not exist on the server!", getPos2().getXMapped(), getPos2().getYMapped(), getPos2().getZMapped());
 		}
 	}
 

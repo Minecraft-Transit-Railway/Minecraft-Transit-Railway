@@ -61,6 +61,9 @@ public class BveMotorData5 extends BveMotorDataBase { // 5 for BVE5 and BVE6
 					continue;
 				}
 				String[] tokens = lineTrim.split(","); // Trailing entries automatically removed
+				if (tokens.length == 0) {
+					continue;
+				}
 
 				while (data.size() < tokens.length - 1) {
 					data.add(new TreeMap<>());
@@ -77,6 +80,9 @@ public class BveMotorData5 extends BveMotorDataBase { // 5 for BVE5 and BVE6
 		}
 
 		public float getValue(int index, float key) {
+			if (index >= data.size()) {
+				return 0;
+			}
 			TreeMap<Float, Float> spline = data.get(index);
 			if (spline.isEmpty()) {
 				return 0;
