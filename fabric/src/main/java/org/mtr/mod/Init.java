@@ -86,6 +86,7 @@ public final class Init implements Utilities {
 		// Register packets
 		REGISTRY.setupPackets(new Identifier(MOD_ID, "packet"));
 		REGISTRY.registerPacket(PacketAddBalance.class, PacketAddBalance::new);
+		REGISTRY.registerPacket(PacketBlockRails.class, PacketBlockRails::new);
 		REGISTRY.registerPacket(PacketBroadcastRailActions.class, PacketBroadcastRailActions::new);
 		REGISTRY.registerPacket(PacketCheckRouteIdHasDisabledAnnouncements.class, PacketCheckRouteIdHasDisabledAnnouncements::new);
 		REGISTRY.registerPacket(PacketDeleteData.class, PacketDeleteData::new);

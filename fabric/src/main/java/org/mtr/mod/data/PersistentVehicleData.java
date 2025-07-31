@@ -20,6 +20,8 @@ import java.util.function.Supplier;
 
 public final class PersistentVehicleData {
 
+	private double smoothedRailProgress;
+	private double railProgressSmoothingAdjustment;
 	private double doorValue;
 	private double oldDoorValue;
 	private double nextAnnouncementRailProgress;
@@ -41,6 +43,29 @@ public final class PersistentVehicleData {
 			longestDimensions[i] = Math.max(immutableVehicleCars.get(i).getLength(), immutableVehicleCars.get(i).getWidth());
 		}
 		this.transportMode = transportMode;
+	}
+
+	/**
+	 * Captures the rail progress difference of an incoming vehicle update. This will be used for smoothing out animations.
+	 *
+	 * @param newRailProgress    the rail progress coming from the server
+	 * @param totalVehicleLength the total length of this vehicle
+	 */
+	public void update(double newRailProgress, double totalVehicleLength) {
+		railProgressSmoothingAdjustment = newRailProgress - smoothedRailProgress;
+		if (Math.abs(railProgressSmoothingAdjustment) > totalVehicleLength - 1) {
+			railProgressSmoothingAdjustment = 0;
+		}
+	}
+
+	public double getSmoothedRailProgress(double railProgress, double adjustmentAmount) {
+		if (railProgressSmoothingAdjustment > 0) {
+			railProgressSmoothingAdjustment = Math.max(railProgressSmoothingAdjustment - adjustmentAmount, 0);
+		} else if (railProgressSmoothingAdjustment < 0) {
+			railProgressSmoothingAdjustment = Math.min(railProgressSmoothingAdjustment + adjustmentAmount, 0);
+		}
+		smoothedRailProgress = railProgress - railProgressSmoothingAdjustment;
+		return smoothedRailProgress;
 	}
 
 	public ObjectArrayList<ScrollingText> getScrollingText(int carNumber) {

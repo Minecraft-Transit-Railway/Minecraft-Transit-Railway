@@ -376,6 +376,24 @@
 		},
 		{
 			"names": [
+				"next_station_display"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "DISPLAY",
+			"displayYPadding": 0.4,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"UPPER_CASE",
+				"SPACE_CJK",
+				"ALIGN_CENTER",
+				"CYCLE_LANGUAGES"
+			],
+			"displayType": "NEXT_STATION"
+		},
+		{
+			"names": [
 				"side_destination_display_interior"
 			],
 			"positionDefinitions": [

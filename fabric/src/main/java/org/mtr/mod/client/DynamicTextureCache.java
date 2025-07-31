@@ -42,6 +42,7 @@ public class DynamicTextureCache implements IGui {
 	private static final Identifier DEFAULT_BLACK_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/black.png");
 	private static final Identifier DEFAULT_WHITE_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/white.png");
 	private static final Identifier DEFAULT_TRANSPARENT_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/transparent.png");
+	private static final int MAX_IMAGE_SIZE = 2048;
 
 	public void reload() {
 		font = null;
@@ -263,7 +264,20 @@ public class DynamicTextureCache implements IGui {
 
 				final DynamicResource dynamicResourceNew;
 				if (nativeImage != null) {
-					final NativeImageBackedTexture nativeImageBackedTexture = new NativeImageBackedTexture(nativeImage);
+					final NativeImage newNativeImage;
+					final int newMaxImageSize = MAX_IMAGE_SIZE * (int) Math.pow(2, Config.getClient().getDynamicTextureResolution());
+					if (nativeImage.getWidth() > newMaxImageSize || nativeImage.getHeight() > newMaxImageSize) {
+						newNativeImage = new NativeImage(NativeImageFormat.getAbgrMapped(), Math.min(newMaxImageSize, nativeImage.getWidth()), Math.min(newMaxImageSize, nativeImage.getHeight()), false);
+						for (int x = 0; x < Math.min(newMaxImageSize, nativeImage.getWidth()); x++) {
+							for (int y = 0; y < Math.min(newMaxImageSize, nativeImage.getHeight()); y++) {
+								newNativeImage.setPixelColor(x, y, nativeImage.getColor(x, y));
+							}
+						}
+					} else {
+						newNativeImage = nativeImage;
+					}
+
+					final NativeImageBackedTexture nativeImageBackedTexture = new NativeImageBackedTexture(newNativeImage);
 					final Identifier identifier = new Identifier(Init.MOD_ID, "id_" + Init.randomString());
 					MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, new AbstractTexture(nativeImageBackedTexture.data));
 					dynamicResourceNew = new DynamicResource(identifier, nativeImageBackedTexture);
