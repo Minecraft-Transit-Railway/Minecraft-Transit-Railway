@@ -12,17 +12,14 @@ import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Lift;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Angle;
-import org.mtr.core.tool.EnumHelper;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.packet.PacketUpdateData;
 import org.mtr.registry.RegistryClient;
-
-import java.util.Locale;
+import org.mtr.render.RenderLifts;
 
 public class LiftCustomizationScreen extends ScreenBase implements IGui {
 
-	private LiftStyle liftStyle;
 	private Direction liftDirection;
 
 	private final Lift lift;
@@ -52,7 +49,6 @@ public class LiftCustomizationScreen extends ScreenBase implements IGui {
 	public LiftCustomizationScreen(Lift lift) {
 		super();
 		this.lift = lift;
-		liftStyle = EnumHelper.valueOf(LiftStyle.TRANSPARENT, lift.getStyle());
 		liftDirection = Direction.fromHorizontalDegrees(lift.getAngle().angleDegrees);
 
 		buttonHeightMinus = ButtonWidget.builder(Text.literal("-"), button -> {
@@ -111,11 +107,7 @@ public class LiftCustomizationScreen extends ScreenBase implements IGui {
 			lift.setIsDoubleSided(checked);
 			updateControls(true);
 		}).build();
-		buttonLiftStyle = ButtonWidget.builder(Text.empty(), button -> {
-			liftStyle = LiftStyle.values()[(liftStyle.ordinal() + 1) % LiftStyle.values().length];
-			lift.setStyle(liftStyle.toString());
-			updateControls(true);
-		}).build();
+		buttonLiftStyle = ButtonWidget.builder(Text.empty(), button -> MinecraftClient.getInstance().setScreen(LiftStyleSelectorScreen.create(lift, this))).build();
 		buttonRotateAnticlockwise = ButtonWidget.builder(rotateAnticlockwiseText, button -> {
 			liftDirection = liftDirection.rotateYCounterclockwise();
 			lift.setAngle(Angle.fromAngle(liftDirection.getPositiveHorizontalDegrees()));
@@ -165,7 +157,7 @@ public class LiftCustomizationScreen extends ScreenBase implements IGui {
 		addDrawableChild(buttonOffsetZMinus);
 		addDrawableChild(buttonOffsetZAdd);
 		addDrawableChild(buttonIsDoubleSided);
-//		addDrawableChild(buttonLiftStyle);
+		addDrawableChild(buttonLiftStyle);
 		addDrawableChild(buttonRotateAnticlockwise);
 		addDrawableChild(buttonRotateClockwise);
 		updateControls(false);
@@ -202,12 +194,10 @@ public class LiftCustomizationScreen extends ScreenBase implements IGui {
 		buttonOffsetZMinus.active = lift.getOffsetZ() > -MAX_OFFSET;
 		buttonOffsetZAdd.active = lift.getOffsetZ() < MAX_OFFSET;
 		IGui.setChecked(buttonIsDoubleSided, lift.getIsDoubleSided());
-		buttonLiftStyle.setMessage(TranslationProvider.GUI_MTR_LIFT_STYLE.getText(lift.getStyle().toUpperCase(Locale.ENGLISH)));
+		buttonLiftStyle.setMessage(TranslationProvider.GUI_MTR_LIFT_STYLE.getText(RenderLifts.getLiftResource(lift.getStyle()).getName()));
 
 		if (sendUpdate) {
 			RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addLift(lift)));
 		}
 	}
-
-	private enum LiftStyle {TRANSPARENT, OPAQUE}
 }

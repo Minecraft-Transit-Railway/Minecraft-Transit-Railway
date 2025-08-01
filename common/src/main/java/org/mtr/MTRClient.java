@@ -10,6 +10,8 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import org.mtr.block.BlockStationNameTallBase;
+import org.mtr.block.BlockStationNameTallStanding;
 import org.mtr.block.BlockTactileMap;
 import org.mtr.block.BlockTrainAnnouncer;
 import org.mtr.client.CustomResourceLoader;
@@ -17,6 +19,7 @@ import org.mtr.client.DynamicTextureCache;
 import org.mtr.client.IDrawing;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.config.Config;
+import org.mtr.core.data.Depot;
 import org.mtr.core.data.Platform;
 import org.mtr.core.data.Position;
 import org.mtr.core.data.Station;
@@ -44,7 +47,9 @@ import org.mtr.sound.ScheduledSound;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
+import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public final class MTRClient {
 
@@ -62,6 +67,7 @@ public final class MTRClient {
 	@Nullable
 	private static MapTileProvider mapTileProvider;
 
+	public static final ObjectArrayList<UUID> HIDDEN_PLAYERS = new ObjectArrayList<>();
 	public static final int MILLIS_PER_SPEED_SOUND = 200;
 	public static final LoopingSoundInstance TACTILE_MAP_SOUND_INSTANCE = new LoopingSoundInstance("tactile_map_music");
 
@@ -113,6 +119,7 @@ public final class MTRClient {
 		RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), Blocks.STATION_NAME_TALL_BLOCK);
 		RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), Blocks.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED);
 		RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), Blocks.STATION_NAME_TALL_WALL);
+		RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), Blocks.STATION_NAME_TALL_STANDING);
 		RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), Blocks.TICKET_BARRIER_ENTRANCE_1);
 		RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), Blocks.TICKET_BARRIER_EXIT_1);
 		RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), Blocks.TICKET_MACHINE);
@@ -145,6 +152,7 @@ public final class MTRClient {
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_MEDIUM, dispatcher -> new RenderPIDS<>(-15, 15, 16, 30, 46, false, 1));
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_LARGE, dispatcher -> new RenderPIDS<>(-15, 15, 16, 46, 46, false, 1));
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.CLOCK, context -> new RenderClock());
+		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.DRIVER_KEY_DISPENSER, context -> new RenderDriverKeyDispenser());
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.PSD_DOOR_1, dispatcher -> new RenderPSDAPGDoor<>(0));
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.PSD_DOOR_2, dispatcher -> new RenderPSDAPGDoor<>(1));
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.PSD_TOP, context -> new RenderPSDTop());
@@ -182,9 +190,10 @@ public final class MTRClient {
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.SIGNAL_SEMAPHORE_1, context -> new RenderSignalSemaphore<>());
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.SIGNAL_SEMAPHORE_2, context -> new RenderSignalSemaphore<>());
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_ENTRANCE, dispatcher -> new RenderStationNameTiled<>(true));
-		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_BLOCK, context -> new RenderStationNameTall<>());
-		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED, context -> new RenderStationNameTall<>());
-		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_WALL, context -> new RenderStationNameTall<>());
+		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_BLOCK, dispatcher -> new RenderStationNameTall<>(BlockStationNameTallBase.WIDTH, BlockStationNameTallBase.HEIGHT, 0));
+		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED, dispatcher -> new RenderStationNameTall<>(BlockStationNameTallBase.WIDTH, BlockStationNameTallBase.HEIGHT, 0));
+		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_WALL, dispatcher -> new RenderStationNameTall<>(BlockStationNameTallBase.WIDTH, BlockStationNameTallBase.HEIGHT, 0));
+		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_STANDING, dispatcher -> new RenderStationNameTall<>(BlockStationNameTallStanding.WIDTH, BlockStationNameTallStanding.HEIGHT, BlockStationNameTallStanding.OFFSET_Y));
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_WHITE, dispatcher -> new RenderStationNameTiled<>(false));
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_GRAY, dispatcher -> new RenderStationNameTiled<>(false));
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_BLACK, dispatcher -> new RenderStationNameTiled<>(false));
@@ -262,7 +271,8 @@ public final class MTRClient {
 				Blocks.STATION_COLOR_POLE,
 				Blocks.STATION_NAME_TALL_BLOCK,
 				Blocks.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED,
-				Blocks.STATION_NAME_TALL_WALL
+				Blocks.STATION_NAME_TALL_WALL,
+				Blocks.STATION_NAME_TALL_STANDING
 		);
 
 		RegistryClient.setupPackets();
@@ -328,7 +338,7 @@ public final class MTRClient {
 			// If player is moving, send a request every 0.5 seconds to the server to fetch any new nearby data
 			final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().player;
 			if (clientPlayerEntity != null && lastUpdatePacketMillis > 0 && getGameMillis() > lastUpdatePacketMillis) {
-				final DataRequest dataRequest = new DataRequest(clientPlayerEntity.getUuidAsString(), MTR.blockPosToPosition(MinecraftClient.getInstance().gameRenderer.getCamera().getBlockPos()), (int) MinecraftClient.getInstance().worldRenderer.getViewDistance() * 16L);
+				final DataRequest dataRequest = new DataRequest(clientPlayerEntity.getUuid(), MTR.blockPosToPosition(MinecraftClient.getInstance().gameRenderer.getCamera().getBlockPos()), (int) MinecraftClient.getInstance().worldRenderer.getViewDistance() * 16L);
 				dataRequest.writeExistingIds(MinecraftClientData.getInstance());
 				RegistryClient.sendPacketToServer(new PacketRequestData(dataRequest));
 				lastUpdatePacketMillis = 0;
@@ -357,9 +367,9 @@ public final class MTRClient {
 			CustomResourceLoader.reload();
 		});
 		EventRegistryClient.registerWorldRenderEvent(MainRenderer::render);
+		EventRegistryClient.registerHudLayerRenderEvent((context, renderTickCounter) -> DrivingGuiRenderer.render(context));
 
 		Config.init(MinecraftClient.getInstance().runDirectory.toPath());
-		ResourcePackHelper.fix();
 
 		BlockTactileMap.TactileMapBlockEntity.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
 		BlockTactileMap.TactileMapBlockEntity.onUse = blockPos -> {
@@ -399,6 +409,17 @@ public final class MTRClient {
 	public static void findClosePlatform(BlockPos blockPos, int radius, Consumer<Platform> consumer) {
 		final Position position = MTR.blockPosToPosition(blockPos);
 		MinecraftClientData.getInstance().platforms.stream().filter(platform -> platform.closeTo(MTR.blockPosToPosition(blockPos), radius)).min(Comparator.comparingDouble(platform -> platform.getApproximateClosestDistance(position, MinecraftClientData.getInstance()))).ifPresent(consumer);
+	}
+
+	@Nullable
+	public static Depot findDepot(BlockPos blockPos) {
+		final Position position = MTR.blockPosToPosition(blockPos);
+		for (final Depot depot : MinecraftClientData.getInstance().depots) {
+			if (depot.inArea(position)) {
+				return depot;
+			}
+		}
+		return null;
 	}
 
 	public static void transformToFacePlayer(MatrixStack matrixStack, double x, double y, double z) {
@@ -447,7 +468,7 @@ public final class MTRClient {
 	}
 
 	private static void setupWebserver(Webserver webserver) {
-		webserver.addServlet(new ServletHolder(new WebServlet(WebserverResources::get, "/creator/")), "/creator/*");
+		webserver.addServlet(new ServletHolder(new ResourcePackCretorWebServlet(WebserverResources::get, "/creator/")), "/creator/*");
 		webserver.addServlet(new ServletHolder(new ResourcePackCreatorOperationServlet()), "/mtr/api/creator/operation/*");
 		final ServletHolder resourcePackCreatorUploadServletHolder = new ServletHolder(new ResourcePackCreatorUploadServlet());
 		resourcePackCreatorUploadServletHolder.getRegistration().setMultipartConfig(new MultipartConfigElement((String) null));
@@ -457,5 +478,12 @@ public final class MTRClient {
 	@FunctionalInterface
 	public interface WorldRenderCallback {
 		void accept(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, Vec3d offset);
+	}
+
+	private static class ResourcePackCretorWebServlet extends WebServlet {
+
+		public ResourcePackCretorWebServlet(Function<String, String> contentProvider, String expectedPath) {
+			super(contentProvider, expectedPath);
+		}
 	}
 }

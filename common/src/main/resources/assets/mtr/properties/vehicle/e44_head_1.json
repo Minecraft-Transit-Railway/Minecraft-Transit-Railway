@@ -47,6 +47,15 @@
 		},
 		{
 			"names": [
+				"cab_floor"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
 				"roof_exterior_door"
 			],
 			"positionDefinitions": [

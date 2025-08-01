@@ -142,7 +142,7 @@ public final class VehicleModel extends VehicleModelSchema {
 			objModelLoader.loadModel(
 					resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
 					mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
-					textureString -> StringUtils.isEmpty(textureString) ? texture : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
+					textureString -> StringUtils.isEmpty(textureString) ? Identifier.of(MTR.MOD_ID, "textures/block/white.png") : StringUtils.equals(textureString, "default.png") ? texture : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
 					true, flipTextureV
 			);
 			// TODO transform object if needed

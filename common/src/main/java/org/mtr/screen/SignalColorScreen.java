@@ -20,6 +20,8 @@ import org.mtr.render.RenderSignalBase;
 
 public class SignalColorScreen extends ScreenBase implements IGui {
 
+	private final CheckboxWidget checkBoxAcceptRedstone;
+	private final CheckboxWidget checkBoxOutputRedstone;
 	private final CheckboxWidget checkBoxSelectAll;
 	private final CheckboxWidget[] checkBoxes = new CheckboxWidget[ItemSignalModifier.COLORS.length];
 	private final BlockPos blockPos;
@@ -46,9 +48,13 @@ public class SignalColorScreen extends ScreenBase implements IGui {
 				isBackSide = blockEntity.isDoubleSided && Math.abs(Utilities.circularDifference(Math.round(clientPlayerEntity.getYaw()), Math.round(angle), 360)) > 90;
 			}
 
-			signalColors = blockEntity.getSignalColors(isBackSide);
-			detectedColors.addAll(RenderSignalBase.getAspects(blockPos, angle + (isBackSide ? 180 : 0) + 90).left());
+			signalColors = new IntAVLTreeSet(blockEntity.getSignalColors(isBackSide));
+			final RenderSignalBase.AspectState aspectState = RenderSignalBase.getAspectState(blockPos, angle + (isBackSide ? 180 : 0) + 90);
+			detectedColors.addAll(aspectState == null ? new IntAVLTreeSet() : aspectState.detectedColors);
 		}
+
+		checkBoxAcceptRedstone = CheckboxWidget.builder(Text.literal(TranslationProvider.GUI_MTR_ACCEPT_REDSTONE.getString() + " (BETA)"), textRenderer).checked(blockEntity.getAcceptRedstone()).callback((checkboxWidget, checked) -> toggleRedstoneCheckboxes1()).build();
+		checkBoxOutputRedstone = CheckboxWidget.builder(Text.literal(TranslationProvider.GUI_MTR_OUTPUT_REDSTONE.getString() + " (BETA)"), textRenderer).checked(blockEntity.getOutputRedstone()).callback((checkboxWidget, checked) -> toggleRedstoneCheckboxes2()).build();
 
 		checkBoxSelectAll = CheckboxWidget.builder(TranslationProvider.GUI_MTR_SELECT_ALL.getText(), textRenderer).callback((checkboxWidget, checked) -> {
 			if (checked) {
@@ -76,12 +82,16 @@ public class SignalColorScreen extends ScreenBase implements IGui {
 	protected void init() {
 		super.init();
 
-		IDrawing.setPositionAndWidth(checkBoxSelectAll, SQUARE_SIZE, SQUARE_SIZE, width - SQUARE_SIZE * 2);
+		IDrawing.setPositionAndWidth(checkBoxAcceptRedstone, SQUARE_SIZE, SQUARE_SIZE, width - SQUARE_SIZE * 2);
+		IDrawing.setPositionAndWidth(checkBoxOutputRedstone, SQUARE_SIZE, SQUARE_SIZE * 2, width - SQUARE_SIZE * 2);
+		IDrawing.setPositionAndWidth(checkBoxSelectAll, SQUARE_SIZE, SQUARE_SIZE * 3, width - SQUARE_SIZE * 2);
 		iterateGrid((x, y, index) -> {
-			IDrawing.setPositionAndWidth(checkBoxes[index], SQUARE_SIZE + x * SQUARE_SIZE * 2, SQUARE_SIZE * 3 + y * SQUARE_SIZE, SQUARE_SIZE * 2);
+			IDrawing.setPositionAndWidth(checkBoxes[index], SQUARE_SIZE + x * SQUARE_SIZE * 2, SQUARE_SIZE * 4 + y * SQUARE_SIZE, SQUARE_SIZE * 2);
 			addDrawableChild(checkBoxes[index]);
 		});
 
+		addDrawableChild(checkBoxAcceptRedstone);
+		addDrawableChild(checkBoxOutputRedstone);
 		addDrawableChild(checkBoxSelectAll);
 		setButtons();
 	}
@@ -93,13 +103,13 @@ public class SignalColorScreen extends ScreenBase implements IGui {
 
 		iterateGrid((x, y, index) -> {
 			final int color = ItemSignalModifier.COLORS[index];
-			context.fill(SQUARE_SIZE * 2 + x * SQUARE_SIZE * 2, SQUARE_SIZE * 3 + y * SQUARE_SIZE, SQUARE_SIZE * 2 + x * SQUARE_SIZE * 2 + SQUARE_SIZE / (detectedColors.contains(color) ? 1 : 8), SQUARE_SIZE * 4 + y * SQUARE_SIZE, color | ARGB_BLACK);
+			context.fill(SQUARE_SIZE * 2 + x * SQUARE_SIZE * 2, SQUARE_SIZE * 4 + y * SQUARE_SIZE, SQUARE_SIZE * 2 + x * SQUARE_SIZE * 2 + SQUARE_SIZE / (detectedColors.contains(color) ? 1 : 8), SQUARE_SIZE * 5 + y * SQUARE_SIZE, color | ARGB_BLACK);
 		});
 	}
 
 	@Override
 	public void close() {
-		RegistryClient.sendPacketToServer(new PacketUpdateSignalConfig(blockPos, signalColors, isBackSide));
+		RegistryClient.sendPacketToServer(new PacketUpdateSignalConfig(blockPos, checkBoxAcceptRedstone.isChecked(), checkBoxOutputRedstone.isChecked(), signalColors, isBackSide));
 		super.close();
 	}
 
@@ -113,6 +123,18 @@ public class SignalColorScreen extends ScreenBase implements IGui {
 			IGui.setChecked(checkBoxes[i], signalColors.contains(ItemSignalModifier.COLORS[i]));
 		}
 		IGui.setChecked(checkBoxSelectAll, signalColors.isEmpty());
+	}
+
+	private void toggleRedstoneCheckboxes1() {
+		if (checkBoxAcceptRedstone.isChecked()) {
+			IGui.setChecked(checkBoxOutputRedstone, false);
+		}
+	}
+
+	private void toggleRedstoneCheckboxes2() {
+		if (checkBoxOutputRedstone.isChecked()) {
+			IGui.setChecked(checkBoxAcceptRedstone, false);
+		}
 	}
 
 	private static void iterateGrid(GridConsumer gridConsumer) {

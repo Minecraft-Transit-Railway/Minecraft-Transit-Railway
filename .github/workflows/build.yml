@@ -4,6 +4,8 @@ on: [ pull_request, push, workflow_dispatch ]
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      BUILD_ARTIFACTS: ${{ secrets.BUILD_ARTIFACTS }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@main

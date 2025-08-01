@@ -65,8 +65,8 @@ public final class BuiltVehicleModelHolder {
 			case AT_DEPOT -> !vehicle.getIsOnRoute();
 			case ON_ROUTE_FORWARDS -> vehicle.getIsOnRoute() && !vehicle.getReversed();
 			case ON_ROUTE_BACKWARDS -> vehicle.getIsOnRoute() && vehicle.getReversed();
-			case DOORS_CLOSED -> vehicle.persistentVehicleData.getDoorValue() == 0 || noOpenDoorways;
-			case DOORS_OPENED -> vehicle.persistentVehicleData.getDoorValue() > 0 && !noOpenDoorways;
+			case DOORS_CLOSED -> vehicle.persistentVehicleData.getDoorValue() == 0 && noOpenDoorways;
+			case DOORS_OPENED -> vehicle.persistentVehicleData.getDoorValue() > 0 || !noOpenDoorways;
 			default -> getChristmasLightState(partCondition);
 		};
 	}

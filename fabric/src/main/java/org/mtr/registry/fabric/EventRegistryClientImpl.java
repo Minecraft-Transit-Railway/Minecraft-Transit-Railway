@@ -3,9 +3,13 @@ package org.mtr.registry.fabric;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -13,6 +17,7 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.chunk.WorldChunk;
+import org.mtr.MTR;
 import org.mtr.MTRClient;
 
 import java.util.Random;
@@ -76,5 +81,9 @@ public final class EventRegistryClientImpl {
 				worldRenderCallback.accept(matrixStack, vertexConsumerProvider, worldRenderContext.camera().getPos());
 			}
 		});
+	}
+
+	public static void registerHudLayerRenderEvent(BiConsumer<DrawContext, RenderTickCounter> hudLayerRenderCallback) {
+		HudLayerRegistrationCallback.EVENT.register(layeredDrawerWrapper -> layeredDrawerWrapper.attachLayerBefore(IdentifiedLayer.CHAT, Identifier.of(MTR.MOD_ID, "gui"), hudLayerRenderCallback::accept));
 	}
 }

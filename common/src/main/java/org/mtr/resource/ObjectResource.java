@@ -2,6 +2,7 @@ package org.mtr.resource;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.text.Text;
 import org.mtr.client.IDrawing;
 import org.mtr.config.Config;
 import org.mtr.core.serializer.ReaderBase;
@@ -53,7 +54,7 @@ public final class ObjectResource extends ObjectResourceSchema implements Stored
 	}
 
 	public String getName() {
-		return name;
+		return Text.translatable(name).getString();
 	}
 
 	public int getColor() {

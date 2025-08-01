@@ -1,0 +1,186 @@
+{
+	"replacements": {
+		"lengths": [
+			15,
+			15
+		],
+		"name": [
+			"S7",
+			"S8"
+		],
+		"type": [
+			"s7",
+			"s8"
+		]
+	},
+	"vehicles": [
+		{
+			"id": "london_underground_@type@_trailer",
+			"name": "London Underground @name@ Trailer",
+			"color": "F64F1C",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "London_Underground_S7_and_S8_Stock",
+			"tags": [
+				"family:london_underground_@type@",
+				"iso_3166:GB",
+				"doors:3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/london_underground_s7.bbmodel",
+					"textureResource": "mtr:textures/vehicle/london_underground_s7.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_@type@_trailer.json",
+					"positionDefinitionsResource": "mtr:properties/definition/london_underground_@type@_trailer.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"bveSoundBaseResource": "london_underground_s7"
+		},
+		{
+			"id": "london_underground_@type@_cab_1",
+			"name": "London Underground @name@ Cab (Forwards)",
+			"color": "F64F1C",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 2,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "London_Underground_S7_and_S8_Stock",
+			"tags": [
+				"family:london_underground_@type@",
+				"iso_3166:GB",
+				"doors:3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/london_underground_s7.bbmodel",
+					"textureResource": "mtr:textures/vehicle/london_underground_s7.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_@type@_cab_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/london_underground_@type@_cab_1.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"bveSoundBaseResource": "london_underground_s7"
+		},
+		{
+			"id": "london_underground_@type@_cab_2",
+			"name": "London Underground @name@ Cab (Backwards)",
+			"color": "F64F1C",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 2,
+			"wikipediaArticle": "London_Underground_S7_and_S8_Stock",
+			"tags": [
+				"family:london_underground_@type@",
+				"iso_3166:GB",
+				"doors:3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/london_underground_s7.bbmodel",
+					"textureResource": "mtr:textures/vehicle/london_underground_s7.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_@type@_cab_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/london_underground_@type@_cab_2.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"bveSoundBaseResource": "london_underground_s7"
+		},
+		{
+			"id": "london_underground_@type@_cab_3",
+			"name": "London Underground @name@ Cab (Double)",
+			"color": "F64F1C",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 2,
+			"couplingPadding2": 2,
+			"wikipediaArticle": "London_Underground_S7_and_S8_Stock",
+			"tags": [
+				"family:london_underground_@type@",
+				"iso_3166:GB",
+				"doors:3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/london_underground_s7.bbmodel",
+					"textureResource": "mtr:textures/vehicle/london_underground_s7.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_@type@_cab_3.json",
+					"positionDefinitionsResource": "mtr:properties/definition/london_underground_@type@_cab_3.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"bveSoundBaseResource": "london_underground_s7"
+		}
+	]
+}

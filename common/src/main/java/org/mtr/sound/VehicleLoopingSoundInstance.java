@@ -26,9 +26,15 @@ public class VehicleLoopingSoundInstance extends MovingSoundInstance {
 		z = blockPos.getZ();
 
 		final SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
-		if (volume > 0 && !soundManager.isPlaying(this)) {
-			repeat = true;
-			soundManager.play(this);
+		if (soundManager.isPlaying(this)) {
+			if (volume <= 0) {
+				soundManager.stop(this);
+			}
+		} else {
+			if (volume > 0) {
+				repeat = true;
+				soundManager.play(this);
+			}
 		}
 	}
 
@@ -48,5 +54,6 @@ public class VehicleLoopingSoundInstance extends MovingSoundInstance {
 
 	public void dispose() {
 		setDone();
+		MinecraftClient.getInstance().getSoundManager().stop(this);
 	}
 }

@@ -1,6 +1,8 @@
 package org.mtr.registry;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.world.chunk.WorldChunk;
 import org.mtr.MTRClient;
@@ -57,6 +59,11 @@ public final class EventRegistryClient {
 
 	@ExpectPlatform
 	public static void registerWorldRenderEvent(MTRClient.WorldRenderCallback worldRenderCallback) {
+		throw new AssertionError();
+	}
+
+	@ExpectPlatform
+	public static void registerHudLayerRenderEvent(BiConsumer<DrawContext, RenderTickCounter> hudLayerRenderCallback) {
 		throw new AssertionError();
 	}
 }

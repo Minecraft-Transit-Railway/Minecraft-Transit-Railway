@@ -14,19 +14,12 @@ dependencies {
 	// which get remapped to the correct annotations on each platform.
 	// Do NOT use other classes from Fabric Loader.
 	modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
-	testImplementation "org.junit.jupiter:junit-jupiter-api:+"
-	testImplementation "org.junit.platform:junit-platform-launcher:+"
-	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:+"
+	testImplementation "org.junit.jupiter:junit-jupiter-api:5.+"
+	testImplementation "org.junit.platform:junit-platform-launcher:1.+"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.+"
 }
 
 tasks.register("setupWebsiteFiles") {
-	copy {
-		outputs.upToDateWhen { false }
-		from zipTree("../libs/Transport-Simulation-Core-Build-Tools.jar")
-		into "../buildSrc/src/main/resources"
-		include "website/*.json", "website/src/styles.css", "website/src/theme.scss"
-	}
-
 	Generator.generateTypeScript(project, "schema/resource", "../buildSrc/src/main/resources/website/src/app/entity/generated")
 }
 

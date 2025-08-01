@@ -70,13 +70,16 @@ public class RouteMapGenerator implements IGui {
 			final IntArrayList colors = RouteHelper.getRouteStream(platformId, false, (simplifiedRoute, currentStationIndex) -> {
 			});
 			if (colors.isEmpty()) {
-				return new NativeImage(NativeImage.Format.RGBA, 1, 1, false);
+				final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, 1, 1, false);
+				nativeImage.setColorArgb(0, 0, 0);
+				return nativeImage;
+			} else {
+				final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, 1, colors.size(), false);
+				for (int i = 0; i < colors.size(); i++) {
+					drawPixelSafe(nativeImage, 0, i, ARGB_BLACK | colors.getInt(i));
+				}
+				return nativeImage;
 			}
-			final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, 1, colors.size(), false);
-			for (int i = 0; i < colors.size(); i++) {
-				drawPixelSafe(nativeImage, 0, i, ARGB_BLACK | colors.getInt(i));
-			}
-			return nativeImage;
 		} catch (Exception e) {
 			MTR.LOGGER.error("", e);
 		}
@@ -507,7 +510,9 @@ public class RouteMapGenerator implements IGui {
 
 				return nativeImage;
 			} else {
-				return new NativeImage(NativeImage.Format.RGBA, 1, 1, false);
+				final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, 1, 1, false);
+				nativeImage.setColorArgb(0, 0, transparentWhite ? 0 : ARGB_WHITE);
+				return nativeImage;
 			}
 		} catch (Exception e) {
 			MTR.LOGGER.error("", e);

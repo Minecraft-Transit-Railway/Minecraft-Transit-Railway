@@ -528,6 +528,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 
 	private static class PartDetails {
 
+		@Nullable
 		private Box doorway;
 		//		private final OptimizedModelWrapper optimizedModelDoor;
 		private final Box box;

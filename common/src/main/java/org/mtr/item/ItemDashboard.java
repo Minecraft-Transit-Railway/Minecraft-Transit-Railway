@@ -43,7 +43,7 @@ public class ItemDashboard extends Item {
 			if (!world.isClient()) {
 				if (user.isSneaking()) {
 					final Position playerPosition = MTR.blockPosToPosition(user.getBlockPos());
-					MTR.sendMessageC2S(OperationProcessor.GET_DATA, world.getServer(), world, new DataRequest(user.getUuidAsString(), playerPosition, SEARCH_RADIUS), dataResponse -> {
+					MTR.sendMessageC2S(OperationProcessor.GET_DATA, world.getServer(), world, new DataRequest(user.getUuid(), playerPosition, SEARCH_RADIUS), dataResponse -> {
 						final ClientData tempClientData = new ClientData();
 						new DataResponse(new JsonReader(Utilities.getJsonObjectFromData(dataResponse)), tempClientData).write();
 						final Station station = findNearbyArea(playerPosition, tempClientData.stations);

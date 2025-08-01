@@ -3,7 +3,6 @@ package org.mtr.sound;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.BlockPos;
-import org.mtr.MTRClient;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -18,7 +17,7 @@ public class BveVehicleSound extends VehicleSoundBase {
 	private float motorCurrentOutput = 0;
 	private float motorBreakerTimer = -1;
 
-	private int mrPress;
+	private float mrPress;
 	private boolean isCompressorActive;
 	private boolean isCompressorActiveLastElapsed;
 
@@ -49,10 +48,6 @@ public class BveVehicleSound extends VehicleSoundBase {
 
 	@Override
 	public void playMotorSound(BlockPos blockPos, float speed, float speedChange, float acceleration, boolean isOnRoute) {
-		if (!MTRClient.canPlaySound()) {
-			return;
-		}
-
 		final float secondsElapsed = MinecraftClient.getInstance().getRenderTickCounter().getLastFrameDuration() / 20;
 		final float speedKilometersPerHour = speed * 3600;
 		final float speedMetersPerSecond = speed * 1000;
@@ -85,6 +80,11 @@ public class BveVehicleSound extends VehicleSoundBase {
 				motorBreakerTimer = -1;
 				motorCurrentOutput = motorTarget;
 			}
+		}
+
+		// Clamp to a minimum volume whenever the inverter/motor is active
+		if (motorCurrentOutput != 0) {
+			motorCurrentOutput = Math.signum(motorCurrentOutput) * (0.3f + Math.abs(motorCurrentOutput) * (1 - 0.3f));
 		}
 
 		// Simulation of main reservoir air compressor

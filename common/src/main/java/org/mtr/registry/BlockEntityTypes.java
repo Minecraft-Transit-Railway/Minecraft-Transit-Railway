@@ -13,6 +13,7 @@ public final class BlockEntityTypes {
 		ARRIVAL_PROJECTOR_1_MEDIUM = Registry.registerBlockEntityType("arrival_projector_1_medium", BlockArrivalProjector1Medium.ArrivalProjector1MediumBlockEntity::new, Blocks.ARRIVAL_PROJECTOR_1_MEDIUM::get);
 		ARRIVAL_PROJECTOR_1_SMALL = Registry.registerBlockEntityType("arrival_projector_1_small", BlockArrivalProjector1Small.ArrivalProjector1SmallBlockEntity::new, Blocks.ARRIVAL_PROJECTOR_1_SMALL::get);
 		CLOCK = Registry.registerBlockEntityType("clock", BlockClock.ClockBlockEntity::new, Blocks.CLOCK::get);
+		DRIVER_KEY_DISPENSER = Registry.registerBlockEntityType("driver_key_dispenser", BlockDriverKeyDispenser.DriverKeyDispenserBlockEntity::new, Blocks.DRIVER_KEY_DISPENSER::get);
 		LIFT_BUTTONS_1 = Registry.registerBlockEntityType("lift_buttons_1", BlockLiftButtons.LiftButtonsBlockEntity::new, Blocks.LIFT_BUTTONS_1::get);
 		LIFT_DOOR_EVEN_1 = Registry.registerBlockEntityType("lift_door_1", BlockLiftDoor.LiftDoorBlockEntity::new, Blocks.LIFT_DOOR_EVEN_1::get);
 		LIFT_DOOR_ODD_1 = Registry.registerBlockEntityType("lift_door_odd_1", BlockLiftDoorOdd.LiftDoorOddBlockEntity::new, Blocks.LIFT_DOOR_ODD_1::get);
@@ -59,6 +60,7 @@ public final class BlockEntityTypes {
 		STATION_NAME_TALL_BLOCK = Registry.registerBlockEntityType("station_name_tall_block", BlockStationNameTallBlock.StationNameTallBlockBlockEntity::new, Blocks.STATION_NAME_TALL_BLOCK::get);
 		STATION_NAME_TALL_BLOCK_DOUBLE_SIDED = Registry.registerBlockEntityType("station_name_tall_block_double_sided", BlockStationNameTallBlockDoubleSided.StationNameTallBlockDoubleSidedBlockEntity::new, Blocks.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED::get);
 		STATION_NAME_TALL_WALL = Registry.registerBlockEntityType("station_name_tall_wall", BlockStationNameTallWall.StationNameTallWallBlockEntity::new, Blocks.STATION_NAME_TALL_WALL::get);
+		STATION_NAME_TALL_STANDING = Registry.registerBlockEntityType("station_name_tall_standing", BlockStationNameTallStanding.StationNameTallStandingBlockEntity::new, Blocks.STATION_NAME_TALL_STANDING::get);
 		STATION_NAME_WALL_BLACK = Registry.registerBlockEntityType("station_name_wall_black", BlockStationNameWallBlack.StationNameWallBlackBlockEntity::new, Blocks.STATION_NAME_WALL_BLACK::get);
 		STATION_NAME_WALL_GRAY = Registry.registerBlockEntityType("station_name_wall_gray", BlockStationNameWallGray.StationNameWallGrayBlockEntity::new, Blocks.STATION_NAME_WALL_GRAY::get);
 		STATION_NAME_WALL_WHITE = Registry.registerBlockEntityType("station_name_wall", BlockStationNameWallWhite.StationNameWallWhiteBlockEntity::new, Blocks.STATION_NAME_WALL_WHITE::get);
@@ -77,6 +79,7 @@ public final class BlockEntityTypes {
 	public static final ObjectHolder<BlockEntityType<BlockArrivalProjector1Medium.ArrivalProjector1MediumBlockEntity>> ARRIVAL_PROJECTOR_1_MEDIUM;
 	public static final ObjectHolder<BlockEntityType<BlockArrivalProjector1Small.ArrivalProjector1SmallBlockEntity>> ARRIVAL_PROJECTOR_1_SMALL;
 	public static final ObjectHolder<BlockEntityType<BlockClock.ClockBlockEntity>> CLOCK;
+	public static final ObjectHolder<BlockEntityType<BlockDriverKeyDispenser.DriverKeyDispenserBlockEntity>> DRIVER_KEY_DISPENSER;
 	public static final ObjectHolder<BlockEntityType<BlockLiftButtons.LiftButtonsBlockEntity>> LIFT_BUTTONS_1;
 	public static final ObjectHolder<BlockEntityType<BlockLiftDoor.LiftDoorBlockEntity>> LIFT_DOOR_EVEN_1;
 	public static final ObjectHolder<BlockEntityType<BlockLiftDoorOdd.LiftDoorOddBlockEntity>> LIFT_DOOR_ODD_1;
@@ -121,6 +124,7 @@ public final class BlockEntityTypes {
 	public static final ObjectHolder<BlockEntityType<BlockSignalSemaphore2.SignalSemaphore2BlockEntity>> SIGNAL_SEMAPHORE_2;
 	public static final ObjectHolder<BlockEntityType<BlockStationNameEntrance.StationNameEntranceBlockEntity>> STATION_NAME_ENTRANCE;
 	public static final ObjectHolder<BlockEntityType<BlockStationNameTallBlock.StationNameTallBlockBlockEntity>> STATION_NAME_TALL_BLOCK;
+	public static final ObjectHolder<BlockEntityType<BlockStationNameTallStanding.StationNameTallStandingBlockEntity>> STATION_NAME_TALL_STANDING;
 	public static final ObjectHolder<BlockEntityType<BlockStationNameTallBlockDoubleSided.StationNameTallBlockDoubleSidedBlockEntity>> STATION_NAME_TALL_BLOCK_DOUBLE_SIDED;
 	public static final ObjectHolder<BlockEntityType<BlockStationNameTallWall.StationNameTallWallBlockEntity>> STATION_NAME_TALL_WALL;
 	public static final ObjectHolder<BlockEntityType<BlockStationNameWallBlack.StationNameWallBlackBlockEntity>> STATION_NAME_WALL_BLACK;

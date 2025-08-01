@@ -17,6 +17,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class CustomResourceLoader {
 
@@ -27,6 +29,7 @@ public class CustomResourceLoader {
 	public static final String DEFAULT_RAIL_ID = "default";
 	public static final String DEFAULT_RAIL_3D_ID = "default_3d";
 	public static final String DEFAULT_RAIL_3D_SIDING_ID = "default_3d_siding";
+	public static final String DEFAULT_LIFT_TRANSPARENT_ID = "default_transparent";
 
 	private static final Object2ObjectAVLTreeMap<String, String> RESOURCE_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final Object2ObjectAVLTreeMap<TransportMode, ObjectArrayList<VehicleResource>> VEHICLES = new Object2ObjectAVLTreeMap<>();
@@ -40,6 +43,8 @@ public class CustomResourceLoader {
 	private static final Object2ObjectAVLTreeMap<String, ObjectResource> OBJECTS_CACHE = new Object2ObjectAVLTreeMap<>();
 	private static final ObjectArraySet<MinecraftModelResource> MINECRAFT_MODEL_RESOURCES = new ObjectArraySet<>();
 	private static final ObjectArraySet<String> MINECRAFT_TEXTURE_RESOURCES = new ObjectArraySet<>();
+	private static final ObjectArrayList<LiftResource> LIFTS = new ObjectArrayList<>();
+	private static final Object2ObjectAVLTreeMap<String, LiftResource> LIFTS_CACHE = new Object2ObjectAVLTreeMap<>();
 
 	static {
 		for (final TransportMode transportMode : TransportMode.values()) {
@@ -62,7 +67,11 @@ public class CustomResourceLoader {
 		RAILS_CACHE.clear();
 		OBJECTS.clear();
 		OBJECTS_CACHE.clear();
+		LIFTS.clear();
+		LIFTS_CACHE.clear();
 		TEST_DURATION = 0;
+
+		final ObjectArrayList<SignResource> defaultSigns = new ObjectArrayList<>();
 
 		final RailResource defaultRailResource = new RailResource(DEFAULT_RAIL_ID, "Default", CustomResourceLoader::readResource);
 		RAILS.add(defaultRailResource);
@@ -73,8 +82,12 @@ public class CustomResourceLoader {
 				final CustomResources customResources = CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject(), CustomResourceLoader::readResource);
 				customResources.iterateVehicles(vehicleResource -> registerVehicle(vehicleResource, false));
 				customResources.iterateSigns(signResource -> {
-					SIGNS.add(signResource);
-					SIGNS_CACHE.put(signResource.getId(), signResource);
+					if (signResource.isDefault) {
+						defaultSigns.add(signResource);
+					} else {
+						SIGNS.add(signResource);
+						SIGNS_CACHE.put(signResource.signId, signResource);
+					}
 				});
 				customResources.iterateRails(railResource -> {
 					RAILS.add(railResource);
@@ -83,6 +96,10 @@ public class CustomResourceLoader {
 				customResources.iterateObjects(objectResource -> {
 					OBJECTS.add(objectResource);
 					OBJECTS_CACHE.put(objectResource.getId(), objectResource);
+				});
+				customResources.iterateLifts(liftResource -> {
+					LIFTS.add(liftResource);
+					LIFTS_CACHE.put(liftResource.getId(), liftResource);
 				});
 			} catch (Exception e) {
 				MTR.LOGGER.error("", e);
@@ -98,6 +115,9 @@ public class CustomResourceLoader {
 			}
 		});
 
+		SIGNS.addAll(0, defaultSigns);
+		defaultSigns.forEach(signResource -> SIGNS_CACHE.put(signResource.signId, signResource));
+
 		CustomResourcesConverter.convertRails(railResource -> {
 			RAILS.add(railResource);
 			RAILS_CACHE.put(railResource.getId(), railResource);
@@ -108,10 +128,17 @@ public class CustomResourceLoader {
 			OBJECTS_CACHE.put(objectResource.getId(), objectResource);
 		}, CustomResourceLoader::readResource);
 
+		VEHICLES.forEach((transportMode, vehicleResources) -> validateDataset("Vehicle", vehicleResources, VehicleResource::getId));
+		validateDataset("Sign", SIGNS, signResource -> signResource.signId);
+		validateDataset("Rail", RAILS, RailResource::getId);
+		validateDataset("Object", OBJECTS, ObjectResource::getId);
+		validateDataset("Lift", LIFTS, LiftResource::getId);
+
 		MTR.LOGGER.info("Loaded {} vehicles and completed door movement validation in {} ms", VEHICLES.values().stream().mapToInt(ObjectArrayList::size).reduce(0, Integer::sum), TEST_DURATION / 1E6);
 		MTR.LOGGER.info("Loaded {} signs", SIGNS.size());
 		MTR.LOGGER.info("Loaded {} rails", RAILS.size());
 		MTR.LOGGER.info("Loaded {} objects", OBJECTS.size());
+		MTR.LOGGER.info("Loaded {} lifts", LIFTS.size());
 
 		final long time1 = System.currentTimeMillis();
 
@@ -211,9 +238,7 @@ public class CustomResourceLoader {
 	}
 
 	public static ObjectArrayList<String> getSortedSignIds() {
-		final ObjectArrayList<String> signIds = new ObjectArrayList<>(SIGNS_CACHE.keySet());
-		signIds.sort(String::compareTo);
-		return signIds;
+		return SIGNS.stream().map(signResource -> signResource.signId).collect(Collectors.toCollection(ObjectArrayList::new));
 	}
 
 	public static ObjectImmutableList<RailResource> getRails() {
@@ -238,6 +263,17 @@ public class CustomResourceLoader {
 		}
 	}
 
+	public static ObjectImmutableList<LiftResource> getLifts() {
+		return new ObjectImmutableList<>(LIFTS);
+	}
+
+	public static void getLiftById(String liftId, Consumer<LiftResource> ifPresent) {
+		final LiftResource liftResource = LIFTS_CACHE.get(liftId);
+		if (liftResource != null) {
+			ifPresent.accept(liftResource);
+		}
+	}
+
 	public static void incrementTestDuration(long duration) {
 		TEST_DURATION += duration;
 	}
@@ -256,6 +292,21 @@ public class CustomResourceLoader {
 		vehicleResource.collectTags(VEHICLES_TAGS.get(vehicleResource.getTransportMode()));
 		if (!fromResourcePackCreator) {
 			vehicleResource.writeMinecraftResource(MINECRAFT_MODEL_RESOURCES, MINECRAFT_TEXTURE_RESOURCES);
+		}
+	}
+
+	/**
+	 * Validate and report any abnormalities of the loaded resources (for example, duplicated ids)
+	 */
+	private static <T> void validateDataset(String dataSetName, ObjectArrayList<T> dataSet, Function<T, String> getId) {
+		ObjectOpenHashSet<String> addedIds = new ObjectOpenHashSet<>();
+		for (T data : dataSet) {
+			String id = getId.apply(data);
+			if (addedIds.contains(id)) {
+				MTR.LOGGER.warn("Custom [{}] resource contains duplicate ID [{}]!", dataSetName, id);
+			} else {
+				addedIds.add(id);
+			}
 		}
 	}
 

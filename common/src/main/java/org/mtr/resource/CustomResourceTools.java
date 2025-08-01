@@ -27,13 +27,17 @@ public interface CustomResourceTools extends SerializedDataBase {
 	}
 
 	static String formatIdentifierString(String text) {
-		return Arrays.stream(text.split(":")).map(textPart -> textPart.replaceAll("[^a-z0-9/._-]", "")).collect(Collectors.joining(":"));
+		return Arrays.stream(text.toLowerCase(Locale.ENGLISH).split(":")).map(textPart -> textPart.replaceAll("[^a-z0-9/._-]", "_")).collect(Collectors.joining(":"));
 	}
 
 	static Identifier getResourceFromSamePath(String basePath, String resource, String extension) {
-		final String[] resourceSplit = basePath.split("/");
-		resourceSplit[resourceSplit.length - 1] = resource;
-		return CustomResourceTools.formatIdentifierWithDefault(String.join("/", resourceSplit), extension);
+		if (resource.contains(":")) { // Assume it is already an identifier
+			return formatIdentifierWithDefault(resource, extension);
+		} else {
+			final String[] resourceSplit = basePath.split("/");
+			resourceSplit[resourceSplit.length - 1] = resource;
+			return formatIdentifierWithDefault(String.join("/", resourceSplit), extension);
+		}
 	}
 
 	static int colorStringToInt(String color) {

@@ -27,6 +27,9 @@ import javax.annotation.Nullable;
 public abstract class BlockStationNameTallBase extends BlockStationNameBase implements IBlock {
 
 	public static final BooleanProperty METAL = BooleanProperty.of("metal");
+	public static final float WIDTH = 0.6875F;
+	public static final float HEIGHT = 1.5F;
+	public static final float OFFSET_Y = 0.125F;
 
 	public BlockStationNameTallBase(AbstractBlock.Settings settings) {
 		super(settings);

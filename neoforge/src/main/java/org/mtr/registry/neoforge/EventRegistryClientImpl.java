@@ -1,5 +1,7 @@
 package org.mtr.registry.neoforge;
 
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.world.chunk.WorldChunk;
 import org.mtr.MTRClient;
@@ -49,5 +51,9 @@ public final class EventRegistryClientImpl {
 
 	public static void registerWorldRenderEvent(MTRClient.WorldRenderCallback worldRenderCallback) {
 		MainEventBusClient.worldRenderCallback = worldRenderCallback;
+	}
+
+	public static void registerHudLayerRenderEvent(BiConsumer<DrawContext, RenderTickCounter> hudLayerRenderCallback) {
+		MainEventBusClient.hudLayerRenderCallback = hudLayerRenderCallback;
 	}
 }

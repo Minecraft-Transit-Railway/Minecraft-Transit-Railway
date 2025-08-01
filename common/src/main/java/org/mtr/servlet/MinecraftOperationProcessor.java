@@ -12,15 +12,13 @@ import org.mtr.packet.PacketUpdateData;
 import org.mtr.packet.PacketUpdateVehiclesLifts;
 import org.mtr.registry.Registry;
 
-import java.util.UUID;
-
 public final class MinecraftOperationProcessor {
 
 	public static void process(QueueObject queueObject, ServerWorld serverWorld, String dimension) {
 		switch (queueObject.key) {
 			case OperationProcessor.VEHICLES_LIFTS:
 				if (queueObject.data instanceof VehicleLiftResponse) {
-					final PlayerEntity playerEntity = serverWorld.getPlayerByUuid(UUID.fromString(((VehicleLiftResponse) queueObject.data).getClientId()));
+					final PlayerEntity playerEntity = serverWorld.getPlayerByUuid(((VehicleLiftResponse) queueObject.data).uuid);
 					if (playerEntity == null) {
 						queueObject.runCallback(new PlayerPresentResponse(""));
 					} else {

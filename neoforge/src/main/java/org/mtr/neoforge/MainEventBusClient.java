@@ -1,6 +1,8 @@
 package org.mtr.neoforge;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.world.chunk.WorldChunk;
 import net.neoforged.api.distmarker.Dist;
@@ -8,6 +10,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
@@ -29,6 +32,7 @@ public final class MainEventBusClient {
 	public static BiConsumer<ClientWorld, WorldChunk> chunkLoadConsumer = null;
 	public static BiConsumer<ClientWorld, WorldChunk> chunkUnloadConsumer = null;
 	public static MTRClient.WorldRenderCallback worldRenderCallback = null;
+	public static BiConsumer<DrawContext, RenderTickCounter> hudLayerRenderCallback = null;
 
 	@SubscribeEvent
 	public static void clientTickStart(ClientTickEvent.Pre event) {
@@ -90,6 +94,13 @@ public final class MainEventBusClient {
 	public static void worldRendering(RenderLevelStageEvent event) {
 		if (worldRenderCallback != null && event.getStage() == RenderLevelStageEvent.Stage.AFTER_ENTITIES) {
 			worldRenderCallback.accept(event.getPoseStack(), MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers(), event.getCamera().getPos());
+		}
+	}
+
+	@SubscribeEvent
+	public static void guiRendering(RenderGuiEvent.Pre event) {
+		if (hudLayerRenderCallback != null) {
+			hudLayerRenderCallback.accept(event.getGuiGraphics(), event.getPartialTick());
 		}
 	}
 }

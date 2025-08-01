@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"BRB",
+		"BIB",
+		"BRB"
+	],
+	"key": {
+		"R": "#minecraft:rails",
+		"I": "#c:iron_ingots",
+		"B": "minecraft:bricks"
+	},
+	"result": {
+		"id": "mtr:rail_connector_100"
+	}
+}

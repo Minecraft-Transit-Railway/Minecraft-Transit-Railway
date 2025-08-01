@@ -3,6 +3,7 @@ package org.mtr.packet;
 import net.minecraft.server.world.ServerWorld;
 import org.mtr.client.DynamicTextureCache;
 import org.mtr.client.MinecraftClientData;
+import org.mtr.core.data.PathData;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.SignalModification;
 import org.mtr.core.operation.UpdateDataRequest;
@@ -71,7 +72,7 @@ public final class PacketUpdateData extends PacketRequestResponseBase {
 		final MinecraftClientData minecraftClientData = MinecraftClientData.getInstance();
 		new UpdateDataResponse(jsonReader, minecraftClientData).write();
 		new UpdateDataResponse(jsonReader, MinecraftClientData.getDashboardInstance()).write();
-		minecraftClientData.vehicles.forEach(vehicle -> vehicle.vehicleExtraData.immutablePath.forEach(pathData -> pathData.writePathCache(new MinecraftClientData())));
+		minecraftClientData.vehicles.forEach(vehicle -> PathData.writePathCache(vehicle.vehicleExtraData.immutablePath, new MinecraftClientData(), vehicle.getTransportMode()));
 		DynamicTextureCache.instance.reload();
 	}
 }

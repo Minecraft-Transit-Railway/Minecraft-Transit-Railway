@@ -69,7 +69,7 @@ public class LiftTrackFloorScreen extends ScreenBase implements IGui {
 
 		addDrawableChild(textFieldFloorNumber);
 		addDrawableChild(textFieldFloorDescription);
-		addDrawableChild(checkboxShouldDing);
+//		addDrawableChild(checkboxShouldDing);
 	}
 
 	@Override

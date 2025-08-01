@@ -126,6 +126,7 @@ public final class Blocks {
 	public static final ObjectHolder<Block> STATION_NAME_TALL_BLOCK = registerBlockWithBlockItem("station_name_tall_block", BlockStationNameTallBlock::new, true, ItemGroups.RAILWAY_FACILITIES);
 	public static final ObjectHolder<Block> STATION_NAME_TALL_BLOCK_DOUBLE_SIDED = registerBlockWithBlockItem("station_name_tall_block_double_sided", BlockStationNameTallBlockDoubleSided::new, true, ItemGroups.RAILWAY_FACILITIES);
 	public static final ObjectHolder<Block> STATION_NAME_TALL_WALL = registerBlockWithBlockItem("station_name_tall_wall", BlockStationNameTallWall::new, true, ItemGroups.RAILWAY_FACILITIES);
+	public static final ObjectHolder<Block> STATION_NAME_TALL_STANDING = registerBlockWithBlockItem("station_name_tall_standing", BlockStationNameTallStanding::new, true, ItemGroups.RAILWAY_FACILITIES);
 	public static final ObjectHolder<Block> STATION_NAME_WALL_WHITE = registerBlockWithBlockItem("station_name_wall", BlockStationNameWallWhite::new, true, ItemGroups.RAILWAY_FACILITIES);
 	public static final ObjectHolder<Block> STATION_NAME_WALL_GRAY = registerBlockWithBlockItem("station_name_wall_gray", BlockStationNameWallGray::new, true, ItemGroups.RAILWAY_FACILITIES);
 	public static final ObjectHolder<Block> STATION_NAME_WALL_BLACK = registerBlockWithBlockItem("station_name_wall_black", BlockStationNameWallBlack::new, true, ItemGroups.RAILWAY_FACILITIES);
@@ -214,8 +215,8 @@ public final class Blocks {
 
 	// Sensors
 	public static final ObjectHolder<Block> TRAIN_ANNOUNCER = registerBlockWithBlockItem("train_announcer", BlockTrainAnnouncer::new, true, ItemGroups.RAILWAY_FACILITIES);
-	public static final ObjectHolder<Block> TRAIN_CARGO_LOADER = registerBlockWithBlockItem("train_cargo_loader", BlockTrainCargoLoader::new, true, ItemGroups.RAILWAY_FACILITIES);
-	public static final ObjectHolder<Block> TRAIN_CARGO_UNLOADER = registerBlockWithBlockItem("train_cargo_unloader", BlockTrainCargoUnloader::new, true, ItemGroups.RAILWAY_FACILITIES);
+	public static final ObjectHolder<Block> TRAIN_CARGO_LOADER = registerBlock("train_cargo_loader", BlockTrainCargoLoader::new);
+	public static final ObjectHolder<Block> TRAIN_CARGO_UNLOADER = registerBlock("train_cargo_unloader", BlockTrainCargoUnloader::new);
 	public static final ObjectHolder<Block> TRAIN_REDSTONE_SENSOR = registerBlockWithBlockItem("train_sensor", BlockTrainRedstoneSensor::new, true, ItemGroups.RAILWAY_FACILITIES);
 	public static final ObjectHolder<Block> TRAIN_SCHEDULE_SENSOR = registerBlockWithBlockItem("train_schedule_sensor", BlockTrainScheduleSensor::new, true, ItemGroups.RAILWAY_FACILITIES);
 
@@ -225,6 +226,7 @@ public final class Blocks {
 	public static final ObjectHolder<Block> CEILING_NO_LIGHT = registerBlockWithBlockItem("ceiling_no_light", BlockCeiling::new, false, ItemGroups.RAILWAY_FACILITIES);
 	public static final ObjectHolder<Block> CLOCK = registerBlockWithBlockItem("clock", settings -> new BlockClock(settings.luminance(blockState -> 5)), true, ItemGroups.RAILWAY_FACILITIES);
 	public static final ObjectHolder<Block> CLOCK_POLE = registerBlockWithBlockItem("clock_pole", BlockClockPole::new, false, ItemGroups.RAILWAY_FACILITIES);
+	public static final ObjectHolder<Block> DRIVER_KEY_DISPENSER = registerBlockWithBlockItem("driver_key_dispenser", BlockDriverKeyDispenser::new, true, ItemGroups.CORE);
 	public static final ObjectHolder<Block> GLASS_FENCE_CIO = registerBlockWithBlockItem("glass_fence_cio", BlockGlassFence::new, true, ItemGroups.RAILWAY_FACILITIES);
 	public static final ObjectHolder<Block> GLASS_FENCE_CKT = registerBlockWithBlockItem("glass_fence_ckt", BlockGlassFence::new, true, ItemGroups.RAILWAY_FACILITIES);
 	public static final ObjectHolder<Block> GLASS_FENCE_HEO = registerBlockWithBlockItem("glass_fence_heo", BlockGlassFence::new, true, ItemGroups.RAILWAY_FACILITIES);

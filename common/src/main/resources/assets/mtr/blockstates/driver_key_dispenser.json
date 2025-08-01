@@ -1,0 +1,19 @@
+{
+	"variants": {
+		"facing=north": {
+			"model": "mtr:block/driver_key_dispenser"
+		},
+		"facing=east": {
+			"model": "mtr:block/driver_key_dispenser",
+			"y": 90
+		},
+		"facing=south": {
+			"model": "mtr:block/driver_key_dispenser",
+			"y": 180
+		},
+		"facing=west": {
+			"model": "mtr:block/driver_key_dispenser",
+			"y": 270
+		}
+	}
+}

@@ -1,7 +1,6 @@
 package org.mtr.render;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.*;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.OverlayTexture;
@@ -50,7 +49,7 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.BlockEntityBase> ext
 
 	@Override
 	public void render(T entity, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
-		entity.updateRedstone(MinecraftClient.getInstance().getRenderTickCounter().getLastFrameDuration());
+		entity.tick(tickDelta);
 
 		final BlockPos blockPos = entity.getPos();
 		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, Properties.HORIZONTAL_FACING);

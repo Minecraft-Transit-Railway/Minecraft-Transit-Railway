@@ -1,6 +1,7 @@
 package org.mtr.render;
 
 import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
+import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
@@ -17,22 +18,26 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.mtr.MTR;
 import org.mtr.block.BlockLiftTrackFloor;
+import org.mtr.client.CustomResourceLoader;
 import org.mtr.client.IDrawing;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.client.VehicleRidingMovement;
-import org.mtr.core.data.*;
-import org.mtr.core.tool.Angle;
+import org.mtr.core.data.Lift;
+import org.mtr.core.data.LiftDirection;
+import org.mtr.core.data.LiftFloor;
+import org.mtr.core.data.Position;
 import org.mtr.core.tool.Vector;
 import org.mtr.data.IGui;
 import org.mtr.item.ItemLiftRefresher;
 import org.mtr.registry.Items;
+import org.mtr.resource.LiftResource;
 
+import javax.annotation.Nullable;
 import java.util.function.Function;
 
 public class RenderLifts implements IGui {
 
 	private static final int LIFT_DISPLAY_COLOR = 0xFFFF0000;
-	private static final Identifier LIFT_TEXTURE = Identifier.of(MTR.MOD_ID, "textures/vehicle/lift_1.png");
 	private static final float LIFT_DOOR_VALUE = 0.75F;
 	private static final float LIFT_FLOOR_PADDING = 0.25F;
 
@@ -92,28 +97,39 @@ public class RenderLifts implements IGui {
 			}
 
 			// Calculating vehicle transformations in advance
-			final RenderVehicleHelper.VehicleProperties vehicleProperties = RenderVehicleHelper.getTransformedVehiclePropertiesList(lift, ObjectArrayList.of(new RenderVehicleHelper.VehicleProperties(new ObjectObjectImmutablePair<>(
-					new VehicleCar("", lift.getDepth(), lift.getWidth(), 0, 0, 0, 0),
-					ObjectArrayList.of(getVirtualBogiePositions(clientWorld, lift))
-			), true)), cameraShakeOffset).get(0);
-			final RenderVehicleTransformationHelper renderVehicleTransformationHelperAbsolute = vehicleProperties.renderVehicleTransformationHelperAbsolute;
-			final RenderVehicleTransformationHelper renderVehicleTransformationHelperOffset = vehicleProperties.renderVehicleTransformationHelperOffset;
-
+			final PositionAndRotation absolutePositionAndRotation = getLiftPositionAndRotation(clientWorld, lift);
 			cullingTasks.add(occlusionCullingInstance -> {
 				final double longestDimension = Math.max(lift.getHeight(), Math.max(lift.getWidth(), lift.getDepth()));
 				final boolean shouldRender = occlusionCullingInstance.isAABBVisible(new com.logisticscraft.occlusionculling.util.Vec3d(
-						renderVehicleTransformationHelperAbsolute.pivotPosition.x - longestDimension,
-						renderVehicleTransformationHelperAbsolute.pivotPosition.y - longestDimension,
-						renderVehicleTransformationHelperAbsolute.pivotPosition.z - longestDimension
+						absolutePositionAndRotation.position.x - longestDimension,
+						absolutePositionAndRotation.position.y - longestDimension,
+						absolutePositionAndRotation.position.z - longestDimension
 				), new com.logisticscraft.occlusionculling.util.Vec3d(
-						renderVehicleTransformationHelperAbsolute.pivotPosition.x + longestDimension,
-						renderVehicleTransformationHelperAbsolute.pivotPosition.y + longestDimension,
-						renderVehicleTransformationHelperAbsolute.pivotPosition.z + longestDimension
+						absolutePositionAndRotation.position.x + longestDimension,
+						absolutePositionAndRotation.position.y + longestDimension,
+						absolutePositionAndRotation.position.z + longestDimension
 				), camera);
 				return () -> liftWrapper.shouldRender = shouldRender;
 			});
 
 			if (liftWrapper.shouldRender) {
+				// Riding offset
+				final IntObjectImmutablePair<ObjectObjectImmutablePair<Vec3d, Double>> ridingVehicleCarNumberAndOffset = VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(lift.getId());
+				final PositionAndRotation ridingCarPositionAndRotation;
+				final Vec3d offsetVector;
+				final Double offsetRotation;
+				if (ridingVehicleCarNumberAndOffset == null) {
+					ridingCarPositionAndRotation = null;
+					offsetVector = null;
+					offsetRotation = null;
+				} else {
+					ridingCarPositionAndRotation = absolutePositionAndRotation;
+					offsetVector = ridingVehicleCarNumberAndOffset.right().left();
+					offsetRotation = ridingVehicleCarNumberAndOffset.right().right();
+				}
+
+				final PositionAndRotation renderingPositionAndRotation = RenderVehicles.getRenderPositionAndRotation(offsetVector, offsetRotation, ridingCarPositionAndRotation, absolutePositionAndRotation, cameraShakeOffset);
+
 				// A temporary list to store all floors and doorways
 				final ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsAndDoorways = new ObjectArrayList<>();
 				// Find open doorways (close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates)
@@ -124,8 +140,8 @@ public class RenderLifts implements IGui {
 				final boolean doorway1Open;
 				final boolean doorway2Open;
 				if (lift.hasCoolDown()) {
-					doorway1Open = RenderVehicleHelper.canOpenDoors(doorway1, renderVehicleTransformationHelperAbsolute, Math.min(lift.getDoorValue(), LIFT_DOOR_VALUE) / 2, true);
-					doorway2Open = lift.getIsDoubleSided() && RenderVehicleHelper.canOpenDoors(doorway2, renderVehicleTransformationHelperAbsolute, Math.min(lift.getDoorValue(), LIFT_DOOR_VALUE) / 2, true);
+					doorway1Open = RenderVehicleHelper.canOpenDoors(doorway1, absolutePositionAndRotation, Math.min(lift.getDoorValue(), LIFT_DOOR_VALUE));
+					doorway2Open = lift.getIsDoubleSided() && RenderVehicleHelper.canOpenDoors(doorway2, absolutePositionAndRotation, Math.min(lift.getDoorValue(), LIFT_DOOR_VALUE));
 					if (doorway1Open) {
 						openDoorways.add(doorway1);
 					}
@@ -139,44 +155,43 @@ public class RenderLifts implements IGui {
 
 				if (canRide) {
 					// Player position relative to the car
-					final Vec3d playerPosition = renderVehicleTransformationHelperAbsolute.transformBackwards(clientPlayerEntity.getPos(), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
+					final Vec3d playerPosition = absolutePositionAndRotation.transformBackwards(clientPlayerEntity.getPos(), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
 					// Check and mount player
-					VehicleRidingMovement.startRiding(openDoorways, 0, lift.getId(), 0, playerPosition.x, playerPosition.y, playerPosition.z, renderVehicleTransformationHelperAbsolute.yaw);
+					VehicleRidingMovement.startRiding(openDoorways, 0, 0, lift.getId(), 0, playerPosition.x, playerPosition.y, playerPosition.z, absolutePositionAndRotation.yaw);
 
 					final Box floor = new Box(-lift.getWidth() / 2 + LIFT_FLOOR_PADDING, 0, -lift.getDepth() / 2 + LIFT_FLOOR_PADDING, lift.getWidth() / 2 - LIFT_FLOOR_PADDING, 0, lift.getDepth() / 2 - LIFT_FLOOR_PADDING);
 					floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(floor, true));
-					RenderVehicleHelper.renderFloorOrDoorway(floor, ARGB_WHITE, playerPosition, renderVehicleTransformationHelperOffset);
+					RenderVehicleHelper.renderFloorOrDoorway(floor, ARGB_WHITE, playerPosition, renderingPositionAndRotation, offsetVector == null);
 
 					openDoorways.forEach(doorway -> {
 						floorsAndDoorways.add(new ObjectBooleanImmutablePair<>(doorway, false));
-						RenderVehicleHelper.renderFloorOrDoorway(doorway, 0xFFFF0000, playerPosition, renderVehicleTransformationHelperOffset);
+						RenderVehicleHelper.renderFloorOrDoorway(doorway, 0xFFFF0000, playerPosition, renderingPositionAndRotation, offsetVector == null);
 					});
 				}
 
 				// Render the lift
-				RenderVehicleHelper.renderModel(renderVehicleTransformationHelperOffset, 0, storedMatrixTransformations -> {
-//					new ModelLift1((int) Math.round(lift.getHeight() * 2), (int) Math.round(lift.getWidth()), (int) Math.round(lift.getDepth()), lift.getIsDoubleSided()).render(
-//							storedMatrixTransformations,
-//							null,
-//							LIFT_TEXTURE,
-//							renderVehicleTransformationHelperOffset.light,
-//							doorway1Open ? lift.getDoorValue() / LIFT_DOOR_VALUE : 0, doorway2Open ? lift.getDoorValue() / LIFT_DOOR_VALUE : 0, false,
-//							0, 1, true, true, false, true, false
-//					);
+				final StoredMatrixTransformations storedMatrixTransformations = RenderVehicles.getStoredMatrixTransformations(offsetVector == null, renderingPositionAndRotation, 0);
+//				new ModelLift1((int) Math.round(lift.getHeight() * 2), (int) Math.round(lift.getWidth()), (int) Math.round(lift.getDepth()), lift.getIsDoubleSided()).render(
+//						storedMatrixTransformations,
+//						null,
+//						getLiftResource(lift.getStyle()).getTexture(),
+//						absolutePositionAndRotation.light,
+//						doorway1Open ? lift.getDoorValue() / LIFT_DOOR_VALUE : 0, doorway2Open ? lift.getDoorValue() / LIFT_DOOR_VALUE : 0, false,
+//						0, 1, true, true, false, true, false
+//				);
 
-					// Render the display inside the lift
-					for (int i = 0; i < (lift.getIsDoubleSided() ? 2 : 1); i++) {
-						final boolean shouldRotate = i == 0;
-						final StoredMatrixTransformations storedMatrixTransformationsNew = storedMatrixTransformations.copy();
-						storedMatrixTransformationsNew.add(matrixStack -> {
-							if (shouldRotate) {
-								IDrawing.rotateYDegrees(matrixStack, 180);
-							}
-							matrixStack.translate(0.875F, -1.5, lift.getDepth() / 2 - 0.25 - SMALL_OFFSET);
-						});
-						renderLiftDisplay(storedMatrixTransformationsNew, clientWorld, lift, 0.1875F, 0.3125F);
-					}
-				});
+				// Render the display inside the lift
+				for (int i = 0; i < (lift.getIsDoubleSided() ? 2 : 1); i++) {
+					final boolean shouldRotate = i == 0;
+					final StoredMatrixTransformations storedMatrixTransformationsNew = storedMatrixTransformations.copy();
+					storedMatrixTransformationsNew.add(matrixStack -> {
+						if (shouldRotate) {
+							IDrawing.rotateYDegrees(matrixStack, 180);
+						}
+						matrixStack.translate(0.875F, -1.5, lift.getDepth() / 2 - 0.25 - SMALL_OFFSET);
+					});
+					renderLiftDisplay(storedMatrixTransformationsNew, clientWorld, lift, 0.1875F, 0.3125F);
+				}
 
 				if (canRide) {
 					// Main logic for player movement inside the car
@@ -184,7 +199,7 @@ public class RenderLifts implements IGui {
 							millisElapsed, lift.getId(), 0,
 							floorsAndDoorways,
 							null, null, null,
-							renderVehicleTransformationHelperAbsolute
+							absolutePositionAndRotation
 					);
 				}
 			}
@@ -233,15 +248,26 @@ public class RenderLifts implements IGui {
 		return new ObjectObjectImmutablePair<>(lift.getDirection(), new ObjectObjectImmutablePair<>(floorNumber, floorDescription));
 	}
 
-	private static ObjectObjectImmutablePair<Vector, Vector> getVirtualBogiePositions(ClientWorld clientWorld, Lift lift) {
+	public static LiftResource getLiftResource(@Nullable String liftId) {
+		final LiftResource liftResource;
+
+		if (liftId == null) {
+			liftResource = null;
+		} else {
+			final LiftResource[] tempLiftResource = {null};
+			CustomResourceLoader.getLiftById(liftId, newLiftResource -> tempLiftResource[0] = newLiftResource);
+			liftResource = tempLiftResource[0];
+		}
+
+		return liftResource == null ? CustomResourceLoader.getLifts().get(0) : liftResource;
+	}
+
+	private static PositionAndRotation getLiftPositionAndRotation(ClientWorld clientWorld, Lift lift) {
 		final Vector position = lift.getPosition((floorPosition1, floorPosition2) -> ItemLiftRefresher.findPath(clientWorld, floorPosition1, floorPosition2));
-		final Angle angle = lift.getAngle();
-		final double x = position.x + lift.getOffsetX();
-		final double y = position.y + lift.getOffsetY();
-		final double z = position.z + lift.getOffsetZ();
-		return new ObjectObjectImmutablePair<>(
-				new Vector(x + angle.cos, y, z + angle.sin),
-				new Vector(x - angle.cos, y, z - angle.sin)
-		);
+		return new PositionAndRotation(new Vector(
+				position.x + lift.getOffsetX(),
+				position.y + lift.getOffsetY(),
+				position.z + lift.getOffsetZ()
+		), -Math.PI / 2 - lift.getAngle().angleRadians, 0);
 	}
 }

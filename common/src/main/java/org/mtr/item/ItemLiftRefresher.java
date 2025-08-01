@@ -17,6 +17,7 @@ import net.minecraft.world.World;
 import org.mtr.MTR;
 import org.mtr.block.BlockLiftTrackBase;
 import org.mtr.block.BlockLiftTrackFloor;
+import org.mtr.client.CustomResourceLoader;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Lift;
 import org.mtr.core.data.LiftFloor;
@@ -151,6 +152,7 @@ public class ItemLiftRefresher extends Item {
 		final Lift lift = new Lift(new MinecraftClientData());
 		lift.setFloors(liftFloors);
 		lift.setDimensions(3, 2, 2, 0, 0, 0);
+		lift.setStyle(CustomResourceLoader.DEFAULT_LIFT_TRANSPARENT_ID);
 		MTR.sendMessageC2S(OperationProcessor.GENERATE_BY_LIFT, serverWorld.getServer(), serverWorld, lift, null, null);
 	}
 }

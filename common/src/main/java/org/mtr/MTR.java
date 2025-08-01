@@ -62,6 +62,7 @@ public final class MTR {
 	private static int serverPort;
 	private static Runnable sendWorldTimeUpdate;
 	private static boolean canSendWorldTimeUpdate = true;
+	private static boolean isDedicatedServer = true;
 	private static int serverTick;
 	private static long lastSavedMillis;
 	private static Consumer<Webserver> webserverSetup;
@@ -94,6 +95,7 @@ public final class MTR {
 		// Register packets
 		Registry.setupPackets();
 		Registry.registerPacket(PacketAddBalance.class, PacketAddBalance::new);
+		Registry.registerPacket(PacketBlockRails.class, PacketBlockRails::new);
 		Registry.registerPacket(PacketBroadcastRailActions.class, PacketBroadcastRailActions::new);
 		Registry.registerPacket(PacketCheckRouteIdHasDisabledAnnouncements.class, PacketCheckRouteIdHasDisabledAnnouncements::new);
 		Registry.registerPacket(PacketDeleteData.class, PacketDeleteData::new);
@@ -104,6 +106,7 @@ public final class MTR {
 		Registry.registerPacket(PacketDriveTrain.class, PacketDriveTrain::new);
 		Registry.registerPacket(PacketFetchArrivals.class, PacketFetchArrivals::new);
 		Registry.registerPacket(PacketForwardClientRequest.class, PacketForwardClientRequest::new);
+		Registry.registerPacket(PacketUpdateKeyDispenserConfig.class, PacketUpdateKeyDispenserConfig::new);
 		Registry.registerPacket(PacketGetUniqueWorldId.class, PacketGetUniqueWorldId::new);
 		Registry.registerPacket(PacketOpenBlockEntityScreen.class, PacketOpenBlockEntityScreen::new);
 		Registry.registerPacket(PacketOpenDashboardScreen.class, PacketOpenDashboardScreen::new);
@@ -214,6 +217,11 @@ public final class MTR {
 					canSendWorldTimeUpdate = true; // In singleplayer, this gives the player opportunity to re-enter world.
 				}
 			};
+
+			LOGGER.info("Starting server as a {} server", isDedicatedServer ? "dedicated" : "non-dedicated");
+			if (isDedicatedServer && Config.getServer().forceShutDownStrayThreads()) {
+				StrayThreadManager.register(minecraftServer);
+			}
 		});
 
 		EventRegistry.registerServerStopping(minecraftServer -> {
@@ -351,6 +359,10 @@ public final class MTR {
 				MTR.LOGGER.error("", e);
 			}
 		}, requestProperties);
+	}
+
+	public static void writeFromClient() {
+		isDedicatedServer = false;
 	}
 
 	public static void createWebserverSetup(Consumer<Webserver> webserverSetup) {

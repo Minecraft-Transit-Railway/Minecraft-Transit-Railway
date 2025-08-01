@@ -22,7 +22,9 @@ import org.mtr.client.VehicleRidingMovement;
 import org.mtr.core.data.InterchangeColorsForStationName;
 import org.mtr.data.ArrivalsCacheClient;
 import org.mtr.data.IGui;
+import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.model.NewOptimizedModel;
+import org.mtr.registry.KeyBindings;
 import org.mtr.resource.RenderStage;
 
 import javax.annotation.Nullable;
@@ -34,7 +36,6 @@ public class MainRenderer {
 
 	private static long lastRenderedMillis;
 
-	public static final int PLAYER_RENDER_OFFSET = 1000;
 	public static final WorkerThread WORKER_THREAD = new WorkerThread();
 
 	private static final int FLASHING_INTERVAL = 1000;
@@ -61,18 +62,6 @@ public class MainRenderer {
 	}
 
 	public static void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumers, Vec3d offset) {
-		final long millisElapsed = getMillisElapsed();
-		MODEL_RENDERS.clear();
-		MODEL_RENDERS_TRANSLUCENT.clear();
-		MinecraftClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
-		MinecraftClientData.getInstance().lifts.forEach(lift -> lift.tick(millisElapsed));
-		lastRenderedMillis = MTRClient.getGameMillis();
-		WORKER_THREAD.start();
-		DynamicTextureCache.instance.tick();
-		// Tick the riding cool down (dismount player if they are no longer riding a vehicle) and store the player offset cache
-		VehicleRidingMovement.tick();
-		ArrivalsCacheClient.INSTANCE.tick();
-
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientWorld clientWorld = minecraftClient.world;
 		final ClientPlayerEntity clientPlayerEntity = minecraftClient.player;
@@ -80,6 +69,25 @@ public class MainRenderer {
 		if (clientWorld == null || clientPlayerEntity == null) {
 			return;
 		}
+
+
+		final long millisElapsed = getMillisElapsed();
+		MODEL_RENDERS.clear();
+		MODEL_RENDERS_TRANSLUCENT.clear();
+		MinecraftClientData.getInstance().blockedRailIds.clear();
+		MinecraftClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
+		MinecraftClientData.getInstance().lifts.forEach(lift -> {
+			lift.tick(millisElapsed);
+			if (VehicleRidingMovement.isRiding(lift.getId()) && VehicleRidingMovement.showShiftProgressBar()) {
+				clientPlayerEntity.sendMessage(TranslationProvider.GUI_MTR_PRESS_TO_SELECT_FLOOR.getText(KeyBindings.LIFT_MENU.getBoundKeyLocalizedText().getString()), true);
+			}
+		});
+		lastRenderedMillis = MTRClient.getGameMillis();
+		WORKER_THREAD.start();
+		DynamicTextureCache.instance.tick();
+		// Tick the riding cool down (dismount player if they are no longer riding a vehicle) and store the player offset cache
+		VehicleRidingMovement.tick();
+		ArrivalsCacheClient.INSTANCE.tick();
 
 		final Vec3d cameraShakeOffset = clientPlayerEntity.getPos().subtract(offset);
 		RenderVehicles.render(millisElapsed, cameraShakeOffset);
@@ -152,13 +160,13 @@ public class MainRenderer {
 		return LightmapTextureManager.pack(light, light);
 	}
 
-	public static int getFlashingColor(int color) {
+	public static int getFlashingColor(int color, int multiplier) {
 		final double flashingProgress = ((Math.sin(Math.PI * 2 * (System.currentTimeMillis() % FLASHING_INTERVAL) / FLASHING_INTERVAL) + 1) / 2);
 		final Color oldColor = new Color(color);
 		return new Color(
-				(int) (oldColor.getRed() * flashingProgress),
-				(int) (oldColor.getGreen() * flashingProgress),
-				(int) (oldColor.getBlue() * flashingProgress)
+				(int) (oldColor.getRed() * Math.min(1, flashingProgress * multiplier)),
+				(int) (oldColor.getGreen() * Math.min(1, flashingProgress * multiplier)),
+				(int) (oldColor.getBlue() * Math.min(1, flashingProgress * multiplier))
 		).getRGB();
 	}
 

@@ -44,9 +44,9 @@ public class RenderEyeCandy extends BlockEntityRendererExtension<BlockEyeCandy.E
 				storedMatrixTransformationsNew.add(matrixStack -> {
 					matrixStack.translate(entity.getTranslateX(), entity.getTranslateY(), entity.getTranslateZ());
 					IDrawing.rotateYDegrees(matrixStack, 180 - facing.getPositiveHorizontalDegrees());
-					IDrawing.rotateXDegrees(matrixStack, entity.getRotateX() + 180);
-					IDrawing.rotateYDegrees(matrixStack, entity.getRotateY());
-					IDrawing.rotateZDegrees(matrixStack, entity.getRotateZ());
+					IDrawing.rotateXRadians(matrixStack, entity.getRotateX() + (float) Math.PI);
+					IDrawing.rotateYRadians(matrixStack, entity.getRotateY());
+					IDrawing.rotateZRadians(matrixStack, entity.getRotateZ());
 				});
 				objectResource.render(storedMatrixTransformationsNew, newLight);
 			});

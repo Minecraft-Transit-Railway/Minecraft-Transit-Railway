@@ -61,12 +61,12 @@ public class EyeCandyScreen extends ScreenBase implements IGui {
 		}
 
 		buttonSelectModel = ButtonWidget.builder(Text.translatable("selectWorld.edit"), button -> MinecraftClient.getInstance().setScreen(new EyeCandyObjectSelectionScreen(new ObjectImmutableList<>(objectsForList), selectedModelIndices, this::sendUpdate, this))).build();
-		textFieldTranslateX = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null, text -> sendUpdate());
-		textFieldTranslateY = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null, text -> sendUpdate());
-		textFieldTranslateZ = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null, text -> sendUpdate());
-		textFieldRotateX = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null, text -> sendUpdate());
-		textFieldRotateY = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null, text -> sendUpdate());
-		textFieldRotateZ = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", null, text -> sendUpdate());
+		textFieldTranslateX = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", text -> sendUpdate());
+		textFieldTranslateY = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", text -> sendUpdate());
+		textFieldTranslateZ = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", text -> sendUpdate());
+		textFieldRotateX = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", text -> sendUpdate());
+		textFieldRotateY = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", text -> sendUpdate());
+		textFieldRotateZ = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", text -> sendUpdate());
 		buttonFullBrightness = CheckboxWidget.builder(TranslationProvider.GUI_MTR_MODEL_FULL_BRIGHTNESS.getText(), textRenderer).callback((checkboxWidget, checked) -> sendUpdate()).build();
 
 		xStart = Math.max(textRenderer.getWidth(X_TEXT), Math.max(textRenderer.getWidth(Y_TEXT), textRenderer.getWidth(Z_TEXT)));
@@ -88,9 +88,9 @@ public class EyeCandyScreen extends ScreenBase implements IGui {
 		textFieldTranslateX.setText(String.valueOf(blockEntity.getTranslateX()));
 		textFieldTranslateY.setText(String.valueOf(blockEntity.getTranslateY()));
 		textFieldTranslateZ.setText(String.valueOf(blockEntity.getTranslateZ()));
-		textFieldRotateX.setText(String.valueOf(blockEntity.getRotateX()));
-		textFieldRotateY.setText(String.valueOf(blockEntity.getRotateY()));
-		textFieldRotateZ.setText(String.valueOf(blockEntity.getRotateZ()));
+		textFieldRotateX.setText(String.valueOf(Utilities.round(Math.toDegrees(blockEntity.getRotateX()), 4)));
+		textFieldRotateY.setText(String.valueOf(Utilities.round(Math.toDegrees(blockEntity.getRotateY()), 4)));
+		textFieldRotateZ.setText(String.valueOf(Utilities.round(Math.toDegrees(blockEntity.getRotateZ()), 4)));
 		IGui.setChecked(buttonFullBrightness, blockEntity.getFullBrightness());
 
 		addDrawableChild(buttonSelectModel);
@@ -130,9 +130,9 @@ public class EyeCandyScreen extends ScreenBase implements IGui {
 				parse(textFieldTranslateX.getText()),
 				parse(textFieldTranslateY.getText()),
 				parse(textFieldTranslateZ.getText()),
-				parse(textFieldRotateX.getText()),
-				parse(textFieldRotateY.getText()),
-				parse(textFieldRotateZ.getText()),
+				(float) Math.toRadians(parse(textFieldRotateX.getText())),
+				(float) Math.toRadians(parse(textFieldRotateY.getText())),
+				(float) Math.toRadians(parse(textFieldRotateZ.getText())),
 				buttonFullBrightness.isChecked()
 		));
 	}

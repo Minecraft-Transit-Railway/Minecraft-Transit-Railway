@@ -19,8 +19,8 @@ import org.mtr.MTR;
 import org.mtr.MTRClient;
 import org.mtr.block.BlockPIDSBase;
 import org.mtr.client.IDrawing;
+import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Platform;
-import org.mtr.core.data.RoutePlatformData;
 import org.mtr.core.data.Station;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
@@ -31,7 +31,6 @@ import org.mtr.widget.BetterTextFieldWidget;
 import org.mtr.widget.BetterTexturedButtonWidget;
 
 import java.util.Collections;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class PIDSConfigScreen extends ScreenBase implements IGui {
@@ -208,29 +207,33 @@ public class PIDSConfigScreen extends ScreenBase implements IGui {
 	public static ButtonWidget getPlatformFilterButton(BlockPos blockPos, CheckboxWidget selectAllCheckbox, LongAVLTreeSet filterPlatformIds, Screen thisScreen) {
 		return ButtonWidget.builder(Text.translatable("selectWorld.edit"), button -> {
 			final Station station = MTRClient.findStation(blockPos);
+
+			final ObjectImmutableList<DashboardListItem> platformsForList;
 			if (station != null) {
-				final ObjectImmutableList<DashboardListItem> platformsForList = getPlatformsForList(station);
-				if (selectAllCheckbox.isChecked()) {
-					filterPlatformIds.clear();
-				}
-				MinecraftClient.getInstance().setScreen(new DashboardListSelectorScreen(() -> IGui.setChecked(selectAllCheckbox, filterPlatformIds.isEmpty()), new ObjectImmutableList<>(platformsForList), filterPlatformIds, false, false, thisScreen));
+				platformsForList = getPlatformsForList(new ObjectArrayList<>(station.savedRails));
+			} else {
+				ObjectArrayList<Platform> nearbyPlatforms = new ObjectArrayList<>();
+				MTRClient.findClosePlatform(blockPos.down(4), 5, nearbyPlatforms::add);
+				platformsForList = getPlatformsForList(nearbyPlatforms);
 			}
+
+			if (selectAllCheckbox.isChecked()) {
+				filterPlatformIds.clear();
+			}
+
+			MinecraftClient.getInstance().setScreen(new DashboardListSelectorScreen(() -> IGui.setChecked(selectAllCheckbox, filterPlatformIds.isEmpty()), new ObjectImmutableList<>(platformsForList), filterPlatformIds, false, false, thisScreen));
 		}).build();
 	}
 
-	public static ObjectImmutableList<DashboardListItem> getPlatformsForList(Station station) {
+	public static ObjectImmutableList<DashboardListItem> getPlatformsForList(ObjectArrayList<Platform> platforms) {
 		final ObjectArrayList<DashboardListItem> platformsForList = new ObjectArrayList<>();
-		final ObjectArrayList<Platform> platforms = new ObjectArrayList<>(station.savedRails);
 		Collections.sort(platforms);
-		platforms.forEach(platform -> platformsForList.add(new DashboardListItem(platform.getId(), platform.getName() + " " + IGui.mergeStations(platform.routes.stream().map(route -> {
-			final RoutePlatformData lastRoutePlatformData = Utilities.getElement(route.getRoutePlatforms(), -1);
-			if (lastRoutePlatformData == null) {
-				return null;
-			} else {
-				final Station lastStation = lastRoutePlatformData.platform.area;
-				return lastStation == null ? null : lastStation.getName();
-			}
-		}).filter(Objects::nonNull).collect(Collectors.toList())), 0)));
+		platforms.forEach(platform -> platformsForList.add(new DashboardListItem(platform.getId(), platform.getName() + " " + IGui.mergeStations(MinecraftClientData.getInstance().simplifiedRoutes
+				.stream()
+				.filter(simplifiedRoute -> simplifiedRoute.getPlatformIndex(platform.getId()) >= 0)
+				.map(simplifiedRoute -> Utilities.getElement(simplifiedRoute.getPlatforms(), -1).getStationName())
+				.collect(Collectors.toList())
+		), 0)));
 		return new ObjectImmutableList<>(platformsForList);
 	}
 }

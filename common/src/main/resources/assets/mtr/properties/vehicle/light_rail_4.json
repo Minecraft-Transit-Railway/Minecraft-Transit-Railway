@@ -268,6 +268,15 @@
 		},
 		{
 			"names": [
+				"cab_floor"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
 				"roof_end_exterior"
 			],
 			"positionDefinitions": [
@@ -372,6 +381,24 @@
 			],
 			"displayPadZeros": 3,
 			"displayType": "DEPARTURE_INDEX"
+		},
+		{
+			"names": [
+				"next_station_display"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "DISPLAY",
+			"displayYPadding": 0.4,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"UPPER_CASE",
+				"SPACE_CJK",
+				"ALIGN_CENTER",
+				"CYCLE_LANGUAGES"
+			],
+			"displayType": "NEXT_STATION"
 		},
 		{
 			"names": [

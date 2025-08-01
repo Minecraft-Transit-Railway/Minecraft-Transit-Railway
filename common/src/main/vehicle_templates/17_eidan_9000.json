@@ -1,0 +1,292 @@
+{
+	"replacements": {
+		"lengths": [
+			25,
+			20,
+			10
+		],
+		"bogie1Position": [
+			-9.3,
+			-6.8,
+			-2.6
+		],
+		"bogie2Position": [
+			9.3,
+			6.8,
+			2.6
+		],
+		"name": [
+			"Long",
+			"Normal",
+			"Mini"
+		],
+		"definition": [
+			"_long",
+			"",
+			"_mini"
+		],
+		"doors": [
+			"5",
+			"4",
+			"2"
+		]
+	},
+	"vehicles": [
+		{
+			"id": "eidan_9000@definition@_trailer",
+			"name": "Eidan 9000 Trailer (@name@)",
+			"color": "00AC9B",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"description": "",
+			"wikipediaArticle": "Tokyo_Metro_9000_series",
+			"tags": [
+				"family:eidan9000",
+				"iso_3166:JP",
+				"doors:@doors@",
+				"type:trailer"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
+					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
+					"flipTextureV": true
+				},
+				{
+					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
+					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
+					"flipTextureV": true
+				},
+				{
+					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
+					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
+					"flipTextureV": true
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_3.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_3.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json",
+					"flipTextureV": true
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_3.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_3.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json",
+					"flipTextureV": true
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"hasBarrier1": false,
+			"hasBarrier2": false,
+			"legacyRiderOffset": 0,
+			"bveSoundBaseResource": "eidan_9000"
+		},
+		{
+			"id": "eidan_9000@definition@_cab_1",
+			"name": "Eidan 9000 Cab (Forwards, @name@)",
+			"color": "00AC9B",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 1,
+			"couplingPadding2": 0,
+			"description": "",
+			"wikipediaArticle": "Tokyo_Metro_9000_series",
+			"tags": [
+				"family:eidan9000",
+				"iso_3166:JP",
+				"doors:@doors@",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
+					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
+					"flipTextureV": true
+				},
+				{
+					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
+					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
+					"flipTextureV": true
+				},
+				{
+					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
+					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
+					"flipTextureV": true
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_3.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_3.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json",
+					"flipTextureV": true
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_3.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_3.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json",
+					"flipTextureV": true
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"hasBarrier1": false,
+			"hasBarrier2": false,
+			"legacyRiderOffset": 0,
+			"bveSoundBaseResource": "eidan_9000"
+		},
+		{
+			"id": "eidan_9000@definition@_cab_2",
+			"name": "Eidan 9000 Cab (Backwards, @name@)",
+			"color": "00AC9B",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 1,
+			"description": "",
+			"wikipediaArticle": "Tokyo_Metro_9000_series",
+			"tags": [
+				"family:eidan9000",
+				"iso_3166:JP",
+				"doors:@doors@",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
+					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
+					"flipTextureV": true
+				},
+				{
+					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
+					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
+					"flipTextureV": true
+				},
+				{
+					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
+					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
+					"flipTextureV": true
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_3.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_3.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json",
+					"flipTextureV": true
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_3.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_3.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json",
+					"flipTextureV": true
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"hasBarrier1": false,
+			"hasBarrier2": false,
+			"legacyRiderOffset": 0,
+			"bveSoundBaseResource": "eidan_9000"
+		},
+		{
+			"id": "eidan_9000@definition@_cab_3",
+			"name": "Eidan 9000 Cab (Double, @name@)",
+			"color": "00AC9B",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 1,
+			"couplingPadding2": 1,
+			"description": "",
+			"wikipediaArticle": "Tokyo_Metro_9000_series",
+			"tags": [
+				"family:eidan9000",
+				"iso_3166:JP",
+				"doors:@doors@",
+				"type:cab_3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
+					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
+					"flipTextureV": true
+				},
+				{
+					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
+					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
+					"flipTextureV": true
+				},
+				{
+					"modelResource": "mtr:models/vehicle/eidan_9000.bbmodel",
+					"textureResource": "mtr:textures/vehicle/eidan_9000.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/eidan_9000_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/eidan_9000@definition@.json",
+					"flipTextureV": true
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_3.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_3.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json",
+					"flipTextureV": true
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_3.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_3.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json",
+					"flipTextureV": true
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"hasBarrier1": false,
+			"hasBarrier2": false,
+			"legacyRiderOffset": 0,
+			"bveSoundBaseResource": "eidan_9000"
+		}
+	]
+}

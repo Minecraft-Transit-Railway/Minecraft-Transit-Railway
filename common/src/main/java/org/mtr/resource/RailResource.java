@@ -2,6 +2,7 @@ package org.mtr.resource;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.text.Text;
 import org.mtr.config.Config;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.generated.resource.RailResourceSchema;
@@ -46,7 +47,7 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 	}
 
 	public String getName() {
-		return name;
+		return Text.translatable(name).getString();
 	}
 
 	public int getColor() {

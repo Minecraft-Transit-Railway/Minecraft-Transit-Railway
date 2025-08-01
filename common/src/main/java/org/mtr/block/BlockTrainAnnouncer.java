@@ -20,6 +20,8 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.registry.BlockEntityTypes;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 
@@ -103,7 +105,7 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 				final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
 				QUEUE.put(currentMillis + (long) delay * MILLIS_PER_SECOND, tasks);
 				if (!message.isEmpty()) {
-					tasks.add(() -> IDrawing.narrateOrAnnounce(message, ObjectArrayList.of(Text.literal(message))));
+					tasks.add(() -> IDrawing.narrateOrAnnounce(Utilities.formatName(message), Arrays.stream(message.split("\\|")).map(Text::literal).collect(Collectors.toCollection(ObjectArrayList::new))));
 				}
 				if (!soundId.isEmpty()) {
 					tasks.add(() -> {

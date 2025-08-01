@@ -12,18 +12,22 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+/**
+ * A background thread to perform intensive rendering tasks (e.g. Occlusion culling, generate dynamic textures etc.)
+ */
 public final class WorkerThread {
 
+	private static final int MAX_OCCLUSION_CHUNK_DISTANCE = 32;
 	private int renderDistance;
 	private OcclusionCullingInstance occlusionCullingInstance;
 	private boolean canStart = true;
 	private int runCooldown;
 
 	public final ExecutorService worker = Executors.newVirtualThreadPerTaskExecutor();
-	private final AtomicReference<Consumer<OcclusionCullingInstance>> occlusionQueue1 = new AtomicReference<>();
-	private final AtomicReference<Consumer<OcclusionCullingInstance>> occlusionQueue2 = new AtomicReference<>();
-	private final AtomicReference<Consumer<OcclusionCullingInstance>> occlusionQueue3 = new AtomicReference<>();
-	private final AtomicReference<Runnable> queue = new AtomicReference<>();
+	private final AtomicReference<Consumer<OcclusionCullingInstance>> occlusionQueueVehicle = new AtomicReference<>();
+	private final AtomicReference<Consumer<OcclusionCullingInstance>> occlusionQueueLift = new AtomicReference<>();
+	private final AtomicReference<Consumer<OcclusionCullingInstance>> occlusionQueueRail = new AtomicReference<>();
+	private final AtomicReference<Runnable> dynamicTextureQueue = new AtomicReference<>();
 
 	private static final int COOLDOWN = 100;
 
@@ -32,18 +36,18 @@ public final class WorkerThread {
 			canStart = false;
 			worker.submit(() -> {
 				while (isRunning()) {
-					if (occlusionQueue1.get() != null || occlusionQueue2.get() != null || occlusionQueue3.get() != null) {
+					if (occlusionQueueVehicle.get() != null || occlusionQueueLift.get() != null || occlusionQueueRail.get() != null) {
 						updateInstance();
 						occlusionCullingInstance.resetCache();
-						run(occlusionQueue1, task -> task.accept(occlusionCullingInstance));
-						run(occlusionQueue2, task -> task.accept(occlusionCullingInstance));
-						run(occlusionQueue3, task -> task.accept(occlusionCullingInstance));
+						run(occlusionQueueVehicle, task -> task.accept(occlusionCullingInstance));
+						run(occlusionQueueLift, task -> task.accept(occlusionCullingInstance));
+						run(occlusionQueueRail, task -> task.accept(occlusionCullingInstance));
 					}
 
-					run(queue, Runnable::run);
+					run(dynamicTextureQueue, Runnable::run);
 
 					try {
-						Thread.sleep(1);
+						Thread.sleep(10);
 					} catch (InterruptedException e) {
 						MTR.LOGGER.debug("", e);
 					}
@@ -67,26 +71,26 @@ public final class WorkerThread {
 	}
 
 	public void scheduleVehicles(Consumer<OcclusionCullingInstance> consumer) {
-		occlusionQueue1.set(consumer);
+		occlusionQueueVehicle.set(consumer);
 	}
 
 	public void scheduleLifts(Consumer<OcclusionCullingInstance> consumer) {
-		occlusionQueue2.set(consumer);
+		occlusionQueueLift.set(consumer);
 	}
 
 	public void scheduleRails(Consumer<OcclusionCullingInstance> consumer) {
-		occlusionQueue3.set(consumer);
+		occlusionQueueRail.set(consumer);
 	}
 
 	public void scheduleDynamicTextures(Runnable runnable) {
-		queue.set(runnable);
+		dynamicTextureQueue.set(runnable);
 	}
 
 	private void updateInstance() {
 		final int newRenderDistance = (int) MinecraftClient.getInstance().worldRenderer.getViewDistance();
 		if (renderDistance != newRenderDistance) {
 			renderDistance = newRenderDistance;
-			occlusionCullingInstance = new OcclusionCullingInstance(renderDistance * 16, new CullingDataProvider());
+			occlusionCullingInstance = new OcclusionCullingInstance(Math.min(renderDistance, MAX_OCCLUSION_CHUNK_DISTANCE) * 16, new CullingDataProvider());
 		}
 	}
 

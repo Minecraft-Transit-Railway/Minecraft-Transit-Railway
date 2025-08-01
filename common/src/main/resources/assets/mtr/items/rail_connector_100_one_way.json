@@ -1,0 +1,15 @@
+{
+	"model": {
+		"type": "minecraft:condition",
+		"property": "minecraft:has_component",
+		"component": "mtr:start_pos",
+		"on_true": {
+			"type": "minecraft:model",
+			"model": "mtr:item/rail_connector_100_one_way_selected"
+		},
+		"on_false": {
+			"type": "minecraft:model",
+			"model": "mtr:item/rail_connector_100_one_way"
+		}
+	}
+}

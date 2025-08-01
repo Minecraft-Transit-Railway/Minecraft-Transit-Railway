@@ -1,11 +1,17 @@
 package org.mtr.screen;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
+import org.mtr.Keys;
+import org.mtr.MTR;
 import org.mtr.Patreon;
 import org.mtr.client.DynamicTextureCache;
 import org.mtr.client.IDrawing;
@@ -13,6 +19,7 @@ import org.mtr.config.Client;
 import org.mtr.config.Config;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.tool.Drawing;
 import org.mtr.widget.ShorterSliderWidget;
 
 import javax.annotation.Nullable;
@@ -32,8 +39,10 @@ public class ConfigScreen extends ScreenBase implements IGui {
 	private final ButtonWidget buttonDisableShadowsForShaders;
 	private final ButtonWidget buttonSupportPatreon;
 
+	private static final Identifier HEADER_LOGO = Identifier.of(MTR.MOD_ID, "textures/block/sign/logo.png");
+	private static final int HEADER_LOGO_SIZE = 40;
 	private static final int BUTTON_WIDTH = 60;
-	private static final int BUTTON_HEIGHT = TEXT_HEIGHT + TEXT_PADDING;
+	private static final int BUTTON_HEIGHT = TEXT_HEIGHT * 2;
 
 	public ConfigScreen(@Nullable Screen previousScreen) {
 		super(previousScreen);
@@ -75,17 +84,18 @@ public class ConfigScreen extends ScreenBase implements IGui {
 	protected void init() {
 		super.init();
 
+		int startY = TEXT_PADDING;
 		int i = 1;
-		IDrawing.setPositionAndWidth(buttonShowAnnouncementMessages, width - SQUARE_SIZE - BUTTON_WIDTH, SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(buttonUseTTSAnnouncements, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(buttonHideTranslucentParts, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(buttonLanguageOptions, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(sliderDynamicTextureResolution, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - textRenderer.getWidth("100%"));
-		IDrawing.setPositionAndWidth(sliderTrainOscillationMultiplier, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - textRenderer.getWidth("100%"));
-		IDrawing.setPositionAndWidth(buttonDefaultRail3D, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(buttonUseMTRFont, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(buttonDisableShadowsForShaders, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(buttonSupportPatreon, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * i + SQUARE_SIZE, BUTTON_WIDTH);
+		IDrawing.setPositionAndWidth(buttonShowAnnouncementMessages, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
+		IDrawing.setPositionAndWidth(buttonUseTTSAnnouncements, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
+		IDrawing.setPositionAndWidth(buttonHideTranslucentParts, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
+		IDrawing.setPositionAndWidth(buttonLanguageOptions, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
+		IDrawing.setPositionAndWidth(sliderDynamicTextureResolution, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - textRenderer.getWidth("100%"));
+		IDrawing.setPositionAndWidth(sliderTrainOscillationMultiplier, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - textRenderer.getWidth("100%"));
+		IDrawing.setPositionAndWidth(buttonDefaultRail3D, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
+		IDrawing.setPositionAndWidth(buttonUseMTRFont, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
+		IDrawing.setPositionAndWidth(buttonDisableShadowsForShaders, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
+		IDrawing.setPositionAndWidth(buttonSupportPatreon, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * i + SQUARE_SIZE, BUTTON_WIDTH);
 
 		buttonShowAnnouncementMessages.setHeight(BUTTON_HEIGHT);
 		buttonUseTTSAnnouncements.setHeight(BUTTON_HEIGHT);
@@ -126,11 +136,11 @@ public class ConfigScreen extends ScreenBase implements IGui {
 	@Override
 	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 		super.render(context, mouseX, mouseY, delta);
-		context.drawCenteredTextWithShadow(textRenderer, TranslationProvider.GUI_MTR_MTR_OPTIONS.getMutableText(), width / 2, TEXT_PADDING, ARGB_WHITE);
+		drawHeader(context);
 
-		final int yStart1 = SQUARE_SIZE + TEXT_PADDING / 2;
+		final int yStart1 = SQUARE_SIZE + TEXT_PADDING + TEXT_PADDING / 2;
 		int i = 1;
-		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_SHOW_ANNOUNCEMENT_MESSAGES.getMutableText(), SQUARE_SIZE, yStart1, ARGB_WHITE, true);
+		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_SHOW_ANNOUNCEMENT_MESSAGES.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, true);
 		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_USE_TTS_ANNOUNCEMENTS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, true);
 		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_HIDE_TRANSLUCENT_PARTS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, true);
 		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_LANGUAGE_OPTIONS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, true);
@@ -139,7 +149,7 @@ public class ConfigScreen extends ScreenBase implements IGui {
 		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_DEFAULT_RAIL_3D.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, true);
 		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_USE_MTR_FONT.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, true);
 		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_DISABLE_SHADOWS_FOR_SHADERS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, true);
-		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_SUPPORT_PATREON.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, true);
+		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_SUPPORT_PATREON.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, 0xFFFFFF66, true);
 
 		final int yStart2 = BUTTON_HEIGHT * (i + 1) + yStart1;
 		String tierTitle = "";
@@ -174,6 +184,29 @@ public class ConfigScreen extends ScreenBase implements IGui {
 		client.setVehicleOscillationMultiplier(sliderTrainOscillationMultiplier.getIntValue() / 10.0);
 		DynamicTextureCache.instance.reload();
 		Config.save();
+	}
+
+	private void drawHeader(DrawContext context) {
+		MutableText titleText = TranslationProvider.GUI_MTR_BRAND.getMutableText();
+		final MatrixStack matrixStack = context.getMatrices();
+
+		// Logo
+		matrixStack.push();
+		matrixStack.translate((width - (textRenderer.getWidth(titleText) * 1.5F) - HEADER_LOGO_SIZE - TEXT_PADDING) / 2, 0, 0);
+		new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(HEADER_LOGO))).setVerticesWH(0, 0, HEADER_LOGO_SIZE, HEADER_LOGO_SIZE).setUv().draw();
+
+		matrixStack.translate(HEADER_LOGO_SIZE, 0, 0);
+		matrixStack.translate(TEXT_PADDING, 0, 0);
+
+		// Brand Name
+		matrixStack.push();
+		matrixStack.scale(1.5F, 1.5F, 1.5F);
+		context.drawText(textRenderer, titleText, 0, TEXT_PADDING, ARGB_WHITE, true);
+		matrixStack.pop();
+
+		// Version
+		context.drawText(textRenderer, Keys.MOD_VERSION, 0, (TEXT_PADDING * 4), ARGB_WHITE, true);
+		matrixStack.pop();
 	}
 
 	private static void setButtonText(ButtonWidget button, boolean state) {

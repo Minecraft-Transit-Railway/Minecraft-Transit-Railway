@@ -18,7 +18,10 @@ public final class Items {
 		AIRPLANE_DASHBOARD = Registry.registerItem("dashboard_4", itemSettings -> new ItemDashboard(TransportMode.AIRPLANE, itemSettings), ItemGroups.CORE);
 
 		// Misc
-		DRIVER_KEY = Registry.registerItem("driver_key", itemSettings -> new Item(itemSettings.maxCount(1)), null);
+		BASIC_DRIVER_KEY = Registry.registerItem("basic_driver_key", itemSettings -> new ItemDepotDriverKey(itemSettings.maxCount(1), true, false, false, 0xB6B6B6), null);
+		ADVANCED_DRIVER_KEY = Registry.registerItem("advanced_driver_key", itemSettings -> new ItemDepotDriverKey(itemSettings.maxCount(1), true, true, false, 0xFFB6B6), null);
+		GUARD_KEY = Registry.registerItem("guard_key", itemSettings -> new ItemDepotDriverKey(itemSettings.maxCount(1), false, true, false, 0xB6FFB6), null);
+		CREATIVE_DRIVER_KEY = Registry.registerItem("creative_driver_key", itemSettings -> new ItemCreativeDriverKey(itemSettings.maxCount(1)), ItemGroups.CORE);
 		BOAT_NODE = Registry.registerItem("boat_node", itemSettings -> new PlaceableOnWaterItem(Blocks.BOAT_NODE.get(), itemSettings), ItemGroups.CORE);
 
 		// Doors
@@ -49,8 +52,12 @@ public final class Items {
 		RAIL_CONNECTOR_60_ONE_WAY = Registry.registerItem("rail_connector_60_one_way", itemSettings -> new ItemRailModifier(true, false, true, true, RailType.EMERALD, itemSettings), ItemGroups.CORE);
 		RAIL_CONNECTOR_80 = Registry.registerItem("rail_connector_80", itemSettings -> new ItemRailModifier(true, false, true, false, RailType.IRON, itemSettings), ItemGroups.CORE);
 		RAIL_CONNECTOR_80_ONE_WAY = Registry.registerItem("rail_connector_80_one_way", itemSettings -> new ItemRailModifier(true, false, true, true, RailType.IRON, itemSettings), ItemGroups.CORE);
+		RAIL_CONNECTOR_100 = Registry.registerItem("rail_connector_100", itemSettings -> new ItemRailModifier(true, false, true, false, RailType.BRICKS, itemSettings), ItemGroups.CORE);
+		RAIL_CONNECTOR_100_ONE_WAY = Registry.registerItem("rail_connector_100_one_way", itemSettings -> new ItemRailModifier(true, false, true, true, RailType.BRICKS, itemSettings), ItemGroups.CORE);
 		RAIL_CONNECTOR_120 = Registry.registerItem("rail_connector_120", itemSettings -> new ItemRailModifier(true, false, true, false, RailType.OBSIDIAN, itemSettings), ItemGroups.CORE);
 		RAIL_CONNECTOR_120_ONE_WAY = Registry.registerItem("rail_connector_120_one_way", itemSettings -> new ItemRailModifier(true, false, true, true, RailType.OBSIDIAN, itemSettings), ItemGroups.CORE);
+		RAIL_CONNECTOR_140 = Registry.registerItem("rail_connector_140", itemSettings -> new ItemRailModifier(true, false, true, false, RailType.PRISMARINE, itemSettings), ItemGroups.CORE);
+		RAIL_CONNECTOR_140_ONE_WAY = Registry.registerItem("rail_connector_140_one_way", itemSettings -> new ItemRailModifier(true, false, true, true, RailType.PRISMARINE, itemSettings), ItemGroups.CORE);
 		RAIL_CONNECTOR_160 = Registry.registerItem("rail_connector_160", itemSettings -> new ItemRailModifier(true, false, true, false, RailType.BLAZE, itemSettings), ItemGroups.CORE);
 		RAIL_CONNECTOR_160_ONE_WAY = Registry.registerItem("rail_connector_160_one_way", itemSettings -> new ItemRailModifier(true, false, true, true, RailType.BLAZE, itemSettings), ItemGroups.CORE);
 		RAIL_CONNECTOR_200 = Registry.registerItem("rail_connector_200", itemSettings -> new ItemRailModifier(true, false, true, false, RailType.QUARTZ, itemSettings), ItemGroups.CORE);
@@ -145,7 +152,10 @@ public final class Items {
 	public static final ObjectHolder<Item> BRIDGE_CREATOR_7;
 	public static final ObjectHolder<Item> BRIDGE_CREATOR_9;
 	public static final ObjectHolder<Item> CABLE_CAR_DASHBOARD;
-	public static final ObjectHolder<Item> DRIVER_KEY;
+	public static final ObjectHolder<Item> GUARD_KEY;
+	public static final ObjectHolder<Item> BASIC_DRIVER_KEY;
+	public static final ObjectHolder<Item> ADVANCED_DRIVER_KEY;
+	public static final ObjectHolder<Item> CREATIVE_DRIVER_KEY;
 	public static final ObjectHolder<Item> ESCALATOR;
 	public static final ObjectHolder<Item> LIFT_BUTTONS_LINK_CONNECTOR;
 	public static final ObjectHolder<Item> LIFT_BUTTONS_LINK_REMOVER;
@@ -158,8 +168,12 @@ public final class Items {
 	public static final ObjectHolder<Item> PSD_GLASS_2;
 	public static final ObjectHolder<Item> PSD_GLASS_END_1;
 	public static final ObjectHolder<Item> PSD_GLASS_END_2;
+	public static final ObjectHolder<Item> RAIL_CONNECTOR_100;
+	public static final ObjectHolder<Item> RAIL_CONNECTOR_100_ONE_WAY;
 	public static final ObjectHolder<Item> RAIL_CONNECTOR_120;
 	public static final ObjectHolder<Item> RAIL_CONNECTOR_120_ONE_WAY;
+	public static final ObjectHolder<Item> RAIL_CONNECTOR_140;
+	public static final ObjectHolder<Item> RAIL_CONNECTOR_140_ONE_WAY;
 	public static final ObjectHolder<Item> RAIL_CONNECTOR_160;
 	public static final ObjectHolder<Item> RAIL_CONNECTOR_160_ONE_WAY;
 	public static final ObjectHolder<Item> RAIL_CONNECTOR_20;

@@ -20,6 +20,9 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+/**
+ * Represent an action that runs along a rail, for example one made by the Tunnel Creator or Bridge Creator
+ */
 public class RailAction {
 
 	private double distance;
@@ -37,7 +40,7 @@ public class RailAction {
 	private final boolean isSlab;
 	private final ObjectOpenHashSet<BlockPos> blacklistedPositions = new ObjectOpenHashSet<>();
 
-	private static final double INCREMENT = 0.01;
+	private static final double INCREMENT = 0.1;
 
 	public RailAction(ServerWorld serverWorld, ServerPlayerEntity serverPlayerEntity, RailActionType railActionType, Rail rail, int radius, int height, @Nullable BlockState state) {
 		id = new Random().nextLong();
@@ -54,6 +57,11 @@ public class RailAction {
 		distance = 0;
 	}
 
+	/**
+	 * Perform a build action, should be called every tick.
+	 *
+	 * @return Whether the rail action is completed
+	 */
 	public boolean build() {
 		return switch (railActionType) {
 			case BRIDGE -> createBridge();
@@ -147,16 +155,16 @@ public class RailAction {
 			}
 
 			if (length - distance < INCREMENT) {
-				showProgressMessage(100);
+				sendProgressMessage(100);
 				return true;
 			}
 		}
 
-		showProgressMessage((float) Utilities.round(100 * distance / length, 1));
+		sendProgressMessage((float) Utilities.round(100 * distance / length, 1));
 		return false;
 	}
 
-	private void showProgressMessage(float percentage) {
+	private void sendProgressMessage(float percentage) {
 		final PlayerEntity playerEntity = serverWorld.getPlayerByUuid(uuid);
 		if (playerEntity != null) {
 			playerEntity.sendMessage(railActionType.progressTranslation.getText(percentage), true);

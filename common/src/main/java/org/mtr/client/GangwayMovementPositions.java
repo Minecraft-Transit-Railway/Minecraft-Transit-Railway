@@ -3,8 +3,8 @@ package org.mtr.client;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import org.mtr.core.tool.Utilities;
+import org.mtr.render.PositionAndRotation;
 import org.mtr.render.RenderVehicleHelper;
-import org.mtr.render.RenderVehicleTransformationHelper;
 
 public class GangwayMovementPositions {
 
@@ -14,11 +14,11 @@ public class GangwayMovementPositions {
 	private double xMaxClamped;
 	private double y;
 	private double z;
-	private final RenderVehicleTransformationHelper renderVehicleTransformationHelper;
+	private final PositionAndRotation positionAndRotation;
 	private final boolean getMax;
 
-	public GangwayMovementPositions(RenderVehicleTransformationHelper renderVehicleTransformationHelper, boolean getMax) {
-		this.renderVehicleTransformationHelper = renderVehicleTransformationHelper;
+	public GangwayMovementPositions(PositionAndRotation positionAndRotation, boolean getMax) {
+		this.positionAndRotation = positionAndRotation;
 		this.getMax = getMax;
 	}
 
@@ -69,10 +69,10 @@ public class GangwayMovementPositions {
 	}
 
 	public Vec3d getMinWorldPosition() {
-		return renderVehicleTransformationHelper.transformForwards(new Vec3d(xMinClamped, y, z), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
+		return positionAndRotation.transformForwards(new Vec3d(xMinClamped, y, z), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
 	}
 
 	public Vec3d getMaxWorldPosition() {
-		return renderVehicleTransformationHelper.transformForwards(new Vec3d(xMaxClamped, y, z), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
+		return positionAndRotation.transformForwards(new Vec3d(xMaxClamped, y, z), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
 	}
 }
