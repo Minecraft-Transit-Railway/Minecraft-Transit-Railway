@@ -1,0 +1,42 @@
+{
+	"parts": [
+		{
+			"names": [
+				"end",
+				"end_roof"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"seat_handrail_2"
+			],
+			"positionDefinitions": [
+				"seatHandrail2c"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"end_floor"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"end_exterior"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"renderStage": "EXTERIOR"
+		}
+	],
+	"modelYOffset": 1
+}

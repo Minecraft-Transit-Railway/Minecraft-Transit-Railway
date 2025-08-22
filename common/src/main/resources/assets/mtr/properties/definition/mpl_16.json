@@ -1,0 +1,348 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window",
+			"positions": [
+				{
+					"z": -130
+				},
+				{
+					"z": -62
+				},
+				{
+					"z": -34
+				},
+				{
+					"z": 34
+				},
+				{
+					"z": 62
+				},
+				{
+					"z": 130
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -130
+				},
+				{
+					"z": -62
+				},
+				{
+					"z": -34
+				},
+				{
+					"z": 34
+				},
+				{
+					"z": 62
+				},
+				{
+					"z": 130
+				}
+			]
+		},
+		{
+			"name": "window1",
+			"positions": [
+				{
+					"z": -130
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 130
+				}
+			]
+		},
+		{
+			"name": "window2a",
+			"positions": [
+				{
+					"z": -48
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 48
+				}
+			]
+		},
+		{
+			"name": "window2b",
+			"positions": [
+				{
+					"z": 48
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -48
+				}
+			]
+		},
+		{
+			"name": "window3",
+			"positions": [
+				{
+					"z": 130
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -130
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"z": -96
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 96
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -96
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 96
+				}
+			]
+		},
+		{
+			"name": "middleHandrail",
+			"positions": [
+				{
+					"z": -96
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 96
+				}
+			]
+		},
+		{
+			"name": "roofDoor1",
+			"positions": [
+				{
+					"z": -96
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -96
+				}
+			]
+		},
+		{
+			"name": "roofDoor2",
+			"positions": [
+				{
+					"z": 0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "roofDoor3",
+			"positions": [
+				{
+					"z": 96
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 96
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -156
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 156
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -156
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 156
+				}
+			]
+		},
+		{
+			"name": "seatEnd1",
+			"positions": [
+				{
+					"z": -144
+				}
+			]
+		},
+		{
+			"name": "seatEnd1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -144
+				}
+			]
+		},
+		{
+			"name": "seatEnd2",
+			"positions": [
+				{
+					"z": 144
+				}
+			]
+		},
+		{
+			"name": "seatEnd2Flipped",
+			"positionsFlipped": [
+				{
+					"z": 144
+				}
+			]
+		},
+		{
+			"name": "seatHandrail1",
+			"positions": [
+				{
+					"z": -69
+				},
+				{
+					"z": -43
+				},
+				{
+					"z": -27
+				},
+				{
+					"z": 27
+				},
+				{
+					"z": 53
+				},
+				{
+					"z": 69
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -69
+				},
+				{
+					"z": -53
+				},
+				{
+					"z": -27
+				},
+				{
+					"z": 27
+				},
+				{
+					"z": 43
+				},
+				{
+					"z": 69
+				}
+			]
+		},
+		{
+			"name": "seatHandrail2a",
+			"positions": [
+				{
+					"z": -123
+				},
+				{
+					"z": 123
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -123
+				},
+				{
+					"z": 123
+				}
+			]
+		},
+		{
+			"name": "seatHandrail2b",
+			"positions": [
+				{
+					"z": -139
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -139
+				}
+			]
+		},
+		{
+			"name": "seatHandrail2c",
+			"positions": [
+				{
+					"z": 139
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 139
+				}
+			]
+		},
+		{
+			"name": "sideDisplay",
+			"positions": [
+				{
+					"z": -61.5
+				},
+				{
+					"z": 61.5
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -61.5
+				},
+				{
+					"z": 61.5
+				}
+			]
+		}
+	]
+}
