@@ -32,11 +32,11 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 
 	public TrainAnnouncerScreen(BlockPos pos, BlockTrainAnnouncer.TrainAnnouncerBlockEntity blockEntity) {
 		super(pos, true,
-				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null, text -> {
+				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null, 100, text -> {
 				}), TranslationProvider.GUI_MTR_ANNOUNCEMENT_MESSAGE.getMutableText()),
-				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null, text -> {
+				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null, 100, text -> {
 				}), TranslationProvider.GUI_MTR_SOUND_FILE.getMutableText()),
-				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_DELAY_LENGTH, TextCase.DEFAULT, "\\D", null, text -> {
+				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_DELAY_LENGTH, TextCase.DEFAULT, "\\D", null, 100, text -> {
 				}), TranslationProvider.GUI_MTR_ANNOUNCEMENT_DELAY.getMutableText())
 		);
 

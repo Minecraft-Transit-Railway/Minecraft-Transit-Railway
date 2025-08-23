@@ -9,7 +9,6 @@ import org.mtr.core.data.TransportMode;
 import org.mtr.core.data.Vehicle;
 import org.mtr.core.data.VehicleCar;
 import org.mtr.core.data.VehicleExtraData;
-import org.mtr.core.tool.Utilities;
 import org.mtr.resource.VehicleResource;
 import org.mtr.sound.VehicleSoundBase;
 
@@ -72,7 +71,7 @@ public final class PersistentVehicleData {
 
 	public void tick(double railProgress, long millisElapsed, VehicleExtraData vehicleExtraData) {
 		oldDoorValue = doorValue;
-		doorValue = Utilities.clamp(doorValue + (double) (millisElapsed * getAdjustedDoorMultiplier(vehicleExtraData)) / Vehicle.DOOR_MOVE_TIME, 0, 1);
+		doorValue = Math.clamp(doorValue + (double) (millisElapsed * getAdjustedDoorMultiplier(vehicleExtraData)) / Vehicle.DOOR_MOVE_TIME, 0, 1);
 		if (checkCanOpenDoors()) {
 			doorCooldown--;
 		} else {

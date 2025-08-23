@@ -31,9 +31,4 @@ public class ReloadCustomResourcesScreen extends ScreenBase implements IGui {
 			i++;
 		}
 	}
-
-	@Override
-	public boolean shouldPause() {
-		return false;
-	}
 }

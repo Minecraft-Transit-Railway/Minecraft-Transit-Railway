@@ -34,9 +34,9 @@ public class PlatformScreen extends SavedRailScreenBase<Platform, Station> {
 	protected void init() {
 		super.init();
 		sliderDwellTimeMin.setY(SQUARE_SIZE * 2 + TEXT_FIELD_PADDING);
-		sliderDwellTimeMin.setValue((int) Math.floor(savedRailBase.getDwellTime() / 1000F / SECONDS_PER_MINUTE));
+//		sliderDwellTimeMin.setValue((int) Math.floor(savedRailBase.getDwellTime() / 1000F / GuiHelper.SECONDS_PER_MINUTE));
 		sliderDwellTimeSec.setY(SQUARE_SIZE * 5 / 2 + TEXT_FIELD_PADDING);
-		sliderDwellTimeSec.setValue((int) ((savedRailBase.getDwellTime() / 500) % (SECONDS_PER_MINUTE * 2)));
+//		sliderDwellTimeSec.setValue((int) ((savedRailBase.getDwellTime() / 500) % (GuiHelper.SECONDS_PER_MINUTE * 2)));
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class PlatformScreen extends SavedRailScreenBase<Platform, Station> {
 	public void close() {
 		final int minutes = sliderDwellTimeMin.getIntValue();
 		final float second = sliderDwellTimeSec.getIntValue() / 2F;
-		savedRailBase.setDwellTime((long) ((second + (long) minutes * SECONDS_PER_MINUTE) * 1000));
+//		savedRailBase.setDwellTime((long) ((second + (long) minutes * GuiHelper.SECONDS_PER_MINUTE) * 1000));
 
 		RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addPlatform(savedRailBase)));
 

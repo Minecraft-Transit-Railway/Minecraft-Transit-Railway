@@ -92,11 +92,6 @@ public class LiftSelectionScreen extends ScreenBase implements IGui {
 		return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
 	}
 
-	@Override
-	public boolean shouldPause() {
-		return false;
-	}
-
 	private void onPress(DashboardListItem dashboardListItem, int index) {
 		final PressLift pressLift = new PressLift();
 		pressLift.add(MTR.blockPosToPosition(floorLevels.get(floorLevels.size() - index - 1)), LiftDirection.NONE);

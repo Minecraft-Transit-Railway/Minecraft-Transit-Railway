@@ -135,11 +135,6 @@ public abstract class TrainSensorScreenBase extends ScreenBase implements IGui {
 		super.close();
 	}
 
-	@Override
-	public boolean shouldPause() {
-		return false;
-	}
-
 	protected void renderAdditional(DrawContext context) {
 	}
 

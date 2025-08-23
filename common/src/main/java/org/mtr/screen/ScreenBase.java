@@ -45,4 +45,9 @@ public abstract class ScreenBase extends Screen {
 		super.close();
 		MinecraftClient.getInstance().setScreen(previousScreen);
 	}
+
+	@Override
+	public final boolean shouldPause() {
+		return false;
+	}
 }

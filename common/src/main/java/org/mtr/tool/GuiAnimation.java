@@ -1,7 +1,6 @@
 package org.mtr.tool;
 
 import lombok.Getter;
-import org.mtr.core.tool.Utilities;
 
 /**
  * A helper class for smoothly animating to a new value using a sine curve.
@@ -51,7 +50,7 @@ public final class GuiAnimation {
 				startMillis = currentMillis;
 				startValue = currentValue;
 			} else {
-				final double progress = Math.sin(Math.PI / 2 * Utilities.clamp((double) (currentMillis - startMillis) / Math.max(1, duration), 0, 1));
+				final double progress = Math.sin(Math.PI / 2 * Math.clamp((double) (currentMillis - startMillis) / Math.max(1, duration), 0, 1));
 				currentValue = startValue + progress * (targetValue - startValue);
 			}
 		}

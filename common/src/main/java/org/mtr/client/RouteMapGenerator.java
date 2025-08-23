@@ -742,10 +742,10 @@ public class RouteMapGenerator implements IGui {
 						final float percentY1 = ceilY - pixelY;
 						final float percentX2 = pixelX - floorX;
 						final float percentY2 = pixelY - floorY;
-						final int pixel1 = nativeImageResource.getColorArgb(MathHelper.clamp(floorX, 0, resourceWidth - 1), MathHelper.clamp(floorY, 0, resourceHeight - 1));
-						final int pixel2 = nativeImageResource.getColorArgb(MathHelper.clamp(ceilX, 0, resourceWidth - 1), MathHelper.clamp(floorY, 0, resourceHeight - 1));
-						final int pixel3 = nativeImageResource.getColorArgb(MathHelper.clamp(floorX, 0, resourceWidth - 1), MathHelper.clamp(ceilY, 0, resourceHeight - 1));
-						final int pixel4 = nativeImageResource.getColorArgb(MathHelper.clamp(ceilX, 0, resourceWidth - 1), MathHelper.clamp(ceilY, 0, resourceHeight - 1));
+						final int pixel1 = nativeImageResource.getColorArgb(Math.clamp(floorX, 0, resourceWidth - 1), Math.clamp(floorY, 0, resourceHeight - 1));
+						final int pixel2 = nativeImageResource.getColorArgb(Math.clamp(ceilX, 0, resourceWidth - 1), Math.clamp(floorY, 0, resourceHeight - 1));
+						final int pixel3 = nativeImageResource.getColorArgb(Math.clamp(floorX, 0, resourceWidth - 1), Math.clamp(ceilY, 0, resourceHeight - 1));
+						final int pixel4 = nativeImageResource.getColorArgb(Math.clamp(ceilX, 0, resourceWidth - 1), Math.clamp(ceilY, 0, resourceHeight - 1));
 						final int newColor;
 						if (useActualColor) {
 							newColor = invertColor(pixel1);

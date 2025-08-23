@@ -61,12 +61,12 @@ public class EyeCandyScreen extends ScreenBase implements IGui {
 		}
 
 		buttonSelectModel = ButtonWidget.builder(Text.translatable("selectWorld.edit"), button -> MinecraftClient.getInstance().setScreen(new EyeCandyObjectSelectionScreen(new ObjectImmutableList<>(objectsForList), selectedModelIndices, this::sendUpdate, this))).build();
-		textFieldTranslateX = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", text -> sendUpdate());
-		textFieldTranslateY = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", text -> sendUpdate());
-		textFieldTranslateZ = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", text -> sendUpdate());
-		textFieldRotateX = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", text -> sendUpdate());
-		textFieldRotateY = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", text -> sendUpdate());
-		textFieldRotateZ = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", text -> sendUpdate());
+		textFieldTranslateX = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", 0, text -> sendUpdate());
+		textFieldTranslateY = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", 0, text -> sendUpdate());
+		textFieldTranslateZ = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", 0, text -> sendUpdate());
+		textFieldRotateX = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", 0, text -> sendUpdate());
+		textFieldRotateY = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", 0, text -> sendUpdate());
+		textFieldRotateZ = new BetterTextFieldWidget(MAX_NUMBER_TEXT_LENGTH, TextCase.DEFAULT, "[^\\d.-]", "0", 0, text -> sendUpdate());
 		buttonFullBrightness = CheckboxWidget.builder(TranslationProvider.GUI_MTR_MODEL_FULL_BRIGHTNESS.getText(), textRenderer).callback((checkboxWidget, checked) -> sendUpdate()).build();
 
 		xStart = Math.max(textRenderer.getWidth(X_TEXT), Math.max(textRenderer.getWidth(Y_TEXT), textRenderer.getWidth(Z_TEXT)));
@@ -116,11 +116,6 @@ public class EyeCandyScreen extends ScreenBase implements IGui {
 		context.drawText(textRenderer, X_TEXT, width / 2, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING / 2 + TEXT_PADDING, ARGB_WHITE, false);
 		context.drawText(textRenderer, Y_TEXT, width / 2, SQUARE_SIZE * 4 + TEXT_FIELD_PADDING * 3 / 2 + TEXT_PADDING, ARGB_WHITE, false);
 		context.drawText(textRenderer, Z_TEXT, width / 2, SQUARE_SIZE * 5 + TEXT_FIELD_PADDING * 5 / 2 + TEXT_PADDING, ARGB_WHITE, false);
-	}
-
-	@Override
-	public boolean shouldPause() {
-		return false;
 	}
 
 	private void sendUpdate() {

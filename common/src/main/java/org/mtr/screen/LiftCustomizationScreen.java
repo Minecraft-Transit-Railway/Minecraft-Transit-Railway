@@ -175,11 +175,6 @@ public class LiftCustomizationScreen extends ScreenBase implements IGui {
 		context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, TranslationProvider.GUI_MTR_OFFSET_Z.getMutableText(lift.getOffsetZ()), width2 / 2, SQUARE_SIZE * 5 + TEXT_PADDING, ARGB_WHITE);
 	}
 
-	@Override
-	public boolean shouldPause() {
-		return false;
-	}
-
 	private void updateControls(boolean sendUpdate) {
 		buttonHeightMinus.active = lift.getHeight() > MIN_DIMENSION;
 		buttonHeightAdd.active = lift.getHeight() < MAX_DIMENSION;

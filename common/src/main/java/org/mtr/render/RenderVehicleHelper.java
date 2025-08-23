@@ -71,7 +71,7 @@ public class RenderVehicleHelper {
 		if (playerX > doorway.minX - HALF_PLAYER_WIDTH && playerX < doorway.maxX + HALF_PLAYER_WIDTH && Utilities.isBetween(playerY, doorway.minY, doorway.maxY) && playerZ > doorway.minZ - HALF_PLAYER_WIDTH && playerZ < doorway.maxZ + HALF_PLAYER_WIDTH) {
 			final double halfWidth = (doorway.maxZ - doorway.minZ) / 2;
 			final double distance = Math.min(playerZ - HALF_PLAYER_WIDTH - doorway.minZ, doorway.maxZ - HALF_PLAYER_WIDTH - playerZ);
-			return Utilities.clamp((halfWidth - distance) / halfWidth, 0, 1);
+			return Math.clamp((halfWidth - distance) / halfWidth, 0, 1);
 		} else {
 			return 0;
 		}

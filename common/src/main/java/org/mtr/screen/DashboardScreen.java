@@ -53,18 +53,9 @@ public final class DashboardScreen extends ScreenBase {
 	private final ScrollableListWidget<Depot> depotsListWidget = new ScrollableListWidget<>();
 	private final ScrollableListWidget<Siding> depotSidingsListWidget = new ScrollableListWidget<>();
 
-	private final BetterTextFieldWidget stationsFilterTextField = new BetterTextFieldWidget(STATIONS_SEARCH_TEXT, 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_SEARCH.getString(), text -> {
-		stationsListWidget.setFilter(text);
-		STATIONS_SEARCH_TEXT = text;
-	});
-	private final BetterTextFieldWidget routesFilterTextField = new BetterTextFieldWidget(ROUTES_SEARCH_TEXT, 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_SEARCH.getString(), text -> {
-		routesListWidget.setFilter(text);
-		ROUTES_SEARCH_TEXT = text;
-	});
-	private final BetterTextFieldWidget depotsFilterTextField = new BetterTextFieldWidget(DEPOTS_SEARCH_TEXT, 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_SEARCH.getString(), text -> {
-		depotsListWidget.setFilter(text);
-		DEPOTS_SEARCH_TEXT = text;
-	});
+	private final BetterTextFieldWidget stationsFilterTextField;
+	private final BetterTextFieldWidget routesFilterTextField;
+	private final BetterTextFieldWidget depotsFilterTextField;
 
 	private final BetterButtonWidget expandAllButton = new BetterButtonWidget(GuiHelper.EXPAND_ALL_TEXTURE_ID, null, 0, routesListWidget::toggleExpansion);
 	private final BetterButtonWidget collapseAllButton = new BetterButtonWidget(GuiHelper.COLLAPSE_ALL_TEXTURE_ID, null, 0, routesListWidget::toggleExpansion);
@@ -82,23 +73,10 @@ public final class DashboardScreen extends ScreenBase {
 	private final BetterButtonWidget doneEditingDepotButton;
 	private final BetterButtonWidget doneEditingRouteDestinationButton;
 
-	private final BetterTextFieldWidget stationNameTextField = new BetterTextFieldWidget("", 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_STATION_NAME.getString(), text -> {
-		if (editingArea != null) {
-			editingArea.setName(IGui.textOrUntitled(text));
-		}
-	});
-	private final BetterTextFieldWidget routeNameTextField = new BetterTextFieldWidget("", 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_ROUTE_NAME.getString(), text -> {
-		if (editingRoute != null) {
-			editingRoute.setName(IGui.textOrUntitled(text));
-		}
-	});
-	private final BetterTextFieldWidget depotNameTextField = new BetterTextFieldWidget("", 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_DEPOT_NAME.getString(), text -> {
-		if (editingArea != null) {
-			editingArea.setName(IGui.textOrUntitled(text));
-		}
-	});
-	private final BetterTextFieldWidget routeDestinationTextField = new BetterTextFieldWidget("", 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_CUSTOM_DESTINATION_SUGGESTION.getString(), text -> {
-	});
+	private final BetterTextFieldWidget stationNameTextField;
+	private final BetterTextFieldWidget routeNameTextField;
+	private final BetterTextFieldWidget depotNameTextField;
+	private final BetterTextFieldWidget routeDestinationTextField;
 
 	private final BetterButtonWidget transportSystemMapButton = new BetterButtonWidget(GuiHelper.MAP_TEXTURE_ID, null, GuiHelper.DEFAULT_LINE_SIZE, () -> Util.getOperatingSystem().open(String.format("http://localhost:%s", MTRClient.getServerPort())));
 	private final BetterButtonWidget resourcePackCreatorButton = new BetterButtonWidget(GuiHelper.EDITOR_TEXTURE_ID, null, GuiHelper.DEFAULT_LINE_SIZE, () -> Util.getOperatingSystem().open(String.format("http://localhost:%s/creator/", MTRClient.getServerPort())));
@@ -119,21 +97,52 @@ public final class DashboardScreen extends ScreenBase {
 	public DashboardScreen(TransportMode transportMode) {
 		this.transportMode = transportMode;
 
-		mapWidget = new MapWidget(transportMode, this::startEditingArea, this::onDeleteData);
+		mapWidget = new MapWidget(this, transportMode, this::startEditingArea, this::onDeleteData);
 
 		tabGroupWidget = new TabGroupWidget(PANEL_WIDTH, index -> {
 			stopEditing();
 			mapWidget.setShowStations(index < 2);
 		}, TranslationProvider.GUI_MTR_STATIONS.getString(), TranslationProvider.GUI_MTR_ROUTES.getString(), TranslationProvider.GUI_MTR_DEPOTS.getString());
 
+		stationsFilterTextField = new BetterTextFieldWidget(STATIONS_SEARCH_TEXT, 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_SEARCH.getString(), tabGroupWidget.getWidth() - GuiHelper.DEFAULT_PADDING * 2, text -> {
+			stationsListWidget.setFilter(text);
+			STATIONS_SEARCH_TEXT = text;
+		});
+		routesFilterTextField = new BetterTextFieldWidget(ROUTES_SEARCH_TEXT, 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_SEARCH.getString(), tabGroupWidget.getWidth() - GuiHelper.DEFAULT_PADDING * 3 - GuiHelper.DEFAULT_LINE_SIZE, text -> {
+			routesListWidget.setFilter(text);
+			ROUTES_SEARCH_TEXT = text;
+		});
+		depotsFilterTextField = new BetterTextFieldWidget(DEPOTS_SEARCH_TEXT, 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_SEARCH.getString(), tabGroupWidget.getWidth() - GuiHelper.DEFAULT_PADDING * 2, text -> {
+			depotsListWidget.setFilter(text);
+			DEPOTS_SEARCH_TEXT = text;
+		});
+
 		addStationButton = new BetterButtonWidget(GuiHelper.ADD_TEXTURE_ID, TranslationProvider.GUI_MTR_ADD_STATION.getString(), tabGroupWidget.getWidth(), () -> startEditingDataNew(new Station(MinecraftClientData.getDashboardInstance())));
 		addRouteButton = new BetterButtonWidget(GuiHelper.ADD_TEXTURE_ID, TranslationProvider.GUI_MTR_ADD_ROUTE.getString(), tabGroupWidget.getWidth(), () -> startEditingDataNew(new Route(transportMode, MinecraftClientData.getDashboardInstance())));
 		addDepotButton = new BetterButtonWidget(GuiHelper.ADD_TEXTURE_ID, TranslationProvider.GUI_MTR_ADD_DEPOT.getString(), tabGroupWidget.getWidth(), () -> startEditingDataNew(new Depot(transportMode, MinecraftClientData.getDashboardInstance())));
 
-		doneEditingStationButton = new BetterButtonWidget(GuiHelper.DONE_TEXTURE_ID, Text.translatable("gui.done").getString(), tabGroupWidget.getWidth(), this::stopEditing);
-		doneEditingRouteButton = new BetterButtonWidget(GuiHelper.DONE_TEXTURE_ID, Text.translatable("gui.done").getString(), tabGroupWidget.getWidth(), this::stopEditing);
-		doneEditingDepotButton = new BetterButtonWidget(GuiHelper.DONE_TEXTURE_ID, Text.translatable("gui.done").getString(), tabGroupWidget.getWidth(), this::stopEditing);
-		doneEditingRouteDestinationButton = new BetterButtonWidget(GuiHelper.DONE_TEXTURE_ID, Text.translatable("gui.done").getString(), tabGroupWidget.getWidth(), this::onDoneEditingRouteDestination);
+		doneEditingStationButton = new BetterButtonWidget(GuiHelper.CHECK_TEXTURE_ID, Text.translatable("gui.done").getString(), tabGroupWidget.getWidth(), this::stopEditing);
+		doneEditingRouteButton = new BetterButtonWidget(GuiHelper.CHECK_TEXTURE_ID, Text.translatable("gui.done").getString(), tabGroupWidget.getWidth(), this::stopEditing);
+		doneEditingDepotButton = new BetterButtonWidget(GuiHelper.CHECK_TEXTURE_ID, Text.translatable("gui.done").getString(), tabGroupWidget.getWidth(), this::stopEditing);
+		doneEditingRouteDestinationButton = new BetterButtonWidget(GuiHelper.CHECK_TEXTURE_ID, Text.translatable("gui.done").getString(), tabGroupWidget.getWidth(), this::onDoneEditingRouteDestination);
+
+		stationNameTextField = new BetterTextFieldWidget("", 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_STATION_NAME.getString(), tabGroupWidget.getWidth() - GuiHelper.DEFAULT_PADDING * 3 - GuiHelper.DEFAULT_LINE_SIZE, text -> {
+			if (editingArea != null) {
+				editingArea.setName(IGui.textOrUntitled(text));
+			}
+		});
+		routeNameTextField = new BetterTextFieldWidget("", 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_ROUTE_NAME.getString(), tabGroupWidget.getWidth() - GuiHelper.DEFAULT_PADDING * 3 - GuiHelper.DEFAULT_LINE_SIZE, text -> {
+			if (editingRoute != null) {
+				editingRoute.setName(IGui.textOrUntitled(text));
+			}
+		});
+		depotNameTextField = new BetterTextFieldWidget("", 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_DEPOT_NAME.getString(), tabGroupWidget.getWidth() - GuiHelper.DEFAULT_PADDING * 3 - GuiHelper.DEFAULT_LINE_SIZE, text -> {
+			if (editingArea != null) {
+				editingArea.setName(IGui.textOrUntitled(text));
+			}
+		});
+		routeDestinationTextField = new BetterTextFieldWidget("", 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_CUSTOM_DESTINATION_SUGGESTION.getString(), tabGroupWidget.getWidth() - GuiHelper.DEFAULT_PADDING * 2, text -> {
+		});
 
 		zoomInButton = new BetterButtonWidget(GuiHelper.ZOOM_IN_TEXTURE_ID, null, GuiHelper.DEFAULT_LINE_SIZE, () -> mapWidget.scale(1));
 		zoomOutButton = new BetterButtonWidget(GuiHelper.ZOOM_OUT_TEXTURE_ID, null, GuiHelper.DEFAULT_LINE_SIZE, () -> mapWidget.scale(-1));
@@ -172,11 +181,8 @@ public final class DashboardScreen extends ScreenBase {
 		depotSidingsListWidget.setBounds(tabGroupWidget.getWidth(), listHeight2, tabGroupWidget.getWidth(), listHeight2);
 
 		stationsFilterTextField.setPosition(GuiHelper.DEFAULT_PADDING, GuiHelper.DEFAULT_LINE_SIZE + GuiHelper.DEFAULT_PADDING);
-		stationsFilterTextField.setWidth(tabGroupWidget.getWidth() - GuiHelper.DEFAULT_PADDING * 2);
 		routesFilterTextField.setPosition(GuiHelper.DEFAULT_PADDING, GuiHelper.DEFAULT_LINE_SIZE + GuiHelper.DEFAULT_PADDING);
-		routesFilterTextField.setWidth(tabGroupWidget.getWidth() - GuiHelper.DEFAULT_PADDING * 3 - GuiHelper.DEFAULT_LINE_SIZE);
 		depotsFilterTextField.setPosition(GuiHelper.DEFAULT_PADDING, GuiHelper.DEFAULT_LINE_SIZE + GuiHelper.DEFAULT_PADDING);
-		depotsFilterTextField.setWidth(tabGroupWidget.getWidth() - GuiHelper.DEFAULT_PADDING * 2);
 
 		expandAllButton.setPosition(tabGroupWidget.getWidth() - GuiHelper.DEFAULT_PADDING - GuiHelper.DEFAULT_LINE_SIZE, GuiHelper.DEFAULT_LINE_SIZE + GuiHelper.DEFAULT_PADDING);
 		collapseAllButton.setPosition(tabGroupWidget.getWidth() - GuiHelper.DEFAULT_PADDING - GuiHelper.DEFAULT_LINE_SIZE, GuiHelper.DEFAULT_LINE_SIZE + GuiHelper.DEFAULT_PADDING);
@@ -192,13 +198,9 @@ public final class DashboardScreen extends ScreenBase {
 		doneEditingRouteDestinationButton.setY(height - GuiHelper.DEFAULT_LINE_SIZE);
 
 		stationNameTextField.setPosition(GuiHelper.DEFAULT_PADDING, height - GuiHelper.DEFAULT_LINE_SIZE * 2 - GuiHelper.DEFAULT_PADDING);
-		stationNameTextField.setWidth(tabGroupWidget.getWidth() - GuiHelper.DEFAULT_PADDING * 3 - GuiHelper.DEFAULT_LINE_SIZE);
 		routeNameTextField.setPosition(GuiHelper.DEFAULT_PADDING, height - GuiHelper.DEFAULT_LINE_SIZE * 2 - GuiHelper.DEFAULT_PADDING);
-		routeNameTextField.setWidth(tabGroupWidget.getWidth() - GuiHelper.DEFAULT_PADDING * 3 - GuiHelper.DEFAULT_LINE_SIZE);
 		depotNameTextField.setPosition(GuiHelper.DEFAULT_PADDING, height - GuiHelper.DEFAULT_LINE_SIZE * 2 - GuiHelper.DEFAULT_PADDING);
-		depotNameTextField.setWidth(tabGroupWidget.getWidth() - GuiHelper.DEFAULT_PADDING * 3 - GuiHelper.DEFAULT_LINE_SIZE);
 		routeDestinationTextField.setPosition(GuiHelper.DEFAULT_PADDING, height - GuiHelper.DEFAULT_LINE_SIZE * 2 - GuiHelper.DEFAULT_PADDING);
-		routeDestinationTextField.setWidth(tabGroupWidget.getWidth() - GuiHelper.DEFAULT_PADDING * 2);
 
 		transportSystemMapButton.setX(width - GuiHelper.DEFAULT_LINE_SIZE * 5 - 1);
 		resourcePackCreatorButton.setX(width - GuiHelper.DEFAULT_LINE_SIZE * 4 - 1);
@@ -353,11 +355,6 @@ public final class DashboardScreen extends ScreenBase {
 				ScrollableListWidget.setAreas(depotsListWidget, MinecraftClientData.getDashboardInstance().depots, transportMode, actions);
 			}
 		}
-	}
-
-	@Override
-	public boolean shouldPause() {
-		return false;
 	}
 
 	private <T extends NameColorDataBase> void onDeleteData(T data, DeleteDataRequest deleteDataRequest) {

@@ -27,37 +27,43 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 	@Nullable
 	private final String filter;
 	private final String label;
+	private final int fixedWidth;
+	@Nullable
 	private final Consumer<String> callback;
 	private final TextFieldWidget textFieldWidget = new TextFieldWidget(MinecraftClient.getInstance().textRenderer, 0, 0, 0, 0, Text.empty());
 
 	private final GuiAnimation guiAnimationLabelY = new GuiAnimation();
 	private final GuiAnimation guiAnimationLabelScale = new GuiAnimation();
 
-	private static final int MAIN_TEXT_START = GuiHelper.DEFAULT_LINE_SIZE - 2 - GuiHelper.MINECRAFT_FONT_SIZE;
-	private static final int LABEL_TEXT_START = 1;
+	public static final int MAIN_TEXT_START = GuiHelper.DEFAULT_LINE_SIZE - 2 - GuiHelper.MINECRAFT_FONT_SIZE;
+	public static final int LABEL_TEXT_START = 1;
 	private static final int CURSOR_START = MAIN_TEXT_START - 1;
 	private static final int CURSOR_HEIGHT = GuiHelper.MINECRAFT_FONT_SIZE + 2;
 	private static final int CURSOR_FLASH_TIME = 1000;
 	private static final int ANIMATION_DURATION = 200;
 
-	public BetterTextFieldWidget(int maxLength, TextCase textCase, @RegEx @Nullable String filter, String label, Consumer<String> callback) {
-		this("", maxLength, textCase, filter, label, callback);
+	public BetterTextFieldWidget(int maxLength, TextCase textCase, @RegEx @Nullable String filter, String label, int width, @Nullable Consumer<String> callback) {
+		this("", maxLength, textCase, filter, label, width, callback);
 	}
 
-	public BetterTextFieldWidget(String text, int maxLength, TextCase textCase, @RegEx @Nullable String filter, String label, Consumer<String> callback) {
+	public BetterTextFieldWidget(String text, int maxLength, TextCase textCase, @RegEx @Nullable String filter, String label, int width, @Nullable Consumer<String> callback) {
 		this.maxLength = maxLength;
 		this.textCase = textCase;
 		this.filter = filter;
 		this.label = label;
+		fixedWidth = width;
 		this.callback = callback;
-		setHeight(GuiHelper.DEFAULT_LINE_SIZE);
+		setDimensions();
 		setText(getText(), text, true);
 	}
 
 	@Override
 	public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+		setDimensions();
+		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+		final TextRenderer textRenderer = minecraftClient.textRenderer;
 		final MatrixStack matrixStack = context.getMatrices();
-		final Drawing drawing = new Drawing(matrixStack.peek().getPositionMatrix(), MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
+		final Drawing drawing = new Drawing(matrixStack.peek().getPositionMatrix(), minecraftClient.getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
 
 		// Draw background
 		drawing.setVerticesWH(getX(), getY(), width, height).setColor(GuiHelper.BLACK_COLOR).draw();
@@ -71,8 +77,6 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 		final String text = getText();
 		final int cursorPosition = textFieldWidget.getCursor();
 		final long currentTime = System.currentTimeMillis();
-		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final TextRenderer textRenderer = minecraftClient.textRenderer;
 		final int cursorPixel = textRenderer.getWidth(text.substring(0, Math.min(text.length(), cursorPosition)));
 		final double pixelWidth = 1 / minecraftClient.getWindow().getScaleFactor();
 
@@ -208,7 +212,7 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 			textFieldWidget.setText(newText);
 		}
 
-		if (sendCallback && !oldText.equals(newText)) {
+		if (sendCallback && !oldText.equals(newText) && callback != null) {
 			callback.accept(newText);
 		}
 	}
@@ -227,5 +231,9 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 		textFieldWidget.setFocused(true);
 		textFieldWidget.setVisible(true);
 		textFieldWidget.active = true;
+	}
+
+	private void setDimensions() {
+		setDimensions(fixedWidth, GuiHelper.DEFAULT_LINE_SIZE);
 	}
 }

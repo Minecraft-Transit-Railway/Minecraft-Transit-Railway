@@ -15,7 +15,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
 import org.mtr.MTRClient;
 import org.mtr.block.BlockRailwaySign;
 import org.mtr.block.BlockRouteSignBase;
@@ -226,11 +225,6 @@ public class RailwaySignScreen extends ScreenBase implements IGui {
 	}
 
 	@Override
-	public boolean shouldPause() {
-		return false;
-	}
-
-	@Override
 	public void resize(MinecraftClient client, int width, int height) {
 		super.resize(client, width, height);
 		for (ButtonWidget button : buttonsEdit) {
@@ -319,7 +313,7 @@ public class RailwaySignScreen extends ScreenBase implements IGui {
 	}
 
 	private void setPage(int newPage) {
-		page = MathHelper.clamp(newPage, 0, totalPages - 1);
+		page = Math.clamp(newPage, 0, totalPages - 1);
 		buttonPrevPage.visible = editingIndex >= 0 && page > 0;
 		buttonNextPage.visible = editingIndex >= 0 && page < totalPages - 1;
 	}

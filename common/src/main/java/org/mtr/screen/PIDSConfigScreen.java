@@ -14,7 +14,6 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import org.mtr.MTR;
 import org.mtr.MTRClient;
 import org.mtr.block.BlockPIDSBase;
@@ -89,7 +88,7 @@ public class PIDSConfigScreen extends ScreenBase implements IGui {
 
 		textFieldMessages = new BetterTextFieldWidget[maxArrivals];
 		for (int i = 0; i < maxArrivals; i++) {
-			textFieldMessages[i] = new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, "", text -> {
+			textFieldMessages[i] = new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, "", 100, text -> {
 			});
 		}
 
@@ -103,7 +102,7 @@ public class PIDSConfigScreen extends ScreenBase implements IGui {
 		buttonNextPage = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_right.png"), Identifier.of("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1), true);
 
 		filterButton = getPlatformFilterButton(blockPos, selectAllCheckbox, filterPlatformIds, this);
-		displayPageInput = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", "1", text -> {
+		displayPageInput = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", "1", 0, text -> {
 		});
 	}
 
@@ -148,7 +147,7 @@ public class PIDSConfigScreen extends ScreenBase implements IGui {
 	private void setPage(int newPage) {
 		final int maxArrivalsPerPage = getMaxArrivalsPerPage();
 		final int maxPages = getMaxPages() - 1;
-		page = MathHelper.clamp(newPage, 0, maxPages);
+		page = Math.clamp(newPage, 0, maxPages);
 		for (int i = 0; i < textFieldMessages.length; i++) {
 			textFieldMessages[i].visible = i / maxArrivalsPerPage == page;
 		}
@@ -189,11 +188,6 @@ public class PIDSConfigScreen extends ScreenBase implements IGui {
 			context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, String.format("%s/%s", page + 1, maxPages), SQUARE_SIZE * 3 + textRenderer.getWidth(messageText) + TEXT_PADDING, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE);
 		}
 		super.render(context, mouseX, mouseY, delta);
-	}
-
-	@Override
-	public boolean shouldPause() {
-		return false;
 	}
 
 	private int getMaxArrivalsPerPage() {

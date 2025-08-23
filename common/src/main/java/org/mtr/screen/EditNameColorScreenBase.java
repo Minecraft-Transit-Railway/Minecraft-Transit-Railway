@@ -4,12 +4,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.MutableText;
-import org.mtr.client.IDrawing;
 import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
-import org.mtr.widget.BetterTextFieldWidget;
 
 public abstract class EditNameColorScreenBase<T extends NameColorDataBase> extends ScreenBase implements Utilities, IGui {
 
@@ -21,7 +19,7 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 	private final MutableText nameText;
 	private final MutableText colorText;
 
-	private final BetterTextFieldWidget textFieldName;
+//	private final BetterTextFieldWidget textFieldName;
 //	private final ColorSelectorWidget colorSelector;
 
 	public EditNameColorScreenBase(T data, TranslationProvider.TranslationHolder nameKey, TranslationProvider.TranslationHolder colorKey, Screen previousScreen) {
@@ -30,8 +28,8 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		nameText = nameKey.getMutableText();
 		colorText = colorKey.getMutableText();
 
-		textFieldName = new BetterTextFieldWidget(data.getName(), 1024, TextCase.DEFAULT, null, null, text -> {
-		});
+//		textFieldName = new BetterTextFieldWidget(data.getName(), 1024, TextCase.DEFAULT, null, null, text -> {
+//		});
 //		colorSelector = new ColorSelectorWidget(this, true, () -> {
 //		});
 	}
@@ -42,11 +40,6 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		saveData();
 	}
 
-	@Override
-	public boolean shouldPause() {
-		return false;
-	}
-
 	protected void setPositionsAndInit(int nameStart, int colorStart, int colorEnd) {
 		this.nameStart = nameStart;
 		this.colorStart = colorStart;
@@ -54,12 +47,12 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 
 		super.init();
 		final int yStart = SQUARE_SIZE + TEXT_FIELD_PADDING / 2;
-		IDrawing.setPositionAndWidth(textFieldName, nameStart + TEXT_FIELD_PADDING / 2, yStart, colorStart - nameStart - TEXT_FIELD_PADDING);
+//		IDrawing.setPositionAndWidth(textFieldName, nameStart + TEXT_FIELD_PADDING / 2, yStart, colorStart - nameStart - TEXT_FIELD_PADDING);
 //		IDrawing.setPositionAndWidth(colorSelector, colorStart + TEXT_FIELD_PADDING / 2, yStart, colorEnd - colorStart - TEXT_FIELD_PADDING);
 
 //		colorSelector.setColor(data.getColor());
 
-		addDrawableChild(textFieldName);
+//		addDrawableChild(textFieldName);
 //		addDrawableChild(colorSelector);
 	}
 
@@ -69,7 +62,7 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 	}
 
 	protected void saveData() {
-		data.setName(textFieldName.getText());
+//		data.setName(textFieldName.getText());
 //		data.setColor(colorSelector.getColor());
 	}
 }

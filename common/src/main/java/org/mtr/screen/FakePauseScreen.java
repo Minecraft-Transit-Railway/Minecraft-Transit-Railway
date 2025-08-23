@@ -36,9 +36,4 @@ public class FakePauseScreen extends ScreenBase implements IGui {
 	public void mouseMoved(double mouseX, double mouseY) {
 		textCooldown = System.currentTimeMillis() + 1000;
 	}
-
-	@Override
-	public boolean shouldPause() {
-		return false;
-	}
 }

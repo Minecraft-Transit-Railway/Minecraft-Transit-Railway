@@ -40,10 +40,6 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 
 	private static final int DELETE_COLOR = 0xFFCC0000;
 
-	public ScrollableListWidget() {
-		super(0, 0, 0, 0);
-	}
-
 	@Override
 	protected void render(DrawContext context, int mouseX, int mouseY) {
 		clickAction = null;
@@ -127,11 +123,6 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 	}
 
 	@Override
-	protected double getDeltaYPerScroll() {
-		return GuiHelper.DEFAULT_LINE_SIZE;
-	}
-
-	@Override
 	protected int getContentsHeightWithPadding() {
 		return rawHeight;
 	}
@@ -182,8 +173,8 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		});
 
 		rawHeight = GuiHelper.DEFAULT_LINE_SIZE * count[0];
-		setWidth(fixedWidth ? minWidth : Utilities.clamp(maxLineWidth[0], minWidth, maxWidth));
-		setHeight(fixedHeight ? minHeight : Utilities.clamp(rawHeight, minHeight, maxHeight));
+		setWidth(fixedWidth ? minWidth : Math.clamp(maxLineWidth[0], minWidth, maxWidth));
+		setHeight(fixedHeight ? minHeight : Math.clamp(rawHeight, minHeight, maxHeight));
 		return fontRenderOptionsBuilder;
 	}
 

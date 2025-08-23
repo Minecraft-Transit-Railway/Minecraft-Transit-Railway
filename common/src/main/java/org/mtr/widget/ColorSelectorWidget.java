@@ -41,10 +41,10 @@ public final class ColorSelectorWidget extends PopupWidgetBase {
 	public ColorSelectorWidget(int minWidth, Runnable onDismiss, Runnable applyBlur) {
 		super(Math.max(minWidth, GuiHelper.DEFAULT_PADDING * 3 + GuiHelper.DEFAULT_LINE_SIZE + CONTROLS_SIZE), applyBlur, Text.translatable("selectWorld.edit.save").getString(), TranslationProvider.GUI_MTR_COLOR_RANDOM.getString(), TranslationProvider.GUI_MTR_RESET.getString(), TranslationProvider.GUI_MTR_CLOSE.getString());
 		this.onDismiss = onDismiss;
-		colorTextField = new BetterTextFieldWidget(6, TextCase.UPPER, "[^\\dA-F]", TranslationProvider.GUI_MTR_COLOR.getString(), text -> textCallback(text, 16, (existingColor, component) -> setColor(new Color(component))));
-		redTextField = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", TranslationProvider.GUI_MTR_COLOR_RED.getString(), text -> textCallback(text, 10, (existingColor, component) -> setColor(component, existingColor.getGreen(), existingColor.getBlue())));
-		greenTextField = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", TranslationProvider.GUI_MTR_COLOR_GREEN.getString(), text -> textCallback(text, 10, (existingColor, component) -> setColor(existingColor.getRed(), component, existingColor.getBlue())));
-		blueTextField = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", TranslationProvider.GUI_MTR_COLOR_BLUE.getString(), text -> textCallback(text, 10, (existingColor, component) -> setColor(existingColor.getRed(), existingColor.getGreen(), component)));
+		colorTextField = new BetterTextFieldWidget(6, TextCase.UPPER, "[^\\dA-F]", TranslationProvider.GUI_MTR_COLOR.getString(), CONTROLS_SIZE, text -> textCallback(text, 16, (existingColor, component) -> setColor(new Color(component))));
+		redTextField = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", TranslationProvider.GUI_MTR_COLOR_RED.getString(), CONTROLS_SIZE, text -> textCallback(text, 10, (existingColor, component) -> setColor(component, existingColor.getGreen(), existingColor.getBlue())));
+		greenTextField = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", TranslationProvider.GUI_MTR_COLOR_GREEN.getString(), CONTROLS_SIZE, text -> textCallback(text, 10, (existingColor, component) -> setColor(existingColor.getRed(), component, existingColor.getBlue())));
+		blueTextField = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", TranslationProvider.GUI_MTR_COLOR_BLUE.getString(), CONTROLS_SIZE, text -> textCallback(text, 10, (existingColor, component) -> setColor(existingColor.getRed(), existingColor.getGreen(), component)));
 	}
 
 	@Override
@@ -62,13 +62,9 @@ public final class ColorSelectorWidget extends PopupWidgetBase {
 
 		final int controlsX = getX() + width - GuiHelper.DEFAULT_PADDING - CONTROLS_SIZE;
 		colorTextField.setPosition(controlsX, getY() + GuiHelper.DEFAULT_PADDING);
-		colorTextField.setWidth(CONTROLS_SIZE);
 		redTextField.setPosition(controlsX, getY() + GuiHelper.DEFAULT_PADDING * 2 + GuiHelper.DEFAULT_LINE_SIZE);
-		redTextField.setWidth(CONTROLS_SIZE);
 		greenTextField.setPosition(controlsX, getY() + GuiHelper.DEFAULT_PADDING * 3 + GuiHelper.DEFAULT_LINE_SIZE * 2);
-		greenTextField.setWidth(CONTROLS_SIZE);
 		blueTextField.setPosition(controlsX, getY() + GuiHelper.DEFAULT_PADDING * 4 + GuiHelper.DEFAULT_LINE_SIZE * 3);
-		blueTextField.setWidth(CONTROLS_SIZE);
 
 		final Drawing drawing = new Drawing(context.getMatrices(), MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
 		final int mainHeight = height - GuiHelper.DEFAULT_PADDING * 2 - GuiHelper.DEFAULT_LINE_SIZE;

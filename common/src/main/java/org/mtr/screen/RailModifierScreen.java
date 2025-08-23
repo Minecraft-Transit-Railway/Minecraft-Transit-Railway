@@ -85,7 +85,7 @@ public class RailModifierScreen extends ScreenBase implements IGui {
 		buttonPlus0 = ButtonWidget.builder(Text.literal("+0.1"), button -> update(radius + 0.1, true)).build();
 		buttonPlus1 = ButtonWidget.builder(Text.literal("+1"), button -> update(radius + 1, true)).build();
 		buttonPlus2 = ButtonWidget.builder(Text.literal("+10"), button -> update(radius + 10, true)).build();
-		textFieldRadius = new BetterTextFieldWidget(256, TextCase.DEFAULT, "[^\\d\\.]", "0", text -> {
+		textFieldRadius = new BetterTextFieldWidget(256, TextCase.DEFAULT, "[^\\d\\.]", "0", 0, text -> {
 			try {
 				update(Double.parseDouble(text), true);
 			} catch (Exception ignored) {
@@ -136,14 +136,9 @@ public class RailModifierScreen extends ScreenBase implements IGui {
 		}
 	}
 
-	@Override
-	public boolean shouldPause() {
-		return false;
-	}
-
 	private void update(double newRadius, boolean sendPacket) {
 		buttonShape.setMessage((shape == Rail.Shape.QUADRATIC ? TranslationProvider.GUI_MTR_RAIL_SHAPE_QUADRATIC : TranslationProvider.GUI_MTR_RAIL_SHAPE_TWO_RADII).getText());
-		radius = Utilities.clamp(Utilities.round(newRadius, 2), 0, maxRadius);
+		radius = Math.clamp(Utilities.round(newRadius, 2), 0, maxRadius);
 		textFieldRadius.setX((shape == Rail.Shape.QUADRATIC ? width : xStart + SQUARE_SIZE * 6) + TEXT_FIELD_PADDING / 2);
 		buttonMinus2.visible = shape != Rail.Shape.QUADRATIC;
 		buttonMinus1.visible = shape != Rail.Shape.QUADRATIC;

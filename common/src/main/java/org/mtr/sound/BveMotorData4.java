@@ -1,7 +1,6 @@
 package org.mtr.sound;
 
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -90,7 +89,7 @@ public final class BveMotorData4 extends BveMotorDataBase { // 4 for BVE4 and Op
 	}
 
 	private static <T> T getSafe(ArrayList<T> list, int index) {
-		return list.get(MathHelper.clamp(index, 0, list.size() - 1));
+		return list.get(Math.clamp(index, 0, list.size() - 1));
 	}
 
 	public static class Channel {

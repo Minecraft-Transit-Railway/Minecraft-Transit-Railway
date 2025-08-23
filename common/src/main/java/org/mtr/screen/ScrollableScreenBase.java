@@ -1,0 +1,135 @@
+package org.mtr.screen;
+
+import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.widget.ScrollableWidget;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.OrderedText;
+import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
+import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.tool.Drawing;
+import org.mtr.tool.GuiHelper;
+import org.mtr.widget.BetterButtonWidget;
+import org.mtr.widget.ScrollbarWidget;
+
+import java.util.List;
+
+public abstract class ScrollableScreenBase extends ScreenBase {
+
+	@Nullable
+	private Object2IntArrayMap<ClickableWidget> childrenYPositions;
+
+	private final ScrollbarWidget scrollbarWidget = new ScrollbarWidget();
+	private final BetterButtonWidget doneButton = new BetterButtonWidget(GuiHelper.CHECK_TEXTURE_ID, Text.translatable("gui.done").getString(), 0, this::close);
+	private final BetterButtonWidget resetButton = new BetterButtonWidget(GuiHelper.RESET_TEXTURE_ID, TranslationProvider.GUI_MTR_RESET.getString(), 0, this::init);
+
+	private static final int TITLE_SCALE = 2;
+	private static final int FOOTER_HEIGHT = GuiHelper.DEFAULT_PADDING * 2 + GuiHelper.DEFAULT_LINE_SIZE * 2;
+
+	public ScrollableScreenBase(@Nullable Screen previousScreen) {
+		super(previousScreen);
+	}
+
+	@Override
+	protected void init() {
+		super.init();
+		addDrawableChild(scrollbarWidget);
+		addDrawableChild(doneButton);
+		addDrawableChild(resetButton);
+	}
+
+	@Override
+	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+		// Save initial Y positions of children
+		if (childrenYPositions == null) {
+			childrenYPositions = new Object2IntArrayMap<>();
+			children().forEach(child -> {
+				if (child instanceof ClickableWidget clickableWidget && clickableWidget != scrollbarWidget && clickableWidget != doneButton && clickableWidget != resetButton) {
+					childrenYPositions.put(clickableWidget, clickableWidget.getY());
+				}
+			});
+		}
+
+		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+		final List<OrderedText> titleLines = minecraftClient.textRenderer.wrapLines(Text.literal(getScreenTitle()), GuiHelper.STANDARD_SCREEN_WIDTH - GuiHelper.DEFAULT_PADDING * 2 - GuiHelper.DEFAULT_LINE_SIZE * 2);
+		final int titleHeight = getTextHeight(titleLines) * TITLE_SCALE;
+		final String subtitle = getScreenSubtitle();
+		final List<OrderedText> subtitleLines = subtitle == null ? List.of() : minecraftClient.textRenderer.wrapLines(Text.literal(subtitle), GuiHelper.STANDARD_SCREEN_WIDTH - GuiHelper.DEFAULT_PADDING * 2 - GuiHelper.DEFAULT_LINE_SIZE * 2);
+		final int headerHeight = GuiHelper.DEFAULT_PADDING + GuiHelper.DEFAULT_LINE_SIZE * 2 + titleHeight + (subtitle == null ? 0 : getTextHeight(subtitleLines) + GuiHelper.DEFAULT_PADDING);
+		final int scrollY = (int) scrollbarWidget.getScrollY();
+
+		// Adjust children by scroll position
+		final int[] contentHeight = {0};
+		childrenYPositions.forEach((clickableWidget, y) -> {
+			if (clickableWidget.visible) {
+				contentHeight[0] = Math.max(contentHeight[0], y + clickableWidget.getHeight());
+				clickableWidget.setY(y + headerHeight - scrollY);
+			}
+		});
+
+		// Set scrollbar size and position
+		scrollbarWidget.setContentHeight(headerHeight + contentHeight[0] + FOOTER_HEIGHT);
+		scrollbarWidget.setHeight(height);
+		scrollbarWidget.setPosition(width - ScrollableWidget.SCROLLBAR_WIDTH, 0);
+
+		// Set footer buttons size and position
+		final int backgroundX = (width - GuiHelper.STANDARD_SCREEN_WIDTH) / 2 + GuiHelper.DEFAULT_PADDING;
+		final int buttonsX = width - backgroundX - GuiHelper.DEFAULT_PADDING;
+		final int buttonsY = headerHeight + contentHeight[0] + GuiHelper.DEFAULT_LINE_SIZE - scrollY;
+		doneButton.setPosition(buttonsX - GuiHelper.DEFAULT_PADDING - resetButton.getWidth() - doneButton.getWidth(), buttonsY);
+		resetButton.setPosition(buttonsX - resetButton.getWidth(), buttonsY);
+
+		super.renderBackground(context, mouseX, mouseY, delta);
+		final MatrixStack matrixStack = context.getMatrices();
+		final Drawing drawing = new Drawing(matrixStack, minecraftClient.getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
+
+		// Draw background
+		drawing.setVerticesWH(backgroundX, GuiHelper.DEFAULT_PADDING - scrollY, GuiHelper.STANDARD_SCREEN_WIDTH - GuiHelper.DEFAULT_PADDING * 2, headerHeight + contentHeight[0] + FOOTER_HEIGHT - GuiHelper.DEFAULT_PADDING * 2).setColor(GuiHelper.TRANSLUCENT_BACKGROUND_COLOR).draw();
+
+		// Draw title
+		matrixStack.push();
+		matrixStack.translate(width / 2F, GuiHelper.DEFAULT_PADDING + GuiHelper.DEFAULT_LINE_SIZE - scrollY, 0);
+		matrixStack.push();
+		matrixStack.scale(TITLE_SCALE, TITLE_SCALE, 1);
+		for (int i = 0; i < titleLines.size(); i++) {
+			final OrderedText text = titleLines.get(i);
+			context.drawText(minecraftClient.textRenderer, text, -minecraftClient.textRenderer.getWidth(text) / 2, i * GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT, GuiHelper.WHITE_COLOR, false);
+		}
+		matrixStack.pop();
+
+		// Draw subtitle
+		for (int i = 0; i < subtitleLines.size(); i++) {
+			final OrderedText text = subtitleLines.get(i);
+			context.drawText(minecraftClient.textRenderer, text, -minecraftClient.textRenderer.getWidth(text) / 2, GuiHelper.DEFAULT_PADDING + titleHeight + i * GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT, GuiHelper.WHITE_COLOR, false);
+		}
+		matrixStack.pop();
+
+		super.render(context, mouseX, mouseY, delta);
+	}
+
+	@Override
+	public final boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+		if (mouseX < width - ScrollableWidget.SCROLLBAR_WIDTH) {
+			scrollbarWidget.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+		}
+		return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+	}
+
+	@Override
+	public final void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+	}
+
+	public abstract String getScreenTitle();
+
+	@Nullable
+	public abstract String getScreenSubtitle();
+
+	private static int getTextHeight(List<OrderedText> lines) {
+		return ((lines.size() - 1) * GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT + GuiHelper.MINECRAFT_FONT_SIZE);
+	}
+}

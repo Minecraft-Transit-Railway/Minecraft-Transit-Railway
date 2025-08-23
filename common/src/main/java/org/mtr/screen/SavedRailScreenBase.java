@@ -1,5 +1,6 @@
 package org.mtr.screen;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.MutableText;
@@ -10,32 +11,33 @@ import org.mtr.core.data.SavedRailBase;
 import org.mtr.core.data.TransportMode;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.widget.BetterSliderWidget;
 import org.mtr.widget.BetterTextFieldWidget;
-import org.mtr.widget.ShorterSliderWidget;
 
 public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> extends ScreenBase implements IGui {
 
 	protected final T savedRailBase;
 	protected final int textWidth;
 	protected final boolean showScheduleControls;
-	protected final ShorterSliderWidget sliderDwellTimeMin;
-	protected final ShorterSliderWidget sliderDwellTimeSec;
+	protected final BetterSliderWidget sliderDwellTimeMin;
+	protected final BetterSliderWidget sliderDwellTimeSec;
 
 	private final BetterTextFieldWidget textFieldSavedRailNumber;
 
 	private final MutableText savedRailNumberText;
 
-	protected static final int SECONDS_PER_MINUTE = 60;
+	private static final int SECONDS_PER_MINUTE = 60;
 	private static final int MAX_DWELL_TIME = 1200;
 	private static final int MAX_SAVED_RAIL_NUMBER_LENGTH = 10;
 
 	public SavedRailScreenBase(T savedRailBase, TransportMode transportMode, Screen previousScreen, MutableText... additionalTexts) {
 		super(previousScreen);
 		this.savedRailBase = savedRailBase;
+		textRenderer = MinecraftClient.getInstance().textRenderer;
 		showScheduleControls = !transportMode.continuousMovement;
 		savedRailNumberText = getNumberStringKey().getMutableText();
 
-		textFieldSavedRailNumber = new BetterTextFieldWidget(MAX_SAVED_RAIL_NUMBER_LENGTH, TextCase.DEFAULT, null, "1", savedRailBase::setName);
+		textFieldSavedRailNumber = new BetterTextFieldWidget(MAX_SAVED_RAIL_NUMBER_LENGTH, TextCase.DEFAULT, null, "1", 0, savedRailBase::setName);
 
 		int additionalTextWidths = 0;
 		for (final MutableText additionalText : additionalTexts) {
@@ -43,8 +45,8 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 		}
 		textWidth = Math.max(textRenderer.getWidth(savedRailNumberText), additionalTextWidths) + TEXT_PADDING;
 
-		sliderDwellTimeMin = new ShorterSliderWidget(0, 0, (int) Math.floor(MAX_DWELL_TIME / 2F / SECONDS_PER_MINUTE), TranslationProvider.GUI_MTR_ARRIVAL_MIN::getString, null);
-		sliderDwellTimeSec = new ShorterSliderWidget(0, 0, SECONDS_PER_MINUTE * 2 - 1, 10, 2, value -> TranslationProvider.GUI_MTR_ARRIVAL_SEC.getString(value / 2F), null);
+		sliderDwellTimeMin = new BetterSliderWidget((int) Math.floor(MAX_DWELL_TIME / 2F / SECONDS_PER_MINUTE), TranslationProvider.GUI_MTR_ARRIVAL_MIN::getString, "", 100, null);
+		sliderDwellTimeSec = new BetterSliderWidget(SECONDS_PER_MINUTE * 2 - 1, value -> TranslationProvider.GUI_MTR_ARRIVAL_SEC.getString(value / 2F), "", 100, null);
 	}
 
 	@Override
@@ -92,11 +94,6 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase<T, U>, U exten
 		} catch (Exception e) {
 			MTR.LOGGER.error("", e);
 		}
-	}
-
-	@Override
-	public boolean shouldPause() {
-		return false;
 	}
 
 	protected abstract TranslationProvider.TranslationHolder getNumberStringKey();

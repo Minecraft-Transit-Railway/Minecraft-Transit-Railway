@@ -70,11 +70,6 @@ public class TicketMachineScreen extends ScreenBase implements IGui {
 		super.render(context, mouseX, mouseY, delta);
 	}
 
-	@Override
-	public boolean shouldPause() {
-		return false;
-	}
-
 	private int getEmeraldCount() {
 		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().player;
 		final PlayerInventory playerInventory = clientPlayerEntity == null ? null : clientPlayerEntity.getInventory();

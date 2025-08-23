@@ -25,8 +25,8 @@ import org.mtr.packet.PacketDepotGenerate;
 import org.mtr.packet.PacketDepotInstantDeploy;
 import org.mtr.packet.PacketUpdateData;
 import org.mtr.registry.RegistryClient;
+import org.mtr.widget.BetterSliderWidget;
 import org.mtr.widget.BetterTextFieldWidget;
-import org.mtr.widget.ShorterSliderWidget;
 
 import java.text.DateFormat;
 import java.util.Calendar;
@@ -44,7 +44,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 	private final ButtonWidget buttonUseRealTime;
 	private final ButtonWidget buttonReset;
-	private final ShorterSliderWidget[] sliders = new ShorterSliderWidget[HOURS_PER_DAY];
+	private final BetterSliderWidget[] sliders = new BetterSliderWidget[HOURS_PER_DAY];
 	private final BetterTextFieldWidget textFieldDeparture;
 	private final ButtonWidget buttonAddDeparture;
 
@@ -88,7 +88,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 		for (int i = 0; i < HOURS_PER_DAY; i++) {
 			final int currentIndex = i;
-			sliders[currentIndex] = new ShorterSliderWidget(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, EditDepotScreen::getSliderString, value -> {
+			sliders[currentIndex] = new BetterSliderWidget(MAX_TRAINS_PER_HOUR * 2, EditDepotScreen::getSliderString, "", SLIDER_WIDTH, value -> {
 				for (int j = 0; j < HOURS_PER_DAY; j++) {
 					if (j != currentIndex) {
 						sliders[j].setValue(value);
@@ -99,7 +99,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		departuresList = new DashboardList(null, null, null, null, null, this::onDeleteDeparture, null, () -> "", text -> {
 		});
 
-		textFieldDeparture = new BetterTextFieldWidget(25, TextCase.DEFAULT, "[^\\d:+* ]", "07:10:00 + 10 * 00:03:00", this::textFieldDepartureCallback);
+		textFieldDeparture = new BetterTextFieldWidget(25, TextCase.DEFAULT, "[^\\d:+* ]", "07:10:00 + 10 * 00:03:00", 0, this::textFieldDepartureCallback);
 		buttonAddDeparture = ButtonWidget.builder(Text.literal("+"), button -> {
 			checkDeparture(textFieldDeparture.getText(), true, false);
 			saveData();
@@ -135,7 +135,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			depotOperationByIds.addDepotId(depot.getId());
 			RegistryClient.sendPacketToServer(new PacketDepotGenerate(depotOperationByIds));
 		}).build();
-		textFieldCruisingAltitude = new BetterTextFieldWidget(5, TextCase.DEFAULT, "[^-\\d]", String.valueOf(DEFAULT_CRUISING_ALTITUDE), text -> {
+		textFieldCruisingAltitude = new BetterTextFieldWidget(5, TextCase.DEFAULT, "[^-\\d]", String.valueOf(DEFAULT_CRUISING_ALTITUDE), 100, text -> {
 		});
 	}
 
@@ -155,7 +155,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		textFieldCruisingAltitude.setText(String.valueOf(data.getCruisingAltitude()));
 
 		if (showScheduleControls) {
-			for (ShorterSliderWidget slider : sliders) {
+			for (BetterSliderWidget slider : sliders) {
 				addDrawableChild(slider);
 			}
 		}
@@ -283,7 +283,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	}
 
 	private void toggleRealTime() {
-		for (final ShorterSliderWidget slider : sliders) {
+		for (final BetterSliderWidget slider : sliders) {
 			slider.visible = !data.getUseRealTime();
 		}
 		departuresList.x = data.getUseRealTime() ? 0 : width;

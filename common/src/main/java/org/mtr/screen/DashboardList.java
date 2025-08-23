@@ -11,7 +11,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
 import org.mtr.client.IDrawing;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.data.IGui;
@@ -69,7 +68,7 @@ public class DashboardList implements IGui {
 	public <T> DashboardList(@Nullable Callback onFind, @Nullable Callback onDrawArea, @Nullable Callback onEdit, @Nullable Runnable onSort, @Nullable Callback onAdd, @Nullable Callback onDelete, @Nullable Supplier<List<T>> getList, Supplier<String> getSearch, Consumer<String> setSearch, boolean playSound) {
 		this.getSearch = getSearch;
 		this.setSearch = setSearch;
-		textFieldSearch = new BetterTextFieldWidget(getSearch.get(), 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_SEARCH.getString(), setSearch);
+		textFieldSearch = new BetterTextFieldWidget(getSearch.get(), 256, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_SEARCH.getString(), width - SQUARE_SIZE * 4 - TEXT_FIELD_PADDING, setSearch);
 		buttonPrevPage = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_left.png"), Identifier.of("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1), true);
 		buttonNextPage = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_right.png"), Identifier.of("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1), true);
 		buttonFind = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_find.png"), Identifier.of("textures/gui/sprites/mtr/icon_find_highlighted.png"), button -> onClick(onFind), playSound);
@@ -98,7 +97,7 @@ public class DashboardList implements IGui {
 	public void init(Consumer<ClickableWidget> addDrawableChild) {
 		IDrawing.setPositionAndWidth(buttonPrevPage, x, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(buttonNextPage, x + SQUARE_SIZE * 3, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
-		IDrawing.setPositionAndWidth(textFieldSearch, x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2, y + TEXT_FIELD_PADDING / 2, width - SQUARE_SIZE * 4 - TEXT_FIELD_PADDING);
+		textFieldSearch.setPosition(x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2, y + TEXT_FIELD_PADDING / 2);
 
 		buttonFind.visible = false;
 		buttonDrawArea.visible = false;
@@ -250,7 +249,7 @@ public class DashboardList implements IGui {
 	}
 
 	private void setPage(int newPage) {
-		page = MathHelper.clamp(newPage, 0, totalPages - 1);
+		page = Math.clamp(newPage, 0, totalPages - 1);
 		buttonPrevPage.visible = page > 0;
 		buttonNextPage.visible = page < totalPages - 1;
 	}
@@ -267,7 +266,7 @@ public class DashboardList implements IGui {
 			final int index = hoverIndex + itemsToShow() * page;
 			final List<T> list = getList.get();
 			if (Screen.hasShiftDown()) {
-				list.add(0, list.remove(index));
+				list.addFirst(list.remove(index));
 			} else {
 				final T aboveItem = list.get(index - 1);
 				final T thisItem = list.get(index);

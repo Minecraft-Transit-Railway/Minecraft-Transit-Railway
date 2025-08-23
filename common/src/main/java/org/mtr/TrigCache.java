@@ -1,14 +1,12 @@
 package org.mtr;
 
-import net.minecraft.util.math.MathHelper;
-
 public class TrigCache {
 
 	private static final float INCREMENT = 0.01F;
 	private static final double[] ASIN_TABLE = new double[(int) (2 / INCREMENT) + 1];
 
 	public static double asin(double value) {
-		return ASIN_TABLE[MathHelper.clamp((int) Math.round(value / INCREMENT) + 100, 0, ASIN_TABLE.length - 1)];
+		return ASIN_TABLE[Math.clamp((int) Math.round(value / INCREMENT) + 100, 0, ASIN_TABLE.length - 1)];
 	}
 
 	static {

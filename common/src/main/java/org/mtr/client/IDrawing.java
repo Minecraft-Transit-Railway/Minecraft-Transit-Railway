@@ -19,7 +19,6 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
@@ -224,7 +223,7 @@ public interface IDrawing {
 	static void setPositionAndWidth(ClickableWidget widget, int x, int y, int widgetWidth) {
 		widget.setX(x);
 		widget.setY(y);
-		widget.setWidth(MathHelper.clamp(widgetWidth, 0, 380));
+		widget.setWidth(Math.clamp(widgetWidth, 0, 380));
 	}
 
 	static void narrateOrAnnounce(String narrateMessage, ObjectArrayList<MutableText> chatMessages) {

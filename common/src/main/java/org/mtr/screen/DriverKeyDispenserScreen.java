@@ -34,9 +34,9 @@ public class DriverKeyDispenserScreen extends ScreenBase implements IGui {
 		checkBoxDispenseBasicDriverKey = CheckboxWidget.builder(TranslationProvider.ITEM_MTR_BASIC_DRIVER_KEY.getText(), textRenderer).checked(blockEntity.getDispenseBasicDriverKey()).build();
 		checkBoxDispenseAdvancedDriverKey = CheckboxWidget.builder(TranslationProvider.ITEM_MTR_ADVANCED_DRIVER_KEY.getText(), textRenderer).checked(blockEntity.getDispenseAdvancedDriverKey()).build();
 		checkBoxDispenseGuardKey = CheckboxWidget.builder(TranslationProvider.ITEM_MTR_GUARD_KEY.getText(), textRenderer).checked(blockEntity.getDispenseGuardKey()).build();
-		textFieldTimeoutHours = new BetterTextFieldWidget(4, TextCase.DEFAULT, "\\D", "1", text -> {
+		textFieldTimeoutHours = new BetterTextFieldWidget(4, TextCase.DEFAULT, "\\D", "1", TEXT_FIELD_SIZE - TEXT_FIELD_PADDING, text -> {
 		});
-		textFieldTimeoutMinutes = new BetterTextFieldWidget(2, TextCase.DEFAULT, "\\D", "0", text -> {
+		textFieldTimeoutMinutes = new BetterTextFieldWidget(2, TextCase.DEFAULT, "\\D", "0", TEXT_FIELD_SIZE - TEXT_FIELD_PADDING, text -> {
 		});
 	}
 
@@ -86,10 +86,5 @@ public class DriverKeyDispenserScreen extends ScreenBase implements IGui {
 				newTimeout
 		));
 		super.close();
-	}
-
-	@Override
-	public boolean shouldPause() {
-		return false;
 	}
 }

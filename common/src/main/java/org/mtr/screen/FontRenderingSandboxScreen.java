@@ -23,7 +23,7 @@ public final class FontRenderingSandboxScreen extends ScreenBase {
 	private long readTime = 0;
 	private FontRenderOptions fontRenderOptions = FontRenderOptions.builder().horizontalSpace(200).verticalSpace(100).horizontalPositioning(FontRenderOptions.Alignment.CENTER).verticalPositioning(FontRenderOptions.Alignment.CENTER).build();
 
-	private final BetterTextFieldWidget textFieldWidget = new BetterTextFieldWidget(DEFAULT_TEXT, Integer.MAX_VALUE, TextCase.DEFAULT, null, DEFAULT_TEXT, text -> {
+	private final BetterTextFieldWidget textFieldWidget = new BetterTextFieldWidget(DEFAULT_TEXT, Integer.MAX_VALUE, TextCase.DEFAULT, null, DEFAULT_TEXT, 100, text -> {
 	});
 	private final CheckboxWidget checkboxWidget;
 	private final Path fontRenderOptionsPath = MinecraftClient.getInstance().runDirectory.toPath().resolve("config/cache/mtr_font_rendering_sandbox.json");

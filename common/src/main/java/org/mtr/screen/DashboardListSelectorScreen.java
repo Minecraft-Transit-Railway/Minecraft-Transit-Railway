@@ -103,11 +103,6 @@ public class DashboardListSelectorScreen extends ScreenBase implements IGui {
 		}
 	}
 
-	@Override
-	public boolean shouldPause() {
-		return false;
-	}
-
 	protected void updateList() {
 		final ObjectArrayList<DashboardListItem> availableData = new ObjectArrayList<>();
 		for (final DashboardListItem dashboardListItem : allData) {

@@ -29,6 +29,9 @@ import org.mtr.data.IGui;
 import org.mtr.font.FontGroups;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.map.MapTileProvider;
+import org.mtr.screen.DashboardScreen;
+import org.mtr.screen.EditDepotScreen;
+import org.mtr.screen.SidingScreen;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiAnimation;
 import org.mtr.tool.GuiHelper;
@@ -54,6 +57,7 @@ public final class MapWidget extends ClickableWidgetBase {
 	@Nullable
 	private ObjectObjectImmutablePair<ScrollableListWidget<?>, IntIntImmutablePair> popupDetails;
 
+	private final DashboardScreen dashboardScreen;
 	private final TransportMode transportMode;
 	private final boolean hasPermission = MinecraftClientData.hasPermission();
 	private final Consumer<AreaBase<?, ?>> onStartEditingArea;
@@ -84,7 +88,8 @@ public final class MapWidget extends ClickableWidgetBase {
 	private static final int ANIMATION_DURATION = 1000;
 	private static final int ANIMATION_DURATION_FAST = 200;
 
-	public MapWidget(TransportMode transportMode, Consumer<AreaBase<?, ?>> onStartEditingArea, BiConsumer<NameColorDataBase, DeleteDataRequest> onDeleteData) {
+	public MapWidget(DashboardScreen dashboardScreen, TransportMode transportMode, Consumer<AreaBase<?, ?>> onStartEditingArea, BiConsumer<NameColorDataBase, DeleteDataRequest> onDeleteData) {
+		this.dashboardScreen = dashboardScreen;
 		this.transportMode = transportMode;
 		this.onStartEditingArea = onStartEditingArea;
 		this.onDeleteData = onDeleteData;
@@ -236,10 +241,10 @@ public final class MapWidget extends ClickableWidgetBase {
 			matrixStack.pop();
 
 			if (!Utilities.isBetween(
-					Utilities.clamp(newMouseX, leftBound, rightBound - 1),
+					Math.clamp(newMouseX, leftBound, rightBound - 1),
 					scrollableListWidget.getX() - 1, scrollableListWidget.getX() + scrollableListWidget.getWidth()
 			) || !Utilities.isBetween(
-					Utilities.clamp(newMouseY, topBound, bottomBound - 1),
+					Math.clamp(newMouseY, topBound, bottomBound - 1),
 					scrollableListWidget.getY() - 1, scrollableListWidget.getY() + scrollableListWidget.getHeight()
 			)) {
 				popupDetails = null;
@@ -302,14 +307,14 @@ public final class MapWidget extends ClickableWidgetBase {
 					final ScrollableListWidget<Depot> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setAreas(scrollableListWidget, hoverDepots, null, hasPermission ? ObjectArrayList.of(
 							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, onStartEditingArea::accept),
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, depot -> System.out.println("editing " + depot.getName())),
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, depot -> MinecraftClient.getInstance().setScreen(new EditDepotScreen(depot, transportMode, dashboardScreen))),
 							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, depot -> onDeleteData.accept(depot, new DeleteDataRequest().addDepotId(depot.getId())))
 					) : new ObjectArrayList<>());
 				}
 				if (!hoverSidings.isEmpty()) {
 					final ScrollableListWidget<Siding> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setSavedRails(scrollableListWidget, hoverSidings, hasPermission ? ObjectArrayList.of(
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, siding -> System.out.println("editing " + siding.getName()))
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, siding -> MinecraftClient.getInstance().setScreen(new SidingScreen(siding, dashboardScreen)))
 					) : new ObjectArrayList<>());
 				}
 			}
@@ -375,7 +380,7 @@ public final class MapWidget extends ClickableWidgetBase {
 		guiAnimationY.animate((savedArea.getMinZ() + savedArea.getMaxZ() + 1) / 2F, ANIMATION_DURATION);
 		final double scaleX = Math.max(1F, width - GuiHelper.DEFAULT_LINE_SIZE) / (savedArea.getMaxX() - savedArea.getMinX() + 1);
 		final double scaleY = Math.max(1F, height - GuiHelper.DEFAULT_LINE_SIZE) / (savedArea.getMaxZ() - savedArea.getMinZ() + 1);
-		guiAnimationScale.animate(Utilities.clamp(Math.min(scaleX, scaleY), SCALE_LOWER_LIMIT, SCALE_UPPER_LIMIT), ANIMATION_DURATION);
+		guiAnimationScale.animate(Math.clamp(Math.min(scaleX, scaleY), SCALE_LOWER_LIMIT, SCALE_UPPER_LIMIT), ANIMATION_DURATION);
 	}
 
 	public void startEditingArea(AreaBase<?, ?> editingArea) {
@@ -397,7 +402,7 @@ public final class MapWidget extends ClickableWidgetBase {
 	}
 
 	private void scale(double amount, boolean instant) {
-		final double scale = Utilities.clamp(guiAnimationScale.getCurrentValue() * Math.pow(2, amount), SCALE_LOWER_LIMIT, SCALE_UPPER_LIMIT);
+		final double scale = Math.clamp(guiAnimationScale.getCurrentValue() * Math.pow(2, amount), SCALE_LOWER_LIMIT, SCALE_UPPER_LIMIT);
 		if (instant) {
 			guiAnimationScale.setValue(scale);
 		} else {

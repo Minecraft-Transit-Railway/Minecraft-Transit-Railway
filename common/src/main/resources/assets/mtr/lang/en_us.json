@@ -377,6 +377,7 @@
 	"gui.mtr.selected_vehicle": "Selected Vehicle",
 	"gui.mtr.separator": "/",
 	"gui.mtr.separator_cjk": "/",
+	"gui.mtr.siding": "Siding %s",
 	"gui.mtr.siding_number": "Siding Number",
 	"gui.mtr.sidings_in_depot": "Sidings in this depot: %s",
 	"gui.mtr.sound_file": "Sound File",

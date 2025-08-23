@@ -1,8 +1,6 @@
 package org.mtr.resource;
 
 
-import org.mtr.core.tool.Utilities;
-
 public enum DoorAnimationType {
 
 	STANDARD,
@@ -40,7 +38,7 @@ public enum DoorAnimationType {
 	private double getDoorAnimationZAbsolute(double doorMax, double time, boolean opening) {
 		switch (this) {
 			case CONSTANT:
-				return doorMax * Utilities.clamp(time / 0.5, 0, 1);
+				return doorMax * Math.clamp(time / 0.5, 0, 1);
 			case PLUG_FAST:
 				return smoothEnds(-doorMax, doorMax, -0.5, 0.5, time);
 			case PLUG_SLOW:

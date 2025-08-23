@@ -44,9 +44,9 @@ public class LiftTrackFloorScreen extends ScreenBase implements IGui {
 			initialShouldDing = blockEntity.getShouldDing();
 		}
 
-		textFieldFloorNumber = new BetterTextFieldWidget(8, TextCase.DEFAULT, null, "1", text -> {
+		textFieldFloorNumber = new BetterTextFieldWidget(8, TextCase.DEFAULT, null, "1", TEXT_FIELD_WIDTH - TEXT_FIELD_PADDING, text -> {
 		});
-		textFieldFloorDescription = new BetterTextFieldWidget(256, TextCase.DEFAULT, null, "Concourse", text -> {
+		textFieldFloorDescription = new BetterTextFieldWidget(256, TextCase.DEFAULT, null, "Concourse", TEXT_FIELD_WIDTH - TEXT_FIELD_PADDING, text -> {
 		});
 		checkboxShouldDing = CheckboxWidget.builder(TranslationProvider.GUI_MTR_LIFT_SHOULD_DING.getText(), textRenderer).checked(initialShouldDing).callback((checkBoxWidget, checked) -> {
 		}).build();
@@ -86,10 +86,5 @@ public class LiftTrackFloorScreen extends ScreenBase implements IGui {
 	public void close() {
 		RegistryClient.sendPacketToServer(new PacketUpdateLiftTrackFloorConfig(blockPos, textFieldFloorNumber.getText(), textFieldFloorDescription.getText(), checkboxShouldDing.isChecked()));
 		super.close();
-	}
-
-	@Override
-	public boolean shouldPause() {
-		return false;
 	}
 }

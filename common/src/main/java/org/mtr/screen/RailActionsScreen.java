@@ -54,11 +54,6 @@ public class RailActionsScreen extends ScreenBase implements IGui {
 		railActionsList.setData(MinecraftClientData.getInstance().railActions, false, false, false, false, false, true);
 	}
 
-	@Override
-	public boolean shouldPause() {
-		return false;
-	}
-
 	private void onDelete(DashboardListItem dashboardListItem, int index) {
 		RegistryClient.sendPacketToServer(new PacketDeleteRailAction(dashboardListItem.id));
 	}

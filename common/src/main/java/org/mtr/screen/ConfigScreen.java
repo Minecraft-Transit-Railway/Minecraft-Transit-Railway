@@ -20,7 +20,7 @@ import org.mtr.config.Config;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.tool.Drawing;
-import org.mtr.widget.ShorterSliderWidget;
+import org.mtr.widget.BetterSliderWidget;
 
 import javax.annotation.Nullable;
 
@@ -32,8 +32,8 @@ public class ConfigScreen extends ScreenBase implements IGui {
 	private final ButtonWidget buttonUseTTSAnnouncements;
 	private final ButtonWidget buttonHideTranslucentParts;
 	private final ButtonWidget buttonLanguageOptions;
-	private final ShorterSliderWidget sliderDynamicTextureResolution;
-	private final ShorterSliderWidget sliderTrainOscillationMultiplier;
+	private final BetterSliderWidget sliderDynamicTextureResolution;
+	private final BetterSliderWidget sliderTrainOscillationMultiplier;
 	private final ButtonWidget buttonDefaultRail3D;
 	private final ButtonWidget buttonUseMTRFont;
 	private final ButtonWidget buttonDisableShadowsForShaders;
@@ -63,8 +63,8 @@ public class ConfigScreen extends ScreenBase implements IGui {
 			client.cycleLanguageDisplay();
 			button.setMessage(client.getLanguageDisplay().translationKey.getText());
 		}).build();
-		sliderDynamicTextureResolution = new ShorterSliderWidget(0, 0, Client.DYNAMIC_RESOLUTION_COUNT - 1, String::valueOf, null);
-		sliderTrainOscillationMultiplier = new ShorterSliderWidget(0, 0, Client.TRAIN_OSCILLATION_COUNT, i -> (i * 10) + "%", null);
+		sliderDynamicTextureResolution = new BetterSliderWidget(Client.DYNAMIC_RESOLUTION_COUNT - 1, String::valueOf, "", BUTTON_WIDTH, null);
+		sliderTrainOscillationMultiplier = new BetterSliderWidget(Client.TRAIN_OSCILLATION_COUNT, i -> (i * 10) + "%", "", BUTTON_WIDTH, null);
 		buttonDefaultRail3D = ButtonWidget.builder(Text.empty(), button -> {
 			client.toggleDefaultRail3D();
 			setButtonText(button, client.getDefaultRail3D());
@@ -90,8 +90,8 @@ public class ConfigScreen extends ScreenBase implements IGui {
 		IDrawing.setPositionAndWidth(buttonUseTTSAnnouncements, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonHideTranslucentParts, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonLanguageOptions, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(sliderDynamicTextureResolution, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - textRenderer.getWidth("100%"));
-		IDrawing.setPositionAndWidth(sliderTrainOscillationMultiplier, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - textRenderer.getWidth("100%"));
+		IDrawing.setPositionAndWidth(sliderDynamicTextureResolution, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
+		IDrawing.setPositionAndWidth(sliderTrainOscillationMultiplier, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonDefaultRail3D, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonUseMTRFont, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonDisableShadowsForShaders, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);

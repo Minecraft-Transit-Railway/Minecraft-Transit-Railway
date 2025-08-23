@@ -1,8 +1,6 @@
 package org.mtr.client;
 
 
-import net.minecraft.util.math.MathHelper;
-
 public enum DoorAnimationType {
 
 	STANDARD(0.5F),
@@ -33,7 +31,7 @@ public enum DoorAnimationType {
 	public static float getDoorAnimationZ(DoorAnimationType doorAnimationType, int doorMax, float duration, float value, boolean opening) {
 		switch (doorAnimationType) {
 			case CONSTANT:
-				return doorMax * MathHelper.clamp(value, 0, 1) / duration;
+				return doorMax * Math.clamp(value, 0, 1) / duration;
 			case PLUG_FAST:
 				return smoothEnds(-doorMax, doorMax, -duration, duration, value);
 			case PLUG_SLOW:

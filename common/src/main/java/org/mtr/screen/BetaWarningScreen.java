@@ -87,11 +87,6 @@ public class BetaWarningScreen extends ScreenBase implements IGui, Utilities {
 		}
 	}
 
-	@Override
-	public boolean shouldPause() {
-		return false;
-	}
-
 	private int wrapAndRender(DrawContext context, String text, int y) {
 		final int textWidth = Math.min(512, width - SQUARE_SIZE * 2);
 		final int[] newY = {y};

@@ -30,6 +30,7 @@ public final class GuiHelper {
 	public static final int SCROLL_BAR_HOVER_COLOR = 0xFF888888;
 	public static final int LIGHT_GRAY_COLOR = 0xFFAAAAAA;
 	public static final int WHITE_COLOR = 0xFFFFFFFF;
+	public static final int TRANSLUCENT_BACKGROUND_COLOR = 0xCC111111;
 
 	public static final int MINECRAFT_FONT_SIZE = 8;
 	public static final int MINECRAFT_TEXT_LINE_HEIGHT = 10;
@@ -39,6 +40,7 @@ public final class GuiHelper {
 	 */
 	public static final int DEFAULT_LINE_SIZE = MINECRAFT_FONT_SIZE + DEFAULT_PADDING * 2;
 	public static final int DEFAULT_ICON_SIZE = DEFAULT_LINE_SIZE - DEFAULT_PADDING;
+	public static final int STANDARD_SCREEN_WIDTH = 320;
 
 	public static final Identifier ADD_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_add.png");
 	public static final Identifier EDIT_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_edit.png");
@@ -51,7 +53,8 @@ public final class GuiHelper {
 	public static final Identifier ZOOM_IN_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_zoom_in.png");
 	public static final Identifier ZOOM_OUT_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_zoom_out.png");
 	public static final Identifier FIND_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_find.png");
-	public static final Identifier DONE_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_done.png");
+	public static final Identifier CHECK_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_check.png");
+	public static final Identifier RESET_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_reset.png");
 	public static final Identifier COLOR_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_color.png");
 	public static final Identifier SELECT_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_select.png");
 	public static final Identifier MAP_TEXTURE_ID = Identifier.of("textures/gui/sprites/mtr/icon_map.png");

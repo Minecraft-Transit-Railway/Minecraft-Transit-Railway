@@ -113,11 +113,6 @@ public class SignalColorScreen extends ScreenBase implements IGui {
 		super.close();
 	}
 
-	@Override
-	public boolean shouldPause() {
-		return false;
-	}
-
 	private void setButtons() {
 		for (int i = 0; i < ItemSignalModifier.COLORS.length; i++) {
 			IGui.setChecked(checkBoxes[i], signalColors.contains(ItemSignalModifier.COLORS[i]));

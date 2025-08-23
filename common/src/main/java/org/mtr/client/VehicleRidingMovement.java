@@ -11,7 +11,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.StringUtils;
 import org.mtr.MTRClient;
@@ -200,7 +199,7 @@ public class VehicleRidingMovement {
 						ridingPositionCache = null;
 					} else {
 						// Gangway positioning logic
-						ridingVehicleX = Utilities.clamp(ridingVehicleX + movementX, 0, 1);
+						ridingVehicleX = Math.clamp(ridingVehicleX + movementX, 0, 1);
 						ridingVehicleZ += movementZ;
 						final Vec3d position1Min = previousCarGangwayMovementPositions.getMinWorldPosition();
 						final Vec3d position1Max = previousCarGangwayMovementPositions.getMaxWorldPosition();
@@ -335,7 +334,7 @@ public class VehicleRidingMovement {
 		final ClientPlayerEntity clientPlayerEntity = minecraftClient.player;
 
 		if (shiftHoldingTicks > 0 && clientPlayerEntity != null) {
-			final int progressFilled = MathHelper.clamp((int) (shiftHoldingTicks * DISMOUNT_PROGRESS_BAR_LENGTH / SHIFT_ACTIVATE_TICKS), 0, DISMOUNT_PROGRESS_BAR_LENGTH);
+			final int progressFilled = Math.clamp((int) (shiftHoldingTicks * DISMOUNT_PROGRESS_BAR_LENGTH / SHIFT_ACTIVATE_TICKS), 0, DISMOUNT_PROGRESS_BAR_LENGTH);
 			final String progressBar = String.format("§6%s§7%s", StringUtils.repeat('|', progressFilled), StringUtils.repeat('|', DISMOUNT_PROGRESS_BAR_LENGTH - progressFilled));
 			clientPlayerEntity.sendMessage(TranslationProvider.GUI_MTR_DISMOUNT_HOLD.getText(MTRClient.getShiftText(), progressBar), true);
 			return false;
@@ -371,9 +370,9 @@ public class VehicleRidingMovement {
 			if (floorOrDoorway.rightBoolean()) {
 				// If the intersecting or closest floor or doorway is a floor, then force the player to be in bounds
 				offsets.add(new Vec3d(
-						Utilities.clamp(x, floorOrDoorway.left().minX, floorOrDoorway.left().maxX) - x,
+						Math.clamp(x, floorOrDoorway.left().minX, floorOrDoorway.left().maxX) - x,
 						floorOrDoorway.left().maxY,
-						Utilities.clamp(z, floorOrDoorway.left().minZ, floorOrDoorway.left().maxZ) - z
+						Math.clamp(z, floorOrDoorway.left().minZ, floorOrDoorway.left().maxZ) - z
 				));
 			} else if (RenderVehicleHelper.boxContains(floorOrDoorway.left(), x, ridingVehicleY, z)) {
 				// If the intersecting or closest floor or doorway is a doorway, then don't force the player to be in bounds

@@ -9,8 +9,8 @@ import org.mtr.tool.GuiHelper;
 
 public abstract class ScrollablePanelWidget extends ScrollableWidget {
 
-	public ScrollablePanelWidget(int x, int y, int width, int height) {
-		super(x, y, width, height, Text.empty());
+	public ScrollablePanelWidget() {
+		super(0, 0, 0, 0, Text.empty());
 	}
 
 	@Override
@@ -31,6 +31,11 @@ public abstract class ScrollablePanelWidget extends ScrollableWidget {
 	@Override
 	protected final boolean isValidClickButton(int button) {
 		return active && visible && super.isValidClickButton(button);
+	}
+
+	@Override
+	protected final double getDeltaYPerScroll() {
+		return GuiHelper.DEFAULT_LINE_SIZE;
 	}
 
 	@Override
