@@ -1,6 +1,7 @@
 package org.mtr.screen;
 
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -8,6 +9,7 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.ScrollableWidget;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
@@ -17,8 +19,6 @@ import org.mtr.tool.GuiHelper;
 import org.mtr.widget.BetterButtonWidget;
 import org.mtr.widget.ScrollbarWidget;
 
-import java.util.List;
-
 public abstract class ScrollableScreenBase extends ScreenBase {
 
 	@Nullable
@@ -27,6 +27,9 @@ public abstract class ScrollableScreenBase extends ScreenBase {
 	private final ScrollbarWidget scrollbarWidget = new ScrollbarWidget();
 	private final BetterButtonWidget doneButton = new BetterButtonWidget(GuiHelper.CHECK_TEXTURE_ID, Text.translatable("gui.done").getString(), 0, this::close);
 	private final BetterButtonWidget resetButton = new BetterButtonWidget(GuiHelper.RESET_TEXTURE_ID, TranslationProvider.GUI_MTR_RESET.getString(), 0, this::init);
+
+	protected static final int FULL_WIDGET_WIDTH = GuiHelper.STANDARD_SCREEN_WIDTH - GuiHelper.DEFAULT_PADDING * 4;
+	protected static final int HALF_WIDGET_WIDTH = (FULL_WIDGET_WIDTH - GuiHelper.DEFAULT_PADDING) / 2;
 
 	private static final int TITLE_SCALE = 2;
 	private static final int FOOTER_HEIGHT = GuiHelper.DEFAULT_PADDING * 2 + GuiHelper.DEFAULT_LINE_SIZE * 2;
@@ -55,12 +58,15 @@ public abstract class ScrollableScreenBase extends ScreenBase {
 			});
 		}
 
-		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final List<OrderedText> titleLines = minecraftClient.textRenderer.wrapLines(Text.literal(getScreenTitle()), GuiHelper.STANDARD_SCREEN_WIDTH - GuiHelper.DEFAULT_PADDING * 2 - GuiHelper.DEFAULT_LINE_SIZE * 2);
+		final ObjectArrayList<OrderedText> titleLines = getTextLines(getScreenTitle());
 		final int titleHeight = getTextHeight(titleLines) * TITLE_SCALE;
-		final String subtitle = getScreenSubtitle();
-		final List<OrderedText> subtitleLines = subtitle == null ? List.of() : minecraftClient.textRenderer.wrapLines(Text.literal(subtitle), GuiHelper.STANDARD_SCREEN_WIDTH - GuiHelper.DEFAULT_PADDING * 2 - GuiHelper.DEFAULT_LINE_SIZE * 2);
-		final int headerHeight = GuiHelper.DEFAULT_PADDING + GuiHelper.DEFAULT_LINE_SIZE * 2 + titleHeight + (subtitle == null ? 0 : getTextHeight(subtitleLines) + GuiHelper.DEFAULT_PADDING);
+		final ObjectArrayList<OrderedText> subtitleLines = getTextLines(getScreenSubtitle());
+		final int subtitleHeight = getTextHeight(subtitleLines);
+		final ObjectArrayList<OrderedText> descriptionLines = getTextLines(getScreenDescription());
+		final int descriptionHeight = getTextHeight(descriptionLines);
+		final int headerSpacing1 = titleHeight > 0 && (subtitleHeight > 0 || descriptionHeight > 0) ? GuiHelper.DEFAULT_PADDING : 0;
+		final int headerSpacing2 = (titleHeight > 0 || subtitleHeight > 0) && descriptionHeight > 0 ? GuiHelper.DEFAULT_PADDING : 0;
+		final int headerHeight = GuiHelper.DEFAULT_PADDING + GuiHelper.DEFAULT_LINE_SIZE * 2 + titleHeight + headerSpacing1 + subtitleHeight + headerSpacing2 + descriptionHeight;
 		final int scrollY = (int) scrollbarWidget.getScrollY();
 
 		// Adjust children by scroll position
@@ -86,6 +92,7 @@ public abstract class ScrollableScreenBase extends ScreenBase {
 
 		super.renderBackground(context, mouseX, mouseY, delta);
 		final MatrixStack matrixStack = context.getMatrices();
+		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final Drawing drawing = new Drawing(matrixStack, minecraftClient.getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
 
 		// Draw background
@@ -93,7 +100,9 @@ public abstract class ScrollableScreenBase extends ScreenBase {
 
 		// Draw title
 		matrixStack.push();
-		matrixStack.translate(width / 2F, GuiHelper.DEFAULT_PADDING + GuiHelper.DEFAULT_LINE_SIZE - scrollY, 0);
+		matrixStack.translate(0, GuiHelper.DEFAULT_PADDING + GuiHelper.DEFAULT_LINE_SIZE - scrollY, 0);
+		matrixStack.push();
+		matrixStack.translate(width / 2F, 0, 0);
 		matrixStack.push();
 		matrixStack.scale(TITLE_SCALE, TITLE_SCALE, 1);
 		for (int i = 0; i < titleLines.size(); i++) {
@@ -105,7 +114,14 @@ public abstract class ScrollableScreenBase extends ScreenBase {
 		// Draw subtitle
 		for (int i = 0; i < subtitleLines.size(); i++) {
 			final OrderedText text = subtitleLines.get(i);
-			context.drawText(minecraftClient.textRenderer, text, -minecraftClient.textRenderer.getWidth(text) / 2, GuiHelper.DEFAULT_PADDING + titleHeight + i * GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT, GuiHelper.WHITE_COLOR, false);
+			context.drawText(minecraftClient.textRenderer, text, -minecraftClient.textRenderer.getWidth(text) / 2, titleHeight + headerSpacing1 + i * GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT, GuiHelper.WHITE_COLOR, false);
+		}
+		matrixStack.pop();
+
+		// Draw description
+		for (int i = 0; i < descriptionLines.size(); i++) {
+			final OrderedText text = descriptionLines.get(i);
+			context.drawText(minecraftClient.textRenderer, text, backgroundX + GuiHelper.DEFAULT_PADDING, titleHeight + headerSpacing1 + subtitleHeight + headerSpacing2 + i * GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT, GuiHelper.WHITE_COLOR, false);
 		}
 		matrixStack.pop();
 
@@ -124,12 +140,42 @@ public abstract class ScrollableScreenBase extends ScreenBase {
 	public final void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
 	}
 
-	public abstract String getScreenTitle();
+	/**
+	 * Get the screen title. This will be centre-aligned and rendered bigger than the other text.
+	 *
+	 * @return a list of text lines to render as the title
+	 */
+	public abstract ObjectArrayList<MutableText> getScreenTitle();
 
-	@Nullable
-	public abstract String getScreenSubtitle();
+	/**
+	 * Get the screen subtitle. This will be centre-aligned.
+	 *
+	 * @return a list of text lines to render as the subtitle
+	 */
+	public abstract ObjectArrayList<MutableText> getScreenSubtitle();
 
-	private static int getTextHeight(List<OrderedText> lines) {
-		return ((lines.size() - 1) * GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT + GuiHelper.MINECRAFT_FONT_SIZE);
+	/**
+	 * Get the screen description. This will be left-aligned.
+	 *
+	 * @return a list of text lines to render as the description
+	 */
+	public abstract ObjectArrayList<MutableText> getScreenDescription();
+
+	protected int getWidgetColumn1() {
+		return (width - GuiHelper.STANDARD_SCREEN_WIDTH) / 2 + GuiHelper.DEFAULT_PADDING * 2;
+	}
+
+	protected int getWidgetColumn2() {
+		return width / 2 + GuiHelper.DEFAULT_PADDING / 2;
+	}
+
+	private static ObjectArrayList<OrderedText> getTextLines(ObjectArrayList<MutableText> text) {
+		final ObjectArrayList<OrderedText> lines = new ObjectArrayList<>();
+		text.forEach(textPart -> lines.addAll(MinecraftClient.getInstance().textRenderer.wrapLines(textPart, GuiHelper.STANDARD_SCREEN_WIDTH - GuiHelper.DEFAULT_PADDING * 2 - GuiHelper.DEFAULT_LINE_SIZE * 2)));
+		return lines;
+	}
+
+	private static int getTextHeight(ObjectArrayList<OrderedText> lines) {
+		return lines.isEmpty() ? 0 : ((lines.size() - 1) * GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT + GuiHelper.MINECRAFT_FONT_SIZE);
 	}
 }

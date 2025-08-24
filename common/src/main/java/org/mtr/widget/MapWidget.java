@@ -31,6 +31,7 @@ import org.mtr.font.FontRenderOptions;
 import org.mtr.map.MapTileProvider;
 import org.mtr.screen.DashboardScreen;
 import org.mtr.screen.EditDepotScreen;
+import org.mtr.screen.PlatformScreen;
 import org.mtr.screen.SidingScreen;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiAnimation;
@@ -277,6 +278,7 @@ public final class MapWidget extends ClickableWidgetBase {
 	public void onRelease(double mouseX, double mouseY) {
 		if (popupDetails == null) {
 			if (Math.abs(lastClickedX - mouseX) < 1 && Math.abs(lastClickedY - mouseY) < 1) {
+				final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 				if (!hoverStations.isEmpty()) {
 					final ScrollableListWidget<Station> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setAreas(scrollableListWidget, hoverStations, null, hasPermission ? ObjectArrayList.of(
@@ -287,7 +289,9 @@ public final class MapWidget extends ClickableWidgetBase {
 				}
 				if (!hoverPlatforms.isEmpty()) {
 					final ScrollableListWidget<Platform> scrollableListWidget = createPopup(mouseX, mouseY);
-					ScrollableListWidget.setSavedRails(scrollableListWidget, hoverPlatforms, hasPermission ? editingRoute == null ? new ObjectArrayList<>() : ObjectArrayList.of(
+					ScrollableListWidget.setSavedRails(scrollableListWidget, hoverPlatforms, hasPermission ? editingRoute == null ? ObjectArrayList.of(
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, platform -> minecraftClient.setScreen(new PlatformScreen(platform, dashboardScreen)))
+					) : ObjectArrayList.of(
 							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, platform -> {
 								if (editingRoute != null) {
 									final RoutePlatformData routePlatformData = new RoutePlatformData(platform.getId());
@@ -299,22 +303,20 @@ public final class MapWidget extends ClickableWidgetBase {
 									routePlatformData.writePlatformCache(editingRoute, MinecraftClientData.getDashboardInstance().platformIdMap);
 								}
 							})
-					) : ObjectArrayList.of(
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, platform -> System.out.println("editing " + platform.getName()))
-					));
+					) : new ObjectArrayList<>());
 				}
 				if (!hoverDepots.isEmpty()) {
 					final ScrollableListWidget<Depot> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setAreas(scrollableListWidget, hoverDepots, null, hasPermission ? ObjectArrayList.of(
 							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, onStartEditingArea::accept),
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, depot -> MinecraftClient.getInstance().setScreen(new EditDepotScreen(depot, transportMode, dashboardScreen))),
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, depot -> minecraftClient.setScreen(new EditDepotScreen(depot, transportMode, dashboardScreen))),
 							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, depot -> onDeleteData.accept(depot, new DeleteDataRequest().addDepotId(depot.getId())))
 					) : new ObjectArrayList<>());
 				}
 				if (!hoverSidings.isEmpty()) {
 					final ScrollableListWidget<Siding> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setSavedRails(scrollableListWidget, hoverSidings, hasPermission ? ObjectArrayList.of(
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, siding -> MinecraftClient.getInstance().setScreen(new SidingScreen(siding, dashboardScreen)))
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, siding -> minecraftClient.setScreen(new SidingScreen(siding, dashboardScreen)))
 					) : new ObjectArrayList<>());
 				}
 			}

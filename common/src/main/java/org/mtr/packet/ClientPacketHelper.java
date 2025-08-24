@@ -49,7 +49,7 @@ public final class ClientPacketHelper {
 				openScreen(new EditDepotScreen(MinecraftClientData.getDashboardInstance().depotIdMap.get(id), transportMode, new DashboardScreen(transportMode)), screenExtension -> screenExtension instanceof EditDepotScreen);
 				break;
 			case PLATFORM:
-				openScreen(new PlatformScreen(MinecraftClientData.getDashboardInstance().platformIdMap.get(id), transportMode, new DashboardScreen(transportMode)), screenExtension -> screenExtension instanceof PlatformScreen);
+				openScreen(new PlatformScreen(MinecraftClientData.getDashboardInstance().platformIdMap.get(id), new DashboardScreen(transportMode)), screenExtension -> screenExtension instanceof PlatformScreen);
 				break;
 			case SIDING:
 				openScreen(new SidingScreen(MinecraftClientData.getDashboardInstance().sidingIdMap.get(id), new DashboardScreen(transportMode)), screenExtension -> screenExtension instanceof SidingScreen);

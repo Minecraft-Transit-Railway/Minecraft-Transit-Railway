@@ -365,7 +365,7 @@
 	"gui.mtr.route_type_train_light_rail": "Type: Light Rail",
 	"gui.mtr.route_type_train_normal": "Type: Normal",
 	"gui.mtr.routes": "Routes",
-	"gui.mtr.routes_at_platform": "Route(s) at Platform",
+	"gui.mtr.routes_at_platform": "Routes at platform: %s",
 	"gui.mtr.s": "s",
 	"gui.mtr.schedule_mode_real_time_off": "Schedule: Minecraft Time",
 	"gui.mtr.schedule_mode_real_time_on": "Schedule: Real Time",

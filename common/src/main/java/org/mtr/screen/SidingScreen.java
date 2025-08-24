@@ -1,7 +1,10 @@
 package org.mtr.screen;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Siding;
 import org.mtr.core.operation.UpdateDataRequest;
@@ -44,68 +47,66 @@ public final class SidingScreen extends ScrollableScreenBase {
 	public SidingScreen(Siding siding, @Nullable Screen previousScreen) {
 		super(previousScreen);
 		this.siding = siding;
-		final int fullWidgetWidth = GuiHelper.STANDARD_SCREEN_WIDTH - GuiHelper.DEFAULT_PADDING * 4;
-		final int halfWidgetWidth = (fullWidgetWidth - GuiHelper.DEFAULT_PADDING) / 2;
 
-		sidingNumberTextField = new BetterTextFieldWidget(16, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_SIDING_NUMBER.getString(), halfWidgetWidth, null);
-		selectVehicleButton = new BetterButtonWidget(GuiHelper.EDIT_TEXTURE_ID, TranslationProvider.GUI_MTR_SELECTED_VEHICLE.getString(), halfWidgetWidth, () -> MinecraftClient.getInstance().setScreen(new VehicleSelectorScreen(siding, this)));
+		sidingNumberTextField = new BetterTextFieldWidget(16, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_SIDING_NUMBER.getString(), HALF_WIDGET_WIDTH, null);
+		selectVehicleButton = new BetterButtonWidget(GuiHelper.EDIT_TEXTURE_ID, TranslationProvider.GUI_MTR_SELECTED_VEHICLE.getString(), HALF_WIDGET_WIDTH, () -> MinecraftClient.getInstance().setScreen(new VehicleSelectorScreen(siding, this)));
 
-		maxVehiclesTextField = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", TranslationProvider.GUI_MTR_MAX_VEHICLES.getString(), halfWidgetWidth, this::maxVehiclesTextFieldCallback);
+		maxVehiclesTextField = new BetterTextFieldWidget(3, TextCase.DEFAULT, "\\D", TranslationProvider.GUI_MTR_MAX_VEHICLES.getString(), HALF_WIDGET_WIDTH, this::maxVehiclesTextFieldCallback);
 		unlimitedVehiclesCheckbox = new BetterCheckboxWidget(TranslationProvider.GUI_MTR_UNLIMITED_VEHICLES.getString(), this::maxVehiclesCheckboxCallback);
 
-		accelerationConstantSlider = new BetterSliderWidget((int) Math.round((Siding.MAX_ACCELERATION - Siding.MIN_ACCELERATION) * ACCELERATION_DECELERATION_SLIDER_SCALE), SidingScreen::accelerationSliderFormatter, TranslationProvider.GUI_MTR_ACCELERATION.getString(), fullWidgetWidth, null);
-		decelerationConstantSlider = new BetterSliderWidget((int) Math.round((Siding.MAX_ACCELERATION - Siding.MIN_ACCELERATION) * ACCELERATION_DECELERATION_SLIDER_SCALE), SidingScreen::accelerationSliderFormatter, TranslationProvider.GUI_MTR_DECELERATION.getString(), fullWidgetWidth, null);
+		accelerationConstantSlider = new BetterSliderWidget((int) Math.round((Siding.MAX_ACCELERATION - Siding.MIN_ACCELERATION) * ACCELERATION_DECELERATION_SLIDER_SCALE), SidingScreen::accelerationSliderFormatter, TranslationProvider.GUI_MTR_ACCELERATION.getString(), FULL_WIDGET_WIDTH, null);
+		decelerationConstantSlider = new BetterSliderWidget((int) Math.round((Siding.MAX_ACCELERATION - Siding.MIN_ACCELERATION) * ACCELERATION_DECELERATION_SLIDER_SCALE), SidingScreen::accelerationSliderFormatter, TranslationProvider.GUI_MTR_DECELERATION.getString(), FULL_WIDGET_WIDTH, null);
 
-		delayedVehicleSpeedIncreasePercentageSlider = new BetterSliderWidget(100, SidingScreen::percentageFormatter, TranslationProvider.GUI_MTR_DELAYED_VEHICLE_SPEED_INCREASE_PERCENTAGE.getString(), halfWidgetWidth, null);
-		delayedVehicleReduceDwellTimePercentageSlider = new BetterSliderWidget(100, SidingScreen::percentageFormatter, TranslationProvider.GUI_MTR_DELAYED_VEHICLE_REDUCE_DWELL_TIME_PERCENTAGE.getString(), halfWidgetWidth, null);
+		delayedVehicleSpeedIncreasePercentageSlider = new BetterSliderWidget(100, SidingScreen::percentageFormatter, TranslationProvider.GUI_MTR_DELAYED_VEHICLE_SPEED_INCREASE_PERCENTAGE.getString(), HALF_WIDGET_WIDTH, null);
+		delayedVehicleReduceDwellTimePercentageSlider = new BetterSliderWidget(100, SidingScreen::percentageFormatter, TranslationProvider.GUI_MTR_DELAYED_VEHICLE_REDUCE_DWELL_TIME_PERCENTAGE.getString(), HALF_WIDGET_WIDTH, null);
 
 		earlyVehicleIncreaseDwellTimeCheckbox = new BetterCheckboxWidget(TranslationProvider.GUI_MTR_EARLY_VEHICLE_INCREASE_DWELL_TIME.getString(), null);
 
 		isManualCheckbox = new BetterCheckboxWidget(TranslationProvider.GUI_MTR_IS_MANUAL.getString(), this::isManualCheckboxCallback);
-		maxManualSpeedSlider = new BetterSliderWidget(RailType.DIAMOND.ordinal(), SidingScreen::speedSliderFormatter, TranslationProvider.GUI_MTR_MAX_MANUAL_SPEED.getString(), halfWidgetWidth, null);
+		maxManualSpeedSlider = new BetterSliderWidget(RailType.DIAMOND.ordinal(), SidingScreen::speedSliderFormatter, TranslationProvider.GUI_MTR_MAX_MANUAL_SPEED.getString(), HALF_WIDGET_WIDTH, null);
 
-		drivableTimeoutSlider = new BetterSliderWidget(MAX_DRIVABLE_TIMEOUT / DRIVABLE_TIMEOUT_SLIDER_SCALE - 1, SidingScreen::timeoutFormatter, TranslationProvider.GUI_MTR_MANUAL_TO_AUTOMATIC_TIME.getString(), fullWidgetWidth, null);
+		drivableTimeoutSlider = new BetterSliderWidget(MAX_DRIVABLE_TIMEOUT / DRIVABLE_TIMEOUT_SLIDER_SCALE - 1, SidingScreen::timeoutFormatter, TranslationProvider.GUI_MTR_MANUAL_TO_AUTOMATIC_TIME.getString(), FULL_WIDGET_WIDTH, null);
 	}
 
 	@Override
 	protected void init() {
 		super.init();
+		final int widgetColumn1 = getWidgetColumn1();
+		final int widgetColumn2 = getWidgetColumn2();
 
-		final int widgetX1 = (width - GuiHelper.STANDARD_SCREEN_WIDTH) / 2 + GuiHelper.DEFAULT_PADDING * 2;
-		final int widgetX2 = width / 2 + GuiHelper.DEFAULT_PADDING / 2;
 		int widgetY = 0;
-		sidingNumberTextField.setPosition(widgetX1, widgetY);
+		sidingNumberTextField.setPosition(widgetColumn1, widgetY);
 		sidingNumberTextField.setText(siding.getName());
-		selectVehicleButton.setPosition(widgetX2, widgetY);
+		selectVehicleButton.setPosition(widgetColumn2, widgetY);
 
 		widgetY += GuiHelper.DEFAULT_LINE_SIZE + GuiHelper.DEFAULT_PADDING;
-		maxVehiclesTextField.setPosition(widgetX1, widgetY);
+		maxVehiclesTextField.setPosition(widgetColumn1, widgetY);
 		maxVehiclesTextField.setText(siding.getIsUnlimited() ? "" : String.valueOf(siding.getMaxVehicles()));
-		unlimitedVehiclesCheckbox.setPosition(widgetX2, widgetY);
+		unlimitedVehiclesCheckbox.setPosition(widgetColumn2, widgetY);
 		unlimitedVehiclesCheckbox.isChecked = siding.getIsUnlimited();
 
 		widgetY += GuiHelper.DEFAULT_LINE_SIZE * 2;
-		accelerationConstantSlider.setPosition(widgetX1, widgetY);
+		accelerationConstantSlider.setPosition(widgetColumn1, widgetY);
 		accelerationConstantSlider.setValue((int) Math.round((siding.getAcceleration() - Siding.MIN_ACCELERATION) * ACCELERATION_DECELERATION_SLIDER_SCALE));
 
 		widgetY += GuiHelper.DEFAULT_LINE_SIZE + GuiHelper.DEFAULT_PADDING;
-		decelerationConstantSlider.setPosition(widgetX1, widgetY);
+		decelerationConstantSlider.setPosition(widgetColumn1, widgetY);
 		decelerationConstantSlider.setValue((int) Math.round((siding.getDeceleration() - Siding.MIN_ACCELERATION) * ACCELERATION_DECELERATION_SLIDER_SCALE));
 
 		widgetY += GuiHelper.DEFAULT_LINE_SIZE * 2;
-		delayedVehicleSpeedIncreasePercentageSlider.setPosition(widgetX1, widgetY);
+		delayedVehicleSpeedIncreasePercentageSlider.setPosition(widgetColumn1, widgetY);
 		delayedVehicleSpeedIncreasePercentageSlider.setValue(siding.getDelayedVehicleSpeedIncreasePercentage());
-		delayedVehicleReduceDwellTimePercentageSlider.setPosition(widgetX2, widgetY);
+		delayedVehicleReduceDwellTimePercentageSlider.setPosition(widgetColumn2, widgetY);
 		delayedVehicleReduceDwellTimePercentageSlider.setValue(siding.getDelayedVehicleReduceDwellTimePercentage());
 
 		widgetY += GuiHelper.DEFAULT_LINE_SIZE + GuiHelper.DEFAULT_PADDING;
-		earlyVehicleIncreaseDwellTimeCheckbox.setPosition(widgetX1, widgetY);
+		earlyVehicleIncreaseDwellTimeCheckbox.setPosition(widgetColumn1, widgetY);
 		earlyVehicleIncreaseDwellTimeCheckbox.isChecked = siding.getEarlyVehicleIncreaseDwellTime();
 
 		widgetY += GuiHelper.DEFAULT_LINE_SIZE * 2;
-		isManualCheckbox.setPosition(widgetX1, widgetY);
+		isManualCheckbox.setPosition(widgetColumn1, widgetY);
 		isManualCheckbox.isChecked = siding.getIsManual();
-		maxManualSpeedSlider.setPosition(widgetX2, widgetY);
+		maxManualSpeedSlider.setPosition(widgetColumn2, widgetY);
 		for (final RailType railType : RailType.values()) {
 			if (Math.abs(Utilities.kilometersPerHourToMetersPerMillisecond(railType.speedLimit) - siding.getMaxManualSpeed()) < 0.001) {
 				maxManualSpeedSlider.setValue(railType.ordinal());
@@ -114,7 +115,7 @@ public final class SidingScreen extends ScrollableScreenBase {
 		}
 
 		widgetY += GuiHelper.DEFAULT_LINE_SIZE + GuiHelper.DEFAULT_PADDING;
-		drivableTimeoutSlider.setPosition(widgetX1, widgetY);
+		drivableTimeoutSlider.setPosition(widgetColumn1, widgetY);
 		drivableTimeoutSlider.setValue(siding.getManualToAutomaticTime() / DRIVABLE_TIMEOUT_SLIDER_SCALE - 1);
 
 		addDrawableChild(sidingNumberTextField);
@@ -184,13 +185,18 @@ public final class SidingScreen extends ScrollableScreenBase {
 	}
 
 	@Override
-	public String getScreenTitle() {
-		return TranslationProvider.GUI_MTR_SIDING.getString(Utilities.formatName(sidingNumberTextField.getText()));
+	public ObjectArrayList<MutableText> getScreenTitle() {
+		return ObjectArrayList.of(TranslationProvider.GUI_MTR_SIDING.getMutableText(Utilities.formatName(sidingNumberTextField.getText())));
 	}
 
 	@Override
-	public String getScreenSubtitle() {
-		return Utilities.formatName(siding.getDepotName());
+	public ObjectArrayList<MutableText> getScreenSubtitle() {
+		return ObjectArrayList.of(Text.literal(Utilities.formatName(siding.getDepotName())));
+	}
+
+	@Override
+	public ObjectArrayList<MutableText> getScreenDescription() {
+		return new ObjectArrayList<>();
 	}
 
 	private void maxVehiclesTextFieldCallback(String text) {
