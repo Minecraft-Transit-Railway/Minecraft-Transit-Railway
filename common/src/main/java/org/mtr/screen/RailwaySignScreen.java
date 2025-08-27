@@ -76,7 +76,7 @@ public class RailwaySignScreen extends ScreenBase implements IGui {
 			stationsForList = new ObjectArraySet<>();
 			routesForList = new ObjectArraySet<>();
 		} else {
-			exitsForList = new ObjectImmutableList<>(EditStationScreen.getExitsForDashboardList(EditStationScreen.getStationExits(station, true)));
+			exitsForList = ObjectImmutableList.of(); // TODO
 			platformsForList = PIDSConfigScreen.getPlatformsForList(new ObjectArrayList<>(station.savedRails));
 
 			final ObjectArraySet<Station> connectingStationsIncludingThisOne = new ObjectArraySet<>(station.connectedStations);

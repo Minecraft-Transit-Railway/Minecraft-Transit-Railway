@@ -17,6 +17,7 @@ import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 import org.mtr.widget.BetterButtonWidget;
+import org.mtr.widget.PopupWidgetBase;
 import org.mtr.widget.ScrollbarWidget;
 
 public abstract class ScrollableScreenBase extends ScreenBase {
@@ -30,6 +31,7 @@ public abstract class ScrollableScreenBase extends ScreenBase {
 
 	protected static final int FULL_WIDGET_WIDTH = GuiHelper.STANDARD_SCREEN_WIDTH - GuiHelper.DEFAULT_PADDING * 4;
 	protected static final int HALF_WIDGET_WIDTH = (FULL_WIDGET_WIDTH - GuiHelper.DEFAULT_PADDING) / 2;
+	protected static final int ONE_THIRD_WIDGET_WIDTH = (FULL_WIDGET_WIDTH - GuiHelper.DEFAULT_PADDING * 2) / 3;
 
 	private static final int TITLE_SCALE = 2;
 	private static final int FOOTER_HEIGHT = GuiHelper.DEFAULT_PADDING * 2 + GuiHelper.DEFAULT_LINE_SIZE * 2;
@@ -52,7 +54,7 @@ public abstract class ScrollableScreenBase extends ScreenBase {
 		if (childrenYPositions == null) {
 			childrenYPositions = new Object2IntArrayMap<>();
 			children().forEach(child -> {
-				if (child instanceof ClickableWidget clickableWidget && clickableWidget != scrollbarWidget && clickableWidget != doneButton && clickableWidget != resetButton) {
+				if (child instanceof ClickableWidget clickableWidget && clickableWidget != scrollbarWidget && clickableWidget != doneButton && clickableWidget != resetButton && !(clickableWidget instanceof PopupWidgetBase)) {
 					childrenYPositions.put(clickableWidget, clickableWidget.getY());
 				}
 			});
@@ -165,8 +167,16 @@ public abstract class ScrollableScreenBase extends ScreenBase {
 		return (width - GuiHelper.STANDARD_SCREEN_WIDTH) / 2 + GuiHelper.DEFAULT_PADDING * 2;
 	}
 
-	protected int getWidgetColumn2() {
-		return width / 2 + GuiHelper.DEFAULT_PADDING / 2;
+	protected int getWidgetColumn2Of2() {
+		return getWidgetColumn1() + HALF_WIDGET_WIDTH + GuiHelper.DEFAULT_PADDING;
+	}
+
+	protected int getWidgetColumn2Of3() {
+		return getWidgetColumn1() + ONE_THIRD_WIDGET_WIDTH + GuiHelper.DEFAULT_PADDING;
+	}
+
+	protected int getWidgetColumn3Of3() {
+		return getWidgetColumn1() + ONE_THIRD_WIDGET_WIDTH * 2 + GuiHelper.DEFAULT_PADDING * 2;
 	}
 
 	private static ObjectArrayList<OrderedText> getTextLines(ObjectArrayList<MutableText> text) {

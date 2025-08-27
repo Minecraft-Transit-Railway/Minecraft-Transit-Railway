@@ -72,17 +72,17 @@ public final class SidingScreen extends ScrollableScreenBase {
 	protected void init() {
 		super.init();
 		final int widgetColumn1 = getWidgetColumn1();
-		final int widgetColumn2 = getWidgetColumn2();
+		final int widgetColumn2Of2 = getWidgetColumn2Of2();
 
 		int widgetY = 0;
 		sidingNumberTextField.setPosition(widgetColumn1, widgetY);
 		sidingNumberTextField.setText(siding.getName());
-		selectVehicleButton.setPosition(widgetColumn2, widgetY);
+		selectVehicleButton.setPosition(widgetColumn2Of2, widgetY);
 
 		widgetY += GuiHelper.DEFAULT_LINE_SIZE + GuiHelper.DEFAULT_PADDING;
 		maxVehiclesTextField.setPosition(widgetColumn1, widgetY);
 		maxVehiclesTextField.setText(siding.getIsUnlimited() ? "" : String.valueOf(siding.getMaxVehicles()));
-		unlimitedVehiclesCheckbox.setPosition(widgetColumn2, widgetY);
+		unlimitedVehiclesCheckbox.setPosition(widgetColumn2Of2, widgetY);
 		unlimitedVehiclesCheckbox.isChecked = siding.getIsUnlimited();
 
 		widgetY += GuiHelper.DEFAULT_LINE_SIZE * 2;
@@ -96,7 +96,7 @@ public final class SidingScreen extends ScrollableScreenBase {
 		widgetY += GuiHelper.DEFAULT_LINE_SIZE * 2;
 		delayedVehicleSpeedIncreasePercentageSlider.setPosition(widgetColumn1, widgetY);
 		delayedVehicleSpeedIncreasePercentageSlider.setValue(siding.getDelayedVehicleSpeedIncreasePercentage());
-		delayedVehicleReduceDwellTimePercentageSlider.setPosition(widgetColumn2, widgetY);
+		delayedVehicleReduceDwellTimePercentageSlider.setPosition(widgetColumn2Of2, widgetY);
 		delayedVehicleReduceDwellTimePercentageSlider.setValue(siding.getDelayedVehicleReduceDwellTimePercentage());
 
 		widgetY += GuiHelper.DEFAULT_LINE_SIZE + GuiHelper.DEFAULT_PADDING;
@@ -106,7 +106,7 @@ public final class SidingScreen extends ScrollableScreenBase {
 		widgetY += GuiHelper.DEFAULT_LINE_SIZE * 2;
 		isManualCheckbox.setPosition(widgetColumn1, widgetY);
 		isManualCheckbox.isChecked = siding.getIsManual();
-		maxManualSpeedSlider.setPosition(widgetColumn2, widgetY);
+		maxManualSpeedSlider.setPosition(widgetColumn2Of2, widgetY);
 		for (final RailType railType : RailType.values()) {
 			if (Math.abs(Utilities.kilometersPerHourToMetersPerMillisecond(railType.speedLimit) - siding.getMaxManualSpeed()) < 0.001) {
 				maxManualSpeedSlider.setValue(railType.ordinal());

@@ -118,7 +118,7 @@ public final class ListItem<T> {
 		});
 		currentDataList.clear();
 		newDataList.forEach(listItem -> {
-			listItem.expanded = expandedKeys.contains(listItem.parentKey);
+			listItem.expanded |= expandedKeys.contains(listItem.parentKey);
 			currentDataList.add(listItem);
 		});
 	}

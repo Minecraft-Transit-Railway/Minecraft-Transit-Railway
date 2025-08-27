@@ -22,11 +22,10 @@ import org.mtr.client.IDrawing;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.data.Station;
-import org.mtr.core.data.StationExit;
+import org.mtr.data.FormattedStationExit;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.resource.SignResource;
-import org.mtr.screen.EditStationScreen;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -126,10 +125,9 @@ public class RenderRailwaySign<T extends BlockRailwaySign.RailwaySignBlockEntity
 				return;
 			}
 
-			final ObjectArrayList<StationExit> selectedExitsSorted = new ObjectArrayList<>();
-			final ObjectArrayList<StationExit> exits = EditStationScreen.getStationExits(station, true);
-			exits.forEach(exit -> {
-				if (selectedIds.longStream().anyMatch(selectedId -> EditStationScreen.deserializeExit(selectedId).equals(exit.getName()))) {
+			final ObjectArrayList<FormattedStationExit> selectedExitsSorted = new ObjectArrayList<>();
+			FormattedStationExit.getFormattedStationExits(station.getExits(), true).forEach(exit -> {
+				if (selectedIds.longStream().anyMatch(selectedId -> deserializeExit(selectedId).equals(exit.name))) {
 					selectedExitsSorted.add(exit);
 				}
 			});
@@ -138,10 +136,10 @@ public class RenderRailwaySign<T extends BlockRailwaySign.RailwaySignBlockEntity
 			final float exitWidth = signSize * selectedExitsSorted.size();
 
 			for (int i = 0; i < selectedExitsSorted.size(); i++) {
-				final StationExit stationExit = selectedExitsSorted.get(flipCustomText ? selectedExitsSorted.size() - i - 1 : i);
+				final FormattedStationExit stationExit = selectedExitsSorted.get(flipCustomText ? selectedExitsSorted.size() - i - 1 : i);
 				final float signOffset = (flipCustomText ? -1 : 1) * signSize * i - (flipCustomText ? signSize : 0);
 
-				MainRenderer.scheduleRender(DynamicTextureCache.instance.getExitSignLetter(stationExit.getName().substring(0, 1), stationExit.getName().substring(1), backgroundColor).identifier, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (matrixStack, vertexConsumer, offset) -> {
+				MainRenderer.scheduleRender(DynamicTextureCache.instance.getExitSignLetter(stationExit.parent, stationExit.number, backgroundColor).identifier, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (matrixStack, vertexConsumer, offset) -> {
 					storedMatrixTransformations.transform(matrixStack, offset);
 					matrixStack.translate(x + margin + (flipCustomText ? signSize : 0), y + margin, 0);
 					matrixStack.scale(Math.min(1, maxWidth / exitWidth), 1, 1);
@@ -149,8 +147,8 @@ public class RenderRailwaySign<T extends BlockRailwaySign.RailwaySignBlockEntity
 					matrixStack.pop();
 				});
 
-				if (maxWidth > exitWidth && selectedExitsSorted.size() == 1 && !stationExit.getDestinations().isEmpty()) {
-					renderCustomText(stationExit.getDestinations().get(0), storedMatrixTransformations, facing, size, flipCustomText ? x : x + size, flipCustomText, maxWidth - exitWidth - margin * 2, backgroundColor);
+				if (maxWidth > exitWidth && selectedExitsSorted.size() == 1 && !stationExit.destinations.isEmpty()) {
+					renderCustomText(stationExit.destinations.getFirst(), storedMatrixTransformations, facing, size, flipCustomText ? x : x + size, flipCustomText, maxWidth - exitWidth - margin * 2, backgroundColor);
 				}
 			}
 		} else if (storedMatrixTransformations != null && isLine) {
@@ -293,6 +291,16 @@ public class RenderRailwaySign<T extends BlockRailwaySign.RailwaySignBlockEntity
 		}
 
 		return maxWidthLeft;
+	}
+
+	private static String deserializeExit(long code) {
+		final StringBuilder exit = new StringBuilder();
+		long charCodes = code;
+		while (charCodes > 0) {
+			exit.insert(0, (char) (charCodes & 0xFF));
+			charCodes = charCodes >> 8;
+		}
+		return exit.toString();
 	}
 
 	@FunctionalInterface

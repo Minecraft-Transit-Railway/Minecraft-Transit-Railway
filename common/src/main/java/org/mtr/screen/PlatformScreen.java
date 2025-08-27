@@ -24,8 +24,6 @@ public final class PlatformScreen extends ScrollableScreenBase {
 
 	private static final int DWELL_TIME_SLIDER_SCALE = 500; // 500 ms interval
 	private static final int MAX_DWELL_TIME = 10 * Utilities.MILLIS_PER_MINUTE; // 10 minutes
-	private static final MutableText DWELL_TIME_TEXT = TranslationProvider.GUI_MTR_DWELL_TIME.getMutableText();
-	private static final MutableText ROUTES_AT_PLATFORM_TEXT = TranslationProvider.GUI_MTR_ROUTES_AT_PLATFORM.getMutableText();
 
 	public PlatformScreen(Platform platform, Screen previousScreen) {
 		super(previousScreen);

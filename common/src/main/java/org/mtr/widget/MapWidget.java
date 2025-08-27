@@ -29,10 +29,7 @@ import org.mtr.data.IGui;
 import org.mtr.font.FontGroups;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.map.MapTileProvider;
-import org.mtr.screen.DashboardScreen;
-import org.mtr.screen.EditDepotScreen;
-import org.mtr.screen.PlatformScreen;
-import org.mtr.screen.SidingScreen;
+import org.mtr.screen.*;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiAnimation;
 import org.mtr.tool.GuiHelper;
@@ -283,9 +280,10 @@ public final class MapWidget extends ClickableWidgetBase {
 					final ScrollableListWidget<Station> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setAreas(scrollableListWidget, hoverStations, null, hasPermission ? ObjectArrayList.of(
 							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, onStartEditingArea::accept),
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, station -> System.out.println("editing " + station.getName())),
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, station -> minecraftClient.setScreen(new StationScreen(station, dashboardScreen))),
 							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, station -> onDeleteData.accept(station, new DeleteDataRequest().addStationId(station.getId())))
 					) : new ObjectArrayList<>());
+					scrollableListWidget.tryTrigger();
 				}
 				if (!hoverPlatforms.isEmpty()) {
 					final ScrollableListWidget<Platform> scrollableListWidget = createPopup(mouseX, mouseY);
@@ -304,6 +302,7 @@ public final class MapWidget extends ClickableWidgetBase {
 								}
 							})
 					) : new ObjectArrayList<>());
+					scrollableListWidget.tryTrigger();
 				}
 				if (!hoverDepots.isEmpty()) {
 					final ScrollableListWidget<Depot> scrollableListWidget = createPopup(mouseX, mouseY);
@@ -312,12 +311,14 @@ public final class MapWidget extends ClickableWidgetBase {
 							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, depot -> minecraftClient.setScreen(new EditDepotScreen(depot, transportMode, dashboardScreen))),
 							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, depot -> onDeleteData.accept(depot, new DeleteDataRequest().addDepotId(depot.getId())))
 					) : new ObjectArrayList<>());
+					scrollableListWidget.tryTrigger();
 				}
 				if (!hoverSidings.isEmpty()) {
 					final ScrollableListWidget<Siding> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setSavedRails(scrollableListWidget, hoverSidings, hasPermission ? ObjectArrayList.of(
 							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, siding -> minecraftClient.setScreen(new SidingScreen(siding, dashboardScreen)))
 					) : new ObjectArrayList<>());
+					scrollableListWidget.tryTrigger();
 				}
 			}
 		} else {

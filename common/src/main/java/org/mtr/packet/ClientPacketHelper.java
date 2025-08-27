@@ -43,7 +43,7 @@ public final class ClientPacketHelper {
 	public static void openDashboardScreen(TransportMode transportMode, PacketOpenDashboardScreen.ScreenType screenType, long id) {
 		switch (screenType) {
 			case STATION:
-				openScreen(new EditStationScreen(MinecraftClientData.getDashboardInstance().stationIdMap.get(id), new DashboardScreen(transportMode)), screenExtension -> screenExtension instanceof EditStationScreen);
+				openScreen(new StationScreen(MinecraftClientData.getDashboardInstance().stationIdMap.get(id), new DashboardScreen(transportMode)), screenExtension -> screenExtension instanceof StationScreen);
 				break;
 			case DEPOT:
 				openScreen(new EditDepotScreen(MinecraftClientData.getDashboardInstance().depotIdMap.get(id), transportMode, new DashboardScreen(transportMode)), screenExtension -> screenExtension instanceof EditDepotScreen);

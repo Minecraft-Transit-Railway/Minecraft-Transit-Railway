@@ -320,7 +320,7 @@ public final class DashboardScreen extends ScreenBase {
 					final ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<Station>>> actions = ObjectArrayList.of(new ObjectObjectImmutablePair<>(GuiHelper.FIND_TEXTURE_ID, mapWidget::find));
 					if (hasPermission) {
 						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, this::startEditingArea));
-						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, station -> System.out.println("editing " + station.getName())));
+						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, station -> MinecraftClient.getInstance().setScreen(new StationScreen(station, this))));
 						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, station -> onDeleteData(station, new DeleteDataRequest().addStationId(station.getId()))));
 					}
 					ScrollableListWidget.setAreas(stationsListWidget, MinecraftClientData.getDashboardInstance().stations, null, actions);

@@ -153,6 +153,18 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		return dataList.stream().anyMatch(ListItem::isExpanded);
 	}
 
+	/**
+	 * If there is only one item with one action, trigger it.
+	 */
+	public void tryTrigger() {
+		if (dataList.size() == 1) {
+			final ListItem<T> listItem = dataList.getFirst();
+			if (listItem.actionCount() == 1) {
+				listItem.iterateActions((actionIndex, identifier, callback) -> callback.run());
+			}
+		}
+	}
+
 	private FontRenderOptions.FontRenderOptionsBuilder initDimensions() {
 		final FontRenderOptions.FontRenderOptionsBuilder fontRenderOptionsBuilder = FontRenderOptions.builder()
 				.maxFontSize(GuiHelper.MINECRAFT_FONT_SIZE)
