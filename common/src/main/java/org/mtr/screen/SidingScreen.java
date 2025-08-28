@@ -180,7 +180,6 @@ public final class SidingScreen extends ScrollableScreenBase {
 		siding.setManualToAutomaticTime(drivableTimeoutSlider.getIntValue() * DRIVABLE_TIMEOUT_SLIDER_SCALE + DRIVABLE_TIMEOUT_SLIDER_SCALE);
 
 		RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addSiding(siding)));
-
 		super.close();
 	}
 

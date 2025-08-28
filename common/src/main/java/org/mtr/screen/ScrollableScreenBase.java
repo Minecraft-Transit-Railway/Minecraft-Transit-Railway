@@ -18,6 +18,7 @@ import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 import org.mtr.widget.BetterButtonWidget;
 import org.mtr.widget.PopupWidgetBase;
+import org.mtr.widget.ScrollableListWidget;
 import org.mtr.widget.ScrollbarWidget;
 
 public abstract class ScrollableScreenBase extends ScreenBase {
@@ -70,6 +71,7 @@ public abstract class ScrollableScreenBase extends ScreenBase {
 		final int headerSpacing2 = (titleHeight > 0 || subtitleHeight > 0) && descriptionHeight > 0 ? GuiHelper.DEFAULT_PADDING : 0;
 		final int headerHeight = GuiHelper.DEFAULT_PADDING + GuiHelper.DEFAULT_LINE_SIZE * 2 + titleHeight + headerSpacing1 + subtitleHeight + headerSpacing2 + descriptionHeight;
 		final int scrollY = (int) scrollbarWidget.getScrollY();
+		final ObjectArrayList<ScrollableListWidget<?>> listWidgets = new ObjectArrayList<>();
 
 		// Adjust children by scroll position
 		final int[] contentHeight = {0};
@@ -77,6 +79,10 @@ public abstract class ScrollableScreenBase extends ScreenBase {
 			if (clickableWidget.visible) {
 				contentHeight[0] = Math.max(contentHeight[0], y + clickableWidget.getHeight());
 				clickableWidget.setY(y + headerHeight - scrollY);
+			}
+
+			if (clickableWidget instanceof ScrollableListWidget<?> scrollableListWidget) {
+				listWidgets.add(scrollableListWidget);
 			}
 		});
 
@@ -99,6 +105,7 @@ public abstract class ScrollableScreenBase extends ScreenBase {
 
 		// Draw background
 		drawing.setVerticesWH(backgroundX, GuiHelper.DEFAULT_PADDING - scrollY, GuiHelper.STANDARD_SCREEN_WIDTH - GuiHelper.DEFAULT_PADDING * 2, headerHeight + contentHeight[0] + FOOTER_HEIGHT - GuiHelper.DEFAULT_PADDING * 2).setColor(GuiHelper.TRANSLUCENT_BACKGROUND_COLOR).draw();
+		listWidgets.forEach(scrollableListWidget -> drawing.setVerticesWH(scrollableListWidget.getX(), scrollableListWidget.getY(), scrollableListWidget.getWidth(), scrollableListWidget.getHeight()).setColor(GuiHelper.BACKGROUND_COLOR).draw());
 
 		// Draw title
 		matrixStack.push();

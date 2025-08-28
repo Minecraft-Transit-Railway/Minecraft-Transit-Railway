@@ -308,7 +308,7 @@ public final class MapWidget extends ClickableWidgetBase {
 					final ScrollableListWidget<Depot> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setAreas(scrollableListWidget, hoverDepots, null, hasPermission ? ObjectArrayList.of(
 							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, onStartEditingArea::accept),
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, depot -> minecraftClient.setScreen(new EditDepotScreen(depot, transportMode, dashboardScreen))),
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, depot -> minecraftClient.setScreen(new DepotScreen(depot, dashboardScreen))),
 							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, depot -> onDeleteData.accept(depot, new DeleteDataRequest().addDepotId(depot.getId())))
 					) : new ObjectArrayList<>());
 					scrollableListWidget.tryTrigger();

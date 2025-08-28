@@ -150,7 +150,6 @@ public final class StationScreen extends ScrollableScreenBase {
 		});
 
 		RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addStation(station)));
-
 		super.close();
 	}
 
@@ -161,7 +160,7 @@ public final class StationScreen extends ScrollableScreenBase {
 
 	@Override
 	public ObjectArrayList<MutableText> getScreenSubtitle() {
-		return new ObjectArrayList<>();
+		return ObjectArrayList.of(TranslationProvider.GUI_MTR_PLATFORMS_IN_STATION.getMutableText(station.savedRails.size()));
 	}
 
 	@Override
@@ -173,6 +172,8 @@ public final class StationScreen extends ScrollableScreenBase {
 		colorSelector.setColorCallback(color -> {
 			tempColor = color;
 			openColorSelectorButton.setBackgroundColor(ColorHelper.fullAlpha(color));
+			cleanExits();
+			setExitListItems(null);
 		}, tempColor);
 		colorSelector.setY((height - colorSelector.getHeight()) / 2);
 		enableControls(false);
@@ -287,7 +288,7 @@ public final class StationScreen extends ScrollableScreenBase {
 
 			for (int i = 0; i < exit.destinations.size(); i++) {
 				destinationListItems.add(ListItem.createChild((drawing, x, y) -> {
-				}, 0, exit.destinations.get(i), new ObjectIntImmutablePair<>(exit, i), ObjectArrayList.of(
+				}, GuiHelper.MINECRAFT_FONT_SIZE, exit.destinations.get(i), new ObjectIntImmutablePair<>(exit, i), ObjectArrayList.of(
 						new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, this::startEditingExitCallback),
 						new ObjectObjectImmutablePair<>(GuiHelper.UP_TEXTURE_ID, exitWithIndex -> moveExitDestination(exitWithIndex.left(), exitWithIndex.rightInt(), -1)),
 						new ObjectObjectImmutablePair<>(GuiHelper.DOWN_TEXTURE_ID, exitWithIndex -> moveExitDestination(exitWithIndex.left(), exitWithIndex.rightInt(), 1)),
@@ -295,8 +296,14 @@ public final class StationScreen extends ScrollableScreenBase {
 				)));
 			}
 
-			final ListItem<ObjectIntImmutablePair<FormattedStationExit>> parentListItem = ListItem.createParent((drawing, x, y) -> {
-			}, 0, exit.name, exit.name, destinationListItems);
+			final int destinationsCount = exit.destinations.size();
+			final ListItem<ObjectIntImmutablePair<FormattedStationExit>> parentListItem = ListItem.createParent(
+					(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(ColorHelper.fullAlpha(tempColor)).draw(),
+					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
+					String.format("%s%s%s", exit.name, destinationsCount == 0 ? "" : " " + exit.destinations.getFirst(), destinationsCount > 1 ? String.format(" (+%s)", destinationsCount - 1) : ""),
+					Utilities.formatName(exit.name),
+					destinationListItems
+			);
 
 			if (exit.name.equals(expandedExitName) && !parentListItem.isExpanded()) {
 				parentListItem.toggle();

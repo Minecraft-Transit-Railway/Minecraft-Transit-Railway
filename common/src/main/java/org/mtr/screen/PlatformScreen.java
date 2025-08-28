@@ -59,7 +59,6 @@ public final class PlatformScreen extends ScrollableScreenBase {
 		platform.setDwellTime((long) dwellTimeSlider.getIntValue() * DWELL_TIME_SLIDER_SCALE + DWELL_TIME_SLIDER_SCALE);
 
 		RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addPlatform(platform)));
-
 		super.close();
 	}
 
