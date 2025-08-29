@@ -21,6 +21,8 @@ public final class ListItem<T> {
 
 	public final DrawIcon drawIcon;
 	public final int iconWidth;
+	@Nullable
+	public final T data;
 	public final String text;
 	private final String textLowerCase;
 	@Nullable
@@ -28,26 +30,24 @@ public final class ListItem<T> {
 	@Nullable
 	private final ObjectArrayList<ListItem<T>> children;
 	@Nullable
-	private final T data;
-	@Nullable
 	private final ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<T>>> actions;
 
 	public static <T> ListItem<T> createParent(DrawIcon drawIcon, int iconWidth, String text, String key, ObjectArrayList<ListItem<T>> children) {
-		return new ListItem<>(drawIcon, iconWidth, text, key, children, null, null);
+		return new ListItem<>(drawIcon, iconWidth, null, text, key, children, null);
 	}
 
-	public static <T> ListItem<T> createChild(DrawIcon drawIcon, int iconWidth, String text, T data, ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<T>>> actions) {
-		return new ListItem<>(drawIcon, iconWidth, text, null, null, data, actions);
+	public static <T> ListItem<T> createChild(DrawIcon drawIcon, int iconWidth, T data, String text, ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<T>>> actions) {
+		return new ListItem<>(drawIcon, iconWidth, data, text, null, null, actions);
 	}
 
-	private ListItem(DrawIcon drawIcon, int iconWidth, String text, @Nullable String parentKey, @Nullable ObjectArrayList<ListItem<T>> children, @Nullable T data, @Nullable ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<T>>> actions) {
+	private ListItem(DrawIcon drawIcon, int iconWidth, @Nullable T data, String text, @Nullable String parentKey, @Nullable ObjectArrayList<ListItem<T>> children, @Nullable ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<T>>> actions) {
 		this.drawIcon = drawIcon;
 		this.iconWidth = iconWidth;
+		this.data = data;
 		this.text = text;
 		this.textLowerCase = text.toLowerCase(Locale.ENGLISH);
 		this.parentKey = parentKey;
 		this.children = children;
-		this.data = data;
 		this.actions = actions;
 	}
 
@@ -118,7 +118,7 @@ public final class ListItem<T> {
 		});
 		currentDataList.clear();
 		newDataList.forEach(listItem -> {
-			listItem.expanded |= expandedKeys.contains(listItem.parentKey);
+			listItem.expanded |= listItem.parentKey != null && expandedKeys.contains(listItem.parentKey);
 			currentDataList.add(listItem);
 		});
 	}

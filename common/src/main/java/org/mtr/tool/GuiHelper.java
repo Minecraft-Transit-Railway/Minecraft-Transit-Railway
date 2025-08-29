@@ -28,8 +28,11 @@ public final class GuiHelper {
 	public static final int TEXT_SELECTION_COLOR = 0xFF666666;
 	public static final int DISABLED_TEXT_COLOR = 0xFF777777;
 	public static final int SCROLL_BAR_HOVER_COLOR = 0xFF888888;
+	public static final int DARK_GRAY_COLOR = 0xFF555555;
 	public static final int LIGHT_GRAY_COLOR = 0xFFAAAAAA;
 	public static final int WHITE_COLOR = 0xFFFFFFFF;
+	public static final int RED_COLOR = 0xFFFF0000;
+	public static final int YELLOW_COLOR = 0xFFFFFF00;
 	public static final int TRANSLUCENT_BACKGROUND_COLOR = 0xCC111111;
 
 	public static final int MINECRAFT_FONT_SIZE = 8;

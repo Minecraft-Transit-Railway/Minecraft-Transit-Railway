@@ -14,6 +14,7 @@ import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.*;
 import org.mtr.core.operation.DeleteDataRequest;
 import org.mtr.core.operation.UpdateDataRequest;
+import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.packet.PacketDeleteData;
@@ -339,9 +340,9 @@ public final class DashboardScreen extends ScreenBase {
 				} else {
 					ScrollableListWidget.setRoutePlatforms(routePlatformsListWidget, editingRoute.getRoutePlatforms(), hasPermission ? ObjectArrayList.of(
 							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, routePlatformDataWithIndex -> startEditingRouteDestination(routePlatformDataWithIndex.rightInt())),
-							new ObjectObjectImmutablePair<>(GuiHelper.UP_TEXTURE_ID, routePlatformDataWithIndex -> moveRoutePlatform(routePlatformDataWithIndex.rightInt(), -1)),
-							new ObjectObjectImmutablePair<>(GuiHelper.DOWN_TEXTURE_ID, routePlatformDataWithIndex -> moveRoutePlatform(routePlatformDataWithIndex.rightInt(), 1)),
-							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, routePlatformDataWithIndex -> onDeletePlatformFromRoute(routePlatformDataWithIndex.rightInt()))
+							ScrollableListWidget.createUpButton(editingRoute.getRoutePlatforms(), null),
+							ScrollableListWidget.createDownButton(editingRoute.getRoutePlatforms(), null),
+							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, routePlatformDataWithIndex -> Utilities.removeElement(editingRoute.getRoutePlatforms(), routePlatformDataWithIndex.rightInt()))
 					) : new ObjectArrayList<>());
 				}
 			}
@@ -453,33 +454,12 @@ public final class DashboardScreen extends ScreenBase {
 		mapWidget.startEditingRoute(editingRoute);
 	}
 
-	private void moveRoutePlatform(int index, int direction) {
-		if (editingRoute != null && (direction > 0 && index < editingRoute.getRoutePlatforms().size() - 1 || direction < 0 && index > 0)) {
-			final RoutePlatformData routePlatformData = editingRoute.getRoutePlatforms().remove(index);
-			if (hasShiftDown()) {
-				if (direction > 0) {
-					editingRoute.getRoutePlatforms().add(routePlatformData);
-				} else {
-					editingRoute.getRoutePlatforms().addFirst(routePlatformData);
-				}
-			} else {
-				editingRoute.getRoutePlatforms().add(index + direction, routePlatformData);
-			}
-		}
-	}
-
 	private void startEditingRouteDestination(int index) {
 		if (editingRoute != null) {
 			editingRoutePlatformIndex = index;
 			if (isValidRoutePlatformIndex()) {
 				routeDestinationTextField.setText(editingRoute.getRoutePlatforms().get(index).getCustomDestination());
 			}
-		}
-	}
-
-	private void onDeletePlatformFromRoute(int index) {
-		if (editingRoute != null && index >= 0 && index < editingRoute.getRoutePlatforms().size()) {
-			editingRoute.getRoutePlatforms().remove(index);
 		}
 	}
 

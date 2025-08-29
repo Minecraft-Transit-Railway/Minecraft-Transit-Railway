@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.objects.ObjectIntImmutablePair;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
@@ -35,6 +36,8 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 	private int minWidth, minHeight;
 	private int maxWidth, maxHeight;
 	private int rawHeight;
+	@Nullable
+	private ListItem<T> hoverItem;
 
 	private final ObjectArrayList<ListItem<T>> dataList = new ObjectArrayList<>();
 
@@ -43,13 +46,14 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 	@Override
 	protected void render(DrawContext context, int mouseX, int mouseY) {
 		clickAction = null;
+		hoverItem = null;
 		final FontRenderOptions.FontRenderOptionsBuilder fontRenderOptionsBuilder = initDimensions();
 		final MatrixStack matrixStack = context.getMatrices();
 		final Drawing drawing = new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
 		final ObjectArrayList<Runnable> deferredRenders = new ObjectArrayList<>();
 
 		ListItem.iterateData(dataList, filter, (dataIndex, level, listItem) -> {
-			final int startX = getX() + level * GuiHelper.DEFAULT_PADDING;
+			final int startX = getX();
 			final int endX = getX() + width - getScrollbarWidth();
 			final double startY = getY() - getScrollY() + GuiHelper.DEFAULT_LINE_SIZE * dataIndex;
 
@@ -94,6 +98,8 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 							);
 						});
 					}
+
+					hoverItem = listItem;
 				}
 
 				// Draw icon
@@ -143,6 +149,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 	public void setFilter(@Nullable String filter) {
 		ListItem.expandByFilter(dataList, filter);
 		this.filter = filter;
+		initDimensions();
 	}
 
 	public void toggleExpansion() {
@@ -151,6 +158,10 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 
 	public boolean canCollapse() {
 		return dataList.stream().anyMatch(ListItem::isExpanded);
+	}
+
+	public T getHoverData() {
+		return hoverItem == null ? null : hoverItem.data;
 	}
 
 	/**
@@ -176,7 +187,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		final int[] count = {0};
 		final int[] maxLineWidth = {0};
 
-		ListItem.iterateData(dataList, null, (index, level, listItem) -> {
+		ListItem.iterateData(dataList, filter, (index, level, listItem) -> {
 			if (!fixedWidth && maxLineWidth[0] < maxWidth) {
 				maxLineWidth[0] = Math.max(maxLineWidth[0], (level + 2) * GuiHelper.DEFAULT_PADDING + listItem.iconWidth + (int) Math.ceil(FontGroups.renderMTR(null, listItem.text, fontRenderOptionsBuilder.build()).leftFloat()) + listItem.actionCount() * GuiHelper.DEFAULT_LINE_SIZE + getScrollbarWidth());
 			}
@@ -203,8 +214,8 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		sortedAreas.forEach(area -> dataList.add(ListItem.createChild(
 				(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(ColorHelper.fullAlpha(area.getColor())).draw(),
 				GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
-				Utilities.formatName(area.getName()),
 				area,
+				Utilities.formatName(area.getName()),
 				actions
 		)));
 
@@ -249,8 +260,8 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 						drawPlatformNumber(drawing, x, y, savedRail.getName());
 					},
 					GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING / 2,
-					text,
 					savedRail,
+					text,
 					actions
 			));
 		});
@@ -289,7 +300,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 			}
 
 			currentListItem.addChild(ListItem.createChild((drawing, x, y) -> {
-			}, GuiHelper.MINECRAFT_FONT_SIZE, DataHelper.getNameOrUntitled(routeNameSplit.length > 1 ? routeNameSplit[1] : ""), route, actions));
+			}, GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE, route, DataHelper.getNameOrUntitled(routeNameSplit.length > 1 ? routeNameSplit[1] : ""), actions));
 			lastKey = routeKey;
 		}
 
@@ -312,13 +323,39 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 						drawPlatformNumber(drawing, x, y, platform.getName());
 					},
 					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
-					customDestinationPrefix + stationName,
 					new ObjectIntImmutablePair<>(routePlatformData, i),
+					customDestinationPrefix + stationName,
 					actions
 			));
 		}
 
 		scrollableListWidget.setData(dataList);
+	}
+
+	public static <T, U> ObjectObjectImmutablePair<Identifier, Consumer<ObjectIntImmutablePair<T>>> createUpButton(ObjectArrayList<U> dataList, @Nullable Runnable onSort) {
+		return new ObjectObjectImmutablePair<>(GuiHelper.UP_TEXTURE_ID, data -> moveListItem(dataList, data.rightInt(), -1, onSort));
+	}
+
+	public static <T, U> ObjectObjectImmutablePair<Identifier, Consumer<ObjectIntImmutablePair<T>>> createDownButton(ObjectArrayList<U> dataList, @Nullable Runnable onSort) {
+		return new ObjectObjectImmutablePair<>(GuiHelper.DOWN_TEXTURE_ID, data -> moveListItem(dataList, data.rightInt(), 1, onSort));
+	}
+
+	private static <T> void moveListItem(ObjectArrayList<T> dataList, int index, int direction, @Nullable Runnable onSort) {
+		if (direction > 0 && index < dataList.size() - 1 || direction < 0 && index > 0) {
+			final T data = dataList.remove(index);
+			if (Screen.hasShiftDown()) {
+				if (direction > 0) {
+					dataList.add(data);
+				} else {
+					dataList.addFirst(data);
+				}
+			} else {
+				dataList.add(index + direction, data);
+			}
+			if (onSort != null) {
+				onSort.run();
+			}
+		}
 	}
 
 	private static void drawPlatformNumber(Drawing drawing, double x, double y, String name) {

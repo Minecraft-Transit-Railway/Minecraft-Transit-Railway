@@ -288,10 +288,10 @@ public final class StationScreen extends ScrollableScreenBase {
 
 			for (int i = 0; i < exit.destinations.size(); i++) {
 				destinationListItems.add(ListItem.createChild((drawing, x, y) -> {
-				}, GuiHelper.MINECRAFT_FONT_SIZE, exit.destinations.get(i), new ObjectIntImmutablePair<>(exit, i), ObjectArrayList.of(
+				}, GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE, new ObjectIntImmutablePair<>(exit, i), exit.destinations.get(i), ObjectArrayList.of(
 						new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, this::startEditingExitCallback),
-						new ObjectObjectImmutablePair<>(GuiHelper.UP_TEXTURE_ID, exitWithIndex -> moveExitDestination(exitWithIndex.left(), exitWithIndex.rightInt(), -1)),
-						new ObjectObjectImmutablePair<>(GuiHelper.DOWN_TEXTURE_ID, exitWithIndex -> moveExitDestination(exitWithIndex.left(), exitWithIndex.rightInt(), 1)),
+						ScrollableListWidget.createUpButton(exit.destinations, null),
+						ScrollableListWidget.createDownButton(exit.destinations, null),
 						new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, exitWithIndex -> deleteExitDestination(exitWithIndex.left(), exitWithIndex.rightInt()))
 				)));
 			}

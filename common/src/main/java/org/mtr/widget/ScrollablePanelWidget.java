@@ -22,6 +22,7 @@ public abstract class ScrollablePanelWidget extends ScrollableWidget {
 
 	@Override
 	protected final void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+		setScrollY(Math.clamp(getScrollY(), 0, Math.max(0, getContentsHeightWithPadding() - height)));
 		context.enableScissor(getX(), getY(), getX() + width, getY() + height);
 		render(context, active ? mouseX : -1, active ? mouseY : -1);
 		context.disableScissor();

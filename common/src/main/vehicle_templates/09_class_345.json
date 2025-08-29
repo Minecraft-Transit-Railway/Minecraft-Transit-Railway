@@ -19,7 +19,11 @@
 			"couplingPadding1": 0,
 			"couplingPadding2": 0,
 			"wikipediaArticle": "British_Rail_Class_345",
-			"tags": [],
+			"tags": [
+				"family:class_345",
+				"iso_3166:GB",
+				"doors:3"
+			],
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/class_345.bbmodel",
@@ -67,7 +71,11 @@
 			"couplingPadding1": 0,
 			"couplingPadding2": 0,
 			"wikipediaArticle": "British_Rail_Class_345",
-			"tags": [],
+			"tags": [
+				"family:class_345",
+				"iso_3166:GB",
+				"doors:3"
+			],
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/class_345.bbmodel",
@@ -115,7 +123,11 @@
 			"couplingPadding1": 1,
 			"couplingPadding2": 0,
 			"wikipediaArticle": "British_Rail_Class_345",
-			"tags": [],
+			"tags": [
+				"family:class_345",
+				"iso_3166:GB",
+				"doors:3"
+			],
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/class_345.bbmodel",
@@ -163,7 +175,11 @@
 			"couplingPadding1": 0,
 			"couplingPadding2": 1,
 			"wikipediaArticle": "British_Rail_Class_345",
-			"tags": [],
+			"tags": [
+				"family:class_345",
+				"iso_3166:GB",
+				"doors:3"
+			],
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/class_345.bbmodel",
@@ -211,7 +227,11 @@
 			"couplingPadding1": 1,
 			"couplingPadding2": 1,
 			"wikipediaArticle": "British_Rail_Class_345",
-			"tags": [],
+			"tags": [
+				"family:class_345",
+				"iso_3166:GB",
+				"doors:3"
+			],
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/class_345.bbmodel",

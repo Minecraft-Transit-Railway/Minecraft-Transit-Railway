@@ -338,8 +338,9 @@ public final class DepotScreen extends ScrollableScreenBase {
 			realTimeDeparturesForList.add(ListItem.createChild(
 					(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(ColorHelper.fullAlpha(tempColor)).draw(),
 					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
+					new RealTimeDepartureForList(calendar.getTimeInMillis() - offset, departureString, i),
 					departureString,
-					new RealTimeDepartureForList(calendar.getTimeInMillis() - offset, departureString, i), ObjectArrayList.of(
+					ObjectArrayList.of(
 							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, realTimeDepartureForList -> onDeleteDeparture(realTimeDepartureForList.departureString))
 					))
 			);
