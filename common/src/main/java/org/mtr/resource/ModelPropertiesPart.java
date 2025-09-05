@@ -30,16 +30,18 @@ import org.mtr.render.StoredMatrixTransformations;
 import org.mtr.tool.Drawing;
 
 import javax.annotation.Nullable;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
+
+	private String cachedText = "";
+	private long cachedTextTimeout;
 
 	private final ObjectArrayList<PartDetails> partDetailsList = new ObjectArrayList<>();
 	private final ObjectArrayList<DisplayPartDetails> displayPartDetailsList = new ObjectArrayList<>();
 	private final int displayColorCjkInt;
 	private final int displayColorInt;
-
-	private static final int LINE_PADDING = 2;
 
 	public ModelPropertiesPart(ReaderBase readerBase) {
 		super(readerBase);
@@ -395,55 +397,62 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 	}
 
 	private String formatText(Vehicle vehicle) {
-		final String destination = getOrDefault(vehicle.vehicleExtraData.getThisRouteDestination(), vehicle.vehicleExtraData.getNextRouteDestination(), vehicle.vehicleExtraData.getPreviousRouteDestination(), displayDefaultText, vehicle);
-		final String routeNumber = getOrDefault(vehicle.vehicleExtraData.getThisRouteNumber(), vehicle.vehicleExtraData.getNextRouteNumber(), vehicle.vehicleExtraData.getPreviousRouteNumber(), displayDefaultText, vehicle);
-		final String routeName = getOrDefault(routeNumber + " ", routeNumber, "") + getOrDefault(vehicle.vehicleExtraData.getThisRouteName(), vehicle.vehicleExtraData.getNextRouteName(), vehicle.vehicleExtraData.getPreviousRouteName(), displayDefaultText, vehicle);
-		final String thisStation = getOrDefault(vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getPreviousStationName());
-		final String nextStation = getOrDefault(vehicle.vehicleExtraData.getNextStationName(), vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getThisStationName());
-		final boolean doorsOpen = vehicle.vehicleExtraData.getDoorMultiplier() > 0;
+		final long millis = System.currentTimeMillis();
+		if (cachedTextTimeout < millis) {
+			final String destination = getOrDefault(vehicle.vehicleExtraData.getThisRouteDestination(), vehicle.vehicleExtraData.getNextRouteDestination(), vehicle.vehicleExtraData.getPreviousRouteDestination(), displayDefaultText, vehicle);
+			final String routeNumber = getOrDefault(vehicle.vehicleExtraData.getThisRouteNumber(), vehicle.vehicleExtraData.getNextRouteNumber(), vehicle.vehicleExtraData.getPreviousRouteNumber(), displayDefaultText, vehicle);
+			final String routeName = getOrDefault(routeNumber + " ", routeNumber, "") + getOrDefault(vehicle.vehicleExtraData.getThisRouteName(), vehicle.vehicleExtraData.getNextRouteName(), vehicle.vehicleExtraData.getPreviousRouteName(), displayDefaultText, vehicle);
+			final String thisStation = getOrDefault(vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getPreviousStationName());
+			final String nextStation = getOrDefault(vehicle.vehicleExtraData.getNextStationName(), vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getThisStationName());
+			final boolean doorsOpen = vehicle.vehicleExtraData.getDoorMultiplier() > 0;
 
-		final String text;
-		switch (displayType) {
-			case DESTINATION:
-				text = vehicle.getIsOnRoute() ? destination : displayDefaultText;
-				break;
-			case ROUTE_NUMBER:
-				text = vehicle.getIsOnRoute() ? routeNumber : displayDefaultText;
-				break;
-			case DEPARTURE_INDEX:
-				if (vehicle.getIsOnRoute()) {
-					final StringBuilder stringBuilder = new StringBuilder(String.valueOf(vehicle.getDepartureIndex() + 1));
-					final int startLength = stringBuilder.length();
-					for (int i = startLength; i < displayPadZeros; i++) {
-						stringBuilder.insert(0, "0");
+			final String text;
+			switch (displayType) {
+				case DESTINATION:
+					text = vehicle.getIsOnRoute() ? destination : displayDefaultText;
+					break;
+				case ROUTE_NUMBER:
+					text = vehicle.getIsOnRoute() ? routeNumber : displayDefaultText;
+					break;
+				case DEPARTURE_INDEX:
+					if (vehicle.getIsOnRoute()) {
+						final StringBuilder stringBuilder = new StringBuilder(String.valueOf(vehicle.getDepartureIndex() + 1));
+						final int startLength = stringBuilder.length();
+						for (int i = startLength; i < displayPadZeros; i++) {
+							stringBuilder.insert(0, "0");
+						}
+						text = stringBuilder.toString();
+					} else {
+						text = displayDefaultText;
 					}
-					text = stringBuilder.toString();
-				} else {
-					text = displayDefaultText;
-				}
-				break;
-			case NEXT_STATION:
-				text = vehicle.getIsOnRoute() ? doorsOpen ? thisStation : nextStation : displayDefaultText;
-				break;
-			case NEXT_STATION_KCR:
-				text = vehicle.getIsOnRoute() ? DisplayType.getHongKongNextStationString(thisStation, nextStation, doorsOpen, true) : displayDefaultText;
-				break;
-			case NEXT_STATION_MTR:
-				text = vehicle.getIsOnRoute() ? DisplayType.getHongKongNextStationString(thisStation, nextStation, doorsOpen, false) : displayDefaultText;
-				break;
-			case NEXT_STATION_UK:
-				text = vehicle.getIsOnRoute() ? DisplayType.getLondonNextStationString(routeName, thisStation, nextStation, vehicle.vehicleExtraData::iterateInterchanges, destination, doorsOpen, vehicle.vehicleExtraData.getIsTerminating()) : displayDefaultText;
-				break;
-			default:
-				text = "";
-				break;
-		}
+					break;
+				case NEXT_STATION:
+					text = vehicle.getIsOnRoute() ? doorsOpen ? thisStation : nextStation : displayDefaultText;
+					break;
+				case NEXT_STATION_KCR:
+					text = vehicle.getIsOnRoute() ? DisplayType.getHongKongNextStationString(thisStation, nextStation, doorsOpen, true) : displayDefaultText;
+					break;
+				case NEXT_STATION_MTR:
+					text = vehicle.getIsOnRoute() ? DisplayType.getHongKongNextStationString(thisStation, nextStation, doorsOpen, false) : displayDefaultText;
+					break;
+				case NEXT_STATION_UK:
+					text = vehicle.getIsOnRoute() ? DisplayType.getLondonNextStationString(routeName, thisStation, nextStation, vehicle.vehicleExtraData::iterateInterchanges, destination, doorsOpen, vehicle.vehicleExtraData.getIsTerminating()) : displayDefaultText;
+					break;
+				default:
+					text = "";
+					break;
+			}
 
-		String newText = text;
-		for (final String displayOption : displayOptions) {
-			newText = EnumHelper.valueOf(DisplayOption.NONE, displayOption).format(newText);
+			String newText = text;
+			for (final String displayOption : displayOptions) {
+				newText = EnumHelper.valueOf(DisplayOption.NONE, displayOption).format(newText);
+			}
+			cachedText = newText;
+			cachedTextTimeout = millis + new Random().nextInt(500) + 1000;
+			return newText;
+		} else {
+			return cachedText;
 		}
-		return newText;
 	}
 
 	private FontRenderOptions.Alignment getHorizontalAlignment(boolean isCjk) {

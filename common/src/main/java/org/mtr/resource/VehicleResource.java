@@ -152,10 +152,10 @@ public final class VehicleResource extends VehicleResourceSchema {
 		}
 	}
 
-	public void queueBogie(int bogieIndex, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light) {
+	public void queueBogie(int bogieIndex, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, boolean isWithinHalfRenderDistance, int light) {
 		final VehicleResourceCache vehicleResourceCache = getCachedVehicleResource(0, 1);
 		if (vehicleResourceCache != null && Utilities.isBetween(bogieIndex, 0, 1)) {
-			(bogieIndex == 0 ? vehicleResourceCache.builtBogie1Models() : vehicleResourceCache.builtBogie2Models()).forEach(builtVehicleModelHolder -> builtVehicleModelHolder.render(storedMatrixTransformations, vehicle, 0, new int[0], light, new ObjectArrayList<>(), false));
+			(bogieIndex == 0 ? vehicleResourceCache.builtBogie1Models() : vehicleResourceCache.builtBogie2Models()).forEach(builtVehicleModelHolder -> builtVehicleModelHolder.render(storedMatrixTransformations, vehicle, 0, isWithinHalfRenderDistance, new int[0], light, new ObjectArrayList<>(), false));
 		}
 	}
 

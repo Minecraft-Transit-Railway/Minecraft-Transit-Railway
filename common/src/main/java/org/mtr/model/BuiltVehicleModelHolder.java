@@ -35,7 +35,7 @@ public final class BuiltVehicleModelHolder {
 		this.doorways = doorways;
 	}
 
-	public void render(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker, int light, ObjectArrayList<Box> openDoorways, boolean fromResourcePackCreator) {
+	public void render(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int carNumber, boolean isWithinHalfRenderDistance, int[] scrollingDisplayIndexTracker, int light, ObjectArrayList<Box> openDoorways, boolean fromResourcePackCreator) {
 		final boolean noOpenDoorways = openDoorways.isEmpty();
 
 		builtModels.forEach((partCondition, models) -> {
@@ -53,11 +53,13 @@ public final class BuiltVehicleModelHolder {
 			});
 		});
 
-		displays.forEach((partCondition, modelDisplayParts) -> {
-			if (matchesCondition(vehicle, partCondition, noOpenDoorways)) {
-				modelDisplayParts.forEach(modelDisplayPart -> modelDisplayPart.render(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, fromResourcePackCreator));
-			}
-		});
+		if (isWithinHalfRenderDistance) {
+			displays.forEach((partCondition, modelDisplayParts) -> {
+				if (matchesCondition(vehicle, partCondition, noOpenDoorways)) {
+					modelDisplayParts.forEach(modelDisplayPart -> modelDisplayPart.render(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, fromResourcePackCreator));
+				}
+			});
+		}
 	}
 
 	private static boolean matchesCondition(VehicleExtension vehicle, PartCondition partCondition, boolean noOpenDoorways) {

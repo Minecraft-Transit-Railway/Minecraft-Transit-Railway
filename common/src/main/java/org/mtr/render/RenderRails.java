@@ -12,7 +12,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.util.math.MatrixStack;
@@ -49,13 +48,14 @@ import org.mtr.packet.PacketUpdateLastRailStyles;
 import org.mtr.registry.DataComponentTypes;
 import org.mtr.registry.Items;
 import org.mtr.resource.RailResource;
+import org.mtr.tool.CullingHelper;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
-public class RenderRails implements IGui {
+public final class RenderRails implements IGui {
 
 	private static final Identifier IRON_BLOCK_TEXTURE = Identifier.of("textures/block/iron_block.png");
 	private static final Identifier METAL_TEXTURE = Identifier.of(MTR.MOD_ID, "textures/block/metal.png");
@@ -314,22 +314,11 @@ public class RenderRails implements IGui {
 	}
 
 	private static void renderWithinRenderDistance(Rail rail, RenderRailWithBlockPos callback, double interval, float offsetRadius1, float offsetRadius2) {
-		final Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
-		final Vec3d cameraPosition = camera.getPos();
-		final int renderDistance = (int) MinecraftClient.getInstance().worldRenderer.getViewDistance() * 16;
+		final double renderDistance = MinecraftClient.getInstance().worldRenderer.getViewDistance() * 16;
 
 		rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-			final BlockPos blockPos = BlockPos.ofFloored(x1, y1 + LIGHT_REFERENCE_OFFSET, z1);
-			final int distance = blockPos.getManhattanDistance(camera.getBlockPos());
-			if (distance <= renderDistance) {
-				if (distance < 32) {
-					callback.renderRail(blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2);
-				} else {
-					final Vec3d rotatedVector = new Vec3d(x1, y1, z1).subtract(cameraPosition).rotateY((float) Math.toRadians(camera.getYaw())).rotateX((float) Math.toRadians(camera.getPitch()));
-					if (rotatedVector.z > 0) {
-						callback.renderRail(blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2);
-					}
-				}
+			if (CullingHelper.getDistanceFromCamera(x1, y1, z1) <= renderDistance) {
+				callback.renderRail(BlockPos.ofFloored(x1, y1 + LIGHT_REFERENCE_OFFSET, z1), x1, z1, x2, z2, x3, z3, x4, z4, y1, y2);
 			}
 		}, interval, offsetRadius1, offsetRadius2);
 	}
