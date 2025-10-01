@@ -8571,6 +8571,22 @@
 			}
 		]
 	},
+	"drl_door_open": {
+		"sounds": [
+			{
+				"name": "mtr:drl/door_open",
+				"pitch": 0.5
+			}
+		]
+	},
+	"drl_door_close": {
+		"sounds": [
+			{
+				"name": "mtr:drl/door_close",
+				"pitch": 0.5
+			}
+		]
+	},
 	"m_train_acceleration_0a": {
 		"sounds": [
 			{
