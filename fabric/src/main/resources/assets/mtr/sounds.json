@@ -8575,7 +8575,7 @@
 		"sounds": [
 			{
 				"name": "mtr:drl/door_open",
-				"pitch": 0.5
+				"pitch": 1
 			}
 		]
 	},
@@ -8583,7 +8583,7 @@
 		"sounds": [
 			{
 				"name": "mtr:drl/door_close",
-				"pitch": 0.5
+				"pitch": 1
 			}
 		]
 	},
