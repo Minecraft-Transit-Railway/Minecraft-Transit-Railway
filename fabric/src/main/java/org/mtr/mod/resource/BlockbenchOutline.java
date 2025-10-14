@@ -12,12 +12,10 @@ import javax.annotation.Nullable;
 public final class BlockbenchOutline extends BlockbenchOutlineSchema {
 
 	public final ObjectArrayList<String> childrenUuid = new ObjectArrayList<>();
-	public final boolean isValid;
 
 	public BlockbenchOutline(ReaderBase readerBase) {
 		super(readerBase);
 		updateData(readerBase);
-		isValid = !childrenUuid.isEmpty() || !children.isEmpty();
 	}
 
 	@Override
@@ -32,6 +30,10 @@ public final class BlockbenchOutline extends BlockbenchOutlineSchema {
 
 	public String getName() {
 		return name;
+	}
+
+	public boolean uuidEquals(BlockbenchOutline blockbenchOutline) {
+		return !uuid.isEmpty() && uuid.equals(blockbenchOutline.uuid);
 	}
 
 	public GroupTransformations add(GroupTransformations groupTransformations, @Nullable BlockbenchOutline previousBlockbenchOutline, String id) {
