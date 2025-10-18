@@ -29,9 +29,9 @@ jobs:
         with:
           node-version: 20
       - name: Setup Node packages
-        run: npm ci --prefix buildSrc/src/main/resources/website
+        run: npm ci --prefix website
       - name: Build Angular
-        run: npm run build --prefix buildSrc/src/main/resources/website
+        run: npm run build --prefix website
       - name: Setup Fabric files
         if: ${{ matrix.minecraft != '1.20.4' }}
         run: ./gradlew fabric:setupFiles -PminecraftVersion="${{ matrix.minecraft }}" -PcrowdinApiKey="${{ secrets.CROWDIN_API_KEY }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
