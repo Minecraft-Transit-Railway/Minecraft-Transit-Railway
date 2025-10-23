@@ -43,7 +43,7 @@ public class BlockRubbishBin extends BlockExtension implements DirectionHelper {
 	}
 
 	@Override
-	public void randomDisplayTick2(BlockState state, World world, BlockPos pos, Random random) {
+	public void randomTick2(BlockState state, ServerWorld world, BlockPos pos, Random random) {
 		final int newLevel = IBlock.getStatePropertySafe(state, FILLED) - 1;
 		if (newLevel >= 0) {
 			world.setBlockState(pos, state.with(new Property<>(FILLED.data), newLevel));

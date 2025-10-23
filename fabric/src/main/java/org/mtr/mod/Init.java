@@ -211,6 +211,11 @@ public final class Init implements Utilities {
 			if (isDedicatedServer && Config.getServer().forceShutDownStrayThreads()) {
 				StrayThreadManager.register(minecraftServer);
 			}
+
+			Main.CLIENT_NAME_RESOLVER = uuid -> {
+				final ServerPlayerEntity serverPlayerEntity = minecraftServer.getPlayerManager().getPlayer(uuid);
+				return serverPlayerEntity == null ? "" : serverPlayerEntity.getName().getString();
+			};
 		});
 
 		REGISTRY.eventRegistry.registerServerStopping(minecraftServer -> {

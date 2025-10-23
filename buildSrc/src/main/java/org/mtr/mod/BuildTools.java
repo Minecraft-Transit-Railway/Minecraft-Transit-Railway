@@ -109,6 +109,12 @@ public class BuildTools {
 	}
 
 	public String getWthitVersion() {
+		// TODO latest version not working
+		if (minecraftVersion.equals("1.19.2")) {
+			return loader + "-5.32.0";
+		} else if (minecraftVersion.equals("1.20.1")) {
+			return loader + "-8.17.0";
+		}
 		final String modIdString = "wthit";
 		return new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, loader.equals("fabric") ? ModLoader.FABRIC : ModLoader.FORGE, "").get(0).fileName.split("\\.jar")[0].replace(modIdString + "-", "");
 	}

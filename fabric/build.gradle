@@ -55,7 +55,7 @@ tasks.register("setupWebsiteFiles") {
 //		include "website/*.json", "website/src/styles.css", "website/src/theme.scss"
 //	}
 
-	Generator.generateTypeScript(project, "schema/resource", "../buildSrc/src/main/resources/website/src/app/entity/generated")
+	Generator.generateTypeScript(project, "schema/resource", "../website/src/app/entity/generated")
 }
 
 tasks.register("setupFiles") {

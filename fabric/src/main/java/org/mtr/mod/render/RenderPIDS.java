@@ -105,7 +105,8 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 		final float scale = 160 * entity.maxArrivals / maxHeight * textPadding;
 		final boolean hasDifferentCarLengths = hasDifferentCarLengths(arrivalResponseList);
 		final boolean isSingleArrival = entity instanceof BlockPIDSVerticalSingleArrival1.BlockEntity;
-		int arrivalIndex = entity.getDisplayPage() * (isSingleArrival ? 1 : entity.maxArrivals);
+		final int arrivalsPerPage = isSingleArrival ? 1 : entity.alternateLines() ? entity.maxArrivals / 2 : entity.maxArrivals;
+		int arrivalIndex = entity.getDisplayPage() * arrivalsPerPage;
 
 		for (int i = 0; i < entity.maxArrivals; i++) {
 			final int languageTicks = (int) Math.floor(InitClient.getGameTick()) / SWITCH_LANGUAGE_TICKS;
