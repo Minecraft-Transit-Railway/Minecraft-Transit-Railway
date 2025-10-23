@@ -44,7 +44,7 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 
 	@Override
 	protected void onStartClick(ItemUsageContext context) {
-		context.getStack().set(DataComponentTypes.TRANSPORT_MODE.createAndGet(), ((BlockNode) context.getWorld().getBlockState(context.getBlockPos()).getBlock()).transportMode.toString());
+		context.getStack().set(DataComponentTypes.TRANSPORT_MODE.get(), ((BlockNode) context.getWorld().getBlockState(context.getBlockPos()).getBlock()).transportMode.toString());
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 		final BlockState stateEnd = world.getBlockState(posEnd);
 		final PlayerEntity player = context.getPlayer();
 
-		if (player instanceof ServerPlayerEntity && stateEnd.getBlock() instanceof BlockNode && ((BlockNode) blockStart).transportMode.toString().equals(context.getStack().get(DataComponentTypes.TRANSPORT_MODE.createAndGet()))) {
+		if (player instanceof ServerPlayerEntity && stateEnd.getBlock() instanceof BlockNode && ((BlockNode) blockStart).transportMode.toString().equals(context.getStack().get(DataComponentTypes.TRANSPORT_MODE.get()))) {
 			if (isConnector) {
 				if (!posStart.equals(posEnd)) {
 					final ObjectObjectImmutablePair<Angle, Angle> angles = Rail.getAngles(MTR.blockPosToPosition(posStart), BlockNode.getAngle(stateStart), MTR.blockPosToPosition(posEnd), BlockNode.getAngle(stateEnd));
@@ -67,7 +67,7 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 			}
 		}
 
-		context.getStack().remove(DataComponentTypes.TRANSPORT_MODE.createAndGet());
+		context.getStack().remove(DataComponentTypes.TRANSPORT_MODE.get());
 	}
 
 	@Override
@@ -110,6 +110,6 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 	}
 
 	public static TransportMode getTransportMode(ItemStack itemStack) {
-		return EnumHelper.valueOf(TransportMode.TRAIN, itemStack.get(DataComponentTypes.TRANSPORT_MODE.createAndGet()));
+		return EnumHelper.valueOf(TransportMode.TRAIN, itemStack.get(DataComponentTypes.TRANSPORT_MODE.get()));
 	}
 }

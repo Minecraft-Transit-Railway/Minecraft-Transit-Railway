@@ -23,7 +23,7 @@ public class BlockSignalLight2Aspect2 extends BlockSignalLightBase {
 	public static class SignalLight2Aspect2BlockEntity extends BlockSignalBase.BlockEntityBase {
 
 		public SignalLight2Aspect2BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.SIGNAL_LIGHT_2_ASPECT_2.createAndGet(), true, pos, state);
+			super(BlockEntityTypes.SIGNAL_LIGHT_2_ASPECT_2.get(), true, pos, state);
 		}
 	}
 }

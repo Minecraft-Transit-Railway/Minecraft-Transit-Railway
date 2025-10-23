@@ -49,7 +49,7 @@ public class BlockClock extends Block implements BlockEntityProvider {
 	public static class ClockBlockEntity extends BlockEntity {
 
 		public ClockBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.CLOCK.createAndGet(), pos, state);
+			super(BlockEntityTypes.CLOCK.get(), pos, state);
 		}
 	}
 }

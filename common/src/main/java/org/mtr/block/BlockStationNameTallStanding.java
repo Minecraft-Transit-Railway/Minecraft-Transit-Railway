@@ -54,7 +54,7 @@ public class BlockStationNameTallStanding extends BlockStationNameTallBase {
 	public static class StationNameTallStandingBlockEntity extends BlockEntityTallBase {
 
 		public StationNameTallStandingBlockEntity(BlockPos blockPos, BlockState blockState) {
-			super(BlockEntityTypes.STATION_NAME_TALL_STANDING.createAndGet(), blockPos, blockState, 0.07F, false);
+			super(BlockEntityTypes.STATION_NAME_TALL_STANDING.get(), blockPos, blockState, 0.07F, false);
 		}
 	}
 }

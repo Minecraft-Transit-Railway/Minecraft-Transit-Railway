@@ -116,7 +116,7 @@ public final class RenderRails implements IGui {
 			if (hitResult != null) {
 				final Vec3d hitPos = hitResult.getPos();
 				final BlockPos posStart = BlockPos.ofFloored(hitPos.x, hitPos.y, hitPos.z);
-				final BlockPos posEnd = itemStack.get(DataComponentTypes.START_POS.createAndGet());
+				final BlockPos posEnd = itemStack.get(DataComponentTypes.START_POS.get());
 
 				if (posEnd != null) {
 					final BlockState blockStateEnd = clientWorld.getBlockState(posEnd);

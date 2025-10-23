@@ -1,6 +1,5 @@
 package org.mtr.registry;
 
-import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 public final class ObjectHolder<T> {
@@ -22,12 +21,7 @@ public final class ObjectHolder<T> {
 		return object != null;
 	}
 
-	@Nullable
 	public T get() {
-		return object;
-	}
-
-	public T createAndGet() {
 		create();
 		return object;
 	}

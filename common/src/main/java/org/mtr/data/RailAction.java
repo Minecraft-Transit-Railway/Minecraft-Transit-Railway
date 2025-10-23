@@ -100,7 +100,7 @@ public class RailAction {
 
 	private boolean createBridge() {
 		return create(false, vector -> {
-			final boolean isTopHalf = vector.y - Math.floor(vector.y) >= 0.5;
+			final boolean isTopHalf = vector.y() - Math.floor(vector.y()) >= 0.5;
 			final BlockPos blockPos = fromVector(vector);
 
 			final BlockPos placePos;
@@ -138,11 +138,11 @@ public class RailAction {
 			final Vector pos1 = rail.railMath.getPosition(distance, false);
 			distance += INCREMENT;
 			final Vector pos2 = rail.railMath.getPosition(distance, false);
-			final Vector Vec3d = new Vector(pos2.x - pos1.x, 0, pos2.z - pos1.z).normalize().rotateY((float) Math.PI / 2);
+			final Vector Vec3d = new Vector(pos2.x() - pos1.x(), 0, pos2.z() - pos1.z()).normalize().rotateY((float) Math.PI / 2);
 
 			for (double x = -radius; x <= radius; x += INCREMENT) {
 				final Vector editPos = pos1.add(Vec3d.multiply(x, 0, x));
-				final boolean wholeNumber = Math.floor(editPos.y) == Math.ceil(editPos.y);
+				final boolean wholeNumber = Math.floor(editPos.y()) == Math.ceil(editPos.y());
 				if (includeMiddle || Math.abs(x) > radius - INCREMENT || radius == 0) {
 					for (int y = 0; y <= height; y++) {
 						if (y < height || !wholeNumber || (height == 0 && radius == 0)) {
@@ -180,6 +180,6 @@ public class RailAction {
 	}
 
 	private static BlockPos fromVector(Vector vector) {
-		return BlockPos.ofFloored(vector.x, vector.y, vector.z);
+		return BlockPos.ofFloored(vector.x(), vector.y(), vector.z());
 	}
 }

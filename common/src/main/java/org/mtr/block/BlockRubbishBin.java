@@ -6,6 +6,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
@@ -54,7 +55,7 @@ public class BlockRubbishBin extends Block {
 	}
 
 	@Override
-	public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
+	protected void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
 		final int newLevel = IBlock.getStatePropertySafe(state, FILLED) - 1;
 		if (newLevel >= 0) {
 			world.setBlockState(pos, state.with(FILLED, newLevel));

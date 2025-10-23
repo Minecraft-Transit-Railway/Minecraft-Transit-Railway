@@ -8,7 +8,7 @@ import org.mtr.MTRClient;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.data.PathData;
-import org.mtr.core.operation.VehicleLiftResponse;
+import org.mtr.core.operation.DynamicDataResponse;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.serializer.SerializedDataBase;
@@ -24,29 +24,29 @@ import java.util.function.Function;
 import java.util.function.LongConsumer;
 import java.util.function.ToLongFunction;
 
-public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
+public final class PacketUpdateDynamicData extends PacketRequestResponseBase {
 
-	public PacketUpdateVehiclesLifts(PacketBufferReceiver packetBufferReceiver) {
+	public PacketUpdateDynamicData(PacketBufferReceiver packetBufferReceiver) {
 		super(packetBufferReceiver);
 	}
 
-	public PacketUpdateVehiclesLifts(VehicleLiftResponse vehicleLiftResponse) {
-		super(Utilities.getJsonObjectFromData(vehicleLiftResponse).toString());
+	public PacketUpdateDynamicData(DynamicDataResponse dynamicDataResponse) {
+		super(Utilities.getJsonObjectFromData(dynamicDataResponse).toString());
 	}
 
-	private PacketUpdateVehiclesLifts(String content) {
+	private PacketUpdateDynamicData(String content) {
 		super(content);
 	}
 
 	@Override
 	protected void runClientInbound(JsonReader jsonReader) {
 		final MinecraftClientData minecraftClientData = MinecraftClientData.getInstance();
-		final VehicleLiftResponse vehicleLiftResponse = new VehicleLiftResponse(jsonReader, minecraftClientData);
-		final boolean hasUpdate1 = updateVehiclesOrLifts(minecraftClientData.vehicles, vehicleLiftResponse::iterateVehiclesToKeep, vehicleLiftResponse::iterateVehiclesToUpdate, VehicleExtension::dispose, vehicleUpdate -> vehicleUpdate.getVehicle().getId(), vehicleUpdate -> new VehicleExtension(vehicleUpdate, minecraftClientData));
-		final boolean hasUpdate2 = updateVehiclesOrLifts(minecraftClientData.lifts, vehicleLiftResponse::iterateLiftsToKeep, vehicleLiftResponse::iterateLiftsToUpdate, (removedLift) -> {
+		final DynamicDataResponse dynamicDataResponse = new DynamicDataResponse(jsonReader, minecraftClientData);
+		final boolean hasUpdate1 = updateVehiclesOrLifts(minecraftClientData.vehicles, dynamicDataResponse::iterateVehiclesToKeep, dynamicDataResponse::iterateVehiclesToUpdate, VehicleExtension::dispose, vehicleUpdate -> vehicleUpdate.getVehicle().getId(), vehicleUpdate -> new VehicleExtension(vehicleUpdate, minecraftClientData));
+		final boolean hasUpdate2 = updateVehiclesOrLifts(minecraftClientData.lifts, dynamicDataResponse::iterateLiftsToKeep, dynamicDataResponse::iterateLiftsToUpdate, (removedLift) -> {
 		}, NameColorDataBase::getId, lift -> lift);
 
-		vehicleLiftResponse.iterateSignalBlockUpdates(signalBlockUpdate -> {
+		dynamicDataResponse.iterateSignalBlockUpdates(signalBlockUpdate -> {
 			minecraftClientData.railIdToPreBlockedSignalColors.put(signalBlockUpdate.getRailId(), signalBlockUpdate.getPreBlockedSignalColors());
 			minecraftClientData.railIdToCurrentlyBlockedSignalColors.put(signalBlockUpdate.getRailId(), signalBlockUpdate.getCurrentlyBlockedSignalColors());
 		});
@@ -66,7 +66,7 @@ public final class PacketUpdateVehiclesLifts extends PacketRequestResponseBase {
 
 	@Override
 	protected PacketRequestResponseBase getInstance(String content) {
-		return new PacketUpdateVehiclesLifts(content);
+		return new PacketUpdateDynamicData(content);
 	}
 
 	@Override

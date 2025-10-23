@@ -32,7 +32,7 @@ public class BlockLiftPanelEven2 extends BlockLiftPanelBase {
 	public static class LiftPanelEven2BlockEntity extends BlockEntityBase {
 
 		public LiftPanelEven2BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_PANEL_EVEN_2.createAndGet(), pos, state, false);
+			super(BlockEntityTypes.LIFT_PANEL_EVEN_2.get(), pos, state, false);
 		}
 	}
 }

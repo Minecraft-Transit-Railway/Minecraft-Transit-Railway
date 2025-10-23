@@ -59,7 +59,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 						neighborState = state;
 					}
 					playerEntity.sendMessage(TranslationProvider.TOOLTIP_MTR_SELECTED_MATERIAL.getText(Text.translatable(neighborState.getBlock().getTranslationKey()).getString()), true);
-					context.getStack().set(DataComponentTypes.BLOCK_ID.createAndGet(), Block.getRawIdFromState(neighborState));
+					context.getStack().set(DataComponentTypes.BLOCK_ID.get(), Block.getRawIdFromState(neighborState));
 					return ActionResult.SUCCESS;
 				}
 			}
@@ -77,7 +77,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 
 		if (canSaveBlock) {
 			final BlockState state = getSavedState(stack);
-			final String[] textSplit = (state.isAir() ? TranslationProvider.TOOLTIP_MTR_SHIFT_RIGHT_CLICK_TO_SELECT_MATERIAL : TranslationProvider.TOOLTIP_MTR_SHIFT_RIGHT_CLICK_TO_CLEAR).getString(MTRClient.getShiftText(), Text.translatable(org.mtr.registry.Blocks.RAIL_NODE.createAndGet().getTranslationKey())).split("\\|");
+			final String[] textSplit = (state.isAir() ? TranslationProvider.TOOLTIP_MTR_SHIFT_RIGHT_CLICK_TO_SELECT_MATERIAL : TranslationProvider.TOOLTIP_MTR_SHIFT_RIGHT_CLICK_TO_CLEAR).getString(MTRClient.getShiftText(), Text.translatable(org.mtr.registry.Blocks.RAIL_NODE.get().getTranslationKey())).split("\\|");
 			for (String text : textSplit) {
 				tooltip.add(Text.literal(text).formatted(Formatting.GRAY).formatted(Formatting.ITALIC));
 			}
@@ -99,7 +99,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	}
 
 	protected BlockState getSavedState(ItemStack stack) {
-		final Integer blockId = stack.get(DataComponentTypes.BLOCK_ID.createAndGet());
+		final Integer blockId = stack.get(DataComponentTypes.BLOCK_ID.get());
 		return blockId == null ? Blocks.AIR.getDefaultState() : Block.getStateFromRawId(blockId);
 	}
 

@@ -95,7 +95,7 @@ public class BlockEyeCandy extends BlockWaterloggable implements BlockEntityProv
 		private static final String KEY_FULL_BRIGHTNESS = "fullLight";
 
 		public EyeCandyBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.EYE_CANDY.createAndGet(), pos, state);
+			super(BlockEntityTypes.EYE_CANDY.get(), pos, state);
 		}
 
 		@Override

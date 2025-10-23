@@ -34,8 +34,8 @@ run/
 generated/
 .architectury-transformer/
 **/de/javagl/obj/
-**/website/src/app/entity/generated
-**/website/.gitignore
+website/src/app/entity/generated
+website/.gitignore
 Keys.java
 Patreon.java
 mtr_custom_resources.json

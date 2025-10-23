@@ -42,11 +42,11 @@ public class ItemEscalator extends Item implements IBlock {
 			}
 		}
 
-		final BlockState stepState = Blocks.ESCALATOR_STEP.createAndGet().getDefaultState().with(Properties.HORIZONTAL_FACING, playerFacing);
+		final BlockState stepState = Blocks.ESCALATOR_STEP.get().getDefaultState().with(Properties.HORIZONTAL_FACING, playerFacing);
 		world.setBlockState(pos1, stepState.with(SIDE, EnumSide.LEFT));
 		world.setBlockState(pos2, stepState.with(SIDE, EnumSide.RIGHT));
 
-		final BlockState sideState = Blocks.ESCALATOR_SIDE.createAndGet().getDefaultState().with(Properties.HORIZONTAL_FACING, playerFacing);
+		final BlockState sideState = Blocks.ESCALATOR_SIDE.get().getDefaultState().with(Properties.HORIZONTAL_FACING, playerFacing);
 		world.setBlockState(pos1.up(), sideState.with(SIDE, EnumSide.LEFT));
 		world.setBlockState(pos2.up(), sideState.with(SIDE, EnumSide.RIGHT));
 

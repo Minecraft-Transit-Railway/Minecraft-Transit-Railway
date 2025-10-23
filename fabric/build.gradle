@@ -1,6 +1,10 @@
+import org.mtr.BuildTools
+
 plugins {
-	id "com.github.johnrengelman.shadow"
+	id "com.gradleup.shadow"
 }
+
+final BuildTools buildTools = new BuildTools(minecraft_version, "fabric", project)
 
 architectury {
 	platformSetupLoomIde()
@@ -16,8 +20,6 @@ configurations {
 	runtimeClasspath.extendsFrom common
 	developmentFabric.extendsFrom common
 
-	// Files in this configuration will be bundled into your mod using the Shadow plugin.
-	// Don"t use the `shadow` configuration from the plugin itself as it"s meant for excluding files.
 	shadowBundle {
 		canBeResolved = true
 		canBeConsumed = false
@@ -28,10 +30,10 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_api_version"
 	modImplementation "com.terraformersmc:modmenu:$modmenu_version"
-	include "org.mtr:Shadow-Libraries-net:0.0.1"
-	include "org.mtr:Shadow-Libraries-util:0.0.1"
-	include "org.mtr:Transport-Simulation-Core:0.0.1"
-	include "com.logisticscraft:occlusionculling:+"
+	shadowBundle "org.mtr:Shadow-Libraries-net:0.0.1"
+	shadowBundle "org.mtr:Shadow-Libraries-util:0.0.1"
+	shadowBundle "org.mtr:Transport-Simulation-Core:0.0.1"
+	shadowBundle "com.logisticscraft:occlusionculling:+"
 	common(project(path: ":common", configuration: "namedElements")) { transitive false }
 	shadowBundle project(path: ":common", configuration: "transformProductionFabric")
 }
@@ -44,9 +46,20 @@ processResources {
 	}
 }
 
+build {
+	doLast {
+		buildTools.copyBuildFile()
+	}
+}
+
 shadowJar {
 	configurations = [project.configurations.shadowBundle]
 	archiveClassifier = "dev-shadow"
+	minimize {
+		exclude(dependency("org.mtr:Shadow-Libraries-net:.*"))
+	}
+	relocate "com.logisticscraft", "org.mtr.libraries.com.logisticscraft"
+	relocate "de.javagl", "org.mtr.libraries.de.javagl"
 }
 
 remapJar {

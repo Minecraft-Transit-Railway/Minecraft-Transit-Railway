@@ -60,7 +60,7 @@ public abstract class BlockEscalatorBase extends Block implements IBlock {
 	@Nonnull
 	@Override
 	public Item asItem() {
-		return Items.ESCALATOR.createAndGet();
+		return Items.ESCALATOR.get();
 	}
 
 	@Override

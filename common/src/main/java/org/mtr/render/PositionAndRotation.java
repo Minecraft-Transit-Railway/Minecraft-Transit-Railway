@@ -61,11 +61,11 @@ public final class PositionAndRotation {
 	}
 
 	public <T> T transformForwards(T initialValue, Rotate<T> rotateX, Rotate<T> rotateY, Translate<T> translate) {
-		return translate.apply(rotateY.apply(rotateX.apply(initialValue, (float) pitch), (float) yaw), position.x, position.y, position.z);
+		return translate.apply(rotateY.apply(rotateX.apply(initialValue, (float) pitch), (float) yaw), position.x(), position.y(), position.z());
 	}
 
 	public <T> T transformBackwards(T initialValue, Rotate<T> rotateX, Rotate<T> rotateY, Translate<T> translate) {
-		return rotateX.apply(rotateY.apply(translate.apply(initialValue, -position.x, -position.y, -position.z), (float) -yaw), (float) -pitch);
+		return rotateX.apply(rotateY.apply(translate.apply(initialValue, -position.x(), -position.y(), -position.z()), (float) -yaw), (float) -pitch);
 	}
 
 	private static int getLight(Vector position) {
@@ -73,25 +73,25 @@ public final class PositionAndRotation {
 		if (clientWorld == null) {
 			return 0;
 		} else {
-			return clientWorld.getLightLevel(BlockPos.ofFloored(position.x, position.y + 1, position.z));
+			return clientWorld.getLightLevel(BlockPos.ofFloored(position.x(), position.y() + 1, position.z()));
 		}
 	}
 
 	private static double getYaw(Vector position1, Vector position2) {
-		final double x1 = position1.x;
-		final double z1 = position1.z;
-		final double x2 = position2.x;
-		final double z2 = position2.z;
+		final double x1 = position1.x();
+		final double z1 = position1.z();
+		final double x2 = position2.x();
+		final double z2 = position2.z();
 		return Math.atan2(x2 - x1, z2 - z1);
 	}
 
 	private static double getPitch(Vector position1, Vector position2) {
-		final double x1 = position1.x;
-		final double y1 = position1.y;
-		final double z1 = position1.z;
-		final double x2 = position2.x;
-		final double y2 = position2.y;
-		final double z2 = position2.z;
+		final double x1 = position1.x();
+		final double y1 = position1.y();
+		final double z1 = position1.z();
+		final double x2 = position2.x();
+		final double y2 = position2.y();
+		final double z2 = position2.z();
 		return Math.atan2(y2 - y1, Math.sqrt((x2 - x1) * (x2 - x1) + (z2 - z1) * (z2 - z1)));
 	}
 

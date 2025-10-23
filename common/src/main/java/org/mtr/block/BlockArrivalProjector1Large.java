@@ -25,7 +25,7 @@ public class BlockArrivalProjector1Large extends BlockArrivalProjectorBase {
 	public static class ArrivalProjector1LargeBlockEntity extends BlockEntityArrivalProjectorBase {
 
 		public ArrivalProjector1LargeBlockEntity(BlockPos pos, BlockState state) {
-			super(MAX_ARRIVALS, BlockEntityTypes.ARRIVAL_PROJECTOR_1_LARGE.createAndGet(), pos, state);
+			super(MAX_ARRIVALS, BlockEntityTypes.ARRIVAL_PROJECTOR_1_LARGE.get(), pos, state);
 		}
 	}
 }

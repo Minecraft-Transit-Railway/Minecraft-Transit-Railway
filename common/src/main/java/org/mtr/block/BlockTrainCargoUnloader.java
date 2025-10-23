@@ -23,7 +23,7 @@ public class BlockTrainCargoUnloader extends BlockTrainSensorBase {
 	public static class TrainCargoUnloaderBlockEntity extends BlockEntityBase {
 
 		public TrainCargoUnloaderBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TRAIN_CARGO_UNLOADER.createAndGet(), pos, state);
+			super(BlockEntityTypes.TRAIN_CARGO_UNLOADER.get(), pos, state);
 		}
 	}
 }

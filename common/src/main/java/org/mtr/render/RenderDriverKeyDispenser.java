@@ -40,13 +40,13 @@ public class RenderDriverKeyDispenser extends BlockEntityRendererExtension<Block
 		} else {
 			final IntArrayList colors = new IntArrayList();
 			if (entity.getDispenseBasicDriverKey()) {
-				colors.add(((ItemDriverKey) Items.BASIC_DRIVER_KEY.createAndGet()).color);
+				colors.add(((ItemDriverKey) Items.BASIC_DRIVER_KEY.get()).color);
 			}
 			if (entity.getDispenseAdvancedDriverKey()) {
-				colors.add(((ItemDriverKey) Items.ADVANCED_DRIVER_KEY.createAndGet()).color);
+				colors.add(((ItemDriverKey) Items.ADVANCED_DRIVER_KEY.get()).color);
 			}
 			if (entity.getDispenseGuardKey()) {
-				colors.add(((ItemDriverKey) Items.GUARD_KEY.createAndGet()).color);
+				colors.add(((ItemDriverKey) Items.GUARD_KEY.get()).color);
 			}
 
 			if (!colors.isEmpty()) {

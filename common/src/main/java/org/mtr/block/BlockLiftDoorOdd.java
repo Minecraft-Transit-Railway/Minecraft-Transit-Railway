@@ -46,7 +46,7 @@ public class BlockLiftDoorOdd extends BlockPSDAPGDoorBase implements TripleHoriz
 	@Nonnull
 	@Override
 	public Item asItem() {
-		return Items.LIFT_DOOR_ODD_1.createAndGet();
+		return Items.LIFT_DOOR_ODD_1.get();
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class BlockLiftDoorOdd extends BlockPSDAPGDoorBase implements TripleHoriz
 	public static class LiftDoorOddBlockEntity extends BlockEntityBase {
 
 		public LiftDoorOddBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_DOOR_ODD_1.createAndGet(), pos, state);
+			super(BlockEntityTypes.LIFT_DOOR_ODD_1.get(), pos, state);
 		}
 	}
 }

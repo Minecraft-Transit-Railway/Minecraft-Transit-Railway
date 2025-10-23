@@ -178,15 +178,15 @@ public class BlockDriverKeyDispenser extends BlockWaterloggable implements Block
 				MTR.sendMessageC2S(OperationProcessor.NEARBY_DEPOTS, world.getServer(), world, new NearbyAreasRequest<>(MTR.blockPosToPosition(getPos()), 0), nearbyAreasResponse -> {
 					for (final Depot depot : nearbyAreasResponse.getDepots()) {
 						if (dispenseBasicDriverKey) {
-							spawnItemStack(world, depot, Items.BASIC_DRIVER_KEY.createAndGet().getDefaultStack(), direction);
+							spawnItemStack(world, depot, Items.BASIC_DRIVER_KEY.get().getDefaultStack(), direction);
 						}
 
 						if (dispenseAdvancedDriverKey) {
-							spawnItemStack(world, depot, Items.ADVANCED_DRIVER_KEY.createAndGet().getDefaultStack(), direction);
+							spawnItemStack(world, depot, Items.ADVANCED_DRIVER_KEY.get().getDefaultStack(), direction);
 						}
 
 						if (dispenseGuardKey) {
-							spawnItemStack(world, depot, Items.GUARD_KEY.createAndGet().getDefaultStack(), direction);
+							spawnItemStack(world, depot, Items.GUARD_KEY.get().getDefaultStack(), direction);
 						}
 
 						break;

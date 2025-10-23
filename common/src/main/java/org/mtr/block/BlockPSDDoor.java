@@ -28,13 +28,13 @@ public class BlockPSDDoor extends BlockPSDAPGDoorBase {
 	@Nonnull
 	@Override
 	public Item asItem() {
-		return style == 0 ? Items.PSD_DOOR_1.createAndGet() : Items.PSD_DOOR_2.createAndGet();
+		return style == 0 ? Items.PSD_DOOR_1.get() : Items.PSD_DOOR_2.get();
 	}
 
 	public static class PSDDoorBlockEntity extends BlockEntityBase {
 
 		public PSDDoorBlockEntity(int style, BlockPos pos, BlockState state) {
-			super(style == 0 ? BlockEntityTypes.PSD_DOOR_1.createAndGet() : BlockEntityTypes.PSD_DOOR_2.createAndGet(), pos, state);
+			super(style == 0 ? BlockEntityTypes.PSD_DOOR_1.get() : BlockEntityTypes.PSD_DOOR_2.get(), pos, state);
 		}
 	}
 }

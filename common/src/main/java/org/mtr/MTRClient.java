@@ -468,7 +468,7 @@ public final class MTRClient {
 	}
 
 	private static void setupWebserver(Webserver webserver) {
-		webserver.addServlet(new ServletHolder(new ResourcePackCretorWebServlet(WebserverResources::get, "/creator/")), "/creator/*");
+		webserver.addServlet(new ServletHolder(new ResourcePackCreatorWebServlet(WebserverResources::get, "/creator/")), "/creator/*");
 		webserver.addServlet(new ServletHolder(new ResourcePackCreatorOperationServlet()), "/mtr/api/creator/operation/*");
 		final ServletHolder resourcePackCreatorUploadServletHolder = new ServletHolder(new ResourcePackCreatorUploadServlet());
 		resourcePackCreatorUploadServletHolder.getRegistration().setMultipartConfig(new MultipartConfigElement((String) null));
@@ -480,9 +480,9 @@ public final class MTRClient {
 		void accept(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, Vec3d offset);
 	}
 
-	private static class ResourcePackCretorWebServlet extends WebServlet {
+	private static class ResourcePackCreatorWebServlet extends WebServlet {
 
-		public ResourcePackCretorWebServlet(Function<String, String> contentProvider, String expectedPath) {
+		public ResourcePackCreatorWebServlet(Function<String, String> contentProvider, String expectedPath) {
 			super(contentProvider, expectedPath);
 		}
 	}

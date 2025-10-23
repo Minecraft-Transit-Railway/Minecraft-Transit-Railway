@@ -25,14 +25,14 @@ public abstract class ItemBlockClickingBase extends Item {
 	public ActionResult useOnBlock(ItemUsageContext context) {
 		if (!context.getWorld().isClient()) {
 			if (clickCondition(context)) {
-				final BlockPos startPos = context.getStack().get(DataComponentTypes.START_POS.createAndGet());
+				final BlockPos startPos = context.getStack().get(DataComponentTypes.START_POS.get());
 
 				if (startPos == null) {
-					context.getStack().set(DataComponentTypes.START_POS.createAndGet(), context.getBlockPos());
+					context.getStack().set(DataComponentTypes.START_POS.get(), context.getBlockPos());
 					onStartClick(context);
 				} else {
 					onEndClick(context, startPos);
-					context.getStack().remove(DataComponentTypes.START_POS.createAndGet());
+					context.getStack().remove(DataComponentTypes.START_POS.get());
 				}
 
 				return ActionResult.SUCCESS;
@@ -46,7 +46,7 @@ public abstract class ItemBlockClickingBase extends Item {
 
 	@Override
 	public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-		final BlockPos blockPos = stack.get(DataComponentTypes.START_POS.createAndGet());
+		final BlockPos blockPos = stack.get(DataComponentTypes.START_POS.get());
 		if (blockPos != null) {
 			tooltip.add(TranslationProvider.TOOLTIP_MTR_SELECTED_BLOCK.getMutableText(blockPos.toShortString()).formatted(Formatting.GOLD));
 		}

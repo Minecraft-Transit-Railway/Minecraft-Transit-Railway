@@ -23,7 +23,7 @@ public class BlockTrainRedstoneSensor extends BlockTrainPoweredSensorBase {
 	public static class TrainRedstoneSensorBlockEntity extends BlockEntityBase {
 
 		public TrainRedstoneSensorBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TRAIN_REDSTONE_SENSOR.createAndGet(), pos, state);
+			super(BlockEntityTypes.TRAIN_REDSTONE_SENSOR.get(), pos, state);
 		}
 	}
 }

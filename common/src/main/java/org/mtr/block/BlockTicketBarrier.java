@@ -51,8 +51,8 @@ public class BlockTicketBarrier extends Block {
 				TicketSystem.passThrough(
 						world, blockPosCopy, (PlayerEntity) entity,
 						isEntrance, !isEntrance,
-						SoundEvents.TICKET_BARRIER.createAndGet(), SoundEvents.TICKET_BARRIER_CONCESSIONARY.createAndGet(),
-						SoundEvents.TICKET_BARRIER.createAndGet(), SoundEvents.TICKET_BARRIER_CONCESSIONARY.createAndGet(),
+						SoundEvents.TICKET_BARRIER.get(), SoundEvents.TICKET_BARRIER_CONCESSIONARY.get(),
+						SoundEvents.TICKET_BARRIER.get(), SoundEvents.TICKET_BARRIER_CONCESSIONARY.get(),
 						null,
 						false,
 						newOpen -> {

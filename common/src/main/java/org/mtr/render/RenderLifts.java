@@ -80,12 +80,12 @@ public class RenderLifts implements IGui {
 								IDrawing.drawLineInWorld(
 										matrixStack,
 										vertexConsumer,
-										(float) (trackPositions.get(i - 1).x - offset.x + 0.5),
-										(float) (trackPositions.get(i - 1).y - offset.y + 0.5),
-										(float) (trackPositions.get(i - 1).z - offset.z + 0.5),
-										(float) (trackPositions.get(i).x - offset.x + 0.5),
-										(float) (trackPositions.get(i).y - offset.y + 0.5),
-										(float) (trackPositions.get(i).z - offset.z + 0.5),
+										(float) (trackPositions.get(i - 1).x() - offset.x + 0.5),
+										(float) (trackPositions.get(i - 1).y() - offset.y + 0.5),
+										(float) (trackPositions.get(i - 1).z() - offset.z + 0.5),
+										(float) (trackPositions.get(i).x() - offset.x + 0.5),
+										(float) (trackPositions.get(i).y() - offset.y + 0.5),
+										(float) (trackPositions.get(i).z() - offset.z + 0.5),
 										ARGB_WHITE
 								);
 							}
@@ -101,13 +101,13 @@ public class RenderLifts implements IGui {
 			cullingTasks.add(occlusionCullingInstance -> {
 				final double longestDimension = Math.max(lift.getHeight(), Math.max(lift.getWidth(), lift.getDepth()));
 				final boolean shouldRender = occlusionCullingInstance.isAABBVisible(new com.logisticscraft.occlusionculling.util.Vec3d(
-						absolutePositionAndRotation.position.x - longestDimension,
-						absolutePositionAndRotation.position.y - longestDimension,
-						absolutePositionAndRotation.position.z - longestDimension
+						absolutePositionAndRotation.position.x() - longestDimension,
+						absolutePositionAndRotation.position.y() - longestDimension,
+						absolutePositionAndRotation.position.z() - longestDimension
 				), new com.logisticscraft.occlusionculling.util.Vec3d(
-						absolutePositionAndRotation.position.x + longestDimension,
-						absolutePositionAndRotation.position.y + longestDimension,
-						absolutePositionAndRotation.position.z + longestDimension
+						absolutePositionAndRotation.position.x() + longestDimension,
+						absolutePositionAndRotation.position.y() + longestDimension,
+						absolutePositionAndRotation.position.z() + longestDimension
 				), camera);
 				return () -> liftWrapper.shouldRender = shouldRender;
 			});
@@ -265,9 +265,9 @@ public class RenderLifts implements IGui {
 	private static PositionAndRotation getLiftPositionAndRotation(ClientWorld clientWorld, Lift lift) {
 		final Vector position = lift.getPosition((floorPosition1, floorPosition2) -> ItemLiftRefresher.findPath(clientWorld, floorPosition1, floorPosition2));
 		return new PositionAndRotation(new Vector(
-				position.x + lift.getOffsetX(),
-				position.y + lift.getOffsetY(),
-				position.z + lift.getOffsetZ()
+				position.x() + lift.getOffsetX(),
+				position.y() + lift.getOffsetY(),
+				position.z() + lift.getOffsetZ()
 		), -Math.PI / 2 - lift.getAngle().angleRadians, 0);
 	}
 }

@@ -33,7 +33,7 @@ public class BlockLiftPanelOdd1 extends BlockLiftPanelBase {
 	public static class LiftPanelOdd1BlockEntity extends BlockEntityBase {
 
 		public LiftPanelOdd1BlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_PANEL_ODD_1.createAndGet(), pos, state, true);
+			super(BlockEntityTypes.LIFT_PANEL_ODD_1.get(), pos, state, true);
 		}
 	}
 }

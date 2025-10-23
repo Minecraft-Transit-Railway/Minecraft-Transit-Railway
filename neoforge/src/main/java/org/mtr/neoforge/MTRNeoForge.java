@@ -28,6 +28,7 @@ public final class MTRNeoForge {
 		MTR.init();
 		BLOCKS.register(eventBus);
 		ITEMS.register(eventBus);
+		BLOCK_ENTITY_TYPES.register(eventBus);
 		ENTITY_TYPES.register(eventBus);
 		ITEM_GROUPS.register(eventBus);
 		SOUND_EVENTS.register(eventBus);

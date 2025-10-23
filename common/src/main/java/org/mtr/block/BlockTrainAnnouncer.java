@@ -61,7 +61,7 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 		private static final String KEY_DELAY = "delay";
 
 		public TrainAnnouncerBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TRAIN_ANNOUNCER.createAndGet(), pos, state);
+			super(BlockEntityTypes.TRAIN_ANNOUNCER.get(), pos, state);
 		}
 
 		@Override

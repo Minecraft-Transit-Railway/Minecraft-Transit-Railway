@@ -1,8 +1,8 @@
 plugins {
 	id "dev.architectury.loom" version "1.10-SNAPSHOT" apply false
 	id "architectury-plugin" version "3.4-SNAPSHOT"
-	id "com.github.johnrengelman.shadow" version "8.1.1" apply false
-	id "io.freefair.lombok" version "8.13.1" apply false
+	id "com.gradleup.shadow" version "+" apply false
+	id "io.freefair.lombok" version "+" apply false
 }
 
 architectury {

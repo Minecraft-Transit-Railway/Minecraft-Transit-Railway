@@ -310,7 +310,7 @@ public final class Blocks {
 	private static ObjectHolder<Block> registerBlockWithBlockItem(String registryName, Function<AbstractBlock.Settings, Block> blockFactory, boolean blockPiston, BiFunction<Block, Item.Settings, BlockItem> blockItemFactory, String itemGroupRegistryName) {
 		REGISTERED_IDENTIFIERS.add(registryName);
 		final ObjectHolder<Block> objectHolder = Registry.registerBlock(registryName, settings -> blockFactory.apply(createDefaultBlockSettings(settings, blockPiston)));
-		Registry.registerItem(registryName, settings -> blockItemFactory.apply(objectHolder.createAndGet(), settings), itemGroupRegistryName);
+		Registry.registerItem(registryName, settings -> blockItemFactory.apply(objectHolder.get(), settings), itemGroupRegistryName);
 		return objectHolder;
 	}
 }

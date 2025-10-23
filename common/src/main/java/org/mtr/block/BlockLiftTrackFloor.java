@@ -94,7 +94,7 @@ public class BlockLiftTrackFloor extends BlockLiftTrackBase implements BlockEnti
 		private static final String KEY_SHOULD_DING = "should_ding";
 
 		public LiftTrackFloorBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_TRACK_FLOOR_1.createAndGet(), pos, state);
+			super(BlockEntityTypes.LIFT_TRACK_FLOOR_1.get(), pos, state);
 		}
 
 		@Override

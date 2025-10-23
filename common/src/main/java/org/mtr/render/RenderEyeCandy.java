@@ -24,7 +24,7 @@ public class RenderEyeCandy extends BlockEntityRendererExtension<BlockEyeCandy.E
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(0.5 + entity.getPos().getX(), entity.getPos().getY(), 0.5 + entity.getPos().getZ());
 		final int newLight = entity.getFullBrightness() ? DEFAULT_LIGHT : light;
 
-		if ((RenderRails.isHoldingRailRelated(player) || player.isHolding(Blocks.EYE_CANDY.createAndGet().asItem())) && MinecraftClient.getInstance().currentScreen == null) {
+		if ((RenderRails.isHoldingRailRelated(player) || player.isHolding(Blocks.EYE_CANDY.get().asItem())) && MinecraftClient.getInstance().currentScreen == null) {
 			MainRenderer.scheduleRender(Identifier.of(MTR.MOD_ID, "textures/item/eye_candy.png"), false, QueuedRenderLayer.INTERIOR, (matrixStack, vertexConsumer, offset) -> {
 				storedMatrixTransformations.transform(matrixStack, offset);
 				matrixStack.translate(0, 0.5, 0);

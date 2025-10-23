@@ -72,7 +72,7 @@ public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements 
 		public static Consumer<BlockPos> onUse = null;
 
 		public TactileMapBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TACTILE_MAP.createAndGet(), pos, state);
+			super(BlockEntityTypes.TACTILE_MAP.get(), pos, state);
 		}
 
 		@Override

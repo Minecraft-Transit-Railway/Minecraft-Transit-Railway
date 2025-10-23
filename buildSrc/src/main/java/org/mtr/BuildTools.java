@@ -7,27 +7,18 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.jonafanho.apitools.ModId;
-import com.jonafanho.apitools.ModLoader;
-import com.jonafanho.apitools.ModProvider;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.gradle.api.Project;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.Collections;
@@ -41,66 +32,21 @@ public final class BuildTools {
 
 	public final String minecraftVersion;
 	public final String loader;
-	public final int javaLanguageVersion;
 
 	private final Path path;
 	private final String version;
-	private final int majorVersion;
 
 	private static final Logger LOGGER = LogManager.getLogger("Build");
 	private static final long CROWDIN_PROJECT_ID = 455212;
 
-	public BuildTools(String minecraftVersion, String loader, Project project) throws IOException {
+	public BuildTools(String minecraftVersion, String loader, Project project) {
 		this.minecraftVersion = minecraftVersion;
 		this.loader = loader;
 		path = project.getProjectDir().toPath();
 		version = project.getVersion().toString();
-		majorVersion = Integer.parseInt(minecraftVersion.split("\\.")[1]);
-		javaLanguageVersion = majorVersion <= 16 ? 8 : majorVersion == 17 ? 16 : 17;
 	}
 
-	public String getFabricVersion() {
-		return getJson("https://meta.fabricmc.net/v2/versions/loader/" + minecraftVersion).getAsJsonArray().get(0).getAsJsonObject().getAsJsonObject("loader").get("version").getAsString();
-	}
-
-	public String getYarnVersion() {
-		return getJson("https://meta.fabricmc.net/v2/versions/yarn/" + minecraftVersion).getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString();
-	}
-
-	public String getFabricApiVersion() {
-		final String modIdString = "fabric-api";
-		return new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, ModLoader.FABRIC, "").get(0).fileName.split("\\.jar")[0].replace(modIdString + "-", "");
-	}
-
-	public boolean hasJadeSupport() {
-		return loader.equals("fabric") ? majorVersion >= 17 : majorVersion >= 19;
-	}
-
-	public String getJadeVersion() {
-		final String modIdString = "jade";
-		final String[] fileNameSplit = new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, loader.equals("fabric") ? ModLoader.FABRIC : ModLoader.FORGE, "").get(0).fileName.split("-");
-		return fileNameSplit[fileNameSplit.length - 1].split("\\.jar")[0];
-	}
-
-	public boolean hasWthitSupport() {
-		return majorVersion >= 17;
-	}
-
-	public String getWthitVersion() {
-		final String modIdString = "wthit";
-		return new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, loader.equals("fabric") ? ModLoader.FABRIC : ModLoader.FORGE, "").get(0).fileName.split("\\.jar")[0].replace(modIdString + "-", "");
-	}
-
-	public String getModMenuVersion() {
-		final String modIdString = "modmenu";
-		return new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, ModLoader.FABRIC, "").get(0).fileName.split("\\.jar")[0].replace(modIdString + "-", "");
-	}
-
-	public String getForgeVersion() {
-		return getJson("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json").getAsJsonObject().getAsJsonObject("promos").get(minecraftVersion + "-latest").getAsString();
-	}
-
-	public void downloadTranslations(String crowdinKey, String geminiKey) throws IOException, InterruptedException {
+	public void downloadTranslations(String crowdinKey) throws IOException, InterruptedException {
 		if (!crowdinKey.isEmpty()) {
 			final CrowdinTranslationCreateProjectBuildForm crowdinTranslationCreateProjectBuildForm = new CrowdinTranslationCreateProjectBuildForm();
 			crowdinTranslationCreateProjectBuildForm.setSkipUntranslatedStrings(true);
@@ -114,57 +60,16 @@ public final class BuildTools {
 				Thread.sleep(1000);
 			}
 
-			final StringBuilder stringBuilderFiles = new StringBuilder();
-
-			try (final InputStream inputStream = new URL(client.getTranslationsApi().downloadProjectTranslations(CROWDIN_PROJECT_ID, buildId).getData().getUrl()).openStream()) {
+			try (final InputStream inputStream = URI.create(client.getTranslationsApi().downloadProjectTranslations(CROWDIN_PROJECT_ID, buildId).getData().getUrl()).toURL().openStream()) {
 				try (final ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
 					ZipEntry zipEntry;
 					while ((zipEntry = zipInputStream.getNextEntry()) != null) {
 						final String name = zipEntry.getName().toLowerCase(Locale.ENGLISH);
 						final byte[] content = IOUtils.toByteArray(zipInputStream);
-						stringBuilderFiles.append("\nFile name: ").append(name).append("\n").append(new String(content, StandardCharsets.UTF_8)).append("\n");
 						FileUtils.writeByteArrayToFile(path.resolve("src/main/resources/assets/mtr/lang").resolve(name).toFile(), content);
 						zipInputStream.closeEntry();
 					}
 				}
-			}
-
-			if (!geminiKey.isEmpty()) {
-				final String systemInstruction = "Analyze the provided translation files for only the specified problem. Don't raise issues beyond the specified problem. Cross-reference translations in all of the files to get an idea of what the actual translation should be, but ignore missing translations and don't report that as a problem. Respond with a markdown table, specifying the file where the problem occurred, the translation key(s), the translation, a rating, and suggestion(s) for fixing the problem. The rating should be on a scale from 1-5 indicating the severity of the problem, where 1 is low and 5 is severe. Sort the table first by the rating, most severe first, then by file names in alphabetical order, then by translation keys. Group problems by translation keys into one row where possible, for example if they have the same problem, so that your response is less than 8000 tokens. Here's an example:\n" +
-						"\n" +
-						"Example problem: Find incorrect translations.\n" +
-						"Example files:\n" +
-						"\n" +
-						"File name: en_us.json\n" +
-						"{\n" +
-						"\t\"gui.mtr.eat\": \"Poop\",\n" +
-						"\t\"gui.mtr.ice_cream\": \"Ice cream\"\n" +
-						"\t\"gui.mtr.banana\": \"Banana\"\n" +
-						"}\n" +
-						"\n" +
-						"File name: zh_hk.json\n" +
-						"{\n" +
-						"\t\"gui.mtr.eat\": \"吃\",\n" +
-						"\t\"gui.mtr.ice_cream\": \"麵包\"\n" +
-						"\t\"gui.mtr.banana\": \"蘋果\"\n" +
-						"}\n" +
-						"\n" +
-						"Example response:\n" +
-						"| File         | Translation Key(s)                    | Translation | Rating | Suggestion(s) |\n" +
-						"|--------------|---------------------------------------|-------------|--------|---------------|\n" +
-						"| `en_us.json` | `gui.mtr.eating`                      |             | 2      | `Eat`         |\n" +
-						"| `zh_hk.json` | `gui.mtr.banana`, `gui.mtr.ice_cream` |             | 5      | `香蕉`, `雪糕`    |\n";
-				final String content1 = "Problem: ";
-				final String content2 = String.format("\nFiles:\n%s\nResponse:", stringBuilderFiles);
-				final StringBuilder stringBuilderOutput = new StringBuilder();
-				stringBuilderOutput.append("# [Crowdin](https://crowdin.com/project/minecraft-transit-railway) Translation Analysis\n\n");
-				stringBuilderOutput.append("## Bad Words\n\n");
-				stringBuilderOutput.append(removeLastLine(getGemini(geminiKey, content1 + "Find swear words or offensive words." + content2, systemInstruction))).append("\n\n");
-				stringBuilderOutput.append("## Incorrect Translations\n\n");
-				stringBuilderOutput.append(removeLastLine(getGemini(geminiKey, content1 + "Find incorrect translations." + content2, systemInstruction))).append("\n\n");
-				stringBuilderOutput.append("## Grammar or Spelling Mistakes\n\n");
-				stringBuilderOutput.append(removeLastLine(getGemini(geminiKey, content1 + "Find grammatical or spelling mistakes." + content2, systemInstruction))).append("\n\n");
-				FileUtils.write(path.resolve("../build/translation/analysis.md").toFile(), stringBuilderOutput, StandardCharsets.UTF_8);
 			}
 		}
 	}
@@ -243,10 +148,10 @@ public final class BuildTools {
 		);
 	}
 
-	public void copyBuildFile(boolean excludeAssets) throws IOException {
+	public void copyBuildFile() throws IOException {
 		final Path directory = path.getParent().resolve("build/release");
 		Files.createDirectories(directory);
-		Files.copy(path.resolve(String.format("build/libs/mtr-%s-%s.jar", loader, version)), directory.resolve(String.format("MTR-%s-%s+%s%s.jar", loader, version, minecraftVersion, excludeAssets ? "-server" : "")), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(path.resolve(String.format("build/libs/mtr-%s-%s.jar", loader, version)), directory.resolve(String.format("MTR-%s-%s+%s.jar", loader, version, minecraftVersion)), StandardCopyOption.REPLACE_EXISTING);
 	}
 
 	public void getPatreonList(String key) throws IOException {
@@ -284,7 +189,7 @@ public final class BuildTools {
 	public void setupObjLibrary() {
 		final Path libraryPath = path.resolve("src/main/java/de/javagl/obj");
 		try {
-			FileUtils.copyURLToFile(new URL("https://github.com/javagl/Obj/archive/refs/heads/master.zip"), libraryPath.resolve("master.zip").toFile());
+			FileUtils.copyURLToFile(URI.create("https://github.com/javagl/Obj/archive/refs/heads/master.zip").toURL(), libraryPath.resolve("master.zip").toFile());
 			try (final ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(libraryPath.resolve("master.zip")))) {
 				ZipEntry zipEntry = zipInputStream.getNextEntry();
 				while (zipEntry != null) {
@@ -292,27 +197,20 @@ public final class BuildTools {
 					if (!zipEntry.isDirectory() && zipPath.startsWith("Obj-master/src/main/java/de/javagl/obj")) {
 						final String fileName = zipPath.getFileName().toString();
 						final String content = IOUtils.toString(zipInputStream, StandardCharsets.UTF_8);
-						final String newContent;
-						switch (fileName) {
-							case "DefaultObj.java":
-								newContent = appendAfter(
-										content,
-										"startedGroupNames.put(face, nextActiveGroupNames);", "startedMaterialGroupNames.put(face, activeMaterialGroupName);"
-								);
-								break;
-							case "ObjReader.java":
-								newContent = appendAfter(
-										content,
-										"ObjFaceParser objFaceParser = new ObjFaceParser();", "String groupOrObject = \"\";",
-										"case \"g\":", "case \"o\": if (!groupOrObject.equals(identifier) && !groupOrObject.isEmpty()) break;",
-										"output.setActiveGroupNames(Arrays.asList(groupNames));", "groupOrObject = identifier;"
-								);
-								break;
-							default:
-								newContent = content;
-								break;
-						}
-						Files.write(libraryPath.resolve(fileName), newContent.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+						final String newContent = switch (fileName) {
+							case "DefaultObj.java" -> appendAfter(
+									content,
+									"startedGroupNames.put(face, nextActiveGroupNames);", "startedMaterialGroupNames.put(face, activeMaterialGroupName);"
+							);
+							case "ObjReader.java" -> appendAfter(
+									content,
+									"ObjFaceParser objFaceParser = new ObjFaceParser();", "String groupOrObject = \"\";",
+									"case \"g\":", "case \"o\": if (!groupOrObject.equals(identifier) && !groupOrObject.isEmpty()) break;",
+									"output.setActiveGroupNames(Arrays.asList(groupNames));", "groupOrObject = identifier;"
+							);
+							default -> content;
+						};
+						Files.writeString(libraryPath.resolve(fileName), newContent, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 					}
 					zipEntry = zipInputStream.getNextEntry();
 				}
@@ -326,7 +224,7 @@ public final class BuildTools {
 	private static JsonElement getJson(String url, String... requestProperties) {
 		for (int i = 0; i < 5; i++) {
 			try {
-				final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+				final HttpURLConnection connection = (HttpURLConnection) URI.create(url).toURL().openConnection();
 				connection.setUseCaches(false);
 
 				for (int j = 0; j < requestProperties.length / 2; j++) {
@@ -351,48 +249,12 @@ public final class BuildTools {
 		return new JsonObject();
 	}
 
-	private static String getGemini(String key, String content, String systemInstruction) throws IOException {
-		final JsonObject contentPartObject = new JsonObject();
-		contentPartObject.addProperty("text", content);
-		final JsonArray contentPartsArray = new JsonArray();
-		contentPartsArray.add(contentPartObject);
-		final JsonObject contentObject = new JsonObject();
-		contentObject.add("parts", contentPartsArray);
-		final JsonArray contentsArray = new JsonArray();
-		contentsArray.add(contentObject);
-
-		final JsonObject systemInstructionPartObject = new JsonObject();
-		systemInstructionPartObject.addProperty("text", systemInstruction);
-		final JsonArray systemInstructionPartsArray = new JsonArray();
-		systemInstructionPartsArray.add(systemInstructionPartObject);
-		final JsonObject systemInstructionObject = new JsonObject();
-		systemInstructionObject.add("parts", systemInstructionPartsArray);
-
-		final JsonObject generationConfigObject = new JsonObject();
-		generationConfigObject.addProperty("temperature", 0);
-
-		final JsonObject mainObject = new JsonObject();
-		mainObject.add("contents", contentsArray);
-		mainObject.add("systemInstruction", systemInstructionObject);
-		mainObject.add("generationConfig", generationConfigObject);
-
-		final HttpPost httpPost = new HttpPost("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + key);
-		httpPost.setEntity(new StringEntity(mainObject.toString()));
-		try (final CloseableHttpClient closeableHttpClient = HttpClients.createDefault(); final CloseableHttpResponse response = closeableHttpClient.execute(httpPost)) {
-			return JsonParser.parseReader(new InputStreamReader(response.getEntity().getContent())).getAsJsonObject().getAsJsonArray("candidates").get(0).getAsJsonObject().getAsJsonObject("content").getAsJsonArray("parts").get(0).getAsJsonObject().get("text").getAsString();
-		}
-	}
-
 	private static String appendAfter(String string, String... replacements) {
 		String newString = string;
 		for (int i = 1; i < replacements.length; i += 2) {
 			newString = newString.replace(replacements[i - 1], replacements[i - 1] + replacements[i]);
 		}
 		return newString;
-	}
-
-	private static String removeLastLine(String text) {
-		return text.substring(0, text.lastIndexOf("\n"));
 	}
 
 	private static class Patreon implements Comparable<Patreon> {

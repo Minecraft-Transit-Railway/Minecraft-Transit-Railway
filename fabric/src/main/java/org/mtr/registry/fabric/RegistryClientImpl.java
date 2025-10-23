@@ -31,15 +31,15 @@ import java.util.function.Function;
 public final class RegistryClientImpl {
 
 	public static <T extends BlockEntity, U extends T> void registerBlockEntityRenderer(ObjectHolder<BlockEntityType<U>> blockEntityType, BlockEntityRendererFactory<T> factory) {
-		BlockEntityRendererFactories.register(blockEntityType.createAndGet(), factory);
+		BlockEntityRendererFactories.register(blockEntityType.get(), factory);
 	}
 
 	public static <T extends Entity, U extends T> void registerEntityRenderer(ObjectHolder<EntityType<U>> entityType, EntityRendererFactory<T> factory) {
-		EntityRendererRegistry.register(entityType.createAndGet(), factory);
+		EntityRendererRegistry.register(entityType.get(), factory);
 	}
 
 	public static void registerBlockRenderType(RenderLayer renderLayer, ObjectHolder<Block> block) {
-		BlockRenderLayerMap.INSTANCE.putBlock(block.createAndGet(), renderLayer);
+		BlockRenderLayerMap.INSTANCE.putBlock(block.get(), renderLayer);
 	}
 
 	public static void registerKeyBinding(KeyBinding keyBinding) {
@@ -48,7 +48,7 @@ public final class RegistryClientImpl {
 
 	@SafeVarargs
 	public static void registerBlockColors(BlockColorProvider blockColorProvider, ObjectHolder<Block>... blocks) {
-		ColorProviderRegistry.BLOCK.register(blockColorProvider, Arrays.stream(blocks).map(ObjectHolder::createAndGet).toArray(Block[]::new));
+		ColorProviderRegistry.BLOCK.register(blockColorProvider, Arrays.stream(blocks).map(ObjectHolder::get).toArray(Block[]::new));
 	}
 
 	public static void setupPackets() {

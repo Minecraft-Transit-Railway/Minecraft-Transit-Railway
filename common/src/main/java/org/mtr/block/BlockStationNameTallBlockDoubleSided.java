@@ -43,7 +43,7 @@ public class BlockStationNameTallBlockDoubleSided extends BlockStationNameTallBa
 	public static class StationNameTallBlockDoubleSidedBlockEntity extends BlockEntityTallBase {
 
 		public StationNameTallBlockDoubleSidedBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED.createAndGet(), pos, state, 0.6875F, true);
+			super(BlockEntityTypes.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED.get(), pos, state, 0.6875F, true);
 		}
 	}
 }

@@ -80,22 +80,22 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 	private BlockState getBlockStateFromItem() {
 		return switch (type) {
 			case PSD_1 -> switch (item) {
-				case PSD_APG_DOOR -> Blocks.PSD_DOOR_1.createAndGet().getDefaultState();
-				case PSD_APG_GLASS -> Blocks.PSD_GLASS_1.createAndGet().getDefaultState();
-				case PSD_APG_GLASS_END -> Blocks.PSD_GLASS_END_1.createAndGet().getDefaultState();
+				case PSD_APG_DOOR -> Blocks.PSD_DOOR_1.get().getDefaultState();
+				case PSD_APG_GLASS -> Blocks.PSD_GLASS_1.get().getDefaultState();
+				case PSD_APG_GLASS_END -> Blocks.PSD_GLASS_END_1.get().getDefaultState();
 			};
 			case PSD_2 -> switch (item) {
-				case PSD_APG_DOOR -> Blocks.PSD_DOOR_2.createAndGet().getDefaultState();
-				case PSD_APG_GLASS -> Blocks.PSD_GLASS_2.createAndGet().getDefaultState();
-				case PSD_APG_GLASS_END -> Blocks.PSD_GLASS_END_2.createAndGet().getDefaultState();
+				case PSD_APG_DOOR -> Blocks.PSD_DOOR_2.get().getDefaultState();
+				case PSD_APG_GLASS -> Blocks.PSD_GLASS_2.get().getDefaultState();
+				case PSD_APG_GLASS_END -> Blocks.PSD_GLASS_END_2.get().getDefaultState();
 			};
 			case APG -> switch (item) {
-				case PSD_APG_DOOR -> Blocks.APG_DOOR.createAndGet().getDefaultState();
-				case PSD_APG_GLASS -> Blocks.APG_GLASS.createAndGet().getDefaultState();
-				case PSD_APG_GLASS_END -> Blocks.APG_GLASS_END.createAndGet().getDefaultState();
+				case PSD_APG_DOOR -> Blocks.APG_DOOR.get().getDefaultState();
+				case PSD_APG_GLASS -> Blocks.APG_GLASS.get().getDefaultState();
+				case PSD_APG_GLASS_END -> Blocks.APG_GLASS_END.get().getDefaultState();
 			};
-			case LIFT_DOOR_1 -> Blocks.LIFT_DOOR_EVEN_1.createAndGet().getDefaultState();
-			case LIFT_DOOR_ODD_1 -> Blocks.LIFT_DOOR_ODD_1.createAndGet().getDefaultState();
+			case LIFT_DOOR_1 -> Blocks.LIFT_DOOR_EVEN_1.get().getDefaultState();
+			case LIFT_DOOR_ODD_1 -> Blocks.LIFT_DOOR_ODD_1.get().getDefaultState();
 		};
 	}
 

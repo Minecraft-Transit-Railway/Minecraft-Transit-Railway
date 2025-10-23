@@ -34,13 +34,13 @@ public final class ItemDepotDriverKey extends ItemDriverKey {
 
 	public static void setData(ItemStack itemStack, Depot depot, long timeout) {
 		if (itemStack.getItem() instanceof ItemDepotDriverKey) {
-			itemStack.set(DataComponentTypes.DEPOT_ID.createAndGet(), depot.getId());
-			itemStack.set(DataComponentTypes.EXPIRY_TIME.createAndGet(), System.currentTimeMillis() + timeout);
+			itemStack.set(DataComponentTypes.DEPOT_ID.get(), depot.getId());
+			itemStack.set(DataComponentTypes.EXPIRY_TIME.get(), System.currentTimeMillis() + timeout);
 		}
 	}
 
 	public static boolean isCreativeDriverKeyOrMatchesDepot(ItemStack itemStack, long depotId) {
-		return itemStack.getItem() instanceof ItemCreativeDriverKey || isUsable(itemStack) && Objects.equals(itemStack.get(DataComponentTypes.DEPOT_ID.createAndGet()), depotId);
+		return itemStack.getItem() instanceof ItemCreativeDriverKey || isUsable(itemStack) && Objects.equals(itemStack.get(DataComponentTypes.DEPOT_ID.get()), depotId);
 	}
 
 	private static boolean isUsable(ItemStack itemStack) {
@@ -48,7 +48,7 @@ public final class ItemDepotDriverKey extends ItemDriverKey {
 	}
 
 	private static long getExpiryTime(ItemStack itemStack) {
-		final Long expiryTime = itemStack.get(DataComponentTypes.EXPIRY_TIME.createAndGet());
+		final Long expiryTime = itemStack.get(DataComponentTypes.EXPIRY_TIME.get());
 		return expiryTime == null ? 0 : expiryTime;
 	}
 }

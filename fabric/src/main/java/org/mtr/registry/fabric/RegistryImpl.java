@@ -60,7 +60,7 @@ public final class RegistryImpl {
 	public static ObjectHolder<Item> registerItem(String registryName, Function<Item.Settings, Item> factory, @Nullable String itemGroupRegistryName) {
 		final ObjectHolder<Item> objectHolder = register(Registries.ITEM, RegistryKeys.ITEM, registryName, dataRegistryKey -> factory.apply(new Item.Settings().registryKey(dataRegistryKey)));
 		if (itemGroupRegistryName != null) {
-			ITEM_GROUP_ENTRIES.computeIfAbsent(itemGroupRegistryName, key -> new ObjectArrayList<>()).add(objectHolder::createAndGet);
+			ITEM_GROUP_ENTRIES.computeIfAbsent(itemGroupRegistryName, key -> new ObjectArrayList<>()).add(objectHolder::get);
 		}
 		return objectHolder;
 	}
@@ -114,8 +114,9 @@ public final class RegistryImpl {
 
 	private static <T extends U, U> ObjectHolder<T> register(Registry<U> registry, RegistryKey<Registry<U>> registryKey, String registryName, Function<RegistryKey<U>, T> factory) {
 		final RegistryKey<U> dataRegistryKey = RegistryKey.of(registryKey, Identifier.of(MTR.MOD_ID, registryName));
-		final ObjectHolder<T> objectHolder = new ObjectHolder<>(() -> Registry.register(registry, dataRegistryKey, factory.apply(dataRegistryKey)));
-		OBJECTS_TO_REGISTER.add(objectHolder::createAndGet);
+		final T data = Registry.register(registry, dataRegistryKey, factory.apply(dataRegistryKey));
+		final ObjectHolder<T> objectHolder = new ObjectHolder<>(() -> data);
+		OBJECTS_TO_REGISTER.add(objectHolder::get);
 		return objectHolder;
 	}
 }

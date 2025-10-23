@@ -74,7 +74,7 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 	@Override
 	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
 		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
-		final boolean isNext = direction == facing.rotateYClockwise() || state.isOf(org.mtr.registry.Blocks.RAILWAY_SIGN_MIDDLE.get()) && direction == facing.rotateYCounterclockwise();
+		final boolean isNext = direction == facing.rotateYClockwise() || isRailwaySignMiddle(state) && direction == facing.rotateYCounterclockwise();
 		if (isNext && !(neighborState.getBlock() instanceof BlockRailwaySign)) {
 			return Blocks.AIR.getDefaultState();
 		} else {
@@ -105,7 +105,10 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 		if (!world.isClient()) {
 			final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 			for (int i = 1; i <= getMiddleLength(); i++) {
-				world.setBlockState(pos.offset(facing.rotateYClockwise(), i), org.mtr.registry.Blocks.RAILWAY_SIGN_MIDDLE.createAndGet().getDefaultState().with(Properties.HORIZONTAL_FACING, facing), 3);
+				final Block railwaySignMiddle = getRailwaySignMiddle();
+				if (railwaySignMiddle != null) {
+					world.setBlockState(pos.offset(facing.rotateYClockwise(), i), railwaySignMiddle.getDefaultState().with(Properties.HORIZONTAL_FACING, facing), 3);
+				}
 			}
 			world.setBlockState(pos.offset(facing.rotateYClockwise(), getMiddleLength() + 1), getDefaultState().with(Properties.HORIZONTAL_FACING, facing.getOpposite()), 3);
 			world.updateNeighbors(pos, Blocks.AIR);
@@ -117,7 +120,7 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
-		if (state.isOf(org.mtr.registry.Blocks.RAILWAY_SIGN_MIDDLE.get())) {
+		if (isRailwaySignMiddle(state)) {
 			return IBlock.getVoxelShapeByDirection(0, 0, 7, 16, 12, 9, facing);
 		} else {
 			final int xStart = getXStart();
@@ -135,7 +138,7 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
-		if (this == org.mtr.registry.Blocks.RAILWAY_SIGN_MIDDLE.get()) {
+		if (this == getRailwaySignMiddle()) {
 			return null;
 		} else {
 			return new RailwaySignBlockEntity(length, isOdd, blockPos, blockState);
@@ -167,7 +170,7 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 			final BlockState checkState = world.getBlockState(checkPos);
 			if (checkState.getBlock() instanceof BlockRailwaySign) {
 				final Direction facing = IBlock.getStatePropertySafe(checkState, Properties.HORIZONTAL_FACING);
-				if (!checkState.isOf(org.mtr.registry.Blocks.RAILWAY_SIGN_MIDDLE.get()) && (facing == direction || allowOpposite && facing == direction.getOpposite())) {
+				if (!isRailwaySignMiddle(checkState) && (facing == direction || allowOpposite && facing == direction.getOpposite())) {
 					return checkPos;
 				}
 			} else {
@@ -175,6 +178,16 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 			}
 			i++;
 		}
+	}
+
+	@Nullable
+	private static Block getRailwaySignMiddle() {
+		return org.mtr.registry.Blocks.RAILWAY_SIGN_MIDDLE == null ? null : org.mtr.registry.Blocks.RAILWAY_SIGN_MIDDLE.get();
+	}
+
+	private static boolean isRailwaySignMiddle(BlockState blockState) {
+		final Block railwaySignMiddle = getRailwaySignMiddle();
+		return railwaySignMiddle != null && blockState.isOf(railwaySignMiddle);
 	}
 
 	public static class RailwaySignBlockEntity extends BlockEntity {

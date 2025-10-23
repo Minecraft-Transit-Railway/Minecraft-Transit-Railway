@@ -73,7 +73,7 @@ public class BlockPSDTop extends Block implements IBlock, BlockEntityProvider {
 	@Nonnull
 	@Override
 	public Item asItem() {
-		return Items.PSD_GLASS_1.createAndGet();
+		return Items.PSD_GLASS_1.get();
 	}
 
 	@Nonnull
@@ -158,7 +158,7 @@ public class BlockPSDTop extends Block implements IBlock, BlockEntityProvider {
 		}
 
 		final BlockState oldState = world.getBlockState(pos);
-		BlockState neighborState = (oldState.getBlock() instanceof BlockPSDTop ? oldState : org.mtr.registry.Blocks.PSD_TOP.createAndGet().getDefaultState()).with(AIR_LEFT, airLeft).with(AIR_RIGHT, airRight);
+		BlockState neighborState = (oldState.getBlock() instanceof BlockPSDTop ? oldState : org.mtr.registry.Blocks.PSD_TOP.get().getDefaultState()).with(AIR_LEFT, airLeft).with(AIR_RIGHT, airRight);
 		if (facing != null) {
 			neighborState = neighborState.with(Properties.HORIZONTAL_FACING, facing);
 		}
@@ -171,7 +171,7 @@ public class BlockPSDTop extends Block implements IBlock, BlockEntityProvider {
 	public static class PSDTopBlockEntity extends BlockEntityBase {
 
 		public PSDTopBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.PSD_TOP.createAndGet(), pos, state);
+			super(BlockEntityTypes.PSD_TOP.get(), pos, state);
 		}
 	}
 

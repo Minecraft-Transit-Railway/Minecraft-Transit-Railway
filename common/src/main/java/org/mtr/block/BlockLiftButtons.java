@@ -148,7 +148,7 @@ public class BlockLiftButtons extends BlockWaterloggable implements BlockEntityP
 		private static final String KEY_TRACK_FLOOR_POS = "track_floor_pos";
 
 		public LiftButtonsBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_BUTTONS_1.createAndGet(), pos, state);
+			super(BlockEntityTypes.LIFT_BUTTONS_1.get(), pos, state);
 		}
 
 		@Override

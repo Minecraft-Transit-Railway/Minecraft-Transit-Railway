@@ -26,13 +26,13 @@ public class BlockAPGDoor extends BlockPSDAPGDoorBase implements BlockEntityProv
 	@Nonnull
 	@Override
 	public Item asItem() {
-		return Items.APG_DOOR.createAndGet();
+		return Items.APG_DOOR.get();
 	}
 
 	public static class APGDoorBlockEntity extends BlockEntityBase {
 
 		public APGDoorBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.APG_DOOR.createAndGet(), pos, state);
+			super(BlockEntityTypes.APG_DOOR.get(), pos, state);
 		}
 	}
 }

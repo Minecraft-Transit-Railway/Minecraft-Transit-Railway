@@ -9,6 +9,21 @@ public final class BlockbenchModel extends BlockbenchModelSchema {
 	public BlockbenchModel(ReaderBase readerBase) {
 		super(readerBase);
 		updateData(readerBase);
+
+		// Combine groups and outliner for the Blockbench 5.0 update
+		outliner.forEach(blockbenchOutline -> {
+			boolean needsMigration = true;
+			for (final BlockbenchOutline group : groups) {
+				if (blockbenchOutline.uuidEquals(group)) {
+					group.childrenUuid.addAll(blockbenchOutline.childrenUuid);
+					group.getChildren().addAll(blockbenchOutline.getChildren());
+					needsMigration = false;
+				}
+			}
+			if (needsMigration) {
+				groups.add(blockbenchOutline);
+			}
+		});
 	}
 
 	public int getTextureWidth() {
@@ -24,6 +39,6 @@ public final class BlockbenchModel extends BlockbenchModelSchema {
 	}
 
 	public ObjectArrayList<BlockbenchOutline> getOutlines() {
-		return outliner;
+		return groups;
 	}
 }

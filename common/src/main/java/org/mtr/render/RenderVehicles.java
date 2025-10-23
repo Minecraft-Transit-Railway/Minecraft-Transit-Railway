@@ -101,9 +101,9 @@ public final class RenderVehicles {
 			iterateWithIndex(vehiclePropertiesList, (carNumber, vehicleCarDetails) -> {
 				final PositionAndRotation absoluteVehicleCarPositionAndRotation = vehicleCarDetails.right().right();
 				final double distanceFromCamera = CullingHelper.getDistanceFromCamera(
-						absoluteVehicleCarPositionAndRotation.position.x,
-						absoluteVehicleCarPositionAndRotation.position.y,
-						absoluteVehicleCarPositionAndRotation.position.z
+						absoluteVehicleCarPositionAndRotation.position.x(),
+						absoluteVehicleCarPositionAndRotation.position.y(),
+						absoluteVehicleCarPositionAndRotation.position.z()
 				);
 				final boolean isWithinRenderDistance = distanceFromCamera <= renderDistance;
 				final boolean isWithinHalfRenderDistance = distanceFromCamera <= renderDistance / 2;
@@ -336,17 +336,17 @@ public final class RenderVehicles {
 		} else if (offsetRotation == null) {
 			// Offset rendering
 			return new PositionAndRotation(new Vector(-offsetVector.x, -offsetVector.y, -offsetVector.z).rotateX(ridingCarPositionAndRotation.pitch).rotateY(ridingCarPositionAndRotation.yaw).add(
-					cameraShakeOffset.x + renderingPositionAndRotation.position.x - ridingCarPositionAndRotation.position.x,
-					cameraShakeOffset.y + renderingPositionAndRotation.position.y - ridingCarPositionAndRotation.position.y,
-					cameraShakeOffset.z + renderingPositionAndRotation.position.z - ridingCarPositionAndRotation.position.z
+					cameraShakeOffset.x + renderingPositionAndRotation.position.x() - ridingCarPositionAndRotation.position.x(),
+					cameraShakeOffset.y + renderingPositionAndRotation.position.y() - ridingCarPositionAndRotation.position.y(),
+					cameraShakeOffset.z + renderingPositionAndRotation.position.z() - ridingCarPositionAndRotation.position.z()
 			), renderingPositionAndRotation.yaw, renderingPositionAndRotation.pitch);
 		} else {
 			// Offset rendering with rotation
 			final double ridingRotation = offsetRotation - ridingCarPositionAndRotation.yaw - Math.toRadians(MinecraftClient.getInstance().gameRenderer.getCamera().getYaw());
 			return new PositionAndRotation(new Vector(-offsetVector.x, -offsetVector.y, -offsetVector.z).rotateX(ridingCarPositionAndRotation.pitch).rotateY(ridingCarPositionAndRotation.yaw).add(
-					renderingPositionAndRotation.position.x - ridingCarPositionAndRotation.position.x,
-					renderingPositionAndRotation.position.y - ridingCarPositionAndRotation.position.y,
-					renderingPositionAndRotation.position.z - ridingCarPositionAndRotation.position.z
+					renderingPositionAndRotation.position.x() - ridingCarPositionAndRotation.position.x(),
+					renderingPositionAndRotation.position.y() - ridingCarPositionAndRotation.position.y(),
+					renderingPositionAndRotation.position.z() - ridingCarPositionAndRotation.position.z()
 			).rotateY(ridingRotation).add(
 					cameraShakeOffset.x,
 					cameraShakeOffset.y,
@@ -367,10 +367,10 @@ public final class RenderVehicles {
 		final StoredMatrixTransformations storedMatrixTransformations;
 
 		if (useOffset) {
-			storedMatrixTransformations = new StoredMatrixTransformations(renderingPositionAndRotation.position.x, renderingPositionAndRotation.position.y, renderingPositionAndRotation.position.z);
+			storedMatrixTransformations = new StoredMatrixTransformations(renderingPositionAndRotation.position.x(), renderingPositionAndRotation.position.y(), renderingPositionAndRotation.position.z());
 		} else {
 			storedMatrixTransformations = new StoredMatrixTransformations();
-			storedMatrixTransformations.add(graphicsHolder -> graphicsHolder.translate(renderingPositionAndRotation.position.x, renderingPositionAndRotation.position.y, renderingPositionAndRotation.position.z));
+			storedMatrixTransformations.add(graphicsHolder -> graphicsHolder.translate(renderingPositionAndRotation.position.x(), renderingPositionAndRotation.position.y(), renderingPositionAndRotation.position.z()));
 		}
 
 		storedMatrixTransformations.add(matrixStack -> {
@@ -490,7 +490,7 @@ public final class RenderVehicles {
 			final Vector position7 = previousConnectionPositions.position3;
 			final Vector position8 = previousConnectionPositions.position4;
 
-			final BlockPos blockPosConnection = BlockPos.ofFloored(position1.x, position1.y + 1, position1.z);
+			final BlockPos blockPosConnection = BlockPos.ofFloored(position1.x(), position1.y() + 1, position1.z());
 			final int lightConnection = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.BLOCK, blockPosConnection), clientWorld.getLightLevel(LightType.SKY, blockPosConnection));
 
 			MainRenderer.scheduleRender(outerSideTexture, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> {
@@ -542,10 +542,10 @@ public final class RenderVehicles {
 	private static void drawTexture(MatrixStack matrixStack, VertexConsumer vertexConsumer, Vector position1, Vector position2, Vector position3, Vector position4, Vec3d offset, int light) {
 		IDrawing.drawTexture(
 				matrixStack, vertexConsumer,
-				position1.x, position1.y, position1.z,
-				position2.x, position2.y, position2.z,
-				position3.x, position3.y, position3.z,
-				position4.x, position4.y, position4.z,
+				position1.x(), position1.y(), position1.z(),
+				position2.x(), position2.y(), position2.z(),
+				position3.x(), position3.y(), position3.z(),
+				position4.x(), position4.y(), position4.z(),
 				offset, 0, 0, 1, 1, Direction.UP, GuiHelper.WHITE_COLOR, light
 		);
 	}

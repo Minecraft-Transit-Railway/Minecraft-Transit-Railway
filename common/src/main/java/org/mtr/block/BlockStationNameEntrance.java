@@ -93,7 +93,7 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IB
 	public static class StationNameEntranceBlockEntity extends BlockEntityBase {
 
 		public StationNameEntranceBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.STATION_NAME_ENTRANCE.createAndGet(), pos, state, 0, 0.00625F, false);
+			super(BlockEntityTypes.STATION_NAME_ENTRANCE.get(), pos, state, 0, 0.00625F, false);
 		}
 
 		@Override

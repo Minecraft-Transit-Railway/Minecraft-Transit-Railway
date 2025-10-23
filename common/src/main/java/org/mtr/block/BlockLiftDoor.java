@@ -25,13 +25,13 @@ public class BlockLiftDoor extends BlockPSDAPGDoorBase {
 	@Nonnull
 	@Override
 	public Item asItem() {
-		return Items.LIFT_DOOR_1.createAndGet();
+		return Items.LIFT_DOOR_1.get();
 	}
 
 	public static class LiftDoorBlockEntity extends BlockEntityBase {
 
 		public LiftDoorBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.LIFT_DOOR_EVEN_1.createAndGet(), pos, state);
+			super(BlockEntityTypes.LIFT_DOOR_EVEN_1.get(), pos, state);
 		}
 	}
 }

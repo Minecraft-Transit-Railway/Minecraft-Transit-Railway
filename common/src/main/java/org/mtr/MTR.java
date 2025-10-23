@@ -118,6 +118,7 @@ public final class MTR {
 		Registry.registerPacket(PacketSetRouteIdHasDisabledAnnouncements.class, PacketSetRouteIdHasDisabledAnnouncements::new);
 		Registry.registerPacket(PacketTurnOnBlockEntity.class, PacketTurnOnBlockEntity::new);
 		Registry.registerPacket(PacketUpdateData.class, PacketUpdateData::new);
+		Registry.registerPacket(PacketUpdateDynamicData.class, PacketUpdateDynamicData::new);
 		Registry.registerPacket(PacketUpdateEyeCandyConfig.class, PacketUpdateEyeCandyConfig::new);
 		Registry.registerPacket(PacketUpdateLastRailStyles.class, PacketUpdateLastRailStyles::new);
 		Registry.registerPacket(PacketUpdateLiftTrackFloorConfig.class, PacketUpdateLiftTrackFloorConfig::new);
@@ -127,7 +128,6 @@ public final class MTR {
 		Registry.registerPacket(PacketUpdateTrainAnnouncerConfig.class, PacketUpdateTrainAnnouncerConfig::new);
 		Registry.registerPacket(PacketUpdateTrainScheduleSensorConfig.class, PacketUpdateTrainScheduleSensorConfig::new);
 		Registry.registerPacket(PacketUpdateTrainSensorConfig.class, PacketUpdateTrainSensorConfig::new);
-		Registry.registerPacket(PacketUpdateVehiclesLifts.class, PacketUpdateVehiclesLifts::new);
 		Registry.registerPacket(PacketUpdateVehicleRidingEntities.class, PacketUpdateVehicleRidingEntities::new);
 
 		// Register commands
@@ -222,6 +222,11 @@ public final class MTR {
 			if (isDedicatedServer && Config.getServer().forceShutDownStrayThreads()) {
 				StrayThreadManager.register(minecraftServer);
 			}
+
+			Main.CLIENT_NAME_RESOLVER = uuid -> {
+				final ServerPlayerEntity serverPlayerEntity = minecraftServer.getPlayerManager().getPlayer(uuid);
+				return serverPlayerEntity == null ? "" : serverPlayerEntity.getName().getString();
+			};
 		});
 
 		EventRegistry.registerServerStopping(minecraftServer -> {

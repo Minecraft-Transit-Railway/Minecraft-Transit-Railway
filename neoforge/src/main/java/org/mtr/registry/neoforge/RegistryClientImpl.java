@@ -33,15 +33,15 @@ import java.util.function.Function;
 public final class RegistryClientImpl {
 
 	public static <T extends BlockEntity, U extends T> void registerBlockEntityRenderer(ObjectHolder<BlockEntityType<U>> blockEntityType, BlockEntityRendererFactory<T> factory) {
-		ModEventBusClient.BLOCK_ENTITY_RENDERERS.add(event -> event.registerBlockEntityRenderer(blockEntityType.createAndGet(), factory));
+		ModEventBusClient.BLOCK_ENTITY_RENDERERS.add(event -> event.registerBlockEntityRenderer(blockEntityType.get(), factory));
 	}
 
 	public static <T extends Entity, U extends T> void registerEntityRenderer(ObjectHolder<EntityType<U>> entityType, EntityRendererFactory<T> factory) {
-		ModEventBusClient.BLOCK_ENTITY_RENDERERS.add(event -> event.registerEntityRenderer(entityType.createAndGet(), factory));
+		ModEventBusClient.BLOCK_ENTITY_RENDERERS.add(event -> event.registerEntityRenderer(entityType.get(), factory));
 	}
 
 	public static void registerBlockRenderType(RenderLayer renderLayer, ObjectHolder<Block> block) {
-		ModEventBusClient.CLIENT_OBJECTS_TO_REGISTER.add(() -> RenderLayers.setRenderLayer(block.createAndGet(), renderLayer));
+		ModEventBusClient.CLIENT_OBJECTS_TO_REGISTER.add(() -> RenderLayers.setRenderLayer(block.get(), renderLayer));
 	}
 
 	public static void registerKeyBinding(KeyBinding keyBinding) {
@@ -50,7 +50,7 @@ public final class RegistryClientImpl {
 
 	@SafeVarargs
 	public static void registerBlockColors(BlockColorProvider blockColorProvider, ObjectHolder<Block>... blocks) {
-		ModEventBusClient.BLOCK_COLORS.add(event -> event.getBlockColors().registerColorProvider(blockColorProvider, Arrays.stream(blocks).map(ObjectHolder::createAndGet).toArray(Block[]::new)));
+		ModEventBusClient.BLOCK_COLORS.add(event -> event.getBlockColors().registerColorProvider(blockColorProvider, Arrays.stream(blocks).map(ObjectHolder::get).toArray(Block[]::new)));
 	}
 
 	public static void setupPackets() {

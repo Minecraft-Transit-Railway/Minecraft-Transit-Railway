@@ -30,7 +30,7 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityPr
 	@Nonnull
 	@Override
 	public Item asItem() {
-		return Items.APG_GLASS.createAndGet();
+		return Items.APG_GLASS.get();
 	}
 
 	@Nonnull
@@ -65,7 +65,7 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityPr
 	public static class APGGlassBlockEntity extends BlockPSDTop.BlockEntityBase {
 
 		public APGGlassBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.APG_GLASS.createAndGet(), pos, state);
+			super(BlockEntityTypes.APG_GLASS.get(), pos, state);
 		}
 	}
 }

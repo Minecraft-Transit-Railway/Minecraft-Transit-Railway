@@ -18,6 +18,6 @@ public class BlockPSDGlassEnd extends BlockPSDAPGGlassEndBase {
 	@Nonnull
 	@Override
 	public Item asItem() {
-		return style == 0 ? Items.PSD_GLASS_END_1.createAndGet() : Items.PSD_GLASS_END_2.createAndGet();
+		return style == 0 ? Items.PSD_GLASS_END_1.get() : Items.PSD_GLASS_END_2.get();
 	}
 }

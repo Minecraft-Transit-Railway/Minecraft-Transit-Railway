@@ -40,7 +40,7 @@ public class BlockRouteSignStandingMetal extends BlockRouteSignBase implements I
 	public static class RouteSignStandingMetalBlockEntity extends BlockEntityBase {
 
 		public RouteSignStandingMetalBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.ROUTE_SIGN_STANDING_METAL.createAndGet(), pos, state);
+			super(BlockEntityTypes.ROUTE_SIGN_STANDING_METAL.get(), pos, state);
 		}
 	}
 }

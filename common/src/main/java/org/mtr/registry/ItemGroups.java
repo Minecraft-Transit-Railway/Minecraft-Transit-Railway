@@ -6,10 +6,10 @@ import org.mtr.MTR;
 public final class ItemGroups {
 
 	static {
-		CORE = Registry.registerItemGroup("core", () -> new ItemStack(Items.RAILWAY_DASHBOARD.createAndGet()));
-		RAILWAY_FACILITIES = Registry.registerItemGroup("railway_facilities", () -> new ItemStack(Blocks.TICKET_PROCESSOR.createAndGet()));
-		STATION_BUILDING_BLOCKS = Registry.registerItemGroup("station_building_blocks", () -> new ItemStack(Blocks.LOGO.createAndGet()));
-		ESCALATORS_LIFTS = Registry.registerItemGroup("escalators_lifts", () -> new ItemStack(Items.ESCALATOR.createAndGet()));
+		CORE = Registry.registerItemGroup("core", () -> new ItemStack(Items.RAILWAY_DASHBOARD.get()));
+		RAILWAY_FACILITIES = Registry.registerItemGroup("railway_facilities", () -> new ItemStack(Blocks.TICKET_PROCESSOR.get()));
+		STATION_BUILDING_BLOCKS = Registry.registerItemGroup("station_building_blocks", () -> new ItemStack(Blocks.LOGO.get()));
+		ESCALATORS_LIFTS = Registry.registerItemGroup("escalators_lifts", () -> new ItemStack(Items.ESCALATOR.get()));
 	}
 
 	public static final String CORE;

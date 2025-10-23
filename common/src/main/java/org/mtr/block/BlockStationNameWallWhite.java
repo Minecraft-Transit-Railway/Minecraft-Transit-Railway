@@ -23,7 +23,7 @@ public class BlockStationNameWallWhite extends BlockStationNameWallBase {
 	public static class StationNameWallWhiteBlockEntity extends BlockEntityWallBase {
 
 		public StationNameWallWhiteBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.STATION_NAME_WALL_WHITE.createAndGet(), pos, state);
+			super(BlockEntityTypes.STATION_NAME_WALL_WHITE.get(), pos, state);
 		}
 
 		@Override

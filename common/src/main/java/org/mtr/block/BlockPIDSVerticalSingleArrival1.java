@@ -47,7 +47,7 @@ public class BlockPIDSVerticalSingleArrival1 extends BlockPIDSVerticalBase {
 	public static class PIDSVerticalSingleArrival1BlockEntity extends BlockEntityVerticalBase {
 
 		public PIDSVerticalSingleArrival1BlockEntity(BlockPos pos, BlockState state) {
-			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_VERTICAL_SINGLE_ARRIVAL_1.createAndGet(), pos, state);
+			super(MAX_ARRIVALS, BlockEntityTypes.PIDS_VERTICAL_SINGLE_ARRIVAL_1.get(), pos, state);
 		}
 
 		@Override

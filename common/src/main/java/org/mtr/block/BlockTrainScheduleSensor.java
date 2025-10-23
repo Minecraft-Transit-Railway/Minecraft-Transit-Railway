@@ -54,7 +54,7 @@ public class BlockTrainScheduleSensor extends BlockTrainPoweredSensorBase {
 		private static final String KEY_REALTIME_ONLY = "realtime_only";
 
 		public TrainScheduleSensorBlockEntity(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TRAIN_SCHEDULE_SENSOR.createAndGet(), pos, state);
+			super(BlockEntityTypes.TRAIN_SCHEDULE_SENSOR.get(), pos, state);
 		}
 
 		@Override

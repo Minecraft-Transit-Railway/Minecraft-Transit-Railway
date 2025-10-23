@@ -10,17 +10,14 @@ architectury {
 }
 
 dependencies {
-	// We depend on Fabric Loader here to use the Fabric @Environment annotations,
-	// which get remapped to the correct annotations on each platform.
-	// Do NOT use other classes from Fabric Loader.
-	modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
+	modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version" // For annotations only!
 	testImplementation "org.junit.jupiter:junit-jupiter-api:5.+"
 	testImplementation "org.junit.platform:junit-platform-launcher:1.+"
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.+"
 }
 
 tasks.register("setupWebsiteFiles") {
-	Generator.generateTypeScript(project, "schema/resource", "../buildSrc/src/main/resources/website/src/app/entity/generated")
+	Generator.generateTypeScript(project, "schema/resource", "../website/src/app/entity/generated")
 }
 
 tasks.register("setupFiles") {
@@ -40,37 +37,7 @@ tasks.register("setupFiles") {
 		rename "(.+).template.json", "\$1.json"
 	}
 
-	if (buildTools.hasJadeSupport()) {
-		copy {
-			outputs.upToDateWhen { false }
-			from "src/main/JadeConfigTemplate.java"
-			into "src/main/java/org/mtr/init"
-			rename "(.+)Template.java", "\$1.java"
-		}
-	} else {
-		delete fileTree("src/main/java/org/mtr/init/JadeConfig.java")
-	}
-
-	if (buildTools.hasWthitSupport()) {
-		copy {
-			outputs.upToDateWhen { false }
-			from "src/main/WthitConfigTemplate.java"
-			into "src/main/java/org/mtr/init"
-			rename "(.+)Template.java", "\$1.java"
-		}
-
-		copy {
-			outputs.upToDateWhen { false }
-			from "src/main/wthit_plugins_template.json"
-			into "src/main/resources"
-			rename "(.+)_template.json", "\$1.json"
-		}
-	} else {
-		delete fileTree("src/main/java/org/mtr/init/WthitConfig.java")
-		delete fileTree("src/main/resources/wthit_plugins.json")
-	}
-
-	buildTools.downloadTranslations(crowdin_api_key, gemini_api_key)
+	buildTools.downloadTranslations(crowdin_api_key)
 	buildTools.generateTranslations()
 	buildTools.copyVehicleTemplates()
 	buildTools.getPatreonList(patreon_api_key)

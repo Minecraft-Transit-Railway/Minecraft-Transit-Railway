@@ -48,9 +48,9 @@ public class BlockTicketProcessor extends BlockDirectionalDoubleBlockBase {
 			TicketSystem.passThrough(
 					world, blockPosCopy, player,
 					canEnter, canExit,
-					SoundEvents.TICKET_PROCESSOR_ENTRY.createAndGet(), SoundEvents.TICKET_PROCESSOR_ENTRY_CONCESSIONARY.createAndGet(),
-					SoundEvents.TICKET_PROCESSOR_EXIT.createAndGet(), SoundEvents.TICKET_PROCESSOR_EXIT_CONCESSIONARY.createAndGet(),
-					SoundEvents.TICKET_PROCESSOR_FAIL.createAndGet(),
+					SoundEvents.TICKET_PROCESSOR_ENTRY.get(), SoundEvents.TICKET_PROCESSOR_ENTRY_CONCESSIONARY.get(),
+					SoundEvents.TICKET_PROCESSOR_EXIT.get(), SoundEvents.TICKET_PROCESSOR_EXIT_CONCESSIONARY.get(),
+					SoundEvents.TICKET_PROCESSOR_FAIL.get(),
 					true,
 					open -> world.setBlockState(blockPosCopy, state.with(LIGHTS, open == TicketSystem.EnumTicketBarrierOpen.CLOSED ? EnumTicketProcessorLights.RED : EnumTicketProcessorLights.GREEN))
 			);
