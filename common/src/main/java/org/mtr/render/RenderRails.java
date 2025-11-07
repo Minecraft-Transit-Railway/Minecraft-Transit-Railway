@@ -125,7 +125,7 @@ public final class RenderRails implements IGui {
 						final BlockState blockStateStart = clientWorld.getBlockState(posStart);
 						final float angleEnd = BlockNode.getAngle(blockStateEnd);
 						final ObjectObjectImmutablePair<Angle, Angle> angles = Rail.getAngles(
-								MTR.blockPosToPosition(posStart), blockStateStart.getBlock() instanceof BlockNode ? BlockNode.getAngle(blockStateStart) : blockStateEnd.getBlock() instanceof BlockNode.BlockContinuousMovementNode ? angleEnd : clientPlayerEntity.getYaw() + 90,
+								MTR.blockPosToPosition(posStart), blockStateStart.getBlock() instanceof BlockNode ? BlockNode.getAngle(blockStateStart) : (blockStateEnd.getBlock() instanceof BlockNode.BlockContinuousMovementNode ? angleEnd : clientPlayerEntity.getYaw() + 90),
 								MTR.blockPosToPosition(posEnd), angleEnd
 						);
 
@@ -168,14 +168,14 @@ public final class RenderRails implements IGui {
 					if (renderState.hasColor && !rail.isPlatform() && !rail.isSiding()) {
 						renderRailOneWayArrows(rail, 0.5F + SMALL_OFFSET);
 					}
-					MainRenderer.scheduleRender(QueuedRenderLayer.LINES, (matrixStack, vertexConsumer, offset) -> renderWithinRenderDistance(rail, (blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> IDrawing.drawLineInWorld(
+					MainRenderer.scheduleRender(QueuedRenderLayer.LINES, (matrixStack, vertexConsumer, offset) -> renderWithinRenderDistance(rail, (blockPos, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, tiltAngle) -> IDrawing.drawLineInWorld(
 							matrixStack,
 							vertexConsumer,
 							(float) (x1 - offset.x),
 							(float) (y1 - offset.y + 0.5),
 							(float) (z1 - offset.z),
 							(float) (x3 - offset.x),
-							(float) (y2 - offset.y + 0.5),
+							(float) (y3 - offset.y + 0.5),
 							(float) (z3 - offset.z),
 							holdingRailRelated ? RailType.getRailColor(rail) : ARGB_BLACK
 					), 0.5, 0, 0));
@@ -227,9 +227,9 @@ public final class RenderRails implements IGui {
 
 		// Render one-way rail arrows
 		if (speedLimit1 == 0 || speedLimit2 == 0) {
-			renderWithinRenderDistance(rail, (blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> MainRenderer.scheduleRender(ONE_WAY_RAIL_ARROW_TEXTURE, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> {
-				IDrawing.drawTexture(matrixStack, vertexConsumer, x1, y1 + yOffset + 0.125, z1, x2, y1 + yOffset + 0.125 + SMALL_OFFSET, z2, x3, y2 + yOffset + 0.125, z3, x4, y2 + yOffset + 0.125 + SMALL_OFFSET, z4, offset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, DEFAULT_LIGHT);
-				IDrawing.drawTexture(matrixStack, vertexConsumer, x2, y1 + yOffset + 0.125 + SMALL_OFFSET, z2, x1, y1 + yOffset + 0.125, z1, x4, y2 + yOffset + 0.125 + SMALL_OFFSET, z4, x3, y2 + yOffset + 0.125, z3, offset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, DEFAULT_LIGHT);
+			renderWithinRenderDistance(rail, (blockPos, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, tiltAngle) -> MainRenderer.scheduleRender(ONE_WAY_RAIL_ARROW_TEXTURE, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> {
+				IDrawing.drawTexture(matrixStack, vertexConsumer, x1, y1 + yOffset + 0.125, z1, x2, y2 + yOffset + 0.125 + SMALL_OFFSET, z2, x3, y3 + yOffset + 0.125, z3, x4, y4 + yOffset + 0.125 + SMALL_OFFSET, z4, offset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, DEFAULT_LIGHT);
+				IDrawing.drawTexture(matrixStack, vertexConsumer, x2, y2 + yOffset + 0.125 + SMALL_OFFSET, z2, x1, y1 + yOffset + 0.125, z1, x4, y4 + yOffset + 0.125 + SMALL_OFFSET, z4, x3, y3 + yOffset + 0.125, z3, offset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, DEFAULT_LIGHT);
 			}), 1, -1, 1);
 		}
 	}
@@ -253,17 +253,17 @@ public final class RenderRails implements IGui {
 				renderType[0] = true;
 			} else {
 				final boolean flip = newStyle.endsWith("_2");
-				CustomResourceLoader.getRailById(RailResource.getIdWithoutDirection(newStyle), railResource -> renderWithinRenderDistance(rail, (blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+				CustomResourceLoader.getRailById(RailResource.getIdWithoutDirection(newStyle), railResource -> renderWithinRenderDistance(rail, (blockPos, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, tiltAngle) -> {
 					final int light = clientWorld.getLightLevel(blockPos);
 					final double differenceX = x3 - x1;
 					final double differenceZ = z3 - z1;
 					final double yaw = Math.atan2(differenceZ, differenceX);
-					final double pitch = Math.atan2(y2 - y1, Math.sqrt(differenceX * differenceX + differenceZ * differenceZ));
+					final double pitch = Math.atan2((y3 + y4) / 2 - (y1 + y2) / 2, Math.sqrt(differenceX * differenceX + differenceZ * differenceZ));
 					final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations((x1 + x3) / 2, (y1 + y2) / 2 + railResource.getModelYOffset(), (z1 + z3) / 2);
 					storedMatrixTransformations.add(matrixStack -> {
 						IDrawing.rotateYRadians(matrixStack, (float) (Math.PI / 2 - yaw + (flip ? Math.PI : 0)));
 						IDrawing.rotateXRadians(matrixStack, (float) pitch * (flip ? 1 : -1));
-						IDrawing.rotateZDegrees(matrixStack, (float) ((x1 * z1) % 10) / 100);
+						IDrawing.rotateZRadians(matrixStack, (float) (tiltAngle + Math.toRadians(((x1 * z1) % 10) / 100)));
 					});
 					railResource.render(storedMatrixTransformations, light);
 					renderType[1] = true;
@@ -276,12 +276,12 @@ public final class RenderRails implements IGui {
 			final int color = renderState.hasColor ? renderState == RenderState.FLASHING ? MainRenderer.getFlashingColor(RailType.getRailColor(rail), 1) : RailType.getRailColor(rail) : ARGB_WHITE;
 
 			final Identifier texture = renderType[1] && !renderType[0] ? IRON_BLOCK_TEXTURE : defaultTexture;
-			renderWithinRenderDistance(rail, (blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+			renderWithinRenderDistance(rail, (blockPos, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, tiltAngle) -> {
 				final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F;
 				final int light = renderState == RenderState.FLASHING || renderState == RenderState.COLORED ? DEFAULT_LIGHT : LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.BLOCK, blockPos), clientWorld.getLightLevel(LightType.SKY, blockPos));
 				MainRenderer.scheduleRender(texture, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> {
-					IDrawing.drawTexture(matrixStack, vertexConsumer, x1, y1 + yOffset, z1, x2, y1 + yOffset + SMALL_OFFSET, z2, x3, y2 + yOffset, z3, x4, y2 + yOffset + SMALL_OFFSET, z4, offset, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light);
-					IDrawing.drawTexture(matrixStack, vertexConsumer, x2, y1 + yOffset + SMALL_OFFSET, z2, x1, y1 + yOffset, z1, x4, y2 + yOffset + SMALL_OFFSET, z4, x3, y2 + yOffset, z3, offset, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light);
+					IDrawing.drawTexture(matrixStack, vertexConsumer, x1, y1 + yOffset, z1, x2, y2 + yOffset + SMALL_OFFSET, z2, x3, y3 + yOffset, z3, x4, y4 + yOffset + SMALL_OFFSET, z4, offset, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light);
+					IDrawing.drawTexture(matrixStack, vertexConsumer, x2, y2 + yOffset + SMALL_OFFSET, z2, x1, y1 + yOffset, z1, x4, y4 + yOffset + SMALL_OFFSET, z4, x3, y3 + yOffset, z3, offset, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light);
 				});
 			}, 0.5, -railWidth, railWidth);
 		}
@@ -303,11 +303,11 @@ public final class RenderRails implements IGui {
 			final float u1 = width * i + 1 - width * colors.size() / 2;
 			final float u2 = u1 + width;
 
-			renderWithinRenderDistance(rail, (blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+			renderWithinRenderDistance(rail, (blockPos, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, tiltAngle) -> {
 				final int light = shouldFlash ? DEFAULT_LIGHT : LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.BLOCK, blockPos), clientWorld.getLightLevel(LightType.SKY, blockPos));
 				MainRenderer.scheduleRender(WOOL_TEXTURE, false, shouldFlash ? QueuedRenderLayer.EXTERIOR : QueuedRenderLayer.LIGHT, (matrixStack, vertexConsumer, offset) -> {
-					IDrawing.drawTexture(matrixStack, vertexConsumer, x1, y1 + 0.125, z1, x2, y1 + 0.125 + SMALL_OFFSET, z2, x3, y2 + 0.125, z3, x4, y2 + 0.125 + SMALL_OFFSET, z4, offset, u1, 0, u2, 1, Direction.UP, color, light);
-					IDrawing.drawTexture(matrixStack, vertexConsumer, x4, y2 + 0.125 + SMALL_OFFSET, z4, x3, y2 + 0.125, z3, x2, y1 + 0.125 + SMALL_OFFSET, z2, x1, y1 + 0.125, z1, offset, u1, 0, u2, 1, Direction.UP, color, light);
+					IDrawing.drawTexture(matrixStack, vertexConsumer, x1, y1 + 0.125, z1, x2, y2 + 0.125 + SMALL_OFFSET, z2, x3, y3 + 0.125, z3, x4, y4 + 0.125 + SMALL_OFFSET, z4, offset, u1, 0, u2, 1, Direction.UP, color, light);
+					IDrawing.drawTexture(matrixStack, vertexConsumer, x4, y4 + 0.125 + SMALL_OFFSET, z4, x3, y3 + 0.125, z3, x2, y2 + 0.125 + SMALL_OFFSET, z2, x1, y1 + 0.125, z1, offset, u1, 0, u2, 1, Direction.UP, color, light);
 				});
 			}, 1, u1 - 1, u2 - 1);
 		}
@@ -316,9 +316,9 @@ public final class RenderRails implements IGui {
 	private static void renderWithinRenderDistance(Rail rail, RenderRailWithBlockPos callback, double interval, float offsetRadius1, float offsetRadius2) {
 		final double renderDistance = MinecraftClient.getInstance().worldRenderer.getViewDistance() * 16;
 
-		rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+		rail.railMath.render((x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, tiltAngle) -> {
 			if (CullingHelper.getDistanceFromCamera(x1, y1, z1) <= renderDistance) {
-				callback.renderRail(BlockPos.ofFloored(x1, y1 + LIGHT_REFERENCE_OFFSET, z1), x1, z1, x2, z2, x3, z3, x4, z4, y1, y2);
+				callback.renderRail(BlockPos.ofFloored(x1, y1 + LIGHT_REFERENCE_OFFSET, z1), x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, tiltAngle);
 			}
 		}, interval, offsetRadius1, offsetRadius2);
 	}
@@ -420,6 +420,6 @@ public final class RenderRails implements IGui {
 
 	@FunctionalInterface
 	private interface RenderRailWithBlockPos {
-		void renderRail(BlockPos blockPos, double x1, double z1, double x2, double z2, double x3, double z3, double x4, double z4, double y1, double y2);
+		void renderRail(BlockPos blockPos, double x1, double y1, double z1, double x2, double y2, double z2, double x3, double y3, double z3, double x4, double y4, double z4, double tiltAngle);
 	}
 }

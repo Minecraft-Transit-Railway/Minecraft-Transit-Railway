@@ -104,10 +104,10 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 			final Position positionStart = MTR.blockPosToPosition(posStart);
 			final Position positionEnd = MTR.blockPosToPosition(posEnd);
 			final Rail rail = switch (newRailType) {
-				case PLATFORM -> Rail.newPlatformRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, new ObjectArrayList<>(), transportMode);
-				case SIDING -> Rail.newSidingRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, new ObjectArrayList<>(), transportMode);
-				case TURN_BACK -> Rail.newTurnBackRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, new ObjectArrayList<>(), transportMode);
-				default -> Rail.newRail(positionStart, facingStart, positionEnd, facingEnd, newRailType.railShape, 0, new ObjectArrayList<>(), isOneWay ? 0 : newRailType.speedLimit, newRailType.speedLimit, false, false, newRailType.canAccelerate, newRailType == RailType.RUNWAY, newRailType.hasSignal, transportMode);
+				case PLATFORM -> Rail.newPlatformRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, 0, 0, 0, new ObjectArrayList<>(), transportMode);
+				case SIDING -> Rail.newSidingRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, 0, 0, 0, new ObjectArrayList<>(), transportMode);
+				case TURN_BACK -> Rail.newTurnBackRail(positionStart, facingStart, positionEnd, facingEnd, Rail.Shape.QUADRATIC, 0, 0, 0, 0, new ObjectArrayList<>(), transportMode);
+				default -> Rail.newRail(positionStart, facingStart, positionEnd, facingEnd, newRailType.railShape, 0, 0, 0, 0, new ObjectArrayList<>(), isOneWay ? 0 : newRailType.speedLimit, newRailType.speedLimit, false, false, newRailType.canAccelerate, newRailType == RailType.RUNWAY, newRailType.hasSignal, transportMode);
 			};
 
 			if (rail.isValid() && isValidContinuousMovement) {
