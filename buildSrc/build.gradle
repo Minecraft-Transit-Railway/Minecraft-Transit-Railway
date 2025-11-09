@@ -6,7 +6,7 @@ dependencies {
 	implementation "com.google.code.gson:gson:+"
 	implementation "com.github.crowdin:crowdin-api-client-java:+"
 	implementation "it.unimi.dsi:fastutil:+"
-	implementation "commons-io:commons-io:+"
+	implementation "commons-io:commons-io:2.+"
 	implementation "org.apache.httpcomponents:httpmime:+"
 	implementation "org.mtr:Minecraft-Mod-API-Tools:0.0.1"
 	implementation "org.mtr:Transport-Simulation-Core:Build-Tools"

@@ -88,7 +88,7 @@ public final class RegistryImpl {
 	}
 
 	public static void setupPackets() {
-		ModEventBus.PAYLOAD_HANDLERS.add(payloadRegistrar -> payloadRegistrar.playToServer(MTR.PACKET_IDENTIFIER_C2S, PacketCodec.tuple(PacketCodecs.BYTE_ARRAY, CustomPacketC2S::buffer, CustomPacketC2S::new), new DirectionalPayloadHandler<>((customPacketC2S, context) -> {
+		ModEventBus.PAYLOAD_HANDLERS.add(payloadRegistrar -> payloadRegistrar.playBidirectional(MTR.PACKET_IDENTIFIER_C2S, PacketCodec.tuple(PacketCodecs.BYTE_ARRAY, CustomPacketC2S::buffer, CustomPacketC2S::new), new DirectionalPayloadHandler<>((customPacketC2S, context) -> {
 		}, (customPacketC2S, context) -> {
 			final PlayerEntity player = context.player();
 			if (player instanceof ServerPlayerEntity) {

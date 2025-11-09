@@ -27,7 +27,15 @@ public class RailModifierScreen extends ScreenBase implements IGui {
 	private Rail.Shape shape;
 	private double radius;
 	private double tiltAngleDegrees1;
+	private double tiltAngleDistance1a;
+	private double tiltAngleDegrees1a;
+	private double tiltAngleDegrees1b;
+	private double tiltAngleDistance1b;
 	private double tiltAngleDegreesMiddle;
+	private double tiltAngleDistance2b;
+	private double tiltAngleDegrees2b;
+	private double tiltAngleDegrees2a;
+	private double tiltAngleDistance2a;
 	private double tiltAngleDegrees2;
 	private final int buttonsWidth;
 
@@ -43,9 +51,6 @@ public class RailModifierScreen extends ScreenBase implements IGui {
 	private final ButtonWidget buttonPlus1;
 	private final ButtonWidget buttonPlus2;
 	private final BetterTextFieldWidget textFieldRadius;
-	private final BetterTextFieldWidget textFieldTiltAngleDegrees1;
-	private final BetterTextFieldWidget textFieldTiltAngleDegreesMiddle;
-	private final BetterTextFieldWidget textFieldTiltAngleDegrees2;
 	private final MutableText shapeText = TranslationProvider.GUI_MTR_RAIL_SHAPE.getMutableText();
 	private final MutableText styleText = TranslationProvider.GUI_MTR_RAIL_STYLES.getMutableText();
 	private final MutableText radiusText = TranslationProvider.GUI_MTR_RAIL_RADIUS.getMutableText();
@@ -58,7 +63,15 @@ public class RailModifierScreen extends ScreenBase implements IGui {
 		radius = rail == null ? 0 : rail.railMath.getVerticalRadius();
 		maxRadius = rail == null ? 0 : rail.railMath.getMaxVerticalRadius();
 		tiltAngleDegrees1 = rail == null ? 0 : rail.getTiltAngleDegrees1();
+		tiltAngleDistance1a = rail == null ? 0 : rail.getTiltAngleDistance1a();
+		tiltAngleDegrees1a = rail == null ? 0 : rail.getTiltAngleDegrees1a();
+		tiltAngleDegrees1b = rail == null ? 0 : rail.getTiltAngleDegrees1b();
+		tiltAngleDistance1b = rail == null ? 0 : rail.getTiltAngleDistance1b();
 		tiltAngleDegreesMiddle = rail == null ? 0 : rail.getTiltAngleDegreesMiddle();
+		tiltAngleDistance2b = rail == null ? 0 : rail.getTiltAngleDistance2b();
+		tiltAngleDegrees2b = rail == null ? 0 : rail.getTiltAngleDegrees2b();
+		tiltAngleDegrees2a = rail == null ? 0 : rail.getTiltAngleDegrees2a();
+		tiltAngleDistance2a = rail == null ? 0 : rail.getTiltAngleDistance2a();
 		tiltAngleDegrees2 = rail == null ? 0 : rail.getTiltAngleDegrees2();
 
 		buttonShape = ButtonWidget.builder(Text.empty(), button -> {
@@ -106,24 +119,6 @@ public class RailModifierScreen extends ScreenBase implements IGui {
 			} catch (Exception ignored) {
 			}
 		});
-		textFieldTiltAngleDegrees1 = new BetterTextFieldWidget(256, TextCase.DEFAULT, "[^\\d\\.-]", "0", buttonsWidth - SQUARE_SIZE * 12 - TEXT_FIELD_PADDING, text -> {
-			try {
-				update(radius, Double.parseDouble(text), tiltAngleDegreesMiddle, tiltAngleDegrees2, true);
-			} catch (Exception ignored) {
-			}
-		});
-		textFieldTiltAngleDegreesMiddle = new BetterTextFieldWidget(256, TextCase.DEFAULT, "[^\\d\\.-]", "0", buttonsWidth - SQUARE_SIZE * 12 - TEXT_FIELD_PADDING, text -> {
-			try {
-				update(radius, tiltAngleDegrees1, Double.parseDouble(text), tiltAngleDegrees2, true);
-			} catch (Exception ignored) {
-			}
-		});
-		textFieldTiltAngleDegrees2 = new BetterTextFieldWidget(256, TextCase.DEFAULT, "[^\\d\\.-]", "0", buttonsWidth - SQUARE_SIZE * 12 - TEXT_FIELD_PADDING, text -> {
-			try {
-				update(radius, tiltAngleDegrees1, tiltAngleDegreesMiddle, Double.parseDouble(text), true);
-			} catch (Exception ignored) {
-			}
-		});
 	}
 
 	@Override
@@ -140,9 +135,6 @@ public class RailModifierScreen extends ScreenBase implements IGui {
 		IDrawing.setPositionAndWidth(buttonPlus1, xStart + buttonsWidth - SQUARE_SIZE * 4, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2);
 		IDrawing.setPositionAndWidth(buttonPlus2, xStart + buttonsWidth - SQUARE_SIZE * 2, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2);
 		textFieldRadius.setPosition(0, SQUARE_SIZE + TEXT_FIELD_PADDING / 2);
-		textFieldTiltAngleDegrees1.setPosition(0, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING * 3 / 2);
-		textFieldTiltAngleDegreesMiddle.setPosition(0, SQUARE_SIZE * 4 + TEXT_FIELD_PADDING * 5 / 2);
-		textFieldTiltAngleDegrees2.setPosition(0, SQUARE_SIZE * 5 + TEXT_FIELD_PADDING * 7 / 2);
 
 		addDrawableChild(buttonShape);
 		addDrawableChild(buttonStyle);
@@ -154,14 +146,8 @@ public class RailModifierScreen extends ScreenBase implements IGui {
 		addDrawableChild(buttonPlus1);
 		addDrawableChild(buttonPlus2);
 		addDrawableChild(textFieldRadius);
-		addDrawableChild(textFieldTiltAngleDegrees1);
-		addDrawableChild(textFieldTiltAngleDegreesMiddle);
-		addDrawableChild(textFieldTiltAngleDegrees2);
 
 		textFieldRadius.setText(String.valueOf(radius));
-		textFieldTiltAngleDegrees1.setText(String.valueOf(tiltAngleDegrees1));
-		textFieldTiltAngleDegreesMiddle.setText(String.valueOf(tiltAngleDegreesMiddle));
-		textFieldTiltAngleDegrees2.setText(String.valueOf(tiltAngleDegrees2));
 		update(radius, tiltAngleDegrees1, tiltAngleDegreesMiddle, tiltAngleDegrees2, false);
 	}
 
@@ -203,29 +189,11 @@ public class RailModifierScreen extends ScreenBase implements IGui {
 		} catch (Exception ignored) {
 		}
 
-		try {
-			if (Double.parseDouble(textFieldTiltAngleDegrees1.getText()) != tiltAngleDegrees1) {
-				textFieldTiltAngleDegrees1.setText(String.valueOf(tiltAngleDegrees1));
-			}
-		} catch (Exception ignored) {
-		}
-
-		try {
-			if (Double.parseDouble(textFieldTiltAngleDegreesMiddle.getText()) != tiltAngleDegreesMiddle) {
-				textFieldTiltAngleDegreesMiddle.setText(String.valueOf(tiltAngleDegreesMiddle));
-			}
-		} catch (Exception ignored) {
-		}
-
-		try {
-			if (Double.parseDouble(textFieldTiltAngleDegrees2.getText()) != tiltAngleDegrees2) {
-				textFieldTiltAngleDegrees2.setText(String.valueOf(tiltAngleDegrees2));
-			}
-		} catch (Exception ignored) {
-		}
-
 		if (sendPacket) {
-			RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(Rail.copy(rail, shape, radius, tiltAngleDegrees1, tiltAngleDegreesMiddle, tiltAngleDegrees2))));
+			RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(Rail.copy(
+					rail, shape, radius,
+					tiltAngleDegrees1, tiltAngleDistance1a, tiltAngleDegrees1a, tiltAngleDegrees1b, tiltAngleDistance1b, tiltAngleDegreesMiddle, tiltAngleDistance2b, tiltAngleDegrees2b, tiltAngleDegrees2a, tiltAngleDistance2a, tiltAngleDegrees2
+			))));
 		}
 	}
 }

@@ -3,7 +3,7 @@ package org.mtr.registry.neoforge;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.Chunk;
 import org.mtr.MTRClient;
 import org.mtr.neoforge.MainEventBusClient;
 import org.mtr.neoforge.ModEventBusClient;
@@ -37,11 +37,11 @@ public final class EventRegistryClientImpl {
 		MainEventBusClient.clientDisconnectRunnable = runnable;
 	}
 
-	public static void registerChunkLoad(BiConsumer<ClientWorld, WorldChunk> consumer) {
+	public static void registerChunkLoad(BiConsumer<ClientWorld, Chunk> consumer) {
 		MainEventBusClient.chunkLoadConsumer = consumer;
 	}
 
-	public static void registerChunkUnload(BiConsumer<ClientWorld, WorldChunk> consumer) {
+	public static void registerChunkUnload(BiConsumer<ClientWorld, Chunk> consumer) {
 		MainEventBusClient.chunkUnloadConsumer = consumer;
 	}
 

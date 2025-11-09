@@ -30,10 +30,14 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_api_version"
 	modImplementation "com.terraformersmc:modmenu:$modmenu_version"
+	modImplementation "gg.essential:universalcraft-$minecraft_version-fabric:$universal_craft_version"
 	shadowBundle "org.mtr:Shadow-Libraries-net:0.0.1"
 	shadowBundle "org.mtr:Shadow-Libraries-util:0.0.1"
 	shadowBundle "org.mtr:Transport-Simulation-Core:0.0.1"
 	shadowBundle "com.logisticscraft:occlusionculling:+"
+	shadowBundle "gg.essential:elementa:$elementa_version"
+	include "gg.essential:universalcraft-$minecraft_version-fabric:$universal_craft_version"
+	include "net.fabricmc:fabric-language-kotlin:+"
 	common(project(path: ":common", configuration: "namedElements")) { transitive false }
 	shadowBundle project(path: ":common", configuration: "transformProductionFabric")
 }
@@ -60,6 +64,7 @@ shadowJar {
 	}
 	relocate "com.logisticscraft", "org.mtr.libraries.com.logisticscraft"
 	relocate "de.javagl", "org.mtr.libraries.de.javagl"
+	relocate "gg.essential.elementa", "org.mtr.libraries.gg.essential.elementa"
 }
 
 remapJar {

@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.Chunk;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -54,11 +54,11 @@ public final class EventRegistryImpl {
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> consumer.accept(server, handler.player));
 	}
 
-	public static void registerChunkLoad(BiConsumer<ServerWorld, WorldChunk> consumer) {
+	public static void registerChunkLoad(BiConsumer<ServerWorld, Chunk> consumer) {
 		ServerChunkEvents.CHUNK_LOAD.register(consumer::accept);
 	}
 
-	public static void registerChunkUnload(BiConsumer<ServerWorld, WorldChunk> consumer) {
+	public static void registerChunkUnload(BiConsumer<ServerWorld, Chunk> consumer) {
 		ServerChunkEvents.CHUNK_UNLOAD.register(consumer::accept);
 	}
 }

@@ -1,5 +1,7 @@
 package org.mtr.packet;
 
+import gg.essential.universal.UMinecraft;
+import gg.essential.universal.UScreen;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -90,6 +92,13 @@ public final class ClientPacketHelper {
 		final Screen screen = minecraftClient.currentScreen;
 		if (screen == null || !isInstance.test(screen)) {
 			minecraftClient.setScreen(screenExtension);
+		}
+	}
+
+	private static void openScreen(UScreen uScreen, Predicate<UScreen> isInstance) {
+		final Object screen = UMinecraft.getCurrentScreenObj();
+		if (screen == null || !isInstance.test(uScreen)) {
+			UMinecraft.setCurrentScreenObj(uScreen);
 		}
 	}
 

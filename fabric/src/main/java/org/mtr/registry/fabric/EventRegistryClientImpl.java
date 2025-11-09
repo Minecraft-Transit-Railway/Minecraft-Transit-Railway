@@ -16,7 +16,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.Chunk;
 import org.mtr.MTR;
 import org.mtr.MTRClient;
 
@@ -50,11 +50,11 @@ public final class EventRegistryClientImpl {
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> runnable.run());
 	}
 
-	public static void registerChunkLoad(BiConsumer<ClientWorld, WorldChunk> consumer) {
+	public static void registerChunkLoad(BiConsumer<ClientWorld, Chunk> consumer) {
 		ClientChunkEvents.CHUNK_LOAD.register(consumer::accept);
 	}
 
-	public static void registerChunkUnload(BiConsumer<ClientWorld, WorldChunk> consumer) {
+	public static void registerChunkUnload(BiConsumer<ClientWorld, Chunk> consumer) {
 		ClientChunkEvents.CHUNK_UNLOAD.register(consumer::accept);
 	}
 

@@ -6,7 +6,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.Chunk;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -36,8 +36,8 @@ public final class MainEventBus {
 	public static Consumer<ServerWorld> endWorldTickRunnable = null;
 	public static BiConsumer<MinecraftServer, ServerPlayerEntity> playerJoinRunnable = null;
 	public static BiConsumer<MinecraftServer, ServerPlayerEntity> playerDisconnectRunnable = null;
-	public static BiConsumer<ServerWorld, WorldChunk> chunkLoadConsumer = null;
-	public static BiConsumer<ServerWorld, WorldChunk> chunkUnloadConsumer = null;
+	public static BiConsumer<ServerWorld, Chunk> chunkLoadConsumer = null;
+	public static BiConsumer<ServerWorld, Chunk> chunkUnloadConsumer = null;
 	public static Consumer<CommandDispatcher<ServerCommandSource>> commandConsumer = null;
 
 	@SubscribeEvent
@@ -113,15 +113,15 @@ public final class MainEventBus {
 
 	@SubscribeEvent
 	public static void chunkLoad(ChunkEvent.Load event) {
-		if (chunkLoadConsumer != null && event.getLevel() instanceof ServerWorld serverWorld && event.getChunk() instanceof WorldChunk worldChunk) {
-			chunkLoadConsumer.accept(serverWorld, worldChunk);
+		if (chunkLoadConsumer != null && event.getLevel() instanceof ServerWorld serverWorld) {
+			chunkLoadConsumer.accept(serverWorld, event.getChunk());
 		}
 	}
 
 	@SubscribeEvent
 	public static void chunkUnload(ChunkEvent.Unload event) {
-		if (chunkUnloadConsumer != null && event.getLevel() instanceof ServerWorld serverWorld && event.getChunk() instanceof WorldChunk worldChunk) {
-			chunkUnloadConsumer.accept(serverWorld, worldChunk);
+		if (chunkUnloadConsumer != null && event.getLevel() instanceof ServerWorld serverWorld) {
+			chunkUnloadConsumer.accept(serverWorld, event.getChunk());
 		}
 	}
 

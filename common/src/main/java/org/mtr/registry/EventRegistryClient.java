@@ -4,7 +4,7 @@ import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.Chunk;
 import org.mtr.MTRClient;
 
 import java.util.function.BiConsumer;
@@ -43,12 +43,12 @@ public final class EventRegistryClient {
 	}
 
 	@ExpectPlatform
-	public static void registerChunkLoad(BiConsumer<ClientWorld, WorldChunk> consumer) {
+	public static void registerChunkLoad(BiConsumer<ClientWorld, Chunk> consumer) {
 		throw new AssertionError();
 	}
 
 	@ExpectPlatform
-	public static void registerChunkUnload(BiConsumer<ClientWorld, WorldChunk> consumer) {
+	public static void registerChunkUnload(BiConsumer<ClientWorld, Chunk> consumer) {
 		throw new AssertionError();
 	}
 

@@ -3,7 +3,7 @@ package org.mtr.registry.neoforge;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.Chunk;
 import org.mtr.neoforge.MainEventBus;
 
 import java.util.function.BiConsumer;
@@ -51,11 +51,11 @@ public final class EventRegistryImpl {
 		MainEventBus.playerDisconnectRunnable = consumer;
 	}
 
-	public static void registerChunkLoad(BiConsumer<ServerWorld, WorldChunk> consumer) {
+	public static void registerChunkLoad(BiConsumer<ServerWorld, Chunk> consumer) {
 		MainEventBus.chunkLoadConsumer = consumer;
 	}
 
-	public static void registerChunkUnload(BiConsumer<ServerWorld, WorldChunk> consumer) {
+	public static void registerChunkUnload(BiConsumer<ServerWorld, Chunk> consumer) {
 		MainEventBus.chunkUnloadConsumer = consumer;
 	}
 }

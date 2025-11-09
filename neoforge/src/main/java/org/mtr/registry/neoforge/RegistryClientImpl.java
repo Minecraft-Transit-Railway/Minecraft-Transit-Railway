@@ -17,8 +17,6 @@ import net.minecraft.network.codec.PacketCodecs;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import org.mtr.MTR;
-import org.mtr.MTRClient;
-import org.mtr.neoforge.MainEventBusClient;
 import org.mtr.neoforge.ModEventBus;
 import org.mtr.neoforge.ModEventBusClient;
 import org.mtr.packet.CustomPacketS2C;
@@ -54,7 +52,7 @@ public final class RegistryClientImpl {
 	}
 
 	public static void setupPackets() {
-		ModEventBus.PAYLOAD_HANDLERS.add(payloadRegistrar -> payloadRegistrar.playToClient(MTR.PACKET_IDENTIFIER_S2C, PacketCodec.tuple(PacketCodecs.BYTE_ARRAY, CustomPacketS2C::buffer, CustomPacketS2C::new), new DirectionalPayloadHandler<>((customPacketS2C, context) -> PacketBufferReceiver.receive(customPacketS2C.buffer(), packetBufferReceiver -> {
+		ModEventBus.PAYLOAD_HANDLERS.add(payloadRegistrar -> payloadRegistrar.playBidirectional(MTR.PACKET_IDENTIFIER_S2C, PacketCodec.tuple(PacketCodecs.BYTE_ARRAY, CustomPacketS2C::buffer, CustomPacketS2C::new), new DirectionalPayloadHandler<>((customPacketS2C, context) -> PacketBufferReceiver.receive(customPacketS2C.buffer(), packetBufferReceiver -> {
 			final Function<PacketBufferReceiver, ? extends PacketHandler> getInstance = ModEventBus.PACKETS.get(packetBufferReceiver.readString());
 			if (getInstance != null) {
 				getInstance.apply(packetBufferReceiver).runClient();
@@ -68,9 +66,5 @@ public final class RegistryClientImpl {
 		packetBufferSender.writeString(data.getClass().getName());
 		data.write(packetBufferSender);
 		packetBufferSender.send(bytes -> PacketDistributor.sendToServer(new CustomPacketS2C(bytes)), MinecraftClient.getInstance()::execute);
-	}
-
-	public static void registerWorldRenderEvent(MTRClient.WorldRenderCallback worldRenderCallback) {
-		MainEventBusClient.worldRenderCallback = worldRenderCallback;
 	}
 }

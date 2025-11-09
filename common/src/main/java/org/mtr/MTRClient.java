@@ -76,6 +76,7 @@ public final class MTRClient {
 	}
 
 	public static void init() {
+		MTR.writeFromClient();
 		KeyBindings.init();
 
 		RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), Blocks.APG_DOOR);
@@ -353,12 +354,12 @@ public final class MTRClient {
 			ScheduledSound.playScheduledSounds();
 		});
 
-		EventRegistryClient.registerChunkLoad((clientWorld, worldChunk) -> {
+		EventRegistryClient.registerChunkLoad((clientWorld, chunk) -> {
 			if (lastUpdatePacketMillis == 0) {
 				lastUpdatePacketMillis = getGameMillis() + 500;
 			}
 			if (mapTileProvider != null) {
-				mapTileProvider.getTile(worldChunk.getPos().getStartPos());
+				mapTileProvider.getTile(chunk.getPos().getStartPos());
 			}
 		});
 
