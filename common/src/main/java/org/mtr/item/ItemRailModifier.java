@@ -107,28 +107,28 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 				case PLATFORM -> Rail.newPlatformRail(
 						positionStart, facingStart,
 						positionEnd, facingEnd,
-						Rail.Shape.QUADRATIC, 0,
+						Rail.Shape.QUADRATIC, 0, 0,
 						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 						new ObjectArrayList<>(), transportMode
 				);
 				case SIDING -> Rail.newSidingRail(
 						positionStart, facingStart,
 						positionEnd, facingEnd,
-						Rail.Shape.QUADRATIC, 0,
+						Rail.Shape.QUADRATIC, 0, 0,
 						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 						new ObjectArrayList<>(), transportMode
 				);
 				case TURN_BACK -> Rail.newTurnBackRail(
 						positionStart, facingStart,
 						positionEnd, facingEnd,
-						Rail.Shape.QUADRATIC, 0,
+						Rail.Shape.QUADRATIC, 0, 0,
 						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 						new ObjectArrayList<>(), transportMode
 				);
 				default -> Rail.newRail(
 						positionStart, facingStart,
 						positionEnd, facingEnd,
-						newRailType.railShape, 0,
+						newRailType.railShape, 0, 0,
 						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 						new ObjectArrayList<>(), isOneWay ? 0 : newRailType.speedLimit, newRailType.speedLimit,
 						false, false, newRailType.canAccelerate, newRailType == RailType.RUNWAY, newRailType.hasSignal, transportMode

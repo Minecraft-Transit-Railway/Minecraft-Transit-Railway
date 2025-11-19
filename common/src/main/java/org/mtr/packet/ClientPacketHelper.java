@@ -11,6 +11,7 @@ import org.mtr.MTR;
 import org.mtr.block.*;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Lift;
+import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.screen.*;
 
@@ -25,19 +26,19 @@ public final class ClientPacketHelper {
 	public static void openBlockEntityScreen(BlockPos blockPos) {
 		getBlockEntity(blockPos, blockEntity -> {
 			if (blockEntity instanceof BlockTrainAnnouncer.TrainAnnouncerBlockEntity) {
-				openScreen(new TrainAnnouncerScreen(blockPos, (BlockTrainAnnouncer.TrainAnnouncerBlockEntity) blockEntity), screenExtension -> screenExtension instanceof TrainAnnouncerScreen);
+				openScreen(new TrainAnnouncerScreen(blockPos, (BlockTrainAnnouncer.TrainAnnouncerBlockEntity) blockEntity), screen -> screen instanceof TrainAnnouncerScreen);
 			} else if (blockEntity instanceof BlockTrainScheduleSensor.TrainScheduleSensorBlockEntity) {
-				openScreen(new TrainScheduleSensorScreen(blockPos, (BlockTrainScheduleSensor.TrainScheduleSensorBlockEntity) blockEntity), screenExtension -> screenExtension instanceof TrainScheduleSensorScreen);
+				openScreen(new TrainScheduleSensorScreen(blockPos, (BlockTrainScheduleSensor.TrainScheduleSensorBlockEntity) blockEntity), screen -> screen instanceof TrainScheduleSensorScreen);
 			} else if (blockEntity instanceof BlockTrainSensorBase.BlockEntityBase) {
-				openScreen(new TrainBasicSensorScreen(blockPos), screenExtension -> screenExtension instanceof TrainBasicSensorScreen);
+				openScreen(new TrainBasicSensorScreen(blockPos), screen -> screen instanceof TrainBasicSensorScreen);
 			} else if (blockEntity instanceof BlockRailwaySign.RailwaySignBlockEntity || blockEntity instanceof BlockRouteSignBase.BlockEntityBase) {
-				openScreen(new RailwaySignScreen(blockPos), screenExtension -> screenExtension instanceof RailwaySignScreen);
+				openScreen(new RailwaySignScreen(blockPos), screen -> screen instanceof RailwaySignScreen);
 			} else if (blockEntity instanceof BlockLiftTrackFloor.LiftTrackFloorBlockEntity) {
-				openScreen(new LiftTrackFloorScreen(blockPos, (BlockLiftTrackFloor.LiftTrackFloorBlockEntity) blockEntity), screenExtension -> screenExtension instanceof LiftTrackFloorScreen);
+				openScreen(new LiftTrackFloorScreen(blockPos, (BlockLiftTrackFloor.LiftTrackFloorBlockEntity) blockEntity), screen -> screen instanceof LiftTrackFloorScreen);
 			} else if (blockEntity instanceof BlockSignalBase.BlockEntityBase) {
-				openScreen(new SignalColorScreen(blockPos, (BlockSignalBase.BlockEntityBase) blockEntity), screenExtension -> screenExtension instanceof SignalColorScreen);
+				openScreen(new SignalColorScreen(blockPos, (BlockSignalBase.BlockEntityBase) blockEntity), screen -> screen instanceof SignalColorScreen);
 			} else if (blockEntity instanceof BlockEyeCandy.EyeCandyBlockEntity) {
-				openScreen(new EyeCandyScreen(blockPos, (BlockEyeCandy.EyeCandyBlockEntity) blockEntity), screenExtension -> screenExtension instanceof EyeCandyScreen);
+				openScreen(new EyeCandyScreen(blockPos, (BlockEyeCandy.EyeCandyBlockEntity) blockEntity), screen -> screen instanceof EyeCandyScreen);
 			}
 		});
 	}
@@ -45,19 +46,19 @@ public final class ClientPacketHelper {
 	public static void openDashboardScreen(TransportMode transportMode, PacketOpenDashboardScreen.ScreenType screenType, long id) {
 		switch (screenType) {
 			case STATION:
-				openScreen(new StationScreen(MinecraftClientData.getDashboardInstance().stationIdMap.get(id), new DashboardScreen(transportMode)), screenExtension -> screenExtension instanceof StationScreen);
+				openScreen(new StationScreen(MinecraftClientData.getDashboardInstance().stationIdMap.get(id), new DashboardScreen(transportMode)), screen -> screen instanceof StationScreen);
 				break;
 			case DEPOT:
-				openScreen(new DepotScreen(MinecraftClientData.getDashboardInstance().depotIdMap.get(id), new DashboardScreen(transportMode)), screenExtension -> screenExtension instanceof DepotScreen);
+				openScreen(new DepotScreen(MinecraftClientData.getDashboardInstance().depotIdMap.get(id), new DashboardScreen(transportMode)), screen -> screen instanceof DepotScreen);
 				break;
 			case PLATFORM:
-				openScreen(new PlatformScreen(MinecraftClientData.getDashboardInstance().platformIdMap.get(id), new DashboardScreen(transportMode)), screenExtension -> screenExtension instanceof PlatformScreen);
+				openScreen(new PlatformScreen(MinecraftClientData.getDashboardInstance().platformIdMap.get(id), new DashboardScreen(transportMode)), screen -> screen instanceof PlatformScreen);
 				break;
 			case SIDING:
-				openScreen(new SidingScreen(MinecraftClientData.getDashboardInstance().sidingIdMap.get(id), new DashboardScreen(transportMode)), screenExtension -> screenExtension instanceof SidingScreen);
+				openScreen(new SidingScreen(MinecraftClientData.getDashboardInstance().sidingIdMap.get(id), new DashboardScreen(transportMode)), screen -> screen instanceof SidingScreen);
 				break;
 			default:
-				openScreen(new DashboardScreen(transportMode), screenExtension -> screenExtension instanceof DashboardScreen);
+				openScreen(new DashboardScreen(transportMode), screen -> screen instanceof DashboardScreen);
 				break;
 		}
 	}
@@ -74,31 +75,34 @@ public final class ClientPacketHelper {
 	public static void openPIDSConfigScreen(BlockPos blockPos, int maxArrivals) {
 		getBlockEntity(blockPos, blockEntity -> {
 			if (blockEntity instanceof BlockPIDSBase.BlockEntityBase) {
-				openScreen(new PIDSConfigScreen(blockPos, maxArrivals), screenExtension -> screenExtension instanceof PIDSConfigScreen);
+				openScreen(new PIDSConfigScreen(blockPos, maxArrivals), screen -> screen instanceof PIDSConfigScreen);
 			}
 		});
 	}
 
 	public static void openRailShapeModifierScreen(String railId) {
-		openScreen(new RailModifierScreen(railId), screenExtension -> screenExtension instanceof RailModifierScreen);
-	}
-
-	public static void openTicketMachineScreen(int balance) {
-		openScreen(new TicketMachineScreen(balance), screenExtension -> screenExtension instanceof TicketMachineScreen);
-	}
-
-	private static void openScreen(Screen screenExtension, Predicate<Screen> isInstance) {
-		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final Screen screen = minecraftClient.currentScreen;
-		if (screen == null || !isInstance.test(screen)) {
-			minecraftClient.setScreen(screenExtension);
+		final Rail rail = MinecraftClientData.getInstance().railIdMap.get(railId);
+		if (rail != null) {
+			openScreen(new RailModifierScreen(rail), screen -> screen instanceof RailModifierScreen);
 		}
 	}
 
-	private static void openScreen(UScreen uScreen, Predicate<UScreen> isInstance) {
-		final Object screen = UMinecraft.getCurrentScreenObj();
-		if (screen == null || !isInstance.test(uScreen)) {
-			UMinecraft.setCurrentScreenObj(uScreen);
+	public static void openTicketMachineScreen(int balance) {
+		openScreen(new TicketMachineScreen(balance), screen -> screen instanceof TicketMachineScreen);
+	}
+
+	private static void openScreen(Screen screen, Predicate<Screen> isInstance) {
+		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+		final Screen currentScreen = minecraftClient.currentScreen;
+		if (currentScreen == null || !isInstance.test(currentScreen)) {
+			minecraftClient.setScreen(screen);
+		}
+	}
+
+	private static void openScreen(UScreen screen, Predicate<UScreen> isInstance) {
+		final Object currentScreen = UMinecraft.getCurrentScreenObj();
+		if (!(currentScreen instanceof UScreen uScreen) || !isInstance.test(uScreen)) {
+			UMinecraft.setCurrentScreenObj(screen);
 		}
 	}
 

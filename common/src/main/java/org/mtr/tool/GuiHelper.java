@@ -20,6 +20,7 @@ public final class GuiHelper {
 	 */
 	public static final int BACKGROUND_COLOR = 0xFF111111;
 	public static final int BACKGROUND_ACCENT_COLOR = 0xFF333333;
+	public static final int MINECRAFT_GUI_TITLE_TEXT_COLOR = 0xFF404040;
 	/**
 	 * Mouse hover colour, regardless of if the control is selected or not.
 	 */
@@ -37,7 +38,7 @@ public final class GuiHelper {
 
 	public static final int MINECRAFT_FONT_SIZE = 8;
 	public static final int MINECRAFT_TEXT_LINE_HEIGHT = 10;
-	public static final int DEFAULT_PADDING = MINECRAFT_FONT_SIZE / 2;
+	public static final int DEFAULT_PADDING = 8;
 	/**
 	 * The standard line size for consistent GUI design. This can be used for both the line height and square button sizes.
 	 */

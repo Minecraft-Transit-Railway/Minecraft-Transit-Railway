@@ -160,14 +160,17 @@ public class MainRenderer {
 		return LightmapTextureManager.pack(light, light);
 	}
 
-	public static int getFlashingColor(int color, int multiplier) {
+	public static Color getFlashingColor(Color color, int multiplier) {
 		final double flashingProgress = ((Math.sin(Math.PI * 2 * (System.currentTimeMillis() % FLASHING_INTERVAL) / FLASHING_INTERVAL) + 1) / 2);
-		final Color oldColor = new Color(color);
 		return new Color(
-				(int) (oldColor.getRed() * Math.min(1, flashingProgress * multiplier)),
-				(int) (oldColor.getGreen() * Math.min(1, flashingProgress * multiplier)),
-				(int) (oldColor.getBlue() * Math.min(1, flashingProgress * multiplier))
-		).getRGB();
+				(int) (color.getRed() * Math.min(1, flashingProgress * multiplier)),
+				(int) (color.getGreen() * Math.min(1, flashingProgress * multiplier)),
+				(int) (color.getBlue() * Math.min(1, flashingProgress * multiplier))
+		);
+	}
+
+	public static int getFlashingColor(int color, int multiplier) {
+		return getFlashingColor(new Color(color), multiplier).getRGB();
 	}
 
 	private static void renderModel(MatrixStack matrixStack, Object2ObjectOpenHashMap<NewOptimizedModel, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<ObjectIntImmutablePair<StoredMatrixTransformations>>>> modelRenders, Vec3d offset) {

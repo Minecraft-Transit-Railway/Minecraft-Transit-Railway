@@ -44,6 +44,7 @@ import org.mtr.servlet.ResourcePackCreatorOperationServlet;
 import org.mtr.servlet.ResourcePackCreatorUploadServlet;
 import org.mtr.sound.LoopingSoundInstance;
 import org.mtr.sound.ScheduledSound;
+import org.mtr.tool.ReleasedDynamicTextureManager;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
@@ -366,6 +367,7 @@ public final class MTRClient {
 		EventRegistryClient.registerResourceReloadEvent(() -> {
 			FontGroups.reload();
 			CustomResourceLoader.reload();
+			ReleasedDynamicTextureManager.reload();
 		});
 		EventRegistryClient.registerWorldRenderEvent(MainRenderer::render);
 		EventRegistryClient.registerHudLayerRenderEvent((context, renderTickCounter) -> DrivingGuiRenderer.render(context));
