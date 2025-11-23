@@ -199,7 +199,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		}
 
 		// Check for sensors
-		final Vector headPosition = getHeadPosition();
+		final Vector headPosition = getHeadPositionAndTiltAngle().position();
 		for (int xOffset = -1; xOffset <= 1; xOffset++) {
 			for (int yOffset = -1; yOffset <= 1; yOffset++) {
 				for (int zOffset = -1; zOffset <= 1; zOffset++) {
@@ -287,10 +287,10 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		}
 	}
 
-	public ObjectArrayList<ObjectObjectImmutablePair<VehicleCar, ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>>>> getSmoothedVehicleCarsAndPositions(long millisElapsed) {
+	public ObjectArrayList<ObjectObjectImmutablePair<VehicleCar, ObjectArrayList<BogiePosition>>> getSmoothedVehicleCarsAndPositions(long millisElapsed) {
 		final double oldRailProgress = railProgress;
 		railProgress = persistentVehicleData.getSmoothedRailProgress(railProgress, persistentVehicleData.getDoorValue() > 0 ? 0 : millisElapsed * (speed == 0 ? Integer.MAX_VALUE : speed / 10));
-		final ObjectArrayList<ObjectObjectImmutablePair<VehicleCar, ObjectArrayList<ObjectObjectImmutablePair<Vector, Vector>>>> vehicleCarsAndPositions = getVehicleCarsAndPositions();
+		final ObjectArrayList<ObjectObjectImmutablePair<VehicleCar, ObjectArrayList<BogiePosition>>> vehicleCarsAndPositions = getVehicleCarsAndPositions();
 		railProgress = oldRailProgress;
 		return vehicleCarsAndPositions;
 	}

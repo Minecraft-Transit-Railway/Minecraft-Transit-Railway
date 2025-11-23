@@ -12,7 +12,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
-import org.jetbrains.annotations.Nullable;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
@@ -20,6 +19,8 @@ import org.mtr.widget.BetterButtonWidget;
 import org.mtr.widget.PopupWidgetBase;
 import org.mtr.widget.ScrollableListWidget;
 import org.mtr.widget.ScrollbarWidget;
+
+import javax.annotation.Nullable;
 
 public abstract class ScrollableScreenBase extends ScreenBase {
 
@@ -101,7 +102,7 @@ public abstract class ScrollableScreenBase extends ScreenBase {
 		super.renderBackground(context, mouseX, mouseY, delta);
 		final MatrixStack matrixStack = context.getMatrices();
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		final Drawing drawing = new Drawing(matrixStack, minecraftClient.getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
+		final Drawing drawing = new Drawing(matrixStack, RenderLayer.getGui());
 
 		// Draw background
 		drawing.setVerticesWH(backgroundX, GuiHelper.DEFAULT_PADDING - scrollY, GuiHelper.STANDARD_SCREEN_WIDTH - GuiHelper.DEFAULT_PADDING * 2, headerHeight + contentHeight[0] + FOOTER_HEIGHT - GuiHelper.DEFAULT_PADDING * 2).setColor(GuiHelper.TRANSLUCENT_BACKGROUND_COLOR).draw();

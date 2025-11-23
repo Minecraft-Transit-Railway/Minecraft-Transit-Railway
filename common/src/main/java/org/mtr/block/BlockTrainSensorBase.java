@@ -9,7 +9,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.hit.BlockHitResult;
@@ -44,7 +43,7 @@ public abstract class BlockTrainSensorBase extends Block implements BlockEntityP
 		return entity instanceof BlockEntityBase && ((BlockEntityBase) entity).matchesFilter(routeId, speed);
 	}
 
-	public abstract static class BlockEntityBase extends BlockEntity {
+	public abstract static class BlockEntityBase extends BlockEntityExtension {
 
 		private boolean stoppedOnly;
 		private boolean movingOnly;
@@ -58,20 +57,20 @@ public abstract class BlockTrainSensorBase extends Block implements BlockEntityP
 		}
 
 		@Override
-		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			final long[] routeIdsArray = nbt.getLongArray(KEY_ROUTE_IDS);
+		protected void readNbt(NbtCompound nbtCompound) {
+			final long[] routeIdsArray = nbtCompound.getLongArray(KEY_ROUTE_IDS);
 			for (final long routeId : routeIdsArray) {
 				filterRouteIds.add(routeId);
 			}
-			stoppedOnly = nbt.getBoolean(KEY_STOPPED_ONLY);
-			movingOnly = nbt.getBoolean(KEY_MOVING_ONLY);
+			stoppedOnly = nbtCompound.getBoolean(KEY_STOPPED_ONLY);
+			movingOnly = nbtCompound.getBoolean(KEY_MOVING_ONLY);
 		}
 
 		@Override
-		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			nbt.putLongArray(KEY_ROUTE_IDS, new ArrayList<>(filterRouteIds));
-			nbt.putBoolean(KEY_STOPPED_ONLY, stoppedOnly);
-			nbt.putBoolean(KEY_MOVING_ONLY, movingOnly);
+		protected void writeNbt(NbtCompound nbtCompound) {
+			nbtCompound.putLongArray(KEY_ROUTE_IDS, new ArrayList<>(filterRouteIds));
+			nbtCompound.putBoolean(KEY_STOPPED_ONLY, stoppedOnly);
+			nbtCompound.putBoolean(KEY_MOVING_ONLY, movingOnly);
 		}
 
 		public boolean matchesFilter(long routeId, double speed) {

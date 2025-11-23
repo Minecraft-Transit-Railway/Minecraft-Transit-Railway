@@ -8,7 +8,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.ColorHelper;
-import org.jetbrains.annotations.Nullable;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Station;
 import org.mtr.core.data.StationExit;
@@ -21,6 +20,7 @@ import org.mtr.registry.RegistryClient;
 import org.mtr.tool.GuiHelper;
 import org.mtr.widget.*;
 
+import javax.annotation.Nullable;
 import java.util.stream.Collectors;
 
 public final class StationScreen extends ScrollableScreenBase {

@@ -6,7 +6,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
@@ -141,7 +140,7 @@ public class BlockLiftButtons extends BlockWaterloggable implements BlockEntityP
 		});
 	}
 
-	public static class LiftButtonsBlockEntity extends BlockEntity {
+	public static class LiftButtonsBlockEntity extends BlockEntityExtension {
 
 		private final ObjectOpenHashSet<BlockPos> trackPositions = new ObjectOpenHashSet<>();
 
@@ -152,18 +151,18 @@ public class BlockLiftButtons extends BlockWaterloggable implements BlockEntityP
 		}
 
 		@Override
-		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+		protected void readNbt(NbtCompound nbtCompound) {
 			trackPositions.clear();
-			for (final long position : nbt.getLongArray(KEY_TRACK_FLOOR_POS)) {
+			for (final long position : nbtCompound.getLongArray(KEY_TRACK_FLOOR_POS)) {
 				trackPositions.add(BlockPos.fromLong(position));
 			}
 		}
 
 		@Override
-		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+		protected void writeNbt(NbtCompound nbtCompound) {
 			final List<Long> trackPositionsList = new ArrayList<>();
 			trackPositions.forEach(position -> trackPositionsList.add(position.asLong()));
-			nbt.putLongArray(KEY_TRACK_FLOOR_POS, trackPositionsList);
+			nbtCompound.putLongArray(KEY_TRACK_FLOOR_POS, trackPositionsList);
 		}
 
 		public void registerFloor(BlockPos pos, boolean isAdd) {

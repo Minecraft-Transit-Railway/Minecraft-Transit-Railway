@@ -44,7 +44,7 @@ public class RailwaySignScreen extends ScreenBase implements IGui {
 	private final boolean isRailwaySign;
 	private final int length;
 	private final String[] signIds;
-	private final LongAVLTreeSet selectedIds;
+	private final LongAVLTreeSet[] selectedIds;
 	private final ObjectImmutableList<DashboardListItem> exitsForList;
 	private final ObjectImmutableList<DashboardListItem> platformsForList;
 	private final ObjectArraySet<DashboardListItem> routesForList;
@@ -67,7 +67,7 @@ public class RailwaySignScreen extends ScreenBase implements IGui {
 		this.signPos = signPos;
 		final ClientWorld world = MinecraftClient.getInstance().world;
 
-		allSignIds.addAll(CustomResourceLoader.getSortedSignIds());
+//		allSignIds.addAll(CustomResourceLoader.getSortedSignIds());
 
 		final Station station = MTRClient.findStation(signPos);
 		if (station == null) {
@@ -104,10 +104,10 @@ public class RailwaySignScreen extends ScreenBase implements IGui {
 				isRailwaySign = true;
 			} else {
 				signIds = new String[0];
-				selectedIds = new LongAVLTreeSet();
+				selectedIds = new LongAVLTreeSet[]{new LongAVLTreeSet()};
 				isRailwaySign = false;
 				if (entity instanceof BlockRouteSignBase.BlockEntityBase) {
-					selectedIds.add(((BlockRouteSignBase.BlockEntityBase) entity).getPlatformId());
+					selectedIds[0].add(((BlockRouteSignBase.BlockEntityBase) entity).getPlatformId());
 				}
 			}
 			final Block block = world.getBlockState(signPos).getBlock();
@@ -119,7 +119,7 @@ public class RailwaySignScreen extends ScreenBase implements IGui {
 		} else {
 			length = 0;
 			signIds = new String[0];
-			selectedIds = new LongAVLTreeSet();
+			selectedIds = new LongAVLTreeSet[0];
 			isRailwaySign = false;
 		}
 
@@ -132,10 +132,10 @@ public class RailwaySignScreen extends ScreenBase implements IGui {
 		buttonsSelection = new ButtonWidget[allSignIds.size()];
 		for (int i = 0; i < allSignIds.size(); i++) {
 			final int index = i;
-			buttonsSelection[i] = ButtonWidget.builder(Text.empty(), button -> setNewSignId(allSignIds.get(index))).build();
+			buttonsSelection[i] = ButtonWidget.builder(Text.empty(), button -> setNewSignId(allSignIds.get(index), 0)).build();
 		}
 
-		buttonClear = ButtonWidget.builder(TranslationProvider.GUI_MTR_RESET.getMutableText(), button -> setNewSignId(null)).build();
+		buttonClear = ButtonWidget.builder(TranslationProvider.GUI_MTR_RESET.getMutableText(), button -> setNewSignId(null, -1)).build();
 		buttonPrevPage = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_left.png"), Identifier.of("textures/gui/sprites/mtr/icon_left_highlighted.png"), button -> setPage(page - 1), true);
 		buttonNextPage = new BetterTexturedButtonWidget(Identifier.of("textures/gui/sprites/mtr/icon_right.png"), Identifier.of("textures/gui/sprites/mtr/icon_right_highlighted.png"), button -> setPage(page + 1), true);
 	}
@@ -176,7 +176,7 @@ public class RailwaySignScreen extends ScreenBase implements IGui {
 		addDrawableChild(buttonNextPage);
 
 		if (!isRailwaySign) {
-			MinecraftClient.getInstance().setScreen(new DashboardListSelectorScreen(this::close, platformsForList, selectedIds, true, false, null));
+			MinecraftClient.getInstance().setScreen(new DashboardListSelectorScreen(this::close, platformsForList, selectedIds[0], true, false, null));
 		}
 	}
 
@@ -199,7 +199,7 @@ public class RailwaySignScreen extends ScreenBase implements IGui {
 
 			loopSigns((index, x, y, isBig) -> {
 				final String signId = allSignIds.get(index);
-				final SignResource sign = RenderRailwaySign.getSign(signId);
+				final SignResource sign = CustomResourceLoader.getSignById(signId);
 				if (sign != null) {
 					final boolean moveRight = sign.hasCustomText && sign.getFlipCustomText();
 					RenderRailwaySign.drawSign(null, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), BUTTON_Y_START + y, SIGN_BUTTON_SIZE, 2, 2, selectedIds, Direction.UP, 0, (textureId, x1, y1, size, flipTexture) -> {
@@ -247,7 +247,7 @@ public class RailwaySignScreen extends ScreenBase implements IGui {
 		int totalPagesSmallCount = 1;
 		int totalPagesBigCount = 1;
 		for (int i = 0; i < allSignIds.size(); i++) {
-			final SignResource sign = RenderRailwaySign.getSign(allSignIds.get(i));
+			final SignResource sign = CustomResourceLoader.getSignById(allSignIds.get(i));
 			final boolean isBig = sign != null && sign.hasCustomText;
 
 			final boolean onPage = (isBig ? indexBig : indexSmall) / pageCount == page;
@@ -299,7 +299,7 @@ public class RailwaySignScreen extends ScreenBase implements IGui {
 		buttonsEdit[editingIndex].active = false;
 	}
 
-	private void setNewSignId(@Nullable String newSignId) {
+	private void setNewSignId(@Nullable String newSignId, int signIndex) {
 		if (editingIndex >= 0 && editingIndex < signIds.length) {
 			signIds[editingIndex] = newSignId;
 			final boolean isExitLetter = newSignId != null && (newSignId.equals("exit_letter") || newSignId.equals("exit_letter_flipped"));
@@ -307,7 +307,7 @@ public class RailwaySignScreen extends ScreenBase implements IGui {
 			final boolean isLine = newSignId != null && (newSignId.equals("line") || newSignId.equals("line_flipped"));
 			final boolean isStation = newSignId != null && (newSignId.equals("station") || newSignId.equals("station_flipped"));
 			if ((isExitLetter || isPlatform || isLine || isStation)) {
-				MinecraftClient.getInstance().setScreen(new DashboardListSelectorScreen(new ObjectImmutableList<>(isExitLetter ? exitsForList : isPlatform ? platformsForList : isLine ? routesForList : stationsForList), selectedIds, false, false, this));
+				MinecraftClient.getInstance().setScreen(new DashboardListSelectorScreen(new ObjectImmutableList<>(isExitLetter ? exitsForList : isPlatform ? platformsForList : isLine ? routesForList : stationsForList), selectedIds[signIndex], false, false, this));
 			}
 		}
 	}

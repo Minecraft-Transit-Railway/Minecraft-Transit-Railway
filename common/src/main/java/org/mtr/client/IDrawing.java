@@ -19,7 +19,6 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 import org.mtr.MTR;
@@ -150,10 +149,10 @@ public interface IDrawing {
 	}
 
 	static void drawTexture(MatrixStack matrixStack, VertexConsumer vertexConsumer, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
-		vertexConsumer.vertex(x1, y1, z1, color, u1, v1, OverlayTexture.DEFAULT_UV, light, 0, 1, 0);
-		vertexConsumer.vertex(x2, y2, z2, color, u1, v2, OverlayTexture.DEFAULT_UV, light, 0, 1, 0);
-		vertexConsumer.vertex(x3, y3, z3, color, u2, v2, OverlayTexture.DEFAULT_UV, light, 0, 1, 0);
-		vertexConsumer.vertex(x4, y4, z4, color, u2, v1, OverlayTexture.DEFAULT_UV, light, 0, 1, 0);
+		vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x1, y1, z1).color(color).texture(u1, v1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(0, 1, 0);
+		vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x2, y2, z2).color(color).texture(u1, v2).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(0, 1, 0);
+		vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x3, y3, z3).color(color).texture(u2, v2).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(0, 1, 0);
+		vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x4, y4, z4).color(color).texture(u2, v1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(0, 1, 0);
 	}
 
 	static void drawLineInWorld(MatrixStack matrixStack, VertexConsumer vertexConsumer, float x1, float y1, float z1, float x2, float y2, float z2, int color) {
@@ -194,30 +193,6 @@ public interface IDrawing {
 			vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x2, y + height, 0).color(color).texture(digitU + u, digitV + v).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(0, 1, 0);
 			vertexConsumer.vertex(matrixStack.peek().getPositionMatrix(), x2, y, 0).color(color).texture(digitU + u, digitV).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(0, 1, 0);
 		}
-	}
-
-	static void rotateXRadians(MatrixStack matrixStack, float angle) {
-		matrixStack.multiply(RotationAxis.POSITIVE_X.rotation(angle));
-	}
-
-	static void rotateYRadians(MatrixStack matrixStack, float angle) {
-		matrixStack.multiply(RotationAxis.POSITIVE_Y.rotation(angle));
-	}
-
-	static void rotateZRadians(MatrixStack matrixStack, float angle) {
-		matrixStack.multiply(RotationAxis.POSITIVE_Z.rotation(angle));
-	}
-
-	static void rotateXDegrees(MatrixStack matrixStack, float angle) {
-		matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(angle));
-	}
-
-	static void rotateYDegrees(MatrixStack matrixStack, float angle) {
-		matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(angle));
-	}
-
-	static void rotateZDegrees(MatrixStack matrixStack, float angle) {
-		matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(angle));
 	}
 
 	static void setPositionAndWidth(ClickableWidget widget, int x, int y, int widgetWidth) {

@@ -4,6 +4,8 @@ import net.minecraft.block.Block;
 import net.minecraft.client.model.*;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
@@ -11,8 +13,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.mtr.MTR;
 import org.mtr.block.*;
-import org.mtr.client.IDrawing;
 import org.mtr.data.IGui;
+import org.mtr.tool.Drawing;
 
 import java.util.function.Consumer;
 
@@ -20,7 +22,7 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.BlockEntityBase> ext
 
 	private final int type;
 
-	public static final ModelPart MODEL_SMALL_CUBE = createSingleCube(16, 16, 4, 4, 4, 8, 8, 8);
+	public static final ModelPart MODEL_SMALL_CUBE = createSingleCube(16, 16, 12, 20, 12, 8, 8, 8);
 	private static final ModelPart MODEL_PSD = createSingleCube(36, 18, 0, 0, 0, 16, 16, 2);
 	private static final ModelPart MODEL_PSD_END_LEFT_1 = createSingleCube(20, 18, 0, 0, 0, 8, 16, 2);
 	private static final ModelPart MODEL_PSD_END_RIGHT_1 = createSingleCube(20, 18, 8, 0, 0, 8, 16, 2);
@@ -48,21 +50,21 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.BlockEntityBase> ext
 	}
 
 	@Override
-	public void render(T entity, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
-		entity.tick(tickDelta);
+	public void render(T blockEntity, MatrixStack matrixStack2, VertexConsumerProvider vertexConsumerProvider, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
+		blockEntity.tick(tickDelta);
 
-		final BlockPos blockPos = entity.getPos();
+		final BlockPos blockPos = blockEntity.getPos();
 		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, Properties.HORIZONTAL_FACING);
 		final boolean side = IBlock.getStatePropertySafe(world, blockPos, BlockPSDAPGDoorBase.SIDE) == EnumSide.RIGHT;
 		final boolean half = IBlock.getStatePropertySafe(world, blockPos, BlockPSDAPGDoorBase.HALF) == DoubleBlockHalf.UPPER;
 		final boolean end = IBlock.getStatePropertySafe(world, blockPos, BlockPSDAPGDoorBase.END);
 		final boolean unlocked = IBlock.getStatePropertySafe(world, blockPos, BlockPSDAPGDoorBase.UNLOCKED);
-		final double open = Math.min(entity.getDoorValue(), type >= 3 ? 0.75F : 1);
+		final double open = Math.min(blockEntity.getDoorValue(), type >= 3 ? 0.75F : 1);
 
-		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(0.5 + entity.getPos().getX(), entity.getPos().getY(), 0.5 + entity.getPos().getZ());
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(0.5 + blockEntity.getPos().getX(), blockEntity.getPos().getY(), 0.5 + blockEntity.getPos().getZ());
 		storedMatrixTransformations.add(matrixStack -> {
-			IDrawing.rotateYDegrees(matrixStack, -facing.getPositiveHorizontalDegrees());
-			IDrawing.rotateXDegrees(matrixStack, 180);
+			Drawing.rotateYDegrees(matrixStack, -facing.getPositiveHorizontalDegrees());
+			Drawing.rotateXDegrees(matrixStack, 180);
 		});
 		final StoredMatrixTransformations storedMatrixTransformationsLight = storedMatrixTransformations.copy();
 

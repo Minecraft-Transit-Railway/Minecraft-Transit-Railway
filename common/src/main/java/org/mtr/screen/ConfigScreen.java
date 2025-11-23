@@ -1,6 +1,5 @@
 package org.mtr.screen;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -193,7 +192,7 @@ public class ConfigScreen extends ScreenBase implements IGui {
 		// Logo
 		matrixStack.push();
 		matrixStack.translate((width - (textRenderer.getWidth(titleText) * 1.5F) - HEADER_LOGO_SIZE - TEXT_PADDING) / 2, 0, 0);
-		new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(HEADER_LOGO))).setVerticesWH(0, 0, HEADER_LOGO_SIZE, HEADER_LOGO_SIZE).setUv().draw();
+		new Drawing(matrixStack, RenderLayer.getGuiTextured(HEADER_LOGO)).setVerticesWH(0, 0, HEADER_LOGO_SIZE, HEADER_LOGO_SIZE).setUv().draw();
 
 		matrixStack.translate(HEADER_LOGO_SIZE, 0, 0);
 		matrixStack.translate(TEXT_PADDING, 0, 0);

@@ -1,6 +1,7 @@
 package org.mtr;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
@@ -27,7 +28,7 @@ import org.mtr.core.operation.DataRequest;
 import org.mtr.core.servlet.WebServlet;
 import org.mtr.core.servlet.Webserver;
 import org.mtr.data.IGui;
-import org.mtr.font.FontGroups;
+import org.mtr.font.FontGroupRegistry;
 import org.mtr.generated.WebserverResources;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.javax.servlet.MultipartConfigElement;
@@ -44,7 +45,8 @@ import org.mtr.servlet.ResourcePackCreatorOperationServlet;
 import org.mtr.servlet.ResourcePackCreatorUploadServlet;
 import org.mtr.sound.LoopingSoundInstance;
 import org.mtr.sound.ScheduledSound;
-import org.mtr.tool.ReleasedDynamicTextureManager;
+import org.mtr.tool.Drawing;
+import org.mtr.tool.ReleasedDynamicTextureRegistry;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
@@ -56,8 +58,13 @@ public final class MTRClient {
 
 	@Nullable
 	private static Webserver webserver;
+	/**
+	 * This is the port of the clientside webserver (multiplayer) or the webserver started by Transport Simulation Core (singleplayer). {@code 0} means the webserver is not running
+	 */
+	@Getter
 	private static int serverPort;
 	private static long lastMillis = 0;
+	@Getter
 	private static long gameMillis = 0;
 	private static long lastPlayedTrainSoundsMillis = 0;
 	private static long lastUpdatePacketMillis = 0;
@@ -365,9 +372,9 @@ public final class MTRClient {
 		});
 
 		EventRegistryClient.registerResourceReloadEvent(() -> {
-			FontGroups.reload();
 			CustomResourceLoader.reload();
-			ReleasedDynamicTextureManager.reload();
+			FontGroupRegistry.INSTANCE.reload();
+			ReleasedDynamicTextureRegistry.INSTANCE.reload();
 		});
 		EventRegistryClient.registerWorldRenderEvent(MainRenderer::render);
 		EventRegistryClient.registerHudLayerRenderEvent((context, renderTickCounter) -> DrivingGuiRenderer.render(context));
@@ -430,8 +437,8 @@ public final class MTRClient {
 		final double differenceX = cameraPosition.x - x;
 		final double differenceY = cameraPosition.y - y;
 		final double differenceZ = cameraPosition.z - z;
-		IDrawing.rotateYRadians(matrixStack, (float) (Math.atan2(differenceX, differenceZ) + Math.PI));
-		IDrawing.rotateXRadians(matrixStack, (float) Math.atan2(differenceY, Math.sqrt(differenceZ * differenceZ + differenceX * differenceX)));
+		Drawing.rotateYRadians(matrixStack, (float) (Math.atan2(differenceX, differenceZ) + Math.PI));
+		Drawing.rotateXRadians(matrixStack, (float) Math.atan2(differenceY, Math.sqrt(differenceZ * differenceZ + differenceX * differenceX)));
 	}
 
 	public static String getShiftText() {
@@ -444,18 +451,6 @@ public final class MTRClient {
 
 	public static float getGameTick() {
 		return gameMillis / 50F;
-	}
-
-	public static long getGameMillis() {
-		return gameMillis;
-	}
-
-	/**
-	 * @return the port of the clientside webserver (multiplayer) or the webserver started by Transport Simulation Core (singleplayer).
-	 * <br>{@code 0} means the webserver is not running
-	 */
-	public static int getServerPort() {
-		return serverPort;
 	}
 
 	public static void processUniqueWorldId(String uniqueWorldId) {

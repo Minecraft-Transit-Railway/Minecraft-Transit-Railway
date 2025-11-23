@@ -12,7 +12,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -61,7 +60,7 @@ public abstract class BlockPIDSBase extends Block implements BlockEntityProvider
 		tooltip.add(TranslationProvider.TOOLTIP_MTR_ARRIVALS.getMutableText(maxArrivals).formatted(Formatting.GRAY));
 	}
 
-	public static abstract class BlockEntityBase extends BlockEntity {
+	public static abstract class BlockEntityBase extends BlockEntityExtension {
 
 		public final int maxArrivals;
 		public final BiPredicate<World, BlockPos> canStoreData;
@@ -89,29 +88,29 @@ public abstract class BlockPIDSBase extends Block implements BlockEntityProvider
 		}
 
 		@Override
-		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+		protected void readNbt(NbtCompound nbtCompound) {
 			for (int i = 0; i < maxArrivals; i++) {
-				messages[i] = nbt.getString(KEY_MESSAGE + i);
-				hideArrivalArray[i] = nbt.getBoolean(KEY_HIDE_ARRIVAL + i);
+				messages[i] = nbtCompound.getString(KEY_MESSAGE + i);
+				hideArrivalArray[i] = nbtCompound.getBoolean(KEY_HIDE_ARRIVAL + i);
 			}
 
 			platformIds.clear();
-			final long[] platformIdsArray = nbt.getLongArray(KEY_PLATFORM_IDS);
+			final long[] platformIdsArray = nbtCompound.getLongArray(KEY_PLATFORM_IDS);
 			for (final long platformId : platformIdsArray) {
 				platformIds.add(platformId);
 			}
 
-			displayPage = nbt.getInt(KEY_DISPLAY_PAGE);
+			displayPage = nbtCompound.getInt(KEY_DISPLAY_PAGE);
 		}
 
 		@Override
-		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+		protected void writeNbt(NbtCompound nbtCompound) {
 			for (int i = 0; i < maxArrivals; i++) {
-				nbt.putString(KEY_MESSAGE + i, messages[i] == null ? "" : messages[i]);
-				nbt.putBoolean(KEY_HIDE_ARRIVAL + i, hideArrivalArray[i]);
+				nbtCompound.putString(KEY_MESSAGE + i, messages[i] == null ? "" : messages[i]);
+				nbtCompound.putBoolean(KEY_HIDE_ARRIVAL + i, hideArrivalArray[i]);
 			}
-			nbt.putLongArray(KEY_PLATFORM_IDS, new ArrayList<>(platformIds));
-			nbt.putInt(KEY_DISPLAY_PAGE, displayPage);
+			nbtCompound.putLongArray(KEY_PLATFORM_IDS, new ArrayList<>(platformIds));
+			nbtCompound.putInt(KEY_DISPLAY_PAGE, displayPage);
 		}
 
 		public void setData(String[] messages, boolean[] hideArrivalArray, LongAVLTreeSet platformIds, int displayPage) {

@@ -1,5 +1,6 @@
 package org.mtr.block;
 
+import lombok.Getter;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
@@ -8,7 +9,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
@@ -56,8 +56,9 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 		builder.add(ARROW_DIRECTION);
 	}
 
-	public static abstract class BlockEntityBase extends BlockEntity {
+	public static abstract class BlockEntityBase extends BlockEntityExtension {
 
+		@Getter
 		private long platformId;
 		private static final String KEY_PLATFORM_ID = "platform_id";
 
@@ -66,22 +67,18 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 		}
 
 		@Override
-		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			platformId = nbt.getLong(KEY_PLATFORM_ID);
+		protected void readNbt(NbtCompound nbtCompound) {
+			platformId = nbtCompound.getLong(KEY_PLATFORM_ID);
 		}
 
 		@Override
-		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			nbt.putLong(KEY_PLATFORM_ID, platformId);
+		protected void writeNbt(NbtCompound nbtCompound) {
+			nbtCompound.putLong(KEY_PLATFORM_ID, platformId);
 		}
 
 		public void setPlatformId(long platformId) {
 			this.platformId = platformId;
 			markDirty();
-		}
-
-		public long getPlatformId() {
-			return platformId;
 		}
 	}
 }

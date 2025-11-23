@@ -10,8 +10,8 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.math.MatrixStack;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
-import org.mtr.client.IDrawing;
 import org.mtr.core.tool.Utilities;
+import org.mtr.tool.Drawing;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -129,8 +129,8 @@ public final class PreviewBoxComponent extends SlotBackgroundComponent {
 
 		final MatrixStack matrixStack = new MatrixStack();
 		matrixStack.translate(panX, -panY, 10990 + zoom); // TODO figure out why is this Z offset needed?
-		IDrawing.rotateXDegrees(matrixStack, rotationY);
-		IDrawing.rotateYDegrees(matrixStack, rotationX);
+		Drawing.rotateXDegrees(matrixStack, rotationY);
+		Drawing.rotateYDegrees(matrixStack, rotationX);
 		onDraw.accept(matrixStack);
 
 		RenderSystem.disableDepthTest();

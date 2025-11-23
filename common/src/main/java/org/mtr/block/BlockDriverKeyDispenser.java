@@ -11,7 +11,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
@@ -26,7 +25,6 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.block.WireOrientation;
 import net.minecraft.world.tick.OrderedTick;
-import org.jetbrains.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.core.data.Depot;
 import org.mtr.core.operation.NearbyAreasRequest;
@@ -39,6 +37,7 @@ import org.mtr.registry.Items;
 import org.mtr.registry.Registry;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class BlockDriverKeyDispenser extends BlockWaterloggable implements BlockEntityProvider {
 
@@ -116,7 +115,7 @@ public class BlockDriverKeyDispenser extends BlockWaterloggable implements Block
 		}
 	}
 
-	public static class DriverKeyDispenserBlockEntity extends BlockEntity {
+	public static class DriverKeyDispenserBlockEntity extends BlockEntityExtension {
 
 		private boolean dispenseBasicDriverKey = false;
 		private boolean dispenseAdvancedDriverKey = false;
@@ -133,19 +132,19 @@ public class BlockDriverKeyDispenser extends BlockWaterloggable implements Block
 		}
 
 		@Override
-		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			dispenseBasicDriverKey = nbt.getBoolean(KEY_DISPENSE_BASIC_DRIVER_KEY);
-			dispenseAdvancedDriverKey = nbt.getBoolean(KEY_DISPENSE_ADVANCED_DRIVER_KEY);
-			dispenseGuardKey = nbt.getBoolean(KEY_DISPENSE_GUARD_KEY);
-			timeout = nbt.getLong(KEY_TIMEOUT);
+		protected void readNbt(NbtCompound nbtCompound) {
+			dispenseBasicDriverKey = nbtCompound.getBoolean(KEY_DISPENSE_BASIC_DRIVER_KEY);
+			dispenseAdvancedDriverKey = nbtCompound.getBoolean(KEY_DISPENSE_ADVANCED_DRIVER_KEY);
+			dispenseGuardKey = nbtCompound.getBoolean(KEY_DISPENSE_GUARD_KEY);
+			timeout = nbtCompound.getLong(KEY_TIMEOUT);
 		}
 
 		@Override
-		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			nbt.putBoolean(KEY_DISPENSE_BASIC_DRIVER_KEY, dispenseBasicDriverKey);
-			nbt.putBoolean(KEY_DISPENSE_ADVANCED_DRIVER_KEY, dispenseAdvancedDriverKey);
-			nbt.putBoolean(KEY_DISPENSE_GUARD_KEY, dispenseGuardKey);
-			nbt.putLong(KEY_TIMEOUT, timeout);
+		protected void writeNbt(NbtCompound nbtCompound) {
+			nbtCompound.putBoolean(KEY_DISPENSE_BASIC_DRIVER_KEY, dispenseBasicDriverKey);
+			nbtCompound.putBoolean(KEY_DISPENSE_ADVANCED_DRIVER_KEY, dispenseAdvancedDriverKey);
+			nbtCompound.putBoolean(KEY_DISPENSE_GUARD_KEY, dispenseGuardKey);
+			nbtCompound.putLong(KEY_TIMEOUT, timeout);
 		}
 
 		public void setData(boolean dispenseBasicDriverKey, boolean dispenseAdvancedDriverKey, boolean dispenseGuardKey, long timeout) {

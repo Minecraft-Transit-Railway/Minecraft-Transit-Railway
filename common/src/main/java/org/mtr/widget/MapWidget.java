@@ -26,7 +26,7 @@ import org.mtr.core.data.*;
 import org.mtr.core.operation.DeleteDataRequest;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
-import org.mtr.font.FontGroups;
+import org.mtr.font.FontGroupRegistry;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.map.MapTileProvider;
 import org.mtr.screen.*;
@@ -179,8 +179,8 @@ public final class MapWidget extends ClickableWidgetBase {
 			drawFromWorldCoords(player.getX(), player.getZ(), PLAYER_ARROW_SIZE / 2F, PLAYER_ARROW_SIZE / 2F, (x, y) -> {
 				matrixStack.push();
 				matrixStack.translate(getX() + x, getY() + y, 5);
-				IDrawing.rotateZDegrees(matrixStack, player.getYaw() + 180);
-				new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(Identifier.of("textures/gui/sprites/mtr/dashboard_player_arrow.png"))))
+				Drawing.rotateZDegrees(matrixStack, player.getYaw() + 180);
+				new Drawing(matrixStack, RenderLayer.getGuiTextured(Identifier.of("textures/gui/sprites/mtr/dashboard_player_arrow.png")))
 						.setVerticesWH(-PLAYER_ARROW_SIZE / 2F, -PLAYER_ARROW_SIZE / 2F, PLAYER_ARROW_SIZE, PLAYER_ARROW_SIZE)
 						.setUv()
 						.draw();
@@ -188,7 +188,7 @@ public final class MapWidget extends ClickableWidgetBase {
 			});
 		}
 
-		final Drawing drawing = new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui())).setGuiBoundsWH(getX(), getY(), width, height);
+		final Drawing drawing = new Drawing(matrixStack, RenderLayer.getGui()).setGuiBoundsWH(getX(), getY(), width, height);
 		hoverStations.clear();
 		hoverPlatforms.clear();
 		hoverDepots.clear();
@@ -453,7 +453,7 @@ public final class MapWidget extends ClickableWidgetBase {
 					final double clampedAreaWidth = areaWidth - Math.max(0, getX() - x1) - Math.max(0, x2 - getX() - width) - AREA_NAME_PADDING * 2;
 					final double clampedAreaHeight = areaHeight - Math.max(0, getY() - y1) - Math.max(0, y2 - getY() - height) - AREA_NAME_PADDING * 2;
 					if (clampedAreaWidth > 0 && clampedAreaHeight > 0) {
-						FontGroups.renderMTR(drawing, area.getName(), FontRenderOptions.builder()
+						FontGroupRegistry.MTR.get().render(drawing, area.getName(), FontRenderOptions.builder()
 								.horizontalSpace((float) clampedAreaWidth)
 								.verticalSpace((float) clampedAreaHeight)
 								.offsetX((float) Math.max(getX(), x1) + AREA_NAME_PADDING)
@@ -487,7 +487,7 @@ public final class MapWidget extends ClickableWidgetBase {
 
 			// Draw overlay text
 			if (guiAnimationScale.getCurrentValue() > SAVED_RAIL_NAME_PADDING * 2) {
-				FontGroups.renderMTR(drawing, savedRails.stream().map(NameColorDataBase::getName).collect(Collectors.joining("|")), FontRenderOptions.builder()
+				FontGroupRegistry.MTR.get().render(drawing, savedRails.stream().map(NameColorDataBase::getName).collect(Collectors.joining("|")), FontRenderOptions.builder()
 						.horizontalSpace((float) guiAnimationScale.getCurrentValue() - SAVED_RAIL_NAME_PADDING * 2)
 						.verticalSpace((float) guiAnimationScale.getCurrentValue() - SAVED_RAIL_NAME_PADDING * 2)
 						.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)

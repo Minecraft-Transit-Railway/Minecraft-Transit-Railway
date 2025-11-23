@@ -31,7 +31,7 @@ import org.mtr.registry.UConverters;
 import org.mtr.render.MainRenderer;
 import org.mtr.tool.BlockRendererHelper;
 import org.mtr.tool.GuiHelper;
-import org.mtr.tool.ReleasedDynamicTextureManager;
+import org.mtr.tool.ReleasedDynamicTextureRegistry;
 import org.mtr.widget.*;
 
 import javax.annotation.Nullable;
@@ -47,8 +47,8 @@ public final class RailModifierScreen extends WindowBase {
 	private final Rail rail;
 
 	private final BackgroundComponent backgroundComponent = new BackgroundComponent(getWindow(), 320, 240, ObjectImmutableList.of(
-			new ObjectObjectImmutablePair<>(ReleasedDynamicTextureManager.POPPY_TEXTURE.get(), TranslationProvider.GUI_MTR_RAIL_APPEARANCE.getString()),
-			new ObjectObjectImmutablePair<>(ReleasedDynamicTextureManager.DIAMOND_PICKAXE_TEXTURE.get(), TranslationProvider.GUI_MTR_RAIL_TILT.getString())
+			new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.POPPY_TEXTURE.get(), TranslationProvider.GUI_MTR_RAIL_APPEARANCE.getString()),
+			new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.DIAMOND_PICKAXE_TEXTURE.get(), TranslationProvider.GUI_MTR_RAIL_TILT.getString())
 	));
 
 	private final PreviewBoxComponent previewBoxComponent1;
@@ -351,7 +351,7 @@ public final class RailModifierScreen extends WindowBase {
 				.setWidth(new RelativeConstraint())
 				.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR));
 
-		final ScrollComponent scrollComponent = ((ScrollPanelComponent) new ScrollPanelComponent()
+		final ScrollComponent scrollComponent = ((ScrollPanelComponent) new ScrollPanelComponent(true)
 				.setChildOf(leftContainer)
 				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
 				.setWidth(new RelativeConstraint())

@@ -5,7 +5,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
@@ -20,7 +19,7 @@ import org.mtr.core.tool.EnumHelper;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.data.VehicleExtension;
-import org.mtr.font.FontGroups;
+import org.mtr.font.FontGroupRegistry;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.generated.resource.ModelPropertiesPartSchema;
 import org.mtr.model.NewOptimizedModelGroup;
@@ -283,8 +282,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 			MainRenderer.scheduleRender(Identifier.of(MTR.MOD_ID, String.format("textures/block/%s.png", displayType == DisplayType.ROUTE_COLOR ? "white" : "sign/circle")), true, QueuedRenderLayer.INTERIOR, (matrixStack, vertexConsumer, offset) -> {
 				storedMatrixTransformations.transform(matrixStack, offset);
 				matrixStack.translate(modelDisplayPart.x, modelDisplayPart.y, modelDisplayPart.z);
-				IDrawing.rotateYDegrees(matrixStack, modelDisplayPart.flipped ? 180 : 0);
-				IDrawing.rotateXDegrees(matrixStack, 180);
+				Drawing.rotateYDegrees(matrixStack, modelDisplayPart.flipped ? 180 : 0);
+				Drawing.rotateXDegrees(matrixStack, 180);
 				modelDisplayPart.storedMatrixTransformations.transform(matrixStack, Vec3d.ZERO);
 				matrixStack.translate(0, 0, -IGui.SMALL_OFFSET);
 
@@ -309,8 +308,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 			MainRenderer.scheduleRender(Identifier.of(MTR.MOD_ID, "textures/block/sign/seven_segment.png"), true, QueuedRenderLayer.LIGHT_2, (matrixStack, vertexConsumer, offset) -> {
 				storedMatrixTransformations.transform(matrixStack, offset);
 				matrixStack.translate(modelDisplayPart.x, modelDisplayPart.y, modelDisplayPart.z);
-				IDrawing.rotateYDegrees(matrixStack, modelDisplayPart.flipped ? 180 : 0);
-				IDrawing.rotateXDegrees(matrixStack, 180);
+				Drawing.rotateYDegrees(matrixStack, modelDisplayPart.flipped ? 180 : 0);
+				Drawing.rotateXDegrees(matrixStack, 180);
 				modelDisplayPart.storedMatrixTransformations.transform(matrixStack, Vec3d.ZERO);
 				matrixStack.translate(0, displayYPadding / 16, -IGui.SMALL_OFFSET);
 
@@ -349,8 +348,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 			MainRenderer.scheduleRender(scrollingText.getTextureId(), true, QueuedRenderLayer.LIGHT_2, (matrixStack, vertexConsumer, offset) -> {
 				storedMatrixTransformations.transform(matrixStack, offset);
 				matrixStack.translate(modelDisplayPart.x, modelDisplayPart.y, modelDisplayPart.z);
-				IDrawing.rotateYDegrees(matrixStack, modelDisplayPart.flipped ? 180 : 0);
-				IDrawing.rotateXDegrees(matrixStack, 180);
+				Drawing.rotateYDegrees(matrixStack, modelDisplayPart.flipped ? 180 : 0);
+				Drawing.rotateXDegrees(matrixStack, 180);
 				modelDisplayPart.storedMatrixTransformations.transform(matrixStack, Vec3d.ZERO);
 				matrixStack.translate(displayXPadding / 16, displayYPadding / 16, -IGui.SMALL_OFFSET);
 				scrollingText.scrollText(matrixStack, vertexConsumer);
@@ -369,12 +368,12 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 			MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (matrixStack, vertexConsumer, offset) -> {
 				storedMatrixTransformations.transform(matrixStack, offset);
 				matrixStack.translate(modelDisplayPart.x, modelDisplayPart.y, modelDisplayPart.z);
-				IDrawing.rotateYDegrees(matrixStack, modelDisplayPart.flipped ? 180 : 0);
-				IDrawing.rotateXDegrees(matrixStack, 180);
+				Drawing.rotateYDegrees(matrixStack, modelDisplayPart.flipped ? 180 : 0);
+				Drawing.rotateXDegrees(matrixStack, 180);
 				modelDisplayPart.storedMatrixTransformations.transform(matrixStack, Vec3d.ZERO);
 				matrixStack.translate(displayXPadding / 16, displayYPadding / 16, -IGui.SMALL_OFFSET);
 
-				FontGroups.renderMTR(new Drawing(matrixStack.peek().getPositionMatrix(), MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui())), text, FontRenderOptions.builder()
+				FontGroupRegistry.MTR.get().render(new Drawing(matrixStack, RenderLayer.getGui()), text, FontRenderOptions.builder()
 						.color(IGui.ARGB_BLACK | displayColorInt)
 						.cjkColor(IGui.ARGB_BLACK | displayColorCjkInt)
 						.cjkScaling((float) displayCjkSizeRatio)

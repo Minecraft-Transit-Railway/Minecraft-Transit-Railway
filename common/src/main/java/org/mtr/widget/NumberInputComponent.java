@@ -8,7 +8,7 @@ import gg.essential.elementa.constraints.SiblingConstraint;
 import gg.essential.universal.UMatrixStack;
 import lombok.Getter;
 import org.mtr.core.tool.Utilities;
-import org.mtr.tool.ReleasedDynamicTextureManager;
+import org.mtr.tool.ReleasedDynamicTextureRegistry;
 
 import javax.annotation.Nullable;
 import java.util.function.DoubleConsumer;
@@ -45,13 +45,13 @@ public final class NumberInputComponent extends UIContainer {
 				.setWidth(new RelativeConstraint())
 				.setHeight(new PixelConstraint(20));
 
-		final StitchedImageComponent sliderBackgroundComponent = (StitchedImageComponent) new StitchedImageComponent(200, 20, 4, 0, ReleasedDynamicTextureManager.BUTTON_DISABLED_TEXTURE.get())
+		final StitchedImageComponent sliderBackgroundComponent = (StitchedImageComponent) new StitchedImageComponent(200, 20, 4, 0, ReleasedDynamicTextureRegistry.BUTTON_DISABLED_TEXTURE.get())
 				.setChildOf(this)
 				.setY(new SiblingConstraint())
 				.setWidth(new RelativeConstraint())
 				.setHeight(new PixelConstraint(8));
 
-		sliderHandleComponent = (StitchedImageComponent) new StitchedImageComponent(200, 20, 3, 0, ReleasedDynamicTextureManager.BUTTON_TEXTURE.get(), ReleasedDynamicTextureManager.BUTTON_DISABLED_TEXTURE.get(), ReleasedDynamicTextureManager.BUTTON_HIGHLIGHTED_TEXTURE.get())
+		sliderHandleComponent = (StitchedImageComponent) new StitchedImageComponent(200, 20, 3, 0, ReleasedDynamicTextureRegistry.BUTTON_TEXTURE.get(), ReleasedDynamicTextureRegistry.BUTTON_DISABLED_TEXTURE.get(), ReleasedDynamicTextureRegistry.BUTTON_HIGHLIGHTED_TEXTURE.get())
 				.setChildOf(sliderBackgroundComponent)
 				.setWidth(new PixelConstraint(SLIDER_HANDLE_WIDTH))
 				.setHeight(new RelativeConstraint());

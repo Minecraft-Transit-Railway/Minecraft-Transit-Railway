@@ -4,13 +4,13 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import lombok.Getter;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -51,8 +51,11 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 
 	public static class TrainAnnouncerBlockEntity extends BlockEntityBase implements Utilities {
 
+		@Getter
 		private String message = "";
+		@Getter
 		private String soundId = "";
+		@Getter
 		private int delay;
 		private long lastAnnouncedMillis;
 		private static final int ANNOUNCE_COOLDOWN_MILLIS = 20000;
@@ -65,19 +68,17 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 		}
 
 		@Override
-		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			message = nbt.getString(KEY_MESSAGE);
-			soundId = nbt.getString(KEY_SOUND_ID);
-			delay = nbt.getInt(KEY_DELAY);
-			super.readNbt(nbt, registries);
+		protected void readNbt(NbtCompound nbtCompound) {
+			message = nbtCompound.getString(KEY_MESSAGE);
+			soundId = nbtCompound.getString(KEY_SOUND_ID);
+			delay = nbtCompound.getInt(KEY_DELAY);
 		}
 
 		@Override
-		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			nbt.putString(KEY_MESSAGE, message);
-			nbt.putString(KEY_SOUND_ID, soundId);
-			nbt.putInt(KEY_DELAY, delay);
-			super.writeNbt(nbt, registries);
+		protected void writeNbt(NbtCompound nbtCompound) {
+			nbtCompound.putString(KEY_MESSAGE, message);
+			nbtCompound.putString(KEY_SOUND_ID, soundId);
+			nbtCompound.putInt(KEY_DELAY, delay);
 		}
 
 		public void setData(LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, String message, String soundId, int delay) {
@@ -85,18 +86,6 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 			this.soundId = soundId;
 			this.delay = delay;
 			setData(filterRouteIds, stoppedOnly, movingOnly);
-		}
-
-		public String getMessage() {
-			return message;
-		}
-
-		public String getSoundId() {
-			return soundId;
-		}
-
-		public int getDelay() {
-			return delay;
 		}
 
 		public void announce() {

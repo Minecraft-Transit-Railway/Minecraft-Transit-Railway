@@ -7,7 +7,7 @@ import gg.essential.elementa.constraints.*;
 import gg.essential.universal.UMatrixStack;
 import kotlin.Unit;
 import net.minecraft.client.MinecraftClient;
-import org.mtr.tool.ReleasedDynamicTextureManager;
+import org.mtr.tool.ReleasedDynamicTextureRegistry;
 
 import java.awt.*;
 
@@ -23,7 +23,7 @@ public final class TextInputComponent extends StitchedImageComponent {
 	private static final int CURSOR_FLASH_TIME = 1000;
 
 	public TextInputComponent() {
-		super(200, 20, 1, 0, ReleasedDynamicTextureManager.BUTTON_DISABLED_TEXTURE.get());
+		super(200, 20, 1, 0, ReleasedDynamicTextureRegistry.BUTTON_DISABLED_TEXTURE.get());
 
 		final UIContainer container = (UIContainer) new UIContainer()
 				.setChildOf(this)
@@ -53,7 +53,7 @@ public final class TextInputComponent extends StitchedImageComponent {
 				newTextInput.releaseWindowFocus();
 			} else {
 				if (clickEvent.getMouseButton() == 1) {
-					newTextInput.setText("");
+					setText("");
 				}
 				newTextInput.grabWindowFocus();
 			}
@@ -66,7 +66,15 @@ public final class TextInputComponent extends StitchedImageComponent {
 	}
 
 	public void onChange(Runnable runnable) {
-		newTextInput.onKeyTypeConsumer((character, integer) -> runnable.run());
+		onMouseClickConsumer(clickEvent -> {
+			if (!disabled && clickEvent.getMouseButton() == 1) {
+				runnable.run();
+			}
+		});
+		newTextInput.onKeyTypeConsumer((character, integer) -> {
+			runnable.run();
+			updateColors();
+		});
 	}
 
 	public void onFocusLost(Runnable runnable) {
@@ -82,6 +90,11 @@ public final class TextInputComponent extends StitchedImageComponent {
 
 	public void setText(String text) {
 		newTextInput.setText(text);
+		updateColors();
+	}
+
+	public void setPlaceholderText(String text) {
+		newTextInput.setPlaceholder(text);
 	}
 
 	public void setPrefix(String text) {
@@ -98,13 +111,17 @@ public final class TextInputComponent extends StitchedImageComponent {
 
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
-		newTextInput.setColor(disabled ? Color.DARK_GRAY : Color.WHITE);
-		prefixText.setColor(disabled ? Color.DARK_GRAY : Color.LIGHT_GRAY);
-		suffixText.setColor(disabled ? Color.DARK_GRAY : Color.LIGHT_GRAY);
+		updateColors();
 		setHighlighted(false);
 		if (disabled) {
 			newTextInput.releaseWindowFocus();
 		}
+	}
+
+	private void updateColors() {
+		newTextInput.setColor(disabled ? Color.DARK_GRAY : (getText().isEmpty() ? Color.GRAY : Color.WHITE));
+		prefixText.setColor(disabled ? Color.DARK_GRAY : Color.LIGHT_GRAY);
+		suffixText.setColor(disabled ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 	}
 
 	private static class NewTextInput extends UITextInput {

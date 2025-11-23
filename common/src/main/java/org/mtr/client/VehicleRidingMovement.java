@@ -167,7 +167,7 @@ public class VehicleRidingMovement {
 					Math.abs(clientPlayerEntity.sidewaysSpeed) > 0.5 ? Math.copySign(speedMultiplier, clientPlayerEntity.sidewaysSpeed) : 0,
 					0,
 					Math.abs(clientPlayerEntity.forwardSpeed) > 0.5 ? Math.copySign(speedMultiplier, clientPlayerEntity.forwardSpeed) : 0
-			), (vector, pitch) -> vector, (vector, yaw) -> vector.rotateY((float) (yaw - Math.toRadians(entityYawOld))), (vector, x, y, z) -> vector);
+			), (vector, pitch) -> vector, (vector, yaw) -> vector.rotateY((float) (yaw - Math.toRadians(entityYawOld))), (vector, roll) -> vector, (vector, x, y, z) -> vector);
 			final double movementX = movement.x;
 			final double movementZ = movement.z;
 
@@ -222,7 +222,7 @@ public class VehicleRidingMovement {
 						);
 
 						// ridingPositionCache should always store the relative position of the player with respect to the riding car, even when the player is on a gangway
-						ridingPositionCache = positionAndRotation.transformBackwards(new Vec3d(positionX, positionY, positionZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
+						ridingPositionCache = positionAndRotation.transformBackwards(new Vec3d(positionX, positionY, positionZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::rotateZ, Vec3d::add);
 						movePlayer(positionX, positionY, positionZ);
 					}
 				}
@@ -274,7 +274,7 @@ public class VehicleRidingMovement {
 					}
 
 					ridingPositionCache = new Vec3d(ridingVehicleX, ridingVehicleY, ridingVehicleZ);
-					final Vec3d newPlayerPosition = positionAndRotation.transformForwards(ridingPositionCache, Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
+					final Vec3d newPlayerPosition = positionAndRotation.transformForwards(ridingPositionCache, Vec3d::rotateX, Vec3d::rotateY, Vec3d::rotateZ, Vec3d::add);
 					movePlayer(newPlayerPosition.x, newPlayerPosition.y, newPlayerPosition.z);
 					clientPlayerEntity.setYaw((float) (Math.toDegrees(previousVehicleYaw - positionAndRotation.yaw) + entityYawOld));
 				}

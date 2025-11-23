@@ -12,25 +12,32 @@ import org.mtr.block.BlockRouteSignBase;
 public final class PacketUpdateRailwaySignConfig extends PacketHandler {
 
 	private final BlockPos blockPos;
-	private final LongAVLTreeSet selectedIds;
+	private final LongAVLTreeSet[] selectedIds;
 	private final String[] signIds;
 
 	public PacketUpdateRailwaySignConfig(PacketBufferReceiver packetBufferReceiver) {
 		blockPos = BlockPos.fromLong(packetBufferReceiver.readLong());
+
 		final int selectedIdsLength = packetBufferReceiver.readInt();
-		selectedIds = new LongAVLTreeSet();
+		selectedIds = new LongAVLTreeSet[selectedIdsLength];
 		for (int i = 0; i < selectedIdsLength; i++) {
-			selectedIds.add(packetBufferReceiver.readLong());
+			final int selectedIdsSetLength = packetBufferReceiver.readInt();
+			final LongAVLTreeSet selectedIdsSet = new LongAVLTreeSet();
+			for (int j = 0; j < selectedIdsSetLength; j++) {
+				selectedIdsSet.add(packetBufferReceiver.readLong());
+			}
+			selectedIds[i] = selectedIdsSet;
 		}
-		final int signLength = packetBufferReceiver.readInt();
-		signIds = new String[signLength];
-		for (int i = 0; i < signLength; i++) {
+
+		final int signIdsLength = packetBufferReceiver.readInt();
+		signIds = new String[signIdsLength];
+		for (int i = 0; i < signIdsLength; i++) {
 			final String signId = packetBufferReceiver.readString();
 			signIds[i] = signId.isEmpty() ? null : signId;
 		}
 	}
 
-	public PacketUpdateRailwaySignConfig(BlockPos blockPos, LongAVLTreeSet selectedIds, String[] signIds) {
+	public PacketUpdateRailwaySignConfig(BlockPos blockPos, LongAVLTreeSet[] selectedIds, String[] signIds) {
 		this.blockPos = blockPos;
 		this.selectedIds = selectedIds;
 		this.signIds = signIds;
@@ -39,8 +46,13 @@ public final class PacketUpdateRailwaySignConfig extends PacketHandler {
 	@Override
 	public void write(PacketBufferSender packetBufferSender) {
 		packetBufferSender.writeLong(blockPos.asLong());
-		packetBufferSender.writeInt(selectedIds.size());
-		selectedIds.forEach(packetBufferSender::writeLong);
+
+		packetBufferSender.writeInt(selectedIds.length);
+		for (final LongAVLTreeSet selectedIdsSet : selectedIds) {
+			packetBufferSender.writeInt(selectedIdsSet.size());
+			selectedIdsSet.forEach(packetBufferSender::writeLong);
+		}
+
 		packetBufferSender.writeInt(signIds.length);
 		for (final String signType : signIds) {
 			packetBufferSender.writeString(signType == null ? "" : signType);
@@ -58,7 +70,7 @@ public final class PacketUpdateRailwaySignConfig extends PacketHandler {
 			if (entity instanceof BlockRailwaySign.RailwaySignBlockEntity) {
 				((BlockRailwaySign.RailwaySignBlockEntity) entity).setData(selectedIds, signIds);
 			} else if (entity instanceof BlockRouteSignBase.BlockEntityBase) {
-				final long platformId = selectedIds.isEmpty() ? 0 : (long) selectedIds.toArray()[0];
+				final long platformId = selectedIds.length == 0 || selectedIds[0].isEmpty() ? 0 : (long) selectedIds[0].getFirst();
 				((BlockRouteSignBase.BlockEntityBase) entity).setPlatformId(platformId);
 				final BlockEntity entityAbove = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos.up());
 				if (entityAbove instanceof BlockRouteSignBase.BlockEntityBase) {

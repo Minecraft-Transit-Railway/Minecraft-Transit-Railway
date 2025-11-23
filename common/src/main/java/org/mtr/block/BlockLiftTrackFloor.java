@@ -1,6 +1,7 @@
 package org.mtr.block;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import lombok.Getter;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -11,7 +12,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
@@ -83,9 +83,11 @@ public class BlockLiftTrackFloor extends BlockLiftTrackBase implements BlockEnti
 		return ObjectArrayList.of(Direction.UP, Direction.DOWN, facing.rotateYClockwise(), facing.rotateYCounterclockwise());
 	}
 
-	public static class LiftTrackFloorBlockEntity extends BlockEntity {
+	public static class LiftTrackFloorBlockEntity extends BlockEntityExtension {
 
+		@Getter
 		private String floorNumber = "1";
+		@Getter
 		private String floorDescription = "";
 		private boolean shouldDing;
 
@@ -98,17 +100,17 @@ public class BlockLiftTrackFloor extends BlockLiftTrackBase implements BlockEnti
 		}
 
 		@Override
-		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			floorNumber = nbt.getString(KEY_FLOOR_NUMBER);
-			floorDescription = nbt.getString(KEY_FLOOR_DESCRIPTION);
-			shouldDing = nbt.getBoolean(KEY_SHOULD_DING);
+		protected void readNbt(NbtCompound nbtCompound) {
+			floorNumber = nbtCompound.getString(KEY_FLOOR_NUMBER);
+			floorDescription = nbtCompound.getString(KEY_FLOOR_DESCRIPTION);
+			shouldDing = nbtCompound.getBoolean(KEY_SHOULD_DING);
 		}
 
 		@Override
-		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			nbt.putString(KEY_FLOOR_NUMBER, floorNumber);
-			nbt.putString(KEY_FLOOR_DESCRIPTION, floorDescription);
-			nbt.putBoolean(KEY_SHOULD_DING, shouldDing);
+		protected void writeNbt(NbtCompound nbtCompound) {
+			nbtCompound.putString(KEY_FLOOR_NUMBER, floorNumber);
+			nbtCompound.putString(KEY_FLOOR_DESCRIPTION, floorDescription);
+			nbtCompound.putBoolean(KEY_SHOULD_DING, shouldDing);
 		}
 
 		public void setData(String floorNumber, String floorDescription, boolean shouldDing) {
@@ -116,14 +118,6 @@ public class BlockLiftTrackFloor extends BlockLiftTrackBase implements BlockEnti
 			this.floorDescription = floorDescription;
 			this.shouldDing = shouldDing;
 			markDirty();
-		}
-
-		public String getFloorNumber() {
-			return floorNumber;
-		}
-
-		public String getFloorDescription() {
-			return floorDescription;
 		}
 
 		public boolean getShouldDing() {

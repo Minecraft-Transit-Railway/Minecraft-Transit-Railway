@@ -31,6 +31,7 @@ import org.mtr.data.IGui;
 import org.mtr.item.ItemLiftRefresher;
 import org.mtr.registry.Items;
 import org.mtr.resource.LiftResource;
+import org.mtr.tool.Drawing;
 
 import javax.annotation.Nullable;
 import java.util.function.Function;
@@ -155,7 +156,7 @@ public class RenderLifts implements IGui {
 
 				if (canRide) {
 					// Player position relative to the car
-					final Vec3d playerPosition = absolutePositionAndRotation.transformBackwards(clientPlayerEntity.getPos(), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
+					final Vec3d playerPosition = absolutePositionAndRotation.transformBackwards(clientPlayerEntity.getPos(), Vec3d::rotateX, Vec3d::rotateY, Vec3d::rotateZ, Vec3d::add);
 					// Check and mount player
 					VehicleRidingMovement.startRiding(openDoorways, 0, 0, lift.getId(), 0, playerPosition.x, playerPosition.y, playerPosition.z, absolutePositionAndRotation.yaw);
 
@@ -186,7 +187,7 @@ public class RenderLifts implements IGui {
 					final StoredMatrixTransformations storedMatrixTransformationsNew = storedMatrixTransformations.copy();
 					storedMatrixTransformationsNew.add(matrixStack -> {
 						if (shouldRotate) {
-							IDrawing.rotateYDegrees(matrixStack, 180);
+							Drawing.rotateYDegrees(matrixStack, 180);
 						}
 						matrixStack.translate(0.875F, -1.5, lift.getDepth() / 2 - 0.25 - SMALL_OFFSET);
 					});
@@ -259,7 +260,7 @@ public class RenderLifts implements IGui {
 			liftResource = tempLiftResource[0];
 		}
 
-		return liftResource == null ? CustomResourceLoader.getLifts().get(0) : liftResource;
+		return liftResource == null ? CustomResourceLoader.getLifts().getFirst() : liftResource;
 	}
 
 	private static PositionAndRotation getLiftPositionAndRotation(ClientWorld clientWorld, Lift lift) {
@@ -268,6 +269,6 @@ public class RenderLifts implements IGui {
 				position.x() + lift.getOffsetX(),
 				position.y() + lift.getOffsetY(),
 				position.z() + lift.getOffsetZ()
-		), -Math.PI / 2 - lift.getAngle().angleRadians, 0);
+		), -Math.PI / 2 - lift.getAngle().angleRadians, 0, 0);
 	}
 }

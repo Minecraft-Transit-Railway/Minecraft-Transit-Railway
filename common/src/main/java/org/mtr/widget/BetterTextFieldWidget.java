@@ -63,7 +63,7 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final TextRenderer textRenderer = minecraftClient.textRenderer;
 		final MatrixStack matrixStack = context.getMatrices();
-		final Drawing drawing = new Drawing(matrixStack.peek().getPositionMatrix(), minecraftClient.getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
+		final Drawing drawing = new Drawing(matrixStack, RenderLayer.getGui());
 
 		// Draw background
 		drawing.setVerticesWH(getX(), getY(), width, height).setColor(GuiHelper.BLACK_COLOR).draw();

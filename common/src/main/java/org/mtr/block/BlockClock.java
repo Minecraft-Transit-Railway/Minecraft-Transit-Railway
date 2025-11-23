@@ -46,7 +46,7 @@ public class BlockClock extends Block implements BlockEntityProvider {
 		builder.add(FACING);
 	}
 
-	public static class ClockBlockEntity extends BlockEntity {
+	public static class ClockBlockEntity extends BlockEntityExtension {
 
 		public ClockBlockEntity(BlockPos pos, BlockState state) {
 			super(BlockEntityTypes.CLOCK.get(), pos, state);

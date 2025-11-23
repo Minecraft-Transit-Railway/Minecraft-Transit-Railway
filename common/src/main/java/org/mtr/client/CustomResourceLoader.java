@@ -12,13 +12,13 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.legacy.resource.CustomResourcesConverter;
 import org.mtr.resource.*;
 
+import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class CustomResourceLoader {
 
@@ -230,15 +230,13 @@ public class CustomResourceLoader {
 		return VEHICLES_TAGS.get(transportMode);
 	}
 
-	public static void getSignById(String signId, Consumer<SignResource> ifPresent) {
-		final SignResource signResource = SIGNS_CACHE.get(signId);
-		if (signResource != null) {
-			ifPresent.accept(signResource);
-		}
+	@Nullable
+	public static SignResource getSignById(@Nullable String signId) {
+		return signId == null ? null : SIGNS_CACHE.get(signId);
 	}
 
-	public static ObjectArrayList<String> getSortedSignIds() {
-		return SIGNS.stream().map(signResource -> signResource.signId).collect(Collectors.toCollection(ObjectArrayList::new));
+	public static ObjectArrayList<SignResource> getSortedSigns() {
+		return SIGNS;
 	}
 
 	public static ObjectImmutableList<RailResource> getRails() {

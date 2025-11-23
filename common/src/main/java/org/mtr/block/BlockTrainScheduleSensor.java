@@ -3,13 +3,13 @@ package org.mtr.block;
 import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import lombok.Getter;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.mtr.MTRClient;
@@ -48,6 +48,7 @@ public class BlockTrainScheduleSensor extends BlockTrainPoweredSensorBase {
 
 	public static class TrainScheduleSensorBlockEntity extends BlockEntityBase {
 
+		@Getter
 		private int seconds = 10;
 		private boolean realtimeOnly = false;
 		private static final String KEY_SECONDS = "seconds";
@@ -58,27 +59,21 @@ public class BlockTrainScheduleSensor extends BlockTrainPoweredSensorBase {
 		}
 
 		@Override
-		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			seconds = nbt.getInt(KEY_SECONDS);
-			realtimeOnly = nbt.getBoolean(KEY_REALTIME_ONLY);
-			super.readNbt(nbt, registries);
+		protected void readNbt(NbtCompound nbtCompound) {
+			seconds = nbtCompound.getInt(KEY_SECONDS);
+			realtimeOnly = nbtCompound.getBoolean(KEY_REALTIME_ONLY);
 		}
 
 		@Override
-		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			nbt.putInt(KEY_SECONDS, seconds);
-			nbt.putBoolean(KEY_REALTIME_ONLY, realtimeOnly);
-			super.readNbt(nbt, registries);
+		protected void writeNbt(NbtCompound nbtCompound) {
+			nbtCompound.putInt(KEY_SECONDS, seconds);
+			nbtCompound.putBoolean(KEY_REALTIME_ONLY, realtimeOnly);
 		}
 
 		public void setData(LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, int seconds, boolean realtimeOnly) {
 			this.seconds = seconds;
 			this.realtimeOnly = realtimeOnly;
 			setData(filterRouteIds, stoppedOnly, movingOnly);
-		}
-
-		public int getSeconds() {
-			return seconds;
 		}
 
 		public boolean getRealtimeOnly() {

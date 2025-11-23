@@ -8,7 +8,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
-import org.mtr.client.IDrawing;
 import org.mtr.client.VehicleRidingMovement;
 import org.mtr.core.data.Vehicle;
 import org.mtr.core.data.VehicleExtraData;
@@ -63,7 +62,7 @@ public final class DrivingGuiRenderer {
 			final MatrixStack matrixStack = context.getMatrices();
 			matrixStack.push();
 			matrixStack.translate(speedometerX + radius, speedometerY + radius, 0);
-			final Drawing drawing = new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
+			final Drawing drawing = new Drawing(matrixStack, RenderLayer.getGui());
 
 			// Render speedometer background
 			matrixStack.push();
@@ -76,20 +75,20 @@ public final class DrivingGuiRenderer {
 						-radius + 1, -(float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2,
 						radius - 1, (float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2
 				).setColor(0xFF111111).draw();
-				IDrawing.rotateZDegrees(matrixStack, SPEEDOMETER_CIRCLE_INTERVAL);
+				Drawing.rotateZDegrees(matrixStack, SPEEDOMETER_CIRCLE_INTERVAL);
 			}
 			matrixStack.pop();
 
 			// Draw ATS background
 			matrixStack.push();
 			matrixStack.translate(0, radius - 2 - ATS_RADIUS_1, 0);
-			IDrawing.rotateZDegrees(matrixStack, ATS_INTERVAL * 2.5F);
+			Drawing.rotateZDegrees(matrixStack, ATS_INTERVAL * 2.5F);
 			for (float i = 0; i < ATS_SLICES; i++) {
 				drawing.setVertices(
 						-ATS_RADIUS_1, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_1,
 						ATS_RADIUS_1, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_1
 				).setColor(0xFF1A1A1A).draw();
-				IDrawing.rotateZDegrees(matrixStack, ATS_INTERVAL);
+				Drawing.rotateZDegrees(matrixStack, ATS_INTERVAL);
 			}
 
 			// Draw ATS petals
@@ -117,34 +116,34 @@ public final class DrivingGuiRenderer {
 						).setColor(0xFF222222).draw();
 					}
 				}
-				IDrawing.rotateZDegrees(matrixStack, ATS_INTERVAL);
+				Drawing.rotateZDegrees(matrixStack, ATS_INTERVAL);
 			}
 			matrixStack.pop();
 
 			// Draw speedometer ticks
 			matrixStack.push();
 			final int maxSpeedKilometersPerHour = vehicleExtraData.getIsManualAllowed() ? (int) Math.round(vehicleExtraData.getMaxManualSpeed() * 3600) : RailType.DIAMOND.speedLimit;
-			IDrawing.rotateZDegrees(matrixStack, SPEEDOMETER_START_ANGLE);
+			Drawing.rotateZDegrees(matrixStack, SPEEDOMETER_START_ANGLE);
 			for (int i = 0; i <= maxSpeedKilometersPerHour; i += SPEEDOMETER_TICK_INTERVAL) {
 				drawing.setVertices(
 						-radius + 2, -0.5F,
 						-radius + (i % 20 == 0 ? 10 : i % 10 == 0 ? 8 : 4), 0.5F
 				).setColor(vehicle.getSpeedLimitKilometersPerHour() > 0 && i == Math.min(vehicle.getSpeedLimitKilometersPerHour(), maxSpeedKilometersPerHour) ? 0xFF00FF00 : IGui.ARGB_WHITE);
-				IDrawing.rotateZDegrees(matrixStack, (float) SPEEDOMETER_TICK_INTERVAL * SPEEDOMETER_SPAN / maxSpeedKilometersPerHour);
+				Drawing.rotateZDegrees(matrixStack, (float) SPEEDOMETER_TICK_INTERVAL * SPEEDOMETER_SPAN / maxSpeedKilometersPerHour);
 			}
 			matrixStack.pop();
 
 			// Draw speedometer labels
 			matrixStack.push();
-			IDrawing.rotateZDegrees(matrixStack, SPEEDOMETER_START_ANGLE);
+			Drawing.rotateZDegrees(matrixStack, SPEEDOMETER_START_ANGLE);
 			for (int i = 0; i <= maxSpeedKilometersPerHour; i += SPEEDOMETER_TICK_INTERVAL * 4) {
 				matrixStack.push();
 				matrixStack.translate(-radius + 10 + IGui.LINE_HEIGHT / 2F, 0, 0);
-				IDrawing.rotateZDegrees(matrixStack, -SPEEDOMETER_START_ANGLE - (float) i * SPEEDOMETER_SPAN / maxSpeedKilometersPerHour);
+				Drawing.rotateZDegrees(matrixStack, -SPEEDOMETER_START_ANGLE - (float) i * SPEEDOMETER_SPAN / maxSpeedKilometersPerHour);
 				matrixStack.scale(0.5F, 0.5F, 1);
 				drawCenteredText(context, String.valueOf(i), IGui.ARGB_WHITE);
 				matrixStack.pop();
-				IDrawing.rotateZDegrees(matrixStack, (float) SPEEDOMETER_TICK_INTERVAL * 4 * SPEEDOMETER_SPAN / maxSpeedKilometersPerHour);
+				Drawing.rotateZDegrees(matrixStack, (float) SPEEDOMETER_TICK_INTERVAL * 4 * SPEEDOMETER_SPAN / maxSpeedKilometersPerHour);
 			}
 			matrixStack.pop();
 
@@ -189,7 +188,7 @@ public final class DrivingGuiRenderer {
 
 			// Draw speedometer needle
 			matrixStack.push();
-			IDrawing.rotateZDegrees(matrixStack, SPEEDOMETER_START_ANGLE + (float) speedKilometersPerHour * SPEEDOMETER_SPAN / maxSpeedKilometersPerHour);
+			Drawing.rotateZDegrees(matrixStack, SPEEDOMETER_START_ANGLE + (float) speedKilometersPerHour * SPEEDOMETER_SPAN / maxSpeedKilometersPerHour);
 			drawing.setVertices(
 					-radius + 4, -0.5F,
 					0, 0.5F

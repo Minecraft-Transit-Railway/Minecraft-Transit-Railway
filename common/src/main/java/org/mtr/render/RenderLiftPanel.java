@@ -4,6 +4,8 @@ import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.Item;
 import net.minecraft.state.property.Properties;
@@ -24,6 +26,7 @@ import org.mtr.core.data.Lift;
 import org.mtr.core.data.LiftDirection;
 import org.mtr.data.IGui;
 import org.mtr.item.ItemLiftButtonsLinkModifier;
+import org.mtr.tool.Drawing;
 
 public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> extends BlockEntityRendererExtension<T> implements IGui, IBlock {
 
@@ -42,13 +45,13 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> exten
 	}
 
 	@Override
-	public void render(T entity, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
-		final BlockPos trackPosition = entity.getTrackPosition();
+	public void render(T blockEntity, MatrixStack matrixStack2, VertexConsumerProvider vertexConsumerProvider, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
+		final BlockPos trackPosition = blockEntity.getTrackPosition();
 		if (trackPosition == null || !(world.getBlockState(trackPosition).getBlock() instanceof BlockLiftTrackFloor)) {
 			return;
 		}
 
-		final BlockPos blockPos = entity.getPos();
+		final BlockPos blockPos = blockEntity.getPos();
 		final BlockState blockState = world.getBlockState(blockPos);
 		final Direction facing = IBlock.getStatePropertySafe(blockState, Properties.HORIZONTAL_FACING);
 		final boolean holdingLinker = player.isHolding(itemStack -> {
@@ -81,9 +84,9 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> exten
 
 			final StoredMatrixTransformations storedMatrixTransformations2 = storedMatrixTransformations1.copy();
 			storedMatrixTransformations2.add(matrixStack -> {
-				IDrawing.rotateYDegrees(matrixStack, -facing.getPositiveHorizontalDegrees());
+				Drawing.rotateYDegrees(matrixStack, -facing.getPositiveHorizontalDegrees());
 				matrixStack.translate(isOdd ? -1 : -0.5, 0, 0);
-				IDrawing.rotateZDegrees(matrixStack, 180);
+				Drawing.rotateZDegrees(matrixStack, 180);
 				matrixStack.translate(0, 0, (isFlat ? 0.4375F : 0.25F) - SMALL_OFFSET * 2);
 			});
 

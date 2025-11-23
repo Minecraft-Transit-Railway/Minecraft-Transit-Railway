@@ -6,9 +6,9 @@ import net.minecraft.client.model.ModelPartBuilder;
 import net.minecraft.client.model.ModelPartData;
 import net.minecraft.client.model.ModelTransform;
 import org.mtr.MTR;
-import org.mtr.client.IDrawing;
 import org.mtr.core.tool.Utilities;
 import org.mtr.render.StoredMatrixTransformations;
+import org.mtr.tool.Drawing;
 
 public final class GroupTransformations {
 
@@ -60,9 +60,9 @@ public final class GroupTransformations {
 			float newCombinedPivotZ = (groupTransformation.pivotZ - combinedPivotZ) / 16;
 			storedMatrixTransformations.add(matrixStack -> {
 				matrixStack.translate(newCombinedPivotX, newCombinedPivotY, newCombinedPivotZ);
-				IDrawing.rotateZRadians(matrixStack, groupTransformation.rotateZ);
-				IDrawing.rotateYRadians(matrixStack, groupTransformation.rotateY);
-				IDrawing.rotateXRadians(matrixStack, groupTransformation.rotateX);
+				Drawing.rotateZRadians(matrixStack, groupTransformation.rotateZ);
+				Drawing.rotateYRadians(matrixStack, groupTransformation.rotateY);
+				Drawing.rotateXRadians(matrixStack, groupTransformation.rotateX);
 			});
 			combinedPivotX += groupTransformation.pivotX;
 			combinedPivotY += groupTransformation.pivotY;

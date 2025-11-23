@@ -68,10 +68,10 @@ public class GangwayMovementPositions {
 	}
 
 	public Vec3d getMinWorldPosition() {
-		return positionAndRotation.transformForwards(new Vec3d(xMinClamped, y, z), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
+		return positionAndRotation.transformForwards(new Vec3d(xMinClamped, y, z), Vec3d::rotateX, Vec3d::rotateY, Vec3d::rotateZ, Vec3d::add);
 	}
 
 	public Vec3d getMaxWorldPosition() {
-		return positionAndRotation.transformForwards(new Vec3d(xMaxClamped, y, z), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
+		return positionAndRotation.transformForwards(new Vec3d(xMaxClamped, y, z), Vec3d::rotateX, Vec3d::rotateY, Vec3d::rotateZ, Vec3d::add);
 	}
 }

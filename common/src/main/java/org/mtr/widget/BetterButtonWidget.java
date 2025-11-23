@@ -43,14 +43,14 @@ public final class BetterButtonWidget extends ClickableWidgetBase {
 		final MatrixStack matrixStack = context.getMatrices();
 
 		// Draw background
-		new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()))
+		new Drawing(matrixStack, RenderLayer.getGui())
 				.setVerticesWH(getX(), getY(), width, height)
 				.setColor(isMouseOver(mouseX, mouseY) ? hoverColor : backgroundColor)
 				.draw();
 
 		// Draw icon
 		if (icon != null) {
-			new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(icon)))
+			new Drawing(matrixStack, RenderLayer.getGuiTextured(icon))
 					.setVerticesWH(getX() + (width - getContentWidth()) / 2F, getY() + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_ICON_SIZE, GuiHelper.DEFAULT_ICON_SIZE)
 					.setUv()
 					.draw();

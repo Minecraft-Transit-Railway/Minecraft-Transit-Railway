@@ -1,5 +1,6 @@
 package org.mtr.tool;
 
+import gg.essential.elementa.constraints.*;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
@@ -68,6 +69,17 @@ public final class GuiHelper {
 
 	private static final int SHADOW_COLOR_DARK = 0x11000000;
 	private static final int SHADOW_COLOR_LIGHT = 0x11FFFFFF;
+
+	/**
+	 * Creates a constraint for a fixed aspect ratio of an inside rectangle with a border.
+	 *
+	 * @param aspect  the aspect ratio
+	 * @param padding the padding of one edge
+	 * @return the {@link SizeConstraint}
+	 */
+	public static SizeConstraint createAspectConstraintWithPadding(float aspect, float padding) {
+		return new AdditiveConstraint(new ScaleConstraint(new SubtractiveConstraint(new AspectConstraint(), new PixelConstraint(padding * 2)), aspect), new PixelConstraint(padding * 2));
+	}
 
 	/**
 	 * Draws a circle (without antialiasing). This can be used to indicate a platform number.

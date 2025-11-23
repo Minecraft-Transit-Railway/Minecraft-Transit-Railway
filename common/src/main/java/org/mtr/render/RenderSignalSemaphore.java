@@ -6,6 +6,7 @@ import net.minecraft.util.math.Direction;
 import org.mtr.MTR;
 import org.mtr.block.BlockSignalSemaphoreBase;
 import org.mtr.client.IDrawing;
+import org.mtr.tool.Drawing;
 
 public class RenderSignalSemaphore<T extends BlockSignalSemaphoreBase.BlockEntityBase> extends RenderSignalBase<T> {
 
@@ -28,7 +29,7 @@ public class RenderSignalSemaphore<T extends BlockSignalSemaphoreBase.BlockEntit
 		MainRenderer.scheduleRender(Identifier.of(MTR.MOD_ID, "textures/block/semaphore.png"), false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> {
 			storedMatrixTransformations.transform(matrixStack, offset);
 			matrixStack.translate(0.1875, 0.375, 0);
-			IDrawing.rotateZDegrees(matrixStack, -180 - angle);
+			Drawing.rotateZDegrees(matrixStack, -180 - angle);
 			IDrawing.drawTexture(matrixStack, vertexConsumer, -0.705F, -0.5F, -0.19375F, 0.295F, 0.5F, -0.19375F, Direction.UP, ARGB_WHITE, light);
 			IDrawing.drawTexture(matrixStack, vertexConsumer, 0.295F, -0.5F, -0.19375F, -0.705F, 0.5F, -0.19375F, 1, 0, 0, 1, Direction.UP, ARGB_WHITE, light);
 			matrixStack.pop();

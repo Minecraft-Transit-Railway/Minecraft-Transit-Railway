@@ -9,16 +9,10 @@ import org.mtr.tool.Drawing;
 import javax.annotation.Nullable;
 import java.awt.*;
 
-public final class FontGroup {
-
-	private final ObjectImmutableList<FontProvider> fontProviders;
+public record FontGroup(ObjectImmutableList<FontProvider> fontProviders) {
 
 	private static final float LINE_SPACING = 0.25F;
 	private static final FontProvider FALLBACK = new FontProvider(null);
-
-	public FontGroup(ObjectImmutableList<FontProvider> fontProviders) {
-		this.fontProviders = fontProviders;
-	}
 
 	public FloatFloatImmutablePair render(@Nullable Drawing drawing, String text, FontRenderOptions fontRenderOptions) {
 		// Split lines

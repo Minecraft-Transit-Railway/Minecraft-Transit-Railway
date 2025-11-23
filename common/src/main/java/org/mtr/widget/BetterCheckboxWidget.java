@@ -45,7 +45,7 @@ public final class BetterCheckboxWidget extends ClickableWidgetBase {
 		final MatrixStack matrixStack = context.getMatrices();
 
 		// Draw background
-		new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()))
+		new Drawing(matrixStack, RenderLayer.getGui())
 				.setVerticesWH(getX(), getY(), GuiHelper.DEFAULT_LINE_SIZE, GuiHelper.DEFAULT_LINE_SIZE)
 				.setColor(isMouseOver(mouseX, mouseY) ? hoverColor : backgroundColor)
 				.draw();
@@ -55,7 +55,7 @@ public final class BetterCheckboxWidget extends ClickableWidgetBase {
 		guiAnimationIcon.animate(isChecked ? 1 : 0, ANIMATION_DURATION);
 
 		// Draw icon
-		new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(GuiHelper.CHECK_TEXTURE_ID)))
+		new Drawing(matrixStack, RenderLayer.getGuiTextured(GuiHelper.CHECK_TEXTURE_ID))
 				.setVerticesWH(getX() + GuiHelper.DEFAULT_PADDING / 2F, getY() + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_ICON_SIZE * guiAnimationIcon.getCurrentValue(), GuiHelper.DEFAULT_ICON_SIZE)
 				.setUv(0, 0, guiAnimationIcon.getCurrentValue(), 1)
 				.draw();

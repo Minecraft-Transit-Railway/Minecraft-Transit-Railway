@@ -1,6 +1,7 @@
 package org.mtr.block;
 
 import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import lombok.Getter;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -11,7 +12,6 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
@@ -132,7 +132,7 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 
 	@Override
 	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType options) {
-		tooltip.add(TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_LENGTH.getMutableText(length).formatted(Formatting.GRAY));
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_LENGTH.getMutableText((Object) length).formatted(Formatting.GRAY));
 		tooltip.add((isOdd ? TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_ODD : TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_EVEN).getMutableText().formatted(Formatting.GRAY));
 	}
 
@@ -190,9 +190,11 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 		return railwaySignMiddle != null && blockState.isOf(railwaySignMiddle);
 	}
 
-	public static class RailwaySignBlockEntity extends BlockEntity {
+	public static class RailwaySignBlockEntity extends BlockEntityExtension {
 
-		private final LongAVLTreeSet selectedIds;
+		@Getter
+		private final LongAVLTreeSet[] selectedIds;
+		@Getter
 		private final String[] signIds;
 		private static final String KEY_SELECTED_IDS = "selected_ids";
 		private static final String KEY_SIGN_LENGTH = "sign_length";
@@ -200,42 +202,46 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 		public RailwaySignBlockEntity(int length, boolean isOdd, BlockPos pos, BlockState state) {
 			super(getType(length, isOdd), pos, state);
 			signIds = new String[length];
-			selectedIds = new LongAVLTreeSet();
-		}
-
-		@Override
-		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			selectedIds.clear();
-			Arrays.stream(nbt.getLongArray(KEY_SELECTED_IDS)).forEach(selectedIds::add);
-			for (int i = 0; i < signIds.length; i++) {
-				final String signId = nbt.getString(KEY_SIGN_LENGTH + i);
-				signIds[i] = signId.isEmpty() ? null : Arrays.asList(LEGACY_SIGNS).contains(signId) ? signId.toLowerCase(Locale.ENGLISH) : signId;
+			selectedIds = new LongAVLTreeSet[length];
+			for (int i = 0; i < selectedIds.length; i++) {
+				selectedIds[i] = new LongAVLTreeSet();
 			}
 		}
 
 		@Override
-		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			nbt.putLongArray(KEY_SELECTED_IDS, new ArrayList<>(selectedIds));
+		protected void readNbt(NbtCompound nbtCompound) {
+			final LongAVLTreeSet legacySelectedIds = new LongAVLTreeSet();
+			Arrays.stream(nbtCompound.getLongArray(KEY_SELECTED_IDS)).forEach(legacySelectedIds::add);
+
 			for (int i = 0; i < signIds.length; i++) {
-				nbt.putString(KEY_SIGN_LENGTH + i, signIds[i] == null ? "" : signIds[i]);
+				selectedIds[i].clear();
+				selectedIds[i].addAll(legacySelectedIds);
+				Arrays.stream(nbtCompound.getLongArray(KEY_SELECTED_IDS + i)).forEach(selectedIds[i]::add);
+
+				final String signId = nbtCompound.getString(KEY_SIGN_LENGTH + i);
+				signIds[i] = signId.isEmpty() ? null : (Arrays.asList(LEGACY_SIGNS).contains(signId) ? signId.toLowerCase(Locale.ENGLISH) : signId);
 			}
 		}
 
-		public void setData(LongAVLTreeSet selectedIds, String[] signTypes) {
-			this.selectedIds.clear();
-			this.selectedIds.addAll(selectedIds);
-			if (signIds.length == signTypes.length) {
-				System.arraycopy(signTypes, 0, signIds, 0, signTypes.length);
+		@Override
+		protected void writeNbt(NbtCompound nbtCompound) {
+			for (int i = 0; i < signIds.length; i++) {
+				nbtCompound.putLongArray(KEY_SELECTED_IDS + i, new ArrayList<>(selectedIds[i]));
+				nbtCompound.putString(KEY_SIGN_LENGTH + i, signIds[i] == null ? "" : signIds[i]);
 			}
+		}
+
+		public void setData(LongAVLTreeSet[] selectedIds, String[] signIds) {
+			for (int i = 0; i < this.signIds.length; i++) {
+				this.selectedIds[i].clear();
+				this.selectedIds[i].addAll(selectedIds[i]);
+			}
+
+			if (this.signIds.length == signIds.length) {
+				System.arraycopy(signIds, 0, this.signIds, 0, signIds.length);
+			}
+
 			markDirty();
-		}
-
-		public LongAVLTreeSet getSelectedIds() {
-			return selectedIds;
-		}
-
-		public String[] getSignIds() {
-			return signIds;
 		}
 
 		private static BlockEntityType<? extends BlockEntity> getType(int length, boolean isOdd) {

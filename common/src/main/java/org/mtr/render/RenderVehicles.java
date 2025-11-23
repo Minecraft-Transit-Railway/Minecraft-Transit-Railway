@@ -29,6 +29,7 @@ import org.mtr.resource.VehicleResource;
 import org.mtr.resource.VehicleResourceCache;
 import org.mtr.servlet.ResourcePackCreatorOperationServlet;
 import org.mtr.tool.CullingHelper;
+import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 import org.mtr.tool.Interpolation;
 
@@ -72,7 +73,7 @@ public final class RenderVehicles {
 					.map(vehicleCarAndPosition -> {
 						final ObjectArrayList<PositionAndRotation> bogiePositions = vehicleCarAndPosition.right()
 								.stream()
-								.map(bogiePositionPair -> new PositionAndRotation(bogiePositionPair.left(), bogiePositionPair.right(), true))
+								.map(bogiePosition -> new PositionAndRotation(bogiePosition.positionAndTiltAngle1().position(), bogiePosition.positionAndTiltAngle2().position(), bogiePosition.positionAndTiltAngle1().tiltAngle(), bogiePosition.positionAndTiltAngle2().tiltAngle(), true))
 								.collect(Collectors.toCollection(ObjectArrayList::new));
 						return new ObjectObjectImmutablePair<>(vehicleCarAndPosition.left(), new ObjectObjectImmutablePair<>(bogiePositions, new PositionAndRotation(bogiePositions, vehicleCarAndPosition.left(), vehicle.getTransportMode().hasPitchAscending || vehicle.getTransportMode().hasPitchDescending)));
 					})
@@ -121,13 +122,13 @@ public final class RenderVehicles {
 						iterateWithIndex(vehicleCarDetails.right().left(), (bogieIndex, absoluteBogiePositionAndRotation) -> {
 							final PositionAndRotation bogieRenderingPositionAndRotation = getRenderPositionAndRotation(offsetVector, offsetRotation, ridingCarPositionAndRotation, absoluteBogiePositionAndRotation, cameraShakeOffset);
 							final StoredMatrixTransformations storedMatrixTransformations = getStoredMatrixTransformations(offsetVector == null, bogieRenderingPositionAndRotation, 0);
-							storedMatrixTransformations.add(matrixStack -> IDrawing.rotateXDegrees(matrixStack, 180));
+							storedMatrixTransformations.add(matrixStack -> Drawing.rotateXDegrees(matrixStack, 180));
 							vehicleResource.queueBogie(bogieIndex, storedMatrixTransformations, vehicle, isWithinHalfRenderDistance, absoluteVehicleCarPositionAndRotation.light);
 						});
 					}
 
 					// Player position relative to the car
-					final Vec3d playerPosition = absoluteVehicleCarPositionAndRotation.transformBackwards(clientPlayerEntity.getPos(), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
+					final Vec3d playerPosition = absoluteVehicleCarPositionAndRotation.transformBackwards(clientPlayerEntity.getPos(), Vec3d::rotateX, Vec3d::rotateY, Vec3d::rotateZ, Vec3d::add);
 					// A temporary list to store all floors and doorways for player movement
 					final ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsAndDoorways = new ObjectArrayList<>();
 					// Extra floors to be used to define where the gangways are
@@ -187,7 +188,7 @@ public final class RenderVehicles {
 					// Each car can have more than one model defined
 					if (isWithinRenderDistance && vehicleResourceCache != null) {
 						final StoredMatrixTransformations storedMatrixTransformations = getStoredMatrixTransformations(offsetVector == null, vehicleCarRenderingPositionAndRotation, oscillationAmount);
-						storedMatrixTransformations.add(matrixStack -> IDrawing.rotateXDegrees(matrixStack, 180));
+						storedMatrixTransformations.add(matrixStack -> Drawing.rotateXDegrees(matrixStack, 180));
 						vehicleResourceCache.iterateModels((modelIndex, model) -> {
 							model.render(storedMatrixTransformations, vehicle, carNumber, isWithinHalfRenderDistance, scrollingDisplayIndexTracker, absoluteVehicleCarPositionAndRotation.light, openDoorways, fromResourcePackCreator);
 
@@ -335,15 +336,15 @@ public final class RenderVehicles {
 			return renderingPositionAndRotation;
 		} else if (offsetRotation == null) {
 			// Offset rendering
-			return new PositionAndRotation(new Vector(-offsetVector.x, -offsetVector.y, -offsetVector.z).rotateX(ridingCarPositionAndRotation.pitch).rotateY(ridingCarPositionAndRotation.yaw).add(
+			return new PositionAndRotation(new Vector(-offsetVector.x, -offsetVector.y, -offsetVector.z).rotateZ(ridingCarPositionAndRotation.roll).rotateX(ridingCarPositionAndRotation.pitch).rotateY(ridingCarPositionAndRotation.yaw).add(
 					cameraShakeOffset.x + renderingPositionAndRotation.position.x() - ridingCarPositionAndRotation.position.x(),
 					cameraShakeOffset.y + renderingPositionAndRotation.position.y() - ridingCarPositionAndRotation.position.y(),
 					cameraShakeOffset.z + renderingPositionAndRotation.position.z() - ridingCarPositionAndRotation.position.z()
-			), renderingPositionAndRotation.yaw, renderingPositionAndRotation.pitch);
+			), renderingPositionAndRotation.yaw, renderingPositionAndRotation.pitch, renderingPositionAndRotation.roll);
 		} else {
 			// Offset rendering with rotation
 			final double ridingRotation = offsetRotation - ridingCarPositionAndRotation.yaw - Math.toRadians(MinecraftClient.getInstance().gameRenderer.getCamera().getYaw());
-			return new PositionAndRotation(new Vector(-offsetVector.x, -offsetVector.y, -offsetVector.z).rotateX(ridingCarPositionAndRotation.pitch).rotateY(ridingCarPositionAndRotation.yaw).add(
+			return new PositionAndRotation(new Vector(-offsetVector.x, -offsetVector.y, -offsetVector.z).rotateZ(ridingCarPositionAndRotation.roll).rotateX(ridingCarPositionAndRotation.pitch).rotateY(ridingCarPositionAndRotation.yaw).add(
 					renderingPositionAndRotation.position.x() - ridingCarPositionAndRotation.position.x(),
 					renderingPositionAndRotation.position.y() - ridingCarPositionAndRotation.position.y(),
 					renderingPositionAndRotation.position.z() - ridingCarPositionAndRotation.position.z()
@@ -351,7 +352,7 @@ public final class RenderVehicles {
 					cameraShakeOffset.x,
 					cameraShakeOffset.y,
 					cameraShakeOffset.z
-			), renderingPositionAndRotation.yaw + ridingRotation, renderingPositionAndRotation.pitch);
+			), renderingPositionAndRotation.yaw + ridingRotation, renderingPositionAndRotation.pitch, renderingPositionAndRotation.roll);
 		}
 	}
 
@@ -374,9 +375,9 @@ public final class RenderVehicles {
 		}
 
 		storedMatrixTransformations.add(matrixStack -> {
-			IDrawing.rotateYRadians(matrixStack, (float) (renderingPositionAndRotation.yaw + Math.PI));
-			IDrawing.rotateXRadians(matrixStack, (float) (renderingPositionAndRotation.pitch + Math.PI));
-			IDrawing.rotateZDegrees(matrixStack, (float) oscillationAmount);
+			Drawing.rotateYRadians(matrixStack, (float) (renderingPositionAndRotation.yaw + Math.PI));
+			Drawing.rotateXRadians(matrixStack, (float) (renderingPositionAndRotation.pitch + Math.PI));
+			Drawing.rotateZRadians(matrixStack, (float) (-renderingPositionAndRotation.roll + Math.toRadians(oscillationAmount)));
 		});
 
 		return storedMatrixTransformations;
@@ -444,7 +445,7 @@ public final class RenderVehicles {
 		final PositionAndRotation playerRenderingPositionAndRotation = getRenderPositionAndRotation(
 				offsetVector, offsetRotation,
 				ridingCarPositionAndRotation,
-				new PositionAndRotation(playerCarPositionAndRotation.position.add(interpolatedPosition.rotateX(playerCarPositionAndRotation.pitch).rotateY(playerCarPositionAndRotation.yaw)), 0, 0),
+				new PositionAndRotation(playerCarPositionAndRotation.position.add(interpolatedPosition.rotateZ(playerCarPositionAndRotation.roll).rotateX(playerCarPositionAndRotation.pitch).rotateY(playerCarPositionAndRotation.yaw)), 0, 0, 0),
 				cameraShakeOffset
 		);
 		final StoredMatrixTransformations storedMatrixTransformations = getStoredMatrixTransformations(offsetVector == null, playerRenderingPositionAndRotation, 0);
@@ -452,8 +453,8 @@ public final class RenderVehicles {
 		// Render player
 		MainRenderer.scheduleRender(QueuedRenderLayer.INTERIOR, (matrixStack, vertexConsumer, offset) -> {
 			storedMatrixTransformations.transform(matrixStack, offset);
-			IDrawing.rotateXDegrees(matrixStack, 180);
-			IDrawing.rotateYDegrees(matrixStack, 180);
+			Drawing.rotateXDegrees(matrixStack, 180);
+			Drawing.rotateYDegrees(matrixStack, 180);
 			final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 			minecraftClient.getEntityRenderDispatcher().render(playerEntity, 0, 0, 0, 0, matrixStack, minecraftClient.getBufferBuilders().getEntityVertexConsumers(), IGui.DEFAULT_LIGHT);
 			matrixStack.pop();
@@ -480,10 +481,10 @@ public final class RenderVehicles {
 		final double newOscillationAmount = -Math.toRadians(oscillationAmount);
 
 		if (shouldRender1 && previousConnectionPositions.isValid()) {
-			final Vector position1 = positionAndRotation.transformForwards(new Vector(-width / 2, yOffset + IGui.SMALL_OFFSET, zOffset - halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::add);
-			final Vector position2 = positionAndRotation.transformForwards(new Vector(-width / 2, height + yOffset + IGui.SMALL_OFFSET, zOffset - halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::add);
-			final Vector position3 = positionAndRotation.transformForwards(new Vector(width / 2, height + yOffset + IGui.SMALL_OFFSET, zOffset - halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::add);
-			final Vector position4 = positionAndRotation.transformForwards(new Vector(width / 2, yOffset + IGui.SMALL_OFFSET, zOffset - halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::add);
+			final Vector position1 = positionAndRotation.transformForwards(new Vector(-width / 2, yOffset + IGui.SMALL_OFFSET, zOffset - halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::rotateZ, Vector::add);
+			final Vector position2 = positionAndRotation.transformForwards(new Vector(-width / 2, height + yOffset + IGui.SMALL_OFFSET, zOffset - halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::rotateZ, Vector::add);
+			final Vector position3 = positionAndRotation.transformForwards(new Vector(width / 2, height + yOffset + IGui.SMALL_OFFSET, zOffset - halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::rotateZ, Vector::add);
+			final Vector position4 = positionAndRotation.transformForwards(new Vector(width / 2, yOffset + IGui.SMALL_OFFSET, zOffset - halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::rotateZ, Vector::add);
 
 			final Vector position5 = previousConnectionPositions.position1;
 			final Vector position6 = previousConnectionPositions.position2;
@@ -527,10 +528,10 @@ public final class RenderVehicles {
 		}
 
 		if (shouldRender2) {
-			previousConnectionPositions.position1 = positionAndRotation.transformForwards(new Vector(width / 2, yOffset + IGui.SMALL_OFFSET, -zOffset + halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::add);
-			previousConnectionPositions.position2 = positionAndRotation.transformForwards(new Vector(width / 2, height + yOffset + IGui.SMALL_OFFSET, -zOffset + halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::add);
-			previousConnectionPositions.position3 = positionAndRotation.transformForwards(new Vector(-width / 2, height + yOffset + IGui.SMALL_OFFSET, -zOffset + halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::add);
-			previousConnectionPositions.position4 = positionAndRotation.transformForwards(new Vector(-width / 2, yOffset + IGui.SMALL_OFFSET, -zOffset + halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::add);
+			previousConnectionPositions.position1 = positionAndRotation.transformForwards(new Vector(width / 2, yOffset + IGui.SMALL_OFFSET, -zOffset + halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::rotateZ, Vector::add);
+			previousConnectionPositions.position2 = positionAndRotation.transformForwards(new Vector(width / 2, height + yOffset + IGui.SMALL_OFFSET, -zOffset + halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::rotateZ, Vector::add);
+			previousConnectionPositions.position3 = positionAndRotation.transformForwards(new Vector(-width / 2, height + yOffset + IGui.SMALL_OFFSET, -zOffset + halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::rotateZ, Vector::add);
+			previousConnectionPositions.position4 = positionAndRotation.transformForwards(new Vector(-width / 2, yOffset + IGui.SMALL_OFFSET, -zOffset + halfLength).rotateZ(newOscillationAmount), Vector::rotateX, Vector::rotateY, Vector::rotateZ, Vector::add);
 		} else {
 			previousConnectionPositions.position1 = null;
 			previousConnectionPositions.position2 = null;

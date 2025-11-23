@@ -32,7 +32,7 @@ public final class ClientPacketHelper {
 			} else if (blockEntity instanceof BlockTrainSensorBase.BlockEntityBase) {
 				openScreen(new TrainBasicSensorScreen(blockPos), screen -> screen instanceof TrainBasicSensorScreen);
 			} else if (blockEntity instanceof BlockRailwaySign.RailwaySignBlockEntity || blockEntity instanceof BlockRouteSignBase.BlockEntityBase) {
-				openScreen(new RailwaySignScreen(blockPos), screen -> screen instanceof RailwaySignScreen);
+				openScreen(new RailwaySignScreenNew(blockPos), screen -> screen instanceof RailwaySignScreenNew);
 			} else if (blockEntity instanceof BlockLiftTrackFloor.LiftTrackFloorBlockEntity) {
 				openScreen(new LiftTrackFloorScreen(blockPos, (BlockLiftTrackFloor.LiftTrackFloorBlockEntity) blockEntity), screen -> screen instanceof LiftTrackFloorScreen);
 			} else if (blockEntity instanceof BlockSignalBase.BlockEntityBase) {

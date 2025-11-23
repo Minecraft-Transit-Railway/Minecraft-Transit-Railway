@@ -13,17 +13,19 @@ public final class PositionAndRotation {
 	public final Vector position;
 	public final double yaw;
 	public final double pitch;
+	public final double roll;
 	public final int light;
 
-	public PositionAndRotation(Vector position, double yaw, double pitch) {
+	public PositionAndRotation(Vector position, double yaw, double pitch, double roll) {
 		this.position = position;
 		this.yaw = yaw;
 		this.pitch = pitch;
+		this.roll = roll;
 		light = getLight(position);
 	}
 
-	public PositionAndRotation(Vector position1, Vector position2, boolean hasPitch) {
-		this(Vector.getAverage(position1, position2), getYaw(position1, position2), hasPitch ? getPitch(position1, position2) : 0);
+	public PositionAndRotation(Vector position1, Vector position2, double roll1, double roll2, boolean hasPitch) {
+		this(Vector.getAverage(position1, position2), getYaw(position1, position2), hasPitch ? getPitch(position1, position2) : 0, getRoll(roll1, roll2));
 	}
 
 	public PositionAndRotation(ObjectArrayList<PositionAndRotation> bogiePositions, VehicleCar vehicleCar, boolean hasPitch) {
@@ -31,10 +33,11 @@ public final class PositionAndRotation {
 			final Vector bogiesMidpoint;
 
 			if (bogiePositions.size() == 1) {
-				final PositionAndRotation bogiePositionAndRotation = bogiePositions.get(0);
+				final PositionAndRotation bogiePositionAndRotation = bogiePositions.getFirst();
 				bogiesMidpoint = bogiePositionAndRotation.position;
 				yaw = bogiePositionAndRotation.yaw;
 				pitch = hasPitch ? bogiePositionAndRotation.pitch : 0;
+				roll = bogiePositionAndRotation.roll;
 			} else {
 				final PositionAndRotation bogiePositionAndRotation1 = bogiePositions.get(0);
 				final PositionAndRotation bogiePositionAndRotation2 = bogiePositions.get(1);
@@ -43,29 +46,31 @@ public final class PositionAndRotation {
 				bogiesMidpoint = Vector.getAverage(average1, average2);
 				yaw = getYaw(average1, average2);
 				pitch = hasPitch ? getPitch(average1, average2) : 0;
+				roll = getRoll(bogiePositionAndRotation1.roll, bogiePositionAndRotation2.roll);
 			}
 
 			final double pivotOffset = Utilities.getAverage(vehicleCar.getBogie1Position(), vehicleCar.getBogie2Position());
 			final double halfLength = vehicleCar.getLength() / 2;
 			final double pivotOffset1 = -pivotOffset - halfLength;
 			final double pivotOffset2 = -pivotOffset + halfLength;
-			final Vector rotationalVector = new Vector(0, 0, 1).rotateX(pitch).rotateY(yaw);
+			final Vector rotationalVector = new Vector(0, 0, 1).rotateZ(roll).rotateX(pitch).rotateY(yaw);
 			position = Vector.getAverage(rotationalVector.multiply(pivotOffset1, pivotOffset1, pivotOffset1).add(bogiesMidpoint), rotationalVector.multiply(pivotOffset2, pivotOffset2, pivotOffset2).add(bogiesMidpoint));
 		} else {
 			position = new Vector(0, 0, 0);
 			yaw = 0;
 			pitch = 0;
+			roll = 0;
 		}
 
 		light = getLight(position);
 	}
 
-	public <T> T transformForwards(T initialValue, Rotate<T> rotateX, Rotate<T> rotateY, Translate<T> translate) {
-		return translate.apply(rotateY.apply(rotateX.apply(initialValue, (float) pitch), (float) yaw), position.x(), position.y(), position.z());
+	public <T> T transformForwards(T initialValue, Rotate<T> rotateX, Rotate<T> rotateY, Rotate<T> rotateZ, Translate<T> translate) {
+		return translate.apply(rotateY.apply(rotateX.apply(rotateZ.apply(initialValue, (float) roll), (float) pitch), (float) yaw), position.x(), position.y(), position.z());
 	}
 
-	public <T> T transformBackwards(T initialValue, Rotate<T> rotateX, Rotate<T> rotateY, Translate<T> translate) {
-		return rotateX.apply(rotateY.apply(translate.apply(initialValue, -position.x(), -position.y(), -position.z()), (float) -yaw), (float) -pitch);
+	public <T> T transformBackwards(T initialValue, Rotate<T> rotateX, Rotate<T> rotateY, Rotate<T> rotateZ, Translate<T> translate) {
+		return rotateZ.apply(rotateX.apply(rotateY.apply(translate.apply(initialValue, -position.x(), -position.y(), -position.z()), (float) -yaw), (float) -pitch), (float) -roll);
 	}
 
 	private static int getLight(Vector position) {
@@ -93,6 +98,10 @@ public final class PositionAndRotation {
 		final double y2 = position2.y();
 		final double z2 = position2.z();
 		return Math.atan2(y2 - y1, Math.sqrt((x2 - x1) * (x2 - x1) + (z2 - z1) * (z2 - z1)));
+	}
+
+	private static double getRoll(double roll1, double roll2) {
+		return roll1 + Utilities.circularDifference(roll2, roll1, 2 * Math.PI) / 2;
 	}
 
 	@FunctionalInterface

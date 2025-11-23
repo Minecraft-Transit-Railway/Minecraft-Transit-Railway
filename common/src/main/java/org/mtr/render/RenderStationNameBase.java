@@ -2,6 +2,8 @@ package org.mtr.render;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
@@ -14,11 +16,12 @@ import org.mtr.client.IDrawing;
 import org.mtr.core.data.Station;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.tool.Drawing;
 
 public abstract class RenderStationNameBase<T extends BlockStationNameBase.BlockEntityBase> extends BlockEntityRendererExtension<T> implements IGui, IDrawing {
 
 	@Override
-	public void render(T entity, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
+	public void render(T entity, MatrixStack matrixStack2, VertexConsumerProvider vertexConsumerProvider, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
 		final BlockPos pos = entity.getPos();
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
@@ -26,8 +29,8 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.Block
 
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(0.5 + pos.getX(), 0.5 + entity.yOffset + pos.getY(), 0.5 + pos.getZ());
 		storedMatrixTransformations.add(matrixStack -> {
-			IDrawing.rotateYDegrees(matrixStack, -facing.getPositiveHorizontalDegrees());
-			IDrawing.rotateZDegrees(matrixStack, 180);
+			Drawing.rotateYDegrees(matrixStack, -facing.getPositiveHorizontalDegrees());
+			Drawing.rotateZDegrees(matrixStack, 180);
 		});
 
 		final Station station = MTRClient.findStation(pos);
@@ -36,7 +39,7 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.Block
 			final boolean shouldFlip = i == 1;
 			storedMatrixTransformations2.add(matrixStack -> {
 				if (shouldFlip) {
-					IDrawing.rotateYDegrees(matrixStack, 180);
+					Drawing.rotateYDegrees(matrixStack, 180);
 				}
 				matrixStack.translate(0, 0, 0.5 - entity.zOffset - SMALL_OFFSET);
 			});

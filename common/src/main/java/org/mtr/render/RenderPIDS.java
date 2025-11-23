@@ -8,6 +8,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.state.property.Properties;
@@ -16,7 +17,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import org.mtr.MTRClient;
 import org.mtr.block.*;
-import org.mtr.client.IDrawing;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.SimplifiedRoute;
 import org.mtr.core.data.SimplifiedRoutePlatform;
@@ -25,7 +25,7 @@ import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.ArrivalsCacheClient;
 import org.mtr.data.IGui;
-import org.mtr.font.FontGroups;
+import org.mtr.font.FontGroupRegistry;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.tool.Drawing;
@@ -55,32 +55,32 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 	}
 
 	@Override
-	public final void render(T entity, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
-		final BlockPos blockPos = entity.getPos();
-		if (!entity.canStoreData.test(world, blockPos)) {
+	public final void render(T blockEntity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
+		final BlockPos blockPos = blockEntity.getPos();
+		if (!blockEntity.canStoreData.test(world, blockPos)) {
 			return;
 		}
 
 		final Direction facing = IBlock.getStatePropertySafe(world, blockPos, Properties.HORIZONTAL_FACING);
 
-		if (entity.getPlatformIds().isEmpty()) {
+		if (blockEntity.getPlatformIds().isEmpty()) {
 			final LongArrayList platformIds = new LongArrayList();
-			if (entity instanceof BlockArrivalProjectorBase.BlockEntityArrivalProjectorBase) {
+			if (blockEntity instanceof BlockArrivalProjectorBase.BlockEntityArrivalProjectorBase) {
 				final Station station = MTRClient.findStation(blockPos);
 				if (station != null) {
 					station.savedRails.forEach(platform -> platformIds.add(platform.getId()));
 				}
 			} else {
-				MTRClient.findClosePlatform(entity.getPos().down(4), 5, platform -> platformIds.add(platform.getId()));
+				MTRClient.findClosePlatform(blockEntity.getPos().down(4), 5, platform -> platformIds.add(platform.getId()));
 			}
-			getArrivalsAndRender(entity, blockPos, facing, platformIds);
+			getArrivalsAndRender(blockEntity, blockPos, facing, platformIds);
 		} else {
-			getArrivalsAndRender(entity, blockPos, facing, entity.getPlatformIds());
+			getArrivalsAndRender(blockEntity, blockPos, facing, blockEntity.getPlatformIds());
 		}
 	}
 
 	public void renderText(MatrixStack matrixStack, String text, int x, int y, int color) {
-		FontGroups.renderMinecraft(new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui())), text, FontRenderOptions.builder().offsetX(x).offsetY(y).color(color).build());
+		FontGroupRegistry.MINECRAFT.get().render(new Drawing(matrixStack, RenderLayer.getGui()), text, FontRenderOptions.builder().offsetX(x).offsetY(y).color(color).build());
 	}
 
 	public String getArrivalString(long arrival, boolean isRealtime, boolean isCjk) {
@@ -168,8 +168,8 @@ public class RenderPIDS<T extends BlockPIDSBase.BlockEntityBase> extends BlockEn
 
 			matrixStack.push();
 			matrixStack.translate(blockPos.getX() - offset.x + 0.5, blockPos.getY() - offset.y, blockPos.getZ() - offset.z + 0.5);
-			IDrawing.rotateYDegrees(matrixStack, (rotate90 ? 90 : 0) - facing.getPositiveHorizontalDegrees());
-			IDrawing.rotateZDegrees(matrixStack, 180);
+			Drawing.rotateYDegrees(matrixStack, (rotate90 ? 90 : 0) - facing.getPositiveHorizontalDegrees());
+			Drawing.rotateZDegrees(matrixStack, 180);
 			matrixStack.translate((startX - 8) / 16, -startY / 16 + i * maxHeight / entity.maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
 			matrixStack.scale(1 / scale, 1 / scale, 1 / scale);
 

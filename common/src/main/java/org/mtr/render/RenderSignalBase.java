@@ -8,6 +8,8 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -22,6 +24,7 @@ import org.mtr.core.data.Position;
 import org.mtr.core.data.TwoPositionsBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
+import org.mtr.tool.Drawing;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -37,7 +40,7 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 	}
 
 	@Override
-	public void render(T entity, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
+	public void render(T entity, MatrixStack matrixStack2, VertexConsumerProvider vertexConsumerProvider, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
 		final BlockPos pos = entity.getPos();
 		final BlockState state = world.getBlockState(pos);
 		if (!(state.getBlock() instanceof BlockSignalBase)) {
@@ -58,7 +61,7 @@ public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase
 				final boolean isBackSide = i == 1;
 				final IntAVLTreeSet filterColors = entity.getSignalColors(isBackSide);
 				final StoredMatrixTransformations storedMatrixTransformationsNew = storedMatrixTransformations.copy();
-				storedMatrixTransformationsNew.add(matrixStack -> IDrawing.rotateYDegrees(matrixStack, -newAngle));
+				storedMatrixTransformationsNew.add(matrixStack -> Drawing.rotateYDegrees(matrixStack, -newAngle));
 
 				if (RenderRails.isHoldingRailRelated(player)) {
 					final float xStart = -0.015625F * aspectState.detectedColors.size();

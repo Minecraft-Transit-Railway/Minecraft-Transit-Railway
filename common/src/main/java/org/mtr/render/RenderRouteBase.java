@@ -3,6 +3,8 @@ package org.mtr.render;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
@@ -16,6 +18,7 @@ import org.mtr.block.IBlock;
 import org.mtr.client.DynamicTextureCache;
 import org.mtr.client.IDrawing;
 import org.mtr.data.IGui;
+import org.mtr.tool.Drawing;
 
 public abstract class RenderRouteBase<T extends BlockPSDTop.BlockEntityBase> extends BlockEntityRendererExtension<T> implements IGui, IBlock {
 
@@ -38,13 +41,13 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.BlockEntityBase> ext
 	}
 
 	@Override
-	public void render(T entity, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
+	public void render(T entity, MatrixStack matrixStack2, VertexConsumerProvider vertexConsumerProvider, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
 		final BlockPos blockPos = entity.getPos();
 		final BlockState state = world.getBlockState(blockPos);
 		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(0.5 + entity.getPos().getX(), entity.getPos().getY(), 0.5 + entity.getPos().getZ());
-		storedMatrixTransformations.add(matrixStack -> IDrawing.rotateYDegrees(matrixStack, -facing.getPositiveHorizontalDegrees()));
+		storedMatrixTransformations.add(matrixStack -> Drawing.rotateYDegrees(matrixStack, -facing.getPositiveHorizontalDegrees()));
 
 		renderAdditionalUnmodified(storedMatrixTransformations.copy(), state, facing, light);
 
@@ -53,7 +56,7 @@ public abstract class RenderRouteBase<T extends BlockPSDTop.BlockEntityBase> ext
 
 			storedMatrixTransformations.add(matrixStack -> {
 				matrixStack.translate(0, 1, 0);
-				IDrawing.rotateZDegrees(matrixStack, 180);
+				Drawing.rotateZDegrees(matrixStack, 180);
 				matrixStack.translate(-0.5, -getAdditionalOffset(state), z);
 			});
 

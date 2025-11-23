@@ -5,7 +5,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectIntImmutablePair;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.RenderLayer;
@@ -15,7 +14,7 @@ import net.minecraft.util.math.ColorHelper;
 import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.data.*;
 import org.mtr.core.tool.Utilities;
-import org.mtr.font.FontGroups;
+import org.mtr.font.FontGroupRegistry;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.tool.DataHelper;
@@ -49,7 +48,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		hoverItem = null;
 		final FontRenderOptions.FontRenderOptionsBuilder fontRenderOptionsBuilder = initDimensions();
 		final MatrixStack matrixStack = context.getMatrices();
-		final Drawing drawing = new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
+		final Drawing drawing = new Drawing(matrixStack, RenderLayer.getGui());
 		final ObjectArrayList<Runnable> deferredRenders = new ObjectArrayList<>();
 
 		ListItem.iterateData(dataList, filter, (dataIndex, level, listItem) -> {
@@ -71,7 +70,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 						clickAction = listItem::toggle;
 
 						// Draw the action button
-						deferredRenders.add(() -> new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(listItem.isExpanded() ? GuiHelper.CHEVRON_UP_TEXTURE_ID : GuiHelper.CHEVRON_DOWN_TEXTURE_ID)))
+						deferredRenders.add(() -> new Drawing(matrixStack, RenderLayer.getGuiTextured(listItem.isExpanded() ? GuiHelper.CHEVRON_UP_TEXTURE_ID : GuiHelper.CHEVRON_DOWN_TEXTURE_ID))
 								.setVerticesWH(leftBound + GuiHelper.DEFAULT_PADDING / 2F, startY + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_ICON_SIZE, GuiHelper.DEFAULT_ICON_SIZE)
 								.setUv()
 								.draw()
@@ -91,7 +90,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 							}
 
 							// Draw the action button
-							deferredRenders.add(() -> new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGuiTextured(identifier)))
+							deferredRenders.add(() -> new Drawing(matrixStack, RenderLayer.getGuiTextured(identifier))
 									.setVerticesWH(leftBound + GuiHelper.DEFAULT_PADDING / 2F, startY + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_ICON_SIZE, GuiHelper.DEFAULT_ICON_SIZE)
 									.setUv()
 									.draw()
@@ -106,7 +105,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 				listItem.drawIcon.draw(drawing, startX, startY);
 
 				// Draw text
-				FontGroups.renderMTR(drawing, listItem.text, fontRenderOptionsBuilder
+				FontGroupRegistry.MTR.get().render(drawing, listItem.text, fontRenderOptionsBuilder
 						.horizontalSpace(endX - startX - listItem.iconWidth - GuiHelper.DEFAULT_PADDING * 2 - (isMouseOver ? GuiHelper.DEFAULT_LINE_SIZE * listItem.actionCount() : 0))
 						.offsetX(startX + listItem.iconWidth + GuiHelper.DEFAULT_PADDING)
 						.offsetY((float) startY)
@@ -189,7 +188,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 
 		ListItem.iterateData(dataList, filter, (index, level, listItem) -> {
 			if (!fixedWidth && maxLineWidth[0] < maxWidth) {
-				maxLineWidth[0] = Math.max(maxLineWidth[0], (level + 2) * GuiHelper.DEFAULT_PADDING + listItem.iconWidth + (int) Math.ceil(FontGroups.renderMTR(null, listItem.text, fontRenderOptionsBuilder.build()).leftFloat()) + listItem.actionCount() * GuiHelper.DEFAULT_LINE_SIZE + getScrollbarWidth());
+				maxLineWidth[0] = Math.max(maxLineWidth[0], (level + 2) * GuiHelper.DEFAULT_PADDING + listItem.iconWidth + (int) Math.ceil(FontGroupRegistry.MTR.get().render(null, listItem.text, fontRenderOptionsBuilder.build()).leftFloat()) + listItem.actionCount() * GuiHelper.DEFAULT_LINE_SIZE + getScrollbarWidth());
 			}
 			count[0]++;
 			return false;
@@ -359,7 +358,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 	}
 
 	private static void drawPlatformNumber(Drawing drawing, double x, double y, String name) {
-		FontGroups.renderMTR(drawing, Utilities.formatName(name), FontRenderOptions.builder()
+		FontGroupRegistry.MTR.get().render(drawing, Utilities.formatName(name), FontRenderOptions.builder()
 				.horizontalPositioning(FontRenderOptions.Alignment.CENTER)
 				.verticalPositioning(FontRenderOptions.Alignment.CENTER)
 				.horizontalSpace(GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT)

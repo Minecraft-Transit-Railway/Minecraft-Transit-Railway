@@ -175,7 +175,7 @@ public class BlockPSDTop extends Block implements IBlock, BlockEntityProvider {
 		}
 	}
 
-	public static class BlockEntityBase extends BlockEntity {
+	public static class BlockEntityBase extends BlockEntityExtension {
 
 		public BlockEntityBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);

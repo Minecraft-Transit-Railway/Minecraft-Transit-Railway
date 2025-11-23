@@ -66,7 +66,7 @@ public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements 
 		builder.add(HALF);
 	}
 
-	public static class TactileMapBlockEntity extends BlockEntity {
+	public static class TactileMapBlockEntity extends BlockEntityExtension {
 
 		public static BiConsumer<BlockPos, Boolean> updateSoundSource = null;
 		public static Consumer<BlockPos> onUse = null;

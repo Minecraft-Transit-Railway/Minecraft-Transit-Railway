@@ -2,6 +2,8 @@ package org.mtr.render;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
@@ -14,6 +16,7 @@ import org.mtr.core.data.Depot;
 import org.mtr.data.IGui;
 import org.mtr.item.ItemDriverKey;
 import org.mtr.registry.Items;
+import org.mtr.tool.Drawing;
 
 public class RenderDriverKeyDispenser extends BlockEntityRendererExtension<BlockDriverKeyDispenser.DriverKeyDispenserBlockEntity> {
 
@@ -22,16 +25,16 @@ public class RenderDriverKeyDispenser extends BlockEntityRendererExtension<Block
 	private static final int ROTATION_DURATION = 5000;
 
 	@Override
-	public void render(BlockDriverKeyDispenser.DriverKeyDispenserBlockEntity entity, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
-		final Depot depot = MTRClient.findDepot(entity.getPos());
-		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(0.5 + entity.getPos().getX(), entity.getPos().getY(), 0.5 + entity.getPos().getZ());
+	public void render(BlockDriverKeyDispenser.DriverKeyDispenserBlockEntity blockEntity, MatrixStack matrixStack2, VertexConsumerProvider vertexConsumerProvider, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
+		final Depot depot = MTRClient.findDepot(blockEntity.getPos());
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(0.5 + blockEntity.getPos().getX(), blockEntity.getPos().getY(), 0.5 + blockEntity.getPos().getZ());
 
 		if (depot == null) {
 			MainRenderer.scheduleRender(Identifier.of(MTR.MOD_ID, "textures/block/white.png"), false, QueuedRenderLayer.INTERIOR, (matrixStack, vertexConsumer, offset) -> {
 				storedMatrixTransformations.transform(matrixStack, offset);
 				matrixStack.translate(0, 0.5, 0);
-				MTRClient.transformToFacePlayer(matrixStack, entity.getPos().getX() + 0.5, entity.getPos().getY() + 0.5, entity.getPos().getZ() + 0.5);
-				IDrawing.rotateZDegrees(matrixStack, 45);
+				MTRClient.transformToFacePlayer(matrixStack, blockEntity.getPos().getX() + 0.5, blockEntity.getPos().getY() + 0.5, blockEntity.getPos().getZ() + 0.5);
+				Drawing.rotateZDegrees(matrixStack, 45);
 				matrixStack.scale((float) ROTATION_SCALE, (float) ROTATION_SCALE, 1);
 				IDrawing.drawTexture(matrixStack, vertexConsumer, -0.0625F, -0.5F, 0.125F, 1, 0, 0, 1, 1, Direction.UP, 0xFFFF0000, IGui.DEFAULT_LIGHT);
 				IDrawing.drawTexture(matrixStack, vertexConsumer, -0.5F, -0.0625F, 1, 0.125F, 0, 0, 1, 1, Direction.UP, 0xFFFF0000, IGui.DEFAULT_LIGHT);
@@ -39,13 +42,13 @@ public class RenderDriverKeyDispenser extends BlockEntityRendererExtension<Block
 			});
 		} else {
 			final IntArrayList colors = new IntArrayList();
-			if (entity.getDispenseBasicDriverKey()) {
+			if (blockEntity.getDispenseBasicDriverKey()) {
 				colors.add(((ItemDriverKey) Items.BASIC_DRIVER_KEY.get()).color);
 			}
-			if (entity.getDispenseAdvancedDriverKey()) {
+			if (blockEntity.getDispenseAdvancedDriverKey()) {
 				colors.add(((ItemDriverKey) Items.ADVANCED_DRIVER_KEY.get()).color);
 			}
-			if (entity.getDispenseGuardKey()) {
+			if (blockEntity.getDispenseGuardKey()) {
 				colors.add(((ItemDriverKey) Items.GUARD_KEY.get()).color);
 			}
 
@@ -53,8 +56,8 @@ public class RenderDriverKeyDispenser extends BlockEntityRendererExtension<Block
 				MainRenderer.scheduleRender(Identifier.of(MTR.MOD_ID, "textures/item/driver_key.png"), false, QueuedRenderLayer.INTERIOR, (matrixStack, vertexConsumer, offset) -> {
 					storedMatrixTransformations.transform(matrixStack, offset);
 					matrixStack.translate(0, 0.5, 0);
-					MTRClient.transformToFacePlayer(matrixStack, entity.getPos().getX() + 0.5, entity.getPos().getY() + 0.5, entity.getPos().getZ() + 0.5);
-					IDrawing.rotateZDegrees(matrixStack, 180);
+					MTRClient.transformToFacePlayer(matrixStack, blockEntity.getPos().getX() + 0.5, blockEntity.getPos().getY() + 0.5, blockEntity.getPos().getZ() + 0.5);
+					Drawing.rotateZDegrees(matrixStack, 180);
 					final Vec3d offsetVector;
 
 					if (colors.size() > 1) {

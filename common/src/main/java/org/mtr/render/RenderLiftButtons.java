@@ -7,6 +7,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
@@ -24,6 +26,7 @@ import org.mtr.core.data.Lift;
 import org.mtr.core.data.LiftDirection;
 import org.mtr.data.IGui;
 import org.mtr.item.ItemLiftButtonsLinkModifier;
+import org.mtr.tool.Drawing;
 
 import java.util.Comparator;
 
@@ -34,7 +37,7 @@ public class RenderLiftButtons extends BlockEntityRendererExtension<BlockLiftBut
 	private static final Identifier BUTTON_TEXTURE = Identifier.of(MTR.MOD_ID, "textures/block/lift_button.png");
 
 	@Override
-	public void render(BlockLiftButtons.LiftButtonsBlockEntity blockEntity, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
+	public void render(BlockLiftButtons.LiftButtonsBlockEntity blockEntity, MatrixStack matrixStack2, VertexConsumerProvider vertexConsumerProvider, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
 		final BlockPos blockPos = blockEntity.getPos();
 		final BlockState blockState = world.getBlockState(blockPos);
 		final Direction facing = IBlock.getStatePropertySafe(blockState, Properties.HORIZONTAL_FACING);
@@ -95,7 +98,7 @@ public class RenderLiftButtons extends BlockEntityRendererExtension<BlockLiftBut
 
 		final StoredMatrixTransformations storedMatrixTransformations2 = storedMatrixTransformations1.copy();
 		storedMatrixTransformations2.add(matrixStack -> {
-			IDrawing.rotateYDegrees(matrixStack, -facing.getPositiveHorizontalDegrees());
+			Drawing.rotateYDegrees(matrixStack, -facing.getPositiveHorizontalDegrees());
 			matrixStack.translate(0, 0, 0.4375 - SMALL_OFFSET);
 		});
 
@@ -122,7 +125,7 @@ public class RenderLiftButtons extends BlockEntityRendererExtension<BlockLiftBut
 
 			final StoredMatrixTransformations storedMatrixTransformations3 = storedMatrixTransformations2.copy();
 			storedMatrixTransformations3.add(matrixStack -> {
-				IDrawing.rotateZDegrees(matrixStack, 180);
+				Drawing.rotateZDegrees(matrixStack, 180);
 				matrixStack.translate(-width / 2, 0, 0);
 			});
 

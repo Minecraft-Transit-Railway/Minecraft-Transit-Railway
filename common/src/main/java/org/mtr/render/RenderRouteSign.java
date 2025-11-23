@@ -2,6 +2,8 @@ package org.mtr.render;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
@@ -14,6 +16,7 @@ import org.mtr.client.IDrawing;
 import org.mtr.core.data.Platform;
 import org.mtr.core.data.Station;
 import org.mtr.data.IGui;
+import org.mtr.tool.Drawing;
 
 public class RenderRouteSign<T extends BlockRouteSignBase.BlockEntityBase> extends BlockEntityRendererExtension<T> implements IBlock, IGui {
 
@@ -27,8 +30,8 @@ public class RenderRouteSign<T extends BlockRouteSignBase.BlockEntityBase> exten
 	private static final float TEXTURE_BREAK = MIDDLE / HEIGHT_BOTTOM;
 
 	@Override
-	public void render(T entity, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
-		final BlockPos pos = entity.getPos();
+	public void render(T blockEntity, MatrixStack matrixStack2, VertexConsumerProvider vertexConsumerProvider, ClientWorld world, ClientPlayerEntity player, float tickDelta, int light, int overlay) {
+		final BlockPos pos = blockEntity.getPos();
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 		final boolean isTop = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
@@ -43,14 +46,14 @@ public class RenderRouteSign<T extends BlockRouteSignBase.BlockEntityBase> exten
 			return;
 		}
 
-		final Platform platform = station.savedRails.stream().filter(checkPlatform -> checkPlatform.getId() == entity.getPlatformId()).findFirst().orElse(null);
+		final Platform platform = station.savedRails.stream().filter(checkPlatform -> checkPlatform.getId() == blockEntity.getPlatformId()).findFirst().orElse(null);
 		if (platform == null) {
 			return;
 		}
 
 		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
 		storedMatrixTransformations.add(matrixStack -> {
-			IDrawing.rotateYDegrees(matrixStack, -facing.getPositiveHorizontalDegrees());
+			Drawing.rotateYDegrees(matrixStack, -facing.getPositiveHorizontalDegrees());
 			matrixStack.translate(-0.5, 0, 0.4375 - SMALL_OFFSET * 2);
 		});
 

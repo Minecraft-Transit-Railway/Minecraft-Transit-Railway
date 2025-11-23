@@ -1,6 +1,5 @@
 package org.mtr.widget;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
 import org.mtr.tool.Drawing;
@@ -37,7 +36,7 @@ public abstract class PopupWidgetBase extends ClickableWidgetBase {
 			buttonGroup.renderWidget(context, mouseX, mouseY, delta);
 
 			// Draw background
-			final Drawing drawing = new Drawing(context.getMatrices(), MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
+			final Drawing drawing = new Drawing(context.getMatrices(), RenderLayer.getGui());
 			GuiHelper.drawShadow(drawing, getX(), getY(), getX() + width, getY() + height, 0, 8, -1);
 			drawing.setVerticesWH(getX(), getY(), width, height - GuiHelper.DEFAULT_LINE_SIZE).setColor(GuiHelper.BACKGROUND_COLOR).draw();
 			drawing.setVerticesWH(getX(), getY() + height - GuiHelper.DEFAULT_LINE_SIZE, width, 1).setColor(GuiHelper.BACKGROUND_ACCENT_COLOR).draw();

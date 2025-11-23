@@ -5,7 +5,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
@@ -78,7 +77,7 @@ public class BlockEyeCandy extends BlockWaterloggable implements BlockEntityProv
 		return new EyeCandyBlockEntity(blockPos, blockState);
 	}
 
-	public static class EyeCandyBlockEntity extends BlockEntity {
+	public static class EyeCandyBlockEntity extends BlockEntityExtension {
 
 		private String modelId = "";
 		private float translateX, translateY, translateZ;
@@ -99,27 +98,27 @@ public class BlockEyeCandy extends BlockWaterloggable implements BlockEntityProv
 		}
 
 		@Override
-		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			modelId = nbt.getString(KEY_MODEL_ID);
-			translateX = nbt.getFloat(KEY_TRANSLATE_X);
-			translateY = nbt.getFloat(KEY_TRANSLATE_Y);
-			translateZ = nbt.getFloat(KEY_TRANSLATE_Z);
-			rotateX = nbt.getFloat(KEY_ROTATE_X);
-			rotateY = nbt.getFloat(KEY_ROTATE_Y);
-			rotateZ = nbt.getFloat(KEY_ROTATE_Z);
-			fullBrightness = nbt.getBoolean(KEY_FULL_BRIGHTNESS);
+		protected void readNbt(NbtCompound nbtCompound) {
+			modelId = nbtCompound.getString(KEY_MODEL_ID);
+			translateX = nbtCompound.getFloat(KEY_TRANSLATE_X);
+			translateY = nbtCompound.getFloat(KEY_TRANSLATE_Y);
+			translateZ = nbtCompound.getFloat(KEY_TRANSLATE_Z);
+			rotateX = nbtCompound.getFloat(KEY_ROTATE_X);
+			rotateY = nbtCompound.getFloat(KEY_ROTATE_Y);
+			rotateZ = nbtCompound.getFloat(KEY_ROTATE_Z);
+			fullBrightness = nbtCompound.getBoolean(KEY_FULL_BRIGHTNESS);
 		}
 
 		@Override
-		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			nbt.putString(KEY_MODEL_ID, modelId);
-			nbt.putFloat(KEY_TRANSLATE_X, translateX);
-			nbt.putFloat(KEY_TRANSLATE_Y, translateY);
-			nbt.putFloat(KEY_TRANSLATE_Z, translateZ);
-			nbt.putFloat(KEY_ROTATE_X, rotateX);
-			nbt.putFloat(KEY_ROTATE_Y, rotateY);
-			nbt.putFloat(KEY_ROTATE_Z, rotateZ);
-			nbt.putBoolean(KEY_FULL_BRIGHTNESS, fullBrightness);
+		protected void writeNbt(NbtCompound nbtCompound) {
+			nbtCompound.putString(KEY_MODEL_ID, modelId);
+			nbtCompound.putFloat(KEY_TRANSLATE_X, translateX);
+			nbtCompound.putFloat(KEY_TRANSLATE_Y, translateY);
+			nbtCompound.putFloat(KEY_TRANSLATE_Z, translateZ);
+			nbtCompound.putFloat(KEY_ROTATE_X, rotateX);
+			nbtCompound.putFloat(KEY_ROTATE_Y, rotateY);
+			nbtCompound.putFloat(KEY_ROTATE_Z, rotateZ);
+			nbtCompound.putBoolean(KEY_FULL_BRIGHTNESS, fullBrightness);
 		}
 
 		public void setData(String modelId, float translateX, float translateY, float translateZ, float rotateX, float rotateY, float rotateZ, boolean fullLight) {

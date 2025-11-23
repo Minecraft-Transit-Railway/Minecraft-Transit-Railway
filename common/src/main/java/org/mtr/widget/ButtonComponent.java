@@ -5,7 +5,7 @@ import gg.essential.elementa.components.UIWrappedText;
 import gg.essential.elementa.constraints.*;
 import gg.essential.universal.UMatrixStack;
 import net.minecraft.client.MinecraftClient;
-import org.mtr.tool.ReleasedDynamicTextureManager;
+import org.mtr.tool.ReleasedDynamicTextureRegistry;
 
 import javax.annotation.Nullable;
 
@@ -23,7 +23,7 @@ public final class ButtonComponent extends StitchedImageComponent {
 	private static final int TEXT_PADDING = 10;
 
 	public ButtonComponent(boolean wrapText) {
-		super(200, 20, 4, 0, ReleasedDynamicTextureManager.BUTTON_TEXTURE.get(), ReleasedDynamicTextureManager.BUTTON_DISABLED_TEXTURE.get(), ReleasedDynamicTextureManager.BUTTON_HIGHLIGHTED_TEXTURE.get());
+		super(200, 20, 4, 0, ReleasedDynamicTextureRegistry.BUTTON_TEXTURE.get(), ReleasedDynamicTextureRegistry.BUTTON_DISABLED_TEXTURE.get(), ReleasedDynamicTextureRegistry.BUTTON_HIGHLIGHTED_TEXTURE.get());
 
 		if (wrapText) {
 			textLabel = null;

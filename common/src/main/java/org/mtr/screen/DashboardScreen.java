@@ -266,7 +266,7 @@ public final class DashboardScreen extends ScreenBase {
 		super.render(context, mouseX, mouseY, delta);
 
 		// Draw menu separator lines
-		final Drawing drawing = new Drawing(context.getMatrices(), MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
+		final Drawing drawing = new Drawing(context.getMatrices(), RenderLayer.getGui());
 		drawing.setVerticesWH(width - GuiHelper.DEFAULT_LINE_SIZE * 5 - 2, 0, 1, GuiHelper.DEFAULT_LINE_SIZE).setColor(GuiHelper.BACKGROUND_ACCENT_COLOR).draw();
 		drawing.setVerticesWH(width - GuiHelper.DEFAULT_LINE_SIZE * 2 - 1, 0, 1, GuiHelper.DEFAULT_LINE_SIZE).setColor(GuiHelper.BACKGROUND_ACCENT_COLOR).draw();
 

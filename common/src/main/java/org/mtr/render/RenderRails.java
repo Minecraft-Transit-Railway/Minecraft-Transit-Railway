@@ -49,6 +49,7 @@ import org.mtr.registry.DataComponentTypes;
 import org.mtr.registry.Items;
 import org.mtr.resource.RailResource;
 import org.mtr.tool.CullingHelper;
+import org.mtr.tool.Drawing;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -261,9 +262,9 @@ public final class RenderRails implements IGui {
 					final double pitch = Math.atan2((y3 + y4) / 2 - (y1 + y2) / 2, Math.sqrt(differenceX * differenceX + differenceZ * differenceZ));
 					final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations((x1 + x3) / 2, (y1 + y2) / 2 + railResource.getModelYOffset(), (z1 + z3) / 2);
 					storedMatrixTransformations.add(matrixStack -> {
-						IDrawing.rotateYRadians(matrixStack, (float) (Math.PI / 2 - yaw + (flip ? Math.PI : 0)));
-						IDrawing.rotateXRadians(matrixStack, (float) pitch * (flip ? 1 : -1));
-						IDrawing.rotateZRadians(matrixStack, (float) (tiltAngle + Math.toRadians(((x1 * z1) % 10) / 100)));
+						Drawing.rotateYRadians(matrixStack, (float) (Math.PI / 2 - yaw + (flip ? Math.PI : 0)));
+						Drawing.rotateXRadians(matrixStack, (float) pitch * (flip ? 1 : -1));
+						Drawing.rotateZRadians(matrixStack, (float) (tiltAngle + Math.toRadians(((x1 * z1) % 10) / 100)));
 					});
 					railResource.render(storedMatrixTransformations, light);
 					renderType[1] = true;
@@ -327,7 +328,7 @@ public final class RenderRails implements IGui {
 		if (blockState.getBlock() instanceof BlockNode && shouldRender.getAsBoolean()) {
 			final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5);
 			storedMatrixTransformations.add(matrixStack -> {
-				IDrawing.rotateYDegrees(matrixStack, (blockState.get(BlockNode.FACING) ? -90 : 0) + (blockState.get(BlockNode.IS_45) ? -45 : 0) + (blockState.get(BlockNode.IS_22_5) ? -22.5F : 0));
+				Drawing.rotateYDegrees(matrixStack, (blockState.get(BlockNode.FACING) ? -90 : 0) + (blockState.get(BlockNode.IS_45) ? -45 : 0) + (blockState.get(BlockNode.IS_22_5) ? -22.5F : 0));
 				matrixStack.scale(4, 0.5F, 0.5F);
 				matrixStack.translate(-0.5, 0, -0.5);
 			});
@@ -370,7 +371,7 @@ public final class RenderRails implements IGui {
 				matrixStack.push();
 				matrixStack.translate(renderPos.getX() - offset.x + 0.5, renderPos.getY() - offset.y + textOffset, renderPos.getZ() - offset.z + 0.5);
 				MTRClient.transformToFacePlayer(matrixStack, renderPos.getX() + 0.5, renderPos.getY() + textOffset, renderPos.getZ() + 0.5);
-				IDrawing.rotateZDegrees(matrixStack, 180);
+				Drawing.rotateZDegrees(matrixStack, 180);
 				matrixStack.scale(1 / 32F, 1 / 32F, -1 / 32F);
 				int line = 0;
 				if (otherPos != null) {

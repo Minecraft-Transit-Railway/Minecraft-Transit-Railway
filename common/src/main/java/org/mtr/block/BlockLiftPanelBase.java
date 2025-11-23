@@ -10,7 +10,6 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -115,7 +114,7 @@ public abstract class BlockLiftPanelBase extends Block implements IBlock, Triple
 		tooltip.add((isOdd ? TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_ODD : TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_EVEN).getMutableText().formatted(Formatting.GRAY));
 	}
 
-	public abstract static class BlockEntityBase extends BlockEntity {
+	public abstract static class BlockEntityBase extends BlockEntityExtension {
 
 		private BlockPos trackPosition = null;
 		private static final String KEY_TRACK_FLOOR_POS = "track_floor_pos";
@@ -125,15 +124,14 @@ public abstract class BlockLiftPanelBase extends Block implements IBlock, Triple
 		}
 
 		@Override
-		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			final long data = nbt.getLong(KEY_TRACK_FLOOR_POS);
+		protected void readNbt(NbtCompound nbtCompound) {
+			final long data = nbtCompound.getLong(KEY_TRACK_FLOOR_POS);
 			trackPosition = data == 0 ? null : BlockPos.fromLong(data);
-			super.readNbt(nbt, registries);
 		}
 
 		@Override
-		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			nbt.putLong(KEY_TRACK_FLOOR_POS, trackPosition == null ? 0 : trackPosition.asLong());
+		protected void writeNbt(NbtCompound nbtCompound) {
+			nbtCompound.putLong(KEY_TRACK_FLOOR_POS, trackPosition == null ? 0 : trackPosition.asLong());
 		}
 
 		public void registerFloor(World world, BlockPos pos, boolean isAdd) {

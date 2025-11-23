@@ -12,7 +12,6 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
@@ -97,7 +96,7 @@ public abstract class BlockSignalBase extends Block implements BlockEntityProvid
 		return IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING).getPositiveHorizontalDegrees() + (IBlock.getStatePropertySafe(state, BlockSignalBase.IS_22_5).booleanValue ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockSignalBase.IS_45).booleanValue ? 45 : 0);
 	}
 
-	public static abstract class BlockEntityBase extends BlockEntity {
+	public static abstract class BlockEntityBase extends BlockEntityExtension {
 
 		private long lastOccupiedTime1;
 		private long lastOccupiedTime2;
@@ -121,27 +120,25 @@ public abstract class BlockSignalBase extends Block implements BlockEntityProvid
 		}
 
 		@Override
-		protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			acceptRedstone = nbt.getBoolean(KEY_ACCEPT_REDSTONE);
-			outputRedstone = nbt.getBoolean(KEY_OUTPUT_REDSTONE);
+		protected void readNbt(NbtCompound nbtCompound) {
+			acceptRedstone = nbtCompound.getBoolean(KEY_ACCEPT_REDSTONE);
+			outputRedstone = nbtCompound.getBoolean(KEY_OUTPUT_REDSTONE);
 			signalColors1.clear();
-			for (final int color : nbt.getIntArray(KEY_SIGNAL_COLORS_1)) {
+			for (final int color : nbtCompound.getIntArray(KEY_SIGNAL_COLORS_1)) {
 				signalColors1.add(color);
 			}
 			signalColors2.clear();
-			for (final int color : nbt.getIntArray(KEY_SIGNAL_COLORS_2)) {
+			for (final int color : nbtCompound.getIntArray(KEY_SIGNAL_COLORS_2)) {
 				signalColors2.add(color);
 			}
-			super.readNbt(nbt, registries);
 		}
 
 		@Override
-		protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-			nbt.putBoolean(KEY_ACCEPT_REDSTONE, acceptRedstone);
-			nbt.putBoolean(KEY_OUTPUT_REDSTONE, outputRedstone);
-			nbt.putIntArray(KEY_SIGNAL_COLORS_1, new ArrayList<>(signalColors1));
-			nbt.putIntArray(KEY_SIGNAL_COLORS_2, new ArrayList<>(signalColors2));
-			super.writeNbt(nbt, registries);
+		protected void writeNbt(NbtCompound nbtCompound) {
+			nbtCompound.putBoolean(KEY_ACCEPT_REDSTONE, acceptRedstone);
+			nbtCompound.putBoolean(KEY_OUTPUT_REDSTONE, outputRedstone);
+			nbtCompound.putIntArray(KEY_SIGNAL_COLORS_1, new ArrayList<>(signalColors1));
+			nbtCompound.putIntArray(KEY_SIGNAL_COLORS_2, new ArrayList<>(signalColors2));
 		}
 
 		public void setData(boolean acceptRedstone, boolean outputRedstone, IntAVLTreeSet signalColors, boolean isBackSide) {

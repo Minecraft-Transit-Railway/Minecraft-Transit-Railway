@@ -1,7 +1,6 @@
 package org.mtr.widget;
 
 import lombok.Getter;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -44,7 +43,7 @@ public final class TabGroupWidget extends ClickableWidgetBase {
 		buttonGroup.renderWidget(context, mouseX, mouseY, delta);
 
 		final MatrixStack matrixStack = context.getMatrices();
-		final Drawing drawing = new Drawing(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getGui()));
+		final Drawing drawing = new Drawing(matrixStack, RenderLayer.getGui());
 
 		// Handle animation
 		guiAnimation1.tick();

@@ -49,36 +49,62 @@ public class StitchedImageComponent extends ImageComponentBase {
 
 	@Override
 	public final void renderTexture(UMatrixStack matrixStack, UVertexConsumer vertexConsumer) {
-		final float widgetWidth = getWidth() - texturePadding * 2;
-		final float widgetHeight = getHeight() - texturePadding * 2;
+		drawImage(
+				matrixStack, vertexConsumer,
+				getLeft() + texturePadding, getTop() + texturePadding, getWidth() - texturePadding * 2, getHeight() - texturePadding * 2,
+				textureWidth, textureHeight, croppedTextureWidth, croppedTextureHeight, textureBorder,
+				textureMiddleX1, textureMiddleY1, textureMiddleX2, textureMiddleY2,
+				backgroundColor == null
+		);
+	}
 
-		if (widgetWidth > 0 && widgetHeight > 0) {
+	public static void drawImage(
+			UMatrixStack matrixStack, UVertexConsumer vertexConsumer,
+			float x, float y, float width, float height,
+			int textureWidth, int textureHeight, int textureBorder,
+			boolean drawBackground
+	) {
+		drawImage(
+				matrixStack, vertexConsumer,
+				x, y, width, height,
+				textureWidth, textureHeight, textureWidth, textureHeight, textureBorder,
+				textureBorder, textureBorder, textureWidth - textureBorder, textureHeight - textureBorder,
+				drawBackground
+		);
+	}
+
+	public static void drawImage(
+			UMatrixStack matrixStack, UVertexConsumer vertexConsumer,
+			float x, float y, float width, float height,
+			int textureWidth, int textureHeight, int croppedTextureWidth, int croppedTextureHeight, int textureBorder,
+			int textureMiddleX1, int textureMiddleY1, int textureMiddleX2, int textureMiddleY2,
+			boolean drawBackground
+	) {
+		if (width > 0 && height > 0) {
 			final int halfMiddleWidth = (textureMiddleX2 - textureMiddleX1) / 2;
 			final int halfMiddleHeight = (textureMiddleY2 - textureMiddleY1) / 2;
-			final int countX = (halfMiddleWidth == 0 ? 0 : (int) Math.ceil((widgetWidth - textureBorder * 2) / halfMiddleWidth)) + 2;
-			final int countY = (halfMiddleHeight == 0 ? 0 : (int) Math.ceil((widgetHeight - textureBorder * 2) / halfMiddleHeight)) + 2;
+			final int countX = (halfMiddleWidth == 0 ? 0 : (int) Math.ceil((width - textureBorder * 2) / halfMiddleWidth)) + 2;
+			final int countY = (halfMiddleHeight == 0 ? 0 : (int) Math.ceil((height - textureBorder * 2) / halfMiddleHeight)) + 2;
 			final Random random = new Random(RANDOM_SEED);
 
-			for (int x = 0; x < countX; x++) {
-				for (int y = 0; y < countY; y++) {
-					final boolean firstX = x == 0;
-					final boolean lastX = x == countX - 1;
-					final boolean firstY = y == 0;
-					final boolean lastY = y == countY - 1;
+			for (int drawX = 0; drawX < countX; drawX++) {
+				for (int drawY = 0; drawY < countY; drawY++) {
+					final boolean firstX = drawX == 0;
+					final boolean lastX = drawX == countX - 1;
+					final boolean firstY = drawY == 0;
+					final boolean lastY = drawY == countY - 1;
 
-					if (firstX || lastX || firstY || lastY || backgroundColor == null) {
-						final float x1 = firstX ? 0 : (lastX ? widgetWidth - textureBorder : textureBorder + (x - 1) * halfMiddleWidth);
-						final float y1 = firstY ? 0 : (lastY ? widgetHeight - textureBorder : textureBorder + (y - 1) * halfMiddleHeight);
-						final float x2 = Math.min(x1 + (firstX || lastX ? textureBorder : halfMiddleWidth), widgetWidth - (lastX ? 0 : textureBorder));
-						final float y2 = Math.min(y1 + (firstY || lastY ? textureBorder : halfMiddleHeight), widgetHeight - (lastY ? 0 : textureBorder));
+					if (firstX || lastX || firstY || lastY || drawBackground) {
+						final float x1 = firstX ? 0 : (lastX ? width - textureBorder : textureBorder + (drawX - 1) * halfMiddleWidth);
+						final float y1 = firstY ? 0 : (lastY ? height - textureBorder : textureBorder + (drawY - 1) * halfMiddleHeight);
+						final float x2 = Math.min(x1 + (firstX || lastX ? textureBorder : halfMiddleWidth), width - (lastX ? 0 : textureBorder));
+						final float y2 = Math.min(y1 + (firstY || lastY ? textureBorder : halfMiddleHeight), height - (lastY ? 0 : textureBorder));
 						final float u1 = (firstX ? 0F : (lastX ? croppedTextureWidth - textureBorder : random.nextInt(textureMiddleX1, textureMiddleX1 + Math.max(1, halfMiddleWidth)))) / textureWidth;
 						final float v1 = (firstY ? 0F : (lastY ? croppedTextureHeight - textureBorder : random.nextInt(textureMiddleY1, textureMiddleY1 + Math.max(1, halfMiddleHeight)))) / textureHeight;
 						final float u2 = u1 + (x2 - x1) / textureWidth;
 						final float v2 = v1 + (y2 - y1) / textureHeight;
-						final float offsetX = texturePadding + getLeft();
-						final float offsetY = texturePadding + getTop();
 
-						drawTexturedQuad(matrixStack, vertexConsumer, x1 + offsetX, y1 + offsetY, x2 + offsetX, y2 + offsetY, u1, v1, u2, v2);
+						drawTexturedQuad(matrixStack, vertexConsumer, x1 + x, y1 + y, x2 + x, y2 + y, u1, v1, u2, v2);
 					}
 				}
 			}

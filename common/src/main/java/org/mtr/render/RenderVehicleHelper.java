@@ -33,10 +33,10 @@ public class RenderVehicleHelper {
 			return false;
 		}
 
-		final Vec3d doorwayPosition1 = positionAndRotation.transformForwards(new Vec3d(doorway.minX, doorway.maxY, doorway.minZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
-		final Vec3d doorwayPosition2 = positionAndRotation.transformForwards(new Vec3d(doorway.maxX, doorway.maxY, doorway.minZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
-		final Vec3d doorwayPosition3 = positionAndRotation.transformForwards(new Vec3d(doorway.maxX, doorway.maxY, doorway.maxZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
-		final Vec3d doorwayPosition4 = positionAndRotation.transformForwards(new Vec3d(doorway.minX, doorway.maxY, doorway.maxZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
+		final Vec3d doorwayPosition1 = positionAndRotation.transformForwards(new Vec3d(doorway.minX, doorway.maxY, doorway.minZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::rotateZ, Vec3d::add);
+		final Vec3d doorwayPosition2 = positionAndRotation.transformForwards(new Vec3d(doorway.maxX, doorway.maxY, doorway.minZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::rotateZ, Vec3d::add);
+		final Vec3d doorwayPosition3 = positionAndRotation.transformForwards(new Vec3d(doorway.maxX, doorway.maxY, doorway.maxZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::rotateZ, Vec3d::add);
+		final Vec3d doorwayPosition4 = positionAndRotation.transformForwards(new Vec3d(doorway.minX, doorway.maxY, doorway.maxZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::rotateZ, Vec3d::add);
 		final double minX = Math.min(Math.min(doorwayPosition1.x, doorwayPosition2.x), Math.min(doorwayPosition3.x, doorwayPosition4.x));
 		final double maxX = Math.max(Math.max(doorwayPosition1.x, doorwayPosition2.x), Math.max(doorwayPosition3.x, doorwayPosition4.x));
 		final double minY = Math.min(Math.min(doorwayPosition1.y, doorwayPosition2.y), Math.min(doorwayPosition3.y, doorwayPosition4.y));
@@ -80,10 +80,10 @@ public class RenderVehicleHelper {
 	public static void renderFloorOrDoorway(Box floorOrDoorway, int color, Vec3d playerPosition, PositionAndRotation positionAndRotation, boolean useOffset) {
 		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().player;
 		if (clientPlayerEntity != null && clientPlayerEntity.isHolding(Items.BRUSH.get())) {
-			final Vec3d corner1 = positionAndRotation.transformForwards(new Vec3d(floorOrDoorway.minX, floorOrDoorway.maxY, floorOrDoorway.minZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
-			final Vec3d corner2 = positionAndRotation.transformForwards(new Vec3d(floorOrDoorway.maxX, floorOrDoorway.maxY, floorOrDoorway.minZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
-			final Vec3d corner3 = positionAndRotation.transformForwards(new Vec3d(floorOrDoorway.maxX, floorOrDoorway.maxY, floorOrDoorway.maxZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
-			final Vec3d corner4 = positionAndRotation.transformForwards(new Vec3d(floorOrDoorway.minX, floorOrDoorway.maxY, floorOrDoorway.maxZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::add);
+			final Vec3d corner1 = positionAndRotation.transformForwards(new Vec3d(floorOrDoorway.minX, floorOrDoorway.maxY, floorOrDoorway.minZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::rotateZ, Vec3d::add);
+			final Vec3d corner2 = positionAndRotation.transformForwards(new Vec3d(floorOrDoorway.maxX, floorOrDoorway.maxY, floorOrDoorway.minZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::rotateZ, Vec3d::add);
+			final Vec3d corner3 = positionAndRotation.transformForwards(new Vec3d(floorOrDoorway.maxX, floorOrDoorway.maxY, floorOrDoorway.maxZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::rotateZ, Vec3d::add);
+			final Vec3d corner4 = positionAndRotation.transformForwards(new Vec3d(floorOrDoorway.minX, floorOrDoorway.maxY, floorOrDoorway.maxZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::rotateZ, Vec3d::add);
 			final int newColor = boxContains(floorOrDoorway,
 					playerPosition.x - HALF_PLAYER_WIDTH,
 					playerPosition.y,

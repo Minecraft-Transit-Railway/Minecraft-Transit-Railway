@@ -1,14 +1,16 @@
 package org.mtr.tool;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.RotationAxis;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.awt.*;
 
@@ -53,16 +55,20 @@ public final class Drawing {
 		this.vertexConsumer = vertexConsumer;
 	}
 
-	public Drawing(@Nonnull Matrix4f matrix4f, VertexConsumer vertexConsumer) {
+	public Drawing(Matrix4f matrix4f, VertexConsumer vertexConsumer) {
 		this.matrix4f = matrix4f;
 		matrixStack = null;
 		this.vertexConsumer = vertexConsumer;
 	}
 
-	public Drawing(@Nonnull MatrixStack matrixStack, VertexConsumer vertexConsumer) {
+	public Drawing(MatrixStack matrixStack, VertexConsumer vertexConsumer) {
 		matrix4f = null;
 		this.matrixStack = matrixStack;
 		this.vertexConsumer = vertexConsumer;
+	}
+
+	public Drawing(MatrixStack matrixStack, RenderLayer renderLayer) {
+		this(matrixStack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(renderLayer));
 	}
 
 	// Vertices
@@ -241,6 +247,30 @@ public final class Drawing {
 	}
 
 	// Utilities
+
+	public static void rotateXRadians(MatrixStack matrixStack, float angle) {
+		matrixStack.multiply(RotationAxis.POSITIVE_X.rotation(angle));
+	}
+
+	public static void rotateYRadians(MatrixStack matrixStack, float angle) {
+		matrixStack.multiply(RotationAxis.POSITIVE_Y.rotation(angle));
+	}
+
+	public static void rotateZRadians(MatrixStack matrixStack, float angle) {
+		matrixStack.multiply(RotationAxis.POSITIVE_Z.rotation(angle));
+	}
+
+	public static void rotateXDegrees(MatrixStack matrixStack, float angle) {
+		matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(angle));
+	}
+
+	public static void rotateYDegrees(MatrixStack matrixStack, float angle) {
+		matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(angle));
+	}
+
+	public static void rotateZDegrees(MatrixStack matrixStack, float angle) {
+		matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(angle));
+	}
 
 	private static void vertex(VertexConsumer vertexConsumer, float x, float y, float z, int color, int light, float u, float v, boolean hasLightAndNormal, boolean hasUvAndOverlay) {
 		VertexConsumer vertexConsumerNew = vertexConsumer.vertex(x, y, z).color(color);

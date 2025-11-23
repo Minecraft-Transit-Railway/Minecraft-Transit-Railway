@@ -15,7 +15,7 @@ import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.data.Siding;
 import org.mtr.core.data.VehicleCar;
 import org.mtr.core.tool.Utilities;
-import org.mtr.font.FontGroups;
+import org.mtr.font.FontGroupRegistry;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.resource.VehicleResource;
@@ -320,7 +320,7 @@ public final class VehicleSelectorScreen extends ScreenBase {
 		}
 		if (!canAddCar) {
 			drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING + 1, y + GuiHelper.DEFAULT_PADDING + 1, GuiHelper.MINECRAFT_FONT_SIZE - 2, GuiHelper.MINECRAFT_FONT_SIZE - 2).setColor(GuiHelper.BACKGROUND_COLOR).draw();
-			FontGroups.renderMTR(drawing, "!", FontRenderOptions.builder()
+			FontGroupRegistry.MTR.get().render(drawing, "!", FontRenderOptions.builder()
 					.color(GuiHelper.WHITE_COLOR)
 					.offsetX(x)
 					.offsetY((float) y)
