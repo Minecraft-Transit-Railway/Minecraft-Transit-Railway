@@ -279,18 +279,18 @@ public final class MapWidget extends ClickableWidgetBase {
 				if (!hoverStations.isEmpty()) {
 					final ScrollableListWidget<Station> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setAreas(scrollableListWidget, hoverStations, null, hasPermission ? ObjectArrayList.of(
-							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, onStartEditingArea::accept),
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, station -> minecraftClient.setScreen(new StationScreen(station, dashboardScreen))),
-							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, station -> onDeleteData.accept(station, new DeleteDataRequest().addStationId(station.getId())))
+							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, (index, station) -> onStartEditingArea.accept(station)),
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (index, station) -> minecraftClient.setScreen(new StationScreen(station, dashboardScreen))),
+							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (index, station) -> onDeleteData.accept(station, new DeleteDataRequest().addStationId(station.getId())))
 					) : new ObjectArrayList<>());
 					scrollableListWidget.tryTrigger();
 				}
 				if (!hoverPlatforms.isEmpty()) {
 					final ScrollableListWidget<Platform> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setSavedRails(scrollableListWidget, hoverPlatforms, hasPermission ? editingRoute == null ? ObjectArrayList.of(
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, platform -> minecraftClient.setScreen(new PlatformScreen(platform, dashboardScreen)))
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (index, platform) -> minecraftClient.setScreen(new PlatformScreen(platform, dashboardScreen)))
 					) : ObjectArrayList.of(
-							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, platform -> {
+							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, (index, platform) -> {
 								if (editingRoute != null) {
 									final RoutePlatformData routePlatformData = new RoutePlatformData(platform.getId());
 									if (Screen.hasShiftDown()) {
@@ -307,16 +307,16 @@ public final class MapWidget extends ClickableWidgetBase {
 				if (!hoverDepots.isEmpty()) {
 					final ScrollableListWidget<Depot> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setAreas(scrollableListWidget, hoverDepots, null, hasPermission ? ObjectArrayList.of(
-							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, onStartEditingArea::accept),
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, depot -> minecraftClient.setScreen(new DepotScreen(depot, dashboardScreen))),
-							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, depot -> onDeleteData.accept(depot, new DeleteDataRequest().addDepotId(depot.getId())))
+							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, (index, depot) -> onStartEditingArea.accept(depot)),
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (index, depot) -> minecraftClient.setScreen(new DepotScreen(depot, dashboardScreen))),
+							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (index, depot) -> onDeleteData.accept(depot, new DeleteDataRequest().addDepotId(depot.getId())))
 					) : new ObjectArrayList<>());
 					scrollableListWidget.tryTrigger();
 				}
 				if (!hoverSidings.isEmpty()) {
 					final ScrollableListWidget<Siding> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setSavedRails(scrollableListWidget, hoverSidings, hasPermission ? ObjectArrayList.of(
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, siding -> minecraftClient.setScreen(new SidingScreen(siding, dashboardScreen)))
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (index, siding) -> minecraftClient.setScreen(new SidingScreen(siding, dashboardScreen)))
 					) : new ObjectArrayList<>());
 					scrollableListWidget.tryTrigger();
 				}

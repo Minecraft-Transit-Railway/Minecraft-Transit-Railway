@@ -87,7 +87,7 @@ public final class SignButtonsComponent extends UIComponent {
 	public void onClick(EditSignCallback editSignCallback) {
 		onMouseClickConsumer(clickEvent -> {
 			if (hoveringSignResource != null) {
-				editSignCallback.accept(editingIndex, new LongAVLTreeSet(), hoveringSignResource);
+				editSignCallback.accept(editingIndex, hoveringSignResource);
 			}
 		});
 	}
@@ -109,6 +109,6 @@ public final class SignButtonsComponent extends UIComponent {
 	}
 
 	public interface EditSignCallback {
-		void accept(int editingIndex, LongAVLTreeSet selectedIdsSet, SignResource signResource);
+		void accept(int editingIndex, SignResource signResource);
 	}
 }

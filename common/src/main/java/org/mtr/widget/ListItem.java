@@ -8,7 +8,6 @@ import org.mtr.tool.Drawing;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
-import java.util.function.Consumer;
 
 /**
  * A representation of an entry for the {@link ScrollableListWidget}.
@@ -30,17 +29,17 @@ public final class ListItem<T> {
 	@Nullable
 	private final ObjectArrayList<ListItem<T>> children;
 	@Nullable
-	private final ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<T>>> actions;
+	private final ObjectArrayList<ObjectObjectImmutablePair<Identifier, ActionConsumer<T>>> actions;
 
 	public static <T> ListItem<T> createParent(DrawIcon drawIcon, int iconWidth, String text, String key, ObjectArrayList<ListItem<T>> children) {
 		return new ListItem<>(drawIcon, iconWidth, null, text, key, children, null);
 	}
 
-	public static <T> ListItem<T> createChild(DrawIcon drawIcon, int iconWidth, T data, String text, ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<T>>> actions) {
+	public static <T> ListItem<T> createChild(DrawIcon drawIcon, int iconWidth, T data, String text, ObjectArrayList<ObjectObjectImmutablePair<Identifier, ActionConsumer<T>>> actions) {
 		return new ListItem<>(drawIcon, iconWidth, data, text, null, null, actions);
 	}
 
-	private ListItem(DrawIcon drawIcon, int iconWidth, @Nullable T data, String text, @Nullable String parentKey, @Nullable ObjectArrayList<ListItem<T>> children, @Nullable ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<T>>> actions) {
+	private ListItem(DrawIcon drawIcon, int iconWidth, @Nullable T data, String text, @Nullable String parentKey, @Nullable ObjectArrayList<ListItem<T>> children, @Nullable ObjectArrayList<ObjectObjectImmutablePair<Identifier, ActionConsumer<T>>> actions) {
 		this.drawIcon = drawIcon;
 		this.iconWidth = iconWidth;
 		this.data = data;
@@ -73,11 +72,11 @@ public final class ListItem<T> {
 		return actions == null ? 0 : actions.size();
 	}
 
-	public void iterateActions(ActionsConsumer<T> consumer) {
+	public void iterateActions(int dataIndex, ActionsConsumer consumer) {
 		if (actions != null && !isParent()) {
 			for (int i = 0; i < actions.size(); i++) {
-				final ObjectObjectImmutablePair<Identifier, Consumer<T>> action = actions.get(i);
-				consumer.accept(i, action.left(), () -> action.right().accept(data));
+				final ObjectObjectImmutablePair<Identifier, ActionConsumer<T>> action = actions.get(i);
+				consumer.accept(i, action.left(), () -> action.right().accept(dataIndex, data));
 			}
 		}
 	}
@@ -186,12 +185,17 @@ public final class ListItem<T> {
 
 	@FunctionalInterface
 	public interface DrawIcon {
-		void draw(Drawing drawing, int x, double y);
+		void draw(Drawing drawing, float x, float y);
 	}
 
 	@FunctionalInterface
-	public interface ActionsConsumer<T> {
+	public interface ActionsConsumer {
 		void accept(int index, Identifier identifier, Runnable callback);
+	}
+
+	@FunctionalInterface
+	public interface ActionConsumer<T> {
+		void accept(int index, T data);
 	}
 
 	@FunctionalInterface

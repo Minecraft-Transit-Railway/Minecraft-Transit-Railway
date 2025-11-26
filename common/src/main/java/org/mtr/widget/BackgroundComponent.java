@@ -25,7 +25,7 @@ public final class BackgroundComponent extends StitchedImageComponent {
 	private static final int TAB_HEIGHT = 32;
 	private static final int TAB_ICON_SIZE = 16;
 
-	public BackgroundComponent(Window parent, float width, float height, ObjectImmutableList<ObjectObjectImmutablePair<ReleasedDynamicTexture, String>> tabs) {
+	public BackgroundComponent(Window parent, ObjectImmutableList<ObjectObjectImmutablePair<ReleasedDynamicTexture, String>> tabs) {
 		super(256, 256, 176, 222, TEXTURE_BORDER, -INNER_PADDING, 6, 6, 170, 16, ReleasedDynamicTextureRegistry.BACKGROUND_TEXTURE.get());
 		containers = new UIContainer[tabs.size()];
 		this.tabs = tabs;
@@ -38,8 +38,8 @@ public final class BackgroundComponent extends StitchedImageComponent {
 		}
 
 		setChildOf(parent);
-		setWidth(new CoerceAtMostConstraint(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(OUTER_PADDING * 2)), new PixelConstraint(width)));
-		setHeight(new CoerceAtMostConstraint(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(OUTER_PADDING * 2)), new PixelConstraint(height)));
+		setWidth(new CoerceAtMostConstraint(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(OUTER_PADDING * 2)), new PixelConstraint(320)));
+		setHeight(new CoerceAtMostConstraint(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(OUTER_PADDING * 2)), new PixelConstraint(240)));
 		setX(new CenterConstraint());
 		setY(new CenterConstraint());
 		updateContainers();

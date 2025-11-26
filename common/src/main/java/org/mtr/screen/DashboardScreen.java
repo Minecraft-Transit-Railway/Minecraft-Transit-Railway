@@ -1,6 +1,9 @@
 package org.mtr.screen;
 
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
@@ -26,7 +29,6 @@ import org.mtr.widget.*;
 
 import javax.annotation.Nullable;
 import java.util.Random;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public final class DashboardScreen extends ScreenBase {
@@ -50,7 +52,7 @@ public final class DashboardScreen extends ScreenBase {
 	private final ScrollableListWidget<Station> stationsListWidget = new ScrollableListWidget<>();
 	private final ScrollableListWidget<Platform> stationPlatformsListWidget = new ScrollableListWidget<>();
 	private final ScrollableListWidget<Route> routesListWidget = new ScrollableListWidget<>();
-	private final ScrollableListWidget<ObjectIntImmutablePair<RoutePlatformData>> routePlatformsListWidget = new ScrollableListWidget<>();
+	private final ScrollableListWidget<RoutePlatformData> routePlatformsListWidget = new ScrollableListWidget<>();
 	private final ScrollableListWidget<Depot> depotsListWidget = new ScrollableListWidget<>();
 	private final ScrollableListWidget<Siding> depotSidingsListWidget = new ScrollableListWidget<>();
 
@@ -308,21 +310,25 @@ public final class DashboardScreen extends ScreenBase {
 		addRouteButton.visible = selectedIndex == 1 && editingRoute == null && hasPermission;
 		addDepotButton.visible = selectedIndex == 2 && editingArea == null && hasPermission;
 
-		doneEditingStationButton.visible = stationNameTextField.visible = selectedIndex == 0 && editingArea != null && hasPermission;
-		doneEditingRouteButton.visible = routeNameTextField.visible = selectedIndex == 1 && editingRoute != null && editingRoutePlatformIndex < 0 && hasPermission;
-		doneEditingDepotButton.visible = depotNameTextField.visible = selectedIndex == 2 && editingArea != null && hasPermission;
-		doneEditingRouteDestinationButton.visible = routeDestinationTextField.visible = selectedIndex == 1 && editingRoute != null && editingRoutePlatformIndex >= 0 && hasPermission;
+		doneEditingStationButton.visible = selectedIndex == 0 && editingArea != null && hasPermission;
+		stationNameTextField.visible = doneEditingStationButton.visible;
+		doneEditingRouteButton.visible = selectedIndex == 1 && editingRoute != null && editingRoutePlatformIndex < 0 && hasPermission;
+		routeNameTextField.visible = doneEditingRouteButton.visible;
+		doneEditingDepotButton.visible = selectedIndex == 2 && editingArea != null && hasPermission;
+		depotNameTextField.visible = doneEditingDepotButton.visible;
+		doneEditingRouteDestinationButton.visible = selectedIndex == 1 && editingRoute != null && editingRoutePlatformIndex >= 0 && hasPermission;
+		routeDestinationTextField.visible = doneEditingRouteDestinationButton.visible;
 
 		openColorSelectorButton.visible = stationNameTextField.visible || routeNameTextField.visible || depotNameTextField.visible;
 
 		switch (selectedIndex) {
 			case 0 -> {
 				if (editingArea == null) {
-					final ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<Station>>> actions = ObjectArrayList.of(new ObjectObjectImmutablePair<>(GuiHelper.FIND_TEXTURE_ID, mapWidget::find));
+					final ObjectArrayList<ObjectObjectImmutablePair<Identifier, ListItem.ActionConsumer<Station>>> actions = ObjectArrayList.of(new ObjectObjectImmutablePair<>(GuiHelper.FIND_TEXTURE_ID, (index, station) -> mapWidget.find(station)));
 					if (hasPermission) {
-						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, this::startEditingArea));
-						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, station -> MinecraftClient.getInstance().setScreen(new StationScreen(station, this))));
-						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, station -> onDeleteData(station, new DeleteDataRequest().addStationId(station.getId()))));
+						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, (index, station) -> startEditingArea(station)));
+						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (index, station) -> MinecraftClient.getInstance().setScreen(new StationScreen(station, this))));
+						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (index, station) -> onDeleteData(station, new DeleteDataRequest().addStationId(station.getId()))));
 					}
 					ScrollableListWidget.setAreas(stationsListWidget, MinecraftClientData.getDashboardInstance().stations, null, actions);
 				} else {
@@ -331,27 +337,27 @@ public final class DashboardScreen extends ScreenBase {
 			}
 			case 1 -> {
 				if (editingRoute == null) {
-					final ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<Route>>> actions = ObjectArrayList.of(new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, route -> System.out.println("editing " + route.getName())));
+					final ObjectArrayList<ObjectObjectImmutablePair<Identifier, ListItem.ActionConsumer<Route>>> actions = ObjectArrayList.of(new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (index, route) -> System.out.println("editing " + route.getName())));
 					if (hasPermission) {
-						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, this::startEditingRoute));
-						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, route -> onDeleteData(route, new DeleteDataRequest().addRouteId(route.getId()))));
+						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, (index, route) -> startEditingRoute(route)));
+						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (index, route) -> onDeleteData(route, new DeleteDataRequest().addRouteId(route.getId()))));
 					}
 					ScrollableListWidget.setRoutes(routesListWidget, MinecraftClientData.getDashboardInstance().routes, transportMode, actions);
 				} else {
 					ScrollableListWidget.setRoutePlatforms(routePlatformsListWidget, editingRoute.getRoutePlatforms(), hasPermission ? ObjectArrayList.of(
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, routePlatformDataWithIndex -> startEditingRouteDestination(routePlatformDataWithIndex.rightInt())),
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (index, routePlatformData) -> startEditingRouteDestination(index)),
 							ScrollableListWidget.createUpButton(editingRoute.getRoutePlatforms(), null),
 							ScrollableListWidget.createDownButton(editingRoute.getRoutePlatforms(), null),
-							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, routePlatformDataWithIndex -> Utilities.removeElement(editingRoute.getRoutePlatforms(), routePlatformDataWithIndex.rightInt()))
+							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (index, routePlatformData) -> Utilities.removeElement(editingRoute.getRoutePlatforms(), index))
 					) : new ObjectArrayList<>());
 				}
 			}
 			case 2 -> {
-				final ObjectArrayList<ObjectObjectImmutablePair<Identifier, Consumer<Depot>>> actions = ObjectArrayList.of(new ObjectObjectImmutablePair<>(GuiHelper.FIND_TEXTURE_ID, mapWidget::find));
+				final ObjectArrayList<ObjectObjectImmutablePair<Identifier, ListItem.ActionConsumer<Depot>>> actions = ObjectArrayList.of(new ObjectObjectImmutablePair<>(GuiHelper.FIND_TEXTURE_ID, (index, depot) -> mapWidget.find(depot)));
 				if (hasPermission) {
-					actions.add(new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, this::startEditingArea));
-					actions.add(new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, depot -> MinecraftClient.getInstance().setScreen(new DepotScreen(depot, this))));
-					actions.add(new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, depot -> onDeleteData(depot, new DeleteDataRequest().addDepotId(depot.getId()))));
+					actions.add(new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, (index, depot) -> startEditingArea(depot)));
+					actions.add(new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (index, depot) -> MinecraftClient.getInstance().setScreen(new DepotScreen(depot, this))));
+					actions.add(new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (index, depot) -> onDeleteData(depot, new DeleteDataRequest().addDepotId(depot.getId()))));
 				}
 				ScrollableListWidget.setAreas(depotsListWidget, MinecraftClientData.getDashboardInstance().depots, transportMode, actions);
 			}

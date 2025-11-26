@@ -3,22 +3,30 @@ package org.mtr.screen;
 import gg.essential.elementa.components.ScrollComponent;
 import gg.essential.elementa.components.UIContainer;
 import gg.essential.elementa.constraints.*;
+import gg.essential.universal.UMinecraft;
 import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import it.unimi.dsi.fastutil.longs.LongArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
+import org.mtr.MTRClient;
 import org.mtr.block.BlockRailwaySign;
 import org.mtr.client.CustomResourceLoader;
+import org.mtr.client.MinecraftClientData;
+import org.mtr.core.data.*;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.packet.PacketUpdateRailwaySignConfig;
 import org.mtr.registry.RegistryClient;
 import org.mtr.resource.SignResource;
+import org.mtr.resource.SignType;
 import org.mtr.tool.GuiHelper;
 import org.mtr.widget.*;
 
 import javax.annotation.Nullable;
+import java.util.stream.Collectors;
 
 public final class RailwaySignScreenNew extends WindowBase {
 
@@ -43,7 +51,7 @@ public final class RailwaySignScreenNew extends WindowBase {
 
 			if (signIds.length > 0) {
 				this.signPos = signPos;
-				final BackgroundComponent backgroundComponent = new BackgroundComponent(getWindow(), 320, 240, ObjectImmutableList.of());
+				final BackgroundComponent backgroundComponent = new BackgroundComponent(getWindow(), ObjectImmutableList.of());
 
 				final UIContainer topContainer = (UIContainer) new UIContainer()
 						.setChildOf(backgroundComponent)
@@ -117,9 +125,93 @@ public final class RailwaySignScreenNew extends WindowBase {
 
 		signPreviewComponent.onEdit(signButtonsComponent::setEditingIndex);
 		searchComponent.onChange(() -> signButtonsComponent.setSearch(searchComponent.getText()));
-		signButtonsComponent.onClick((editingIndex, selectedIdsSet, signResource) -> {
+
+		signButtonsComponent.onClick((editingIndex, signResource) -> {
 			signIds[editingIndex] = signResource.signId;
-			selectedIds[editingIndex] = selectedIdsSet;
+			if (signResource.getSignType() != SignType.NORMAL) {
+				final Station station = signPos == null ? null : MTRClient.findStation(signPos);
+				if (station != null) {
+					final ListSelectorScreen<?> listSelectorScreen = switch (signResource.getSignType()) {
+						case EXIT -> createExitListSelectorScreen(editingIndex, station);
+						case PLATFORM -> createPlatformListSelectorScreen(editingIndex, station);
+						case ROUTE -> createRouteListSelectorScreen(editingIndex, station);
+						case STATION -> createStationListSelectorScreen(editingIndex, station);
+						default -> null;
+					};
+
+					if (listSelectorScreen != null) {
+						UMinecraft.setCurrentScreenObj(listSelectorScreen);
+					}
+				}
+			}
 		});
+	}
+
+	private PlatformListSelectorScreen createExitListSelectorScreen(int editingIndex, Station station) {
+		return null;
+	}
+
+	private PlatformListSelectorScreen createPlatformListSelectorScreen(int editingIndex, Station station) {
+		final PlatformListSelectorScreen platformListSelectorScreen = new PlatformListSelectorScreen(selectedPlatforms -> {
+			selectedIds[editingIndex].clear();
+			selectedPlatforms.forEach(selectedPlatform -> selectedIds[editingIndex].add(selectedPlatform.getId()));
+		}, this);
+
+		final ObjectArraySet<Platform> platforms = new ObjectArraySet<>(station.savedRails);
+		platformListSelectorScreen.setAvailableList(platforms);
+		platforms.forEach(platform -> {
+			if (selectedIds[editingIndex].contains(platform.getId())) {
+				platformListSelectorScreen.selectData(platform);
+			}
+		});
+
+		return platformListSelectorScreen;
+	}
+
+	private RouteListSelectorScreen createRouteListSelectorScreen(int editingIndex, Station station) {
+		final RouteListSelectorScreen routeListSelectorScreen = new RouteListSelectorScreen(selectedRoutes -> {
+			selectedIds[editingIndex].clear();
+			selectedRoutes.forEach(selectedRoute -> selectedIds[editingIndex].add(selectedRoute.getColor()));
+		}, this);
+
+		final ObjectArraySet<Route> routes = new ObjectArraySet<>();
+		final MinecraftClientData minecraftClientData = MinecraftClientData.getInstance();
+		final LongArraySet platformIds = station.savedRails.stream().map(NameColorDataBase::getId).collect(Collectors.toCollection(LongArraySet::new));
+
+		minecraftClientData.simplifiedRoutes.forEach(simplifiedRoute -> {
+			if (simplifiedRoute.getPlatforms().stream().anyMatch(simplifiedRoutePlatform -> platformIds.contains(simplifiedRoutePlatform.getPlatformId()))) {
+				final Route route = new Route(TransportMode.values()[0], minecraftClientData);
+				route.setName(simplifiedRoute.getName());
+				route.setColor(simplifiedRoute.getColor());
+				routes.add(route);
+			}
+		});
+
+		routeListSelectorScreen.setAvailableList(routes);
+		routes.forEach(route -> {
+			if (selectedIds[editingIndex].contains(route.getColor())) {
+				routeListSelectorScreen.selectData(route);
+			}
+		});
+
+		return routeListSelectorScreen;
+	}
+
+	private StationListSelectorScreen createStationListSelectorScreen(int editingIndex, Station station) {
+		final StationListSelectorScreen stationListSelectorScreen = new StationListSelectorScreen(selectedStations -> {
+			selectedIds[editingIndex].clear();
+			selectedStations.forEach(selectedStation -> selectedIds[editingIndex].add(selectedStation.getId()));
+		}, this);
+
+		final ObjectArraySet<Station> stations = ObjectArraySet.of(station);
+		stations.addAll(station.connectedStations);
+		stationListSelectorScreen.setAvailableList(stations);
+		stations.forEach(checkStation -> {
+			if (selectedIds[editingIndex].contains(checkStation.getId())) {
+				stationListSelectorScreen.selectData(checkStation);
+			}
+		});
+
+		return stationListSelectorScreen;
 	}
 }

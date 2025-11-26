@@ -44,7 +44,7 @@ public final class StationScreen extends ScrollableScreenBase {
 	private final BetterTextFieldWidget textFieldExitDestination;
 	private final BetterButtonWidget doneEditingExitButton;
 
-	private final ScrollableListWidget<ObjectIntImmutablePair<FormattedStationExit>> exitsListWidget = new ScrollableListWidget<>();
+	private final ScrollableListWidget<FormattedStationExit> exitsListWidget = new ScrollableListWidget<>();
 	private final ColorSelectorWidget colorSelector;
 
 	public StationScreen(Station station, Screen previousScreen) {
@@ -58,7 +58,7 @@ public final class StationScreen extends ScrollableScreenBase {
 		textFieldZoneY = new BetterTextFieldWidget(DashboardScreen.MAX_COLOR_ZONE_LENGTH, TextCase.DEFAULT, "[^-\\d]", TranslationProvider.GUI_MTR_ZONE_Y.getString(), ONE_THIRD_WIDGET_WIDTH, null);
 		textFieldZoneZ = new BetterTextFieldWidget(DashboardScreen.MAX_COLOR_ZONE_LENGTH, TextCase.DEFAULT, "[^-\\d]", TranslationProvider.GUI_MTR_ZONE_Z.getString(), ONE_THIRD_WIDGET_WIDTH, null);
 
-		addExitButton = new BetterButtonWidget(GuiHelper.ADD_TEXTURE_ID, TranslationProvider.GUI_MTR_ADD_EXIT.getString(), FULL_WIDGET_WIDTH, () -> startEditingExitCallback(null));
+		addExitButton = new BetterButtonWidget(GuiHelper.ADD_TEXTURE_ID, TranslationProvider.GUI_MTR_ADD_EXIT.getString(), FULL_WIDGET_WIDTH, () -> startEditingExitCallback(null, 0));
 		textFieldExitName = new BetterTextFieldWidget(4, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_EXIT_NAME.getString(), HALF_WIDGET_WIDTH / 2, null);
 		doneEditingExitButton = new BetterButtonWidget(GuiHelper.CHECK_TEXTURE_ID, Text.translatable("gui.done").getString(), 0, this::doneEditingExitCallback);
 		textFieldExitDestination = new BetterTextFieldWidget(1024, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_EXIT_DESTINATION.getString(), FULL_WIDGET_WIDTH - GuiHelper.DEFAULT_PADDING * 2 - textFieldExitName.getWidth() - doneEditingExitButton.getWidth(), null);
@@ -179,21 +179,20 @@ public final class StationScreen extends ScrollableScreenBase {
 		enableControls(false);
 	}
 
-	private void startEditingExitCallback(@Nullable ObjectIntImmutablePair<FormattedStationExit> editingExitWithIndex) {
+	private void startEditingExitCallback(@Nullable FormattedStationExit formattedStationExit, int index) {
 		addExitButton.visible = false;
 		textFieldExitName.visible = true;
 		textFieldExitDestination.visible = true;
 		doneEditingExitButton.visible = true;
 
-		this.editingExitWithIndex = editingExitWithIndex;
+		this.editingExitWithIndex = formattedStationExit == null ? null : new ObjectIntImmutablePair<>(formattedStationExit, index);
 
-		if (this.editingExitWithIndex == null) {
+		if (formattedStationExit == null) {
 			textFieldExitName.setText("");
 			textFieldExitDestination.setText("");
 		} else {
-			final FormattedStationExit editingExit = this.editingExitWithIndex.left();
-			textFieldExitName.setText(editingExit.name);
-			textFieldExitDestination.setText(Utilities.getElement(editingExit.destinations, this.editingExitWithIndex.rightInt(), ""));
+			textFieldExitName.setText(formattedStationExit.name);
+			textFieldExitDestination.setText(Utilities.getElement(formattedStationExit.destinations, index, ""));
 		}
 	}
 
@@ -284,20 +283,20 @@ public final class StationScreen extends ScrollableScreenBase {
 	 */
 	private void setExitListItems(@Nullable String expandedExitName) {
 		exitsListWidget.setData(tempStationExits.stream().sorted().map(exit -> {
-			final ObjectArrayList<ListItem<ObjectIntImmutablePair<FormattedStationExit>>> destinationListItems = new ObjectArrayList<>();
+			final ObjectArrayList<ListItem<FormattedStationExit>> destinationListItems = new ObjectArrayList<>();
 
 			for (int i = 0; i < exit.destinations.size(); i++) {
 				destinationListItems.add(ListItem.createChild((drawing, x, y) -> {
-				}, GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE, new ObjectIntImmutablePair<>(exit, i), exit.destinations.get(i), ObjectArrayList.of(
-						new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, this::startEditingExitCallback),
+				}, GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE, exit, exit.destinations.get(i), ObjectArrayList.of(
+						new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (index, exit1) -> startEditingExitCallback(exit1, index)),
 						ScrollableListWidget.createUpButton(exit.destinations, null),
 						ScrollableListWidget.createDownButton(exit.destinations, null),
-						new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, exitWithIndex -> deleteExitDestination(exitWithIndex.left(), exitWithIndex.rightInt()))
+						new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (index, exit1) -> deleteExitDestination(exit1, index))
 				)));
 			}
 
 			final int destinationsCount = exit.destinations.size();
-			final ListItem<ObjectIntImmutablePair<FormattedStationExit>> parentListItem = ListItem.createParent(
+			final ListItem<FormattedStationExit> parentListItem = ListItem.createParent(
 					(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(ColorHelper.fullAlpha(tempColor)).draw(),
 					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 					String.format("%s%s%s", exit.name, destinationsCount == 0 ? "" : " " + exit.destinations.getFirst(), destinationsCount > 1 ? String.format(" (+%s)", destinationsCount - 1) : ""),

@@ -23,7 +23,8 @@ public final class ReleasedDynamicTextureRegistry extends DynamicReloadableRegis
 
 	public static final Holder SLOT_TEXTURE = INSTANCE.create(Identifier.of("textures/gui/sprites/container/slot.png"));
 
-	public static final Holder ARROW_TEXTURE = INSTANCE.create(Identifier.of("textures/gui/sprites/statistics/sort_down.png"));
+	public static final Holder ARROW_DOWN_TEXTURE = INSTANCE.create(Identifier.of("textures/gui/sprites/statistics/sort_down.png"));
+	public static final Holder ARROW_UP_TEXTURE = INSTANCE.create(Identifier.of("textures/gui/sprites/statistics/sort_up.png"));
 	public static final Holder CROSS_TEXTURE = INSTANCE.create(Identifier.of("textures/gui/sprites/container/beacon/cancel.png"));
 
 	public static final Holder TAB_LEFT_TEXTURE = INSTANCE.create(Identifier.of("textures/gui/sprites/container/creative_inventory/tab_top_unselected_1.png"));

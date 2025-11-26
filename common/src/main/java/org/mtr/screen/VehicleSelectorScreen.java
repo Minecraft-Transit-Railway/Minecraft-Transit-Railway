@@ -38,7 +38,7 @@ public final class VehicleSelectorScreen extends ScreenBase {
 
 	private final ScrollableListWidget<Filter> filtersListWidget = new ScrollableListWidget<>();
 	private final ScrollableListWidget<VehicleResource> availableVehiclesListWidget = new ScrollableListWidget<>();
-	private final ScrollableListWidget<ObjectIntImmutablePair<VehicleResource>> selectedVehiclesListWidget = new ScrollableListWidget<>();
+	private final ScrollableListWidget<VehicleResource> selectedVehiclesListWidget = new ScrollableListWidget<>();
 
 	private final int filtersTextWidth;
 	private final int availableTextWidth;
@@ -169,7 +169,7 @@ public final class VehicleSelectorScreen extends ScreenBase {
 						new Filter(tagName, tag, vehicleIds, childSelected),
 						tag,
 						ObjectArrayList.of(
-								new ObjectObjectImmutablePair<>(childSelected ? GuiHelper.DELETE_TEXTURE_ID : GuiHelper.ADD_TEXTURE_ID, filter -> {
+								new ObjectObjectImmutablePair<>(childSelected ? GuiHelper.DELETE_TEXTURE_ID : GuiHelper.ADD_TEXTURE_ID, (index, filter) -> {
 									// Click action to modify the selected tags
 									if (childSelected) {
 										selectedChildren.remove(tag);
@@ -215,12 +215,12 @@ public final class VehicleSelectorScreen extends ScreenBase {
 
 				// Build the child list item
 				final ListItem<VehicleResource> childListItem = ListItem.createChild(
-						(drawing, x, y) -> drawVehicleIcon(drawing, x, y, canAddCar, true, vehicleResource.getColor()),
+						(drawing, x, y) -> drawVehicleIcon(drawing, (int) x, y, canAddCar, true, vehicleResource.getColor()),
 						GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 						vehicleResource,
 						vehicleResource.getName().getString(),
 						ObjectArrayList.of(
-								new ObjectObjectImmutablePair<>(GuiHelper.ADD_TEXTURE_ID, vehicleResource1 -> {
+								new ObjectObjectImmutablePair<>(GuiHelper.ADD_TEXTURE_ID, (index, vehicleResource1) -> {
 									selectedVehicleCars.add(toVehicleCar(vehicleResource1));
 									updateListWidgets();
 								})
@@ -252,7 +252,7 @@ public final class VehicleSelectorScreen extends ScreenBase {
 				return availableVehicleFamily.children.getFirst().left();
 			} else {
 				return ListItem.createParent(
-						(drawing, x, y) -> drawVehicleIcon(drawing, x, y, availableVehicleFamily.children.stream().anyMatch(ObjectBooleanImmutablePair::rightBoolean), false, availableVehicleFamily.color),
+						(drawing, x, y) -> drawVehicleIcon(drawing, (int) x, y, availableVehicleFamily.children.stream().anyMatch(ObjectBooleanImmutablePair::rightBoolean), false, availableVehicleFamily.color),
 						GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 						availableVehicleFamily.family,
 						availableVehicleFamily.family,
@@ -262,25 +262,24 @@ public final class VehicleSelectorScreen extends ScreenBase {
 		}).collect(Collectors.toCollection(ObjectArrayList::new)));
 
 		// Selected vehicles list widget
-		final ObjectArrayList<ListItem<ObjectIntImmutablePair<VehicleResource>>> selectedVehicleListItems = new ObjectArrayList<>();
+		final ObjectArrayList<ListItem<VehicleResource>> selectedVehicleListItems = new ObjectArrayList<>();
 		final ObjectArrayList<VehicleCar> currentVehicleCars = new ObjectArrayList<>();
 
 		for (int i = 0; i < selectedVehicleCars.size(); i++) {
-			final int index = i;
 			final VehicleCar vehicleCar = selectedVehicleCars.get(i);
 
 			CustomResourceLoader.getVehicleById(siding.getTransportMode(), vehicleCar.getVehicleId(), vehicleResourceDetails -> {
 				final boolean canAddCar = canAddCar(currentVehicleCars, vehicleResourceDetails.left());
 				selectedVehicleListItems.add(ListItem.createChild(
-						(drawing, x, y) -> drawVehicleIcon(drawing, x, y, canAddCar, false, vehicleResourceDetails.left().getColor()),
+						(drawing, x, y) -> drawVehicleIcon(drawing, (int) x, y, canAddCar, false, vehicleResourceDetails.left().getColor()),
 						GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
-						new ObjectIntImmutablePair<>(vehicleResourceDetails.left(), index),
+						vehicleResourceDetails.left(),
 						vehicleResourceDetails.left().getName().getString(),
 						ObjectArrayList.of(
 								ScrollableListWidget.createUpButton(selectedVehicleCars, this::updateListWidgets),
 								ScrollableListWidget.createDownButton(selectedVehicleCars, this::updateListWidgets),
-								new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, vehicleResourceWithIndex -> {
-									Utilities.removeElement(selectedVehicleCars, vehicleResourceWithIndex.rightInt());
+								new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (index, vehicleResource) -> {
+									Utilities.removeElement(selectedVehicleCars, index);
 									updateListWidgets();
 								})
 						)

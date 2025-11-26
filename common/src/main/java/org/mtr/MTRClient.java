@@ -412,6 +412,7 @@ public final class MTRClient {
 		return getGameMillis() == lastPlayedTrainSoundsMillis && !MinecraftClient.getInstance().isPaused();
 	}
 
+	@Nullable
 	public static Station findStation(BlockPos blockPos) {
 		return MinecraftClientData.getInstance().stations.stream().filter(station -> station.inArea(MTR.blockPosToPosition(blockPos))).findFirst().orElse(null);
 	}

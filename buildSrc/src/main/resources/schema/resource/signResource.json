@@ -14,6 +14,9 @@
 		"flipTexture": {
 			"type": "boolean"
 		},
+		"signType": {
+			"$ref": "SignType"
+		},
 		"customText": {
 			"type": "string"
 		},
@@ -31,6 +34,7 @@
 		"id",
 		"textureResource",
 		"flipTexture",
+		"signType",
 		"customText",
 		"flipCustomText",
 		"small",

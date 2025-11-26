@@ -30,7 +30,7 @@ public final class SignResource extends SignResourceSchema {
 		super(readerBase);
 		updateData(readerBase);
 		textureId = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
-		hasCustomText = !customText.isEmpty();
+		hasCustomText = !customText.isEmpty() || signType != SignType.NORMAL;
 		isDefault = id.startsWith("!");
 		signId = isDefault ? id.substring(1) : id;
 	}
@@ -39,8 +39,12 @@ public final class SignResource extends SignResourceSchema {
 		return flipTexture;
 	}
 
+	public SignType getSignType() {
+		return signType;
+	}
+
 	public String getCustomText() {
-		return Text.translatable(customText).getString();
+		return customText.isEmpty() ? "" : Text.translatable(customText).getString();
 	}
 
 	public boolean getFlipCustomText() {

@@ -288,14 +288,14 @@
 		{
 			"id": "!exit_letter",
 			"textureResource": "mtr:textures/block/sign/exit_letter.png",
-			"customText": "sign.mtr.exit_letter",
+			"signType": "EXIT",
 			"small": true,
 			"flipCustomText": false
 		},
 		{
 			"id": "!exit_letter_flipped",
 			"textureResource": "mtr:textures/block/sign/exit_letter.png",
-			"customText": "sign.mtr.exit_letter",
+			"signType": "EXIT",
 			"small": true,
 			"flipCustomText": true
 		},
@@ -334,6 +334,7 @@
 		{
 			"id": "!platform",
 			"textureResource": "mtr:textures/block/sign/platform.png",
+			"signType": "PLATFORM",
 			"customText": "sign.mtr.platform",
 			"small": true,
 			"flipCustomText": false
@@ -341,6 +342,7 @@
 		{
 			"id": "!platform_flipped",
 			"textureResource": "mtr:textures/block/sign/platform.png",
+			"signType": "PLATFORM",
 			"customText": "sign.mtr.platform",
 			"small": true,
 			"flipCustomText": true
@@ -348,20 +350,21 @@
 		{
 			"id": "!line",
 			"textureResource": "mtr:textures/block/sign/line.png",
-			"customText": "sign.mtr.line",
+			"signType": "ROUTE",
 			"small": true,
 			"flipCustomText": false
 		},
 		{
 			"id": "!line_flipped",
 			"textureResource": "mtr:textures/block/sign/line.png",
-			"customText": "sign.mtr.line",
+			"signType": "ROUTE",
 			"small": true,
 			"flipCustomText": true
 		},
 		{
 			"id": "!station",
 			"textureResource": "mtr:textures/block/sign/station.png",
+			"signType": "STATION",
 			"customText": "sign.mtr.station",
 			"small": false,
 			"flipCustomText": false
@@ -369,6 +372,7 @@
 		{
 			"id": "!station_flipped",
 			"textureResource": "mtr:textures/block/sign/station.png",
+			"signType": "STATION",
 			"customText": "sign.mtr.station",
 			"small": false,
 			"flipCustomText": true

@@ -46,7 +46,7 @@ public final class RailModifierScreen extends WindowBase {
 	private Rail.Shape shape;
 	private final Rail rail;
 
-	private final BackgroundComponent backgroundComponent = new BackgroundComponent(getWindow(), 320, 240, ObjectImmutableList.of(
+	private final BackgroundComponent backgroundComponent = new BackgroundComponent(getWindow(), ObjectImmutableList.of(
 			new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.POPPY_TEXTURE.get(), TranslationProvider.GUI_MTR_RAIL_APPEARANCE.getString()),
 			new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.DIAMOND_PICKAXE_TEXTURE.get(), TranslationProvider.GUI_MTR_RAIL_TILT.getString())
 	));

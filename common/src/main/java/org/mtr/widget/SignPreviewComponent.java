@@ -8,6 +8,7 @@ import net.minecraft.client.gui.screen.Screen;
 import org.mtr.core.tool.Utilities;
 import org.mtr.registry.UConverters;
 import org.mtr.resource.SignResource;
+import org.mtr.tool.GuiAnimation;
 import org.mtr.tool.ReleasedDynamicTextureRegistry;
 
 import java.awt.*;
@@ -21,9 +22,11 @@ public final class SignPreviewComponent extends SlotBackgroundComponent {
 
 	private final LongAVLTreeSet[] selectedIds;
 	private final String[] signIds;
+	private final GuiAnimation guiAnimation = new GuiAnimation();
 
 	private static final int SPRITE_SIZE = 18;
-	private static final int ARROW_OFFSET = 12;
+	private static final int ARROW_OFFSET = 14;
+	private static final int ANIMATION_DURATION = 200;
 
 	public SignPreviewComponent(LongAVLTreeSet[] selectedIds, String[] signIds) {
 		this.selectedIds = selectedIds;
@@ -39,21 +42,18 @@ public final class SignPreviewComponent extends SlotBackgroundComponent {
 	@Override
 	public void draw(UMatrixStack matrixStack) {
 		super.draw(matrixStack);
+		guiAnimation.tick();
 		final float left = getLeft() + 1;
 		final float top = getTop() + 1;
 		final float right = getRight() - 1;
 		final float bottom = getBottom() - 1;
 		final float signSize = bottom - top;
 
-		if (editingIndex >= 0) {
-			drawTexture(ReleasedDynamicTextureRegistry.ARROW_TEXTURE.get(), vertexConsumer -> {
-				final float x = left + editingIndex * signSize + (signSize - SPRITE_SIZE) / 2;
-				final float y1 = top - ARROW_OFFSET;
-				final float y2 = bottom + ARROW_OFFSET - SPRITE_SIZE;
-				drawTexturedQuad(matrixStack, vertexConsumer, x, y1, x + SPRITE_SIZE, y1 + SPRITE_SIZE, 0, 0, 1, 1);
-				drawTexturedQuad(matrixStack, vertexConsumer, x, y2, x + SPRITE_SIZE, y2 + SPRITE_SIZE, 0, 1, 1, 0);
-			});
-		}
+		drawTexture(ReleasedDynamicTextureRegistry.ARROW_DOWN_TEXTURE.get(), vertexConsumer -> {
+			final double x = left + guiAnimation.getCurrentValue() * signSize + (signSize - SPRITE_SIZE) / 2;
+			final double y = top - ARROW_OFFSET;
+			drawTexturedQuad(matrixStack, vertexConsumer, (float) x, (float) y, (float) x + SPRITE_SIZE, (float) y + SPRITE_SIZE, 0, 0, 1, 1);
+		});
 
 		matrixStack.push();
 		matrixStack.translate(getLeft() + 1, getTop() + 1, 0);
@@ -125,6 +125,7 @@ public final class SignPreviewComponent extends SlotBackgroundComponent {
 			if (hoverEditIndex >= 0 && hoverEditIndex < signIds.length) {
 				callback.accept(hoverEditIndex);
 				editingIndex = hoverEditIndex;
+				guiAnimation.animate(editingIndex, ANIMATION_DURATION);
 			}
 		});
 	}
