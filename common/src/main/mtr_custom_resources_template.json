@@ -333,7 +333,7 @@
 		},
 		{
 			"id": "!platform",
-			"textureResource": "mtr:textures/block/sign/platform.png",
+			"textureResource": "mtr:textures/block/sign/circle.png",
 			"signType": "PLATFORM",
 			"customText": "sign.mtr.platform",
 			"small": true,
@@ -341,24 +341,58 @@
 		},
 		{
 			"id": "!platform_flipped",
-			"textureResource": "mtr:textures/block/sign/platform.png",
+			"textureResource": "mtr:textures/block/sign/circle.png",
 			"signType": "PLATFORM",
 			"customText": "sign.mtr.platform",
 			"small": true,
 			"flipCustomText": true
 		},
 		{
+			"id": "!platform_2",
+			"textureResource": "mtr:textures/block/sign/square.png",
+			"signType": "PLATFORM",
+			"customText": "sign.mtr.platform",
+			"small": false,
+			"flipCustomText": false
+		},
+		{
+			"id": "!platform_2_flipped",
+			"textureResource": "mtr:textures/block/sign/square.png",
+			"signType": "PLATFORM",
+			"customText": "sign.mtr.platform",
+			"small": false,
+			"flipCustomText": true
+		},
+		{
 			"id": "!line",
-			"textureResource": "mtr:textures/block/sign/line.png",
+			"textureResource": "mtr:textures/block/sign/square.png",
 			"signType": "ROUTE",
+			"customText": "sign.mtr.route",
 			"small": true,
 			"flipCustomText": false
 		},
 		{
 			"id": "!line_flipped",
-			"textureResource": "mtr:textures/block/sign/line.png",
+			"textureResource": "mtr:textures/block/sign/square.png",
 			"signType": "ROUTE",
+			"customText": "sign.mtr.route",
 			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "!line_2",
+			"textureResource": "mtr:textures/block/sign/square.png",
+			"signType": "ROUTE",
+			"customText": "sign.mtr.route",
+			"small": false,
+			"flipCustomText": false
+		},
+		{
+			"id": "!line_2_flipped",
+			"textureResource": "mtr:textures/block/sign/square.png",
+			"signType": "ROUTE",
+			"customText": "sign.mtr.route",
+			"small": false,
 			"flipCustomText": true
 		},
 		{

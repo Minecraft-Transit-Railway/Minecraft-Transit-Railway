@@ -38,7 +38,6 @@ import org.mtr.packet.PacketGetUniqueWorldId;
 import org.mtr.packet.PacketRequestData;
 import org.mtr.registry.*;
 import org.mtr.render.*;
-import org.mtr.resource.CachedResource;
 import org.mtr.screen.BetaWarningScreen;
 import org.mtr.servlet.ClientServlet;
 import org.mtr.servlet.ResourcePackCreatorOperationServlet;
@@ -326,7 +325,6 @@ public final class MTRClient {
 			final long millisElapsed = currentMillis - lastMillis;
 			lastMillis = currentMillis;
 			gameMillis += millisElapsed;
-			CachedResource.tick();
 			BetaWarningScreen.handle();
 
 			if (mapTileProvider != null) {

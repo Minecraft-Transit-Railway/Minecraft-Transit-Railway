@@ -12,6 +12,7 @@ import net.minecraft.util.math.ColorHelper;
 import org.mtr.core.tool.Utilities;
 
 import javax.annotation.Nullable;
+import java.awt.*;
 
 public final class GuiHelper {
 
@@ -79,6 +80,17 @@ public final class GuiHelper {
 	 */
 	public static SizeConstraint createAspectConstraintWithPadding(float aspect, float padding) {
 		return new AdditiveConstraint(new ScaleConstraint(new SubtractiveConstraint(new AspectConstraint(), new PixelConstraint(padding * 2)), aspect), new PixelConstraint(padding * 2));
+	}
+
+	public static Color rainbowColor() {
+		final long timeR = System.currentTimeMillis() % 3000;
+		final long timeG = (timeR + 1000) % 3000;
+		final long timeB = (timeR + 2000) % 3000;
+		return new Color(
+				timeR < 2000 ? (float) Math.sin(timeR * Math.PI / 2000) : 0,
+				timeG < 2000 ? (float) Math.sin(timeG * Math.PI / 2000) : 0,
+				timeB < 2000 ? (float) Math.sin(timeB * Math.PI / 2000) : 0
+		);
 	}
 
 	/**

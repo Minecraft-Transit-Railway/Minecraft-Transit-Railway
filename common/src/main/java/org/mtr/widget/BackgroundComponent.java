@@ -18,7 +18,7 @@ public final class BackgroundComponent extends StitchedImageComponent {
 	public final UIContainer[] containers;
 	private final ObjectImmutableList<ObjectObjectImmutablePair<ReleasedDynamicTexture, String>> tabs;
 
-	private static final int TEXTURE_BORDER = 4;
+	private static final int TEXTURE_BORDER = 6;
 	private static final int INNER_PADDING = 8;
 	private static final int OUTER_PADDING = 40;
 	private static final int TAB_WIDTH = 26;

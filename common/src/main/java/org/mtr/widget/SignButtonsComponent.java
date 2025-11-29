@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import kotlin.Pair;
 import lombok.Setter;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.math.BlockPos;
 import org.mtr.registry.UConverters;
 import org.mtr.resource.SignResource;
 import org.mtr.tool.ReleasedDynamicTextureRegistry;
@@ -23,6 +24,7 @@ public final class SignButtonsComponent extends UIComponent {
 	@Nullable
 	private SignResource hoveringSignResource;
 
+	private final BlockPos signPos;
 	private final ObjectArrayList<SignResource> signResources;
 	private final ObjectArrayList<SignResource> filteredSignResources = new ObjectArrayList<>();
 	private final int columns;
@@ -31,7 +33,8 @@ public final class SignButtonsComponent extends UIComponent {
 
 	public static final int PADDING = 2;
 
-	public SignButtonsComponent(ObjectArrayList<SignResource> signResources, int columns, int signWidthUnits) {
+	public SignButtonsComponent(BlockPos signPos, ObjectArrayList<SignResource> signResources, int columns, int signWidthUnits) {
+		this.signPos = signPos;
 		this.signResources = signResources;
 		this.columns = columns;
 		this.signWidthUnits = signWidthUnits;
@@ -77,7 +80,7 @@ public final class SignButtonsComponent extends UIComponent {
 
 			final SignResource[] currentSignResources = new SignResource[signWidthUnits];
 			currentSignResources[signResource.hasCustomText && signResource.getFlipCustomText() ? signWidthUnits - 1 : 0] = signResource;
-			SignResource.render(UConverters.convert(matrixStack), minecraftClient.getBufferBuilders().getEntityVertexConsumers(), x + 2, y + 2, selectedIds, currentSignResources, signHeight, 0);
+			SignResource.render(UConverters.convert(matrixStack), minecraftClient.getBufferBuilders().getEntityVertexConsumers(), signPos, x + 2, y + 2, selectedIds, currentSignResources, signHeight, 0, true);
 		}
 
 		minecraftClient.getBufferBuilders().getEntityVertexConsumers().draw();

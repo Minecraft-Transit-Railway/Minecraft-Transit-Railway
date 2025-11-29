@@ -1,7 +1,7 @@
 package org.mtr.resource;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.cache.GenericCache;
+import org.mtr.cache.GenericStringCache;
 import org.mtr.core.data.InterchangeColorsForStationName;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
@@ -14,8 +14,8 @@ public enum DisplayType {
 	DESTINATION, ROUTE_NUMBER, DEPARTURE_INDEX, NEXT_STATION, NEXT_STATION_KCR, NEXT_STATION_MTR, NEXT_STATION_UK, ROUTE_COLOR, ROUTE_COLOR_ROUNDED;
 
 	private static final int CACHE_TIMEOUT = 5000;
-	private static final GenericCache<String> NEXT_STATION_CACHE_HONG_KONG = new GenericCache<>(CACHE_TIMEOUT);
-	private static final GenericCache<String> NEXT_STATION_CACHE_LONDON = new GenericCache<>(CACHE_TIMEOUT);
+	private static final GenericStringCache<String> NEXT_STATION_CACHE_HONG_KONG = new GenericStringCache<>(CACHE_TIMEOUT, false);
+	private static final GenericStringCache<String> NEXT_STATION_CACHE_LONDON = new GenericStringCache<>(CACHE_TIMEOUT, false);
 
 	public static String getHongKongNextStationString(String thisStationName, String nextStationName, boolean atPlatform, boolean isKcr) {
 		if (atPlatform) {

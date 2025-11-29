@@ -27,6 +27,7 @@ import org.mtr.render.MainRenderer;
 import org.mtr.render.QueuedRenderLayer;
 import org.mtr.render.StoredMatrixTransformations;
 import org.mtr.tool.Drawing;
+import org.mtr.tool.GuiHelper;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -273,7 +274,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 	private void renderLineColor(StoredMatrixTransformations storedMatrixTransformations, ModelDisplayPart modelDisplayPart, VehicleExtension vehicle, boolean fromResourcePackCreator) {
 		final int color;
 		if (fromResourcePackCreator) {
-			color = IGui.ARGB_BLACK | rainbowColor();
+			color = GuiHelper.rainbowColor().getRGB();
 		} else {
 			color = getOrDefault(IGui.ARGB_BLACK | vehicle.vehicleExtraData.getThisRouteColor(), IGui.ARGB_BLACK | vehicle.vehicleExtraData.getNextRouteColor(), IGui.ARGB_BLACK | vehicle.vehicleExtraData.getPreviousRouteColor(), 0, vehicle);
 		}
@@ -502,16 +503,6 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 		} catch (Exception ignored) {
 			return defaultColor;
 		}
-	}
-
-	private static int rainbowColor() {
-		final long timeR = System.currentTimeMillis() % 3000;
-		final long timeG = (timeR + 1000) % 3000;
-		final long timeB = (timeR + 2000) % 3000;
-		int r = timeR < 2000 ? (int) Math.round(Math.sin(timeR * Math.PI / 2000) * 0xFF) : 0;
-		int g = timeG < 2000 ? (int) Math.round(Math.sin(timeG * Math.PI / 2000) * 0xFF) : 0;
-		int b = timeB < 2000 ? (int) Math.round(Math.sin(timeB * Math.PI / 2000) * 0xFF) : 0;
-		return (r << 16) + (g << 8) + b;
 	}
 
 	private static String getOrDefault(String checkText, String defaultText) {

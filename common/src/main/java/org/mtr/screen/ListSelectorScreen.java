@@ -1,6 +1,5 @@
 package org.mtr.screen;
 
-import gg.essential.elementa.components.ScrollComponent;
 import gg.essential.elementa.components.UIContainer;
 import gg.essential.elementa.constraints.*;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -9,9 +8,11 @@ import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.util.Identifier;
 import org.mtr.core.data.NameColorDataBase;
+import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.tool.GuiHelper;
 import org.mtr.widget.*;
 
+import java.awt.*;
 import java.util.Collections;
 import java.util.function.Consumer;
 
@@ -78,21 +79,27 @@ public abstract class ListSelectorScreen<T extends NameColorDataBase> extends Wi
 				.setWidth(new RelativeConstraint())
 				.setHeight(new PixelConstraint(20));
 
+		textInputComponent.setPlaceholderText(TranslationProvider.GUI_MTR_SEARCH.getString());
+
 		final SlotBackgroundComponent slotBackgroundComponent = (SlotBackgroundComponent) new SlotBackgroundComponent()
 				.setChildOf(container)
 				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
 				.setWidth(new RelativeConstraint())
 				.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)));
 
-		final ScrollComponent scrollComponent = ((ScrollPanelComponent) new ScrollPanelComponent(false)
+		slotBackgroundComponent.setBackgroundColor(Color.BLACK);
+
+		final ScrollPanelComponent scrollPanelComponent = (ScrollPanelComponent) new ScrollPanelComponent(false)
 				.setChildOf(slotBackgroundComponent)
 				.setX(new CenterConstraint())
 				.setY(new CenterConstraint())
 				.setWidth(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)))
-				.setHeight(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)))).contentContainer;
+				.setHeight(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)));
+
+		scrollPanelComponent.setScrollbarColor(Color.WHITE);
 
 		final ListComponent<T> listComponent = new ListComponent<>();
-		listComponent.setChildOf(scrollComponent).setWidth(new RelativeConstraint()).setHeight(new RelativeConstraint());
+		listComponent.setChildOf(scrollPanelComponent.contentContainer).setWidth(new RelativeConstraint()).setHeight(new RelativeConstraint());
 		textInputComponent.onChange(() -> listComponent.setFilter(textInputComponent.getText()));
 		return listComponent;
 	}

@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import kotlin.Pair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.util.math.BlockPos;
 import org.mtr.core.tool.Utilities;
 import org.mtr.registry.UConverters;
 import org.mtr.resource.SignResource;
@@ -20,6 +21,7 @@ public final class SignPreviewComponent extends SlotBackgroundComponent {
 	private int hoverEditIndex;
 	private int hoverDeleteIndex;
 
+	private final BlockPos signPos;
 	private final LongAVLTreeSet[] selectedIds;
 	private final String[] signIds;
 	private final GuiAnimation guiAnimation = new GuiAnimation();
@@ -28,7 +30,8 @@ public final class SignPreviewComponent extends SlotBackgroundComponent {
 	private static final int ARROW_OFFSET = 14;
 	private static final int ANIMATION_DURATION = 200;
 
-	public SignPreviewComponent(LongAVLTreeSet[] selectedIds, String[] signIds) {
+	public SignPreviewComponent(BlockPos signPos, LongAVLTreeSet[] selectedIds, String[] signIds) {
+		this.signPos = signPos;
 		this.selectedIds = selectedIds;
 		this.signIds = signIds;
 
@@ -58,7 +61,7 @@ public final class SignPreviewComponent extends SlotBackgroundComponent {
 		matrixStack.push();
 		matrixStack.translate(getLeft() + 1, getTop() + 1, 0);
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		SignResource.render(UConverters.convert(matrixStack), minecraftClient.getBufferBuilders().getEntityVertexConsumers(), selectedIds, signIds, getHeight() - 2, 0);
+		SignResource.render(UConverters.convert(matrixStack), minecraftClient.getBufferBuilders().getEntityVertexConsumers(), signPos, selectedIds, signIds, getHeight() - 2, 0, true);
 		minecraftClient.getBufferBuilders().getEntityVertexConsumers().draw();
 		matrixStack.pop();
 

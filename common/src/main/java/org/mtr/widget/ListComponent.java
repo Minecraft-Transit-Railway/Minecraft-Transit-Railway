@@ -21,10 +21,10 @@ import org.mtr.font.FontGroupRegistry;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.registry.UConverters;
+import org.mtr.resource.SignResource;
 import org.mtr.tool.DataHelper;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
-import org.mtr.tool.RouteHelper;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -204,9 +204,9 @@ public final class ListComponent<T> extends UIComponent {
 			final IntArrayList colors;
 			final String text;
 			if (savedRail instanceof Platform) {
-				final ObjectObjectImmutablePair<IntArrayList, String> colorsAndDestinationString = RouteHelper.getRouteColorsAndDestinationString(savedRail.getId(), true, false);
-				colors = colorsAndDestinationString.left();
-				text = colorsAndDestinationString.right().isEmpty() ? TranslationProvider.GUI_MTR_EMPTY_PLATFORM.getString() : Utilities.formatName(colorsAndDestinationString.right());
+				final ObjectObjectImmutablePair<IntArrayList, String> platformColorsAndDestinations = SignResource.getPlatformColorsAndDestinations(savedRail.getId());
+				colors = platformColorsAndDestinations.left();
+				text = platformColorsAndDestinations.right().isEmpty() ? TranslationProvider.GUI_MTR_EMPTY_PLATFORM.getString() : Utilities.formatName(platformColorsAndDestinations.right());
 			} else if (savedRail instanceof Siding siding) {
 				colors = savedRail.area == null ? new IntArrayList() : IntArrayList.of(savedRail.area.getColor());
 				final ObjectArrayList<String> vehicleNames = new ObjectArrayList<>();

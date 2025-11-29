@@ -37,7 +37,7 @@ public final class RenderRailwaySign<T extends BlockRailwaySign.RailwaySignBlock
 		Drawing.rotateZDegrees(matrixStack, 180);
 		matrixStack.translate(blockRailwaySign.getXStart() / 16F - 0.5, -0.53125, -0.0625 - IGui.SMALL_OFFSET);
 
-		SignResource.render(matrixStack, vertexConsumerProvider, blockEntity.getSelectedIds(), blockEntity.getSignIds(), 0.5F, IGui.SMALL_OFFSET);
+		SignResource.render(matrixStack, vertexConsumerProvider, pos, blockEntity.getSelectedIds(), blockEntity.getSignIds(), 0.5F, IGui.SMALL_OFFSET, false);
 //		for (int i = 0; i < signIds.length; i++) {
 //			if (signIds[i] != null) {
 //				drawSign(
