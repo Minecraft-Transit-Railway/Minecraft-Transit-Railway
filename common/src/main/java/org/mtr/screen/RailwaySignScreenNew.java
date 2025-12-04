@@ -15,6 +15,7 @@ import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.data.Platform;
 import org.mtr.core.data.Route;
 import org.mtr.core.data.Station;
+import org.mtr.core.data.StationExit;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.packet.PacketUpdateRailwaySignConfig;
 import org.mtr.registry.RegistryClient;
@@ -133,8 +134,21 @@ public final class RailwaySignScreenNew extends WindowBase {
 		});
 	}
 
-	private PlatformListSelectorScreen createExitListSelectorScreen(int editingIndex) {
-		return null;
+	private StationExitListSelectorScreen createExitListSelectorScreen(int editingIndex) {
+		final StationExitListSelectorScreen stationExitListSelectorScreen = new StationExitListSelectorScreen(selectedStationExits -> {
+			selectedIds[editingIndex].clear();
+			selectedStationExits.forEach(selectedStationExit -> selectedIds[editingIndex].add(serializeExit(selectedStationExit.getName())));
+		}, this);
+
+		final ObjectArrayList<StationExit> stationExits = SignResource.getStationExits(signPos);
+		stationExitListSelectorScreen.setAvailableList(stationExits);
+		stationExits.forEach(stationExit -> {
+			if (selectedIds[editingIndex].contains(serializeExit(stationExit.getName()))) {
+				stationExitListSelectorScreen.selectData(stationExit);
+			}
+		});
+
+		return stationExitListSelectorScreen;
 	}
 
 	private PlatformListSelectorScreen createPlatformListSelectorScreen(int editingIndex) {
@@ -186,5 +200,15 @@ public final class RailwaySignScreenNew extends WindowBase {
 		});
 
 		return stationListSelectorScreen;
+	}
+
+	public static long serializeExit(String exitName) {
+		final char[] characters = exitName.toCharArray();
+		long code = 0;
+		for (final char character : characters) {
+			code = code << 8;
+			code += character;
+		}
+		return code;
 	}
 }

@@ -21,6 +21,7 @@ import org.mtr.font.FontGroupRegistry;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.registry.UConverters;
+import org.mtr.render.SpecialSignStationExitRenderer;
 import org.mtr.resource.SignResource;
 import org.mtr.tool.DataHelper;
 import org.mtr.tool.Drawing;
@@ -335,6 +336,27 @@ public final class ListComponent<T> extends UIComponent {
 		});
 
 		scrollableListWidget.setData(dataList);
+	}
+
+	public static void setStationExits(ListComponent<StationExit> listComponent, ObjectCollection<StationExit> stationExits, ObjectArrayList<ObjectObjectImmutablePair<Identifier, ListItem.ActionConsumer<StationExit>>> actions) {
+		final ObjectArrayList<ListItem<StationExit>> dataList = new ObjectArrayList<>();
+
+		stationExits.forEach(stationExit -> {
+			final ObjectArrayList<String> destinations = stationExit.getDestinations();
+			final String additional = destinations.size() > 1 ? String.format("|(+%s)", destinations.size() - 1) : "";
+			dataList.add(ListItem.createChild(
+					(drawing, x, y) -> {
+						drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING / 2F, y + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING).setColor(GuiHelper.DARK_GRAY_COLOR).draw();
+						SpecialSignStationExitRenderer.renderText(drawing, stationExit.getName(), x + GuiHelper.DEFAULT_LINE_SIZE / 2F, y + GuiHelper.DEFAULT_LINE_SIZE / 2F, 0, GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT, GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT);
+					},
+					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
+					stationExit,
+					destinations.isEmpty() ? "" : Utilities.formatName(String.format("%s%s", destinations.getFirst(), additional)),
+					actions
+			));
+		});
+
+		listComponent.setData(dataList);
 	}
 
 	public static <T> ObjectObjectImmutablePair<Identifier, ListItem.ActionConsumer<T>> createUpButton(ObjectArrayList<T> dataList, @Nullable Runnable onSort) {

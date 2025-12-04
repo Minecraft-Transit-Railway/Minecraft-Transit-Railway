@@ -7,7 +7,6 @@ import it.unimi.dsi.fastutil.objects.ObjectCollection;
 import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.util.Identifier;
-import org.mtr.core.data.NameColorDataBase;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.tool.GuiHelper;
 import org.mtr.widget.*;
@@ -16,7 +15,7 @@ import java.awt.*;
 import java.util.Collections;
 import java.util.function.Consumer;
 
-public abstract class ListSelectorScreen<T extends NameColorDataBase> extends WindowBase {
+public abstract class ListSelectorScreen<T extends U, U extends Comparable<U>> extends WindowBase {
 
 	private final ObjectArrayList<T> availableData = new ObjectArrayList<>();
 	private final ObjectArrayList<T> selectedData = new ObjectArrayList<>();

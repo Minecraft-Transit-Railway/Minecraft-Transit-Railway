@@ -288,6 +288,7 @@
 		{
 			"id": "!exit_letter",
 			"textureResource": "mtr:textures/block/sign/exit_letter.png",
+			"customText": "sign.mtr.exit",
 			"signType": "EXIT",
 			"small": true,
 			"flipCustomText": false
@@ -295,6 +296,7 @@
 		{
 			"id": "!exit_letter_flipped",
 			"textureResource": "mtr:textures/block/sign/exit_letter.png",
+			"customText": "sign.mtr.exit",
 			"signType": "EXIT",
 			"small": true,
 			"flipCustomText": true

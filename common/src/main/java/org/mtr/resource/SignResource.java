@@ -17,10 +17,14 @@ import org.mtr.client.CustomResourceLoader;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.*;
 import org.mtr.core.serializer.ReaderBase;
-import org.mtr.core.tool.Utilities;
 import org.mtr.font.FontGroupRegistry;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.generated.resource.SignResourceSchema;
+import org.mtr.render.SpecialSignPlatformRenderer;
+import org.mtr.render.SpecialSignRouteRenderer;
+import org.mtr.render.SpecialSignStationExitRenderer;
+import org.mtr.render.SpecialSignStationRenderer;
+import org.mtr.screen.RailwaySignScreenNew;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 import org.mtr.tool.RouteHelper;
@@ -40,7 +44,7 @@ public final class SignResource extends SignResourceSchema {
 	public final boolean isDefault;
 	public final String signId;
 
-	private static final float SMALL_SIGN_PADDING = 0.125F;
+	public static final float SMALL_SIGN_PADDING = 0.125F;
 
 	private static final int CACHE_TIMEOUT = 5000;
 	private static final GenericLongCache<Station> SIGN_STATION_CACHE = new GenericLongCache<>(CACHE_TIMEOUT, true);
@@ -48,6 +52,10 @@ public final class SignResource extends SignResourceSchema {
 	private static final GenericLongCache<ObjectObjectImmutablePair<IntArrayList, String>> SIGN_PLATFORM_COLORS_AND_DESTINATIONS_CACHE = new GenericLongCache<>(CACHE_TIMEOUT, true);
 	private static final GenericLongCache<ObjectArrayList<Route>> SIGN_ROUTES_CACHE = new GenericLongCache<>(CACHE_TIMEOUT, true);
 	private static final GenericLongCache<ObjectArrayList<Station>> SIGN_STATIONS_CACHE = new GenericLongCache<>(CACHE_TIMEOUT, true);
+	private static final SpecialSignPlatformRenderer SPECIAL_SIGN_PLATFORM_RENDERER = new SpecialSignPlatformRenderer();
+	private static final SpecialSignRouteRenderer SPECIAL_SIGN_ROUTE_RENDERER = new SpecialSignRouteRenderer();
+	private static final SpecialSignStationRenderer SPECIAL_SIGN_STATION_RENDERER = new SpecialSignStationRenderer();
+	private static final SpecialSignStationExitRenderer SPECIAL_SIGN_STATION_EXIT_RENDERER = new SpecialSignStationExitRenderer();
 
 	public SignResource(ReaderBase readerBase) {
 		super(readerBase);
@@ -151,11 +159,20 @@ public final class SignResource extends SignResourceSchema {
 					}
 				} else {
 					final LongAVLTreeSet selectedIdsSet = selectedIds[i];
-					final float totalSpace = (getTextSpace(signResources, i) + 1 + (signResource.small ? -1 : 1) * SMALL_SIGN_PADDING) * signSize;
+					final float totalSpace = (getTextSpace(signResources, i) + 1 + (signResource.small ? -1 : (signResource.signType == SignType.EXIT || signResource.signType == SignType.ROUTE ? 0 : 1)) * SMALL_SIGN_PADDING) * signSize;
 
 					switch (signResource.signType) {
+						case EXIT:
+							SPECIAL_SIGN_STATION_EXIT_RENDERER.render(
+									textureDrawing, deferredRenders,
+									x + i * signSize, y, zOffset,
+									signSize, getStationExits(blockPos).stream().filter(stationExit -> selectedIdsSet.contains(RailwaySignScreenNew.serializeExit(stationExit.getName()))).collect(Collectors.toCollection(ObjectArrayList::new)),
+									signResource.flipTexture, signResource.flipCustomText, signResource.small, signResource.getCustomText(),
+									totalSpace, renderPlaceholder
+							);
+							break;
 						case PLATFORM:
-							renderPlatforms(
+							SPECIAL_SIGN_PLATFORM_RENDERER.render(
 									textureDrawing, deferredRenders,
 									x + i * signSize, y, zOffset,
 									signSize, getPlatforms(blockPos).stream().filter(platform -> selectedIdsSet.contains(platform.getId())).collect(Collectors.toCollection(ObjectArrayList::new)),
@@ -164,10 +181,19 @@ public final class SignResource extends SignResourceSchema {
 							);
 							break;
 						case ROUTE:
-							renderRoutes(
+							SPECIAL_SIGN_ROUTE_RENDERER.render(
 									textureDrawing, deferredRenders,
 									x + i * signSize, y, zOffset,
 									signSize, getRoutes(blockPos).stream().filter(route -> selectedIdsSet.contains(route.getColor())).collect(Collectors.toCollection(ObjectArrayList::new)),
+									signResource.flipTexture, signResource.flipCustomText, signResource.small, signResource.getCustomText(),
+									totalSpace, renderPlaceholder
+							);
+							break;
+						case STATION:
+							SPECIAL_SIGN_STATION_RENDERER.render(
+									textureDrawing, deferredRenders,
+									x + i * signSize, y, zOffset,
+									signSize, getStations(blockPos).stream().filter(station -> selectedIdsSet.contains(station.getId())).collect(Collectors.toCollection(ObjectArrayList::new)),
 									signResource.flipTexture, signResource.flipCustomText, signResource.small, signResource.getCustomText(),
 									totalSpace, renderPlaceholder
 							);
@@ -233,6 +259,11 @@ public final class SignResource extends SignResourceSchema {
 		});
 	}
 
+	public static ObjectArrayList<StationExit> getStationExits(@Nullable BlockPos blockPos) {
+		final Station station = blockPos == null ? null : getStation(blockPos);
+		return station == null ? new ObjectArrayList<>() : station.getExits();
+	}
+
 	public static ObjectObjectImmutablePair<IntArrayList, String> getPlatformColorsAndDestinations(long platformId) {
 		return SIGN_PLATFORM_COLORS_AND_DESTINATIONS_CACHE.get(platformId, () -> RouteHelper.getRouteColorsAndDestinationString(platformId, true, false));
 	}
@@ -242,176 +273,19 @@ public final class SignResource extends SignResourceSchema {
 		return blockPos == null ? null : SIGN_STATION_CACHE.get(blockPos.asLong(), () -> MTRClient.findStation(blockPos));
 	}
 
-	private static void renderPlatforms(
-			Drawing textureDrawing, ObjectArrayList<Consumer<Drawing>> deferredRenders,
-			float x, float y, float zOffset,
-			float signSize, ObjectArrayList<Platform> platforms,
-			boolean flipTexture, boolean flipText, boolean small, String customText,
-			float totalSpace, boolean renderPlaceholder
-	) {
-		if (platforms.isEmpty() && !renderPlaceholder) {
-			return;
-		}
-
-		final int platformCount = Math.max(1, platforms.size());
-		final float verticalSpace = small ? (1 - SMALL_SIGN_PADDING * 2) * signSize : signSize;
-		final float largeTextureSize = verticalSpace / platformCount;
-		final float smallTextureSize = (verticalSpace - (platformCount - 1) * SMALL_SIGN_PADDING * signSize / platformCount) / platformCount;
-		final float textureSize = small ? smallTextureSize : largeTextureSize;
-
-		final float x1 = flipText ? x + signSize - textureSize - (small ? signSize * SMALL_SIGN_PADDING : 0) : x + (small ? signSize * SMALL_SIGN_PADDING : 0);
-		final float x2 = x1 + textureSize;
-
-		for (int i = 0; i < platformCount; i++) {
-			final Platform platform = Utilities.getElement(platforms, i);
-			final ObjectObjectImmutablePair<IntArrayList, String> platformColorsAndDestinations = platform == null ? null : getPlatformColorsAndDestinations(platform.getId());
-			final String platformName = platform == null ? String.valueOf(((System.currentTimeMillis() / 2000) % 4) + 1) : platform.getName();
-			final IntArrayList colors = platformColorsAndDestinations == null ? null : platformColorsAndDestinations.left();
-			final int colorCount = colors == null ? 1 : colors.size();
-			final float y1 = y + (small ? signSize * SMALL_SIGN_PADDING : 0) + i * largeTextureSize;
-
-			// Platform texture
-			for (int j = 0; j < colorCount; j++) {
-				textureDrawing.setVerticesWH(x1, y1 + textureSize * j / colorCount, textureSize, textureSize / colorCount, -zOffset).setColor(GuiHelper.BLACK_COLOR | (colors == null ? GuiHelper.rainbowColor().getRGB() : colors.getInt(j))).setUv(flipTexture ? 1 : 0, (float) j / colorCount, flipTexture ? 0 : 1, (float) (j + 1) / colorCount).draw();
-			}
-
-			deferredRenders.add(textDrawing -> {
-				// Platform number
-				FontGroupRegistry.MTR.get().render(textDrawing, platformName, FontRenderOptions.builder()
-						.horizontalSpace(textureSize * 0.75F)
-						.verticalSpace(textureSize * 0.75F)
-						.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)
-						.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
-						.horizontalPositioning(FontRenderOptions.Alignment.CENTER)
-						.verticalPositioning(FontRenderOptions.Alignment.CENTER)
-						.offsetX(x1 + textureSize / 2)
-						.offsetY(y1 + textureSize / 2)
-						.offsetZ(-zOffset * 2)
-						.maxFontSize(signSize)
-						.lineBreak(FontRenderOptions.LineBreak.SPLIT)
-						.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
-						.build());
-
-				// Platform destination
-				final float textSpace = totalSpace - textureSize - signSize * SMALL_SIGN_PADDING;
-				if (textSpace > 0) {
-					FontGroupRegistry.MTR.get().render(textDrawing, platformColorsAndDestinations == null ? customText : platformColorsAndDestinations.right(), FontRenderOptions.builder()
-							.horizontalSpace(textSpace)
-							.verticalSpace(Math.min(signSize * (1 - SMALL_SIGN_PADDING * 2), smallTextureSize))
-							.horizontalTextAlignment(flipText ? FontRenderOptions.Alignment.END : FontRenderOptions.Alignment.START)
-							.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
-							.horizontalPositioning(flipText ? FontRenderOptions.Alignment.END : FontRenderOptions.Alignment.START)
-							.verticalPositioning(FontRenderOptions.Alignment.CENTER)
-							.offsetX(flipText ? x1 - signSize * SMALL_SIGN_PADDING : x2 + signSize * SMALL_SIGN_PADDING)
-							.offsetY(y1 + textureSize / 2)
-							.offsetZ(-zOffset)
-							.cjkScaling(2)
-							.maxFontSize(signSize / 4)
-							.lineBreak(FontRenderOptions.LineBreak.SPLIT)
-							.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
-							.build());
-				}
-			});
-		}
-	}
-
-	private static void renderRoutes(
-			Drawing textureDrawing, ObjectArrayList<Consumer<Drawing>> deferredRenders,
-			float x, float y, float zOffset,
-			float signSize, ObjectArrayList<Route> routes,
-			boolean flipTexture, boolean flipText, boolean small, String customText,
-			float totalSpace, boolean renderPlaceholder
-	) {
-		if (routes.isEmpty() && !renderPlaceholder) {
-			return;
-		}
-
-		final int routeCount = Math.max(1, routes.size());
-		final float height = signSize * (small ? 1 - SMALL_SIGN_PADDING * 2 : 1);
-		final float paddingBetweenRoutes = signSize * SMALL_SIGN_PADDING / 2;
-		final float[] routeTextWidths = new float[routeCount];
-		final String[] routeNames = new String[routeCount];
-		float rawWidth = signSize * SMALL_SIGN_PADDING * 2 * routeCount + paddingBetweenRoutes * (routeCount - 1);
-
-		// Calculate text widths
-		for (int i = 0; i < routeCount; i++) {
-			final Route route = Utilities.getElement(routes, i);
-			routeNames[i] = route == null ? customText : route.getName().split("\\|\\|")[0];
-			routeTextWidths[i] = FontGroupRegistry.MTR.get().render(null, routeNames[i], FontRenderOptions.builder()
-					.verticalSpace(height - signSize * SMALL_SIGN_PADDING * 2)
-					.cjkScaling(2)
-					.maxFontSize(signSize / 4)
-					.lineBreak(FontRenderOptions.LineBreak.SPLIT)
-					.build()).leftFloat();
-			rawWidth += routeTextWidths[i];
-		}
-
-		final float scale = Math.min(1, totalSpace / rawWidth);
-		final float y1 = y + (small ? signSize * SMALL_SIGN_PADDING : 0);
-		float x1 = x + (flipText ? -1 : 1) * (small ? signSize * SMALL_SIGN_PADDING : 0) + (flipText ? signSize - rawWidth * scale : 0);
-
-		// Route texture (tiled to the right length)
-		for (int i = 0; i < routeCount; i++) {
-			final Route route = Utilities.getElement(routes, i);
-			final float textureWidth = (routeTextWidths[i] + signSize * SMALL_SIGN_PADDING * 2) * scale;
-			final int color = GuiHelper.BLACK_COLOR | (route == null ? GuiHelper.rainbowColor().getRGB() : route.getColor());
-			final float endTextureWidth;
-
-			if (textureWidth <= height) {
-				endTextureWidth = textureWidth / 2;
-			} else {
-				endTextureWidth = height / 4;
-				for (float j = 0; j < textureWidth - height / 2; j += height / 2) {
-					final float newX1 = x1 + endTextureWidth + j;
-					final float newX2 = Math.min(x1 + textureWidth - endTextureWidth, newX1 + height / 2);
-					final float u1 = endTextureWidth / height;
-					final float u2 = u1 + (newX2 - newX1) / height;
-					textureDrawing.setVertices(newX1, y1, newX2, y1 + height, -zOffset).setColor(color).setUv(flipTexture ? u2 : u1, 0, flipTexture ? u1 : u2, 1).draw();
-				}
-			}
-
-			final float u1 = endTextureWidth / height;
-			final float u2 = 1 - u1;
-			textureDrawing.setVerticesWH(x1, y1, endTextureWidth, height, -zOffset).setColor(color).setUv(flipTexture ? u1 : 0, 0, flipTexture ? 0 : u1, 1).draw();
-			textureDrawing.setVerticesWH(x1 + textureWidth - endTextureWidth, y1, endTextureWidth, height, -zOffset).setColor(color).setUv(flipTexture ? 1 : u2, 0, flipTexture ? u2 : 1, 1).draw();
-
-			final float textStart = x1 + signSize * SMALL_SIGN_PADDING;
-			final float textWidth = textureWidth - signSize * SMALL_SIGN_PADDING * 2;
-			final String routeName = routeNames[i];
-
-			if (textWidth > 0) {
-				deferredRenders.add(textDrawing -> FontGroupRegistry.MTR.get().render(textDrawing, routeName, FontRenderOptions.builder()
-						.horizontalSpace(textWidth)
-						.verticalSpace(height - signSize * SMALL_SIGN_PADDING * 2)
-						.horizontalTextAlignment(flipText ? FontRenderOptions.Alignment.END : FontRenderOptions.Alignment.START)
-						.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
-						.verticalPositioning(FontRenderOptions.Alignment.CENTER)
-						.offsetX(textStart)
-						.offsetY(y1 + height / 2)
-						.offsetZ(-zOffset * 2)
-						.cjkScaling(2)
-						.maxFontSize(signSize / 4)
-						.lineBreak(FontRenderOptions.LineBreak.SPLIT)
-						.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
-						.build()));
-			}
-
-			x1 += textureWidth + paddingBetweenRoutes * scale;
-		}
-	}
-
 	private static float getTextSpace(SignResource[] signResources, int index) {
 		final SignResource signResource = signResources[index];
 		final int direction = signResource.flipCustomText ? -1 : 1;
+		final boolean useRawUnits = (signResource.signType == SignType.EXIT || signResource.signType == SignType.ROUTE) && !signResource.small;
 		int checkIndex = index + direction;
-		float space = -SMALL_SIGN_PADDING * (signResource.small ? 1 : 2);
+		float space = useRawUnits ? 0 : -SMALL_SIGN_PADDING * (signResource.small ? 1 : 2);
 
 		while (checkIndex >= 0 && checkIndex < signResources.length) {
 			final SignResource checkSignResource = signResources[checkIndex];
 			if (checkSignResource == null) {
 				space++;
 			} else {
-				if (checkSignResource.small) {
+				if (!useRawUnits && checkSignResource.small) {
 					space += SMALL_SIGN_PADDING;
 				}
 				if (checkSignResource.hasCustomText && checkSignResource.flipCustomText != signResource.flipCustomText) {

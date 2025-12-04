@@ -31,7 +31,7 @@ public record FontGroup(ObjectImmutableList<FontProvider> fontProviders) {
 		float maxLineWidth = 0;
 		float totalLineHeight = 0;
 		final boolean hasCjkColor = fontRenderOptions.getCjkColor() != 0 && fontRenderOptions.getCjkColor() != fontRenderOptions.getColor();
-		final boolean shouldCheckCjk = drawing != null && (hasCjkColor || fontRenderOptions.getCjkScaling() != 1);
+		final boolean shouldCheckCjk = drawing != null && hasCjkColor || fontRenderOptions.getCjkScaling() != 1;
 		for (int i = 0; i < lines.length; i++) {
 			final boolean isCjk = shouldCheckCjk && IGui.isCjk(lines[i]);
 			fontSize[i] = (isCjk ? fontRenderOptions.getCjkScaling() : 1) * fontRenderOptions.getMaxFontSize();
