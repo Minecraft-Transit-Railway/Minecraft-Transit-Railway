@@ -3,9 +3,11 @@ package org.mtr.render;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.tool.Utilities;
-import org.mtr.font.FontGroupRegistry;
+import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.resource.SignResource;
 import org.mtr.tool.Drawing;
@@ -18,10 +20,10 @@ public abstract class SpecialSignPlatformStationRendererBase<T extends NameColor
 
 	@Override
 	public final void render(
-			Drawing textureDrawing, ObjectArrayList<Consumer<Drawing>> deferredRenders,
+			Drawing textureDrawing, ObjectArrayList<Consumer<MatrixStack>> deferredRenders,
 			float x, float y, float zOffset,
 			float signSize, ObjectArrayList<T> dataList,
-			boolean flipTexture, boolean flipText, boolean small, String customText,
+			boolean flipTexture, boolean flipText, boolean small, String customText, Identifier font,
 			float totalSpace, boolean renderPlaceholder
 	) {
 		if (dataList.isEmpty() && !renderPlaceholder) {
@@ -49,11 +51,12 @@ public abstract class SpecialSignPlatformStationRendererBase<T extends NameColor
 				textureDrawing.setVerticesWH(x1, y1 + textureSize * j / colorCount, textureSize, textureSize / colorCount, -zOffset).setColor(GuiHelper.BLACK_COLOR | (colors == null ? GuiHelper.rainbowColor().getRGB() : colors.getInt(j))).setUv(flipTexture ? 1 : 0, (float) j / colorCount, flipTexture ? 0 : 1, (float) (j + 1) / colorCount).draw();
 			}
 
-			deferredRenders.add(textDrawing -> {
+			deferredRenders.add(matrixStack -> {
 				// Texture overlay text
 				final String overlayText = getOverlayText(data);
 				if (overlayText != null) {
-					FontGroupRegistry.MTR.get().render(textDrawing, overlayText, FontRenderOptions.builder()
+					FontRenderHelper.render(matrixStack, overlayText, FontRenderOptions.builder()
+							.font(font)
 							.horizontalSpace(textureSize * 0.75F)
 							.verticalSpace(textureSize * 0.75F)
 							.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)
@@ -72,7 +75,8 @@ public abstract class SpecialSignPlatformStationRendererBase<T extends NameColor
 				// Text
 				final float textSpace = totalSpace - textureSize - signSize * SignResource.SMALL_SIGN_PADDING;
 				if (textSpace > 0) {
-					FontGroupRegistry.MTR.get().render(textDrawing, dataColorsAndDestinations == null ? customText : dataColorsAndDestinations.right(), FontRenderOptions.builder()
+					FontRenderHelper.render(matrixStack, dataColorsAndDestinations == null ? customText : dataColorsAndDestinations.right(), FontRenderOptions.builder()
+							.font(font)
 							.horizontalSpace(textSpace)
 							.verticalSpace(Math.min(signSize * (1 - SignResource.SMALL_SIGN_PADDING * 2), smallTextureSize))
 							.horizontalTextAlignment(flipText ? FontRenderOptions.Alignment.END : FontRenderOptions.Alignment.START)

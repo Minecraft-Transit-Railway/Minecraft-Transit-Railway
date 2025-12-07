@@ -1,11 +1,12 @@
 package org.mtr.render;
 
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import org.mtr.cache.GenericStringCache;
 import org.mtr.core.data.StationExit;
 import org.mtr.core.tool.Utilities;
-import org.mtr.font.FontGroupRegistry;
+import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
-import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 
 import javax.annotation.Nullable;
@@ -21,8 +22,8 @@ public final class SpecialSignStationExitRenderer extends SpecialSignRouteStatio
 	}
 
 	@Override
-	protected void renderOverlayText(Drawing drawing, String overlayText, float x, float y, float zOffset, float width, float height, float padding, boolean flipText) {
-		renderText(drawing, overlayText, x, y, zOffset * 2, width - padding * 2, height);
+	protected void renderOverlayText(MatrixStack matrixStack, String overlayText, Identifier font, float x, float y, float zOffset, float width, float height, float padding, boolean flipText) {
+		renderText(matrixStack, overlayText, font, x, y, zOffset * 2, width - padding * 2, height);
 	}
 
 	@Override
@@ -41,16 +42,17 @@ public final class SpecialSignStationExitRenderer extends SpecialSignRouteStatio
 		return data == null ? DEFAULT_EXIT_NAMES[(int) (System.currentTimeMillis() / 2000) % DEFAULT_EXIT_NAMES.length] : data.getName();
 	}
 
-	public static void renderText(Drawing drawing, String stationExitName, float x, float y, float zOffset, float width, float height) {
+	public static void renderText(MatrixStack matrixStack, String stationExitName, Identifier font, float x, float y, float zOffset, float width, float height) {
 		final String[] stationExitNameSplit = STATION_EXIT_NAME_SPLIT_CACHE.get(stationExitName, () -> splitStationExitName(stationExitName));
 		final float textSize = height * GuiHelper.MINECRAFT_FONT_SIZE / GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT;
-		final float width1 = FontGroupRegistry.MTR.get().render(null, stationExitNameSplit[0], FontRenderOptions.builder().maxFontSize(textSize).build()).leftFloat();
-		final float width2 = FontGroupRegistry.MTR.get().render(null, stationExitNameSplit[1], FontRenderOptions.builder().maxFontSize(textSize / 2).build()).leftFloat();
+		final float width1 = FontRenderHelper.render(null, stationExitNameSplit[0], FontRenderOptions.builder().maxFontSize(textSize).build()).leftFloat();
+		final float width2 = FontRenderHelper.render(null, stationExitNameSplit[1], FontRenderOptions.builder().maxFontSize(textSize / 2).build()).leftFloat();
 		final float scale = Math.min(1, width / (width1 + width2));
 		final float textX = x + (Math.max(0, width - width1 * scale - width2 * scale) - width) / 2;
 		final float textY = y + height / 2;
 
-		FontGroupRegistry.MTR.get().render(drawing, stationExitNameSplit[0], FontRenderOptions.builder()
+		FontRenderHelper.render(matrixStack, stationExitNameSplit[0], FontRenderOptions.builder()
+				.font(font)
 				.horizontalPositioning(FontRenderOptions.Alignment.START)
 				.verticalPositioning(FontRenderOptions.Alignment.END)
 				.horizontalSpace(width1 * scale)
@@ -65,11 +67,12 @@ public final class SpecialSignStationExitRenderer extends SpecialSignRouteStatio
 				.build()
 		);
 
-		FontGroupRegistry.MTR.get().render(drawing, stationExitNameSplit[1], FontRenderOptions.builder()
+		FontRenderHelper.render(matrixStack, stationExitNameSplit[1], FontRenderOptions.builder()
+				.font(font)
 				.horizontalPositioning(FontRenderOptions.Alignment.START)
 				.verticalPositioning(FontRenderOptions.Alignment.END)
 				.horizontalSpace(width2 * scale)
-				.verticalSpace(height - textSize * 0.375F)
+				.verticalSpace(height - textSize * 0.3125F)
 				.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)
 				.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
 				.maxFontSize(textSize / 2)

@@ -4,8 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.minecraft.util.Identifier;
 import org.mtr.data.IGui;
 import org.mtr.tool.GuiHelper;
+
+import javax.annotation.Nullable;
+import java.awt.*;
 
 @Getter
 @Builder
@@ -14,15 +18,27 @@ import org.mtr.tool.GuiHelper;
 public final class FontRenderOptions {
 
 	/**
-	 * Colour of the text (including alpha)
+	 * Colour of the text ({@code null} for the default Minecraft font)
 	 */
 	@Builder.Default
-	private int color = GuiHelper.WHITE_COLOR;
+	@Nullable
+	private Identifier font = null;
 	/**
-	 * Colour of the CJK text (including alpha)
+	 * Colour of the text
 	 */
 	@Builder.Default
-	private int cjkColor = 0;
+	private Color color = Color.WHITE;
+	/**
+	 * Colour of the CJK text ({@code null} for same as default colour)
+	 */
+	@Builder.Default
+	@Nullable
+	private Color cjkColor = null;
+	/**
+	 * Whether to draw the text shadow or not
+	 */
+	@Builder.Default
+	private boolean drawShadow = false;
 	/**
 	 * Brightness of the text
 	 */

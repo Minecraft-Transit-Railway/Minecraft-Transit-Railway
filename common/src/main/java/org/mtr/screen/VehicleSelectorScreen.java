@@ -6,6 +6,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
@@ -15,7 +16,7 @@ import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.data.Siding;
 import org.mtr.core.data.VehicleCar;
 import org.mtr.core.tool.Utilities;
-import org.mtr.font.FontGroupRegistry;
+import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.resource.VehicleResource;
@@ -26,6 +27,7 @@ import org.mtr.widget.ListItem;
 import org.mtr.widget.ScrollableListWidget;
 
 import javax.annotation.Nullable;
+import java.awt.*;
 import java.util.Comparator;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -165,6 +167,7 @@ public final class VehicleSelectorScreen extends ScreenBase {
 
 				childFilterListItems.add(ListItem.createChild(
 						(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING * 3 / 2F, y + GuiHelper.DEFAULT_PADDING * 3 / 2F, GuiHelper.DEFAULT_PADDING, GuiHelper.DEFAULT_PADDING).setColor(childSelected ? GuiHelper.RED_COLOR : GuiHelper.BLACK_COLOR).draw(),
+						null,
 						GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 						new Filter(tagName, tag, vehicleIds, childSelected),
 						tag,
@@ -194,6 +197,7 @@ public final class VehicleSelectorScreen extends ScreenBase {
 			final boolean parentSelected = !selectedChildren.isEmpty();
 			filterListItems.add(ListItem.createParent(
 					(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(parentSelected ? GuiHelper.RED_COLOR : GuiHelper.DARK_GRAY_COLOR).draw(),
+					null,
 					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 					tagName + (parentSelected ? String.format(" (%s)", selectedChildren.size()) : ""),
 					tagName,
@@ -216,6 +220,7 @@ public final class VehicleSelectorScreen extends ScreenBase {
 				// Build the child list item
 				final ListItem<VehicleResource> childListItem = ListItem.createChild(
 						(drawing, x, y) -> drawVehicleIcon(drawing, (int) x, y, canAddCar, true, vehicleResource.getColor()),
+						(matrixStack, x, y) -> drawVehicleIcon(matrixStack, (int) x, y, canAddCar),
 						GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 						vehicleResource,
 						vehicleResource.getName().getString(),
@@ -251,8 +256,10 @@ public final class VehicleSelectorScreen extends ScreenBase {
 			if (availableVehicleFamily.family == null || availableVehicleFamily.children.size() == 1) {
 				return availableVehicleFamily.children.getFirst().left();
 			} else {
+				final boolean canAddCar = availableVehicleFamily.children.stream().anyMatch(ObjectBooleanImmutablePair::rightBoolean);
 				return ListItem.createParent(
-						(drawing, x, y) -> drawVehicleIcon(drawing, (int) x, y, availableVehicleFamily.children.stream().anyMatch(ObjectBooleanImmutablePair::rightBoolean), false, availableVehicleFamily.color),
+						(drawing, x, y) -> drawVehicleIcon(drawing, (int) x, y, canAddCar, false, availableVehicleFamily.color),
+						(matrixStack, x, y) -> drawVehicleIcon(matrixStack, (int) x, y, canAddCar),
 						GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 						availableVehicleFamily.family,
 						availableVehicleFamily.family,
@@ -272,6 +279,7 @@ public final class VehicleSelectorScreen extends ScreenBase {
 				final boolean canAddCar = canAddCar(currentVehicleCars, vehicleResourceDetails.left());
 				selectedVehicleListItems.add(ListItem.createChild(
 						(drawing, x, y) -> drawVehicleIcon(drawing, (int) x, y, canAddCar, false, vehicleResourceDetails.left().getColor()),
+						(matrixStack, x, y) -> drawVehicleIcon(matrixStack, (int) x, y, canAddCar),
 						GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 						vehicleResourceDetails.left(),
 						vehicleResourceDetails.left().getName().getString(),
@@ -319,8 +327,13 @@ public final class VehicleSelectorScreen extends ScreenBase {
 		}
 		if (!canAddCar) {
 			drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING + 1, y + GuiHelper.DEFAULT_PADDING + 1, GuiHelper.MINECRAFT_FONT_SIZE - 2, GuiHelper.MINECRAFT_FONT_SIZE - 2).setColor(GuiHelper.BACKGROUND_COLOR).draw();
-			FontGroupRegistry.MTR.get().render(drawing, "!", FontRenderOptions.builder()
-					.color(GuiHelper.WHITE_COLOR)
+		}
+	}
+
+	private static void drawVehicleIcon(MatrixStack matrixStack, int x, double y, boolean canAddCar) {
+		if (!canAddCar) {
+			FontRenderHelper.render(matrixStack, "!", FontRenderOptions.builder()
+					.color(Color.WHITE)
 					.offsetX(x)
 					.offsetY((float) y)
 					.horizontalSpace(GuiHelper.DEFAULT_LINE_SIZE)

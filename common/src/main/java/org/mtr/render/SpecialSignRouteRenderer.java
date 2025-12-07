@@ -1,9 +1,10 @@
 package org.mtr.render;
 
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import org.mtr.core.data.Route;
-import org.mtr.font.FontGroupRegistry;
+import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
-import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 
 import javax.annotation.Nullable;
@@ -16,8 +17,9 @@ public final class SpecialSignRouteRenderer extends SpecialSignRouteStationExitR
 	}
 
 	@Override
-	protected void renderOverlayText(Drawing drawing, String overlayText, float x, float y, float zOffset, float width, float height, float padding, boolean flipText) {
-		FontGroupRegistry.MTR.get().render(drawing, overlayText, FontRenderOptions.builder()
+	protected void renderOverlayText(MatrixStack matrixStack, String overlayText, Identifier font, float x, float y, float zOffset, float width, float height, float padding, boolean flipText) {
+		FontRenderHelper.render(matrixStack, overlayText, FontRenderOptions.builder()
+				.font(font)
 				.horizontalPositioning(FontRenderOptions.Alignment.CENTER)
 				.verticalPositioning(FontRenderOptions.Alignment.CENTER)
 				.horizontalSpace(width - padding * 2)

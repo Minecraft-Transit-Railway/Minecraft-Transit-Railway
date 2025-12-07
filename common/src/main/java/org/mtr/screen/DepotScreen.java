@@ -337,6 +337,7 @@ public final class DepotScreen extends ScrollableScreenBase {
 			final String departureString = String.format("%02d:%02d:%02d", hour, minute, second);
 			realTimeDeparturesForList.add(ListItem.createChild(
 					(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(ColorHelper.fullAlpha(tempColor)).draw(),
+					null,
 					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 					new RealTimeDepartureForList(calendar.getTimeInMillis() - offset, departureString, i),
 					departureString,

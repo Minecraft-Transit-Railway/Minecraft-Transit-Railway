@@ -17,7 +17,7 @@ import net.minecraft.util.math.ColorHelper;
 import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.data.*;
 import org.mtr.core.tool.Utilities;
-import org.mtr.font.FontGroupRegistry;
+import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.registry.UConverters;
@@ -122,16 +122,21 @@ public final class ListComponent<T> extends UIComponent {
 			}
 
 			// Draw icon
-			listItem.drawIcon.draw(drawing, left, startY);
+			if (listItem.drawIcon != null) {
+				listItem.drawIcon.draw(drawing, left, startY);
+			}
+			if (listItem.deferredDrawIcon != null) {
+				deferredRenders.add(() -> listItem.deferredDrawIcon.draw(matrixStack, left, startY));
+			}
 
 			// Draw text
-			FontGroupRegistry.MTR.get().render(drawing, listItem.text, fontRenderOptionsBuilder
+			deferredRenders.add(() -> FontRenderHelper.render(matrixStack, listItem.text, fontRenderOptionsBuilder
 					.horizontalSpace(right - left - listItem.iconWidth - GuiHelper.DEFAULT_PADDING * 2 - (isMouseOver ? GuiHelper.DEFAULT_LINE_SIZE * listItem.actionCount() : 0))
 					.offsetX(left + listItem.iconWidth + GuiHelper.DEFAULT_PADDING)
 					.offsetY(startY)
 					.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
 					.build()
-			);
+			));
 
 			return false;
 		});
@@ -187,6 +192,7 @@ public final class ListComponent<T> extends UIComponent {
 
 		sortedAreas.forEach(area -> dataList.add(ListItem.createChild(
 				(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(ColorHelper.fullAlpha(area.getColor())).draw(),
+				null,
 				GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 				area,
 				Utilities.formatName(area.getName()),
@@ -229,10 +235,8 @@ public final class ListComponent<T> extends UIComponent {
 			}
 
 			dataList.add(ListItem.createChild(
-					(drawing, x, y) -> {
-						GuiHelper.drawCircle(drawing, x + GuiHelper.DEFAULT_PADDING / 2F, y + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING, 32, colors);
-						drawPlatformNumber(drawing, x, y, savedRail.getName());
-					},
+					(drawing, x, y) -> GuiHelper.drawCircle(drawing, x + GuiHelper.DEFAULT_PADDING / 2F, y + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING, 32, colors),
+					(matrixStack, x, y) -> drawPlatformNumber(matrixStack, x, y, savedRail.getName()),
 					GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING / 2,
 					savedRail,
 					text,
@@ -265,6 +269,7 @@ public final class ListComponent<T> extends UIComponent {
 					Collections.sort(combinedRouteNames);
 					groupedRoutes.add(ListItem.createChild(
 							(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(ColorHelper.fullAlpha(color)).draw(),
+							null,
 							GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 							lastRoute,
 							String.join("|", combinedRouteNames),
@@ -295,6 +300,7 @@ public final class ListComponent<T> extends UIComponent {
 				if (lastListItem == null || !routeKey.equals(lastKey)) {
 					currentListItem = ListItem.createParent(
 							(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(ColorHelper.fullAlpha(route.getColor())).draw(),
+							null,
 							GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 							Utilities.formatName(routeNameSplit[0]),
 							routeKey,
@@ -305,8 +311,7 @@ public final class ListComponent<T> extends UIComponent {
 					currentListItem = lastListItem;
 				}
 
-				currentListItem.addChild(ListItem.createChild((drawing, x, y) -> {
-				}, GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE, route, DataHelper.getNameOrUntitled(routeNameSplit.length > 1 ? routeNameSplit[1] : ""), actions));
+				currentListItem.addChild(ListItem.createChild(null, null, GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE, route, DataHelper.getNameOrUntitled(routeNameSplit.length > 1 ? routeNameSplit[1] : ""), actions));
 				lastKey = routeKey;
 			}
 		}
@@ -324,10 +329,8 @@ public final class ListComponent<T> extends UIComponent {
 			final String stationName = platform.area == null ? "" : Utilities.formatName(platform.area.getName());
 
 			dataList.add(ListItem.createChild(
-					(drawing, x, y) -> {
-						drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING / 2F, y + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING).setColor(stationColor).draw();
-						drawPlatformNumber(drawing, x, y, platform.getName());
-					},
+					(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING / 2F, y + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING).setColor(stationColor).draw(),
+					(matrixStack, x, y) -> drawPlatformNumber(matrixStack, x, y, platform.getName()),
 					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 					routePlatformData,
 					customDestinationPrefix + stationName,
@@ -345,10 +348,8 @@ public final class ListComponent<T> extends UIComponent {
 			final ObjectArrayList<String> destinations = stationExit.getDestinations();
 			final String additional = destinations.size() > 1 ? String.format("|(+%s)", destinations.size() - 1) : "";
 			dataList.add(ListItem.createChild(
-					(drawing, x, y) -> {
-						drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING / 2F, y + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING).setColor(GuiHelper.DARK_GRAY_COLOR).draw();
-						SpecialSignStationExitRenderer.renderText(drawing, stationExit.getName(), x + GuiHelper.DEFAULT_LINE_SIZE / 2F, y + GuiHelper.DEFAULT_LINE_SIZE / 2F, 0, GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT, GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT);
-					},
+					(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING / 2F, y + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING).setColor(GuiHelper.DARK_GRAY_COLOR).draw(),
+					(drawing, x, y) -> SpecialSignStationExitRenderer.renderText(drawing, stationExit.getName(), FontRenderHelper.MTR_FONT, x + GuiHelper.DEFAULT_LINE_SIZE / 2F, y + GuiHelper.DEFAULT_LINE_SIZE / 2F, 0, GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT, GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT),
 					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 					stationExit,
 					destinations.isEmpty() ? "" : Utilities.formatName(String.format("%s%s", destinations.getFirst(), additional)),
@@ -385,8 +386,8 @@ public final class ListComponent<T> extends UIComponent {
 		}
 	}
 
-	private static void drawPlatformNumber(Drawing drawing, double x, double y, String name) {
-		FontGroupRegistry.MTR.get().render(drawing, Utilities.formatName(name), FontRenderOptions.builder()
+	private static void drawPlatformNumber(MatrixStack matrixStack, double x, double y, String name) {
+		FontRenderHelper.render(matrixStack, Utilities.formatName(name), FontRenderOptions.builder()
 				.horizontalPositioning(FontRenderOptions.Alignment.CENTER)
 				.verticalPositioning(FontRenderOptions.Alignment.CENTER)
 				.horizontalSpace(GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT)

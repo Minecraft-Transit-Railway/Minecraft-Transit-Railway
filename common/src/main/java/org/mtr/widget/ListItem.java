@@ -3,6 +3,7 @@ package org.mtr.widget;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import org.mtr.tool.Drawing;
 
@@ -18,7 +19,10 @@ public final class ListItem<T> {
 
 	private boolean expanded;
 
+	@Nullable
 	public final DrawIcon drawIcon;
+	@Nullable
+	public final DeferredDrawIcon deferredDrawIcon;
 	public final int iconWidth;
 	@Nullable
 	public final T data;
@@ -31,16 +35,17 @@ public final class ListItem<T> {
 	@Nullable
 	private final ObjectArrayList<ObjectObjectImmutablePair<Identifier, ActionConsumer<T>>> actions;
 
-	public static <T> ListItem<T> createParent(DrawIcon drawIcon, int iconWidth, String text, String key, ObjectArrayList<ListItem<T>> children) {
-		return new ListItem<>(drawIcon, iconWidth, null, text, key, children, null);
+	public static <T> ListItem<T> createParent(@Nullable DrawIcon drawIcon, @Nullable DeferredDrawIcon deferredDrawIcon, int iconWidth, String text, String key, ObjectArrayList<ListItem<T>> children) {
+		return new ListItem<>(drawIcon, deferredDrawIcon, iconWidth, null, text, key, children, null);
 	}
 
-	public static <T> ListItem<T> createChild(DrawIcon drawIcon, int iconWidth, T data, String text, ObjectArrayList<ObjectObjectImmutablePair<Identifier, ActionConsumer<T>>> actions) {
-		return new ListItem<>(drawIcon, iconWidth, data, text, null, null, actions);
+	public static <T> ListItem<T> createChild(@Nullable DrawIcon drawIcon, @Nullable DeferredDrawIcon deferredDrawIcon, int iconWidth, T data, String text, ObjectArrayList<ObjectObjectImmutablePair<Identifier, ActionConsumer<T>>> actions) {
+		return new ListItem<>(drawIcon, deferredDrawIcon, iconWidth, data, text, null, null, actions);
 	}
 
-	private ListItem(DrawIcon drawIcon, int iconWidth, @Nullable T data, String text, @Nullable String parentKey, @Nullable ObjectArrayList<ListItem<T>> children, @Nullable ObjectArrayList<ObjectObjectImmutablePair<Identifier, ActionConsumer<T>>> actions) {
+	private ListItem(@Nullable DrawIcon drawIcon, @Nullable DeferredDrawIcon deferredDrawIcon, int iconWidth, @Nullable T data, String text, @Nullable String parentKey, @Nullable ObjectArrayList<ListItem<T>> children, @Nullable ObjectArrayList<ObjectObjectImmutablePair<Identifier, ActionConsumer<T>>> actions) {
 		this.drawIcon = drawIcon;
+		this.deferredDrawIcon = deferredDrawIcon;
 		this.iconWidth = iconWidth;
 		this.data = data;
 		this.text = text;
@@ -186,6 +191,11 @@ public final class ListItem<T> {
 	@FunctionalInterface
 	public interface DrawIcon {
 		void draw(Drawing drawing, float x, float y);
+	}
+
+	@FunctionalInterface
+	public interface DeferredDrawIcon {
+		void draw(MatrixStack matrixStack, float x, float y);
 	}
 
 	@FunctionalInterface

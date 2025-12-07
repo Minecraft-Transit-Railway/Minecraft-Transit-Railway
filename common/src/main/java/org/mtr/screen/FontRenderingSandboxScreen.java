@@ -4,14 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.CheckboxWidget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import org.mtr.MTR;
 import org.mtr.client.IDrawing;
 import org.mtr.data.IGui;
-import org.mtr.font.FontGroupRegistry;
+import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
-import org.mtr.tool.Drawing;
 import org.mtr.widget.BetterTextFieldWidget;
 
 import java.nio.charset.StandardCharsets;
@@ -64,11 +62,10 @@ public final class FontRenderingSandboxScreen extends ScreenBase {
 		final int boxY = (int) fontRenderOptions.getVerticalPositioning().getOffset(fontRenderOptions.getVerticalSpace());
 		context.fill(boxX, boxY, boxX + (int) fontRenderOptions.getHorizontalSpace(), boxY + (int) fontRenderOptions.getVerticalSpace(), IGui.ARGB_BLACK);
 
-		final Drawing drawing = new Drawing(context.getMatrices(), RenderLayer.getGui());
 		if (checkboxWidget.isChecked()) {
-			FontGroupRegistry.MTR.get().render(drawing, textFieldWidget.getText(), fontRenderOptions);
+			FontRenderHelper.render(context.getMatrices(), textFieldWidget.getText(), fontRenderOptions);
 		} else {
-			FontGroupRegistry.MINECRAFT.get().render(drawing, textFieldWidget.getText(), fontRenderOptions);
+			FontRenderHelper.render(context.getMatrices(), textFieldWidget.getText(), fontRenderOptions);
 		}
 
 		context.getMatrices().pop();

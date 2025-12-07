@@ -5,7 +5,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -19,7 +18,7 @@ import org.mtr.core.tool.EnumHelper;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.data.VehicleExtension;
-import org.mtr.font.FontGroupRegistry;
+import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.generated.resource.ModelPropertiesPartSchema;
 import org.mtr.model.NewOptimizedModelGroup;
@@ -30,6 +29,7 @@ import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 
 import javax.annotation.Nullable;
+import java.awt.*;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -374,9 +374,9 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 				modelDisplayPart.storedMatrixTransformations.transform(matrixStack, Vec3d.ZERO);
 				matrixStack.translate(displayXPadding / 16, displayYPadding / 16, -IGui.SMALL_OFFSET);
 
-				FontGroupRegistry.MTR.get().render(new Drawing(matrixStack, RenderLayer.getGui()), text, FontRenderOptions.builder()
-						.color(IGui.ARGB_BLACK | displayColorInt)
-						.cjkColor(IGui.ARGB_BLACK | displayColorCjkInt)
+				FontRenderHelper.render(matrixStack, text, FontRenderOptions.builder()
+						.color(new Color(displayColorInt))
+						.cjkColor(new Color(displayColorCjkInt))
 						.cjkScaling((float) displayCjkSizeRatio)
 						.maxFontSize((float) displayMaxLineHeight)
 						.horizontalSpace((float) (modelDisplayPart.width - displayXPadding * 2) / 16)

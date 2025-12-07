@@ -28,7 +28,6 @@ import org.mtr.core.operation.DataRequest;
 import org.mtr.core.servlet.WebServlet;
 import org.mtr.core.servlet.Webserver;
 import org.mtr.data.IGui;
-import org.mtr.font.FontGroupRegistry;
 import org.mtr.generated.WebserverResources;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.javax.servlet.MultipartConfigElement;
@@ -371,7 +370,6 @@ public final class MTRClient {
 
 		EventRegistryClient.registerResourceReloadEvent(() -> {
 			CustomResourceLoader.reload();
-			FontGroupRegistry.INSTANCE.reload();
 			ReleasedDynamicTextureRegistry.INSTANCE.reload();
 		});
 		EventRegistryClient.registerWorldRenderEvent(MainRenderer::render);

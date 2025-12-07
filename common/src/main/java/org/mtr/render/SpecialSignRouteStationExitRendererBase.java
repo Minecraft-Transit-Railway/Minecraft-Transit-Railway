@@ -1,8 +1,10 @@
 package org.mtr.render;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import org.mtr.core.tool.Utilities;
-import org.mtr.font.FontGroupRegistry;
+import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.resource.SignResource;
 import org.mtr.tool.Drawing;
@@ -13,7 +15,13 @@ import java.util.function.Consumer;
 public abstract class SpecialSignRouteStationExitRendererBase<T> extends SpecialSignRendererBase<T> {
 
 	@Override
-	public final void render(Drawing textureDrawing, ObjectArrayList<Consumer<Drawing>> deferredRenders, float x, float y, float zOffset, float signSize, ObjectArrayList<T> dataList, boolean flipTexture, boolean flipText, boolean small, String customText, float totalSpace, boolean renderPlaceholder) {
+	public final void render(
+			Drawing textureDrawing, ObjectArrayList<Consumer<MatrixStack>> deferredRenders,
+			float x, float y, float zOffset,
+			float signSize, ObjectArrayList<T> dataList,
+			boolean flipTexture, boolean flipText, boolean small, String customText, Identifier font,
+			float totalSpace, boolean renderPlaceholder
+	) {
 		if (dataList.isEmpty() && !renderPlaceholder) {
 			return;
 		}
@@ -28,7 +36,8 @@ public abstract class SpecialSignRouteStationExitRendererBase<T> extends Special
 		// Calculate text widths
 		for (int i = 0; i < dataCount; i++) {
 			dataNames[i] = getOverlayText(Utilities.getElement(dataList, i), customText);
-			dataTextWidths[i] = calculateTextWidths() ? FontGroupRegistry.MTR.get().render(null, dataNames[i], FontRenderOptions.builder()
+			dataTextWidths[i] = calculateTextWidths() ? FontRenderHelper.render(null, dataNames[i], FontRenderOptions.builder()
+					.font(font)
 					.verticalSpace(height - signSize * SignResource.SMALL_SIGN_PADDING * 2)
 					.cjkScaling(2)
 					.maxFontSize(height / 4)
@@ -72,7 +81,7 @@ public abstract class SpecialSignRouteStationExitRendererBase<T> extends Special
 			final String dataName = dataNames[i];
 
 			if (textWidth > 0) {
-				deferredRenders.add(textDrawing -> renderOverlayText(textDrawing, dataName, textStart, y1 + height / 2, zOffset, textureWidth, height, signSize * SignResource.SMALL_SIGN_PADDING, flipText));
+				deferredRenders.add(matrixStack -> renderOverlayText(matrixStack, dataName, font, textStart, y1 + height / 2, zOffset, textureWidth, height, signSize * SignResource.SMALL_SIGN_PADDING, flipText));
 			}
 
 			x1 += textureWidth + paddingBetweenTiles * scale;
@@ -84,7 +93,8 @@ public abstract class SpecialSignRouteStationExitRendererBase<T> extends Special
 			final String extraText = getText(Utilities.getElement(dataList, 0), customText);
 			if (extraText != null) {
 				final float textX = (flipText ? startX : x1) + (flipText ? -1 : 1) * signSize * SignResource.SMALL_SIGN_PADDING;
-				deferredRenders.add(drawing -> FontGroupRegistry.MTR.get().render(drawing, extraText, FontRenderOptions.builder()
+				deferredRenders.add(matrixStack -> FontRenderHelper.render(matrixStack, extraText, FontRenderOptions.builder()
+						.font(font)
 						.horizontalSpace(textSpace)
 						.verticalSpace(signSize * (1 - SignResource.SMALL_SIGN_PADDING * 2))
 						.horizontalTextAlignment(flipText ? FontRenderOptions.Alignment.END : FontRenderOptions.Alignment.START)
@@ -105,7 +115,7 @@ public abstract class SpecialSignRouteStationExitRendererBase<T> extends Special
 
 	protected abstract boolean calculateTextWidths();
 
-	protected abstract void renderOverlayText(Drawing drawing, String overlayText, float x, float y, float zOffset, float width, float height, float padding, boolean flipText);
+	protected abstract void renderOverlayText(MatrixStack matrixStack, String overlayText, Identifier font, float x, float y, float zOffset, float width, float height, float padding, boolean flipText);
 
 	protected abstract int getColor(@Nullable T data);
 

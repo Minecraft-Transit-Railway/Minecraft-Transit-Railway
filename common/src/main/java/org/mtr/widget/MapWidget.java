@@ -26,7 +26,7 @@ import org.mtr.core.data.*;
 import org.mtr.core.operation.DeleteDataRequest;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
-import org.mtr.font.FontGroupRegistry;
+import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.map.MapTileProvider;
 import org.mtr.screen.*;
@@ -173,6 +173,7 @@ public final class MapWidget extends ClickableWidgetBase {
 		}
 
 		final MatrixStack matrixStack = context.getMatrices();
+		final ObjectArrayList<Consumer<MatrixStack>> deferredRenders = new ObjectArrayList<>();
 
 		// Player position indicator
 		if (player != null) {
@@ -196,10 +197,10 @@ public final class MapWidget extends ClickableWidgetBase {
 
 		// Platforms and sidings
 		if (showStations) {
-			drawSavedRails(drawing, flatPositionToPlatformsMap, popupDetails == null && editingArea == null ? hoverPlatforms : null, newMouseX, newMouseY);
+			drawSavedRails(drawing, deferredRenders, flatPositionToPlatformsMap, popupDetails == null && editingArea == null ? hoverPlatforms : null, newMouseX, newMouseY);
 		}
 		if (showDepots) {
-			drawSavedRails(drawing, flatPositionToSidingsMap, popupDetails == null && editingArea == null && editingRoute == null ? hoverSidings : null, newMouseX, newMouseY);
+			drawSavedRails(drawing, deferredRenders, flatPositionToSidingsMap, popupDetails == null && editingArea == null && editingRoute == null ? hoverSidings : null, newMouseX, newMouseY);
 		}
 
 		// Stations and depots
@@ -209,14 +210,14 @@ public final class MapWidget extends ClickableWidgetBase {
 			if (editingArea != null && editingArea instanceof Station) {
 				stations.add((Station) editingArea);
 			}
-			drawAreas(drawing, stations, canHoverAreas ? hoverStations : null, newMouseX, newMouseY);
+			drawAreas(drawing, deferredRenders, stations, canHoverAreas ? hoverStations : null, newMouseX, newMouseY);
 		}
 		if (showDepots) {
 			final ObjectArraySet<Depot> depots = new ObjectArraySet<>(MinecraftClientData.getDashboardInstance().depots);
 			if (editingArea != null && editingArea instanceof Depot) {
 				depots.add((Depot) editingArea);
 			}
-			drawAreas(drawing, depots, canHoverAreas ? hoverDepots : null, newMouseX, newMouseY);
+			drawAreas(drawing, deferredRenders, depots, canHoverAreas ? hoverDepots : null, newMouseX, newMouseY);
 		}
 
 		// Hover popup
@@ -249,6 +250,7 @@ public final class MapWidget extends ClickableWidgetBase {
 			}
 		}
 
+		deferredRenders.forEach(deferredRender -> deferredRender.accept(matrixStack));
 		context.disableScissor();
 	}
 
@@ -413,7 +415,7 @@ public final class MapWidget extends ClickableWidgetBase {
 		}
 	}
 
-	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> void drawAreas(Drawing drawing, ObjectArraySet<U> areas, @Nullable ObjectArraySet<U> hoverDataList, int mouseX, int mouseY) {
+	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> void drawAreas(Drawing drawing, ObjectArrayList<Consumer<MatrixStack>> deferredRenders, ObjectArraySet<U> areas, @Nullable ObjectArraySet<U> hoverDataList, int mouseX, int mouseY) {
 		areas.forEach(area -> {
 			if (area.isTransportMode(transportMode) && AreaBase.validCorners(area)) {
 				final double areaWidth = (area.getMaxX() + 1 - area.getMinX()) * guiAnimationScale.getCurrentValue();
@@ -453,7 +455,7 @@ public final class MapWidget extends ClickableWidgetBase {
 					final double clampedAreaWidth = areaWidth - Math.max(0, getX() - x1) - Math.max(0, x2 - getX() - width) - AREA_NAME_PADDING * 2;
 					final double clampedAreaHeight = areaHeight - Math.max(0, getY() - y1) - Math.max(0, y2 - getY() - height) - AREA_NAME_PADDING * 2;
 					if (clampedAreaWidth > 0 && clampedAreaHeight > 0) {
-						FontGroupRegistry.MTR.get().render(drawing, area.getName(), FontRenderOptions.builder()
+						deferredRenders.add(matrixStack -> FontRenderHelper.render(matrixStack, area.getName(), FontRenderOptions.builder()
 								.horizontalSpace((float) clampedAreaWidth)
 								.verticalSpace((float) clampedAreaHeight)
 								.offsetX((float) Math.max(getX(), x1) + AREA_NAME_PADDING)
@@ -462,14 +464,14 @@ public final class MapWidget extends ClickableWidgetBase {
 								.lineBreak(FontRenderOptions.LineBreak.FORCE_ONE_LINE)
 								.textOverflow(FontRenderOptions.TextOverflow.SCALE)
 								.build()
-						);
+						));
 					}
 				});
 			}
 		});
 	}
 
-	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> void drawSavedRails(Drawing drawing, Object2ObjectAVLTreeMap<Position, ObjectArrayList<T>> flatPositionToSavedRailsMap, @Nullable ObjectArraySet<T> hoverDataList, int mouseX, int mouseY) {
+	private <T extends SavedRailBase<T, U>, U extends AreaBase<U, T>> void drawSavedRails(Drawing drawing, ObjectArrayList<Consumer<MatrixStack>> deferredRenders, Object2ObjectAVLTreeMap<Position, ObjectArrayList<T>> flatPositionToSavedRailsMap, @Nullable ObjectArraySet<T> hoverDataList, int mouseX, int mouseY) {
 		flatPositionToSavedRailsMap.forEach((position, savedRails) -> drawFromWorldCoords(position.getX() + 0.5, position.getZ() + 0.5, guiAnimationScale.getCurrentValue() / 2, guiAnimationScale.getCurrentValue() / 2, (x, y) -> {
 			final double x1 = getX() + x - guiAnimationScale.getCurrentValue() / 2;
 			final double y1 = getY() + y - guiAnimationScale.getCurrentValue() / 2;
@@ -487,7 +489,7 @@ public final class MapWidget extends ClickableWidgetBase {
 
 			// Draw overlay text
 			if (guiAnimationScale.getCurrentValue() > SAVED_RAIL_NAME_PADDING * 2) {
-				FontGroupRegistry.MTR.get().render(drawing, savedRails.stream().map(NameColorDataBase::getName).collect(Collectors.joining("|")), FontRenderOptions.builder()
+				deferredRenders.add(matrixStack -> FontRenderHelper.render(matrixStack, savedRails.stream().map(NameColorDataBase::getName).collect(Collectors.joining("|")), FontRenderOptions.builder()
 						.horizontalSpace((float) guiAnimationScale.getCurrentValue() - SAVED_RAIL_NAME_PADDING * 2)
 						.verticalSpace((float) guiAnimationScale.getCurrentValue() - SAVED_RAIL_NAME_PADDING * 2)
 						.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)
@@ -496,9 +498,9 @@ public final class MapWidget extends ClickableWidgetBase {
 						.offsetY((float) y1 + SAVED_RAIL_NAME_PADDING)
 						.offsetZ(4)
 						.textOverflow(FontRenderOptions.TextOverflow.SCALE)
-						.color(GuiHelper.BLACK_COLOR)
+						.color(Color.BLACK)
 						.build()
-				);
+				));
 			}
 		}));
 	}

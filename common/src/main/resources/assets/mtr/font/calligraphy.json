@@ -1,0 +1,14 @@
+{
+	"providers": [
+		{
+			"type": "ttf",
+			"file": "mtr:masa-font-bold.ttf",
+			"size": 8,
+			"oversample": 8
+		},
+		{
+			"type": "reference",
+			"id": "minecraft:default"
+		}
+	]
+}

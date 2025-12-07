@@ -1,0 +1,26 @@
+{
+	"providers": [
+		{
+			"type": "ttf",
+			"file": "mtr:noto-sans-semibold.ttf",
+			"size": 8,
+			"oversample": 8
+		},
+		{
+			"type": "ttf",
+			"file": "mtr:noto-sans-tc-semibold.ttf",
+			"size": 8,
+			"oversample": 8
+		},
+		{
+			"type": "ttf",
+			"file": "mtr:noto-sans-sc-semibold.ttf",
+			"size": 8,
+			"oversample": 8
+		},
+		{
+			"type": "reference",
+			"id": "minecraft:default"
+		}
+	]
+}

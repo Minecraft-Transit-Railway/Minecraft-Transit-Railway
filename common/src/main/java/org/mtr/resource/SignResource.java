@@ -17,7 +17,7 @@ import org.mtr.client.CustomResourceLoader;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.*;
 import org.mtr.core.serializer.ReaderBase;
-import org.mtr.font.FontGroupRegistry;
+import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.generated.resource.SignResourceSchema;
 import org.mtr.render.SpecialSignPlatformRenderer;
@@ -119,7 +119,7 @@ public final class SignResource extends SignResourceSchema {
 			new Drawing(matrixStack, vertexConsumerProvider.getBuffer(RenderLayer.getGui())).setVerticesWH(x, y, signResources.length * signSize, signSize).setColor(GuiHelper.BLACK_COLOR | backgroundColor).draw();
 		}
 
-		final ObjectArrayList<Consumer<Drawing>> deferredRenders = new ObjectArrayList<>();
+		final ObjectArrayList<Consumer<MatrixStack>> deferredRenders = new ObjectArrayList<>();
 
 		// Draw sign tiles and text
 		for (int i = 0; i < signResources.length; i++) {
@@ -127,6 +127,7 @@ public final class SignResource extends SignResourceSchema {
 
 			if (signResource != null) {
 				final Drawing textureDrawing = new Drawing(matrixStack, vertexConsumerProvider.getBuffer(RenderLayer.getGuiTextured(signResource.textureId)));
+				final Identifier font = signResource.font.isEmpty() ? FontRenderHelper.MTR_FONT : Identifier.of(signResource.font);
 
 				if (signResource.signType == SignType.NORMAL) {
 					textureDrawing.setVertices(
@@ -141,7 +142,8 @@ public final class SignResource extends SignResourceSchema {
 
 					if (textSpace > 0) {
 						final float offsetX = (i + (signResource.flipCustomText ? 0 : 1) + (signResource.small ? 0 : (signResource.flipCustomText ? -1 : 1) * SMALL_SIGN_PADDING)) * signSize;
-						deferredRenders.add(drawing -> FontGroupRegistry.MTR.get().render(drawing, signResource.getCustomText(), FontRenderOptions.builder()
+						deferredRenders.add(matrixStackNew -> FontRenderHelper.render(matrixStackNew, signResource.getCustomText(), FontRenderOptions.builder()
+								.font(font)
 								.horizontalSpace(textSpace)
 								.verticalSpace(signSize * (1 - SMALL_SIGN_PADDING * 2))
 								.horizontalTextAlignment(signResource.flipCustomText ? FontRenderOptions.Alignment.END : FontRenderOptions.Alignment.START)
@@ -167,7 +169,7 @@ public final class SignResource extends SignResourceSchema {
 									textureDrawing, deferredRenders,
 									x + i * signSize, y, zOffset,
 									signSize, getStationExits(blockPos).stream().filter(stationExit -> selectedIdsSet.contains(RailwaySignScreenNew.serializeExit(stationExit.getName()))).collect(Collectors.toCollection(ObjectArrayList::new)),
-									signResource.flipTexture, signResource.flipCustomText, signResource.small, signResource.getCustomText(),
+									signResource.flipTexture, signResource.flipCustomText, signResource.small, signResource.getCustomText(), font,
 									totalSpace, renderPlaceholder
 							);
 							break;
@@ -176,7 +178,7 @@ public final class SignResource extends SignResourceSchema {
 									textureDrawing, deferredRenders,
 									x + i * signSize, y, zOffset,
 									signSize, getPlatforms(blockPos).stream().filter(platform -> selectedIdsSet.contains(platform.getId())).collect(Collectors.toCollection(ObjectArrayList::new)),
-									signResource.flipTexture, signResource.flipCustomText, signResource.small, signResource.getCustomText(),
+									signResource.flipTexture, signResource.flipCustomText, signResource.small, signResource.getCustomText(), font,
 									totalSpace, renderPlaceholder
 							);
 							break;
@@ -185,7 +187,7 @@ public final class SignResource extends SignResourceSchema {
 									textureDrawing, deferredRenders,
 									x + i * signSize, y, zOffset,
 									signSize, getRoutes(blockPos).stream().filter(route -> selectedIdsSet.contains(route.getColor())).collect(Collectors.toCollection(ObjectArrayList::new)),
-									signResource.flipTexture, signResource.flipCustomText, signResource.small, signResource.getCustomText(),
+									signResource.flipTexture, signResource.flipCustomText, signResource.small, signResource.getCustomText(), font,
 									totalSpace, renderPlaceholder
 							);
 							break;
@@ -194,7 +196,7 @@ public final class SignResource extends SignResourceSchema {
 									textureDrawing, deferredRenders,
 									x + i * signSize, y, zOffset,
 									signSize, getStations(blockPos).stream().filter(station -> selectedIdsSet.contains(station.getId())).collect(Collectors.toCollection(ObjectArrayList::new)),
-									signResource.flipTexture, signResource.flipCustomText, signResource.small, signResource.getCustomText(),
+									signResource.flipTexture, signResource.flipCustomText, signResource.small, signResource.getCustomText(), font,
 									totalSpace, renderPlaceholder
 							);
 							break;
@@ -203,8 +205,7 @@ public final class SignResource extends SignResourceSchema {
 			}
 		}
 
-		final Drawing drawing = new Drawing(matrixStack, vertexConsumerProvider.getBuffer(RenderLayer.getGui()));
-		deferredRenders.forEach(deferredRender -> deferredRender.accept(drawing));
+		deferredRenders.forEach(deferredRender -> deferredRender.accept(matrixStack));
 	}
 
 	public static ObjectArrayList<Platform> getPlatforms(@Nullable BlockPos blockPos) {

@@ -286,8 +286,7 @@ public final class StationScreen extends ScrollableScreenBase {
 			final ObjectArrayList<ListItem<FormattedStationExit>> destinationListItems = new ObjectArrayList<>();
 
 			for (int i = 0; i < exit.destinations.size(); i++) {
-				destinationListItems.add(ListItem.createChild((drawing, x, y) -> {
-				}, GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE, exit, exit.destinations.get(i), ObjectArrayList.of(
+				destinationListItems.add(ListItem.createChild(null, null, GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE, exit, exit.destinations.get(i), ObjectArrayList.of(
 						new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (index, exit1) -> startEditingExitCallback(exit1, index)),
 						ScrollableListWidget.createUpButton(exit.destinations, null),
 						ScrollableListWidget.createDownButton(exit.destinations, null),
@@ -298,6 +297,7 @@ public final class StationScreen extends ScrollableScreenBase {
 			final int destinationsCount = exit.destinations.size();
 			final ListItem<FormattedStationExit> parentListItem = ListItem.createParent(
 					(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(ColorHelper.fullAlpha(tempColor)).draw(),
+					null,
 					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 					String.format("%s%s%s", exit.name, destinationsCount == 0 ? "" : " " + exit.destinations.getFirst(), destinationsCount > 1 ? String.format(" (+%s)", destinationsCount - 1) : ""),
 					Utilities.formatName(exit.name),
