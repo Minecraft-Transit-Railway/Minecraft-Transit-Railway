@@ -486,10 +486,11 @@ public class RenderVehicles implements IGui {
 
 		// Render player
 		MainRenderer.scheduleRender(QueuedRenderLayer.INTERIOR, (graphicsHolder, offset) -> {
+            float playerTickDelta = MinecraftClient.getInstance().isPaused() ? 0 : MinecraftClient.getInstance().getTickDelta();
 			storedMatrixTransformations.transform(graphicsHolder, offset);
 			graphicsHolder.rotateXDegrees(180);
 			graphicsHolder.rotateYDegrees(180);
-			graphicsHolder.renderEntity(entity, 0, 1000, 0, 0, 0, GraphicsHolder.getDefaultLight());
+			graphicsHolder.renderEntity(entity, 0, 1000, 0, 0, playerTickDelta, GraphicsHolder.getDefaultLight());
 			graphicsHolder.pop();
 		});
 	}
