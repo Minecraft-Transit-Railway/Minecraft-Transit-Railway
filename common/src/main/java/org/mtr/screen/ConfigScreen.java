@@ -181,7 +181,7 @@ public class ConfigScreen extends ScreenBase implements IGui {
 		super.close();
 		client.setDynamicTextureResolution(sliderDynamicTextureResolution.getIntValue());
 		client.setVehicleOscillationMultiplier(sliderTrainOscillationMultiplier.getIntValue() / 10.0);
-		DynamicTextureCache.instance.reload();
+		DynamicTextureCache.instance.refresh();
 		Config.save();
 	}
 

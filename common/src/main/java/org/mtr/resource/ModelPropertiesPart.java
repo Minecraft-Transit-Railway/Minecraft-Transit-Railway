@@ -306,7 +306,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 
 		if (!text.isEmpty()) {
 			final FontRenderOptions.Alignment horizontalAlignment = getHorizontalAlignment(false);
-			MainRenderer.scheduleRender(Identifier.of(MTR.MOD_ID, "textures/block/sign/seven_segment.png"), true, QueuedRenderLayer.LIGHT_2, (matrixStack, vertexConsumer, offset) -> {
+			MainRenderer.scheduleRender(Identifier.of(MTR.MOD_ID, "textures/overlay/seven_segment.png"), true, QueuedRenderLayer.LIGHT_2, (matrixStack, vertexConsumer, offset) -> {
 				storedMatrixTransformations.transform(matrixStack, offset);
 				matrixStack.translate(modelDisplayPart.x, modelDisplayPart.y, modelDisplayPart.z);
 				Drawing.rotateYDegrees(matrixStack, modelDisplayPart.flipped ? 180 : 0);

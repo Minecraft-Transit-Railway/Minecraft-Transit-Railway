@@ -70,6 +70,7 @@ public class CustomResourceLoader {
 		LIFTS.clear();
 		LIFTS_CACHE.clear();
 		TEST_DURATION = 0;
+		DynamicTextureCache.instance.reload();
 
 		final ObjectArrayList<SignResource> defaultSigns = new ObjectArrayList<>();
 

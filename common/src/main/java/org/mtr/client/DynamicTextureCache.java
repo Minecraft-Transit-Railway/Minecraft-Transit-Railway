@@ -47,9 +47,19 @@ public class DynamicTextureCache implements IGui {
 	private static final Identifier DEFAULT_TRANSPARENT_RESOURCE = Identifier.of(MTR.MOD_ID, "textures/block/transparent.png");
 	private static final int MAX_IMAGE_SIZE = 2048;
 
+	/**
+	 * Clear all asset-related cache and mark all dynamic textures to be drawn.
+	 */
 	public void reload() {
 		font = null;
 		fontCjk = null;
+		refresh();
+	}
+
+	/**
+	 * Mark all dynamic textures to be redrawn.
+	 */
+	public void refresh() {
 		MTR.LOGGER.debug("Refreshing dynamic resources; {} textures in memory; {} textures queued to be destroyed", dynamicResources.size(), deletedResources.size());
 		dynamicResources.values().forEach(dynamicResource -> dynamicResource.needsRefresh = true);
 		generatingResources.clear();

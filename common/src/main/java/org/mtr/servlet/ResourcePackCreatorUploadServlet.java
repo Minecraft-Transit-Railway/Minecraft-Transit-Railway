@@ -121,7 +121,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 						lastNameRead = name;
 						MTR.LOGGER.debug("Reading {}", name);
 						final byte[] bytes = IOUtils.toByteArray(zipInputStream);
-						final String content = new String(bytes);
+						final String content = new String(bytes, StandardCharsets.UTF_8);
 
 						if (name.equals(String.format("%s:%s.json", MTR.MOD_ID, CustomResourceLoader.CUSTOM_RESOURCES_ID))) {
 							customResourcesObject = Utilities.parseJson(content);
@@ -166,7 +166,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 				for (final Part part : httpServletRequest.getParts()) {
 					try (final InputStream inputStream = part.getInputStream()) {
 						final byte[] bytes = IOUtils.toByteArray(inputStream);
-						uploadResource(String.format("%s:%s", MTR.MOD_ID, part.getSubmittedFileName()), bytes, new String(bytes));
+						uploadResource(String.format("%s:%s", MTR.MOD_ID, part.getSubmittedFileName()), bytes, new String(bytes, StandardCharsets.UTF_8));
 					} catch (Exception e) {
 						MTR.LOGGER.error("", e);
 					}
