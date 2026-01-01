@@ -168,7 +168,7 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 		super.onClose2();
 		client.setDynamicTextureResolution(sliderDynamicTextureResolution.getIntValue());
 		client.setVehicleOscillationMultiplier(sliderTrainOscillationMultiplier.getIntValue() / 10.0);
-		DynamicTextureCache.instance.reload();
+		DynamicTextureCache.instance.refresh();
 		Config.save();
 	}
 
