@@ -135,9 +135,9 @@ public final class MTR {
 				{
 					final LiteralCommandNode<ServerCommandSource> command = dispatcher.register(CommandManager.literal("mtr")
 							// Generate depot(s) by name
-							.then(depotOperationFromCommand(CommandManager.literal("generate"), DepotOperation.GENERATE))
+							.then(depotOperationFromCommand(CommandManager.literal("generatePath"), DepotOperation.GENERATE))
 							// Clear depot(s) by name
-							.then(depotOperationFromCommand(CommandManager.literal("clear"), DepotOperation.CLEAR))
+							.then(depotOperationFromCommand(CommandManager.literal("clearTrains"), DepotOperation.CLEAR))
 							// Instant deploy depot(s) by name
 							.then(depotOperationFromCommand(CommandManager.literal("instantDeploy"), DepotOperation.INSTANT_DEPLOY))
 							// Force copy a world backup from one folder another
@@ -379,14 +379,14 @@ public final class MTR {
 	}
 
 	private static LiteralCommandNode<ServerCommandSource> depotOperationFromCommand(LiteralArgumentBuilder<ServerCommandSource> commandBuilder, DepotOperation depotOperation) {
-		return commandBuilder.requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(2)).executes(contextHandler -> {
+		return commandBuilder.requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(2)).then(CommandManager.literal("allDepots").executes(contextHandler -> {
 			contextHandler.getSource().sendFeedback(depotOperation.translationHolderAll::getText, true);
 			return depotOperationFromCommand(contextHandler.getSource().getWorld(), "", depotOperation);
-		}).then(CommandManager.argument("name", StringArgumentType.greedyString()).executes(contextHandler -> {
+		})).then(CommandManager.literal("depot").then(CommandManager.argument("name", StringArgumentType.greedyString()).executes(contextHandler -> {
 			final String filter = StringArgumentType.getString(contextHandler, "name");
 			contextHandler.getSource().sendFeedback(() -> depotOperation.translationHolderName.getText(filter), true);
 			return depotOperationFromCommand(contextHandler.getSource().getWorld(), filter, depotOperation);
-		})).build();
+		}))).build();
 	}
 
 	private static int depotOperationFromCommand(World world, String filter, DepotOperation depotOperation) {

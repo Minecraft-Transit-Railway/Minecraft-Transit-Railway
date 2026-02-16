@@ -67,10 +67,11 @@ public class DynamicTextureCache implements IGui {
 
 	public void tick() {
 		final ObjectArrayList<String> keysToRemove = new ObjectArrayList<>();
+		final long currentTimeMillis = System.currentTimeMillis();
 		dynamicResources.forEach((checkKey, checkDynamicResource) -> {
-			if (checkDynamicResource.expiryTime < System.currentTimeMillis()) {
+			if (checkDynamicResource.expiryTime < currentTimeMillis) {
 				checkDynamicResource.remove();
-				deletedResources.put(checkDynamicResource.identifier, System.currentTimeMillis() + COOLDOWN_TIME);
+				deletedResources.put(checkDynamicResource.identifier, currentTimeMillis + COOLDOWN_TIME);
 				keysToRemove.add(checkKey);
 			}
 		});
@@ -78,7 +79,7 @@ public class DynamicTextureCache implements IGui {
 
 		final ObjectArrayList<Identifier> deletedResourcesToRemove = new ObjectArrayList<>();
 		deletedResources.forEach((identifier, expiryTime) -> {
-			if (expiryTime < System.currentTimeMillis()) {
+			if (expiryTime < currentTimeMillis) {
 				MinecraftClient.getInstance().getTextureManager().destroyTexture(identifier);
 				deletedResourcesToRemove.add(identifier);
 			}

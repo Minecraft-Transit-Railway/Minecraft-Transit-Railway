@@ -34,6 +34,7 @@ import java.util.function.Consumer;
 
 public class MainRenderer {
 
+	private static long timerMillis;
 	private static long lastRenderedMillis;
 
 	public static final WorkerThread WORKER_THREAD = new WorkerThread();
@@ -72,6 +73,8 @@ public class MainRenderer {
 
 
 		final long millisElapsed = getMillisElapsed();
+		timerMillis += millisElapsed;
+
 		MODEL_RENDERS.clear();
 		MODEL_RENDERS_TRANSLUCENT.clear();
 		MinecraftClientData.getInstance().blockedRailIds.clear();
@@ -149,6 +152,15 @@ public class MainRenderer {
 		CURRENT_RENDERS.forEach(renderForPriority -> renderForPriority.forEach(renderForPriorityAndQueuedRenderLayer -> renderForPriorityAndQueuedRenderLayer.remove(identifier)));
 	}
 
+	/**
+	 * Get a continously ticking timer for rendering, suitable for animations.
+	 *
+	 * @return A value in millisecond representing the time elapsed, incremented when {@link MainRenderer#render(GraphicsHolder, Vector3d)} gets invoked.
+	 */
+	public static long getTimerMillis() {
+		return timerMillis;
+	}
+
 	public static String getInterchangeRouteNames(Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges) {
 		final ObjectArrayList<String> interchangeRouteNames = new ObjectArrayList<>();
 		getInterchanges.accept((connectingStationName, interchangeColorsForStationName) -> interchangeColorsForStationName.forEach((color, interchangeRouteNamesForColor) -> interchangeRouteNamesForColor.forEach(interchangeRouteNames::add)));
@@ -156,12 +168,12 @@ public class MainRenderer {
 	}
 
 	public static int getFlashingLight() {
-		final int light = (int) Math.round(((Math.sin(Math.PI * 2 * (System.currentTimeMillis() % FLASHING_INTERVAL) / FLASHING_INTERVAL) + 1) / 2) * 0xF);
+		final int light = (int) Math.round(((Math.sin(Math.PI * 2 * (getTimerMillis() % FLASHING_INTERVAL) / FLASHING_INTERVAL) + 1) / 2) * 0xF);
 		return LightmapTextureManager.pack(light, light);
 	}
 
 	public static Color getFlashingColor(Color color, int multiplier) {
-		final double flashingProgress = ((Math.sin(Math.PI * 2 * (System.currentTimeMillis() % FLASHING_INTERVAL) / FLASHING_INTERVAL) + 1) / 2);
+		final double flashingProgress = ((Math.sin(Math.PI * 2 * (getTimerMillis() % FLASHING_INTERVAL) / FLASHING_INTERVAL) + 1) / 2);
 		return new Color(
 				(int) (color.getRed() * Math.min(1, flashingProgress * multiplier)),
 				(int) (color.getGreen() * Math.min(1, flashingProgress * multiplier)),
