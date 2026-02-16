@@ -62,7 +62,7 @@ public class MainRenderer {
 		}
 	}
 
-	public static void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumers, Vec3d offset) {
+	public static void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, Vec3d offset) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientWorld clientWorld = minecraftClient.world;
 		final ClientPlayerEntity clientPlayerEntity = minecraftClient.player;
@@ -95,7 +95,7 @@ public class MainRenderer {
 		final Vec3d cameraShakeOffset = clientPlayerEntity.getPos().subtract(offset);
 		RenderVehicles.render(millisElapsed, cameraShakeOffset);
 		RenderLifts.render(millisElapsed, cameraShakeOffset);
-		RenderRails.render();
+		RenderRails.render(matrixStack, vertexConsumerProvider, offset);
 
 		renderModel(matrixStack, MODEL_RENDERS, offset);
 		renderModel(matrixStack, MODEL_RENDERS_TRANSLUCENT, offset);
@@ -123,7 +123,7 @@ public class MainRenderer {
 						case LINES -> RenderLayer.getLines();
 						default -> null;
 					};
-					value.forEach(renderer -> renderer.accept(matrixStack, renderLayer == null ? null : vertexConsumers.getBuffer(renderLayer), offset));
+					value.forEach(renderer -> renderer.accept(matrixStack, renderLayer == null ? null : vertexConsumerProvider.getBuffer(renderLayer), offset));
 				});
 			}
 		}

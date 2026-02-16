@@ -496,34 +496,34 @@ public final class RenderVehicles {
 
 			MainRenderer.scheduleRender(outerSideTexture, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> {
 				// Sides
-				drawTexture(matrixStack, vertexConsumer, position2, position7, position8, position1, useOffset ? offset : Vec3d.ZERO, lightConnection);
-				drawTexture(matrixStack, vertexConsumer, position6, position3, position4, position5, useOffset ? offset : Vec3d.ZERO, lightConnection);
+				drawTexture(matrixStack, vertexConsumer, position1, position2, position7, position8, useOffset ? offset : Vec3d.ZERO, lightConnection);
+				drawTexture(matrixStack, vertexConsumer, position5, position6, position3, position4, useOffset ? offset : Vec3d.ZERO, lightConnection);
 			});
 
 			MainRenderer.scheduleRender(outerTopTexture, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> {
 				// Top
-				drawTexture(matrixStack, vertexConsumer, position3, position6, position7, position2, useOffset ? offset : Vec3d.ZERO, lightConnection);
+				drawTexture(matrixStack, vertexConsumer, position2, position3, position6, position7, useOffset ? offset : Vec3d.ZERO, lightConnection);
 			});
 
 			MainRenderer.scheduleRender(outerBottomTexture, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> {
 				// Bottom
-				drawTexture(matrixStack, vertexConsumer, position1, position8, position5, position4, useOffset ? offset : Vec3d.ZERO, lightConnection);
+				drawTexture(matrixStack, vertexConsumer, position4, position1, position8, position5, useOffset ? offset : Vec3d.ZERO, lightConnection);
 			});
 
 			MainRenderer.scheduleRender(innerSideTexture, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> {
 				// Sides
-				drawTexture(matrixStack, vertexConsumer, position7, position2, position1, position8, useOffset ? offset : Vec3d.ZERO, canHaveLight && isOnRoute ? IGui.DEFAULT_LIGHT : lightConnection);
-				drawTexture(matrixStack, vertexConsumer, position3, position6, position5, position4, useOffset ? offset : Vec3d.ZERO, canHaveLight && isOnRoute ? IGui.DEFAULT_LIGHT : lightConnection);
+				drawTexture(matrixStack, vertexConsumer, position8, position7, position2, position1, useOffset ? offset : Vec3d.ZERO, canHaveLight && isOnRoute ? IGui.DEFAULT_LIGHT : lightConnection);
+				drawTexture(matrixStack, vertexConsumer, position4, position3, position6, position5, useOffset ? offset : Vec3d.ZERO, canHaveLight && isOnRoute ? IGui.DEFAULT_LIGHT : lightConnection);
 			});
 
 			MainRenderer.scheduleRender(innerTopTexture, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> {
 				// Top
-				drawTexture(matrixStack, vertexConsumer, position6, position3, position2, position7, useOffset ? offset : Vec3d.ZERO, canHaveLight && isOnRoute ? IGui.DEFAULT_LIGHT : lightConnection);
+				drawTexture(matrixStack, vertexConsumer, position7, position6, position3, position2, useOffset ? offset : Vec3d.ZERO, canHaveLight && isOnRoute ? IGui.DEFAULT_LIGHT : lightConnection);
 			});
 
 			MainRenderer.scheduleRender(innerBottomTexture, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> {
 				// Bottom
-				drawTexture(matrixStack, vertexConsumer, position8, position1, position4, position5, useOffset ? offset : Vec3d.ZERO, canHaveLight && isOnRoute ? IGui.DEFAULT_LIGHT : lightConnection);
+				drawTexture(matrixStack, vertexConsumer, position5, position8, position1, position4, useOffset ? offset : Vec3d.ZERO, canHaveLight && isOnRoute ? IGui.DEFAULT_LIGHT : lightConnection);
 			});
 		}
 

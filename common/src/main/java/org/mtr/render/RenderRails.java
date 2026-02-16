@@ -14,6 +14,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.Item;
@@ -67,7 +68,7 @@ public final class RenderRails implements IGui {
 	private static final int INVALID_NODE_CHECK_RADIUS = 16;
 	private static final double LIGHT_REFERENCE_OFFSET = 0.1;
 
-	public static void render() {
+	public static void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, Vec3d offset) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final ClientWorld clientWorld = minecraftClient.world;
 		final ClientPlayerEntity clientPlayerEntity = minecraftClient.player;
@@ -99,12 +100,12 @@ public final class RenderRails implements IGui {
 						railsToRender.remove(rail);
 						railsToRender.add(newRail);
 						final DoubleDoubleImmutablePair railRadii = newRail.railMath.getHorizontalRadii();
-						renderRailStats(blockPos, null, newRail.railMath.getLength(), railRadii.leftDouble(), railRadii.rightDouble());
+						renderRailStats(matrixStack, vertexConsumerProvider, offset, blockPos, null, newRail.railMath.getLength(), railRadii.leftDouble(), railRadii.rightDouble());
 					}
 				} else {
 					hoverRails.add(rail);
 					final DoubleDoubleImmutablePair railRadii = rail.railMath.getHorizontalRadii();
-					renderRailStats(blockPos, null, rail.railMath.getLength(), railRadii.leftDouble(), railRadii.rightDouble());
+					renderRailStats(matrixStack, vertexConsumerProvider, offset, blockPos, null, rail.railMath.getLength(), railRadii.leftDouble(), railRadii.rightDouble());
 				}
 			}
 		}
@@ -137,8 +138,8 @@ public final class RenderRails implements IGui {
 							hoverRails.add(newRail);
 							final double railLength = newRail.railMath.getLength();
 							final DoubleDoubleImmutablePair railRadii = newRail.railMath.getHorizontalRadii();
-							renderRailStats(posStart, posEnd, railLength, railRadii.leftDouble(), railRadii.rightDouble());
-							renderRailStats(posEnd, posStart, railLength, railRadii.rightDouble(), railRadii.leftDouble());
+							renderRailStats(matrixStack, vertexConsumerProvider, offset, posStart, posEnd, railLength, railRadii.leftDouble(), railRadii.rightDouble());
+							renderRailStats(matrixStack, vertexConsumerProvider, offset, posEnd, posStart, railLength, railRadii.rightDouble(), railRadii.leftDouble());
 						}
 					}
 				}
@@ -169,15 +170,15 @@ public final class RenderRails implements IGui {
 					if (renderState.hasColor && !rail.isPlatform() && !rail.isSiding()) {
 						renderRailOneWayArrows(rail, 0.5F + SMALL_OFFSET);
 					}
-					MainRenderer.scheduleRender(QueuedRenderLayer.LINES, (matrixStack, vertexConsumer, offset) -> renderWithinRenderDistance(rail, (blockPos, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, tiltAngle) -> IDrawing.drawLineInWorld(
-							matrixStack,
+					MainRenderer.scheduleRender(QueuedRenderLayer.LINES, (matrixStack1, vertexConsumer, offset1) -> renderWithinRenderDistance(rail, (blockPos, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, tiltAngle) -> IDrawing.drawLineInWorld(
+							matrixStack1,
 							vertexConsumer,
-							(float) (x1 - offset.x),
-							(float) (y1 - offset.y + 0.5),
-							(float) (z1 - offset.z),
-							(float) (x3 - offset.x),
-							(float) (y3 - offset.y + 0.5),
-							(float) (z3 - offset.z),
+							(float) (x1 - offset1.x),
+							(float) (y1 - offset1.y + 0.5),
+							(float) (z1 - offset1.z),
+							(float) (x3 - offset1.x),
+							(float) (y3 - offset1.y + 0.5),
+							(float) (z3 - offset1.z),
 							holdingRailRelated ? RailType.getRailColor(rail) : ARGB_BLACK
 					), 0.5, 0, 0));
 					break;
@@ -229,8 +230,8 @@ public final class RenderRails implements IGui {
 		// Render one-way rail arrows
 		if (speedLimit1 == 0 || speedLimit2 == 0) {
 			renderWithinRenderDistance(rail, (blockPos, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, tiltAngle) -> MainRenderer.scheduleRender(ONE_WAY_RAIL_ARROW_TEXTURE, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> {
-				IDrawing.drawTexture(matrixStack, vertexConsumer, x1, y1 + yOffset + 0.125, z1, x2, y2 + yOffset + 0.125 + SMALL_OFFSET, z2, x3, y3 + yOffset + 0.125, z3, x4, y4 + yOffset + 0.125 + SMALL_OFFSET, z4, offset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, DEFAULT_LIGHT);
-				IDrawing.drawTexture(matrixStack, vertexConsumer, x2, y2 + yOffset + 0.125 + SMALL_OFFSET, z2, x1, y1 + yOffset + 0.125, z1, x4, y4 + yOffset + 0.125 + SMALL_OFFSET, z4, x3, y3 + yOffset + 0.125, z3, offset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, DEFAULT_LIGHT);
+				IDrawing.drawTexture(matrixStack, vertexConsumer, x4, y4 + yOffset + 0.125 + SMALL_OFFSET, z4, x1, y1 + yOffset + 0.125, z1, x2, y2 + yOffset + 0.125 + SMALL_OFFSET, z2, x3, y3 + yOffset + 0.125, z3, offset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, DEFAULT_LIGHT);
+				IDrawing.drawTexture(matrixStack, vertexConsumer, x3, y3 + yOffset + 0.125, z3, x2, y2 + yOffset + 0.125 + SMALL_OFFSET, z2, x1, y1 + yOffset + 0.125, z1, x4, y4 + yOffset + 0.125 + SMALL_OFFSET, z4, offset, 0, speedLimit1 == 0 ? 0.25F : 0.75F, 1, speedLimit1 == 0 ? 0.75F : 0.25F, Direction.UP, ARGB_WHITE, DEFAULT_LIGHT);
 			}), 1, -1, 1);
 		}
 	}
@@ -281,8 +282,8 @@ public final class RenderRails implements IGui {
 				final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F;
 				final int light = renderState == RenderState.FLASHING || renderState == RenderState.COLORED ? DEFAULT_LIGHT : LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.BLOCK, blockPos), clientWorld.getLightLevel(LightType.SKY, blockPos));
 				MainRenderer.scheduleRender(texture, false, QueuedRenderLayer.EXTERIOR, (matrixStack, vertexConsumer, offset) -> {
-					IDrawing.drawTexture(matrixStack, vertexConsumer, x1, y1 + yOffset, z1, x2, y2 + yOffset + SMALL_OFFSET, z2, x3, y3 + yOffset, z3, x4, y4 + yOffset + SMALL_OFFSET, z4, offset, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light);
-					IDrawing.drawTexture(matrixStack, vertexConsumer, x2, y2 + yOffset + SMALL_OFFSET, z2, x1, y1 + yOffset, z1, x4, y4 + yOffset + SMALL_OFFSET, z4, x3, y3 + yOffset, z3, offset, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light);
+					IDrawing.drawTexture(matrixStack, vertexConsumer, x4, y4 + yOffset + SMALL_OFFSET, z4, x1, y1 + yOffset, z1, x2, y2 + yOffset + SMALL_OFFSET, z2, x3, y3 + yOffset, z3, offset, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light);
+					IDrawing.drawTexture(matrixStack, vertexConsumer, x3, y3 + yOffset, z3, x2, y2 + yOffset + SMALL_OFFSET, z2, x1, y1 + yOffset, z1, x4, y4 + yOffset + SMALL_OFFSET, z4, offset, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light);
 				});
 			}, 0.5, -railWidth, railWidth);
 		}
@@ -307,8 +308,8 @@ public final class RenderRails implements IGui {
 			renderWithinRenderDistance(rail, (blockPos, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, tiltAngle) -> {
 				final int light = shouldFlash ? DEFAULT_LIGHT : LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.BLOCK, blockPos), clientWorld.getLightLevel(LightType.SKY, blockPos));
 				MainRenderer.scheduleRender(WOOL_TEXTURE, false, shouldFlash ? QueuedRenderLayer.EXTERIOR : QueuedRenderLayer.LIGHT, (matrixStack, vertexConsumer, offset) -> {
-					IDrawing.drawTexture(matrixStack, vertexConsumer, x1, y1 + 0.125, z1, x2, y2 + 0.125 + SMALL_OFFSET, z2, x3, y3 + 0.125, z3, x4, y4 + 0.125 + SMALL_OFFSET, z4, offset, u1, 0, u2, 1, Direction.UP, color, light);
-					IDrawing.drawTexture(matrixStack, vertexConsumer, x4, y4 + 0.125 + SMALL_OFFSET, z4, x3, y3 + 0.125, z3, x2, y2 + 0.125 + SMALL_OFFSET, z2, x1, y1 + 0.125, z1, offset, u1, 0, u2, 1, Direction.UP, color, light);
+					IDrawing.drawTexture(matrixStack, vertexConsumer, x4, y4 + 0.125 + SMALL_OFFSET, z4, x1, y1 + 0.125, z1, x2, y2 + 0.125 + SMALL_OFFSET, z2, x3, y3 + 0.125, z3, offset, u1, 0, u2, 1, Direction.UP, color, light);
+					IDrawing.drawTexture(matrixStack, vertexConsumer, x1, y1 + 0.125, z1, x4, y4 + 0.125 + SMALL_OFFSET, z4, x3, y3 + 0.125, z3, x2, y2 + 0.125 + SMALL_OFFSET, z2, offset, u1, 0, u2, 1, Direction.UP, color, light);
 				});
 			}, 1, u1 - 1, u2 - 1);
 		}
@@ -340,7 +341,7 @@ public final class RenderRails implements IGui {
 		}
 	}
 
-	private static void renderRailStats(BlockPos renderPos, @Nullable BlockPos otherPos, double railLength, double closerRadius, double otherRadius) {
+	private static void renderRailStats(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, Vec3d offset, BlockPos renderPos, @Nullable BlockPos otherPos, double railLength, double closerRadius, double otherRadius) {
 		if (railLength > 0) {
 			final String textXYZOffsetLabel = otherPos == null ? null : TranslationProvider.GUI_MTR_RAIL_XYZ_OFFSET.getString();
 			final String textXYZOffset = otherPos == null ? null : String.format("(%s, %s, %s)", renderPos.getX() - otherPos.getX(), renderPos.getY() - otherPos.getY(), renderPos.getZ() - otherPos.getZ());
@@ -367,33 +368,31 @@ public final class RenderRails implements IGui {
 
 			final double textOffset = otherPos == null ? 0.5 : 1;
 
-			MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (matrixStack, vertexConsumer, offset) -> {
-				matrixStack.push();
-				matrixStack.translate(renderPos.getX() - offset.x + 0.5, renderPos.getY() - offset.y + textOffset, renderPos.getZ() - offset.z + 0.5);
-				MTRClient.transformToFacePlayer(matrixStack, renderPos.getX() + 0.5, renderPos.getY() + textOffset, renderPos.getZ() + 0.5);
-				Drawing.rotateZDegrees(matrixStack, 180);
-				matrixStack.scale(1 / 32F, 1 / 32F, -1 / 32F);
-				int line = 0;
-				if (otherPos != null) {
-					line = renderRailStat(matrixStack, textXYZOffsetLabel, textXYZOffset, line);
-				}
-				if (textXZRadius != null) {
-					line = renderRailStat(matrixStack, textXZRadiusLabel, textXZRadius, line);
-				}
-				renderRailStat(matrixStack, textLengthLabel, textLength, line);
-				matrixStack.pop();
-			});
+			matrixStack.push();
+			matrixStack.translate(renderPos.getX() - offset.x + 0.5, renderPos.getY() - offset.y + textOffset, renderPos.getZ() - offset.z + 0.5);
+			MTRClient.transformToFacePlayer(matrixStack, renderPos.getX() + 0.5, renderPos.getY() + textOffset, renderPos.getZ() + 0.5);
+			Drawing.rotateZDegrees(matrixStack, 180);
+			matrixStack.scale(1 / 32F, 1 / 32F, -1 / 32F);
+			int line = 0;
+			if (otherPos != null) {
+				line = renderRailStat(matrixStack, vertexConsumerProvider, textXYZOffsetLabel, textXYZOffset, line);
+			}
+			if (textXZRadius != null) {
+				line = renderRailStat(matrixStack, vertexConsumerProvider, textXZRadiusLabel, textXZRadius, line);
+			}
+			renderRailStat(matrixStack, vertexConsumerProvider, textLengthLabel, textLength, line);
+			matrixStack.pop();
 		}
 	}
 
-	private static int renderRailStat(MatrixStack matrixStack, String title, String data, int line) {
+	private static int renderRailStat(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, String title, String data, int line) {
 		int newLine = line - 9;
 		final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-//		textRenderer.draw(data, -textRenderer.getWidth(data) / 2, newLine, ARGB_WHITE, true, DEFAULT_LIGHT);
+		textRenderer.draw(data, -textRenderer.getWidth(data) / 2F, newLine, ARGB_WHITE, true, matrixStack.peek().getPositionMatrix(), vertexConsumerProvider, TextRenderer.TextLayerType.NORMAL, 0, DEFAULT_LIGHT);
 		matrixStack.push();
 		matrixStack.scale(0.5F, 0.5F, 0.5F);
 		newLine -= 5;
-//		textRenderer.draw(title, -textRenderer.getWidth(title) / 2, newLine * 2, ARGB_WHITE, true, DEFAULT_LIGHT);
+		textRenderer.draw(title, -textRenderer.getWidth(title) / 2F, newLine * 2, ARGB_WHITE, true, matrixStack.peek().getPositionMatrix(), vertexConsumerProvider, TextRenderer.TextLayerType.NORMAL, 0, DEFAULT_LIGHT);
 		matrixStack.pop();
 		return newLine - 1;
 	}
