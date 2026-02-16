@@ -1,0 +1,28 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "b35173a",
+			"positions": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 96
+				}
+			],
+			"positionsFlipped": [
+			]
+		},
+		{
+			"name": "d0884815",
+			"positions": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 125
+				}
+			],
+			"positionsFlipped": [
+			]
+		}
+	]
+}

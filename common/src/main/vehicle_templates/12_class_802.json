@@ -1,0 +1,570 @@
+{
+	"replacements": {
+		"lengths": [
+			25,
+			19,
+			25,
+			19
+		],
+		"color": [
+			"021E15",
+			"021E15",
+			"00A6E6",
+			"00A6E6"
+		],
+		"name1": [
+			"GWR",
+			"GWR",
+			"TPE",
+			"TPE"
+		],
+		"name2": [
+			"Normal",
+			"Mini",
+			"Normal",
+			"Mini"
+		],
+		"id": [
+			"gwr",
+			"gwr",
+			"tpe",
+			"tpe"
+		],
+		"definition": [
+			"",
+			"_mini",
+			"",
+			"_mini"
+		]
+	},
+	"vehicles": [
+		{
+			"id": "class_802_@id@@definition@_trailer",
+			"name": "Class 802 Trailer (@name1@, @name2@)",
+			"color": "@color@",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "British_Rail_Class_802",
+			"tags": [
+				"family:class_802",
+				"iso_3166:GB",
+				"doors:2",
+				"type:trailer"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_window_default.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"hasBarrier1": true,
+			"hasBarrier2": true,
+			"bveSoundBaseResource": "iet_electric"
+		},
+		{
+			"id": "class_802_@id@@definition@_cab_1",
+			"name": "Class 802 Cab (@name1@, Forwards, @name2@)",
+			"color": "@color@",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "British_Rail_Class_802",
+			"tags": [
+				"family:class_802",
+				"iso_3166:GB",
+				"doors:2",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_window_1a.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_window_1b.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"hasBarrier1": false,
+			"hasBarrier2": true,
+			"bveSoundBaseResource": "iet_electric"
+		},
+		{
+			"id": "class_802_@id@@definition@_cab_2",
+			"name": "Class 802 Cab (@name1@, Backwards, @name2@)",
+			"color": "@color@",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "British_Rail_Class_802",
+			"tags": [
+				"family:class_802",
+				"iso_3166:GB",
+				"doors:2",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_window_2a.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_window_2b.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"hasBarrier1": true,
+			"hasBarrier2": false,
+			"bveSoundBaseResource": "iet_electric"
+		},
+		{
+			"id": "class_802_@id@@definition@_cab_3",
+			"name": "Class 802 Cab (@name1@, Double, @name2@)",
+			"color": "@color@",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "British_Rail_Class_802",
+			"tags": [
+				"family:class_802",
+				"iso_3166:GB",
+				"doors:2",
+				"type:cab_3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_window_1a.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"hasBarrier1": false,
+			"hasBarrier2": false,
+			"bveSoundBaseResource": "iet_electric"
+		},
+		{
+			"id": "class_802_diesel_@id@@definition@_trailer",
+			"name": "Class 802 Diesel Trailer (@name1@, @name2@)",
+			"color": "@color@",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "British_Rail_Class_802",
+			"tags": [
+				"family:class_802",
+				"iso_3166:GB",
+				"doors:2",
+				"type:trailer"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_window_default.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": true,
+			"hasBarrier1": true,
+			"hasBarrier2": true,
+			"bveSoundBaseResource": "iet_diesel"
+		},
+		{
+			"id": "class_802_diesel_@id@@definition@_cab_1",
+			"name": "Class 802 Diesel Cab (@name1@, Forwards, @name2@)",
+			"color": "@color@",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "British_Rail_Class_802",
+			"tags": [
+				"family:class_802",
+				"iso_3166:GB",
+				"doors:2",
+				"type:cab_1"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_window_1a.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_window_1b.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_end_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": true,
+			"hasBarrier1": false,
+			"hasBarrier2": true,
+			"bveSoundBaseResource": "iet_diesel"
+		},
+		{
+			"id": "class_802_diesel_@id@@definition@_cab_2",
+			"name": "Class 802 Diesel Cab (@name1@, Backwards, @name2@)",
+			"color": "@color@",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "British_Rail_Class_802",
+			"tags": [
+				"family:class_802",
+				"iso_3166:GB",
+				"doors:2",
+				"type:cab_2"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_window_2a.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_window_2b.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_end_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": true,
+			"hasGangway2": false,
+			"hasBarrier1": true,
+			"hasBarrier2": false,
+			"bveSoundBaseResource": "iet_diesel"
+		},
+		{
+			"id": "class_802_diesel_@id@@definition@_cab_3",
+			"name": "Class 802 Diesel Cab (@name1@, Double, @name2@)",
+			"color": "@color@",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "British_Rail_Class_802",
+			"tags": [
+				"family:class_802",
+				"iso_3166:GB",
+				"doors:2",
+				"type:cab_3"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_window_1a.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_head_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/class_802.bbmodel",
+					"textureResource": "mtr:textures/vehicle/class_802_@id@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/class_802_head_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_802@definition@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"hasBarrier1": false,
+			"hasBarrier2": false,
+			"bveSoundBaseResource": "iet_diesel"
+		}
+	]
+}

@@ -1,0 +1,107 @@
+{
+	"replacements": {
+		"lengths": [
+			19,
+      19,
+      19,
+      20
+		],
+		"id": [
+			"1938_trailer",
+			"1938_cab_1",
+			"1938_cab_2",
+			"1938_cab_3"
+		],
+		"color": [
+			"AA232D",
+			"AA232D",
+			"AA232D",
+			"AA232D"
+		],
+		"name": [
+			"1938 Stock Trailer",
+			"1938 Stock Cab (Forwards)",
+			"1938 Stock Cab (Backwards)",
+			"1938 Stock Cab (Double)"
+		],
+		"end1": [
+			"end_1",
+			"head_1",
+			"end_1",
+			"head_1"
+		],
+		"end2": [
+			"end_2",
+			"end_2",
+			"head_2",
+			"head_2"
+		],
+		"year": [
+			"1938",
+			"1938",
+			"1938",
+			"1938"
+		]
+	},
+	"vehicles": [
+		{
+			"id": "london_underground_@id@",
+			"name": "London Underground @name@",
+			"color": "@color@",
+			"transportMode": "TRAIN",
+			"width": 2,
+			"couplingPadding1": 0,
+			"couplingPadding2": 0,
+			"wikipediaArticle": "London_Underground_@year@_Stock",
+			"tags": [
+				"family:london_underground_@year@",
+				"iso_3166:GB",
+				"doors:4"
+			],
+			"models": [
+				{
+					"modelResource": "mtr:models/vehicle/london_underground_1938.bbmodel",
+					"textureResource": "mtr:textures/vehicle/london_underground_@year@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_1938_common.json",
+					"positionDefinitionsResource": "mtr:properties/definition/london_underground_1938_common.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/london_underground_1938.bbmodel",
+					"textureResource": "mtr:textures/vehicle/london_underground_@year@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_1938_@end1@.json",
+					"positionDefinitionsResource": "mtr:properties/definition/london_underground_1938_@end1@.json"
+				},
+				{
+					"modelResource": "mtr:models/vehicle/london_underground_1938.bbmodel",
+					"textureResource": "mtr:textures/vehicle/london_underground_@year@.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_1938_@end2@.json",
+					"positionDefinitionsResource": "mtr:properties/definition/london_underground_1938_@end2@.json"
+				}
+			],
+			"bogie1Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"bogie2Models": [
+				{
+					"modelResource": "mtr:models/vehicle/bogie_1.bbmodel",
+					"textureResource": "mtr:textures/vehicle/bogie_1.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/bogie_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/origin.json"
+				}
+			],
+			"hasGangway1": false,
+			"hasGangway2": false,
+			"legacySpeedSoundBaseResource": "mlr",
+			"legacySpeedSoundCount": 90,
+		    "legacyUseAccelerationSoundsWhenCoasting": false,
+		    "legacyConstantPlaybackSpeed": false,
+		    "legacyDoorSoundBaseResource": "r179",
+		    "legacyDoorCloseSoundTime": 1
+		}
+	]
+}

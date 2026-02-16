@@ -1,0 +1,160 @@
+{
+	"parts": [
+		{
+			"names": [
+				"head_glass"
+			],
+			"positionDefinitions": [
+				"b35173a"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR_TRANSLUCENT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"head"
+			],
+			"positionDefinitions": [
+				"b35173a"
+			],
+			"condition": "NORMAL",
+			"renderStage": "INTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"lights"
+			],
+			"positionDefinitions": [
+				"d0884815"
+			],
+			"condition": "NORMAL",
+			"renderStage": "LIGHT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"head_exterior"
+			],
+			"positionDefinitions": [
+				"b35173a"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"b35173a"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"taillight_off"
+			],
+			"positionDefinitions": [
+				"b35173a"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
+			"renderStage": "EXTERIOR",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"taillight_on"
+			],
+			"positionDefinitions": [
+				"b35173a"
+			],
+			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"taillight_on"
+			],
+			"positionDefinitions": [
+				"b35173a"
+			],
+			"condition": "AT_DEPOT",
+			"renderStage": "ALWAYS_ON_LIGHT",
+			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"display_number"
+			],
+			"positionDefinitions": [
+				"b35173a"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0,
+			"displayColorCjk": "BBBBBB",
+			"displayColor": "BBBBBB",
+			"displayMaxLineHeight": 1.5,
+			"displayCjkSizeRatio": 2,
+			"displayOptions": [
+				"SINGLE_LINE"
+			],
+			"displayPadZeros": 3,
+			"displayType": "DEPARTURE_INDEX",
+			"displayDefaultText": "746"
+		},
+		{
+			"names": [
+				"display_dest"
+			],
+			"positionDefinitions": [
+				"b35173a"
+			],
+			"condition": "NORMAL",
+			"renderStage": "EXTERIOR",
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0,
+			"displayColorCjk": "BBBBBB",
+			"displayColor": "BBBBBB",
+			"displayMaxLineHeight": 1.5,
+			"displayCjkSizeRatio": 2,
+			"displayOptions": [
+				"SINGLE_LINE",
+				"UPPER_CASE"
+			],
+			"displayPadZeros": 0,
+			"displayType": "DESTINATION",
+			"displayDefaultText": "Not In Service"
+		}
+	],
+	"modelYOffset": 1,
+	"gangwayInnerSideResource": "",
+	"gangwayInnerTopResource": "",
+	"gangwayInnerBottomResource": "",
+	"gangwayOuterSideResource": "",
+	"gangwayOuterTopResource": "",
+	"gangwayOuterBottomResource": "",
+	"gangwayWidth": 1.5,
+	"gangwayHeight": 2.25,
+	"gangwayYOffset": 1,
+	"gangwayZOffset": 0.5,
+	"barrierInnerSideResource": "",
+	"barrierInnerTopResource": "",
+	"barrierInnerBottomResource": "",
+	"barrierOuterSideResource": "",
+	"barrierOuterTopResource": "",
+	"barrierOuterBottomResource": "",
+	"barrierWidth": 2.25,
+	"barrierHeight": 1,
+	"barrierYOffset": 1.25,
+	"barrierZOffset": 0.25
+}

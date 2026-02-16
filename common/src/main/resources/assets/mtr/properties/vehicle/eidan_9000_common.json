@@ -67,13 +67,7 @@
 			"type": "NORMAL",
 			"doorXMultiplier": 0,
 			"doorZMultiplier": 11,
-			"doorAnimationType": "STANDARD_SLOW",
-			"renderFromOpeningDoorTime": 0,
-			"renderUntilOpeningDoorTime": 0,
-			"renderFromClosingDoorTime": 0,
-			"renderUntilClosingDoorTime": 0,
-			"flashOffTime": 0,
-			"flashOnTime": 0
+			"doorAnimationType": "STANDARD_SLOW"
 		},
 		{
 			"names": [
@@ -87,13 +81,7 @@
 			"type": "NORMAL",
 			"doorXMultiplier": 0,
 			"doorZMultiplier": -11,
-			"doorAnimationType": "STANDARD_SLOW",
-			"renderFromOpeningDoorTime": 0,
-			"renderUntilOpeningDoorTime": 0,
-			"renderFromClosingDoorTime": 0,
-			"renderUntilClosingDoorTime": 0,
-			"flashOffTime": 0,
-			"flashOnTime": 0
+			"doorAnimationType": "STANDARD_SLOW"
 		},
 		{
 			"names": [
@@ -107,13 +95,7 @@
 			"type": "NORMAL",
 			"doorXMultiplier": 0,
 			"doorZMultiplier": 11,
-			"doorAnimationType": "STANDARD_SLOW",
-			"renderFromOpeningDoorTime": 0,
-			"renderUntilOpeningDoorTime": 0,
-			"renderFromClosingDoorTime": 0,
-			"renderUntilClosingDoorTime": 0,
-			"flashOffTime": 0,
-			"flashOnTime": 0
+			"doorAnimationType": "STANDARD_SLOW"
 		},
 		{
 			"names": [
@@ -127,13 +109,7 @@
 			"type": "NORMAL",
 			"doorXMultiplier": 0,
 			"doorZMultiplier": -11,
-			"doorAnimationType": "STANDARD_SLOW",
-			"renderFromOpeningDoorTime": 0,
-			"renderUntilOpeningDoorTime": 0,
-			"renderFromClosingDoorTime": 0,
-			"renderUntilClosingDoorTime": 0,
-			"flashOffTime": 0,
-			"flashOnTime": 0
+			"doorAnimationType": "STANDARD_SLOW"
 		},
 		{
 			"names": [
@@ -321,13 +297,7 @@
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
-			"type": "NORMAL",
-			"renderFromOpeningDoorTime": 0,
-			"renderUntilOpeningDoorTime": 0,
-			"renderFromClosingDoorTime": 0,
-			"renderUntilClosingDoorTime": 0,
-			"flashOffTime": 0,
-			"flashOnTime": 0
+			"type": "NORMAL"
 		}
 	],
 	"modelYOffset": 1,
