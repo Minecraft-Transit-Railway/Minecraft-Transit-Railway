@@ -6,13 +6,23 @@ import gg.essential.elementa.components.input.UITextInput;
 import gg.essential.elementa.constraints.*;
 import gg.essential.universal.UMatrixStack;
 import kotlin.Unit;
+import lombok.Setter;
 import net.minecraft.client.MinecraftClient;
 import org.mtr.tool.ReleasedDynamicTextureRegistry;
 
+import javax.annotation.Nullable;
 import java.awt.*;
+import java.util.Locale;
 
 public final class TextInputComponent extends StitchedImageComponent {
 
+	@Setter
+	private boolean forceUpperCase;
+	@Setter
+	@Nullable
+	private String filter;
+	@Setter
+	private int maxLength;
 	private boolean disabled;
 
 	private final UIText prefixText;
@@ -68,10 +78,12 @@ public final class TextInputComponent extends StitchedImageComponent {
 	public void onChange(Runnable runnable) {
 		onMouseClickConsumer(clickEvent -> {
 			if (!disabled && clickEvent.getMouseButton() == 1) {
+				cleanText();
 				runnable.run();
 			}
 		});
 		newTextInput.onKeyTypeConsumer((character, integer) -> {
+			cleanText();
 			runnable.run();
 			updateColors();
 		});
@@ -115,6 +127,23 @@ public final class TextInputComponent extends StitchedImageComponent {
 		setHighlighted(false);
 		if (disabled) {
 			newTextInput.releaseWindowFocus();
+		}
+	}
+
+	private void cleanText() {
+		final String originalText = newTextInput.getText();
+		String cleanedText = originalText;
+		if (forceUpperCase) {
+			cleanedText = cleanedText.toUpperCase(Locale.ENGLISH);
+		}
+		if (filter != null) {
+			cleanedText = cleanedText.replaceAll(filter, "");
+		}
+		if (maxLength > 0) {
+			cleanedText = cleanedText.substring(0, Math.min(cleanedText.length(), maxLength));
+		}
+		if (!cleanedText.equals(originalText)) {
+			newTextInput.setText(cleanedText);
 		}
 	}
 

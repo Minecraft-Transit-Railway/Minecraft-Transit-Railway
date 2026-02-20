@@ -25,7 +25,7 @@ import org.mtr.widget.*;
 
 import javax.annotation.Nullable;
 
-public final class RailwaySignScreenNew extends WindowBase {
+public final class RailwaySignScreen extends WindowBase {
 
 	@Nullable
 	private final BlockPos signPos;
@@ -40,7 +40,7 @@ public final class RailwaySignScreenNew extends WindowBase {
 	private static final int LARGE_SIGN_WIDTH_UNITS = 4;
 	private static final int SIGN_COLUMNS = SMALL_SIGN_COLUMNS + LARGE_SIGN_COLUMNS;
 
-	public RailwaySignScreenNew(BlockPos signPos) {
+	public RailwaySignScreen(BlockPos signPos) {
 		final ClientWorld clientWorld = MinecraftClient.getInstance().world;
 		if (clientWorld != null && clientWorld.getBlockEntity(signPos) instanceof BlockRailwaySign.RailwaySignBlockEntity railwaySignBlockEntity) {
 			selectedIds = railwaySignBlockEntity.getSelectedIds();

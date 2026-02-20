@@ -30,6 +30,9 @@ public final class NumberInputComponent extends UIContainer {
 	private final TextInputComponent textInputComponent;
 	private final StitchedImageComponent sliderHandleComponent;
 
+	private static final int TEXT_INPUT_HEIGHT = 20;
+	private static final int SLIDER_HEIGHT = 8;
+	public static final int HEIGHT = TEXT_INPUT_HEIGHT + SLIDER_HEIGHT;
 	private static final int SLIDER_HANDLE_WIDTH = 6;
 
 	public NumberInputComponent(double min, double max, double step, boolean allowDecimal, @Nullable DoubleConsumer onChange) {
@@ -43,13 +46,13 @@ public final class NumberInputComponent extends UIContainer {
 				.setChildOf(this)
 				.setY(new SiblingConstraint())
 				.setWidth(new RelativeConstraint())
-				.setHeight(new PixelConstraint(20));
+				.setHeight(new PixelConstraint(TEXT_INPUT_HEIGHT));
 
 		final StitchedImageComponent sliderBackgroundComponent = (StitchedImageComponent) new StitchedImageComponent(200, 20, 4, 0, ReleasedDynamicTextureRegistry.BUTTON_DISABLED_TEXTURE.get())
 				.setChildOf(this)
 				.setY(new SiblingConstraint())
 				.setWidth(new RelativeConstraint())
-				.setHeight(new PixelConstraint(8));
+				.setHeight(new PixelConstraint(SLIDER_HEIGHT));
 
 		sliderHandleComponent = (StitchedImageComponent) new StitchedImageComponent(200, 20, 3, 0, ReleasedDynamicTextureRegistry.BUTTON_TEXTURE.get(), ReleasedDynamicTextureRegistry.BUTTON_DISABLED_TEXTURE.get(), ReleasedDynamicTextureRegistry.BUTTON_HIGHLIGHTED_TEXTURE.get())
 				.setChildOf(sliderBackgroundComponent)

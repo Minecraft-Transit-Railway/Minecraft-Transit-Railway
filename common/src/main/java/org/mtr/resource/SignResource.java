@@ -24,7 +24,7 @@ import org.mtr.render.SpecialSignPlatformRenderer;
 import org.mtr.render.SpecialSignRouteRenderer;
 import org.mtr.render.SpecialSignStationExitRenderer;
 import org.mtr.render.SpecialSignStationRenderer;
-import org.mtr.screen.RailwaySignScreenNew;
+import org.mtr.screen.RailwaySignScreen;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 import org.mtr.tool.RouteHelper;
@@ -168,7 +168,7 @@ public final class SignResource extends SignResourceSchema {
 							SPECIAL_SIGN_STATION_EXIT_RENDERER.render(
 									textureDrawing, deferredRenders,
 									x + i * signSize, y, zOffset,
-									signSize, getStationExits(blockPos).stream().filter(stationExit -> selectedIdsSet.contains(RailwaySignScreenNew.serializeExit(stationExit.getName()))).collect(Collectors.toCollection(ObjectArrayList::new)),
+									signSize, getStationExits(blockPos).stream().filter(stationExit -> selectedIdsSet.contains(RailwaySignScreen.serializeExit(stationExit.getName()))).collect(Collectors.toCollection(ObjectArrayList::new)),
 									signResource.flipTexture, signResource.flipCustomText, signResource.small, signResource.getCustomText(), font,
 									totalSpace, renderPlaceholder
 							);
