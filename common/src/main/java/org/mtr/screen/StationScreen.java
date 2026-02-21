@@ -54,9 +54,9 @@ public final class StationScreen extends ScrollableScreenBase {
 		openColorSelectorButton = new BetterButtonWidget(GuiHelper.COLOR_TEXTURE_ID, null, 0, this::onOpenColorSelector);
 		nameTextField = new BetterTextFieldWidget(1024, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_STATION_NAME.getString(), FULL_WIDGET_WIDTH - GuiHelper.DEFAULT_PADDING - openColorSelectorButton.getWidth(), null);
 
-		textFieldZoneX = new BetterTextFieldWidget(DashboardScreen.MAX_COLOR_ZONE_LENGTH, TextCase.DEFAULT, "[^-\\d]", TranslationProvider.GUI_MTR_ZONE_X.getString(), ONE_THIRD_WIDGET_WIDTH, null);
-		textFieldZoneY = new BetterTextFieldWidget(DashboardScreen.MAX_COLOR_ZONE_LENGTH, TextCase.DEFAULT, "[^-\\d]", TranslationProvider.GUI_MTR_ZONE_Y.getString(), ONE_THIRD_WIDGET_WIDTH, null);
-		textFieldZoneZ = new BetterTextFieldWidget(DashboardScreen.MAX_COLOR_ZONE_LENGTH, TextCase.DEFAULT, "[^-\\d]", TranslationProvider.GUI_MTR_ZONE_Z.getString(), ONE_THIRD_WIDGET_WIDTH, null);
+		textFieldZoneX = new BetterTextFieldWidget(DashboardScreen.MAX_COLOR_ZONE_LENGTH, TextCase.DEFAULT, "[^-\\d]", "", ONE_THIRD_WIDGET_WIDTH, null);
+		textFieldZoneY = new BetterTextFieldWidget(DashboardScreen.MAX_COLOR_ZONE_LENGTH, TextCase.DEFAULT, "[^-\\d]", "", ONE_THIRD_WIDGET_WIDTH, null);
+		textFieldZoneZ = new BetterTextFieldWidget(DashboardScreen.MAX_COLOR_ZONE_LENGTH, TextCase.DEFAULT, "[^-\\d]", "", ONE_THIRD_WIDGET_WIDTH, null);
 
 		addExitButton = new BetterButtonWidget(GuiHelper.ADD_TEXTURE_ID, TranslationProvider.GUI_MTR_ADD_EXIT.getString(), FULL_WIDGET_WIDTH, () -> startEditingExitCallback(null, 0));
 		textFieldExitName = new BetterTextFieldWidget(4, TextCase.DEFAULT, null, TranslationProvider.GUI_MTR_EXIT_NAME.getString(), HALF_WIDGET_WIDTH / 2, null);

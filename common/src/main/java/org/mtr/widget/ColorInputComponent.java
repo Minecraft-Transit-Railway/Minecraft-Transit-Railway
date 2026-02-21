@@ -32,12 +32,13 @@ public final class ColorInputComponent extends UIContainer {
 	private final SlotBackgroundComponent saturationBrightnessBoxComponent;
 	private final SlotBackgroundComponent hueBoxComponent;
 	private final SlotBackgroundComponent colorPreviewComponent;
+	private final ButtonComponent resetButton;
 	private final TextInputComponent colorInputComponent;
 	private final NumberInputComponent redInputComponent;
 	private final NumberInputComponent greenInputComponent;
 	private final NumberInputComponent blueInputComponent;
 
-	private static final int RIGHT_PANEL_WIDTH = 84;
+	private static final int RIGHT_PANEL_WIDTH = 96;
 	private static final int INPUT_SOURCE_COOLDOWN_LIMIT = 2;
 	private static final Random RANDOM = new Random();
 
@@ -80,7 +81,7 @@ public final class ColorInputComponent extends UIContainer {
 		colorPreviewComponent = (SlotBackgroundComponent) new SlotBackgroundComponent()
 				.setChildOf(outerContainer)
 				.setWidth(new PixelConstraint(RIGHT_PANEL_WIDTH))
-				.setHeight(new PixelConstraint(RIGHT_PANEL_WIDTH / 2F));
+				.setHeight(new PixelConstraint(RIGHT_PANEL_WIDTH / 4F));
 
 		final ScrollComponent scrollComponent = ((ScrollPanelComponent) new ScrollPanelComponent(true)
 				.setChildOf(outerContainer)
@@ -88,11 +89,12 @@ public final class ColorInputComponent extends UIContainer {
 				.setWidth(new RelativeConstraint())
 				.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)))).contentContainer;
 
-		final ButtonComponent resetButton = (ButtonComponent) (new ButtonComponent(true)
+		resetButton = (ButtonComponent) (new ButtonComponent(true)
 				.setChildOf(scrollComponent)
 				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
 				.setWidth(new RelativeConstraint()));
 
+		resetButton.setDisabled(true);
 		resetButton.setText(TranslationProvider.GUI_MTR_RESET.getString());
 		resetButton.onClick(() -> {
 			if (oldColor != null) {
@@ -102,15 +104,18 @@ public final class ColorInputComponent extends UIContainer {
 
 		final ButtonComponent randomButton = (ButtonComponent) (new ButtonComponent(true)
 				.setChildOf(scrollComponent)
-				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+				.setY(new SiblingConstraint())
 				.setWidth(new RelativeConstraint()));
 
 		randomButton.setText(TranslationProvider.GUI_MTR_COLOR_RANDOM.getString());
 		randomButton.onClick(this::setRandomColor);
 
+		GuiHelper.createSpacing(scrollComponent);
+		GuiHelper.createLabel(scrollComponent, TranslationProvider.GUI_MTR_COLOR_HEX.getString());
+
 		colorInputComponent = (TextInputComponent) new TextInputComponent()
 				.setChildOf(scrollComponent)
-				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+				.setY(new SiblingConstraint())
 				.setWidth(new RelativeConstraint())
 				.setHeight(new PixelConstraint(20));
 
@@ -120,9 +125,12 @@ public final class ColorInputComponent extends UIContainer {
 		colorInputComponent.onChange(() -> colorInputChanged(false));
 		colorInputComponent.onFocusLost(() -> colorInputChanged(true));
 
+		GuiHelper.createSpacing(scrollComponent);
+		GuiHelper.createLabel(scrollComponent, TranslationProvider.GUI_MTR_COLOR_RGB.getString());
+
 		final UIContainer rgbContainer = (UIContainer) new UIContainer()
 				.setChildOf(scrollComponent)
-				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+				.setY(new SiblingConstraint())
 				.setWidth(new RelativeConstraint())
 				.setHeight(new PixelConstraint(NumberInputComponent.HEIGHT));
 
@@ -137,12 +145,16 @@ public final class ColorInputComponent extends UIContainer {
 		ImageComponentBase.drawRectangle(vertexConsumer -> {
 			drawSlot(matrixStack, vertexConsumer, hueBoxComponent, 1, 0, 0F, hue, (relativeX, relativeY, indexX) -> new Color(Color.HSBtoRGB(getHue(relativeY), 1, 1)));
 			drawSlot(matrixStack, vertexConsumer, saturationBrightnessBoxComponent, 0, 0, brightness, saturation, (relativeX, relativeY, indexX) -> new Color(Color.HSBtoRGB(hue, getSaturation(relativeY), getBrightness(relativeX))));
-			drawSlot(matrixStack, vertexConsumer, colorPreviewComponent, 2, 1, null, null, (relativeX, relativeY, indexX) -> indexX > 0 ? oldColor : new Color(Color.HSBtoRGB(hue, saturation, brightness)));
+			drawSlot(matrixStack, vertexConsumer, colorPreviewComponent, 2, 1, null, null, (relativeX, relativeY, indexX) -> indexX > 0 ? oldColor : getSelectedColor());
 		}, false);
 
 		if (inputSourceCooldown <= INPUT_SOURCE_COOLDOWN_LIMIT) {
 			inputSourceCooldown++;
 		}
+	}
+
+	public Color getSelectedColor() {
+		return new Color(Color.HSBtoRGB(hue, saturation, brightness));
 	}
 
 	public void setSelectedColor(Color color) {
@@ -154,7 +166,7 @@ public final class ColorInputComponent extends UIContainer {
 	}
 
 	private void setSelectedColor(@Nullable Integer red, @Nullable Integer green, @Nullable Integer blue) {
-		final Color color = new Color(Color.HSBtoRGB(hue, saturation, brightness));
+		final Color color = getSelectedColor();
 		setSelectedColor(new Color(red == null ? color.getRed() : red, green == null ? color.getGreen() : green, blue == null ? color.getBlue() : blue), InputSource.RGB);
 	}
 
@@ -195,6 +207,7 @@ public final class ColorInputComponent extends UIContainer {
 			oldColor = color;
 		}
 
+		resetButton.setDisabled(oldColor.getRGB() == color.getRGB());
 		inputSourceCooldown = 0;
 	}
 
@@ -222,13 +235,13 @@ public final class ColorInputComponent extends UIContainer {
 	private void mouseClickHSB(float x, float y) {
 		if (draggingHue) {
 			hue = getHue(y);
-			setSelectedColor(new Color(Color.HSBtoRGB(hue, saturation, brightness)), InputSource.HSB);
+			setSelectedColor(getSelectedColor(), InputSource.HSB);
 		}
 
 		if (draggingSaturationBrightness) {
 			saturation = getSaturation(y);
 			brightness = getBrightness(x);
-			setSelectedColor(new Color(Color.HSBtoRGB(hue, saturation, brightness)), InputSource.HSB);
+			setSelectedColor(getSelectedColor(), InputSource.HSB);
 		}
 	}
 

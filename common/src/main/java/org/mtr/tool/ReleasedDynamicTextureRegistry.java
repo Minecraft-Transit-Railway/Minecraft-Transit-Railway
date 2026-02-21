@@ -32,6 +32,10 @@ public final class ReleasedDynamicTextureRegistry extends DynamicReloadableRegis
 	public static final Holder TAB_MIDDLE_TEXTURE = INSTANCE.create(Identifier.of("textures/gui/sprites/container/creative_inventory/tab_top_unselected_2.png"));
 	public static final Holder TAB_MIDDLE_SELECTED_TEXTURE = INSTANCE.create(Identifier.of("textures/gui/sprites/container/creative_inventory/tab_top_selected_2.png"));
 
+	public static final Holder BRUSH_TEXTURE = INSTANCE.create(Identifier.of(MTR.MOD_ID, "textures/item/brush.png"));
+	public static final Holder EXIT_TEXTURE = INSTANCE.create(Identifier.of(MTR.MOD_ID, "textures/block/sign/exit_1.png"));
+
+	public static final Holder STICK_TEXTURE = INSTANCE.create(Identifier.of("textures/item/stick.png"));
 	public static final Holder DIAMOND_PICKAXE_TEXTURE = INSTANCE.create(Identifier.of("textures/item/diamond_pickaxe.png"));
 	public static final Holder POPPY_TEXTURE = INSTANCE.create(Identifier.of("textures/block/poppy.png"));
 

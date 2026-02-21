@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 
 public final class ButtonComponent extends StitchedImageComponent {
 
-	public boolean disabled = false;
+	private boolean disabled = false;
 	private float availableTextWidth;
 	private String text = "";
 
@@ -85,6 +85,11 @@ public final class ButtonComponent extends StitchedImageComponent {
 		if (wrappedTextLabel != null) {
 			wrappedTextLabel.setText(text);
 		}
+	}
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
+		setHighlighted(false);
 	}
 
 	private void setHighlighted(boolean highlighted) {

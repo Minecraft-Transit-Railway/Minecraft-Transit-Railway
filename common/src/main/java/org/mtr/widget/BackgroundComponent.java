@@ -18,15 +18,16 @@ public final class BackgroundComponent extends StitchedImageComponent {
 	public final UIContainer[] containers;
 	private final ObjectImmutableList<ObjectObjectImmutablePair<ReleasedDynamicTexture, String>> tabs;
 
-	private static final int TEXTURE_BORDER = 6;
+	private static final int TAB_OFFSET = 4;
 	private static final int INNER_PADDING = 8;
 	private static final int OUTER_PADDING = 40;
 	private static final int TAB_WIDTH = 26;
 	private static final int TAB_HEIGHT = 32;
 	private static final int TAB_ICON_SIZE = 16;
+	private static final ReleasedDynamicTexture BRUSH_TEXTURE = ReleasedDynamicTextureRegistry.BRUSH_TEXTURE.get();
 
 	public BackgroundComponent(Window parent, ObjectImmutableList<ObjectObjectImmutablePair<ReleasedDynamicTexture, String>> tabs) {
-		super(256, 256, 176, 222, TEXTURE_BORDER, -INNER_PADDING, 6, 6, 170, 16, ReleasedDynamicTextureRegistry.BACKGROUND_TEXTURE.get());
+		super(256, 256, 176, 222, 6, -INNER_PADDING, 6, 6, 170, 16, ReleasedDynamicTextureRegistry.BACKGROUND_TEXTURE.get());
 		containers = new UIContainer[tabs.size()];
 		this.tabs = tabs;
 
@@ -68,7 +69,7 @@ public final class BackgroundComponent extends StitchedImageComponent {
 				final int currentTab = i;
 				drawTexture(i == 0 ? ReleasedDynamicTextureRegistry.TAB_LEFT_TEXTURE.get() : ReleasedDynamicTextureRegistry.TAB_MIDDLE_TEXTURE.get(), vertexConsumer -> {
 					final float x = getLeft() - INNER_PADDING + currentTab * TAB_WIDTH;
-					final float y = getTop() - TEXTURE_BORDER;
+					final float y = getTop() - TAB_OFFSET;
 					drawTexturedQuad(matrixStack, vertexConsumer, x, y - TAB_HEIGHT, x + TAB_WIDTH, y, 0, 0, 1, 1);
 				});
 			}
@@ -82,20 +83,14 @@ public final class BackgroundComponent extends StitchedImageComponent {
 		if (!tabs.isEmpty()) {
 			drawTexture(selectedTab == 0 ? ReleasedDynamicTextureRegistry.TAB_LEFT_SELECTED_TEXTURE.get() : ReleasedDynamicTextureRegistry.TAB_MIDDLE_SELECTED_TEXTURE.get(), vertexConsumer -> {
 				final float x = getLeft() - INNER_PADDING + selectedTab * TAB_WIDTH;
-				final float y = getTop() - TEXTURE_BORDER;
+				final float y = getTop() - TAB_OFFSET;
 				drawTexturedQuad(matrixStack, vertexConsumer, x, y - TAB_HEIGHT, x + TAB_WIDTH, y, 0, 0, 1, 1);
 			});
 		}
 
 		// Tab icons
 		for (int i = 0; i < tabs.size(); i++) {
-			final int currentTab = i;
-			drawTexture(tabs.get(i).left(), vertexConsumer -> {
-				final int texturePadding = (TAB_WIDTH - TAB_ICON_SIZE) / 2;
-				final float x = getLeft() - INNER_PADDING + currentTab * TAB_WIDTH + texturePadding;
-				final float y = getTop() - TAB_HEIGHT - 2 + texturePadding;
-				drawTexturedQuad(matrixStack, vertexConsumer, x, y, x + TAB_ICON_SIZE, y + TAB_ICON_SIZE, 0, 0, 1, 1);
-			});
+			drawTabIcon(matrixStack, tabs.get(i).left(), i);
 		}
 
 		matrixStack.pop();
@@ -109,5 +104,18 @@ public final class BackgroundComponent extends StitchedImageComponent {
 				containers[i].hide(true);
 			}
 		}
+	}
+
+	private void drawTabIcon(UMatrixStack matrixStack, ReleasedDynamicTexture releasedDynamicTexture, int currentTab) {
+		if (releasedDynamicTexture == BRUSH_TEXTURE) {
+			drawTabIcon(matrixStack, ReleasedDynamicTextureRegistry.STICK_TEXTURE.get(), currentTab);
+		}
+
+		drawTexture(releasedDynamicTexture, vertexConsumer -> {
+			final int texturePadding = (TAB_WIDTH - TAB_ICON_SIZE) / 2;
+			final float x = getLeft() - INNER_PADDING + currentTab * TAB_WIDTH + texturePadding;
+			final float y = getTop() - TAB_HEIGHT - 2 + texturePadding;
+			drawTexturedQuad(matrixStack, vertexConsumer, x, y, x + TAB_ICON_SIZE, y + TAB_ICON_SIZE, 0, 0, 1, 1);
+		});
 	}
 }

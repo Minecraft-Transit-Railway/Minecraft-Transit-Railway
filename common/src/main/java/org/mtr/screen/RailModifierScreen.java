@@ -105,7 +105,7 @@ public final class RailModifierScreen extends WindowBase {
 		final ScrollComponent scrollComponent1 = mainComponents1.left();
 		previewBoxComponent1 = mainComponents1.right();
 
-		createLabel(scrollComponent1, TranslationProvider.GUI_MTR_RAIL_STYLES);
+		GuiHelper.createLabel(scrollComponent1, TranslationProvider.GUI_MTR_RAIL_STYLES.getString());
 		final ButtonComponent editStylesButtonComponent = (ButtonComponent) new ButtonComponent(false)
 				.setChildOf(scrollComponent1)
 				.setY(new SiblingConstraint())
@@ -139,8 +139,8 @@ public final class RailModifierScreen extends WindowBase {
 		});
 
 		if (rail.canAccelerate() && !rail.isPlatform() && !rail.isSiding()) {
-			createSpacing(scrollComponent1);
-			createLabel(scrollComponent1, TranslationProvider.GUI_MTR_RAIL_SPEED);
+			GuiHelper.createSpacing(scrollComponent1);
+			GuiHelper.createLabel(scrollComponent1, TranslationProvider.GUI_MTR_RAIL_SPEED.getString());
 			speedInputComponent = (NumberInputComponent) new NumberInputComponent(1, 999, 1, false, null)
 					.setChildOf(scrollComponent1)
 					.setY(new SiblingConstraint())
@@ -153,8 +153,8 @@ public final class RailModifierScreen extends WindowBase {
 		}
 
 		if (rail.railMath.minY != rail.railMath.maxY) {
-			createSpacing(scrollComponent1);
-			createLabel(scrollComponent1, TranslationProvider.GUI_MTR_RAIL_SHAPE);
+			GuiHelper.createSpacing(scrollComponent1);
+			GuiHelper.createLabel(scrollComponent1, TranslationProvider.GUI_MTR_RAIL_SHAPE.getString());
 			shapeButtonComponent = (ButtonComponent) new ButtonComponent(true)
 					.setChildOf(scrollComponent1)
 					.setY(new SiblingConstraint())
@@ -165,8 +165,8 @@ public final class RailModifierScreen extends WindowBase {
 				update(false);
 			});
 
-			createSpacing(scrollComponent1);
-			createLabel(scrollComponent1, TranslationProvider.GUI_MTR_RAIL_VERTICAL_RADIUS);
+			GuiHelper.createSpacing(scrollComponent1);
+			GuiHelper.createLabel(scrollComponent1, TranslationProvider.GUI_MTR_RAIL_VERTICAL_RADIUS.getString());
 			radiusInputComponent = (NumberInputComponent) new NumberInputComponent(0, rail.railMath.getMaxVerticalRadius(), 0.01, true, null)
 					.setChildOf(scrollComponent1)
 					.setY(new SiblingConstraint())
@@ -183,7 +183,7 @@ public final class RailModifierScreen extends WindowBase {
 		final ScrollComponent scrollComponent2 = mainComponents2.left();
 		previewBoxComponent2 = mainComponents2.right();
 
-		createLabel(scrollComponent2, TranslationProvider.GUI_MTR_RAIL_TILT_POINTS);
+		GuiHelper.createLabel(scrollComponent2, TranslationProvider.GUI_MTR_RAIL_TILT_POINTS.getString());
 		tiltPointsComponent = (NumberInputComponent) new NumberInputComponent(2, 7, 1, false, this::changeTiltPoints)
 				.setChildOf(scrollComponent2)
 				.setY(new SiblingConstraint())
@@ -366,34 +366,6 @@ public final class RailModifierScreen extends WindowBase {
 		return new ObjectObjectImmutablePair<>(scrollComponent, previewBoxComponent);
 	}
 
-	private void createLabel(UIContainer container, TranslationProvider.TranslationHolder translationHolder) {
-		final UIContainer innerContainer = (UIContainer) new UIContainer()
-				.setChildOf(container)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint())
-				.setHeight(new ChildBasedSizeConstraint());
-
-		new UIWrappedText(translationHolder.getString(), false)
-				.setChildOf(innerContainer)
-				.setWidth(new RelativeConstraint())
-				.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR))
-				.setTextScale(new PixelConstraint(0.8F));
-
-		new UIContainer()
-				.setChildOf(innerContainer)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint())
-				.setHeight(new PixelConstraint(1));
-	}
-
-	private void createSpacing(UIContainer container) {
-		new UIContainer()
-				.setChildOf(container)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint())
-				.setHeight(new PixelConstraint(GuiHelper.DEFAULT_PADDING));
-	}
-
 	private ObjectObjectImmutablePair<UIContainer, NumberInputComponent> createTiltControl(ScrollComponent scrollComponent, TranslationProvider.TranslationHolder translationHolder, int colorIndex, double min, double max, @Nullable String suffix, double initialValue) {
 		final UIContainer outerContainer = (UIContainer) new UIContainer()
 				.setChildOf(scrollComponent)
@@ -406,8 +378,8 @@ public final class RailModifierScreen extends WindowBase {
 				.setWidth(new RelativeConstraint())
 				.setHeight(new ChildBasedSizeConstraint());
 
-		createSpacing(innerContainer);
-		createLabel(innerContainer, translationHolder);
+		GuiHelper.createSpacing(innerContainer);
+		GuiHelper.createLabel(innerContainer, translationHolder.getString());
 
 		final UIContainer numberInputContainer = (UIContainer) new UIContainer()
 				.setChildOf(innerContainer)

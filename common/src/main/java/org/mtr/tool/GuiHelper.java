@@ -1,5 +1,7 @@
 package org.mtr.tool;
 
+import gg.essential.elementa.components.UIContainer;
+import gg.essential.elementa.components.UIWrappedText;
 import gg.essential.elementa.constraints.*;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -80,6 +82,45 @@ public final class GuiHelper {
 	 */
 	public static SizeConstraint createAspectConstraintWithPadding(float aspect, float padding) {
 		return new AdditiveConstraint(new ScaleConstraint(new SubtractiveConstraint(new AspectConstraint(), new PixelConstraint(padding * 2)), aspect), new PixelConstraint(padding * 2));
+	}
+
+	/**
+	 * Creates a label for a GUI with 0.8x text scale.
+	 *
+	 * @param container the parent container
+	 * @param text      the text to render
+	 */
+	public static void createLabel(UIContainer container, String text) {
+		final UIContainer innerContainer = (UIContainer) new UIContainer()
+				.setChildOf(container)
+				.setY(new SiblingConstraint())
+				.setWidth(new RelativeConstraint())
+				.setHeight(new ChildBasedSizeConstraint());
+
+		new UIWrappedText(text, false)
+				.setChildOf(innerContainer)
+				.setWidth(new RelativeConstraint())
+				.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR))
+				.setTextScale(new PixelConstraint(0.8F));
+
+		new UIContainer()
+				.setChildOf(innerContainer)
+				.setY(new SiblingConstraint())
+				.setWidth(new RelativeConstraint())
+				.setHeight(new PixelConstraint(1));
+	}
+
+	/**
+	 * Creates a fixed height spacing for a GUI.
+	 *
+	 * @param container the parent container
+	 */
+	public static void createSpacing(UIContainer container) {
+		new UIContainer()
+				.setChildOf(container)
+				.setY(new SiblingConstraint())
+				.setWidth(new RelativeConstraint())
+				.setHeight(new PixelConstraint(GuiHelper.DEFAULT_PADDING));
 	}
 
 	public static Color rainbowColor() {
