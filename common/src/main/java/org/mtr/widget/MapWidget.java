@@ -283,7 +283,7 @@ public final class MapWidget extends ClickableWidgetBase {
 					final ScrollableListWidget<Station> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setAreas(scrollableListWidget, hoverStations, null, hasPermission ? ObjectArrayList.of(
 							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, (index, station) -> onStartEditingArea.accept(station)),
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (index, station) -> UMinecraft.setCurrentScreenObj(new StationScreenNew(station, dashboardScreen))),
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (index, station) -> UMinecraft.setCurrentScreenObj(new StationScreen(station, dashboardScreen))),
 							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (index, station) -> onDeleteData.accept(station, new DeleteDataRequest().addStationId(station.getId())))
 					) : new ObjectArrayList<>());
 					scrollableListWidget.tryTrigger();

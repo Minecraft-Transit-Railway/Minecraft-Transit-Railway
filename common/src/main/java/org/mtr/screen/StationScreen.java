@@ -22,7 +22,7 @@ import org.mtr.widget.*;
 import javax.annotation.Nullable;
 import java.awt.*;
 
-public final class StationScreenNew extends WindowBase {
+public final class StationScreen extends WindowBase {
 
 	private final Station station;
 
@@ -40,7 +40,7 @@ public final class StationScreenNew extends WindowBase {
 	private final ColorInputComponent colorInputComponent;
 	private final ListComponent<StationExit> exitListComponent;
 
-	public StationScreenNew(Station station, @Nullable ScreenBase previousScreenLegacy) {
+	public StationScreen(Station station, @Nullable ScreenBase previousScreenLegacy) {
 		super(previousScreenLegacy);
 		this.station = station;
 
