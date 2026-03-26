@@ -15,14 +15,24 @@ public abstract class WindowBase extends WindowScreen {
 
 	@Nullable
 	private final WindowScreen previousScreen;
+	@Nullable
+	private final ScreenBase previousScreenLegacy;
 
 	public WindowBase(@Nullable WindowScreen previousScreen) {
 		super(ElementaVersion.V10);
 		this.previousScreen = previousScreen;
+		previousScreenLegacy = null;
+	}
+
+	@Deprecated
+	public WindowBase(@Nullable ScreenBase previousScreenLegacy) {
+		super(ElementaVersion.V10);
+		previousScreen = null;
+		this.previousScreenLegacy = previousScreenLegacy;
 	}
 
 	public WindowBase() {
-		this(null);
+		this((WindowScreen) null);
 	}
 
 	@Override
@@ -46,7 +56,7 @@ public abstract class WindowBase extends WindowScreen {
 		super.onTick();
 		if (closeScreen) {
 			if (previousScreen == null) {
-				MinecraftClient.getInstance().setScreen(null);
+				MinecraftClient.getInstance().setScreen(previousScreenLegacy);
 			} else {
 				UMinecraft.setCurrentScreenObj(previousScreen);
 			}

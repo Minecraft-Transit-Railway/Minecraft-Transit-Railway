@@ -1,6 +1,7 @@
 package org.mtr.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import gg.essential.universal.UMinecraft;
 import it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
 import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import it.unimi.dsi.fastutil.longs.Long2FloatAVLTreeMap;
@@ -282,7 +283,7 @@ public final class MapWidget extends ClickableWidgetBase {
 					final ScrollableListWidget<Station> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setAreas(scrollableListWidget, hoverStations, null, hasPermission ? ObjectArrayList.of(
 							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, (index, station) -> onStartEditingArea.accept(station)),
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (index, station) -> minecraftClient.setScreen(new StationScreen(station, dashboardScreen))),
+							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (index, station) -> UMinecraft.setCurrentScreenObj(new StationScreenNew(station, dashboardScreen))),
 							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (index, station) -> onDeleteData.accept(station, new DeleteDataRequest().addStationId(station.getId())))
 					) : new ObjectArrayList<>());
 					scrollableListWidget.tryTrigger();

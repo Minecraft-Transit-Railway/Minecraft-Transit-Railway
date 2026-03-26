@@ -3,6 +3,7 @@ package org.mtr.resource;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import it.unimi.dsi.fastutil.longs.LongArraySet;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.render.RenderLayer;
@@ -25,6 +26,7 @@ import org.mtr.render.SpecialSignRouteRenderer;
 import org.mtr.render.SpecialSignStationExitRenderer;
 import org.mtr.render.SpecialSignStationRenderer;
 import org.mtr.screen.RailwaySignScreen;
+import org.mtr.tool.DataHelper;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 import org.mtr.tool.RouteHelper;
@@ -262,7 +264,29 @@ public final class SignResource extends SignResourceSchema {
 
 	public static ObjectArrayList<StationExit> getStationExits(@Nullable BlockPos blockPos) {
 		final Station station = blockPos == null ? null : getStation(blockPos);
-		return station == null ? new ObjectArrayList<>() : station.getExits();
+		if (station == null) {
+			return new ObjectArrayList<>();
+		} else {
+			final ObjectArrayList<StationExit> stationExitsSorted = new ObjectArrayList<>(station.getExits());
+			final Object2ObjectOpenHashMap<String, StationExit> addedParentExits = new Object2ObjectOpenHashMap<>();
+
+			station.getExits().forEach(stationExit -> {
+				final String[] stationExitNameSplit = DataHelper.getSplitStationExitName(stationExit.getName());
+				if (!addedParentExits.containsKey(stationExitNameSplit[0])) {
+					final StationExit newExit = new StationExit();
+					newExit.setName(stationExitNameSplit[0]);
+					stationExitsSorted.add(newExit);
+					addedParentExits.put(stationExitNameSplit[0], newExit);
+				}
+				final StationExit parentExit = addedParentExits.get(stationExitNameSplit[0]);
+				if (parentExit != null && parentExit != stationExit) {
+					parentExit.getDestinations().addAll(stationExit.getDestinations());
+				}
+			});
+
+			Collections.sort(stationExitsSorted);
+			return stationExitsSorted;
+		}
 	}
 
 	public static ObjectObjectImmutablePair<IntArrayList, String> getPlatformColorsAndDestinations(long platformId) {

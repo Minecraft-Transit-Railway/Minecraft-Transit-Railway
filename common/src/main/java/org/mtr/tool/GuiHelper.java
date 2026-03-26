@@ -12,6 +12,9 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import org.mtr.core.tool.Utilities;
+import org.mtr.widget.ListComponent;
+import org.mtr.widget.ScrollPanelComponent;
+import org.mtr.widget.SlotBackgroundComponent;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -121,6 +124,29 @@ public final class GuiHelper {
 				.setY(new SiblingConstraint())
 				.setWidth(new RelativeConstraint())
 				.setHeight(new PixelConstraint(GuiHelper.DEFAULT_PADDING));
+	}
+
+	/**
+	 * Creates a scrollable list component with a black background.
+	 *
+	 * @param slotBackgroundComponent the parent container
+	 * @return the {@link ListComponent}
+	 */
+	public static <T> ListComponent<T> createListComponent(SlotBackgroundComponent slotBackgroundComponent) {
+		slotBackgroundComponent.setBackgroundColor(Color.BLACK);
+
+		final ScrollPanelComponent scrollPanelComponent = (ScrollPanelComponent) new ScrollPanelComponent(false)
+				.setChildOf(slotBackgroundComponent)
+				.setX(new CenterConstraint())
+				.setY(new CenterConstraint())
+				.setWidth(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)))
+				.setHeight(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)));
+
+		scrollPanelComponent.setScrollbarColor(Color.WHITE);
+
+		final ListComponent<T> listComponent = new ListComponent<>();
+		listComponent.setChildOf(scrollPanelComponent.contentContainer).setWidth(new RelativeConstraint()).setHeight(new RelativeConstraint());
+		return listComponent;
 	}
 
 	public static Color rainbowColor() {

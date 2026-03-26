@@ -11,7 +11,6 @@ import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.tool.GuiHelper;
 import org.mtr.widget.*;
 
-import java.awt.*;
 import java.util.Collections;
 import java.util.function.Consumer;
 
@@ -86,19 +85,7 @@ public abstract class ListSelectorScreen<T extends U, U extends Comparable<U>> e
 				.setWidth(new RelativeConstraint())
 				.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)));
 
-		slotBackgroundComponent.setBackgroundColor(Color.BLACK);
-
-		final ScrollPanelComponent scrollPanelComponent = (ScrollPanelComponent) new ScrollPanelComponent(false)
-				.setChildOf(slotBackgroundComponent)
-				.setX(new CenterConstraint())
-				.setY(new CenterConstraint())
-				.setWidth(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)))
-				.setHeight(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)));
-
-		scrollPanelComponent.setScrollbarColor(Color.WHITE);
-
-		final ListComponent<T> listComponent = new ListComponent<>();
-		listComponent.setChildOf(scrollPanelComponent.contentContainer).setWidth(new RelativeConstraint()).setHeight(new RelativeConstraint());
+		final ListComponent<T> listComponent = GuiHelper.createListComponent(slotBackgroundComponent);
 		textInputComponent.onChange(() -> listComponent.setFilter(textInputComponent.getText()));
 		return listComponent;
 	}

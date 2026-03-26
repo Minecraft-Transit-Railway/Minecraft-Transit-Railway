@@ -1,5 +1,6 @@
 package org.mtr.screen;
 
+import gg.essential.universal.UMinecraft;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
@@ -327,7 +328,7 @@ public final class DashboardScreen extends ScreenBase {
 					final ObjectArrayList<ObjectObjectImmutablePair<Identifier, ListItem.ActionConsumer<Station>>> actions = ObjectArrayList.of(new ObjectObjectImmutablePair<>(GuiHelper.FIND_TEXTURE_ID, (index, station) -> mapWidget.find(station)));
 					if (hasPermission) {
 						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, (index, station) -> startEditingArea(station)));
-						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (index, station) -> MinecraftClient.getInstance().setScreen(new StationScreen(station, this))));
+						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (index, station) -> UMinecraft.setCurrentScreenObj(new StationScreenNew(station, this))));
 						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (index, station) -> onDeleteData(station, new DeleteDataRequest().addStationId(station.getId()))));
 					}
 					ScrollableListWidget.setAreas(stationsListWidget, MinecraftClientData.getDashboardInstance().stations, null, actions);

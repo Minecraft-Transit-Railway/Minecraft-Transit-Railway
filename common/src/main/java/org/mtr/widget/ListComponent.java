@@ -341,20 +341,47 @@ public final class ListComponent<T> extends UIComponent {
 		scrollableListWidget.setData(dataList);
 	}
 
-	public static void setStationExits(ListComponent<StationExit> listComponent, ObjectCollection<StationExit> stationExits, ObjectArrayList<ObjectObjectImmutablePair<Identifier, ListItem.ActionConsumer<StationExit>>> actions) {
+	public static void setStationExits(ListComponent<StationExit> listComponent, ObjectCollection<StationExit> stationExits, boolean flatten, ObjectArrayList<ObjectObjectImmutablePair<Identifier, ListItem.ActionConsumer<StationExit>>> actions) {
 		final ObjectArrayList<ListItem<StationExit>> dataList = new ObjectArrayList<>();
 
 		stationExits.forEach(stationExit -> {
-			final ObjectArrayList<String> destinations = stationExit.getDestinations();
-			final String additional = destinations.size() > 1 ? String.format("|(+%s)", destinations.size() - 1) : "";
-			dataList.add(ListItem.createChild(
-					(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING / 2F, y + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING).setColor(GuiHelper.DARK_GRAY_COLOR).draw(),
-					(drawing, x, y) -> SpecialSignStationExitRenderer.renderText(drawing, stationExit.getName(), FontRenderHelper.MTR_FONT, x + GuiHelper.DEFAULT_LINE_SIZE / 2F, y + GuiHelper.DEFAULT_LINE_SIZE / 2F, 0, GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT, GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT),
-					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
-					stationExit,
-					destinations.isEmpty() ? "" : Utilities.formatName(String.format("%s%s", destinations.getFirst(), additional)),
-					actions
-			));
+			final int destinationsCount = stationExit.getDestinations().size();
+			final ObjectArrayList<String> titles = new ObjectArrayList<>();
+			if (destinationsCount > 0) {
+				titles.add(Utilities.formatName(stationExit.getDestinations().getFirst()));
+			}
+			if (destinationsCount > 1) {
+				titles.add(String.format("(+%s)", destinationsCount - 1));
+			}
+
+			final ListItem.DrawIcon drawIcon = (drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING / 2F, y + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING).setColor(GuiHelper.DARK_GRAY_COLOR).draw();
+			final ListItem.DeferredDrawIcon deferredDrawIcon = (drawing, x, y) -> SpecialSignStationExitRenderer.renderText(drawing, stationExit.getName(), FontRenderHelper.MTR_FONT, x + GuiHelper.DEFAULT_LINE_SIZE / 2F, y + GuiHelper.DEFAULT_LINE_SIZE / 2F, 0, GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT, GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT);
+
+			if (flatten) {
+				dataList.add(ListItem.createChild(
+						drawIcon,
+						deferredDrawIcon,
+						GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
+						stationExit,
+						String.join(" ", titles),
+						actions
+				));
+			} else {
+				final ObjectArrayList<ListItem<StationExit>> destinationListItems = new ObjectArrayList<>();
+
+				for (int i = 0; i < stationExit.getDestinations().size(); i++) {
+					destinationListItems.add(ListItem.createChild(null, null, GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE, stationExit, stationExit.getDestinations().get(i), actions));
+				}
+
+				dataList.add(ListItem.createParent(
+						drawIcon,
+						deferredDrawIcon,
+						GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
+						String.join(" ", titles),
+						Utilities.formatName(stationExit.getName()),
+						destinationListItems
+				));
+			}
 		});
 
 		listComponent.setData(dataList);

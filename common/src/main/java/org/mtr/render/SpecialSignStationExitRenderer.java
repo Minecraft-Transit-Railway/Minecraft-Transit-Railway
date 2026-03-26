@@ -2,18 +2,17 @@ package org.mtr.render;
 
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import org.mtr.cache.GenericStringCache;
 import org.mtr.core.data.StationExit;
 import org.mtr.core.tool.Utilities;
 import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
+import org.mtr.tool.DataHelper;
 import org.mtr.tool.GuiHelper;
 
 import javax.annotation.Nullable;
 
 public final class SpecialSignStationExitRenderer extends SpecialSignRouteStationExitRendererBase<StationExit> {
 
-	private static final GenericStringCache<String[]> STATION_EXIT_NAME_SPLIT_CACHE = new GenericStringCache<>(30000, false);
 	private static final String[] DEFAULT_EXIT_NAMES = {"A", "B", "C", "D"};
 
 	@Override
@@ -43,7 +42,7 @@ public final class SpecialSignStationExitRenderer extends SpecialSignRouteStatio
 	}
 
 	public static void renderText(MatrixStack matrixStack, String stationExitName, Identifier font, float x, float y, float zOffset, float width, float height) {
-		final String[] stationExitNameSplit = STATION_EXIT_NAME_SPLIT_CACHE.get(stationExitName, () -> splitStationExitName(stationExitName));
+		final String[] stationExitNameSplit = DataHelper.getSplitStationExitName(stationExitName);
 		final float textSize = height * GuiHelper.MINECRAFT_FONT_SIZE / GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT;
 		final float width1 = FontRenderHelper.render(null, stationExitNameSplit[0], FontRenderOptions.builder().maxFontSize(textSize).build()).leftFloat();
 		final float width2 = FontRenderHelper.render(null, stationExitNameSplit[1], FontRenderOptions.builder().maxFontSize(textSize / 2).build()).leftFloat();
@@ -82,45 +81,5 @@ public final class SpecialSignStationExitRenderer extends SpecialSignRouteStatio
 				.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
 				.build()
 		);
-	}
-
-	private static String[] splitStationExitName(String stationExitName) {
-		final char[] chars = stationExitName.toCharArray();
-		final StringBuilder firstString = new StringBuilder();
-		final StringBuilder secondString = new StringBuilder();
-		int firstCharType = 0;
-
-		for (int i = 0; i < chars.length; i++) {
-			final char c = chars[i];
-			if (i == 0) {
-				firstCharType = getCharType(c);
-				firstString.append(c);
-			} else {
-				if (firstCharType != 0 && getCharType(c) == firstCharType) {
-					firstString.append(c);
-				} else {
-					firstCharType = 0;
-					secondString.append(c);
-				}
-			}
-		}
-
-		return new String[]{firstString.toString(), secondString.toString()};
-	}
-
-	private static int getCharType(char c) {
-		if (Character.isDigit(c)) {
-			return 1;
-		} else if (Character.isEmoji(c)) {
-			return 2;
-		} else if (Character.isUpperCase(c)) {
-			return 3;
-		} else if (Character.isLowerCase(c)) {
-			return 4;
-		} else if (Character.isAlphabetic(c)) {
-			return 5;
-		} else {
-			return 6;
-		}
 	}
 }

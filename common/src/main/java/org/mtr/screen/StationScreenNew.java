@@ -4,10 +4,12 @@ import gg.essential.elementa.components.ScrollComponent;
 import gg.essential.elementa.components.UIContainer;
 import gg.essential.elementa.components.UIWrappedText;
 import gg.essential.elementa.constraints.*;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Station;
+import org.mtr.core.data.StationExit;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.lang.TranslationProvider;
@@ -15,11 +17,9 @@ import org.mtr.packet.PacketUpdateData;
 import org.mtr.registry.RegistryClient;
 import org.mtr.tool.GuiHelper;
 import org.mtr.tool.ReleasedDynamicTextureRegistry;
-import org.mtr.widget.BackgroundComponent;
-import org.mtr.widget.ColorInputComponent;
-import org.mtr.widget.ScrollPanelComponent;
-import org.mtr.widget.TextInputComponent;
+import org.mtr.widget.*;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 
 public final class StationScreenNew extends WindowBase {
@@ -38,8 +38,10 @@ public final class StationScreenNew extends WindowBase {
 	private final TextInputComponent zoneYTextInput;
 	private final TextInputComponent zoneZTextInput;
 	private final ColorInputComponent colorInputComponent;
+	private final ListComponent<StationExit> exitListComponent;
 
-	public StationScreenNew(Station station) {
+	public StationScreenNew(Station station, @Nullable ScreenBase previousScreenLegacy) {
+		super(previousScreenLegacy);
 		this.station = station;
 
 		titleText = (UIWrappedText) new UIWrappedText("", false)
@@ -94,6 +96,15 @@ public final class StationScreenNew extends WindowBase {
 				.setChildOf(backgroundComponent.containers[2])
 				.setWidth(new RelativeConstraint())
 				.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR));
+
+		final SlotBackgroundComponent slotBackgroundComponent = (SlotBackgroundComponent) new SlotBackgroundComponent()
+				.setChildOf(backgroundComponent.containers[2])
+				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+				.setWidth(new RelativeConstraint())
+				.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)));
+
+		exitListComponent = GuiHelper.createListComponent(slotBackgroundComponent);
+		ListComponent.setStationExits(exitListComponent, station.getExits(), false, ObjectArrayList.of()); // TODO
 	}
 
 	@Override
