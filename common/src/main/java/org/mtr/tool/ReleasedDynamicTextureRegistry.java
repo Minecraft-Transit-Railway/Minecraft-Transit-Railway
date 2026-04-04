@@ -21,6 +21,11 @@ public final class ReleasedDynamicTextureRegistry extends DynamicReloadableRegis
 	public static final Holder BUTTON_DISABLED_TEXTURE = INSTANCE.create(Identifier.of("textures/gui/sprites/widget/button_disabled.png"));
 	public static final Holder BUTTON_HIGHLIGHTED_TEXTURE = INSTANCE.create(Identifier.of("textures/gui/sprites/widget/button_highlighted.png"));
 
+	public static final Holder CHECKBOX_UNCHECKED_TEXTURE = INSTANCE.create(Identifier.of("textures/gui/sprites/widget/checkbox.png"));
+	public static final Holder CHECKBOX_CHECKED_TEXTURE = INSTANCE.create(Identifier.of("textures/gui/sprites/widget/checkbox_selected.png"));
+	public static final Holder CHECKBOX_UNCHECKED_HIGHLIGHTED_TEXTURE = INSTANCE.create(Identifier.of("textures/gui/sprites/widget/checkbox_highlighted.png"));
+	public static final Holder CHECKBOX_CHECKED_HIGHLIGHTED_TEXTURE = INSTANCE.create(Identifier.of("textures/gui/sprites/widget/checkbox_selected_highlighted.png"));
+
 	public static final Holder SLOT_TEXTURE = INSTANCE.create(Identifier.of("textures/gui/sprites/container/slot.png"));
 
 	public static final Holder ARROW_DOWN_TEXTURE = INSTANCE.create(Identifier.of("textures/gui/sprites/statistics/sort_down.png"));

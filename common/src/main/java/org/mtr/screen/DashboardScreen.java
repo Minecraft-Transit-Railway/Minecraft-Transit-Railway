@@ -95,7 +95,6 @@ public final class DashboardScreen extends ScreenBase {
 	private static String ROUTES_SEARCH_TEXT = "";
 	private static String DEPOTS_SEARCH_TEXT = "";
 
-	public static final int MAX_COLOR_ZONE_LENGTH = 6;
 	private static final int PANEL_WIDTH = 144;
 
 	public DashboardScreen(TransportMode transportMode) {
@@ -338,7 +337,7 @@ public final class DashboardScreen extends ScreenBase {
 			}
 			case 1 -> {
 				if (editingRoute == null) {
-					final ObjectArrayList<ObjectObjectImmutablePair<Identifier, ListItem.ActionConsumer<Route>>> actions = ObjectArrayList.of(new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (indexList, route) -> System.out.println("editing " + route.getName())));
+					final ObjectArrayList<ObjectObjectImmutablePair<Identifier, ListItem.ActionConsumer<Route>>> actions = ObjectArrayList.of(new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (indexList, route) -> UMinecraft.setCurrentScreenObj(new RouteScreen(route, this))));
 					if (hasPermission) {
 						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, (indexList, route) -> startEditingRoute(route)));
 						actions.add(new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (indexList, route) -> onDeleteData(route, new DeleteDataRequest().addRouteId(route.getId()))));

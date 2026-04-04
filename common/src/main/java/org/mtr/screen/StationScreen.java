@@ -1,6 +1,5 @@
 package org.mtr.screen;
 
-import gg.essential.elementa.components.ScrollComponent;
 import gg.essential.elementa.components.UIContainer;
 import gg.essential.elementa.components.UIWrappedText;
 import gg.essential.elementa.constraints.*;
@@ -18,23 +17,18 @@ import org.mtr.packet.PacketUpdateData;
 import org.mtr.registry.RegistryClient;
 import org.mtr.tool.GuiHelper;
 import org.mtr.tool.ReleasedDynamicTextureRegistry;
-import org.mtr.widget.*;
+import org.mtr.widget.ButtonComponent;
+import org.mtr.widget.ListComponent;
+import org.mtr.widget.SlotBackgroundComponent;
+import org.mtr.widget.TextInputComponent;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 
-public final class StationScreen extends WindowBase {
+public final class StationScreen extends NameColorDataScreenBase<Station> {
 
 	@Nullable
 	private EditingStationExit editingStationExit;
-
-	private final Station station;
-
-	private final BackgroundComponent backgroundComponent = new BackgroundComponent(getWindow(), ObjectImmutableList.of(
-			new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.BRUSH_TEXTURE.get(), TranslationProvider.GUI_MTR_STATION.getString()),
-			new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.POPPY_TEXTURE.get(), TranslationProvider.GUI_MTR_STATION_COLOR.getString()),
-			new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.EXIT_TEXTURE.get(), TranslationProvider.GUI_MTR_EXITS.getString())
-	));
 
 	private final UIContainer exitListContainer = (UIContainer) new UIContainer()
 			.setChildOf(backgroundComponent.containers[2])
@@ -46,49 +40,25 @@ public final class StationScreen extends WindowBase {
 			.setWidth(new RelativeConstraint())
 			.setHeight(new RelativeConstraint());
 
-	private final UIWrappedText titleText;
-	private final TextInputComponent nameTextInput;
 	private final TextInputComponent zoneXTextInput;
 	private final TextInputComponent zoneYTextInput;
 	private final TextInputComponent zoneZTextInput;
-	private final ColorInputComponent colorInputComponent;
 	private final ListComponent<StationExit> stationExitListComponent;
 	private final TextInputComponent stationExitParentTextInput;
 	private final TextInputComponent stationExitDestinationTextInput;
 	private final ButtonComponent editExitButton;
 
 	public StationScreen(Station station, @Nullable ScreenBase previousScreenLegacy) {
-		super(previousScreenLegacy);
-		this.station = station;
+		super(station, ObjectImmutableList.of(
+				new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.BRUSH_TEXTURE.get(), TranslationProvider.GUI_MTR_STATION.getString()),
+				new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.POPPY_TEXTURE.get(), TranslationProvider.GUI_MTR_STATION_COLOR.getString()),
+				new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.EXIT_TEXTURE.get(), TranslationProvider.GUI_MTR_EXITS.getString())
+		), TranslationProvider.GUI_MTR_STATION_NAME, name -> TranslationProvider.GUI_MTR_STATION.getString(Utilities.formatName(name)), TranslationProvider.GUI_MTR_STATION_COLOR, previousScreenLegacy);
 
-		titleText = (UIWrappedText) new UIWrappedText("", false)
-				.setChildOf(backgroundComponent.containers[0])
-				.setWidth(new RelativeConstraint())
-				.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR));
-
-		final ScrollComponent scrollComponent = ((ScrollPanelComponent) new ScrollPanelComponent(true)
-				.setChildOf(backgroundComponent.containers[0])
-				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-				.setWidth(new RelativeConstraint())
-				.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)))).contentContainer;
-
-		GuiHelper.createLabel(scrollComponent, TranslationProvider.GUI_MTR_STATION_NAME.getString());
-
-		nameTextInput = (TextInputComponent) new TextInputComponent()
-				.setChildOf(scrollComponent)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint())
-				.setHeight(new PixelConstraint(20));
-
-		nameTextInput.setText(station.getName());
-		nameTextInput.onChange(this::updateTitle);
-		updateTitle();
-
-		GuiHelper.createSpacing(scrollComponent);
-		GuiHelper.createLabel(scrollComponent, TranslationProvider.GUI_MTR_ZONE.getString());
+		GuiHelper.createLabel(firstTabScrollComponent, TranslationProvider.GUI_MTR_ZONE.getString());
 
 		final UIContainer zoneContainer = (UIContainer) new UIContainer()
-				.setChildOf(scrollComponent)
+				.setChildOf(firstTabScrollComponent)
 				.setY(new SiblingConstraint())
 				.setWidth(new RelativeConstraint())
 				.setHeight(new PixelConstraint(20));
@@ -97,24 +67,12 @@ public final class StationScreen extends WindowBase {
 		zoneYTextInput = createZoneTextInput(zoneContainer, station.getZone2());
 		zoneZTextInput = createZoneTextInput(zoneContainer, station.getZone3());
 
-		new UIWrappedText(TranslationProvider.GUI_MTR_STATION_COLOR.getString(), false)
-				.setChildOf(backgroundComponent.containers[1])
-				.setWidth(new RelativeConstraint())
-				.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR));
-
-		colorInputComponent = (ColorInputComponent) new ColorInputComponent()
-				.setChildOf(backgroundComponent.containers[1])
-				.setWidth(new RelativeConstraint())
-				.setHeight(new RelativeConstraint());
-
-		colorInputComponent.setSelectedColor(new Color(station.getColor()));
-
 		new UIWrappedText(TranslationProvider.GUI_MTR_EXITS.getString(), false)
 				.setChildOf(exitListContainer)
 				.setWidth(new RelativeConstraint())
 				.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR));
 
-		final ButtonComponent addExitButton = (ButtonComponent) (new ButtonComponent(false)
+		final ButtonComponent addExitButton = (ButtonComponent) (new ButtonComponent(true)
 				.setChildOf(exitListContainer)
 				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
 				.setWidth(new RelativeConstraint()));
@@ -213,37 +171,29 @@ public final class StationScreen extends WindowBase {
 	}
 
 	@Override
-	public void onScreenClose() {
-		station.setName(nameTextInput.getText());
-		station.setColor(colorInputComponent.getSelectedColor().getRGB());
-
+	public void onClose() {
 		try {
-			station.setZone1(Long.parseLong(zoneXTextInput.getText()));
+			data.setZone1(Long.parseLong(zoneXTextInput.getText()));
 		} catch (Exception ignored) {
-			station.setZone1(0);
+			data.setZone1(0);
 		}
 		try {
-			station.setZone2(Long.parseLong(zoneYTextInput.getText()));
+			data.setZone2(Long.parseLong(zoneYTextInput.getText()));
 		} catch (Exception ignored) {
-			station.setZone2(0);
+			data.setZone2(0);
 		}
 		try {
-			station.setZone3(Long.parseLong(zoneZTextInput.getText()));
+			data.setZone3(Long.parseLong(zoneZTextInput.getText()));
 		} catch (Exception ignored) {
-			station.setZone3(0);
+			data.setZone3(0);
 		}
 
-		RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addStation(station)));
-		super.onScreenClose();
-	}
-
-	private void updateTitle() {
-		titleText.setText(TranslationProvider.GUI_MTR_STATION.getString(Utilities.formatName(nameTextInput.getText())));
+		RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addStation(data)));
 	}
 
 	private void updateStationExitListComponent() {
-		station.getExits().removeIf(stationExit -> stationExit.getDestinations().isEmpty());
-		ListComponent.setStationExits(stationExitListComponent, station.getExits(), false, ObjectArrayList.of(
+		data.getExits().removeIf(stationExit -> stationExit.getDestinations().isEmpty());
+		ListComponent.setStationExits(stationExitListComponent, data.getExits(), false, ObjectArrayList.of(
 				new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (indexList, data) -> {
 					final int index = indexList.getLast();
 					final String destination = data.getDestinations().get(index);
@@ -281,7 +231,7 @@ public final class StationScreen extends WindowBase {
 	}
 
 	private StationExit findOrCreateExit(String name) {
-		for (final StationExit stationExit : station.getExits()) {
+		for (final StationExit stationExit : data.getExits()) {
 			if (stationExit.getName().equals(name)) {
 				return stationExit;
 			}
@@ -289,7 +239,7 @@ public final class StationScreen extends WindowBase {
 
 		final StationExit stationExit = new StationExit();
 		stationExit.setName(name);
-		station.getExits().add(stationExit);
+		data.getExits().add(stationExit);
 		return stationExit;
 	}
 
