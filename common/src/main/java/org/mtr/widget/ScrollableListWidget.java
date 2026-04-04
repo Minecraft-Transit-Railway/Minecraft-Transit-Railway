@@ -49,10 +49,10 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		final Drawing drawing = new Drawing(matrixStack, RenderLayer.getGui());
 		final ObjectArrayList<Runnable> deferredRenders = new ObjectArrayList<>();
 
-		ListItem.iterateData(dataList, filter, (dataIndex, level, listItem) -> {
+		ListItem.iterateData(dataList, filter, (index, indexList, listItem) -> {
 			final int startX = getX();
 			final int endX = getX() + width - getScrollbarWidth();
-			final double startY = getY() - getScrollY() + GuiHelper.DEFAULT_LINE_SIZE * dataIndex;
+			final double startY = getY() - getScrollY() + GuiHelper.DEFAULT_LINE_SIZE * index;
 
 			if (startY + GuiHelper.DEFAULT_LINE_SIZE > getY()) {
 				final double startYBottomLine = startY + GuiHelper.DEFAULT_LINE_SIZE - 1;
@@ -74,7 +74,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 								.draw()
 						);
 					} else {
-						listItem.iterateActions(dataIndex, (actionIndex, identifier, callback) -> {
+						listItem.iterateActions(indexList, (actionIndex, identifier, callback) -> {
 							final int leftBound = endX - GuiHelper.DEFAULT_LINE_SIZE * (listItem.actionCount() - actionIndex);
 							final int rightBound = leftBound + GuiHelper.DEFAULT_LINE_SIZE;
 
@@ -173,7 +173,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		if (dataList.size() == 1) {
 			final ListItem<T> listItem = dataList.getFirst();
 			if (listItem.actionCount() == 1) {
-				listItem.iterateActions(0, (actionIndex, identifier, callback) -> callback.run());
+				listItem.iterateActions(IntArrayList.of(0), (actionIndex, identifier, callback) -> callback.run());
 			}
 		}
 	}
@@ -189,9 +189,9 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		final int[] count = {0};
 		final int[] maxLineWidth = {0};
 
-		ListItem.iterateData(dataList, filter, (index, level, listItem) -> {
+		ListItem.iterateData(dataList, filter, (index, indexList, listItem) -> {
 			if (!fixedWidth && maxLineWidth[0] < maxWidth) {
-				maxLineWidth[0] = Math.max(maxLineWidth[0], (level + 2) * GuiHelper.DEFAULT_PADDING + listItem.iconWidth + (int) Math.ceil(FontRenderHelper.render(null, listItem.text, fontRenderOptionsBuilder.build()).leftFloat()) + listItem.actionCount() * GuiHelper.DEFAULT_LINE_SIZE + getScrollbarWidth());
+				maxLineWidth[0] = Math.max(maxLineWidth[0], (indexList.size() + 1) * GuiHelper.DEFAULT_PADDING + listItem.iconWidth + (int) Math.ceil(FontRenderHelper.render(null, listItem.text, fontRenderOptionsBuilder.build()).leftFloat()) + listItem.actionCount() * GuiHelper.DEFAULT_LINE_SIZE + getScrollbarWidth());
 			}
 			count[0]++;
 			return false;
@@ -331,14 +331,15 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 	}
 
 	public static <T, U> ObjectObjectImmutablePair<Identifier, ListItem.ActionConsumer<T>> createUpButton(ObjectArrayList<U> dataList, @Nullable Runnable onSort) {
-		return new ObjectObjectImmutablePair<>(GuiHelper.UP_TEXTURE_ID, (index, data) -> moveListItem(dataList, index, -1, onSort));
+		return new ObjectObjectImmutablePair<>(GuiHelper.UP_TEXTURE_ID, (indexList, data) -> moveListItem(dataList, indexList, -1, onSort));
 	}
 
 	public static <T, U> ObjectObjectImmutablePair<Identifier, ListItem.ActionConsumer<T>> createDownButton(ObjectArrayList<U> dataList, @Nullable Runnable onSort) {
-		return new ObjectObjectImmutablePair<>(GuiHelper.DOWN_TEXTURE_ID, (index, data) -> moveListItem(dataList, index, 1, onSort));
+		return new ObjectObjectImmutablePair<>(GuiHelper.DOWN_TEXTURE_ID, (indexList, data) -> moveListItem(dataList, indexList, 1, onSort));
 	}
 
-	private static <T> void moveListItem(ObjectArrayList<T> dataList, int index, int direction, @Nullable Runnable onSort) {
+	private static <T> void moveListItem(ObjectArrayList<T> dataList, IntArrayList indexList, int direction, @Nullable Runnable onSort) {
+		final int index = indexList.getFirst();
 		if (direction > 0 && index < dataList.size() - 1 || direction < 0 && index > 0) {
 			final T data = dataList.remove(index);
 			if (Screen.hasShiftDown()) {

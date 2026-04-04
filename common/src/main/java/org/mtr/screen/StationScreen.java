@@ -7,6 +7,7 @@ import gg.essential.elementa.constraints.*;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import net.minecraft.text.Text;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Station;
 import org.mtr.core.data.StationExit;
@@ -24,6 +25,9 @@ import java.awt.*;
 
 public final class StationScreen extends WindowBase {
 
+	@Nullable
+	private EditingStationExit editingStationExit;
+
 	private final Station station;
 
 	private final BackgroundComponent backgroundComponent = new BackgroundComponent(getWindow(), ObjectImmutableList.of(
@@ -32,13 +36,26 @@ public final class StationScreen extends WindowBase {
 			new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.EXIT_TEXTURE.get(), TranslationProvider.GUI_MTR_EXITS.getString())
 	));
 
+	private final UIContainer exitListContainer = (UIContainer) new UIContainer()
+			.setChildOf(backgroundComponent.containers[2])
+			.setWidth(new RelativeConstraint())
+			.setHeight(new RelativeConstraint());
+
+	private final UIContainer editExitContainer = (UIContainer) new UIContainer()
+			.setChildOf(backgroundComponent.containers[2])
+			.setWidth(new RelativeConstraint())
+			.setHeight(new RelativeConstraint());
+
 	private final UIWrappedText titleText;
 	private final TextInputComponent nameTextInput;
 	private final TextInputComponent zoneXTextInput;
 	private final TextInputComponent zoneYTextInput;
 	private final TextInputComponent zoneZTextInput;
 	private final ColorInputComponent colorInputComponent;
-	private final ListComponent<StationExit> exitListComponent;
+	private final ListComponent<StationExit> stationExitListComponent;
+	private final TextInputComponent stationExitParentTextInput;
+	private final TextInputComponent stationExitDestinationTextInput;
+	private final ButtonComponent editExitButton;
 
 	public StationScreen(Station station, @Nullable ScreenBase previousScreenLegacy) {
 		super(previousScreenLegacy);
@@ -93,18 +110,106 @@ public final class StationScreen extends WindowBase {
 		colorInputComponent.setSelectedColor(new Color(station.getColor()));
 
 		new UIWrappedText(TranslationProvider.GUI_MTR_EXITS.getString(), false)
-				.setChildOf(backgroundComponent.containers[2])
+				.setChildOf(exitListContainer)
 				.setWidth(new RelativeConstraint())
 				.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR));
 
+		final ButtonComponent addExitButton = (ButtonComponent) (new ButtonComponent(false)
+				.setChildOf(exitListContainer)
+				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+				.setWidth(new RelativeConstraint()));
+
 		final SlotBackgroundComponent slotBackgroundComponent = (SlotBackgroundComponent) new SlotBackgroundComponent()
-				.setChildOf(backgroundComponent.containers[2])
+				.setChildOf(exitListContainer)
 				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
 				.setWidth(new RelativeConstraint())
-				.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)));
+				.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING * 2)));
 
-		exitListComponent = GuiHelper.createListComponent(slotBackgroundComponent);
-		ListComponent.setStationExits(exitListComponent, station.getExits(), false, ObjectArrayList.of()); // TODO
+		stationExitListComponent = GuiHelper.createListComponent(slotBackgroundComponent);
+		updateStationExitListComponent();
+
+		new UIWrappedText(TranslationProvider.GUI_MTR_ADD_EXIT.getString(), false)
+				.setChildOf(editExitContainer)
+				.setWidth(new RelativeConstraint())
+				.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR));
+
+		GuiHelper.createSpacing(editExitContainer);
+		GuiHelper.createLabel(editExitContainer, TranslationProvider.GUI_MTR_EXIT_NAME.getString());
+
+		stationExitParentTextInput = (TextInputComponent) new TextInputComponent()
+				.setChildOf(editExitContainer)
+				.setY(new SiblingConstraint())
+				.setWidth(new RelativeConstraint())
+				.setHeight(new PixelConstraint(20));
+
+		stationExitParentTextInput.onChange(this::updateEditExitButton);
+
+		GuiHelper.createSpacing(editExitContainer);
+		GuiHelper.createLabel(editExitContainer, TranslationProvider.GUI_MTR_EXIT_DESTINATION.getString());
+
+		stationExitDestinationTextInput = (TextInputComponent) new TextInputComponent()
+				.setChildOf(editExitContainer)
+				.setY(new SiblingConstraint())
+				.setWidth(new RelativeConstraint())
+				.setHeight(new PixelConstraint(20));
+
+		stationExitDestinationTextInput.onChange(this::updateEditExitButton);
+
+		final UIContainer buttonContainer = (UIContainer) new UIContainer()
+				.setChildOf(editExitContainer)
+				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+				.setWidth(new RelativeConstraint())
+				.setHeight(new RelativeConstraint());
+
+		editExitButton = (ButtonComponent) new ButtonComponent(false)
+				.setChildOf(buttonContainer)
+				.setWidth(new ScaleConstraint(new RelativeConstraint(), 0.5F));
+
+		editExitButton.onClick(() -> {
+			if (editingStationExit != null) {
+				final String newName = stationExitParentTextInput.getText();
+				final String newDestination = stationExitDestinationTextInput.getText();
+
+				if (editingStationExit.index >= 0) {
+					// Existing exit
+					final ObjectArrayList<String> existingDestinations = findOrCreateExit(editingStationExit.name).getDestinations();
+					if (editingStationExit.name.equals(newName)) {
+						existingDestinations.set(editingStationExit.index, newDestination);
+					} else {
+						existingDestinations.remove(editingStationExit.index);
+						findOrCreateExit(newName).getDestinations().add(newDestination);
+					}
+				} else {
+					// New exit
+					findOrCreateExit(newName).getDestinations().add(newDestination);
+				}
+			}
+
+			editingStationExit = null;
+			updateStationExitListComponent();
+			updateContainers();
+		});
+
+		final ButtonComponent cancelButton = (ButtonComponent) new ButtonComponent(false)
+				.setChildOf(buttonContainer)
+				.setX(new SiblingConstraint())
+				.setWidth(new ScaleConstraint(new RelativeConstraint(), 0.5F));
+
+		cancelButton.setText(Text.translatable("gui.cancel").getString());
+		cancelButton.onClick(() -> {
+			editingStationExit = null;
+			updateContainers();
+		});
+
+		addExitButton.setText(TranslationProvider.GUI_MTR_ADD_EXIT.getString());
+		addExitButton.onClick(() -> {
+			editingStationExit = new EditingStationExit("", "", -1);
+			stationExitParentTextInput.setText("");
+			stationExitDestinationTextInput.setText("");
+			updateContainers();
+		});
+
+		updateContainers();
 	}
 
 	@Override
@@ -128,14 +233,64 @@ public final class StationScreen extends WindowBase {
 			station.setZone3(0);
 		}
 
-		// TODO exits
-
 		RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getDashboardInstance()).addStation(station)));
 		super.onScreenClose();
 	}
 
 	private void updateTitle() {
 		titleText.setText(TranslationProvider.GUI_MTR_STATION.getString(Utilities.formatName(nameTextInput.getText())));
+	}
+
+	private void updateStationExitListComponent() {
+		station.getExits().removeIf(stationExit -> stationExit.getDestinations().isEmpty());
+		ListComponent.setStationExits(stationExitListComponent, station.getExits(), false, ObjectArrayList.of(
+				new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (indexList, data) -> {
+					final int index = indexList.getLast();
+					final String destination = data.getDestinations().get(index);
+					editingStationExit = new EditingStationExit(data.getName(), destination, index);
+					stationExitParentTextInput.setText(data.getName());
+					stationExitDestinationTextInput.setText(destination);
+					editExitButton.setText(TranslationProvider.GUI_MTR_EDIT_EXIT.getString());
+					updateContainers();
+				}),
+				new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (indexList, data) -> {
+					data.getDestinations().remove((int) indexList.getLast());
+					updateStationExitListComponent();
+				})
+		));
+	}
+
+	private void updateContainers() {
+		if (editingStationExit == null) {
+			exitListContainer.unhide(true);
+			editExitContainer.hide(true);
+		} else {
+			exitListContainer.hide(true);
+			editExitContainer.unhide(true);
+			editExitButton.setText((editingStationExit.index >= 0 ? TranslationProvider.GUI_MTR_EDIT_EXIT : TranslationProvider.GUI_MTR_ADD_EXIT).getString());
+			updateEditExitButton();
+		}
+	}
+
+	private void updateEditExitButton() {
+		if (editingStationExit != null) {
+			final String name = stationExitParentTextInput.getText();
+			final String destination = stationExitDestinationTextInput.getText();
+			editExitButton.setDisabled(name.equals(editingStationExit.name) && destination.equals(editingStationExit.destination) || name.isEmpty() || destination.isEmpty());
+		}
+	}
+
+	private StationExit findOrCreateExit(String name) {
+		for (final StationExit stationExit : station.getExits()) {
+			if (stationExit.getName().equals(name)) {
+				return stationExit;
+			}
+		}
+
+		final StationExit stationExit = new StationExit();
+		stationExit.setName(name);
+		station.getExits().add(stationExit);
+		return stationExit;
 	}
 
 	private static TextInputComponent createZoneTextInput(UIContainer container, long existingZone) {
@@ -148,5 +303,8 @@ public final class StationScreen extends WindowBase {
 		textInput.setFilter("[^-\\d]");
 		textInput.setText(String.valueOf(existingZone));
 		return textInput;
+	}
+
+	private record EditingStationExit(String name, String destination, int index) {
 	}
 }

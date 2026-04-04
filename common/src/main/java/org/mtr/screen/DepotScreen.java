@@ -342,7 +342,7 @@ public final class DepotScreen extends ScrollableScreenBase {
 					new RealTimeDepartureForList(calendar.getTimeInMillis() - offset, departureString, i),
 					departureString,
 					ObjectArrayList.of(
-							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (index, realTimeDepartureForList) -> onDeleteDeparture(realTimeDepartureForList.departureString))
+							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (indexList, realTimeDepartureForList) -> onDeleteDeparture(realTimeDepartureForList.departureString))
 					))
 			);
 		}

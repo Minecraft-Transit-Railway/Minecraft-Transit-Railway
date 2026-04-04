@@ -172,7 +172,7 @@ public final class VehicleSelectorScreen extends ScreenBase {
 						new Filter(tagName, tag, vehicleIds, childSelected),
 						tag,
 						ObjectArrayList.of(
-								new ObjectObjectImmutablePair<>(childSelected ? GuiHelper.DELETE_TEXTURE_ID : GuiHelper.ADD_TEXTURE_ID, (index, filter) -> {
+								new ObjectObjectImmutablePair<>(childSelected ? GuiHelper.DELETE_TEXTURE_ID : GuiHelper.ADD_TEXTURE_ID, (indexList, filter) -> {
 									// Click action to modify the selected tags
 									if (childSelected) {
 										selectedChildren.remove(tag);
@@ -225,7 +225,7 @@ public final class VehicleSelectorScreen extends ScreenBase {
 						vehicleResource,
 						vehicleResource.getName().getString(),
 						ObjectArrayList.of(
-								new ObjectObjectImmutablePair<>(GuiHelper.ADD_TEXTURE_ID, (index, vehicleResource1) -> {
+								new ObjectObjectImmutablePair<>(GuiHelper.ADD_TEXTURE_ID, (indexList, vehicleResource1) -> {
 									selectedVehicleCars.add(toVehicleCar(vehicleResource1));
 									updateListWidgets();
 								})
@@ -286,8 +286,8 @@ public final class VehicleSelectorScreen extends ScreenBase {
 						ObjectArrayList.of(
 								ScrollableListWidget.createUpButton(selectedVehicleCars, this::updateListWidgets),
 								ScrollableListWidget.createDownButton(selectedVehicleCars, this::updateListWidgets),
-								new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (index, vehicleResource) -> {
-									Utilities.removeElement(selectedVehicleCars, index);
+								new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (indexList, vehicleResource) -> {
+									Utilities.removeElement(selectedVehicleCars, indexList.getFirst());
 									updateListWidgets();
 								})
 						)

@@ -92,7 +92,7 @@ public abstract class ListSelectorScreen<T extends U, U extends Comparable<U>> e
 
 	private void updateAvailableData() {
 		Collections.sort(availableData);
-		setData(availableListComponent, availableData, ObjectArrayList.of(new ObjectObjectImmutablePair<>(GuiHelper.ADD_TEXTURE_ID, (index, data) -> selectData(data))));
+		setData(availableListComponent, availableData, ObjectArrayList.of(new ObjectObjectImmutablePair<>(GuiHelper.ADD_TEXTURE_ID, (indexList, data) -> selectData(data))));
 	}
 
 	private void updateSelectedData() {
@@ -100,7 +100,7 @@ public abstract class ListSelectorScreen<T extends U, U extends Comparable<U>> e
 			Collections.sort(selectedData);
 		}
 
-		final ObjectObjectImmutablePair<Identifier, ListItem.ActionConsumer<T>> deleteAction = new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (index, data) -> {
+		final ObjectObjectImmutablePair<Identifier, ListItem.ActionConsumer<T>> deleteAction = new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (indexList, data) -> {
 			selectedData.remove(data);
 			if (!availableData.contains(data)) {
 				availableData.add(data);

@@ -1,5 +1,6 @@
 package org.mtr.widget;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
@@ -77,11 +78,11 @@ public final class ListItem<T> {
 		return actions == null ? 0 : actions.size();
 	}
 
-	public void iterateActions(int dataIndex, ActionsConsumer consumer) {
+	public void iterateActions(IntArrayList indexList, ActionsConsumer consumer) {
 		if (actions != null && !isParent()) {
 			for (int i = 0; i < actions.size(); i++) {
 				final ObjectObjectImmutablePair<Identifier, ActionConsumer<T>> action = actions.get(i);
-				consumer.accept(i, action.left(), () -> action.right().accept(dataIndex, data));
+				consumer.accept(i, action.left(), () -> action.right().accept(indexList, data));
 			}
 		}
 	}
@@ -161,29 +162,33 @@ public final class ListItem<T> {
 	 * @param <T>      the data type of the list
 	 */
 	public static <T> void iterateData(ObjectArrayList<ListItem<T>> dataList, @Nullable String filter, ListItemConsumer<T> consumer) {
-		iterateData(dataList, filter, consumer, new int[]{0}, 0);
+		iterateData(dataList, filter, consumer, new int[]{0}, new IntArrayList());
 	}
 
-	private static <T> void iterateData(ObjectArrayList<ListItem<T>> dataList, @Nullable String filter, ListItemConsumer<T> consumer, int[] index, int level) {
+	private static <T> void iterateData(ObjectArrayList<ListItem<T>> dataList, @Nullable String filter, ListItemConsumer<T> consumer, int[] index, IntArrayList indexList) {
+		indexList.add(0);
+
 		for (final ListItem<T> listItem : dataList) {
 			if (listItem.isParent()) {
 				final boolean matchesFilter = listItem.matchesFilter(filter, false);
 
 				if (matchesFilter) {
-					if (consumer.accept(index[0], level, listItem)) {
+					if (consumer.accept(index[0], new IntArrayList(indexList), listItem)) {
 						return;
 					}
 					index[0]++;
+					indexList.set(indexList.size() - 1, indexList.getLast() + 1);
 				}
 
 				if (listItem.expanded && listItem.children != null) {
-					iterateData(listItem.children, matchesFilter ? null : filter, consumer, index, level + 1);
+					iterateData(listItem.children, matchesFilter ? null : filter, consumer, index, new IntArrayList(indexList));
 				}
 			} else if (listItem.matchesFilter(filter, false)) {
-				if (consumer.accept(index[0], level, listItem)) {
+				if (consumer.accept(index[0], new IntArrayList(indexList), listItem)) {
 					return;
 				}
 				index[0]++;
+				indexList.set(indexList.size() - 1, indexList.getLast() + 1);
 			}
 		}
 	}
@@ -205,7 +210,7 @@ public final class ListItem<T> {
 
 	@FunctionalInterface
 	public interface ActionConsumer<T> {
-		void accept(int index, T data);
+		void accept(IntArrayList indexList, T data);
 	}
 
 	@FunctionalInterface
@@ -213,6 +218,6 @@ public final class ListItem<T> {
 		/**
 		 * @return {@code true} to stop iteration
 		 */
-		boolean accept(int index, int level, ListItem<T> listItem);
+		boolean accept(int index, IntArrayList indexList, ListItem<T> listItem);
 	}
 }

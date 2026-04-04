@@ -74,8 +74,8 @@ public final class ListComponent<T> extends UIComponent {
 		final float mouseY = mousePosition.getSecond();
 		final float[] totalHeight = {0};
 
-		ListItem.iterateData(dataList, filter, (dataIndex, level, listItem) -> {
-			final float startY = top + GuiHelper.DEFAULT_LINE_SIZE * dataIndex;
+		ListItem.iterateData(dataList, filter, (index, indexList, listItem) -> {
+			final float startY = top + GuiHelper.DEFAULT_LINE_SIZE * index;
 			final double startYBottomLine = startY + GuiHelper.DEFAULT_LINE_SIZE - 1;
 			final boolean isMouseOver = Utilities.isBetween(mouseY, startY, startYBottomLine) && Utilities.isBetween(mouseX, left, right - 1);
 			totalHeight[0] = startY - top + GuiHelper.DEFAULT_LINE_SIZE;
@@ -96,7 +96,7 @@ public final class ListComponent<T> extends UIComponent {
 							.draw()
 					);
 				} else {
-					listItem.iterateActions(dataIndex, (actionIndex, identifier, callback) -> {
+					listItem.iterateActions(indexList, (actionIndex, identifier, callback) -> {
 						final float leftBound = right - GuiHelper.DEFAULT_LINE_SIZE * (listItem.actionCount() - actionIndex);
 						final float rightBound = leftBound + GuiHelper.DEFAULT_LINE_SIZE;
 
@@ -175,7 +175,7 @@ public final class ListComponent<T> extends UIComponent {
 		if (dataList.size() == 1) {
 			final ListItem<T> listItem = dataList.getFirst();
 			if (listItem.actionCount() == 1) {
-				listItem.iterateActions(0, (actionIndex, identifier, callback) -> callback.run());
+				listItem.iterateActions(IntArrayList.of(0), (actionIndex, identifier, callback) -> callback.run());
 			}
 		}
 	}
@@ -388,14 +388,15 @@ public final class ListComponent<T> extends UIComponent {
 	}
 
 	public static <T> ObjectObjectImmutablePair<Identifier, ListItem.ActionConsumer<T>> createUpButton(ObjectArrayList<T> dataList, @Nullable Runnable onSort) {
-		return new ObjectObjectImmutablePair<>(GuiHelper.UP_TEXTURE_ID, (index, data) -> moveListItem(dataList, index, -1, onSort));
+		return new ObjectObjectImmutablePair<>(GuiHelper.UP_TEXTURE_ID, (indexList, data) -> moveListItem(dataList, indexList, -1, onSort));
 	}
 
 	public static <T> ObjectObjectImmutablePair<Identifier, ListItem.ActionConsumer<T>> createDownButton(ObjectArrayList<T> dataList, @Nullable Runnable onSort) {
-		return new ObjectObjectImmutablePair<>(GuiHelper.DOWN_TEXTURE_ID, (index, data) -> moveListItem(dataList, index, 1, onSort));
+		return new ObjectObjectImmutablePair<>(GuiHelper.DOWN_TEXTURE_ID, (indexList, data) -> moveListItem(dataList, indexList, 1, onSort));
 	}
 
-	private static <T> void moveListItem(ObjectArrayList<T> dataList, int index, int direction, @Nullable Runnable onSort) {
+	private static <T> void moveListItem(ObjectArrayList<T> dataList, IntArrayList indexList, int direction, @Nullable Runnable onSort) {
+		final int index = indexList.getFirst();
 		if (direction > 0 && index < dataList.size() - 1 || direction < 0 && index > 0) {
 			final T data = dataList.remove(index);
 			if (Screen.hasShiftDown()) {
