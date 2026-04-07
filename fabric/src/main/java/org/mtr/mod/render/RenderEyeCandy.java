@@ -63,6 +63,11 @@ public class RenderEyeCandy extends BlockEntityRenderer<BlockEyeCandy.BlockEntit
 	}
 
 	@Override
+	public boolean rendersOutsideBoundingBox2(BlockEyeCandy.BlockEntity blockEntity) {
+		return true;
+	}
+
+	@Override
 	public boolean isInRenderDistance(BlockEyeCandy.BlockEntity blockEntity, Vector3d position) {
 		return true;
 	}

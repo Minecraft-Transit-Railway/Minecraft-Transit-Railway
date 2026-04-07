@@ -17,10 +17,13 @@ import org.mtr.mod.resource.VehicleModel;
 import org.mtr.mod.resource.VehicleResource;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
 public final class LegacyVehicleResource extends VehicleResourceSchema {
+	private static final String[] legacyGangways = {"a_train", "e44", "k_train_ael", "k_train", "k_train_tcl", "m_train", "r211", "s_train", "sp1900"};
+	private static final String[] legacyBarriers = {"london_underground_d78", "mlr", "r179"};
 
 	public LegacyVehicleResource(ReaderBase readerBase) {
 		super(readerBase);
@@ -210,20 +213,34 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 							} catch (Exception ignored) {
 							}
 
+							// Migrate legacy gangway & barriers
+							String barrierBaseId = train_barrier_id;
+							String gangwayConnectionBaseId = (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector";
+							if(gangway_connection_id.startsWith("mtr:textures/entity") && Arrays.stream(legacyGangways).anyMatch(oldId -> gangway_connection_id.startsWith("mtr:textures/entity/" + oldId))) {
+								gangwayConnectionBaseId = gangwayConnectionBaseId
+										.replace("/entity", "/gangway")
+										.replace("_connector", "");
+							}
+							if(train_barrier_id.startsWith("mtr:textures/entity") && Arrays.stream(legacyBarriers).anyMatch(oldId -> train_barrier_id.startsWith("mtr:textures/entity/" + oldId))) {
+								barrierBaseId = barrierBaseId
+										.replace("/entity", "/barrier")
+										.replace("_barrier", "");
+							}
+
 							final JsonObject modelPropertiesObject = new JsonObject();
 							modelPropertiesObject.addProperty("modelYOffset", 1);
-							modelPropertiesObject.addProperty("gangwayInnerSideResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_side.png");
-							modelPropertiesObject.addProperty("gangwayInnerTopResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_roof.png");
-							modelPropertiesObject.addProperty("gangwayInnerBottomResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_floor.png");
-							modelPropertiesObject.addProperty("gangwayOuterSideResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_exterior.png");
-							modelPropertiesObject.addProperty("gangwayOuterTopResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_exterior.png");
-							modelPropertiesObject.addProperty("gangwayOuterBottomResource", (gangway_connection_id.isEmpty() ? texture_id : gangway_connection_id) + "_connector_exterior.png");
+							modelPropertiesObject.addProperty("gangwayInnerSideResource", gangwayConnectionBaseId + "_side.png");
+							modelPropertiesObject.addProperty("gangwayInnerTopResource", gangwayConnectionBaseId + "_roof.png");
+							modelPropertiesObject.addProperty("gangwayInnerBottomResource", gangwayConnectionBaseId + "_floor.png");
+							modelPropertiesObject.addProperty("gangwayOuterSideResource", gangwayConnectionBaseId + "_exterior.png");
+							modelPropertiesObject.addProperty("gangwayOuterTopResource", gangwayConnectionBaseId + "_exterior.png");
+							modelPropertiesObject.addProperty("gangwayOuterBottomResource", gangwayConnectionBaseId + "_exterior.png");
 							modelPropertiesObject.addProperty("gangwayWidth", 1.5);
 							modelPropertiesObject.addProperty("gangwayHeight", 2.25);
 							modelPropertiesObject.addProperty("gangwayYOffset", 1);
 							modelPropertiesObject.addProperty("gangwayZOffset", 0.5);
-							modelPropertiesObject.addProperty("barrierInnerSideResource", train_barrier_id + "_exterior.png");
-							modelPropertiesObject.addProperty("barrierOuterSideResource", train_barrier_id + "_exterior.png");
+							modelPropertiesObject.addProperty("barrierInnerSideResource", barrierBaseId + "_exterior.png");
+							modelPropertiesObject.addProperty("barrierOuterSideResource", barrierBaseId + "_exterior.png");
 							modelPropertiesObject.addProperty("barrierWidth", 2.25);
 							modelPropertiesObject.addProperty("barrierHeight", 1);
 							modelPropertiesObject.addProperty("barrierYOffset", 1.25);
