@@ -15,11 +15,11 @@ import java.util.zip.ZipInputStream;
 
 public final class ModelResourceLoader {
 
-	public static boolean isObjOrMqo(String modelResource) {
+	public static boolean isSupportedModelResource(String modelResource) {
 		return modelResource.endsWith(".obj") || modelResource.endsWith(".mqo") || modelResource.endsWith(".mqoz");
 	}
 
-	public static Object2ObjectAVLTreeMap<String, OptimizedModel.ObjModel> loadObjOrMqo(
+	public static Object2ObjectAVLTreeMap<String, OptimizedModel.ObjModel> loadModel(
 			String modelResource,
 			Identifier textureId,
 			boolean flipTextureV,

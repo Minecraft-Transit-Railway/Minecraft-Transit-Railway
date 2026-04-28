@@ -21,7 +21,7 @@ public interface StoredModelResourceBase {
 		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
 
 		final boolean isBlockbench = modelResource.endsWith(".bbmodel");
-		final boolean isObjOrMqo = ModelResourceLoader.isObjOrMqo(modelResource);
+		final boolean isSupportedModelResource = ModelResourceLoader.isSupportedModelResource(modelResource);
 		final Identifier textureId = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
 		ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel> models;
 
@@ -36,10 +36,10 @@ public interface StoredModelResourceBase {
 			);
 			tempDynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroups, new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>());
 			models = new ObjectObjectImmutablePair<>(OptimizedModelWrapper.fromMaterialGroups(materialGroups.get(PartCondition.NORMAL)), tempDynamicVehicleModel);
-		} else if (isObjOrMqo) {
+		} else if (isSupportedModelResource) {
 			try {
 				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModels = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectAVLTreeMap<String, OptimizedModel.ObjModel> rawModels = ModelResourceLoader.loadObjOrMqo(modelResource, textureId, flipTextureV, resourceProvider);
+				final Object2ObjectAVLTreeMap<String, OptimizedModel.ObjModel> rawModels = ModelResourceLoader.loadModel(modelResource, textureId, flipTextureV, resourceProvider);
 				transform(rawModels.values());
 				final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(
 						rawModels,
@@ -51,7 +51,7 @@ public interface StoredModelResourceBase {
 				dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>(), objModels);
 				models = new ObjectObjectImmutablePair<>(OptimizedModelWrapper.fromObjModels(objModels.get(PartCondition.NORMAL)), dynamicVehicleModel);
 			} catch (Exception e) {
-				Init.LOGGER.error("[{}] Invalid OBJ/MQO model!", modelResource, e);
+				Init.LOGGER.error("[{}] Invalid model!", modelResource, e);
 				models = new ObjectObjectImmutablePair<>(null, null);
 			}
 		} else {

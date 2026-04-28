@@ -125,14 +125,14 @@ public final class VehicleModel extends VehicleModelSchema {
 			);
 			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
 			return dynamicVehicleModel;
-		} else if (ModelResourceLoader.isObjOrMqo(modelResource)) {
+		} else if (ModelResourceLoader.isSupportedModelResource(modelResource)) {
 			try {
 				CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
-				final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(ModelResourceLoader.loadObjOrMqo(modelResource, textureId, flipTextureV, resourceProvider), textureId, modelProperties, positionDefinitions, id);
+				final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(ModelResourceLoader.loadModel(modelResource, textureId, flipTextureV, resourceProvider), textureId, modelProperties, positionDefinitions, id);
 				CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
 				return dynamicVehicleModel;
 			} catch (Exception e) {
-				Init.LOGGER.error("[{}] Invalid OBJ/MQO model!", modelResource, e);
+				Init.LOGGER.error("[{}] Invalid model!", modelResource, e);
 				CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
 			}
 		} else {
