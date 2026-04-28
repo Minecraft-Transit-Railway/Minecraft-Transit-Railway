@@ -1,12 +1,12 @@
 package org.mtr.mod.resource;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.mapper.OptimizedRenderer;
+import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.render.DynamicVehicleModel;
 import org.mtr.mod.render.MainRenderer;
@@ -21,9 +21,9 @@ public interface StoredModelResourceBase {
 		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
 
 		final boolean isBlockbench = modelResource.endsWith(".bbmodel");
-		final boolean isObj = modelResource.endsWith(".obj");
+		final boolean isObjOrMqo = ModelResourceLoader.isObjOrMqo(modelResource);
 		final Identifier textureId = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
-		final ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel> models;
+		ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel> models;
 
 		if (isBlockbench) {
 			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroups = new Object2ObjectOpenHashMap<>();
@@ -36,24 +36,24 @@ public interface StoredModelResourceBase {
 			);
 			tempDynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroups, new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>());
 			models = new ObjectObjectImmutablePair<>(OptimizedModelWrapper.fromMaterialGroups(materialGroups.get(PartCondition.NORMAL)), tempDynamicVehicleModel);
-		} else if (isObj) {
-			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModels = new Object2ObjectOpenHashMap<>();
-			final Object2ObjectAVLTreeMap<String, OptimizedModel.ObjModel> rawModels = new Object2ObjectAVLTreeMap<>(OptimizedModel.ObjModel.loadModel(
-					resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
-					mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
-					textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
-					null, true, flipTextureV
-			));
-			transform(rawModels.values());
-			final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(
-					rawModels,
-					textureId,
-					new ModelProperties(modelYOffset),
-					new PositionDefinitions(),
-					""
-			);
-			dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>(), objModels);
-			models = new ObjectObjectImmutablePair<>(OptimizedModelWrapper.fromObjModels(objModels.get(PartCondition.NORMAL)), dynamicVehicleModel);
+		} else if (isObjOrMqo) {
+			try {
+				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModels = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectAVLTreeMap<String, OptimizedModel.ObjModel> rawModels = ModelResourceLoader.loadObjOrMqo(modelResource, textureId, flipTextureV, resourceProvider);
+				transform(rawModels.values());
+				final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(
+						rawModels,
+						textureId,
+						new ModelProperties(modelYOffset),
+						new PositionDefinitions(),
+						""
+				);
+				dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>(), objModels);
+				models = new ObjectObjectImmutablePair<>(OptimizedModelWrapper.fromObjModels(objModels.get(PartCondition.NORMAL)), dynamicVehicleModel);
+			} catch (Exception e) {
+				Init.LOGGER.error("[{}] Invalid OBJ/MQO model!", modelResource, e);
+				models = new ObjectObjectImmutablePair<>(null, null);
+			}
 		} else {
 			models = new ObjectObjectImmutablePair<>(null, null);
 		}

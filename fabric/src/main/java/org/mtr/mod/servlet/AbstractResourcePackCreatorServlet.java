@@ -12,12 +12,12 @@ import org.mtr.libraries.javax.servlet.http.HttpServlet;
 import org.mtr.libraries.javax.servlet.http.HttpServletRequest;
 import org.mtr.libraries.javax.servlet.http.HttpServletResponse;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.resource.BlockbenchModel;
 import org.mtr.mod.resource.BlockbenchModelValidator;
+import org.mtr.mod.resource.ModelResourceLoader;
 import org.mtr.mod.resource.ModelWrapper;
 import org.mtr.mod.resource.ResourceWrapper;
 import org.mtr.mod.screen.ReloadCustomResourcesScreen;
@@ -85,8 +85,8 @@ public abstract class AbstractResourcePackCreatorServlet extends HttpServlet {
 				new BlockbenchModel(new JsonReader(modelObject)).getOutlines().forEach(blockbenchOutline -> modelParts.add(blockbenchOutline.getName()));
 				resourceWrapper.addModelResource(new ModelWrapper(name, modelParts));
 				MODELS.put(name, modelObject.toString());
-			} else if (name.endsWith(".obj")) {
-				resourceWrapper.addModelResource(new ModelWrapper(name, new ObjectArrayList<>(OptimizedModel.ObjModel.loadModel(content, mtlString -> "", textureString -> new Identifier(""), null, true, false).keySet())));
+			} else if (name.endsWith(".obj") || name.endsWith(".mqo")) {
+				resourceWrapper.addModelResource(new ModelWrapper(name, ModelResourceLoader.getModelParts(name, content)));
 				MODELS.put(name, content);
 			} else if (name.endsWith(".mtl")) {
 				MODELS.put(name, content);

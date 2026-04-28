@@ -41,9 +41,10 @@ export class ManageResourcesDialog {
 		const matchingPairsObj: string[] = [];
 		const matchingPairsMtl: string[] = [];
 		fileNames.forEach(([fileName, fileExtension]) => {
-			if (fileExtension === "obj") {
+			const lowerCaseFileExtension = fileExtension.toLowerCase();
+			if (lowerCaseFileExtension === "obj") {
 				matchingPairsObj.push(fileName);
-			} else if (fileExtension === "mtl") {
+			} else if (lowerCaseFileExtension === "mtl") {
 				matchingPairsMtl.push(fileName);
 			}
 		});
