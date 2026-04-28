@@ -84,10 +84,15 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 		return MODELS.get(name);
 	}
 
+	static byte[] getModelBytes(String name) {
+		return MODEL_BYTES.get(name);
+	}
+
 	private static void reset() {
 		final ObjectArrayList<String> texturesToDestroy = new ObjectArrayList<>(TEXTURES.keySet());
 		resourceWrapper = null;
 		MODELS.clear();
+		MODEL_BYTES.clear();
 		TEXTURES.clear();
 
 		try {
@@ -127,7 +132,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 
 						if (name.equals(String.format("%s:%s.json", Init.MOD_ID, CustomResourceLoader.CUSTOM_RESOURCES_ID))) {
 							customResourcesObject = Utilities.parseJson(content);
-						} else if (name.endsWith(".png") || name.endsWith(".bbmodel") || name.endsWith(".obj") || name.endsWith(".mtl")) {
+						} else if (name.endsWith(".png") || name.endsWith(".bbmodel") || name.endsWith(".obj") || name.endsWith(".mqo") || name.endsWith(".mqoz") || name.endsWith(".mtl")) {
 							resourceUploadTasks.add(() -> uploadResource(name, bytes, content));
 						} else if (name.endsWith(".json")) {
 							jsonCache.put(name, content);
@@ -193,10 +198,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 				final ObjectArrayList<VehicleResource> vehicles = new ObjectArrayList<>();
 				final Object2ObjectArrayMap<String, ModelProperties> modelPropertiesMap = new Object2ObjectArrayMap<>();
 				final Object2ObjectArrayMap<String, PositionDefinitions> positionDefinitionsMap = new Object2ObjectArrayMap<>();
-				new ResourceWrapper(new JsonReader(vehiclesFlattened), new ObjectArrayList<>(), new ObjectArrayList<>()).iterateVehicles(vehicleResourceWrapper -> vehicles.add(vehicleResourceWrapper.toVehicleResource(identifier -> {
-					final String modelString = ResourcePackCreatorUploadServlet.getModel(identifier.data.toString());
-					return modelString == null ? ResourceManagerHelper.readResource(identifier) : modelString;
-				}, modelPropertiesMap, positionDefinitionsMap)));
+				new ResourceWrapper(new JsonReader(vehiclesFlattened), new ObjectArrayList<>(), new ObjectArrayList<>()).iterateVehicles(vehicleResourceWrapper -> vehicles.add(vehicleResourceWrapper.toVehicleResource(getResourceProvider(), modelPropertiesMap, positionDefinitionsMap)));
 				final CustomResources customResources = new CustomResources(vehicles, new ObjectArrayList<>());
 				final String resourcePackFolder = String.format("%s/resourcepacks", MinecraftClient.getInstance().getRunDirectoryMapped());
 				final String filePath = String.format("%s/%s-%s.zip", resourcePackFolder, name, DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now()));
@@ -209,6 +211,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 					writeToZipOutputStream(modelPropertiesMap, zipOutputStream, modelProperties -> IOUtils.write(Utilities.getJsonObjectFromData(modelProperties).toString(), zipOutputStream, StandardCharsets.UTF_8));
 					writeToZipOutputStream(positionDefinitionsMap, zipOutputStream, positionDefinitions -> IOUtils.write(Utilities.getJsonObjectFromData(positionDefinitions).toString(), zipOutputStream, StandardCharsets.UTF_8));
 					writeToZipOutputStream(MODELS, zipOutputStream, modelString -> IOUtils.write(modelString, zipOutputStream, StandardCharsets.UTF_8));
+					writeToZipOutputStream(MODEL_BYTES, zipOutputStream, modelBytes -> IOUtils.write(modelBytes, zipOutputStream));
 					writeToZipOutputStream(TEXTURES, zipOutputStream, textureBytes -> IOUtils.write(textureBytes, zipOutputStream));
 
 					zipOutputStream.putNextEntry(new ZipEntry(String.format("assets/%s/%s.json", Init.MOD_ID, CustomResourceLoader.CUSTOM_RESOURCES_ID)));

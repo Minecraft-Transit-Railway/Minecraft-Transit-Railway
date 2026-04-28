@@ -82,7 +82,7 @@ export class EditComponent {
 				title: "Models",
 				addText: "Add Model",
 				deleteText: "Delete Model",
-				fileExtensions: ["bbmodel", "obj", "mqo", "mtl"],
+				fileExtensions: ["bbmodel", "obj", "mqo", "mqoz", "mtl"],
 				listCustomSupplier: () => this.dataService.models().map(modelWrapper => modelWrapper.id),
 				listMinecraftSupplier: () => this.dataService.minecraftModelResources().map(minecraftModelResource => minecraftModelResource.modelResource),
 			},

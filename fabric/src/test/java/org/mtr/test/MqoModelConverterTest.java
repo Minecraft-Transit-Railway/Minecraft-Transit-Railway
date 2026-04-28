@@ -2,7 +2,13 @@ package org.mtr.test;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mtr.mod.resource.ModelResourceLoader;
 import org.mtr.mod.resource.MqoModelConverter;
+
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public final class MqoModelConverterTest {
 
@@ -154,7 +160,109 @@ public final class MqoModelConverterTest {
 		)));
 	}
 
+	@Test
+	public void extractMqozSingleMqo() {
+		final byte[] bytes = mqoz(
+				zipData("model.mqo", mqo(
+						"Metasequoia Document",
+						"Format Text Ver 1.1",
+						"Material 1 {",
+						"	\"body\" col(0.250 0.500 0.750 0.800) dif(0.600)",
+						"}",
+						"Object \"body_part\" {",
+						"	vertex 3 {",
+						"		0 0 0",
+						"		1 0 0",
+						"		0 1 0",
+						"	}",
+						"	face 1 {",
+						"		3 V(0 1 2) M(0)",
+						"	}",
+						"}"
+				)),
+				zipData("thumbnail.png", "ignored")
+		);
+		final MqoModelConverter.ConvertedModel convertedModel = MqoModelConverter.convert(ModelResourceLoader.extractMqoContentFromMqoz("mtr:models/model.mqoz", bytes));
+
+		Assertions.assertEquals("body_part", ModelResourceLoader.getModelParts("mtr:models/model.mqoz", bytes).get(0));
+		Assertions.assertTrue(convertedModel.getObjContent().contains("v 0.010000 0.000000 0.000000"));
+		Assertions.assertTrue(convertedModel.getObjContent().contains("f 1//1 3//2 2//3"));
+		Assertions.assertTrue(convertedModel.getMtlContent().contains("Kd 0.150000 0.300000 0.450000"));
+	}
+
+	@Test
+	public void extractMqozPrefersMatchingBaseName() {
+		final byte[] bytes = mqoz(
+				zipData("a_first.mqo", mqo(
+						"Metasequoia Document",
+						"Format Text Ver 1.1",
+						"Object \"first\" {",
+						"	vertex 3 {",
+						"		0 0 0",
+						"		1 0 0",
+						"		0 1 0",
+						"	}",
+						"	face 1 {",
+						"		3 V(0 1 2)",
+						"	}",
+						"}"
+				)),
+				zipData("folder/model.mqo", mqo(
+						"Metasequoia Document",
+						"Format Text Ver 1.1",
+						"Object \"preferred\" {",
+						"	vertex 3 {",
+						"		0 0 0",
+						"		1 0 0",
+						"		0 1 0",
+						"	}",
+						"	face 1 {",
+						"		3 V(0 1 2)",
+						"	}",
+						"}"
+				))
+		);
+
+		Assertions.assertEquals("preferred", ModelResourceLoader.getModelParts("mtr:models/model.mqoz", bytes).get(0));
+	}
+
+	@Test
+	public void rejectMqozWithoutMqo() {
+		Assertions.assertThrows(IllegalArgumentException.class, () -> ModelResourceLoader.extractMqoContentFromMqoz("mtr:models/model.mqoz", mqoz(zipData("model.mqx", "ignored"))));
+	}
+
 	private static String mqo(String... lines) {
 		return String.join("\n", lines);
+	}
+
+	private static ZipData zipData(String name, String content) {
+		return new ZipData(name, content);
+	}
+
+	private static byte[] mqoz(ZipData... zipDataArray) {
+		try {
+			final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+			final ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream);
+			for (final ZipData zipData : zipDataArray) {
+				zipOutputStream.putNextEntry(new ZipEntry(zipData.name));
+				zipOutputStream.write(zipData.content.getBytes(StandardCharsets.UTF_8));
+				zipOutputStream.closeEntry();
+			}
+			zipOutputStream.close();
+			return byteArrayOutputStream.toByteArray();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static final class ZipData {
+
+		private final String name;
+		private final String content;
+
+		private ZipData(String name, String content) {
+			this.name = name;
+			this.content = content;
+		}
 	}
 }
