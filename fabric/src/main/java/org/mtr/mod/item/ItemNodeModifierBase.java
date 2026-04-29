@@ -25,7 +25,7 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 	public final boolean forAirplaneNode;
 	protected final boolean isConnector;
 
-	private static final String TAG_TRANSPORT_MODE = "transport_mode";
+	protected static final String TAG_TRANSPORT_MODE = "transport_mode";
 
 	public ItemNodeModifierBase(boolean forNonContinuousMovementNode, boolean forContinuousMovementNode, boolean forAirplaneNode, boolean isConnector, ItemSettings itemSettings) {
 		super(itemSettings.maxCount(1));
