@@ -13649,1742 +13649,340 @@
 			}
 		]
 	},
-	"light_rail_1_door_open": {
+	"light_rail_4_motor0": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/door_open_1",
-				"pitch": 0.5
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/motor0"
+		  }
 		]
 	},
-	"light_rail_1_door_close": {
+	"light_rail_4_motor1": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/door_close_1",
-				"pitch": 0.5
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/motor1"
+		  }
 		]
 	},
-	"light_rail_3_door_open": {
+	"light_rail_4_doorcls": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/door_open_3",
-				"pitch": 0.5
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/doorcls"
+		  }
 		]
 	},
-	"light_rail_3_door_close": {
+	"light_rail_4_dooropn": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/door_close_3",
-				"pitch": 0.5
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/dooropn"
+		  }
 		]
 	},
-	"light_rail_4_door_open": {
+	"light_rail_4_flange0": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/door_open_4",
-				"pitch": 0.5
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/flange0"
+		  }
 		]
 	},
-	"light_rail_4_door_close": {
+	"light_rail_4_loop": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/door_close_4",
-				"pitch": 0.5
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/loop"
+		  }
 		]
 	},
-	"light_rail_5_door_open": {
+	"light_rail_4_point": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/door_open_4",
-				"pitch": 0.5
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/point"
+		  }
 		]
 	},
-	"light_rail_5_door_close": {
+	"light_rail_4_run0": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/door_close_4",
-				"pitch": 0.5
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/run0"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_0a": {
+	"light_rail_4_run1": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_0a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/run1"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_1a": {
+	"light_rail_4_startbrake": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_1a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/startbrake"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_2a": {
+	"light_rail_3_motor0": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_2a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/motor0"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_3a": {
+	"light_rail_3_motor1": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_3a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/motor1"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_4a": {
+	"light_rail_3_doorcls": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_4a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_3/doorcls"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_5a": {
+	"light_rail_3_dooropn": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_5a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_3/dooropn"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_6a": {
+	"light_rail_3_flange0": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_6a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/flange0"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_7a": {
+	"light_rail_3_loop": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_7a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/loop"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_8a": {
+	"light_rail_3_point": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_8a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/point"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_9a": {
+	"light_rail_3_run0": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_9a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/run0"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_10a": {
+	"light_rail_3_run1": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_10a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/run1"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_11a": {
+	"light_rail_3_startbrake": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_11a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/startbrake"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_12a": {
+	"light_rail_2_motor0": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_12a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_1/motor0"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_13a": {
+	"light_rail_2_motor1": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_13a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_1/motor1"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_14a": {
+	"light_rail_2_motor2": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_14a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_1/motor2"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_15a": {
+	"light_rail_2_doorcls": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_15a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_2/doorcls"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_0b": {
+	"light_rail_2_dooropn": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_0b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_2/dooropn"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_1b": {
+	"light_rail_2_flange0": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_1b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/flange0"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_2b": {
+	"light_rail_2_loop": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_2b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_1/loop"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_3b": {
+	"light_rail_2_point": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_3b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/point"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_4b": {
+	"light_rail_2_run0": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_4b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/run0"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_5b": {
+	"light_rail_2_run1": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_5b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/run1"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_6b": {
+	"light_rail_2_startbrake": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_6b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/startbrake"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_7b": {
+	"light_rail_1_motor0": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_7b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_1/motor0"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_8b": {
+	"light_rail_1_motor1": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_8b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_1/motor1"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_9b": {
+	"light_rail_1_motor2": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_9b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_1/motor2"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_10b": {
+	"light_rail_1_doorcls": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_10b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_1/doorcls"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_11b": {
+	"light_rail_1_dooropn": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_11b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_1/dooropn"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_12b": {
+	"light_rail_1_flange0": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_12b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/flange0"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_13b": {
+	"light_rail_1_loop": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_13b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_1/loop"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_14b": {
+	"light_rail_1_point": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_14b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/point"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_15b": {
+	"light_rail_1_run0": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_15b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/run0"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_0c": {
+	"light_rail_1_run1": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_0c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/run1"
+		  }
 		]
 	},
-	"light_rail_aeg_acceleration_1c": {
+	"light_rail_1_startbrake": {
 		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_1c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_acceleration_2c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_2c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_acceleration_3c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_3c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_acceleration_4c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_4c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_acceleration_5c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_5c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_acceleration_6c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_6c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_acceleration_7c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_7c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_acceleration_8c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_8c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_acceleration_9c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_9c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_acceleration_10c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_10c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_acceleration_11c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_11c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_acceleration_12c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_12c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_acceleration_13c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_13c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_acceleration_14c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_14c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_acceleration_15c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/acceleration/speed_15c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_0a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_0a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_1a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_1a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_2a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_2a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_3a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_3a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_4a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_4a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_5a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_5a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_6a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_6a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_7a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_7a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_8a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_8a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_9a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_9a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_10a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_10a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_11a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_11a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_12a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_12a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_13a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_13a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_14a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_14a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_15a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_15a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_0b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_0b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_1b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_1b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_2b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_2b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_3b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_3b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_4b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_4b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_5b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_5b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_6b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_6b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_7b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_7b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_8b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_8b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_9b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_9b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_10b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_10b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_11b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_11b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_12b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_12b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_13b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_13b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_14b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_14b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_15b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_15b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_0c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_0c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_1c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_1c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_2c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_2c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_3c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_3c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_4c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_4c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_5c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_5c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_6c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_6c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_7c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_7c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_8c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_8c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_9c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_9c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_10c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_10c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_11c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_11c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_12c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_12c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_13c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_13c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_14c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_14c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_aeg_deceleration_15c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/aeg/deceleration/speed_15c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_0a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_0a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_1a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_1a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_2a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_2a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_3a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_3a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_4a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_4a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_5a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_5a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_6a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_6a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_7a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_7a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_8a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_8a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_9a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_9a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_10a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_10a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_11a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_11a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_12a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_12a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_13a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_13a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_14a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_14a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_0b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_0b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_1b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_1b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_2b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_2b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_3b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_3b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_4b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_4b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_5b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_5b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_6b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_6b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_7b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_7b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_8b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_8b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_9b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_9b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_10b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_10b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_11b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_11b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_12b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_12b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_13b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_13b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_14b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_14b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_0c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_0c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_1c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_1c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_2c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_2c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_3c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_3c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_4c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_4c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_5c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_5c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_6c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_6c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_7c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_7c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_8c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_8c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_9c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_9c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_10c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_10c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_11c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_11c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_12c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_12c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_13c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_13c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_acceleration_14c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/acceleration/speed_14c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_0a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_0a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_1a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_1a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_2a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_2a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_3a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_3a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_4a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_4a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_5a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_5a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_6a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_6a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_7a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_7a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_8a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_8a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_9a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_9a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_10a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_10a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_11a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_11a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_12a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_12a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_13a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_13a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_14a": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_14a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_0b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_0b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_1b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_1b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_2b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_2b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_3b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_3b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_4b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_4b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_5b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_5b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_6b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_6b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_7b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_7b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_8b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_8b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_9b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_9b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_10b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_10b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_11b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_11b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_12b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_12b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_13b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_13b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_14b": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_14b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_0c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_0c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_1c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_1c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_2c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_2c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_3c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_3c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_4c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_4c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_5c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_5c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_6c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_6c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_7c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_7c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_8c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_8c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_9c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_9c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_10c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_10c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_11c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_11c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_12c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_12c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_13c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_13c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"light_rail_mitsubishi_deceleration_14c": {
-		"sounds": [
-			{
-				"name": "mtr:light_rail/mitsubishi/deceleration/speed_14c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
+		  {
+			"attenuation_distance": 32,
+			"name": "mtr:light_rail_4/startbrake"
+		  }
 		]
 	},
 	"mpl_85_door_open": {
