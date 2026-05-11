@@ -21,7 +21,7 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
       - name: Setup website files
-        run: ./gradlew common:setupWebsiteFiles
+        run: ./gradlew common:setupWebsiteFiles --no-daemon
       - name: Setup Node
         uses: actions/setup-node@main
         with:

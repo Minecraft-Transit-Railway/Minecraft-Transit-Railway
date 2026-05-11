@@ -35,6 +35,7 @@ subprojects {
 	}
 
 	repositories {
+		mavenCentral()
 		flatDir { dirs("../libs") }
 		maven { url = uri("https://repo.codemc.org/repository/maven-public") }
 		maven { url = uri("https://maven.terraformersmc.com/") }
