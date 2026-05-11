@@ -31,7 +31,7 @@ jobs:
       - name: Build Angular
         run: npm run build --prefix website
       - name: Setup files
-        run: ./gradlew common:setupFiles -Pcrowdin_api_key="${{ secrets.CROWDIN_API_KEY }}" -Ppatreon_api_key="${{ secrets.PATREON_API_KEY }}" --no-daemon
+        run: ./gradlew common:setupFiles -PcrowdinApiKey="${{ secrets.CROWDIN_API_KEY }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}" --no-daemon
       - name: Build mod
         run: ./gradlew build --no-daemon
       - name: Capture release artifacts
