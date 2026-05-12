@@ -1,0 +1,8 @@
+# Ensure shell scripts and properties files always have LF line endings
+*.sh text eol=lf
+gradlew text eol=lf
+*.properties text eol=lf
+
+# Ensure batch files always have CRLF line endings
+*.bat text eol=crlf
+*.cmd text eol=crlf

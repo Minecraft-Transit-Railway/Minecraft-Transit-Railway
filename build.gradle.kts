@@ -19,9 +19,6 @@ architectury {
 	minecraft = minecraftVersion
 }
 
-group = "org.mtr"
-version = modVersion
-
 subprojects {
 	pluginManager.apply("dev.architectury.loom")
 	pluginManager.apply("architectury-plugin")
@@ -29,6 +26,9 @@ subprojects {
 	pluginManager.apply("io.freefair.lombok")
 
 	val loom = project.extensions.getByName<LoomGradleExtensionAPI>("loom")
+
+	group = "org.mtr"
+	version = modVersion
 
 	base {
 		archivesName.set("mtr-${project.name}")
