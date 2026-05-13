@@ -1,5 +1,6 @@
 package org.mtr.mod.servlet;
 
+import org.apache.commons.io.IOUtils;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.servlet.HttpResponseStatus;
 import org.mtr.core.servlet.ServletBase;
@@ -12,23 +13,26 @@ import org.mtr.libraries.javax.servlet.http.HttpServlet;
 import org.mtr.libraries.javax.servlet.http.HttpServletRequest;
 import org.mtr.libraries.javax.servlet.http.HttpServletResponse;
 import org.mtr.mapping.holder.*;
-import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.resource.BlockbenchModel;
 import org.mtr.mod.resource.BlockbenchModelValidator;
+import org.mtr.mod.resource.ModelResourceLoader;
 import org.mtr.mod.resource.ModelWrapper;
+import org.mtr.mod.resource.ResourceProvider;
 import org.mtr.mod.resource.ResourceWrapper;
 import org.mtr.mod.screen.ReloadCustomResourcesScreen;
 
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 public abstract class AbstractResourcePackCreatorServlet extends HttpServlet {
 
 	protected static final Object2ObjectAVLTreeMap<String, String> MODELS = new Object2ObjectAVLTreeMap<>();
+	protected static final Object2ObjectAVLTreeMap<String, byte[]> MODEL_BYTES = new Object2ObjectAVLTreeMap<>();
 	protected static final Object2ObjectAVLTreeMap<String, byte[]> TEXTURES = new Object2ObjectAVLTreeMap<>();
 
 	@Nullable
@@ -85,9 +89,12 @@ public abstract class AbstractResourcePackCreatorServlet extends HttpServlet {
 				new BlockbenchModel(new JsonReader(modelObject)).getOutlines().forEach(blockbenchOutline -> modelParts.add(blockbenchOutline.getName()));
 				resourceWrapper.addModelResource(new ModelWrapper(name, modelParts));
 				MODELS.put(name, modelObject.toString());
-			} else if (name.endsWith(".obj")) {
-				resourceWrapper.addModelResource(new ModelWrapper(name, new ObjectArrayList<>(OptimizedModel.ObjModel.loadModel(content, mtlString -> "", textureString -> new Identifier(""), null, true, false).keySet())));
+			} else if (name.endsWith(".obj") || name.endsWith(".mqo")) {
+				resourceWrapper.addModelResource(new ModelWrapper(name, ModelResourceLoader.getModelParts(name, content)));
 				MODELS.put(name, content);
+			} else if (name.endsWith(".mqoz")) {
+				resourceWrapper.addModelResource(new ModelWrapper(name, ModelResourceLoader.getModelParts(name, bytes)));
+				MODEL_BYTES.put(name, bytes);
 			} else if (name.endsWith(".mtl")) {
 				MODELS.put(name, content);
 			}
@@ -111,11 +118,36 @@ public abstract class AbstractResourcePackCreatorServlet extends HttpServlet {
 		CustomResourceLoader.clearCustomVehicles(refreshVehicleId);
 		new ResourceWrapper(new JsonReader(vehiclesFlattened), new ObjectArrayList<>(), new ObjectArrayList<>()).iterateVehicles(vehicleResourceWrapper -> {
 			if (refreshVehicleId.isEmpty() || vehicleResourceWrapper.getId().equals(refreshVehicleId)) {
-				CustomResourceLoader.registerVehicle(vehicleResourceWrapper.toVehicleResource(identifier -> {
-					final String modelString = ResourcePackCreatorUploadServlet.getModel(identifier.data.toString());
-					return modelString == null ? ResourceManagerHelper.readResource(identifier) : modelString;
-				}, null, null));
+				CustomResourceLoader.registerVehicle(vehicleResourceWrapper.toVehicleResource(getResourceProvider(), null, null));
 			}
 		});
+	}
+
+	protected static ResourceProvider getResourceProvider() {
+		return new ResourceProvider() {
+			@Override
+			public String get(Identifier identifier) {
+				final String modelString = ResourcePackCreatorUploadServlet.getModel(identifier.data.toString());
+				return modelString == null ? ResourceManagerHelper.readResource(identifier) : modelString;
+			}
+
+			@Override
+			public byte[] getBytes(Identifier identifier) {
+				final byte[] modelBytes = ResourcePackCreatorUploadServlet.getModelBytes(identifier.data.toString());
+				if (modelBytes != null) {
+					return modelBytes;
+				}
+
+				final byte[][] bytes = new byte[1][];
+				ResourceManagerHelper.readResource(identifier, inputStream -> {
+					try {
+						bytes[0] = IOUtils.toByteArray(inputStream);
+					} catch (Exception e) {
+						Init.LOGGER.error("", e);
+					}
+				});
+				return bytes[0] == null ? get(identifier).getBytes(StandardCharsets.UTF_8) : bytes[0];
+			}
+		};
 	}
 }

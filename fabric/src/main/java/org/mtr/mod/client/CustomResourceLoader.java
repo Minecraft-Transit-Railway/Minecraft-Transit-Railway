@@ -26,6 +26,18 @@ public class CustomResourceLoader {
 
 	private static long TEST_DURATION;
 
+	private static final ResourceProvider RESOURCE_PROVIDER = new ResourceProvider() {
+		@Override
+		public String get(Identifier identifier) {
+			return readResource(identifier);
+		}
+
+		@Override
+		public byte[] getBytes(Identifier identifier) {
+			return readResourceBytes(identifier);
+		}
+	};
+
 	public static final OptimizedRendererWrapper OPTIMIZED_RENDERER_WRAPPER = new OptimizedRendererWrapper();
 	public static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
 	public static final String CUSTOM_RESOURCES_PENDING_MIGRATION_ID = "mtr_custom_resources_pending_migration";
@@ -77,13 +89,13 @@ public class CustomResourceLoader {
 
 		final ObjectArrayList<SignResource> defaultSigns = new ObjectArrayList<>();
 
-		final RailResource defaultRailResource = new RailResource(DEFAULT_RAIL_ID, "Default", CustomResourceLoader::readResource);
+		final RailResource defaultRailResource = new RailResource(DEFAULT_RAIL_ID, "Default", RESOURCE_PROVIDER);
 		RAILS.add(defaultRailResource);
 		RAILS_CACHE.put(DEFAULT_RAIL_ID, defaultRailResource);
 
 		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_ID + ".json"), inputStream -> {
 			try {
-				final CustomResources customResources = CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject(), CustomResourceLoader::readResource);
+				final CustomResources customResources = CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject(), RESOURCE_PROVIDER);
 				customResources.iterateVehicles(vehicleResource -> registerVehicle(vehicleResource, false));
 				customResources.iterateSigns(signResource -> {
 					if (signResource.isDefault) {
@@ -113,7 +125,7 @@ public class CustomResourceLoader {
 		// TODO temporary code for loading models pending migration
 		ResourceManagerHelper.readAllResources(new Identifier(Init.MOD_ID, CUSTOM_RESOURCES_PENDING_MIGRATION_ID + ".json"), inputStream -> {
 			try {
-				CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject(), CustomResourceLoader::readResource).iterateVehicles(vehicleResource -> registerVehicle(vehicleResource, false));
+				CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject(), RESOURCE_PROVIDER).iterateVehicles(vehicleResource -> registerVehicle(vehicleResource, false));
 			} catch (Exception e) {
 				Init.LOGGER.error("", e);
 			}
@@ -125,12 +137,12 @@ public class CustomResourceLoader {
 		CustomResourcesConverter.convertRails(railResource -> {
 			RAILS.add(railResource);
 			RAILS_CACHE.put(railResource.getId(), railResource);
-		}, CustomResourceLoader::readResource);
+		}, RESOURCE_PROVIDER);
 
 		CustomResourcesConverter.convertObjects(objectResource -> {
 			OBJECTS.add(objectResource);
 			OBJECTS_CACHE.put(objectResource.getId(), objectResource);
-		}, CustomResourceLoader::readResource);
+		}, RESOURCE_PROVIDER);
 
 		VEHICLES.forEach((transportMode, vehicleResources) -> validateDataset("Vehicle", vehicleResources, VehicleResource::getId));
 		validateDataset("Sign", SIGNS, signResource -> signResource.signId);
@@ -334,6 +346,27 @@ public class CustomResourceLoader {
 			}
 		} else {
 			return cache;
+		}
+	}
+
+	private static byte[] readResourceBytes(Identifier identifier) {
+		if (Keys.DEBUG) {
+			try (final InputStream inputStream = Files.newInputStream(MinecraftClient.getInstance().getRunDirectoryMapped().toPath().resolve("../src/main/resources/assets").resolve(identifier.getNamespace()).resolve(identifier.getPath()), StandardOpenOption.READ)) {
+				return IOUtils.toByteArray(inputStream);
+			} catch (Exception e) {
+				Init.LOGGER.error("", e);
+				return new byte[0];
+			}
+		} else {
+			final byte[][] bytes = new byte[1][];
+			ResourceManagerHelper.readResource(identifier, inputStream -> {
+				try {
+					bytes[0] = IOUtils.toByteArray(inputStream);
+				} catch (Exception e) {
+					Init.LOGGER.error("", e);
+				}
+			});
+			return bytes[0] == null ? new byte[0] : bytes[0];
 		}
 	}
 }
