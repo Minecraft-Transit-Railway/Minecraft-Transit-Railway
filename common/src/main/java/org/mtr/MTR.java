@@ -1,13 +1,8 @@
 package org.mtr;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
@@ -36,6 +31,11 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.data.ArrivalsCacheServer;
 import org.mtr.data.RailActionModule;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.com.google.gson.JsonElement;
+import org.mtr.libraries.com.google.gson.JsonParser;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mixin.PlayerTeleportationStateAccessor;
 import org.mtr.packet.*;
 import org.mtr.registry.*;
@@ -132,51 +132,51 @@ public final class MTR {
 
 		// Register commands
 		Registry.registerCommands(dispatcher ->
-				{
-					final LiteralCommandNode<ServerCommandSource> command = dispatcher.register(CommandManager.literal("mtr")
-							// Generate depot(s) by name
-							.then(depotOperationFromCommand(CommandManager.literal("generatePath"), DepotOperation.GENERATE))
-							// Clear depot(s) by name
-							.then(depotOperationFromCommand(CommandManager.literal("clearTrains"), DepotOperation.CLEAR))
-							// Instant deploy depot(s) by name
-							.then(depotOperationFromCommand(CommandManager.literal("instantDeploy"), DepotOperation.INSTANT_DEPLOY))
-							// Force copy a world backup from one folder another
-							.then(CommandManager.literal("restoreWorld").requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4)).then(CommandManager.argument("worldDirectory", StringArgumentType.string()).then(CommandManager.argument("backupDirectory", StringArgumentType.string()).executes(contextHandler -> {
-								final Path runPath = contextHandler.getSource().getServer().getRunDirectory();
-								final Path worldDirectory = runPath.resolve(StringArgumentType.getString(contextHandler, "worldDirectory"));
-								final Path backupDirectory = runPath.resolve(StringArgumentType.getString(contextHandler, "backupDirectory"));
-								final boolean worldDirectoryExists = Files.isDirectory(worldDirectory);
-								final boolean backupDirectoryExists = Files.isDirectory(backupDirectory);
-								if (worldDirectoryExists && backupDirectoryExists) {
-									try {
-										if (main != null) {
-											main.stop();
-										}
-										contextHandler.getSource().sendFeedback(() -> Text.literal(String.format("Restoring world backup from %s to %s...", backupDirectory, worldDirectory)), true);
-										FileUtils.deleteDirectory(worldDirectory.toFile());
-										contextHandler.getSource().sendFeedback(() -> Text.literal("Deleting world complete"), true);
-										FileUtils.copyDirectory(backupDirectory.toFile(), worldDirectory.toFile());
-										contextHandler.getSource().sendFeedback(() -> Text.literal("Restoring world backup complete"), true);
-										System.exit(0);
-										return 1;
-									} catch (Exception e) {
-										contextHandler.getSource().sendError(Text.literal("Restoring world backup failed"));
-										LOGGER.error("", e);
-										return -1;
-									}
-								} else {
-									if (backupDirectoryExists) {
-										contextHandler.getSource().sendError(Text.literal("World directory not found"));
-									} else if (worldDirectoryExists) {
-										contextHandler.getSource().sendError(Text.literal("Backup directory not found"));
-									} else {
-										contextHandler.getSource().sendError(Text.literal("Directories not found"));
-									}
-									return -1;
+			{
+				final LiteralCommandNode<ServerCommandSource> command = dispatcher.register(CommandManager.literal("mtr")
+					// Generate depot(s) by name
+					.then(depotOperationFromCommand(CommandManager.literal("generatePath"), DepotOperation.GENERATE))
+					// Clear depot(s) by name
+					.then(depotOperationFromCommand(CommandManager.literal("clearTrains"), DepotOperation.CLEAR))
+					// Instant deploy depot(s) by name
+					.then(depotOperationFromCommand(CommandManager.literal("instantDeploy"), DepotOperation.INSTANT_DEPLOY))
+					// Force copy a world backup from one folder another
+					.then(CommandManager.literal("restoreWorld").requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4)).then(CommandManager.argument("worldDirectory", StringArgumentType.string()).then(CommandManager.argument("backupDirectory", StringArgumentType.string()).executes(contextHandler -> {
+						final Path runPath = contextHandler.getSource().getServer().getRunDirectory();
+						final Path worldDirectory = runPath.resolve(StringArgumentType.getString(contextHandler, "worldDirectory"));
+						final Path backupDirectory = runPath.resolve(StringArgumentType.getString(contextHandler, "backupDirectory"));
+						final boolean worldDirectoryExists = Files.isDirectory(worldDirectory);
+						final boolean backupDirectoryExists = Files.isDirectory(backupDirectory);
+						if (worldDirectoryExists && backupDirectoryExists) {
+							try {
+								if (main != null) {
+									main.stop();
 								}
-							})))));
-					dispatcher.register(CommandManager.literal("minecraftTransitRailway").redirect(command));
-				}
+								contextHandler.getSource().sendFeedback(() -> Text.literal(String.format("Restoring world backup from %s to %s...", backupDirectory, worldDirectory)), true);
+								FileUtils.deleteDirectory(worldDirectory.toFile());
+								contextHandler.getSource().sendFeedback(() -> Text.literal("Deleting world complete"), true);
+								FileUtils.copyDirectory(backupDirectory.toFile(), worldDirectory.toFile());
+								contextHandler.getSource().sendFeedback(() -> Text.literal("Restoring world backup complete"), true);
+								System.exit(0);
+								return 1;
+							} catch (Exception e) {
+								contextHandler.getSource().sendError(Text.literal("Restoring world backup failed"));
+								LOGGER.error("", e);
+								return -1;
+							}
+						} else {
+							if (backupDirectoryExists) {
+								contextHandler.getSource().sendError(Text.literal("World directory not found"));
+							} else if (worldDirectoryExists) {
+								contextHandler.getSource().sendError(Text.literal("Backup directory not found"));
+							} else {
+								contextHandler.getSource().sendError(Text.literal("Directories not found"));
+							}
+							return -1;
+						}
+					})))));
+				dispatcher.register(CommandManager.literal("minecraftTransitRailway").redirect(command));
+			}
 		);
 
 		// Register events
@@ -200,19 +200,19 @@ public final class MTR {
 				if (canSendWorldTimeUpdate) {
 					canSendWorldTimeUpdate = false;
 					sendMessageC2S(
-							OperationProcessor.SET_TIME,
-							minecraftServer,
-							null,
-							new SetTime(
-									(minecraftServer.getOverworld().getTimeOfDay() + 6000) * SECONDS_PER_MC_HOUR,
-									MILLIS_PER_MC_DAY,
-									minecraftServer.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE)
-							),
-							response -> canSendWorldTimeUpdate = true,
-							SerializedDataBase.class
+						OperationProcessor.SET_TIME,
+						minecraftServer,
+						null,
+						new SetTime(
+							(minecraftServer.getOverworld().getTimeOfDay() + 6000) * SECONDS_PER_MC_HOUR,
+							MILLIS_PER_MC_DAY,
+							minecraftServer.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE)
+						),
+						response -> canSendWorldTimeUpdate = true,
+						SerializedDataBase.class
 					);
 				} else {
-					Main.LOGGER.error("Transport Simulation Core not responding; stopping Minecraft server!");
+					MTR.LOGGER.error("Transport Simulation Core not responding; stopping Minecraft server!");
 					minecraftServer.stop(false);
 					canSendWorldTimeUpdate = true; // In singleplayer, this gives the player opportunity to re-enter world.
 				}

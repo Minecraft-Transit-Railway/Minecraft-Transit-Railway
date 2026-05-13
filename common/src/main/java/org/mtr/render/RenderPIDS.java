@@ -1,8 +1,5 @@
 package org.mtr.render;
 
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.longs.LongCollection;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -26,6 +23,9 @@ import org.mtr.data.IGui;
 import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongCollection;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.tool.Drawing;
 
 import java.awt.*;

@@ -1,6 +1,5 @@
 package org.mtr.block;
 
-import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
@@ -12,6 +11,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import org.mtr.registry.BlockEntityTypes;
 
 import javax.annotation.Nonnull;

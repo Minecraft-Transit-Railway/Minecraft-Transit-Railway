@@ -1,10 +1,6 @@
 package org.mtr.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectIntImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -23,6 +19,10 @@ import org.mtr.core.data.InterchangeColorsForStationName;
 import org.mtr.data.ArrivalsCacheClient;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectIntImmutablePair;
 import org.mtr.model.NewOptimizedModel;
 import org.mtr.registry.KeyBindings;
 import org.mtr.resource.RenderStage;
@@ -131,9 +131,9 @@ public class MainRenderer {
 
 	public static void renderModel(Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>> models, StoredMatrixTransformations storedMatrixTransformations, int light) {
 		models.forEach((renderStage, newOptimizedModels) -> newOptimizedModels.forEach(newOptimizedModel -> (renderStage.isTranslucent ? MODEL_RENDERS_TRANSLUCENT : MODEL_RENDERS)
-				.computeIfAbsent(newOptimizedModel, key -> new Object2ObjectOpenHashMap<>())
-				.computeIfAbsent(renderStage, key -> new ObjectArrayList<>())
-				.add(new ObjectIntImmutablePair<>(storedMatrixTransformations, light))
+			.computeIfAbsent(newOptimizedModel, key -> new Object2ObjectOpenHashMap<>())
+			.computeIfAbsent(renderStage, key -> new ObjectArrayList<>())
+			.add(new ObjectIntImmutablePair<>(storedMatrixTransformations, light))
 		));
 	}
 
@@ -175,9 +175,9 @@ public class MainRenderer {
 	public static Color getFlashingColor(Color color, int multiplier) {
 		final double flashingProgress = ((Math.sin(Math.PI * 2 * (getTimerMillis() % FLASHING_INTERVAL) / FLASHING_INTERVAL) + 1) / 2);
 		return new Color(
-				(int) (color.getRed() * Math.min(1, flashingProgress * multiplier)),
-				(int) (color.getGreen() * Math.min(1, flashingProgress * multiplier)),
-				(int) (color.getBlue() * Math.min(1, flashingProgress * multiplier))
+			(int) (color.getRed() * Math.min(1, flashingProgress * multiplier)),
+			(int) (color.getGreen() * Math.min(1, flashingProgress * multiplier)),
+			(int) (color.getBlue() * Math.min(1, flashingProgress * multiplier))
 		);
 	}
 

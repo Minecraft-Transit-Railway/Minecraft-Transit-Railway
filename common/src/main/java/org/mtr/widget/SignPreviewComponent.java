@@ -1,12 +1,12 @@
 package org.mtr.widget;
 
 import gg.essential.universal.UMatrixStack;
-import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import kotlin.Pair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.math.BlockPos;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.registry.UConverters;
 import org.mtr.resource.SignResource;
 import org.mtr.tool.GuiAnimation;
@@ -111,12 +111,12 @@ public final class SignPreviewComponent extends SlotBackgroundComponent {
 					final float centerX = (float) Utilities.getAverage(x1, x2);
 					final float centerY = (float) Utilities.getAverage(top, bottom);
 					drawTexturedQuad(
-							matrixStack, vertexConsumer,
-							Math.max(centerX - SPRITE_SIZE / 2F, x1),
-							Math.max(centerY - SPRITE_SIZE / 2F, top),
-							Math.min(centerX + SPRITE_SIZE / 2F, x2),
-							Math.min(centerY + SPRITE_SIZE / 2F, bottom),
-							0, 0, 1, 1
+						matrixStack, vertexConsumer,
+						Math.max(centerX - SPRITE_SIZE / 2F, x1),
+						Math.max(centerY - SPRITE_SIZE / 2F, top),
+						Math.min(centerX + SPRITE_SIZE / 2F, x2),
+						Math.min(centerY + SPRITE_SIZE / 2F, bottom),
+						0, 0, 1, 1
 					);
 				});
 			}

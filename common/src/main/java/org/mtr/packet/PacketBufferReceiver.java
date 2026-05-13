@@ -2,7 +2,7 @@ package org.mtr.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 
 import java.util.function.Consumer;
 

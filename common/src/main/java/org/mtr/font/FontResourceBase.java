@@ -1,7 +1,7 @@
 package org.mtr.font;
 
-import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import org.mtr.cache.CachedFileResource;
+import org.mtr.libraries.it.unimi.dsi.fastutil.bytes.ByteArrayList;
 
 import javax.annotation.Nullable;
 import java.nio.file.Path;

@@ -42,9 +42,7 @@ repositories {
 dependencies {
 	neoForge("net.neoforged:neoforge:$neoforgeVersion")
 	modImplementation("gg.essential:universalcraft-$minecraftVersion-neoforge:$universalCraftVersion")
-	add("shadowBundle", "org.mtr:Shadow-Libraries-net:0.0.1")
-	add("shadowBundle", "org.mtr:Shadow-Libraries-util:0.0.1")
-	add("shadowBundle", "org.mtr:Transport-Simulation-Core:0.0.1")
+	add("shadowBundle", "org.mtr:transport-simulation-core:+")
 	add("shadowBundle", "com.logisticscraft:occlusionculling:+")
 	add("shadowBundle", "gg.essential:elementa:$elementaVersion")
 	add("shadowBundle", "gg.essential:universalcraft-$minecraftVersion-neoforge:$universalCraftVersion")

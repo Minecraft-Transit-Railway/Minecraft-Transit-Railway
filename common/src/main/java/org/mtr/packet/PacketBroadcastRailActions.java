@@ -1,8 +1,8 @@
 package org.mtr.packet;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.data.RailAction;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.screen.DashboardListItem;
 
 public final class PacketBroadcastRailActions extends PacketHandler {

@@ -1,7 +1,7 @@
 package org.mtr.cache;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectCollection;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectCollection;
 
 import java.util.Random;
 import java.util.function.Supplier;

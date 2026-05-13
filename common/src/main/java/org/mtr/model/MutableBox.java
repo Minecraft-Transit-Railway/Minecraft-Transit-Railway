@@ -1,7 +1,7 @@
 package org.mtr.model;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.util.math.Box;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class MutableBox {
 

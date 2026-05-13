@@ -1,8 +1,8 @@
 package org.mtr.data;
 
-import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.mtr.core.operation.ArrivalResponse;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
 import org.mtr.packet.PacketFetchArrivals;
 import org.mtr.registry.RegistryClient;
 

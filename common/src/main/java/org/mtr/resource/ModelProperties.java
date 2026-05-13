@@ -1,10 +1,10 @@
 package org.mtr.resource;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.minecraft.util.Identifier;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.generated.resource.ModelPropertiesSchema;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
@@ -70,51 +70,51 @@ public final class ModelProperties extends ModelPropertiesSchema {
 	}
 
 	ModelProperties(
-			ObjectArrayList<ModelPropertiesPart> parts,
-			double modelYOffset,
-			String gangwayInnerSideResource,
-			String gangwayInnerTopResource,
-			String gangwayInnerBottomResource,
-			String gangwayOuterSideResource,
-			String gangwayOuterTopResource,
-			String gangwayOuterBottomResource,
-			double gangwayWidth,
-			double gangwayHeight,
-			double gangwayYOffset,
-			double gangwayZOffset,
-			String barrierInnerSideResource,
-			String barrierInnerTopResource,
-			String barrierInnerBottomResource,
-			String barrierOuterSideResource,
-			String barrierOuterTopResource,
-			String barrierOuterBottomResource,
-			double barrierWidth,
-			double barrierHeight,
-			double barrierYOffset,
-			double barrierZOffset
+		ObjectArrayList<ModelPropertiesPart> parts,
+		double modelYOffset,
+		String gangwayInnerSideResource,
+		String gangwayInnerTopResource,
+		String gangwayInnerBottomResource,
+		String gangwayOuterSideResource,
+		String gangwayOuterTopResource,
+		String gangwayOuterBottomResource,
+		double gangwayWidth,
+		double gangwayHeight,
+		double gangwayYOffset,
+		double gangwayZOffset,
+		String barrierInnerSideResource,
+		String barrierInnerTopResource,
+		String barrierInnerBottomResource,
+		String barrierOuterSideResource,
+		String barrierOuterTopResource,
+		String barrierOuterBottomResource,
+		double barrierWidth,
+		double barrierHeight,
+		double barrierYOffset,
+		double barrierZOffset
 	) {
 		super(
-				modelYOffset,
-				gangwayInnerSideResource,
-				gangwayInnerTopResource,
-				gangwayInnerBottomResource,
-				gangwayOuterSideResource,
-				gangwayOuterTopResource,
-				gangwayOuterBottomResource,
-				gangwayWidth,
-				gangwayHeight,
-				gangwayYOffset,
-				gangwayZOffset,
-				barrierInnerSideResource,
-				barrierInnerTopResource,
-				barrierInnerBottomResource,
-				barrierOuterSideResource,
-				barrierOuterTopResource,
-				barrierOuterBottomResource,
-				barrierWidth,
-				barrierHeight,
-				barrierYOffset,
-				barrierZOffset
+			modelYOffset,
+			gangwayInnerSideResource,
+			gangwayInnerTopResource,
+			gangwayInnerBottomResource,
+			gangwayOuterSideResource,
+			gangwayOuterTopResource,
+			gangwayOuterBottomResource,
+			gangwayWidth,
+			gangwayHeight,
+			gangwayYOffset,
+			gangwayZOffset,
+			barrierInnerSideResource,
+			barrierInnerTopResource,
+			barrierInnerBottomResource,
+			barrierOuterSideResource,
+			barrierOuterTopResource,
+			barrierOuterBottomResource,
+			barrierWidth,
+			barrierHeight,
+			barrierYOffset,
+			barrierZOffset
 		);
 		this.parts.addAll(parts);
 		gangwayInnerSideTexture = CustomResourceTools.formatIdentifier(gangwayInnerSideResource, "png");
@@ -173,33 +173,33 @@ public final class ModelProperties extends ModelPropertiesSchema {
 
 	VehicleModelWrapper toVehicleModelWrapper(String modelResource, String textureResource, String modelPropertiesResource, String positionDefinitionsResource, boolean flipTextureV, ObjectArrayList<ModelPropertiesPartWrapper> parts) {
 		return new VehicleModelWrapper(
-				modelResource,
-				textureResource,
-				modelPropertiesResource,
-				positionDefinitionsResource,
-				flipTextureV,
-				parts,
-				modelYOffset,
-				gangwayInnerSideResource,
-				gangwayInnerTopResource,
-				gangwayInnerBottomResource,
-				gangwayOuterSideResource,
-				gangwayOuterTopResource,
-				gangwayOuterBottomResource,
-				gangwayWidth,
-				gangwayHeight,
-				gangwayYOffset,
-				gangwayZOffset,
-				barrierInnerSideResource,
-				barrierInnerTopResource,
-				barrierInnerBottomResource,
-				barrierOuterSideResource,
-				barrierOuterTopResource,
-				barrierOuterBottomResource,
-				barrierWidth,
-				barrierHeight,
-				barrierYOffset,
-				barrierZOffset
+			modelResource,
+			textureResource,
+			modelPropertiesResource,
+			positionDefinitionsResource,
+			flipTextureV,
+			parts,
+			modelYOffset,
+			gangwayInnerSideResource,
+			gangwayInnerTopResource,
+			gangwayInnerBottomResource,
+			gangwayOuterSideResource,
+			gangwayOuterTopResource,
+			gangwayOuterBottomResource,
+			gangwayWidth,
+			gangwayHeight,
+			gangwayYOffset,
+			gangwayZOffset,
+			barrierInnerSideResource,
+			barrierInnerTopResource,
+			barrierInnerBottomResource,
+			barrierOuterSideResource,
+			barrierOuterTopResource,
+			barrierOuterBottomResource,
+			barrierWidth,
+			barrierHeight,
+			barrierYOffset,
+			barrierZOffset
 		);
 	}
 

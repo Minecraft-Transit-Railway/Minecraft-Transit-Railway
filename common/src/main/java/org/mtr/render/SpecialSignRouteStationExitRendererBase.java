@@ -1,11 +1,11 @@
 package org.mtr.render;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import org.mtr.core.tool.Utilities;
 import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.resource.SignResource;
 import org.mtr.tool.Drawing;
 
@@ -16,11 +16,11 @@ public abstract class SpecialSignRouteStationExitRendererBase<T> extends Special
 
 	@Override
 	public final void render(
-			Drawing textureDrawing, ObjectArrayList<Consumer<MatrixStack>> deferredRenders,
-			float x, float y, float zOffset,
-			float signSize, ObjectArrayList<T> dataList,
-			boolean flipTexture, boolean flipText, boolean small, String customText, Identifier font,
-			float totalSpace, boolean renderPlaceholder
+		Drawing textureDrawing, ObjectArrayList<Consumer<MatrixStack>> deferredRenders,
+		float x, float y, float zOffset,
+		float signSize, ObjectArrayList<T> dataList,
+		boolean flipTexture, boolean flipText, boolean small, String customText, Identifier font,
+		float totalSpace, boolean renderPlaceholder
 	) {
 		if (dataList.isEmpty() && !renderPlaceholder) {
 			return;
@@ -37,12 +37,12 @@ public abstract class SpecialSignRouteStationExitRendererBase<T> extends Special
 		for (int i = 0; i < dataCount; i++) {
 			dataNames[i] = getOverlayText(Utilities.getElement(dataList, i), customText);
 			dataTextWidths[i] = calculateTextWidths() ? FontRenderHelper.render(null, dataNames[i], FontRenderOptions.builder()
-					.font(font)
-					.verticalSpace(height - signSize * SignResource.SMALL_SIGN_PADDING * 2)
-					.cjkScaling(2)
-					.maxFontSize(height / 4)
-					.lineBreak(FontRenderOptions.LineBreak.SPLIT)
-					.build()).leftFloat() : 0;
+																									.font(font)
+																									.verticalSpace(height - signSize * SignResource.SMALL_SIGN_PADDING * 2)
+																									.cjkScaling(2)
+																									.maxFontSize(height / 4)
+																									.lineBreak(FontRenderOptions.LineBreak.SPLIT)
+																									.build()).leftFloat() : 0;
 			rawWidth += dataTextWidths[i];
 		}
 
@@ -94,20 +94,20 @@ public abstract class SpecialSignRouteStationExitRendererBase<T> extends Special
 			if (extraText != null) {
 				final float textX = (flipText ? startX : x1) + (flipText ? -1 : 1) * signSize * SignResource.SMALL_SIGN_PADDING;
 				deferredRenders.add(matrixStack -> FontRenderHelper.render(matrixStack, extraText, FontRenderOptions.builder()
-						.font(font)
-						.horizontalSpace(textSpace)
-						.verticalSpace(signSize * (1 - SignResource.SMALL_SIGN_PADDING * 2))
-						.horizontalTextAlignment(flipText ? FontRenderOptions.Alignment.END : FontRenderOptions.Alignment.START)
-						.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
-						.horizontalPositioning(flipText ? FontRenderOptions.Alignment.END : FontRenderOptions.Alignment.START)
-						.offsetX(textX)
-						.offsetY(y + signSize * SignResource.SMALL_SIGN_PADDING)
-						.offsetZ(-zOffset)
-						.cjkScaling(2)
-						.maxFontSize(signSize / 4)
-						.lineBreak(FontRenderOptions.LineBreak.SPLIT)
-						.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
-						.build())
+					.font(font)
+					.horizontalSpace(textSpace)
+					.verticalSpace(signSize * (1 - SignResource.SMALL_SIGN_PADDING * 2))
+					.horizontalTextAlignment(flipText ? FontRenderOptions.Alignment.END : FontRenderOptions.Alignment.START)
+					.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
+					.horizontalPositioning(flipText ? FontRenderOptions.Alignment.END : FontRenderOptions.Alignment.START)
+					.offsetX(textX)
+					.offsetY(y + signSize * SignResource.SMALL_SIGN_PADDING)
+					.offsetZ(-zOffset)
+					.cjkScaling(2)
+					.maxFontSize(signSize / 4)
+					.lineBreak(FontRenderOptions.LineBreak.SPLIT)
+					.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
+					.build())
 				);
 			}
 		}

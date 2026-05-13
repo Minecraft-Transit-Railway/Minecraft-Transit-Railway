@@ -1,8 +1,5 @@
 package org.mtr.block;
 
-import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.Getter;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
@@ -15,6 +12,9 @@ import net.minecraft.world.World;
 import org.mtr.MTRClient;
 import org.mtr.core.operation.ArrivalResponse;
 import org.mtr.data.ArrivalsCacheClient;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.packet.PacketTurnOnBlockEntity;
 import org.mtr.registry.BlockEntityTypes;
 import org.mtr.registry.RegistryClient;

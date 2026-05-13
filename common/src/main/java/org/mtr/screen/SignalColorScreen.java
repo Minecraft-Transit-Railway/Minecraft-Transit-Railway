@@ -1,6 +1,5 @@
 package org.mtr.screen;
 
-import it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.CheckboxWidget;
@@ -14,6 +13,7 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.item.ItemSignalModifier;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import org.mtr.packet.PacketUpdateSignalConfig;
 import org.mtr.registry.RegistryClient;
 import org.mtr.render.RenderSignalBase;

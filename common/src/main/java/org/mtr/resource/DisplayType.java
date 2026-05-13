@@ -1,10 +1,10 @@
 package org.mtr.resource;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.cache.GenericStringCache;
 import org.mtr.core.data.InterchangeColorsForStationName;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.render.MainRenderer;
 
 import java.util.function.BiConsumer;
@@ -22,10 +22,10 @@ public enum DisplayType {
 			return thisStationName;
 		} else {
 			return NEXT_STATION_CACHE_HONG_KONG.get(thisStationName + nextStationName + isKcr, () -> IGui.insertTranslation(
-					isKcr ? TranslationProvider.GUI_MTR_NEXT_STATION_CJK : TranslationProvider.GUI_MTR_NEXT_STATION_ANNOUNCEMENT_CJK,
-					isKcr ? TranslationProvider.GUI_MTR_NEXT_STATION : TranslationProvider.GUI_MTR_NEXT_STATION_ANNOUNCEMENT,
-					1,
-					IGui.textOrUntitled(nextStationName)
+				isKcr ? TranslationProvider.GUI_MTR_NEXT_STATION_CJK : TranslationProvider.GUI_MTR_NEXT_STATION_ANNOUNCEMENT_CJK,
+				isKcr ? TranslationProvider.GUI_MTR_NEXT_STATION : TranslationProvider.GUI_MTR_NEXT_STATION_ANNOUNCEMENT,
+				1,
+				IGui.textOrUntitled(nextStationName)
 			));
 		}
 	}

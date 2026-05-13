@@ -1,8 +1,5 @@
 package org.mtr.servlet;
 
-import com.google.gson.JsonObject;
-import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.texture.NativeImage;
@@ -14,10 +11,13 @@ import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.servlet.HttpResponseStatus;
 import org.mtr.core.servlet.ServletBase;
 import org.mtr.core.tool.Utilities;
-import org.mtr.libraries.javax.servlet.AsyncContext;
-import org.mtr.libraries.javax.servlet.http.HttpServlet;
-import org.mtr.libraries.javax.servlet.http.HttpServletRequest;
-import org.mtr.libraries.javax.servlet.http.HttpServletResponse;
+import org.mtr.libraries.com.google.gson.JsonObject;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.jakarta.servlet.AsyncContext;
+import org.mtr.libraries.jakarta.servlet.http.HttpServlet;
+import org.mtr.libraries.jakarta.servlet.http.HttpServletRequest;
+import org.mtr.libraries.jakarta.servlet.http.HttpServletResponse;
 import org.mtr.model.ObjModelLoader;
 import org.mtr.resource.*;
 import org.mtr.screen.ReloadCustomResourcesScreen;

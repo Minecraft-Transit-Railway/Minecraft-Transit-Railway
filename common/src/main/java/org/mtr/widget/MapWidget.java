@@ -2,13 +2,6 @@ package org.mtr.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import gg.essential.universal.UMinecraft;
-import it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
-import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
-import it.unimi.dsi.fastutil.longs.Long2FloatAVLTreeMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.gui.DrawContext;
@@ -29,6 +22,13 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
+import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2FloatAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.map.MapTileProvider;
 import org.mtr.screen.*;
 import org.mtr.tool.Drawing;
@@ -161,9 +161,9 @@ public final class MapWidget extends ClickableWidgetBase {
 						IDrawing.changeShaderColor(new Color(newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, 1), () -> {
 							vertexBuffer.bind();
 							vertexBuffer.draw(
-									new Matrix4f(RenderSystem.getModelViewMatrix()).translate(newX, newY, 0).scale((float) guiAnimationScale.getCurrentValue(), (float) guiAnimationScale.getCurrentValue(), 1).translate(offsetX, offsetY, 1),
-									RenderSystem.getProjectionMatrix(),
-									RenderSystem.getShader()
+								new Matrix4f(RenderSystem.getModelViewMatrix()).translate(newX, newY, 0).scale((float) guiAnimationScale.getCurrentValue(), (float) guiAnimationScale.getCurrentValue(), 1).translate(offsetX, offsetY, 1),
+								RenderSystem.getProjectionMatrix(),
+								RenderSystem.getShader()
 							);
 						});
 					}
@@ -183,9 +183,9 @@ public final class MapWidget extends ClickableWidgetBase {
 				matrixStack.translate(getX() + x, getY() + y, 5);
 				Drawing.rotateZDegrees(matrixStack, player.getYaw() + 180);
 				new Drawing(matrixStack, RenderLayer.getGuiTextured(Identifier.of("textures/gui/sprites/mtr/dashboard_player_arrow.png")))
-						.setVerticesWH(-PLAYER_ARROW_SIZE / 2F, -PLAYER_ARROW_SIZE / 2F, PLAYER_ARROW_SIZE, PLAYER_ARROW_SIZE)
-						.setUv()
-						.draw();
+					.setVerticesWH(-PLAYER_ARROW_SIZE / 2F, -PLAYER_ARROW_SIZE / 2F, PLAYER_ARROW_SIZE, PLAYER_ARROW_SIZE)
+					.setUv()
+					.draw();
 				matrixStack.pop();
 			});
 		}
@@ -241,11 +241,11 @@ public final class MapWidget extends ClickableWidgetBase {
 			matrixStack.pop();
 
 			if (!Utilities.isBetween(
-					Math.clamp(newMouseX, leftBound, rightBound - 1),
-					scrollableListWidget.getX() - 1, scrollableListWidget.getX() + scrollableListWidget.getWidth()
+				Math.clamp(newMouseX, leftBound, rightBound - 1),
+				scrollableListWidget.getX() - 1, scrollableListWidget.getX() + scrollableListWidget.getWidth()
 			) || !Utilities.isBetween(
-					Math.clamp(newMouseY, topBound, bottomBound - 1),
-					scrollableListWidget.getY() - 1, scrollableListWidget.getY() + scrollableListWidget.getHeight()
+				Math.clamp(newMouseY, topBound, bottomBound - 1),
+				scrollableListWidget.getY() - 1, scrollableListWidget.getY() + scrollableListWidget.getHeight()
 			)) {
 				popupDetails = null;
 			}
@@ -265,8 +265,8 @@ public final class MapWidget extends ClickableWidgetBase {
 				final DoubleDoubleImmutablePair worldPos1 = coordsToWorldPos(lastClickedX - getX(), lastClickedY - getY());
 				final DoubleDoubleImmutablePair worldPos2 = coordsToWorldPos(mouseX - getX(), mouseY - getY());
 				editingArea.setCorners(
-						new Position((int) Math.floor(worldPos1.leftDouble()), Long.MIN_VALUE, (int) Math.floor(worldPos1.rightDouble())),
-						new Position((int) Math.floor(worldPos2.leftDouble()), Long.MAX_VALUE, (int) Math.floor(worldPos2.rightDouble()))
+					new Position((int) Math.floor(worldPos1.leftDouble()), Long.MIN_VALUE, (int) Math.floor(worldPos1.rightDouble())),
+					new Position((int) Math.floor(worldPos2.leftDouble()), Long.MAX_VALUE, (int) Math.floor(worldPos2.rightDouble()))
 				);
 			}
 		} else {
@@ -282,44 +282,44 @@ public final class MapWidget extends ClickableWidgetBase {
 				if (!hoverStations.isEmpty()) {
 					final ScrollableListWidget<Station> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setAreas(scrollableListWidget, hoverStations, null, hasPermission ? ObjectArrayList.of(
-							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, (indexList, station) -> onStartEditingArea.accept(station)),
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (indexList, station) -> UMinecraft.setCurrentScreenObj(new StationScreen(station, dashboardScreen))),
-							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (indexList, station) -> onDeleteData.accept(station, new DeleteDataRequest().addStationId(station.getId())))
+						new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, (indexList, station) -> onStartEditingArea.accept(station)),
+						new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (indexList, station) -> UMinecraft.setCurrentScreenObj(new StationScreen(station, dashboardScreen))),
+						new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (indexList, station) -> onDeleteData.accept(station, new DeleteDataRequest().addStationId(station.getId())))
 					) : new ObjectArrayList<>());
 					scrollableListWidget.tryTrigger();
 				}
 				if (!hoverPlatforms.isEmpty()) {
 					final ScrollableListWidget<Platform> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setSavedRails(scrollableListWidget, hoverPlatforms, hasPermission ? editingRoute == null ? ObjectArrayList.of(
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (indexList, platform) -> minecraftClient.setScreen(new PlatformScreen(platform, dashboardScreen)))
+						new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (indexList, platform) -> minecraftClient.setScreen(new PlatformScreen(platform, dashboardScreen)))
 					) : ObjectArrayList.of(
-							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, (indexList, platform) -> {
-								if (editingRoute != null) {
-									final RoutePlatformData routePlatformData = new RoutePlatformData(platform.getId());
-									if (Screen.hasShiftDown()) {
-										editingRoute.getRoutePlatforms().addFirst(routePlatformData);
-									} else {
-										editingRoute.getRoutePlatforms().add(routePlatformData);
-									}
-									routePlatformData.writePlatformCache(editingRoute, MinecraftClientData.getDashboardInstance().platformIdMap);
+						new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, (indexList, platform) -> {
+							if (editingRoute != null) {
+								final RoutePlatformData routePlatformData = new RoutePlatformData(platform.getId());
+								if (Screen.hasShiftDown()) {
+									editingRoute.getRoutePlatforms().addFirst(routePlatformData);
+								} else {
+									editingRoute.getRoutePlatforms().add(routePlatformData);
 								}
-							})
+								routePlatformData.writePlatformCache(editingRoute, MinecraftClientData.getDashboardInstance().platformIdMap);
+							}
+						})
 					) : new ObjectArrayList<>());
 					scrollableListWidget.tryTrigger();
 				}
 				if (!hoverDepots.isEmpty()) {
 					final ScrollableListWidget<Depot> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setAreas(scrollableListWidget, hoverDepots, null, hasPermission ? ObjectArrayList.of(
-							new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, (indexList, depot) -> onStartEditingArea.accept(depot)),
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (indexList, depot) -> minecraftClient.setScreen(new DepotScreen(depot, dashboardScreen))),
-							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (indexList, depot) -> onDeleteData.accept(depot, new DeleteDataRequest().addDepotId(depot.getId())))
+						new ObjectObjectImmutablePair<>(GuiHelper.SELECT_TEXTURE_ID, (indexList, depot) -> onStartEditingArea.accept(depot)),
+						new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (indexList, depot) -> minecraftClient.setScreen(new DepotScreen(depot, dashboardScreen))),
+						new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (indexList, depot) -> onDeleteData.accept(depot, new DeleteDataRequest().addDepotId(depot.getId())))
 					) : new ObjectArrayList<>());
 					scrollableListWidget.tryTrigger();
 				}
 				if (!hoverSidings.isEmpty()) {
 					final ScrollableListWidget<Siding> scrollableListWidget = createPopup(mouseX, mouseY);
 					ScrollableListWidget.setSavedRails(scrollableListWidget, hoverSidings, hasPermission ? ObjectArrayList.of(
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (indexList, siding) -> minecraftClient.setScreen(new SidingScreen(siding, dashboardScreen)))
+						new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (indexList, siding) -> minecraftClient.setScreen(new SidingScreen(siding, dashboardScreen)))
 					) : new ObjectArrayList<>());
 					scrollableListWidget.tryTrigger();
 				}
@@ -457,14 +457,14 @@ public final class MapWidget extends ClickableWidgetBase {
 					final double clampedAreaHeight = areaHeight - Math.max(0, getY() - y1) - Math.max(0, y2 - getY() - height) - AREA_NAME_PADDING * 2;
 					if (clampedAreaWidth > 0 && clampedAreaHeight > 0) {
 						deferredRenders.add(matrixStack -> FontRenderHelper.render(matrixStack, area.getName(), FontRenderOptions.builder()
-								.horizontalSpace((float) clampedAreaWidth)
-								.verticalSpace((float) clampedAreaHeight)
-								.offsetX((float) Math.max(getX(), x1) + AREA_NAME_PADDING)
-								.offsetY((float) Math.max(getY(), y1) + AREA_NAME_PADDING)
-								.offsetZ(4)
-								.lineBreak(FontRenderOptions.LineBreak.FORCE_ONE_LINE)
-								.textOverflow(FontRenderOptions.TextOverflow.SCALE)
-								.build()
+							.horizontalSpace((float) clampedAreaWidth)
+							.verticalSpace((float) clampedAreaHeight)
+							.offsetX((float) Math.max(getX(), x1) + AREA_NAME_PADDING)
+							.offsetY((float) Math.max(getY(), y1) + AREA_NAME_PADDING)
+							.offsetZ(4)
+							.lineBreak(FontRenderOptions.LineBreak.FORCE_ONE_LINE)
+							.textOverflow(FontRenderOptions.TextOverflow.SCALE)
+							.build()
 						));
 					}
 				});
@@ -491,16 +491,16 @@ public final class MapWidget extends ClickableWidgetBase {
 			// Draw overlay text
 			if (guiAnimationScale.getCurrentValue() > SAVED_RAIL_NAME_PADDING * 2) {
 				deferredRenders.add(matrixStack -> FontRenderHelper.render(matrixStack, savedRails.stream().map(NameColorDataBase::getName).collect(Collectors.joining("|")), FontRenderOptions.builder()
-						.horizontalSpace((float) guiAnimationScale.getCurrentValue() - SAVED_RAIL_NAME_PADDING * 2)
-						.verticalSpace((float) guiAnimationScale.getCurrentValue() - SAVED_RAIL_NAME_PADDING * 2)
-						.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)
-						.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
-						.offsetX((float) x1 + SAVED_RAIL_NAME_PADDING)
-						.offsetY((float) y1 + SAVED_RAIL_NAME_PADDING)
-						.offsetZ(4)
-						.textOverflow(FontRenderOptions.TextOverflow.SCALE)
-						.color(Color.BLACK)
-						.build()
+					.horizontalSpace((float) guiAnimationScale.getCurrentValue() - SAVED_RAIL_NAME_PADDING * 2)
+					.verticalSpace((float) guiAnimationScale.getCurrentValue() - SAVED_RAIL_NAME_PADDING * 2)
+					.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)
+					.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
+					.offsetX((float) x1 + SAVED_RAIL_NAME_PADDING)
+					.offsetY((float) y1 + SAVED_RAIL_NAME_PADDING)
+					.offsetZ(4)
+					.textOverflow(FontRenderOptions.TextOverflow.SCALE)
+					.color(Color.BLACK)
+					.build()
 				));
 			}
 		}));

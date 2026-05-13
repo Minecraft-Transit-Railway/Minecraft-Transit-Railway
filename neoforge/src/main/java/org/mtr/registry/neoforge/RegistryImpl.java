@@ -1,8 +1,6 @@
 package org.mtr.registry.neoforge;
 
 import com.mojang.brigadier.CommandDispatcher;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -31,6 +29,8 @@ import net.minecraft.world.World;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import org.mtr.MTR;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.neoforge.MTRNeoForge;
 import org.mtr.neoforge.MainEventBus;
 import org.mtr.neoforge.ModEventBus;

@@ -1,6 +1,5 @@
 package org.mtr.block;
 
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -23,6 +22,7 @@ import org.mtr.core.data.Lift;
 import org.mtr.core.data.LiftDirection;
 import org.mtr.core.operation.PressLift;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.packet.PacketPressLiftButton;
 import org.mtr.registry.BlockEntityTypes;
 import org.mtr.registry.Items;

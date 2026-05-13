@@ -1,10 +1,5 @@
 package org.mtr.screen;
 
-import it.unimi.dsi.fastutil.longs.Long2LongAVLTreeMap;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.MutableText;
@@ -18,6 +13,11 @@ import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2LongAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.packet.PacketDepotClear;
 import org.mtr.packet.PacketDepotGenerate;
 import org.mtr.packet.PacketDepotInstantDeploy;
@@ -336,14 +336,14 @@ public final class DepotScreen extends ScrollableScreenBase {
 			final int second = calendar.get(Calendar.SECOND);
 			final String departureString = String.format("%02d:%02d:%02d", hour, minute, second);
 			realTimeDeparturesForList.add(ListItem.createChild(
-					(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(ColorHelper.fullAlpha(tempColor)).draw(),
-					null,
-					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
-					new RealTimeDepartureForList(calendar.getTimeInMillis() - offset, departureString, i),
-					departureString,
-					ObjectArrayList.of(
-							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (indexList, realTimeDepartureForList) -> onDeleteDeparture(realTimeDepartureForList.departureString))
-					))
+				(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(ColorHelper.fullAlpha(tempColor)).draw(),
+				null,
+				GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
+				new RealTimeDepartureForList(calendar.getTimeInMillis() - offset, departureString, i),
+				departureString,
+				ObjectArrayList.of(
+					new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (indexList, realTimeDepartureForList) -> onDeleteDeparture(realTimeDepartureForList.departureString))
+				))
 			);
 		}
 
@@ -420,9 +420,9 @@ public final class DepotScreen extends ScrollableScreenBase {
 		}
 
 		depot.getFailedPlatformIds((lastGeneratedFailedStartId, lastGeneratedFailedEndId) -> stringBuilder.append(TranslationProvider.GUI_MTR_PATH_NOT_FOUND_BETWEEN.getString(
-				getRoute(depot, lastGeneratedFailedStartId, lastGeneratedFailedEndId),
-				getStation(lastGeneratedFailedStartId),
-				getStation(lastGeneratedFailedEndId)
+			getRoute(depot, lastGeneratedFailedStartId, lastGeneratedFailedEndId),
+			getStation(lastGeneratedFailedStartId),
+			getStation(lastGeneratedFailedEndId)
 		)), lastGeneratedFailedSidingCount -> stringBuilder.append("|").append(TranslationProvider.GUI_MTR_PATH_NOT_FOUND_SIDINGS.getString(lastGeneratedFailedSidingCount)));
 
 		return stringBuilder.toString();

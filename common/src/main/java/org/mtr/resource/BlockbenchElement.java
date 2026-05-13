@@ -1,7 +1,5 @@
 package org.mtr.resource;
 
-import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.model.Dilation;
 import net.minecraft.client.model.ModelPartBuilder;
 import net.minecraft.client.model.ModelPartData;
@@ -12,6 +10,8 @@ import org.mtr.MTR;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.resource.BlockbenchElementSchema;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.render.StoredMatrixTransformations;
 
 public final class BlockbenchElement extends BlockbenchElementSchema {
@@ -58,12 +58,12 @@ public final class BlockbenchElement extends BlockbenchElementSchema {
 
 		// Normalize dimensions (16 Blockbench units = 1 Minecraft block)
 		return new ObjectObjectImmutablePair<>(new Box(
-				-(vector1.x + originX) / 16,
-				-(vector1.y + originY) / 16,
-				-(vector1.z + originZ) / 16,
-				-(vector2.x + originX) / 16,
-				-(vector2.y + originY) / 16,
-				-(vector2.z + originZ) / 16
+			-(vector1.x + originX) / 16,
+			-(vector1.y + originY) / 16,
+			-(vector1.z + originZ) / 16,
+			-(vector2.x + originX) / 16,
+			-(vector2.y + originY) / 16,
+			-(vector2.z + originZ) / 16
 		), new ObjectObjectImmutablePair<>(storedMatrixTransformationsDisplay, new IntIntImmutablePair(sizeX, sizeY)));
 	}
 }

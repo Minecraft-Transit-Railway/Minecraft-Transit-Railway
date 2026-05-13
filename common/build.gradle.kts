@@ -54,4 +54,8 @@ tasks.register("setupFiles") {
 	Generator.generateJava(project, "schema/resource", "generated/resource", false, "core.data", "resource")
 	Generator.generateJava(project, "schema/legacy", "legacy/generated/resource", false)
 	WebserverSetup.setup(project.rootDir, "common/", "")
+	buildTools.fixImports(project, "generated")
+	buildTools.fixImports(project, "generated/config")
+	buildTools.fixImports(project, "generated/resource")
+	buildTools.fixImports(project, "legacy/generated/resource")
 }

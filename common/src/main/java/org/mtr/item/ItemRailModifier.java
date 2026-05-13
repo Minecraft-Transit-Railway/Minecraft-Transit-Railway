@@ -1,6 +1,5 @@
 package org.mtr.item;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.Item;
@@ -21,6 +20,7 @@ import org.mtr.core.data.TwoPositionsBase;
 import org.mtr.core.tool.Angle;
 import org.mtr.data.RailType;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.packet.PacketDeleteData;
 import org.mtr.packet.PacketUpdateData;
 import org.mtr.packet.PacketUpdateLastRailStyles;
@@ -90,10 +90,10 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 					final int differenceX = posEnd.getX() - posStart.getX();
 					final int differenceZ = posEnd.getZ() - posStart.getZ();
 					isValidContinuousMovement = !railType.isSavedRail && facingStart.isParallel(facingEnd)
-							&& ((facingStart == Angle.N || facingStart == Angle.S) && differenceX == 0
-							|| (facingStart == Angle.E || facingStart == Angle.W) && differenceZ == 0
-							|| (facingStart == Angle.NE || facingStart == Angle.SW) && differenceX == -differenceZ
-							|| (facingStart == Angle.SE || facingStart == Angle.NW) && differenceX == differenceZ);
+						&& ((facingStart == Angle.N || facingStart == Angle.S) && differenceX == 0
+						|| (facingStart == Angle.E || facingStart == Angle.W) && differenceZ == 0
+						|| (facingStart == Angle.NE || facingStart == Angle.SW) && differenceX == -differenceZ
+						|| (facingStart == Angle.SE || facingStart == Angle.NW) && differenceX == differenceZ);
 					newRailType = RailType.CABLE_CAR;
 				}
 			} else {
@@ -105,33 +105,33 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 			final Position positionEnd = MTR.blockPosToPosition(posEnd);
 			final Rail rail = switch (newRailType) {
 				case PLATFORM -> Rail.newPlatformRail(
-						positionStart, facingStart,
-						positionEnd, facingEnd,
-						Rail.Shape.QUADRATIC, 0, 0,
-						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-						new ObjectArrayList<>(), transportMode
+					positionStart, facingStart,
+					positionEnd, facingEnd,
+					Rail.Shape.QUADRATIC, 0, 0,
+					0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+					new ObjectArrayList<>(), transportMode
 				);
 				case SIDING -> Rail.newSidingRail(
-						positionStart, facingStart,
-						positionEnd, facingEnd,
-						Rail.Shape.QUADRATIC, 0, 0,
-						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-						new ObjectArrayList<>(), transportMode
+					positionStart, facingStart,
+					positionEnd, facingEnd,
+					Rail.Shape.QUADRATIC, 0, 0,
+					0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+					new ObjectArrayList<>(), transportMode
 				);
 				case TURN_BACK -> Rail.newTurnBackRail(
-						positionStart, facingStart,
-						positionEnd, facingEnd,
-						Rail.Shape.QUADRATIC, 0, 0,
-						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-						new ObjectArrayList<>(), transportMode
+					positionStart, facingStart,
+					positionEnd, facingEnd,
+					Rail.Shape.QUADRATIC, 0, 0,
+					0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+					new ObjectArrayList<>(), transportMode
 				);
 				default -> Rail.newRail(
-						positionStart, facingStart,
-						positionEnd, facingEnd,
-						newRailType.railShape, 0, 0,
-						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-						new ObjectArrayList<>(), isOneWay ? 0 : newRailType.speedLimit, newRailType.speedLimit,
-						false, false, newRailType.canAccelerate, newRailType == RailType.RUNWAY, newRailType.hasSignal, transportMode
+					positionStart, facingStart,
+					positionEnd, facingEnd,
+					newRailType.railShape, 0, 0,
+					0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+					new ObjectArrayList<>(), isOneWay ? 0 : newRailType.speedLimit, newRailType.speedLimit,
+					false, false, newRailType.canAccelerate, newRailType == RailType.RUNWAY, newRailType.hasSignal, transportMode
 				);
 			};
 

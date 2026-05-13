@@ -1,8 +1,5 @@
 package org.mtr.screen;
 
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -16,6 +13,9 @@ import org.mtr.client.IDrawing;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.packet.PacketUpdateEyeCandyConfig;
 import org.mtr.registry.RegistryClient;
 import org.mtr.resource.ObjectResource;
@@ -120,15 +120,15 @@ public class EyeCandyScreen extends ScreenBase implements IGui {
 
 	private void sendUpdate() {
 		RegistryClient.sendPacketToServer(new PacketUpdateEyeCandyConfig(
-				blockPos,
-				selectedModelIndices.isEmpty() ? null : Utilities.getElement(loadedObjects, (int) selectedModelIndices.getLong(0)).getId(),
-				parse(textFieldTranslateX.getText()),
-				parse(textFieldTranslateY.getText()),
-				parse(textFieldTranslateZ.getText()),
-				(float) Math.toRadians(parse(textFieldRotateX.getText())),
-				(float) Math.toRadians(parse(textFieldRotateY.getText())),
-				(float) Math.toRadians(parse(textFieldRotateZ.getText())),
-				buttonFullBrightness.isChecked()
+			blockPos,
+			selectedModelIndices.isEmpty() ? null : Utilities.getElement(loadedObjects, (int) selectedModelIndices.getLong(0)).getId(),
+			parse(textFieldTranslateX.getText()),
+			parse(textFieldTranslateY.getText()),
+			parse(textFieldTranslateZ.getText()),
+			(float) Math.toRadians(parse(textFieldRotateX.getText())),
+			(float) Math.toRadians(parse(textFieldRotateY.getText())),
+			(float) Math.toRadians(parse(textFieldRotateZ.getText())),
+			buttonFullBrightness.isChecked()
 		));
 	}
 

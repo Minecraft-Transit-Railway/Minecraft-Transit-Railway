@@ -1,10 +1,6 @@
 package org.mtr.render;
 
 import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
-import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -29,6 +25,10 @@ import org.mtr.core.data.Position;
 import org.mtr.core.tool.Vector;
 import org.mtr.data.IGui;
 import org.mtr.item.ItemLiftRefresher;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.registry.Items;
 import org.mtr.resource.LiftResource;
 import org.mtr.tool.Drawing;
@@ -79,15 +79,15 @@ public class RenderLifts implements IGui {
 							final ObjectArrayList<Vector> trackPositions = ItemLiftRefresher.findPath(clientWorld, position1, position2);
 							for (int i = 1; i < trackPositions.size(); i++) {
 								IDrawing.drawLineInWorld(
-										matrixStack,
-										vertexConsumer,
-										(float) (trackPositions.get(i - 1).x() - offset.x + 0.5),
-										(float) (trackPositions.get(i - 1).y() - offset.y + 0.5),
-										(float) (trackPositions.get(i - 1).z() - offset.z + 0.5),
-										(float) (trackPositions.get(i).x() - offset.x + 0.5),
-										(float) (trackPositions.get(i).y() - offset.y + 0.5),
-										(float) (trackPositions.get(i).z() - offset.z + 0.5),
-										ARGB_WHITE
+									matrixStack,
+									vertexConsumer,
+									(float) (trackPositions.get(i - 1).x() - offset.x + 0.5),
+									(float) (trackPositions.get(i - 1).y() - offset.y + 0.5),
+									(float) (trackPositions.get(i - 1).z() - offset.z + 0.5),
+									(float) (trackPositions.get(i).x() - offset.x + 0.5),
+									(float) (trackPositions.get(i).y() - offset.y + 0.5),
+									(float) (trackPositions.get(i).z() - offset.z + 0.5),
+									ARGB_WHITE
 								);
 							}
 						});
@@ -102,13 +102,13 @@ public class RenderLifts implements IGui {
 			cullingTasks.add(occlusionCullingInstance -> {
 				final double longestDimension = Math.max(lift.getHeight(), Math.max(lift.getWidth(), lift.getDepth()));
 				final boolean shouldRender = occlusionCullingInstance.isAABBVisible(new com.logisticscraft.occlusionculling.util.Vec3d(
-						absolutePositionAndRotation.position.x() - longestDimension,
-						absolutePositionAndRotation.position.y() - longestDimension,
-						absolutePositionAndRotation.position.z() - longestDimension
+					absolutePositionAndRotation.position.x() - longestDimension,
+					absolutePositionAndRotation.position.y() - longestDimension,
+					absolutePositionAndRotation.position.z() - longestDimension
 				), new com.logisticscraft.occlusionculling.util.Vec3d(
-						absolutePositionAndRotation.position.x() + longestDimension,
-						absolutePositionAndRotation.position.y() + longestDimension,
-						absolutePositionAndRotation.position.z() + longestDimension
+					absolutePositionAndRotation.position.x() + longestDimension,
+					absolutePositionAndRotation.position.y() + longestDimension,
+					absolutePositionAndRotation.position.z() + longestDimension
 				), camera);
 				return () -> liftWrapper.shouldRender = shouldRender;
 			});
@@ -197,10 +197,10 @@ public class RenderLifts implements IGui {
 				if (canRide) {
 					// Main logic for player movement inside the car
 					VehicleRidingMovement.movePlayer(
-							millisElapsed, lift.getId(), 0,
-							floorsAndDoorways,
-							null, null, null,
-							absolutePositionAndRotation
+						millisElapsed, lift.getId(), 0,
+						floorsAndDoorways,
+						null, null, null,
+						absolutePositionAndRotation
 					);
 				}
 			}
@@ -266,9 +266,9 @@ public class RenderLifts implements IGui {
 	private static PositionAndRotation getLiftPositionAndRotation(ClientWorld clientWorld, Lift lift) {
 		final Vector position = lift.getPosition((floorPosition1, floorPosition2) -> ItemLiftRefresher.findPath(clientWorld, floorPosition1, floorPosition2));
 		return new PositionAndRotation(new Vector(
-				position.x() + lift.getOffsetX(),
-				position.y() + lift.getOffsetY(),
-				position.z() + lift.getOffsetZ()
+			position.x() + lift.getOffsetX(),
+			position.y() + lift.getOffsetY(),
+			position.z() + lift.getOffsetZ()
 		), -Math.PI / 2 - lift.getAngle().angleRadians, 0, 0);
 	}
 }

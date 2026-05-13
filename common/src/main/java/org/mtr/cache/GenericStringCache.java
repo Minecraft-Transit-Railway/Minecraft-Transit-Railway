@@ -1,7 +1,7 @@
 package org.mtr.cache;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectCollection;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectCollection;
 
 public final class GenericStringCache<T> extends GenericCacheBase<T, String, Object2ObjectOpenHashMap<String, GenericCacheBase.DataHolder<T>>> {
 

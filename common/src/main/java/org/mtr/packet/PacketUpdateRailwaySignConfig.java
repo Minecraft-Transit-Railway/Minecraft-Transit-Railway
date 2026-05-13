@@ -1,6 +1,5 @@
 package org.mtr.packet;
 
-import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -8,6 +7,7 @@ import net.minecraft.util.math.BlockPos;
 import org.mtr.MTR;
 import org.mtr.block.BlockRailwaySign;
 import org.mtr.block.BlockRouteSignBase;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 
 public final class PacketUpdateRailwaySignConfig extends PacketHandler {
 

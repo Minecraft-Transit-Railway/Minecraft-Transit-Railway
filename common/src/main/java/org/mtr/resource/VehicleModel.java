@@ -1,8 +1,5 @@
 package org.mtr.resource;
 
-import com.google.gson.JsonObject;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.StringUtils;
 import org.mtr.MTR;
@@ -10,6 +7,9 @@ import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.resource.VehicleModelSchema;
+import org.mtr.libraries.com.google.gson.JsonObject;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.model.BlockbenchModelLoader;
 import org.mtr.model.BuiltVehicleModelHolder;
 import org.mtr.model.ModelLoaderBase;
@@ -45,20 +45,20 @@ public final class VehicleModel extends VehicleModelSchema {
 	}
 
 	VehicleModel(
-			String modelResource,
-			String textureResource,
-			String modelPropertiesResource,
-			String positionDefinitionsResource,
-			boolean flipTextureV,
-			ResourceProvider resourceProvider
+		String modelResource,
+		String textureResource,
+		String modelPropertiesResource,
+		String positionDefinitionsResource,
+		boolean flipTextureV,
+		ResourceProvider resourceProvider
 	) {
 		super(
-				modelResource,
-				textureResource,
-				modelPropertiesResource,
-				positionDefinitionsResource,
-				flipTextureV,
-				resourceProvider
+			modelResource,
+			textureResource,
+			modelPropertiesResource,
+			positionDefinitionsResource,
+			flipTextureV,
+			resourceProvider
 		);
 		modelPropertiesJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelPropertiesResource, "json"))));
 		positionDefinitionsJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(positionDefinitionsResource, "json"))));
@@ -140,10 +140,10 @@ public final class VehicleModel extends VehicleModelSchema {
 		} else if (modelResource.endsWith(".obj")) {
 			final ObjModelLoader objModelLoader = new ObjModelLoader(texture);
 			objModelLoader.loadModel(
-					resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
-					mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
-					textureString -> StringUtils.isEmpty(textureString) ? Identifier.of(MTR.MOD_ID, "textures/block/white.png") : StringUtils.equals(textureString, "default.png") ? texture : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
-					true, flipTextureV
+				resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
+				mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
+				textureString -> StringUtils.isEmpty(textureString) ? Identifier.of(MTR.MOD_ID, "textures/block/white.png") : StringUtils.equals(textureString, "default.png") ? texture : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
+				true, flipTextureV
 			);
 			// TODO transform object if needed
 			modelLoaderBase = objModelLoader;

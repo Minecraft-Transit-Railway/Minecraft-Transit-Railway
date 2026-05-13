@@ -1,10 +1,5 @@
 package org.mtr.resource;
 
-import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -21,6 +16,11 @@ import org.mtr.data.VehicleExtension;
 import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.generated.resource.ModelPropertiesPartSchema;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.model.NewOptimizedModelGroup;
 import org.mtr.render.MainRenderer;
 import org.mtr.render.QueuedRenderLayer;
@@ -59,53 +59,53 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 	}
 
 	ModelPropertiesPart(
-			ObjectArrayList<String> names,
-			ObjectArrayList<String> positionDefinitions,
-			PartCondition condition,
-			RenderStage renderStage,
-			PartType type,
-			double displayXPadding,
-			double displayYPadding,
-			String displayColorCjk,
-			String displayColor,
-			double displayMaxLineHeight,
-			double displayCjkSizeRatio,
-			ObjectArrayList<String> displayOptions,
-			double displayPadZeros,
-			DisplayType displayType,
-			String displayDefaultText,
-			double doorXMultiplier,
-			double doorZMultiplier,
-			DoorAnimationType doorAnimationType,
-			long renderFromOpeningDoorTime,
-			long renderUntilOpeningDoorTime,
-			long renderFromClosingDoorTime,
-			long renderUntilClosingDoorTime,
-			long flashOnTime,
-			long flashOffTime
+		ObjectArrayList<String> names,
+		ObjectArrayList<String> positionDefinitions,
+		PartCondition condition,
+		RenderStage renderStage,
+		PartType type,
+		double displayXPadding,
+		double displayYPadding,
+		String displayColorCjk,
+		String displayColor,
+		double displayMaxLineHeight,
+		double displayCjkSizeRatio,
+		ObjectArrayList<String> displayOptions,
+		double displayPadZeros,
+		DisplayType displayType,
+		String displayDefaultText,
+		double doorXMultiplier,
+		double doorZMultiplier,
+		DoorAnimationType doorAnimationType,
+		long renderFromOpeningDoorTime,
+		long renderUntilOpeningDoorTime,
+		long renderFromClosingDoorTime,
+		long renderUntilClosingDoorTime,
+		long flashOnTime,
+		long flashOffTime
 	) {
 		super(
-				condition,
-				renderStage,
-				type,
-				displayXPadding,
-				displayYPadding,
-				displayColorCjk,
-				displayColor,
-				displayMaxLineHeight,
-				displayCjkSizeRatio,
-				displayPadZeros,
-				displayType,
-				displayDefaultText,
-				doorXMultiplier,
-				doorZMultiplier,
-				doorAnimationType,
-				renderFromOpeningDoorTime,
-				renderUntilOpeningDoorTime,
-				renderFromClosingDoorTime,
-				renderUntilClosingDoorTime,
-				flashOnTime,
-				flashOffTime
+			condition,
+			renderStage,
+			type,
+			displayXPadding,
+			displayYPadding,
+			displayColorCjk,
+			displayColor,
+			displayMaxLineHeight,
+			displayCjkSizeRatio,
+			displayPadZeros,
+			displayType,
+			displayDefaultText,
+			doorXMultiplier,
+			doorZMultiplier,
+			doorAnimationType,
+			renderFromOpeningDoorTime,
+			renderUntilOpeningDoorTime,
+			renderFromClosingDoorTime,
+			renderUntilClosingDoorTime,
+			flashOnTime,
+			flashOffTime
 		);
 		this.names.addAll(names);
 		this.positionDefinitions.addAll(positionDefinitions);
@@ -120,15 +120,15 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 	 * If this part is a door, create an optimized model to be rendered later.
 	 */
 	public void writeCache(
-			ConcurrentHashMap<String, NewOptimizedModelGroup> nameToNewOptimizedModelGroup,
-			ConcurrentHashMap<String, ObjectArrayList<ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>>> nameToRawModelDisplayParts,
-			PositionDefinitions positionDefinitionsObject,
-			Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> rawModels,
-			ObjectArrayList<RawDoorModelDetails> rawDoorModelDetailsList,
-			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<ModelDisplayPart>> displays,
-			ObjectArrayList<Box> floors,
-			ObjectArrayList<Box> doorways,
-			double modelYOffset
+		ConcurrentHashMap<String, NewOptimizedModelGroup> nameToNewOptimizedModelGroup,
+		ConcurrentHashMap<String, ObjectArrayList<ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>>> nameToRawModelDisplayParts,
+		PositionDefinitions positionDefinitionsObject,
+		Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> rawModels,
+		ObjectArrayList<RawDoorModelDetails> rawDoorModelDetailsList,
+		Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<ModelDisplayPart>> displays,
+		ObjectArrayList<Box> floors,
+		ObjectArrayList<Box> doorways,
+		double modelYOffset
 	) {
 		final ObjectArrayList<NewOptimizedModelGroup> newOptimizedModelGroups = new ObjectArrayList<>();
 		final ObjectArrayList<Box> boxes = new ObjectArrayList<>();
@@ -173,8 +173,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 					break;
 				case DISPLAY:
 					iteratePositions(positions, positionsFlipped, (x, y, z, flipped) -> rawModelDisplayPartsList.forEach(rawModelDisplayPart -> displays
-							.computeIfAbsent(condition, key -> new ObjectArrayList<>())
-							.add(new ModelDisplayPart(this, rawModelDisplayPart.left(), rawModelDisplayPart.right().leftInt(), rawModelDisplayPart.right().rightInt(), x, -y + modelYOffset, -z, flipped))
+						.computeIfAbsent(condition, key -> new ObjectArrayList<>())
+						.add(new ModelDisplayPart(this, rawModelDisplayPart.left(), rawModelDisplayPart.right().leftInt(), rawModelDisplayPart.right().rightInt(), x, -y + modelYOffset, -z, flipped))
 					));
 					break;
 			}
@@ -205,12 +205,12 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 				final float yOffset = box.minY == box.maxY ? 0.1F : 0;
 				final float zOffset = box.minZ == box.maxZ ? 0.1F : 0;
 				boxes.add(new Box(
-						box.minX - xOffset + x,
-						box.minY - yOffset,
-						box.minZ - zOffset + z,
-						box.maxX + xOffset + x,
-						box.maxY + yOffset,
-						box.maxZ + zOffset + z
+					box.minX - xOffset + x,
+					box.minY - yOffset,
+					box.minZ - zOffset + z,
+					box.maxX + xOffset + x,
+					box.maxY + yOffset,
+					box.maxZ + zOffset + z
 				));
 			});
 		}
@@ -241,29 +241,29 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 
 	void addToModelPropertiesPartWrapperMap(PositionDefinitions actualPositionDefinitions, ObjectArrayList<ModelPropertiesPartWrapper> parts) {
 		names.forEach(modelPartName -> positionDefinitions.forEach(positionDefinitionName -> actualPositionDefinitions.getPositionDefinition(positionDefinitionName, (positions, positionsFlipped) -> parts.add(new ModelPropertiesPartWrapper(
-				new PositionDefinition(modelPartName, positions, positionsFlipped),
-				condition,
-				renderStage,
-				type,
-				displayXPadding,
-				displayYPadding,
-				displayColorCjk,
-				displayColor,
-				displayMaxLineHeight,
-				displayCjkSizeRatio,
-				displayOptions,
-				displayPadZeros,
-				displayType,
-				displayDefaultText,
-				doorXMultiplier,
-				doorZMultiplier,
-				doorAnimationType,
-				renderFromOpeningDoorTime,
-				renderUntilOpeningDoorTime,
-				renderFromClosingDoorTime,
-				renderUntilClosingDoorTime,
-				flashOnTime,
-				flashOffTime
+			new PositionDefinition(modelPartName, positions, positionsFlipped),
+			condition,
+			renderStage,
+			type,
+			displayXPadding,
+			displayYPadding,
+			displayColorCjk,
+			displayColor,
+			displayMaxLineHeight,
+			displayCjkSizeRatio,
+			displayOptions,
+			displayPadZeros,
+			displayType,
+			displayDefaultText,
+			doorXMultiplier,
+			doorZMultiplier,
+			doorAnimationType,
+			renderFromOpeningDoorTime,
+			renderUntilOpeningDoorTime,
+			renderFromClosingDoorTime,
+			renderUntilClosingDoorTime,
+			flashOnTime,
+			flashOffTime
 		)))));
 	}
 
@@ -289,10 +289,10 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 				matrixStack.translate(0, 0, -IGui.SMALL_OFFSET);
 
 				new Drawing(matrixStack, vertexConsumer).setVertices(
-						displayXPadding / 16,
-						displayYPadding / 16,
-						(modelDisplayPart.width - displayXPadding) / 16,
-						(modelDisplayPart.height - displayYPadding) / 16
+					displayXPadding / 16,
+					displayYPadding / 16,
+					(modelDisplayPart.width - displayXPadding) / 16,
+					(modelDisplayPart.height - displayYPadding) / 16
 				).setColor(color).setLight().setUv().draw();
 
 				matrixStack.pop();
@@ -315,14 +315,14 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 				matrixStack.translate(0, displayYPadding / 16, -IGui.SMALL_OFFSET);
 
 				IDrawing.drawSevenSegment(
-						matrixStack,
-						vertexConsumer,
-						text,
-						(modelDisplayPart.width - (float) displayXPadding * 2) / 16,
-						0, 0,
-						(modelDisplayPart.height - (float) displayYPadding * 2) / 16,
-						horizontalAlignment,
-						IGui.ARGB_BLACK | displayColorInt, IGui.DEFAULT_LIGHT
+					matrixStack,
+					vertexConsumer,
+					text,
+					(modelDisplayPart.width - (float) displayXPadding * 2) / 16,
+					0, 0,
+					(modelDisplayPart.height - (float) displayYPadding * 2) / 16,
+					horizontalAlignment,
+					IGui.ARGB_BLACK | displayColorInt, IGui.DEFAULT_LIGHT
 				);
 
 				matrixStack.pop();
@@ -375,15 +375,15 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 				matrixStack.translate(displayXPadding / 16, displayYPadding / 16, -IGui.SMALL_OFFSET);
 
 				FontRenderHelper.render(matrixStack, text, FontRenderOptions.builder()
-						.color(new Color(displayColorInt))
-						.cjkColor(new Color(displayColorCjkInt))
-						.cjkScaling((float) displayCjkSizeRatio)
-						.maxFontSize((float) displayMaxLineHeight)
-						.horizontalSpace((float) (modelDisplayPart.width - displayXPadding * 2) / 16)
-						.horizontalTextAlignment(getHorizontalAlignment(true))
-						.verticalSpace((float) (modelDisplayPart.height - displayYPadding * 2) / 16)
-						.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
-						.build()
+					.color(new Color(displayColorInt))
+					.cjkColor(new Color(displayColorCjkInt))
+					.cjkScaling((float) displayCjkSizeRatio)
+					.maxFontSize((float) displayMaxLineHeight)
+					.horizontalSpace((float) (modelDisplayPart.width - displayXPadding * 2) / 16)
+					.horizontalTextAlignment(getHorizontalAlignment(true))
+					.verticalSpace((float) (modelDisplayPart.height - displayYPadding * 2) / 16)
+					.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
+					.build()
 				);
 
 				matrixStack.pop();
@@ -487,8 +487,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 
 	private static Box addBox(Box box, double x, double y, double z, boolean flipped) {
 		return new Box(
-				(flipped ? -1 : 1) * box.minX + x, box.minY + y, (flipped ? 1 : -1) * box.minZ + z,
-				(flipped ? -1 : 1) * box.maxX + x, box.maxY + y, (flipped ? 1 : -1) * box.maxZ + z
+			(flipped ? -1 : 1) * box.minX + x, box.minY + y, (flipped ? 1 : -1) * box.minZ + z,
+			(flipped ? -1 : 1) * box.maxX + x, box.maxY + y, (flipped ? 1 : -1) * box.maxZ + z
 		);
 	}
 
@@ -563,13 +563,13 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 	}
 
 	public record RawDoorModelDetails(
-			Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> rawModels,
-			ModelPropertiesPart modelPropertiesPart,
-			ObjectArrayList<Box> boxes,
-			double x,
-			double y,
-			double z,
-			boolean flipped
+		Object2ObjectOpenHashMap<PartCondition, NewOptimizedModelGroup> rawModels,
+		ModelPropertiesPart modelPropertiesPart,
+		ObjectArrayList<Box> boxes,
+		double x,
+		double y,
+		double z,
+		boolean flipped
 	) {
 	}
 

@@ -1,7 +1,5 @@
 package org.mtr.render;
 
-import it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
-import it.unimi.dsi.fastutil.doubles.DoubleObjectImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -15,6 +13,8 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.data.RailType;
 import org.mtr.data.VehicleExtension;
+import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleObjectImmutablePair;
 import org.mtr.tool.Drawing;
 
 import javax.annotation.Nullable;
@@ -68,12 +68,12 @@ public final class DrivingGuiRenderer {
 			matrixStack.push();
 			for (int i = 0; i < 180; i += SPEEDOMETER_CIRCLE_INTERVAL) {
 				drawing.setVertices(
-						-radius, -(float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2,
-						radius, (float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2
+					-radius, -(float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2,
+					radius, (float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2
 				).setColor(0xFF666666).draw();
 				drawing.setVertices(
-						-radius + 1, -(float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2,
-						radius - 1, (float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2
+					-radius + 1, -(float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2,
+					radius - 1, (float) SPEEDOMETER_CIRCLE_EDGE_LENGTH / 2
 				).setColor(0xFF111111).draw();
 				Drawing.rotateZDegrees(matrixStack, SPEEDOMETER_CIRCLE_INTERVAL);
 			}
@@ -85,8 +85,8 @@ public final class DrivingGuiRenderer {
 			Drawing.rotateZDegrees(matrixStack, ATS_INTERVAL * 2.5F);
 			for (float i = 0; i < ATS_SLICES; i++) {
 				drawing.setVertices(
-						-ATS_RADIUS_1, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_1,
-						ATS_RADIUS_1, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_1
+					-ATS_RADIUS_1, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_1,
+					ATS_RADIUS_1, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_1
 				).setColor(0xFF1A1A1A).draw();
 				Drawing.rotateZDegrees(matrixStack, ATS_INTERVAL);
 			}
@@ -96,23 +96,23 @@ public final class DrivingGuiRenderer {
 				if (i % 8 < 4) {
 					if (vehicle.isVehiclePastSafeStoppingDistance()) {
 						drawing.setVertices(
-								-ATS_RADIUS_2, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_2, 0,
-								-ATS_RADIUS_2, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_2, 0,
-								-ATS_RADIUS_3, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_3, 0,
-								-ATS_RADIUS_3, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_3, 0
+							-ATS_RADIUS_2, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_2, 0,
+							-ATS_RADIUS_2, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_2, 0,
+							-ATS_RADIUS_3, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_3, 0,
+							-ATS_RADIUS_3, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_3, 0
 						).setColor(ORANGE_COLOR).draw();
 						drawing.setVertices(
-								-ATS_RADIUS_3, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_3, 0,
-								-ATS_RADIUS_3, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_3, 0,
-								-ATS_RADIUS_4, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_4, 0,
-								-ATS_RADIUS_4, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_4, 0
+							-ATS_RADIUS_3, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_3, 0,
+							-ATS_RADIUS_3, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_3, 0,
+							-ATS_RADIUS_4, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_4, 0,
+							-ATS_RADIUS_4, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_4, 0
 						).setColor(IGui.ARGB_WHITE).draw();
 					} else {
 						drawing.setVertices(
-								-ATS_RADIUS_2, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_2, 0,
-								-ATS_RADIUS_2, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_2, 0,
-								-ATS_RADIUS_4, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_4, 0,
-								-ATS_RADIUS_4, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_4, 0
+							-ATS_RADIUS_2, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_2, 0,
+							-ATS_RADIUS_2, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_2, 0,
+							-ATS_RADIUS_4, (float) ATS_CIRCLE_EDGE_HALF_LENGTH_4, 0,
+							-ATS_RADIUS_4, -(float) ATS_CIRCLE_EDGE_HALF_LENGTH_4, 0
 						).setColor(0xFF222222).draw();
 					}
 				}
@@ -126,8 +126,8 @@ public final class DrivingGuiRenderer {
 			Drawing.rotateZDegrees(matrixStack, SPEEDOMETER_START_ANGLE);
 			for (int i = 0; i <= maxSpeedKilometersPerHour; i += SPEEDOMETER_TICK_INTERVAL) {
 				drawing.setVertices(
-						-radius + 2, -0.5F,
-						-radius + (i % 20 == 0 ? 10 : i % 10 == 0 ? 8 : 4), 0.5F
+					-radius + 2, -0.5F,
+					-radius + (i % 20 == 0 ? 10 : i % 10 == 0 ? 8 : 4), 0.5F
 				).setColor(vehicle.getSpeedLimitKilometersPerHour() > 0 && i == Math.min(vehicle.getSpeedLimitKilometersPerHour(), maxSpeedKilometersPerHour) ? 0xFF00FF00 : IGui.ARGB_WHITE);
 				Drawing.rotateZDegrees(matrixStack, (float) SPEEDOMETER_TICK_INTERVAL * SPEEDOMETER_SPAN / maxSpeedKilometersPerHour);
 			}
@@ -190,8 +190,8 @@ public final class DrivingGuiRenderer {
 			matrixStack.push();
 			Drawing.rotateZDegrees(matrixStack, SPEEDOMETER_START_ANGLE + (float) speedKilometersPerHour * SPEEDOMETER_SPAN / maxSpeedKilometersPerHour);
 			drawing.setVertices(
-					-radius + 4, -0.5F,
-					0, 0.5F
+				-radius + 4, -0.5F,
+				0, 0.5F
 			).setColor(0xFFFF0000);
 			matrixStack.pop();
 

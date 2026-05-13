@@ -1,6 +1,5 @@
 package org.mtr.item;
 
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -17,6 +16,7 @@ import org.mtr.core.operation.DataResponse;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.packet.PacketOpenDashboardScreen;
 
 import javax.annotation.Nullable;

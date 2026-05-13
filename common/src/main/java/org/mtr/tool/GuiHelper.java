@@ -3,8 +3,6 @@ package org.mtr.tool;
 import gg.essential.elementa.components.UIContainer;
 import gg.essential.elementa.components.UIWrappedText;
 import gg.essential.elementa.constraints.*;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
@@ -12,6 +10,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.widget.ListComponent;
 import org.mtr.widget.ScrollPanelComponent;
 import org.mtr.widget.SlotBackgroundComponent;
@@ -95,22 +95,22 @@ public final class GuiHelper {
 	 */
 	public static void createLabel(UIContainer container, String text) {
 		final UIContainer innerContainer = (UIContainer) new UIContainer()
-				.setChildOf(container)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint())
-				.setHeight(new ChildBasedSizeConstraint());
+			.setChildOf(container)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint())
+			.setHeight(new ChildBasedSizeConstraint());
 
 		new UIWrappedText(text, false)
-				.setChildOf(innerContainer)
-				.setWidth(new RelativeConstraint())
-				.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR))
-				.setTextScale(new PixelConstraint(0.8F));
+			.setChildOf(innerContainer)
+			.setWidth(new RelativeConstraint())
+			.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR))
+			.setTextScale(new PixelConstraint(0.8F));
 
 		new UIContainer()
-				.setChildOf(innerContainer)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint())
-				.setHeight(new PixelConstraint(1));
+			.setChildOf(innerContainer)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint())
+			.setHeight(new PixelConstraint(1));
 	}
 
 	/**
@@ -120,10 +120,10 @@ public final class GuiHelper {
 	 */
 	public static void createSpacing(UIContainer container) {
 		new UIContainer()
-				.setChildOf(container)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint())
-				.setHeight(new PixelConstraint(GuiHelper.DEFAULT_PADDING));
+			.setChildOf(container)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint())
+			.setHeight(new PixelConstraint(GuiHelper.DEFAULT_PADDING));
 	}
 
 	/**
@@ -136,11 +136,11 @@ public final class GuiHelper {
 		slotBackgroundComponent.setBackgroundColor(Color.BLACK);
 
 		final ScrollPanelComponent scrollPanelComponent = (ScrollPanelComponent) new ScrollPanelComponent(false)
-				.setChildOf(slotBackgroundComponent)
-				.setX(new CenterConstraint())
-				.setY(new CenterConstraint())
-				.setWidth(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)))
-				.setHeight(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)));
+			.setChildOf(slotBackgroundComponent)
+			.setX(new CenterConstraint())
+			.setY(new CenterConstraint())
+			.setWidth(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)))
+			.setHeight(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)));
 
 		scrollPanelComponent.setScrollbarColor(Color.WHITE);
 
@@ -154,9 +154,9 @@ public final class GuiHelper {
 		final long timeG = (timeR + 1000) % 3000;
 		final long timeB = (timeR + 2000) % 3000;
 		return new Color(
-				timeR < 2000 ? (float) Math.sin(timeR * Math.PI / 2000) : 0,
-				timeG < 2000 ? (float) Math.sin(timeG * Math.PI / 2000) : 0,
-				timeB < 2000 ? (float) Math.sin(timeB * Math.PI / 2000) : 0
+			timeR < 2000 ? (float) Math.sin(timeR * Math.PI / 2000) : 0,
+			timeG < 2000 ? (float) Math.sin(timeG * Math.PI / 2000) : 0,
+			timeB < 2000 ? (float) Math.sin(timeB * Math.PI / 2000) : 0
 		);
 	}
 
@@ -226,10 +226,10 @@ public final class GuiHelper {
 					circleColorPartsToRemove++;
 				}
 				drawing.setVertices(
-						x + emptySpace,
-						y + Math.max(circlePart.sliceStart, circleColorPart.sliceStart),
-						x + diameter - emptySpace,
-						y + Math.min(circlePart.sliceEnd, circleColorPart.sliceEnd)
+					x + emptySpace,
+					y + Math.max(circlePart.sliceStart, circleColorPart.sliceStart),
+					x + diameter - emptySpace,
+					y + Math.min(circlePart.sliceEnd, circleColorPart.sliceEnd)
 				).setColor(ColorHelper.fullAlpha(circleColorPart.color)).draw();
 			}
 			for (int i = 0; i < circleColorPartsToRemove; i++) {

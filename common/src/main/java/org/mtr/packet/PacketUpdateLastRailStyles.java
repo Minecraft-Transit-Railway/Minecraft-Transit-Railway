@@ -1,9 +1,5 @@
 package org.mtr.packet;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.mtr.client.CustomResourceLoader;
@@ -13,6 +9,10 @@ import org.mtr.core.data.TransportMode;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.EnumHelper;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectList;
 import org.mtr.registry.RegistryClient;
 
 import java.util.UUID;
@@ -67,13 +67,13 @@ public final class PacketUpdateLastRailStyles extends PacketHandler {
 		public boolean canApplyStylesToRail(UUID uuid, Rail rail, boolean modifyRail) {
 			final ObjectArrayList<String> lastStyles = cache.getOrDefault(uuid, getDefaultStyles()).get(rail.getTransportMode());
 			final ObjectImmutableList<String> railStyles = rail.getStyles();
-			if (Utilities.sameItems(lastStyles, railStyles)) {
-				return false;
-			} else {
+			if (Utilities.differentItems(lastStyles, railStyles)) {
 				if (modifyRail) {
 					RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(getRailWithLastStyles(uuid, rail))));
 				}
 				return true;
+			} else {
+				return false;
 			}
 		}
 

@@ -40,6 +40,13 @@ subprojects {
 		maven { url = uri("https://repo.codemc.org/repository/maven-public") }
 		maven { url = uri("https://maven.terraformersmc.com/") }
 		maven { url = uri("https://repo.essential.gg/repository/maven-public") }
+		maven {
+			url = uri("https://maven.pkg.github.com/Minecraft-Transit-Railway/Transport-Simulation-Core")
+			credentials {
+				username = providers.gradleProperty("gpr.user").getOrNull() ?: "github-actions"
+				password = providers.gradleProperty("gpr.key").getOrNull() ?: System.getenv("GITHUB_TOKEN")
+			}
+		}
 	}
 
 	dependencies {
@@ -51,9 +58,7 @@ subprojects {
 			}
 		)
 		implementation("com.google.code.findbugs:jsr305:+")
-		implementation("org.mtr:Shadow-Libraries-net:0.0.1")
-		implementation("org.mtr:Shadow-Libraries-util:0.0.1")
-		implementation("org.mtr:Transport-Simulation-Core:0.0.1")
+		implementation("org.mtr:transport-simulation-core:+")
 		implementation("com.logisticscraft:occlusionculling:+")
 		implementation("gg.essential:elementa:$elementaVersion")
 	}

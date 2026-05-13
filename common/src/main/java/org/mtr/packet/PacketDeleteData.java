@@ -1,6 +1,6 @@
 package org.mtr.packet;
 
-import com.google.gson.JsonObject;
+import org.mtr.libraries.com.google.gson.JsonObject;
 import net.minecraft.server.world.ServerWorld;
 import org.mtr.MTR;
 import org.mtr.block.BlockNode;

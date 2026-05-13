@@ -1,6 +1,5 @@
 package org.mtr.item;
 
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -13,6 +12,7 @@ import net.minecraft.world.World;
 import org.mtr.block.BlockNode;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Rail;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.packet.PacketUpdateLastRailStyles;
 
 import javax.annotation.Nonnull;

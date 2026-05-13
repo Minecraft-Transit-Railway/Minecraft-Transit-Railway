@@ -1,15 +1,15 @@
 package org.mtr.screen;
 
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import org.mtr.client.CustomResourceLoader;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Rail;
 import org.mtr.core.operation.UpdateDataRequest;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.packet.PacketUpdateData;
 import org.mtr.packet.PacketUpdateLastRailStyles;
 import org.mtr.registry.RegistryClient;

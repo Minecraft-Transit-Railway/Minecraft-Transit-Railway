@@ -1,7 +1,5 @@
 package org.mtr.item;
 
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -22,6 +20,8 @@ import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Angle;
 import org.mtr.core.tool.EnumHelper;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.registry.DataComponentTypes;
 
 import javax.annotation.Nullable;
@@ -91,21 +91,21 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 
 	public static void getRail(World world, BlockPos blockPos1, BlockPos blockPos2, @Nullable ServerPlayerEntity serverPlayerEntity, Consumer<Rail> consumer) {
 		MTR.sendMessageC2S(
-				OperationProcessor.RAILS,
-				world.getServer(),
-				world,
-				new RailsRequest().addRailId(TwoPositionsBase.getHexId(MTR.blockPosToPosition(blockPos1), MTR.blockPosToPosition(blockPos2))),
-				railsResponse -> {
-					final ObjectImmutableList<Rail> rails = railsResponse.getRails();
-					if (rails.isEmpty()) {
-						if (serverPlayerEntity != null) {
-							serverPlayerEntity.sendMessage(TranslationProvider.GUI_MTR_RAIL_NOT_FOUND_ACTION.getText(), true);
-						}
-					} else {
-						consumer.accept(rails.get(0));
+			OperationProcessor.RAILS,
+			world.getServer(),
+			world,
+			new RailsRequest().addRailId(TwoPositionsBase.getHexId(MTR.blockPosToPosition(blockPos1), MTR.blockPosToPosition(blockPos2))),
+			railsResponse -> {
+				final ObjectImmutableList<Rail> rails = railsResponse.getRails();
+				if (rails.isEmpty()) {
+					if (serverPlayerEntity != null) {
+						serverPlayerEntity.sendMessage(TranslationProvider.GUI_MTR_RAIL_NOT_FOUND_ACTION.getText(), true);
 					}
-				},
-				RailsResponse.class
+				} else {
+					consumer.accept(rails.get(0));
+				}
+			},
+			RailsResponse.class
 		);
 	}
 

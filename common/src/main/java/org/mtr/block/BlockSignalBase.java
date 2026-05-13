@@ -1,8 +1,5 @@
 package org.mtr.block;
 
-import it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
@@ -26,6 +23,9 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.mtr.core.operation.BlockRails;
 import org.mtr.core.tool.Angle;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.packet.PacketBlockRails;
 import org.mtr.packet.PacketOpenBlockEntityScreen;
 import org.mtr.packet.PacketTurnOnBlockEntity;

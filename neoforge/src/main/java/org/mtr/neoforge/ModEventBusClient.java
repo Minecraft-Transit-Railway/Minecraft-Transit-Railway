@@ -1,6 +1,5 @@
 package org.mtr.neoforge;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.option.KeyBinding;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -11,6 +10,7 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
 import org.mtr.MTR;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.function.Consumer;
 

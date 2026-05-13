@@ -1,10 +1,6 @@
 package org.mtr.screen;
 
 import gg.essential.universal.UMinecraft;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
@@ -21,6 +17,10 @@ import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.packet.PacketDeleteData;
 import org.mtr.packet.PacketUpdateData;
 import org.mtr.registry.RegistryClient;
@@ -345,10 +345,10 @@ public final class DashboardScreen extends ScreenBase {
 					ScrollableListWidget.setRoutes(routesListWidget, MinecraftClientData.getDashboardInstance().routes, transportMode, actions);
 				} else {
 					ScrollableListWidget.setRoutePlatforms(routePlatformsListWidget, editingRoute.getRoutePlatforms(), hasPermission ? ObjectArrayList.of(
-							new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (indexList, routePlatformData) -> startEditingRouteDestination(indexList.getFirst())),
-							ScrollableListWidget.createUpButton(editingRoute.getRoutePlatforms(), null),
-							ScrollableListWidget.createDownButton(editingRoute.getRoutePlatforms(), null),
-							new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (indexList, routePlatformData) -> Utilities.removeElement(editingRoute.getRoutePlatforms(), indexList.getFirst()))
+						new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (indexList, routePlatformData) -> startEditingRouteDestination(indexList.getFirst())),
+						ScrollableListWidget.createUpButton(editingRoute.getRoutePlatforms(), null),
+						ScrollableListWidget.createDownButton(editingRoute.getRoutePlatforms(), null),
+						new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (indexList, routePlatformData) -> Utilities.removeElement(editingRoute.getRoutePlatforms(), indexList.getFirst()))
 					) : new ObjectArrayList<>());
 				}
 			}

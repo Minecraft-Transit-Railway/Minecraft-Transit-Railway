@@ -1,7 +1,5 @@
 package org.mtr.screen;
 
-import com.google.gson.JsonObject;
-import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -19,6 +17,8 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.com.google.gson.JsonObject;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.resource.VehicleResource;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
@@ -166,27 +166,27 @@ public final class VehicleSelectorScreen extends ScreenBase {
 				}
 
 				childFilterListItems.add(ListItem.createChild(
-						(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING * 3 / 2F, y + GuiHelper.DEFAULT_PADDING * 3 / 2F, GuiHelper.DEFAULT_PADDING, GuiHelper.DEFAULT_PADDING).setColor(childSelected ? GuiHelper.RED_COLOR : GuiHelper.BLACK_COLOR).draw(),
-						null,
-						GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
-						new Filter(tagName, tag, vehicleIds, childSelected),
-						tag,
-						ObjectArrayList.of(
-								new ObjectObjectImmutablePair<>(childSelected ? GuiHelper.DELETE_TEXTURE_ID : GuiHelper.ADD_TEXTURE_ID, (indexList, filter) -> {
-									// Click action to modify the selected tags
-									if (childSelected) {
-										selectedChildren.remove(tag);
-										if (selectedChildren.isEmpty()) {
-											selectedTags.remove(tagName);
-										}
-									} else {
-										selectedTags.computeIfAbsent(tagName, key -> new ObjectOpenHashSet<>()).add(tag);
-									}
+					(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING * 3 / 2F, y + GuiHelper.DEFAULT_PADDING * 3 / 2F, GuiHelper.DEFAULT_PADDING, GuiHelper.DEFAULT_PADDING).setColor(childSelected ? GuiHelper.RED_COLOR : GuiHelper.BLACK_COLOR).draw(),
+					null,
+					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
+					new Filter(tagName, tag, vehicleIds, childSelected),
+					tag,
+					ObjectArrayList.of(
+						new ObjectObjectImmutablePair<>(childSelected ? GuiHelper.DELETE_TEXTURE_ID : GuiHelper.ADD_TEXTURE_ID, (indexList, filter) -> {
+							// Click action to modify the selected tags
+							if (childSelected) {
+								selectedChildren.remove(tag);
+								if (selectedChildren.isEmpty()) {
+									selectedTags.remove(tagName);
+								}
+							} else {
+								selectedTags.computeIfAbsent(tagName, key -> new ObjectOpenHashSet<>()).add(tag);
+							}
 
-									// Update the list widgets after filters have changed
-									updateListWidgets();
-								})
-						)
+							// Update the list widgets after filters have changed
+							updateListWidgets();
+						})
+					)
 				));
 			});
 
@@ -196,12 +196,12 @@ public final class VehicleSelectorScreen extends ScreenBase {
 			// Build the parent list item
 			final boolean parentSelected = !selectedChildren.isEmpty();
 			filterListItems.add(ListItem.createParent(
-					(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(parentSelected ? GuiHelper.RED_COLOR : GuiHelper.DARK_GRAY_COLOR).draw(),
-					null,
-					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
-					tagName + (parentSelected ? String.format(" (%s)", selectedChildren.size()) : ""),
-					tagName,
-					childFilterListItems
+				(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(parentSelected ? GuiHelper.RED_COLOR : GuiHelper.DARK_GRAY_COLOR).draw(),
+				null,
+				GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
+				tagName + (parentSelected ? String.format(" (%s)", selectedChildren.size()) : ""),
+				tagName,
+				childFilterListItems
 			));
 		});
 
@@ -219,17 +219,17 @@ public final class VehicleSelectorScreen extends ScreenBase {
 
 				// Build the child list item
 				final ListItem<VehicleResource> childListItem = ListItem.createChild(
-						(drawing, x, y) -> drawVehicleIcon(drawing, (int) x, y, canAddCar, true, vehicleResource.getColor()),
-						(matrixStack, x, y) -> drawVehicleIcon(matrixStack, (int) x, y, canAddCar),
-						GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
-						vehicleResource,
-						vehicleResource.getName().getString(),
-						ObjectArrayList.of(
-								new ObjectObjectImmutablePair<>(GuiHelper.ADD_TEXTURE_ID, (indexList, vehicleResource1) -> {
-									selectedVehicleCars.add(toVehicleCar(vehicleResource1));
-									updateListWidgets();
-								})
-						)
+					(drawing, x, y) -> drawVehicleIcon(drawing, (int) x, y, canAddCar, true, vehicleResource.getColor()),
+					(matrixStack, x, y) -> drawVehicleIcon(matrixStack, (int) x, y, canAddCar),
+					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
+					vehicleResource,
+					vehicleResource.getName().getString(),
+					ObjectArrayList.of(
+						new ObjectObjectImmutablePair<>(GuiHelper.ADD_TEXTURE_ID, (indexList, vehicleResource1) -> {
+							selectedVehicleCars.add(toVehicleCar(vehicleResource1));
+							updateListWidgets();
+						})
+					)
 				);
 
 				// Check if the vehicle has a family
@@ -258,12 +258,12 @@ public final class VehicleSelectorScreen extends ScreenBase {
 			} else {
 				final boolean canAddCar = availableVehicleFamily.children.stream().anyMatch(ObjectBooleanImmutablePair::rightBoolean);
 				return ListItem.createParent(
-						(drawing, x, y) -> drawVehicleIcon(drawing, (int) x, y, canAddCar, false, availableVehicleFamily.color),
-						(matrixStack, x, y) -> drawVehicleIcon(matrixStack, (int) x, y, canAddCar),
-						GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
-						availableVehicleFamily.family,
-						availableVehicleFamily.family,
-						availableVehicleFamily.children.stream().map(ObjectBooleanImmutablePair::left).collect(Collectors.toCollection(ObjectArrayList::new))
+					(drawing, x, y) -> drawVehicleIcon(drawing, (int) x, y, canAddCar, false, availableVehicleFamily.color),
+					(matrixStack, x, y) -> drawVehicleIcon(matrixStack, (int) x, y, canAddCar),
+					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
+					availableVehicleFamily.family,
+					availableVehicleFamily.family,
+					availableVehicleFamily.children.stream().map(ObjectBooleanImmutablePair::left).collect(Collectors.toCollection(ObjectArrayList::new))
 				);
 			}
 		}).collect(Collectors.toCollection(ObjectArrayList::new)));
@@ -278,19 +278,19 @@ public final class VehicleSelectorScreen extends ScreenBase {
 			CustomResourceLoader.getVehicleById(siding.getTransportMode(), vehicleCar.getVehicleId(), vehicleResourceDetails -> {
 				final boolean canAddCar = canAddCar(currentVehicleCars, vehicleResourceDetails.left());
 				selectedVehicleListItems.add(ListItem.createChild(
-						(drawing, x, y) -> drawVehicleIcon(drawing, (int) x, y, canAddCar, false, vehicleResourceDetails.left().getColor()),
-						(matrixStack, x, y) -> drawVehicleIcon(matrixStack, (int) x, y, canAddCar),
-						GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
-						vehicleResourceDetails.left(),
-						vehicleResourceDetails.left().getName().getString(),
-						ObjectArrayList.of(
-								ScrollableListWidget.createUpButton(selectedVehicleCars, this::updateListWidgets),
-								ScrollableListWidget.createDownButton(selectedVehicleCars, this::updateListWidgets),
-								new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (indexList, vehicleResource) -> {
-									Utilities.removeElement(selectedVehicleCars, indexList.getFirst());
-									updateListWidgets();
-								})
-						)
+					(drawing, x, y) -> drawVehicleIcon(drawing, (int) x, y, canAddCar, false, vehicleResourceDetails.left().getColor()),
+					(matrixStack, x, y) -> drawVehicleIcon(matrixStack, (int) x, y, canAddCar),
+					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
+					vehicleResourceDetails.left(),
+					vehicleResourceDetails.left().getName().getString(),
+					ObjectArrayList.of(
+						ScrollableListWidget.createUpButton(selectedVehicleCars, this::updateListWidgets),
+						ScrollableListWidget.createDownButton(selectedVehicleCars, this::updateListWidgets),
+						new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (indexList, vehicleResource) -> {
+							Utilities.removeElement(selectedVehicleCars, indexList.getFirst());
+							updateListWidgets();
+						})
+					)
 				));
 				currentVehicleCars.add(vehicleCar);
 			});
@@ -333,15 +333,15 @@ public final class VehicleSelectorScreen extends ScreenBase {
 	private static void drawVehicleIcon(MatrixStack matrixStack, int x, double y, boolean canAddCar) {
 		if (!canAddCar) {
 			FontRenderHelper.render(matrixStack, "!", FontRenderOptions.builder()
-					.color(Color.WHITE)
-					.offsetX(x)
-					.offsetY((float) y)
-					.horizontalSpace(GuiHelper.DEFAULT_LINE_SIZE)
-					.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)
-					.verticalSpace(GuiHelper.DEFAULT_LINE_SIZE)
-					.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
-					.maxFontSize(GuiHelper.MINECRAFT_FONT_SIZE - 2)
-					.build());
+				.color(Color.WHITE)
+				.offsetX(x)
+				.offsetY((float) y)
+				.horizontalSpace(GuiHelper.DEFAULT_LINE_SIZE)
+				.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)
+				.verticalSpace(GuiHelper.DEFAULT_LINE_SIZE)
+				.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
+				.maxFontSize(GuiHelper.MINECRAFT_FONT_SIZE - 2)
+				.build());
 		}
 	}
 

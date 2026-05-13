@@ -1,7 +1,7 @@
 package org.mtr.cache;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectCollection;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectCollection;
 
 public final class GenericLongCache<T> extends GenericCacheBase<T, Long, Long2ObjectOpenHashMap<GenericCacheBase.DataHolder<T>>> {
 

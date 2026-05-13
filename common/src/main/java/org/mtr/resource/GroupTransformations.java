@@ -1,12 +1,12 @@
 package org.mtr.resource;
 
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.model.ModelPartBuilder;
 import net.minecraft.client.model.ModelPartData;
 import net.minecraft.client.model.ModelTransform;
 import org.mtr.MTR;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.render.StoredMatrixTransformations;
 import org.mtr.tool.Drawing;
 
@@ -20,12 +20,12 @@ public final class GroupTransformations {
 	public GroupTransformations(GroupTransformations groupTransformations, DoubleArrayList origin, DoubleArrayList rotation) {
 		groupTransformationList.addAll(groupTransformations.groupTransformationList);
 		groupTransformationList.add(new GroupTransformation(
-				-Utilities.getElement(origin, 0, 0D).floatValue(),
-				-Utilities.getElement(origin, 1, 0D).floatValue(),
-				Utilities.getElement(origin, 2, 0D).floatValue(),
-				(float) Math.toRadians(-Utilities.getElement(rotation, 0, 0D)),
-				(float) Math.toRadians(-Utilities.getElement(rotation, 1, 0D)),
-				(float) Math.toRadians(Utilities.getElement(rotation, 2, 0D))
+			-Utilities.getElement(origin, 0, 0D).floatValue(),
+			-Utilities.getElement(origin, 1, 0D).floatValue(),
+			Utilities.getElement(origin, 2, 0D).floatValue(),
+			(float) Math.toRadians(-Utilities.getElement(rotation, 0, 0D)),
+			(float) Math.toRadians(-Utilities.getElement(rotation, 1, 0D)),
+			(float) Math.toRadians(Utilities.getElement(rotation, 2, 0D))
 		));
 	}
 
@@ -36,12 +36,12 @@ public final class GroupTransformations {
 		float combinedPivotZ = 0;
 		for (final GroupTransformation groupTransformation : groupTransformationList) {
 			modelPart = modelPart.addChild(MTR.randomString(), ModelPartBuilder.create().uv(textureX, textureY), ModelTransform.of(
-					groupTransformation.pivotX - combinedPivotX,
-					groupTransformation.pivotY - combinedPivotY,
-					groupTransformation.pivotZ - combinedPivotZ,
-					groupTransformation.rotateX,
-					groupTransformation.rotateY,
-					groupTransformation.rotateZ
+				groupTransformation.pivotX - combinedPivotX,
+				groupTransformation.pivotY - combinedPivotY,
+				groupTransformation.pivotZ - combinedPivotZ,
+				groupTransformation.rotateX,
+				groupTransformation.rotateY,
+				groupTransformation.rotateZ
 			));
 			combinedPivotX += groupTransformation.pivotX;
 			combinedPivotY += groupTransformation.pivotY;

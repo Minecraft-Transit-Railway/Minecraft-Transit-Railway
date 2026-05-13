@@ -1,6 +1,5 @@
 package org.mtr.block;
 
-import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
@@ -14,6 +13,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.packet.PacketOpenBlockEntityScreen;
 import org.mtr.registry.Registry;
 

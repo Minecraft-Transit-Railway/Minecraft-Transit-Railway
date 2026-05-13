@@ -1,9 +1,9 @@
 package org.mtr.model;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.util.math.Box;
 import org.mtr.data.VehicleExtension;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.render.MainRenderer;
 import org.mtr.render.StoredMatrixTransformations;
 import org.mtr.resource.*;
@@ -20,12 +20,12 @@ public final class BuiltVehicleModelHolder {
 	public final ObjectArrayList<Box> doorways;
 
 	public BuiltVehicleModelHolder(
-			ModelProperties modelProperties,
-			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> builtModels,
-			ObjectArrayList<BuiltDoorModelDetails> builtDoorModelDetailsList,
-			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<ModelDisplayPart>> displays,
-			ObjectArrayList<Box> floors,
-			ObjectArrayList<Box> doorways
+		ModelProperties modelProperties,
+		Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> builtModels,
+		ObjectArrayList<BuiltDoorModelDetails> builtDoorModelDetailsList,
+		Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<ModelDisplayPart>> displays,
+		ObjectArrayList<Box> floors,
+		ObjectArrayList<Box> doorways
 	) {
 		this.modelProperties = modelProperties;
 		this.builtModels = builtModels;
@@ -95,65 +95,65 @@ public final class BuiltVehicleModelHolder {
 	}
 
 	private static final boolean[][] CHRISTMAS_LIGHT_STAGES = {
-			{true, false, false, false},
-			{false, true, false, false},
-			{false, false, true, false},
-			{false, false, false, true},
-			{true, false, false, false},
-			{false, true, false, false},
-			{false, false, true, false},
-			{false, false, false, true},
+		{true, false, false, false},
+		{false, true, false, false},
+		{false, false, true, false},
+		{false, false, false, true},
+		{true, false, false, false},
+		{false, true, false, false},
+		{false, false, true, false},
+		{false, false, false, true},
 
-			{true, true, false, false},
-			{false, true, true, false},
-			{false, false, true, true},
-			{true, false, false, true},
-			{true, true, false, false},
-			{false, true, true, false},
-			{false, false, true, true},
-			{true, false, false, true},
+		{true, true, false, false},
+		{false, true, true, false},
+		{false, false, true, true},
+		{true, false, false, true},
+		{true, true, false, false},
+		{false, true, true, false},
+		{false, false, true, true},
+		{true, false, false, true},
 
-			{true, false, true, false},
-			{false, true, false, true},
-			{true, false, true, false},
-			{false, true, false, true},
-			{true, false, true, false},
-			{false, true, false, true},
-			{true, false, true, false},
-			{false, true, false, true},
+		{true, false, true, false},
+		{false, true, false, true},
+		{true, false, true, false},
+		{false, true, false, true},
+		{true, false, true, false},
+		{false, true, false, true},
+		{true, false, true, false},
+		{false, true, false, true},
 
-			{true, false, false, false},
-			{true, true, false, false},
-			{true, true, true, false},
-			{true, true, true, true},
-			{false, true, false, false},
-			{false, true, true, false},
-			{false, true, true, true},
-			{true, true, true, true},
-			{false, false, true, false},
-			{false, false, true, true},
-			{true, false, true, true},
-			{true, true, true, true},
-			{false, false, false, true},
-			{true, false, false, true},
-			{true, true, false, true},
-			{true, true, true, true},
+		{true, false, false, false},
+		{true, true, false, false},
+		{true, true, true, false},
+		{true, true, true, true},
+		{false, true, false, false},
+		{false, true, true, false},
+		{false, true, true, true},
+		{true, true, true, true},
+		{false, false, true, false},
+		{false, false, true, true},
+		{true, false, true, true},
+		{true, true, true, true},
+		{false, false, false, true},
+		{true, false, false, true},
+		{true, true, false, true},
+		{true, true, true, true},
 
-			{false, false, false, false},
-			{true, true, true, true},
-			{true, true, true, true},
-			{true, true, true, true},
-			{false, false, false, false},
-			{true, true, true, true},
-			{true, true, true, true},
-			{true, true, true, true},
+		{false, false, false, false},
+		{true, true, true, true},
+		{true, true, true, true},
+		{true, true, true, true},
+		{false, false, false, false},
+		{true, true, true, true},
+		{true, true, true, true},
+		{true, true, true, true},
 	};
 
 	public record BuiltDoorModelDetails(
-			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> models,
-			ModelPropertiesPart modelPropertiesPart,
-			@Nullable Box box,
-			boolean flipped
+		Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> models,
+		ModelPropertiesPart modelPropertiesPart,
+		@Nullable Box box,
+		boolean flipped
 	) {
 	}
 }

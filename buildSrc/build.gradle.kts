@@ -1,5 +1,14 @@
 repositories {
 	mavenCentral()
+	flatDir { dirs("../libs") }
+	maven { url = uri("https://jitpack.io") }
+	maven {
+		url = uri("https://maven.pkg.github.com/Minecraft-Transit-Railway/Transport-Simulation-Core")
+		credentials {
+			username = providers.gradleProperty("gpr.user").getOrNull() ?: "github-actions"
+			password = providers.gradleProperty("gpr.key").getOrNull() ?: System.getenv("GITHUB_TOKEN")
+		}
+	}
 }
 
 dependencies {
@@ -9,12 +18,7 @@ dependencies {
 	implementation("commons-io:commons-io:2.+")
 	implementation("org.apache.httpcomponents:httpmime:+")
 	implementation("org.mtr:Minecraft-Mod-API-Tools:0.0.1")
-	implementation("org.mtr:Transport-Simulation-Core:Build-Tools")
-}
-
-repositories {
-	flatDir { dirs("../libs") }
-	maven(url = "https://jitpack.io")
+	implementation("org.mtr:transport-simulation-core-build-tools:+")
 }
 
 java {

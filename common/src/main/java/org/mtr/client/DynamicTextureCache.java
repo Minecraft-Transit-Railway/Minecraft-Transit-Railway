@@ -1,9 +1,5 @@
 package org.mtr.client;
 
-import it.unimi.dsi.fastutil.objects.Object2LongArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
@@ -13,6 +9,10 @@ import org.mtr.config.Config;
 import org.mtr.config.LanguageDisplay;
 import org.mtr.core.servlet.MessageQueue;
 import org.mtr.data.IGui;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2LongArrayMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.render.MainRenderer;
 import org.mtr.render.MoreRenderLayers;
 import org.mtr.resource.ResourceManagerHelper;

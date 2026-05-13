@@ -1,10 +1,5 @@
 package org.mtr.client;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
-import it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.util.math.MatrixStack;
@@ -16,6 +11,11 @@ import org.mtr.config.Config;
 import org.mtr.core.data.*;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.resource.ResourceManagerHelper;
 import org.mtr.tool.RouteHelper;
 

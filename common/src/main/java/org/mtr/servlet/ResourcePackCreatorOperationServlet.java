@@ -1,15 +1,15 @@
 package org.mtr.servlet;
 
-import com.google.gson.JsonParser;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import org.mtr.MTR;
 import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.serializer.JsonReader;
-import org.mtr.libraries.javax.servlet.AsyncContext;
-import org.mtr.libraries.javax.servlet.http.HttpServletRequest;
-import org.mtr.libraries.javax.servlet.http.HttpServletResponse;
+import org.mtr.libraries.com.google.gson.JsonParser;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.jakarta.servlet.AsyncContext;
+import org.mtr.libraries.jakarta.servlet.http.HttpServletRequest;
+import org.mtr.libraries.jakarta.servlet.http.HttpServletResponse;
 import org.mtr.resource.ResourceWrapper;
 import org.mtr.screen.FakePauseScreen;
 import org.mtr.screen.ReloadCustomResourcesScreen;

@@ -1,6 +1,5 @@
 package org.mtr.render;
 
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -26,6 +25,7 @@ import org.mtr.core.data.Lift;
 import org.mtr.core.data.LiftDirection;
 import org.mtr.data.IGui;
 import org.mtr.item.ItemLiftButtonsLinkModifier;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.tool.Drawing;
 
 public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> extends BlockEntityRendererExtension<T> implements IGui, IBlock {
@@ -64,10 +64,10 @@ public class RenderLiftPanel<T extends BlockLiftPanelBase.BlockEntityBase> exten
 		// Render track link if holding linker item
 		final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, Properties.HORIZONTAL_FACING);
 		RenderLiftButtons.renderLiftObjectLink(
-				storedMatrixTransformations1,
-				new Vec3d(facing.getOffsetX() / 2F + facing.rotateYClockwise().getOffsetX() * (isOdd ? 1 : 0.5), 0.5, facing.getOffsetZ() / 2F + facing.rotateYClockwise().getOffsetZ() * (isOdd ? 1 : 0.5)),
-				new Vec3d(trackPosition.getX() - blockPos.getX() + trackFacing.getOffsetX() / 2F, trackPosition.getY() - blockPos.getY() + 0.5, trackPosition.getZ() - blockPos.getZ() + trackFacing.getOffsetZ() / 2F),
-				holdingLinker
+			storedMatrixTransformations1,
+			new Vec3d(facing.getOffsetX() / 2F + facing.rotateYClockwise().getOffsetX() * (isOdd ? 1 : 0.5), 0.5, facing.getOffsetZ() / 2F + facing.rotateYClockwise().getOffsetZ() * (isOdd ? 1 : 0.5)),
+			new Vec3d(trackPosition.getX() - blockPos.getX() + trackFacing.getOffsetX() / 2F, trackPosition.getY() - blockPos.getY() + 0.5, trackPosition.getZ() - blockPos.getZ() + trackFacing.getOffsetZ() / 2F),
+			holdingLinker
 		);
 
 		Lift lift = null;

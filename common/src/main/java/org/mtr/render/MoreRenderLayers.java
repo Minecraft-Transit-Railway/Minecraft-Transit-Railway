@@ -1,8 +1,8 @@
 package org.mtr.render;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 import java.util.function.Supplier;
 

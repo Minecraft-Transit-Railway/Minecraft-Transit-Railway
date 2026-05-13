@@ -1,22 +1,22 @@
 package org.mtr.resource;
 
-import com.google.gson.JsonObject;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.resource.ResourceWrapperSchema;
+import org.mtr.libraries.com.google.gson.JsonObject;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.function.Consumer;
 
 public final class ResourceWrapper extends ResourceWrapperSchema {
 
 	public ResourceWrapper(
-			ObjectArrayList<VehicleResourceWrapper> vehicles,
-			ObjectArrayList<ModelWrapper> modelResources,
-			ObjectArrayList<String> textureResources,
-			ObjectArrayList<MinecraftModelResource> minecraftModelResources,
-			ObjectArrayList<String> minecraftTextureResources
+		ObjectArrayList<VehicleResourceWrapper> vehicles,
+		ObjectArrayList<ModelWrapper> modelResources,
+		ObjectArrayList<String> textureResources,
+		ObjectArrayList<MinecraftModelResource> minecraftModelResources,
+		ObjectArrayList<String> minecraftTextureResources
 	) {
 		this.vehicles.addAll(vehicles);
 		this.modelResources.addAll(modelResources);

@@ -1,12 +1,6 @@
 package org.mtr.render;
 
 import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
-import it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -45,6 +39,12 @@ import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.item.ItemBrush;
 import org.mtr.item.ItemNodeModifierBase;
 import org.mtr.item.ItemRailModifier;
+import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.packet.PacketUpdateLastRailStyles;
 import org.mtr.registry.DataComponentTypes;
 import org.mtr.registry.Items;
@@ -127,8 +127,8 @@ public final class RenderRails implements IGui {
 						final BlockState blockStateStart = clientWorld.getBlockState(posStart);
 						final float angleEnd = BlockNode.getAngle(blockStateEnd);
 						final ObjectObjectImmutablePair<Angle, Angle> angles = Rail.getAngles(
-								MTR.blockPosToPosition(posStart), blockStateStart.getBlock() instanceof BlockNode ? BlockNode.getAngle(blockStateStart) : (blockStateEnd.getBlock() instanceof BlockNode.BlockContinuousMovementNode ? angleEnd : clientPlayerEntity.getYaw() + 90),
-								MTR.blockPosToPosition(posEnd), angleEnd
+							MTR.blockPosToPosition(posStart), blockStateStart.getBlock() instanceof BlockNode ? BlockNode.getAngle(blockStateStart) : (blockStateEnd.getBlock() instanceof BlockNode.BlockContinuousMovementNode ? angleEnd : clientPlayerEntity.getYaw() + 90),
+							MTR.blockPosToPosition(posEnd), angleEnd
 						);
 
 						final Rail rail = ((ItemRailModifier) item).createRail(clientPlayerEntity.getUuid(), ItemNodeModifierBase.getTransportMode(itemStack), blockStateStart, blockStateEnd, posStart, posEnd, angles.left(), angles.right());
@@ -171,15 +171,15 @@ public final class RenderRails implements IGui {
 						renderRailOneWayArrows(rail, 0.5F + SMALL_OFFSET);
 					}
 					MainRenderer.scheduleRender(QueuedRenderLayer.LINES, (matrixStack1, vertexConsumer, offset1) -> renderWithinRenderDistance(rail, (blockPos, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, tiltAngle) -> IDrawing.drawLineInWorld(
-							matrixStack1,
-							vertexConsumer,
-							(float) (x1 - offset1.x),
-							(float) (y1 - offset1.y + 0.5),
-							(float) (z1 - offset1.z),
-							(float) (x3 - offset1.x),
-							(float) (y3 - offset1.y + 0.5),
-							(float) (z3 - offset1.z),
-							holdingRailRelated ? RailType.getRailColor(rail) : ARGB_BLACK
+						matrixStack1,
+						vertexConsumer,
+						(float) (x1 - offset1.x),
+						(float) (y1 - offset1.y + 0.5),
+						(float) (z1 - offset1.z),
+						(float) (x3 - offset1.x),
+						(float) (y3 - offset1.y + 0.5),
+						(float) (z3 - offset1.z),
+						holdingRailRelated ? RailType.getRailColor(rail) : ARGB_BLACK
 					), 0.5, 0, 0));
 					break;
 				case AIRPLANE:
@@ -216,10 +216,10 @@ public final class RenderRails implements IGui {
 		return clientPlayerEntity.isHolding(itemStack -> {
 			final Item item = itemStack.getItem();
 			return item instanceof ItemNodeModifierBase || item instanceof ItemBrush ||
-					Block.getBlockFromItem(item) instanceof BlockSignalLightBase ||
-					Block.getBlockFromItem(item) instanceof BlockNode ||
-					Block.getBlockFromItem(item) instanceof BlockSignalSemaphoreBase ||
-					Block.getBlockFromItem(item) instanceof PlatformHelper;
+				Block.getBlockFromItem(item) instanceof BlockSignalLightBase ||
+				Block.getBlockFromItem(item) instanceof BlockNode ||
+				Block.getBlockFromItem(item) instanceof BlockSignalSemaphoreBase ||
+				Block.getBlockFromItem(item) instanceof PlatformHelper;
 		});
 	}
 

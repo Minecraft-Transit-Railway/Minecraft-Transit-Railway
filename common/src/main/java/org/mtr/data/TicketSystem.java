@@ -1,6 +1,5 @@
 package org.mtr.data;
 
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.scoreboard.ScoreHolder;
 import net.minecraft.scoreboard.ScoreboardCriterion;
@@ -17,6 +16,7 @@ import org.mtr.core.operation.NearbyAreasRequest;
 import org.mtr.core.operation.NearbyAreasResponse;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -47,9 +47,9 @@ public class TicketSystem {
 
 				if (isEntrance && isExit) {
 					isEntering = !entered(
-							getPlayerScore(world, player, ENTRY_ZONE_1_OBJECTIVE, ENTRY_ZONE_1_TITLE),
-							getPlayerScore(world, player, ENTRY_ZONE_2_OBJECTIVE, ENTRY_ZONE_2_TITLE),
-							getPlayerScore(world, player, ENTRY_ZONE_3_OBJECTIVE, ENTRY_ZONE_3_TITLE)
+						getPlayerScore(world, player, ENTRY_ZONE_1_OBJECTIVE, ENTRY_ZONE_1_TITLE),
+						getPlayerScore(world, player, ENTRY_ZONE_2_OBJECTIVE, ENTRY_ZONE_2_TITLE),
+						getPlayerScore(world, player, ENTRY_ZONE_3_OBJECTIVE, ENTRY_ZONE_3_TITLE)
 					);
 				} else {
 					isEntering = isEntrance;

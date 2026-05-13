@@ -1,6 +1,5 @@
 package org.mtr.block;
 
-import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import lombok.Getter;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -29,6 +28,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.packet.PacketOpenBlockEntityScreen;
 import org.mtr.registry.BlockEntityTypes;
 import org.mtr.registry.Registry;

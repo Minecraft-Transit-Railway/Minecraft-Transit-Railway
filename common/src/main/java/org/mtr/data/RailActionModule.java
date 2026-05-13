@@ -1,10 +1,10 @@
 package org.mtr.data;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import org.mtr.core.data.Rail;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.packet.PacketBroadcastRailActions;
 import org.mtr.registry.Registry;
 

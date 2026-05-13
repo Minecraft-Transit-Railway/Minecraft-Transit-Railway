@@ -1,7 +1,7 @@
 package org.mtr.servlet;
 
 
-import org.mtr.core.Main;
+import org.mtr.MTR;
 import org.mtr.libraries.okhttp3.*;
 
 import javax.annotation.Nullable;
@@ -28,7 +28,7 @@ public final class RequestHelper {
 			@Override
 			public void onFailure(Call call, IOException e) {
 				if (!(e instanceof InterruptedIOException)) {
-					Main.LOGGER.error(call.request().url(), e);
+					MTR.LOGGER.error(call.request().url(), e);
 				}
 			}
 
@@ -40,7 +40,7 @@ public final class RequestHelper {
 					}
 				} catch (IOException e) {
 					if (!(e instanceof InterruptedIOException)) {
-						Main.LOGGER.error(call.request().url(), e);
+						MTR.LOGGER.error(call.request().url(), e);
 					}
 				}
 			}

@@ -1,8 +1,8 @@
 package org.mtr.resource;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.generated.resource.ModelWrapperSchema;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class ModelWrapper extends ModelWrapperSchema {
 

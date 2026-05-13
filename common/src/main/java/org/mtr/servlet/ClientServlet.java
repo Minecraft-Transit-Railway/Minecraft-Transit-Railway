@@ -4,10 +4,10 @@ import net.minecraft.client.MinecraftClient;
 import org.apache.commons.io.IOUtils;
 import org.mtr.core.servlet.HttpResponseStatus;
 import org.mtr.core.servlet.ServletBase;
-import org.mtr.libraries.javax.servlet.AsyncContext;
-import org.mtr.libraries.javax.servlet.http.HttpServlet;
-import org.mtr.libraries.javax.servlet.http.HttpServletRequest;
-import org.mtr.libraries.javax.servlet.http.HttpServletResponse;
+import org.mtr.libraries.jakarta.servlet.AsyncContext;
+import org.mtr.libraries.jakarta.servlet.http.HttpServlet;
+import org.mtr.libraries.jakarta.servlet.http.HttpServletRequest;
+import org.mtr.libraries.jakarta.servlet.http.HttpServletResponse;
 import org.mtr.libraries.org.eclipse.jetty.server.Request;
 import org.mtr.packet.PacketForwardClientRequest;
 import org.mtr.registry.RegistryClient;
@@ -32,15 +32,15 @@ public final class ClientServlet extends HttpServlet {
 		asyncContext.setTimeout(0);
 		final String endpoint = httpServletRequest instanceof Request ? ((Request) httpServletRequest).getOriginalURI() : httpServletRequest.getRequestURI();
 		MinecraftClient.getInstance().execute(() -> RegistryClient.sendPacketToServer(new PacketForwardClientRequest(
-				endpoint,
-				content,
-				(response, path) -> {
-					if (path.equals(endpoint)) {
-						ServletBase.sendResponse(httpServletResponse, asyncContext, response, ServletBase.getMimeType(endpoint.equals("/") ? "html" : endpoint), HttpResponseStatus.OK);
-					} else {
-						ServletBase.sendResponse(httpServletResponse, asyncContext, path, "", HttpResponseStatus.REDIRECT);
-					}
+			endpoint,
+			content,
+			(response, path) -> {
+				if (path.equals(endpoint)) {
+					ServletBase.sendResponse(httpServletResponse, asyncContext, response, ServletBase.getMimeType(endpoint.equals("/") ? "html" : endpoint), HttpResponseStatus.OK);
+				} else {
+					ServletBase.sendResponse(httpServletResponse, asyncContext, path, "", HttpResponseStatus.REDIRECT);
 				}
+			}
 		)));
 	}
 }

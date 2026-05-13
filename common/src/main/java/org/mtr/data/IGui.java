@@ -1,8 +1,8 @@
 package org.mtr.data;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.gui.widget.CheckboxWidget;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -246,34 +246,34 @@ public interface IGui {
 		return text.codePoints().anyMatch(codePoint -> {
 			final Character.UnicodeBlock unicodeBlock = Character.UnicodeBlock.of(codePoint);
 			return Character.isIdeographic(codePoint) ||
-					unicodeBlock == Character.UnicodeBlock.CJK_COMPATIBILITY ||
-					unicodeBlock == Character.UnicodeBlock.CJK_COMPATIBILITY_FORMS ||
-					unicodeBlock == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS ||
-					unicodeBlock == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT ||
-					unicodeBlock == Character.UnicodeBlock.CJK_RADICALS_SUPPLEMENT ||
-					unicodeBlock == Character.UnicodeBlock.CJK_STROKES ||
-					unicodeBlock == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION ||
-					unicodeBlock == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS ||
-					unicodeBlock == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A ||
-					unicodeBlock == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B ||
-					unicodeBlock == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_C ||
-					unicodeBlock == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D ||
-					unicodeBlock == Character.UnicodeBlock.ENCLOSED_CJK_LETTERS_AND_MONTHS ||
-					unicodeBlock == Character.UnicodeBlock.BOPOMOFO ||
-					unicodeBlock == Character.UnicodeBlock.BOPOMOFO_EXTENDED ||
-					unicodeBlock == Character.UnicodeBlock.HIRAGANA ||
-					unicodeBlock == Character.UnicodeBlock.KATAKANA ||
-					unicodeBlock == Character.UnicodeBlock.KATAKANA_PHONETIC_EXTENSIONS ||
-					unicodeBlock == Character.UnicodeBlock.KANA_SUPPLEMENT ||
-					unicodeBlock == Character.UnicodeBlock.KANBUN ||
-					unicodeBlock == Character.UnicodeBlock.HANGUL_JAMO ||
-					unicodeBlock == Character.UnicodeBlock.HANGUL_JAMO_EXTENDED_A ||
-					unicodeBlock == Character.UnicodeBlock.HANGUL_JAMO_EXTENDED_B ||
-					unicodeBlock == Character.UnicodeBlock.HANGUL_SYLLABLES ||
-					unicodeBlock == Character.UnicodeBlock.HANGUL_COMPATIBILITY_JAMO ||
-					unicodeBlock == Character.UnicodeBlock.KANGXI_RADICALS ||
-					unicodeBlock == Character.UnicodeBlock.TAI_XUAN_JING_SYMBOLS ||
-					unicodeBlock == Character.UnicodeBlock.IDEOGRAPHIC_DESCRIPTION_CHARACTERS;
+				unicodeBlock == Character.UnicodeBlock.CJK_COMPATIBILITY ||
+				unicodeBlock == Character.UnicodeBlock.CJK_COMPATIBILITY_FORMS ||
+				unicodeBlock == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS ||
+				unicodeBlock == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT ||
+				unicodeBlock == Character.UnicodeBlock.CJK_RADICALS_SUPPLEMENT ||
+				unicodeBlock == Character.UnicodeBlock.CJK_STROKES ||
+				unicodeBlock == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION ||
+				unicodeBlock == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS ||
+				unicodeBlock == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A ||
+				unicodeBlock == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B ||
+				unicodeBlock == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_C ||
+				unicodeBlock == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D ||
+				unicodeBlock == Character.UnicodeBlock.ENCLOSED_CJK_LETTERS_AND_MONTHS ||
+				unicodeBlock == Character.UnicodeBlock.BOPOMOFO ||
+				unicodeBlock == Character.UnicodeBlock.BOPOMOFO_EXTENDED ||
+				unicodeBlock == Character.UnicodeBlock.HIRAGANA ||
+				unicodeBlock == Character.UnicodeBlock.KATAKANA ||
+				unicodeBlock == Character.UnicodeBlock.KATAKANA_PHONETIC_EXTENSIONS ||
+				unicodeBlock == Character.UnicodeBlock.KANA_SUPPLEMENT ||
+				unicodeBlock == Character.UnicodeBlock.KANBUN ||
+				unicodeBlock == Character.UnicodeBlock.HANGUL_JAMO ||
+				unicodeBlock == Character.UnicodeBlock.HANGUL_JAMO_EXTENDED_A ||
+				unicodeBlock == Character.UnicodeBlock.HANGUL_JAMO_EXTENDED_B ||
+				unicodeBlock == Character.UnicodeBlock.HANGUL_SYLLABLES ||
+				unicodeBlock == Character.UnicodeBlock.HANGUL_COMPATIBILITY_JAMO ||
+				unicodeBlock == Character.UnicodeBlock.KANGXI_RADICALS ||
+				unicodeBlock == Character.UnicodeBlock.TAI_XUAN_JING_SYMBOLS ||
+				unicodeBlock == Character.UnicodeBlock.IDEOGRAPHIC_DESCRIPTION_CHARACTERS;
 		});
 	}
 

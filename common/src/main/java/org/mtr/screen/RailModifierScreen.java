@@ -8,10 +8,6 @@ import gg.essential.elementa.components.UIWrappedText;
 import gg.essential.elementa.constraints.*;
 import gg.essential.universal.UMatrixStack;
 import gg.essential.universal.vertex.UVertexConsumer;
-import it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.math.MatrixStack;
@@ -24,6 +20,10 @@ import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
 import org.mtr.core.tool.Vector;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.packet.PacketUpdateData;
 import org.mtr.packet.PacketUpdateLastRailStyles;
 import org.mtr.registry.RegistryClient;
@@ -47,8 +47,8 @@ public final class RailModifierScreen extends WindowBase {
 	private final Rail rail;
 
 	private final BackgroundComponent backgroundComponent = new BackgroundComponent(getWindow(), ObjectImmutableList.of(
-			new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.POPPY_TEXTURE.get(), TranslationProvider.GUI_MTR_RAIL_APPEARANCE.getString()),
-			new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.DIAMOND_PICKAXE_TEXTURE.get(), TranslationProvider.GUI_MTR_RAIL_TILT.getString())
+		new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.POPPY_TEXTURE.get(), TranslationProvider.GUI_MTR_RAIL_APPEARANCE.getString()),
+		new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.DIAMOND_PICKAXE_TEXTURE.get(), TranslationProvider.GUI_MTR_RAIL_TILT.getString())
 	));
 
 	private final PreviewBoxComponent previewBoxComponent1;
@@ -84,17 +84,17 @@ public final class RailModifierScreen extends WindowBase {
 	private static final float COLOR_HOVER_RADIUS = 0.0625F;
 	private static final float COLOR_RADIUS = COLOR_HOVER_RADIUS / 2;
 	private static final Color[] TILT_ANGLE_COLORS = {
-			new Color(0xFF3333),
-			new Color(0xFF9933),
-			new Color(0xFFFF33),
-			new Color(0x99FF33),
-			new Color(0x33FF33),
-			new Color(0x33FF99),
-			new Color(0x33FFFF),
-			new Color(0x3399FF),
-			new Color(0x3333FF),
-			new Color(0x9933FF),
-			new Color(0xFF33FF),
+		new Color(0xFF3333),
+		new Color(0xFF9933),
+		new Color(0xFFFF33),
+		new Color(0x99FF33),
+		new Color(0x33FF33),
+		new Color(0x33FF99),
+		new Color(0x33FFFF),
+		new Color(0x3399FF),
+		new Color(0x3333FF),
+		new Color(0x9933FF),
+		new Color(0xFF33FF),
 	};
 
 	public RailModifierScreen(Rail rail) {
@@ -107,17 +107,17 @@ public final class RailModifierScreen extends WindowBase {
 
 		GuiHelper.createLabel(scrollComponent1, TranslationProvider.GUI_MTR_RAIL_STYLES.getString());
 		final ButtonComponent editStylesButtonComponent = (ButtonComponent) new ButtonComponent(false)
-				.setChildOf(scrollComponent1)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint());
+			.setChildOf(scrollComponent1)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint());
 
 		editStylesButtonComponent.setText(Text.translatable("selectWorld.edit").getString());
 		editStylesButtonComponent.onMouseClickConsumer(clickEvent -> MinecraftClient.getInstance().setScreen(RailStyleSelectorScreen.create(rail)));
 
 		final ButtonComponent flipStylesButtonComponent = (ButtonComponent) new ButtonComponent(false)
-				.setChildOf(scrollComponent1)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint());
+			.setChildOf(scrollComponent1)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint());
 
 		flipStylesButtonComponent.setText(TranslationProvider.GUI_MTR_FLIP_STYLES.getString());
 		flipStylesButtonComponent.onMouseClickConsumer(clickEvent -> {
@@ -142,9 +142,9 @@ public final class RailModifierScreen extends WindowBase {
 			GuiHelper.createSpacing(scrollComponent1);
 			GuiHelper.createLabel(scrollComponent1, TranslationProvider.GUI_MTR_RAIL_SPEED.getString());
 			speedInputComponent = (NumberInputComponent) new NumberInputComponent(1, 999, 1, false, null)
-					.setChildOf(scrollComponent1)
-					.setY(new SiblingConstraint())
-					.setWidth(new RelativeConstraint());
+				.setChildOf(scrollComponent1)
+				.setY(new SiblingConstraint())
+				.setWidth(new RelativeConstraint());
 
 			speedInputComponent.setValue(Math.max(rail.getSpeedLimitKilometersPerHour(false), rail.getSpeedLimitKilometersPerHour(true)));
 			speedInputComponent.setSuffix(" km/h");
@@ -156,9 +156,9 @@ public final class RailModifierScreen extends WindowBase {
 			GuiHelper.createSpacing(scrollComponent1);
 			GuiHelper.createLabel(scrollComponent1, TranslationProvider.GUI_MTR_RAIL_SHAPE.getString());
 			shapeButtonComponent = (ButtonComponent) new ButtonComponent(true)
-					.setChildOf(scrollComponent1)
-					.setY(new SiblingConstraint())
-					.setWidth(new RelativeConstraint());
+				.setChildOf(scrollComponent1)
+				.setY(new SiblingConstraint())
+				.setWidth(new RelativeConstraint());
 
 			shapeButtonComponent.onClick(() -> {
 				shape = shape == Rail.Shape.QUADRATIC ? Rail.Shape.TWO_RADII : Rail.Shape.QUADRATIC;
@@ -168,9 +168,9 @@ public final class RailModifierScreen extends WindowBase {
 			GuiHelper.createSpacing(scrollComponent1);
 			GuiHelper.createLabel(scrollComponent1, TranslationProvider.GUI_MTR_RAIL_VERTICAL_RADIUS.getString());
 			radiusInputComponent = (NumberInputComponent) new NumberInputComponent(0, rail.railMath.getMaxVerticalRadius(), 0.01, true, null)
-					.setChildOf(scrollComponent1)
-					.setY(new SiblingConstraint())
-					.setWidth(new RelativeConstraint());
+				.setChildOf(scrollComponent1)
+				.setY(new SiblingConstraint())
+				.setWidth(new RelativeConstraint());
 
 			radiusInputComponent.setValue(rail.railMath.getVerticalRadius());
 			radiusInputComponent.setSuffix(" m");
@@ -185,9 +185,9 @@ public final class RailModifierScreen extends WindowBase {
 
 		GuiHelper.createLabel(scrollComponent2, TranslationProvider.GUI_MTR_RAIL_TILT_POINTS.getString());
 		tiltPointsComponent = (NumberInputComponent) new NumberInputComponent(2, 7, 1, false, this::changeTiltPoints)
-				.setChildOf(scrollComponent2)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint());
+			.setChildOf(scrollComponent2)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint());
 
 		tiltPointsComponent.setValue(rail.getTiltPoints());
 
@@ -234,12 +234,12 @@ public final class RailModifierScreen extends WindowBase {
 
 		ImageComponentBase.drawRectangle(vertexConsumer -> {
 			newRail.railMath.render((x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, tiltAngle) -> ImageComponentBase.drawDoubleSidedShadedQuad(
-					uMatrixStack, vertexConsumer,
-					x1 - offsetX, y1 - offsetY, z1 - offsetZ,
-					x2 - offsetX, y2 - offsetY, z2 - offsetZ,
-					x3 - offsetX, y3 - offsetY, z3 - offsetZ,
-					x4 - offsetX, y4 - offsetY, z4 - offsetZ,
-					Color.WHITE
+				uMatrixStack, vertexConsumer,
+				x1 - offsetX, y1 - offsetY, z1 - offsetZ,
+				x2 - offsetX, y2 - offsetY, z2 - offsetZ,
+				x3 - offsetX, y3 - offsetY, z3 - offsetZ,
+				x4 - offsetX, y4 - offsetY, z4 - offsetZ,
+				Color.WHITE
 			), 0.01F, -0.5F, 0.5F);
 
 			if (!isStylesTab) {
@@ -294,24 +294,24 @@ public final class RailModifierScreen extends WindowBase {
 	private void drawDistanceMarker(UMatrixStack matrixStack, UVertexConsumer vertexConsumer, Vector vector1, Vector vector2, float offsetX, float offsetY, float offsetZ, Color color) {
 		final double offset = Math.max(vector1.y(), vector2.y()) + 1;
 		ImageComponentBase.drawCylinder(
-				matrixStack, vertexConsumer,
-				vector1.x() - offsetX, vector1.y() - offsetY, vector1.z() - offsetZ, COLOR_RADIUS / 4,
-				vector1.x() - offsetX, offset - offsetY, vector1.z() - offsetZ, COLOR_RADIUS / 4,
-				Color.GRAY
+			matrixStack, vertexConsumer,
+			vector1.x() - offsetX, vector1.y() - offsetY, vector1.z() - offsetZ, COLOR_RADIUS / 4,
+			vector1.x() - offsetX, offset - offsetY, vector1.z() - offsetZ, COLOR_RADIUS / 4,
+			Color.GRAY
 		);
 		ImageComponentBase.drawCylinder(
-				matrixStack, vertexConsumer,
-				vector2.x() - offsetX, vector2.y() - offsetY, vector2.z() - offsetZ, COLOR_RADIUS / 4,
-				vector2.x() - offsetX, offset - offsetY, vector2.z() - offsetZ, COLOR_RADIUS / 4,
-				Color.GRAY
+			matrixStack, vertexConsumer,
+			vector2.x() - offsetX, vector2.y() - offsetY, vector2.z() - offsetZ, COLOR_RADIUS / 4,
+			vector2.x() - offsetX, offset - offsetY, vector2.z() - offsetZ, COLOR_RADIUS / 4,
+			Color.GRAY
 		);
 
 		final float radius = hoverColor == color ? COLOR_HOVER_RADIUS : COLOR_RADIUS;
 		ImageComponentBase.drawCylinderWithArrows(
-				matrixStack, vertexConsumer,
-				vector1.x() - offsetX, offset - offsetY, vector1.z() - offsetZ,
-				vector2.x() - offsetX, offset - offsetY, vector2.z() - offsetZ, radius,
-				hoverColor == color ? MainRenderer.getFlashingColor(color, 1) : color
+			matrixStack, vertexConsumer,
+			vector1.x() - offsetX, offset - offsetY, vector1.z() - offsetZ,
+			vector2.x() - offsetX, offset - offsetY, vector2.z() - offsetZ, radius,
+			hoverColor == color ? MainRenderer.getFlashingColor(color, 1) : color
 		);
 	}
 
@@ -319,10 +319,10 @@ public final class RailModifierScreen extends WindowBase {
 		final Vector offsetVector = new Vector(1, 0, 0).rotateZ(tiltAngle).rotateY((float) (-Math.atan2(vector3.z() - vector1.z(), vector3.x() - vector1.x()) - Math.PI / 2));
 		final float radius = hoverColor == color ? COLOR_HOVER_RADIUS : COLOR_RADIUS;
 		ImageComponentBase.drawCylinder(
-				matrixStack, vertexConsumer,
-				vector2.x() - offsetVector.x() - offsetX, vector2.y() - offsetVector.y() - offsetY, vector2.z() - offsetVector.z() - offsetZ, radius,
-				vector2.x() + offsetVector.x() - offsetX, vector2.y() + offsetVector.y() - offsetY, vector2.z() + offsetVector.z() - offsetZ, radius,
-				hoverColor == color ? MainRenderer.getFlashingColor(color, 1) : color
+			matrixStack, vertexConsumer,
+			vector2.x() - offsetVector.x() - offsetX, vector2.y() - offsetVector.y() - offsetY, vector2.z() - offsetVector.z() - offsetZ, radius,
+			vector2.x() + offsetVector.x() - offsetX, vector2.y() + offsetVector.y() - offsetY, vector2.z() + offsetVector.z() - offsetZ, radius,
+			hoverColor == color ? MainRenderer.getFlashingColor(color, 1) : color
 		);
 	}
 
@@ -342,62 +342,62 @@ public final class RailModifierScreen extends WindowBase {
 
 	private ObjectObjectImmutablePair<ScrollComponent, PreviewBoxComponent> createMainComponents(int index, TranslationProvider.TranslationHolder title) {
 		final UIContainer leftContainer = (UIContainer) new UIContainer()
-				.setChildOf(backgroundComponent.containers[index])
-				.setWidth(new CoerceAtMostConstraint(new RelativeConstraint(0.5F), new PixelConstraint(LEFT_WIDTH)))
-				.setHeight(new RelativeConstraint());
+			.setChildOf(backgroundComponent.containers[index])
+			.setWidth(new CoerceAtMostConstraint(new RelativeConstraint(0.5F), new PixelConstraint(LEFT_WIDTH)))
+			.setHeight(new RelativeConstraint());
 
 		new UIWrappedText(title.getString(), false)
-				.setChildOf(leftContainer)
-				.setWidth(new RelativeConstraint())
-				.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR));
+			.setChildOf(leftContainer)
+			.setWidth(new RelativeConstraint())
+			.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR));
 
 		final ScrollComponent scrollComponent = ((ScrollPanelComponent) new ScrollPanelComponent(true)
-				.setChildOf(leftContainer)
-				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-				.setWidth(new RelativeConstraint())
-				.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)))).contentContainer;
+			.setChildOf(leftContainer)
+			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new RelativeConstraint())
+			.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)))).contentContainer;
 
 		final PreviewBoxComponent previewBoxComponent = (PreviewBoxComponent) new PreviewBoxComponent(true, true, true, matrixStack -> onDrawPreview(matrixStack, index == 0))
-				.setChildOf(backgroundComponent.containers[index])
-				.setX(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-				.setWidth(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)))
-				.setHeight(new RelativeConstraint());
+			.setChildOf(backgroundComponent.containers[index])
+			.setX(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)))
+			.setHeight(new RelativeConstraint());
 
 		return new ObjectObjectImmutablePair<>(scrollComponent, previewBoxComponent);
 	}
 
 	private ObjectObjectImmutablePair<UIContainer, NumberInputComponent> createTiltControl(ScrollComponent scrollComponent, TranslationProvider.TranslationHolder translationHolder, int colorIndex, double min, double max, @Nullable String suffix, double initialValue) {
 		final UIContainer outerContainer = (UIContainer) new UIContainer()
-				.setChildOf(scrollComponent)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint())
-				.setHeight(new ChildBasedSizeConstraint());
+			.setChildOf(scrollComponent)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint())
+			.setHeight(new ChildBasedSizeConstraint());
 
 		final UIContainer innerContainer = (UIContainer) new UIContainer()
-				.setChildOf(outerContainer)
-				.setWidth(new RelativeConstraint())
-				.setHeight(new ChildBasedSizeConstraint());
+			.setChildOf(outerContainer)
+			.setWidth(new RelativeConstraint())
+			.setHeight(new ChildBasedSizeConstraint());
 
 		GuiHelper.createSpacing(innerContainer);
 		GuiHelper.createLabel(innerContainer, translationHolder.getString());
 
 		final UIContainer numberInputContainer = (UIContainer) new UIContainer()
-				.setChildOf(innerContainer)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint())
-				.setHeight(new PixelConstraint(28))
-				.onMouseEnterRunnable(() -> hoverColor = TILT_ANGLE_COLORS[colorIndex])
-				.onMouseLeaveRunnable(() -> hoverColor = null);
+			.setChildOf(innerContainer)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint())
+			.setHeight(new PixelConstraint(28))
+			.onMouseEnterRunnable(() -> hoverColor = TILT_ANGLE_COLORS[colorIndex])
+			.onMouseLeaveRunnable(() -> hoverColor = null);
 
 		final NumberInputComponent numberInputComponent = (NumberInputComponent) new NumberInputComponent(min, max, 0.1, true, null)
-				.setChildOf(numberInputContainer)
-				.setWidth(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)));
+			.setChildOf(numberInputContainer)
+			.setWidth(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)));
 
 		new UIBlock(TILT_ANGLE_COLORS[colorIndex])
-				.setChildOf(numberInputContainer)
-				.setX(new SiblingConstraint())
-				.setWidth(new FillConstraint())
-				.setHeight(new PixelConstraint(28));
+			.setChildOf(numberInputContainer)
+			.setX(new SiblingConstraint())
+			.setWidth(new FillConstraint())
+			.setHeight(new PixelConstraint(28));
 
 		numberInputComponent.setValue(initialValue);
 		if (suffix != null) {
@@ -444,20 +444,20 @@ public final class RailModifierScreen extends WindowBase {
 
 	private Rail createRailCopy() {
 		return Rail.copy(
-				rail, shape,
-				radiusInputComponent == null ? rail.railMath.getVerticalRadius() : radiusInputComponent.getValue(),
-				(long) tiltPointsComponent.getValue(),
-				tiltAngleDegrees1.right().getValue(),
-				tiltAngleDistance1a.right().getValue(),
-				tiltAngleDegrees1a.right().getValue(),
-				tiltAngleDegrees1b.right().getValue(),
-				tiltAngleDistance1b.right().getValue(),
-				tiltAngleDegreesMiddle.right().getValue(),
-				tiltAngleDistance2b.right().getValue(),
-				tiltAngleDegrees2b.right().getValue(),
-				tiltAngleDegrees2a.right().getValue(),
-				tiltAngleDistance2a.right().getValue(),
-				tiltAngleDegrees2.right().getValue()
+			rail, shape,
+			radiusInputComponent == null ? rail.railMath.getVerticalRadius() : radiusInputComponent.getValue(),
+			(long) tiltPointsComponent.getValue(),
+			tiltAngleDegrees1.right().getValue(),
+			tiltAngleDistance1a.right().getValue(),
+			tiltAngleDegrees1a.right().getValue(),
+			tiltAngleDegrees1b.right().getValue(),
+			tiltAngleDistance1b.right().getValue(),
+			tiltAngleDegreesMiddle.right().getValue(),
+			tiltAngleDistance2b.right().getValue(),
+			tiltAngleDegrees2b.right().getValue(),
+			tiltAngleDegrees2a.right().getValue(),
+			tiltAngleDistance2a.right().getValue(),
+			tiltAngleDegrees2.right().getValue()
 		);
 	}
 

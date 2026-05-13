@@ -1,6 +1,5 @@
 package org.mtr.font;
 
-import it.unimi.dsi.fastutil.floats.FloatFloatImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -11,6 +10,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.mtr.MTR;
 import org.mtr.data.IGui;
+import org.mtr.libraries.it.unimi.dsi.fastutil.floats.FloatFloatImmutablePair;
 import org.mtr.tool.GuiHelper;
 
 import javax.annotation.Nullable;
@@ -73,13 +73,13 @@ public final class FontRenderHelper {
 			final float xScale = fontRenderOptions.getTextOverflow() == FontRenderOptions.TextOverflow.COMPRESS ? Math.min(yScale, Math.min(1, fontRenderOptions.getHorizontalSpace() / rawLineWidths[i])) : yScale;
 			final float horizontalOffset = fontRenderOptions.getHorizontalTextAlignment().getOffset(rawLineWidths[i] * xScale - fontRenderOptions.getHorizontalSpace());
 			totalWidth = Math.max(totalWidth, renderRaw(
-					matrixStack, vertexConsumerProvider, orderedTextArray[i],
-					x + fontRenderOptions.getOffsetX() + horizontalOffset,
-					y + fontRenderOptions.getOffsetY(),
-					fontRenderOptions.getOffsetZ(),
-					xScale * fontSize[i],
-					yScale * fontSize[i],
-					fontRenderOptions.getFont() == null, fontRenderOptions.isDrawShadow(), colors[i], fontRenderOptions.getLight()
+				matrixStack, vertexConsumerProvider, orderedTextArray[i],
+				x + fontRenderOptions.getOffsetX() + horizontalOffset,
+				y + fontRenderOptions.getOffsetY(),
+				fontRenderOptions.getOffsetZ(),
+				xScale * fontSize[i],
+				yScale * fontSize[i],
+				fontRenderOptions.getFont() == null, fontRenderOptions.isDrawShadow(), colors[i], fontRenderOptions.getLight()
 			)[0]);
 			y += rawLineHeights[i] * yScale;
 		}

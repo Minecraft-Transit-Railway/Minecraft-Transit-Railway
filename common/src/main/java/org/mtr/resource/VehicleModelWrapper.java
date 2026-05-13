@@ -1,75 +1,75 @@
 package org.mtr.resource;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.util.Identifier;
 import org.mtr.MTR;
 import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.resource.VehicleModelWrapperSchema;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 
 import javax.annotation.Nullable;
 
 public final class VehicleModelWrapper extends VehicleModelWrapperSchema {
 
 	VehicleModelWrapper(
-			String modelResource,
-			String textureResource,
-			String minecraftModelPropertiesResource,
-			String minecraftPositionDefinitionsResource,
-			boolean flipTextureV,
-			ObjectArrayList<ModelPropertiesPartWrapper> parts,
-			double modelYOffset,
-			String gangwayInnerSideResource,
-			String gangwayInnerTopResource,
-			String gangwayInnerBottomResource,
-			String gangwayOuterSideResource,
-			String gangwayOuterTopResource,
-			String gangwayOuterBottomResource,
-			double gangwayWidth,
-			double gangwayHeight,
-			double gangwayYOffset,
-			double gangwayZOffset,
-			String barrierInnerSideResource,
-			String barrierInnerTopResource,
-			String barrierInnerBottomResource,
-			String barrierOuterSideResource,
-			String barrierOuterTopResource,
-			String barrierOuterBottomResource,
-			double barrierWidth,
-			double barrierHeight,
-			double barrierYOffset,
-			double barrierZOffset
+		String modelResource,
+		String textureResource,
+		String minecraftModelPropertiesResource,
+		String minecraftPositionDefinitionsResource,
+		boolean flipTextureV,
+		ObjectArrayList<ModelPropertiesPartWrapper> parts,
+		double modelYOffset,
+		String gangwayInnerSideResource,
+		String gangwayInnerTopResource,
+		String gangwayInnerBottomResource,
+		String gangwayOuterSideResource,
+		String gangwayOuterTopResource,
+		String gangwayOuterBottomResource,
+		double gangwayWidth,
+		double gangwayHeight,
+		double gangwayYOffset,
+		double gangwayZOffset,
+		String barrierInnerSideResource,
+		String barrierInnerTopResource,
+		String barrierInnerBottomResource,
+		String barrierOuterSideResource,
+		String barrierOuterTopResource,
+		String barrierOuterBottomResource,
+		double barrierWidth,
+		double barrierHeight,
+		double barrierYOffset,
+		double barrierZOffset
 	) {
 		super(
-				modelResource,
-				textureResource,
-				minecraftModelPropertiesResource,
-				minecraftPositionDefinitionsResource,
-				flipTextureV,
-				modelYOffset,
-				gangwayInnerSideResource,
-				gangwayInnerTopResource,
-				gangwayInnerBottomResource,
-				gangwayOuterSideResource,
-				gangwayOuterTopResource,
-				gangwayOuterBottomResource,
-				gangwayWidth,
-				gangwayHeight,
-				gangwayYOffset,
-				gangwayZOffset,
-				barrierInnerSideResource,
-				barrierInnerTopResource,
-				barrierInnerBottomResource,
-				barrierOuterSideResource,
-				barrierOuterTopResource,
-				barrierOuterBottomResource,
-				barrierWidth,
-				barrierHeight,
-				barrierYOffset,
-				barrierZOffset
+			modelResource,
+			textureResource,
+			minecraftModelPropertiesResource,
+			minecraftPositionDefinitionsResource,
+			flipTextureV,
+			modelYOffset,
+			gangwayInnerSideResource,
+			gangwayInnerTopResource,
+			gangwayInnerBottomResource,
+			gangwayOuterSideResource,
+			gangwayOuterTopResource,
+			gangwayOuterBottomResource,
+			gangwayWidth,
+			gangwayHeight,
+			gangwayYOffset,
+			gangwayZOffset,
+			barrierInnerSideResource,
+			barrierInnerTopResource,
+			barrierInnerBottomResource,
+			barrierOuterSideResource,
+			barrierOuterTopResource,
+			barrierOuterBottomResource,
+			barrierWidth,
+			barrierHeight,
+			barrierYOffset,
+			barrierZOffset
 		);
 		this.parts.addAll(parts);
 	}
@@ -80,9 +80,9 @@ public final class VehicleModelWrapper extends VehicleModelWrapperSchema {
 	}
 
 	VehicleModel toVehicleModel(
-			ResourceProvider resourceProvider,
-			@Nullable Object2ObjectArrayMap<String, ModelProperties> modelPropertiesMap,
-			@Nullable Object2ObjectArrayMap<String, PositionDefinitions> positionDefinitionsMap
+		ResourceProvider resourceProvider,
+		@Nullable Object2ObjectArrayMap<String, ModelProperties> modelPropertiesMap,
+		@Nullable Object2ObjectArrayMap<String, PositionDefinitions> positionDefinitionsMap
 	) {
 		final ObjectArrayList<ModelPropertiesPart> modelPropertiesPartList = new ObjectArrayList<>();
 		final ObjectArrayList<PositionDefinition> positionDefinitionList = new ObjectArrayList<>();
@@ -95,28 +95,28 @@ public final class VehicleModelWrapper extends VehicleModelWrapperSchema {
 		final boolean isMinecraftResource = CustomResourceLoader.getMinecraftModelResources().stream().anyMatch(minecraftModelResource -> minecraftModelResource.matchesModelResource(modelResource));
 		final String modelPropertiesResource = isMinecraftResource ? minecraftModelPropertiesResource : Identifier.of(MTR.MOD_ID, String.format("properties_%s.json", MTR.randomString())).toString();
 		final ModelProperties modelProperties = new ModelProperties(
-				modelPropertiesPartList,
-				modelYOffset,
-				gangwayInnerSideResource,
-				gangwayInnerTopResource,
-				gangwayInnerBottomResource,
-				gangwayOuterSideResource,
-				gangwayOuterTopResource,
-				gangwayOuterBottomResource,
-				gangwayWidth,
-				gangwayHeight,
-				gangwayYOffset,
-				gangwayZOffset,
-				barrierInnerSideResource,
-				barrierInnerTopResource,
-				barrierInnerBottomResource,
-				barrierOuterSideResource,
-				barrierOuterTopResource,
-				barrierOuterBottomResource,
-				barrierWidth,
-				barrierHeight,
-				barrierYOffset,
-				barrierZOffset
+			modelPropertiesPartList,
+			modelYOffset,
+			gangwayInnerSideResource,
+			gangwayInnerTopResource,
+			gangwayInnerBottomResource,
+			gangwayOuterSideResource,
+			gangwayOuterTopResource,
+			gangwayOuterBottomResource,
+			gangwayWidth,
+			gangwayHeight,
+			gangwayYOffset,
+			gangwayZOffset,
+			barrierInnerSideResource,
+			barrierInnerTopResource,
+			barrierInnerBottomResource,
+			barrierOuterSideResource,
+			barrierOuterTopResource,
+			barrierOuterBottomResource,
+			barrierWidth,
+			barrierHeight,
+			barrierYOffset,
+			barrierZOffset
 		);
 		final String positionDefinitionsResource = isMinecraftResource ? minecraftPositionDefinitionsResource : Identifier.of(MTR.MOD_ID, String.format("definition_%s.json", MTR.randomString())).toString();
 		final PositionDefinitions positionDefinitions = new PositionDefinitions(positionDefinitionList);
@@ -127,25 +127,25 @@ public final class VehicleModelWrapper extends VehicleModelWrapperSchema {
 		}
 
 		return new VehicleModel(
-				modelResource,
-				textureResource,
-				modelPropertiesResource,
-				positionDefinitionsResource,
-				flipTextureV,
-				identifier -> {
-					final String identifierString = identifier.toString();
-					if (!isMinecraftResource) {
-						if (identifierString.equals(modelPropertiesResource)) {
-							return Utilities.getJsonObjectFromData(modelProperties).toString();
-						} else if (identifierString.equals(positionDefinitionsResource)) {
-							return Utilities.getJsonObjectFromData(positionDefinitions).toString();
-						} else {
-							return resourceProvider.get(identifier);
-						}
+			modelResource,
+			textureResource,
+			modelPropertiesResource,
+			positionDefinitionsResource,
+			flipTextureV,
+			identifier -> {
+				final String identifierString = identifier.toString();
+				if (!isMinecraftResource) {
+					if (identifierString.equals(modelPropertiesResource)) {
+						return Utilities.getJsonObjectFromData(modelProperties).toString();
+					} else if (identifierString.equals(positionDefinitionsResource)) {
+						return Utilities.getJsonObjectFromData(positionDefinitions).toString();
 					} else {
 						return resourceProvider.get(identifier);
 					}
+				} else {
+					return resourceProvider.get(identifier);
 				}
+			}
 		);
 	}
 

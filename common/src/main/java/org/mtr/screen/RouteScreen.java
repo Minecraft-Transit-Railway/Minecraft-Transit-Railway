@@ -3,8 +3,6 @@ package org.mtr.screen;
 import gg.essential.elementa.constraints.PixelConstraint;
 import gg.essential.elementa.constraints.RelativeConstraint;
 import gg.essential.elementa.constraints.SiblingConstraint;
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Route;
 import org.mtr.core.data.RouteType;
@@ -12,6 +10,8 @@ import org.mtr.core.data.Station;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.packet.PacketCheckRouteIdHasDisabledAnnouncements;
 import org.mtr.packet.PacketSetRouteIdHasDisabledAnnouncements;
 import org.mtr.packet.PacketUpdateData;
@@ -40,17 +40,17 @@ public final class RouteScreen extends NameColorDataScreenBase<Route> {
 
 	public RouteScreen(Route route, @Nullable ScreenBase previousScreenLegacy) {
 		super(route, ObjectImmutableList.of(
-				new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.BRUSH_TEXTURE.get(), TranslationProvider.GUI_MTR_ROUTES.getString()),
-				new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.POPPY_TEXTURE.get(), TranslationProvider.GUI_MTR_ROUTE_COLOR.getString())
+			new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.BRUSH_TEXTURE.get(), TranslationProvider.GUI_MTR_ROUTES.getString()),
+			new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.POPPY_TEXTURE.get(), TranslationProvider.GUI_MTR_ROUTE_COLOR.getString())
 		), TranslationProvider.GUI_MTR_ROUTE_NAME, Utilities::formatName, TranslationProvider.GUI_MTR_ROUTE_COLOR, previousScreenLegacy);
 
 		GuiHelper.createLabel(firstTabScrollComponent, TranslationProvider.GUI_MTR_ROUTE_NUMBER.getString());
 
 		routeNumberTextInput = (TextInputComponent) new TextInputComponent()
-				.setChildOf(firstTabScrollComponent)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint())
-				.setHeight(new PixelConstraint(20));
+			.setChildOf(firstTabScrollComponent)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint())
+			.setHeight(new PixelConstraint(20));
 
 		routeNumberTextInput.setText(data.getRouteNumber());
 
@@ -59,10 +59,10 @@ public final class RouteScreen extends NameColorDataScreenBase<Route> {
 			GuiHelper.createLabel(firstTabScrollComponent, TranslationProvider.GUI_MTR_ROUTE_TYPE.getString());
 
 			routeTypeButton = (ButtonComponent) new ButtonComponent(true)
-					.setChildOf(firstTabScrollComponent)
-					.setY(new SiblingConstraint())
-					.setWidth(new RelativeConstraint())
-					.setHeight(new PixelConstraint(20));
+				.setChildOf(firstTabScrollComponent)
+				.setY(new SiblingConstraint())
+				.setWidth(new RelativeConstraint())
+				.setHeight(new PixelConstraint(20));
 
 			routeTypeButton.onClick(() -> {
 				routeType = routeType.next();
@@ -78,9 +78,9 @@ public final class RouteScreen extends NameColorDataScreenBase<Route> {
 		GuiHelper.createSpacing(firstTabScrollComponent);
 
 		isHiddenCheckbox = (CheckboxComponent) new CheckboxComponent()
-				.setChildOf(firstTabScrollComponent)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint());
+			.setChildOf(firstTabScrollComponent)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint());
 
 		isHiddenCheckbox.setText(TranslationProvider.GUI_MTR_IS_ROUTE_HIDDEN.getString());
 		isHiddenCheckbox.setChecked(data.getHidden());
@@ -88,9 +88,9 @@ public final class RouteScreen extends NameColorDataScreenBase<Route> {
 		GuiHelper.createSpacing(firstTabScrollComponent);
 
 		disableNextStationAnnouncementsCheckbox = (CheckboxComponent) new CheckboxComponent()
-				.setChildOf(firstTabScrollComponent)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint());
+			.setChildOf(firstTabScrollComponent)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint());
 
 		disableNextStationAnnouncementsCheckbox.setText(TranslationProvider.GUI_MTR_DISABLE_NEXT_STATION_ANNOUNCEMENTS.getString());
 		RegistryClient.sendPacketToServer(new PacketCheckRouteIdHasDisabledAnnouncements(data.getId(), disableNextStationAnnouncementsCheckbox::setChecked));
@@ -108,16 +108,16 @@ public final class RouteScreen extends NameColorDataScreenBase<Route> {
 			GuiHelper.createSpacing(firstTabScrollComponent);
 
 			isClockwiseCheckbox = (CheckboxComponent) new CheckboxComponent()
-					.setChildOf(firstTabScrollComponent)
-					.setY(new SiblingConstraint())
-					.setWidth(new RelativeConstraint());
+				.setChildOf(firstTabScrollComponent)
+				.setY(new SiblingConstraint())
+				.setWidth(new RelativeConstraint());
 
 			GuiHelper.createSpacing(firstTabScrollComponent);
 
 			isAnticlockwiseCheckbox = (CheckboxComponent) new CheckboxComponent()
-					.setChildOf(firstTabScrollComponent)
-					.setY(new SiblingConstraint())
-					.setWidth(new RelativeConstraint());
+				.setChildOf(firstTabScrollComponent)
+				.setY(new SiblingConstraint())
+				.setWidth(new RelativeConstraint());
 
 			isClockwiseCheckbox.setText(TranslationProvider.GUI_MTR_IS_CLOCKWISE_ROUTE.getString());
 			isClockwiseCheckbox.setChecked(data.getCircularState() == Route.CircularState.CLOCKWISE);

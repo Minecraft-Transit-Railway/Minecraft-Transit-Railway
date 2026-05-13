@@ -1,6 +1,5 @@
 package org.mtr.data;
 
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SlabBlock;
@@ -14,6 +13,7 @@ import org.mtr.block.BlockNode;
 import org.mtr.core.data.Rail;
 import org.mtr.core.tool.Utilities;
 import org.mtr.core.tool.Vector;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import javax.annotation.Nullable;
 import java.util.Random;

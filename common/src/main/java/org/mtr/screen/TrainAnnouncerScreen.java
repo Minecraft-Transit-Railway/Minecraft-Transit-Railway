@@ -1,8 +1,5 @@
 package org.mtr.screen;
 
-import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.world.ClientWorld;
@@ -13,6 +10,9 @@ import net.minecraft.util.math.BlockPos;
 import org.mtr.block.BlockTrainAnnouncer;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.packet.PacketUpdateTrainAnnouncerConfig;
 import org.mtr.registry.RegistryClient;
 import org.mtr.resource.CustomResourceTools;
@@ -32,12 +32,12 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 
 	public TrainAnnouncerScreen(BlockPos pos, BlockTrainAnnouncer.TrainAnnouncerBlockEntity blockEntity) {
 		super(pos, true,
-				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null, 100, text -> {
-				}), TranslationProvider.GUI_MTR_ANNOUNCEMENT_MESSAGE.getMutableText()),
-				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null, 100, text -> {
-				}), TranslationProvider.GUI_MTR_SOUND_FILE.getMutableText()),
-				new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_DELAY_LENGTH, TextCase.DEFAULT, "\\D", null, 100, text -> {
-				}), TranslationProvider.GUI_MTR_ANNOUNCEMENT_DELAY.getMutableText())
+			new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null, 100, text -> {
+			}), TranslationProvider.GUI_MTR_ANNOUNCEMENT_MESSAGE.getMutableText()),
+			new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_MESSAGE_LENGTH, TextCase.DEFAULT, null, null, 100, text -> {
+			}), TranslationProvider.GUI_MTR_SOUND_FILE.getMutableText()),
+			new ObjectObjectImmutablePair<>(new BetterTextFieldWidget(MAX_DELAY_LENGTH, TextCase.DEFAULT, "\\D", null, 100, text -> {
+			}), TranslationProvider.GUI_MTR_ANNOUNCEMENT_DELAY.getMutableText())
 		);
 
 		final ClientWorld clientWorld = MinecraftClient.getInstance().world;

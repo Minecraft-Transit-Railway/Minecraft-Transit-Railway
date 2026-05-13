@@ -1,10 +1,5 @@
 package org.mtr.data;
 
-import com.google.gson.JsonObject;
-import it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
-import it.unimi.dsi.fastutil.doubles.DoubleObjectImmutablePair;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -33,6 +28,11 @@ import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
 import org.mtr.core.tool.Vector;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.com.google.gson.JsonObject;
+import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleObjectImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.packet.PacketCheckRouteIdHasDisabledAnnouncements;
 import org.mtr.packet.PacketTurnOnBlockEntity;
 import org.mtr.registry.RegistryClient;
@@ -276,8 +276,8 @@ public class VehicleExtension extends Vehicle implements Utilities {
 
 				if (pathData.getDwellTime() > 0) {
 					platformStoppingDetails = new DoubleObjectImmutablePair<>(
-							pathData.getEndDistance() - railProgress,
-							new DoubleDoubleImmutablePair(pathData.getRailLength(), previousPathData != null && previousPathData.isOppositeRail(pathData) ? 0 : vehicleExtraData.getTotalVehicleLength())
+						pathData.getEndDistance() - railProgress,
+						new DoubleDoubleImmutablePair(pathData.getRailLength(), previousPathData != null && previousPathData.isOppositeRail(pathData) ? 0 : vehicleExtraData.getTotalVehicleLength())
 					);
 					break;
 				}

@@ -1,7 +1,5 @@
 package org.mtr.screen;
 
-import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.world.ClientWorld;
@@ -9,6 +7,8 @@ import net.minecraft.util.math.BlockPos;
 import org.mtr.block.BlockTrainScheduleSensor;
 import org.mtr.client.IDrawing;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.packet.PacketUpdateTrainScheduleSensorConfig;
 import org.mtr.registry.RegistryClient;
 import org.mtr.widget.BetterTextFieldWidget;

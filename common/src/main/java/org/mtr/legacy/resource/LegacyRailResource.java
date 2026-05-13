@@ -1,6 +1,6 @@
 package org.mtr.legacy.resource;
 
-import com.google.gson.JsonObject;
+import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.legacy.generated.resource.RailResourceSchema;

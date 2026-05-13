@@ -1,11 +1,11 @@
 package org.mtr.legacy.resource;
 
-import com.google.gson.JsonObject;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.io.FilenameUtils;
 import org.mtr.MTR;
 import org.mtr.config.Config;
 import org.mtr.core.serializer.JsonReader;
+import org.mtr.libraries.com.google.gson.JsonObject;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.resource.*;
 
 import java.util.Locale;

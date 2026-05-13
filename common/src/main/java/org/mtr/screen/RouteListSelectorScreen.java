@@ -1,11 +1,11 @@
 package org.mtr.screen;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectCollection;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.util.Identifier;
 import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.data.Route;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectCollection;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.widget.ListComponent;
 import org.mtr.widget.ListItem;
 

@@ -2,8 +2,6 @@ package org.mtr.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.text2speech.Narrator;
-import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -25,6 +23,8 @@ import org.mtr.MTR;
 import org.mtr.config.Config;
 import org.mtr.data.IGui;
 import org.mtr.font.FontRenderOptions;
+import org.mtr.libraries.it.unimi.dsi.fastutil.booleans.BooleanArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -139,12 +139,12 @@ public interface IDrawing {
 
 	static void drawTexture(MatrixStack matrixStack, VertexConsumer vertexConsumer, double x1, double y1, double z1, double x2, double y2, double z2, double x3, double y3, double z3, double x4, double y4, double z4, Vec3d playerOffset, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
 		drawTexture(
-				matrixStack, vertexConsumer,
-				(float) (x1 - playerOffset.x), (float) (y1 - playerOffset.y), (float) (z1 - playerOffset.z),
-				(float) (x2 - playerOffset.x), (float) (y2 - playerOffset.y), (float) (z2 - playerOffset.z),
-				(float) (x3 - playerOffset.x), (float) (y3 - playerOffset.y), (float) (z3 - playerOffset.z),
-				(float) (x4 - playerOffset.x), (float) (y4 - playerOffset.y), (float) (z4 - playerOffset.z),
-				u1, v1, u2, v2, facing, color, light
+			matrixStack, vertexConsumer,
+			(float) (x1 - playerOffset.x), (float) (y1 - playerOffset.y), (float) (z1 - playerOffset.z),
+			(float) (x2 - playerOffset.x), (float) (y2 - playerOffset.y), (float) (z2 - playerOffset.z),
+			(float) (x3 - playerOffset.x), (float) (y3 - playerOffset.y), (float) (z3 - playerOffset.z),
+			(float) (x4 - playerOffset.x), (float) (y4 - playerOffset.y), (float) (z4 - playerOffset.z),
+			u1, v1, u2, v2, facing, color, light
 		);
 	}
 

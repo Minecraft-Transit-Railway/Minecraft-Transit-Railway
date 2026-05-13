@@ -1,8 +1,5 @@
 package org.mtr.screen;
 
-import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -24,6 +21,9 @@ import org.mtr.core.data.Station;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.packet.PacketUpdatePIDSConfig;
 import org.mtr.registry.RegistryClient;
 import org.mtr.widget.BetterTextFieldWidget;
@@ -223,10 +223,10 @@ public class PIDSConfigScreen extends ScreenBase implements IGui {
 		final ObjectArrayList<DashboardListItem> platformsForList = new ObjectArrayList<>();
 		Collections.sort(platforms);
 		platforms.forEach(platform -> platformsForList.add(new DashboardListItem(platform.getId(), platform.getName() + " " + IGui.mergeStations(MinecraftClientData.getInstance().simplifiedRoutes
-				.stream()
-				.filter(simplifiedRoute -> simplifiedRoute.getPlatformIndex(platform.getId()) >= 0)
-				.map(simplifiedRoute -> Utilities.getElement(simplifiedRoute.getPlatforms(), -1).getStationName())
-				.collect(Collectors.toList())
+			.stream()
+			.filter(simplifiedRoute -> simplifiedRoute.getPlatformIndex(platform.getId()) >= 0)
+			.map(simplifiedRoute -> Utilities.getElement(simplifiedRoute.getPlatforms(), -1).getStationName())
+			.collect(Collectors.toList())
 		), 0)));
 		return new ObjectImmutableList<>(platformsForList);
 	}

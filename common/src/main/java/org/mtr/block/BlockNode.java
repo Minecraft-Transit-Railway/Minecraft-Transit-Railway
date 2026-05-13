@@ -1,6 +1,5 @@
 package org.mtr.block;
 
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.block.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -25,6 +24,7 @@ import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Angle;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.packet.ClientPacketHelper;
 import org.mtr.packet.PacketDeleteData;
 import org.mtr.registry.Items;
@@ -70,10 +70,10 @@ public class BlockNode extends BlockWaterloggable implements Waterloggable {
 	public BlockState getPlacementState(ItemPlacementContext itemPlacementContext) {
 		final int quadrant = Angle.getQuadrant(itemPlacementContext.getPlayerYaw(), true);
 		return super.getPlacementState(itemPlacementContext)
-				.with(FACING, quadrant % 8 >= 4)
-				.with(IS_45, quadrant % 4 >= 2)
-				.with(IS_22_5, quadrant % 2 == 1)
-				.with(IS_CONNECTED, false);
+			.with(FACING, quadrant % 8 >= 4)
+			.with(IS_45, quadrant % 4 >= 2)
+			.with(IS_22_5, quadrant % 2 == 1)
+			.with(IS_CONNECTED, false);
 	}
 
 	@Override
@@ -140,10 +140,10 @@ public class BlockNode extends BlockWaterloggable implements Waterloggable {
 		public BlockState getPlacementState(ItemPlacementContext itemPlacementContext) {
 			final int quadrant = Angle.getQuadrant(itemPlacementContext.getPlayerYaw(), false);
 			return super.getPlacementState(itemPlacementContext)
-					.with(FACING, quadrant % 4 >= 2)
-					.with(IS_45, quadrant % 2 == 1)
-					.with(IS_22_5, false)
-					.with(IS_CONNECTED, false);
+				.with(FACING, quadrant % 4 >= 2)
+				.with(IS_45, quadrant % 2 == 1)
+				.with(IS_22_5, false)
+				.with(IS_CONNECTED, false);
 		}
 
 		@Override

@@ -2,12 +2,12 @@ package org.mtr.screen;
 
 import gg.essential.elementa.components.UIContainer;
 import gg.essential.elementa.constraints.*;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectCollection;
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.util.Identifier;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectCollection;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.tool.GuiHelper;
 import org.mtr.widget.*;
 
@@ -67,23 +67,23 @@ public abstract class ListSelectorScreen<T extends U, U extends Comparable<U>> e
 
 	private ListComponent<T> createMainComponents() {
 		final UIContainer container = (UIContainer) new UIContainer()
-				.setChildOf(backgroundComponent)
-				.setX(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-				.setWidth(new ScaleConstraint(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)), 0.5F))
-				.setHeight(new RelativeConstraint());
+			.setChildOf(backgroundComponent)
+			.setX(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new ScaleConstraint(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)), 0.5F))
+			.setHeight(new RelativeConstraint());
 
 		final TextInputComponent textInputComponent = (TextInputComponent) new TextInputComponent()
-				.setChildOf(container)
-				.setWidth(new RelativeConstraint())
-				.setHeight(new PixelConstraint(20));
+			.setChildOf(container)
+			.setWidth(new RelativeConstraint())
+			.setHeight(new PixelConstraint(20));
 
 		textInputComponent.setPlaceholderText(TranslationProvider.GUI_MTR_SEARCH.getString());
 
 		final SlotBackgroundComponent slotBackgroundComponent = (SlotBackgroundComponent) new SlotBackgroundComponent()
-				.setChildOf(container)
-				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-				.setWidth(new RelativeConstraint())
-				.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)));
+			.setChildOf(container)
+			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new RelativeConstraint())
+			.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)));
 
 		final ListComponent<T> listComponent = GuiHelper.createListComponent(slotBackgroundComponent);
 		textInputComponent.onChange(() -> listComponent.setFilter(textInputComponent.getText()));
@@ -111,9 +111,9 @@ public abstract class ListSelectorScreen<T extends U, U extends Comparable<U>> e
 		});
 
 		setData(selectedListComponent, selectedData, canManuallySortSelectedList ? ObjectArrayList.of(
-				ListComponent.createUpButton(selectedData, null),
-				ListComponent.createDownButton(selectedData, null),
-				deleteAction
+			ListComponent.createUpButton(selectedData, null),
+			ListComponent.createDownButton(selectedData, null),
+			deleteAction
 		) : ObjectArrayList.of(deleteAction));
 	}
 }

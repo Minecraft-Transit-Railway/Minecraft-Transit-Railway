@@ -1,8 +1,8 @@
 package org.mtr.screen;
 
-import it.unimi.dsi.fastutil.longs.LongCollection;
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.client.gui.screen.Screen;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongCollection;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 
 public class EyeCandyObjectSelectionScreen extends DashboardListSelectorScreen {
 

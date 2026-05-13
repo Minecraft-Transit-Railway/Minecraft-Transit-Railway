@@ -1,6 +1,5 @@
 package org.mtr.block;
 
-import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -20,6 +19,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

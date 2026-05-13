@@ -1,7 +1,5 @@
 package org.mtr.registry;
 
-import com.google.gson.JsonParser;
-import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.SlabBlock;
@@ -15,6 +13,8 @@ import org.mtr.MTR;
 import org.mtr.block.*;
 import org.mtr.core.data.TransportMode;
 import org.mtr.item.ItemBlockEnchanted;
+import org.mtr.libraries.com.google.gson.JsonParser;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -259,8 +259,8 @@ public final class Blocks {
 				// Validate all registered blocks are in pickaxe.json
 				final ObjectAVLTreeSet<String> expectedIdentifiers = new ObjectAVLTreeSet<>();
 				JsonParser.parseString(FileUtils.readFileToString(
-						MinecraftClient.getInstance().runDirectory.toPath().resolve("../src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json").toFile(),
-						StandardCharsets.UTF_8
+					MinecraftClient.getInstance().runDirectory.toPath().resolve("../src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json").toFile(),
+					StandardCharsets.UTF_8
 				)).getAsJsonObject().getAsJsonArray("values").forEach(identifier -> expectedIdentifiers.add(identifier.getAsString()));
 				REGISTERED_IDENTIFIERS.forEach(identifier -> {
 					if (!expectedIdentifiers.contains(identifier)) {

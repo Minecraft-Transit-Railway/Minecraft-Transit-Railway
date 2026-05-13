@@ -1,7 +1,6 @@
 package org.mtr.tool;
 
 import gg.essential.universal.UMatrixStack;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.BakedQuad;
@@ -9,6 +8,7 @@ import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.widget.ImageComponentBase;
 
 import java.awt.*;
@@ -38,13 +38,13 @@ public final class BlockRendererHelper {
 						final int g = (int) Math.floor(color.getGreen() * brightness);
 						final int b = (int) Math.floor(color.getBlue() * brightness);
 						vertexConsumer.pos(
-								matrixStack,
-								x + Float.intBitsToFloat(vertexData[k]),
-								y + Float.intBitsToFloat(vertexData[k + 1]),
-								z + Float.intBitsToFloat(vertexData[k + 2])
+							matrixStack,
+							x + Float.intBitsToFloat(vertexData[k]),
+							y + Float.intBitsToFloat(vertexData[k + 1]),
+							z + Float.intBitsToFloat(vertexData[k + 2])
 						).tex(
-								(Float.intBitsToFloat(vertexData[k + 4]) - sprite.getMinU()) / (sprite.getMaxU() - sprite.getMinU()),
-								(Float.intBitsToFloat(vertexData[k + 5]) - sprite.getMinV()) / (sprite.getMaxV() - sprite.getMinV())
+							(Float.intBitsToFloat(vertexData[k + 4]) - sprite.getMinU()) / (sprite.getMaxU() - sprite.getMinU()),
+							(Float.intBitsToFloat(vertexData[k + 5]) - sprite.getMinV()) / (sprite.getMaxV() - sprite.getMinV())
 						).color(new Color(r, g, b)).endVertex();
 					}
 				});

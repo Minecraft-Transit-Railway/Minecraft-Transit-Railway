@@ -1,6 +1,5 @@
 package org.mtr.block;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.Getter;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockEntityProvider;
@@ -26,6 +25,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.mtr.MTR;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.packet.PacketDeleteData;
 import org.mtr.packet.PacketOpenBlockEntityScreen;
 import org.mtr.registry.BlockEntityTypes;

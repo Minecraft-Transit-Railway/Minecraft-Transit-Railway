@@ -3,9 +3,6 @@ package org.mtr.screen;
 import gg.essential.elementa.components.UIContainer;
 import gg.essential.elementa.components.UIWrappedText;
 import gg.essential.elementa.constraints.*;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.text.Text;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Station;
@@ -13,6 +10,9 @@ import org.mtr.core.data.StationExit;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.packet.PacketUpdateData;
 import org.mtr.registry.RegistryClient;
 import org.mtr.tool.GuiHelper;
@@ -31,14 +31,14 @@ public final class StationScreen extends NameColorDataScreenBase<Station> {
 	private EditingStationExit editingStationExit;
 
 	private final UIContainer exitListContainer = (UIContainer) new UIContainer()
-			.setChildOf(backgroundComponent.containers[2])
-			.setWidth(new RelativeConstraint())
-			.setHeight(new RelativeConstraint());
+		.setChildOf(backgroundComponent.containers[2])
+		.setWidth(new RelativeConstraint())
+		.setHeight(new RelativeConstraint());
 
 	private final UIContainer editExitContainer = (UIContainer) new UIContainer()
-			.setChildOf(backgroundComponent.containers[2])
-			.setWidth(new RelativeConstraint())
-			.setHeight(new RelativeConstraint());
+		.setChildOf(backgroundComponent.containers[2])
+		.setWidth(new RelativeConstraint())
+		.setHeight(new RelativeConstraint());
 
 	private final TextInputComponent zoneXTextInput;
 	private final TextInputComponent zoneYTextInput;
@@ -50,55 +50,55 @@ public final class StationScreen extends NameColorDataScreenBase<Station> {
 
 	public StationScreen(Station station, @Nullable ScreenBase previousScreenLegacy) {
 		super(station, ObjectImmutableList.of(
-				new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.BRUSH_TEXTURE.get(), TranslationProvider.GUI_MTR_STATION.getString()),
-				new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.POPPY_TEXTURE.get(), TranslationProvider.GUI_MTR_STATION_COLOR.getString()),
-				new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.EXIT_TEXTURE.get(), TranslationProvider.GUI_MTR_EXITS.getString())
+			new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.BRUSH_TEXTURE.get(), TranslationProvider.GUI_MTR_STATION.getString()),
+			new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.POPPY_TEXTURE.get(), TranslationProvider.GUI_MTR_STATION_COLOR.getString()),
+			new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.EXIT_TEXTURE.get(), TranslationProvider.GUI_MTR_EXITS.getString())
 		), TranslationProvider.GUI_MTR_STATION_NAME, name -> TranslationProvider.GUI_MTR_STATION.getString(Utilities.formatName(name)), TranslationProvider.GUI_MTR_STATION_COLOR, previousScreenLegacy);
 
 		GuiHelper.createLabel(firstTabScrollComponent, TranslationProvider.GUI_MTR_ZONE.getString());
 
 		final UIContainer zoneContainer = (UIContainer) new UIContainer()
-				.setChildOf(firstTabScrollComponent)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint())
-				.setHeight(new PixelConstraint(20));
+			.setChildOf(firstTabScrollComponent)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint())
+			.setHeight(new PixelConstraint(20));
 
 		zoneXTextInput = createZoneTextInput(zoneContainer, station.getZone1());
 		zoneYTextInput = createZoneTextInput(zoneContainer, station.getZone2());
 		zoneZTextInput = createZoneTextInput(zoneContainer, station.getZone3());
 
 		new UIWrappedText(TranslationProvider.GUI_MTR_EXITS.getString(), false)
-				.setChildOf(exitListContainer)
-				.setWidth(new RelativeConstraint())
-				.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR));
+			.setChildOf(exitListContainer)
+			.setWidth(new RelativeConstraint())
+			.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR));
 
 		final ButtonComponent addExitButton = (ButtonComponent) (new ButtonComponent(true)
-				.setChildOf(exitListContainer)
-				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-				.setWidth(new RelativeConstraint()));
+			.setChildOf(exitListContainer)
+			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new RelativeConstraint()));
 
 		final SlotBackgroundComponent slotBackgroundComponent = (SlotBackgroundComponent) new SlotBackgroundComponent()
-				.setChildOf(exitListContainer)
-				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-				.setWidth(new RelativeConstraint())
-				.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING * 2)));
+			.setChildOf(exitListContainer)
+			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new RelativeConstraint())
+			.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING * 2)));
 
 		stationExitListComponent = GuiHelper.createListComponent(slotBackgroundComponent);
 		updateStationExitListComponent();
 
 		new UIWrappedText(TranslationProvider.GUI_MTR_ADD_EXIT.getString(), false)
-				.setChildOf(editExitContainer)
-				.setWidth(new RelativeConstraint())
-				.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR));
+			.setChildOf(editExitContainer)
+			.setWidth(new RelativeConstraint())
+			.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR));
 
 		GuiHelper.createSpacing(editExitContainer);
 		GuiHelper.createLabel(editExitContainer, TranslationProvider.GUI_MTR_EXIT_NAME.getString());
 
 		stationExitParentTextInput = (TextInputComponent) new TextInputComponent()
-				.setChildOf(editExitContainer)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint())
-				.setHeight(new PixelConstraint(20));
+			.setChildOf(editExitContainer)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint())
+			.setHeight(new PixelConstraint(20));
 
 		stationExitParentTextInput.onChange(this::updateEditExitButton);
 
@@ -106,22 +106,22 @@ public final class StationScreen extends NameColorDataScreenBase<Station> {
 		GuiHelper.createLabel(editExitContainer, TranslationProvider.GUI_MTR_EXIT_DESTINATION.getString());
 
 		stationExitDestinationTextInput = (TextInputComponent) new TextInputComponent()
-				.setChildOf(editExitContainer)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint())
-				.setHeight(new PixelConstraint(20));
+			.setChildOf(editExitContainer)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint())
+			.setHeight(new PixelConstraint(20));
 
 		stationExitDestinationTextInput.onChange(this::updateEditExitButton);
 
 		final UIContainer buttonContainer = (UIContainer) new UIContainer()
-				.setChildOf(editExitContainer)
-				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-				.setWidth(new RelativeConstraint())
-				.setHeight(new RelativeConstraint());
+			.setChildOf(editExitContainer)
+			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new RelativeConstraint())
+			.setHeight(new RelativeConstraint());
 
 		editExitButton = (ButtonComponent) new ButtonComponent(false)
-				.setChildOf(buttonContainer)
-				.setWidth(new ScaleConstraint(new RelativeConstraint(), 0.5F));
+			.setChildOf(buttonContainer)
+			.setWidth(new ScaleConstraint(new RelativeConstraint(), 0.5F));
 
 		editExitButton.onClick(() -> {
 			if (editingStationExit != null) {
@@ -149,9 +149,9 @@ public final class StationScreen extends NameColorDataScreenBase<Station> {
 		});
 
 		final ButtonComponent cancelButton = (ButtonComponent) new ButtonComponent(false)
-				.setChildOf(buttonContainer)
-				.setX(new SiblingConstraint())
-				.setWidth(new ScaleConstraint(new RelativeConstraint(), 0.5F));
+			.setChildOf(buttonContainer)
+			.setX(new SiblingConstraint())
+			.setWidth(new ScaleConstraint(new RelativeConstraint(), 0.5F));
 
 		cancelButton.setText(Text.translatable("gui.cancel").getString());
 		cancelButton.onClick(() -> {
@@ -194,19 +194,19 @@ public final class StationScreen extends NameColorDataScreenBase<Station> {
 	private void updateStationExitListComponent() {
 		data.getExits().removeIf(stationExit -> stationExit.getDestinations().isEmpty());
 		ListComponent.setStationExits(stationExitListComponent, data.getExits(), false, ObjectArrayList.of(
-				new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (indexList, data) -> {
-					final int index = indexList.getLast();
-					final String destination = data.getDestinations().get(index);
-					editingStationExit = new EditingStationExit(data.getName(), destination, index);
-					stationExitParentTextInput.setText(data.getName());
-					stationExitDestinationTextInput.setText(destination);
-					editExitButton.setText(TranslationProvider.GUI_MTR_EDIT_EXIT.getString());
-					updateContainers();
-				}),
-				new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (indexList, data) -> {
-					data.getDestinations().remove((int) indexList.getLast());
-					updateStationExitListComponent();
-				})
+			new ObjectObjectImmutablePair<>(GuiHelper.EDIT_TEXTURE_ID, (indexList, data) -> {
+				final int index = indexList.getLast();
+				final String destination = data.getDestinations().get(index);
+				editingStationExit = new EditingStationExit(data.getName(), destination, index);
+				stationExitParentTextInput.setText(data.getName());
+				stationExitDestinationTextInput.setText(destination);
+				editExitButton.setText(TranslationProvider.GUI_MTR_EDIT_EXIT.getString());
+				updateContainers();
+			}),
+			new ObjectObjectImmutablePair<>(GuiHelper.DELETE_TEXTURE_ID, (indexList, data) -> {
+				data.getDestinations().remove((int) indexList.getLast());
+				updateStationExitListComponent();
+			})
 		));
 	}
 
@@ -245,10 +245,10 @@ public final class StationScreen extends NameColorDataScreenBase<Station> {
 
 	private static TextInputComponent createZoneTextInput(UIContainer container, long existingZone) {
 		final TextInputComponent textInput = (TextInputComponent) new TextInputComponent()
-				.setChildOf(container)
-				.setX(new SiblingConstraint())
-				.setWidth(new ScaleConstraint(new RelativeConstraint(), 1F / 3))
-				.setHeight(new PixelConstraint(20));
+			.setChildOf(container)
+			.setX(new SiblingConstraint())
+			.setWidth(new ScaleConstraint(new RelativeConstraint(), 1F / 3))
+			.setHeight(new PixelConstraint(20));
 
 		textInput.setFilter("[^-\\d]");
 		textInput.setText(String.valueOf(existingZone));

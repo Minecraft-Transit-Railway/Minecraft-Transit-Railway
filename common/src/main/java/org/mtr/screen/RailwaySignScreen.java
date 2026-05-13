@@ -4,9 +4,6 @@ import gg.essential.elementa.components.ScrollComponent;
 import gg.essential.elementa.components.UIContainer;
 import gg.essential.elementa.constraints.*;
 import gg.essential.universal.UMinecraft;
-import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
@@ -17,6 +14,9 @@ import org.mtr.core.data.Route;
 import org.mtr.core.data.Station;
 import org.mtr.core.data.StationExit;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.packet.PacketUpdateRailwaySignConfig;
 import org.mtr.registry.RegistryClient;
 import org.mtr.resource.SignResource;
@@ -51,28 +51,28 @@ public final class RailwaySignScreen extends WindowBase {
 				final BackgroundComponent backgroundComponent = new BackgroundComponent(getWindow(), ObjectImmutableList.of());
 
 				final UIContainer topContainer = (UIContainer) new UIContainer()
-						.setChildOf(backgroundComponent)
-						.setWidth(new RelativeConstraint())
-						.setHeight(new PixelConstraint(MAX_SIGN_TILE_HEIGHT + 2));
+					.setChildOf(backgroundComponent)
+					.setWidth(new RelativeConstraint())
+					.setHeight(new PixelConstraint(MAX_SIGN_TILE_HEIGHT + 2));
 
 				final SignPreviewComponent signPreviewComponent = (SignPreviewComponent) new SignPreviewComponent(signPos, selectedIds, signIds)
-						.setChildOf(topContainer)
-						.setWidth(new CoerceAtMostConstraint(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING * 2 + MAX_SEARCH_WIDTH)), new PixelConstraint(MAX_SIGN_TILE_HEIGHT * signIds.length + 2)))
-						.setHeight(GuiHelper.createAspectConstraintWithPadding(1F / signIds.length, 1));
+					.setChildOf(topContainer)
+					.setWidth(new CoerceAtMostConstraint(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING * 2 + MAX_SEARCH_WIDTH)), new PixelConstraint(MAX_SIGN_TILE_HEIGHT * signIds.length + 2)))
+					.setHeight(GuiHelper.createAspectConstraintWithPadding(1F / signIds.length, 1));
 
 				final TextInputComponent searchComponent = (TextInputComponent) new TextInputComponent()
-						.setChildOf(topContainer)
-						.setX(new PixelConstraint(0, true))
-						.setWidth(new CoerceAtMostConstraint(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING * 2)), new PixelConstraint(MAX_SEARCH_WIDTH)))
-						.setHeight(new PixelConstraint(20));
+					.setChildOf(topContainer)
+					.setX(new PixelConstraint(0, true))
+					.setWidth(new CoerceAtMostConstraint(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING * 2)), new PixelConstraint(MAX_SEARCH_WIDTH)))
+					.setHeight(new PixelConstraint(20));
 
 				searchComponent.setPlaceholderText(TranslationProvider.GUI_MTR_SEARCH.getString());
 
 				final UIContainer container = (UIContainer) new UIContainer()
-						.setChildOf(backgroundComponent)
-						.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-						.setWidth(new RelativeConstraint())
-						.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)));
+					.setChildOf(backgroundComponent)
+					.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+					.setWidth(new RelativeConstraint())
+					.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)));
 
 				final ObjectArrayList<SignResource> signResources1 = new ObjectArrayList<>();
 				final ObjectArrayList<SignResource> signResources2 = new ObjectArrayList<>();
@@ -100,25 +100,25 @@ public final class RailwaySignScreen extends WindowBase {
 	private void createMainComponents(UIContainer container, int columns, int signWidthUnits, SignPreviewComponent signPreviewComponent, TextInputComponent searchComponent, ObjectArrayList<SignResource> signResources) {
 		final int slotBackgroundExtraPadding = ScrollPanelComponent.SCROLL_BAR_WIDTH + 2;
 		final SlotBackgroundComponent slotBackgroundComponent = (SlotBackgroundComponent) new SlotBackgroundComponent()
-				.setChildOf(container)
-				.setX(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-				.setWidth(new AdditiveConstraint(new ScaleConstraint(
-						new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING + SignButtonsComponent.PADDING * SIGN_COLUMNS * 2 + slotBackgroundExtraPadding * 2)),
-						(float) (columns * signWidthUnits) / (SMALL_SIGN_COLUMNS * SMALL_SIGN_WIDTH_UNITS + LARGE_SIGN_COLUMNS * LARGE_SIGN_WIDTH_UNITS)
-				), new PixelConstraint(SignButtonsComponent.PADDING * columns * 2 + slotBackgroundExtraPadding)))
-				.setHeight(new RelativeConstraint());
+			.setChildOf(container)
+			.setX(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new AdditiveConstraint(new ScaleConstraint(
+				new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING + SignButtonsComponent.PADDING * SIGN_COLUMNS * 2 + slotBackgroundExtraPadding * 2)),
+				(float) (columns * signWidthUnits) / (SMALL_SIGN_COLUMNS * SMALL_SIGN_WIDTH_UNITS + LARGE_SIGN_COLUMNS * LARGE_SIGN_WIDTH_UNITS)
+			), new PixelConstraint(SignButtonsComponent.PADDING * columns * 2 + slotBackgroundExtraPadding)))
+			.setHeight(new RelativeConstraint());
 
 		final ScrollComponent scrollComponent = ((ScrollPanelComponent) new ScrollPanelComponent(false)
-				.setChildOf(slotBackgroundComponent)
-				.setX(new CenterConstraint())
-				.setY(new CenterConstraint())
-				.setWidth(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)))
-				.setHeight(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)))).contentContainer;
+			.setChildOf(slotBackgroundComponent)
+			.setX(new CenterConstraint())
+			.setY(new CenterConstraint())
+			.setWidth(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)))
+			.setHeight(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)))).contentContainer;
 
 		final SignButtonsComponent signButtonsComponent = (SignButtonsComponent) new SignButtonsComponent(signPos == null ? new BlockPos(0, 0, 0) : signPos, signResources, columns, signWidthUnits)
-				.setChildOf(scrollComponent)
-				.setWidth(new RelativeConstraint())
-				.setHeight(new RelativeConstraint());
+			.setChildOf(scrollComponent)
+			.setWidth(new RelativeConstraint())
+			.setHeight(new RelativeConstraint());
 
 		signPreviewComponent.onEdit(signButtonsComponent::setEditingIndex);
 		searchComponent.onChange(() -> signButtonsComponent.setSearch(searchComponent.getText()));

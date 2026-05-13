@@ -1,10 +1,5 @@
 package org.mtr.resource;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Box;
@@ -15,6 +10,11 @@ import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.VehicleExtension;
 import org.mtr.generated.resource.VehicleResourceSchema;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.model.BuiltVehicleModelHolder;
 import org.mtr.render.StoredMatrixTransformations;
 import org.mtr.sound.BveVehicleSound;
@@ -49,62 +49,62 @@ public final class VehicleResource extends VehicleResourceSchema {
 	}
 
 	VehicleResource(
-			String id,
-			String name,
-			String color,
-			TransportMode transportMode,
-			double length,
-			double width,
-			double bogie1Position,
-			double bogie2Position,
-			double couplingPadding1,
-			double couplingPadding2,
-			String description,
-			String wikipediaArticle,
-			ObjectArrayList<String> tags,
-			ObjectArrayList<VehicleModel> models,
-			ObjectArrayList<VehicleModel> bogie1Models,
-			ObjectArrayList<VehicleModel> bogie2Models,
-			boolean hasGangway1,
-			boolean hasGangway2,
-			boolean hasBarrier1,
-			boolean hasBarrier2,
-			double legacyRiderOffset,
-			String bveSoundBaseResource,
-			String legacySpeedSoundBaseResource,
-			long legacySpeedSoundCount,
-			boolean legacyUseAccelerationSoundsWhenCoasting,
-			boolean legacyConstantPlaybackSpeed,
-			String legacyDoorSoundBaseResource,
-			double legacyDoorCloseSoundTime,
-			ResourceProvider resourceProvider
+		String id,
+		String name,
+		String color,
+		TransportMode transportMode,
+		double length,
+		double width,
+		double bogie1Position,
+		double bogie2Position,
+		double couplingPadding1,
+		double couplingPadding2,
+		String description,
+		String wikipediaArticle,
+		ObjectArrayList<String> tags,
+		ObjectArrayList<VehicleModel> models,
+		ObjectArrayList<VehicleModel> bogie1Models,
+		ObjectArrayList<VehicleModel> bogie2Models,
+		boolean hasGangway1,
+		boolean hasGangway2,
+		boolean hasBarrier1,
+		boolean hasBarrier2,
+		double legacyRiderOffset,
+		String bveSoundBaseResource,
+		String legacySpeedSoundBaseResource,
+		long legacySpeedSoundCount,
+		boolean legacyUseAccelerationSoundsWhenCoasting,
+		boolean legacyConstantPlaybackSpeed,
+		String legacyDoorSoundBaseResource,
+		double legacyDoorCloseSoundTime,
+		ResourceProvider resourceProvider
 	) {
 		super(
-				id,
-				name,
-				color,
-				transportMode,
-				length,
-				width,
-				bogie1Position,
-				bogie2Position,
-				couplingPadding1,
-				couplingPadding2,
-				description,
-				wikipediaArticle,
-				hasGangway1,
-				hasGangway2,
-				hasBarrier1,
-				hasBarrier2,
-				legacyRiderOffset,
-				bveSoundBaseResource,
-				legacySpeedSoundBaseResource,
-				legacySpeedSoundCount,
-				legacyUseAccelerationSoundsWhenCoasting,
-				legacyConstantPlaybackSpeed,
-				legacyDoorSoundBaseResource,
-				legacyDoorCloseSoundTime,
-				resourceProvider
+			id,
+			name,
+			color,
+			transportMode,
+			length,
+			width,
+			bogie1Position,
+			bogie2Position,
+			couplingPadding1,
+			couplingPadding2,
+			description,
+			wikipediaArticle,
+			hasGangway1,
+			hasGangway2,
+			hasBarrier1,
+			hasBarrier2,
+			legacyRiderOffset,
+			bveSoundBaseResource,
+			legacySpeedSoundBaseResource,
+			legacySpeedSoundCount,
+			legacyUseAccelerationSoundsWhenCoasting,
+			legacyConstantPlaybackSpeed,
+			legacyDoorSoundBaseResource,
+			legacyDoorCloseSoundTime,
+			resourceProvider
 		);
 		this.tags.addAll(tags);
 		this.models.addAll(models);
@@ -212,34 +212,34 @@ public final class VehicleResource extends VehicleResourceSchema {
 		final int totalCars = id.endsWith("cab_3") ? 1 : 3;
 		getCachedVehicleResource(carNumber, totalCars);
 		return new VehicleResourceWrapper(
-				id,
-				name,
-				color,
-				transportMode,
-				length,
-				width,
-				bogie1Position,
-				bogie2Position,
-				couplingPadding1,
-				couplingPadding2,
-				description,
-				wikipediaArticle,
-				tags,
-				getAllModels(carNumber, totalCars).stream().map(VehicleModel::toVehicleModelWrapper).collect(Collectors.toCollection(ObjectArrayList::new)),
-				bogie1Models.stream().map(VehicleModel::toVehicleModelWrapper).collect(Collectors.toCollection(ObjectArrayList::new)),
-				bogie2Models.stream().map(VehicleModel::toVehicleModelWrapper).collect(Collectors.toCollection(ObjectArrayList::new)),
-				hasGangway1,
-				hasGangway2,
-				hasBarrier1,
-				hasBarrier2,
-				legacyRiderOffset,
-				bveSoundBaseResource,
-				legacySpeedSoundBaseResource,
-				legacySpeedSoundCount,
-				legacyUseAccelerationSoundsWhenCoasting,
-				legacyConstantPlaybackSpeed,
-				legacyDoorSoundBaseResource,
-				legacyDoorCloseSoundTime
+			id,
+			name,
+			color,
+			transportMode,
+			length,
+			width,
+			bogie1Position,
+			bogie2Position,
+			couplingPadding1,
+			couplingPadding2,
+			description,
+			wikipediaArticle,
+			tags,
+			getAllModels(carNumber, totalCars).stream().map(VehicleModel::toVehicleModelWrapper).collect(Collectors.toCollection(ObjectArrayList::new)),
+			bogie1Models.stream().map(VehicleModel::toVehicleModelWrapper).collect(Collectors.toCollection(ObjectArrayList::new)),
+			bogie2Models.stream().map(VehicleModel::toVehicleModelWrapper).collect(Collectors.toCollection(ObjectArrayList::new)),
+			hasGangway1,
+			hasGangway2,
+			hasBarrier1,
+			hasBarrier2,
+			legacyRiderOffset,
+			bveSoundBaseResource,
+			legacySpeedSoundBaseResource,
+			legacySpeedSoundCount,
+			legacyUseAccelerationSoundsWhenCoasting,
+			legacyConstantPlaybackSpeed,
+			legacyDoorSoundBaseResource,
+			legacyDoorCloseSoundTime
 		);
 	}
 
@@ -361,12 +361,12 @@ public final class VehicleResource extends VehicleResourceSchema {
 	private Supplier<VehicleSoundBase> createVehicleSoundBaseInitializer() {
 		if (bveSoundBaseResource.isEmpty()) {
 			final LegacyVehicleSound legacyVehicleSound = new LegacyVehicleSound(
-					legacySpeedSoundBaseResource,
-					(int) legacySpeedSoundCount,
-					legacyUseAccelerationSoundsWhenCoasting,
-					legacyConstantPlaybackSpeed,
-					legacyDoorSoundBaseResource,
-					legacyDoorCloseSoundTime
+				legacySpeedSoundBaseResource,
+				(int) legacySpeedSoundCount,
+				legacyUseAccelerationSoundsWhenCoasting,
+				legacyConstantPlaybackSpeed,
+				legacyDoorSoundBaseResource,
+				legacyDoorCloseSoundTime
 			);
 			return () -> legacyVehicleSound;
 		} else {

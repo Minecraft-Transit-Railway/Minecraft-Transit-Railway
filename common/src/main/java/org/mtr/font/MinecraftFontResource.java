@@ -1,16 +1,16 @@
 package org.mtr.font;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import it.unimi.dsi.fastutil.bytes.ByteArrayList;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 import org.mtr.MTR;
+import org.mtr.libraries.com.google.gson.JsonArray;
+import org.mtr.libraries.com.google.gson.JsonObject;
+import org.mtr.libraries.com.google.gson.JsonParser;
+import org.mtr.libraries.it.unimi.dsi.fastutil.bytes.ByteArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.resource.ResourceManagerHelper;
 import org.mtr.tool.GuiHelper;
 

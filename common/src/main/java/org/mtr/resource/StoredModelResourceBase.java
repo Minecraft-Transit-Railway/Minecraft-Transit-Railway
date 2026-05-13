@@ -1,12 +1,12 @@
 package org.mtr.resource;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.StringUtils;
 import org.mtr.MTR;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.model.BlockbenchModelLoader;
 import org.mtr.model.NewOptimizedModel;
 import org.mtr.model.ObjModelLoader;
@@ -30,10 +30,10 @@ public interface StoredModelResourceBase {
 		} else if (isObj) {
 			final ObjModelLoader objModelLoader = new ObjModelLoader(defaultTexture);
 			objModelLoader.loadModel(
-					resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
-					mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
-					textureString -> StringUtils.isEmpty(textureString) ? Identifier.of(MTR.MOD_ID, "textures/block/white.png") : StringUtils.equals(textureString, "default.png") ? defaultTexture : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
-					true, flipTextureV
+				resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
+				mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
+				textureString -> StringUtils.isEmpty(textureString) ? Identifier.of(MTR.MOD_ID, "textures/block/white.png") : StringUtils.equals(textureString, "default.png") ? defaultTexture : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
+				true, flipTextureV
 			);
 			// TODO transform object if needed
 			models = objModelLoader.get();

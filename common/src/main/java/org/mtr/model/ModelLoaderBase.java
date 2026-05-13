@@ -1,12 +1,12 @@
 package org.mtr.model;
 
-import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.render.StoredMatrixTransformations;
 import org.mtr.resource.*;
 
@@ -106,26 +106,26 @@ public abstract class ModelLoaderBase {
 	 * If this part is a door, find the closest doorway.
 	 */
 	private ObjectArrayList<BuiltVehicleModelHolder.BuiltDoorModelDetails> mapDoors(
-			ObjectArrayList<ModelPropertiesPart.RawDoorModelDetails> rawDoorModelDetailsList,
-			ObjectArrayList<Box> doorways
+		ObjectArrayList<ModelPropertiesPart.RawDoorModelDetails> rawDoorModelDetailsList,
+		ObjectArrayList<Box> doorways
 	) {
 		final ObjectArrayList<BuiltVehicleModelHolder.BuiltDoorModelDetails> builtDoorModelDetailsList = new ObjectArrayList<>();
 		rawDoorModelDetailsList.forEach(rawDoorModelDetails -> {
 			final Box closestDoorway = doorways.stream().min(Comparator.comparingDouble(checkDoorway -> rawDoorModelDetails.boxes().stream().map(box -> getClosestDistance(
-					box.minX,
-					box.maxX,
-					checkDoorway.minX,
-					checkDoorway.maxX
+				box.minX,
+				box.maxX,
+				checkDoorway.minX,
+				checkDoorway.maxX
 			) + getClosestDistance(
-					box.minY,
-					box.maxY,
-					checkDoorway.minY,
-					checkDoorway.maxY
+				box.minY,
+				box.maxY,
+				checkDoorway.minY,
+				checkDoorway.maxY
 			) + getClosestDistance(
-					box.minZ,
-					box.maxZ,
-					checkDoorway.minZ,
-					checkDoorway.maxZ
+				box.minZ,
+				box.maxZ,
+				checkDoorway.minZ,
+				checkDoorway.maxZ
 			)).min(Double::compareTo).orElse(Double.MAX_VALUE))).orElse(null);
 
 			final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> builtDoorModel = new Object2ObjectOpenHashMap<>();

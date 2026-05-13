@@ -1,12 +1,12 @@
 package org.mtr.packet;
 
-import it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import org.mtr.MTR;
 import org.mtr.block.BlockSignalBase;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 
 public final class PacketUpdateSignalConfig extends PacketHandler {
 

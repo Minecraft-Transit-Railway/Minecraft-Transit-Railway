@@ -1,6 +1,5 @@
 package org.mtr.packet;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -8,6 +7,7 @@ import net.minecraft.world.PersistentState;
 import org.mtr.MTR;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.data.PersistentStateData;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 import org.mtr.registry.Registry;
 
 import java.util.Random;

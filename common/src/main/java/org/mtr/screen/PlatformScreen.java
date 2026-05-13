@@ -1,6 +1,5 @@
 package org.mtr.screen;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -9,6 +8,7 @@ import org.mtr.core.data.Platform;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.packet.PacketUpdateData;
 import org.mtr.registry.RegistryClient;
 import org.mtr.tool.GuiHelper;

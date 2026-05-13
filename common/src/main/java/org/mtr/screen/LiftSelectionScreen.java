@@ -1,7 +1,5 @@
 package org.mtr.screen;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.world.ClientWorld;
@@ -12,6 +10,8 @@ import org.mtr.core.data.Lift;
 import org.mtr.core.data.LiftDirection;
 import org.mtr.core.operation.PressLift;
 import org.mtr.data.IGui;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.packet.PacketPressLiftButton;
 import org.mtr.registry.RegistryClient;
 import org.mtr.render.RenderLifts;
@@ -34,9 +34,9 @@ public class LiftSelectionScreen extends ScreenBase implements IGui {
 				floorLevels.add(blockPos);
 				final ObjectObjectImmutablePair<LiftDirection, ObjectObjectImmutablePair<String, String>> liftDetails = RenderLifts.getLiftDetails(clientWorld, lift, blockPos);
 				floorDescriptions.add(String.format(
-						"%s %s",
-						liftDetails.right().left(),
-						IGui.formatStationName(String.join("|", liftDetails.right().right()))
+					"%s %s",
+					liftDetails.right().left(),
+					IGui.formatStationName(String.join("|", liftDetails.right().right()))
 				));
 			});
 		}
@@ -65,9 +65,9 @@ public class LiftSelectionScreen extends ScreenBase implements IGui {
 			for (int i = floorLevels.size() - 1; i >= 0; i--) {
 				final BlockPos blockPos = floorLevels.get(i);
 				list.add(new DashboardListItem(
-						blockPos.asLong(),
-						floorDescriptions.get(i),
-						lift.hasInstruction(lift.getFloorIndex(MTR.blockPosToPosition(blockPos))).contains(LiftDirection.NONE) ? 0xFFFF0000 : ARGB_BLACK
+					blockPos.asLong(),
+					floorDescriptions.get(i),
+					lift.hasInstruction(lift.getFloorIndex(MTR.blockPosToPosition(blockPos))).contains(LiftDirection.NONE) ? 0xFFFF0000 : ARGB_BLACK
 				));
 			}
 			selectionList.setData(list, true, false, false, false, false, false);

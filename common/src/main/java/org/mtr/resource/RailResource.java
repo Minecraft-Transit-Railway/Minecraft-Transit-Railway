@@ -1,11 +1,11 @@
 package org.mtr.resource;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.text.Text;
 import org.mtr.config.Config;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.generated.resource.RailResourceSchema;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.model.ModelLoaderBase;
 import org.mtr.model.NewOptimizedModel;
 

@@ -5,8 +5,8 @@ import gg.essential.elementa.components.Window;
 import gg.essential.elementa.constraints.*;
 import gg.essential.universal.UMatrixStack;
 import gg.essential.universal.utils.ReleasedDynamicTexture;
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.tool.ReleasedDynamicTextureRegistry;
 
 /**
@@ -33,9 +33,9 @@ public final class BackgroundComponent extends StitchedImageComponent {
 
 		for (int i = 0; i < tabs.size(); i++) {
 			containers[i] = (UIContainer) new UIContainer()
-					.setChildOf(this)
-					.setWidth(new RelativeConstraint())
-					.setHeight(new RelativeConstraint());
+				.setChildOf(this)
+				.setWidth(new RelativeConstraint())
+				.setHeight(new RelativeConstraint());
 		}
 
 		setChildOf(parent);

@@ -1,11 +1,11 @@
 package org.mtr.resource;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.text.Text;
 import org.mtr.config.Config;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.generated.resource.ObjectResourceSchema;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.model.ModelLoaderBase;
 import org.mtr.model.NewOptimizedModel;
 import org.mtr.render.StoredMatrixTransformations;
@@ -38,13 +38,13 @@ public final class ObjectResource extends ObjectResourceSchema implements Stored
 	public void render(StoredMatrixTransformations storedMatrixTransformations, int light) {
 		final StoredMatrixTransformations newStoredMatrixTransformations = storedMatrixTransformations.copy();
 		newStoredMatrixTransformations.add(matrixStack -> {
-					matrixStack.translate(translation.getX(), translation.getY(), translation.getZ());
-					Drawing.rotateXDegrees(matrixStack, (float) rotation.getX());
-					Drawing.rotateYDegrees(matrixStack, (float) rotation.getY());
-					Drawing.rotateZDegrees(matrixStack, (float) rotation.getZ());
-					matrixStack.scale(clampNumber(scale.getX()), clampNumber(scale.getY()), clampNumber(scale.getZ()));
+				matrixStack.translate(translation.getX(), translation.getY(), translation.getZ());
+				Drawing.rotateXDegrees(matrixStack, (float) rotation.getX());
+				Drawing.rotateYDegrees(matrixStack, (float) rotation.getY());
+				Drawing.rotateZDegrees(matrixStack, (float) rotation.getZ());
+				matrixStack.scale(clampNumber(scale.getX()), clampNumber(scale.getY()), clampNumber(scale.getZ()));
 //					matrixStack.mirror(mirror.getX(), mirror.getY(), mirror.getZ());
-				}
+			}
 		);
 		StoredModelResourceBase.super.render(newStoredMatrixTransformations, light);
 	}

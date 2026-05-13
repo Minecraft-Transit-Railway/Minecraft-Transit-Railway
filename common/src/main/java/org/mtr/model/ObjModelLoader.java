@@ -1,13 +1,13 @@
 package org.mtr.model;
 
 import de.javagl.obj.*;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mtr.MTR;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.render.MainRenderer;
 import org.mtr.resource.RenderStage;
 
@@ -75,10 +75,10 @@ public final class ObjModelLoader extends ModelLoaderBase {
 						}
 						final FloatTuple kd = objMaterial.getKd();
 						color = kd == null ? null : new Color(
-								kd.getX(),
-								kd.getY(),
-								kd.getZ(),
-								objMaterial.getD() == null ? 1 : objMaterial.getD()
+							kd.getX(),
+							kd.getY(),
+							kd.getZ(),
+							objMaterial.getD() == null ? 1 : objMaterial.getD()
 						);
 					}
 				} else {
@@ -97,10 +97,10 @@ public final class ObjModelLoader extends ModelLoaderBase {
 				}
 
 				newOptimizedModelGroup.add(
-						getRenderStage(materialOptions.get("#")),
-						texture == null && color != null ? Identifier.of(MTR.MOD_ID, "textures/block/white.png") : texture == null ? defaultTexture : texture,
-						storedVertexDataList -> storedVertexDataList.addAll(modifications),
-						null
+					getRenderStage(materialOptions.get("#")),
+					texture == null && color != null ? Identifier.of(MTR.MOD_ID, "textures/block/white.png") : texture == null ? defaultTexture : texture,
+					storedVertexDataList -> storedVertexDataList.addAll(modifications),
+					null
 				);
 			}
 		});
@@ -113,10 +113,10 @@ public final class ObjModelLoader extends ModelLoaderBase {
 		final FloatTuple uv = obj.getTexCoord(face.getTexCoordIndex(faceVertexIndex));
 		final FloatTuple normal = obj.getNormal(face.getNormalIndex(faceVertexIndex));
 		return new StoredVertexData(
-				vertex.getX(), vertex.getY(), vertex.getZ(),
-				color == null ? new Color(0xFF, 0xFF, 0xFF, 0xFF) : color,
-				uv.getX(), flipTextureV ? 1 - uv.getY() : uv.getY(),
-				normal.getX(), normal.getY(), normal.getZ()
+			vertex.getX(), vertex.getY(), vertex.getZ(),
+			color == null ? new Color(0xFF, 0xFF, 0xFF, 0xFF) : color,
+			uv.getX(), flipTextureV ? 1 - uv.getY() : uv.getY(),
+			normal.getX(), normal.getY(), normal.getZ()
 		);
 	}
 

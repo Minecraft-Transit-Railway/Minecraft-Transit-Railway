@@ -1,9 +1,5 @@
 package org.mtr.client;
 
-import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -18,6 +14,10 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.item.ItemDepotDriverKey;
 import org.mtr.item.ItemDriverKey;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.packet.PacketUpdateVehicleRidingEntities;
 import org.mtr.registry.KeyBindings;
 import org.mtr.registry.RegistryClient;
@@ -146,12 +146,12 @@ public class VehicleRidingMovement {
 	}
 
 	public static void movePlayer(
-			long millisElapsed, long vehicleId, int carNumber,
-			ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsAndDoorways,
-			@Nullable GangwayMovementPositions previousCarGangwayMovementPositions,
-			@Nullable GangwayMovementPositions thisCarGangwayMovementPositions1,
-			@Nullable GangwayMovementPositions thisCarGangwayMovementPositions2,
-			PositionAndRotation positionAndRotation
+		long millisElapsed, long vehicleId, int carNumber,
+		ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsAndDoorways,
+		@Nullable GangwayMovementPositions previousCarGangwayMovementPositions,
+		@Nullable GangwayMovementPositions thisCarGangwayMovementPositions1,
+		@Nullable GangwayMovementPositions thisCarGangwayMovementPositions2,
+		PositionAndRotation positionAndRotation
 	) {
 		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().player;
 		if (clientPlayerEntity == null) {
@@ -164,9 +164,9 @@ public class VehicleRidingMovement {
 			final float speedMultiplier = millisElapsed * VEHICLE_WALKING_SPEED_MULTIPLIER * (clientPlayerEntity.isSprinting() ? 2 : 1);
 			// Calculate the relative motion inside vehicle (+Z towards back of vehicle, +/-X towards the left and right of the vehicle)
 			final Vec3d movement = positionAndRotation.transformBackwards(new Vec3d(
-					Math.abs(clientPlayerEntity.sidewaysSpeed) > 0.5 ? Math.copySign(speedMultiplier, clientPlayerEntity.sidewaysSpeed) : 0,
-					0,
-					Math.abs(clientPlayerEntity.forwardSpeed) > 0.5 ? Math.copySign(speedMultiplier, clientPlayerEntity.forwardSpeed) : 0
+				Math.abs(clientPlayerEntity.sidewaysSpeed) > 0.5 ? Math.copySign(speedMultiplier, clientPlayerEntity.sidewaysSpeed) : 0,
+				0,
+				Math.abs(clientPlayerEntity.forwardSpeed) > 0.5 ? Math.copySign(speedMultiplier, clientPlayerEntity.forwardSpeed) : 0
 			), (vector, pitch) -> vector, (vector, yaw) -> vector.rotateY((float) (yaw - Math.toRadians(entityYawOld))), (vector, roll) -> vector, (vector, x, y, z) -> vector);
 			final double movementX = movement.x;
 			final double movementZ = movement.z;
@@ -206,19 +206,19 @@ public class VehicleRidingMovement {
 						final Vec3d position2Min = thisCarGangwayMovementPositions1.getMinWorldPosition();
 						final Vec3d position2Max = thisCarGangwayMovementPositions1.getMaxWorldPosition();
 						final double positionX = getFromScale(
-								getFromScale(position1Min.x, position1Max.x, ridingVehicleX),
-								getFromScale(position2Min.x, position2Max.x, ridingVehicleX),
-								ridingVehicleZ
+							getFromScale(position1Min.x, position1Max.x, ridingVehicleX),
+							getFromScale(position2Min.x, position2Max.x, ridingVehicleX),
+							ridingVehicleZ
 						);
 						final double positionY = getFromScale(
-								getFromScale(position1Min.y, position1Max.y, ridingVehicleX),
-								getFromScale(position2Min.y, position2Max.y, ridingVehicleX),
-								ridingVehicleZ
+							getFromScale(position1Min.y, position1Max.y, ridingVehicleX),
+							getFromScale(position2Min.y, position2Max.y, ridingVehicleX),
+							ridingVehicleZ
 						);
 						final double positionZ = getFromScale(
-								getFromScale(position1Min.z, position1Max.z, ridingVehicleX),
-								getFromScale(position2Min.z, position2Max.z, ridingVehicleX),
-								ridingVehicleZ
+							getFromScale(position1Min.z, position1Max.z, ridingVehicleX),
+							getFromScale(position2Min.z, position2Max.z, ridingVehicleX),
+							ridingVehicleZ
 						);
 
 						// ridingPositionCache should always store the relative position of the player with respect to the riding car, even when the player is on a gangway
@@ -351,16 +351,16 @@ public class VehicleRidingMovement {
 	@Nullable
 	private static ObjectBooleanImmutablePair<Box> bestPosition(ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsOrDoorways, double x, double y, double z) {
 		return floorsOrDoorways.stream()
-				.filter(floorOrDoorway -> RenderVehicleHelper.boxContains(floorOrDoorway.left(), x, y, z))
-				.max(Comparator.comparingDouble(floorOrDoorway -> floorOrDoorway.left().maxY))
-				.orElse(floorsOrDoorways.stream().filter(floorOrDoorway -> Math.abs(floorOrDoorway.left().maxY - ridingVehicleY) <= 1).min(Comparator.comparingDouble(floorOrDoorway -> {
-					final Box box = floorOrDoorway.left();
-					final double minX = box.minX;
-					final double maxX = box.maxX;
-					final double minZ = box.minZ;
-					final double maxZ = box.maxZ;
-					return (Utilities.isBetween(x, minX, maxX) ? 0 : Math.min(Math.abs(minX - x), Math.abs(maxX - x))) + (Utilities.isBetween(z, minZ, maxZ) ? 0 : Math.min(Math.abs(minZ - z), Math.abs(maxZ - z)));
-				})).orElse(null));
+			.filter(floorOrDoorway -> RenderVehicleHelper.boxContains(floorOrDoorway.left(), x, y, z))
+			.max(Comparator.comparingDouble(floorOrDoorway -> floorOrDoorway.left().maxY))
+			.orElse(floorsOrDoorways.stream().filter(floorOrDoorway -> Math.abs(floorOrDoorway.left().maxY - ridingVehicleY) <= 1).min(Comparator.comparingDouble(floorOrDoorway -> {
+				final Box box = floorOrDoorway.left();
+				final double minX = box.minX;
+				final double maxX = box.maxX;
+				final double minZ = box.minZ;
+				final double maxZ = box.maxZ;
+				return (Utilities.isBetween(x, minX, maxX) ? 0 : Math.min(Math.abs(minX - x), Math.abs(maxX - x))) + (Utilities.isBetween(z, minZ, maxZ) ? 0 : Math.min(Math.abs(minZ - z), Math.abs(maxZ - z)));
+			})).orElse(null));
 	}
 
 	private static void clampPosition(ObjectArrayList<ObjectBooleanImmutablePair<Box>> floorsAndDoorways, double x, double z, ObjectArrayList<Vec3d> offsets) {
@@ -370,9 +370,9 @@ public class VehicleRidingMovement {
 			if (floorOrDoorway.rightBoolean()) {
 				// If the intersecting or closest floor or doorway is a floor, then force the player to be in bounds
 				offsets.add(new Vec3d(
-						Math.clamp(x, floorOrDoorway.left().minX, floorOrDoorway.left().maxX) - x,
-						floorOrDoorway.left().maxY,
-						Math.clamp(z, floorOrDoorway.left().minZ, floorOrDoorway.left().maxZ) - z
+					Math.clamp(x, floorOrDoorway.left().minX, floorOrDoorway.left().maxX) - x,
+					floorOrDoorway.left().maxY,
+					Math.clamp(z, floorOrDoorway.left().minZ, floorOrDoorway.left().maxZ) - z
 				));
 			} else if (RenderVehicleHelper.boxContains(floorOrDoorway.left(), x, ridingVehicleY, z)) {
 				// If the intersecting or closest floor or doorway is a doorway, then don't force the player to be in bounds

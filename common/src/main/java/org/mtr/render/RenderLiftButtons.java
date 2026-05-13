@@ -1,8 +1,5 @@
 package org.mtr.render;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -26,6 +23,9 @@ import org.mtr.core.data.Lift;
 import org.mtr.core.data.LiftDirection;
 import org.mtr.data.IGui;
 import org.mtr.item.ItemLiftButtonsLinkModifier;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.tool.Drawing;
 
 import java.util.Comparator;
@@ -54,10 +54,10 @@ public class RenderLiftButtons extends BlockEntityRendererExtension<BlockLiftBut
 			if (world.getBlockState(trackPosition).getBlock() instanceof BlockLiftTrackFloor) {
 				final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, Properties.HORIZONTAL_FACING);
 				renderLiftObjectLink(
-						storedMatrixTransformations1,
-						new Vec3d(facing.getOffsetX() / 2F, 0.5, facing.getOffsetZ() / 2F),
-						new Vec3d(trackPosition.getX() - blockPos.getX() + trackFacing.getOffsetX() / 2F, trackPosition.getY() - blockPos.getY() + 0.5, trackPosition.getZ() - blockPos.getZ() + trackFacing.getOffsetZ() / 2F),
-						holdingLinker
+					storedMatrixTransformations1,
+					new Vec3d(facing.getOffsetX() / 2F, 0.5, facing.getOffsetZ() / 2F),
+					new Vec3d(trackPosition.getX() - blockPos.getX() + trackFacing.getOffsetX() / 2F, trackPosition.getY() - blockPos.getY() + 0.5, trackPosition.getZ() - blockPos.getZ() + trackFacing.getOffsetZ() / 2F),
+					holdingLinker
 				);
 			}
 
@@ -152,15 +152,15 @@ public class RenderLiftButtons extends BlockEntityRendererExtension<BlockLiftBut
 			MainRenderer.scheduleRender(QueuedRenderLayer.LINES, (matrixStack, vertexConsumer, offset) -> {
 				storedMatrixTransformations.transform(matrixStack, offset);
 				IDrawing.drawLineInWorld(
-						matrixStack,
-						vertexConsumer,
-						(float) position1.x,
-						(float) position1.y,
-						(float) position1.z,
-						(float) position2.x,
-						(float) position2.y,
-						(float) position2.z,
-						ARGB_WHITE
+					matrixStack,
+					vertexConsumer,
+					(float) position1.x,
+					(float) position1.y,
+					(float) position1.z,
+					(float) position2.x,
+					(float) position2.y,
+					(float) position2.z,
+					ARGB_WHITE
 				);
 				matrixStack.pop();
 			});

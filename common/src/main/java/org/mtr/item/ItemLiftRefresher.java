@@ -1,7 +1,5 @@
 package org.mtr.item;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -26,6 +24,8 @@ import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
 import org.mtr.core.tool.Vector;
 import org.mtr.generated.lang.TranslationProvider;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.packet.PacketOpenLiftCustomizationScreen;
 import org.mtr.registry.Registry;
 
@@ -121,9 +121,9 @@ public class ItemLiftRefresher extends Item {
 		final BlockEntity blockEntity = world.getBlockEntity(blockPos);
 		if (addFirstFloor && blockEntity != null && blockEntity instanceof BlockLiftTrackFloor.LiftTrackFloorBlockEntity) {
 			liftFloors.add(new LiftFloor(
-					MTR.blockPosToPosition(blockPos),
-					((BlockLiftTrackFloor.LiftTrackFloorBlockEntity) (blockEntity)).getFloorNumber(),
-					((BlockLiftTrackFloor.LiftTrackFloorBlockEntity) (blockEntity)).getFloorDescription()
+				MTR.blockPosToPosition(blockPos),
+				((BlockLiftTrackFloor.LiftTrackFloorBlockEntity) (blockEntity)).getFloorNumber(),
+				((BlockLiftTrackFloor.LiftTrackFloorBlockEntity) (blockEntity)).getFloorDescription()
 			));
 
 			if (findOneFloorOnly) {

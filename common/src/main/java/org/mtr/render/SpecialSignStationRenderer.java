@@ -1,8 +1,8 @@
 package org.mtr.render;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.core.data.Station;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.tool.GuiHelper;
 
 import javax.annotation.Nullable;

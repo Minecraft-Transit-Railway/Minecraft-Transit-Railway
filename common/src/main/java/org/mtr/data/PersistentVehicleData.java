@@ -1,7 +1,5 @@
 package org.mtr.data;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.util.math.BlockPos;
 import org.mtr.client.Oscillation;
 import org.mtr.client.ScrollingText;
@@ -9,6 +7,8 @@ import org.mtr.core.data.TransportMode;
 import org.mtr.core.data.Vehicle;
 import org.mtr.core.data.VehicleCar;
 import org.mtr.core.data.VehicleExtraData;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.resource.VehicleResource;
 import org.mtr.sound.VehicleSoundBase;
 

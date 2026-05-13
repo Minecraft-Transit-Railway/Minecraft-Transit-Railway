@@ -1,6 +1,6 @@
 package org.mtr.tool;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 /**
  * Represents a registry that can be dynamically added to. Registered instances can be recreated by calling {@link DynamicReloadableRegistry#reload()}, for example during a resource reload event.

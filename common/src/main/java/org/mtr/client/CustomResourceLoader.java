@@ -1,6 +1,5 @@
 package org.mtr.client;
 
-import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;
@@ -10,6 +9,7 @@ import org.mtr.config.Config;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Utilities;
 import org.mtr.legacy.resource.CustomResourcesConverter;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.resource.*;
 
 import javax.annotation.Nullable;

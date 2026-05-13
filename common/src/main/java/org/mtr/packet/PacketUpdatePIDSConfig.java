@@ -1,12 +1,12 @@
 package org.mtr.packet;
 
-import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import org.mtr.MTR;
 import org.mtr.block.BlockPIDSBase;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 
 public final class PacketUpdatePIDSConfig extends PacketHandler {
 

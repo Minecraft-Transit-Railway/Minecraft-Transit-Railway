@@ -1,10 +1,10 @@
 package org.mtr.data;
 
-import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.world.PersistentState;
 import org.mtr.MTR;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 
 /**
  * This class is for storing extra world data that is not stored in Transport Simulation Core.
