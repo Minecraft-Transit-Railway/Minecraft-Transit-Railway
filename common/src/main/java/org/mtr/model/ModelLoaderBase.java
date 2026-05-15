@@ -14,6 +14,34 @@ import org.mtr.resource.*;
 import java.util.Comparator;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Shared infrastructure for the two concrete model loaders — {@link ObjModelLoader} and
+ * {@link BlockbenchModelLoader}.
+ *
+ * <p>Each loader is a single-use vessel: subclasses parse the model bytes (off the main
+ * thread when possible), populate {@link #nameToNewOptimizedModelGroup} and
+ * {@link #nameToRawModelDisplayParts}, then call {@link #setModelLoaded()}. The first call
+ * to one of the {@code get(...)} methods after that flag flips builds the corresponding
+ * {@code builtModel} cache; subsequent calls return the cached value.</p>
+ *
+ * <p>There are <b>two</b> parallel build paths, intentionally so:</p>
+ * <ol>
+ *   <li>{@link #get(ModelProperties, PositionDefinitions)} — the <b>vehicle</b> path. It
+ *       knows about floors, doorways, door mappings, conditional parts and display
+ *       surfaces, and returns a {@link BuiltVehicleModelHolder}.</li>
+ *   <li>{@link #get()} — the <b>non-vehicle</b> path used by {@code ObjectResource},
+ *       {@code RailResource} and similar. It collapses every named group into a single
+ *       {@code EXTERIOR}-stage blob.</li>
+ * </ol>
+ *
+ * <p>Calling the wrong accessor for a loader's intended use returns valid-but-meaningless
+ * data — see {@code docs/MIGRATIONS.md} §5 for the recommended consolidation.</p>
+ *
+ * <p><b>Threading:</b> {@link #addModel(String, NewOptimizedModelGroup)} and
+ * {@link #addModelDisplayParts(String, ObjectArrayList)} may be called from any thread.
+ * The {@code get(...)} methods must run on the render thread because they upload vertex
+ * buffers via {@link NewOptimizedModelGroup#build(net.minecraft.client.render.VertexFormat.DrawMode)}.</p>
+ */
 public abstract class ModelLoaderBase {
 
 	private boolean modelLoaded = false;

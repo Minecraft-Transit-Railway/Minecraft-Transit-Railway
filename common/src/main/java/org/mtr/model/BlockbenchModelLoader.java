@@ -20,6 +20,18 @@ import org.mtr.resource.GroupTransformations;
 
 import java.util.function.BiConsumer;
 
+/**
+ * Blockbench ({@code .bbmodel}) loader producing {@link NewOptimizedModelGroup}s indexed
+ * by outline name.
+ *
+ * <p>Blockbench's source format is a tree of named outlines containing transformed cuboid
+ * elements. This loader walks the tree, applies the parent-chain transforms via
+ * {@link GroupTransformations}, and emits one {@link NewOptimizedModelGroup} per outline so
+ * a vehicle's {@code modelProperties.json} can address parts by their outline name.</p>
+ *
+ * <p>Parsing runs entirely on
+ * {@link org.mtr.render.MainRenderer#WORKER_THREAD}'s virtual-thread executor.</p>
+ */
 public final class BlockbenchModelLoader extends ModelLoaderBase {
 
 	public BlockbenchModelLoader(Identifier defaultTexture) {

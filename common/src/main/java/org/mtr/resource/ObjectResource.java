@@ -13,6 +13,15 @@ import org.mtr.tool.Drawing;
 
 import java.util.function.Supplier;
 
+/**
+ * A static, non-vehicle decorative model placed in the world via an eyecandy block.
+ *
+ * <p>Compared to {@link VehicleResource}, an {@code ObjectResource} has no concept of
+ * doors, floors, or consist position — it's just a transformed mesh attached to a single
+ * texture, optionally tinted by {@link #getColor()}. The supplier-based lazy model load
+ * (see the {@code modelSupplier} field) defers the underlying mesh build until the first
+ * render request.</p>
+ */
 public final class ObjectResource extends ObjectResourceSchema implements StoredModelResourceBase {
 
 	public final boolean shouldPreload;

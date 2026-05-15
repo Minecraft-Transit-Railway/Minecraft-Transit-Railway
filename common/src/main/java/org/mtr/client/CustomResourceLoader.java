@@ -20,8 +20,29 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Vehicle resource loading and registration system.
- * Handles custom model and sound imports, validation, and runtime registration for vehicles and add-ons.
+ * Vehicle, sign, rail, object and lift resource loading and registration.
+ *
+ * <p>{@link #reload()} is the single entry point invoked on every Minecraft resource
+ * reload. It clears every static cache, then loads in this order:</p>
+ * <ol>
+ *   <li>The bundled default rail.</li>
+ *   <li>Every {@code mtr:mtr_custom_resources.json} found across active resource packs.
+ *       Each file goes through {@link org.mtr.legacy.resource.CustomResourcesConverter}
+ *       which transparently upgrades MTR 3.x format JSON to the current schema (see
+ *       {@code docs/MIGRATIONS.md} §1).</li>
+ *   <li>The temporary {@code mtr_custom_resources_pending_migration.json} manifest, which
+ *       holds bundled vehicles in the process of being moved to the new schema (see
+ *       {@code docs/MIGRATIONS.md} §2).</li>
+ *   <li>{@code mtrsteamloco}-namespaced rails and eyecandies, converted on the fly.</li>
+ *   <li>Validation pass and then a synchronous preload pass for resources matching the
+ *       user-configured preload pattern.</li>
+ * </ol>
+ *
+ * <p>All public accessors return defensive snapshots so callers may iterate freely without
+ * worrying about concurrent reloads.</p>
+ *
+ * <p>Performance notes for the load pipeline live in
+ * {@code docs/PERFORMANCE.md} §1.</p>
  */
 public class CustomResourceLoader {
 
@@ -57,6 +78,14 @@ public class CustomResourceLoader {
 		}
 	}
 
+	/**
+	 * Rebuild every resource cache from active resource packs.
+	 *
+	 * <p>Idempotent and safe to call from a Minecraft resource-reload listener. Heavy:
+	 * blocks the main thread for the full duration of OBJ / Blockbench parsing for every
+	 * vehicle, then again for the preload pass. See {@code docs/PERFORMANCE.md} §1 for the
+	 * detailed cost breakdown and proposed parallelisation.</p>
+	 */
 	public static void reload() {
 		MINECRAFT_MODEL_RESOURCES.clear();
 		MINECRAFT_TEXTURE_RESOURCES.clear();
@@ -186,10 +215,16 @@ public class CustomResourceLoader {
 		}
 	}
 
+	/** Visit every registered vehicle for the given transport mode. */
 	public static void iterateVehicles(TransportMode transportMode, Consumer<VehicleResource> consumer) {
 		VEHICLES.get(transportMode).forEach(consumer);
 	}
 
+	/**
+	 * Drop preview vehicles published by the resource-pack creator. Pass {@code ""} to
+	 * clear every creator-registered vehicle; pass a specific id to clear just that one.
+	 * Vehicles loaded from a resource pack are not affected.
+	 */
 	public static void clearCustomVehicles(String vehicleId) {
 		for (final TransportMode transportMode : TransportMode.values()) {
 			final ObjectArrayList<String> vehicleIdsToRemove = new ObjectArrayList<>();
@@ -214,6 +249,11 @@ public class CustomResourceLoader {
 		registerVehicle(vehicleResource, true);
 	}
 
+	/**
+	 * Resolve a vehicle by id within the given transport mode, invoking the callback only
+	 * if a match exists. The callback receives a {@code (resource, fromResourcePackCreator)}
+	 * pair so callers can distinguish creator previews from on-disk packs.
+	 */
 	public static void getVehicleById(TransportMode transportMode, String vehicleId, Consumer<ObjectBooleanImmutablePair<VehicleResource>> ifPresent) {
 		final ObjectBooleanImmutablePair<VehicleResource> vehicleResourceDetails = VEHICLES_CACHE.get(transportMode).get(vehicleId);
 		if (vehicleResourceDetails != null) {
@@ -221,6 +261,11 @@ public class CustomResourceLoader {
 		}
 	}
 
+	/**
+	 * @return the tag-organised vehicle index for the given transport mode:
+	 *         {@code tagKey -> tagValue -> [vehicleId, ...]}. Used by the dashboard's tag
+	 *         filter.
+	 */
 	public static Object2ObjectAVLTreeMap<String, Object2ObjectAVLTreeMap<String, ObjectArrayList<String>>> getVehicleTags(TransportMode transportMode) {
 		return VEHICLES_TAGS.get(transportMode);
 	}

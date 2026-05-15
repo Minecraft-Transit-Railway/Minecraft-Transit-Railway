@@ -14,6 +14,23 @@ import org.mtr.model.ObjModelLoader;
 import org.mtr.render.MainRenderer;
 import org.mtr.render.StoredMatrixTransformations;
 
+/**
+ * Mixin for {@code Resource} types that hold a single decorative model — currently
+ * {@link ObjectResource} and {@link RailResource}.
+ *
+ * <p>Provides:</p>
+ * <ul>
+ *   <li>{@link #load(String, String, boolean, double, ResourceProvider)} — the same
+ *       OBJ / Blockbench dispatch as
+ *       {@link VehicleModel#getModelLoaderBase(String, String, ResourceProvider, boolean)}.
+ *       The duplication is tracked in {@code docs/MIGRATIONS.md} §6.</li>
+ *   <li>{@link #render(StoredMatrixTransformations, int)} — default render hook that
+ *       forwards into {@link MainRenderer#renderModel(Object2ObjectOpenHashMap,
+ *       StoredMatrixTransformations, int)} using the cached optimised model.</li>
+ *   <li>{@link #preload()} — currently a {@code // TODO} no-op; see
+ *       {@code docs/MIGRATIONS.md} §7.</li>
+ * </ul>
+ */
 public interface StoredModelResourceBase {
 
 	@Nullable

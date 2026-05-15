@@ -22,6 +22,21 @@ import org.mtr.tool.RouteHelper;
 
 import java.util.Locale;
 
+/**
+ * Procedural texture generator for station names, route maps, exit signs, direction
+ * arrows, and every other "text on a sign" surface in the world.
+ *
+ * <p>Every {@code generate*} method here returns a freshly-allocated
+ * {@link net.minecraft.client.texture.NativeImage} that the caller is expected to wrap in
+ * a texture binding (via {@link DynamicTextureCache#getResource} — see callers of this
+ * class). The methods themselves are pure (no caching, no global state mutation beyond
+ * the {@link #setConstants()} helper).</p>
+ *
+ * <p>The output resolution is controlled by the dynamic-texture-resolution config knob via
+ * {@link #setConstants()} and the local {@link #scale} / {@link #lineSize} fields. Higher
+ * resolutions multiply CPU cost by 4× per step — see {@code docs/PERFORMANCE.md} §2 for
+ * the broader budget.</p>
+ */
 public class RouteMapGenerator implements IGui {
 
 	private static int scale;
@@ -38,6 +53,14 @@ public class RouteMapGenerator implements IGui {
 	private static final String CIRCLE_RESOURCE = "textures/block/sign/circle.png";
 	private static final int PIXEL_RESOLUTION = 24;
 
+	/**
+	 * Recompute {@link #scale}, {@link #lineSize}, {@link #lineSpacing}, {@link #fontSizeBig}
+	 * and {@link #fontSizeSmall} from the current
+	 * {@code Config.getClient().getDynamicTextureResolution()} value.
+	 *
+	 * <p>Currently called from {@link DynamicTextureCache#getResource} on every request —
+	 * see {@code docs/PERFORMANCE.md} §4.4 for the proposed caching change.</p>
+	 */
 	public static void setConstants() {
 		scale = (int) Math.pow(2, Config.getClient().getDynamicTextureResolution() + 5);
 		lineSize = scale / 8;

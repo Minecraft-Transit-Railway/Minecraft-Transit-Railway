@@ -14,7 +14,27 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
- * A background thread to perform intensive rendering tasks (e.g. Occlusion culling, generate dynamic textures etc.)
+ * Background thread driving the off-main-thread part of every frame.
+ *
+ * <p>The thread owns four single-slot inboxes:</p>
+ * <ul>
+ *   <li>Three for occlusion-culling work (vehicles / lifts / rails), each refreshed every
+ *       frame from the corresponding renderer.</li>
+ *   <li>One for dynamic-texture generation, fed by {@link org.mtr.client.DynamicTextureCache}.</li>
+ * </ul>
+ *
+ * <p>The loop wakes every {@code 10 ms}, drains whichever slots are non-null, and goes back
+ * to sleep. {@link #start()} is idempotent — the loop is launched once on first call and
+ * survives until {@link MinecraftClient#isRunning()} returns {@code false}.</p>
+ *
+ * <p><b>Known limitation:</b> all four inboxes are
+ * {@link java.util.concurrent.atomic.AtomicReference}s, so {@code set(...)} overwrites any
+ * pending runnable. For the dynamic-texture queue this manifests as "textures pop in one
+ * per frame when many are requested at once" — tracked in
+ * {@code docs/PERFORMANCE.md} §2.1.</p>
+ *
+ * <p>The {@link #worker} executor is a {@code newVirtualThreadPerTaskExecutor}, suitable for
+ * one-shot async submissions (model parsing, IO-bound resource decoding).</p>
  */
 public final class WorkerThread {
 
@@ -32,6 +52,12 @@ public final class WorkerThread {
 
 	private static final int COOLDOWN = 100;
 
+	/**
+	 * Idempotent loop launcher. Called once per frame from
+	 * {@link org.mtr.render.MainRenderer#render}; the loop body only spawns the first time
+	 * and then re-arms after a {@value #COOLDOWN}-tick idle period to recover from a
+	 * Minecraft client restart without leaking the thread.
+	 */
 	public void start() {
 		if (canStart && isRunning()) {
 			canStart = false;
@@ -67,22 +93,36 @@ public final class WorkerThread {
 		}
 	}
 
+	/** Stops the loop and cancels any in-flight virtual-thread submissions. */
 	public void shutdown() {
 		worker.shutdownNow();
 	}
 
+	/**
+	 * Replace the pending vehicle-culling task. Overwrites any previous task that has not
+	 * yet been picked up by the worker loop — only the most recent submission per frame
+	 * will run.
+	 */
 	public void scheduleVehicles(Consumer<OcclusionCullingInstance> consumer) {
 		occlusionQueueVehicle.set(consumer);
 	}
 
+	/** See {@link #scheduleVehicles(Consumer)}. */
 	public void scheduleLifts(Consumer<OcclusionCullingInstance> consumer) {
 		occlusionQueueLift.set(consumer);
 	}
 
+	/** See {@link #scheduleVehicles(Consumer)}. */
 	public void scheduleRails(Consumer<OcclusionCullingInstance> consumer) {
 		occlusionQueueRail.set(consumer);
 	}
 
+	/**
+	 * Replace the pending dynamic-texture-generation task.
+	 *
+	 * <p><b>Caveat:</b> single-slot queue — overwrites any previous pending task. See the
+	 * class-level note and {@code docs/PERFORMANCE.md} §2.1.</p>
+	 */
 	public void scheduleDynamicTextures(Runnable runnable) {
 		dynamicTextureQueue.set(runnable);
 	}

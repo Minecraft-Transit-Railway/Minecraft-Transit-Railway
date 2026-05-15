@@ -408,6 +408,7 @@ nothing happen?" debugging tractable months later.
 - Runtime and packaging usage: [`RUNNING.md`](RUNNING.md).
 - Schema and generated-code workflow: [`SCHEMA.md`](SCHEMA.md).
 - Performance findings and frame-time backlog: [`PERFORMANCE.md`](PERFORMANCE.md).
+- Active migrations / mid-refactor tech debt: [`MIGRATIONS.md`](MIGRATIONS.md).
 - In-flight style / refactor follow-ups and completed-work log: [`PENDING.md`](PENDING.md).
 - Keep the top-level [`README.md`](../README.md) as a concise project overview and route
   deep operational details into `docs/`.

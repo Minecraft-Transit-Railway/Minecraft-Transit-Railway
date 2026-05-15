@@ -26,6 +26,28 @@ import org.mtr.sound.VehicleSoundBase;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+/**
+ * The mod-side representation of one custom vehicle definition.
+ *
+ * <p>Each instance ties together everything the renderer needs for a vehicle id:</p>
+ * <ul>
+ *   <li>The body model definitions ({@link #models}) plus per-bogie models
+ *       ({@link #bogie1Models}, {@link #bogie2Models}).</li>
+ *   <li>Optional position-dependent expansion via the legacy
+ *       {@link LegacyVehicleSupplier#apply(int, int) carNumber / totalCars} hook (see
+ *       {@code docs/MIGRATIONS.md} §9).</li>
+ *   <li>The sound system, lazily built by {@link #createVehicleSoundBase} — either
+ *       {@link org.mtr.sound.BveVehicleSound} or {@link org.mtr.sound.LegacyVehicleSound}
+ *       depending on whether {@code bveSoundBaseResource} is set.</li>
+ *   <li>Cached, fully-built {@link VehicleResourceCache} instances indexed by
+ *       {@code (carNumber, totalCars)} so a vehicle composed of mixed cab/trailer cars
+ *       doesn't rebuild meshes on every render call.</li>
+ * </ul>
+ *
+ * <p>Constructed by {@link org.mtr.client.CustomResourceLoader} during resource reload.
+ * Construction is cheap; the heavy mesh build is deferred to
+ * {@link #getCachedVehicleResource(int, int)}.</p>
+ */
 public final class VehicleResource extends VehicleResourceSchema {
 
 	public final Supplier<VehicleSoundBase> createVehicleSoundBase;
@@ -129,6 +151,18 @@ public final class VehicleResource extends VehicleResourceSchema {
 		return resourceProvider;
 	}
 
+	/**
+	 * Look up (or build, on first call) the fully-resolved mesh / floor / doorway data for
+	 * a vehicle car in a particular consist position.
+	 *
+	 * <p>Results are memoised per {@code (carNumber, totalCars)} pair. If no legacy
+	 * supplier is attached, both inputs are coerced to {@code 0} — the new schema lets a
+	 * vehicle express position-dependence directly in its model list, so the legacy
+	 * dispatch is unused.</p>
+	 *
+	 * @return the cached / freshly-built resource, or {@code null} if any underlying model
+	 *         is still parsing on the worker thread (the caller should retry next frame).
+	 */
 	@Nullable
 	public VehicleResourceCache getCachedVehicleResource(int carNumber, int totalCars) {
 		final int newCarNumber = extraModelsSupplier == null ? 0 : carNumber;
@@ -148,6 +182,17 @@ public final class VehicleResource extends VehicleResourceSchema {
 		}
 	}
 
+	/**
+	 * Schedule a bogie render against the given transform stack. The bogie meshes are
+	 * loaded via the {@code carNumber=0 totalCars=1} cache slot; bogies are not allowed to
+	 * vary by consist position.
+	 *
+	 * @param bogieIndex                  {@code 0} for the front bogie, {@code 1} for the rear
+	 * @param storedMatrixTransformations the per-instance transform
+	 * @param vehicle                     the vehicle being drawn (for door state etc.)
+	 * @param isWithinHalfRenderDistance  used by part filtering to cull interior detail
+	 * @param light                       packed lightmap value
+	 */
 	public void queueBogie(int bogieIndex, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, boolean isWithinHalfRenderDistance, int light) {
 		final VehicleResourceCache vehicleResourceCache = getCachedVehicleResource(0, 1);
 		if (vehicleResourceCache != null && Utilities.isBetween(bogieIndex, 0, 1)) {
@@ -371,6 +416,13 @@ public final class VehicleResource extends VehicleResourceSchema {
 		}
 	}
 
+	/**
+	 * Functional interface used by the legacy MTR 3.x format to inject extra car models
+	 * dependent on consist position. New-schema vehicles return {@code null} for this
+	 * supplier and express position-dependence directly through their {@code models} list.
+	 *
+	 * <p>See {@code docs/MIGRATIONS.md} §9.</p>
+	 */
 	@FunctionalInterface
 	public interface LegacyVehicleSupplier<T> {
 		T apply(int carNumber, int totalCars);

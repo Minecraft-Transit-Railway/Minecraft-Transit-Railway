@@ -18,6 +18,18 @@ import org.mtr.model.ObjModelLoader;
 
 import java.util.function.Supplier;
 
+/**
+ * One model entry inside a {@link VehicleResource}: an OBJ or Blockbench mesh paired with
+ * its texture, model-properties file and position-definitions file.
+ *
+ * <p>Each {@code VehicleModel} owns a {@link ModelLoaderBase} instance that parses the mesh
+ * on construction (currently eagerly — see {@code docs/PERFORMANCE.md} §1.3 for the lazy
+ * variant). The built result is exposed lazily through {@link #builtVehicleModelHolderSupplier}.</p>
+ *
+ * <p>The model-properties JSON declares the parts (body / door / display / floor / doorway),
+ * while the position-definitions JSON declares the named anchor points the parts hang off.
+ * Together they let one Blockbench file power many variants — see {@link ModelProperties}.</p>
+ */
 public final class VehicleModel extends VehicleModelSchema {
 
 	final Supplier<@Nullable BuiltVehicleModelHolder> builtVehicleModelHolderSupplier;
@@ -67,14 +79,27 @@ public final class VehicleModel extends VehicleModelSchema {
 		builtVehicleModelHolderSupplier = createModelSupplier(modelPropertiesJsonReader, positionDefinitionsJsonReader);
 	}
 
+	/**
+	 * Reset the underlying mesh build so the next call to
+	 * {@link #builtVehicleModelHolderSupplier} re-parses. Called during resource reload.
+	 */
 	public void reset() {
 		modelLoaderBase.reset();
 	}
 
+	/**
+	 * @return a flattened wrapper suitable for handing to the resource-pack-creator over
+	 *         the wire — drops live loader state, keeps the addressing strings.
+	 */
 	public MinecraftModelResource getAsMinecraftResource() {
 		return new MinecraftModelResource(modelResource, modelPropertiesResource, positionDefinitionsResource);
 	}
 
+	/**
+	 * Collect every texture path referenced by this model into the given set (the body
+	 * texture plus any gangway / barrier panel textures referenced by the model-properties
+	 * JSON).
+	 */
 	public void addToTextureResource(ObjectArraySet<String> textureResources) {
 		final ModelProperties modelProperties = new ModelProperties(modelPropertiesJsonReader);
 		if (modelProperties.gangwayInnerSideTexture != null) {
@@ -130,6 +155,18 @@ public final class VehicleModel extends VehicleModelSchema {
 		return () -> modelLoaderBase.get(modelProperties, positionDefinitions);
 	}
 
+	/**
+	 * Build a concrete {@link ModelLoaderBase} for a given model resource path. Dispatches
+	 * on the file extension:
+	 * <ul>
+	 *   <li>{@code .bbmodel} → {@link BlockbenchModelLoader}</li>
+	 *   <li>{@code .obj}     → {@link ObjModelLoader}</li>
+	 *   <li>anything else    → an empty Blockbench loader, with an error logged</li>
+	 * </ul>
+	 *
+	 * <p>This logic is duplicated in {@link StoredModelResourceBase#load(String, String, boolean, double, ResourceProvider)};
+	 * see {@code docs/MIGRATIONS.md} §6 for the consolidation plan.</p>
+	 */
 	public static ModelLoaderBase getModelLoaderBase(String modelResource, String textureResource, ResourceProvider resourceProvider, boolean flipTextureV) {
 		final Identifier texture = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
 		final ModelLoaderBase modelLoaderBase;

@@ -17,12 +17,50 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.function.Function;
 
+/**
+ * Wavefront OBJ loader producing {@link NewOptimizedModelGroup}s grouped by material.
+ *
+ * <p>Parsing flow:</p>
+ * <ol>
+ *   <li>{@link #loadModel(String, java.util.function.Function, java.util.function.Function, boolean, boolean)}
+ *       parses the {@code .obj} body and any referenced {@code .mtl} files on the calling
+ *       thread, then hands the heavy face → vertex walk to
+ *       {@link org.mtr.render.MainRenderer#WORKER_THREAD}'s virtual-thread executor.</li>
+ *   <li>{@link ObjSplitting#splitByGroups} produces one group per OBJ group when
+ *       {@code splitModel = true} (vehicles); otherwise a single unnamed group is emitted
+ *       (rails / decorative objects).</li>
+ *   <li>{@link ObjSplitting#splitByMaterialGroups} then splits each group again per
+ *       material, with a custom suffix parser ({@link #splitMaterialOptions(String)}) that
+ *       lets the author encode render-stage hints (e.g.
+ *       {@code body#light}, {@code window#interior_translucent}) directly into material
+ *       names.</li>
+ * </ol>
+ *
+ * <p>See {@code docs/PERFORMANCE.md} §1.2 for the planned move of {@code ObjReader.read}
+ * itself onto the worker thread.</p>
+ */
 public final class ObjModelLoader extends ModelLoaderBase {
 
 	public ObjModelLoader(Identifier defaultTexture) {
 		super(defaultTexture, VertexFormat.DrawMode.TRIANGLES);
 	}
 
+	/**
+	 * Parse an OBJ source and submit its mesh-build to the worker thread.
+	 *
+	 * @param objString       raw OBJ file text
+	 * @param mtlResolver     given an MTL file name (as it appears in {@code mtllib}),
+	 *                        return its contents
+	 * @param textureResolver given a texture path (as it appears in {@code map_Kd} or as
+	 *                        the material group name when no MTL is supplied), return the
+	 *                        Minecraft {@link Identifier} to bind
+	 * @param splitModel      {@code true} to emit one group per OBJ {@code g} group
+	 *                        (vehicles); {@code false} to merge all groups into one
+	 *                        (rails / objects)
+	 * @param flipTextureV    {@code true} to invert the V coordinate during vertex
+	 *                        emission, for textures authored with the origin in the
+	 *                        opposite corner
+	 */
 	public void loadModel(String objString, Function<String, String> mtlResolver, Function<String, Identifier> textureResolver, boolean splitModel, boolean flipTextureV) {
 		if (canLoadModel()) {
 			try {
